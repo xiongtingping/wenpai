@@ -11,9 +11,11 @@ import readline from 'readline';
 
 // 错误的App ID列表
 const WRONG_APP_IDS = [
-  '68823897631e1ef8ff3720b2',
-  '68823897631e1ef8ff3720b2',
-  'rzcswqs4sq0f.authing.cn'
+  '68823897631e1ef8ff3720b2',  // 用户报告的错误ID
+  '68823897631e1ef8ff3720b2',  // 历史遗留错误ID
+  '68823897631e1ef8ff3720b2',      // 错误域名
+  '68823897631e1ef8ff3720b2',         // 错误域名
+  '68823897631e1ef8ff3720b2' // 错误域名
 ];
 
 // 正确的配置

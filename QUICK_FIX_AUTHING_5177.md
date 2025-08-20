@@ -39,7 +39,7 @@ http://localhost:5177/
 
 2. **检查网络连接**：
    ```bash
-   curl -I https://qutkgzkfaezk-demo.authing.cn
+   curl -I https://68823897631e1ef8ff3720b2
    ```
 
 3. **验证回调地址**：

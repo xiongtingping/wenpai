@@ -25,13 +25,13 @@ chmod +x fix-network-and-api.sh
 #### 手动网络检查
 ```bash
 # 检查网络连接
-ping -c 3 qutkgzkfaezk-demo.authing.cn
+ping -c 3 68823897631e1ef8ff3720b2
 
 # 检查DNS解析
-nslookup qutkgzkfaezk-demo.authing.cn
+nslookup 68823897631e1ef8ff3720b2
 
 # 检查端口连接
-telnet qutkgzkfaezk-demo.authing.cn 443
+telnet 68823897631e1ef8ff3720b2 443
 ```
 
 ### 2. API密钥配置
@@ -42,7 +42,7 @@ telnet qutkgzkfaezk-demo.authing.cn 443
 ```bash
 # Authing配置
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
-VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
+VITE_AUTHING_HOST=https://68823897631e1ef8ff3720b2
 
 # AI API配置（请替换为真实密钥）
 VITE_OPENAI_API_KEY=sk-your-openai-api-key-here

@@ -74,7 +74,7 @@
 ```javascript
 const guard = new window.GuardFactory.Guard({
     appId: '68823897631e1ef8ff3720b2',
-    host: 'https://qutkgzkfaezk-demo.authing.cn',
+    host: 'https://68823897631e1ef8ff3720b2',
     redirectUri: window.location.origin + '/callback',
     mode: 'modal',
     // 官方回调配置

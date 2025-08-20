@@ -34,7 +34,7 @@
 ### 配置状态
 ```env
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
-VITE_AUTHING_HOST=wenpai.authing.cn
+VITE_AUTHING_HOST=68823897631e1ef8ff3720b2
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:8888/callback
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 ```
@@ -56,7 +56,7 @@ VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 
 请确保 Authing 控制台中的配置为：
 - **回调地址**: `http://localhost:8888/callback`
-- **应用域名**: `wenpai.authing.cn`
+- **应用域名**: `68823897631e1ef8ff3720b2`
 
 ## 📋 功能对比
 
@@ -73,7 +73,7 @@ VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 1. **开发环境**: 使用 `http://localhost:8888`
 2. **生产环境**: 自动使用 `https://www.wenpai.xyz/callback`
 3. **端口说明**: 8888 是 Netlify dev 服务端口，提供完整功能
-4. **Authing 域名**: 如果 `wenpai.authing.cn` 不可访问，可能需要检查域名配置
+4. **Authing 域名**: 如果 `68823897631e1ef8ff3720b2` 不可访问，可能需要检查域名配置
 
 ## 🎊 总结
 

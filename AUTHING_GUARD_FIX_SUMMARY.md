@@ -187,7 +187,7 @@ const newGuard = new window.GuardFactory.Guard({
 
 Authing 配置正确：
 - `appId`: 68823897631e1ef8ff3720b2
-- `host`: https://qutkgzkfaezk-demo.authing.cn
+- `host`: https://68823897631e1ef8ff3720b2
 - `mode`: modal
 - `redirectUri`: 正确设置
 

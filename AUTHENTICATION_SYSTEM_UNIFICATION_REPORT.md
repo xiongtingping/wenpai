@@ -10,9 +10,9 @@
 
 ### 1. 多个Authing应用配置冲突
 ```
-❌ .env 文件: App ID 68823897631e1ef8ff3720b2, 域名 qutkgzkfaezk-demo.authing.cn
-❌ .env.local 文件: App ID 68823897631e1ef8ff3720b2, 域名 aiwenpai.authing.cn  
-❌ netlify.toml 文件: App ID 68823897631e1ef8ff3720b2, 域名 aiwenpai.authing.cn
+❌ .env 文件: App ID 68823897631e1ef8ff3720b2, 域名 68823897631e1ef8ff3720b2
+❌ .env.local 文件: App ID 68823897631e1ef8ff3720b2, 域名 ai68823897631e1ef8ff3720b2  
+❌ netlify.toml 文件: App ID 68823897631e1ef8ff3720b2, 域名 ai68823897631e1ef8ff3720b2
 ```
 
 ### 2. 多个环境变量文件冲突
@@ -48,13 +48,13 @@
 ```bash
 # .env 文件 - 统一配置
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
-VITE_AUTHING_HOST=aiwenpai.authing.cn
+VITE_AUTHING_HOST=ai68823897631e1ef8ff3720b2
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
 VITE_AUTHING_REDIRECT_URI_PROD=https://wenpai.netlify.app/callback
 
 # .env.local 文件 - 开发环境配置
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
-VITE_AUTHING_HOST=aiwenpai.authing.cn
+VITE_AUTHING_HOST=ai68823897631e1ef8ff3720b2
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
 VITE_AUTHING_REDIRECT_URI_PROD=https://wenpai.netlify.app/callback
 ```
@@ -102,7 +102,7 @@ return {
 ## 🔧 技术改进
 
 ### 1. 配置管理统一
-- ✅ **单一Authing应用**: 统一使用`aiwenpai.authing.cn`
+- ✅ **单一Authing应用**: 统一使用`ai68823897631e1ef8ff3720b2`
 - ✅ **环境变量清理**: 删除冗余配置文件
 - ✅ **配置优先级**: 明确`.env.local` > `.env` > `netlify.toml`
 
@@ -132,7 +132,7 @@ return {
 ### 认证系统架构
 ```
 ✅ 统一认证系统: UnifiedAuthContext
-✅ 统一配置管理: aiwenpai.authing.cn
+✅ 统一配置管理: ai68823897631e1ef8ff3720b2
 ✅ 统一端口配置: 5173
 ✅ 统一环境变量: 2个文件
 ✅ 类型安全: 完整的TypeScript定义

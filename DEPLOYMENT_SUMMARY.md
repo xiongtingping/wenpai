@@ -28,7 +28,7 @@
 
 ### Authing 配置
 - **App ID**: `68823897631e1ef8ff3720b2`
-- **Host**: `https://qutkgzkfaezk-demo.authing.cn`
+- **Host**: `https://68823897631e1ef8ff3720b2`
 - **生产环境回调**: `https://www.wenpai.xyz/callback`
 
 ### 域名配置
@@ -53,7 +53,7 @@
 在 Netlify 控制台 → Site settings → Environment variables 中添加：
 ```
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
-VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
+VITE_AUTHING_HOST=https://68823897631e1ef8ff3720b2
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 ```
 

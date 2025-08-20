@@ -25,7 +25,7 @@
 ### Authing配置
 ```
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
-VITE_AUTHING_HOST=qutkgzkfaezk-demo.authing.cn
+VITE_AUTHING_HOST=68823897631e1ef8ff3720b2
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 ```
@@ -78,7 +78,7 @@ VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
    - 不要使用逗号(,)
 
 3. **网络连接**
-   - 确认可以访问 `qutkgzkfaezk-demo.authing.cn`
+   - 确认可以访问 `68823897631e1ef8ff3720b2`
    - 检查防火墙设置
 
 ## 📝 修复脚本

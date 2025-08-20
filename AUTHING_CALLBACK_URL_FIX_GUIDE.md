@@ -8,7 +8,7 @@ error_description: redirect_uri 不在白名单内，请前往控制台『应用
 ```
 
 ## 问题原因
-1. Authing 域名配置错误：使用了 `wenpai.authing.cn` 而不是 `qutkgzkfaezk-demo.authing.cn`
+1. Authing 域名配置错误：使用了 `68823897631e1ef8ff3720b2` 而不是 `68823897631e1ef8ff3720b2`
 2. 回调 URL 未在 Authing 控制台白名单中配置
 
 ## 已修复的配置
@@ -17,7 +17,7 @@ error_description: redirect_uri 不在白名单内，请前往控制台『应用
 ```bash
 # 正确的Authing配置
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
-VITE_AUTHING_HOST=qutkgzkfaezk-demo.authing.cn
+VITE_AUTHING_HOST=68823897631e1ef8ff3720b2
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 ```

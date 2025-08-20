@@ -12,7 +12,7 @@
 
 从日志中发现 Authing 配置使用了错误的域名：
 ```
-host: 'wenpai.authing.cn'  // ❌ 错误域名
+host: '68823897631e1ef8ff3720b2'  // ❌ 错误域名
 ```
 
 应该使用：
@@ -28,7 +28,7 @@ host: 'rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2'  // ✅ 正确域名
 
 **修改前**:
 ```bash
-VITE_AUTHING_HOST=wenpai.authing.cn
+VITE_AUTHING_HOST=68823897631e1ef8ff3720b2
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
 ```
 
@@ -82,7 +82,7 @@ http://localhost:5173/
 - **回调地址**: `http://localhost:5173/`
 
 ### 错误的配置
-- **Host**: `wenpai.authing.cn` ❌
+- **Host**: `68823897631e1ef8ff3720b2` ❌
 - **回调地址**: `http://localhost:5173/callback` ❌
 
 ## 🎉 预期结果

@@ -5,7 +5,7 @@
 用户点击"创意魔方"按钮时遇到Authing连接问题：
 ```
 无法访问此网站
-qutkgzkfaezk-demo.authing.cn 意外终止了连接。
+68823897631e1ef8ff3720b2 意外终止了连接。
 ERR_CONNECTION_CLOSED
 ```
 
@@ -23,7 +23,7 @@ ERR_CONNECTION_CLOSED
 // 检查Authing服务可用性
 const checkAuthingService = async () => {
   try {
-    const response = await fetch('https://qutkgzkfaezk-demo.authing.cn/api/v2/applications/68823897631e1ef8ff3720b2/public-config', {
+    const response = await fetch('https://68823897631e1ef8ff3720b2/api/v2/applications/68823897631e1ef8ff3720b2/public-config', {
       method: 'GET',
       signal: AbortSignal.timeout(3000) // 3秒超时
     });

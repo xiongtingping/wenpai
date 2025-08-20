@@ -65,7 +65,7 @@ http://localhost:5173/callback
 配置完成后，测试登录流程：
 
 1. 点击首页"开始创作"按钮
-2. 应该跳转到：`https://wenpai.authing.cn/login?app_id=68823897631e1ef8ff3720b2&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback`
+2. 应该跳转到：`https://68823897631e1ef8ff3720b2/login?app_id=68823897631e1ef8ff3720b2&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback`
 3. 登录成功后应该跳转到：`http://localhost:5173/callback?code=...&state=...`
 
 ## 常见问题

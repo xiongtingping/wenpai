@@ -16,7 +16,7 @@
 - **旧App ID 1**: `687e0aafee2b84f86685b644`
 - **旧App ID 2**: `6867fdc88034eb95ae86167d`
 - **旧域名 1**: `rzcswqs4sq0f.authing.cn`
-- **旧域名 2**: `qutkgzkfaezk-demo.authing.cn`
+- **旧域名 2**: `68823897631e1ef8ff3720b2`
 
 ## 🔧 已更新的文件
 

@@ -29,7 +29,7 @@
 ```bash
 # Authing配置
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
-VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
+VITE_AUTHING_HOST=https://68823897631e1ef8ff3720b2
 
 # OpenAI配置 (请替换为真实密钥)
 VITE_OPENAI_API_KEY=sk-your-real-openai-api-key-here

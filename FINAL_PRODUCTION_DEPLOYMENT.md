@@ -84,7 +84,7 @@ GEMINI_API_KEY=your-gemini-api-key-here
 
 # Authing配置
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
-VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
+VITE_AUTHING_HOST=https://68823897631e1ef8ff3720b2
 ```
 
 ### Netlify配置

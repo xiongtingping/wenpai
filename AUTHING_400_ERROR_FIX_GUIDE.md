@@ -3,7 +3,7 @@
 ## 问题描述
 登录时出现 400 Bad Request 错误：
 ```
-GET https://qutkgzkfaezk-demo.authing.cn/oidc/auth?client_id=68823897631e1ef8ff3720b2&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback&scope=openid+profile+email+phone&response_type=code&state=%2Fcreative 400 (Bad Request)
+GET https://68823897631e1ef8ff3720b2/oidc/auth?client_id=68823897631e1ef8ff3720b2&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback&scope=openid+profile+email+phone&response_type=code&state=%2Fcreative 400 (Bad Request)
 ```
 
 ## 问题原因分析
@@ -16,7 +16,7 @@ GET https://qutkgzkfaezk-demo.authing.cn/oidc/auth?client_id=68823897631e1ef8ff3
 
 ## 当前配置
 - 应用ID: `68823897631e1ef8ff3720b2`
-- 域名: `qutkgzkfaezk-demo.authing.cn`
+- 域名: `68823897631e1ef8ff3720b2`
 - 回调URL: `http://localhost:5173/callback`
 
 ## 修复步骤
@@ -83,7 +83,7 @@ GET https://qutkgzkfaezk-demo.authing.cn/oidc/auth?client_id=68823897631e1ef8ff3
 ```bash
 # 获取新应用ID后更新
 VITE_AUTHING_APP_ID=新的应用ID
-VITE_AUTHING_HOST=qutkgzkfaezk-demo.authing.cn
+VITE_AUTHING_HOST=68823897631e1ef8ff3720b2
 ```
 
 ### 5. 验证配置

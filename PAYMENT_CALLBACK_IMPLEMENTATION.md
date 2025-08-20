@@ -302,7 +302,7 @@ const paymentLog = {
 # Authing配置
 AUTHING_USER_POOL_ID=68823897631e1ef8ff3720b2
 AUTHING_SECRET=your-authing-secret-key
-AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
+AUTHING_HOST=https://68823897631e1ef8ff3720b2
 
 # 支付宝配置
 ALIPAY_APP_ID=your-alipay-app-id

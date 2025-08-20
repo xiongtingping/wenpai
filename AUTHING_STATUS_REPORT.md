@@ -10,7 +10,7 @@
 
 ### 1. 核心配置
 - ✅ **App ID**: `68823897631e1ef8ff3720b2`
-- ✅ **Host**: `https://qutkgzkfaezk-demo.authing.cn`
+- ✅ **Host**: `https://68823897631e1ef8ff3720b2`
 - ✅ **开发环境回调**: `http://localhost:5173/callback`
 - ✅ **生产环境回调**: `https://www.wenpai.xyz/callback`
 
@@ -45,7 +45,7 @@
 ```typescript
 const devConfig: AuthingConfig = {
   appId: '68823897631e1ef8ff3720b2',
-  host: 'https://qutkgzkfaezk-demo.authing.cn',
+  host: 'https://68823897631e1ef8ff3720b2',
   redirectUri: 'http://localhost:5173/callback',
   mode: 'modal',
   defaultScene: 'login',
@@ -56,7 +56,7 @@ const devConfig: AuthingConfig = {
 ```typescript
 const prodConfig: AuthingConfig = {
   appId: '68823897631e1ef8ff3720b2',
-  host: 'https://qutkgzkfaezk-demo.authing.cn',
+  host: 'https://68823897631e1ef8ff3720b2',
   redirectUri: 'https://www.wenpai.xyz/callback',
   mode: 'modal',
   defaultScene: 'login',
@@ -67,7 +67,7 @@ const prodConfig: AuthingConfig = {
 ```bash
 # Authing 配置
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
-VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
+VITE_AUTHING_HOST=https://68823897631e1ef8ff3720b2
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 ```

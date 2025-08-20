@@ -21,7 +21,7 @@ Error: redirect
 ## 🔍 问题分析
 
 ### 根本原因
-1. **域名不匹配**: Authing 尝试重定向到 `https://wenpai.authing.cn`，但应用运行在 `http://localhost:5173`
+1. **域名不匹配**: Authing 尝试重定向到 `https://68823897631e1ef8ff3720b2`，但应用运行在 `http://localhost:5173`
 2. **配置错误**: Authing 应用配置中的回调 URL 和允许的 Web 起源设置不正确
 3. **应用 ID 不匹配**: 配置中的应用 ID 与实际 Authing 应用不匹配
 
@@ -62,7 +62,7 @@ Error: redirect
 - **进入**: 应用配置 -> 应用信息
 - **检查配置**:
   - 应用 ID: `68823897631e1ef8ff3720b2`
-  - 应用域名: `https://wenpai.authing.cn`
+  - 应用域名: `https://68823897631e1ef8ff3720b2`
   - 登录回调 URL: `http://localhost:5173/callback`
   - 登出回调 URL: `http://localhost:5173`
 
@@ -84,7 +84,7 @@ Error: redirect
 | 项目 | 修复前 | 修复后 |
 |------|--------|--------|
 | Authing 应用 ID | offline-mode | 68823897631e1ef8ff3720b2 |
-| Authing 域名 | offline | https://wenpai.authing.cn |
+| Authing 域名 | offline | https://68823897631e1ef8ff3720b2 |
 | 回调 URL | 错误 | http://localhost:5173/callback |
 | 重定向错误 | ❌ 存在 | ✅ 已修复 |
 | 应用状态 | ❌ 异常 | ✅ 正常 |
@@ -100,7 +100,7 @@ Error: redirect
 
 ### 重定向流程
 1. 用户点击登录按钮
-2. 应用跳转到 `https://wenpai.authing.cn/login`
+2. 应用跳转到 `https://68823897631e1ef8ff3720b2/login`
 3. 用户在 Authing 完成登录
 4. Authing 重定向到 `http://localhost:5173/callback`
 5. 应用处理回调，设置用户状态
@@ -111,7 +111,7 @@ Error: redirect
 cat .env | grep AUTHING
 
 # 验证 Authing 连接
-curl -I https://wenpai.authing.cn
+curl -I https://68823897631e1ef8ff3720b2
 ```
 
 ## 📝 注意事项

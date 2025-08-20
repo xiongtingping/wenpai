@@ -91,7 +91,7 @@
 // UserEditForm.tsx
 const authing = new Authing({
   appId: '68823897631e1ef8ff3720b2',
-  domain: '@https://qutkgzkfaezk-demo.authing.cn ',
+  domain: '@https://68823897631e1ef8ff3720b2 ',
 });
 
 useEffect(() => {
@@ -656,7 +656,7 @@ import {
 ### 🔗 相关链接
 
 - [Authing官方文档](https://docs.authing.cn/)
-- [Authing控制台](https://qutkgzkfaezk-demo.authing.cn)
+- [Authing控制台](https://68823897631e1ef8ff3720b2)
 - [用户编辑表单测试页面](/user-edit-form-test)
 - [退出登录按钮测试页面](/logout-button-test)
 - [Authing状态测试页面](/authing-status-test) 

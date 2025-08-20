@@ -90,7 +90,7 @@ fetch('/debug-authing-url.js')
 
 ### Authing 后台配置
 - **App ID**: `68823897631e1ef8ff3720b2`
-- **Host**: `https://qutkgzkfaezk-demo.authing.cn`
+- **Host**: `https://68823897631e1ef8ff3720b2`
 - **登录回调**: `http://localhost:5173/`
 - **登出回调**: `http://localhost:5173/`
 

@@ -175,7 +175,7 @@ http://localhost:8888/callback
 
 2. **Authing 控制台配置**：
    - 回调地址：`http://localhost:8888/callback`
-   - 应用域名：`wenpai.authing.cn`
+   - 应用域名：`68823897631e1ef8ff3720b2`
 
 3. **端口冲突处理**：
    如果 8888 端口被占用，可以修改 `netlify.toml` 中的端口配置

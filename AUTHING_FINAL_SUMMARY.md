@@ -66,7 +66,7 @@ redirectUri = 'https://www.wenpai.xyz/';
 1. **检查控制台错误**：按 F12 查看错误信息
 2. **验证回调 URL**：确保 Authing 后台配置为 `http://localhost:5173/`
 3. **清除缓存**：清除浏览器缓存和 Cookie
-4. **检查网络**：确保可以访问 `qutkgzkfaezk-demo.authing.cn`
+4. **检查网络**：确保可以访问 `68823897631e1ef8ff3720b2`
 
 ### 如果回调失败
 1. **检查端口**：确保开发服务器运行在 5173 端口

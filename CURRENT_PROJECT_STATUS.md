@@ -45,7 +45,7 @@
 
 ### Authing配置
 - **应用ID：** 已配置
-- **域名：** qutkgzkfaezk-demo.authing.cn
+- **域名：** 68823897631e1ef8ff3720b2
 - **回调URL：** 
   - 开发环境：http://localhost:5173/callback
   - 生产环境：https://www.wenpai.xyz/callback

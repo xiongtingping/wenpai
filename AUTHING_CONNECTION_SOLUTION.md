@@ -5,7 +5,7 @@
 你遇到了 Authing 连接问题：
 ```
 无法访问此网站
-qutkgzkfaezk-demo.authing.cn 意外终止了连接。
+68823897631e1ef8ff3720b2 意外终止了连接。
 ERR_CONNECTION_CLOSED
 ```
 
@@ -45,7 +45,7 @@ ERR_CONNECTION_CLOSED
 
 1. **检查网络连接**
    ```bash
-   ping qutkgzkfaezk-demo.authing.cn
+   ping 68823897631e1ef8ff3720b2
    ```
 
 2. **配置 Authing 参数**
@@ -55,7 +55,7 @@ ERR_CONNECTION_CLOSED
    
    # 编辑 .env 文件，添加正确的 Authing 配置
    VITE_AUTHING_APP_ID=your_app_id_here
-   VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
+   VITE_AUTHING_HOST=https://68823897631e1ef8ff3720b2
    ```
 
 3. **重启开发服务器**

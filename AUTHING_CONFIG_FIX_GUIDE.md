@@ -49,13 +49,13 @@ https://*.netlify.app/callback
 ### 方法2：检查生成的URL
 正确的登录URL应该是：
 ```
-https://qutkgzkfaezk-demo.authing.cn/login?app_id=68823897631e1ef8ff3720b2&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
+https://68823897631e1ef8ff3720b2/login?app_id=68823897631e1ef8ff3720b2&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
 ```
 
 ## 🔧 当前配置信息
 
 - **应用ID**: `68823897631e1ef8ff3720b2`
-- **域名**: `qutkgzkfaezk-demo.authing.cn`
+- **域名**: `68823897631e1ef8ff3720b2`
 - **开发环境回调**: `http://localhost:5173/callback`
 - **生产环境回调**: `https://www.wenpai.xyz/callback`
 
@@ -79,7 +79,7 @@ node verify-authing-config.js
 ## 📞 如果问题仍然存在
 
 1. **检查应用状态**：确保Authing应用处于"启用"状态
-2. **检查域名配置**：确认域名`qutkgzkfaezk-demo.authing.cn`是否正确
+2. **检查域名配置**：确认域名`68823897631e1ef8ff3720b2`是否正确
 3. **清除缓存**：清除浏览器缓存和本地存储
 4. **检查网络**：确保能正常访问Authing域名
 

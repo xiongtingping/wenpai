@@ -3,8 +3,8 @@
 ## ✅ 当前配置状态
 
 ### 域名配置
-- **当前使用域名**: `qutkgzkfaezk-demo.authing.cn`
-- **重定向目标**: `wenpai.authing.cn` (自动重定向)
+- **当前使用域名**: `68823897631e1ef8ff3720b2`
+- **重定向目标**: `68823897631e1ef8ff3720b2` (自动重定向)
 - **状态**: ✅ 正常工作
 
 ### 应用配置
@@ -17,7 +17,7 @@
 
 ### 1. 认证地址
 ```
-https://qutkgzkfaezk-demo.authing.cn
+https://68823897631e1ef8ff3720b2
 ```
 
 ### 2. 登录回调 URL
@@ -56,7 +56,7 @@ https://wenpai.netlify.app/
 
 ### 第1步：更新 Authing 后台配置
 1. 进入 [Authing 后台](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/68823897631e1ef8ff3720b2?app_detail_active_tab=quick_start)
-2. 确认认证地址为：`https://qutkgzkfaezk-demo.authing.cn`
+2. 确认认证地址为：`https://68823897631e1ef8ff3720b2`
 3. 添加上述所有回调 URL（特别注意添加 5177 端口）
 4. 保存配置
 
@@ -76,7 +76,7 @@ https://wenpai.netlify.app/
 ### 如果登录失败
 1. **检查控制台错误**：查看浏览器控制台是否有错误信息
 2. **验证回调 URL**：确保当前端口 5177 在 Authing 后台的回调 URL 列表中
-3. **检查网络连接**：确保可以访问 `qutkgzkfaezk-demo.authing.cn`
+3. **检查网络连接**：确保可以访问 `68823897631e1ef8ff3720b2`
 4. **清除浏览器缓存**：清除浏览器缓存和 Cookie
 
 ### 如果回调失败
@@ -90,7 +90,7 @@ https://wenpai.netlify.app/
 
 ```bash
 # 测试域名连接
-curl -I https://qutkgzkfaezk-demo.authing.cn
+curl -I https://68823897631e1ef8ff3720b2
 
 # 测试回调地址
 curl -I http://localhost:5177/callback

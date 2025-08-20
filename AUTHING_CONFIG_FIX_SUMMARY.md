@@ -7,7 +7,7 @@
 ## 🔍 问题分析
 
 ### 原始问题
-1. **域名配置错误**: 使用了错误的 Authing 域名 `qutkgzkfaezk-demo.authing.cn`
+1. **域名配置错误**: 使用了错误的 Authing 域名 `68823897631e1ef8ff3720b2`
 2. **JSON 解析错误**: Authing 服务器返回 HTML 而不是 JSON 数据
 3. **Guard 实例初始化失败**: `Cannot read properties of undefined (reading 'push')`
 4. **环境变量配置错误**: `.env` 文件中使用了旧域名
@@ -24,17 +24,17 @@
 ### 1. 域名配置修复
 - **问题**: 使用了错误的 Authing 域名
 - **修复**: 
-  - 自动检测并修正为正确的域名 `wenpai.authing.cn`
+  - 自动检测并修正为正确的域名 `68823897631e1ef8ff3720b2`
   - 更新 `.env.local` 文件中的环境变量
   - 添加域名验证和自动修正逻辑
 
 ### 2. 环境变量更新
 ```bash
 # 修复前
-VITE_AUTHING_HOST=qutkgzkfaezk-demo.authing.cn
+VITE_AUTHING_HOST=68823897631e1ef8ff3720b2
 
 # 修复后  
-VITE_AUTHING_HOST=wenpai.authing.cn
+VITE_AUTHING_HOST=68823897631e1ef8ff3720b2
 ```
 
 ### 3. Guard 配置优化
@@ -52,7 +52,7 @@ VITE_AUTHING_HOST=wenpai.authing.cn
 
 ### 配置验证 ✅
 - ✅ App ID 正确设置: `68823897631e1ef8ff3720b2`
-- ✅ Host 正确配置: `wenpai.authing.cn`
+- ✅ Host 正确配置: `68823897631e1ef8ff3720b2`
 - ✅ Redirect URI 正确: `http://localhost:5174/callback`
 - ✅ Mode 正确: `modal`
 
@@ -75,9 +75,9 @@ VITE_AUTHING_HOST=wenpai.authing.cn
 ### 关键修复点
 1. **域名自动修正逻辑**:
 ```typescript
-if (host.includes('qutkgzkfaezk-demo.authing.cn')) {
-  host = 'wenpai.authing.cn';
-  console.warn('⚠️ 检测到旧域名，已自动修正为: wenpai.authing.cn');
+if (host.includes('68823897631e1ef8ff3720b2')) {
+  host = '68823897631e1ef8ff3720b2';
+  console.warn('⚠️ 检测到旧域名，已自动修正为: 68823897631e1ef8ff3720b2');
 }
 ```
 

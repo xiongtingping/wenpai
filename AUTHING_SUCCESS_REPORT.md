@@ -16,7 +16,7 @@
 
 3. **配置验证通过**
    - ✅ App ID: `68823897631e1ef8ff3720b2`
-   - ✅ 域名: `aiwenpai.authing.cn`
+   - ✅ 域名: `ai68823897631e1ef8ff3720b2`
    - ✅ 回调地址: `http://localhost:5174/callback`
    - ✅ 应用类型: OIDC
 
@@ -31,7 +31,7 @@
 
 #### **测试结果**
 ```
-✅ Authing 实例创建成功: e2 {options: {...}, domain: 'https://aiwenpai.authing.cn', ...}
+✅ Authing 实例创建成功: e2 {options: {...}, domain: 'https://ai68823897631e1ef8ff3720b2', ...}
 ✅ 配置正确: 回调地址 http://localhost:5174/callback
 ✅ SDK 正常工作: Authing SDK 已经可以正常初始化和运行
 ```
@@ -66,7 +66,7 @@
 {
   appId: '68823897631e1ef8ff3720b2',
   userPoolId: '68823897631e1ef8ff3720b2',
-  host: 'aiwenpai.authing.cn',
+  host: 'ai68823897631e1ef8ff3720b2',
   redirectUri: 'http://localhost:5174/callback',
   scope: 'openid profile email phone'
 }

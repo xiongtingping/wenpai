@@ -119,7 +119,7 @@ npm run dev
 node diagnose-authing-app-status.cjs
 
 # 检查网络连接
-curl -I https://qutkgzkfaezk-demo.authing.cn/oidc/auth
+curl -I https://68823897631e1ef8ff3720b2/oidc/auth
 ```
 
 ## 📞 技术支持

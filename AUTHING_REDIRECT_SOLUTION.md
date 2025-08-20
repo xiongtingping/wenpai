@@ -31,7 +31,7 @@ Header AI内容适配器按钮被点击
 ```
 UnifiedAuthContext login方法被调用
 跳转目标: /adapt
-🔗 跳转到Authing登录页面: https://qutkgzkfaezk-demo.authing.cn/login?app_id=...
+🔗 跳转到Authing登录页面: https://68823897631e1ef8ff3720b2/login?app_id=...
 ```
 
 ### 3. 用户在Authing页面登录
@@ -66,7 +66,7 @@ UnifiedAuthContext login方法被调用
 🔍 测试Authing跳转登录: /creative-studio
 UnifiedAuthContext login方法被调用
 跳转目标: /creative-studio
-🔗 跳转到Authing登录页面: https://qutkgzkfaezk-demo.authing.cn/login?app_id=...
+🔗 跳转到Authing登录页面: https://68823897631e1ef8ff3720b2/login?app_id=...
 [用户在新页面登录]
 🎯 跳转到保存的目标: /creative-studio
 ```

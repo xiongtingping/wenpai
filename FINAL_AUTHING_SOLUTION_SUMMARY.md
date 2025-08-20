@@ -19,7 +19,7 @@
 
 ```
 ✅ 我们的代码工作正常：
-🔗 跳转到Authing登录页面: https://wenpai.authing.cn/login?app_id=68823897631e1ef8ff3720b2&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
+🔗 跳转到Authing登录页面: https://68823897631e1ef8ff3720b2/login?app_id=68823897631e1ef8ff3720b2&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
 
 ❌ Authing控制台配置错误：
 已转到 https://www.wenpai.xyz/callback%20%20https://*.netlify.app/callback%20%20http://localhost:5173/callback?code=...

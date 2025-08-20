@@ -4,7 +4,7 @@
 
 ### ✅ 配置正确的项目
 - [x] Authing 应用 ID: `68823897631e1ef8ff3720b2`
-- [x] Authing 域名: `https://qutkgzkfaezk-demo.authing.cn`
+- [x] Authing 域名: `https://68823897631e1ef8ff3720b2`
 - [x] 开发环境回调: `http://localhost:5173/callback`
 - [x] 生产环境回调: `https://www.wenpai.xyz/callback`
 - [x] Authing 服务连接正常
@@ -42,12 +42,12 @@ src/
 ```typescript
 // 开发环境
 appId: '68823897631e1ef8ff3720b2'
-host: 'https://qutkgzkfaezk-demo.authing.cn'
+host: 'https://68823897631e1ef8ff3720b2'
 redirectUri: 'http://localhost:5173/callback'
 
 // 生产环境
 appId: '68823897631e1ef8ff3720b2'
-host: 'https://qutkgzkfaezk-demo.authing.cn'
+host: 'https://68823897631e1ef8ff3720b2'
 redirectUri: 'https://www.wenpai.xyz/callback'
 ```
 
@@ -61,7 +61,7 @@ redirectUri: 'https://www.wenpai.xyz/callback'
 
 ### 2. Authing 服务连接
 **状态**: ✅ 正常
-- 服务地址: `https://qutkgzkfaezk-demo.authing.cn`
+- 服务地址: `https://68823897631e1ef8ff3720b2`
 - 连接状态: 正常
 - 响应时间: 正常
 
@@ -97,7 +97,7 @@ redirectUri: 'https://www.wenpai.xyz/callback'
 
 **应用设置：**
 - 应用 ID: `68823897631e1ef8ff3720b2`
-- 应用域名: `https://qutkgzkfaezk-demo.authing.cn`
+- 应用域名: `https://68823897631e1ef8ff3720b2`
 
 ### 2. 本地测试
 ```bash

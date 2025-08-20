@@ -33,7 +33,7 @@ http://localhost:5173/
 // 检查当前 Authing 配置
 console.log('🔧 当前 Authing 配置:');
 console.log('App ID:', '68823897631e1ef8ff3720b2');
-console.log('Host:', 'https://qutkgzkfaezk-demo.authing.cn');
+console.log('Host:', 'https://68823897631e1ef8ff3720b2');
 console.log('回调地址:', window.location.origin + '/');
 ```
 
