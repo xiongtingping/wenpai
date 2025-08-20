@@ -177,6 +177,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const guard = new Guard({
         appId: config.appId,
         host: config.host,
+        redirectUri: config.redirectUri, // 即使弹窗模式也需要配置
         mode: 'modal', // 关键：使用弹窗模式
         defaultScene: 'login',
         // 弹窗配置
@@ -271,6 +272,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const guard = new Guard({
         appId: config.appId,
         host: config.host,
+        redirectUri: config.redirectUri, // 即使弹窗模式也需要配置
         mode: 'modal', // 关键：使用弹窗模式
         defaultScene: 'register', // 默认显示注册页面
         // 弹窗配置

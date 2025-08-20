@@ -48,6 +48,7 @@ import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 import ShareManagerPage from '@/pages/ShareManagerPage';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 import { DebugAuthPage } from '@/pages/DebugAuthPage';
+import AuthModalTestPage from '@/pages/AuthModalTestPage';
 
 /**
  * 条件性导航组件
@@ -111,6 +112,7 @@ const App: React.FC = () => {
 
                     {/* 调试页面 */}
                     <Route path="/debug-auth" element={<DebugAuthPage />} />
+                    <Route path="/test-auth-modal" element={<AuthModalTestPage />} />
 
                     {/* 错误页面 */}
                     <Route path="/403" element={<ForbiddenPage />} />
