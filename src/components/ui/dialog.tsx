@@ -64,7 +64,9 @@ const DialogContent = React.forwardRef<
             t.nodeValue = t.nodeValue.replace(re, '')
           }
         }
-      } catch {}
+      } catch {
+        // 忽略DOM操作错误
+      }
     }
 
     // DEV 探针：仅在开发环境输出定位信息，辅助根因排查
@@ -90,7 +92,9 @@ const DialogContent = React.forwardRef<
             if (logs >= MAX_LOGS) break
           }
         }
-      } catch {}
+      } catch {
+        // 忽略探针错误
+      }
     }
 
     // 初次与延迟扫描，兼容动画/延迟渲染
@@ -102,7 +106,9 @@ const DialogContent = React.forwardRef<
     const t3 = setTimeout(() => { sanitize(); probe() }, 800)
 
     return () => {
-      try { mo.disconnect() } catch {}
+      try { mo.disconnect() } catch {
+        // 忽略清理错误
+      }
       clearTimeout(t1); clearTimeout(t2); clearTimeout(t3)
     }
   }, [])

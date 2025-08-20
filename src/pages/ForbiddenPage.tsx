@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, ArrowLeft, Crown, Lock, AlertTriangle } from 'lucide-react';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 
 /**
@@ -74,7 +75,7 @@ export default function ForbiddenPage() {
               <div className="bg-muted p-3 rounded-lg text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">当前用户:</span>
-                  <span className="font-medium">{user.nickname || user.email}</span>
+                  <span className="font-medium">{getUserDisplayName(user, '未知用户')}</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-muted-foreground">会员等级:</span>

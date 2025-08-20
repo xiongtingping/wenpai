@@ -656,7 +656,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           login(correctedNext);
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      // 忽略URL解析错误
+    }
 
     const handleAuthSuccess = (event: Event) => {
       try {
