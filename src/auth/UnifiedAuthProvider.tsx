@@ -291,11 +291,60 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         return originalUnhandledRejection ? originalUnhandledRejection(event) : undefined;
       };
 
+      // 🔧 强力修复：检测Guard内容加载问题
+      const checkGuardContent = () => {
+        const containers = [
+          document.getElementById('authing_guard_container'),
+          document.getElementById('authing-guard-container-v4'),
+          document.querySelector('[class*="authing"]'),
+          document.querySelector('[id*="authing"]')
+        ].filter(Boolean);
+
+        for (const container of containers) {
+          if (container && container instanceof HTMLElement) {
+            const textContent = container.textContent || '';
+            const innerHTML = container.innerHTML || '';
+
+            // 检测空白或错误内容
+            if (textContent.includes('undefinedundefined') ||
+                textContent.trim() === '' ||
+                innerHTML.trim() === '' ||
+                !innerHTML.includes('input') && !innerHTML.includes('button')) {
+
+              console.log('🚨 检测到Guard内容异常，强制重新加载');
+
+              // 强制重新创建Guard
+              try {
+                if (guard && typeof (guard as any).destroy === 'function') {
+                  (guard as any).destroy();
+                }
+              } catch (e) {
+                console.log('Guard destroy error:', e);
+              }
+
+              // 回退到页面跳转
+              const authUrl = `${config.host}/oidc/auth?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}&prompt=login`;
+              console.log('🔄 回退到页面跳转:', authUrl);
+              window.location.href = authUrl;
+              return true;
+            }
+          }
+        }
+        return false;
+      };
+
       // 使用setTimeout确保Guard实例完全创建后再调用show()
       setTimeout(() => {
         try {
           guard.show();
           console.log('✅ Guard弹窗显示成功');
+
+          // 3秒后检查内容是否正常加载
+          setTimeout(() => {
+            if (checkGuardContent()) {
+              return; // 已经跳转，不需要继续
+            }
+          }, 3000);
 
           // 立即检查并修复弹窗显示问题
           setTimeout(() => {
@@ -893,17 +942,17 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
 
   // 简化的登录方法（暂时使用默认登录）
-  const loginWithPassword = async (email: string, password: string) => {
+  const loginWithPassword = async (_email: string, _password: string) => {
     await login();
   };
-  const loginWithEmailCode = async (email: string, code: string) => {
+  const loginWithEmailCode = async (_email: string, _code: string) => {
     await login();
   };
-  const loginWithPhoneCode = async (phone: string, code: string) => {
+  const loginWithPhoneCode = async (_phone: string, _code: string) => {
     await login();
   };
   const sendVerificationCode = async (target: string, type: 'email' | 'phone') => {
-    logger.info('发送验证码功能暂未实现');
+    logger.info(`发送验证码到 ${type}: ${target} - 功能暂未实现`);
   };
   const registerUser = async (params: RegisterParams) => {
     await register(params.redirectTo);
