@@ -7,6 +7,7 @@
 exports.handler = async (event) => {
   const allowedOrigins = [
     'https://www.wenpai.xyz',
+    'https://wenpai.xyz',
     'https://wenpai.netlify.app',
     'http://localhost:5173'
   ];
@@ -34,6 +35,7 @@ exports.handler = async (event) => {
       AUTHING_APP_ID,
       AUTHING_HOST,
       AUTHING_REDIRECT_URI,
+      AUTHING_CLIENT_SECRET,
       VITE_AUTHING_CLIENT_ID,
       VITE_AUTHING_APP_ID,
       VITE_AUTHING_HOST,
@@ -42,7 +44,7 @@ exports.handler = async (event) => {
 
     // 环境变量优先级：服务端专用 > 客户端构建期变量 > 默认值
     // 支持新的 VITE_AUTHING_CLIENT_ID 配置
-    const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68a58c57614a821a46f264f7';
+    const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
     const host = (AUTHING_HOST || VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn').replace(/\/$/, '');
 
     // 🔧 修复Netlify预览URL问题：只允许白名单域名
@@ -55,15 +57,18 @@ exports.handler = async (event) => {
         const hostname = originUrl.hostname;
 
         // 检查是否为白名单中的生产域名
-        const isProductionDomain = hostname === 'www.wenpai.xyz' ||
-                                   hostname === 'wenpai.xyz' ||
-                                   hostname === 'wenpai.netlify.app';
+        const isAllowedDomain = hostname === 'www.wenpai.xyz' ||
+                                 hostname === 'wenpai.xyz' ||
+                                 hostname === 'wenpai.netlify.app' ||
+                                 hostname === 'localhost';
 
-        if (isProductionDomain) {
-          dynamicRedirectUri = `${originUrl.origin}/callback`;
-          console.log('✅ 使用生产域名Origin:', originUrl.origin);
+        if (isAllowedDomain) {
+          // 对于允许的域名，使用其 origin 回调
+          const portSuffix = originUrl.port ? `:${originUrl.port}` : '';
+          dynamicRedirectUri = `${originUrl.protocol}//${originUrl.hostname}${portSuffix}/callback`;
+          console.log('✅ 使用允许域名Origin:', originUrl.origin);
         } else {
-          console.log('⚠️ 非生产域名，使用默认redirectUri:', hostname);
+          console.log('⚠️ 非允许域名，使用默认redirectUri:', hostname);
         }
       } catch (e) {
         console.log('⚠️ 无法解析Origin，使用默认redirectUri');
@@ -104,8 +109,15 @@ exports.handler = async (event) => {
     const body = event.body ? JSON.parse(event.body) : {};
     const code = body.code;
     const code_verifier = body.code_verifier;
-    if (!code || !code_verifier) {
-      return { statusCode: 400, headers: baseHeaders, body: JSON.stringify({ error: 'Missing code or code_verifier' }) };
+    // 允许两种模式：
+    // 1) PKCE：提供 code_verifier（公共客户端）
+    // 2) 机密客户端：提供 AUTHING_CLIENT_SECRET（无需 code_verifier）
+    if (!code) {
+      return { statusCode: 400, headers: baseHeaders, body: JSON.stringify({ error: 'Missing code' }) };
+    }
+    const useClientSecret = !!(process.env.AUTHING_CLIENT_SECRET);
+    if (!useClientSecret && !code_verifier) {
+      return { statusCode: 400, headers: baseHeaders, body: JSON.stringify({ error: 'Missing code_verifier (PKCE)' }) };
     }
 
     // 构建token端点URL - 使用标准OIDC端点
@@ -139,6 +151,10 @@ exports.handler = async (event) => {
     form.set('client_id', appId);
     form.set('code_verifier', code_verifier);
     form.set('redirect_uri', redirectUri);
+    // 可选：当服务端配置要求使用 client_secret 时，支持从环境变量注入
+    if (AUTHING_CLIENT_SECRET) {
+      form.set('client_secret', AUTHING_CLIENT_SECRET);
+    }
 
     console.log('🔄 尝试token交换:', {
       endpoint: tokenEndpoint,

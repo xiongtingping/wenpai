@@ -46,14 +46,43 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
 
     logger.info('🔐 处理OAuth回调', { hasCode: !!code, state });
 
-    // 使用授权码登录
-    const user = await authService.loginWithCode(code, state || undefined);
+    // 使用 Netlify Function 完成授权码交换（支持：PKCE 或 服务端 client_secret）
+    const storedVerifier = localStorage.getItem('pkce_code_verifier') || undefined;
+    const resp = await fetch('/.netlify/functions/authing-token-exchange', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, code_verifier: storedVerifier })
+    });
 
-    // 清除URL参数
+    if (!resp.ok) {
+      const errJson = await resp.json().catch(() => ({}));
+      logger.error('❌ 授权码交换失败:', errJson);
+      return { success: false, error: errJson.error || '授权码交换失败' };
+    }
+
+    const data = await resp.json();
+    const accessToken = data?.tokens?.access_token || '';
+    const refreshToken = data?.tokens?.refresh_token || undefined;
+    const userInfo = data?.userInfo || {};
+
+    // 标准化用户信息并持久化
+    const user = authService.normalizeAuthUser(userInfo || {});
+    user.token = accessToken;
+
+    tokenManager.setUser(user);
+    tokenManager.setTokenInfo({
+      accessToken,
+      refreshToken,
+      expiresAt: data?.tokens?.expires_in ? new Date(Date.now() + (data.tokens.expires_in * 1000)).toISOString() : new Date(Date.now() + 24*60*60*1000).toISOString(),
+      tokenType: data?.tokens?.token_type || 'Bearer',
+      scope: data?.tokens?.scope || ''
+    });
+
+    // 清理 URL 参数
     const newUrl = window.location.pathname;
     window.history.replaceState({}, document.title, newUrl);
 
-    logger.info('✅ OAuth回调处理成功', { userId: user.id });
+    logger.info('✅ OAuth回调处理成功', { hasUser: !!user });
 
     return {
       success: true,

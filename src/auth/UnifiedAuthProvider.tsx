@@ -64,32 +64,32 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const initializeAuth = async () => {
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
-      
+
       const config = getAuthProviderConfig();
-      
+
       // 初始化认证服务
       await authService.initialize(config.config);
-      
+
       // 检查现有的认证状态
       await checkExistingAuth();
-      
+
       // 设置API请求的token获取器
       setAuthTokenGetter(() => tokenManager.getAccessToken());
-      
-      setAuthState(prev => ({ 
-        ...prev, 
-        loading: false, 
-        initialized: true 
+
+      setAuthState(prev => ({
+        ...prev,
+        loading: false,
+        initialized: true
       }));
-      
+
       logger.info('✅ 统一认证系统初始化成功');
     } catch (error) {
       logger.error('❌ 认证系统初始化失败:', error);
-      setAuthState(prev => ({ 
-        ...prev, 
-        loading: false, 
+      setAuthState(prev => ({
+        ...prev,
+        loading: false,
         error: error instanceof Error ? error.message : '初始化失败',
-        initialized: true 
+        initialized: true
       }));
     }
   };
@@ -102,15 +102,15 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       // 从存储中获取用户信息
       const storedUser = tokenManager.getUser();
       const storedToken = tokenManager.getAccessToken();
-      
+
       if (storedUser && storedToken) {
         // 验证token有效性
         const isValid = tokenManager.isTokenValid(storedToken);
-        
+
         if (isValid) {
           // 尝试获取最新用户信息
           const currentUser = await authService.getCurrentUser();
-          
+
           if (currentUser) {
             setAuthState(prev => ({
               ...prev,
@@ -142,7 +142,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (tokenManager.getRefreshToken()) {
         const newTokenInfo = await authService.refreshToken();
         const user = await authService.getCurrentUser();
-        
+
         if (user) {
           setAuthState(prev => ({
             ...prev,
@@ -161,7 +161,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // ===== 认证方法 =====
 
   /**
-   * 用户登录 - 直接页面跳转方案（绕过Guard弹窗缺陷）
+   * 用户登录 - 重构的简化弹窗方案
    */
   const login = useCallback(async (redirectTo?: string) => {
     try {
@@ -173,30 +173,61 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (!config) {
         throw new Error('认证配置未初始化');
       }
-
-      // 🔧 完全绕过Guard弹窗，直接使用页面跳转
-      // 原因：@authing/guard v5.3.9存在内部oidcConfig初始化缺陷，弹窗内容空白
-      const authUrl = `${config.host}/oidc/auth?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}&prompt=login`;
-
-      // 如果有重定向目标，保存到sessionStorage
-      if (redirectTo) {
-        sessionStorage.setItem('auth_redirect_to', redirectTo);
+      // 支持通过查询参数强制走托管登录（便于E2E核验与应急）
+      try {
+        const qs = new URLSearchParams(window.location.search);
+        const mode = (qs.get('auth') || qs.get('auth_mode') || qs.get('login_mode') || '').toLowerCase();
+        const forceHosted = ['hosted', '1', 'true'].includes(mode);
+        if (forceHosted) {
+          const hosted = `${config.host}/${config.appId}/login?redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}`;
+          console.log('🔁 强制托管登录模式，跳转:', hosted);
+          window.location.href = hosted;
+          return;
+        }
+      } catch (e) {
+        // 非关键分支，仅用于 E2E/应急场景的查询参数解析失败时忽略
+        try { logger.debug?.('auth hosted-mode query parse skipped', e as any); } catch { /* ignore */ }
       }
 
-      console.log('🔄 直接跳转到Authing认证页面（绕过Guard弹窗）', { authUrl });
-      window.location.href = authUrl;
 
-    } catch (error) {
-      console.error('❌ 登录流程失败:', error);
-      setAuthState(prev => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : '登录失败'
-      }));
-    }
-  }, []);
+      // 创建简化的Guard实例
+      console.log('🏗️ 创建简化Guard实例...');
 
-  /**
+      // 生产默认托管跳转：若判定应使用 hosted，直接跳转（带 PKCE）
+      const { shouldUseHosted, startHostedLogin } = await import('./loginStrategy');
+      if (shouldUseHosted()) {
+        await startHostedLogin(config, redirectTo);
+        return;
+      }
+
+      // 动态导入Guard - 作为增强层
+      const { Guard } = await import('@authing/guard');
+
+      const guardConfig = {
+        appId: config.appId,
+        host: config.host,
+        redirectUri: config.redirectUri,
+        mode: 'modal' as const,
+        defaultScene: 'login' as const,
+        lang: 'zh-CN' as const,
+        isSSO: true,
+        config: {
+          autoRegister: false,
+          clickCloseable: true,
+          escCloseable: true,
+          maskCloseable: true,
+          skipComplateFileds: false,
+          skipComplateFiledsPlace: 'modal'
+        }
+      } as const;
+
+      console.log('🏗️ Guard配置:', guardConfig);
+
+      const guard = new Guard(guardConfig);
+      console.log('✅ Guard实例创建成功');
+
+      // 监听登录成功事件
+      guard.on('login', async (userInfo: any) => {
         try {
           logger.info('✅ Guard登录成功:', userInfo);
 
@@ -258,7 +289,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
           guardErrorOccurred = true;
           console.error('🚨 检测到Guard oidcConfig错误，回退到页面跳转方式');
           // 回退到页面跳转方式
-          const authUrl = `${config.host}/oidc/auth?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}&prompt=login`;
+          const authUrl = `${config.host}/${config.appId}/login?redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}`;
           window.location.href = authUrl;
           return true; // 阻止错误继续传播
         }
@@ -276,7 +307,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
           event.preventDefault();
           return;
         }
-        return originalUnhandledRejection ? originalUnhandledRejection(event) : undefined;
+        if (originalUnhandledRejection) { return (originalUnhandledRejection as any).call(window, event); } return undefined;
       };
 
       // 🔧 强力修复：检测Guard内容加载问题
@@ -311,7 +342,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
               }
 
               // 回退到页面跳转
-              const authUrl = `${config.host}/oidc/auth?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}&prompt=login`;
+              const authUrl = `${config.host}/${config.appId}/login?redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}`;
               console.log('🔄 回退到页面跳转:', authUrl);
               window.location.href = authUrl;
               return true;
@@ -351,7 +382,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
                 if (!hasValidContent) {
                   console.log('🚨 最终检查：Guard弹窗无有效内容，强制跳转');
-                  const authUrl = `${config.host}/oidc/auth?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}&prompt=login`;
+                  const authUrl = `${config.host}/${config.appId}/login?redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}`;
                   window.location.href = authUrl;
                 }
               }
@@ -660,25 +691,33 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       // 创建简化的Guard实例
       console.log('🏗️ 创建简化Guard实例...');
 
-      // 动态导入Guard - 使用更简单的配置
+      // 生产默认托管跳转：若判定应使用 hosted，直接跳转注册入口（带 PKCE）
+      const { shouldUseHosted, startHostedRegister } = await import('./loginStrategy');
+      if (shouldUseHosted()) {
+        await startHostedRegister(config, redirectTo);
+        return;
+      }
+
+      // 动态导入Guard - 作为增强层
       const { Guard } = await import('@authing/guard');
 
-      // 最小化配置，避免复杂参数导致的问题
       const guardConfig = {
         appId: config.appId,
         host: config.host,
+        redirectUri: config.redirectUri,
         mode: 'modal' as const,
-        defaultScene: 'register' as const, // 显示注册页面
+        defaultScene: 'register' as const,
         lang: 'zh-CN' as const,
-        // 简化配置，只保留必要参数
-        autoRegister: false,
-        clickCloseable: true,
-        escCloseable: true
-      };
+        config: {
+          autoRegister: false,
+          clickCloseable: true,
+          escCloseable: true,
+          maskCloseable: true,
+        }
+      } as const;
 
       console.log('🏗️ Guard配置:', guardConfig);
 
-      // 创建Guard实例 - 简化错误处理
       const guard = new Guard(guardConfig);
       console.log('✅ Guard实例创建成功');
 
@@ -734,6 +773,20 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       // 显示注册弹窗 - 简化版本
       console.log('🎭 显示注册弹窗...');
       guard.show();
+
+      // 注册弹窗内容安全回退：3秒后无有效内容则跳转到托管注册页
+      setTimeout(() => {
+        try {
+          const container = document.querySelector('[class*="authing"], [id*="authing"]') as HTMLElement | null;
+          const hasContent = !!container && /input|button/i.test(container.innerHTML || '');
+          if (!hasContent) {
+            const hostedRegisterUrl = `${config.host}/${config.appId}/login?redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}&screen_hint=signup`;
+            console.log('🔄 注册弹窗内容异常，回退到托管注册页:', hostedRegisterUrl);
+            window.location.href = hostedRegisterUrl;
+            return;
+          }
+        } catch (_e) { /* noop: fallback will handle */ }
+      }, 3000);
 
       // 立即检查并修复弹窗显示问题
       setTimeout(() => {
@@ -832,10 +885,10 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const logout = useCallback(async () => {
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
-      
+
       await authService.logout();
       await handleLogout();
-      
+
       logger.info('✅ 用户登出成功');
     } catch (error) {
       logger.error('❌ 登出失败:', error);
@@ -855,7 +908,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       loading: false,
       error: null
     }));
-    
+
     // 清除API token获取器
     setAuthTokenGetter(() => null);
   };
@@ -898,13 +951,13 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
     try {
       const user = await authService.getCurrentUser();
       const isAuthenticated = !!user;
-      
+
       setAuthState(prev => ({
         ...prev,
         user,
         isAuthenticated
       }));
-      
+
       return isAuthenticated;
     } catch (error) {
       logger.error('❌ 检查认证状态失败:', error);
