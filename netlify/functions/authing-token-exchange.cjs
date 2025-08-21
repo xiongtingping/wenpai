@@ -44,7 +44,7 @@ exports.handler = async (event) => {
 
     // 环境变量优先级：服务端专用 > 客户端构建期变量 > 默认值
     // 支持新的 VITE_AUTHING_CLIENT_ID 配置
-    const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68a58c57614a821a46f264f7';
+    const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
     const host = (AUTHING_HOST || VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn').replace(/\/$/, '');
 
     // 🔧 修复Netlify预览URL问题：只允许白名单域名
