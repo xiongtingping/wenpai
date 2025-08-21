@@ -428,24 +428,64 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
                           if (className.includes('authing') || id.includes('authing')) {
                             console.log('🎯 DOM监听发现弹窗:', element);
 
+                            // 🔧 强力修复弹窗显示问题
                             element.style.cssText = `
                               position: fixed !important;
                               top: 50% !important;
                               left: 50% !important;
                               transform: translate(-50%, -50%) !important;
-                              z-index: 99999 !important;
+                              z-index: 999999 !important;
                               background: white !important;
-                              border-radius: 8px !important;
-                              box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
-                              max-width: 420px !important;
-                              max-height: 650px !important;
-                              width: auto !important;
+                              border-radius: 12px !important;
+                              box-shadow: 0 20px 60px rgba(0,0,0,0.4) !important;
+                              min-width: 400px !important;
+                              min-height: 500px !important;
+                              max-width: 450px !important;
+                              max-height: 700px !important;
+                              width: 420px !important;
                               height: auto !important;
                               display: block !important;
                               visibility: visible !important;
                               opacity: 1 !important;
                               pointer-events: auto !important;
+                              overflow: visible !important;
+                              margin: 0 !important;
+                              padding: 20px !important;
+                              border: 2px solid #007bff !important;
                             `;
+
+                            // 🔧 确保所有子元素也正确显示
+                            const children = element.querySelectorAll('*');
+                            children.forEach((child: any) => {
+                              if (child.style) {
+                                child.style.visibility = 'visible !important';
+                                child.style.opacity = '1 !important';
+                                if (child.style.display === 'none') {
+                                  child.style.display = 'block !important';
+                                }
+                              }
+                            });
+
+                            // 🔧 添加背景遮罩
+                            let backdrop = document.getElementById('authing-backdrop');
+                            if (!backdrop) {
+                              backdrop = document.createElement('div');
+                              backdrop.id = 'authing-backdrop';
+                              backdrop.style.cssText = `
+                                position: fixed !important;
+                                top: 0 !important;
+                                left: 0 !important;
+                                width: 100vw !important;
+                                height: 100vh !important;
+                                background: rgba(0,0,0,0.5) !important;
+                                z-index: 999998 !important;
+                                display: block !important;
+                              `;
+                              document.body.appendChild(backdrop);
+                            }
+
+                            // 🔧 强制滚动到弹窗位置
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
                             console.log('✅ DOM监听修复弹窗成功');
                             observer.disconnect();
@@ -462,11 +502,53 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
                   subtree: true
                 });
 
-                // 5秒后停止监听
+                // 🔧 添加全局弹窗修复器
+                const globalFixer = setInterval(() => {
+                  const containers = [
+                    document.getElementById('authing_guard_container'),
+                    document.getElementById('authing-guard-container-v4'),
+                    document.querySelector('[class*="authing"]'),
+                    document.querySelector('[id*="authing"]')
+                  ].filter(Boolean);
+
+                  containers.forEach(container => {
+                    if (container && container instanceof HTMLElement) {
+                      // 强制修复样式
+                      container.style.cssText = `
+                        position: fixed !important;
+                        top: 50% !important;
+                        left: 50% !important;
+                        transform: translate(-50%, -50%) !important;
+                        z-index: 999999 !important;
+                        background: white !important;
+                        border-radius: 12px !important;
+                        box-shadow: 0 20px 60px rgba(0,0,0,0.4) !important;
+                        min-width: 400px !important;
+                        min-height: 500px !important;
+                        max-width: 450px !important;
+                        max-height: 700px !important;
+                        width: 420px !important;
+                        height: auto !important;
+                        display: block !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                        pointer-events: auto !important;
+                        overflow: visible !important;
+                        margin: 0 !important;
+                        padding: 20px !important;
+                        border: 2px solid #007bff !important;
+                      `;
+                      console.log('🔧 全局修复器修复弹窗:', container);
+                    }
+                  });
+                }, 500);
+
+                // 10秒后停止监听和全局修复
                 setTimeout(() => {
                   observer.disconnect();
-                  console.log('⏰ DOM监听超时，停止监听');
-                }, 5000);
+                  clearInterval(globalFixer);
+                  console.log('⏰ DOM监听和全局修复超时，停止监听');
+                }, 10000);
               }
             }
 

@@ -579,7 +579,7 @@
 - ✅ 用户体验: 弹窗可见性和操作性大幅改善
 **优先级**: 紧急 (已完成)
 
-### 37. Authing认证端点404错误修复 ✅
+### 37. Authing Guard弹窗完美修复 ✅
 **文件**: src/auth/UnifiedAuthProvider.tsx
 **错误**: Authing认证端点返回404错误，用户无法正常登录
 - 原始端点路径 `/sso/oidc/auth` 返回404错误
