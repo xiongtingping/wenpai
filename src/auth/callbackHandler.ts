@@ -6,6 +6,7 @@
 import { authService } from './authService';
 import { tokenManager } from './tokenManager';
 import { logger } from '@/utils/logger';
+import { cleanCallbackUrl, extractCallbackParams, fixCurrentCallbackUrl } from '@/utils/callbackUrlFixer';
 
 export interface CallbackResult {
   success: boolean;
@@ -19,12 +20,15 @@ export interface CallbackResult {
  */
 export const handleAuthCallback = async (): Promise<CallbackResult> => {
   try {
-    // 获取URL参数
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const state = urlParams.get('state');
-    const error = urlParams.get('error');
-    const errorDescription = urlParams.get('error_description');
+    // 🔧 首先修复URL格式问题
+    const wasFixed = fixCurrentCallbackUrl();
+    if (wasFixed) {
+      logger.info('🔧 已修复回调URL格式');
+    }
+
+    // 🔧 使用增强的参数提取器
+    const { code, state, error } = extractCallbackParams(window.location.href);
+    const errorDescription = new URLSearchParams(window.location.search).get('error_description');
 
     // 检查是否有错误
     if (error) {

@@ -51,16 +51,8 @@ export const getAuthConfig = (): AuthConfig => {
     // 开发环境：使用本地地址
     redirectUri = `http://localhost:${p || '5173'}/callback`;
   } else {
-    // 生产环境：根据当前域名决定回调URL
-    if (h === 'www.wenpai.xyz' || h === 'wenpai.xyz') {
-      redirectUri = 'https://www.wenpai.xyz/callback';
-    } else if (h.includes('netlify.app')) {
-      // Netlify部署：使用当前域名但优先使用主域名
-      redirectUri = 'https://www.wenpai.xyz/callback';
-    } else {
-      // 默认使用主域名
-      redirectUri = 'https://www.wenpai.xyz/callback';
-    }
+    // 🔧 生产环境：统一使用主域名，避免多URL问题
+    redirectUri = 'https://www.wenpai.xyz/callback';
   }
 
   // 🔒 确保URL格式正确，移除可能的空格和重复
