@@ -1,12 +1,12 @@
 /**
  * 🚀 文派AI - 主应用组件 (已清理测试代码)
- * 
+ *
  * 功能：
  * - 统一路由管理
  * - 全局状态管理
  * - 用户认证集成
  * - 主题和样式管理
- * 
+ *
  * 🔒 安全特性：
  * - 统一的用户认证和权限控制
  * - 路由守卫和访问控制
@@ -83,6 +83,7 @@ const App: React.FC = () => {
                     <Route path="/callback" element={<CallbackPage />} />
                     <Route path="/callback/" element={<CallbackPage />} />
 
+                        <Route path="/callback/*" element={<CallbackPage />} />
                     {/* 核心功能页面 - 需要登录 */}
                     <Route path="/adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
                     <Route path="/new-adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
@@ -94,16 +95,16 @@ const App: React.FC = () => {
                     <Route path="/emoji" element={<EmojiPage />} />
                     <Route path="/share-manager" element={<AuthGuard><ShareManagerPage /></AuthGuard>} />
                     <Route path="/wechat-templates" element={<AuthGuard><WechatTemplatePage /></AuthGuard>} />
-                    
+
                     {/* 用户相关页面 - 需要登录 */}
                     <Route path="/profile" element={<AuthGuard><ProfilePage /></AuthGuard>} />
                     <Route path="/settings" element={<AuthGuard><SettingsPage /></AuthGuard>} />
-                    
+
                     {/* 支付相关页面 */}
                     <Route path="/payment" element={<PaymentPage />} />
                     <Route path="/payment-status" element={<PaymentStatusPage />} />
                     <Route path="/upgrade" element={<UpgradeComparisonPage />} />
-                    
+
                     {/* 信息页面 */}
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/terms" element={<TermsPage />} />
@@ -122,7 +123,7 @@ const App: React.FC = () => {
                 </Suspense>
               </ConditionalNavigation>
             </div>
-            
+
             {/* 全局通知组件 */}
             <Toaster />
                   </>

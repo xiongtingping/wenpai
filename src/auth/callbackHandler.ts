@@ -48,6 +48,29 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
 
     // 使用 Netlify Function 完成授权码交换（支持：PKCE 或 服务端 client_secret）
     const storedVerifier = localStorage.getItem('pkce_code_verifier') || undefined;
+
+    // 兼容 Authing 门户拼接多个回调的误配置场景：仅保留第一个有效回调地址
+    try {
+      const loc = window.location;
+      // 当路径类似 "/callback https://wenpai.xyz/callback ..." 时，pathname 仍是 /callback，但 search 可能包含多余片段
+      // 我们严格从当前 URL 的 querystring 解析 code/state，不信任拼接在 path 后的额外字符串
+      const qs = new URLSearchParams(loc.search);
+      const rawCode = qs.get('code');
+      const rawState = qs.get('state');
+      if (!rawCode && loc.href.includes('code=')) {
+        // 兜底：从整段 href 中切 parse，取首个 code
+        const m = loc.href.match(/[?&]code=([^&\s]+)/);
+        if (m && !qs.get('code')) {
+          qs.set('code', decodeURIComponent(m[1]));
+        }
+      }
+      if (!rawState && loc.href.includes('state=')) {
+        const m2 = loc.href.match(/[?&]state=([^&\s]+)/);
+        if (m2 && !qs.get('state')) {
+          qs.set('state', decodeURIComponent(m2[1]));
+        }
+      }
+    } catch (_e) { /* ignore */ }
     const resp = await fetch('/.netlify/functions/authing-token-exchange', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
