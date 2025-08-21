@@ -688,23 +688,28 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         throw new Error('认证配置未初始化');
       }
 
-      // 创建简化的Guard实例
-      console.log('🏗️ 创建简化Guard实例...');
-
-      // 生产默认托管跳转：若判定应使用 hosted，直接跳转注册入口（带 PKCE）
-      const { shouldUseHosted, startHostedRegister } = await import('./loginStrategy');
-      if (shouldUseHosted()) {
+      // 🔧 优先使用托管注册 - 更稳定可靠
+      console.log('🏗️ 使用托管注册入口...');
+      const { startHostedRegister } = await import('./loginStrategy');
+      
+      try {
         await startHostedRegister(config, redirectTo);
         return;
+      } catch (hostedError) {
+        console.warn('⚠️ 托管注册失败，尝试Guard模式:', hostedError);
       }
 
-      // 动态导入Guard - 作为增强层
+      // 降级方案：使用Guard弹窗
+      console.log('🏗️ 降级使用Guard弹窗...');
+      
+      // 动态导入Guard - 作为降级方案
       const { Guard } = await import('@authing/guard');
 
+      // 🔧 修复Guard配置 - 确保redirectUri格式正确
       const guardConfig = {
         appId: config.appId,
         host: config.host,
-        redirectUri: config.redirectUri,
+        redirectUri: config.redirectUri.trim(), // 确保没有多余空格
         mode: 'modal' as const,
         defaultScene: 'register' as const,
         lang: 'zh-CN' as const,
@@ -770,111 +775,16 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setAuthState(prev => ({ ...prev, loading: false }));
       });
 
-      // 显示注册弹窗 - 简化版本
+      // 显示注册弹窗
       console.log('🎭 显示注册弹窗...');
       guard.show();
 
-      // 注册弹窗内容安全回退：3秒后无有效内容则跳转到托管注册页
-      setTimeout(() => {
-        try {
-          const container = document.querySelector('[class*="authing"], [id*="authing"]') as HTMLElement | null;
-          const hasContent = !!container && /input|button/i.test(container.innerHTML || '');
-          if (!hasContent) {
-            const hostedRegisterUrl = `${config.host}/${config.appId}/login?redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}&screen_hint=signup`;
-            console.log('🔄 注册弹窗内容异常，回退到托管注册页:', hostedRegisterUrl);
-            window.location.href = hostedRegisterUrl;
-            return;
-          }
-        } catch (_e) { /* noop: fallback will handle */ }
-      }, 3000);
-
-      // 立即检查并修复弹窗显示问题
-      setTimeout(() => {
-        // 多种选择器尝试找到弹窗元素
-        const selectors = [
-          '[class*="authing"]',
-          '[id*="authing"]',
-          '.authing-guard-modal',
-          '.authing-guard-container',
-          '[data-testid*="authing"]',
-          'iframe[src*="authing"]',
-          'div[style*="position: fixed"]',
-          'div[style*="z-index"]'
-        ];
-
-        let modalFound = false;
-        for (const selector of selectors) {
-          const authingModal = document.querySelector(selector);
-          if (authingModal) {
-            const modal = authingModal as HTMLElement;
-            console.log(`🎯 找到注册弹窗元素: ${selector}`);
-
-            // 强制显示弹窗
-            modal.style.cssText = `
-              position: fixed !important;
-              top: 50% !important;
-              left: 50% !important;
-              transform: translate(-50%, -50%) !important;
-              z-index: 99999 !important;
-              background: white !important;
-              border-radius: 8px !important;
-              box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
-              max-width: 420px !important;
-              max-height: 650px !important;
-              width: auto !important;
-              height: auto !important;
-              display: block !important;
-              visibility: visible !important;
-              opacity: 1 !important;
-              pointer-events: auto !important;
-            `;
-
-            // 确保父容器也可见
-            let parent = modal.parentElement;
-            while (parent && parent !== document.body) {
-              parent.style.display = 'block';
-              parent.style.visibility = 'visible';
-              parent.style.opacity = '1';
-              parent = parent.parentElement;
-            }
-
-            modalFound = true;
-            console.log('✅ 注册弹窗样式已强制修复');
-            break;
-          }
-        }
-
-        if (!modalFound) {
-          console.warn('⚠️ 未找到注册弹窗元素，可能需要更多时间加载');
-          // 再次尝试
-          setTimeout(() => {
-            const allDivs = document.querySelectorAll('div');
-            for (const div of allDivs) {
-              if (div.textContent?.includes('注册') || div.textContent?.includes('登录')) {
-                console.log('🔍 发现可能的注册弹窗:', div);
-                (div as HTMLElement).style.cssText = `
-                  position: fixed !important;
-                  top: 50% !important;
-                  left: 50% !important;
-                  transform: translate(-50%, -50%) !important;
-                  z-index: 99999 !important;
-                  display: block !important;
-                  visibility: visible !important;
-                  opacity: 1 !important;
-                `;
-                break;
-              }
-            }
-          }, 1000);
-        }
-      }, 200); // 减少延迟，更快修复显示
-
     } catch (error) {
       console.error('❌ 注册流程失败:', error);
-      setAuthState(prev => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : '注册失败'
+      setAuthState(prev => ({ 
+        ...prev, 
+        loading: false, 
+        error: error instanceof Error ? error.message : '注册失败' 
       }));
     }
   }, []);

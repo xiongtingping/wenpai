@@ -168,8 +168,8 @@ export async function getBestRegisterUrl(config: RegisterConfig): Promise<{
 export function getRegisterUrlFast(config: RegisterConfig): string {
   const { appId: originalAppId, host: originalHost, redirectUri, state, codeChallenge, nonce } = config;
 
-  // 🔧 配置已通过文件清理脚本修复，直接使用
-  const safeAppId = originalAppId || '68823897631e1ef8ff3720b2';
+  // 🔧 使用正确的App ID - 与config.ts保持一致
+  const safeAppId = originalAppId || '68a68a29d0c3341ae7a3df23';
   const cleanHost = originalHost || 'https://rzcswqs4sq0f.authing.cn';
 
   console.log('🔧 配置修复检查:', {
