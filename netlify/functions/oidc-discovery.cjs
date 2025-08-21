@@ -16,7 +16,7 @@ exports.handler = async (event) => {
       VITE_AUTHING_HOST
     } = process.env;
 
-    const appId = appIdFromQs || AUTHING_APP_ID || VITE_AUTHING_APP_ID || '68a58c57614a821a46f264f7';
+    const appId = appIdFromQs || AUTHING_APP_ID || VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
     const host = (hostFromQs || AUTHING_HOST || VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn').replace(/\/$/, '');
 
     console.log('🔍 OIDC Discovery:', {

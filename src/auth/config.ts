@@ -15,8 +15,8 @@ export const getAuthConfig = (): AuthConfig => {
   const clientId = (import.meta as any).env.VITE_AUTHING_CLIENT_ID as string | undefined;
   const appId = (import.meta as any).env.VITE_AUTHING_APP_ID as string | undefined;
 
-  // 🔧 使用最新确认的正确App ID
-  const effectiveAppId = appId || '68a58c57614a821a46f264f7';
+  // 🔧 使用最新确认的正确App ID (2025-08-21更新)
+  const effectiveAppId = appId || '68a68a29d0c3341ae7a3df23';
 
   // 🔒 生产环境关闭调试日志
   if (isDevelopment) {

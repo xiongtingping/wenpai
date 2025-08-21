@@ -100,7 +100,7 @@ export const DebugAuthPage: React.FC = () => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="font-medium">App ID:</span>
-              <Badge variant={debugInfo.config.appId === '68823897631e1ef8ff3720b2' ? 'default' : 'destructive'}>
+              <Badge variant={debugInfo.config.appId === '68a68a29d0c3341ae7a3df23' ? 'default' : 'destructive'}>
                 {debugInfo.config.appId}
               </Badge>
             </div>
@@ -212,14 +212,14 @@ export const DebugAuthPage: React.FC = () => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span>App ID是否正确:</span>
-              <Badge variant={debugInfo.config.appId === '68823897631e1ef8ff3720b2' ? 'default' : 'destructive'}>
-                {debugInfo.config.appId === '68823897631e1ef8ff3720b2' ? '✅ 正确' : '❌ 错误'}
+              <Badge variant={debugInfo.config.appId === '68a68a29d0c3341ae7a3df23' ? 'default' : 'destructive'}>
+                {debugInfo.config.appId === '68a68a29d0c3341ae7a3df23' ? '✅ 正确 (最新)' : '❌ 错误'}
               </Badge>
             </div>
             <div className="flex justify-between">
-              <span>是否包含错误App ID:</span>
-              <Badge variant={debugInfo.testRegisterUrl.includes('688237f8f58e454393add99e') ? 'destructive' : 'default'}>
-                {debugInfo.testRegisterUrl.includes('688237f8f58e454393add99e') ? '❌ 包含错误ID' : '✅ 无错误ID'}
+              <span>是否包含旧 App ID:</span>
+              <Badge variant={(debugInfo.testRegisterUrl.includes('68823897631e1ef8ff3720b2') || debugInfo.testRegisterUrl.includes('68a58c57614a821a46f264f7')) ? 'destructive' : 'default'}>
+                {(debugInfo.testRegisterUrl.includes('68823897631e1ef8ff3720b2') || debugInfo.testRegisterUrl.includes('68a58c57614a821a46f264f7')) ? '❌ 包含旧 ID' : '✅ 无旧 ID'}
               </Badge>
             </div>
             <div className="flex justify-between">
