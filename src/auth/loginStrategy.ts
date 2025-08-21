@@ -38,8 +38,8 @@ export async function discoverAuthorizationEndpoint(host: string, appId: string)
       if (d && d.authorization_endpoint) return d.authorization_endpoint as string;
     }
   } catch (e) { /* discovery fallback used */ }
-  // fallback：直接使用标准 OIDC 授权端点，避免托管门户将多个回调拼接的问题
-  return `${host.replace(/\/$/, '')}/oidc/auth`;
+  // fallback：使用托管登录入口（已验证对该租户更稳定）
+  return `${host.replace(/\/$/, '')}/${appId}/login`;
 }
 
 export async function buildAuthorizeUrl(config: AuthConfig, opts?: { redirectTo?: string; screenHint?: 'signup' | 'login' }) {
