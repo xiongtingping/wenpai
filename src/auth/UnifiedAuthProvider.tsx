@@ -270,7 +270,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
           guardErrorOccurred = true;
           console.error('🚨 检测到Guard oidcConfig错误，回退到页面跳转方式');
           // 回退到页面跳转方式
-          const authUrl = `${config.host}/sso/oidc/auth?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code&scope=${encodeURIComponent(config.scope)}&prompt=login`;
+          const authUrl = `${config.host}/oidc/auth?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}&prompt=login`;
           window.location.href = authUrl;
           return true; // 阻止错误继续传播
         }
