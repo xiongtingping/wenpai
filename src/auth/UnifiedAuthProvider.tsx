@@ -161,7 +161,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // ===== 认证方法 =====
 
   /**
-   * 用户登录 - 重构的简化弹窗方案
+   * 用户登录 - 直接页面跳转方案（绕过Guard弹窗缺陷）
    */
   const login = useCallback(async (redirectTo?: string) => {
     try {
@@ -174,41 +174,29 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         throw new Error('认证配置未初始化');
       }
 
-      // 创建简化的Guard实例
-      console.log('🏗️ 创建简化Guard实例...');
+      // 🔧 完全绕过Guard弹窗，直接使用页面跳转
+      // 原因：@authing/guard v5.3.9存在内部oidcConfig初始化缺陷，弹窗内容空白
+      const authUrl = `${config.host}/oidc/auth?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}&prompt=login`;
 
-      // 动态导入Guard - 使用更简单的配置
-      const { Guard } = await import('@authing/guard');
+      // 如果有重定向目标，保存到sessionStorage
+      if (redirectTo) {
+        sessionStorage.setItem('auth_redirect_to', redirectTo);
+      }
 
-      // ✅ 修复Guard配置 - 使用官方文档推荐的完整配置格式
-      const guardConfig = {
-        appId: config.appId,
-        host: config.host,
-        redirectUri: config.redirectUri,
-        mode: 'modal' as const,
-        defaultScene: 'login' as const,
-        lang: 'zh-CN' as const,
-        isSSO: true, // ✅ 添加：启用SSO支持
-        // ✅ 添加config对象 - 根据官方文档，这是必需的
-        config: {
-          autoRegister: false,
-          clickCloseable: true,
-          escCloseable: true,
-          maskCloseable: true,
-          // ✅ 添加：防止oidcConfig初始化失败的配置
-          skipComplateFileds: false,
-          skipComplateFiledsPlace: 'modal'
-        }
-      };
+      console.log('🔄 直接跳转到Authing认证页面（绕过Guard弹窗）', { authUrl });
+      window.location.href = authUrl;
 
-      console.log('🏗️ Guard配置:', guardConfig);
+    } catch (error) {
+      console.error('❌ 登录流程失败:', error);
+      setAuthState(prev => ({
+        ...prev,
+        loading: false,
+        error: error instanceof Error ? error.message : '登录失败'
+      }));
+    }
+  }, []);
 
-      // 创建Guard实例 - 简化错误处理
-      const guard = new Guard(guardConfig);
-      console.log('✅ Guard实例创建成功');
-
-      // 监听登录成功事件
-      guard.on('login', async (userInfo: any) => {
+  /**
         try {
           logger.info('✅ Guard登录成功:', userInfo);
 
