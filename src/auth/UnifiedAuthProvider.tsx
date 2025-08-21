@@ -339,12 +339,36 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
           guard.show();
           console.log('✅ Guard弹窗显示成功');
 
-          // 3秒后检查内容是否正常加载
-          setTimeout(() => {
-            if (checkGuardContent()) {
-              return; // 已经跳转，不需要继续
-            }
-          }, 3000);
+          // 多轮检查Guard内容加载状态
+          const checkIntervals = [1000, 2000, 3000, 5000]; // 1秒、2秒、3秒、5秒
+          checkIntervals.forEach((delay, index) => {
+            setTimeout(() => {
+              if (checkGuardContent()) {
+                console.log(`🔄 第${index + 1}轮检查发现问题，已触发回退`);
+                return;
+              }
+
+              // 最后一轮检查：强制检查DOM结构
+              if (index === checkIntervals.length - 1) {
+                const guardContainers = document.querySelectorAll('[id*="authing"], [class*="authing"]');
+                let hasValidContent = false;
+
+                guardContainers.forEach(container => {
+                  const inputs = container.querySelectorAll('input');
+                  const buttons = container.querySelectorAll('button');
+                  if (inputs.length > 0 || buttons.length > 0) {
+                    hasValidContent = true;
+                  }
+                });
+
+                if (!hasValidContent) {
+                  console.log('🚨 最终检查：Guard弹窗无有效内容，强制跳转');
+                  const authUrl = `${config.host}/oidc/auth?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri || '')}&response_type=code&scope=${encodeURIComponent(config.scope || 'openid profile email phone')}&prompt=login`;
+                  window.location.href = authUrl;
+                }
+              }
+            }, delay);
+          });
 
           // 立即检查并修复弹窗显示问题
           setTimeout(() => {
@@ -958,7 +982,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
     await register(params.redirectTo);
   };
   const resetPassword = async (email: string) => {
-    logger.info('重置密码功能暂未实现');
+    logger.info(`重置密码功能暂未实现 - ${email}`);
   };
 
   // ===== 订阅状态 =====
