@@ -78,11 +78,14 @@ const themes: ThemeConfig[] = [
 function getInitialTheme(user?: any): Theme {
   const themeKey = generateStorageKey('wenpai-theme', user);
   const stored = localStorage.getItem(themeKey) as Theme;
-  if (stored && themes.some(t => t.value === stored)) return stored;
-  // fallback: prefers-color-scheme
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    return 'dark';
+  
+  // 如果有存储的主题且是有效主题，返回存储的主题
+  if (stored && themes.some(t => t.value === stored)) {
+    return stored;
   }
+  
+  // 🔧 修复：默认主题始终是 light，避免权限检查过早
+  // 不再根据系统偏好自动设置深色主题，因为需要先进行权限检查
   return 'light';
 }
 
@@ -106,8 +109,14 @@ export const ThemeToggle: React.FC = () => {
     }
   }, [user?.id]);
 
-  // 当主题或权限变更时，强制将不具备权限的主题回退到浅色（trial 不能使用深色）
+  // 🔧 优化权限检查逻辑，减少不必要的回退提示
   useEffect(() => {
+    // 等待认证系统初始化完成
+    if (!isAuthenticated && user === null) {
+      // 认证状态未确定，跳过权限检查
+      return;
+    }
+    
     const cfg = themes.find(t => t.value === theme);
     if (!cfg) return;
 
@@ -125,17 +134,25 @@ export const ThemeToggle: React.FC = () => {
       }
     })();
 
-    // 如果没有权限且当前主题不是light，则回退到light
+    // 如果没有权限且当前主题不是light，则静默回退到light
+    // 只有在用户主动设置了高级主题时才显示权限不足提示
     if (!allowed && theme !== 'light') {
-      console.log(`🎨 主题权限不足，从 ${theme} 回退到 light`);
-      setTheme('light');
+      // 检查是否是用户主动设置的主题（而不是初始化时的默认主题）
       const themeKey = generateStorageKey('wenpai-theme', user);
+      const storedTheme = localStorage.getItem(themeKey);
+      
+      // 只有当存储的主题与当前主题一致且用户已认证时，才说明是用户主动设置的
+      if (storedTheme === theme && isAuthenticated) {
+        console.log(`🎨 主题权限不足，从 ${theme} 回退到 light`);
+      }
+      
+      setTheme('light');
       localStorage.setItem(themeKey, 'light');
       const html = document.documentElement;
       html.setAttribute('data-theme', 'light');
       html.classList.remove('dark');
     }
-  }, [theme, basicPermission.pass, advancedPermission.pass, premiumPermission.pass, user]);
+  }, [theme, basicPermission.pass, advancedPermission.pass, premiumPermission.pass, user, isAuthenticated]);
 
   useEffect(() => {
     const html = document.documentElement;

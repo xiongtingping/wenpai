@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 🔧 强制清理缓存，解决 authing-fix.js 缓存问题 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>文派</title>
     <link rel="icon" type="image/svg+xml" href="/logo-panda.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -10,8 +14,8 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- 🔧 Authing配置问题临时修复脚本 -->
-    <script src="/authing-fix.js"></script>
+    <!-- 🧹 缓存清理脚本，解决 authing-fix.js 缓存问题 -->
+    <script src="/cache-cleanup.js"></script>
     <!-- 🚨 暂时禁用可能干扰Guard的脚本 -->
     <!-- <script src="/emergency-undefined-fix.js"></script> -->
     <script type="module" src="/src/main.js"></script>

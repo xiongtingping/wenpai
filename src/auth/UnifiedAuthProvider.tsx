@@ -154,9 +154,9 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
    */
   const login = useCallback(async (redirectTo?: string) => {
     try {
-      // 🛡️ 防重复执行检测
+      // 🛡️ 简化防重复执行检测
       if (authState.loading) {
-        console.log('🛑 登录正在进行中，跳过重复调用', {
+        console.log('🚫 登录正在进行中，跳过重复调用', {
           loading: authState.loading,
           isAuthenticated: authState.isAuthenticated,
           initialized: authState.initialized,
@@ -165,37 +165,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         return;
       }
       
-      // 🛡️ 增强版防循环检测：多重验证机制
-      const stack = new Error().stack || '';
-      
-      // 1️⃣ 检查是否来自用户交互事件
-      const hasUserInteraction = stack.includes('onClick') || 
-                                 stack.includes('handleButtonClick') || 
-                                 stack.includes('handleSubmit') ||
-                                 stack.includes('onSubmit');
-      
-      // 2️⃣ 检查是否来自useEffect（通常是自动触发）
-      const isFromUseEffect = stack.includes('useEffect') || 
-                             stack.includes('callCallback') ||
-                             stack.includes('invokeEffectsInDev');
-      
-      // 3️⃣ 检查是否有明确的重定向意图
-      const hasRedirectIntent = !!redirectTo;
-      
-      // 4️⃣ 最终判断：必须有用户交互或明确重定向意图，且不能来自useEffect
-      const isUserInitiated = (hasUserInteraction || hasRedirectIntent) && !isFromUseEffect;
-      
-      if (!isUserInitiated) {
-        console.warn('🛑 阻止自动登录调用', {
-          hasUserInteraction,
-          isFromUseEffect,
-          hasRedirectIntent,
-          caller: stack.split('\n')[1]?.trim()
-        });
-        return;
-      }
-      
-      console.log('🔄 开始登录流程...', { redirectTo, isUserInitiated });
+      console.log('🔄 开始登录流程...', { redirectTo });
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
       const config = authService.getConfig();
