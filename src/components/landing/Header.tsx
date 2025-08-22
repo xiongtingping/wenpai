@@ -245,11 +245,12 @@ export function Header() {
                   登录
                 </Button>
                 <Button
-                  onClick={() => {
-                    console.log('🔧 注册按钮被点击，调用register()方法');
+                  onClick={(e) => {
+                    e.stopPropagation(); // 阻止事件冒泡
                     register();
                   }}
                   className="bg-primary hover:bg-primary/90"
+                  type="button" // 明确指定按钮类型
                 >
                   注册
                 </Button>
@@ -357,10 +358,11 @@ export function Header() {
                     </SheetClose>
                     <SheetClose asChild>
                       <Button
-                        onClick={() => {
-                          console.log('🔧 移动端注册按钮被点击，调用register()方法');
+                        onClick={(e) => {
+                          e.stopPropagation(); // 阻止事件冒泡
                           register();
                         }}
+                        type="button" // 明确指定按钮类型
                       >
                         注册
                       </Button>
