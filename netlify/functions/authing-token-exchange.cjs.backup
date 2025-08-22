@@ -47,26 +47,53 @@ exports.handler = async (event) => {
     const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
     const host = (AUTHING_HOST || VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn').replace(/\/$/, '');
 
-    // 🚨 终极修复：硬编码正确的redirect_uri
-    let redirectUri = 'https://www.wenpai.xyz/callback'; // 强制使用正确值
-    
-    // 优先使用前端传递的redirect_uri（如果有的话）
+    // 🔧 OAuth2关键修复：优先使用前端传递的redirect_uri确保一致性
     const body = event.body ? JSON.parse(event.body) : {};
     const originalRedirectUri = body.original_redirect_uri;
     
+    let redirectUri;
+    const requestOrigin = event.headers.origin || event.headers.Origin || event.headers.referer;
+    let dynamicRedirectUri = 'https://www.wenpai.xyz/callback'; // 默认值
+    
     if (originalRedirectUri) {
+      // 优先使用前端传递的认证时使用的redirect_uri
       redirectUri = originalRedirectUri;
-      console.log('✅ 🚨 终极修复：使用前端传递的redirect_uri:', redirectUri);
+      console.log('✅ 使用前端传递的redirect_uri:', redirectUri);
     } else {
-      console.log('⚠️ 🚨 终极修复：使用硬编码的redirect_uri:', redirectUri);
+      // 兜底：动态构建redirect_uri（保持向后兼容）
+      if (requestOrigin) {
+        try {
+          const originUrl = new URL(requestOrigin);
+          const hostname = originUrl.hostname;
+
+          // 检查是否为白名单中的生产域名
+          const isAllowedDomain = hostname === 'www.wenpai.xyz' ||
+                                   hostname === 'wenpai.xyz' ||
+                                   hostname === 'wenpai.netlify.app' ||
+                                   hostname === 'localhost';
+
+          if (isAllowedDomain) {
+            // 对于允许的域名，使用其 origin 回调
+            const portSuffix = originUrl.port ? `:${originUrl.port}` : '';
+            dynamicRedirectUri = `${originUrl.protocol}//${originUrl.hostname}${portSuffix}/callback`;
+            console.log('⚠️ 兜底使用动态构建的redirect_uri:', dynamicRedirectUri);
+          } else {
+            console.log('⚠️ 非允许域名，使用默认redirectUri:', hostname);
+          }
+        } catch (e) {
+          console.log('⚠️ 无法解析Origin，使用默认redirectUri');
+        }
+      }
+      redirectUri = dynamicRedirectUri;
     }
 
     // 调试日志：输出配置信息（生产环境下隐藏敏感信息）
-    console.log('🔧 🚨 终极修复 - Authing配置检查:', {
+    console.log('🔧 Authing配置检查:', {
       appId: appId ? `${appId.substring(0, 8)}...` : 'MISSING',
       host: host || 'MISSING',
       redirectUri: redirectUri || 'MISSING',
-      hardcoded: !originalRedirectUri,
+      requestOrigin: requestOrigin || 'MISSING',
+      dynamicRedirectUri: dynamicRedirectUri || 'MISSING',
       env: process.env.NODE_ENV || 'unknown'
     });
 

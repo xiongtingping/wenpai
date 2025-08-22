@@ -1265,7 +1265,287 @@ const DecorationPanel: React.FC = () => {
 };
 ```
 
-### 5.2 交互流程优化
+### 5.7 交互流程与微动画优化
+
+**交互设计原则：**
+- 遵循“反馈即时性”原则，所有操作都有即时反馈
+- 实现“渐进式信息披露”，避免信息过载
+- 采用“可逆操作”设计，用户可以轻松撤销错误操作
+- 支持“键盘导航”和“无障碍访问”
+
+**新版交互流程图：**
+
+```mermaid
+flowchart TD
+    A[🚀 用户进入页面] --> A1[🎨 加载动画]
+    A1 --> B[🤖 智能检测系统]
+    B --> B1{📅 节假日检测}
+    B --> B2{🔥 热点检测}
+    B --> B3{👤 用户偏好分析}
+    
+    B1 -->|是| C1[🎉 节假日卡片展示]
+    B2 -->|是| C2[🔥 热点卡片展示]
+    B3 --> C3[🎯 个性化推荐]
+    
+    C1 --> D[🎭 选择操作方式]
+    C2 --> D
+    C3 --> D
+    
+    D --> D1[📋 模板库浏览]
+    D --> D2[🤖 AI智能生成]
+    D --> D3[✍️ 手动创建]
+    
+    D1 --> E1[🔍 智能筛选系统]
+    E1 --> E11[🏢 行业匹配]
+    E1 --> E12[🎅 节假日匹配]
+    E1 --> E13[🔥 热点匹配]
+    E1 --> E14[🎨 风格匹配]
+    
+    E11 --> F1[🃏 模板卡片展示]
+    E12 --> F1
+    E13 --> F1
+    E14 --> F1
+    
+    F1 --> F11[👁️ 预览模式]
+    F1 --> F12[📋 一键复制]
+    F1 --> F13[❤️ 收藏操作]
+    F1 --> F14[🎨 自定义装饰]
+    
+    D2 --> G1[📝 主题输入]
+    G1 --> G2[🎯 参数选择]
+    G2 --> G21[🏢 行业选择]
+    G2 --> G22[🎅 节假日选择]
+    G2 --> G23[🔥 热点融合]
+    G2 --> G24[🎨 风格选择]
+    
+    G21 --> H1[🤖 AI生成处理]
+    G22 --> H1
+    G23 --> H1
+    G24 --> H1
+    
+    H1 --> H2[🎨 智能装饰匹配]
+    H2 --> H3[👁️ 实时预览]
+    H3 --> H4[✏️ 编辑与优化]
+    H4 --> H5[📋 最终复制]
+    
+    D3 --> I1[📝 自由创作模式]
+    I1 --> I2[🎨 装饰工具面板]
+    I2 --> I21[😀 Emoji选择器]
+    I2 --> I22[😊 颜文字选择器]
+    I2 --> I23[🎨 风格模板]
+    I2 --> I24[🔥 热点提示]
+    
+    I21 --> J1[👁️ 实时预览更新]
+    I22 --> J1
+    I23 --> J1
+    I24 --> J1
+    
+    J1 --> J2[💾 保存为模板]
+    J1 --> J3[📋 直接复制]
+    
+    F12 --> K[✨ 成功反馈动画]
+    H5 --> K
+    J3 --> K
+    
+    K --> L[📈 使用数据统计]
+    L --> M[🚀 返回主界面]
+    
+    style A fill:#e3f2fd
+    style D fill:#fff3e0
+    style K fill:#e8f5e8
+    style L fill:#f3e5f5
+```
+
+**微动画设计规范：**
+
+```typescript
+// 动画配置常量
+const ANIMATION_CONFIG = {
+  // 基础动画时间
+  durations: {
+    fast: 150,      // 快速动画（按钮点击等）
+    normal: 300,    // 普通动画（卡片切换等）
+    slow: 500,      // 缓慢动画（页面转场等）
+    loading: 1000   // 加载动画
+  },
+  
+  // 动画缓动函数
+  easings: {
+    easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    easeOut: 'cubic-bezier(0, 0, 0.2, 1)',
+    easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
+    bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+  },
+  
+  // 动画变换
+  transforms: {
+    slideUp: 'translateY(20px)',
+    slideDown: 'translateY(-20px)',
+    slideLeft: 'translateX(20px)',
+    slideRight: 'translateX(-20px)',
+    scale: 'scale(0.95)',
+    rotate: 'rotate(180deg)'
+  }
+};
+
+// 页面加载动画组件
+const PageLoadingAnimation: React.FC = () => {
+  return (
+    <div className="
+      fixed inset-0 bg-white dark:bg-gray-900 z-50
+      flex items-center justify-center
+      transition-opacity duration-500 ease-out
+    ">
+      <div className="text-center">
+        <div className="
+          relative w-20 h-20 mx-auto mb-4
+          animate-spin
+        ">
+          <div className="
+            absolute inset-0 border-4 border-blue-200 rounded-full
+          "></div>
+          <div className="
+            absolute inset-0 border-4 border-blue-600 rounded-full
+            border-t-transparent animate-spin
+          "></div>
+        </div>
+        <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
+          正在加载智能模板...
+        </p>
+        <div className="
+          w-48 h-1 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mt-4
+          overflow-hidden
+        ">
+          <div className="
+            h-full bg-gradient-to-r from-blue-500 to-purple-500
+            rounded-full animate-pulse
+            transform origin-left animate-loading-bar
+          "></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 模板卡片hover动画
+const useCardHoverAnimation = () => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const cardStyles = {
+    transform: isHovered 
+      ? 'translateY(-8px) scale(1.02)' 
+      : 'translateY(0) scale(1)',
+    boxShadow: isHovered
+      ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+      : '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+  };
+  
+  return {
+    cardStyles,
+    setIsHovered
+  };
+};
+
+// 复制成功动画
+const CopySuccessAnimation: React.FC<{ show: boolean }> = ({ show }) => {
+  return (
+    <div className={`
+      fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
+      bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50
+      transition-all duration-300 ease-out
+      ${show 
+        ? 'opacity-100 scale-100 translate-y-0' 
+        : 'opacity-0 scale-95 translate-y-4 pointer-events-none'
+      }
+    `}>
+      <div className="flex items-center space-x-2">
+        <Check className="w-5 h-5" />
+        <span className="font-medium">复制成功！</span>
+      </div>
+    </div>
+  );
+};
+
+// 筛选条件变化动画
+const FilterTransition: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="
+      transition-all duration-300 ease-in-out
+      transform
+    ">
+      {children}
+    </div>
+  );
+};
+
+// 模板网格动画
+const TemplateGridAnimation: React.FC<{ templates: Template[] }> = ({ templates }) => {
+  return (
+    <div className="
+      grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6
+      transition-all duration-500 ease-out
+    ">
+      {templates.map((template, index) => (
+        <div
+          key={template.id}
+          className="
+            opacity-0 animate-fade-in-up
+          "
+          style={{
+            animationDelay: `${index * 100}ms`,
+            animationFillMode: 'forwards'
+          }}
+        >
+          <TemplateCard template={template} />
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+**键盘导航支持：**
+
+```typescript
+// 键盘快捷键配置
+const KEYBOARD_SHORTCUTS = {
+  search: 'cmd+k',           // 打开搜索
+  newTemplate: 'cmd+n',      // 新建模板
+  copy: 'cmd+c',            // 复制当前模板
+  favorite: 'cmd+d',        // 收藏/取消收藏
+  escape: 'escape',         // 关闭弹窗
+  enter: 'enter',           // 确认操作
+  arrowKeys: 'arrow',       // 导航操作
+};
+
+// 键盘导航hook
+const useKeyboardNavigation = () => {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Cmd/Ctrl + K: 打开搜索
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        openSearchModal();
+      }
+      
+      // Cmd/Ctrl + N: 新建模板
+      if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
+        event.preventDefault();
+        openCreateModal();
+      }
+      
+      // ESC: 关闭弹窗
+      if (event.key === 'Escape') {
+        closeAllModals();
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+};
+```
 
 ```mermaid
 flowchart TD
@@ -1312,13 +1592,358 @@ flowchart TD
     H --> I[成功完成]
 ```
 
-### 5.3 响应式设计
+### 5.8 响应式设计与适配性
 
-| 屏幕尺寸 | 布局方式 | 网格列数 | 特殊处理 |
-|----------|----------|----------|----------|
-| 手机 (<768px) | 垂直堆叠 | 1列 | 简化操作按钮，装饰工具折叠 |
-| 平板 (768-1024px) | 混合布局 | 2列 | 侧边栏可折叠，装饰面板缩小 |
-| 桌面 (>1024px) | 完整布局 | 3列 | 全功能展示，装饰工具完整 |
+**断点设计系统：**
+
+```typescript
+// Tailwind CSS 断点配置
+const BREAKPOINTS = {
+  xs: '320px',   // 小屏手机
+  sm: '640px',   // 大屏手机
+  md: '768px',   // 平板端
+  lg: '1024px',  // 小型桌面
+  xl: '1280px',  // 中型桌面
+  '2xl': '1536px' // 大型桌面
+};
+
+// 响应式布局组件
+const ResponsiveLayout: React.FC = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  
+  useEffect(() => {
+    const checkDevice = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
+    };
+    
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    return () => window.removeEventListener('resize', checkDevice);
+  }, []);
+  
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* 移动端布局 */}
+      {isMobile && <MobileLayout />}
+      
+      {/* 平板端布局 */}
+      {isTablet && <TabletLayout />}
+      
+      {/* 桌面端布局 */}
+      {!isMobile && !isTablet && <DesktopLayout />}
+    </div>
+  );
+};
+```
+
+**设备适配详细规格：**
+
+| 设备类型 | 屏幕尺寸 | 布局方式 | 网格列数 | 侧边栏 | 装饰面板 | 特殊处理 |
+|----------|----------|----------|----------|----------|----------|---------|
+| 小屏手机 | <640px | 垂直堆叠 | 1列 | 底部抽屉 | 全屏模态框 | 手势操作、语音输入 |
+| 大屏手机 | 640-768px | 垂直堆叠 | 1列 | 侧滑抽屉 | 全屏模态框 | 滑动手势、双指缩放 |
+| 平板端 | 768-1024px | 混合布局 | 2列 | 折叠侧边栏 | 右侧面板 | 触摸优化、旋转适配 |
+| 小型桌面 | 1024-1280px | 三栏布局 | 3列 | 可折叠 | 右侧面板 | 键盘导航、鼠标悬停 |
+| 中型桌面 | 1280-1536px | 三栏布局 | 4列 | 固定展示 | 固定面板 | 全功能展示 |
+| 大型桌面 | >1536px | 宽屏布局 | 5列 | 宽幅面板 | 扩展面板 | 专业版本功能 |
+
+**移动端优化设计：**
+
+```typescript
+// 移动端布局组件
+const MobileLayout: React.FC = () => {
+  const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('templates');
+  
+  return (
+    <div className="flex flex-col h-screen">
+      {/* 移动端头部 */}
+      <MobileHeader />
+      
+      {/* 智能推荐卡片 */}
+      <SmartRecommendationCards className="px-4 py-2" />
+      
+      {/* 主内容区域 */}
+      <main className="flex-1 overflow-y-auto px-4">
+        <TemplateGrid 
+          templates={filteredTemplates}
+          columns={1}
+          gap="4"
+        />
+      </main>
+      
+      {/* 底部导航栏 */}
+      <MobileBottomNavigation 
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onFilterOpen={() => setBottomSheetOpen(true)}
+      />
+      
+      {/* 底部抽屉 */}
+      <BottomSheet 
+        isOpen={bottomSheetOpen}
+        onClose={() => setBottomSheetOpen(false)}
+        title="筛选条件"
+      >
+        <MobileFilterContent />
+      </BottomSheet>
+    </div>
+  );
+};
+
+// 移动端底部导航
+const MobileBottomNavigation: React.FC<{
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  onFilterOpen: () => void;
+}> = ({ activeTab, onTabChange, onFilterOpen }) => {
+  return (
+    <nav className="
+      bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700
+      px-4 py-2 safe-area-bottom
+    ">
+      <div className="flex items-center justify-around">
+        {[
+          { id: 'templates', label: '模板', icon: Grid3X3 },
+          { id: 'ai', label: 'AI生成', icon: Bot },
+          { id: 'decorations', label: '装饰', icon: Palette },
+          { id: 'favorites', label: '收藏', icon: Heart },
+          { id: 'filter', label: '筛选', icon: Filter, action: onFilterOpen }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            className={`
+              flex flex-col items-center space-y-1 py-2 px-3 rounded-lg
+              transition-colors duration-200
+              ${activeTab === tab.id
+                ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+              }
+            `}
+            onClick={() => tab.action ? tab.action() : onTabChange(tab.id)}
+          >
+            <tab.icon className="w-6 h-6" />
+            <span className="text-xs font-medium">{tab.label}</span>
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+};
+```
+
+**手势操作支持：**
+
+```typescript
+// 手势操作配置
+const useGestureControls = () => {
+  const handleSwipe = useSwipeable({
+    onSwipedLeft: () => {
+      // 左滑：打开装饰面板
+      openDecorationPanel();
+    },
+    onSwipedRight: () => {
+      // 右滑：打开筛选面板
+      openFilterPanel();
+    },
+    onSwipedUp: () => {
+      // 上滑：打开AI生成
+      openAIGenerator();
+    },
+    onSwipedDown: () => {
+      // 下滑：关闭当前面板
+      closeCurrentPanel();
+    },
+    trackMouse: true,
+    preventScrollOnSwipe: true
+  });
+  
+  return handleSwipe;
+};
+
+// 长按操作
+const useLongPress = (callback: () => void, delay = 500) => {
+  const [startLongPress, setStartLongPress] = useState(false);
+  
+  useEffect(() => {
+    let timerId: NodeJS.Timeout;
+    if (startLongPress) {
+      timerId = setTimeout(callback, delay);
+    } else {
+      clearTimeout(timerId);
+    }
+    
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [startLongPress, callback, delay]);
+  
+  return {
+    onMouseDown: () => setStartLongPress(true),
+    onMouseUp: () => setStartLongPress(false),
+    onMouseLeave: () => setStartLongPress(false),
+    onTouchStart: () => setStartLongPress(true),
+    onTouchEnd: () => setStartLongPress(false),
+  };
+};
+```
+
+### 5.9 无障碍设计规范
+
+**WCAG 2.1 AA级支持：**
+
+```typescript
+// 无障碍设计组件
+const AccessibleTemplateCard: React.FC<TemplateCardProps> = ({
+  template,
+  onSelect,
+  isSelected
+}) => {
+  const cardId = `template-card-${template.id}`;
+  
+  return (
+    <div
+      id={cardId}
+      role="button"
+      tabIndex={0}
+      aria-label={`模板: ${template.title}, 行业: ${template.industry}, 使用次数: ${template.useCount}`}
+      aria-describedby={`${cardId}-description`}
+      aria-pressed={isSelected}
+      className="
+        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+        transition-all duration-200
+      "
+      onClick={() => onSelect(template)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(template);
+        }
+      }}
+    >
+      {/* 模板内容 */}
+      <div id={`${cardId}-description`} className="sr-only">
+        {template.content}
+        适用于{template.industry}行业，
+        已被使用{template.useCount}次
+      </div>
+      
+      {/* 可视内容 */}
+      <TemplateCardContent template={template} />
+    </div>
+  );
+};
+
+// 键盘导航管理
+const useKeyboardNavigation = () => {
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const [items, setItems] = useState<HTMLElement[]>([]);
+  
+  useEffect(() => {
+    // 获取所有可聚焦元素
+    const focusableElements = Array.from(
+      document.querySelectorAll('[role="button"], button, input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    ) as HTMLElement[];
+    
+    setItems(focusableElements);
+  }, []);
+  
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    const currentItem = items[focusedIndex];
+    
+    switch (e.key) {
+      case 'ArrowDown':
+      case 'ArrowRight':
+        e.preventDefault();
+        const nextIndex = (focusedIndex + 1) % items.length;
+        setFocusedIndex(nextIndex);
+        items[nextIndex]?.focus();
+        break;
+        
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        e.preventDefault();
+        const prevIndex = (focusedIndex - 1 + items.length) % items.length;
+        setFocusedIndex(prevIndex);
+        items[prevIndex]?.focus();
+        break;
+        
+      case 'Home':
+        e.preventDefault();
+        setFocusedIndex(0);
+        items[0]?.focus();
+        break;
+        
+      case 'End':
+        e.preventDefault();
+        const lastIndex = items.length - 1;
+        setFocusedIndex(lastIndex);
+        items[lastIndex]?.focus();
+        break;
+        
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        currentItem?.click();
+        break;
+    }
+  }, [focusedIndex, items]);
+  
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+};
+
+// 屏幕阅读器支持
+const ScreenReaderAnnouncements: React.FC = () => {
+  const [announcement, setAnnouncement] = useState('');
+  
+  const announce = useCallback((message: string) => {
+    setAnnouncement(message);
+    // 清除公告，使屏幕阅读器可以重复读取相同消息
+    setTimeout(() => setAnnouncement(''), 1000);
+  }, []);
+  
+  return (
+    <div
+      aria-live="polite"
+      aria-atomic="true"
+      className="sr-only"
+    >
+      {announcement}
+    </div>
+  );
+};
+```
+
+**色彩对比度规范：**
+
+```typescript
+// 色彩系统配置（符合WCAG AA标准）
+const ACCESSIBLE_COLORS = {
+  primary: {
+    50: '#eff6ff',   // 背景色
+    500: '#3b82f6',  // 主色（对比度 4.5:1）
+    600: '#2563eb',  // 深主色（对比度 7:1）
+    900: '#1e3a8a'   // 最深色（对比度 12:1）
+  },
+  gray: {
+    50: '#f9fafb',   // 最浅背景
+    400: '#9ca3af',  // 次要文本（对比度 4.5:1）
+    700: '#374151',  // 主要文本（对比度 7:1）
+    900: '#111827'   // 最深文本（对比度 15:1）
+  },
+  semantic: {
+    success: '#059669',   // 成功色（对比度 4.5:1）
+    warning: '#d97706',   // 警告色（对比度 4.5:1）
+    error: '#dc2626',     // 错误色（对比度 4.5:1）
+    info: '#2563eb'       // 信息色（对比度 4.5:1）
+  }
+};
+```
 
 ## 6. 技术实现与部署
 
