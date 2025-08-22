@@ -142,6 +142,12 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
    */
   const login = useCallback(async (redirectTo?: string) => {
     try {
+      // 🛡️ 防重复执行检测
+      if (authState.loading) {
+        console.log('🛑 登录正在进行中，跳过重复调用');
+        return;
+      }
+      
       // 🛡️ 增强版防循环检测：多重验证机制
       const stack = new Error().stack || '';
       
