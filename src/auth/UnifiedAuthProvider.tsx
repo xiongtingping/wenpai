@@ -173,6 +173,13 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       }
       
       console.log('🔄 开始登录流程...', { redirectTo, isUserInitiated });
+      console.log('🔍 调用栈详情:', {
+        fullStack: stack,
+        hasUserInteraction,
+        isFromUseEffect,
+        hasRedirectIntent,
+        currentUrl: window.location.href
+      });
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
       const config = authService.getConfig();
