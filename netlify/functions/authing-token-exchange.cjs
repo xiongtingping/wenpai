@@ -52,6 +52,8 @@ exports.handler = async (event) => {
     const originalRedirectUri = body.original_redirect_uri;
     
     let redirectUri;
+    const requestOrigin = event.headers.origin || event.headers.Origin || event.headers.referer;
+    let dynamicRedirectUri = 'https://www.wenpai.xyz/callback'; // 默认值
     
     if (originalRedirectUri) {
       // 优先使用前端传递的认证时使用的redirect_uri
@@ -59,9 +61,6 @@ exports.handler = async (event) => {
       console.log('✅ 使用前端传递的redirect_uri:', redirectUri);
     } else {
       // 兜底：动态构建redirect_uri（保持向后兼容）
-      const requestOrigin = event.headers.origin || event.headers.Origin || event.headers.referer;
-      let dynamicRedirectUri = 'https://www.wenpai.xyz/callback'; // 默认值
-
       if (requestOrigin) {
         try {
           const originUrl = new URL(requestOrigin);

@@ -176,9 +176,29 @@ interface TextTemplate {
 | 母婴亲子 | 育儿心得、产品推荐、成长记录 | 👶🍼🧸 + (๑>◡<๑) | 育儿经验、产品种草 |
 | 金融服务 | 理财知识、产品介绍、市场分析 | 💰📈💳 + (￣▽￣)ノ | 投资建议、理财规划 |
 
+**节假日专题模板：**
+
+| 节假日类型 | 核心主题 | 装饰组合 | 适用行业 |
+|----------|----------|----------|----------|
+| 春节新年 | 新年祝福、年货推荐、团圆主题 | 🧧🎊🐉🏮 + ヽ(°〇°)ﾉ | 餐饮、零售、旅游 |
+| 情人节 | 浪漫表白、礼品推荐、甜蜜分享 | 💕🌹💎🍫 + (♡˙︶˙♡) | 美妆、餐饮、零售 |
+| 妇女节 | 女性关怀、美丽主题、自我犒赏 | 🌸💐👸✨ + (｡♥‿♥｡) | 美妆、时尚、健康 |
+| 清明节 | 踏青郊游、缅怀追思、春日美好 | 🌱🌸🕊️⛰️ + (◡ ‿ ◡) | 旅游、文化、教育 |
+| 劳动节 | 致敬劳动、假期出游、特惠活动 | 🔧⚒️🎪🎢 + ᕦ(ò_óˇ)ᕤ | 旅游、零售、服务 |
+| 儿童节 | 童趣回忆、亲子活动、儿童关爱 | 🎈🎪🧸🎨 + (๑>◡<๑) | 母婴、教育、娱乐 |
+| 端午节 | 传统文化、粽子美食、龙舟竞渡 | 🐉🥟🚣‍♂️🎋 + ٩(◕‿◕)۶ | 餐饮、文化、传统 |
+| 中秋节 | 团圆思念、月饼分享、赏月情怀 | 🌕🥮🏮🦴 + (´∀｀)♡ | 餐饮、家居、传统 |
+| 国庆节 | 爱国情怀、出游计划、庆祝活动 | 🇨🇳🎆🎪🗺️ + (≧▽≦) | 旅游、文化、零售 |
+| 万圣节 | 奇趣装扮、惊喜活动、创意主题 | 🎃👻🦇🕷️ + (⊙_⊙) | 娱乐、时尚、餐饮 |
+| 双十一 | 购物狂欢、超值优惠、抢购热潮 | 🛒💰🎯⚡ + (≧∇≦)ﾉ | 电商、零售、数码 |
+| 圣诞节 | 温馨祝福、礼品交换、节日氛围 | 🎄🎅🎁❄️ + ♪(´▽｀) | 餐饮、零售、娱乐 |
+
 **场景模板库：**
 - 日常分享：晨光微醉 ☀️ (◡ ‿ ◡)、周末慢时光 🌸 ♪(´▽｀)
 - 节日祝福：新年愿景 🎊 ヽ(°〇°)ﾉ、情人节甜蜜 💕 (♡˙︶˙♡)
+- 传统节日：中秋团圆 🌕 (´∀｀)♡、端午習俗 🐉 ٩(◕‿◕)۶
+- 国际节日：妇女节美丽 🌸 (｡♥‿♥｡)、儿童节欢乐 🎈 (๑>◡<๑)
+- 购物节日：双十一狂欢 🛒 (≧∇≦)ﾉ、年中大促 💰 ٩(◕‿◕)۶
 - 心情表达：月光下的思绪 🌙 (´･ω･`)、春天的约定 🌱 (≧▽≦)
 - 工作感悟：职场成长 📊 ᕦ(ò_óˇ)ᕤ、团队协作 🤝 ٩(◕‿◕)۶
 - 生活记录：美食探店 🍜 (´∀｀)♡、运动打卡 🏃‍♀️ ᕦ(ò_óˇ)ᕤ
@@ -219,24 +239,28 @@ interface TextTemplate {
 **生成策略升级：**
 
 ```typescript
-const generatePrompt = (topic: string, style: string, length: string, industry?: string) => {
+const generatePrompt = (topic: string, style: string, length: string, industry?: string, holiday?: string) => {
   // 获取行业专属装饰
   const industryDecorations = getIndustryDecorations(industry);
   const styleEmoticons = getStyleEmoticons(style);
+  const holidayTheme = getHolidayTheme(holiday);
   
   return `请为我生成一条朋友圈文案，要求：
 1. 主题：${topic}
 2. 风格：${style}
 3. 长度：${length}
 4. 行业：${industry || '通用'}
-5. 装饰要求：
+5. 节假日：${holiday ? `结合${holiday}节日氛围` : '无特定节日'}
+6. 装饰要求：
    - 包含适当的emoji表情: ${industryDecorations.emojis}
    - 使用颜文字装饰: ${styleEmoticons}
+   - 节日主题装饰: ${holidayTheme?.decorations || '无'}
    - 整体风格符合${industry}行业特色
-6. 内容要求：
+7. 内容要求：
    - 适合微信朋友圈发布
    - 原创有创意，符合现代年轻人表达习惯
-   - 内容积极正面，具有传播价值`;
+   - 内容积极正面，具有传播价值
+   ${holiday ? `- 突出${holiday}节日氛围和相关元素` : ''}`;
 };
 
 // 增强型模板生成器
@@ -245,6 +269,22 @@ const generateEnhancedTemplate = {
   byIndustry: (industry: string, scenario: string) => {
     const templates = INDUSTRY_TEMPLATES[industry];
     return templates.filter(t => t.scenarios.includes(scenario));
+  },
+  
+  // 节假日主题生成
+  byHoliday: (holiday: string, industry?: string) => {
+    const holidayTemplates = HOLIDAY_TEMPLATES[holiday];
+    if (industry) {
+      return holidayTemplates.filter(t => t.industries.includes(industry));
+    }
+    return holidayTemplates;
+  },
+  
+  // 智能节假日识别
+  detectHoliday: (currentDate: Date) => {
+    const month = currentDate.getMonth() + 1;
+    const day = currentDate.getDate();
+    return HOLIDAY_DETECTOR.getHolidayByDate(month, day);
   },
   
   // 情感增强生成
@@ -258,6 +298,44 @@ const generateEnhancedTemplate = {
   smartDecoration: (content: string, context: TemplateContext) => {
     const decorationSuggestions = analyzeContent(content);
     return applyBestDecorations(content, decorationSuggestions, context);
+  }
+};
+
+// 节假日检测器
+const HOLIDAY_DETECTOR = {
+  holidays: {
+    '1-1': '元旦',
+    '2-14': '情人节',
+    '3-8': '妇女节',
+    '4-4': '清明节', // 近似日期
+    '5-1': '劳动节',
+    '6-1': '儿童节',
+    '10-1': '国庆节',
+    '10-31': '万圣节',
+    '11-11': '双十一',
+    '12-25': '圣诞节'
+  },
+  
+  getHolidayByDate: (month: number, day: number) => {
+    const key = `${month}-${day}`;
+    return HOLIDAY_DETECTOR.holidays[key] || null;
+  },
+  
+  getUpcomingHolidays: (daysAhead: number = 7) => {
+    const upcoming = [];
+    const today = new Date();
+    for (let i = 0; i <= daysAhead; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(today.getDate() + i);
+      const holiday = HOLIDAY_DETECTOR.getHolidayByDate(
+        checkDate.getMonth() + 1, 
+        checkDate.getDate()
+      );
+      if (holiday) {
+        upcoming.push({ date: checkDate, holiday });
+      }
+    }
+    return upcoming;
   }
 };
 ```## 4. 装饰系统与行业适配
@@ -292,6 +370,13 @@ const generateEnhancedTemplate = {
 - 教育业：课程推广、学习分享、知识科普 📚💡 + (◕‿◕)
 - 电商业：产品推广、促销活动、客户服务 🛍️💰 + (≧∇≦)
 
+**节假日智能推荐：**
+- 实时节假日检测：自动识别当前日期对应的节假日
+- 提前提醒功能：7天内即将到来的节假日提醒
+- 节假日主题匹配：根据节假日类型推荐相关模板
+- 行业与节假日结合：不同行业在特定节假日的专属模板
+- 节假日装饰库：12个主要节假日的专属装饰元素
+
 ### 4.3 智能装饰算法
 
 ```typescript
@@ -316,46 +401,52 @@ class SmartDecorationEngine {
 
 ## 5. 用户体验设计
 
-**主要区域划分：**
-- 头部操作区：搜索、筛选、AI生成按钮
-- 侧边筛选栏：分类、心情、标签过滤
-- 主内容区：文案模板网格展示
-- 预览弹窗：文案详情和编辑
+### 5.1 界面布局优化
 
-### 4.2 交互流程
+**主要区域划分：**
+- 头部操作区：搜索、筛选、AI生成、行业选择、节假日选择器
+- 侧边筛选栏：分类、心情、标签、行业过滤、节假日筛选
+- 主内容区：模板网格展示（支持行业分组和节假日分组）
+- 节假日提醒区：显示即将到来的节假日和相关模板推荐
+- 装饰工具栏：颜文字选择器、Emoji装饰器、节假日主题装饰
+- 预览弹窗：文案详情和装饰编辑
+
+### 5.2 交互流程优化
 
 ```mermaid
 flowchart TD
-    A[用户进入页面] --> B[浏览现有模板]
+    A[用户进入页面] --> B[选择行业类型]
     B --> C{选择操作方式}
-    C -->|使用现有模板| D[点击复制文案]
-    C -->|AI生成| E[打开AI生成对话框]
-    C -->|手动创建| F[打开创建对话框]
+    C -->|使用模板| D[按行业筛选模板]
+    C -->|AI生成| E[输入主题+选择行业风格]
+    C -->|手动创建| F[选择装饰元素]
     
-    E --> E1[输入主题和风格]
-    E1 --> E2[AI生成文案]
-    E2 --> E3[预览和编辑]
-    E3 --> E4[保存到模板库]
+    D --> D1[选择适合模板]
+    D1 --> D2[添加个性化装饰]
+    D2 --> G[一键复制]
     
-    F --> F1[填写文案信息]
-    F1 --> F2[保存新模板]
+    E --> E1[AI生成行业化文案]
+    E1 --> E2[智能添加装饰]
+    E2 --> E3[预览和微调]
+    E3 --> G
     
-    D --> G[一键复制成功]
-    E4 --> G
-    F2 --> G
+    F --> F1[手动编辑内容]
+    F1 --> F2[选择颜文字和emoji]
+    F2 --> F3[保存到模板库]
+    F3 --> G
 ```
 
-### 4.3 响应式设计
+### 5.3 响应式设计
 
 | 屏幕尺寸 | 布局方式 | 网格列数 | 特殊处理 |
 |----------|----------|----------|----------|
-| 手机 (<768px) | 垂直堆叠 | 1列 | 简化操作按钮 |
-| 平板 (768-1024px) | 混合布局 | 2列 | 侧边栏可折叠 |
-| 桌面 (>1024px) | 完整布局 | 3列 | 全功能展示 |
+| 手机 (<768px) | 垂直堆叠 | 1列 | 简化操作按钮，装饰工具折叠 |
+| 平板 (768-1024px) | 混合布局 | 2列 | 侧边栏可折叠，装饰面板缩小 |
+| 桌面 (>1024px) | 完整布局 | 3列 | 全功能展示，装饰工具完整 |
 
-## 5. 技术实现细节
+## 6. 技术实现与部署
 
-### 5.1 状态管理
+### 6.1 核心数据结构
 
 ```typescript
 // 组件状态接口
@@ -377,50 +468,38 @@ interface AIGenerationState {
 }
 ```
 
-### 5.2 数据持久化
+### 6.2 性能优化策略
 
-**本地存储策略：**
+**存储与缓存策略：**
 - 模板数据：localStorage存储用户创建的模板
 - 收藏状态：localStorage记录用户收藏
 - 使用统计：localStorage记录使用次数
 - 搜索历史：sessionStorage存储搜索记录
-
-### 5.3 性能优化
+- 装饰偏好：用户颜文字和Emoji使用习惯
 
 **优化措施：**
 - 虚拟滚动：大量模板时使用虚拟滚动
 - 防抖搜索：搜索输入防抖处理
 - 延迟加载：模板内容按需加载
 - 缓存机制：AI生成结果缓存
+- 装饰预加载：常用颜文字和emoji组合预加载
+- 行业模板分组加载：按需加载行业特定模板
 
-## 6. 部署与维护
+### 6.3 部署与维护
 
-### 6.1 开发环境配置
-
-**启动命令：**
+**环境配置：**
 ```bash
-# 启动开发服务器
-npm run dev  # Vite开发服务器 (localhost:5175)
+# 开发服务器
+npm run dev  # Vite (localhost:5175)
 npx netlify dev --port 8888  # Netlify Functions
-```
 
-**环境变量：**
-```bash
+# 环境变量
 VITE_OPENAI_API_KEY=your_openai_key
 VITE_DEEPSEEK_API_KEY=your_deepseek_key
 VITE_GEMINI_API_KEY=your_gemini_key
 ```
 
-### 6.2 功能扩展规划
-
-**近期计划：**
-- 品牌资料库集成：结合用户品牌信息生成个性化文案
-- 多平台适配：支持小红书、微博等平台的文案格式
-- 协作功能：团队共享文案模板库
-- 数据分析：文案使用效果统计
-
-**长期规划：**
-- 智能推荐：基于用户行为推荐文案模板
-- 语音输入：支持语音转文案功能
-- 图片识别：从图片生成配套文案
-- API开放：提供第三方集成接口
+**功能扩展计划：**
+- 近期：品牌资料库集成、多平台适配、协作功能
+- 中期：智能推荐、语音输入、数据分析
+- 远期：图片识别生成文案、API开放、多语言支持
