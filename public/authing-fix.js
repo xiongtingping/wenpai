@@ -10,9 +10,12 @@
   
   console.log('🔧 Authing配置修复脚本启动');
   
-  // 防止重复修复的标记
+  // 🛡️ 强化防重复机制
   let isFixing = false;
   let lastFixedUrl = '';
+  let fixAttempts = 0;
+  let processedCodes = new Set(); // 记录已处理的授权码
+  const MAX_FIX_ATTEMPTS = 1; // 每个授权码最多修复1次
   
   // 检查当前URL是否包含错误的回调URL格式
   function checkAndFixCallback() {
@@ -27,6 +30,12 @@
     // 防止重复修复同一个URL
     if (currentUrl === lastFixedUrl) {
       console.log('⏭️ 跳过已修复的URL:', currentUrl);
+      return false;
+    }
+    
+    // 🚨 防止过度修复：检查修复次数
+    if (fixAttempts >= MAX_FIX_ATTEMPTS) {
+      console.log('🛑 已达到最大修复次数，停止修复避免授权码重复使用');
       return false;
     }
     
@@ -68,10 +77,21 @@
       }
       
       if (code) {
+        // 🚨 检查授权码是否已被处理过
+        if (processedCodes.has(code)) {
+          console.log('🛑 授权码已被处理，防止重复使用:', code.substring(0, 10) + '...');
+          window.location.replace(`${window.location.origin}/`);
+          return true;
+        }
+        
+        // 记录授权码已被处理
+        processedCodes.add(code);
+        
         // 构建正确的回调URL
         const correctUrl = `${window.location.origin}/callback?code=${encodeURIComponent(code)}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
         
         console.log('🔧 修正URL为:', correctUrl);
+        console.log('📝 已记录授权码，防止重复使用');
         
         // 防止循环重定向 & 记录已修复的URL
         if (currentUrl !== correctUrl) {

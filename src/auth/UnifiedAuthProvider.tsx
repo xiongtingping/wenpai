@@ -142,16 +142,33 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
    */
   const login = useCallback(async (redirectTo?: string) => {
     try {
-      // 🛡️ 防止自动登录循环：检查调用堆栈
+      // 🛡️ 增强版防循环检测：多重验证机制
       const stack = new Error().stack || '';
-      const isUserInitiated = stack.includes('onClick') || 
-                              stack.includes('handleButtonClick') || 
-                              stack.includes('handleSubmit') ||
-                              redirectTo; // 有明确重定向目标的调用
+      
+      // 1️⃣ 检查是否来自用户交互事件
+      const hasUserInteraction = stack.includes('onClick') || 
+                                 stack.includes('handleButtonClick') || 
+                                 stack.includes('handleSubmit') ||
+                                 stack.includes('onSubmit');
+      
+      // 2️⃣ 检查是否来自useEffect（通常是自动触发）
+      const isFromUseEffect = stack.includes('useEffect') || 
+                             stack.includes('callCallback') ||
+                             stack.includes('invokeEffectsInDev');
+      
+      // 3️⃣ 检查是否有明确的重定向意图
+      const hasRedirectIntent = !!redirectTo;
+      
+      // 4️⃣ 最终判断：必须有用户交互或明确重定向意图，且不能来自useEffect
+      const isUserInitiated = (hasUserInteraction || hasRedirectIntent) && !isFromUseEffect;
       
       if (!isUserInitiated) {
-        console.warn('🛑 阻止非用户主动触发的登录调用');
-        console.log('📍 调用堆栈:', stack.split('\n').slice(0, 5));
+        console.warn('🛑 阻止自动登录调用', {
+          hasUserInteraction,
+          isFromUseEffect,
+          hasRedirectIntent,
+          caller: stack.split('\n')[1]?.trim()
+        });
         return;
       }
       

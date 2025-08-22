@@ -10,10 +10,10 @@ export default function ForgotPasswordPage() {
   const { login, isAuthenticated } = useUnifiedAuth();
   const navigate = useNavigate();
 
-  // 页面加载自动弹出 Authing Guard
-  useEffect(() => {
-    login();
-  }, [login]);
+  // 🔧 修复：移除自动登录触发，改为用户手动点击
+  // useEffect(() => {
+  //   login(); // ❌ 删除：这会导致页面加载时自动触发登录
+  // }, [login]);
 
   // 登录成功后自动跳转首页
   useEffect(() => {
