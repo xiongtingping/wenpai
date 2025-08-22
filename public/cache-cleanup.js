@@ -25,27 +25,48 @@
     console.log('⚠️ 清理全局变量时出错:', error);
   }
   
-  // 3. 重置URL如果有异常格式
+  // 3. 重置URL如果有异常格式 - 增强版，处理多重回调URL连接
   function checkAndCleanUrl() {
     const currentUrl = window.location.href;
     
-    // 检查是否有authing-fix导致的URL问题
-    const hasUrlIssue = currentUrl.includes('callback%20') || 
-                       currentUrl.includes('callback ') ||
-                       currentUrl.match(/callback.*?callback/);
+    // 检查多种URL问题格式
+    const urlIssues = [
+      // authing-fix导致的问题
+      currentUrl.includes('callback%20'),
+      currentUrl.includes('callback '),
+      currentUrl.match(/callback.*?callback/),
+      // 多重回调URL连接问题（新增）
+      currentUrl.includes('%20%20https'),
+      currentUrl.includes('%20%20http'),
+      currentUrl.match(/callback[\s%20]+https?:\/\//),
+      // URL中包含多个域名
+      currentUrl.match(/\/callback.*?(wenpai\.xyz|netlify\.app|localhost).*?(wenpai\.xyz|netlify\.app|localhost)/)
+    ];
+    
+    const hasUrlIssue = urlIssues.some(issue => issue);
     
     if (hasUrlIssue) {
-      console.log('🔧 检测到URL格式问题，尝试修复...');
+      console.log('🔧 检测到URL格式问题（可能是多重回调URL），尝试修复...');
+      console.log('🔍 原始URL:', currentUrl);
       
       // 提取正确的参数
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       const state = urlParams.get('state');
       
+      // 如果URL中有code参数，构建干净的回调URL
       if (code) {
+        // 使用当前域名构建正确的回调URL
         const cleanUrl = `${window.location.origin}/callback?code=${encodeURIComponent(code)}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
         console.log('🔄 重定向到清理后的URL:', cleanUrl);
         window.location.replace(cleanUrl);
+        return true;
+      }
+      
+      // 如果没有code参数，但URL明显有问题，跳转到首页
+      if (currentUrl.includes('callback') && hasUrlIssue) {
+        console.log('🏠 URL格式错误且无有效授权码，跳转到首页');
+        window.location.replace(window.location.origin);
         return true;
       }
     }

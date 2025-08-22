@@ -15,7 +15,7 @@ export const getAuthConfig = (): AuthConfig => {
   const clientId = (import.meta as any).env.VITE_AUTHING_CLIENT_ID as string | undefined;
   const appId = (import.meta as any).env.VITE_AUTHING_APP_ID as string | undefined;
 
-  // 🔧 使用正确的App ID - 确保与Authing控制台一致
+  // 🔧 使用正确的App ID - 确保与.env文件一致，避免多重回调URL问题
   const effectiveAppId = appId || '68a68a29d0c3341ae7a3df23';
 
   // 🔒 生产环境关闭调试日志

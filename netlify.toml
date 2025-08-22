@@ -76,10 +76,10 @@
 
 # 环境变量设置
 # ===================
-# ✅ FIXED: 2025-08-21 Authing配置已更新为最新App ID
-# App ID: 68a68a29d0c3341ae7a3df23 (最新确认)
+# ✅ 统一配置：修复多重回调URL问题
+# App ID: 68a68a29d0c3341ae7a3df23 (与.env文件统一)
 # 认证域名: rzcswqs4sq0f.authing.cn
-# 📌 基于用户提供的最新App ID更新 2025-08-21
+# 📌 修复多重回调URL问题：统一App ID配置 2025-08-22
 # ===================
 [context.production.environment]
   NODE_ENV = "production"
