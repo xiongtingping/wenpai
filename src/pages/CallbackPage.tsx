@@ -106,6 +106,21 @@ const CallbackPage: React.FC = () => {
           
           logger.error('❌ 认证失败:', result.error);
           
+          // 清除认证相关的localStorage数据，避免循环
+          try {
+            localStorage.removeItem('pkce_code_verifier');
+            localStorage.removeItem('auth_state');
+            localStorage.removeItem('auth_redirect_to');
+          } catch (e) {
+            console.warn('清除localStorage失败:', e);
+          }
+          
+          // 重置认证尝试计数
+          const authUtils = (window as any).authFlowUtils;
+          if (authUtils) {
+            authUtils.resetAuthAttempts();
+          }
+          
           // 3秒后跳转到首页
           setTimeout(() => {
             if (isMounted) {
@@ -121,6 +136,21 @@ const CallbackPage: React.FC = () => {
         setHasError(true);
         setErrorMessage(error instanceof Error ? error.message : '处理失败');
         setProcessingStep('处理失败');
+        
+        // 清除认证相关的localStorage数据，避免循环
+        try {
+          localStorage.removeItem('pkce_code_verifier');
+          localStorage.removeItem('auth_state');
+          localStorage.removeItem('auth_redirect_to');
+        } catch (e) {
+          console.warn('清除localStorage失败:', e);
+        }
+        
+        // 重置认证尝试计数
+        const authUtils = (window as any).authFlowUtils;
+        if (authUtils) {
+          authUtils.resetAuthAttempts();
+        }
         
         // 3秒后跳转到首页
         setTimeout(() => {

@@ -2799,36 +2799,61 @@
   line-height: inherit;
 }
 
-/* 🚀 性能优化：防止强制回流 */
+/* 🚀 性能优化：防止强制回流 - 加强版 */
+
+/* 全局层级优化 */
+html {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+body {
+  transform: translateZ(0);
+  contain: layout style;
+  backface-visibility: hidden;
+}
+
+#root {
+  contain: layout style;
+  transform: translateZ(0);
+  isolation: isolate;
+}
+
 /* CSS containment 和 will-change 优化 */
 .auth-container, .auth-modal, .auth-guard, [id*="authing"], [class*="authing"] {
   contain: layout style paint;
   will-change: auto;
   transform: translateZ(0); /* 启用硬件加速 */
+  backface-visibility: hidden;
 }
 
 /* 优化频繁变化的元素 */
 .loading-indicator, .animation-element {
   will-change: transform, opacity;
   transform: translateZ(0); /* 启用硬件加速 */
+  backface-visibility: hidden;
 }
 
 /* 防止大量DOM变化导致的回流 */
-.page-content, body, #root {
-  contain: layout;
+.page-content {
+  contain: layout style;
   transform: translateZ(0);
+  isolation: isolate;
 }
 
 /* 优化表单输入框回流 */
 input, textarea, select, button {
   contain: layout style;
   transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* 减少自动补全造成的布局抖动 */
 input[autocomplete] {
   contain: layout style;
   transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* 特别优化：防止Authing相关的回流 */
@@ -2839,11 +2864,45 @@ iframe[src*="authing"],
   contain: strict;
   transform: translateZ(0);
   will-change: transform, opacity;
+  backface-visibility: hidden;
+  isolation: isolate;
 }
 
 /* 针对页面访问记录等可能导致回流的操作 */
 [data-track], [data-analytics] {
   contain: layout style;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* 🎯 强力优化：针对动态插入的脚本和元素 */
+script[src*="authing"], 
+script[src*="cdn.authing.co"],
+link[href*="authing"],
+style[data-authing] {
+  contain: strict;
+  transform: translateZ(0);
+}
+
+/* 优化动态创建的DOM元素 */
+div[id^="authing-"], 
+div[class^="authing-"],
+div[data-authing] {
+  contain: strict;
+  transform: translateZ(0);
+  will-change: auto;
+  backface-visibility: hidden;
+}
+
+/* 阻止第三方脚本造成的布局抖动 */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 禁用可能导致回流的CSS属性 */
+.no-reflow * {
+  contain: layout;
   transform: translateZ(0);
 }
 

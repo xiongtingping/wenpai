@@ -123,6 +123,53 @@ const batchDOMUpdates = (callback: () => void) => {
   });
 };
 
+// 🎯 监控并优化动态插入的元素
+const optimizeDynamicElements = () => {
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType === 1) { // Element node
+          const element = node as Element;
+          
+          // 针对Authing相关元素进行性能优化
+          if (element.id?.includes('authing') || 
+              element.className?.includes('authing') ||
+              (element as HTMLElement).tagName === 'IFRAME' && 
+              (element as HTMLIFrameElement).src?.includes('authing')) {
+            
+            (element as HTMLElement).style.contain = 'strict';
+            (element as HTMLElement).style.transform = 'translateZ(0)';
+            (element as HTMLElement).style.backfaceVisibility = 'hidden';
+            (element as HTMLElement).style.willChange = 'auto';
+          }
+          
+          // 递归处理子元素
+          element.querySelectorAll('[id*="authing"], [class*="authing"]').forEach((child) => {
+            (child as HTMLElement).style.contain = 'strict';
+            (child as HTMLElement).style.transform = 'translateZ(0)';
+            (child as HTMLElement).style.backfaceVisibility = 'hidden';
+          });
+        }
+      });
+    });
+  });
+  
+  // 监控整个文档的变化
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: false
+  });
+  
+  return observer;
+};
+
+// 启动动态元素优化
+let dynamicElementsObserver: MutationObserver | null = null;
+if (typeof window !== 'undefined') {
+  dynamicElementsObserver = optimizeDynamicElements();
+}
+
 // 防抖函数，减少频繁操作
 const debounce = (func: Function, wait: number) => {
   let timeout: NodeJS.Timeout;

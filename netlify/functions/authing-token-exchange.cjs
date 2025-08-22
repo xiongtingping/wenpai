@@ -109,14 +109,33 @@ exports.handler = async (event) => {
     const body = event.body ? JSON.parse(event.body) : {};
     const code = body.code;
     const code_verifier = body.code_verifier;
+    
+    console.log('🔍 请求体分析:', {
+      hasBody: !!event.body,
+      bodyLength: event.body ? event.body.length : 0,
+      bodyKeys: body ? Object.keys(body) : [],
+      code: code ? `${code.substring(0, 10)}...` : 'missing',
+      code_verifier: code_verifier ? `${code_verifier.substring(0, 10)}...` : 'missing',
+      code_verifier_length: code_verifier ? code_verifier.length : 0
+    });
+    
     // 允许两种模式：
     // 1) PKCE：提供 code_verifier（公共客户端）
     // 2) 机密客户端：提供 AUTHING_CLIENT_SECRET（无需 code_verifier）
     if (!code) {
+      console.error('❌ 缺少授权码');
       return { statusCode: 400, headers: baseHeaders, body: JSON.stringify({ error: 'Missing code' }) };
     }
+    
     const useClientSecret = !!(process.env.AUTHING_CLIENT_SECRET);
+    console.log('🔑 认证模式检查:', {
+      useClientSecret,
+      hasClientSecret: !!AUTHING_CLIENT_SECRET,
+      hasCodeVerifier: !!code_verifier
+    });
+    
     if (!useClientSecret && !code_verifier) {
+      console.error('❌ PKCE模式缺少code_verifier');
       return { statusCode: 400, headers: baseHeaders, body: JSON.stringify({ error: 'Missing code_verifier (PKCE)' }) };
     }
 
@@ -172,7 +191,11 @@ exports.handler = async (event) => {
       client_id: appId.substring(0, 8) + '...',
       redirect_uri: redirectUri,
       grant_type: 'authorization_code',
-      auth_mode: useClientSecret ? 'client_secret' : 'pkce'
+      auth_mode: useClientSecret ? 'client_secret' : 'pkce',
+      has_code: !!code,
+      has_code_verifier: !!code_verifier,
+      code_length: code ? code.length : 0,
+      form_data_keys: Array.from(form.keys())
     });
 
     // 添加请求头，提高兼容性
@@ -199,8 +222,22 @@ exports.handler = async (event) => {
 
       // 尝试解析JSON响应
       const responseText = await tokenResp.text();
+      console.log('📄 Token端点响应:', {
+        status: tokenResp.status,
+        statusText: tokenResp.statusText,
+        headers: Object.fromEntries(tokenResp.headers.entries()),
+        responseLength: responseText.length,
+        responsePreview: responseText.substring(0, 500)
+      });
+      
       try {
         tokenJson = JSON.parse(responseText);
+        console.log('✅ JSON解析成功:', {
+          hasAccessToken: !!tokenJson.access_token,
+          hasError: !!tokenJson.error,
+          errorType: tokenJson.error,
+          errorDescription: tokenJson.error_description
+        });
       } catch (parseError) {
         console.error('❌ JSON解析失败:', { responseText, parseError: parseError.message });
         tokenJson = { error: 'json_parse_failed', raw_response: responseText };
