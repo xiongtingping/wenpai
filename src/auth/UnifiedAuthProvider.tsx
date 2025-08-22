@@ -9,6 +9,9 @@ import { getAuthProviderConfig } from './config';
 import { authService } from './authService';
 import { tokenManager } from './tokenManager';
 import { permissionManager } from './permissionManager';
+import { callbackUrlNormalizer } from './callbackUrlNormalizer';
+import { authRetryGuard } from './authRetryGuard';
+import { authRequestInterceptor } from './authRequestInterceptor';
 import { setAuthTokenGetter } from '@/api/request';
 import { logger } from '@/utils/logger';
 // 🔧 引入弹窗样式修复
@@ -36,11 +39,15 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, []);
 
   /**
-   * 初始化认证系统
+   * 初始化认证系统 - 集成Round #3拦截器
    */
   const initializeAuth = async () => {
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
+
+      // 🛡️ Round #3: 启动请求拦截器，强制修正redirect_uri
+      logger.info('🛡️ Round #3: 启动认证请求拦截器');
+      // 拦截器已在实例化时自动启动
 
       const config = getAuthProviderConfig();
 
@@ -179,12 +186,23 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, []);
 
   /**
-   * 用户登录 - 彻底避开Guard SDK问题，直接使用托管登录
+   * 用户登录 - 集成防护机制，避免重复调用和无限循环
    */
   const login = useCallback(async (redirectTo?: string) => {
     try {
-      // 🛡️ 修复：优化防重复执行检测，避免初始化阶段阻塞登录
-      // 只有在已初始化且已认证或正在进行登录操作时才阻止
+      // 🛡️ 检查是否允许新的登录尝试
+      const canAttempt = authRetryGuard.canAttempt('login');
+      if (!canAttempt.allowed) {
+        console.warn('🚫 登录尝试被阻止:', canAttempt.reason);
+        setAuthState(prev => ({ 
+          ...prev, 
+          error: canAttempt.reason || null,
+          loading: false 
+        }));
+        return;
+      }
+
+      // 🛡️ 优化防重复执行检测，避免初始化阶段阻塞登录
       if (authState.initialized && authState.isAuthenticated) {
         console.log('🚫 用户已登录，跳过重复调用', {
           loading: authState.loading,
@@ -199,9 +217,8 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (!authState.initialized) {
         console.log('🔄 初始化未完成，等待初始化后再登录...');
         
-        // 等待最多5秒初始化完成
         let attempts = 0;
-        const maxAttempts = 50; // 5秒，每100毫秒检查一次
+        const maxAttempts = 50;
         
         while (!authState.initialized && attempts < maxAttempts) {
           await new Promise(resolve => setTimeout(resolve, 100));
@@ -213,30 +230,43 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
       }
       
-      console.log('🔄 开始登录流程...', { redirectTo });
+      // 🔒 开始认证尝试记录
+      const attemptId = authRetryGuard.startAttempt('login', window.location.href);
+      
+      console.log('🔄 开始登录流程...', { redirectTo, attemptId });
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
       const config = authService.getConfig();
       console.log('🔧 获取配置:', config);
       if (!config) {
-        throw new Error('认证配置未初始化');
+        const error = '认证配置未初始化';
+        authRetryGuard.markFailure(attemptId, error);
+        throw new Error(error);
       }
 
-      // 🚨 由于Guard SDK 5.x版本在处理回调URL时存在bug
-      // 会将多个配置的回调URL连接在一起导致redirect错误
-      // 因此直接使用托管登录方式，避开Guard SDK
+      // 🔗 使用托管登录方式，避开Guard SDK多重URL问题
       console.log('🔗 使用托管登录方式避开Guard SDK问题');
       
       const { startHostedLogin } = await import('./loginStrategy');
       await startHostedLogin(config, redirectTo);
+      
+      // 🎯 标记尝试成功（跳转成功即视为成功）
+      authRetryGuard.markSuccess(attemptId);
       return;
 
     } catch (error) {
       console.error('❌ 登录流程失败:', error);
+      const errorMessage = error instanceof Error ? error.message : '登录失败';
+      
+      // 🚨 检查是否需要触发冷却
+      if (authRetryGuard.shouldTriggerCooldown(errorMessage)) {
+        logger.warn('触发认证冷却机制:', errorMessage);
+      }
+      
       setAuthState(prev => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : '登录失败'
+        error: errorMessage
       }));
     }
   }, [authState.loading, authState.isAuthenticated, authState.initialized, authState.user]);

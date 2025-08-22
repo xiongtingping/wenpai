@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { handleAuthCallback } from '@/auth/callbackHandler';
+import { callbackUrlNormalizer } from '@/auth/callbackUrlNormalizer';
+import { authRetryGuard } from '@/auth/authRetryGuard';
+import { authCodeGuard } from '@/auth/authCodeGuard';
 import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { logger } from '@/utils/logger';
 
@@ -46,18 +49,53 @@ const CallbackPage: React.FC = () => {
 
         logger.debug('🔄 处理OAuth认证回调...');
         
+        // 🔧 使用URL规范化器检测和处理多重回调URL问题
+        const currentUrl = window.location.href;
+        const urlNormalization = callbackUrlNormalizer.normalizeCallbackUrl(currentUrl);
+        
+        logger.debug('🔍 URL规范化结果:', urlNormalization);
+        
+        // 如果检测到多重URL问题，记录并尝试修复
+        if (urlNormalization.hasMultipleUrls) {
+          logger.warn('⚠️ 检测到多重回调URL问题:', {
+            originalUrl: currentUrl,
+            extractedParams: urlNormalization.extractedParams,
+            cleanedUrl: urlNormalization.cleanedUrl
+          });
+          
+          // 🛡️ 记录认证失败尝试
+          const attemptId = authRetryGuard.startAttempt('callback', currentUrl);
+          authRetryGuard.markFailure(attemptId, '检测到多重回调URL问题');
+          
+          // 如果可能的话，使用清理后的URL重新处理
+          if (urlNormalization.cleanedUrl && urlNormalization.cleanedUrl !== currentUrl) {
+            logger.info('🔄 尝试使用清理后的URL重新处理');
+            window.location.href = urlNormalization.cleanedUrl;
+            return;
+          }
+        }
+        
         // 检查URL参数是否存在
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         const error = urlParams.get('error');
         
         if (error) {
+          // 🛡️ 记录认证错误
+          const attemptId = authRetryGuard.startAttempt('callback', currentUrl);
+          authRetryGuard.markFailure(attemptId, `认证错误: ${error}`);
           throw new Error(`认证错误: ${error}`);
         }
         
         if (!code) {
+          // 🛡️ 记录缺少授权码错误
+          const attemptId = authRetryGuard.startAttempt('callback', currentUrl);
+          authRetryGuard.markFailure(attemptId, '缺少授权码参数');
           throw new Error('缺少授权码参数');
         }
+        
+        // 🛡️ 开始正常的回调处理尝试
+        const attemptId = authRetryGuard.startAttempt('callback', currentUrl);
         
         if (!isMounted) return;
         
@@ -74,6 +112,9 @@ const CallbackPage: React.FC = () => {
         if (result.success) {
           setProcessingStep('登录成功，正在跳转...');
           setProgress(90);
+          
+          // 🛡️ 标记认证尝试成功
+          authRetryGuard.markSuccess(attemptId);
           
           // 检查认证状态
           await checkAuthStatus();
@@ -97,6 +138,9 @@ const CallbackPage: React.FC = () => {
             }
           }, 500);
         } else {
+          // 🛡️ 标记认证尝试失败
+          authRetryGuard.markFailure(attemptId, result.error || '认证失败');
+          
           // 处理错误
           if (!isMounted) return;
           
@@ -126,6 +170,20 @@ const CallbackPage: React.FC = () => {
         }
       } catch (error) {
         logger.error('❌ 回调处理失败:', error);
+        
+        // 🛡️ 如果有记录的尝试，标记为失败
+        try {
+          const errorMessage = error instanceof Error ? error.message : '处理失败';
+          // 尝试查找最近的callback尝试并标记失败
+          const recentAttempts = authRetryGuard.getStatus();
+          if (recentAttempts.recentAttempts > 0) {
+            // 这里简化处理，创建新的失败记录
+            const attemptId = authRetryGuard.startAttempt('callback', window.location.href);
+            authRetryGuard.markFailure(attemptId, errorMessage);
+          }
+        } catch (guardError) {
+          logger.debug('标记认证失败时出错:', guardError);
+        }
         
         if (!isMounted) return;
         
@@ -206,9 +264,61 @@ const CallbackPage: React.FC = () => {
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <h3 className="text-red-800 font-medium mb-2">错误详情</h3>
                 <p className="text-red-700 text-sm">{errorMessage}</p>
-                <div className="mt-2 text-xs text-red-600">
+                
+                {/* URL规范化诊断信息 */}
+                <div className="mt-3 p-2 bg-red-100 rounded text-xs text-red-600">
+                  <p className="font-medium mb-1">🔍 URL诊断信息：</p>
                   <p>当前URL: {window.location.href}</p>
-                  <p>调试信息: 检查浏览器控制台了解更多详情</p>
+                  {(() => {
+                    const urlInfo = callbackUrlNormalizer.normalizeCallbackUrl(window.location.href);
+                    return (
+                      <>
+                        <p>多重URL检测: {urlInfo.hasMultipleUrls ? '❌ 发现问题' : '✅ 正常'}</p>
+                        {urlInfo.hasMultipleUrls && (
+                          <>
+                            <p>提取参数: {JSON.stringify(urlInfo.extractedParams)}</p>
+                            <p>建议URL: {urlInfo.cleanedUrl}</p>
+                          </>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+                
+                {/* 认证重试状态信息 */}
+                <div className="mt-2 p-2 bg-orange-100 rounded text-xs text-orange-600">
+                  <p className="font-medium mb-1">🛡️ 认证状态信息：</p>
+                  {(() => {
+                    const retryStatus = authRetryGuard.getStatus();
+                    return (
+                      <>
+                        <p>近期尝试次数: {retryStatus.recentAttempts}</p>
+                        <p>冷却状态: {retryStatus.inCooldown ? `❄️ 冷却中 (剩余${retryStatus.cooldownRemaining}秒)` : '✅ 可尝试'}</p>
+                        {retryStatus.lastFailureTime > 0 && (
+                          <p>上次失败时间: {new Date(retryStatus.lastFailureTime).toLocaleString()}</p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+                
+                {/* 授权码防护状态信息 */}
+                <div className="mt-2 p-2 bg-purple-100 rounded text-xs text-purple-600">
+                  <p className="font-medium mb-1">🛡️ 授权码防护状态：</p>
+                  {(() => {
+                    const codeCheck = authCodeGuard.checkCurrentUrl();
+                    const codeStats = authCodeGuard.getUsageStats();
+                    return (
+                      <>
+                        <p>当前检查: {codeCheck.hasCodeIssue ? '❌ 发现问题' : '✅ 正常'}</p>
+                        <p>总授权码数: {codeStats.totalCodes}</p>
+                        <p>成功使用: {codeStats.successfulCodes} | 失败: {codeStats.failedCodes}</p>
+                        {codeCheck.hasCodeIssue && (
+                          <p className="text-red-600">问题: {codeCheck.recommendedAction}</p>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
               

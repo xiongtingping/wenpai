@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, CheckCircle, Wifi, WifiOff } from 'lucide-react';
 import { Alert, AlertDescription } from './alert';
+import { getAuthingConfig } from '@/config/configManager';
 
 /**
  * ✅ FIXED: 2025-08-20 Authing接口已切换为正确认证地址 https://rzcswqs4sq0f.authing.cn
@@ -20,8 +21,13 @@ export const NetworkStatus: React.FC = () => {
    */
   const checkAuthingStatus = async () => {
     try {
+      // 🔧 修复根因：使用配置管理器获取统一的App ID，而不是硬编码
+      const config = await getAuthingConfig();
+      const appId = config.appId;
+      const domain = config.domain;
+      
       // 保持 no-cors 探测语义，不解析响应体
-      await fetch('https://rzcswqs4sq0f.authing.cn/api/v2/applications/68823897631e1ef8ff3720b2/public-config', {
+      await fetch(`https://${domain}/api/v2/applications/${appId}/public-config`, {
         method: 'GET',
         mode: 'no-cors',
         cache: 'no-cache'

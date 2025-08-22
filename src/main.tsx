@@ -4,6 +4,9 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 
+// 🛡️ Round #3: 全局启动认证请求拦截器
+import './auth/authRequestInterceptor';
+
 // 🔧 App ID配置已通过文件清理脚本修复，无需运行时修复
 
 // 🔧 认证流程优化：防止重复重定向和循环

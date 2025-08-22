@@ -7,6 +7,7 @@ import { authService } from './authService';
 import { tokenManager } from './tokenManager';
 import { logger } from '@/utils/logger';
 import { cleanCallbackUrl, extractCallbackParams, fixCurrentCallbackUrl } from '@/utils/callbackUrlFixer';
+import { authCodeGuard } from './authCodeGuard';
 
 export interface CallbackResult {
   success: boolean;
@@ -16,7 +17,7 @@ export interface CallbackResult {
 }
 
 /**
- * 处理OAuth回调
+ * 处理OAuth回调 - 集成Round #2授权码防护
  */
 export const handleAuthCallback = async (): Promise<CallbackResult> => {
   try {
@@ -24,6 +25,21 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
     const wasFixed = fixCurrentCallbackUrl();
     if (wasFixed) {
       logger.info('🔧 已修复回调URL格式');
+    }
+
+    // 🛡️ Round #2: 检查授权码重复使用问题
+    const codeCheck = authCodeGuard.checkCurrentUrl();
+    if (codeCheck.hasCodeIssue) {
+      logger.error('🚫 检测到授权码重复使用问题:', codeCheck);
+      
+      // 清理URL并返回失败，不再尝试使用已用过的授权码
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+      
+      return {
+        success: false,
+        error: '授权码已被使用，请重新登录'
+      };
     }
 
     // 🔧 使用增强的参数提取器
@@ -47,6 +63,9 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
         error: '缺少授权码'
       };
     }
+
+    // 🛡️ Round #2: 标记授权码开始使用，防止重复使用
+    authCodeGuard.markCodeInUse(code, window.location.href);
 
     logger.info('🔐 处理OAuth回调', { hasCode: !!code, state });
 
@@ -83,6 +102,11 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
 
     if (!resp.ok) {
       const errJson = await resp.json().catch(() => ({}));
+      
+      // 🛡️ Round #2: 标记授权码使用失败
+      const failureReason = errJson.detail?.error_description || errJson.detail?.error || `HTTP ${resp.status}`;
+      authCodeGuard.markCodeFailed(code, failureReason);
+      
       logger.error('❌ 授权码交换失败:', {
         status: resp.status,
         statusText: resp.statusText,
@@ -124,6 +148,9 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
       tokenType: data?.tokens?.token_type || 'Bearer',
       scope: data?.tokens?.scope || ''
     });
+
+    // 🛡️ Round #2: 标记授权码使用成功
+    authCodeGuard.markCodeSuccess(code);
 
     // 清理 URL 参数
     const newUrl = window.location.pathname;

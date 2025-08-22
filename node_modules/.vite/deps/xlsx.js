@@ -178,10 +178,10 @@ function Base64_decode(input) {
   }
   return o;
 }
-var has_buf = function() {
+var has_buf = (function() {
   return typeof Buffer !== "undefined" && typeof process !== "undefined" && typeof process.versions !== "undefined" && !!process.versions.node;
-}();
-var Buffer_from = function() {
+})();
+var Buffer_from = (function() {
   if (typeof Buffer !== "undefined") {
     var nbfs = !Buffer.from;
     if (!nbfs) try {
@@ -195,7 +195,7 @@ var Buffer_from = function() {
   }
   return function() {
   };
-}();
+})();
 function new_raw_buf(len) {
   if (has_buf) return Buffer.alloc ? Buffer.alloc(len) : new Buffer(len);
   return typeof Uint8Array != "undefined" ? new Uint8Array(len) : new Array(len);
@@ -1761,7 +1761,7 @@ function dateNF_fix(str, dateNF, match) {
   if (Y == -1 && m == -1 && d == -1) return timestr;
   return datestr + "T" + timestr;
 }
-var CRC32 = function() {
+var CRC32 = (function() {
   var CRC322 = {};
   CRC322.version = "1.2.0";
   function signed_crc_table() {
@@ -1837,8 +1837,8 @@ var CRC32 = function() {
   CRC322.buf = crc32_buf;
   CRC322.str = crc32_str;
   return CRC322;
-}();
-var CFB = function _CFB() {
+})();
+var CFB = (function _CFB() {
   var exports = {};
   exports.version = "1.2.1";
   function namecmp(l, r) {
@@ -2340,7 +2340,7 @@ var CFB = function _CFB() {
       case "zip":
         return write_zip2(cfb, _opts);
     }
-    var L = function(cfb2) {
+    var L = (function(cfb2) {
       var mini_size = 0, fat_size = 0;
       for (var i3 = 0; i3 < cfb2.FileIndex.length; ++i3) {
         var file2 = cfb2.FileIndex[i3];
@@ -2362,7 +2362,7 @@ var CFB = function _CFB() {
       cfb2.FileIndex[0].size = mini_size << 6;
       L2[7] = (cfb2.FileIndex[0].start = L2[0] + L2[1] + L2[2] + L2[3] + L2[4] + L2[5]) + (L2[6] + 7 >> 3);
       return L2;
-    }(cfb);
+    })(cfb);
     var o = new_buf(L[7] << 9);
     var i2 = 0, T = 0;
     {
@@ -2736,7 +2736,7 @@ var CFB = function _CFB() {
     for (; i2 <= 287; i2++) clens.push(8);
     build_tree(clens, fix_lmap, 288);
   })();
-  var _deflateRaw = function _deflateRawIIFE() {
+  var _deflateRaw = (function _deflateRawIIFE() {
     var DST_LN_RE = use_typed_arrays ? new Uint8Array(32768) : [];
     var j = 0, k = 0;
     for (; j < DST_LN.length - 1; ++j) {
@@ -2834,7 +2834,7 @@ var CFB = function _CFB() {
       if (data.length < 8) return write_stored(data, out);
       return write_huff_fixed(data, out);
     };
-  }();
+  })();
   function _deflate(data) {
     var buf = new_buf(50 + Math.floor(data.length * 1.1));
     var off = _deflateRaw(data, buf);
@@ -3439,7 +3439,7 @@ var CFB = function _CFB() {
     consts
   };
   return exports;
-}();
+})();
 var _fs = void 0;
 function set_fs(fs) {
   _fs = fs;
@@ -3714,7 +3714,7 @@ function fuzzydate(s) {
   if (s.match(/[^-0-9:,\/\\]/)) return n;
   return o;
 }
-var split_regex = function() {
+var split_regex = (function() {
   var safe_split_regex = "abacaba".split(/(:?b)/i).length == 5;
   return function split_regex2(str, re, def) {
     if (safe_split_regex || typeof re == "string") return str.split(re);
@@ -3725,7 +3725,7 @@ var split_regex = function() {
     }
     return o;
   };
-}();
+})();
 function getdatastr(data) {
   if (!data) return null;
   if (data.content && data.type) return cc2str(data.content, true);
@@ -3880,7 +3880,7 @@ var encodings = {
   "&amp;": "&"
 };
 var rencoding = evert(encodings);
-var unescapexml = /* @__PURE__ */ function() {
+var unescapexml = /* @__PURE__ */ (function() {
   var encregex = /&(?:quot|apos|gt|lt|amp|#x?([\da-fA-F]+));/ig, coderegex = /_x([\da-fA-F]{4})_/ig;
   return function unescapexml2(text) {
     var s = text + "", i = s.indexOf("<![CDATA[");
@@ -3892,7 +3892,7 @@ var unescapexml = /* @__PURE__ */ function() {
     var j = s.indexOf("]]>");
     return unescapexml2(s.slice(0, i)) + s.slice(i + 9, j) + unescapexml2(s.slice(j + 3));
   };
-}();
+})();
 var decregex = /[&<>'"]/g;
 var charegex = /[\u0000-\u0008\u000b-\u001f]/g;
 function escapexml(text) {
@@ -3923,7 +3923,7 @@ function escapexlml(text) {
     return "&#x" + s2.charCodeAt(0).toString(16).toUpperCase() + ";";
   });
 }
-var xlml_fixstr = /* @__PURE__ */ function() {
+var xlml_fixstr = /* @__PURE__ */ (function() {
   var entregex = /&#(\d+);/g;
   function entrepl($$, $1) {
     return String.fromCharCode(parseInt($1, 10));
@@ -3931,7 +3931,7 @@ var xlml_fixstr = /* @__PURE__ */ function() {
   return function xlml_fixstr2(str) {
     return str.replace(entregex, entrepl);
   };
-}();
+})();
 function xlml_unfixstr(str) {
   return str.replace(/(\r\n|[\r\n])/g, "&#10;");
 }
@@ -4038,15 +4038,15 @@ var utf8write = has_buf ? function(data) {
   }
   return out.join("");
 };
-var matchtag = /* @__PURE__ */ function() {
+var matchtag = /* @__PURE__ */ (function() {
   var mtcache = {};
   return function matchtag2(f, g) {
     var t = f + "|" + (g || "");
     if (mtcache[t]) return mtcache[t];
     return mtcache[t] = new RegExp("<(?:\\w+:)?" + f + '(?: xml:space="preserve")?(?:[^>]*)>([\\s\\S]*?)</(?:\\w+:)?' + f + ">", g || "");
   };
-}();
-var htmldecode = function() {
+})();
+var htmldecode = (function() {
   var entities = [
     ["nbsp", " "],
     ["middot", "·"],
@@ -4063,14 +4063,14 @@ var htmldecode = function() {
     for (var i = 0; i < entities.length; ++i) o = o.replace(entities[i][0], entities[i][1]);
     return o;
   };
-}();
-var vtregex = /* @__PURE__ */ function() {
+})();
+var vtregex = /* @__PURE__ */ (function() {
   var vt_cache = {};
   return function vt_regex(bt) {
     if (vt_cache[bt] !== void 0) return vt_cache[bt];
     return vt_cache[bt] = new RegExp("<(?:vt:)?" + bt + ">([\\s\\S]*?)</(?:vt:)?" + bt + ">", "g");
   };
-}();
+})();
 var vtvregex = /<\/?(?:vt:)?variant>/g;
 var vtmregex = /<(?:vt:)([^>]*)>([\s\S]*)</;
 function parseVector(data, opts) {
@@ -6106,7 +6106,7 @@ var CORE_PROPS = [
   ["dcterms:created", "CreatedDate", "date"],
   ["dcterms:modified", "ModifiedDate", "date"]
 ];
-var CORE_PROPS_REGEX = function() {
+var CORE_PROPS_REGEX = (function() {
   var r = new Array(CORE_PROPS.length);
   for (var i = 0; i < CORE_PROPS.length; ++i) {
     var f = CORE_PROPS[i];
@@ -6114,7 +6114,7 @@ var CORE_PROPS_REGEX = function() {
     r[i] = new RegExp("<" + g + "[^>]*>([\\s\\S]*?)</" + g + ">");
   }
   return r;
-}();
+})();
 function parse_core_props(data) {
   var p = {};
   data = utf8read(data);
@@ -8241,7 +8241,7 @@ function parse_RString(blob, length, opts) {
   return cell;
 }
 var DBF_SUPPORTED_VERSIONS = [2, 3, 48, 49, 131, 139, 140, 245];
-var DBF = function() {
+var DBF = (function() {
   var dbf_codepage_map = {
     /* Code Pages Supported by Visual FoxPro */
     /*::[*/
@@ -8830,8 +8830,8 @@ var DBF = function() {
     to_sheet: dbf_to_sheet,
     from_sheet: sheet_to_dbf
   };
-}();
-var SYLK = function() {
+})();
+var SYLK = (function() {
   var sylk_escapes = {
     AA: "À",
     BA: "Á",
@@ -9193,8 +9193,8 @@ var SYLK = function() {
     to_sheet: sylk_to_sheet,
     from_sheet: sheet_to_sylk
   };
-}();
-var DIF = /* @__PURE__ */ function() {
+})();
+var DIF = /* @__PURE__ */ (function() {
   function dif_to_aoa(d, opts) {
     switch (opts.type) {
       case "base64":
@@ -9257,7 +9257,7 @@ var DIF = /* @__PURE__ */ function() {
   function dif_to_workbook(str, opts) {
     return sheet_to_workbook(dif_to_sheet(str, opts), opts);
   }
-  var sheet_to_dif = /* @__PURE__ */ function() {
+  var sheet_to_dif = /* @__PURE__ */ (function() {
     var push_field = function pf(o, topic, v, n, s) {
       o.push(topic);
       o.push(v + "," + n);
@@ -9314,14 +9314,14 @@ var DIF = /* @__PURE__ */ function() {
       var oo = o.join(RS);
       return oo;
     };
-  }();
+  })();
   return {
     to_workbook: dif_to_workbook,
     to_sheet: dif_to_sheet,
     from_sheet: sheet_to_dif
   };
-}();
-var ETH = function() {
+})();
+var ETH = (function() {
   function decode(s) {
     return s.replace(/\\b/g, "\\").replace(/\\c/g, ":").replace(/\\n/g, "\n");
   }
@@ -9442,8 +9442,8 @@ var ETH = function() {
     to_sheet: eth_to_sheet,
     from_sheet: sheet_to_eth
   };
-}();
-var PRN = /* @__PURE__ */ function() {
+})();
+var PRN = /* @__PURE__ */ (function() {
   function set_text_arr(data, arr, R, C, o) {
     if (o.raw) arr[R][C] = data;
     else if (data === "") {
@@ -9688,7 +9688,7 @@ var PRN = /* @__PURE__ */ function() {
     to_sheet: prn_to_sheet,
     from_sheet: sheet_to_prn
   };
-}();
+})();
 function read_wb_ID(d, opts) {
   var o = opts || {}, OLD_WTF = !!o.WTF;
   o.WTF = true;
@@ -9702,7 +9702,7 @@ function read_wb_ID(d, opts) {
     return PRN.to_workbook(d, opts);
   }
 }
-var WK_ = /* @__PURE__ */ function() {
+var WK_ = /* @__PURE__ */ (function() {
   function lotushopper(data, cb, opts) {
     if (!data) return;
     prep_blob(data, data.l || 0);
@@ -10788,7 +10788,7 @@ var WK_ = /* @__PURE__ */ function() {
     book_to_wk3,
     to_workbook: lotus_to_workbook
   };
-}();
+})();
 function parse_rpr(rpr) {
   var font = {}, m = rpr.match(tagregex), i = 0;
   var pass = false;
@@ -10936,7 +10936,7 @@ function parse_rpr(rpr) {
   }
   return font;
 }
-var parse_rs = function() {
+var parse_rs = (function() {
   var tregex = matchtag("t"), rpregex = matchtag("rPr");
   function parse_r(r) {
     var t = r.match(tregex);
@@ -10952,8 +10952,8 @@ var parse_rs = function() {
       return r.v;
     });
   };
-}();
-var rs_to_html = /* @__PURE__ */ function parse_rs_factory() {
+})();
+var rs_to_html = /* @__PURE__ */ (function parse_rs_factory() {
   var nlregex = /(\r\n|\n)/g;
   function parse_rpr2(font, intro, outro) {
     var style = [];
@@ -10994,7 +10994,7 @@ var rs_to_html = /* @__PURE__ */ function parse_rs_factory() {
   return function parse_rs2(rs) {
     return rs.map(r_to_html).join("");
   };
-}();
+})();
 var sitregex = /<(?:\w+:)?t[^>]*>([^<]*)<\/(?:\w+:)?t>/g;
 var sirregex = /<(?:\w+:)?r>/;
 var sirphregex = /<(?:\w+:)?rPh.*?>([\s\S]*?)<\/(?:\w+:)?rPh>/g;
@@ -11328,7 +11328,7 @@ function crypto_CreatePasswordVerifier_Method1(Password) {
   }
   return Verifier ^ 52811;
 }
-var crypto_CreateXorArray_Method1 = /* @__PURE__ */ function() {
+var crypto_CreateXorArray_Method1 = /* @__PURE__ */ (function() {
   var PadArray = [187, 255, 255, 186, 255, 255, 185, 128, 0, 190, 15, 0, 191, 15, 0];
   var InitialCode = [57840, 7439, 52380, 33984, 4364, 3600, 61902, 12606, 6258, 57657, 54287, 34041, 10252, 43370, 20163];
   var XorMatrix = [44796, 19929, 39858, 10053, 20106, 40212, 10761, 31585, 63170, 64933, 60267, 50935, 40399, 11199, 17763, 35526, 1453, 2906, 5812, 11624, 23248, 885, 1770, 3540, 7080, 14160, 28320, 56640, 55369, 41139, 20807, 41614, 21821, 43642, 17621, 28485, 56970, 44341, 19019, 38038, 14605, 29210, 60195, 50791, 40175, 10751, 21502, 43004, 24537, 18387, 36774, 3949, 7898, 15796, 31592, 63184, 47201, 24803, 49606, 37805, 14203, 28406, 56812, 17824, 35648, 1697, 3394, 6788, 13576, 27152, 43601, 17539, 35078, 557, 1114, 2228, 4456, 30388, 60776, 51953, 34243, 7079, 14158, 28316, 14128, 28256, 56512, 43425, 17251, 34502, 7597, 13105, 26210, 52420, 35241, 883, 1766, 3532, 4129, 8258, 16516, 33032, 4657, 9314, 18628];
@@ -11388,7 +11388,7 @@ var crypto_CreateXorArray_Method1 = /* @__PURE__ */ function() {
     }
     return ObfuscationArray;
   };
-}();
+})();
 var crypto_DecryptData_Method1 = function(password, Data, XorArrayIndex, XorArray, O) {
   if (!O) O = Data;
   if (!XorArray) XorArray = crypto_CreateXorArray_Method1(password);
@@ -11431,7 +11431,7 @@ function parse_FilePass(blob, length, opts) {
   else parse_XORObfuscation(blob, opts.biff >= 8 ? length : length - 2, opts, o);
   return o;
 }
-var RTF = /* @__PURE__ */ function() {
+var RTF = /* @__PURE__ */ (function() {
   function rtf_to_sheet(d, opts) {
     switch (opts.type) {
       case "base64":
@@ -11504,7 +11504,7 @@ var RTF = /* @__PURE__ */ function() {
     to_sheet: rtf_to_sheet,
     from_sheet: sheet_to_rtf
   };
-}();
+})();
 function hex2RGB(h) {
   var o = h.slice(h[0] === "#" ? 1 : 0).slice(0, 6);
   return [parseInt(o.slice(0, 2), 16), parseInt(o.slice(2, 4), 16), parseInt(o.slice(4, 6), 16)];
@@ -12165,7 +12165,7 @@ function write_cellXfs(cellXfs) {
   o[0] = writextag("cellXfs", null, { count: o.length - 2 }).replace("/>", ">");
   return o.join("");
 }
-var parse_sty_xml = /* @__PURE__ */ function make_pstyx() {
+var parse_sty_xml = /* @__PURE__ */ (function make_pstyx() {
   var numFmtRegex = /<(?:\w+:)?numFmts([^>]*)>[\S\s]*?<\/(?:\w+:)?numFmts>/;
   var cellXfRegex = /<(?:\w+:)?cellXfs([^>]*)>[\S\s]*?<\/(?:\w+:)?cellXfs>/;
   var fillsRegex = /<(?:\w+:)?fills([^>]*)>[\S\s]*?<\/(?:\w+:)?fills>/;
@@ -12183,7 +12183,7 @@ var parse_sty_xml = /* @__PURE__ */ function make_pstyx() {
     if (t = data.match(cellXfRegex)) parse_cellXfs(t, styles, opts);
     return styles;
   };
-}();
+})();
 function write_sty_xml(wb, opts) {
   var o = [XML_HEADER, writextag("styleSheet", null, {
     "xmlns": XMLNS_main[0],
@@ -13781,7 +13781,7 @@ function parse_ms_bin() {
 function parse_ms_xml() {
   return { "!type": "macro" };
 }
-var rc_to_a1 = /* @__PURE__ */ function() {
+var rc_to_a1 = /* @__PURE__ */ (function() {
   var rcregex = /(^|[^A-Za-z_])R(\[?-?\d+\]|[1-9]\d*|)C(\[?-?\d+\]|[1-9]\d*|)(?![A-Za-z0-9_])/g;
   var rcbase = { r: 0, c: 0 };
   function rcfunc($$, $1, $2, $3) {
@@ -13807,9 +13807,9 @@ var rc_to_a1 = /* @__PURE__ */ function() {
     rcbase = base;
     return fstr.replace(rcregex, rcfunc);
   };
-}();
+})();
 var crefregex = /(^|[^._A-Z0-9])([$]?)([A-Z]{1,2}|[A-W][A-Z]{2}|X[A-E][A-Z]|XF[A-D])([$]?)(10[0-3]\d{4}|104[0-7]\d{3}|1048[0-4]\d{2}|10485[0-6]\d|104857[0-6]|[1-9]\d{0,5})(?![_.\(A-Za-z0-9])/g;
-var a1_to_rc = /* @__PURE__ */ function() {
+var a1_to_rc = /* @__PURE__ */ (function() {
   return function a1_to_rc2(fstr, base) {
     return fstr.replace(crefregex, function($0, $1, $2, $3, $4, $5) {
       var c = decode_col($3) - ($2 ? 0 : base.c);
@@ -13819,7 +13819,7 @@ var a1_to_rc = /* @__PURE__ */ function() {
       return $1 + "R" + R + "C" + C;
     });
   };
-}();
+})();
 function shift_formula_str(f, delta) {
   return f.replace(crefregex, function($0, $1, $2, $3, $4, $5) {
     return $1 + ($2 == "$" ? $2 + $3 : encode_col(decode_col($3) + delta.c)) + ($4 == "$" ? $4 + $5 : encode_row(decode_row($5) + delta.r));
@@ -16713,7 +16713,7 @@ function write_ws_xml_cell(cell, ref, ws, opts) {
   if (cell.D) o.cm = 1;
   return writextag("c", v, o);
 }
-var parse_ws_xml_data = function() {
+var parse_ws_xml_data = (function() {
   var cellregex = /<(?:\w+:)?c[ \/>]/, rowregex = /<\/(?:\w+:)?row>/;
   var rregex = /r=["']([^"']*)["']/, isregex = /<(?:\w+:)?is>([\S\s]*?)<\/(?:\w+:)?is>/;
   var refregex = /ref=["']([^"']*)["']/;
@@ -16943,7 +16943,7 @@ var parse_ws_xml_data = function() {
     }
     if (rows.length > 0) s["!rows"] = rows;
   };
-}();
+})();
 function write_ws_xml_data(ws, opts, idx, wb) {
   var o = [], r = [], range = safe_decode_range(ws["!ref"]), cell = "", ref, rr = "", cols = [], R = 0, C = 0, rows = ws["!rows"];
   var dense = Array.isArray(ws);
@@ -28925,7 +28925,7 @@ function parse_ods(zip, opts) {
 function parse_fods(data, opts) {
   return parse_content_xml(data, opts);
 }
-var write_styles_ods = function() {
+var write_styles_ods = (function() {
   var master_styles = [
     "<office:master-styles>",
     '<style:master-page style:name="mp1" style:page-layout-name="mp1">',
@@ -28953,8 +28953,8 @@ var write_styles_ods = function() {
   return function wso() {
     return XML_HEADER + payload;
   };
-}();
-var write_content_ods = /* @__PURE__ */ function() {
+})();
+var write_content_ods = /* @__PURE__ */ (function() {
   var write_text_p = function(text) {
     return escapexml(text).replace(/  +/g, function($$) {
       return '<text:s text:c="' + $$.length + '"/>';
@@ -29161,7 +29161,7 @@ var write_content_ods = /* @__PURE__ */ function() {
     else o.push("</office:document-content>");
     return o.join("");
   };
-}();
+})();
 function write_ods(wb, opts) {
   if (opts.bookType == "fods") return write_content_ods(wb, opts);
   var zip = zip_new();
