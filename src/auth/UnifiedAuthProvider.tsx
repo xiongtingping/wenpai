@@ -138,13 +138,30 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // ===== 认证方法 =====
 
   /**
+   * 强制重置认证状态 - 调试用
+   */
+  const resetAuthState = useCallback(() => {
+    console.log('🔄 强制重置认证状态');
+    setAuthState(prev => ({
+      ...prev,
+      loading: false,
+      error: null
+    }));
+  }, []);
+
+  /**
    * 用户登录 - 彻底避开Guard SDK问题，直接使用托管登录
    */
   const login = useCallback(async (redirectTo?: string) => {
     try {
       // 🛡️ 防重复执行检测
       if (authState.loading) {
-        console.log('🛑 登录正在进行中，跳过重复调用');
+        console.log('🛑 登录正在进行中，跳过重复调用', {
+          loading: authState.loading,
+          isAuthenticated: authState.isAuthenticated,
+          initialized: authState.initialized,
+          user: authState.user?.id || 'none'
+        });
         return;
       }
       
@@ -408,6 +425,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
     refreshToken,
     updateUser,
     checkAuthStatus,
+    resetAuthState, // 调试用
 
     // 向后兼容方法
     checkAuth,

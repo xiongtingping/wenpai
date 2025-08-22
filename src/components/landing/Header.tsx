@@ -87,7 +87,7 @@ const HelpDocumentation = () => {
 
 export function Header() {
   const isMobile = useIsMobile()
-  const { user, isAuthenticated, login, register } = useUnifiedAuth()
+  const { user, isAuthenticated, login, register, resetAuthState } = useUnifiedAuth()
   const navigate = useNavigate()
 
   /**

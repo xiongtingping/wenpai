@@ -82,6 +82,7 @@ export interface AuthMethods {
   refreshToken: () => Promise<void>;
   updateUser: (updates: Partial<AuthUser>) => Promise<void>;
   checkAuthStatus: () => Promise<boolean>;
+  resetAuthState?: () => void; // 调试用
 
   // 扩展认证方法（向后兼容）
   checkAuth?: () => Promise<boolean>;
