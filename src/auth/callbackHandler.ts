@@ -64,10 +64,22 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
       };
     }
 
-    // 🛡️ Round #2: 标记授权码开始使用，防止重复使用
-    authCodeGuard.markCodeInUse(code, window.location.href);
-
     logger.info('🔐 处理OAuth回调', { hasCode: !!code, state });
+
+    // 🛡️ Round #2: 检查授权码是否可以使用（但不立即标记）
+    const codeUsageCheck = authCodeGuard.canUseCode(code, window.location.href);
+    if (!codeUsageCheck.allowed) {
+      logger.error('🚫 授权码不可用:', codeUsageCheck);
+      
+      // 清理URL并返回失败
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+      
+      return {
+        success: false,
+        error: codeUsageCheck.reason || '授权码已被使用，请重新登录'
+      };
+    }
 
     // 使用 Netlify Function 完成授权码交换（支持：PKCE 或 服务端 client_secret）
     const storedVerifier = localStorage.getItem('pkce_code_verifier') || undefined;
@@ -103,8 +115,9 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
     if (!resp.ok) {
       const errJson = await resp.json().catch(() => ({}));
       
-      // 🛡️ Round #2: 标记授权码使用失败
+      // 🛡️ Round #2: 只在这里标记授权码使用失败（首次标记）
       const failureReason = errJson.detail?.error_description || errJson.detail?.error || `HTTP ${resp.status}`;
+      authCodeGuard.markCodeInUse(code, window.location.href);  // 现在才标记使用
       authCodeGuard.markCodeFailed(code, failureReason);
       
       logger.error('❌ 授权码交换失败:', {
@@ -136,6 +149,10 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
     const refreshToken = data?.tokens?.refresh_token || undefined;
     const userInfo = data?.userInfo || {};
 
+    // 🛡️ Round #2: 只有token交换成功后才标记授权码使用（正确的标记时机）
+    authCodeGuard.markCodeInUse(code, window.location.href);
+    authCodeGuard.markCodeSuccess(code);
+
     // 标准化用户信息并持久化
     const user = authService.normalizeAuthUser(userInfo || {});
     user.token = accessToken;
@@ -148,9 +165,6 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
       tokenType: data?.tokens?.token_type || 'Bearer',
       scope: data?.tokens?.scope || ''
     });
-
-    // 🛡️ Round #2: 标记授权码使用成功
-    authCodeGuard.markCodeSuccess(code);
 
     // 清理 URL 参数
     const newUrl = window.location.pathname;
