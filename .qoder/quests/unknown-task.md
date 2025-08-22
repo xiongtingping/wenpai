@@ -758,52 +758,73 @@ class SmartDecorationEngine {
 - 支持浅色/深色主题自适应切换
 - 遵循无障碍设计标准(WCAG 2.1 AA级)
 - 移动优先的响应式设计策略
+- 微交互和细腻动画提升用户体验
+- 直观的视觉层级和信息架构
 
 **主界面布局架构：**
 
 ```mermaid
 graph TB
-    subgroup "顶部导航栏 (64px)"
+    subgraph "顶部导航栏 - TopNavigation (64px)"
         A1[Logo & 品牌标识] 
-        A2[搜索栏 + 快捷筛选]
-        A3[用户头像 + 设置]
+        A2[智能搜索栏 + 热点建议]
+        A3[主题切换 + 通知 + 用户菜单]
     end
     
-    subgroup "智能推荐卡片区 (120px)"
-        B1[热点提醒卡片]
-        B2[节假日推荐卡片] 
-        B3[AI生成快捷入口]
+    subgraph "智能推荐横条 - SmartRecommendations (120px)"
+        B1[🔥 实时热点推荐卡片]
+        B2[🎉 节假日专题卡片] 
+        B3[⚡ AI快速生成入口]
+        B4[📊 个性化推荐]
     end
     
-    subgroup "主要内容区域"
-        C1[侧边筛选面板 (280px)]
-        C2[模板展示网格 (flex-1)]
-        C3[装饰工具面板 (320px)]
+    subgraph "主要内容区域 - MainContent"
+        C1[侧边筛选面板 - FilterSidebar (280px)]
+        C2[模板网格展示 - TemplateGrid (flex-1)]
+        C3[装饰工具面板 - DecorationPanel (320px)]
     end
     
-    subgroup "底部操作栏 (72px)"
-        D1[快速生成按钮]
-        D2[我的收藏]
-        D3[最近使用]
+    subgraph "底部固定操作栏 - BottomActions (72px)"
+        D1[AI生成按钮 - 渐变主色调]
+        D2[我的收藏 - 收藏数量]
+        D3[最近使用 - 快速访问]
+        D4[分享导出 - 多平台适配]
+    end
+    
+    subgraph "浮动助手 - FloatingAssistant"
+        E1[智能建议气泡]
+        E2[快捷操作球]
+        E3[进度提示器]
     end
     
     style A1 fill:#e3f2fd
     style B1 fill:#fff3e0
     style C2 fill:#f3e5f5
     style D1 fill:#e8f5e8
+    style E1 fill:#fce4ec
 ```
 
-**详细界面组件设计：**
+**响应式布局策略：**
 
-### 5.2 顶部导航栏优化
+| 设备类型 | 屏幕宽度 | 布局调整 | 交互优化 |
+|----------|----------|----------|----------|
+| 小屏手机 | < 640px | 单列布局，隐藏侧边栏 | 底部标签导航，手势操作 |
+| 大屏手机 | 640px - 768px | 两列布局，抽屉式侧边栏 | 拇指区域优化，滑动切换 |
+| 平板设备 | 768px - 1024px | 三列布局，固定侧边栏 | 触控优化，分屏支持 |
+| 桌面端 | > 1024px | 完整四列布局 | 鼠标悬停，键盘快捷键 |
+
+### 5.2 顶部导航栏设计 (TopNavigation)
+
+**功能组件：**
 
 ```typescript
 interface TopNavigationProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   user: UserProfile;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'auto';
   onThemeToggle: () => void;
+  notifications: Notification[];
 }
 
 const TopNavigation: React.FC<TopNavigationProps> = ({
@@ -811,43 +832,117 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
   onSearchChange,
   user,
   theme,
-  onThemeToggle
+  onThemeToggle,
+  notifications
 }) => {
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [hotSuggestions] = useHotSuggestions(searchQuery);
+  
   return (
     <header className="
-      sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 
-      backdrop-blur-lg border-b border-gray-200 dark:border-gray-700
+      sticky top-0 z-50 
+      bg-white/90 dark:bg-gray-900/90 
+      backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50
       transition-all duration-300 ease-in-out
+      shadow-sm dark:shadow-gray-900/10
     ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo区域 */}
+          {/* Logo与品牌区域 */}
           <div className="flex items-center space-x-4">
-            <Logo className="h-8 w-auto" />
-            <div className="hidden sm:block">
-              <Badge variant="secondary" className="text-xs">
-                朋友圈文案生成器
-              </Badge>
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div className="hidden sm:block">
+                <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  文派智能
+                </h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  朋友圈文案生成器
+                </p>
+              </div>
             </div>
           </div>
           
-          {/* 搜索区域 */}
-          <div className="flex-1 max-w-lg mx-8">
-            <SearchInput
-              value={searchQuery}
-              onChange={onSearchChange}
-              placeholder="搜索模板、关键词或热点话题..."
-              className="w-full"
-              showSuggestions
-              hotTopics={getHotTopicSuggestions()}
-            />
+          {/* 智能搜索区域 */}
+          <div className="flex-1 max-w-2xl mx-8 relative">
+            <div className={`
+              relative transition-all duration-200
+              ${isSearchFocused ? 'scale-102 shadow-lg' : ''}
+            `}>
+              <SearchInput
+                value={searchQuery}
+                onChange={onSearchChange}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setIsSearchFocused(false)}
+                placeholder="搜索模板、关键词或热点话题..."
+                className="
+                  w-full pl-12 pr-4 py-3 rounded-xl
+                  border-gray-200 dark:border-gray-700
+                  focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                  bg-gray-50 dark:bg-gray-800
+                "
+                leftIcon={<Search className="w-5 h-5 text-gray-400" />}
+              />
+              
+              {/* 智能建议下拉 */}
+              {isSearchFocused && hotSuggestions.length > 0 && (
+                <div className="
+                  absolute top-full left-0 right-0 mt-2 
+                  bg-white dark:bg-gray-800 rounded-xl shadow-xl border
+                  border-gray-200 dark:border-gray-700 z-50
+                ">
+                  <div className="p-3">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                      🔥 热门搜索
+                    </div>
+                    <div className="space-y-1">
+                      {hotSuggestions.map(suggestion => (
+                        <button
+                          key={suggestion.id}
+                          className="
+                            w-full text-left px-3 py-2 rounded-lg
+                            hover:bg-gray-50 dark:hover:bg-gray-700
+                            transition-colors
+                          "
+                          onClick={() => onSearchChange(suggestion.text)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm">{suggestion.text}</span>
+                            <Badge variant="secondary" className="text-xs">
+                              {suggestion.heatLevel}
+                            </Badge>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           
           {/* 用户操作区域 */}
           <div className="flex items-center space-x-3">
-            <ThemeToggle theme={theme} onToggle={onThemeToggle} />
-            <NotificationBell />
-            <UserMenu user={user} />
+            {/* 主题切换 */}
+            <ThemeToggle 
+              theme={theme} 
+              onToggle={onThemeToggle}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            />
+            
+            {/* 通知中心 */}
+            <NotificationCenter 
+              notifications={notifications}
+              className="relative"
+            />
+            
+            {/* 用户菜单 */}
+            <UserMenu 
+              user={user}
+              className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            />
           </div>
         </div>
       </div>
@@ -856,68 +951,506 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
 };
 ```
 
-### 5.3 智能推荐卡片区设计
+### 5.3 智能推荐卡片区设计 (SmartRecommendations)
+
+**设计原则：**
+- 横向滚动展示，支持触控和鼠标滚轮
+- 卡片优先级排序，重要信息优先展示
+- 实时数据更新，动态内容刷新
+- 个性化推荐算法驱动
 
 **热点推荐卡片：**
 ```typescript
 const HotspotRecommendationCard: React.FC = () => {
-  const [hotspots] = useHotspots();
+  const [hotspots] = useRealTimeHotspots();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedHotspot, setSelectedHotspot] = useState<string | null>(null);
   
   return (
     <Card className="
-      group relative overflow-hidden bg-gradient-to-r 
-      from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20
-      border-orange-200 dark:border-orange-700
-      hover:shadow-lg transition-all duration-300
+      group relative overflow-hidden 
+      bg-gradient-to-br from-orange-50 via-red-50 to-pink-50
+      dark:from-orange-900/20 dark:via-red-900/20 dark:to-pink-900/20
+      border border-orange-200 dark:border-orange-700/50
+      hover:shadow-xl hover:scale-[1.02] 
+      transition-all duration-300 ease-out
+      backdrop-blur-sm
     ">
-      {/* 热度指示器 */}
-      <div className="absolute top-2 right-2">
-        <Badge className="bg-red-500 text-white animate-pulse">
-          🔥 热点
-        </Badge>
+      {/* 动态热度指示器 */}
+      <div className="absolute top-3 right-3 z-10">
+        <div className="flex items-center space-x-2">
+          <Badge className="
+            bg-gradient-to-r from-red-500 to-orange-500 text-white 
+            animate-pulse shadow-lg
+          ">
+            <Flame className="w-3 h-3 mr-1" />
+            实时热点
+          </Badge>
+          <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
+        </div>
       </div>
       
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
+      {/* 背景装饰 */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+      
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-              实时热点推荐
-            </h3>
-            <div className="space-y-2">
-              {hotspots.slice(0, isExpanded ? 5 : 2).map(hotspot => (
-                <HotspotItem 
-                  key={hotspot.id} 
-                  hotspot={hotspot}
-                  onSelect={() => handleHotspotSelect(hotspot)}
-                />
-              ))}
+            <div className="flex items-center space-x-2 mb-2">
+              <TrendingUp className="w-5 h-5 text-orange-500" />
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                热点追踪
+              </h3>
             </div>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              实时监控全网热点，智能匹配您的内容需求
+            </p>
           </div>
           
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="ml-2"
+            className="ml-4 opacity-70 hover:opacity-100"
           >
-            {isExpanded ? <ChevronUp /> : <ChevronDown />}
+            {isExpanded ? 
+              <ChevronUp className="w-4 h-4" /> : 
+              <ChevronDown className="w-4 h-4" />
+            }
           </Button>
         </div>
         
-        {/* 快速操作按钮 */}
-        <div className="mt-4 flex space-x-2">
-          <Button size="sm" variant="outline">
-            <Zap className="w-4 h-4 mr-1" />
+        {/* 热点列表 */}
+        <div className="space-y-3">
+          {hotspots.slice(0, isExpanded ? 6 : 3).map((hotspot, index) => (
+            <HotspotItem 
+              key={hotspot.id}
+              hotspot={hotspot}
+              index={index}
+              isSelected={selectedHotspot === hotspot.id}
+              onSelect={() => {
+                setSelectedHotspot(hotspot.id);
+                handleHotspotSelect(hotspot);
+              }}
+              className="
+                p-3 rounded-lg border border-gray-200 dark:border-gray-700
+                hover:border-orange-300 dark:hover:border-orange-600
+                hover:bg-white dark:hover:bg-gray-800
+                transition-all duration-200 cursor-pointer
+                group-hover:shadow-sm
+              "
+            />
+          ))}
+        </div>
+        
+        {/* 快速操作按钮组 */}
+        <div className="mt-6 flex flex-wrap gap-2">
+          <Button 
+            size="sm" 
+            className="
+              bg-gradient-to-r from-orange-500 to-red-500 
+              hover:from-orange-600 hover:to-red-600
+              text-white shadow-lg hover:shadow-xl
+              transition-all duration-200
+            "
+          >
+            <Zap className="w-4 h-4 mr-2" />
             一键蹭热点
           </Button>
+          <Button size="sm" variant="outline">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            查看趋势
+          </Button>
           <Button size="sm" variant="ghost">
-            查看更多
+            <Settings className="w-4 h-4 mr-2" />
+            定制推荐
+          </Button>
+        </div>
+        
+        {/* 数据统计小字 */}
+        <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between">
+          <span>已为您匹配 {hotspots.length} 个相关热点</span>
+          <span>更新于 {formatTime(new Date())}</span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// 热点条目组件
+const HotspotItem: React.FC<HotspotItemProps> = ({ 
+  hotspot, 
+  index, 
+  isSelected, 
+  onSelect, 
+  className 
+}) => {
+  return (
+    <div 
+      className={`${className} ${isSelected ? 'ring-2 ring-orange-500' : ''}`}
+      onClick={onSelect}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3 flex-1">
+          <div className="
+            w-8 h-8 rounded-full bg-gradient-to-br 
+            from-orange-400 to-red-500 text-white 
+            flex items-center justify-center text-sm font-bold
+          ">
+            #{index + 1}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+              {hotspot.title}
+            </h4>
+            <div className="flex items-center space-x-2 mt-1">
+              <Badge variant="secondary" className="text-xs">
+                {hotspot.platform}
+              </Badge>
+              <span className="text-xs text-gray-500">
+                热度: {hotspot.heatIndex.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <TrendIndicator trend={hotspot.growthRate} />
+          <Button size="xs" variant="ghost">
+            <Plus className="w-3 h-3" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+```
+
+**节假日专题卡片：**
+```typescript
+const HolidayThemeCard: React.FC = () => {
+  const [currentHoliday] = useCurrentHoliday();
+  const [upcomingHolidays] = useUpcomingHolidays(7);
+  const [holidayTemplates] = useHolidayTemplates(currentHoliday?.name);
+  
+  if (!currentHoliday && upcomingHolidays.length === 0) {
+    return null;
+  }
+  
+  const activeHoliday = currentHoliday || upcomingHolidays[0];
+  
+  return (
+    <Card className="
+      relative overflow-hidden
+      bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50
+      dark:from-purple-900/20 dark:via-pink-900/20 dark:to-rose-900/20
+      border border-purple-200 dark:border-purple-700/50
+      hover:shadow-xl hover:scale-[1.02]
+      transition-all duration-300 ease-out
+    ">
+      {/* 节日装饰背景 */}
+      <div className="absolute inset-0">
+        <div className="absolute top-0 right-0 text-6xl opacity-10">
+          {getHolidayEmoji(activeHoliday.name)}
+        </div>
+      </div>
+      
+      <CardContent className="p-6 relative z-10">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <div className="flex items-center space-x-2 mb-2">
+              <Calendar className="w-5 h-5 text-purple-500" />
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                节日专题
+              </h3>
+              {currentHoliday && (
+                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                  进行中
+                </Badge>
+              )}
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              {currentHoliday ? 
+                `今天是${activeHoliday.name}，为您推荐专属模板` :
+                `${activeHoliday.name}即将到来，提前准备精彩内容`
+              }
+            </p>
+          </div>
+        </div>
+        
+        {/* 节日信息 */}
+        <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4 mb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="text-2xl">
+                {getHolidayEmoji(activeHoliday.name)}
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white">
+                  {activeHoliday.name}
+                </h4>
+                <p className="text-sm text-gray-500">
+                  {formatDate(activeHoliday.date)}
+                  {!currentHoliday && (
+                    <span className="ml-2 text-purple-600">
+                      还有 {getDaysUntil(activeHoliday.date)} 天
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+            
+            <div className="text-right">
+              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                {holidayTemplates.length} 个模板
+              </div>
+              <div className="text-xs text-gray-500">
+                多行业适配
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* 快速操作 */}
+        <div className="flex space-x-2">
+          <Button 
+            size="sm"
+            className="
+              bg-gradient-to-r from-purple-500 to-pink-500
+              hover:from-purple-600 hover:to-pink-600
+              text-white shadow-lg
+            "
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            生成节日文案
+          </Button>
+          <Button size="sm" variant="outline">
+            <Eye className="w-4 h-4 mr-2" />
+            浏览模板
           </Button>
         </div>
       </CardContent>
     </Card>
   );
+};
+```
+
+### 5.4 侧边筛选面板设计 (FilterSidebar)
+
+**功能特色：**
+- 多维度筛选：行业、风格、情感、节假日、热点
+- 智能标签系统：动态标签建议和历史记录
+- 收藏夹管理：快速访问常用筛选条件
+- 筛选预设：保存和分享筛选配置
+
+```typescript
+const FilterSidebar: React.FC<FilterSidebarProps> = ({
+  filters,
+  onFiltersChange,
+  isCollapsed,
+  onToggleCollapse
+}) => {
+  const [activeSection, setActiveSection] = useState<string>('industry');
+  
+  return (
+    <div className={`
+      ${isCollapsed ? 'w-16' : 'w-80'}
+      bg-white dark:bg-gray-900 
+      border-r border-gray-200 dark:border-gray-700
+      transition-all duration-300 ease-in-out
+      flex flex-col h-full
+    `}>
+      {/* 面板头部 */}
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between">
+          {!isCollapsed && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                智能筛选
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                精准找到您需要的模板
+              </p>
+            </div>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleCollapse}
+            className="p-2"
+          >
+            {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+          </Button>
+        </div>
+      </div>
+      
+      {/* 筛选内容区域 */}
+      <div className="flex-1 overflow-y-auto">
+        {!isCollapsed && (
+          <div className="p-4 space-y-6">
+            {/* 行业筛选 */}
+            <FilterSection
+              title="行业类型"
+              icon={<Building className="w-4 h-4" />}
+              isActive={activeSection === 'industry'}
+              onToggle={() => setActiveSection(activeSection === 'industry' ? '' : 'industry')}
+            >
+              <IndustryFilter
+                selected={filters.industries}
+                onChange={(industries) => onFiltersChange({...filters, industries})}
+              />
+            </FilterSection>
+            
+            {/* 节假日筛选 */}
+            <FilterSection
+              title="节假日主题"
+              icon={<Calendar className="w-4 h-4" />}
+              isActive={activeSection === 'holiday'}
+              onToggle={() => setActiveSection(activeSection === 'holiday' ? '' : 'holiday')}
+            >
+              <HolidayFilter
+                selected={filters.holidays}
+                onChange={(holidays) => onFiltersChange({...filters, holidays})}
+              />
+            </FilterSection>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+```
+
+### 5.5 装饰工具面板设计 (DecorationPanel)
+
+**功能亮点：**
+- 实时预览：即时显示装饰效果
+- 智能推荐：根据内容情感推荐匹配装饰
+- 分类浏览：按类型、情感、节假日组织
+- 收藏系统：常用装饰快速访问
+
+```typescript
+const DecorationPanel: React.FC<DecorationPanelProps> = ({
+  content,
+  onDecorationApply,
+  isVisible,
+  onToggleVisibility
+}) => {
+  const [activeTab, setActiveTab] = useState<'emoji' | 'emoticon' | 'smart'>('smart');
+  const [previewContent, setPreviewContent] = useState(content);
+  
+  return (
+    <div className={`
+      ${isVisible ? 'w-80' : 'w-12'}
+      bg-white dark:bg-gray-900 
+      border-l border-gray-200 dark:border-gray-700
+      transition-all duration-300 ease-in-out
+      flex flex-col h-full
+    `}>
+      {/* 面板头部 */}
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between">
+          {isVisible && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                装饰工具
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                让您的文案更生动有趣
+              </p>
+            </div>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleVisibility}
+            className="p-2"
+          >
+            {isVisible ? <ChevronRight /> : <ChevronLeft />}
+          </Button>
+        </div>
+      </div>
+      
+      {/* 装饰内容区域 */}
+      {isVisible && (
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="space-y-6">
+            {/* 智能装饰推荐 */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                <Brain className="w-4 h-4 mr-2 text-purple-500" />
+                智能推荐
+              </h4>
+              <div className="grid grid-cols-2 gap-2">
+                {['😊 温馨风格', '🔥 活力风格', '💖 浪漫风格', '🌟 专业风格'].map((style, index) => (
+                  <button
+                    key={index}
+                    className="
+                      p-3 rounded-lg border border-gray-200 dark:border-gray-700
+                      hover:border-purple-300 dark:hover:border-purple-600
+                      hover:bg-purple-50 dark:hover:bg-purple-900/20
+                      transition-all text-left text-sm
+                    "
+                    onClick={() => onDecorationApply('style', style)}
+                  >
+                    {style}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Emoji分类 */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                <Smile className="w-4 h-4 mr-2 text-yellow-500" />
+                表情符号
+              </h4>
+              <div className="grid grid-cols-6 gap-2">
+                {['😀', '😍', '😎', '🤔', '😢', '😡', '🎉', '💖', '🔥', '⭐', '👍', '💪'].map((emoji, index) => (
+                  <button
+                    key={index}
+                    className="
+                      p-2 rounded-md border border-gray-200 dark:border-gray-700
+                      hover:bg-gray-50 dark:hover:bg-gray-800
+                      transition-colors text-lg text-center
+                    "
+                    onClick={() => onDecorationApply('emoji', emoji)}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* 颜文字分类 */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                <Type className="w-4 h-4 mr-2 text-blue-500" />
+                颜文字
+              </h4>
+              <div className="space-y-2">
+                {['(◕‿◕)', '(｡♥‿♥｡)', 'ᕦ(ò_óˇ)ᕤ', '(´･ω･`)', '٩(◕‿◕)۶', '(≧∇≦)ﾉ'].map((emoticon, index) => (
+                  <button
+                    key={index}
+                    className="
+                      w-full p-2 rounded-md border border-gray-200 dark:border-gray-700
+                      hover:bg-gray-50 dark:hover:bg-gray-800
+                      transition-colors text-left text-sm
+                    "
+                    onClick={() => onDecorationApply('emoticon', emoticon)}
+                  >
+                    {emoticon}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+```
 };
 ```
 
