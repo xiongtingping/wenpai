@@ -149,26 +149,70 @@ exports.handler = async (event) => {
     form.set('grant_type', 'authorization_code');
     form.set('code', code);
     form.set('client_id', appId);
-    form.set('code_verifier', code_verifier);
+    
+    // 只有在PKCE模式下才添加code_verifier
+    if (code_verifier && !useClientSecret) {
+      form.set('code_verifier', code_verifier);
+    }
+    
     form.set('redirect_uri', redirectUri);
-    // 可选：当服务端配置要求使用 client_secret 时，支持从环境变量注入
-    if (AUTHING_CLIENT_SECRET) {
+    
+    // 机密客户端模式：使用client_secret
+    if (useClientSecret && AUTHING_CLIENT_SECRET) {
       form.set('client_secret', AUTHING_CLIENT_SECRET);
+      console.log('🔑 使用机密客户端模式（client_secret）');
+    } else if (!useClientSecret && code_verifier) {
+      console.log('🔐 使用PKCE模式（code_verifier）');
+    } else {
+      console.warn('⚠️ 缺少认证参数：需要client_secret或code_verifier');
     }
 
     console.log('🔄 尝试token交换:', {
       endpoint: tokenEndpoint,
       client_id: appId.substring(0, 8) + '...',
-      redirect_uri: redirectUri
+      redirect_uri: redirectUri,
+      grant_type: 'authorization_code',
+      auth_mode: useClientSecret ? 'client_secret' : 'pkce'
     });
 
-    let tokenResp = await fetch(tokenEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: form.toString()
-    });
+    // 添加请求头，提高兼容性
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Accept': 'application/json',
+      'User-Agent': 'Wenpai-Auth-Client/1.0'
+    };
 
-    let tokenJson = await tokenResp.json().catch(() => ({}));
+    // 如果使用机密客户端，可能需要基本认证
+    if (useClientSecret && AUTHING_CLIENT_SECRET) {
+      const authHeader = Buffer.from(`${appId}:${AUTHING_CLIENT_SECRET}`).toString('base64');
+      headers['Authorization'] = `Basic ${authHeader}`;
+    }
+
+    let tokenResp, tokenJson;
+    
+    try {
+      tokenResp = await fetch(tokenEndpoint, {
+        method: 'POST',
+        headers,
+        body: form.toString()
+      });
+
+      // 尝试解析JSON响应
+      const responseText = await tokenResp.text();
+      try {
+        tokenJson = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ JSON解析失败:', { responseText, parseError: parseError.message });
+        tokenJson = { error: 'json_parse_failed', raw_response: responseText };
+      }
+    } catch (fetchError) {
+      console.error('❌ 网络请求失败:', fetchError.message);
+      return {
+        statusCode: 500,
+        headers: baseHeaders,
+        body: JSON.stringify({ error: 'network_error', detail: fetchError.message })
+      };
+    }
 
     // 如果第一个端点失败，尝试其他可能的端点
     if (!tokenResp.ok && possibleTokenEndpoints.length > 1) {
@@ -216,36 +260,65 @@ exports.handler = async (event) => {
     const accessToken = tokenJson.access_token;
     const idToken = tokenJson.id_token;
 
-    // Fetch user info
+    // Fetch user info - 尝试多个可能的端点
     let userInfo = null;
-    try {
-      const meUrl = `${host}/oidc/me`;
-      console.log('🔍 获取用户信息:', { meUrl, hasAccessToken: !!accessToken });
+    const userInfoEndpoints = [
+      `${host}/oidc/me`,
+      `${host}/api/v2/users/me`,
+      `${host}/userinfo`,
+      `${host}/oauth/userinfo`
+    ];
 
-      const meResp = await fetch(meUrl, { headers: { Authorization: `Bearer ${accessToken}` } });
+    for (const meUrl of userInfoEndpoints) {
+      try {
+        console.log('🔍 尝试获取用户信息:', { meUrl, hasAccessToken: !!accessToken });
 
-      if (!meResp.ok) {
-        console.error('❌ 用户信息获取失败:', {
-          status: meResp.status,
-          statusText: meResp.statusText,
-          url: meUrl
+        const meResp = await fetch(meUrl, { 
+          headers: { 
+            Authorization: `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+            'User-Agent': 'Wenpai-Auth-Client/1.0'
+          } 
         });
-        userInfo = null;
-      } else {
-        userInfo = await meResp.json();
-        console.log('✅ 用户信息获取成功:', {
-          hasUserInfo: !!userInfo,
-          availableFields: userInfo ? Object.keys(userInfo) : [],
-          nickname: userInfo?.nickname,
-          name: userInfo?.name,
-          username: userInfo?.username,
-          email: userInfo?.email,
-          sub: userInfo?.sub
-        });
+
+        if (meResp.ok) {
+          const responseText = await meResp.text();
+          try {
+            userInfo = JSON.parse(responseText);
+            console.log('✅ 用户信息获取成功:', {
+              endpoint: meUrl,
+              hasUserInfo: !!userInfo,
+              availableFields: userInfo ? Object.keys(userInfo) : [],
+              nickname: userInfo?.nickname,
+              name: userInfo?.name,
+              username: userInfo?.username,
+              email: userInfo?.email,
+              sub: userInfo?.sub
+            });
+            break; // 成功获取，跳出循环
+          } catch (parseError) {
+            console.warn('⚠️ 用户信息JSON解析失败:', { 
+              endpoint: meUrl, 
+              responseText: responseText.substring(0, 200),
+              error: parseError.message 
+            });
+          }
+        } else {
+          console.warn('⚠️ 用户信息端点失败:', {
+            endpoint: meUrl,
+            status: meResp.status,
+            statusText: meResp.statusText
+          });
+        }
+      } catch (e) {
+        console.warn('⚠️ 用户信息获取异常:', { endpoint: meUrl, error: e.message });
+        continue; // 尝试下一个端点
       }
-    } catch (e) {
-      console.error('❌ 用户信息获取异常:', e.message);
-      userInfo = null;
+    }
+
+    if (!userInfo) {
+      console.error('❌ 所有用户信息端点都失败了');
+      // 不阻止登录流程，只是没有用户信息
     }
 
     return {

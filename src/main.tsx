@@ -6,6 +6,43 @@ import App from './App.tsx';
 
 // 🔧 App ID配置已通过文件清理脚本修复，无需运行时修复
 
+// 🔧 认证流程优化：防止重复重定向和循环
+let isAuthRedirecting = false;
+let authAttempts = 0;
+const MAX_AUTH_ATTEMPTS = 3;
+
+// 检查是否已经在认证过程中
+const isInAuthFlow = () => {
+  const url = window.location.href;
+  return url.includes('/callback') || 
+         url.includes('code=') || 
+         url.includes('state=') ||
+         isAuthRedirecting;
+};
+
+// 防止认证循环
+const preventAuthLoop = (operation: string) => {
+  if (authAttempts >= MAX_AUTH_ATTEMPTS) {
+    console.warn('🛑 认证尝试次数过多，可能存在循环，停止自动重试');
+    return false;
+  }
+  
+  if (isAuthRedirecting || isInAuthFlow()) {
+    console.log('⏳ 已在认证流程中，跳过重复操作');
+    return false;
+  }
+  
+  authAttempts++;
+  isAuthRedirecting = true;
+  
+  // 3秒后重置标志
+  setTimeout(() => {
+    isAuthRedirecting = false;
+  }, 3000);
+  
+  return true;
+};
+
 // 🔧 过滤第三方服务的已知错误，减少控制台噪音
 const originalConsoleError = console.error;
 console.error = (...args) => {
@@ -37,6 +74,24 @@ window.addEventListener('unhandledrejection', (event) => {
   // 其他错误正常处理
   console.error('未捕获的Promise错误:', event.reason);
 });
+
+// 扩展Window接口
+declare global {
+  interface Window {
+    authFlowUtils: {
+      preventAuthLoop: (operation: string) => boolean;
+      isInAuthFlow: () => boolean;
+      resetAuthAttempts: () => void;
+    };
+  }
+}
+
+// 暴露工具函数到全局，供其他模块使用
+window.authFlowUtils = {
+  preventAuthLoop,
+  isInAuthFlow,
+  resetAuthAttempts: () => { authAttempts = 0; isAuthRedirecting = false; }
+};
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

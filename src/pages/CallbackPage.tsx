@@ -19,18 +19,55 @@ const CallbackPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
+    let isMounted = true;
+    let isProcessing = false;
+    
     const processCallback = async () => {
+      // 防止重复处理
+      if (isProcessing) {
+        logger.debug('⏳ 回调处理已在进行中，跳过重复执行');
+        return;
+      }
+      
+      // 检查认证流程防护
+      const authUtils = (window as any).authFlowUtils;
+      if (authUtils && !authUtils.preventAuthLoop('callback')) {
+        logger.warn('🛑 认证流程循环保护触发，停止处理');
+        return;
+      }
+      
+      isProcessing = true;
+      
       try {
+        if (!isMounted) return;
+        
         setProcessingStep('验证授权码...');
         setProgress(10);
 
         logger.debug('🔄 处理OAuth认证回调...');
+        
+        // 检查URL参数是否存在
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+        
+        if (error) {
+          throw new Error(`认证错误: ${error}`);
+        }
+        
+        if (!code) {
+          throw new Error('缺少授权码参数');
+        }
+        
+        if (!isMounted) return;
         
         setProcessingStep('处理认证信息...');
         setProgress(30);
         
         // 使用统一的回调处理器
         const result = await handleAuthCallback();
+        
+        if (!isMounted) return;
         
         setProgress(60);
         
@@ -41,17 +78,28 @@ const CallbackPage: React.FC = () => {
           // 检查认证状态
           await checkAuthStatus();
           
+          if (!isMounted) return;
+          
           setProgress(100);
           
           // 跳转到目标页面
           const redirectTo = result.redirectTo || '/';
           logger.info('✅ 认证成功，跳转到:', redirectTo);
           
+          // 重置认证尝试计数
+          if (authUtils) {
+            authUtils.resetAuthAttempts();
+          }
+          
           setTimeout(() => {
-            navigate(redirectTo, { replace: true });
+            if (isMounted) {
+              navigate(redirectTo, { replace: true });
+            }
           }, 500);
         } else {
           // 处理错误
+          if (!isMounted) return;
+          
           setHasError(true);
           setErrorMessage(result.error || '认证失败');
           setProcessingStep('认证失败');
@@ -60,23 +108,36 @@ const CallbackPage: React.FC = () => {
           
           // 3秒后跳转到首页
           setTimeout(() => {
-            navigate('/', { replace: true });
+            if (isMounted) {
+              navigate('/', { replace: true });
+            }
           }, 3000);
         }
       } catch (error) {
         logger.error('❌ 回调处理失败:', error);
+        
+        if (!isMounted) return;
+        
         setHasError(true);
         setErrorMessage(error instanceof Error ? error.message : '处理失败');
         setProcessingStep('处理失败');
         
         // 3秒后跳转到首页
         setTimeout(() => {
-          navigate('/', { replace: true });
+          if (isMounted) {
+            navigate('/', { replace: true });
+          }
         }, 3000);
+      } finally {
+        isProcessing = false;
       }
     };
 
     processCallback();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [navigate, checkAuthStatus]);
 
   return (

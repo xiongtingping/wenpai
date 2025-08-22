@@ -14,25 +14,56 @@
   function checkAndFixCallback() {
     const currentUrl = window.location.href;
     
-    // 检查是否是错误的回调URL（包含多个URL连接）
-    if (currentUrl.includes('callback%20%20') || currentUrl.includes('callback ')) {
+    // 扩展检查：多种可能的错误回调URL格式
+    const errorPatterns = [
+      /callback%20%20/,                    // callback%20%20
+      /callback\s+/,                      // callback 空格
+      /callback%20.*?%20.*?callback/,     // 多个callback连接
+      /callback.*?https?:\/\/.*?callback/ // 完整URL连接
+    ];
+    
+    const hasError = errorPatterns.some(pattern => pattern.test(currentUrl));
+    
+    if (hasError) {
       console.log('🚨 检测到错误的回调URL格式:', currentUrl);
       
-      // 提取授权码和状态参数
-      const codeMatch = currentUrl.match(/[?&]code=([^&]+)/);
-      const stateMatch = currentUrl.match(/[?&]state=([^&]+)/);
+      // 使用更强大的参数提取方法
+      let code = '', state = '';
+      
+      // 方法1: 标准正则提取
+      const codeMatch = currentUrl.match(/[?&]code=([^&\s%]+)/);
+      const stateMatch = currentUrl.match(/[?&]state=([^&\s%]+)/);
       
       if (codeMatch) {
-        const code = decodeURIComponent(codeMatch[1]);
-        const state = stateMatch ? decodeURIComponent(stateMatch[1]) : '';
-        
+        code = decodeURIComponent(codeMatch[1]);
+        state = stateMatch ? decodeURIComponent(stateMatch[1]) : '';
+      } else {
+        // 方法2: 从URL片段中提取（处理复杂情况）
+        const urlParts = currentUrl.split(/[?&]/);
+        for (const part of urlParts) {
+          if (part.startsWith('code=')) {
+            code = decodeURIComponent(part.substring(5).split(/[\s&%]/)[0]);
+          }
+          if (part.startsWith('state=')) {
+            state = decodeURIComponent(part.substring(6).split(/[\s&%]/)[0]);
+          }
+        }
+      }
+      
+      if (code) {
         // 构建正确的回调URL
-        const correctUrl = `${window.location.origin}/callback?code=${code}${state ? `&state=${state}` : ''}`;
+        const correctUrl = `${window.location.origin}/callback?code=${encodeURIComponent(code)}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
         
         console.log('🔧 修正URL为:', correctUrl);
         
-        // 立即跳转到正确的URL
-        window.location.replace(correctUrl);
+        // 防止循环重定向
+        if (currentUrl !== correctUrl) {
+          window.location.replace(correctUrl);
+          return true;
+        }
+      } else {
+        console.warn('⚠️ 无法从错误URL中提取授权码，跳转到登录页');
+        window.location.replace(`${window.location.origin}/`);
         return true;
       }
     }

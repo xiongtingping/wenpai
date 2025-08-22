@@ -35,6 +35,11 @@
     --input: 45 15% 88%;
     --ring: 45 70% 55%;
     --radius: 0.5rem;
+    
+    /* 性能优化：预计算值 */
+    --bg-calc: hsl(45 25% 97%);
+    --card-calc: hsl(45 25% 97%);
+    --border-calc: hsl(45 15% 88%);
     /* New tokens */
     --section: 45 20% 96%;
     --section-foreground: 45 15% 15%;
@@ -2792,4 +2797,63 @@
   /* 确保文本正常显示 */
   font-family: inherit;
   line-height: inherit;
+}
+
+/* 🚀 性能优化：防止强制回流 */
+/* CSS containment 和 will-change 优化 */
+.auth-container, .auth-modal, .auth-guard {
+  contain: layout style paint;
+  will-change: auto;
+}
+
+/* 优化频繁变化的元素 */
+.loading-indicator, .animation-element {
+  will-change: transform, opacity;
+  transform: translateZ(0); /* 启用硬件加速 */
+}
+
+/* 防止大量DOM变化导致的回流 */
+.page-content {
+  contain: layout;
+}
+
+/* 优化表单输入框回流 */
+input, textarea, select {
+  contain: layout style;
+}
+
+/* 减少自动补全造成的布局抖动 */
+input[autocomplete] {
+  contain: layout style;
+  transform: translateZ(0);
+}
+
+/* 优化动画性能 */
+@keyframes optimizedFadeIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.auth-fade-in {
+  animation: optimizedFadeIn 0.3s ease-out;
+  will-change: transform, opacity;
+}
+
+/* 批量DOM操作优化 */
+.batch-update {
+  contain: strict;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.batch-update.ready {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease-out;
 }
