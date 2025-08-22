@@ -106,10 +106,20 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
         }
       }
     } catch (_e) { /* ignore */ }
+    // 🔧 OAuth2关键修复：传递认证时使用的redirect_uri确保一致性
+    // 获取认证时使用的redirect_uri（必须与token交换时完全一致）
+    const { getAuthingConfig } = await import('@/config/configManager');
+    const authConfig = await getAuthingConfig();
+    const originalRedirectUri = authConfig.redirectUri;
+    
     const resp = await fetch('/.netlify/functions/authing-token-exchange', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, code_verifier: storedVerifier })
+      body: JSON.stringify({ 
+        code, 
+        code_verifier: storedVerifier,
+        original_redirect_uri: originalRedirectUri  // 🔧 关键：传递认证时的redirect_uri
+      })
     });
 
     if (!resp.ok) {

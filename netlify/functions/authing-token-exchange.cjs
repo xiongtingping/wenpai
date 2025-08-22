@@ -47,35 +47,46 @@ exports.handler = async (event) => {
     const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
     const host = (AUTHING_HOST || VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn').replace(/\/$/, '');
 
-    // 🔧 修复Netlify预览URL问题：只允许白名单域名
-    const requestOrigin = event.headers.origin || event.headers.Origin || event.headers.referer;
-    let dynamicRedirectUri = 'https://www.wenpai.xyz/callback'; // 默认值
+    // 🔧 OAuth2关键修复：优先使用前端传递的redirect_uri确保一致性
+    const body = event.body ? JSON.parse(event.body) : {};
+    const originalRedirectUri = body.original_redirect_uri;
+    
+    let redirectUri;
+    
+    if (originalRedirectUri) {
+      // 优先使用前端传递的认证时使用的redirect_uri
+      redirectUri = originalRedirectUri;
+      console.log('✅ 使用前端传递的redirect_uri:', redirectUri);
+    } else {
+      // 兜底：动态构建redirect_uri（保持向后兼容）
+      const requestOrigin = event.headers.origin || event.headers.Origin || event.headers.referer;
+      let dynamicRedirectUri = 'https://www.wenpai.xyz/callback'; // 默认值
 
-    if (requestOrigin) {
-      try {
-        const originUrl = new URL(requestOrigin);
-        const hostname = originUrl.hostname;
+      if (requestOrigin) {
+        try {
+          const originUrl = new URL(requestOrigin);
+          const hostname = originUrl.hostname;
 
-        // 检查是否为白名单中的生产域名
-        const isAllowedDomain = hostname === 'www.wenpai.xyz' ||
-                                 hostname === 'wenpai.xyz' ||
-                                 hostname === 'wenpai.netlify.app' ||
-                                 hostname === 'localhost';
+          // 检查是否为白名单中的生产域名
+          const isAllowedDomain = hostname === 'www.wenpai.xyz' ||
+                                   hostname === 'wenpai.xyz' ||
+                                   hostname === 'wenpai.netlify.app' ||
+                                   hostname === 'localhost';
 
-        if (isAllowedDomain) {
-          // 对于允许的域名，使用其 origin 回调
-          const portSuffix = originUrl.port ? `:${originUrl.port}` : '';
-          dynamicRedirectUri = `${originUrl.protocol}//${originUrl.hostname}${portSuffix}/callback`;
-          console.log('✅ 使用允许域名Origin:', originUrl.origin);
-        } else {
-          console.log('⚠️ 非允许域名，使用默认redirectUri:', hostname);
+          if (isAllowedDomain) {
+            // 对于允许的域名，使用其 origin 回调
+            const portSuffix = originUrl.port ? `:${originUrl.port}` : '';
+            dynamicRedirectUri = `${originUrl.protocol}//${originUrl.hostname}${portSuffix}/callback`;
+            console.log('⚠️ 兜底使用动态构建的redirect_uri:', dynamicRedirectUri);
+          } else {
+            console.log('⚠️ 非允许域名，使用默认redirectUri:', hostname);
+          }
+        } catch (e) {
+          console.log('⚠️ 无法解析Origin，使用默认redirectUri');
         }
-      } catch (e) {
-        console.log('⚠️ 无法解析Origin，使用默认redirectUri');
       }
+      redirectUri = dynamicRedirectUri;
     }
-
-    const redirectUri = dynamicRedirectUri;
 
     // 调试日志：输出配置信息（生产环境下隐藏敏感信息）
     console.log('🔧 Authing配置检查:', {
@@ -106,7 +117,7 @@ exports.handler = async (event) => {
       };
     }
 
-    const body = event.body ? JSON.parse(event.body) : {};
+    // body 在上面已经解析过了
     const code = body.code;
     const code_verifier = body.code_verifier;
     
@@ -203,10 +214,11 @@ exports.handler = async (event) => {
       console.warn('⚠️ 缺少认证参数：需要client_secret或code_verifier');
     }
 
-    console.log('🔄 尝试token交换:', {
+    console.log('🔄 尝试token交换 (🛡️ Round #3 redirect_uri根因修复):', {
       endpoint: tokenEndpoint,
       client_id: appId.substring(0, 8) + '...',
       redirect_uri: redirectUri,
+      redirect_uri_source: originalRedirectUri ? 'frontend_provided' : 'dynamic_constructed',
       grant_type: 'authorization_code',
       auth_mode: useClientSecret ? 'client_secret' : 'pkce',
       has_code: !!code,
