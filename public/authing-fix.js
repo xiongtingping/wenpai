@@ -10,9 +10,25 @@
   
   console.log('🔧 Authing配置修复脚本启动');
   
+  // 防止重复修复的标记
+  let isFixing = false;
+  let lastFixedUrl = '';
+  
   // 检查当前URL是否包含错误的回调URL格式
   function checkAndFixCallback() {
+    // 防止并发修复
+    if (isFixing) {
+      console.log('⏳ URL修复正在进行中，跳过重复处理');
+      return false;
+    }
+    
     const currentUrl = window.location.href;
+    
+    // 防止重复修复同一个URL
+    if (currentUrl === lastFixedUrl) {
+      console.log('⏭️ 跳过已修复的URL:', currentUrl);
+      return false;
+    }
     
     // 扩展检查：多种可能的错误回调URL格式
     const errorPatterns = [
@@ -25,6 +41,7 @@
     const hasError = errorPatterns.some(pattern => pattern.test(currentUrl));
     
     if (hasError) {
+      isFixing = true; // 开始修复
       console.log('🚨 检测到错误的回调URL格式:', currentUrl);
       
       // 使用更强大的参数提取方法
@@ -56,16 +73,19 @@
         
         console.log('🔧 修正URL为:', correctUrl);
         
-        // 防止循环重定向
+        // 防止循环重定向 & 记录已修复的URL
         if (currentUrl !== correctUrl) {
+          lastFixedUrl = correctUrl;
           window.location.replace(correctUrl);
           return true;
         }
       } else {
-        console.warn('⚠️ 无法从错误URL中提取授权码，跳转到登录页');
+        console.warn('⚠️ 无法从错误URL中提取授权码，跳转到首页');
         window.location.replace(`${window.location.origin}/`);
         return true;
       }
+      
+      isFixing = false; // 修复完成
     }
     
     return false;

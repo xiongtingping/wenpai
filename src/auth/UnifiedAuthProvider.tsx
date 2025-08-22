@@ -142,7 +142,20 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
    */
   const login = useCallback(async (redirectTo?: string) => {
     try {
-      console.log('🔄 开始登录流程...');
+      // 🛡️ 防止自动登录循环：检查调用堆栈
+      const stack = new Error().stack || '';
+      const isUserInitiated = stack.includes('onClick') || 
+                              stack.includes('handleButtonClick') || 
+                              stack.includes('handleSubmit') ||
+                              redirectTo; // 有明确重定向目标的调用
+      
+      if (!isUserInitiated) {
+        console.warn('🛑 阻止非用户主动触发的登录调用');
+        console.log('📍 调用堆栈:', stack.split('\n').slice(0, 5));
+        return;
+      }
+      
+      console.log('🔄 开始登录流程...', { redirectTo, isUserInitiated });
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
       const config = authService.getConfig();
