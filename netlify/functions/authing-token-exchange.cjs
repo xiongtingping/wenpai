@@ -116,7 +116,8 @@ exports.handler = async (event) => {
       bodyKeys: body ? Object.keys(body) : [],
       code: code ? `${code.substring(0, 10)}...` : 'missing',
       code_verifier: code_verifier ? `${code_verifier.substring(0, 10)}...` : 'missing',
-      code_verifier_length: code_verifier ? code_verifier.length : 0
+      code_verifier_length: code_verifier ? code_verifier.length : 0,
+      code_verifier_valid_length: code_verifier ? (code_verifier.length >= 43 && code_verifier.length <= 128) : false
     });
     
     // 允许两种模式：
@@ -137,6 +138,22 @@ exports.handler = async (event) => {
     if (!useClientSecret && !code_verifier) {
       console.error('❌ PKCE模式缺少code_verifier');
       return { statusCode: 400, headers: baseHeaders, body: JSON.stringify({ error: 'Missing code_verifier (PKCE)' }) };
+    }
+    
+    // 验证PKCE参数格式
+    if (code_verifier && (code_verifier.length < 43 || code_verifier.length > 128)) {
+      console.error('❌ code_verifier长度不符合RFC 7636规范:', {
+        actual: code_verifier.length,
+        required: '43-128 characters'
+      });
+      return { 
+        statusCode: 400, 
+        headers: baseHeaders, 
+        body: JSON.stringify({ 
+          error: 'Invalid code_verifier length', 
+          detail: `Length ${code_verifier.length}, required 43-128` 
+        }) 
+      };
     }
 
     // 构建token端点URL - 使用标准OIDC端点
@@ -281,8 +298,46 @@ exports.handler = async (event) => {
     if (!tokenResp.ok) {
       console.log('❌ 所有token端点都失败了:', {
         status: tokenResp.status,
-        response: tokenJson
+        response: tokenJson,
+        request_params: {
+          client_id: appId.substring(0, 8) + '...',
+          redirect_uri: redirectUri,
+          has_code_verifier: !!code_verifier,
+          code_verifier_length: code_verifier ? code_verifier.length : 0,
+          has_client_secret: useClientSecret,
+          grant_type: 'authorization_code'
+        }
       });
+      
+      // 对于400错误，提供更详细的诊断信息
+      if (tokenResp.status === 400) {
+        const diagnostic = {
+          error: 'token_exchange_400_error',
+          detail: tokenJson,
+          tried_endpoints: possibleTokenEndpoints,
+          diagnostic: {
+            possible_causes: [
+              'Invalid authorization code (expired or already used)',
+              'Invalid redirect_uri (must match exactly)',
+              'Invalid code_verifier (PKCE validation failed)',
+              'Missing or invalid client credentials'
+            ],
+            request_config: {
+              client_id: appId,
+              redirect_uri: redirectUri,
+              auth_mode: useClientSecret ? 'client_secret' : 'pkce',
+              code_verifier_present: !!code_verifier,
+              code_verifier_length: code_verifier ? code_verifier.length : 0
+            }
+          }
+        };
+        return {
+          statusCode: 400,
+          headers: baseHeaders,
+          body: JSON.stringify(diagnostic)
+        };
+      }
+      
       return {
         statusCode: tokenResp.status,
         headers: baseHeaders,

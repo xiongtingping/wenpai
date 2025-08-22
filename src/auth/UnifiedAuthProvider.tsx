@@ -14,30 +14,7 @@ import { logger } from '@/utils/logger';
 // 🔧 引入弹窗样式修复
 import './authing-modal-fix.css';
 
-/**
- * 生成PKCE code_verifier
- */
-function generateCodeVerifier(): string {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  return btoa(String.fromCharCode(...array))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-}
-
-/**
- * 生成PKCE code_challenge
- */
-async function generateCodeChallenge(verifier: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(verifier);
-  const digest = await crypto.subtle.digest('SHA-256', data);
-  return btoa(String.fromCharCode(...new Uint8Array(digest)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-}
+// ✅ 移除重复的PKCE实现，统一使用loginStrategy.ts中的generatePKCE
 
 // 创建认证上下文
 const UnifiedAuthContext = createContext<AuthContextType | null>(null);

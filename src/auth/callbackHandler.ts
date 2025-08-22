@@ -83,8 +83,28 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
 
     if (!resp.ok) {
       const errJson = await resp.json().catch(() => ({}));
-      logger.error('❌ 授权码交换失败:', errJson);
-      return { success: false, error: errJson.error || '授权码交换失败' };
+      logger.error('❌ 授权码交换失败:', {
+        status: resp.status,
+        statusText: resp.statusText,
+        error: errJson
+      });
+      
+      // 提供更详细的用户友好错误信息
+      let userMessage = '授权码交换失败';
+      if (resp.status === 400) {
+        if (errJson.diagnostic?.possible_causes) {
+          userMessage = `认证失败 (${resp.status}): ${errJson.diagnostic.possible_causes[0]}`;
+        } else if (errJson.detail?.error_description) {
+          userMessage = `认证失败: ${errJson.detail.error_description}`;
+        } else if (errJson.detail?.error) {
+          userMessage = `认证失败: ${errJson.detail.error}`;
+        }
+      }
+      
+      return { 
+        success: false, 
+        error: userMessage
+      };
     }
 
     const data = await resp.json();

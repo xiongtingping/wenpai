@@ -22,10 +22,19 @@ function randomBytesUrlSafe(len = 32): string {
 }
 
 export async function generatePKCE() {
-  const code_verifier = randomBytesUrlSafe(64);
+  // RFC 7636: code_verifier 应该是43-128个字符，使用32字节（43字符base64url）
+  const code_verifier = randomBytesUrlSafe(32); // 32字节 -> ~43字符
   const enc = new TextEncoder().encode(code_verifier);
   const digest = await sha256(enc);
   const code_challenge = toBase64Url(digest);
+  
+  console.log('🔐 PKCE生成:', {
+    code_verifier_length: code_verifier.length,
+    code_challenge_length: code_challenge.length,
+    code_verifier_preview: code_verifier.substring(0, 10) + '...',
+    code_challenge_preview: code_challenge.substring(0, 10) + '...'
+  });
+  
   return { code_verifier, code_challenge, method: 'S256' as const };
 }
 
