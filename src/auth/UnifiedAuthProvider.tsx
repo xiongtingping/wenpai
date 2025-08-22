@@ -44,8 +44,14 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       const config = getAuthProviderConfig();
 
-      // 初始化认证服务
-      await authService.initialize(config.config);
+      // 🔧 添加超时保护机制
+      const initPromise = authService.initialize(config.config);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('初始化超时')), 10000); // 10秒超时
+      });
+
+      // 初始化认证服务（带超时保护）
+      await Promise.race([initPromise, timeoutPromise]);
 
       // 检查现有的认证状态
       await checkExistingAuth();
@@ -66,8 +72,31 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         ...prev,
         loading: false,
         error: error instanceof Error ? error.message : '初始化失败',
-        initialized: true
+        initialized: true // 即使失败也设置为已初始化，避免卡住
       }));
+      
+      // 🔧 初始化失败时提供友好的降级方案
+      console.log('🛠️ 初始化失败，可手动调用 window.authSystem.forceReset() 重置');
+      
+      // 将重置方法暴露到全局，便于调试
+      (window as any).authSystem = {
+        forceReset: () => {
+          console.log('🔄 强制重置认证系统...');
+          setAuthState({
+            user: null,
+            isAuthenticated: false,
+            loading: false,
+            error: null,
+            initialized: true
+          });
+          console.log('✅ 认证系统已重置，可以尝试登录');
+        },
+        reinitialize: () => {
+          console.log('🔄 重新初始化认证系统...');
+          setAuthState(prev => ({ ...prev, initialized: false }));
+          initializeAuth();
+        }
+      };
     }
   };
 
@@ -154,15 +183,34 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
    */
   const login = useCallback(async (redirectTo?: string) => {
     try {
-      // 🛡️ 简化防重复执行检测
-      if (authState.loading) {
-        console.log('🚫 登录正在进行中，跳过重复调用', {
+      // 🛡️ 修复：优化防重复执行检测，避免初始化阶段阻塞登录
+      // 只有在已初始化且已认证或正在进行登录操作时才阻止
+      if (authState.initialized && authState.isAuthenticated) {
+        console.log('🚫 用户已登录，跳过重复调用', {
           loading: authState.loading,
           isAuthenticated: authState.isAuthenticated,
           initialized: authState.initialized,
           user: authState.user?.id || 'none'
         });
         return;
+      }
+      
+      // 如果初始化未完成，等待初始化完成后再进行登录
+      if (!authState.initialized) {
+        console.log('🔄 初始化未完成，等待初始化后再登录...');
+        
+        // 等待最多5秒初始化完成
+        let attempts = 0;
+        const maxAttempts = 50; // 5秒，每100毫秒检查一次
+        
+        while (!authState.initialized && attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
+        
+        if (!authState.initialized) {
+          console.error('❌ 初始化超时，强制执行登录');
+        }
       }
       
       console.log('🔄 开始登录流程...', { redirectTo });
@@ -191,7 +239,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         error: error instanceof Error ? error.message : '登录失败'
       }));
     }
-  }, []);
+  }, [authState.loading, authState.isAuthenticated, authState.initialized, authState.user]);
 
   /**
    * 用户注册 - 彻底避开Guard SDK问题，直接使用托管注册

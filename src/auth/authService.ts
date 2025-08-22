@@ -40,25 +40,57 @@ class AuthService implements IAuthService {
     try {
       this.config = config;
       
-      // 创建Authing客户端
-      this.client = new AuthenticationClient({
+      // 🔧 添加初始化日志
+      logger.info('🔄 开始初始化认证服务...', {
+        appId: config.appId?.substring(0, 8) + '...',
+        host: config.host
+      });
+      
+      // 创建Authing客户端（带超时保护）
+      const clientConfig = {
         appId: config.appId,
         appHost: config.host,
         redirectUri: config.redirectUri
+      };
+      
+      // 使用Promise.race添加超时保护
+      const createClientPromise = new Promise((resolve, reject) => {
+        try {
+          const client = new AuthenticationClient(clientConfig);
+          resolve(client);
+        } catch (error) {
+          reject(error);
+        }
       });
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Authing客户端创建超时')), 5000);
+      });
+      
+      this.client = await Promise.race([createClientPromise, timeoutPromise]) as AuthenticationClient;
 
       this.initialized = true;
       
-      // 清理过期token
-      tokenManager.clearExpiredTokens();
+      // 清理过期token（但不要阻塞初始化）
+      try {
+        tokenManager.clearExpiredTokens();
+      } catch (error) {
+        logger.warn('⚠️ 清理过期token失败:', error);
+      }
       
       logger.info('✅ 认证服务初始化成功', { 
-        appId: config.appId,
+        appId: config.appId?.substring(0, 8) + '...',
         host: config.host 
       });
     } catch (error) {
       logger.error('❌ 认证服务初始化失败:', error);
-      throw error;
+      
+      // 🔧 即使初始化失败，也设置为已初始化，提供降级服务
+      this.initialized = true;
+      this.config = config; // 保存配置以便后续使用
+      
+      // 不抛出错误，而是记录错误并继续
+      logger.warn('🛠️ 认证服务将以降级模式运行');
     }
   }
 
