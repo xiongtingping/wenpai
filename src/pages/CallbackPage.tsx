@@ -121,12 +121,8 @@ const CallbackPage: React.FC = () => {
             authUtils.resetAuthAttempts();
           }
           
-          // 3秒后跳转到首页
-          setTimeout(() => {
-            if (isMounted) {
-              navigate('/', { replace: true });
-            }
-          }, 3000);
+          // 不自动跳转，让用户手动选择
+          console.log('🛑 认证失败，停止自动重试');
         }
       } catch (error) {
         logger.error('❌ 回调处理失败:', error);
@@ -152,12 +148,8 @@ const CallbackPage: React.FC = () => {
           authUtils.resetAuthAttempts();
         }
         
-        // 3秒后跳转到首页
-        setTimeout(() => {
-          if (isMounted) {
-            navigate('/', { replace: true });
-          }
-        }, 3000);
+        // 不自动跳转，让用户手动选择
+        console.log('🛑 回调处理失败，停止自动重试');
       } finally {
         isProcessing = false;
       }
@@ -207,14 +199,39 @@ const CallbackPage: React.FC = () => {
             </div>
           )}
 
-          {/* 错误时显示返回按钮 */}
+          {/* 错误时显示详细信息和操作按钮 */}
           {hasError && (
-            <button
-              onClick={() => navigate('/', { replace: true })}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-            >
-              返回首页
-            </button>
+            <div className="space-y-4">
+              {/* 错误详情 */}
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <h3 className="text-red-800 font-medium mb-2">错误详情</h3>
+                <p className="text-red-700 text-sm">{errorMessage}</p>
+                <div className="mt-2 text-xs text-red-600">
+                  <p>当前URL: {window.location.href}</p>
+                  <p>调试信息: 检查浏览器控制台了解更多详情</p>
+                </div>
+              </div>
+              
+              {/* 操作按钮 */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => navigate('/', { replace: true })}
+                  className="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  返回首页
+                </button>
+                <button
+                  onClick={() => {
+                    // 清理状态后重新尝试
+                    localStorage.clear();
+                    window.location.href = '/';
+                  }}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  重新登录
+                </button>
+              </div>
+            </div>
           )}
 
           {/* 加载动画 */}
