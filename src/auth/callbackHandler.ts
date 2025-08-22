@@ -81,6 +81,17 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
       };
     }
 
+    // 🔧 OAuth2关键修复：获取认证时使用的redirect_uri确保一致性
+    const { getAuthingConfig } = await import('@/config/configManager');
+    const authConfig = await getAuthingConfig();
+    const originalRedirectUri = authConfig.redirectUri;
+    
+    logger.info('🔧 redirect_uri一致性检查:', {
+      originalRedirectUri,
+      currentUrl: window.location.href,
+      willUseOriginal: true
+    });
+
     // 使用 Netlify Function 完成授权码交换（支持：PKCE 或 服务端 client_secret）
     const storedVerifier = localStorage.getItem('pkce_code_verifier') || undefined;
 
@@ -106,11 +117,6 @@ export const handleAuthCallback = async (): Promise<CallbackResult> => {
         }
       }
     } catch (_e) { /* ignore */ }
-    // 🔧 OAuth2关键修复：传递认证时使用的redirect_uri确保一致性
-    // 获取认证时使用的redirect_uri（必须与token交换时完全一致）
-    const { getAuthingConfig } = await import('@/config/configManager');
-    const authConfig = await getAuthingConfig();
-    const originalRedirectUri = authConfig.redirectUri;
     
     const resp = await fetch('/.netlify/functions/authing-token-exchange', {
       method: 'POST',
