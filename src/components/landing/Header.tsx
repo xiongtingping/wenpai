@@ -253,25 +253,6 @@ export function Header() {
                 >
                   注册
                 </Button>
-                {/* 🧪 生产环境测试按钮 */}
-                {(import.meta.env.PROD || window.location.hostname !== 'localhost') && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      console.log('🧪 生产环境登录测试开始...');
-                      console.log('🌐 环境信息:', {
-                        isProd: import.meta.env.PROD,
-                        hostname: window.location.hostname,
-                        origin: window.location.origin
-                      });
-                      login();
-                    }}
-                    className="text-xs text-muted-foreground hover:text-primary"
-                  >
-                    🧪测试
-                  </Button>
-                )}
               </div>
             )}
           </div>
