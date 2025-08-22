@@ -20,15 +20,32 @@ const isInAuthFlow = () => {
          isAuthRedirecting;
 };
 
-// 防止认证循环
+// 检查是否正在进行登录操作（不包括回调处理）
+const isLoginInProgress = () => {
+  return isAuthRedirecting;
+};
+
+// 防止认证循环 - 改进版
 const preventAuthLoop = (operation: string) => {
+  // 对于回调处理，使用更宽松的检查
+  if (operation === 'callback') {
+    if (authAttempts >= MAX_AUTH_ATTEMPTS) {
+      console.warn('🛑 回调处理尝试次数过多，可能存在循环');
+      return false;
+    }
+    // 允许回调处理，但记录尝试次数
+    authAttempts++;
+    return true;
+  }
+  
+  // 对于登录操作，使用严格检查
   if (authAttempts >= MAX_AUTH_ATTEMPTS) {
     console.warn('🛑 认证尝试次数过多，可能存在循环，停止自动重试');
     return false;
   }
   
-  if (isAuthRedirecting || isInAuthFlow()) {
-    console.log('⏳ 已在认证流程中，跳过重复操作');
+  if (isLoginInProgress()) {
+    console.log('⏳ 登录流程进行中，跳过重复操作');
     return false;
   }
   
@@ -82,15 +99,50 @@ declare global {
       preventAuthLoop: (operation: string) => boolean;
       isInAuthFlow: () => boolean;
       resetAuthAttempts: () => void;
+      batchDOMUpdates: (callback: () => void) => void;
+      debounce: (func: Function, wait: number) => Function;
     };
   }
 }
+
+// 🚀 性能优化：批量DOM操作，减少回流
+const batchDOMUpdates = (callback: () => void) => {
+  // 使用 requestAnimationFrame 批量处理DOM更新
+  requestAnimationFrame(() => {
+    // 临时隐藏元素，避免中间状态的回流
+    document.body.style.visibility = 'hidden';
+    document.body.style.pointerEvents = 'none';
+    
+    callback();
+    
+    // 一次性显示所有更新
+    requestAnimationFrame(() => {
+      document.body.style.visibility = '';
+      document.body.style.pointerEvents = '';
+    });
+  });
+};
+
+// 防抖函数，减少频繁操作
+const debounce = (func: Function, wait: number) => {
+  let timeout: NodeJS.Timeout;
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
 
 // 暴露工具函数到全局，供其他模块使用
 window.authFlowUtils = {
   preventAuthLoop,
   isInAuthFlow,
-  resetAuthAttempts: () => { authAttempts = 0; isAuthRedirecting = false; }
+  resetAuthAttempts: () => { authAttempts = 0; isAuthRedirecting = false; },
+  batchDOMUpdates,
+  debounce
 };
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

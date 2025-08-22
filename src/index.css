@@ -2801,9 +2801,10 @@
 
 /* 🚀 性能优化：防止强制回流 */
 /* CSS containment 和 will-change 优化 */
-.auth-container, .auth-modal, .auth-guard {
+.auth-container, .auth-modal, .auth-guard, [id*="authing"], [class*="authing"] {
   contain: layout style paint;
   will-change: auto;
+  transform: translateZ(0); /* 启用硬件加速 */
 }
 
 /* 优化频繁变化的元素 */
@@ -2813,17 +2814,35 @@
 }
 
 /* 防止大量DOM变化导致的回流 */
-.page-content {
+.page-content, body, #root {
   contain: layout;
+  transform: translateZ(0);
 }
 
 /* 优化表单输入框回流 */
-input, textarea, select {
+input, textarea, select, button {
   contain: layout style;
+  transform: translateZ(0);
 }
 
 /* 减少自动补全造成的布局抖动 */
 input[autocomplete] {
+  contain: layout style;
+  transform: translateZ(0);
+}
+
+/* 特别优化：防止Authing相关的回流 */
+iframe[src*="authing"], 
+.authing-modal-backdrop,
+.authing-guard-container,
+.authing-guard-modal {
+  contain: strict;
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* 针对页面访问记录等可能导致回流的操作 */
+[data-track], [data-analytics] {
   contain: layout style;
   transform: translateZ(0);
 }
