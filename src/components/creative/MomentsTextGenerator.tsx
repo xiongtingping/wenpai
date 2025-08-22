@@ -1,10 +1,10 @@
 /**
  * 朋友圈文案生成器组件
- * 参考 FancyTextGenerator 和 EmojiAll 的设计理念
- * 支持搜索、点击复制、收藏、分类、AI生成功能
+ * 优化后的UI设计：更好的视觉层次、响应式布局、增强的交互体验
+ * 功能：智能搜索、分类筛选、收藏管理、AI生成、装饰系统、预览编辑
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,11 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Search,
   Copy,
@@ -34,7 +39,19 @@ import {
   Check,
   X,
   Palette,
-  Zap
+  Zap,
+  Eye,
+  Edit,
+  Share2,
+  TrendingUp,
+  Calendar,
+  Smile,
+  Users,
+  ChevronDown,
+  Settings,
+  Layers,
+  Grid,
+  List
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -54,30 +71,92 @@ interface TextTemplate {
 }
 
 /**
- * 分类配置
+ * 分类配置 - 增强版
  */
 const categories = [
-  { id: 'all', name: '全部', icon: <Tag className="w-4 h-4" />, color: 'hsl(var(--muted-foreground))' },
-  { id: 'daily', name: '日常生活', icon: <Coffee className="w-4 h-4" />, color: 'hsl(var(--primary))' },
-  { id: 'emotion', name: '情感心情', icon: <Heart className="w-4 h-4" />, color: 'hsl(var(--destructive))' },
-  { id: 'work', name: '工作学习', icon: <BookOpen className="w-4 h-4" />, color: 'hsl(var(--success))' },
-  { id: 'travel', name: '旅行生活', icon: <Plane className="w-4 h-4" />, color: 'hsl(var(--accent))' },
-  { id: 'food', name: '美食分享', icon: <Utensils className="w-4 h-4" />, color: 'hsl(var(--warning))' },
-  { id: 'fitness', name: '健身运动', icon: <Dumbbell className="w-4 h-4" />, color: 'cyan' },
-  { id: 'night', name: '深夜时光', icon: <Coffee className="w-4 h-4" />, color: 'indigo' },
-  { id: 'festival', name: '节日祝福', icon: <Gift className="w-4 h-4" />, color: 'hsl(var(--accent))' },
+  { id: 'all', name: '全部', icon: <Grid className="w-4 h-4" />, color: 'hsl(var(--muted-foreground))', description: '查看所有文案模板' },
+  { id: 'daily', name: '日常生活', icon: <Coffee className="w-4 h-4" />, color: 'hsl(220 14.3% 95.9%)', description: '记录生活点滴美好' },
+  { id: 'emotion', name: '情感心情', icon: <Heart className="w-4 h-4" />, color: 'hsl(0 84.2% 60.2%)', description: '表达内心真实感受' },
+  { id: 'work', name: '工作学习', icon: <BookOpen className="w-4 h-4" />, color: 'hsl(142.1 76.2% 36.3%)', description: '职场成长与学习心得' },
+  { id: 'travel', name: '旅行生活', icon: <Plane className="w-4 h-4" />, color: 'hsl(221.2 83.2% 53.3%)', description: '记录旅途精彩瞬间' },
+  { id: 'food', name: '美食分享', icon: <Utensils className="w-4 h-4" />, color: 'hsl(47.9 95.8% 53.1%)', description: '分享美食与味蕾体验' },
+  { id: 'fitness', name: '健身运动', icon: <Dumbbell className="w-4 h-4" />, color: 'hsl(173 80% 40%)', description: '运动打卡与健康生活' },
+  { id: 'night', name: '深夜时光', icon: <Clock className="w-4 h-4" />, color: 'hsl(258.3 89.5% 66.3%)', description: '夜深人静的思考时刻' },
+  { id: 'festival', name: '节日祝福', icon: <Gift className="w-4 h-4" />, color: 'hsl(346.8 77.2% 49.8%)', description: '节庆祝福与特殊时刻' },
 ];
 
 /**
- * 心情标签配置
+ * 行业模板配置
+ */
+const industryTemplates = [
+  { id: 'restaurant', name: '餐饮行业', icon: <Utensils className="w-4 h-4" />, emoji: '🍕', count: 28 },
+  { id: 'beauty', name: '美妆时尚', icon: <Sparkles className="w-4 h-4" />, emoji: '💄', count: 32 },
+  { id: 'fitness', name: '健身运动', icon: <Dumbbell className="w-4 h-4" />, emoji: '💪', count: 24 },
+  { id: 'education', name: '教育培训', icon: <BookOpen className="w-4 h-4" />, emoji: '📚', count: 26 },
+  { id: 'retail', name: '电商零售', icon: <Tag className="w-4 h-4" />, emoji: '🛍️', count: 35 },
+  { id: 'travel', name: '旅游出行', icon: <Plane className="w-4 h-4" />, emoji: '✈️', count: 29 },
+];
+
+/**
+ * 节假日模板配置
+ */
+const holidayTemplates = [
+  { id: 'spring_festival', name: '春节新年', emoji: '🧧', isActive: false },
+  { id: 'valentines', name: '情人节', emoji: '💕', isActive: false },
+  { id: 'womens_day', name: '妇女节', emoji: '🌸', isActive: false },
+  { id: 'mid_autumn', name: '中秋节', emoji: '🌕', isActive: false },
+  { id: 'national_day', name: '国庆节', emoji: '🇨🇳', isActive: false },
+  { id: 'double_eleven', name: '双十一', emoji: '🛒', isActive: true },
+  { id: 'christmas', name: '圣诞节', emoji: '🎄', isActive: true },
+];
+
+/**
+ * 装饰元素配置
+ */
+const decorationElements = {
+  emojis: {
+    basic: ['😊', '😍', '😎', '🤔', '😢', '😡', '🥰', '😘', '🤗', '😋'],
+    gestures: ['👍', '👌', '✌️', '🤝', '👏', '💪', '🙏', '✊', '👋', '🤘'],
+    objects: ['🎁', '🌸', '🔥', '⭐', '💎', '🎯', '🌈', '☀️', '🌙', '⚡'],
+    hearts: ['💕', '💖', '💗', '💘', '💝', '💞', '💟', '❤️', '🧡', '💛']
+  },
+  emoticons: {
+    happy: ['(◕‿◕)', '٩(◕‿◕)۶', '(≧∇≦)ﾉ', '(＾▽＾)', 'ヽ(°〇°)ﾉ'],
+    cute: ['(｡♥‿♥｡)', '(๑´ڡ`๑)', '(◡ ‿ ◡)', '(´∀｀)♡', '(✿◠‿◠)'],
+    surprised: ['(⊙_⊙)', '(°o°)', 'ヽ(°〇°)ﾉ', '(◎_◎)', '(゜o゜)'],
+    strong: ['ᕦ(ò_óˇ)ᕤ', '(ง •̀_•́)ง', '💪(￣▽￣)💪', 'ᕙ(⇀‸↼‶)ᕗ'],
+    thinking: ['(´･ω･`)', '(￣ω￣)', '(´-ω-`)', '(￣へ￣)', '(๑•́ ₃ •̀๑)']
+  }
+};
+
+/**
+ * 心情标签配置 - 增强版
  */
 const moodTags = [
-  { id: 'happy', name: '开心', emoji: '😊', color: 'bg-accent text-muted-foreground' },
-  { id: 'romantic', name: '浪漫', emoji: '💕', color: 'bg-accent text-primary' },
-  { id: 'motivational', name: '励志', emoji: '💪', color: 'bg-accent text-primary' },
-  { id: 'casual', name: '随性', emoji: '😎', color: 'bg-accent text-foreground' },
-  { id: 'thoughtful', name: '深思', emoji: '🤔', color: 'bg-accent text-primary' },
-  { id: 'funny', name: '搞笑', emoji: '😂', color: 'bg-accent text-foreground' },
+  { id: 'happy', name: '开心', emoji: '😊', color: 'bg-yellow-50 text-yellow-700 border-yellow-200', description: '快乐正能量' },
+  { id: 'romantic', name: '浪漫', emoji: '💕', color: 'bg-pink-50 text-pink-700 border-pink-200', description: '温柔甜蜜' },
+  { id: 'motivational', name: '励志', emoji: '💪', color: 'bg-orange-50 text-orange-700 border-orange-200', description: '积极向上' },
+  { id: 'casual', name: '随性', emoji: '😎', color: 'bg-blue-50 text-blue-700 border-blue-200', description: '轻松自在' },
+  { id: 'thoughtful', name: '深思', emoji: '🤔', color: 'bg-purple-50 text-purple-700 border-purple-200', description: '深度思考' },
+  { id: 'funny', name: '搞笑', emoji: '😂', color: 'bg-green-50 text-green-700 border-green-200', description: '幽默风趣' },
+];
+
+/**
+ * 视图模式配置
+ */
+const viewModes = [
+  { id: 'grid', name: '网格视图', icon: <Grid className="w-4 h-4" /> },
+  { id: 'list', name: '列表视图', icon: <List className="w-4 h-4" /> },
+];
+
+/**
+ * 排序选项配置
+ */
+const sortOptions = [
+  { id: 'useCount', name: '使用次数', icon: <TrendingUp className="w-4 h-4" /> },
+  { id: 'created', name: '创建时间', icon: <Clock className="w-4 h-4" /> },
+  { id: 'title', name: '标题排序', icon: <Tag className="w-4 h-4" /> },
+  { id: 'favorite', name: '收藏优先', icon: <Heart className="w-4 h-4" /> },
 ];
 
 /**
@@ -86,30 +165,91 @@ const moodTags = [
 export function MomentsTextGenerator() {
   const { toast } = useToast();
 
-  // 状态管理
+  // 基础状态管理
   const [templates, setTemplates] = useState<TextTemplate[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<TextTemplate[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedMood, setSelectedMood] = useState<string>('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  
+  // 新增的UI状态
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortBy, setSortBy] = useState('useCount');
+  const [selectedIndustry, setSelectedIndustry] = useState('');
+  const [selectedHoliday, setSelectedHoliday] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  
+  // 对话框状态
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showAIDialog, setShowAIDialog] = useState(false);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+  const [showDecorationPanel, setShowDecorationPanel] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState<TextTemplate | null>(null);
 
   // AI生成相关状态
   const [aiPrompt, setAIPrompt] = useState('');
   const [aiStyle, setAIStyle] = useState('casual');
   const [aiLength, setAILength] = useState('short');
+  const [aiIndustry, setAIIndustry] = useState('');
+  const [aiIncludeDecorations, setAIIncludeDecorations] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // 新建文案状态
+  // 新建文案状态 - 增强版
   const [newTemplate, setNewTemplate] = useState({
     title: '',
     content: '',
     category: 'daily',
     mood: 'casual' as TextTemplate['mood'],
-    tags: ''
+    tags: '',
+    industry: '',
+    decorations: {
+      emojis: [] as string[],
+      emoticons: [] as string[]
+    }
   });
+
+  // 装饰系统状态
+  const [selectedDecorations, setSelectedDecorations] = useState({
+    emojis: [] as string[],
+    emoticons: [] as string[]
+  });
+  const [decorationCategory, setDecorationCategory] = useState('basic');
+
+  // 搜索建议状态
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // 计算属性：搜索建议
+  const suggestions = useMemo(() => {
+    if (!searchQuery || searchQuery.length < 2) return [];
+    
+    const allTags = templates.flatMap(t => t.tags);
+    const allTitles = templates.map(t => t.title);
+    const allKeywords = [...new Set([...allTags, ...allTitles])];
+    
+    return allKeywords
+      .filter(keyword => 
+        keyword.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .slice(0, 5);
+  }, [searchQuery, templates]);
+
+  // 计算属性：统计信息
+  const stats = useMemo(() => {
+    const totalTemplates = templates.length;
+    const favoriteCount = templates.filter(t => t.isFavorite).length;
+    const categoryStats = categories.slice(1).map(cat => ({
+      ...cat,
+      count: templates.filter(t => t.category === cat.id).length
+    }));
+    
+    return {
+      total: totalTemplates,
+      favorites: favoriteCount,
+      categories: categoryStats
+    };
+  }, [templates]);
 
   /**
    * 初始化文案模板数据
@@ -314,7 +454,7 @@ export function MomentsTextGenerator() {
   }, []);
 
   /**
-   * 搜索和筛选逻辑
+   * 搜索和筛选逻辑 - 增强版
    */
   useEffect(() => {
     let filtered = [...templates];
@@ -329,6 +469,36 @@ export function MomentsTextGenerator() {
       filtered = filtered.filter(template => template.mood === selectedMood);
     }
 
+    // 行业筛选
+    if (selectedIndustry) {
+      filtered = filtered.filter(template => 
+        template.tags.some(tag => 
+          tag.toLowerCase().includes(selectedIndustry.toLowerCase())
+        )
+      );
+    }
+
+    // 节假日筛选
+    if (selectedHoliday) {
+      const holidayKeywords = {
+        'spring_festival': ['春节', '新年', '过年'],
+        'valentines': ['情人节', '浪漫', '爱情'],
+        'womens_day': ['妇女节', '女性', '女神'],
+        'mid_autumn': ['中秋', '月饼', '团圆'],
+        'national_day': ['国庆', '十一', '祖国'],
+        'double_eleven': ['双十一', '购物', '促销'],
+        'christmas': ['圣诞', '平安夜', '节日']
+      };
+      
+      const keywords = holidayKeywords[selectedHoliday as keyof typeof holidayKeywords] || [];
+      filtered = filtered.filter(template =>
+        keywords.some(keyword => 
+          template.content.includes(keyword) || 
+          template.tags.some(tag => tag.includes(keyword))
+        )
+      );
+    }
+
     // 收藏筛选
     if (showFavoritesOnly) {
       filtered = filtered.filter(template => template.isFavorite);
@@ -336,18 +506,56 @@ export function MomentsTextGenerator() {
 
     // 搜索筛选
     if (searchQuery) {
+      const query = searchQuery.toLowerCase();
       filtered = filtered.filter(template =>
-        template.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        template.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        template.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+        template.title.toLowerCase().includes(query) ||
+        template.content.toLowerCase().includes(query) ||
+        template.tags.some(tag => tag.toLowerCase().includes(query))
       );
     }
 
-    // 按使用次数排序
-    filtered.sort((a, b) => b.useCount - a.useCount);
+    // 排序逻辑
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'useCount':
+          return b.useCount - a.useCount;
+        case 'created':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'title':
+          return a.title.localeCompare(b.title);
+        case 'favorite':
+          if (a.isFavorite === b.isFavorite) {
+            return b.useCount - a.useCount;
+          }
+          return a.isFavorite ? -1 : 1;
+        default:
+          return b.useCount - a.useCount;
+      }
+    });
 
     setFilteredTemplates(filtered);
-  }, [templates, selectedCategory, selectedMood, showFavoritesOnly, searchQuery]);
+  }, [
+    templates, 
+    selectedCategory, 
+    selectedMood, 
+    selectedIndustry,
+    selectedHoliday,
+    showFavoritesOnly, 
+    searchQuery,
+    sortBy
+  ]);
+
+  /**
+   * 搜索建议处理
+   */
+  useEffect(() => {
+    if (searchQuery && searchQuery.length >= 2) {
+      setSearchSuggestions(suggestions);
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+  }, [searchQuery, suggestions]);
 
   /**
    * 复制文案
@@ -529,14 +737,120 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
   };
 
   /**
-   * 清除所有筛选
+   * 清除所有筛选 - 增强版
    */
   const clearFilters = () => {
     setSearchQuery('');
     setSelectedCategory('all');
     setSelectedMood('');
+    setSelectedIndustry('');
+    setSelectedHoliday('');
     setShowFavoritesOnly(false);
+    setShowSuggestions(false);
   };
+
+  /**
+   * 预览模板
+   */
+  const previewTemplate = (template: TextTemplate) => {
+    setPreviewTemplate(template);
+    setShowPreviewDialog(true);
+  };
+
+  /**
+   * 一键分享功能
+   */
+  const shareTemplate = async (template: TextTemplate) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: template.title,
+          text: template.content,
+          url: window.location.href
+        });
+        
+        toast({
+          title: "分享成功",
+          description: `"${template.title}" 已分享`,
+        });
+      } catch (error) {
+        // 用户取消了分享
+      }
+    } else {
+      // 退匠到复制功能
+      copyTemplate(template);
+      toast({
+        title: "已复制到剪贴板",
+        description: "您可以手动分享该内容",
+      });
+    }
+  };
+
+  /**
+   * 添加装饰元素
+   */
+  const addDecoration = (type: 'emoji' | 'emoticon', decoration: string) => {
+    if (type === 'emoji') {
+      setSelectedDecorations(prev => ({
+        ...prev,
+        emojis: prev.emojis.includes(decoration) 
+          ? prev.emojis.filter(e => e !== decoration)
+          : [...prev.emojis, decoration]
+      }));
+    } else {
+      setSelectedDecorations(prev => ({
+        ...prev,
+        emoticons: prev.emoticons.includes(decoration)
+          ? prev.emoticons.filter(e => e !== decoration)
+          : [...prev.emoticons, decoration]
+      }));
+    }
+  };
+
+  /**
+   * 应用装饰到文案
+   */
+  const applyDecorations = (content: string): string => {
+    let decoratedContent = content;
+    
+    // 添加选中的emoji
+    if (selectedDecorations.emojis.length > 0) {
+      const randomEmojis = selectedDecorations.emojis
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3)
+        .join(' ');
+      decoratedContent = `${randomEmojis} ${decoratedContent}`;
+    }
+    
+    // 添加选中的颜文字
+    if (selectedDecorations.emoticons.length > 0) {
+      const randomEmoticon = selectedDecorations.emoticons[
+        Math.floor(Math.random() * selectedDecorations.emoticons.length)
+      ];
+      decoratedContent = `${decoratedContent} ${randomEmoticon}`;
+    }
+    
+    return decoratedContent;
+  };
+
+  /**
+   * 搜索建议选择
+   */
+  const selectSuggestion = (suggestion: string) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+  };
+
+  /**
+   * 快速筛选按钮
+   */
+  const quickFilters = [
+    { id: 'popular', name: '热门文案', action: () => setSortBy('useCount') },
+    { id: 'latest', name: '最新添加', action: () => setSortBy('created') },
+    { id: 'favorites', name: '我的收藏', action: () => setShowFavoritesOnly(!showFavoritesOnly) },
+    { id: 'romantic', name: '浪漫系列', action: () => setSelectedMood('romantic') },
+    { id: 'motivational', name: '励志正能量', action: () => setSelectedMood('motivational') },
+  ];
 
   /**
    * 获取分类显示样式
