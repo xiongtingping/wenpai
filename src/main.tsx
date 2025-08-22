@@ -133,7 +133,7 @@ const optimizeDynamicElements = () => {
           
           // 针对Authing相关元素进行性能优化
           if (element.id?.includes('authing') || 
-              element.className?.includes('authing') ||
+              (typeof element.className === 'string' && element.className.includes('authing')) ||
               (element as HTMLElement).tagName === 'IFRAME' && 
               (element as HTMLIFrameElement).src?.includes('authing')) {
             
