@@ -10,7 +10,6 @@
  */
 
 import { useAuth as useOfficialAuth } from '@/auth/OfficialAuthProvider';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 
 /**
  * 统一认证Hook - 应用的唯一认证入口

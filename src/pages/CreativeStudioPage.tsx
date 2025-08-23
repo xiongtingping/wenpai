@@ -56,6 +56,7 @@ import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard
 const WechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
 const EmojiPage = React.lazy(() => import('@/pages/EmojiPage'));
 const MD2WeChatPage = React.lazy(() => import('@/components/creative/MD2WeChatPage'));
+const MD2CardPage = React.lazy(() => import('@/components/creative/MD2CardPage'));
 import PageNavigation from '@/components/layout/PageNavigation';
 
 /**
@@ -83,7 +84,7 @@ export default function CreativeStudioPage() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* 子模块切换 */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <TabsList className="unified-tabs-list grid w-full grid-cols-2 sm:grid-cols-5 max-w-4xl">
+              <TabsList className="unified-tabs-list grid w-full grid-cols-3 sm:grid-cols-6 max-w-5xl">
                 <TabsTrigger value="calendar" className="unified-tab-trigger">
                   <Calendar className="tab-icon" />
                   <span className="tab-text-mobile">日历</span>
@@ -108,6 +109,11 @@ export default function CreativeStudioPage() {
                   <FileText className="tab-icon" />
                   <span className="tab-text-mobile">排版</span>
                   <span className="tab-text-desktop">Markdown排版工具</span>
+                </TabsTrigger>
+                <TabsTrigger value="md2card" className="unified-tab-trigger">
+                  <FolderOpen className="tab-icon" />
+                  <span className="tab-text-mobile">卡片</span>
+                  <span className="tab-text-desktop">MD2Card卡片生成</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -142,6 +148,13 @@ export default function CreativeStudioPage() {
             <TabsContent value="md2wechat" className="mt-6">
               <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
                 <MD2WeChatPage />
+              </React.Suspense>
+            </TabsContent>
+
+            {/* MD2Card卡片生成 */}
+            <TabsContent value="md2card" className="mt-6">
+              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                <MD2CardPage />
               </React.Suspense>
             </TabsContent>
           </Tabs>

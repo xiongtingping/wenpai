@@ -16,6 +16,10 @@
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "test:build": "npm run build && npm run preview",
     "clean": "rm -rf dist node_modules/.vite",
     "type-check": "tsc --noEmit",
@@ -90,6 +94,7 @@
     "lucide-react": "^0.503.0",
     "lunar-javascript": "^1.7.3",
     "mammoth": "^1.9.1",
+    "marked": "^16.2.0",
     "mongodb": "^6.17.0",
     "next-themes": "^0.4.6",
     "node-fetch": "^3.3.2",
@@ -123,13 +128,18 @@
   "devDependencies": {
     "@eslint/js": "^9.22.0",
     "@playwright/test": "^1.55.0",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "eslint": "^9.22.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "jsdom": "^26.1.0",
     "playwright": "^1.55.0",
     "terser": "^5.43.1",
     "typescript-eslint": "^8.26.1",
-    "vite": "^7.0.5"
+    "vite": "^7.0.5",
+    "vitest": "^3.2.4"
   }
 }

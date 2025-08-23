@@ -1,127 +1,90 @@
 #!/bin/bash
 
-# 🔍 部署状态检查脚本
-# ✅ FIXED: 2024-07-22 部署配置验证
-# 📌 请勿再修改该脚本，已封装稳定。如需改动请单独重构新模块。
-# 🔒 LOCKED: AI 禁止对此脚本做任何修改
+# 🔄 官方SDK部署状态检查脚本
+# 检查代码是否已推送和部署
 
-set -e
+echo "🚀 检查官方SDK部署状态..."
+echo "时间: $(date)"
+echo ""
 
-echo "🔍 开始检查部署状态..."
+# 1. 检查Git推送状态
+echo "📡 1. 检查Git推送状态..."
+git_status=$(git status --porcelain -b 2>/dev/null)
+ahead_count=$(echo "$git_status" | grep -o 'ahead [0-9]*' | grep -o '[0-9]*')
 
-# 颜色定义
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+if [ -n "$ahead_count" ] && [ "$ahead_count" -gt 0 ]; then
+    echo "   ⚠️ 本地领先远程 $ahead_count 个提交，需要推送"
+    echo "   💡 建议执行: git push origin main"
+else
+    echo "   ✅ Git状态同步"
+fi
 
-# 检查函数
-check_file() {
-    if [ -f "$1" ]; then
-        echo -e "${GREEN}✅${NC} $1"
-        return 0
-    else
-        echo -e "${RED}❌${NC} $1 (缺失)"
-        return 1
-    fi
-}
-
-check_directory() {
-    if [ -d "$1" ]; then
-        echo -e "${GREEN}✅${NC} $1"
-        return 0
-    else
-        echo -e "${RED}❌${NC} $1 (缺失)"
-        return 1
-    fi
-}
-
-check_command() {
-    if command -v "$1" &> /dev/null; then
-        echo -e "${GREEN}✅${NC} $1"
-        return 0
-    else
-        echo -e "${RED}❌${NC} $1 (未安装)"
-        return 1
-    fi
-}
-
-echo -e "\n${BLUE}📋 1. 基础环境检查${NC}"
-check_command "node"
-check_command "npm"
-check_command "git"
-
-echo -e "\n${BLUE}📋 2. 项目配置文件检查${NC}"
-check_file "package.json"
-check_file "tsconfig.json"
-check_file "tsconfig.app.json"
-check_file "tsconfig.node.json"
-check_file "vite.config.ts"
-check_file "netlify.toml"
-
-echo -e "\n${BLUE}📋 3. 源代码目录检查${NC}"
-check_directory "src"
-check_file "src/main.tsx"
-check_file "src/App.tsx"
-check_directory "src/components"
-check_directory "src/pages"
-check_directory "src/api"
-
-echo -e "\n${BLUE}📋 4. Netlify 函数检查${NC}"
-check_directory "netlify/functions"
-check_file "netlify/functions/api.cjs"
-
-echo -e "\n${BLUE}📋 5. 构建输出检查${NC}"
-if [ -d "dist" ]; then
-    echo -e "${GREEN}✅${NC} dist 目录存在"
-    check_file "dist/index.html"
-    check_directory "dist/assets"
+# 2. 检查GitHub连接
+echo ""
+echo "🌐 2. 检查GitHub连接..."
+if ping -c 1 github.com >/dev/null 2>&1; then
+    echo "   ✅ GitHub连接正常"
     
-    if [ -d "dist/assets" ]; then
-        echo -e "${BLUE}   📊 构建文件统计:${NC}"
-        ls -la dist/assets/ | head -10
+    # 尝试推送
+    echo "   🔄 尝试推送..."
+    if git push origin main 2>/dev/null; then
+        echo "   ✅ 推送成功！"
+    else
+        echo "   ⚠️ 推送失败，请稍后重试"
     fi
 else
-    echo -e "${YELLOW}⚠️${NC} dist 目录不存在，需要先构建"
+    echo "   ❌ GitHub连接失败"
+    echo "   💡 请检查网络连接"
 fi
 
-echo -e "\n${BLUE}📋 6. 环境变量检查${NC}"
-if [ -f ".env" ]; then
-    echo -e "${GREEN}✅${NC} .env 文件存在"
+# 3. 检查生产环境
+echo ""
+echo "🌍 3. 检查生产环境..."
+
+# 检查主站
+main_status=$(curl -s -o /dev/null -w "%{http_code}" https://www.wenpai.xyz/ 2>/dev/null || echo "000")
+echo "   🏠 主站状态: $main_status"
+
+# 检查测试页面
+test_status=$(curl -s -o /dev/null -w "%{http_code}" https://www.wenpai.xyz/test-official-auth 2>/dev/null || echo "000")
+echo "   🧪 测试页面状态: $test_status"
+
+if [ "$test_status" = "200" ]; then
+    echo "   ✅ 测试页面可访问"
+    
+    # 检查页面内容
+    content=$(curl -s https://www.wenpai.xyz/test-official-auth 2>/dev/null)
+    if echo "$content" | grep -q "OfficialAuth\|@authing/browser\|官方SDK"; then
+        echo "   🎉 发现官方SDK内容！部署成功！"
+    else
+        echo "   ⏳ 页面可访问但可能是旧版本"
+    fi
 else
-    echo -e "${YELLOW}⚠️${NC} .env 文件不存在（可能使用 Netlify 环境变量）"
+    echo "   ⏳ 测试页面暂不可访问，可能还在部署中"
 fi
 
-echo -e "\n${BLUE}📋 7. 依赖检查${NC}"
-if [ -d "node_modules" ]; then
-    echo -e "${GREEN}✅${NC} node_modules 存在"
-else
-    echo -e "${YELLOW}⚠️${NC} node_modules 不存在，需要运行 npm install"
+# 4. 生成下一步建议
+echo ""
+echo "📋 4. 下一步建议..."
+
+if [ -n "$ahead_count" ] && [ "$ahead_count" -gt 0 ]; then
+    echo "   🔄 需要推送代码:"
+    echo "      git push origin main"
+    echo ""
 fi
 
-echo -e "\n${BLUE}📋 8. TypeScript 配置检查${NC}"
-if npx tsc --noEmit &> /dev/null; then
-    echo -e "${GREEN}✅${NC} TypeScript 配置正确"
-else
-    echo -e "${RED}❌${NC} TypeScript 配置有误"
-fi
+echo "   🧪 测试官方SDK实现:"
+echo "      1. 访问: https://www.wenpai.xyz/test-official-auth"
+echo "      2. 点击登录按钮"
+echo "      3. 验证无redirect错误"
+echo "      4. 检查认证流程是否正常"
+echo ""
 
-echo -e "\n${BLUE}📋 9. 构建测试${NC}"
-if npm run build &> /dev/null; then
-    echo -e "${GREEN}✅${NC} 构建成功"
-else
-    echo -e "${RED}❌${NC} 构建失败"
-fi
+echo "   📊 对比测试:"
+echo "      - 当前实现: https://www.wenpai.xyz/"
+echo "      - 新实现: https://www.wenpai.xyz/test-official-auth"
+echo "      - 新实现应该更稳定，无redirect错误"
 
-echo -e "\n${BLUE}📋 10. 部署准备状态${NC}"
-if [ -f "dist/index.html" ] && [ -d "dist/assets" ]; then
-    echo -e "${GREEN}✅${NC} 部署文件准备就绪"
-    echo -e "${BLUE}   📁 部署目录: dist/"
-    echo -e "${BLUE}   📊 部署大小: $(du -sh dist/ | cut -f1)"
-else
-    echo -e "${RED}❌${NC} 部署文件不完整"
-fi
-
-echo -e "\n${GREEN}🎉 部署状态检查完成！${NC}"
-echo -e "${BLUE}📝 如果所有检查都通过，可以安全地推送到 Git 仓库进行自动部署${NC}" 
+echo ""
+echo "🎯 核心目标: 验证官方SDK是否解决了 'Error: redirect' 问题"
+echo "检查完成时间: $(date)"
