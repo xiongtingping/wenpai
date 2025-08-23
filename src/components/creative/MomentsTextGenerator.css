@@ -1,0 +1,370 @@
+/* 朋友圈文案生成器自定义样式 */
+
+/* 搜索建议动画 */
+.search-suggestions-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.search-suggestions-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 200ms ease-out;
+}
+
+.search-suggestions-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.search-suggestions-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 150ms ease-in;
+}
+
+/* 卡片悬停动画 */
+.template-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.template-card:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* 按钮脉冲动画 */
+.pulse-on-click {
+  animation: pulse 0.6s ease-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 收藏心形动画 */
+.heart-favorite {
+  animation: heartBeat 0.6s ease-in-out;
+}
+
+@keyframes heartBeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  75% {
+    transform: scale(1.1);
+  }
+}
+
+/* 加载动画 */
+.loading-dots {
+  display: inline-flex;
+  align-items: center;
+}
+
+.loading-dots::after {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: currentColor;
+  margin-left: 4px;
+  animation: loadingDots 1.4s infinite ease-in-out;
+}
+
+.loading-dots::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: currentColor;
+  margin-right: 2px;
+  animation: loadingDots 1.4s infinite ease-in-out 0.2s;
+}
+
+@keyframes loadingDots {
+  0%, 80%, 100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 渐入动画 */
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 渐入延迟动画 */
+.fade-in-delay-1 {
+  animation: fadeIn 0.6s ease-out 0.1s both;
+}
+
+.fade-in-delay-2 {
+  animation: fadeIn 0.6s ease-out 0.2s both;
+}
+
+.fade-in-delay-3 {
+  animation: fadeIn 0.6s ease-out 0.3s both;
+}
+
+/* 标签悬停动画 */
+.tag-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.tag-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 按钮加载状态 */
+.button-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.button-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 数字计数动画 */
+.count-up {
+  animation: countUp 0.8s ease-out;
+}
+
+@keyframes countUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 模态框动画 */
+.modal-overlay-enter {
+  opacity: 0;
+}
+
+.modal-overlay-enter-active {
+  opacity: 1;
+  transition: opacity 200ms ease-out;
+}
+
+.modal-overlay-exit {
+  opacity: 1;
+}
+
+.modal-overlay-exit-active {
+  opacity: 0;
+  transition: opacity 150ms ease-in;
+}
+
+.modal-content-enter {
+  opacity: 0;
+  transform: scale(0.9) translateY(-20px);
+}
+
+.modal-content-enter-active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: all 200ms ease-out;
+}
+
+.modal-content-exit {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.modal-content-exit-active {
+  opacity: 0;
+  transform: scale(0.9) translateY(-20px);
+  transition: all 150ms ease-in;
+}
+
+/* 搜索结果高亮 */
+.search-highlight {
+  background-color: rgba(59, 130, 246, 0.2);
+  padding: 1px 2px;
+  border-radius: 2px;
+  animation: highlight 2s ease-out;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: rgba(59, 130, 246, 0.4);
+  }
+  100% {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+}
+
+/* 复制成功动画 */
+.copy-success {
+  animation: copySuccess 0.6s ease-out;
+}
+
+@keyframes copySuccess {
+  0% {
+    transform: scale(1);
+    background-color: rgb(34, 197, 94);
+  }
+  50% {
+    transform: scale(1.1);
+    background-color: rgb(16, 185, 129);
+  }
+  100% {
+    transform: scale(1);
+    background-color: rgb(34, 197, 94);
+  }
+}
+
+/* 响应式隐藏文本动画 */
+@media (max-width: 640px) {
+  .mobile-hide-text {
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .mobile-show-text {
+    transform: translateX(0);
+    opacity: 1;
+    transition: all 0.3s ease-in-out;
+  }
+}
+
+/* 筛选标签切换动画 */
+.filter-tag-active {
+  animation: filterActivate 0.3s ease-out;
+}
+
+@keyframes filterActivate {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 装饰面板展开动画 */
+.decoration-panel-enter {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+}
+
+.decoration-panel-enter-active {
+  opacity: 1;
+  max-height: 500px;
+  transition: all 300ms ease-out;
+}
+
+.decoration-panel-exit {
+  opacity: 1;
+  max-height: 500px;
+}
+
+.decoration-panel-exit-active {
+  opacity: 0;
+  max-height: 0;
+  transition: all 250ms ease-in;
+  overflow: hidden;
+}
+
+/* 渐变背景动画 */
+.animated-gradient {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 悬停提示动画 */
+.tooltip-enter {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.tooltip-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 200ms ease-out;
+}
+
+.tooltip-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tooltip-exit-active {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: all 150ms ease-in;
+}

@@ -54,6 +54,7 @@ import {
   List
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import './MomentsTextGenerator.css';
 
 /**
  * 文案模板接口
@@ -215,6 +216,11 @@ export function MomentsTextGenerator() {
     emoticons: [] as string[]
   });
   const [decorationCategory, setDecorationCategory] = useState('basic');
+
+  // 动画状态
+  const [copyingId, setCopyingId] = useState<string | null>(null);
+  const [favoriteAnimationId, setFavoriteAnimationId] = useState<string | null>(null);
+  const [buttonClickAnimation, setButtonClickAnimation] = useState<string | null>(null);
 
   // 搜索建议状态
   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
@@ -558,31 +564,70 @@ export function MomentsTextGenerator() {
   }, [searchQuery, suggestions]);
 
   /**
-   * 复制文案
+   * 复制文案 - 增强动画版
    */
-  const copyTemplate = (template: TextTemplate) => {
-    navigator.clipboard.writeText(template.content);
-    
-    // 增加使用次数
-    setTemplates(prev => prev.map(t => 
-      t.id === template.id ? { ...t, useCount: t.useCount + 1 } : t
-    ));
+  const copyTemplate = async (template: TextTemplate) => {
+    try {
+      // 设置复制动画状态
+      setCopyingId(template.id);
+      
+      await navigator.clipboard.writeText(template.content);
+      
+      // 增加使用次数
+      setTemplates(prev => prev.map(t => 
+        t.id === template.id ? { ...t, useCount: t.useCount + 1 } : t
+      ));
 
-    toast({
-      title: "已复制到剪贴板",
-      description: `"${template.title}" 已复制`,
-    });
+      toast({
+        title: "✨ 已复制到剪贴板",
+        description: `"${template.title}" 已成功复制`,
+      });
+      
+      // 清除动画状态
+      setTimeout(() => setCopyingId(null), 600);
+    } catch (error) {
+      toast({
+        title: "复制失败",
+        description: "请手动选中并复制文案内容",
+        variant: "destructive"
+      });
+      setCopyingId(null);
+    }
   };
 
   /**
-   * 切换收藏状态
+   * 切换收藏状态 - 增强动画版
    */
   const toggleFavorite = (templateId: string) => {
-    setTemplates(prev => prev.map(template =>
-      template.id === templateId 
-        ? { ...template, isFavorite: !template.isFavorite }
-        : template
-    ));
+    // 设置动画状态
+    setFavoriteAnimationId(templateId);
+    
+    setTemplates(prev => prev.map(template => {
+      if (template.id === templateId) {
+        const newFavoriteState = !template.isFavorite;
+        
+        // 显示相应的toast消息
+        toast({
+          title: newFavoriteState ? "❤️ 已添加到收藏" : "💔 已取消收藏",
+          description: `"${template.title}" ${newFavoriteState ? '已收藏' : '已取消收藏'}`,
+        });
+        
+        return { ...template, isFavorite: newFavoriteState };
+      }
+      return template;
+    }));
+    
+    // 清除动画状态
+    setTimeout(() => setFavoriteAnimationId(null), 600);
+  };
+
+  /**
+   * 按钮点击动画
+   */
+  const handleButtonClick = (buttonId: string, action: () => void) => {
+    setButtonClickAnimation(buttonId);
+    action();
+    setTimeout(() => setButtonClickAnimation(null), 300);
   };
 
   /**
@@ -864,341 +909,1059 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
   };
 
   return (
-    <div className="space-y-6">
-      {/* 头部操作区 */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
-                朋友圈文案生成器
-              </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                精选文案模板，支持搜索、收藏、AI生成
-              </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 max-w-7xl">
+        {/* 头部区域 - 响应式优化 */}
+        <div className="mb-6 lg:mb-8">
+          <div className="text-center mb-4 lg:mb-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-3 sm:mb-4">
+              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
             </div>
-            <div className="flex gap-2">
-              <Dialog open={showAIDialog} onOpenChange={setShowAIDialog}>
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <Zap className="w-4 h-4 mr-2" />
-                    AI生成
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>AI生成文案</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label>生成提示</Label>
-                      <Textarea
-                        placeholder="描述你想要的文案内容，比如：关于周末慢生活的温馨文案..."
-                        value={aiPrompt}
-                        onChange={(e) => setAIPrompt(e.target.value)}
-                        rows={3}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label>文案风格</Label>
-                        <select
-                          value={aiStyle}
-                          onChange={(e) => setAIStyle(e.target.value)}
-                          className="w-full p-2 border border-border rounded-md"
-                        >
-                          <option value="casual">轻松随性</option>
-                          <option value="romantic">浪漫温馨</option>
-                          <option value="motivational">励志正能量</option>
-                          <option value="funny">幽默搞笑</option>
-                          <option value="thoughtful">深度思考</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <Label>文案长度</Label>
-                        <select
-                          value={aiLength}
-                          onChange={(e) => setAILength(e.target.value)}
-                          className="w-full p-2 border border-border rounded-md"
-                        >
-                          <option value="short">简短（50字以内）</option>
-                          <option value="medium">适中（50-100字）</option>
-                          <option value="long">详细（100字以上）</option>
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <Button 
-                      onClick={generateAIText} 
-                      disabled={isGenerating}
-                      className="w-full"
-                    >
-                      {isGenerating ? (
-                        <>
-                          <Clock className="w-4 h-4 mr-2 animate-spin" />
-                          生成中...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4 mr-2" />
-                          生成文案
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-
-              <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="w-4 h-4 mr-2" />
-                    创建文案
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>创建新文案</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label>标题</Label>
-                      <Input
-                        placeholder="给文案起个名字..."
-                        value={newTemplate.title}
-                        onChange={(e) => setNewTemplate(prev => ({ ...prev, title: e.target.value }))}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label>内容</Label>
-                      <Textarea
-                        placeholder="输入文案内容..."
-                        value={newTemplate.content}
-                        onChange={(e) => setNewTemplate(prev => ({ ...prev, content: e.target.value }))}
-                        rows={6}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label>分类</Label>
-                        <select
-                          value={newTemplate.category}
-                          onChange={(e) => setNewTemplate(prev => ({ ...prev, category: e.target.value }))}
-                          className="w-full p-2 border border-border rounded-md"
-                        >
-                          {categories.slice(1).map(category => (
-                            <option key={category.id} value={category.id}>
-                              {category.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <Label>心情</Label>
-                        <select
-                          value={newTemplate.mood}
-                          onChange={(e) => setNewTemplate(prev => ({ ...prev, mood: e.target.value as any }))}
-                          className="w-full p-2 border border-border rounded-md"
-                        >
-                          {moodTags.map(mood => (
-                            <option key={mood.id} value={mood.id}>
-                              {mood.emoji} {mood.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <Label>标签（用逗号分隔）</Label>
-                      <Input
-                        placeholder="标签1, 标签2, 标签3..."
-                        value={newTemplate.tags}
-                        onChange={(e) => setNewTemplate(prev => ({ ...prev, tags: e.target.value }))}
-                      />
-                    </div>
-                    
-                    <Button onClick={addNewTemplate} className="w-full">
-                      <Plus className="w-4 h-4 mr-2" />
-                      添加文案
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+              朋友圈文案生成器
+            </h1>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
+              智能创作精美文案，让你的朋友圈更有趣 ✨
+            </p>
           </div>
-        </CardHeader>
-        
-        <CardContent>
-          {/* 搜索栏 */}
-          <div className="flex items-center gap-4 mb-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="搜索文案、标签或内容..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Button
-              variant={showFavoritesOnly ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-            >
-              <Heart className={`w-4 h-4 mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
-              我的收藏
-            </Button>
-            <Button variant="outline" size="sm" onClick={clearFilters}>
-              <X className="w-4 h-4 mr-2" />
-              清除筛选
-            </Button>
-          </div>
-
-          {/* 分类筛选 */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {categories.map(category => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category.id)}
-                className="flex items-center gap-2"
-              >
-                {category.icon}
-                {category.name}
-              </Button>
-            ))}
-          </div>
-
-          {/* 心情筛选 */}
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant={selectedMood === '' ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedMood('')}
-            >
-              全部心情
-            </Button>
-            {moodTags.map(mood => (
-              <Button
-                key={mood.id}
-                variant={selectedMood === mood.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedMood(mood.id)}
-              >
-                <span className="mr-1">{mood.emoji}</span>
-                {mood.name}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 文案模板网格 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredTemplates.map(template => {
-          const categoryStyle = getCategoryStyle(template.category);
-          const moodTag = moodTags.find(m => m.id === template.mood);
           
-          return (
-            <Card key={template.id} className="relative group hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-sm mb-2">{template.title}</h3>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        {categoryStyle.icon}
-                        <span className="ml-1">{categories.find(c => c.id === template.category)?.name}</span>
-                      </Badge>
-                      {moodTag && (
-                        <Badge variant="outline" className={`text-xs ${moodTag.color}`}>
-                          <span className="mr-1">{moodTag.emoji}</span>
-                          {moodTag.name}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleFavorite(template.id)}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Heart 
-                      className={`w-4 h-4 ${template.isFavorite ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`} 
-                    />
-                  </Button>
-                </div>
-              </CardHeader>
+          {/* 统计信息卡片 - 响应式网格 */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 lg:mb-6">
+            <Card className="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm border-0 shadow-lg">
+              <div className="text-xl sm:text-2xl font-bold text-blue-600">{stats.total}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">总模板数</div>
+            </Card>
+            <Card className="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm border-0 shadow-lg">
+              <div className="text-xl sm:text-2xl font-bold text-red-500">{stats.favorites}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">我的收藏</div>
+            </Card>
+            <Card className="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm border-0 shadow-lg">
+              <div className="text-xl sm:text-2xl font-bold text-green-600">{filteredTemplates.length}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">筛选结果</div>
+            </Card>
+            <Card className="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm border-0 shadow-lg">
+              <div className="text-xl sm:text-2xl font-bold text-purple-600">{industryTemplates.length}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">行业模板</div>
+            </Card>
+          </div>
+        </div>
+
+        {/* 操作栏 - 响应式优化 */}
+        <Card className="mb-4 lg:mb-6 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+          <CardContent className="p-4 sm:p-6">
+            {/* 主要操作按钮 - 响应式布局 */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                <Dialog open={showAIDialog} onOpenChange={setShowAIDialog}>
+                  <DialogTrigger asChild>
+                    <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg w-full sm:w-auto">
+                      <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                      AI智能生成
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
+                
+                <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="lg" className="border-2 hover:bg-accent w-full sm:w-auto">
+                      <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                      创建文案
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
+                
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  onClick={() => setShowDecorationPanel(!showDecorationPanel)}
+                  className="border-2 hover:bg-accent w-full sm:w-auto"
+                >
+                  <Palette className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                  装饰元素
+                </Button>
+              </div>
               
-              <CardContent className="pt-0">
-                <div className="bg-accent p-3 rounded-lg mb-3 max-h-32 overflow-hidden">
-                  <p className="text-sm text-foreground whitespace-pre-line line-clamp-4">
-                    {template.content}
-                  </p>
+              <div className="flex items-center gap-2 sm:gap-3 justify-between sm:justify-end">
+                {/* 视图切换 - 移动端隐藏文字 */}
+                <div className="flex items-center bg-muted rounded-lg p-1">
+                  {viewModes.map(mode => (
+                    <Button
+                      key={mode.id}
+                      variant={viewMode === mode.id ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setViewMode(mode.id as 'grid' | 'list')}
+                      className="h-8 px-2 sm:px-3"
+                      title={mode.name}
+                    >
+                      {mode.icon}
+                      <span className="hidden sm:inline ml-1">{mode.name}</span>
+                    </Button>
+                  ))}
                 </div>
                 
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {template.tags.slice(0, 3).map((tag, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                  {template.tags.length > 3 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{template.tags.length - 3}
-                    </Badge>
+                {/* 排序选项 - 响应式宽度 */}
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-32 sm:w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sortOptions.map(option => (
+                      <SelectItem key={option.id} value={option.id}>
+                        <div className="flex items-center gap-2">
+                          {option.icon}
+                          <span className="hidden sm:inline">{option.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* 搜索栏 - 响应式优化 */}
+            <div className="relative mb-4 sm:mb-6">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
+                  <Input
+                    placeholder="搜索文案、标签或内容..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 sm:pl-12 h-10 sm:h-12 text-base sm:text-lg border-2 focus:border-blue-500 bg-white"
+                  />
+                  {searchQuery && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
                   )}
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">
-                      {categoryStyle.icon}
-                      <span className="ml-1">{categories.find(c => c.id === template.category)?.name}</span>
-                    </Badge>
-                  </div>
+                <div className="flex gap-2 sm:gap-3">
                   <Button
-                    onClick={() => copyTemplate(template)}
-                    size="sm"
-                    className="flex items-center gap-1"
+                    variant={showAdvancedFilters ? "default" : "outline"}
+                    onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                    className="h-10 sm:h-12 px-3 sm:px-6 flex-1 sm:flex-none"
                   >
-                    <Copy className="w-4 h-4" />
-                    复制
+                    <Filter className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+                    <span className="hidden sm:inline">高级筛选</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={clearFilters}
+                    className="h-10 sm:h-12 px-3 sm:px-6"
+                  >
+                    <X className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+                    <span className="hidden sm:inline">清除</span>
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+              </div>
+              
+              {/* 搜索建议 - 增强动画版 */}
+              {showSuggestions && searchSuggestions.length > 0 && (
+                <Card className="absolute top-full left-0 right-0 z-10 mt-2 bg-white shadow-xl search-suggestions-enter-active border-0">
+                  <CardContent className="p-2">
+                    {searchSuggestions.map((suggestion, index) => (
+                      <Button
+                        key={index}
+                        variant="ghost"
+                        className="w-full justify-start h-auto p-3 text-left hover:bg-blue-50 transition-all hover:scale-[1.02] fade-in"
+                        onClick={() => selectSuggestion(suggestion)}
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        <Search className="w-4 h-4 mr-3 text-muted-foreground" />
+                        <span className="search-highlight">{suggestion}</span>
+                      </Button>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
-      {/* 空状态 */}
-      {filteredTemplates.length === 0 && (
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">没有找到相关文案</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchQuery ? '尝试调整搜索关键词' : '尝试调整筛选条件'}
-              </p>
-              <Button onClick={clearFilters} variant="outline">
-                <X className="w-4 h-4 mr-2" />
-                清除所有筛选
-              </Button>
+            {/* 快速筛选按钮 - 响应式优化 */}
+            <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
+              <span className="text-xs sm:text-sm font-medium text-muted-foreground self-center mr-1 sm:mr-2 w-full sm:w-auto mb-1 sm:mb-0">快速筛选：</span>
+              {quickFilters.map((filter, index) => (
+                <Button
+                  key={filter.id}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleButtonClick(`quick-${filter.id}`, filter.action)}
+                  className={`bg-white hover:bg-accent border-muted-foreground/20 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 tag-hover fade-in ${
+                    buttonClickAnimation === `quick-${filter.id}` ? 'pulse-on-click' : ''
+                  }`}
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  {filter.name}
+                </Button>
+              ))}
+            </div>
+
+            {/* 分类筛选 - 响应式网格 */}
+            <div className="mb-4 sm:mb-6">
+              <Label className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 block">分类筛选</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-2">
+                {categories.map((category, index) => (
+                  <Button
+                    key={category.id}
+                    variant={selectedCategory === category.id ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      handleButtonClick(`category-${category.id}`, () => setSelectedCategory(category.id));
+                    }}
+                    className={`flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3 h-auto transition-all hover:scale-105 fade-in ${
+                      selectedCategory === category.id 
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white filter-tag-active' 
+                        : 'bg-white hover:bg-accent'
+                    } ${buttonClickAnimation === `category-${category.id}` ? 'pulse-on-click' : ''}`}
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <span className="text-xs sm:text-sm">{category.icon}</span>
+                    <span className="hidden sm:inline">{category.name}</span>
+                    <span className="sm:hidden text-xs">{category.name.slice(0, 2)}</span>
+                    {category.id !== 'all' && (
+                      <Badge variant="secondary" className="ml-1 text-xs px-1 py-0 h-4 count-up">
+                        {stats.categories.find(c => c.id === category.id)?.count || 0}
+                      </Badge>
+                    )}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* 心情筛选 - 响应式网格 */}
+            <div className="mb-4 sm:mb-6">
+              <Label className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 block">心情标签</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
+                <Button
+                  variant={selectedMood === '' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleButtonClick('mood-all', () => setSelectedMood(''))}
+                  className={`text-xs sm:text-sm px-2 sm:px-3 py-2 h-auto transition-all hover:scale-105 fade-in ${
+                    selectedMood === '' 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white filter-tag-active' 
+                      : 'bg-white hover:bg-accent'
+                  } ${buttonClickAnimation === 'mood-all' ? 'pulse-on-click' : ''}`}
+                >
+                  <span className="hidden sm:inline">全部心情</span>
+                  <span className="sm:hidden">全部</span>
+                </Button>
+                {moodTags.map((mood, index) => (
+                  <Button
+                    key={mood.id}
+                    variant={selectedMood === mood.id ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleButtonClick(`mood-${mood.id}`, () => setSelectedMood(mood.id))}
+                    className={`text-xs sm:text-sm px-2 sm:px-3 py-2 h-auto transition-all hover:scale-105 fade-in ${
+                      selectedMood === mood.id 
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white filter-tag-active' 
+                        : `bg-white hover:bg-accent ${mood.color}`
+                    } ${buttonClickAnimation === `mood-${mood.id}` ? 'pulse-on-click' : ''}`}
+                    style={{ animationDelay: `${index * 80}ms` }}
+                  >
+                    <span className="mr-1 text-xs sm:text-sm">{mood.emoji}</span>
+                    <span className="hidden sm:inline">{mood.name}</span>
+                    <span className="sm:hidden text-xs">{mood.name}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* 高级筛选面板 - 响应式优化 */}
+            {showAdvancedFilters && (
+              <Card className="p-3 sm:p-4 bg-accent/50">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {/* 行业选择 */}
+                  <div>
+                    <Label className="text-xs sm:text-sm font-medium mb-2 block">行业类型</Label>
+                    <Select value={selectedIndustry} onValueChange={setSelectedIndustry}>
+                      <SelectTrigger className="h-9 sm:h-10">
+                        <SelectValue placeholder="选择行业" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">所有行业</SelectItem>
+                        {industryTemplates.map(industry => (
+                          <SelectItem key={industry.id} value={industry.id}>
+                            <div className="flex items-center gap-2">
+                              <span>{industry.emoji}</span>
+                              <span className="text-xs sm:text-sm">{industry.name}</span>
+                              <Badge variant="secondary" className="ml-1 text-xs">{industry.count}</Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* 节假日选择 */}
+                  <div>
+                    <Label className="text-xs sm:text-sm font-medium mb-2 block">节假日主题</Label>
+                    <Select value={selectedHoliday} onValueChange={setSelectedHoliday}>
+                      <SelectTrigger className="h-9 sm:h-10">
+                        <SelectValue placeholder="选择节假日" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">所有节日</SelectItem>
+                        {holidayTemplates.map(holiday => (
+                          <SelectItem key={holiday.id} value={holiday.id}>
+                            <div className="flex items-center gap-2">
+                              <span>{holiday.emoji}</span>
+                              <span className="text-xs sm:text-sm">{holiday.name}</span>
+                              {holiday.isActive && (
+                                <Badge variant="default" className="ml-1 text-xs bg-green-500">热门</Badge>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* 收藏开关 */}
+                  <div className="flex items-center space-x-2 sm:col-span-2 lg:col-span-1">
+                    <Switch 
+                      id="favorites-only" 
+                      checked={showFavoritesOnly}
+                      onCheckedChange={setShowFavoritesOnly}
+                    />
+                    <Label htmlFor="favorites-only" className="text-xs sm:text-sm font-medium">
+                      只显示收藏
+                    </Label>
+                  </div>
+                </div>
+              </Card>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* 装饰面板 */}
+        {showDecorationPanel && (
+          <Card className="mb-6 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="w-5 h-5" />
+                装饰元素面板
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs value={decorationCategory} onValueChange={setDecorationCategory}>
+                <TabsList className="grid w-full grid-cols-5">
+                  <TabsTrigger value="basic">Emoji</TabsTrigger>
+                  <TabsTrigger value="gestures">手势</TabsTrigger>
+                  <TabsTrigger value="objects">物品</TabsTrigger>
+                  <TabsTrigger value="hearts">爱心</TabsTrigger>
+                  <TabsTrigger value="emoticons">颜文字</TabsTrigger>
+                </TabsList>
+                
+                {/* Emoji 分类 */}
+                {['basic', 'gestures', 'objects', 'hearts'].map(category => (
+                  <TabsContent key={category} value={category} className="mt-4">
+                    <div className="grid grid-cols-8 md:grid-cols-12 gap-2">
+                      {decorationElements.emojis[category as keyof typeof decorationElements.emojis]?.map((emoji, index) => (
+                        <Button
+                          key={index}
+                          variant={selectedDecorations.emojis.includes(emoji) ? "default" : "outline"}
+                          className="w-12 h-12 text-xl"
+                          onClick={() => addDecoration('emoji', emoji)}
+                        >
+                          {emoji}
+                        </Button>
+                      ))}
+                    </div>
+                  </TabsContent>
+                ))}
+                
+                {/* 颜文字分类 */}
+                <TabsContent value="emoticons" className="mt-4">
+                  <div className="space-y-4">
+                    {Object.entries(decorationElements.emoticons).map(([type, emoticons]) => (
+                      <div key={type}>
+                        <h4 className="text-sm font-medium mb-2 capitalize">
+                          {type === 'happy' ? '开心' : 
+                           type === 'cute' ? '可爱' :
+                           type === 'surprised' ? '惊讶' :
+                           type === 'strong' ? '坚强' : '思考'}
+                        </h4>
+                        <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+                          {emoticons.map((emoticon, index) => (
+                            <Button
+                              key={index}
+                              variant={selectedDecorations.emoticons.includes(emoticon) ? "default" : "outline"}
+                              className="h-10 text-sm"
+                              onClick={() => addDecoration('emoticon', emoticon)}
+                            >
+                              {emoticon}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+              </Tabs>
+              
+              {/* 已选装饰 */}
+              {(selectedDecorations.emojis.length > 0 || selectedDecorations.emoticons.length > 0) && (
+                <div className="mt-4 p-4 bg-accent rounded-lg">
+                  <h4 className="text-sm font-medium mb-2">已选装饰：</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedDecorations.emojis.map((emoji, index) => (
+                      <Badge key={index} variant="default" className="text-base">
+                        {emoji}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="ml-1 h-4 w-4 p-0"
+                          onClick={() => addDecoration('emoji', emoji)}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </Badge>
+                    ))}
+                    {selectedDecorations.emoticons.map((emoticon, index) => (
+                      <Badge key={index} variant="default">
+                        {emoticon}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="ml-1 h-4 w-4 p-0"
+                          onClick={() => addDecoration('emoticon', emoticon)}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 行业模板展示 - 响应式优化 */}
+        <Card className="mb-4 lg:mb-6 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+          <CardHeader className="pb-3 sm:pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
+              行业模板推荐
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
+              {industryTemplates.map(industry => (
+                <Card 
+                  key={industry.id} 
+                  className={`cursor-pointer transition-all hover:shadow-lg hover:scale-105 ${
+                    selectedIndustry === industry.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-accent'
+                  }`}
+                  onClick={() => setSelectedIndustry(selectedIndustry === industry.id ? '' : industry.id)}
+                >
+                  <CardContent className="p-2 sm:p-4 text-center">
+                    <div className="text-lg sm:text-2xl mb-1 sm:mb-2">{industry.emoji}</div>
+                    <div className="text-xs sm:text-sm font-medium line-clamp-2">{industry.name}</div>
+                    <Badge variant="secondary" className="mt-1 text-xs px-1 py-0 h-4">
+                      {industry.count}个模板
+                    </Badge>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </CardContent>
         </Card>
-      )}
+
+        {/* 节假日模板展示 - 响应式优化 */}
+        <Card className="mb-4 lg:mb-6 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+          <CardHeader className="pb-3 sm:pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+              节假日特别模板
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2 sm:gap-3">
+              {holidayTemplates.map(holiday => (
+                <Card 
+                  key={holiday.id}
+                  className={`cursor-pointer transition-all hover:shadow-lg hover:scale-105 ${
+                    selectedHoliday === holiday.id ? 'ring-2 ring-purple-500 bg-purple-50' : 'hover:bg-accent'
+                  } ${holiday.isActive ? 'border-green-500 shadow-green-100' : ''}`}
+                  onClick={() => setSelectedHoliday(selectedHoliday === holiday.id ? '' : holiday.id)}
+                >
+                  <CardContent className="p-2 sm:p-3 text-center">
+                    <div className="text-base sm:text-xl mb-1">{holiday.emoji}</div>
+                    <div className="text-xs font-medium line-clamp-2">{holiday.name}</div>
+                    {holiday.isActive && (
+                      <Badge variant="default" className="mt-1 text-xs bg-green-500 px-1 py-0 h-4">热门</Badge>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 文案模板网格 - 响应式优化 */}
+        {viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+            {filteredTemplates.map((template, index) => {
+              const categoryStyle = getCategoryStyle(template.category);
+              const moodTag = moodTags.find(m => m.id === template.mood);
+              const isAnimating = favoriteAnimationId === template.id;
+              const isCopying = copyingId === template.id;
+              
+              return (
+                <Card 
+                  key={template.id} 
+                  className={`template-card group bg-white/90 backdrop-blur-sm border-0 shadow-lg ${
+                    index % 4 === 0 ? 'fade-in' : 
+                    index % 4 === 1 ? 'fade-in-delay-1' :
+                    index % 4 === 2 ? 'fade-in-delay-2' : 'fade-in-delay-3'
+                  }`}
+                >
+                  <CardHeader className="pb-2 sm:pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm sm:text-base mb-2 line-clamp-1 pr-2">{template.title}</h3>
+                        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                          <Badge 
+                            variant="outline" 
+                            className="text-xs bg-white/80 px-1 sm:px-2 py-0 h-5 sm:h-6 tag-hover"
+                            style={{ borderColor: categoryStyle.color }}
+                          >
+                            <span className="text-xs">{categoryStyle.icon}</span>
+                            <span className="ml-1 hidden sm:inline text-xs">{categories.find(c => c.id === template.category)?.name}</span>
+                          </Badge>
+                          {moodTag && (
+                            <Badge variant="outline" className={`text-xs px-1 sm:px-2 py-0 h-5 sm:h-6 tag-hover ${moodTag.color}`}>
+                              <span className="text-xs">{moodTag.emoji}</span>
+                              <span className="ml-1 hidden sm:inline text-xs">{moodTag.name}</span>
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleFavorite(template.id)}
+                        className={`h-6 w-6 sm:h-8 sm:w-8 p-0 opacity-70 hover:opacity-100 flex-shrink-0 transition-all ${
+                          isAnimating ? 'heart-favorite' : ''
+                        }`}
+                      >
+                        <Heart 
+                          className={`w-3 h-3 sm:w-4 sm:h-4 transition-all duration-300 ${
+                            template.isFavorite ? 'fill-red-500 text-red-500 scale-110' : 'text-muted-foreground hover:text-red-500'
+                          }`} 
+                        />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0">
+                    <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-3 sm:p-4 rounded-lg mb-3 sm:mb-4 max-h-28 sm:max-h-36 overflow-hidden relative transition-all hover:shadow-inner">
+                      <p className="text-xs sm:text-sm text-foreground whitespace-pre-line line-clamp-4 sm:line-clamp-5">
+                        {template.content}
+                      </p>
+                      <div className="absolute inset-x-0 bottom-0 h-4 sm:h-6 bg-gradient-to-t from-slate-50 to-transparent"></div>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-1 mb-3 sm:mb-4">
+                      {template.tags.slice(0, 3).map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs bg-white/60 px-1 py-0 h-4 tag-hover">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {template.tags.length > 3 && (
+                        <Badge variant="secondary" className="text-xs bg-white/60 px-1 py-0 h-4 tag-hover">
+                          +{template.tags.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <TrendingUp className="w-3 h-3" />
+                        <span className="hidden sm:inline count-up">使用 {template.useCount} 次</span>
+                        <span className="sm:hidden count-up">{template.useCount}</span>
+                      </div>
+                      <div className="flex items-center gap-0 sm:gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => previewTemplate(template)}
+                          className="h-6 w-6 sm:h-8 sm:w-8 p-0 opacity-70 hover:opacity-100 hover:scale-110 transition-all"
+                        >
+                          <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => shareTemplate(template)}
+                          className="h-6 w-6 sm:h-8 sm:w-8 p-0 opacity-70 hover:opacity-100 hover:scale-110 transition-all"
+                        >
+                          <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                        </Button>
+                        <Button
+                          onClick={() => copyTemplate(template)}
+                          disabled={isCopying}
+                          size="sm"
+                          className={`h-6 sm:h-8 px-2 sm:px-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-xs sm:text-sm transition-all hover:scale-105 ${
+                            isCopying ? 'copy-success button-loading' : ''
+                          } ${buttonClickAnimation === `copy-${template.id}` ? 'pulse-on-click' : ''}`}
+                        >
+                          {isCopying ? (
+                            <div className="loading-dots">复制中</div>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+                              <span className="hidden sm:inline">复制</span>
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ) : (
+
+          {/* 列表视图 */}
+          <div className="space-y-4">
+            {filteredTemplates.map(template => {
+              const categoryStyle = getCategoryStyle(template.category);
+              const moodTag = moodTags.find(m => m.id === template.mood);
+              
+              return (
+                <Card key={template.id} className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <h3 className="font-semibold text-lg">{template.title}</h3>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs" style={{ borderColor: categoryStyle.color }}>
+                              {categoryStyle.icon}
+                              <span className="ml-1">{categories.find(c => c.id === template.category)?.name}</span>
+                            </Badge>
+                            {moodTag && (
+                              <Badge variant="outline" className={`text-xs ${moodTag.color}`}>
+                                <span className="mr-1">{moodTag.emoji}</span>
+                                {moodTag.name}
+                              </Badge>
+                            )}
+                            <Badge variant="secondary" className="text-xs">
+                              <TrendingUp className="w-3 h-3 mr-1" />
+                              {template.useCount}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-4 rounded-lg mb-3">
+                          <p className="text-sm text-foreground whitespace-pre-line">
+                            {template.content}
+                          </p>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-1">
+                          {template.tags.map((tag, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs bg-white/60">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleFavorite(template.id)}
+                          className="h-10 w-10 p-0"
+                        >
+                          <Heart 
+                            className={`w-5 h-5 transition-colors ${
+                              template.isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground hover:text-red-500'
+                            }`} 
+                          />
+                        </Button>
+                        
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => previewTemplate(template)}
+                          className="h-10 w-10 p-0"
+                        >
+                          <Eye className="w-5 h-5" />
+                        </Button>
+                        
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => shareTemplate(template)}
+                          className="h-10 w-10 p-0"
+                        >
+                          <Share2 className="w-5 h-5" />
+                        </Button>
+                        
+                        <Button
+                          onClick={() => copyTemplate(template)}
+                          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          复制
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+
+        {/* 空状态 */}
+        {filteredTemplates.length === 0 && (
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+            <CardContent className="py-16">
+              <div className="text-center">
+                <div className="w-24 h-24 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="w-12 h-12 text-muted-foreground" />
+                </div>
+                <h3 className="text-2xl font-semibold text-foreground mb-3">未找到相关文案</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  {searchQuery ? '尝试调整搜索关键词或放宽筛选条件' : '尝试调整筛选条件或创建新文案'}
+                </p>
+                <div className="flex items-center justify-center gap-3">
+                  <Button onClick={clearFilters} variant="outline" size="lg">
+                    <X className="w-5 h-5 mr-2" />
+                    清除筛选
+                  </Button>
+                  <Button onClick={() => setShowCreateDialog(true)} size="lg" className="bg-gradient-to-r from-blue-500 to-purple-600">
+                    <Plus className="w-5 h-5 mr-2" />
+                    创建文案
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+      
+      {/* AI生成对话框 - 增强版 */}
+      <Dialog open={showAIDialog} onOpenChange={setShowAIDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Zap className="w-6 h-6" />
+              AI智能文案生成器
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div>
+              <Label className="text-base font-medium">生成提示</Label>
+              <Textarea
+                placeholder="请详细描述你想要的文案内容，比如：关于周末慢生活的温馨文案，要有咖啡和阳光的元素..."
+                value={aiPrompt}
+                onChange={(e) => setAIPrompt(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label className="text-sm font-medium">文案风格</Label>
+                <Select value={aiStyle} onValueChange={setAIStyle}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="casual">
+                      <div className="flex items-center gap-2">
+                        <span>😎</span>
+                        轻松随性
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="romantic">
+                      <div className="flex items-center gap-2">
+                        <span>💕</span>
+                        浪漫温馨
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="motivational">
+                      <div className="flex items-center gap-2">
+                        <span>💪</span>
+                        励志正能量
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="funny">
+                      <div className="flex items-center gap-2">
+                        <span>😂</span>
+                        幽默搞笑
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="thoughtful">
+                      <div className="flex items-center gap-2">
+                        <span>🤔</span>
+                        深度思考
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium">文案长度</Label>
+                <Select value={aiLength} onValueChange={setAILength}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="short">简短（50字以内）</SelectItem>
+                    <SelectItem value="medium">适中（50-100字）</SelectItem>
+                    <SelectItem value="long">详细（100字以上）</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium">行业选择（可选）</Label>
+                <Select value={aiIndustry} onValueChange={setAIIndustry}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择行业" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">通用文案</SelectItem>
+                    {industryTemplates.map(industry => (
+                      <SelectItem key={industry.id} value={industry.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{industry.emoji}</span>
+                          {industry.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="include-decorations" 
+                checked={aiIncludeDecorations}
+                onCheckedChange={setAIIncludeDecorations}
+              />
+              <Label htmlFor="include-decorations" className="text-sm">
+                自动添加装饰元素（Emoji和颜文字）
+              </Label>
+            </div>
+            
+            <Button 
+              onClick={generateAIText} 
+              disabled={isGenerating || !aiPrompt.trim()}
+              size="lg"
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+            >
+              {isGenerating ? (
+                <>
+                  <Clock className="w-5 h-5 mr-2 animate-spin" />
+                  AI正在创作中...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  生成文案
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 创建文案对话框 - 增强版 */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Plus className="w-6 h-6" />
+              创建新文案
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div>
+              <Label className="text-base font-medium">文案标题</Label>
+              <Input
+                placeholder="给你的文案起个吸引人的名字..."
+                value={newTemplate.title}
+                onChange={(e) => setNewTemplate(prev => ({ ...prev, title: e.target.value }))}
+                className="h-12"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-base font-medium">文案内容</Label>
+              <Textarea
+                placeholder="在这里输入你的精彩文案内容..."
+                value={newTemplate.content}
+                onChange={(e) => setNewTemplate(prev => ({ ...prev, content: e.target.value }))}
+                rows={8}
+                className="resize-none"
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label className="text-sm font-medium">分类</Label>
+                <Select value={newTemplate.category} onValueChange={(value) => setNewTemplate(prev => ({ ...prev, category: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.slice(1).map(category => (
+                      <SelectItem key={category.id} value={category.id}>
+                        <div className="flex items-center gap-2">
+                          {category.icon}
+                          {category.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium">心情</Label>
+                <Select value={newTemplate.mood} onValueChange={(value) => setNewTemplate(prev => ({ ...prev, mood: value as any }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {moodTags.map(mood => (
+                      <SelectItem key={mood.id} value={mood.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{mood.emoji}</span>
+                          {mood.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium">行业（可选）</Label>
+                <Select value={newTemplate.industry} onValueChange={(value) => setNewTemplate(prev => ({ ...prev, industry: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择行业" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">通用</SelectItem>
+                    {industryTemplates.map(industry => (
+                      <SelectItem key={industry.id} value={industry.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{industry.emoji}</span>
+                          {industry.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div>
+              <Label className="text-sm font-medium">标签（用逗号分隔）</Label>
+              <Input
+                placeholder="标签1, 标签2, 标签3..."
+                value={newTemplate.tags}
+                onChange={(e) => setNewTemplate(prev => ({ ...prev, tags: e.target.value }))}
+              />
+            </div>
+            
+            <Button 
+              onClick={addNewTemplate} 
+              size="lg"
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+              disabled={!newTemplate.title.trim() || !newTemplate.content.trim()}
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              添加文案
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 预览对话框 */}
+      <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5" />
+              文案预览
+            </DialogTitle>
+          </DialogHeader>
+          {previewTemplate && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <h3 className="text-xl font-semibold">{previewTemplate.title}</h3>
+                <div className="flex items-center gap-2">
+                  {categories.find(c => c.id === previewTemplate.category) && (
+                    <Badge variant="outline">
+                      {categories.find(c => c.id === previewTemplate.category)?.icon}
+                      <span className="ml-1">{categories.find(c => c.id === previewTemplate.category)?.name}</span>
+                    </Badge>
+                  )}
+                  {moodTags.find(m => m.id === previewTemplate.mood) && (
+                    <Badge variant="outline" className={moodTags.find(m => m.id === previewTemplate.mood)?.color}>
+                      <span className="mr-1">{moodTags.find(m => m.id === previewTemplate.mood)?.emoji}</span>
+                      {moodTags.find(m => m.id === previewTemplate.mood)?.name}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-6 rounded-lg border">
+                <p className="text-base leading-relaxed whitespace-pre-line">
+                  {selectedDecorations.emojis.length > 0 || selectedDecorations.emoticons.length > 0 
+                    ? applyDecorations(previewTemplate.content)
+                    : previewTemplate.content
+                  }
+                </p>
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                {previewTemplate.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+              
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="text-sm text-muted-foreground">
+                  使用次数：{previewTemplate.useCount}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" onClick={() => shareTemplate(previewTemplate)}>
+                    <Share2 className="w-4 h-4 mr-2" />
+                    分享
+                  </Button>
+                  <Button onClick={() => copyTemplate(previewTemplate)} className="bg-gradient-to-r from-blue-500 to-purple-600">
+                    <Copy className="w-4 h-4 mr-2" />
+                    复制
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 
