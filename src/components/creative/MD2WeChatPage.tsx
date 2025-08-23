@@ -25,10 +25,14 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthStore } from '@/store/authStore';
+import { useUsageStore } from '@/store/usageStore';
+import { PermissionAwareContainer } from '@/components/auth/PermissionAwareContainer';
 import { MarkdownEditor } from './md2wechat/MarkdownEditor';
 import { ThemeSelector } from './md2wechat/ThemeSelector';
 import { PreviewPanel } from './md2wechat/PreviewPanel';
 import { ExportControls } from './md2wechat/ExportControls';
+import { convertMarkdownToHTML } from '@/services/md2wechatService';
 import { useDebouncedCallback } from 'use-debounce';
 
 // 文档数据模型
@@ -60,6 +64,8 @@ export interface ThemeConfig {
  */
 export default function MD2WeChatPage() {
   const { toast } = useToast();
+  const { user, isAuthenticated } = useAuthStore();
+  const { incrementUsage, checkUsageLimit } = useUsageStore();
   
   // 状态管理
   const [markdownContent, setMarkdownContent] = useState('# 欢迎使用Markdown排版工具\n\n这是一个专为微信公众号设计的Markdown转换工具。\n\n## 功能特点\n\n- 🎨 多种精美主题\n- 📱 移动端适配预览\n- 🚀 一键复制导出\n- ⚡ 实时预览效果\n\n## 使用方法\n\n1. 在左侧编辑器中输入Markdown内容\n2. 选择合适的主题样式\n3. 预览转换效果\n4. 一键复制到微信公众号\n\n开始你的创作之旅吧！');
@@ -89,19 +95,42 @@ export default function MD2WeChatPage() {
         return;
       }
 
+      // 检查用户是否登录
+      if (!isAuthenticated) {
+        toast({
+          title: '需要登录',
+          description: '请先登录后使用转换功能',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      // 检查使用限额
+      const canUse = await checkUsageLimit('md2wechat');
+      if (!canUse) {
+        toast({
+          title: '使用次数已用完',
+          description: '请升级到高级版本获取更多使用次数',
+          variant: 'destructive'
+        });
+        return;
+      }
+
       setIsConverting(true);
       try {
-        // 这里会调用转换服务
-        // const result = await convertMarkdownToHTML(content, theme, size);
-        // setPreviewHtml(result.html);
+        const result = await convertMarkdownToHTML({
+          markdown: content,
+          theme,
+          fontSize: size as 'small' | 'medium' | 'large'
+        });
         
-        // 临时使用简单转换逻辑
-        const tempHtml = `
-          <div style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-            ${content.replace(/\n/g, '<br>')}
-          </div>
-        `;
-        setPreviewHtml(tempHtml);
+        if (result.success) {
+          setPreviewHtml(result.html);
+          // 转换成功后增加使用次数
+          await incrementUsage('md2wechat', 1);
+        } else {
+          throw new Error(result.error || '转换失败');
+        }
       } catch (error) {
         console.error('转换失败:', error);
         toast({
@@ -166,7 +195,18 @@ export default function MD2WeChatPage() {
   }, [toast]);
 
   return (
-    <div className="h-full bg-background">
+    <PermissionAwareContainer 
+      feature="md2wechat" 
+      fallback={
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <h3 className="text-lg font-medium mb-2">需要高级权限</h3>
+            <p className="text-muted-foreground mb-4">Markdown排版工具需要高级版本</p>
+          </div>
+        </div>
+      }
+    >
+      <div className="h-full bg-background">
       {/* 工具栏 */}
       <div className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
         <div className="container mx-auto px-4 py-3">
@@ -269,9 +309,9 @@ export default function MD2WeChatPage() {
       </div>
 
       {/* 主要内容区域 */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* 编辑器区域 */}
-        <div className={`${showPreview ? 'w-1/2' : 'w-full'} border-r border-border flex flex-col`}>
+        <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} ${showPreview ? 'flex' : 'lg:flex'} flex-col border-r border-border lg:border-r ${!showPreview ? 'lg:border-r-0' : ''}`}>
           {/* 编辑器头部 */}
           <div className="p-3 border-b border-border bg-muted/30">
             <div className="flex items-center justify-between">
@@ -301,7 +341,7 @@ export default function MD2WeChatPage() {
 
         {/* 预览区域 */}
         {showPreview && (
-          <div className="w-1/2 flex flex-col">
+          <div className="lg:w-1/2 w-full flex flex-col">
             {/* 预览头部 */}
             <div className="p-3 border-b border-border bg-muted/30">
               <div className="flex items-center justify-between">
@@ -318,6 +358,7 @@ export default function MD2WeChatPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowPreview(false)}
+                  className="lg:hidden"
                 >
                   <EyeOff className="w-4 h-4" />
                 </Button>
@@ -339,7 +380,7 @@ export default function MD2WeChatPage() {
 
         {/* 当预览隐藏时显示切换按钮 */}
         {!showPreview && (
-          <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-10">
+          <div className="fixed right-4 bottom-4 lg:top-1/2 lg:bottom-auto lg:transform lg:-translate-y-1/2 z-10">
             <Button
               variant="default"
               size="sm"
@@ -347,11 +388,12 @@ export default function MD2WeChatPage() {
               className="shadow-lg"
             >
               <Eye className="w-4 h-4 mr-1" />
-              显示预览
+              <span className="hidden sm:inline">显示预览</span>
             </Button>
           </div>
         )}
       </div>
     </div>
+    </PermissionAwareContainer>
   );
 }

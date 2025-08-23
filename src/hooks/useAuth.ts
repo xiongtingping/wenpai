@@ -9,6 +9,7 @@
  * 4. 类型安全保障
  */
 
+import { useAuth as useOfficialAuth } from '@/auth/OfficialAuthProvider';
 import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 
 /**
@@ -21,7 +22,8 @@ import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
  * - @authing/web: OAuth2回调处理
  */
 export const useAuth = () => {
-  const auth = useUnifiedAuth();
+  // 🎯 使用基于官方SDK的认证实现
+  const auth = useOfficialAuth();
 
   // 统一接口，确保类型安全和一致性
   return {
@@ -31,32 +33,35 @@ export const useAuth = () => {
     isLoggedIn: auth.isAuthenticated, // 兼容旧接口
     loading: auth.loading,
     error: auth.error,
+    initialized: auth.initialized,
 
     // 核心认证方法
     login: auth.login,
     logout: auth.logout,
-    register: auth.register,
-    checkAuth: auth.checkAuth,
-
-    // 用户管理方法
-    updateUser: auth.updateUser,
+    checkAuth: auth.checkAuthStatus,
     refreshToken: auth.refreshToken,
-    handleAuthingLogin: auth.handleAuthingLogin,
+    updateUser: auth.updateUser,
+    getAccessToken: auth.getAccessToken,
 
-    // 权限检查方法
-    hasPermission: auth.hasPermission,
-    hasRole: auth.hasRole,
+    // 兼容旧接口的方法（映射到新实现）
+    register: auth.login, // 注册也使用登录流程
+    checkAuthStatus: auth.checkAuthStatus,
+    handleAuthingLogin: auth.login,
 
-    // 扩展认证方法
-    loginWithPassword: auth.loginWithPassword,
-    loginWithEmailCode: auth.loginWithEmailCode,
-    loginWithPhoneCode: auth.loginWithPhoneCode,
-    sendVerificationCode: auth.sendVerificationCode,
-    registerUser: auth.registerUser,
-    resetPassword: auth.resetPassword,
+    // 权限检查方法（基础实现）
+    hasPermission: () => auth.isAuthenticated,
+    hasRole: () => auth.isAuthenticated,
 
-    // Guard实例（高级用法）
-    guard: auth.guard
+    // 旧的扩展方法（暂时保持兼容）
+    loginWithPassword: auth.login,
+    loginWithEmailCode: auth.login,
+    loginWithPhoneCode: auth.login,
+    sendVerificationCode: async () => { throw new Error('官方SDK实现中暂不支持此功能'); },
+    registerUser: auth.login,
+    resetPassword: async () => { throw new Error('官方SDK实现中暂不支持此功能'); },
+
+    // Guard实例（兼容性）
+    guard: null
   };
 };
 
