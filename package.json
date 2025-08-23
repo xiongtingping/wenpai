@@ -114,6 +114,7 @@
     "tw-animate-css": "^1.2.8",
     "twemoji": "^14.0.2",
     "typescript": "~5.7.2",
+    "use-debounce": "^10.0.5",
     "vaul": "^1.1.2",
     "xlsx": "^0.18.5",
     "zod": "^4.0.5",

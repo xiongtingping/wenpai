@@ -6,7 +6,7 @@
 import { Authing } from '@authing/browser';
 import type { LoginState } from '@authing/browser/dist/types/global';
 import { createOfficialAuthSDK } from './officialAuthConfig';
-import { logger } from '../lib/logger';
+import { logger } from '@/utils/logger';
 
 export interface AuthUser {
   id: string;

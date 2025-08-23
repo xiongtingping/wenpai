@@ -7,7 +7,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import type { LoginState } from '@authing/browser/dist/types/global';
 import { OfficialAuthService } from './OfficialAuthService';
 import type { AuthUser } from './OfficialAuthService';
-import { logger } from '../lib/logger';
+import { logger } from '@/utils/logger';
 
 // 认证上下文类型定义
 export interface AuthContextType {

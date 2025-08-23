@@ -1,0 +1,218 @@
+/**
+ * 🚀 官方SDK部署验证脚本
+ * 验证Netlify部署并测试新的@authing/browser SDK实现
+ */
+
+const https = require('https');
+const http = require('http');
+
+console.log('🚀 开始验证官方SDK部署...\n');
+
+/**
+ * 检查URL是否可访问
+ */
+function checkUrl(url, timeout = 10000) {
+  return new Promise((resolve) => {
+    const urlObj = new URL(url);
+    const client = urlObj.protocol === 'https:' ? https : http;
+    
+    const req = client.get(url, { timeout }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        resolve({
+          success: true,
+          status: res.statusCode,
+          headers: res.headers,
+          body: data.substring(0, 500) // 只保留前500字符
+        });
+      });
+    });
+    
+    req.on('error', (error) => {
+      resolve({ success: false, error: error.message });
+    });
+    
+    req.on('timeout', () => {
+      req.destroy();
+      resolve({ success: false, error: 'Timeout' });
+    });
+  });
+}
+
+/**
+ * 检查生产环境部署状态
+ */
+async function checkProductionDeployment() {
+  console.log('🌐 1. 检查生产环境部署状态...');
+  
+  const urls = [
+    'https://www.wenpai.xyz',
+    'https://www.wenpai.xyz/test-official-auth',
+    'https://www.wenpai.xyz/callback'
+  ];
+  
+  for (const url of urls) {
+    console.log(`   🔍 检查 ${url}...`);
+    const result = await checkUrl(url);
+    
+    if (result.success) {
+      console.log(`   ✅ ${url} - 状态: ${result.status}`);
+      
+      // 特别检查测试页面是否包含官方SDK
+      if (url.includes('test-official-auth')) {
+        const hasOfficialAuth = result.body.includes('OfficialAuth') || 
+                               result.body.includes('@authing/browser');
+        console.log(`      ${hasOfficialAuth ? '✅' : '❌'} 包含官方SDK内容`);
+      }
+    } else {
+      console.log(`   ❌ ${url} - 错误: ${result.error}`);
+    }
+  }
+}
+
+/**
+ * 生成部署测试指南
+ */
+function generateDeploymentGuide() {
+  console.log('\n📋 2. 生成部署测试指南...');
+  
+  const guide = `# 🚀 官方SDK生产环境测试指南
+
+## 🌐 部署信息
+
+**GitHub推送**: ✅ 已完成
+**Netlify部署**: 🔄 自动部署中
+**预计时间**: 2-5分钟
+
+## 🧪 测试步骤
+
+### 第1步：等待部署完成
+访问 [Netlify控制台](https://app.netlify.com) 确认部署状态
+
+### 第2步：测试生产环境
+访问以下URL进行测试：
+
+#### 主站测试
+- 🔗 主页: https://www.wenpai.xyz
+- 🔗 回调页面: https://www.wenpai.xyz/callback
+
+#### 官方SDK测试
+- 🎯 **新实现测试页面**: https://www.wenpai.xyz/test-official-auth
+
+### 第3步：功能验证
+
+#### 官方SDK测试要点：
+1. **页面加载检查**:
+   - ✅ 测试页面正常加载
+   - ✅ 显示"已初始化"状态
+   - ✅ 控制台无错误信息
+
+2. **登录流程测试**:
+   - ✅ 点击登录按钮正常跳转
+   - ✅ **关键：不出现"Error: redirect"错误**
+   - ✅ Authing托管页面正常显示
+   - ✅ 完成认证后正确返回
+
+3. **回调处理验证**:
+   - ✅ 回调URL正确处理多重配置
+   - ✅ 用户信息正确显示
+   - ✅ 登录状态正确维护
+
+#### 对比测试：
+- 当前实现: https://www.wenpai.xyz/ 
+- 新实现: https://www.wenpai.xyz/test-official-auth
+
+对比两者的表现，新实现应该：
+- ❌ 解决旧问题：Error: redirect
+- ✅ 提供更稳定的认证体验
+- ✅ 正确处理多重回调URL
+
+## 🔍 问题排查
+
+如果遇到问题：
+
+### 1. 部署相关问题
+- 检查 [Netlify部署日志](https://app.netlify.com)
+- 确认GitHub代码已更新
+- 检查构建过程是否有错误
+
+### 2. 功能相关问题
+- 打开浏览器开发者工具
+- 检查控制台错误信息
+- 查看网络请求状态
+- 确认@authing/browser包已正确加载
+
+### 3. 认证相关问题
+- 验证所有回调URL配置
+- 检查Authing控制台设置
+- 确认App ID和域名配置
+
+## 📊 成功标准
+
+### ✅ 部署成功标准：
+- 所有URL都能正常访问
+- 测试页面正确加载官方SDK
+- 构建过程无错误
+
+### ✅ 功能成功标准：
+- 官方SDK正确初始化
+- 登录流程无redirect错误
+- 多重回调URL正确处理
+- 用户认证状态正确维护
+
+## 🎉 下一步计划
+
+如果测试成功：
+1. **逐步迁移**: 将现有实现替换为官方SDK
+2. **清理代码**: 移除复杂的自定义逻辑
+3. **性能优化**: 利用官方SDK的优化特性
+4. **文档更新**: 更新相关技术文档
+
+---
+
+**部署时间**: ${new Date().toLocaleString()}
+**测试重点**: @authing/browser官方SDK认证流程
+**关键目标**: 彻底解决redirect_uri不匹配问题
+`;
+
+  try {
+    require('fs').writeFileSync('DEPLOYMENT_TEST_GUIDE.md', guide);
+    console.log('   ✅ 部署测试指南已生成: DEPLOYMENT_TEST_GUIDE.md');
+  } catch (error) {
+    console.log('   ❌ 部署测试指南生成失败');
+  }
+}
+
+/**
+ * 主函数
+ */
+async function main() {
+  await checkProductionDeployment();
+  generateDeploymentGuide();
+  
+  console.log('\n' + '='.repeat(50));
+  console.log('🎯 官方SDK部署验证完成');
+  console.log('='.repeat(50));
+  
+  console.log('\n🚀 下一步操作:');
+  console.log('1. 等待Netlify自动部署完成 (2-5分钟)');
+  console.log('2. 访问测试页面: https://www.wenpai.xyz/test-official-auth');
+  console.log('3. 测试官方SDK认证流程');
+  console.log('4. 验证不再有redirect错误');
+  
+  console.log('\n📋 测试要点:');
+  console.log('- 🎯 官方SDK页面加载');
+  console.log('- 🚀 登录流程（无redirect错误）');
+  console.log('- 🔄 回调处理（多重URL支持）');
+  console.log('- 📊 状态管理（正确维护登录状态）');
+  
+  console.log('\n💡 关键对比:');
+  console.log('- 旧实现: 复杂自定义逻辑，有redirect错误');
+  console.log('- 新实现: 官方SDK，稳定可靠');
+  
+  console.log('\n📖 详细指南: DEPLOYMENT_TEST_GUIDE.md');
+}
+
+// 运行验证
+main().catch(console.error);

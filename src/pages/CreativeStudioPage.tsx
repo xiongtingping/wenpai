@@ -55,6 +55,7 @@ import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard
 // 使用懒加载避免循环依赖
 const WechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
 const EmojiPage = React.lazy(() => import('@/pages/EmojiPage'));
+const MD2WeChatPage = React.lazy(() => import('@/components/creative/MD2WeChatPage'));
 import PageNavigation from '@/components/layout/PageNavigation';
 
 /**
@@ -82,7 +83,7 @@ export default function CreativeStudioPage() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* 子模块切换 */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <TabsList className="unified-tabs-list grid w-full grid-cols-2 sm:grid-cols-4 max-w-2xl">
+              <TabsList className="unified-tabs-list grid w-full grid-cols-2 sm:grid-cols-5 max-w-4xl">
                 <TabsTrigger value="calendar" className="unified-tab-trigger">
                   <Calendar className="tab-icon" />
                   <span className="tab-text-mobile">日历</span>
@@ -102,6 +103,11 @@ export default function CreativeStudioPage() {
                   <Smile className="tab-icon" />
                   <span className="tab-text-mobile">Emoji</span>
                   <span className="tab-text-desktop">Emoji图库</span>
+                </TabsTrigger>
+                <TabsTrigger value="md2wechat" className="unified-tab-trigger">
+                  <FileText className="tab-icon" />
+                  <span className="tab-text-mobile">排版</span>
+                  <span className="tab-text-desktop">Markdown排版工具</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -130,6 +136,13 @@ export default function CreativeStudioPage() {
                   <EmojiPage />
                 </React.Suspense>
               </div>
+            </TabsContent>
+
+            {/* Markdown排版工具 */}
+            <TabsContent value="md2wechat" className="mt-6">
+              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                <MD2WeChatPage />
+              </React.Suspense>
             </TabsContent>
           </Tabs>
         </div>
