@@ -175,12 +175,21 @@ export class CallbackUrlNormalizer {
   }
 
   /**
-   * 获取强制单一回调URI（用于认证请求）
+   * 🚨 强制获取单一回调URI - 最终修复方案
+   * 无论环境如何，都强制使用生产环境的主回调URL
+   * 这是解决redirect_uri不匹配问题的最后手段
    */
   public getForcedCallbackUri(): string {
-    const correctUrl = this.getCorrectCallbackUrl();
-    logger.debug('强制使用单一回调URI:', correctUrl);
-    return correctUrl;
+    // 🚨 强制使用生产环境主域名，避免所有动态计算问题
+    const forcedUri = 'https://www.wenpai.xyz/callback';
+    
+    logger.info('🚨 强制回调URI修复:', {
+      forcedUri,
+      reason: '避免redirect_uri不匹配问题',
+      strategy: 'force_production_uri'
+    });
+    
+    return forcedUri;
   }
 }
 

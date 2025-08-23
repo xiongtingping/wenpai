@@ -47,46 +47,27 @@ exports.handler = async (event) => {
     const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
     const host = (AUTHING_HOST || VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn').replace(/\/$/, '');
 
-    // 🔧 🔄 Round #4 最终修复：确保redirect_uri完全一致
+    // 🚨 最终强制修复：无论任何情况都使用固定的redirect_uri
+    // 这是解决redirect_uri不匹配问题的最后手段
     const body = event.body ? JSON.parse(event.body) : {};
     const originalRedirectUri = body.original_redirect_uri;
     
-    // 根据请求origin智能选择正确的redirect_uri
-    function getCorrectRedirectUri() {
-      // 1. 优先使用前端传递的original_redirect_uri（最可靠）
-      if (originalRedirectUri) {
-        console.log('✅ 使用前端传递的redirect_uri:', originalRedirectUri);
-        return originalRedirectUri;
-      }
-      
-      // 2. 根据请求origin动态构建（确保与前端配置一致）
-      const originUrl = new URL(origin);
-      let dynamicRedirectUri;
-      
-      if (originUrl.hostname === 'localhost' || originUrl.hostname === '127.0.0.1') {
-        const port = originUrl.port || '5173';
-        dynamicRedirectUri = `http://localhost:${port}/callback`;
-      } else if (originUrl.hostname === 'wenpai.netlify.app') {
-        dynamicRedirectUri = 'https://wenpai.netlify.app/callback';
-      } else if (originUrl.hostname === 'wenpai.xyz') {
-        dynamicRedirectUri = 'https://wenpai.xyz/callback';
-      } else {
-        // 默认使用主域名
-        dynamicRedirectUri = 'https://www.wenpai.xyz/callback';
-      }
-      
-      console.log('⚠️ 兜底使用动态构建的redirect_uri:', dynamicRedirectUri, '基于origin:', origin);
-      return dynamicRedirectUri;
-    }
+    // 强制使用生产环境主域名，完全无视其他参数
+    const redirectUri = 'https://www.wenpai.xyz/callback';
     
-    const redirectUri = getCorrectRedirectUri();
+    console.log('🚨 最终强制redirect_uri修复:', {
+      forcedRedirectUri: redirectUri,
+      originalFromFrontend: originalRedirectUri,
+      requestOrigin: origin,
+      strategy: 'force_fixed_uri',
+      reason: '解决redirect_uri不匹配问题'
+    });
 
-    // 🔍 Round #4 配置检查
-    console.log('🔧 Round #4 Authing配置检查:', {
+    console.log('🚨 最终强制 Authing配置检查:', {
       appId: appId ? `${appId.substring(0, 8)}...` : 'MISSING',
       host: host || 'MISSING',
       redirectUri: redirectUri || 'MISSING',
-      redirectUri_source: originalRedirectUri ? 'frontend' : 'dynamic',
+      redirectUri_source: 'forced_production_uri',
       request_origin: origin,
       env: process.env.NODE_ENV || 'unknown'
     });
@@ -207,11 +188,11 @@ exports.handler = async (event) => {
       console.warn('⚠️ 缺少认证参数：需要client_secret或code_verifier');
     }
 
-    console.log('🔄 Round #4 最终token交换（redirect_uri完全一致修复）:', {
+    console.log('🚨 最终强制token交换（redirect_uri固定修复）:', {
       endpoint: tokenEndpoint,
       client_id: appId.substring(0, 8) + '...',
       redirect_uri: redirectUri,
-      redirect_uri_source: originalRedirectUri ? 'frontend_provided' : 'dynamic_constructed',
+      redirect_uri_source: 'forced_production_uri',
       request_origin: origin,
       grant_type: 'authorization_code',
       auth_mode: useClientSecret ? 'client_secret' : 'pkce',
