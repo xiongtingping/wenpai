@@ -66,7 +66,12 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   const handleUnlockMaxPermissions = async () => {
     setUnlockLoading(true);
     try {
-      logger.info('🚀 激活最高解锁权限 - 测试模式（未登录状态）');
+      logger.info('🚀 激活最高解锁权限 - 测试模式', {
+        environment: process.env.NODE_ENV,
+        isDevelopment,
+        isProduction,
+        loginStatus: isAuthenticated ? '已登录' : '未登录'
+      });
       
       // 创建拥有最高权限的测试用户对象
       const maxPermissionUser = {
@@ -135,10 +140,11 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     return '体验版用户';
   };
 
-  // 检查是否为生产环境
+  // 检查是否显示解锁按钮：生产环境或开发环境都显示（用于测试）
   const isProduction = process.env.NODE_ENV === 'production';
-  // 修改显示条件：生产环境下总是显示解锁按钮，无需登录状态检查
-  const shouldShowUnlockButton = isProduction;
+  const isDevelopment = process.env.NODE_ENV === 'development' || import.meta.env.DEV;
+  // 修改显示条件：生产环境或开发环境都显示解锁按钮，方便测试
+  const shouldShowUnlockButton = isProduction || isDevelopment;
 
 
 

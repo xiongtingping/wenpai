@@ -172,20 +172,25 @@ export class ConfigManager {
 
   /**
    * 获取重定向URI
+   * 修复多重URL问题：强制使用固定的生产环境URL
    */
   private getRedirectUri(): string {
-    if (typeof window !== 'undefined') {
-      return `${window.location.origin}/callback`;
+    // 🔧 修复多重回调URL问题：禁用动态检测，强制使用生产环境URL
+    const environment = this.getCurrentEnvironment();
+    
+    // 优先使用环境变量配置
+    if (environment === 'production') {
+      return import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback';
     }
     
-    const environment = this.getCurrentEnvironment();
+    if (environment === 'development') {
+      return import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback';
+    }
+    
+    // 其他环境的默认值
     switch (environment) {
-      case 'development':
-        return 'http://localhost:5173/callback';
       case 'staging':
         return 'https://staging.wenpai.xyz/callback';
-      case 'production':
-        return 'https://www.wenpai.xyz/callback';
       default:
         return 'http://localhost:5173/callback';
     }
