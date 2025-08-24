@@ -336,6 +336,47 @@ class PermissionManager {
   // ===== 权限信息获取 =====
 
   /**
+   * 获取所有可用权限
+   */
+  getAllPermissions(): string[] {
+    const allPermissions = new Set<string>();
+    
+    // 添加PERMISSIONS常量中定义的所有权限
+    Object.values(PERMISSIONS).forEach(permission => {
+      allPermissions.add(permission);
+    });
+    
+    // 添加订阅计划中定义的所有权限
+    this.planFeatures.forEach(permissions => {
+      permissions.forEach(permission => {
+        allPermissions.add(permission);
+      });
+    });
+    
+    // 添加常用的管理员权限
+    const adminPermissions = [
+      'admin:all',
+      'super_admin:all',
+      'tier:premium',
+      'tier:pro',
+      'feature:unlimited',
+      'creative:unlimited',
+      'brand:unlimited',
+      'theme:all',
+      'cms:edit',
+      'user:view',
+      'user:edit',
+      'system:admin'
+    ];
+    
+    adminPermissions.forEach(permission => {
+      allPermissions.add(permission);
+    });
+    
+    return Array.from(allPermissions);
+  }
+
+  /**
    * 获取权限配置信息
    */
   getPermissionConfig(permission: string): any {
