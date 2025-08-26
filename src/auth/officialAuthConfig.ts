@@ -72,56 +72,21 @@ export function createOfficialAuthSDK(): Guard {
   });
 
   try {
-    // 🔧 添加网络请求监控和修复
-    const originalFetch = window.fetch;
-    window.fetch = async (...args) => {
-      const [url, options] = args;
-      console.log('🌐 Guard API请求:', url);
-
-      try {
-        // 🔧 为Authing API添加特殊处理
-        if (url && typeof url === 'string' && url.includes('authing.cn')) {
-          const enhancedOptions = {
-            ...options,
-            mode: 'cors' as RequestMode,
-            credentials: 'omit' as RequestCredentials,
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-              ...((options as any)?.headers || {})
-            }
-          };
-
-          const response = await originalFetch(url, enhancedOptions);
-          console.log('✅ Guard API响应:', url, response.status);
-          return response;
-        }
-
-        const response = await originalFetch(...args);
-        console.log('✅ Guard API响应:', url, response.status);
-        return response;
-      } catch (error) {
-        console.error('❌ Guard API请求失败:', url, error);
-        throw error;
-      }
-    };
+    // 🔧 使用Guard的原生配置，不干扰其网络请求
+    console.log('🎯 创建Guard实例，配置:', {
+      appId: config.appId,
+      domain: config.domain,
+      redirectUri: config.redirectUri
+    });
 
     const guard = new Guard({
       appId: config.appId,
-      host: `https://${config.domain}`, // 🔧 修复：添加协议前缀
+      host: config.domain, // 🔧 使用原始域名，让Guard自己处理协议
       redirectUri: config.redirectUri,
-      mode: 'modal',
-      // 🔧 添加错误处理配置
-      onError: (error: any) => {
-        console.error('🚨 Guard内部错误:', error);
-      }
+      mode: 'modal'
     });
 
-    // 恢复原始fetch
-    setTimeout(() => {
-      window.fetch = originalFetch;
-    }, 5000);
-
+    console.log('✅ Guard实例创建成功');
     return guard;
   } catch (error) {
     console.error('❌ Guard实例创建失败:', error);

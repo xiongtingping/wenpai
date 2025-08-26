@@ -153,13 +153,6 @@ export function OfficialAuthProvider({ children }: OfficialAuthProviderProps) {
    * 登录方法
    */
   const login = useCallback(async () => {
-    // 🔧 添加调试日志
-    console.log('🔍 login函数被调用!', {
-      loading: authState.loading,
-      isAuthenticated: authState.isAuthenticated,
-      authService: !!authService
-    });
-
     try {
       if (authState.loading) {
         logger.info('🛑 登录正在进行中，跳过重复调用');
@@ -171,25 +164,28 @@ export function OfficialAuthProvider({ children }: OfficialAuthProviderProps) {
         return;
       }
 
+      console.log('🔍 开始登录流程...');
       logger.info('🚀 开始官方SDK登录流程...');
-      setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
-      // 🔧 添加更多调试日志
-      console.log('🔍 准备调用authService.login()...');
+      setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
       // 🎯 使用官方SDK登录方法
       await authService.login();
 
-      console.log('✅ authService.login()调用完成');
+      console.log('✅ 登录流程完成');
 
     } catch (error) {
-      console.error('❌ authService.login()调用失败:', error);
+      console.error('❌ 登录失败:', error);
       logger.error('❌ 官方SDK登录失败:', error);
+
       setAuthState(prev => ({
         ...prev,
         loading: false,
         error: error instanceof Error ? error.message : '登录失败'
       }));
+
+      // 🔧 向用户显示错误信息
+      alert(`登录失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }, [authService, authState.loading, authState.isAuthenticated]);
 

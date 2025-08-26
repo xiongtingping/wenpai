@@ -48,49 +48,21 @@ export class OfficialAuthService {
    * 使用@authing/guard的start方法，增强错误处理和备用方案
    */
   async login(): Promise<void> {
-    // 🔧 添加调试日志
-    console.log('🔍 OfficialAuthService.login()被调用!');
+    try {
+      console.log('🔍 OfficialAuthService.login()被调用!');
+      logger.info('🚀 开始官方Guard登录流程...');
 
-    const maxRetries = 3;
-    let lastError: Error | null = null;
+      // 🎯 直接使用Guard的标准登录方式，不添加复杂的重试逻辑
+      this.sdk.start();
 
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        logger.info(`🚀 开始官方Guard登录流程... (尝试 ${attempt}/${maxRetries})`);
+      logger.info('✅ 官方Guard登录窗口已打开');
+    } catch (error) {
+      console.error('❌ Guard启动失败:', error);
+      logger.error('❌ 官方Guard登录失败:', error);
 
-        // 🎯 使用Guard的标准登录方式
-        this.sdk.start();
-
-        logger.info('✅ 官方Guard登录窗口已打开');
-        return; // 成功则退出
-      } catch (error) {
-        console.log('🔍 Guard启动错误详情:', error);
-        lastError = error as Error;
-        logger.warn(`⚠️ 登录尝试 ${attempt} 失败:`, error);
-
-        // 🔧 检查是否是网络错误或JSON解析错误
-        if (error instanceof Error && (
-          error.message.includes('JSON') ||
-          error.message.includes('Failed to fetch') ||
-          error.message.includes('ERR_CONNECTION_CLOSED') ||
-          error.message.includes('Network')
-        )) {
-          logger.warn('🔍 检测到网络或JSON错误，尝试备用登录方案...', error.message);
-          return this.fallbackLogin();
-        }
-
-        // 如果不是最后一次尝试，等待后重试
-        if (attempt < maxRetries) {
-          const delay = attempt * 1000; // 递增延迟
-          logger.info(`🔄 ${delay}ms 后重试...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-        }
-      }
+      // 🔧 简化错误处理，直接抛出错误让上层处理
+      throw new Error(`登录失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
-
-    // 所有重试都失败了，尝试备用方案
-    logger.error('❌ 官方Guard登录失败，已达到最大重试次数，尝试备用方案:', lastError);
-    return this.fallbackLogin();
   }
 
   /**
