@@ -90,13 +90,22 @@ export function createOfficialAuthSDK(): Guard {
       redirectUri: config.redirectUri
     });
 
-    // 🔧 添加请求拦截器来修复浏览器环境问题
+    // 🔧 添加请求拦截器来修复URL协议问题
     const originalFetch = window.fetch;
     window.fetch = async (input, init = {}) => {
-      const url = typeof input === 'string' ? input : input.url;
+      let url = typeof input === 'string' ? input : input.url;
 
       if (url && url.includes('authing.cn')) {
+        // 🔧 修复URL协议问题
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+          url = `https://${url}`;
+          console.log('🔧 修复URL协议:', url);
+        }
+
         console.log('🌐 拦截Authing API请求:', url);
+
+        // 🔧 使用修复后的URL创建新的Request
+        const fixedInput = typeof input === 'string' ? url : new Request(url, input);
 
         // 🔧 强制添加正确的请求头
         const enhancedInit = {
@@ -112,7 +121,7 @@ export function createOfficialAuthSDK(): Guard {
         };
 
         try {
-          const response = await originalFetch(input, enhancedInit);
+          const response = await originalFetch(fixedInput, enhancedInit);
           console.log('✅ Authing API响应:', url, response.status, response.headers.get('content-type'));
           return response;
         } catch (error) {

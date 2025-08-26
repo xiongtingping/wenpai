@@ -7,40 +7,37 @@
 
 ## 📋 认证相关问题清单
 
-### 1. ❌ 系统性登录/注册故障 - 网络连接失败
-**描述**: 登录/注册系统存在多重故障，Guard API连接完全失败
+### 1. 🕒 系统性登录/注册故障 - URL协议问题 (修复中)
+**描述**: 登录/注册系统Guard API连接失败，根因确认为URL协议缺失
 **最新错误日志 (2024-12-19)**:
 ```
-🔍 login函数被调用! {loading: false, isAuthenticated: false, authService: true}
-🔍 准备调用authService.login()...
-🔍 OfficialAuthService.login()被调用!
-✅ authService.login()调用完成
+🌐 拦截Authing API请求: rzcswqs4sq0f.authing.cn/api/v2/applications/68a68a29d0c3341ae7a3df23/public-config
+✅ Authing API响应: rzcswqs4sq0f.authing.cn/api/v2/applications/68a68a29d0c3341ae7a3df23/public-config 200 text/html; charset=UTF-8
 
-❌ Guard API请求失败: https://rzcswqs4sq0f.authing.cn/api/v2/applications/68a68a29d0c3341ae7a3df23/public-config
-TypeError: Failed to fetch
-net::ERR_CONNECTION_CLOSED
-
-未捕获的Promise错误: Error: {}
+SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
 ```
 
-**🔍 系统性问题分析**:
-1. **✅ 代码调用链正常**: login函数 → authService.login() → Guard.start() 都正常执行
-2. **❌ 网络连接失败**: `net::ERR_CONNECTION_CLOSED` - 连接被意外关闭
-3. **❌ API服务不可达**: Guard无法获取公共配置
-4. **❌ 错误处理不完善**: 未捕获的Promise错误导致系统不稳定
-5. **❌ 用户体验极差**: 点击登录无任何反馈，用户无法知道发生了什么
+**🎯 根因确认**:
+1. **✅ API请求成功**: 返回200状态码
+2. **❌ URL协议缺失**: 请求URL缺少`https://`前缀
+3. **❌ 返回HTML而不是JSON**: Content-Type为`text/html`而不是`application/json`
+4. **✅ 服务器正常**: curl测试确认API端点返回正确JSON
 
-**根因候选 (按概率排序)**:
-1. **网络配置问题 (80%)**: 浏览器fetch配置不正确，导致连接被拒绝
-2. **CORS策略问题 (15%)**: 跨域请求被浏览器或服务器阻止
-3. **Authing服务问题 (5%)**: 虽然curl测试正常，但可能存在特定条件下的服务异常
+**修复方案**:
+```typescript
+// 修复URL协议问题
+if (!url.startsWith('http://') && !url.startsWith('https://')) {
+  url = `https://${url}`;
+}
+```
 
-**影响范围**:
-- 🚨 **完全阻塞**: 用户无法登录或注册
-- 🚨 **生产环境**: 影响所有用户的认证功能
-- 🚨 **业务中断**: 需要认证的功能全部不可用
+**修复状态**:
+- ✅ **根因确认**: URL协议缺失导致请求被重定向到错误页面
+- ✅ **修复实施**: 添加fetch拦截器自动补充https://协议
+- ✅ **构建成功**: npm run build 通过
+- � **待验证**: 需要测试修复效果
 
-**状态**: ❌ 系统性故障 - 需要立即修复
+**状态**: 🕒 修复中 - 已实施修复，待验证
 **优先级**: 🆘🆘🆘 最高优先级 (业务中断)
 
 ---
