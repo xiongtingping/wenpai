@@ -153,6 +153,13 @@ export function OfficialAuthProvider({ children }: OfficialAuthProviderProps) {
    * 登录方法
    */
   const login = useCallback(async () => {
+    // 🔧 添加调试日志
+    console.log('🔍 login函数被调用!', {
+      loading: authState.loading,
+      isAuthenticated: authState.isAuthenticated,
+      authService: !!authService
+    });
+
     try {
       if (authState.loading) {
         logger.info('🛑 登录正在进行中，跳过重复调用');
