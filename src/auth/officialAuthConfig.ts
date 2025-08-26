@@ -72,13 +72,31 @@ export function createOfficialAuthSDK(): Guard {
   });
 
   try {
-    // 🔧 添加网络请求监控
+    // 🔧 添加网络请求监控和修复
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
       const [url, options] = args;
       console.log('🌐 Guard API请求:', url);
 
       try {
+        // 🔧 为Authing API添加特殊处理
+        if (url && typeof url === 'string' && url.includes('authing.cn')) {
+          const enhancedOptions = {
+            ...options,
+            mode: 'cors' as RequestMode,
+            credentials: 'omit' as RequestCredentials,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              ...((options as any)?.headers || {})
+            }
+          };
+
+          const response = await originalFetch(url, enhancedOptions);
+          console.log('✅ Guard API响应:', url, response.status);
+          return response;
+        }
+
         const response = await originalFetch(...args);
         console.log('✅ Guard API响应:', url, response.status);
         return response;

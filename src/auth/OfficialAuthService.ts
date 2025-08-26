@@ -29,6 +29,12 @@ export class OfficialAuthService {
   private constructor() {
     this.sdk = createOfficialAuthSDK();
     logger.info('🎯 官方认证服务已初始化');
+
+    // 🔧 监听API失败事件，自动触发备用登录
+    window.addEventListener('authingApiFailed', (event: any) => {
+      console.log('🔄 收到Authing API失败事件，触发备用登录...', event.detail);
+      this.fallbackLogin();
+    });
   }
 
   static getInstance(): OfficialAuthService {
@@ -42,6 +48,9 @@ export class OfficialAuthService {
    * 使用@authing/guard的start方法，增强错误处理和备用方案
    */
   async login(): Promise<void> {
+    // 🔧 添加调试日志
+    console.log('🔍 OfficialAuthService.login()被调用!');
+
     const maxRetries = 3;
     let lastError: Error | null = null;
 
@@ -55,12 +64,18 @@ export class OfficialAuthService {
         logger.info('✅ 官方Guard登录窗口已打开');
         return; // 成功则退出
       } catch (error) {
+        console.log('🔍 Guard启动错误详情:', error);
         lastError = error as Error;
         logger.warn(`⚠️ 登录尝试 ${attempt} 失败:`, error);
 
-        // 🔧 检查是否是JSON解析错误
-        if (error instanceof Error && error.message.includes('JSON')) {
-          logger.warn('🔍 检测到JSON解析错误，尝试备用登录方案...');
+        // 🔧 检查是否是网络错误或JSON解析错误
+        if (error instanceof Error && (
+          error.message.includes('JSON') ||
+          error.message.includes('Failed to fetch') ||
+          error.message.includes('ERR_CONNECTION_CLOSED') ||
+          error.message.includes('Network')
+        )) {
+          logger.warn('🔍 检测到网络或JSON错误，尝试备用登录方案...', error.message);
           return this.fallbackLogin();
         }
 

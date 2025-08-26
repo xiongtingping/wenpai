@@ -174,10 +174,16 @@ export function OfficialAuthProvider({ children }: OfficialAuthProviderProps) {
       logger.info('🚀 开始官方SDK登录流程...');
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
+      // 🔧 添加更多调试日志
+      console.log('🔍 准备调用authService.login()...');
+
       // 🎯 使用官方SDK登录方法
       await authService.login();
 
+      console.log('✅ authService.login()调用完成');
+
     } catch (error) {
+      console.error('❌ authService.login()调用失败:', error);
       logger.error('❌ 官方SDK登录失败:', error);
       setAuthState(prev => ({
         ...prev,
