@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useDataStorage } from '@/utils/dataStorageManager';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface UseSecureStorageOptions {
   /** 是否在组件挂载时自动加载数据 */
@@ -49,7 +49,7 @@ export function useSecureStorage<T = any>(
     defaultValue = null
   } = options;
 
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const dataStorage = useDataStorage();
 
   const [data, setData] = useState<T | null>(defaultValue);
@@ -189,7 +189,7 @@ export function useTempStorage<T = any>(key: string, defaultValue?: T) {
  * 用户业务数据 Hook
  */
 export function useUserData<T = any>(dataType: string, options?: UseSecureStorageOptions) {
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
   
   return useSecureStorage<T>(dataType, {
     ...options,

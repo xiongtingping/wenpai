@@ -8,7 +8,7 @@
  * - sessionStorage：临时数据（表单缓存、草稿）
  */
 
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 
 export type StorageType = 'database' | 'localStorage' | 'sessionStorage';
 
@@ -364,7 +364,7 @@ export class DataStorageManager {
  * React Hook: 数据存储管理
  */
 export function useDataStorage() {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   
   const manager = new DataStorageManager(user, isAuthenticated);
   

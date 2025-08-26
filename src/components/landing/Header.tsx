@@ -1,5 +1,5 @@
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
@@ -11,6 +11,7 @@ import { UserAvatar } from "@/components/auth/UserAvatar"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { LogoWithText } from "@/components/ui/ThemeAwareLogo"
+import { PermissionTestButton } from "@/components/dev/PermissionTestButton"
 
 const HelpDocumentation = () => {
   const topics = [
@@ -87,7 +88,7 @@ const HelpDocumentation = () => {
 
 export function Header() {
   const isMobile = useIsMobile()
-  const { user, isAuthenticated, login, register, resetAuthState } = useUnifiedAuth()
+  const { user, isAuthenticated, login, register, resetAuthState } = useAuth()
   const navigate = useNavigate()
 
   /**
@@ -234,6 +235,9 @@ export function Header() {
 
             {/* 主题切换 */}
             <ThemeToggle />
+
+            {/* 权限测试按钮 (仅开发环境) */}
+            <PermissionTestButton />
 
             {isAuthenticated ? (
               <UserAvatar 

@@ -4,7 +4,7 @@
  */
 
 import React, { createContext, useContext } from 'react';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { getUserTier } from '@/utils/subscriptionUtils';
 
 export interface PermissionContextValue {
@@ -27,7 +27,7 @@ export const PermissionAwareContainer: React.FC<PermissionAwareContainerProps> =
   children,
   className = ''
 }) => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const userTier = getUserTier(user);
 
   const hasPermission = (requiredTier: 'trial' | 'pro' | 'premium') => {

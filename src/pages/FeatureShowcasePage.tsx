@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { SUBSCRIPTION_PLANS, calculateDiscountCountdown, isInDiscountPeriod } from '@/config/subscriptionPlans';
 import { CountdownTimer } from '@/components/ui/CountdownTimer';
 import { 
@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 
 const FeatureShowcasePage: React.FC = () => {
-  const { user, updateUser } = useUnifiedAuth();
+  const { user, updateUser } = useAuth();
   const [discountCountdown, setDiscountCountdown] = useState(0);
 
   // 模拟新用户注册（用于演示）

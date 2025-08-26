@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 
 /**
  * 忘记密码页面
  * 使用Authing SDK进行统一认证
  */
 export default function ForgotPasswordPage() {
-  const { login, isAuthenticated } = useUnifiedAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // 🔧 修复：移除自动登录触发，改为用户手动点击

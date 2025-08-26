@@ -101,8 +101,8 @@ export class MarkdownParser {
           });
           break;
           
-        case 'list':
-          const listItems = token.items.map(item => 
+        case 'list': {
+          const listItems = token.items.map(item =>
             this.parseInlineElements(item.text)
           );
           sections.push({
@@ -110,6 +110,7 @@ export class MarkdownParser {
             content: listItems
           });
           break;
+        }
           
         case 'blockquote':
           sections.push({

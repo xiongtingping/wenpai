@@ -4,7 +4,7 @@
  */
 
 import { useMemo } from 'react';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { getUserTier } from '@/utils/subscriptionUtils';
 
 export type UserRole = 'trial' | 'pro' | 'premium';
@@ -37,7 +37,7 @@ export interface PermissionCheck {
  * 用户角色管理Hook
  */
 export const useUserRole = (): UserRoleInfo & PermissionCheck => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
 
   // 计算用户角色信息
   const roleInfo = useMemo((): UserRoleInfo => {

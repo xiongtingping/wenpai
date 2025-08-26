@@ -160,7 +160,15 @@ instance.interceptors.request.use(
 
       // 统一错误处理
       if (error.response?.status === 401) {
-        console.error('🔐 认证失败，请检查API密钥');
+        console.error('🔐 认证失败，可能需要重新登录');
+
+        // 🔒 401错误时触发登出（如果是用户认证相关的请求）
+        const isAuthRequest = error.config?.headers?.Authorization?.includes('Bearer');
+        if (isAuthRequest && authTokenGetter) {
+          // 通知认证系统token无效
+          localStorage.setItem('auth_token_invalid', Date.now().toString());
+          setTimeout(() => localStorage.removeItem('auth_token_invalid'), 1000);
+        }
       } else if (error.response?.status === 429) {
         console.error('⏰ API调用频率超限');
       } else if (error.code === 'ECONNABORTED') {

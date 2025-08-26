@@ -6,7 +6,7 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * AuthGuard 组件属性接口
@@ -48,7 +48,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   fallback,
   showLoading = true
 }) => {
-  const { isAuthenticated, loading, user } = useUnifiedAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {

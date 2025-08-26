@@ -3,14 +3,14 @@
  * 提供用户相关的便捷方法
  */
 
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * 用户 Hook
  * 提供用户相关的便捷方法
  */
 export const useUser = () => {
-  const { user, isAuthenticated, updateUser } = useUnifiedAuth();
+  const { user, isAuthenticated, updateUser } = useAuth();
   
   return {
     // 用户信息

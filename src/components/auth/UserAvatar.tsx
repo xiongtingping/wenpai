@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -42,7 +42,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   showUsername = true,
   size = 'md'
 }) => {
-  const { user, isAuthenticated, login, logout, updateUser } = useUnifiedAuth();
+  const { user, isAuthenticated, login, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [unlockLoading, setUnlockLoading] = useState(false);
 
@@ -62,73 +62,10 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     navigate('/profile');
   };
 
-  // 最高权限解锁功能（生产环境显示，无需登录）
+  // 🔒 SECURITY: 最高权限解锁功能已禁用 - 防止权限绕过攻击
   const handleUnlockMaxPermissions = async () => {
-    setUnlockLoading(true);
-    try {
-      logger.info('🚀 激活最高解锁权限 - 测试模式', {
-        environment: process.env.NODE_ENV,
-        isDevelopment,
-        isProduction,
-        loginStatus: isAuthenticated ? '已登录' : '未登录'
-      });
-      
-      // 创建拥有最高权限的测试用户对象
-      const maxPermissionUser = {
-        id: 'test_user_' + Date.now(),
-        username: 'test_admin',
-        nickname: '测试管理员',
-        email: 'test@wenpai.xyz',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test',
-        roles: ['admin', 'super_admin', 'premium_user', 'pro_user'],
-        permissions: [
-          // 获取所有可用权限
-          ...permissionManager.getAllPermissions(),
-          'admin:all',
-          'super_admin:all',
-          'tier:premium',
-          'tier:pro',
-          'feature:unlimited',
-          'creative:unlimited',
-          'brand:unlimited',
-          'theme:all'
-        ],
-        subscription: {
-          plan: 'premium' as const,
-          tier: 'premium' as const,
-          status: 'active' as const,
-          isActive: true,
-          validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1年后过期
-        },
-        stats: {
-          monthlyUsage: 0,
-          remainingQuota: 999999,
-          totalQuota: 999999
-        },
-        vipLevel: 'premium',
-        isVip: true,
-        isProUser: true
-      };
-      
-      // 更新用户信息
-      await updateUser(maxPermissionUser);
-      
-      logger.info('✅ 最高权限解锁成功（测试用户创建）', {
-        roles: maxPermissionUser.roles,
-        permissions: maxPermissionUser.permissions?.length,
-        plan: maxPermissionUser.subscription?.plan
-      });
-      
-      // 刷新页面以应用新权限
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-      
-    } catch (error) {
-      logger.error('❌ 权限解锁失败:', error);
-    } finally {
-      setUnlockLoading(false);
-    }
+    logger.warn('🚫 权限解锁功能已被安全策略禁用');
+    return;
   };
 
   // 获取用户等级显示
@@ -140,11 +77,8 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     return '体验版用户';
   };
 
-  // 检查是否显示解锁按钮：生产环境或开发环境都显示（用于测试）
-  const isProduction = process.env.NODE_ENV === 'production';
-  const isDevelopment = process.env.NODE_ENV === 'development' || import.meta.env.DEV;
-  // 修改显示条件：生产环境或开发环境都显示解锁按钮，方便测试
-  const shouldShowUnlockButton = isProduction || isDevelopment;
+  // 🔒 SECURITY: 解锁按钮已完全禁用 - 防止权限绕过攻击
+  const shouldShowUnlockButton = false;
 
 
 

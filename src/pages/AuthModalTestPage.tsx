@@ -7,11 +7,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { LogIn, UserPlus, User, AlertCircle, CheckCircle } from 'lucide-react';
 
 const AuthModalTestPage: React.FC = () => {
-  const { login, register, logout, user, isAuthenticated, loading, error } = useUnifiedAuth();
+  const { login, register, logout, user, isAuthenticated, loading, error } = useAuth();
   const [testResults, setTestResults] = useState<string[]>([]);
 
   const addTestResult = (result: string) => {

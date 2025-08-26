@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { usePermission } from '@/hooks/usePermission';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { PermissionUpgradeDialog } from './PermissionUpgradeDialog';
 import { UpgradePromptCard } from './UpgradePromptCard';
 
@@ -43,7 +43,7 @@ export const PermissionOverlay: React.FC<PermissionOverlayProps> = ({
   opacity = 0.8
 }) => {
   const navigate = useNavigate();
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
   const permission = usePermission(requiredPermission);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
 

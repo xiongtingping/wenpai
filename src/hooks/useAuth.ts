@@ -1,10 +1,10 @@
 /**
- * 🔧 [UNIFIED_AUTH_ENTRY_v2025.08.15]
- * 统一认证入口Hook - 系统性架构优化
+ * 🔧 [OFFICIAL_AUTH_ENTRY_v2025.08.26]
+ * 官方认证入口Hook - 架构重构完成
  *
- * 这是整个应用的唯一认证入口，提供：
+ * 这是整个应用的唯一认证入口，基于@authing/browser官方SDK：
  * 1. 统一的认证状态管理
- * 2. 清晰的职责分工
+ * 2. 官方SDK标准实现
  * 3. 向后兼容支持
  * 4. 类型安全保障
  */
@@ -12,13 +12,12 @@
 import { useAuth as useOfficialAuth } from '@/auth/OfficialAuthProvider';
 
 /**
- * 统一认证Hook - 应用的唯一认证入口
+ * 官方认证Hook - 应用的唯一认证入口
  *
  * 职责分工：
- * - UnifiedAuthContext: 核心认证逻辑和状态管理
+ * - OfficialAuthProvider: 核心认证逻辑和状态管理
  * - useAuth: 统一入口和接口标准化
- * - @authing/guard: 登录弹窗UI
- * - @authing/web: OAuth2回调处理
+ * - @authing/browser: 官方SDK处理所有认证流程
  */
 export const useAuth = () => {
   // 🎯 使用基于官方SDK的认证实现
@@ -39,6 +38,7 @@ export const useAuth = () => {
     logout: auth.logout,
     checkAuth: auth.checkAuthStatus,
     refreshToken: auth.refreshToken,
+    refreshAuth: auth.checkAuthStatus, // 刷新认证状态
     updateUser: auth.updateUser,
     getAccessToken: auth.getAccessToken,
 

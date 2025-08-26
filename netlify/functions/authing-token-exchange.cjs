@@ -43,31 +43,53 @@ exports.handler = async (event) => {
     } = process.env;
 
     // 环境变量优先级：服务端专用 > 客户端构建期变量 > 默认值
-    // 支持新的 VITE_AUTHING_CLIENT_ID 配置
-    const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
+    const appId = AUTHING_APP_ID || VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
     const host = (AUTHING_HOST || VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn').replace(/\/$/, '');
 
-    // 🚨 最终强制修复：无论任何情况都使用固定的redirect_uri
-    // 这是解决redirect_uri不匹配问题的最后手段
+    // ✅ 智能redirect_uri匹配：根据请求来源选择正确的回调URL
     const body = event.body ? JSON.parse(event.body) : {};
     const originalRedirectUri = body.original_redirect_uri;
+
+    // 根据用户确认的Authing控制台配置，支持的回调URL列表
+    const allowedRedirectUris = [
+      'https://www.wenpai.xyz/callback',
+      'https://wenpai.xyz/callback',
+      'https://wenpai.netlify.app/callback',
+      'http://localhost:5173/callback'
+    ];
+
+    // 智能选择redirect_uri：优先使用前端传递的，但必须在允许列表中
+    let redirectUri = 'https://www.wenpai.xyz/callback'; // 默认值
+
+    if (originalRedirectUri && allowedRedirectUris.includes(originalRedirectUri)) {
+      redirectUri = originalRedirectUri;
+    } else if (origin) {
+      // 根据请求来源智能匹配
+      if (origin.includes('localhost:5173')) {
+        redirectUri = 'http://localhost:5173/callback';
+      } else if (origin.includes('wenpai.netlify.app')) {
+        redirectUri = 'https://wenpai.netlify.app/callback';
+      } else if (origin.includes('wenpai.xyz') && !origin.includes('www.')) {
+        redirectUri = 'https://wenpai.xyz/callback';
+      } else {
+        redirectUri = 'https://www.wenpai.xyz/callback';
+      }
+    }
     
-    // 强制使用生产环境主域名，完全无视其他参数
-    const redirectUri = 'https://www.wenpai.xyz/callback';
-    
-    console.log('🚨 最终强制redirect_uri修复:', {
-      forcedRedirectUri: redirectUri,
+    console.log('✅ 智能redirect_uri匹配:', {
+      selectedRedirectUri: redirectUri,
       originalFromFrontend: originalRedirectUri,
       requestOrigin: origin,
-      strategy: 'force_fixed_uri',
-      reason: '解决redirect_uri不匹配问题'
+      allowedUris: allowedRedirectUris,
+      strategy: 'smart_origin_matching',
+      reason: '根据请求来源智能选择匹配的回调URL'
     });
 
-    console.log('🚨 最终强制 Authing配置检查:', {
+    console.log('✅ Authing配置检查:', {
       appId: appId ? `${appId.substring(0, 8)}...` : 'MISSING',
       host: host || 'MISSING',
       redirectUri: redirectUri || 'MISSING',
-      redirectUri_source: 'forced_production_uri',
+      redirectUri_source: 'smart_matched',
       request_origin: origin,
       env: process.env.NODE_ENV || 'unknown'
     });
@@ -188,11 +210,11 @@ exports.handler = async (event) => {
       console.warn('⚠️ 缺少认证参数：需要client_secret或code_verifier');
     }
 
-    console.log('🚨 最终强制token交换（redirect_uri固定修复）:', {
+    console.log('✅ 智能token交换（redirect_uri智能匹配）:', {
       endpoint: tokenEndpoint,
       client_id: appId.substring(0, 8) + '...',
       redirect_uri: redirectUri,
-      redirect_uri_source: 'forced_production_uri',
+      redirect_uri_source: 'smart_matched',
       request_origin: origin,
       grant_type: 'authorization_code',
       auth_mode: useClientSecret ? 'client_secret' : 'pkce',

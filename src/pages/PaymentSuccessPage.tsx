@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, Crown, Star, ArrowRight, User } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
@@ -22,7 +22,7 @@ export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
   // const { getOrderStatus, formatAmount, getPaymentMethodName } = usePayment(); // This line was removed as per the edit hint.
   
   const [orderInfo, setOrderInfo] = useState<any>(null);

@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import type { SubscriptionTier } from '@/types/subscription';
 
@@ -138,7 +138,7 @@ export const SubscriptionGuard: React.FC<SubscriptionGuardProps> = ({
   fallback,
   disableInteraction = true
 }) => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // 获取用户当前等级
@@ -277,7 +277,7 @@ export const SubscriptionGuard: React.FC<SubscriptionGuardProps> = ({
  * 订阅权限检查Hook
  */
 export const useSubscriptionGuard = (requiredTier: SubscriptionTier) => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
 
   return useMemo(() => {
     const userTier = getUserTier(user);

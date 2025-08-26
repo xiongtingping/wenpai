@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 // 🔒 [AUTHING_GUARD_NAVIGATION_v2025.08.14]
 // 统一使用@authing/guard架构，禁止引入@authing/web
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { usePermission } from '@/hooks/usePermission';
 import { isDevelopment } from '@/utils/env-validator';
 import { UserAvatar } from '@/components/auth/UserAvatar';
@@ -44,7 +44,7 @@ import { LogoWithText } from '@/components/ui/ThemeAwareLogo';
 export const TopNavigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, login } = useUnifiedAuth();
+  const { user, isAuthenticated, login } = useAuth();
   const vipPermission = usePermission('vip:required');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [permissionLoading, setPermissionLoading] = useState(false);

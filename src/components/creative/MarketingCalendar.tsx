@@ -21,7 +21,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -479,7 +479,7 @@ const SortableTodoItem: React.FC<{
  */
 function MarketingCalendar() {
   // 用户认证
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
   const userId = user?.id || 'anonymous';
 
   // 基础状态

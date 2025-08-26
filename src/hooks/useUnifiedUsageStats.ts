@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { useTokenUsageStore } from '@/stores/tokenUsageStore';
 import { unifiedUsageService } from '@/services/unifiedUsageService';
 import { enhancedPermissionService } from '@/services/enhancedPermissionService';
@@ -137,7 +137,7 @@ export function useUnifiedUsageStats(): EnhancedUnifiedUsageStats & {
   checkPermission: (featureId: string) => Promise<boolean>;
   consumeUsage: (amount?: number) => Promise<boolean>;
 } {
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
   const { currentStats: tokenStats, refreshStats: refreshTokenStatsStore } = useTokenUsageStore();
   
   const [usageCountStats, setUsageCountStats] = useState<UsageCountStats>({

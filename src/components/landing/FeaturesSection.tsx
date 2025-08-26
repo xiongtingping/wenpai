@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Zap,
   Sparkles,
@@ -198,7 +198,7 @@ const advantages = [
  * 功能特性展示区域组件
  */
 export const FeaturesSection: React.FC = () => {
-  const { login, isAuthenticated } = useUnifiedAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   return (

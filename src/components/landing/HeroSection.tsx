@@ -6,7 +6,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { ThemeAwareLogo } from '@/components/ui/ThemeAwareLogo';
 
@@ -16,7 +16,7 @@ import { ThemeAwareLogo } from '@/components/ui/ThemeAwareLogo';
  */
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, login } = useUnifiedAuth();
+  const { isAuthenticated, login } = useAuth();
 
   /**
    * 处理按钮点击事件

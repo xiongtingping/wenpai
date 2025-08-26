@@ -77,20 +77,27 @@
 # 环境变量设置
 # ===================
 # ✅ 统一配置：修复多重回调URL问题
-# App ID: 68a68a29d0c3341ae7a3df23 (与.env文件统一)
+# App ID: 68a68a29d0c3341ae7a3df23 (用户最终确认)
+# App Secret: 0ced1af1d941c5a94dd6c8c86307e330 (用户最终确认)
+# User Pool ID: 688237f7f9e118de849dc274 (用户最终确认)
 # 认证域名: rzcswqs4sq0f.authing.cn
-# 📌 修复多重回调URL问题：统一App ID配置 2025-08-22
+# 📌 修复redirect_uri不匹配问题：统一配置 2025-08-26
 # ===================
 [context.production.environment]
   NODE_ENV = "production"
   VITE_DEBUG = "false"  # 确保生产环境控制台静默
   # Authing配置 - 客户端
   VITE_AUTHING_APP_ID = "68a68a29d0c3341ae7a3df23"
+  VITE_AUTHING_APP_SECRET = "0ced1af1d941c5a94dd6c8c86307e330"
+  VITE_AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
   # Authing配置 - 服务端 (Netlify Functions)
   AUTHING_APP_ID = "68a68a29d0c3341ae7a3df23"
+  AUTHING_APP_SECRET = "0ced1af1d941c5a94dd6c8c86307e330"
+  AUTHING_CLIENT_SECRET = "0ced1af1d941c5a94dd6c8c86307e330"
+  AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   AUTHING_REDIRECT_URI = "https://www.wenpai.xyz/callback"
   # OpenAI配置
@@ -113,13 +120,18 @@
   VITE_DEBUG = "false"  # 预览环境也保持静默
   # Authing配置 - 客户端
   VITE_AUTHING_APP_ID = "68a68a29d0c3341ae7a3df23"
+  VITE_AUTHING_APP_SECRET = "0ced1af1d941c5a94dd6c8c86307e330"
+  VITE_AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
-  VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
+  VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   # Authing配置 - 服务端 (Netlify Functions)
   AUTHING_APP_ID = "68a68a29d0c3341ae7a3df23"
+  AUTHING_APP_SECRET = "0ced1af1d941c5a94dd6c8c86307e330"
+  AUTHING_CLIENT_SECRET = "0ced1af1d941c5a94dd6c8c86307e330"
+  AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
-  AUTHING_REDIRECT_URI = "https://www.wenpai.xyz/callback"
+  AUTHING_REDIRECT_URI = "https://wenpai.netlify.app/callback"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -140,15 +152,20 @@
   VITE_AUTHING_FALLBACK_HOSTED = "1"
   # Authing配置 - 客户端（统一使用单一回调URL）
   VITE_AUTHING_APP_ID = "68a68a29d0c3341ae7a3df23"
+  VITE_AUTHING_APP_SECRET = "0ced1af1d941c5a94dd6c8c86307e330"
+  VITE_AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
+  VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
-  VITE_AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   VITE_AUTHING_APP_TYPE = "oidc"
   # Authing配置 - 服务端 (Netlify Functions)
   AUTHING_APP_ID = "68a68a29d0c3341ae7a3df23"
+  AUTHING_APP_SECRET = "0ced1af1d941c5a94dd6c8c86307e330"
+  AUTHING_CLIENT_SECRET = "0ced1af1d941c5a94dd6c8c86307e330"
+  AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
-  AUTHING_REDIRECT_URI = "https://www.wenpai.xyz/callback"
+  AUTHING_REDIRECT_URI = "http://localhost:5173/callback"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"

@@ -135,7 +135,7 @@ export function PreviewPanel({
 
     try {
       // 添加微信公众号样式类
-      let processedHtml = html
+      const processedHtml = html
         .replace(/<h1>/g, '<h1 class="wechat-h1">')
         .replace(/<h2>/g, '<h2 class="wechat-h2">')
         .replace(/<h3>/g, '<h3 class="wechat-h3">')

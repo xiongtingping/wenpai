@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { useTokenUsageStore } from '@/stores/tokenUsageStore';
 import { checkUserTokenLimit } from '@/services/aiWithTokenTracking';
 import type { SubscriptionTier } from '@/types/subscription';
@@ -30,7 +30,7 @@ export interface TokenLimitCheckResult {
  * Token限额检查Hook
  */
 export function useTokenLimitCheck() {
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
   const { currentStats, checkLimit } = useTokenUsageStore();
   const [isChecking, setIsChecking] = useState(false);
   const [showLimitDialog, setShowLimitDialog] = useState(false);

@@ -98,7 +98,7 @@ export class AuthingErrorInterceptor {
       filename.toLowerCase().includes(keyword.toLowerCase())
     );
     
-    return messageCheck || filenameCheck;
+    return Boolean(messageCheck || filenameCheck);
   }
   
   /**

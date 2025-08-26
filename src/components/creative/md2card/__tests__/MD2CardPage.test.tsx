@@ -36,7 +36,7 @@ vi.mock('@/components/auth/PermissionAwareContainer', () => ({
 }));
 
 vi.mock('use-debounce', () => ({
-  useDebouncedCallback: (fn: Function) => fn
+  useDebouncedCallback: (fn: (...args: any[]) => any) => fn
 }));
 
 // Mock UI组件

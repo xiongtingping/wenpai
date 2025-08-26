@@ -5,7 +5,7 @@
 
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { getUserTier, hasPermission, getTierDisplayName } from '@/utils/subscriptionUtils';
 
 export type SubscriptionTier = 'trial' | 'pro' | 'premium';
@@ -33,7 +33,7 @@ export interface PaywallGuardResult {
  * 使用付费墙守卫 Hook
  */
 export const usePaywallGuard = (requiredTier: SubscriptionTier = 'trial'): PaywallGuardResult => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // 获取用户当前等级
@@ -103,7 +103,7 @@ export const useFeatureAccess = (featureName: string, requiredTier: Subscription
  * 用于检查多个功能的访问权限
  */
 export const useBatchFeatureAccess = (features: Array<{ name: string; tier: SubscriptionTier }>) => {
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
   
   return useMemo(() => {
     return features.map(feature => ({

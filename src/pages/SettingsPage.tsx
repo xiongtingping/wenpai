@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { usePermission } from '@/hooks/usePermission';
 import { 
   Settings, 
@@ -26,7 +26,7 @@ import {
  * 设置页面组件
  */
 const SettingsPage: React.FC = () => {
-  const { user, logout } = useUnifiedAuth();
+  const { user, logout } = useAuth();
   const adminPermission = usePermission('admin:access');
   const [notifications, setNotifications] = useState(true);
   const [autoSave, setAutoSave] = useState(true);

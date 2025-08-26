@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Crown, Zap, Lock, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { getUserTier } from '@/utils/subscriptionUtils';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import { useToast } from '@/hooks/use-toast';
@@ -37,7 +37,7 @@ export const RoleBasedUpgradePrompt: React.FC<RoleBasedUpgradePromptProps> = ({
   mode = 'compact',
   className = ''
 }) => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 

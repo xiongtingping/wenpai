@@ -14,14 +14,14 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, ArrowLeft, Crown, Lock, AlertTriangle } from 'lucide-react';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * 403 禁止访问页面组件
  */
 export default function ForbiddenPage() {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const handleGoBack = () => {
     window.history.back();

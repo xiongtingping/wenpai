@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Search,
   Shuffle,
@@ -135,7 +135,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
   const [randomSelected, setRandomSelected] = useState<UnifiedEmojiItem | null>(null);
 
   const { toast } = useToast();
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
 
   // 使用中文拼音排序器，兼容数字和大小写
   const collatorZh = new Intl.Collator('zh', { sensitivity: 'base', numeric: true });

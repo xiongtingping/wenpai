@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { Clock, Copy, Trash2 } from 'lucide-react';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
@@ -31,7 +31,7 @@ export default function HistoryPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
 
   // ✅ FIXED: 用户数据隔离 - 历史记录存储
   const historyDataManager = useUserDataIsolation({

@@ -10,7 +10,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { useAuthStore } from "@/store/authStore";
-// import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider";
+// import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from 'react-router-dom';
 
 function InvitePage() {

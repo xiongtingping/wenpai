@@ -1,10 +1,9 @@
 /**
- * 🎯 基于@authing/browser官方SDK的认证服务
- * 参考官方实现模式，彻底解决redirect问题
+ * 🎯 基于@authing/guard官方SDK的认证服务
+ * 使用Guard组件，提供完整的UI和认证流程
  */
 
-import { Authing } from '@authing/browser';
-import type { LoginState } from '@authing/browser/dist/types/global';
+import { Guard } from '@authing/guard';
 import { createOfficialAuthSDK } from './officialAuthConfig';
 import { logger } from '@/utils/logger';
 
@@ -24,8 +23,8 @@ export interface AuthUser {
  */
 export class OfficialAuthService {
   private static instance: OfficialAuthService;
-  private sdk: Authing;
-  private loginState: LoginState | null = null;
+  private sdk: Guard;
+  private currentUser: AuthUser | null = null;
 
   private constructor() {
     this.sdk = createOfficialAuthSDK();
@@ -40,27 +39,51 @@ export class OfficialAuthService {
   }
 
   /**
-   * 使用官方的loginWithRedirect方法
+   * 使用@authing/guard的start方法，增强错误处理
    */
   async login(): Promise<void> {
-    try {
-      logger.info('🚀 开始官方SDK登录流程...');
-      
-      // 🎯 使用官方推荐的登录方式
-      await this.sdk.loginWithRedirect();
-      
-      logger.info('✅ 官方SDK登录跳转成功');
-    } catch (error) {
-      logger.error('❌ 官方SDK登录失败:', error);
-      throw error;
+    const maxRetries = 3;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        logger.info(`🚀 开始官方Guard登录流程... (尝试 ${attempt}/${maxRetries})`);
+
+        // 🎯 使用Guard的标准登录方式
+        this.sdk.start();
+
+        logger.info('✅ 官方Guard登录窗口已打开');
+        return; // 成功则退出
+      } catch (error) {
+        lastError = error as Error;
+        logger.warn(`⚠️ 登录尝试 ${attempt} 失败:`, error);
+
+        // 如果不是最后一次尝试，等待后重试
+        if (attempt < maxRetries) {
+          const delay = attempt * 1000; // 递增延迟
+          logger.info(`🔄 ${delay}ms 后重试...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
     }
+
+    // 所有重试都失败了
+    logger.error('❌ 官方Guard登录失败，已达到最大重试次数:', lastError);
+
+    // 🔧 提供用户友好的错误信息
+    if (lastError?.message?.includes('JSON')) {
+      throw new Error('认证服务暂时不可用，请稍后重试或联系技术支持');
+    }
+
+    throw lastError || new Error('登录失败，请重试');
   }
 
   /**
    * 检查是否是回调URL
    */
   isRedirectCallback(): boolean {
-    const isCallback = this.sdk.isRedirectCallback();
+    const urlParams = new URLSearchParams(window.location.search);
+    const isCallback = urlParams.has('code') && urlParams.has('state');
     logger.info('🔍 检查是否是回调URL:', {
       isCallback,
       currentUrl: window.location.href
@@ -71,22 +94,45 @@ export class OfficialAuthService {
   /**
    * 处理登录回调
    */
-  async handleRedirectCallback(): Promise<LoginState | null> {
+  async handleRedirectCallback(): Promise<AuthUser | null> {
     try {
       logger.info('🔄 处理官方SDK登录回调...');
-      
-      // 🎯 使用官方的回调处理方法
-      const loginState = await this.sdk.handleRedirectCallback();
-      
-      this.loginState = loginState;
-      
-      logger.info('✅ 官方SDK回调处理成功:', {
-        hasUser: !!loginState?.user,
-        userId: loginState?.user?.sub || loginState?.user?.id,
-        userName: loginState?.user?.nickname || loginState?.user?.name
-      });
-      
-      return loginState;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+
+      if (!code || !state) {
+        throw new Error('缺少必要的回调参数');
+      }
+
+      // 🎯 使用@authing/guard的方式获取用户信息
+      // Guard SDK可能需要不同的方法，这里使用通用方式
+      const userInfo = await this.sdk.getLoginState();
+
+      if (userInfo) {
+        const user: AuthUser = {
+          id: userInfo.sub || userInfo.id || 'unknown',
+          nickname: userInfo.nickname || userInfo.name || 'User',
+          name: userInfo.name || userInfo.nickname || 'User',
+          username: userInfo.username || userInfo.email || 'user',
+          email: userInfo.email || '',
+          avatar: userInfo.picture || userInfo.avatar || '',
+          phone: userInfo.phone_number || ''
+        };
+
+        this.currentUser = user;
+
+        logger.info('✅ 官方SDK回调处理成功:', {
+          hasUser: !!user,
+          userId: user.id,
+          userName: user.nickname || user.name
+        });
+
+        return user;
+      }
+
+      throw new Error('获取用户信息失败');
     } catch (error) {
       logger.error('❌ 官方SDK回调处理失败:', error);
       throw error;
@@ -96,22 +142,29 @@ export class OfficialAuthService {
   /**
    * 获取当前登录状态
    */
-  async getLoginState(): Promise<LoginState | null> {
+  async getLoginState(): Promise<AuthUser | null> {
     try {
       logger.info('🔍 获取官方SDK登录状态...');
-      
-      // 🎯 使用官方的状态获取方法
-      const loginState = await this.sdk.getLoginState();
-      
-      this.loginState = loginState;
-      
-      logger.info('📊 官方SDK登录状态:', {
-        hasUser: !!loginState?.user,
-        isAuthenticated: !!loginState?.user,
-        userId: loginState?.user?.sub || loginState?.user?.id
-      });
-      
-      return loginState;
+
+      // 🎯 返回当前用户状态
+      if (this.currentUser) {
+        logger.info('📊 官方SDK登录状态:', {
+          hasUser: !!this.currentUser,
+          isAuthenticated: !!this.currentUser,
+          userId: this.currentUser.id
+        });
+
+        return this.currentUser;
+      }
+
+      // 尝试从存储中恢复用户状态
+      const storedUser = localStorage.getItem('auth_user');
+      if (storedUser) {
+        this.currentUser = JSON.parse(storedUser);
+        return this.currentUser;
+      }
+
+      return null;
     } catch (error) {
       logger.error('❌ 获取官方SDK登录状态失败:', error);
       return null;
@@ -123,29 +176,15 @@ export class OfficialAuthService {
    */
   async getCurrentUser(): Promise<AuthUser | null> {
     try {
-      const loginState = await this.getLoginState();
-      
-      if (!loginState?.user) {
-        return null;
+      const user = await this.getLoginState();
+
+      if (user) {
+        logger.info('👤 获取用户信息成功:', {
+          id: user.id,
+          nickname: user.nickname,
+          email: user.email
+        });
       }
-
-      // 转换为统一的用户格式
-      const user: AuthUser = {
-        id: loginState.user.sub || loginState.user.id || 'unknown',
-        nickname: loginState.user.nickname,
-        name: loginState.user.name,
-        username: loginState.user.username,
-        email: loginState.user.email,
-        avatar: loginState.user.picture || loginState.user.avatar,
-        phone: loginState.user.phone,
-        ...loginState.user // 保留其他字段
-      };
-
-      logger.info('👤 获取用户信息成功:', {
-        id: user.id,
-        nickname: user.nickname,
-        email: user.email
-      });
 
       return user;
     } catch (error) {
@@ -160,11 +199,19 @@ export class OfficialAuthService {
   async logout(): Promise<void> {
     try {
       logger.info('🚪 开始官方SDK登出...');
-      
-      // 🎯 使用官方的登出方法
-      await this.sdk.logoutWithRedirect();
-      
-      this.loginState = null;
+
+      // 🎯 清除本地状态
+      this.currentUser = null;
+      localStorage.removeItem('auth_user');
+
+      // 🎯 使用Guard的logout方法
+      try {
+        await this.sdk.logout();
+      } catch (logoutError) {
+        // 如果Guard logout失败，手动清理并跳转
+        logger.warn('⚠️ Guard logout失败，执行手动清理:', logoutError);
+        window.location.href = window.location.origin;
+      }
       
       logger.info('✅ 官方SDK登出成功');
     } catch (error) {
@@ -196,15 +243,15 @@ export class OfficialAuthService {
   async updateUser(updates: Partial<AuthUser>): Promise<AuthUser> {
     // 官方SDK可能不直接支持用户信息更新
     // 这里提供一个简单的本地更新实现
-    if (this.loginState?.user) {
-      Object.assign(this.loginState.user, updates);
+    if (this.currentUser) {
+      Object.assign(this.currentUser, updates);
     }
-    
+
     const user = await this.getCurrentUser();
     if (!user) {
       throw new Error('用户未登录');
     }
-    
+
     return user;
   }
 
@@ -224,7 +271,7 @@ export class OfficialAuthService {
   /**
    * 获取SDK实例（供高级用法）
    */
-  getSDK(): Authing {
+  getSDK(): Guard {
     return this.sdk;
   }
 }

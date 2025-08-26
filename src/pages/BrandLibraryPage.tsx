@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { PermissionLockedButton, PermissionLockedIconButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionProtectedInput, PermissionProtectedInputField, PermissionProtectedSelect } from '@/components/auth/PermissionProtectedInput';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
@@ -100,7 +100,7 @@ const SYSTEM_CATEGORIES = [
 
 export default function BrandLibraryPageFixed() {
   // 用户认证和数据隔离
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   // ✅ FIXED: 用户数据隔离 - 品牌资产存储

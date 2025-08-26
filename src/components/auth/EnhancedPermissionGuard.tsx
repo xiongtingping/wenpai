@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Lock, Crown, Zap, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { getUserTier } from '@/utils/subscriptionUtils';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import { useToast } from '@/hooks/use-toast';
@@ -41,7 +41,7 @@ export const EnhancedPermissionGuard: React.FC<EnhancedPermissionGuardProps> = (
   overlayOpacity = 0.3,
   showUpgradeButton = true
 }) => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 

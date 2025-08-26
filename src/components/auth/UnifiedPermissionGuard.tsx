@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { PermissionText, UpgradeText } from '@/components/ui/ThemeAwareText';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { getSubscriptionPlan, SUBSCRIPTION_PLANS, calculateDiscountCountdown, isInDiscountPeriod } from '@/config/subscriptionPlans';
 import type { SubscriptionTier } from '@/types/subscription';
 import { PermissionUpgradeDialog } from './PermissionUpgradeDialog';
@@ -324,7 +324,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
   disableInteraction = true,
   upgradeUrl
 }) => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [discountCountdown, setDiscountCountdown] = useState(0);
@@ -639,7 +639,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
  * 统一权限检查Hook
  */
 export const useUnifiedPermission = (requiredPermission: PermissionType) => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
 
   return useMemo(() => {
     const permissionConfig = PERMISSION_CONFIGS[requiredPermission];

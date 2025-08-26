@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Clock, ArrowLeft, RefreshCw, QrCode, Smartphone, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   SUBSCRIPTION_PLANS, 
   calculateDiscountCountdown, 
@@ -170,7 +170,7 @@ export default function EnhancedPaymentPage() {
   const [showRecovery, setShowRecovery] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
 
   // 限时优惠倒计时逻辑
   useEffect(() => {

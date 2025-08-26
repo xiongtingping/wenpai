@@ -10,7 +10,7 @@
  */
 
 import { createDataService, TABLE_NAMES, type DatabaseRecord, type QueryOptions, type QueryResult } from './supabaseDataService';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface DataAccessOptions extends QueryOptions {
   /** 是否跳过权限检查（仅限系统管理员） */
@@ -386,7 +386,7 @@ export class DataAccessLayer {
  * React Hook: 数据访问层
  */
 export function useDataAccessLayer() {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   
   if (!isAuthenticated || !user?.id) {
     throw new Error('数据访问层需要用户登录');

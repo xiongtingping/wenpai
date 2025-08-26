@@ -10,7 +10,7 @@
  */
 
 import { useMemo } from 'react';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/logger';
 
 /**
@@ -355,7 +355,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
  * @returns 权限判断结果
  */
 export const usePermission = (permissionKey: string | string[]): PermissionResult => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
 
   return useMemo(() => {
     const keys = Array.isArray(permissionKey) ? permissionKey : [permissionKey];

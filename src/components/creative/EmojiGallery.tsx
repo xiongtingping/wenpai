@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { getUserTier } from '@/utils/subscriptionUtils';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
@@ -18,7 +18,7 @@ interface EmojiGalleryProps {
 }
 
 export default function EmojiGallery({ emojis, onDelete, onRegenerate }: EmojiGalleryProps) {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
   // 获取用户当前等级

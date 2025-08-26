@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { PermissionUpgradeDialog } from './PermissionUpgradeDialog';
 import { PermissionUpgradeCard } from './PermissionUpgradeCard';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,7 @@ export const NewPermissionGuard: React.FC<NewPermissionGuardProps> = ({
   overlayOpacity = 0.3,
   fallback
 }) => {
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
 
   // 获取用户当前等级

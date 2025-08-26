@@ -175,21 +175,38 @@ export class CallbackUrlNormalizer {
   }
 
   /**
-   * 🚨 强制获取单一回调URI - 最终修复方案
-   * 无论环境如何，都强制使用生产环境的主回调URL
-   * 这是解决redirect_uri不匹配问题的最后手段
+   * ✅ 智能获取回调URI - 根据环境和用户配置智能选择
+   * 支持用户确认的所有回调URL配置
    */
   public getForcedCallbackUri(): string {
-    // 🚨 强制使用生产环境主域名，避免所有动态计算问题
-    const forcedUri = 'https://www.wenpai.xyz/callback';
-    
-    logger.info('🚨 强制回调URI修复:', {
-      forcedUri,
-      reason: '避免redirect_uri不匹配问题',
-      strategy: 'force_production_uri'
+    if (typeof window === 'undefined') {
+      return 'https://www.wenpai.xyz/callback';
+    }
+
+    const { hostname, port, protocol } = window.location;
+
+    // 根据用户确认的Authing控制台配置，智能选择回调URL
+    let selectedUri: string;
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      selectedUri = 'http://localhost:5173/callback';
+    } else if (hostname === 'wenpai.netlify.app') {
+      selectedUri = 'https://wenpai.netlify.app/callback';
+    } else if (hostname === 'wenpai.xyz') {
+      selectedUri = 'https://wenpai.xyz/callback';
+    } else {
+      // 默认使用主域名
+      selectedUri = 'https://www.wenpai.xyz/callback';
+    }
+
+    logger.info('✅ 智能回调URI选择:', {
+      selectedUri,
+      hostname,
+      reason: '根据当前域名智能匹配Authing控制台配置',
+      strategy: 'smart_environment_matching'
     });
-    
-    return forcedUri;
+
+    return selectedUri;
   }
 }
 

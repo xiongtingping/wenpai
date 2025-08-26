@@ -1,4 +1,4 @@
-import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -80,7 +80,7 @@ const HelpDocumentation = () => {
 
 export function Header() {
   const isMobile = useIsMobile()
-  const { user, isAuthenticated, login, register } = useUnifiedAuth()
+  const { user, isAuthenticated, login, register } = useAuth()
   const navigate = useNavigate()
 
   /**

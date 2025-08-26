@@ -10,7 +10,7 @@
 
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,7 +38,7 @@ export const RouteGuard: React.FC<RouteGuardProps> = ({
   redirectTo = '/',
   customCheck
 }) => {
-  const { user, isAuthenticated, loading: isLoading } = useUnifiedAuth();
+  const { user, isAuthenticated, loading: isLoading } = useAuth();
   const location = useLocation();
 
   // 加载中状态

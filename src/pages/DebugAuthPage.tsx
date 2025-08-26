@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAuthConfig } from '@/auth/config';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { getRegisterUrlFast } from '@/utils/authingRegisterHelper';
 
 // 简单的随机字符串生成函数
@@ -22,7 +22,7 @@ const genRandom = (length: number): string => {
 };
 
 export const DebugAuthPage: React.FC = () => {
-  const { register } = useUnifiedAuth();
+  const { register } = useAuth();
   const [debugInfo, setDebugInfo] = React.useState<any>(null);
 
   React.useEffect(() => {

@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Lock, Crown, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { getUserTier } from '@/utils/subscriptionUtils';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import { useToast } from '@/hooks/use-toast';
@@ -39,7 +39,7 @@ export const SimplePermissionGuard: React.FC<SimplePermissionGuardProps> = ({
   overlayOpacity = 0.3,
   fallback
 }) => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -155,7 +155,7 @@ export const PermissionAwareContainer: React.FC<PermissionAwareContainerProps> =
   children,
   className = ''
 }) => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const userTier = getUserTier(user);
 
   const hasPermission = (requiredTier: 'trial' | 'pro' | 'premium') => {

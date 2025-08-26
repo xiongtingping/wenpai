@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 
 /**
@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
  */
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, login } = useUnifiedAuth();
+  const { isAuthenticated, login } = useAuth();
 
   /**
    * 处理按钮点击事件

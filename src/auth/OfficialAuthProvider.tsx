@@ -4,10 +4,10 @@
  */
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
-import type { LoginState } from '@authing/browser/dist/types/global';
 import { OfficialAuthService } from './OfficialAuthService';
 import type { AuthUser } from './OfficialAuthService';
 import { logger } from '@/utils/logger';
+import { secureStorage } from '@/lib/security';
 
 // 认证上下文类型定义
 export interface AuthContextType {
@@ -61,7 +61,7 @@ export function OfficialAuthProvider({ children }: OfficialAuthProviderProps) {
   /**
    * 处理登录状态更新
    */
-  const updateAuthState = useCallback((loginState: LoginState | null) => {
+  const updateAuthState = useCallback((loginState: any | null) => {
     if (loginState?.user) {
       const user: AuthUser = {
         id: loginState.user.sub || loginState.user.id || 'unknown',
@@ -189,7 +189,15 @@ export function OfficialAuthProvider({ children }: OfficialAuthProviderProps) {
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
       await authService.logout();
-      
+
+      // 🔒 清除安全存储
+      secureStorage.removeItem('auth_user');
+      localStorage.removeItem('auth_last_activity');
+
+      // 🔒 通知其他标签页登出
+      localStorage.setItem('auth_logout_event', Date.now().toString());
+      setTimeout(() => localStorage.removeItem('auth_logout_event'), 1000);
+
       // 清除本地状态
       setAuthState(prev => ({
         ...prev,
@@ -235,6 +243,10 @@ export function OfficialAuthProvider({ children }: OfficialAuthProviderProps) {
   const updateUser = useCallback(async (updates: Partial<AuthUser>) => {
     try {
       const updatedUser = await authService.updateUser(updates);
+
+      // 🔒 安全存储用户数据
+      secureStorage.setItem('auth_user', updatedUser);
+
       setAuthState(prev => ({
         ...prev,
         user: updatedUser
@@ -278,6 +290,53 @@ export function OfficialAuthProvider({ children }: OfficialAuthProviderProps) {
       return null;
     }
   }, [authService]);
+
+  // 🔒 会话管理：监听storage变化实现多标签页同步
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auth_logout_event') {
+        // 其他标签页登出，同步登出状态
+        setAuthState(prev => ({
+          ...prev,
+          user: null,
+          isAuthenticated: false,
+          error: null
+        }));
+        logger.info('🔄 检测到其他标签页登出，同步状态');
+      } else if (e.key === 'auth_token_invalid') {
+        // API请求返回401，token可能失效
+        logger.warn('🔒 检测到token失效，尝试刷新或登出');
+        refreshToken().catch(() => {
+          logger.error('🔒 Token刷新失败，执行登出');
+          logout();
+        });
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [refreshToken, logout]);
+
+  // 🔒 会话超时检查
+  useEffect(() => {
+    if (!authState.isAuthenticated) return;
+
+    const checkSessionTimeout = () => {
+      const lastActivity = localStorage.getItem('auth_last_activity');
+      if (lastActivity) {
+        const timeSinceLastActivity = Date.now() - parseInt(lastActivity);
+        const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24小时
+
+        if (timeSinceLastActivity > SESSION_TIMEOUT) {
+          logger.warn('🕐 会话超时，自动登出');
+          logout();
+        }
+      }
+    };
+
+    const interval = setInterval(checkSessionTimeout, 5 * 60 * 1000); // 每5分钟检查一次
+    return () => clearInterval(interval);
+  }, [authState.isAuthenticated, logout]);
 
   // 上下文值
   const contextValue: AuthContextType = {

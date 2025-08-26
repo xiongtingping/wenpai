@@ -1,11 +1,11 @@
 import './index.css';
+import '@authing/guard/dist/esm/guard.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 
-// 🛡️ Round #3: 全局启动认证请求拦截器
-import './auth/authRequestInterceptor';
+// 🛡️ 认证请求拦截器已集成到OfficialAuthProvider中
 
 // 🚨 Authing前端错误拦截器
 import './auth/authingErrorInterceptor';
@@ -106,7 +106,7 @@ declare global {
       isInAuthFlow: () => boolean;
       resetAuthAttempts: () => void;
       batchDOMUpdates: (callback: () => void) => void;
-      debounce: (func: Function, wait: number) => Function;
+      debounce: (func: (...args: any[]) => any, wait: number) => (...args: any[]) => any;
     };
   }
 }
@@ -177,7 +177,7 @@ if (typeof window !== 'undefined') {
 }
 
 // 防抖函数，减少频繁操作
-const debounce = (func: Function, wait: number) => {
+const debounce = (func: (...args: any[]) => any, wait: number) => {
   let timeout: NodeJS.Timeout;
   return function executedFunction(...args: any[]) {
     const later = () => {

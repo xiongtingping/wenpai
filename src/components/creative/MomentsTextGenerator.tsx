@@ -186,7 +186,7 @@ export function MomentsTextGenerator() {
   const [showAIDialog, setShowAIDialog] = useState(false);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [showDecorationPanel, setShowDecorationPanel] = useState(false);
-  const [previewTemplate, setPreviewTemplate] = useState<TextTemplate | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<TextTemplate | null>(null);
 
   // AI生成相关状态
   const [aiPrompt, setAIPrompt] = useState('');
@@ -665,7 +665,12 @@ export function MomentsTextGenerator() {
       content: '',
       category: 'daily',
       mood: 'casual',
-      tags: ''
+      tags: '',
+      industry: '',
+      decorations: {
+        emojis: [],
+        emoticons: []
+      }
     });
 
     setShowCreateDialog(false);
@@ -798,7 +803,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
    * 预览模板
    */
   const previewTemplate = (template: TextTemplate) => {
-    setPreviewTemplate(template);
+    setSelectedTemplate(template);
     setShowPreviewDialog(true);
   };
 
@@ -1530,9 +1535,9 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
             })}
           </div>
         ) : (
-
-          {/* 列表视图 */}
-          <div className="space-y-4">
+          <>
+            {/* 列表视图 */}
+            <div className="space-y-4">
             {filteredTemplates.map(template => {
               const categoryStyle = getCategoryStyle(template.category);
               const moodTag = moodTags.find(m => m.id === template.mood);
@@ -1622,7 +1627,8 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                 </Card>
               );
             })}
-          </div>
+            </div>
+          </>
         )}
 
         {/* 空状态 */}
@@ -1906,53 +1912,53 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
               文案预览
             </DialogTitle>
           </DialogHeader>
-          {previewTemplate && (
+          {selectedTemplate && (
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <h3 className="text-xl font-semibold">{previewTemplate.title}</h3>
+                <h3 className="text-xl font-semibold">{selectedTemplate.title}</h3>
                 <div className="flex items-center gap-2">
-                  {categories.find(c => c.id === previewTemplate.category) && (
+                  {categories.find(c => c.id === selectedTemplate.category) && (
                     <Badge variant="outline">
-                      {categories.find(c => c.id === previewTemplate.category)?.icon}
-                      <span className="ml-1">{categories.find(c => c.id === previewTemplate.category)?.name}</span>
+                      {categories.find(c => c.id === selectedTemplate.category)?.icon}
+                      <span className="ml-1">{categories.find(c => c.id === selectedTemplate.category)?.name}</span>
                     </Badge>
                   )}
-                  {moodTags.find(m => m.id === previewTemplate.mood) && (
-                    <Badge variant="outline" className={moodTags.find(m => m.id === previewTemplate.mood)?.color}>
-                      <span className="mr-1">{moodTags.find(m => m.id === previewTemplate.mood)?.emoji}</span>
-                      {moodTags.find(m => m.id === previewTemplate.mood)?.name}
+                  {moodTags.find(m => m.id === selectedTemplate.mood) && (
+                    <Badge variant="outline" className={moodTags.find(m => m.id === selectedTemplate.mood)?.color}>
+                      <span className="mr-1">{moodTags.find(m => m.id === selectedTemplate.mood)?.emoji}</span>
+                      {moodTags.find(m => m.id === selectedTemplate.mood)?.name}
                     </Badge>
                   )}
                 </div>
               </div>
-              
+
               <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-6 rounded-lg border">
                 <p className="text-base leading-relaxed whitespace-pre-line">
-                  {selectedDecorations.emojis.length > 0 || selectedDecorations.emoticons.length > 0 
-                    ? applyDecorations(previewTemplate.content)
-                    : previewTemplate.content
+                  {selectedDecorations.emojis.length > 0 || selectedDecorations.emoticons.length > 0
+                    ? applyDecorations(selectedTemplate.content)
+                    : selectedTemplate.content
                   }
                 </p>
               </div>
-              
+
               <div className="flex flex-wrap gap-2">
-                {previewTemplate.tags.map((tag, index) => (
+                {selectedTemplate.tags.map((tag, index) => (
                   <Badge key={index} variant="secondary">
                     {tag}
                   </Badge>
                 ))}
               </div>
-              
+
               <div className="flex items-center justify-between pt-4 border-t">
                 <div className="text-sm text-muted-foreground">
-                  使用次数：{previewTemplate.useCount}
+                  使用次数：{selectedTemplate.useCount}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" onClick={() => shareTemplate(previewTemplate)}>
+                  <Button variant="outline" onClick={() => shareTemplate(selectedTemplate)}>
                     <Share2 className="w-4 h-4 mr-2" />
                     分享
                   </Button>
-                  <Button onClick={() => copyTemplate(previewTemplate)} className="bg-gradient-to-r from-blue-500 to-purple-600">
+                  <Button onClick={() => copyTemplate(selectedTemplate)} className="bg-gradient-to-r from-blue-500 to-purple-600">
                     <Copy className="w-4 h-4 mr-2" />
                     复制
                   </Button>

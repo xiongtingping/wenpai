@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 
 // 开发环境用户模拟数据
 const DEV_USER_PROFILES = {
@@ -66,13 +66,11 @@ interface DevPermissionSwitcherProps {
 }
 
 export const DevPermissionSwitcher: React.FC<DevPermissionSwitcherProps> = ({ className }) => {
-  const { user } = useUnifiedAuth();
+  const { user } = useAuth();
   const [currentProfile, setCurrentProfile] = useState<keyof typeof DEV_USER_PROFILES>('trial');
 
-  // 仅在开发环境显示
-  if (process.env.NODE_ENV !== 'development') {
-    return null;
-  }
+  // 🔒 SECURITY: 完全禁用权限切换器 - 防止生产环境权限绕过
+  return null;
 
   const handleProfileSwitch = (profileKey: keyof typeof DEV_USER_PROFILES) => {
     const profile = DEV_USER_PROFILES[profileKey];

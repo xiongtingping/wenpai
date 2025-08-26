@@ -7,7 +7,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Lock, Crown, Zap } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { getUserTier } from "@/utils/subscriptionUtils";
 import { getSubscriptionPlan } from "@/config/subscriptionPlans";
 import { useToast } from "@/hooks/use-toast";
@@ -37,7 +37,7 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
   className = '',
   disabled = false
 }) => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -154,7 +154,7 @@ export const PermissionLockedIconButton: React.FC<PermissionLockedButtonProps> =
   className = '',
   disabled = false
 }) => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
