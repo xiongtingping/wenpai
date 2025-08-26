@@ -11,7 +11,8 @@ import { Guard } from '@authing/guard';
  * OAuth2要求发起认证和交换token时使用完全相同的redirect_uri
  */
 export const getOfficialAuthConfig = () => {
-  const domain = import.meta.env.VITE_AUTHING_DOMAIN || 'https://rzcswqs4sq0f.authing.cn';
+  // 🔧 修复：Guard需要不带协议的域名
+  const domain = import.meta.env.VITE_AUTHING_DOMAIN || 'rzcswqs4sq0f.authing.cn';
   const appId = import.meta.env.VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
 
   // 🎯 修复：开发环境使用生产回调URL，避免白名单问题
@@ -51,7 +52,7 @@ function validateConfig(config: any): void {
 }
 
 /**
- * 创建官方Guard实例，增强配置验证
+ * 创建官方Guard实例，增强配置验证和错误处理
  */
 export function createOfficialAuthSDK(): Guard {
   const config = getOfficialAuthConfig();
@@ -71,12 +72,39 @@ export function createOfficialAuthSDK(): Guard {
   });
 
   try {
-    return new Guard({
+    // 🔧 添加网络请求监控
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const [url, options] = args;
+      console.log('🌐 Guard API请求:', url);
+
+      try {
+        const response = await originalFetch(...args);
+        console.log('✅ Guard API响应:', url, response.status);
+        return response;
+      } catch (error) {
+        console.error('❌ Guard API请求失败:', url, error);
+        throw error;
+      }
+    };
+
+    const guard = new Guard({
       appId: config.appId,
       host: config.domain,
       redirectUri: config.redirectUri,
-      mode: 'modal'
+      mode: 'modal',
+      // 🔧 添加错误处理配置
+      onError: (error: any) => {
+        console.error('🚨 Guard内部错误:', error);
+      }
     });
+
+    // 恢复原始fetch
+    setTimeout(() => {
+      window.fetch = originalFetch;
+    }, 5000);
+
+    return guard;
   } catch (error) {
     console.error('❌ Guard实例创建失败:', error);
     throw new Error('认证组件初始化失败，请检查网络连接或联系技术支持');

@@ -4,7 +4,7 @@
  */
 
 import { Guard } from '@authing/guard';
-import { createOfficialAuthSDK } from './officialAuthConfig';
+import { createOfficialAuthSDK, getOfficialAuthConfig } from './officialAuthConfig';
 import { logger } from '@/utils/logger';
 
 export interface AuthUser {
@@ -39,7 +39,7 @@ export class OfficialAuthService {
   }
 
   /**
-   * 使用@authing/guard的start方法，增强错误处理
+   * 使用@authing/guard的start方法，增强错误处理和备用方案
    */
   async login(): Promise<void> {
     const maxRetries = 3;
@@ -58,6 +58,12 @@ export class OfficialAuthService {
         lastError = error as Error;
         logger.warn(`⚠️ 登录尝试 ${attempt} 失败:`, error);
 
+        // 🔧 检查是否是JSON解析错误
+        if (error instanceof Error && error.message.includes('JSON')) {
+          logger.warn('🔍 检测到JSON解析错误，尝试备用登录方案...');
+          return this.fallbackLogin();
+        }
+
         // 如果不是最后一次尝试，等待后重试
         if (attempt < maxRetries) {
           const delay = attempt * 1000; // 递增延迟
@@ -67,15 +73,27 @@ export class OfficialAuthService {
       }
     }
 
-    // 所有重试都失败了
-    logger.error('❌ 官方Guard登录失败，已达到最大重试次数:', lastError);
+    // 所有重试都失败了，尝试备用方案
+    logger.error('❌ 官方Guard登录失败，已达到最大重试次数，尝试备用方案:', lastError);
+    return this.fallbackLogin();
+  }
 
-    // 🔧 提供用户友好的错误信息
-    if (lastError?.message?.includes('JSON')) {
+  /**
+   * 备用登录方案：直接跳转到Authing登录页面
+   */
+  private fallbackLogin(): void {
+    try {
+      logger.info('🔄 启动备用登录方案：直接跳转到Authing登录页面');
+
+      const config = getOfficialAuthConfig();
+      const loginUrl = `https://${config.domain}/login?app_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code&scope=openid profile email`;
+
+      logger.info('🌐 跳转到登录页面:', loginUrl);
+      window.location.href = loginUrl;
+    } catch (error) {
+      logger.error('❌ 备用登录方案也失败了:', error);
       throw new Error('认证服务暂时不可用，请稍后重试或联系技术支持');
     }
-
-    throw lastError || new Error('登录失败，请重试');
   }
 
   /**
