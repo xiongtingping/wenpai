@@ -90,7 +90,7 @@ export function createOfficialAuthSDK(): Guard {
 
     const guard = new Guard({
       appId: config.appId,
-      host: config.domain,
+      host: `https://${config.domain}`, // 🔧 修复：添加协议前缀
       redirectUri: config.redirectUri,
       mode: 'modal',
       // 🔧 添加错误处理配置
