@@ -90,60 +90,16 @@ export function createOfficialAuthSDK(): Guard {
       redirectUri: config.redirectUri
     });
 
-    // 🔧 添加请求拦截器来修复URL协议问题
-    const originalFetch = window.fetch;
-    window.fetch = async (input, init = {}) => {
-      let url = typeof input === 'string' ? input : input.url;
+    // 🔧 根因修复：使用正确的Guard配置
+    console.log('🎯 使用正确的Guard配置，避免技术债务');
 
-      if (url && url.includes('authing.cn')) {
-        // 🔧 修复URL协议问题
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-          url = `https://${url}`;
-          console.log('🔧 修复URL协议:', url);
-        }
-
-        console.log('🌐 拦截Authing API请求:', url);
-
-        // 🔧 使用修复后的URL创建新的Request
-        const fixedInput = typeof input === 'string' ? url : new Request(url, input);
-
-        // 🔧 强制添加正确的请求头
-        const enhancedInit = {
-          ...init,
-          headers: {
-            'Accept': 'application/json, text/plain, */*',
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-            ...init.headers
-          },
-          cache: 'no-store' as RequestCache
-        };
-
-        try {
-          const response = await originalFetch(fixedInput, enhancedInit);
-          console.log('✅ Authing API响应:', url, response.status, response.headers.get('content-type'));
-          return response;
-        } catch (error) {
-          console.error('❌ Authing API请求失败:', url, error);
-          throw error;
-        }
-      }
-
-      return originalFetch(input, init);
-    };
-
+    // 🔧 根因修复：使用正确的host配置格式
     const guard = new Guard({
       appId: config.appId,
-      host: config.domain,
+      host: `https://${config.domain}`, // ✅ 提供完整的URL格式
       redirectUri: config.redirectUri,
       mode: 'modal'
     });
-
-    // 5秒后恢复原始fetch
-    setTimeout(() => {
-      window.fetch = originalFetch;
-    }, 10000);
 
     console.log('✅ Guard实例创建成功');
     return guard;
