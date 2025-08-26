@@ -72,19 +72,69 @@ export function createOfficialAuthSDK(): Guard {
   });
 
   try {
-    // 🔧 使用Guard的原生配置，不干扰其网络请求
+    // 🔧 强制清除可能的缓存问题
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        names.forEach(name => {
+          if (name.includes('authing')) {
+            caches.delete(name);
+            console.log('🧹 清除Authing相关缓存:', name);
+          }
+        });
+      });
+    }
+
     console.log('🎯 创建Guard实例，配置:', {
       appId: config.appId,
       domain: config.domain,
       redirectUri: config.redirectUri
     });
 
+    // 🔧 添加请求拦截器来修复浏览器环境问题
+    const originalFetch = window.fetch;
+    window.fetch = async (input, init = {}) => {
+      const url = typeof input === 'string' ? input : input.url;
+
+      if (url && url.includes('authing.cn')) {
+        console.log('🌐 拦截Authing API请求:', url);
+
+        // 🔧 强制添加正确的请求头
+        const enhancedInit = {
+          ...init,
+          headers: {
+            'Accept': 'application/json, text/plain, */*',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            ...init.headers
+          },
+          cache: 'no-store' as RequestCache
+        };
+
+        try {
+          const response = await originalFetch(input, enhancedInit);
+          console.log('✅ Authing API响应:', url, response.status, response.headers.get('content-type'));
+          return response;
+        } catch (error) {
+          console.error('❌ Authing API请求失败:', url, error);
+          throw error;
+        }
+      }
+
+      return originalFetch(input, init);
+    };
+
     const guard = new Guard({
       appId: config.appId,
-      host: config.domain, // 🔧 使用原始域名，让Guard自己处理协议
+      host: config.domain,
       redirectUri: config.redirectUri,
       mode: 'modal'
     });
+
+    // 5秒后恢复原始fetch
+    setTimeout(() => {
+      window.fetch = originalFetch;
+    }, 10000);
 
     console.log('✅ Guard实例创建成功');
     return guard;
