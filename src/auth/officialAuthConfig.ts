@@ -108,18 +108,13 @@ export function createOfficialAuthSDK(): Guard {
     // 🔧 根因修复：使用正确的Guard配置
     console.log('🎯 使用正确的Guard配置，避免技术债务');
 
-    // 🔧 根因修复：OIDC协议配置问题
-    // Guard SDK在redirect模式下使用OIDC协议，需要明确配置协议类型
+    // 🔧 根因修复：移除Guard SDK不支持的配置参数
+    // 根据官方文档，Guard只支持: appId, host, redirectUri, mode, defaultScene, tenantId, lang, isSSO, config
     const guard = new Guard({
       appId: config.appId,
       host: `https://${config.domain}`, // ✅ 提供完整的URL格式
       redirectUri: config.redirectUri,
-      mode: 'redirect', // ✅ 修复：使用redirect模式支持回调处理
-      // 🎯 关键修复：明确指定OIDC协议配置
-      protocol: 'oidc', // 明确使用OIDC协议
-      scope: 'openid profile email phone address', // OIDC标准scope
-      responseType: 'code', // 授权码模式
-      responseMode: 'query' // 查询参数模式
+      mode: 'redirect' // ✅ 修复：使用redirect模式支持回调处理
     });
 
     console.log('✅ Guard实例创建成功');
