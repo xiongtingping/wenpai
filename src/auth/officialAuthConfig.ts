@@ -132,6 +132,16 @@ export function createOfficialAuthSDK(): Guard {
     });
 
     console.log('✅ Guard实例创建成功');
+
+    // 🔍 详细检查Guard实例
+    console.log('🔍 Guard实例详情:', {
+      hasShow: typeof guard.show === 'function',
+      hasOn: typeof guard.on === 'function',
+      hasHide: typeof guard.hide === 'function',
+      methods: Object.getOwnPropertyNames(guard).filter(name => typeof guard[name] === 'function'),
+      prototype: Object.getOwnPropertyNames(Object.getPrototypeOf(guard)).filter(name => typeof guard[name] === 'function')
+    });
+
     return guard;
   } catch (error) {
     console.error('❌ Guard实例创建失败:', error);

@@ -58,8 +58,30 @@ export class OfficialAuthService {
       // 🔧 防止页面滚动问题的修复
       // 确保Guard弹窗正确显示，不会导致页面跳转
       setTimeout(() => {
-        this.sdk.show();
-        logger.info('✅ Guard弹窗已显示');
+        try {
+          logger.info('🔍 尝试显示Guard弹窗...');
+          console.log('🔍 Guard SDK实例:', this.sdk);
+          console.log('🔍 Guard SDK show方法:', typeof this.sdk.show);
+
+          this.sdk.show();
+          logger.info('✅ Guard弹窗show()方法调用成功');
+
+          // 检查弹窗是否真的显示了
+          setTimeout(() => {
+            const guardModal = document.querySelector('.authing-guard-modal, .guard-modal, [class*="guard"], [class*="authing"]');
+            if (guardModal) {
+              logger.info('✅ Guard弹窗DOM元素已找到');
+              console.log('🔍 Guard弹窗元素:', guardModal);
+            } else {
+              logger.error('❌ Guard弹窗DOM元素未找到');
+              console.log('🔍 页面所有模态框元素:', document.querySelectorAll('[class*="modal"], [class*="dialog"], [class*="popup"]'));
+            }
+          }, 500);
+
+        } catch (showError) {
+          logger.error('❌ Guard弹窗show()方法调用失败:', showError);
+          console.error('❌ Guard show()错误详情:', showError);
+        }
       }, 100); // 延迟100ms确保DOM准备就绪
 
       logger.info('✅ 登录流程启动完成');
