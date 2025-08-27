@@ -17,12 +17,22 @@ export const getOfficialAuthConfig = () => {
 
   // 🎯 [根本原因修复] 根据环境明确选择唯一正确的回调URL
   const getRedirectUri = () => {
-    // Vite会在开发模式下将 import.meta.env.DEV 设置为 true
-    if (import.meta.env.DEV) {
-      // 动态地从当前窗口位置构建回调URL，确保端口号总是正确的
-      return `${window.location.origin}/callback`;
+    // 🔧 强制根据当前域名选择正确的回调URL，避免多重URL问题
+    if (typeof window !== 'undefined') {
+      const { hostname, protocol, port } = window.location;
+
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return `${protocol}//${hostname}:${port || '5173'}/callback`;
+      } else if (hostname === 'wenpai.netlify.app') {
+        return 'https://wenpai.netlify.app/callback';
+      } else if (hostname === 'wenpai.xyz') {
+        return 'https://wenpai.xyz/callback';
+      } else if (hostname === 'www.wenpai.xyz') {
+        return 'https://www.wenpai.xyz/callback';
+      }
     }
-    // 生产环境和其他环境使用生产URL
+
+    // 默认回调URL（服务端渲染或无法获取window时）
     return 'https://www.wenpai.xyz/callback';
   };
 
