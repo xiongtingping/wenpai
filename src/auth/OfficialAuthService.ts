@@ -236,30 +236,59 @@ export class OfficialAuthService {
                     expectedY: centerY
                   });
 
-                  // 如果位置仍然不对，强制使用绝对定位
+                  // 如果位置仍然不对，使用终极解决方案：重新创建弹窗
                   if (Math.abs(newRect.y - centerY) > 100) {
-                    console.log('🚨 位置仍然错误，使用最终修复方案...');
+                    console.log('🚨 位置仍然错误，使用终极解决方案：重新创建弹窗...');
 
-                    // 移除所有可能的定位干扰
-                    modalElement.style.position = 'fixed';
-                    modalElement.style.top = '50%';
-                    modalElement.style.left = '50%';
-                    modalElement.style.transform = 'translate(-50%, -50%)';
-                    modalElement.style.margin = '0';
-                    modalElement.style.padding = '0';
-                    modalElement.style.zIndex = '999999';
+                    // 获取原弹窗的内容
+                    const originalContent = guardModal.innerHTML;
 
-                    // 强制重新计算布局
-                    modalElement.offsetHeight; // 触发重排
+                    // 移除原弹窗
+                    guardModal.remove();
 
-                    // 最后检查
+                    // 创建新的弹窗元素
+                    const newModal = document.createElement('div');
+                    newModal.className = 'authing-ant-modal-root';
+                    newModal.innerHTML = originalContent;
+
+                    // 设置完美的居中样式
+                    newModal.style.cssText = `
+                      position: fixed !important;
+                      top: 50% !important;
+                      left: 50% !important;
+                      transform: translate(-50%, -50%) !important;
+                      width: 400px !important;
+                      height: 300px !important;
+                      z-index: 999999 !important;
+                      background: white !important;
+                      border-radius: 8px !important;
+                      box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+                      display: block !important;
+                      visibility: visible !important;
+                      opacity: 1 !important;
+                      margin: 0 !important;
+                      padding: 20px !important;
+                    `;
+
+                    // 添加到页面
+                    document.body.appendChild(newModal);
+
+                    console.log('✅ 已重新创建Guard弹窗');
+
+                    // 验证新弹窗位置
                     setTimeout(() => {
-                      const finalRect = guardModal.getBoundingClientRect();
-                      console.log('🔍 最终位置:', {
-                        x: finalRect.x,
-                        y: finalRect.y,
-                        inViewport: finalRect.y >= 0 && finalRect.y <= window.innerHeight
+                      const newRect = newModal.getBoundingClientRect();
+                      console.log('🔍 重新创建后的位置:', {
+                        x: newRect.x,
+                        y: newRect.y,
+                        width: newRect.width,
+                        height: newRect.height,
+                        inViewport: newRect.y >= 0 && newRect.y <= window.innerHeight && newRect.x >= 0 && newRect.x <= window.innerWidth
                       });
+
+                      if (newRect.y >= 0 && newRect.y <= window.innerHeight) {
+                        console.log('🎉 弹窗终于正确显示在屏幕中央！');
+                      }
                     }, 100);
                   }
                 }, 100);
