@@ -72,6 +72,47 @@ export class OfficialAuthService {
             if (guardModal) {
               logger.info('✅ Guard弹窗DOM元素已找到');
               console.log('🔍 Guard弹窗元素:', guardModal);
+
+              // 🔍 关键调试：检查弹窗的CSS样式
+              const computedStyle = window.getComputedStyle(guardModal);
+              const styleInfo = {
+                display: computedStyle.display,
+                visibility: computedStyle.visibility,
+                opacity: computedStyle.opacity,
+                zIndex: computedStyle.zIndex,
+                position: computedStyle.position,
+                top: computedStyle.top,
+                left: computedStyle.left,
+                width: computedStyle.width,
+                height: computedStyle.height,
+                transform: computedStyle.transform
+              };
+
+              console.log('🔍 Guard弹窗CSS样式:', styleInfo);
+              logger.info('🔍 Guard弹窗样式详情:', JSON.stringify(styleInfo, null, 2));
+
+              // 🔧 如果弹窗被隐藏，尝试修复
+              if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden' || computedStyle.opacity === '0') {
+                logger.warn('⚠️ Guard弹窗被CSS隐藏，尝试修复...');
+                (guardModal as HTMLElement).style.display = 'block';
+                (guardModal as HTMLElement).style.visibility = 'visible';
+                (guardModal as HTMLElement).style.opacity = '1';
+                (guardModal as HTMLElement).style.zIndex = '9999';
+                logger.info('🔧 已尝试修复Guard弹窗CSS样式');
+              }
+
+              // 检查是否有遮罩层
+              const mask = document.querySelector('.authing-ant-modal-mask, .ant-modal-mask, [class*="mask"]');
+              if (mask) {
+                console.log('🔍 找到遮罩层:', mask);
+                const maskStyle = window.getComputedStyle(mask);
+                console.log('🔍 遮罩层样式:', {
+                  display: maskStyle.display,
+                  opacity: maskStyle.opacity,
+                  zIndex: maskStyle.zIndex
+                });
+              }
+
             } else {
               logger.error('❌ Guard弹窗DOM元素未找到');
               console.log('🔍 页面所有模态框元素:', document.querySelectorAll('[class*="modal"], [class*="dialog"], [class*="popup"]'));

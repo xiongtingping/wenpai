@@ -1696,6 +1696,45 @@
   outline-offset: 2px;
 }
 
+/* 🔧 Guard弹窗强制显示修复 */
+.authing-ant-modal-root,
+.authing-guard-modal,
+.guard-modal,
+[class*="authing"][class*="modal"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 9999 !important;
+  position: fixed !important;
+}
+
+/* Guard遮罩层修复 */
+.authing-ant-modal-mask,
+.ant-modal-mask,
+[class*="authing"][class*="mask"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 0.45 !important;
+  z-index: 9998 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: rgba(0, 0, 0, 0.45) !important;
+}
+
+/* 修复aria-hidden焦点冲突 */
+[aria-hidden="true"] {
+  pointer-events: none !important;
+}
+
+[aria-hidden="true"]:focus,
+[aria-hidden="true"] *:focus {
+  outline: none !important;
+  visibility: hidden !important;
+}
+
 /* 滚动条美化 */
 ::-webkit-scrollbar {
   width: 8px;
