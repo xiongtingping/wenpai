@@ -63,8 +63,36 @@ export class OfficialAuthService {
           console.log('🔍 Guard SDK实例:', this.sdk);
           console.log('🔍 Guard SDK show方法:', typeof this.sdk.show);
 
-          this.sdk.show();
-          logger.info('✅ Guard弹窗show()方法调用成功');
+          // 🔍 详细诊断Guard SDK状态
+          console.log('🔍 Guard SDK详细状态:', {
+            visible: this.sdk.visible,
+            options: this.sdk.options,
+            publicConfig: this.sdk.publicConfig,
+            hasShow: typeof this.sdk.show === 'function',
+            hasHide: typeof this.sdk.hide === 'function',
+            hasOn: typeof this.sdk.on === 'function'
+          });
+
+          // 🔍 尝试调用show方法并捕获可能的错误
+          try {
+            console.log('🔍 开始调用Guard.show()...');
+            const showResult = this.sdk.show();
+            console.log('🔍 Guard.show()调用结果:', showResult);
+            logger.info('✅ Guard弹窗show()方法调用成功');
+
+            // 如果show返回Promise，等待它
+            if (showResult && typeof showResult.then === 'function') {
+              showResult.then((result: any) => {
+                console.log('✅ Guard.show() Promise resolved:', result);
+              }).catch((error: any) => {
+                console.error('❌ Guard.show() Promise rejected:', error);
+                logger.error('Guard.show() Promise失败:', error);
+              });
+            }
+          } catch (error) {
+            console.error('❌ Guard.show()调用异常:', error);
+            logger.error('Guard.show()调用失败:', error);
+          }
 
           // 检查弹窗是否真的显示了
           setTimeout(() => {
