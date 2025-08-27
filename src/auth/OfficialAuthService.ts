@@ -192,60 +192,91 @@ export class OfficialAuthService {
                 });
               }
 
-              // 🔧 最后的测试：创建一个简单的测试弹窗验证CSS是否工作
+              // 🔧 最终诊断：创建极简测试弹窗并检查页面环境
               setTimeout(() => {
-                const testModal = document.createElement('div');
-                testModal.id = 'guard-test-modal';
-                testModal.innerHTML = `
-                  <div style="
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    width: 400px;
-                    height: 300px;
-                    background: white;
-                    border: 2px solid #1890ff;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                    z-index: 10000;
-                    padding: 20px;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                  ">
-                    <h2 style="color: #1890ff; margin-bottom: 20px;">Guard弹窗测试</h2>
-                    <p style="color: #666; text-align: center; margin-bottom: 20px;">
-                      如果您能看到这个测试弹窗，说明CSS工作正常，<br>
-                      问题可能在Guard弹窗的内容或结构上。
-                    </p>
-                    <button onclick="document.getElementById('guard-test-modal').remove()"
-                            style="
-                              background: #1890ff;
-                              color: white;
-                              border: none;
-                              padding: 8px 16px;
-                              border-radius: 4px;
-                              cursor: pointer;
-                            ">
-                      关闭测试弹窗
-                    </button>
-                  </div>
+                console.log('🔍 开始最终诊断...');
+
+                // 检查页面基本环境
+                const pageInfo = {
+                  bodyOverflow: document.body.style.overflow,
+                  htmlOverflow: document.documentElement.style.overflow,
+                  bodyPosition: window.getComputedStyle(document.body).position,
+                  bodyZIndex: window.getComputedStyle(document.body).zIndex,
+                  viewportWidth: window.innerWidth,
+                  viewportHeight: window.innerHeight,
+                  scrollTop: window.scrollY,
+                  scrollLeft: window.scrollX
+                };
+
+                console.log('🔍 页面环境信息:', pageInfo);
+
+                // 创建最简单的红色方块测试
+                const simpleTest = document.createElement('div');
+                simpleTest.id = 'simple-test-block';
+                simpleTest.style.cssText = `
+                  position: fixed !important;
+                  top: 100px !important;
+                  left: 100px !important;
+                  width: 200px !important;
+                  height: 200px !important;
+                  background: red !important;
+                  z-index: 99999 !important;
+                  border: 5px solid yellow !important;
+                  opacity: 1 !important;
+                  visibility: visible !important;
+                  display: block !important;
+                  pointer-events: auto !important;
                 `;
-                document.body.appendChild(testModal);
+                simpleTest.innerHTML = '<div style="color: white; font-size: 20px; text-align: center; line-height: 200px;">测试方块</div>';
 
-                console.log('🧪 已创建测试弹窗，如果能看到说明CSS工作正常');
-                logger.info('🧪 测试弹窗已创建，用于验证弹窗显示机制');
+                document.body.appendChild(simpleTest);
+                console.log('🔴 已创建红色测试方块，应该在左上角可见');
 
-                // 5秒后自动移除测试弹窗
+                // 检查是否真的添加到DOM
                 setTimeout(() => {
-                  const testEl = document.getElementById('guard-test-modal');
+                  const addedElement = document.getElementById('simple-test-block');
+                  if (addedElement) {
+                    const rect = addedElement.getBoundingClientRect();
+                    console.log('🔍 红色方块位置:', {
+                      exists: true,
+                      x: rect.x,
+                      y: rect.y,
+                      width: rect.width,
+                      height: rect.height,
+                      computedStyle: {
+                        display: window.getComputedStyle(addedElement).display,
+                        visibility: window.getComputedStyle(addedElement).visibility,
+                        opacity: window.getComputedStyle(addedElement).opacity,
+                        zIndex: window.getComputedStyle(addedElement).zIndex
+                      }
+                    });
+
+                    // 如果还是看不到，尝试直接修改body
+                    if (rect.width === 0 || rect.height === 0) {
+                      console.log('🚨 连简单方块都无法显示，可能是页面级别的问题');
+
+                      // 尝试清除可能的干扰样式
+                      document.body.style.overflow = 'visible';
+                      document.documentElement.style.overflow = 'visible';
+
+                      // 创建alert作为最后的测试
+                      setTimeout(() => {
+                        alert('如果您能看到这个alert，说明JavaScript工作正常，但CSS弹窗被阻止了');
+                      }, 1000);
+                    }
+                  } else {
+                    console.log('🚨 连DOM元素都无法添加，可能是JavaScript执行环境问题');
+                  }
+                }, 500);
+
+                // 10秒后清理
+                setTimeout(() => {
+                  const testEl = document.getElementById('simple-test-block');
                   if (testEl) {
                     testEl.remove();
-                    console.log('🧪 测试弹窗已自动移除');
+                    console.log('🔴 红色测试方块已移除');
                   }
-                }, 5000);
+                }, 10000);
               }, 1000);
 
             } else {
