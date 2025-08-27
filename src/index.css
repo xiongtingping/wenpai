@@ -1704,7 +1704,7 @@
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
-  z-index: 9999 !important;
+  z-index: 99999 !important;
   position: fixed !important;
   /* 🎯 关键修复：强制设置尺寸，解决width: 0, height: 0问题 */
   width: auto !important;
@@ -1713,12 +1713,17 @@
   min-height: 300px !important;
   max-width: 90vw !important;
   max-height: 90vh !important;
-  /* 强制居中 */
-  top: 50% !important;
-  left: 50% !important;
+  /* 🚨 关键修复：强制正确的屏幕坐标，解决y: -6419问题 */
+  top: 50vh !important;
+  left: 50vw !important;
   transform: translate(-50%, -50%) !important;
+  /* 强制重置可能的偏移 */
+  margin: 0 !important;
+  padding: 0 !important;
   /* 确保内容可见 */
   overflow: visible !important;
+  /* 防止被其他元素影响 */
+  contain: none !important;
 }
 
 /* Guard弹窗内容区域修复 */

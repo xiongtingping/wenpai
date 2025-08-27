@@ -123,15 +123,15 @@ export class OfficialAuthService {
                 innerHTML: innerHTML.substring(0, 200) + (innerHTML.length > 200 ? '...' : '')
               });
 
-              // 🔧 关键修复：强制修复尺寸为0的问题
-              if (!positionInfo.inViewport || rect.width === 0 || rect.height === 0) {
+              // 🔧 关键修复：强制修复坐标偏移问题 (y: -6419)
+              if (!positionInfo.inViewport || rect.width === 0 || rect.height === 0 || rect.y < 0 || rect.x < 0) {
                 logger.warn('⚠️ Guard弹窗位置或尺寸异常，强制修复...');
 
-                // 强制设置弹窗样式
+                // 🚨 关键修复：强制设置正确的屏幕坐标
                 const modalElement = guardModal as HTMLElement;
                 modalElement.style.position = 'fixed';
-                modalElement.style.top = '50%';
-                modalElement.style.left = '50%';
+                modalElement.style.top = '50vh';  // 使用vh单位确保在视口内
+                modalElement.style.left = '50vw'; // 使用vw单位确保在视口内
                 modalElement.style.transform = 'translate(-50%, -50%)';
                 modalElement.style.width = 'auto';
                 modalElement.style.height = 'auto';
@@ -139,11 +139,15 @@ export class OfficialAuthService {
                 modalElement.style.minHeight = '300px';
                 modalElement.style.maxWidth = '90vw';
                 modalElement.style.maxHeight = '90vh';
-                modalElement.style.zIndex = '10000';
+                modalElement.style.zIndex = '99999';
                 modalElement.style.background = 'white';
                 modalElement.style.borderRadius = '8px';
                 modalElement.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
                 modalElement.style.overflow = 'visible';
+                // 🔧 强制重置可能导致坐标偏移的属性
+                modalElement.style.margin = '0';
+                modalElement.style.padding = '0';
+                modalElement.style.contain = 'none';
 
                 // 修复内部元素
                 const innerElements = modalElement.querySelectorAll('div');
