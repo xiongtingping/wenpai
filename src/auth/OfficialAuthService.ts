@@ -127,11 +127,22 @@ export class OfficialAuthService {
               if (!positionInfo.inViewport || rect.width === 0 || rect.height === 0 || rect.y < 0 || rect.x < 0) {
                 logger.warn('⚠️ Guard弹窗位置或尺寸异常，强制修复...');
 
-                // 🚨 关键修复：强制设置正确的屏幕坐标
+                // 🚨 关键修复：精确计算屏幕中央位置
                 const modalElement = guardModal as HTMLElement;
+
+                // 获取视口尺寸
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                // 计算真正的中央位置
+                const centerX = viewportWidth / 2;
+                const centerY = viewportHeight / 2;
+
+                console.log('🔍 视口信息:', { viewportWidth, viewportHeight, centerX, centerY });
+
                 modalElement.style.position = 'fixed';
-                modalElement.style.top = '50vh';  // 使用vh单位确保在视口内
-                modalElement.style.left = '50vw'; // 使用vw单位确保在视口内
+                modalElement.style.top = `${centerY}px`;  // 使用精确的像素值
+                modalElement.style.left = `${centerX}px`; // 使用精确的像素值
                 modalElement.style.transform = 'translate(-50%, -50%)';
                 modalElement.style.width = 'auto';
                 modalElement.style.height = 'auto';

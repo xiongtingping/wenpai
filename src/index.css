@@ -1713,10 +1713,12 @@
   min-height: 300px !important;
   max-width: 90vw !important;
   max-height: 90vh !important;
-  /* 🚨 关键修复：强制正确的屏幕坐标，解决y: -6419问题 */
-  top: 50vh !important;
-  left: 50vw !important;
+  /* 🚨 关键修复：强制真正的屏幕中央定位 */
+  top: 50% !important;
+  left: 50% !important;
   transform: translate(-50%, -50%) !important;
+  /* 确保基于视口定位，不受页面滚动影响 */
+  position: fixed !important;
   /* 强制重置可能的偏移 */
   margin: 0 !important;
   padding: 0 !important;
