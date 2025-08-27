@@ -196,91 +196,43 @@ export class OfficialAuthService {
                 });
               }
 
-              // 🔧 最终诊断：创建极简测试弹窗并检查页面环境
+              // 🎯 专注于Guard弹窗：现在位置正确，检查内容是否可见
               setTimeout(() => {
-                console.log('🔍 开始最终诊断...');
+                console.log('🔍 Guard弹窗位置已修复，检查内容可见性...');
 
-                // 检查页面基本环境
-                const pageInfo = {
-                  bodyOverflow: document.body.style.overflow,
-                  htmlOverflow: document.documentElement.style.overflow,
-                  bodyPosition: window.getComputedStyle(document.body).position,
-                  bodyZIndex: window.getComputedStyle(document.body).zIndex,
-                  viewportWidth: window.innerWidth,
-                  viewportHeight: window.innerHeight,
-                  scrollTop: window.scrollY,
-                  scrollLeft: window.scrollX
-                };
+                // 检查Guard弹窗的内部结构
+                const guardContent = guardModal.querySelector('.ant-modal-content, .authing-ant-modal-content, .modal-content');
+                if (guardContent) {
+                  const contentStyle = window.getComputedStyle(guardContent);
+                  console.log('🔍 Guard弹窗内容样式:', {
+                    display: contentStyle.display,
+                    visibility: contentStyle.visibility,
+                    opacity: contentStyle.opacity,
+                    width: contentStyle.width,
+                    height: contentStyle.height,
+                    background: contentStyle.background
+                  });
 
-                console.log('🔍 页面环境信息:', pageInfo);
+                  // 强制设置内容可见
+                  (guardContent as HTMLElement).style.display = 'block';
+                  (guardContent as HTMLElement).style.visibility = 'visible';
+                  (guardContent as HTMLElement).style.opacity = '1';
+                  (guardContent as HTMLElement).style.background = 'white';
+                  (guardContent as HTMLElement).style.minHeight = '300px';
 
-                // 创建最简单的红色方块测试
-                const simpleTest = document.createElement('div');
-                simpleTest.id = 'simple-test-block';
-                simpleTest.style.cssText = `
-                  position: fixed !important;
-                  top: 100px !important;
-                  left: 100px !important;
-                  width: 200px !important;
-                  height: 200px !important;
-                  background: red !important;
-                  z-index: 99999 !important;
-                  border: 5px solid yellow !important;
-                  opacity: 1 !important;
-                  visibility: visible !important;
-                  display: block !important;
-                  pointer-events: auto !important;
-                `;
-                simpleTest.innerHTML = '<div style="color: white; font-size: 20px; text-align: center; line-height: 200px;">测试方块</div>';
+                  console.log('🔧 已强制设置Guard弹窗内容可见');
+                } else {
+                  console.log('⚠️ 未找到Guard弹窗内容元素');
+                  console.log('🔍 Guard弹窗内部HTML:', guardModal.innerHTML.substring(0, 500));
+                }
 
-                document.body.appendChild(simpleTest);
-                console.log('🔴 已创建红色测试方块，应该在左上角可见');
-
-                // 检查是否真的添加到DOM
-                setTimeout(() => {
-                  const addedElement = document.getElementById('simple-test-block');
-                  if (addedElement) {
-                    const rect = addedElement.getBoundingClientRect();
-                    console.log('🔍 红色方块位置:', {
-                      exists: true,
-                      x: rect.x,
-                      y: rect.y,
-                      width: rect.width,
-                      height: rect.height,
-                      computedStyle: {
-                        display: window.getComputedStyle(addedElement).display,
-                        visibility: window.getComputedStyle(addedElement).visibility,
-                        opacity: window.getComputedStyle(addedElement).opacity,
-                        zIndex: window.getComputedStyle(addedElement).zIndex
-                      }
-                    });
-
-                    // 如果还是看不到，尝试直接修改body
-                    if (rect.width === 0 || rect.height === 0) {
-                      console.log('🚨 连简单方块都无法显示，可能是页面级别的问题');
-
-                      // 尝试清除可能的干扰样式
-                      document.body.style.overflow = 'visible';
-                      document.documentElement.style.overflow = 'visible';
-
-                      // 创建alert作为最后的测试
-                      setTimeout(() => {
-                        alert('如果您能看到这个alert，说明JavaScript工作正常，但CSS弹窗被阻止了');
-                      }, 1000);
-                    }
-                  } else {
-                    console.log('🚨 连DOM元素都无法添加，可能是JavaScript执行环境问题');
-                  }
-                }, 500);
-
-                // 10秒后清理
-                setTimeout(() => {
-                  const testEl = document.getElementById('simple-test-block');
-                  if (testEl) {
-                    testEl.remove();
-                    console.log('🔴 红色测试方块已移除');
-                  }
-                }, 10000);
+                // 检查是否有其他遮挡元素
+                const elementsAtCenter = document.elementsFromPoint(window.innerWidth / 2, window.innerHeight / 2);
+                console.log('🔍 屏幕中央的元素:', elementsAtCenter.map(el => ({
+                  tagName: el.tagName,
+                  className: el.className,
+                  id: el.id
+                })));
               }, 1000);
 
             } else {
