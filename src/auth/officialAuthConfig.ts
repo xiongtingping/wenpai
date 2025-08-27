@@ -108,12 +108,13 @@ export function createOfficialAuthSDK(): Guard {
     // 🔧 根因修复：使用正确的Guard配置
     console.log('🎯 使用正确的Guard配置，避免技术债务');
 
-    // 🔧 根因修复：使用正确的host配置格式
+    // 🔧 根因修复：使用redirect模式以支持handleRedirectCallback()方法
+    // modal模式不支持handleRedirectCallback()，需要使用redirect模式
     const guard = new Guard({
       appId: config.appId,
       host: `https://${config.domain}`, // ✅ 提供完整的URL格式
       redirectUri: config.redirectUri,
-      mode: 'modal'
+      mode: 'redirect' // ✅ 修复：使用redirect模式支持回调处理
     });
 
     console.log('✅ Guard实例创建成功');

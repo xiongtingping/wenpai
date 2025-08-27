@@ -52,16 +52,18 @@ export class OfficialAuthService {
       console.log('🔍 OfficialAuthService.login()被调用!');
       logger.info('🚀 开始官方Guard登录流程...');
 
-      // 🎯 [兼容性修复] 由于弹窗模式存在渲染冲突，永久切换到备用登录方案
-      this.fallbackLogin();
+      // 🎯 根因修复：使用redirect模式的startWithRedirect()方法
+      logger.info('🔍 使用redirect模式启动登录...');
+      this.sdk.startWithRedirect();
 
-      logger.info('✅ 官方Guard登录窗口已打开');
+      logger.info('✅ 登录流程完成');
     } catch (error) {
       console.error('❌ Guard启动失败:', error);
       logger.error('❌ 官方Guard登录失败:', error);
 
-      // 🔧 简化错误处理，直接抛出错误让上层处理
-      throw new Error(`登录失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      // 🔧 如果Guard方法失败，使用备用登录方案
+      logger.info('🔄 Guard方法失败，使用备用登录方案...');
+      this.fallbackLogin();
     }
   }
 
@@ -111,8 +113,9 @@ export class OfficialAuthService {
         throw new Error('缺少必要的回调参数');
       }
 
-      // 🎯 根据@authing/guard官方文档，使用 handleRedirectCallback() 方法
-      logger.info('🔍 使用官方 handleRedirectCallback() 方法处理回调...');
+      // 🎯 根因修复：使用redirect模式的官方handleRedirectCallback()方法
+      // 现在Guard配置为redirect模式，可以正确使用handleRedirectCallback()
+      logger.info('🔍 使用官方 handleRedirectCallback() 方法处理redirect模式回调...');
 
       try {
         // 调用Guard官方的回调处理方法
