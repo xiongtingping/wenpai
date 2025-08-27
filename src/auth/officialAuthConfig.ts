@@ -108,11 +108,11 @@ export function createOfficialAuthSDK(): Guard {
     // 🔧 根因修复：使用正确的Guard配置
     console.log('🎯 使用正确的Guard配置，避免技术债务');
 
-    // 🔧 根因修复：移除Guard SDK不支持的配置参数
-    // 根据官方文档，Guard只支持: appId, host, redirectUri, mode, defaultScene, tenantId, lang, isSSO, config
+    // 🔧 根因修复：Guard SDK的host参数应该是应用特定的URL
+    // 认证地址应该是：https://rzcswqs4sq0f.authing.cn/68a68a29d0c3341ae7a3df23
     const guard = new Guard({
       appId: config.appId,
-      host: `https://${config.domain}`, // ✅ 提供完整的URL格式
+      host: `https://${config.domain}/${config.appId}`, // ✅ 修复：使用应用特定的URL
       redirectUri: config.redirectUri,
       mode: 'redirect' // ✅ 修复：使用redirect模式支持回调处理
     });

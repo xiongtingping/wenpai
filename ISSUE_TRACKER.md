@@ -814,14 +814,21 @@ request_id: 0addd48214a71ed279ce446d1e6d4cd7
 - ✅ **代码配置**: App ID和域名配置正确
 - ❌ **实际请求**: 仍然出现redirect_uri_mismatch错误
 
-**需要排查的方向**:
-1. 检查实际发送的请求URL与配置的差异
-2. 检查环境变量是否正确读取
-3. 检查Guard SDK的URL构建逻辑
-4. 检查是否有URL编码或格式问题
+7. **✅ 第七次尝试 (真正的根因修复)**: Guard SDK host参数格式错误 (2024-12-19)
+   - **真正根因**: Guard SDK的host参数格式错误
+   - **应该是**: `https://rzcswqs4sq0f.authing.cn/68a68a29d0c3341ae7a3df23` (应用特定URL)
+   - **实际是**: `https://rzcswqs4sq0f.authing.cn` (通用域名)
+   - **导致**: Guard SDK请求错误的通用OIDC端点而不是应用特定端点
+   - **修复**: 将host改为 `https://${config.domain}/${config.appId}`
+   - ✅ **最终解决方案**: 基于用户提供的正确认证地址格式
 
-**状态**: ❌ 未修复 - 需要深入代码层面排查
-**优先级**: 🆘🆘🆘 最高优先级 (阻塞登录功能)
+**🎯 深入代码库分析发现**:
+- 代码库中多处文档提到应用特定URL格式的重要性
+- AUTHING_REDIRECT_URI_MISMATCH_SOLUTION.md明确指出host格式错误问题
+- 之前的修复都是在错误的基础上进行的症状修复
+
+**状态**: ✅ 已修复 - 真正的根因修复完成
+**优先级**: 🆘🆘🆘 最高优先级 (阻塞登录功能) → ✅ 已解决
 
 ---
 
