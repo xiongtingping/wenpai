@@ -14,6 +14,40 @@ const CallbackPage: React.FC = () => {
 
   useEffect(() => {
     const handleCallback = async () => {
+      // 🚨 紧急修复：检测并处理多重回调URL问题
+      const currentUrl = window.location.href;
+      const hasMultipleUrls = currentUrl.includes('%20%20http') || currentUrl.includes(' http');
+
+      if (hasMultipleUrls) {
+        logger.warn('🔧 检测到多重回调URL，正在修复...', currentUrl);
+
+        // 提取查询参数
+        const urlObj = new URL(currentUrl);
+        const params = new URLSearchParams(urlObj.search);
+
+        // 获取当前正确的回调URL
+        const { hostname, protocol, port } = window.location;
+        let correctCallbackUrl: string;
+
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+          correctCallbackUrl = `${protocol}//${hostname}:${port || '5173'}/callback`;
+        } else if (hostname === 'wenpai.netlify.app') {
+          correctCallbackUrl = 'https://wenpai.netlify.app/callback';
+        } else if (hostname === 'wenpai.xyz') {
+          correctCallbackUrl = 'https://wenpai.xyz/callback';
+        } else {
+          correctCallbackUrl = 'https://www.wenpai.xyz/callback';
+        }
+
+        // 重建正确的URL
+        const cleanedUrl = correctCallbackUrl + '?' + params.toString();
+        logger.info('🔄 重定向到清理后的URL:', cleanedUrl);
+
+        // 使用replace避免在历史记录中留下错误URL
+        window.location.replace(cleanedUrl);
+        return;
+      }
+
       // 🔧 修复：检查是否是跨域回调（从生产域名回调到localhost）
       const urlParams = new URLSearchParams(window.location.search);
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
