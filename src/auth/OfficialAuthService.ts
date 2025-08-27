@@ -197,14 +197,43 @@ export class OfficialAuthService {
 
                 console.log('🔧 已修复焦点劫持问题');
 
-                // 再次检查修复效果
+                // 🚨 最终强制修复：如果位置仍然错误，使用绝对定位
                 setTimeout(() => {
                   const newRect = guardModal.getBoundingClientRect();
                   console.log('🔍 修复后的弹窗尺寸:', {
                     width: newRect.width,
                     height: newRect.height,
-                    visible: newRect.width > 0 && newRect.height > 0
+                    visible: newRect.width > 0 && newRect.height > 0,
+                    actualY: newRect.y,
+                    expectedY: centerY
                   });
+
+                  // 如果位置仍然不对，强制使用绝对定位
+                  if (Math.abs(newRect.y - centerY) > 100) {
+                    console.log('🚨 位置仍然错误，使用最终修复方案...');
+
+                    // 移除所有可能的定位干扰
+                    modalElement.style.position = 'fixed';
+                    modalElement.style.top = '50%';
+                    modalElement.style.left = '50%';
+                    modalElement.style.transform = 'translate(-50%, -50%)';
+                    modalElement.style.margin = '0';
+                    modalElement.style.padding = '0';
+                    modalElement.style.zIndex = '999999';
+
+                    // 强制重新计算布局
+                    modalElement.offsetHeight; // 触发重排
+
+                    // 最后检查
+                    setTimeout(() => {
+                      const finalRect = guardModal.getBoundingClientRect();
+                      console.log('🔍 最终位置:', {
+                        x: finalRect.x,
+                        y: finalRect.y,
+                        inViewport: finalRect.y >= 0 && finalRect.y <= window.innerHeight
+                      });
+                    }, 100);
+                  }
                 }, 100);
               }
 
