@@ -111,63 +111,91 @@ export class OfficialAuthService {
         throw new Error('缺少必要的回调参数');
       }
 
-      // 🎯 根据@authing/guard官方文档，使用事件监听方式处理回调
-      // Guard SDK应该通过事件监听来处理登录成功，而不是直接调用API
-      return new Promise((resolve, reject) => {
-        // 设置超时处理
-        const timeout = setTimeout(() => {
-          reject(new Error('回调处理超时'));
-        }, 10000);
+      // 🎯 根据@authing/guard官方文档，使用 handleRedirectCallback() 方法
+      logger.info('🔍 使用官方 handleRedirectCallback() 方法处理回调...');
 
-        // 监听登录成功事件
-        this.sdk.on('login', (userInfo: any) => {
-          clearTimeout(timeout);
+      try {
+        // 调用Guard官方的回调处理方法
+        const userInfo = await this.sdk.handleRedirectCallback();
 
-          if (userInfo) {
+        if (userInfo) {
+          const user: AuthUser = {
+            id: userInfo.sub || userInfo.id || 'unknown',
+            nickname: userInfo.nickname || userInfo.name || 'User',
+            name: userInfo.name || userInfo.nickname || 'User',
+            username: userInfo.username || userInfo.email || 'user',
+            email: userInfo.email || '',
+            avatar: userInfo.picture || userInfo.avatar || '',
+            phone: userInfo.phone_number || ''
+          };
+
+          this.currentUser = user;
+          localStorage.setItem('auth_user', JSON.stringify(user));
+
+          logger.info('✅ 官方SDK回调处理成功:', {
+            hasUser: !!user,
+            userId: user.id,
+            userName: user.nickname || user.name
+          });
+
+          return user;
+        } else {
+          throw new Error('回调处理返回空用户信息');
+        }
+      } catch (handleError) {
+        logger.error('❌ handleRedirectCallback 失败:', handleError);
+
+        // 🔧 备用方案：如果官方方法失败，尝试手动处理token交换
+        logger.info('🔄 尝试备用方案：手动token交换...');
+
+        try {
+          const tokenResponse = await fetch('/api/auth/token-exchange', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              code,
+              state,
+              original_redirect_uri: window.location.origin + '/callback'
+            })
+          });
+
+          if (!tokenResponse.ok) {
+            throw new Error(`Token交换失败: ${tokenResponse.status}`);
+          }
+
+          const tokenData = await tokenResponse.json();
+
+          if (tokenData.user) {
             const user: AuthUser = {
-              id: userInfo.sub || userInfo.id || 'unknown',
-              nickname: userInfo.nickname || userInfo.name || 'User',
-              name: userInfo.name || userInfo.nickname || 'User',
-              username: userInfo.username || userInfo.email || 'user',
-              email: userInfo.email || '',
-              avatar: userInfo.picture || userInfo.avatar || '',
-              phone: userInfo.phone_number || ''
+              id: tokenData.user.sub || tokenData.user.id || 'unknown',
+              nickname: tokenData.user.nickname || tokenData.user.name || 'User',
+              name: tokenData.user.name || tokenData.user.nickname || 'User',
+              username: tokenData.user.username || tokenData.user.email || 'user',
+              email: tokenData.user.email || '',
+              avatar: tokenData.user.picture || tokenData.user.avatar || '',
+              phone: tokenData.user.phone_number || ''
             };
 
             this.currentUser = user;
             localStorage.setItem('auth_user', JSON.stringify(user));
 
-            logger.info('✅ 官方SDK回调处理成功:', {
+            logger.info('✅ 备用方案token交换成功:', {
               hasUser: !!user,
               userId: user.id,
               userName: user.nickname || user.name
             });
 
-            resolve(user);
+            return user;
           } else {
-            reject(new Error('获取用户信息失败'));
+            throw new Error('Token交换返回空用户信息');
           }
-        });
-
-        // 监听登录错误事件
-        this.sdk.on('login-error', (error: any) => {
-          clearTimeout(timeout);
-          logger.error('❌ Guard登录错误:', error);
-          reject(new Error(`登录失败: ${error.message || '未知错误'}`));
-        });
-
-        // 尝试处理当前URL的回调
-        try {
-          // 对于已经在回调页面的情况，直接触发Guard的回调处理
-          if (window.location.pathname.includes('/callback')) {
-            // Guard会自动检测URL参数并触发相应事件
-            logger.info('🔍 检测到回调URL，等待Guard自动处理...');
-          }
-        } catch (initError) {
-          clearTimeout(timeout);
-          reject(initError);
+        } catch (tokenError) {
+          logger.error('❌ 备用方案token交换也失败:', tokenError);
+          throw new Error(`回调处理完全失败: ${handleError.message}`);
         }
-      });
+      }
     } catch (error) {
       logger.error('❌ 官方SDK回调处理失败:', error);
       throw error;
