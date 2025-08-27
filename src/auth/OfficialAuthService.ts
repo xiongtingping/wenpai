@@ -174,6 +174,29 @@ export class OfficialAuthService {
 
                 logger.info('🔧 已强制修复Guard弹窗尺寸和位置');
 
+                // 🚨 关键修复：防止焦点劫持和页面跳转
+                // 阻止页面滚动到底部
+                document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
+
+                // 强制滚动回顶部
+                window.scrollTo(0, 0);
+
+                // 移除可能导致焦点问题的aria-hidden元素
+                const ariaHiddenElements = document.querySelectorAll('[aria-hidden="true"]');
+                ariaHiddenElements.forEach(el => {
+                  if (el.getAttribute('tabindex') === '0') {
+                    (el as HTMLElement).style.display = 'none';
+                    console.log('🔧 隐藏了导致焦点冲突的元素:', el);
+                  }
+                });
+
+                // 强制弹窗获得焦点
+                modalElement.focus();
+                modalElement.setAttribute('tabindex', '0');
+
+                console.log('🔧 已修复焦点劫持问题');
+
                 // 再次检查修复效果
                 setTimeout(() => {
                   const newRect = guardModal.getBoundingClientRect();

@@ -1794,6 +1794,31 @@
   visibility: hidden !important;
 }
 
+/* 🚨 强制隐藏导致焦点冲突的元素 */
+[aria-hidden="true"][tabindex="0"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* 🎯 Guard弹窗最高优先级显示 */
+.authing-ant-modal-root {
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+}
+
+/* 防止页面滚动时弹窗消失 */
+body.modal-open,
+html.modal-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /* 滚动条美化 */
 ::-webkit-scrollbar {
   width: 8px;
