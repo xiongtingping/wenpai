@@ -108,14 +108,27 @@ export function createOfficialAuthSDK(): Guard {
     // 🔧 根因修复：使用正确的Guard配置
     console.log('🎯 使用正确的Guard配置，避免技术债务');
 
-    // 🔧 根因修复：基于官方文档和solution文档的正确配置
-    // 官方示例: host: 'https://guard-test-2022.authing.cn' (不包含appId)
-    // 成功配置: host: 'https://rzcswqs4sq0f.authing.cn', mode: 'modal'
+    // 🔧 根因修复：基于solution文档的完整Guard配置
+    // 参考AUTHING_SUCCESS_BACKUP_2025-07-25.md中的成功配置
     const guard = new Guard({
       appId: config.appId,
       host: `https://${config.domain}`, // ✅ 修复：使用官方文档格式，不包含appId
       redirectUri: config.redirectUri,
-      mode: 'modal' // ✅ 修复：使用成功配置中的modal模式
+      mode: 'modal', // ✅ 修复：使用成功配置中的modal模式
+      // 🎯 关键修复：添加完整的UI配置，防止焦点管理问题
+      lang: 'zh-CN',
+      autoFocus: false, // 防止自动焦点导致页面跳转
+      escCloseable: true,
+      clickCloseable: true,
+      maskCloseable: true,
+      // 🔧 防止aria-hidden冲突的配置
+      config: {
+        autoRegister: false,
+        skipComplateFileds: false,
+        closeable: true,
+        clickCloseableMask: true,
+        title: '文派登录'
+      }
     });
 
     console.log('✅ Guard实例创建成功');

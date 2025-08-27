@@ -279,15 +279,19 @@ export const FeaturesSection: React.FC = () => {
                   <Button 
                     variant="outline" 
                     className={`w-full border-2 ${feature.borderColor} hover:bg-gradient-to-r ${feature.hoverColor} transition-all duration-300 group-hover:shadow-md`}
-                    onClick={() => {
+                    onClick={(event) => {
                       console.log('功能区按钮被点击:', feature.title, feature.path);
                       console.log('当前认证状态:', isAuthenticated);
                       
                       // 修复跳转逻辑：直接使用login方法
                       if (isAuthenticated) {
-                        console.log('用户已登录，直接跳转到:', feature.path);                   navigate(feature.path);
+                        console.log('用户已登录，直接跳转到:', feature.path);
+                        navigate(feature.path);
                       } else {
                         console.log('用户未登录，直接弹出Authing Guard弹窗');
+                        // 🔧 防止页面跳转到底部的修复
+                        event.preventDefault();
+                        event.stopPropagation();
                         login(feature.path);
                       }
                     }}

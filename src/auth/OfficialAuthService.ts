@@ -54,9 +54,15 @@ export class OfficialAuthService {
 
       // 🎯 根因修复：使用modal模式的show()方法
       logger.info('🔍 使用modal模式启动登录...');
-      this.sdk.show();
 
-      logger.info('✅ 登录流程完成');
+      // 🔧 防止页面滚动问题的修复
+      // 确保Guard弹窗正确显示，不会导致页面跳转
+      setTimeout(() => {
+        this.sdk.show();
+        logger.info('✅ Guard弹窗已显示');
+      }, 100); // 延迟100ms确保DOM准备就绪
+
+      logger.info('✅ 登录流程启动完成');
     } catch (error) {
       console.error('❌ Guard启动失败:', error);
       logger.error('❌ 官方Guard登录失败:', error);
