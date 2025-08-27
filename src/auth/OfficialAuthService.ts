@@ -91,6 +91,52 @@ export class OfficialAuthService {
               console.log('🔍 Guard弹窗CSS样式:', styleInfo);
               logger.info('🔍 Guard弹窗样式详情:', JSON.stringify(styleInfo, null, 2));
 
+              // 🔍 检查弹窗的实际位置和尺寸
+              const rect = guardModal.getBoundingClientRect();
+              const positionInfo = {
+                x: rect.x,
+                y: rect.y,
+                width: rect.width,
+                height: rect.height,
+                top: rect.top,
+                left: rect.left,
+                right: rect.right,
+                bottom: rect.bottom,
+                inViewport: rect.top >= 0 && rect.left >= 0 && rect.bottom <= window.innerHeight && rect.right <= window.innerWidth
+              };
+
+              console.log('🔍 Guard弹窗位置信息:', positionInfo);
+              logger.info('🔍 Guard弹窗位置详情:', JSON.stringify(positionInfo, null, 2));
+
+              // 🔍 检查弹窗内容
+              const innerHTML = guardModal.innerHTML;
+              const textContent = guardModal.textContent;
+              const childrenCount = guardModal.children.length;
+
+              console.log('🔍 Guard弹窗内容信息:', {
+                hasInnerHTML: innerHTML.length > 0,
+                hasTextContent: textContent && textContent.trim().length > 0,
+                childrenCount,
+                innerHTMLLength: innerHTML.length,
+                textContentLength: textContent ? textContent.length : 0,
+                firstChild: guardModal.firstElementChild?.tagName,
+                innerHTML: innerHTML.substring(0, 200) + (innerHTML.length > 200 ? '...' : '')
+              });
+
+              // 🔧 如果弹窗在屏幕外，强制移到中心
+              if (!positionInfo.inViewport || rect.width === 0 || rect.height === 0) {
+                logger.warn('⚠️ Guard弹窗位置异常，强制居中显示...');
+                (guardModal as HTMLElement).style.position = 'fixed';
+                (guardModal as HTMLElement).style.top = '50%';
+                (guardModal as HTMLElement).style.left = '50%';
+                (guardModal as HTMLElement).style.transform = 'translate(-50%, -50%)';
+                (guardModal as HTMLElement).style.width = 'auto';
+                (guardModal as HTMLElement).style.height = 'auto';
+                (guardModal as HTMLElement).style.minWidth = '400px';
+                (guardModal as HTMLElement).style.minHeight = '300px';
+                logger.info('🔧 已强制设置Guard弹窗居中位置');
+              }
+
               // 🔧 如果弹窗被隐藏，尝试修复
               if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden' || computedStyle.opacity === '0') {
                 logger.warn('⚠️ Guard弹窗被CSS隐藏，尝试修复...');
@@ -112,6 +158,62 @@ export class OfficialAuthService {
                   zIndex: maskStyle.zIndex
                 });
               }
+
+              // 🔧 最后的测试：创建一个简单的测试弹窗验证CSS是否工作
+              setTimeout(() => {
+                const testModal = document.createElement('div');
+                testModal.id = 'guard-test-modal';
+                testModal.innerHTML = `
+                  <div style="
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 400px;
+                    height: 300px;
+                    background: white;
+                    border: 2px solid #1890ff;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    z-index: 10000;
+                    padding: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                  ">
+                    <h2 style="color: #1890ff; margin-bottom: 20px;">Guard弹窗测试</h2>
+                    <p style="color: #666; text-align: center; margin-bottom: 20px;">
+                      如果您能看到这个测试弹窗，说明CSS工作正常，<br>
+                      问题可能在Guard弹窗的内容或结构上。
+                    </p>
+                    <button onclick="document.getElementById('guard-test-modal').remove()"
+                            style="
+                              background: #1890ff;
+                              color: white;
+                              border: none;
+                              padding: 8px 16px;
+                              border-radius: 4px;
+                              cursor: pointer;
+                            ">
+                      关闭测试弹窗
+                    </button>
+                  </div>
+                `;
+                document.body.appendChild(testModal);
+
+                console.log('🧪 已创建测试弹窗，如果能看到说明CSS工作正常');
+                logger.info('🧪 测试弹窗已创建，用于验证弹窗显示机制');
+
+                // 5秒后自动移除测试弹窗
+                setTimeout(() => {
+                  const testEl = document.getElementById('guard-test-modal');
+                  if (testEl) {
+                    testEl.remove();
+                    console.log('🧪 测试弹窗已自动移除');
+                  }
+                }, 5000);
+              }, 1000);
 
             } else {
               logger.error('❌ Guard弹窗DOM元素未找到');
