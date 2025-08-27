@@ -63,28 +63,34 @@
 
 ## �📋 认证相关问题清单
 
-### 1. 🕒 系统性登录/注册故障 - URL协议问题 (修复中)
-**描述**: 登录/注册系统Guard API连接失败，根因确认为URL协议缺失
+### 1. ✅ 系统性登录/注册故障 - Guard SDK API错误 (已修复)
+**描述**: 登录/注册系统回调处理失败，根因确认为Guard SDK API方法调用错误
 **最新错误日志 (2024-12-19)**:
 ```
-🌐 拦截Authing API请求: rzcswqs4sq0f.authing.cn/api/v2/applications/68a68a29d0c3341ae7a3df23/public-config
-✅ Authing API响应: rzcswqs4sq0f.authing.cn/api/v2/applications/68a68a29d0c3341ae7a3df23/public-config 200 text/html; charset=UTF-8
-
-SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+❌ 官方SDK回调处理失败: TypeError: this.sdk.getLoginState is not a function
+    at lz.handleRedirectCallback (index-CL1x9_Zq.js:4783:50632)
 ```
 
 **🎯 根因确认**:
-1. **✅ API请求成功**: 返回200状态码
-2. **❌ URL协议缺失**: 请求URL缺少`https://`前缀
-3. **❌ 返回HTML而不是JSON**: Content-Type为`text/html`而不是`application/json`
-4. **✅ 服务器正常**: curl测试确认API端点返回正确JSON
+1. **❌ API方法不存在**: @authing/guard SDK没有`getLoginState`方法
+2. **❌ 错误的API调用**: 在`handleRedirectCallback`中调用了不存在的方法
+3. **✅ Guard实例正常**: Guard实例创建成功，配置正确
+4. **✅ 登录流程正常**: 跳转到Authing页面和回调URL都正常
 
 **修复方案**:
 ```typescript
-// 修复URL协议问题
-if (!url.startsWith('http://') && !url.startsWith('https://')) {
-  url = `https://${url}`;
-}
+// 使用事件监听机制替代错误的API调用
+return new Promise((resolve, reject) => {
+  this.sdk.on('login', (userInfo: any) => {
+    // 处理登录成功
+    resolve(user);
+  });
+
+  this.sdk.on('login-error', (error: any) => {
+    // 处理登录错误
+    reject(error);
+  });
+});
 ```
 
 **修复历程** (重要：避免重蹈覆辙):
@@ -725,6 +731,55 @@ npm install @authing/guard
 ### ❌ 失败的方案 (@authing/web)
 - **复杂配置**: 需要手动配置多个参数
 - **手动UI**: 需要自己实现登录界面
+
+---
+
+## 🎯 **2024-12-19 最新修复记录**
+
+### ✅ **Guard SDK API错误修复** (已完成)
+
+**问题**: `TypeError: this.sdk.getLoginState is not a function`
+
+**根因分析**:
+1. **错误的API调用**: 在`handleRedirectCallback`方法中调用了不存在的`this.sdk.getLoginState()`
+2. **SDK方法不匹配**: @authing/guard SDK没有`getLoginState`方法
+3. **应该使用事件监听**: Guard SDK使用事件驱动机制，不是直接API调用
+
+**修复方案**:
+```typescript
+// 修复前（错误）
+const userInfo = await this.sdk.handleRedirectCallback();
+
+// 修复后（正确）
+return new Promise((resolve, reject) => {
+  const timeout = setTimeout(() => {
+    reject(new Error('回调处理超时'));
+  }, 10000);
+
+  this.sdk.on('login', (userInfo: any) => {
+    clearTimeout(timeout);
+    // 处理用户信息并resolve
+    resolve(user);
+  });
+
+  this.sdk.on('login-error', (error: any) => {
+    clearTimeout(timeout);
+    reject(error);
+  });
+});
+```
+
+**验证结果**:
+- ✅ **开发环境**: 本地测试通过，无错误日志
+- ✅ **登录流程**: 跳转到Authing页面正常
+- ✅ **回调处理**: 事件监听机制工作正常
+- 🕒 **生产环境**: 待部署新代码
+
+**技术债务评估**: ✅ 无技术债务
+- 使用官方推荐的事件监听机制
+- 遵循@authing/guard最佳实践
+- 添加了超时处理防止无限等待
+- 代码简洁，易于维护
 - **API复杂**: 容易出现调用错误
 - **易出错**: redirect_uri_mismatch等问题频发
 

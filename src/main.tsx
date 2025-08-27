@@ -4,6 +4,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
+import { OfficialAuthProvider } from './auth/OfficialAuthProvider';
+import OfficialAuthTest from './components/OfficialAuthTest';
 
 // 🛡️ 认证请求拦截器已集成到OfficialAuthProvider中
 
@@ -111,69 +113,21 @@ declare global {
   }
 }
 
-// 🚀 性能优化：批量DOM操作，减少回流
+// 🚀 性能优化：批量DOM操作，减少回流 (已禁用)
 const batchDOMUpdates = (callback: () => void) => {
-  // 使用 requestAnimationFrame 批量处理DOM更新
-  requestAnimationFrame(() => {
-    // 临时隐藏元素，避免中间状态的回流
-    document.body.style.visibility = 'hidden';
-    document.body.style.pointerEvents = 'none';
-    
-    callback();
-    
-    // 一次性显示所有更新
-    requestAnimationFrame(() => {
-      document.body.style.visibility = '';
-      document.body.style.pointerEvents = '';
-    });
-  });
+  callback();
 };
 
-// 🎯 监控并优化动态插入的元素
+// 🎯 监控并优化动态插入的元素 (已禁用)
 const optimizeDynamicElements = () => {
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      mutation.addedNodes.forEach((node) => {
-        if (node.nodeType === 1) { // Element node
-          const element = node as Element;
-          
-          // 针对Authing相关元素进行性能优化
-          if (element.id?.includes('authing') || 
-              (typeof element.className === 'string' && element.className.includes('authing')) ||
-              (element as HTMLElement).tagName === 'IFRAME' && 
-              (element as HTMLIFrameElement).src?.includes('authing')) {
-            
-            (element as HTMLElement).style.contain = 'strict';
-            (element as HTMLElement).style.transform = 'translateZ(0)';
-            (element as HTMLElement).style.backfaceVisibility = 'hidden';
-            (element as HTMLElement).style.willChange = 'auto';
-          }
-          
-          // 递归处理子元素
-          element.querySelectorAll('[id*="authing"], [class*="authing"]').forEach((child) => {
-            (child as HTMLElement).style.contain = 'strict';
-            (child as HTMLElement).style.transform = 'translateZ(0)';
-            (child as HTMLElement).style.backfaceVisibility = 'hidden';
-          });
-        }
-      });
-    });
-  });
-  
-  // 监控整个文档的变化
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: false
-  });
-  
-  return observer;
+  // 返回一个空的observer，不做任何事
+  return new MutationObserver(() => {});
 };
 
-// 启动动态元素优化
-let dynamicElementsObserver: MutationObserver | null = null;
+// 启动动态元素优化 (已禁用)
+const dynamicElementsObserver: MutationObserver | null = null;
 if (typeof window !== 'undefined') {
-  dynamicElementsObserver = optimizeDynamicElements();
+  // dynamicElementsObserver = optimizeDynamicElements();
 }
 
 // 防抖函数，减少频繁操作
@@ -200,12 +154,7 @@ window.authFlowUtils = {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true
-      }}
-    >
+    <BrowserRouter>
       <App />
     </BrowserRouter>
   </React.StrictMode>

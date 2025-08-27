@@ -15,10 +15,15 @@ export const getOfficialAuthConfig = () => {
   const domain = import.meta.env.VITE_AUTHING_DOMAIN || 'rzcswqs4sq0f.authing.cn';
   const appId = import.meta.env.VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
 
-  // 🎯 修复：开发环境使用生产回调URL，避免白名单问题
+  // 🎯 [根本原因修复] 根据环境明确选择唯一正确的回调URL
   const getRedirectUri = () => {
-    // 🔧 开发环境强制使用生产环境回调URL，因为Authing控制台已配置
-    return import.meta.env.VITE_AUTHING_REDIRECT_URI || 'https://www.wenpai.xyz/callback';
+    // Vite会在开发模式下将 import.meta.env.DEV 设置为 true
+    if (import.meta.env.DEV) {
+      // 动态地从当前窗口位置构建回调URL，确保端口号总是正确的
+      return `${window.location.origin}/callback`;
+    }
+    // 生产环境和其他环境使用生产URL
+    return 'https://www.wenpai.xyz/callback';
   };
 
   return {

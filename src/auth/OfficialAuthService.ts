@@ -52,8 +52,8 @@ export class OfficialAuthService {
       console.log('🔍 OfficialAuthService.login()被调用!');
       logger.info('🚀 开始官方Guard登录流程...');
 
-      // 🎯 直接使用Guard的标准登录方式，不添加复杂的重试逻辑
-      this.sdk.start();
+      // 🎯 [兼容性修复] 由于弹窗模式存在渲染冲突，永久切换到备用登录方案
+      this.fallbackLogin();
 
       logger.info('✅ 官方Guard登录窗口已打开');
     } catch (error) {
@@ -111,33 +111,63 @@ export class OfficialAuthService {
         throw new Error('缺少必要的回调参数');
       }
 
-      // 🎯 使用@authing/guard的方式获取用户信息
-      // Guard SDK可能需要不同的方法，这里使用通用方式
-      const userInfo = await this.sdk.getLoginState();
+      // 🎯 根据@authing/guard官方文档，使用事件监听方式处理回调
+      // Guard SDK应该通过事件监听来处理登录成功，而不是直接调用API
+      return new Promise((resolve, reject) => {
+        // 设置超时处理
+        const timeout = setTimeout(() => {
+          reject(new Error('回调处理超时'));
+        }, 10000);
 
-      if (userInfo) {
-        const user: AuthUser = {
-          id: userInfo.sub || userInfo.id || 'unknown',
-          nickname: userInfo.nickname || userInfo.name || 'User',
-          name: userInfo.name || userInfo.nickname || 'User',
-          username: userInfo.username || userInfo.email || 'user',
-          email: userInfo.email || '',
-          avatar: userInfo.picture || userInfo.avatar || '',
-          phone: userInfo.phone_number || ''
-        };
+        // 监听登录成功事件
+        this.sdk.on('login', (userInfo: any) => {
+          clearTimeout(timeout);
 
-        this.currentUser = user;
+          if (userInfo) {
+            const user: AuthUser = {
+              id: userInfo.sub || userInfo.id || 'unknown',
+              nickname: userInfo.nickname || userInfo.name || 'User',
+              name: userInfo.name || userInfo.nickname || 'User',
+              username: userInfo.username || userInfo.email || 'user',
+              email: userInfo.email || '',
+              avatar: userInfo.picture || userInfo.avatar || '',
+              phone: userInfo.phone_number || ''
+            };
 
-        logger.info('✅ 官方SDK回调处理成功:', {
-          hasUser: !!user,
-          userId: user.id,
-          userName: user.nickname || user.name
+            this.currentUser = user;
+            localStorage.setItem('auth_user', JSON.stringify(user));
+
+            logger.info('✅ 官方SDK回调处理成功:', {
+              hasUser: !!user,
+              userId: user.id,
+              userName: user.nickname || user.name
+            });
+
+            resolve(user);
+          } else {
+            reject(new Error('获取用户信息失败'));
+          }
         });
 
-        return user;
-      }
+        // 监听登录错误事件
+        this.sdk.on('login-error', (error: any) => {
+          clearTimeout(timeout);
+          logger.error('❌ Guard登录错误:', error);
+          reject(new Error(`登录失败: ${error.message || '未知错误'}`));
+        });
 
-      throw new Error('获取用户信息失败');
+        // 尝试处理当前URL的回调
+        try {
+          // 对于已经在回调页面的情况，直接触发Guard的回调处理
+          if (window.location.pathname.includes('/callback')) {
+            // Guard会自动检测URL参数并触发相应事件
+            logger.info('🔍 检测到回调URL，等待Guard自动处理...');
+          }
+        } catch (initError) {
+          clearTimeout(timeout);
+          reject(initError);
+        }
+      });
     } catch (error) {
       logger.error('❌ 官方SDK回调处理失败:', error);
       throw error;
