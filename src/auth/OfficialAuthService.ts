@@ -123,18 +123,51 @@ export class OfficialAuthService {
                 innerHTML: innerHTML.substring(0, 200) + (innerHTML.length > 200 ? '...' : '')
               });
 
-              // 🔧 如果弹窗在屏幕外，强制移到中心
+              // 🔧 关键修复：强制修复尺寸为0的问题
               if (!positionInfo.inViewport || rect.width === 0 || rect.height === 0) {
-                logger.warn('⚠️ Guard弹窗位置异常，强制居中显示...');
-                (guardModal as HTMLElement).style.position = 'fixed';
-                (guardModal as HTMLElement).style.top = '50%';
-                (guardModal as HTMLElement).style.left = '50%';
-                (guardModal as HTMLElement).style.transform = 'translate(-50%, -50%)';
-                (guardModal as HTMLElement).style.width = 'auto';
-                (guardModal as HTMLElement).style.height = 'auto';
-                (guardModal as HTMLElement).style.minWidth = '400px';
-                (guardModal as HTMLElement).style.minHeight = '300px';
-                logger.info('🔧 已强制设置Guard弹窗居中位置');
+                logger.warn('⚠️ Guard弹窗位置或尺寸异常，强制修复...');
+
+                // 强制设置弹窗样式
+                const modalElement = guardModal as HTMLElement;
+                modalElement.style.position = 'fixed';
+                modalElement.style.top = '50%';
+                modalElement.style.left = '50%';
+                modalElement.style.transform = 'translate(-50%, -50%)';
+                modalElement.style.width = 'auto';
+                modalElement.style.height = 'auto';
+                modalElement.style.minWidth = '400px';
+                modalElement.style.minHeight = '300px';
+                modalElement.style.maxWidth = '90vw';
+                modalElement.style.maxHeight = '90vh';
+                modalElement.style.zIndex = '10000';
+                modalElement.style.background = 'white';
+                modalElement.style.borderRadius = '8px';
+                modalElement.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                modalElement.style.overflow = 'visible';
+
+                // 修复内部元素
+                const innerElements = modalElement.querySelectorAll('div');
+                innerElements.forEach((el, index) => {
+                  if (index < 3) { // 只修复前几个主要元素
+                    (el as HTMLElement).style.width = 'auto';
+                    (el as HTMLElement).style.height = 'auto';
+                    (el as HTMLElement).style.minWidth = '400px';
+                    (el as HTMLElement).style.minHeight = '300px';
+                    (el as HTMLElement).style.position = 'relative';
+                  }
+                });
+
+                logger.info('🔧 已强制修复Guard弹窗尺寸和位置');
+
+                // 再次检查修复效果
+                setTimeout(() => {
+                  const newRect = guardModal.getBoundingClientRect();
+                  console.log('🔍 修复后的弹窗尺寸:', {
+                    width: newRect.width,
+                    height: newRect.height,
+                    visible: newRect.width > 0 && newRect.height > 0
+                  });
+                }, 100);
               }
 
               // 🔧 如果弹窗被隐藏，尝试修复

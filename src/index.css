@@ -1706,6 +1706,33 @@
   opacity: 1 !important;
   z-index: 9999 !important;
   position: fixed !important;
+  /* 🎯 关键修复：强制设置尺寸，解决width: 0, height: 0问题 */
+  width: auto !important;
+  height: auto !important;
+  min-width: 400px !important;
+  min-height: 300px !important;
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+  /* 强制居中 */
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  /* 确保内容可见 */
+  overflow: visible !important;
+}
+
+/* Guard弹窗内容区域修复 */
+.authing-ant-modal-root .ant-modal,
+.authing-ant-modal-root .authing-ant-modal,
+.authing-ant-modal-root > div {
+  width: auto !important;
+  height: auto !important;
+  min-width: 400px !important;
+  min-height: 300px !important;
+  position: relative !important;
+  background: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
 }
 
 /* Guard遮罩层修复 */
