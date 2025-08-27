@@ -108,13 +108,14 @@ export function createOfficialAuthSDK(): Guard {
     // 🔧 根因修复：使用正确的Guard配置
     console.log('🎯 使用正确的Guard配置，避免技术债务');
 
-    // 🔧 根因修复：Guard SDK的host参数应该是应用特定的URL
-    // 认证地址应该是：https://rzcswqs4sq0f.authing.cn/68a68a29d0c3341ae7a3df23
+    // 🔧 根因修复：基于官方文档和solution文档的正确配置
+    // 官方示例: host: 'https://guard-test-2022.authing.cn' (不包含appId)
+    // 成功配置: host: 'https://rzcswqs4sq0f.authing.cn', mode: 'modal'
     const guard = new Guard({
       appId: config.appId,
-      host: `https://${config.domain}/${config.appId}`, // ✅ 修复：使用应用特定的URL
+      host: `https://${config.domain}`, // ✅ 修复：使用官方文档格式，不包含appId
       redirectUri: config.redirectUri,
-      mode: 'redirect' // ✅ 修复：使用redirect模式支持回调处理
+      mode: 'modal' // ✅ 修复：使用成功配置中的modal模式
     });
 
     console.log('✅ Guard实例创建成功');

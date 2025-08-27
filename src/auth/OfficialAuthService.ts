@@ -52,9 +52,9 @@ export class OfficialAuthService {
       console.log('🔍 OfficialAuthService.login()被调用!');
       logger.info('🚀 开始官方Guard登录流程...');
 
-      // 🎯 根因修复：使用redirect模式的startWithRedirect()方法
-      logger.info('🔍 使用redirect模式启动登录...');
-      this.sdk.startWithRedirect();
+      // 🎯 根因修复：使用modal模式的show()方法
+      logger.info('🔍 使用modal模式启动登录...');
+      this.sdk.show();
 
       logger.info('✅ 登录流程完成');
     } catch (error) {
@@ -113,29 +113,47 @@ export class OfficialAuthService {
         throw new Error('缺少必要的回调参数');
       }
 
-      // 🎯 根因修复：使用redirect模式的官方handleRedirectCallback()方法
-      // 现在Guard配置为redirect模式，可以正确使用handleRedirectCallback()
-      logger.info('🔍 使用官方 handleRedirectCallback() 方法处理redirect模式回调...');
+      // 🎯 根因修复：modal模式使用事件监听处理回调
+      // 基于solution文档中的成功配置，modal模式不需要手动处理回调
+      logger.info('🔍 modal模式通过事件监听自动处理回调，无需手动处理...');
+
+      // 🎯 modal模式回调处理：主要通过事件监听，这里提供备用token交换
+      logger.info('🔄 modal模式备用方案：尝试token交换...');
 
       try {
-        // 调用Guard官方的回调处理方法
-        const userInfo = await this.sdk.handleRedirectCallback();
+        const tokenResponse = await fetch('/api/auth/token-exchange', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            code,
+            state,
+            original_redirect_uri: window.location.origin + '/callback'
+          })
+        });
 
-        if (userInfo) {
+        if (!tokenResponse.ok) {
+          throw new Error(`Token交换失败: ${tokenResponse.status}`);
+        }
+
+        const tokenData = await tokenResponse.json();
+
+        if (tokenData.user) {
           const user: AuthUser = {
-            id: userInfo.sub || userInfo.id || 'unknown',
-            nickname: userInfo.nickname || userInfo.name || 'User',
-            name: userInfo.name || userInfo.nickname || 'User',
-            username: userInfo.username || userInfo.email || 'user',
-            email: userInfo.email || '',
-            avatar: userInfo.picture || userInfo.avatar || '',
-            phone: userInfo.phone_number || ''
+            id: tokenData.user.sub || tokenData.user.id || 'unknown',
+            nickname: tokenData.user.nickname || tokenData.user.name || 'User',
+            name: tokenData.user.name || tokenData.user.nickname || 'User',
+            username: tokenData.user.username || tokenData.user.email || 'user',
+            email: tokenData.user.email || '',
+            avatar: tokenData.user.picture || tokenData.user.avatar || '',
+            phone: tokenData.user.phone_number || ''
           };
 
           this.currentUser = user;
           localStorage.setItem('auth_user', JSON.stringify(user));
 
-          logger.info('✅ 官方SDK回调处理成功:', {
+          logger.info('✅ token交换成功:', {
             hasUser: !!user,
             userId: user.id,
             userName: user.nickname || user.name
@@ -143,61 +161,11 @@ export class OfficialAuthService {
 
           return user;
         } else {
-          throw new Error('回调处理返回空用户信息');
+          throw new Error('Token交换返回空用户信息');
         }
-      } catch (handleError) {
-        logger.error('❌ handleRedirectCallback 失败:', handleError);
-
-        // 🔧 备用方案：如果官方方法失败，尝试手动处理token交换
-        logger.info('🔄 尝试备用方案：手动token交换...');
-
-        try {
-          const tokenResponse = await fetch('/api/auth/token-exchange', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              code,
-              state,
-              original_redirect_uri: window.location.origin + '/callback'
-            })
-          });
-
-          if (!tokenResponse.ok) {
-            throw new Error(`Token交换失败: ${tokenResponse.status}`);
-          }
-
-          const tokenData = await tokenResponse.json();
-
-          if (tokenData.user) {
-            const user: AuthUser = {
-              id: tokenData.user.sub || tokenData.user.id || 'unknown',
-              nickname: tokenData.user.nickname || tokenData.user.name || 'User',
-              name: tokenData.user.name || tokenData.user.nickname || 'User',
-              username: tokenData.user.username || tokenData.user.email || 'user',
-              email: tokenData.user.email || '',
-              avatar: tokenData.user.picture || tokenData.user.avatar || '',
-              phone: tokenData.user.phone_number || ''
-            };
-
-            this.currentUser = user;
-            localStorage.setItem('auth_user', JSON.stringify(user));
-
-            logger.info('✅ 备用方案token交换成功:', {
-              hasUser: !!user,
-              userId: user.id,
-              userName: user.nickname || user.name
-            });
-
-            return user;
-          } else {
-            throw new Error('Token交换返回空用户信息');
-          }
-        } catch (tokenError) {
-          logger.error('❌ 备用方案token交换也失败:', tokenError);
-          throw new Error(`回调处理完全失败: ${handleError.message}`);
-        }
+      } catch (tokenError) {
+        logger.error('❌ token交换失败:', tokenError);
+        throw new Error(`modal模式回调处理失败: ${tokenError.message}`);
       }
     } catch (error) {
       logger.error('❌ 官方SDK回调处理失败:', error);
