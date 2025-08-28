@@ -284,6 +284,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 🎯 最终根因修复：显示弹窗
       if (guardRef.current) {
         console.log('🎯 显示Guard弹窗...');
+        // 🧊 冻结顶层变换以避免 fixed 参照系错误（不改第三方样式，仅加类名）
+        document.documentElement.classList.add('authing-guard-open');
+        document.body.classList.add('authing-guard-open');
         guardRef.current.show();
 
         // 🧪 仅定位诊断：记录 Guard 弹窗 DOM/样式，不做任何样式修改
@@ -293,35 +296,52 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
               const root = document.querySelector('.authing-ant-modal-root') as HTMLElement | null;
               const wrap = root?.querySelector('.authing-ant-modal-wrap') as HTMLElement | null;
               const modal = root?.querySelector('.authing-ant-modal') as HTMLElement | null;
+              const mask = root?.querySelector('.authing-ant-modal-mask') as HTMLElement | null;
               const content = root?.querySelector('.authing-g2-render-module') as HTMLElement | null;
 
               const dump = (el: HTMLElement | null) => el ? {
                 exists: true,
-                rect: el.getBoundingClientRect(),
-                style: {
-                  display: getComputedStyle(el).display,
-                  visibility: getComputedStyle(el).visibility,
-                  opacity: getComputedStyle(el).opacity,
-                  position: getComputedStyle(el).position,
-                  zIndex: getComputedStyle(el).zIndex,
-                  transform: getComputedStyle(el).transform,
-                }
+                rect: (() => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; })(),
+                inViewport: (() => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.right > 0 && r.top < window.innerHeight && r.left < window.innerWidth; })(),
+                style: (() => { const s = getComputedStyle(el); return {
+                  display: s.display, visibility: s.visibility, opacity: s.opacity,
+                  position: s.position, zIndex: s.zIndex, transform: s.transform
+                }; })()
               } : { exists: false };
+
+              const centerEls = document.elementsFromPoint(window.innerWidth / 2, window.innerHeight / 2)
+                                   .slice(0, 5)
+                                   .map(el => (el as HTMLElement).className || (el as HTMLElement).id || (el as HTMLElement).tagName);
+
+              // 统计高 z-index 的固定/绝对层（可能挡住弹窗）
+              const highZLayers = Array.from(document.querySelectorAll<HTMLElement>('body *'))
+                .filter(el => {
+                  const s = getComputedStyle(el);
+                  const zi = parseInt(s.zIndex || '0', 10);
+                  return (s.position === 'fixed' || s.position === 'sticky' || s.position === 'absolute') && zi >= 1000 && el.offsetParent !== null;
+                })
+                .slice(0, 20)
+                .map(el => ({
+                  tag: el.tagName.toLowerCase(),
+                  cls: el.className,
+                  id: el.id,
+                  z: getComputedStyle(el).zIndex,
+                  rect: (() => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; })()
+                }));
 
               console.log('🧪 Guard DOM Probe (login):', {
                 viewport: { w: window.innerWidth, h: window.innerHeight, scrollY: window.scrollY },
                 activeElement: document.activeElement && (document.activeElement as HTMLElement).outerHTML?.slice(0, 120),
-                root: dump(root!),
-                wrap: dump(wrap!),
-                modal: dump(modal!),
-                content: dump(content!),
-                inputs: root ? Array.from(root.querySelectorAll('input')).length : 0,
-                buttons: root ? Array.from(root.querySelectorAll('button')).length : 0,
+                root: dump(root!), wrap: dump(wrap!), modal: dump(modal!), mask: dump(mask!), content: dump(content!),
+                inputs: root ? root.querySelectorAll('input').length : 0,
+                buttons: root ? root.querySelectorAll('button').length : 0,
+                centerTopElements: centerEls,
+                highZLayers
               });
             } catch (e) {
               console.warn('🧪 Guard DOM Probe error:', e);
             }
-          }, 150);
+          }, 200);
         });
 
         // 使用 Guard 官方渲染与样式，移除运行时样式注入与 DOM 覆盖，避免引入技术债务。

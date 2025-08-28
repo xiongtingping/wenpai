@@ -35,7 +35,7 @@
     --input: 45 15% 88%;
     --ring: 45 70% 55%;
     --radius: 0.5rem;
-    
+
     /* 性能优化：预计算值 */
     --bg-calc: hsl(45 25% 97%);
     --card-calc: hsl(45 25% 97%);
@@ -227,6 +227,48 @@
   /* 🎯 FIXED: 移除 Authing 样式覆盖，让 Authing Guard 使用原生样式 */
   /* 这个规则会导致 Authing Guard 弹窗不可见，已移除 */
 }
+
+  /* Guard 显示期冻结根元素的 transform/scroll，避免 fixed 参照对象错乱导致弹窗在视口外 */
+  html.authing-guard-open, body.authing-guard-open {
+    transform: none !important;
+    -webkit-transform: none !important;
+    overflow: hidden !important;
+  }
+  /* 避免应用根容器的 transform 影响 Guard 固定定位的参照系 */
+  html.authing-guard-open #root {
+    transform: none !important;
+    -webkit-transform: none !important;
+    position: static !important;
+  }
+  /* 仅在 Guard 打开时，强制确保弹窗在视口内可见且层级最高（不影响其它时间段） */
+  html.authing-guard-open .authing-ant-modal-root,
+  html.authing-guard-open .authing-ant-modal-wrap {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: auto !important;
+  }
+
+  html.authing-guard-open .authing-ant-modal-mask {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.45) !important;
+    z-index: 999998 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+
+
 
 /* 🎨 统一的多主题设计语言系统
  *
@@ -2907,7 +2949,7 @@ input[autocomplete] {
 }
 
 /* 特别优化：防止Authing相关的回流 */
-iframe[src*="authing"], 
+iframe[src*="authing"],
 .authing-modal-backdrop,
 .authing-guard-container,
 .authing-guard-modal {
@@ -2926,7 +2968,7 @@ iframe[src*="authing"],
 }
 
 /* 🎯 强力优化：针对动态插入的脚本和元素 */
-script[src*="authing"], 
+script[src*="authing"],
 script[src*="cdn.authing.co"],
 link[href*="authing"],
 style[data-authing] {
@@ -2935,7 +2977,7 @@ style[data-authing] {
 }
 
 /* 优化动态创建的DOM元素 */
-div[id^="authing-"], 
+div[id^="authing-"],
 div[class^="authing-"],
 div[data-authing] {
   contain: strict;

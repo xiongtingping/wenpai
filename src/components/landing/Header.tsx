@@ -254,6 +254,9 @@ export function Header() {
                         const wrap = root?.querySelector('.authing-ant-modal-wrap') as HTMLElement | null;
                         const modal = root?.querySelector('.authing-ant-modal') as HTMLElement | null;
                         const rect = root?.getBoundingClientRect();
+                        const elementsAtCenter = document.elementsFromPoint(window.innerWidth/2, window.innerHeight/2)
+                          .slice(0,5)
+                          .map(el => (el as HTMLElement).className || (el as HTMLElement).id || (el as HTMLElement).tagName);
                         console.log('🧪 Header DOM Probe (pre-login):', {
                           hasRoot: !!root, rect,
                           visibility: root ? getComputedStyle(root).visibility : 'n/a',
@@ -261,6 +264,7 @@ export function Header() {
                           zIndex: root ? getComputedStyle(root).zIndex : 'n/a',
                           transform: root ? getComputedStyle(root).transform : 'n/a',
                           scrollY: window.scrollY,
+                          elementsAtCenter
                         });
                       } catch (e) { console.warn('🧪 Header DOM Probe error(pre):', e); }
                     }, 0);
