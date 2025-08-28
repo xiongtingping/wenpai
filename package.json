@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite --port 5173 --host",
-    "build": "vite build",
+    "build": "tsc -b && vite build",
     "build:check": "node scripts/system-sanity-check.mjs && tsc -b && vite build",
     "deploy-check": "node scripts/deploy-check.js && node scripts/system-sanity-check.mjs",
     "predeploy": "npm run deploy-check && npm run build",
@@ -27,7 +27,7 @@
     "check-authing-config": "node check-authing-config.js"
   },
   "dependencies": {
-    "@authing/guard": "5.3.0",
+    "@authing/guard": "^5.3.5",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -121,9 +121,11 @@
     "vaul": "^1.1.2",
     "xlsx": "^0.18.5",
     "zod": "^4.0.5",
-    "zustand": "^4.0.0"
+    "zustand": "^4.0.0",
+    "@authing/web": "^5.1.15"
   },
   "devDependencies": {
+    "@authing/guard-react": "^5.3.5",
     "@eslint/js": "^9.22.0",
     "@playwright/test": "^1.55.0",
     "@testing-library/jest-dom": "^6.8.0",
