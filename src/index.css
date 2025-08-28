@@ -1756,26 +1756,6 @@
   background-color: rgba(0, 0, 0, 0.45) !important;
 }
 
-/* 修复aria-hidden焦点冲突 */
-[aria-hidden="true"] {
-  pointer-events: none !important;
-}
-
-[aria-hidden="true"]:focus,
-[aria-hidden="true"] *:focus {
-  outline: none !important;
-  visibility: hidden !important;
-}
-
-/* 🚨 强制隐藏导致焦点冲突的元素 */
-[aria-hidden="true"][tabindex="0"] {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
-}
 
 
 /* 防止页面滚动时弹窗消失 */

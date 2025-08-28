@@ -1,5 +1,6 @@
 import { Header } from "@/components/landing/Header"
-import HeroSection from "@/components/landing/HeroSection"
+import HeroSection from "@/components/landing/HeroSection";
+import { WavyBackground } from "@/components/ui/wavy-background";
 import { TrustSection } from "@/components/landing/TrustSection"
 import { HowItWorks } from "@/components/landing/HowItWorks"
 import { FeaturesSection } from "@/components/landing/FeaturesSection"
@@ -30,10 +31,12 @@ function HomePage() {
       <Header />
 
       <main className="flex-1 w-full relative z-10">
-        {/* Hero Section */}
-        <div>
-          <HeroSection />
-        </div>
+        {/* Hero Section with background */}
+        <WavyBackground className="relative py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto text-center">
+            <HeroSection />
+          </div>
+        </WavyBackground>
 
         {/* Trust Section */}
         <div className="py-8">

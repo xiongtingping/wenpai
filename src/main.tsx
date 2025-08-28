@@ -5,6 +5,7 @@
 
 import './index.css';
 import '@authing/guard/dist/esm/guard.min.css';
+import './styles/authing-guard-overrides.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
