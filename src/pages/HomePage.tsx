@@ -32,8 +32,8 @@ function HomePage() {
 
       <main className="flex-1 w-full relative z-10">
         {/* Hero Section with background */}
-        <WavyBackground className="relative py-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
+        <WavyBackground className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8" containerHeight="72vh">
+          <div className="max-w-5xl mx-auto text-center space-y-6">
             <HeroSection />
           </div>
         </WavyBackground>

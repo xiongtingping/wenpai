@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { LogoWithText } from "@/components/ui/ThemeAwareLogo"
 import { NavBar } from "@/components/ui/tubelight-navbar"
-import { Home, Radar, Sparkles, Bookmark, Library } from "lucide-react"
+import { Home, Radar, Sparkles, Library, FolderOpen } from "lucide-react"
 
 import { PermissionTestButton } from "@/components/dev/PermissionTestButton"
 
@@ -155,7 +155,8 @@ export function Header() {
               { name: '首页', url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
               { name: 'AI内容适配器', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/new-adapt') : login('/new-adapt'); } },
               { name: '全网雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/hot-topics') : login('/hot-topics'); } },
-              { name: '我的收藏', url: '/bookmark', icon: Bookmark, onClick: (e) => { e.preventDefault(); navigate('/bookmark'); } },
+              { name: '创意魔方', url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/creative-studio') : login('/creative-studio'); } },
+              { name: '我的资料库', url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); navigate('/library'); } },
               { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); navigate('/brand-library'); } },
             ]}
           />

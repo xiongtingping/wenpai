@@ -90,6 +90,8 @@ export const WavyBackground = ({
   const render = () => {
     ctx.fillStyle = backgroundFill || "black";
     ctx.globalAlpha = waveOpacity || 0.5;
+
+
     ctx.fillRect(0, 0, w, h);
     drawWave(5);
     animationId = requestAnimationFrame(render);
@@ -115,9 +117,10 @@ export const WavyBackground = ({
   return (
     <div
       className={cn(
-        "h-screen flex flex-col items-center justify-center",
+        "flex flex-col items-center justify-center",
         containerClassName
       )}
+      style={{ minHeight: (props.containerHeight || '80vh') }}
     >
       <canvas
         className="absolute inset-0 z-0"
