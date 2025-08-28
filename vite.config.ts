@@ -39,7 +39,23 @@ VITE_AUTHING_USER_POOL_ID: process.env.VITE_AUTHING_USER_POOL_ID || '688237f7f9e
   // 开发服务器配置
   server: {
     port: 3000,
-    host: 'localhost'
+    host: 'localhost',
+    proxy: {
+      '/api/authing': {
+        target: 'https://rzcswqs4sq0f.authing.cn',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api\/authing/, '/api'),
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('🔧 Authing代理错误:', err.message);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('🔧 代理Authing请求:', req.method, req.url);
+          });
+        }
+      }
+    }
   },
   // 预览服务器配置
   preview: {

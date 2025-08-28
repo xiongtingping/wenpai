@@ -1,5 +1,5 @@
-// 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useAuth } from "@/hooks/useAuth";
+// 🔧 [UNIFIED_AUTH_ROLLBACK_v2025.08.27] 回滚到历史成功版本架构
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
@@ -88,7 +88,7 @@ const HelpDocumentation = () => {
 
 export function Header() {
   const isMobile = useIsMobile()
-  const { user, isAuthenticated, login, register, resetAuthState } = useAuth()
+  const { user, isAuthenticated, login, register } = useUnifiedAuth()
   const navigate = useNavigate()
 
   /**

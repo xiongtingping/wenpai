@@ -1,7 +1,8 @@
 ---
-type: "agent_requested"
+type: "always_apply"
 description: "Example description"
 ---
+
 {
   "module": "API",
   "name": "api_prohibit_local_mock_error",

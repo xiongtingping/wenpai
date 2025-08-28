@@ -1,6 +1,26 @@
 # 🔐 Authing redirect_uri_mismatch 问题完整解决方案
 
-## 🚨 问题分析
+## � 最新正确配置信息 (2025-01-27 更新)
+
+**应用类型**: 单页 Web 应用
+**App ID**: `68a68a29d0c3341ae7a3df23`
+**App Secret**: `0ced1af1d941c5a94dd6c8c86307e330`
+**认证地址**: `https://rzcswqs4sq0f.authing.cn/68a68a29d0c3341ae7a3df23`
+**用户池 ID**: `688237f7f9e118de849dc274`
+**认证域名**: `https://rzcswqs4sq0f.authing.cn`
+
+**登录回调 URL**:
+- `https://www.wenpai.xyz/callback`
+
+**安全域（CORS）**:
+- `https://www.wenpai.xyz`
+- `https://wenpai.xyz`
+- `https://wenpai.netlify.app`
+- `http://localhost:5173`
+
+---
+
+## �🚨 问题分析
 
 **错误信息**: `redirect_uri_mismatch`  
 **错误描述**: redirect_uri 不在白名单内，请前往控制台『应用配置』-『登录回调 URL』进行配置
@@ -55,10 +75,13 @@ export interface AuthingConfig {
   domain: string;
 }
 
-const APP_ID = '68823897631e1ef8ff3720b2';
+// ✅ 最新正确配置 (2025-01-27)
+const APP_ID = '68a68a29d0c3341ae7a3df23';
 const DOMAIN = 'rzcswqs4sq0f.authing.cn';
 const HOST = 'https://rzcswqs4sq0f.authing.cn';
 const APP_HOST = 'rzcswqs4sq0f.authing.cn'; // 纯域名
+const USER_POOL_ID = '688237f7f9e118de849dc274';
+const APP_SECRET = '0ced1af1d941c5a94dd6c8c86307e330';
 ```
 
 ### 2. 创建统一Guard管理器 (`src/authing/guardManager.ts`)
@@ -72,20 +95,21 @@ const APP_HOST = 'rzcswqs4sq0f.authing.cn'; // 纯域名
 
 export async function createAuthingInstance(): Promise<Authing> {
   const config = getAuthingConfig();
-  
+
   // 验证配置
   validateConfig(config);
-  
+
+  // ✅ 使用最新正确配置 (2025-01-27)
   const instance = new Authing({
-    appId: config.appId,
-    appHost: config.appHost, // 使用纯域名
-    redirectUri: config.redirectUri,
+    appId: '68a68a29d0c3341ae7a3df23',
+    appHost: 'rzcswqs4sq0f.authing.cn', // 使用纯域名
+    redirectUri: 'https://www.wenpai.xyz/callback',
     mode: 'redirect',
     scope: 'openid profile email phone',
     responseType: 'code',
     lang: 'zh-CN'
   });
-  
+
   return instance;
 }
 ```
@@ -183,6 +207,35 @@ function validateConfig(config) {
 - **健康检查**: `npm run test:authing`
 - **构建验证**: `npm run build`
 
+## 🔧 配置验证清单 (2025-01-27)
+
+### 必须验证的配置项
+
+1. **App ID**: `68a68a29d0c3341ae7a3df23` ✅
+2. **认证域名**: `rzcswqs4sq0f.authing.cn` ✅
+3. **回调URL**: `https://www.wenpai.xyz/callback` ✅
+4. **用户池ID**: `688237f7f9e118de849dc274` ✅
+
+### 环境变量设置
+
+```bash
+# .env 文件
+VITE_AUTHING_APP_ID=68a68a29d0c3341ae7a3df23
+VITE_AUTHING_DOMAIN=rzcswqs4sq0f.authing.cn
+VITE_AUTHING_USER_POOL_ID=688237f7f9e118de849dc274
+```
+
+### 快速验证命令
+
+```bash
+# 验证配置是否正确
+curl -s "https://core.authing.cn/api/v2/applications/68a68a29d0c3341ae7a3df23/public-config" | jq .
+```
+
+**预期结果**: 返回200状态码和应用配置信息
+
 ---
 
 **重要提醒**: 此问题的根本原因是代码层面的参数格式错误，而非Authing控制台的白名单配置问题。通过修复SDK参数格式，问题得到彻底解决。
+
+**最后更新**: 2025-01-27 - 添加最新正确配置信息

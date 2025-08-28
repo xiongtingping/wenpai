@@ -121,8 +121,7 @@
     "vaul": "^1.1.2",
     "xlsx": "^0.18.5",
     "zod": "^4.0.5",
-    "zustand": "^4.0.0",
-    "@authing/web": "^5.1.15"
+    "zustand": "^4.0.0"
   },
   "devDependencies": {
     "@authing/guard-react": "^5.3.5",

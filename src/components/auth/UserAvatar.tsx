@@ -19,7 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { LogIn, User, LogOut, Shield, Settings, Crown, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getUserDisplayName, getUserAvatarFallback, getUserAvatar } from '@/utils/userDisplayUtils';
-import { permissionManager } from '@/auth/permissionManager';
+// 简化权限管理 - 移除复杂的权限管理器
 import { logger } from '@/utils/logger';
 
 /**
@@ -68,13 +68,10 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     return;
   };
 
-  // 获取用户等级显示
+  // 简化用户等级显示
   const getUserTierDisplay = () => {
     if (!user) return '';
-    
-    if (permissionManager.isPremium(user)) return '高级版用户';
-    if (permissionManager.isPro(user)) return '专业版用户';
-    return '体验版用户';
+    return '用户'; // 简化显示
   };
 
   // 🔒 SECURITY: 解锁按钮已完全禁用 - 防止权限绕过攻击
@@ -163,8 +160,8 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
                 {user?.email || ''}
               </p>
               <div className="flex items-center gap-2 mt-1">
-                <Badge 
-                  variant={permissionManager.isPremium(user) ? 'premium' : permissionManager.isPro(user) ? 'default' : 'secondary'}
+                <Badge
+                  variant="secondary"
                   className="text-xs"
                 >
                   <Crown className="w-3 h-3 mr-1" />

@@ -115,18 +115,9 @@ export function createOfficialAuthSDK(): Guard {
       host: `https://${config.domain}`, // ✅ 修复：使用完整URL格式
       redirectUri: config.redirectUri,
       mode: 'modal', // 使用modal模式
-      scope: 'openid profile email phone',
-      responseType: 'code',
-      lang: 'zh-CN',
-      autoFocus: false, // 防止自动焦点导致页面跳转
-      escCloseable: true,
-      clickCloseable: true,
-      maskCloseable: true,
-      // 🔧 防止aria-hidden冲突的配置
-      autoRegister: false,
-      closeable: true,
-      clickCloseableMask: true,
-      title: '文派登录'
+
+
+      lang: 'zh-CN'
     });
 
     console.log('✅ Guard实例创建成功');
