@@ -147,94 +147,18 @@ export function Header() {
           />
         </Link>
 
-        {/* Desktop Menu */}
+        {/* Desktop Menu → Tubelight Navbar */}
         {!isMobile && (
-          <div className="hidden md:flex items-center space-x-6">
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
-              console.log('Header AI内容适配器按钮被点击');
-              console.log('当前认证状态:', isAuthenticated);
-
-              try {
-                if (isAuthenticated) {
-                  console.log('用户已登录，跳转到AI内容适配器页面');
-                  navigate('/new-adapt');
-                } else {
-                  console.log('用户未登录，调用登录函数');
-                  if (typeof login === 'function') {
-                    login('/new-adapt');
-                  } else {
-                    console.error('❌ login函数不可用');
-                    navigate('/login');
-                  }
-                }
-              } catch (error) {
-                console.error('❌ Header按钮点击出错:', error);
-                navigate('/login');
-              }
-            }}>
-              AI内容适配器
-            </Button>
-            <Button variant="ghost" className="text-muted-foreground hover:text-primary transition" onClick={() => {
-              if (isAuthenticated) {
-                navigate('/hot-topics');
-              } else {
-                login('/hot-topics');
-              }
-            }}>
-              全网雷达
-            </Button>
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
-              console.log('Header 创意魔方按钮被点击');
-              console.log('当前认证状态:', isAuthenticated);
-
-              if (isAuthenticated) {
-                console.log('用户已登录，跳转到创意魔方页面');
-                navigate('/creative-studio');
-              } else {
-                console.log('用户未登录，直接弹出Authing Guard弹窗');
-                login('/creative-studio');
-              }
-            }}>
-              创意魔方
-            </Button>
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
-              if (isAuthenticated) {
-                navigate('/bookmark');
-              } else {
-                login('/bookmark');
-              }
-            }}>
-              我的收藏
-            </Button>
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
-              if (isAuthenticated) {
-                navigate('/brand-library');
-              } else {
-                login('/brand-library');
-              }
-            }}>
-              品牌库
-            </Button>
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
-              document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
-            }}>
-            {/* Tubelight Navbar - desktop only */}
-            {!isMobile && (
-              <NavBar
-                positionClassName="fixed top-0 left-1/2 -translate-x-1/2 z-[60] pt-3"
-                items={[
-                  { name: '首页', url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
-                  { name: 'AI适配', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/new-adapt') : login('/new-adapt'); } },
-                  { name: '雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/hot-topics') : login('/hot-topics'); } },
-                  { name: '收藏', url: '/bookmark', icon: Bookmark, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/bookmark') : login('/bookmark'); } },
-                  { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/brand-library') : login('/brand-library'); } },
-                ]}
-              />
-            )}
-
-              定价方案
-            </Button>
-          </div>
+          <NavBar
+            positionClassName="fixed top-0 left-1/2 -translate-x-1/2 z-[60] pt-3"
+            items={[
+              { name: '首页', url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
+              { name: 'AI适配', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/new-adapt') : login('/new-adapt'); } },
+              { name: '雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/hot-topics') : login('/hot-topics'); } },
+              { name: '收藏', url: '/bookmark', icon: Bookmark, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/bookmark') : login('/bookmark'); } },
+              { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/brand-library') : login('/brand-library'); } },
+            ]}
+          />
         )}
 
         {/* Action Buttons */}

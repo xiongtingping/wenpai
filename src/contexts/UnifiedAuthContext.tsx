@@ -158,6 +158,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
                   guardRef.current.hide();
                   console.log('✅ Guard 弹窗已关闭');
                 }
+                document.documentElement.classList.remove('authing-guard-open');
+                document.body.classList.remove('authing-guard-open');
               }, 1000);
             });
 
@@ -170,6 +172,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
                   guardRef.current.hide();
                   console.log('✅ Guard 弹窗已关闭');
                 }
+                document.documentElement.classList.remove('authing-guard-open');
+                document.body.classList.remove('authing-guard-open');
               }, 1000);
             });
 
