@@ -288,6 +288,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         document.documentElement.classList.add('authing-guard-open');
         document.body.classList.add('authing-guard-open');
         guardRef.current.show();
+        // 将视口滚动置顶，避免外层滚动导致弹窗在可视区外
+        requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }));
 
         // 🧪 仅定位诊断：记录 Guard 弹窗 DOM/样式，不做任何样式修改
         requestAnimationFrame(() => {

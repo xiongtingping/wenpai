@@ -12,6 +12,9 @@ html.authing-guard-open #root {
 }
 
 html.authing-guard-open .authing-ant-modal-root,
+html.authing-guard-open .ant-modal-root,
+html.authing-guard-open .ant-modal-wrap,
+
 html.authing-guard-open .authing-ant-modal-wrap {
   position: fixed !important;
   inset: 0 !important;
