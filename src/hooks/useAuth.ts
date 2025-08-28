@@ -23,6 +23,47 @@ export const useAuth = () => {
   // 🎯 使用历史成功版本的认证实现
   try {
     const auth = useUnifiedAuth();
+
+    // 构建兼容的接口对象
+    return {
+      // 核心状态
+      user: auth.user,
+      isAuthenticated: auth.isAuthenticated,
+      isLoggedIn: auth.isAuthenticated, // 兼容旧接口
+      loading: auth.loading,
+      error: null, // 简化错误处理
+      initialized: !auth.loading,
+
+      // 核心认证方法
+      login: auth.login,
+      logout: auth.logout,
+      register: auth.register,
+      updateUser: auth.updateUser,
+      resetAuthState: () => {}, // 简化实现
+
+      // 兼容方法（都映射到简单实现）
+      checkAuth: () => Promise.resolve(auth.isAuthenticated),
+      checkAuthStatus: () => Promise.resolve(auth.isAuthenticated),
+      refreshToken: () => Promise.resolve(),
+      refreshAuth: () => Promise.resolve(auth.isAuthenticated),
+      getAccessToken: () => Promise.resolve(null),
+      handleAuthingLogin: auth.login,
+
+      // 权限检查方法（基础实现）
+      hasPermission: () => auth.isAuthenticated,
+      hasRole: () => auth.isAuthenticated,
+
+      // 简化的兼容方法
+      loginWithPassword: auth.login,
+      loginWithEmailCode: auth.login,
+      loginWithPhoneCode: auth.login,
+      sendVerificationCode: () => Promise.reject(new Error('简化实现中不支持')),
+      registerUser: auth.login,
+      resetPassword: () => Promise.reject(new Error('简化实现中不支持')),
+
+      // Guard实例（兼容性）
+      guard: auth.guard
+    };
   } catch (error) {
     // 🚨 临时兼容性处理：如果UnifiedAuth不可用，返回默认值
     console.warn('UnifiedAuth不可用，使用默认值:', error);
@@ -50,47 +91,6 @@ export const useAuth = () => {
       resetPassword: async () => { console.warn('认证系统未初始化'); }
     };
   }
-
-  // 构建兼容的接口对象
-  return {
-    // 核心状态
-    user: auth.user,
-    isAuthenticated: auth.isAuthenticated,
-    isLoggedIn: auth.isAuthenticated, // 兼容旧接口
-    loading: auth.loading,
-    error: null, // 简化错误处理
-    initialized: !auth.loading,
-
-    // 核心认证方法
-    login: auth.login,
-    logout: auth.logout,
-    register: auth.register,
-    updateUser: auth.updateUser,
-    resetAuthState: () => {}, // 简化实现
-
-    // 兼容方法（都映射到简单实现）
-    checkAuth: () => Promise.resolve(auth.isAuthenticated),
-    checkAuthStatus: () => Promise.resolve(auth.isAuthenticated),
-    refreshToken: () => Promise.resolve(),
-    refreshAuth: () => Promise.resolve(auth.isAuthenticated),
-    getAccessToken: () => Promise.resolve(null),
-    handleAuthingLogin: auth.login,
-
-    // 权限检查方法（基础实现）
-    hasPermission: () => auth.isAuthenticated,
-    hasRole: () => auth.isAuthenticated,
-
-    // 简化的兼容方法
-    loginWithPassword: auth.login,
-    loginWithEmailCode: auth.login,
-    loginWithPhoneCode: auth.login,
-    sendVerificationCode: () => Promise.reject(new Error('简化实现中不支持')),
-    registerUser: auth.login,
-    resetPassword: () => Promise.reject(new Error('简化实现中不支持')),
-
-    // Guard实例（兼容性）
-    guard: auth.guard
-  };
 };
 
 export default useAuth; 
