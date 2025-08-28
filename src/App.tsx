@@ -16,7 +16,7 @@
 import React, { Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
-import { OfficialAuthProvider } from '@/auth/OfficialAuthProvider';
+import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -47,9 +47,8 @@ import UpgradeComparisonPage from '@/pages/UpgradeComparisonPage';
 import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 import ShareManagerPage from '@/pages/ShareManagerPage';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
-import { DebugAuthPage } from '@/pages/DebugAuthPage';
-import AuthModalTestPage from '@/pages/AuthModalTestPage';
-import OfficialAuthTest from '@/components/OfficialAuthTest';
+// 移除调试页面
+// 移除测试组件
 
 /**
  * 条件性导航组件
@@ -70,7 +69,7 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <ThemeProvider>
         <ErrorBoundary>
-          <OfficialAuthProvider>
+          <UnifiedAuthProvider>
             <ErrorBoundary>
                   <>
                     <div className="min-h-screen bg-background">
@@ -112,10 +111,7 @@ const App: React.FC = () => {
                     <Route path="/privacy" element={<PrivacyPage />} />
                     <Route path="/features" element={<FeatureShowcasePage />} />
 
-                    {/* 调试页面 */}
-                    <Route path="/debug-auth" element={<DebugAuthPage />} />
-                    <Route path="/test-auth-modal" element={<AuthModalTestPage />} />
-                    <Route path="/test-official-auth" element={<OfficialAuthTest />} />
+                    {/* 调试页面已移除 */}
 
                     {/* 错误页面 */}
                     <Route path="/403" element={<ForbiddenPage />} />
@@ -130,7 +126,7 @@ const App: React.FC = () => {
             <Toaster />
                   </>
               </ErrorBoundary>
-          </OfficialAuthProvider>
+          </UnifiedAuthProvider>
         </ErrorBoundary>
       </ThemeProvider>
     </ErrorBoundary>
