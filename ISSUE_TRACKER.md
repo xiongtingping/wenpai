@@ -1,5 +1,15 @@
 # 🔧 AUTHING 认证系统 ISSUE TRACKER
 
+
+## 📌 快速索引（常见问题到条目）
+- JSON解析错误 → 参见【错误模式1】
+- 网络连接失败 → 参见【错误模式2】
+- SDK API不存在/误用 → 参见【问题1】
+- SDK选择错误/混用 → 参见【问题4】
+- 弹窗DOM操作冲突 → 参见【问题10】
+- 弹窗显示异常/内容高度为0 → 参见【问题16】
+
+
 ## 📋 最新正确配置信息 (2025-08-27 更新)
 
 **应用类型**: 单页 Web 应用
@@ -8,6 +18,29 @@
 **认证地址**: `https://rzcswqs4sq0f.authing.cn/68a68a29d0c3341ae7a3df23`
 **用户池 ID**: `688237f7f9e118de849dc274`
 **认证域名**: `https://rzcswqs4sq0f.authing.cn`
+
+
+## 🔒 SDK选型决策（强制）
+- 统一规范：仅允许使用 @authing/guard 与 @authing/guard-react
+- 禁止引入：@authing/web、authing-js-sdk（如需研究另开分支，不得进主干）
+- 版本锁定：避免 ^ 带来的小版本波动引入新Bug
+
+示例（建议锁定）：
+```
+"dependencies": {
+  "@authing/guard": "5.3.9"
+},
+"devDependencies": {
+  "@authing/guard-react": "5.1.11"
+}
+```
+
+## 🧭 记录修改规则（证据优先）
+- 允许对已有问题追加“更新”记录，但必须附新证据：
+  - 新的报错日志 / 抓包数据 / 监控截图
+  - 更稳定的复现场景（更小的 case）
+  - 上游 SDK 更新说明 / 官方文档确认
+- 不允许无证据的主观更改；保留原始记录，采用“问题X（更新于 YYYY-MM-DD）：...”的追加方式。
 
 **登录回调 URL**:
 - `https://www.wenpai.xyz/callback`

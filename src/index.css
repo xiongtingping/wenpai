@@ -1696,128 +1696,7 @@
   outline-offset: 2px;
 }
 
-/* 🎯 终极根因修复：Authing弹窗位置完全重写 - 强制视口内显示 */
-.authing-ant-modal-root {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  z-index: 99999 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  pointer-events: auto !important;
-  transform: none !important;
-  translate: none !important;
-  scale: none !important;
-  rotate: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: rgba(0, 0, 0, 0.5) !important;
-  inset: 0 !important;
-}
 
-.authing-ant-modal-wrap {
-  position: relative !important;
-  width: 400px !important;
-  height: auto !important;
-  min-height: 300px !important;
-  max-width: 90vw !important;
-  max-height: 90vh !important;
-  transform: none !important;
-  translate: none !important;
-  scale: none !important;
-  rotate: none !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: auto !important;
-  bottom: auto !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: white !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-  inset: auto !important;
-}
-
-.authing-ant-modal-mask {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background-color: rgba(0, 0, 0, 0.45) !important;
-  z-index: 99998 !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 0.45 !important;
-  transform: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.authing-ant-modal {
-  position: relative !important;
-  width: 100% !important;
-  height: auto !important;
-  min-height: 300px !important;
-  background: white !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-  transform: none !important;
-  top: auto !important;
-  left: auto !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-/* Guard弹窗内容区域修复 */
-.authing-ant-modal-root .ant-modal,
-.authing-ant-modal-root .authing-ant-modal,
-.authing-ant-modal-root .ant-modal-content,
-.authing-ant-modal-root .authing-ant-modal-content,
-.authing-ant-modal-root .modal-content,
-.authing-ant-modal-root > div,
-.authing-ant-modal-root > div > div {
-  width: auto !important;
-  height: auto !important;
-  min-width: 400px !important;
-  min-height: 300px !important;
-  position: relative !important;
-  background: white !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  padding: 20px !important;
-}
-
-/* 强制显示Guard弹窗的所有子元素 */
-.authing-ant-modal-root * {
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* 特别修复可能被隐藏的表单元素 */
-.authing-ant-modal-root input,
-.authing-ant-modal-root button,
-.authing-ant-modal-root form,
-.authing-ant-modal-root .ant-form,
-.authing-ant-modal-root .authing-form {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
 
 /* Guard遮罩层修复 */
 .authing-ant-modal-mask,
@@ -1856,11 +1735,6 @@
   overflow: hidden !important;
 }
 
-/* 🎯 Guard弹窗最高优先级显示 */
-.authing-ant-modal-root {
-  z-index: 999999 !important;
-  pointer-events: auto !important;
-}
 
 /* 防止页面滚动时弹窗消失 */
 body.modal-open,
