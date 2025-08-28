@@ -11,6 +11,9 @@ import { UserAvatar } from "@/components/auth/UserAvatar"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { LogoWithText } from "@/components/ui/ThemeAwareLogo"
+import { NavBar } from "@/components/ui/tubelight-navbar"
+import { Home, Radar, Sparkles, Bookmark, Library } from "lucide-react"
+
 import { PermissionTestButton } from "@/components/dev/PermissionTestButton"
 
 const HelpDocumentation = () => {
@@ -52,7 +55,7 @@ const HelpDocumentation = () => {
       content: "提供多种主题选择：体验版用户可使用浅色主题，专业版用户可使用浅色/深色主题，高级版用户可使用全部主题（浅色/深色/蓝色/米色/绿色）。"
     }
   ]
-  
+
   return (
     <PopoverContent className="w-[380px]">
       <ScrollArea className="h-[400px] p-4">
@@ -129,7 +132,7 @@ export function Header() {
     // - 高级版用户但已过期
     return true;
   };
-  
+
   return (
     <header className="theme-header-bg sticky top-0 z-50 shadow-e0 backdrop-blur-md">
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -143,7 +146,7 @@ export function Header() {
             showBackground={true}
           />
         </Link>
-        
+
         {/* Desktop Menu */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-6">
@@ -215,11 +218,25 @@ export function Header() {
             <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
               document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
             }}>
+            {/* Tubelight Navbar - desktop only */}
+            {!isMobile && (
+              <NavBar
+                positionClassName="fixed top-0 left-1/2 -translate-x-1/2 z-[60] pt-3"
+                items={[
+                  { name: '首页', url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
+                  { name: 'AI适配', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/new-adapt') : login('/new-adapt'); } },
+                  { name: '雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/hot-topics') : login('/hot-topics'); } },
+                  { name: '收藏', url: '/bookmark', icon: Bookmark, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/bookmark') : login('/bookmark'); } },
+                  { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/brand-library') : login('/brand-library'); } },
+                ]}
+              />
+            )}
+
               定价方案
             </Button>
           </div>
         )}
-        
+
         {/* Action Buttons */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-4">
@@ -240,7 +257,7 @@ export function Header() {
             <PermissionTestButton />
 
             {isAuthenticated ? (
-              <UserAvatar 
+              <UserAvatar
                 size="md"
               />
             ) : (
@@ -287,7 +304,7 @@ export function Header() {
             )}
           </div>
         )}
-        
+
         {/* Mobile Menu Button */}
         {isMobile && (
           <Sheet>
@@ -373,9 +390,9 @@ export function Header() {
                 </div>
 
                 {/* 移除分割线 */}
-                
+
                 {isAuthenticated ? (
-                  <UserAvatar 
+                  <UserAvatar
                     size="md"
                   />
                 ) : (

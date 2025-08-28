@@ -8,14 +8,16 @@ interface NavItem {
   name: string
   url: string
   icon: LucideIcon
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void
 }
 
 interface NavBarProps {
   items: NavItem[]
   className?: string
+  positionClassName?: string
 }
 
-export function NavBar({ items, className }: NavBarProps) {
+export function NavBar({ items, className, positionClassName }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0].name)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -32,7 +34,7 @@ export function NavBar({ items, className }: NavBarProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-0 sm:top-0 left-1/2 -translate-x-1/2 z-50 mb-6 sm:pt-6",
+        positionClassName || "fixed bottom-0 sm:top-0 left-1/2 -translate-x-1/2 z-50 mb-6 sm:pt-6",
         className,
       )}
     >
