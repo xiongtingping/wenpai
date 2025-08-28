@@ -286,6 +286,44 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('🎯 显示Guard弹窗...');
         guardRef.current.show();
 
+        // 🧪 仅定位诊断：记录 Guard 弹窗 DOM/样式，不做任何样式修改
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            try {
+              const root = document.querySelector('.authing-ant-modal-root') as HTMLElement | null;
+              const wrap = root?.querySelector('.authing-ant-modal-wrap') as HTMLElement | null;
+              const modal = root?.querySelector('.authing-ant-modal') as HTMLElement | null;
+              const content = root?.querySelector('.authing-g2-render-module') as HTMLElement | null;
+
+              const dump = (el: HTMLElement | null) => el ? {
+                exists: true,
+                rect: el.getBoundingClientRect(),
+                style: {
+                  display: getComputedStyle(el).display,
+                  visibility: getComputedStyle(el).visibility,
+                  opacity: getComputedStyle(el).opacity,
+                  position: getComputedStyle(el).position,
+                  zIndex: getComputedStyle(el).zIndex,
+                  transform: getComputedStyle(el).transform,
+                }
+              } : { exists: false };
+
+              console.log('🧪 Guard DOM Probe (login):', {
+                viewport: { w: window.innerWidth, h: window.innerHeight, scrollY: window.scrollY },
+                activeElement: document.activeElement && (document.activeElement as HTMLElement).outerHTML?.slice(0, 120),
+                root: dump(root!),
+                wrap: dump(wrap!),
+                modal: dump(modal!),
+                content: dump(content!),
+                inputs: root ? Array.from(root.querySelectorAll('input')).length : 0,
+                buttons: root ? Array.from(root.querySelectorAll('button')).length : 0,
+              });
+            } catch (e) {
+              console.warn('🧪 Guard DOM Probe error:', e);
+            }
+          }, 150);
+        });
+
         // 使用 Guard 官方渲染与样式，移除运行时样式注入与 DOM 覆盖，避免引入技术债务。
         // 若后续仍出现位置/高度问题，应从配置与容器挂载策略排查（如冲突样式、外层容器 transform/overflow 等）。
       } else {

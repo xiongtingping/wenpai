@@ -245,7 +245,28 @@ export function Header() {
               />
             ) : (
               <div className="flex items-center space-x-2">
-                <Button variant="outline" onClick={() => login()}>
+                <Button variant="outline" onClick={() => {
+                  console.log('🧪 Header 登录按钮点击');
+                  try {
+                    setTimeout(() => {
+                      try {
+                        const root = document.querySelector('.authing-ant-modal-root') as HTMLElement | null;
+                        const wrap = root?.querySelector('.authing-ant-modal-wrap') as HTMLElement | null;
+                        const modal = root?.querySelector('.authing-ant-modal') as HTMLElement | null;
+                        const rect = root?.getBoundingClientRect();
+                        console.log('🧪 Header DOM Probe (pre-login):', {
+                          hasRoot: !!root, rect,
+                          visibility: root ? getComputedStyle(root).visibility : 'n/a',
+                          opacity: root ? getComputedStyle(root).opacity : 'n/a',
+                          zIndex: root ? getComputedStyle(root).zIndex : 'n/a',
+                          transform: root ? getComputedStyle(root).transform : 'n/a',
+                          scrollY: window.scrollY,
+                        });
+                      } catch (e) { console.warn('🧪 Header DOM Probe error(pre):', e); }
+                    }, 0);
+                  } catch {}
+                  login();
+                }}>
                   登录
                 </Button>
                 <Button
