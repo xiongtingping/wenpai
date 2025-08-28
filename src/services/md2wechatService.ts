@@ -55,7 +55,9 @@ class SimpleCache {
     // 如果缓存已满，删除最旧的项
     if (this.cache.size >= this.maxSize) {
       const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+      if (firstKey) {
+        this.cache.delete(firstKey);
+      }
     }
 
     this.cache.set(key, {
@@ -281,7 +283,7 @@ export class MD2WeChatService {
   async validateApiKey(apiKey: string): Promise<boolean> {
     try {
       // 实际实现中验证API密钥
-      return apiKey && apiKey.length > 0;
+      return Boolean(apiKey && apiKey.length > 0);
     } catch (error) {
       this.log('API密钥验证失败', { error });
       return false;

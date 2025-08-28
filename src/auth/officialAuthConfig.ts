@@ -11,7 +11,7 @@ import { Guard } from '@authing/guard';
  * OAuth2要求发起认证和交换token时使用完全相同的redirect_uri
  */
 export const getOfficialAuthConfig = () => {
-  // 🔧 修复：Guard需要不带协议的域名
+  // ✅ 使用最新正确配置 (2025-01-27)
   const domain = import.meta.env.VITE_AUTHING_DOMAIN || 'rzcswqs4sq0f.authing.cn';
   const appId = import.meta.env.VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
 
@@ -108,27 +108,25 @@ export function createOfficialAuthSDK(): Guard {
     // 🔧 根因修复：使用正确的Guard配置
     console.log('🎯 使用正确的Guard配置，避免技术债务');
 
-    // 🔧 根因修复：基于solution文档的完整Guard配置
-    // 参考AUTHING_SUCCESS_BACKUP_2025-07-25.md中的成功配置
+    // 🔧 根因修复：使用正确的Guard参数格式
+    // 参考AUTHING_REDIRECT_URI_MISMATCH_SOLUTION.md的修复方案
     const guard = new Guard({
       appId: config.appId,
-      host: `https://${config.domain}`, // ✅ 修复：使用官方文档格式，不包含appId
+      host: `https://${config.domain}`, // ✅ 修复：使用完整URL格式
       redirectUri: config.redirectUri,
-      mode: 'modal', // ✅ 修复：使用成功配置中的modal模式
-      // 🎯 关键修复：添加完整的UI配置，防止焦点管理问题
+      mode: 'modal', // 使用modal模式
+      scope: 'openid profile email phone',
+      responseType: 'code',
       lang: 'zh-CN',
       autoFocus: false, // 防止自动焦点导致页面跳转
       escCloseable: true,
       clickCloseable: true,
       maskCloseable: true,
       // 🔧 防止aria-hidden冲突的配置
-      config: {
-        autoRegister: false,
-        skipComplateFileds: false,
-        closeable: true,
-        clickCloseableMask: true,
-        title: '文派登录'
-      }
+      autoRegister: false,
+      closeable: true,
+      clickCloseableMask: true,
+      title: '文派登录'
     });
 
     console.log('✅ Guard实例创建成功');
@@ -138,8 +136,8 @@ export function createOfficialAuthSDK(): Guard {
       hasShow: typeof guard.show === 'function',
       hasOn: typeof guard.on === 'function',
       hasHide: typeof guard.hide === 'function',
-      methods: Object.getOwnPropertyNames(guard).filter(name => typeof guard[name] === 'function'),
-      prototype: Object.getOwnPropertyNames(Object.getPrototypeOf(guard)).filter(name => typeof guard[name] === 'function')
+      methods: Object.getOwnPropertyNames(guard).filter(name => typeof (guard as any)[name] === 'function'),
+      prototype: Object.getOwnPropertyNames(Object.getPrototypeOf(guard)).filter(name => typeof (guard as any)[name] === 'function')
     });
 
     return guard;

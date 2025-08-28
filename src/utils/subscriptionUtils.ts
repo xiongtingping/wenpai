@@ -14,7 +14,7 @@ export interface UserSubscription {
 }
 
 // 导入认证系统的AuthUser类型
-import type { AuthUser as AuthSystemUser } from '@/auth/types';
+import type { AuthUser as AuthSystemUser } from '@/types/auth';
 
 // 兼容类型定义
 export interface AuthUser {

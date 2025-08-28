@@ -478,7 +478,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     } catch (error) {
       console.error('❌ 架构级登录失败:', error);
-      setError('登录失败: ' + (error.message || error));
+      setError('登录失败: ' + (error instanceof Error ? error.message : String(error)));
     }
   };
 
