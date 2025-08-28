@@ -9,7 +9,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        // Tubelight 风格作为全局默认
+        tubelight: "bg-background/5 border border-border backdrop-blur-lg text-foreground/90 hover:text-primary rounded-full px-6 py-2 shadow-lg hover:bg-primary/5 transition-colors",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
         outline:
@@ -79,6 +80,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
       animation: "none",
+      variant: "default",
     },
   }
 )

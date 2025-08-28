@@ -65,11 +65,11 @@ export const WavyBackground = ({
   };
 
   const waveColors = colors ?? [
-    "#38bdf8",
-    "#818cf8",
-    "#c084fc",
-    "#e879f9",
-    "#22d3ee",
+    getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#38bdf8',
+    getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim() || '#818cf8',
+    getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c084fc',
+    getComputedStyle(document.documentElement).getPropertyValue('--ring').trim() || '#e879f9',
+    getComputedStyle(document.documentElement).getPropertyValue('--muted-foreground').trim() || '#22d3ee',
   ];
   const drawWave = (n: number) => {
     nt += getSpeed();

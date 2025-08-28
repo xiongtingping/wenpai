@@ -150,13 +150,13 @@ export function Header() {
         {/* Desktop Menu → Tubelight Navbar */}
         {!isMobile && (
           <NavBar
-            positionClassName="fixed top-0 left-1/2 -translate-x-1/2 z-[60] pt-3"
+            positionClassName="relative z-[60]"
             items={[
               { name: '首页', url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
-              { name: 'AI适配', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/new-adapt') : login('/new-adapt'); } },
-              { name: '雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/hot-topics') : login('/hot-topics'); } },
-              { name: '收藏', url: '/bookmark', icon: Bookmark, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/bookmark') : login('/bookmark'); } },
-              { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/brand-library') : login('/brand-library'); } },
+              { name: 'AI内容适配器', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/new-adapt') : login('/new-adapt'); } },
+              { name: '全网雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/hot-topics') : login('/hot-topics'); } },
+              { name: '我的收藏', url: '/bookmark', icon: Bookmark, onClick: (e) => { e.preventDefault(); navigate('/bookmark'); } },
+              { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); navigate('/brand-library'); } },
             ]}
           />
         )}

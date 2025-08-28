@@ -111,6 +111,41 @@ function createSimplifiedGuardInstance() {
   }
 }
 
+/**
+ * 创建/获取 Guard 嵌入式挂载容器（系统性方案，避免 CSS 覆盖）
+ */
+function ensureGuardOverlayMount() {
+  const WRAPPER_ID = 'authing-guard-overlay';
+  const CONTENT_ID = 'authing-guard-embed';
+  let wrapper = document.getElementById(WRAPPER_ID) as HTMLDivElement | null;
+  if (!wrapper) {
+    wrapper = document.createElement('div');
+    wrapper.id = WRAPPER_ID;
+    wrapper.style.position = 'fixed';
+    wrapper.style.inset = '0';
+    wrapper.style.zIndex = '2147483647';
+    wrapper.style.background = 'rgba(0,0,0,0.45)';
+    wrapper.style.display = 'flex';
+    wrapper.style.alignItems = 'center';
+    wrapper.style.justifyContent = 'center';
+    wrapper.style.pointerEvents = 'auto';
+
+    const content = document.createElement('div');
+    content.id = CONTENT_ID;
+    content.style.width = 'min(420px, 92vw)';
+    content.style.maxHeight = '90vh';
+    content.style.overflow = 'auto';
+    content.style.borderRadius = '12px';
+    content.style.background = 'hsl(var(--card, 0 0% 100%))';
+    content.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
+
+    wrapper.appendChild(content);
+    document.body.appendChild(wrapper);
+  }
+  return { wrapperId: WRAPPER_ID, contentId: CONTENT_ID };
+}
+
+
 
 
 /**
@@ -201,7 +236,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       setLoading(true);
       setError(null);
-      
+
       // 从本地存储获取用户信息
       const storedUser = localStorage.getItem('authing_user');
       if (storedUser) {
@@ -209,7 +244,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         setUser(userData);
         console.log('✅ 从本地存储恢复用户信息:', userData);
       }
-      
+
       // Guard 模式下无需在此处理回调，官方SDK接管
     } catch (error) {
       console.error('❌ 检查认证状态失败:', error);
@@ -288,11 +323,24 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 🎯 最终根因修复：显示弹窗
       if (guardRef.current) {
         console.log('🎯 显示Guard弹窗...');
-        // 🧊 冻结顶层变换以避免 fixed 参照系错误（不改第三方样式，仅加类名）
+        // 系统性方案：嵌入渲染，避免全局 CSS 覆盖
+        const { contentId } = ensureGuardOverlayMount();
         document.documentElement.classList.add('authing-guard-open');
         document.body.classList.add('authing-guard-open');
-        guardRef.current.show();
-        // 将视口滚动置顶，避免外层滚动导致弹窗在可视区外
+        // 切换为嵌入模式
+        try {
+          // 有些版本使用 start(selector)
+          // @ts-ignore
+          if (typeof guardRef.current.start === 'function') {
+            // @ts-ignore
+            guardRef.current.start(`#${contentId}`);
+          } else {
+            // 回退到 modal
+            guardRef.current.show();
+          }
+        } catch {
+          guardRef.current.show();
+        }
         requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }));
 
         // 🧪 仅定位诊断：记录 Guard 弹窗 DOM/样式，不做任何样式修改

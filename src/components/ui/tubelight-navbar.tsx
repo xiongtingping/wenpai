@@ -46,8 +46,11 @@ export function NavBar({ items, className, positionClassName }: NavBarProps) {
           return (
             <Link
               key={item.name}
-              href={item.url}
-              onClick={() => setActiveTab(item.name)}
+              to={item.url}
+              onClick={(e) => {
+                item.onClick?.(e)
+                setActiveTab(item.name)
+              }}
               className={cn(
                 "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",
                 "text-foreground/80 hover:text-primary",
