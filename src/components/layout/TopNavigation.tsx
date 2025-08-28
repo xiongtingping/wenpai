@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { NavBar } from '@/components/ui/tubelight-navbar';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 // 🔒 [AUTHING_GUARD_NAVIGATION_v2025.08.14]
@@ -162,28 +163,18 @@ export const TopNavigation: React.FC = () => {
               </div>
             </Link>
 
-            {/* 桌面端功能导航菜单 */}
-            <nav className="hidden lg:flex items-center space-x-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.path}
-                  onClick={() => handleNavigation(item)}
-                  className={`flex items-center space-x-2 px-4 py-2 text-base font-medium rounded-md transition-all duration-200 relative group ${
-                    isActivePath(item.path)
-                      ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm'
-                      : 'text-primary hover:text-accent hover:bg-accent/50 hover:border-b-2 hover:border-accent'
-                  }`}
-                >
-                  <item.icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 text-current ${
-                    isActivePath(item.path) ? 'text-primary' : ''
-                  }`} />
-                  <span>{item.label}</span>
-                  {isActivePath(item.path) && (
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-card rounded-full"></div>
-                  )}
-                </button>
-              ))}
-            </nav>
+            {/* 桌面端功能导航菜单 → Tubelight NavBar */}
+            <div className="hidden lg:flex items-center">
+              <NavBar
+                positionClassName="relative"
+                items={navItems.map(item => ({
+                  name: item.label,
+                  url: item.path,
+                  icon: item.icon,
+                  onClick: (e) => { e.preventDefault(); handleNavigation(item); }
+                }))}
+              />
+            </div>
 
             {/* 平板端下拉菜单 */}
             <DropdownMenu>

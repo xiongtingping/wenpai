@@ -99,7 +99,7 @@ function createSimplifiedGuardInstance() {
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
-      mode: 'modal',
+      mode: 'normal',
       lang: 'zh-CN'
     });
 
@@ -144,6 +144,15 @@ function ensureGuardOverlayMount() {
   }
   return { wrapperId: WRAPPER_ID, contentId: CONTENT_ID };
 }
+            // 关闭时也清理 overlay 与类名
+            // @ts-ignore
+            guardRef.current.on && guardRef.current.on('close', () => {
+              const wrap = document.getElementById('authing-guard-overlay');
+              if (wrap) wrap.remove();
+              document.documentElement.classList.remove('authing-guard-open');
+              document.body.classList.remove('authing-guard-open');
+            });
+
 
 
 
