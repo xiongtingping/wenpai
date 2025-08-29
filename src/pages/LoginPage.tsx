@@ -65,84 +65,72 @@ const LoginPage: React.FC = () => {
           mode: 'modal'
         });
 
-        // 等待Guard完全初始化后再绑定事件
-        await new Promise(resolve => setTimeout(resolve, 100));
+        guardRef.current = g;
         
         console.log('🔍 Guard实例检查:', {
           hasOn: typeof g.on === 'function',
           hasStart: typeof g.start === 'function',
           constructor: g.constructor.name,
-          prototype: Object.getOwnPropertyNames(Object.getPrototypeOf(g))
+          eventHandlers: g._eventHandlers || 'undefined'
         });
 
-        guardRef.current = g;
-
-        // 安全的事件绑定，检查方法是否存在
-        try {
-          if (typeof g.on === 'function') {
-            // 监听登录成功
-            g.on('login', (userInfo: any) => {
-              console.log('✅ Guard登录成功:', userInfo);
-              sessionStorage.setItem('user', JSON.stringify(userInfo));
-              sessionStorage.setItem('token', userInfo.token);
-              navigate('/');
-            });
-
-            // 监听登录失败
-            g.on('login-error', (error: any) => {
-              console.error('❌ Guard登录失败:', error);
-            });
-
-            // 监听Modal事件
-            g.on('show', () => {
-              console.log('🎯 Guard Modal显示');
-              document.documentElement.classList.add('authing-guard-open');
-              document.body.classList.add('authing-guard-open');
-              
-              // 修复焦点和定位
-              setTimeout(() => {
-                const ariaHiddenElements = document.querySelectorAll('[aria-hidden="true"]');
-                ariaHiddenElements.forEach(el => {
-                  const focusableChild = el.querySelector('[tabindex], input, button, textarea, select');
-                  if (focusableChild) {
-                    el.removeAttribute('aria-hidden');
-                  }
-                });
-                
-                const modalWrap = document.querySelector('.ant-modal-wrap, .authing-ant-modal-wrap');
-                if (modalWrap) {
-                  (modalWrap as HTMLElement).style.cssText += `
-                    position: fixed !important;
-                    inset: 0 !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    z-index: 999999 !important;
-                  `;
-                }
-              }, 100);
-            });
-
-            g.on('hide', () => {
-              console.log('🎯 Guard Modal隐藏');
-              document.documentElement.classList.remove('authing-guard-open');
-              document.body.classList.remove('authing-guard-open');
-            });
-
-            console.log('✅ Guard事件绑定完成');
-          } else {
-            console.error('❌ Guard.on方法不存在');
-            throw new Error('Guard事件系统不可用');
-          }
-        } catch (eventError) {
-          console.error('❌ Guard事件绑定失败:', eventError);
-          throw eventError;
+        // Guard事件系统初始化修复：手动初始化事件处理器
+        if (!g._eventHandlers) {
+          console.log('🔧 修复Guard事件系统：手动初始化事件处理器');
+          g._eventHandlers = {};
         }
         
-        if (mounted) {
-          setGuardState('ready');
-          console.log('✅ Guard初始化完成');
-        }
+        // 延迟绑定确保Guard完全准备
+        setTimeout(() => {
+          if (!mounted) return;
+          
+          try {
+            console.log('🔗 开始安全事件绑定...');
+            
+            // 重新检查事件系统
+            if (!g._eventHandlers) {
+              g._eventHandlers = {};
+            }
+            
+            // 安全绑定登录事件
+            if (typeof g.on === 'function') {
+              g.on('login', (userInfo: any) => {
+                console.log('✅ Guard登录成功:', userInfo);
+                sessionStorage.setItem('user', JSON.stringify(userInfo));
+                sessionStorage.setItem('token', userInfo.token);
+                navigate('/');
+              });
+
+              g.on('login-error', (error: any) => {
+                console.error('❌ Guard登录失败:', error);
+              });
+
+              g.on('show', () => {
+                console.log('🎯 Guard Modal显示');
+                document.documentElement.classList.add('authing-guard-open');
+                document.body.classList.add('authing-guard-open');
+              });
+
+              g.on('hide', () => {
+                console.log('🎯 Guard Modal隐藏');
+                document.documentElement.classList.remove('authing-guard-open');
+                document.body.classList.remove('authing-guard-open');
+              });
+
+              console.log('✅ Guard事件绑定成功');
+              
+              if (mounted) {
+                setGuardState('ready');
+                console.log('✅ Guard完全初始化完成');
+              }
+            }
+          } catch (eventError) {
+            console.error('❌ 延迟事件绑定失败:', eventError);
+            if (mounted) {
+              setGuardState('failed');
+            }
+          }
+        }, 200);
         
       } catch (error) {
         console.error('❌ Guard初始化失败:', error);
