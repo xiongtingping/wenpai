@@ -10,8 +10,8 @@ export interface BaseAuthingConfig {
 
 export interface ResolvedGuardConfig {
   appId: string;
-  host: string;       // Plan A: https://<domain>/<appId> 应用专属 host
-  redirectUri: string; // 从服务器白名单选择的回调
+  appHost: string;     // 纯域名（官方推荐），用于 Guard 的 appHost 参数
+  redirectUri: string; // 从服务器白名单选择的回调（严格等值）
 }
 
 function toDomain(host: string): string {
@@ -54,14 +54,31 @@ export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promis
       const data = await resp.json();
       const redirectUris: string[] =
         data?.oidc?.redirect_uris || data?.redirectUris || data?.redirectUrisWhitelist || [];
-      let chosen = pickRedirectUri(redirectUris, base.redirectUri);
-      // 生产环境一律回落到主域回调，统一入口，避免白名单抖动
-      if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
-        chosen = 'https://www.wenpai.xyz/callback';
+
+      // 优先使用“当前站点回调”在白名单中的精确项，其次按固定优先级
+      let chosen = '';
+      try {
+        if (typeof window !== 'undefined') {
+          const originCandidate = `${window.location.origin}/callback`;
+          if (redirectUris.includes(originCandidate)) {
+            chosen = originCandidate;
+          }
+        }
+      } catch {}
+      if (!chosen) {
+        chosen = pickRedirectUri(redirectUris, base.redirectUri);
       }
+      // 观测日志（帮助线上核对白名单 vs 实际使用）
+      try {
+        // eslint-disable-next-line no-console
+        console.log('🔎 Authing public-config redirect_uris:', redirectUris);
+        // eslint-disable-next-line no-console
+        console.log('✅ 使用的 redirectUri:', chosen);
+      } catch {}
+
       return {
         appId: base.appId,
-        host: `https://${domain}/${base.appId}`.replace(/\/$/, ''),
+        appHost: domain, // 纯域名供 Guard.appHost 使用
         redirectUri: chosen
       };
     }
@@ -70,7 +87,7 @@ export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promis
   }
   return {
     appId: base.appId,
-    host: `https://${domain}/${base.appId}`.replace(/\/$/, ''),
+    appHost: domain,
     redirectUri: normalizeRedirect(base.redirectUri)
   };
 }

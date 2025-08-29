@@ -22,11 +22,11 @@ const LoginPage: React.FC = () => {
 
         const g = new Guard({
           appId: resolved.appId,
-          host: resolved.host,
+          appHost: resolved.appHost,
           redirectUri: resolved.redirectUri,
           mode: 'normal',
           lang: 'zh-CN'
-        });
+        } as any);
         guardRef.current = g;
 
         if (typeof g.startWithRedirect === 'function') {
