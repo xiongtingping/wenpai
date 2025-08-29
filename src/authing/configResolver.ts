@@ -78,7 +78,7 @@ export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promis
       const finalRedirect = isLocal ? 'http://localhost:5173/callback' : 'https://www.wenpai.xyz/callback';
       return {
         appId: base.appId,
-        host: `https://${domain}/${base.appId}`.replace(/\/$/, ''),
+        host: `https://${domain}`,
         redirectUri: finalRedirect
       };
     }
@@ -88,7 +88,7 @@ export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promis
   const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
   return {
     appId: base.appId,
-    host: `https://${domain}/${base.appId}`.replace(/\/$/, ''),
+    host: `https://${domain}`,
     redirectUri: isLocal ? 'http://localhost:5173/callback' : 'https://www.wenpai.xyz/callback'
   };
 }
