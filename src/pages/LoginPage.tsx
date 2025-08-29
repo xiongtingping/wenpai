@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import '@authing/guard/dist/esm/guard.min.css';
 import { Guard } from '@authing/guard';
 import { getAuthingConfig } from '@/config/authing';
+import { resolveAuthingGuardConfig } from '@/authing/configResolver';
 
 const LoginPage: React.FC = () => {
   const cfg = getAuthingConfig();
@@ -48,65 +49,54 @@ const LoginPage: React.FC = () => {
   };
 
   useEffect(() => {
-    try {
-      const makeGuardHost = (host: string, appId: string) => {
-        try {
-          const u = new URL(host);
-          // 若路径为空或'/'，补上应用路径 /{appId}
-          if (!u.pathname || u.pathname === '/' || u.pathname === '') {
-            u.pathname = `/${appId}`;
-          } else if (!u.pathname.includes(appId)) {
-            // 若已有路径但不含appId，强制改为应用路径
-            u.pathname = `/${appId}`;
-          }
-          return u.toString().replace(/\/$/, '');
-        } catch {
-          return `${host.replace(/\/$/, '')}/${appId}`;
-        }
-      };
+    (async () => {
+      try {
+        // 以 Authing public-config 为单一事实源，系统性校准 host 与 redirectUri
+        const resolved = await resolveAuthingGuardConfig({
+          appId: cfg.appId,
+          host: cfg.host,
+          redirectUri: cfg.redirectUri
+        });
 
-      const g = new Guard({
-        appId: cfg.appId,
-        host: makeGuardHost(cfg.host, cfg.appId),
-        redirectUri: normalizeRedirectUri(cfg.redirectUri),
-        mode: 'normal',
-        lang: 'zh-CN'
-      });
-      guardRef.current = g;
+        const g = new Guard({
+          appId: resolved.appId,
+          host: resolved.host, // 官方文档 host = https://<domain>
+          redirectUri: resolved.redirectUri,
+          mode: 'normal',
+          lang: 'zh-CN'
+        });
+        guardRef.current = g;
 
-      if (typeof g.start === 'function') {
-        g.start('#guard-embed');
-      }
+        if (typeof g.start === 'function') g.start('#guard-embed');
 
-      const t = setTimeout(() => {
-        const el = document.getElementById('guard-embed');
-        const hasChild = !!el && el.childElementCount > 0;
-        const rect = el?.getBoundingClientRect();
-        const visible = !!rect && rect.height > 50 && rect.width > 200;
-        if (!hasChild || !visible) {
-          console.warn('⚠️ Guard 嵌入式渲染疑似失败，触发 startWithRedirect 兜底');
-          if (typeof g.startWithRedirect === 'function') {
+        const t = setTimeout(() => {
+          const el = document.getElementById('guard-embed');
+          const hasChild = !!el && el.childElementCount > 0;
+          const rect = el?.getBoundingClientRect();
+          const visible = !!rect && rect.height > 50 && rect.width > 200;
+          if (!hasChild || !visible && typeof g.startWithRedirect === 'function') {
+            console.warn('⚠️ Guard 嵌入式渲染疑似失败，触发 startWithRedirect 兜底');
             g.startWithRedirect();
           }
+        }, 1500);
+
+        if (typeof g.on === 'function') {
+          g.on('login', async () => {
+            const to = window.localStorage.getItem('login_redirect_to') || '/';
+            window.localStorage.removeItem('login_redirect_to');
+            window.location.href = to;
+          });
+          g.on('close', () => {
+            const to = window.localStorage.getItem('login_redirect_to') || '/';
+            window.location.href = to;
+          });
         }
-      }, 1500);
 
-      if (typeof g.on === 'function') {
-        g.on('login', async () => {
-          const to = window.localStorage.getItem('login_redirect_to') || '/';
-          window.localStorage.removeItem('login_redirect_to');
-          window.location.href = to;
-        });
-        g.on('close', () => {
-          const to = window.localStorage.getItem('login_redirect_to') || '/';
-          window.location.href = to;
-        });
+        return () => clearTimeout(t);
+      } catch (e) {
+        console.error('Authing Guard start failed:', e);
       }
-
-      return () => clearTimeout(t);
-    } catch (e) {
-      console.error('Authing Guard start failed:', e);
-    }
+    })();
   }, [cfg.appId, cfg.host, cfg.redirectUri]);
 
   return (
