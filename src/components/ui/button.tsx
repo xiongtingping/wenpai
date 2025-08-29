@@ -78,10 +78,9 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "tubelight",
       size: "default",
       animation: "none",
-      variant: "default",
     },
   }
 )

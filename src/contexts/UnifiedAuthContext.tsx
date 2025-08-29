@@ -111,43 +111,7 @@ function createSimplifiedGuardInstance() {
   }
 }
 
-/**
- * 创建/获取 Guard 嵌入式挂载容器（系统性方案，避免 CSS 覆盖）
- */
-function ensureGuardOverlayMount() {
-  const WRAPPER_ID = 'authing-guard-overlay';
-  const CONTENT_ID = 'authing-guard-embed';
-  let wrapper = document.getElementById(WRAPPER_ID) as HTMLDivElement | null;
-  if (!wrapper) {
-    wrapper = document.createElement('div');
-    wrapper.id = WRAPPER_ID;
-    wrapper.style.position = 'fixed';
-    wrapper.style.inset = '0';
-    wrapper.style.zIndex = '2147483647';
-    wrapper.style.background = 'rgba(0,0,0,0.45)';
-    wrapper.style.display = 'flex';
-    wrapper.style.alignItems = 'center';
-    wrapper.style.justifyContent = 'center';
-    wrapper.style.pointerEvents = 'auto';
-
-    const content = document.createElement('div');
-    content.id = CONTENT_ID;
-    content.style.width = 'min(420px, 92vw)';
-    content.style.maxHeight = '90vh';
-    content.style.overflow = 'auto';
-    content.style.borderRadius = '12px';
-    content.style.background = 'hsl(var(--card, 0 0% 100%))';
-    content.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
-
-    wrapper.appendChild(content);
-    document.body.appendChild(wrapper);
-  }
-  return { wrapperId: WRAPPER_ID, contentId: CONTENT_ID };
-}
-
-
-
-
+// （已切换为专用路由嵌入式登录，不再需要运行时创建 overlay 容器）
 
 /**
  * 创建认证上下文
@@ -321,89 +285,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         guardRef.current = createSimplifiedGuardInstance();
       }
 
-      // 🎯 最终根因修复：显示弹窗
-      if (guardRef.current) {
-        console.log('🎯 显示Guard弹窗...');
-        // 系统性方案：嵌入渲染，避免全局 CSS 覆盖
-        const { contentId } = ensureGuardOverlayMount();
-        document.documentElement.classList.add('authing-guard-open');
-        document.body.classList.add('authing-guard-open');
-        // 切换为嵌入模式
-        try {
-          // 有些版本使用 start(selector)
-          // @ts-ignore
-          if (typeof guardRef.current.start === 'function') {
-            // @ts-ignore
-            guardRef.current.start(`#${contentId}`);
-          } else {
-            // 回退到 modal
-            guardRef.current.show();
-          }
-        } catch {
-          guardRef.current.show();
-        }
-        requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }));
-
-        // 🧪 仅定位诊断：记录 Guard 弹窗 DOM/样式，不做任何样式修改
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            try {
-              const root = document.querySelector('.authing-ant-modal-root') as HTMLElement | null;
-              const wrap = root?.querySelector('.authing-ant-modal-wrap') as HTMLElement | null;
-              const modal = root?.querySelector('.authing-ant-modal') as HTMLElement | null;
-              const mask = root?.querySelector('.authing-ant-modal-mask') as HTMLElement | null;
-              const content = root?.querySelector('.authing-g2-render-module') as HTMLElement | null;
-
-              const dump = (el: HTMLElement | null) => el ? {
-                exists: true,
-                rect: (() => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; })(),
-                inViewport: (() => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.right > 0 && r.top < window.innerHeight && r.left < window.innerWidth; })(),
-                style: (() => { const s = getComputedStyle(el); return {
-                  display: s.display, visibility: s.visibility, opacity: s.opacity,
-                  position: s.position, zIndex: s.zIndex, transform: s.transform
-                }; })()
-              } : { exists: false };
-
-              const centerEls = document.elementsFromPoint(window.innerWidth / 2, window.innerHeight / 2)
-                                   .slice(0, 5)
-                                   .map(el => (el as HTMLElement).className || (el as HTMLElement).id || (el as HTMLElement).tagName);
-
-              // 统计高 z-index 的固定/绝对层（可能挡住弹窗）
-              const highZLayers = Array.from(document.querySelectorAll<HTMLElement>('body *'))
-                .filter(el => {
-                  const s = getComputedStyle(el);
-                  const zi = parseInt(s.zIndex || '0', 10);
-                  return (s.position === 'fixed' || s.position === 'sticky' || s.position === 'absolute') && zi >= 1000 && el.offsetParent !== null;
-                })
-                .slice(0, 20)
-                .map(el => ({
-                  tag: el.tagName.toLowerCase(),
-                  cls: el.className,
-                  id: el.id,
-                  z: getComputedStyle(el).zIndex,
-                  rect: (() => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; })()
-                }));
-
-              console.log('🧪 Guard DOM Probe (login):', {
-                viewport: { w: window.innerWidth, h: window.innerHeight, scrollY: window.scrollY },
-                activeElement: document.activeElement && (document.activeElement as HTMLElement).outerHTML?.slice(0, 120),
-                root: dump(root!), wrap: dump(wrap!), modal: dump(modal!), mask: dump(mask!), content: dump(content!),
-                inputs: root ? root.querySelectorAll('input').length : 0,
-                buttons: root ? root.querySelectorAll('button').length : 0,
-                centerTopElements: centerEls,
-                highZLayers
-              });
-            } catch (e) {
-              console.warn('🧪 Guard DOM Probe error:', e);
-            }
-          }, 200);
-        });
-
-        // 使用 Guard 官方渲染与样式，移除运行时样式注入与 DOM 覆盖，避免引入技术债务。
-        // 若后续仍出现位置/高度问题，应从配置与容器挂载策略排查（如冲突样式、外层容器 transform/overflow 等）。
-      } else {
-        throw new Error('Guard 实例初始化失败');
-      }
+      // 🔁 切换为“专用嵌入页”架构：不再在此处渲染/弹窗，统一跳转到 /auth/login
+      console.log('🔁 跳转到专用登录页 /auth/login');
+      try {
+        window.localStorage.setItem('login_redirect_to', redirectTo || window.location.pathname);
+      } catch {}
+      window.location.href = '/auth/login';
+      return;
 
     } catch (error) {
       console.error('❌ 架构级登录失败:', error);
