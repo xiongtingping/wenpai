@@ -180,61 +180,9 @@ export default function BookmarkPage() {
       }
     }
 
-    // 如果没有保存的数据，使用示例数据并保存
-    console.log('🆕 初始化示例数据');
-    const sampleItems: LibraryItem[] = [
-        {
-          id: '1',
-          title: '小红书营销策略分析',
-          content: '深度分析小红书平台的用户特征、内容偏好和营销机会...',
-          type: 'collection',
-          source: 'https://example.com/xiaohongshu-analysis',
-          sourceType: 'url',
-          tags: ['小红书', '营销策略', '社交媒体'],
-          isFavorite: true,
-          isUsed: false,
-          category: '营销分析',
-          createdAt: '2024-01-15T10:30:00Z',
-          updatedAt: '2024-01-15T10:30:00Z'
-        },
-        {
-          id: '2',
-          title: '品牌推广文案模板',
-          content: '🎯 核心卖点：\n• 高效便捷的操作体验\n• 专业可靠的技术支持\n• 性价比超高的解决方案...',
-          type: 'copywriting',
-          tags: ['品牌推广', '文案模板', '营销'],
-          isFavorite: true,
-          isUsed: true,
-          category: '营销文案',
-          platform: '微信公众号',
-          createdAt: '2024-01-14T14:20:00Z',
-          updatedAt: '2024-01-14T14:20:00Z'
-        },
-        {
-          id: '3',
-          title: '2024年内容营销趋势报告',
-          content: '# 2024年内容营销趋势报告\n\n## 主要趋势\n1. AI辅助内容创作\n2. 短视频持续火热\n3. 互动式内容增长...',
-          type: 'extraction',
-          source: '2024-content-marketing-report.pdf',
-          sourceType: 'file',
-          tags: ['内容营销', '趋势报告', '2024'],
-          isFavorite: false,
-          isUsed: false,
-          category: '行业报告',
-          summary: '分析了2024年内容营销的主要趋势，包括AI辅助创作、短视频发展、互动内容等关键方向...',
-          metadata: {
-            wordCount: 2500,
-            charCount: 8000,
-            date: '2024-01-01'
-          },
-          createdAt: '2024-01-13T09:15:00Z',
-          updatedAt: '2024-01-13T09:15:00Z'
-        }
-      ];
-
-    setLibraryItems(sampleItems);
-    localStorage.setItem(storageKey, JSON.stringify(sampleItems));
-    console.log('💾 示例数据已保存到localStorage');
+    // 如果没有保存的数据，初始化为空数组
+    console.log('🆕 初始化空资料库');
+    setLibraryItems([]);
   }, [user?.id]); // 当用户ID变化时重新加载数据
 
   /**
@@ -838,7 +786,7 @@ export default function BookmarkPage() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as 'time' | 'title' | 'type')}
-                    className="p-2 border border-border rounded-md text-sm"
+                    className="p-2 border border-border rounded-md text-sm bg-background text-foreground"
                   >
                     <option value="time">时间</option>
                     <option value="title">标题</option>
@@ -847,7 +795,7 @@ export default function BookmarkPage() {
                   <select
                     value={sortOrder}
                     onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-                    className="p-2 border border-border rounded-md text-sm"
+                    className="p-2 border border-border rounded-md text-sm bg-background text-foreground"
                   >
                     <option value="desc">降序</option>
                     <option value="asc">升序</option>

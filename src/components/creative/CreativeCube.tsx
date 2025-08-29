@@ -221,9 +221,7 @@ function DimensionCard({
               const isPinned = pinnedItems.includes(item);
               return (
                 <div key={`default-${item}-${index}`} className="relative group">
-                  <PermissionLockedButton
-                    requiredTier="pro"
-                    featureName="创意魔方维度选择"
+                  <Button
                     size="sm"
                     variant={selectedItem === item ? "default" : "outline"}
                     className={`creative-module-button h-6 px-1.5 justify-center w-full transition-all ${
@@ -235,7 +233,7 @@ function DimensionCard({
                     disabled={!!selectedItem && selectedItem !== item}
                   >
                     <span className="truncate text-center">{isPinned ? '📌 ' : ''}{item}</span>
-                  </PermissionLockedButton>
+                  </Button>
 
                   {/* 管理按钮 - 默认项显示钉住和删除按钮 */}
                   <div className="absolute -top-0.5 -right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -283,9 +281,7 @@ function DimensionCard({
             const isPinned = pinnedItems.includes(item);
             return (
               <div key={`custom-${dimension.id}-${index}-${item}`} className="relative group">
-                <PermissionLockedButton
-                  requiredTier="pro"
-                  featureName="创意魔方自定义选项"
+                <Button
                   size="sm"
                   variant={selectedItem === item ? "default" : "outline"}
                   className={`text-xs h-6 px-1.5 justify-center w-full transition-all ${
@@ -297,7 +293,7 @@ function DimensionCard({
                   disabled={!!selectedItem && selectedItem !== item}
                 >
                   <span className="truncate text-center">{isPinned ? '📌 ' : ''}🔧 {item}</span>
-                </PermissionLockedButton>
+                </Button>
 
                 {/* 管理按钮 */}
                 <div className="absolute -top-0.5 -right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -342,16 +338,14 @@ function DimensionCard({
 
           {/* 添加自定义选项按钮 - 放在网格的最后 */}
           {!showAddInput ? (
-            <PermissionLockedButton
-              requiredTier="pro"
-              featureName="添加自定义选项"
+            <Button
               size="sm"
               variant="ghost"
               className="text-xs h-6 border border-dashed border-border hover:border-border/80 hover:bg-muted/50 w-full"
               onClick={() => setShowAddInput(true)}
             >
               <Plus className="w-4 h-4" />
-            </PermissionLockedButton>
+            </Button>
           ) : null}
         </div>
 

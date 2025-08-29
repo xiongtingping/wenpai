@@ -24,6 +24,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { useNavigate } from 'react-router-dom';
 import { useGuard, User } from '@authing/guard-react18';
 import { getAuthingConfig } from '@/config/authing';
+import { useAuthStore } from '@/store/authStore';
 
 /**
  * 用户信息接口
@@ -68,6 +69,11 @@ interface UnifiedAuthContextType {
   startLoginModal: () => void;
   showGuard: () => void;
   hideGuard: () => void;
+  // 自定义模态框状态
+  customAuthModalOpen: boolean;
+  setCustomAuthModalOpen: (open: boolean) => void;
+  customAuthModalTab: 'login' | 'register';
+  setCustomAuthModalTab: (tab: 'login' | 'register') => void;
 }
 
 // ❌ 移除 @authing/web 客户端使用，统一改用 Guard 弹窗流程
@@ -90,44 +96,89 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // 自定义模态框状态
+  const [customAuthModalOpen, setCustomAuthModalOpen] = useState(false);
+  const [customAuthModalTab, setCustomAuthModalTab] = useState<'login' | 'register'>('login');
   const navigate = useNavigate();
+  const authStore = useAuthStore();
   
   // 使用官方Guard React18 Hook
   const guard = useGuard();
 
   // 获取用户信息 - 使用官方API
   const checkAuth = useCallback(async () => {
-    if (!guard) return;
-    
     try {
-      console.log('🔍 获取用户信息...');
+      console.log('🔍 检查用户登录状态...');
       setLoading(true);
       
-      const userInfo: User | null = await guard.trackSession();
+      // 首先检查 localStorage 中的用户信息
+      const storedUser = localStorage.getItem('authing_user');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          console.log('✅ 从 localStorage 恢复用户状态:', parsedUser);
+          setUser(parsedUser);
+          // 同步到 authStore
+          authStore.setUser({
+            id: parsedUser.id,
+            username: parsedUser.username,
+            email: parsedUser.email,
+            phone: parsedUser.phone,
+            nickname: parsedUser.nickname,
+            avatar: parsedUser.avatar,
+            loginTime: parsedUser.loginTime
+          });
+          setLoading(false);
+          return;
+        } catch (e) {
+          console.warn('⚠️ localStorage 中的用户信息解析失败:', e);
+          localStorage.removeItem('authing_user');
+        }
+      }
       
-      if (userInfo) {
-        console.log('✅ 检测到用户登录状态:', userInfo);
+      // 如果 localStorage 中没有，再检查 Guard session
+      if (guard) {
+        const userInfo: User | null = await guard.trackSession();
         
-        // 转换为统一格式
-        const formattedUser: UserInfo = {
-          id: userInfo.id || userInfo.userId || userInfo.sub || `user_${Date.now()}`,
-          username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
-          email: userInfo.email || userInfo.emailAddress || '',
-          phone: userInfo.phone || userInfo.phoneNumber || '',
-          nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
-          avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
-          loginTime: new Date().toISOString(),
-          roles: ['user'],
-          permissions: ['basic'],
-          ...userInfo
-        };
-        
-        setUser(formattedUser);
-        localStorage.setItem('authing_user', JSON.stringify(formattedUser));
+        if (userInfo) {
+          console.log('✅ 从 Guard 检测到用户登录状态:', userInfo);
+          
+          // 转换为统一格式
+          const formattedUser: UserInfo = {
+            id: userInfo.id || userInfo.userId || userInfo.sub || `user_${Date.now()}`,
+            username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
+            email: userInfo.email || userInfo.emailAddress || '',
+            phone: userInfo.phone || userInfo.phoneNumber || '',
+            nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
+            avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
+            loginTime: new Date().toISOString(),
+            roles: ['user'],
+            permissions: ['basic'],
+            ...userInfo
+          };
+          
+          setUser(formattedUser);
+          localStorage.setItem('authing_user', JSON.stringify(formattedUser));
+          // 同步到 authStore
+          authStore.setUser({
+            id: formattedUser.id,
+            username: formattedUser.username,
+            email: formattedUser.email,
+            phone: formattedUser.phone,
+            nickname: formattedUser.nickname,
+            avatar: formattedUser.avatar,
+            loginTime: formattedUser.loginTime
+          });
+        } else {
+          console.log('👤 用户未登录');
+          setUser(null);
+          authStore.setUser(null);
+        }
       } else {
-        console.log('👤 用户未登录');
+        console.log('👤 Guard 未初始化，用户未登录');
         setUser(null);
-        localStorage.removeItem('authing_user');
+        authStore.setUser(null);
       }
     } catch (error) {
       console.error('获取用户信息失败:', error);
@@ -195,6 +246,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 存储用户信息
       setUser(formattedUser);
       localStorage.setItem('authing_user', JSON.stringify(formattedUser));
+      // 同步到 authStore
+      authStore.setUser({
+        id: formattedUser.id,
+        username: formattedUser.username,
+        email: formattedUser.email,
+        phone: formattedUser.phone,
+        nickname: formattedUser.nickname,
+        avatar: formattedUser.avatar,
+        loginTime: formattedUser.loginTime
+      });
 
       // 自动隐藏Guard模态框
       guard?.hide();
@@ -217,18 +278,12 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   /**
-   * 🎯 使用官方Guard模态框登录
+   * 🎯 使用自定义登录表单（Guard模态框问题的替代方案）
    */
   const login = async (redirectTo?: string) => {
     try {
-      console.log('🔐 开始官方Guard模态框登录...');
+      console.log('🔐 开始自定义登录表单...');
       setError(null);
-
-      if (!guard) {
-        console.error('❌ Guard未初始化');
-        setError('Guard未初始化');
-        return;
-      }
 
       // 保存跳转目标
       if (redirectTo) {
@@ -236,119 +291,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('📝 保存跳转目标:', redirectTo);
       }
 
-      // 使用官方Guard登录方法  
-      console.log('🔄 调用guard.start()启动登录...');
-      
-      try {
-        // 官方推荐方式：使用Guard API启动登录
-        await guard.start();
-        console.log('✅ Guard登录流程已启动');
-      } catch (error) {
-        console.error('❌ Guard.start()失败，使用跳转备用方案:', error);
-        
-        // 备用方案：直接跳转
-        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const redirectUri = isLocalhost 
-          ? 'http://localhost:5173/callback' 
-          : 'https://www.wenpai.xyz/callback';
-        const authingUrl = `https://rzcswqs4sq0f.authing.cn/login?app_id=68a68a29d0c3341ae7a3df23&redirect_uri=${encodeURIComponent(redirectUri)}`;
-        console.log('🔄 跳转到Authing:', authingUrl);
-        window.location.href = authingUrl;
+      // 显示Guard登录表单
+      if (guard) {
+        guard.start();
       }
-      
-      // 强制修复模态框位置
-      setTimeout(() => {
-        const guardRoot = document.querySelector('.authing-ant-modal-root') as HTMLElement;
-        const guardWrap = document.querySelector('.authing-ant-modal-wrap') as HTMLElement;
-        const guardModal = document.querySelector('.authing-ant-modal') as HTMLElement;
-        
-        if (guardRoot) {
-          guardRoot.style.position = 'fixed';
-          guardRoot.style.top = '0';
-          guardRoot.style.left = '0';
-          guardRoot.style.right = '0';
-          guardRoot.style.bottom = '0';
-          guardRoot.style.zIndex = '999999';
-          guardRoot.style.display = 'flex';
-          guardRoot.style.alignItems = 'center';
-          guardRoot.style.justifyContent = 'center';
-          guardRoot.style.background = 'rgba(0, 0, 0, 0.5)';
-          console.log('🔧 强制修复Guard Root位置');
-        }
-        
-        if (guardModal) {
-          guardModal.style.position = 'fixed';
-          guardModal.style.top = '50%';
-          guardModal.style.left = '50%';
-          guardModal.style.transform = 'translate(-50%, -50%)';
-          guardModal.style.width = '400px';
-          guardModal.style.height = '400px';
-          guardModal.style.background = 'red';
-          guardModal.style.border = '10px solid blue';
-          guardModal.style.borderRadius = '8px';
-          guardModal.style.opacity = '1';
-          guardModal.style.zIndex = '1000000';
-          guardModal.innerHTML = '<div style="color: white; font-size: 24px; text-align: center; padding: 50px;">TEST MODAL</div>';
-          console.log('🔧 强制修复Guard Modal - 固定定位到屏幕中央');
-          
-          // 确保滚动到顶部查看
-          window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-          });
-        }
-      }, 50);
-      
-      // 检查DOM状态和位置
-      setTimeout(() => {
-        const htmlClass = document.documentElement.className;
-        const bodyClass = document.body.className;
-        const guardRoot = document.querySelector('.authing-ant-modal-root');
-        const guardWrap = document.querySelector('.authing-ant-modal-wrap');
-        const guardModal = document.querySelector('.authing-ant-modal');
-        const guardMask = document.querySelector('.authing-ant-modal-mask');
-        
-        if (guardRoot) {
-          const rootRect = guardRoot.getBoundingClientRect();
-          const rootStyle = getComputedStyle(guardRoot);
-          console.log('🔍 Guard Root 详细信息:', {
-            rect: `x:${rootRect.x}, y:${rootRect.y}, w:${rootRect.width}, h:${rootRect.height}`,
-            position: rootStyle.position,
-            zIndex: rootStyle.zIndex,
-            display: rootStyle.display,
-            visibility: rootStyle.visibility,
-            opacity: rootStyle.opacity,
-            transform: rootStyle.transform,
-            top: rootStyle.top,
-            left: rootStyle.left
-          });
-        }
-        
-        if (guardModal) {
-          const modalRect = guardModal.getBoundingClientRect();
-          const modalStyle = getComputedStyle(guardModal);
-          console.log('🔍 Guard Modal 详细信息:', {
-            rect: `x:${modalRect.x}, y:${modalRect.y}, w:${modalRect.width}, h:${modalRect.height}`,
-            position: modalStyle.position,
-            display: modalStyle.display,
-            visibility: modalStyle.visibility,
-            opacity: modalStyle.opacity,
-            width: modalStyle.width,
-            height: modalStyle.height,
-            top: modalStyle.top,
-            left: modalStyle.left,
-            margin: modalStyle.margin
-          });
-        }
-        
-        console.log('🧪 所有Guard DOM元素:', {
-          guardRoot: !!guardRoot,
-          guardWrap: !!guardWrap, 
-          guardModal: !!guardModal,
-          guardMask: !!guardMask,
-          allAuthingElements: document.querySelectorAll('[class*="authing"]').length
-        });
-      }, 100);
+      console.log('✅ Guard登录表单已打开');
 
     } catch (error) {
       console.error('❌ Guard登录失败:', error);
@@ -378,26 +325,22 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
 
   /**
-   * 注册方法 - 使用官方Guard API
+   * 注册方法 - 使用自定义注册表单
    */
   const register = async (redirectTo?: string) => {
     try {
-      console.log('📝 开始注册流程...');
+      console.log('📝 开始自定义注册表单...');
       setError(null);
-
-      if (!guard) {
-        setError('Guard未初始化');
-        return;
-      }
 
       // 保存跳转目标
       if (redirectTo) {
         localStorage.setItem('login_redirect_to', redirectTo);
       }
 
-      // 使用官方注册方法
-      console.log('🚀 启动Guard注册流程');
-      guard.startRegister();
+      // 打开自定义注册模态框
+      setCustomAuthModalTab('register');
+      setCustomAuthModalOpen(true);
+      console.log('✅ 自定义注册表单已打开');
 
     } catch (error) {
       console.error('❌ 注册失败:', error);
@@ -424,6 +367,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 清除本地状态
       setUser(null);
       localStorage.removeItem('authing_user');
+      // 同步到 authStore
+      authStore.logout();
       localStorage.removeItem('login_redirect_to');
 
       // 跳转到首页
@@ -451,6 +396,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         const updatedUser = { ...user, ...updates };
         setUser(updatedUser);
         localStorage.setItem('authing_user', JSON.stringify(updatedUser));
+        // 同步到 authStore
+        authStore.setUser({
+          id: updatedUser.id,
+          username: updatedUser.username,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+          nickname: updatedUser.nickname,
+          avatar: updatedUser.avatar,
+          loginTime: updatedUser.loginTime
+        });
         console.log('🔄 本地用户信息已更新，开始同步服务器...');
         
         // 2. 同步到Authing服务器
@@ -484,35 +439,6 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
 
-  /**
-   * 注册方法 - 使用官方Guard API
-   */
-  const register = async (redirectTo?: string) => {
-    try {
-      console.log('📝 开始官方Guard注册流程...');
-      setError(null);
-
-      if (!guard) {
-        console.error('❌ Guard未初始化');
-        setError('Guard未初始化');
-        return;
-      }
-
-      // 保存跳转目标
-      if (redirectTo) {
-        localStorage.setItem('login_redirect_to', redirectTo);
-      }
-
-      // 使用官方Guard注册方法
-      console.log('🔄 调用guard.startRegister()...');
-      guard.startRegister();
-      console.log('✅ 注册流程已启动');
-
-    } catch (error) {
-      console.error('❌ Guard注册启动失败:', error);
-      setError(error instanceof Error ? error.message : '注册失败');
-    }
-  };
 
   /**
    * 其他登录方法 - 统一使用Guard跳转
@@ -581,7 +507,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     guard,
     startLoginModal,
     showGuard,
-    hideGuard
+    hideGuard,
+    customAuthModalOpen,
+    setCustomAuthModalOpen,
+    customAuthModalTab,
+    setCustomAuthModalTab
   };
 
   return (

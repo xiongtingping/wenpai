@@ -236,63 +236,11 @@ export default function ShareManagerPage() {
   ];
 
   /**
-   * 初始化示例数据
+   * 初始化为空数据
    */
   useEffect(() => {
-    const sampleTasks: PublishTask[] = [
-      {
-        id: '1',
-        title: '春季营销策略分享',
-        content: '随着春天的到来，各大品牌都在调整营销策略...',
-        platforms: ['wechat', 'xiaohongshu', 'zhihu'],
-        status: 'completed',
-        createdAt: new Date('2024-01-15'),
-        results: {
-          wechat: { status: 'success', url: 'https://mp.weixin.qq.com/s/abc123', publishedAt: new Date() },
-          xiaohongshu: { status: 'success', url: 'https://www.xiaohongshu.com/discovery/item/abc123', publishedAt: new Date() },
-          zhihu: { status: 'failed', error: '内容审核未通过' }
-        }
-      },
-      {
-        id: '2',
-        title: 'AI工具使用技巧',
-        content: '分享一些实用的AI工具使用技巧，提高工作效率...',
-        platforms: ['zhihu', 'weibo', 'bilibili'],
-        status: 'publishing',
-        createdAt: new Date('2024-01-14'),
-        results: {
-          zhihu: { status: 'success', url: 'https://zhuanlan.zhihu.com/p/abc123', publishedAt: new Date() },
-          weibo: { status: 'pending' },
-          bilibili: { status: 'pending' }
-        }
-      }
-    ];
-
-    const sampleTemplates: ContentTemplate[] = [
-      {
-        id: '1',
-        name: '产品发布模板',
-        title: '🎉 重磅发布！{产品名称}正式上线',
-        content: '经过团队的精心打磨，{产品名称}终于和大家见面了！\n\n✨ 核心功能：\n{功能列表}\n\n🎯 适用场景：\n{场景描述}\n\n立即体验：{产品链接}',
-        platforms: ['wechat', 'xiaohongshu', 'zhihu'],
-        tags: ['产品', '发布', '营销'],
-        useCount: 15,
-        createdAt: new Date('2024-01-10')
-      },
-      {
-        id: '2',
-        name: '节日祝福模板',
-        title: '🎊 {节日名称}快乐！',
-        content: '在这个特殊的日子里，{品牌名称}向所有朋友送上最真挚的祝福！\n\n🌟 愿你：\n{祝福内容}\n\n感谢一路以来的支持与陪伴！',
-        platforms: ['wechat', 'weibo', 'xiaohongshu'],
-        tags: ['节日', '祝福', '品牌'],
-        useCount: 8,
-        createdAt: new Date('2024-01-08')
-      }
-    ];
-
-    setPublishTasks(sampleTasks);
-    setContentTemplates(sampleTemplates);
+    setPublishTasks([]);
+    setContentTemplates([]);
   }, []);
 
   /**

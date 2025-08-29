@@ -58,82 +58,12 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
   const [radarItems, setRadarItems] = useState<QuickReferenceItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
-  // 初始化示例数据
+  // 初始化为空数据
   useEffect(() => {
-    // 品牌库示例数据
-    setBrandItems([
-      {
-        id: 'brand-1',
-        title: '品牌核心价值观',
-        content: '我们致力于为用户提供专业、可靠、创新的解决方案，以用户体验为中心，持续创新，追求卓越。',
-        type: 'brand',
-        format: 'text',
-        tags: ['品牌价值', '核心理念'],
-        createdAt: '2024-01-15T10:30:00Z',
-        summary: '品牌核心价值观和理念描述'
-      },
-      {
-        id: 'brand-2',
-        title: '产品特色介绍',
-        content: '🎯 核心卖点：\n• 高效便捷的操作体验\n• 专业可靠的技术支持\n• 性价比超高的解决方案\n• 7×24小时客户服务',
-        type: 'brand',
-        format: 'text',
-        tags: ['产品特色', '卖点'],
-        createdAt: '2024-01-14T14:20:00Z',
-        summary: '产品核心特色和卖点总结'
-      }
-    ]);
-
-    // 我的资料库示例数据
-    setLibraryItems([
-      {
-        id: 'library-1',
-        title: '小红书营销策略分析',
-        content: '深度分析小红书平台的用户特征、内容偏好和营销机会，包括用户画像、内容形式、发布时机等关键要素...',
-        type: 'library',
-        format: 'text',
-        source: 'https://example.com/xiaohongshu-analysis',
-        tags: ['小红书', '营销策略', '社交媒体'],
-        createdAt: '2024-01-15T10:30:00Z',
-        summary: '小红书平台营销策略深度分析'
-      },
-      {
-        id: 'library-2',
-        title: '2024年内容营销趋势报告',
-        content: '# 2024年内容营销趋势报告\n\n## 主要趋势\n1. AI辅助内容创作\n2. 短视频持续火热\n3. 互动式内容增长...',
-        type: 'library',
-        format: 'pdf',
-        source: '2024-content-marketing-report.pdf',
-        tags: ['内容营销', '趋势报告', '2024'],
-        createdAt: '2024-01-13T09:15:00Z',
-        summary: '2024年内容营销主要趋势和发展方向'
-      }
-    ]);
-
-    // 全网雷达收藏示例数据
-    setRadarItems([
-      {
-        id: 'radar-1',
-        title: 'AI工具推荐：提升工作效率的10个神器',
-        content: '分享10个能够显著提升工作效率的AI工具，包括写作助手、图像生成、数据分析等多个领域...',
-        type: 'radar',
-        format: 'link',
-        source: 'https://example.com/ai-tools-recommendation',
-        tags: ['AI工具', '效率提升', '推荐'],
-        createdAt: '2024-01-16T16:45:00Z',
-        summary: '10个提升工作效率的AI工具推荐'
-      },
-      {
-        id: 'radar-2',
-        title: '2024年社交媒体营销新趋势',
-        content: '最新的社交媒体营销趋势分析，包括短视频营销、直播带货、KOL合作等新兴模式的发展...',
-        type: 'radar',
-        format: 'text',
-        tags: ['社交媒体', '营销趋势', '2024'],
-        createdAt: '2024-01-12T11:20:00Z',
-        summary: '2024年社交媒体营销的最新趋势和发展方向'
-      }
-    ]);
+    // 所有数据初始化为空
+    setBrandItems([]);
+    setLibraryItems([]);
+    setRadarItems([]);
   }, []);
 
   // 获取当前标签页的数据

@@ -13,6 +13,7 @@ export const WavyBackground = ({
   blur = 10,
   speed = "fast",
   waveOpacity = 0.5,
+  containerHeight,
   ...props
 }: {
   children?: any;
@@ -24,6 +25,7 @@ export const WavyBackground = ({
   blur?: number;
   speed?: "slow" | "fast";
   waveOpacity?: number;
+  containerHeight?: string;
   [key: string]: any;
 }) => {
   const noise = createNoise3D();
@@ -64,40 +66,52 @@ export const WavyBackground = ({
     render();
   };
 
-  const toHsl = (v: string, fallback: string) => (v && v.length > 0 ? `hsl(${v})` : fallback)
-  const doc = document.documentElement;
-  const waveColors = colors ?? [
-    toHsl(getComputedStyle(doc).getPropertyValue('--primary').trim(), '#38bdf8'),
-    toHsl(getComputedStyle(doc).getPropertyValue('--secondary').trim(), '#818cf8'),
-    toHsl(getComputedStyle(doc).getPropertyValue('--accent').trim(), '#c084fc'),
-    toHsl(getComputedStyle(doc).getPropertyValue('--ring').trim(), '#e879f9'),
-    toHsl(getComputedStyle(doc).getPropertyValue('--muted-foreground').trim(), '#22d3ee'),
-  ];
-  const drawWave = (n: number) => {
-    nt += getSpeed();
-    for (i = 0; i < n; i++) {
+  const getThemeAwareColors = () => {
+    const doc = document.documentElement;
+    const toHsl = (v: string, fallback: string) => {
+      const trimmed = v.trim();
+      return trimmed && trimmed.length > 0 ? `hsl(${trimmed})` : fallback;
+    };
+    
+    return [
+      toHsl(getComputedStyle(doc).getPropertyValue('--primary').trim(), 'hsl(221 83% 53%)'),
+      toHsl(getComputedStyle(doc).getPropertyValue('--primary').trim().replace(/\d+/g, (match) => String(Math.max(10, parseInt(match) - 20))), 'hsl(221 83% 33%)'),
+      toHsl(getComputedStyle(doc).getPropertyValue('--accent').trim(), 'hsl(210 40% 94%)'),
+      toHsl(getComputedStyle(doc).getPropertyValue('--secondary').trim(), 'hsl(214 32% 91%)'),
+      toHsl(getComputedStyle(doc).getPropertyValue('--muted').trim(), 'hsl(210 40% 96%)'),
+    ];
+  };
+  
+  const waveColors = colors ?? getThemeAwareColors();
+
+  let animationId: number;
+  const render = () => {
+    // 使用主题感知的背景色
+    const doc = document.documentElement;
+    const bgVar = getComputedStyle(doc).getPropertyValue('--background').trim();
+    const bg = backgroundFill || (bgVar ? `hsl(${bgVar})` : 'hsl(0 0% 100%)');
+    
+    ctx.fillStyle = bg;
+    ctx.globalAlpha = 1;
+    ctx.fillRect(0, 0, w, h);
+    
+    // 更新波浪颜色以适应主题
+    const currentColors = getThemeAwareColors();
+    ctx.globalAlpha = waveOpacity ?? 0.15;
+    
+    for (i = 0; i < 5; i++) {
       ctx.beginPath();
       ctx.lineWidth = waveWidth || 50;
-      ctx.strokeStyle = waveColors[i % waveColors.length];
+      ctx.strokeStyle = currentColors[i % currentColors.length];
       for (x = 0; x < w; x += 5) {
         const y = noise(x / 800, 0.3 * i, nt) * 100;
-        ctx.lineTo(x, y + h * 0.5); // adjust for height, currently at 50% of the container
+        ctx.lineTo(x, y + h * 0.5);
       }
       ctx.stroke();
       ctx.closePath();
     }
-  };
-
-  let animationId: number;
-  const render = () => {
-    // 使用设计令牌作为背景/透明叠加，使浅色模式更协调
-    const bg = backgroundFill || getComputedStyle(document.documentElement).getPropertyValue('--background').trim() || 'white';
-    ctx.fillStyle = bg.startsWith('hsl') ? bg : `hsl(var(--background))`;
-    ctx.globalAlpha = waveOpacity ?? 0.35;
-
-
-    ctx.fillRect(0, 0, w, h);
-    drawWave(5);
+    
+    nt += getSpeed();
     animationId = requestAnimationFrame(render);
   };
 
@@ -121,10 +135,10 @@ export const WavyBackground = ({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center",
+        "relative",
         containerClassName
       )}
-      style={{ minHeight: (props.containerHeight || '80vh') }}
+      style={{ minHeight: (containerHeight || '80vh') }}
     >
       <canvas
         className="absolute inset-0 z-0"

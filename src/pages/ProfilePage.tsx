@@ -776,8 +776,8 @@ export default function ProfilePage() {
       // 检查是否支持原生分享
       if (navigator.share) {
         await navigator.share({
-          title: '文派AI - 智能内容创作平台',
-          text: '我在使用文派AI创作内容，邀请你一起体验！注册即可获得20次免费使用机会。',
+          title: '文派 - AI驱动的新媒体内容多平台适配',
+          text: '我在使用文派创作内容，邀请你一起体验！注册即可获得20次免费使用机会。',
           url: inviteLink
         });
 

@@ -4498,7 +4498,7 @@ ${charCountControl.source === 'platform-specific'
           size="lg"
           disabled={!canGenerate || generating}
           onClick={generateContent}
-          className="w-full max-w-md"
+          className="w-full max-w-md theme-hero-button"
         >
           {generating ? (
             <>

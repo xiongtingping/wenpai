@@ -349,6 +349,10 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                         <BreadcrumbLink
                           href={item.path}
                           className="flex items-center gap-2 theme-breadcrumb-text hover:theme-breadcrumb-link transition-all duration-200 hover:scale-105"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.location.href = item.path;
+                          }}
                         >
                           <item.icon className="w-4 h-4" />
                           <span className="hidden sm:inline">{item.title}</span>

@@ -118,15 +118,8 @@ export class HashtagGenerator {
     }
   };
 
-  // 品牌库（示例数据）
-  private brandDatabase = new Set([
-    '苹果', 'Apple', 'iPhone', 'iPad', 'MacBook',
-    '华为', 'Huawei', 'OPPO', 'vivo', '小米', 'Xiaomi',
-    '特斯拉', 'Tesla', '比亚迪', 'BYD',
-    '耐克', 'Nike', '阿迪达斯', 'Adidas', '优衣库', 'Uniqlo',
-    '星巴克', 'Starbucks', '麦当劳', 'McDonald',
-    '腾讯', '阿里巴巴', '百度', '字节跳动', '美团'
-  ]);
+  // 品牌库（初始化为空，用户可自行添加）
+  private brandDatabase = new Set<string>();
 
   /**
    * 生成多维度话题标签建议 - 完全基于实际内容的精准分析

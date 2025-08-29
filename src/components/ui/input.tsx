@@ -8,11 +8,11 @@ const inputVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-input bg-surface-1 hover:bg-surface-2 focus:bg-surface-2",
-        filled: "border-border bg-surface-2 hover:bg-surface-3 focus:bg-surface-3",
+        default: "border-input bg-background hover:bg-muted/50 focus:bg-background",
+        filled: "border-border bg-muted hover:bg-muted/80 focus:bg-muted",
         outlined: "border-2 border-border bg-transparent hover:border-border-strong focus:border-primary",
-        ghost: "border-transparent bg-transparent hover:bg-surface-1 focus:bg-surface-1 focus:border-border",
-        enhanced: "border-border bg-surface-1 hover:bg-surface-2 focus:bg-surface-2 shadow-e0 hover:shadow-e1 focus:shadow-e1",
+        ghost: "border-transparent bg-transparent hover:bg-muted/30 focus:bg-background focus:border-border",
+        enhanced: "border-border bg-background hover:bg-muted/30 focus:bg-background shadow-e0 hover:shadow-e1 focus:shadow-e1",
       },
       size: {
         default: "h-9 px-3 py-1",

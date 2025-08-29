@@ -50,7 +50,10 @@ import { CreativeCube } from '@/components/creative/CreativeCube';
 import MarketingCalendar from '@/components/creative/MarketingCalendar';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionAwareContainer } from '@/components/auth/PermissionAwareContainer';
+import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
 import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
+import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
+import { Header } from '@/components/landing/Header';
 
 // 使用懒加载避免循环依赖
 const WechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
@@ -72,12 +75,23 @@ export default function CreativeStudioPage() {
 
   return (
     <div className="min-h-screen bg-background">
+        {/* 主导航栏 */}
+        <Header />
+        
         {/* 页面导航 */}
         <PageNavigation
           title="创意魔方"
           description="激发创意灵感，快速生成高质量内容"
           showAdaptButton={false}
           showUpgradeButton={false}
+          actions={
+            <RoleBasedUpgradePrompt
+              requiredTier="pro"
+              featureName="创意魔方"
+              description="该功能区为专业版专属，包含九宫格创意魔方、营销日历、朋友圈模板等专业创意工具"
+              mode="compact"
+            />
+          }
         />
 
         <div className="container mx-auto px-4 py-8">

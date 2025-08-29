@@ -14,13 +14,12 @@ import { LogoWithText } from "@/components/ui/ThemeAwareLogo"
 import { NavBar } from "@/components/ui/tubelight-navbar"
 import { Home, Radar, Sparkles, Library, FolderOpen } from "lucide-react"
 
-import { PermissionTestButton } from "@/components/dev/PermissionTestButton"
 
 const HelpDocumentation = () => {
   const topics = [
     {
       title: "内容适配",
-      content: "文派AI可根据平台特性智能转换您的内容，调整文风、排版和互动元素，无需手动修改即可适配各平台。"
+      content: "文派可根据平台特性智能转换您的内容，调整文风、排版和互动元素，无需手动修改即可适配各平台。"
     },
     {
       title: "创意魔方",
@@ -156,7 +155,7 @@ export function Header() {
               { name: 'AI内容适配器', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/new-adapt'); } else { login('/new-adapt'); } } },
               { name: '全网雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); } } },
               { name: '创意魔方', url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { login('/creative-studio'); } } },
-              { name: '我的资料库', url: '/brand-library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); navigate('/brand-library'); } },
+              { name: '我的资料库', url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); navigate('/library'); } },
               { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); navigate('/brand-library'); } },
             ]}
           />
@@ -178,8 +177,6 @@ export function Header() {
             {/* 主题切换 */}
             <ThemeToggle />
 
-            {/* 权限测试按钮 (仅开发环境) */}
-            <PermissionTestButton />
 
             {isAuthenticated ? (
               <UserAvatar

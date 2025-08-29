@@ -36,7 +36,6 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
-import { DevPermissionSwitcher } from '@/components/dev/DevPermissionSwitcher';
 import { LogoWithText } from '@/components/ui/ThemeAwareLogo';
 
 /**
@@ -95,7 +94,7 @@ export const TopNavigation: React.FC = () => {
     { path: '/adapt', label: 'AI内容适配器', icon: FileText, requiresAuth: true },
     { path: '/hot-topics', label: '全网雷达', icon: TrendingUp, requiresAuth: true },
     { path: '/creative-studio', label: '创意魔方', icon: Sparkles, requiresAuth: true },
-    { path: '/brand-library', label: '我的资料库', icon: FolderOpen, requiresAuth: true },
+    { path: '/library', label: '我的资料库', icon: FolderOpen, requiresAuth: true },
     { path: '/brand-library', label: '品牌库', icon: Users, requiresAuth: true },
   ];
 
@@ -155,11 +154,6 @@ export const TopNavigation: React.FC = () => {
                   showHoverEffect={true}
                   showBackground={true}
                 />
-                {isDevelopment() && (
-                  <Badge variant="premium" className="text-xs animate-pulse">
-                    DEV
-                  </Badge>
-                )}
               </div>
             </Link>
 
@@ -224,8 +218,6 @@ export const TopNavigation: React.FC = () => {
                 </Button>
               )}
 
-              {/* 开发环境权限切换工具 */}
-              <DevPermissionSwitcher />
 
               {/* 主题切换 */}
               <ThemeToggle />
@@ -233,7 +225,7 @@ export const TopNavigation: React.FC = () => {
               {/* 专业用户标识 */}
               {isAuthenticated && isPro && (
                 <Badge variant="premium" className="text-xs hidden sm:inline-flex bg-primary text-primary-foreground border-0">
-                  {isDevelopment() ? 'DEV' : 'PRO'}
+                  PRO
                 </Badge>
               )}
 

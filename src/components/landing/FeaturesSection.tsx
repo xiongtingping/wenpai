@@ -46,7 +46,7 @@ const mainFeatures = [
     title: '🎯 AI内容适配器',
     description: '智能分析内容，一键适配多平台格式，让您的创意在不同平台绽放光彩',
     icon: Zap,
-    path: '/adapt',
+    path: '/new-adapt',
     color: 'bg-gradient-to-br from-yellow-500 to-orange-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
@@ -64,7 +64,7 @@ const mainFeatures = [
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
-    badge: '⭐ 推荐',
+    badge: '💎 专业版',
     badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white',
     features: ['AI创意生成', '多种创意模板', '灵感库管理', '创意协作']
   },
@@ -77,22 +77,22 @@ const mainFeatures = [
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
-    badge: '🔥 实时监控',
+    badge: '🔥 实时',
     badgeColor: 'bg-gradient-to-r from-green-500 to-teal-500 text-white',
     features: ['实时热点监控', '趋势分析报告', '竞品内容追踪', '话题预测']
   },
   {
-    title: '📚 我的收藏',
+    title: '📚 我的资料库',
     description: '个人内容管理中心，智能收藏整理，随时调用，让创作素材触手可及',
     icon: FolderOpen,
-    path: '/bookmark',
+    path: '/brand-library',
     color: 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: '💡 实用',
     badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white',
-    features: ['内容收藏管理', '智能分类标签', '快速搜索检索', '云端同步']
+    features: ['网络收藏管理', '内容提取工具', '文案库管理', '智能分类']
   },
   {
     title: '🏢 品牌库',
@@ -106,19 +106,6 @@ const mainFeatures = [
     badge: '👑 高级版',
     badgeColor: 'bg-gradient-to-r from-rose-500 to-pink-500 text-white',
     features: ['品牌资产管理', '视觉规范统一', '团队协作', '版本控制']
-  },
-  {
-    title: '🎬 内容提取器',
-    description: '智能提取网页、文档内容，支持多种格式转换，快速获取创作素材',
-    icon: Download,
-    path: '/creative-studio',
-    color: 'bg-gradient-to-br from-teal-500 to-cyan-600 text-white',
-    bgColor: 'bg-accent',
-    borderColor: 'border-border',
-    hoverColor: 'hover:bg-accent/80',
-    badge: '🔧 工具',
-    badgeColor: 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white',
-    features: ['网页内容提取', '文档格式转换', 'AI智能总结', '批量处理']
   },
 ];
 
@@ -135,14 +122,6 @@ const quickTools = [
     theme: 'warm',
   },
   {
-    title: '🚀 一键转发',
-    description: '多平台内容智能分发，最大化传播效果和影响力',
-    icon: Upload,
-    path: '/share-manager',
-    color: 'bg-gradient-to-br from-blue-400 to-cyan-500 text-white',
-    theme: 'cool',
-  },
-  {
     title: '💬 朋友圈模板',
     description: '精美模板快速生成，让您的朋友圈内容脱颖而出',
     icon: MessageCircle,
@@ -157,6 +136,14 @@ const quickTools = [
     path: '/history',
     color: 'bg-gradient-to-br from-purple-400 to-indigo-500 text-white',
     theme: 'elegant',
+  },
+  {
+    title: '⚙️ 个人设置',
+    description: '自定义您的创作偏好，管理账户信息和主题配置',
+    icon: Settings,
+    path: '/settings',
+    color: 'bg-gradient-to-br from-gray-400 to-slate-500 text-white',
+    theme: 'neutral',
   },
 ];
 

@@ -106,13 +106,13 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
       >
         <LockIcon className="h-4 w-4 mr-2" />
         {children}
-        <span className={`ml-2 text-xs font-semibold ${
+        <span className={`ml-2 text-xs font-bold ${
           requiredTier === 'premium'
-            ? 'text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/30'
+            ? 'text-white bg-gradient-to-r from-purple-600 to-purple-700 shadow-lg'
             : requiredTier === 'pro'
-            ? 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30'
-            : 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30'
-        } px-2 py-1 rounded-full border`}>
+            ? 'text-white bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg'
+            : 'text-white bg-gradient-to-r from-gray-600 to-gray-700 shadow-lg'
+        } px-3 py-1 rounded-full border-0`}>
           需要{plan.name}
         </span>
       </Button>

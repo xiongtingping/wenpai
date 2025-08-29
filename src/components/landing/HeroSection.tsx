@@ -42,38 +42,29 @@ const HeroSection: React.FC = () => {
         <div className="text-center">
           {/* 主标题 - 移除大logo后的优化布局 */}
           <div className="mb-12">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
-              <div className="flex items-center justify-center gap-4">
-                {/* 主题感知的熊猫图标 */}
-                <ThemeAwareLogo
-                  size="xl"
-                  className="w-12 h-12 sm:w-16 sm:h-16"
-                  showHoverEffect={false}
-                  showBackground={true}
-                />
-                <span className="rainbow-logo-text">
-                  文派 新媒体内容AI适配平台
-                </span>
-              </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 leading-tight">
+              <span className="rainbow-logo-text">
+                AI驱动的新媒体内容多平台适配
+              </span>
             </h1>
 
             {/* 核心价值主张 - 优化排版结构 */}
             <div className="max-w-4xl mx-auto text-center">
               {/* 第一行：核心价值主张 */}
-              <div className="mb-6">
+              <div className="mb-10">
                 <p className="text-xl sm:text-2xl font-bold leading-relaxed theme-hero-subtitle">
                   <strong className="theme-hero-subtitle">
-                    让 AI 为您的品牌创作独特内容
+                    一键为不同平台量身打造风格化内容
                   </strong>
                 </p>
               </div>
 
               {/* 第二行：四个要点 - 修复对齐问题 */}
-              <div className="text-lg sm:text-xl theme-hero-points-text font-medium">
-                <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 sm:gap-x-8 lg:gap-x-12">
+              <div className="text-lg sm:text-xl theme-hero-points-text font-medium mb-12">
+                <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 sm:gap-x-12 lg:gap-x-16">
                   <div className="flex items-center gap-2">
                     <span className="theme-hero-points-dot text-2xl leading-none">·</span>
-                    <span className="whitespace-nowrap">智能分析</span>
+                    <span className="whitespace-nowrap">AI赋能</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="theme-hero-points-dot text-2xl leading-none">·</span>
@@ -81,11 +72,11 @@ const HeroSection: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="theme-hero-points-dot text-2xl leading-none">·</span>
-                    <span className="whitespace-nowrap">一键生成</span>
+                    <span className="whitespace-nowrap">节省时间</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="theme-hero-points-dot text-2xl leading-none">·</span>
-                    <span className="whitespace-nowrap">提升营销效果</span>
+                    <span className="whitespace-nowrap">专注创意</span>
                   </div>
                 </div>
               </div>
@@ -93,7 +84,7 @@ const HeroSection: React.FC = () => {
           </div>
           
           {/* 主要行动按钮 - 增强视觉效果 */}
-          <div className="mb-16">
+          <div className="mb-20">
             <div className="relative group inline-block">
               <Button
                 onClick={handleButtonClick}

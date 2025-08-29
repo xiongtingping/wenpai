@@ -112,8 +112,8 @@
     --radius-xl: 24px;
 
     /* 统一色彩令牌 */
-    --color-text-primary: hsl(var(--foreground));
-    --color-text-secondary: hsl(var(--muted-foreground));
+    --color-text-primary: #C7D1DB;
+    --color-text-secondary: #596773;
     --color-text-muted: hsl(var(--muted-foreground));
     --color-border-light: hsl(var(--border));
     --color-border-medium: hsl(var(--border));
@@ -121,9 +121,30 @@
     /* 统一动效曲线 */
     --transition-smooth: 200ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-medium: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --color-bg: #101214;
+    --color-surface: #161A1D;
+    --color-muted-surface: #1D2125;
+    --color-border: #2C333A;
+    --color-heading: #DEE4EA;
+    --spacing-6: 1.5rem;
+    --rounded-lg: 0.5rem;
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    --color-text-primary-rgb: 199, 209, 219;
+    --color-bg-2: #C7D1DB;
   }
 
   /* 移除Tailwind默认暗色主题，使用自定义主题系统 */
+  .dark {
+    --color-bg: #101214;
+    --color-surface: #161A1D;
+    --color-muted-surface: #1D2125;
+    --color-border: #2C333A;
+    --color-text-secondary: #596773;
+    --color-text-primary: #C7D1DB;
+    --color-heading: #DEE4EA;
+    --color-bg-2: #C7D1DB;
+    --color-text-primary-rgb: 199, 209, 219;
+  }
 }
 
 @layer base {
@@ -351,9 +372,9 @@
   --hero-subtitle: 215.4 16.3% 46.9%; /* 首页副标题 */
 
   /* ☀️ 浅色模式Hero按钮配色 */
-  --hero-button-from: 221.2 83.2% 53.3%; /* 蓝色按钮渐变起始色 */
-  --hero-button-via: 217.2 91.2% 59.8%;  /* 蓝紫色按钮渐变中间色 */
-  --hero-button-to: 262.1 83.3% 57.8%;   /* 紫色按钮渐变结束色 */
+  --hero-button-from: 45 70% 55%;  /* 金色按钮渐变起始色 */
+  --hero-button-via: 35 65% 50%;   /* 橙金色按钮渐变中间色 */
+  --hero-button-to: 25 60% 45%;    /* 橙色按钮渐变结束色 */
 
   /* ☀️ 浅色模式Hero要点配色 */
   --hero-points-text: 215.4 16.3% 46.9%; /* 要点文字颜色 */
@@ -498,9 +519,9 @@
   --hero-subtitle: 215 25% 80%;     /* 首页副标题 */
 
   /* 🎨 深色主题Hero按钮配色 */
-  --hero-button-from: 217.2 91.2% 59.8%; /* 蓝色按钮渐变起始色 */
-  --hero-button-via: 260 91% 65%;        /* 紫色按钮渐变中间色 */
-  --hero-button-to: 280 85% 70%;         /* 紫红色按钮渐变结束色 */
+  --hero-button-from: 45 85% 60%;  /* 明金色按钮渐变起始色 */
+  --hero-button-via: 35 80% 55%;   /* 橙金色按钮渐变中间色 */
+  --hero-button-to: 25 75% 50%;    /* 橙色按钮渐变结束色 */
 
   /* 🎨 深色主题Hero要点配色 */
   --hero-points-text: 215 25% 75%;       /* 要点文字颜色 */
@@ -793,31 +814,40 @@
   color: hsl(var(--hero-subtitle));
 }
 
-/* 🎨 Hero按钮主题样式 - 使用主题变量，带回退色 */
+/* 🎨 Hero按钮主题样式 - 彩虹色渐变，参考logo配色 */
 .theme-hero-button {
-  /* 回退色确保可见性 */
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%) !important;
-  /* 主题变量覆盖 */
-  background: linear-gradient(135deg,
-    hsl(var(--hero-button-from, 225 73% 45%)) 0%,
-    hsl(var(--hero-button-via, 250 75% 48%)) 50%,
-    hsl(var(--hero-button-to, 310 70% 50%)) 100%) !important;
+  /* 回退色确保可见性 - 彩虹色渐变 */
+  background: linear-gradient(135deg, 
+    #e53e3e 0%,   /* 深红色 */
+    #dd6b20 25%,  /* 深橙色 */
+    #d69e2e 45%,  /* 深黄色 */
+    #38a169 65%,  /* 深绿色 */
+    #3182ce 85%,  /* 深蓝色 */
+    #805ad5 100%  /* 深紫色 */
+  ) !important;
   color: white !important;
   /* 确保文字完全居中 */
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  /* 增强视觉效果 */
+  box-shadow: 0 8px 32px rgba(229, 62, 62, 0.3), 
+              0 4px 16px rgba(56, 161, 105, 0.2) !important;
 }
 
 .theme-hero-button:hover {
-  /* 回退色确保可见性 */
-  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%) !important;
-  /* 主题变量覆盖 */
-  background: linear-gradient(135deg,
-    hsl(var(--hero-button-from, 225 73% 45%) / 0.9) 0%,
-    hsl(var(--hero-button-via, 250 75% 48%) / 0.9) 50%,
-    hsl(var(--hero-button-to, 310 70% 50%) / 0.9) 100%) !important;
+  /* 悬停时增强亮度和饱和度 */
+  background: linear-gradient(135deg, 
+    #ff4757 0%,   /* 更亮的红色 */
+    #ff7f27 25%,  /* 更亮的橙色 */
+    #feca57 45%,  /* 更亮的黄色 */
+    #2ed573 65%,  /* 更亮的绿色 */
+    #3742fa 85%,  /* 更亮的蓝色 */
+    #a55eea 100%  /* 更亮的紫色 */
+  ) !important;
   transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 12px 40px rgba(255, 71, 87, 0.4), 
+              0 6px 20px rgba(46, 213, 115, 0.3) !important;
 }
 
 /* 按钮内容容器样式 */
@@ -3006,4 +3036,16 @@ div[data-authing] {
   opacity: 1;
   visibility: visible;
   transition: opacity 0.2s ease-out;
+}
+
+/*---break---
+ */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

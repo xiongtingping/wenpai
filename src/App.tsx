@@ -1,5 +1,5 @@
 /**
- * 🚀 文派AI - 主应用组件 (已清理测试代码)
+ * 🚀 文派 - 主应用组件 (已清理测试代码)
  *
  * 功能：
  * - 统一路由管理
@@ -22,6 +22,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthGuard, ProGuard, PremiumGuard } from '@/components/auth/RouteGuard';
 import { GuardProvider } from '@authing/guard-react18';
+import { AuthModalWrapper } from '@/components/auth/AuthModalWrapper';
 import '@authing/guard-react18/dist/esm/guard.min.css';
 
 // 核心页面组件
@@ -95,7 +96,7 @@ const App: React.FC = () => {
         <ErrorBoundary>
           <GuardProvider
             appId="68a68a29d0c3341ae7a3df23"
-            mode="normal"
+            mode="modal"
             host="https://rzcswqs4sq0f.authing.cn"
             config={{
               autoRegister: true,
@@ -128,6 +129,7 @@ const App: React.FC = () => {
                     <Route path="/creative-studio" element={<AuthGuard><CreativeStudioPage /></AuthGuard>} />
                     <Route path="/hot-topics" element={<HotTopicsPage />} />
                     <Route path="/bookmark" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
+                    <Route path="/library" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
                     <Route path="/brand-library" element={<AuthGuard><BrandLibraryPage /></AuthGuard>} />
                     <Route path="/history" element={<AuthGuard><HistoryPage /></AuthGuard>} />
                     <Route path="/emoji" element={<EmojiPage />} />
@@ -164,6 +166,9 @@ const App: React.FC = () => {
 
               {/* 全局通知组件 */}
               <Toaster />
+              
+              {/* 自定义认证模态框 */}
+              <AuthModalWrapper />
                     </>
                 </ErrorBoundary>
             </UnifiedAuthProvider>
