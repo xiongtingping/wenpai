@@ -39,7 +39,29 @@ const LoginPage: React.FC = () => {
           isSSO: false,
           config: {
             redirectUri: cfg.redirectUri,
-            // Modal样式配置
+            // 完整的Modal配置
+            modal: {
+              // 启用body类名，触发CSS样式
+              bodyClassName: 'authing-guard-open',
+              // Modal容器样式
+              style: {
+                position: 'fixed',
+                top: '0',
+                left: '0',
+                width: '100vw',
+                height: '100vh',
+                zIndex: '999999',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              },
+              // 遮罩样式
+              maskStyle: {
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                zIndex: '999998'
+              }
+            },
+            // 兼容旧配置
             modalStyle: {
               position: 'fixed',
               top: '50%',
@@ -49,7 +71,6 @@ const LoginPage: React.FC = () => {
               borderRadius: '8px',
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)'
             },
-            // 遮罩配置
             maskStyle: {
               backgroundColor: 'rgba(0, 0, 0, 0.5)',
               zIndex: '9998'
@@ -70,67 +91,15 @@ const LoginPage: React.FC = () => {
         console.log('🔍 Guard实例检查:', {
           hasOn: typeof g.on === 'function',
           hasStart: typeof g.start === 'function',
-          constructor: g.constructor.name,
-          eventHandlers: g._eventHandlers || 'undefined'
+          constructor: g.constructor.name
         });
 
-        // Guard事件系统初始化修复：手动初始化事件处理器
-        if (!g._eventHandlers) {
-          console.log('🔧 修复Guard事件系统：手动初始化事件处理器');
-          g._eventHandlers = {};
-        }
+        // 跳过事件监听器，直接标记为ready，使用轮询监控
+        console.log('✅ Guard实例创建完成，跳过事件绑定');
         
-        // 延迟绑定确保Guard完全准备
-        setTimeout(() => {
-          if (!mounted) return;
-          
-          try {
-            console.log('🔗 开始安全事件绑定...');
-            
-            // 重新检查事件系统
-            if (!g._eventHandlers) {
-              g._eventHandlers = {};
-            }
-            
-            // 安全绑定登录事件
-            if (typeof g.on === 'function') {
-              g.on('login', (userInfo: any) => {
-                console.log('✅ Guard登录成功:', userInfo);
-                sessionStorage.setItem('user', JSON.stringify(userInfo));
-                sessionStorage.setItem('token', userInfo.token);
-                navigate('/');
-              });
-
-              g.on('login-error', (error: any) => {
-                console.error('❌ Guard登录失败:', error);
-              });
-
-              g.on('show', () => {
-                console.log('🎯 Guard Modal显示');
-                document.documentElement.classList.add('authing-guard-open');
-                document.body.classList.add('authing-guard-open');
-              });
-
-              g.on('hide', () => {
-                console.log('🎯 Guard Modal隐藏');
-                document.documentElement.classList.remove('authing-guard-open');
-                document.body.classList.remove('authing-guard-open');
-              });
-
-              console.log('✅ Guard事件绑定成功');
-              
-              if (mounted) {
-                setGuardState('ready');
-                console.log('✅ Guard完全初始化完成');
-              }
-            }
-          } catch (eventError) {
-            console.error('❌ 延迟事件绑定失败:', eventError);
-            if (mounted) {
-              setGuardState('failed');
-            }
-          }
-        }, 200);
+        if (mounted) {
+          setGuardState('ready');
+        }
         
       } catch (error) {
         console.error('❌ Guard初始化失败:', error);
@@ -163,11 +132,113 @@ const LoginPage: React.FC = () => {
       try {
         console.log('🚀 启动Guard Modal登录');
         guardRef.current.start();
+        
+        // 开始轮询监控登录状态
+        startAuthPolling();
       } catch (error) {
         console.error('❌ Guard启动失败:', error);
         setGuardState('failed');
       }
     }
+  };
+
+  // 轮询监控登录状态
+  const startAuthPolling = () => {
+    let previousStorageState = '';
+    
+    const pollInterval = setInterval(() => {
+      try {
+        // 全面检查所有可能的Authing存储键
+        const storageKeys = [
+          '_authing_token', 'authing_token', 'authingToken',
+          '_authing_user', 'authing_user', 'authingUser',
+          '_authing_session', 'authing_session',
+          `authing_${cfg.appId}_token`, `authing_${cfg.appId}_user`,
+          'guard_token', 'guard_user', 'guard_session'
+        ];
+        
+        let authData = null;
+        let foundKey = '';
+        
+        for (const key of storageKeys) {
+          const localData = localStorage.getItem(key);
+          const sessionData = sessionStorage.getItem(key);
+          
+          if (localData || sessionData) {
+            authData = localData || sessionData;
+            foundKey = key;
+            break;
+          }
+        }
+        
+        // 检查Guard实例的内部状态
+        let guardInternalState = null;
+        if (guardRef.current) {
+          try {
+            guardInternalState = guardRef.current.authClient?.getCurrentUser?.() || 
+                               guardRef.current.getUser?.() ||
+                               guardRef.current.user;
+          } catch (e) {
+            // 忽略Guard内部状态检查错误
+          }
+        }
+
+        // 生成当前存储状态快照
+        const currentStorageState = JSON.stringify({
+          authData: authData ? '存在' : '空',
+          foundKey,
+          guardState: guardInternalState ? '有用户' : '无用户'
+        });
+
+        // 状态变化检测
+        if (currentStorageState !== previousStorageState) {
+          console.log('🔍 存储状态变化:', currentStorageState);
+          previousStorageState = currentStorageState;
+        }
+
+        if (authData || guardInternalState) {
+          console.log('✅ 检测到登录成功', { foundKey, hasGuardUser: !!guardInternalState });
+          clearInterval(pollInterval);
+          navigate('/dashboard');
+          return;
+        }
+
+        // 检查Guard Modal是否已关闭
+        const modalSelectors = [
+          '.authing-guard-modal', 
+          '.authing-ant-modal',
+          '.ant-modal',
+          '[class*="authing"]',
+          '[class*="guard"]'
+        ];
+        
+        const modalElements = modalSelectors.flatMap(sel => 
+          Array.from(document.querySelectorAll(sel))
+        );
+        
+        const isModalVisible = modalElements.some(el => {
+          const style = window.getComputedStyle(el);
+          return style.display !== 'none' && 
+                 style.visibility !== 'hidden' &&
+                 style.opacity !== '0' &&
+                 !el.hasAttribute('hidden');
+        });
+
+        if (!isModalVisible && modalElements.length === 0) {
+          console.log('🔄 Modal已关闭，停止轮询');
+          clearInterval(pollInterval);
+        }
+
+      } catch (error) {
+        console.error('轮询检查错误:', error);
+      }
+    }, 500); // 提高检查频率到500ms
+
+    // 60秒后自动清理轮询
+    setTimeout(() => {
+      clearInterval(pollInterval);
+      console.log('🕐 轮询超时，自动清理');
+    }, 60000);
   };
 
   return (
