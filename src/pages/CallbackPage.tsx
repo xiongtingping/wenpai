@@ -93,10 +93,10 @@ const CallbackPage: React.FC = () => {
   useEffect(() => {
     console.log('📍 CallbackPage mounted, current URL:', window.location.href);
     
-    // 如果在生产环境且URL包含重复回调，添加指引
+    // 如果在生产环境且URL包含重复回调，直接执行修复
     if (window.location.href.includes('www.wenpai.xyz/callbackhttp://')) {
-      console.log('🔧 生产环境检测到URL重复，显示手动处理指引');
-      setProcessingStep('检测到回调URL问题，请手动处理...');
+      console.log('🔧 生产环境检测到URL重复，执行自动修复...');
+      handleCallback();
       return;
     }
     
