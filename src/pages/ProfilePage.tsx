@@ -606,8 +606,8 @@ export default function ProfilePage() {
             avatar: result.avatarUrl || prev.avatar
           }));
 
-          // 立即更新全局用户状态
-          updateUser({ avatar: result.avatarUrl });
+          // 立即更新全局用户状态并同步服务器
+          await updateUser({ avatar: result.avatarUrl });
 
           // 强制刷新头像显示
           setAvatarKey(prev => prev + 1);
@@ -689,7 +689,7 @@ export default function ProfilePage() {
         ...prev,
         avatar: avatarUrl
       }));
-      updateUser({ avatar: avatarUrl });
+      await updateUser({ avatar: avatarUrl });
       setHasUnsavedChanges(true);
       setAvatarKey(prev => prev + 1);
 

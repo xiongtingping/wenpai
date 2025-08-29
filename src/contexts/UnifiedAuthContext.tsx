@@ -435,12 +435,43 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     return;
   };
 
-  const updateUser = (updates: Partial<UserInfo>) => {
-    if (user) {
-      const updatedUser = { ...user, ...updates };
-      setUser(updatedUser);
-      localStorage.setItem('authing_user', JSON.stringify(updatedUser));
-      console.log('✅ 用户信息更新成功:', updatedUser);
+  const updateUser = async (updates: Partial<UserInfo>) => {
+    if (user && guard) {
+      try {
+        // 1. 立即更新本地状态（用户体验）
+        const updatedUser = { ...user, ...updates };
+        setUser(updatedUser);
+        localStorage.setItem('authing_user', JSON.stringify(updatedUser));
+        console.log('🔄 本地用户信息已更新，开始同步服务器...');
+        
+        // 2. 同步到Authing服务器
+        const updateData: any = {};
+        
+        if (updates.avatar) {
+          updateData.photo = updates.avatar;
+          console.log('📸 准备同步头像到服务器:', updates.avatar.substring(0, 50) + '...');
+        }
+        
+        if (updates.nickname) {
+          updateData.nickname = updates.nickname;
+          console.log('🏷️ 准备同步昵称到服务器:', updates.nickname);
+        }
+        
+        if (updates.email) {
+          updateData.email = updates.email;
+        }
+        
+        if (Object.keys(updateData).length > 0) {
+          console.log('🔄 调用Guard updateProfile API...');
+          const result = await guard.updateProfile(updateData);
+          console.log('✅ 服务器同步成功:', result);
+        }
+        
+        console.log('✅ 用户信息更新并同步成功:', updatedUser);
+      } catch (error) {
+        console.error('❌ 服务器同步失败，但本地已更新:', error);
+        // 本地更新已完成，即使服务器同步失败用户也能看到变化
+      }
     }
   };
 
