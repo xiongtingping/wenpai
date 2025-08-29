@@ -17,16 +17,18 @@ const LoginPage: React.FC = () => {
         const g = new Guard({
           appId: cfg.appId,
           host: cfg.host,
-          mode: 'modal',
+          mode: 'normal',
           lang: 'zh-CN',
           autoRegister: true,
-          defaultScene: 'login'
+          defaultScene: 'login',
+          target: '#authing-guard-container'
         });
         
         console.log('🧭 Guard配置(内嵌模式):', { 
           appId: cfg.appId,
           host: cfg.host, 
-          mode: 'modal'
+          mode: 'normal',
+          target: '#authing-guard-container'
         });
         
         guardRef.current = g;
@@ -46,8 +48,9 @@ const LoginPage: React.FC = () => {
           console.error('❌ 内嵌登录失败:', error);
         });
 
-        // 显示登录界面
-        g.show();
+        // 直接启动内嵌登录，不使用redirect
+        console.log('🎯 启动内嵌登录界面...');
+        g.start();
         
       } catch (e) {
         console.error('Authing Guard init failed:', e);
@@ -56,10 +59,27 @@ const LoginPage: React.FC = () => {
   }, [cfg.appId, cfg.host, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-10 px-4">
-      <div className="w-full max-w-md bg-card border border-border rounded-xl shadow-lg p-6 text-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-3" />
-        <p className="text-sm text-muted-foreground">正在跳转到认证页面…</p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold mb-2">文派登录</h1>
+          <p className="text-muted-foreground">请使用您的账户登录</p>
+        </div>
+        
+        {/* Guard容器 */}
+        <div 
+          id="authing-guard-container" 
+          className="w-full min-h-[400px] flex items-center justify-center"
+          style={{ 
+            maxWidth: '500px', 
+            margin: '0 auto',
+            background: '#fff',
+            borderRadius: '8px',
+            padding: '20px'
+          }}
+        >
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
       </div>
     </div>
   );
