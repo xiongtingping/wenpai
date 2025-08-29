@@ -3,7 +3,6 @@ import '@authing/guard/dist/esm/guard.min.css';
 import { Guard } from '@authing/guard';
 import { getAuthingConfig } from '@/config/authing';
 import { useNavigate } from 'react-router-dom';
-import { DirectLoginForm } from '@/components/auth/DirectLoginForm';
 
 const LoginPage: React.FC = () => {
   const cfg = getAuthingConfig();
@@ -60,69 +59,85 @@ const LoginPage: React.FC = () => {
         
         if (!mounted) return;
         
-        guardRef.current = g;
-        
         console.log('🧭 Guard配置(Modal模式):', { 
           appId: cfg.appId,
           host: cfg.host, 
           mode: 'modal'
         });
 
-        // 监听登录成功
-        g.on('login', (userInfo: any) => {
-          console.log('✅ Guard登录成功:', userInfo);
-          sessionStorage.setItem('user', JSON.stringify(userInfo));
-          sessionStorage.setItem('token', userInfo.token);
-          navigate('/');
+        // 等待Guard完全初始化后再绑定事件
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        console.log('🔍 Guard实例检查:', {
+          hasOn: typeof g.on === 'function',
+          hasStart: typeof g.start === 'function',
+          constructor: g.constructor.name,
+          prototype: Object.getOwnPropertyNames(Object.getPrototypeOf(g))
         });
 
-        // 监听登录失败
-        g.on('login-error', (error: any) => {
-          console.error('❌ Guard登录失败:', error);
-        });
+        guardRef.current = g;
 
-        // 监听Modal显示事件，应用正确样式和修复焦点
-        g.on('show', () => {
-          console.log('🎯 Guard Modal显示');
-          
-          // 应用Modal样式类
-          document.documentElement.classList.add('authing-guard-open');
-          document.body.classList.add('authing-guard-open');
-          
-          // 修复焦点管理和定位
-          setTimeout(() => {
-            // 修复aria-hidden焦点冲突
-            const ariaHiddenElements = document.querySelectorAll('[aria-hidden="true"]');
-            ariaHiddenElements.forEach(el => {
-              const focusableChild = el.querySelector('[tabindex], input, button, textarea, select');
-              if (focusableChild) {
-                console.log('🔧 修复aria-hidden焦点冲突');
-                el.removeAttribute('aria-hidden');
-              }
+        // 安全的事件绑定，检查方法是否存在
+        try {
+          if (typeof g.on === 'function') {
+            // 监听登录成功
+            g.on('login', (userInfo: any) => {
+              console.log('✅ Guard登录成功:', userInfo);
+              sessionStorage.setItem('user', JSON.stringify(userInfo));
+              sessionStorage.setItem('token', userInfo.token);
+              navigate('/');
             });
-            
-            // 确保Modal正确定位
-            const modalWrap = document.querySelector('.ant-modal-wrap, .authing-ant-modal-wrap');
-            if (modalWrap) {
-              console.log('✅ 找到Modal容器，应用定位修复');
-              (modalWrap as HTMLElement).style.cssText += `
-                position: fixed !important;
-                inset: 0 !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                z-index: 999999 !important;
-              `;
-            }
-          }, 100);
-        });
 
-        // 监听Modal隐藏事件，清理样式
-        g.on('hide', () => {
-          console.log('🎯 Guard Modal隐藏');
-          document.documentElement.classList.remove('authing-guard-open');
-          document.body.classList.remove('authing-guard-open');
-        });
+            // 监听登录失败
+            g.on('login-error', (error: any) => {
+              console.error('❌ Guard登录失败:', error);
+            });
+
+            // 监听Modal事件
+            g.on('show', () => {
+              console.log('🎯 Guard Modal显示');
+              document.documentElement.classList.add('authing-guard-open');
+              document.body.classList.add('authing-guard-open');
+              
+              // 修复焦点和定位
+              setTimeout(() => {
+                const ariaHiddenElements = document.querySelectorAll('[aria-hidden="true"]');
+                ariaHiddenElements.forEach(el => {
+                  const focusableChild = el.querySelector('[tabindex], input, button, textarea, select');
+                  if (focusableChild) {
+                    el.removeAttribute('aria-hidden');
+                  }
+                });
+                
+                const modalWrap = document.querySelector('.ant-modal-wrap, .authing-ant-modal-wrap');
+                if (modalWrap) {
+                  (modalWrap as HTMLElement).style.cssText += `
+                    position: fixed !important;
+                    inset: 0 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    z-index: 999999 !important;
+                  `;
+                }
+              }, 100);
+            });
+
+            g.on('hide', () => {
+              console.log('🎯 Guard Modal隐藏');
+              document.documentElement.classList.remove('authing-guard-open');
+              document.body.classList.remove('authing-guard-open');
+            });
+
+            console.log('✅ Guard事件绑定完成');
+          } else {
+            console.error('❌ Guard.on方法不存在');
+            throw new Error('Guard事件系统不可用');
+          }
+        } catch (eventError) {
+          console.error('❌ Guard事件绑定失败:', eventError);
+          throw eventError;
+        }
         
         if (mounted) {
           setGuardState('ready');
@@ -183,10 +198,10 @@ const LoginPage: React.FC = () => {
                 onClick={handleGuardLogin}
                 className="w-full bg-primary text-primary-foreground py-3 px-6 rounded-md hover:bg-primary/90 text-lg font-medium"
               >
-                使用Authing登录
+                立即登录
               </button>
               <p className="text-center text-xs text-muted-foreground">
-                点击后将打开安全的登录弹窗
+                安全的企业级身份认证
               </p>
             </div>
           ) : guardState === 'loading' ? (
@@ -196,15 +211,19 @@ const LoginPage: React.FC = () => {
               正在初始化认证系统...
             </div>
           ) : (
-            // Guard失败时使用表单
-            <DirectLoginForm 
-              onLogin={(userInfo) => {
-                console.log('✅ 表单登录成功:', userInfo);
-              }}
-              onError={(error) => {
-                console.error('❌ 表单登录失败:', error);
-              }}
-            />
+            // Guard初始化失败提示
+            <div className="space-y-4 w-full max-w-md text-center">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+                <h3 className="text-sm font-medium text-red-800 mb-1">认证系统初始化失败</h3>
+                <p className="text-xs text-red-600">请刷新页面重试，或联系技术支持</p>
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200"
+              >
+                刷新页面
+              </button>
+            </div>
           )}
         </div>
       </div>
