@@ -70,9 +70,8 @@ export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promis
       if (!chosen) {
         chosen = pickRedirectUri(redirectUris, base.redirectUri);
       }
-      // 观测日志（帮助线上核对白名单 vs 实际使用）
+      // 先记录服务端白名单原始值，最终返回值见下
       console.log('🔎 Authing public-config redirect_uris:', redirectUris);
-      console.log('✅ 使用的 redirectUri:', chosen);
 
       // 生产环境固定回调为 www，彻底消除 window.origin/netlify 抖动；本地固定 localhost
       const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
