@@ -9,7 +9,7 @@ import { logger } from '@/utils/logger';
  */
 const CallbackPage: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, loading, error } = useAuth();
+  const { isAuthenticated, loading, error } = useAuth(); // TODO: 后续可迁移为 Guard.handleRedirectCallback 显式回调
   const [processingStep, setProcessingStep] = useState('处理登录回调...');
 
   useEffect(() => {
