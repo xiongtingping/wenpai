@@ -163,7 +163,7 @@ export function Header() {
 
         {/* Action Buttons */}
         {!isMobile && (
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4 relative z-[60]">
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-1">
