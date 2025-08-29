@@ -25,7 +25,6 @@ import { useNavigate } from 'react-router-dom';
 import { useGuard, User } from '@authing/guard-react18';
 import { getAuthingConfig } from '@/config/authing';
 import { useAuthStore } from '@/store/authStore';
-import { CustomAuthModal } from '@/components/auth/CustomAuthModal';
 
 /**
  * 用户信息接口
@@ -283,7 +282,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    */
   const login = async (redirectTo?: string) => {
     try {
-      console.log('🔐 开始自定义登录表单...');
+      console.log('🔐 跳转到自定义登录页面...');
       setError(null);
 
       // 保存跳转目标
@@ -292,14 +291,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('📝 保存跳转目标:', redirectTo);
       }
 
-      // 打开自定义登录模态框
-      setCustomAuthModalTab('login');
-      setCustomAuthModalOpen(true);
-      console.log('✅ 自定义登录表单已打开');
+      // 跳转到自定义登录页面
+      navigate('/custom-login');
+      console.log('✅ 已跳转到自定义登录页面');
 
     } catch (error) {
-      console.error('❌ 登录失败:', error);
-      setError('登录失败: ' + (error instanceof Error ? error.message : String(error)));
+      console.error('❌ 登录跳转失败:', error);
+      setError('登录跳转失败: ' + (error instanceof Error ? error.message : String(error)));
     }
   };
 
@@ -329,7 +327,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    */
   const register = async (redirectTo?: string) => {
     try {
-      console.log('📝 开始自定义注册表单...');
+      console.log('📝 跳转到自定义注册页面...');
       setError(null);
 
       // 保存跳转目标
@@ -337,14 +335,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         localStorage.setItem('login_redirect_to', redirectTo);
       }
 
-      // 打开自定义注册模态框
-      setCustomAuthModalTab('register');
-      setCustomAuthModalOpen(true);
-      console.log('✅ 自定义注册表单已打开');
+      // 跳转到自定义登录页面（注册标签）
+      navigate('/custom-login?tab=register');
+      console.log('✅ 已跳转到自定义注册页面');
 
     } catch (error) {
-      console.error('❌ 注册失败:', error);
-      setError('注册失败');
+      console.error('❌ 注册跳转失败:', error);
+      setError('注册跳转失败');
     }
   };
 
@@ -517,13 +514,6 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   return (
     <UnifiedAuthContext.Provider value={contextValue}>
       {children}
-
-      {/* 自定义登录/注册模态框 */}
-      <CustomAuthModal
-        isOpen={customAuthModalOpen}
-        onClose={() => setCustomAuthModalOpen(false)}
-        defaultTab={customAuthModalTab}
-      />
     </UnifiedAuthContext.Provider>
   );
 };

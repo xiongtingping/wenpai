@@ -69,8 +69,10 @@ export const DevPermissionSwitcher: React.FC<DevPermissionSwitcherProps> = ({ cl
   const { user } = useAuth();
   const [currentProfile, setCurrentProfile] = useState<keyof typeof DEV_USER_PROFILES>('trial');
 
-  // 🔒 SECURITY: 完全禁用权限切换器 - 防止生产环境权限绕过
-  return null;
+  // 仅在开发环境显示
+  if (process.env.NODE_ENV !== 'development') {
+    return null;
+  }
 
   const handleProfileSwitch = (profileKey: keyof typeof DEV_USER_PROFILES) => {
     const profile = DEV_USER_PROFILES[profileKey];

@@ -50,6 +50,8 @@ import UpgradeComparisonPage from '@/pages/UpgradeComparisonPage';
 import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 import ShareManagerPage from '@/pages/ShareManagerPage';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
+import { CustomLoginPage } from '@/pages/CustomLoginPage';
+import { DevPermissionSwitcher } from '@/components/dev/DevPermissionSwitcher';
 // 移除调试页面
 // 移除测试组件
 
@@ -117,6 +119,9 @@ const App: React.FC = () => {
                     {/* 首页 */}
                     <Route path="/" element={<HomePage />} />
 
+                    {/* 登录页面 */}
+                    <Route path="/custom-login" element={<CustomLoginPage />} />
+
                     {/* 登录回调页面 - 支持各种回调URL格式 */}
                     <Route path="/callback" element={<CallbackPage />} />
                     <Route path="/callback/" element={<CallbackPage />} />
@@ -166,9 +171,12 @@ const App: React.FC = () => {
 
               {/* 全局通知组件 */}
               <Toaster />
-              
+
               {/* 自定义认证模态框 */}
               <AuthModalWrapper />
+
+              {/* 开发环境权限切换器 */}
+              <DevPermissionSwitcher />
                     </>
                 </ErrorBoundary>
             </UnifiedAuthProvider>
