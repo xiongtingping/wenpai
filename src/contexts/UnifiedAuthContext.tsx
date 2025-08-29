@@ -236,16 +236,25 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('📝 保存跳转目标:', redirectTo);
       }
 
-      // 直接跳转到Authing登录页
-      console.log('🔄 使用直接跳转登录模式...');
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const redirectUri = isLocalhost 
-        ? 'http://localhost:5173/callback' 
-        : 'https://www.wenpai.xyz/callback';
-      const authingUrl = `https://rzcswqs4sq0f.authing.cn/login?app_id=68a68a29d0c3341ae7a3df23&redirect_uri=${encodeURIComponent(redirectUri)}`;
-      console.log('🔄 跳转到Authing:', authingUrl);
-      console.log('🌐 环境检测:', { hostname: window.location.hostname, isLocalhost, redirectUri });
-      window.location.href = authingUrl;
+      // 尝试使用Guard模态框登录
+      console.log('🚀 显示Guard登录模态框（支持登录/注册）');
+      
+      try {
+        // 使用官方Guard模态框，支持登录和注册切换
+        guard.show('login');
+        console.log('✅ Guard模态框已显示');
+      } catch (error) {
+        console.error('❌ Guard模态框显示失败，使用备用方案:', error);
+        
+        // 备用方案：直接跳转（保持原逻辑）
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const redirectUri = isLocalhost 
+          ? 'http://localhost:5173/callback' 
+          : 'https://www.wenpai.xyz/callback';
+        const authingUrl = `https://rzcswqs4sq0f.authing.cn/login?app_id=68a68a29d0c3341ae7a3df23&redirect_uri=${encodeURIComponent(redirectUri)}`;
+        console.log('🔄 跳转到Authing:', authingUrl);
+        window.location.href = authingUrl;
+      }
       
       // 强制修复模态框位置
       setTimeout(() => {

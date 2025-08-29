@@ -95,15 +95,20 @@ const App: React.FC = () => {
         <ErrorBoundary>
           <GuardProvider
             appId="68a68a29d0c3341ae7a3df23"
-            mode="normal"
+            mode="modal"
             host="https://rzcswqs4sq0f.authing.cn"
             config={{
+              mode: 'modal',
               autoRegister: true,
+              defaultScenes: 'login',
+              loginMethodList: ['password', 'phone-code', 'email-code'],
+              registerMethodList: ['phone', 'email'],
               placeholder: {
                 username: '请输入用户名',
                 email: '请输入邮箱',
                 password: '请输入密码'
-              }
+              },
+              lang: 'zh-CN'
             }}
           >
             <UnifiedAuthProvider>
