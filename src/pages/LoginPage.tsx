@@ -49,9 +49,25 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     try {
+      const makeGuardHost = (host: string, appId: string) => {
+        try {
+          const u = new URL(host);
+          // 若路径为空或'/'，补上应用路径 /{appId}
+          if (!u.pathname || u.pathname === '/' || u.pathname === '') {
+            u.pathname = `/${appId}`;
+          } else if (!u.pathname.includes(appId)) {
+            // 若已有路径但不含appId，强制改为应用路径
+            u.pathname = `/${appId}`;
+          }
+          return u.toString().replace(/\/$/, '');
+        } catch {
+          return `${host.replace(/\/$/, '')}/${appId}`;
+        }
+      };
+
       const g = new Guard({
         appId: cfg.appId,
-        host: cfg.host,
+        host: makeGuardHost(cfg.host, cfg.appId),
         redirectUri: normalizeRedirectUri(cfg.redirectUri),
         mode: 'normal',
         lang: 'zh-CN'
