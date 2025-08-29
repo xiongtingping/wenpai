@@ -63,6 +63,7 @@ export const DirectLoginForm: React.FC<DirectLoginFormProps> = ({ onLogin, onErr
           onChange={(e) => setEmail(e.target.value)}
           className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           placeholder="请输入邮箱"
+          autoComplete="username"
           required
         />
       </div>
@@ -75,6 +76,7 @@ export const DirectLoginForm: React.FC<DirectLoginFormProps> = ({ onLogin, onErr
           onChange={(e) => setPassword(e.target.value)}
           className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           placeholder="请输入密码"
+          autoComplete="current-password"
           required
         />
       </div>
