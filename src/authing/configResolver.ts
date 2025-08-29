@@ -10,8 +10,8 @@ export interface BaseAuthingConfig {
 
 export interface ResolvedGuardConfig {
   appId: string;
-  host: string;       // https://<domain> (no appId path) per official Guard docs
-  redirectUri: string; // one of server-allowed URIs
+  host: string;       // Plan A: https://<domain>/<appId> 应用专属 host
+  redirectUri: string; // 从服务器白名单选择的回调
 }
 
 function toDomain(host: string): string {
@@ -53,17 +53,16 @@ export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promis
         data?.oidc?.redirect_uris || data?.redirectUris || data?.redirectUrisWhitelist || [];
       return {
         appId: base.appId,
-        host: `https://${domain}`,
+        host: `https://${domain}/${base.appId}`.replace(/\/$/, ''),
         redirectUri: pickRedirectUri(redirectUris, base.redirectUri)
       };
     }
   } catch (e) {
     // swallow and fallback
-    // console.warn('Failed to fetch public-config:', e);
   }
   return {
     appId: base.appId,
-    host: `https://${domain}`,
+    host: `https://${domain}/${base.appId}`.replace(/\/$/, ''),
     redirectUri: normalizeRedirect(base.redirectUri)
   };
 }
