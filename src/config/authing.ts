@@ -61,21 +61,32 @@ export function clearAuthingConfigCache() {
 export function getAuthingConfig() {
   if (cachedConfig) return cachedConfig;
 
-  // 🔧 修复：根据当前域名动态设置回调URI
-  const isLocal = typeof window !== 'undefined' && (
-    window.location.hostname === 'localhost' || 
-    window.location.hostname === '127.0.0.1' ||
-    window.location.port === '5173'
-  );
+  // 🔧 修复：动态检测所有环境类型（本地、Netlify预览、生产）
+  let redirectUri = 'https://www.wenpai.xyz/callback'; // 默认生产环境
   
-  const redirectUri = isLocal ? 'http://localhost:5173/callback' : 'https://www.wenpai.xyz/callback';
-  
-  console.log('🔍 环境检测:', {
-    hostname: typeof window !== 'undefined' ? window.location.hostname : 'SSR',
-    port: typeof window !== 'undefined' ? window.location.port : 'SSR',
-    isLocal,
-    selectedRedirectUri: redirectUri
-  });
+  if (typeof window !== 'undefined') {
+    const { hostname, port, origin } = window.location;
+    
+    // 本地开发环境
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || port === '5173') {
+      redirectUri = 'http://localhost:5173/callback';
+    }
+    // Netlify预览环境 (格式: xxx--wenpai.netlify.app)
+    else if (hostname.includes('--wenpai.netlify.app') || hostname.includes('netlify.app')) {
+      redirectUri = `${origin}/callback`;
+    }
+    // 生产环境保持默认值
+    
+    console.log('🔍 环境检测详情:', {
+      hostname,
+      port,
+      origin,
+      isLocal: hostname === 'localhost' || port === '5173',
+      isNetlify: hostname.includes('netlify.app'),
+      isProduction: hostname === 'www.wenpai.xyz',
+      selectedRedirectUri: redirectUri
+    });
+  }
 
   cachedConfig = {
     appId: APP_ID,
