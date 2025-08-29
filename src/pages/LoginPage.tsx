@@ -11,28 +11,50 @@ const LoginPage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const [guardState, setGuardState] = useState<'loading' | 'ready' | 'failed'>('loading');
+  const initializingRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;
     
+    // 防止重复初始化
+    if (initializingRef.current) {
+      console.log('🔄 Guard正在初始化中，跳过重复调用');
+      return;
+    }
+    
     const initGuard = async () => {
+      initializingRef.current = true;
+      
       try {
         console.log('🔧 正确实现Authing Guard集成');
         
-        // 创建Guard实例 - 完整配置，避开public-config API问题
+        // 创建Guard实例 - 完整配置，修复Modal定位和样式
         const g = new Guard({
           appId: cfg.appId,
           host: cfg.host,
-          redirectUri: cfg.redirectUri, // 明确指定，不依赖API
+          redirectUri: cfg.redirectUri,
           mode: 'modal',
           lang: 'zh-CN',
           autoRegister: true,
           defaultScene: 'login',
-          // 禁用可能导致public-config调用的功能
           isSSO: false,
           config: {
-            // 强制配置，避免内部API调用
-            redirectUri: cfg.redirectUri
+            redirectUri: cfg.redirectUri,
+            // Modal样式配置
+            modalStyle: {
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: '9999',
+              borderRadius: '8px',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)'
+            },
+            // 遮罩配置
+            maskStyle: {
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              zIndex: '9998'
+            }
           }
         });
         
@@ -58,6 +80,49 @@ const LoginPage: React.FC = () => {
         g.on('login-error', (error: any) => {
           console.error('❌ Guard登录失败:', error);
         });
+
+        // 监听Modal显示事件，应用正确样式和修复焦点
+        g.on('show', () => {
+          console.log('🎯 Guard Modal显示');
+          
+          // 应用Modal样式类
+          document.documentElement.classList.add('authing-guard-open');
+          document.body.classList.add('authing-guard-open');
+          
+          // 修复焦点管理和定位
+          setTimeout(() => {
+            // 修复aria-hidden焦点冲突
+            const ariaHiddenElements = document.querySelectorAll('[aria-hidden="true"]');
+            ariaHiddenElements.forEach(el => {
+              const focusableChild = el.querySelector('[tabindex], input, button, textarea, select');
+              if (focusableChild) {
+                console.log('🔧 修复aria-hidden焦点冲突');
+                el.removeAttribute('aria-hidden');
+              }
+            });
+            
+            // 确保Modal正确定位
+            const modalWrap = document.querySelector('.ant-modal-wrap, .authing-ant-modal-wrap');
+            if (modalWrap) {
+              console.log('✅ 找到Modal容器，应用定位修复');
+              (modalWrap as HTMLElement).style.cssText += `
+                position: fixed !important;
+                inset: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                z-index: 999999 !important;
+              `;
+            }
+          }, 100);
+        });
+
+        // 监听Modal隐藏事件，清理样式
+        g.on('hide', () => {
+          console.log('🎯 Guard Modal隐藏');
+          document.documentElement.classList.remove('authing-guard-open');
+          document.body.classList.remove('authing-guard-open');
+        });
         
         if (mounted) {
           setGuardState('ready');
@@ -69,6 +134,8 @@ const LoginPage: React.FC = () => {
         if (mounted) {
           setGuardState('failed');
         }
+      } finally {
+        initializingRef.current = false;
       }
     };
 
