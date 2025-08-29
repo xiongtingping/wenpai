@@ -74,9 +74,9 @@ export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promis
       console.log('🔎 Authing public-config redirect_uris:', redirectUris);
       console.log('✅ 使用的 redirectUri:', chosen);
 
-      // 生产环境遵循服务端白名单；本地固定 localhost
+      // 生产环境固定回调为 www，彻底消除 window.origin/netlify 抖动；本地固定 localhost
       const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
-      const finalRedirect = isLocal ? 'http://localhost:5173/callback' : chosen;
+      const finalRedirect = isLocal ? 'http://localhost:5173/callback' : 'https://www.wenpai.xyz/callback';
       return {
         appId: base.appId,
         host: `https://${domain}/${base.appId}`.replace(/\/$/, ''),
