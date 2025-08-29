@@ -1794,3 +1794,30 @@ authingModal.style.zIndex = '9999';
   - npm run lint → ✅
   - npx tsc --noEmit → ❌ 21 个历史错误（非认证路径），认证相关 0 个错误。
 - 结论：本项完成，标记 ✅。认证系统收敛为单一 Guard 架构。
+
+
+---
+
+### 19. 🕒 Netlify 构建失败 - @authing/guard-react 导入未解析 (2025-08-29)
+**错误日志摘要**:
+```
+[vite]: Rollup failed to resolve import "@authing/guard-react" from "src/pages/LoginPage.tsx".
+```
+
+**根因候选与结论**:
+1. 远端构建使用旧版 LoginPage.tsx（仍引用 @authing/guard-react）(90%)
+2. 生产安装跳过 devDependencies，若 guard-react 被错误放入 devDependencies 会缺失 (10%)
+
+**修复**:
+- 将 LoginPage.tsx 改为直接使用 `@authing/guard`，并使用官方样式：`@authing/guard/dist/esm/guard.min.css`
+- 去除对 `@authing/guard-react` 的依赖与引用（页面改为直接 new Guard 嵌入渲染）
+
+**本地验证**:
+- npm run build → ✅ 成功
+- npm run lint → ✅ 通过
+- npx tsc --noEmit → 🕒 仍有 21 个历史测试/工具类型错误（非认证链路，不影响构建）
+
+**待办 / 部署验证**:
+- 需要合并并触发 Netlify 重新构建以验证生产环境 → 🕒 待验证
+
+**当前状态**: 🕒 待验证（本地通过，等待生产构建通过后标记为 ✅）
