@@ -5,6 +5,19 @@ html.authing-guard-open, body.authing-guard-open {
   overflow: hidden !important;
 }
 
+/* 修复accessibility问题：禁用有问题的aria-hidden元素 */
+html.authing-guard-open [aria-hidden="true"][tabindex="0"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* 禁用Guard的focus trap元素 */
+html.authing-guard-open .authing-guard-focus-trap,
+html.authing-guard-open [role="presentation"][aria-hidden="true"] {
+  display: none !important;
+}
+
 html.authing-guard-open #root {
   transform: none !important;
   -webkit-transform: none !important;

@@ -99,8 +99,37 @@ async function createSimplifiedGuardInstance() {
       appId: resolved.appId,
       host: resolved.host,
       redirectUri: resolved.redirectUri,
-      mode: 'normal',
-      lang: 'zh-CN'
+      mode: 'modal',
+      lang: 'zh-CN',
+      autoRegister: true,
+      defaultScene: 'login',
+      isSSO: false,
+      config: {
+        redirectUri: resolved.redirectUri,
+        // Modal配置 - 修复accessibility问题
+        modal: {
+          bodyClassName: 'authing-guard-open',
+          // 禁用有问题的focus management
+          focusTrap: false,
+          maskClosable: true,
+          keyboard: true,
+          style: {
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '100vw',
+            height: '100vh',
+            zIndex: '999999',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          },
+          maskStyle: {
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: '999998'
+          }
+        }
+      }
     });
 
     console.log('✅ 简化Guard实例创建成功');
@@ -239,11 +268,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   /**
-   * 🎯 架构级重构：登录方法 - 增强弹窗显示与位置修复
+   * 🎯 直接启动Guard Modal登录，无需页面跳转
    */
   const login = async (redirectTo?: string) => {
     try {
-      console.log('🔐 开始架构级登录流程...');
+      console.log('🔐 开始直接Guard Modal登录流程...');
       setError(null);
 
       // 保存跳转目标
@@ -252,26 +281,131 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('📝 保存跳转目标:', redirectTo);
       }
 
-      // 🎯 最终根因修复：确保Guard实例就绪
+      // 确保Guard实例就绪
       if (!guardRef.current) {
         console.log('🔧 Guard实例未就绪，重新初始化...');
         guardRef.current = await createSimplifiedGuardInstance();
       }
 
-      // 🔁 切换为“专用嵌入页”架构：不再在此处渲染/弹窗，统一跳转到 /auth/login
-      console.log('🔁 跳转到专用登录页 /auth/login');
-      try {
-        window.localStorage.setItem('login_redirect_to', redirectTo || window.location.pathname);
-      } catch (err) {
-        console.warn('Failed to persist login redirect target', err);
-      }
-      window.location.href = '/auth/login';
-      return;
+      // 直接启动Guard Modal
+      console.log('🚀 直接启动Guard Modal登录');
+      guardRef.current.start();
+      
+      // 开始轮询监控登录状态
+      startAuthPolling();
 
     } catch (error) {
-      console.error('❌ 架构级登录失败:', error);
+      console.error('❌ Guard Modal启动失败:', error);
       setError('登录失败: ' + (error instanceof Error ? error.message : String(error)));
     }
+  };
+
+  // 轮询监控登录状态（从LoginPage迁移过来）
+  const startAuthPolling = () => {
+    let previousStorageState = '';
+    
+    const pollInterval = setInterval(() => {
+      try {
+        // 全面检查所有可能的Authing存储键
+        const storageKeys = [
+          '_authing_token', 'authing_token', 'authingToken',
+          '_authing_user', 'authing_user', 'authingUser',
+          '_authing_session', 'authing_session',
+          `authing_${getAuthingConfig().appId}_token`, `authing_${getAuthingConfig().appId}_user`,
+          'guard_token', 'guard_user', 'guard_session'
+        ];
+        
+        let authData = null;
+        let foundKey = '';
+        
+        for (const key of storageKeys) {
+          const localData = localStorage.getItem(key);
+          const sessionData = sessionStorage.getItem(key);
+          
+          if (localData || sessionData) {
+            authData = localData || sessionData;
+            foundKey = key;
+            break;
+          }
+        }
+        
+        // 检查Guard实例的内部状态
+        let guardInternalState = null;
+        if (guardRef.current) {
+          try {
+            guardInternalState = guardRef.current.authClient?.getCurrentUser?.() || 
+                               guardRef.current.getUser?.() ||
+                               guardRef.current.user;
+          } catch (e) {
+            // 忽略Guard内部状态检查错误
+          }
+        }
+
+        // 生成当前存储状态快照
+        const currentStorageState = JSON.stringify({
+          authData: authData ? '存在' : '空',
+          foundKey,
+          guardState: guardInternalState ? '有用户' : '无用户'
+        });
+
+        // 状态变化检测
+        if (currentStorageState !== previousStorageState) {
+          console.log('🔍 全局存储状态变化:', currentStorageState);
+          previousStorageState = currentStorageState;
+        }
+
+        if (authData || guardInternalState) {
+          console.log('✅ 全局检测到登录成功', { foundKey, hasGuardUser: !!guardInternalState });
+          clearInterval(pollInterval);
+          
+          // 处理登录成功
+          if (guardInternalState) {
+            handleAuthingLogin(guardInternalState);
+          }
+          
+          // 跳转逻辑
+          const redirectTarget = localStorage.getItem('login_redirect_to') || '/dashboard';
+          localStorage.removeItem('login_redirect_to');
+          navigate(redirectTarget);
+          return;
+        }
+
+        // 检查Guard Modal是否已关闭
+        const modalSelectors = [
+          '.authing-guard-modal', 
+          '.authing-ant-modal',
+          '.ant-modal',
+          '[class*="authing"]',
+          '[class*="guard"]'
+        ];
+        
+        const modalElements = modalSelectors.flatMap(sel => 
+          Array.from(document.querySelectorAll(sel))
+        );
+        
+        const isModalVisible = modalElements.some(el => {
+          const style = window.getComputedStyle(el);
+          return style.display !== 'none' && 
+                 style.visibility !== 'hidden' &&
+                 style.opacity !== '0' &&
+                 !el.hasAttribute('hidden');
+        });
+
+        if (!isModalVisible && modalElements.length === 0) {
+          console.log('🔄 全局Modal已关闭，停止轮询');
+          clearInterval(pollInterval);
+        }
+
+      } catch (error) {
+        console.error('全局轮询检查错误:', error);
+      }
+    }, 500);
+
+    // 60秒后自动清理轮询
+    setTimeout(() => {
+      clearInterval(pollInterval);
+      console.log('🕐 全局轮询超时，自动清理');
+    }, 60000);
   };
 
   /**

@@ -41,7 +41,6 @@ import EmojiPage from '@/pages/EmojiPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
 import CallbackPage from '@/pages/CallbackPage';
-import LoginPage from '@/pages/LoginPage';
 import SettingsPage from '@/pages/SettingsPage';
 import HistoryPage from '@/pages/HistoryPage';
 import UpgradeComparisonPage from '@/pages/UpgradeComparisonPage';
@@ -85,8 +84,6 @@ const App: React.FC = () => {
                     <Route path="/callback/" element={<CallbackPage />} />
 
                         <Route path="/callback/*" element={<CallbackPage />} />
-                    {/* 登录页（嵌入式Guard） */}
-                    <Route path="/auth/login" element={<LoginPage />} />
 
                     {/* 核心功能页面 - 需要登录 */}
                     <Route path="/adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
