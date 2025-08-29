@@ -20,11 +20,11 @@
  * 🚫 冻结原因：认证系统已验证稳定，任何修改都可能导致登录功能崩溃
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Guard } from '@authing/guard';
+import { Authing } from '@authing/browser';
+import type { LoginState } from '@authing/browser/dist/types/global';
 import { getAuthingConfig } from '@/config/authing';
-import { resolveAuthingGuardConfig } from '@/authing/configResolver';
 
 /**
  * 用户信息接口
@@ -65,7 +65,8 @@ interface UnifiedAuthContextType {
   resetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
   hasPermission: (permission: string) => boolean;
   hasRole: (role: string) => boolean;
-  guard: Guard | null;
+  sdk: Authing | null;
+  loginState: LoginState | null;
 }
 
 // ❌ 移除 @authing/web 客户端使用，统一改用 Guard 弹窗流程
@@ -74,68 +75,29 @@ interface UnifiedAuthContextType {
 
 
 /**
- * 🎯 最终根因修复：简化Guard实例创建，避免事件系统冲突
- * 真正问题：Guard事件监听器系统存在架构缺陷
+ * 🎯 使用官方正确的Authing Browser SDK
+ * 根本修复：从错误的Guard SDK切换到官方Browser SDK
  */
-async function createSimplifiedGuardInstance() {
-  const base = getAuthingConfig();
-  // 以单一事实源解析为“应用专属 host + 固定回调”，确保与 /auth/login 完全一致
-  const resolved = await resolveAuthingGuardConfig({ appId: base.appId, host: base.host, redirectUri: base.redirectUri });
-
-  console.log('🔧 开始简化Guard初始化(统一解析):', {
-    appId: resolved.appId,
-    host: resolved.host,
-    redirectUri: resolved.redirectUri
+function createAuthingSDK() {
+  const config = getAuthingConfig();
+  
+  console.log('🔧 创建官方Authing Browser SDK:', {
+    domain: config.host,
+    appId: config.appId,
+    redirectUri: config.redirectUri
   });
 
-  if (!resolved.appId || !resolved.host) {
-    const error = `Authing配置错误: ${!resolved.appId ? 'appId为空' : 'host为空'}`;
-    console.error('❌', error, resolved);
-    throw new Error(error);
-  }
-
   try {
-    const guard = new Guard({
-      appId: resolved.appId,
-      host: resolved.host,
-      redirectUri: resolved.redirectUri,
-      mode: 'modal',
-      lang: 'zh-CN',
-      autoRegister: true,
-      defaultScene: 'login',
-      isSSO: false,
-      config: {
-        redirectUri: resolved.redirectUri,
-        // Modal配置 - 修复accessibility问题
-        modal: {
-          bodyClassName: 'authing-guard-open',
-          // 禁用有问题的focus management
-          focusTrap: false,
-          maskClosable: true,
-          keyboard: true,
-          style: {
-            position: 'fixed',
-            top: '0',
-            left: '0',
-            width: '100vw',
-            height: '100vh',
-            zIndex: '999999',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          },
-          maskStyle: {
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: '999998'
-          }
-        }
-      }
+    const sdk = new Authing({
+      domain: config.host,
+      appId: config.appId,
+      redirectUri: config.redirectUri
     });
 
-    console.log('✅ 简化Guard实例创建成功');
-    return guard;
+    console.log('✅ 官方Authing SDK创建成功');
+    return sdk;
   } catch (error) {
-    console.error('❌ 简化Guard实例创建失败:', error);
+    console.error('❌ Authing SDK创建失败:', error);
     throw error;
   }
 }
@@ -154,47 +116,115 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loginState, setLoginState] = useState<LoginState | null>(null);
   const navigate = useNavigate();
-  const guardRef = useRef<Guard | null>(null);
+  
+  // 使用官方Authing Browser SDK
+  const sdk = useMemo(() => {
+    try {
+      return createAuthingSDK();
+    } catch (err) {
+      console.error('❌ SDK创建失败:', err);
+      return null;
+    }
+  }, []);
+
+  // 获取登录状态的方法（官方SDK）
+  const getLoginState = useCallback(async () => {
+    if (!sdk) return;
+    
+    try {
+      console.log('🔍 获取官方SDK登录状态...');
+      const state = await sdk.getLoginState();
+      setLoginState(state);
+      
+      if (state) {
+        console.log('✅ 检测到登录状态:', state);
+        // 转换为统一的用户信息格式
+        const userInfo: UserInfo = {
+          id: state.sub || `user_${Date.now()}`,
+          username: state.username || state.name || state.nickname || '用户',
+          email: state.email || '',
+          phone: state.phone_number || '',
+          nickname: state.nickname || state.username || state.name || '用户',
+          avatar: state.picture || '',
+          loginTime: new Date().toISOString(),
+          roles: ['user'],
+          permissions: ['basic'],
+          ...state
+        };
+        
+        setUser(userInfo);
+        localStorage.setItem('authing_user', JSON.stringify(userInfo));
+      }
+    } catch (error) {
+      console.error('获取登录状态失败:', error);
+    }
+  }, [sdk]);
 
   /**
-   * 🎯 架构级重构：延迟初始化Authing实例，确保DOM就绪
+   * 初始化认证系统
    */
   useEffect(() => {
-    const initializeAuthingSystem = async () => {
+    const initialize = async () => {
       try {
-        console.log('🔧 开始架构级认证系统初始化');
-
-
-        // 在专用登录路由下避免初始化全局 Guard，以免与嵌入式实例冲突
-        if (typeof window !== 'undefined' && window.location.pathname.startsWith('/auth/login')) {
-          console.log('🔕 当前为 /auth/login，跳过全局 Guard 初始化');
+        console.log('🔧 开始官方SDK认证系统初始化');
+        
+        if (!sdk) {
+          setError('SDK初始化失败');
           setLoading(false);
           return;
         }
 
-        // 确保DOM完全加载
-        if (document.readyState !== 'complete') {
-          await new Promise(resolve => {
-            window.addEventListener('load', resolve, { once: true });
-          });
+        // 判断当前URL是否为Authing登录回调URL
+        if (sdk.isRedirectCallback()) {
+          console.log('🔄 处理登录回调...');
+          try {
+            const result = await sdk.handleRedirectCallback();
+            setLoginState(result);
+            
+            if (result) {
+              const userInfo: UserInfo = {
+                id: result.sub || `user_${Date.now()}`,
+                username: result.username || result.name || result.nickname || '用户',
+                email: result.email || '',
+                phone: result.phone_number || '',
+                nickname: result.nickname || result.username || result.name || '用户',
+                avatar: result.picture || '',
+                loginTime: new Date().toISOString(),
+                roles: ['user'],
+                permissions: ['basic'],
+                ...result
+              };
+              
+              setUser(userInfo);
+              localStorage.setItem('authing_user', JSON.stringify(userInfo));
+              
+              // 处理登录成功后的跳转
+              const redirectTarget = localStorage.getItem('login_redirect_to') || '/';
+              localStorage.removeItem('login_redirect_to');
+              navigate(redirectTarget);
+            }
+          } catch (callbackError) {
+            console.error('❌ 回调处理失败:', callbackError);
+            setError('登录回调处理失败');
+          }
+        } else {
+          // 不是回调，检查现有登录状态
+          await getLoginState();
         }
 
-        // 🎯 使用简化Guard实例（统一到@authing/guard）
-        guardRef.current = await createSimplifiedGuardInstance();
-
-        // ✅ 统一 redirect-only 单入口：不在全局绑定 Guard 事件，避免多实例与时序问题
-        // （登录成功回调统一由 CallbackPage 的 handleRedirectCallback 完成）
-
-        console.log('✅ 架构级认证系统初始化成功');
+        console.log('✅ 官方SDK认证系统初始化成功');
       } catch (error) {
-        console.error('❌ 架构级认证系统初始化失败:', error);
+        console.error('❌ 认证系统初始化失败:', error);
         setError('认证系统初始化失败');
+      } finally {
+        setLoading(false);
       }
     };
 
-    initializeAuthingSystem();
-  }, []);
+    initialize();
+  }, [sdk, getLoginState, navigate]);
 
   /**
    * 检查认证状态
@@ -268,12 +298,17 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   /**
-   * 🎯 直接启动Guard Modal登录，无需页面跳转
+   * 🎯 使用官方SDK的正确登录方法
    */
   const login = async (redirectTo?: string) => {
     try {
-      console.log('🔐 开始直接Guard Modal登录流程...');
+      console.log('🔐 开始官方SDK登录流程...');
       setError(null);
+
+      if (!sdk) {
+        setError('SDK未初始化');
+        return;
+      }
 
       // 保存跳转目标
       if (redirectTo) {
@@ -281,196 +316,23 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('📝 保存跳转目标:', redirectTo);
       }
 
-      // 确保Guard实例就绪
-      if (!guardRef.current) {
-        console.log('🔧 Guard实例未就绪，重新初始化...');
-        guardRef.current = await createSimplifiedGuardInstance();
-      }
-
-      // 详细检查Guard实例
-      console.log('🔍 Guard实例完整检查:', {
-        instance: !!guardRef.current,
-        constructor: guardRef.current?.constructor?.name,
-        prototype: Object.getPrototypeOf(guardRef.current),
-        hasStart: typeof guardRef.current?.start === 'function',
-        hasShow: typeof guardRef.current?.show === 'function',
-        allMethods: guardRef.current ? Object.getOwnPropertyNames(Object.getPrototypeOf(guardRef.current))
-          .filter(name => name !== 'constructor' && typeof guardRef.current[name] === 'function') : [],
-        directMethods: guardRef.current ? Object.getOwnPropertyNames(guardRef.current)
-          .filter(name => typeof guardRef.current[name] === 'function') : []
-      });
-
-      // Modal模式下使用正确的API
-      try {
-        // Guard Modal模式启动需要指定容器或直接调用
-        if (guardRef.current.start) {
-          console.log('🚀 使用start()启动Guard Modal');
-          await guardRef.current.start();
-        } else if (guardRef.current.show) {
-          console.log('🚀 使用show()启动Guard Modal');
-          await guardRef.current.show();
-        } else {
-          // 尝试直接渲染到body或创建临时容器
-          console.log('🚀 创建临时容器启动Guard');
-          const container = document.createElement('div');
-          container.id = 'guard-modal-container';
-          container.style.cssText = 'position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;';
-          document.body.appendChild(container);
-          
-          if (guardRef.current.start) {
-            await guardRef.current.start('#guard-modal-container');
-          } else if (guardRef.current.render) {
-            await guardRef.current.render('#guard-modal-container');
-          } else {
-            throw new Error('No available method to start Guard');
-          }
-        }
-      } catch (startError) {
-        console.error('❌ Guard启动方法调用失败:', startError);
-        throw startError;
-      }
-      
-      // 开始轮询监控登录状态
-      startAuthPolling();
+      // 使用官方的跳转登录方法
+      console.log('🚀 使用官方loginWithRedirect()方法');
+      sdk.loginWithRedirect();
 
     } catch (error) {
-      console.error('❌ Guard Modal启动失败:', error);
+      console.error('❌ 官方SDK登录失败:', error);
       setError('登录失败: ' + (error instanceof Error ? error.message : String(error)));
     }
   };
 
-  // 轮询监控登录状态（从LoginPage迁移过来）
-  const startAuthPolling = () => {
-    let previousStorageState = '';
-    
-    const pollInterval = setInterval(() => {
-      try {
-        // 全面检查所有可能的Authing存储键
-        const storageKeys = [
-          '_authing_token', 'authing_token', 'authingToken',
-          '_authing_user', 'authing_user', 'authingUser',
-          '_authing_session', 'authing_session',
-          `authing_${getAuthingConfig().appId}_token`, `authing_${getAuthingConfig().appId}_user`,
-          'guard_token', 'guard_user', 'guard_session'
-        ];
-        
-        let authData = null;
-        let foundKey = '';
-        
-        for (const key of storageKeys) {
-          const localData = localStorage.getItem(key);
-          const sessionData = sessionStorage.getItem(key);
-          
-          if (localData || sessionData) {
-            authData = localData || sessionData;
-            foundKey = key;
-            break;
-          }
-        }
-        
-        // 检查Guard实例的内部状态
-        let guardInternalState = null;
-        if (guardRef.current) {
-          try {
-            guardInternalState = guardRef.current.authClient?.getCurrentUser?.() || 
-                               guardRef.current.getUser?.() ||
-                               guardRef.current.user;
-          } catch (e) {
-            // 忽略Guard内部状态检查错误
-          }
-        }
-
-        // 生成当前存储状态快照
-        const currentStorageState = JSON.stringify({
-          authData: authData ? '存在' : '空',
-          foundKey,
-          guardState: guardInternalState ? '有用户' : '无用户'
-        });
-
-        // 状态变化检测
-        if (currentStorageState !== previousStorageState) {
-          console.log('🔍 全局存储状态变化:', currentStorageState);
-          previousStorageState = currentStorageState;
-        }
-
-        if (authData || guardInternalState) {
-          console.log('✅ 全局检测到登录成功', { foundKey, hasGuardUser: !!guardInternalState });
-          clearInterval(pollInterval);
-          
-          // 处理登录成功
-          if (guardInternalState) {
-            handleAuthingLogin(guardInternalState);
-          }
-          
-          // 跳转逻辑
-          const redirectTarget = localStorage.getItem('login_redirect_to') || '/dashboard';
-          localStorage.removeItem('login_redirect_to');
-          navigate(redirectTarget);
-          return;
-        }
-
-        // 检查Guard Modal是否已关闭
-        const modalSelectors = [
-          '.authing-guard-modal', 
-          '.authing-ant-modal',
-          '.ant-modal',
-          '[class*="authing"]',
-          '[class*="guard"]'
-        ];
-        
-        const modalElements = modalSelectors.flatMap(sel => 
-          Array.from(document.querySelectorAll(sel))
-        );
-        
-        const isModalVisible = modalElements.some(el => {
-          const style = window.getComputedStyle(el);
-          return style.display !== 'none' && 
-                 style.visibility !== 'hidden' &&
-                 style.opacity !== '0' &&
-                 !el.hasAttribute('hidden');
-        });
-
-        if (!isModalVisible && modalElements.length === 0) {
-          console.log('🔄 全局Modal已关闭，停止轮询');
-          clearInterval(pollInterval);
-        }
-
-      } catch (error) {
-        console.error('全局轮询检查错误:', error);
-      }
-    }, 500);
-
-    // 60秒后自动清理轮询
-    setTimeout(() => {
-      clearInterval(pollInterval);
-      console.log('🕐 全局轮询超时，自动清理');
-    }, 60000);
-  };
 
   /**
-   * 注册方法 - 使用 Guard 弹窗
+   * 注册方法 - 使用官方SDK
    */
   const register = async (redirectTo?: string) => {
-    try {
-      console.log('📝 开始注册流程...');
-      setError(null);
-
-      // 保存跳转目标
-      if (redirectTo) {
-        localStorage.setItem('login_redirect_to', redirectTo);
-      }
-
-      // 使用 Guard 弹窗注册
-      if (guardRef.current) {
-        guardRef.current.show();
-      } else {
-        throw new Error('Guard 实例未初始化');
-      }
-
-    } catch (error) {
-      console.error('❌ 注册失败:', error);
-      setError('注册失败');
-    }
+    // 注册流程与登录相同，都通过loginWithRedirect处理
+    await login(redirectTo);
   };
 
   /**
@@ -600,7 +462,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     resetPassword,
     hasPermission,
     hasRole,
-    guard: guardRef.current
+    sdk,
+    loginState
   };
 
   return (
