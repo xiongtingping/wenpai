@@ -2171,16 +2171,16 @@ ${generateStandardCallToAction()}
 
           {/* 控制按钮 */}
           <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-t">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               {/* 随机选择控制 */}
-              <div className="flex items-center gap-2 relative">
-                <UILabel className="text-sm font-medium">控制维度数量为</UILabel>
+              <div className="flex items-center gap-2 relative flex-wrap">
+                <UILabel className="text-sm font-medium whitespace-nowrap">控制维度数量为</UILabel>
                 <div className="relative">
                   <Select
                     value={selectedDimensionCount.toString()}
                     onValueChange={(value) => setSelectedDimensionCount(parseInt(value))}
                   >
-                    <SelectTrigger className="w-20 h-8 text-xs">
+                    <SelectTrigger className="w-20 h-9 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -2205,9 +2205,12 @@ ${generateStandardCallToAction()}
                     </PermissionLockedButton>
                   </div>
                 </div>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
                   {requiredDimensions.length}必选+{selectedDimensionCount - requiredDimensions.length}随机
                 </span>
+              </div>
+
+              <div className="flex items-center gap-2">
                 <PermissionLockedButton
                   requiredTier="pro"
                   featureName="随机一键生成"
@@ -2215,23 +2218,24 @@ ${generateStandardCallToAction()}
                   size="sm"
                   onClick={controlledRandomGenerate}
                   disabled={isGenerating}
-                  className="border-primary text-primary hover:bg-accent"
+                  className="border-primary text-primary hover:bg-accent h-9"
                 >
                   🎲 随机一键生成
                 </PermissionLockedButton>
+
+                <PermissionLockedButton
+                  requiredTier="pro"
+                  featureName="清空维度选择"
+                  variant="outline"
+                  size="sm"
+                  onClick={clearAllSelections}
+                  disabled={isGenerating}
+                  className="h-9"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  清空选择
+                </PermissionLockedButton>
               </div>
-              
-              <PermissionLockedButton
-                requiredTier="pro"
-                featureName="清空维度选择"
-                variant="outline"
-                size="sm"
-                onClick={clearAllSelections}
-                disabled={isGenerating}
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                清空选择
-              </PermissionLockedButton>
             </div>
             
             <div className="flex items-center gap-2">

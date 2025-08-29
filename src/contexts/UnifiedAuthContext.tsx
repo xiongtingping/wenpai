@@ -25,6 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGuard, User } from '@authing/guard-react18';
 import { getAuthingConfig } from '@/config/authing';
 import { useAuthStore } from '@/store/authStore';
+import { CustomAuthModal } from '@/components/auth/CustomAuthModal';
 
 /**
  * 用户信息接口
@@ -291,14 +292,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('📝 保存跳转目标:', redirectTo);
       }
 
-      // 显示Guard登录表单
-      if (guard) {
-        guard.start();
-      }
-      console.log('✅ Guard登录表单已打开');
+      // 打开自定义登录模态框
+      setCustomAuthModalTab('login');
+      setCustomAuthModalOpen(true);
+      console.log('✅ 自定义登录表单已打开');
 
     } catch (error) {
-      console.error('❌ Guard登录失败:', error);
+      console.error('❌ 登录失败:', error);
       setError('登录失败: ' + (error instanceof Error ? error.message : String(error)));
     }
   };
@@ -517,6 +517,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   return (
     <UnifiedAuthContext.Provider value={contextValue}>
       {children}
+
+      {/* 自定义登录/注册模态框 */}
+      <CustomAuthModal
+        isOpen={customAuthModalOpen}
+        onClose={() => setCustomAuthModalOpen(false)}
+        defaultTab={customAuthModalTab}
+      />
     </UnifiedAuthContext.Provider>
   );
 };

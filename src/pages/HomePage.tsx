@@ -28,8 +28,11 @@ function HomePage() {
         }}
       />
 
+      {/* Header - 独立于背景之外，确保固定定位 */}
+      <Header />
+
       {/* 全页面背景效果 */}
-      <WavyBackground 
+      <WavyBackground
         className="w-full"
         containerClassName="min-h-screen flex flex-col"
         waveOpacity={0.15}
@@ -37,9 +40,8 @@ function HomePage() {
         blur={20}
       >
         <div className="relative z-10 flex-1 min-h-screen flex flex-col">
-          <Header />
 
-          <main className="flex-1 w-full">
+          <main className="flex-1 w-full pt-20">
             {/* Hero Section */}
             <div className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-8">
               <div className="max-w-5xl mx-auto text-center space-y-6">

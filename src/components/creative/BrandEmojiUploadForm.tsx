@@ -92,23 +92,23 @@ export default function BrandEmojiUploadForm({
 
   return (
     <Card className={`w-full max-w-3xl mx-auto shadow-lg border-2 border-primary ${className}`}>
-      <CardHeader className="bg-accent border-b border-border">
-        <CardTitle className="flex items-center gap-3 text-2xl text-foreground">
+      <CardHeader className="bg-accent border-b border-border pb-4">
+        <CardTitle className="flex items-center gap-3 text-xl text-foreground">
           <div className="p-2 bg-accent rounded-lg">
-            <Upload className="w-6 h-6 text-primary" />
+            <Upload className="w-5 h-5 text-primary" />
           </div>
           Step 1：上传品牌角色素材
         </CardTitle>
-        <p className="text-muted-foreground mt-2">上传品牌角色图片或输入详细描述，帮助AI生成专属品牌Emoji</p>
+        <p className="text-muted-foreground mt-1 text-sm">上传品牌角色图片或输入详细描述，帮助AI生成专属品牌Emoji</p>
       </CardHeader>
-      <CardContent className="p-8 space-y-8">
+      <CardContent className="p-6 space-y-6">
         {/* 图片上传区域 */}
-        <div className="space-y-4">
-          <Label className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <Image className="w-5 h-5 text-primary" />
+        <div className="space-y-3">
+          <Label className="text-base font-semibold text-foreground flex items-center gap-2">
+            <Image className="w-4 h-4 text-primary" />
             上传品牌角色图片
           </Label>
-          <div className="border-3 border-dashed border-primary rounded-xl p-8 text-center hover:border-primary hover:bg-accent transition-all duration-200 bg-accent">
+          <div className="border-2 border-dashed border-primary rounded-lg p-6 text-center hover:border-primary hover:bg-accent transition-all duration-200 bg-accent/50">
             <Input
               type="file"
               accept="image/*"
@@ -116,21 +116,21 @@ export default function BrandEmojiUploadForm({
               className="hidden"
               id="brand-image-upload"
             />
-            <Label 
+            <Label
               htmlFor="brand-image-upload"
-              className="cursor-pointer flex flex-col items-center gap-4"
+              className="cursor-pointer flex flex-col items-center gap-3"
             >
-              <div className="p-4 bg-card rounded-full shadow-md">
-                <Upload className="w-10 h-10 text-primary" />
+              <div className="p-3 bg-card rounded-full shadow-md">
+                <Upload className="w-8 h-8 text-primary" />
               </div>
-              <div className="space-y-2">
-                <p className="text-lg font-medium text-foreground">
+              <div className="space-y-1">
+                <p className="text-base font-medium text-foreground">
                   点击上传图片或拖拽到此处
                 </p>
                 <p className="text-sm text-muted-foreground">
                   支持 JPG、PNG、GIF 格式，最大 5MB
                 </p>
-                <p className="text-xs text-primary bg-accent px-3 py-1 rounded-full inline-block">
+                <p className="text-xs text-primary bg-primary/10 px-2 py-1 rounded-full inline-block">
                   建议尺寸：512x512 像素，透明背景
                 </p>
               </div>

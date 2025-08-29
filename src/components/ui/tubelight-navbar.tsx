@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -18,8 +18,27 @@ interface NavBarProps {
 }
 
 export function NavBar({ items, className, positionClassName }: NavBarProps) {
-  const [activeTab, setActiveTab] = useState(items[0].name)
+  const location = useLocation()
   const [isMobile, setIsMobile] = useState(false)
+
+  // 根据当前路径确定激活的tab
+  const getActiveTab = () => {
+    const currentPath = location.pathname
+    if (currentPath === '/') {
+      return '首页'
+    }
+
+    const activeItem = items.find(item => {
+      if (item.url === '/') {
+        return currentPath === '/'
+      }
+      return currentPath.startsWith(item.url)
+    })
+
+    return activeItem?.name || items[0].name
+  }
+
+  const activeTab = getActiveTab()
 
   useEffect(() => {
     const handleResize = () => {
@@ -49,7 +68,6 @@ export function NavBar({ items, className, positionClassName }: NavBarProps) {
               to={item.url}
               onClick={(e) => {
                 item.onClick?.(e)
-                setActiveTab(item.name)
               }}
               className={cn(
                 "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",

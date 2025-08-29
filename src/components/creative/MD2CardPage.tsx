@@ -563,7 +563,7 @@ export default function MD2CardPage() {
                   <textarea
                     value={markdownContent}
                     onChange={(e) => handleContentChange(e.target.value)}
-                    className="w-full h-full min-h-[400px] p-3 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-background font-mono text-sm"
+                    className="w-full h-full min-h-[400px] p-3 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-card text-foreground font-mono text-sm transition-colors focus:bg-card/80"
                     placeholder="在这里输入Markdown内容..."
                   />
                 </div>

@@ -133,7 +133,7 @@ export function Header() {
   };
 
   return (
-    <header className="theme-header-bg sticky top-0 z-50 shadow-e0 backdrop-blur-md">
+    <header className="theme-header-bg sticky top-0 z-[100] shadow-e0 backdrop-blur-md border-b border-border/10">
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo - 主题感知的熊猫Logo */}
         <Link to="/" className="group">

@@ -313,9 +313,10 @@ export function MarkdownEditor({
           placeholder={placeholder}
           className={cn(
             'w-full h-full p-4 resize-none border-0 outline-0 focus:ring-0',
-            'bg-background text-foreground font-mono text-sm leading-6',
+            'bg-card text-foreground font-mono text-sm leading-6 border border-border rounded-lg',
             'placeholder:text-muted-foreground',
-            'overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent'
+            'overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent',
+            'focus:bg-card/80 transition-colors'
           )}
           style={{
             minHeight: '400px',

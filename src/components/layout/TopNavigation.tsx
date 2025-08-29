@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { NavBar } from '@/components/ui/tubelight-navbar';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { BackToTop } from '@/components/ui/BackToTop';
 // 🔒 [AUTHING_GUARD_NAVIGATION_v2025.08.14]
 // 统一使用@authing/guard架构，禁止引入@authing/web
 import { useAuth } from '@/hooks/useAuth';
@@ -140,10 +141,10 @@ export const TopNavigation: React.FC = () => {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b shadow-sm theme-header-bg backdrop-blur-sm border-border">
+    <header className="sticky top-0 z-[100] w-full border-b shadow-sm theme-header-bg backdrop-blur-md border-border/20">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          {/* 左侧Logo和导航 */}
+        <div className="flex h-16 items-center justify-center relative">
+          {/* 左侧Logo和导航 - 居中布局 */}
           <div className="flex items-center space-x-6">
             {/* Logo - 主题感知的熊猫Logo */}
             <Link to="/" className="group">
@@ -195,8 +196,8 @@ export const TopNavigation: React.FC = () => {
             </DropdownMenu>
           </div>
 
-          {/* 右侧用户区域 */}
-          <div className="flex items-center gap-2">
+          {/* 右侧用户区域 - 绝对定位到右侧 */}
+          <div className="absolute right-0 flex items-center gap-2">
             {/* 用户状态指示 */}
             {permissionLoading && !isDevelopment() && (
               <div className="hidden sm:flex items-center gap-1">
@@ -245,6 +246,16 @@ export const TopNavigation: React.FC = () => {
         </div>
       </div>
     </header>
+  );
+};
+
+// 导出带BackToTop的包装组件
+export const TopNavigationWithBackToTop: React.FC = () => {
+  return (
+    <>
+      <TopNavigation />
+      <BackToTop />
+    </>
   );
 };
 
