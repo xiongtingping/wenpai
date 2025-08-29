@@ -1908,20 +1908,34 @@ NotFoundError: Failed to execute 'removeChild' on 'Node': parameter 1 is not of 
 
 **DOM错误修复方案**:
 ```typescript
-// 添加 useEffect 清理函数防止 DOM 冲突
+// 1. 创建完全隔离的容器，避免React DOM管理冲突
+const containerRef = useRef<HTMLDivElement>(null);
+
+// 2. 在setTimeout中动态创建Guard和独立容器
+const guardDiv = document.createElement('div');
+guardDiv.id = 'authing-guard-isolated';
+container.innerHTML = '';
+container.appendChild(guardDiv);
+
+// 3. Guard指向独立容器而非React管理的元素
+const g = new Guard({
+  target: '#authing-guard-isolated'  // 独立容器
+});
+
+// 4. 完善的清理逻辑
 return () => {
   if (guardRef.current) {
-    try {
-      if (typeof guardRef.current.destroy === 'function') {
-        guardRef.current.destroy();
-      }
-      if (typeof guardRef.current.unmount === 'function') {
-        guardRef.current.unmount();
-      }
-    } catch (e) {
-      console.warn('⚠️ Guard清理失败(忽略):', e);
-    }
+    // 先移除事件监听器防止内存泄露
+    guardRef.current.off('login');
+    guardRef.current.off('login-error');
+    
+    // 只调用destroy，让Guard自己清理DOM
+    guardRef.current.destroy();
     guardRef.current = null;
+  }
+  // React手动清理容器
+  if (containerRef.current) {
+    containerRef.current.innerHTML = '';
   }
 };
 ```
