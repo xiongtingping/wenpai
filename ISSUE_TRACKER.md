@@ -1940,13 +1940,34 @@ return () => {
 };
 ```
 
+**最终解决方案**:
+```typescript
+// 彻底解决DOM冲突：直接使用DirectLoginForm，完全绕过Guard SDK
+const LoginPage: React.FC = () => {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold mb-2">文派登录</h1>
+        </div>
+        <div className="flex justify-center">
+          <DirectLoginForm onLogin={...} onError={...} />
+        </div>
+      </div>
+    </div>
+  );
+};
+```
+
 **修复状态**:
 - ✅ **400错误**: 彻底解决，用户可以登录
-- ✅ **系统稳定性**: 备用方案确保认证功能可用  
-- ✅ **DOM错误**: 已修复 Guard 组件清理逻辑
+- ✅ **DOM冲突**: 彻底解决，完全绕过Guard SDK
+- ✅ **系统稳定性**: 简化架构，消除所有复杂的DOM操作
+- ✅ **用户体验**: 登录界面简洁清晰，无加载错误
 
-**技术成果**:
-- 从依赖型架构升级为自主型：不再依赖 Authing 后台配置同步
-- 多重备用方案：Guard 失败时自动提供表单登录
-- 完整诊断系统：详细日志记录便于问题排查
+**技术决策**:
+- **架构简化**: 从复杂的Guard集成改为简单的表单认证
+- **风险消除**: 完全避免第三方SDK的DOM管理冲突  
+- **维护性提升**: 代码简洁，易于理解和维护
+- **稳定性保障**: 不再依赖Authing SDK的更新和兼容性
 **优先级**: 🆘 关键链路（必须闭环）
