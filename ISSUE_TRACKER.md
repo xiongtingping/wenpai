@@ -1821,3 +1821,48 @@ authingModal.style.zIndex = '9999';
 - 需要合并并触发 Netlify 重新构建以验证生产环境 → 🕒 待验证
 
 **当前状态**: 🕒 待验证（本地通过，等待生产构建通过后标记为 ✅）
+
+
+---
+
+### 20. 🕒 redirect_uri_mismatch 生产仍 400（代码侧根因修复已上线，待线上最终验证）(2025-08-29)
+**描述**: 已统一为“应用专属 host + 单一回调（www）+ redirect-only”，但生产仍报 400。日志显示：
+- 🧭 Guard 参数快照(Login): host=https://rzcswqs4sq0f.authing.cn/68a68a29d0c3341ae7a3df23, redirectUri=https://www.wenpai.xyz/callback
+- 实际授权请求：/68a68a29d0c3341ae7a3df23/oidc/auth?client_id=...&redirect_uri=https%3A%2F%2Fwww.wenpai.xyz%2Fcallback → 400
+
+**最新错误日志（用户提供）**:
+```
+🔎 Authing public-config redirect_uris: []
+🧭 Guard 参数快照(Login): {host: 'https://rzcswqs4sq0f.authing.cn/68a68a29d0c3341ae7a3df23', redirectUri: 'https://www.wenpai.xyz/callback'}
+GET https://rzcswqs4sq0f.authing.cn/68a68a29d0c3341ae7a3df23/oidc/auth?...&redirect_uri=https%3A%2F%2Fwww.wenpai.xyz%2Fcallback → 400
+```
+
+**代码侧根因修复（本轮已实施）**:
+1) 统一 Guard 参数（全链路）：
+   - 仅使用 host（应用专属入口），禁止 appHost；
+   - 生产固定 redirectUri = https://www.wenpai.xyz/callback；本地= http://localhost:5173/callback；
+   - 单一链路 redirect-only（LoginPage: startWithRedirect；CallbackPage: handleRedirectCallback）；
+2) 全局对齐：UnifiedAuthContext 内部 Guard 初始化改为使用 resolveAuthingGuardConfig 输出，避免多源；
+3) 观测与断言：登录页/回调页打印“🧭 Guard 参数快照”，对齐网络请求。
+
+**涉及文件**:
+- src/authing/configResolver.ts（统一输出 host 与 redirectUri）
+- src/pages/LoginPage.tsx（redirect-only + 参数快照）
+- src/pages/CallbackPage.tsx（官方收尾 + 参数快照）
+- src/contexts/UnifiedAuthContext.tsx（统一改为使用 resolver + await 初始化）
+
+**构建与校验**:
+- npm run lint → ✅
+- npm run build → ✅
+- npx tsc --noEmit → 🕒 历史类型错误（非认证路径，暂不阻塞）
+
+**当前判断**:
+- 代码已严格使用“应用专属 host + www 回调”；授权请求与快照一致；
+- 仍 400 的直接原因不是参数抖动（已消除），而是服务端校验仍不通过（public-config 返回 [] 亦为旁证）。
+
+**下一步（代码内加固，继续验证）**:
+- 在 resolver 中打印 compare 断言：显示 redirect_uri 与我们期望值的逐项等值（协议/主机/端口/路径/尾斜杠）；
+- 若线上仍 400，继续保留快照与授权 URL，作为严谨对齐证据。
+
+**状态**: 🕒 待线上最终验证
+**优先级**: 🆘 关键链路（必须闭环）

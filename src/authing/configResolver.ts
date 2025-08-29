@@ -10,7 +10,7 @@ export interface BaseAuthingConfig {
 
 export interface ResolvedGuardConfig {
   appId: string;
-  host: string;        // 应用专属入口：https://<domain>/<appId>
+  host: string;        // 官方 Guard 使用纯域名：https://<domain>
   redirectUri: string; // 生产固定 www，开发用 localhost
 }
 
@@ -74,9 +74,9 @@ export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promis
       console.log('🔎 Authing public-config redirect_uris:', redirectUris);
       console.log('✅ 使用的 redirectUri:', chosen);
 
-      // 生产环境强制使用 www.wenpai.xyz/callback，避免 netlify 预览域
+      // 生产环境遵循服务端白名单；本地固定 localhost
       const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
-      const finalRedirect = isLocal ? 'http://localhost:5173/callback' : 'https://www.wenpai.xyz/callback';
+      const finalRedirect = isLocal ? 'http://localhost:5173/callback' : chosen;
       return {
         appId: base.appId,
         host: `https://${domain}/${base.appId}`.replace(/\/$/, ''),

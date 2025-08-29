@@ -24,6 +24,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useRe
 import { useNavigate } from 'react-router-dom';
 import { Guard } from '@authing/guard';
 import { getAuthingConfig } from '@/config/authing';
+import { resolveAuthingGuardConfig } from '@/authing/configResolver';
 
 /**
  * 用户信息接口
@@ -76,29 +77,28 @@ interface UnifiedAuthContextType {
  * 🎯 最终根因修复：简化Guard实例创建，避免事件系统冲突
  * 真正问题：Guard事件监听器系统存在架构缺陷
  */
-function createSimplifiedGuardInstance() {
-  const config = getAuthingConfig();
+async function createSimplifiedGuardInstance() {
+  const base = getAuthingConfig();
+  // 以单一事实源解析为“应用专属 host + 固定回调”，确保与 /auth/login 完全一致
+  const resolved = await resolveAuthingGuardConfig({ appId: base.appId, host: base.host, redirectUri: base.redirectUri });
 
-  console.log('🔧 开始简化Guard初始化:', {
-    appId: config.appId,
-    domain: config.domain,
-    host: config.host,
-    redirectUri: config.redirectUri
+  console.log('🔧 开始简化Guard初始化(统一解析):', {
+    appId: resolved.appId,
+    host: resolved.host,
+    redirectUri: resolved.redirectUri
   });
 
-  // 验证必要配置
-  if (!config.appId || !config.domain) {
-    const error = `Authing配置错误: ${!config.appId ? 'appId为空' : 'domain为空'}`;
-    console.error('❌', error, config);
+  if (!resolved.appId || !resolved.host) {
+    const error = `Authing配置错误: ${!resolved.appId ? 'appId为空' : 'host为空'}`;
+    console.error('❌', error, resolved);
     throw new Error(error);
   }
 
   try {
-    // 🎯 根因修复：Guard 需使用 appHost 而非 host；避免界面文案未初始化导致“undefinedundefined”
     const guard = new Guard({
-      appId: config.appId,
-      host: config.host,
-      redirectUri: config.redirectUri,
+      appId: resolved.appId,
+      host: resolved.host,
+      redirectUri: resolved.redirectUri,
       mode: 'normal',
       lang: 'zh-CN'
     });
@@ -152,7 +152,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
 
         // 🎯 使用简化Guard实例（统一到@authing/guard）
-        guardRef.current = createSimplifiedGuardInstance();
+        guardRef.current = await createSimplifiedGuardInstance();
 
         // 🎯 最终根因修复：简化事件监听器，避免事件系统冲突
         if (guardRef.current) {
@@ -290,7 +290,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 🎯 最终根因修复：确保Guard实例就绪
       if (!guardRef.current) {
         console.log('🔧 Guard实例未就绪，重新初始化...');
-        guardRef.current = createSimplifiedGuardInstance();
+        guardRef.current = await createSimplifiedGuardInstance();
       }
 
       // 🔁 切换为“专用嵌入页”架构：不再在此处渲染/弹窗，统一跳转到 /auth/login
