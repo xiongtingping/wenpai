@@ -7,12 +7,52 @@ const LoginPage: React.FC = () => {
   const cfg = getAuthingConfig();
   const guardRef = useRef<any>(null);
 
+  // 统一规范 redirect_uri，避免使用 Netlify 预览子域导致的白名单不匹配
+  const normalizeRedirectUri = (fallback: string) => {
+    try {
+      const sanitize = (uri: string) => {
+        try {
+          const u = new URL(uri);
+          const hn = u.hostname;
+          if (hn.includes('localhost')) return 'http://localhost:5173/callback';
+          if (hn.endsWith('netlify.app')) {
+            // 预览子域（形如 <hash>--wenpai.netlify.app）与正式子域统一回落到主站点域
+            return 'https://wenpai.netlify.app/callback';
+          }
+          if (hn.endsWith('wenpai.xyz')) return 'https://www.wenpai.xyz/callback';
+          return uri;
+        } catch {
+          return uri;
+        }
+      };
+
+      // 优先使用显式环境变量，但若为预览子域则进行标准化
+      const env = (import.meta as any)?.env;
+      const envUri = (env?.VITE_AUTHING_REDIRECT_URI_PROD || env?.VITE_AUTHING_REDIRECT_URI) as string | undefined;
+      if (envUri) return sanitize(envUri);
+
+      if (typeof window === 'undefined') return sanitize(fallback);
+      const { hostname } = window.location;
+
+      // 本地开发
+      if (hostname.includes('localhost')) return 'http://localhost:5173/callback';
+      // Netlify：包含预览与正式域
+      if (hostname.endsWith('netlify.app')) return 'https://wenpai.netlify.app/callback';
+      // 主站域
+      if (hostname.endsWith('wenpai.xyz')) return 'https://www.wenpai.xyz/callback';
+
+      return sanitize(fallback);
+    } catch {
+      return fallback;
+    }
+  };
+
   useEffect(() => {
     try {
       const g = new Guard({
         appId: cfg.appId,
         host: cfg.host,
-        redirectUri: cfg.redirectUri,
+        redirectUri: normalizeRedirectUri(cfg.redirectUri),
         mode: 'normal',
         lang: 'zh-CN'
       });
