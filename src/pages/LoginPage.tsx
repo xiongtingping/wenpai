@@ -27,7 +27,7 @@ const LoginPage: React.FC = () => {
       try {
         console.log('🔧 正确实现Authing Guard集成');
         
-        // 创建Guard实例 - 完整配置，修复Modal定位和样式
+        // 创建Guard实例 - 修复accessibility和Modal定位
         const g = new Guard({
           appId: cfg.appId,
           host: cfg.host,
@@ -39,11 +39,13 @@ const LoginPage: React.FC = () => {
           isSSO: false,
           config: {
             redirectUri: cfg.redirectUri,
-            // 完整的Modal配置
+            // Modal配置 - 修复accessibility问题
             modal: {
-              // 启用body类名，触发CSS样式
               bodyClassName: 'authing-guard-open',
-              // Modal容器样式
+              // 禁用有问题的aria-hidden
+              focusTrap: false,
+              maskClosable: true,
+              keyboard: true,
               style: {
                 position: 'fixed',
                 top: '0',
@@ -55,13 +57,12 @@ const LoginPage: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'center'
               },
-              // 遮罩样式
               maskStyle: {
                 backgroundColor: 'rgba(0, 0, 0, 0.5)',
                 zIndex: '999998'
               }
             },
-            // 兼容旧配置
+            // 兼容配置
             modalStyle: {
               position: 'fixed',
               top: '50%',
@@ -70,10 +71,6 @@ const LoginPage: React.FC = () => {
               zIndex: '9999',
               borderRadius: '8px',
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)'
-            },
-            maskStyle: {
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              zIndex: '9998'
             }
           }
         });
@@ -243,38 +240,28 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold mb-2">文派登录</h1>
-          <p className="text-muted-foreground">请使用您的账户登录</p>
-        </div>
-        
+      <div className="container mx-auto px-4 py-8">        
         <div className="flex justify-center">
           {guardState === 'ready' ? (
-            // Guard Modal触发按钮
-            <div className="space-y-4 w-full max-w-md">
+            <div className="space-y-4 w-full max-w-md text-center">
               <button
                 onClick={handleGuardLogin}
                 className="w-full bg-primary text-primary-foreground py-3 px-6 rounded-md hover:bg-primary/90 text-lg font-medium"
+                aria-label="启动企业级身份认证登录"
               >
                 立即登录
               </button>
-              <p className="text-center text-xs text-muted-foreground">
-                安全的企业级身份认证
-              </p>
             </div>
           ) : guardState === 'loading' ? (
-            // 加载状态
             <div className="flex items-center gap-2 text-muted-foreground">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
               正在初始化认证系统...
             </div>
           ) : (
-            // Guard初始化失败提示
             <div className="space-y-4 w-full max-w-md text-center">
               <div className="p-4 bg-red-50 border border-red-200 rounded-md">
                 <h3 className="text-sm font-medium text-red-800 mb-1">认证系统初始化失败</h3>
-                <p className="text-xs text-red-600">请刷新页面重试，或联系技术支持</p>
+                <p className="text-xs text-red-600">请刷新页面重试</p>
               </div>
               <button
                 onClick={() => window.location.reload()}
