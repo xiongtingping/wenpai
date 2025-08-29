@@ -45,6 +45,12 @@ const HOST = 'https://rzcswqs4sq0f.authing.cn';
 // 🔧 修复方式：单例模式缓存配置，确保全局一致性
 // 🔒 LOCKED: AI 禁止修改此缓存逻辑
 let cachedConfig: any = null;
+
+// 清除缓存的辅助函数
+export function clearAuthingConfigCache() {
+  cachedConfig = null;
+  console.log('🔄 Authing配置缓存已清除');
+}
 /**
  * ✅ FIXED: 2025-07-25 Authing配置获取函数已封装
  * 🐛 历史问题：配置获取不稳定，环境变量注入失效
@@ -55,9 +61,21 @@ let cachedConfig: any = null;
 export function getAuthingConfig() {
   if (cachedConfig) return cachedConfig;
 
-  // 🔧 修复：使用固定生产环境回调URI，避免动态地址导致400错误
-  const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+  // 🔧 修复：根据当前域名动态设置回调URI
+  const isLocal = typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' || 
+    window.location.hostname === '127.0.0.1' ||
+    window.location.port === '5173'
+  );
+  
   const redirectUri = isLocal ? 'http://localhost:5173/callback' : 'https://www.wenpai.xyz/callback';
+  
+  console.log('🔍 环境检测:', {
+    hostname: typeof window !== 'undefined' ? window.location.hostname : 'SSR',
+    port: typeof window !== 'undefined' ? window.location.port : 'SSR',
+    isLocal,
+    selectedRedirectUri: redirectUri
+  });
 
   cachedConfig = {
     appId: APP_ID,

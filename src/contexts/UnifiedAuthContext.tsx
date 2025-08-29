@@ -24,7 +24,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useRe
 import { useNavigate } from 'react-router-dom';
 import { Authing } from '@authing/browser';
 import type { LoginState } from '@authing/browser/dist/types/global';
-import { getAuthingConfig } from '@/config/authing';
+import { getAuthingConfig, clearAuthingConfigCache } from '@/config/authing';
 
 /**
  * 用户信息接口
@@ -79,6 +79,8 @@ interface UnifiedAuthContextType {
  * 根本修复：从错误的Guard SDK切换到官方Browser SDK
  */
 function createAuthingSDK() {
+  // 清除缓存确保获取最新的环境配置
+  clearAuthingConfigCache();
   const config = getAuthingConfig();
   
   console.log('🔧 创建官方Authing Browser SDK:', {
