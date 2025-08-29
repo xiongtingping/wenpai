@@ -154,43 +154,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 🎯 使用简化Guard实例（统一到@authing/guard）
         guardRef.current = await createSimplifiedGuardInstance();
 
-        // 🎯 最终根因修复：简化事件监听器，避免事件系统冲突
-        if (guardRef.current) {
-          try {
-            guardRef.current.on('login', (userInfo: any) => {
-              console.log('✅ Guard 登录成功:', userInfo);
-              handleAuthingLogin(userInfo);
-
-              setTimeout(() => {
-                if (guardRef.current) {
-                  guardRef.current.hide();
-                  console.log('✅ Guard 弹窗已关闭');
-                }
-                document.documentElement.classList.remove('authing-guard-open');
-                document.body.classList.remove('authing-guard-open');
-              }, 1000);
-            });
-
-            guardRef.current.on('register', (userInfo: any) => {
-              console.log('✅ Guard 注册成功:', userInfo);
-              handleAuthingLogin(userInfo);
-
-              setTimeout(() => {
-                if (guardRef.current) {
-                  guardRef.current.hide();
-                  console.log('✅ Guard 弹窗已关闭');
-                }
-                document.documentElement.classList.remove('authing-guard-open');
-                document.body.classList.remove('authing-guard-open');
-              }, 1000);
-            });
-
-            console.log('✅ 简化事件监听器设置成功');
-          } catch (error) {
-            console.error('❌ 事件监听器设置失败:', error);
-            // 继续执行，不阻断初始化
-          }
-        }
+        // ✅ 统一 redirect-only 单入口：不在全局绑定 Guard 事件，避免多实例与时序问题
+        // （登录成功回调统一由 CallbackPage 的 handleRedirectCallback 完成）
 
         console.log('✅ 架构级认证系统初始化成功');
       } catch (error) {
