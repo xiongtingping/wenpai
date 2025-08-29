@@ -33,28 +33,36 @@ function normalizeRedirect(uri: string): string {
 }
 
 function pickRedirectUri(uris: string[], fallback: string): string {
-  const priorities = [
-    'https://www.wenpai.xyz/callback',
-    'https://wenpai.netlify.app/callback',
-    'http://localhost:5173/callback'
-  ];
-  for (const p of priorities) if (uris.includes(p)) return p;
+  // 优先严格选择生产主域
+  const canonical = 'https://www.wenpai.xyz/callback';
+  if (uris.includes(canonical)) return canonical;
+  const netlify = 'https://wenpai.netlify.app/callback';
+  if (uris.includes(netlify)) return netlify;
+  const local = 'http://localhost:5173/callback';
+  if (uris.includes(local)) return local;
+  // 兜底：返回第一个（服务端白名单）或规范化fallback
   return uris[0] || normalizeRedirect(fallback);
 }
 
 export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promise<ResolvedGuardConfig> {
   const domain = toDomain(base.host);
-  const url = `https://${domain}/api/v2/applications/${base.appId}/public-config`;
+  // 使用官方核心域名公开配置接口，确保 CORS 与数据一致性
+  const url = `https://core.authing.cn/api/v2/applications/${base.appId}/public-config`;
   try {
     const resp = await fetch(url, { method: 'GET', credentials: 'omit' });
     if (resp.ok) {
       const data = await resp.json();
       const redirectUris: string[] =
         data?.oidc?.redirect_uris || data?.redirectUris || data?.redirectUrisWhitelist || [];
+      let chosen = pickRedirectUri(redirectUris, base.redirectUri);
+      // 生产环境一律回落到主域回调，统一入口，避免白名单抖动
+      if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+        chosen = 'https://www.wenpai.xyz/callback';
+      }
       return {
         appId: base.appId,
         host: `https://${domain}/${base.appId}`.replace(/\/$/, ''),
-        redirectUri: pickRedirectUri(redirectUris, base.redirectUri)
+        redirectUri: chosen
       };
     }
   } catch (e) {

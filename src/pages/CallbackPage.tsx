@@ -28,6 +28,13 @@ const CallbackPage: React.FC = () => {
       } catch (err) {
         logger.error('❌ 回调处理失败:', err);
         setProcessingStep('登录失败');
+        // 输出 URL 以便比对 redirect_uri
+        try {
+          const u = new URL(window.location.href);
+          logger.warn('🔎 回调页 URL:', { origin: u.origin, path: u.pathname, search: u.search });
+        } catch (e) {
+          logger.warn('🔎 回调页 URL 解析失败');
+        }
         setTimeout(() => navigate('/', { replace: true }), 2000);
       }
     };
@@ -40,10 +47,7 @@ const CallbackPage: React.FC = () => {
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
         <h2 className="text-xl font-semibold">{processingStep}</h2>
         <p className="text-muted-foreground">
-          {loading ? '正在验证您的登录信息...' :
-           error ? '登录过程中出现问题，即将返回首页' :
-           isAuthenticated ? '登录成功！正在为您跳转...' :
-           '正在处理登录回调...'}
+          {processingStep || '正在处理登录回调...'}
         </p>
       </div>
     </div>
