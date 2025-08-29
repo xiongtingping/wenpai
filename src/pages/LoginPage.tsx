@@ -49,8 +49,20 @@ const LoginPage: React.FC = () => {
         });
 
         // 直接启动内嵌登录，不使用redirect
-        console.log('🎯 启动内嵌登录界面...');
-        g.start();
+        setTimeout(() => {
+          console.log('🎯 启动内嵌登录界面...');
+          
+          // 确保容器存在
+          const container = document.getElementById('authing-guard-container');
+          if (container) {
+            console.log('✅ 找到Guard容器');
+            // 清理可能的焦点冲突
+            container.removeAttribute('aria-hidden');
+            g.start();
+          } else {
+            console.error('❌ 未找到Guard容器');
+          }
+        }, 1500);
         
       } catch (e) {
         console.error('Authing Guard init failed:', e);
