@@ -55,10 +55,9 @@ let cachedConfig: any = null;
 export function getAuthingConfig() {
   if (cachedConfig) return cachedConfig;
 
-  // 动态获取回调URI
-  const redirectUri = typeof window !== 'undefined'
-    ? `${window.location.origin}/callback`
-    : getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
+  // 🔧 修复：使用固定生产环境回调URI，避免动态地址导致400错误
+  const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+  const redirectUri = isLocal ? 'http://localhost:5173/callback' : 'https://www.wenpai.xyz/callback';
 
   cachedConfig = {
     appId: APP_ID,
