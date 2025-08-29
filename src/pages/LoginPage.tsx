@@ -104,6 +104,24 @@ const LoginPage: React.FC = () => {
         console.error('Authing Guard init failed:', e);
       }
     })();
+
+    // 清理函数：防止DOM冲突
+    return () => {
+      if (guardRef.current) {
+        try {
+          console.log('🧹 清理Guard实例');
+          if (typeof guardRef.current.destroy === 'function') {
+            guardRef.current.destroy();
+          }
+          if (typeof guardRef.current.unmount === 'function') {
+            guardRef.current.unmount();
+          }
+        } catch (e) {
+          console.warn('⚠️ Guard清理失败(忽略):', e);
+        }
+        guardRef.current = null;
+      }
+    };
   }, [cfg.appId, cfg.host, navigate]);
 
   return (
