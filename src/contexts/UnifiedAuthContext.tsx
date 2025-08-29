@@ -141,15 +141,29 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    * 初始化认证系统 - 使用官方Guard Hook
    */
   useEffect(() => {
-    if (!guard) return;
+    if (!guard) {
+      console.warn('⚠️ Guard Hook未返回有效对象');
+      return;
+    }
 
     console.log('🔧 开始官方Guard认证系统初始化');
+    console.log('🧪 Guard对象检查:', {
+      guard: !!guard,
+      type: typeof guard,
+      methods: guard ? Object.getOwnPropertyNames(guard).filter(name => typeof guard[name] === 'function') : [],
+      hasShow: guard && typeof guard.show === 'function',
+      hasOn: guard && typeof guard.on === 'function'
+    });
 
     // 设置登录成功事件监听
-    guard.on('login', (userInfo: User) => {
-      console.log('✅ Guard登录事件触发:', userInfo);
-      handleAuthingLogin(userInfo);
-    });
+    if (guard && typeof guard.on === 'function') {
+      guard.on('login', (userInfo: User) => {
+        console.log('✅ Guard登录事件触发:', userInfo);
+        handleAuthingLogin(userInfo);
+      });
+    } else {
+      console.error('❌ Guard.on方法不可用');
+    }
 
     // 检查当前登录状态
     checkAuth();
@@ -211,6 +225,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       setError(null);
 
       if (!guard) {
+        console.error('❌ Guard未初始化');
         setError('Guard未初始化');
         return;
       }
@@ -221,9 +236,110 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('📝 保存跳转目标:', redirectTo);
       }
 
-      // 显示Guard模态框
-      console.log('🚀 显示Guard登录模态框');
-      guard.show();
+      // 直接跳转到Authing登录页
+      console.log('🔄 使用直接跳转登录模式...');
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const redirectUri = isLocalhost 
+        ? 'http://localhost:5173/callback' 
+        : 'https://www.wenpai.xyz/callback';
+      const authingUrl = `https://rzcswqs4sq0f.authing.cn/login?app_id=68a68a29d0c3341ae7a3df23&redirect_uri=${encodeURIComponent(redirectUri)}`;
+      console.log('🔄 跳转到Authing:', authingUrl);
+      console.log('🌐 环境检测:', { hostname: window.location.hostname, isLocalhost, redirectUri });
+      window.location.href = authingUrl;
+      
+      // 强制修复模态框位置
+      setTimeout(() => {
+        const guardRoot = document.querySelector('.authing-ant-modal-root') as HTMLElement;
+        const guardWrap = document.querySelector('.authing-ant-modal-wrap') as HTMLElement;
+        const guardModal = document.querySelector('.authing-ant-modal') as HTMLElement;
+        
+        if (guardRoot) {
+          guardRoot.style.position = 'fixed';
+          guardRoot.style.top = '0';
+          guardRoot.style.left = '0';
+          guardRoot.style.right = '0';
+          guardRoot.style.bottom = '0';
+          guardRoot.style.zIndex = '999999';
+          guardRoot.style.display = 'flex';
+          guardRoot.style.alignItems = 'center';
+          guardRoot.style.justifyContent = 'center';
+          guardRoot.style.background = 'rgba(0, 0, 0, 0.5)';
+          console.log('🔧 强制修复Guard Root位置');
+        }
+        
+        if (guardModal) {
+          guardModal.style.position = 'fixed';
+          guardModal.style.top = '50%';
+          guardModal.style.left = '50%';
+          guardModal.style.transform = 'translate(-50%, -50%)';
+          guardModal.style.width = '400px';
+          guardModal.style.height = '400px';
+          guardModal.style.background = 'red';
+          guardModal.style.border = '10px solid blue';
+          guardModal.style.borderRadius = '8px';
+          guardModal.style.opacity = '1';
+          guardModal.style.zIndex = '1000000';
+          guardModal.innerHTML = '<div style="color: white; font-size: 24px; text-align: center; padding: 50px;">TEST MODAL</div>';
+          console.log('🔧 强制修复Guard Modal - 固定定位到屏幕中央');
+          
+          // 确保滚动到顶部查看
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        }
+      }, 50);
+      
+      // 检查DOM状态和位置
+      setTimeout(() => {
+        const htmlClass = document.documentElement.className;
+        const bodyClass = document.body.className;
+        const guardRoot = document.querySelector('.authing-ant-modal-root');
+        const guardWrap = document.querySelector('.authing-ant-modal-wrap');
+        const guardModal = document.querySelector('.authing-ant-modal');
+        const guardMask = document.querySelector('.authing-ant-modal-mask');
+        
+        if (guardRoot) {
+          const rootRect = guardRoot.getBoundingClientRect();
+          const rootStyle = getComputedStyle(guardRoot);
+          console.log('🔍 Guard Root 详细信息:', {
+            rect: `x:${rootRect.x}, y:${rootRect.y}, w:${rootRect.width}, h:${rootRect.height}`,
+            position: rootStyle.position,
+            zIndex: rootStyle.zIndex,
+            display: rootStyle.display,
+            visibility: rootStyle.visibility,
+            opacity: rootStyle.opacity,
+            transform: rootStyle.transform,
+            top: rootStyle.top,
+            left: rootStyle.left
+          });
+        }
+        
+        if (guardModal) {
+          const modalRect = guardModal.getBoundingClientRect();
+          const modalStyle = getComputedStyle(guardModal);
+          console.log('🔍 Guard Modal 详细信息:', {
+            rect: `x:${modalRect.x}, y:${modalRect.y}, w:${modalRect.width}, h:${modalRect.height}`,
+            position: modalStyle.position,
+            display: modalStyle.display,
+            visibility: modalStyle.visibility,
+            opacity: modalStyle.opacity,
+            width: modalStyle.width,
+            height: modalStyle.height,
+            top: modalStyle.top,
+            left: modalStyle.left,
+            margin: modalStyle.margin
+          });
+        }
+        
+        console.log('🧪 所有Guard DOM元素:', {
+          guardRoot: !!guardRoot,
+          guardWrap: !!guardWrap, 
+          guardModal: !!guardModal,
+          guardMask: !!guardMask,
+          allAuthingElements: document.querySelectorAll('[class*="authing"]').length
+        });
+      }, 100);
 
     } catch (error) {
       console.error('❌ Guard登录失败:', error);

@@ -149,7 +149,7 @@ cp env.example .env.local
 npm run dev
 ```
 
-🎉 访问 http://localhost:5173 查看应用
+🎉 访问 http://localhost:5174 查看应用
 
 ### 生产构建
 
@@ -384,7 +384,7 @@ VITE_GEMINI_MODEL=gemini-pro
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
 VITE_AUTHING_DOMAIN=rzcswqs4sq0f.authing.cn
 VITE_AUTHING_HOST=https://rzcswqs4sq0f.authing.cn
-VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
+VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5174/callback
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 
 # ===========================================
@@ -1119,7 +1119,8 @@ console.log('Authing配置:', getAuthingConfig());
 
 **解决方案:**
 - 项目已预配置Authing，无需修改配置
-- 检查回调地址是否正确配置
+- 确保Authing控制台中配置了正确的回调URL：`http://localhost:5174/callback`
+- 检查开发服务器端口是否与回调URL匹配
 - 清除浏览器缓存和localStorage
 
 #### 3. 热点数据获取失败

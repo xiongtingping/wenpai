@@ -73,8 +73,16 @@ const App: React.FC = () => {
         <ErrorBoundary>
           <GuardProvider
             appId="68a68a29d0c3341ae7a3df23"
-            mode="modal"
+            mode="normal"
             host="https://rzcswqs4sq0f.authing.cn"
+            config={{
+              autoRegister: true,
+              placeholder: {
+                username: '请输入用户名',
+                email: '请输入邮箱',
+                password: '请输入密码'
+              }
+            }}
           >
             <UnifiedAuthProvider>
               <ErrorBoundary>
@@ -86,11 +94,11 @@ const App: React.FC = () => {
                     {/* 首页 */}
                     <Route path="/" element={<HomePage />} />
 
-                    {/* 登录回调页面 - 支持带/不带尾斜杠 */}
+                    {/* 登录回调页面 - 支持各种回调URL格式 */}
                     <Route path="/callback" element={<CallbackPage />} />
                     <Route path="/callback/" element={<CallbackPage />} />
-
-                        <Route path="/callback/*" element={<CallbackPage />} />
+                    <Route path="/callback/*" element={<CallbackPage />} />
+                    <Route path="/callbackhttp/*" element={<CallbackPage />} />
 
                     {/* 核心功能页面 - 需要登录 */}
                     <Route path="/adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
