@@ -64,7 +64,29 @@ const ConditionalNavigation: React.FC<{ children: React.ReactNode }> = ({ childr
  */
 const App: React.FC = () => {
   useEffect(() => {
-    // 应用启动 - 生产环境静默
+    // 应用启动时检查是否为恶意回调URL
+    const currentUrl = window.location.href;
+    console.log('🚀 App启动，当前URL:', currentUrl);
+    
+    // 立即处理恶意回调URL重定向
+    if (currentUrl.includes('callbackhttp://')) {
+      console.log('🚨 App层检测到恶意回调URL，立即处理重定向...');
+      
+      const codeMatch = currentUrl.match(/code=([^&]+)/);
+      const stateMatch = currentUrl.match(/state=([^&]+)/);
+      
+      if (codeMatch && stateMatch) {
+        const code = codeMatch[1];
+        const state = stateMatch[1];
+        console.log('✅ App层解析到授权码:', { code: code.substring(0, 10) + '...', state });
+        
+        // 重定向到正确的回调URL
+        const correctCallbackUrl = `${window.location.origin}/callback?code=${code}&state=${state}`;
+        console.log('🔄 App层重定向到:', correctCallbackUrl);
+        window.location.href = correctCallbackUrl;
+        return;
+      }
+    }
   }, []);
 
   return (
@@ -132,7 +154,9 @@ const App: React.FC = () => {
                     {/* 错误页面 */}
                     <Route path="/403" element={<ForbiddenPage />} />
                     <Route path="/404" element={<NotFoundPage />} />
-                    <Route path="*" element={<Navigate to="/404" replace />} />
+                    
+                    {/* 捕获所有未匹配路由，检查是否为恶意回调URL */}
+                    <Route path="*" element={<CallbackPage />} />
                   </Routes>
                 </Suspense>
               </ConditionalNavigation>
