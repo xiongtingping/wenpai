@@ -144,10 +144,10 @@ export const TopNavigation: React.FC = () => {
   );
 
   return (
-    <header className="sticky top-0 z-[100] w-full border-b shadow-sm theme-header-bg backdrop-blur-md border-border/20">
+    <header className="sticky top-0 z-[9999] w-full border-b shadow-sm theme-header-bg backdrop-blur-md border-border/20">
       <div className="container mx-auto px-4">
-        <div className={`flex h-16 items-center relative ${isHomePage ? 'justify-center' : 'justify-between'}`}>
-          {/* 左侧Logo和导航 */}
+        <div className="flex h-16 items-center justify-center relative">
+          {/* 左侧Logo和导航 - 始终居中 */}
           <div className="flex items-center space-x-6">
             {/* Logo - 主题感知的熊猫Logo */}
             <Link to="/" className="group">
@@ -199,8 +199,8 @@ export const TopNavigation: React.FC = () => {
             </DropdownMenu>
           </div>
 
-          {/* 右侧用户区域 */}
-          <div className={`flex items-center gap-2 ${isHomePage ? 'absolute right-0' : ''}`}>
+          {/* 右侧用户区域 - 始终绝对定位到右侧 */}
+          <div className="absolute right-0 flex items-center gap-2">
             {/* 用户状态指示 */}
             {permissionLoading && !isDevelopment() && (
               <div className="hidden sm:flex items-center gap-1">

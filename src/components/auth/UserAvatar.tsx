@@ -96,7 +96,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
                 🔓 解锁测试权限
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-64" align="end">
+            <DropdownMenuContent className="w-64 z-[9999]" align="end">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">测试模式</p>
@@ -150,7 +150,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-64" align="end" forceMount>
+        <DropdownMenuContent className="w-64 z-[9999]" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">

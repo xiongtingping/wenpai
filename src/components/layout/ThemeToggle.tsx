@@ -222,7 +222,7 @@ export const ThemeToggle: React.FC = () => {
             variant="ghost"
             size="sm"
             aria-label="切换主题"
-            className="h-9 w-9 p-0 rounded-full hover:bg-accent border border-border/50 bg-card/50 backdrop-blur-sm relative z-[70]"
+            className="h-9 w-9 p-0 rounded-full hover:bg-accent border border-border/50 bg-card/50 backdrop-blur-sm relative z-[9999]"
             title={`切换主题 - ${getUserPermissionLevel()}`}
           >
             <div className="text-foreground">
@@ -230,7 +230,7 @@ export const ThemeToggle: React.FC = () => {
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64 z-[80]">
+        <DropdownMenuContent align="end" className="w-64 z-[9999]">
           <div className="px-3 py-2 text-sm font-medium text-foreground">
             主题切换
           </div>
