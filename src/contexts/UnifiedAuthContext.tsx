@@ -55,7 +55,7 @@ interface UnifiedAuthContextType {
   checkAuth: () => Promise<void>;
   handleAuthingLogin: (userInfo: any) => void;
   refreshToken: () => Promise<void>;
-  updateUser: (updates: Partial<UserInfo>) => void;
+  updateUser: (updates: Partial<UserInfo>) => Promise<void>;
   loginWithPassword: (username: string, password: string) => Promise<void>;
   loginWithEmailCode: (email: string, code: string) => Promise<void>;
   loginWithPhoneCode: (phone: string, code: string) => Promise<void>;
@@ -236,17 +236,17 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('📝 保存跳转目标:', redirectTo);
       }
 
-      // 尝试使用Guard模态框登录
-      console.log('🚀 显示Guard登录模态框（支持登录/注册）');
+      // 使用官方Guard登录方法  
+      console.log('🔄 调用guard.start()启动登录...');
       
       try {
-        // 使用官方Guard模态框，支持登录和注册切换
-        guard.show('login');
-        console.log('✅ Guard模态框已显示');
+        // 官方推荐方式：使用Guard API启动登录
+        await guard.start();
+        console.log('✅ Guard登录流程已启动');
       } catch (error) {
-        console.error('❌ Guard模态框显示失败，使用备用方案:', error);
+        console.error('❌ Guard.start()失败，使用跳转备用方案:', error);
         
-        // 备用方案：直接跳转（保持原逻辑）
+        // 备用方案：直接跳转
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const redirectUri = isLocalhost 
           ? 'http://localhost:5173/callback' 
@@ -485,7 +485,37 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   /**
-   * 其他登录方法 - 统一使用Guard模态框
+   * 注册方法 - 使用官方Guard API
+   */
+  const register = async (redirectTo?: string) => {
+    try {
+      console.log('📝 开始官方Guard注册流程...');
+      setError(null);
+
+      if (!guard) {
+        console.error('❌ Guard未初始化');
+        setError('Guard未初始化');
+        return;
+      }
+
+      // 保存跳转目标
+      if (redirectTo) {
+        localStorage.setItem('login_redirect_to', redirectTo);
+      }
+
+      // 使用官方Guard注册方法
+      console.log('🔄 调用guard.startRegister()...');
+      guard.startRegister();
+      console.log('✅ 注册流程已启动');
+
+    } catch (error) {
+      console.error('❌ Guard注册启动失败:', error);
+      setError(error instanceof Error ? error.message : '注册失败');
+    }
+  };
+
+  /**
+   * 其他登录方法 - 统一使用Guard跳转
    */
   const loginWithPassword = async (_username: string, _password: string) => {
     await login();
