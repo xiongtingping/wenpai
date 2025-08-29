@@ -153,9 +153,9 @@ export function Header() {
             positionClassName="relative z-[60]"
             items={[
               { name: '首页', url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
-              { name: 'AI内容适配器', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/new-adapt') : login('/new-adapt'); } },
-              { name: '全网雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/hot-topics') : login('/hot-topics'); } },
-              { name: '创意魔方', url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/creative-studio') : login('/creative-studio'); } },
+              { name: 'AI内容适配器', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/new-adapt'); } else { login('/new-adapt'); } } },
+              { name: '全网雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); } } },
+              { name: '创意魔方', url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { login('/creative-studio'); } } },
               { name: '我的资料库', url: '/brand-library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); navigate('/brand-library'); } },
               { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); navigate('/brand-library'); } },
             ]}
@@ -210,7 +210,7 @@ export function Header() {
                         });
                       } catch (e) { console.warn('🧪 Header DOM Probe error(pre):', e); }
                     }, 0);
-                  } catch {}
+                  } catch (err) { console.warn('Header DOM probe failed', err); }
                   login();
                 }}>
                   登录

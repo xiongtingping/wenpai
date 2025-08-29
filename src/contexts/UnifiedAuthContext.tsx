@@ -136,6 +136,14 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       try {
         console.log('🔧 开始架构级认证系统初始化');
 
+
+        // 在专用登录路由下避免初始化全局 Guard，以免与嵌入式实例冲突
+        if (typeof window !== 'undefined' && window.location.pathname.startsWith('/auth/login')) {
+          console.log('🔕 当前为 /auth/login，跳过全局 Guard 初始化');
+          setLoading(false);
+          return;
+        }
+
         // 确保DOM完全加载
         if (document.readyState !== 'complete') {
           await new Promise(resolve => {
@@ -289,7 +297,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       console.log('🔁 跳转到专用登录页 /auth/login');
       try {
         window.localStorage.setItem('login_redirect_to', redirectTo || window.location.pathname);
-      } catch {}
+      } catch (err) {
+        console.warn('Failed to persist login redirect target', err);
+      }
       window.location.href = '/auth/login';
       return;
 
