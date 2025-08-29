@@ -22,11 +22,12 @@ const LoginPage: React.FC = () => {
 
         const g = new Guard({
           appId: resolved.appId,
-          appHost: resolved.appHost,
+          host: resolved.host,
           redirectUri: resolved.redirectUri,
           mode: 'normal',
           lang: 'zh-CN'
-        } as any);
+        });
+        console.log('🧭 Guard 参数快照(Login):', { host: resolved.host, redirectUri: resolved.redirectUri });
         guardRef.current = g;
 
         if (typeof g.startWithRedirect === 'function') {

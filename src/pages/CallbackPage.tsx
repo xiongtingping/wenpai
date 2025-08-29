@@ -19,7 +19,8 @@ const CallbackPage: React.FC = () => {
       try {
         setProcessingStep('处理认证回调...');
         const resolved = await resolveAuthingGuardConfig({ appId: cfg.appId, host: cfg.host, redirectUri: cfg.redirectUri });
-        const guard = new Guard({ appId: resolved.appId, appHost: resolved.appHost, redirectUri: resolved.redirectUri, mode: 'normal', lang: 'zh-CN' } as any);
+        const guard = new Guard({ appId: resolved.appId, host: resolved.host, redirectUri: resolved.redirectUri, mode: 'normal', lang: 'zh-CN' });
+        console.log('🧭 Guard 参数快照(Callback):', { host: resolved.host, redirectUri: resolved.redirectUri });
         await guard.handleRedirectCallback();
         setProcessingStep('登录成功，正在跳转...');
         const redirectTo = localStorage.getItem('auth_redirect_after_login') || '/';

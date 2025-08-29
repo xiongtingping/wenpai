@@ -10,8 +10,8 @@ export interface BaseAuthingConfig {
 
 export interface ResolvedGuardConfig {
   appId: string;
-  appHost: string;     // 纯域名（官方推荐），用于 Guard 的 appHost 参数
-  redirectUri: string; // 从服务器白名单选择的回调（严格等值）
+  host: string;        // 应用专属入口：https://<domain>/<appId>
+  redirectUri: string; // 生产固定 www，开发用 localhost
 }
 
 function toDomain(host: string): string {
@@ -64,31 +64,33 @@ export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promis
             chosen = originCandidate;
           }
         }
-      } catch {}
+      } catch (e) {
+        // ignore URL construction issues, fall back below
+      }
       if (!chosen) {
         chosen = pickRedirectUri(redirectUris, base.redirectUri);
       }
       // 观测日志（帮助线上核对白名单 vs 实际使用）
-      try {
-        // eslint-disable-next-line no-console
-        console.log('🔎 Authing public-config redirect_uris:', redirectUris);
-        // eslint-disable-next-line no-console
-        console.log('✅ 使用的 redirectUri:', chosen);
-      } catch {}
+      console.log('🔎 Authing public-config redirect_uris:', redirectUris);
+      console.log('✅ 使用的 redirectUri:', chosen);
 
+      // 生产环境强制使用 www.wenpai.xyz/callback，避免 netlify 预览域
+      const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+      const finalRedirect = isLocal ? 'http://localhost:5173/callback' : 'https://www.wenpai.xyz/callback';
       return {
         appId: base.appId,
-        appHost: `https://${domain}`, // 含协议的完整域，供 Guard.appHost 使用
-        redirectUri: chosen
+        host: `https://${domain}/${base.appId}`.replace(/\/$/, ''),
+        redirectUri: finalRedirect
       };
     }
   } catch (e) {
     // swallow and fallback
   }
+  const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
   return {
     appId: base.appId,
-    appHost: domain,
-    redirectUri: normalizeRedirect(base.redirectUri)
+    host: `https://${domain}/${base.appId}`.replace(/\/$/, ''),
+    redirectUri: isLocal ? 'http://localhost:5173/callback' : 'https://www.wenpai.xyz/callback'
   };
 }
 
