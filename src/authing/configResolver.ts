@@ -78,7 +78,7 @@ export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promis
 
       return {
         appId: base.appId,
-        appHost: domain, // 纯域名供 Guard.appHost 使用
+        appHost: `https://${domain}`, // 含协议的完整域，供 Guard.appHost 使用
         redirectUri: chosen
       };
     }
