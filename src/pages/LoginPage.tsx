@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Guard } from '@authing/guard';
+import '@authing/guard/dist/esm/guard.min.css';
 import { getAuthingConfig } from '@/config/authing';
 
 const LoginPage: React.FC = () => {

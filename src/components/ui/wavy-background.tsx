@@ -64,12 +64,14 @@ export const WavyBackground = ({
     render();
   };
 
+  const toHsl = (v: string, fallback: string) => (v && v.length > 0 ? `hsl(${v})` : fallback)
+  const doc = document.documentElement;
   const waveColors = colors ?? [
-    getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#38bdf8',
-    getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim() || '#818cf8',
-    getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c084fc',
-    getComputedStyle(document.documentElement).getPropertyValue('--ring').trim() || '#e879f9',
-    getComputedStyle(document.documentElement).getPropertyValue('--muted-foreground').trim() || '#22d3ee',
+    toHsl(getComputedStyle(doc).getPropertyValue('--primary').trim(), '#38bdf8'),
+    toHsl(getComputedStyle(doc).getPropertyValue('--secondary').trim(), '#818cf8'),
+    toHsl(getComputedStyle(doc).getPropertyValue('--accent').trim(), '#c084fc'),
+    toHsl(getComputedStyle(doc).getPropertyValue('--ring').trim(), '#e879f9'),
+    toHsl(getComputedStyle(doc).getPropertyValue('--muted-foreground').trim(), '#22d3ee'),
   ];
   const drawWave = (n: number) => {
     nt += getSpeed();
@@ -88,8 +90,10 @@ export const WavyBackground = ({
 
   let animationId: number;
   const render = () => {
-    ctx.fillStyle = backgroundFill || "black";
-    ctx.globalAlpha = waveOpacity || 0.5;
+    // 使用设计令牌作为背景/透明叠加，使浅色模式更协调
+    const bg = backgroundFill || getComputedStyle(document.documentElement).getPropertyValue('--background').trim() || 'white';
+    ctx.fillStyle = bg.startsWith('hsl') ? bg : `hsl(var(--background))`;
+    ctx.globalAlpha = waveOpacity ?? 0.35;
 
 
     ctx.fillRect(0, 0, w, h);

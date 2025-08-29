@@ -156,7 +156,7 @@ export function Header() {
               { name: 'AI内容适配器', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/new-adapt') : login('/new-adapt'); } },
               { name: '全网雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/hot-topics') : login('/hot-topics'); } },
               { name: '创意魔方', url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); isAuthenticated ? navigate('/creative-studio') : login('/creative-studio'); } },
-              { name: '我的资料库', url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); navigate('/library'); } },
+              { name: '我的资料库', url: '/brand-library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); navigate('/brand-library'); } },
               { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); navigate('/brand-library'); } },
             ]}
           />
