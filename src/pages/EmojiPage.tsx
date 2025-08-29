@@ -44,6 +44,7 @@ import { callAI } from '@/api/aiService';
 import PersonalizedEmojiGenerator from '@/components/creative/PersonalizedEmojiGenerator';
 import UnifiedEmojiManager from '@/components/shared/UnifiedEmojiManager';
 import { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
+import { BackToTop } from '@/components/ui/BackToTop';
 
 /**
  * Emoji生成器主组件
@@ -532,6 +533,9 @@ const EmojiPage: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* 返回顶部按钮 */}
+      <BackToTop />
     </div>
   );
 };

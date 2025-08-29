@@ -313,7 +313,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   const subModules = getSubModules();
 
   return (
-    <div className="border-b shadow-e1 theme-breadcrumb-bg backdrop-blur-sm">
+    <div className="border-b shadow-e1 theme-breadcrumb-bg backdrop-blur-sm relative z-40">
       <div className="container mx-auto px-4 py-6">
         {/* 面包屑导航 */}
         {breadcrumbs.length > 0 && (
