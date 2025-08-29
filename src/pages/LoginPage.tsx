@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import '@authing/guard-react/dist/esm/guard.min.css';
+import '@authing/guard/dist/esm/guard.min.css';
 import { GuardProvider, useGuard } from '@authing/guard-react';
 import { getAuthingConfig } from '@/config/authing';
 
