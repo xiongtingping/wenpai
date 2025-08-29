@@ -21,6 +21,8 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthGuard, ProGuard, PremiumGuard } from '@/components/auth/RouteGuard';
+import { GuardProvider } from '@authing/guard-react18';
+import '@authing/guard-react18/dist/esm/guard.min.css';
 
 // 核心页面组件
 import HomePage from '@/pages/HomePage';
@@ -69,12 +71,17 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <ThemeProvider>
         <ErrorBoundary>
-          <UnifiedAuthProvider>
-            <ErrorBoundary>
-                  <>
-                    <div className="min-h-screen bg-background">
-              <ConditionalNavigation>
-                <Suspense fallback={<LoadingSpinner />}>
+          <GuardProvider
+            appId="68a68a29d0c3341ae7a3df23"
+            mode="modal"
+            host="https://rzcswqs4sq0f.authing.cn"
+          >
+            <UnifiedAuthProvider>
+              <ErrorBoundary>
+                    <>
+                      <div className="min-h-screen bg-background">
+                <ConditionalNavigation>
+                  <Suspense fallback={<LoadingSpinner />}>
                   <Routes>
                     {/* 首页 */}
                     <Route path="/" element={<HomePage />} />
@@ -123,11 +130,12 @@ const App: React.FC = () => {
               </ConditionalNavigation>
             </div>
 
-            {/* 全局通知组件 */}
-            <Toaster />
-                  </>
-              </ErrorBoundary>
-          </UnifiedAuthProvider>
+              {/* 全局通知组件 */}
+              <Toaster />
+                    </>
+                </ErrorBoundary>
+            </UnifiedAuthProvider>
+          </GuardProvider>
         </ErrorBoundary>
       </ThemeProvider>
     </ErrorBoundary>
