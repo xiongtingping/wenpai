@@ -287,9 +287,48 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         guardRef.current = await createSimplifiedGuardInstance();
       }
 
-      // 直接启动Guard Modal
-      console.log('🚀 直接启动Guard Modal登录');
-      guardRef.current.start();
+      // 详细检查Guard实例
+      console.log('🔍 Guard实例完整检查:', {
+        instance: !!guardRef.current,
+        constructor: guardRef.current?.constructor?.name,
+        prototype: Object.getPrototypeOf(guardRef.current),
+        hasStart: typeof guardRef.current?.start === 'function',
+        hasShow: typeof guardRef.current?.show === 'function',
+        allMethods: guardRef.current ? Object.getOwnPropertyNames(Object.getPrototypeOf(guardRef.current))
+          .filter(name => name !== 'constructor' && typeof guardRef.current[name] === 'function') : [],
+        directMethods: guardRef.current ? Object.getOwnPropertyNames(guardRef.current)
+          .filter(name => typeof guardRef.current[name] === 'function') : []
+      });
+
+      // Modal模式下使用正确的API
+      try {
+        // Guard Modal模式启动需要指定容器或直接调用
+        if (guardRef.current.start) {
+          console.log('🚀 使用start()启动Guard Modal');
+          await guardRef.current.start();
+        } else if (guardRef.current.show) {
+          console.log('🚀 使用show()启动Guard Modal');
+          await guardRef.current.show();
+        } else {
+          // 尝试直接渲染到body或创建临时容器
+          console.log('🚀 创建临时容器启动Guard');
+          const container = document.createElement('div');
+          container.id = 'guard-modal-container';
+          container.style.cssText = 'position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;';
+          document.body.appendChild(container);
+          
+          if (guardRef.current.start) {
+            await guardRef.current.start('#guard-modal-container');
+          } else if (guardRef.current.render) {
+            await guardRef.current.render('#guard-modal-container');
+          } else {
+            throw new Error('No available method to start Guard');
+          }
+        }
+      } catch (startError) {
+        console.error('❌ Guard启动方法调用失败:', startError);
+        throw startError;
+      }
       
       // 开始轮询监控登录状态
       startAuthPolling();
