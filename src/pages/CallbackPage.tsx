@@ -92,14 +92,15 @@ const CallbackPage: React.FC = () => {
 
   useEffect(() => {
     console.log('📍 CallbackPage mounted, current URL:', window.location.href);
+    console.log('🔍 URL分析:', {
+      href: window.location.href,
+      hasCallbackHttp: window.location.href.includes('callbackhttp://'),
+      hasWenpaiCallback: window.location.href.includes('www.wenpai.xyz/callbackhttp://'),
+      pathname: window.location.pathname,
+      search: window.location.search
+    });
     
-    // 如果在生产环境且URL包含重复回调，直接执行修复
-    if (window.location.href.includes('www.wenpai.xyz/callbackhttp://')) {
-      console.log('🔧 生产环境检测到URL重复，执行自动修复...');
-      handleCallback();
-      return;
-    }
-    
+    // 直接执行回调处理，让handleCallback内部的逻辑来判断
     handleCallback();
   }, []);
 
