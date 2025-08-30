@@ -135,21 +135,39 @@ export class ConfigManager {
     
     return {
       authing: {
-        appId: import.meta.env.VITE_AUTHING_APP_ID,
-        userPoolId: import.meta.env.VITE_AUTHING_USER_POOL_ID,
-        domain: import.meta.env.VITE_AUTHING_DOMAIN,
-        host: import.meta.env.VITE_AUTHING_HOST,
+        appId: import.meta.env.VITE_AUTHING_APP_ID || 
+               process.env.VITE_AUTHING_APP_ID || 
+               (globalThis as any).__ENV__?.VITE_AUTHING_APP_ID,
+        userPoolId: import.meta.env.VITE_AUTHING_USER_POOL_ID || 
+                    process.env.VITE_AUTHING_USER_POOL_ID || 
+                    (globalThis as any).__ENV__?.VITE_AUTHING_USER_POOL_ID,
+        domain: import.meta.env.VITE_AUTHING_DOMAIN || 
+                process.env.VITE_AUTHING_DOMAIN || 
+                (globalThis as any).__ENV__?.VITE_AUTHING_DOMAIN,
+        host: import.meta.env.VITE_AUTHING_HOST || 
+              process.env.VITE_AUTHING_HOST || 
+              (globalThis as any).__ENV__?.VITE_AUTHING_HOST,
         redirectUri: this.getRedirectUri(),
         scope: 'openid profile email phone',
         responseType: 'code',
         responseMode: 'query'
       },
       supabase: {
-        url: import.meta.env.VITE_SUPABASE_URL,
-        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-        serviceRoleKey: import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY,
-        projectId: import.meta.env.VITE_SUPABASE_PROJECT_ID,
-        jwtSecret: import.meta.env.VITE_SUPABASE_JWT_SECRET
+        url: import.meta.env.VITE_SUPABASE_URL || 
+             process.env.VITE_SUPABASE_URL || 
+             (globalThis as any).__ENV__?.VITE_SUPABASE_URL,
+        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 
+                 process.env.VITE_SUPABASE_ANON_KEY || 
+                 (globalThis as any).__ENV__?.VITE_SUPABASE_ANON_KEY,
+        serviceRoleKey: import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || 
+                       process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || 
+                       (globalThis as any).__ENV__?.VITE_SUPABASE_SERVICE_ROLE_KEY,
+        projectId: import.meta.env.VITE_SUPABASE_PROJECT_ID || 
+                   process.env.VITE_SUPABASE_PROJECT_ID || 
+                   (globalThis as any).__ENV__?.VITE_SUPABASE_PROJECT_ID,
+        jwtSecret: import.meta.env.VITE_SUPABASE_JWT_SECRET || 
+                   process.env.VITE_SUPABASE_JWT_SECRET || 
+                   (globalThis as any).__ENV__?.VITE_SUPABASE_JWT_SECRET
       },
       ai: {
         openai: {
