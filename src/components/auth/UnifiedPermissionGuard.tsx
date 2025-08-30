@@ -255,58 +255,35 @@ const getTierInfo = (tier: SubscriptionTier) => {
   // 从订阅计划配置中获取真实数据
   const subscriptionPlan = getSubscriptionPlan(tier);
 
-  if (subscriptionPlan) {
-    const usageText = subscriptionPlan.limits.adaptUsageLimit === -1
-      ? '不限次数'
-      : `${subscriptionPlan.limits.adaptUsageLimit}次/月`;
-
-    const tokenText = subscriptionPlan.limits.tokenLimit === -1
-      ? '不限Token'
-      : `${(subscriptionPlan.limits.tokenLimit / 10000).toFixed(0)}万Token/月`;
-
-    return {
-      name: subscriptionPlan.name,
-      price: tier === 'trial' ? '免费' : `¥${subscriptionPlan.monthly.discountPrice}/月`,
-      icon: tier === 'trial' ? <Star className="h-4 w-4" /> :
-            tier === 'pro' ? <Zap className="h-4 w-4" /> :
-            <Crown className="h-4 w-4" />,
-      color: tier === 'trial' ? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' :
-             tier === 'pro' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-             'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-      features: [
-        usageText,
-        tokenText,
-        ...subscriptionPlan.limits.availableFeatures
-      ]
-    };
+  // ✅ FIXED: 2025-08-30 遵循 api_prohibit_local_mock_error 规则
+  // 如果找不到订阅计划，抛出错误而非使用降级配置
+  if (!subscriptionPlan) {
+    throw new Error(`无法获取订阅计划配置: ${tier}，请检查API连接状态`);
   }
 
-  // 降级配置（如果找不到订阅计划）
-  const fallbackConfigs = {
-    trial: {
-      name: '体验版',
-      price: '免费',
-      icon: <Star className="h-4 w-4" />,
-      color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-      features: ['基础功能', '10次/月使用', '基础AI模型']
-    },
-    pro: {
-      name: '专业版',
-      price: '¥29/月',
-      icon: <Zap className="h-4 w-4" />,
-      color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-      features: ['创意魔方', '30次/月使用', '高级AI模型', '深色主题']
-    },
-    premium: {
-      name: '高级版',
-      price: '¥79/月',
-      icon: <Crown className="h-4 w-4" />,
-      color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-      features: ['品牌库', '不限使用', '高级及最新AI模型', '全部主题', '优先支持']
-    }
-  };
+  const usageText = subscriptionPlan.limits.adaptUsageLimit === -1
+    ? '不限次数'
+    : `${subscriptionPlan.limits.adaptUsageLimit}次/月`;
 
-  return fallbackConfigs[tier];
+  const tokenText = subscriptionPlan.limits.tokenLimit === -1
+    ? '不限Token'
+    : `${(subscriptionPlan.limits.tokenLimit / 10000).toFixed(0)}万Token/月`;
+
+  return {
+    name: subscriptionPlan.name,
+    price: tier === 'trial' ? '免费' : `¥${subscriptionPlan.monthly.discountPrice}/月`,
+    icon: tier === 'trial' ? <Star className="h-4 w-4" /> :
+          tier === 'pro' ? <Zap className="h-4 w-4" /> :
+          <Crown className="h-4 w-4" />,
+    color: tier === 'trial' ? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' :
+           tier === 'pro' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+           'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+    features: [
+      usageText,
+      tokenText,
+      ...subscriptionPlan.limits.availableFeatures
+    ]
+  };
 };
 
 /**

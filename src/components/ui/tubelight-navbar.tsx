@@ -21,24 +21,39 @@ export function NavBar({ items, className, positionClassName }: NavBarProps) {
   const location = useLocation()
   const [isMobile, setIsMobile] = useState(false)
 
-  // 根据当前路径确定激活的tab
+  // 根据当前路径确定激活的tab - 优化匹配逻辑
   const getActiveTab = () => {
     const currentPath = location.pathname
+    
+    // 精确匹配首页
     if (currentPath === '/') {
       return '首页'
     }
 
+    // 为其他路径进行精确匹配
     const activeItem = items.find(item => {
       if (item.url === '/') {
         return currentPath === '/'
       }
-      return currentPath.startsWith(item.url)
+      // 更精确的路径匹配
+      return currentPath === item.url || currentPath.startsWith(item.url + '/')
     })
 
-    return activeItem?.name || items[0].name
+    // 如果没有找到匹配项，检查是否是子路径
+    if (!activeItem) {
+      const fallbackItem = items.find(item => {
+        if (item.url === '/') return false
+        // 检查是否为该模块的子页面
+        return currentPath.includes(item.url.split('/')[1] || '')
+      })
+      return fallbackItem?.name || '首页'
+    }
+
+    return activeItem.name
   }
 
   const activeTab = getActiveTab()
+  const [, forceUpdate] = useState({})
 
   useEffect(() => {
     const handleResize = () => {
@@ -49,6 +64,11 @@ export function NavBar({ items, className, positionClassName }: NavBarProps) {
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [])
+
+  // 监听路径变化，强制重新计算activeTab
+  useEffect(() => {
+    forceUpdate({})
+  }, [location.pathname])
 
   return (
     <div

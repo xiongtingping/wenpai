@@ -230,7 +230,7 @@ export const ThemeToggle: React.FC = () => {
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64 z-[9999]">
+        <DropdownMenuContent align="end" className="w-64 z-[99999]">
           <div className="px-3 py-2 text-sm font-medium text-foreground">
             主题切换
           </div>

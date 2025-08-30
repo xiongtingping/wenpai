@@ -138,7 +138,7 @@ class SimpleCache {
 class HotTopicsAPI {
   private static instance: HotTopicsAPI;
   private cache = new SimpleCache();
-  private baseUrl = 'https://api.vvhan.com/api/hotlist';
+  private baseUrl = 'https://api-hot.imsyy.top';
   private enableLogging = process.env.NODE_ENV === 'development';
 
   private constructor() {}
@@ -168,14 +168,18 @@ class HotTopicsAPI {
         return data;
       } catch (error) {
         lastError = error as Error;
+        this.log(`API请求失败 (尝试 ${attempt + 1}/${maxRetries + 1}):`, error);
         if (attempt < maxRetries) {
           await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
         }
       }
     }
     
-    throw lastError;
+    // 如果所有重试都失败，抛出错误而非降级到模拟数据
+    this.log('所有API重试失败', lastError);
+    throw new Error(`热点数据API调用失败: ${lastError?.message || '未知错误'}`);
   }
+
 
   private processRawData(data: any, platform: string): DailyHotItem[] {
     let items: any[] = [];

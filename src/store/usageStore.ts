@@ -9,6 +9,7 @@ import { persist } from 'zustand/middleware';
 // 使用记录接口
 export interface UsageRecord {
   id: string;
+  userId: string; // 绑定用户ID
   feature: string;
   timestamp: number;
   metadata?: Record<string, any>;
@@ -26,16 +27,16 @@ export interface UsageState {
 // 使用统计操作接口
 export interface UsageActions {
   // 记录使用
-  recordUsage: (feature: string, metadata?: Record<string, any>) => void;
+  recordUsage: (feature: string, userId?: string, metadata?: Record<string, any>) => void;
   
   // 获取今日使用量
-  getTodayUsage: (feature?: string) => number;
+  getTodayUsage: (feature?: string, userId?: string) => number;
   
   // 获取月度使用量
-  getMonthlyUsage: (feature?: string) => number;
+  getMonthlyUsage: (feature?: string, userId?: string) => number;
   
   // 获取总使用量
-  getTotalUsage: (feature?: string) => number;
+  getTotalUsage: (feature?: string, userId?: string) => number;
   
   // 清除记录
   clearRecords: () => void;
@@ -79,13 +80,14 @@ export const useUsageStore = create<UsageState & UsageActions>()(
     (set, get) => ({
       ...initialState,
 
-      recordUsage: (feature: string, metadata?: Record<string, any>) => {
+      recordUsage: (feature: string, userId = 'anonymous', metadata?: Record<string, any>) => {
         const now = new Date();
         const dateKey = getDateKey(now);
         const monthKey = getMonthKey(now);
         
         const record: UsageRecord = {
           id: generateId(),
+          userId,
           feature,
           timestamp: now.getTime(),
           metadata
@@ -111,42 +113,40 @@ export const useUsageStore = create<UsageState & UsageActions>()(
         });
       },
 
-      getTodayUsage: (feature?: string) => {
+      getTodayUsage: (feature?: string, userId?: string) => {
         const state = get();
         const today = getDateKey();
         
-        if (!feature) {
-          return state.dailyUsage[today] || 0;
-        }
-        
         return state.records.filter(record => {
           const recordDate = getDateKey(new Date(record.timestamp));
-          return recordDate === today && record.feature === feature;
+          const dateMatch = recordDate === today;
+          const featureMatch = !feature || record.feature === feature;
+          const userMatch = !userId || record.userId === userId;
+          return dateMatch && featureMatch && userMatch;
         }).length;
       },
 
-      getMonthlyUsage: (feature?: string) => {
+      getMonthlyUsage: (feature?: string, userId?: string) => {
         const state = get();
         const currentMonth = getMonthKey();
         
-        if (!feature) {
-          return state.monthlyUsage[currentMonth] || 0;
-        }
-        
         return state.records.filter(record => {
           const recordMonth = getMonthKey(new Date(record.timestamp));
-          return recordMonth === currentMonth && record.feature === feature;
+          const monthMatch = recordMonth === currentMonth;
+          const featureMatch = !feature || record.feature === feature;
+          const userMatch = !userId || record.userId === userId;
+          return monthMatch && featureMatch && userMatch;
         }).length;
       },
 
-      getTotalUsage: (feature?: string) => {
+      getTotalUsage: (feature?: string, userId?: string) => {
         const state = get();
         
-        if (!feature) {
-          return state.totalUsage;
-        }
-        
-        return state.records.filter(record => record.feature === feature).length;
+        return state.records.filter(record => {
+          const featureMatch = !feature || record.feature === feature;
+          const userMatch = !userId || record.userId === userId;
+          return featureMatch && userMatch;
+        }).length;
       },
 
       clearRecords: () => {

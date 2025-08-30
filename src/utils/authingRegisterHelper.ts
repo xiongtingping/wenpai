@@ -1,6 +1,6 @@
 /**
  * Authing注册助手
- * 处理注册端点检测和降级逻辑
+ * 处理注册端点检测和多端点尝试策略
  */
 
 import { logger } from '@/utils/logger';
@@ -102,11 +102,11 @@ function generateRegisterUrlVariants(config: RegisterConfig): string[] {
       description: '标准OIDC端点+注册提示'
     },
     
-    // 变体6: 标准登录端点（降级方案）
+    // 变体6: 标准登录端点（备选方案）
     {
       url: `${host}/${appId}/login`,
       params: new URLSearchParams(baseParams),
-      description: '标准登录端点(降级)'
+      description: '标准登录端点(备选)'
     }
   ];
 

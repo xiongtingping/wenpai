@@ -2,6 +2,7 @@
 type: "agent_requested"
 description: "Example description"
 ---
+
 {
   "module": "System",
   "name": "system_lock_fixed_logic_critical",

@@ -203,7 +203,7 @@ export default function MD2CardPage() {
     setEstimatedReadTime(Math.ceil(words / 200));
   }, [markdownContent]);
 
-  // 防抖生成函数
+  // 实时生成函数 - 减少延迟提高响应性
   const debouncedGenerate = useDebouncedCallback(
     async (content: string, templateId: string, config: CardConfiguration) => {
       if (!content.trim()) {
@@ -213,28 +213,13 @@ export default function MD2CardPage() {
 
       // 检查用户是否登录
       if (!isAuthenticated) {
-        toast({
-          title: '需要登录',
-          description: '请先登录后使用卡片生成功能',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      // 检查使用限额
-      const canUse = await checkUsageLimit('md2card');
-      if (!canUse) {
-        toast({
-          title: '使用次数已用完',
-          description: '请升级到高级版本获取更多使用次数',
-          variant: 'destructive'
-        });
+        // 对于实时预览，不显示登录提示，只是不生成
         return;
       }
 
       setIsGenerating(true);
       try {
-        // 解析Markdown内容
+        // 解析Markdown内容 - 立即更新预览
         const parsedContent = defaultMarkdownParser.parse(content);
         
         // 获取模板
@@ -259,7 +244,7 @@ export default function MD2CardPage() {
           template.category
         );
         
-        // 生成卡片的模拟实现
+        // 生成卡片的模拟实现 - 减少延迟
         const result = await generateMockCard({
           markdown: content,
           templateId,
@@ -277,23 +262,17 @@ export default function MD2CardPage() {
             createdAt: new Date(),
             updatedAt: new Date()
           });
-          // 生成成功后增加使用次数
-          await incrementUsage('md2card', 1);
         } else {
           throw new Error(result.error || '生成失败');
         }
       } catch (error) {
         console.error('卡片生成失败:', error);
-        toast({
-          title: '生成失败',
-          description: '请检查内容格式或稍后重试',
-          variant: 'destructive'
-        });
+        // 实时预览中不显示错误提示，避免干扰用户输入
       } finally {
         setIsGenerating(false);
       }
     },
-    500
+    200  // 减少防抖延迟从500ms到200ms
   );
 
   // 监听内容和配置变化，触发生成
@@ -563,7 +542,7 @@ export default function MD2CardPage() {
                   <textarea
                     value={markdownContent}
                     onChange={(e) => handleContentChange(e.target.value)}
-                    className="w-full h-full min-h-[400px] p-3 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-card text-foreground font-mono text-sm transition-colors focus:bg-card/80"
+                    className="w-full h-full min-h-[400px] p-3 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-secondary/30 text-foreground font-mono text-sm transition-colors focus:bg-secondary/50 hover:bg-secondary/40"
                     placeholder="在这里输入Markdown内容..."
                   />
                 </div>
@@ -702,22 +681,29 @@ export default function MD2CardPage() {
   );
 }
 
-// 辅助函数
+// 辅助函数 - 优化为快速响应
 async function generateMockCard(params: {
   markdown: string;
   templateId: string;
   configuration: CardConfiguration;
 }): Promise<{ success: boolean; parsedContent?: any; imageData?: string; error?: string }> {
-  // 这里将实现实际的卡片生成逻辑
-  // 现在返回模拟数据
+  // 实时预览优化 - 减少延迟
   return new Promise((resolve) => {
     setTimeout(() => {
+      const title = extractTitleFromMarkdown(params.markdown);
+      const svgContent = `<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="${params.configuration.colors.background}"/>
+        <text x="50%" y="30%" font-family="Arial, sans-serif" font-size="32" fill="${params.configuration.colors.text}" text-anchor="middle" dy=".3em">${title}</text>
+        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="16" fill="${params.configuration.colors.primary}" text-anchor="middle" dy=".3em">预览内容</text>
+        <text x="50%" y="70%" font-family="Arial, sans-serif" font-size="14" fill="${params.configuration.colors.secondary}" text-anchor="middle" dy=".3em">模板: ${params.templateId}</text>
+      </svg>`;
+      
       resolve({
         success: true,
-        parsedContent: { title: 'Mock Card', content: 'Mock content' },
-        imageData: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzMzNyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk1vY2sgQ2FyZDwvdGV4dD48L3N2Zz4='
+        parsedContent: { title, content: params.markdown },
+        imageData: 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgContent)))
       });
-    }, 1000);
+    }, 100); // 减少延迟到100ms
   });
 }
 

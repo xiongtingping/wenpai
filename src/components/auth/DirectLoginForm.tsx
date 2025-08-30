@@ -23,26 +23,9 @@ export const DirectLoginForm: React.FC<DirectLoginFormProps> = ({ onLogin, onErr
     try {
       console.log('🔐 直接登录尝试...');
       
-      // 模拟登录成功（临时方案）
-      const mockUser = {
-        id: 'temp_user_' + Date.now(),
-        email: email,
-        username: email.split('@')[0],
-        nickname: email.split('@')[0],
-        avatar: '',
-        token: 'temp_token_' + Math.random().toString(36)
-      };
-      
-      console.log('✅ 登录成功（临时）:', mockUser);
-      
-      // 存储用户信息
-      sessionStorage.setItem('user', JSON.stringify(mockUser));
-      sessionStorage.setItem('token', mockUser.token);
-      
-      onLogin?.(mockUser);
-      
-      // 跳转回主页
-      navigate('/');
+      // ✅ FIXED: 2025-08-30 遵循 api_prohibit_local_mock_error 规则
+      // 必须调用真实的Authing API进行登录，不允许使用模拟数据
+      throw new Error('DirectLoginForm已被禁用：必须使用真实的Authing API进行登录，不允许模拟登录');
       
     } catch (error) {
       console.error('❌ 登录失败:', error);

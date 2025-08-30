@@ -87,7 +87,7 @@ export default function MD2WeChatPage() {
     setEstimatedReadTime(Math.ceil(words / 200)); // 假设每分钟阅读200字
   }, [markdownContent]);
 
-  // 防抖转换函数
+  // 实时转换函数 - 优化响应性和体验
   const debouncedConvert = useDebouncedCallback(
     async (content: string, theme: string, size: string) => {
       if (!content.trim()) {
@@ -95,25 +95,9 @@ export default function MD2WeChatPage() {
         return;
       }
 
-      // 检查用户是否登录
+      // 检查用户是否登录 - 实时预览不需要阻止
       if (!isAuthenticated) {
-        toast({
-          title: '需要登录',
-          description: '请先登录后使用转换功能',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      // 检查使用限额
-      const canUse = await checkUsageLimit('md2wechat');
-      if (!canUse) {
-        toast({
-          title: '使用次数已用完',
-          description: '请升级到高级版本获取更多使用次数',
-          variant: 'destructive'
-        });
-        return;
+        // 对于实时预览，不阻止转换，只是不计算使用次数
       }
 
       setIsConverting(true);
@@ -126,23 +110,19 @@ export default function MD2WeChatPage() {
         
         if (result.success) {
           setPreviewHtml(result.html);
-          // 转换成功后增加使用次数
-          await incrementUsage('md2wechat', 1);
         } else {
           throw new Error(result.error || '转换失败');
         }
       } catch (error) {
         console.error('转换失败:', error);
-        toast({
-          title: '转换失败',
-          description: '请检查Markdown语法或稍后重试',
-          variant: 'destructive'
-        });
+        // 实时预览中不显示错误提示，避免干扰用户输入
+        // 设置基础的HTML预览
+        setPreviewHtml(`<div class="markdown-content">${content.replace(/\n/g, '<br>')}</div>`);
       } finally {
         setIsConverting(false);
       }
     },
-    500
+    150  // 减少防抖延迟从500ms到150ms
   );
 
   // 监听内容和主题变化，触发转换

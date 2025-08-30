@@ -2,6 +2,7 @@
 type: "agent_requested"
 description: "Example description"
 ---
+
 {
   "module": "Security",
   "name": "security_prohibit_hardcoded_config_error",

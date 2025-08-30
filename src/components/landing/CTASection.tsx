@@ -18,14 +18,14 @@ export function CTASection() {
       // 修复跳转逻辑：跳转到AI内容适配器页面顶部
       if (isAuthenticated) {
         console.log('用户已登录，跳转到AI内容适配器页面');
-        navigate('/adapt');
+        navigate('/new-adapt');
         // 确保跳转到页面顶部
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 100);
       } else {
         console.log('用户未登录，直接弹出登录弹窗');
-        login('/adapt');
+        login('/new-adapt');
       }
       
       console.log('=== CTA按钮点击事件完成 ===');
@@ -33,7 +33,7 @@ export function CTASection() {
       console.error('CTA按钮点击事件出错:', error);
       // 备用方案：直接跳转
       try {
-        window.location.href = '/adapt';
+        window.location.href = '/new-adapt';
       } catch (fallbackError) {
         console.error('备用跳转也失败:', fallbackError);
       }

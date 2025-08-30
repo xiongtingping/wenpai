@@ -252,125 +252,128 @@ export default function PersonalizedEmojiGenerator() {
   };
 
   return (
-    <div className="w-full">
-      <div className="max-w-5xl mx-auto space-y-8">
-
-        {/* 步骤指示器 */}
-        <Card className="border-0 shadow-lg bg-gradient-to-r from-card to-card/90">
-          <CardContent className="p-8">
-            <div className="flex items-center justify-between">
-              {steps.map((step, index) => (
-                <div key={step.id} className="flex items-center flex-1">
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className={`
-                      w-14 h-14 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 shadow-md
-                      ${index <= currentStepIndex
-                        ? 'bg-primary text-primary-foreground border-primary shadow-primary/20'
-                        : 'bg-muted/50 text-muted-foreground border-muted-foreground/20'
-                      }
-                    `}>
-                      {index < currentStepIndex ? (
-                        <CheckCircle className="w-7 h-7" />
-                      ) : (
-                        <span className="text-lg">{index + 1}</span>
-                      )}
-                    </div>
-                    <div className="text-center space-y-1">
-                      <div className={`text-sm font-semibold ${
-                        index <= currentStepIndex ? 'text-foreground' : 'text-muted-foreground'
-                      }`}>
-                        {step.title}
+    <div className="w-full max-w-6xl mx-auto">
+      <div className="space-y-6">
+        {/* 步骤指示器 - 优化布局 */}
+        <Card className="border border-border/50 shadow-sm bg-card/95 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="flex items-center justify-between flex-1">
+                {steps.map((step, index) => (
+                  <div key={step.id} className="flex items-center flex-1">
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className={`
+                        w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300
+                        ${index <= currentStepIndex
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-muted/50 text-muted-foreground border-muted-foreground/30'
+                        }
+                      `}>
+                        {index < currentStepIndex ? (
+                          <CheckCircle className="w-5 h-5 lg:w-6 lg:h-6" />
+                        ) : (
+                          <span className="text-sm lg:text-base">{index + 1}</span>
+                        )}
                       </div>
-                      <div className="text-xs text-muted-foreground max-w-24 leading-tight">
-                        {step.description}
+                      <div className="text-center space-y-1">
+                        <div className={`text-xs lg:text-sm font-medium ${
+                          index <= currentStepIndex ? 'text-foreground' : 'text-muted-foreground'
+                        }`}>
+                          {step.title}
+                        </div>
+                        <div className="text-xs text-muted-foreground max-w-20 lg:max-w-24 leading-tight hidden lg:block">
+                          {step.description}
+                        </div>
                       </div>
                     </div>
+                    {index < steps.length - 1 && (
+                      <div className={`
+                        flex-1 h-0.5 mx-3 lg:mx-4 rounded-full transition-all duration-300
+                        ${index < currentStepIndex ? 'bg-primary' : 'bg-muted-foreground/20'}
+                      `} />
+                    )}
                   </div>
-                  {index < steps.length - 1 && (
-                    <div className={`
-                      flex-1 h-1 mx-6 rounded-full transition-all duration-300
-                      ${index < currentStepIndex ? 'bg-primary shadow-sm' : 'bg-muted-foreground/20'}
-                    `} />
-                  )}
-                </div>
-              ))}
-            </div>
-            
-            {/* 进度条 */}
-            <div className="mt-8 space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-foreground">
-                  步骤 {currentStepIndex + 1} / {steps.length}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {Math.round((currentStepIndex / (steps.length - 1)) * 100)}% 完成
-                </span>
+                ))}
               </div>
-              <Progress
-                value={(currentStepIndex / (steps.length - 1)) * 100}
-                className="w-full h-2"
-              />
+              
+              {/* 进度信息 */}
+              <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:min-w-[200px]">
+                <div className="flex justify-between lg:justify-end items-center gap-4">
+                  <span className="text-sm font-medium text-foreground">
+                    {Math.round((currentStepIndex / (steps.length - 1)) * 100)}% 完成
+                  </span>
+                  <Badge variant="outline" className="text-xs">
+                    {currentStepIndex + 1}/{steps.length}
+                  </Badge>
+                </div>
+                <Progress
+                  value={(currentStepIndex / (steps.length - 1)) * 100}
+                  className="w-full lg:w-32 h-1.5"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* 主要内容区域 */}
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-card/80">
-          <CardContent className="p-8">
-            <div className="min-h-[500px] flex flex-col">
+        {/* 主要内容区域 - 优化响应式布局 */}
+        <Card className="border border-border/50 shadow-sm bg-card/95 backdrop-blur-sm">
+          <CardContent className="p-4 lg:p-8">
+            <div className="min-h-[400px] lg:min-h-[500px]">
               {renderCurrentStep()}
             </div>
           </CardContent>
         </Card>
 
-        {/* 底部操作栏 */}
-        <Card className="border-0 shadow-md bg-gradient-to-r from-muted/30 to-muted/10">
-          <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-full bg-primary/10">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-foreground">
-                    已生成 {generatedImages.length} 个个性化Emoji
+        {/* 底部状态栏 - 简化布局 */}
+        {(generatedImages.length > 0 || currentStep !== 'upload') && (
+          <Card className="border border-border/30 shadow-sm bg-muted/20">
+            <CardContent className="p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-1.5 rounded-full bg-primary/10">
+                    <Sparkles className="w-4 h-4 text-primary" />
                   </div>
-                  {generationMode === 'batch' && batchPrompts.length > 0 && (
-                    <div className="text-xs text-primary">
-                      批量模式: {batchPrompts.length} 个情绪表情
+                  <div>
+                    <div className="text-sm font-medium text-foreground">
+                      已生成 {generatedImages.length} 个品牌Emoji
                     </div>
+                    {generationMode === 'batch' && batchPrompts.length > 0 && (
+                      <div className="text-xs text-muted-foreground">
+                        批量模式: {batchPrompts.length} 个情绪表情
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  {currentStep !== 'upload' && (
+                    <Button
+                      onClick={handleRestart}
+                      variant="outline"
+                      size="sm"
+                      className="px-3 py-1.5 text-sm font-medium"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-1" />
+                      重新开始
+                    </Button>
+                  )}
+
+                  {generatedImages.length > 0 && currentStep !== 'gallery' && (
+                    <Button
+                      onClick={() => setCurrentStep('gallery')}
+                      variant="default"
+                      size="sm"
+                      className="px-3 py-1.5 text-sm font-medium"
+                    >
+                      查看作品集
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
                   )}
                 </div>
               </div>
-
-              <div className="flex gap-3">
-                {currentStep !== 'upload' && (
-                  <Button
-                    onClick={handleRestart}
-                    variant="outline"
-                    size="sm"
-                    className="px-4 py-2 font-medium hover:bg-primary/5 transition-colors"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    重新开始
-                  </Button>
-                )}
-
-                {generatedImages.length > 0 && (
-                  <Button
-                    onClick={() => setCurrentStep('gallery')}
-                    variant="default"
-                    size="sm"
-                    className="px-4 py-2 font-medium shadow-md hover:shadow-lg transition-all"
-                  >
-                    查看作品集
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

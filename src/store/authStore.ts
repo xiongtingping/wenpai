@@ -85,7 +85,15 @@ export const useAuthStore = create<AuthState>()(
         // ✅ 计算属性：初始值，会在状态更新时自动重新计算
         usageRemaining: 10,
 
-        setUser: (user) => set({ user, isAuthenticated: !!user }),
+        setUser: (user) => set((state) => {
+          // 当用户变化时，更新邀请码以绑定用户ID
+          const newInviteCode = user?.id ? `INVITE_${user.id.slice(-8)}` : state.inviteCode;
+          return { 
+            user, 
+            isAuthenticated: !!user,
+            inviteCode: newInviteCode
+          };
+        }),
         setAuthenticated: (authenticated) => set({ isAuthenticated: authenticated }),
         setLoading: (loading) => set({ isLoading: loading }),
         setError: (error) => set({ error }),

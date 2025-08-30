@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { LogoWithText } from "@/components/ui/ThemeAwareLogo"
 import { NavBar } from "@/components/ui/tubelight-navbar"
+import { DevPermissionSwitcher } from "@/components/dev/DevPermissionSwitcher"
 import { Home, Radar, Sparkles, Library, FolderOpen } from "lucide-react"
 
 
@@ -56,7 +57,7 @@ const HelpDocumentation = () => {
   ]
 
   return (
-    <PopoverContent className="w-[380px]">
+    <PopoverContent className="w-[380px] z-[99999]">
       <ScrollArea className="h-[400px] p-4">
         <h3 className="text-lg font-semibold mb-4">文派使用指南</h3>
         {topics.map((topic, index) => (
@@ -133,7 +134,7 @@ export function Header() {
   };
 
   return (
-    <header className="theme-header-bg sticky top-0 z-[100] shadow-e0 backdrop-blur-md border-b border-border/10">
+    <header className="theme-header-bg fixed top-0 left-0 right-0 z-[9998] shadow-e0 backdrop-blur-md border-b border-border/10">
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo - 主题感知的熊猫Logo */}
         <Link to="/" className="group">
@@ -155,8 +156,8 @@ export function Header() {
               { name: 'AI内容适配器', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/new-adapt'); } else { login('/new-adapt'); } } },
               { name: '全网雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); } } },
               { name: '创意魔方', url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { login('/creative-studio'); } } },
-              { name: '我的资料库', url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); navigate('/library'); } },
-              { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); navigate('/brand-library'); } },
+              { name: '我的资料库', url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/library'); } else { login('/library'); } } },
+              { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/brand-library'); } else { login('/brand-library'); } } },
             ]}
           />
         )}
@@ -176,6 +177,9 @@ export function Header() {
 
             {/* 主题切换 */}
             <ThemeToggle />
+            
+            {/* 开发环境权限切换 */}
+            <DevPermissionSwitcher />
 
 
             {isAuthenticated ? (
@@ -309,6 +313,12 @@ export function Header() {
                 <div className="flex items-center justify-start px-2">
                   <span className="text-sm font-medium mr-3">切换主题</span>
                   <ThemeToggle />
+                </div>
+
+                {/* 移动端开发环境权限切换 */}
+                <div className="flex items-center justify-start px-2">
+                  <span className="text-sm font-medium mr-3">开发工具</span>
+                  <DevPermissionSwitcher />
                 </div>
 
                 {/* 移除分割线 */}

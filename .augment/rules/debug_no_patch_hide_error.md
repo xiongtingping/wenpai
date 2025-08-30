@@ -8,7 +8,7 @@ type: "always_apply"
       "module": "Debug",
       "name": "debug_no_patch_hide_error",
       "severity": "critical",
-      "description": "禁止通过绕过、隐藏或临时 patch 的方式处理问题，必须真正修复根因。",
+      "description": "禁止通过绕过、隐藏或临时 patch 的方式处理问题，必须真正修复根因。", 
       "criteria": [
         "禁止在未确认根因前直接输出修复代码",
         "禁止通过 try/catch 包裹或静默错误日志来掩盖问题",
@@ -16,7 +16,7 @@ type: "always_apply"
         "禁止使用临时 patch（如 return 空值、mock 数据）代替真实解决方案"
       ],
       "action": "在修复前必须输出根因候选清单，并验证后确认再修复。",
-      "keywords": [
+      "keywords": [ 
         "绕过错误",
         "隐藏问题",
         "patch",

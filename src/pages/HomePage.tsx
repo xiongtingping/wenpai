@@ -41,41 +41,41 @@ function HomePage() {
       >
         <div className="relative z-10 flex-1 min-h-screen flex flex-col">
 
-          <main className="flex-1 w-full pt-20">
-            {/* Hero Section */}
-            <div className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-8">
-              <div className="max-w-5xl mx-auto text-center space-y-6">
+          <main className="flex-1 w-full">
+            {/* Hero Section - 真正的全屏显示，考虑Header高度 */}
+            <div className="relative h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-20">
+              <div className="max-w-7xl mx-auto text-center w-full">
                 <HeroSection />
               </div>
             </div>
 
             {/* Trust Section */}
-            <div className="py-8 bg-background/60 backdrop-blur-sm">
+            <div className="py-6 sm:py-8 lg:py-10 bg-background/60 backdrop-blur-sm">
               <TrustSection />
             </div>
 
             {/* How It Works */}
-            <div className="py-12">
+            <div className="py-12 sm:py-16 lg:py-20">
               <HowItWorks />
             </div>
 
             {/* Features Section */}
-            <div className="py-12 bg-card/30 backdrop-blur-sm">
+            <div className="py-12 sm:py-16 lg:py-20 bg-card/30 backdrop-blur-sm">
               <FeaturesSection />
             </div>
 
             {/* Testimonials Section */}
-            <div className="py-12">
+            <div className="py-12 sm:py-16 lg:py-20">
               <TestimonialsSection />
             </div>
 
             {/* Pricing Section */}
-            <div className="py-12 bg-background/60 backdrop-blur-sm">
+            <div className="py-12 sm:py-16 lg:py-20 bg-background/60 backdrop-blur-sm">
               <PricingSection />
             </div>
 
             {/* CTA Section */}
-            <div className="py-12">
+            <div className="py-8 sm:py-12 lg:py-16">
               <CTASection />
             </div>
           </main>
