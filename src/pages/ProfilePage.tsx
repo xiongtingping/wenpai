@@ -288,12 +288,13 @@ export default function ProfilePage() {
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
-      const updatedUserData = {
-        nickname: profileForm.nickname,
-        email: profileForm.email,
-        phone: profileForm.phone,
-        avatar: profileForm.avatar
-      };
+      // 🔧 只发送有值且已更改的字段，避免空字段触发敏感信息验证
+      const updatedUserData: Record<string, any> = {};
+      
+      if (profileForm.nickname?.trim()) updatedUserData.nickname = profileForm.nickname;
+      if (profileForm.email?.trim()) updatedUserData.email = profileForm.email;
+      if (profileForm.phone?.trim()) updatedUserData.phone = profileForm.phone;
+      if (profileForm.avatar?.trim()) updatedUserData.avatar = profileForm.avatar;
 
       // 🔧 使用统一认证系统更新用户资料
       await updateUser(updatedUserData);
@@ -356,7 +357,7 @@ export default function ProfilePage() {
       setShowVerificationInput(prev => ({ ...prev, phone: true }));
       toast({
         title: "验证码已发送",
-        description: `验证码已发送到 ${profileForm.phone}（开发模式：${code}）`,
+        description: `验证码已发送到 ${profileForm.phone}`,
       });
     } catch (error) {
       console.error('❌ 发送验证码失败:', error);
@@ -444,7 +445,7 @@ export default function ProfilePage() {
       setShowVerificationInput(prev => ({ ...prev, email: true }));
       toast({
         title: "验证码已发送",
-        description: `验证码已发送到 ${profileForm.email}（开发模式：${code}）`,
+        description: `验证码已发送到 ${profileForm.email}`,
       });
     } catch (error) {
       console.error('❌ 发送验证码失败:', error);
