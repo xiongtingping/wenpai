@@ -193,25 +193,30 @@ class TokenUsageService {
       const monthKey = this.getCurrentMonthKey();
       const dateKey = this.getCurrentDateKey();
 
-      // 查询当月使用记录
-      const monthlyRecords = await dataService.findMany({
-        filters: {
-          timestamp: {
-            operator: 'gte',
-            value: `${monthKey}-01T00:00:00.000Z`
-          }
-        }
-      });
+      // 查询当月使用记录 - 使用直接Supabase客户端调用
+      const client = await getSupabaseClient();
+      const { data: monthlyData, error: monthlyError } = await client
+        .from(TABLE_NAMES.USER_USAGE_LOGS)
+        .select('*')
+        .eq('user_id', userId)
+        .gte('timestamp', `${monthKey}-01T00:00:00.000Z`);
+        
+      if (monthlyError) {
+        throw new Error(`查询月度记录失败: ${monthlyError.message}`);
+      }
+      const monthlyRecords = { data: monthlyData || [] };
 
-      // 查询当日使用记录
-      const dailyRecords = await dataService.findMany({
-        filters: {
-          timestamp: {
-            operator: 'gte', 
-            value: `${dateKey}T00:00:00.000Z`
-          }
-        }
-      });
+      // 查询当日使用记录 - 使用直接Supabase客户端调用
+      const { data: dailyData, error: dailyError } = await client
+        .from(TABLE_NAMES.USER_USAGE_LOGS)
+        .select('*')
+        .eq('user_id', userId)
+        .gte('timestamp', `${dateKey}T00:00:00.000Z`);
+        
+      if (dailyError) {
+        throw new Error(`查询日度记录失败: ${dailyError.message}`);
+      }
+      const dailyRecords = { data: dailyData || [] };
 
       const monthlyLimit = this.getTokenLimitByTier(userTier);
       const monthlyUsed = monthlyRecords.data.reduce((sum, record: any) => sum + (record.totalTokens || 0), 0);
@@ -356,15 +361,18 @@ class TokenUsageService {
       const cutoffDate = new Date();
       cutoffDate.setMonth(cutoffDate.getMonth() - retentionMonths);
 
-      // 查询过期记录
-      const expiredRecords = await dataService.findMany({
-        filters: {
-          timestamp: {
-            operator: 'lt',
-            value: cutoffDate.toISOString()
-          }
-        }
-      });
+      // 查询过期记录 - 使用直接Supabase客户端调用
+      const client = await getSupabaseClient();
+      const { data: expiredData, error: expiredError } = await client
+        .from(TABLE_NAMES.USER_USAGE_LOGS)
+        .select('*')
+        .eq('user_id', userId)
+        .lt('timestamp', cutoffDate.toISOString());
+        
+      if (expiredError) {
+        throw new Error(`查询过期记录失败: ${expiredError.message}`);
+      }
+      const expiredRecords = { data: expiredData || [] };
 
       // 批量删除过期记录
       if (expiredRecords.data.length > 0) {

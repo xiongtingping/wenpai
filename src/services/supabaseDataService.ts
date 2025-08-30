@@ -8,57 +8,25 @@
  * - 统一的错误处理和日志记录
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { configManager, getSupabaseConfig } from '@/config/configManager';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { supabase } from '@/config/supabase';
 import { logger } from '@/utils/logger';
 
-// 全局 Supabase 客户端实例
-let supabase: SupabaseClient | null = null;
-let isInitialized = false;
-
 /**
- * 初始化 Supabase 客户端
- */
-async function initializeSupabase(): Promise<SupabaseClient> {
-  if (supabase && isInitialized) {
-    return supabase;
-  }
-
-  try {
-    const config = await getSupabaseConfig();
-
-    // 检查配置完整性
-    if (!config.url || !config.anonKey) {
-      throw new Error('Supabase 配置不完整：缺少 URL 或 API 密钥');
-    }
-
-    supabase = createClient(config.url, config.anonKey);
-    isInitialized = true;
-
-    logger.debug('✅ Supabase 客户端初始化成功:', {
-      url: config.url,
-      projectId: config.projectId
-    });
-
-    return supabase;
-  } catch (error) {
-    console.error('Supabase 初始化失败:', error);
-    throw new Error(`Supabase 初始化失败: ${error instanceof Error ? error.message : '未知错误'}`);
-  }
-}
-
-/**
- * 获取 Supabase 客户端实例
+ * 获取共享的 Supabase 客户端实例
  */
 export async function getSupabaseClient(): Promise<SupabaseClient> {
-  return await initializeSupabase();
+  if (!supabase) {
+    throw new Error('Supabase 客户端未初始化');
+  }
+  return supabase;
 }
 
 /**
  * 获取带认证的 Supabase 客户端实例
  */
 export async function getAuthenticatedSupabaseClient(token?: string): Promise<SupabaseClient> {
-  const client = await initializeSupabase();
+  const client = supabase;
 
   if (token) {
     // 设置用户认证token

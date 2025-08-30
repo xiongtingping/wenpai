@@ -5,10 +5,10 @@
 -- 1. 用户相关表格
 -- ============================================================================
 
--- 用户扩展信息表
+-- 用户扩展信息表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS user_profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id VARCHAR(100) NOT NULL,
     nickname VARCHAR(100),
     avatar_url TEXT,
     phone VARCHAR(20),
@@ -21,10 +21,10 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     UNIQUE(user_id)
 );
 
--- 用户订阅信息表
+-- 用户订阅信息表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS user_subscriptions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id VARCHAR(100) NOT NULL,
     tier VARCHAR(20) NOT NULL DEFAULT 'trial', -- trial, pro, premium
     monthly_token_limit INTEGER NOT NULL DEFAULT 100000,
     usage_count_limit INTEGER NOT NULL DEFAULT 10,
@@ -41,10 +41,10 @@ CREATE TABLE IF NOT EXISTS user_subscriptions (
 -- 2. Token使用量相关表格
 -- ============================================================================
 
--- Token使用记录表
+-- Token使用记录表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS token_usage_records (
     id VARCHAR(255) PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id VARCHAR(100) NOT NULL,
     feature VARCHAR(100) NOT NULL,
     task_type VARCHAR(100),
     input_tokens INTEGER NOT NULL DEFAULT 0,
@@ -59,10 +59,10 @@ CREATE TABLE IF NOT EXISTS token_usage_records (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 使用次数记录表
+-- 使用次数记录表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS usage_count_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id VARCHAR(100) NOT NULL,
     feature VARCHAR(100) NOT NULL,
     amount INTEGER NOT NULL DEFAULT 1,
     used_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -73,11 +73,11 @@ CREATE TABLE IF NOT EXISTS usage_count_records (
 -- 3. 邀请系统表格
 -- ============================================================================
 
--- 邀请关系表
+-- 邀请关系表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS user_invite_relations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    inviter_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    invitee_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    inviter_id VARCHAR(100) NOT NULL,
+    invitee_id VARCHAR(100) NOT NULL,
     invite_code VARCHAR(50),
     status VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending, completed, rewarded
     source VARCHAR(20) NOT NULL DEFAULT 'link', -- link, code, direct
@@ -88,10 +88,10 @@ CREATE TABLE IF NOT EXISTS user_invite_relations (
     UNIQUE(invitee_id)
 );
 
--- 邀请统计表
+-- 邀请统计表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS user_invite_stats (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id VARCHAR(100) NOT NULL,
     total_invites INTEGER NOT NULL DEFAULT 0,
     successful_invites INTEGER NOT NULL DEFAULT 0,
     link_clicks INTEGER NOT NULL DEFAULT 0,
@@ -103,13 +103,13 @@ CREATE TABLE IF NOT EXISTS user_invite_stats (
     UNIQUE(user_id)
 );
 
--- 邀请事件表
+-- 邀请事件表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS user_invite_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id VARCHAR(100) NOT NULL,
     event_type VARCHAR(50) NOT NULL, -- link_click, registration, reward_issued
-    inviter_id UUID REFERENCES auth.users(id),
-    invitee_id UUID REFERENCES auth.users(id),
+    inviter_id VARCHAR(100),
+    invitee_id VARCHAR(100),
     metadata JSONB DEFAULT '{}',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -118,10 +118,10 @@ CREATE TABLE IF NOT EXISTS user_invite_events (
 -- 4. 用户内容和文件表格
 -- ============================================================================
 
--- 用户文件表
+-- 用户文件表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS user_files (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id VARCHAR(100) NOT NULL,
     filename VARCHAR(255) NOT NULL,
     file_path TEXT NOT NULL,
     file_size BIGINT,
@@ -132,10 +132,10 @@ CREATE TABLE IF NOT EXISTS user_files (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 用户笔记表
+-- 用户笔记表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS user_notes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id VARCHAR(100) NOT NULL,
     title VARCHAR(255),
     content TEXT,
     category VARCHAR(100),
@@ -146,10 +146,10 @@ CREATE TABLE IF NOT EXISTS user_notes (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 用户品牌语料库表
+-- 用户品牌语料库表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS user_brand_corpus (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id VARCHAR(100) NOT NULL,
     brand_name VARCHAR(100) NOT NULL,
     brand_description TEXT,
     tone_keywords TEXT[],
@@ -160,10 +160,10 @@ CREATE TABLE IF NOT EXISTS user_brand_corpus (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 用户收藏夹表
+-- 用户收藏夹表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS user_library_items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id VARCHAR(100) NOT NULL,
     title VARCHAR(255) NOT NULL,
     url TEXT,
     content TEXT,
@@ -175,10 +175,10 @@ CREATE TABLE IF NOT EXISTS user_library_items (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 用户聊天历史表
+-- 用户聊天历史表 (使用Authing认证，user_id为VARCHAR格式)
 CREATE TABLE IF NOT EXISTS user_chat_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id VARCHAR(100) NOT NULL,
     session_id VARCHAR(100),
     role VARCHAR(20) NOT NULL, -- user, assistant, system
     content TEXT NOT NULL,
@@ -229,6 +229,9 @@ CREATE INDEX IF NOT EXISTS idx_library_items_status ON user_library_items(status
 
 CREATE INDEX IF NOT EXISTS idx_chat_history_user_id ON user_chat_history(user_id);
 CREATE INDEX IF NOT EXISTS idx_chat_history_session ON user_chat_history(session_id);
+
+-- 时间戳索引（优化时间范围查询性能）
+CREATE INDEX IF NOT EXISTS idx_token_usage_timestamp ON token_usage_records(timestamp);
 
 -- ============================================================================
 -- 6. 自动更新触发器
