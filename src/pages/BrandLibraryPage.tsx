@@ -43,7 +43,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import PageNavigation from '@/components/layout/PageNavigation';
-import TopNavigation from '@/components/layout/TopNavigation';
+import { Header } from '@/components/landing/Header';
 import BrandProfileGenerator from '@/components/creative/BrandProfileGenerator';
 import BrandProfileViewer from '@/components/creative/BrandProfileViewer';
 import { PDFChatDialog } from '@/components/creative/PDFChatDialog';
@@ -1924,9 +1924,9 @@ export default function BrandLibraryPageFixed() {
   };
 
   return (
-    <div className="min-h-screen particle-background">
-      {/* 顶部导航 */}
-      <TopNavigation />
+    <div className="min-h-screen particle-background pt-24">
+      {/* 主导航栏 */}
+      <Header />
 
       <PageNavigation
         title="多维品牌语料库"

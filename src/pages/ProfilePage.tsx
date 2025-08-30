@@ -59,7 +59,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
-import TopNavigation from '@/components/layout/TopNavigation';
+import { Header } from '@/components/landing/Header';
 import TokenUsageSection from '@/components/profile/TokenUsageSection';
 import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 import { avatarService } from '@/services/avatarService';
@@ -240,9 +240,9 @@ export default function ProfilePage() {
   // 如果用户未登录，显示登录提示
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen bg-background">
-        {/* 顶部导航 */}
-        <TopNavigation />
+      <div className="min-h-screen bg-background pt-24">
+        {/* 主导航栏 */}
+        <Header />
 
         <PageNavigation
           title="个人中心"
@@ -815,9 +815,9 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* 顶部导航 */}
-      <TopNavigation />
+    <div className="min-h-screen bg-background relative overflow-hidden pt-24">
+      {/* 主导航栏 */}
+      <Header />
 
       {/* 🎨 Modern Flat + Soft Neumorphism 背景装饰 - 统一轻量化 */}
       <div className="relative z-10">

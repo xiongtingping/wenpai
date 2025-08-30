@@ -109,7 +109,7 @@ import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { useAuth } from '@/hooks/useAuth';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
-import TopNavigation from '@/components/layout/TopNavigation';
+import { Header } from '@/components/landing/Header';
 
 /**
  * 主流平台内容发布入口URL映射
@@ -3869,9 +3869,9 @@ ${charCountControl.source === 'platform-specific'
   console.log('AdaptPage rendering...', { generating, results: results.length });
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* 顶部导航 */}
-      <TopNavigation />
+    <div className="min-h-screen bg-background pt-24">
+      {/* 主导航栏 */}
+      <Header />
 
       {/* 页面导航 */}
       <PageNavigation
