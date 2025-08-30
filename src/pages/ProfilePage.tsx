@@ -554,7 +554,7 @@ export default function ProfilePage() {
           // 强制刷新头像显示
           setAvatarKey(prev => prev + 1);
 
-          setHasUnsavedChanges(true);
+          // ✅ 头像已直接保存，无需标记为未保存状态
 
           toast({
             title: "头像上传成功",
@@ -632,8 +632,8 @@ export default function ProfilePage() {
         avatar: avatarUrl
       }));
       await updateUser({ avatar: avatarUrl });
-      setHasUnsavedChanges(true);
       setAvatarKey(prev => prev + 1);
+      // ✅ 头像已直接保存，无需标记为未保存状态
 
       toast({
         title: "头像已更新",
