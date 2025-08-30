@@ -61,7 +61,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
-import TopNavigation from '@/components/layout/TopNavigation';
+import { Header } from '@/components/landing/Header';
 import { useFavoritesStore, favoritesUtils, type FavoriteItem } from '@/stores/favoritesStore';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
@@ -668,9 +668,9 @@ export default function BookmarkPage() {
   const copywritingItems = getFilteredItems('copywriting');
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* 顶部导航 */}
-      <TopNavigation />
+    <div className="min-h-screen bg-background pt-24">
+      {/* 主导航栏 */}
+      <Header />
 
       {/* 页面导航 */}
       <PageNavigation

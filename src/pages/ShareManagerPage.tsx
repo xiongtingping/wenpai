@@ -52,7 +52,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
-import TopNavigation from '@/components/layout/TopNavigation';
+import { Header } from '@/components/landing/Header';
 
 /**
  * 平台配置接口
@@ -482,9 +482,9 @@ export default function ShareManagerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
-      {/* 顶部导航 */}
-      <TopNavigation />
+    <div className="min-h-screen bg-gradient-primary particle-background pt-24">
+      {/* 主导航栏 */}
+      <Header />
 
       {/* 页面导航 */}
       <PageNavigation
