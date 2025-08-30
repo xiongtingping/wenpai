@@ -281,9 +281,10 @@ export class ConfigManager {
     if (!config.supabase.url) errors.push('Supabase URL 缺失');
     if (!config.supabase.anonKey) errors.push('Supabase Anon Key 缺失');
 
-    // 验证 AI 配置
-    if (!config.ai.openai.apiKey) errors.push('OpenAI API Key 缺失');
-    if (!config.ai.deepseek.apiKey) errors.push('DeepSeek API Key 缺失');
+    // ✅ SECURITY FIX: AI 配置改为可选验证，客户端不再需要API密钥
+    // AI 密钥现在通过服务端代理，客户端验证改为可选
+    // if (!config.ai.openai.apiKey) errors.push('OpenAI API Key 缺失');
+    // if (!config.ai.deepseek.apiKey) errors.push('DeepSeek API Key 缺失');
 
     return {
       isValid: errors.length === 0,
