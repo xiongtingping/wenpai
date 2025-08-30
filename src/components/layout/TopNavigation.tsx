@@ -159,10 +159,9 @@ export const TopNavigation: React.FC = () => {
     <>
       <header ref={headerRef} className="fixed top-0 left-0 right-0 z-[99999] w-full border-b shadow-sm theme-header-bg backdrop-blur-md border-border/20">
         <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between relative">
-          {/* 左侧Logo和导航 - 靠左对齐 */}
-          <div className="flex items-center space-x-6">
-            {/* Logo - 主题感知的熊猫Logo */}
+          <div className="flex h-16 items-center relative">
+          {/* 左侧Logo */}
+          <div className="flex items-center">
             <Link to="/" className="group">
               <div className="flex items-center space-x-3">
                 <LogoWithText
@@ -173,8 +172,10 @@ export const TopNavigation: React.FC = () => {
                 />
               </div>
             </Link>
+          </div>
 
-            {/* 桌面端功能导航菜单 → Tubelight NavBar */}
+          {/* 中间导航菜单 - 居中显示 */}
+          <div className="flex-1 flex justify-center">
             <div className="hidden lg:flex items-center">
               <NavBar
                 positionClassName="relative"
@@ -186,6 +187,7 @@ export const TopNavigation: React.FC = () => {
                 }))}
               />
             </div>
+          </div>
 
             {/* 平板端下拉菜单 */}
             <DropdownMenu>
@@ -212,8 +214,8 @@ export const TopNavigation: React.FC = () => {
             </DropdownMenu>
           </div>
 
-          {/* 右侧用户区域 - 始终绝对定位到右侧 */}
-          <div className="absolute right-0 flex items-center gap-2">
+          {/* 右侧用户区域 - 固定在右侧 */}
+          <div className="flex items-center gap-2">
             {/* 用户状态指示 */}
             {permissionLoading && !isDevelopment() && (
               <div className="hidden sm:flex items-center gap-1">
@@ -260,8 +262,7 @@ export const TopNavigation: React.FC = () => {
             {/* The Sheet component was removed from imports, so this block is removed. */}
           </div>
         </div>
-      </div>
-    </header>
+      </header>
     {/* 占位元素：与导航栏同高，避免内容被覆盖 */}
     <div aria-hidden className="h-[var(--header-height,64px)]"></div>
     </>

@@ -193,11 +193,6 @@ export default function MD2WeChatPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* 左侧工具组 */}
             <div className="flex items-center gap-2">
-              <ThemeSelector
-                selectedTheme={selectedTheme}
-                onThemeChange={handleThemeChange}
-              />
-              
               <div className="flex items-center gap-1 border border-border rounded-md">
                 <Button
                   variant={fontSize === 'small' ? 'default' : 'ghost'}
@@ -289,9 +284,21 @@ export default function MD2WeChatPage() {
       </div>
 
       {/* 主要内容区域 */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-120px)]">
-        {/* 编辑器区域 */}
-        <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col h-full ${showPreview ? 'border-r border-border' : ''}`}>
+      <div className="flex-1 flex overflow-hidden">
+        {/* 左侧主题选择器 */}
+        <div className="w-80 border-r border-border bg-muted/30 overflow-y-auto">
+          <div className="p-4">
+            <ThemeSelector
+              selectedTheme={selectedTheme}
+              onThemeChange={handleThemeChange}
+            />
+          </div>
+        </div>
+
+        {/* 中间编辑器和预览区域 */}
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+          {/* 编辑器区域 */}
+          <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col h-full ${showPreview ? 'border-r border-border' : ''}`}>
           {/* 编辑器头部 */}
           <div className="p-3 border-b border-border bg-muted/30">
             <div className="flex items-center justify-between">
@@ -346,7 +353,7 @@ export default function MD2WeChatPage() {
             </div>
 
             {/* 预览内容 */}
-            <div className="flex-1">
+            <div className="flex-1 overflow-y-auto">
               <PreviewPanel
                 htmlContent={previewHtml}
                 theme={selectedTheme}
@@ -358,22 +365,23 @@ export default function MD2WeChatPage() {
           </div>
         )}
 
-        {/* 当预览隐藏时显示切换按钮 */}
-        {!showPreview && (
-          <div className="fixed right-4 bottom-4 lg:top-1/2 lg:bottom-auto lg:transform lg:-translate-y-1/2 z-10">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setShowPreview(true)}
-              className="shadow-lg"
-            >
-              <Eye className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">显示预览</span>
-            </Button>
-          </div>
-        )}
+          {/* 当预览隐藏时显示切换按钮 */}
+          {!showPreview && (
+            <div className="fixed right-4 bottom-4 lg:top-1/2 lg:bottom-auto lg:transform lg:-translate-y-1/2 z-10">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => setShowPreview(true)}
+                className="shadow-lg"
+              >
+                <Eye className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">显示预览</span>
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      </div>
     </PermissionAwareContainer>
   );
 }

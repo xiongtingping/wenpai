@@ -94,7 +94,7 @@ export default function CreativeStudioPage() {
           }
         />
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 mt-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* 子模块切换 */}
             <div className="flex flex-col gap-4 mb-6">
@@ -117,11 +117,11 @@ export default function CreativeStudioPage() {
                 </TabsTrigger>
                 <TabsTrigger value="md2wechat" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
                   <FileText className="w-4 h-4" />
-                  <span className="text-xs text-center leading-tight">排版工具</span>
+                  <span className="text-xs text-center leading-tight">Markdown排版工具</span>
                 </TabsTrigger>
                 <TabsTrigger value="md2card" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
                   <FolderOpen className="w-4 h-4" />
-                  <span className="text-xs text-center leading-tight">卡片生成</span>
+                  <span className="text-xs text-center leading-tight">MD2Card卡片生成</span>
                 </TabsTrigger>
               </TabsList>
             </div>
