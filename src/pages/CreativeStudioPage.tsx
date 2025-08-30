@@ -97,37 +97,31 @@ export default function CreativeStudioPage() {
         <div className="container mx-auto px-4 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* 子模块切换 */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <TabsList className="unified-tabs-list grid w-full grid-cols-3 sm:grid-cols-6 max-w-5xl">
-                <TabsTrigger value="calendar" className="unified-tab-trigger">
-                  <Calendar className="tab-icon" />
-                  <span className="tab-text-mobile">日历</span>
-                  <span className="tab-text-desktop">营销日历</span>
+            <div className="flex flex-col gap-4 mb-6">
+              <TabsList className="unified-tabs-list grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1 h-auto p-1">
+                <TabsTrigger value="calendar" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
+                  <Calendar className="w-4 h-4" />
+                  <span className="text-xs text-center leading-tight">营销日历</span>
                 </TabsTrigger>
-                <TabsTrigger value="cube" className="unified-tab-trigger">
-                  <Sparkles className="tab-icon" />
-                  <span className="tab-text-mobile">魔方</span>
-                  <span className="tab-text-desktop">九宫格创意魔方</span>
+                <TabsTrigger value="cube" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
+                  <Sparkles className="w-4 h-4" />
+                  <span className="text-xs text-center leading-tight">创意魔方</span>
                 </TabsTrigger>
-                <TabsTrigger value="wechat" className="unified-tab-trigger">
-                  <MessageCircle className="tab-icon" />
-                  <span className="tab-text-mobile">文案</span>
-                  <span className="tab-text-desktop">微信朋友圈文案模板</span>
+                <TabsTrigger value="wechat" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
+                  <MessageCircle className="w-4 h-4" />
+                  <span className="text-xs text-center leading-tight">朋友圈文案</span>
                 </TabsTrigger>
-                <TabsTrigger value="emoji" className="unified-tab-trigger">
-                  <Smile className="tab-icon" />
-                  <span className="tab-text-mobile">Emoji</span>
-                  <span className="tab-text-desktop">Emoji图库</span>
+                <TabsTrigger value="emoji" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
+                  <Smile className="w-4 h-4" />
+                  <span className="text-xs text-center leading-tight">Emoji图库</span>
                 </TabsTrigger>
-                <TabsTrigger value="md2wechat" className="unified-tab-trigger">
-                  <FileText className="tab-icon" />
-                  <span className="tab-text-mobile">排版</span>
-                  <span className="tab-text-desktop">Markdown排版工具</span>
+                <TabsTrigger value="md2wechat" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
+                  <FileText className="w-4 h-4" />
+                  <span className="text-xs text-center leading-tight">排版工具</span>
                 </TabsTrigger>
-                <TabsTrigger value="md2card" className="unified-tab-trigger">
-                  <FolderOpen className="tab-icon" />
-                  <span className="tab-text-mobile">卡片</span>
-                  <span className="tab-text-desktop">MD2Card卡片生成</span>
+                <TabsTrigger value="md2card" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
+                  <FolderOpen className="w-4 h-4" />
+                  <span className="text-xs text-center leading-tight">卡片生成</span>
                 </TabsTrigger>
               </TabsList>
             </div>

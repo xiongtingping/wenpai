@@ -39,7 +39,7 @@ export default function PersonalizedEmojiGenerator() {
 
   // 步骤配置
   const steps = [
-    { id: 'upload', title: '上传素材', description: '上传品牌图片或输入描述' },
+    { id: 'upload', title: '品牌信息', description: '输入品牌角色和品牌名称' },
     { id: 'build', title: '构建提示词', description: '生成个性化生成提示词' },
     { id: 'generate', title: '生成Emoji', description: 'AI生成个性化Emoji' },
     { id: 'gallery', title: '作品展示', description: '查看和管理生成的Emoji' },

@@ -385,9 +385,6 @@ export default function MD2CardPage() {
                 <div className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-primary" />
                   <span className="text-sm font-medium">MD2Card</span>
-                  <Badge variant="secondary" className="text-xs">
-                    Beta
-                  </Badge>
                 </div>
               </div>
 
@@ -481,11 +478,11 @@ export default function MD2CardPage() {
               </TabsList>
 
               {/* 模板选择 */}
-              <TabsContent value="template" className="flex-1 p-4">
+              <TabsContent value="template" className="flex-1 p-4 overflow-y-auto">
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-sm font-medium mb-2">选择模板</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
                       {CARD_TEMPLATES.slice(0, 6).map((template) => (
                         <Card 
                           key={template.id}
@@ -501,11 +498,6 @@ export default function MD2CardPage() {
                             <div className="space-y-1">
                               <div className="flex items-center justify-between">
                                 <h4 className="text-sm font-medium">{template.displayName}</h4>
-                                {!template.isFree && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    Pro
-                                  </Badge>
-                                )}
                               </div>
                               <p className="text-xs text-muted-foreground">{template.description}</p>
                               <p className="text-xs text-muted-foreground">{template.dimensions.aspectRatio}</p>
@@ -596,6 +588,22 @@ export default function MD2CardPage() {
                         </Button>
                       ))}
                     </div>
+                  </div>
+
+                  {/* 保存按钮 */}
+                  <div className="pt-4 border-t border-border">
+                    <Button
+                      onClick={() => {
+                        toast({
+                          title: '样式已保存',
+                          description: '当前样式配置已应用到卡片预览',
+                        });
+                      }}
+                      className="w-full"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      应用样式
+                    </Button>
                   </div>
                 </div>
               </TabsContent>

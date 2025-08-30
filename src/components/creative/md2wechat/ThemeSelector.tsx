@@ -3,27 +3,17 @@
  * 支持多种预设主题，实时预览和切换
  */
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from '@/components/ui/dropdown-menu';
-import { 
-  Palette, 
-  Check, 
-  Star, 
+  Palette,
+  Check,
+  Star,
   Sparkles,
   Zap,
   Mountain,
   Waves,
-  Cpu,
-  ChevronDown
+  Cpu
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -144,7 +134,7 @@ export function ThemeSelector({
   onThemeChange,
   className
 }: ThemeSelectorProps) {
-  const [isOpen, setIsOpen] = useState(false);
+
 
   // 获取当前选中的主题配置
   const currentTheme = THEME_CONFIGS.find(theme => theme.id === selectedTheme) || THEME_CONFIGS[0];
@@ -174,102 +164,84 @@ export function ThemeSelector({
     }
     
     onThemeChange(theme.id);
-    setIsOpen(false);
   };
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className={cn('flex items-center gap-2 min-w-0', className)}
-        >
-          <Palette className="w-4 h-4 flex-shrink-0" />
-          <span className="truncate">{currentTheme.displayName}</span>
-          <ChevronDown className="w-3 h-3 flex-shrink-0" />
-        </Button>
-      </DropdownMenuTrigger>
-      
-      <DropdownMenuContent 
-        className="w-80 max-h-96 overflow-auto"
-        align="start"
-      >
-        <DropdownMenuLabel className="flex items-center gap-2">
-          <Palette className="w-4 h-4" />
-          选择主题样式
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+    <div className={cn('space-y-3', className)}>
+      <div className="flex items-center gap-2 mb-3">
+        <Palette className="w-4 h-4" />
+        <span className="text-sm font-medium">主题样式</span>
+        <Badge variant="secondary" className="text-xs">
+          当前: {currentTheme.displayName}
+        </Badge>
+      </div>
 
-        {Object.entries(themesByCategory).map(([category, themes]) => (
-          <div key={category}>
-            <DropdownMenuLabel className="text-xs text-muted-foreground px-2 py-1">
-              {categoryLabels[category as keyof typeof categoryLabels]}
-            </DropdownMenuLabel>
-            
+      {Object.entries(themesByCategory).map(([category, themes]) => (
+        <div key={category} className="space-y-2">
+          <h4 className="text-xs font-medium text-muted-foreground">
+            {categoryLabels[category as keyof typeof categoryLabels]}
+          </h4>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {themes.map((theme) => (
-              <DropdownMenuItem
+              <button
                 key={theme.id}
-                className="flex items-start gap-3 p-3 cursor-pointer"
+                className={cn(
+                  "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all hover:shadow-sm",
+                  selectedTheme === theme.id
+                    ? "border-primary bg-primary/5 shadow-sm"
+                    : "border-border hover:border-primary/50"
+                )}
                 onClick={() => handleThemeSelect(theme)}
               >
                 {/* 主题预览 */}
-                <div className="flex-shrink-0">
-                  <div 
-                    className="w-8 h-8 rounded border border-border flex items-center justify-center"
-                    style={{ 
-                      backgroundColor: theme.preview.backgroundColor,
-                      color: theme.preview.primaryColor,
-                      borderColor: theme.preview.primaryColor + '40'
-                    }}
-                  >
-                    {theme.icon}
-                  </div>
+                <div
+                  className="w-8 h-8 rounded border border-border flex items-center justify-center"
+                  style={{
+                    backgroundColor: theme.preview.backgroundColor,
+                    color: theme.preview.primaryColor,
+                    borderColor: theme.preview.primaryColor + '40'
+                  }}
+                >
+                  {theme.icon}
                 </div>
 
                 {/* 主题信息 */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium text-sm truncate">
+                <div className="text-center space-y-1">
+                  <div className="flex items-center justify-center gap-1">
+                    <span className="text-xs font-medium truncate">
                       {theme.displayName}
                     </span>
-                    
-                    {/* 状态标识 */}
-                    <div className="flex items-center gap-1">
-                      {theme.isDefault && (
-                        <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                          默认
-                        </Badge>
-                      )}
-                      {theme.requiresPremium && (
-                        <Badge variant="outline" className="text-xs px-1.5 py-0.5 border-amber-500 text-amber-600">
-                          高级
-                        </Badge>
-                      )}
-                      {selectedTheme === theme.id && (
-                        <Check className="w-3 h-3 text-primary" />
-                      )}
-                    </div>
+                    {selectedTheme === theme.id && (
+                      <Check className="w-3 h-3 text-primary flex-shrink-0" />
+                    )}
                   </div>
-                  
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {theme.description}
-                  </p>
-                </div>
-              </DropdownMenuItem>
-            ))}
-            
-            {category !== 'premium' && <DropdownMenuSeparator />}
-          </div>
-        ))}
 
-        {/* 自定义主题提示 */}
-        <DropdownMenuSeparator />
-        <div className="px-3 py-2 text-xs text-muted-foreground">
-          💡 更多主题样式正在开发中...
+                  {/* 状态标识 */}
+                  <div className="flex items-center justify-center gap-1">
+                    {theme.isDefault && (
+                      <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                        默认
+                      </Badge>
+                    )}
+                    {theme.requiresPremium && (
+                      <Badge variant="outline" className="text-xs px-1.5 py-0.5 border-amber-500 text-amber-600">
+                        高级
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      ))}
+
+      {/* 自定义主题提示 */}
+      <div className="text-xs text-muted-foreground text-center py-2 border-t border-border">
+        💡 更多主题样式正在开发中...
+      </div>
+    </div>
   );
 }
 

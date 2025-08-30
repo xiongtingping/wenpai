@@ -40,7 +40,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { notoEmojiService, UNICODE_EMOJI_GROUPS, NOTO_STYLES, type NotoEmojiData } from '@/services/notoEmojiService';
-import { callAI } from '@/api/aiService';
+
 import PersonalizedEmojiGenerator from '@/components/creative/PersonalizedEmojiGenerator';
 import UnifiedEmojiManager from '@/components/shared/UnifiedEmojiManager';
 import { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
@@ -61,11 +61,7 @@ const EmojiPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   
-  // AI推荐相关状态
-  const [contentContext, setContentContext] = useState('');
-  const [isRecommending, setIsRecommending] = useState(false);
-  const [recommendedEmojis, setRecommendedEmojis] = useState<string[]>([]);
-  const [recommendationReason, setRecommendationReason] = useState('');
+
 
   const { toast } = useToast();
 
@@ -236,96 +232,19 @@ const EmojiPage: React.FC = () => {
     });
   };
 
-  /**
-   * AI推荐Emoji
-   */
-  const recommendEmojisWithAI = async () => {
-    if (!contentContext.trim()) {
-      toast({
-        title: "请输入内容",
-        description: "请提供需要推荐emoji的内容场景",
-        variant: "destructive"
-      });
-      return;
-    }
 
-    setIsRecommending(true);
-    try {
-      const response = await callAI({
-        prompt: `请为以下内容推荐合适的表情符号：\n\n${contentContext}\n\n请推荐5-10个相关的表情符号，并说明推荐理由。`
-      });
 
-      const responseData = response as unknown as { success?: boolean; data?: { choices?: Array<{ message?: { content?: string } }> } };
-      const content = responseData?.data?.choices?.[0]?.message?.content;
-      if (responseData?.success && content) {
-        
-        // 提取推荐的emoji
-        const emojiMatch = content.match(/推荐emoji[:：]\s*(.+?)(?:\n|推荐理由|$)/i);
-        if (emojiMatch) {
-          const emojis = emojiMatch[1].split(/\s+/).filter(emoji => emoji.trim());
-          setRecommendedEmojis(emojis);
-        }
-        
-        // 提取推荐理由
-        const reasonMatch = content.match(/推荐理由[:：]\s*(.+?)$/is);
-        if (reasonMatch) {
-          setRecommendationReason(reasonMatch[1].trim());
-        } else {
-          setRecommendationReason(content);
-        }
 
-        toast({
-          title: "AI推荐完成",
-          description: `已为您推荐 ${recommendedEmojis.length} 个emoji`,
-        });
-      } else {
-        throw new Error('AI响应格式异常');
-      }
-    } catch (error) {
-      console.error('AI推荐失败:', error);
-      toast({
-        title: "推荐失败",
-        description: "请稍后重试AI推荐功能",
-        variant: "destructive"
-      });
-    } finally {
-      setIsRecommending(false);
-    }
-  };
-
-  /**
-   * 复制推荐的emoji
-   */
-  const copyRecommendedEmojis = async () => {
-    try {
-      const emojiString = recommendedEmojis.join(' ');
-      await navigator.clipboard.writeText(emojiString);
-      toast({
-        title: "复制成功",
-        description: `已复制推荐的emoji: ${emojiString}`,
-      });
-    } catch (_err) {
-      toast({
-        title: "复制失败",
-        description: "请手动复制",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-2 sm:px-3 lg:px-4 xl:px-6 py-8 space-y-6">
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="unified-tabs-list grid w-full grid-cols-3">
+          <TabsList className="unified-tabs-list grid w-full grid-cols-2">
             <TabsTrigger value="gallery" className="unified-tab-trigger">
               <Grid3X3 className="tab-icon" />
               <span>Emoji图库</span>
-            </TabsTrigger>
-            <TabsTrigger value="ai-recommend" className="unified-tab-trigger">
-              <Sparkles className="tab-icon" />
-              <span>AI推荐</span>
             </TabsTrigger>
             <TabsTrigger value="brand-emoji" className="unified-tab-trigger">
               <Building2 className="tab-icon" />
@@ -390,127 +309,7 @@ const EmojiPage: React.FC = () => {
 
           </TabsContent>
 
-          {/* AI推荐 */}
-          <TabsContent value="ai-recommend" className="space-y-6">
-            <Card className="emoji-gallery-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 creative-module-title">
-                  <Sparkles className="w-5 h-5" />
-                  AI Emoji推荐
-                </CardTitle>
-                <CardDescription className="creative-module-description">
-                  输入内容场景，AI将为您推荐最合适的emoji表情符号
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="creative-module-button mb-2 block">内容场景</Label>
-                  <Textarea
-                    placeholder="请输入需要emoji的内容场景，例如：分享一个健身减肥的成功案例、庆祝项目完成、表达对美食的喜爱等..."
-                    value={contentContext}
-                    onChange={(e) => setContentContext(e.target.value)}
-                    rows={4}
-                    className="w-full"
-                  />
-                </div>
 
-                <Button 
-                  onClick={recommendEmojisWithAI} 
-                  disabled={isRecommending || !contentContext.trim()}
-                  className="w-full"
-                >
-                  {isRecommending ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      AI推荐中...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      获取AI推荐
-                    </>
-                  )}
-                </Button>
-
-                {/* 推荐结果 */}
-                {recommendedEmojis.length > 0 && (
-                  <Card className="generation-result-card border border-border section-bg">
-                    <CardHeader>
-                      <CardTitle className="creative-module-subtitle flex items-center gap-2">
-                        <Star className="w-5 h-5 text-primary" />
-                        AI推荐结果
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label className="creative-module-button mb-2 block">推荐的Emoji</Label>
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          {recommendedEmojis.map((emoji, index) => (
-                            <Button
-                              key={index}
-                              variant="outline"
-                              size="lg"
-                              className="text-2xl h-12 w-12 p-0"
-                              onClick={() => {
-                                navigator.clipboard.writeText(emoji);
-                                toast({ title: "已复制", description: `已复制 ${emoji}` });
-                              }}
-                            >
-                              {emoji}
-                            </Button>
-                          ))}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button onClick={copyRecommendedEmojis} variant="outline" size="sm">
-                            <Copy className="w-4 h-4 mr-2" />
-                            复制所有
-                          </Button>
-                          <Button 
-                            onClick={() => {
-                              setRecommendedEmojis([]);
-                              setRecommendationReason('');
-                            }} 
-                            variant="outline" 
-                            size="sm"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            清空结果
-                          </Button>
-                        </div>
-                      </div>
-
-                      {recommendationReason && (
-                        <div>
-                          <Label className="creative-module-button mb-2 block">推荐理由</Label>
-                          <div className="bg-card p-4 rounded-lg border border-border">
-                            <p className="creative-module-small whitespace-pre-wrap">{recommendationReason}</p>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* 使用建议 */}
-                <Card className="border border-border section-bg">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Info className="w-5 h-5 text-primary" />
-                      使用建议
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm text-muted-foreground space-y-2">
-                      <p>• <strong>标题使用：</strong>在标题中放置1-2个最关键的emoji增强吸引力</p>
-                      <p>• <strong>正文穿插：</strong>在正文段落间适量使用emoji增加节奏感</p>
-                      <p>• <strong>结尾强化：</strong>在结尾使用emoji增强情感表达和互动性</p>
-                      <p>• <strong>平台适配：</strong>不同平台的emoji使用习惯有差异，注意调整</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
 
 

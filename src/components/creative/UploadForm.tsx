@@ -101,7 +101,7 @@ export default function UploadForm({ onUploadComplete, onReset }: UploadFormProp
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="w-5 h-5" />
-          上传品牌素材
+          品牌信息输入
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
