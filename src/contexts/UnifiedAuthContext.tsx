@@ -408,6 +408,10 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
 
     try {
+      // 🔍 DEBUG: 显示传入的更新数据
+      console.log('🔍 updateUser 被调用，参数:', updates);
+      console.log('🔍 参数键名:', Object.keys(updates));
+      
       // 区分基本信息和敏感信息
       const basicFields = ['nickname', 'avatar'];
       const sensitiveFields = ['email', 'phone'];
@@ -425,6 +429,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           obj[key] = updates[key as keyof UserInfo];
           return obj;
         }, {} as Record<string, any>);
+
+      // 🔍 DEBUG: 显示过滤结果
+      console.log('🔍 basicUpdates:', basicUpdates);
+      console.log('🔍 sensitiveUpdates:', sensitiveUpdates);
+      console.log('🔍 sensitiveUpdates keys count:', Object.keys(sensitiveUpdates).length);
 
       // 处理敏感信息更新（需要Authing API验证）
       if (Object.keys(sensitiveUpdates).length > 0) {
