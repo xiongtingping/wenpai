@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { LogIn, User, LogOut, Shield, Settings, Crown, Zap } from 'lucide-react';
+import { LogIn, User, LogOut, Shield, Settings, Crown, Zap, HelpCircle, Palette } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getUserDisplayName, getUserAvatarFallback, getUserAvatar } from '@/utils/userDisplayUtils';
 // 简化权限管理 - 移除复杂的权限管理器
@@ -45,6 +45,20 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   const { user, isAuthenticated, login, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [unlockLoading, setUnlockLoading] = useState(false);
+
+  // 简单的主题切换功能
+  const toggleTheme = () => {
+    const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    localStorage.setItem('wenpai-theme', newTheme);
+  };
 
   // 头像大小配置
   const sizeClasses = {
@@ -180,6 +194,16 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           <DropdownMenuItem onClick={() => navigate('/settings')}>
             <Settings className="mr-2 h-4 w-4" />
             <span>设置</span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onClick={() => window.open('https://docs.wenpai.ai', '_blank')}>
+            <HelpCircle className="mr-2 h-4 w-4" />
+            <span>帮助文档</span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onClick={toggleTheme}>
+            <Palette className="mr-2 h-4 w-4" />
+            <span>切换主题</span>
           </DropdownMenuItem>
           
           {/* 生产环境下显示解锁权限按钮，无论用户等级 */}

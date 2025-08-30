@@ -237,9 +237,6 @@ export const TopNavigation: React.FC = () => {
               )}
 
 
-              {/* 主题切换 */}
-              <ThemeToggle />
-
               {/* 专业用户标识 */}
               {isAuthenticated && isPro && (
                 <Badge variant="premium" className="text-xs hidden sm:inline-flex bg-primary text-primary-foreground border-0">
