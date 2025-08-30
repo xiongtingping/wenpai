@@ -135,31 +135,31 @@ export class ConfigManager {
     
     return {
       authing: {
-        appId: import.meta.env.VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23',
-        userPoolId: import.meta.env.VITE_AUTHING_USER_POOL_ID || '688237f7f9e118de849dc274',
-        domain: import.meta.env.VITE_AUTHING_DOMAIN || 'rzcswqs4sq0f.authing.cn',
-        host: import.meta.env.VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn',
+        appId: import.meta.env.VITE_AUTHING_APP_ID,
+        userPoolId: import.meta.env.VITE_AUTHING_USER_POOL_ID,
+        domain: import.meta.env.VITE_AUTHING_DOMAIN,
+        host: import.meta.env.VITE_AUTHING_HOST,
         redirectUri: this.getRedirectUri(),
         scope: 'openid profile email phone',
         responseType: 'code',
         responseMode: 'query'
       },
       supabase: {
-        url: import.meta.env.VITE_SUPABASE_URL || 'https://weizkydylskcwgnaieqy.supabase.co',
-        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlaXpreWR5bHNrY3dnbmFpZXF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUwNTIzMzksImV4cCI6MjA3MDYyODMzOX0.77cefG7i52iWjR6D_0H1aB-xmmJe19WQlM8PkGISW7c',
-        serviceRoleKey: import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlaXpreWR5bHNrY3dnbmFpZXF5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTA1MjMzOSwiZXhwIjoyMDcwNjI4MzM5fQ.l5BvkhJttv0agpydb5lktK1Q4KvDaxQTNUb5-GMU14w',
-        projectId: import.meta.env.VITE_SUPABASE_PROJECT_ID || 'weizkydylskcwgnaieqy',
-        jwtSecret: import.meta.env.VITE_SUPABASE_JWT_SECRET || 'VoLOjXfyJisLk+lvDcEvdmreH6B3bdj7iDos+5Q2ioRy39LvYJk7fBOQRrM2mU4/G2jfMZzW6rKBitpmF+zVOw=='
+        url: import.meta.env.VITE_SUPABASE_URL,
+        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        serviceRoleKey: import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY,
+        projectId: import.meta.env.VITE_SUPABASE_PROJECT_ID,
+        jwtSecret: import.meta.env.VITE_SUPABASE_JWT_SECRET
       },
       ai: {
         openai: {
-          apiKey: import.meta.env.VITE_OPENAI_API_KEY || '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',
-          baseURL: import.meta.env.VITE_OPENAI_BASE_URL || 'https://api.openai.com/v1',
+          apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+          baseURL: import.meta.env.VITE_OPENAI_BASE_URL,
           model: import.meta.env.VITE_OPENAI_MODEL || 'gpt-3.5-turbo'
         },
         deepseek: {
-          apiKey: import.meta.env.VITE_DEEPSEEK_API_KEY || 'sk-56c02f3de6fe4a04a346cc14f3c5d310',
-          baseURL: import.meta.env.VITE_DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1',
+          apiKey: import.meta.env.VITE_DEEPSEEK_API_KEY,
+          baseURL: import.meta.env.VITE_DEEPSEEK_BASE_URL,
           model: import.meta.env.VITE_DEEPSEEK_MODEL || 'deepseek-chat'
         }
       },

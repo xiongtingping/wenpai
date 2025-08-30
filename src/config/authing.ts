@@ -31,14 +31,11 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
   return defaultValue;
 }
 
-// ✅ FIXED: 2025-08-28 恢复原始配置，代理方案不适用于Guard SDK
-// 🐛 问题原因：Guard SDK不接受代理URL作为host参数
-// 🔧 修复方式：恢复原始HTTPS配置，寻找其他解决方案
-// 📌 已封装：这些配置已验证可用，请勿修改
-// 🔒 LOCKED: AI 禁止对这些常量做任何修改
-const APP_ID = '68a68a29d0c3341ae7a3df23';
-const DOMAIN = 'rzcswqs4sq0f.authing.cn';
-const HOST = 'https://rzcswqs4sq0f.authing.cn';
+// ✅ SECURITY FIX: 2025-08-30 移除硬编码配置，使用环境变量
+// 🔒 安全要求：所有配置必须从环境变量获取，禁止硬编码敏感信息
+const APP_ID = getEnvVar('VITE_AUTHING_APP_ID');
+const DOMAIN = getEnvVar('VITE_AUTHING_DOMAIN'); 
+const HOST = getEnvVar('VITE_AUTHING_HOST');
 
 // ✅ FIXED: 2025-07-25 配置缓存机制已锁定
 // 🐛 问题原因：重复计算配置导致性能问题和潜在的不一致性

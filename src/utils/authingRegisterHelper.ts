@@ -168,9 +168,9 @@ export async function getBestRegisterUrl(config: RegisterConfig): Promise<{
 export function getRegisterUrlFast(config: RegisterConfig): string {
   const { appId: originalAppId, host: originalHost, redirectUri, state, codeChallenge, nonce } = config;
 
-  // 🔧 使用正确的App ID - 与config.ts保持一致
-  const safeAppId = originalAppId || '68a68a29d0c3341ae7a3df23';
-  const cleanHost = originalHost || 'https://rzcswqs4sq0f.authing.cn';
+  // ✅ SECURITY FIX: 2025-08-30 使用环境变量，移除硬编码
+  const safeAppId = originalAppId || import.meta.env.VITE_AUTHING_APP_ID || (globalThis as any).__ENV__?.VITE_AUTHING_APP_ID;
+  const cleanHost = originalHost || import.meta.env.VITE_AUTHING_HOST || (globalThis as any).__ENV__?.VITE_AUTHING_HOST;
 
   console.log('🔧 配置修复检查:', {
     originalAppId,

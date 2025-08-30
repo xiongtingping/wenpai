@@ -6,9 +6,15 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase配置
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://weizkydylskcwgnaieqy.supabase.co';
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlaXpreWR5bHNrY3dnbmFpZXF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUwNTIzMzksImV4cCI6MjA3MDYyODMzOX0.77cefG7i52iWjR6D_0H1aB-xmmJe19WQlM8PkGISW7c';
+// ✅ SECURITY FIX: 2025-08-30 移除硬编码配置，使用环境变量
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('❌ 缺少Supabase配置环境变量');
+  console.error('请设置: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY');
+  process.exit(1);
+}
 
 // 创建Supabase客户端
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

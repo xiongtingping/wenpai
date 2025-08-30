@@ -3,13 +3,11 @@ import { createClient } from '@supabase/supabase-js'
 // Supabase 配置
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ||
                    process.env.VITE_SUPABASE_URL ||
-                   (globalThis as any).__ENV__?.VITE_SUPABASE_URL ||
-                   'https://weizkydylskcwgnaieqy.supabase.co'
+                   (globalThis as any).__ENV__?.VITE_SUPABASE_URL
 
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ||
                        process.env.VITE_SUPABASE_ANON_KEY ||
-                       (globalThis as any).__ENV__?.VITE_SUPABASE_ANON_KEY ||
-                       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlaXpreWR5bHNrY3dnbmFpZXF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUwNTIzMzksImV4cCI6MjA3MDYyODMzOX0.77cefG7i52iWjR6D_0H1aB-xmmJe19WQlM8PkGISW7c'
+                       (globalThis as any).__ENV__?.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Supabase configuration:', { supabaseUrl, supabaseAnonKey: supabaseAnonKey ? '[HIDDEN]' : 'MISSING' })

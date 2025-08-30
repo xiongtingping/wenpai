@@ -94,10 +94,10 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
   const [registerMethod, setRegisterMethod] = useState<'password' | 'code'>('password');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
-  // Authing 客户端配置
+  // ✅ SECURITY FIX: 2025-08-30 使用环境变量配置
   const authClient = new AuthenticationClient({
-    appId: '68a68a29d0c3341ae7a3df23',
-    appHost: 'https://rzcswqs4sq0f.authing.cn',
+    appId: import.meta.env.VITE_AUTHING_APP_ID || (globalThis as any).__ENV__?.VITE_AUTHING_APP_ID,
+    appHost: import.meta.env.VITE_AUTHING_HOST || (globalThis as any).__ENV__?.VITE_AUTHING_HOST,
   });
 
   const detectContactType = (contact: string) => {

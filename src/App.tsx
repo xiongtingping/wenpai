@@ -99,9 +99,9 @@ const App: React.FC = () => {
       <ThemeProvider>
         <ErrorBoundary>
           <GuardProvider
-            appId="68a68a29d0c3341ae7a3df23"
+            appId={import.meta.env.VITE_AUTHING_APP_ID || (globalThis as any).__ENV__?.VITE_AUTHING_APP_ID}
             mode="modal"
-            host="https://rzcswqs4sq0f.authing.cn"
+            host={import.meta.env.VITE_AUTHING_HOST || (globalThis as any).__ENV__?.VITE_AUTHING_HOST}
             config={{
               autoRegister: true,
               placeholder: {

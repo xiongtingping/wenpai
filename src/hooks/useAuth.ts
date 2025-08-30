@@ -47,7 +47,7 @@ export const useAuth = () => {
       refreshToken: () => Promise.resolve(),
       refreshAuth: () => Promise.resolve(auth.isAuthenticated),
       getAccessToken: () => Promise.resolve(null),
-      handleAuthingLogin: auth.login,
+      handleAuthingLogin: auth.handleAuthingLogin,
 
       // 权限检查方法（基础实现）
       hasPermission: () => auth.isAuthenticated,

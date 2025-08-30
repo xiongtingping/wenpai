@@ -12,8 +12,8 @@ import { Guard } from '@authing/guard';
  */
 export const getOfficialAuthConfig = () => {
   // ✅ 使用最新正确配置 (2025-01-27)
-  const domain = import.meta.env.VITE_AUTHING_DOMAIN || 'rzcswqs4sq0f.authing.cn';
-  const appId = import.meta.env.VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23';
+  const domain = import.meta.env.VITE_AUTHING_DOMAIN || (globalThis as any).__ENV__?.VITE_AUTHING_DOMAIN;
+  const appId = import.meta.env.VITE_AUTHING_APP_ID || (globalThis as any).__ENV__?.VITE_AUTHING_APP_ID;
 
   // 🎯 [根本原因修复] 根据环境明确选择唯一正确的回调URL
   const getRedirectUri = () => {

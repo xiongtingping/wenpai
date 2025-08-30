@@ -26,7 +26,8 @@ export const CustomLoginPage: React.FC = () => {
     showPassword: false,
     loading: false,
     sendingCode: false,
-    codeCountdown: 0
+    codeCountdown: 0,
+    loginSuccess: false // 添加登录成功状态
   });
 
   // 登录方式状态
@@ -103,10 +104,31 @@ export const CustomLoginPage: React.FC = () => {
         }
         
         if (result.success) {
-          toast({ title: '登录成功', description: '正在跳转...' });
+          console.log('✅ 验证码登录成功，开始处理登录状态...');
+          
+          // 立即设置成功状态，防止重复提交
+          setLoginForm(prev => ({ 
+            ...prev, 
+            code: '', 
+            loading: true,
+            loginSuccess: true, // 标记登录成功
+            codeCountdown: 0
+          }));
+          
+          toast({ 
+            title: '登录成功', 
+            description: '正在跳转，请勿重复操作...',
+            duration: 3000 
+          });
+          
           // 使用UnifiedAuthContext的handleAuthingLogin处理登录成功
           if (result.data && handleAuthingLogin) {
+            console.log('🔐 调用handleAuthingLogin处理登录状态...');
             handleAuthingLogin(result.data);
+          } else {
+            console.error('❌ 登录数据或处理函数缺失:', { data: result.data, handler: !!handleAuthingLogin });
+            setLoginForm(prev => ({ ...prev, loading: false, loginSuccess: false }));
+            throw new Error('登录处理失败，请重试');
           }
           return;
         } else {
@@ -125,8 +147,15 @@ export const CustomLoginPage: React.FC = () => {
       const errorMsg = error instanceof Error ? error.message : '登录失败';
       setError(errorMsg);
       toast({ title: '登录失败', description: errorMsg, variant: 'destructive' });
-    } finally {
-      setLoginForm(prev => ({ ...prev, loading: false }));
+      
+      // 重置状态，允许重新尝试
+      setLoginForm(prev => ({ 
+        ...prev, 
+        loading: false, 
+        loginSuccess: false,
+        // 如果是验证码错误，清空验证码让用户重新输入
+        code: errorMsg.includes('验证码') ? '' : prev.code
+      }));
     }
   };
 
@@ -353,9 +382,13 @@ export const CustomLoginPage: React.FC = () => {
         <button
           type="submit"
           className="login-button"
-          disabled={loginForm.loading || (loginMethod === 'password' ? (!loginForm.password || !isContactValid) : (!loginForm.code || !isContactValid))}
+          disabled={
+            loginForm.loading || 
+            loginForm.loginSuccess ||
+            (loginMethod === 'password' ? (!loginForm.password || !isContactValid) : (!loginForm.code || !isContactValid))
+          }
         >
-          登录
+          {loginForm.loginSuccess ? '登录成功，跳转中...' : (loginForm.loading ? '登录中...' : '登录')}
         </button>
       </form>
         </>

@@ -55,10 +55,10 @@ interface SimpleAuthContextType {
 
 const SimpleAuthContext = createContext<SimpleAuthContextType | null>(null);
 
-// ✅ 最新正确的Guard配置 - 2025-08-27 用户确认
+// ✅ SECURITY FIX: 2025-08-30 使用环境变量配置
 const SIMPLE_CONFIG = {
-  appId: '68a68a29d0c3341ae7a3df23',
-  appHost: 'https://rzcswqs4sq0f.authing.cn',
+  appId: import.meta.env.VITE_AUTHING_APP_ID || (globalThis as any).__ENV__?.VITE_AUTHING_APP_ID,
+  appHost: import.meta.env.VITE_AUTHING_HOST || (globalThis as any).__ENV__?.VITE_AUTHING_HOST,
   redirectUri: typeof window !== 'undefined'
     ? (window.location.hostname === 'localhost'
         ? 'http://localhost:5173/callback'
