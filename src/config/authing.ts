@@ -14,17 +14,23 @@ export interface AuthingConfig {
 
 /**
  * 从环境变量获取Authing配置
- * 优先级：环境变量 > 默认值
+ * 优先级：import.meta.env > window.__ENV__ > 默认值
  */
 function getEnvVar(key: string, defaultValue: string = ''): string {
-  // 尝试从import.meta.env获取（Vite环境）
-  if (typeof window !== 'undefined' && (import.meta as any)?.env?.[key]) {
-    return (import.meta as any).env[key];
+  // 🔧 FIX: 2025-08-30 修复环境变量获取逻辑
+  // 优先使用Vite标准的import.meta.env
+  if (import.meta.env?.[key]) {
+    return import.meta.env[key];
   }
 
-  // 尝试从window.__ENV__获取（Vite注入）
+  // 后备：从Vite注入的全局变量获取
   if (typeof window !== 'undefined' && (window as any).__ENV__?.[key]) {
     return (window as any).__ENV__[key];
+  }
+
+  // 后备：从全局变量获取
+  if (typeof globalThis !== 'undefined' && (globalThis as any).__ENV__?.[key]) {
+    return (globalThis as any).__ENV__[key];
   }
 
   // 返回默认值
@@ -33,9 +39,10 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
 
 // ✅ SECURITY FIX: 2025-08-30 移除硬编码配置，使用环境变量
 // 🔒 安全要求：所有配置必须从环境变量获取，禁止硬编码敏感信息
-const APP_ID = getEnvVar('VITE_AUTHING_APP_ID');
-const DOMAIN = getEnvVar('VITE_AUTHING_DOMAIN'); 
-const HOST = getEnvVar('VITE_AUTHING_HOST');
+// 🐛 FIX: 2025-08-30 修复环境变量获取问题 - 使用统一获取函数
+const APP_ID = getEnvVar('VITE_AUTHING_APP_ID', '68a68a29d0c3341ae7a3df23');
+const DOMAIN = getEnvVar('VITE_AUTHING_DOMAIN', 'rzcswqs4sq0f.authing.cn');
+const HOST = getEnvVar('VITE_AUTHING_HOST', 'https://rzcswqs4sq0f.authing.cn');
 
 // ✅ FIXED: 2025-07-25 配置缓存机制已锁定
 // 🐛 问题原因：重复计算配置导致性能问题和潜在的不一致性

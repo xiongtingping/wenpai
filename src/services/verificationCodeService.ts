@@ -177,6 +177,11 @@ class VerificationCodeService {
       
       const result = await client.loginByPhoneCode(phone, code);
 
+      // 🔍 验证Authing API返回结果
+      if (!result || (!result.token && !result.access_token && !result.id && !result.userId)) {
+        throw new Error('验证码登录失败：未获取到有效的认证信息');
+      }
+
       console.log('✅ 手机验证码登录成功:', result);
       
       return {
@@ -229,6 +234,11 @@ class VerificationCodeService {
       const client = await this.initAuthClient();
       
       const result = await client.loginByEmailCode(email, code);
+
+      // 🔍 验证Authing API返回结果
+      if (!result || (!result.token && !result.access_token && !result.id && !result.userId)) {
+        throw new Error('验证码登录失败：未获取到有效的认证信息');
+      }
 
       console.log('✅ 邮箱验证码登录成功:', result);
       

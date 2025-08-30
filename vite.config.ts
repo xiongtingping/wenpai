@@ -26,7 +26,7 @@ export default defineConfig({
       VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || '',
       VITE_DEBUG_MODE: process.env.VITE_DEBUG_MODE || '',
       VITE_LOG_LEVEL: process.env.VITE_LOG_LEVEL || '',
-      VITE_AUTHING_APP_ID: process.env.VITE_AUTHING_APP_ID || '68a58c57614a821a46f264f7',
+      VITE_AUTHING_APP_ID: process.env.VITE_AUTHING_APP_ID || '68a68a29d0c3341ae7a3df23',
       VITE_AUTHING_DOMAIN: process.env.VITE_AUTHING_DOMAIN || 'rzcswqs4sq0f.authing.cn',
       VITE_AUTHING_HOST: process.env.VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn',
       VITE_AUTHING_REDIRECT_URI: process.env.VITE_AUTHING_REDIRECT_URI || '',

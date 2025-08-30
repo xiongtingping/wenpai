@@ -457,11 +457,24 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
       }
 
-      // 处理基本信息更新（直接更新本地状态和数据库）
+      // 处理基本信息更新（同时更新Authing服务器和本地状态）
       if (Object.keys(basicUpdates).length > 0) {
-        console.log('🔄 更新基本信息到本地数据库...');
+        console.log('🔄 更新基本信息到Authing服务器...');
         
-        // 直接更新本地状态
+        // 🔧 FIX: 2025-08-30 修复个人资料更新问题
+        // 基本信息也需要同步到Authing服务器，避免重新登录时数据丢失
+        try {
+          const authResult = await authService.updateProfile(basicUpdates);
+          if (!authResult.success) {
+            console.warn('⚠️ Authing服务器更新失败，仅更新本地:', authResult.message);
+          } else {
+            console.log('✅ Authing服务器更新成功:', authResult);
+          }
+        } catch (error) {
+          console.warn('⚠️ Authing服务器更新异常，仅更新本地:', error);
+        }
+        
+        // 更新本地状态（作为后备）
         const updatedUser = { ...user, ...basicUpdates };
         setUser(updatedUser);
         localStorage.setItem('authing_user', JSON.stringify(updatedUser));
