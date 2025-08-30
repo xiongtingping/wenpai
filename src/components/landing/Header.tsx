@@ -5,10 +5,9 @@ import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
-import { Menu, HelpCircle } from "lucide-react"
+import { Menu } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
+
 import { UserAvatar } from "@/components/auth/UserAvatar"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
@@ -18,78 +17,7 @@ import { DevPermissionSwitcher } from "@/components/dev/DevPermissionSwitcher"
 import { Home, Radar, Sparkles, Library, FolderOpen } from "lucide-react"
 
 
-const HelpDocumentation = () => {
-  const topics = [
-    {
-      title: "内容适配",
-      content: "文派可根据平台特性智能转换您的内容，调整文风、排版和互动元素，无需手动修改即可适配各平台。"
-    },
-    {
-      title: "创意魔方",
-      content: "九宫格创意魔方、营销日历、文案管理等创意工具，帮助您快速生成创意内容，提升创作效率。"
-    },
-    {
-      title: "全网雷达",
-      content: "全网雷达"
-    },
-    {
-      title: "我的资料库",
-      content: "管理网络收藏、内容提取、文案库等，为您的创作提供丰富的素材支持。"
-    },
-    {
-              title: "内容提取",
-      content: "智能提取网页、文档内容，支持多种格式转换，快速获取创作素材。"
-    },
-    {
-      title: "Emoji生成器",
-      content: "AI驱动的emoji图片生成器，支持多种风格和定制选项，提升内容视觉表现力。"
-    },
-    {
-      title: "品牌库",
-      content: "品牌库"
-    },
-    {
-      title: "一键转发",
-      content: "支持一键将内容转发到多个平台，自动适配各平台格式要求。"
-    },
-    {
-      title: "主题切换",
-      content: "提供多种主题选择：体验版用户可使用浅色主题，专业版用户可使用浅色/深色主题，高级版用户可使用全部主题（浅色/深色/蓝色/米色/绿色）。"
-    }
-  ]
 
-  return (
-    <PopoverContent className="w-[380px] z-[99999]">
-      <ScrollArea className="h-[400px] p-4">
-        <h3 className="text-lg font-semibold mb-4">文派使用指南</h3>
-        {topics.map((topic, index) => (
-          <div key={index} className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <h4 className="text-primary font-medium">{topic.title}</h4>
-            </div>
-            <p className="text-foreground text-sm leading-relaxed">{topic.content}</p>
-          </div>
-        ))}
-        <div className="mb-6">
-          <h4 className="text-primary font-medium mb-2">平台风格差异</h4>
-          <div className="space-y-2 text-sm">
-            <p><span className="font-medium">小红书</span>：轻松活泼风格，多用emoji表情，个人化视角，首尾互动引导</p>
-            <p><span className="font-medium">公众号</span>：专业严谨风格，段落清晰，标题引人，适合深度阅读</p>
-            <p><span className="font-medium">抖音</span>：简短有力台词，节奏感强，互动性高，引人共鸣</p>
-            <p><span className="font-medium">B站</span>：二次元文化元素，圈层词汇，专业知识融合娱乐表达</p>
-            <p><span className="font-medium">知乎</span>：逻辑严密，分点论述，理性客观，有深度的专业分析</p>
-            <p><span className="font-medium">微博</span>：简短有话题性，互动元素多，情绪化表达</p>
-            <p><span className="font-medium">视频号</span>：亲和力强，互动感高，视觉描述清晰</p>
-            <p><span className="font-medium">X(推特)</span>：精简直接，多用标签，国际化表达</p>
-          </div>
-        </div>
-        <div className="pt-2">
-          <p className="text-xs text-muted-foreground">更多详细使用说明将持续更新</p>
-        </div>
-      </ScrollArea>
-    </PopoverContent>
-  )
-}
 
 export function Header() {
   const isMobile = useIsMobile()
@@ -183,16 +111,6 @@ export function Header() {
         {/* Action Buttons - 固定在右侧 */}
         {!isMobile && (
           <div className="flex-shrink-0 hidden md:flex items-center space-x-4 relative z-[60]">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-1">
-                  <HelpCircle className="h-4 w-4 mr-1" />
-                  帮助文档
-                </Button>
-              </PopoverTrigger>
-              <HelpDocumentation />
-            </Popover>
-
             {/* 主题切换 */}
             <ThemeToggle />
 
@@ -321,11 +239,6 @@ export function Header() {
                     定价方案
                   </Button>
                 </SheetClose>
-
-                <Button variant="ghost" className="flex items-center justify-start px-2 gap-1">
-                  <HelpCircle className="h-4 w-4 mr-1" />
-                  帮助文档
-                </Button>
 
                 {/* 移动端主题切换 */}
                 <div className="flex items-center justify-start px-2">
