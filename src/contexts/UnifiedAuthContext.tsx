@@ -408,18 +408,39 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
 
     try {
-      console.log('🔄 开始更新用户信息到Authing服务器...');
+      // 区分基本信息和敏感信息
+      const basicFields = ['nickname', 'avatar'];
+      const sensitiveFields = ['email', 'phone'];
       
-      // 🚨 关键：必须先调用真实API，成功后才能更新本地状态
-      const result = await authService.updateProfile({
-        nickname: updates.nickname,
-        avatar: updates.avatar,
-        email: updates.email,
-        phone: updates.phone
-      });
+      const basicUpdates = Object.keys(updates)
+        .filter(key => basicFields.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = updates[key as keyof UserInfo];
+          return obj;
+        }, {} as Record<string, any>);
+        
+      const sensitiveUpdates = Object.keys(updates)
+        .filter(key => sensitiveFields.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = updates[key as keyof UserInfo];
+          return obj;
+        }, {} as Record<string, any>);
 
-      if (result.success && result.user) {
-        // API成功后更新本地状态
+      // 处理敏感信息更新（需要Authing API验证）
+      if (Object.keys(sensitiveUpdates).length > 0) {
+        console.log('🔄 更新敏感信息到Authing服务器...');
+        const result = await authService.updateProfile(sensitiveUpdates);
+        
+        if (!result.success) {
+          throw new Error(result.message || '敏感信息更新失败');
+        }
+      }
+
+      // 处理基本信息更新（直接更新本地状态和数据库）
+      if (Object.keys(basicUpdates).length > 0) {
+        console.log('🔄 更新基本信息到本地数据库...');
+        
+        // 直接更新本地状态
         const updatedUser = { ...user, ...updates };
         setUser(updatedUser);
         localStorage.setItem('authing_user', JSON.stringify(updatedUser));
@@ -435,14 +456,19 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           loginTime: updatedUser.loginTime
         });
 
-        console.log('✅ 用户信息更新并同步成功:', updatedUser);
-      } else {
-        throw new Error(result.message || '更新失败');
+        console.log('✅ 基本信息更新成功:', basicUpdates);
       }
+
+      // 如果只有基本信息更新，直接成功
+      if (Object.keys(sensitiveUpdates).length === 0) {
+        console.log('✅ 用户基本信息更新完成');
+        return;
+      }
+
+      console.log('✅ 用户信息更新并同步成功');
       
     } catch (error) {
       console.error('❌ 用户信息更新失败:', error);
-      // 🚨 关键：API失败时不能掩盖错误，必须向上抛出
       const errorMessage = error instanceof Error ? error.message : '更新用户信息失败';
       throw new Error(errorMessage);
     }
