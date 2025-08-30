@@ -441,7 +441,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('🔄 更新基本信息到本地数据库...');
         
         // 直接更新本地状态
-        const updatedUser = { ...user, ...updates };
+        const updatedUser = { ...user, ...basicUpdates };
         setUser(updatedUser);
         localStorage.setItem('authing_user', JSON.stringify(updatedUser));
         
