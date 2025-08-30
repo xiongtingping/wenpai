@@ -29,9 +29,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 })
 
 // 数据库类型定义
+// 注意：user_id 现在是 VARCHAR(100) 类型，兼容 Authing 用户 ID 格式
 export interface UserProfile {
   id: string
-  user_id: string
+  user_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
   nickname?: string
   avatar_url?: string
   phone?: string
@@ -45,7 +46,7 @@ export interface UserProfile {
 
 export interface UserSubscription {
   id: string
-  user_id: string
+  user_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
   tier: 'trial' | 'pro' | 'premium'
   monthly_token_limit: number
   usage_count_limit: number
@@ -59,7 +60,7 @@ export interface UserSubscription {
 
 export interface TokenUsageRecord {
   id: string
-  user_id: string
+  user_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
   feature: string
   task_type?: string
   input_tokens: number
@@ -76,7 +77,7 @@ export interface TokenUsageRecord {
 
 export interface UsageCountRecord {
   id: string
-  user_id: string
+  user_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
   feature: string
   amount: number
   used_at: string
@@ -85,8 +86,8 @@ export interface UsageCountRecord {
 
 export interface UserInviteRelation {
   id: string
-  inviter_id: string
-  invitee_id: string
+  inviter_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
+  invitee_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
   invite_code?: string
   status: 'pending' | 'completed' | 'rewarded'
   source: 'link' | 'code' | 'direct'
@@ -98,7 +99,7 @@ export interface UserInviteRelation {
 
 export interface UserInviteStats {
   id: string
-  user_id: string
+  user_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
   total_invites: number
   successful_invites: number
   link_clicks: number
@@ -111,7 +112,7 @@ export interface UserInviteStats {
 
 export interface UserFile {
   id: string
-  user_id: string
+  user_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
   filename: string
   file_path: string
   file_size?: number
@@ -124,7 +125,7 @@ export interface UserFile {
 
 export interface UserNote {
   id: string
-  user_id: string
+  user_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
   title?: string
   content?: string
   category?: string
@@ -137,7 +138,7 @@ export interface UserNote {
 
 export interface UserBrandCorpus {
   id: string
-  user_id: string
+  user_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
   brand_name: string
   brand_description?: string
   tone_keywords?: string[]
@@ -150,7 +151,7 @@ export interface UserBrandCorpus {
 
 export interface UserLibraryItem {
   id: string
-  user_id: string
+  user_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
   title: string
   url?: string
   content?: string
@@ -164,7 +165,7 @@ export interface UserLibraryItem {
 
 export interface UserChatHistory {
   id: string
-  user_id: string
+  user_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
   session_id?: string
   role: 'user' | 'assistant' | 'system'
   content: string
