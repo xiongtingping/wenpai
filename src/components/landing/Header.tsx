@@ -1,4 +1,6 @@
 // 🔧 [UNIFIED_AUTH_ROLLBACK_v2025.08.27] 回滚到历史成功版本架构
+import React, { useEffect } from 'react';
+
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -133,8 +135,20 @@ export function Header() {
     return true;
   };
 
+  // 设置 CSS 变量 --header-height 以便各处自适应
+  useEffect(() => {
+    const el = document.querySelector('header.theme-header-bg') as HTMLElement | null;
+    const update = () => {
+      const h = el?.offsetHeight || 64;
+      document.documentElement.style.setProperty('--header-height', `${h}px`);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
   return (
-    <header className="theme-header-bg fixed top-0 left-0 right-0 z-[9998] shadow-e0 backdrop-blur-md border-b border-border/10">
+    <header className="theme-header-bg fixed top-0 left-0 right-0 z-[99999] shadow-lg backdrop-blur-md border-b border-border/10" style={{ position: 'fixed' }}>
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo - 主题感知的熊猫Logo */}
         <Link to="/" className="group">
@@ -177,7 +191,7 @@ export function Header() {
 
             {/* 主题切换 */}
             <ThemeToggle />
-            
+
             {/* 开发环境权限切换 */}
             <DevPermissionSwitcher />
 

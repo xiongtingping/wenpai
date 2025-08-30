@@ -222,7 +222,7 @@ export const FeaturesSection: React.FC = () => {
         </div>
 
         {/* 主要功能区域 */}
-        <div className="mb-20">
+        <div className="mb-12">
           <div className="text-center mb-12">
             <h3 className="text-2xl font-bold text-foreground mb-4">主要功能</h3>
             <p className="text-muted-foreground">探索文派的核心功能，提升您的内容创作效率</p>
@@ -293,7 +293,7 @@ export const FeaturesSection: React.FC = () => {
         </div>
 
         {/* 快速工具区域 */}
-        <div className="mb-20">
+        <div className="mb-12">
           <div className="text-center mb-12">
             <h3 className="text-2xl font-bold text-foreground mb-4">快速工具</h3>
             <p className="text-muted-foreground">便捷的小工具，让创作更加高效</p>
@@ -333,7 +333,7 @@ export const FeaturesSection: React.FC = () => {
         </div>
 
         {/* 3️⃣ 平台优势区域优化 */}
-        <div className="py-16">
+        <div className="pt-16 pb-8">
           {/* 标题部分优化 */}
           <div className="text-center mb-12">
             <h3 className="text-2xl font-bold text-foreground mb-2">平台优势</h3>

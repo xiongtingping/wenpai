@@ -4,7 +4,7 @@
  * 优化版：桌面端16px字体，移动端14px，增强交互反馈
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NavBar } from '@/components/ui/tubelight-navbar';
@@ -143,10 +143,23 @@ export const TopNavigation: React.FC = () => {
     </button>
   );
 
+  // 动态设置头部高度变量，保证不同屏幕与密度都准确
+  const headerRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const update = () => {
+      const h = headerRef.current?.offsetHeight || 64;
+      document.documentElement.style.setProperty('--header-height', `${h}px`);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-[9999] w-full border-b shadow-sm theme-header-bg backdrop-blur-md border-border/20">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-center relative">
+    <>
+      <header ref={headerRef} className="fixed top-0 left-0 right-0 z-[99999] w-full border-b shadow-sm theme-header-bg backdrop-blur-md border-border/20">
+        <div className="container mx-auto px-4">
+          <div className="flex h-16 items-center justify-center relative">
           {/* 左侧Logo和导航 - 始终居中 */}
           <div className="flex items-center space-x-6">
             {/* Logo - 主题感知的熊猫Logo */}
@@ -249,6 +262,9 @@ export const TopNavigation: React.FC = () => {
         </div>
       </div>
     </header>
+    {/* 占位元素：与导航栏同高，避免内容被覆盖 */}
+    <div aria-hidden className="h-[var(--header-height,64px)]"></div>
+    </>
   );
 };
 

@@ -3,89 +3,128 @@
  * 提供原生的登录注册表单，不依赖第三方服务
  */
 
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Loader2, Phone, MessageSquare } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { ThemeAwareLogo } from '@/components/ui/ThemeAwareLogo';
+import { AnimatedAuthShell } from '@/components/ui/AnimatedAuthShell';
+import { AuthenticationClient } from 'authing-js-sdk';
+import { getAuthingConfig } from '@/config/authing';
+import { verificationCodeService } from '@/services/verificationCodeService';
 
+import '@/styles/animated-signin-21st.css';
 export const CustomLoginPage: React.FC = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
-  
+  const { guard, handleAuthingLogin } = useAuth();
+
   // 登录表单状态
   const [loginForm, setLoginForm] = useState({
     contact: '', // 邮箱或手机号
     password: '',
     code: '', // 验证码
     showPassword: false,
-    loading: false
+    loading: false,
+    sendingCode: false,
+    codeCountdown: 0
   });
 
   // 登录方式状态
   const [loginMethod, setLoginMethod] = useState<'password' | 'code'>('password');
   const [contactType, setContactType] = useState<'email' | 'phone'>('email');
 
-  // 注册表单状态
+  // 注册表单状态（去掉用户名）
   const [registerForm, setRegisterForm] = useState({
-    username: '',
     email: '',
     phone: '',
     password: '',
     confirmPassword: '',
     showPassword: false,
     showConfirmPassword: false,
-    loading: false
+    loading: false,
+    sendingCode: false,
+    codeCountdown: 0,
+    code: ''
   });
 
+  // UI 视图模式：登录/注册（与模板保持一致的单卡片切换）
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  // 浮动标签交互状态（仅用于视觉触发，逻辑仍用原有字段）
+  const [loginEmailFocused, setLoginEmailFocused] = useState(false);
+  const [loginPasswordFocused, setLoginPasswordFocused] = useState(false);
+  const [loginCodeFocused, setLoginCodeFocused] = useState(false);
+  const [registerEmailFocused, setRegisterEmailFocused] = useState(false);
+  const [registerPhoneFocused, setRegisterPhoneFocused] = useState(false);
+  const [registerPasswordFocused, setRegisterPasswordFocused] = useState(false);
+  const [registerConfirmFocused, setRegisterConfirmFocused] = useState(false);
+  const [registerCodeFocused, setRegisterCodeFocused] = useState(false);
+
   const [registerContactType, setRegisterContactType] = useState<'email' | 'phone'>('email');
+
+  const [registerAgreed, setRegisterAgreed] = useState(false);
+
+  const passwordsMatch = registerForm.password && registerForm.confirmPassword && registerForm.password === registerForm.confirmPassword;
 
   const [error, setError] = useState('');
 
   // 处理登录
+  // Authing Web SDK 客户端（验证码优先用 API 发送）
+  const authingClientRef = useRef<any>(null);
+  const ensureAuthingClient = () => {
+    if (!authingClientRef.current) {
+      const cfg = getAuthingConfig();
+      try {
+        authingClientRef.current = new (AuthenticationClient as any)({ appId: cfg.appId, appHost: cfg.host });
+      } catch (e) {
+        console.warn('Authing AuthenticationClient init failed', e);
+        authingClientRef.current = null;
+      }
+    }
+    return authingClientRef.current;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoginForm(prev => ({ ...prev, loading: true }));
 
     try {
-      // 简单验证
-      if (!loginForm.contact || (loginMethod === 'password' && !loginForm.password)) {
-        throw new Error('请填写完整的登录信息');
+      if (!loginForm.contact) throw new Error('请填写联系方式');
+      if (loginMethod === 'password' && !loginForm.password) throw new Error('请输入密码');
+      if (loginMethod === 'code' && !loginForm.code) throw new Error('请输入验证码');
+
+      // 验证码登录使用专用API
+      if (loginMethod === 'code') {
+        let result;
+        if (contactType === 'phone') {
+          result = await verificationCodeService.loginByPhoneCode(loginForm.contact, loginForm.code);
+        } else {
+          result = await verificationCodeService.loginByEmailCode(loginForm.contact, loginForm.code);
+        }
+        
+        if (result.success) {
+          toast({ title: '登录成功', description: '正在跳转...' });
+          // 使用UnifiedAuthContext的handleAuthingLogin处理登录成功
+          if (result.data && handleAuthingLogin) {
+            handleAuthingLogin(result.data);
+          }
+          return;
+        } else {
+          throw new Error(result.message);
+        }
       }
-      
-      if (loginMethod === 'code' && !loginForm.code) {
-        throw new Error('请输入验证码');
+
+      // 密码登录走Guard流程
+      if (guard && typeof (guard as any).show === 'function') {
+        (guard as any).show();
+        toast({ title: '请在弹窗完成登录', description: '登录成功后将自动跳转' });
+      } else {
+        throw new Error('认证系统未初始化');
       }
-
-      // ✅ FIXED: 2025-08-30 遵循 api_prohibit_local_mock_error 规则
-      // 必须调用真实的Authing API进行登录
-      await login(loginForm.contact, loginForm.password);
-
-      toast({
-        title: '登录成功',
-        description: '欢迎回来！',
-      });
-
-      // 跳转到首页
-      navigate('/');
-
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : '登录失败';
       setError(errorMsg);
-      toast({
-        title: '登录失败',
-        description: errorMsg,
-        variant: 'destructive'
-      });
+      toast({ title: '登录失败', description: errorMsg, variant: 'destructive' });
     } finally {
       setLoginForm(prev => ({ ...prev, loading: false }));
     }
@@ -100,7 +139,7 @@ export const CustomLoginPage: React.FC = () => {
     try {
       // 验证表单
       const contact = registerContactType === 'email' ? registerForm.email : registerForm.phone;
-      if (!registerForm.username || !contact || !registerForm.password) {
+      if (!contact || !registerForm.password) {
         throw new Error('请填写完整的注册信息');
       }
 
@@ -121,17 +160,46 @@ export const CustomLoginPage: React.FC = () => {
         throw new Error('请输入有效的手机号');
       }
 
-      // ✅ FIXED: 2025-08-30 遵循 api_prohibit_local_mock_error 规则
-      // 必须调用真实的Authing API进行注册
-      throw new Error('注册功能需要集成真实的Authing API，暂时禁用模拟注册');
-
-      toast({
-        title: '注册成功',
-        description: '欢迎加入文派！',
-      });
-
-      // 跳转到首页
-      navigate('/');
+      // 使用验证码注册
+      if (!registerForm.code) {
+        throw new Error('请输入验证码');
+      }
+      
+      let result;
+      if (registerContactType === 'phone') {
+        result = await verificationCodeService.registerByPhoneCode(
+          registerForm.phone, 
+          registerForm.code, 
+          registerForm.password
+        );
+      } else {
+        result = await verificationCodeService.registerByEmailCode(
+          registerForm.email, 
+          registerForm.code, 
+          registerForm.password
+        );
+      }
+      
+      if (result.success) {
+        toast({ title: '注册成功', description: '正在跳转到登录...' });
+        // 注册成功后切换到登录模式
+        setMode('login');
+        // 清空注册表单
+        setRegisterForm({
+          email: '',
+          phone: '',
+          password: '',
+          confirmPassword: '',
+          showPassword: false,
+          showConfirmPassword: false,
+          loading: false,
+          sendingCode: false,
+          codeCountdown: 0,
+          code: ''
+        });
+      } else {
+        throw new Error(result.message);
+      }
 
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : '注册失败';
@@ -146,386 +214,307 @@ export const CustomLoginPage: React.FC = () => {
     }
   };
 
+  const isContactValid = !loginForm.contact || (
+    contactType === 'email'
+      ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginForm.contact)
+      : /^1[3-9]\d{9}$/.test(loginForm.contact)
+  );
+  const [rememberMe, setRememberMe] = useState(false);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* 背景装饰 */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-      <div className="absolute top-0 left-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-72 h-72 bg-secondary/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+    <AnimatedAuthShell title="欢迎" subtitle="请登录以继续">
+      <div>
+      {/* 与 21st.dev 模板一致的表单结构与类名（增加邮箱/手机号 + 密码/验证码登录） */}
+      {mode === 'login' && (
+        <>
+        <form className="login-form" onSubmit={handleLogin}>
+        {/* 联系方式选择 */}
+        {/* 联系方式切换（分段按钮） */}
+        <div className="segmented" style={{marginTop:4, marginBottom:8}}>
+          <button type="button" onClick={() => setContactType('email')} className={`seg-btn ${contactType==='email'?'active':''}`}>邮箱</button>
+          <button type="button" onClick={() => setContactType('phone')} className={`seg-btn ${contactType==='phone'?'active':''}`}>手机号</button>
+        </div>
 
-      <div className="w-full max-w-md sm:max-w-lg relative z-10">
-        {/* 返回首页按钮 */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="mb-8 text-muted-foreground hover:text-foreground backdrop-blur-sm"
+        {/* 联系方式输入 */}
+        <div className={`form-field ${loginEmailFocused || loginForm.contact ? 'active' : ''} ${(!isContactValid && loginForm.contact) ? 'invalid' : ''}`}>
+          <input
+            type={contactType === 'email' ? 'email' : 'tel'}
+            id="contact"
+            value={loginForm.contact}
+            onChange={(e) => setLoginForm(prev => ({ ...prev, contact: e.target.value }))}
+            onFocus={() => setLoginEmailFocused(true)}
+            onBlur={() => setLoginEmailFocused(false)}
+            required
+          />
+          <label htmlFor="contact">{contactType === 'email' ? '电子邮件地址' : '手机号'}</label>
+        </div>
+
+        {/* 登录方式选择（分段按钮） */}
+        <div className="segmented" style={{marginTop:8, marginBottom:8}}>
+          <button type="button" className={`seg-btn ${loginMethod==='password'?'active':''}`} onClick={() => setLoginMethod('password')}>密码登录</button>
+          <button type="button" className={`seg-btn ${loginMethod==='code'?'active':''}`} onClick={() => setLoginMethod('code')}>验证码登录</button>
+        </div>
+
+        {/* 密码或验证码 */}
+        {loginMethod === 'password' ? (
+          <div className={`form-field ${loginPasswordFocused || loginForm.password ? 'active' : ''}`}>
+            <input
+              type={loginForm.showPassword ? 'text' : 'password'}
+              id="password"
+              value={loginForm.password}
+              onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+              onFocus={() => setLoginPasswordFocused(true)}
+              onBlur={() => setLoginPasswordFocused(false)}
+              required
+            />
+            <label htmlFor="password">密码</label>
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setLoginForm(prev => ({ ...prev, showPassword: !prev.showPassword }))}
+              aria-label={loginForm.showPassword ? 'Hide password' : 'Show password'}
+            >
+              {loginForm.showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+        ) : (
+          <div className={`form-field ${loginCodeFocused || loginForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'8px'}}>
+            <div style={{position:'relative'}}>
+              <input
+                type="text"
+                id="login-code"
+                value={loginForm.code}
+                onChange={(e) => setLoginForm(prev => ({ ...prev, code: e.target.value }))}
+                onFocus={() => setLoginCodeFocused(true)}
+                onBlur={() => setLoginCodeFocused(false)}
+                required
+              />
+              <label htmlFor="login-code">验证码</label>
+            </div>
+            <button
+              type="button"
+              className="login-button"
+              style={{padding:'10px 14px'}}
+              disabled={loginForm.sendingCode || loginForm.codeCountdown > 0 || !isContactValid}
+              onClick={async () => {
+                try {
+                  setLoginForm(prev => ({ ...prev, sendingCode: true }));
+                  
+                  let result;
+                  if (contactType === 'phone') {
+                    result = await verificationCodeService.sendSmsCode(loginForm.contact, 'LOGIN');
+                  } else {
+                    result = await verificationCodeService.sendEmailCode(loginForm.contact, 'LOGIN');
+                  }
+                  
+                  if (result.success) {
+                    toast({ 
+                      title: '发送成功', 
+                      description: result.message 
+                    });
+                    
+                    // 启动倒计时
+                    let secs = 60; 
+                    setLoginForm(prev => ({ ...prev, codeCountdown: secs }));
+                    const timer = setInterval(() => { 
+                      secs -= 1; 
+                      setLoginForm(prev => ({ ...prev, codeCountdown: Math.max(0, secs) })); 
+                      if (secs <= 0) clearInterval(timer); 
+                    }, 1000);
+                  } else {
+                    toast({ 
+                      title: '发送失败', 
+                      description: result.message, 
+                      variant: 'destructive' 
+                    });
+                  }
+                } catch (err) {
+                  const msg = err instanceof Error ? err.message : '发送验证码失败';
+                  toast({ title: '发送失败', description: msg, variant: 'destructive' });
+                } finally { 
+                  setLoginForm(prev => ({ ...prev, sendingCode: false })); 
+                }
+              }}
+            >
+              {loginForm.sendingCode ? '获取中...' : (loginForm.codeCountdown > 0 ? `${loginForm.codeCountdown}s` : '获取验证码')}
+            </button>
+          </div>
+        )}
+
+        <div className="form-options">
+          <label className="remember-me">
+            <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
+            <span className="checkmark"></span>
+            记住我
+          </label>
+          <Link to="/forgot-password" className="forgot-password">忘记密码?</Link>
+        </div>
+
+        <button
+          type="submit"
+          className="login-button"
+          disabled={loginForm.loading || (loginMethod === 'password' ? (!loginForm.password || !isContactValid) : (!loginForm.code || !isContactValid))}
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          返回首页
-        </Button>
+          登录
+        </button>
+      </form>
+        </>
+      )}
 
-        <Card className="shadow-2xl border-border/30 backdrop-blur-md bg-card/95">
-          <CardHeader className="text-center pb-6 pt-6 sm:pb-8 sm:pt-8">
-            {/* Logo */}
-            <div className="flex justify-center mb-6">
-              <div className="group">
-                <ThemeAwareLogo
-                  size="xl"
-                  showHoverEffect={true}
-                  showBackground={true}
-                />
-              </div>
+      <p className="signup-prompt">
+        没有账号? <a href="#" onClick={(e) => { e.preventDefault(); setMode('register'); }}>{'注册'}</a>
+      </p>
+      {/* 注册模式下的表单（手机号/邮箱 + 验证码） */}
+      {mode === 'register' && (
+        <form className="login-form" onSubmit={handleRegister} style={{marginTop: 24}}>
+
+          {/* 联系方式选择（分段按钮） */}
+          <div className="segmented" style={{marginTop:8, marginBottom:8}}>
+            <button type="button" className={`seg-btn ${registerContactType==='email'?'active':''}`} onClick={() => setRegisterContactType('email')}>邮箱注册</button>
+            <button type="button" className={`seg-btn ${registerContactType==='phone'?'active':''}`} onClick={() => setRegisterContactType('phone')}>手机号注册</button>
+          </div>
+
+          {registerContactType === 'email' ? (
+            <div className={`form-field ${registerEmailFocused || registerForm.email ? 'active' : ''}`}>
+              <input
+                type="email"
+                id="register-email"
+                value={registerForm.email}
+                onChange={(e) => setRegisterForm(prev => ({ ...prev, email: e.target.value }))}
+                onFocus={() => setRegisterEmailFocused(true)}
+                onBlur={() => setRegisterEmailFocused(false)}
+                required
+              />
+              <label htmlFor="register-email">邮箱</label>
             </div>
-            <CardTitle className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-secondary bg-clip-text text-transparent mb-3">
-              欢迎来到文派
-            </CardTitle>
-            <CardDescription className="text-lg text-muted-foreground">
-              AI驱动的创意内容平台
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-6 pb-6 sm:px-8 sm:pb-8">
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6 h-12">
-                <TabsTrigger value="login" className="py-3 text-base font-medium">登录</TabsTrigger>
-                <TabsTrigger value="register" className="py-3 text-base font-medium">注册</TabsTrigger>
-              </TabsList>
-
-              {/* 错误提示 */}
-              {error && (
-                <Alert variant="destructive" className="mb-6">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              {/* 登录表单 */}
-              <TabsContent value="login" className="space-y-4 sm:space-y-6">
-                <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
-                  {/* 联系方式类型选择 */}
-                  <div className="flex gap-2 p-1 bg-muted rounded-lg">
-                    <Button
-                      type="button"
-                      variant={contactType === 'email' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setContactType('email')}
-                      className="flex-1"
-                    >
-                      <Mail className="w-4 h-4 mr-1" />
-                      邮箱
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={contactType === 'phone' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setContactType('phone')}
-                      className="flex-1"
-                    >
-                      <Phone className="w-4 h-4 mr-1" />
-                      手机号
-                    </Button>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="login-contact">
-                      {contactType === 'email' ? '邮箱' : '手机号'}
-                    </Label>
-                    <div className="relative">
-                      {contactType === 'email' ? (
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      )}
-                      <Input
-                        id="login-contact"
-                        type={contactType === 'email' ? 'email' : 'tel'}
-                        placeholder={contactType === 'email' ? '请输入邮箱' : '请输入手机号'}
-                        value={loginForm.contact}
-                        onChange={(e) => setLoginForm(prev => ({ ...prev, contact: e.target.value }))}
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* 登录方式选择 */}
-                  <div className="flex gap-2 p-1 bg-muted rounded-lg">
-                    <Button
-                      type="button"
-                      variant={loginMethod === 'password' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setLoginMethod('password')}
-                      className="flex-1"
-                    >
-                      <Lock className="w-4 h-4 mr-1" />
-                      密码登录
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={loginMethod === 'code' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setLoginMethod('code')}
-                      className="flex-1"
-                    >
-                      <MessageSquare className="w-4 h-4 mr-1" />
-                      验证码登录
-                    </Button>
-                  </div>
-
-                  {/* 密码或验证码输入 */}
-                  {loginMethod === 'password' ? (
-                    <div className="space-y-2">
-                      <Label htmlFor="login-password">密码</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="login-password"
-                          type={loginForm.showPassword ? 'text' : 'password'}
-                          placeholder="请输入密码"
-                          value={loginForm.password}
-                          onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
-                          className="pl-10 pr-10"
-                          required
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setLoginForm(prev => ({ ...prev, showPassword: !prev.showPassword }))}
-                        >
-                          {loginForm.showPassword ? (
-                            <EyeOff className="h-4 w-4 text-muted-foreground" />
-                          ) : (
-                            <Eye className="h-4 w-4 text-muted-foreground" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Label htmlFor="login-code">验证码</Label>
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            id="login-code"
-                            type="text"
-                            placeholder="请输入验证码"
-                            value={loginForm.code}
-                            onChange={(e) => setLoginForm(prev => ({ ...prev, code: e.target.value }))}
-                            className="pl-10"
-                            required
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="px-4 whitespace-nowrap"
-                          onClick={() => {
-                            // ✅ FIXED: 2025-08-30 遵循 api_prohibit_local_mock_error 规则
-                            toast({
-                              title: '功能暂不可用',
-                              description: '验证码登录需要集成真实SMS API',
-                              variant: 'destructive'
-                            });
-                          }}
-                        >
-                          获取验证码
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  <Button 
-                    type="submit" 
-                    className="w-full py-3 text-base font-medium mt-8" 
-                    disabled={loginForm.loading}
-                  >
-                    {loginForm.loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        登录中...
-                      </>
-                    ) : (
-                      '立即登录'
-                    )}
-                  </Button>
-                </form>
-
-                <div className="text-center text-sm text-muted-foreground">
-                  <Link to="/forgot-password" className="hover:text-primary">
-                    忘记密码？
-                  </Link>
-                </div>
-              </TabsContent>
-
-              {/* 注册表单 */}
-              <TabsContent value="register" className="space-y-4 sm:space-y-6">
-                <form onSubmit={handleRegister} className="space-y-4 sm:space-y-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="register-username">用户名</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="register-username"
-                        type="text"
-                        placeholder="请输入用户名"
-                        value={registerForm.username}
-                        onChange={(e) => setRegisterForm(prev => ({ ...prev, username: e.target.value }))}
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* 注册联系方式类型选择 */}
-                  <div className="flex gap-2 p-1 bg-muted rounded-lg">
-                    <Button
-                      type="button"
-                      variant={registerContactType === 'email' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setRegisterContactType('email')}
-                      className="flex-1"
-                    >
-                      <Mail className="w-4 h-4 mr-1" />
-                      邮箱注册
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={registerContactType === 'phone' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setRegisterContactType('phone')}
-                      className="flex-1"
-                    >
-                      <Phone className="w-4 h-4 mr-1" />
-                      手机号注册
-                    </Button>
-                  </div>
-
-                  {/* 联系方式输入 */}
-                  {registerContactType === 'email' ? (
-                    <div className="space-y-2">
-                      <Label htmlFor="register-email">邮箱</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="register-email"
-                          type="email"
-                          placeholder="请输入邮箱"
-                          value={registerForm.email}
-                          onChange={(e) => setRegisterForm(prev => ({ ...prev, email: e.target.value }))}
-                          className="pl-10"
-                          required
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Label htmlFor="register-phone">手机号</Label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="register-phone"
-                          type="tel"
-                          placeholder="请输入手机号"
-                          value={registerForm.phone}
-                          onChange={(e) => setRegisterForm(prev => ({ ...prev, phone: e.target.value }))}
-                          className="pl-10"
-                          required
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <Label htmlFor="register-password">密码</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="register-password"
-                        type={registerForm.showPassword ? 'text' : 'password'}
-                        placeholder="请输入密码（至少6位）"
-                        value={registerForm.password}
-                        onChange={(e) => setRegisterForm(prev => ({ ...prev, password: e.target.value }))}
-                        className="pl-10 pr-10"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setRegisterForm(prev => ({ ...prev, showPassword: !prev.showPassword }))}
-                      >
-                        {registerForm.showPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="register-confirm-password">确认密码</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="register-confirm-password"
-                        type={registerForm.showConfirmPassword ? 'text' : 'password'}
-                        placeholder="请再次输入密码"
-                        value={registerForm.confirmPassword}
-                        onChange={(e) => setRegisterForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        className="pl-10 pr-10"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setRegisterForm(prev => ({ ...prev, showConfirmPassword: !prev.showConfirmPassword }))}
-                      >
-                        {registerForm.showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full py-3 text-base font-medium mt-8" 
-                    disabled={registerForm.loading}
-                  >
-                    {registerForm.loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        注册中...
-                      </>
-                    ) : (
-                      '立即注册'
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-
-            <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-muted-foreground">
-              注册即表示您同意我们的{' '}
-              <Link to="/terms" className="hover:text-primary underline">
-                服务条款
-              </Link>{' '}
-              和{' '}
-              <Link to="/privacy" className="hover:text-primary underline">
-                隐私政策
-              </Link>
+          ) : (
+            <div className={`form-field ${registerPhoneFocused || registerForm.phone ? 'active' : ''}`}>
+              <input
+                type="tel"
+                id="register-phone"
+                value={registerForm.phone}
+                onChange={(e) => setRegisterForm(prev => ({ ...prev, phone: e.target.value }))}
+                onFocus={() => setRegisterPhoneFocused(true)}
+                onBlur={() => setRegisterPhoneFocused(false)}
+                required
+              />
+              <label htmlFor="register-phone">手机号</label>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          )}
+
+          {/* 验证码 */}
+          <div className={`form-field ${registerCodeFocused || registerForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'8px'}}>
+            <div style={{position:'relative'}}>
+              <input
+                type="text"
+                id="register-code"
+                value={registerForm.code}
+                onChange={(e) => setRegisterForm(prev => ({ ...prev, code: e.target.value }))}
+                onFocus={() => setRegisterCodeFocused(true)}
+                onBlur={() => setRegisterCodeFocused(false)}
+                required
+              />
+              <label htmlFor="register-code">验证码</label>
+            </div>
+            <button
+              type="button"
+              className="login-button"
+              style={{padding:'10px 14px'}}
+              disabled={registerForm.sendingCode || registerForm.codeCountdown > 0 || (!registerForm.email && !registerForm.phone)}
+              onClick={async () => {
+                try {
+                  setRegisterForm(prev => ({ ...prev, sendingCode: true }));
+                  
+                  let result;
+                  if (registerContactType === 'phone') {
+                    result = await verificationCodeService.sendSmsCode(registerForm.phone, 'REGISTER');
+                  } else {
+                    result = await verificationCodeService.sendEmailCode(registerForm.email, 'REGISTER');
+                  }
+                  
+                  if (result.success) {
+                    toast({ 
+                      title: '发送成功', 
+                      description: result.message 
+                    });
+                    
+                    // 启动倒计时
+                    let secs = 60; 
+                    setRegisterForm(prev => ({ ...prev, codeCountdown: secs }));
+                    const timer = setInterval(() => { 
+                      secs -= 1; 
+                      setRegisterForm(prev => ({ ...prev, codeCountdown: Math.max(0, secs) })); 
+                      if (secs <= 0) clearInterval(timer); 
+                    }, 1000);
+                  } else {
+                    toast({ 
+                      title: '发送失败', 
+                      description: result.message, 
+                      variant: 'destructive' 
+                    });
+                  }
+                } catch (err) {
+                  const msg = err instanceof Error ? err.message : '发送验证码失败';
+                  toast({ title: '发送失败', description: msg, variant: 'destructive' });
+                } finally { 
+                  setRegisterForm(prev => ({ ...prev, sendingCode: false })); 
+                }
+              }}
+            >
+              {registerForm.sendingCode ? '获取中...' : (registerForm.codeCountdown > 0 ? `${registerForm.codeCountdown}s` : '获取验证码')}
+            </button>
+          </div>
+
+          {/* 密码 */}
+          <div className={`form-field ${registerPasswordFocused || registerForm.password ? 'active' : ''}`}>
+            <input
+              type="password"
+              id="register-password"
+              value={registerForm.password}
+              onChange={(e) => setRegisterForm(prev => ({ ...prev, password: e.target.value }))}
+              onFocus={() => setRegisterPasswordFocused(true)}
+              onBlur={() => setRegisterPasswordFocused(false)}
+              required
+            />
+            <label htmlFor="register-password">密码（至少6位）</label>
+          </div>
+
+          <div className={`form-field ${registerConfirmFocused || registerForm.confirmPassword ? 'active' : ''} ${registerForm.confirmPassword && !passwordsMatch ? 'invalid' : ''}`}>
+            <input
+              type="password"
+              id="register-confirm"
+              value={registerForm.confirmPassword}
+              onChange={(e) => setRegisterForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+              onFocus={() => setRegisterConfirmFocused(true)}
+              onBlur={() => setRegisterConfirmFocused(false)}
+              required
+            />
+            <label htmlFor="register-confirm">确认密码</label>
+            {registerForm.confirmPassword && !passwordsMatch && (
+              <span className="error-message" style={{position:'absolute', right:0, top:'100%', marginTop:4, color:'#ef4444', fontSize:12}}>
+                两次密码不一致
+              </span>
+            )}
+          </div>
+
+          <div className="form-options" style={{marginTop:12}}>
+            <label className="remember-me" style={{userSelect:'none'}}>
+              <input type="checkbox" checked={registerAgreed} onChange={(e)=>setRegisterAgreed(e.target.checked)} />
+              <span className="checkmark"></span>
+              我已阅读并同意 <Link to="/privacy" className="forgot-password">隐私政策</Link> 和 <Link to="/terms" className="forgot-password">服务条款</Link>
+            </label>
+          </div>
+          <p className="signup-prompt">
+            已有账号？<a href="#" onClick={(e)=>{e.preventDefault(); setMode('login');}}>返回登录</a>
+          </p>
+
+          <button type="submit" className="login-button" disabled={registerForm.loading || !registerAgreed || !passwordsMatch}>
+            立即注册
+          </button>
+        </form>
+      )}
     </div>
+    </AnimatedAuthShell>
   );
 };
 

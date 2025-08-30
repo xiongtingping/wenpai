@@ -52,6 +52,7 @@ import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 import ShareManagerPage from '@/pages/ShareManagerPage';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 import { CustomLoginPage } from '@/pages/CustomLoginPage';
+import SupabaseTestPage from '@/pages/SupabaseTestPage';
 import { DevPermissionSwitcher } from '@/components/dev/DevPermissionSwitcher';
 // 移除调试页面
 // 移除测试组件
@@ -113,74 +114,75 @@ const App: React.FC = () => {
             <UnifiedAuthProvider>
               <ErrorBoundary>
                     <>
-                      <div className="min-h-screen bg-background pt-20">
-                <ConditionalNavigation>
-                  <Suspense fallback={<LoadingSpinner />}>
-                  <Routes>
-                    {/* 首页 */}
-                    <Route path="/" element={<HomePage />} />
+                  <ConditionalNavigation>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <Routes>
+                        {/* 首页 */}
+                        <Route path="/" element={<HomePage />} />
 
-                    {/* 登录页面 */}
-                    <Route path="/custom-login" element={<CustomLoginPage />} />
+                        {/* 登录页面 */}
+                        <Route path="/custom-login" element={<CustomLoginPage />} />
 
-                    {/* 登录回调页面 - 支持各种回调URL格式 */}
-                    <Route path="/callback" element={<CallbackPage />} />
-                    <Route path="/callback/" element={<CallbackPage />} />
-                    <Route path="/callback/*" element={<CallbackPage />} />
-                    <Route path="/callbackhttp/*" element={<CallbackPage />} />
+                        {/* 登录回调页面 - 支持各种回调URL格式 */}
+                        <Route path="/callback" element={<CallbackPage />} />
+                        <Route path="/callback/" element={<CallbackPage />} />
+                        <Route path="/callback/*" element={<CallbackPage />} />
+                        <Route path="/callbackhttp/*" element={<CallbackPage />} />
 
-                    {/* 核心功能页面 - 需要登录 */}
-                    <Route path="/adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
-                    <Route path="/new-adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
-                    <Route path="/creative-studio" element={<AuthGuard><CreativeStudioPage /></AuthGuard>} />
-                    <Route path="/hot-topics" element={<HotTopicsPage />} />
-                    <Route path="/bookmark" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
-                    <Route path="/library" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
-                    <Route path="/brand-library" element={<AuthGuard><BrandLibraryPage /></AuthGuard>} />
-                    <Route path="/history" element={<AuthGuard><HistoryPage /></AuthGuard>} />
-                    <Route path="/emoji" element={<EmojiPage />} />
-                    <Route path="/share-manager" element={<AuthGuard><ShareManagerPage /></AuthGuard>} />
-                    <Route path="/wechat-templates" element={<AuthGuard><WechatTemplatePage /></AuthGuard>} />
+                        {/* 核心功能页面 - 需要登录 */}
+                        <Route path="/adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
+                        <Route path="/new-adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
+                        <Route path="/creative-studio" element={<AuthGuard><CreativeStudioPage /></AuthGuard>} />
+                        <Route path="/hot-topics" element={<HotTopicsPage />} />
+                        <Route path="/bookmark" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
+                        <Route path="/library" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
+                        <Route path="/brand-library" element={<AuthGuard><BrandLibraryPage /></AuthGuard>} />
+                        <Route path="/history" element={<AuthGuard><HistoryPage /></AuthGuard>} />
+                        <Route path="/emoji" element={<EmojiPage />} />
+                        <Route path="/share-manager" element={<AuthGuard><ShareManagerPage /></AuthGuard>} />
+                        <Route path="/wechat-templates" element={<AuthGuard><WechatTemplatePage /></AuthGuard>} />
 
-                    {/* 用户相关页面 - 需要登录 */}
-                    <Route path="/profile" element={<AuthGuard><ProfilePage /></AuthGuard>} />
-                    <Route path="/settings" element={<AuthGuard><SettingsPage /></AuthGuard>} />
+                        {/* 用户相关页面 - 需要登录 */}
+                        <Route path="/profile" element={<AuthGuard><ProfilePage /></AuthGuard>} />
+                        <Route path="/settings" element={<AuthGuard><SettingsPage /></AuthGuard>} />
 
-                    {/* 支付相关页面 */}
-                    <Route path="/payment" element={<PaymentPage />} />
-                    <Route path="/payment-status" element={<PaymentStatusPage />} />
-                    <Route path="/upgrade" element={<UpgradeComparisonPage />} />
+                        {/* 支付相关页面 */}
+                        <Route path="/payment" element={<PaymentPage />} />
+                        <Route path="/payment-status" element={<PaymentStatusPage />} />
+                        <Route path="/upgrade" element={<UpgradeComparisonPage />} />
 
-                    {/* 信息页面 */}
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/terms" element={<TermsPage />} />
-                    <Route path="/privacy" element={<PrivacyPage />} />
-                    <Route path="/features" element={<FeatureShowcasePage />} />
+                        {/* 信息页面 */}
+                        <Route path="/about" element={<AboutPage />} />
+                        <Route path="/terms" element={<TermsPage />} />
+                        <Route path="/privacy" element={<PrivacyPage />} />
+                        <Route path="/features" element={<FeatureShowcasePage />} />
 
-                    {/* 调试页面已移除 */}
+                        {/* 数据库测试页面 */}
+                        <Route path="/supabase-test" element={<AuthGuard><SupabaseTestPage /></AuthGuard>} />
 
-                    {/* 错误页面 */}
-                    <Route path="/403" element={<ForbiddenPage />} />
-                    <Route path="/404" element={<NotFoundPage />} />
-                    
-                    {/* 捕获所有未匹配路由，检查是否为恶意回调URL */}
-                    <Route path="*" element={<CallbackPage />} />
-                  </Routes>
-                </Suspense>
-              </ConditionalNavigation>
-            </div>
+                        {/* 调试页面已移除 */}
 
-              {/* 全局通知组件 */}
-              <Toaster />
+                        {/* 错误页面 */}
+                        <Route path="/403" element={<ForbiddenPage />} />
+                        <Route path="/404" element={<NotFoundPage />} />
+                        
+                        {/* 捕获所有未匹配路由，检查是否为恶意回调URL */}
+                        <Route path="*" element={<CallbackPage />} />
+                      </Routes>
+                    </Suspense>
+                  </ConditionalNavigation>
 
-              {/* 自定义认证模态框 */}
-              <AuthModalWrapper />
+                  {/* 全局通知组件 */}
+                  <Toaster />
 
-              {/* 开发环境权限切换器 */}
-              <DevPermissionSwitcher />
+                  {/* 自定义认证模态框 */}
+                  <AuthModalWrapper />
 
-              {/* 返回顶部按钮 */}
-              <ScrollToTop />
+                  {/* 开发环境权限切换器 */}
+                  <DevPermissionSwitcher />
+
+                  {/* 返回顶部按钮 */}
+                  <ScrollToTop />
                     </>
                 </ErrorBoundary>
             </UnifiedAuthProvider>

@@ -30,6 +30,8 @@ function HomePage() {
 
       {/* Header - 独立于背景之外，确保固定定位 */}
       <Header />
+      {/* 动态占位，避免被头部遮挡，同时让头部悬浮于任何滚动位置均可见 */}
+      <div aria-hidden className="h-[var(--header-height,64px)]"></div>
 
       {/* 全页面背景效果 */}
       <WavyBackground
@@ -42,35 +44,35 @@ function HomePage() {
         <div className="relative z-10 flex-1 min-h-screen flex flex-col">
 
           <main className="flex-1 w-full">
-            {/* Hero Section - 真正的全屏显示，考虑Header高度 */}
-            <div className="relative h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-20">
+            {/* Hero Section - 由组件内部控制首屏高度与间距（已考虑Header高度） */}
+            <div className="relative min-h-[calc(100vh-var(--header-height,64px))] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-0">
               <div className="max-w-7xl mx-auto text-center w-full">
                 <HeroSection />
               </div>
             </div>
 
             {/* Trust Section */}
-            <div className="py-6 sm:py-8 lg:py-10 bg-background/60 backdrop-blur-sm">
+            <div className="py-4 sm:py-6 lg:py-8 bg-background/60 backdrop-blur-sm mt-6 sm:mt-8 lg:mt-10">
               <TrustSection />
             </div>
 
             {/* How It Works */}
-            <div className="py-12 sm:py-16 lg:py-20">
+            <div className="py-8 sm:py-10 lg:py-12">
               <HowItWorks />
             </div>
 
             {/* Features Section */}
-            <div className="py-12 sm:py-16 lg:py-20 bg-card/30 backdrop-blur-sm">
+            <div className="py-6 sm:py-8 lg:py-10 bg-card/30 backdrop-blur-sm">
               <FeaturesSection />
             </div>
 
             {/* Testimonials Section */}
-            <div className="py-12 sm:py-16 lg:py-20">
+            <div className="py-6 sm:py-8 lg:py-10">
               <TestimonialsSection />
             </div>
 
             {/* Pricing Section */}
-            <div className="py-12 sm:py-16 lg:py-20 bg-background/60 backdrop-blur-sm">
+            <div className="py-4 sm:py-6 lg:py-8 bg-background/60 backdrop-blur-sm">
               <PricingSection />
             </div>
 

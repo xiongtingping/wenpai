@@ -25,6 +25,8 @@ import { useNavigate } from 'react-router-dom';
 import { useGuard, User } from '@authing/guard-react18';
 import { getAuthingConfig } from '@/config/authing';
 import { useAuthStore } from '@/store/authStore';
+import { authService } from '@/services/authService';
+import { verificationCodeService } from '@/services/verificationCodeService';
 
 /**
  * 用户信息接口
@@ -144,17 +146,24 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         if (userInfo) {
           console.log('✅ 从 Guard 检测到用户登录状态:', userInfo);
           
+          // 🚨 关键：用户ID必须来自Authing真实API，不能本地生成
+          const userId = userInfo.id || userInfo.userId || userInfo.sub;
+          if (!userId) {
+            console.error('❌ Authing API未返回有效用户ID:', userInfo);
+            throw new Error('认证系统错误：未获取到有效用户ID');
+          }
+
           // 转换为统一格式
           const formattedUser: UserInfo = {
-            id: userInfo.id || userInfo.userId || userInfo.sub || `user_${Date.now()}`,
+            id: userId, // 🔒 用户ID必须来自Authing服务器
             username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
             email: userInfo.email || userInfo.emailAddress || '',
             phone: userInfo.phone || userInfo.phoneNumber || '',
             nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
             avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
             loginTime: new Date().toISOString(),
-            roles: ['user'],
-            permissions: ['basic'],
+            roles: userInfo.roles || ['user'],
+            permissions: userInfo.permissions || ['basic'],
             ...userInfo
           };
           
@@ -229,17 +238,24 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       console.log('🔐 处理Guard登录成功:', userInfo);
 
+      // 🚨 关键：用户ID必须来自Authing真实API，不能本地生成
+      const userId = userInfo.id || userInfo.userId || userInfo.sub;
+      if (!userId) {
+        console.error('❌ Authing登录API未返回有效用户ID:', userInfo);
+        throw new Error('认证系统错误：未获取到有效用户ID');
+      }
+
       // 转换为统一用户信息格式
       const formattedUser: UserInfo = {
-        id: userInfo.id || userInfo.userId || userInfo.sub || `user_${Date.now()}`,
+        id: userId, // 🔒 用户ID必须来自Authing服务器
         username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
         email: userInfo.email || userInfo.emailAddress || '',
         phone: userInfo.phone || userInfo.phoneNumber || '',
         nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
         avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
         loginTime: new Date().toISOString(),
-        roles: ['user'],
-        permissions: ['basic'],
+        roles: userInfo.roles || ['user'],
+        permissions: userInfo.permissions || ['basic'],
         ...userInfo
       };
 
@@ -387,12 +403,27 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const updateUser = async (updates: Partial<UserInfo>) => {
-    if (user && guard) {
-      try {
-        // 1. 立即更新本地状态（用户体验）
+    if (!user) {
+      throw new Error('用户未登录');
+    }
+
+    try {
+      console.log('🔄 开始更新用户信息到Authing服务器...');
+      
+      // 🚨 关键：必须先调用真实API，成功后才能更新本地状态
+      const result = await authService.updateProfile({
+        nickname: updates.nickname,
+        avatar: updates.avatar,
+        email: updates.email,
+        phone: updates.phone
+      });
+
+      if (result.success && result.user) {
+        // API成功后更新本地状态
         const updatedUser = { ...user, ...updates };
         setUser(updatedUser);
         localStorage.setItem('authing_user', JSON.stringify(updatedUser));
+        
         // 同步到 authStore
         authStore.setUser({
           id: updatedUser.id,
@@ -403,61 +434,141 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           avatar: updatedUser.avatar,
           loginTime: updatedUser.loginTime
         });
-        console.log('🔄 本地用户信息已更新，开始同步服务器...');
-        
-        // 2. 同步到Authing服务器
-        const updateData: any = {};
-        
-        if (updates.avatar) {
-          updateData.photo = updates.avatar;
-          console.log('📸 准备同步头像到服务器:', updates.avatar.substring(0, 50) + '...');
-        }
-        
-        if (updates.nickname) {
-          updateData.nickname = updates.nickname;
-          console.log('🏷️ 准备同步昵称到服务器:', updates.nickname);
-        }
-        
-        if (updates.email) {
-          updateData.email = updates.email;
-        }
-        
-        if (Object.keys(updateData).length > 0) {
-          console.log('🔄 调用Guard updateProfile API...');
-          const result = await guard.updateProfile(updateData);
-          console.log('✅ 服务器同步成功:', result);
-        }
-        
+
         console.log('✅ 用户信息更新并同步成功:', updatedUser);
-      } catch (error) {
-        console.error('❌ 服务器同步失败，但本地已更新:', error);
-        // 本地更新已完成，即使服务器同步失败用户也能看到变化
+      } else {
+        throw new Error(result.message || '更新失败');
       }
+      
+    } catch (error) {
+      console.error('❌ 用户信息更新失败:', error);
+      // 🚨 关键：API失败时不能掩盖错误，必须向上抛出
+      const errorMessage = error instanceof Error ? error.message : '更新用户信息失败';
+      throw new Error(errorMessage);
     }
   };
 
 
   /**
-   * 其他登录方法 - 统一使用Guard跳转
+   * 密码登录 - 连接真实Authing API
    */
-  const loginWithPassword = async (_username: string, _password: string) => {
-    await login();
+  const loginWithPassword = async (username: string, password: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await authService.loginByPassword(username, password);
+      
+      if (result.success && result.user) {
+        // 登录成功，设置用户信息
+        handleAuthingLogin(result.user as any);
+        return;
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '登录失败';
+      setError(errorMessage);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const loginWithEmailCode = async (_email: string, _code: string) => {
-    await login();
+  const loginWithEmailCode = async (email: string, code: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await verificationCodeService.loginByEmailCode(email, code);
+      
+      if (result.success && result.data) {
+        handleAuthingLogin(result.data);
+        return;
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '登录失败';
+      setError(errorMessage);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const loginWithPhoneCode = async (_phone: string, _code: string) => {
-    await login();
+  const loginWithPhoneCode = async (phone: string, code: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await verificationCodeService.loginByPhoneCode(phone, code);
+      
+      if (result.success && result.data) {
+        handleAuthingLogin(result.data);
+        return;
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '登录失败';
+      setError(errorMessage);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const sendVerificationCode = async (_email: string, _scene: 'login' | 'register' | 'reset' = 'login') => {
-    console.log('📧 验证码发送由Guard UI处理');
+  const sendVerificationCode = async (email: string, scene: 'login' | 'register' | 'reset' = 'login') => {
+    try {
+      const result = await verificationCodeService.sendEmailCode(email, scene.toUpperCase());
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return result;
+    } catch (error) {
+      console.error('发送验证码失败:', error);
+      throw error;
+    }
   };
 
-  const registerUser = async (_userInfo: any) => {
-    await register();
+  const registerUser = async (userInfo: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // 根据注册类型选择不同的注册方法
+      let result;
+      if (userInfo.phone && userInfo.code) {
+        result = await verificationCodeService.registerByPhoneCode(
+          userInfo.phone, 
+          userInfo.code, 
+          userInfo.password
+        );
+      } else if (userInfo.email && userInfo.code) {
+        result = await verificationCodeService.registerByEmailCode(
+          userInfo.email, 
+          userInfo.code, 
+          userInfo.password
+        );
+      } else {
+        throw new Error('注册信息不完整');
+      }
+      
+      if (result.success && result.data) {
+        // 注册成功，设置用户信息
+        handleAuthingLogin(result.data);
+        return result;
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '注册失败';
+      setError(errorMessage);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resetPassword = async (_email: string, _code: string, _newPassword: string) => {

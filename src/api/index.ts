@@ -38,7 +38,10 @@ export {
 // 推荐系统 API
 export { 
   sendReferralReward,
-  mockReferralReward
+  getReferralStats,
+  validateReferrerId,
+  generateReferralLink,
+  copyReferralLink
 } from './referralService';
 
 // 图像生成 API - 代理服务（仅生产环境使用）

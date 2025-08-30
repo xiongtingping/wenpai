@@ -37,11 +37,11 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative py-16 px-4 sm:px-6 lg:px-8" style={{ minHeight: 'auto' }}>
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center">
+    <section className="relative px-4 sm:px-6 lg:px-8 min-h-[calc(100vh-var(--header-height,64px))] flex flex-col justify-center pt-20 sm:pt-24 lg:pt-28 pb-12">
+      <div className="max-w-7xl mx-auto w-full">
+        <div className="text-center w-full">
           {/* 主标题 - 移除大logo后的优化布局 */}
-          <div className="mb-12">
+          <div className="mb-10 mt-0">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 leading-tight">
               <span className="rainbow-logo-text">
                 AI驱动的新媒体内容多平台适配
@@ -111,7 +111,7 @@ const HeroSection: React.FC = () => {
           </div>
           
           {/* 核心优势 - 重新设计 */}
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-5xl mx-auto mt-14 sm:mt-16 lg:mt-20">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* 快速生成 */}
               <div className="group relative">

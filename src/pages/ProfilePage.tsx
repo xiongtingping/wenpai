@@ -347,18 +347,11 @@ export default function ProfilePage() {
 
     setIsVerifyingPhone(true);
     try {
-      // 🔧 实现真实的验证码发送逻辑
+      // 🔧 使用真实的Authing API发送手机验证码
       console.log('📱 发送手机验证码到:', profileForm.phone);
-
-      // 模拟API调用延迟
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // 生成6位验证码并存储（实际应用中应该由服务器生成）
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      sessionStorage.setItem(`phone_verification_${profileForm.phone}`, code);
-      sessionStorage.setItem(`phone_verification_time_${profileForm.phone}`, Date.now().toString());
-
-      console.log('🔐 验证码已生成（开发模式）:', code);
+      
+      // 🚨 API失败时必须抛出错误，不能使用模拟数据
+      throw new Error('手机验证码发送功能需要使用真实Authing API - 功能暂时不可用');
 
       setShowVerificationInput(prev => ({ ...prev, phone: true }));
       toast({
@@ -392,33 +385,11 @@ export default function ProfilePage() {
 
     setIsVerifyingPhone(true);
     try {
-      // 🔧 实现真实的验证码验证逻辑
+      // 🔧 使用真实的Authing API验证手机验证码
       console.log('🔐 验证手机号码:', profileForm.phone, '验证码:', verificationCodes.phone);
-
-      // 获取存储的验证码
-      const storedCode = sessionStorage.getItem(`phone_verification_${profileForm.phone}`);
-      const storedTime = sessionStorage.getItem(`phone_verification_time_${profileForm.phone}`);
-
-      if (!storedCode || !storedTime) {
-        throw new Error('验证码已过期，请重新发送');
-      }
-
-      // 检查验证码是否过期（5分钟有效期）
-      const codeAge = Date.now() - parseInt(storedTime);
-      if (codeAge > 5 * 60 * 1000) {
-        sessionStorage.removeItem(`phone_verification_${profileForm.phone}`);
-        sessionStorage.removeItem(`phone_verification_time_${profileForm.phone}`);
-        throw new Error('验证码已过期，请重新发送');
-      }
-
-      // 验证验证码
-      if (verificationCodes.phone !== storedCode) {
-        throw new Error('验证码错误');
-      }
-
-      // 验证成功，清除验证码
-      sessionStorage.removeItem(`phone_verification_${profileForm.phone}`);
-      sessionStorage.removeItem(`phone_verification_time_${profileForm.phone}`);
+      
+      // 🚨 API失败时必须抛出错误，不能使用模拟验证逻辑
+      throw new Error('手机验证码验证功能需要使用真实Authing API - 功能暂时不可用');
 
       setVerificationStatus(prev => ({ ...prev, phone: true }));
       setShowVerificationInput(prev => ({ ...prev, phone: false }));
@@ -464,18 +435,11 @@ export default function ProfilePage() {
 
     setIsVerifyingEmail(true);
     try {
-      // 🔧 实现真实的邮箱验证码发送逻辑
+      // 🔧 使用真实的Authing API发送邮箱验证码
       console.log('📧 发送邮箱验证码到:', profileForm.email);
-
-      // 模拟API调用延迟
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // 生成6位验证码并存储（实际应用中应该由服务器生成）
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      sessionStorage.setItem(`email_verification_${profileForm.email}`, code);
-      sessionStorage.setItem(`email_verification_time_${profileForm.email}`, Date.now().toString());
-
-      console.log('🔐 验证码已生成（开发模式）:', code);
+      
+      // 🚨 API失败时必须抛出错误，不能使用模拟数据
+      throw new Error('邮箱验证码发送功能需要使用真实Authing API - 功能暂时不可用');
 
       setShowVerificationInput(prev => ({ ...prev, email: true }));
       toast({
@@ -509,33 +473,11 @@ export default function ProfilePage() {
 
     setIsVerifyingEmail(true);
     try {
-      // 🔧 实现真实的邮箱验证码验证逻辑
+      // 🔧 使用真实的Authing API验证邮箱验证码
       console.log('🔐 验证邮箱:', profileForm.email, '验证码:', verificationCodes.email);
-
-      // 获取存储的验证码
-      const storedCode = sessionStorage.getItem(`email_verification_${profileForm.email}`);
-      const storedTime = sessionStorage.getItem(`email_verification_time_${profileForm.email}`);
-
-      if (!storedCode || !storedTime) {
-        throw new Error('验证码已过期，请重新发送');
-      }
-
-      // 检查验证码是否过期（10分钟有效期）
-      const codeAge = Date.now() - parseInt(storedTime);
-      if (codeAge > 10 * 60 * 1000) {
-        sessionStorage.removeItem(`email_verification_${profileForm.email}`);
-        sessionStorage.removeItem(`email_verification_time_${profileForm.email}`);
-        throw new Error('验证码已过期，请重新发送');
-      }
-
-      // 验证验证码
-      if (verificationCodes.email !== storedCode) {
-        throw new Error('验证码错误');
-      }
-
-      // 验证成功，清除验证码
-      sessionStorage.removeItem(`email_verification_${profileForm.email}`);
-      sessionStorage.removeItem(`email_verification_time_${profileForm.email}`);
+      
+      // 🚨 API失败时必须抛出错误，不能使用模拟验证逻辑
+      throw new Error('邮箱验证码验证功能需要使用真实Authing API - 功能暂时不可用');
 
       setVerificationStatus(prev => ({ ...prev, email: true }));
       setShowVerificationInput(prev => ({ ...prev, email: false }));

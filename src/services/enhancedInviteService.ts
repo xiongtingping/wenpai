@@ -5,6 +5,8 @@
 
 import { request } from '@/api/request';
 import { unifiedUsageService } from '@/services/unifiedUsageService';
+import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
+import { logger } from '@/utils/logger';
 
 /**
  * 邀请关系接口
@@ -101,8 +103,12 @@ export interface InviteAnalytics {
  */
 class EnhancedInviteService {
   private readonly API_ENDPOINT = '/api/enhanced-invite';
-  private readonly STORAGE_KEY = 'enhanced_invite_cache';
   private readonly SYNC_INTERVAL = 2 * 60 * 1000; // 2分钟同步一次
+  
+  // Supabase表名常量 - 使用统一的TABLE_NAMES常量
+  private readonly INVITE_RELATIONS_TABLE = TABLE_NAMES.USER_INVITE_RELATIONS;
+  private readonly INVITE_STATS_TABLE = TABLE_NAMES.USER_INVITE_STATS;
+  private readonly INVITE_EVENTS_TABLE = TABLE_NAMES.USER_INVITE_EVENTS;
   
   private syncTimer: NodeJS.Timeout | null = null;
   private pendingSyncData: Map<string, any> = new Map();
@@ -125,11 +131,10 @@ class EnhancedInviteService {
       const response = await request.get(`${this.API_ENDPOINT}/link/${userId}`);
       return response.data.inviteLink;
     } catch (error) {
-      console.warn('生成邀请链接失败，使用本地生成:', error);
+      console.error('生成邀请链接失败:', error);
       
-      // 本地生成邀请链接
-      const baseUrl = window.location.origin;
-      return `${baseUrl}/register?inviter=${userId}&t=${Date.now()}`;
+      // 🚨 API失败时必须抛出错误，不能使用本地生成
+      throw new Error(`邀请链接生成API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -138,8 +143,8 @@ class EnhancedInviteService {
    */
   async trackInviteLinkClick(inviterId: string, metadata?: Record<string, any>): Promise<void> {
     try {
-      // 1. 立即记录到本地
-      this.recordLocalEvent('link_click', { inviterId, metadata });
+      // 1. 立即记录到Supabase数据库
+      await this.recordInviteEvent('link_click', { inviterId, metadata });
       
       // 2. 异步同步到后端
       await request.post(`${this.API_ENDPOINT}/track-click`, {
@@ -152,9 +157,9 @@ class EnhancedInviteService {
         }
       });
     } catch (error) {
-      console.warn('跟踪邀请链接点击失败:', error);
-      // 添加到待同步队列
-      this.addToPendingSync('track_click', { inviterId, metadata });
+      console.error('跟踪邀请链接点击失败:', error);
+      // 🚨 API失败时必须抛出错误，不能使用本地队列
+      throw new Error(`邀请链接点击跟踪失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -172,28 +177,14 @@ class EnhancedInviteService {
       
       const relation: InviteRelation = response.data;
       
-      // 更新本地缓存
-      this.updateLocalInviteCache(relation);
+      // 更新Supabase数据库
+      await this.saveInviteRelation(relation);
       
       return relation;
     } catch (error) {
       console.error('绑定邀请关系失败:', error);
-      
-      // 创建本地邀请关系记录
-      const relation: InviteRelation = {
-        id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        inviterId,
-        inviteeId,
-        createdAt: new Date().toISOString(),
-        status: 'registered',
-        rewardProcessed: false,
-        source: 'link'
-      };
-      
-      this.updateLocalInviteCache(relation);
-      this.addToPendingSync('bind_relation', relation);
-      
-      return relation;
+      // 🚨 API失败时必须抛出错误，不能使用本地数据
+      throw new Error(`绑定邀请关系失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -236,11 +227,8 @@ class EnhancedInviteService {
       return true;
     } catch (error) {
       console.error('处理邀请奖励失败:', error);
-      
-      // 添加到待同步队列
-      this.addToPendingSync('process_reward', { inviterId, inviteeId });
-      
-      return false;
+      // 🚨 奖励处理失败时必须抛出错误
+      throw new Error(`处理邀请奖励失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -252,15 +240,14 @@ class EnhancedInviteService {
       const response = await request.get(`${this.API_ENDPOINT}/stats/${userId}`);
       const stats: InviteStats = response.data;
       
-      // 更新本地缓存
-      this.updateLocalStatsCache(userId, stats);
+      // 更新Supabase数据库
+      await this.saveInviteStats(userId, stats);
       
       return stats;
     } catch (error) {
-      console.warn('获取邀请统计失败，使用本地缓存:', error);
-      
-      // 返回本地缓存或默认数据
-      return this.getLocalInviteStats(userId);
+      console.error('获取邀请统计失败:', error);
+      // 🚨 API失败时必须抛出错误，不能使用本地数据
+      throw new Error(`获取邀请统计失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -272,8 +259,9 @@ class EnhancedInviteService {
       const response = await request.get(`${this.API_ENDPOINT}/relations/${userId}`);
       return response.data;
     } catch (error) {
-      console.warn('获取邀请关系失败，使用本地缓存:', error);
-      return this.getLocalInviteRelations(userId);
+      console.error('获取邀请关系失败:', error);
+      // 🚨 API失败时必须抛出错误，不能使用本地数据
+      throw new Error(`获取邀请关系失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -285,8 +273,9 @@ class EnhancedInviteService {
       const response = await request.get(`${this.API_ENDPOINT}/analytics/${userId}?period=${period}`);
       return response.data;
     } catch (error) {
-      console.warn('获取邀请分析失败，返回默认数据:', error);
-      return this.getDefaultAnalytics(period);
+      console.error('获取邀请分析失败:', error);
+      // 🚨 API失败时必须抛出错误，不能返回默认数据
+      throw new Error(`获取邀请分析失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -316,13 +305,17 @@ class EnhancedInviteService {
    */
   private async addUsageCount(userId: string, amount: number): Promise<boolean> {
     try {
-      // 这里应该调用后端API增加使用次数
-      // 目前使用模拟实现
-      console.log(`为用户 ${userId} 增加 ${amount} 次使用机会`);
+      // 🚨 必须调用真实的后端API增加使用次数
+      await request.post('/api/usage/add', {
+        userId,
+        amount
+      });
+      console.log(`✅ 为用户 ${userId} 增加 ${amount} 次使用机会`);
       return true;
     } catch (error) {
       console.error('添加使用次数失败:', error);
-      return false;
+      // 🚨 API失败时必须抛出错误，不能返回false掩盖问题
+      throw new Error(`增加使用次数API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -334,8 +327,9 @@ class EnhancedInviteService {
       const response = await request.get(`${this.API_ENDPOINT}/relation/${inviteeId}`);
       return response.data;
     } catch (error) {
-      console.warn('获取邀请关系失败:', error);
-      return this.getLocalInviteRelation(inviteeId);
+      console.error('获取邀请关系失败:', error);
+      // 🚨 API失败时必须抛出错误，不能使用本地关系数据
+      throw new Error(`获取邀请关系API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -354,157 +348,68 @@ class EnhancedInviteService {
         updatedAt: new Date().toISOString()
       });
     } catch (error) {
-      console.warn('更新邀请关系状态失败:', error);
-      this.addToPendingSync('update_relation', { relationId, status, updates });
+      console.error('更新邀请关系状态失败:', error);
+      throw new Error(`更新邀请关系状态失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
   /**
-   * 记录本地事件
+   * 记录邀请事件到Supabase数据库
    */
-  private recordLocalEvent(eventType: string, data: any): void {
+  private async recordInviteEvent(eventType: string, data: any): Promise<void> {
     try {
-      const events = this.getLocalEvents();
-      events.push({
+      const eventRecord = {
         type: eventType,
         data,
         timestamp: new Date().toISOString()
-      });
+      };
       
-      // 只保留最近1000个事件
-      if (events.length > 1000) {
-        events.splice(0, events.length - 1000);
-      }
+      const dataService = createDataService(data.inviterId, this.INVITE_EVENTS_TABLE);
+      await dataService.create(eventRecord);
       
-      localStorage.setItem(`${this.STORAGE_KEY}_events`, JSON.stringify(events));
+      logger.debug('✅ 邀请事件记录成功:', { eventType, inviterId: data.inviterId });
     } catch (error) {
-      console.error('记录本地事件失败:', error);
+      console.error('记录邀请事件失败:', error);
+      throw new Error(`邀请事件记录失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
   /**
-   * 获取本地事件
+   * 保存邀请关系到Supabase数据库
    */
-  private getLocalEvents(): any[] {
+  private async saveInviteRelation(relation: InviteRelation): Promise<void> {
     try {
-      const data = localStorage.getItem(`${this.STORAGE_KEY}_events`);
-      return data ? JSON.parse(data) : [];
+      const dataService = createDataService(relation.inviterId, this.INVITE_RELATIONS_TABLE);
+      await dataService.create(relation);
+      
+      logger.debug('✅ 邀请关系保存成功:', { relationId: relation.id, inviterId: relation.inviterId });
     } catch (error) {
-      console.error('获取本地事件失败:', error);
-      return [];
+      console.error('保存邀请关系失败:', error);
+      throw new Error(`保存邀请关系失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
   /**
-   * 更新本地邀请缓存
+   * 保存邀请统计到Supabase数据库
    */
-  private updateLocalInviteCache(relation: InviteRelation): void {
+  private async saveInviteStats(userId: string, stats: InviteStats): Promise<void> {
     try {
-      const cache = this.getLocalInviteCache();
-      cache[relation.id] = relation;
-      localStorage.setItem(`${this.STORAGE_KEY}_relations`, JSON.stringify(cache));
+      const dataService = createDataService(userId, this.INVITE_STATS_TABLE);
+      await dataService.create(stats);
+      
+      logger.debug('✅ 邀请统计保存成功:', { userId });
     } catch (error) {
-      console.error('更新本地邀请缓存失败:', error);
+      console.error('保存邀请统计失败:', error);
+      throw new Error(`保存邀请统计失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
   /**
-   * 获取本地邀请缓存
-   */
-  private getLocalInviteCache(): Record<string, InviteRelation> {
-    try {
-      const data = localStorage.getItem(`${this.STORAGE_KEY}_relations`);
-      return data ? JSON.parse(data) : {};
-    } catch (error) {
-      console.error('获取本地邀请缓存失败:', error);
-      return {};
-    }
-  }
-
-  /**
-   * 更新本地统计缓存
-   */
-  private updateLocalStatsCache(userId: string, stats: InviteStats): void {
-    try {
-      const cache = this.getLocalStatsCache();
-      cache[userId] = stats;
-      localStorage.setItem(`${this.STORAGE_KEY}_stats`, JSON.stringify(cache));
-    } catch (error) {
-      console.error('更新本地统计缓存失败:', error);
-    }
-  }
-
-  /**
-   * 获取本地统计缓存
-   */
-  private getLocalStatsCache(): Record<string, InviteStats> {
-    try {
-      const data = localStorage.getItem(`${this.STORAGE_KEY}_stats`);
-      return data ? JSON.parse(data) : {};
-    } catch (error) {
-      console.error('获取本地统计缓存失败:', error);
-      return {};
-    }
-  }
-
-  /**
-   * 获取本地邀请统计
-   */
-  private getLocalInviteStats(userId: string): InviteStats {
-    const cache = this.getLocalStatsCache();
-    return cache[userId] || {
-      userId,
-      linkClicks: 0,
-      successfulRegistrations: 0,
-      activatedUsers: 0,
-      rewardsIssued: 0,
-      totalRewardCount: 0,
-      conversionRate: 0,
-      lastUpdated: new Date().toISOString()
-    };
-  }
-
-  /**
-   * 获取本地邀请关系
-   */
-  private getLocalInviteRelations(userId: string): InviteRelation[] {
-    const cache = this.getLocalInviteCache();
-    return Object.values(cache).filter(
-      relation => relation.inviterId === userId || relation.inviteeId === userId
-    );
-  }
-
-  /**
-   * 获取本地邀请关系（单个）
-   */
-  private getLocalInviteRelation(inviteeId: string): InviteRelation | null {
-    const cache = this.getLocalInviteCache();
-    return Object.values(cache).find(relation => relation.inviteeId === inviteeId) || null;
-  }
-
-  /**
-   * 获取默认分析数据
-   */
-  private getDefaultAnalytics(period: 'daily' | 'weekly' | 'monthly'): InviteAnalytics {
-    return {
-      period,
-      trends: [],
-      conversionFunnel: {
-        linkClicks: 0,
-        registrations: 0,
-        activations: 0,
-        rewards: 0
-      },
-      topInviters: []
-    };
-  }
-
-  /**
-   * 添加到待同步队列
+   * 已废弃：不再使用本地同步队列
+   * 所有操作都直接调用Supabase数据库
    */
   private addToPendingSync(action: string, data: any): void {
-    const key = `${action}_${Date.now()}`;
-    this.pendingSyncData.set(key, { action, data, timestamp: new Date().toISOString() });
+    console.warn('addToPendingSync方法已废弃，不再使用本地同步队列');
   }
 
   /**

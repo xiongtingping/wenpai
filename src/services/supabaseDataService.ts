@@ -416,10 +416,14 @@ export const TABLE_NAMES = {
   USER_ORDERS: 'user_orders',
   USER_NOTES: 'user_notes',
   USER_FILES: 'user_files',
-  USER_USAGE_LOGS: 'cdk_usage_logs', // 🔧 修复：使用实际存在的表名
+  USER_USAGE_LOGS: 'token_usage_records', // Token使用记录表
+  USAGE_COUNT_RECORDS: 'usage_count_records', // 使用次数记录表
   USER_LIBRARY_ITEMS: 'user_library_items',
   USER_CHAT_HISTORY: 'user_chat_history',
-  USER_BRAND_CORPUS: 'user_brand_corpus'
+  USER_BRAND_CORPUS: 'user_brand_corpus',
+  USER_INVITE_RELATIONS: 'user_invite_relations',
+  USER_INVITE_STATS: 'user_invite_stats',
+  USER_INVITE_EVENTS: 'user_invite_events'
 } as const;
 
 export { supabase };

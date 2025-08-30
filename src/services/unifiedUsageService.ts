@@ -7,6 +7,7 @@ import { request } from '@/api/request';
 import { tokenUsageService } from '@/services/tokenUsageService';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { TokenUsageStats } from '@/services/tokenUsageService';
+import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 
 /**
  * 使用次数统计接口
@@ -75,7 +76,6 @@ export interface SubscriptionExpiryResult {
  */
 class UnifiedUsageService {
   private readonly API_ENDPOINT = '/.netlify/functions/api-usage-count';
-  private readonly STORAGE_KEY = 'unified_usage_stats';
   private readonly SYNC_INTERVAL = 5 * 60 * 1000; // 5分钟同步一次
   
   private syncTimer: NodeJS.Timeout | null = null;
@@ -112,29 +112,6 @@ class UnifiedUsageService {
     }
   }
 
-  /**
-   * 从本地存储获取使用量数据
-   */
-  private getLocalUsageStats(): Record<string, UnifiedUsageStats> {
-    try {
-      const data = localStorage.getItem(this.STORAGE_KEY);
-      return data ? JSON.parse(data) : {};
-    } catch (error) {
-      console.error('读取本地使用量数据失败:', error);
-      return {};
-    }
-  }
-
-  /**
-   * 保存使用量数据到本地存储
-   */
-  private saveLocalUsageStats(data: Record<string, UnifiedUsageStats>): void {
-    try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
-    } catch (error) {
-      console.error('保存本地使用量数据失败:', error);
-    }
-  }
 
   /**
    * 获取用户统一使用量统计
@@ -156,18 +133,14 @@ class UnifiedUsageService {
         lastSyncTime: new Date().toISOString()
       };
       
-      // 4. 保存到本地缓存
-      const localData = this.getLocalUsageStats();
-      localData[userId] = unifiedStats;
-      this.saveLocalUsageStats(localData);
+      // 4. 记录统计数据（Supabase已通过tokenUsageService处理）
       
       return unifiedStats;
     } catch (error) {
       console.error('获取统一使用量统计失败:', error);
       
-      // 返回本地缓存数据或默认数据
-      const localData = this.getLocalUsageStats();
-      return localData[userId] || this.getDefaultUnifiedStats(userId, userTier);
+      // 🚨 API失败时不能返回模拟数据，必须抛出错误
+      throw new Error(`统一使用量API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -194,17 +167,10 @@ class UnifiedUsageService {
         lastUpdated: new Date().toISOString()
       };
     } catch (error) {
-      console.warn('从后端获取使用次数统计失败，返回默认值:', error);
+      console.error('从后端获取使用次数统计失败:', error);
 
-      // 如果API调用失败，返回默认值
-      const availableUses = this.getUsageCountLimit(userTier);
-      return {
-        usedCount: 0,
-        availableUses,
-        usagePercentage: 0,
-        remainingUses: availableUses === -1 ? -1 : availableUses,
-        lastUpdated: new Date().toISOString()
-      };
+      // 🚨 API失败时不能返回默认值，必须抛出错误
+      throw new Error(`使用次数统计API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -280,17 +246,7 @@ class UnifiedUsageService {
         amount
       });
       
-      // 3. 更新本地缓存
-      const localData = this.getLocalUsageStats();
-      if (localData[userId]) {
-        localData[userId].usageCountStats.usedCount += amount;
-        localData[userId].usageCountStats.remainingUses = Math.max(0, 
-          localData[userId].usageCountStats.remainingUses - amount);
-        localData[userId].usageCountStats.usagePercentage = 
-          (localData[userId].usageCountStats.usedCount / localData[userId].usageCountStats.availableUses) * 100;
-        localData[userId].lastSyncTime = new Date().toISOString();
-        this.saveLocalUsageStats(localData);
-      }
+      // 3. 使用次数消费成功（后端已更新，无需本地缓存）
       
       return true;
     } catch (error) {
@@ -325,10 +281,9 @@ class UnifiedUsageService {
    */
   private async refreshUserStats(userId: string): Promise<void> {
     try {
-      // 清除本地缓存，强制重新获取
-      const localData = this.getLocalUsageStats();
-      delete localData[userId];
-      this.saveLocalUsageStats(localData);
+      // 由于使用Supabase实时数据，无需手动刷新缓存
+      // 统计数据会自动从数据库获取最新值
+      console.log(`刷新用户 ${userId} 统计数据 - 使用Supabase实时数据`);
     } catch (error) {
       console.error('刷新用户统计数据失败:', error);
     }
@@ -394,20 +349,8 @@ class UnifiedUsageService {
    */
   private async syncAllUserStats(): Promise<void> {
     try {
-      const localData = this.getLocalUsageStats();
-      const userIds = Object.keys(localData);
-      
-      for (const userId of userIds) {
-        const userData = localData[userId];
-        // 只同步最近活跃的用户数据
-        const lastSync = new Date(userData.lastSyncTime);
-        const now = new Date();
-        const timeDiff = now.getTime() - lastSync.getTime();
-        
-        if (timeDiff < 24 * 60 * 60 * 1000) { // 24小时内活跃
-          await this.refreshUserStats(userId);
-        }
-      }
+      // 使用Supabase时无需同步，数据已实时存储
+      console.log('使用Supabase实时数据，无需手动同步');
     } catch (error) {
       console.error('同步用户统计数据失败:', error);
     }

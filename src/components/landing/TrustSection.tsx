@@ -2,10 +2,10 @@ import { Book, Video, MessageSquare, Send, Twitter, SquarePlay, Globe, Rss, Zap,
 
 export function TrustSection() {
   return (
-    <section className="py-12 opacity-0 animate-fadeIn relative" id="trust-section">
+    <section className="py-8 opacity-0 animate-fadeIn relative" id="trust-section">
       
       <div className="container mx-auto px-6">
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold theme-hero-title mb-4">
             信赖我们的AI，适配您信赖的平台
           </h2>

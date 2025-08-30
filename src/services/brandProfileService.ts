@@ -2,14 +2,17 @@ import { BrandProfile, BrandPromptConfig, BrandToneAnalysis } from '@/types/bran
 import AIAnalysisService from './aiAnalysisService';
 import BrandDatabaseService from './brandDatabaseService';
 import BrandPromptService from './brandPromptService';
+import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 
 /**
  * 品牌调性服务
  * @description 处理品牌资料的分析、存储和应用
+ * 🔒 已迁移至 Supabase 数据库，移除 localStorage 依赖
  */
 class BrandProfileService {
   private static instance: BrandProfileService;
   private currentProfile: BrandProfile | null = null;
+  private currentUserId: string | null = null;
   private aiService: AIAnalysisService;
   private dbService: BrandDatabaseService;
   private promptService: BrandPromptService;
@@ -31,17 +34,63 @@ class BrandProfileService {
   }
 
   /**
+   * 设置当前用户ID
+   */
+  public setCurrentUserId(userId: string): void {
+    this.currentUserId = userId;
+  }
+
+  /**
+   * 获取数据库服务实例
+   */
+  private getDataService() {
+    if (!this.currentUserId) {
+      throw new Error('需要设置用户ID才能访问品牌档案');
+    }
+    return createDataService(this.currentUserId, TABLE_NAMES.USER_BRAND_CORPUS);
+  }
+
+  /**
    * 设置当前品牌档案
    * @param profile 品牌档案
    */
   public async setCurrentProfile(profile: BrandProfile): Promise<void> {
-    this.currentProfile = profile;
-    
-    // 保存到数据库
-    await this.dbService.saveBrandProfile(profile);
-    
-    // 同时保存到本地存储作为缓存
-    localStorage.setItem('brandProfile', JSON.stringify(profile));
+    try {
+      this.currentProfile = profile;
+      
+      // 保存到数据库
+      await this.dbService.saveBrandProfile(profile);
+      
+      // 保存到 Supabase 数据库作为用户属性数据
+      if (this.currentUserId) {
+        const dataService = this.getDataService();
+        
+        // 检查是否已存在
+        const existing = await dataService.findMany({
+          filters: { corpusType: 'brand_profile' },
+          limit: 1
+        });
+        
+        const profileData = {
+          corpusType: 'brand_profile',
+          corpusName: profile.name,
+          corpusContent: JSON.stringify(profile),
+          metadata: {
+            profileId: profile.id,
+            version: '1.0'
+          }
+        };
+        
+        if (existing.data && existing.data.length > 0) {
+          await dataService.update(existing.data[0].id!, profileData);
+        } else {
+          await dataService.create(profileData);
+        }
+      }
+    } catch (error) {
+      console.error('设置当前品牌档案失败:', error);
+      throw error;
+    }
   }
 
   /**
@@ -57,18 +106,28 @@ class BrandProfileService {
           return latestProfile;
         }
         
-        // 如果数据库没有，尝试从本地存储获取
-        const stored = localStorage.getItem('brandProfile');
-        if (stored) {
-          this.currentProfile = JSON.parse(stored);
+        // 尝试从 Supabase 获取用户品牌数据
+        if (this.currentUserId) {
+          const dataService = this.getDataService();
+          const result = await dataService.findMany({
+            filters: { corpusType: 'brand_profile' },
+            limit: 1,
+            orderBy: 'updatedAt',
+            orderDirection: 'desc'
+          });
+          
+          if (result.data && result.data.length > 0) {
+            const profileData = result.data[0];
+            try {
+              this.currentProfile = JSON.parse(profileData.corpusContent);
+            } catch (parseError) {
+              console.error('解析品牌档案数据失败:', parseError);
+            }
+          }
         }
       } catch (error) {
         console.error('获取品牌档案失败:', error);
-        // 降级到本地存储
-        const stored = localStorage.getItem('brandProfile');
-        if (stored) {
-          this.currentProfile = JSON.parse(stored);
-        }
+        throw error;
       }
     }
     return this.currentProfile;
@@ -337,12 +396,32 @@ class BrandProfileService {
    * @param id 档案ID
    */
   public async deleteProfile(id: string): Promise<void> {
-    await this.dbService.deleteBrandProfile(id);
-    
-    // 如果删除的是当前档案，清空当前档案
-    if (this.currentProfile?.id === id) {
-      this.currentProfile = null;
-      localStorage.removeItem('brandProfile');
+    try {
+      await this.dbService.deleteBrandProfile(id);
+      
+      // 从 Supabase 中删除
+      if (this.currentUserId) {
+        const dataService = this.getDataService();
+        const result = await dataService.findMany({
+          filters: { 
+            corpusType: 'brand_profile',
+            'metadata.profileId': id 
+          }
+        });
+        
+        if (result.data && result.data.length > 0) {
+          const ids = result.data.map(item => item.id!);
+          await dataService.deleteMany(ids);
+        }
+      }
+      
+      // 如果删除的是当前档案，清空当前档案
+      if (this.currentProfile?.id === id) {
+        this.currentProfile = null;
+      }
+    } catch (error) {
+      console.error('删除品牌档案失败:', error);
+      throw error;
     }
   }
 
@@ -446,4 +525,10 @@ class BrandProfileService {
   }
 }
 
-export default BrandProfileService; 
+export default BrandProfileService;
+
+// 🚨 重要提醒：此服务已迁移至 Supabase 数据库
+// - 移除了 localStorage 品牌档案缓存依赖
+// - 品牌数据现在存储在数据库中，确保用户数据隔离
+// - 需要在使用前调用 setCurrentUserId() 设置用户ID
+// - 如果数据库不可用，品牌档案相关功能将无法使用 

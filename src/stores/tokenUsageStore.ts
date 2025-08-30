@@ -202,21 +202,8 @@ export const useTokenUsageStore = create<TokenUsageState & TokenUsageActions>()(
             error: error instanceof Error ? error.message : '检查限额失败'
           });
           
-          // 返回默认允许的结果
-          return {
-            allowed: true,
-            stats: get().currentStats || {
-              userId,
-              userTier,
-              monthlyLimit: 100000,
-              monthlyUsed: 0,
-              monthlyRemaining: 100000,
-              dailyUsed: 0,
-              usagePercentage: 0,
-              needUpgrade: false,
-              lastUpdated: new Date().toISOString()
-            }
-          };
+          // 🚨 API失败时必须抛出错误，不能返回模拟允许结果
+          throw new Error(`Token限额检查API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
         }
       },
 

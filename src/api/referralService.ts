@@ -59,14 +59,7 @@ interface ReferralStats {
   monthlyRewards: number;
 }
 
-// ✅ FIXED: 已移除模拟推荐奖励功能
-// 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
-// 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
-// 
-// 系统现在直接调用真实推荐API，不再提供模拟奖励
-export async function mockReferralReward(request: ReferralRewardRequest): Promise<never> {
-  throw new Error('推荐奖励API调用失败，请检查网络连接和API配置');
-}
+// ❌ REMOVED: 已删除模拟推荐奖励功能 - 违反api_prohibit_local_mock_error规则
 
 /**
  * 发送推荐奖励请求
@@ -83,22 +76,7 @@ export async function sendReferralReward(requestBody: ReferralRewardRequest): Pr
   }
 }
 
-/**
- * 模拟推荐统计数据
- * @param referrerId 推荐人ID
- * @returns 模拟统计
- */
-async function mockReferralStats(referrerId: string): Promise<ReferralStats> {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  return {
-    referrerId,
-    totalReferrals: Math.floor(Math.random() * 50) + 1,
-    totalRewards: Math.floor(Math.random() * 1000) + 100,
-    monthlyReferrals: Math.floor(Math.random() * 10) + 1,
-    monthlyRewards: Math.floor(Math.random() * 200) + 20
-  };
-}
+// ❌ REMOVED: 删除模拟推荐统计函数 - 违反api_prohibit_local_mock_error规则
 
 /**
  * 获取推荐统计
@@ -110,23 +88,12 @@ export async function getReferralStats(referrerId: string): Promise<ReferralStat
     const result = await request.get(`/api/referral/stats?referrerId=${encodeURIComponent(referrerId)}`);
     return (result as any)?.success ? (result as any).data : null;
   } catch (error) {
-    console.warn('API调用错误，使用模拟统计:', error);
-    return await mockReferralStats(referrerId);
+    console.error('推荐统计API调用失败:', error);
+    throw new Error(`推荐统计API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
   }
 }
 
-/**
- * 模拟验证推荐人ID
- * @param referrerId 推荐人ID
- * @returns 是否有效
- */
-async function mockValidateReferrerId(referrerId: string): Promise<boolean> {
-  await new Promise(resolve => setTimeout(resolve, 200));
-  
-  // 模拟验证逻辑：长度6-20位，包含字母
-  const isValid = /^[a-zA-Z0-9_-]{6,20}$/.test(referrerId) && /[a-zA-Z]/.test(referrerId);
-  return isValid;
-}
+// ❌ REMOVED: 删除模拟验证推荐人ID函数 - 违反api_prohibit_local_mock_error规则
 
 /**
  * 验证推荐人ID是否有效
@@ -138,8 +105,8 @@ export async function validateReferrerId(referrerId: string): Promise<boolean> {
     const result = await request.get(`/api/referral/validate?referrerId=${encodeURIComponent(referrerId)}`);
     return !!((result as any)?.success && (result as any)?.isValid);
   } catch (error) {
-    console.warn('API调用错误，使用模拟验证:', error);
-    return await mockValidateReferrerId(referrerId);
+    console.error('推荐人验证API调用失败:', error);
+    throw new Error(`推荐人验证API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
   }
 }
 

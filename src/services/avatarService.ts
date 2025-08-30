@@ -1,9 +1,11 @@
 /**
  * 头像服务
  * @description 处理用户头像的上传、生成和管理
+ * 🔒 已迁移至 Supabase 数据库，移除 localStorage 缓存依赖
  */
 
 import { request } from '@/api/request';
+import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 
 /**
  * 头像上传结果
@@ -136,19 +138,11 @@ class AvatarService {
     } catch (error) {
       console.error('头像上传失败:', error);
       
-      // 如果服务器上传失败，使用本地URL作为临时方案
-      try {
-        const localUrl = URL.createObjectURL(file);
-        return {
-          success: true,
-          avatarUrl: localUrl
-        };
-      } catch (localError) {
-        return {
-          success: false,
-          error: '头像上传失败，请稍后重试'
-        };
-      }
+      // 🚨 API失败时必须抛出错误，不能使用本地URL临时方案
+      return {
+        success: false,
+        error: `头像上传API调用失败: ${error instanceof Error ? error.message : '未知错误'}`
+      };
     }
   }
 
@@ -161,10 +155,13 @@ class AvatarService {
         userId,
         avatarUrl
       });
+      
+      // 同时更新本地缓存
+      await this.cacheAvatarUrl(userId, avatarUrl);
       return true;
     } catch (error) {
       console.error('更新用户头像失败:', error);
-      return false;
+      throw new Error(`更新用户头像失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -227,47 +224,80 @@ class AvatarService {
   }
 
   /**
-   * 获取头像缓存键
+   * 获取数据库服务实例
    */
-  private getAvatarCacheKey(userId: string): string {
-    return `avatar_cache_${userId}`;
+  private getDataService(userId: string) {
+    if (!userId || userId === 'undefined') {
+      throw new Error('用户ID不能为空');
+    }
+    return createDataService(userId, TABLE_NAMES.USER_FILES);
   }
 
   /**
    * 缓存头像URL
    */
-  cacheAvatarUrl(userId: string, avatarUrl: string): void {
+  async cacheAvatarUrl(userId: string, avatarUrl: string): Promise<void> {
     try {
+      const dataService = this.getDataService(userId);
+      
+      // 检查是否已存在头像缓存记录
+      const existing = await dataService.findMany({
+        filters: { fileType: 'avatar_cache' },
+        limit: 1
+      });
+      
       const cacheData = {
-        avatarUrl,
-        timestamp: Date.now()
+        fileName: 'avatar_cache',
+        fileType: 'avatar_cache',
+        fileUrl: avatarUrl,
+        metadata: {
+          avatarUrl,
+          timestamp: Date.now()
+        }
       };
-      localStorage.setItem(this.getAvatarCacheKey(userId), JSON.stringify(cacheData));
+      
+      if (existing.data && existing.data.length > 0) {
+        // 更新现有记录
+        await dataService.update(existing.data[0].id!, cacheData);
+      } else {
+        // 创建新记录
+        await dataService.create(cacheData);
+      }
     } catch (error) {
       console.warn('缓存头像URL失败:', error);
+      // 头像缓存失败不应该影响主要流程，所以不抛出错误
     }
   }
 
   /**
    * 获取缓存的头像URL
    */
-  getCachedAvatarUrl(userId: string): string | null {
+  async getCachedAvatarUrl(userId: string): Promise<string | null> {
     try {
-      const cacheKey = this.getAvatarCacheKey(userId);
-      const cacheData = localStorage.getItem(cacheKey);
+      const dataService = this.getDataService(userId);
       
-      if (!cacheData) return null;
+      const result = await dataService.findMany({
+        filters: { fileType: 'avatar_cache' },
+        limit: 1
+      });
       
-      const { avatarUrl, timestamp } = JSON.parse(cacheData);
-      
-      // 缓存有效期为24小时
-      const CACHE_DURATION = 24 * 60 * 60 * 1000;
-      if (Date.now() - timestamp > CACHE_DURATION) {
-        localStorage.removeItem(cacheKey);
+      if (!result.data || result.data.length === 0) {
         return null;
       }
       
-      return avatarUrl;
+      const cacheRecord = result.data[0];
+      const metadata = cacheRecord.metadata || {};
+      const timestamp = metadata.timestamp;
+      
+      // 缓存有效期为24小时
+      const CACHE_DURATION = 24 * 60 * 60 * 1000;
+      if (timestamp && (Date.now() - timestamp > CACHE_DURATION)) {
+        // 删除过期缓存
+        await dataService.delete(cacheRecord.id!);
+        return null;
+      }
+      
+      return metadata.avatarUrl || cacheRecord.fileUrl || null;
     } catch (error) {
       console.warn('获取缓存头像URL失败:', error);
       return null;
@@ -277,22 +307,26 @@ class AvatarService {
   /**
    * 清除头像缓存
    */
-  clearAvatarCache(userId?: string): void {
+  async clearAvatarCache(userId?: string): Promise<void> {
     try {
       if (userId) {
         // 清除特定用户的缓存
-        localStorage.removeItem(this.getAvatarCacheKey(userId));
-      } else {
-        // 清除所有头像缓存
-        const keys = Object.keys(localStorage);
-        keys.forEach(key => {
-          if (key.startsWith('avatar_cache_')) {
-            localStorage.removeItem(key);
-          }
+        const dataService = this.getDataService(userId);
+        const result = await dataService.findMany({
+          filters: { fileType: 'avatar_cache' }
         });
+        
+        if (result.data && result.data.length > 0) {
+          const ids = result.data.map(item => item.id!);
+          await dataService.deleteMany(ids);
+        }
+      } else {
+        // 注意：这里无法清除所有用户的缓存，因为需要用户ID来创建dataService
+        console.warn('清除所有头像缓存需要在数据库层面统一处理');
       }
     } catch (error) {
       console.warn('清除头像缓存失败:', error);
+      // 头像缓存清除失败不应该影响主要流程
     }
   }
 
@@ -353,3 +387,9 @@ class AvatarService {
 export const avatarService = new AvatarService();
 
 export default avatarService;
+
+// 🚨 重要提醒：此服务已完全迁移至 Supabase 数据库
+// - 移除了所有 localStorage 头像缓存依赖
+// - 所有缓存操作现在使用数据库存储
+// - 确保用户数据隔离和安全访问
+// - 如果数据库不可用，头像缓存功能将无法使用，但不会影响头像上传和更新API调用

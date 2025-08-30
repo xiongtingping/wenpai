@@ -158,21 +158,21 @@ export function PricingSection() {
   }
 
   return (
-    <section id="pricing" className="py-12 relative overflow-hidden">
-      
+    <section id="pricing" className="py-6 relative overflow-hidden">
+
       <div className="container mx-auto px-4 md:px-12 relative z-10">
         {/* 🎯 标题区域优化 */}
-        <div className="text-center max-w-4xl mx-auto py-12">
+        <div className="text-center max-w-4xl mx-auto py-4">
           {/* 主标题 */}
           <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground leading-snug">
             选择适合您的方案
           </h2>
-          
+
           {/* 副标题 */}
-          <p className="text-base text-muted-foreground text-center mt-2 leading-relaxed">
+          <p className="text-base text-muted-foreground text-center mt-1 leading-relaxed">
             从免费体验到高级版，全方位赋能新媒体创意工作者
           </p>
-          
+
 
           {/* 限时优惠倒计时 - 完全照搬支付中心设计 */}
           {currentUser?.id && isInPromoPeriod(currentUser.id) && timeLeft > 0 && (
@@ -283,10 +283,10 @@ export function PricingSection() {
                   ) : (
                     <Sparkles className="w-6 h-6 text-foreground" />
                   )}
-                  <h3 className="text-2xl font-semibold">{plan.name}</h3>
+                  <h3 className="text-xl font-semibold">{plan.name}</h3>
                 </div>
                 
-                <p className="mt-2 text-muted-foreground">{plan.description}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{plan.description}</p>
                 
                 <div className="mt-6 pricing-container">
                   {isTrial ? (
@@ -295,7 +295,7 @@ export function PricingSection() {
                         <div className="text-5xl font-extrabold text-foreground pricing-price">
                           <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥0</span>
                         </div>
-                        <span className="text-lg text-muted-foreground">永久免费</span>
+                        <span className="text-base text-muted-foreground">永久免费</span>
                       </div>
                     </div>
                   ) : (
@@ -305,7 +305,7 @@ export function PricingSection() {
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
                             <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥{pricing.discountPrice}</span>
                           </div>
-                          <span className="text-lg text-muted-foreground">/{billing === "monthly" ? "月" : "年"}</span>
+                          <span className="text-base text-muted-foreground">/{billing === "monthly" ? "月" : "年"}</span>
                           <div className="flex flex-col items-start ml-2">
                             <span className="text-xs text-destructive font-semibold">限时特惠</span>
                             <span className="text-xs text-muted-foreground line-through">¥{pricing.originalPrice}</span>
@@ -316,7 +316,7 @@ export function PricingSection() {
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
                             <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥{pricing.originalPrice}</span>
                           </div>
-                          <span className="text-lg text-muted-foreground">/{billing === "monthly" ? "月" : "年"}</span>
+                          <span className="text-base text-muted-foreground">/{billing === "monthly" ? "月" : "年"}</span>
                         </div>
                       )}
                       {isAuthenticated && inPromo && (
@@ -364,7 +364,7 @@ export function PricingSection() {
         {/* 功能对比表 */}
         <div className="mt-16">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-foreground">功能详细对比</h3>
+            <h3 className="text-xl font-bold text-foreground">功能详细对比</h3>
           </div>
           <div className="overflow-x-auto">
             <div className="max-w-6xl mx-auto">

@@ -141,11 +141,12 @@ export const WavyBackground = ({
       style={{ minHeight: (containerHeight || '80vh') }}
     >
       <canvas
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 pointer-events-none"
         ref={canvasRef}
         id="canvas"
         style={{
           ...(isSafari ? { filter: `blur(${blur}px)` } : {}),
+          pointerEvents: 'none'
         }}
       ></canvas>
       <div className={cn("relative z-10", className)} {...props}>
