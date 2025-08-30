@@ -175,7 +175,7 @@ export const TopNavigation: React.FC = () => {
           </div>
 
           {/* 中间导航菜单 - 绝对居中 */}
-          <div className="absolute left-1/2 transform -translate-x-1/2">
+          <div className="absolute left-1/2 transform -translate-x-1/2 z-10">
             <div className="hidden lg:flex items-center">
               <NavBar
                 positionClassName="relative"
@@ -189,6 +189,8 @@ export const TopNavigation: React.FC = () => {
             </div>
           </div>
 
+          {/* 右侧用户区域 - 靠右显示 */}
+          <div className="flex items-center gap-2">
             {/* 平板端下拉菜单 */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -212,10 +214,6 @@ export const TopNavigation: React.FC = () => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-
-          {/* 右侧用户区域 - 靠右显示 */}
-          <div className="flex items-center gap-2">
             {/* 用户状态指示 */}
             {permissionLoading && !isDevelopment() && (
               <div className="hidden sm:flex items-center gap-1">
@@ -226,14 +224,15 @@ export const TopNavigation: React.FC = () => {
 
             {/* 用户头像和登录状态 */}
             <div className="flex items-center gap-2">
-              {/* 立即解锁高级功能按钮 - 只对非高级版用户显示 */}
+              {/* 升级按钮 - 只对非高级版用户显示 */}
               {isAuthenticated && shouldShowUpgradeButton() && (
                 <Button
                   onClick={() => navigate('/payment')}
-                  className="btn-upgrade-gradient text-primary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg hidden sm:flex"
+                  size="sm"
+                  className="btn-upgrade-gradient text-primary-foreground p-2 rounded-lg transition-all duration-200 hover:shadow-lg hidden sm:flex"
+                  title="升级到高级版"
                 >
-                  <Crown className="w-4 h-4 mr-2" />
-                  立即解锁高级功能
+                  <Crown className="w-4 h-4" />
                 </Button>
               )}
 
@@ -260,6 +259,7 @@ export const TopNavigation: React.FC = () => {
 
             {/* 移动端菜单按钮 */}
             {/* The Sheet component was removed from imports, so this block is removed. */}
+          </div>
           </div>
         </div>
       </header>
