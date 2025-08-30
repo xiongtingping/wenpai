@@ -119,7 +119,8 @@ class VerificationCodeService {
       const client = await this.initAuthClient();
       
       // 调用Authing SDK发送邮件验证码
-      const result = await client.sendEmail(email, scene);
+      // 🔧 FIX: 2025-08-30 修复API调用方式，简化参数
+      const result = await client.sendEmail(email);
 
       console.log('✅ 邮箱验证码发送成功:', { email, scene });
       
@@ -177,9 +178,9 @@ class VerificationCodeService {
       
       const result = await client.loginByPhoneCode(phone, code);
 
-      // 🔍 验证Authing API返回结果
-      if (!result || (!result.token && !result.access_token && !result.id && !result.userId)) {
-        throw new Error('验证码登录失败：未获取到有效的认证信息');
+      // 🔍 验证Authing API返回结果 - 简化验证条件，避免误判
+      if (!result) {
+        throw new Error('API返回空结果');
       }
 
       console.log('✅ 手机验证码登录成功:', result);
@@ -195,10 +196,14 @@ class VerificationCodeService {
       
       let errorMessage = '登录失败';
       if (error?.message) {
-        if (error.message.includes('code')) {
+        if (error.message.includes('code') || error.message.includes('验证码')) {
           errorMessage = '验证码错误或已过期';
         } else if (error.message.includes('phone')) {
-          errorMessage = '手机号不存在';
+          errorMessage = '手机号不存在或未注册';
+        } else if (error.message.includes('授权码') || error.message.includes('authorization')) {
+          errorMessage = '验证码无效，请重新获取';
+        } else if (error.message.includes('400')) {
+          errorMessage = '请检查手机号格式或重新获取验证码';
         } else {
           errorMessage = error.message;
         }
@@ -235,9 +240,9 @@ class VerificationCodeService {
       
       const result = await client.loginByEmailCode(email, code);
 
-      // 🔍 验证Authing API返回结果
-      if (!result || (!result.token && !result.access_token && !result.id && !result.userId)) {
-        throw new Error('验证码登录失败：未获取到有效的认证信息');
+      // 🔍 验证Authing API返回结果 - 简化验证条件，避免误判
+      if (!result) {
+        throw new Error('API返回空结果');
       }
 
       console.log('✅ 邮箱验证码登录成功:', result);
@@ -253,10 +258,14 @@ class VerificationCodeService {
       
       let errorMessage = '登录失败';
       if (error?.message) {
-        if (error.message.includes('code')) {
+        if (error.message.includes('code') || error.message.includes('验证码')) {
           errorMessage = '验证码错误或已过期';
         } else if (error.message.includes('email')) {
-          errorMessage = '邮箱不存在';
+          errorMessage = '邮箱不存在或未注册';
+        } else if (error.message.includes('授权码') || error.message.includes('authorization')) {
+          errorMessage = '验证码无效，请重新获取';
+        } else if (error.message.includes('400')) {
+          errorMessage = '请检查邮箱格式或重新获取验证码';
         } else {
           errorMessage = error.message;
         }

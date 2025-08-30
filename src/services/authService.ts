@@ -318,8 +318,8 @@ class AuthService {
       const client = await this.initAuthClient();
       
       // 调用Authing API发送邮箱验证码
-      // 注意：根据Authing文档，这个方法可能是sendEmail、sendEmailCode或类似名称
-      await client.sendEmail(email, 'UPDATE_EMAIL');
+      // 🔧 FIX: 2025-08-30 修复API调用方式，简化参数
+      await client.sendEmail(email);
       
       console.log('✅ 邮箱验证码发送成功');
       
