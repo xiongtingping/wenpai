@@ -23,7 +23,7 @@ export class UserProfileService {
       .from('user_profiles')
       .select('*')
       .eq('user_id', userId)
-      .single()
+      .maybeSingle()
     
     if (error) {
       console.error('Error fetching user profile:', error)
@@ -68,7 +68,7 @@ export class UserSubscriptionService {
       .from('user_subscriptions')
       .select('*')
       .eq('user_id', userId)
-      .single()
+      .maybeSingle()
     
     if (error) {
       console.error('Error fetching user subscription:', error)
@@ -221,7 +221,7 @@ export class InviteService {
       .from('user_invite_stats')
       .select('*')
       .eq('user_id', userId)
-      .single()
+      .maybeSingle()
     
     if (error) {
       console.error('Error fetching invite stats:', error)

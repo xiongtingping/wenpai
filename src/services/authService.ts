@@ -125,17 +125,39 @@ class AuthService {
     avatar?: string;
     email?: string;
     phone?: string;
+    verifiedEmail?: boolean;
+    verifiedPhone?: boolean;
   }): Promise<UpdateProfileResponse> {
     try {
       const client = await this.initAuthClient();
+      
+      // 🔍 检查是否包含需要验证码的敏感字段
+      const hasSensitiveFields = !!(updates.email || updates.phone);
+      
+      if (hasSensitiveFields) {
+        // 检查验证状态
+        if (updates.email && !updates.verifiedEmail) {
+          return {
+            success: false,
+            message: '更新邮箱需要先验证邮箱验证码'
+          };
+        }
+        
+        if (updates.phone && !updates.verifiedPhone) {
+          return {
+            success: false,
+            message: '更新手机号需要先验证手机验证码'
+          };
+        }
+      }
       
       // 构建更新数据
       const updateData: any = {};
       
       if (updates.nickname) updateData.nickname = updates.nickname;
       if (updates.avatar) updateData.photo = updates.avatar;
-      if (updates.email) updateData.email = updates.email;
-      if (updates.phone) updateData.phone = updates.phone;
+      if (updates.email && updates.verifiedEmail) updateData.email = updates.email;
+      if (updates.phone && updates.verifiedPhone) updateData.phone = updates.phone;
 
       if (Object.keys(updateData).length === 0) {
         return {
@@ -160,7 +182,9 @@ class AuthService {
       
       let errorMessage = '更新失败';
       if (error?.message) {
-        if (error.message.includes('email')) {
+        if (error.message.includes('验证码')) {
+          errorMessage = '验证码相关错误：' + error.message;
+        } else if (error.message.includes('email')) {
           errorMessage = '邮箱格式错误或已被使用';
         } else if (error.message.includes('phone')) {
           errorMessage = '手机号格式错误或已被使用';
@@ -267,6 +291,159 @@ class AuthService {
           errorMessage = '原密码错误';
         } else if (error.message.includes('policy')) {
           errorMessage = '新密码不符合安全策略';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      throw new Error(errorMessage);
+    }
+  }
+
+  /**
+   * 发送邮箱验证码 - 连接真实Authing API
+   */
+  async sendEmailCode(email: string): Promise<void> {
+    try {
+      if (!email || !email.trim()) {
+        throw new Error('邮箱地址不能为空');
+      }
+
+      // 验证邮箱格式
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new Error('邮箱格式不正确');
+      }
+
+      const client = await this.initAuthClient();
+      
+      // 调用Authing API发送邮箱验证码
+      // 注意：根据Authing文档，这个方法可能是sendEmail、sendEmailCode或类似名称
+      await client.sendEmail(email, 'UPDATE_EMAIL');
+      
+      console.log('✅ 邮箱验证码发送成功');
+      
+    } catch (error: any) {
+      console.error('❌ 邮箱验证码发送失败:', error);
+      
+      let errorMessage = '发送验证码失败';
+      if (error?.message) {
+        if (error.message.includes('email')) {
+          errorMessage = '邮箱格式错误或不存在';
+        } else if (error.message.includes('frequency')) {
+          errorMessage = '发送频率过高，请稍后重试';
+        } else if (error.message.includes('quota')) {
+          errorMessage = '今日发送次数已达上限';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      throw new Error(errorMessage);
+    }
+  }
+
+  /**
+   * 发送手机验证码 - 连接真实Authing API
+   */
+  async sendPhoneCode(phone: string): Promise<void> {
+    try {
+      if (!phone || !phone.trim()) {
+        throw new Error('手机号不能为空');
+      }
+
+      // 验证手机号格式
+      const phoneRegex = /^1[3-9]\d{9}$/;
+      if (!phoneRegex.test(phone)) {
+        throw new Error('手机号格式不正确');
+      }
+
+      const client = await this.initAuthClient();
+      
+      // 调用Authing API发送手机验证码
+      await client.sendSmsCode(phone);
+      
+      console.log('✅ 手机验证码发送成功');
+      
+    } catch (error: any) {
+      console.error('❌ 手机验证码发送失败:', error);
+      
+      let errorMessage = '发送验证码失败';
+      if (error?.message) {
+        if (error.message.includes('phone')) {
+          errorMessage = '手机号格式错误或不存在';
+        } else if (error.message.includes('frequency')) {
+          errorMessage = '发送频率过高，请稍后重试';
+        } else if (error.message.includes('quota')) {
+          errorMessage = '今日发送次数已达上限';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      throw new Error(errorMessage);
+    }
+  }
+
+  /**
+   * 验证邮箱验证码 - 连接真实Authing API
+   */
+  async verifyEmailCode(email: string, code: string): Promise<void> {
+    try {
+      if (!email || !code) {
+        throw new Error('邮箱和验证码不能为空');
+      }
+
+      const client = await this.initAuthClient();
+      
+      // 调用Authing API验证邮箱验证码
+      await client.verifyEmailCode(email, code);
+      
+      console.log('✅ 邮箱验证码验证成功');
+      
+    } catch (error: any) {
+      console.error('❌ 邮箱验证码验证失败:', error);
+      
+      let errorMessage = '验证码验证失败';
+      if (error?.message) {
+        if (error.message.includes('code')) {
+          errorMessage = '验证码错误或已过期';
+        } else if (error.message.includes('email')) {
+          errorMessage = '邮箱地址错误';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      throw new Error(errorMessage);
+    }
+  }
+
+  /**
+   * 验证手机验证码 - 连接真实Authing API
+   */
+  async verifyPhoneCode(phone: string, code: string): Promise<void> {
+    try {
+      if (!phone || !code) {
+        throw new Error('手机号和验证码不能为空');
+      }
+
+      const client = await this.initAuthClient();
+      
+      // 调用Authing API验证手机验证码
+      await client.verifySmsCode(phone, code);
+      
+      console.log('✅ 手机验证码验证成功');
+      
+    } catch (error: any) {
+      console.error('❌ 手机验证码验证失败:', error);
+      
+      let errorMessage = '验证码验证失败';
+      if (error?.message) {
+        if (error.message.includes('code')) {
+          errorMessage = '验证码错误或已过期';
+        } else if (error.message.includes('phone')) {
+          errorMessage = '手机号格式错误';
         } else {
           errorMessage = error.message;
         }

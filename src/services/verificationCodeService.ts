@@ -383,6 +383,113 @@ class VerificationCodeService {
       };
     }
   }
+
+  /**
+   * 验证邮箱验证码（用于更新邮箱）
+   */
+  async verifyEmailCode(email: string, code: string): Promise<VerificationCodeResponse> {
+    try {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return {
+          success: false,
+          message: '请输入有效的邮箱地址'
+        };
+      }
+
+      if (!code || code.length < 4) {
+        return {
+          success: false,
+          message: '请输入有效的验证码'
+        };
+      }
+
+      const client = await this.initAuthClient();
+      
+      // 调用Authing SDK验证邮箱验证码
+      const result = await client.verifyEmailCode(email, code);
+
+      console.log('✅ 邮箱验证码验证成功:', { email });
+      
+      return {
+        success: true,
+        message: '邮箱验证成功',
+        data: result
+      };
+
+    } catch (error: any) {
+      console.error('❌ 验证邮箱验证码失败:', error);
+      
+      let errorMessage = '验证失败';
+      if (error?.message) {
+        if (error.message.includes('code')) {
+          errorMessage = '验证码错误或已过期';
+        } else if (error.message.includes('email')) {
+          errorMessage = '邮箱地址错误';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      return {
+        success: false,
+        message: errorMessage
+      };
+    }
+  }
+
+  /**
+   * 验证手机验证码（用于更新手机号）
+   */
+  async verifyPhoneCode(phone: string, code: string): Promise<VerificationCodeResponse> {
+    try {
+      if (!/^1[3-9]\d{9}$/.test(phone)) {
+        return {
+          success: false,
+          message: '请输入有效的手机号码'
+        };
+      }
+
+      if (!code || code.length < 4) {
+        return {
+          success: false,
+          message: '请输入有效的验证码'
+        };
+      }
+
+      const client = await this.initAuthClient();
+      
+      // 调用Authing SDK验证手机验证码
+      const result = await client.verifySmsCode(phone, code);
+
+      console.log('✅ 手机验证码验证成功:', { phone });
+      
+      return {
+        success: true,
+        message: '手机号验证成功',
+        data: result
+      };
+
+    } catch (error: any) {
+      console.error('❌ 验证手机验证码失败:', error);
+      
+      let errorMessage = '验证失败';
+      if (error?.message) {
+        if (error.message.includes('code')) {
+          errorMessage = '验证码错误或已过期';
+        } else if (error.message.includes('phone')) {
+          errorMessage = '手机号格式错误';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      return {
+        success: false,
+        message: errorMessage
+      };
+    }
+  }
 }
 
 // 导出单例实例

@@ -425,6 +425,18 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         
       const sensitiveUpdates = Object.keys(updates)
         .filter(key => sensitiveFields.includes(key))
+        .filter(key => {
+          // 🔧 只有当值真正发生变化时才算敏感更新
+          const newValue = (updates[key as keyof UserInfo] || '').trim();
+          const currentValue = (user?.[key as keyof UserInfo] || '').trim();
+          
+          // 空值不算变化，必须有实际内容且与当前值不同
+          const hasChanged = newValue !== '' && newValue !== currentValue;
+          
+          console.log(`🔍 敏感字段 ${key}: 当前="${currentValue}" -> 新值="${newValue}" (${hasChanged ? '已变化' : '未变化'})`);
+          
+          return hasChanged;
+        })
         .reduce((obj, key) => {
           obj[key] = updates[key as keyof UserInfo];
           return obj;

@@ -281,7 +281,7 @@ class EnhancedPermissionService {
           .eq('payment_status', 'active')
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         subscription = data;
         error = queryError;

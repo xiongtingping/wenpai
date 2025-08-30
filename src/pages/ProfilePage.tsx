@@ -288,16 +288,54 @@ export default function ProfilePage() {
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
-      // 🔧 只发送有值且已更改的字段，避免空字段触发敏感信息验证
+      // 🔧 只发送有值且真正发生变化的字段，避免重复提交触发敏感信息验证
       const updatedUserData: Record<string, any> = {};
       
-      if (profileForm.nickname?.trim()) updatedUserData.nickname = profileForm.nickname;
-      if (profileForm.email?.trim()) updatedUserData.email = profileForm.email;
-      if (profileForm.phone?.trim()) updatedUserData.phone = profileForm.phone;
-      if (profileForm.avatar?.trim()) updatedUserData.avatar = profileForm.avatar;
+      // 检查昵称是否变化
+      if (profileForm.nickname?.trim() && profileForm.nickname !== getUserDisplayName(user, '')) {
+        updatedUserData.nickname = profileForm.nickname;
+      }
+      
+      // 检查邮箱是否变化 - 只有非空且真正不同的值才更新
+      const emailTrimmed = (profileForm.email || '').trim();
+      const currentEmail = (user?.email || '').trim();
+      if (emailTrimmed && emailTrimmed !== currentEmail) {
+        updatedUserData.email = emailTrimmed;
+        console.log(`🔍 邮箱变化: "${currentEmail}" → "${emailTrimmed}"`);
+      }
+      
+      // 检查手机号是否变化 - 只有非空且真正不同的值才更新
+      const phoneTrimmed = (profileForm.phone || '').trim();
+      const currentPhone = (user?.phone || '').trim();
+      if (phoneTrimmed && phoneTrimmed !== currentPhone) {
+        updatedUserData.phone = phoneTrimmed;
+        console.log(`🔍 手机号变化: "${currentPhone}" → "${phoneTrimmed}"`);
+      }
+      
+      // 检查头像是否变化
+      if (profileForm.avatar?.trim() && profileForm.avatar !== getUserAvatar(user)) {
+        updatedUserData.avatar = profileForm.avatar;
+      }
+      
+      // 如果没有任何变化，直接返回
+      if (Object.keys(updatedUserData).length === 0) {
+        setHasUnsavedChanges(false);
+        toast({
+          title: "无需保存",
+          description: "个人资料没有变化",
+        });
+        return;
+      }
 
       // 🔧 使用统一认证系统更新用户资料
-      await updateUser(updatedUserData);
+      // 添加验证状态信息
+      const updatedDataWithVerification = {
+        ...updatedUserData,
+        verifiedEmail: verificationStatus.email,
+        verifiedPhone: verificationStatus.phone
+      };
+      
+      await updateUser(updatedDataWithVerification);
 
       // updateUser成功执行，表示更新成功
       setHasUnsavedChanges(false);
@@ -351,8 +389,13 @@ export default function ProfilePage() {
       // 🔧 使用真实的Authing API发送手机验证码
       console.log('📱 发送手机验证码到:', profileForm.phone);
       
-      // 🚨 API失败时必须抛出错误，不能使用模拟数据
-      throw new Error('手机验证码发送功能需要使用真实Authing API - 功能暂时不可用');
+      // 调用verificationCodeService发送手机验证码
+      const { verificationCodeService } = await import('@/services/verificationCodeService');
+      const result = await verificationCodeService.sendSmsCode(profileForm.phone, 'UPDATE_PHONE');
+      
+      if (!result.success) {
+        throw new Error(result.message);
+      }
 
       setShowVerificationInput(prev => ({ ...prev, phone: true }));
       toast({
@@ -389,8 +432,13 @@ export default function ProfilePage() {
       // 🔧 使用真实的Authing API验证手机验证码
       console.log('🔐 验证手机号码:', profileForm.phone, '验证码:', verificationCodes.phone);
       
-      // 🚨 API失败时必须抛出错误，不能使用模拟验证逻辑
-      throw new Error('手机验证码验证功能需要使用真实Authing API - 功能暂时不可用');
+      // 调用verificationCodeService验证手机验证码
+      const { verificationCodeService } = await import('@/services/verificationCodeService');
+      const result = await verificationCodeService.verifyPhoneCode(profileForm.phone, verificationCodes.phone);
+      
+      if (!result.success) {
+        throw new Error(result.message);
+      }
 
       setVerificationStatus(prev => ({ ...prev, phone: true }));
       setShowVerificationInput(prev => ({ ...prev, phone: false }));
@@ -439,8 +487,13 @@ export default function ProfilePage() {
       // 🔧 使用真实的Authing API发送邮箱验证码
       console.log('📧 发送邮箱验证码到:', profileForm.email);
       
-      // 🚨 API失败时必须抛出错误，不能使用模拟数据
-      throw new Error('邮箱验证码发送功能需要使用真实Authing API - 功能暂时不可用');
+      // 调用verificationCodeService发送邮箱验证码
+      const { verificationCodeService } = await import('@/services/verificationCodeService');
+      const result = await verificationCodeService.sendEmailCode(profileForm.email, 'UPDATE_EMAIL');
+      
+      if (!result.success) {
+        throw new Error(result.message);
+      }
 
       setShowVerificationInput(prev => ({ ...prev, email: true }));
       toast({
@@ -477,8 +530,13 @@ export default function ProfilePage() {
       // 🔧 使用真实的Authing API验证邮箱验证码
       console.log('🔐 验证邮箱:', profileForm.email, '验证码:', verificationCodes.email);
       
-      // 🚨 API失败时必须抛出错误，不能使用模拟验证逻辑
-      throw new Error('邮箱验证码验证功能需要使用真实Authing API - 功能暂时不可用');
+      // 调用verificationCodeService验证邮箱验证码
+      const { verificationCodeService } = await import('@/services/verificationCodeService');
+      const result = await verificationCodeService.verifyEmailCode(profileForm.email, verificationCodes.email);
+      
+      if (!result.success) {
+        throw new Error(result.message);
+      }
 
       setVerificationStatus(prev => ({ ...prev, email: true }));
       setShowVerificationInput(prev => ({ ...prev, email: false }));
