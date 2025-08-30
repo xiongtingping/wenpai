@@ -460,9 +460,9 @@ export default function MD2CardPage() {
         </div>
 
         {/* 主要内容区域 */}
-        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-120px)]">
           {/* 编辑器和设置区域 */}
-          <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col border-r border-border`}>
+          <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col border-r border-border h-full`}>
             {/* 标签页导航 */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
               <TabsList className="w-full justify-start border-b border-border rounded-none bg-muted/30">
@@ -538,11 +538,11 @@ export default function MD2CardPage() {
                 </div>
 
                 {/* 编辑器内容 */}
-                <div className="flex-1 p-4">
+                <div className="flex-1 p-4 overflow-hidden">
                   <textarea
                     value={markdownContent}
                     onChange={(e) => handleContentChange(e.target.value)}
-                    className="w-full h-full min-h-[400px] p-3 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-secondary/30 text-foreground font-mono text-sm transition-colors focus:bg-secondary/50 hover:bg-secondary/40"
+                    className="w-full h-full p-3 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-secondary/30 text-foreground font-mono text-sm transition-colors focus:bg-secondary/50 hover:bg-secondary/40"
                     placeholder="在这里输入Markdown内容..."
                   />
                 </div>
@@ -604,7 +604,7 @@ export default function MD2CardPage() {
 
           {/* 预览区域 */}
           {showPreview && (
-            <div className="lg:w-1/2 w-full flex flex-col">
+            <div className="lg:w-1/2 w-full flex flex-col h-full">
               {/* 预览头部 */}
               <div className="p-3 border-b border-border bg-muted/30">
                 <div className="flex items-center justify-between">

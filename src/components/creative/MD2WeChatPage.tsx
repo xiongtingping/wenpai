@@ -289,9 +289,9 @@ export default function MD2WeChatPage() {
       </div>
 
       {/* 主要内容区域 */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-120px)]">
         {/* 编辑器区域 */}
-        <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col ${showPreview ? 'border-r border-border' : ''}`}>
+        <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col h-full ${showPreview ? 'border-r border-border' : ''}`}>
           {/* 编辑器头部 */}
           <div className="p-3 border-b border-border bg-muted/30">
             <div className="flex items-center justify-between">
@@ -321,7 +321,7 @@ export default function MD2WeChatPage() {
 
         {/* 预览区域 */}
         {showPreview && (
-          <div className="lg:w-1/2 w-full flex flex-col">
+          <div className="lg:w-1/2 w-full flex flex-col h-full">
             {/* 预览头部 */}
             <div className="p-3 border-b border-border bg-muted/30">
               <div className="flex items-center justify-between">

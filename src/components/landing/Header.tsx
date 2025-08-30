@@ -149,36 +149,40 @@ export function Header() {
 
   return (
     <header className="theme-header-bg fixed top-0 left-0 right-0 z-[99999] shadow-lg backdrop-blur-md border-b border-border/10" style={{ position: 'fixed' }}>
-      <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo - 主题感知的熊猫Logo */}
-        <Link to="/" className="group">
-          <LogoWithText
-            size="lg"
-            textSize="xl"
-            textClassName="rainbow-logo-text"
-            showHoverEffect={true}
-            showBackground={true}
-          />
-        </Link>
+      <nav className="container mx-auto px-6 py-4 flex items-center">
+        {/* Logo - 固定在左侧 */}
+        <div className="flex-shrink-0">
+          <Link to="/" className="group">
+            <LogoWithText
+              size="lg"
+              textSize="xl"
+              textClassName="rainbow-logo-text"
+              showHoverEffect={true}
+              showBackground={true}
+            />
+          </Link>
+        </div>
 
-        {/* Desktop Menu → Tubelight Navbar */}
+        {/* Desktop Menu - 居中显示 */}
         {!isMobile && (
-          <NavBar
-            positionClassName="relative z-[60]"
-            items={[
-              { name: '首页', url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
-              { name: 'AI内容适配器', url: '/new-adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/new-adapt'); } else { login('/new-adapt'); } } },
-              { name: '全网雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); } } },
-              { name: '创意魔方', url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { login('/creative-studio'); } } },
-              { name: '我的资料库', url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/library'); } else { login('/library'); } } },
-              { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/brand-library'); } else { login('/brand-library'); } } },
-            ]}
-          />
+          <div className="flex-1 flex justify-center">
+            <NavBar
+              positionClassName="relative z-[60]"
+              items={[
+                { name: '首页', url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
+                { name: 'AI内容适配器', url: '/adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/adapt'); } else { login('/adapt'); } } },
+                { name: '全网雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); } } },
+                { name: '创意魔方', url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { login('/creative-studio'); } } },
+                { name: '我的资料库', url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/library'); } else { login('/library'); } } },
+                { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/brand-library'); } else { login('/brand-library'); } } },
+              ]}
+            />
+          </div>
         )}
 
-        {/* Action Buttons */}
+        {/* Action Buttons - 固定在右侧 */}
         {!isMobile && (
-          <div className="hidden md:flex items-center space-x-4 relative z-[60]">
+          <div className="flex-shrink-0 hidden md:flex items-center space-x-4 relative z-[60]">
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-1">
