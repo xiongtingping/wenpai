@@ -6,7 +6,7 @@
 import { request } from '@/api/request';
 import type { SubscriptionTier } from '@/types/subscription';
 import { logger } from '@/utils/logger';
-import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
+import { createDataService, TABLE_NAMES, getSupabaseClient } from '@/services/supabaseDataService';
 
 // 临时的套餐配置函数，避免循环依赖
 function getTokenLimitForTier(tier: SubscriptionTier): number {
@@ -301,24 +301,28 @@ class TokenUsageService {
       const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
       const monthKey = this.getCurrentMonthKey();
 
-      // 查询当月记录
-      const monthlyRecords = await dataService.findMany({
-        filters: {
-          timestamp: {
-            operator: 'gte',
-            value: `${monthKey}-01T00:00:00.000Z`
-          }
-        }
-      });
+      // 查询当月记录 - 直接使用Supabase客户端进行时间范围查询
+      const client = await getSupabaseClient();
+      const { data: records, error } = await client
+        .from(TABLE_NAMES.USER_USAGE_LOGS)
+        .select('*')
+        .eq('user_id', userId)
+        .gte('timestamp', `${monthKey}-01T00:00:00.000Z`);
+        
+      if (error) {
+        throw new Error(`查询记录失败: ${error.message}`);
+      }
+      
+      const monthlyRecords = { data: records || [] };
 
-      const records = monthlyRecords.data as TokenUsageRecord[];
+      const tokenRecords = monthlyRecords.data as TokenUsageRecord[];
       const result: Record<string, { totalTokens: number; requestCount: number; percentage: number }> = {};
       
       // 计算总tokens
-      const totalTokens = records.reduce((sum, record) => sum + record.totalTokens, 0);
+      const totalTokens = tokenRecords.reduce((sum, record) => sum + record.totalTokens, 0);
 
       // 按功能分组统计
-      records.forEach(record => {
+      tokenRecords.forEach(record => {
         if (!result[record.feature]) {
           result[record.feature] = {
             totalTokens: 0,

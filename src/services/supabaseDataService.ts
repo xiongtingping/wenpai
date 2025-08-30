@@ -166,7 +166,7 @@ export class SupabaseDataService {
       let query = client
         .from(this.tableName)
         .select('*', { count: 'exact' })
-        .eq('userId', this.userId);
+        .eq('user_id', this.userId);
 
       // 应用过滤条件
       if (options.filters) {
@@ -295,7 +295,7 @@ export class SupabaseDataService {
         .from(this.tableName)
         .delete()
         .eq('id', id)
-        .eq('userId', this.userId);
+        .eq('user_id', this.userId);
 
       if (error) {
         console.error(`删除${this.tableName}记录失败:`, error);
@@ -319,7 +319,7 @@ export class SupabaseDataService {
         .from(this.tableName)
         .delete()
         .in('id', ids)
-        .eq('userId', this.userId);
+        .eq('user_id', this.userId);
 
       if (error) {
         console.error(`批量删除${this.tableName}记录失败:`, error);
@@ -342,7 +342,7 @@ export class SupabaseDataService {
       let query = client
         .from(this.tableName)
         .select('*', { count: 'exact', head: true })
-        .eq('userId', this.userId);
+        .eq('user_id', this.userId);
 
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
@@ -385,7 +385,7 @@ export class SupabaseDataService {
       const { error } = await client
         .from(this.tableName)
         .delete()
-        .eq('userId', this.userId);
+        .eq('user_id', this.userId);
 
       if (error) {
         console.error(`清理${this.tableName}用户数据失败:`, error);

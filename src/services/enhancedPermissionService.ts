@@ -278,7 +278,7 @@ class EnhancedPermissionService {
           .from(TABLE_NAMES.USER_SUBSCRIPTIONS)
           .select('*')
           .eq('user_id', userId)
-          .eq('status', 'active')
+          .eq('payment_status', 'active')
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
@@ -453,7 +453,7 @@ class EnhancedPermissionService {
           .from(TABLE_NAMES.USER_USAGE_LOGS)
           .select('*')
           .eq('user_id', userId)
-          .eq('feature_id', featureId)
+          .eq('feature', featureId)
           .gte('created_at', monthStart.toISOString());
 
         if (error) {
