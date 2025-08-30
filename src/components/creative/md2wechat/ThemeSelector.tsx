@@ -172,74 +172,53 @@ export function ThemeSelector({
         <Palette className="w-4 h-4" />
         <span className="text-sm font-medium">主题样式</span>
         <Badge variant="secondary" className="text-xs">
-          当前: {currentTheme.displayName}
+          {currentTheme.displayName}
         </Badge>
       </div>
 
-      {Object.entries(themesByCategory).map(([category, themes]) => (
-        <div key={category} className="space-y-2">
-          <h4 className="text-xs font-medium text-muted-foreground">
-            {categoryLabels[category as keyof typeof categoryLabels]}
-          </h4>
+      {/* 紧凑的主题选择器 - 单行显示 */}
+      <div className="flex flex-wrap gap-2">
+        {THEME_CONFIGS.map((theme) => (
+          <button
+            key={theme.id}
+            className={cn(
+              "flex items-center justify-center w-10 h-10 rounded-lg border transition-all hover:shadow-sm relative",
+              selectedTheme === theme.id
+                ? "border-primary bg-primary/10 shadow-sm"
+                : "border-border hover:border-primary/50"
+            )}
+            onClick={() => handleThemeSelect(theme)}
+            title={theme.displayName}
+          >
+            {/* 主题预览图标 */}
+            <div
+              className="w-6 h-6 rounded flex items-center justify-center"
+              style={{
+                backgroundColor: theme.preview.backgroundColor,
+                color: theme.preview.primaryColor,
+                border: `1px solid ${theme.preview.primaryColor}40`
+              }}
+            >
+              {React.cloneElement(theme.icon as React.ReactElement, {
+                className: "w-3 h-3"
+              })}
+            </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-            {themes.map((theme) => (
-              <button
-                key={theme.id}
-                className={cn(
-                  "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all hover:shadow-sm",
-                  selectedTheme === theme.id
-                    ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border hover:border-primary/50"
-                )}
-                onClick={() => handleThemeSelect(theme)}
-              >
-                {/* 主题预览 */}
-                <div
-                  className="w-8 h-8 rounded border border-border flex items-center justify-center"
-                  style={{
-                    backgroundColor: theme.preview.backgroundColor,
-                    color: theme.preview.primaryColor,
-                    borderColor: theme.preview.primaryColor + '40'
-                  }}
-                >
-                  {theme.icon}
-                </div>
+            {/* 选中状态指示 */}
+            {selectedTheme === theme.id && (
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full flex items-center justify-center">
+                <Check className="w-2 h-2 text-primary-foreground" />
+              </div>
+            )}
 
-                {/* 主题信息 */}
-                <div className="text-center space-y-1">
-                  <div className="flex items-center justify-center gap-1">
-                    <span className="text-xs font-medium truncate">
-                      {theme.displayName}
-                    </span>
-                    {selectedTheme === theme.id && (
-                      <Check className="w-3 h-3 text-primary flex-shrink-0" />
-                    )}
-                  </div>
-
-                  {/* 状态标识 */}
-                  <div className="flex items-center justify-center gap-1">
-                    {theme.isDefault && (
-                      <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                        默认
-                      </Badge>
-                    )}
-                    {theme.requiresPremium && (
-                      <Badge variant="outline" className="text-xs px-1.5 py-0.5 border-amber-500 text-amber-600">
-                        高级
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      ))}
-
-      {/* 自定义主题提示 */}
-      <div className="text-xs text-muted-foreground text-center py-2 border-t border-border">
-        💡 更多主题样式正在开发中...
+            {/* 高级主题标识 */}
+            {theme.requiresPremium && (
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
+                <Star className="w-2 h-2 text-white" />
+              </div>
+            )}
+          </button>
+        ))}
       </div>
     </div>
   );

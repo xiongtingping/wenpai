@@ -75,6 +75,9 @@ export default function CreativeStudioPage() {
 
   return (
     <div className="min-h-screen bg-background pt-24">
+        {/* 主导航栏 */}
+        <Header />
+
         {/* 页面导航 */}
         <PageNavigation
           title="创意魔方"
