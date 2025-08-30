@@ -159,8 +159,8 @@ export const TopNavigation: React.FC = () => {
     <>
       <header ref={headerRef} className="fixed top-0 left-0 right-0 z-[99999] w-full border-b shadow-sm theme-header-bg backdrop-blur-md border-border/20">
         <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-center relative">
-          {/* 左侧Logo和导航 - 始终居中 */}
+          <div className="flex h-16 items-center justify-between relative">
+          {/* 左侧Logo和导航 - 靠左对齐 */}
           <div className="flex items-center space-x-6">
             {/* Logo - 主题感知的熊猫Logo */}
             <Link to="/" className="group">

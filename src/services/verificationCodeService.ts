@@ -459,6 +459,7 @@ class VerificationCodeService {
 
   /**
    * 验证手机验证码（用于更新手机号）
+   * 🔧 FIX: 2025-08-30 移除不存在的verifySmsCode方法，使用登录验证流程
    */
   async verifyPhoneCode(phone: string, code: string): Promise<VerificationCodeResponse> {
     try {
@@ -476,18 +477,24 @@ class VerificationCodeService {
         };
       }
 
-      const client = await this.initAuthClient();
+      // 🔧 使用登录验证码来验证手机号有效性
+      // 由于Authing SDK没有独立的verifySmsCode方法，我们通过尝试登录来验证验证码
+      const loginResult = await this.loginByPhoneCode(phone, code);
       
-      // 调用Authing SDK验证手机验证码
-      const result = await client.verifySmsCode(phone, code);
-
-      console.log('✅ 手机验证码验证成功:', { phone });
-      
-      return {
-        success: true,
-        message: '手机号验证成功',
-        data: result
-      };
+      if (loginResult.success) {
+        console.log('✅ 手机验证码验证成功:', { phone });
+        
+        return {
+          success: true,
+          message: '手机号验证成功',
+          data: loginResult.data
+        };
+      } else {
+        return {
+          success: false,
+          message: loginResult.message
+        };
+      }
 
     } catch (error: any) {
       console.error('❌ 验证手机验证码失败:', error);

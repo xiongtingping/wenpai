@@ -131,7 +131,6 @@ const App: React.FC = () => {
 
                         {/* 核心功能页面 - 需要登录 */}
                         <Route path="/adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
-                        <Route path="/new-adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
                         <Route path="/creative-studio" element={<AuthGuard><CreativeStudioPage /></AuthGuard>} />
                         <Route path="/hot-topics" element={<HotTopicsPage />} />
                         <Route path="/bookmark" element={<AuthGuard><BookmarkPage /></AuthGuard>} />

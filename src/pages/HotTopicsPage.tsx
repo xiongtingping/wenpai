@@ -1537,7 +1537,7 @@ export default function HotTopicsPage() {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   // 跳转到AI内容适配器并预填充内容
-                                  navigate('/new-adapt', {
+                                  navigate('/adapt', {
                                     state: {
                                       prefilledContent: `热门话题：${topic!.title || '未知话题'}\n\n平台：${getPlatformDisplayName(topic!.platform || '')}\n热度：${formatHotValue(topic!.hot || '0')}\n\n话题描述：${topic!.desc || '暂无描述'}`,
                                       source: 'radar',

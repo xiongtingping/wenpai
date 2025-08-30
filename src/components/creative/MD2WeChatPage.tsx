@@ -291,7 +291,7 @@ export default function MD2WeChatPage() {
       {/* 主要内容区域 */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* 编辑器区域 */}
-        <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} ${showPreview ? 'flex' : 'lg:flex'} flex-col border-r border-border lg:border-r ${!showPreview ? 'lg:border-r-0' : ''}`}>
+        <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col ${showPreview ? 'border-r border-border' : ''}`}>
           {/* 编辑器头部 */}
           <div className="p-3 border-b border-border bg-muted/30">
             <div className="flex items-center justify-between">

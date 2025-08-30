@@ -7,6 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Wand2, Palette, Lightbulb, Zap, Star, Briefcase, Coffee, Target } from 'lucide-react';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
+import { Header } from '@/components/landing/Header';
+import PageNavigation from '@/components/layout/PageNavigation';
+import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 
 /**
  * 创意魔方页面
@@ -32,34 +35,48 @@ const CreativeCubePage: React.FC = () => {
 
     setIsGenerating(true);
     try {
-      // 模拟AI生成过程
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const sampleContent = `基于"${prompt}"，我为您生成了以下创意内容：
+      // 调用真实AI服务进行创意内容生成
+      const { callAI, AITaskType } = await import('@/api/aiService');
+
+      const aiPrompt = `请基于以下需求生成创意内容：${prompt}
+
+请按照以下格式输出：
 
 🎯 核心卖点：
-• 独特价值主张
-• 用户痛点解决方案
-• 竞争优势展示
+• [具体的价值主张]
+• [用户痛点解决方案]
+• [竞争优势展示]
 
 💡 创意角度：
-• 情感共鸣点
-• 故事化表达
-• 视觉化描述
+• [情感共鸣点]
+• [故事化表达]
+• [视觉化描述]
 
 🚀 行动号召：
-• 明确的下一步
-• 紧迫感营造
-• 价值承诺
+• [明确的下一步]
+• [紧迫感营造]
+• [价值承诺]
 
 ✨ 创意亮点：
-• 新颖的表达方式
-• 记忆点设计
-• 传播价值`;
+• [新颖的表达方式]
+• [记忆点设计]
+• [传播价值]
 
-      setGeneratedContent(sampleContent);
+请确保内容具体、实用且富有创意。`;
+
+      const result = await callAI(aiPrompt, AITaskType.CREATIVE_WRITING, {
+        style: selectedStyle,
+        maxTokens: 1000
+      });
+
+      if (result && result.content) {
+        setGeneratedContent(result.content);
+      } else {
+        throw new Error('AI服务返回空结果');
+      }
     } catch (error) {
-      console.log('生成失败，请稍后重试');
+      console.error('创意生成失败:', error);
+      setGeneratedContent('生成失败，请检查网络连接或稍后重试。');
     } finally {
       setIsGenerating(false);
     }
@@ -70,16 +87,27 @@ const CreativeCubePage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl particle-background min-h-screen">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-2 text-foreground">
-          <Sparkles className="text-primary" />
-          创意魔方
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          释放你的创意潜能，生成独特的内容创作
-        </p>
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* 主导航栏 */}
+      <Header />
+
+      {/* 页面导航 */}
+      <PageNavigation
+        title="创意魔方"
+        description="释放你的创意潜能，生成独特的内容创作"
+        showAdaptButton={false}
+        showUpgradeButton={false}
+        actions={
+          <RoleBasedUpgradePrompt
+            requiredTier="pro"
+            featureName="创意魔方"
+            description="该功能为专业版专属，提供AI驱动的创意内容生成服务"
+            mode="compact"
+          />
+        }
+      />
+
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
 
       {/* 🔧 移除整页权限遮罩，改为按钮级权限控制 */}
       <div>

@@ -275,23 +275,27 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
     const currentConfig = PAGE_CONFIGS[path];
     
     if (currentConfig) {
-      // 添加父页面
-      if (currentConfig.parent && PAGE_CONFIGS[currentConfig.parent]) {
-        const parentConfig = PAGE_CONFIGS[currentConfig.parent];
+      // 🔧 FIX: 2025-08-30 确保非首页都显示面包屑导航
+      // 只有在当前页面不是首页时才显示面包屑
+      if (path !== '/') {
+        // 添加父页面
+        if (currentConfig.parent && PAGE_CONFIGS[currentConfig.parent]) {
+          const parentConfig = PAGE_CONFIGS[currentConfig.parent];
+          breadcrumbs.push({
+            path: parentConfig.path,
+            title: parentConfig.title,
+            icon: parentConfig.icon,
+          });
+        }
+        
+        // 添加当前页面
         breadcrumbs.push({
-          path: parentConfig.path,
-          title: parentConfig.title,
-          icon: parentConfig.icon,
+          path: currentConfig.path,
+          title: currentConfig.title,
+          icon: currentConfig.icon,
+          badge: currentConfig.badge,
         });
       }
-      
-      // 添加当前页面
-      breadcrumbs.push({
-        path: currentConfig.path,
-        title: currentConfig.title,
-        icon: currentConfig.icon,
-        badge: currentConfig.badge,
-      });
     }
     
     return breadcrumbs;
@@ -313,13 +317,13 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   const subModules = getSubModules();
 
   return (
-    <div className="border-b shadow-e1 theme-breadcrumb-bg backdrop-blur-sm relative z-40">
+    <div className="border-b shadow-e1 theme-breadcrumb-bg backdrop-blur-sm relative z-40 min-h-[120px]">
       <div className="container mx-auto px-4 py-6">
         {/* 面包屑导航 */}
         {breadcrumbs.length > 0 && (
-          <div className="mb-4">
+          <div className="mb-4 mt-2 relative z-50">
             <Breadcrumb>
-              <BreadcrumbList className="flex-wrap theme-breadcrumb-text">
+              <BreadcrumbList className="flex-wrap theme-breadcrumb-text text-sm">
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     href="/"
@@ -367,10 +371,10 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
         )}
 
         {/* 页面标题和描述 */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mt-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground break-words">
                 {title || PAGE_CONFIGS[path]?.title || '页面'}
               </h1>
               {PAGE_CONFIGS[path]?.badge && (

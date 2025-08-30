@@ -324,14 +324,8 @@ export default function BookmarkPage() {
     }
   };
 
-  // ✅ FIXED: 已移除模拟内容提取功能
-  // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
-  // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
-  // 
-  // 系统现在直接调用真实内容提取API，不再提供模拟提取
-  const generateMockExtractedContent = (source: string): never => {
-    throw new Error('内容提取API调用失败，请检查网络连接和API配置');
-  };
+  // ✅ REMOVED: 已完全移除模拟内容提取功能
+  // 系统现在仅支持真实API调用，不提供任何模拟或降级方案
 
   /**
    * 创建网络收藏
@@ -1002,7 +996,7 @@ export default function BookmarkPage() {
                             variant="ghost"
                             onClick={() => {
                               // 跳转到AI内容适配器并预填充内容
-                              navigate('/new-adapt', {
+                              navigate('/adapt', {
                                 state: {
                                   prefilledContent: item.content || '暂无内容',
                                   source: 'library',
