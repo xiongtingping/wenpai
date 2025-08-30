@@ -159,9 +159,9 @@ export const TopNavigation: React.FC = () => {
     <>
       <header ref={headerRef} className="fixed top-0 left-0 right-0 z-[99999] w-full border-b shadow-sm theme-header-bg backdrop-blur-md border-border/20">
         <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center relative">
-          {/* 左侧Logo */}
-          <div className="flex items-center">
+          <div className="flex h-16 items-center justify-between">
+          {/* 左侧Logo - 固定宽度 */}
+          <div className="flex items-center w-48">
             <Link to="/" className="group">
               <div className="flex items-center space-x-3">
                 <LogoWithText
@@ -174,8 +174,8 @@ export const TopNavigation: React.FC = () => {
             </Link>
           </div>
 
-          {/* 中间导航菜单 - 居中显示 */}
-          <div className="flex-1 flex justify-center">
+          {/* 中间导航菜单 - 绝对居中 */}
+          <div className="absolute left-1/2 transform -translate-x-1/2">
             <div className="hidden lg:flex items-center">
               <NavBar
                 positionClassName="relative"
@@ -214,8 +214,8 @@ export const TopNavigation: React.FC = () => {
             </DropdownMenu>
           </div>
 
-          {/* 右侧用户区域 - 固定在右侧 */}
-          <div className="flex items-center gap-2">
+          {/* 右侧用户区域 - 固定宽度平衡布局 */}
+          <div className="flex items-center gap-2 w-48 justify-end">
             {/* 用户状态指示 */}
             {permissionLoading && !isDevelopment() && (
               <div className="hidden sm:flex items-center gap-1">

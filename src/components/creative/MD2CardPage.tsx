@@ -244,27 +244,27 @@ export default function MD2CardPage() {
           template.category
         );
         
-        // 生成卡片的模拟实现 - 减少延迟
-        const result = await generateMockCard({
-          markdown: content,
-          templateId,
-          configuration: config
+        // 立即生成预览卡片 - 无延迟
+        const title = extractTitleFromMarkdown(content);
+        const svgContent = `<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" fill="${config.colors.background}"/>
+          <text x="50%" y="30%" font-family="Arial, sans-serif" font-size="32" fill="${config.colors.text}" text-anchor="middle" dy=".3em">${title}</text>
+          <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="16" fill="${config.colors.primary}" text-anchor="middle" dy=".3em">实时预览</text>
+          <text x="50%" y="70%" font-family="Arial, sans-serif" font-size="14" fill="${config.colors.secondary}" text-anchor="middle" dy=".3em">模板: ${template.displayName}</text>
+        </svg>`;
+
+        const imageData = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgContent)));
+
+        setCardData({
+          id: Date.now().toString(),
+          title,
+          markdownContent: content,
+          parsedContent: optimizedContent,
+          configuration: config,
+          imageData,
+          createdAt: new Date(),
+          updatedAt: new Date()
         });
-        
-        if (result.success) {
-          setCardData({
-            id: Date.now().toString(),
-            title: extractTitleFromMarkdown(content),
-            markdownContent: content,
-            parsedContent: optimizedContent,
-            configuration: config,
-            imageData: result.imageData,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          });
-        } else {
-          throw new Error(result.error || '生成失败');
-        }
       } catch (error) {
         console.error('卡片生成失败:', error);
         // 实时预览中不显示错误提示，避免干扰用户输入
@@ -272,7 +272,7 @@ export default function MD2CardPage() {
         setIsGenerating(false);
       }
     },
-    200  // 减少防抖延迟从500ms到200ms
+    50   // 进一步减少防抖延迟到50ms，实现更实时的预览
   );
 
   // 监听内容和配置变化，触发生成

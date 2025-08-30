@@ -284,21 +284,17 @@ export default function MD2WeChatPage() {
       </div>
 
       {/* 主要内容区域 */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* 左侧主题选择器 */}
-        <div className="w-80 border-r border-border bg-muted/30 overflow-y-auto">
-          <div className="p-4">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-120px)]">
+        {/* 编辑器区域 */}
+        <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col h-full ${showPreview ? 'border-r border-border' : ''}`}>
+          {/* 主题选择器 */}
+          <div className="p-4 border-b border-border bg-muted/30">
             <ThemeSelector
               selectedTheme={selectedTheme}
               onThemeChange={handleThemeChange}
             />
           </div>
-        </div>
 
-        {/* 中间编辑器和预览区域 */}
-        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          {/* 编辑器区域 */}
-          <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col h-full ${showPreview ? 'border-r border-border' : ''}`}>
           {/* 编辑器头部 */}
           <div className="p-3 border-b border-border bg-muted/30">
             <div className="flex items-center justify-between">
@@ -316,12 +312,12 @@ export default function MD2WeChatPage() {
             </div>
           </div>
 
-          {/* 编辑器内容 */}
-          <div className="flex-1">
+          {/* 编辑器内容 - 固定高度，内部滚动 */}
+          <div className="flex-1 overflow-hidden">
             <MarkdownEditor
               content={markdownContent}
               onChange={handleContentChange}
-              className="h-full"
+              className="h-full overflow-y-auto"
             />
           </div>
         </div>
@@ -380,7 +376,6 @@ export default function MD2WeChatPage() {
             </div>
           )}
         </div>
-      </div>
       </div>
     </PermissionAwareContainer>
   );

@@ -74,10 +74,7 @@ export default function CreativeStudioPage() {
 
 
   return (
-    <div className="min-h-screen bg-background">
-        {/* 主导航栏 */}
-        <Header />
-        
+    <div className="min-h-screen bg-background pt-24">
         {/* 页面导航 */}
         <PageNavigation
           title="创意魔方"
@@ -94,7 +91,7 @@ export default function CreativeStudioPage() {
           }
         />
 
-        <div className="container mx-auto px-4 py-8 mt-4">
+        <div className="container mx-auto px-4 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* 子模块切换 */}
             <div className="flex flex-col gap-4 mb-6">
