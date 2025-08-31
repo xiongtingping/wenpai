@@ -51,7 +51,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
       try {
         const response = await fetch(`https://bufpay.com/api/query/${paymentInfo.aoid}`);
         const result = await response.json();
-        
+
         if (result.status === 'success' || result.status === 'payed') {
           setPaymentStatus('success');
           setIsPolling(false);
@@ -68,7 +68,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
 
     // 每5秒查询一次
     const interval = setInterval(pollPaymentStatus, 5000);
-    
+
     return () => clearInterval(interval);
   }, [isPolling, paymentInfo.aoid, onPaymentSuccess, onPaymentTimeout]);
 

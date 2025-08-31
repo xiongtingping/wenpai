@@ -13,9 +13,10 @@ import { EnhancedPaymentStatusMonitor } from '@/components/payment/EnhancedPayme
 import request from '@/api/request';
 import { PaymentSuccessHandler } from '@/components/payment/PaymentSuccessHandler';
 import { PaymentStatusRecovery } from '@/components/payment/PaymentStatusRecovery';
-import { PageNavigation } from '@/components/layout/PageNavigation';
+import { Header } from '@/components/landing/Header';
 import { BufPayService } from '@/services/bufpayService';
-import { PRICING_PLANS, PaymentResponse } from '@/types/payment';
+import { PaymentResponse } from '@/types/payment';
+import { PaymentQRCode } from '@/components/payment/PaymentQRCode';
 import { logger } from '@/utils/logger';
 import {
   ArrowLeft,
@@ -26,11 +27,10 @@ import {
   Zap,
   Percent,
   Home,
-  Clock,
-  RefreshCw,
-  AlertCircle,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
 import {
   getPaymentCenterAccessTime,
@@ -84,6 +84,10 @@ export default function PaymentPage() {
   const [showRecovery, setShowRecovery] = useState(false);
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  // BufPay 支付状态
+  const [bufpayPaymentInfo, setBufpayPaymentInfo] = useState<PaymentResponse | null>(null);
+  const [bufpayOrderId, setBufpayOrderId] = useState<string | null>(null);
 
   // 倒计时效果（包含毫秒）
   const [timeLeftMs, setTimeLeftMs] = useState(0);
@@ -145,42 +149,45 @@ export default function PaymentPage() {
   const handlePlanSelect = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
     setShowQRCode(false);
+
+    // 自动滚动到支付信息区域
+    setTimeout(() => {
+      const paymentSection = document.getElementById('payment-section');
+      if (paymentSection) {
+        paymentSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      }
+    }, 300); // 延迟一点时间确保状态更新完成
   };
 
   // 处理支付
   const handlePayment = async () => {
-    if (!selectedPlan) return;
+    if (!selectedPlan || !currentUser) return;
 
     try {
       setIsCreatingCheckout(true);
       setCheckoutError(null);
 
-      // 创建支付订单
-      const priceId = getCreemPriceId(selectedPlan, selectedPeriod);
-      if (!priceId) {
-        throw new Error('无效的套餐配置');
-      }
+      // 使用 BufPay 创建支付订单
+      const paymentRequest = {
+        userId: currentUser.id,
+        userEmail: currentUser.email || '',
+        productName: selectedPlan.name,
+        productType: selectedPlan.tier as 'professional' | 'premium',
+        durationType: selectedPeriod,
+        amount: getCurrentPrice(),
+        payType: 'alipay' as const
+      };
 
+      const { orderId, paymentInfo } = await BufPayService.createPayment(paymentRequest);
 
-      // 使用统一后端接口创建支付订单
-      const checkout = await request.post('/.netlify/functions/checkout', {
-        priceId: priceId,
-        customerEmail: currentUser?.email || undefined
-      });
-
-      setCurrentCheckout(checkout);
+      setBufpayOrderId(orderId);
+      setBufpayPaymentInfo(paymentInfo);
       setPaymentStatus('pending');
       setShowQRCode(true);
-
-      // 保存支付状态
-      paymentStatusService.savePaymentStatus(checkout.id, {
-        status: 'pending',
-        message: '等待支付...',
-        progress: 0,
-        amount: checkout.amount,
-        currency: checkout.currency,
-        checkoutId: checkout.id,
-      });
 
       setTimeout(() => {
         paymentInfoRef.current?.scrollIntoView({
@@ -299,6 +306,35 @@ export default function PaymentPage() {
     });
   };
 
+  // BufPay 支付成功处理
+  const handleBufpaySuccess = () => {
+    setPaymentStatus('paid');
+    toast({
+      title: "支付成功！",
+      description: "正在为您升级会员...",
+      duration: 3000,
+    });
+
+    // 跳转到支付结果页面
+    setTimeout(() => {
+      navigate(`/payment/result?orderId=${bufpayOrderId}`);
+    }, 2000);
+  };
+
+  // BufPay 支付超时处理
+  const handleBufpayTimeout = () => {
+    setPaymentStatus('failed');
+    setBufpayPaymentInfo(null);
+    setBufpayOrderId(null);
+    setShowQRCode(false);
+
+    toast({
+      title: "支付超时",
+      description: "请重新创建支付订单",
+      variant: "destructive",
+    });
+  };
+
   // 如果支付成功，显示成功处理页面
   if (paymentStatus === 'paid' && currentCheckout) {
     return (
@@ -315,16 +351,18 @@ export default function PaymentPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* 页面导航 */}
-      <PageNavigation
-        currentPath="/payment"
-        title="订阅中心"
-        description="选择适合您的订阅计划，解锁更多强大功能"
-        showAdaptButton={false}
-        showUpgradeButton={false}
-      />
+      {/* 统一Header */}
+      <Header />
 
-      <div className="container mx-auto px-4 py-8 space-y-8">
+      {/* 页面内容 */}
+      <div className="pt-[var(--header-height)] container mx-auto px-4 py-20 space-y-12">
+        {/* 页面标题 */}
+        <div className="text-center mb-20 mt-8">
+          <div className="mb-6 flex flex-col items-center">
+            <h1 className="text-4xl font-bold text-foreground mb-4 block">订阅中心</h1>
+            <p className="text-lg text-muted-foreground block">选择适合您的订阅计划，解锁更多强大功能</p>
+          </div>
+        </div>
         {/* 支付状态恢复 */}
         {showRecovery && (
           <div className="mb-8">
@@ -339,7 +377,7 @@ export default function PaymentPage() {
         )}
 
         {/* 订阅周期切换 - 优化版本 */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-4">
           <div className="flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-2xl p-3 shadow-xl border border-gray-200 max-w-4xl">
             {/* 按月订阅 */}
             <Button
@@ -434,7 +472,7 @@ export default function PaymentPage() {
         )}
 
         {/* 订阅计划选择 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 max-w-6xl mx-auto pt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 max-w-5xl mx-auto pt-2">
           {SUBSCRIPTION_PLANS?.map((plan, index) => {
             const pricing = selectedPeriod === 'monthly' ? plan.monthly : plan.yearly;
             const originalPrice = pricing.originalPrice;
@@ -447,7 +485,7 @@ export default function PaymentPage() {
             return (
               <div key={plan.id} className="relative pt-4">
                 <Card
-                  className={`cursor-pointer transition-all duration-300 relative group w-full flex flex-col rounded-lg min-h-[600px] ${
+                  className={`cursor-pointer transition-all duration-300 relative group w-full flex flex-col rounded-lg min-h-[520px] ${
                     isSelected
                       ? 'border-primary shadow-lg scale-105 bg-primary/5'
                       : 'border-border hover:border-primary/50 hover:shadow-md hover:scale-102'
@@ -499,19 +537,21 @@ export default function PaymentPage() {
                   </div>
 
                   <CardHeader className="text-center pb-2 pt-4">
-                    <CardTitle className="text-2xl md:text-3xl font-bold mb-1 h-10 flex items-center justify-center">
-                      <div className="flex items-center justify-center gap-3">
-                        {plan.tier === 'premium' && <Crown className="h-6 w-6 text-yellow-500" />}
+                    <CardTitle className="text-xl md:text-2xl font-bold mb-1 h-8 flex items-center justify-center">
+                      <div className="flex items-center justify-center gap-2">
+                        {plan.tier === 'premium' && <Crown className="h-5 w-5 text-yellow-500" />}
                         <span className="text-gray-900">{plan.name}</span>
                       </div>
                     </CardTitle>
-                    <p className="text-gray-600 text-sm md:text-base leading-relaxed h-8 flex items-center justify-center">{plan.description}</p>
+                    <p className="text-gray-600 text-xs md:text-sm leading-relaxed h-6 flex items-center justify-center">{plan.description}</p>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col space-y-3 pb-3 px-4">
-                    <div className="text-center pricing-container min-h-[80px] flex flex-col justify-center">
-                      <div className="space-y-3">
-                        <div className="text-4xl md:text-5xl font-bold text-gray-900">
-                          <span className="text-2xl md:text-3xl align-top">¥</span>{currentPrice}
+                    <div className="text-center pricing-container min-h-[70px] flex flex-col justify-center">
+                      <div className="space-y-2">
+                        <div className="text-3xl md:text-4xl font-bold text-gray-900 flex items-baseline justify-center gap-1">
+                          <span className="text-xl md:text-2xl">¥</span>
+                          <span>{currentPrice}</span>
+                          <span className="text-base text-gray-600 font-medium">/{selectedPeriod === 'monthly' ? '月' : '年'}</span>
                         </div>
                         {isInDiscount && timeLeft > 0 && plan.tier !== 'trial' && (
                           <>
@@ -522,13 +562,10 @@ export default function PaymentPage() {
                             <div className="text-lg text-gray-500 line-through">原价 ¥{originalPrice}</div>
                           </>
                         )}
-                        <div className="text-lg text-gray-600 font-medium">
-                          /{selectedPeriod === 'monthly' ? '月' : '年'}
-                        </div>
 
                       </div>
                     </div>
-                    <div className="flex-1 space-y-1.5 mt-3 min-h-[280px]">
+                    <div className="flex-1 space-y-1 mt-2 min-h-[240px]">
                       {plan.features.map((feature, index) => {
                         // 解析功能标记
                         let featureText = feature;
@@ -543,20 +580,20 @@ export default function PaymentPage() {
                         }
 
                         return (
-                          <div key={index} className="flex items-start gap-2 text-sm md:text-base">
+                          <div key={index} className="flex items-start gap-2 text-sm">
                             <div className="mt-0.5">
-                              <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
+                              <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
                             </div>
-                            <span className="text-gray-700 leading-relaxed flex items-center gap-2">
+                            <span className="text-gray-700 leading-snug flex items-center gap-1.5 flex-wrap">
                               {featureText}
                               {badgeType === 'new' && (
-                                <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">
+                                <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold shadow-sm">
                                   NEW
                                 </Badge>
                               )}
                               {badgeType === 'up' && (
-                                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-1">
-                                  <TrendingUp className="h-3 w-3" />
+                                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-0.5">
+                                  <TrendingUp className="h-2.5 w-2.5" />
                                   UP
                                 </Badge>
                               )}
@@ -565,7 +602,7 @@ export default function PaymentPage() {
                         );
                       })}
                     </div>
-                    <div className="mt-6">
+                    <div className="mt-3">
                       <Button
                         variant={plan.recommended ? "gradient" : "default"}
                         size="lg"
@@ -610,7 +647,7 @@ export default function PaymentPage() {
         </div>
 
         {/* 支付信息和二维码 */}
-        <div ref={paymentInfoRef} className="space-y-6 max-w-4xl mx-auto">
+        <div id="payment-section" ref={paymentInfoRef} className="space-y-6 max-w-4xl mx-auto">
           {/* 支付按钮 */}
           {selectedPlan && selectedPlan.tier !== 'trial' && !showQRCode && (
             <Card className="border border-border bg-card shadow-sm rounded-lg">
@@ -637,6 +674,33 @@ export default function PaymentPage() {
                   </div>
                 </div>
 
+                {/* 按年支付引导 */}
+                {selectedPeriod === 'monthly' && selectedPlan.tier !== 'trial' && (
+                  <div className="mb-6 p-4 bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center">
+                          <Percent className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-orange-800">💰 切换到按年支付更优惠</div>
+                          <div className="text-sm text-orange-600">
+                            年付可节省 ¥{getYearlySavings(selectedPlan)}，相当于免费使用 {Math.round(getYearlySavings(selectedPlan) / (selectedPlan.monthly.originalPrice || 0))} 个月
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedPeriod('yearly')}
+                        className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white border-none hover:from-orange-600 hover:to-yellow-600 font-semibold"
+                      >
+                        切换年付
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 {/* 优惠信息行 */}
                 {(isInPromoPeriod(currentUser?.id) && timeLeft > 0) || selectedPeriod === 'yearly' ? (
                   <div className="flex flex-wrap gap-3 mb-6">
@@ -658,7 +722,7 @@ export default function PaymentPage() {
                 <Button
                   onClick={handlePayment}
                   disabled={isCreatingCheckout}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xl font-bold py-4 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl disabled:opacity-50"
+                  className="w-full !flex !items-center !justify-center !bg-gradient-to-r !from-blue-600 !to-indigo-600 hover:!from-blue-700 hover:!to-indigo-700 !text-white text-xl font-bold py-4 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl disabled:opacity-50 !border-none !text-center"
                 >
                   {isCreatingCheckout ? (
                     <div className="flex items-center gap-2">
@@ -728,128 +792,24 @@ export default function PaymentPage() {
                 ) : null}
 
                 <div className="flex justify-center items-center py-6 bg-white rounded-xl border-2 border-green-100 shadow-sm">
-                  {(() => {
-                    const pid = getCreemPriceId(selectedPlan, selectedPeriod);
-                    return pid ? (
-                      <CreemAlipayQRCode
-                        priceId={pid}
-                        planName={selectedPlan.name}
-                        price={getCurrentPrice()}
-                      />
-                    ) : (
-                      <div className="text-red-600 font-semibold">请先选择有效的套餐和周期</div>
-                    );
-                  })()}
-                </div>
-
-                <div className="text-center text-muted-foreground text-lg font-medium mt-4">
-                  📱 请使用支付宝App扫码完成支付
+                  {bufpayPaymentInfo && bufpayOrderId ? (
+                    <PaymentQRCode
+                      paymentInfo={bufpayPaymentInfo}
+                      orderId={bufpayOrderId}
+                      onPaymentSuccess={handleBufpaySuccess}
+                      onPaymentTimeout={handleBufpayTimeout}
+                    />
+                  ) : (
+                    <div className="text-red-600 font-semibold">正在生成支付二维码...</div>
+                  )}
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* 支付状态监控 */}
-          {currentCheckout && paymentStatus === 'pending' && (
-            <div className="mt-6">
-              <EnhancedPaymentStatusMonitor
-                checkoutId={currentCheckout.id}
-                apiKey={import.meta.env.VITE_CREEM_API_KEY || ''}
-                onPaymentSuccess={handlePaymentSuccess}
-                onPaymentFailed={handlePaymentFailed}
-                onPaymentExpired={handlePaymentExpired}
-                autoRefresh={true}
-                refreshInterval={3000}
-                maxRetries={10}
-                enableNotifications={true}
-                enableSound={true}
-                showAdvancedInfo={false}
-              />
-            </div>
-          )}
+          {/* BufPay 支付状态会通过 PaymentQRCode 组件内部轮询处理 */}
 
-          {/* 支付帮助和说明 */}
-          <div className="mt-12 space-y-6 max-w-4xl mx-auto">
-            {/* 支付安全保障 */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-card p-4 rounded-lg border border-border text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Check className="h-6 w-6 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">安全支付</h3>
-                <p className="text-sm text-gray-600">采用银行级加密技术，保障您的支付安全</p>
-              </div>
 
-              <div className="bg-card p-4 rounded-lg border border-border text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <RefreshCw className="h-6 w-6 text-blue-600" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">即时生效</h3>
-                <p className="text-sm text-muted-foreground">支付成功后立即升级，无需等待</p>
-              </div>
-
-              <div className="bg-card p-4 rounded-lg border border-border text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Crown className="h-6 w-6 text-purple-600" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">会员特权</h3>
-                <p className="text-sm text-muted-foreground">解锁全部功能，享受专属服务</p>
-              </div>
-            </div>
-
-            {/* 支付说明 */}
-            <div className="bg-muted/30 p-6 rounded-lg border border-border">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-gray-900 font-semibold mb-3 text-lg flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    支付流程
-                  </h3>
-                  <ul className="space-y-2 text-sm text-gray-600">
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">1</span>
-                      选择订阅计划和付费周期
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">2</span>
-                      点击"立即支付"生成二维码
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">3</span>
-                      使用支付宝扫码完成支付
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">✓</span>
-                      自动升级会员，立即享受服务
-                    </li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="text-gray-900 font-semibold mb-3 text-lg flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5" />
-                    注意事项
-                  </h3>
-                  <ul className="space-y-2 text-sm text-gray-600">
-                    <li>• 支付二维码有效期为30分钟</li>
-                    <li>• 支付成功后会自动升级会员</li>
-                    <li>• 订阅会在期满后自动续费</li>
-                    <li>• 您可以随时在个人中心取消订阅</li>
-                    <li>• 如有问题请联系客服支持</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <p className="text-center text-sm leading-relaxed text-gray-600">
-                  点击立即支付即表示您同意我们的
-                  <a href="/terms" className="text-blue-600 hover:text-blue-800 hover:underline mx-1 font-medium">服务条款</a>
-                  和
-                  <a href="/privacy" className="text-blue-600 hover:text-blue-800 hover:underline mx-1 font-medium">隐私政策</a>
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

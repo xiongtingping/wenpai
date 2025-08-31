@@ -14,7 +14,7 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { LogoWithText } from "@/components/ui/ThemeAwareLogo"
 import { NavBar } from "@/components/ui/tubelight-navbar"
 import { DevPermissionSwitcher } from "@/components/dev/DevPermissionSwitcher"
-import { Home, Radar, Sparkles, Library, FolderOpen } from "lucide-react"
+import { Home, Radar, Sparkles, Library, FolderOpen, CreditCard } from "lucide-react"
 
 
 
@@ -103,6 +103,7 @@ export function Header() {
                 { name: '创意魔方', url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { login('/creative-studio'); } } },
                 { name: '我的资料库', url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/library'); } else { login('/library'); } } },
                 { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/brand-library'); } else { login('/brand-library'); } } },
+                { name: '定价', url: '/payment', icon: CreditCard, onClick: (e) => { e.preventDefault(); navigate('/payment'); } },
               ]}
             />
           </div>
@@ -234,9 +235,9 @@ export function Header() {
                 </SheetClose>
                 <SheetClose asChild>
                   <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                    navigate('/payment');
                   }}>
-                    定价方案
+                    定价
                   </Button>
                 </SheetClose>
 

@@ -8,7 +8,7 @@ const crypto = require('crypto');
 // Supabase 配置
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const appSecret = 'b141e267adf04957889d13e5568017eb';
+const appSecret = '2861731746ef4189937ef4dc11f09375'; // 更新为正确的 APP_SECRET
 
 // 创建 Supabase 客户端（使用 Service Role Key）
 const supabase = createClient(supabaseUrl, supabaseServiceKey);

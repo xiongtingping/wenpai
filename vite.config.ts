@@ -57,6 +57,20 @@ export default defineConfig({
             console.log('🔧 代理Authing请求:', req.method, req.url);
           });
         }
+      },
+      '/api/bufpay': {
+        target: 'https://bufpay.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api\/bufpay/, ''),
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('🔧 BufPay代理错误:', err.message);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('🔧 代理BufPay请求:', req.method, req.url);
+          });
+        }
       }
     }
   },

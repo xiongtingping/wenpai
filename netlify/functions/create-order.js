@@ -12,7 +12,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 // BufPay 配置
 const BUFPAY_CONFIG = {
   API_URL: 'https://bufpay.com/api/pay/107628',
-  APP_SECRET: 'b141e267adf04957889d13e5568017eb',
+  APP_SECRET: '2861731746ef4189937ef4dc11f09375', // 修复：与前端和回调函数保持一致
   NOTIFY_URL: 'https://www.wenpai.xyz/.netlify/functions/bufpay-notify',
   RETURN_URL: 'https://www.wenpai.xyz/payment/result',
   FEEDBACK_URL: 'https://www.wenpai.xyz/payment/feedback'
