@@ -10,10 +10,40 @@ import { CTASection } from "@/components/landing/CTASection"
 import { Footer } from "@/components/landing/Footer"
 import { useScrollAnimation } from "@/components/landing/ScrollAnimation"
 import PageTracker from "@/components/analytics/PageTracker"
+import { useEffect } from "react"
+import { useLocation } from "react-router-dom"
 
 function HomePage() {
   // Initialize scroll animation
   useScrollAnimation()
+
+  const location = useLocation()
+
+  // 处理从其他页面返回时的滚动到Footer功能
+  useEffect(() => {
+    if (location.state?.scrollToFooter) {
+      // 等待页面完全加载后滚动到底部
+      const scrollToFooter = () => {
+        const maxHeight = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight
+        );
+        window.scrollTo({
+          top: maxHeight,
+          behavior: 'smooth'
+        });
+      };
+
+      // 多次尝试滚动，确保页面完全渲染
+      setTimeout(scrollToFooter, 100);
+      setTimeout(scrollToFooter, 300);
+      setTimeout(scrollToFooter, 600);
+      setTimeout(scrollToFooter, 1000);
+
+      // 清除状态，避免重复滚动
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location])
 
   return (
     <div className="min-h-screen relative">

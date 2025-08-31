@@ -12,18 +12,23 @@ import { useNavigate } from 'react-router-dom';
 export default function PrivacyPage() {
   const navigate = useNavigate();
 
+  // 返回到首页底部
+  const handleBackToHome = () => {
+    navigate('/', { state: { scrollToFooter: true } });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 px-4 max-w-5xl">
       {/* 返回按钮 */}
       <div className="mb-8">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate(-1)}
+        <Button
+          variant="ghost"
+          onClick={handleBackToHome}
           className="flex items-center gap-2 text-primary hover:bg-accent"
         >
           <ArrowLeft className="h-4 w-4" />
-          返回上一页
+          返回首页
         </Button>
       </div>
 
