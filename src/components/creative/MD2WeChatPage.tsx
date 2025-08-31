@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuthStore } from '@/store/authStore';
 import { useUsageStore } from '@/store/usageStore';
 import { PermissionAwareContainer } from '@/components/auth/PermissionAwareContainer';
+import { Header } from '@/components/landing/Header';
 import { MarkdownEditor } from './md2wechat/MarkdownEditor';
 import { ThemeSelector } from './md2wechat/ThemeSelector';
 import { PreviewPanel } from './md2wechat/PreviewPanel';
@@ -175,208 +176,211 @@ export default function MD2WeChatPage() {
   }, [toast]);
 
   return (
-    <PermissionAwareContainer 
-      feature="md2wechat" 
-      fallback={
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <h3 className="text-lg font-medium mb-2">需要高级权限</h3>
-            <p className="text-muted-foreground mb-4">Markdown排版工具需要高级版本</p>
-          </div>
-        </div>
-      }
-    >
-      <div className="h-full bg-background">
-      {/* 工具栏 */}
-      <div className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            {/* 左侧工具组 */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 border border-border rounded-md">
-                <Button
-                  variant={fontSize === 'small' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => handleFontSizeChange('small')}
-                  className="px-2 py-1 text-xs"
-                >
-                  小
-                </Button>
-                <Button
-                  variant={fontSize === 'medium' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => handleFontSizeChange('medium')}
-                  className="px-2 py-1 text-xs"
-                >
-                  中
-                </Button>
-                <Button
-                  variant={fontSize === 'large' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => handleFontSizeChange('large')}
-                  className="px-2 py-1 text-xs"
-                >
-                  大
-                </Button>
-              </div>
-            </div>
-
-            {/* 右侧操作组 */}
-            <div className="flex items-center gap-2">
-              {/* 预览切换 */}
-              <div className="flex items-center gap-1 border border-border rounded-md">
-                <Button
-                  variant={!isMobilePreview ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setIsMobilePreview(false)}
-                  className="px-2 py-1"
-                >
-                  <Monitor className="w-3 h-3" />
-                </Button>
-                <Button
-                  variant={isMobilePreview ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setIsMobilePreview(true)}
-                  className="px-2 py-1"
-                >
-                  <Smartphone className="w-3 h-3" />
-                </Button>
-              </div>
-
-              {/* 导入文档 */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const input = document.createElement('input');
-                  input.type = 'file';
-                  input.accept = '.md,.txt';
-                  input.onchange = (e) => {
-                    const file = (e.target as HTMLInputElement).files?.[0];
-                    if (file) handleImportDocument(file);
-                  };
-                  input.click();
-                }}
-              >
-                <Upload className="w-4 h-4 mr-1" />
-                导入
-              </Button>
-
-              {/* 重置 */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleReset}
-              >
-                <RotateCcw className="w-4 h-4 mr-1" />
-                重置
-              </Button>
-
-              {/* 导出控制 */}
-              <ExportControls
-                htmlContent={previewHtml}
-                markdownContent={markdownContent}
-                theme={selectedTheme}
-              />
+    <>
+      <Header />
+      <PermissionAwareContainer 
+        feature="md2wechat" 
+        fallback={
+          <div className="flex items-center justify-center h-96 pt-[var(--header-height,64px)]">
+            <div className="text-center">
+              <h3 className="text-lg font-medium mb-2">需要高级权限</h3>
+              <p className="text-muted-foreground mb-4">Markdown排版工具需要高级版本</p>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* 主要内容区域 */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-120px)]">
-        {/* 编辑器区域 */}
-        <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col h-full ${showPreview ? 'border-r border-border' : ''}`}>
-          {/* 主题选择器 */}
-          <div className="p-4 border-b border-border bg-muted/30">
-            <ThemeSelector
-              selectedTheme={selectedTheme}
-              onThemeChange={handleThemeChange}
-            />
-          </div>
-
-          {/* 编辑器头部 */}
-          <div className="p-3 border-b border-border bg-muted/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Markdown编辑器</span>
-                {isConverting && (
-                  <RefreshCw className="w-3 h-3 animate-spin text-muted-foreground" />
-                )}
-              </div>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span>{wordCount} 字</span>
-                <span>约 {estimatedReadTime} 分钟阅读</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 编辑器内容 - 固定高度，内部滚动 */}
-          <div className="flex-1 overflow-hidden">
-            <MarkdownEditor
-              content={markdownContent}
-              onChange={handleContentChange}
-              className="h-full overflow-y-auto"
-            />
-          </div>
-        </div>
-
-        {/* 预览区域 */}
-        {showPreview && (
-          <div className="lg:w-1/2 w-full flex flex-col h-full">
-            {/* 预览头部 */}
-            <div className="p-3 border-b border-border bg-muted/30">
-              <div className="flex items-center justify-between">
+        }
+      >
+        <div className="min-h-screen bg-background pt-[var(--header-height,64px)]">
+          {/* 工具栏 */}
+          <div className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
+            <div className="container mx-auto px-4 py-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                {/* 左侧工具组 */}
                 <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">
-                    {isMobilePreview ? '移动端预览' : '桌面端预览'}
-                  </span>
-                  <Badge variant="secondary" className="text-xs">
-                    {selectedTheme}
-                  </Badge>
+                  <div className="flex items-center gap-1 border border-border rounded-md">
+                    <Button
+                      variant={fontSize === 'small' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => handleFontSizeChange('small')}
+                      className="px-2 py-1 text-xs"
+                    >
+                      小
+                    </Button>
+                    <Button
+                      variant={fontSize === 'medium' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => handleFontSizeChange('medium')}
+                      className="px-2 py-1 text-xs"
+                    >
+                      中
+                    </Button>
+                    <Button
+                      variant={fontSize === 'large' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => handleFontSizeChange('large')}
+                      className="px-2 py-1 text-xs"
+                    >
+                      大
+                    </Button>
+                  </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowPreview(false)}
-                  className="lg:hidden"
-                >
-                  <EyeOff className="w-4 h-4" />
-                </Button>
+
+                {/* 右侧操作组 */}
+                <div className="flex items-center gap-2">
+                  {/* 预览切换 */}
+                  <div className="flex items-center gap-1 border border-border rounded-md">
+                    <Button
+                      variant={!isMobilePreview ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setIsMobilePreview(false)}
+                      className="px-2 py-1"
+                    >
+                      <Monitor className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant={isMobilePreview ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setIsMobilePreview(true)}
+                      className="px-2 py-1"
+                    >
+                      <Smartphone className="w-3 h-3" />
+                    </Button>
+                  </div>
+
+                  {/* 导入文档 */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = '.md,.txt';
+                      input.onchange = (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (file) handleImportDocument(file);
+                      };
+                      input.click();
+                    }}
+                  >
+                    <Upload className="w-4 h-4 mr-1" />
+                    导入
+                  </Button>
+
+                  {/* 重置 */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleReset}
+                  >
+                    <RotateCcw className="w-4 h-4 mr-1" />
+                    重置
+                  </Button>
+
+                  {/* 导出控制 */}
+                  <ExportControls
+                    htmlContent={previewHtml}
+                    markdownContent={markdownContent}
+                    theme={selectedTheme}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 主要内容区域 */}
+          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-var(--header-height,64px)-120px)]">
+            {/* 编辑器区域 */}
+            <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col h-full ${showPreview ? 'border-r border-border' : ''}`}>
+              {/* 主题选择器 */}
+              <div className="p-4 border-b border-border bg-muted/30">
+                <ThemeSelector
+                  selectedTheme={selectedTheme}
+                  onThemeChange={handleThemeChange}
+                />
+              </div>
+
+              {/* 编辑器头部 */}
+              <div className="p-3 border-b border-border bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Markdown编辑器</span>
+                    {isConverting && (
+                      <RefreshCw className="w-3 h-3 animate-spin text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span>{wordCount} 字</span>
+                    <span>约 {estimatedReadTime} 分钟阅读</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 编辑器内容 - 固定高度，内部滚动 */}
+              <div className="flex-1 overflow-hidden">
+                <MarkdownEditor
+                  content={markdownContent}
+                  onChange={handleContentChange}
+                  className="h-full overflow-y-auto"
+                />
               </div>
             </div>
 
-            {/* 预览内容 */}
-            <div className="flex-1 overflow-y-auto">
-              <PreviewPanel
-                htmlContent={previewHtml}
-                theme={selectedTheme}
-                fontSize={fontSize}
-                isMobilePreview={isMobilePreview}
-                isLoading={isConverting}
-              />
-            </div>
-          </div>
-        )}
+            {/* 预览区域 */}
+            {showPreview && (
+              <div className="lg:w-1/2 w-full flex flex-col h-full">
+                {/* 预览头部 */}
+                <div className="p-3 border-b border-border bg-muted/30">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">
+                        {isMobilePreview ? '移动端预览' : '桌面端预览'}
+                      </span>
+                      <Badge variant="secondary" className="text-xs">
+                        {selectedTheme}
+                      </Badge>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowPreview(false)}
+                      className="lg:hidden"
+                    >
+                      <EyeOff className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
 
-          {/* 当预览隐藏时显示切换按钮 */}
-          {!showPreview && (
-            <div className="fixed right-4 bottom-4 lg:top-1/2 lg:bottom-auto lg:transform lg:-translate-y-1/2 z-10">
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => setShowPreview(true)}
-                className="shadow-lg"
-              >
-                <Eye className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">显示预览</span>
-              </Button>
-            </div>
-          )}
+                {/* 预览内容 */}
+                <div className="flex-1 overflow-y-auto">
+                  <PreviewPanel
+                    htmlContent={previewHtml}
+                    theme={selectedTheme}
+                    fontSize={fontSize}
+                    isMobilePreview={isMobilePreview}
+                    isLoading={isConverting}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* 当预览隐藏时显示切换按钮 */}
+            {!showPreview && (
+              <div className="fixed right-4 bottom-4 lg:top-1/2 lg:bottom-auto lg:transform lg:-translate-y-1/2 z-10">
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => setShowPreview(true)}
+                  className="shadow-lg"
+                >
+                  <Eye className="w-4 h-4 mr-1" />
+                  <span className="hidden sm:inline">显示预览</span>
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </PermissionAwareContainer>
+      </PermissionAwareContainer>
+    </>
   );
 }

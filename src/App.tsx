@@ -33,6 +33,8 @@ import AboutPage from '@/pages/AboutPage';
 // 业务功能页面
 import PaymentPage from '@/pages/PaymentPage';
 import PaymentStatusPage from '@/pages/PaymentStatusPage';
+import PaymentResultPage from '@/pages/PaymentResultPage';
+import PaymentFeedbackPage from '@/pages/PaymentFeedbackPage';
 import AdaptPage from '@/pages/AdaptPage';
 import CreativeStudioPage from '@/pages/CreativeStudioPage';
 import HotTopicsPage from '@/pages/HotTopicsPage';
@@ -147,6 +149,8 @@ const App: React.FC = () => {
 
                         {/* 支付相关页面 */}
                         <Route path="/payment" element={<PaymentPage />} />
+                        <Route path="/payment/result" element={<PaymentResultPage />} />
+                        <Route path="/payment/feedback" element={<PaymentFeedbackPage />} />
                         <Route path="/payment-status" element={<PaymentStatusPage />} />
                         <Route path="/upgrade" element={<UpgradeComparisonPage />} />
 

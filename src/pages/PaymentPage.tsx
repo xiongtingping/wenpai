@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,9 @@ import request from '@/api/request';
 import { PaymentSuccessHandler } from '@/components/payment/PaymentSuccessHandler';
 import { PaymentStatusRecovery } from '@/components/payment/PaymentStatusRecovery';
 import { PageNavigation } from '@/components/layout/PageNavigation';
+import { BufPayService } from '@/services/bufpayService';
+import { PRICING_PLANS, PaymentResponse } from '@/types/payment';
+import { logger } from '@/utils/logger';
 import {
   ArrowLeft,
   Check,

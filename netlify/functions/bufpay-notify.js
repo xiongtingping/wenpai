@@ -1,0 +1,290 @@
+/**
+ * BufPay 支付回调处理 Netlify Function
+ */
+
+const { createClient } = require('@supabase/supabase-js');
+const crypto = require('crypto');
+
+// Supabase 配置
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const appSecret = 'b141e267adf04957889d13e5568017eb';
+
+// 创建 Supabase 客户端（使用 Service Role Key）
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+/**
+ * 生成 MD5 签名
+ */
+function generateMD5(text) {
+  return crypto.createHash('md5').update(text, 'utf8').digest('hex').toLowerCase();
+}
+
+/**
+ * 验证回调签名
+ */
+function verifyNotifySign(aoid, orderId, orderUid, price, payPrice, sign) {
+  const expectedSign = generateMD5(aoid + orderId + orderUid + price + payPrice + appSecret);
+  return expectedSign === sign.toLowerCase();
+}
+
+/**
+ * 计算订阅到期时间
+ */
+function calculateExpiryDate(durationType, startDate) {
+  const start = startDate || new Date();
+  const expiry = new Date(start);
+  
+  if (durationType === 'monthly') {
+    expiry.setMonth(expiry.getMonth() + 1);
+  } else if (durationType === 'yearly') {
+    expiry.setFullYear(expiry.getFullYear() + 1);
+  }
+  
+  return expiry;
+}
+
+/**
+ * 处理订单权限开通
+ */
+async function processOrderPermissions(order) {
+  try {
+    // 计算订阅到期时间
+    const expiryDate = calculateExpiryDate(order.duration_type);
+    
+    // 检查用户是否已有相同类型的订阅
+    const { data: existingSubscription } = await supabase
+      .from('user_subscriptions')
+      .select('*')
+      .eq('user_id', order.user_id)
+      .eq('subscription_type', order.product_type)
+      .eq('status', 'active')
+      .single();
+
+    let subscriptionData;
+
+    if (existingSubscription) {
+      // 如果已有订阅，延长到期时间
+      const currentExpiry = new Date(existingSubscription.expires_at);
+      const newExpiry = calculateExpiryDate(order.duration_type, currentExpiry > new Date() ? currentExpiry : new Date());
+      
+      const { data, error } = await supabase
+        .from('user_subscriptions')
+        .update({
+          expires_at: newExpiry.toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingSubscription.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      subscriptionData = data;
+      
+      console.log('订阅时间延长成功:', { 
+        userId: order.user_id, 
+        subscriptionType: order.product_type,
+        newExpiry: newExpiry.toISOString()
+      });
+    } else {
+      // 创建新订阅
+      const { data, error } = await supabase
+        .from('user_subscriptions')
+        .insert({
+          user_id: order.user_id,
+          subscription_type: order.product_type,
+          status: 'active',
+          started_at: new Date().toISOString(),
+          expires_at: expiryDate.toISOString(),
+          order_id: order.order_id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      subscriptionData = data;
+      
+      console.log('新订阅创建成功:', { 
+        userId: order.user_id, 
+        subscriptionType: order.product_type,
+        expiresAt: expiryDate.toISOString()
+      });
+    }
+
+    // 标记订单为已处理
+    await supabase
+      .from('orders')
+      .update({
+        status: 'processed',
+        processed_at: new Date().toISOString()
+      })
+      .eq('order_id', order.order_id);
+
+    return subscriptionData;
+  } catch (error) {
+    console.error('处理订单权限开通失败:', error);
+    throw error;
+  }
+}
+
+exports.handler = async (event, context) => {
+  // 设置 CORS 头
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
+
+  // 处理 OPTIONS 请求
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: ''
+    };
+  }
+
+  // 只接受 POST 请求
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers,
+      body: JSON.stringify({ error: 'Method not allowed' })
+    };
+  }
+
+  try {
+    console.log('收到 BufPay 支付回调请求:', event.body);
+
+    // 解析请求体
+    let notifyData;
+    try {
+      if (event.headers['content-type']?.includes('application/x-www-form-urlencoded')) {
+        // 解析 form-urlencoded 数据
+        const params = new URLSearchParams(event.body);
+        notifyData = {
+          aoid: params.get('aoid'),
+          order_id: params.get('order_id'),
+          order_uid: params.get('order_uid'),
+          price: params.get('price'),
+          pay_price: params.get('pay_price'),
+          sign: params.get('sign')
+        };
+      } else {
+        notifyData = JSON.parse(event.body);
+      }
+    } catch (parseError) {
+      console.error('解析请求数据失败:', parseError);
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Invalid request data' })
+      };
+    }
+
+    console.log('解析后的回调数据:', notifyData);
+
+    // 验证必要参数
+    if (!notifyData.aoid || !notifyData.order_id || !notifyData.sign) {
+      console.error('缺少必要参数:', notifyData);
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Missing required parameters' })
+      };
+    }
+
+    // 1. 验证签名
+    const isValidSign = verifyNotifySign(
+      notifyData.aoid,
+      notifyData.order_id,
+      notifyData.order_uid,
+      notifyData.price,
+      notifyData.pay_price,
+      notifyData.sign
+    );
+
+    if (!isValidSign) {
+      console.error('支付回调签名验证失败:', notifyData);
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Invalid signature' })
+      };
+    }
+
+    // 2. 查询订单
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('order_id', notifyData.order_id)
+      .single();
+
+    if (orderError || !order) {
+      console.error('订单不存在:', { orderId: notifyData.order_id, error: orderError });
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({ error: 'Order not found' })
+      };
+    }
+
+    // 3. 检查订单状态
+    if (order.status === 'paid' || order.status === 'processed') {
+      console.log('订单已处理，跳过:', { orderId: notifyData.order_id, status: order.status });
+      return {
+        statusCode: 200,
+        headers,
+        body: 'success'
+      };
+    }
+
+    // 4. 更新订单为已支付
+    const { data: updatedOrder, error: updateError } = await supabase
+      .from('orders')
+      .update({
+        status: 'paid',
+        aoid: notifyData.aoid,
+        pay_price: parseFloat(notifyData.pay_price),
+        paid_at: new Date().toISOString()
+      })
+      .eq('order_id', notifyData.order_id)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('更新订单状态失败:', updateError);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Failed to update order' })
+      };
+    }
+
+    // 5. 处理权限开通
+    await processOrderPermissions(updatedOrder);
+
+    console.log('支付回调处理成功:', { 
+      orderId: notifyData.order_id, 
+      userId: order.user_id,
+      productType: order.product_type,
+      durationType: order.duration_type
+    });
+
+    // 返回成功响应
+    return {
+      statusCode: 200,
+      headers,
+      body: 'success'
+    };
+
+  } catch (error) {
+    console.error('处理支付回调失败:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Internal server error' })
+    };
+  }
+};
