@@ -176,20 +176,18 @@ export default function MD2WeChatPage() {
   }, [toast]);
 
   return (
-    <>
-      <Header />
-      <PermissionAwareContainer 
-        feature="md2wechat" 
-        fallback={
-          <div className="flex items-center justify-center h-96 pt-[var(--header-height,64px)]">
-            <div className="text-center">
-              <h3 className="text-lg font-medium mb-2">需要高级权限</h3>
-              <p className="text-muted-foreground mb-4">Markdown排版工具需要高级版本</p>
-            </div>
+    <PermissionAwareContainer 
+      feature="md2wechat" 
+      fallback={
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <h3 className="text-lg font-medium mb-2">需要高级权限</h3>
+            <p className="text-muted-foreground mb-4">Markdown排版工具需要高级版本</p>
           </div>
-        }
-      >
-        <div className="min-h-screen bg-background pt-[var(--header-height,64px)]">
+        </div>
+      }
+    >
+      <div className="bg-background">
           {/* 工具栏 */}
           <div className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
             <div className="container mx-auto px-4 py-3">
@@ -381,6 +379,5 @@ export default function MD2WeChatPage() {
           </div>
         </div>
       </PermissionAwareContainer>
-    </>
   );
 }

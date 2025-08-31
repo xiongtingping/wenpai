@@ -357,7 +357,7 @@ export default function PaymentPage() {
       {/* 页面内容 */}
       <div className="pt-[var(--header-height)] container mx-auto px-4 py-20 space-y-12">
         {/* 页面标题 */}
-        <div className="text-center mb-20 mt-8">
+        <div className="text-center mb-8 mt-8">
           <div className="mb-6 flex flex-col items-center">
             <h1 className="text-4xl font-bold text-foreground mb-4 block">订阅中心</h1>
             <p className="text-lg text-muted-foreground block">选择适合您的订阅计划，解锁更多强大功能</p>

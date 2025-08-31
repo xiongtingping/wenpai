@@ -55,7 +55,6 @@ import ShareManagerPage from '@/pages/ShareManagerPage';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 import { CustomLoginPage } from '@/pages/CustomLoginPage';
 import SupabaseTestPage from '@/pages/SupabaseTestPage';
-import { DevPermissionSwitcher } from '@/components/dev/DevPermissionSwitcher';
 // 移除调试页面
 // 移除测试组件
 
@@ -180,9 +179,6 @@ const App: React.FC = () => {
 
                   {/* 自定义认证模态框 */}
                   <AuthModalWrapper />
-
-                  {/* 开发环境权限切换器 */}
-                  <DevPermissionSwitcher />
 
                   {/* 返回顶部按钮 */}
                   <ScrollToTop />

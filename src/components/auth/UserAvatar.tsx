@@ -191,19 +191,9 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
             <span>个人中心</span>
           </DropdownMenuItem>
           
-          <DropdownMenuItem onClick={() => navigate('/settings')}>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>设置</span>
-          </DropdownMenuItem>
-
           <DropdownMenuItem onClick={() => window.open('https://docs.wenpai.ai', '_blank')}>
             <HelpCircle className="mr-2 h-4 w-4" />
             <span>帮助文档</span>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem onClick={toggleTheme}>
-            <Palette className="mr-2 h-4 w-4" />
-            <span>切换主题</span>
           </DropdownMenuItem>
           
           {/* 生产环境下显示解锁权限按钮，无论用户等级 */}

@@ -88,7 +88,7 @@ export default function CreativeStudioPage() {
             <RoleBasedUpgradePrompt
               requiredTier="pro"
               featureName="创意魔方"
-              description="该功能区为专业版专属，包含九宫格创意魔方、营销日历、朋友圈模板等专业创意工具"
+              description="该功能区为专业版/高级版专属，包含九宫格创意魔方、营销日历、朋友圈模板等专业创意工具"
               mode="compact"
             />
           }

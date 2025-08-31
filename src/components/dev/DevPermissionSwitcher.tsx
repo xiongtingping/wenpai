@@ -66,7 +66,7 @@ interface DevPermissionSwitcherProps {
 }
 
 export const DevPermissionSwitcher: React.FC<DevPermissionSwitcherProps> = ({ className }) => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [currentProfile, setCurrentProfile] = useState<keyof typeof DEV_USER_PROFILES>('trial');
 
   // 仅在开发环境显示
@@ -79,7 +79,10 @@ export const DevPermissionSwitcher: React.FC<DevPermissionSwitcherProps> = ({ cl
     setCurrentProfile(profileKey);
     
     // 更新用户状态
-    // setUser functionality removed - use proper auth context methods
+    updateUser({
+      ...profile,
+      tier: profileKey === 'trial' ? 'trial' : profileKey === 'pro' ? 'pro' : 'premium'
+    });
     
     console.log('🔄 开发环境权限切换:', {
       profile: profileKey,

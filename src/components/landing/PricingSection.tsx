@@ -101,9 +101,9 @@ export function PricingSection() {
   // 判断功能是否为当前套餐专属
   function getFeatureStatus(feature: string, planTier: string) {
     // 这里可根据feature内容和planTier灵活判断
-    if (feature.includes('创意魔方') && planTier === 'trial') return { disabled: true, label: '专业版专属' };
+    if (feature.includes('创意魔方') && planTier === 'trial') return { disabled: true, label: '专业版/高级版专属' };
     if (feature.includes('品牌库') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
-    if (feature.includes('高级模型') && planTier === 'trial') return { disabled: true, label: '专业版专属' };
+    if (feature.includes('高级模型') && planTier === 'trial') return { disabled: true, label: '专业版/高级版专属' };
     if (feature.includes('最新模型') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
     // 其他功能默认可用
     return { disabled: false, label: '' };
@@ -199,7 +199,7 @@ export function PricingSection() {
             </div>
           )}
           
-          <div className="mt-8 flex justify-center items-center space-x-4">
+          <div className="mt-4 flex justify-center items-center space-x-4">
             <Button
               onClick={() => setBilling("monthly")}
               style={{

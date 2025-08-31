@@ -105,7 +105,7 @@ export const RoleBasedUpgradePrompt: React.FC<RoleBasedUpgradePromptProps> = ({
           className={`${theme.badgeColor} font-medium border-dashed`}
         >
           <Lock className={`h-3 w-3 mr-1 ${theme.lockColor}`} />
-          {plan.name}专属
+{requiredTier === 'pro' ? '专业版/高级版专属' : '高级版专属'}
         </Badge>
 
         {/* 升级按钮 */}
@@ -145,7 +145,7 @@ export const RoleBasedUpgradePrompt: React.FC<RoleBasedUpgradePromptProps> = ({
               {featureName}
             </h3>
             <Badge variant="outline" className={`${theme.badgeColor} text-xs`}>
-              {plan.name}专属
+    {requiredTier === 'pro' ? '专业版/高级版专属' : '高级版专属'}
             </Badge>
           </div>
           

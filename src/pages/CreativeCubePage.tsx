@@ -101,7 +101,7 @@ const CreativeCubePage: React.FC = () => {
           <RoleBasedUpgradePrompt
             requiredTier="pro"
             featureName="创意魔方"
-            description="该功能为专业版专属，提供AI驱动的创意内容生成服务"
+            description="该功能为专业版/高级版专属，提供AI驱动的创意内容生成服务"
             mode="compact"
           />
         }
