@@ -40,13 +40,12 @@ export class BufPayService {
       logger.info('开始创建支付订单:', { orderId, userId: request.userId });
 
       // 2. 调用 BufPay 接口
-      const orderUid = `uid_${orderId}_${request.userId.substring(0, 8)}`;
       const formData = generatePaymentFormData(
         request.productName,
         request.payType,
         request.amount,
         orderId,
-        orderUid
+        request.userId  // order_uid直接使用用户ID
       );
 
       const response = await fetch(BUFPAY_CONFIG.API_URL, {
