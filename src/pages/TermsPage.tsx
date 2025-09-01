@@ -8,10 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Brain, FileText, Shield, Users, CreditCard, Calendar, Mail, MessageSquare, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
 
 export default function TermsPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // 返回到首页底部
   const handleBackToHome = () => {
@@ -29,7 +31,7 @@ export default function TermsPage() {
           className="flex items-center gap-2 text-primary hover:bg-accent"
         >
           <ArrowLeft className="h-4 w-4" />
-          返回首页
+{t('common.back')}
         </Button>
       </div>
 

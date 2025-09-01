@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -53,7 +54,7 @@ const CreemAlipayQRCode: React.FC<{
   return (
     <AlipayQRCode 
       priceId={priceId}
-      title={`${planName} - 扫码支付`}
+      title={`${planName} - ${t('payment.qrCodeTitle')}`}
       showPrice={true}
     />
   );
@@ -71,6 +72,7 @@ export default function PaymentPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useAuth();
+  const { t } = useTranslation();
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<SubscriptionPeriod>('monthly');
@@ -99,7 +101,7 @@ export default function PaymentPage() {
       const plan = SUBSCRIPTION_PLANS.find(p => p.tier === savedPlanTier);
       if (plan) {
         setSelectedPlan(plan);
-        console.log('自动选择计划:', plan.name);
+        console.log(t('payment.console.autoSelectPlan'), plan.name);
       }
       // 清除localStorage中的选择，避免重复使用
       localStorage.removeItem('selectedPlan');
@@ -134,14 +136,14 @@ export default function PaymentPage() {
     if (currentUser?.id) {
       // 获取或创建支付中心访问时间
       const accessTime = getPaymentCenterAccessTime(currentUser.id);
-      console.log('支付中心访问时间:', accessTime?.toLocaleString());
+      console.log(t('payment.console.accessTime'), accessTime?.toLocaleString());
 
       // 立即更新倒计时
       const remainingMs = calculateRemainingTime(currentUser.id);
       const remainingSeconds = Math.floor(remainingMs / 1000);
       setTimeLeft(remainingSeconds);
 
-      console.log('剩余优惠时间:', remainingSeconds, '秒');
+      console.log(t('payment.console.remainingTime'), remainingSeconds, t('payment.console.seconds'));
     }
   }, [currentUser?.id]);
 
@@ -197,15 +199,15 @@ export default function PaymentPage() {
       }, 100);
 
       toast({
-        title: "支付订单已创建",
-        description: "请使用支付宝扫码完成支付",
+        title: t('payment.messages.orderCreated'),
+        description: t('payment.messages.useAlipay'),
       });
     } catch (error: any) {
       console.error('Payment error:', error);
-      setCheckoutError(error.message || '创建支付订单失败');
+      setCheckoutError(error.message || t('payment.messages.orderCreateFailed'));
       toast({
-        title: "支付失败",
-        description: error.message || "请稍后重试",
+        title: t('payment.messages.paymentFailed'),
+        description: error.message || t('payment.messages.tryAgainLater'),
         variant: "destructive",
       });
     } finally {
@@ -255,7 +257,7 @@ export default function PaymentPage() {
     // 更新支付状态
     paymentStatusService.savePaymentStatus(paymentData.id, {
       status: 'paid',
-      message: '支付成功！',
+      message: t('payment.messages.paymentSuccess'),
       progress: 100,
       amount: paymentData.amount,
       currency: paymentData.currency,
@@ -263,8 +265,8 @@ export default function PaymentPage() {
     });
 
     toast({
-      title: "支付成功！",
-      description: "正在为您升级会员...",
+      title: t('payment.messages.paymentSuccess'),
+      description: t('payment.messages.upgrading'),
       duration: 3000,
     });
   };
@@ -283,7 +285,7 @@ export default function PaymentPage() {
     }
 
     toast({
-      title: "支付失败",
+      title: t('payment.messages.paymentFailed'),
       description: error,
       variant: "destructive",
     });
@@ -294,14 +296,14 @@ export default function PaymentPage() {
     if (currentCheckout) {
       paymentStatusService.savePaymentStatus(currentCheckout.id, {
         status: 'expired',
-        message: '支付已过期',
+        message: t('payment.messages.paymentExpired'),
         progress: 0,
       });
     }
 
     toast({
-      title: "支付已过期",
-      description: "请重新创建支付订单",
+      title: t('payment.messages.paymentExpired'),
+      description: t('payment.messages.recreateOrder'),
       variant: "destructive",
     });
   };
@@ -310,8 +312,8 @@ export default function PaymentPage() {
   const handleBufpaySuccess = () => {
     setPaymentStatus('paid');
     toast({
-      title: "支付成功！",
-      description: "正在为您升级会员...",
+      title: t('payment.messages.paymentSuccess'),
+      description: t('payment.messages.upgrading'),
       duration: 3000,
     });
 
@@ -329,8 +331,8 @@ export default function PaymentPage() {
     setShowQRCode(false);
 
     toast({
-      title: "支付超时",
-      description: "请重新创建支付订单",
+      title: t('payment.messages.paymentTimeout'),
+      description: t('payment.messages.recreateOrder'),
       variant: "destructive",
     });
   };
@@ -359,8 +361,8 @@ export default function PaymentPage() {
         {/* 页面标题 */}
         <div className="text-center mb-8 mt-8">
           <div className="mb-6 flex flex-col items-center">
-            <h1 className="text-4xl font-bold text-foreground mb-4 block">订阅中心</h1>
-            <p className="text-lg text-muted-foreground block">选择适合您的订阅计划，解锁更多强大功能</p>
+            <h1 className="text-4xl font-bold text-foreground mb-4 block">{t('payment.title')}</h1>
+            <p className="text-lg text-muted-foreground block">{t('payment.description')}</p>
           </div>
         </div>
         {/* 支付状态恢复 */}
@@ -394,7 +396,7 @@ export default function PaymentPage() {
                 minWidth: "120px"
               }}
             >
-              按月订阅
+              {t('payment.billing.monthly')}
             </Button>
 
             {/* 切换按钮 - 使用 Switch 组件 */}
@@ -409,7 +411,7 @@ export default function PaymentPage() {
               {/* 推荐标签 */}
               <div className="absolute -top-4 -right-3 z-20">
                 <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-xl px-3 py-1 text-xs font-bold rounded-full border-2 border-white animate-bounce">
-                  💰 省钱
+                  💰 {t('payment.billing.yearlySavings')}
                 </Badge>
               </div>
 
@@ -436,7 +438,7 @@ export default function PaymentPage() {
                 }}
               >
                 <span className="relative z-10 drop-shadow-sm">
-                  按年订阅 <span className="text-xs ml-1 font-extrabold text-yellow-200">(立省17%)</span>
+                  {t('payment.billing.yearly')} <span className="text-xs ml-1 font-extrabold text-yellow-200">({t('payment.billing.savingsPercent')})</span>
                 </span>
                 {selectedPeriod === 'yearly' && (
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-400/20 to-red-400/20 animate-pulse"></div>
@@ -452,7 +454,7 @@ export default function PaymentPage() {
             <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <Zap className="h-4 w-4 animate-pulse" />
-                <span className="text-sm font-medium">限时优惠进行中</span>
+                <span className="text-sm font-medium">{t('payment.promotion.title')}</span>
               </div>
 
               {/* 突出显示的倒计时（包含毫秒） */}
@@ -466,7 +468,7 @@ export default function PaymentPage() {
                 <span className="inline-block min-w-[3ch] text-3xl md:text-4xl">{Math.floor((timeLeftMs % 1000) / 10).toString().padStart(2, '0')}</span>
               </div>
 
-              <div className="text-xs opacity-90">优惠即将结束，立即享受特价！</div>
+              <div className="text-xs opacity-90">{t('payment.promotion.endingSoon')}</div>
             </div>
           </div>
         )}
@@ -501,7 +503,7 @@ export default function PaymentPage() {
                         {plan.recommended && (
                           <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-xl px-3 py-1 text-xs font-bold rounded-full border border-white flex items-center gap-1">
                             <Star className="h-3 w-3 fill-current" />
-                            推荐
+                            {t('payment.labels.recommended')}
                           </Badge>
                         )}
 
@@ -509,7 +511,7 @@ export default function PaymentPage() {
                         {plan.premiumLabel && (
                           <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-xl px-3 py-1 text-xs font-bold rounded-full border border-white flex items-center gap-1">
                             <Crown className="h-3 w-3 fill-current" />
-                            {selectedPeriod === 'yearly' ? '更省' : '全部功能'}
+                            {selectedPeriod === 'yearly' ? t('payment.labels.savings') : t('payment.labels.premium')}
                           </Badge>
                         )}
 
@@ -522,14 +524,14 @@ export default function PaymentPage() {
                         {isInDiscount && timeLeft > 0 && plan.tier !== 'trial' && (
                           <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg px-3 py-1 text-xs animate-pulse rounded-full border border-white flex items-center gap-1">
                             <Zap className="h-3 w-3 fill-current" />
-                            限时
+                            {t('payment.labels.limited')}
                           </Badge>
                         )}
 
                         {/* 年付优惠标签 */}
                         {selectedPeriod === 'yearly' && (plan.tier === 'pro' || plan.tier === 'premium') && (
                           <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg px-3 py-1 text-xs rounded-full border border-white">
-                            比月付省¥{getYearlySavings(plan)}
+                            {t('payment.billing.compareMonthly', { amount: getYearlySavings(plan) })}
                           </Badge>
                         )}
                       </div>
@@ -551,15 +553,15 @@ export default function PaymentPage() {
                         <div className="text-3xl md:text-4xl font-bold text-gray-900 flex items-baseline justify-center gap-1">
                           <span className="text-xl md:text-2xl">¥</span>
                           <span>{currentPrice}</span>
-                          <span className="text-base text-gray-600 font-medium">/{selectedPeriod === 'monthly' ? '月' : '年'}</span>
+                          <span className="text-base text-gray-600 font-medium">/{selectedPeriod === 'monthly' ? t('payment.billing.month') : t('payment.billing.year')}</span>
                         </div>
                         {isInDiscount && timeLeft > 0 && plan.tier !== 'trial' && (
                           <>
                             <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                               <Zap className="h-4 w-4" />
-                              限时特惠 省¥{savedAmount.toFixed(2)}
+                              {t('payment.promotion.specialOffer', { amount: savedAmount.toFixed(2) })}
                             </div>
-                            <div className="text-lg text-gray-500 line-through">原价 ¥{originalPrice}</div>
+                            <div className="text-lg text-gray-500 line-through">{t('payment.promotion.originalPrice', { price: originalPrice })}</div>
                           </>
                         )}
 
@@ -624,17 +626,17 @@ export default function PaymentPage() {
                         {plan.tier === 'trial' ? (
                           <>
                             <Check className="w-4 h-4 mr-2" />
-                            当前版本
+                            {t('payment.labels.currentPlan')}
                           </>
                         ) : isSelected ? (
                           <>
                             <Check className="w-4 h-4 mr-2" />
-                            已选择
+                            {t('payment.labels.selected')}
                           </>
                         ) : (
                           <>
                             <Crown className="w-4 h-4 mr-2" />
-                            选择此计划
+                            {t('payment.labels.selectPlan')}
                           </>
                         )}
                       </Button>
@@ -657,11 +659,11 @@ export default function PaymentPage() {
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
                       <CreditCard className="h-5 w-5 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-foreground">支付信息</h3>
+                    <h3 className="text-xl font-bold text-foreground">{t('payment.paymentInfo.title')}</h3>
                   </div>
                   <div className="text-right">
                     <div className="text-3xl font-bold text-foreground">¥{getCurrentPrice()}</div>
-                    <div className="text-sm text-muted-foreground font-medium">{selectedPeriod === 'monthly' ? '月付' : '年付'}</div>
+                    <div className="text-sm text-muted-foreground font-medium">{selectedPeriod === 'monthly' ? t('payment.billing.monthlyShort') : t('payment.billing.yearlyShort')}</div>
                   </div>
                 </div>
 
@@ -683,9 +685,9 @@ export default function PaymentPage() {
                           <Percent className="h-4 w-4 text-white" />
                         </div>
                         <div>
-                          <div className="font-semibold text-orange-800">💰 切换到按年支付更优惠</div>
+                          <div className="font-semibold text-orange-800">{t('payment.yearlyPromotion.title')}</div>
                           <div className="text-sm text-orange-600">
-                            年付可节省 ¥{getYearlySavings(selectedPlan)}，相当于免费使用 {Math.round(getYearlySavings(selectedPlan) / (selectedPlan.monthly.originalPrice || 0))} 个月
+                            {t('payment.yearlyPromotion.description', { savings: getYearlySavings(selectedPlan), months: Math.round(getYearlySavings(selectedPlan) / (selectedPlan.monthly.originalPrice || 0)) })}
                           </div>
                         </div>
                       </div>
@@ -695,7 +697,7 @@ export default function PaymentPage() {
                         onClick={() => setSelectedPeriod('yearly')}
                         className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white border-none hover:from-orange-600 hover:to-yellow-600 font-semibold"
                       >
-                        切换年付
+                        {t('payment.billing.switchToYearly')}
                       </Button>
                     </div>
                   </div>
@@ -707,13 +709,13 @@ export default function PaymentPage() {
                     {isInPromoPeriod(currentUser?.id) && timeLeft > 0 && (
                       <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Zap className="h-4 w-4" />
-                        限时优惠中，节省 ¥{getSavedAmount().toFixed(2)}
+                        {t('payment.promotion.ongoingOffer', { amount: getSavedAmount().toFixed(2) })}
                       </span>
                     )}
                     {selectedPeriod === 'yearly' && (
                       <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Percent className="h-4 w-4" />
-                        年付优惠，比月付省 ¥{getYearlySavings(selectedPlan)}
+                        {t('payment.promotion.yearlyDiscount', { amount: getYearlySavings(selectedPlan) })}
                       </span>
                     )}
                   </div>
@@ -727,10 +729,10 @@ export default function PaymentPage() {
                   {isCreatingCheckout ? (
                     <div className="flex items-center gap-2">
                       <RefreshCw className="h-5 w-5 animate-spin" />
-                      创建订单中...
+                      {t('payment.actions.creating')}
                     </div>
                   ) : (
-                    `立即支付 ¥${getCurrentPrice()}`
+                    t('payment.actions.payNow', { amount: getCurrentPrice() })
                   )}
                 </Button>
 
@@ -739,7 +741,7 @@ export default function PaymentPage() {
                   <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
                     <div className="flex items-center gap-2 text-red-600">
                       <AlertCircle className="h-5 w-5" />
-                      <span className="font-medium">支付订单创建失败</span>
+                      <span className="font-medium">{t('payment.messages.orderCreateError')}</span>
                     </div>
                     <p className="text-red-600 text-sm mt-1">{checkoutError}</p>
                     <Button
@@ -748,7 +750,7 @@ export default function PaymentPage() {
                       onClick={() => setCheckoutError(null)}
                       className="mt-2"
                     >
-                      重试
+                      {t('payment.actions.retry')}
                     </Button>
                   </div>
                 )}
@@ -765,11 +767,11 @@ export default function PaymentPage() {
                     <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
                       <span className="text-white text-lg font-bold">支</span>
                     </div>
-                    <h3 className="text-xl font-bold text-foreground">支付宝扫码支付</h3>
+                    <h3 className="text-xl font-bold text-foreground">{t('payment.paymentInfo.alipayQr')}</h3>
                   </div>
                   <div className="text-right">
                     <div className="text-3xl font-bold text-foreground">¥{getCurrentPrice()}</div>
-                    <div className="text-sm text-muted-foreground font-medium">{selectedPeriod === 'monthly' ? '月付' : '年付'}</div>
+                    <div className="text-sm text-muted-foreground font-medium">{selectedPeriod === 'monthly' ? t('payment.billing.monthlyShort') : t('payment.billing.yearlyShort')}</div>
                   </div>
                 </div>
 
@@ -779,13 +781,13 @@ export default function PaymentPage() {
                     {isInPromoPeriod(currentUser?.id) && timeLeft > 0 && (
                       <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Zap className="h-4 w-4" />
-                        限时优惠中
+                        {t('payment.labels.limited')}时优惠中
                       </span>
                     )}
                     {selectedPeriod === 'yearly' && (
                       <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Percent className="h-4 w-4" />
-                        年付优惠
+                        {t('payment.billing.yearlyShort')}优惠
                       </span>
                     )}
                   </div>
@@ -800,7 +802,7 @@ export default function PaymentPage() {
                       onPaymentTimeout={handleBufpayTimeout}
                     />
                   ) : (
-                    <div className="text-red-600 font-semibold">正在生成支付二维码...</div>
+                    <div className="text-red-600 font-semibold">{t('payment.paymentInfo.generatingQr')}</div>
                   )}
                 </div>
               </CardContent>

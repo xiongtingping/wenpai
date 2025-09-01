@@ -8,9 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield, Database, Eye, Lock, Users, Brain, Mail, Calendar, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function PrivacyPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // 返回到首页底部
   const handleBackToHome = () => {
@@ -28,7 +30,7 @@ export default function PrivacyPage() {
           className="flex items-center gap-2 text-primary hover:bg-accent"
         >
           <ArrowLeft className="h-4 w-4" />
-          返回首页
+          {t('common.back')}
         </Button>
       </div>
 
@@ -40,55 +42,54 @@ export default function PrivacyPage() {
             </div>
             <div>
               <CardTitle className="text-3xl font-bold text-foreground">
-                文派隐私政策
+                {t('privacy.title')}
               </CardTitle>
-              <p className="text-primary font-medium">Wenpai Privacy Policy</p>
+              <p className="text-primary font-medium">{t('privacy.subtitle')}</p>
             </div>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              最后更新：2024年12月
+              {t('privacy.lastUpdated')}: {t('privacy.updateDate')}
             </span>
             <span className="flex items-center gap-1">
               <FileText className="h-4 w-4" />
-              版本：v2.0
+              {t('privacy.version')}: v2.0
             </span>
           </div>
           <p className="text-muted-foreground leading-relaxed mt-3">
-            我们深知隐私保护的重要性，本政策详细说明我们如何收集、使用和保护您的个人信息。
-            请仔细阅读以下政策，使用我们的服务即表示您同意这些条款。
+            {t('privacy.description')}
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
               <Database className="h-5 w-5 text-primary" />
-              1. 我们收集的信息
+              {t('privacy.sections.dataCollection.title')}
             </h3>
             <div className="space-y-3 text-muted-foreground">
               <div>
-                <h4 className="font-medium mb-2 text-foreground">1.1 账户信息</h4>
+                <h4 className="font-medium mb-2 text-foreground">{t('privacy.sections.dataCollection.accountInfo.title')}</h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li><strong>注册信息：</strong>邮箱地址、用户名、密码（加密存储）</li>
-                  <li><strong>个人资料：</strong>头像、个人简介、联系方式</li>
-                  <li><strong>认证信息：</strong>实名认证相关材料（如需要）</li>
+                  <li><strong>{t('privacy.sections.dataCollection.accountInfo.registration')}:</strong> {t('privacy.sections.dataCollection.accountInfo.registrationDesc')}</li>
+                  <li><strong>{t('privacy.sections.dataCollection.accountInfo.profile')}:</strong> {t('privacy.sections.dataCollection.accountInfo.profileDesc')}</li>
+                  <li><strong>{t('privacy.sections.dataCollection.accountInfo.verification')}:</strong> {t('privacy.sections.dataCollection.accountInfo.verificationDesc')}</li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium mb-2 text-foreground">1.2 使用数据</h4>
+                <h4 className="font-medium mb-2 text-foreground">{t('privacy.sections.dataCollection.usageData.title')}</h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li><strong>功能使用：</strong>使用频率、功能偏好、操作记录</li>
-                  <li><strong>内容数据：</strong>您输入的内容、AI生成的内容、品牌库信息</li>
-                  <li><strong>平台适配：</strong>选择的目标平台、内容风格偏好</li>
+                  <li><strong>{t('privacy.sections.dataCollection.usageData.functionality')}:</strong> {t('privacy.sections.dataCollection.usageData.functionalityDesc')}</li>
+                  <li><strong>{t('privacy.sections.dataCollection.usageData.content')}:</strong> {t('privacy.sections.dataCollection.usageData.contentDesc')}</li>
+                  <li><strong>{t('privacy.sections.dataCollection.usageData.platformAdapt')}:</strong> {t('privacy.sections.dataCollection.usageData.platformAdaptDesc')}</li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium mb-2 text-foreground">1.3 技术数据</h4>
+                <h4 className="font-medium mb-2 text-foreground">{t('privacy.sections.dataCollection.technicalData.title')}</h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li><strong>设备信息：</strong>设备类型、操作系统、浏览器版本</li>
-                  <li><strong>网络信息：</strong>IP地址、网络连接类型</li>
-                  <li><strong>日志数据：</strong>访问时间、页面浏览、错误日志</li>
+                  <li><strong>{t('privacy.sections.dataCollection.technicalData.device')}:</strong> {t('privacy.sections.dataCollection.technicalData.deviceDesc')}</li>
+                  <li><strong>{t('privacy.sections.dataCollection.technicalData.network')}:</strong> {t('privacy.sections.dataCollection.technicalData.networkDesc')}</li>
+                  <li><strong>{t('privacy.sections.dataCollection.technicalData.logs')}:</strong> {t('privacy.sections.dataCollection.technicalData.logsDesc')}</li>
                 </ul>
               </div>
             </div>
@@ -97,17 +98,13 @@ export default function PrivacyPage() {
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <Brain className="h-5 w-5 text-primary" />
-              2. 信息使用目的
+              {t('privacy.sections.dataUsage.title')}
             </h3>
             <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
-                <li><strong>提供服务：</strong>提供AI内容生成、多平台适配等核心功能</li>
-                <li><strong>改进服务：</strong>分析使用模式，优化AI算法和用户体验</li>
-                <li><strong>个性化：</strong>根据您的偏好提供个性化推荐和服务</li>
-                <li><strong>支付处理：</strong>处理订阅费用和支付相关事务</li>
-                <li><strong>客户支持：</strong>提供技术支持和客户服务</li>
-                <li><strong>安全保障：</strong>防止欺诈、滥用和系统安全威胁</li>
-                <li><strong>法律合规：</strong>遵守相关法律法规要求</li>
+                {t('privacy.sections.dataUsage.purposes', { returnObjects: true }).map((purpose, index) => (
+                  <li key={index}>{purpose}</li>
+                ))}
               </ul>
             </div>
           </section>
@@ -115,30 +112,30 @@ export default function PrivacyPage() {
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              3. 信息共享政策
+              {t('privacy.sections.dataSharing.title')}
             </h3>
             <div className="space-y-3 text-muted-foreground">
               <div className="p-4 rounded-lg border bg-card border-border">
-                <p className="font-medium text-foreground mb-2">我们不会出售您的个人信息</p>
+                <p className="font-medium text-foreground mb-2">{t('privacy.sections.dataSharing.noSalePromise')}</p>
                 <p className="text-sm text-muted-foreground">
-                  我们承诺不会向第三方出售、出租或交易您的个人信息
+                  {t('privacy.sections.dataSharing.noSaleDesc')}
                 </p>
               </div>
               <div>
-                <h4 className="font-medium mb-2">3.1 必要的第三方共享</h4>
+                <h4 className="font-medium mb-2">{t('privacy.sections.dataSharing.necessarySharing.title')}</h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li><strong>支付服务商：</strong>处理订阅费用（如支付宝、微信支付）</li>
-                  <li><strong>云服务提供商：</strong>数据存储和处理（如阿里云、腾讯云）</li>
-                  <li><strong>AI服务提供商：</strong>提供AI内容生成服务</li>
-                  <li><strong>客服平台：</strong>提供客户支持服务</li>
+                  <li>{t('privacy.sections.dataSharing.necessarySharing.payment')}</li>
+                  <li>{t('privacy.sections.dataSharing.necessarySharing.cloud')}</li>
+                  <li>{t('privacy.sections.dataSharing.necessarySharing.ai')}</li>
+                  <li>{t('privacy.sections.dataSharing.necessarySharing.support')}</li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium mb-2">3.2 法律要求</h4>
+                <h4 className="font-medium mb-2">{t('privacy.sections.dataSharing.legal.title')}</h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>在法律法规要求时披露信息</li>
-                  <li>保护我们的合法权益和用户安全</li>
-                  <li>配合政府部门的合法调查</li>
+                  <li>{t('privacy.sections.dataSharing.legal.disclosure')}</li>
+                  <li>{t('privacy.sections.dataSharing.legal.protection')}</li>
+                  <li>{t('privacy.sections.dataSharing.legal.cooperation')}</li>
                 </ul>
               </div>
             </div>
@@ -162,14 +159,12 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold mb-3">5. 数据保留期限</h3>
+            <h3 className="text-lg font-semibold mb-3">{t('privacy.sections.dataRetention.title')}</h3>
             <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
-                <li><strong>账户数据：</strong>账户活跃期间保留，删除账户后30天内清除</li>
-                <li><strong>使用数据：</strong>最多保留2年，用于服务改进</li>
-                <li><strong>内容数据：</strong>您可以选择保留或删除，删除后立即清除</li>
-                <li><strong>支付数据：</strong>根据法律要求保留，通常为7年</li>
-                <li><strong>日志数据：</strong>最多保留6个月，用于安全分析</li>
+                {t('privacy.sections.dataRetention.periods', { returnObjects: true }).map((period, index) => (
+                  <li key={index}>{period}</li>
+                ))}
               </ul>
             </div>
           </section>
@@ -177,17 +172,17 @@ export default function PrivacyPage() {
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <Eye className="h-5 w-5 text-primary" />
-              6. 您的权利
+              {t('privacy.sections.userRights.title')}
             </h3>
             <div className="space-y-3 text-muted-foreground">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-medium mb-2">6.1 基本权利</h4>
+                  <h4 className="font-medium mb-2">{t('privacy.sections.userRights.basicRights.title')}</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm">
-                    <li><strong>访问权：</strong>查看我们收集的您的个人信息</li>
-                    <li><strong>更正权：</strong>更正不准确或不完整的信息</li>
-                    <li><strong>删除权：</strong>要求删除您的个人信息</li>
-                    <li><strong>携带权：</strong>获取您的数据副本</li>
+                    <li>{t('privacy.sections.userRights.basicRights.access')}</li>
+                    <li>{t('privacy.sections.userRights.basicRights.correction')}</li>
+                    <li>{t('privacy.sections.userRights.basicRights.deletion')}</li>
+                    <li>{t('privacy.sections.userRights.basicRights.portability')}</li>
                   </ul>
                 </div>
                 <div>

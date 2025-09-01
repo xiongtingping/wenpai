@@ -1,5 +1,6 @@
 import { Mail, ExternalLink, User, FileText, Check } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from 'react-i18next'
 
 /**
  * 飞书图标组件
@@ -23,6 +24,7 @@ const FeishuIcon = ({ className }: { className?: string }) => (
  */
 export function Footer() {
   const [emailCopied, setEmailCopied] = useState(false)
+  const { t } = useTranslation()
 
   // 复制邮箱地址
   const handleEmailCopy = async (e: React.MouseEvent) => {
@@ -45,16 +47,16 @@ export function Footer() {
         <div className="max-w-4xl mx-auto">
           {/* 品牌标语区域 */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-3 mb-3">
+            <div className="flex items-center justify-center gap-3 mb-3">
               <img
-                src="/logo-panda.svg"
+                src="/logo-panda-rainbow.svg"
                 alt="文派Logo"
-                className="w-8 h-8"
+                className="w-8 h-8 flex-shrink-0"
               />
-              <h3 className="text-xl font-bold text-foreground">文派</h3>
+              <h3 className="text-xl font-bold text-foreground leading-none">文派</h3>
             </div>
             <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
-              AI驱动的智能内容创作平台，让创意在每个平台都闪闪发光
+              {t('footer.brandTagline')}
             </p>
           </div>
 
@@ -73,8 +75,8 @@ export function Footer() {
                   <FeishuIcon className="w-4 h-4 text-blue-600" />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-foreground text-sm">建议反馈</div>
-                  <div className="text-xs text-muted-foreground">飞书文档</div>
+                  <div className="font-medium text-foreground text-sm">{t('footer.feedback')}</div>
+                  <div className="text-xs text-muted-foreground">Feishu Docs</div>
                 </div>
               </a>
 
@@ -93,13 +95,13 @@ export function Footer() {
                 </div>
                 <div className="text-left">
                   <div className="font-medium text-foreground text-sm">
-                    {emailCopied ? '已复制!' : '邮箱联系'}
+                    {emailCopied ? t('common.success') + '!' : t('footer.contactUs')}
                   </div>
                   <div className="text-xs text-muted-foreground">hello@wenpai.xyz</div>
                 </div>
                 {emailCopied && (
                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs px-2 py-1 rounded shadow-lg">
-                    邮箱已复制到剪贴板
+                    {t('success.dataExported')}
                   </div>
                 )}
               </button>
@@ -116,8 +118,8 @@ export function Footer() {
                   <User className="w-4 h-4 text-purple-600" />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-foreground text-sm">关于我</div>
-                  <div className="text-xs text-muted-foreground">开发者信息</div>
+                  <div className="font-medium text-foreground text-sm">{t('footer.aboutUs')}</div>
+                  <div className="text-xs text-muted-foreground">{t('footer.careers')}</div>
                 </div>
               </a>
             </div>
@@ -135,7 +137,7 @@ export function Footer() {
                 className="hover:text-foreground transition-colors flex items-center gap-1"
               >
                 <FileText className="w-3 h-3" />
-                服务条款
+                {t('footer.termsOfService')}
               </a>
               <span className="text-muted-foreground/30">|</span>
               <a
@@ -143,13 +145,13 @@ export function Footer() {
                 className="hover:text-foreground transition-colors flex items-center gap-1"
               >
                 <FileText className="w-3 h-3" />
-                隐私政策
+                {t('footer.privacyPolicy')}
               </a>
             </div>
 
             {/* 版权信息 */}
             <div className="text-center sm:text-right">
-              <div>© 2025 文派 · 让创意在每个平台都闪闪发光</div>
+              <div>© 2025 {t('footer.brandDescription')}</div>
               <div className="mt-1">
                 <a
                   href="https://www.wenpai.xyz"

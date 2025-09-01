@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import { ThemeAwareLogo } from '@/components/ui/ThemeAwareLogo';
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, login } = useAuth();
+  const { t } = useTranslation();
 
   /**
    * 处理按钮点击事件
@@ -44,7 +46,7 @@ const HeroSection: React.FC = () => {
           <div className="mb-10 mt-0">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 leading-tight">
               <span className="rainbow-logo-text">
-                AI驱动的新媒体内容多平台适配
+                {t('home.heroTitle')}
               </span>
             </h1>
 
@@ -54,7 +56,7 @@ const HeroSection: React.FC = () => {
               <div className="mb-10">
                 <p className="text-xl sm:text-2xl font-bold leading-relaxed theme-hero-subtitle">
                   <strong className="theme-hero-subtitle">
-                    一键为不同平台量身打造风格化内容
+                    {t('home.heroSubtitle')}
                   </strong>
                 </p>
               </div>
@@ -64,19 +66,19 @@ const HeroSection: React.FC = () => {
                 <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 sm:gap-x-12 lg:gap-x-16">
                   <div className="flex items-center gap-2">
                     <span className="theme-hero-points-dot text-2xl leading-none">·</span>
-                    <span className="whitespace-nowrap">AI赋能</span>
+                    <span className="whitespace-nowrap">{t('home.highlights.aiPowered')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="theme-hero-points-dot text-2xl leading-none">·</span>
-                    <span className="whitespace-nowrap">多平台适配</span>
+                    <span className="whitespace-nowrap">{t('home.highlights.multiPlatform')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="theme-hero-points-dot text-2xl leading-none">·</span>
-                    <span className="whitespace-nowrap">节省时间</span>
+                    <span className="whitespace-nowrap">{t('home.highlights.timeSaving')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="theme-hero-points-dot text-2xl leading-none">·</span>
-                    <span className="whitespace-nowrap">专注创意</span>
+                    <span className="whitespace-nowrap">{t('home.highlights.focusCreative')}</span>
                   </div>
                 </div>
               </div>
@@ -95,7 +97,7 @@ const HeroSection: React.FC = () => {
                   <svg className="w-7 h-7 group-hover/button:rotate-12 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
-                  <span className="hero-button-text font-bold">AI 一键创作</span>
+                  <span className="hero-button-text font-bold">{t('home.getStarted')}</span>
                   <svg className="w-6 h-6 group-hover/button:translate-x-2 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -123,12 +125,12 @@ const HeroSection: React.FC = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-foreground">⚡ 快速生成</h3>
-                      <p className="text-sm text-muted-foreground font-medium">AI秒级响应</p>
+                      <h3 className="text-lg font-bold text-foreground" dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.title')}}></h3>
+                      <p className="text-sm text-muted-foreground font-medium">{t('home.advantages.fastGeneration.subtitle')}</p>
                     </div>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    智能分析需求，<span className="font-semibold text-foreground">3秒内</span>生成高质量内容，大幅提升创作效率
+                    <span dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.description')}}></span>
                   </p>
                 </div>
               </div>
@@ -143,12 +145,12 @@ const HeroSection: React.FC = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-foreground">🎯 品牌一致</h3>
-                      <p className="text-sm text-muted-foreground font-medium">调性统一</p>
+                      <h3 className="text-lg font-bold text-foreground" dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.title')}}></h3>
+                      <p className="text-sm text-muted-foreground font-medium">{t('home.advantages.brandConsistency.subtitle')}</p>
                     </div>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    智能学习品牌风格，确保<span className="font-semibold text-foreground">内容调性统一</span>，提升品牌识别度
+                    <span dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.description')}}></span>
                   </p>
                 </div>
               </div>
@@ -163,12 +165,12 @@ const HeroSection: React.FC = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-foreground">💰 成本节省</h3>
-                      <p className="text-sm text-muted-foreground font-medium">降本增效</p>
+                      <h3 className="text-lg font-bold text-foreground" dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.title')}}></h3>
+                      <p className="text-sm text-muted-foreground font-medium">{t('home.advantages.costSaving.subtitle')}</p>
                     </div>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    自动化内容创作流程，<span className="font-semibold text-foreground">节省80%</span>人工成本，提升ROI
+                    <span dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.description')}}></span>
                   </p>
                 </div>
               </div>

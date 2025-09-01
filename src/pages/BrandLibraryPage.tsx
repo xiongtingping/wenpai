@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { useAuth } from '@/hooks/useAuth';
+import { secureDataManager } from '@/lib/secureDataManager';
 import { PermissionLockedButton, PermissionLockedIconButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionProtectedInput, PermissionProtectedInputField, PermissionProtectedSelect } from '@/components/auth/PermissionProtectedInput';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
@@ -102,6 +104,7 @@ export default function BrandLibraryPageFixed() {
   // 用户认证和数据隔离
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // ✅ FIXED: 用户数据隔离 - 品牌资产存储
   const brandAssetsManager = useUserDataIsolation({
@@ -269,30 +272,29 @@ export default function BrandLibraryPageFixed() {
 
   // 初始化品牌维度
   useEffect(() => {
-    // 清除可能有问题的localStorage数据
-    const clearCorruptedData = () => {
+    // 清除可能有问题的存储数据
+    const clearCorruptedData = async () => {
       try {
-        const saved = localStorage.getItem('brandDimensions');
+        const saved = await secureDataManager.getData('brandDimensions', { schemaName: 'BRAND_ASSET' });
         if (saved) {
-          const parsed = JSON.parse(saved);
           // 检查是否有序列化的JSX对象
-          const hasCorruptedData = parsed.some((dim: any) =>
+          const hasCorruptedData = saved.some((dim: any) =>
             dim.icon && typeof dim.icon === 'object' && dim.icon.type
           );
           if (hasCorruptedData) {
-            // 检测到损坏的localStorage数据，正在清除
-            localStorage.removeItem('brandDimensions');
-            localStorage.removeItem('brandDimensionsTimestamp');
+            // 检测到损坏的存储数据，正在清除
+            await secureDataManager.removeData('brandDimensions');
+            await secureDataManager.removeData('brandDimensionsTimestamp');
           }
         }
       } catch (error) {
-        // 清除localStorage数据时出错，移除所有相关数据
-        localStorage.removeItem('brandDimensions');
-        localStorage.removeItem('brandDimensionsTimestamp');
+        // 清除存储数据时出错，移除所有相关数据
+        await secureDataManager.removeData('brandDimensions');
+        await secureDataManager.removeData('brandDimensionsTimestamp');
       }
     };
 
-    clearCorruptedData();
+    clearCorruptedData().catch(console.error);
 
     const initializeDimensions = () => {
       const dimensions: BrandDimension[] = [
@@ -1929,8 +1931,8 @@ export default function BrandLibraryPageFixed() {
       <Header />
 
       <PageNavigation
-        title="多维品牌语料库"
-        description="AI智能分析品牌资料，自动构建完整的品牌语料库，支持多维度自定义完善"
+        title={t('brandLibrary.title')}
+        description={t('brandLibrary.description')}
         showAdaptButton={false}
         showUpgradeButton={false}
         actions={

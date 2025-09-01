@@ -1,0 +1,1131 @@
+{
+  "common": {
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "confirm": "确认",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "submit": "提交",
+    "reset": "重置",
+    "copy": "复制",
+    "download": "下载",
+    "upload": "上传",
+    "search": "搜索",
+    "filter": "筛选",
+    "sort": "排序",
+    "view": "查看",
+    "share": "分享",
+    "close": "关闭",
+    "open": "打开",
+    "expand": "展开",
+    "collapse": "收起"
+  },
+  "nav": {
+    "home": "首页",
+    "adapt": "内容适配",
+    "creative": "创意魔方", 
+    "hotTopics": "全网雷达",
+    "brandLibrary": "品牌库",
+    "extractor": "内容提取器",
+    "emoji": "表情生成器", 
+    "bookmark": "智能收藏",
+    "wechatTemplate": "朋友圈模板",
+    "settings": "设置",
+    "upgrade": "升级套餐",
+    "terms": "服务条款",
+    "privacy": "隐私政策",
+    "profile": "个人中心",
+    "help": "帮助文档"
+  },
+  "auth": {
+    "login": "登录",
+    "logout": "退出登录", 
+    "register": "注册",
+    "profile": "个人资料",
+    "permissions": "权限管理",
+    "upgradeRequired": "需要升级",
+    "trialUser": "试用用户",
+    "proUser": "专业用户",
+    "premiumUser": "高级用户",
+    "loginToAccess": "请登录后访问此功能",
+    "upgradeToAccess": "升级套餐以访问此功能",
+    "user": "用户",
+    "unlockTestPermissions": "🔓 解锁测试权限",
+    "testMode": "测试模式",
+    "testModeDescription": "一键获取所有权限进行功能测试",
+    "unlocking": "解锁中...",
+    "activateMaxPermissions": "🚀 激活最高权限",
+    "unlockMaxPermissions": "🔓 最高解锁权限",
+    "pleaseLogin": "请先登录",
+    "loggingOut": "登出中..."
+  },
+  "language": {
+    "switchTo": "切换语言",
+    "chinese": "中文",
+    "english": "English",
+    "current": "当前语言"
+  },
+  "home": {
+    "title": "文派AI - 智能内容创作平台",
+    "heroTitle": "AI驱动的全平台内容创作",
+    "heroSubtitle": "一键适配不同平台的智能内容创作解决方案",
+    "getStarted": "开始创作",
+    "learnMore": "了解更多",
+    "description": "文派AI是一个基于最新AI技术的智能内容创作平台，为创作者提供高效、专业的内容生成和平台适配服务。",
+    "highlights": {
+      "aiPowered": "AI驱动",
+      "multiPlatform": "多平台支持",
+      "timeSaving": "高效便捷", 
+      "focusCreative": "专注创作"
+    },
+    "advantages": {
+      "fastGeneration": {
+        "title": "⚡ 极速生成",
+        "subtitle": "秒级AI响应",
+        "description": "智能需求分析，<strong>3秒内</strong>生成高质量内容，大幅提升创作效率"
+      },
+      "brandConsistency": {
+        "title": "🎯 品牌一致性", 
+        "subtitle": "统一品牌调性",
+        "description": "智能学习品牌风格，确保<strong>内容调性一致</strong>，提升品牌认知度"
+      },
+      "costSaving": {
+        "title": "💰 成本节约",
+        "subtitle": "降本增效", 
+        "description": "自动化内容创作流程，<strong>节省80%</strong>人工成本，提升投资回报率"
+      }
+    },
+    "features": {
+      "adapt": {
+        "title": "内容适配",
+        "description": "一键适配多平台内容格式，智能调整文案风格和长度"
+      },
+      "creative": {
+        "title": "创意魔方", 
+        "description": "AI驱动的创意内容生成，释放无限创作灵感"
+      },
+      "radar": {
+        "title": "全网雷达",
+        "description": "实时追踪全网热点话题，把握流量密码"
+      },
+      "brandLibrary": {
+        "title": "品牌库",
+        "description": "智能管理品牌资产，构建专属品牌知识库"
+      },
+      "extractor": {
+        "title": "内容提取器",
+        "description": "智能提取网页、文档内容，生成精准摘要"
+      },
+      "emoji": {
+        "title": "表情生成器",
+        "description": "AI生成个性化表情包，让内容更生动有趣"
+      }
+    },
+    "testimonials": {
+      "title": "用户评价",
+      "subtitle": "看看其他创作者怎么说",
+      "sectionTitle": "看看内容专家们怎么说",
+      "testimonial1": {
+        "content": "过去一个团队半天的工作量，现在用AI内容适配器10分钟就搞定了，而且内容质量和品牌一致性都非常有保障。这是我们团队今年引入的最有价值的工具。",
+        "name": "王经理",
+        "position": "某快消品牌市场总监"
+      },
+      "testimonial2": {
+        "content": "我能把更多精力放在视频创意上，而不是头疼怎么把一篇深度稿件改成适合短视频的脚本。这个工具真正解放了我的生产力！",
+        "name": "科技博主阿文",
+        "position": "B站百大UP主"
+      },
+      "testimonial3": {
+        "content": "作为一家MCN机构，效率就是生命线。这款工具帮我们把内容分发效率提升了至少5倍，让我们能服务更多客户，强烈推荐！",
+        "name": "李总",
+        "position": "新媒体代运营机构创始人"
+      },
+      "testimonial4": {
+        "content": "文派不仅节省了我大量撰写多平台内容的时间，而且生成的内容质量超出预期。每个平台风格都恰到好处，完美保持了品牌核心信息。",
+        "name": "张女士",
+        "position": "知名美妆品牌社交媒体主管"
+      }
+    },
+    "pricing": {
+      "title": "选择适合您的方案",
+      "subtitle": "从免费体验到高级版，全方位赋能新媒体创意工作者",
+      "monthlyBilling": "按月支付",
+      "yearlyBilling": "按年订阅",
+      "yearlyDiscount": "立省17%",
+      "saveTwentyPercent": "节省20%",
+      "limitedTimeOffer": "限时优惠进行中",
+      "offerEndingSoon": "优惠即将结束，立即享受特价！",
+      "permanentFree": "永久免费",
+      "limitedDiscount": "限时特惠",
+      "monthShort": "月",
+      "yearShort": "年",
+      "free": {
+        "name": "免费版",
+        "price": "免费",
+        "description": "适合个人用户和初学者",
+        "features": ["基础内容适配", "每日10次生成", "标准AI模型", "社区支持"]
+      },
+      "pro": {
+        "name": "专业版", 
+        "price": "¥99",
+        "period": "/月",
+        "description": "适合专业创作者和小团队",
+        "features": ["无限制内容适配", "高级AI模型", "品牌库管理", "优先客服支持", "数据导出功能"]
+      },
+      "premium": {
+        "name": "企业版",
+        "price": "¥299", 
+        "period": "/月",
+        "description": "适合企业用户和大型团队",
+        "features": ["所有专业版功能", "企业级AI模型", "团队协作功能", "API接口访问", "专属客户经理", "定制化服务"]
+      },
+      "currentPlan": "当前套餐",
+      "upgrade": "立即升级",
+      "contact": "联系销售",
+      "recommended": "推荐",
+      "allFeatures": "全部功能",
+      "moreSavings": "更省",
+      "trialVersion": "体验版",
+      "professionalVersion": "专业版",
+      "premiumVersion": "高级版",
+      "startFreeUse": "开始免费使用",
+      "upgradeToTitle": "立即升级",
+      "savedAmount": "省¥",
+      "redirectingToPayment": "正在为您跳转到支付页面",
+      "completePaymentMessage": "请完成支付以开通相应功能",
+      "redirectingToLogin": "正在为您跳转到登录页面", 
+      "loginFirstMessage": "完成登录后将为您导向支付页面",
+      "comparisonTable": {
+        "title": "功能详细对比",
+        "feature": "功能",
+        "aiContentAdapter": "AI内容适配器",
+        "hotRadar": "全网雷达",
+        "creativeCube": "创意魔方",
+        "myLibrary": "我的资料库",
+        "brandLibrary": "品牌库",
+        "aiModels": "AI模型",
+        "tokenLimit": "Token限制",
+        "timesPerMonth": "次/月",
+        "unlimited": "不限量",
+        "basicModels": "基础模型",
+        "advancedModels": "高级模型",
+        "advancedAndLatest": "高级及最新模型",
+        "available": "✅",
+        "notAvailable": "❌",
+        "proExclusive": "专业版/高级版专属",
+        "premiumExclusive": "高级版专属"
+      }
+    },
+    "cta": {
+      "title": "准备好开始您的创作之旅了吗？",
+      "subtitle": "立即加入，让AI成为你最得力的内容创作伙伴。",
+      "buttonText": "立即开启高效创作之旅",
+      "getStarted": "免费开始",
+      "contactSales": "联系销售"
+    },
+    "trust": {
+      "title": "信赖我们的AI，适配您信赖的平台",
+      "subtitle": "覆盖全网主流内容平台，智能适配平台特性，打造多平台一体化内容方案",
+      "supportText": "支持14+主流平台，AI智能适配平台特性与用户习惯",
+      "platforms": {
+        "xiaohongshu": "小红书",
+        "wechat": "微信公众号",
+        "zhihu": "知乎",
+        "douyin": "抖音",
+        "bilibili": "B站",
+        "weibo": "微博",
+        "baijiahao": "百家号",
+        "kuaishou": "快手",
+        "wangyi": "网易号",
+        "toutiao": "头条号",
+        "facebook": "Facebook",
+        "twitter": "X（Twitter）",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "douban": "豆瓣",
+        "shipinhao": "视频号"
+      }
+    },
+    "howItWorks": {
+      "title": "三步搞定，就这么简单",
+      "subtitle": "告别繁琐的内容适配流程，把时间用在创意上。",
+      "benefits": "每天帮您节省45分钟内容创作时间，提高内容转化效率200%",
+      "step1": {
+        "title": "输入原始内容",
+        "description": "粘贴或输入您想要适配的内容，AI将智能分析结构和核心信息。"
+      },
+      "step2": {
+        "title": "选择目标平台",
+        "description": "勾选需要适配的平台，支持多平台同时生成，每个平台都有独特优化。"
+      },
+      "step3": {
+        "title": "一键获取所有版本",
+        "description": "AI瞬间为您生成所有适配版本，一键复制、导出或分享。"
+      },
+      "efficiency": {
+        "title": "提高效率，节省时间",
+        "description": "传统多平台内容适配每篇需要60-90分钟，现在只需15分钟即可完成全平台内容分发，让您专注于创意本身！"
+      }
+    },
+    "featuresSection": {
+      "coreFeatures": "核心功能",
+      "professionalTools": "专业的新媒体创作工具",
+      "toolsDescription": "从内容创作到分发管理，文派提供全方位的AI驱动工具，助力创作者提升效率和质量",
+      "mainFeaturesTitle": "主要功能",
+      "mainFeaturesSubtitle": "探索文派的核心功能，提升您的内容创作效率",
+      "quickToolsTitle": "快速工具",
+      "quickToolsSubtitle": "便捷的小工具，让创作更加高效",
+      "platformAdvantagesTitle": "平台优势",
+      "platformAdvantagesSubtitle": "为什么选择文派？我们为您提供最优质的服务",
+      "tryNow": "立即体验",
+      "useTool": "使用工具",
+      "mainFeatures": {
+        "contentAdapter": {
+          "title": "AI内容适配器",
+          "description": "智能分析内容，一键适配多平台格式，让您的创意在不同平台绽放光彩",
+          "badge": "热门",
+          "features": ["智能内容分析", "多平台格式适配", "一键生成优化建议", "实时预览效果"]
+        },
+        "creativeCube": {
+          "title": "创意魔方",
+          "description": "AI驱动的创意生成工具，激发无限灵感，创造独特而富有吸引力的内容",
+          "badge": "专业版",
+          "features": ["AI创意生成", "多种创意模板", "灵感库管理", "创意协作"]
+        },
+        "hotRadar": {
+          "title": "全网雷达",
+          "description": "实时监控热点话题，精准把握趋势脉搏，抢占内容传播先机",
+          "badge": "实时",
+          "features": ["实时热点监控", "趋势分析报告", "竞品内容追踪", "话题预测"]
+        },
+        "myLibrary": {
+          "title": "我的资料库",
+          "description": "个人内容管理中心，智能收藏整理，随时调用，让创作素材触手可及",
+          "badge": "实用",
+          "features": ["网络收藏管理", "内容提取工具", "文案库管理", "智能分类"]
+        },
+        "brandLibrary": {
+          "title": "品牌库",
+          "description": "专业品牌资产管理系统，统一管理品牌元素，提升品牌一致性和识别度",
+          "badge": "高级版",
+          "features": ["品牌资产管理", "视觉规范统一", "团队协作", "版本控制"]
+        }
+      },
+      "quickTools": {
+        "emojiGenerator": {
+          "title": "Emoji生成器",
+          "description": "智能生成生动表情符号，让内容更有趣更有感染力"
+        },
+        "wechatTemplate": {
+          "title": "朋友圈模板",
+          "description": "精美模板快速生成，让您的朋友圈内容脱颖而出"
+        },
+        "history": {
+          "title": "历史记录",
+          "description": "智能追踪创作轨迹，优化内容策略和创作方向"
+        },
+        "settings": {
+          "title": "个人设置",
+          "description": "自定义您的创作偏好，管理账户信息和主题配置"
+        }
+      },
+      "advantages": {
+        "aiPowered": {
+          "title": "AI驱动",
+          "description": "先进的AI技术，智能分析内容，提供精准建议和优化方案"
+        },
+        "multiPlatform": {
+          "title": "多平台适配",
+          "description": "一键适配微信、微博、抖音等主流平台，覆盖全媒体矩阵"
+        },
+        "professionalTools": {
+          "title": "专业工具",
+          "description": "丰富的专业工具套件，满足不同内容创作场景和需求"
+        },
+        "security": {
+          "title": "安全可靠",
+          "description": "企业级安全保障，数据加密存储，保护您的创作成果"
+        }
+      }
+    }
+  },
+  "footer": {
+    "brandDescription": "文派AI - 引领AI内容创作新时代",
+    "brandTagline": "专业、高效、智能的内容创作解决方案",
+    "product": "产品",
+    "company": "公司",
+    "support": "支持",
+    "legal": "法律",
+    "features": "功能特色",
+    "pricing": "定价方案",
+    "documentation": "开发文档",
+    "apiReference": "API参考",
+    "aboutUs": "关于我们",
+    "careers": "招聘信息",
+    "blog": "技术博客",
+    "partners": "合作伙伴",
+    "helpCenter": "帮助中心",
+    "contactUs": "联系我们",
+    "feedback": "意见反馈",
+    "community": "用户社区",
+    "termsOfService": "服务条款",
+    "privacyPolicy": "隐私政策",
+    "cookiePolicy": "Cookie政策",
+    "copyright": "版权所有",
+    "backToTop": "返回顶部",
+    "followUs": "关注我们",
+    "socialMedia": "社交媒体"
+  },
+  "brandLibrary": {
+    "title": "品牌库",
+    "description": "管理您的品牌资产和素材库",
+    "noBrandData": "暂无品牌数据",
+    "addBrandAsset": "添加品牌资产",
+    "brandProfile": "品牌档案",
+    "brandAnalysis": "品牌分析",
+    "uploadFile": "上传文件",
+    "extractContent": "提取内容",
+    "generateProfile": "生成档案",
+    "brandName": "品牌名称",
+    "brandDescription": "品牌描述",
+    "brandValues": "品牌价值",
+    "targetAudience": "目标受众",
+    "brandTone": "品牌调性",
+    "keyMessages": "核心信息",
+    "competitiveAdvantage": "竞争优势",
+    "visualIdentity": "视觉识别",
+    "brandGuidelines": "品牌指南"
+  },
+  "creative": {
+    "title": "创意魔方",
+    "description": "释放你的创意潜能，生成独特的内容创作",
+    "generateContent": "生成内容",
+    "contentStyle": "内容风格",
+    "aiPowered": "AI驱动",
+    "multipleStyles": "多种风格",
+    "realTimeGeneration": "实时生成",
+    "customPrompt": "自定义提示",
+    "contentType": "内容类型",
+    "targetPlatform": "目标平台",
+    "brandTone": "品牌调性",
+    "contentLength": "内容长度",
+    "keywords": "关键词",
+    "generatedContent": "生成的内容"
+  },
+  "hotTopics": {
+    "title": "全网雷达",
+    "description": "实时追踪全网热点话题",
+    "allPlatforms": "全部平台",
+    "weibo": "微博",
+    "zhihu": "知乎",
+    "douyin": "抖音",
+    "bilibili": "哔哩哔哩",
+    "baidu": "百度",
+    "refreshing": "刷新中...",
+    "lastUpdated": "最后更新",
+    "rank": "排名",
+    "topic": "话题",
+    "heatIndex": "热度指数",
+    "viewDetails": "查看详情",
+    "trendAnalysis": "趋势分析",
+    "relatedTopics": "相关话题"
+  },
+  "extractor": {
+    "title": "内容提取器", 
+    "description": "智能提取网页、文档内容并生成摘要",
+    "extractFromUrl": "从URL提取",
+    "extractFromFile": "从文件提取",
+    "extractFromText": "从文本提取",
+    "urlPlaceholder": "请输入网页链接",
+    "textPlaceholder": "请粘贴或输入文本内容",
+    "supportedFormats": "支持的格式",
+    "extractionResult": "提取结果",
+    "summary": "内容摘要",
+    "keyPoints": "关键要点",
+    "extractedText": "提取的文本"
+  },
+  "settings": {
+    "title": "设置中心",
+    "description": "管理您的账户设置和偏好",
+    "theme": "切换主题",
+    "devTools": "开发工具",
+    "userId": "用户ID",
+    "email": "邮箱",
+    "username": "用户名",
+    "notSet": "未设置",
+    "vipStatus": "VIP状态",
+    "vipUser": "VIP用户",
+    "regularUser": "普通用户",
+    "accountSettings": "账户设置",
+    "notificationPreferences": "通知偏好",
+    "manageNotificationPreferences": "管理您的通知偏好",
+    "pushNotifications": "推送通知",
+    "pushNotificationDescription": "接收重要更新和提醒",
+    "emailNotifications": "邮件通知",
+    "emailNotificationDescription": "接收邮件更新",
+    "appSettings": "应用设置",
+    "customizeAppBehavior": "自定义应用行为",
+    "autoSave": "自动保存",
+    "autoSaveDescription": "自动保存您的工作进度",
+    "darkMode": "深色模式",
+    "useDarkTheme": "使用深色主题",
+    "language": "语言设置",
+    "selectLanguage": "选择界面语言",
+    "security": "安全设置",
+    "manageAccountSecurity": "管理您的账户安全",
+    "changePassword": "修改密码",
+    "twoFactorAuth": "双重认证",
+    "adminPanel": "管理员面板",
+    "saveSettings": "保存设置",
+    "settingsUpdated": "设置已更新",
+    "updateFailed": "更新失败"
+  },
+  "adapt": {
+    "title": "内容适配",
+    "description": "智能适配不同平台的内容格式和风格",
+    "inputContent": "输入内容",
+    "selectPlatform": "选择平台",
+    "adaptNow": "立即适配",
+    "adaptedContent": "适配后内容",
+    "platforms": {
+      "wechat": "微信公众号",
+      "xiaohongshu": "小红书",
+      "zhihu": "知乎",
+      "douyin": "抖音",
+      "weibo": "微博",
+      "bilibili": "B站"
+    },
+    "contentPlaceholder": "请输入您想要适配的内容...",
+    "platformDescription": "根据平台特性智能调整内容格式、语言风格和篇幅长度",
+    "adaptationOptions": "适配选项",
+    "preserveBrand": "保持品牌调性",
+    "optimizeEngagement": "优化互动性",
+    "adaptLength": "调整篇幅"
+  },
+  "emoji": {
+    "title": "AI表情生成器",
+    "description": "使用AI生成个性化表情包和Emoji",
+    "gallery": "表情图库",
+    "brandEmoji": "品牌表情",
+    "brandEmojiGenerator": "品牌表情生成器",
+    "brandEmojiDescription": "输入品牌角色和品牌名，AI将为您生成专属的品牌表情",
+    "galleryDescription": "从500个精美表情中选择，支持搜索、分类、点击复制等功能",
+    "generateEmoji": "生成表情",
+    "customPrompt": "自定义提示",
+    "style": "风格",
+    "download": "下载",
+    "copy": "复制",
+    "copySuccess": "复制成功",
+    "copyFailed": "复制失败",
+    "copySuccessDescription": "已复制 {{emoji}} 到剪贴板",
+    "copyWithNameDescription": "{{name}} {{emoji}} 已复制到剪贴板",
+    "copyFailedDescription": "请手动复制表情",
+    "downloadSuccess": "下载成功",
+    "downloadFailed": "下载失败",
+    "downloadSuccessDescription": "已下载 {{name}}",
+    "downloadFailedDescription": "图片资源可能不可用，请稍后重试",
+    "batchGenerateSuccess": "批量生成完成",
+    "batchGenerateSuccessDescription": "已为 {{count}} 个表情生成图片",
+    "generateFailed": "生成失败",
+    "generateFailedDescription": "请稍后重试",
+    "exportSuccess": "导出成功",
+    "exportSuccessDescription": "表情数据已导出为JSON文件"
+  },
+  "wechatTemplate": {
+    "title": "微信朋友圈文案模板",
+    "description": "精心设计的文案模板，让你的朋友圈更有魅力",
+    "addTemplate": "添加模板",
+    "addNewTemplate": "添加新模板",
+    "copySuccess": "复制成功",
+    "copyFailed": "复制失败",
+    "copySuccessDescription": "文案已复制到剪贴板",
+    "copyFailedDescription": "请手动复制",
+    "categories": {
+      "lifestyle": "生活方式",
+      "business": "商务职场",
+      "inspiration": "励志感悟",
+      "travel": "旅行分享",
+      "food": "美食推荐",
+      "fitness": "健康健身"
+    },
+    "templatePlaceholder": "请输入模板内容...",
+    "categorySelect": "选择分类",
+    "previewTemplate": "预览模板"
+  },
+  "bookmark": {
+    "title": "我的资料库",
+    "description": "统一管理「我的收藏」、「网络剪藏」和文案管理",
+    "myFavorites": "我的收藏",
+    "webClippings": "网络剪藏",
+    "copywritingManagement": "文案管理",
+    "noCopywriting": "暂无文案管理",
+    "noCopywritingDescription": "请使用右上角的\"文案管理\"按钮开始管理文案",
+    "addBookmark": "添加收藏",
+    "addClipping": "添加剪藏",
+    "searchBookmarks": "搜索收藏",
+    "filterByTag": "按标签筛选",
+    "sortBy": "排序方式",
+    "lastAdded": "最新添加",
+    "mostUsed": "使用最多",
+    "alphabetical": "字母顺序"
+  },
+  "upgrade": {
+    "title": "升级套餐",
+    "description": "解锁更多高级功能",
+    "currentPlan": "当前套餐",
+    "upgradeTo": "升级到",
+    "features": "功能特性",
+    "price": "价格",
+    "upgradeNow": "立即升级",
+    "contactSales": "联系销售",
+    "freePlan": "免费版",
+    "proPlan": "专业版",
+    "premiumPlan": "企业版",
+    "unlimited": "无限制",
+    "advancedFeatures": "高级功能",
+    "prioritySupport": "优先支持",
+    "apiAccess": "API访问",
+    "teamCollaboration": "团队协作",
+    "customization": "定制化服务"
+  },
+  "errors": {
+    "networkError": "网络连接错误",
+    "serverError": "服务器错误",
+    "authenticationFailed": "认证失败",
+    "accessDenied": "访问被拒绝",
+    "notFound": "页面不存在",
+    "validationError": "输入验证错误",
+    "unknownError": "未知错误",
+    "tryAgain": "请重试",
+    "contactSupport": "联系技术支持",
+    "notFoundPage": {
+      "title": "404",
+      "subtitle": "页面未找到",
+      "description": "您访问的页面不存在或已被移除",
+      "returnHome": "返回首页",
+      "suggestions": {
+        "title": "您可以尝试：",
+        "checkUrl": "检查网址是否正确",
+        "useNavigation": "使用导航菜单",
+        "goHome": "返回首页",
+        "contactUs": "联系我们"
+      }
+    },
+    "forbidden": {
+      "title": "403 - 禁止访问",
+      "subtitle": "您没有权限访问此页面",
+      "needLogin": "此页面需要登录后才能访问，请先登录您的账户。",
+      "needUpgrade": "此功能需要更高级别的会员权限，请升级您的账户以解锁更多功能。",
+      "currentUser": "当前用户",
+      "memberLevel": "会员等级",
+      "freeUser": "免费用户",
+      "proUser": "Pro会员",
+      "premiumUser": "Premium会员",
+      "unknown": "未知",
+      "loginNow": "立即登录",
+      "upgradeNow": "升级会员",
+      "backToHome": "返回首页",
+      "goBack": "返回",
+      "home": "首页",
+      "help": {
+        "title": "需要帮助？",
+        "description": "如果您认为这是一个错误，请尝试以下操作：",
+        "suggestions": [
+          "检查您的网络连接",
+          "刷新页面重试",
+          "清除浏览器缓存",
+          "联系客服获取帮助"
+        ],
+        "refresh": "刷新页面",
+        "contactSupport": "联系客服"
+      }
+    }
+  },
+  "success": {
+    "operationCompleted": "操作完成",
+    "contentGenerated": "内容生成成功",
+    "settingsUpdated": "设置更新成功",
+    "fileSaved": "文件保存成功",
+    "dataExported": "数据导出成功"
+  },
+  "terms": {
+    "title": "文派服务条款",
+    "subtitle": "Wenpai Terms of Service", 
+    "lastUpdated": "最后更新",
+    "updateDate": "2024年12月",
+    "version": "版本",
+    "description": "文派是专业的AI内容创作和适配工具，帮助用户快速生成和优化多平台内容。请仔细阅读以下条款，使用我们的服务即表示您同意这些条款。",
+    "sections": {
+      "serviceOverview": {
+        "title": "1. 服务概述",
+        "description": "文派（以下简称\"我们\"）是一个基于人工智能的内容创作和适配平台，为用户提供以下核心服务：",
+        "services": {
+          "aiContent": {
+            "title": "🤖 AI内容生成",
+            "description": "基于用户输入生成原创内容"
+          },
+          "platformAdapt": {
+            "title": "🌐 多平台适配",
+            "description": "将内容适配到不同社交媒体平台"
+          },
+          "brandManagement": {
+            "title": "🏢 品牌库管理",
+            "description": "存储和管理品牌风格指南"
+          },
+          "hotTopics": {
+            "title": "📡 热点话题分析",
+            "description": "提供热门话题和趋势分析"
+          }
+        }
+      },
+      "accountUsage": {
+        "title": "2. 账户与使用",
+        "registration": {
+          "title": "2.1 账户注册",
+          "requirements": [
+            "您需要注册账户才能使用我们的AI服务",
+            "注册时请提供真实、准确的个人信息",
+            "您有责任保护账户安全，不得与他人共享账户",
+            "如发现账户异常，请立即联系我们"
+          ]
+        },
+        "limitations": {
+          "title": "2.2 使用限制",
+          "rules": [
+            "体验版用户有每日使用次数限制",
+            "专业版和高级版用户享受更多使用配额",
+            "不得使用自动化工具批量调用API",
+            "不得进行任何可能影响服务稳定性的操作"
+          ]
+        }
+      },
+      "subscription": {
+        "title": "3. 订阅与付费",
+        "plans": {
+          "title": "3.1 订阅计划",
+          "trial": {
+            "name": "体验版",
+            "description": "免费使用，有使用次数限制"
+          },
+          "pro": {
+            "name": "专业版", 
+            "description": "适合个人创作者"
+          },
+          "premium": {
+            "name": "高级版",
+            "description": "适合团队和企业"
+          },
+          "offer": {
+            "title": "💡 限时优惠",
+            "description": "新用户注册后30分钟内可享受特惠价格：",
+            "monthlyPayment": "月付",
+            "yearlyPayment": "年付",
+            "yearlySaving": "年付省"
+          }
+        },
+        "billing": {
+          "title": "3.2 付费规则",
+          "feeCollection": {
+            "title": "💰 费用收取",
+            "rules": [
+              "订阅费用按选择的周期（月付/年付）收取",
+              "订阅会自动续费，您可以随时取消"
+            ]
+          },
+          "discountPolicy": {
+            "title": "🎁 优惠政策", 
+            "rules": [
+              "年付用户享受更多优惠和功能",
+              "取消后，服务将在当前计费周期结束后停止"
+            ]
+          }
+        }
+      },
+      "contentStandards": {
+        "title": "4. 内容规范与责任",
+        "requirements": {
+          "title": "4.1 内容要求",
+          "rules": [
+            "您输入的内容必须合法、真实、准确",
+            "不得包含违法、有害、虚假或侵权信息",
+            "不得生成可能误导他人的内容",
+            "您对生成内容的最终使用承担全部责任"
+          ]
+        },
+        "prohibitedActions": {
+          "title": "4.2 禁止行为",
+          "rules": [
+            "不得使用服务进行任何违法活动",
+            "不得生成或传播有害、虚假或侵权内容",
+            "不得滥用我们的服务或干扰系统运行",
+            "不得尝试破解或绕过我们的安全措施"
+          ]
+        }
+      },
+      "aiContent": {
+        "title": "5. AI生成内容",
+        "ownership": {
+          "title": "5.1 内容所有权",
+          "rules": [
+            "您对AI生成的内容拥有使用权",
+            "我们不会对您的内容主张任何权利",
+            "您可以将生成内容用于商业用途",
+            "建议在使用前对内容进行人工审核"
+          ]
+        },
+        "quality": {
+          "title": "5.2 内容质量",
+          "disclaimers": [
+            "AI生成的内容基于训练数据，可能存在不准确之处",
+            "我们建议您对重要内容进行人工验证",
+            "我们不保证生成内容的准确性或适用性",
+            "您有责任确保内容的最终质量"
+          ]
+        }
+      },
+      "intellectualProperty": {
+        "title": "6. 知识产权",
+        "rules": [
+          "文派平台、技术、算法和界面设计受知识产权保护",
+          "您不得复制、修改、分发或反向工程我们的专有技术",
+          "您生成的内容归您所有，但您授予我们改进服务的使用许可",
+          "我们尊重第三方知识产权，如发现侵权内容请及时举报"
+        ]
+      },
+      "serviceAvailability": {
+        "title": "7. 服务可用性",
+        "commitments": [
+          "我们努力保持服务的高可用性，目标99.9%的正常运行时间",
+          "可能会进行定期维护和系统更新",
+          "维护期间服务可能暂时不可用",
+          "我们保留修改、暂停或终止服务的权利",
+          "重大变更会提前通知用户"
+        ]
+      },
+      "disclaimers": {
+        "title": "8. 免责声明",
+        "statements": [
+          "我们的服务按\"现状\"提供，不提供任何明示或暗示的保证",
+          "我们不保证生成内容的准确性、完整性或适用性",
+          "您使用服务产生的任何直接或间接损失，我们不承担责任",
+          "我们不对第三方服务或内容承担责任",
+          "在法律允许的最大范围内，我们的责任限制在您支付的费用金额内"
+        ]
+      },
+      "disputeResolution": {
+        "title": "9. 争议解决",
+        "procedures": [
+          "本条款受中华人民共和国法律管辖",
+          "任何争议应首先通过友好协商解决",
+          "协商不成的，可向有管辖权的人民法院提起诉讼",
+          "争议解决期间，本条款的其他部分继续有效"
+        ]
+      },
+      "termUpdates": {
+        "title": "10. 条款修改",
+        "policies": [
+          "我们可能会不时修改这些条款以适应服务发展",
+          "重大修改会通过邮件、网站公告或应用内通知",
+          "继续使用服务即表示您接受修改后的条款",
+          "如不同意修改内容，请停止使用服务并联系我们"
+        ]
+      },
+      "contact": {
+        "title": "联系我们",
+        "description": "如果您对这些条款有任何疑问或需要帮助，请通过以下方式联系我们：",
+        "methods": {
+          "customerEmail": {
+            "title": "客服邮箱",
+            "value": "hello@wenpai.xyz"
+          },
+          "inAppSupport": {
+            "title": "应用内客服",
+            "value": "通过平台内置客服功能"
+          },
+          "workingHours": {
+            "title": "工作时间",
+            "value": "周一至周五 9:00-18:00"
+          }
+        }
+      }
+    }
+  },
+  "privacy": {
+    "title": "文派隐私政策",
+    "subtitle": "Wenpai Privacy Policy",
+    "lastUpdated": "最后更新",
+    "updateDate": "2024年12月",
+    "version": "版本",
+    "description": "我们深知隐私保护的重要性，本政策详细说明我们如何收集、使用和保护您的个人信息。请仔细阅读以下政策，使用我们的服务即表示您同意这些条款。",
+    "sections": {
+      "dataCollection": {
+        "title": "1. 我们收集的信息",
+        "accountInfo": {
+          "title": "1.1 账户信息",
+          "registration": "注册信息",
+          "registrationDesc": "邮箱地址、用户名、密码（加密存储）",
+          "profile": "个人资料",
+          "profileDesc": "头像、个人简介、联系方式",
+          "verification": "认证信息",
+          "verificationDesc": "实名认证相关材料（如需要）"
+        },
+        "usageData": {
+          "title": "1.2 使用数据",
+          "functionality": "功能使用",
+          "functionalityDesc": "使用频率、功能偏好、操作记录",
+          "content": "内容数据",
+          "contentDesc": "您输入的内容、AI生成的内容、品牌库信息",
+          "platformAdapt": "平台适配",
+          "platformAdaptDesc": "选择的目标平台、内容风格偏好"
+        },
+        "technicalData": {
+          "title": "1.3 技术数据",
+          "device": "设备信息",
+          "deviceDesc": "设备类型、操作系统、浏览器版本",
+          "network": "网络信息", 
+          "networkDesc": "IP地址、网络连接类型",
+          "logs": "日志数据",
+          "logsDesc": "访问时间、页面浏览、错误日志"
+        }
+      },
+      "dataUsage": {
+        "title": "2. 信息使用目的",
+        "purposes": [
+          "提供服务：提供AI内容生成、多平台适配等核心功能",
+          "改进服务：分析使用模式，优化AI算法和用户体验",
+          "个性化：根据您的偏好提供个性化推荐和服务",
+          "支付处理：处理订阅费用和支付相关事务",
+          "客户支持：提供技术支持和客户服务",
+          "安全保障：防止欺诈、滥用和系统安全威胁",
+          "法律合规：遵守相关法律法规要求"
+        ]
+      },
+      "dataSharing": {
+        "title": "3. 信息共享政策",
+        "noSalePromise": "我们不会出售您的个人信息",
+        "noSaleDesc": "我们承诺不会向第三方出售、出租或交易您的个人信息",
+        "necessarySharing": {
+          "title": "3.1 必要的第三方共享",
+          "payment": "支付服务商：处理订阅费用（如支付宝、微信支付）",
+          "cloud": "云服务提供商：数据存储和处理（如阿里云、腾讯云）",
+          "ai": "AI服务提供商：提供AI内容生成服务",
+          "support": "客服平台：提供客户支持服务"
+        },
+        "legal": {
+          "title": "3.2 法律要求",
+          "disclosure": "在法律法规要求时披露信息",
+          "protection": "保护我们的合法权益和用户安全",
+          "cooperation": "配合政府部门的合法调查"
+        }
+      },
+      "dataSecurity": {
+        "title": "4. 数据安全措施",
+        "measures": [
+          "加密传输：使用HTTPS和SSL加密保护数据传输",
+          "加密存储：敏感数据使用强加密算法存储",
+          "访问控制：严格的员工权限管理和访问控制",
+          "安全审计：定期进行安全评估和漏洞扫描",
+          "数据备份：定期备份数据，确保数据安全",
+          "监控系统：实时监控异常访问和安全威胁"
+        ]
+      },
+      "dataRetention": {
+        "title": "5. 数据保留期限",
+        "periods": [
+          "账户数据：账户活跃期间保留，删除账户后30天内清除",
+          "使用数据：最多保留2年，用于服务改进",
+          "内容数据：您可以选择保留或删除，删除后立即清除",
+          "支付数据：根据法律要求保留，通常为7年",
+          "日志数据：最多保留6个月，用于安全分析"
+        ]
+      },
+      "userRights": {
+        "title": "6. 您的权利",
+        "basicRights": {
+          "title": "6.1 基本权利",
+          "access": "访问权：查看我们收集的您的个人信息",
+          "correction": "更正权：更正不准确或不完整的信息",
+          "deletion": "删除权：要求删除您的个人信息",
+          "portability": "携带权：获取您的数据副本"
+        },
+        "controlRights": {
+          "title": "6.2 控制权利",
+          "restriction": "限制权：限制我们处理您的信息",
+          "objection": "反对权：反对某些处理活动",
+          "withdrawal": "撤回权：撤回之前给予的同意",
+          "complaint": "投诉权：向监管部门投诉"
+        }
+      },
+      "cookies": {
+        "title": "7. Cookie和追踪技术",
+        "types": [
+          "必要Cookie：用于网站基本功能和安全",
+          "功能Cookie：记住您的偏好设置",
+          "分析Cookie：帮助我们改进服务质量",
+          "第三方Cookie：仅用于必要的第三方服务",
+          "您可以在浏览器设置中管理Cookie偏好",
+          "我们不会使用第三方追踪Cookie进行广告投放"
+        ]
+      },
+      "childrenPrivacy": {
+        "title": "8. 儿童隐私保护",
+        "importantNotice": "重要提醒",
+        "noticeDesc": "我们的服务不面向13岁以下的儿童。如果您发现我们收集了儿童信息，请立即联系我们。",
+        "protections": [
+          "我们不会故意收集13岁以下儿童的个人信息",
+          "如果发现收集了儿童信息，会立即删除",
+          "家长或监护人如发现相关问题，请及时联系我们"
+        ]
+      },
+      "internationalTransfer": {
+        "title": "9. 国际数据传输",
+        "transfers": [
+          "您的数据可能在中国境外进行处理",
+          "我们确保所有数据传输符合适用的数据保护法律",
+          "我们采用适当的安全措施保护跨境数据",
+          "我们与第三方服务商签订数据处理协议"
+        ]
+      },
+      "policyUpdates": {
+        "title": "10. 政策更新",
+        "updates": [
+          "我们可能会不时更新本隐私政策",
+          "重大变更会通过邮件、网站公告或应用内通知",
+          "继续使用服务即表示您接受更新后的政策",
+          "如不同意修改内容，请停止使用服务并联系我们"
+        ]
+      },
+      "contactUs": {
+        "title": "11. 联系我们",
+        "description": "如果您对本隐私政策有任何疑问或需要行使您的权利，请通过以下方式联系我们：",
+        "privacyEmail": "隐私保护邮箱",
+        "supportEmail": "客服邮箱",
+        "inAppSupport": "应用内客服：通过平台内置客服功能",
+        "workingHours": "工作时间：周一至周五 9:00-18:00"
+      },
+      "commitment": {
+        "title": "我们的承诺",
+        "description": "我们承诺保护您的隐私，并持续改进我们的隐私保护措施。您的信任是我们最重要的资产。"
+      }
+    }
+  },
+  "profile": {
+    "title": "个人中心",
+    "description": "管理您的账户信息和设置",
+    "manageInfo": "管理您的个人信息",
+    "loginToManage": "登录后可以查看和管理您的个人中心",
+    "editInfo": "编辑信息",
+    "nickname": "昵称",
+    "phone": "手机号",
+    "email": "邮箱",
+    "avatar": "头像",
+    "uploadAvatar": "上传头像",
+    "randomAvatar": "生成随机头像",
+    "saveChanges": "保存更改",
+    "saving": "保存中...",
+    "unsavedChanges": "您有未保存的更改，请点击下方保存按钮",
+    "companionDays": "已陪伴",
+    "registrationDate": "注册时间",
+    "inviteRewards": "邀请奖励",
+    "inviteDescription": "邀请好友获得免费次数",
+    "inviteRule": "每邀请1人注册，双方各得20次免费使用机会，可累加且永久有效！",
+    "inviteStats": "邀请统计",
+    "successfulInvites": "成功邀请",
+    "rewardTimes": "获得次数",
+    "inviteLink": "邀请链接",
+    "inviteFriends": "立即邀请好友",
+    "copyInviteLink": "复制邀请链接",
+    "feedbackRewards": "反馈奖励",
+    "feedbackRule": "反馈任意bug或者提出好的建议，给予适量次数的奖励",
+    "feedbackDescription": "反馈bug获得奖励次数",
+    "feedbackRules": "反馈奖励规则",
+    "feedbackEmail": "反馈邮箱",
+    "submitFeedback": "提交反馈",
+    "feedbackEmailCopied": "反馈邮箱已复制",
+    "feedbackEmailCopiedDesc": "邮箱地址已复制，请务必备注您的个人ID",
+    "moreFeatures": "更多功能",
+    "comingSoon": "敬请期待",
+    "enterNickname": "请输入昵称",
+    "enterPhone": "请输入手机号",
+    "enterEmail": "请输入邮箱",
+    "sendCode": "发送验证码",
+    "enterSmsCode": "请输入短信验证码",
+    "verifySuccess": "验证成功！",
+    "inviteRewardRules": "邀请奖励规则"
+  },
+  "payment": {
+    "title": "订阅中心",
+    "description": "选择适合您的订阅计划，解锁更多强大功能",
+    "qrCodeTitle": "扫码支付",
+    "billing": {
+      "monthly": "按月订阅",
+      "yearly": "按年订阅",
+      "monthlyShort": "月付",
+      "yearlyShort": "年付",
+      "month": "月",
+      "year": "年",
+      "savingsPercent": "立省17%",
+      "yearlySavings": "省钱",
+      "compareMonthly": "比月付省¥{{amount}}",
+      "switchToYearly": "切换年付"
+    },
+    "labels": {
+      "recommended": "推荐",
+      "premium": "全部功能",
+      "savings": "更省",
+      "limited": "限时",
+      "currentPlan": "当前版本",
+      "selected": "已选择",
+      "selectPlan": "选择此计划"
+    },
+    "promotion": {
+      "title": "限时优惠进行中",
+      "endingSoon": "优惠即将结束，立即享受特价！",
+      "specialOffer": "限时特惠 省¥{{amount}}",
+      "originalPrice": "原价 ¥{{price}}",
+      "ongoingOffer": "限时优惠中，节省 ¥{{amount}}",
+      "yearlyDiscount": "年付优惠，比月付省 ¥{{amount}}"
+    },
+    "yearlyPromotion": {
+      "title": "💰 切换到按年支付更优惠",
+      "description": "年付可节省 ¥{{savings}}，相当于免费使用 {{months}} 个月",
+      "switchButton": "切换年付"
+    },
+    "paymentInfo": {
+      "title": "支付信息",
+      "alipayQr": "支付宝扫码支付",
+      "generatingQr": "正在生成支付二维码..."
+    },
+    "actions": {
+      "payNow": "立即支付 ¥{{amount}}",
+      "creating": "创建订单中...",
+      "retry": "重试"
+    },
+    "messages": {
+      "orderCreated": "支付订单已创建",
+      "useAlipay": "请使用支付宝扫码完成支付",
+      "paymentFailed": "支付失败",
+      "orderCreateFailed": "创建支付订单失败",
+      "tryAgainLater": "请稍后重试",
+      "paymentSuccess": "支付成功！",
+      "upgrading": "正在为您升级会员...",
+      "paymentExpired": "支付已过期",
+      "paymentTimeout": "支付超时",
+      "recreateOrder": "请重新创建支付订单",
+      "orderCreateError": "支付订单创建失败"
+    },
+    "console": {
+      "autoSelectPlan": "自动选择计划:",
+      "accessTime": "支付中心访问时间:",
+      "remainingTime": "剩余优惠时间:",
+      "seconds": "秒"
+    }
+  }
+}

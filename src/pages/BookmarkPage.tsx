@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -98,6 +99,7 @@ interface LibraryItem {
  * @returns React 组件
  */
 export default function BookmarkPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -674,8 +676,8 @@ export default function BookmarkPage() {
 
       {/* 页面导航 */}
       <PageNavigation
-        title="我的资料库"
-        description="统一管理「我的收藏」、「网络剪藏」和文案管理"
+        title={t('bookmark.title')}
+        description={t('bookmark.description')}
         showAdaptButton={false}
       />
 
@@ -690,7 +692,7 @@ export default function BookmarkPage() {
               </TabsTrigger>
               <TabsTrigger value="favorites" className="unified-tab-trigger">
                 <Heart className="tab-icon" />
-                <span>我的收藏</span>
+                <span>{t('bookmark.myFavorites')}</span>
                 {favoritesStore.totalCount > 0 && (
                   <Badge variant="secondary" className="ml-1 text-xs px-1 py-0 h-4 min-w-4">
                     {favoritesStore.totalCount}
@@ -703,7 +705,7 @@ export default function BookmarkPage() {
               </TabsTrigger>
               <TabsTrigger value="copywriting" className="unified-tab-trigger">
                 <Brain className="tab-icon" />
-                <span>文案管理</span>
+                <span>{t('bookmark.copywritingManagement')}</span>
               </TabsTrigger>
             </TabsList>
 
@@ -821,7 +823,7 @@ export default function BookmarkPage() {
             </CardContent>
           </Card>
 
-          {/* 我的收藏标签页内容 */}
+          {/* {t('bookmark.myFavorites')} */}
           <TabsContent value="favorites" className="mt-0">
             <div className="grid gap-4">
               {favoritesStore.favorites.length === 0 ? (
@@ -1144,7 +1146,7 @@ export default function BookmarkPage() {
 
 
 
-          {/* 文案管理标签页 */}
+          {/* {t('bookmark.copywritingManagement')} */}
           <TabsContent value="copywriting" className="mt-0">
             <div className="grid gap-4">
               {copywritingItems.map((item) => {
@@ -1218,9 +1220,9 @@ export default function BookmarkPage() {
                 <Card>
                   <CardContent className="p-12 text-center">
                     <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">暂无文案管理</h3>
+                    <h3 className="text-lg font-medium text-foreground mb-2">{t('bookmark.noCopywriting')}</h3>
                     <p className="text-muted-foreground">
-                      请使用右上角的"文案管理"按钮开始管理文案
+                      {t('bookmark.noCopywritingDescription')}
                     </p>
                   </CardContent>
                 </Card>

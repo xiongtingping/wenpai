@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -45,6 +46,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   const { user, isAuthenticated, login, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [unlockLoading, setUnlockLoading] = useState(false);
+  const { t } = useTranslation();
 
   // 简单的主题切换功能
   const toggleTheme = () => {
@@ -85,7 +87,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   // 简化用户等级显示
   const getUserTierDisplay = () => {
     if (!user) return '';
-    return '用户'; // 简化显示
+    return t('auth.user'); // 简化显示
   };
 
   // 🔒 SECURITY: 解锁按钮已完全禁用 - 防止权限绕过攻击
@@ -107,15 +109,15 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
                 className="flex items-center gap-2 text-orange-600 hover:text-orange-700 border-orange-200 hover:bg-orange-50"
               >
                 <Zap className="h-4 w-4" />
-                🔓 解锁测试权限
+                {t('auth.unlockTestPermissions')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-64 z-[9999]" align="end">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">测试模式</p>
+                  <p className="text-sm font-medium leading-none">{t('auth.testMode')}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    一键获取所有权限进行功能测试
+                    {t('auth.testModeDescription')}
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -127,7 +129,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               >
                 <Zap className="mr-2 h-4 w-4" />
                 <span>
-                  {unlockLoading ? '解锁中...' : '🚀 激活最高权限'}
+                  {unlockLoading ? t('auth.unlocking') : t('auth.activateMaxPermissions')}
                 </span>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -141,7 +143,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           className="flex items-center gap-2"
         >
           <LogIn className="h-4 w-4" />
-          登录
+          {t('auth.login')}
         </Button>
       </div>
     );
@@ -168,7 +170,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
-                {getUserDisplayName(user, '用户')}
+                {getUserDisplayName(user, t('auth.user'))}
               </p>
               <p className="text-xs leading-none text-muted-foreground">
                 {user?.email || ''}
@@ -188,12 +190,12 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           
           <DropdownMenuItem onClick={handleProfileClick}>
             <User className="mr-2 h-4 w-4" />
-            <span>个人中心</span>
+            <span>{t('nav.profile')}</span>
           </DropdownMenuItem>
           
           <DropdownMenuItem onClick={() => window.open('https://docs.wenpai.ai', '_blank')}>
             <HelpCircle className="mr-2 h-4 w-4" />
-            <span>帮助文档</span>
+            <span>{t('nav.help')}</span>
           </DropdownMenuItem>
           
           {/* 生产环境下显示解锁权限按钮，无论用户等级 */}
@@ -207,7 +209,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               >
                 <Zap className="mr-2 h-4 w-4" />
                 <span>
-                  {unlockLoading ? '解锁中...' : '🔓 最高解锁权限'}
+                  {unlockLoading ? t('auth.unlocking') : t('auth.unlockMaxPermissions')}
                 </span>
               </DropdownMenuItem>
             </>
@@ -216,7 +218,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={logout}>
             <LogOut className="mr-2 h-4 w-4" />
-            <span>退出登录</span>
+            <span>{t('auth.logout')}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

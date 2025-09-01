@@ -35,8 +35,8 @@ export const ThemeAwareLogo: React.FC<ThemeAwareLogoProps> = ({
   // 判断是否为深色主题
   const isDarkTheme = theme === 'dark';
   
-  // 选择合适的logo文件
-  const logoSrc = isDarkTheme ? '/logo-panda-white.svg' : '/logo-panda.svg';
+  // 选择合适的logo文件 - 使用新的彩虹色调logo
+  const logoSrc = '/logo-panda-rainbow.svg';
   
   // 构建容器类名
   const containerClasses = [

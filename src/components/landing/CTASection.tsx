@@ -2,10 +2,12 @@ import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
 import { useAuth } from "@/hooks/useAuth"
+import { useI18n } from "@/hooks/useI18n"
 
 export function CTASection() {
   const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const handleButtonClick = () => {
     try {
@@ -45,12 +47,12 @@ export function CTASection() {
       <div className="container mx-auto px-6 text-center">
         {/* 1️⃣ 主标题 */}
         <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-2 drop-shadow-sm">
-          准备好开始您的创作之旅了吗？
+          {t('home.cta.title')}
         </h2>
 
         {/* 2️⃣ 副标题 */}
         <p className="text-base text-muted-foreground text-center mb-6 max-w-xl mx-auto leading-relaxed">
-          立即加入，让AI成为你最得力的内容创作伙伴。
+          {t('home.cta.subtitle')}
         </p>
         
         {/* 3️⃣ CTA 按钮 */}
@@ -65,7 +67,7 @@ export function CTASection() {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
-              立即开启高效创作之旅
+              {t('home.cta.buttonText')}
               <svg className="w-5 h-5 group-hover:translate-x-1 transition-smooth" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>

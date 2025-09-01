@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -55,7 +56,8 @@ import {
   Zap,
   RefreshCw,
   Check,
-  AlertCircle
+  AlertCircle,
+  Plus
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
@@ -74,6 +76,7 @@ import { getUserTier } from '@/utils/subscriptionUtils';
 export default function ProfilePage() {
   const { user, isAuthenticated, logout, updateUser } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
@@ -137,7 +140,11 @@ export default function ProfilePage() {
    * 使用真实的Authing用户数据
    */
   const userTier = getUserTier(user);
-  const accountType = userTier === 'trial' ? '体验版' : userTier === 'pro' ? '专业版' : '高级版';
+  const getAccountType = () => {
+    if (userTier === 'trial') return t('auth.trialUser');
+    if (userTier === 'pro') return t('auth.proUser');
+    return t('auth.premiumUser');
+  };
 
   // 使用真实的用户注册时间
   const registrationDate = user?.createdAt ?
@@ -254,15 +261,15 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="w-5 h-5" />
-                请先登录
+                {t('auth.pleaseLogin')}
               </CardTitle>
               <CardDescription>
-                登录后可以查看和管理您的个人中心
+                {t('profile.loginToManage')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="w-full" onClick={() => window.location.href = '/'}>
-                返回首页
+                {t('nav.home')}
               </Button>
             </CardContent>
           </Card>
@@ -542,7 +549,7 @@ export default function ProfilePage() {
       setShowVerificationInput(prev => ({ ...prev, email: false }));
       toast({
         title: "邮箱验证成功",
-        description: "您的邮箱已验证，获得10次免费使用机会！",
+        description: "您的邮箱已验证",
       });
     } catch (error) {
       console.error('❌ 邮箱验证失败:', error);
@@ -765,6 +772,19 @@ export default function ProfilePage() {
   };
 
   /**
+   * 复制反馈邮箱（带个人ID）
+   */
+  const handleCopyFeedbackEmail = () => {
+    const safeUserId = user?.id || 'unknown';
+    const feedbackText = `hello@wenpai.xyz (个人ID: ${safeUserId})`;
+    navigator.clipboard.writeText(feedbackText);
+    toast({
+      title: t('profile.feedbackEmailCopied'),
+      description: t('profile.feedbackEmailCopiedDesc'),
+    });
+  };
+
+  /**
    * 立即邀请好友
    */
   const handleInviteFriends = async () => {
@@ -822,8 +842,8 @@ export default function ProfilePage() {
       {/* 🎨 Modern Flat + Soft Neumorphism 背景装饰 - 统一轻量化 */}
       <div className="relative z-10">
         <PageNavigation
-          title="个人中心"
-          description="管理您的账户信息和设置"
+          title={t('nav.profile')}
+          description={t('profile.description')}
           showAdaptButton={false}
         />
 
@@ -842,8 +862,8 @@ export default function ProfilePage() {
                     <User className="w-6 h-6 drop-shadow-sm text-primary" />
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-foreground">个人中心</div>
-                    <div className="text-sm font-normal text-muted-foreground">管理您的个人信息</div>
+                    <div className="text-xl font-bold text-foreground">{t('nav.profile')}</div>
+                    <div className="text-sm font-normal text-muted-foreground">{t('profile.manageInfo')}</div>
                   </div>
                 </div>
                 <Button
@@ -854,7 +874,7 @@ export default function ProfilePage() {
                   className="flex items-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span>{isLoggingOut ? '登出中...' : '登出'}</span>
+                  <span>{isLoggingOut ? t('auth.loggingOut') : t('auth.logout')}</span>
                 </Button>
               </div>
             </CardHeader>
@@ -922,14 +942,14 @@ export default function ProfilePage() {
                         <div className="flex flex-wrap gap-1 justify-center mb-3">
                           <Badge
                             variant={
-                              accountType === '体验版' ? 'secondary' :
-                              accountType === '专业版' ? 'default' :
+                              getAccountType() === '体验版' ? 'secondary' :
+                              getAccountType() === '专业版' ? 'default' :
                               'premium'
                             }
                             className="text-xs"
                           >
                             <Crown className="w-3 h-3 mr-1" />
-                            {accountType}
+                            {getAccountType()}
                           </Badge>
                         </div>
 
@@ -941,7 +961,7 @@ export default function ProfilePage() {
                           className="h-8 text-xs border-border bg-card hover:bg-accent text-foreground"
                         >
                           <Upload className="w-3 h-3 mr-1 text-muted-foreground" />
-                          上传头像
+                          {t('profile.uploadAvatar')}
                         </Button>
                       </div>
                     </div>
@@ -952,14 +972,14 @@ export default function ProfilePage() {
                     <div className="rounded-lg p-3 border border-border shadow-e0 bg-card">
                       <div className="text-muted-foreground text-xs mb-1 flex items-center gap-2">
                         <div className="w-2 h-2 bg-muted-foreground/40 rounded-full"></div>
-                        用户ID
+                        {t('settings.userId')}
                       </div>
                       <div className="font-mono text-sm font-semibold text-foreground break-all tabular-nums">{user?.id || 'unknown'}</div>
                     </div>
                     <div className="rounded-lg p-3 border border-border shadow-e0 bg-card">
                       <div className="text-muted-foreground text-xs mb-1 flex items-center gap-2">
                         <div className="w-2 h-2 bg-muted-foreground/40 rounded-full"></div>
-                        已陪伴
+                        {t('profile.companionDays')}
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -968,7 +988,7 @@ export default function ProfilePage() {
                               </button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>注册时间：{registrationDate}</p>
+                              <p>{t('profile.registrationDate')}: {registrationDate}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -981,20 +1001,20 @@ export default function ProfilePage() {
                 <div className="md:col-span-1">
                   <div className="rounded-xl p-5 border border-border h-full shadow-e0 bg-card">
                     <h3 className="text-base font-bold text-foreground mb-4">
-                      编辑信息
+                      {t('profile.editInfo')}
                     </h3>
 
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="nickname" className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
                           <div className="w-2 h-2 bg-primary rounded-full"></div>
-                          昵称
+                          {t('profile.nickname')}
                         </Label>
                         <Input
                           id="nickname"
                           value={profileForm.nickname}
                           onChange={(e) => handleFormChange('nickname', e.target.value)}
-                          placeholder="请输入昵称"
+                          placeholder={t('profile.enterNickname')}
                           className="h-9 border border-border rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/25 transition-smooth bg-card text-sm"
                         />
                       </div>
@@ -1002,7 +1022,7 @@ export default function ProfilePage() {
                       <div className="space-y-2">
                         <Label htmlFor="phone" className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
                           <div className="w-2 h-2 bg-primary rounded-full"></div>
-                          手机号
+                          {t('profile.phone')}
                           {verificationStatus.phone && (
                             <Check className="w-3 h-3 text-green-500" />
                           )}
@@ -1012,7 +1032,7 @@ export default function ProfilePage() {
                             id="phone"
                             value={profileForm.phone}
                             onChange={(e) => handleFormChange('phone', e.target.value)}
-                            placeholder="请输入手机号"
+                            placeholder={t('profile.enterPhone')}
                             className="h-9 border border-border rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/25 transition-smooth bg-card text-sm flex-1"
                             disabled={verificationStatus.phone}
                           />
@@ -1028,9 +1048,9 @@ export default function ProfilePage() {
                             ) : verificationStatus.phone ? (
                               <Check className="w-3 h-3 text-green-500" />
                             ) : showVerificationInput.phone ? (
-                              '确认'
+                              t('common.confirm')
                             ) : (
-                              '发送验证码'
+                              t('profile.sendCode')
                             )}
                           </Button>
                         </div>
@@ -1041,7 +1061,7 @@ export default function ProfilePage() {
                             <Input
                               value={verificationCodes.phone}
                               onChange={(e) => setVerificationCodes(prev => ({ ...prev, phone: e.target.value }))}
-                              placeholder="请输入短信验证码"
+                              placeholder={t('profile.enterSmsCode')}
                               className="h-9 border border-border rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/25 transition-smooth bg-accent text-sm"
                               maxLength={6}
                             />
@@ -1052,20 +1072,10 @@ export default function ProfilePage() {
                       <div className="space-y-2">
                         <Label htmlFor="email" className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
                           <div className="w-2 h-2 bg-primary rounded-full"></div>
-                          邮箱
+                          {t('profile.email')}
                           {verificationStatus.email && (
                             <Check className="w-3 h-3 text-green-500" />
                           )}
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Info className="w-3 h-3 text-muted-foreground hover:text-primary cursor-help" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-xs">首次验证奖励: 完成邮箱验证可获10次免费使用</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
                         </Label>
                         <div className="flex gap-2">
                           <Input
@@ -1113,7 +1123,7 @@ export default function ProfilePage() {
                           <div className="border border-green-200 bg-green-50 rounded-md p-2">
                             <p className="text-xs flex items-center gap-2 text-green-600">
                               <Check className="w-3 h-3 text-green-500" />
-                              验证成功！已获得10次免费使用机会
+                              {t('profile.verifySuccess')}
                             </p>
                           </div>
                         )}
@@ -1181,8 +1191,8 @@ export default function ProfilePage() {
                       <Gift className="w-6 h-6 drop-shadow-sm text-primary" />
                     </div>
                     <div>
-                      <div className="text-xl font-bold text-foreground">邀请奖励</div>
-                      <div className="text-sm font-normal text-muted-foreground">邀请好友获得免费次数</div>
+                      <div className="text-xl font-bold text-foreground">{t('profile.inviteRewards')}</div>
+                      <div className="text-sm font-normal text-muted-foreground">{t('profile.inviteDescription')}</div>
                     </div>
                   </div>
                   <Button
@@ -1204,10 +1214,10 @@ export default function ProfilePage() {
                       <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center shadow-e0">
                         <Award className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
                       </div>
-                      <h3 className="font-bold text-foreground text-lg">邀请奖励规则</h3>
+                      <h3 className="font-bold text-foreground text-lg">{t('profile.inviteRewardRules')}</h3>
                     </div>
                     <p className="text-muted-foreground font-medium text-sm relative z-10">
-                      每邀请1人注册，双方各得20次免费使用机会，可累加且永久有效！
+                      {t('profile.inviteRule')}
                     </p>
                   </div>
 
@@ -1219,17 +1229,17 @@ export default function ProfilePage() {
                         <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center shadow-e0">
                           <Users className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
                         </div>
-                        <h3 className="font-bold text-foreground text-lg">邀请统计</h3>
+                        <h3 className="font-bold text-foreground text-lg">{t('profile.inviteStats')}</h3>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div className="text-center p-3 border border-border rounded-lg shadow-e0 bg-accent">
                           <div className="text-xl font-bold text-foreground mb-1 tabular-nums">0</div>
-                          <div className="text-sm font-medium text-muted-foreground">成功邀请</div>
+                          <div className="text-sm font-medium text-muted-foreground">{t('profile.successfulInvites')}</div>
                         </div>
                         <div className="text-center p-3 border border-border rounded-lg shadow-e0 bg-accent">
                           <div className="text-xl font-bold text-foreground mb-1 tabular-nums">0</div>
-                          <div className="text-sm font-medium text-muted-foreground">获得次数</div>
+                          <div className="text-sm font-medium text-muted-foreground">{t('profile.rewardTimes')}</div>
                         </div>
                       </div>
                     </div>
@@ -1240,7 +1250,7 @@ export default function ProfilePage() {
                         <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center shadow-e0">
                           <Copy className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
                         </div>
-                        <h3 className="font-bold text-foreground text-lg">邀请链接</h3>
+                        <h3 className="font-bold text-foreground text-lg">{t('profile.inviteLink')}</h3>
                       </div>
 
                       <div className="flex gap-3">
@@ -1271,13 +1281,102 @@ export default function ProfilePage() {
                     onClick={handleInviteFriends}
                   >
                     <Users className="w-5 h-5" style={{ color: 'white' }} />
-                    立即邀请好友
+                    {t('profile.inviteFriends')}
                   </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
 
+        </div>
+
+        {/* 第三行：反馈奖励卡片 - 独立展示保持左右平衡 */}
+        <div className="profile-grid-equal-height">
+          {/* 左侧：反馈奖励 */}
+          <div className="profile-grid-item">
+            <Card variant="soft" className="w-full h-full flex flex-col rounded-xl overflow-hidden relative">
+              <CardHeader className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-foreground relative z-10 rounded-t-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-orange-500/10 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0 border border-orange-500/20">
+                      <HelpCircle className="w-6 h-6 drop-shadow-sm text-orange-500" />
+                    </div>
+                    <div>
+                      <div className="text-xl font-bold text-foreground">{t('profile.feedbackRewards')}</div>
+                      <div className="text-sm font-normal text-muted-foreground">{t('profile.feedbackDescription')}</div>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col p-6 relative z-10">
+                <div className="flex-1 space-y-4">
+                  {/* 反馈规则说明 */}
+                  <div className="rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden bg-accent">
+                    <div className="flex items-center gap-3 mb-3 relative z-10">
+                      <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center shadow-e0">
+                        <Award className="w-5 h-5 text-white drop-shadow-sm" />
+                      </div>
+                      <h3 className="font-bold text-foreground text-lg">{t('profile.feedbackRules')}</h3>
+                    </div>
+                    <p className="text-muted-foreground font-medium text-sm relative z-10">
+                      {t('profile.feedbackRule')}
+                    </p>
+                  </div>
+
+                  {/* 反馈邮箱卡片 */}
+                  <div className="rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden bg-accent">
+                    <div className="flex items-center gap-3 mb-3 relative z-10">
+                      <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center shadow-e0">
+                        <Mail className="w-5 h-5 text-white drop-shadow-sm" />
+                      </div>
+                      <h3 className="font-bold text-foreground text-lg">{t('profile.feedbackEmail')}</h3>
+                    </div>
+                    <div className="flex gap-3">
+                      <Input
+                        value="hello@wenpai.xyz"
+                        readOnly
+                        className="text-sm h-11 border border-border rounded-lg bg-accent font-mono flex-1"
+                      />
+                      <Button
+                        variant="soft"
+                        size="sm"
+                        onClick={handleCopyFeedbackEmail}
+                        className="h-11 px-4 rounded-lg bg-orange-500 text-white hover:bg-orange-600"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 反馈按钮 - 与左侧对齐 */}
+                <div className="mt-4">
+                  <Button
+                    variant="ghost"
+                    size="hero"
+                    className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-orange-500/10 to-orange-600/10 border border-orange-500/20 text-orange-600 hover:from-orange-500/20 hover:to-orange-600/20"
+                    onClick={handleCopyFeedbackEmail}
+                  >
+                    <HelpCircle className="w-5 h-5 mr-2" />
+                    {t('profile.submitFeedback')}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* 右侧：预留扩展空间 */}
+          <div className="profile-grid-item">
+            <Card variant="soft" className="w-full h-full flex flex-col rounded-xl overflow-hidden relative bg-muted/30">
+              <CardContent className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mb-4">
+                  <Plus className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-bold text-muted-foreground mb-2">{t('profile.moreFeatures')}</h3>
+                <p className="text-sm text-muted-foreground">{t('profile.comingSoon')}</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
       </div>

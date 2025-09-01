@@ -1,5 +1,6 @@
 // 🔧 [UNIFIED_AUTH_ROLLBACK_v2025.08.27] 回滚到历史成功版本架构
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { Link, useNavigate } from "react-router-dom"
@@ -14,6 +15,7 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { LogoWithText } from "@/components/ui/ThemeAwareLogo"
 import { NavBar } from "@/components/ui/tubelight-navbar"
 import { DevPermissionSwitcher } from "@/components/dev/DevPermissionSwitcher"
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher"
 import { Home, Radar, Sparkles, Library, FolderOpen, CreditCard } from "lucide-react"
 
 
@@ -23,6 +25,7 @@ export function Header() {
   const isMobile = useIsMobile()
   const { user, isAuthenticated, login, register } = useUnifiedAuth()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   /**
    * 检查是否应该显示升级按钮
@@ -97,13 +100,13 @@ export function Header() {
             <NavBar
               positionClassName="relative z-[60]"
               items={[
-                { name: '首页', url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
-                { name: 'AI内容适配器', url: '/adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/adapt'); } else { login('/adapt'); } } },
-                { name: '全网雷达', url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); } } },
-                { name: '创意魔方', url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { login('/creative-studio'); } } },
-                { name: '我的资料库', url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/library'); } else { login('/library'); } } },
-                { name: '品牌库', url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/brand-library'); } else { login('/brand-library'); } } },
-                { name: '定价', url: '/payment', icon: CreditCard, onClick: (e) => { e.preventDefault(); navigate('/payment'); } },
+                { name: t('nav.home'), url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
+                { name: t('nav.adapt'), url: '/adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/adapt'); } else { login('/adapt'); } } },
+                { name: t('nav.hotTopics'), url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); } } },
+                { name: t('nav.creative'), url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { login('/creative-studio'); } } },
+                { name: t('nav.bookmark'), url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/library'); } else { login('/library'); } } },
+                { name: t('nav.brandLibrary'), url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/brand-library'); } else { login('/brand-library'); } } },
+                { name: t('nav.upgrade'), url: '/payment', icon: CreditCard, onClick: (e) => { e.preventDefault(); navigate('/payment'); } },
               ]}
             />
           </div>
@@ -113,6 +116,7 @@ export function Header() {
         {!isMobile && (
           <div className="flex-shrink-0 hidden md:flex items-center space-x-4 relative z-[60]">
             {/* 主题切换 */}
+            <LanguageSwitcher />
             <ThemeToggle />
 
             {/* 开发环境权限切换 */}
@@ -151,7 +155,7 @@ export function Header() {
                   } catch (err) { console.warn('Header DOM probe failed', err); }
                   login();
                 }}>
-                  登录
+                  {t('auth.login')}
                 </Button>
                 <Button
                   onClick={(e) => {
@@ -161,7 +165,7 @@ export function Header() {
                   className="bg-primary hover:bg-primary/90"
                   type="button" // 明确指定按钮类型
                 >
-                  注册
+                  {t('auth.register')}
                 </Button>
               </div>
             )}
@@ -186,7 +190,7 @@ export function Header() {
                       login('/adapt');
                     }
                   }}>
-                    AI内容适配器
+                    {t('nav.adapt')}
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
@@ -197,7 +201,7 @@ export function Header() {
                       login('/hot-topics');
                     }
                   }}>
-                    全网雷达
+                    {t('nav.hotTopics')}
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
@@ -208,7 +212,7 @@ export function Header() {
                       login('/creative-studio');
                     }
                   }}>
-                    创意魔方
+                    {t('nav.creative')}
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
@@ -219,7 +223,7 @@ export function Header() {
                       login('/library');
                     }
                   }}>
-                    我的资料库
+                    {t('nav.bookmark')}
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
@@ -230,26 +234,27 @@ export function Header() {
                       login('/brand-library');
                     }
                   }}>
-                    品牌库
+                    {t('nav.brandLibrary')}
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
                   <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
                     navigate('/payment');
                   }}>
-                    定价
+                    {t('nav.upgrade')}
                   </Button>
                 </SheetClose>
 
                 {/* 移动端主题切换 */}
                 <div className="flex items-center justify-start px-2">
-                  <span className="text-sm font-medium mr-3">切换主题</span>
-                  <ThemeToggle />
+                  <span className="text-sm font-medium mr-3">{t('settings.theme')}</span>
+                  <LanguageSwitcher />
+            <ThemeToggle />
                 </div>
 
                 {/* 移动端开发环境权限切换 */}
                 <div className="flex items-center justify-start px-2">
-                  <span className="text-sm font-medium mr-3">开发工具</span>
+                  <span className="text-sm font-medium mr-3">{t('settings.devTools')}</span>
                   <DevPermissionSwitcher />
                 </div>
 
@@ -263,7 +268,7 @@ export function Header() {
                   <div className="flex flex-col space-y-2">
                     <SheetClose asChild>
                       <Button variant="outline" onClick={() => login()}>
-                        登录
+                        {t('auth.login')}
                       </Button>
                     </SheetClose>
                     <SheetClose asChild>
@@ -274,7 +279,7 @@ export function Header() {
                         }}
                         type="button" // 明确指定按钮类型
                       >
-                        注册
+                        {t('auth.register')}
                       </Button>
                     </SheetClose>
                   </div>

@@ -1,7 +1,10 @@
 import { logger } from '@/utils/logger';
+import { secureStorage } from '@/lib/security';
+import { UnifiedStorageKeyManager } from '@/lib/unifiedStorageManager';
 /**
- * 支付状态持久化服务
+ * 🔒 安全支付状态持久化服务
  * 用于在页面刷新后恢复支付状态和配置
+ * 所有敏感支付数据使用加密存储
  */
 
 export interface PaymentStatusData {
@@ -41,11 +44,31 @@ class PaymentStatusService {
   }
 
   /**
-   * ✅ FIXED: 用户数据隔离 - 生成存储键
+   * 🔒 SECURE: 用户数据隔离 - 生成安全存储键
    */
   private getStorageKey(type: 'status' | 'config' | 'history'): string {
-    const userId = this.currentUserId || 'guest';
-    return `wenpai_payment_${type}_${userId}`;
+    if (this.currentUserId) {
+      return UnifiedStorageKeyManager.generateUserDataKey(this.currentUserId, 'payment', type);
+    } else {
+      // 访客模式使用临时会话ID
+      const guestSessionId = this.getOrCreateGuestSessionId();
+      return UnifiedStorageKeyManager.generateGuestDataKey(guestSessionId, 'payment', type);
+    }
+  }
+
+  /**
+   * 获取或创建访客会话ID
+   */
+  private getOrCreateGuestSessionId(): string {
+    const sessionKey = 'wenpai:guest:session';
+    let sessionId = localStorage.getItem(sessionKey);
+    
+    if (!sessionId) {
+      sessionId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem(sessionKey, sessionId);
+    }
+    
+    return sessionId;
   }
 
   /**
@@ -70,7 +93,8 @@ class PaymentStatusService {
       const allPayments = this.getAllPaymentStatuses();
       allPayments[checkoutId] = paymentData;
       
-      localStorage.setItem(this.getStorageKey('status'), JSON.stringify(allPayments));
+      // 🔒 支付状态数据加密存储
+      secureStorage.setItem(this.getStorageKey('status'), allPayments, true);
       
       // 添加到历史记录
       this.addToHistory(paymentData);
@@ -99,8 +123,9 @@ class PaymentStatusService {
    */
   getAllPaymentStatuses(): Record<string, PaymentStatusData> {
     try {
-      const data = localStorage.getItem(this.getStorageKey('status'));
-      return data ? JSON.parse(data) : {};
+      // 🔒 从加密存储获取支付状态
+      const data = secureStorage.getItem<Record<string, PaymentStatusData>>(this.getStorageKey('status'), true);
+      return data || {};
     } catch (error) {
       console.error('获取所有支付状态失败:', error);
       return {};
@@ -114,7 +139,8 @@ class PaymentStatusService {
     try {
       const allPayments = this.getAllPaymentStatuses();
       delete allPayments[checkoutId];
-      localStorage.setItem(this.getStorageKey('status'), JSON.stringify(allPayments));
+      // 🔒 支付状态数据加密存储
+      secureStorage.setItem(this.getStorageKey('status'), allPayments, true);
       console.log('支付状态已删除:', checkoutId);
     } catch (error) {
       console.error('删除支付状态失败:', error);
@@ -142,7 +168,8 @@ class PaymentStatusService {
       });
       
       if (cleanedCount > 0) {
-        localStorage.setItem(this.getStorageKey('status'), JSON.stringify(allPayments));
+        // 🔒 支付状态数据加密存储
+      secureStorage.setItem(this.getStorageKey('status'), allPayments, true);
         console.log(`已清理 ${cleanedCount} 个过期的支付状态`);
       }
     } catch (error) {
@@ -183,7 +210,8 @@ class PaymentStatusService {
         ...config, // 再应用新配置，避免重复属性
       };
       
-      localStorage.setItem(this.getStorageKey('config'), JSON.stringify(newConfig));
+      // 🔒 支付配置加密存储
+      secureStorage.setItem(this.getStorageKey('config'), newConfig, true);
       console.log('支付配置已保存:', newConfig);
     } catch (error) {
       console.error('保存支付配置失败:', error);
@@ -195,9 +223,10 @@ class PaymentStatusService {
    */
   getPaymentConfig(): PaymentConfig {
     try {
-      const data = localStorage.getItem(this.getStorageKey('config'));
+      // 🔒 从加密存储获取支付配置
+      const data = secureStorage.getItem<PaymentConfig>(this.getStorageKey('config'), true);
       if (data) {
-        return JSON.parse(data);
+        return data;
       }
     } catch (error) {
       console.error('获取支付配置失败:', error);
@@ -232,7 +261,8 @@ class PaymentStatusService {
         id: `${paymentData.checkoutId}_${Date.now()}`,
       });
       
-      localStorage.setItem(this.getStorageKey('history'), JSON.stringify(history));
+      // 🔒 支付历史加密存储
+      secureStorage.setItem(this.getStorageKey('history'), history, true);
     } catch (error) {
       console.error('添加到历史记录失败:', error);
     }
@@ -243,8 +273,9 @@ class PaymentStatusService {
    */
   getPaymentHistory(): Array<PaymentStatusData & { id: string }> {
     try {
-      const data = localStorage.getItem(this.getStorageKey('history'));
-      return data ? JSON.parse(data) : [];
+      // 🔒 从加密存储获取支付历史
+      const data = secureStorage.getItem<Array<PaymentStatusData & { id: string }>>(this.getStorageKey('history'), true);
+      return data || [];
     } catch (error) {
       console.error('获取支付历史失败:', error);
       return [];
@@ -256,7 +287,8 @@ class PaymentStatusService {
    */
   clearPaymentHistory(): void {
     try {
-      localStorage.removeItem(this.getStorageKey('history'));
+      // 🔒 安全删除支付历史
+      secureStorage.removeItem(this.getStorageKey('history'));
       console.log('支付历史已清理');
     } catch (error) {
       console.error('清理支付历史失败:', error);
@@ -344,15 +376,18 @@ class PaymentStatusService {
 
       
       if (parsedData.payments) {
-        localStorage.setItem(this.getStorageKey('status'), JSON.stringify(parsedData.payments));
+        // 🔒 支付状态安全导入
+        secureStorage.setItem(this.getStorageKey('status'), parsedData.payments, true);
       }
 
       if (parsedData.config) {
-        localStorage.setItem(this.getStorageKey('config'), JSON.stringify(parsedData.config));
+        // 🔒 支付配置安全导入
+        secureStorage.setItem(this.getStorageKey('config'), parsedData.config, true);
       }
 
       if (parsedData.history) {
-        localStorage.setItem(this.getStorageKey('history'), JSON.stringify(parsedData.history));
+        // 🔒 支付历史安全导入
+        secureStorage.setItem(this.getStorageKey('history'), parsedData.history, true);
       }
       
       console.log('支付数据导入成功');
@@ -368,9 +403,11 @@ class PaymentStatusService {
    */
   resetAllData(): void {
     try {
-      localStorage.removeItem(this.getStorageKey('status'));
-      localStorage.removeItem(this.getStorageKey('config'));
-      localStorage.removeItem(this.getStorageKey('history'));
+      // 🔒 安全删除所有支付数据
+      secureStorage.removeItem(this.getStorageKey('status'));
+      secureStorage.removeItem(this.getStorageKey('config'));
+      // 🔒 安全删除支付历史
+      secureStorage.removeItem(this.getStorageKey('history'));
       console.log('所有支付数据已重置');
     } catch (error) {
       console.error('重置支付数据失败:', error);

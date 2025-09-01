@@ -12,10 +12,12 @@ import { useScrollAnimation } from "@/components/landing/ScrollAnimation"
 import PageTracker from "@/components/analytics/PageTracker"
 import { useEffect } from "react"
 import { useLocation } from "react-router-dom"
+import { useTranslation } from 'react-i18next'
 
 function HomePage() {
   // Initialize scroll animation
   useScrollAnimation()
+  const { t } = useTranslation()
 
   const location = useLocation()
 
@@ -49,8 +51,8 @@ function HomePage() {
     <div className="min-h-screen relative">
       {/* 页面访问记录 */}
       <PageTracker
-        title="文派 - AI驱动的创意内容平台"
-        description="专业的AI内容创作工具，助力品牌营销和内容创作"
+        title={t('home.title')}
+        description={t('home.heroSubtitle')}
         metadata={{
           layout: 'landing',
           hasNavigation: false,

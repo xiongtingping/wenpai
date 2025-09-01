@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +35,7 @@ interface WechatTemplate {
  * 微信朋友圈文案模板页面组件
  */
 const WechatTemplatePage: React.FC = () => {
+  const { t } = useTranslation();
   const [templates, setTemplates] = useState<WechatTemplate[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<WechatTemplate[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -112,13 +114,13 @@ const WechatTemplatePage: React.FC = () => {
     try {
       await navigator.clipboard.writeText(content);
       toast({
-        title: "复制成功",
-        description: "文案已复制到剪贴板",
+        title: t('wechatTemplate.copySuccess'),
+        description: t('wechatTemplate.copySuccessDescription'),
       });
     } catch (err) {
       toast({
-        title: "复制失败",
-        description: "请手动复制",
+        title: t('wechatTemplate.copyFailed'),
+        description: t('wechatTemplate.copyFailedDescription'),
         variant: "destructive",
       });
     }
@@ -182,19 +184,19 @@ const WechatTemplatePage: React.FC = () => {
     <div className="container mx-auto p-6 space-y-6 particle-background min-h-screen">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="creative-module-title text-foreground">微信朋友圈文案模板</h1>
-          <p className="creative-module-description text-muted-foreground">精心设计的文案模板，让你的朋友圈更有魅力</p>
+          <h1 className="creative-module-title text-foreground">{t('wechatTemplate.title')}</h1>
+          <p className="creative-module-description text-muted-foreground">{t('wechatTemplate.description')}</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
-              添加模板
+              {t('wechatTemplate.addTemplate')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>添加新模板</DialogTitle>
+              <DialogTitle>{t('wechatTemplate.addNewTemplate')}</DialogTitle>
             </DialogHeader>
             <AddTemplateForm onSubmit={addTemplate} categories={categories} allTags={allTags} occasions={occasions} />
           </DialogContent>

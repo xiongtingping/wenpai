@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
 import { useAuth } from "@/hooks/useAuth"
+import { useI18n } from "@/hooks/useI18n"
 import { Crown, Sparkles, Check, X, Star, TrendingUp, Zap } from "lucide-react"
 import { SUBSCRIPTION_PLANS } from "@/config/subscriptionPlans"
 import { SubscriptionPeriod } from "@/types/subscription"
@@ -23,6 +24,7 @@ export function PricingSection() {
   const [timeLeftMs, setTimeLeftMs] = useState(0); // 添加毫秒级倒计时
   const { toast } = useToast()
   const { user: currentUser, isAuthenticated } = useAuth();
+  const { t } = useI18n();
 
   // 使用统一认证状态
   const inPromo = isInPromoPeriod(currentUser?.id);
@@ -83,8 +85,8 @@ export function PricingSection() {
       navigate("/payment");
       
       toast({
-        title: "正在为您跳转到支付页面",
-        description: "请完成支付以开通相应功能",
+        title: t('home.pricing.redirectingToPayment'),
+        description: t('home.pricing.completePaymentMessage'),
       });
     } else {
       // User is not logged in, redirect to login/register choice page
@@ -92,8 +94,8 @@ export function PricingSection() {
       // login("/payment"); // This line is removed as per the edit hint
     
       toast({
-        title: "正在为您跳转到登录页面",
-        description: "完成登录后将为您导向支付页面",
+        title: t('home.pricing.redirectingToLogin'),
+        description: t('home.pricing.loginFirstMessage'),
       });
     }
   }
@@ -101,10 +103,21 @@ export function PricingSection() {
   // 判断功能是否为当前套餐专属
   function getFeatureStatus(feature: string, planTier: string) {
     // 这里可根据feature内容和planTier灵活判断
-    if (feature.includes('创意魔方') && planTier === 'trial') return { disabled: true, label: '专业版/高级版专属' };
-    if (feature.includes('品牌库') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
-    if (feature.includes('高级模型') && planTier === 'trial') return { disabled: true, label: '专业版/高级版专属' };
-    if (feature.includes('最新模型') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
+    const creativeCube = t('nav.creative') || '创意魔方';
+    const brandLibrary = t('nav.brandLibrary') || '品牌库';
+    
+    if (feature.includes(creativeCube) || feature.includes('创意魔方')) {
+      if (planTier === 'trial') return { disabled: true, label: t('home.pricing.comparisonTable.proExclusive') };
+    }
+    if (feature.includes(brandLibrary) || feature.includes('品牌库')) {
+      if (planTier !== 'premium') return { disabled: true, label: t('home.pricing.comparisonTable.premiumExclusive') };
+    }
+    if (feature.includes('高级模型') || feature.includes('Advanced')) {
+      if (planTier === 'trial') return { disabled: true, label: t('home.pricing.comparisonTable.proExclusive') };
+    }
+    if (feature.includes('最新模型') || feature.includes('Latest')) {
+      if (planTier !== 'premium') return { disabled: true, label: t('home.pricing.comparisonTable.premiumExclusive') };
+    }
     // 其他功能默认可用
     return { disabled: false, label: '' };
   }
@@ -127,7 +140,7 @@ export function PricingSection() {
         }
 
         const text = originalFeature
-          .replace(/创意工作室/g, '创意魔方') // 替换
+          .replace(/创意工作室/g, t('nav.creative') || '创意魔方') // 替换
           .replace(/九宫格创意魔方/g, '九宫格创意魔方法') // 替换
           .replace(/专业功能/g, '更多功能') // 替换
           .replace(/专业版/g, '') // 去除专业版
@@ -165,12 +178,12 @@ export function PricingSection() {
         <div className="text-center max-w-4xl mx-auto py-4">
           {/* 主标题 */}
           <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground leading-snug">
-            选择适合您的方案
+            {t('home.pricing.title')}
           </h2>
 
           {/* 副标题 */}
           <p className="text-base text-muted-foreground text-center mt-1 leading-relaxed">
-            从免费体验到高级版，全方位赋能新媒体创意工作者
+            {t('home.pricing.subtitle')}
           </p>
 
 
@@ -180,7 +193,7 @@ export function PricingSection() {
               <div className="promo-banner text-white px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
                 <div className="flex items-center justify-center gap-2 mb-3">
                   <Zap className="h-4 w-4 animate-pulse" />
-                  <span className="text-sm font-medium">限时优惠进行中</span>
+                  <span className="text-sm font-medium">{t('home.pricing.limitedTimeOffer')}</span>
                 </div>
 
                 {/* 突出显示的倒计时（包含毫秒） */}
@@ -194,7 +207,7 @@ export function PricingSection() {
                   <span className="inline-block min-w-[3ch] text-3xl md:text-4xl">{Math.floor((timeLeftMs % 1000) / 10).toString().padStart(2, '0')}</span>
                 </div>
 
-                <div className="text-xs opacity-90">优惠即将结束，立即享受特价！</div>
+                <div className="text-xs opacity-90">{t('home.pricing.offerEndingSoon')}</div>
               </div>
             </div>
           )}
@@ -212,7 +225,7 @@ export function PricingSection() {
                 borderRadius: "6px"
               }}
             >
-              按月支付
+              {t('home.pricing.monthlyBilling')}
             </Button>
             <Switch
               checked={billing === "yearly"}
@@ -240,7 +253,7 @@ export function PricingSection() {
               }}
             >
               <span className="relative z-10 drop-shadow-sm">
-                按年订阅 <span className="text-xs ml-1 font-extrabold text-yellow-200">(立省17%)</span>
+                {t('home.pricing.yearlyBilling')} <span className="text-xs ml-1 font-extrabold text-yellow-200">({t('home.pricing.yearlyDiscount')})</span>
               </span>
               {billing === "yearly" && (
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-400/20 to-red-400/20 animate-pulse"></div>
@@ -265,13 +278,13 @@ export function PricingSection() {
                 {isRecommended && (
                   <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground text-xs font-bold px-4 py-2 rounded-full shadow-lg border border-primary/20">
                     <Star className="w-3 h-3 mr-1 inline fill-current" />
-                    推荐
+                    {t('home.pricing.recommended')}
                   </span>
                 )}
                 {isPremium && (
                   <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg border border-purple/20">
                     <Crown className="w-3 h-3 mr-1 inline fill-current" />
-                    {billing === 'yearly' ? '更省' : '全部功能'}
+                    {billing === 'yearly' ? t('home.pricing.moreSavings') : t('home.pricing.allFeatures')}
                   </span>
                 )}
                 
@@ -295,7 +308,7 @@ export function PricingSection() {
                         <div className="text-5xl font-extrabold text-foreground pricing-price">
                           <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥0</span>
                         </div>
-                        <span className="text-base text-muted-foreground">永久免费</span>
+                        <span className="text-base text-muted-foreground">{t('home.pricing.permanentFree')}</span>
                       </div>
                     </div>
                   ) : (
@@ -305,9 +318,9 @@ export function PricingSection() {
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
                             <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥{pricing.discountPrice}</span>
                           </div>
-                          <span className="text-base text-muted-foreground">/{billing === "monthly" ? "月" : "年"}</span>
+                          <span className="text-base text-muted-foreground">/{billing === "monthly" ? t('home.pricing.monthShort') : t('home.pricing.yearShort')}</span>
                           <div className="flex flex-col items-start ml-2">
-                            <span className="text-xs text-destructive font-semibold">限时特惠</span>
+                            <span className="text-xs text-destructive font-semibold">{t('home.pricing.limitedDiscount')}</span>
                             <span className="text-xs text-muted-foreground line-through">¥{pricing.originalPrice}</span>
                           </div>
                         </div>
@@ -316,11 +329,11 @@ export function PricingSection() {
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
                             <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥{pricing.originalPrice}</span>
                           </div>
-                          <span className="text-base text-muted-foreground">/{billing === "monthly" ? "月" : "年"}</span>
+                          <span className="text-base text-muted-foreground">/{billing === "monthly" ? t('home.pricing.monthShort') : t('home.pricing.yearShort')}</span>
                         </div>
                       )}
                       {isAuthenticated && inPromo && (
-                        <p className="text-xs text-destructive mt-1">省¥{pricing.savedAmount}</p>
+                        <p className="text-xs text-destructive mt-1">{t('home.pricing.savedAmount')}{pricing.savedAmount}</p>
                       )}
                     </div>
                   )}
@@ -347,12 +360,12 @@ export function PricingSection() {
                   {isTrial ? (
                     <>
                       <Sparkles className="w-4 h-4 mr-2" />
-                      开始免费使用
+                      {t('home.pricing.startFreeUse')}
                     </>
                   ) : (
                     <>
                       <Crown className="w-4 h-4 mr-2" />
-                      立即升级{plan.name}
+                      {t('home.pricing.upgradeToTitle')}{plan.name}
                     </>
                   )}
                 </Button>
@@ -364,46 +377,46 @@ export function PricingSection() {
         {/* 功能对比表 */}
         <div className="mt-16">
           <div className="text-center mb-8">
-            <h3 className="text-xl font-bold text-foreground">功能详细对比</h3>
+            <h3 className="text-xl font-bold text-foreground">{t('home.pricing.comparisonTable.title')}</h3>
           </div>
           <div className="overflow-x-auto">
             <div className="max-w-6xl mx-auto">
               <table className="w-full border-collapse border border-border rounded-lg overflow-hidden shadow-sm">
                 <thead className="bg-accent">
                   <tr>
-                    <th className="border border-border px-6 py-3 text-left font-semibold text-foreground">功能</th>
-                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">体验版</th>
-                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">专业版</th>
-                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">高级版</th>
+                    <th className="border border-border px-6 py-3 text-left font-semibold text-foreground">{t('home.pricing.comparisonTable.feature')}</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">{t('home.pricing.trialVersion')}</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">{t('home.pricing.professionalVersion')}</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">{t('home.pricing.premiumVersion')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   <tr className="hover:bg-accent/50 transition-colors">
-                    <td className="border border-border px-6 py-3 font-medium text-foreground">AI内容适配器</td>
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.aiContentAdapter')}</td>
                     <td className="border border-border px-4 py-3 text-center">
-                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">10次/月</span>
+                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">10{t('home.pricing.comparisonTable.timesPerMonth')}</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center">
-                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">30次/月</span>
+                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">30{t('home.pricing.comparisonTable.timesPerMonth')}</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center">
-                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">不限量</span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-accent/50 transition-colors">
-                    <td className="border border-border px-6 py-3 font-medium text-foreground">全网雷达</td>
-                    <td className="border border-border px-4 py-3 text-center">
-                      <span className="text-foreground font-medium">✅</span>
-                    </td>
-                    <td className="border border-border px-4 py-3 text-center">
-                      <span className="text-foreground font-medium">✅</span>
-                    </td>
-                    <td className="border border-border px-4 py-3 text-center">
-                      <span className="text-foreground font-medium">✅</span>
+                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">{t('home.pricing.comparisonTable.unlimited')}</span>
                     </td>
                   </tr>
                   <tr className="hover:bg-accent/50 transition-colors">
-                    <td className="border border-border px-6 py-3 font-medium text-foreground">创意魔方</td>
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.hotRadar')}</td>
+                    <td className="border border-border px-4 py-3 text-center">
+                      <span className="text-foreground font-medium">✅</span>
+                    </td>
+                    <td className="border border-border px-4 py-3 text-center">
+                      <span className="text-foreground font-medium">✅</span>
+                    </td>
+                    <td className="border border-border px-4 py-3 text-center">
+                      <span className="text-foreground font-medium">✅</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-accent/50 transition-colors">
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.creativeCube')}</td>
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-destructive font-medium">❌</span>
                     </td>
@@ -415,7 +428,7 @@ export function PricingSection() {
                     </td>
                   </tr>
                   <tr className="hover:bg-accent/50 transition-colors">
-                    <td className="border border-border px-6 py-3 font-medium text-foreground">我的资料库</td>
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.myLibrary')}</td>
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
                     </td>
@@ -427,7 +440,7 @@ export function PricingSection() {
                     </td>
                   </tr>
                   <tr className="hover:bg-accent/50 transition-colors">
-                    <td className="border border-border px-6 py-3 font-medium text-foreground">品牌库</td>
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.brandLibrary')}</td>
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-destructive font-medium">❌</span>
                     </td>
@@ -439,22 +452,22 @@ export function PricingSection() {
                     </td>
                   </tr>
                   <tr className="hover:bg-accent/50 transition-colors">
-                    <td className="border border-border px-6 py-3 font-medium text-foreground">AI模型</td>
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.aiModels')}</td>
                     <td className="border border-border px-4 py-3 text-center">
-                      <span className="text-muted-foreground pricing-table-text">基础模型</span>
+                      <span className="text-muted-foreground pricing-table-text">{t('home.pricing.comparisonTable.basicModels')}</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center">
-                      <span className="text-foreground font-medium pricing-table-text">高级模型</span>
+                      <span className="text-foreground font-medium pricing-table-text">{t('home.pricing.comparisonTable.advancedModels')}</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center">
                       <div className="text-foreground font-medium text-xs leading-tight pricing-table-cell">
-                        <div className="pricing-table-text">高级及</div>
-                        <div className="pricing-table-text">最新模型</div>
+                        <div className="pricing-table-text">{t('home.pricing.comparisonTable.advancedAndLatest').split(' ')[0]}</div>
+                        <div className="pricing-table-text">{t('home.pricing.comparisonTable.advancedAndLatest').split(' ')[1] || ''}</div>
                       </div>
                     </td>
                   </tr>
                   <tr className="hover:bg-accent/50 transition-colors">
-                    <td className="border border-border px-6 py-3 font-medium text-foreground">Token限制</td>
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.tokenLimit')}</td>
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-muted-foreground pricing-table-number">100,000</span>
                     </td>

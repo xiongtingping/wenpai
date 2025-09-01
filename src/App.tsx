@@ -18,6 +18,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import './i18n';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthGuard, ProGuard, PremiumGuard } from '@/components/auth/RouteGuard';

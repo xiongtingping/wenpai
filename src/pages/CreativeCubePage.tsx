@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
  * 提供内容创作和创意生成功能
  */
 const CreativeCubePage: React.FC = () => {
+  const { t } = useTranslation();
   const [prompt, setPrompt] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -64,9 +66,11 @@ const CreativeCubePage: React.FC = () => {
 
 请确保内容具体、实用且富有创意。`;
 
-      const result = await callAI(aiPrompt, AITaskType.CREATIVE_WRITING, {
-        style: selectedStyle,
-        maxTokens: 1000
+      const result = await callAI({
+        prompt: aiPrompt,
+        taskType: AITaskType.CREATIVE_GENERATION,
+        maxTokens: 1000,
+        context: { style: selectedStyle }
       });
 
       if (result && result.content) {
@@ -93,8 +97,8 @@ const CreativeCubePage: React.FC = () => {
 
       {/* 页面导航 */}
       <PageNavigation
-        title="创意魔方"
-        description="释放你的创意潜能，生成独特的内容创作"
+        title={t('creative.title')}
+        description={t('creative.description')}
         showAdaptButton={false}
         showUpgradeButton={false}
         actions={
@@ -108,144 +112,142 @@ const CreativeCubePage: React.FC = () => {
       />
 
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-
-      {/* 🔧 移除整页权限遮罩，改为按钮级权限控制 */}
-      <div>
+        {/* 🔧 移除整页权限遮罩，改为按钮级权限控制 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* 输入区域 */}
-        <Card variant="enhanced">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-foreground">
-              <Wand2 className="text-primary" />
-              创意输入
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              描述你的需求，AI将为你生成创意内容
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="prompt" className="text-foreground">内容描述</Label>
-              <Textarea
-                id="prompt"
-                variant="enhanced"
-                placeholder="例如：为我们的新产品写一段吸引人的营销文案..."
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                rows={4}
-              />
-            </div>
-
-            <div>
-              <Label>内容风格</Label>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                {contentStyles.map((style) => (
-                  <Button
-                    key={style.id}
-                    variant={selectedStyle === style.id ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedStyle(style.id)}
-                    className="justify-start"
-                  >
-                    <style.icon className="w-4 h-4 mr-2" />
-                    {style.name}
-                  </Button>
-                ))}
+          {/* 输入区域 */}
+          <Card variant="enhanced">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Wand2 className="text-primary" />
+                创意输入
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                描述你的需求，AI将为你生成创意内容
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="prompt" className="text-foreground">内容描述</Label>
+                <Textarea
+                  id="prompt"
+                  variant="enhanced"
+                  placeholder="例如：为我们的新产品写一段吸引人的营销文案..."
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  rows={4}
+                />
               </div>
-            </div>
 
-            <PermissionLockedButton
-              requiredTier="pro"
-              featureName="创意魔方"
-              onClick={handleGenerate}
-              disabled={!prompt.trim() || isGenerating}
-              className="w-full"
-            >
-              {isGenerating ? (
-                <>
-                  <Zap className="w-4 h-4 mr-2 animate-spin" />
-                  生成中...
-                </>
+              <div>
+                <Label>内容风格</Label>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {contentStyles.map((style) => (
+                    <Button
+                      key={style.id}
+                      variant={selectedStyle === style.id ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedStyle(style.id)}
+                      className="justify-start"
+                    >
+                      <style.icon className="w-4 h-4 mr-2" />
+                      {style.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <PermissionLockedButton
+                requiredTier="pro"
+                featureName="创意魔方"
+                onClick={handleGenerate}
+                disabled={!prompt.trim() || isGenerating}
+                className="w-full"
+              >
+                {isGenerating ? (
+                  <>
+                    <Zap className="w-4 h-4 mr-2 animate-spin" />
+                    生成中...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    生成创意内容
+                  </>
+                )}
+              </PermissionLockedButton>
+            </CardContent>
+          </Card>
+
+          {/* 输出区域 */}
+          <Card variant="enhanced">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Palette className="text-primary" />
+                生成结果
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                AI生成的创意内容将在这里显示
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {generatedContent ? (
+                <div className="space-y-4">
+                  <div className="surface-2 p-4 rounded-lg whitespace-pre-wrap text-sm text-foreground">
+                    {generatedContent}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={handleCopy} variant="outline" size="sm">
+                      复制内容
+                    </Button>
+                    <Button onClick={() => setGeneratedContent('')} variant="outline" size="sm">
+                      清空
+                    </Button>
+                  </div>
+                </div>
               ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  生成创意内容
-                </>
+                <div className="text-center py-12 text-muted-foreground">
+                  <Lightbulb className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>输入内容描述并点击生成按钮</p>
+                  <p className="text-sm">AI将为您创建独特的创意内容</p>
+                </div>
               )}
-            </PermissionLockedButton>
-          </CardContent>
-        </Card>
-
-        {/* 输出区域 */}
-        <Card variant="enhanced">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-foreground">
-              <Palette className="text-primary" />
-              生成结果
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              AI生成的创意内容将在这里显示
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {generatedContent ? (
-              <div className="space-y-4">
-                <div className="surface-2 p-4 rounded-lg whitespace-pre-wrap text-sm text-foreground">
-                  {generatedContent}
-                </div>
-                <div className="flex gap-2">
-                  <Button onClick={handleCopy} variant="outline" size="sm">
-                    复制内容
-                  </Button>
-                  <Button onClick={() => setGeneratedContent('')} variant="outline" size="sm">
-                    清空
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <Lightbulb className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>输入内容描述并点击生成按钮</p>
-                <p className="text-sm">AI将为您创建独特的创意内容</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* 功能特色 */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold text-center mb-8">功能特色</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardContent className="text-center pt-6">
-              <Star className="w-8 h-8 mx-auto mb-4 text-foreground" />
-              <h3 className="font-semibold mb-2">智能创意</h3>
-              <p className="text-sm text-muted-foreground">
-                基于AI技术，生成富有创意的内容
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="text-center pt-6">
-              <Zap className="w-8 h-8 mx-auto mb-4 text-primary" />
-              <h3 className="font-semibold mb-2">快速生成</h3>
-              <p className="text-sm text-muted-foreground">
-                几秒钟内生成高质量创意内容
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="text-center pt-6">
-              <Palette className="w-8 h-8 mx-auto mb-4 text-primary" />
-              <h3 className="font-semibold mb-2">多种风格</h3>
-              <p className="text-sm text-muted-foreground">
-                支持多种内容风格和语调
-              </p>
             </CardContent>
           </Card>
         </div>
-      </div>
+
+        {/* 功能特色 */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-center mb-8">功能特色</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardContent className="text-center pt-6">
+                <Star className="w-8 h-8 mx-auto mb-4 text-foreground" />
+                <h3 className="font-semibold mb-2">智能创意</h3>
+                <p className="text-sm text-muted-foreground">
+                  基于AI技术，生成富有创意的内容
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="text-center pt-6">
+                <Zap className="w-8 h-8 mx-auto mb-4 text-primary" />
+                <h3 className="font-semibold mb-2">快速生成</h3>
+                <p className="text-sm text-muted-foreground">
+                  几秒钟内生成高质量创意内容
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="text-center pt-6">
+                <Palette className="w-8 h-8 mx-auto mb-4 text-primary" />
+                <h3 className="font-semibold mb-2">多种风格</h3>
+                <p className="text-sm text-muted-foreground">
+                  支持多种内容风格和语调
+                </p>
+              </CardContent>
+            </Card>
+            </div>
+        </div>
       </div>
     </div>
   );

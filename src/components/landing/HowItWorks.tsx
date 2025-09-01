@@ -1,7 +1,10 @@
 import { useEffect } from "react"
 import { CheckCircle, FileText, Settings, Sparkles } from "lucide-react"
+import { useI18n } from "@/hooks/useI18n"
 
 export function HowItWorks() {
+  const { t } = useI18n()
+  
   useEffect(() => {
     // 动效可选，保留原有滚动监听
     const handleScroll = () => {
@@ -26,11 +29,15 @@ export function HowItWorks() {
     "bg-gradient-to-br from-purple-500 to-pink-600 text-white"
   ]
   const stepIcons = [FileText, Settings, Sparkles]
-  const stepTitles = ["输入原始内容", "选择目标平台", "一键获取所有版本"]
+  const stepTitles = [
+    t('home.howItWorks.step1.title'),
+    t('home.howItWorks.step2.title'),
+    t('home.howItWorks.step3.title')
+  ]
   const stepDescs = [
-    "粘贴或输入您想要适配的内容，AI将智能分析结构和核心信息。",
-    "勾选需要适配的平台，支持多平台同时生成，每个平台都有独特优化。",
-    "AI瞬间为您生成所有适配版本，一键复制、导出或分享。"
+    t('home.howItWorks.step1.description'),
+    t('home.howItWorks.step2.description'),
+    t('home.howItWorks.step3.description')
   ]
 
   return (
@@ -39,14 +46,14 @@ export function HowItWorks() {
         {/* 1️⃣ 标题区优化 */}
         <div className="text-center max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
-            三步搞定，就这么简单
+            {t('home.howItWorks.title')}
           </h2>
           <p className="text-lg text-foreground mb-4">
-            告别繁琐的内容适配流程，把时间用在创意上。
+            {t('home.howItWorks.subtitle')}
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-foreground mt-4">
             <span className="text-lg">✅</span>
-            每天帮您节省45分钟内容创作时间，提高内容转化效率200%
+            {t('home.howItWorks.benefits')}
           </div>
         </div>
 
@@ -87,13 +94,10 @@ export function HowItWorks() {
         <div className="mt-16 max-w-4xl mx-auto">
           <div className="rounded-lg bg-card text-center px-6 py-4 border border-border shadow-sm">
             <h3 className="text-lg font-semibold text-foreground mb-2">
-              提高效率，节省时间
+              {t('home.howItWorks.efficiency.title')}
             </h3>
             <p className="text-sm text-foreground">
-              传统多平台内容适配每篇需要
-              <span className="line-through mx-1">60-90分钟</span>
-              <span className="text-foreground font-semibold mx-1">现在只需15分钟</span>
-              即可完成全平台内容分发，让您专注于创意本身！
+              {t('home.howItWorks.efficiency.description')}
             </p>
           </div>
         </div>

@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,6 +51,7 @@ import { BackToTop } from '@/components/ui/BackToTop';
  * Emoji生成器主组件
  */
 const EmojiPage: React.FC = () => {
+  const { t } = useTranslation();
   const [emojis, setEmojis] = useState<NotoEmojiData[]>([]);
   const [filteredEmojis, setFilteredEmojis] = useState<NotoEmojiData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -113,13 +115,13 @@ const EmojiPage: React.FC = () => {
       
       await navigator.clipboard.writeText(emojiToCopy);
       toast({
-        title: "复制成功",
-        description: `已复制 ${emojiToCopy} 到剪贴板`,
+        title: t('emoji.copySuccess'),
+        description: t('emoji.copySuccessDescription', { emoji: emojiToCopy }),
       });
     } catch (_err) {
       toast({
-        title: "复制失败",
-        description: "请手动复制",
+        title: t('emoji.copyFailed'),
+        description: t('emoji.copyFailedDescription'),
         variant: "destructive",
       });
     }
@@ -148,13 +150,13 @@ const EmojiPage: React.FC = () => {
       document.body.removeChild(a);
 
       toast({
-        title: "下载成功",
-        description: `已下载 ${emoji.name}`,
+        title: t('emoji.downloadSuccess'),
+        description: t('emoji.downloadSuccessDescription', { name: emoji.name }),
       });
     } catch (_err) {
       toast({
-        title: "下载失败",
-        description: "图片资源可能不可用，请稍后重试",
+        title: t('emoji.downloadFailed'),
+        description: t('emoji.downloadFailedDescription'),
         variant: "destructive",
       });
     }
@@ -189,13 +191,13 @@ const EmojiPage: React.FC = () => {
       const urls = notoEmojiService.batchGenerateUrls(codepoints, 'color', 128); // 默认风格和尺寸
       
       toast({
-        title: "批量生成完成",
-        description: `已为 ${urls.length} 个emoji生成图片`,
+        title: t('emoji.batchGenerateSuccess'),
+        description: t('emoji.batchGenerateSuccessDescription', { count: urls.length }),
       });
     } catch (_err) {
       toast({
-        title: "生成失败",
-        description: "请稍后重试",
+        title: t('emoji.generateFailed'),
+        description: t('emoji.generateFailedDescription'),
         variant: "destructive",
       });
     } finally {
@@ -227,8 +229,8 @@ const EmojiPage: React.FC = () => {
     linkElement.click();
     
     toast({
-      title: "导出成功",
-      description: "Emoji数据已导出为JSON文件",
+      title: t('emoji.exportSuccess'),
+      description: t('emoji.exportSuccessDescription'),
     });
   };
 
@@ -244,12 +246,12 @@ const EmojiPage: React.FC = () => {
           <TabsList className="unified-tabs-list grid w-full grid-cols-2">
             <TabsTrigger value="gallery" className="unified-tab-trigger">
               <Grid3X3 className="tab-icon" />
-              <span>Emoji图库</span>
+              <span>{t('emoji.gallery')}</span>
             </TabsTrigger>
             <TabsTrigger value="brand-emoji" className="unified-tab-trigger">
               <Building2 className="tab-icon" />
-              <span className="tab-text-mobile">品牌Emoji</span>
-              <span className="tab-text-desktop">品牌Emoji生成器</span>
+              <span className="tab-text-mobile">{t('emoji.brandEmoji')}</span>
+              <span className="tab-text-desktop">{t('emoji.brandEmojiGenerator')}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -259,10 +261,10 @@ const EmojiPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 creative-module-title">
                   <Grid3X3 className="w-5 h-5" />
-                  Emoji图库
+                  {t('emoji.gallery')}
                 </CardTitle>
                 <CardDescription className="creative-module-description">
-                  从500个精美emoji中选择，支持搜索、分类、点击复制等功能
+                  {t('emoji.galleryDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -284,13 +286,13 @@ const EmojiPage: React.FC = () => {
                     // 默认行为：复制到剪贴板
                     navigator.clipboard.writeText(emoji.emoji).then(() => {
                       toast({
-                        title: "复制成功",
-                        description: `${emoji.name} ${emoji.emoji} 已复制到剪贴板`,
+                        title: t('emoji.copySuccess'),
+                        description: t('emoji.copyWithNameDescription', { name: emoji.name, emoji: emoji.emoji }),
                       });
                     }).catch(() => {
                       toast({
-                        title: "复制失败",
-                        description: "请手动复制emoji",
+                        title: t('emoji.copyFailed'),
+                        description: t('emoji.copyFailedDescription'),
                         variant: "destructive",
                       });
                     });
@@ -313,16 +315,16 @@ const EmojiPage: React.FC = () => {
 
 
 
-          {/* 品牌Emoji生成器 */}
+          {/* {t('emoji.brandEmojiGenerator')} */}
           <TabsContent value="brand-emoji" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building2 className="w-5 h-5" />
-                  品牌Emoji生成器
+                  {t('emoji.brandEmojiGenerator')}
                 </CardTitle>
                 <CardDescription>
-                  输入品牌角色和品牌名，AI将为您生成专属的品牌emoji
+                  {t('emoji.brandEmojiDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">

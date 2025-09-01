@@ -47,8 +47,8 @@ const CallbackPage: React.FC = () => {
       console.log('📋 回调参数:', { code: code?.substring(0, 10) + '...', state });
       
       if (!code) {
-        setProcessingStep('登录验证失败：未找到授权码');
-        setTimeout(() => navigate('/', { replace: true }), 2000);
+        console.log('⚠️ 未找到授权码，可能是使用模态框登录模式，直接跳转首页');
+        setTimeout(() => navigate('/', { replace: true }), 500);
         return;
       }
       

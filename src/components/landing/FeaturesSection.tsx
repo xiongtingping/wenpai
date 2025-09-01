@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -39,107 +40,107 @@ import {
 } from 'lucide-react';
 
 /**
- * 主要功能数据
+ * 主要功能数据构建函数
  */
-const mainFeatures = [
+const getMainFeatures = (t: any) => [
   {
-    title: '🎯 AI内容适配器',
-    description: '智能分析内容，一键适配多平台格式，让您的创意在不同平台绽放光彩',
+    title: `🎯 ${t('home.featuresSection.mainFeatures.contentAdapter.title')}`,
+    description: t('home.featuresSection.mainFeatures.contentAdapter.description'),
     icon: Zap,
     path: '/new-adapt',
     color: 'bg-gradient-to-br from-yellow-500 to-orange-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
-    badge: '🔥 热门',
+    badge: `🔥 ${t('home.featuresSection.mainFeatures.contentAdapter.badge')}`,
     badgeColor: 'bg-gradient-to-r from-red-500 to-orange-500 text-white',
-    features: ['智能内容分析', '多平台格式适配', '一键生成优化建议', '实时预览效果']
+    features: t('home.featuresSection.mainFeatures.contentAdapter.features', { returnObjects: true })
   },
   {
-    title: '✨ 创意魔方',
-    description: 'AI驱动的创意生成工具，激发无限灵感，创造独特而富有吸引力的内容',
+    title: `✨ ${t('home.featuresSection.mainFeatures.creativeCube.title')}`,
+    description: t('home.featuresSection.mainFeatures.creativeCube.description'),
     icon: Sparkles,
     path: '/creative-studio',
     color: 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
-    badge: '💎 专业版',
+    badge: `💎 ${t('home.featuresSection.mainFeatures.creativeCube.badge')}`,
     badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white',
-    features: ['AI创意生成', '多种创意模板', '灵感库管理', '创意协作']
+    features: t('home.featuresSection.mainFeatures.creativeCube.features', { returnObjects: true })
   },
   {
-    title: '📡 全网雷达',
-    description: '实时监控热点话题，精准把握趋势脉搏，抢占内容传播先机',
+    title: `📡 ${t('home.featuresSection.mainFeatures.hotRadar.title')}`,
+    description: t('home.featuresSection.mainFeatures.hotRadar.description'),
     icon: TrendingUp,
     path: '/hot-topics',
     color: 'bg-gradient-to-br from-green-500 to-emerald-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
-    badge: '🔥 实时',
+    badge: `🔥 ${t('home.featuresSection.mainFeatures.hotRadar.badge')}`,
     badgeColor: 'bg-gradient-to-r from-green-500 to-teal-500 text-white',
-    features: ['实时热点监控', '趋势分析报告', '竞品内容追踪', '话题预测']
+    features: t('home.featuresSection.mainFeatures.hotRadar.features', { returnObjects: true })
   },
   {
-    title: '📚 我的资料库',
-    description: '个人内容管理中心，智能收藏整理，随时调用，让创作素材触手可及',
+    title: `📚 ${t('home.featuresSection.mainFeatures.myLibrary.title')}`,
+    description: t('home.featuresSection.mainFeatures.myLibrary.description'),
     icon: FolderOpen,
     path: '/brand-library',
     color: 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
-    badge: '💡 实用',
+    badge: `💡 ${t('home.featuresSection.mainFeatures.myLibrary.badge')}`,
     badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white',
-    features: ['网络收藏管理', '内容提取工具', '文案库管理', '智能分类']
+    features: t('home.featuresSection.mainFeatures.myLibrary.features', { returnObjects: true })
   },
   {
-    title: '🏢 品牌库',
-    description: '专业品牌资产管理系统，统一管理品牌元素，提升品牌一致性和识别度',
+    title: `🏢 ${t('home.featuresSection.mainFeatures.brandLibrary.title')}`,
+    description: t('home.featuresSection.mainFeatures.brandLibrary.description'),
     icon: Users,
     path: '/brand-library',
     color: 'bg-gradient-to-br from-rose-500 to-pink-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
-    badge: '👑 高级版',
+    badge: `👑 ${t('home.featuresSection.mainFeatures.brandLibrary.badge')}`,
     badgeColor: 'bg-gradient-to-r from-rose-500 to-pink-500 text-white',
-    features: ['品牌资产管理', '视觉规范统一', '团队协作', '版本控制']
+    features: t('home.featuresSection.mainFeatures.brandLibrary.features', { returnObjects: true })
   },
 ];
 
 /**
- * 快速工具数据
+ * 快速工具数据构建函数
  */
-const quickTools = [
+const getQuickTools = (t: any) => [
   {
-    title: '😊 Emoji生成器',
-    description: '智能生成生动表情符号，让内容更有趣更有感染力',
+    title: `😊 ${t('home.featuresSection.quickTools.emojiGenerator.title')}`,
+    description: t('home.featuresSection.quickTools.emojiGenerator.description'),
     icon: Smile,
     path: '/emoji',
     color: 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white',
     theme: 'warm',
   },
   {
-    title: '💬 朋友圈模板',
-    description: '精美模板快速生成，让您的朋友圈内容脱颖而出',
+    title: `💬 ${t('home.featuresSection.quickTools.wechatTemplate.title')}`,
+    description: t('home.featuresSection.quickTools.wechatTemplate.description'),
     icon: MessageCircle,
     path: '/wechat-templates',
     color: 'bg-gradient-to-br from-green-400 to-emerald-500 text-white',
     theme: 'nature',
   },
   {
-    title: '📊 历史记录',
-    description: '智能追踪创作轨迹，优化内容策略和创作方向',
+    title: `📊 ${t('home.featuresSection.quickTools.history.title')}`,
+    description: t('home.featuresSection.quickTools.history.description'),
     icon: Clock,
     path: '/history',
     color: 'bg-gradient-to-br from-purple-400 to-indigo-500 text-white',
     theme: 'elegant',
   },
   {
-    title: '⚙️ 个人设置',
-    description: '自定义您的创作偏好，管理账户信息和主题配置',
+    title: `⚙️ ${t('home.featuresSection.quickTools.settings.title')}`,
+    description: t('home.featuresSection.quickTools.settings.description'),
     icon: Settings,
     path: '/settings',
     color: 'bg-gradient-to-br from-gray-400 to-slate-500 text-white',
@@ -148,33 +149,33 @@ const quickTools = [
 ];
 
 /**
- * 平台优势数据
+ * 平台优势数据构建函数
  */
-const advantages = [
+const getAdvantages = (t: any) => [
   {
-    title: '🤖 AI驱动',
-    description: '先进的AI技术，智能分析内容，提供精准建议和优化方案',
+    title: `🤖 ${t('home.featuresSection.advantages.aiPowered.title')}`,
+    description: t('home.featuresSection.advantages.aiPowered.description'),
     icon: Target,
     color: 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white',
     bgColor: 'bg-accent',
   },
   {
-    title: '🌐 多平台适配',
-    description: '一键适配微信、微博、抖音等主流平台，覆盖全媒体矩阵',
+    title: `🌐 ${t('home.featuresSection.advantages.multiPlatform.title')}`,
+    description: t('home.featuresSection.advantages.multiPlatform.description'),
     icon: Globe,
     color: 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white',
     bgColor: 'bg-accent',
   },
   {
-    title: '🎨 专业工具',
-    description: '丰富的专业工具套件，满足不同内容创作场景和需求',
+    title: `🎨 ${t('home.featuresSection.advantages.professionalTools.title')}`,
+    description: t('home.featuresSection.advantages.professionalTools.description'),
     icon: Palette,
     color: 'bg-gradient-to-br from-pink-500 to-rose-600 text-white',
     bgColor: 'bg-accent',
   },
   {
-    title: '🔒 安全可靠',
-    description: '企业级安全保障，数据加密存储，保护您的创作成果',
+    title: `🔒 ${t('home.featuresSection.advantages.security.title')}`,
+    description: t('home.featuresSection.advantages.security.description'),
     icon: Shield,
     color: 'bg-gradient-to-br from-emerald-500 to-green-600 text-white',
     bgColor: 'bg-accent',
@@ -187,6 +188,12 @@ const advantages = [
 export const FeaturesSection: React.FC = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  
+  // 使用翻译函数构建数据
+  const mainFeatures = getMainFeatures(t);
+  const quickTools = getQuickTools(t);
+  const advantages = getAdvantages(t);
 
   return (
     <section className="py-10 relative overflow-hidden">
@@ -202,30 +209,28 @@ export const FeaturesSection: React.FC = () => {
               className="text-sm px-3 py-1 rounded-full bg-card text-foreground border-border shadow-sm hover:bg-card/80 transition-colors duration-300 animate-fadeInDown"
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              🚀 核心功能
+              🚀 {t('home.featuresSection.coreFeatures')}
             </Badge>
           </div>
           
           {/* 2️⃣ 主标题「专业的新媒体创作工具」优化 */}
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight animate-fadeInUp">
             <span className="text-foreground">
-              专业的新媒体创作工具
+              {t('home.featuresSection.professionalTools')}
             </span>
           </h2>
           
           {/* 3️⃣ 副标题（描述文本）优化 */}
           <p className="text-base text-muted-foreground leading-relaxed max-w-4xl mx-auto mt-4 mb-10 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
-            从内容创作到分发管理，文派提供全方位的
-            <span className="text-foreground font-semibold">AI驱动工具</span>，
-            助力创作者提升效率和质量
+            {t('home.featuresSection.toolsDescription')}
           </p>
         </div>
 
         {/* 主要功能区域 */}
         <div className="mb-12">
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold text-foreground mb-4">主要功能</h3>
-            <p className="text-muted-foreground">探索文派的核心功能，提升您的内容创作效率</p>
+            <h3 className="text-2xl font-bold text-foreground mb-4">{t('home.featuresSection.mainFeaturesTitle')}</h3>
+            <p className="text-muted-foreground">{t('home.featuresSection.mainFeaturesSubtitle')}</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -283,7 +288,7 @@ export const FeaturesSection: React.FC = () => {
                       }
                     }}
                   >
-                    立即体验
+                    {t('home.featuresSection.tryNow')}
                     <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                   </Button>
                 </CardContent>
@@ -295,8 +300,8 @@ export const FeaturesSection: React.FC = () => {
         {/* 快速工具区域 */}
         <div className="mb-12">
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold text-foreground mb-4">快速工具</h3>
-            <p className="text-muted-foreground">便捷的小工具，让创作更加高效</p>
+            <h3 className="text-2xl font-bold text-foreground mb-4">{t('home.featuresSection.quickToolsTitle')}</h3>
+            <p className="text-muted-foreground">{t('home.featuresSection.quickToolsSubtitle')}</p>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -323,7 +328,7 @@ export const FeaturesSection: React.FC = () => {
                       size="sm" 
                       className="w-full hover:bg-accent/50 transition-colors duration-300"
                     >
-                      使用工具
+                      {t('home.featuresSection.useTool')}
                     </Button>
                   </Link>
                 </CardContent>
@@ -336,9 +341,9 @@ export const FeaturesSection: React.FC = () => {
         <div className="pt-16 pb-8">
           {/* 标题部分优化 */}
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold text-foreground mb-2">平台优势</h3>
+            <h3 className="text-2xl font-bold text-foreground mb-2">{t('home.featuresSection.platformAdvantagesTitle')}</h3>
             <p className="text-muted-foreground text-base mt-2 mb-8">
-              为什么选择文派？我们为您提供最优质的服务
+              {t('home.featuresSection.platformAdvantagesSubtitle')}
             </p>
           </div>
           

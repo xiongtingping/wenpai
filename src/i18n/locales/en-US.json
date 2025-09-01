@@ -1,0 +1,989 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "reset": "Reset",
+    "copy": "Copy",
+    "download": "Download",
+    "upload": "Upload",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "view": "View",
+    "share": "Share",
+    "close": "Close",
+    "open": "Open",
+    "expand": "Expand",
+    "collapse": "Collapse"
+  },
+  "nav": {
+    "home": "Home",
+    "adapt": "Content Adapt",
+    "creative": "Creative Cube",
+    "hotTopics": "Trending Radar",
+    "brandLibrary": "Brand Library",
+    "extractor": "Content Extractor",
+    "emoji": "Emoji Generator",
+    "bookmark": "Smart Bookmarks",
+    "wechatTemplate": "WeChat Templates",
+    "settings": "Settings",
+    "upgrade": "Upgrade",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "profile": "Profile Center",
+    "help": "Help Docs"
+  },
+  "auth": {
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "register": "Sign Up",
+    "profile": "Profile",
+    "permissions": "Permissions",
+    "upgradeRequired": "Upgrade Required",
+    "trialUser": "Trial User",
+    "proUser": "Pro User",
+    "premiumUser": "Premium User",
+    "loginToAccess": "Please sign in to access this feature",
+    "upgradeToAccess": "Upgrade your plan to access this feature",
+    "user": "User",
+    "unlockTestPermissions": "🔓 Unlock Test Permissions",
+    "testMode": "Test Mode",
+    "testModeDescription": "One-click access to all permissions for testing",
+    "unlocking": "Unlocking...",
+    "activateMaxPermissions": "🚀 Activate Max Permissions",
+    "unlockMaxPermissions": "🔓 Unlock Max Permissions",
+    "pleaseLogin": "Please Sign In First",
+    "loggingOut": "Signing Out..."
+  },
+  "language": {
+    "switchTo": "Switch Language",
+    "chinese": "中文",
+    "english": "English",
+    "current": "Current Language"
+  },
+  "home": {
+    "title": "WenPai AI - Intelligent Content Creation Platform",
+    "heroTitle": "AI-Powered Content Creation for All Platforms",
+    "heroSubtitle": "One-click intelligent content creation solution tailored for different platforms",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "description": "WenPai AI is an intelligent content creation platform based on cutting-edge AI technology, providing creators with efficient and professional content generation and platform adaptation services.",
+    "highlights": {
+      "aiPowered": "AI-Powered",
+      "multiPlatform": "Multi-Platform",
+      "timeSaving": "Time-Saving", 
+      "focusCreative": "Creative Focus"
+    },
+    "advantages": {
+      "fastGeneration": {
+        "title": "⚡ Lightning Fast",
+        "subtitle": "AI Response in Seconds",
+        "description": "Intelligent demand analysis generates high-quality content <strong>within 3 seconds</strong>, dramatically improving creative efficiency"
+      },
+      "brandConsistency": {
+        "title": "🎯 Brand Consistency", 
+        "subtitle": "Unified Brand Voice",
+        "description": "Intelligently learns brand style, ensuring <strong>consistent content tone</strong>, enhancing brand recognition"
+      },
+      "costSaving": {
+        "title": "💰 Cost Efficiency",
+        "subtitle": "Reduce Costs & Boost Productivity", 
+        "description": "Automated content creation process <strong>saves 80%</strong> manual costs, improving ROI"
+      }
+    },
+    "features": {
+      "adapt": {
+        "title": "Content Adaptation",
+        "description": "One-click adaptation to multi-platform content formats with intelligent style and length adjustments"
+      },
+      "creative": {
+        "title": "Creative Cube", 
+        "description": "AI-driven creative content generation, unleashing unlimited creative inspiration"
+      },
+      "radar": {
+        "title": "Trending Radar",
+        "description": "Real-time tracking of trending topics across the web, capturing traffic opportunities"
+      },
+      "brandLibrary": {
+        "title": "Brand Library",
+        "description": "Intelligent brand asset management, building your exclusive brand knowledge base"
+      },
+      "extractor": {
+        "title": "Content Extractor",
+        "description": "Intelligent extraction of web pages and documents, generating precise summaries"
+      },
+      "emoji": {
+        "title": "Emoji Generator",
+        "description": "AI-generated personalized emojis, making content more vivid and engaging"
+      }
+    },
+    "testimonials": {
+      "title": "User Reviews",
+      "subtitle": "See what other creators are saying",
+      "sectionTitle": "What Content Experts Say",
+      "testimonial1": {
+        "content": "What used to take our team half a day, now gets done in 10 minutes with the AI content adapter, with guaranteed content quality and brand consistency. This is the most valuable tool our team has introduced this year.",
+        "name": "Manager Wang",
+        "position": "Marketing Director of a Consumer Brand"
+      },
+      "testimonial2": {
+        "content": "I can put more energy into video creativity instead of worrying about how to turn an in-depth article into a script suitable for short videos. This tool truly liberates my productivity!",
+        "name": "Tech Blogger A-Wen",
+        "position": "Top 100 Bilibili Creator"
+      },
+      "testimonial3": {
+        "content": "As an MCN agency, efficiency is our lifeline. This tool has improved our content distribution efficiency by at least 5 times, allowing us to serve more clients. Highly recommend!",
+        "name": "Boss Li",
+        "position": "Founder of New Media Agency"
+      },
+      "testimonial4": {
+        "content": "WenPai not only saves me a lot of time writing multi-platform content, but the quality of generated content exceeds expectations. Each platform's style is just right, perfectly maintaining the brand's core message.",
+        "name": "Ms. Zhang",
+        "position": "Social Media Manager of Famous Beauty Brand"
+      }
+    },
+    "pricing": {
+      "title": "Choose the Right Plan for You",
+      "subtitle": "From free trial to premium, comprehensive empowerment for new media creators",
+      "monthlyBilling": "Monthly Payment",
+      "yearlyBilling": "Annual Subscription",
+      "yearlyDiscount": "Save 17%",
+      "saveTwentyPercent": "Save 20%",
+      "limitedTimeOffer": "Limited Time Offer",
+      "offerEndingSoon": "Offer ending soon, enjoy special pricing now!",
+      "permanentFree": "Forever Free",
+      "limitedDiscount": "Limited Special",
+      "monthShort": "month",
+      "yearShort": "year",
+      "free": {
+        "name": "Free",
+        "price": "Free",
+        "description": "Perfect for individuals and beginners",
+        "features": ["Basic content adaptation", "10 daily generations", "Standard AI models", "Community support"]
+      },
+      "pro": {
+        "name": "Professional", 
+        "price": "$14",
+        "period": "/month",
+        "description": "Ideal for professional creators and small teams",
+        "features": ["Unlimited content adaptation", "Advanced AI models", "Brand library management", "Priority customer support", "Data export features"]
+      },
+      "premium": {
+        "name": "Enterprise",
+        "price": "$42", 
+        "period": "/month",
+        "description": "Perfect for enterprise users and large teams",
+        "features": ["All Professional features", "Enterprise AI models", "Team collaboration", "API access", "Dedicated account manager", "Custom services"]
+      },
+      "currentPlan": "Current Plan",
+      "upgrade": "Upgrade Now",
+      "contact": "Contact Sales",
+      "recommended": "Recommended",
+      "allFeatures": "All Features",
+      "moreSavings": "More Savings",
+      "trialVersion": "Trial",
+      "professionalVersion": "Professional",
+      "premiumVersion": "Premium",
+      "startFreeUse": "Start Free",
+      "upgradeToTitle": "Upgrade Now",
+      "savedAmount": "Save ¥",
+      "redirectingToPayment": "Redirecting to payment page",
+      "completePaymentMessage": "Please complete payment to activate features",
+      "redirectingToLogin": "Redirecting to login page",
+      "loginFirstMessage": "You will be directed to payment page after login",
+      "comparisonTable": {
+        "title": "Feature Comparison",
+        "feature": "Feature",
+        "aiContentAdapter": "AI Content Adapter",
+        "hotRadar": "Trending Radar",
+        "creativeCube": "Creative Cube",
+        "myLibrary": "My Library",
+        "brandLibrary": "Brand Library",
+        "aiModels": "AI Models",
+        "tokenLimit": "Token Limit",
+        "timesPerMonth": "/month",
+        "unlimited": "Unlimited",
+        "basicModels": "Basic Models",
+        "advancedModels": "Advanced Models",
+        "advancedAndLatest": "Advanced & Latest Models",
+        "available": "✅",
+        "notAvailable": "❌",
+        "proExclusive": "Pro/Premium Exclusive",
+        "premiumExclusive": "Premium Exclusive"
+      }
+    },
+    "cta": {
+      "title": "Ready to Start Your Creative Journey?",
+      "subtitle": "Join now and let AI become your most powerful content creation partner.",
+      "buttonText": "Start Your Efficient Creative Journey Now",
+      "getStarted": "Get Started Free",
+      "contactSales": "Contact Sales"
+    },
+    "trust": {
+      "title": "Trust Our AI, Adapt to Your Trusted Platforms",
+      "subtitle": "Covering mainstream content platforms across the web, intelligently adapting to platform characteristics to create integrated multi-platform content solutions",
+      "supportText": "Supporting 14+ mainstream platforms, AI intelligently adapts to platform characteristics and user habits",
+      "platforms": {
+        "xiaohongshu": "Xiaohongshu",
+        "wechat": "WeChat Official",
+        "zhihu": "Zhihu",
+        "douyin": "Douyin",
+        "bilibili": "Bilibili",
+        "weibo": "Weibo",
+        "baijiahao": "Baijiahao",
+        "kuaishou": "Kuaishou",
+        "wangyi": "NetEase",
+        "toutiao": "Toutiao",
+        "facebook": "Facebook",
+        "twitter": "X (Twitter)",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "douban": "Douban",
+        "shipinhao": "WeChat Channels"
+      }
+    },
+    "howItWorks": {
+      "title": "Three Steps, That Simple",
+      "subtitle": "Say goodbye to tedious content adaptation processes, spend time on creativity.",
+      "benefits": "Save 45 minutes of content creation time daily, improve content conversion efficiency by 200%",
+      "step1": {
+        "title": "Input Original Content",
+        "description": "Paste or input the content you want to adapt, AI will intelligently analyze structure and core information."
+      },
+      "step2": {
+        "title": "Select Target Platforms",
+        "description": "Check the platforms you need to adapt to, support multi-platform simultaneous generation, each platform has unique optimization."
+      },
+      "step3": {
+        "title": "Get All Versions with One Click",
+        "description": "AI instantly generates all adapted versions for you, copy, export or share with one click."
+      },
+      "efficiency": {
+        "title": "Improve Efficiency, Save Time",
+        "description": "Traditional multi-platform content adaptation takes 60-90 minutes per article, now only 15 minutes to complete full-platform content distribution, let you focus on creativity itself!"
+      }
+    },
+    "featuresSection": {
+      "coreFeatures": "Core Features",
+      "professionalTools": "Professional New Media Creation Tools",
+      "toolsDescription": "From content creation to distribution management, WenPai provides comprehensive AI-driven tools to help creators improve efficiency and quality",
+      "mainFeaturesTitle": "Main Features",
+      "mainFeaturesSubtitle": "Explore WenPai's core features to enhance your content creation efficiency",
+      "quickToolsTitle": "Quick Tools",
+      "quickToolsSubtitle": "Convenient tools to make creation more efficient",
+      "platformAdvantagesTitle": "Platform Advantages",
+      "platformAdvantagesSubtitle": "Why choose WenPai? We provide you with the highest quality service",
+      "tryNow": "Try Now",
+      "useTool": "Use Tool",
+      "mainFeatures": {
+        "contentAdapter": {
+          "title": "AI Content Adapter",
+          "description": "Intelligently analyze content and adapt to multi-platform formats with one click, making your creativity shine on different platforms",
+          "badge": "Popular",
+          "features": ["Intelligent content analysis", "Multi-platform format adaptation", "One-click optimization suggestions", "Real-time preview"]
+        },
+        "creativeCube": {
+          "title": "Creative Cube",
+          "description": "AI-driven creative generation tool that sparks unlimited inspiration and creates unique, engaging content",
+          "badge": "Pro",
+          "features": ["AI creative generation", "Multiple creative templates", "Inspiration library", "Creative collaboration"]
+        },
+        "hotRadar": {
+          "title": "Trending Radar",
+          "description": "Real-time monitoring of trending topics, precisely grasping trend pulse, seizing content distribution opportunities",
+          "badge": "Real-time",
+          "features": ["Real-time trending monitoring", "Trend analysis reports", "Competitor content tracking", "Topic prediction"]
+        },
+        "myLibrary": {
+          "title": "My Library",
+          "description": "Personal content management center, intelligent collection and organization, accessible anytime, making creative materials at your fingertips",
+          "badge": "Practical",
+          "features": ["Web bookmark management", "Content extraction tools", "Copywriting library", "Intelligent categorization"]
+        },
+        "brandLibrary": {
+          "title": "Brand Library",
+          "description": "Professional brand asset management system, unified management of brand elements, enhancing brand consistency and recognition",
+          "badge": "Premium",
+          "features": ["Brand asset management", "Visual standard unification", "Team collaboration", "Version control"]
+        }
+      },
+      "quickTools": {
+        "emojiGenerator": {
+          "title": "Emoji Generator",
+          "description": "Intelligently generate vivid emojis to make content more interesting and engaging"
+        },
+        "wechatTemplate": {
+          "title": "WeChat Templates",
+          "description": "Beautiful templates for quick generation, making your WeChat moments stand out"
+        },
+        "history": {
+          "title": "History",
+          "description": "Intelligently track creative trajectories, optimize content strategy and creative direction"
+        },
+        "settings": {
+          "title": "Settings",
+          "description": "Customize your creative preferences, manage account information and theme configuration"
+        }
+      },
+      "advantages": {
+        "aiPowered": {
+          "title": "AI-Powered",
+          "description": "Advanced AI technology, intelligent content analysis, providing precise suggestions and optimization solutions"
+        },
+        "multiPlatform": {
+          "title": "Multi-Platform Adaptation",
+          "description": "One-click adaptation to mainstream platforms like WeChat, Weibo, Douyin, covering all media matrix"
+        },
+        "professionalTools": {
+          "title": "Professional Tools",
+          "description": "Rich professional tool suite meeting different content creation scenarios and needs"
+        },
+        "security": {
+          "title": "Secure & Reliable",
+          "description": "Enterprise-level security protection, encrypted data storage, protecting your creative achievements"
+        }
+      }
+    }
+  },
+  "footer": {
+    "brandDescription": "WenPai AI - Leading the New Era of AI Content Creation",
+    "brandTagline": "Professional, efficient, and intelligent content creation solutions",
+    "product": "Product",
+    "company": "Company",
+    "support": "Support",
+    "legal": "Legal",
+    "features": "Features",
+    "pricing": "Pricing",
+    "documentation": "Documentation",
+    "apiReference": "API Reference",
+    "aboutUs": "About Us",
+    "careers": "Careers",
+    "blog": "Blog",
+    "partners": "Partners",
+    "helpCenter": "Help Center",
+    "contactUs": "Contact Us",
+    "feedback": "Feedback",
+    "community": "Community",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "cookiePolicy": "Cookie Policy",
+    "copyright": "All Rights Reserved",
+    "backToTop": "Back to Top",
+    "followUs": "Follow Us",
+    "socialMedia": "Social Media"
+  },
+  "brandLibrary": {
+    "title": "Brand Library",
+    "description": "Manage your brand assets and resource library",
+    "noBrandData": "No brand data available",
+    "addBrandAsset": "Add Brand Asset",
+    "brandProfile": "Brand Profile",
+    "brandAnalysis": "Brand Analysis",
+    "uploadFile": "Upload File",
+    "extractContent": "Extract Content",
+    "generateProfile": "Generate Profile",
+    "brandName": "Brand Name",
+    "brandDescription": "Brand Description",
+    "brandValues": "Brand Values",
+    "targetAudience": "Target Audience",
+    "brandTone": "Brand Tone",
+    "keyMessages": "Key Messages",
+    "competitiveAdvantage": "Competitive Advantage",
+    "visualIdentity": "Visual Identity",
+    "brandGuidelines": "Brand Guidelines"
+  },
+  "creative": {
+    "title": "Creative Cube",
+    "description": "Unleash your creative potential and generate unique content",
+    "generateContent": "Generate Content",
+    "contentStyle": "Content Style",
+    "aiPowered": "AI Powered",
+    "multipleStyles": "Multiple Styles",
+    "realTimeGeneration": "Real-time Generation",
+    "customPrompt": "Custom Prompt",
+    "contentType": "Content Type",
+    "targetPlatform": "Target Platform",
+    "brandTone": "Brand Tone",
+    "contentLength": "Content Length",
+    "keywords": "Keywords",
+    "generatedContent": "Generated Content"
+  },
+  "hotTopics": {
+    "title": "Trending Radar",
+    "description": "Track trending topics across all platforms in real-time",
+    "allPlatforms": "All Platforms",
+    "weibo": "Weibo",
+    "zhihu": "Zhihu",
+    "douyin": "Douyin",
+    "bilibili": "Bilibili",
+    "baidu": "Baidu",
+    "refreshing": "Refreshing...",
+    "lastUpdated": "Last Updated",
+    "rank": "Rank",
+    "topic": "Topic",
+    "heatIndex": "Heat Index",
+    "viewDetails": "View Details",
+    "trendAnalysis": "Trend Analysis",
+    "relatedTopics": "Related Topics"
+  },
+  "extractor": {
+    "title": "Content Extractor",
+    "description": "Intelligently extract content from web pages and documents",
+    "extractFromUrl": "Extract from URL",
+    "extractFromFile": "Extract from File", 
+    "extractFromText": "Extract from Text",
+    "urlPlaceholder": "Enter webpage URL",
+    "textPlaceholder": "Paste or enter text content",
+    "supportedFormats": "Supported Formats",
+    "extractionResult": "Extraction Result",
+    "summary": "Content Summary",
+    "keyPoints": "Key Points",
+    "extractedText": "Extracted Text"
+  },
+  "settings": {
+    "title": "Settings Center",
+    "description": "Manage your account settings and preferences",
+    "theme": "Switch Theme",
+    "devTools": "Dev Tools",
+    "userId": "User ID",
+    "email": "Email",
+    "username": "Username",
+    "notSet": "Not Set",
+    "vipStatus": "VIP Status",
+    "vipUser": "VIP User",
+    "regularUser": "Regular User",
+    "accountSettings": "Account Settings",
+    "notificationPreferences": "Notification Preferences",
+    "manageNotificationPreferences": "Manage your notification preferences",
+    "pushNotifications": "Push Notifications",
+    "pushNotificationDescription": "Receive important updates and reminders",
+    "emailNotifications": "Email Notifications",
+    "emailNotificationDescription": "Receive email updates",
+    "appSettings": "App Settings",
+    "customizeAppBehavior": "Customize app behavior",
+    "autoSave": "Auto Save",
+    "autoSaveDescription": "Automatically save your work progress",
+    "darkMode": "Dark Mode",
+    "useDarkTheme": "Use dark theme",
+    "language": "Language Settings",
+    "selectLanguage": "Select interface language",
+    "security": "Security Settings",
+    "manageAccountSecurity": "Manage your account security",
+    "changePassword": "Change Password",
+    "twoFactorAuth": "Two-Factor Authentication",
+    "adminPanel": "Admin Panel",
+    "saveSettings": "Save Settings",
+    "settingsUpdated": "Settings Updated",
+    "updateFailed": "Update Failed"
+  },
+  "adapt": {
+    "title": "Content Adaptation",
+    "description": "Intelligently adapt content formats and styles for different platforms",
+    "inputContent": "Input Content",
+    "selectPlatform": "Select Platform",
+    "adaptNow": "Adapt Now",
+    "adaptedContent": "Adapted Content",
+    "platforms": {
+      "wechat": "WeChat Official Account",
+      "xiaohongshu": "Xiaohongshu",
+      "zhihu": "Zhihu",
+      "douyin": "Douyin",
+      "weibo": "Weibo",
+      "bilibili": "Bilibili"
+    },
+    "contentPlaceholder": "Enter the content you want to adapt...",
+    "platformDescription": "Intelligently adjust content format, language style, and length based on platform characteristics",
+    "adaptationOptions": "Adaptation Options",
+    "preserveBrand": "Preserve Brand Voice",
+    "optimizeEngagement": "Optimize Engagement",
+    "adaptLength": "Adjust Length"
+  },
+  "emoji": {
+    "title": "AI Emoji Generator",
+    "description": "Generate personalized emojis and stickers using AI",
+    "gallery": "Emoji Gallery",
+    "brandEmoji": "Brand Emoji",
+    "brandEmojiGenerator": "Brand Emoji Generator",
+    "brandEmojiDescription": "Enter brand character and brand name, AI will generate exclusive brand emojis for you",
+    "galleryDescription": "Choose from 500 beautiful emojis, supporting search, categorization, and click-to-copy features",
+    "generateEmoji": "Generate Emoji",
+    "customPrompt": "Custom Prompt",
+    "style": "Style",
+    "download": "Download",
+    "copy": "Copy",
+    "copySuccess": "Copy Success",
+    "copyFailed": "Copy Failed",
+    "copySuccessDescription": "{{emoji}} copied to clipboard",
+    "copyWithNameDescription": "{{name}} {{emoji}} copied to clipboard",
+    "copyFailedDescription": "Please copy emoji manually",
+    "downloadSuccess": "Download Success",
+    "downloadFailed": "Download Failed",
+    "downloadSuccessDescription": "Downloaded {{name}}",
+    "downloadFailedDescription": "Image resource may be unavailable, please try again later",
+    "batchGenerateSuccess": "Batch Generate Complete",
+    "batchGenerateSuccessDescription": "Generated images for {{count}} emojis",
+    "generateFailed": "Generate Failed",
+    "generateFailedDescription": "Please try again later",
+    "exportSuccess": "Export Success",
+    "exportSuccessDescription": "Emoji data exported as JSON file"
+  },
+  "wechatTemplate": {
+    "title": "WeChat Moments Templates",
+    "description": "Carefully designed templates to make your moments more attractive",
+    "addTemplate": "Add Template",
+    "addNewTemplate": "Add New Template",
+    "copySuccess": "Copy Success",
+    "copyFailed": "Copy Failed",
+    "copySuccessDescription": "Template copied to clipboard",
+    "copyFailedDescription": "Please copy manually",
+    "categories": {
+      "lifestyle": "Lifestyle",
+      "business": "Business",
+      "inspiration": "Inspiration",
+      "travel": "Travel",
+      "food": "Food & Dining",
+      "fitness": "Health & Fitness"
+    },
+    "templatePlaceholder": "Enter template content...",
+    "categorySelect": "Select Category",
+    "previewTemplate": "Preview Template"
+  },
+  "bookmark": {
+    "title": "My Library",
+    "description": "Unified management of favorites, web clippings, and copywriting",
+    "myFavorites": "My Favorites",
+    "webClippings": "Web Clippings",
+    "copywritingManagement": "Copywriting Management",
+    "noCopywriting": "No Copywriting Management",
+    "noCopywritingDescription": "Use the \"Copywriting Management\" button in the top right corner to start managing copywriting",
+    "addBookmark": "Add Bookmark",
+    "addClipping": "Add Clipping",
+    "searchBookmarks": "Search Bookmarks",
+    "filterByTag": "Filter by Tag",
+    "sortBy": "Sort By",
+    "lastAdded": "Recently Added",
+    "mostUsed": "Most Used",
+    "alphabetical": "Alphabetical"
+  },
+  "upgrade": {
+    "title": "Upgrade Plan",
+    "description": "Unlock more advanced features",
+    "currentPlan": "Current Plan",
+    "upgradeTo": "Upgrade to",
+    "features": "Features",
+    "price": "Price",
+    "upgradeNow": "Upgrade Now",
+    "contactSales": "Contact Sales",
+    "freePlan": "Free Plan",
+    "proPlan": "Professional Plan",
+    "premiumPlan": "Enterprise Plan",
+    "unlimited": "Unlimited",
+    "advancedFeatures": "Advanced Features",
+    "prioritySupport": "Priority Support",
+    "apiAccess": "API Access",
+    "teamCollaboration": "Team Collaboration",
+    "customization": "Custom Services"
+  },
+  "errors": {
+    "networkError": "Network connection error",
+    "serverError": "Server error",
+    "authenticationFailed": "Authentication failed",
+    "accessDenied": "Access denied",
+    "notFound": "Page not found",
+    "validationError": "Input validation error",
+    "unknownError": "Unknown error",
+    "tryAgain": "Please try again",
+    "contactSupport": "Contact technical support",
+    "notFoundPage": {
+      "title": "404",
+      "subtitle": "Page Not Found",
+      "description": "The page you are looking for does not exist or has been removed",
+      "returnHome": "Return Home",
+      "suggestions": {
+        "title": "You can try:",
+        "checkUrl": "Check if the URL is correct",
+        "useNavigation": "Use the navigation menu",
+        "goHome": "Return to homepage",
+        "contactUs": "Contact us"
+      }
+    },
+    "forbidden": {
+      "title": "403 - Access Forbidden",
+      "subtitle": "You do not have permission to access this page",
+      "needLogin": "This page requires login to access. Please sign in to your account first.",
+      "needUpgrade": "This feature requires higher-level membership privileges. Please upgrade your account to unlock more features.",
+      "currentUser": "Current User",
+      "memberLevel": "Membership Level",
+      "freeUser": "Free User",
+      "proUser": "Pro Member",
+      "premiumUser": "Premium Member",
+      "unknown": "Unknown",
+      "loginNow": "Sign In Now",
+      "upgradeNow": "Upgrade Membership",
+      "backToHome": "Back to Home",
+      "goBack": "Go Back",
+      "home": "Home",
+      "help": {
+        "title": "Need Help?",
+        "description": "If you believe this is an error, please try the following:",
+        "suggestions": [
+          "Check your network connection",
+          "Refresh the page and try again",
+          "Clear your browser cache",
+          "Contact customer service for assistance"
+        ],
+        "refresh": "Refresh Page",
+        "contactSupport": "Contact Support"
+      }
+    }
+  },
+  "success": {
+    "operationCompleted": "Operation completed",
+    "contentGenerated": "Content generated successfully",
+    "settingsUpdated": "Settings updated successfully",
+    "fileSaved": "File saved successfully",
+    "dataExported": "Data exported successfully"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last Updated: January 2025",
+    "acceptTerms": "I agree to the Terms of Service",
+    "agreement": "Agreement",
+    "userRights": "User Rights",
+    "userObligations": "User Obligations", 
+    "serviceDescription": "Service Description",
+    "privacyProtection": "Privacy Protection",
+    "intellectualProperty": "Intellectual Property",
+    "disclaimers": "Disclaimers",
+    "governing": "Governing Law",
+    "contactInfo": "Contact Information",
+    "introduction": {
+      "title": "Welcome to WenPai AI Intelligent Content Creation Platform",
+      "content": "WenPai AI (\"the Platform\", \"we\") is committed to providing users with artificial intelligence-based content creation, adaptation, and management services. By using any service on this platform, you agree to comply with the following terms of service."
+    },
+    "serviceScope": {
+      "title": "Service Scope",
+      "aiContent": "AI Content Generation: Provide text and creative content generation services based on advanced AI models",
+      "platformAdapt": "Platform Adaptation: Intelligently adapt content formats for different social media and publishing platforms",
+      "brandManagement": "Brand Management: Help users establish and maintain brand asset libraries",
+      "hotTopics": "Trending Topics: Real-time acquisition and analysis of trending topics across the web",
+      "contentExtraction": "Content Extraction: Intelligent extraction and summarization of web pages and document content"
+    },
+    "userRightsDetails": {
+      "title": "User Rights",
+      "freeUsage": "Free users enjoy basic functionality access",
+      "paidFeatures": "Paid users enjoy advanced features and priority support",
+      "dataPortability": "User data can be exported and migrated",
+      "accountDeletion": "Users have the right to delete accounts and data at any time"
+    },
+    "userObligationsDetails": {
+      "title": "User Obligations",
+      "legalUsage": "Use platform services legally, not for illegal purposes",
+      "respectIPR": "Respect intellectual property rights, do not infringe on others' copyrights",
+      "accurateInfo": "Provide accurate registration information",
+      "accountSecurity": "Protect account security, do not share accounts with others"
+    },
+    "intellectualPropertyDetails": {
+      "title": "Intellectual Property",
+      "platformIP": "Platform technology, design, trademarks and other intellectual property belong to WenPai AI",
+      "userContent": "Copyright of user-created content belongs to users",
+      "aiGenerated": "Usage rights of AI-generated content belong to users, but must comply with relevant laws and regulations",
+      "thirdPartyIP": "Respect third-party intellectual property, prohibit infringement"
+    },
+    "disclaimersDetails": {
+      "title": "Disclaimers",
+      "serviceAvailability": "We strive to ensure service stability but do not guarantee 100% availability",
+      "contentAccuracy": "AI-generated content is for reference only, users need to verify accuracy themselves",
+      "thirdPartyServices": "Third-party service integration may have risks, we are not responsible for related issues",
+      "dataLoss": "Users are advised to regularly backup important data"
+    },
+    "contactDetails": {
+      "title": "Contact Us",
+      "email": "Email: hello@wenpai.xyz",
+      "website": "Website: www.wenpai.xyz",
+      "feedback": "Feedback: Through platform feedback system"
+    }
+  },
+  "privacy": {
+    "title": "WenPai Privacy Policy",
+    "subtitle": "文派隐私政策",
+    "lastUpdated": "Last Updated",
+    "updateDate": "December 2024",
+    "version": "Version",
+    "description": "We understand the importance of privacy protection. This policy explains in detail how we collect, use, and protect your personal information. Please read the following policy carefully. Using our services indicates that you agree to these terms.",
+    "sections": {
+      "dataCollection": {
+        "title": "1. Information We Collect",
+        "accountInfo": {
+          "title": "1.1 Account Information",
+          "registration": "Registration Information",
+          "registrationDesc": "Email address, username, password (encrypted storage)",
+          "profile": "Personal Profile",
+          "profileDesc": "Avatar, personal bio, contact information",
+          "verification": "Verification Information", 
+          "verificationDesc": "Real-name verification materials (if required)"
+        },
+        "usageData": {
+          "title": "1.2 Usage Data",
+          "functionality": "Feature Usage",
+          "functionalityDesc": "Usage frequency, feature preferences, operation records",
+          "content": "Content Data",
+          "contentDesc": "Content you input, AI-generated content, brand library information",
+          "platformAdapt": "Platform Adaptation",
+          "platformAdaptDesc": "Selected target platforms, content style preferences"
+        },
+        "technicalData": {
+          "title": "1.3 Technical Data",
+          "device": "Device Information",
+          "deviceDesc": "Device type, operating system, browser version",
+          "network": "Network Information",
+          "networkDesc": "IP address, network connection type",
+          "logs": "Log Data",
+          "logsDesc": "Access time, page views, error logs"
+        }
+      },
+      "dataUsage": {
+        "title": "2. Purpose of Information Use",
+        "purposes": [
+          "Service Provision: Provide core functions such as AI content generation and multi-platform adaptation",
+          "Service Improvement: Analyze usage patterns, optimize AI algorithms and user experience",
+          "Personalization: Provide personalized recommendations and services based on your preferences",
+          "Payment Processing: Handle subscription fees and payment-related transactions",
+          "Customer Support: Provide technical support and customer service",
+          "Security: Prevent fraud, abuse and system security threats",
+          "Legal Compliance: Comply with applicable laws and regulations"
+        ]
+      },
+      "dataSharing": {
+        "title": "3. Information Sharing Policy",
+        "noSalePromise": "We do not sell your personal information",
+        "noSaleDesc": "We promise not to sell, rent or trade your personal information to third parties",
+        "necessarySharing": {
+          "title": "3.1 Necessary Third-Party Sharing",
+          "payment": "Payment Service Providers: Process subscription fees (e.g., Alipay, WeChat Pay)",
+          "cloud": "Cloud Service Providers: Data storage and processing (e.g., Alibaba Cloud, Tencent Cloud)",
+          "ai": "AI Service Providers: Provide AI content generation services",
+          "support": "Customer Service Platform: Provide customer support services"
+        },
+        "legal": {
+          "title": "3.2 Legal Requirements",
+          "disclosure": "Disclose information when required by laws and regulations",
+          "protection": "Protect our legitimate rights and user safety",
+          "cooperation": "Cooperate with legal investigations by government agencies"
+        }
+      },
+      "dataSecurity": {
+        "title": "4. Data Security Measures",
+        "measures": [
+          "Encrypted Transmission: Use HTTPS and SSL encryption to protect data transmission",
+          "Encrypted Storage: Store sensitive data using strong encryption algorithms",
+          "Access Control: Strict employee permission management and access control",
+          "Security Audits: Regular security assessments and vulnerability scans",
+          "Data Backup: Regular data backups to ensure data security",
+          "Monitoring Systems: Real-time monitoring of abnormal access and security threats"
+        ]
+      },
+      "dataRetention": {
+        "title": "5. Data Retention Period",
+        "periods": [
+          "Account Data: Retained during account active period, deleted within 30 days after account deletion",
+          "Usage Data: Retained for up to 2 years for service improvement",
+          "Content Data: You can choose to retain or delete, immediately cleared after deletion",
+          "Payment Data: Retained according to legal requirements, typically for 7 years",
+          "Log Data: Retained for up to 6 months for security analysis"
+        ]
+      },
+      "userRights": {
+        "title": "6. Your Rights",
+        "basicRights": {
+          "title": "6.1 Basic Rights",
+          "access": "Access Right: View your personal information we collect",
+          "correction": "Correction Right: Correct inaccurate or incomplete information",
+          "deletion": "Deletion Right: Request deletion of your personal information",
+          "portability": "Portability Right: Obtain a copy of your data"
+        },
+        "controlRights": {
+          "title": "6.2 Control Rights",
+          "restriction": "Restriction Right: Limit our processing of your information",
+          "objection": "Objection Right: Object to certain processing activities",
+          "withdrawal": "Withdrawal Right: Withdraw previously given consent",
+          "complaint": "Complaint Right: Complain to regulatory authorities"
+        }
+      },
+      "cookies": {
+        "title": "7. Cookies and Tracking Technologies",
+        "types": [
+          "Necessary Cookies: Used for basic website functionality and security",
+          "Functional Cookies: Remember your preference settings",
+          "Analytics Cookies: Help us improve service quality",
+          "Third-party Cookies: Only for necessary third-party services",
+          "You can manage Cookie preferences in your browser settings",
+          "We do not use third-party tracking cookies for advertising"
+        ]
+      },
+      "childrenPrivacy": {
+        "title": "8. Children's Privacy Protection",
+        "importantNotice": "Important Notice",
+        "noticeDesc": "Our services are not intended for children under 13. If you discover that we have collected children's information, please contact us immediately.",
+        "protections": [
+          "We do not knowingly collect personal information from children under 13",
+          "If we discover we have collected children's information, we will delete it immediately",
+          "Parents or guardians who discover related issues should contact us promptly"
+        ]
+      },
+      "internationalTransfer": {
+        "title": "9. International Data Transfer",
+        "transfers": [
+          "Your data may be processed outside of China",
+          "We ensure all data transfers comply with applicable data protection laws",
+          "We adopt appropriate security measures to protect cross-border data",
+          "We sign data processing agreements with third-party service providers"
+        ]
+      },
+      "policyUpdates": {
+        "title": "10. Policy Updates",
+        "updates": [
+          "We may update this privacy policy from time to time",
+          "Major changes will be notified via email, website announcements, or in-app notifications",
+          "Continued use of services indicates your acceptance of the updated policy",
+          "If you disagree with the modifications, please stop using the service and contact us"
+        ]
+      },
+      "contactUs": {
+        "title": "11. Contact Us",
+        "description": "If you have any questions about this privacy policy or need to exercise your rights, please contact us through the following methods:",
+        "privacyEmail": "Privacy Protection Email",
+        "supportEmail": "Customer Service Email",
+        "inAppSupport": "In-app Customer Service: Through the platform's built-in customer service function",
+        "workingHours": "Working Hours: Monday to Friday 9:00-18:00"
+      },
+      "commitment": {
+        "title": "Our Commitment",
+        "description": "We are committed to protecting your privacy and continuously improving our privacy protection measures. Your trust is our most important asset."
+      }
+    }
+  },
+  "profile": {
+    "title": "Profile Center",
+    "description": "Manage your account information and settings",
+    "manageInfo": "Manage your personal information",
+    "loginToManage": "Sign in to view and manage your profile center",
+    "editInfo": "Edit Information",
+    "nickname": "Nickname",
+    "phone": "Phone",
+    "email": "Email",
+    "avatar": "Avatar",
+    "uploadAvatar": "Upload Avatar",
+    "randomAvatar": "Generate Random Avatar",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "unsavedChanges": "You have unsaved changes, please click the save button below",
+    "companionDays": "Days with us",
+    "registrationDate": "Registration Date",
+    "inviteRewards": "Invite Rewards",
+    "inviteDescription": "Invite friends to earn free usage",
+    "inviteRule": "Each successful invitation gives both parties 20 free uses, cumulative and permanent!",
+    "inviteStats": "Invitation Statistics",
+    "successfulInvites": "Successful Invites",
+    "rewardTimes": "Reward Times",
+    "inviteLink": "Invitation Link",
+    "inviteFriends": "Invite Friends Now",
+    "copyInviteLink": "Copy Invitation Link",
+    "feedbackRewards": "Feedback Rewards",
+    "feedbackRule": "Report any bugs or suggest improvements to earn rewards",
+    "feedbackDescription": "Report bugs to earn reward credits",
+    "feedbackRules": "Feedback Reward Rules",
+    "feedbackEmail": "Feedback Email",
+    "submitFeedback": "Submit Feedback",
+    "feedbackEmailCopied": "Feedback email copied",
+    "feedbackEmailCopiedDesc": "Email address copied, please include your personal ID",
+    "moreFeatures": "More Features",
+    "comingSoon": "Coming Soon",
+    "enterNickname": "Please enter nickname",
+    "enterPhone": "Please enter phone number",
+    "enterEmail": "Please enter email",
+    "sendCode": "Send Code",
+    "enterSmsCode": "Please enter SMS verification code",
+    "verifySuccess": "Verification successful!",
+    "inviteRewardRules": "Invite Reward Rules"
+  },
+  "payment": {
+    "title": "Subscription Center",
+    "description": "Choose the subscription plan that's right for you and unlock more powerful features",
+    "qrCodeTitle": "Scan to Pay",
+    "billing": {
+      "monthly": "Monthly Subscription",
+      "yearly": "Annual Subscription",
+      "monthlyShort": "Monthly",
+      "yearlyShort": "Yearly",
+      "month": "month",
+      "year": "year",
+      "savingsPercent": "Save 17%",
+      "yearlySavings": "Save Money",
+      "compareMonthly": "Save ${{amount}} vs Monthly",
+      "switchToYearly": "Switch to Yearly"
+    },
+    "labels": {
+      "recommended": "Recommended",
+      "premium": "All Features",
+      "savings": "More Savings",
+      "limited": "Limited",
+      "currentPlan": "Current Plan",
+      "selected": "Selected",
+      "selectPlan": "Select This Plan"
+    },
+    "promotion": {
+      "title": "Limited Time Offer In Progress",
+      "endingSoon": "Offer ending soon, enjoy special pricing now!",
+      "specialOffer": "Limited Special Save ${{amount}}",
+      "originalPrice": "Original Price ${{price}}",
+      "ongoingOffer": "Limited time offer, save ${{amount}}",
+      "yearlyDiscount": "Annual discount, save ${{amount}} vs monthly"
+    },
+    "yearlyPromotion": {
+      "title": "💰 Switch to annual payment for better savings",
+      "description": "Annual payment saves ${{savings}}, equivalent to {{months}} months free",
+      "switchButton": "Switch to Yearly"
+    },
+    "paymentInfo": {
+      "title": "Payment Information",
+      "alipayQr": "Alipay QR Code Payment",
+      "generatingQr": "Generating payment QR code..."
+    },
+    "actions": {
+      "payNow": "Pay Now ${{amount}}",
+      "creating": "Creating order...",
+      "retry": "Retry"
+    },
+    "messages": {
+      "orderCreated": "Payment order created",
+      "useAlipay": "Please use Alipay to scan and complete payment",
+      "paymentFailed": "Payment failed",
+      "orderCreateFailed": "Failed to create payment order",
+      "tryAgainLater": "Please try again later",
+      "paymentSuccess": "Payment successful!",
+      "upgrading": "Upgrading your membership...",
+      "paymentExpired": "Payment expired",
+      "paymentTimeout": "Payment timeout",
+      "recreateOrder": "Please create a new payment order",
+      "orderCreateError": "Payment order creation failed"
+    },
+    "console": {
+      "autoSelectPlan": "Auto-selected plan:",
+      "accessTime": "Payment center access time:",
+      "remainingTime": "Remaining offer time:",
+      "seconds": "seconds"
+    }
+  }
+}
