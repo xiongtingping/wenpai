@@ -49,7 +49,7 @@ export function Footer() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-3">
               <img
-                src="/logo-panda-rainbow.svg"
+                src="/ikigai_4circles_multiply.svg"
                 alt="文派Logo"
                 className="w-8 h-8 flex-shrink-0"
               />
