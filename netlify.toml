@@ -16,9 +16,14 @@
   status = 301
   force = true
 
-# BufPay API 代理路由
+# BufPay API 代理路由 - 必须在通用API路由之前
 [[redirects]]
-  from = "/api/bufpay/*"
+  from = "/api/bufpay/pay"
+  to = "/.netlify/functions/bufpay-proxy"
+  status = 200
+
+[[redirects]]
+  from = "/api/bufpay/query/*"
   to = "/.netlify/functions/bufpay-proxy/:splat"
   status = 200
 
