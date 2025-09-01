@@ -19,19 +19,13 @@ function generateMD5(text) {
  */
 function verifyNotifySign(aoid, orderId, orderUid, price, payPrice, sign) {
   const expectedSign = generateMD5(aoid + orderId + orderUid + price + payPrice + BUFPAY_APP_SECRET);
-  console.log('🔐 签名验证:', {
-    原始字符串: aoid + orderId + orderUid + price + payPrice + BUFPAY_APP_SECRET,
-    期望签名: expectedSign,
-    接收签名: sign.toLowerCase()
-  });
   return expectedSign === sign.toLowerCase();
 }
 
 exports.handler = async (event, context) => {
   console.log('📞 收到BufPay支付回调:', {
     method: event.httpMethod,
-    headers: event.headers,
-    body: event.body
+    timestamp: new Date().toISOString()
   });
 
   // 只处理POST请求
@@ -55,7 +49,7 @@ exports.handler = async (event, context) => {
       sign: params.get('sign')
     };
 
-    console.log('📥 解析回调数据:', notifyData);
+    console.log('📥 解析回调数据: orderId =', notifyData.order_id);
 
     // 验证必需参数
     if (!notifyData.aoid || !notifyData.order_id || !notifyData.order_uid || !notifyData.price || !notifyData.pay_price || !notifyData.sign) {

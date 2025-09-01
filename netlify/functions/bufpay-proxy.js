@@ -53,17 +53,9 @@ exports.handler = async (event, context) => {
       console.log('接收到的请求体长度:', event.body ? event.body.length : 0);
       console.log('Content-Type:', event.headers['content-type']);
       
-      // 解析URL编码数据（用于调试）
+      // 记录请求格式（不记录敏感内容）
       if (event.body && event.headers['content-type'] && event.headers['content-type'].includes('application/x-www-form-urlencoded')) {
-        console.log('检测到URL编码格式');
-        console.log('请求体内容:', event.body);
-        
-        // 解析URL编码参数
-        const params = new URLSearchParams(event.body);
-        console.log('🔧 解析出的参数:');
-        for (const [key, value] of params.entries()) {
-          console.log(`  ${key}: ${value}`);
-        }
+        console.log('检测到URL编码格式，参数数量:', event.body.split('&').length);
       }
     }
     

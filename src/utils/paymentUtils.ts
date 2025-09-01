@@ -165,17 +165,6 @@ export function generatePaymentFormData(
   
   const priceStr = formatAmount(price);
   
-  console.log('🔧 生成BufPay支付表单数据:', {
-    name,
-    payType,
-    price: priceStr,
-    orderId,
-    orderUid,
-    notify_url: BUFPAY_CONFIG.NOTIFY_URL,
-    return_url: BUFPAY_CONFIG.RETURN_URL,
-    feedback_url: BUFPAY_CONFIG.FEEDBACK_URL
-  });
-  
   // 使用URLSearchParams而不是FormData
   const params = new URLSearchParams();
   params.append('name', name);
@@ -199,16 +188,6 @@ export function generatePaymentFormData(
   );
   
   params.append('sign', sign);
-  
-  console.log('🔧 生成的签名:', sign);
-  
-  // 调试：打印所有参数字段
-  console.log('🔧 URLSearchParams所有字段:');
-  for (const [key, value] of params.entries()) {
-    console.log(`  ${key}: ${value}`);
-  }
-  
-  console.log('🔧 最终URL编码字符串:', params.toString());
   
   return params;
 }
