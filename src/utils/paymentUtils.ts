@@ -145,7 +145,7 @@ export function generatePaymentFormData(
   price: number,
   orderId: string,
   orderUid: string
-): FormData {
+): URLSearchParams {
   // 验证必需参数
   if (!name || name.trim() === '') {
     throw new Error('产品名称(name)不能为空');
@@ -163,7 +163,6 @@ export function generatePaymentFormData(
     throw new Error('价格必须大于0');
   }
   
-  const formData = new FormData();
   const priceStr = formatAmount(price);
   
   console.log('🔧 生成BufPay支付表单数据:', {
@@ -177,14 +176,16 @@ export function generatePaymentFormData(
     feedback_url: BUFPAY_CONFIG.FEEDBACK_URL
   });
   
-  formData.append('name', name);
-  formData.append('pay_type', payType);
-  formData.append('price', priceStr);
-  formData.append('order_id', orderId);
-  formData.append('order_uid', orderUid);
-  formData.append('notify_url', BUFPAY_CONFIG.NOTIFY_URL);
-  formData.append('return_url', BUFPAY_CONFIG.RETURN_URL);
-  formData.append('feedback_url', BUFPAY_CONFIG.FEEDBACK_URL);
+  // 使用URLSearchParams而不是FormData
+  const params = new URLSearchParams();
+  params.append('name', name);
+  params.append('pay_type', payType);
+  params.append('price', priceStr);
+  params.append('order_id', orderId);
+  params.append('order_uid', orderUid);
+  params.append('notify_url', BUFPAY_CONFIG.NOTIFY_URL);
+  params.append('return_url', BUFPAY_CONFIG.RETURN_URL);
+  params.append('feedback_url', BUFPAY_CONFIG.FEEDBACK_URL);
   
   const sign = generatePaymentSign(
     name,
@@ -197,17 +198,19 @@ export function generatePaymentFormData(
     BUFPAY_CONFIG.FEEDBACK_URL
   );
   
-  formData.append('sign', sign);
+  params.append('sign', sign);
   
   console.log('🔧 生成的签名:', sign);
   
-  // 调试：打印所有FormData字段
-  console.log('🔧 FormData所有字段:');
-  for (const [key, value] of formData.entries()) {
+  // 调试：打印所有参数字段
+  console.log('🔧 URLSearchParams所有字段:');
+  for (const [key, value] of params.entries()) {
     console.log(`  ${key}: ${value}`);
   }
   
-  return formData;
+  console.log('🔧 最终URL编码字符串:', params.toString());
+  
+  return params;
 }
 
 /**

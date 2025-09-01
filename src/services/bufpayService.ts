@@ -51,7 +51,10 @@ export class BufPayService {
 
       const response = await fetch(BUFPAY_CONFIG.API_URL, {
         method: 'POST',
-        body: formData
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString()
       });
 
       if (!response.ok) {

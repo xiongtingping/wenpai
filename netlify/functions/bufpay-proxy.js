@@ -50,8 +50,21 @@ exports.handler = async (event, context) => {
     } else {
       // 创建支付订单
       console.log('创建支付订单');
-      console.log('接收到的请求体:', event.body);
+      console.log('接收到的请求体长度:', event.body ? event.body.length : 0);
       console.log('Content-Type:', event.headers['content-type']);
+      
+      // 解析URL编码数据（用于调试）
+      if (event.body && event.headers['content-type'] && event.headers['content-type'].includes('application/x-www-form-urlencoded')) {
+        console.log('检测到URL编码格式');
+        console.log('请求体内容:', event.body);
+        
+        // 解析URL编码参数
+        const params = new URLSearchParams(event.body);
+        console.log('🔧 解析出的参数:');
+        for (const [key, value] of params.entries()) {
+          console.log(`  ${key}: ${value}`);
+        }
+      }
     }
     
     console.log('目标URL:', targetUrl);
@@ -63,9 +76,11 @@ exports.handler = async (event, context) => {
       'User-Agent': 'WenPai-Netlify-Proxy/1.0'
     };
     
-    // 如果是FormData，不要设置Content-Type，让浏览器自动设置boundary
-    if (event.headers['content-type'] && !event.headers['content-type'].includes('multipart/form-data')) {
+    // 设置正确的Content-Type
+    if (event.headers['content-type']) {
       headers['Content-Type'] = event.headers['content-type'];
+    } else {
+      headers['Content-Type'] = 'application/x-www-form-urlencoded';
     }
     
     console.log('请求头设置:', headers);
