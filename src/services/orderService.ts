@@ -25,10 +25,10 @@ export class OrderService {
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15分钟后过期
 
       // 临时解决方案：使用内存存储模拟数据库操作
-      // 在生产环境中应该使用真实的数据库
-      const isDevelopment = import.meta.env.DEV;
+      // 当前生产环境暂时使用模拟数据，避免数据库依赖
+      const useDatabase = false; // import.meta.env.DEV;
 
-      if (isDevelopment) {
+      if (!useDatabase) {
         // 开发环境：使用模拟数据
         logger.info('🧪 开发环境：使用模拟订单数据');
         const mockOrder: Order = {
@@ -92,9 +92,9 @@ export class OrderService {
     expires_at?: string;
   }): Promise<void> {
     try {
-      const isDevelopment = import.meta.env.DEV;
+      const useDatabase = false;
 
-      if (isDevelopment) {
+      if (!useDatabase) {
         // 开发环境：模拟更新操作
         logger.info('🧪 开发环境：模拟更新订单支付信息', { orderId, paymentInfo });
         return;
@@ -122,11 +122,11 @@ export class OrderService {
    */
   static async getOrderById(orderId: string): Promise<Order | null> {
     try {
-      const isDevelopment = import.meta.env.DEV;
+      const useDatabase = false;
 
-      if (isDevelopment) {
-        // 开发环境：返回模拟订单数据
-        logger.info('🧪 开发环境：返回模拟订单数据', { orderId });
+      if (!useDatabase) {
+        // 模拟环境：返回模拟订单数据
+        logger.info('🧪 模拟环境：返回模拟订单数据', { orderId });
         return {
           id: `mock_${Date.now()}`,
           order_id: orderId,
