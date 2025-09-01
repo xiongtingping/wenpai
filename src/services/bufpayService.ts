@@ -70,16 +70,43 @@ export class BufPayService {
         logger.info('BufPay 返回HTML支付页面:', { 
           orderId, 
           htmlLength: htmlResponse.length,
-          containsQR: htmlResponse.includes('qrcode')
+          containsQR: htmlResponse.includes('qrcode'),
+          containsPayment: htmlResponse.includes('支付'),
+          containsAlipay: htmlResponse.includes('alipay')
         });
 
-        // 构造模拟的PaymentResponse以适配现有接口
+        // 尝试从HTML中提取aoid和二维码信息
+        let extractedAoid = null;
+        let qrCodeUrl = null;
+        
+        // 查找aoid
+        const aoidMatch = htmlResponse.match(/aoid['"]\s*[:=]\s*['"]([^'"]+)['"]/);
+        if (aoidMatch) {
+          extractedAoid = aoidMatch[1];
+        }
+        
+        // 查找二维码链接
+        const qrMatch = htmlResponse.match(/(?:qr_?code|qr_?img)['"]\s*[:=]\s*['"]([^'"]+)['"]/);
+        if (qrMatch) {
+          qrCodeUrl = qrMatch[1];
+        }
+
+        // 检查是否返回的是错误页面或重定向页面
+        if (htmlResponse.includes('<title>') && 
+            (htmlResponse.includes('WenPai') || htmlResponse.includes('错误') || 
+             htmlResponse.includes('redirect') || htmlResponse.length > 50000)) {
+          logger.error('BufPay返回了完整网页而非支付表单:', { orderId, htmlLength: htmlResponse.length });
+          throw new Error('支付接口返回了错误的页面格式，请重试');
+        }
+
+        // 构造PaymentResponse
         const paymentResult: PaymentResponse = {
           status: 'ok',
-          aoid: `bufpay_${orderId}_${Date.now()}`, // 生成临时支付ID
-          htmlContent: htmlResponse, // 保存完整HTML内容
-          // 如果需要，可以从HTML中提取QR码信息
-          message: '支付页面已生成'
+          aoid: extractedAoid || `bufpay_${orderId}_${Date.now()}`,
+          htmlContent: htmlResponse,
+          qr_img: qrCodeUrl,
+          message: '支付页面已生成',
+          expires_in: 900 // 默认15分钟
         };
 
         return {

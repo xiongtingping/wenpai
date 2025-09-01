@@ -280,11 +280,11 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
                 srcDoc={paymentInfo.htmlContent}
                 className="w-full h-96 border-0"
                 title="BufPay支付页面"
-                sandbox="allow-scripts allow-forms allow-popups allow-top-navigation allow-same-origin"
+                sandbox="allow-scripts allow-forms allow-popups allow-top-navigation"
                 onError={(e) => {
                   console.log('🔇 已忽略iframe加载错误（可能是X-Frame-Options限制）');
                 }}
-                onLoad={() => {
+                onLoad={(e) => {
                   console.log('✅ BufPay支付页面加载完成');
                   // 尝试向iframe发送准备消息
                   const iframe = e.target as HTMLIFrameElement;
