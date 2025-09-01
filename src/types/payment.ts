@@ -119,10 +119,10 @@ export type PricingPlanKey = keyof typeof PRICING_PLANS;
 export const BUFPAY_CONFIG = {
   API_URL: import.meta.env.VITE_BUFPAY_API_URL || '/.netlify/functions/bufpay-proxy',
   QUERY_URL: import.meta.env.VITE_BUFPAY_QUERY_URL || '/.netlify/functions/bufpay-proxy',
-  APP_SECRET: import.meta.env.VITE_BUFPAY_APP_SECRET || '',
-  NOTIFY_URL: import.meta.env.VITE_BUFPAY_NOTIFY_URL || '',
-  RETURN_URL: import.meta.env.VITE_BUFPAY_RETURN_URL || '',
-  FEEDBACK_URL: import.meta.env.VITE_BUFPAY_FEEDBACK_URL || ''
+  APP_SECRET: import.meta.env.VITE_BUFPAY_APP_SECRET || 'wenpai_default_secret',
+  NOTIFY_URL: import.meta.env.VITE_BUFPAY_NOTIFY_URL || 'https://www.wenpai.xyz/api/payment/notify',
+  RETURN_URL: import.meta.env.VITE_BUFPAY_RETURN_URL || 'https://www.wenpai.xyz/payment/success',
+  FEEDBACK_URL: import.meta.env.VITE_BUFPAY_FEEDBACK_URL || 'https://www.wenpai.xyz/payment/feedback'
 } as const;
 
 // 支付状态映射
