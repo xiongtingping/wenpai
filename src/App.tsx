@@ -55,7 +55,6 @@ import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 import ShareManagerPage from '@/pages/ShareManagerPage';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 import { CustomLoginPage } from '@/pages/CustomLoginPage';
-import SupabaseTestPage from '@/pages/SupabaseTestPage';
 // 移除调试页面
 // 移除测试组件
 
@@ -160,8 +159,6 @@ const App: React.FC = () => {
                         <Route path="/privacy" element={<PrivacyPage />} />
                         <Route path="/features" element={<FeatureShowcasePage />} />
 
-                        {/* 数据库测试页面 */}
-                        <Route path="/supabase-test" element={<AuthGuard><SupabaseTestPage /></AuthGuard>} />
 
                         {/* 调试页面已移除 */}
 

@@ -115,15 +115,16 @@ export const PRICING_PLANS = {
 
 export type PricingPlanKey = keyof typeof PRICING_PLANS;
 
-// BufPay 配置 - 使用正确的配置信息
+// BufPay 配置 - 从环境变量获取
 export const BUFPAY_CONFIG = {
-  // 开发环境使用代理，生产环境使用直接URL
-  API_URL: import.meta.env.DEV ? '/api/bufpay/api/pay/107628' : 'https://bufpay.com/api/pay/107628',
-  QUERY_URL: import.meta.env.DEV ? '/api/bufpay/api/query' : 'https://bufpay.com/api/query',
-  APP_SECRET: '2861731746ef4189937ef4dc11f09375', // 更新为正确的 APP_SECRET
-  NOTIFY_URL: 'https://www.wenpai.xyz/.netlify/functions/bufpay-notify',
-  RETURN_URL: 'https://www.wenpai.xyz/payment/result',
-  FEEDBACK_URL: 'https://www.wenpai.xyz/payment/feedback'
+  API_URL: import.meta.env.VITE_BUFPAY_API_URL || 
+           (import.meta.env.DEV ? '/api/bufpay/api/pay/107628' : 'https://bufpay.com/api/pay/107628'),
+  QUERY_URL: import.meta.env.VITE_BUFPAY_QUERY_URL || 
+             (import.meta.env.DEV ? '/api/bufpay/api/query' : 'https://bufpay.com/api/query'),
+  APP_SECRET: import.meta.env.VITE_BUFPAY_APP_SECRET || '',
+  NOTIFY_URL: import.meta.env.VITE_BUFPAY_NOTIFY_URL || '',
+  RETURN_URL: import.meta.env.VITE_BUFPAY_RETURN_URL || '',
+  FEEDBACK_URL: import.meta.env.VITE_BUFPAY_FEEDBACK_URL || ''
 } as const;
 
 // 支付状态映射

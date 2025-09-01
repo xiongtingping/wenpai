@@ -24,33 +24,7 @@ export class OrderService {
       const orderId = generateOrderId();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15分钟后过期
 
-      // 生产环境使用真实数据库
-      const isDevelopment = import.meta.env.DEV;
-
-      if (isDevelopment) {
-        // 开发环境：使用模拟数据
-        logger.info('🧪 开发环境：使用模拟订单数据');
-        const mockOrder: Order = {
-          id: `mock_${Date.now()}`,
-          order_id: orderId,
-          user_id: orderData.userId,
-          user_email: orderData.userEmail,
-          product_name: orderData.productName,
-          product_type: orderData.productType,
-          duration_type: orderData.durationType,
-          amount: orderData.amount,
-          pay_type: orderData.payType,
-          status: 'pending',
-          expires_at: expiresAt.toISOString(),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-
-        logger.info('✅ 模拟订单创建成功:', { orderId, userId: orderData.userId });
-        return { order: mockOrder, orderId };
-      }
-
-      // 生产环境：使用真实数据库
+      // 所有环境统一使用真实数据库
       const { data, error } = await supabase
         .from('orders')
         .insert({
@@ -103,13 +77,7 @@ export class OrderService {
     expires_at?: string;
   }): Promise<void> {
     try {
-      const isDevelopment = import.meta.env.DEV;
-
-      if (isDevelopment) {
-        // 开发环境：模拟更新操作
-        logger.info('🧪 开发环境：模拟更新订单支付信息', { orderId, paymentInfo });
-        return;
-      }
+      // 所有环境统一使用真实数据库
 
       const { error } = await supabase
         .from('orders')
@@ -133,27 +101,7 @@ export class OrderService {
    */
   static async getOrderById(orderId: string): Promise<Order | null> {
     try {
-      const isDevelopment = import.meta.env.DEV;
-
-      if (isDevelopment) {
-        // 开发环境：返回模拟订单数据
-        logger.info('🧪 开发环境：返回模拟订单数据', { orderId });
-        return {
-          id: `mock_${Date.now()}`,
-          order_id: orderId,
-          user_id: 'mock_user_id',
-          user_email: 'test@example.com',
-          product_name: '文派专业版月度会员',
-          product_type: 'professional',
-          duration_type: 'monthly',
-          amount: 39,
-          pay_type: 'alipay',
-          status: 'pending',
-          expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        } as Order;
-      }
+      // 所有环境统一使用真实数据库
 
       const { data, error } = await supabase
         .from('orders')

@@ -14,7 +14,6 @@ import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { LogoWithText } from "@/components/ui/ThemeAwareLogo"
 import { NavBar } from "@/components/ui/tubelight-navbar"
-import { DevPermissionSwitcher } from "@/components/dev/DevPermissionSwitcher"
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher"
 import { Home, Radar, Sparkles, Library, FolderOpen, CreditCard } from "lucide-react"
 
@@ -120,7 +119,6 @@ export function Header() {
             <ThemeToggle />
 
             {/* 开发环境权限切换 */}
-            <DevPermissionSwitcher />
 
 
             {isAuthenticated ? (
@@ -255,8 +253,7 @@ export function Header() {
                 {/* 移动端开发环境权限切换 */}
                 <div className="flex items-center justify-start px-2">
                   <span className="text-sm font-medium mr-3">{t('settings.devTools')}</span>
-                  <DevPermissionSwitcher />
-                </div>
+                      </div>
 
                 {/* 移除分割线 */}
 

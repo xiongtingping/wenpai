@@ -37,12 +37,11 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
   return defaultValue;
 }
 
-// ✅ SECURITY FIX: 2025-08-30 移除硬编码配置，使用环境变量
+// ✅ SECURITY FIX: 2025-09-01 完全移除硬编码配置，仅使用环境变量
 // 🔒 安全要求：所有配置必须从环境变量获取，禁止硬编码敏感信息
-// 🐛 FIX: 2025-08-30 修复环境变量获取问题 - 使用统一获取函数
-const APP_ID = getEnvVar('VITE_AUTHING_APP_ID', '68a68a29d0c3341ae7a3df23');
-const DOMAIN = getEnvVar('VITE_AUTHING_DOMAIN', 'rzcswqs4sq0f.authing.cn');
-const HOST = getEnvVar('VITE_AUTHING_HOST', 'https://rzcswqs4sq0f.authing.cn');
+const APP_ID = getEnvVar('VITE_AUTHING_APP_ID');
+const DOMAIN = getEnvVar('VITE_AUTHING_DOMAIN');
+const HOST = getEnvVar('VITE_AUTHING_HOST');
 
 // ✅ FIXED: 2025-07-25 配置缓存机制已锁定
 // 🐛 问题原因：重复计算配置导致性能问题和潜在的不一致性

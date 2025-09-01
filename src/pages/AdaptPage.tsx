@@ -3150,14 +3150,29 @@ export default function AdaptPage() {
   const [title, setTitle] = useState('');
 
   const handleAIGenerateTitle = async () => {
-    // 模拟AI标题生成
-    const mockTitles = ["AI生成的标题1", "AI生成的标题2", "AI生成的标题3"];
-    setTitle(mockTitles[0]);
-    // 新增：同步到分发区
-    toast({
-      title: "AI标题已生成",
-      description: mockTitles[0],
-    });
+    try {
+      const { callAI } = await import('@/api/aiService');
+      const result = await callAI({
+        prompt: `为以下内容生成3个吸引人的标题：\n\n${content}`,
+        taskType: 'TITLE_GENERATION',
+        maxTokens: 200
+      });
+      
+      const generatedTitle = result.content?.split('\n')[0]?.replace(/^\d+\.\s*/, '') || '生成的标题';
+      setTitle(generatedTitle);
+      
+      toast({
+        title: "AI标题已生成",
+        description: generatedTitle,
+      });
+    } catch (error) {
+      console.error('AI标题生成失败:', error);
+      toast({
+        title: "标题生成失败",
+        description: "请稍后重试",
+        variant: "destructive"
+      });
+    }
   };
 
   // 批量转发状态
@@ -3516,20 +3531,10 @@ export default function AdaptPage() {
     const loadBrandProfile = async () => {
       if (useBrandLibrary) {
         try {
-          // 这里应该调用品牌库服务获取当前品牌档案
-          // 暂时使用模拟数据
-          const mockProfile = {
-            name: '示例品牌',
-            tone: '专业友好',
-            keywords: ['创新', '品质', '服务'],
-            forbiddenWords: ['便宜', '劣质'],
-            values: ['用户至上', '持续创新'],
-            slogans: ['品质成就未来'],
-            targetAudience: ['年轻专业人士', '科技爱好者'],
-            brandStory: ['专注技术创新', '服务用户需求'],
-            competitiveAdvantage: ['技术领先', '服务优质']
-          };
-          setBrandProfile(mockProfile);
+          // 调用品牌库服务获取真实品牌档案
+          const { getBrandProfile } = await import('@/services/brandCorpusService');
+          const profile = await getBrandProfile(user?.id || '');
+          setBrandProfile(profile);
         } catch (error) {
           console.error('加载品牌档案失败:', error);
           setBrandProfile(null);
