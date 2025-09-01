@@ -46,6 +46,43 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
     return () => clearInterval(timer);
   }, [timeLeft, onPaymentTimeout]);
 
+  // 监听iframe内部消息（用于支付成功通知）
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // 只接受来自BufPay域名的消息
+      if (event.origin !== 'https://bufpay.com' && 
+          !event.origin.includes('bufpay')) {
+        return;
+      }
+
+      console.log('收到BufPay iframe消息:', event.data);
+
+      // 处理支付成功消息
+      if (event.data && typeof event.data === 'object') {
+        if (event.data.type === 'payment_success' || 
+            event.data.status === 'success' ||
+            event.data.status === 'payed') {
+          console.log('🎉 iframe通知支付成功:', event.data);
+          setPaymentStatus('success');
+          setIsPolling(false);
+          setTimeout(() => {
+            onPaymentSuccess?.();
+          }, 500);
+        } else if (event.data.type === 'payment_failed' || 
+                   event.data.status === 'failed') {
+          console.log('❌ iframe通知支付失败:', event.data);
+          setPaymentStatus('failed');
+          setErrorMessage(event.data.message || '支付失败');
+          setIsPolling(false);
+          onPaymentError?.(event.data.message || '支付失败');
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [onPaymentSuccess, onPaymentError]);
+
   // 轮询支付状态
   useEffect(() => {
     if (!isPolling || !paymentInfo.aoid) return;
@@ -113,8 +150,8 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
       }
     };
 
-    // 每5秒查询一次
-    const interval = setInterval(pollPaymentStatus, 5000);
+    // 每3秒查询一次，提高支付成功检测敏感度
+    const interval = setInterval(pollPaymentStatus, 3000);
 
     return () => clearInterval(interval);
   }, [isPolling, paymentInfo.aoid, onPaymentSuccess, onPaymentTimeout]);
@@ -243,12 +280,22 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
                 srcDoc={paymentInfo.htmlContent}
                 className="w-full h-96 border-0"
                 title="BufPay支付页面"
-                sandbox="allow-scripts allow-forms allow-popups allow-top-navigation"
+                sandbox="allow-scripts allow-forms allow-popups allow-top-navigation allow-same-origin"
                 onError={(e) => {
                   console.log('🔇 已忽略iframe加载错误（可能是X-Frame-Options限制）');
                 }}
                 onLoad={() => {
                   console.log('✅ BufPay支付页面加载完成');
+                  // 尝试向iframe发送准备消息
+                  const iframe = e.target as HTMLIFrameElement;
+                  try {
+                    iframe.contentWindow?.postMessage({
+                      type: 'parent_ready',
+                      orderId: orderId
+                    }, '*');
+                  } catch (err) {
+                    console.log('无法向iframe发送消息:', err);
+                  }
                 }}
               />
             </div>
