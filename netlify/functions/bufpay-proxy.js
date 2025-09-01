@@ -50,6 +50,8 @@ exports.handler = async (event, context) => {
     } else {
       // 创建支付订单
       console.log('创建支付订单');
+      console.log('接收到的请求体:', event.body);
+      console.log('Content-Type:', event.headers['content-type']);
     }
     
     console.log('目标URL:', targetUrl);

@@ -149,6 +149,17 @@ export function generatePaymentFormData(
   const formData = new FormData();
   const priceStr = formatAmount(price);
   
+  console.log('🔧 生成BufPay支付表单数据:', {
+    name,
+    payType,
+    price: priceStr,
+    orderId,
+    orderUid,
+    notify_url: BUFPAY_CONFIG.NOTIFY_URL,
+    return_url: BUFPAY_CONFIG.RETURN_URL,
+    feedback_url: BUFPAY_CONFIG.FEEDBACK_URL
+  });
+  
   formData.append('name', name);
   formData.append('pay_type', payType);
   formData.append('price', priceStr);
@@ -170,6 +181,8 @@ export function generatePaymentFormData(
   );
   
   formData.append('sign', sign);
+  
+  console.log('🔧 生成的签名:', sign);
   
   return formData;
 }
