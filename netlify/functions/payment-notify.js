@@ -39,6 +39,14 @@ exports.handler = async (event, context) => {
 
   try {
     // 解析回调数据
+    if (!event.body) {
+      console.error('❌ 回调请求体为空');
+      return {
+        statusCode: 400,
+        body: 'error'
+      };
+    }
+
     const params = new URLSearchParams(event.body);
     const notifyData = {
       aoid: params.get('aoid'),
@@ -53,7 +61,7 @@ exports.handler = async (event, context) => {
 
     // 验证必需参数
     if (!notifyData.aoid || !notifyData.order_id || !notifyData.order_uid || !notifyData.price || !notifyData.pay_price || !notifyData.sign) {
-      console.error('❌ 回调数据缺少必需参数');
+      console.error('❌ 回调数据缺少必需参数, 收到参数:', Object.keys(notifyData).filter(key => notifyData[key]));
       return {
         statusCode: 400,
         body: 'error'
@@ -71,7 +79,7 @@ exports.handler = async (event, context) => {
     );
 
     if (!isValidSign) {
-      console.error('❌ 支付回调签名验证失败:', notifyData);
+      console.error('❌ 支付回调签名验证失败');
       return {
         statusCode: 400,
         body: 'error'
@@ -84,6 +92,8 @@ exports.handler = async (event, context) => {
     const supabaseUrl = 'https://zkdbexhnynyzqhknzfxl.supabase.co';
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+    console.log('🔑 检查Supabase密钥:', supabaseKey ? '存在' : '缺失');
+
     if (!supabaseKey) {
       console.error('❌ 缺少Supabase服务密钥');
       return {
@@ -93,6 +103,8 @@ exports.handler = async (event, context) => {
     }
 
     // 更新订单状态为已支付
+    console.log('🔄 开始更新订单状态:', notifyData.order_id);
+    
     const updateResponse = await fetch(`${supabaseUrl}/rest/v1/orders?order_id=eq.${notifyData.order_id}`, {
       method: 'PATCH',
       headers: {
@@ -109,8 +121,11 @@ exports.handler = async (event, context) => {
       })
     });
 
+    console.log('📊 Supabase响应状态:', updateResponse.status);
+
     if (!updateResponse.ok) {
-      console.error('❌ 更新订单状态失败:', await updateResponse.text());
+      const errorText = await updateResponse.text();
+      console.error('❌ 更新订单状态失败:', errorText);
       return {
         statusCode: 500,
         body: 'error'
@@ -215,10 +230,17 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('❌ 处理支付回调失败:', error);
+    console.error('❌ 处理支付回调失败:', {
+      message: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+    
+    // 即使出错也要返回success给BufPay，避免重复回调
     return {
-      statusCode: 500,
-      body: 'error'
+      statusCode: 200,
+      headers: { 'Content-Type': 'text/plain' },
+      body: 'success'
     };
   }
 };
