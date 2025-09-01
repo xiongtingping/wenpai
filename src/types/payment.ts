@@ -117,10 +117,8 @@ export type PricingPlanKey = keyof typeof PRICING_PLANS;
 
 // BufPay 配置 - 从环境变量获取
 export const BUFPAY_CONFIG = {
-  API_URL: import.meta.env.VITE_BUFPAY_API_URL || 
-           (import.meta.env.DEV ? '/api/bufpay/api/pay/107628' : 'https://bufpay.com/api/pay/107628'),
-  QUERY_URL: import.meta.env.VITE_BUFPAY_QUERY_URL || 
-             (import.meta.env.DEV ? '/api/bufpay/api/query' : 'https://bufpay.com/api/query'),
+  API_URL: import.meta.env.VITE_BUFPAY_API_URL || '/api/bufpay/pay',
+  QUERY_URL: import.meta.env.VITE_BUFPAY_QUERY_URL || '/api/bufpay/query',
   APP_SECRET: import.meta.env.VITE_BUFPAY_APP_SECRET || '',
   NOTIFY_URL: import.meta.env.VITE_BUFPAY_NOTIFY_URL || '',
   RETURN_URL: import.meta.env.VITE_BUFPAY_RETURN_URL || '',
