@@ -178,7 +178,7 @@ export default function PaymentPage() {
         userId: currentUser.id,
         userEmail: currentUser.email || '',
         productName: selectedPlan.name,
-        productType: selectedPlan.tier as 'professional' | 'premium',
+        productType: selectedPlan.tier === 'pro' ? 'professional' : selectedPlan.tier as 'professional' | 'premium',
         durationType: selectedPeriod,
         amount: getCurrentPrice(),
         payType: 'alipay' as const
