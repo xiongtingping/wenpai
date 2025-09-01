@@ -92,10 +92,9 @@ export class BufPayService {
         }
 
         // 检查是否返回的是错误页面或重定向页面
-        if (htmlResponse.includes('<title>') && 
-            (htmlResponse.includes('WenPai') || htmlResponse.includes('错误') || 
-             htmlResponse.includes('redirect') || htmlResponse.length > 50000)) {
-          logger.error('BufPay返回了完整网页而非支付表单:', { orderId, htmlLength: htmlResponse.length });
+        // 只在明确检测到错误标识时才拒绝，允许正常的BufPay支付页面
+        if (htmlResponse.includes('WenPai') && htmlResponse.includes('<title>WenPai')) {
+          logger.error('BufPay返回了完整网站页面而非支付表单:', { orderId, htmlLength: htmlResponse.length });
           throw new Error('支付接口返回了错误的页面格式，请重试');
         }
 
