@@ -146,6 +146,23 @@ export function generatePaymentFormData(
   orderId: string,
   orderUid: string
 ): FormData {
+  // 验证必需参数
+  if (!name || name.trim() === '') {
+    throw new Error('产品名称(name)不能为空');
+  }
+  if (!payType || payType.trim() === '') {
+    throw new Error('支付类型(payType)不能为空');
+  }
+  if (!orderId || orderId.trim() === '') {
+    throw new Error('订单ID(orderId)不能为空');
+  }
+  if (!orderUid || orderUid.trim() === '') {
+    throw new Error('订单用户ID(orderUid)不能为空');
+  }
+  if (price <= 0) {
+    throw new Error('价格必须大于0');
+  }
+  
   const formData = new FormData();
   const priceStr = formatAmount(price);
   
@@ -183,6 +200,12 @@ export function generatePaymentFormData(
   formData.append('sign', sign);
   
   console.log('🔧 生成的签名:', sign);
+  
+  // 调试：打印所有FormData字段
+  console.log('🔧 FormData所有字段:');
+  for (const [key, value] of formData.entries()) {
+    console.log(`  ${key}: ${value}`);
+  }
   
   return formData;
 }

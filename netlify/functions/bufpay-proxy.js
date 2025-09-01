@@ -59,12 +59,20 @@ exports.handler = async (event, context) => {
     console.log('代理目标URL:', targetUrl);
 
     // 代理请求到BufPay
+    const headers = {
+      'User-Agent': 'WenPai-Netlify-Proxy/1.0'
+    };
+    
+    // 如果是FormData，不要设置Content-Type，让浏览器自动设置boundary
+    if (event.headers['content-type'] && !event.headers['content-type'].includes('multipart/form-data')) {
+      headers['Content-Type'] = event.headers['content-type'];
+    }
+    
+    console.log('请求头设置:', headers);
+    
     const response = await fetch(targetUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': event.headers['content-type'] || 'application/x-www-form-urlencoded',
-        'User-Agent': 'WenPai-Netlify-Proxy/1.0'
-      },
+      headers,
       body: event.body
     });
 
