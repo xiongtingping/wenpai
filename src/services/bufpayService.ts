@@ -17,6 +17,16 @@ export class BufPayService {
   }> {
     try {
       // 1. 创建订单记录
+      logger.info('开始创建订单，请求参数:', {
+        userId: request.userId,
+        userEmail: request.userEmail,
+        productName: request.productName,
+        productType: request.productType,
+        durationType: request.durationType,
+        amount: request.amount,
+        payType: request.payType
+      });
+
       const { order, orderId } = await OrderService.createOrder({
         userId: request.userId,
         userEmail: request.userEmail,

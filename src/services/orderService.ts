@@ -24,11 +24,10 @@ export class OrderService {
       const orderId = generateOrderId();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15分钟后过期
 
-      // 临时解决方案：使用内存存储模拟数据库操作
-      // 当前生产环境暂时使用模拟数据，避免数据库依赖
-      const useDatabase = false; // import.meta.env.DEV;
+      // 生产环境使用真实数据库
+      const isDevelopment = import.meta.env.DEV;
 
-      if (!useDatabase) {
+      if (isDevelopment) {
         // 开发环境：使用模拟数据
         logger.info('🧪 开发环境：使用模拟订单数据');
         const mockOrder: Order = {
@@ -70,8 +69,20 @@ export class OrderService {
         .single();
 
       if (error) {
-        logger.error('创建订单失败:', error);
-        throw new Error('创建订单失败');
+        logger.error('创建订单失败:', {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          orderData: {
+            orderId,
+            userId: orderData.userId,
+            productType: orderData.productType,
+            durationType: orderData.durationType
+          }
+        });
+        throw new Error(`创建订单失败: ${error.message || error.code || '未知错误'}`);
       }
 
       logger.info('订单创建成功:', { orderId, userId: orderData.userId });
@@ -92,9 +103,9 @@ export class OrderService {
     expires_at?: string;
   }): Promise<void> {
     try {
-      const useDatabase = false;
+      const isDevelopment = import.meta.env.DEV;
 
-      if (!useDatabase) {
+      if (isDevelopment) {
         // 开发环境：模拟更新操作
         logger.info('🧪 开发环境：模拟更新订单支付信息', { orderId, paymentInfo });
         return;
@@ -122,11 +133,11 @@ export class OrderService {
    */
   static async getOrderById(orderId: string): Promise<Order | null> {
     try {
-      const useDatabase = false;
+      const isDevelopment = import.meta.env.DEV;
 
-      if (!useDatabase) {
-        // 模拟环境：返回模拟订单数据
-        logger.info('🧪 模拟环境：返回模拟订单数据', { orderId });
+      if (isDevelopment) {
+        // 开发环境：返回模拟订单数据
+        logger.info('🧪 开发环境：返回模拟订单数据', { orderId });
         return {
           id: `mock_${Date.now()}`,
           order_id: orderId,
