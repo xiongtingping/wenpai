@@ -11,14 +11,14 @@ exports.handler = async (event, context) => {
     queryStringParameters: event.queryStringParameters
   });
 
-  // 只允许POST请求
-  if (event.httpMethod !== 'POST') {
+  // 支持POST和GET请求
+  if (!['POST', 'GET'].includes(event.httpMethod)) {
     return {
       statusCode: 405,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
       },
       body: JSON.stringify({ error: 'Method not allowed' })
@@ -31,7 +31,7 @@ exports.handler = async (event, context) => {
       statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
       },
       body: ''
@@ -68,20 +68,24 @@ exports.handler = async (event, context) => {
       'User-Agent': 'WenPai-Netlify-Proxy/1.0'
     };
     
-    // 设置正确的Content-Type
-    if (event.headers['content-type']) {
-      headers['Content-Type'] = event.headers['content-type'];
-    } else {
-      headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    const fetchOptions = {
+      method: event.httpMethod,
+      headers
+    };
+    
+    // 只有POST请求才设置Content-Type和body
+    if (event.httpMethod === 'POST') {
+      // 设置正确的Content-Type
+      if (event.headers['content-type']) {
+        headers['Content-Type'] = event.headers['content-type'];
+      } else {
+        headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      }
+      fetchOptions.body = event.body;
+      console.log('请求头设置:', headers);
     }
     
-    console.log('请求头设置:', headers);
-    
-    const response = await fetch(targetUrl, {
-      method: 'POST',
-      headers,
-      body: event.body
-    });
+    const response = await fetch(targetUrl, fetchOptions);
 
     console.log('BufPay响应状态:', response.status);
     
@@ -102,7 +106,7 @@ exports.handler = async (event, context) => {
       headers: {
         'Content-Type': contentType || 'text/html',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
       },
       body: responseBody
