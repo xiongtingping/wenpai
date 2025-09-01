@@ -98,6 +98,96 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
       timestamp: { type: 'string', required: true },
       formId: { type: 'string', required: true }
     }
+  },
+
+  // Amplitude分析数据模式
+  AMP_UNSENT: {
+    type: 'object',
+    properties: {
+      events: { type: 'array', items: { type: 'object' } },
+      lastSent: { type: 'string' }
+    }
+  },
+
+  // 访客会话信息模式
+  GUEST_SESSION_INFO: {
+    type: 'object',
+    properties: {
+      sessionId: { type: 'string', required: true },
+      createdAt: { type: 'string', required: true },
+      lastActive: { type: 'string' },
+      dataCount: { type: 'number' }
+    }
+  },
+
+  // 全局设置模式
+  GLOBAL_SETTINGS: {
+    type: 'object',
+    properties: {
+      version: { type: 'string' },
+      features: { type: 'object' },
+      cache: { type: 'object' }
+    }
+  },
+
+  // 认证守卫模式
+  AUTH_GUARD: {
+    type: 'object',
+    properties: {
+      attempts: { type: 'number' },
+      lastAttempt: { type: 'string' },
+      blocked: { type: 'boolean' }
+    }
+  },
+
+  // 认证存储模式
+  AUTH_STORAGE: {
+    type: 'object',
+    properties: {
+      tokens: { type: 'object' },
+      refreshToken: { type: 'string' },
+      expiry: { type: 'string' }
+    }
+  },
+
+  // 支付中心访问时间模式
+  PAYMENT_ACCESS_TIME: {
+    type: 'object',
+    properties: {
+      firstAccess: { type: 'string', required: true },
+      lastAccess: { type: 'string' },
+      offerExpiry: { type: 'string' }
+    }
+  },
+
+  // Token使用统计模式
+  TOKEN_USAGE_STORE: {
+    type: 'object',
+    properties: {
+      usage: { type: 'object' },
+      limits: { type: 'object' },
+      period: { type: 'string' }
+    }
+  },
+
+  // 营销日历任务模式
+  MARKETING_CALENDAR_TASKS: {
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', required: true },
+        title: { type: 'string', required: true, sanitize: true },
+        date: { type: 'string', required: true },
+        completed: { type: 'boolean' }
+      }
+    }
+  },
+
+  // 简单字符串值模式（用于主题、语言等）
+  SIMPLE_STRING: {
+    type: 'string',
+    sanitize: true
   }
 };
 
@@ -330,22 +420,72 @@ export class DataTypeValidator {
    * 根据存储键推断数据模式
    */
   private inferSchema(key: string): DataSchema | null {
+    // Amplitude分析数据
+    if (key.includes('AMP_unsent')) {
+      return DATA_SCHEMAS.AMP_UNSENT;
+    }
+    
+    // 访客会话信息
+    if (key.includes('wenpai:guest:session_info')) {
+      return DATA_SCHEMAS.GUEST_SESSION_INFO;
+    }
+    
+    // 全局设置
+    if (key.includes('globalSettings')) {
+      return DATA_SCHEMAS.GLOBAL_SETTINGS;
+    }
+    
+    // 认证守卫
+    if (key.includes('auth_retry_guard') || key.includes('auth_code_guard')) {
+      return DATA_SCHEMAS.AUTH_GUARD;
+    }
+    
+    // 认证存储
+    if (key.includes('auth-storage')) {
+      return DATA_SCHEMAS.AUTH_STORAGE;
+    }
+    
+    // 支付中心访问时间
+    if (key.includes('payment_center_access_time')) {
+      return DATA_SCHEMAS.PAYMENT_ACCESS_TIME;
+    }
+    
+    // Token使用统计
+    if (key.includes('wenpai-token-usage-store')) {
+      return DATA_SCHEMAS.TOKEN_USAGE_STORE;
+    }
+    
+    // 营销日历任务
+    if (key.includes('marketing-calendar-tasks')) {
+      return DATA_SCHEMAS.MARKETING_CALENDAR_TASKS;
+    }
+    
+    // 简单字符串值（主题、语言等）
+    if (key.includes('wenpai-language') || key.includes('wenpai-theme')) {
+      return DATA_SCHEMAS.SIMPLE_STRING;
+    }
+    
+    // 用户信息
     if (key.includes('user') && key.includes('auth')) {
       return DATA_SCHEMAS.USER_INFO;
     }
     
+    // 品牌资产
     if (key.includes('brand') && key.includes('assets')) {
       return { type: 'array', items: DATA_SCHEMAS.BRAND_ASSET };
     }
     
-    if (key.includes('payment')) {
+    // 支付状态
+    if (key.includes('payment') && !key.includes('access_time')) {
       return DATA_SCHEMAS.PAYMENT_STATUS;
     }
     
+    // UI偏好
     if (key.includes('ui')) {
       return DATA_SCHEMAS.UI_PREFERENCES;
     }
     
+    // 表单草稿
     if (key.includes('form') || key.includes('draft')) {
       return DATA_SCHEMAS.FORM_DRAFT;
     }

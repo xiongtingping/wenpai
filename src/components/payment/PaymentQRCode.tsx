@@ -15,17 +15,20 @@ interface PaymentQRCodeProps {
   orderId: string;
   onPaymentSuccess?: () => void;
   onPaymentTimeout?: () => void;
+  onPaymentError?: (error: string) => void;
 }
 
 export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
   paymentInfo,
   orderId,
   onPaymentSuccess,
-  onPaymentTimeout
+  onPaymentTimeout,
+  onPaymentError
 }) => {
   const [timeLeft, setTimeLeft] = useState(paymentInfo.expires_in || 900); // 默认15分钟
   const [isPolling, setIsPolling] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed' | 'timeout'>('pending');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   // 倒计时
   useEffect(() => {
@@ -52,14 +55,58 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
         const response = await fetch(`/.netlify/functions/bufpay-proxy?query=${paymentInfo.aoid}`);
         const result = await response.json();
 
-        if (result.status === 'success' || result.status === 'payed') {
-          setPaymentStatus('success');
-          setIsPolling(false);
-          onPaymentSuccess?.();
-        } else if (result.status === 'expire') {
-          setPaymentStatus('timeout');
-          setIsPolling(false);
-          onPaymentTimeout?.();
+        // 根据BufPay文档处理所有支付状态
+        switch (result.status) {
+          case 'success':
+            // 订单已支付已经回调成功
+            console.log('🎉 支付成功检测到 (已回调):', result);
+            setPaymentStatus('success');
+            setIsPolling(false);
+            setTimeout(() => {
+              onPaymentSuccess?.();
+            }, 500);
+            break;
+            
+          case 'payed':
+            // 订单已支付未回调 - 继续轮询直到回调成功
+            console.log('💰 已支付但未回调:', result);
+            // 继续轮询，等待回调完成
+            break;
+            
+          case 'new':
+            // 新订单 - 继续等待支付
+            console.log('🔄 订单等待支付中:', result);
+            break;
+            
+          case 'expire':
+            // 订单已过期
+            console.log('⏰ 支付超时:', result);
+            setPaymentStatus('timeout');
+            setIsPolling(false);
+            onPaymentTimeout?.();
+            break;
+            
+          case 'fee_error':
+            // 账户余额不足扣除手续费失败，订单未回调
+            console.log('💸 手续费扣除失败:', result);
+            setPaymentStatus('failed');
+            setErrorMessage('支付平台手续费扣除失败，请联系客服');
+            setIsPolling(false);
+            onPaymentError?.('支付平台手续费扣除失败，请联系客服');
+            break;
+            
+          case 'not_exist':
+            // 订单不存在
+            console.error('❌ 订单不存在:', result);
+            setPaymentStatus('failed');
+            setErrorMessage('订单不存在，请重新创建订单');
+            setIsPolling(false);
+            onPaymentError?.('订单不存在，请重新创建订单');
+            break;
+            
+          default:
+            console.log('🔄 未知状态，继续轮询:', result);
+            break;
         }
       } catch (error) {
         console.error('查询支付状态失败:', error);
@@ -82,18 +129,34 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
 
   if (paymentStatus === 'success') {
     return (
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader className="text-center">
-          <CardTitle className="text-green-600">支付成功！</CardTitle>
+      <Card className="w-full max-w-md mx-auto border-green-200 bg-green-50/50 shadow-lg">
+        <CardHeader className="text-center pb-4">
+          <CardTitle className="text-green-600 text-2xl font-bold">🎉 支付成功！</CardTitle>
         </CardHeader>
-        <CardContent className="text-center">
-          <div className="text-6xl mb-4">✅</div>
-          <p className="text-muted-foreground mb-4">
-            您的订单已支付成功，权限正在开通中...
-          </p>
-          <Button onClick={() => window.location.href = '/'} className="w-full">
-            返回首页
-          </Button>
+        <CardContent className="text-center space-y-4">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-4xl">✅</div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-green-700 font-semibold text-lg">
+              订单支付完成！
+            </p>
+            <p className="text-green-600 text-sm">
+              您的权限正在开通中，请稍候...
+            </p>
+          </div>
+          <div className="pt-4">
+            <p className="text-xs text-muted-foreground mb-3">
+              页面将在几秒后自动跳转到结果页面
+            </p>
+            <Button 
+              onClick={() => window.location.href = '/'} 
+              className="w-full bg-green-600 hover:bg-green-700"
+              variant="default"
+            >
+              返回首页
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -101,21 +164,56 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
 
   if (paymentStatus === 'timeout') {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="w-full max-w-md mx-auto border-orange-200 bg-orange-50/50">
         <CardHeader className="text-center">
-          <CardTitle className="text-red-600">支付超时</CardTitle>
+          <CardTitle className="text-orange-600">支付超时</CardTitle>
         </CardHeader>
-        <CardContent className="text-center">
-          <div className="text-6xl mb-4">⏰</div>
-          <p className="text-muted-foreground mb-4">
+        <CardContent className="text-center space-y-4">
+          <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto">
+            <div className="text-4xl">⏰</div>
+          </div>
+          <p className="text-orange-700 font-medium">
             支付二维码已过期，请重新下单
           </p>
           <div className="space-y-2">
-            <Button onClick={handleRefresh} className="w-full">
+            <Button onClick={handleRefresh} className="w-full bg-orange-600 hover:bg-orange-700">
               重新下单
             </Button>
-            <Button variant="outline" onClick={handleFeedback} className="w-full">
+            <Button variant="outline" onClick={handleFeedback} className="w-full border-orange-300">
               支付遇到问题？
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (paymentStatus === 'failed') {
+    return (
+      <Card className="w-full max-w-md mx-auto border-red-200 bg-red-50/50">
+        <CardHeader className="text-center">
+          <CardTitle className="text-red-600">支付失败</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center space-y-4">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+            <div className="text-4xl">❌</div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-red-700 font-medium">
+              支付处理失败
+            </p>
+            {errorMessage && (
+              <p className="text-red-600 text-sm">
+                {errorMessage}
+              </p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Button onClick={handleRefresh} className="w-full bg-red-600 hover:bg-red-700">
+              重新下单
+            </Button>
+            <Button variant="outline" onClick={handleFeedback} className="w-full border-red-300">
+              联系客服
             </Button>
           </div>
         </CardContent>
@@ -145,7 +243,13 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
                 srcDoc={paymentInfo.htmlContent}
                 className="w-full h-96 border-0"
                 title="BufPay支付页面"
-                sandbox="allow-scripts allow-same-origin allow-forms"
+                sandbox="allow-scripts allow-forms allow-popups allow-top-navigation"
+                onError={(e) => {
+                  console.log('🔇 已忽略iframe加载错误（可能是X-Frame-Options限制）');
+                }}
+                onLoad={() => {
+                  console.log('✅ BufPay支付页面加载完成');
+                }}
               />
             </div>
           ) : paymentInfo.qr_img ? (

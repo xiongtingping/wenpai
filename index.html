@@ -17,6 +17,70 @@
 
     <!-- 🚨 暂时禁用可能干扰Guard的脚本 -->
     <!-- <script src="/emergency-undefined-fix.js"></script> -->
+    
+    <!-- 🔧 修复Cloudflare email-decode MIME类型错误 -->
+    <script>
+      // 全面阻止Cloudflare相关的MIME类型和frame错误
+      (function() {
+        // 1. 拦截全局错误事件
+        window.addEventListener('error', function(event) {
+          // 忽略Cloudflare email-decode MIME类型错误
+          if (event && event.target && event.target.src && 
+              (event.target.src.includes('cloudflare-static/email-decode.min.js') ||
+               event.target.src.includes('cdn-cgi/scripts'))) {
+            console.log('🔇 已忽略Cloudflare脚本MIME类型错误:', event.target.src);
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+          
+          // 忽略X-Frame-Options相关错误
+          if (event.message && (
+              event.message.includes('X-Frame-Options') ||
+              event.message.includes('frame because it set') ||
+              event.message.includes('chrome-error://chromewebdata/')
+          )) {
+            console.log('🔇 已忽略X-Frame-Options错误');
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+        }, true);
+
+        // 2. 拦截Promise rejection错误
+        window.addEventListener('unhandledrejection', function(event) {
+          if (event.reason && typeof event.reason === 'string') {
+            if (event.reason.includes('cloudflare-static') || 
+                event.reason.includes('X-Frame-Options') ||
+                event.reason.includes('chromewebdata')) {
+              console.log('🔇 已忽略Cloudflare/Frame相关Promise错误');
+              event.preventDefault();
+              return false;
+            }
+          }
+        });
+
+        // 3. 包装原生addEventListener以过滤错误
+        const originalAddEventListener = window.addEventListener;
+        window.addEventListener = function(type, listener, options) {
+          if (type === 'error') {
+            const wrappedListener = function(event) {
+              // 忽略已知的Cloudflare和Frame错误
+              if (event && event.target && event.target.src && 
+                  (event.target.src.includes('cloudflare-static') ||
+                   event.target.src.includes('cdn-cgi'))) {
+                console.log('🔇 已忽略Cloudflare错误事件');
+                return;
+              }
+              return listener.call(this, event);
+            };
+            return originalAddEventListener.call(this, type, wrappedListener, options);
+          }
+          return originalAddEventListener.call(this, type, listener, options);
+        };
+      })();
+    </script>
+    
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

@@ -310,17 +310,25 @@ export default function PaymentPage() {
 
   // BufPay 支付成功处理
   const handleBufpaySuccess = () => {
+    logger.info('BufPay支付成功', { orderId: bufpayOrderId });
     setPaymentStatus('paid');
+    
+    // 立即显示成功提示
     toast({
       title: t('payment.messages.paymentSuccess'),
       description: t('payment.messages.upgrading'),
-      duration: 3000,
+      duration: 5000,
     });
 
-    // 跳转到支付结果页面
+    // 清理支付状态并强制页面刷新显示成功状态
+    setShowQRCode(false);
+    setBufpayPaymentInfo(null);
+    
+    // 稍后跳转到结果页面
     setTimeout(() => {
-      navigate(`/payment/result?orderId=${bufpayOrderId}`);
-    }, 2000);
+      // 使用window.location.href而不是navigate，确保完整页面刷新
+      window.location.href = `/payment/result?orderId=${bufpayOrderId}`;
+    }, 3000);
   };
 
   // BufPay 支付超时处理
@@ -334,6 +342,19 @@ export default function PaymentPage() {
       title: t('payment.messages.paymentTimeout'),
       description: t('payment.messages.recreateOrder'),
       variant: "destructive",
+    });
+  };
+
+  // BufPay 支付错误处理
+  const handleBufpayError = (error: string) => {
+    logger.error('BufPay支付错误', { error, orderId: bufpayOrderId });
+    setPaymentStatus('failed');
+    
+    toast({
+      title: '支付处理失败',
+      description: error,
+      variant: "destructive",
+      duration: 8000,
     });
   };
 
@@ -800,6 +821,7 @@ export default function PaymentPage() {
                       orderId={bufpayOrderId}
                       onPaymentSuccess={handleBufpaySuccess}
                       onPaymentTimeout={handleBufpayTimeout}
+                      onPaymentError={handleBufpayError}
                     />
                   ) : (
                     <div className="text-red-600 font-semibold">{t('payment.paymentInfo.generatingQr')}</div>

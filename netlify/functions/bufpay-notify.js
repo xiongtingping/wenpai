@@ -24,8 +24,31 @@ function generateMD5(text) {
  * 验证回调签名
  */
 function verifyNotifySign(aoid, orderId, orderUid, price, payPrice, sign) {
-  const expectedSign = generateMD5(aoid + orderId + orderUid + price + payPrice + appSecret);
-  return expectedSign === sign.toLowerCase();
+  // 确保所有参数都是字符串
+  const aoidStr = String(aoid || '');
+  const orderIdStr = String(orderId || '');
+  const orderUidStr = String(orderUid || '');
+  const priceStr = String(price || '');
+  const payPriceStr = String(payPrice || '');
+  const signStr = String(sign || '');
+  
+  // 按文档要求的顺序拼接：aoid + order_id + order_uid + price + pay_price + app_secret
+  const signString = aoidStr + orderIdStr + orderUidStr + priceStr + payPriceStr + appSecret;
+  const expectedSign = generateMD5(signString);
+  
+  console.log('签名验证详情:', {
+    aoid: aoidStr,
+    orderId: orderIdStr,
+    orderUid: orderUidStr,
+    price: priceStr,
+    payPrice: payPriceStr,
+    signString: signString,
+    expectedSign: expectedSign,
+    receivedSign: signStr.toLowerCase(),
+    isValid: expectedSign === signStr.toLowerCase()
+  });
+  
+  return expectedSign === signStr.toLowerCase();
 }
 
 /**
@@ -155,7 +178,12 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    console.log('收到 BufPay 支付回调请求:', event.body);
+    const timestamp = new Date().toISOString();
+    console.log('===== BufPay 支付回调开始 =====');
+    console.log('回调时间:', timestamp);
+    console.log('请求方法:', event.httpMethod);
+    console.log('请求头:', JSON.stringify(event.headers, null, 2));
+    console.log('原始请求体:', event.body);
 
     // 解析请求体
     let notifyData;
@@ -232,7 +260,26 @@ exports.handler = async (event, context) => {
 
     // 3. 检查订单状态
     if (order.status === 'paid' || order.status === 'processed') {
-      console.log('订单已处理，跳过:', { orderId: notifyData.order_id, status: order.status });
+      console.log('订单已处理，跳过重复通知:', { 
+        orderId: notifyData.order_id, 
+        status: order.status,
+        aoid: notifyData.aoid,
+        timestamp: new Date().toISOString()
+      });
+      return {
+        statusCode: 200,
+        headers,
+        body: 'success'
+      };
+    }
+
+    // 3.1. 检查是否为重复的 aoid（防止同一支付被重复处理）
+    if (order.aoid && order.aoid === notifyData.aoid) {
+      console.log('检测到重复的aoid，订单已处理:', { 
+        orderId: notifyData.order_id, 
+        aoid: notifyData.aoid,
+        existingStatus: order.status
+      });
       return {
         statusCode: 200,
         headers,
@@ -265,12 +312,16 @@ exports.handler = async (event, context) => {
     // 5. 处理权限开通
     await processOrderPermissions(updatedOrder);
 
-    console.log('支付回调处理成功:', { 
+    console.log('✅ 支付回调处理完成:', { 
       orderId: notifyData.order_id, 
       userId: order.user_id,
       productType: order.product_type,
-      durationType: order.duration_type
+      durationType: order.duration_type,
+      aoid: notifyData.aoid,
+      payPrice: notifyData.pay_price,
+      processedAt: new Date().toISOString()
     });
+    console.log('===== BufPay 支付回调结束 =====');
 
     // 返回成功响应
     return {
