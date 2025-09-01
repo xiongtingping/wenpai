@@ -38,6 +38,12 @@
   to = "/.netlify/functions/api/consume-usage"
   status = 200
 
+# 支付回调调试路由 - 临时诊断用
+[[redirects]]
+  from = "/.netlify/functions/payment-notify"
+  to = "/.netlify/functions/payment-notify-debug"
+  status = 200
+
 # 其他 /api/* 走通用网关函数
 [[redirects]]
   from = "/api/*"
