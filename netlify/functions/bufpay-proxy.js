@@ -39,18 +39,20 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    // 默认为支付接口，简化路由逻辑
+    // 检查查询参数决定目标URL
+    const queryParams = event.queryStringParameters || {};
     let targetUrl = 'https://bufpay.com/api/pay/107628';
     
-    // 检查是否为查询接口
-    const fullPath = event.path || '';
-    const rawUrl = event.rawUrl || '';
-    
-    if (fullPath.includes('query') || rawUrl.includes('query')) {
-      targetUrl = 'https://bufpay.com/api/query';
+    if (queryParams.query) {
+      // 查询支付状态
+      targetUrl = `https://bufpay.com/api/query/${queryParams.query}`;
+      console.log('查询支付状态:', queryParams.query);
+    } else {
+      // 创建支付订单
+      console.log('创建支付订单');
     }
     
-    console.log('目标URL:', targetUrl, '来源路径:', fullPath);
+    console.log('目标URL:', targetUrl);
 
     console.log('代理目标URL:', targetUrl);
 

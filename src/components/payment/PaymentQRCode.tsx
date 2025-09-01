@@ -49,7 +49,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
 
     const pollPaymentStatus = async () => {
       try {
-        const response = await fetch(`/api/bufpay/query/${paymentInfo.aoid}`);
+        const response = await fetch(`/.netlify/functions/bufpay-proxy?query=${paymentInfo.aoid}`);
         const result = await response.json();
 
         if (result.status === 'success' || result.status === 'payed') {
