@@ -244,8 +244,4 @@
     Cache-Control = "public, max-age=31536000, immutable" 
 
 [functions]
-  node_bundler = "esbuild"
-  
-  [functions.environment]
-    SUPABASE_URL = "https://zkdbexhnynyzqhknzfxl.supabase.co"
-    SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprZGJleGhueW55enFoa256ZnhsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNDAzNzMzOCwiZXhwIjoyMDM5NjEzMzM4fQ.YEzZQrIZ7HM0WC1OvXnW5Wvo-eFGYsWsJKFQ8Vh9QLs" 
+  node_bundler = "esbuild" 

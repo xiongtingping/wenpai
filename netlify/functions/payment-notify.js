@@ -95,12 +95,10 @@ exports.handler = async (event, context) => {
     console.log('🔑 检查Supabase密钥:', supabaseKey ? '存在' : '缺失');
 
     if (!supabaseKey) {
-      console.error('❌ 缺少Supabase服务密钥 - 将跳过数据库更新');
-      // 即使缺少密钥也返回success给BufPay，避免重复回调
+      console.error('❌ 缺少Supabase服务密钥');
       return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'text/plain' },
-        body: 'success'
+        statusCode: 500,
+        body: 'error'
       };
     }
 
