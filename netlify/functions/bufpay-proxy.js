@@ -7,7 +7,8 @@ exports.handler = async (event, context) => {
   console.log('BufPay代理请求:', {
     method: event.httpMethod,
     path: event.path,
-    headers: event.headers
+    rawUrl: event.rawUrl,
+    queryStringParameters: event.queryStringParameters
   });
 
   // 只允许POST请求
@@ -38,17 +39,18 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    // 提取路由参数
-    const path = event.path.replace('/.netlify/functions/bufpay-proxy', '');
+    // 默认为支付接口，简化路由逻辑
+    let targetUrl = 'https://bufpay.com/api/pay/107628';
     
-    let targetUrl;
-    if (path.includes('/pay')) {
-      targetUrl = 'https://bufpay.com/api/pay/107628';
-    } else if (path.includes('/query')) {
+    // 检查是否为查询接口
+    const fullPath = event.path || '';
+    const rawUrl = event.rawUrl || '';
+    
+    if (fullPath.includes('query') || rawUrl.includes('query')) {
       targetUrl = 'https://bufpay.com/api/query';
-    } else {
-      targetUrl = 'https://bufpay.com/api/pay/107628'; // 默认支付接口
     }
+    
+    console.log('目标URL:', targetUrl, '来源路径:', fullPath);
 
     console.log('代理目标URL:', targetUrl);
 
