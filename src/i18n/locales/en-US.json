@@ -381,7 +381,10 @@
     "copyright": "All Rights Reserved",
     "backToTop": "Back to Top",
     "followUs": "Follow Us",
-    "socialMedia": "Social Media"
+    "socialMedia": "Social Media",
+    "feedbackTooltip": "Submit suggestions and feedback in Feishu Docs",
+    "emailTooltip": "Click to copy email address",
+    "developerTooltip": "Learn more about the developer"
   },
   "brandLibrary": {
     "title": "Brand Library",
@@ -417,11 +420,27 @@
     "brandTone": "Brand Tone",
     "contentLength": "Content Length",
     "keywords": "Keywords",
-    "generatedContent": "Generated Content"
+    "generatedContent": "Generated Content",
+    "contentDescription": "Content Description",
+    "generateFailed": "Generation failed, please check your network connection or try again later.",
+    "upgradeRequired": "This feature is exclusive to Professional/Premium users, providing AI-driven creative content generation services",
+    "contentPlaceholder": "For example: Write an engaging marketing copy for our new product...",
+    "styles": {
+      "creative": "Creative Copy",
+      "professional": "Professional Business", 
+      "casual": "Casual Daily",
+      "persuasive": "Persuasive"
+    },
+    "styleDescriptions": {
+      "creative": "Creative and engaging marketing copy",
+      "professional": "Formal business style",
+      "casual": "Relaxed and friendly tone", 
+      "persuasive": "Compelling and persuasive content"
+    }
   },
   "hotTopics": {
     "title": "Trending Radar",
-    "description": "Track trending topics across all platforms in real-time",
+    "description": "Real-time monitoring of trending topics across platforms with custom topic subscription and intelligent tracking",
     "allPlatforms": "All Platforms",
     "weibo": "Weibo",
     "zhihu": "Zhihu",
@@ -435,7 +454,18 @@
     "heatIndex": "Heat Index",
     "viewDetails": "View Details",
     "trendAnalysis": "Trend Analysis",
-    "relatedTopics": "Related Topics"
+    "relatedTopics": "Related Topics",
+    "noData": "No data available",
+    "cannotOpenLink": "Cannot open link",
+    "noSourceLink": "No source link available for this topic",
+    "unfavorited": "Unfavorited",
+    "removedFromInspiration": "Topic removed from inspiration folder",
+    "favorited": "Favorited", 
+    "addedToInspiration": "Topic added to inspiration folder",
+    "enterKeywords": "Please enter keywords",
+    "keywordsRequired": "Subscription keywords cannot be empty",
+    "keywordPlaceholder": "Enter keywords to monitor",
+    "descriptionPlaceholder": "System will auto-generate description based on keywords, you can also edit manually"
   },
   "extractor": {
     "title": "Content Extractor",
@@ -490,19 +520,44 @@
   "adapt": {
     "title": "Content Adaptation",
     "description": "Intelligently adapt content formats and styles for different platforms",
+    "history": "History",
+    "inputOriginalContent": "Input Original Content",
+    "remainingUsage": "Remaining usage:",
+    "selectTargetPlatform": "Select Target Platform",
+    "platformSettings": "Platform Settings",
+    "generatingContent": "Generating content, please wait...",
+    "platformAdaptResult": "Platform Adaptation Result",
     "inputContent": "Input Content",
     "selectPlatform": "Select Platform",
     "adaptNow": "Adapt Now",
     "adaptedContent": "Adapted Content",
+    "contentPlaceholder": "Enter your original content here...",
+    "selectCharacterLimit": "Select character limit",
+    "autoAdapt": "Auto Adapt",
+    "conciseVersion": "Concise (50-200 chars)",
+    "standardVersion": "Standard (200-800 chars)",
+    "detailedVersion": "Detailed (800+ chars)",
+    "unknownPlatform": "Unknown Platform",
+    "platformCharacterLimit": "Platform character limit",
     "platforms": {
       "wechat": "WeChat Official Account",
       "xiaohongshu": "Xiaohongshu",
       "zhihu": "Zhihu",
       "douyin": "Douyin",
       "weibo": "Weibo",
-      "bilibili": "Bilibili"
+      "bilibili": "Bilibili",
+      "twitter": "Twitter",
+      "shipinhao": "WeChat Channels"
     },
-    "contentPlaceholder": "Enter the content you want to adapt...",
+    "platformTones": {
+      "xiaohongshu": "Recommendation, Sharing",
+      "zhihu": "Professional, In-depth",
+      "douyin": "Casual, Fun",
+      "weibo": "Concise, Trending",
+      "wechat": "Professional, Authoritative",
+      "bilibili": "Young, Energetic",
+      "twitter": "Concise, International"
+    },
     "platformDescription": "Intelligently adjust content format, language style, and length based on platform characteristics",
     "adaptationOptions": "Adaptation Options",
     "preserveBrand": "Preserve Brand Voice",

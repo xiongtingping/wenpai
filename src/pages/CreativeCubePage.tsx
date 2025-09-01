@@ -26,10 +26,10 @@ const CreativeCubePage: React.FC = () => {
   // 🔧 移除整页权限检查，改为按钮级权限控制
 
   const contentStyles = [
-    { id: 'creative', name: '创意文案', icon: Sparkles, description: '富有创意的营销文案' },
-    { id: 'professional', name: '专业商务', icon: Briefcase, description: '正式商务风格' },
-    { id: 'casual', name: '轻松日常', icon: Coffee, description: '轻松友好的语调' },
-    { id: 'persuasive', name: '说服力强', icon: Target, description: '具有说服力的内容' },
+    { id: 'creative', name: t('creative.styles.creative'), icon: Sparkles, description: t('creative.styleDescriptions.creative') },
+    { id: 'professional', name: t('creative.styles.professional'), icon: Briefcase, description: t('creative.styleDescriptions.professional') },
+    { id: 'casual', name: t('creative.styles.casual'), icon: Coffee, description: t('creative.styleDescriptions.casual') },
+    { id: 'persuasive', name: t('creative.styles.persuasive'), icon: Target, description: t('creative.styleDescriptions.persuasive') },
   ];
 
   const handleGenerate = async () => {
@@ -80,7 +80,7 @@ const CreativeCubePage: React.FC = () => {
       }
     } catch (error) {
       console.error('创意生成失败:', error);
-      setGeneratedContent('生成失败，请检查网络连接或稍后重试。');
+      setGeneratedContent(t('creative.generateFailed'));
     } finally {
       setIsGenerating(false);
     }
@@ -104,8 +104,8 @@ const CreativeCubePage: React.FC = () => {
         actions={
           <RoleBasedUpgradePrompt
             requiredTier="pro"
-            featureName="创意魔方"
-            description="该功能为专业版/高级版专属，提供AI驱动的创意内容生成服务"
+            featureName={t('creative.title')}
+            description={t('creative.upgradeRequired')}
             mode="compact"
           />
         }
@@ -131,7 +131,7 @@ const CreativeCubePage: React.FC = () => {
                 <Textarea
                   id="prompt"
                   variant="enhanced"
-                  placeholder="例如：为我们的新产品写一段吸引人的营销文案..."
+                  placeholder={t('creative.contentPlaceholder')}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   rows={4}
@@ -158,7 +158,7 @@ const CreativeCubePage: React.FC = () => {
 
               <PermissionLockedButton
                 requiredTier="pro"
-                featureName="创意魔方"
+                featureName={t('creative.title')}
                 onClick={handleGenerate}
                 disabled={!prompt.trim() || isGenerating}
                 className="w-full"

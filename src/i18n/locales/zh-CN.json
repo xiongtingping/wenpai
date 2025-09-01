@@ -381,7 +381,10 @@
     "copyright": "版权所有",
     "backToTop": "返回顶部",
     "followUs": "关注我们",
-    "socialMedia": "社交媒体"
+    "socialMedia": "社交媒体",
+    "feedbackTooltip": "在飞书文档中提交建议和反馈",
+    "emailTooltip": "点击复制邮箱地址",
+    "developerTooltip": "了解更多关于开发者"
   },
   "brandLibrary": {
     "title": "品牌库",
@@ -417,11 +420,27 @@
     "brandTone": "品牌调性",
     "contentLength": "内容长度",
     "keywords": "关键词",
-    "generatedContent": "生成的内容"
+    "generatedContent": "生成的内容",
+    "contentDescription": "内容描述",
+    "generateFailed": "生成失败，请检查网络连接或稍后重试。",
+    "upgradeRequired": "该功能为专业版/高级版专属，提供AI驱动的创意内容生成服务",
+    "contentPlaceholder": "例如：为我们的新产品写一段吸引人的营销文案...",
+    "styles": {
+      "creative": "创意文案",
+      "professional": "专业商务", 
+      "casual": "轻松日常",
+      "persuasive": "说服力强"
+    },
+    "styleDescriptions": {
+      "creative": "富有创意的营销文案",
+      "professional": "正式商务风格",
+      "casual": "轻松友好的语调", 
+      "persuasive": "具有说服力的内容"
+    }
   },
   "hotTopics": {
     "title": "全网雷达",
-    "description": "实时追踪全网热点话题",
+    "description": "实时监控各平台热门话题，支持自定义话题订阅和智能追踪",
     "allPlatforms": "全部平台",
     "weibo": "微博",
     "zhihu": "知乎",
@@ -435,7 +454,18 @@
     "heatIndex": "热度指数",
     "viewDetails": "查看详情",
     "trendAnalysis": "趋势分析",
-    "relatedTopics": "相关话题"
+    "relatedTopics": "相关话题",
+    "noData": "暂无数据",
+    "cannotOpenLink": "无法打开链接",
+    "noSourceLink": "该话题暂无源链接",
+    "unfavorited": "已取消收藏",
+    "removedFromInspiration": "话题已从灵感夹移除",
+    "favorited": "已收藏",
+    "addedToInspiration": "话题已添加到灵感夹",
+    "enterKeywords": "请输入关键词",
+    "keywordsRequired": "订阅关键词不能为空",
+    "keywordPlaceholder": "输入要监控的关键词",
+    "descriptionPlaceholder": "系统将根据关键词自动生成描述，您也可以手动修改"
   },
   "extractor": {
     "title": "内容提取器", 
@@ -490,19 +520,44 @@
   "adapt": {
     "title": "内容适配",
     "description": "智能适配不同平台的内容格式和风格",
+    "history": "历史记录",
+    "inputOriginalContent": "输入原始内容",
+    "remainingUsage": "剩余次数:",
+    "selectTargetPlatform": "选择目标平台",
+    "platformSettings": "平台设置",
+    "generatingContent": "正在生成内容，请稍候...",
+    "platformAdaptResult": "平台适配结果",
     "inputContent": "输入内容",
     "selectPlatform": "选择平台",
     "adaptNow": "立即适配",
     "adaptedContent": "适配后内容",
+    "contentPlaceholder": "在此输入您的原始内容...",
+    "selectCharacterLimit": "选择字符数限制",
+    "autoAdapt": "自动适配",
+    "conciseVersion": "精简版 (50-200字)",
+    "standardVersion": "标准版 (200-800字)", 
+    "detailedVersion": "详细版 (800字+)",
+    "unknownPlatform": "未知平台",
+    "platformCharacterLimit": "平台字符数限制",
     "platforms": {
       "wechat": "微信公众号",
       "xiaohongshu": "小红书",
       "zhihu": "知乎",
       "douyin": "抖音",
       "weibo": "微博",
-      "bilibili": "B站"
+      "bilibili": "B站",
+      "twitter": "推特",
+      "shipinhao": "视频号"
     },
-    "contentPlaceholder": "请输入您想要适配的内容...",
+    "platformTones": {
+      "xiaohongshu": "种草、分享",
+      "zhihu": "专业、深度", 
+      "douyin": "轻松、有趣",
+      "weibo": "简洁、热点",
+      "wechat": "专业、权威",
+      "bilibili": "年轻、活力",
+      "twitter": "简洁、国际化"
+    },
     "platformDescription": "根据平台特性智能调整内容格式、语言风格和篇幅长度",
     "adaptationOptions": "适配选项",
     "preserveBrand": "保持品牌调性",

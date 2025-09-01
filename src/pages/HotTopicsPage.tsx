@@ -252,12 +252,12 @@ export default function HotTopicsPage() {
    */
   const formatHotValue = (hot: string | undefined): string => {
     if (!hot || hot === '' || hot === '0' || hot === 'undefined') {
-      return '暂无数据';
+      return t('hotTopics.noData');
     }
 
     const num = parseInt(hot);
     if (isNaN(num)) {
-      return hot || '暂无数据';
+      return hot || t('hotTopics.noData');
     }
 
     if (num >= 1000000) {
@@ -675,14 +675,14 @@ export default function HotTopicsPage() {
       if (newSet.has(topicId)) {
         newSet.delete(topicId);
         toast({
-          title: "已取消收藏",
-          description: "话题已从灵感夹移除",
+          title: t('hotTopics.unfavorited'),
+          description: t('hotTopics.removedFromInspiration'),
         });
       } else {
         newSet.add(topicId);
         toast({
-          title: "已收藏",
-          description: "话题已添加到灵感夹",
+          title: t('hotTopics.favorited'),
+          description: t('hotTopics.addedToInspiration'),
         });
       }
       // 保存到本地存储
@@ -727,8 +727,8 @@ export default function HotTopicsPage() {
   const handleAddSubscription = async () => {
     if (!newSubscription.keyword.trim()) {
       toast({
-        title: "请输入关键词",
-        description: "订阅关键词不能为空",
+        title: t('hotTopics.enterKeywords'),
+        description: t('hotTopics.keywordsRequired'),
         variant: "destructive"
       });
       return;
@@ -1336,7 +1336,7 @@ export default function HotTopicsPage() {
                       {supportedPlatforms.map((platform) => (
                         <TabsContent key={platform} value={platform} className="mt-4">
                           {(allHotData.data[platform] || []).length === 0 ? (
-                            <div className="text-center text-muted-foreground py-8">暂无数据</div>
+                            <div className="text-center text-muted-foreground py-8">{t('hotTopics.noData')}</div>
                           ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                               {(allHotData.data[platform] || []).slice(0, 10).map((topic, index) => (
@@ -1502,7 +1502,7 @@ export default function HotTopicsPage() {
                               <div className="flex items-center gap-2 mb-2">
                                 <Badge className="bg-primary text-primary-foreground text-xs">
                                   <Bookmark className="w-3 h-3 mr-1" />
-                                  已收藏
+                                  {t('hotTopics.favorited')}
                                 </Badge>
                                 <Badge variant="outline" className="text-xs">
                                   {getPlatformDisplayName(topic.platform || '')}
@@ -1600,7 +1600,7 @@ export default function HotTopicsPage() {
                 <Label htmlFor="keyword" className="text-sm font-medium text-foreground">关键词 *</Label>
                 <Input
                   id="keyword"
-                  placeholder="输入要监控的关键词"
+                  placeholder={t('hotTopics.keywordPlaceholder')}
                   value={newSubscription.keyword}
                   onChange={(e) => {
                     const keyword = e.target.value;
@@ -1836,7 +1836,7 @@ export default function HotTopicsPage() {
                   <Label htmlFor="edit-subscription-keyword" className="text-sm font-medium text-foreground">关键词</Label>
                   <Input
                     id="edit-subscription-keyword"
-                    placeholder="输入要监控的关键词"
+                    placeholder={t('hotTopics.keywordPlaceholder')}
                     value={editingSubscription.keyword}
                     onChange={(e) => setEditingSubscription(prev => prev ? { ...prev, keyword: e.target.value } : null)}
                   />

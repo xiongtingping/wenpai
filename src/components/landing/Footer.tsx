@@ -50,7 +50,7 @@ export function Footer() {
             <div className="flex items-center justify-center gap-3 mb-3">
               <img
                 src="/ikigai_4circles_multiply.svg"
-                alt="文派Logo"
+                alt={`${t('nav.home')} Logo`}
                 className="w-8 h-8 flex-shrink-0"
               />
               <h3 className="text-xl font-bold text-foreground leading-none">文派</h3>
@@ -69,7 +69,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105"
-                title="在飞书文档中提交建议和反馈"
+                title={t('footer.feedbackTooltip')}
               >
                 <div className="w-8 h-8 bg-blue-500/10 rounded-md flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
                   <FeishuIcon className="w-4 h-4 text-blue-600" />
@@ -84,7 +84,7 @@ export function Footer() {
               <button
                 onClick={handleEmailCopy}
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105 relative"
-                title="点击复制邮箱地址"
+                title={t('footer.emailTooltip')}
               >
                 <div className="w-8 h-8 bg-green-500/10 rounded-md flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
                   {emailCopied ? (
@@ -112,7 +112,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105"
-                title="了解更多关于开发者"
+                title={t('footer.developerTooltip')}
               >
                 <div className="w-8 h-8 bg-purple-500/10 rounded-md flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
                   <User className="w-4 h-4 text-purple-600" />

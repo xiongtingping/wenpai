@@ -351,7 +351,7 @@ export default function PaymentPage() {
     setPaymentStatus('failed');
     
     toast({
-      title: '支付处理失败',
+      title: t('payment.messages.paymentFailed'),
       description: error,
       variant: "destructive",
       duration: 8000,

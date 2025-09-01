@@ -512,108 +512,81 @@ function setModel(modelId: string, userId?: string): void {
 }
 
 // 平台样式配置
-const platformStyles: Record<string, { name: string; description: string; maxLength?: number; hashtagCount?: number; tone?: string; features?: string[] }> = {
-  xiaohongshu: {
-    name: '小红书',
-    description: '小红书笔记',
-    maxLength: 1000,
-    hashtagCount: 20,
-    tone: '种草、分享',
-    features: ['个人体验', '图片展示', '标签丰富']
-  },
-  zhihu: {
-    name: '知乎',
-    description: '知乎问答',
-    maxLength: 5000,
-    hashtagCount: 0,
-    tone: '专业、深度',
-    features: ['详细解答', '专业术语', '引用来源']
-  },
-  douyin: {
-    name: '抖音',
-    description: '抖音短视频',
-    maxLength: 300,
-    hashtagCount: 5,
-    tone: '轻松、有趣',
-    features: ['视频脚本', '音乐配合', '互动引导']
-  },
-  weibo: {
-    name: '微博',
-    description: '新浪微博',
-    maxLength: 140,
-    hashtagCount: 3,
-    tone: '简洁、热点',
-    features: ['话题标签', '@用户', '转发互动']
-  },
-  wechat: {
-    name: '微信',
-    description: '微信公众号、朋友圈',
-    maxLength: 2000,
-    hashtagCount: 0,
-    tone: '专业、权威',
-    features: ['图文并茂', '深度内容', '专业术语']
-  },
-  bilibili: {
-    name: '哔哩哔哩',
-    description: 'B站视频',
-    maxLength: 500,
-    hashtagCount: 10,
-    tone: '年轻、活力',
-    features: ['弹幕互动', '视频标题', '分区标签']
-  },
-  twitter: {
-    name: '推特',
-    description: 'X（推特）',
-    maxLength: 280,
-    hashtagCount: 2,
-    tone: '简洁、国际化',
-    features: ['话题标签', '转推', '多语言']
-  },
-  video: {
-    name: '视频号',
-    description: '微信视频号',
-    maxLength: 300,
-    hashtagCount: 3,
-    tone: '亲和、互动',
-    features: ['视频内容', '互动引导', '社交分享']
-  },
-  baijia: {
-    name: '百家号',
-    description: '百度百家号',
-    maxLength: 3000,
-    hashtagCount: 5,
-    tone: '权威、专业',
-    features: ['长篇内容', 'SEO优化', '资讯类']
-  },
-  kuaishou: {
-    name: '快手',
-    description: '快手短视频',
-    maxLength: 300,
-    hashtagCount: 5,
-    tone: '真实、朴实',
-    features: ['生活记录', '接地气', '亲民风格']
-  },
-  wangyi: {
-    name: '网易号',
-    description: '网易小蜜蜂',
-    maxLength: 2000,
-    hashtagCount: 3,
-    tone: '原创、深度',
-    features: ['原创内容', '文笔流畅', '观点独特']
-  },
-  toutiao: {
-    name: '今日头条',
-    description: '头条号',
-    maxLength: 1500,
-    hashtagCount: 5,
-    tone: '热点、时效',
-    features: ['标题党', '热点敏感', '算法推荐']
-  }
-};
+// 移到组件内部以访问翻译函数
 
 export default function AdaptPage() {
   const { t } = useTranslation();
   const { toast } = useToast();
+
+  // 本地化的平台配置
+  const getPlatformStyles = useCallback(() => ({
+    xiaohongshu: {
+      name: t('adapt.platforms.xiaohongshu'),
+      description: t('adapt.platforms.xiaohongshu'),
+      maxLength: 1000,
+      hashtagCount: 20,
+      tone: t('adapt.platformTones.xiaohongshu'),
+      features: ['个人体验', '图片展示', '标签丰富']
+    },
+    zhihu: {
+      name: t('adapt.platforms.zhihu'),
+      description: t('adapt.platforms.zhihu'),
+      maxLength: 5000,
+      hashtagCount: 0,
+      tone: t('adapt.platformTones.zhihu'),
+      features: ['详细解答', '专业术语', '引用来源']
+    },
+    douyin: {
+      name: t('adapt.platforms.douyin'),
+      description: t('adapt.platforms.douyin'),
+      maxLength: 300,
+      hashtagCount: 5,
+      tone: t('adapt.platformTones.douyin'),
+      features: ['视频脚本', '音乐配合', '互动引导']
+    },
+    weibo: {
+      name: t('adapt.platforms.weibo'),
+      description: t('adapt.platforms.weibo'),
+      maxLength: 140,
+      hashtagCount: 3,
+      tone: t('adapt.platformTones.weibo'),
+      features: ['话题标签', '@用户', '转发互动']
+    },
+    wechat: {
+      name: t('adapt.platforms.wechat'),
+      description: t('adapt.platforms.wechat'),
+      maxLength: 2000,
+      hashtagCount: 0,
+      tone: t('adapt.platformTones.wechat'),
+      features: ['图文并茂', '深度内容', '专业术语']
+    },
+    bilibili: {
+      name: t('adapt.platforms.bilibili'),
+      description: t('adapt.platforms.bilibili'),
+      maxLength: 500,
+      hashtagCount: 10,
+      tone: t('adapt.platformTones.bilibili'),
+      features: ['弹幕互动', '视频标题', '分区标签']
+    },
+    twitter: {
+      name: t('adapt.platforms.twitter'),
+      description: t('adapt.platforms.twitter'),
+      maxLength: 280,
+      hashtagCount: 2,
+      tone: t('adapt.platformTones.twitter'),
+      features: ['话题标签', '转推', '多语言']
+    },
+    video: {
+      name: t('adapt.platforms.shipinhao'),
+      description: t('adapt.platforms.shipinhao'),
+      maxLength: 300,
+      hashtagCount: 3,
+      tone: '亲和、互动',
+      features: ['视频内容', '互动引导', '社交分享']
+    }
+  }), [t]);
+
+  const platformStyles = useMemo(() => getPlatformStyles(), [getPlatformStyles]);
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -3906,7 +3879,7 @@ ${charCountControl.source === 'platform-specific'
               className="flex items-center space-x-2"
             >
               <History className="h-4 w-4" />
-              <span>历史记录</span>
+              <span>{t('adapt.history')}</span>
             </Button>
           </div>
         }
@@ -3919,10 +3892,10 @@ ${charCountControl.source === 'platform-specific'
         <Card variant="soft" className="rounded-xl">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-primary">输入原始内容</h1>
+              <h1 className="text-2xl font-bold text-primary">{t('adapt.inputOriginalContent')}</h1>
               {/* 🚨 DISABLED: 2025-08-04 暂时禁用Tooltip以排查无限循环问题 */}
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">剩余次数:</span>
+                <span className="text-sm text-muted-foreground">{t('adapt.remainingUsage')}</span>
                 <Badge variant={usageRemaining <= 5 ? "destructive" : "default"}>
                   {usageRemaining}
                 </Badge>
@@ -3932,7 +3905,7 @@ ${charCountControl.source === 'platform-specific'
           <CardContent>
             <div className="space-y-3">
               <MentionTextarea
-                placeholder="在此输入您的原始内容..."
+                placeholder={t('adapt.contentPlaceholder')}
                 className="min-h-[200px]"
                 value={originalContent}
                 onChange={setOriginalContent}
@@ -3992,7 +3965,7 @@ ${charCountControl.source === 'platform-specific'
       <div className="mb-8 mt-8">
         <Card variant="soft" className="rounded-xl">
           <CardHeader>
-            <h1 className="text-2xl font-bold text-primary">选择目标平台</h1>
+            <h1 className="text-2xl font-bold text-primary">{t('adapt.selectTargetPlatform')}</h1>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-fr">
@@ -4017,7 +3990,7 @@ ${charCountControl.source === 'platform-specific'
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <Settings className="h-4 w-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold text-foreground">平台设置</h3>
+                  <h3 className="text-lg font-semibold text-foreground">{t('adapt.platformSettings')}</h3>
                   <Badge variant="secondary" className="text-xs">
                     {selectedPlatforms.length}个平台
                   </Badge>
@@ -4029,7 +4002,7 @@ ${charCountControl.source === 'platform-specific'
                     onClick={saveSettings}
                   >
                     <Save className="h-3 w-3 mr-1" />
-                    保存设置
+                    {t('common.save')}设置
                   </Button>
                   <Button
                     variant="ghost"
@@ -4092,13 +4065,13 @@ ${charCountControl.source === 'platform-specific'
                         <SelectTrigger className={`h-9 max-w-xs ${
                           settingsMode.charCount === 'platform' ? 'bg-muted text-muted-foreground cursor-not-allowed' : ''
                         }`}>
-                          <SelectValue placeholder="选择字符数限制" />
+                          <SelectValue placeholder={t('adapt.selectCharacterLimit')} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="auto">自动适配</SelectItem>
-                          <SelectItem value="mini">精简版 (50-200字)</SelectItem>
-                          <SelectItem value="standard">标准版 (200-800字)</SelectItem>
-                          <SelectItem value="detailed">详细版 (800字+)</SelectItem>
+                          <SelectItem value="auto">{t('adapt.autoAdapt')}</SelectItem>
+                          <SelectItem value="mini">{t('adapt.conciseVersion')}</SelectItem>
+                          <SelectItem value="standard">{t('adapt.standardVersion')}</SelectItem>
+                          <SelectItem value="detailed">{t('adapt.detailedVersion')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <p className={`text-xs mt-1 ${
@@ -4548,7 +4521,7 @@ ${charCountControl.source === 'platform-specific'
             <div className="mb-4 p-4 bg-accent border border-border rounded-lg">
               <div className="flex items-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                <span className="text-foreground font-medium">正在生成内容，请稍候...</span>
+                <span className="text-foreground font-medium">{t('adapt.generatingContent')}</span>
               </div>
             </div>
           )}
@@ -4556,7 +4529,7 @@ ${charCountControl.source === 'platform-specific'
             <CardHeader>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-bold">平台适配结果</h1>
+                  <h1 className="text-2xl font-bold">{t('adapt.platformAdaptResult')}</h1>
                 {/* 网络状态指示器 */}
                 {networkStatus === 'offline' && (
                   <div className="flex items-center gap-2">
