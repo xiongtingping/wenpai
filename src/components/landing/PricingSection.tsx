@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/useAuth"
 import { useI18n } from "@/hooks/useI18n"
 import { Crown, Sparkles, Check, X, Star, TrendingUp, Zap } from "lucide-react"
-import { SUBSCRIPTION_PLANS } from "@/config/subscriptionPlans"
+import { getSubscriptionPlans } from "@/config/subscriptionPlans"
 import { SubscriptionPeriod } from "@/types/subscription"
 import {
   isInPromoPeriod,
@@ -106,10 +106,10 @@ export function PricingSection() {
     const creativeCube = t('nav.creative') || '创意魔方';
     const brandLibrary = t('nav.brandLibrary') || '品牌库';
     
-    if (feature.includes(creativeCube) || feature.includes('创意魔方')) {
+    if (feature.includes(creativeCube) || feature.includes('创意魔方') || feature.includes('Creative Cube')) {
       if (planTier === 'trial') return { disabled: true, label: t('home.pricing.comparisonTable.proExclusive') };
     }
-    if (feature.includes(brandLibrary) || feature.includes('品牌库')) {
+    if (feature.includes(brandLibrary) || feature.includes('品牌库') || feature.includes('Brand Library')) {
       if (planTier !== 'premium') return { disabled: true, label: t('home.pricing.comparisonTable.premiumExclusive') };
     }
     if (feature.includes('高级模型') || feature.includes('Advanced')) {
@@ -125,7 +125,7 @@ export function PricingSection() {
   // 渲染features时去掉右上角文案标签
   function renderFeatures(features: string[], plan: any) {
     return features
-      .filter(f => !/免费|专业版/.test(f)) // 只去掉"免费"、"专业版"等文案，保留次数信息
+      .filter(f => !/免费|专业版|Free|Pro/.test(f))
       .map((feature, index) => {
         // 解析功能标记
         let originalFeature = feature;
@@ -140,12 +140,12 @@ export function PricingSection() {
         }
 
         const text = originalFeature
-          .replace(/创意工作室/g, t('nav.creative') || '创意魔方') // 替换
-          .replace(/九宫格创意魔方/g, '九宫格创意魔方法') // 替换
-          .replace(/专业功能/g, '更多功能') // 替换
-          .replace(/专业版/g, '') // 去除专业版
-          .replace(/热点话题/g, m => m.replace('免费', '')) // 去除热点话题下免费
-          .replace(/\s+/g, ' ') // 清理多余空格
+          .replace(/创意工作室/g, t('nav.creative') || 'Creative Cube')
+          .replace(/九宫格创意魔方/g, t('home.features.creative.title') || 'Nine-Grid Creative Cube')
+          .replace(/专业功能/g, t('home.pricing.comparisonTable.advancedModels') || 'Advanced Features')
+          .replace(/专业版/g, '') 
+          .replace(/热点话题/g, m => m.replace('免费', '').replace('Free', ''))
+          .replace(/\s+/g, ' ')
           .trim();
 
         return (
@@ -264,7 +264,7 @@ export function PricingSection() {
         </div>
 
         <div className="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {SUBSCRIPTION_PLANS.map((plan) => {
+          {getSubscriptionPlans().map((plan) => {
             const pricing = billing === 'monthly' ? plan.monthly : plan.yearly;
             const isRecommended = plan.recommended;
             const isPremium = plan.premiumLabel;

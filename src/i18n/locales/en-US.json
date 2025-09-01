@@ -984,6 +984,38 @@
       "accessTime": "Payment center access time:",
       "remainingTime": "Remaining offer time:",
       "seconds": "seconds"
+    },
+    "plans": {
+      "trial": {
+        "name": "Trial",
+        "description": "Experience basic features for free"
+      },
+      "pro": {
+        "name": "Professional", 
+        "description": "Perfect for individual creators and small businesses"
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "Ideal for professional teams and enterprise users"
+      },
+      "features": {
+        "aiContentAdapter": "AI Content Adapter",
+        "hotRadar": "Trending Radar",
+        "creativeCube": "Creative Cube",
+        "myLibrary": "My Library",
+        "brandLibrary": "Brand Library",
+        "tokenQuota": "Token Quota",
+        "basicModels": "Basic AI Models",
+        "advancedModels": "Advanced AI Models",
+        "advancedLatestModels": "Advanced & Latest AI Models",
+        "lightTheme": "Light Theme",
+        "darkLightTheme": "Light/Dark Theme",
+        "allThemes": "All Themes",
+        "unlimited": "Unlimited",
+        "perMonth": "/month",
+        "timesPerMonth": "times/month",
+        "thousandTokens": "K"
+      }
     }
   }
 }

@@ -1126,6 +1126,38 @@
       "accessTime": "支付中心访问时间:",
       "remainingTime": "剩余优惠时间:",
       "seconds": "秒"
+    },
+    "plans": {
+      "trial": {
+        "name": "体验版",
+        "description": "免费体验基础功能"
+      },
+      "pro": {
+        "name": "专业版", 
+        "description": "适合个人创作者和中小企业"
+      },
+      "premium": {
+        "name": "高级版",
+        "description": "适合专业团队和企业用户"
+      },
+      "features": {
+        "aiContentAdapter": "AI内容适配器",
+        "hotRadar": "全网雷达",
+        "creativeCube": "创意魔方",
+        "myLibrary": "我的资料库",
+        "brandLibrary": "品牌库",
+        "tokenQuota": "Token额度",
+        "basicModels": "基础AI模型",
+        "advancedModels": "高级AI模型",
+        "advancedLatestModels": "高级及最新AI模型",
+        "lightTheme": "浅色主题",
+        "darkLightTheme": "浅色/深色主题",
+        "allThemes": "全部主题",
+        "unlimited": "不限次数",
+        "perMonth": "/月",
+        "timesPerMonth": "次/月",
+        "thousandTokens": "万"
+      }
     }
   }
 }

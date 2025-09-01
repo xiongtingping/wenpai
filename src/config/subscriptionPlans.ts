@@ -1,14 +1,15 @@
 import { SubscriptionPlan } from '@/types/subscription';
+import i18n from '@/i18n';
 
 /**
- * 订阅计划配置
+ * 获取本地化的订阅计划配置
  */
-export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+export const getSubscriptionPlans = (): SubscriptionPlan[] => [
   {
     id: 'trial',
-    name: '体验版',
+    name: i18n.t('payment.plans.trial.name'),
     tier: 'trial',
-    description: '免费体验基础功能',
+    description: i18n.t('payment.plans.trial.description'),
     monthly: {
       originalPrice: 0,
       discountPrice: 0,
@@ -28,19 +29,19 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       availableFeatures: ['全网雷达', '我的资料库', '基础AI模型']
     },
     features: [
-      'AI内容适配器（10次/月）',
-      '全网雷达',
-      '我的资料库',
-      'Token额度：10万/月',
-      '基础AI模型',
-      '浅色主题'
+      `${i18n.t('payment.plans.features.aiContentAdapter')}（10${i18n.t('payment.plans.features.timesPerMonth')}）`,
+      i18n.t('payment.plans.features.hotRadar'),
+      i18n.t('payment.plans.features.myLibrary'),
+      `${i18n.t('payment.plans.features.tokenQuota')}：10${i18n.t('payment.plans.features.thousandTokens')}${i18n.t('payment.plans.features.perMonth')}`,
+      i18n.t('payment.plans.features.basicModels'),
+      i18n.t('payment.plans.features.lightTheme')
     ]
   },
   {
     id: 'pro',
-    name: '专业版',
+    name: i18n.t('payment.plans.pro.name'),
     tier: 'pro',
-    description: '适合个人创作者和中小企业',
+    description: i18n.t('payment.plans.pro.description'),
     monthly: {
       originalPrice: 39,
       discountPrice: 29,
@@ -61,20 +62,20 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     },
     recommended: true,
     features: [
-      'AI内容适配器（30次/月）|up',
-      '全网雷达',
-      '创意魔方|new',
-      '我的资料库',
-      'Token额度：20万/月|up',
-      '高级AI模型|up',
-      '浅色/深色主题|up'
+      `${i18n.t('payment.plans.features.aiContentAdapter')}（30${i18n.t('payment.plans.features.timesPerMonth')}）|up`,
+      i18n.t('payment.plans.features.hotRadar'),
+      `${i18n.t('payment.plans.features.creativeCube')}|new`,
+      i18n.t('payment.plans.features.myLibrary'),
+      `${i18n.t('payment.plans.features.tokenQuota')}：20${i18n.t('payment.plans.features.thousandTokens')}${i18n.t('payment.plans.features.perMonth')}|up`,
+      `${i18n.t('payment.plans.features.advancedModels')}|up`,
+      `${i18n.t('payment.plans.features.darkLightTheme')}|up`
     ]
   },
   {
     id: 'premium',
-    name: '高级版',
+    name: i18n.t('payment.plans.premium.name'),
     tier: 'premium',
-    description: '适合专业团队和企业用户',
+    description: i18n.t('payment.plans.premium.description'),
     premiumLabel: true, // 标识为高级版，用于显示特殊标签
     monthly: {
       originalPrice: 99,
@@ -95,17 +96,20 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       availableFeatures: ['全网雷达', '创意魔方', '我的资料库', '品牌库', '高级及最新AI模型']
     },
     features: [
-      'AI内容适配器（不限次数）|up',
-      '全网雷达',
-      '创意魔方',
-      '我的资料库',
-      '品牌库|new',
-      'Token额度：50万/月|up',
-      '高级及最新AI模型|up',
-      '全部主题|up'
+      `${i18n.t('payment.plans.features.aiContentAdapter')}（${i18n.t('payment.plans.features.unlimited')}）|up`,
+      i18n.t('payment.plans.features.hotRadar'),
+      i18n.t('payment.plans.features.creativeCube'),
+      i18n.t('payment.plans.features.myLibrary'),
+      `${i18n.t('payment.plans.features.brandLibrary')}|new`,
+      `${i18n.t('payment.plans.features.tokenQuota')}：50${i18n.t('payment.plans.features.thousandTokens')}${i18n.t('payment.plans.features.perMonth')}|up`,
+      `${i18n.t('payment.plans.features.advancedLatestModels')}|up`,
+      `${i18n.t('payment.plans.features.allThemes')}|up`
     ]
   }
 ];
+
+// 保持向后兼容的导出
+export const SUBSCRIPTION_PLANS = getSubscriptionPlans();
 
 /**
  * 获取订阅计划
@@ -113,7 +117,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
  * @returns 订阅计划
  */
 export function getSubscriptionPlan(tier: string): SubscriptionPlan {
-  return SUBSCRIPTION_PLANS.find(plan => plan.tier === tier) || SUBSCRIPTION_PLANS[0];
+  const plans = getSubscriptionPlans();
+  return plans.find(plan => plan.tier === tier) || plans[0];
 }
 
 /**
@@ -121,7 +126,7 @@ export function getSubscriptionPlan(tier: string): SubscriptionPlan {
  * @returns 所有订阅计划
  */
 export function getAllSubscriptionPlans(): SubscriptionPlan[] {
-  return SUBSCRIPTION_PLANS;
+  return getSubscriptionPlans();
 }
 
 /**
