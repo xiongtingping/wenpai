@@ -25,6 +25,9 @@ export interface PaymentResponse {
   return_url?: string;
   feedback_url?: string;
   error?: string;
+  // BufPay HTML支付页面支持
+  htmlContent?: string;
+  message?: string;
 }
 
 export interface Order {

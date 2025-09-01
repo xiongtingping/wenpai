@@ -136,9 +136,20 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {/* 二维码 */}
+        {/* 支付内容 */}
         <div className="flex justify-center">
-          {paymentInfo.qr_img ? (
+          {paymentInfo.htmlContent ? (
+            // BufPay HTML支付页面
+            <div className="w-full border rounded-lg overflow-hidden">
+              <iframe
+                srcDoc={paymentInfo.htmlContent}
+                className="w-full h-96 border-0"
+                title="BufPay支付页面"
+                sandbox="allow-scripts allow-same-origin allow-forms"
+              />
+            </div>
+          ) : paymentInfo.qr_img ? (
+            // 传统二维码支付
             <img 
               src={paymentInfo.qr_img} 
               alt="支付二维码" 
@@ -163,8 +174,17 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
 
         {/* 支付说明 */}
         <div className="text-center text-sm text-muted-foreground space-y-1">
-          <p>请使用{paymentInfo.pay_type === 'alipay' ? '支付宝' : '微信'}扫码支付</p>
-          <p>支付金额：¥{paymentInfo.price}</p>
+          {paymentInfo.htmlContent ? (
+            <>
+              <p>在上方页面中完成支付操作</p>
+              <p>支付后页面会自动跳转或提示</p>
+            </>
+          ) : (
+            <>
+              <p>请使用{paymentInfo.pay_type === 'alipay' ? '支付宝' : '微信'}扫码支付</p>
+              <p>支付金额：¥{paymentInfo.price}</p>
+            </>
+          )}
           <p>订单号：{orderId}</p>
         </div>
 

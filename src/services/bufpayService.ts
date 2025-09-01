@@ -47,6 +47,35 @@ export class BufPayService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
+      // BufPay API 设计：返回 HTML 支付页面而非 JSON
+      const contentType = response.headers.get('content-type');
+      logger.info('BufPay API响应类型:', { contentType, orderId });
+
+      // 检查是否返回HTML支付页面（BufPay的设计模式）
+      if (contentType && contentType.includes('text/html')) {
+        const htmlResponse = await response.text();
+        logger.info('BufPay 返回HTML支付页面:', { 
+          orderId, 
+          htmlLength: htmlResponse.length,
+          containsQR: htmlResponse.includes('qrcode')
+        });
+
+        // 构造模拟的PaymentResponse以适配现有接口
+        const paymentResult: PaymentResponse = {
+          status: 'ok',
+          aoid: `bufpay_${orderId}_${Date.now()}`, // 生成临时支付ID
+          htmlContent: htmlResponse, // 保存完整HTML内容
+          // 如果需要，可以从HTML中提取QR码信息
+          message: '支付页面已生成'
+        };
+
+        return {
+          orderId,
+          paymentInfo: paymentResult
+        };
+      }
+
+      // 如果是JSON响应，使用原来的处理逻辑
       const paymentResult: PaymentResponse = await response.json();
       
       logger.info('BufPay 接口响应:', { orderId, status: paymentResult.status });

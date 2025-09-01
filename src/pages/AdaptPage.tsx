@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useTranslation } from 'react-i18next';
 import { logger } from '@/utils/logger';
 import {
   Book, Video, MessageSquare, Send,
@@ -611,6 +612,7 @@ const platformStyles: Record<string, { name: string; description: string; maxLen
 };
 
 export default function AdaptPage() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -1677,6 +1679,17 @@ export default function AdaptPage() {
         variant: "destructive"
       });
       return;
+    }
+
+    // ✅ 使用次数扣减规则：点击生成内容时立即扣减一次使用次数
+    try {
+      // 在开始生成前先扣减使用次数，确保即使生成失败也会计算使用次数
+      const { incrementUsage } = useAuthStore.getState();
+      incrementUsage();
+      
+      console.log('✅ 使用次数已扣减，剩余:', Math.max(0, maxUsage - (usageCount + 1)));
+    } catch (error) {
+      console.error('❌ 扣减使用次数失败:', error);
     }
 
     setGenerating(true);
