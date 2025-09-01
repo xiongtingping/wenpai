@@ -85,13 +85,11 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false,
     rollupOptions: {
-      external: [],
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
-          // 🔧 [AUTHING_GUARD_FIX_v2025.08.15] 移除authing chunk，避免构建时包含有问题的@authing/guard
-          // authing: ['@authing/guard']
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          i18n: ['react-i18next', 'i18next', 'i18next-browser-languagedetector']
         }
       },
       plugins: [
