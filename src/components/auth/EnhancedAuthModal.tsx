@@ -195,11 +195,12 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
         }
       } else {
         const code = formData.get('code') as string;
-        
+        const password = formData.get('password') as string;
+
         if (contactType === 'email') {
-          result = await authClient.registerByEmailCode(contact, code);
+          result = await authClient.registerByEmailCode(contact, code, password, null);
         } else if (contactType === 'phone') {
-          result = await authClient.registerByPhoneCode(contact, code);
+          result = await authClient.registerByPhoneCode(contact, code, password);
         } else {
           throw new Error('验证码注册请使用邮箱或手机号');
         }
