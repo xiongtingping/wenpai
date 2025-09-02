@@ -41,6 +41,7 @@ export interface AuthState {
   logout: () => void;
   incrementUsage: () => void;
   decrementUsage: () => void;
+  updateMaxUsage: (maxUsage: number) => void;
   // ✅ 保持向后兼容：保留方法但使用安全实现
   getUsageRemaining: () => number;
   recordUserAction: (action: string) => void;
@@ -123,6 +124,15 @@ export const useAuthStore = create<AuthState>()(
           const newUsageRemaining = computeUsageRemaining(newUsageCount, state.maxUsage);
           return {
             usageCount: newUsageCount,
+            usageRemaining: newUsageRemaining
+          };
+        }),
+
+        // 更新最大使用次数（根据订阅状态）
+        updateMaxUsage: (newMaxUsage: number) => set((state) => {
+          const newUsageRemaining = computeUsageRemaining(state.usageCount, newMaxUsage);
+          return {
+            maxUsage: newMaxUsage,
             usageRemaining: newUsageRemaining
           };
         }),

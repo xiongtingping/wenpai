@@ -795,6 +795,23 @@ export default function ProfilePage() {
   };
 
   /**
+   * 处理一键续费 - 直接创建相同层级的续费订单
+   */
+  const handleRenewSubscription = async () => {
+    const currentTier = getUserTier(user);
+    
+    // 根据当前层级直接跳转到对应的续费订单创建
+    if (currentTier === 'premium') {
+      window.location.href = '/payment?plan=premium&period=monthly&action=renew';
+    } else if (currentTier === 'pro') {
+      window.location.href = '/payment?plan=pro&period=monthly&action=renew';
+    } else {
+      // 体验版用户跳转到升级页面
+      window.location.href = '/payment';
+    }
+  };
+
+  /**
    * 立即邀请好友
    */
   const handleInviteFriends = async () => {
@@ -978,7 +995,7 @@ export default function ProfilePage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => window.location.href = '/payment'}
+                              onClick={handleRenewSubscription}
                               className="h-7 text-xs px-3 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                             >
                               <CreditCard className="w-3 h-3 mr-1" />
@@ -1324,8 +1341,8 @@ export default function ProfilePage() {
 
         </div>
 
-        {/* 第三行：反馈奖励 - 放在使用统计和邀请奖励底部 */}
-        <div className="w-full max-w-4xl mx-auto mt-6 px-4">
+        {/* 第三行：反馈奖励 - 与上面区域对齐 */}
+        <div className="profile-grid-equal-height mt-6">
           <Card variant="soft" className="w-full flex flex-col rounded-xl overflow-hidden relative">
             <CardHeader className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-foreground relative z-10 rounded-t-xl">
               <div className="flex items-center justify-between">

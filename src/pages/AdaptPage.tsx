@@ -90,6 +90,7 @@ import {
 } from "@/config/aiModels";
 import { useAuthStore } from "@/store/authStore";
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { getUserTier } from '@/utils/subscriptionUtils';
 import { cn } from "@/lib/utils";
 import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
 import { UsageReminderDialog } from '@/components/ui/usage-reminder-dialog';
@@ -1233,8 +1234,58 @@ export default function AdaptPage() {
   // 🐛 问题原因：useAuthStore((state) => state.getUsageRemaining()) 会导致每次渲染都调用get()，触发无限循环
   // 🔧 修复方式：直接从state中计算usageRemaining，避免调用get()方法
   // 🔒 LOCKED: 此修复已验证解决Tooltip无限循环问题，请勿修改
-  const { usageCount, maxUsage, decrementUsage } = useAuthStore();
+  const { usageCount, maxUsage, decrementUsage, updateMaxUsage } = useAuthStore();
   const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
+  
+  // 同步实际使用次数和最大使用次数
+  useEffect(() => {
+    if (user?.id) {
+      const syncUsageStats = async () => {
+        try {
+          const currentTier = getUserTier(user);
+          
+          // 获取最大使用次数
+          let newMaxUsage = 10; // 默认体验版
+          if (currentTier === 'pro') {
+            newMaxUsage = 30;
+          } else if (currentTier === 'premium') {
+            newMaxUsage = -1; // 无限制
+          }
+          
+          // 从后端API获取实际已使用次数
+          const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : '';
+          const response = await fetch(`${apiBaseUrl}/.netlify/functions/api-usage-count/user/usage/${user.id}`);
+          
+          if (response.ok) {
+            const usageData = await response.json();
+            const actualUsedCount = usageData.data?.totalUsed || 0;
+            
+            // 更新最大使用次数
+            if (newMaxUsage !== maxUsage) {
+              updateMaxUsage(newMaxUsage);
+            }
+            
+            // 同步实际已使用次数
+            const currentStoreUsage = useAuthStore.getState().usageCount;
+            if (actualUsedCount !== currentStoreUsage) {
+              // 直接设置正确的使用次数
+              useAuthStore.setState({ usageCount: actualUsedCount });
+              console.log('🔄 同步实际使用次数:', { 
+                tier: currentTier, 
+                actualUsed: actualUsedCount, 
+                maxUsage: newMaxUsage,
+                remaining: newMaxUsage === -1 ? '无限制' : Math.max(0, newMaxUsage - actualUsedCount)
+              });
+            }
+          }
+        } catch (error) {
+          console.error('同步使用次数失败:', error);
+        }
+      };
+      
+      syncUsageStats();
+    }
+  }, [user?.id, primaryStatus?.status, updateMaxUsage, maxUsage]);
   
   // 同步订阅状态更新后刷新使用次数
   useEffect(() => {
