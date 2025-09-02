@@ -385,9 +385,7 @@ class VerificationCodeService {
 
       const client = await this.initAuthClient();
       
-      const result = await client.registerByEmailCode(email, code, {
-        password: password
-      });
+      const result = await client.registerByEmailCode(email, code, password);
 
       console.log('✅ 邮箱验证码注册成功:', result);
       
