@@ -79,7 +79,7 @@ export default function PaymentPage() {
   const { toast } = useToast();
   const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useAuth();
   const { t } = useTranslation();
-  const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
+  const { primaryStatus, hasActiveSubscription, refresh: refreshSubscriptionStatus } = useSubscriptionStatus();
 
   // 获取来源操作（续费/升级）
   const locationState = location.state as { 
@@ -457,9 +457,14 @@ export default function PaymentPage() {
         await new Promise(resolve => setTimeout(resolve, 300));
 
         logger.info('支付成功后数据清理完成');
+        
+        // 刷新订阅状态
+        logger.info('刷新订阅状态...');
+        await refreshSubscriptionStatus();
+        logger.info('订阅状态刷新完成');
       }
     } catch (error) {
-      logger.warn('数据清理失败:', error);
+      logger.warn('数据清理或状态刷新失败:', error);
     }
 
     // 稍后跳转到结果页面
