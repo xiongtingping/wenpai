@@ -329,4 +329,28 @@ export class OrderService {
       throw error;
     }
   }
+
+  /**
+   * 根据订单ID获取用户订阅信息
+   */
+  static async getUserSubscriptionByOrderId(orderId: string): Promise<UserSubscription | null> {
+    try {
+      const { data, error } = await supabase
+        .from('user_subscriptions')
+        .select('*')
+        .eq('order_id', orderId)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (error) {
+        logger.error('根据订单ID获取用户订阅失败:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      logger.error('根据订单ID获取用户订阅失败:', error);
+      return null;
+    }
+  }
 }

@@ -262,24 +262,65 @@ export class BufPayService {
     order: any;
     isPaid: boolean;
     subscription?: any;
+    needsRepair?: boolean;
   }> {
     try {
+      logger.info('检查订单状态:', { orderId });
+
       const order = await OrderService.getOrderById(orderId);
       if (!order) {
         throw new Error('订单不存在');
       }
 
       const isPaid = order.status === 'paid' || order.status === 'processed';
-      
+
       let subscription = null;
+      let needsRepair = false;
+
       if (isPaid) {
-        subscription = await OrderService.getUserSubscription(order.user_id);
+        // 获取用户订阅，但要检查是否与当前订单关联
+        subscription = await OrderService.getUserSubscriptionByOrderId(orderId);
+
+        // 如果没有找到与订单关联的订阅，检查是否需要修复
+        if (!subscription && (order.status === 'paid' || order.status === 'processed')) {
+          needsRepair = true;
+          logger.warn('检测到需要修复的订单:', {
+            orderId,
+            status: order.status,
+            hasSubscription: false
+          });
+
+          // 尝试自动修复
+          try {
+            const { OrderStatusService } = await import('./orderStatusService');
+            const repairResult = await OrderStatusService.repairOrderPermissions(orderId);
+
+            if (repairResult.success) {
+              logger.info('订单权限自动修复成功:', { orderId });
+              subscription = repairResult.subscriptionData;
+              needsRepair = false;
+            } else {
+              logger.error('订单权限自动修复失败:', repairResult.message);
+            }
+          } catch (repairError) {
+            logger.error('自动修复过程中出错:', repairError);
+          }
+        }
       }
+
+      logger.info('订单状态检查结果:', {
+        orderId,
+        status: order.status,
+        isPaid,
+        hasSubscription: !!subscription,
+        needsRepair
+      });
 
       return {
         order,
         isPaid,
-        subscription
+        subscription,
+        needsRepair
       };
     } catch (error) {
       logger.error('检查订单状态失败:', error);

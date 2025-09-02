@@ -71,18 +71,33 @@ function calculateExpiryDate(durationType, startDate) {
  * 处理订单权限开通
  */
 async function processOrderPermissions(order) {
-  try {
-    // 计算订阅到期时间
-    const expiryDate = calculateExpiryDate(order.duration_type);
+  const maxRetries = 3;
+  let retryCount = 0;
+
+  while (retryCount < maxRetries) {
+    try {
+      console.log(`权限开通尝试 ${retryCount + 1}/${maxRetries}:`, {
+        orderId: order.order_id,
+        userId: order.user_id,
+        productType: order.product_type
+      });
+
+      // 计算订阅到期时间
+      const expiryDate = calculateExpiryDate(order.duration_type);
     
     // 检查用户是否已有相同类型的订阅
-    const { data: existingSubscription } = await supabase
+    const { data: existingSubscription, error: queryError } = await supabase
       .from('user_subscriptions')
       .select('*')
       .eq('user_id', order.user_id)
       .eq('subscription_type', order.product_type)
       .eq('status', 'active')
-      .single();
+      .maybeSingle(); // 使用 maybeSingle 避免没有记录时报错
+
+    if (queryError) {
+      console.error('查询现有订阅失败:', queryError);
+      throw queryError;
+    }
 
     let subscriptionData;
 
@@ -143,10 +158,36 @@ async function processOrderPermissions(order) {
       })
       .eq('order_id', order.order_id);
 
-    return subscriptionData;
-  } catch (error) {
-    console.error('处理订单权限开通失败:', error);
-    throw error;
+      console.log('订单处理完成:', { orderId: order.order_id, status: 'processed' });
+      return subscriptionData;
+
+    } catch (error) {
+      retryCount++;
+      console.error(`权限开通失败 (尝试 ${retryCount}/${maxRetries}):`, {
+        error: error.message,
+        orderId: order.order_id,
+        userId: order.user_id
+      });
+
+      if (retryCount >= maxRetries) {
+        console.error('权限开通最终失败，已达到最大重试次数');
+
+        // 记录失败信息到订单
+        await supabase
+          .from('orders')
+          .update({
+            error_message: `权限开通失败: ${error.message}`,
+            retry_count: retryCount,
+            last_error_at: new Date().toISOString()
+          })
+          .eq('order_id', order.order_id);
+
+        throw error;
+      }
+
+      // 等待后重试
+      await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+    }
   }
 }
 
@@ -287,30 +328,56 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // 4. 更新订单为已支付
-    const { data: updatedOrder, error: updateError } = await supabase
-      .from('orders')
-      .update({
-        status: 'paid',
-        aoid: notifyData.aoid,
-        pay_price: parseFloat(notifyData.pay_price),
-        paid_at: new Date().toISOString()
-      })
-      .eq('order_id', notifyData.order_id)
-      .select()
-      .single();
+    // 4. 使用事务处理订单状态更新和权限发放
+    try {
+      // 4.1 更新订单为已支付
+      const { data: updatedOrder, error: updateError } = await supabase
+        .from('orders')
+        .update({
+          status: 'paid',
+          aoid: notifyData.aoid,
+          pay_price: parseFloat(notifyData.pay_price),
+          paid_at: new Date().toISOString()
+        })
+        .eq('order_id', notifyData.order_id)
+        .select()
+        .single();
 
-    if (updateError) {
-      console.error('更新订单状态失败:', updateError);
+      if (updateError) {
+        console.error('更新订单状态失败:', updateError);
+        throw new Error(`更新订单状态失败: ${updateError.message}`);
+      }
+
+      console.log('订单状态更新成功:', { orderId: notifyData.order_id, status: 'paid' });
+
+      // 4.2 处理权限开通
+      const subscriptionData = await processOrderPermissions(updatedOrder);
+
+      console.log('权限开通成功:', {
+        userId: updatedOrder.user_id,
+        subscriptionType: subscriptionData.subscription_type,
+        expiresAt: subscriptionData.expires_at
+      });
+
+    } catch (permissionError) {
+      console.error('权限开通失败，回滚订单状态:', permissionError);
+
+      // 回滚订单状态
+      await supabase
+        .from('orders')
+        .update({
+          status: 'pending',
+          error_message: `权限开通失败: ${permissionError.message}`,
+          updated_at: new Date().toISOString()
+        })
+        .eq('order_id', notifyData.order_id);
+
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Failed to update order' })
+        body: JSON.stringify({ error: 'Permission grant failed' })
       };
     }
-
-    // 5. 处理权限开通
-    await processOrderPermissions(updatedOrder);
 
     console.log('✅ 支付回调处理完成:', { 
       orderId: notifyData.order_id, 
