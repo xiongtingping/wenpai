@@ -3,8 +3,8 @@
  * 提供原生的登录注册表单，不依赖第三方服务
  */
 
-import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -17,6 +17,8 @@ import '@/styles/animated-signin-21st.css';
 export const CustomLoginPage: React.FC = () => {
   const { toast } = useToast();
   const { guard, handleAuthingLogin } = useAuth();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // 登录表单状态
   const [loginForm, setLoginForm] = useState({
@@ -50,6 +52,15 @@ export const CustomLoginPage: React.FC = () => {
 
   // UI 视图模式：登录/注册（与模板保持一致的单卡片切换）
   const [mode, setMode] = useState<'login' | 'register'>('login');
+
+  // 处理URL参数，支持直接跳转到注册页面
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'register') {
+      setMode('register');
+      console.log('🔄 URL参数检测：切换到注册模式');
+    }
+  }, [searchParams]);
   // 浮动标签交互状态（仅用于视觉触发，逻辑仍用原有字段）
   const [loginEmailFocused, setLoginEmailFocused] = useState(false);
   const [loginPasswordFocused, setLoginPasswordFocused] = useState(false);
@@ -211,8 +222,7 @@ export const CustomLoginPage: React.FC = () => {
       
       if (result.success) {
         toast({ title: '注册成功', description: '正在跳转到登录...' });
-        // 注册成功后切换到登录模式
-        setMode('login');
+
         // 清空注册表单
         setRegisterForm({
           email: '',
@@ -226,6 +236,16 @@ export const CustomLoginPage: React.FC = () => {
           codeCountdown: 0,
           code: ''
         });
+
+        // 延迟切换到登录模式，给用户看到成功提示的时间
+        setTimeout(() => {
+          setMode('login');
+          // 如果是从注册页面跳转来的，更新URL
+          if (searchParams.get('tab') === 'register') {
+            navigate('/custom-login', { replace: true });
+          }
+          console.log('✅ 注册成功，已切换到登录模式');
+        }, 1500);
       } else {
         throw new Error(result.message);
       }
@@ -532,9 +552,26 @@ export const CustomLoginPage: React.FC = () => {
 
           <div className="form-options" style={{marginTop:12}}>
             <label className="remember-me" style={{userSelect:'none'}}>
-              <input type="checkbox" checked={registerAgreed} onChange={(e)=>setRegisterAgreed(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={registerAgreed}
+                onChange={(e) => {
+                  console.log('📋 隐私政策勾选状态:', e.target.checked);
+                  setRegisterAgreed(e.target.checked);
+                }}
+              />
               <span className="checkmark"></span>
-              我已阅读并同意 <Link to="/privacy" className="forgot-password">隐私政策</Link> 和 <Link to="/terms" className="forgot-password">服务条款</Link>
+              我已阅读并同意 <Link
+                to="/privacy"
+                className="forgot-password"
+                onClick={(e) => e.stopPropagation()}
+                target="_blank"
+              >隐私政策</Link> 和 <Link
+                to="/terms"
+                className="forgot-password"
+                onClick={(e) => e.stopPropagation()}
+                target="_blank"
+              >服务条款</Link>
             </label>
           </div>
           <p className="signup-prompt">
