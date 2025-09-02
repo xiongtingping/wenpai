@@ -198,7 +198,11 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
         const password = formData.get('password') as string;
 
         if (contactType === 'email') {
-          result = await authClient.registerByEmailCode(contact, code, password, null);
+          result = await authClient.registerByEmailCode(contact, code, null);
+          // 注册成功后立即设置密码
+          if (result) {
+            await authClient.updatePassword(password);
+          }
         } else if (contactType === 'phone') {
           result = await authClient.registerByPhoneCode(contact, code, password);
         } else {

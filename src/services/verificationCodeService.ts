@@ -385,9 +385,14 @@ class VerificationCodeService {
 
       const client = await this.initAuthClient();
       
-      const result = await client.registerByEmailCode(email, code, password, null);
+      const result = await client.registerByEmailCode(email, code, null);
 
       console.log('✅ 邮箱验证码注册成功:', result);
+
+      // 注册成功后立即设置密码
+      console.log('🔐 开始设置用户密码...');
+      await client.updatePassword(password);
+      console.log('✅ 用户密码设置成功');
       
       return {
         success: true,
