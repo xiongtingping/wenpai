@@ -1282,32 +1282,40 @@ export default function AdaptPage() {
           } else if (currentTier === 'premium') {
             newMaxUsage = -1; // 高级版无限制
           }
-          
-          // 从后端API获取实际已使用次数
-          const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : '';
-          const response = await fetch(`${apiBaseUrl}/.netlify/functions/api-usage-count/user/usage/${user.id}`);
-          
-          if (response.ok) {
-            const usageData = await response.json();
-            const actualUsedCount = usageData.data?.totalUsed || 0;
-            
-            // 更新最大使用次数
-            if (newMaxUsage !== maxUsage) {
-              updateMaxUsage(newMaxUsage);
+
+          console.log('🔄 更新使用次数限制:', {
+            tier: currentTier,
+            newMaxUsage: newMaxUsage === -1 ? '无限制' : newMaxUsage,
+            oldMaxUsage: maxUsage === -1 ? '无限制' : maxUsage
+          });
+
+          // 直接更新最大使用次数，不依赖可能不存在的API
+          if (newMaxUsage !== maxUsage) {
+            updateMaxUsage(newMaxUsage);
+            console.log('✅ 已更新最大使用次数:', newMaxUsage === -1 ? '无限制' : newMaxUsage);
+          }
+
+          // 尝试从后端API获取实际已使用次数（可选）
+          try {
+            const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : '';
+            const response = await fetch(`${apiBaseUrl}/.netlify/functions/api-usage-count/user/usage/${user.id}`);
+
+            if (response.ok) {
+              const usageData = await response.json();
+              const actualUsedCount = usageData.data?.totalUsed || 0;
+
+              // 同步实际已使用次数
+              const currentStoreUsage = useAuthStore.getState().usageCount;
+              if (actualUsedCount !== currentStoreUsage) {
+                useAuthStore.setState({ usageCount: actualUsedCount });
+                console.log('🔄 同步实际使用次数:', {
+                  actualUsed: actualUsedCount,
+                  remaining: newMaxUsage === -1 ? '无限制' : Math.max(0, newMaxUsage - actualUsedCount)
+                });
+              }
             }
-            
-            // 同步实际已使用次数
-            const currentStoreUsage = useAuthStore.getState().usageCount;
-            if (actualUsedCount !== currentStoreUsage) {
-              // 直接设置正确的使用次数
-              useAuthStore.setState({ usageCount: actualUsedCount });
-              console.log('🔄 同步实际使用次数:', { 
-                tier: currentTier, 
-                actualUsed: actualUsedCount, 
-                maxUsage: newMaxUsage,
-                remaining: newMaxUsage === -1 ? '无限制' : Math.max(0, newMaxUsage - actualUsedCount)
-              });
-            }
+          } catch (error) {
+            console.log('⚠️ API同步失败，使用本地数据:', error.message);
           }
         } catch (error) {
           console.error('同步使用次数失败:', error);
