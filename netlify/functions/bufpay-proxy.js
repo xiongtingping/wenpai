@@ -11,8 +11,8 @@ exports.handler = async (event, context) => {
     queryStringParameters: event.queryStringParameters
   });
 
-  // 支持POST和GET请求
-  if (!['POST', 'GET'].includes(event.httpMethod)) {
+  // 支持POST、GET和OPTIONS请求
+  if (!['POST', 'GET', 'OPTIONS'].includes(event.httpMethod)) {
     return {
       statusCode: 405,
       headers: {

@@ -6,7 +6,7 @@ const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 
 // Supabase 配置
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const appSecret = process.env.BUFPAY_APP_SECRET || '2861731746ef4189937ef4dc11f09375'; // 更新为正确的 APP_SECRET
 
