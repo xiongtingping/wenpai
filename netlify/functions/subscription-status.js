@@ -91,6 +91,13 @@ function calculateSubscriptionStatus(subscription) {
   }
 
   // 正常状态
+  const tierNames = {
+    'pro': '专业版',
+    'professional': '专业版',
+    'premium': '高级版'
+  };
+  const tierName = tierNames[subscription.subscription_type] || '专业版';
+  
   return {
     status: 'active',
     expiresAt: subscription.expires_at,
@@ -98,8 +105,9 @@ function calculateSubscriptionStatus(subscription) {
     needsAlert: false,
     alertLevel: 'info',
     alertMessage: '',
-    statusLabel: '有效',
-    statusColor: 'green'
+    statusLabel: `${tierName}有效`,
+    statusColor: 'green',
+    tier: subscription.subscription_type === 'premium' ? 'premium' : 'pro'
   };
 }
 

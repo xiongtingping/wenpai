@@ -20,6 +20,8 @@ export interface SubscriptionStatus {
   statusLabel: string;
   /** 状态颜色 */
   statusColor: 'green' | 'yellow' | 'orange' | 'red' | 'gray';
+  /** 订阅等级 */
+  tier?: 'trial' | 'pro' | 'premium';
 }
 
 /**

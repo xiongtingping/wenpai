@@ -12,6 +12,7 @@ import { getUserTier } from "@/utils/subscriptionUtils";
 import { getSubscriptionPlan } from "@/config/subscriptionPlans";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from '@/components/ui/toast';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 
 export interface PermissionLockedButtonProps {
   children: React.ReactNode;
@@ -40,9 +41,15 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
 
-  // 获取用户当前等级
-  const userTier = getUserTier(user);
+  // 获取用户当前等级 - 优先使用订阅状态数据
+  const userTier = (() => {
+    if (hasActiveSubscription && primaryStatus?.status === 'active' && primaryStatus.tier) {
+      return primaryStatus.tier;
+    }
+    return getUserTier(user);
+  })();
   
   // 检查权限
   const hasPermission = () => {
@@ -157,9 +164,15 @@ export const PermissionLockedIconButton: React.FC<PermissionLockedButtonProps> =
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
 
-  // 获取用户当前等级
-  const userTier = getUserTier(user);
+  // 获取用户当前等级 - 优先使用订阅状态数据
+  const userTier = (() => {
+    if (hasActiveSubscription && primaryStatus?.status === 'active' && primaryStatus.tier) {
+      return primaryStatus.tier;
+    }
+    return getUserTier(user);
+  })();
   
   // 检查权限
   const hasPermission = () => {

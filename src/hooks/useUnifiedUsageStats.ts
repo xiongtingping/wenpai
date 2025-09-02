@@ -129,7 +129,7 @@ async function fetchExtendedStats(userId: string): Promise<ExtendedStats> {
 /**
  * 统一使用量统计Hook（增强版）
  */
-export function useUnifiedUsageStats(): EnhancedUnifiedUsageStats & {
+export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): EnhancedUnifiedUsageStats & {
   refreshStats: () => Promise<void>;
   refreshTokenStats: () => Promise<void>;
   refreshUsageCountStats: () => Promise<void>;
@@ -163,10 +163,10 @@ export function useUnifiedUsageStats(): EnhancedUnifiedUsageStats & {
     expiryDate: string;
   } | undefined>();
 
-  // 获取用户套餐类型
+  // 获取用户套餐类型 - 优先使用外部传入的等级
   const getUserTier = useCallback((): SubscriptionTier => {
-    return (user?.subscription as any)?.tier || 'trial';
-  }, [user]);
+    return externalUserTier || (user?.subscription as any)?.tier || 'trial';
+  }, [user, externalUserTier]);
 
   const userTier = getUserTier();
 

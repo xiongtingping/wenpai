@@ -44,6 +44,7 @@ import {
   formatTimeLeft as formatTimeLeftUtil,
   shouldShowPromoOffer
 } from "@/utils/paymentTimer";
+import { getUserTier } from "@/utils/subscriptionUtils";
 import { paymentStatusService } from '@/services/paymentStatusService';
 // 已删除creemOptimizer导入，直接使用Creem API
 
@@ -80,6 +81,16 @@ export default function PaymentPage() {
   const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useAuth();
   const { t } = useTranslation();
   const { primaryStatus, hasActiveSubscription, refresh: refreshSubscriptionStatus } = useSubscriptionStatus();
+
+  // 获取用户当前等级 - 优先使用订阅状态钩子的数据
+  const userCurrentTier = (() => {
+    // 如果有活跃订阅，使用订阅状态数据中的tier字段
+    if (hasActiveSubscription && primaryStatus?.status === 'active' && primaryStatus.tier) {
+      return primaryStatus.tier; // 使用后端API返回的tier字段
+    }
+    // 否则使用用户对象的等级
+    return getUserTier(currentUser);
+  })();
 
   // 获取来源操作（续费/升级）
   const locationState = location.state as { 
@@ -462,6 +473,11 @@ export default function PaymentPage() {
         logger.info('刷新订阅状态...');
         await refreshSubscriptionStatus();
         logger.info('订阅状态刷新完成');
+
+        // 重新检查限时优惠状态
+        const shouldShow = await shouldShowPromoOffer(currentUser.id);
+        setShowPromoOffer(shouldShow);
+        logger.info('限时优惠状态已更新:', { shouldShow });
       }
     } catch (error) {
       logger.warn('数据清理或状态刷新失败:', error);
@@ -777,17 +793,17 @@ export default function PaymentPage() {
                             ? 'shadow-lg hover:shadow-xl hover:-translate-y-1'
                             : 'shadow-md hover:shadow-lg hover:-translate-y-0.5'
                         } ${
-                          plan.tier === 'trial'
+                          plan.tier === userCurrentTier
                             ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-0'
                             : ''
                         }`}
-                        disabled={plan.tier === 'trial'}
+                        disabled={plan.tier === userCurrentTier}
                         onClick={(e) => {
                           e.stopPropagation();
                           handlePlanSelect(plan);
                         }}
                       >
-                        {plan.tier === 'trial' ? (
+                        {plan.tier === userCurrentTier ? (
                           <>
                             <Check className="w-4 h-4 mr-2" />
                             {t('payment.labels.currentPlan')}

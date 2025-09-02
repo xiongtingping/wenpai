@@ -68,6 +68,7 @@ import { avatarService } from '@/services/avatarService';
 // 认证系统已下线：移除 AuthService 依赖
 import { isDevelopment } from '@/utils/env-validator';
 import { getUserTier } from '@/utils/subscriptionUtils';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 
 /**
  * 个人中心页面组件
@@ -77,6 +78,7 @@ export default function ProfilePage() {
   const { user, isAuthenticated, logout, updateUser } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
+  const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
@@ -137,9 +139,17 @@ export default function ProfilePage() {
   };
 
   /**
-   * 使用真实的Authing用户数据
+   * 使用真实的Authing用户数据 - 优先使用订阅状态数据
    */
-  const userTier = getUserTier(user);
+  const userTier = (() => {
+    // 如果有活跃订阅，使用订阅状态数据中的tier字段
+    if (hasActiveSubscription && primaryStatus?.status === 'active' && primaryStatus.tier) {
+      return primaryStatus.tier;
+    }
+    // 否则使用用户对象的等级
+    return getUserTier(user);
+  })();
+  
   const getAccountType = () => {
     if (userTier === 'trial') return t('auth.trialUser');
     if (userTier === 'pro') return t('auth.proUser');
@@ -1290,93 +1300,75 @@ export default function ProfilePage() {
 
         </div>
 
-        {/* 第三行：反馈奖励卡片 - 独立展示保持左右平衡 */}
-        <div className="profile-grid-equal-height">
-          {/* 左侧：反馈奖励 */}
-          <div className="profile-grid-item">
-            <Card variant="soft" className="w-full h-full flex flex-col rounded-xl overflow-hidden relative">
-              <CardHeader className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-foreground relative z-10 rounded-t-xl">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-orange-500/10 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0 border border-orange-500/20">
-                      <HelpCircle className="w-6 h-6 drop-shadow-sm text-orange-500" />
-                    </div>
-                    <div>
-                      <div className="text-xl font-bold text-foreground">{t('profile.feedbackRewards')}</div>
-                      <div className="text-sm font-normal text-muted-foreground">{t('profile.feedbackDescription')}</div>
-                    </div>
+        {/* 第三行：反馈奖励 - 放在使用统计和邀请奖励底部 */}
+        <div className="w-full max-w-2xl mx-auto mt-6">
+          <Card variant="soft" className="w-full flex flex-col rounded-xl overflow-hidden relative">
+            <CardHeader className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-foreground relative z-10 rounded-t-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-orange-500/10 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0 border border-orange-500/20">
+                    <HelpCircle className="w-6 h-6 drop-shadow-sm text-orange-500" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-foreground">{t('profile.feedbackRewards')}</div>
+                    <div className="text-sm font-normal text-muted-foreground">{t('profile.feedbackDescription')}</div>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col p-6 relative z-10">
-                <div className="flex-1 space-y-4">
-                  {/* 反馈规则说明 */}
-                  <div className="rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden bg-accent">
-                    <div className="flex items-center gap-3 mb-3 relative z-10">
-                      <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center shadow-e0">
-                        <Award className="w-5 h-5 text-white drop-shadow-sm" />
-                      </div>
-                      <h3 className="font-bold text-foreground text-lg">{t('profile.feedbackRules')}</h3>
+              </div>
+            </CardHeader>
+            <CardContent className="flex flex-col p-6 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                {/* 反馈规则说明 */}
+                <div className="rounded-xl p-4 border border-border shadow-e1 relative overflow-hidden bg-accent">
+                  <div className="flex items-center gap-3 mb-3 relative z-10">
+                    <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-e0">
+                      <Award className="w-4 h-4 text-white drop-shadow-sm" />
                     </div>
-                    <p className="text-muted-foreground font-medium text-sm relative z-10">
-                      {t('profile.feedbackRule')}
-                    </p>
+                    <h3 className="font-bold text-foreground text-base">{t('profile.feedbackRules')}</h3>
                   </div>
+                  <p className="text-muted-foreground font-medium text-sm relative z-10">
+                    {t('profile.feedbackRule')}
+                  </p>
+                </div>
 
-                  {/* 反馈邮箱卡片 */}
-                  <div className="rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden bg-accent">
-                    <div className="flex items-center gap-3 mb-3 relative z-10">
-                      <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center shadow-e0">
-                        <Mail className="w-5 h-5 text-white drop-shadow-sm" />
-                      </div>
-                      <h3 className="font-bold text-foreground text-lg">{t('profile.feedbackEmail')}</h3>
+                {/* 反馈邮箱卡片 */}
+                <div className="rounded-xl p-4 border border-border shadow-e1 relative overflow-hidden bg-accent">
+                  <div className="flex items-center gap-3 mb-3 relative z-10">
+                    <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-e0">
+                      <Mail className="w-4 h-4 text-white drop-shadow-sm" />
                     </div>
-                    <div className="flex gap-3">
-                      <Input
-                        value="hello@wenpai.xyz"
-                        readOnly
-                        className="text-sm h-11 border border-border rounded-lg bg-accent font-mono flex-1"
-                      />
-                      <Button
-                        variant="soft"
-                        size="sm"
-                        onClick={handleCopyFeedbackEmail}
-                        className="h-11 px-4 rounded-lg bg-orange-500 text-white hover:bg-orange-600"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <h3 className="font-bold text-foreground text-base">{t('profile.feedbackEmail')}</h3>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      value="hello@wenpai.xyz"
+                      readOnly
+                      className="text-sm h-9 border border-border rounded-lg bg-accent font-mono flex-1"
+                    />
+                    <Button
+                      variant="soft"
+                      size="sm"
+                      onClick={handleCopyFeedbackEmail}
+                      className="h-9 px-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600"
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
                   </div>
                 </div>
+              </div>
 
-                {/* 反馈按钮 - 与左侧对齐 */}
-                <div className="mt-4">
-                  <Button
-                    variant="ghost"
-                    size="hero"
-                    className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-orange-500/10 to-orange-600/10 border border-orange-500/20 text-orange-600 hover:from-orange-500/20 hover:to-orange-600/20"
-                    onClick={handleCopyFeedbackEmail}
-                  >
-                    <HelpCircle className="w-5 h-5 mr-2" />
-                    {t('profile.submitFeedback')}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* 右侧：预留扩展空间 */}
-          <div className="profile-grid-item">
-            <Card variant="soft" className="w-full h-full flex flex-col rounded-xl overflow-hidden relative bg-muted/30">
-              <CardContent className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-                <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mb-4">
-                  <Plus className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <h3 className="text-lg font-bold text-muted-foreground mb-2">{t('profile.moreFeatures')}</h3>
-                <p className="text-sm text-muted-foreground">{t('profile.comingSoon')}</p>
-              </CardContent>
-            </Card>
-          </div>
+              {/* 反馈按钮 */}
+              <Button
+                variant="ghost"
+                size="lg"
+                className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-orange-500/10 to-orange-600/10 border border-orange-500/20 text-orange-600 hover:from-orange-500/20 hover:to-orange-600/20"
+                onClick={handleCopyFeedbackEmail}
+              >
+                <HelpCircle className="w-4 h-4 mr-2" />
+                {t('profile.submitFeedback')}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
       </div>

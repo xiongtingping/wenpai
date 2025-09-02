@@ -102,7 +102,7 @@ export function TokenUsageSection({
     loading,
     error,
     refreshStats
-  } = useUnifiedUsageStats();
+  } = useUnifiedUsageStats(userTier);
 
   // 如果有外部数据，使用外部数据覆盖
   const finalUsageCountStats = externalUserStats ? {
