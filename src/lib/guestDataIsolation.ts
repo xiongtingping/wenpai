@@ -37,6 +37,12 @@ export class GuestDataIsolationManager {
    * 初始化访客会话
    */
   private initializeGuestSession(): void {
+    // 检查是否可以访问 localStorage
+    if (!this.isStorageAvailable()) {
+      console.warn('⚠️ localStorage 不可用，跳过访客会话初始化');
+      return;
+    }
+
     // 尝试恢复现有会话
     const existingSession = this.loadGuestSession();
     
@@ -52,9 +58,37 @@ export class GuestDataIsolationManager {
   }
 
   /**
+   * 检查是否可以访问 localStorage
+   */
+  private isStorageAvailable(): boolean {
+    try {
+      const testKey = '__wenpai_storage_test__';
+      localStorage.setItem(testKey, 'test');
+      localStorage.removeItem(testKey);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
    * 创建新的访客会话
    */
   private createNewGuestSession(): void {
+    if (!this.isStorageAvailable()) {
+      console.warn('⚠️ localStorage 不可用，使用内存会话');
+      this.currentSessionId = this.generateUniqueSessionId();
+      this.sessionData = {
+        sessionId: this.currentSessionId,
+        createdAt: new Date().toISOString(),
+        lastActivity: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        fingerprint: this.generateBrowserFingerprint()
+      };
+      console.log(`👤 创建新访客会话(内存): ${this.currentSessionId}`);
+      return;
+    }
+
     this.currentSessionId = this.generateUniqueSessionId();
     this.sessionData = {
       sessionId: this.currentSessionId,
@@ -106,16 +140,24 @@ export class GuestDataIsolationManager {
    * 保存访客会话信息
    */
   private saveGuestSession(): void {
-    if (!this.sessionData) return;
+    if (!this.sessionData || !this.isStorageAvailable()) return;
     
-    const sessionKey = 'wenpai:guest:session_info';
-    localStorage.setItem(sessionKey, JSON.stringify(this.sessionData));
+    try {
+      const sessionKey = 'wenpai:guest:session_info';
+      localStorage.setItem(sessionKey, JSON.stringify(this.sessionData));
+    } catch (error) {
+      console.warn('保存访客会话失败:', error);
+    }
   }
 
   /**
    * 加载访客会话信息
    */
   private loadGuestSession(): GuestSession | null {
+    if (!this.isStorageAvailable()) {
+      return null;
+    }
+
     try {
       const sessionKey = 'wenpai:guest:session_info';
       const data = localStorage.getItem(sessionKey);
@@ -142,7 +184,7 @@ export class GuestDataIsolationManager {
    * 更新最后活动时间
    */
   private updateLastActivity(): void {
-    if (this.sessionData) {
+    if (this.sessionData && this.isStorageAvailable()) {
       this.sessionData.lastActivity = new Date().toISOString();
       this.saveGuestSession();
     }
@@ -175,16 +217,29 @@ export class GuestDataIsolationManager {
    * 存储访客数据
    */
   setGuestData<T>(module: string, data: T, subModule?: string): void {
-    const key = this.getGuestDataKey(module, subModule);
-    localStorage.setItem(key, JSON.stringify(data));
-    this.updateLastActivity();
-    console.log(`💾 访客数据已保存: ${module}${subModule ? ':' + subModule : ''}`);
+    if (!this.isStorageAvailable()) {
+      console.warn('⚠️ localStorage 不可用，无法保存访客数据');
+      return;
+    }
+
+    try {
+      const key = this.getGuestDataKey(module, subModule);
+      localStorage.setItem(key, JSON.stringify(data));
+      this.updateLastActivity();
+      console.log(`💾 访客数据已保存: ${module}${subModule ? ':' + subModule : ''}`);
+    } catch (error) {
+      console.warn('保存访客数据失败:', error);
+    }
   }
 
   /**
    * 获取访客数据
    */
   getGuestData<T>(module: string, subModule?: string): T | null {
+    if (!this.isStorageAvailable()) {
+      return null;
+    }
+
     try {
       const key = this.getGuestDataKey(module, subModule);
       const data = localStorage.getItem(key);
