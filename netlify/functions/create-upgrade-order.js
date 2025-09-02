@@ -187,6 +187,9 @@ exports.handler = async (event, context) => {
     formData.append('return_url', returnUrl);
     formData.append('feedback_url', BUFPAY_CONFIG.FEEDBACK_URL);
     
+    // 添加format参数请求JSON响应
+    formData.append('format', 'json');
+    
     const sign = generatePaymentSign(
       productName,
       payType,
