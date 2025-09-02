@@ -115,8 +115,9 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
     try {
       const formData = new FormData(e.currentTarget);
       const identifier = formData.get('identifier') as string;
+      const rememberMe = formData.get('rememberMe') === 'on';
 
-      console.log('🔐 开始增强登录表单登录...');
+      console.log('🔐 开始增强登录表单登录...', { rememberMe });
 
       let result;
       if (loginMethod === 'password') {
@@ -145,6 +146,17 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
 
       if (result) {
         console.log('✅ 登录成功:', result);
+        
+        // 处理记住登录状态
+        if (rememberMe) {
+          // 设置较长的token过期时间（30天）
+          localStorage.setItem('wenpai-remember-login', 'true');
+          localStorage.setItem('wenpai-login-timestamp', Date.now().toString());
+        } else {
+          localStorage.removeItem('wenpai-remember-login');
+          localStorage.removeItem('wenpai-login-timestamp');
+        }
+        
         handleAuthingLogin(result);
         onClose();
       }
@@ -242,9 +254,11 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
 
       let result;
       if (contact.includes('@')) {
-        result = await authClient.resetPasswordByEmailCode(contact, code, newPassword);
+        // 使用邮箱重置密码
+        result = await authClient.resetPasswordByEmail(contact, code, newPassword);
       } else {
-        result = await authClient.resetPasswordByPhoneCode(contact, code, newPassword);
+        // 使用手机号重置密码
+        result = await authClient.resetPasswordByPhone(contact, code, newPassword);
       }
 
       if (result) {
@@ -327,7 +341,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                       <AppInput
                         name="identifier"
                         type="text"
-                        placeholder="邮箱/手机号/用户名"
+                        placeholder="手机号/邮箱/用户名"
                         label="账号"
                         autoComplete="username"
                         required
@@ -368,7 +382,15 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                         </div>
                       )}
                       
-                      <div className="text-right">
+                      <div className="flex justify-between items-center">
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="rememberMe"
+                            className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
+                          />
+                          <span className="text-sm text-muted-foreground">记住登录状态</span>
+                        </label>
                         <button 
                           type="button"
                           className="text-sm text-primary hover:underline"
@@ -420,8 +442,8 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                       <AppInput
                         name="contact"
                         type="text"
-                        placeholder="邮箱或手机号"
-                        label="邮箱/手机号"
+                        placeholder="手机号或邮箱"
+                        label="手机号/邮箱"
                         autoComplete="email"
                         required
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRegisterContact(e.target.value)}
@@ -483,7 +505,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                     <AppInput
                       name="contact"
                       type="text"
-                      placeholder="邮箱或手机号"
+                      placeholder="手机号或邮箱"
                       label="联系方式"
                       required
                     />
