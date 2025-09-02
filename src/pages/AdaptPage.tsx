@@ -89,6 +89,7 @@ import {
   type AIModel
 } from "@/config/aiModels";
 import { useAuthStore } from "@/store/authStore";
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { cn } from "@/lib/utils";
 import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
 import { UsageReminderDialog } from '@/components/ui/usage-reminder-dialog';
@@ -1233,6 +1234,15 @@ export default function AdaptPage() {
   // 🔧 修复方式：直接从state中计算usageRemaining，避免调用get()方法
   // 🔒 LOCKED: 此修复已验证解决Tooltip无限循环问题，请勿修改
   const { usageCount, maxUsage, decrementUsage } = useAuthStore();
+  const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
+  
+  // 同步订阅状态更新后刷新使用次数
+  useEffect(() => {
+    if (primaryStatus?.status === 'active') {
+      refreshSubscription();
+    }
+  }, [primaryStatus?.status, refreshSubscription]);
+  
   const usageRemaining = Math.max(0, maxUsage - usageCount);
 
   // 使用次数提醒弹窗状态

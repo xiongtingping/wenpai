@@ -968,6 +968,25 @@ export default function ProfilePage() {
                           </Badge>
                         </div>
 
+                        {/* 会员有效期和续费信息 */}
+                        {hasActiveSubscription && primaryStatus?.expiresAt && (
+                          <div className="flex flex-col items-center gap-2 mb-3">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Clock className="w-3 h-3" />
+                              <span>有效期至：{new Date(primaryStatus.expiresAt).toLocaleDateString('zh-CN')}</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => window.location.href = '/payment'}
+                              className="h-7 text-xs px-3 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                            >
+                              <CreditCard className="w-3 h-3 mr-1" />
+                              一键续费
+                            </Button>
+                          </div>
+                        )}
+
                         {/* 上传头像按钮 */}
                         <Button
                           variant="outline"
@@ -1306,7 +1325,7 @@ export default function ProfilePage() {
         </div>
 
         {/* 第三行：反馈奖励 - 放在使用统计和邀请奖励底部 */}
-        <div className="w-full max-w-2xl mx-auto mt-6">
+        <div className="w-full max-w-4xl mx-auto mt-6 px-4">
           <Card variant="soft" className="w-full flex flex-col rounded-xl overflow-hidden relative">
             <CardHeader className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-foreground relative z-10 rounded-t-xl">
               <div className="flex items-center justify-between">

@@ -12,6 +12,7 @@ import {
 import { usePermission } from '@/hooks/usePermission';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useNavigate } from 'react-router-dom';
 import { ThemeUpgradeDialog } from '@/components/ui/ThemeUpgradeDialog';
 import { generateStorageKey } from '@/utils/userDataIsolation';
@@ -95,6 +96,9 @@ export const ThemeToggle: React.FC = () => {
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<ThemeConfig | null>(null);
   const navigate = useNavigate();
+  
+  // 获取订阅状态以同步权限更新
+  const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
 
   // 获取权限检查结果
   const basicPermission = usePermission('theme:basic');
@@ -108,6 +112,14 @@ export const ThemeToggle: React.FC = () => {
       setTheme(newTheme);
     }
   }, [user?.id]);
+  
+  // 监听订阅状态变化，同步权限更新
+  useEffect(() => {
+    if (primaryStatus?.status === 'active') {
+      // 订阅状态更新时，刷新权限状态
+      refreshSubscription();
+    }
+  }, [primaryStatus?.status, refreshSubscription]);
 
   // 🔧 优化权限检查逻辑，减少不必要的回退提示
   useEffect(() => {

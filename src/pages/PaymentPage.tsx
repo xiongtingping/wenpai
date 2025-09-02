@@ -683,16 +683,24 @@ export default function PaymentPage() {
             const savedAmount = isInDiscount ? (originalPrice - currentPrice) : 0;
             const isSelected = selectedPlan?.id === plan.id;
             const yearlySavings = getYearlySavings(plan);
+            
+            // 检查是否应该禁用计划（当前用户等级高于此计划等级）
+            const tierLevels = { trial: 0, pro: 1, premium: 2 };
+            const currentLevel = tierLevels[userCurrentTier] || 0;
+            const planLevel = tierLevels[plan.tier as keyof typeof tierLevels] || 0;
+            const isDowngrade = currentLevel > planLevel;
 
             return (
               <div key={plan.id} className="relative pt-4">
                 <Card
-                  className={`cursor-pointer transition-all duration-300 relative group w-full flex flex-col rounded-lg min-h-[520px] ${
-                    isSelected
-                      ? 'border-primary shadow-lg scale-105 bg-primary/5'
-                      : 'border-border hover:border-primary/50 hover:shadow-md hover:scale-102'
+                  className={`transition-all duration-300 relative group w-full flex flex-col rounded-lg min-h-[520px] ${
+                    isDowngrade
+                      ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-50'
+                      : isSelected
+                      ? 'border-primary shadow-lg scale-105 bg-primary/5 cursor-pointer'
+                      : 'border-border hover:border-primary/50 hover:shadow-md hover:scale-102 cursor-pointer'
                   }`}
-                  onClick={() => handlePlanSelect(plan)}
+                  onClick={() => !isDowngrade && handlePlanSelect(plan)}
                 >
                   {/* 标签容器 */}
                   <div className="absolute top-3 left-0 right-0 z-20">
@@ -817,16 +825,23 @@ export default function PaymentPage() {
                             ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-0'
                             : ''
                         }`}
-                        disabled={plan.tier === userCurrentTier}
+                        disabled={plan.tier === userCurrentTier || isDowngrade}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handlePlanSelect(plan);
+                          if (!isDowngrade) {
+                            handlePlanSelect(plan);
+                          }
                         }}
                       >
                         {plan.tier === userCurrentTier ? (
                           <>
                             <Check className="w-4 h-4 mr-2" />
                             {t('payment.labels.currentPlan')}
+                          </>
+                        ) : isDowngrade ? (
+                          <>
+                            <Check className="w-4 h-4 mr-2 opacity-50" />
+                            已拥有更高版本
                           </>
                         ) : isSelected ? (
                           <>

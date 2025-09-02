@@ -22,6 +22,8 @@ import { useNavigate } from 'react-router-dom';
 import { getUserDisplayName, getUserAvatarFallback, getUserAvatar } from '@/utils/userDisplayUtils';
 // 简化权限管理 - 移除复杂的权限管理器
 import { logger } from '@/utils/logger';
+import { getUserTier } from '@/utils/subscriptionUtils';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 
 /**
  * 用户头像组件属性
@@ -84,10 +86,42 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     return;
   };
 
-  // 简化用户等级显示
+  // 获取用户等级和订阅状态
+  const { primaryStatus } = useSubscriptionStatus();
+  
   const getUserTierDisplay = () => {
-    if (!user) return '';
-    return t('auth.user'); // 简化显示
+    if (!user) return t('auth.user');
+    
+    // 使用订阅状态的标签和颜色
+    return primaryStatus.statusLabel || t('auth.user');
+  };
+  
+  const getTierBadgeClasses = () => {
+    const userTier = getUserTier(user);
+    
+    if (userTier === 'trial') {
+      return 'bg-gray-100 text-gray-700 border-gray-200';
+    } else if (userTier === 'pro') {
+      return 'bg-blue-100 text-blue-700 border-blue-200';
+    } else if (userTier === 'premium') {
+      return 'bg-purple-100 text-purple-700 border-purple-200';
+    }
+    
+    return 'bg-gray-100 text-gray-700 border-gray-200';
+  };
+  
+  const getTierIconColor = () => {
+    const userTier = getUserTier(user);
+    
+    if (userTier === 'trial') {
+      return 'text-gray-500';
+    } else if (userTier === 'pro') {
+      return 'text-blue-500';
+    } else if (userTier === 'premium') {
+      return 'text-purple-500';
+    }
+    
+    return 'text-gray-500';
   };
 
   // 🔒 SECURITY: 解锁按钮已完全禁用 - 防止权限绕过攻击
@@ -177,10 +211,9 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               </p>
               <div className="flex items-center gap-2 mt-1">
                 <Badge
-                  variant="secondary"
-                  className="text-xs"
+                  className={`text-xs font-semibold ${getTierBadgeClasses()}`}
                 >
-                  <Crown className="w-3 h-3 mr-1" />
+                  <Crown className={`w-3 h-3 mr-1 ${getTierIconColor()}`} />
                   {getUserTierDisplay()}
                 </Badge>
               </div>
