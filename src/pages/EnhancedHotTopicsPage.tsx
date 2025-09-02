@@ -22,7 +22,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import EnhancedHotTopics from '@/components/hot-topics/EnhancedHotTopics';
-import RSSHubIntegration from '@/components/hot-topics/RSSHubIntegration';
+// import RSSHubIntegration from '@/components/hot-topics/RSSHubIntegration';
 
 export default function EnhancedHotTopicsPage() {
   const [activeMode, setActiveMode] = useState<'enhanced' | 'rsshub' | 'comparison'>('enhanced');
@@ -191,7 +191,9 @@ export default function EnhancedHotTopicsPage() {
         )}
 
         {activeMode === 'rsshub' && (
-          <RSSHubIntegration className="w-full" />
+          <div className="text-center text-gray-500 py-8">
+            RSSHub 集成功能开发中...
+          </div>
         )}
 
         {activeMode === 'comparison' && (

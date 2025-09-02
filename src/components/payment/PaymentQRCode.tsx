@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, RefreshCw, Clock, AlertCircle } from 'lucide-react';
 import { PaymentResponse } from '@/types/payment';
 import { formatCountdown, needsManualAmount } from '@/utils/paymentUtils';
+import { BufPayService } from '@/services/bufpayService';
 
 interface PaymentQRCodeProps {
   paymentInfo: PaymentResponse;
@@ -89,14 +90,13 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
 
     const pollPaymentStatus = async () => {
       try {
-        const response = await fetch(`/.netlify/functions/bufpay-proxy?query=${paymentInfo.aoid}`);
-        const result = await response.json();
+        const status = await BufPayService.queryBufPayStatus(paymentInfo.aoid);
 
         // 根据BufPay文档处理所有支付状态
-        switch (result.status) {
+        switch (status) {
           case 'success':
             // 订单已支付已经回调成功
-            console.log('🎉 支付成功检测到 (已回调):', result);
+            console.log('🎉 支付成功检测到 (已回调):', status);
             setPaymentStatus('success');
             setIsPolling(false);
             setTimeout(() => {
@@ -106,18 +106,18 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
             
           case 'payed':
             // 订单已支付未回调 - 继续轮询直到回调成功
-            console.log('💰 已支付但未回调:', result);
+            console.log('💰 已支付但未回调:', status);
             // 继续轮询，等待回调完成
             break;
             
           case 'new':
             // 新订单 - 继续等待支付
-            console.log('🔄 订单等待支付中:', result);
+            console.log('🔄 订单等待支付中:', status);
             break;
             
           case 'expire':
             // 订单已过期
-            console.log('⏰ 支付超时:', result);
+            console.log('⏰ 支付超时:', status);
             setPaymentStatus('timeout');
             setIsPolling(false);
             onPaymentTimeout?.();
@@ -125,7 +125,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
             
           case 'fee_error':
             // 账户余额不足扣除手续费失败，订单未回调
-            console.log('💸 手续费扣除失败:', result);
+            console.log('💸 手续费扣除失败:', status);
             setPaymentStatus('failed');
             setErrorMessage('支付平台手续费扣除失败，请联系客服');
             setIsPolling(false);
@@ -134,7 +134,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
             
           case 'not_exist':
             // 订单不存在
-            console.error('❌ 订单不存在:', result);
+            console.error('❌ 订单不存在:', status);
             setPaymentStatus('failed');
             setErrorMessage('订单不存在，请重新创建订单');
             setIsPolling(false);
@@ -142,7 +142,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
             break;
             
           default:
-            console.log('🔄 未知状态，继续轮询:', result);
+            console.log('🔄 未知状态，继续轮询:', status);
             break;
         }
       } catch (error) {

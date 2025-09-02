@@ -139,7 +139,7 @@ const DEFAULT_TEMPLATES: CardTemplate[] = [
 export default function MD2CardPage() {
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuthStore();
-  const { incrementUsage, checkUsageLimit } = useUsageStore();
+  const { recordUsage } = useUsageStore();
   
   // 状态管理
   const [markdownContent, setMarkdownContent] = useState(`# 欢迎使用MD2Card
@@ -365,15 +365,8 @@ export default function MD2CardPage() {
 
   return (
     <PermissionAwareContainer 
-      feature="md2card" 
-      fallback={
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <h3 className="text-lg font-medium mb-2">需要高级权限</h3>
-            <p className="text-muted-foreground mb-4">MD2Card卡片生成工具需要高级版本</p>
-          </div>
-        </div>
-      }
+      featureName="MD2Card卡片生成"
+      requiredTier="premium"
     >
       <div className="h-full bg-background">
         {/* 工具栏 */}

@@ -250,12 +250,59 @@ async function runAll() {
     // 3. 验证表创建结果
     await verifyTables();
     
+    // 4. 添加约束和索引
+    await addDatabaseConstraints();
+    
     console.log('\n' + '='.repeat(60));
     console.log('✅ 数据库表创建流程完成');
     
   } catch (error) {
     console.log('\n❌ 创建数据库表失败:', error.message);
     console.log(error.stack);
+  }
+}
+
+/**
+ * 添加数据库约束和索引
+ */
+async function addDatabaseConstraints() {
+  try {
+    console.log('\n🔧 添加数据库约束和索引...');
+    
+    const constraints = [
+      // 唯一约束
+      'ALTER TABLE orders ADD CONSTRAINT IF NOT EXISTS orders_order_id_unique UNIQUE (order_id);',
+      'CREATE UNIQUE INDEX IF NOT EXISTS orders_aoid_unique ON orders (aoid) WHERE aoid IS NOT NULL;',
+      
+      // 性能索引
+      'CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders (user_id);',
+      'CREATE INDEX IF NOT EXISTS idx_orders_status ON orders (status);',
+      'CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders (created_at);',
+      'CREATE INDEX IF NOT EXISTS idx_user_subscriptions_user_id ON user_subscriptions (user_id);',
+      'CREATE INDEX IF NOT EXISTS idx_user_subscriptions_order_id ON user_subscriptions (order_id);',
+      'CREATE INDEX IF NOT EXISTS idx_user_subscriptions_status ON user_subscriptions (status);',
+      
+      // 数据完整性约束
+      'ALTER TABLE orders ADD CONSTRAINT IF NOT EXISTS orders_amount_positive CHECK (amount > 0);',
+      'ALTER TABLE orders ADD CONSTRAINT IF NOT EXISTS orders_status_valid CHECK (status IN (\'pending\', \'paid\', \'processed\', \'failed\', \'expired\'));'
+    ];
+
+    for (const sql of constraints) {
+      try {
+        const { error } = await supabase.rpc('exec_sql', { sql_text: sql });
+        if (error) {
+          console.log(`⚠️ 约束可能已存在: ${sql.substring(0, 50)}... - ${error.message}`);
+        } else {
+          console.log(`✅ 约束添加成功: ${sql.substring(0, 50)}...`);
+        }
+      } catch (err) {
+        console.log(`⚠️ 跳过约束: ${sql.substring(0, 50)}... - ${err.message}`);
+      }
+    }
+    
+    console.log('✅ 数据库约束和索引处理完成');
+  } catch (error) {
+    console.error('❌ 添加约束失败:', error);
   }
 }
 

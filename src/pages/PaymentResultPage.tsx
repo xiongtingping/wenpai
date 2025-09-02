@@ -24,6 +24,7 @@ export default function PaymentResultPage() {
   const [orderInfo, setOrderInfo] = useState<any>(null);
   const [subscriptionInfo, setSubscriptionInfo] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [autoRedirectCountdown, setAutoRedirectCountdown] = useState<number | null>(null);
 
   const orderId = searchParams.get('order_id');
   const status = searchParams.get('status');
@@ -120,6 +121,20 @@ export default function PaymentResultPage() {
           userId: result.order.user_id,
           subscriptionType: result.subscription?.subscription_type
         });
+
+        // 支付成功后5秒自动跳转首页
+        setAutoRedirectCountdown(5);
+        
+        const countdownInterval = setInterval(() => {
+          setAutoRedirectCountdown(prev => {
+            if (prev === null || prev <= 1) {
+              clearInterval(countdownInterval);
+              navigate('/', { replace: true });
+              return null;
+            }
+            return prev - 1;
+          });
+        }, 1000);
       } else {
         // 检查订单状态
         if (result.order.status === 'pending') {
@@ -226,10 +241,17 @@ export default function PaymentResultPage() {
                   </div>
                 )}
                 
-                <Button onClick={handleGoHome} className="w-full">
-                  <Home className="h-4 w-4 mr-2" />
-                  返回首页
-                </Button>
+                <div className="space-y-3">
+                  {autoRedirectCountdown && (
+                    <p className="text-sm text-green-600 dark:text-green-400">
+                      {autoRedirectCountdown} 秒后自动跳转到首页
+                    </p>
+                  )}
+                  <Button onClick={handleGoHome} className="w-full">
+                    <Home className="h-4 w-4 mr-2" />
+                    立即返回首页
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,8 @@ import SubscriptionUpgradeDialog from '@/components/subscription/SubscriptionUpg
 import { PaymentResponse } from '@/types/payment';
 import { PaymentQRCode } from '@/components/payment/PaymentQRCode';
 import { logger } from '@/utils/logger';
+import { DynamicPricingService, PricingContext } from '@/services/dynamicPricingService';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import {
   ArrowLeft,
   Check,
@@ -72,9 +74,17 @@ function getCreemPriceId(plan: SubscriptionPlan, period: SubscriptionPeriod): st
 
 export default function PaymentPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useAuth();
   const { t } = useTranslation();
+  const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
+
+  // 获取来源操作（续费/升级）
+  const locationState = location.state as { 
+    action?: 'renew' | 'upgrade';
+    currentSubscription?: any;
+  } | null;
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<SubscriptionPeriod>('monthly');
@@ -98,8 +108,11 @@ export default function PaymentPage() {
 
   // 升级相关状态
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
-  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [currentSubscriptionTier, setCurrentSubscriptionTier] = useState<string | null>(null);
+  
+  // 动态价格状态
+  const [dynamicPricing, setDynamicPricing] = useState<any>(null);
+  const [pricingContext, setPricingContext] = useState<PricingContext | null>(null);
 
   // 从localStorage读取预选的计划
   useEffect(() => {
@@ -138,28 +151,63 @@ export default function PaymentPage() {
     }
   }, []);
 
-  // 检查用户订阅状态
+  // 检查用户订阅状态并计算动态价格
   useEffect(() => {
-    const checkUserSubscription = async () => {
-      if (!currentUser?.id) return;
+    const calculateDynamicPricing = async () => {
+      if (!currentUser?.id || !selectedPlan) return;
 
       try {
-        // 这里可以调用API检查用户当前订阅状态
-        // 暂时使用用户信息中的订阅状态
+        // 设置当前订阅状态
         if (currentUser.subscription && currentUser.subscription.status === 'active') {
-          setHasActiveSubscription(true);
           setCurrentSubscriptionTier(currentUser.subscription.tier || currentUser.vipLevel);
         } else {
-          setHasActiveSubscription(false);
           setCurrentSubscriptionTier(null);
         }
+
+        // 确定操作类型
+        let action: 'new' | 'renew' | 'upgrade' | 'prorated_upgrade' = 'new';
+        let currentSubscription = null;
+
+        if (hasActiveSubscription && currentUser.subscription) {
+          currentSubscription = currentUser.subscription;
+          
+          // 检查是否是升级
+          const tierLevels = { trial: 0, pro: 1, premium: 2 };
+          const currentLevel = tierLevels[currentSubscriptionTier as keyof typeof tierLevels] || 0;
+          const targetLevel = tierLevels[selectedPlan.tier as keyof typeof tierLevels] || 0;
+          
+          if (targetLevel > currentLevel) {
+            // 如果是补差价升级（来自升级页面）
+            if (locationState?.action === 'upgrade') {
+              action = 'prorated_upgrade';
+            } else {
+              action = 'upgrade';
+            }
+          } else {
+            action = 'renew';
+          }
+        }
+
+        const context: PricingContext = {
+          userId: currentUser.id,
+          action,
+          targetTier: selectedPlan.tier,
+          targetPeriod: selectedPeriod,
+          currentSubscription,
+          allowManualAmount: false // 默认不允许手动输入
+        };
+
+        const pricing = await DynamicPricingService.calculatePrice(context);
+        setDynamicPricing(pricing);
+        setPricingContext(context);
+
       } catch (error) {
-        logger.error('检查用户订阅状态失败:', error);
+        logger.error('计算动态价格失败:', error);
       }
     };
 
-    checkUserSubscription();
-  }, [currentUser]);
+    calculateDynamicPricing();
+  }, [currentUser, selectedPlan, selectedPeriod, hasActiveSubscription, currentSubscriptionTier, locationState]);
 
   // 页面访问时记录时间（用于限时优惠）
   useEffect(() => {
@@ -224,7 +272,9 @@ export default function PaymentPage() {
         productType: selectedPlan.tier === 'pro' ? 'professional' : selectedPlan.tier as 'professional' | 'premium',
         durationType: selectedPeriod,
         amount: getCurrentPrice(),
-        payType: 'alipay' as const
+        payType: 'alipay' as const,
+        // 传递价格上下文用于服务端验证
+        pricingContext
       };
 
       const { orderId, paymentInfo } = await BufPayService.createPayment(paymentRequest);
@@ -258,8 +308,13 @@ export default function PaymentPage() {
     }
   };
 
-  // 获取当前价格
+  // 获取当前价格（使用动态价格服务）
   const getCurrentPrice = () => {
+    if (dynamicPricing) {
+      return dynamicPricing.finalAmount;
+    }
+    
+    // 兜底逻辑
     if (!selectedPlan) return 0;
     
     const pricing = selectedPeriod === 'monthly' ? selectedPlan.monthly : selectedPlan.yearly;
@@ -272,6 +327,10 @@ export default function PaymentPage() {
 
   // 获取原价
   const getOriginalPrice = () => {
+    if (dynamicPricing) {
+      return dynamicPricing.originalPrice;
+    }
+    
     if (!selectedPlan) return 0;
     
     const pricing = selectedPeriod === 'monthly' ? selectedPlan.monthly : selectedPlan.yearly;
@@ -280,6 +339,10 @@ export default function PaymentPage() {
 
   // 获取节省金额
   const getSavedAmount = () => {
+    if (dynamicPricing) {
+      return dynamicPricing.discountAmount;
+    }
+    
     const originalPrice = getOriginalPrice();
     const currentPrice = getCurrentPrice();
     return originalPrice - currentPrice;
@@ -369,22 +432,18 @@ export default function PaymentPage() {
 
     // 立即执行数据清理和状态刷新
     try {
-      if (user) {
+      if (currentUser) {
         // 先清理可能导致验证失败的数据
         const { PaymentDataCleanupService } = await import('@/services/paymentDataCleanupService');
-        PaymentDataCleanupService.performCompleteCleanup(user.id);
+        PaymentDataCleanupService.performCompleteCleanup(currentUser.id);
 
         // 等待清理完成
         await new Promise(resolve => setTimeout(resolve, 300));
 
-        // 刷新用户状态
-        if (refreshUser) {
-          await refreshUser();
-          logger.info('支付成功后用户状态刷新完成');
-        }
+        logger.info('支付成功后数据清理完成');
       }
     } catch (error) {
-      logger.warn('刷新用户状态失败:', error);
+      logger.warn('数据清理失败:', error);
     }
 
     // 稍后跳转到结果页面
@@ -748,8 +807,34 @@ export default function PaymentPage() {
                   <div className="text-right">
                     <div className="text-3xl font-bold text-foreground">¥{getCurrentPrice()}</div>
                     <div className="text-sm text-muted-foreground font-medium">{selectedPeriod === 'monthly' ? t('payment.billing.monthlyShort') : t('payment.billing.yearlyShort')}</div>
+                    {dynamicPricing && (
+                      <div className="text-xs text-blue-600 mt-1">{dynamicPricing.priceDescription}</div>
+                    )}
                   </div>
                 </div>
+
+                {/* 金额提醒区域 - 当价格与原价相差超过1元时显示 */}
+                {dynamicPricing && Math.abs(dynamicPricing.finalAmount - dynamicPricing.originalPrice) > 1 && (
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-blue-800 mb-2">
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="font-medium">支付金额提醒</span>
+                    </div>
+                    <p className="text-sm text-blue-700 mb-1">
+                      请在支付宝中手动输入金额：<span className="font-bold text-lg text-blue-900">¥{dynamicPricing.finalAmount}</span>
+                    </p>
+                    {dynamicPricing.priceType === 'prorated' && (
+                      <p className="text-xs text-blue-600">
+                        补差价计算：根据您的剩余订阅时间计算的升级费用
+                      </p>
+                    )}
+                    {dynamicPricing.discountAmount > 0 && (
+                      <p className="text-xs text-blue-600">
+                        已为您节省：¥{dynamicPricing.discountAmount.toFixed(2)}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <div className="mb-6 p-4 bg-muted/30 border border-border rounded-lg shadow-sm">
                   <div className="flex items-center justify-between">
@@ -787,23 +872,29 @@ export default function PaymentPage() {
                   </div>
                 )}
 
-                {/* 优惠信息行 */}
-                {(isInPromoPeriod(currentUser?.id) && timeLeft > 0) || selectedPeriod === 'yearly' ? (
+                {/* 动态价格信息显示 */}
+                {dynamicPricing && dynamicPricing.discountAmount > 0 && (
                   <div className="flex flex-wrap gap-3 mb-6">
-                    {isInPromoPeriod(currentUser?.id) && timeLeft > 0 && (
+                    {dynamicPricing.priceType === 'promo' && (
                       <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Zap className="h-4 w-4" />
-                        {t('payment.promotion.ongoingOffer', { amount: getSavedAmount().toFixed(2) })}
+                        限时优惠：节省¥{dynamicPricing.discountAmount.toFixed(2)}
                       </span>
                     )}
-                    {selectedPeriod === 'yearly' && (
+                    {dynamicPricing.priceType === 'prorated' && (
+                      <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
+                        <TrendingUp className="h-4 w-4" />
+                        补差价升级：节省¥{dynamicPricing.discountAmount.toFixed(2)}
+                      </span>
+                    )}
+                    {selectedPeriod === 'yearly' && dynamicPricing.priceType === 'original' && (
                       <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Percent className="h-4 w-4" />
-                        {t('payment.promotion.yearlyDiscount', { amount: getYearlySavings(selectedPlan) })}
+                        年付优惠：节省¥{getYearlySavings(selectedPlan)}
                       </span>
                     )}
                   </div>
-                ) : null}
+                )}
 
                 <Button
                   onClick={handlePayment}
@@ -856,8 +947,34 @@ export default function PaymentPage() {
                   <div className="text-right">
                     <div className="text-3xl font-bold text-foreground">¥{getCurrentPrice()}</div>
                     <div className="text-sm text-muted-foreground font-medium">{selectedPeriod === 'monthly' ? t('payment.billing.monthlyShort') : t('payment.billing.yearlyShort')}</div>
+                    {dynamicPricing && (
+                      <div className="text-xs text-blue-600 mt-1">{dynamicPricing.priceDescription}</div>
+                    )}
                   </div>
                 </div>
+
+                {/* 支付金额提醒（在二维码上方） */}
+                {dynamicPricing && Math.abs(dynamicPricing.finalAmount - dynamicPricing.originalPrice) > 1 && (
+                  <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-orange-800 mb-2">
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="font-medium">重要提醒</span>
+                    </div>
+                    <p className="text-sm text-orange-700 mb-1">
+                      请在支付宝中手动输入金额：<span className="font-bold text-xl text-orange-900">¥{dynamicPricing.finalAmount}</span>
+                    </p>
+                    {dynamicPricing.priceType === 'prorated' && (
+                      <p className="text-xs text-orange-600">
+                        补差价升级：基于您的剩余订阅时间计算
+                      </p>
+                    )}
+                    {dynamicPricing.discountAmount > 0 && (
+                      <p className="text-xs text-orange-600">
+                        为您节省了 ¥{dynamicPricing.discountAmount.toFixed(2)}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {/* 优惠信息行 */}
                 {(isInPromoPeriod(currentUser?.id) && timeLeft > 0) || selectedPeriod === 'yearly' ? (

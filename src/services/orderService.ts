@@ -210,8 +210,7 @@ export class OrderService {
         const { data, error } = await supabase
           .from('user_subscriptions')
           .update({
-            expires_at: newExpiry.toISOString(),
-            updated_at: new Date().toISOString()
+            expires_at: newExpiry.toISOString()
           })
           .eq('id', existingSubscription.id)
           .select()

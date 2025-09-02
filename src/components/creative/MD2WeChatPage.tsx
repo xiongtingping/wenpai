@@ -66,7 +66,7 @@ export interface ThemeConfig {
 export default function MD2WeChatPage() {
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuthStore();
-  const { incrementUsage, checkUsageLimit } = useUsageStore();
+  const { recordUsage } = useUsageStore();
   
   // 状态管理
   const [markdownContent, setMarkdownContent] = useState('# 欢迎使用Markdown排版工具\n\n这是一个专为微信公众号设计的Markdown转换工具。\n\n## 功能特点\n\n- 🎨 多种精美主题\n- 📱 移动端适配预览\n- 🚀 一键复制导出\n- ⚡ 实时预览效果\n\n## 使用方法\n\n1. 在左侧编辑器中输入Markdown内容\n2. 选择合适的主题样式\n3. 预览转换效果\n4. 一键复制到微信公众号\n\n开始你的创作之旅吧！');
@@ -177,15 +177,8 @@ export default function MD2WeChatPage() {
 
   return (
     <PermissionAwareContainer 
-      feature="md2wechat" 
-      fallback={
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <h3 className="text-lg font-medium mb-2">需要高级权限</h3>
-            <p className="text-muted-foreground mb-4">Markdown排版工具需要高级版本</p>
-          </div>
-        </div>
-      }
+      featureName="MD2微信格式转换"
+      requiredTier="pro"
     >
       <div className="bg-background">
           {/* 工具栏 */}

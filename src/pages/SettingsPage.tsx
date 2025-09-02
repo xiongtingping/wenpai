@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermission } from '@/hooks/usePermission';
+import { SubscriptionExpiryAlert } from '@/components/subscription/SubscriptionExpiryAlert';
 import { 
   Settings, 
   User, 
@@ -55,6 +56,9 @@ const SettingsPage: React.FC = () => {
             {t('settings.description')}
           </p>
         </div>
+
+        {/* 订阅到期提醒 */}
+        <SubscriptionExpiryAlert />
 
         {/* 账户信息 */}
         <Card variant="enhanced" className="mb-6 rounded-xl">

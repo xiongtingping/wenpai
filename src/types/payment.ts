@@ -10,6 +10,7 @@ export interface PaymentRequest {
   payType: 'alipay' | 'wechat';
   userId: string;
   userEmail?: string;
+  pricingContext?: any;
 }
 
 export interface PaymentResponse {
@@ -119,8 +120,8 @@ export type PricingPlanKey = keyof typeof PRICING_PLANS;
 export const BUFPAY_CONFIG = {
   API_URL: import.meta.env.VITE_BUFPAY_API_URL || '/.netlify/functions/bufpay-proxy',
   QUERY_URL: import.meta.env.VITE_BUFPAY_QUERY_URL || '/.netlify/functions/bufpay-proxy',
-  APP_SECRET: import.meta.env.VITE_BUFPAY_APP_SECRET || '2861731746ef4189937ef4dc11f09375',
-  NOTIFY_URL: import.meta.env.VITE_BUFPAY_NOTIFY_URL || 'https://www.wenpai.xyz/.netlify/functions/payment-notify',
+  APP_SECRET: 'BUFPAY_SECRET_CLIENT_SIDE_NOT_USED',
+  NOTIFY_URL: import.meta.env.VITE_BUFPAY_NOTIFY_URL || 'https://www.wenpai.xyz/.netlify/functions/bufpay-notify',
   RETURN_URL: import.meta.env.VITE_BUFPAY_RETURN_URL || 'https://www.wenpai.xyz/payment/result',
   FEEDBACK_URL: import.meta.env.VITE_BUFPAY_FEEDBACK_URL || 'https://www.wenpai.xyz/payment/feedback'
 } as const;

@@ -1,5 +1,5 @@
 /**
- * 创建支付订单 Netlify Function
+ * 创建补差价升级订单 Netlify Function
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -12,13 +12,13 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 // BufPay 配置
 const BUFPAY_CONFIG = {
   API_URL: 'https://bufpay.com/api/pay/107628',
-  APP_SECRET: process.env.BUFPAY_APP_SECRET || '2861731746ef4189937ef4dc11f09375', // 从环境变量获取
-  NOTIFY_URL: 'https://www.wenpai.xyz/.netlify/functions/bufpay-notify',
+  APP_SECRET: process.env.BUFPAY_APP_SECRET || '2861731746ef4189937ef4dc11f09375',
+  NOTIFY_URL: 'https://www.wenpai.xyz/.netlify/functions/upgrade-notify',
   RETURN_URL: 'https://www.wenpai.xyz/payment/result',
   FEEDBACK_URL: 'https://www.wenpai.xyz/payment/feedback'
 };
 
-// 创建 Supabase 客户端（使用 Service Role Key）
+// 创建 Supabase 客户端
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
@@ -42,7 +42,7 @@ function generatePaymentSign(name, payType, price, orderId, orderUid, notifyUrl,
 function generateOrderId() {
   const timestamp = Date.now();
   const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-  return `WP${timestamp}${random}`;
+  return `WP_UPG_${timestamp}${random}`;
 }
 
 /**
@@ -52,28 +52,7 @@ function formatAmount(amount) {
   return amount.toFixed(2);
 }
 
-/**
- * 解析产品信息
- */
-function parseProductInfo(productType, durationType) {
-  const productMap = {
-    'professional': '文派专业版',
-    'premium': '文派高级版'
-  };
-  
-  const durationMap = {
-    'monthly': '月度会员',
-    'yearly': '年度会员'
-  };
-  
-  return {
-    productName: productMap[productType] || '未知产品',
-    durationName: durationMap[durationType] || '未知时长'
-  };
-}
-
 exports.handler = async (event, context) => {
-  // 设置 CORS 头
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
@@ -100,7 +79,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    console.log('收到创建订单请求:', event.body);
+    console.log('收到补差价升级订单创建请求:', event.body);
 
     // 解析请求体
     let requestData;
@@ -115,10 +94,17 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // 验证必要参数
-    const { userId, productType, durationType, amount, payType = 'alipay', userEmail, pricingContext } = requestData;
-    
-    if (!userId || !productType || !durationType || !amount) {
+    const { 
+      userId, 
+      currentSubscriptionId,
+      targetTier, 
+      targetPeriod,
+      upgradeAmount,
+      payType = 'alipay',
+      userEmail 
+    } = requestData;
+
+    if (!userId || !currentSubscriptionId || !targetTier || !targetPeriod || !upgradeAmount) {
       return {
         statusCode: 400,
         headers,
@@ -126,53 +112,51 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // 如果有价格上下文，进行服务端验证
-    if (pricingContext) {
-      console.log('验证价格上下文:', { orderId: 'pending', pricingContext });
-      
-      // 这里可以添加服务端价格验证逻辑
-      // 例如：验证金额是否与动态价格计算结果一致（允许1元误差）
-      // 目前先记录信息，后续可扩展具体验证逻辑
-    }
-
-    // 验证产品类型和时长类型
-    if (!['professional', 'premium'].includes(productType)) {
+    // 验证升级金额
+    if (upgradeAmount <= 0) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'Invalid product type' })
+        body: JSON.stringify({ error: 'Invalid upgrade amount' })
       };
     }
 
-    if (!['monthly', 'yearly'].includes(durationType)) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Invalid duration type' })
-      };
-    }
-
-    // 解析产品信息
-    const { productName } = parseProductInfo(productType, durationType);
-    const fullProductName = `${productName}${durationType === 'monthly' ? '月度会员' : '年度会员'}`;
-
-    // 1. 生成订单号
+    // 生成升级订单号
     const orderId = generateOrderId();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15分钟后过期
 
-    console.log('创建订单:', { orderId, userId, productType, durationType, amount });
+    const tierNames = {
+      professional: '专业版',
+      premium: '高级版'
+    };
 
-    // 2. 创建订单记录
+    const periodNames = {
+      monthly: '月付',
+      yearly: '年付'
+    };
+
+    const productName = `升级到${tierNames[targetTier]}(${periodNames[targetPeriod]})`;
+
+    console.log('创建补差价升级订单:', { 
+      orderId, 
+      userId, 
+      targetTier, 
+      targetPeriod, 
+      upgradeAmount,
+      currentSubscriptionId
+    });
+
+    // 创建升级订单记录
     const { data: order, error: orderError } = await supabase
-      .from('orders')
+      .from('upgrade_orders')
       .insert({
         order_id: orderId,
         user_id: userId,
         user_email: userEmail,
-        product_name: fullProductName,
-        product_type: productType,
-        duration_type: durationType,
-        amount: amount,
+        current_subscription_id: currentSubscriptionId,
+        target_tier: targetTier,
+        target_period: targetPeriod,
+        upgrade_amount: upgradeAmount,
         pay_type: payType,
         status: 'pending',
         expires_at: expiresAt.toISOString()
@@ -181,19 +165,19 @@ exports.handler = async (event, context) => {
       .single();
 
     if (orderError) {
-      console.error('创建订单失败:', orderError);
+      console.error('创建升级订单失败:', orderError);
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Failed to create order' })
+        body: JSON.stringify({ error: 'Failed to create upgrade order' })
       };
     }
 
-    // 3. 调用 BufPay 接口
-    const priceStr = formatAmount(amount);
+    // 调用 BufPay 接口
+    const priceStr = formatAmount(upgradeAmount);
     const formData = new URLSearchParams();
     
-    formData.append('name', fullProductName);
+    formData.append('name', productName);
     formData.append('pay_type', payType);
     formData.append('price', priceStr);
     formData.append('order_id', orderId);
@@ -203,7 +187,7 @@ exports.handler = async (event, context) => {
     formData.append('feedback_url', BUFPAY_CONFIG.FEEDBACK_URL);
     
     const sign = generatePaymentSign(
-      fullProductName,
+      productName,
       payType,
       priceStr,
       orderId,
@@ -215,7 +199,7 @@ exports.handler = async (event, context) => {
     
     formData.append('sign', sign);
 
-    console.log('调用 BufPay 接口:', { orderId, amount: priceStr, payType });
+    console.log('调用 BufPay 接口创建补差价支付:', { orderId, amount: priceStr, payType });
 
     const response = await fetch(BUFPAY_CONFIG.API_URL, {
       method: 'POST',
@@ -229,85 +213,62 @@ exports.handler = async (event, context) => {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    // BufPay API 设计：返回 HTML 支付页面而非 JSON
+    // 处理HTML响应
     const contentType = response.headers.get('content-type');
-    console.log('BufPay API响应类型:', { contentType, orderId });
-
     let paymentResult;
     
-    // 检查是否返回HTML支付页面（BufPay的设计模式）
     if (contentType && contentType.includes('text/html')) {
       const htmlResponse = await response.text();
-      console.log('BufPay 返回HTML支付页面:', { 
-        orderId, 
-        htmlLength: htmlResponse.length,
-        containsQR: htmlResponse.includes('qrcode'),
-        containsPayment: htmlResponse.includes('支付'),
-        containsAlipay: htmlResponse.includes('alipay')
-      });
-
-      // 尝试从HTML中提取aoid和二维码信息
+      
+      // 从HTML中提取aoid和二维码信息
       let extractedAoid = null;
       let qrCodeUrl = null;
       
-      // 查找aoid
-      const aoidMatch = htmlResponse.match(/aoid['"]\s*[:=]\s*['"]([^'"]+)['"]/);
+      const aoidMatch = htmlResponse.match(/aoid['\"]\\s*[:=]\\s*['\"]([^'\"]+)['\"]/) || 
+                       htmlResponse.match(/aoid=([^&\s'"]+)/);
       if (aoidMatch) {
         extractedAoid = aoidMatch[1];
       }
       
-      // 查找二维码链接
-      const qrMatch = htmlResponse.match(/(?:qr_?code|qr_?img)['"]\s*[:=]\s*['"]([^'"]+)['"]/);
+      const qrMatch = htmlResponse.match(/(?:qr_?code|qr_?img)['\"]\\s*[:=]\\s*['\"]([^'\"]+)['\"]/) ||
+                     htmlResponse.match(/src=['\"]([^'\"]*qr[^'\"]*)['\"]/) ||
+                     htmlResponse.match(/(https?:\/\/[^\\s'"]*qr[^\\s'"]*)/);
       if (qrMatch) {
         qrCodeUrl = qrMatch[1];
       }
 
-      // 构造PaymentResponse
       paymentResult = {
         status: 'ok',
         aoid: extractedAoid || `bufpay_${orderId}_${Date.now()}`,
         htmlContent: htmlResponse,
         qr_img: qrCodeUrl,
-        message: '支付页面已生成',
-        expires_in: 900 // 默认15分钟
+        message: '补差价支付页面已生成',
+        expires_in: 900
       };
     } else {
-      // 如果是JSON响应，使用原来的处理逻辑
       paymentResult = await response.json();
     }
-    
-    console.log('BufPay 接口响应:', { orderId, status: paymentResult.status });
 
-    // 4. 检查支付接口响应
+    console.log('BufPay 补差价支付接口响应:', { orderId, status: paymentResult.status });
+
+    // 检查支付接口响应
     if (paymentResult.status !== 'ok') {
-      const errorMap = {
-        'sign_error': '签名验证失败，请重试',
-        'order_payed': '订单已支付，请勿重复支付',
-        'order_expire': '订单已过期，请重新下单',
-        'free_limit': '今日订单数量已达上限，请明日再试',
-        'fee_error': '商户余额不足，请联系客服',
-        'qr_limit': '暂无可用收款码，请稍后重试',
-        'missing_argument': `缺少必要参数${paymentResult.info ? ': ' + paymentResult.info : ''}`
-      };
-      
-      const errorMessage = errorMap[paymentResult.status] || `支付失败: ${paymentResult.status}`;
-      console.error('支付接口返回错误:', { orderId, status: paymentResult.status, error: paymentResult.error });
-      
+      console.error('补差价支付接口返回错误:', { orderId, status: paymentResult.status });
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: errorMessage })
+        body: JSON.stringify({ error: `支付失败: ${paymentResult.status}` })
       };
     }
 
-    // 5. 更新订单支付信息
+    // 更新升级订单支付信息
     if (paymentResult.aoid) {
       const paymentExpiresAt = paymentResult.expires_in 
         ? new Date(Date.now() + paymentResult.expires_in * 1000).toISOString()
         : undefined;
 
       await supabase
-        .from('orders')
+        .from('upgrade_orders')
         .update({
           aoid: paymentResult.aoid,
           qr_code: paymentResult.qr,
@@ -317,21 +278,26 @@ exports.handler = async (event, context) => {
         .eq('order_id', orderId);
     }
 
-    console.log('支付订单创建成功:', { orderId, aoid: paymentResult.aoid });
+    console.log('补差价升级订单创建成功:', { orderId, aoid: paymentResult.aoid });
 
-    // 6. 返回支付信息
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
         orderId,
-        paymentInfo: paymentResult
+        orderType: 'upgrade',
+        paymentInfo: paymentResult,
+        upgradeDetails: {
+          targetTier,
+          targetPeriod,
+          upgradeAmount
+        }
       })
     };
 
   } catch (error) {
-    console.error('创建支付订单失败:', error);
+    console.error('创建补差价升级订单失败:', error);
     return {
       statusCode: 500,
       headers,

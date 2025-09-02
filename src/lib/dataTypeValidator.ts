@@ -465,6 +465,21 @@ export class DataTypeValidator {
       return DATA_SCHEMAS.SIMPLE_STRING;
     }
     
+    // 数据验证运行时间
+    if (key === 'data_validation_last_run') {
+      return { type: 'string', required: false };
+    }
+    
+    // 通知数据
+    if (key === 'notifications') {
+      return { type: 'array', required: false };
+    }
+    
+    // Authing用户信息 - 使用宽松验证
+    if (key === '_authing_user') {
+      return { type: 'object', required: false }; // 宽松验证
+    }
+    
     // 用户信息
     if (key.includes('user') && key.includes('auth')) {
       return DATA_SCHEMAS.USER_INFO;

@@ -13,8 +13,8 @@ export interface UserSubscription {
   features?: string[];
 }
 
-// 导入认证系统的AuthUser类型
-import type { AuthUser as AuthSystemUser } from '@/types/auth';
+// 导入认证系统的用户类型
+import type { UserInfo as AuthSystemUser } from '@/types/auth';
 
 // 兼容类型定义
 export interface AuthUser {

@@ -65,9 +65,10 @@ export const PermissionAwareContainer: React.FC<PermissionAwareContainerProps> =
 
   // 没有权限时显示付费墙
   const getTierInfo = () => {
-    const tierMap = {
+    const tierMap: Record<string, { name: string; icon: any; color: string }> = {
       pro: { name: '专业版', icon: Zap, color: 'from-blue-600 to-blue-700' },
-      premium: { name: '高级版', icon: Crown, color: 'from-purple-600 to-purple-700' }
+      premium: { name: '高级版', icon: Crown, color: 'from-purple-600 to-purple-700' },
+      trial: { name: '体验版', icon: Zap, color: 'from-gray-600 to-gray-700' }
     };
     return tierMap[requiredTier] || { name: '专业版', icon: Zap, color: 'from-blue-600 to-blue-700' };
   };

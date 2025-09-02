@@ -3,7 +3,6 @@
  */
 
 import { PaymentRequest, PaymentResponse, BUFPAY_CONFIG } from '@/types/payment';
-import { generatePaymentFormData, formatPaymentError } from '@/utils/paymentUtils';
 import { OrderService } from './orderService';
 import { logger } from '@/utils/logger';
 
@@ -16,7 +15,6 @@ export class BufPayService {
     paymentInfo: PaymentResponse;
   }> {
     try {
-      // 1. 创建订单记录
       logger.info('开始创建订单，请求参数:', {
         userId: request.userId,
         userEmail: request.userEmail,
@@ -27,124 +25,35 @@ export class BufPayService {
         payType: request.payType
       });
 
-      const { order, orderId } = await OrderService.createOrder({
-        userId: request.userId,
-        userEmail: request.userEmail,
-        productName: request.productName,
-        productType: request.productType,
-        durationType: request.durationType,
-        amount: request.amount,
-        payType: request.payType
-      });
-
-      logger.info('开始创建支付订单:', { orderId, userId: request.userId });
-
-      // 2. 调用 BufPay 接口
-      const formData = generatePaymentFormData(
-        request.productName,
-        request.payType,
-        request.amount,
-        orderId,
-        request.userId  // order_uid直接使用用户ID
-      );
-
-      const response = await fetch(BUFPAY_CONFIG.API_URL, {
+      // 使用统一的create-order接口
+      const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : '';
+      const response = await fetch(`${apiBaseUrl}/.netlify/functions/create-order`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: formData.toString()
+        body: JSON.stringify(request)
       });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      // BufPay API 设计：返回 HTML 支付页面而非 JSON
-      const contentType = response.headers.get('content-type');
-      logger.info('BufPay API响应类型:', { contentType, orderId });
-
-      // 检查是否返回HTML支付页面（BufPay的设计模式）
-      if (contentType && contentType.includes('text/html')) {
-        const htmlResponse = await response.text();
-        logger.info('BufPay 返回HTML支付页面:', { 
-          orderId, 
-          htmlLength: htmlResponse.length,
-          containsQR: htmlResponse.includes('qrcode'),
-          containsPayment: htmlResponse.includes('支付'),
-          containsAlipay: htmlResponse.includes('alipay')
-        });
-
-        // 尝试从HTML中提取aoid和二维码信息
-        let extractedAoid = null;
-        let qrCodeUrl = null;
-        
-        // 查找aoid
-        const aoidMatch = htmlResponse.match(/aoid['"]\s*[:=]\s*['"]([^'"]+)['"]/);
-        if (aoidMatch) {
-          extractedAoid = aoidMatch[1];
-        }
-        
-        // 查找二维码链接
-        const qrMatch = htmlResponse.match(/(?:qr_?code|qr_?img)['"]\s*[:=]\s*['"]([^'"]+)['"]/);
-        if (qrMatch) {
-          qrCodeUrl = qrMatch[1];
-        }
-
-        // 检查是否返回的是错误页面或重定向页面
-        // 只在明确检测到错误标识时才拒绝，允许正常的BufPay支付页面
-        if (htmlResponse.includes('WenPai') && htmlResponse.includes('<title>WenPai')) {
-          logger.error('BufPay返回了完整网站页面而非支付表单:', { orderId, htmlLength: htmlResponse.length });
-          throw new Error('支付接口返回了错误的页面格式，请重试');
-        }
-
-        // 构造PaymentResponse
-        const paymentResult: PaymentResponse = {
-          status: 'ok',
-          aoid: extractedAoid || `bufpay_${orderId}_${Date.now()}`,
-          htmlContent: htmlResponse,
-          qr_img: qrCodeUrl,
-          message: '支付页面已生成',
-          expires_in: 900 // 默认15分钟
-        };
-
-        return {
-          orderId,
-          paymentInfo: paymentResult
-        };
-      }
-
-      // 如果是JSON响应，使用原来的处理逻辑
-      const paymentResult: PaymentResponse = await response.json();
+      // create-order函数返回JSON响应
+      const result = await response.json();
       
-      logger.info('BufPay 接口响应:', { orderId, status: paymentResult.status });
-
-      // 3. 检查支付接口响应
-      if (paymentResult.status !== 'ok') {
-        const errorMessage = formatPaymentError(paymentResult.status, paymentResult.error);
-        logger.error('支付接口返回错误:', { orderId, status: paymentResult.status, error: paymentResult.error });
-        throw new Error(errorMessage);
+      if (!result.success) {
+        throw new Error(result.error || '创建订单失败');
       }
 
-      // 4. 更新订单支付信息
-      if (paymentResult.aoid) {
-        const expiresAt = paymentResult.expires_in 
-          ? new Date(Date.now() + paymentResult.expires_in * 1000).toISOString()
-          : undefined;
-
-        await OrderService.updateOrderPaymentInfo(orderId, {
-          aoid: paymentResult.aoid,
-          qr_code: paymentResult.qr,
-          qr_image: paymentResult.qr_img,
-          expires_at: expiresAt
-        });
-      }
-
-      logger.info('支付订单创建成功:', { orderId, aoid: paymentResult.aoid });
+      logger.info('支付订单创建成功:', { 
+        orderId: result.orderId, 
+        paymentInfo: result.paymentInfo 
+      });
 
       return {
-        orderId,
-        paymentInfo: paymentResult
+        orderId: result.orderId,
+        paymentInfo: result.paymentInfo
       };
     } catch (error) {
       logger.error('创建支付订单失败:', error);
@@ -357,4 +266,78 @@ export class BufPayService {
       throw error;
     }
   }
+
+  /**
+   * 查询 BufPay 支付状态
+   * 接口地址：https://bufpay.com/api/query/aoid
+   * 返回状态：not_exist, new, payed, success, fee_error, expire
+   */
+  static async queryBufPayStatus(aoid: string): Promise<string | null> {
+    try {
+      // 方法1: 通过配置的代理路由查询  
+      const proxyUrl = `/.netlify/functions/bufpay-proxy?query=${aoid}`;
+      logger.info('查询 BufPay 状态:', { aoid, proxyUrl });
+
+      const response = await fetch(proxyUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // 检查响应是否为 JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        // 如果不是 JSON，可能是 HTML 错误页面，尝试直接调用
+        logger.warn('代理返回非JSON响应，尝试直接查询');
+        return await this.queryBufPayDirectly(aoid);
+      }
+
+      const result = await response.json();
+      logger.info('BufPay 查询响应:', { aoid, result });
+
+      return result.status || null;
+    } catch (error) {
+      logger.error('查询 BufPay 状态失败:', error);
+      // 降级到直接查询
+      try {
+        logger.info('尝试直接查询 BufPay...');
+        return await this.queryBufPayDirectly(aoid);
+      } catch (fallbackError) {
+        logger.error('直接查询也失败:', fallbackError);
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * 直接查询 BufPay 接口（降级方案）
+   */
+  private static async queryBufPayDirectly(aoid: string): Promise<string | null> {
+    try {
+      const queryUrl = `https://bufpay.com/api/query/${aoid}`;
+      
+      const response = await fetch(queryUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'WenPai/1.0'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.status || null;
+    } catch (error) {
+      logger.error('直接查询 BufPay 失败:', error);
+      throw error;
+    }
+  }
+
 }

@@ -238,7 +238,7 @@ class HotTopicsApi {
       '7d': 7 * 24 * 60 * 60 * 1000
     };
     
-    return new Date(now.getTime() - timeMap[timeRange]);
+    return new Date(now.getTime() - (timeMap[timeRange as keyof typeof timeMap] || timeMap['24h']));
   }
 
   /**

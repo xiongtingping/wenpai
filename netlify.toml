@@ -24,7 +24,13 @@
 
 [[redirects]]
   from = "/api/bufpay/query/*"
-  to = "/.netlify/functions/bufpay-proxy/:splat"
+  to = "/.netlify/functions/bufpay-proxy?query=:splat"
+  status = 200
+
+# 订单清理任务路由
+[[redirects]]
+  from = "/api/admin/cleanup-orders"
+  to = "/.netlify/functions/order-cleanup"
   status = 200
 
 # API 路由到统一网关函数 api（内部再分发 usage-count 逻辑）

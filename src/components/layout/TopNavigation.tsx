@@ -17,6 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePermission } from '@/hooks/usePermission';
 import { isDevelopment } from '@/utils/env-validator';
 import { UserAvatar } from '@/components/auth/UserAvatar';
+import { SubscriptionStatusBadge } from '@/components/subscription/SubscriptionStatusBadge';
 import {
   Home,
   FileText,
@@ -242,6 +243,11 @@ export const TopNavigation: React.FC = () => {
                 <Badge variant="premium" className="text-xs hidden sm:inline-flex bg-primary text-primary-foreground border-0">
                   PRO
                 </Badge>
+              )}
+
+              {/* 订阅状态标识 */}
+              {isAuthenticated && (
+                <SubscriptionStatusBadge className="hidden sm:inline-flex" />
               )}
 
               {/* ✅ FIXED: 用户头像组件 - 包含完整的下拉菜单功能 */}

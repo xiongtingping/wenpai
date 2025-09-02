@@ -8,7 +8,7 @@ const crypto = require('crypto');
 // Supabase 配置
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const appSecret = '2861731746ef4189937ef4dc11f09375'; // 更新为正确的 APP_SECRET
+const appSecret = process.env.BUFPAY_APP_SECRET || '2861731746ef4189937ef4dc11f09375'; // 更新为正确的 APP_SECRET
 
 // 创建 Supabase 客户端（使用 Service Role Key）
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -109,8 +109,7 @@ async function processOrderPermissions(order) {
       const { data, error } = await supabase
         .from('user_subscriptions')
         .update({
-          expires_at: newExpiry.toISOString(),
-          updated_at: new Date().toISOString()
+          expires_at: newExpiry.toISOString()
         })
         .eq('id', existingSubscription.id)
         .select()
@@ -172,21 +171,16 @@ async function processOrderPermissions(order) {
       if (retryCount >= maxRetries) {
         console.error('权限开通最终失败，已达到最大重试次数');
 
-        // 记录失败信息到订单
-        await supabase
-          .from('orders')
-          .update({
-            error_message: `权限开通失败: ${error.message}`,
-            retry_count: retryCount,
-            last_error_at: new Date().toISOString()
-          })
-          .eq('order_id', order.order_id);
+        // 记录失败信息到订单 (数据库表中缺少额外字段，只保留基本状态)
+        console.error('权限开通最终失败，订单ID:', order.order_id);
 
         throw error;
       }
 
-      // 等待后重试
-      await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+      // 指数退避重试：1秒、2秒、4秒
+      const backoffDelay = Math.pow(2, retryCount - 1) * 1000;
+      console.log(`等待 ${backoffDelay}ms 后重试...`);
+      await new Promise(resolve => setTimeout(resolve, backoffDelay));
     }
   }
 }
@@ -314,9 +308,9 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // 3.1. 检查是否为重复的 aoid（防止同一支付被重复处理）
-    if (order.aoid && order.aoid === notifyData.aoid) {
-      console.log('检测到重复的aoid，订单已处理:', { 
+    // 3.1. 检查订单是否已经处理完成（防止重复处理）
+    if (order.status === 'paid' || order.status === 'processed') {
+      console.log('订单已处理完成，跳过重复处理:', { 
         orderId: notifyData.order_id, 
         aoid: notifyData.aoid,
         existingStatus: order.status
@@ -366,9 +360,7 @@ exports.handler = async (event, context) => {
       await supabase
         .from('orders')
         .update({
-          status: 'pending',
-          error_message: `权限开通失败: ${permissionError.message}`,
-          updated_at: new Date().toISOString()
+          status: 'pending'
         })
         .eq('order_id', notifyData.order_id);
 

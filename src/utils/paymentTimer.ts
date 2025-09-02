@@ -21,12 +21,28 @@ export function getPaymentCenterAccessTime(userId?: string): Date | undefined {
   const accessTime = localStorage.getItem(accessTimeKey);
   
   if (accessTime) {
-    return new Date(parseInt(accessTime, 10));
+    try {
+      const parsed = JSON.parse(accessTime);
+      // 支持旧格式（直接时间戳）和新格式（对象）
+      if (typeof parsed === 'number' || typeof parsed === 'string') {
+        return new Date(parseInt(parsed.toString(), 10));
+      } else if (parsed.firstAccess) {
+        return new Date(parsed.firstAccess);
+      }
+    } catch {
+      // 如果解析失败，尝试作为时间戳处理
+      return new Date(parseInt(accessTime, 10));
+    }
   }
   
   // 如果是第一次访问支付中心，记录当前时间
   const now = new Date();
-  localStorage.setItem(accessTimeKey, now.getTime().toString());
+  const accessData = {
+    firstAccess: now.toISOString(),
+    lastAccess: now.toISOString(),
+    offerExpiry: new Date(now.getTime() + PROMO_DURATION).toISOString()
+  };
+  localStorage.setItem(accessTimeKey, JSON.stringify(accessData));
   console.log('🎉 新用户限时优惠开始计时！', now.toLocaleString());
   return now;
 }

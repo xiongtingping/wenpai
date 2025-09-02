@@ -91,6 +91,19 @@ export default defineConfig({
             console.log('🔧 代理热点API请求:', req.method, req.url);
           });
         }
+      },
+      '/.netlify/functions': {
+        target: 'http://localhost:8888',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('🔧 Netlify函数代理错误:', err.message);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('🔧 代理Netlify函数请求:', req.method, req.url);
+          });
+        }
       }
     }
   },

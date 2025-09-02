@@ -94,11 +94,28 @@ exports.handler = async (event, context) => {
     console.log('BufPay响应类型:', contentType);
 
     let responseBody;
+    let finalContentType = contentType || 'application/json';
+
     if (contentType && contentType.includes('text/html')) {
       responseBody = await response.text();
       console.log('BufPay返回HTML长度:', responseBody.length);
+      finalContentType = 'text/html';
     } else {
+      // 对于查询接口，尝试解析为JSON
       responseBody = await response.text();
+      
+      if (queryParams.query) {
+        // 查询接口应该返回JSON
+        try {
+          const parsed = JSON.parse(responseBody);
+          responseBody = JSON.stringify(parsed);
+          finalContentType = 'application/json';
+          console.log('BufPay查询结果:', parsed);
+        } catch (parseError) {
+          console.warn('解析JSON失败，返回原始文本:', parseError);
+          finalContentType = 'text/plain';
+        }
+      }
     }
 
     return {

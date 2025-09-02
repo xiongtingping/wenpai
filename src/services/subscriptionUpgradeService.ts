@@ -87,15 +87,15 @@ export class SubscriptionUpgradeService {
         throw new Error('找不到订阅计划配置');
       }
 
-      // 5. 计算当前订阅的原始价格和已支付金额
+      // 5. 计算当前订阅的原始价格和已支付金额（使用原价，不含优惠）
       const currentPeriod = this.inferSubscriptionPeriod(currentSubscription);
       const currentPrice = currentPeriod === 'yearly' 
-        ? currentPlan.yearly.discountPrice 
-        : currentPlan.monthly.discountPrice;
+        ? currentPlan.yearly.originalPrice 
+        : currentPlan.monthly.originalPrice;
       
       const targetPrice = targetPeriod === 'yearly' 
-        ? targetPlan.yearly.discountPrice 
-        : targetPlan.monthly.discountPrice;
+        ? targetPlan.yearly.originalPrice 
+        : targetPlan.monthly.originalPrice;
 
       // 6. 计算剩余价值（按比例）
       const totalDays = currentPeriod === 'yearly' ? 365 : 30;

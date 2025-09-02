@@ -16,6 +16,7 @@ interface InputProps {
   type?: string;
   required?: boolean;
   autoComplete?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const AppInput = (props: InputProps) => {
@@ -176,7 +177,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
         if (contactType === 'email') {
           result = await authClient.registerByEmail(contact, password);
         } else if (contactType === 'phone') {
-          result = await authClient.registerByPhone(contact, password);
+          result = await authClient.registerByPhoneCode(contact, password);
         } else {
           throw new Error('注册请使用邮箱或手机号');
         }
