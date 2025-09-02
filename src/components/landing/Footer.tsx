@@ -118,10 +118,38 @@ export function Footer() {
                   <User className="w-4 h-4 text-purple-600" />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-foreground text-sm">{t('footer.aboutUs')}</div>
-                  <div className="text-xs text-muted-foreground">{t('footer.careers')}</div>
+                  <div className="font-medium text-foreground text-sm">关于我</div>
+                  <div className="text-xs text-muted-foreground">开发者信息</div>
                 </div>
               </a>
+
+              {/* 客服二维码 */}
+              <div className="group relative">
+                <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105">
+                  <div className="w-8 h-8 bg-orange-500/10 rounded-md flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
+                    <svg className="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                  </div>
+                  <div className="text-left">
+                    <div className="font-medium text-foreground text-sm">客服支持</div>
+                    <div className="text-xs text-muted-foreground">扫码联系</div>
+                  </div>
+                </button>
+
+                {/* 二维码悬浮显示 */}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  <div className="bg-white rounded-lg shadow-lg border p-3">
+                    <img
+                      src="/微信图片_2025-09-02_134203_916.png"
+                      alt="客服二维码"
+                      className="w-32 h-32 object-contain"
+                    />
+                    <p className="text-xs text-center text-muted-foreground mt-2">扫码添加客服微信</p>
+                  </div>
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white"></div>
+                </div>
+              </div>
             </div>
           </div>
 

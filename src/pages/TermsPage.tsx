@@ -329,7 +329,7 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4">
               如果您对这些条款有任何疑问或需要帮助，请通过以下方式联系我们：
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-card p-4 rounded-lg border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Mail className="h-4 w-4 text-primary" />
@@ -338,6 +338,20 @@ export default function TermsPage() {
                 <a href="mailto:hello@wenpai.xyz" className="text-primary hover:underline">
                   hello@wenpai.xyz
                 </a>
+              </div>
+              <div className="bg-card p-4 rounded-lg border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <MessageSquare className="h-4 w-4 text-primary" />
+                  <h5 className="font-semibold text-foreground">微信客服</h5>
+                </div>
+                <div className="flex flex-col items-center">
+                  <img
+                    src="/微信图片_2025-09-02_134203_916.png"
+                    alt="客服微信二维码"
+                    className="w-20 h-20 object-contain mb-2"
+                  />
+                  <p className="text-xs text-muted-foreground text-center">扫码添加客服微信</p>
+                </div>
               </div>
               <div className="bg-card p-4 rounded-lg border border-border">
                 <div className="flex items-center gap-2 mb-2">

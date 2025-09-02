@@ -16,6 +16,8 @@ import { PaymentSuccessHandler } from '@/components/payment/PaymentSuccessHandle
 import { PaymentStatusRecovery } from '@/components/payment/PaymentStatusRecovery';
 import { Header } from '@/components/landing/Header';
 import { BufPayService } from '@/services/bufpayService';
+import { SubscriptionUpgradeService } from '@/services/subscriptionUpgradeService';
+import SubscriptionUpgradeDialog from '@/components/subscription/SubscriptionUpgradeDialog';
 import { PaymentResponse } from '@/types/payment';
 import { PaymentQRCode } from '@/components/payment/PaymentQRCode';
 import { logger } from '@/utils/logger';
@@ -94,6 +96,11 @@ export default function PaymentPage() {
   // 倒计时效果（包含毫秒）
   const [timeLeftMs, setTimeLeftMs] = useState(0);
 
+  // 升级相关状态
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [currentSubscriptionTier, setCurrentSubscriptionTier] = useState<string | null>(null);
+
   // 从localStorage读取预选的计划
   useEffect(() => {
     const savedPlanTier = localStorage.getItem('selectedPlan');
@@ -130,6 +137,29 @@ export default function PaymentPage() {
       setShowRecovery(true);
     }
   }, []);
+
+  // 检查用户订阅状态
+  useEffect(() => {
+    const checkUserSubscription = async () => {
+      if (!currentUser?.id) return;
+
+      try {
+        // 这里可以调用API检查用户当前订阅状态
+        // 暂时使用用户信息中的订阅状态
+        if (currentUser.subscription && currentUser.subscription.status === 'active') {
+          setHasActiveSubscription(true);
+          setCurrentSubscriptionTier(currentUser.subscription.tier || currentUser.vipLevel);
+        } else {
+          setHasActiveSubscription(false);
+          setCurrentSubscriptionTier(null);
+        }
+      } catch (error) {
+        logger.error('检查用户订阅状态失败:', error);
+      }
+    };
+
+    checkUserSubscription();
+  }, [currentUser]);
 
   // 页面访问时记录时间（用于限时优惠）
   useEffect(() => {
@@ -168,6 +198,19 @@ export default function PaymentPage() {
   // 处理支付
   const handlePayment = async () => {
     if (!selectedPlan || !currentUser) return;
+
+    // 检查是否为升级操作
+    if (hasActiveSubscription && currentSubscriptionTier) {
+      const tierLevels = { trial: 0, pro: 1, premium: 2 };
+      const currentLevel = tierLevels[currentSubscriptionTier as keyof typeof tierLevels] || 0;
+      const targetLevel = tierLevels[selectedPlan.tier as keyof typeof tierLevels] || 0;
+
+      if (targetLevel > currentLevel) {
+        // 这是升级操作，显示升级对话框
+        setShowUpgradeDialog(true);
+        return;
+      }
+    }
 
     try {
       setIsCreatingCheckout(true);
@@ -846,6 +889,24 @@ export default function PaymentPage() {
 
         </div>
       </div>
+
+      {/* 升级对话框 */}
+      {selectedPlan && (
+        <SubscriptionUpgradeDialog
+          open={showUpgradeDialog}
+          onOpenChange={setShowUpgradeDialog}
+          targetTier={selectedPlan.tier}
+          targetPeriod={selectedPeriod}
+          onUpgradeSuccess={() => {
+            toast({
+              title: '升级成功',
+              description: '您的订阅已成功升级！',
+            });
+            // 刷新页面或重新获取用户信息
+            window.location.reload();
+          }}
+        />
+      )}
     </div>
   );
 }
