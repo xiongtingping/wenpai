@@ -69,7 +69,7 @@ export class BufPayService {
     message: string;
   }> {
     try {
-      const response = await fetch(`${BUFPAY_CONFIG.QUERY_URL}/${aoid}`, {
+      const response = await fetch(`${BUFPAY_CONFIG.QUERY_URL}?query=${aoid}`, {
         method: 'GET'
       });
 

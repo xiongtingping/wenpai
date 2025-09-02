@@ -205,7 +205,8 @@ exports.handler = async (event, context) => {
     const response = await fetch(BUFPAY_CONFIG.API_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
       },
       body: formData.toString()
     });
@@ -214,26 +215,41 @@ exports.handler = async (event, context) => {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    // 处理HTML响应
-    const contentType = response.headers.get('content-type');
-    let paymentResult;
+    // 首先尝试解析为JSON响应
+    let responseText = await response.text();
     
-    if (contentType && contentType.includes('text/html')) {
-      const htmlResponse = await response.text();
-      
+    try {
+      // 尝试解析JSON
+      paymentResult = JSON.parse(responseText);
+      console.log('BufPay 返回JSON响应:', { 
+        orderId, 
+        status: paymentResult.status,
+        aoid: paymentResult.aoid,
+        expires_in: paymentResult.expires_in
+      });
+    } catch (jsonError) {
+      // 如果不是JSON，按HTML处理
+      console.log('BufPay 返回HTML支付页面:', { 
+        orderId, 
+        htmlLength: responseText.length,
+        containsQR: responseText.includes('qrcode'),
+        containsPayment: responseText.includes('支付'),
+        containsAlipay: responseText.includes('alipay')
+      });
+
       // 从HTML中提取aoid和二维码信息
       let extractedAoid = null;
       let qrCodeUrl = null;
       
-      const aoidMatch = htmlResponse.match(/aoid['\"]\\s*[:=]\\s*['\"]([^'\"]+)['\"]/) || 
-                       htmlResponse.match(/aoid=([^&\s'"]+)/);
+      const aoidMatch = responseText.match(/aoid['\"]\\s*[:=]\\s*['\"]([^'\"]+)['\"]/) || 
+                       responseText.match(/aoid=([^&\s'"]+)/);
       if (aoidMatch) {
         extractedAoid = aoidMatch[1];
       }
       
-      const qrMatch = htmlResponse.match(/(?:qr_?code|qr_?img)['\"]\\s*[:=]\\s*['\"]([^'\"]+)['\"]/) ||
-                     htmlResponse.match(/src=['\"]([^'\"]*qr[^'\"]*)['\"]/) ||
-                     htmlResponse.match(/(https?:\/\/[^\\s'"]*qr[^\\s'"]*)/);
+      const qrMatch = responseText.match(/(?:qr_?code|qr_?img)['\"]\\s*[:=]\\s*['\"]([^'\"]+)['\"]/) ||
+                     responseText.match(/src=['\"]([^'\"]*qr[^'\"]*)['\"]/) ||
+                     responseText.match(/(https?:\/\/[^\\s'"]*qr[^\\s'"]*)/);
       if (qrMatch) {
         qrCodeUrl = qrMatch[1];
       }
@@ -241,13 +257,11 @@ exports.handler = async (event, context) => {
       paymentResult = {
         status: 'ok',
         aoid: extractedAoid || `bufpay_${orderId}_${Date.now()}`,
-        htmlContent: htmlResponse,
+        htmlContent: responseText,
         qr_img: qrCodeUrl,
         message: '补差价支付页面已生成',
         expires_in: 900
       };
-    } else {
-      paymentResult = await response.json();
     }
 
     console.log('BufPay 补差价支付接口响应:', { orderId, status: paymentResult.status });

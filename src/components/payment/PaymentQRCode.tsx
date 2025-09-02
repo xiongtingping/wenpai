@@ -84,66 +84,78 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
     return () => window.removeEventListener('message', handleMessage);
   }, [onPaymentSuccess, onPaymentError]);
 
-  // 轮询支付状态
+  // 轮询支付状态 - 改为查询我们自己的订单状态
   useEffect(() => {
-    if (!isPolling || !paymentInfo.aoid) return;
+    if (!isPolling || !orderId) return;
 
     const pollPaymentStatus = async () => {
       try {
-        const status = await BufPayService.queryBufPayStatus(paymentInfo.aoid);
+        // 查询我们自己数据库中的订单状态，而不是直接查询BufPay
+        const orderStatus = await BufPayService.checkOrderStatus(orderId);
+        
+        if (orderStatus.isPaid) {
+          console.log('🎉 支付成功 - 订单已完成:', orderId);
+          setPaymentStatus('success');
+          setIsPolling(false);
+          setTimeout(() => {
+            onPaymentSuccess?.();
+          }, 500);
+          return;
+        }
 
-        // 根据BufPay文档处理所有支付状态
-        switch (status) {
-          case 'success':
-            // 订单已支付已经回调成功
-            console.log('🎉 支付成功检测到 (已回调):', status);
-            setPaymentStatus('success');
-            setIsPolling(false);
-            setTimeout(() => {
-              onPaymentSuccess?.();
-            }, 500);
-            break;
-            
-          case 'payed':
-            // 订单已支付未回调 - 继续轮询直到回调成功
-            console.log('💰 已支付但未回调:', status);
-            // 继续轮询，等待回调完成
-            break;
-            
-          case 'new':
-            // 新订单 - 继续等待支付
-            console.log('🔄 订单等待支付中:', status);
-            break;
-            
-          case 'expire':
-            // 订单已过期
-            console.log('⏰ 支付超时:', status);
-            setPaymentStatus('timeout');
-            setIsPolling(false);
-            onPaymentTimeout?.();
-            break;
-            
-          case 'fee_error':
-            // 账户余额不足扣除手续费失败，订单未回调
-            console.log('💸 手续费扣除失败:', status);
-            setPaymentStatus('failed');
-            setErrorMessage('支付平台手续费扣除失败，请联系客服');
-            setIsPolling(false);
-            onPaymentError?.('支付平台手续费扣除失败，请联系客服');
-            break;
-            
-          case 'not_exist':
-            // 订单不存在
-            console.error('❌ 订单不存在:', status);
-            setPaymentStatus('failed');
-            setErrorMessage('订单不存在，请重新创建订单');
-            setIsPolling(false);
-            onPaymentError?.('订单不存在，请重新创建订单');
-            break;
-            
-          default:
-            console.log('🔄 未知状态，继续轮询:', status);
-            break;
+        // 如果有真实aoid，也可以尝试查询BufPay状态作为补充
+        if (paymentInfo.aoid && !paymentInfo.aoid.startsWith('bufpay_WP')) {
+          const status = await BufPayService.queryBufPayStatus(paymentInfo.aoid);
+
+          // 根据BufPay文档处理所有支付状态
+          switch (status) {
+            case 'success':
+              // 订单已支付已经回调成功
+              console.log('🎉 支付成功检测到 (已回调):', status);
+              setPaymentStatus('success');
+              setIsPolling(false);
+              setTimeout(() => {
+                onPaymentSuccess?.();
+              }, 500);
+              break;
+              
+            case 'payed':
+              // 订单已支付未回调 - 继续轮询直到回调成功
+              console.log('💰 已支付但未回调:', status);
+              // 继续轮询，等待回调完成
+              break;
+              
+            case 'new':
+              // 新订单 - 继续等待支付
+              console.log('🔄 订单等待支付中:', status);
+              break;
+              
+            case 'expire':
+              // 订单已过期
+              console.log('⏰ 支付超时:', status);
+              setPaymentStatus('timeout');
+              setIsPolling(false);
+              onPaymentTimeout?.();
+              break;
+              
+            case 'fee_error':
+              // 账户余额不足扣除手续费失败，订单未回调
+              console.log('💸 手续费扣除失败:', status);
+              setPaymentStatus('failed');
+              setErrorMessage('支付平台手续费扣除失败，请联系客服');
+              setIsPolling(false);
+              onPaymentError?.('支付平台手续费扣除失败，请联系客服');
+              break;
+              
+            case 'not_exist':
+              // 订单不存在 - 这种情况下继续依赖我们的数据库查询
+              console.warn('⚠️ BufPay 查询订单不存在，继续依赖数据库状态');
+              break;
+              
+            default:
+              console.log('🔄 未知状态，继续轮询:', status);
+              break;
+          }
         }
       } catch (error) {
         console.error('查询支付状态失败:', error);
@@ -154,7 +166,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
     const interval = setInterval(pollPaymentStatus, 3000);
 
     return () => clearInterval(interval);
-  }, [isPolling, paymentInfo.aoid, onPaymentSuccess, onPaymentTimeout]);
+  }, [isPolling, orderId, paymentInfo.aoid, onPaymentSuccess, onPaymentTimeout]);
 
   const handleRefresh = () => {
     window.location.reload();
