@@ -36,11 +36,7 @@ class VerificationCodeService {
       // 使用正确的初始化参数
       this.authClient = new AuthenticationClient({
         appId: config.appId,
-        appHost: config.host,
-        // 根据文档，appHost应该是完整的URL
-        tokenEndPointAuthMethod: 'client_secret_post',
-        introspectionEndPointAuthMethod: 'client_secret_post',
-        revocationEndPointAuthMethod: 'client_secret_post'
+        appHost: config.host
       });
 
       console.log('✅ Authing AuthenticationClient初始化成功');
@@ -119,8 +115,8 @@ class VerificationCodeService {
       const client = await this.initAuthClient();
       
       // 调用Authing SDK发送邮件验证码
-      // 🔧 FIX: 2025-08-30 修复API调用方式，简化参数
-      const result = await client.sendEmail(email);
+      // 🔧 FIX: 2025-09-02 修复API调用方式，使用正确的参数格式
+      const result = await client.sendEmail(email, scene);
 
       console.log('✅ 邮箱验证码发送成功:', { email, scene });
       

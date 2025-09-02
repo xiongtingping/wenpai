@@ -109,7 +109,15 @@ export const CustomAuthModal: React.FC<CustomAuthModalProps> = ({
     try {
       setError(null);
       console.log('📧 发送邮箱验证码...');
-      await authClient.sendEmail(email, 'VERIFY_CODE');
+
+      // 使用统一的验证码服务
+      const { verificationCodeService } = await import('@/services/verificationCodeService');
+      const result = await verificationCodeService.sendEmailCode(email, 'VERIFY_CODE');
+
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+
       console.log('✅ 验证码发送成功');
     } catch (error: any) {
       console.error('❌ 验证码发送失败:', error);

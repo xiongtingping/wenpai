@@ -225,11 +225,19 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       console.log('📧 发送验证码...');
       
       if (contact.includes('@')) {
-        // 邮箱验证码
-        await authClient.sendEmail(contact, type === 'register' ? 'VERIFY_CODE' : 'RESET_PASSWORD');
+        // 邮箱验证码 - 使用统一的验证码服务
+        const { verificationCodeService } = await import('@/services/verificationCodeService');
+        const result = await verificationCodeService.sendEmailCode(contact, type.toUpperCase());
+        if (!result.success) {
+          throw new Error(result.message);
+        }
       } else {
-        // 手机验证码  
-        await authClient.sendSmsCode(contact);
+        // 手机验证码 - 使用统一的验证码服务
+        const { verificationCodeService } = await import('@/services/verificationCodeService');
+        const result = await verificationCodeService.sendSmsCode(contact, type.toUpperCase());
+        if (!result.success) {
+          throw new Error(result.message);
+        }
       }
       
       console.log('✅ 验证码发送成功');
