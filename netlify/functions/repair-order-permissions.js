@@ -114,10 +114,7 @@ async function processOrderPermissions(order) {
     .from('orders')
     .update({
       status: 'processed',
-      processed_at: new Date().toISOString(),
-      error_message: null,
-      retry_count: null,
-      last_error_at: null
+      processed_at: new Date().toISOString()
     })
     .eq('order_id', order.order_id);
 

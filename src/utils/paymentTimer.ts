@@ -56,21 +56,17 @@ export function getPaymentCenterAccessTime(userId?: string): Date | undefined {
  */
 async function hasActiveSubscription(userId: string): Promise<boolean> {
   try {
-    const { data, error } = await supabase
-      .from('user_subscriptions')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('status', 'active')
-      .gt('expires_at', new Date().toISOString())
-      .limit(1)
-      .maybeSingle();
+    const response = await fetch(`/.netlify/functions/check-subscription-status?userId=${userId}`);
     
-    if (error) {
-      console.error('检查订阅状态失败:', error);
+    if (!response.ok) {
+      console.error('检查订阅状态API失败:', response.status);
       return false;
     }
     
-    return !!data;
+    const result = await response.json();
+    console.log('🔍 订阅状态检查结果:', { userId, hasSubscription: result.hasActiveSubscription });
+    
+    return result.hasActiveSubscription;
   } catch (error) {
     console.error('检查订阅状态异常:', error);
     return false;
