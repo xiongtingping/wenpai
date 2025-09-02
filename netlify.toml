@@ -118,8 +118,8 @@
   AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   AUTHING_REDIRECT_URI = "https://www.wenpai.xyz/callback"
   # Supabase配置 - 服务端
-  SUPABASE_URL = "https://zkdbexhnynyzqhknzfxl.supabase.co"
-  SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprZGJleGhueW55enFoa256ZnhsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNDAzNzMzOCwiZXhwIjoyMDM5NjEzMzM4fQ.YEzZQrIZ7HM0WC1OvXnW5Wvo-eFGYsWsJKFQ8Vh9QLs"
+  SUPABASE_URL = "https://weizkydylskcwgnaieqy.supabase.co"
+  SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlaXpreWR5bHNrY3dnbmFpZXF5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTA1MjMzOSwiZXhwIjoyMDcwNjI4MzM5fQ.l5BvkhJttv0agpydb5lktK1Q4KvDaxQTNUb5-GMU14w"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -203,7 +203,7 @@
 
 [dev]
   command = "npm run dev"
-  port = 5173
+  port = 8888
   targetPort = 5173
   publish = "dist"
 
