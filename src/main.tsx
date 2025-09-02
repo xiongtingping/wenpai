@@ -9,8 +9,12 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
+import GlobalDataValidationService from './services/globalDataValidationService';
 
 // 🎯 最简单的应用启动 - 无任何技术债务
+
+// 初始化全局数据验证服务
+GlobalDataValidationService.initialize();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

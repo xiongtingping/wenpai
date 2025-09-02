@@ -309,10 +309,10 @@ export default function PaymentPage() {
   };
 
   // BufPay 支付成功处理
-  const handleBufpaySuccess = () => {
+  const handleBufpaySuccess = async () => {
     logger.info('BufPay支付成功', { orderId: bufpayOrderId });
     setPaymentStatus('paid');
-    
+
     // 立即显示成功提示
     toast({
       title: t('payment.messages.paymentSuccess'),
@@ -320,15 +320,25 @@ export default function PaymentPage() {
       duration: 5000,
     });
 
-    // 清理支付状态并强制页面刷新显示成功状态
+    // 清理支付状态
     setShowQRCode(false);
     setBufpayPaymentInfo(null);
-    
+
+    // 立即刷新用户状态
+    try {
+      if (user && refreshUser) {
+        await refreshUser();
+        logger.info('支付成功后用户状态刷新完成');
+      }
+    } catch (error) {
+      logger.warn('刷新用户状态失败:', error);
+    }
+
     // 稍后跳转到结果页面
     setTimeout(() => {
-      // 使用window.location.href而不是navigate，确保完整页面刷新
-      window.location.href = `/payment/result?orderId=${bufpayOrderId}`;
-    }, 3000);
+      // 使用window.location.href确保完整页面刷新
+      window.location.href = `/payment/result?order_id=${bufpayOrderId}&status=success`;
+    }, 2000);
   };
 
   // BufPay 支付超时处理

@@ -12,6 +12,7 @@ import { Header } from '@/components/landing/Header';
 import { useAuth } from '@/hooks/useAuth';
 import { BufPayService } from '@/services/bufpayService';
 import { logger } from '@/utils/logger';
+import PaymentDataCleanupService from '@/services/paymentDataCleanupService';
 
 export default function PaymentResultPage() {
   const [searchParams] = useSearchParams();
@@ -33,8 +34,14 @@ export default function PaymentResultPage() {
       return;
     }
 
+    // 检查是否需要清理数据
+    if (PaymentDataCleanupService.shouldCleanupData()) {
+      logger.info('检测到需要清理的数据，执行清理...');
+      PaymentDataCleanupService.performCompleteCleanup(user?.id);
+    }
+
     checkPaymentResult();
-  }, [orderId]);
+  }, [orderId, user?.id]);
 
   const checkPaymentResult = async () => {
     if (!orderId) return;
@@ -47,22 +54,40 @@ export default function PaymentResultPage() {
 
       // 检查订单状态
       const result = await BufPayService.checkOrderStatus(orderId);
-      
+
       setOrderInfo(result.order);
-      
+
       if (result.isPaid) {
         setPaymentStatus('success');
         setSubscriptionInfo(result.subscription);
-        
-        // 刷新用户信息以获取最新的订阅状态
-        if (user) {
-          await refreshUser?.();
+
+        // 强制刷新用户信息和页面状态
+        if (user && refreshUser) {
+          try {
+            // 执行完整的数据清理
+            PaymentDataCleanupService.performCompleteCleanup(user.id);
+
+            // 刷新用户状态
+            await refreshUser();
+
+            // 额外等待确保状态更新完成
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            logger.info('支付成功后用户状态刷新完成');
+          } catch (refreshError) {
+            logger.warn('刷新用户状态失败:', refreshError);
+
+            // 如果刷新失败，尝试强制重新加载页面
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          }
         }
-        
-        logger.info('支付成功:', { 
-          orderId, 
+
+        logger.info('支付成功:', {
+          orderId,
           userId: result.order.user_id,
-          subscriptionType: result.subscription?.subscription_type 
+          subscriptionType: result.subscription?.subscription_type
         });
       } else {
         // 检查订单状态
