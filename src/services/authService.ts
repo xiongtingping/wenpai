@@ -3,7 +3,7 @@
  * 严格遵循api_prohibit_local_mock_error规则
  */
 
-import { AuthenticationClient } from 'authing-js-sdk';
+import { AuthenticationClient, EmailScene } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
 
 export interface AuthUser {
@@ -318,8 +318,8 @@ class AuthService {
       const client = await this.initAuthClient();
       
       // 调用Authing API发送邮箱验证码
-      // 🔧 FIX: 2025-09-02 修复API调用方式，使用正确的参数格式
-      await client.sendEmail(email, 'VERIFY_CODE');
+      // 🔧 FIX: 2025-09-02 修复API调用方式，使用正确的EmailScene枚举
+      await client.sendEmail(email, EmailScene.LOGIN_VERIFY_CODE);
       
       console.log('✅ 邮箱验证码发送成功');
       

@@ -3,7 +3,7 @@
  * 基于Authing Web SDK实现邮箱和手机验证码发送
  */
 
-import { AuthenticationClient } from 'authing-js-sdk';
+import { AuthenticationClient, EmailScene } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
 
 export interface VerificationCodeOptions {
@@ -115,8 +115,29 @@ class VerificationCodeService {
       const client = await this.initAuthClient();
       
       // 调用Authing SDK发送邮件验证码
-      // 🔧 FIX: 2025-09-02 修复API调用方式，使用正确的参数格式
-      const result = await client.sendEmail(email, scene);
+      // 🔧 FIX: 2025-09-02 修复API调用方式，使用正确的EmailScene枚举
+      let emailScene: EmailScene;
+      switch (scene.toUpperCase()) {
+        case 'REGISTER':
+          emailScene = EmailScene.REGISTER_VERIFY_CODE;
+          break;
+        case 'LOGIN':
+          emailScene = EmailScene.LOGIN_VERIFY_CODE;
+          break;
+        case 'RESET_PASSWORD':
+          emailScene = EmailScene.RESET_PASSWORD_VERIFY_CODE;
+          break;
+        case 'UPDATE_EMAIL':
+        case 'CHANGE_EMAIL':
+          emailScene = EmailScene.EMAIL_BIND_VERIFY_CODE;
+          break;
+        case 'VERIFY_CODE':
+        default:
+          emailScene = EmailScene.LOGIN_VERIFY_CODE;
+          break;
+      }
+
+      const result = await client.sendEmail(email, emailScene);
 
       console.log('✅ 邮箱验证码发送成功:', { email, scene });
       
