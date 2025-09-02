@@ -951,14 +951,19 @@ export default function ProfilePage() {
                         </h2>
                         <div className="flex flex-wrap gap-1 justify-center mb-3">
                           <Badge
-                            variant={
-                              getAccountType() === '体验版' ? 'secondary' :
-                              getAccountType() === '专业版' ? 'default' :
-                              'premium'
-                            }
-                            className="text-xs"
+                            className={`text-xs font-semibold ${
+                              userTier === 'trial' 
+                                ? 'bg-gray-100 text-gray-700 border-gray-200' :
+                              userTier === 'pro' 
+                                ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                'bg-purple-100 text-purple-700 border-purple-200'
+                            }`}
                           >
-                            <Crown className="w-3 h-3 mr-1" />
+                            <Crown className={`w-3 h-3 mr-1 ${
+                              userTier === 'trial' ? 'text-gray-500' :
+                              userTier === 'pro' ? 'text-blue-500' :
+                              'text-purple-500'
+                            }`} />
                             {getAccountType()}
                           </Badge>
                         </div>

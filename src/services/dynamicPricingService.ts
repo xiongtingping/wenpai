@@ -188,7 +188,34 @@ export class DynamicPricingService {
     pricing: any, 
     originalPrice: number
   ): PricingResult {
-    // 普通升级按目标计划的全价计算
+    // 如果有当前订阅信息，计算补差价；否则按全价
+    if (context.currentSubscription) {
+      // 使用补差价计算工具
+      const proratedCalc = calculateProratedUpgrade(
+        context.currentSubscription,
+        context.targetTier,
+        context.targetPeriod
+      );
+
+      if (proratedCalc.canUpgrade) {
+        return {
+          finalAmount: proratedCalc.upgradeAmount,
+          originalPrice: proratedCalc.targetPrice,
+          discountAmount: proratedCalc.remainingValue,
+          priceType: 'prorated',
+          priceDescription: `升级补差价 (节省¥${proratedCalc.remainingValue.toFixed(2)})`,
+          allowManualInput: context.allowManualAmount || false,
+          calculation: {
+            basePrice: proratedCalc.targetPrice,
+            proratedDiscount: proratedCalc.remainingValue,
+            remainingValue: proratedCalc.remainingValue,
+            upgradeAmount: proratedCalc.upgradeAmount
+          }
+        };
+      }
+    }
+
+    // 没有当前订阅或不支持补差价，按全价计算
     return {
       finalAmount: originalPrice,
       originalPrice,

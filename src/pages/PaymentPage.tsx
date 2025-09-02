@@ -78,9 +78,9 @@ export default function PaymentPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useAuth();
+  const { user: currentUser, isAuthenticated: currentIsAuthenticated, updateUser } = useAuth();
   const { t } = useTranslation();
-  const { primaryStatus, hasActiveSubscription, refresh: refreshSubscriptionStatus } = useSubscriptionStatus();
+  const { primaryStatus, hasActiveSubscription, allSubscriptions, refresh: refreshSubscriptionStatus } = useSubscriptionStatus();
 
   // 获取用户当前等级 - 优先使用订阅状态钩子的数据
   const userCurrentTier = (() => {
@@ -184,32 +184,40 @@ export default function PaymentPage() {
       if (!currentUser?.id || !selectedPlan) return;
 
       try {
-        // 设置当前订阅状态
-        if (currentUser.subscription && currentUser.subscription.status === 'active') {
-          setCurrentSubscriptionTier(currentUser.subscription.tier || currentUser.vipLevel);
-        } else {
-          setCurrentSubscriptionTier(null);
+        // 获取当前订阅信息
+        let currentSubscription = null;
+        let currentSubscriptionTier = null;
+
+        if (hasActiveSubscription && allSubscriptions.length > 0) {
+          // 找到最高级别的活跃订阅
+          const activeSubscription = allSubscriptions.find(sub => sub.subscriptionType === 'premium') || allSubscriptions[0];
+          
+          if (activeSubscription) {
+            currentSubscriptionTier = activeSubscription.subscriptionType;
+            // 构造订阅对象供补差价计算使用
+            currentSubscription = {
+              subscription_type: activeSubscription.subscriptionType,
+              expires_at: primaryStatus.expiresAt || new Date().toISOString(),
+              started_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 假设30天前开始
+              id: activeSubscription.subscriptionId
+            };
+          }
         }
+
+        setCurrentSubscriptionTier(currentSubscriptionTier);
 
         // 确定操作类型
         let action: 'new' | 'renew' | 'upgrade' | 'prorated_upgrade' = 'new';
-        let currentSubscription = null;
 
-        if (hasActiveSubscription && currentUser.subscription) {
-          currentSubscription = currentUser.subscription;
-          
+        if (hasActiveSubscription && currentSubscription) {
           // 检查是否是升级
-          const tierLevels = { trial: 0, pro: 1, premium: 2 };
+          const tierLevels = { trial: 0, pro: 1, professional: 1, premium: 2 };
           const currentLevel = tierLevels[currentSubscriptionTier as keyof typeof tierLevels] || 0;
           const targetLevel = tierLevels[selectedPlan.tier as keyof typeof tierLevels] || 0;
           
           if (targetLevel > currentLevel) {
-            // 如果是补差价升级（来自升级页面）
-            if (locationState?.action === 'upgrade') {
-              action = 'prorated_upgrade';
-            } else {
-              action = 'upgrade';
-            }
+            // 升级操作，默认使用补差价
+            action = 'upgrade';
           } else {
             action = 'renew';
           }
@@ -234,7 +242,7 @@ export default function PaymentPage() {
     };
 
     calculateDynamicPricing();
-  }, [currentUser, selectedPlan, selectedPeriod, hasActiveSubscription, currentSubscriptionTier, locationState]);
+  }, [currentUser, selectedPlan, selectedPeriod, hasActiveSubscription, allSubscriptions, primaryStatus, locationState]);
 
   // 页面访问时记录时间（用于限时优惠）
   useEffect(() => {
@@ -474,20 +482,32 @@ export default function PaymentPage() {
         await refreshSubscriptionStatus();
         logger.info('订阅状态刷新完成');
 
+        // 强制刷新用户数据（触发认证状态更新）
+        try {
+          logger.info('强制刷新用户数据...');
+          await updateUser({}); // 空对象触发用户数据重新获取
+          logger.info('用户数据刷新完成');
+        } catch (error) {
+          logger.warn('用户数据刷新失败:', error);
+        }
+
         // 重新检查限时优惠状态
         const shouldShow = await shouldShowPromoOffer(currentUser.id);
         setShowPromoOffer(shouldShow);
         logger.info('限时优惠状态已更新:', { shouldShow });
+
+        // 强制触发页面状态更新
+        window.dispatchEvent(new Event('subscription-updated'));
       }
     } catch (error) {
       logger.warn('数据清理或状态刷新失败:', error);
     }
 
-    // 稍后跳转到结果页面
+    // 增加更多时间确保状态刷新完成
     setTimeout(() => {
       // 使用window.location.href确保完整页面刷新
       window.location.href = `/payment/result?order_id=${bufpayOrderId}&status=success`;
-    }, 2000);
+    }, 5000);
   };
 
   // BufPay 支付超时处理
