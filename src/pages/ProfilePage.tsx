@@ -1362,7 +1362,7 @@ export default function ProfilePage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex flex-col p-4 relative z-10">
+            <CardContent className="flex flex-col p-4 pb-4 relative z-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 {/* 反馈规则说明 */}
                 <div className="rounded-lg p-3 border border-border shadow-sm relative overflow-hidden bg-accent">

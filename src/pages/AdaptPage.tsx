@@ -1242,7 +1242,26 @@ export default function AdaptPage() {
     if (user?.id) {
       const syncUsageStats = async () => {
         try {
-          const currentTier = getUserTier(user);
+          // 获取用户当前等级 - 与其他组件保持一致的逻辑
+          const currentTier = (() => {
+            // 优先使用订阅状态中的等级信息
+            if (primaryStatus?.status === 'active' && primaryStatus.tier) {
+              return primaryStatus.tier;
+            }
+
+            // 如果订阅状态中没有等级信息，但有活跃订阅，根据状态标签推断等级
+            if (primaryStatus?.status === 'active') {
+              const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
+              if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
+                return 'premium';
+              } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
+                return 'pro';
+              }
+            }
+
+            // 最后使用用户数据中的等级信息
+            return getUserTier(user);
+          })();
 
           // 获取最大使用次数 - 根据订阅状态动态调整
           let newMaxUsage = 10; // 默认体验版
@@ -1250,15 +1269,6 @@ export default function AdaptPage() {
             newMaxUsage = 100; // 专业版提高到100次
           } else if (currentTier === 'premium') {
             newMaxUsage = -1; // 高级版无限制
-          }
-
-          // 检查订阅状态，确保与实际权限匹配
-          if (primaryStatus?.status === 'active') {
-            if (primaryStatus.statusLabel?.includes('专业版') || primaryStatus.statusLabel?.includes('Pro')) {
-              newMaxUsage = 100;
-            } else if (primaryStatus.statusLabel?.includes('高级版') || primaryStatus.statusLabel?.includes('Premium')) {
-              newMaxUsage = -1;
-            }
           }
           
           // 从后端API获取实际已使用次数

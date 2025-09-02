@@ -383,9 +383,7 @@ class HotTopicsAPI {
       });
 
       if (Object.keys(aggregatedData).length === 0) {
-        // 如果所有平台都失败，返回模拟数据而不是抛出错误
-        this.log('所有平台数据获取失败，返回模拟数据');
-        return this.getFallbackData();
+        throw new Error('所有平台数据获取失败，请检查网络连接');
       }
 
       const response: DailyHotResponse = {

@@ -11,6 +11,7 @@
 
 import { useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { logger } from '@/utils/logger';
 
 /**
@@ -356,10 +357,11 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
  */
 export const usePermission = (permissionKey: string | string[]): PermissionResult => {
   const { user, isAuthenticated } = useAuth();
+  const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
 
   return useMemo(() => {
     const keys = Array.isArray(permissionKey) ? permissionKey : [permissionKey];
-    
+
     // 如果没有用户且需要登录权限，直接返回失败
     if (!isAuthenticated && keys.some(key => key === 'auth:required')) {
       return {
@@ -376,20 +378,54 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
       };
     }
 
+    // 创建增强的用户对象，包含订阅状态信息
+    const enhancedUser = user ? {
+      ...user,
+      // 如果有活跃订阅，使用订阅状态中的等级信息
+      subscription: primaryStatus?.status === 'active' && primaryStatus.tier ? {
+        ...user.subscription,
+        tier: primaryStatus.tier
+      } : user.subscription,
+      // 根据订阅状态推断VIP等级
+      vipLevel: (() => {
+        if (primaryStatus?.status === 'active' && primaryStatus.tier) {
+          return primaryStatus.tier;
+        }
+        if (primaryStatus?.status === 'active') {
+          const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
+          if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
+            return 'premium';
+          } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
+            return 'pro';
+          }
+        }
+        return user.vipLevel;
+      })()
+    } : user;
+
     // 检查每个权限键
     for (const key of keys) {
       const config = PERMISSION_CONFIGS[key];
-      
+
       if (!config) {
         console.warn(`🔒 未找到权限配置: ${key}`);
         continue;
       }
 
-      const hasPermission = config.check(user);
-      
+      const hasPermission = config.check(enhancedUser);
+
       // 打印权限检查日志
       logger.lock('🔒 权限检查: ${key}', {
-        user: user ? { id: user.id, isVip: user.isVip, permissions: user.permissions, roles: user.roles } : null,
+        user: enhancedUser ? {
+          id: enhancedUser.id,
+          isVip: enhancedUser.isVip,
+          vipLevel: enhancedUser.vipLevel,
+          subscription: enhancedUser.subscription,
+          permissions: enhancedUser.permissions,
+          roles: enhancedUser.roles
+        } : null,
+        primaryStatus,
+        hasActiveSubscription,
         hasPermission,
         config: config.description
       });
@@ -401,9 +437,9 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
           redirect: config.redirect,
           details: {
             key,
-            userPermissions: user?.permissions || [],
-            userRoles: user?.roles || [],
-            isVip: !!user?.isVip,
+            userPermissions: enhancedUser?.permissions || [],
+            userRoles: enhancedUser?.roles || [],
+            isVip: !!enhancedUser?.isVip,
             isLoggedIn: isAuthenticated
           }
         };
@@ -415,13 +451,13 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
       pass: true,
       details: {
         key: keys.join(','),
-        userPermissions: user?.permissions || [],
-        userRoles: user?.roles || [],
-        isVip: !!user?.isVip,
+        userPermissions: enhancedUser?.permissions || [],
+        userRoles: enhancedUser?.roles || [],
+        isVip: !!enhancedUser?.isVip,
         isLoggedIn: isAuthenticated
       }
     };
-  }, [user, isAuthenticated, permissionKey]);
+  }, [user, isAuthenticated, permissionKey, primaryStatus, hasActiveSubscription]);
 };
 
 /**

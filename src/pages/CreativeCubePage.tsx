@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Wand2, Palette, Lightbulb, Zap, Star, Briefcase, Coffee, Target } from 'lucide-react';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
+import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
 import { Header } from '@/components/landing/Header';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
@@ -128,14 +129,19 @@ const CreativeCubePage: React.FC = () => {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="prompt" className="text-foreground">内容描述</Label>
-                <Textarea
-                  id="prompt"
-                  variant="enhanced"
-                  placeholder={t('creative.contentPlaceholder')}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  rows={4}
-                />
+                <PermissionProtectedInput
+                  requiredTier="pro"
+                  featureName="创意魔方内容输入"
+                >
+                  <Textarea
+                    id="prompt"
+                    variant="enhanced"
+                    placeholder={t('creative.contentPlaceholder')}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    rows={4}
+                  />
+                </PermissionProtectedInput>
               </div>
 
               <div>
@@ -190,27 +196,32 @@ const CreativeCubePage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {generatedContent ? (
-                <div className="space-y-4">
-                  <div className="surface-2 p-4 rounded-lg whitespace-pre-wrap text-sm text-foreground">
-                    {generatedContent}
+              <PermissionProtectedInput
+                requiredTier="pro"
+                featureName="创意魔方内容输出"
+              >
+                {generatedContent ? (
+                  <div className="space-y-4">
+                    <div className="surface-2 p-4 rounded-lg whitespace-pre-wrap text-sm text-foreground">
+                      {generatedContent}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleCopy} variant="outline" size="sm">
+                        复制内容
+                      </Button>
+                      <Button onClick={() => setGeneratedContent('')} variant="outline" size="sm">
+                        清空
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button onClick={handleCopy} variant="outline" size="sm">
-                      复制内容
-                    </Button>
-                    <Button onClick={() => setGeneratedContent('')} variant="outline" size="sm">
-                      清空
-                    </Button>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Lightbulb className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>输入内容描述并点击生成按钮</p>
+                    <p className="text-sm">AI将为您创建独特的创意内容</p>
                   </div>
-                </div>
-              ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Lightbulb className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>输入内容描述并点击生成按钮</p>
-                  <p className="text-sm">AI将为您创建独特的创意内容</p>
-                </div>
-              )}
+                )}
+              </PermissionProtectedInput>
             </CardContent>
           </Card>
         </div>
