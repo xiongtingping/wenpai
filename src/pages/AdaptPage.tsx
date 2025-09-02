@@ -1244,35 +1244,23 @@ export default function AdaptPage() {
         try {
           // 获取用户当前等级 - 与其他组件保持一致的逻辑
           const currentTier = (() => {
-            console.log('🔍 AI内容适配器等级检测:', {
-              primaryStatus,
-              userTier: getUserTier(user),
-              user: user
-            });
-
             // 优先使用订阅状态中的等级信息
             if (primaryStatus?.status === 'active' && primaryStatus.tier) {
-              console.log('✅ 使用订阅状态等级:', primaryStatus.tier);
               return primaryStatus.tier;
             }
 
             // 如果订阅状态中没有等级信息，但有活跃订阅，根据状态标签推断等级
             if (primaryStatus?.status === 'active') {
               const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
-              console.log('🔍 根据状态标签推断等级:', statusLabel);
               if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
-                console.log('✅ 推断为高级版');
                 return 'premium';
               } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
-                console.log('✅ 推断为专业版');
                 return 'pro';
               }
             }
 
             // 最后使用用户数据中的等级信息
-            const fallbackTier = getUserTier(user);
-            console.log('✅ 使用用户数据等级:', fallbackTier);
-            return fallbackTier;
+            return getUserTier(user);
           })();
 
           // 获取最大使用次数 - 根据订阅状态动态调整
@@ -1283,16 +1271,9 @@ export default function AdaptPage() {
             newMaxUsage = -1; // 高级版无限制
           }
 
-          console.log('🔄 更新使用次数限制:', {
-            tier: currentTier,
-            newMaxUsage: newMaxUsage === -1 ? '无限制' : newMaxUsage,
-            oldMaxUsage: maxUsage === -1 ? '无限制' : maxUsage
-          });
-
           // 直接更新最大使用次数，不依赖可能不存在的API
           if (newMaxUsage !== maxUsage) {
             updateMaxUsage(newMaxUsage);
-            console.log('✅ 已更新最大使用次数:', newMaxUsage === -1 ? '无限制' : newMaxUsage);
           }
 
           // 尝试从后端API获取实际已使用次数（可选）
@@ -1308,14 +1289,11 @@ export default function AdaptPage() {
               const currentStoreUsage = useAuthStore.getState().usageCount;
               if (actualUsedCount !== currentStoreUsage) {
                 useAuthStore.setState({ usageCount: actualUsedCount });
-                console.log('🔄 同步实际使用次数:', {
-                  actualUsed: actualUsedCount,
-                  remaining: newMaxUsage === -1 ? '无限制' : Math.max(0, newMaxUsage - actualUsedCount)
-                });
               }
             }
           } catch (error) {
-            console.log('⚠️ API同步失败，使用本地数据:', error.message);
+            // API同步失败，使用本地数据
+            console.warn('API同步失败，使用本地数据:', error.message);
           }
         } catch (error) {
           console.error('同步使用次数失败:', error);
