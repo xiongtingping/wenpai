@@ -266,7 +266,7 @@ export default function ProfilePage() {
           description="管理您的账户信息和设置"
           showAdaptButton={false}
         />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-6 pb-4">
           <Card className="max-w-md mx-auto">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -862,7 +862,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden pt-24">
+    <div className="bg-background relative overflow-hidden pt-24 pb-4">
       {/* 主导航栏 */}
       <Header />
 
@@ -874,10 +874,8 @@ export default function ProfilePage() {
           showAdaptButton={false}
         />
 
-
-
-      {/* 使用更宽的容器，减少两侧空白 */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* 使用更宽的容器，减少两侧空白 */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
 
         {/* 🎨 个人资料区域 - Modern Flat + Soft Neumorphism */}
         <div className="mb-6">
@@ -1346,58 +1344,56 @@ export default function ProfilePage() {
 
         </div>
 
-        {/* 第三行：反馈奖励 - 优化布局减少空白 */}
-        <div className="profile-grid-equal-height mt-6 mb-8">
-          <Card variant="soft" className="w-full flex flex-col rounded-xl overflow-hidden relative">
-            <CardHeader className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-foreground relative z-10 rounded-t-xl pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-orange-500/10 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0 border border-orange-500/20">
-                    <HelpCircle className="w-6 h-6 drop-shadow-sm text-orange-500" />
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold text-foreground">{t('profile.feedbackRewards')}</div>
-                    <div className="text-sm font-normal text-muted-foreground">{t('profile.feedbackDescription')}</div>
-                  </div>
+        {/* 第三行：反馈奖励 - 紧凑布局 */}
+        <div className="mt-6">
+          <Card variant="soft" className="w-full rounded-xl overflow-hidden relative">
+            <CardHeader className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-foreground relative z-10 rounded-t-xl pb-3 pt-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-orange-500/10 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0 border border-orange-500/20">
+                  <HelpCircle className="w-5 h-5 drop-shadow-sm text-orange-500" />
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-foreground">{t('profile.feedbackRewards')}</div>
+                  <div className="text-xs font-normal text-muted-foreground">{t('profile.feedbackDescription')}</div>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex flex-col p-4 pb-4 relative z-10">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <CardContent className="p-4 pb-4 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 {/* 反馈规则说明 */}
-                <div className="rounded-lg p-3 border border-border shadow-sm relative overflow-hidden bg-accent">
-                  <div className="flex items-center gap-2 mb-2 relative z-10">
-                    <div className="w-7 h-7 bg-orange-500 rounded-md flex items-center justify-center shadow-sm">
-                      <Award className="w-3.5 h-3.5 text-white drop-shadow-sm" />
+                <div className="rounded-lg p-2.5 border border-border shadow-sm relative overflow-hidden bg-accent">
+                  <div className="flex items-center gap-2 mb-1.5 relative z-10">
+                    <div className="w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center shadow-sm">
+                      <Award className="w-3 h-3 text-white drop-shadow-sm" />
                     </div>
-                    <h3 className="font-semibold text-foreground text-sm">{t('profile.feedbackRules')}</h3>
+                    <h3 className="font-semibold text-foreground text-xs">{t('profile.feedbackRules')}</h3>
                   </div>
-                  <p className="text-muted-foreground font-medium text-xs relative z-10 leading-relaxed">
+                  <p className="text-muted-foreground font-medium text-xs relative z-10 leading-tight">
                     {t('profile.feedbackRule')}
                   </p>
                 </div>
 
                 {/* 反馈邮箱卡片 */}
-                <div className="rounded-lg p-3 border border-border shadow-sm relative overflow-hidden bg-accent">
-                  <div className="flex items-center gap-2 mb-2 relative z-10">
-                    <div className="w-7 h-7 bg-orange-500 rounded-md flex items-center justify-center shadow-sm">
-                      <Mail className="w-3.5 h-3.5 text-white drop-shadow-sm" />
+                <div className="rounded-lg p-2.5 border border-border shadow-sm relative overflow-hidden bg-accent">
+                  <div className="flex items-center gap-2 mb-1.5 relative z-10">
+                    <div className="w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center shadow-sm">
+                      <Mail className="w-3 h-3 text-white drop-shadow-sm" />
                     </div>
-                    <h3 className="font-semibold text-foreground text-sm">{t('profile.feedbackEmail')}</h3>
+                    <h3 className="font-semibold text-foreground text-xs">{t('profile.feedbackEmail')}</h3>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <Input
                       value="hello@wenpai.xyz"
                       readOnly
-                      className="text-xs h-8 border border-border rounded-md bg-accent font-mono flex-1"
+                      className="text-xs h-7 border border-border rounded-md bg-accent font-mono flex-1"
                     />
                     <Button
                       variant="soft"
                       size="sm"
                       onClick={handleCopyFeedbackEmail}
-                      className="h-8 px-2 rounded-md bg-orange-500 text-white hover:bg-orange-600"
+                      className="h-7 px-1.5 rounded-md bg-orange-500 text-white hover:bg-orange-600"
                     >
-                      <Copy className="w-3 h-3" />
+                      <Copy className="w-2.5 h-2.5" />
                     </Button>
                   </div>
                 </div>
@@ -1406,17 +1402,17 @@ export default function ProfilePage() {
               {/* 反馈按钮 - 紧凑设计 */}
               <Button
                 variant="ghost"
-                size="default"
-                className="w-full h-10 text-sm rounded-lg bg-gradient-to-r from-orange-500/10 to-orange-600/10 border border-orange-500/20 text-orange-600 hover:from-orange-500/20 hover:to-orange-600/20"
+                size="sm"
+                className="w-full h-8 text-xs rounded-lg bg-gradient-to-r from-orange-500/10 to-orange-600/10 border border-orange-500/20 text-orange-600 hover:from-orange-500/20 hover:to-orange-600/20"
                 onClick={handleCopyFeedbackEmail}
               >
-                <HelpCircle className="w-4 h-4 mr-2" />
+                <HelpCircle className="w-3 h-3 mr-1.5" />
                 {t('profile.submitFeedback')}
               </Button>
             </CardContent>
           </Card>
         </div>
-      </div>
+        </div>
       </div>
     </div>
   );
