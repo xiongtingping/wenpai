@@ -39,6 +39,7 @@ import PaymentFeedbackPage from '@/pages/PaymentFeedbackPage';
 import AdaptPage from '@/pages/AdaptPage';
 import CreativeStudioPage from '@/pages/CreativeStudioPage';
 import HotTopicsPage from '@/pages/HotTopicsPage';
+import EnhancedHotTopicsPage from '@/pages/EnhancedHotTopicsPage';
 import BookmarkPage from '@/pages/BookmarkPage';
 import BrandLibraryPage from '@/pages/BrandLibraryPage';
 import ProfilePage from '@/pages/ProfilePage';
@@ -134,6 +135,7 @@ const App: React.FC = () => {
                         <Route path="/adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
                         <Route path="/creative-studio" element={<AuthGuard><CreativeStudioPage /></AuthGuard>} />
                         <Route path="/hot-topics" element={<HotTopicsPage />} />
+                        <Route path="/enhanced-hot-topics" element={<EnhancedHotTopicsPage />} />
                         <Route path="/bookmark" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
                         <Route path="/library" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
                         <Route path="/brand-library" element={<AuthGuard><BrandLibraryPage /></AuthGuard>} />

@@ -68,6 +68,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Header } from '@/components/landing/Header';
 import TopicHeatChart from '@/components/hot-topics/TopicHeatChart';
@@ -87,6 +88,13 @@ import {
 } from '@/api/hotTopicsService';
 import InterestFilter, { InterestFilters } from '@/components/hot-topics/InterestFilter';
 import TopicCategories from '@/components/hot-topics/TopicCategories';
+import EnhancedTopicCategories from '@/components/hot-topics/EnhancedTopicCategories';
+import RSSHubIndicator from '@/components/hot-topics/RSSHubIndicator';
+import intelligentDeduplicationService from '@/services/intelligentDeduplicationService';
+import unifiedHeatScoreService from '@/services/unifiedHeatScoreService';
+import intelligentCategoryService from '@/services/intelligentCategoryService';
+import multiDimensionalTrendService from '@/services/multiDimensionalTrendService';
+import DataSourceToggle from '@/components/hot-topics/DataSourceToggle';
 import {
   getTopicSubscriptions,
   addTopicSubscription,
@@ -135,6 +143,7 @@ export default function HotTopicsPage() {
   const [monitoringTimer, setMonitoringTimer] = useState<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // 状态管理 - LOCKED
   const [allHotData, setAllHotData] = useState<DailyHotResponse | null>(null);
@@ -145,6 +154,10 @@ export default function HotTopicsPage() {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
   const [readTopics, setReadTopics] = useState<Set<string>>(new Set());
+  const [useEnhancedCategories, setUseEnhancedCategories] = useState(true);
+  const [enableIntelligentOptimization, setEnableIntelligentOptimization] = useState(true);
+  const [deduplicationEnabled, setDeduplicationEnabled] = useState(true);
+  const [unifiedHeatScoreEnabled, setUnifiedHeatScoreEnabled] = useState(true);
 
   // 收藏状态持久化 - PROTECTED LOGIC
   const loadBookmarkedTopics = (): Set<string> => {
@@ -530,6 +543,27 @@ export default function HotTopicsPage() {
   };
 
   /**
+   * 准备分类数据
+   */
+  const prepareCategorizedData = (): Record<string, DailyHotItem[]> => {
+    const topics = getAllTopicsData();
+    const categorized: Record<string, DailyHotItem[]> = {};
+
+    // 按分类整理数据
+    topics.forEach(topic => {
+      const category = getTopicCategory(topic);
+      if (!categorized[category]) {
+        categorized[category] = [];
+      }
+      categorized[category].push(topic);
+    });
+
+    return categorized;
+  };
+
+
+
+  /**
    * 处理兴趣过滤器变化
    */
   const handleInterestFilterChange = (filters: InterestFilters) => {
@@ -627,7 +661,7 @@ export default function HotTopicsPage() {
   };
 
   /**
-   * 获取所有话题数据（用于分类统计）
+   * 获取所有话题数据（用于分类统计，应用智能优化）
    */
   const getAllTopicsData = (): DailyHotItem[] => {
     if (!allHotData || !allHotData.data) {
@@ -641,7 +675,116 @@ export default function HotTopicsPage() {
       allTopics = allTopics.concat(platformTopics);
     });
 
+    // 应用智能优化（同步版本）
+    if (enableIntelligentOptimization) {
+      allTopics = applyIntelligentOptimizationsSync(allTopics);
+    }
+
     return allTopics;
+  };
+
+  /**
+   * 应用智能优化处理（同步版本）
+   */
+  const applyIntelligentOptimizationsSync = (items: DailyHotItem[]): DailyHotItem[] => {
+    let optimizedItems = [...items];
+
+    try {
+      // 2. 统一热度评分
+      if (unifiedHeatScoreEnabled && optimizedItems.length > 0) {
+        optimizedItems = unifiedHeatScoreService.batchNormalizeHeatScores(optimizedItems);
+
+        if (import.meta.env.DEV) {
+          const stats = unifiedHeatScoreService.getPlatformStats(optimizedItems);
+          console.log('📊 统一热度评分统计:', stats);
+        }
+      }
+
+      // 3. 智能分类优化
+      if (optimizedItems.length > 0) {
+        const { results: categoryResults, stats: categoryStats } = intelligentCategoryService.batchClassify(optimizedItems);
+
+        // 将分类结果应用到数据项
+        optimizedItems = optimizedItems.map((item, index) => ({
+          ...item,
+          intelligentCategory: categoryResults[index]?.primary || '其他',
+          categoryConfidence: categoryResults[index]?.confidence || 0,
+          categoryTags: categoryResults[index]?.tags || []
+        }));
+
+        if (import.meta.env.DEV) {
+          console.log('🏷️ 智能分类统计:', categoryStats);
+        }
+      }
+
+    } catch (error) {
+      console.warn('⚠️ 智能优化处理出错:', error);
+      // 出错时返回原始数据
+      return items;
+    }
+
+    return optimizedItems;
+  };
+
+  /**
+   * 应用智能优化处理（异步版本，用于后台处理）
+   */
+  const applyIntelligentOptimizations = async (items: DailyHotItem[]): Promise<DailyHotItem[]> => {
+    let optimizedItems = [...items];
+
+    try {
+      // 1. 智能去重
+      if (deduplicationEnabled && optimizedItems.length > 0) {
+        const deduplicationResult = await intelligentDeduplicationService.deduplicate(optimizedItems, {
+          similarityThreshold: 0.8,
+          enableSemanticAnalysis: true
+        });
+
+        if (import.meta.env.DEV) {
+          console.log('🔄 智能去重结果:', {
+            原始数量: items.length,
+            去重后数量: deduplicationResult.uniqueItems.length,
+            去除重复: deduplicationResult.duplicatesRemoved
+          });
+        }
+
+        optimizedItems = deduplicationResult.uniqueItems;
+      }
+
+      // 2. 统一热度评分
+      if (unifiedHeatScoreEnabled && optimizedItems.length > 0) {
+        optimizedItems = unifiedHeatScoreService.batchNormalizeHeatScores(optimizedItems);
+
+        if (import.meta.env.DEV) {
+          const stats = unifiedHeatScoreService.getPlatformStats(optimizedItems);
+          console.log('📊 统一热度评分统计:', stats);
+        }
+      }
+
+      // 3. 智能分类优化
+      if (optimizedItems.length > 0) {
+        const { results: categoryResults, stats: categoryStats } = intelligentCategoryService.batchClassify(optimizedItems);
+
+        // 将分类结果应用到数据项
+        optimizedItems = optimizedItems.map((item, index) => ({
+          ...item,
+          intelligentCategory: categoryResults[index]?.primary || '其他',
+          categoryConfidence: categoryResults[index]?.confidence || 0,
+          categoryTags: categoryResults[index]?.tags || []
+        }));
+
+        if (import.meta.env.DEV) {
+          console.log('🏷️ 智能分类统计:', categoryStats);
+        }
+      }
+
+    } catch (error) {
+      console.warn('⚠️ 智能优化处理出错:', error);
+      // 出错时返回原始数据
+      return items;
+    }
+
+    return optimizedItems;
   };
 
   /**
@@ -1174,6 +1317,15 @@ export default function HotTopicsPage() {
                 <RefreshCw className={`w-4 h-4 mr-1 ${refreshing ? 'animate-spin' : ''}`} />
                 刷新
               </Button>
+              {/* RSSHub 数据源指示器 - 非侵入式增强 */}
+              <RSSHubIndicator
+                onDataUpdate={(hasNewData) => {
+                  if (hasNewData) {
+                    // 可选：当有新的RSSHub数据时触发刷新
+                    console.log('RSSHub数据已更新');
+                  }
+                }}
+              />
             </div>
           </div>
 
@@ -1240,6 +1392,22 @@ export default function HotTopicsPage() {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* 数据源增强选项 - 可选功能，不影响原有体验 */}
+            {!loading && !error && (
+              <div className="mb-6">
+                <DataSourceToggle
+                  onToggle={(enabled) => {
+                    if (enabled) {
+                      console.log('RSSHub数据源已启用');
+                      // 可选：触发数据刷新以包含RSSHub数据
+                    } else {
+                      console.log('RSSHub数据源已禁用');
+                    }
+                  }}
+                />
+              </div>
             )}
 
             {/* 今日最热门话题 */}
@@ -1406,16 +1574,24 @@ export default function HotTopicsPage() {
 
             {/* 话题分类 */}
             {currentPlatform === 'all' && !loading && getAllTopicsData().length > 0 && (
-              <TopicCategories
-                topics={getAllTopicsData()}
-                onCategoryChange={handleCategoryChange}
-                onTopicClick={handleTopicClick}
-                onToggleBookmark={toggleBookmark}
-                isTopicBookmarked={isTopicBookmarked}
-                interestFilterComponent={
-                  <InterestFilter onFilterChange={handleInterestFilterChange} />
-                }
-              />
+              useEnhancedCategories ? (
+                <EnhancedTopicCategories
+                  originalData={prepareCategorizedData()}
+                  onCategoryClick={handleCategoryChange}
+                  className="mb-6"
+                />
+              ) : (
+                <TopicCategories
+                  topics={getAllTopicsData()}
+                  onCategoryChange={handleCategoryChange}
+                  onTopicClick={handleTopicClick}
+                  onToggleBookmark={toggleBookmark}
+                  isTopicBookmarked={isTopicBookmarked}
+                  interestFilterComponent={
+                    <InterestFilter onFilterChange={handleInterestFilterChange} />
+                  }
+                />
+              )
             )}
 
 

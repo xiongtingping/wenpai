@@ -447,38 +447,28 @@ async function searchRealHotTopics(keyword: string, source: SearchSource): Promi
     // 搜索包含关键词的热点话题
     const allHotTopics: DailyHotItem[] = hotTopicsData;
 
-    // 过滤包含关键词的话题（支持中文和英文）
+    // 过滤包含关键词的话题（增强版匹配算法）
     const keywordLower = keyword.toLowerCase().trim();
     const matchedTopics = allHotTopics.filter(topic => {
       const title = topic.title || '';
       const desc = topic.desc || '';
       const content = topic.content || '';
 
-      // 完全匹配
-      if (title.includes(keyword) || desc.includes(keyword) || content.includes(keyword)) {
-        return true;
+      // 计算相关性得分
+      const relevanceScore = calculateEnhancedRelevance(keyword, title, desc, content);
+
+      // 设置相关性阈值（0.7表示70%相关性）
+      const relevanceThreshold = 0.7;
+
+      if (import.meta.env.DEV) {
+        console.log(`🔍 话题匹配分析: "${title}" vs "${keyword}"`, {
+          relevanceScore: relevanceScore.toFixed(2),
+          threshold: relevanceThreshold,
+          matched: relevanceScore >= relevanceThreshold
+        });
       }
 
-      // 忽略大小写匹配
-      const titleLower = title.toLowerCase();
-      const descLower = desc.toLowerCase();
-      const contentLower = content.toLowerCase();
-
-      if (titleLower.includes(keywordLower) || descLower.includes(keywordLower) || contentLower.includes(keywordLower)) {
-        return true;
-      }
-
-      // 分词匹配（对于中文关键词）
-      if (keyword.length > 1) {
-        for (let i = 0; i < keyword.length; i++) {
-          const char = keyword[i];
-          if (title.includes(char) || desc.includes(char) || content.includes(char)) {
-            return true;
-          }
-        }
-      }
-
-      return false;
+      return relevanceScore >= relevanceThreshold;
     });
 
     console.log(`🎯 找到 ${matchedTopics.length} 个匹配的热点话题`);
@@ -526,36 +516,136 @@ async function searchRealHotTopics(keyword: string, source: SearchSource): Promi
 }
 
 /**
- * 计算关键词与话题的相关性
+ * 增强版相关性计算算法
+ */
+function calculateEnhancedRelevance(keyword: string, title: string, desc: string, content: string): number {
+  const keywordLower = keyword.toLowerCase().trim();
+  const titleLower = title.toLowerCase();
+  const descLower = desc.toLowerCase();
+  const contentLower = content.toLowerCase();
+  const fullContent = `${titleLower} ${descLower} ${contentLower}`;
+
+  let totalScore = 0;
+  let maxScore = 0;
+
+  // 1. 精确匹配得分（权重最高）
+  maxScore += 40;
+  if (titleLower === keywordLower) {
+    totalScore += 40;
+  } else if (titleLower.includes(keywordLower)) {
+    totalScore += 35;
+  } else if (fullContent.includes(keywordLower)) {
+    totalScore += 25;
+  }
+
+  // 2. 语义相关性检查（权重高）
+  maxScore += 30;
+  const semanticScore = calculateSemanticRelevance(fullContent, keywordLower);
+  totalScore += semanticScore * 30;
+
+  // 3. 关键词分解匹配（权重中等）
+  maxScore += 20;
+  const keywordParts = keywordLower.split(/[\s,，]+/).filter(part => part.length > 1);
+  if (keywordParts.length > 1) {
+    const partMatches = keywordParts.filter(part => fullContent.includes(part)).length;
+    totalScore += (partMatches / keywordParts.length) * 20;
+  }
+
+  // 4. 字符相似度（权重较低）
+  maxScore += 10;
+  const similarity = calculateStringSimilarity(titleLower, keywordLower);
+  totalScore += similarity * 10;
+
+  return maxScore > 0 ? totalScore / maxScore : 0;
+}
+
+/**
+ * 计算语义相关性
+ */
+function calculateSemanticRelevance(content: string, keyword: string): number {
+  // 定义语义相关词典
+  const semanticMap: Record<string, string[]> = {
+    '人工智能': ['ai', 'artificial intelligence', '机器学习', '深度学习', '神经网络', '算法', '自动化', '智能化', '机器人', 'chatgpt', 'gpt', '大模型', '智能助手', '自然语言处理', 'nlp'],
+    '科技': ['技术', '创新', '研发', '数字化', '互联网', '软件', '硬件', '芯片', '5g', '6g', '区块链', '云计算', '物联网', 'iot'],
+    '经济': ['gdp', '增长', '投资', '贸易', '金融', '股市', '货币', '通胀', '就业', '消费', '经济发展', '市场'],
+    '教育': ['学校', '学生', '老师', '考试', '升学', '培训', '课程', '教学', '学习', '知识', '教育改革', '素质教育'],
+    '健康': ['医疗', '医院', '医生', '疾病', '治疗', '药物', '健康', '养生', '锻炼', '营养', '保健', '康复'],
+    '娱乐': ['电影', '音乐', '游戏', '明星', '综艺', '演出', '娱乐', '休闲', '文化', '艺术', '影视', '娱乐圈'],
+    '体育': ['运动', '比赛', '冠军', '球员', '训练', '健身', '竞技', '奥运', '世界杯', '联赛', '体育赛事'],
+    '政治': ['政府', '政策', '法律', '选举', '外交', '国际', '会议', '领导', '改革', '治理', '政治制度']
+  };
+
+  // 检查直接语义相关词
+  const relatedWords = semanticMap[keyword] || [];
+  for (const relatedWord of relatedWords) {
+    if (content.includes(relatedWord)) {
+      return 0.8; // 高语义相关得分
+    }
+  }
+
+  // 检查反向语义相关（关键词是否在其他类别的相关词中）
+  for (const [category, words] of Object.entries(semanticMap)) {
+    if (words.includes(keyword) && content.includes(category)) {
+      return 0.7;
+    }
+  }
+
+  // 检查部分匹配
+  for (const relatedWord of relatedWords) {
+    if (relatedWord.length > 2) {
+      for (let i = 0; i <= relatedWord.length - 2; i++) {
+        const substring = relatedWord.substring(i, i + 2);
+        if (content.includes(substring)) {
+          return 0.3; // 部分相关得分
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+
+/**
+ * 计算字符串相似度
+ */
+function calculateStringSimilarity(str1: string, str2: string): number {
+  const longer = str1.length > str2.length ? str1 : str2;
+  const shorter = str1.length > str2.length ? str2 : str1;
+
+  if (longer.length === 0) return 1.0;
+
+  const editDistance = levenshteinDistance(longer, shorter);
+  return (longer.length - editDistance) / longer.length;
+}
+
+/**
+ * 计算编辑距离
+ */
+function levenshteinDistance(str1: string, str2: string): number {
+  const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+
+  for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+  for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+  for (let j = 1; j <= str2.length; j++) {
+    for (let i = 1; i <= str1.length; i++) {
+      const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[j][i] = Math.min(
+        matrix[j][i - 1] + 1,
+        matrix[j - 1][i] + 1,
+        matrix[j - 1][i - 1] + indicator
+      );
+    }
+  }
+
+  return matrix[str2.length][str1.length];
+}
+
+/**
+ * 计算关键词与话题的相关性（保留原函数以兼容）
  */
 function calculateRelevance(keyword: string, title: string, desc?: string): number {
-  const keywordLower = keyword.toLowerCase();
-  const titleLower = title.toLowerCase();
-  const descLower = desc?.toLowerCase() || '';
-
-  let relevance = 0;
-
-  // 标题完全匹配
-  if (titleLower === keywordLower) {
-    relevance = 1.0;
-  }
-  // 标题包含关键词
-  else if (titleLower.includes(keywordLower)) {
-    relevance = 0.8;
-  }
-  // 描述包含关键词
-  else if (descLower.includes(keywordLower)) {
-    relevance = 0.6;
-  }
-  // 部分匹配
-  else {
-    const keywordChars = keywordLower.split('');
-    const titleChars = titleLower.split('');
-    const matchCount = keywordChars.filter(char => titleChars.includes(char)).length;
-    relevance = matchCount / keywordChars.length * 0.4;
-  }
-
-  return Math.round(relevance * 100) / 100;
+  return calculateEnhancedRelevance(keyword, title, desc || '', '');
 }
 
 

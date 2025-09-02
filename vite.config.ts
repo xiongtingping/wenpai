@@ -77,6 +77,20 @@ export default defineConfig({
             console.log('🔧 代理BufPay请求:', req.method, req.url);
           });
         }
+      },
+      '/api/hot': {
+        target: 'https://api-hot.imsyy.top',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api\/hot/, ''),
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('🔧 热点API代理错误:', err.message);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('🔧 代理热点API请求:', req.method, req.url);
+          });
+        }
       }
     }
   },

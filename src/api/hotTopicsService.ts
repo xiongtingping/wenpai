@@ -138,8 +138,8 @@ class SimpleCache {
 class HotTopicsAPI {
   private static instance: HotTopicsAPI;
   private cache = new SimpleCache();
-  private baseUrl = 'https://api-hot.imsyy.top';
-  private enableLogging = process.env.NODE_ENV === 'development';
+  private baseUrl = import.meta.env.DEV ? '/api/hot' : 'https://api-hot.imsyy.top';
+  private enableLogging = import.meta.env.DEV;
 
   private constructor() {}
 
