@@ -1142,7 +1142,12 @@ export default function ProfilePage() {
                             variant="soft"
                             size="sm"
                             onClick={showVerificationInput.email ? handleVerifyEmail : handleSendEmailCode}
-                            disabled={isVerifyingEmail || !profileForm.email || verificationStatus.email}
+                            disabled={
+                              isVerifyingEmail ||
+                              verificationStatus.email ||
+                              (!showVerificationInput.email && (!profileForm.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileForm.email.trim()))) ||
+                              (showVerificationInput.email && !verificationCodes.email?.trim())
+                            }
                             className="h-9 px-3 text-primary hover:text-foreground text-xs"
                           >
                             {isVerifyingEmail ? (
@@ -1341,10 +1346,10 @@ export default function ProfilePage() {
 
         </div>
 
-        {/* 第三行：反馈奖励 - 与上面区域对齐 */}
-        <div className="profile-grid-equal-height mt-6">
+        {/* 第三行：反馈奖励 - 优化布局减少空白 */}
+        <div className="profile-grid-equal-height mt-6 mb-8">
           <Card variant="soft" className="w-full flex flex-col rounded-xl overflow-hidden relative">
-            <CardHeader className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-foreground relative z-10 rounded-t-xl">
+            <CardHeader className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-foreground relative z-10 rounded-t-xl pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-orange-500/10 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0 border border-orange-500/20">
@@ -1357,40 +1362,40 @@ export default function ProfilePage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex flex-col p-6 relative z-10">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <CardContent className="flex flex-col p-4 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 {/* 反馈规则说明 */}
-                <div className="rounded-xl p-4 border border-border shadow-e1 relative overflow-hidden bg-accent">
-                  <div className="flex items-center gap-3 mb-3 relative z-10">
-                    <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-e0">
-                      <Award className="w-4 h-4 text-white drop-shadow-sm" />
+                <div className="rounded-lg p-3 border border-border shadow-sm relative overflow-hidden bg-accent">
+                  <div className="flex items-center gap-2 mb-2 relative z-10">
+                    <div className="w-7 h-7 bg-orange-500 rounded-md flex items-center justify-center shadow-sm">
+                      <Award className="w-3.5 h-3.5 text-white drop-shadow-sm" />
                     </div>
-                    <h3 className="font-bold text-foreground text-base">{t('profile.feedbackRules')}</h3>
+                    <h3 className="font-semibold text-foreground text-sm">{t('profile.feedbackRules')}</h3>
                   </div>
-                  <p className="text-muted-foreground font-medium text-sm relative z-10">
+                  <p className="text-muted-foreground font-medium text-xs relative z-10 leading-relaxed">
                     {t('profile.feedbackRule')}
                   </p>
                 </div>
 
                 {/* 反馈邮箱卡片 */}
-                <div className="rounded-xl p-4 border border-border shadow-e1 relative overflow-hidden bg-accent">
-                  <div className="flex items-center gap-3 mb-3 relative z-10">
-                    <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-e0">
-                      <Mail className="w-4 h-4 text-white drop-shadow-sm" />
+                <div className="rounded-lg p-3 border border-border shadow-sm relative overflow-hidden bg-accent">
+                  <div className="flex items-center gap-2 mb-2 relative z-10">
+                    <div className="w-7 h-7 bg-orange-500 rounded-md flex items-center justify-center shadow-sm">
+                      <Mail className="w-3.5 h-3.5 text-white drop-shadow-sm" />
                     </div>
-                    <h3 className="font-bold text-foreground text-base">{t('profile.feedbackEmail')}</h3>
+                    <h3 className="font-semibold text-foreground text-sm">{t('profile.feedbackEmail')}</h3>
                   </div>
                   <div className="flex gap-2">
                     <Input
                       value="hello@wenpai.xyz"
                       readOnly
-                      className="text-sm h-9 border border-border rounded-lg bg-accent font-mono flex-1"
+                      className="text-xs h-8 border border-border rounded-md bg-accent font-mono flex-1"
                     />
                     <Button
                       variant="soft"
                       size="sm"
                       onClick={handleCopyFeedbackEmail}
-                      className="h-9 px-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600"
+                      className="h-8 px-2 rounded-md bg-orange-500 text-white hover:bg-orange-600"
                     >
                       <Copy className="w-3 h-3" />
                     </Button>
@@ -1398,11 +1403,11 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* 反馈按钮 */}
+              {/* 反馈按钮 - 紧凑设计 */}
               <Button
                 variant="ghost"
-                size="lg"
-                className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-orange-500/10 to-orange-600/10 border border-orange-500/20 text-orange-600 hover:from-orange-500/20 hover:to-orange-600/20"
+                size="default"
+                className="w-full h-10 text-sm rounded-lg bg-gradient-to-r from-orange-500/10 to-orange-600/10 border border-orange-500/20 text-orange-600 hover:from-orange-500/20 hover:to-orange-600/20"
                 onClick={handleCopyFeedbackEmail}
               >
                 <HelpCircle className="w-4 h-4 mr-2" />

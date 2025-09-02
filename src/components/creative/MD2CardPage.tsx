@@ -33,7 +33,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useAuthStore } from '@/store/authStore';
 import { useUsageStore } from '@/store/usageStore';
-import { PermissionAwareContainer } from '@/components/auth/PermissionAwareContainer';
+import { PaywallCard } from '@/components/auth/PaywallCard';
 import { useDebouncedCallback } from 'use-debounce';
 import { defaultMarkdownParser, ContentAdapter } from './md2card/MarkdownParser';
 import { CARD_TEMPLATES } from './md2card/TemplateSelector';
@@ -364,9 +364,13 @@ export default function MD2CardPage() {
   }, [cardData, toast]);
 
   return (
-    <PermissionAwareContainer 
+    <PaywallCard
       featureName="MD2Card卡片生成"
       requiredTier="premium"
+      title="MD2Card 卡片生成器"
+      description="将Markdown内容转换为精美的社交媒体卡片，支持多种模板和自定义样式"
+      mode="overlay"
+      allowPreview={true}
     >
       <div className="h-full bg-background">
         {/* 工具栏 */}
@@ -678,7 +682,7 @@ export default function MD2CardPage() {
           )}
         </div>
       </div>
-    </PermissionAwareContainer>
+    </PaywallCard>
   );
 }
 

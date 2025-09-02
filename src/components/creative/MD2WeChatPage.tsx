@@ -27,7 +27,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useAuthStore } from '@/store/authStore';
 import { useUsageStore } from '@/store/usageStore';
-import { PermissionAwareContainer } from '@/components/auth/PermissionAwareContainer';
+import { PaywallCard } from '@/components/auth/PaywallCard';
 import { Header } from '@/components/landing/Header';
 import { MarkdownEditor } from './md2wechat/MarkdownEditor';
 import { ThemeSelector } from './md2wechat/ThemeSelector';
@@ -176,9 +176,13 @@ export default function MD2WeChatPage() {
   }, [toast]);
 
   return (
-    <PermissionAwareContainer 
-      featureName="MD2微信格式转换"
+    <PaywallCard
+      featureName="Markdown排版工具"
       requiredTier="pro"
+      title="Markdown排版工具"
+      description="专为微信公众号设计的Markdown转换工具，支持多种主题和实时预览"
+      mode="overlay"
+      allowPreview={true}
     >
       <div className="bg-background">
           {/* 工具栏 */}
@@ -371,6 +375,6 @@ export default function MD2WeChatPage() {
             )}
           </div>
         </div>
-      </PermissionAwareContainer>
+      </PaywallCard>
   );
 }

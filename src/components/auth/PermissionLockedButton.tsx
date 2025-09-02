@@ -43,11 +43,24 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
   const { toast } = useToast();
   const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
 
-  // 获取用户当前等级 - 优先使用订阅状态数据
+  // 获取用户当前等级 - 结合订阅状态和用户数据
   const userTier = (() => {
+    // 优先使用订阅状态中的等级信息
     if (hasActiveSubscription && primaryStatus?.status === 'active' && primaryStatus.tier) {
       return primaryStatus.tier;
     }
+
+    // 如果订阅状态中没有等级信息，但有活跃订阅，根据状态标签推断等级
+    if (hasActiveSubscription && primaryStatus?.status === 'active') {
+      const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
+      if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
+        return 'premium';
+      } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
+        return 'pro';
+      }
+    }
+
+    // 最后使用用户数据中的等级信息
     return getUserTier(user);
   })();
   
@@ -166,11 +179,24 @@ export const PermissionLockedIconButton: React.FC<PermissionLockedButtonProps> =
   const { toast } = useToast();
   const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
 
-  // 获取用户当前等级 - 优先使用订阅状态数据
+  // 获取用户当前等级 - 结合订阅状态和用户数据
   const userTier = (() => {
+    // 优先使用订阅状态中的等级信息
     if (hasActiveSubscription && primaryStatus?.status === 'active' && primaryStatus.tier) {
       return primaryStatus.tier;
     }
+
+    // 如果订阅状态中没有等级信息，但有活跃订阅，根据状态标签推断等级
+    if (hasActiveSubscription && primaryStatus?.status === 'active') {
+      const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
+      if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
+        return 'premium';
+      } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
+        return 'pro';
+      }
+    }
+
+    // 最后使用用户数据中的等级信息
     return getUserTier(user);
   })();
   

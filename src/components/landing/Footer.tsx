@@ -126,43 +126,54 @@ export function Footer() {
 
               {/* 客服二维码 */}
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setShowQRCode(!showQRCode)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105 min-w-[140px]"
                 >
-                  <div className="w-6 h-6 bg-orange-500/10 rounded-md flex items-center justify-center hover:bg-orange-500/20 transition-colors">
-                    <svg className="w-3.5 h-3.5 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center hover:bg-orange-500/20 transition-colors flex-shrink-0">
+                    <svg className="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 2.5c0 .83-.67 1.5-1.5 1.5S12 7.33 12 6.5 12.67 5 13.5 5s1.5.67 1.5 1.5zM12 17.5c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z"/>
                     </svg>
                   </div>
-                  <div className="text-left">
+                  <div className="text-left flex-1">
                     <div className="font-medium text-foreground text-sm leading-tight">客服支持</div>
-                    <div className="text-xs text-muted-foreground leading-tight">点击显示二维码</div>
+                    <div className="text-xs text-muted-foreground leading-tight mt-0.5">点击显示二维码</div>
                   </div>
                 </button>
 
-                {/* 二维码点击显示 - 放大版本 */}
+                {/* 二维码弹窗 - 优化布局 */}
                 {showQRCode && (
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 z-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-4 z-50">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 min-w-[280px]">
                       <div className="text-center">
-                        <img
-                          src="/微信图片_2025-09-02_134203_916.png"
-                          alt="客服二维码"
-                          className="w-40 h-40 object-contain mx-auto rounded-lg"
-                        />
-                        <p className="text-sm text-foreground mt-3 font-medium">扫码添加客服微信</p>
-                        <p className="text-xs text-muted-foreground mt-2">工作时间：9:00-18:00</p>
+                        <div className="mb-4">
+                          <h3 className="text-lg font-semibold text-foreground mb-1">客服支持</h3>
+                          <p className="text-sm text-muted-foreground">扫码添加客服微信，获得专业帮助</p>
+                        </div>
+
+                        <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 mb-4">
+                          <img
+                            src="/微信图片_2025-09-02_134203_916.png"
+                            alt="客服二维码"
+                            className="w-36 h-36 object-contain mx-auto rounded-lg"
+                          />
+                        </div>
+
+                        <div className="space-y-2 mb-4">
+                          <p className="text-sm text-foreground font-medium">工作时间：9:00-18:00</p>
+                          <p className="text-xs text-muted-foreground">我们将在工作时间内及时回复您的消息</p>
+                        </div>
+
                         <button
                           onClick={() => setShowQRCode(false)}
-                          className="mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                          className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-colors"
                         >
-                          点击关闭
+                          关闭
                         </button>
                       </div>
                     </div>
                     {/* 箭头指示器 */}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-transparent border-t-white dark:border-t-gray-800"></div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-transparent border-t-white dark:border-t-gray-800"></div>
                   </div>
                 )}
               </div>

@@ -1243,13 +1243,22 @@ export default function AdaptPage() {
       const syncUsageStats = async () => {
         try {
           const currentTier = getUserTier(user);
-          
-          // 获取最大使用次数
+
+          // 获取最大使用次数 - 根据订阅状态动态调整
           let newMaxUsage = 10; // 默认体验版
           if (currentTier === 'pro') {
-            newMaxUsage = 30;
+            newMaxUsage = 100; // 专业版提高到100次
           } else if (currentTier === 'premium') {
-            newMaxUsage = -1; // 无限制
+            newMaxUsage = -1; // 高级版无限制
+          }
+
+          // 检查订阅状态，确保与实际权限匹配
+          if (primaryStatus?.status === 'active') {
+            if (primaryStatus.statusLabel?.includes('专业版') || primaryStatus.statusLabel?.includes('Pro')) {
+              newMaxUsage = 100;
+            } else if (primaryStatus.statusLabel?.includes('高级版') || primaryStatus.statusLabel?.includes('Premium')) {
+              newMaxUsage = -1;
+            }
           }
           
           // 从后端API获取实际已使用次数
@@ -1294,7 +1303,8 @@ export default function AdaptPage() {
     }
   }, [primaryStatus?.status, refreshSubscription]);
   
-  const usageRemaining = Math.max(0, maxUsage - usageCount);
+  // 计算剩余次数，高级版显示为无限制
+  const usageRemaining = maxUsage === -1 ? Infinity : Math.max(0, maxUsage - usageCount);
 
   // 使用次数提醒弹窗状态
   const [showUsageReminder, setShowUsageReminder] = useState(false);
@@ -1463,7 +1473,7 @@ export default function AdaptPage() {
   const contentCharCount = originalContent.length;
 
   // Check if content meets requirements for selected platforms
-  const canGenerate = originalContent.trim().length > 10 && selectedPlatforms.length > 0 && usageRemaining > 0;
+  const canGenerate = originalContent.trim().length > 10 && selectedPlatforms.length > 0 && (usageRemaining > 0 || maxUsage === -1);
 
   // 检查使用次数并显示提醒
   const checkUsageAndShowReminder = () => {

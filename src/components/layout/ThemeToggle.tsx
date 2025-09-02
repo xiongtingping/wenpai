@@ -121,6 +121,39 @@ export const ThemeToggle: React.FC = () => {
     }
   }, [primaryStatus?.status, refreshSubscription]);
 
+  // 监听订阅状态变化，重新检查主题权限
+  useEffect(() => {
+    if (isAuthenticated && user && primaryStatus) {
+      // 当订阅状态发生变化时，重新验证当前主题权限
+      const cfg = themes.find(t => t.value === theme);
+      if (!cfg) return;
+
+      const allowed = (() => {
+        switch (cfg.permissionLevel) {
+          case 'basic':
+            return basicPermission.pass;
+          case 'advanced':
+            return advancedPermission.pass;
+          case 'premium':
+            return premiumPermission.pass;
+          default:
+            return false;
+        }
+      })();
+
+      // 如果当前主题权限不足，回退到基础主题
+      if (!allowed && theme !== 'light') {
+        console.log(`🎨 订阅状态变化，主题权限不足，从 ${theme} 回退到 light`);
+        setTheme('light');
+        const themeKey = generateStorageKey('wenpai-theme', user);
+        localStorage.setItem(themeKey, 'light');
+        const html = document.documentElement;
+        html.setAttribute('data-theme', 'light');
+        html.classList.remove('dark');
+      }
+    }
+  }, [primaryStatus, isAuthenticated, user, theme, basicPermission.pass, advancedPermission.pass, premiumPermission.pass]);
+
   // 🔧 优化权限检查逻辑，减少不必要的回退提示
   useEffect(() => {
     // 等待认证系统初始化完成

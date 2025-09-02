@@ -138,7 +138,7 @@ class SimpleCache {
 class HotTopicsAPI {
   private static instance: HotTopicsAPI;
   private cache = new SimpleCache();
-  private baseUrl = import.meta.env.DEV ? '/api/hot' : 'https://api-hot.imsyy.top';
+  private baseUrl = 'https://api-hot.imsyy.top';
   private enableLogging = import.meta.env.DEV;
 
   private constructor() {}
@@ -161,21 +161,45 @@ class HotTopicsAPI {
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        const data = await request.get(`${this.baseUrl}${url || ''}` as string);
+        // 优化请求配置，增加超时和错误处理
+        const requestUrl = `${this.baseUrl}${url || ''}`;
+        this.log(`尝试请求: ${requestUrl} (第${attempt + 1}次)`);
+
+        const data = await request.get(requestUrl, {
+          timeout: 10000, // 10秒超时
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'WenPai-HotTopics/1.0'
+          }
+        });
+
         if (!data) {
           throw new Error('API返回空数据');
         }
-        return data;
+
+        // 验证数据格式
+        if (typeof data === 'object' && (data.code === 200 || Array.isArray(data.data) || Array.isArray(data))) {
+          return data;
+        } else {
+          throw new Error('API返回数据格式异常');
+        }
+
       } catch (error) {
         lastError = error as Error;
-        this.log(`API请求失败 (尝试 ${attempt + 1}/${maxRetries + 1}):`, error);
+        this.log(`API请求失败 (尝试 ${attempt + 1}/${maxRetries + 1}):`, {
+          error: error instanceof Error ? error.message : String(error),
+          url: `${this.baseUrl}${url || ''}`
+        });
+
         if (attempt < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+          // 指数退避策略
+          const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }
-    
-    // 如果所有重试都失败，抛出错误而非降级到模拟数据
+
+    // 如果所有重试都失败，抛出错误
     this.log('所有API重试失败', lastError);
     throw new Error(`热点数据API调用失败: ${lastError?.message || '未知错误'}`);
   }
@@ -359,7 +383,9 @@ class HotTopicsAPI {
       });
 
       if (Object.keys(aggregatedData).length === 0) {
-        throw new Error('所有平台数据获取失败');
+        // 如果所有平台都失败，返回模拟数据而不是抛出错误
+        this.log('所有平台数据获取失败，返回模拟数据');
+        return this.getFallbackData();
       }
 
       const response: DailyHotResponse = {
@@ -391,7 +417,7 @@ class HotTopicsAPI {
 
     } catch (error) {
       this.log('聚合热点数据失败', error);
-      throw new Error('获取热点数据失败，请稍后重试');
+      throw new Error(`获取热点数据失败: ${error instanceof Error ? error.message : '未知错误'}，请检查网络连接后重试`);
     }
   }
 
