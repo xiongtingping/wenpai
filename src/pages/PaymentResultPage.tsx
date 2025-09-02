@@ -67,17 +67,48 @@ export default function PaymentResultPage() {
             // 执行完整的数据清理
             PaymentDataCleanupService.performCompleteCleanup(user.id);
 
-            // 刷新用户状态
-            await refreshUser();
+            // 等待数据清理完成
+            await new Promise(resolve => setTimeout(resolve, 300));
 
-            // 额外等待确保状态更新完成
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // 多次尝试刷新用户状态
+            let refreshSuccess = false;
+            for (let i = 0; i < 3; i++) {
+              try {
+                await refreshUser();
+                refreshSuccess = true;
+                logger.info(`支付成功后用户状态刷新完成 (尝试 ${i + 1})`);
+                break;
+              } catch (error) {
+                logger.warn(`用户状态刷新失败 (尝试 ${i + 1}):`, error);
+                if (i < 2) {
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+              }
+            }
 
-            logger.info('支付成功后用户状态刷新完成');
+            // 如果刷新成功，额外等待确保状态更新完成
+            if (refreshSuccess) {
+              await new Promise(resolve => setTimeout(resolve, 500));
+
+              // 触发全局状态更新事件
+              window.dispatchEvent(new CustomEvent('userSubscriptionUpdated', {
+                detail: {
+                  userId: user.id,
+                  subscription: result.subscription,
+                  timestamp: Date.now()
+                }
+              }));
+            } else {
+              // 如果多次刷新都失败，强制重新加载页面
+              logger.error('多次刷新用户状态失败，将重新加载页面');
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            }
           } catch (refreshError) {
-            logger.warn('刷新用户状态失败:', refreshError);
+            logger.error('支付成功后状态刷新过程出错:', refreshError);
 
-            // 如果刷新失败，尝试强制重新加载页面
+            // 最后的保险措施：重新加载页面
             setTimeout(() => {
               window.location.reload();
             }, 2000);

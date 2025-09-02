@@ -367,11 +367,21 @@ export default function PaymentPage() {
     setShowQRCode(false);
     setBufpayPaymentInfo(null);
 
-    // 立即刷新用户状态
+    // 立即执行数据清理和状态刷新
     try {
-      if (user && refreshUser) {
-        await refreshUser();
-        logger.info('支付成功后用户状态刷新完成');
+      if (user) {
+        // 先清理可能导致验证失败的数据
+        const { PaymentDataCleanupService } = await import('@/services/paymentDataCleanupService');
+        PaymentDataCleanupService.performCompleteCleanup(user.id);
+
+        // 等待清理完成
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // 刷新用户状态
+        if (refreshUser) {
+          await refreshUser();
+          logger.info('支付成功后用户状态刷新完成');
+        }
       }
     } catch (error) {
       logger.warn('刷新用户状态失败:', error);

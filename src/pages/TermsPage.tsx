@@ -339,18 +339,21 @@ export default function TermsPage() {
                   hello@wenpai.xyz
                 </a>
               </div>
-              <div className="bg-card p-4 rounded-lg border border-border">
-                <div className="flex items-center gap-2 mb-2">
+              <div className="bg-card p-4 rounded-lg border border-border hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-2 mb-3">
                   <MessageSquare className="h-4 w-4 text-primary" />
                   <h5 className="font-semibold text-foreground">微信客服</h5>
                 </div>
                 <div className="flex flex-col items-center">
-                  <img
-                    src="/微信图片_2025-09-02_134203_916.png"
-                    alt="客服微信二维码"
-                    className="w-20 h-20 object-contain mb-2"
-                  />
-                  <p className="text-xs text-muted-foreground text-center">扫码添加客服微信</p>
+                  <div className="bg-white p-2 rounded-lg border border-gray-200 mb-2">
+                    <img
+                      src="/微信图片_2025-09-02_134203_916.png"
+                      alt="客服微信二维码"
+                      className="w-16 h-16 object-contain"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center font-medium">扫码添加客服微信</p>
+                  <p className="text-xs text-muted-foreground/70 text-center mt-1">工作时间：9:00-18:00</p>
                 </div>
               </div>
               <div className="bg-card p-4 rounded-lg border border-border">

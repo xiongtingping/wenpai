@@ -205,23 +205,102 @@ export class PaymentDataCleanupService {
    */
   static performCompleteCleanup(userId?: string): void {
     logger.info('开始执行支付后数据清理...');
-    
+
     // 1. 清理支付相关数据
     this.cleanupPaymentData(userId);
-    
+
     // 2. 清理无效用户数据
     this.cleanupInvalidUserData();
-    
+
     // 3. 修复数据格式
     this.fixStorageDataFormat();
-    
-    // 4. 强制触发重新渲染
+
+    // 4. 强制清理所有验证失败的数据
+    this.forceCleanupValidationFailures();
+
+    // 5. 强制触发重新渲染和状态更新
     setTimeout(() => {
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new CustomEvent('userDataUpdated'));
+      window.dispatchEvent(new CustomEvent('paymentDataCleaned', {
+        detail: { userId, timestamp: Date.now() }
+      }));
     }, 100);
-    
+
     logger.info('支付后数据清理完成');
+  }
+
+  /**
+   * 强制清理所有验证失败的数据
+   */
+  static forceCleanupValidationFailures(): void {
+    try {
+      const problematicKeys = [
+        '_authing_user',
+        'authing_user',
+        'auth-storage',
+        'wenpai:guest:session_info'
+      ];
+
+      let cleanedCount = 0;
+
+      problematicKeys.forEach(key => {
+        try {
+          const data = localStorage.getItem(key);
+          if (data) {
+            const parsed = JSON.parse(data);
+
+            // 如果是数组格式，直接删除
+            if (Array.isArray(parsed)) {
+              localStorage.removeItem(key);
+              cleanedCount++;
+              logger.info(`强制清理数组格式数据: ${key}`);
+            }
+            // 如果是无效对象，也删除
+            else if (typeof parsed === 'object' && parsed !== null) {
+              if (key.includes('user') && !parsed.id && !parsed.user_id && !parsed.sub) {
+                localStorage.removeItem(key);
+                cleanedCount++;
+                logger.info(`强制清理无效用户数据: ${key}`);
+              }
+            }
+          }
+        } catch (error) {
+          // JSON解析失败，直接删除
+          localStorage.removeItem(key);
+          cleanedCount++;
+          logger.info(`强制清理损坏数据: ${key}`);
+        }
+      });
+
+      // 清理所有以payment_center_access_time_开头的键
+      const allKeys = Object.keys(localStorage);
+      allKeys.forEach(key => {
+        if (key.startsWith('payment_center_access_time_')) {
+          try {
+            const data = localStorage.getItem(key);
+            if (data) {
+              const parsed = JSON.parse(data);
+              if (Array.isArray(parsed)) {
+                localStorage.removeItem(key);
+                cleanedCount++;
+                logger.info(`强制清理支付访问时间数组: ${key}`);
+              }
+            }
+          } catch (error) {
+            localStorage.removeItem(key);
+            cleanedCount++;
+            logger.info(`强制清理损坏的支付访问时间: ${key}`);
+          }
+        }
+      });
+
+      if (cleanedCount > 0) {
+        logger.info(`强制清理完成，共清理 ${cleanedCount} 个验证失败的数据`);
+      }
+    } catch (error) {
+      logger.error('强制清理验证失败数据时出错:', error);
+    }
   }
 
   /**

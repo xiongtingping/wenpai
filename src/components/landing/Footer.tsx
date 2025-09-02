@@ -125,29 +125,33 @@ export function Footer() {
 
               {/* 客服二维码 */}
               <div className="group relative">
-                <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105">
-                  <div className="w-8 h-8 bg-orange-500/10 rounded-md flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
-                    <svg className="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105">
+                  <div className="w-6 h-6 bg-orange-500/10 rounded-md flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
+                    <svg className="w-3.5 h-3.5 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 2.5c0 .83-.67 1.5-1.5 1.5S12 7.33 12 6.5 12.67 5 13.5 5s1.5.67 1.5 1.5zM12 17.5c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z"/>
                     </svg>
                   </div>
                   <div className="text-left">
-                    <div className="font-medium text-foreground text-sm">客服支持</div>
-                    <div className="text-xs text-muted-foreground">扫码联系</div>
+                    <div className="font-medium text-foreground text-sm leading-tight">客服支持</div>
+                    <div className="text-xs text-muted-foreground leading-tight">扫码联系</div>
                   </div>
                 </button>
 
-                {/* 二维码悬浮显示 */}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                  <div className="bg-white rounded-lg shadow-lg border p-3">
-                    <img
-                      src="/微信图片_2025-09-02_134203_916.png"
-                      alt="客服二维码"
-                      className="w-32 h-32 object-contain"
-                    />
-                    <p className="text-xs text-center text-muted-foreground mt-2">扫码添加客服微信</p>
+                {/* 二维码悬浮显示 - 优化UI */}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50">
+                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 min-w-max">
+                    <div className="text-center">
+                      <img
+                        src="/微信图片_2025-09-02_134203_916.png"
+                        alt="客服二维码"
+                        className="w-28 h-28 object-contain mx-auto rounded-lg"
+                      />
+                      <p className="text-xs text-muted-foreground mt-2 font-medium">扫码添加客服微信</p>
+                      <p className="text-xs text-muted-foreground/70 mt-1">工作时间：9:00-18:00</p>
+                    </div>
                   </div>
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white"></div>
+                  {/* 箭头指示器 */}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-transparent border-t-white dark:border-t-gray-800"></div>
                 </div>
               </div>
             </div>
