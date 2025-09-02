@@ -14,7 +14,7 @@ const BUFPAY_CONFIG = {
   API_URL: 'https://bufpay.com/api/pay/107628',
   APP_SECRET: process.env.BUFPAY_APP_SECRET || '2861731746ef4189937ef4dc11f09375',
   NOTIFY_URL: 'https://www.wenpai.xyz/.netlify/functions/upgrade-notify',
-  RETURN_URL: 'https://www.wenpai.xyz/payment/result',
+  RETURN_URL_BASE: 'https://www.wenpai.xyz/payment/result',
   FEEDBACK_URL: 'https://www.wenpai.xyz/payment/feedback'
 };
 
@@ -175,6 +175,7 @@ exports.handler = async (event, context) => {
 
     // 调用 BufPay 接口
     const priceStr = formatAmount(upgradeAmount);
+    const returnUrl = `${BUFPAY_CONFIG.RETURN_URL_BASE}?order_id=${orderId}&status=success&type=upgrade`;
     const formData = new URLSearchParams();
     
     formData.append('name', productName);
@@ -183,7 +184,7 @@ exports.handler = async (event, context) => {
     formData.append('order_id', orderId);
     formData.append('order_uid', userId);
     formData.append('notify_url', BUFPAY_CONFIG.NOTIFY_URL);
-    formData.append('return_url', BUFPAY_CONFIG.RETURN_URL);
+    formData.append('return_url', returnUrl);
     formData.append('feedback_url', BUFPAY_CONFIG.FEEDBACK_URL);
     
     const sign = generatePaymentSign(
@@ -193,7 +194,7 @@ exports.handler = async (event, context) => {
       orderId,
       userId,
       BUFPAY_CONFIG.NOTIFY_URL,
-      BUFPAY_CONFIG.RETURN_URL,
+      returnUrl,
       BUFPAY_CONFIG.FEEDBACK_URL
     );
     
