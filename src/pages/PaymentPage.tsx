@@ -41,7 +41,8 @@ import {
   getPaymentCenterAccessTime,
   isInPromoPeriod,
   calculateRemainingTime,
-  formatTimeLeft as formatTimeLeftUtil
+  formatTimeLeft as formatTimeLeftUtil,
+  shouldShowPromoOffer
 } from "@/utils/paymentTimer";
 import { paymentStatusService } from '@/services/paymentStatusService';
 // 已删除creemOptimizer导入，直接使用Creem API
@@ -90,6 +91,7 @@ export default function PaymentPage() {
   const [selectedPeriod, setSelectedPeriod] = useState<SubscriptionPeriod>('monthly');
   const [showQRCode, setShowQRCode] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [showPromoOffer, setShowPromoOffer] = useState(false);
   const paymentInfoRef = useRef<HTMLDivElement>(null);
 
   // 支付状态管理
@@ -113,6 +115,20 @@ export default function PaymentPage() {
   // 动态价格状态
   const [dynamicPricing, setDynamicPricing] = useState<any>(null);
   const [pricingContext, setPricingContext] = useState<PricingContext | null>(null);
+
+  // 检查是否应该显示限时优惠
+  useEffect(() => {
+    const checkPromoOffer = async () => {
+      if (currentUser?.id) {
+        const shouldShow = await shouldShowPromoOffer(currentUser.id);
+        setShowPromoOffer(shouldShow);
+      } else {
+        setShowPromoOffer(false);
+      }
+    };
+    
+    checkPromoOffer();
+  }, [currentUser?.id]);
 
   // 从localStorage读取预选的计划
   useEffect(() => {
@@ -320,7 +336,7 @@ export default function PaymentPage() {
     const pricing = selectedPeriod === 'monthly' ? selectedPlan.monthly : selectedPlan.yearly;
     const originalPrice = pricing.originalPrice;
     
-    const isInDiscount = isInPromoPeriod(currentUser?.id) && timeLeft > 0;
+    const isInDiscount = showPromoOffer && timeLeft > 0;
     
     return isInDiscount ? (pricing.discountPrice || originalPrice) : originalPrice;
   };
@@ -592,7 +608,7 @@ export default function PaymentPage() {
         </div>
 
         {/* 限时优惠倒计时 */}
-        {currentUser?.id && isInPromoPeriod(currentUser.id) && timeLeft > 0 && (
+        {currentUser?.id && showPromoOffer && timeLeft > 0 && (
           <div className="text-center mb-8">
             <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
               <div className="flex items-center justify-center gap-2 mb-3">
@@ -621,7 +637,7 @@ export default function PaymentPage() {
           {SUBSCRIPTION_PLANS?.map((plan, index) => {
             const pricing = selectedPeriod === 'monthly' ? plan.monthly : plan.yearly;
             const originalPrice = pricing.originalPrice;
-            const isInDiscount = isInPromoPeriod(currentUser?.id) && timeLeft > 0;
+            const isInDiscount = showPromoOffer && timeLeft > 0;
             const currentPrice = plan.tier === 'trial' ? 0 : (isInDiscount ? pricing.discountPrice || originalPrice : originalPrice);
             const savedAmount = isInDiscount ? (originalPrice - currentPrice) : 0;
             const isSelected = selectedPlan?.id === plan.id;
@@ -664,7 +680,7 @@ export default function PaymentPage() {
                       {/* 右侧标签组 */}
                       <div className="flex flex-wrap gap-1">
                         {/* 限时优惠标签 */}
-                        {isInDiscount && timeLeft > 0 && plan.tier !== 'trial' && (
+                        {showPromoOffer && timeLeft > 0 && plan.tier !== 'trial' && (
                           <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg px-3 py-1 text-xs animate-pulse rounded-full border border-white flex items-center gap-1">
                             <Zap className="h-3 w-3 fill-current" />
                             {t('payment.labels.limited')}
@@ -698,7 +714,7 @@ export default function PaymentPage() {
                           <span>{currentPrice}</span>
                           <span className="text-base text-gray-600 font-medium">/{selectedPeriod === 'monthly' ? t('payment.billing.month') : t('payment.billing.year')}</span>
                         </div>
-                        {isInDiscount && timeLeft > 0 && plan.tier !== 'trial' && (
+                        {showPromoOffer && timeLeft > 0 && plan.tier !== 'trial' && (
                           <>
                             <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                               <Zap className="h-4 w-4" />
@@ -977,9 +993,9 @@ export default function PaymentPage() {
                 )}
 
                 {/* 优惠信息行 */}
-                {(isInPromoPeriod(currentUser?.id) && timeLeft > 0) || selectedPeriod === 'yearly' ? (
+                {(showPromoOffer && timeLeft > 0) || selectedPeriod === 'yearly' ? (
                   <div className="flex flex-wrap gap-3 mb-6">
-                    {isInPromoPeriod(currentUser?.id) && timeLeft > 0 && (
+                    {showPromoOffer && timeLeft > 0 && (
                       <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Zap className="h-4 w-4" />
                         {t('payment.labels.limited')}时优惠中

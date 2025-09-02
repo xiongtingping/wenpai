@@ -15,25 +15,40 @@ import {
   isInPromoPeriod,
   calculateRemainingTime,
   formatTimeLeft,
-  getPaymentCenterAccessTime
+  getPaymentCenterAccessTime,
+  shouldShowPromoOffer
 } from "@/utils/paymentTimer";
 
 export function PricingSection() {
   const [billing, setBilling] = useState<SubscriptionPeriod>("monthly")
   const [timeLeft, setTimeLeft] = useState(0);
   const [timeLeftMs, setTimeLeftMs] = useState(0); // 添加毫秒级倒计时
+  const [showPromoOffer, setShowPromoOffer] = useState(false);
   const { toast } = useToast()
   const { user: currentUser, isAuthenticated } = useAuth();
   const { t } = useI18n();
 
-  // 使用统一认证状态
-  const inPromo = isInPromoPeriod(currentUser?.id);
   const formattedTime = formatTimeLeft(timeLeft);
   const navigate = useNavigate()
 
+  // 检查是否应该显示限时优惠
+  useEffect(() => {
+    if (!currentUser?.id) {
+      setShowPromoOffer(false);
+      return;
+    }
+
+    const checkPromoOffer = async () => {
+      const shouldShow = await shouldShowPromoOffer(currentUser.id);
+      setShowPromoOffer(shouldShow);
+    };
+
+    checkPromoOffer();
+  }, [currentUser?.id]);
+
   // 限时优惠倒计时逻辑（包含毫秒，与支付中心保持一致）
   useEffect(() => {
-    if (!currentUser?.id) return;
+    if (!currentUser?.id || !showPromoOffer) return;
 
     const updateTimer = () => {
       const remainingMs = calculateRemainingTime(currentUser.id);
@@ -188,7 +203,7 @@ export function PricingSection() {
 
 
           {/* 限时优惠倒计时 - 完全照搬支付中心设计 */}
-          {currentUser?.id && isInPromoPeriod(currentUser.id) && timeLeft > 0 && (
+          {currentUser?.id && showPromoOffer && timeLeft > 0 && (
             <div className="text-center mt-6 mb-8">
               <div className="promo-banner text-white px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
                 <div className="flex items-center justify-center gap-2 mb-3">

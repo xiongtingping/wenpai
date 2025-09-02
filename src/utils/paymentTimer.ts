@@ -3,6 +3,8 @@
  * 用于管理新用户限时优惠的计时逻辑
  */
 
+import { supabase } from '@/config/supabase';
+
 /**
  * 优惠时长（毫秒）
  */
@@ -48,6 +50,34 @@ export function getPaymentCenterAccessTime(userId?: string): Date | undefined {
 }
 
 /**
+ * 检查用户是否有有效订阅
+ * @param userId 用户ID
+ * @returns 是否有有效订阅
+ */
+async function hasActiveSubscription(userId: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase
+      .from('user_subscriptions')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .gt('expires_at', new Date().toISOString())
+      .limit(1)
+      .maybeSingle();
+    
+    if (error) {
+      console.error('检查订阅状态失败:', error);
+      return false;
+    }
+    
+    return !!data;
+  } catch (error) {
+    console.error('检查订阅状态异常:', error);
+    return false;
+  }
+}
+
+/**
  * 检查是否在限时优惠期内
  * @param userId 用户ID
  * @returns 是否在优惠期内
@@ -61,6 +91,22 @@ export function isInPromoPeriod(userId?: string): boolean {
   const now = new Date();
   const timeDiff = now.getTime() - accessTime.getTime();
   return timeDiff < PROMO_DURATION;
+}
+
+/**
+ * 检查是否应该显示限时优惠（考虑订阅状态）
+ * @param userId 用户ID
+ * @returns Promise<boolean> 是否应该显示优惠
+ */
+export async function shouldShowPromoOffer(userId?: string): Promise<boolean> {
+  if (!userId) return false;
+  
+  // 如果用户已有有效订阅，不显示优惠
+  const hasSubscription = await hasActiveSubscription(userId);
+  if (hasSubscription) return false;
+  
+  // 检查是否在优惠期内
+  return isInPromoPeriod(userId);
 }
 
 /**
