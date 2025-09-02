@@ -119,41 +119,29 @@ export class OrderStatusService {
     try {
       logger.info('开始修复订单权限:', { orderId });
 
-      // 1. 检查当前状态
-      const statusCheck = await this.checkOrderStatus(orderId);
-      
-      if (!statusCheck.needsRepair) {
-        return {
-          success: true,
-          message: '订单状态正常，无需修复'
-        };
-      }
-
-      // 2. 获取订单详情
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('order_id', orderId)
-        .single();
-
-      if (orderError || !order) {
-        throw new Error(`获取订单失败: ${orderError?.message}`);
-      }
-
-      // 3. 执行权限发放
-      const subscriptionData = await this.processOrderPermissions(order);
-
-      logger.info('订单权限修复成功:', { 
-        orderId, 
-        userId: order.user_id,
-        subscriptionType: subscriptionData.subscription_type
+      // 调用后端 API 修复权限
+      const response = await fetch('/.netlify/functions/repair-order-permissions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ orderId })
       });
 
-      return {
-        success: true,
-        message: '权限修复成功',
-        subscriptionData
-      };
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      logger.info('订单权限修复成功:', { 
+        orderId, 
+        success: result.success,
+        message: result.message
+      });
+
+      return result;
     } catch (error) {
       logger.error('修复订单权限失败:', error);
       return {
@@ -163,116 +151,6 @@ export class OrderStatusService {
     }
   }
 
-  /**
-   * 处理订单权限开通（与后端逻辑保持一致）
-   */
-  private static async processOrderPermissions(order: any): Promise<any> {
-    // 计算订阅到期时间
-    const expiryDate = this.calculateExpiryDate(order.duration_type);
-    
-    // 检查用户是否已有相同类型的订阅
-    const { data: existingSubscription, error: queryError } = await supabase
-      .from('user_subscriptions')
-      .select('*')
-      .eq('user_id', order.user_id)
-      .eq('subscription_type', order.product_type)
-      .eq('status', 'active')
-      .maybeSingle();
-
-    if (queryError) {
-      throw new Error(`查询现有订阅失败: ${queryError.message}`);
-    }
-
-    let subscriptionData;
-
-    if (existingSubscription) {
-      // 延长现有订阅
-      const currentExpiry = new Date(existingSubscription.expires_at);
-      const newExpiry = this.calculateExpiryDate(
-        order.duration_type, 
-        currentExpiry > new Date() ? currentExpiry : new Date()
-      );
-      
-      const { data, error } = await supabase
-        .from('user_subscriptions')
-        .update({
-          expires_at: newExpiry.toISOString(),
-          updated_at: new Date().toISOString(),
-          order_id: order.order_id
-        })
-        .eq('id', existingSubscription.id)
-        .select()
-        .single();
-
-      if (error) throw new Error(`延长订阅失败: ${error.message}`);
-      subscriptionData = data;
-      
-      logger.info('订阅延长成功:', { 
-        userId: order.user_id, 
-        subscriptionType: order.product_type,
-        newExpiry: newExpiry.toISOString()
-      });
-    } else {
-      // 创建新订阅
-      const { data, error } = await supabase
-        .from('user_subscriptions')
-        .insert({
-          user_id: order.user_id,
-          subscription_type: order.product_type,
-          status: 'active',
-          started_at: new Date().toISOString(),
-          expires_at: expiryDate.toISOString(),
-          order_id: order.order_id
-        })
-        .select()
-        .single();
-
-      if (error) throw new Error(`创建订阅失败: ${error.message}`);
-      subscriptionData = data;
-      
-      logger.info('新订阅创建成功:', { 
-        userId: order.user_id, 
-        subscriptionType: order.product_type,
-        expiresAt: expiryDate.toISOString()
-      });
-    }
-
-    // 标记订单为已处理
-    const { error: processError } = await supabase
-      .from('orders')
-      .update({
-        status: 'processed',
-        processed_at: new Date().toISOString(),
-        error_message: null, // 清除错误信息
-        retry_count: null,
-        last_error_at: null
-      })
-      .eq('order_id', order.order_id);
-
-    if (processError) {
-      throw new Error(`标记订单为已处理失败: ${processError.message}`);
-    }
-
-    return subscriptionData;
-  }
-
-  /**
-   * 计算订阅到期时间
-   */
-  private static calculateExpiryDate(durationType: string, baseDate?: Date): Date {
-    const base = baseDate || new Date();
-    const expiry = new Date(base);
-    
-    if (durationType === 'monthly') {
-      expiry.setMonth(expiry.getMonth() + 1);
-    } else if (durationType === 'yearly') {
-      expiry.setFullYear(expiry.getFullYear() + 1);
-    } else {
-      throw new Error(`不支持的订阅类型: ${durationType}`);
-    }
-    
-    return expiry;
-  }
 
   /**
    * 批量检查和修复订单
