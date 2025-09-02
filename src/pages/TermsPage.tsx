@@ -356,13 +356,7 @@ export default function TermsPage() {
                   <p className="text-xs text-muted-foreground/70 text-center mt-1">工作时间：9:00-18:00</p>
                 </div>
               </div>
-              <div className="bg-card p-4 rounded-lg border border-border">
-                <div className="flex items-center gap-2 mb-2">
-                  <MessageSquare className="h-4 w-4 text-primary" />
-                  <h5 className="font-semibold text-foreground">应用内客服</h5>
-                </div>
-                <p className="text-sm text-muted-foreground">通过平台内置客服功能</p>
-              </div>
+
               <div className="bg-card p-4 rounded-lg border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-primary" />

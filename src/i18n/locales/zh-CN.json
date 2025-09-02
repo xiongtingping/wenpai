@@ -900,10 +900,7 @@
             "title": "客服邮箱",
             "value": "hello@wenpai.xyz"
           },
-          "inAppSupport": {
-            "title": "应用内客服",
-            "value": "通过平台内置客服功能"
-          },
+
           "workingHours": {
             "title": "工作时间",
             "value": "周一至周五 9:00-18:00"
@@ -1062,7 +1059,7 @@
         "description": "如果您对本隐私政策有任何疑问或需要行使您的权利，请通过以下方式联系我们：",
         "privacyEmail": "隐私保护邮箱",
         "supportEmail": "客服邮箱",
-        "inAppSupport": "应用内客服：通过平台内置客服功能",
+
         "workingHours": "工作时间：周一至周五 9:00-18:00"
       },
       "commitment": {
