@@ -328,7 +328,7 @@ export function PricingSection() {
                     </div>
                   ) : (
                     <div className="text-center">
-                      {isAuthenticated && inPromo ? (
+                      {isAuthenticated && showPromoOffer ? (
                         <div className="flex items-baseline justify-center gap-2">
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
                             <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥{pricing.discountPrice}</span>
@@ -347,7 +347,7 @@ export function PricingSection() {
                           <span className="text-base text-muted-foreground">/{billing === "monthly" ? t('home.pricing.monthShort') : t('home.pricing.yearShort')}</span>
                         </div>
                       )}
-                      {isAuthenticated && inPromo && (
+                      {isAuthenticated && showPromoOffer && (
                         <p className="text-xs text-destructive mt-1">{t('home.pricing.savedAmount')}{pricing.savedAmount}</p>
                       )}
                     </div>
