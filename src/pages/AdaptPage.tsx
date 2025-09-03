@@ -4033,7 +4033,7 @@ ${charCountControl.source === 'platform-specific'
                 <span className="text-sm text-muted-foreground">{t('adapt.remainingUsage')}</span>
                 <UsageStateWrapper>
                   <Badge variant={usageRemaining <= 5 ? "destructive" : "default"}>
-                    {usageRemaining}
+                    {usageRemaining === Infinity ? "不限" : usageRemaining}
                   </Badge>
                 </UsageStateWrapper>
               </div>
@@ -4073,24 +4073,28 @@ ${charCountControl.source === 'platform-specific'
           <CardContent className="p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 flex-1">
-                <Checkbox
-                  id="use-brand-library"
-                  checked={useBrandLibrary}
-                  onCheckedChange={(checked) => {
-                    setUseBrandLibrary(!!checked);
-                  }}
-                  disabled={effectiveUserTier !== 'premium'}
-                  className={effectiveUserTier !== 'premium' ? 'opacity-50' : ''}
-                />
-                <div className="flex-1">
-                  <Label htmlFor="use-brand-library" className={`text-sm ${effectiveUserTier !== 'premium' ? 'text-gray-400 cursor-not-allowed' : 'text-primary cursor-pointer'}`}>
-                    使用品牌库资料进行创作
-                    {effectiveUserTier !== 'premium' && <Lock className="inline w-3 h-3 ml-1" />}
-                  </Label>
-                  <p className="text-xs text-secondary mt-1">
-                    AI自动遵循品牌语言规范，融入品牌价值，规避公关风险
-                  </p>
-                </div>
+                <PermissionLockedButton
+                  requiredTier="premium"
+                  featureName="品牌库资料创作"
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto p-0 justify-start"
+                  onClick={() => setUseBrandLibrary(!useBrandLibrary)}
+                >
+                  <Checkbox
+                    id="use-brand-library"
+                    checked={useBrandLibrary}
+                    className="mr-2"
+                  />
+                  <div className="flex-1">
+                    <Label htmlFor="use-brand-library" className="text-sm text-primary cursor-pointer">
+                      使用品牌库资料进行创作
+                    </Label>
+                    <p className="text-xs text-secondary mt-1">
+                      AI自动遵循品牌语言规范，融入品牌价值，规避公关风险
+                    </p>
+                  </div>
+                </PermissionLockedButton>
               </div>
               
               <div className="flex items-center gap-2">
@@ -4213,7 +4217,15 @@ ${charCountControl.source === 'platform-specific'
                       </Label>
                       <Select
                         value={globalSettings.charCountPreset}
-                        onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
+                        onValueChange={(value) => {
+                          // 记录当前滚动位置
+                          const currentScrollY = window.scrollY;
+                          updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed');
+                          // 使用setTimeout确保DOM更新后恢复滚动位置
+                          setTimeout(() => {
+                            window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+                          }, 0);
+                        }}
                         disabled={settingsMode.charCount === 'platform'}
                       >
                         <SelectTrigger className={`h-9 max-w-xs ${
@@ -4665,7 +4677,7 @@ ${charCountControl.source === 'platform-specific'
 
         return (results.length > 0 || generating);
       })() && (
-        <div className="mt-8">
+        <div id="content-generation-area" className="mt-8">
           {/* 生成状态指示器 */}
           {generating && results.length === 0 && (
             <div className="mb-4 p-4 bg-accent border border-border rounded-lg">

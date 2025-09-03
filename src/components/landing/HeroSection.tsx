@@ -27,8 +27,18 @@ const HeroSection: React.FC = () => {
     try {
       if (isAuthenticated) {
         navigate('/new-adapt');
+        // 页面加载后滚动到内容生成区
+        setTimeout(() => {
+          const contentArea = document.getElementById('content-generation-area');
+          if (contentArea) {
+            contentArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            // 如果内容生成区不存在，滚动到页面中部区域
+            window.scrollTo({ top: window.innerHeight * 0.3, behavior: 'smooth' });
+          }
+        }, 500);
       } else if (typeof login === 'function') {
-        localStorage.setItem('login_redirect_to', '/new-adapt');
+        localStorage.setItem('login_redirect_to', '/new-adapt#content-generation');
         await login();
       } else {
         navigate('/login');

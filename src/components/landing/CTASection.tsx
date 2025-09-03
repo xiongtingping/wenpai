@@ -9,7 +9,7 @@ export function CTASection() {
   const navigate = useNavigate();
   const { t } = useI18n();
 
-  const handleButtonClick = () => {
+  const handleButtonClick = async () => {
     try {
       console.log('=== CTA按钮点击事件开始 ===');
       console.log('CTA按钮被点击');
@@ -21,13 +21,20 @@ export function CTASection() {
       if (isAuthenticated) {
         console.log('用户已登录，跳转到AI内容适配器页面');
         navigate('/new-adapt');
-        // 确保跳转到页面顶部
+        // 页面加载后滚动到内容生成区
         setTimeout(() => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 100);
+          const contentArea = document.getElementById('content-generation-area');
+          if (contentArea) {
+            contentArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            // 如果内容生成区不存在，滚动到页面中部区域
+            window.scrollTo({ top: window.innerHeight * 0.3, behavior: 'smooth' });
+          }
+        }, 500);
       } else {
-        console.log('用户未登录，直接弹出登录弹窗');
-        login('/new-adapt');
+        console.log('用户未登录，设置跳转目标并弹出登录弹窗');
+        localStorage.setItem('login_redirect_to', '/new-adapt');
+        await login();
       }
       
       console.log('=== CTA按钮点击事件完成 ===');

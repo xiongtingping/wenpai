@@ -13,6 +13,7 @@ import { Clock, Copy, Trash2 } from 'lucide-react';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { Header } from '@/components/landing/Header';
+import { PageNavigation } from '@/components/layout/PageNavigation';
 
 /**
  * 历史记录项接口
@@ -131,7 +132,15 @@ export default function HistoryPage() {
       <Header />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
+        {/* 面包屑导航 */}
+        <PageNavigation 
+          items={[
+            { label: '首页', href: '/' },
+            { label: '历史记录' }
+          ]}
+        />
+        
+        <div className="mb-8 mt-4">
           <h1 className="text-3xl font-bold text-foreground mb-2">历史记录</h1>
           <p className="text-muted-foreground">
             查看您之前生成的内容适配记录
