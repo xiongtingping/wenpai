@@ -423,8 +423,14 @@ class VerificationCodeService {
         code: error?.code,
         status: error?.status,
         response: error?.response?.data,
+        data: error?.data,
+        statusText: error?.statusText,
+        config: error?.config?.url,
         stack: error?.stack?.split('\n')[0] // 只显示第一行堆栈
       });
+
+      // 额外的错误信息输出
+      console.error('❌ 完整错误对象:', JSON.stringify(error, null, 2));
 
       let errorMessage = '注册失败';
       if (error?.message) {
