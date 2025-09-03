@@ -33,10 +33,18 @@ class VerificationCodeService {
     try {
       const config = getAuthingConfig();
       
-      // 使用正确的初始化参数
+      // 🔧 FIX: 尝试不同的初始化方式来解决认证权限问题
+      console.log('🔍 尝试初始化Authing客户端，配置:', {
+        appId: config.appId,
+        domain: config.domain,
+        host: config.host
+      });
+
+      // 尝试使用domain而不是appHost，并添加协议类型
       this.authClient = new AuthenticationClient({
         appId: config.appId,
-        appHost: config.host
+        appHost: `https://${config.domain}`,
+        protocol: 'oidc'
       });
 
       console.log('✅ Authing AuthenticationClient初始化成功');
