@@ -37,8 +37,14 @@ class VerificationCodeService {
       console.log('🔍 尝试初始化Authing客户端，配置:', {
         appId: config.appId,
         domain: config.domain,
-        host: config.host
+        host: config.host,
+        appIdValid: !!config.appId,
+        hostValid: !!config.host
       });
+      
+      if (!config.appId || !config.host) {
+        throw new Error(`Authing配置缺失: appId=${!!config.appId}, host=${!!config.host}`);
+      }
 
       // 尝试使用domain而不是appHost，并添加协议类型
       this.authClient = new AuthenticationClient({
@@ -70,10 +76,12 @@ class VerificationCodeService {
 
       const client = await this.initAuthClient();
       
+      console.log('📱 调用SDK发送手机验证码:', { phone, scene });
+      
       // 调用Authing SDK发送短信验证码
       const result = await client.sendSmsCode(phone);
 
-      console.log('✅ 手机验证码发送成功:', { phone, scene });
+      console.log('✅ 手机验证码发送API返回:', { result, resultType: typeof result });
       
       return {
         success: true,

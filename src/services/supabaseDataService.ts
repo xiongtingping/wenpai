@@ -117,7 +117,7 @@ export class SupabaseDataService {
         throw new Error(`创建记录失败: ${error.message}`);
       }
 
-      logger.debug('✅ 创建${this.tableName}记录成功:', result.id);
+      logger.debug(`✅ 创建${this.tableName}记录成功:`, result.id);
       return result as T;
     } catch (error) {
       console.error(`创建${this.tableName}记录异常:`, error);
@@ -201,7 +201,7 @@ export class SupabaseDataService {
         throw new Error(`查询记录失败: ${error.message}`);
       }
 
-      logger.debug('✅ 查询${this.tableName}记录成功:', id);
+      logger.debug(`✅ 查询${this.tableName}记录成功:`, id);
       return data as T;
     } catch (error) {
       console.error(`查询${this.tableName}记录异常:`, error);
@@ -239,7 +239,7 @@ export class SupabaseDataService {
         throw new Error(`更新记录失败: ${error.message}`);
       }
 
-      logger.debug('✅ 更新${this.tableName}记录成功:', id);
+      logger.debug(`✅ 更新${this.tableName}记录成功:`, id);
       return result as T;
     } catch (error) {
       console.error(`更新${this.tableName}记录异常:`, error);
@@ -270,7 +270,7 @@ export class SupabaseDataService {
         throw new Error(`删除记录失败: ${error.message}`);
       }
 
-      logger.debug('✅ 删除${this.tableName}记录成功:', id);
+      logger.debug(`✅ 删除${this.tableName}记录成功:`, id);
     } catch (error) {
       console.error(`删除${this.tableName}记录异常:`, error);
       throw error;

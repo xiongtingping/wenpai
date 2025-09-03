@@ -130,6 +130,27 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
     }
   },
 
+  // 统一用户状态模式
+  'unified-user-state': {
+    type: 'object',
+    properties: {
+      user: { type: 'object', required: false },
+      isAuthenticated: { type: 'boolean', required: false },
+      subscriptionStatus: { type: 'object', required: false },
+      hasActiveSubscription: { type: 'boolean', required: false },
+      userTier: { type: 'string', required: false },
+      usageCount: { type: 'number', required: false },
+      maxUsage: { type: 'number', required: false },
+      usageRemaining: { type: 'number', required: false },
+      isInitialized: { type: 'boolean', required: false },
+      isLoading: { type: 'boolean', required: false },
+      lastUpdated: { type: 'number', required: false },
+      error: { type: 'string', required: false },
+      cacheExpiry: { type: 'number', required: false },
+      forceRefresh: { type: 'boolean', required: false }
+    }
+  },
+
   // 认证守卫模式
   AUTH_GUARD: {
     type: 'object',
@@ -468,6 +489,11 @@ export class DataTypeValidator {
     // 数据验证运行时间
     if (key === 'data_validation_last_run') {
       return { type: 'string', required: false };
+    }
+    
+    // 统一用户状态
+    if (key.includes('unified-user-state')) {
+      return DATA_SCHEMAS['unified-user-state'];
     }
     
     // 通知数据

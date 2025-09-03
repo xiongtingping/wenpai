@@ -86,6 +86,19 @@ const App: React.FC = () => {
     const currentUrl = window.location.href;
     console.log('🚀 App启动，当前URL:', currentUrl);
     
+    // 🔧 DEBUG: 强制检查Authing配置加载情况
+    console.log('🔧 检查环境变量加载:', {
+      VITE_AUTHING_APP_ID: import.meta.env.VITE_AUTHING_APP_ID,
+      VITE_AUTHING_DOMAIN: import.meta.env.VITE_AUTHING_DOMAIN,
+      VITE_AUTHING_HOST: import.meta.env.VITE_AUTHING_HOST,
+      DEV: import.meta.env.DEV
+    });
+    
+    // 🔧 DEBUG: 检查GuardProvider配置
+    const appId = import.meta.env.VITE_AUTHING_APP_ID || (globalThis as any).__ENV__?.VITE_AUTHING_APP_ID;
+    const host = import.meta.env.VITE_AUTHING_HOST || (globalThis as any).__ENV__?.VITE_AUTHING_HOST;
+    console.log('🔧 GuardProvider配置检查:', { appId, host, hasAppId: !!appId, hasHost: !!host });
+    
     // 立即处理恶意回调URL重定向
     if (currentUrl.includes('callbackhttp://')) {
       console.log('🚨 App层检测到恶意回调URL，立即处理重定向...');
@@ -125,8 +138,8 @@ const App: React.FC = () => {
             }}
           >
             <UnifiedAuthProvider>
-              <StateManagerInitializer />
               <ErrorBoundary>
+                <StateManagerInitializer />
                     <>
                   <ConditionalNavigation>
                     <Suspense fallback={<LoadingSpinner />}>
@@ -195,7 +208,7 @@ const App: React.FC = () => {
                   {/* 返回顶部按钮 */}
                   <ScrollToTop />
                     </>
-                </ErrorBoundary>
+              </ErrorBoundary>
             </UnifiedAuthProvider>
           </GuardProvider>
         </ErrorBoundary>

@@ -31,21 +31,55 @@ interface UseSubscriptionStatusReturn {
  */
 export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
   const { user } = useAuth();
-  const [primaryStatus, setPrimaryStatus] = useState<SubscriptionStatus>({
-    status: 'inactive',
-    expiresAt: null,
-    daysRemaining: 0,
-    needsAlert: false,
-    alertLevel: 'info',
-    alertMessage: '',
-    statusLabel: '未订阅',
-    statusColor: 'gray'
+  const [isInitialized, setIsInitialized] = useState(false); // 防止重复初始化
+  const [primaryStatus, setPrimaryStatus] = useState<SubscriptionStatus>(() => {
+    // 如果用户已登录，尝试从缓存获取状态，避免闪烁
+    if (user?.id) {
+      try {
+        const cached = localStorage.getItem(`subscription_status_${user.id}`);
+        if (cached) {
+          const cachedStatus = JSON.parse(cached);
+          logger.info('🚀 使用缓存订阅状态，避免闪烁:', cachedStatus);
+          return cachedStatus;
+        }
+      } catch (e) {
+        logger.warn('缓存订阅状态解析失败:', e);
+      }
+    }
+    
+    // 默认状态
+    return {
+      status: 'inactive',
+      expiresAt: null,
+      daysRemaining: 0,
+      needsAlert: false,
+      alertLevel: 'info',
+      alertMessage: '',
+      statusLabel: '未订阅',
+      statusColor: 'gray'
+    };
   });
   const [allSubscriptions, setAllSubscriptions] = useState<Array<SubscriptionStatus & { 
     subscriptionType: string;
     subscriptionId: string;
   }>>([]);
-  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(() => {
+    // 如果用户已登录，尝试从缓存推断活跃订阅状态
+    if (user?.id) {
+      try {
+        const cached = localStorage.getItem(`subscription_status_${user.id}`);
+        if (cached) {
+          const cachedStatus = JSON.parse(cached);
+          const isActive = cachedStatus.status === 'active';
+          logger.info('🚀 从缓存推断活跃订阅状态:', { isActive, status: cachedStatus.status });
+          return isActive;
+        }
+      } catch (e) {
+        logger.warn('缓存订阅状态解析失败:', e);
+      }
+    }
+    return false;
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialLoading, setInitialLoading] = useState(true); // 🔧 FIX: 添加初始加载状态
@@ -94,6 +128,14 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
       setAllSubscriptions(data.allSubscriptions || []);
       setHasActiveSubscription(data.hasActiveSubscription);
 
+      // 缓存订阅状态，避免下次闪烁
+      try {
+        localStorage.setItem(`subscription_status_${user.id}`, JSON.stringify(data.primaryStatus));
+        logger.info('✅ 订阅状态已缓存');
+      } catch (e) {
+        logger.warn('缓存订阅状态失败:', e);
+      }
+
       logger.info('订阅状态获取成功:', {
         userId: user.id,
         status: data.primaryStatus.status,
@@ -124,23 +166,23 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
       }
     } finally {
       setLoading(false);
-      setInitialLoading(false); // 🔧 FIX: 标记初始加载完成
     }
-  }, [user?.id]);
+  }, []);
 
   /**
    * 刷新订阅状态
    */
   const refresh = useCallback(async () => {
     await fetchSubscriptionStatus();
-  }, [fetchSubscriptionStatus]);
+  }, []);
 
-  // 用户登录后自动获取订阅状态
+  // 用户登录后自动获取订阅状态 - 防止重复调用
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && !isInitialized) {
+      setIsInitialized(true);
       fetchSubscriptionStatus();
     }
-  }, [user?.id, fetchSubscriptionStatus]);
+  }, [user?.id, isInitialized]); // 添加初始化状态检查
 
   // 🔧 FIX: 监听支付成功事件，自动刷新订阅状态
   useEffect(() => {
@@ -163,6 +205,19 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
       window.removeEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
     };
   }, [refresh]);
+
+  // 🔧 FIX: 同步primaryStatus变化到hasActiveSubscription
+  useEffect(() => {
+    const isActive = primaryStatus.status === 'active';
+    if (hasActiveSubscription !== isActive) {
+      logger.info('🔄 同步活跃订阅状态:', { 
+        from: hasActiveSubscription, 
+        to: isActive, 
+        status: primaryStatus.status 
+      });
+      setHasActiveSubscription(isActive);
+    }
+  }, [primaryStatus.status, hasActiveSubscription]);
 
   // 定期刷新状态（每5分钟）
   useEffect(() => {

@@ -252,4 +252,4 @@ export {
 // 输出环境信息
 const envInfo = getUnifiedEnvironmentInfo();
 logger.debug('🔧 统一AI服务已加载:', envInfo);
-logger.debug('📍 当前使用: ${envInfo.apiMethod} (${envInfo.description})');
+logger.debug(`📍 当前使用: ${envInfo.apiMethod} (${envInfo.description})`);

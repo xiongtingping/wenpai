@@ -415,7 +415,7 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
       const hasPermission = config.check(enhancedUser);
 
       // 打印权限检查日志
-      logger.lock('🔒 权限检查: ${key}', {
+      logger.lock(`🔒 权限检查: ${key}`, {
         user: enhancedUser ? {
           id: enhancedUser.id,
           isVip: enhancedUser.isVip,

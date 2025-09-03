@@ -118,6 +118,14 @@ export const CustomLoginPage: React.FC = () => {
     setError('');
     setLoginForm(prev => ({ ...prev, loading: true }));
 
+    console.log('🔐 开始登录流程:', { 
+      contact: loginForm.contact, 
+      method: loginMethod,
+      contactType,
+      hasPassword: !!loginForm.password,
+      hasCode: !!loginForm.code 
+    });
+
     try {
       if (!loginForm.contact) throw new Error('请填写联系方式');
       if (loginMethod === 'password' && !loginForm.password) throw new Error('请输入密码');
@@ -125,12 +133,18 @@ export const CustomLoginPage: React.FC = () => {
 
       // 验证码登录使用专用API
       if (loginMethod === 'code') {
+        console.log('📱 开始验证码登录:', { contactType, contact: loginForm.contact, code: loginForm.code.substring(0,2) + '***' });
+        
         let result;
         if (contactType === 'phone') {
+          console.log('📱 调用手机验证码登录API...');
           result = await verificationCodeService.loginByPhoneCode(loginForm.contact, loginForm.code);
         } else {
+          console.log('📧 调用邮箱验证码登录API...');
           result = await verificationCodeService.loginByEmailCode(loginForm.contact, loginForm.code);
         }
+        
+        console.log('📡 验证码登录API响应:', { success: result.success, message: result.message, hasData: !!result.data });
         
         if (result.success) {
           console.log('✅ 验证码登录成功，开始处理登录状态...');
@@ -173,16 +187,60 @@ export const CustomLoginPage: React.FC = () => {
         }
       }
 
-      // 密码登录走Guard流程
-      if (guard && typeof (guard as any).show === 'function') {
-        (guard as any).show();
-        toast({
-          title: '正在启动登录窗口',
-          description: '请在弹出的登录窗口中完成登录',
-          duration: 3000
-        });
+      // 使用AuthenticationClient进行密码登录
+      console.log('🔐 开始密码登录流程...');
+      
+      const authingClient = ensureAuthingClient();
+      if (!authingClient) {
+        throw new Error('Authing客户端初始化失败');
+      }
+      
+      console.log('🚀 调用SDK密码登录API...', { 
+        method: contactType + '-password',
+        contact: loginForm.contact.substring(0, 3) + '***'
+      });
+      
+      // 使用AuthenticationClient进行密码登录
+      let result;
+      if (contactType === 'phone') {
+        result = await authingClient.loginByPhonePassword(loginForm.contact, loginForm.password);
       } else {
-        throw new Error('认证系统未初始化');
+        result = await authingClient.loginByEmail(loginForm.contact, loginForm.password);
+      }
+      
+      console.log('✅ SDK密码登录成功:', result);
+      
+      // 处理登录成功
+      if (result && result.id) {
+        console.log('🔄 触发登录成功处理...', result);
+        
+        // 设置登录成功状态
+        setLoginForm(prev => ({ 
+          ...prev, 
+          loading: false,
+          loginSuccess: true
+        }));
+        
+        toast({
+          title: '登录成功',
+          description: '正在跳转...',
+          duration: 2000
+        });
+        
+        // 调用统一认证的登录处理
+        if (handleAuthingLogin) {
+          handleAuthingLogin(result);
+          
+          // 延迟跳转，确保状态更新完成
+          setTimeout(() => {
+            const redirectTo = localStorage.getItem('login_redirect_to') || '/';
+            localStorage.removeItem('login_redirect_to');
+            console.log('🎯 密码登录成功，跳转到:', redirectTo);
+            navigate(redirectTo, { replace: true });
+          }, 800);
+        }
+      } else {
+        throw new Error('登录失败，请检查账号密码');
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : '登录失败';
