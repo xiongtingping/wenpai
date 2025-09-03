@@ -48,6 +48,7 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true); // 🔧 FIX: 添加初始加载状态
 
   /**
    * 获取订阅状态
@@ -104,21 +105,26 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
       logger.error('获取订阅状态失败:', error);
       setError(error instanceof Error ? error.message : '获取订阅状态失败');
       
-      // 设置默认状态
-      setPrimaryStatus({
-        status: 'inactive',
-        expiresAt: null,
-        daysRemaining: 0,
-        needsAlert: false,
-        alertLevel: 'info',
-        alertMessage: '',
-        statusLabel: '未订阅',
-        statusColor: 'gray'
-      });
-      setAllSubscriptions([]);
-      setHasActiveSubscription(false);
+      // 🔧 FIX: 避免设置默认状态，保持loading状态直到获取到真实数据
+      // 这样可以避免页面先显示"免费版"再变成"专业版"的闪烁问题
+      if (!loading) {
+        // 只有在非loading状态下才设置默认状态
+        setPrimaryStatus({
+          status: 'inactive',
+          expiresAt: null,
+          daysRemaining: 0,
+          needsAlert: false,
+          alertLevel: 'info',
+          alertMessage: '',
+          statusLabel: '未订阅',
+          statusColor: 'gray'
+        });
+        setAllSubscriptions([]);
+        setHasActiveSubscription(false);
+      }
     } finally {
       setLoading(false);
+      setInitialLoading(false); // 🔧 FIX: 标记初始加载完成
     }
   }, [user?.id]);
 
@@ -135,6 +141,28 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
       fetchSubscriptionStatus();
     }
   }, [user?.id, fetchSubscriptionStatus]);
+
+  // 🔧 FIX: 监听支付成功事件，自动刷新订阅状态
+  useEffect(() => {
+    const handlePaymentSuccess = () => {
+      logger.info('收到支付成功事件，刷新订阅状态');
+      refresh();
+    };
+
+    const handleSubscriptionUpdated = (event: CustomEvent) => {
+      logger.info('收到订阅更新事件，刷新订阅状态', event.detail);
+      refresh();
+    };
+
+    // 监听支付成功事件
+    window.addEventListener('paymentSuccess', handlePaymentSuccess);
+    window.addEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
+
+    return () => {
+      window.removeEventListener('paymentSuccess', handlePaymentSuccess);
+      window.removeEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
+    };
+  }, [refresh]);
 
   // 定期刷新状态（每5分钟）
   useEffect(() => {
@@ -153,7 +181,8 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
     hasActiveSubscription,
     loading,
     error,
-    refresh
+    refresh,
+    initialLoading // 🔧 FIX: 导出初始加载状态
   };
 }
 

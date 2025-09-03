@@ -30,15 +30,16 @@ interface SubscriptionStatusBadgeProps {
   className?: string;
 }
 
-export function SubscriptionStatusBadge({ 
-  showDetails = true, 
-  className = '' 
+export function SubscriptionStatusBadge({
+  showDetails = true,
+  className = ''
 }: SubscriptionStatusBadgeProps) {
-  const { primaryStatus, hasActiveSubscription, loading } = useSubscriptionStatus();
+  const { primaryStatus, hasActiveSubscription, loading, initialLoading } = useSubscriptionStatus();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (loading) {
+  // 🔧 FIX: 在初始加载或正在加载时显示加载状态，避免闪烁
+  if (loading || initialLoading) {
     return (
       <Badge variant="outline" className={`animate-pulse ${className}`}>
         <div className="w-2 h-2 bg-gray-400 rounded-full mr-1"></div>

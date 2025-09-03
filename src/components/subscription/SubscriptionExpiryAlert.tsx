@@ -26,16 +26,16 @@ interface SubscriptionExpiryAlertProps {
   className?: string;
 }
 
-export function SubscriptionExpiryAlert({ 
-  compact = false, 
-  className = '' 
+export function SubscriptionExpiryAlert({
+  compact = false,
+  className = ''
 }: SubscriptionExpiryAlertProps) {
-  const { primaryStatus, hasActiveSubscription, loading } = useSubscriptionStatus();
+  const { primaryStatus, hasActiveSubscription, loading, initialLoading } = useSubscriptionStatus();
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
 
-  // 不需要提醒或已被关闭
-  if (!primaryStatus.needsAlert || dismissed || loading) {
+  // 🔧 FIX: 在初始加载时也不显示，避免闪烁
+  if (!primaryStatus.needsAlert || dismissed || loading || initialLoading) {
     return null;
   }
 

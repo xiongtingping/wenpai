@@ -491,6 +491,15 @@ export default function PaymentPage() {
           logger.warn('用户数据刷新失败:', error);
         }
 
+        // 🔧 FIX: 触发全局支付成功事件，通知所有组件刷新状态
+        window.dispatchEvent(new CustomEvent('paymentSuccess', {
+          detail: {
+            userId: currentUser.id,
+            timestamp: Date.now()
+          }
+        }));
+        logger.info('已触发全局支付成功事件');
+
         // 重新检查限时优惠状态
         const shouldShow = await shouldShowPromoOffer(currentUser.id);
         setShowPromoOffer(shouldShow);

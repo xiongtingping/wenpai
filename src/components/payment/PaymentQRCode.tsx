@@ -97,6 +97,15 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
           console.log('🎉 支付成功 - 订单已完成:', orderId);
           setPaymentStatus('success');
           setIsPolling(false);
+
+          // 🔧 FIX: 触发全局支付成功事件
+          window.dispatchEvent(new CustomEvent('paymentSuccess', {
+            detail: {
+              orderId,
+              timestamp: Date.now()
+            }
+          }));
+
           setTimeout(() => {
             onPaymentSuccess?.();
           }, 500);
