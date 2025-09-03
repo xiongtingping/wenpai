@@ -842,7 +842,22 @@ export default function PaymentPage() {
                           }
                         }}
                       >
-                        {plan.tier === userCurrentTier ? (
+                        {plan.tier === userCurrentTier && hasActiveSubscription && (() => {
+                          // 获取用户当前订阅的周期信息
+                          // 通过订阅到期时间推断订阅周期
+                          if (primaryStatus?.expiresAt) {
+                            const expiresAt = new Date(primaryStatus.expiresAt);
+                            const now = new Date();
+                            const diffDays = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                            
+                            // 如果剩余天数超过200天，推断为年付订阅
+                            const isYearlySubscription = diffDays > 200;
+                            const isMatchingPeriod = isYearlySubscription ? selectedPeriod === 'yearly' : selectedPeriod === 'monthly';
+                            
+                            return isMatchingPeriod;
+                          }
+                          return false; // 无法确定周期时不显示当前版本
+                        })() ? (
                           <>
                             <Check className="w-4 h-4 mr-2" />
                             {t('payment.labels.currentPlan')}

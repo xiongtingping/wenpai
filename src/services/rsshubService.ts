@@ -173,8 +173,7 @@ class RSSHubService {
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'WenPai-HotTopics/1.0'
+          'Content-Type': 'application/json'
         },
         signal: AbortSignal.timeout(this.config.timeout)
       });

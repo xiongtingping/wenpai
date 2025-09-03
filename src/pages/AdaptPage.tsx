@@ -1165,7 +1165,15 @@ export default function AdaptPage() {
 
   // 处理模型选择
   const handleModelSelect = (modelId: string, disabled: boolean) => {
-    if (disabled && !generating) {
+    if (generating) {
+      toast({
+        title: "正在生成中",
+        description: "内容生成期间无法切换AI模型",
+        variant: "destructive"
+      });
+      return;
+    }
+    if (disabled) {
       toast({
         title: "模型不可用",
         description: "该模型需要升级订阅计划才能使用",
@@ -4217,13 +4225,7 @@ ${charCountControl.source === 'platform-specific'
                       <Select
                         value={globalSettings.charCountPreset}
                         onValueChange={(value) => {
-                          // 记录当前滚动位置
-                          const currentScrollY = window.scrollY;
                           updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed');
-                          // 使用setTimeout确保DOM更新后恢复滚动位置
-                          setTimeout(() => {
-                            window.scrollTo({ top: currentScrollY, behavior: 'instant' });
-                          }, 0);
                         }}
                         disabled={settingsMode.charCount === 'platform'}
                       >
@@ -4569,7 +4571,7 @@ ${charCountControl.source === 'platform-specific'
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {allModels.map((model) => {
               const isAvailable = availableModels.some(m => m.id === model.id);
-              const disabled = !isAvailable && !generating;
+              const disabled = !isAvailable || generating;
               let badge = '';
               let showUpgradeTip = false;
 

@@ -26,7 +26,7 @@ const HeroSection: React.FC = () => {
   const handleButtonClick = async () => {
     try {
       if (isAuthenticated) {
-        navigate('/new-adapt');
+        navigate('/adapt');
         // 页面加载后滚动到内容生成区
         setTimeout(() => {
           const contentArea = document.getElementById('content-generation-area');
@@ -38,7 +38,7 @@ const HeroSection: React.FC = () => {
           }
         }, 500);
       } else if (typeof login === 'function') {
-        localStorage.setItem('login_redirect_to', '/new-adapt#content-generation');
+        localStorage.setItem('login_redirect_to', '/adapt#content-generation');
         await login();
       } else {
         navigate('/login');

@@ -91,8 +91,7 @@ export class StandardBufPayService {
       const response = await fetch(`${this.API_BASE_URL}/pay/create`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'WenPai/1.0'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestData)
       });

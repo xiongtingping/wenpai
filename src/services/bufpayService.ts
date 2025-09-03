@@ -323,9 +323,7 @@ export class BufPayService {
       
       const response = await fetch(queryUrl, {
         method: 'GET',
-        headers: {
-          'User-Agent': 'WenPai/1.0'
-        }
+        headers: {}
       });
 
       if (!response.ok) {

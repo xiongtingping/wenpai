@@ -168,8 +168,7 @@ class HotTopicsAPI {
         const data = await request.get(requestUrl, {
           timeout: 10000, // 10秒超时
           headers: {
-            'Accept': 'application/json',
-            'User-Agent': 'WenPai-HotTopics/1.0'
+            'Accept': 'application/json'
           }
         });
 
