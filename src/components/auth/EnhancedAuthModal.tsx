@@ -248,7 +248,9 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       if (contact.includes('@')) {
         // 邮箱验证码 - 使用统一的验证码服务
         const { verificationCodeService } = await import('@/services/verificationCodeService');
-        const result = await verificationCodeService.sendEmailCode(contact, type.toUpperCase());
+        // 🔧 FIX: 注册时使用LOGIN场景发送验证码，因为registerByEmailCode可能期望LOGIN类型的验证码
+        const scene = type === 'register' ? 'LOGIN' : type.toUpperCase();
+        const result = await verificationCodeService.sendEmailCode(contact, scene);
         if (!result.success) {
           throw new Error(result.message);
         }

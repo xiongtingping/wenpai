@@ -485,7 +485,8 @@ export const CustomLoginPage: React.FC = () => {
                   if (registerContactType === 'phone') {
                     result = await verificationCodeService.sendSmsCode(registerForm.phone, 'REGISTER');
                   } else {
-                    result = await verificationCodeService.sendEmailCode(registerForm.email, 'REGISTER');
+                    // 🔧 FIX: 使用LOGIN场景发送验证码，因为registerByEmailCode可能期望LOGIN类型的验证码
+                    result = await verificationCodeService.sendEmailCode(registerForm.email, 'LOGIN');
                   }
                   
                   if (result.success) {
