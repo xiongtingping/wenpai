@@ -149,6 +149,13 @@ class VerificationCodeService {
 
     } catch (error: any) {
       console.error('❌ 发送邮箱验证码失败:', error);
+      console.error('❌ 错误详情:', {
+        message: error?.message,
+        code: error?.code,
+        status: error?.status,
+        response: error?.response?.data,
+        stack: error?.stack
+      });
       
       let errorMessage = '发送验证码失败';
       
@@ -384,8 +391,17 @@ class VerificationCodeService {
       }
 
       const client = await this.initAuthClient();
-      
-      const result = await client.registerByEmailCode(email, code, null);
+
+      // 清理验证码（去除空格和特殊字符）
+      const cleanCode = code.trim().replace(/\s+/g, '');
+      console.log('🔍 验证码信息:', {
+        原始验证码: code,
+        清理后验证码: cleanCode,
+        验证码长度: cleanCode.length,
+        邮箱: email
+      });
+
+      const result = await client.registerByEmailCode(email, cleanCode, null);
 
       console.log('✅ 邮箱验证码注册成功:', result);
 
@@ -402,7 +418,14 @@ class VerificationCodeService {
 
     } catch (error: any) {
       console.error('❌ 邮箱验证码注册失败:', error);
-      
+      console.error('❌ 注册错误详情:', {
+        message: error?.message,
+        code: error?.code,
+        status: error?.status,
+        response: error?.response?.data,
+        stack: error?.stack?.split('\n')[0] // 只显示第一行堆栈
+      });
+
       let errorMessage = '注册失败';
       if (error?.message) {
         if (error.message.includes('code')) {

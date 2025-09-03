@@ -197,14 +197,23 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
         const code = formData.get('code') as string;
         const password = formData.get('password') as string;
 
+        // 清理验证码（去除空格和特殊字符）
+        const cleanCode = code.trim().replace(/\s+/g, '');
+        console.log('🔍 EnhancedAuthModal验证码信息:', {
+          原始验证码: code,
+          清理后验证码: cleanCode,
+          验证码长度: cleanCode.length,
+          联系方式: contact
+        });
+
         if (contactType === 'email') {
-          result = await authClient.registerByEmailCode(contact, code, null);
+          result = await authClient.registerByEmailCode(contact, cleanCode, null);
           // 注册成功后立即设置密码
           if (result) {
             await authClient.updatePassword(password);
           }
         } else if (contactType === 'phone') {
-          result = await authClient.registerByPhoneCode(contact, code, password);
+          result = await authClient.registerByPhoneCode(contact, cleanCode, password);
         } else {
           throw new Error('验证码注册请使用邮箱或手机号');
         }
@@ -217,7 +226,14 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       }
     } catch (error: any) {
       console.error('❌ 注册失败:', error);
-      const errorMessage = error.message || error.code || '泣册失败';
+      console.error('❌ EnhancedAuthModal注册错误详情:', {
+        message: error?.message,
+        code: error?.code,
+        status: error?.status,
+        response: error?.response?.data,
+        stack: error?.stack?.split('\n')[0] // 只显示第一行堆栈
+      });
+      const errorMessage = error.message || error.code || '注册失败';
       setError(errorMessage);
     } finally {
       setLoading(false);
