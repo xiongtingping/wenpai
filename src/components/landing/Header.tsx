@@ -100,11 +100,11 @@ export function Header() {
               positionClassName="relative z-[60]"
               items={[
                 { name: t('nav.home'), url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
-                { name: t('nav.adapt'), url: '/adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/adapt'); } else { login('/adapt'); } } },
-                { name: t('nav.hotTopics'), url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); } } },
-                { name: t('nav.creative'), url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { login('/creative-studio'); } } },
-                { name: t('nav.bookmark'), url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/library'); } else { login('/library'); } } },
-                { name: t('nav.brandLibrary'), url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/brand-library'); } else { login('/brand-library'); } } },
+                { name: t('nav.adapt'), url: '/adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/adapt'); } else { localStorage.setItem('login_redirect_to', '/adapt'); login(); } } },
+                { name: t('nav.hotTopics'), url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/hot-topics'); } else { localStorage.setItem('login_redirect_to', '/hot-topics'); login(); } } },
+                { name: t('nav.creative'), url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { localStorage.setItem('login_redirect_to', '/creative-studio'); login(); } } },
+                { name: t('nav.bookmark'), url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/library'); } else { localStorage.setItem('login_redirect_to', '/library'); login(); } } },
+                { name: t('nav.brandLibrary'), url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/brand-library'); } else { localStorage.setItem('login_redirect_to', '/brand-library'); login(); } } },
                 { name: t('nav.upgrade'), url: '/payment', icon: CreditCard, onClick: (e) => { e.preventDefault(); navigate('/payment'); } },
               ]}
             />

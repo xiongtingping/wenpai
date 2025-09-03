@@ -79,6 +79,74 @@ module.exports.handler = async (event, context) => {
       };
     }
 
+    // 🔧 处理 /ai/chat 路径
+    if (path.includes('/ai/chat')) {
+      const body = event.body ? JSON.parse(event.body) : {};
+      const { provider, model, messages, temperature, maxTokens, userId } = body;
+
+      // 根据模型确定使用的provider
+      let actualProvider = provider;
+      if (!actualProvider) {
+        if (model?.includes('gpt') || model?.includes('o1')) {
+          actualProvider = 'openai';
+        } else if (model?.includes('deepseek')) {
+          actualProvider = 'deepseek';
+        } else if (model?.includes('gemini')) {
+          actualProvider = 'gemini';
+        } else {
+          actualProvider = 'deepseek'; // 默认使用deepseek
+        }
+      }
+
+      // 调用相应的生成函数
+      const requestBody = {
+        model: model || 'deepseek-chat',
+        messages: messages || [],
+        temperature: temperature || 0.7,
+        maxTokens: maxTokens || 1000
+      };
+
+      // 调用AI服务并转换返回格式
+      let result;
+      switch (actualProvider) {
+        case 'openai':
+          result = await generateWithOpenAI(requestBody, headers);
+          break;
+        case 'deepseek':
+          result = await generateWithDeepSeek(requestBody, headers);
+          break;
+        case 'gemini':
+          result = await generateWithGemini(requestBody, headers);
+          break;
+        default:
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'Unknown provider' })
+          };
+      }
+
+      // 转换返回格式为前端期望的格式
+      if (result.statusCode === 200) {
+        const responseData = JSON.parse(result.body);
+        if (responseData.success && responseData.data) {
+          const aiData = responseData.data;
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+              content: aiData.choices?.[0]?.message?.content || aiData.content || '',
+              model: requestBody.model,
+              usage: aiData.usage,
+              success: true
+            })
+          };
+        }
+      }
+      
+      return result;
+    }
+
     const body = event.body ? JSON.parse(event.body) : {};
     const { provider, action, platform, ...requestBody } = body;
 

@@ -34,11 +34,11 @@ export default function HistoryPage() {
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
 
-  // ✅ FIXED: 用户数据隔离 - 历史记录存储
+  // ✅ FIXED: 用户数据隔离 - 历史记录存储，禁用循环日志
   const historyDataManager = useUserDataIsolation({
     modulePrefix: 'user_history',
     fallbackToGuest: true,
-    enableLogging: true
+    enableLogging: false  // 禁用日志避免循环
   });
 
   // ✅ FIXED: 加载历史记录 - 使用用户数据隔离
@@ -50,7 +50,7 @@ export default function HistoryPage() {
       setHistory([]);
     }
     setLoading(false);
-  }, [user?.id, historyDataManager]);
+  }, [user?.id]); // 只依赖用户ID变化，避免historyDataManager变化导致循环
 
   /**
    * 复制内容到剪贴板

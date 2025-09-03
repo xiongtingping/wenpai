@@ -105,7 +105,10 @@ export class UserDataIsolationManager {
       const serializedData = localStorage.getItem(storageKey);
       
       if (!serializedData) {
-        this.log(`📂 没有找到数据: ${storageKey}`);
+        // 降低日志级别，避免循环日志
+        if (this.config.enableLogging) {
+          console.debug(`📂 没有找到数据: ${storageKey}`);
+        }
         return {
           success: true,
           data: undefined,

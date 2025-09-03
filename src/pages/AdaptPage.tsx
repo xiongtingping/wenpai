@@ -1165,7 +1165,7 @@ export default function AdaptPage() {
 
   // 处理模型选择
   const handleModelSelect = (modelId: string, disabled: boolean) => {
-    if (disabled) {
+    if (disabled && !generating) {
       toast({
         title: "模型不可用",
         description: "该模型需要升级订阅计划才能使用",
@@ -1633,6 +1633,9 @@ export default function AdaptPage() {
 
   // Update global settings
   const updateGlobalSetting = (key: keyof GlobalSettings, value: unknown) => {
+    // 记录当前滚动位置
+    const currentScrollY = window.scrollY;
+    
     setGlobalSettings(prev => ({
       ...prev,
       [key]: value
@@ -1657,6 +1660,15 @@ export default function AdaptPage() {
         // globalAutoFormat 不影响模式切换，只是一个功能开关
       }
     }
+    
+    // 恢复滚动位置，避免页面跳转
+    setTimeout(() => {
+      window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+      // 解除任何可能的滚动锁定
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }, 0);
+    
     // 移除了禁用时自动切换到平台模式的逻辑
     // 用户在全局模式下取消勾选选项时，应该保持在全局模式
   };
@@ -4101,19 +4113,6 @@ ${charCountControl.source === 'platform-specific'
                 <Badge variant="outline" className="bg-secondary text-secondary-foreground border-border flex-shrink-0">
                   {contentCharCount} 字符
                 </Badge>
-                
-                {/* 高级版升级按钮 */}
-                {effectiveUserTier !== 'premium' && (
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="text-xs h-7 px-3 border-orange-300 text-orange-600 hover:bg-orange-50"
-                    onClick={() => navigate('/payment')}
-                  >
-                    <Crown className="w-3 h-3 mr-1" />
-                    升级解锁
-                  </Button>
-                )}
               </div>
             </div>
           </CardContent>
@@ -4570,7 +4569,7 @@ ${charCountControl.source === 'platform-specific'
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {allModels.map((model) => {
               const isAvailable = availableModels.some(m => m.id === model.id);
-              const disabled = !isAvailable;
+              const disabled = !isAvailable && !generating;
               let badge = '';
               let showUpgradeTip = false;
 
