@@ -71,6 +71,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, useLocation } from "react-router-dom";
+import { SubscriptionStateWrapper, UsageStateWrapper } from '@/components/ui/StateLoadingWrapper';
 import {
   generateAdaptedContent,
   regenerateAdaptedContent,
@@ -4023,12 +4024,13 @@ ${charCountControl.source === 'platform-specific'
           <CardHeader>
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold text-primary">{t('adapt.inputOriginalContent')}</h1>
-              {/* 🚨 DISABLED: 2025-08-04 暂时禁用Tooltip以排查无限循环问题 */}
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">{t('adapt.remainingUsage')}</span>
-                <Badge variant={usageRemaining <= 5 ? "destructive" : "default"}>
-                  {usageRemaining}
-                </Badge>
+                <UsageStateWrapper>
+                  <Badge variant={usageRemaining <= 5 ? "destructive" : "default"}>
+                    {usageRemaining}
+                  </Badge>
+                </UsageStateWrapper>
               </div>
             </div>
           </CardHeader>

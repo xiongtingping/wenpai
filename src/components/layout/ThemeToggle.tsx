@@ -16,6 +16,7 @@ import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useNavigate } from 'react-router-dom';
 import { ThemeUpgradeDialog } from '@/components/ui/ThemeUpgradeDialog';
 import { generateStorageKey } from '@/utils/userDataIsolation';
+import { SubscriptionStateWrapper } from '@/components/ui/StateLoadingWrapper';
 
 type Theme = 'light' | 'dark' | 'rainbow' | 'beige' | 'green';
 
@@ -280,7 +281,9 @@ export const ThemeToggle: React.FC = () => {
             主题切换
           </div>
           <div className="px-3 py-1 text-xs text-muted-foreground">
-            {getUserPermissionLevel()}
+            <SubscriptionStateWrapper>
+              {getUserPermissionLevel()}
+            </SubscriptionStateWrapper>
           </div>
           <DropdownMenuSeparator />
 

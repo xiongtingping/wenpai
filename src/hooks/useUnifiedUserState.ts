@@ -26,13 +26,13 @@ import { logger } from '@/utils/logger';
 export const useUnifiedUserStateManager = () => {
   const unifiedState = useUnifiedUserState();
   const { user, isAuthenticated } = useAuth();
-  const { primaryStatus, hasActiveSubscription, refresh: refreshSubscription } = useSubscriptionStatus();
+  const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
   const { usageCount, maxUsage } = useAuthStore();
 
-  // 同步用户状态
+  // 🔧 FIX: 立即同步用户状态，避免闪烁
   useEffect(() => {
-    if (user !== unifiedState.user) {
-      logger.info('🔄 同步用户状态到统一存储');
+    if (user && user !== unifiedState.user) {
+      logger.info('🔄 立即同步用户状态到统一存储');
       unifiedState.updateUserState(user);
     }
   }, [user, unifiedState]);
@@ -76,22 +76,28 @@ export const useUnifiedUserStateManager = () => {
     };
   }, [unifiedState]);
 
-  // 🔧 FIX: 立即初始化状态，不等待认证完成
+  // 🔧 FIX: 应用启动时立即检查缓存状态，避免闪烁
   useEffect(() => {
-    // 如果有缓存的用户信息或当前已认证，立即初始化
-    if ((isAuthenticated || unifiedState.user) && !unifiedState.isInitialized) {
-      logger.info('🚀 立即初始化统一用户状态');
-      unifiedState.initializeState();
-    }
-  }, [isAuthenticated, unifiedState]);
+    const initializeIfNeeded = async () => {
+      // 优先使用缓存状态，避免闪烁
+      if (unifiedState.isStateValid()) {
+        logger.info('🚀 使用有效缓存状态，避免闪烁');
+        // 标记为已初始化但不重新加载
+        if (!unifiedState.isInitialized) {
+          unifiedState.initializeState();
+        }
+        return;
+      }
 
-  // 🔧 FIX: 应用启动时预加载缓存状态
-  useEffect(() => {
-    if (unifiedState.user && unifiedState.isStateValid()) {
-      logger.info('🚀 使用缓存状态，避免闪烁');
-      // 状态已缓存且有效，无需重新加载
-    }
-  }, []);
+      // 如果有缓存的用户信息，立即初始化
+      if ((isAuthenticated || unifiedState.user) && !unifiedState.isInitialized) {
+        logger.info('🚀 立即初始化统一用户状态');
+        await unifiedState.initializeState();
+      }
+    };
+
+    initializeIfNeeded();
+  }, [isAuthenticated, unifiedState]);
 
   return unifiedState;
 };
@@ -175,23 +181,36 @@ export const useCompleteUserState = () => {
 };
 
 /**
- * 状态预加载Hook - 在应用启动时预加载状态
+ * 状态预加载Hook - 在应用启动时立即预加载状态
  */
 export const useStatePreloader = () => {
   const unifiedState = useUnifiedUserState();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const preloadStates = useCallback(async () => {
-    if (isAuthenticated && !unifiedState.isStateValid()) {
-      logger.info('🚀 预加载用户状态，避免页面切换时的闪烁');
+    // 🔧 FIX: 在任何情况下都先检查缓存，避免闪烁
+    if (unifiedState.user && !unifiedState.isInitialized) {
+      logger.info('🚀 检测到缓存用户，立即预加载状态');
+      await unifiedState.initializeState();
+      return;
+    }
+    
+    if (isAuthenticated && user && !unifiedState.isStateValid()) {
+      logger.info('🚀 用户已认证，预加载用户状态');
       try {
         await unifiedState.initializeState();
       } catch (error) {
         logger.error('状态预加载失败:', error);
       }
     }
-  }, [isAuthenticated, unifiedState]);
+  }, [isAuthenticated, user, unifiedState]);
 
+  // 🔧 FIX: 在组件挂载后立即执行预加载
+  useEffect(() => {
+    preloadStates();
+  }, []);
+
+  // 用户状态变化时也要检查
   useEffect(() => {
     preloadStates();
   }, [preloadStates]);

@@ -10,8 +10,8 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { User } from '@/types/auth';
-import type { SubscriptionStatus } from '@/types/subscription';
+import type { User } from '@/store/authStore';
+import type { SubscriptionStatus } from '@/utils/subscriptionStatusUtils';
 import { logger } from '@/utils/logger';
 
 // 统一用户状态接口
@@ -135,26 +135,37 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
       initializeState: async () => {
         const state = get();
 
-        // 如果状态有效且不需要强制刷新，直接返回
-        if (state.isStateValid() && !state.forceRefresh) {
-          logger.info('🚀 使用缓存的用户状态，避免闪烁');
-          // 即使使用缓存，也要标记为已初始化
-          set({ isInitialized: true, isLoading: false });
+        // 🔧 FIX: 优先使用缓存状态，即使可能过期，也要立即显示避免闪烁
+        if (state.user && state.isAuthenticated) {
+          logger.info('🚀 立即应用用户状态，避免闪烁');
+          // 立即设置为已初始化，显示缓存状态
+          set({ 
+            isInitialized: true, 
+            isLoading: false,
+            lastUpdated: Date.now()
+          });
+          
+          // 然后在后台静默刷新
+          if (!state.isStateValid() || state.forceRefresh) {
+            logger.info('🔄 后台静默刷新状态...');
+            try {
+              await get().refreshAllStates();
+              set({
+                cacheExpiry: Date.now() + CACHE_DURATION,
+                forceRefresh: false
+              });
+            } catch (error) {
+              logger.warn('后台刷新状态失败:', error);
+            }
+          }
           return;
         }
 
+        // 如果没有缓存用户信息，正常初始化
         logger.info('🔄 开始初始化统一用户状态...');
         set({ isLoading: true, error: null });
 
         try {
-          // 🔧 FIX: 如果有用户信息，立即刷新状态
-          if (state.user) {
-            await get().refreshAllStates();
-          } else {
-            // 没有用户信息时，设置默认状态
-            logger.info('🔄 设置默认用户状态');
-          }
-
           set({
             isInitialized: true,
             isLoading: false,
@@ -167,7 +178,7 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
         } catch (error) {
           logger.error('❌ 统一用户状态初始化失败:', error);
           set({
-            isInitialized: true, // 🔧 FIX: 即使失败也标记为已初始化，避免无限重试
+            isInitialized: true,
             isLoading: false,
             error: error instanceof Error ? error.message : '状态初始化失败'
           });
@@ -273,7 +284,8 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
         try {
           // 动态导入避免循环依赖
           const { subscriptionDataService } = await import('@/services/subscriptionDataService');
-          const subscriptionData = await subscriptionDataService.getUserSubscriptionStats(state.user.id);
+          const { subscriptionDataService } = await import('@/services/subscriptionDataService');
+          const subscriptionData = await subscriptionDataService.getSubscriptionStatus(state.user.id);
 
           if (subscriptionData) {
             const subscriptionStatus = {
@@ -308,7 +320,7 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
           if (response.ok) {
             const usageData = await response.json();
             const actualUsedCount = usageData.data?.totalUsed || 0;
-            get().updateUsageState(actualUsedCount);
+            get().updateUsageState(actualUsedCount, get().maxUsage);
           }
         } catch (error) {
           logger.warn('刷新使用次数失败，使用本地数据:', error);
