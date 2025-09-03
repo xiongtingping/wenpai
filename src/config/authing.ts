@@ -100,6 +100,14 @@ export function getAuthingConfig() {
   };
 
   // 调试信息 - 强制输出以验证配置
+  console.log('🔧 环境变量检查:', {
+    VITE_AUTHING_APP_ID: import.meta.env.VITE_AUTHING_APP_ID,
+    VITE_AUTHING_DOMAIN: import.meta.env.VITE_AUTHING_DOMAIN,
+    VITE_AUTHING_HOST: import.meta.env.VITE_AUTHING_HOST,
+    NODE_ENV: import.meta.env.NODE_ENV,
+    DEV: import.meta.env.DEV
+  });
+  
   console.log('🔧 Authing配置 (硬编码):', {
     appId: cachedConfig.appId,
     domain: cachedConfig.domain,

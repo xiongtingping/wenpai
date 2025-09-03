@@ -108,7 +108,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   // 使用官方Guard React18 Hook
   const guard = useGuard();
 
-  // 获取用户信息 - 使用官方API
+  // 获取用户信息 - 使用官方API，增加网络错误处理
   const checkAuth = useCallback(async () => {
     try {
       console.log('🔍 检查用户登录状态...');
@@ -141,46 +141,52 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       
       // 如果 localStorage 中没有，再检查 Guard session
       if (guard) {
-        const userInfo: User | null = await guard.trackSession();
-        
-        if (userInfo) {
-          console.log('✅ 从 Guard 检测到用户登录状态:', userInfo);
+        try {
+          const userInfo: User | null = await guard.trackSession();
           
-          // 🚨 关键：用户ID必须来自Authing真实API，不能本地生成
-          const userId = userInfo.id || userInfo.userId || userInfo.sub;
-          if (!userId) {
-            console.error('❌ Authing API未返回有效用户ID:', userInfo);
-            throw new Error('认证系统错误：未获取到有效用户ID');
-          }
+          if (userInfo) {
+            console.log('✅ 从 Guard 检测到用户登录状态:', userInfo);
+            
+            // 🚨 关键：用户ID必须来自Authing真实API，不能本地生成
+            const userId = userInfo.id || userInfo.userId || userInfo.sub;
+            if (!userId) {
+              console.error('❌ Authing API未返回有效用户ID:', userInfo);
+              throw new Error('认证系统错误：未获取到有效用户ID');
+            }
 
-          // 转换为统一格式
-          const formattedUser: UserInfo = {
-            id: userId, // 🔒 用户ID必须来自Authing服务器
-            username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
-            email: userInfo.email || userInfo.emailAddress || '',
-            phone: userInfo.phone || userInfo.phoneNumber || '',
-            nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
-            avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
-            loginTime: new Date().toISOString(),
-            roles: userInfo.roles || ['user'],
-            permissions: userInfo.permissions || ['basic'],
-            ...userInfo
-          };
-          
-          setUser(formattedUser);
-          localStorage.setItem('authing_user', JSON.stringify(formattedUser));
-          // 同步到 authStore
-          authStore.setUser({
-            id: formattedUser.id,
-            username: formattedUser.username,
-            email: formattedUser.email,
-            phone: formattedUser.phone,
-            nickname: formattedUser.nickname,
-            avatar: formattedUser.avatar,
-            loginTime: formattedUser.loginTime
-          });
-        } else {
-          console.log('👤 用户未登录');
+            // 转换为统一格式
+            const formattedUser: UserInfo = {
+              id: userId, // 🔒 用户ID必须来自Authing服务器
+              username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
+              email: userInfo.email || userInfo.emailAddress || '',
+              phone: userInfo.phone || userInfo.phoneNumber || '',
+              nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
+              avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
+              loginTime: new Date().toISOString(),
+              roles: userInfo.roles || ['user'],
+              permissions: userInfo.permissions || ['basic'],
+              ...userInfo
+            };
+            
+            setUser(formattedUser);
+            localStorage.setItem('authing_user', JSON.stringify(formattedUser));
+            // 同步到 authStore
+            authStore.setUser({
+              id: formattedUser.id,
+              username: formattedUser.username,
+              email: formattedUser.email,
+              phone: formattedUser.phone,
+              nickname: formattedUser.nickname,
+              avatar: formattedUser.avatar,
+              loginTime: formattedUser.loginTime
+            });
+          } else {
+            console.log('👤 用户未登录');
+            setUser(null);
+            authStore.setUser(null);
+          }
+        } catch (guardError) {
+          console.warn('⚠️ Guard session 检查失败，可能是网络问题:', guardError);
           setUser(null);
           authStore.setUser(null);
         }
@@ -191,7 +197,10 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       }
     } catch (error) {
       console.error('获取用户信息失败:', error);
-      setError('获取用户信息失败');
+      // 网络错误不应该阻止应用启动
+      console.log('🔄 网络错误，跳过认证检查');
+      setUser(null);
+      authStore.setUser(null);
     } finally {
       setLoading(false);
     }
