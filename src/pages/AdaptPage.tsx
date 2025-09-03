@@ -1568,18 +1568,30 @@ export default function AdaptPage() {
   const checkPremiumFeature = (featureName: string, featureDescription: string, requiredTier: 'pro' | 'premium' = 'pro') => {
     // 🔧 FIX: 使用真实的用户等级检查权限
     const actualUserTier = effectiveUserTier || 'trial';
-    logger.info('🔒 权限检查:', { featureName, actualUserTier, effectiveUserTier, requiredTier });
+    logger.info('🔒 权限检查:', { 
+      featureName, 
+      actualUserTier, 
+      effectiveUserTier, 
+      requiredTier,
+      user: user?.id,
+      isAuthenticated: !!user
+    });
     
-    // 定义等级优先级
+    // 定义等级优先级 - 支持professional标识
     const tierLevels = { 'trial': 0, 'pro': 1, 'professional': 1, 'premium': 2 };
     const currentLevel = tierLevels[actualUserTier as keyof typeof tierLevels] || 0;
     const requiredLevel = tierLevels[requiredTier];
     
+    logger.info('🔒 权限等级比较:', { currentLevel, requiredLevel, hasAccess: currentLevel >= requiredLevel });
+    
     if (currentLevel < requiredLevel) {
+      logger.info('🚫 权限不足，显示升级弹窗');
       setPremiumFeatureInfo({ name: featureName, description: featureDescription });
       setShowPremiumFeature(true);
       return false;
     }
+    
+    logger.info('✅ 权限检查通过');
     return true;
   };
 

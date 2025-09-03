@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogOverlay, DialogPortal } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Lock, Crown, ArrowRight, Sparkles, Check, X } from 'lucide-react';
@@ -85,9 +85,21 @@ export function PremiumFeatureDialog({
   featureName,
   featureDescription
 }: PremiumFeatureDialogProps) {
+  // 🔧 FIX: 强制使用portal渲染到body，避免父容器影响
+  React.useEffect(() => {
+    if (isOpen) {
+      console.log('🔍 弹窗显示状态:', {
+        isOpen,
+        featureName,
+        bodyOverflow: document.body.style.overflow,
+        documentElement: document.documentElement.scrollTop
+      });
+    }
+  }, [isOpen, featureName]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto !fixed !top-[50%] !left-[50%] !transform !-translate-x-1/2 !-translate-y-1/2 !z-[9999999]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground text-center">
             <Crown className="h-5 w-5" />
