@@ -271,7 +271,10 @@ export const CustomLoginPage: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
 
   return (
-    <AnimatedAuthShell title="欢迎" subtitle="请登录以继续">
+    <AnimatedAuthShell
+      title="欢迎"
+      subtitle={mode === 'register' ? '创建您的账户' : '请登录以继续'}
+    >
       <div>
       {/* 与 21st.dev 模板一致的表单结构与类名（增加邮箱/手机号 + 密码/验证码登录） */}
       {mode === 'login' && (
