@@ -107,19 +107,19 @@ export function Footer() {
                 )}
               </button>
 
-              {/* 关于我 */}
+              {/* 交个朋友 */}
               <a
-                href="https://bento.me/pandatalk"
+                href="https://linktr.ee/xiongtingping"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105"
-                title={t('footer.developerTooltip')}
+                title="与开发者交个朋友"
               >
                 <div className="w-8 h-8 bg-purple-500/10 rounded-md flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
                   <User className="w-4 h-4 text-purple-600" />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-foreground text-sm">关于我</div>
+                  <div className="font-medium text-foreground text-sm">交个朋友</div>
                   <div className="text-xs text-muted-foreground">开发者信息</div>
                 </div>
               </a>

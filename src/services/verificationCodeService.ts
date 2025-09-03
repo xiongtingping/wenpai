@@ -432,6 +432,16 @@ class VerificationCodeService {
       // 额外的错误信息输出
       console.error('❌ 完整错误对象:', JSON.stringify(error, null, 2));
 
+      // 特别检查认证相关错误
+      if (error?.message?.includes('登录') || error?.message?.includes('权限') || error?.message?.includes('unauthorized')) {
+        console.error('🚨 认证相关错误检测到！');
+        console.error('🔍 当前认证状态:', {
+          hasToken: !!localStorage.getItem('authing_token'),
+          hasAuthClient: !!this.authClient,
+          clientConfig: this.authClient ? 'initialized' : 'not initialized'
+        });
+      }
+
       let errorMessage = '注册失败';
       if (error?.message) {
         if (error.message.includes('code')) {
