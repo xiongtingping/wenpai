@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/popover';
 import { useSubscriptionInfo } from '@/hooks/useUnifiedUserState';
 import { useNavigate } from 'react-router-dom';
+import { SubscriptionStateWrapper } from '@/components/ui/StateLoadingWrapper';
 import { 
   Crown, 
   Calendar, 
@@ -34,19 +35,24 @@ export function SubscriptionStatusBadge({
   showDetails = true,
   className = ''
 }: SubscriptionStatusBadgeProps) {
-  const { subscriptionStatus, hasActiveSubscription, userTier, isLoading, isInitialized } = useSubscriptionInfo();
+  return (
+    <SubscriptionStateWrapper className={className}>
+      <SubscriptionStatusBadgeContent
+        showDetails={showDetails}
+        className={className}
+      />
+    </SubscriptionStateWrapper>
+  );
+}
+
+// 内部组件，只在状态加载完成后渲染
+function SubscriptionStatusBadgeContent({
+  showDetails = true,
+  className = ''
+}: SubscriptionStatusBadgeProps) {
+  const { subscriptionStatus, hasActiveSubscription, userTier } = useSubscriptionInfo();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-
-  // 🔧 FIX: 使用统一状态管理，避免闪烁
-  if (isLoading || !isInitialized) {
-    return (
-      <Badge variant="outline" className={`animate-pulse ${className}`}>
-        <div className="w-2 h-2 bg-gray-400 rounded-full mr-1"></div>
-        加载中
-      </Badge>
-    );
-  }
 
   const getBadgeVariant = () => {
     switch (subscriptionStatus?.statusColor) {

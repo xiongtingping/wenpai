@@ -134,10 +134,12 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
       // 初始化状态
       initializeState: async () => {
         const state = get();
-        
+
         // 如果状态有效且不需要强制刷新，直接返回
         if (state.isStateValid() && !state.forceRefresh) {
           logger.info('🚀 使用缓存的用户状态，避免闪烁');
+          // 即使使用缓存，也要标记为已初始化
+          set({ isInitialized: true, isLoading: false });
           return;
         }
 
@@ -145,10 +147,14 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
         set({ isLoading: true, error: null });
 
         try {
-          // 这里会从各个服务获取最新状态
-          // 具体实现在后续添加
-          await get().refreshAllStates();
-          
+          // 🔧 FIX: 如果有用户信息，立即刷新状态
+          if (state.user) {
+            await get().refreshAllStates();
+          } else {
+            // 没有用户信息时，设置默认状态
+            logger.info('🔄 设置默认用户状态');
+          }
+
           set({
             isInitialized: true,
             isLoading: false,
@@ -156,11 +162,12 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
             cacheExpiry: Date.now() + CACHE_DURATION,
             forceRefresh: false
           });
-          
+
           logger.info('✅ 统一用户状态初始化完成');
         } catch (error) {
           logger.error('❌ 统一用户状态初始化失败:', error);
           set({
+            isInitialized: true, // 🔧 FIX: 即使失败也标记为已初始化，避免无限重试
             isLoading: false,
             error: error instanceof Error ? error.message : '状态初始化失败'
           });
@@ -259,14 +266,53 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
 
       // 刷新订阅状态
       refreshSubscriptionStatus: async () => {
-        // 具体实现将在后续添加
         logger.info('🔄 刷新订阅状态...');
+        const state = get();
+        if (!state.user) return;
+
+        try {
+          // 动态导入避免循环依赖
+          const { subscriptionDataService } = await import('@/services/subscriptionDataService');
+          const subscriptionData = await subscriptionDataService.getUserSubscriptionStats(state.user.id);
+
+          if (subscriptionData) {
+            const subscriptionStatus = {
+              status: subscriptionData.hasActiveSubscription ? 'active' : 'inactive',
+              statusLabel: subscriptionData.hasActiveSubscription ? '专业版' : '未订阅',
+              statusColor: subscriptionData.hasActiveSubscription ? 'green' : 'gray',
+              needsAlert: false,
+              alertLevel: 'info' as const,
+              alertMessage: '',
+              expiresAt: null,
+              daysRemaining: 0
+            };
+
+            get().updateSubscriptionState(subscriptionStatus);
+          }
+        } catch (error) {
+          logger.error('刷新订阅状态失败:', error);
+        }
       },
 
       // 刷新使用次数统计
       refreshUsageStats: async () => {
-        // 具体实现将在后续添加
         logger.info('🔄 刷新使用次数统计...');
+        const state = get();
+        if (!state.user) return;
+
+        try {
+          // 从API获取实际使用次数
+          const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : '';
+          const response = await fetch(`${apiBaseUrl}/.netlify/functions/api-usage-count/user/usage/${state.user.id}`);
+
+          if (response.ok) {
+            const usageData = await response.json();
+            const actualUsedCount = usageData.data?.totalUsed || 0;
+            get().updateUsageState(actualUsedCount);
+          }
+        } catch (error) {
+          logger.warn('刷新使用次数失败，使用本地数据:', error);
+        }
       },
 
       // 清除缓存

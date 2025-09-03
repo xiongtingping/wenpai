@@ -76,13 +76,22 @@ export const useUnifiedUserStateManager = () => {
     };
   }, [unifiedState]);
 
-  // 初始化状态
+  // 🔧 FIX: 立即初始化状态，不等待认证完成
   useEffect(() => {
-    if (isAuthenticated && !unifiedState.isInitialized) {
-      logger.info('🚀 初始化统一用户状态');
+    // 如果有缓存的用户信息或当前已认证，立即初始化
+    if ((isAuthenticated || unifiedState.user) && !unifiedState.isInitialized) {
+      logger.info('🚀 立即初始化统一用户状态');
       unifiedState.initializeState();
     }
   }, [isAuthenticated, unifiedState]);
+
+  // 🔧 FIX: 应用启动时预加载缓存状态
+  useEffect(() => {
+    if (unifiedState.user && unifiedState.isStateValid()) {
+      logger.info('🚀 使用缓存状态，避免闪烁');
+      // 状态已缓存且有效，无需重新加载
+    }
+  }, []);
 
   return unifiedState;
 };
