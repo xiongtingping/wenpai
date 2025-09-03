@@ -37,13 +37,13 @@ export const useUnifiedUserStateManager = () => {
     }
   }, [user?.id, unifiedState.user?.id, unifiedState.updateUserState]);
 
-  // 同步订阅状态 - 修复无限循环
+  // 🔧 FIX: 单向同步订阅状态，避免循环依赖
   useEffect(() => {
-    if (primaryStatus && JSON.stringify(primaryStatus) !== JSON.stringify(unifiedState.subscriptionStatus)) {
-      logger.info('🔄 同步订阅状态到统一存储');
+    if (primaryStatus && primaryStatus.status && !unifiedState.subscriptionStatus) {
+      logger.info('🔄 初始化订阅状态到统一存储');
       unifiedState.updateSubscriptionState(primaryStatus);
     }
-  }, [primaryStatus, unifiedState.subscriptionStatus]);
+  }, [primaryStatus?.status]); // 移除unifiedState.subscriptionStatus依赖
 
   // 同步使用次数状态 - 修复无限循环
   useEffect(() => {

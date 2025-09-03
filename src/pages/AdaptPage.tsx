@@ -1355,22 +1355,35 @@ export default function AdaptPage() {
   // 🔧 FIX: 使用统一状态管理的数据计算剩余次数
   const usageRemaining = effectiveMaxUsage === -1 ? Infinity : Math.max(0, effectiveMaxUsage - effectiveUsageCount);
 
-  // 🔧 FIX: 仅在状态真正变化时记录调试日志
-  const prevStateRef = useRef<string>('');
-  const currentStateStr = JSON.stringify({
-    tier: effectiveUserTier,
-    maxUsage: effectiveMaxUsage,
-    usageCount: effectiveUsageCount,
-    initialized: unifiedUsageInfo.isInitialized
-  });
+  // 🔧 FIX: 将状态变化检测移到useEffect中，避免在render中执行副作用
+  const prevStateRef = useRef<{
+    tier: string;
+    maxUsage: number;
+    usageCount: number;
+    initialized: boolean;
+  } | null>(null);
   
-  if (prevStateRef.current !== currentStateStr) {
-    console.log('🔄 AdaptPage状态变化:', {
-      from: prevStateRef.current ? JSON.parse(prevStateRef.current) : 'initial',
-      to: JSON.parse(currentStateStr)
-    });
-    prevStateRef.current = currentStateStr;
-  }
+  useEffect(() => {
+    const currentState = {
+      tier: effectiveUserTier,
+      maxUsage: effectiveMaxUsage,
+      usageCount: effectiveUsageCount,
+      initialized: unifiedUsageInfo.isInitialized
+    };
+    
+    if (prevStateRef.current && (
+      prevStateRef.current.tier !== currentState.tier ||
+      prevStateRef.current.maxUsage !== currentState.maxUsage ||
+      prevStateRef.current.usageCount !== currentState.usageCount ||
+      prevStateRef.current.initialized !== currentState.initialized
+    )) {
+      console.log('🔄 AdaptPage状态变化:', {
+        from: prevStateRef.current,
+        to: currentState
+      });
+    }
+    prevStateRef.current = currentState;
+  }, [effectiveUserTier, effectiveMaxUsage, effectiveUsageCount, unifiedUsageInfo.isInitialized]);
 
   // 使用次数提醒弹窗状态
   const [showUsageReminder, setShowUsageReminder] = useState(false);
