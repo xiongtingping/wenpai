@@ -15,9 +15,13 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
  * 订阅计划原价映射（不含优惠）
  */
 const PLAN_PRICES = {
-  professional: {
+  pro: {
     monthly: 39,
     yearly: 388
+  },
+  professional: {
+    monthly: 39, // 与pro相同
+    yearly: 388  // 与pro相同
   },
   premium: {
     monthly: 99,
@@ -31,7 +35,8 @@ const PLAN_PRICES = {
 function getPlanLevel(tier) {
   switch (tier) {
     case 'trial': return 0;
-    case 'professional': return 1;
+    case 'pro': return 1;
+    case 'professional': return 1; // 与pro相同等级
     case 'premium': return 2;
     default: return -1;
   }

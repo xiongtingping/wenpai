@@ -30,11 +30,16 @@ export interface ProratedUpgradeCalculation {
 
 /**
  * 订阅计划原价映射（不含优惠）
+ * 🔧 FIX: 支持both pro和professional标识，确保数据一致性
  */
 const PLAN_PRICES = {
-  professional: {
+  pro: {
     monthly: 39,  // 原价
     yearly: 388   // 原价
+  },
+  professional: {
+    monthly: 39,  // 原价（与pro相同）
+    yearly: 388   // 原价（与pro相同）
   },
   premium: {
     monthly: 99,  // 原价
@@ -47,12 +52,12 @@ const PLAN_PRICES = {
  */
 export function calculateProratedUpgrade(
   currentSubscription: {
-    subscription_type: 'professional' | 'premium';
+    subscription_type: 'pro' | 'professional' | 'premium';
     expires_at: string;
     started_at: string;
     order_id: string;
   },
-  targetTier: 'professional' | 'premium',
+  targetTier: 'pro' | 'professional' | 'premium',
   targetPeriod: 'monthly' | 'yearly'
 ): ProratedUpgradeCalculation {
   const now = new Date();
@@ -123,9 +128,11 @@ export function calculateProratedUpgrade(
     };
   }
 
-  // 跨周期升级：换算为每日单价
+  // 🔧 FIX: 跨周期升级：使用正确的周期长度计算每日单价
   const currentDailyRate = currentPrice / totalDays;
-  const targetDailyRate = targetPrice / (targetPeriod === 'yearly' ? 365 : 30);
+  // 目标每日单价应该基于目标周期的标准长度，而不是固定30天
+  const targetCycleDays = targetPeriod === 'yearly' ? 365 : 30;
+  const targetDailyRate = targetPrice / targetCycleDays;
   
   // 剩余价值（按当前每日单价）
   const remainingValue = currentDailyRate * daysRemaining;

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   TrendingUp, 
   Calculator, 
@@ -38,6 +39,7 @@ export function ProratedUpgradeCard({
   className = ''
 }: ProratedUpgradeCardProps) {
   const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
+  const { user } = useAuth();
   const [calculation, setCalculation] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,12 +89,11 @@ export function ProratedUpgradeCard({
 
   // 当有订阅时自动计算
   useEffect(() => {
-    if (hasActiveSubscription && primaryStatus.status === 'active') {
-      // 从localStorage或其他地方获取userId，这里用占位符
-      const userId = 'test_user_123'; // 实际应该从useAuth获取
-      calculateUpgrade(userId);
+    if (hasActiveSubscription && primaryStatus.status === 'active' && user?.id) {
+      logger.info('🔄 开始计算补差价升级:', { userId: user.id, targetTier, targetPeriod });
+      calculateUpgrade(user.id);
     }
-  }, [hasActiveSubscription, primaryStatus.status, targetTier, targetPeriod]);
+  }, [hasActiveSubscription, primaryStatus.status, user?.id, targetTier, targetPeriod]);
 
   // 没有订阅或计算失败
   if (!hasActiveSubscription || error) {

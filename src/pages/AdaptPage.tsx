@@ -1564,9 +1564,18 @@ export default function AdaptPage() {
     return true;
   };
 
-  // 检查高级功能权限
-  const checkPremiumFeature = (featureName: string, featureDescription: string) => {
-    if (userPlan === 'trial') {
+  // 检查高级功能权限 - 使用真实的用户等级而不是本地状态
+  const checkPremiumFeature = (featureName: string, featureDescription: string, requiredTier: 'pro' | 'premium' = 'pro') => {
+    // 🔧 FIX: 使用真实的用户等级检查权限
+    const actualUserTier = effectiveUserTier || 'trial';
+    logger.info('🔒 权限检查:', { featureName, actualUserTier, effectiveUserTier, requiredTier });
+    
+    // 定义等级优先级
+    const tierLevels = { 'trial': 0, 'pro': 1, 'professional': 1, 'premium': 2 };
+    const currentLevel = tierLevels[actualUserTier as keyof typeof tierLevels] || 0;
+    const requiredLevel = tierLevels[requiredTier];
+    
+    if (currentLevel < requiredLevel) {
       setPremiumFeatureInfo({ name: featureName, description: featureDescription });
       setShowPremiumFeature(true);
       return false;
@@ -4089,7 +4098,7 @@ ${charCountControl.source === 'platform-specific'
                 id="use-brand-library"
                 checked={useBrandLibrary}
                 onCheckedChange={(checked) => {
-                  if (checked && !checkPremiumFeature('品牌库功能', '使用品牌库资料进行创作，AI会自动遵循您的品牌语言规范')) {
+                  if (checked && !checkPremiumFeature('品牌库功能', '使用品牌库资料进行创作，AI会自动遵循您的品牌语言规范', 'premium')) {
                     return;
                   }
                   setUseBrandLibrary(!!checked);
