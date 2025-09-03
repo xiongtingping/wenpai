@@ -1263,10 +1263,10 @@ export default function AdaptPage() {
             return getUserTier(user);
           })();
 
-          // 🔧 FIX: 修正使用次数限制 - 专业版和高级版都应该是无限制
+          // 🔧 FIX: 恢复正确的使用次数限制配置
           let newMaxUsage = 10; // 默认体验版
           if (currentTier === 'pro') {
-            newMaxUsage = -1; // 🔧 FIX: 专业版改为无限制
+            newMaxUsage = 30; // 🔧 FIX: 专业版恢复为30次/月
           } else if (currentTier === 'premium') {
             newMaxUsage = -1; // 高级版无限制
           }
@@ -1343,7 +1343,7 @@ export default function AdaptPage() {
     };
   }, [refreshSubscription]);
   
-  // 🔧 FIX: 计算剩余次数，专业版和高级版都显示为无限制
+  // 🔧 FIX: 计算剩余次数，只有高级版显示为无限制
   const usageRemaining = maxUsage === -1 ? Infinity : Math.max(0, maxUsage - usageCount);
 
   // 🔧 FIX: 添加调试日志，帮助诊断状态问题
@@ -1353,7 +1353,8 @@ export default function AdaptPage() {
     hasActiveSubscription: primaryStatus?.status === 'active',
     maxUsage,
     usageCount,
-    usageRemaining: usageRemaining === Infinity ? '无限制' : usageRemaining
+    usageRemaining: usageRemaining === Infinity ? '无限制' : usageRemaining,
+    correctLimits: '体验版:10次, 专业版:30次, 高级版:无限制'
   });
 
   // 使用次数提醒弹窗状态
