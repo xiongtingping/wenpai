@@ -583,7 +583,7 @@ export const CustomLoginPage: React.FC = () => {
           </p>
 
           <button type="submit" className="login-button" disabled={registerForm.loading || !registerAgreed || !passwordsMatch}>
-            立即注册
+            {registerForm.loading ? '注册中...' : '立即注册'}
           </button>
         </form>
       )}

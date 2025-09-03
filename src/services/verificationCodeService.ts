@@ -398,25 +398,44 @@ class VerificationCodeService {
         };
       }
 
+      console.log('🚀 步骤1: 开始初始化认证客户端...');
       const client = await this.initAuthClient();
+      console.log('✅ 步骤1完成: 认证客户端初始化成功');
 
       // 清理验证码（去除空格和特殊字符）
       const cleanCode = code.trim().replace(/\s+/g, '');
-      console.log('🔍 验证码信息:', {
+      console.log('🔍 步骤2: 验证码信息处理', {
         原始验证码: code,
         清理后验证码: cleanCode,
         验证码长度: cleanCode.length,
         邮箱: email
       });
 
-      const result = await client.registerByEmailCode(email, cleanCode, null);
+      console.log('🚀 步骤3: 开始调用registerByEmailCode API...');
+      console.log('📡 API调用参数:', { email, code: cleanCode, profile: null });
 
-      console.log('✅ 邮箱验证码注册成功:', result);
+      // 添加超时处理
+      const registerPromise = client.registerByEmailCode(email, cleanCode, null);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('注册请求超时(30秒)')), 30000);
+      });
+
+      const result = await Promise.race([registerPromise, timeoutPromise]);
+      console.log('✅ 步骤3完成: registerByEmailCode调用成功');
+
+      console.log('✅ 步骤3完成: 邮箱验证码注册成功:', result);
 
       // 注册成功后立即设置密码
-      console.log('🔐 开始设置用户密码...');
-      await client.updatePassword(password);
-      console.log('✅ 用户密码设置成功');
+      console.log('🚀 步骤4: 开始设置用户密码...');
+
+      // 添加密码设置超时处理
+      const passwordPromise = client.updatePassword(password);
+      const passwordTimeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('密码设置请求超时(15秒)')), 15000);
+      });
+
+      await Promise.race([passwordPromise, passwordTimeoutPromise]);
+      console.log('✅ 步骤4完成: 用户密码设置成功');
       
       return {
         success: true,
