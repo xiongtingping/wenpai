@@ -491,6 +491,24 @@ export class DataTypeValidator {
       return { type: 'string', required: false };
     }
     
+    // 订阅状态缓存 (动态用户ID)
+    if (key.startsWith('subscription_status_')) {
+      return {
+        type: 'object',
+        properties: {
+          status: { type: 'string', required: true },
+          statusLabel: { type: 'string', required: false },
+          statusColor: { type: 'string', required: false },
+          expiresAt: { type: 'string', required: false },
+          daysRemaining: { type: 'number', required: false },
+          needsAlert: { type: 'boolean', required: false },
+          alertLevel: { type: 'string', required: false },
+          alertMessage: { type: 'string', required: false },
+          tier: { type: 'string', required: false }
+        }
+      };
+    }
+    
     // 统一用户状态
     if (key.includes('unified-user-state')) {
       return DATA_SCHEMAS['unified-user-state'];

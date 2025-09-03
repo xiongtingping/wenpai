@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useTranslation } from 'react-i18next';
 import { logger } from '@/utils/logger';
 import {
@@ -1355,16 +1355,22 @@ export default function AdaptPage() {
   // 🔧 FIX: 使用统一状态管理的数据计算剩余次数
   const usageRemaining = effectiveMaxUsage === -1 ? Infinity : Math.max(0, effectiveMaxUsage - effectiveUsageCount);
 
-  // 🔧 FIX: 统一状态调试日志
-  console.log('🔍 统一状态调试:', {
-    unifiedInitialized: unifiedUsageInfo.isInitialized,
-    unifiedLoading: unifiedUsageInfo.isLoading,
-    effectiveUserTier,
-    effectiveMaxUsage,
-    effectiveUsageCount,
-    usageRemaining: usageRemaining === Infinity ? '无限制' : usageRemaining,
-    correctLimits: '体验版:10次, 专业版:30次, 高级版:无限制'
+  // 🔧 FIX: 仅在状态真正变化时记录调试日志
+  const prevStateRef = useRef<string>('');
+  const currentStateStr = JSON.stringify({
+    tier: effectiveUserTier,
+    maxUsage: effectiveMaxUsage,
+    usageCount: effectiveUsageCount,
+    initialized: unifiedUsageInfo.isInitialized
   });
+  
+  if (prevStateRef.current !== currentStateStr) {
+    console.log('🔄 AdaptPage状态变化:', {
+      from: prevStateRef.current ? JSON.parse(prevStateRef.current) : 'initial',
+      to: JSON.parse(currentStateStr)
+    });
+    prevStateRef.current = currentStateStr;
+  }
 
   // 使用次数提醒弹窗状态
   const [showUsageReminder, setShowUsageReminder] = useState(false);
@@ -3987,8 +3993,7 @@ ${charCountControl.source === 'platform-specific'
     return shortTitle;
   };
 
-  // 临时调试：添加控制台日志
-  console.log('AdaptPage rendering...', { generating, results: results.length });
+  // 🔧 FIX: 移除会导致无限渲染的调试日志
 
   return (
     <div className="min-h-screen bg-background pt-24">
@@ -4639,11 +4644,7 @@ ${charCountControl.source === 'platform-specific'
 
       {/* Results Section */}
       {(() => {
-        console.log('Results section render check:', {
-          resultsLength: results.length,
-          generating,
-          shouldShow: results.length > 0 || generating
-        });
+        // 🔧 FIX: 移除会导致无限渲染的调试日志
 
         return (results.length > 0 || generating);
       })() && (
