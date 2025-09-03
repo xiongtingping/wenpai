@@ -206,18 +206,15 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
     };
   }, [refresh]);
 
-  // 🔧 FIX: 同步primaryStatus变化到hasActiveSubscription
+  // 🔧 FIX: 同步primaryStatus变化到hasActiveSubscription - 避免循环依赖
   useEffect(() => {
     const isActive = primaryStatus.status === 'active';
-    if (hasActiveSubscription !== isActive) {
-      logger.info('🔄 同步活跃订阅状态:', { 
-        from: hasActiveSubscription, 
-        to: isActive, 
-        status: primaryStatus.status 
-      });
-      setHasActiveSubscription(isActive);
-    }
-  }, [primaryStatus.status, hasActiveSubscription]);
+    setHasActiveSubscription(isActive);
+    logger.info('🔄 同步活跃订阅状态:', { 
+      to: isActive, 
+      status: primaryStatus.status 
+    });
+  }, [primaryStatus.status]); // 移除hasActiveSubscription依赖，避免循环
 
   // 定期刷新状态（每5分钟）
   useEffect(() => {
