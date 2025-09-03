@@ -12,7 +12,7 @@ import {
   PopoverContent, 
   PopoverTrigger 
 } from '@/components/ui/popover';
-import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useSubscriptionInfo } from '@/hooks/useUnifiedUserState';
 import { useNavigate } from 'react-router-dom';
 import { 
   Crown, 
@@ -34,12 +34,12 @@ export function SubscriptionStatusBadge({
   showDetails = true,
   className = ''
 }: SubscriptionStatusBadgeProps) {
-  const { primaryStatus, hasActiveSubscription, loading, initialLoading } = useSubscriptionStatus();
+  const { subscriptionStatus, hasActiveSubscription, userTier, isLoading, isInitialized } = useSubscriptionInfo();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
-  // 🔧 FIX: 在初始加载或正在加载时显示加载状态，避免闪烁
-  if (loading || initialLoading) {
+  // 🔧 FIX: 使用统一状态管理，避免闪烁
+  if (isLoading || !isInitialized) {
     return (
       <Badge variant="outline" className={`animate-pulse ${className}`}>
         <div className="w-2 h-2 bg-gray-400 rounded-full mr-1"></div>
@@ -49,7 +49,7 @@ export function SubscriptionStatusBadge({
   }
 
   const getBadgeVariant = () => {
-    switch (primaryStatus.statusColor) {
+    switch (subscriptionStatus?.statusColor) {
       case 'green':
         return 'default';
       case 'yellow':
@@ -64,7 +64,7 @@ export function SubscriptionStatusBadge({
   };
 
   const getBadgeIcon = () => {
-    switch (primaryStatus.status) {
+    switch (subscriptionStatus?.status) {
       case 'active':
         return <Crown className="w-3 h-3" />;
       case 'expiring_soon':
@@ -105,7 +105,7 @@ export function SubscriptionStatusBadge({
         onClick={() => navigate('/payment')}
       >
         {getBadgeIcon()}
-        <span className="text-xs">{primaryStatus.statusLabel}</span>
+        <span className="text-xs">{subscriptionStatus?.statusLabel || '未订阅'}</span>
       </Badge>
     );
   }

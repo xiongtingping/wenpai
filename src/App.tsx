@@ -22,6 +22,7 @@ import './i18n';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthGuard, ProGuard, PremiumGuard } from '@/components/auth/RouteGuard';
+import { useUnifiedUserStateManager, useStatePreloader, useSmartStateRefresh } from '@/hooks/useUnifiedUserState';
 import { GuardProvider } from '@authing/guard-react18';
 import { AuthModalWrapper } from '@/components/auth/AuthModalWrapper';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
@@ -64,6 +65,16 @@ import { CustomLoginPage } from '@/pages/CustomLoginPage';
  */
 const ConditionalNavigation: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
+};
+
+/**
+ * 统一状态管理初始化组件
+ */
+const StateManagerInitializer: React.FC = () => {
+  useUnifiedUserStateManager(); // 初始化统一状态管理
+  useStatePreloader(); // 预加载状态
+  useSmartStateRefresh(); // 智能状态刷新
+  return null;
 };
 
 /**
@@ -114,6 +125,7 @@ const App: React.FC = () => {
             }}
           >
             <UnifiedAuthProvider>
+              <StateManagerInitializer />
               <ErrorBoundary>
                     <>
                   <ConditionalNavigation>

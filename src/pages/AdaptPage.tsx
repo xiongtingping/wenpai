@@ -91,6 +91,7 @@ import {
 import { useAuthStore } from "@/store/authStore";
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { getUserTier } from '@/utils/subscriptionUtils';
+import { useUsageInfo, useUnifiedUserStateManager } from '@/hooks/useUnifiedUserState';
 import { cn } from "@/lib/utils";
 import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
 import { UsageReminderDialog } from '@/components/ui/usage-reminder-dialog';
@@ -1230,12 +1231,19 @@ export default function AdaptPage() {
     }
   }, [originalContent, toast, user?.id]);
 
-  // ✅ FIXED: 2025-08-04 修复无限循环问题
-  // 🐛 问题原因：useAuthStore((state) => state.getUsageRemaining()) 会导致每次渲染都调用get()，触发无限循环
-  // 🔧 修复方式：直接从state中计算usageRemaining，避免调用get()方法
-  // 🔒 LOCKED: 此修复已验证解决Tooltip无限循环问题，请勿修改
+  // 🔧 FIX: 使用统一状态管理，解决状态闪烁问题
+  useUnifiedUserStateManager(); // 初始化统一状态管理
+  const unifiedUsageInfo = useUsageInfo(); // 获取统一的使用次数信息
+
+  // ✅ FIXED: 2025-08-04 修复无限循环问题 + 统一状态管理
+  // 🔧 优先使用统一状态，如果未初始化则使用原有状态
   const { usageCount, maxUsage, decrementUsage, updateMaxUsage } = useAuthStore();
   const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
+
+  // 🔧 FIX: 使用统一状态管理的数据，避免闪烁
+  const effectiveUsageCount = unifiedUsageInfo.isInitialized ? unifiedUsageInfo.usageCount : usageCount;
+  const effectiveMaxUsage = unifiedUsageInfo.isInitialized ? unifiedUsageInfo.maxUsage : maxUsage;
+  const effectiveUserTier = unifiedUsageInfo.isInitialized ? unifiedUsageInfo.userTier : getUserTier(user);
   
   // 同步实际使用次数和最大使用次数
   useEffect(() => {
@@ -1343,16 +1351,16 @@ export default function AdaptPage() {
     };
   }, [refreshSubscription]);
   
-  // 🔧 FIX: 计算剩余次数，只有高级版显示为无限制
-  const usageRemaining = maxUsage === -1 ? Infinity : Math.max(0, maxUsage - usageCount);
+  // 🔧 FIX: 使用统一状态管理的数据计算剩余次数
+  const usageRemaining = effectiveMaxUsage === -1 ? Infinity : Math.max(0, effectiveMaxUsage - effectiveUsageCount);
 
-  // 🔧 FIX: 添加调试日志，帮助诊断状态问题
-  console.log('🔍 使用次数状态调试:', {
-    currentTier: getUserTier(user),
-    primaryStatus: primaryStatus?.status,
-    hasActiveSubscription: primaryStatus?.status === 'active',
-    maxUsage,
-    usageCount,
+  // 🔧 FIX: 统一状态调试日志
+  console.log('🔍 统一状态调试:', {
+    unifiedInitialized: unifiedUsageInfo.isInitialized,
+    unifiedLoading: unifiedUsageInfo.isLoading,
+    effectiveUserTier,
+    effectiveMaxUsage,
+    effectiveUsageCount,
     usageRemaining: usageRemaining === Infinity ? '无限制' : usageRemaining,
     correctLimits: '体验版:10次, 专业版:30次, 高级版:无限制'
   });
@@ -1523,8 +1531,8 @@ export default function AdaptPage() {
   // Character count display
   const contentCharCount = originalContent.length;
 
-  // Check if content meets requirements for selected platforms
-  const canGenerate = originalContent.trim().length > 10 && selectedPlatforms.length > 0 && (usageRemaining > 0 || maxUsage === -1);
+  // 🔧 FIX: 使用统一状态检查生成条件
+  const canGenerate = originalContent.trim().length > 10 && selectedPlatforms.length > 0 && (usageRemaining > 0 || effectiveMaxUsage === -1);
 
   // 检查使用次数并显示提醒
   const checkUsageAndShowReminder = () => {
