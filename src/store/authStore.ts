@@ -131,6 +131,12 @@ export const useAuthStore = create<AuthState>()(
         // 更新最大使用次数（根据订阅状态）
         updateMaxUsage: (newMaxUsage: number) => set((state) => {
           const newUsageRemaining = computeUsageRemaining(state.usageCount, newMaxUsage);
+          console.log('🔄 AuthStore更新使用次数限制:', {
+            oldMaxUsage: state.maxUsage,
+            newMaxUsage,
+            usageCount: state.usageCount,
+            newUsageRemaining
+          });
           return {
             maxUsage: newMaxUsage,
             usageRemaining: newUsageRemaining

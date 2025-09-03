@@ -1263,16 +1263,22 @@ export default function AdaptPage() {
             return getUserTier(user);
           })();
 
-          // 获取最大使用次数 - 根据订阅状态动态调整
+          // 🔧 FIX: 修正使用次数限制 - 专业版和高级版都应该是无限制
           let newMaxUsage = 10; // 默认体验版
           if (currentTier === 'pro') {
-            newMaxUsage = 100; // 专业版提高到100次
+            newMaxUsage = -1; // 🔧 FIX: 专业版改为无限制
           } else if (currentTier === 'premium') {
             newMaxUsage = -1; // 高级版无限制
           }
 
-          // 直接更新最大使用次数，不依赖可能不存在的API
+          // 🔧 FIX: 立即更新最大使用次数，避免状态闪烁
           if (newMaxUsage !== maxUsage) {
+            console.log('🔄 更新使用次数限制:', {
+              currentTier,
+              oldMaxUsage: maxUsage,
+              newMaxUsage,
+              hasActiveSubscription: primaryStatus?.status === 'active'
+            });
             updateMaxUsage(newMaxUsage);
           }
 
@@ -1310,9 +1316,45 @@ export default function AdaptPage() {
       refreshSubscription();
     }
   }, [primaryStatus?.status, refreshSubscription]);
+
+  // 🔧 FIX: 监听支付成功事件，立即更新使用次数状态
+  useEffect(() => {
+    const handlePaymentSuccess = () => {
+      console.log('🎉 收到支付成功事件，刷新使用次数状态');
+      // 强制刷新订阅状态
+      refreshSubscription();
+      // 延迟一点再次刷新，确保后端数据已更新
+      setTimeout(() => {
+        refreshSubscription();
+      }, 1000);
+    };
+
+    const handleSubscriptionUpdated = (event: CustomEvent) => {
+      console.log('🔄 收到订阅更新事件，刷新使用次数状态', event.detail);
+      refreshSubscription();
+    };
+
+    window.addEventListener('paymentSuccess', handlePaymentSuccess);
+    window.addEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
+
+    return () => {
+      window.removeEventListener('paymentSuccess', handlePaymentSuccess);
+      window.removeEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
+    };
+  }, [refreshSubscription]);
   
-  // 计算剩余次数，高级版显示为无限制
+  // 🔧 FIX: 计算剩余次数，专业版和高级版都显示为无限制
   const usageRemaining = maxUsage === -1 ? Infinity : Math.max(0, maxUsage - usageCount);
+
+  // 🔧 FIX: 添加调试日志，帮助诊断状态问题
+  console.log('🔍 使用次数状态调试:', {
+    currentTier: getUserTier(user),
+    primaryStatus: primaryStatus?.status,
+    hasActiveSubscription: primaryStatus?.status === 'active',
+    maxUsage,
+    usageCount,
+    usageRemaining: usageRemaining === Infinity ? '无限制' : usageRemaining
+  });
 
   // 使用次数提醒弹窗状态
   const [showUsageReminder, setShowUsageReminder] = useState(false);
