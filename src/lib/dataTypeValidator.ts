@@ -112,11 +112,13 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
   // 访客会话信息模式
   GUEST_SESSION_INFO: {
     type: 'object',
+    required: false, // 允许为空，避免验证失败
     properties: {
       sessionId: { type: 'string', required: true },
       createdAt: { type: 'string', required: true },
-      lastActive: { type: 'string', required: false },
-      dataCount: { type: 'number', required: false }
+      lastActivity: { type: 'string', required: false }, // 修正属性名
+      userAgent: { type: 'string', required: false },
+      fingerprint: { type: 'string', required: false }
     }
   },
 
@@ -421,6 +423,24 @@ export class DataTypeValidator {
         isValid: true,
         sanitizedData: data,
         errors: []
+      };
+    }
+
+    // 特殊处理：如果是访客会话信息且数据是数组，直接清理
+    if (key.includes('wenpai:guest:session_info') && Array.isArray(data)) {
+      console.warn(`检测到错误的session_info数据格式（数组），正在清理: ${key}`);
+      // 清理错误的数据
+      if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+          localStorage.removeItem(key);
+        } catch (error) {
+          console.warn('清理错误session_info数据失败:', error);
+        }
+      }
+      return {
+        isValid: false,
+        sanitizedData: null,
+        errors: ['数据格式错误：期望对象，收到数组']
       };
     }
 

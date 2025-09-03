@@ -6,7 +6,7 @@ import {
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
   Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu, Sparkles, Bot, Info,
-  Facebook, Linkedin, Instagram, User, CheckCircle, Circle, History
+  Facebook, Linkedin, Instagram, User, CheckCircle, Circle, History, Crown, Lock
 } from "lucide-react";
 import {
   getCharCountMax as getConfigCharCountMax,
@@ -96,7 +96,6 @@ import { useUsageInfo, useUnifiedUserStateManager } from '@/hooks/useUnifiedUser
 import { cn } from "@/lib/utils";
 import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
 import { UsageReminderDialog } from '@/components/ui/usage-reminder-dialog';
-import { PremiumFeatureDialog } from '@/components/ui/premium-feature-dialog';
 import {
   publishContent,
   batchPublishContent,
@@ -1294,7 +1293,7 @@ export default function AdaptPage() {
           // 尝试从后端API获取实际已使用次数（可选）
           try {
             const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : '';
-            const response = await fetch(`${apiBaseUrl}/.netlify/functions/api-usage-count/user/usage/${user.id}`);
+            const response = await fetch(`${apiBaseUrl}/.netlify/functions/api/usage-count/user/usage/${user.id}`);
 
             if (response.ok) {
               const usageData = await response.json();
@@ -1389,9 +1388,6 @@ export default function AdaptPage() {
   const [showUsageReminder, setShowUsageReminder] = useState(false);
   const [usageReminderCount, setUsageReminderCount] = useState(0);
 
-  // 高级功能权限弹窗状态
-  const [showPremiumFeature, setShowPremiumFeature] = useState(false);
-  const [premiumFeatureInfo, setPremiumFeatureInfo] = useState({ name: '', description: '' });
 
   const platforms = useMemo(() => [
     { id: "xiaohongshu", name: "小红书", description: "适合生活方式、美妆、旅行等分享，强调个人体验和情感共鸣", icon: <Book className="h-4 w-4 text-accent" /> },
@@ -1564,36 +1560,6 @@ export default function AdaptPage() {
     return true;
   };
 
-  // 检查高级功能权限 - 使用真实的用户等级而不是本地状态
-  const checkPremiumFeature = (featureName: string, featureDescription: string, requiredTier: 'pro' | 'premium' = 'pro') => {
-    // 🔧 FIX: 使用真实的用户等级检查权限
-    const actualUserTier = effectiveUserTier || 'trial';
-    logger.info('🔒 权限检查:', { 
-      featureName, 
-      actualUserTier, 
-      effectiveUserTier, 
-      requiredTier,
-      user: user?.id,
-      isAuthenticated: !!user
-    });
-    
-    // 定义等级优先级 - 支持professional标识
-    const tierLevels = { 'trial': 0, 'pro': 1, 'professional': 1, 'premium': 2 };
-    const currentLevel = tierLevels[actualUserTier as keyof typeof tierLevels] || 0;
-    const requiredLevel = tierLevels[requiredTier];
-    
-    logger.info('🔒 权限等级比较:', { currentLevel, requiredLevel, hasAccess: currentLevel >= requiredLevel });
-    
-    if (currentLevel < requiredLevel) {
-      logger.info('🚫 权限不足，显示升级弹窗');
-      setPremiumFeatureInfo({ name: featureName, description: featureDescription });
-      setShowPremiumFeature(true);
-      return false;
-    }
-    
-    logger.info('✅ 权限检查通过');
-    return true;
-  };
 
 
 
@@ -4105,29 +4071,46 @@ ${charCountControl.source === 'platform-specific'
         </Card>
         <Card variant="soft" className="mt-4 rounded-xl">
           <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Checkbox
-                id="use-brand-library"
-                checked={useBrandLibrary}
-                onCheckedChange={(checked) => {
-                  if (checked && !checkPremiumFeature('品牌库功能', '使用品牌库资料进行创作，AI会自动遵循您的品牌语言规范', 'premium')) {
-                    return;
-                  }
-                  setUseBrandLibrary(!!checked);
-                }}
-              />
-              <div className="flex-1">
-                <Label htmlFor="use-brand-library" className="text-sm cursor-pointer text-primary">
-                  使用品牌库资料进行创作
-                </Label>
-                <p className="text-xs text-secondary mt-1">
-                  AI自动遵循品牌语言规范，融入品牌价值，规避公关风险
-                  <span className="text-xs text-secondary ml-1">（需开通高级功能）</span>
-                </p>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 flex-1">
+                <Checkbox
+                  id="use-brand-library"
+                  checked={useBrandLibrary}
+                  onCheckedChange={(checked) => {
+                    setUseBrandLibrary(!!checked);
+                  }}
+                  disabled={effectiveUserTier !== 'premium'}
+                  className={effectiveUserTier !== 'premium' ? 'opacity-50' : ''}
+                />
+                <div className="flex-1">
+                  <Label htmlFor="use-brand-library" className={`text-sm ${effectiveUserTier !== 'premium' ? 'text-gray-400 cursor-not-allowed' : 'text-primary cursor-pointer'}`}>
+                    使用品牌库资料进行创作
+                    {effectiveUserTier !== 'premium' && <Lock className="inline w-3 h-3 ml-1" />}
+                  </Label>
+                  <p className="text-xs text-secondary mt-1">
+                    AI自动遵循品牌语言规范，融入品牌价值，规避公关风险
+                  </p>
+                </div>
               </div>
-              <Badge variant="outline" className="bg-secondary text-secondary-foreground border-border flex-shrink-0">
-                {contentCharCount} 字符
-              </Badge>
+              
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-secondary text-secondary-foreground border-border flex-shrink-0">
+                  {contentCharCount} 字符
+                </Badge>
+                
+                {/* 高级版升级按钮 */}
+                {effectiveUserTier !== 'premium' && (
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="text-xs h-7 px-3 border-orange-300 text-orange-600 hover:bg-orange-50"
+                    onClick={() => navigate('/payment')}
+                  >
+                    <Crown className="w-3 h-3 mr-1" />
+                    升级解锁
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -5390,6 +5373,9 @@ ${charCountControl.source === 'platform-specific'
       <DialogContent>
         <DialogHeader>
           <DialogTitle>一键转发确认</DialogTitle>
+          <DialogDescription>
+            确认转发内容到选择的平台
+          </DialogDescription>
         </DialogHeader>
         <div className="py-2 text-foreground">
           <p>
@@ -5414,6 +5400,9 @@ ${charCountControl.source === 'platform-specific'
       <DialogContent>
         <DialogHeader>
           <DialogTitle>批量一键转发</DialogTitle>
+          <DialogDescription>
+            选择要批量转发的平台
+          </DialogDescription>
         </DialogHeader>
         <div className="py-2 text-foreground">
           <div className="bg-accent border border-border rounded-lg p-3 mb-4">
@@ -5470,6 +5459,9 @@ ${charCountControl.source === 'platform-specific'
       <DialogContent>
         <DialogHeader>
           <DialogTitle>批量一键转发</DialogTitle>
+          <DialogDescription>
+            即将转发到下一个平台
+          </DialogDescription>
         </DialogHeader>
         <div className="py-2 text-foreground">
           <div className="bg-accent border border-border rounded-lg p-3 mb-4">
@@ -5498,6 +5490,9 @@ ${charCountControl.source === 'platform-specific'
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>转发历史</DialogTitle>
+          <DialogDescription>
+            查看历史转发记录
+          </DialogDescription>
         </DialogHeader>
         <div className="py-2 text-foreground max-h-[60vh] overflow-auto">
           {shareHistory.length === 0 ? (
@@ -5540,17 +5535,6 @@ ${charCountControl.source === 'platform-specific'
       userType={userPlan === 'trial' ? 'trial' : 'pro'}
     />
 
-    {/* 高级功能权限弹窗 */}
-    <PremiumFeatureDialog
-      isOpen={showPremiumFeature}
-      onClose={() => setShowPremiumFeature(false)}
-      onUpgrade={() => {
-        setShowPremiumFeature(false);
-        navigate('/payment');
-      }}
-      featureName={premiumFeatureInfo.name}
-      featureDescription={premiumFeatureInfo.description}
-    />
 
     {/* 批量转发工作台弹窗 */}
     <BatchForwardModal

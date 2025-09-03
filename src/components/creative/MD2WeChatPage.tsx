@@ -27,7 +27,10 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useAuthStore } from '@/store/authStore';
 import { useUsageStore } from '@/store/usageStore';
-import { PaywallCard } from '@/components/auth/PaywallCard';
+import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
+import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
+import PageNavigation from '@/components/layout/PageNavigation';
+import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import { Header } from '@/components/landing/Header';
 import { MarkdownEditor } from './md2wechat/MarkdownEditor';
 import { ThemeSelector } from './md2wechat/ThemeSelector';
@@ -176,15 +179,28 @@ export default function MD2WeChatPage() {
   }, [toast]);
 
   return (
-    <PaywallCard
-      featureName="Markdown排版工具"
-      requiredTier="pro"
-      title="Markdown排版工具"
-      description="专为微信公众号设计的Markdown转换工具，支持多种主题和实时预览"
-      mode="overlay"
-      allowPreview={true}
-    >
-      <div className="bg-background">
+    <div className="min-h-screen bg-background">
+      {/* 主导航栏 */}
+      <Header />
+
+      {/* 页面导航 */}
+      <PageNavigation
+        title="Markdown排版工具"
+        description="专为微信公众号设计的Markdown转换工具，支持多种主题和实时预览"
+        showAdaptButton={false}
+        showUpgradeButton={false}
+        actions={
+          <RoleBasedUpgradePrompt
+            requiredTier="pro"
+            featureName="Markdown排版工具"
+            description="解锁高级主题和导出功能"
+            mode="compact"
+          />
+        }
+      />
+      
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="bg-background">
           {/* 工具栏 */}
           <div className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
             <div className="container mx-auto px-4 py-3">
@@ -271,11 +287,20 @@ export default function MD2WeChatPage() {
                   </Button>
 
                   {/* 导出控制 */}
-                  <ExportControls
-                    htmlContent={previewHtml}
-                    markdownContent={markdownContent}
-                    theme={selectedTheme}
-                  />
+                  <PermissionLockedButton
+                    requiredTier="pro"
+                    featureName="Markdown导出功能"
+                    onClick={() => {
+                      toast({
+                        title: '导出功能',
+                        description: '正在准备导出...'
+                      });
+                    }}
+                    className="w-full"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    导出微信格式
+                  </PermissionLockedButton>
                 </div>
               </div>
             </div>
@@ -312,11 +337,16 @@ export default function MD2WeChatPage() {
 
               {/* 编辑器内容 - 固定高度，内部滚动 */}
               <div className="flex-1 overflow-hidden">
-                <MarkdownEditor
-                  content={markdownContent}
-                  onChange={handleContentChange}
-                  className="h-full overflow-y-auto"
-                />
+                <PermissionProtectedInput
+                  requiredTier="pro"
+                  featureName="Markdown编辑器"
+                >
+                  <MarkdownEditor
+                    content={markdownContent}
+                    onChange={handleContentChange}
+                    className="h-full overflow-y-auto"
+                  />
+                </PermissionProtectedInput>
               </div>
             </div>
 
@@ -348,13 +378,18 @@ export default function MD2WeChatPage() {
 
                 {/* 预览内容 */}
                 <div className="flex-1 overflow-y-auto">
-                  <PreviewPanel
-                    htmlContent={previewHtml}
-                    theme={selectedTheme}
-                    fontSize={fontSize}
-                    isMobilePreview={isMobilePreview}
-                    isLoading={isConverting}
-                  />
+                  <PermissionProtectedInput
+                    requiredTier="pro"
+                    featureName="Markdown预览"
+                  >
+                    <PreviewPanel
+                      htmlContent={previewHtml}
+                      theme={selectedTheme}
+                      fontSize={fontSize}
+                      isMobilePreview={isMobilePreview}
+                      isLoading={isConverting}
+                    />
+                  </PermissionProtectedInput>
                 </div>
               </div>
             )}
@@ -375,6 +410,7 @@ export default function MD2WeChatPage() {
             )}
           </div>
         </div>
-      </PaywallCard>
+      </div>
+    </div>
   );
 }

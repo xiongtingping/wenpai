@@ -67,27 +67,27 @@ export const RoleBasedUpgradePrompt: React.FC<RoleBasedUpgradePromptProps> = ({
     navigate('/payment');
   };
 
-  // 根据版本获取主题配置
+  // 根据版本获取主题配置 - 使用设计令牌
   const getThemeConfig = () => {
     if (requiredTier === 'premium') {
       return {
         icon: Crown,
-        primaryColor: 'from-purple-500 to-pink-500',
-        textColor: 'text-purple-700 dark:text-purple-300',
-        badgeColor: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-        buttonColor: 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700',
-        borderColor: 'border-purple-200 dark:border-purple-800',
-        lockColor: 'text-purple-500'
+        primaryColor: 'bg-gradient-to-r from-permission-premium to-permission-premium/80',
+        textColor: 'text-permission-premium-foreground',
+        badgeColor: 'bg-permission-premium/10 text-permission-premium border-permission-premium/30',
+        buttonColor: 'bg-permission-premium hover:bg-permission-premium/90 shadow-e1',
+        borderColor: 'border-permission-premium/30',
+        lockColor: 'text-permission-premium'
       };
     } else {
       return {
         icon: Zap,
-        primaryColor: 'from-blue-500 to-cyan-500',
-        textColor: 'text-blue-700 dark:text-blue-300',
-        badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-        buttonColor: 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700',
-        borderColor: 'border-blue-200 dark:border-blue-800',
-        lockColor: 'text-blue-500'
+        primaryColor: 'bg-gradient-to-r from-permission-pro to-permission-pro/80',
+        textColor: 'text-permission-pro-foreground',
+        badgeColor: 'bg-permission-pro/10 text-permission-pro border-permission-pro/30',
+        buttonColor: 'bg-permission-pro hover:bg-permission-pro/90 shadow-e1',
+        borderColor: 'border-permission-pro/30',
+        lockColor: 'text-permission-pro'
       };
     }
   };
@@ -114,9 +114,8 @@ export const RoleBasedUpgradePrompt: React.FC<RoleBasedUpgradePromptProps> = ({
           size="sm"
           className={`
             ${theme.buttonColor} 
-            text-white font-medium
-            transition-all duration-200 hover:scale-105
-            shadow-md
+            text-permission-premium-foreground font-medium
+            transition-all var(--transition-smooth) hover:scale-105
           `}
         >
           <IconComponent className="h-4 w-4 mr-2" />
@@ -159,9 +158,9 @@ export const RoleBasedUpgradePrompt: React.FC<RoleBasedUpgradePromptProps> = ({
           size="sm"
           className={`
             ${theme.buttonColor} 
-            text-white font-medium text-xs px-3 py-1.5
-            transition-all duration-200 hover:scale-105
-            shadow-md flex-shrink-0
+            text-permission-premium-foreground font-medium text-xs px-3 py-1.5
+            transition-all var(--transition-smooth) hover:scale-105
+            flex-shrink-0
           `}
         >
           <IconComponent className="h-3 w-3 mr-1" />

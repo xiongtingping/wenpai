@@ -28,16 +28,19 @@ export interface PermissionLockedButtonProps {
 /**
  * 权限锁定按钮组件
  */
-export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
-  children,
-  requiredTier,
-  featureName,
-  onClick,
-  variant = 'default',
-  size = 'default',
-  className = '',
-  disabled = false
-}) => {
+export const PermissionLockedButton = React.forwardRef<HTMLButtonElement, PermissionLockedButtonProps>((
+  {
+    children,
+    requiredTier,
+    featureName,
+    onClick,
+    variant = 'default',
+    size = 'default',
+    className = '',
+    disabled = false
+  },
+  ref
+) => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -99,6 +102,7 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
   if (hasPermission()) {
     return (
       <Button
+        ref={ref}
         variant={variant}
         size={size}
         className={className}
@@ -118,6 +122,7 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
   return (
     <div className="relative group">
       <Button
+        ref={ref}
         variant="outline"
         size={size}
         className={`${className} permission-locked-button opacity-60 cursor-pointer border-dashed transition-all duration-200 hover:opacity-80`}
@@ -128,10 +133,10 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
         {children}
         <span className={`ml-2 text-xs font-bold ${
           requiredTier === 'premium'
-            ? 'text-white bg-gradient-to-r from-purple-600 to-purple-700 shadow-lg'
+            ? 'text-white bg-gradient-to-r from-permission-premium to-permission-premium/90 shadow-lg'
             : requiredTier === 'pro'
-            ? 'text-white bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg'
-            : 'text-white bg-gradient-to-r from-gray-600 to-gray-700 shadow-lg'
+            ? 'text-white bg-gradient-to-r from-permission-pro to-permission-pro/90 shadow-lg'
+            : 'text-white bg-gradient-to-r from-permission-locked to-permission-locked/90 shadow-lg'
         } px-3 py-1 rounded-full border-0`}>
           需要{plan.name}
         </span>
@@ -143,10 +148,10 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
         variant="default"
         className={`absolute -top-2 -right-2 h-6 px-2 text-xs font-medium shadow-lg ${
           requiredTier === 'premium'
-            ? 'bg-purple-600 hover:bg-purple-700 text-white'
+            ? 'bg-permission-premium hover:bg-permission-premium/90 text-permission-premium-foreground'
             : requiredTier === 'pro'
-            ? 'bg-blue-600 hover:bg-blue-700 text-white'
-            : 'bg-gray-600 hover:bg-gray-700 text-white'
+            ? 'bg-permission-pro hover:bg-permission-pro/90 text-permission-pro-foreground'
+            : 'bg-permission-locked hover:bg-permission-locked/90 text-permission-locked-foreground'
         } opacity-0 group-hover:opacity-100 transition-opacity duration-200`}
         onClick={(e) => {
           e.stopPropagation();
@@ -159,21 +164,26 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
       </Button>
     </div>
   );
-};
+});
+
+PermissionLockedButton.displayName = 'PermissionLockedButton';
 
 /**
  * 权限锁定图标按钮组件
  */
-export const PermissionLockedIconButton: React.FC<PermissionLockedButtonProps> = ({
-  children,
-  requiredTier,
-  featureName,
-  onClick,
-  variant = 'outline',
-  size = 'icon',
-  className = '',
-  disabled = false
-}) => {
+export const PermissionLockedIconButton = React.forwardRef<HTMLButtonElement, PermissionLockedButtonProps>((
+  {
+    children,
+    requiredTier,
+    featureName,
+    onClick,
+    variant = 'outline',
+    size = 'icon',
+    className = '',
+    disabled = false
+  },
+  ref
+) => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -235,6 +245,7 @@ export const PermissionLockedIconButton: React.FC<PermissionLockedButtonProps> =
   if (hasPermission()) {
     return (
       <Button
+        ref={ref}
         variant={variant}
         size={size}
         className={className}
@@ -252,6 +263,7 @@ export const PermissionLockedIconButton: React.FC<PermissionLockedButtonProps> =
 
   return (
     <Button
+      ref={ref}
       variant="outline"
       size={size}
       className={`${className} permission-locked-button opacity-60 cursor-pointer border-dashed transition-all duration-200 relative`}
@@ -262,6 +274,8 @@ export const PermissionLockedIconButton: React.FC<PermissionLockedButtonProps> =
       <LockIcon className="h-4 w-4" />
     </Button>
   );
-};
+});
+
+PermissionLockedIconButton.displayName = 'PermissionLockedIconButton';
 
 export default PermissionLockedButton;

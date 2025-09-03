@@ -85,12 +85,12 @@ export const PermissionProtectedInput: React.FC<PermissionProtectedInputProps> =
       </div>
       
       {/* 权限提示遮罩 */}
-      <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-md border border-dashed border-muted-foreground/50">
+      <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-md border border-dashed border-muted-foreground/50 transition-all var(--transition-smooth)">
         <Button
           variant="outline"
           size="sm"
           onClick={handleUpgradeClick}
-          className="border-dashed opacity-80 hover:opacity-100 transition-opacity"
+          className="border-dashed opacity-80 hover:opacity-100 transition-all var(--transition-smooth) shadow-e1"
         >
           <LockIcon className="h-4 w-4 mr-2" />
           <span className="text-sm">需要{plan.name}</span>
