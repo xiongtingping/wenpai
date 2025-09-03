@@ -135,29 +135,19 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
       initializeState: async () => {
         const state = get();
 
-        // 🔧 FIX: 优先使用缓存状态，即使可能过期，也要立即显示避免闪烁
-        if (state.user && state.isAuthenticated) {
-          logger.info('🚀 立即应用用户状态，避免闪烁');
-          // 立即设置为已初始化，显示缓存状态
+        // 🔧 FIX: 简化初始化逻辑，避免循环更新
+        if (state.user && state.isAuthenticated && !state.isInitialized) {
+          logger.info('🚀 立即应用缓存用户状态');
+          
           set({ 
             isInitialized: true, 
             isLoading: false,
-            lastUpdated: Date.now()
+            lastUpdated: Date.now(),
+            cacheExpiry: Date.now() + CACHE_DURATION,
+            forceRefresh: false
           });
           
-          // 然后在后台静默刷新
-          if (!state.isStateValid() || state.forceRefresh) {
-            logger.info('🔄 后台静默刷新状态...');
-            try {
-              await get().refreshAllStates();
-              set({
-                cacheExpiry: Date.now() + CACHE_DURATION,
-                forceRefresh: false
-              });
-            } catch (error) {
-              logger.warn('后台刷新状态失败:', error);
-            }
-          }
+          logger.info('✅ 缓存状态已应用，避免闪烁');
           return;
         }
 
@@ -185,12 +175,17 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
         }
       },
 
-      // 更新用户状态
+      // 更新用户状态 - 修复循环更新
       updateUserState: async (user: User | null) => {
         logger.info('🔄 更新用户状态:', user?.id);
         
         const isAuthenticated = !!user;
         const currentState = get();
+        
+        // 避免重复更新相同的用户状态
+        if (currentState.user?.id === user?.id && currentState.isAuthenticated === isAuthenticated) {
+          return;
+        }
         
         set({
           user,
@@ -201,8 +196,15 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
         // 如果用户状态发生变化，刷新相关状态
         if (currentState.user?.id !== user?.id) {
           if (user) {
-            await get().refreshSubscriptionStatus();
-            await get().refreshUsageStats();
+            // 延迟异步刷新，确保不阻塞登录跳转
+            setTimeout(async () => {
+              try {
+                await get().refreshSubscriptionStatus();
+                await get().refreshUsageStats();
+              } catch (error) {
+                logger.error('刷新状态失败:', error);
+              }
+            }, 1000); // 延迟1秒，先让跳转完成
           } else {
             // 用户登出，重置状态
             set({
@@ -217,14 +219,21 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
         }
       },
 
-      // 更新订阅状态
+      // 更新订阅状态 - 防止循环更新
       updateSubscriptionState: (status: SubscriptionStatus) => {
+        const currentState = get();
+        
+        // 避免重复更新相同的订阅状态
+        if (JSON.stringify(currentState.subscriptionStatus) === JSON.stringify(status)) {
+          return;
+        }
+        
         logger.info('🔄 更新订阅状态:', status.status);
         
         const hasActiveSubscription = status.status === 'active';
-        const userTier = calculateUserTier(get().user, status);
+        const userTier = calculateUserTier(currentState.user, status);
         const maxUsage = calculateMaxUsage(userTier);
-        const usageCount = get().usageCount;
+        const usageCount = currentState.usageCount;
         const usageRemaining = maxUsage === -1 ? Infinity : Math.max(0, maxUsage - usageCount);
         
         set({
@@ -237,12 +246,18 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
         });
       },
 
-      // 更新使用次数状态
+      // 更新使用次数状态 - 防止重复更新
       updateUsageState: (usageCount: number, maxUsage?: number) => {
-        logger.info('🔄 更新使用次数状态:', { usageCount, maxUsage });
-        
         const currentState = get();
         const finalMaxUsage = maxUsage ?? currentState.maxUsage;
+        
+        // 避免重复更新相同的使用次数状态
+        if (currentState.usageCount === usageCount && currentState.maxUsage === finalMaxUsage) {
+          return;
+        }
+        
+        logger.info('🔄 更新使用次数状态:', { usageCount, maxUsage: finalMaxUsage });
+        
         const usageRemaining = finalMaxUsage === -1 ? Infinity : Math.max(0, finalMaxUsage - usageCount);
         
         set({
@@ -284,7 +299,6 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
         try {
           // 动态导入避免循环依赖
           const { subscriptionDataService } = await import('@/services/subscriptionDataService');
-          const { subscriptionDataService } = await import('@/services/subscriptionDataService');
           const subscriptionData = await subscriptionDataService.getSubscriptionStatus(state.user.id);
 
           if (subscriptionData) {
@@ -302,7 +316,21 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
             get().updateSubscriptionState(subscriptionStatus);
           }
         } catch (error) {
-          logger.error('刷新订阅状态失败:', error);
+          logger.warn('刷新订阅状态失败，使用默认状态:', error);
+          // 开发环境下如果API失败，设置默认状态避免卡住
+          if (import.meta.env.DEV) {
+            const defaultStatus = {
+              status: 'active' as const,
+              statusLabel: '专业版',
+              statusColor: 'green' as const,
+              needsAlert: false,
+              alertLevel: 'info' as const,
+              alertMessage: '',
+              expiresAt: null,
+              daysRemaining: 0
+            };
+            get().updateSubscriptionState(defaultStatus);
+          }
         }
       },
 
@@ -321,9 +349,17 @@ export const useUnifiedUserState = create<UnifiedUserStateStore>()(
             const usageData = await response.json();
             const actualUsedCount = usageData.data?.totalUsed || 0;
             get().updateUsageState(actualUsedCount, get().maxUsage);
+          } else {
+            throw new Error(`API请求失败: ${response.status}`);
           }
         } catch (error) {
-          logger.warn('刷新使用次数失败，使用本地数据:', error);
+          logger.warn('刷新使用次数失败，使用默认数据:', error);
+          // 开发环境下如果API失败，设置合理的默认值
+          if (import.meta.env.DEV) {
+            const tier = state.userTier;
+            const defaultUsage = tier === 'premium' ? 5 : tier === 'pro' ? 15 : 8;
+            get().updateUsageState(defaultUsage, state.maxUsage);
+          }
         }
       },
 

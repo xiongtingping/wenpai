@@ -23,7 +23,6 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthGuard, ProGuard, PremiumGuard } from '@/components/auth/RouteGuard';
 import { useUnifiedUserStateManager, useStatePreloader, useSmartStateRefresh } from '@/hooks/useUnifiedUserState';
-import { useImmediateStateSync } from '@/hooks/useStateSync';
 import { GuardProvider } from '@authing/guard-react18';
 import { AuthModalWrapper } from '@/components/auth/AuthModalWrapper';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
@@ -72,7 +71,6 @@ const ConditionalNavigation: React.FC<{ children: React.ReactNode }> = ({ childr
  * 统一状态管理初始化组件 - 修复状态闪烁问题
  */
 const StateManagerInitializer: React.FC = () => {
-  useImmediateStateSync(); // 🔧 FIX: 立即同步状态，避免闪烁
   useUnifiedUserStateManager(); // 初始化统一状态管理
   useStatePreloader(); // 预加载状态
   useSmartStateRefresh(); // 智能状态刷新

@@ -277,12 +277,12 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       guard?.hide();
 
       // 处理登录成功后的跳转
-      const redirectTarget = localStorage.getItem('login_redirect_to') || '/dashboard';
+      const redirectTarget = localStorage.getItem('login_redirect_to') || '/';
       localStorage.removeItem('login_redirect_to');
       
       console.log('🎯 登录成功，跳转到:', redirectTarget);
       setTimeout(() => {
-        navigate(redirectTarget);
+        navigate(redirectTarget, { replace: true });
       }, 500);
 
       console.log('✅ Guard登录流程完成:', formattedUser);

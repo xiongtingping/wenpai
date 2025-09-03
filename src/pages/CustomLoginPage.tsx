@@ -59,7 +59,7 @@ export const CustomLoginPage: React.FC = () => {
     const timer = setTimeout(() => {
       if (isAuthenticated && user) {
         console.log('✅ 检测到用户已登录，自动跳转到首页', user);
-        const redirectTo = localStorage.getItem('login_redirect_to') || '/dashboard';
+        const redirectTo = localStorage.getItem('login_redirect_to') || '/';
         localStorage.removeItem('login_redirect_to');
         navigate(redirectTo, { replace: true });
         return;
@@ -154,6 +154,14 @@ export const CustomLoginPage: React.FC = () => {
           if (result.data && handleAuthingLogin) {
             console.log('🔐 调用handleAuthingLogin处理登录状态...');
             handleAuthingLogin(result.data);
+            
+            // 延迟跳转，确保状态更新完成
+            setTimeout(() => {
+              const redirectTo = localStorage.getItem('login_redirect_to') || '/';
+              localStorage.removeItem('login_redirect_to');
+              console.log('🎯 验证码登录成功，跳转到:', redirectTo);
+              navigate(redirectTo, { replace: true });
+            }, 800);
           } else {
             console.error('❌ 登录数据或处理函数缺失:', { data: result.data, handler: !!handleAuthingLogin });
             setLoginForm(prev => ({ ...prev, loading: false, loginSuccess: false }));

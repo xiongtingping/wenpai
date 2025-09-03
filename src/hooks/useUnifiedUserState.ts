@@ -29,31 +29,31 @@ export const useUnifiedUserStateManager = () => {
   const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
   const { usageCount, maxUsage } = useAuthStore();
 
-  // 🔧 FIX: 立即同步用户状态，避免闪烁
+  // 立即同步用户状态，避免闪烁 - 修复无限循环
   useEffect(() => {
-    if (user && user !== unifiedState.user) {
+    if (user && user.id !== unifiedState.user?.id) {
       logger.info('🔄 立即同步用户状态到统一存储');
       unifiedState.updateUserState(user);
     }
-  }, [user, unifiedState]);
+  }, [user?.id, unifiedState.user?.id, unifiedState.updateUserState]);
 
-  // 同步订阅状态
+  // 同步订阅状态 - 修复无限循环
   useEffect(() => {
-    if (primaryStatus && primaryStatus !== unifiedState.subscriptionStatus) {
+    if (primaryStatus && JSON.stringify(primaryStatus) !== JSON.stringify(unifiedState.subscriptionStatus)) {
       logger.info('🔄 同步订阅状态到统一存储');
       unifiedState.updateSubscriptionState(primaryStatus);
     }
-  }, [primaryStatus, unifiedState]);
+  }, [primaryStatus, unifiedState.subscriptionStatus]);
 
-  // 同步使用次数状态
+  // 同步使用次数状态 - 修复无限循环
   useEffect(() => {
     if (usageCount !== unifiedState.usageCount || maxUsage !== unifiedState.maxUsage) {
       logger.info('🔄 同步使用次数状态到统一存储');
       unifiedState.updateUsageState(usageCount, maxUsage);
     }
-  }, [usageCount, maxUsage, unifiedState]);
+  }, [usageCount, maxUsage, unifiedState.usageCount, unifiedState.maxUsage, unifiedState.updateUsageState]);
 
-  // 监听支付成功事件
+  // 监听支付成功事件 - 优化依赖
   useEffect(() => {
     const handlePaymentSuccess = () => {
       logger.info('🎉 收到支付成功事件，刷新统一状态');
@@ -74,30 +74,16 @@ export const useUnifiedUserStateManager = () => {
       window.removeEventListener('paymentSuccess', handlePaymentSuccess);
       window.removeEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
     };
-  }, [unifiedState]);
+  }, [unifiedState.clearCache, unifiedState.refreshAllStates]);
 
-  // 🔧 FIX: 应用启动时立即检查缓存状态，避免闪烁
+  // 简化初始化逻辑，避免循环 - 完全修复
   useEffect(() => {
-    const initializeIfNeeded = async () => {
-      // 优先使用缓存状态，避免闪烁
-      if (unifiedState.isStateValid()) {
-        logger.info('🚀 使用有效缓存状态，避免闪烁');
-        // 标记为已初始化但不重新加载
-        if (!unifiedState.isInitialized) {
-          unifiedState.initializeState();
-        }
-        return;
-      }
-
-      // 如果有缓存的用户信息，立即初始化
-      if ((isAuthenticated || unifiedState.user) && !unifiedState.isInitialized) {
-        logger.info('🚀 立即初始化统一用户状态');
-        await unifiedState.initializeState();
-      }
-    };
-
-    initializeIfNeeded();
-  }, [isAuthenticated, unifiedState]);
+    // 只在用户登录且未初始化时才初始化
+    if (isAuthenticated && user && !unifiedState.isInitialized) {
+      logger.info('🚀 初始化统一用户状态');
+      unifiedState.initializeState();
+    }
+  }, [isAuthenticated, user?.id, unifiedState.isInitialized, unifiedState.initializeState]);
 
   return unifiedState;
 };
@@ -205,15 +191,17 @@ export const useStatePreloader = () => {
     }
   }, [isAuthenticated, user, unifiedState]);
 
-  // 🔧 FIX: 在组件挂载后立即执行预加载
+  // 在组件挂载后立即执行预加载 - 防止循环
   useEffect(() => {
     preloadStates();
   }, []);
 
-  // 用户状态变化时也要检查
+  // 用户状态变化时检查 - 仅在关键状态变化时触发
   useEffect(() => {
-    preloadStates();
-  }, [preloadStates]);
+    if (isAuthenticated && user && !unifiedState.isInitialized) {
+      preloadStates();
+    }
+  }, [isAuthenticated, user?.id, unifiedState.isInitialized]);
 
   return { preloadStates };
 };
@@ -246,9 +234,9 @@ export const useStateSynchronizer = () => {
   const { primaryStatus } = useSubscriptionStatus();
   const { usageCount, maxUsage, updateMaxUsage } = useAuthStore();
 
-  // 同步到旧的状态管理系统
+  // 同步到旧的状态管理系统 - 防止循环更新
   useEffect(() => {
-    if (unifiedState.isInitialized && unifiedState.maxUsage !== maxUsage) {
+    if (unifiedState.isInitialized && unifiedState.maxUsage !== maxUsage && unifiedState.maxUsage > 0) {
       logger.info('🔄 同步使用次数限制到AuthStore');
       updateMaxUsage(unifiedState.maxUsage);
     }
