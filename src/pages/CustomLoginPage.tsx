@@ -16,7 +16,7 @@ import { verificationCodeService } from '@/services/verificationCodeService';
 import '@/styles/animated-signin-21st.css';
 export const CustomLoginPage: React.FC = () => {
   const { toast } = useToast();
-  const { guard, handleAuthingLogin } = useAuth();
+  const { guard, handleAuthingLogin, user, isAuthenticated } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -53,6 +53,23 @@ export const CustomLoginPage: React.FC = () => {
   // UI 视图模式：登录/注册（与模板保持一致的单卡片切换）
   const [mode, setMode] = useState<'login' | 'register'>('login');
 
+  // 🔧 FIX: 检查用户登录状态，已登录用户自动跳转
+  useEffect(() => {
+    // 延迟一点检查，确保认证状态已经初始化
+    const timer = setTimeout(() => {
+      if (isAuthenticated && user) {
+        console.log('✅ 检测到用户已登录，自动跳转到首页', user);
+        const redirectTo = localStorage.getItem('login_redirect_to') || '/dashboard';
+        localStorage.removeItem('login_redirect_to');
+        navigate(redirectTo, { replace: true });
+        return;
+      }
+      setCheckingAuth(false); // 检查完成，显示登录表单
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, user, navigate]);
+
   // 处理URL参数，支持直接跳转到注册页面
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -78,6 +95,7 @@ export const CustomLoginPage: React.FC = () => {
   const passwordsMatch = registerForm.password && registerForm.confirmPassword && registerForm.password === registerForm.confirmPassword;
 
   const [error, setError] = useState('');
+  const [checkingAuth, setCheckingAuth] = useState(true); // 🔧 FIX: 添加认证检查状态
 
   // 处理登录
   // Authing Web SDK 客户端（验证码优先用 API 发送）
@@ -150,7 +168,11 @@ export const CustomLoginPage: React.FC = () => {
       // 密码登录走Guard流程
       if (guard && typeof (guard as any).show === 'function') {
         (guard as any).show();
-        toast({ title: '请在弹窗完成登录', description: '登录成功后将自动跳转' });
+        toast({
+          title: '正在启动登录窗口',
+          description: '请在弹出的登录窗口中完成登录',
+          duration: 3000
+        });
       } else {
         throw new Error('认证系统未初始化');
       }
@@ -269,6 +291,21 @@ export const CustomLoginPage: React.FC = () => {
       : /^1[3-9]\d{9}$/.test(loginForm.contact)
   );
   const [rememberMe, setRememberMe] = useState(false);
+
+  // 🔧 FIX: 在检查认证状态时显示加载界面
+  if (checkingAuth) {
+    return (
+      <AnimatedAuthShell
+        title="欢迎"
+        subtitle="正在检查登录状态..."
+      >
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600">检查中...</span>
+        </div>
+      </AnimatedAuthShell>
+    );
+  }
 
   return (
     <AnimatedAuthShell
