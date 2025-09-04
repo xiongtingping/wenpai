@@ -36,11 +36,16 @@ export interface AIConfig {
     apiKey: string;
     baseURL: string;
     model: string;
+    defaultModel?: string;
+    defaultTemperature?: number;
+    defaultMaxTokens?: number;
   };
   deepseek: {
     apiKey: string;
     baseURL: string;
     model: string;
+    defaultModel?: string;
+    defaultTemperature?: number;
   };
 }
 

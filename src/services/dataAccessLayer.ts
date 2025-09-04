@@ -132,8 +132,14 @@ export class DataAccessLayer {
           throw lastError;
         }
 
-        // 等待后重试
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+        // 使用优化的指数退避算法，消除技术债务
+        const baseDelay = 500; // 基础延时500ms
+        const maxDelay = 5000; // 最大延旰5秒
+        const delay = Math.min(baseDelay * Math.pow(2, i), maxDelay);
+        const jitter = Math.random() * 0.1 * delay; // 添加抖动，防止雷群效应
+        const actualDelay = delay + jitter;
+        
+        await new Promise(resolve => setTimeout(resolve, actualDelay));
       }
     }
 

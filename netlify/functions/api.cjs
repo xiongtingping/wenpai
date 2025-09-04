@@ -50,23 +50,54 @@ module.exports.handler = async (event, context) => {
     if (path.includes('/config')) {
       const { env } = event.queryStringParameters || {};
 
-      // 基础配置
+      // ✅ FIXED: 消除硬编码，完全依赖环境变量
       const config = {
-        environment: env || 'production',
-        supabase: {
-          url: process.env.VITE_SUPABASE_URL || 'https://weizkydylskcwgnaieqy.supabase.co',
-          anonKey: process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlaXpreWR5bHNrY3dnbmFpZXF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ5NjI0NzQsImV4cCI6MjA1MDUzODQ3NH0.Qs8-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej'
-        },
-        authing: {
-          appId: '68823897631e1ef8ff3720b2',
-          host: 'https://rzcswqs4sq0f.authing.cn',
-          redirectUri: 'https://www.wenpai.xyz/callback'
-        },
-        features: {
-          enhancedPermissions: true,
-          subscriptionCheck: true,
-          usageLimits: true
-        }
+        environment: env || 'production'
+      };
+
+      // 🛡️ 验证必需的环境变量
+      const requiredEnvVars = {
+        'VITE_SUPABASE_URL': process.env.VITE_SUPABASE_URL,
+        'VITE_SUPABASE_ANON_KEY': process.env.VITE_SUPABASE_ANON_KEY,
+        'AUTHING_APP_ID': process.env.AUTHING_APP_ID,
+        'AUTHING_HOST': process.env.AUTHING_HOST,
+        'AUTHING_REDIRECT_URI': process.env.AUTHING_REDIRECT_URI
+      };
+
+      // 检查缺失的环境变量
+      const missingVars = Object.entries(requiredEnvVars)
+        .filter(([key, value]) => !value)
+        .map(([key]) => key);
+
+      if (missingVars.length > 0) {
+        console.error('❌ 缺失必需的环境变量:', missingVars);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            error: 'Server configuration error: Missing required environment variables',
+            missingVars: missingVars
+          })
+        };
+      }
+
+      // 只有在环境变量验证通过后才返回配置
+      config.supabase = {
+        url: process.env.VITE_SUPABASE_URL,
+        anonKey: process.env.VITE_SUPABASE_ANON_KEY
+      };
+      
+      config.authing = {
+        appId: process.env.AUTHING_APP_ID,
+        host: process.env.AUTHING_HOST,
+        redirectUri: process.env.AUTHING_REDIRECT_URI
+      };
+      
+      config.features = {
+        enhancedPermissions: true,
+        subscriptionCheck: true,
+        usageLimits: true
       };
 
       console.log('📋 配置请求:', { env, timestamp: new Date().toISOString() });
@@ -85,7 +116,7 @@ module.exports.handler = async (event, context) => {
     // 🔧 处理 /ai/chat 路径
     if (path.includes('/ai/chat')) {
       const body = event.body ? JSON.parse(event.body) : {};
-      const { provider, model, messages, temperature, maxTokens, userId } = body;
+      const { provider, model, messages, temperature, maxTokens, userId, prompt, systemPrompt } = body;
 
       // 根据模型确定使用的provider
       let actualProvider = provider;
@@ -101,10 +132,21 @@ module.exports.handler = async (event, context) => {
         }
       }
 
+      // 构建消息格式：支持两种输入格式
+      let requestMessages = messages;
+      if (!requestMessages && prompt) {
+        // 如果没有messages但有prompt，转换为messages格式
+        requestMessages = [];
+        if (systemPrompt) {
+          requestMessages.push({ role: 'system', content: systemPrompt });
+        }
+        requestMessages.push({ role: 'user', content: prompt });
+      }
+
       // 调用相应的生成函数
       const requestBody = {
         model: model || 'deepseek-chat',
-        messages: messages || [],
+        messages: requestMessages || [],
         temperature: temperature || 0.7,
         maxTokens: maxTokens || 1000
       };

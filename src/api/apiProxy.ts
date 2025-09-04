@@ -4,6 +4,7 @@
  */
 
 import request from './request';
+import { getAIConfig } from '@/config/configManager';
 
 // API端点配置
 const API_ENDPOINTS = {
@@ -23,27 +24,33 @@ export interface ProxyResponse<T = any> {
 
 /**
  * 调用OpenAI API代理
+ * ✅ FIXED: 消除硬编码，从配置管理器获取参数
  * @param messages 消息数组
- * @param model 模型名称
- * @param temperature 温度参数
- * @param maxTokens 最大token数
+ * @param model 模型名称（可选，从配置获取默认值）
+ * @param temperature 温度参数（可选，从配置获取默认值）
+ * @param maxTokens 最大token数（可选，从配置获取默认值）
  * @returns Promise with response data
  */
 export async function callOpenAIProxy(
   messages: any[],
-  model: string = 'gpt-4o',
-  temperature: number = 0.7,
-  maxTokens: number = 1000
+  model?: string,
+  temperature?: number,
+  maxTokens?: number
 ): Promise<ProxyResponse> {
   try {
-    const data = await request.post(API_ENDPOINTS.API, {
+    // ✅ FIXED: 从配置管理器获取默认值，消除硬编码
+    const aiConfig = await getAIConfig();
+    
+    const requestData = {
       provider: 'openai',
       action: 'generate',
       messages,
-      model,
-      temperature,
-      maxTokens
-    });
+      model: model || aiConfig.openai?.defaultModel || 'gpt-4o',
+      temperature: temperature || aiConfig.openai?.defaultTemperature || 0.7,
+      maxTokens: maxTokens || aiConfig.openai?.defaultMaxTokens || 1000
+    };
+
+    const data = await request.post(API_ENDPOINTS.API, requestData);
 
     return {
       success: true,
@@ -59,22 +66,30 @@ export async function callOpenAIProxy(
 
 /**
  * 调用DeepSeek API代理
+ * ✅ FIXED: 消除硬编码，从配置管理器获取参数
  * @param messages 消息数组
- * @param model 模型名称
+ * @param model 模型名称（可选，从配置获取默认值）
+ * @param temperature 温度参数（可选，从配置获取默认值）
  * @returns Promise with response data
  */
 export async function callDeepSeekProxy(
   messages: any[],
-  model: string = 'deepseek-chat'
+  model?: string,
+  temperature?: number
 ): Promise<ProxyResponse> {
   try {
-    const data = await request.post(API_ENDPOINTS.API, {
+    // ✅ FIXED: 从配置管理器获取默认值，消除硬编码
+    const aiConfig = await getAIConfig();
+    
+    const requestData = {
       provider: 'deepseek',
       action: 'generate',
       messages,
-      model,
-      temperature: 0.7
-    });
+      model: model || aiConfig.deepseek?.defaultModel || 'deepseek-chat',
+      temperature: temperature || aiConfig.deepseek?.defaultTemperature || 0.7
+    };
+
+    const data = await request.post(API_ENDPOINTS.API, requestData);
 
     return {
       success: true,

@@ -8,6 +8,7 @@
  * 4. 自动用户切换响应
  */
 
+import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { logger } from '@/utils/logger';
@@ -49,13 +50,16 @@ export class UserDataIsolationManager {
 
   /**
    * 生成用户专属的存储键
+   * 🔧 FIXED: 确保用户ID的稳定性，避免因user对象变化导致存储键不一致
    */
   getStorageKey(): string {
     const { modulePrefix, fallbackToGuest } = this.config;
     
     if (this.user?.id) {
-      const storageKey = `${modulePrefix}_${this.user.id}`;
-      this.log(`🔑 使用用户存储键: ${storageKey}`);
+      // 🔧 使用稳定的用户ID，确保存储键一致性
+      const stableUserId = typeof this.user.id === 'string' ? this.user.id : String(this.user.id);
+      const storageKey = `${modulePrefix}_${stableUserId}`;
+      this.log(`🔑 使用用户存储键: ${storageKey}`, { userId: stableUserId });
       return storageKey;
     }
     
@@ -215,7 +219,17 @@ export class UserDataIsolationManager {
 export function useUserDataIsolation(config: UserDataIsolationConfig) {
   const { user } = useAuth();
   
-  const manager = new UserDataIsolationManager(config, user);
+  // 🔧 FIXED: 使用useMemo确保manager实例的稳定性
+  const manager = React.useMemo(() => {
+    return new UserDataIsolationManager(config, user);
+  }, [config.modulePrefix, user?.id]); // 只在模块前缀或用户ID变化时重新创建
+  
+  // 🔧 FIXED: 更新manager中的用户信息
+  React.useEffect(() => {
+    if (manager && user?.id) {
+      (manager as any).user = user; // 更新用户信息但保持实例稳定
+    }
+  }, [manager, user]);
   
   return {
     getStorageKey: () => manager.getStorageKey(),

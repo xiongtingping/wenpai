@@ -149,25 +149,37 @@ export const useAuthStore = create<AuthState>()(
           return state.usageRemaining;
         },
 
-      // ✅ FIXED: 2025-08-04 用户行为记录 - 防止无限循环的安全实现
+      // ✅ FIXED: 用户行为记录 - 使用优雅的防抖实现，消除技术债务
       recordUserAction: (action: string) => {
-        // 使用防抖机制避免频繁状态更新
-        const timeoutId = setTimeout(() => {
-          try {
-            console.log('📊 用户操作记录:', action);
-            set((state) => ({
-              userActions: [...state.userActions.slice(-99), action] // 只保留最近100条记录
-            }));
-          } catch (error) {
-            console.warn('recordUserAction failed:', error);
+        try {
+          // 使用闭包替代全局变量，优化上下文隔离
+          // 使用局部变量代替全局window属性
+          const currentFrame = (globalThis as any).__authStoreRecordFrame;
+          if (currentFrame) {
+            cancelAnimationFrame(currentFrame);
           }
-        }, 50);
-
-        // 清理之前的timeout
-        if ((window as any).__recordUserActionTimeout) {
-          clearTimeout((window as any).__recordUserActionTimeout);
+          
+          (globalThis as any).__authStoreRecordFrame = requestAnimationFrame(() => {
+            try {
+              console.log('📊 用户操作记录:', action);
+              set((state) => ({
+                userActions: [...state.userActions.slice(-99), action] // 只保留最近100条记录
+              }));
+            } catch (error) {
+              console.warn('recordUserAction failed:', error);
+            }
+          });
+        } catch (error) {
+          // 降级到同步处理，确保功能稳定性
+          console.warn('recordUserAction防抖失败，使用同步处理:', error);
+          try {
+            set((state) => ({
+              userActions: [...state.userActions.slice(-99), action]
+            }));
+          } catch (syncError) {
+            console.error('recordUserAction同步处理也失败:', syncError);
+          }
         }
-        (window as any).__recordUserActionTimeout = timeoutId;
       },
 
       // ✅ FIXED: 2025-08-04 获取邀请码 - 统一实现

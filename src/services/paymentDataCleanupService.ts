@@ -218,14 +218,28 @@ export class PaymentDataCleanupService {
     // 4. 强制清理所有验证失败的数据
     this.forceCleanupValidationFailures();
 
-    // 5. 强制触发重新渲染和状态更新
-    setTimeout(() => {
-      window.dispatchEvent(new Event('storage'));
-      window.dispatchEvent(new CustomEvent('userDataUpdated'));
-      window.dispatchEvent(new CustomEvent('paymentDataCleaned', {
-        detail: { userId, timestamp: Date.now() }
-      }));
-    }, 100);
+    // 5. 优化事件分发，消除上下文隔离问题
+    // 使用环境检查和优化的事件分发
+    const dispatchCleanupEvents = () => {
+      if (typeof window !== 'undefined') {
+        try {
+          window.dispatchEvent(new Event('storage'));
+          window.dispatchEvent(new CustomEvent('userDataUpdated'));
+          window.dispatchEvent(new CustomEvent('paymentDataCleaned', {
+            detail: { userId, timestamp: Date.now() }
+          }));
+        } catch (error) {
+          logger.warn('事件分发失败:', error);
+        }
+      }
+    };
+    
+    // 使用requestAnimationFrame替代setTimeout
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(dispatchCleanupEvents);
+    } else {
+      dispatchCleanupEvents();
+    }
 
     logger.info('支付后数据清理完成');
   }

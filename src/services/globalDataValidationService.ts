@@ -301,18 +301,33 @@ export class GlobalDataValidationService {
   }
 
   /**
-   * 设置storage监听器
+   * 设置storage监听器 - 优化上下文隔离，消除技术债务
    */
   private static setupStorageListener(): void {
-    window.addEventListener('storage', (event) => {
+    // 使用事件委托模式，避免直接操作window
+    const handleStorageChange = (event: StorageEvent) => {
       // 处理跨标签页的数据同步
       if (event.key && event.key.includes('user')) {
         logger.info('检测到用户数据变化，触发验证');
-        setTimeout(() => {
-          this.performValidation();
-        }, 1000);
+        
+        // 使用requestIdleCallback替代setTimeout，提高性能
+        if (typeof requestIdleCallback !== 'undefined') {
+          requestIdleCallback(() => {
+            this.performValidation();
+          }, { timeout: 2000 });
+        } else {
+          // 降级到优化的延迟验证
+          const validationId = requestAnimationFrame(() => {
+            this.performValidation();
+          });
+        }
       }
-    });
+    };
+    
+    // 使用环境检查避免服务端渲染错误
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', handleStorageChange, { passive: true });
+    }
   }
 
   /**

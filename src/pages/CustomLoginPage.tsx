@@ -140,15 +140,19 @@ export const CustomLoginPage: React.FC = () => {
   const navigate = useNavigate();
 
   // 登录表单状态 - 只保留手机号
-  const [loginForm, setLoginForm] = useState({
-    phone: '', // 只保留手机号
-    password: '',
-    code: '', // 验证码
-    showPassword: false,
-    loading: false,
-    sendingCode: false,
-    codeCountdown: 0,
-    loginSuccess: false // 添加登录成功状态
+  const [loginForm, setLoginForm] = useState(() => {
+    // 如果记住密码，恢复保存的手机号
+    const savedPhone = localStorage.getItem('saved_phone') || '';
+    return {
+      phone: savedPhone, // 从localStorage恢复手机号
+      password: '',
+      code: '', // 验证码
+      showPassword: false,
+      loading: false,
+      sendingCode: false,
+      codeCountdown: 0,
+      loginSuccess: false // 添加登录成功状态
+    };
   });
 
   // 登录方式状态 - 移除邮箱选项
@@ -431,6 +435,15 @@ export const CustomLoginPage: React.FC = () => {
         if (handleAuthingLogin) {
           handleAuthingLogin(result);
           
+          // 如果选择记住密码，保存登录信息
+          if (rememberMe) {
+            localStorage.setItem('saved_phone', loginForm.phone);
+            // 注意：出于安全考虑，我们不直接保存密码，而是保存一个简单的哈希标记
+            const simpleHash = btoa(loginForm.phone + '_remembered');
+            localStorage.setItem('saved_password_hash', simpleHash);
+            console.log('💾 已保存记住密码信息');
+          }
+          
           // 延迟跳转，确保状态更新完成
           setTimeout(() => {
             const redirectTo = localStorage.getItem('login_redirect_to') || '/';
@@ -577,7 +590,10 @@ export const CustomLoginPage: React.FC = () => {
   };
 
   const isPhoneValid = !loginForm.phone || /^1[3-9]\d{9}$/.test(loginForm.phone);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => {
+    // 从localStorage恢复记住密码状态
+    return localStorage.getItem('remember_me') === 'true';
+  });
 
   // 🔧 FIX: 在检查认证状态时显示加载界面
   if (checkingAuth) {
@@ -710,7 +726,21 @@ export const CustomLoginPage: React.FC = () => {
 
         <div className="form-options">
           <label className="remember-me">
-            <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
+            <input 
+              type="checkbox" 
+              checked={rememberMe} 
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setRememberMe(checked);
+                // 保存记住密码状态到localStorage
+                localStorage.setItem('remember_me', checked.toString());
+                // 如果取消记住，清除保存的凭证
+                if (!checked) {
+                  localStorage.removeItem('saved_phone');
+                  localStorage.removeItem('saved_password_hash');
+                }
+              }} 
+            />
             <span className="checkmark"></span>
             记住我
           </label>

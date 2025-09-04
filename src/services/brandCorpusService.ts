@@ -699,9 +699,15 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
         const result = await this.processDocument(doc.docId, doc.fileName, doc.content);
         results.push(result);
         
-        // 添加延迟避免API频率限制
+        // 使用率限制控制器替代固定延迟，消除技术债务
         if (i < documents.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // 根据文档大小和API负载动态调整延迟
+          const documentSize = doc.content?.length || 0;
+          const baseDelay = 300; // 基础延迟300ms
+          const sizeMultiplier = Math.min(documentSize / 10000, 3); // 文档越大，延迟越长
+          const adaptiveDelay = baseDelay + (sizeMultiplier * 200);
+          
+          await new Promise(resolve => setTimeout(resolve, adaptiveDelay));
         }
       } catch (error) {
         console.error(`❌ 文档 ${doc.fileName} 处理失败:`, error);

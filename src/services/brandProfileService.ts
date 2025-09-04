@@ -282,73 +282,273 @@ class BrandProfileService {
    */
   public async analyzeBrandTone(files: File[]): Promise<BrandToneAnalysis> {
     try {
-      // 这里可以调用更高级的 AI 分析服务
-      // 暂时返回模拟数据
-      const mockAnalysis: BrandToneAnalysis = {
-        coreValues: {
-          values: ['创新', '可靠', '环保'],
-          descriptions: ['持续创新技术', '产品可靠稳定', '环保可持续发展'],
-          strength: 8
-        },
-        tone: {
-          primary: '专业友好',
-          variations: {
-            formal: '专业正式',
-            casual: '亲切轻松',
-            professional: '技术专业',
-            friendly: '温暖友好'
-          },
-          emotionalTendency: '积极温暖',
-          languageStyle: '简洁直接',
-          consistency: 7
-        },
-        topics: {
-          coreTopics: ['技术创新', '产品体验', '行业趋势'],
-          contentDirections: ['教育', '资讯', '分享'],
-          industryFocus: ['科技', '用户体验', '可持续发展'],
-          relevance: 9
-        },
-        hashtags: {
-          brandHashtags: ['#品牌名', '#产品系列'],
-          campaignHashtags: ['#活动名', '#主题标签'],
-          trendingHashtags: ['#热门话题', '#行业标签'],
-          effectiveness: 6
-        },
-        keywords: {
-          primary: ['创新', '可靠', '环保', '技术', '体验'],
-          categories: {
-            product: ['产品名', '功能特性'],
-            service: ['服务内容', '解决方案'],
-            feature: ['核心功能', '技术优势'],
-            benefit: ['用户价值', '使用体验']
-          },
-          frequency: {
-            '创新': 15,
-            '可靠': 12,
-            '环保': 8
-          },
-          impact: 8
-        },
-        riskControl: {
-          forbiddenWords: ['禁用词1', '禁用词2'],
-          sensitiveTopics: ['敏感话题1', '敏感话题2'],
-          tabooExpressions: ['禁忌表达1', '禁忌表达2'],
-          riskLevel: 3
-        },
-        overallScore: {
-          valueAlignment: 8,
-          toneConsistency: 7,
-          topicRelevance: 9,
-          brandRecognition: 8,
-          riskControl: 9
-        }
-      };
-
-      return mockAnalysis;
+      // 使用真实AI服务进行深度品牌调性分析
+      const basicAnalysis = await this.aiService.analyzeFiles(files);
+      
+      // 基于基础分析结果构建完整的品牌调性分析
+      const brandToneAnalysis = await this.buildComprehensiveBrandToneAnalysis(basicAnalysis, files);
+      
+      return brandToneAnalysis;
     } catch (error) {
       console.error('品牌调性分析失败:', error);
       throw error;
     }
+  }
+
+  /**
+   * 基于基础分析构建完整的品牌调性分析
+   * @private
+   * @param basicAnalysis 基础分析结果
+   * @param files 原始文件
+   * @returns 完整的品牌调性分析
+   */
+  private async buildComprehensiveBrandToneAnalysis(
+    basicAnalysis: any,
+    files: File[]
+  ): Promise<BrandToneAnalysis> {
+    // 提取文件内容用于深度分析
+    const contents: string[] = [];
+    for (const file of files) {
+      try {
+        const content = await this.aiService.readFileContent(file);
+        contents.push(content);
+      } catch (error) {
+        console.warn(`无法读取文件 ${file.name}:`, error);
+      }
+    }
+    
+    const combinedContent = contents.join('\n\n');
+    
+    // 使用AI进行深度品牌调性分析
+    const prompt = `
+作为资深品牌策略专家，请对以下品牌资料进行全面的品牌调性分析：
+
+品牌资料内容：
+${combinedContent}
+
+请按以下JSON结构进行深度分析：
+{
+  "coreValues": {
+    "values": ["核心价值1", "核心价值2", "核心价值3"],
+    "descriptions": ["价值描述1", "价值描述2", "价值描述3"],
+    "strength": 1-10评分
+  },
+  "tone": {
+    "primary": "主要语气特征",
+    "variations": {
+      "formal": "正式场合语气",
+      "casual": "日常交流语气",
+      "professional": "专业场合语气",
+      "friendly": "友好互动语气"
+    },
+    "emotionalTendency": "情感倾向",
+    "languageStyle": "语言风格",
+    "consistency": 1-10评分
+  },
+  "topics": {
+    "coreTopics": ["核心主题1", "核心主题2", "核心主题3"],
+    "contentDirections": ["内容方向1", "内容方向2", "内容方向3"],
+    "industryFocus": ["行业焦点1", "行业焦点2", "行业焦点3"],
+    "relevance": 1-10评分
+  },
+  "hashtags": {
+    "brandHashtags": ["#品牌标签1", "#品牌标签2"],
+    "campaignHashtags": ["#活动标签1", "#活动标签2"],
+    "trendingHashtags": ["#热门标签1", "#热门标签2"],
+    "effectiveness": 1-10评分
+  },
+  "keywords": {
+    "primary": ["主要关键词1", "主要关键词2", "主要关键词3"],
+    "categories": {
+      "product": ["产品相关词汇"],
+      "service": ["服务相关词汇"],
+      "feature": ["功能特性词汇"],
+      "benefit": ["用户价值词汇"]
+    },
+    "frequency": {
+      "关键词1": 出现频次,
+      "关键词2": 出现频次
+    },
+    "impact": 1-10评分
+  },
+  "riskControl": {
+    "forbiddenWords": ["应避免的词汇"],
+    "sensitiveTopics": ["敏感话题"],
+    "tabooExpressions": ["禁忌表达"],
+    "riskLevel": 1-10评分
+  },
+  "overallScore": {
+    "valueAlignment": 1-10评分,
+    "toneConsistency": 1-10评分,
+    "topicRelevance": 1-10评分,
+    "brandRecognition": 1-10评分,
+    "riskControl": 1-10评分
+  }
+}
+
+要求：
+1. 深度分析品牌价值观、语气调性、内容主题等维度
+2. 提供具体的评分和建议
+3. 识别潜在的风险词汇和敏感话题
+4. 确保返回有效的JSON格式
+`;
+
+    try {
+      // 调用AI服务进行深度分析
+      const response = await this.aiService.analyzeBrandContent(prompt);
+      
+      // 将AI分析结果转换为BrandToneAnalysis格式
+      if (typeof response === 'string') {
+        try {
+          const parsed = JSON.parse(response);
+          return this.validateAndNormalizeBrandToneAnalysis(parsed);
+        } catch (parseError) {
+          console.error('AI返回结果解析失败:', parseError);
+          return this.createFallbackBrandToneAnalysis(basicAnalysis);
+        }
+      }
+      
+      // 如果返回的是对象，直接处理
+      return this.validateAndNormalizeBrandToneAnalysis(response as any);
+      
+    } catch (error) {
+      console.error('AI深度分析失败:', error);
+      return this.createFallbackBrandToneAnalysis(basicAnalysis);
+    }
+  }
+
+  /**
+   * 验证并标准化品牌调性分析结果
+   * @private
+   * @param analysis 原始分析结果
+   * @returns 标准化后的分析结果
+   */
+  private validateAndNormalizeBrandToneAnalysis(analysis: any): BrandToneAnalysis {
+    return {
+      coreValues: {
+        values: analysis.coreValues?.values || ['专业', '可靠', '创新'],
+        descriptions: analysis.coreValues?.descriptions || ['专业服务', '可靠品质', '持续创新'],
+        strength: Math.max(1, Math.min(10, analysis.coreValues?.strength || 7))
+      },
+      tone: {
+        primary: analysis.tone?.primary || '专业友好',
+        variations: {
+          formal: analysis.tone?.variations?.formal || '专业正式',
+          casual: analysis.tone?.variations?.casual || '亲切自然',
+          professional: analysis.tone?.variations?.professional || '技术专业',
+          friendly: analysis.tone?.variations?.friendly || '温暖友好'
+        },
+        emotionalTendency: analysis.tone?.emotionalTendency || '积极正面',
+        languageStyle: analysis.tone?.languageStyle || '简洁直接',
+        consistency: Math.max(1, Math.min(10, analysis.tone?.consistency || 7))
+      },
+      topics: {
+        coreTopics: analysis.topics?.coreTopics || ['行业资讯', '产品介绍', '用户服务'],
+        contentDirections: analysis.topics?.contentDirections || ['教育', '服务', '分享'],
+        industryFocus: analysis.topics?.industryFocus || ['技术', '服务', '体验'],
+        relevance: Math.max(1, Math.min(10, analysis.topics?.relevance || 8))
+      },
+      hashtags: {
+        brandHashtags: analysis.hashtags?.brandHashtags || [],
+        campaignHashtags: analysis.hashtags?.campaignHashtags || [],
+        trendingHashtags: analysis.hashtags?.trendingHashtags || [],
+        effectiveness: Math.max(1, Math.min(10, analysis.hashtags?.effectiveness || 6))
+      },
+      keywords: {
+        primary: analysis.keywords?.primary || ['专业', '服务', '品质'],
+        categories: {
+          product: analysis.keywords?.categories?.product || [],
+          service: analysis.keywords?.categories?.service || [],
+          feature: analysis.keywords?.categories?.feature || [],
+          benefit: analysis.keywords?.categories?.benefit || []
+        },
+        frequency: analysis.keywords?.frequency || {},
+        impact: Math.max(1, Math.min(10, analysis.keywords?.impact || 7))
+      },
+      riskControl: {
+        forbiddenWords: analysis.riskControl?.forbiddenWords || [],
+        sensitiveTopics: analysis.riskControl?.sensitiveTopics || [],
+        tabooExpressions: analysis.riskControl?.tabooExpressions || [],
+        riskLevel: Math.max(1, Math.min(10, analysis.riskControl?.riskLevel || 3))
+      },
+      overallScore: {
+        valueAlignment: Math.max(1, Math.min(10, analysis.overallScore?.valueAlignment || 7)),
+        toneConsistency: Math.max(1, Math.min(10, analysis.overallScore?.toneConsistency || 7)),
+        topicRelevance: Math.max(1, Math.min(10, analysis.overallScore?.topicRelevance || 8)),
+        brandRecognition: Math.max(1, Math.min(10, analysis.overallScore?.brandRecognition || 7)),
+        riskControl: Math.max(1, Math.min(10, analysis.overallScore?.riskControl || 8))
+      }
+    };
+  }
+
+  /**
+   * 创建基于基础分析的降级品牌调性分析
+   * @private
+   * @param basicAnalysis 基础分析结果
+   * @returns 降级分析结果
+   */
+  private createFallbackBrandToneAnalysis(basicAnalysis: any): BrandToneAnalysis {
+    const keywords = basicAnalysis.keywords || basicAnalysis.brandKeywords || [];
+    const tone = basicAnalysis.tone || '专业友好';
+    
+    return {
+      coreValues: {
+        values: keywords.slice(0, 3).length ? keywords.slice(0, 3) : ['专业', '服务', '品质'],
+        descriptions: keywords.slice(0, 3).map((k: string) => `注重${k}`) || ['专业服务', '优质产品', '用户体验'],
+        strength: 7
+      },
+      tone: {
+        primary: tone,
+        variations: {
+          formal: '专业正式',
+          casual: '亲切自然',
+          professional: '技术专业',
+          friendly: '温暖友好'
+        },
+        emotionalTendency: '积极正面',
+        languageStyle: '简洁直接',
+        consistency: 7
+      },
+      topics: {
+        coreTopics: basicAnalysis.coreTopics || ['行业资讯', '产品服务', '用户体验'],
+        contentDirections: ['教育', '服务', '分享'],
+        industryFocus: ['专业服务', '用户体验', '品质保障'],
+        relevance: 8
+      },
+      hashtags: {
+        brandHashtags: basicAnalysis.brandHashtags || [],
+        campaignHashtags: [],
+        trendingHashtags: [],
+        effectiveness: 6
+      },
+      keywords: {
+        primary: keywords || ['专业', '服务', '品质'],
+        categories: {
+          product: basicAnalysis.productKeywords || [],
+          service: ['专业服务', '客户支持'],
+          feature: ['核心功能', '技术优势'],
+          benefit: ['用户价值', '优质体验']
+        },
+        frequency: keywords.reduce((acc: any, word: string, index: number) => {
+          acc[word] = Math.max(5, 10 - index);
+          return acc;
+        }, {}),
+        impact: 7
+      },
+      riskControl: {
+        forbiddenWords: basicAnalysis.forbiddenWords || [],
+        sensitiveTopics: [],
+        tabooExpressions: [],
+        riskLevel: 3
+      },
+      overallScore: {
+        valueAlignment: 7,
+        toneConsistency: 7,
+        topicRelevance: 8,
+        brandRecognition: 7,
+        riskControl: 8
+      }
+    };
   }
 
   /**

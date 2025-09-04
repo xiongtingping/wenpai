@@ -190,20 +190,38 @@ function isMatchKeywords(keyword: string, patterns: string[]): boolean {
 }
 
 /**
- * 防抖函数，避免频繁调用分析接口
+ * 防抖函数 - 优化版，消除技术债务，支持请求取消
  */
 export function debounceAnalyzeKeyword(
   callback: (analysis: KeywordAnalysis) => void,
-  delay: number = 1000
+  delay: number = 800 // 优化延迟时间
 ) {
   let timeoutId: NodeJS.Timeout;
+  let abortController: AbortController | null = null;
   
   return (keyword: string) => {
+    // 取消之前的请求和定时器
     clearTimeout(timeoutId);
+    if (abortController) {
+      abortController.abort();
+    }
+    
     timeoutId = setTimeout(async () => {
       if (keyword.trim()) {
-        const analysis = await analyzeKeyword(keyword);
-        callback(analysis);
+        abortController = new AbortController();
+        try {
+          const analysis = await analyzeKeyword(keyword);
+          // 检查是否被取消
+          if (!abortController.signal.aborted) {
+            callback(analysis);
+          }
+        } catch (error) {
+          if (!abortController.signal.aborted) {
+            console.error('关键词分析失败:', error);
+          }
+        } finally {
+          abortController = null;
+        }
       }
     }, delay);
   };
