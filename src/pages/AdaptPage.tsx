@@ -1307,11 +1307,10 @@ export default function AdaptPage() {
 
             const actualUsedCount = response.totalUsed || 0;
 
-              // 同步实际已使用次数
-              const currentStoreUsage = useAuthStore.getState().usageCount;
-              if (actualUsedCount !== currentStoreUsage) {
-                useAuthStore.setState({ usageCount: actualUsedCount });
-              }
+            // 同步实际已使用次数
+            const currentStoreUsage = useAuthStore.getState().usageCount;
+            if (actualUsedCount !== currentStoreUsage) {
+              useAuthStore.setState({ usageCount: actualUsedCount });
             }
           } catch (error) {
             // API同步失败，使用本地数据
