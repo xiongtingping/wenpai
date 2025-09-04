@@ -4484,50 +4484,120 @@ onCheckedChange={(checked) => {
                             </div>
 
                             <div className="space-y-3">
-                              {/* 字符数设置 - 智能推荐版本 */}
+                              {/* 字符数设置 - 重构版本 */}
                               <div>
-                                <div className="flex justify-between items-center mb-1">
-                                  <Label className={`text-xs ${
-                                    settingsMode.charCount === 'global' ? 'text-muted-foreground' : 'text-foreground'
-                                  }`}>
-                                    字符数: {settings.charCount || getPlatformRecommendedCharCount(platformId)}
-                                  </Label>
-                                  <div className="flex items-center gap-2">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="h-5 px-2 text-xs"
-                                      onClick={() => {
-                                        const recommended = getPlatformRecommendedCharCount(platformId);
-                                        updatePlatformSetting(platformId, 'charCount', recommended);
-                                      }}
-                                      disabled={settingsMode.charCount === 'global'}
-                                    >
-                                      推荐
-                                    </Button>
-                                    <span className={`text-xs ${
-                                      settingsMode.charCount === 'global' ? 'text-muted-foreground' : 'text-muted-foreground'
-                                    }`}>
-                                      最大{getPlatformMaxCharCount(platformId)}
-                                    </span>
+                                {/* 🔧 REFACTOR: 平台设置字符数选择板块 */}
+                                {settingsMode.charCount === 'global' ? (
+                                  /* 全局模式下的提示和快速切换 */
+                                  <div className="p-3 bg-accent/30 border border-dashed border-border rounded-lg">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <Hash className="h-3 w-3 text-muted-foreground" />
+                                        <span className="text-xs font-medium text-muted-foreground">字符数设置</span>
+                                        <Badge variant="outline" className="text-xs">全局模式</Badge>
+                                      </div>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-6 px-2 text-xs"
+                                        onClick={() => {
+                                          setSettingsMode(prev => ({ ...prev, charCount: 'platform' }));
+                                          toast({
+                                            title: "已切换到平台特定模式",
+                                            description: `现在可以为${getPlatformName(platformId, platforms)}单独设置字符数限制`,
+                                          });
+                                        }}
+                                      >
+                                        启用平台设置
+                                      </Button>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                      当前使用全局字符数设置。点击"启用平台设置"可为此平台单独配置字符数限制。
+                                    </p>
                                   </div>
-                                </div>
+                                ) : (
+                                  /* 平台模式下的字符数控制 */
+                                  <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <Hash className="h-3 w-3 text-foreground" />
+                                        <Label className="text-xs font-medium text-foreground">
+                                          字符数: {settings.charCount || getPlatformRecommendedCharCount(platformId)}
+                                        </Label>
+                                        <Badge variant="secondary" className="text-xs">平台特定</Badge>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="h-5 px-2 text-xs"
+                                          onClick={() => {
+                                            const recommended = getPlatformRecommendedCharCount(platformId);
+                                            updatePlatformSetting(platformId, 'charCount', recommended);
+                                            toast({
+                                              title: "已应用推荐设置",
+                                              description: `${getPlatformName(platformId, platforms)}字符数已设置为推荐值：${recommended}字符`,
+                                            });
+                                          }}
+                                        >
+                                          推荐
+                                        </Button>
+                                        <span className="text-xs text-muted-foreground">
+                                          最大{getPlatformMaxCharCount(platformId)}
+                                        </span>
+                                      </div>
+                                    </div>
 
-                                <Slider
-                                  value={[settings.charCount || getPlatformRecommendedCharCount(platformId)]}
-                                  min={50}
-                                  max={getPlatformMaxCharCount(platformId)}
-                                  step={10}
-                                  onValueChange={(value) => {
-                                    const maxChars = getPlatformMaxCharCount(platformId);
-                                    const newValue = Math.min(value[0], maxChars);
-                                    updatePlatformSetting(platformId, 'charCount', newValue);
-                                  }}
-                                  className={`w-full ${
-                                    settingsMode.charCount === 'global' ? 'opacity-50 pointer-events-none' : ''
-                                  }`}
-                                  disabled={settingsMode.charCount === 'global'}
-                                />
+                                    <div className="space-y-2">
+                                      <Slider
+                                        value={[settings.charCount || getPlatformRecommendedCharCount(platformId)]}
+                                        min={50}
+                                        max={getPlatformMaxCharCount(platformId)}
+                                        step={10}
+                                        onValueChange={(value) => {
+                                          const maxChars = getPlatformMaxCharCount(platformId);
+                                          const newValue = Math.min(value[0], maxChars);
+                                          updatePlatformSetting(platformId, 'charCount', newValue);
+
+                                          // 实时反馈
+                                          if (newValue !== value[0]) {
+                                            toast({
+                                              title: "已自动调整",
+                                              description: `字符数已调整为平台最大限制：${newValue}字符`,
+                                              variant: "default"
+                                            });
+                                          }
+                                        }}
+                                        className="w-full"
+                                      />
+
+                                      {/* 快速设置按钮 */}
+                                      <div className="flex items-center gap-1 justify-center">
+                                        {[
+                                          { label: '简洁', value: Math.min(200, getPlatformMaxCharCount(platformId)) },
+                                          { label: '标准', value: Math.min(500, getPlatformMaxCharCount(platformId)) },
+                                          { label: '详细', value: getPlatformMaxCharCount(platformId) }
+                                        ].map((preset) => (
+                                          <Button
+                                            key={preset.label}
+                                            size="sm"
+                                            variant="ghost"
+                                            className="h-5 px-2 text-xs"
+                                            onClick={() => {
+                                              updatePlatformSetting(platformId, 'charCount', preset.value);
+                                              toast({
+                                                title: "快速设置已应用",
+                                                description: `${getPlatformName(platformId, platforms)}字符数已设置为${preset.label}模式：${preset.value}字符`,
+                                              });
+                                            }}
+                                          >
+                                            {preset.label}
+                                          </Button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
 
                                 {/* 字符数限制说明和警告 */}
                                 {settingsMode.charCount !== 'global' && (
