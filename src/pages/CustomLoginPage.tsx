@@ -139,9 +139,9 @@ export const CustomLoginPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // 登录表单状态
+  // 登录表单状态 - 只保留手机号
   const [loginForm, setLoginForm] = useState({
-    contact: '', // 邮箱或手机号
+    phone: '', // 只保留手机号
     password: '',
     code: '', // 验证码
     showPassword: false,
@@ -151,14 +151,12 @@ export const CustomLoginPage: React.FC = () => {
     loginSuccess: false // 添加登录成功状态
   });
 
-  // 登录方式状态
+  // 登录方式状态 - 移除邮箱选项
   const [loginMethod, setLoginMethod] = useState<'password' | 'code'>('password');
-  const [contactType, setContactType] = useState<'email' | 'phone'>('email');
 
-  // 注册表单状态（去掉用户名）
+  // 注册表单状态 - 只保留手机号
   const [registerForm, setRegisterForm] = useState({
-    email: '',
-    phone: '',
+    phone: '', // 只保留手机号
     password: '',
     confirmPassword: '',
     showPassword: false,
@@ -198,16 +196,13 @@ export const CustomLoginPage: React.FC = () => {
     }
   }, [searchParams]);
   // 浮动标签交互状态（仅用于视觉触发，逻辑仍用原有字段）
-  const [loginEmailFocused, setLoginEmailFocused] = useState(false);
+  const [loginPhoneFocused, setLoginPhoneFocused] = useState(false);
   const [loginPasswordFocused, setLoginPasswordFocused] = useState(false);
   const [loginCodeFocused, setLoginCodeFocused] = useState(false);
-  const [registerEmailFocused, setRegisterEmailFocused] = useState(false);
   const [registerPhoneFocused, setRegisterPhoneFocused] = useState(false);
   const [registerPasswordFocused, setRegisterPasswordFocused] = useState(false);
   const [registerConfirmFocused, setRegisterConfirmFocused] = useState(false);
   const [registerCodeFocused, setRegisterCodeFocused] = useState(false);
-
-  const [registerContactType, setRegisterContactType] = useState<'email' | 'phone'>('email');
 
   const [registerAgreed, setRegisterAgreed] = useState(false);
 
@@ -283,30 +278,23 @@ export const CustomLoginPage: React.FC = () => {
     setLoginForm(prev => ({ ...prev, loading: true }));
 
     console.log('🔐 开始登录流程:', { 
-      contact: loginForm.contact, 
+      phone: loginForm.phone, 
       method: loginMethod,
-      contactType,
       hasPassword: !!loginForm.password,
       hasCode: !!loginForm.code 
     });
 
     try {
-      if (!loginForm.contact) throw new Error('请填写联系方式');
+      if (!loginForm.phone) throw new Error('请填写手机号');
       if (loginMethod === 'password' && !loginForm.password) throw new Error('请输入密码');
       if (loginMethod === 'code' && !loginForm.code) throw new Error('请输入验证码');
 
       // 验证码登录使用专用API
       if (loginMethod === 'code') {
-        console.log('📱 开始验证码登录:', { contactType, contact: loginForm.contact, code: loginForm.code.substring(0,2) + '***' });
+        console.log('📱 开始验证码登录:', { phone: loginForm.phone, code: loginForm.code.substring(0,2) + '***' });
         
-        let result;
-        if (contactType === 'phone') {
-          console.log('📱 调用手机验证码登录API...');
-          result = await verificationCodeService.loginByPhoneCode(loginForm.contact, loginForm.code);
-        } else {
-          console.log('📧 调用邮箱验证码登录API...');
-          result = await verificationCodeService.loginByEmailCode(loginForm.contact, loginForm.code);
-        }
+        console.log('📱 调用手机验证码登录API...');
+        const result = await verificationCodeService.loginByPhoneCode(loginForm.phone, loginForm.code);
         
         console.log('📡 验证码登录API响应:', { success: result.success, message: result.message, hasData: !!result.data });
         
@@ -360,8 +348,8 @@ export const CustomLoginPage: React.FC = () => {
       }
 
       console.log('🚀 调用SDK密码登录API...', {
-        method: contactType + '-password',
-        contact: loginForm.contact.substring(0, 3) + '***'
+        method: 'phone-password',
+        phone: loginForm.phone.substring(0, 3) + '***'
       });
 
       // 🔧 FIX: 优化登录重试机制，减少等待时间
@@ -380,9 +368,7 @@ export const CustomLoginPage: React.FC = () => {
           console.log(`🔄 登录尝试 ${attempt}/${maxRetries}...`);
 
           // 设置较短的超时时间，快速失败
-          const loginPromise = contactType === 'phone'
-            ? authingClient.loginByPhonePassword(loginForm.contact, loginForm.password)
-            : authingClient.loginByEmail(loginForm.contact, loginForm.password);
+          const loginPromise = authingClient.loginByPhonePassword(loginForm.phone, loginForm.password);
 
           // 🔧 FIX: 减少超时时间，快速失败并重试
           result = await Promise.race([
@@ -520,8 +506,7 @@ export const CustomLoginPage: React.FC = () => {
 
     try {
       // 验证表单
-      const contact = registerContactType === 'email' ? registerForm.email : registerForm.phone;
-      if (!contact || !registerForm.password) {
+      if (!registerForm.phone || !registerForm.password) {
         throw new Error('请填写完整的注册信息');
       }
 
@@ -533,12 +518,8 @@ export const CustomLoginPage: React.FC = () => {
         throw new Error('密码长度至少6位');
       }
 
-      // 验证邮箱或手机号格式
-      if (registerContactType === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerForm.email)) {
-        throw new Error('请输入有效的邮箱地址');
-      }
-
-      if (registerContactType === 'phone' && !/^1[3-9]\d{9}$/.test(registerForm.phone)) {
+      // 验证手机号格式
+      if (!/^1[3-9]\d{9}$/.test(registerForm.phone)) {
         throw new Error('请输入有效的手机号');
       }
 
@@ -547,27 +528,17 @@ export const CustomLoginPage: React.FC = () => {
         throw new Error('请输入验证码');
       }
       
-      let result;
-      if (registerContactType === 'phone') {
-        result = await verificationCodeService.registerByPhoneCode(
-          registerForm.phone, 
-          registerForm.code, 
-          registerForm.password
-        );
-      } else {
-        result = await verificationCodeService.registerByEmailCode(
-          registerForm.email, 
-          registerForm.code, 
-          registerForm.password
-        );
-      }
+      const result = await verificationCodeService.registerByPhoneCode(
+        registerForm.phone, 
+        registerForm.code, 
+        registerForm.password
+      );
       
       if (result.success) {
         toast({ title: '注册成功', description: '正在跳转到登录...' });
 
         // 清空注册表单
         setRegisterForm({
-          email: '',
           phone: '',
           password: '',
           confirmPassword: '',
@@ -605,11 +576,7 @@ export const CustomLoginPage: React.FC = () => {
     }
   };
 
-  const isContactValid = !loginForm.contact || (
-    contactType === 'email'
-      ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginForm.contact)
-      : /^1[3-9]\d{9}$/.test(loginForm.contact)
-  );
+  const isPhoneValid = !loginForm.phone || /^1[3-9]\d{9}$/.test(loginForm.phone);
   const [rememberMe, setRememberMe] = useState(false);
 
   // 🔧 FIX: 在检查认证状态时显示加载界面
@@ -633,29 +600,25 @@ export const CustomLoginPage: React.FC = () => {
       subtitle={mode === 'register' ? '创建您的账户' : '请登录以继续'}
     >
       <div>
-      {/* 与 21st.dev 模板一致的表单结构与类名（增加邮箱/手机号 + 密码/验证码登录） */}
+      {/* 与 21st.dev 模板一致的表单结构与类名（手机号 + 密码/验证码登录） */}
       {mode === 'login' && (
         <>
         <form className="login-form" onSubmit={handleLogin}>
         {/* 联系方式选择 */}
-        {/* 联系方式切换（分段按钮） */}
-        <div className="segmented" style={{marginTop:4, marginBottom:8}}>
-          <button type="button" onClick={() => setContactType('email')} className={`seg-btn ${contactType==='email'?'active':''}`}>邮箱</button>
-          <button type="button" onClick={() => setContactType('phone')} className={`seg-btn ${contactType==='phone'?'active':''}`}>手机号</button>
-        </div>
+        {/* 已移除邮箱选项，只保留手机号登录 */}
 
-        {/* 联系方式输入 */}
-        <div className={`form-field ${loginEmailFocused || loginForm.contact ? 'active' : ''} ${(!isContactValid && loginForm.contact) ? 'invalid' : ''}`}>
+        {/* 手机号输入 */}
+        <div className={`form-field ${loginPhoneFocused || loginForm.phone ? 'active' : ''} ${(!isPhoneValid && loginForm.phone) ? 'invalid' : ''}`}>
           <input
-            type={contactType === 'email' ? 'email' : 'tel'}
-            id="contact"
-            value={loginForm.contact}
-            onChange={(e) => setLoginForm(prev => ({ ...prev, contact: e.target.value }))}
-            onFocus={() => setLoginEmailFocused(true)}
-            onBlur={() => setLoginEmailFocused(false)}
+            type="tel"
+            id="phone"
+            value={loginForm.phone}
+            onChange={(e) => setLoginForm(prev => ({ ...prev, phone: e.target.value }))}
+            onFocus={() => setLoginPhoneFocused(true)}
+            onBlur={() => setLoginPhoneFocused(false)}
             required
           />
-          <label htmlFor="contact">{contactType === 'email' ? '电子邮件地址' : '手机号'}</label>
+          <label htmlFor="phone">手机号</label>
         </div>
 
         {/* 登录方式选择（分段按钮） */}
@@ -704,17 +667,12 @@ export const CustomLoginPage: React.FC = () => {
               type="button"
               className="login-button"
               style={{padding:'10px 14px'}}
-              disabled={loginForm.sendingCode || loginForm.codeCountdown > 0 || !isContactValid}
+              disabled={loginForm.sendingCode || loginForm.codeCountdown > 0 || !isPhoneValid}
               onClick={async () => {
                 try {
                   setLoginForm(prev => ({ ...prev, sendingCode: true }));
                   
-                  let result;
-                  if (contactType === 'phone') {
-                    result = await verificationCodeService.sendSmsCode(loginForm.contact, 'LOGIN');
-                  } else {
-                    result = await verificationCodeService.sendEmailCode(loginForm.contact, 'LOGIN');
-                  }
+                  const result = await verificationCodeService.sendSmsCode(loginForm.phone, 'LOGIN');
                   
                   if (result.success) {
                     toast({ 
@@ -765,7 +723,7 @@ export const CustomLoginPage: React.FC = () => {
           disabled={
             loginForm.loading || 
             loginForm.loginSuccess ||
-            (loginMethod === 'password' ? (!loginForm.password || !isContactValid) : (!loginForm.code || !isContactValid))
+            (loginMethod === 'password' ? (!loginForm.password || !isPhoneValid) : (!loginForm.code || !isPhoneValid))
           }
         >
           {loginForm.loginSuccess ? '登录成功，跳转中...' : (loginForm.loading ? '登录中...' : '登录')}
@@ -781,39 +739,21 @@ export const CustomLoginPage: React.FC = () => {
       {mode === 'register' && (
         <form className="login-form" onSubmit={handleRegister} style={{marginTop: 24}}>
 
-          {/* 联系方式选择（分段按钮） */}
-          <div className="segmented" style={{marginTop:8, marginBottom:8}}>
-            <button type="button" className={`seg-btn ${registerContactType==='email'?'active':''}`} onClick={() => setRegisterContactType('email')}>邮箱注册</button>
-            <button type="button" className={`seg-btn ${registerContactType==='phone'?'active':''}`} onClick={() => setRegisterContactType('phone')}>手机号注册</button>
-          </div>
+          {/* 已移除邮箱选项，只保留手机号注册 */}
 
-          {registerContactType === 'email' ? (
-            <div className={`form-field ${registerEmailFocused || registerForm.email ? 'active' : ''}`}>
-              <input
-                type="email"
-                id="register-email"
-                value={registerForm.email}
-                onChange={(e) => setRegisterForm(prev => ({ ...prev, email: e.target.value }))}
-                onFocus={() => setRegisterEmailFocused(true)}
-                onBlur={() => setRegisterEmailFocused(false)}
-                required
-              />
-              <label htmlFor="register-email">邮箱</label>
-            </div>
-          ) : (
-            <div className={`form-field ${registerPhoneFocused || registerForm.phone ? 'active' : ''}`}>
-              <input
-                type="tel"
-                id="register-phone"
-                value={registerForm.phone}
-                onChange={(e) => setRegisterForm(prev => ({ ...prev, phone: e.target.value }))}
-                onFocus={() => setRegisterPhoneFocused(true)}
-                onBlur={() => setRegisterPhoneFocused(false)}
-                required
-              />
-              <label htmlFor="register-phone">手机号</label>
-            </div>
-          )}
+          {/* 手机号输入 */}
+          <div className={`form-field ${registerPhoneFocused || registerForm.phone ? 'active' : ''}`}>
+            <input
+              type="tel"
+              id="register-phone"
+              value={registerForm.phone}
+              onChange={(e) => setRegisterForm(prev => ({ ...prev, phone: e.target.value }))}
+              onFocus={() => setRegisterPhoneFocused(true)}
+              onBlur={() => setRegisterPhoneFocused(false)}
+              required
+            />
+            <label htmlFor="register-phone">手机号</label>
+          </div>
 
           {/* 验证码 */}
           <div className={`form-field ${registerCodeFocused || registerForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'8px'}}>
@@ -833,18 +773,12 @@ export const CustomLoginPage: React.FC = () => {
               type="button"
               className="login-button"
               style={{padding:'10px 14px'}}
-              disabled={registerForm.sendingCode || registerForm.codeCountdown > 0 || (!registerForm.email && !registerForm.phone)}
+              disabled={registerForm.sendingCode || registerForm.codeCountdown > 0 || !registerForm.phone}
               onClick={async () => {
                 try {
                   setRegisterForm(prev => ({ ...prev, sendingCode: true }));
                   
-                  let result;
-                  if (registerContactType === 'phone') {
-                    result = await verificationCodeService.sendSmsCode(registerForm.phone, 'REGISTER');
-                  } else {
-                    // 🔧 FIX: 注册时使用正确的REGISTER场景发送验证码
-                    result = await verificationCodeService.sendEmailCode(registerForm.email, 'REGISTER');
-                  }
+                  const result = await verificationCodeService.sendSmsCode(registerForm.phone, 'REGISTER');
                   
                   if (result.success) {
                     toast({ 
