@@ -25,7 +25,7 @@ module.exports.handler = async (event, context) => {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Credentials': 'true',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json; charset=utf-8'
   };
 
   // 处理预检请求 - 确保OPTIONS得到正确响应
@@ -126,7 +126,7 @@ module.exports.handler = async (event, context) => {
       const body = event.body ? JSON.parse(event.body) : {};
       const { provider, model, messages, temperature, maxTokens, userId, prompt, systemPrompt } = body;
 
-      // 🔧 修复: 模型名称标准化和provider确定
+      // ✅ 直接使用真实的模型名称，自动识别provider
       let actualProvider = provider;
       let actualModel = model;
       
@@ -135,10 +135,6 @@ module.exports.handler = async (event, context) => {
           actualProvider = 'openai';
         } else if (model?.includes('deepseek')) {
           actualProvider = 'deepseek';
-          // 🔧 标准化DeepSeek模型名称
-          if (model.includes('deepseek-v3') || model.includes('deepseek-v2')) {
-            actualModel = 'deepseek-chat';
-          }
         } else if (model?.includes('gemini')) {
           actualProvider = 'gemini';
         } else {
@@ -147,11 +143,9 @@ module.exports.handler = async (event, context) => {
         }
       }
       
-      console.log('🔍 AI Chat 模型映射:', {
-        原始provider: provider,
-        原始model: model,
-        实际provider: actualProvider,
-        实际model: actualModel
+      console.log('🔍 AI Chat 模型调用:', {
+        provider: actualProvider,
+        model: actualModel
       });
 
       // 构建消息格式：支持两种输入格式
@@ -215,7 +209,76 @@ module.exports.handler = async (event, context) => {
     }
 
     const body = event.body ? JSON.parse(event.body) : {};
-    const { provider, action, platform, ...requestBody } = body;
+    const { provider, action, platform, model, messages, ...requestBody } = body;
+
+    // 🔧 新增：直接AI调用支持（无需action参数，通过model和messages识别）
+    if (model && messages && !action) {
+      console.log('🔍 直接AI调用检测:', { provider, model });
+      
+      // 自动识别provider
+      let actualProvider = provider;
+      let actualModel = model;
+      
+      if (!actualProvider) {
+        if (model?.includes('gpt') || model?.includes('o1')) {
+          actualProvider = 'openai';
+        } else if (model?.includes('deepseek')) {
+          actualProvider = 'deepseek';
+        } else if (model?.includes('gemini')) {
+          actualProvider = 'gemini';
+        } else {
+          actualProvider = 'deepseek';
+          actualModel = 'deepseek-chat';
+        }
+      }
+      
+      const aiRequestBody = {
+        model: actualModel || 'deepseek-chat',
+        messages: messages || [],
+        temperature: requestBody.temperature || 0.7,
+        maxTokens: requestBody.maxTokens || 1000
+      };
+
+      // 调用AI服务
+      let result;
+      switch (actualProvider) {
+        case 'openai':
+          result = await generateWithOpenAI(aiRequestBody, headers);
+          break;
+        case 'deepseek':
+          result = await generateWithDeepSeek(aiRequestBody, headers);
+          break;
+        case 'gemini':
+          result = await generateWithGemini(aiRequestBody, headers);
+          break;
+        default:
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'Unknown provider' })
+          };
+      }
+
+      // 转换返回格式为统一格式
+      if (result.statusCode === 200) {
+        const responseData = JSON.parse(result.body);
+        if (responseData.success && responseData.data) {
+          const aiData = responseData.data;
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+              content: aiData.choices?.[0]?.message?.content || aiData.content || '',
+              model: actualModel,
+              usage: aiData.usage,
+              success: true
+            })
+          };
+        }
+      }
+      
+      return result;
+    }
 
     // 根据provider和action路由到不同的处理函数
     if (action === 'status') {
@@ -318,7 +381,7 @@ async function getHotTopicsByPlatform(platform, headers) {
   try {
     const response = await fetch(`https://api-hot.imsyy.top/${platform}`, {
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
         'Accept': 'application/json'
       },
       timeout: 8000
@@ -359,7 +422,7 @@ async function getAggregatedHotTopics(headers) {
       try {
         const response = await fetch(`https://api-hot.imsyy.top/${platform}`, {
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'Accept': 'application/json'
           },
           timeout: 8000
@@ -413,7 +476,7 @@ async function getAllHotTopics(headers) {
   try {
     const response = await fetch('https://api-hot.imsyy.top/all', {
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
         'Accept': 'application/json'
       },
       timeout: 8000
@@ -446,7 +509,7 @@ async function getAllHotTopics(headers) {
  */
 async function checkOpenAIStatus(headers) {
   try {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return {
         statusCode: 200,
@@ -461,7 +524,7 @@ async function checkOpenAIStatus(headers) {
     const response = await fetch('https://api.openai.com/v1/models', {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json; charset=utf-8'
       },
       timeout: 5000
     });
@@ -491,7 +554,7 @@ async function checkOpenAIStatus(headers) {
  */
 async function checkDeepSeekStatus(headers) {
   try {
-    const apiKey = process.env.DEEPSEEK_API_KEY;
+    const apiKey = process.env.VITE_DEEPSEEK_API_KEY || process.env.DEEPSEEK_API_KEY;
     if (!apiKey) {
       return {
         statusCode: 200,
@@ -506,7 +569,7 @@ async function checkDeepSeekStatus(headers) {
     const response = await fetch('https://api.deepseek.com/v1/models', {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json; charset=utf-8'
       },
       timeout: 5000
     });
@@ -536,7 +599,7 @@ async function checkDeepSeekStatus(headers) {
  */
 async function generateWithOpenAI(requestBody, headers) {
   try {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error('OpenAI API key not configured');
     }
@@ -545,7 +608,7 @@ async function generateWithOpenAI(requestBody, headers) {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json; charset=utf-8'
       },
       body: JSON.stringify({
         model: requestBody.model || 'gpt-4o',
@@ -587,7 +650,7 @@ async function generateWithOpenAI(requestBody, headers) {
  */
 async function generateWithDeepSeek(requestBody, headers) {
   try {
-    const apiKey = process.env.DEEPSEEK_API_KEY;
+    const apiKey = process.env.VITE_DEEPSEEK_API_KEY || process.env.DEEPSEEK_API_KEY;
     console.log('🔑 DeepSeek API Key 检查:', {
       hasKey: !!apiKey,
       keyLength: apiKey?.length || 0,
@@ -598,15 +661,11 @@ async function generateWithDeepSeek(requestBody, headers) {
       throw new Error('DeepSeek API key not configured');
     }
 
-    // 🔧 修复: 模型名称映射 - 将前端的模型名称映射到API支持的名称
+    // ✅ 直接使用实际的模型名称，无需映射
     let apiModel = requestBody.model || 'deepseek-chat';
-    if (apiModel.includes('deepseek-v3') || apiModel.includes('deepseek-v2')) {
-      apiModel = 'deepseek-chat';
-    }
     
-    console.log('🔧 DeepSeek模型映射:', {
-      原始模型: requestBody.model,
-      映射后模型: apiModel,
+    console.log('🔧 DeepSeek模型调用:', {
+      模型名称: apiModel,
       消息数量: requestBody.messages?.length || 0
     });
 
@@ -614,7 +673,7 @@ async function generateWithDeepSeek(requestBody, headers) {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json; charset=utf-8'
       },
       body: JSON.stringify({
         model: apiModel,
@@ -625,11 +684,27 @@ async function generateWithDeepSeek(requestBody, headers) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error('❌ DeepSeek API错误响应:', errorText);
+      try {
+        const errorData = JSON.parse(errorText);
+        throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+      } catch (parseError) {
+        throw new Error(`DeepSeek API error: ${response.status} - ${errorText}`);
+      }
     }
 
-    const data = await response.json();
+    const responseText = await response.text();
+    console.log('🔍 DeepSeek原始响应长度:', responseText.length);
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+      console.log('✅ DeepSeek JSON解析成功');
+    } catch (parseError) {
+      console.error('❌ JSON解析失败:', parseError, '原始响应前500字符:', responseText.substring(0, 500));
+      throw new Error('DeepSeek响应格式错误，无法解析JSON');
+    }
     
     return {
       statusCode: 200,
@@ -656,7 +731,7 @@ async function generateWithDeepSeek(requestBody, headers) {
  */
 async function generateWithGemini(requestBody, headers) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error('Gemini API key not configured');
     }
@@ -664,7 +739,7 @@ async function generateWithGemini(requestBody, headers) {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json; charset=utf-8'
       },
       body: JSON.stringify({
         contents: requestBody.messages.map(msg => ({
@@ -705,7 +780,7 @@ async function generateWithGemini(requestBody, headers) {
  */
 async function generateImage(requestBody, headers) {
   try {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error('OpenAI API key not configured');
     }
@@ -714,7 +789,7 @@ async function generateImage(requestBody, headers) {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json; charset=utf-8'
       },
       body: JSON.stringify({
         prompt: requestBody.prompt,

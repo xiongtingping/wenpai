@@ -55,9 +55,9 @@ export const AI_MODELS: Record<string, AIModel> = {
       output: 0.0006
     }
   },
-  'deepseek-v3': {
-    id: 'deepseek-v3',
-    name: 'DeepSeek V3',
+  'deepseek-chat': {
+    id: 'deepseek-chat',
+    name: 'DeepSeek Chat',
     provider: 'DeepSeek',
     description: '中文优化模型，理解力强，适合本地化内容和中文创作',
     features: [
@@ -72,6 +72,24 @@ export const AI_MODELS: Record<string, AIModel> = {
       input: 0.00014,
       output: 0.00056
     }
+  },
+  'deepseek-reasoner': {
+    id: 'deepseek-reasoner',
+    name: 'DeepSeek Reasoner',
+    provider: 'DeepSeek',
+    description: 'DeepSeek推理模型，专注于逻辑推理和复杂问题解决',
+    features: [
+      '逻辑推理能力强',
+      '复杂问题分析',
+      '步骤化思考',
+      '数学和科学计算',
+      '深度思考能力'
+    ],
+    maxTokens: 128000,
+    pricing: {
+      input: 0.00014,
+      output: 0.00056
+    }
   }
 };
 
@@ -79,9 +97,9 @@ export const AI_MODELS: Record<string, AIModel> = {
  * 订阅计划对应的可用模型
  */
 export const SUBSCRIPTION_MODELS: Record<string, string[]> = {
-  trial: ['gpt-4o-mini', 'deepseek-v3'],
-  pro: ['gpt-4o', 'gpt-4o-mini', 'deepseek-v3'],
-  premium: ['gpt-4o', 'gpt-4o-mini', 'deepseek-v3']
+  trial: ['gpt-4o-mini', 'deepseek-chat'],
+  pro: ['gpt-4o', 'gpt-4o-mini', 'deepseek-chat', 'deepseek-reasoner'],
+  premium: ['gpt-4o', 'gpt-4o-mini', 'deepseek-chat', 'deepseek-reasoner']
 };
 
 /**

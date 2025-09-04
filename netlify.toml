@@ -120,14 +120,12 @@
   # Supabase配置 - 服务端
   SUPABASE_URL = "https://weizkydylskcwgnaieqy.supabase.co"
   SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlaXpreWR5bHNrY3dnbmFpZXF5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTA1MjMzOSwiZXhwIjoyMDcwNjI4MzM5fQ.l5BvkhJttv0agpydb5lktK1Q4KvDaxQTNUb5-GMU14w"
-  # OpenAI配置
-  VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
+  # OpenAI配置 - 通过Netlify环境变量设置
+  # 在Netlify Dashboard的Site settings -> Environment variables中配置这些变量
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
-  # Gemini配置
-  VITE_GEMINI_API_KEY = "your-gemini-api-key-here"
+  # Gemini配置 - 通过Netlify环境变量设置
   VITE_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
-  # Deepseek配置
-  VITE_DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"
+  # Deepseek配置 - 通过Netlify环境变量设置
   VITE_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
   # Creem配置
   VITE_CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
@@ -152,14 +150,12 @@
   AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   AUTHING_REDIRECT_URI = "https://wenpai.netlify.app/callback"
-  # OpenAI配置
-  VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
+  # OpenAI配置 - 通过Netlify环境变量设置
+  # 在Netlify Dashboard的Site settings -> Environment variables中配置这些变量
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
-  # Gemini配置
-  VITE_GEMINI_API_KEY = "your-gemini-api-key-here"
+  # Gemini配置 - 通过Netlify环境变量设置
   VITE_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
-  # Deepseek配置
-  VITE_DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"
+  # Deepseek配置 - 通过Netlify环境变量设置
   VITE_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
   # Creem配置
   VITE_CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
@@ -186,14 +182,12 @@
   AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   AUTHING_REDIRECT_URI = "http://localhost:5173/callback"
-  # OpenAI配置
-  VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
+  # OpenAI配置 - 通过Netlify环境变量设置
+  # 在Netlify Dashboard的Site settings -> Environment variables中配置这些变量
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
-  # Gemini配置
-  VITE_GEMINI_API_KEY = "your-gemini-api-key-here"
+  # Gemini配置 - 通过Netlify环境变量设置
   VITE_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
-  # Deepseek配置
-  VITE_DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"
+  # Deepseek配置 - 通过Netlify环境变量设置
   VITE_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
   # Creem配置
   VITE_CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"

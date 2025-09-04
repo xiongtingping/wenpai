@@ -71,14 +71,26 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
         // 处理后端API返回的格式: { success: true, data: { choices: [...] } }
         if (result.data.choices && result.data.choices[0]?.message?.content) {
           content = result.data.choices[0].message.content;
+          console.log('✅ DeepSeek内容解析成功，长度:', content.length);
         } else if (result.data.content) {
           content = result.data.content;
+          console.log('✅ DeepSeek内容解析成功(content字段)，长度:', content.length);
         } else if (typeof result.data === 'string') {
           content = result.data;
+          console.log('✅ DeepSeek内容解析成功(字符串)，长度:', content.length);
         } else {
-          console.warn('⚠️ DeepSeek响应数据格式异常:', result.data);
-          content = JSON.stringify(result.data);
+          console.warn('⚠️ DeepSeek响应数据格式异常，尝试提取内容:', result.data);
+          // 尝试从其他可能的格式中提取内容
+          if (result.data.text) {
+            content = result.data.text;
+          } else if (result.data.response) {
+            content = result.data.response;
+          } else {
+            content = JSON.stringify(result.data);
+          }
         }
+      } else {
+        console.error('❌ DeepSeek API调用失败:', result.error);
       }
       
       return {
