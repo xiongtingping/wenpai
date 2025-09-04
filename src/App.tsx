@@ -57,6 +57,7 @@ import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 import ShareManagerPage from '@/pages/ShareManagerPage';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 import { CustomLoginPage } from '@/pages/CustomLoginPage';
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 // 移除调试页面
 // 移除测试组件
 
@@ -164,6 +165,7 @@ const App: React.FC = () => {
 
                         {/* 登录页面 */}
                         <Route path="/custom-login" element={<CustomLoginPage />} />
+                        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
                         {/* 登录回调页面 - 支持各种回调URL格式 */}
                         <Route path="/callback" element={<CallbackPage />} />

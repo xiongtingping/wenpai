@@ -765,6 +765,68 @@ class VerificationCodeService {
       };
     }
   }
+
+  /**
+   * 使用手机验证码重置密码
+   */
+  async resetPasswordByPhoneCode(phone: string, code: string, newPassword: string): Promise<VerificationCodeResponse> {
+    try {
+      if (!/^1[3-9]\d{9}$/.test(phone)) {
+        return {
+          success: false,
+          message: '请输入有效的手机号码'
+        };
+      }
+
+      if (!code || code.length < 4) {
+        return {
+          success: false,
+          message: '请输入有效的验证码'
+        };
+      }
+
+      if (!newPassword || newPassword.length < 6) {
+        return {
+          success: false,
+          message: '密码长度至少6位'
+        };
+      }
+
+      const client = await this.initAuthClient();
+      
+      // Authing SDK的重置密码API
+      const result = await client.resetPasswordByPhoneCode(phone, code, newPassword);
+
+      console.log('✅ 手机验证码重置密码成功:', result);
+      
+      return {
+        success: true,
+        message: '密码重置成功',
+        data: result
+      };
+
+    } catch (error: any) {
+      console.error('❌ 手机验证码重置密码失败:', error);
+      
+      let errorMessage = '密码重置失败';
+      if (error?.message) {
+        if (error.message.includes('code')) {
+          errorMessage = '验证码错误或已过期';
+        } else if (error.message.includes('phone')) {
+          errorMessage = '手机号不存在或未注册';
+        } else if (error.message.includes('password')) {
+          errorMessage = '密码格式不符合要求';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      return {
+        success: false,
+        message: errorMessage
+      };
+    }
+  }
 }
 
 // 导出单例实例
