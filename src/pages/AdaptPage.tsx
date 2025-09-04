@@ -4362,12 +4362,12 @@ onCheckedChange={(checked) => {
                       </Label>
                       <Select
                         value={globalSettings.charCountPreset}
-                        onValueChange={(value) => {
-                          updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed');
-                        }}
+                        onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
                         disabled={settingsMode.charCount === 'platform'}
                       >
-                        <SelectTrigger className="h-9 max-w-xs">
+                        <SelectTrigger className={`h-9 max-w-xs ${
+                          settingsMode.charCount === 'platform' ? 'bg-muted text-muted-foreground cursor-not-allowed' : ''
+                        }`}>
                           <SelectValue placeholder={t('adapt.selectCharacterLimit')} />
                         </SelectTrigger>
                         <SelectContent className="z-50">
