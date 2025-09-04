@@ -137,12 +137,13 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
   // 统一用户状态模式
   'unified-user-state': {
     type: 'object',
+    required: false,
     properties: {
       user: { type: 'object', required: false },
       isAuthenticated: { type: 'boolean', required: false },
       subscriptionStatus: { type: 'object', required: false },
       hasActiveSubscription: { type: 'boolean', required: false },
-      userTier: { type: 'string', required: false },
+      userTier: { type: 'string', enum: ['trial', 'pro', 'premium'], required: false },
       usageCount: { type: 'number', required: false },
       maxUsage: { type: 'number', required: false },
       usageRemaining: { type: 'number', required: false },
@@ -153,6 +154,25 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
       cacheExpiry: { type: 'number', required: false },
       forceRefresh: { type: 'boolean', required: false }
     }
+  },
+
+  // 平台设置模式
+  ADAPT_PLATFORM_SETTINGS: {
+    type: 'object',
+    required: false,
+    properties: {
+      charCount: { type: 'number', required: false },
+      useEmoji: { type: 'boolean', required: false },
+      useMdFormat: { type: 'boolean', required: false },
+      useAutoFormat: { type: 'boolean', required: false }
+    }
+  },
+
+  // 数据验证时间戳模式
+  DATA_VALIDATION_TIMESTAMP: {
+    type: 'string',
+    required: false,
+    pattern: /^\d+$/
   },
 
   // 认证守卫模式
@@ -510,7 +530,12 @@ export class DataTypeValidator {
     
     // 数据验证运行时间
     if (key === 'data_validation_last_run') {
-      return { type: 'string', required: false };
+      return DATA_SCHEMAS.DATA_VALIDATION_TIMESTAMP;
+    }
+    
+    // 平台设置 (带用户ID的动态键)
+    if (key.startsWith('adapt_platform_settings_')) {
+      return DATA_SCHEMAS.ADAPT_PLATFORM_SETTINGS;
     }
     
     // 订阅状态缓存 (动态用户ID)

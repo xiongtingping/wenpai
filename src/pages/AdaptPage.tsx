@@ -1300,12 +1300,12 @@ export default function AdaptPage() {
 
           // 尝试从后端API获取实际已使用次数（可选）
           try {
-            const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : '';
-            const response = await fetch(`${apiBaseUrl}/.netlify/functions/api/usage-count/user/usage/${user.id}`);
+            const response = await request.post('/.netlify/functions/api', {
+              action: 'user-usage',
+              userId: user.id
+            });
 
-            if (response.ok) {
-              const usageData = await response.json();
-              const actualUsedCount = usageData.data?.totalUsed || 0;
+            const actualUsedCount = response.totalUsed || 0;
 
               // 同步实际已使用次数
               const currentStoreUsage = useAuthStore.getState().usageCount;
@@ -4172,17 +4172,6 @@ ${charCountControl.source === 'platform-specific'
                     {usageRemaining === Infinity ? "不限" : usageRemaining}
                   </Badge>
                 </UsageStateWrapper>
-                {/* 异常数据诊断按钮 */}
-                {(typeof usageRemaining === 'number' && usageRemaining > effectiveMaxUsage && effectiveMaxUsage > 0) && (
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={resetUsageData}
-                    className="text-xs"
-                  >
-                    修复数据
-                  </Button>
-                )}
               </div>
             </div>
           </CardHeader>
