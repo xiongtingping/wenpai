@@ -126,19 +126,33 @@ module.exports.handler = async (event, context) => {
       const body = event.body ? JSON.parse(event.body) : {};
       const { provider, model, messages, temperature, maxTokens, userId, prompt, systemPrompt } = body;
 
-      // 根据模型确定使用的provider
+      // 🔧 修复: 模型名称标准化和provider确定
       let actualProvider = provider;
+      let actualModel = model;
+      
       if (!actualProvider) {
         if (model?.includes('gpt') || model?.includes('o1')) {
           actualProvider = 'openai';
         } else if (model?.includes('deepseek')) {
           actualProvider = 'deepseek';
+          // 🔧 标准化DeepSeek模型名称
+          if (model.includes('deepseek-v3') || model.includes('deepseek-v2')) {
+            actualModel = 'deepseek-chat';
+          }
         } else if (model?.includes('gemini')) {
           actualProvider = 'gemini';
         } else {
           actualProvider = 'deepseek'; // 默认使用deepseek
+          actualModel = 'deepseek-chat';
         }
       }
+      
+      console.log('🔍 AI Chat 模型映射:', {
+        原始provider: provider,
+        原始model: model,
+        实际provider: actualProvider,
+        实际model: actualModel
+      });
 
       // 构建消息格式：支持两种输入格式
       let requestMessages = messages;
@@ -151,9 +165,9 @@ module.exports.handler = async (event, context) => {
         requestMessages.push({ role: 'user', content: prompt });
       }
 
-      // 调用相应的生成函数
+      // 调用相应的生成函数 - 🔧 使用标准化后的模型名称
       const requestBody = {
-        model: model || 'deepseek-chat',
+        model: actualModel || 'deepseek-chat',
         messages: requestMessages || [],
         temperature: temperature || 0.7,
         maxTokens: maxTokens || 1000
@@ -189,7 +203,7 @@ module.exports.handler = async (event, context) => {
             headers,
             body: JSON.stringify({
               content: aiData.choices?.[0]?.message?.content || aiData.content || '',
-              model: requestBody.model,
+              model: actualModel, // 🔧 返回实际使用的模型名称
               usage: aiData.usage,
               success: true
             })
@@ -584,6 +598,18 @@ async function generateWithDeepSeek(requestBody, headers) {
       throw new Error('DeepSeek API key not configured');
     }
 
+    // 🔧 修复: 模型名称映射 - 将前端的模型名称映射到API支持的名称
+    let apiModel = requestBody.model || 'deepseek-chat';
+    if (apiModel.includes('deepseek-v3') || apiModel.includes('deepseek-v2')) {
+      apiModel = 'deepseek-chat';
+    }
+    
+    console.log('🔧 DeepSeek模型映射:', {
+      原始模型: requestBody.model,
+      映射后模型: apiModel,
+      消息数量: requestBody.messages?.length || 0
+    });
+
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -591,7 +617,7 @@ async function generateWithDeepSeek(requestBody, headers) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: requestBody.model || 'deepseek-chat',
+        model: apiModel,
         messages: requestBody.messages,
         temperature: requestBody.temperature || 0.7,
         max_tokens: requestBody.maxTokens || 1000
