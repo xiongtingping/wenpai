@@ -46,11 +46,16 @@ class VerificationCodeService {
         throw new Error(`Authing配置缺失: appId=${!!config.appId}, host=${!!config.host}`);
       }
 
-      // 尝试使用domain而不是appHost，并添加协议类型
+      // 🔧 FIX: 增加超时配置和重试机制
       this.authClient = new AuthenticationClient({
         appId: config.appId,
         appHost: `https://${config.domain}`,
-        protocol: 'oidc'
+        protocol: 'oidc',
+        // 增加超时时间到60秒
+        timeout: 60000,
+        // 添加重试配置
+        retry: 3,
+        retryDelay: 2000
       });
 
       console.log('✅ Authing AuthenticationClient初始化成功');

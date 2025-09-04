@@ -98,16 +98,51 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
     try {
       logger.info('开始获取订阅状态:', { userId: user.id });
       
+      // 🔧 FIX: 改进API调用，增加重试机制和错误处理
       const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : '';
-      const response = await fetch(`${apiBaseUrl}/.netlify/functions/subscription-status/${user.id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      let lastError: Error | null = null;
+      let response: Response | null = null;
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      // 重试机制：最多尝试3次
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          logger.info(`🔄 订阅状态获取尝试 ${attempt}/3...`);
+
+          response = await Promise.race([
+            fetch(`${apiBaseUrl}/.netlify/functions/subscription-status/${user.id}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }),
+            // 30秒超时
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('订阅状态获取超时')), 30000)
+            )
+          ]);
+
+          if (response.ok) {
+            logger.info(`✅ 第 ${attempt} 次尝试成功`);
+            break;
+          } else {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+        } catch (error) {
+          lastError = error instanceof Error ? error : new Error('未知错误');
+          logger.warn(`❌ 第 ${attempt} 次尝试失败:`, lastError.message);
+
+          // 如果不是最后一次尝试，等待后重试
+          if (attempt < 3) {
+            const delay = attempt * 1000; // 递增延迟：1s, 2s
+            logger.info(`⏳ 等待 ${delay}ms 后重试...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      }
+
+      // 如果所有重试都失败了
+      if (!response || !response.ok) {
+        throw lastError || new Error('订阅状态获取失败');
       }
 
       // 检查响应内容类型
@@ -145,25 +180,50 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
 
     } catch (error) {
       logger.error('获取订阅状态失败:', error);
-      setError(error instanceof Error ? error.message : '获取订阅状态失败');
-      
-      // 🔧 FIX: 避免设置默认状态，保持loading状态直到获取到真实数据
-      // 这样可以避免页面先显示"免费版"再变成"专业版"的闪烁问题
-      if (!loading) {
-        // 只有在非loading状态下才设置默认状态
-        setPrimaryStatus({
-          status: 'inactive',
-          expiresAt: null,
-          daysRemaining: 0,
-          needsAlert: false,
-          alertLevel: 'info',
-          alertMessage: '',
-          statusLabel: '未订阅',
-          statusColor: 'gray'
-        });
-        setAllSubscriptions([]);
-        setHasActiveSubscription(false);
+
+      // 🔧 FIX: 提供更友好的错误处理
+      let errorMessage = '获取订阅状态失败';
+      if (error instanceof Error) {
+        if (error.message.includes('timeout') || error.message.includes('超时')) {
+          errorMessage = '网络连接超时，请检查网络后重试';
+        } else if (error.message.includes('Failed to fetch') || error.message.includes('网络')) {
+          errorMessage = '网络连接失败，请检查网络设置';
+        } else if (error.message.includes('500')) {
+          errorMessage = '服务暂时不可用，请稍后重试';
+        } else {
+          errorMessage = error.message;
+        }
       }
+
+      setError(errorMessage);
+
+      // 🔧 FIX: 在网络错误时使用缓存数据作为降级方案
+      try {
+        const cached = localStorage.getItem(`subscription_status_${user.id}`);
+        if (cached) {
+          const cachedStatus = JSON.parse(cached);
+          logger.info('🔄 使用缓存数据作为降级方案:', cachedStatus);
+          setPrimaryStatus(cachedStatus);
+          setHasActiveSubscription(cachedStatus.status === 'active');
+          return; // 使用缓存数据，不设置默认状态
+        }
+      } catch (e) {
+        logger.warn('读取缓存数据失败:', e);
+      }
+
+      // 如果没有缓存数据，设置默认状态
+      setPrimaryStatus({
+        status: 'inactive',
+        expiresAt: null,
+        daysRemaining: 0,
+        needsAlert: false,
+        alertLevel: 'info',
+        alertMessage: '',
+        statusLabel: '未订阅',
+        statusColor: 'gray'
+      });
+      setAllSubscriptions([]);
+      setHasActiveSubscription(false);
     } finally {
       setLoading(false);
     }

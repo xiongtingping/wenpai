@@ -291,11 +291,14 @@ export class GlobalDataValidationService {
   }
 
   /**
-   * 更新验证时间戳
+   * 更新验证时间戳 - 🔧 FIX: 确保存储为字符串格式
    */
   private static updateValidationTimestamp(): void {
     try {
-      localStorage.setItem(this.VALIDATION_KEY, Date.now().toString());
+      // 确保存储为字符串格式，符合数据验证器的期望
+      const timestamp = Date.now().toString();
+      localStorage.setItem(this.VALIDATION_KEY, timestamp);
+      logger.debug(`更新验证时间戳: ${timestamp}`);
     } catch (error) {
       logger.warn('更新验证时间戳失败:', error);
     }

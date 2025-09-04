@@ -13,6 +13,125 @@ import { AuthenticationClient } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
 import { verificationCodeService } from '@/services/verificationCodeService';
 
+// 🔧 FIX: Authing错误码解析器 - 提供友好的错误提示
+interface AuthingErrorInfo {
+  title: string;
+  description: string;
+  shouldClearCode: boolean;
+  actionSuggestion?: string;
+}
+
+function parseAuthingError(error: any): AuthingErrorInfo {
+  const errorCode = error?.code;
+  const errorMessage = error?.message || (error instanceof Error ? error.message : '登录失败');
+
+  // 根据Authing错误码提供精确的错误提示
+  switch (errorCode) {
+    case 2333:
+      return {
+        title: '账号或密码错误',
+        description: '请检查您输入的手机号/邮箱和密码是否正确',
+        shouldClearCode: false,
+        actionSuggestion: '忘记密码？点击下方链接重置'
+      };
+
+    case 2001:
+      return {
+        title: '账号不存在',
+        description: '该手机号/邮箱尚未注册，请先注册账号',
+        shouldClearCode: false,
+        actionSuggestion: '点击下方"注册"按钮创建新账号'
+      };
+
+    case 2004:
+      return {
+        title: '账号已被锁定',
+        description: '您的账号因多次登录失败被暂时锁定，请稍后重试或联系客服',
+        shouldClearCode: false,
+        actionSuggestion: '请等待30分钟后重试，或联系客服解锁'
+      };
+
+    case 2020:
+      return {
+        title: '验证码错误',
+        description: '您输入的验证码不正确或已过期',
+        shouldClearCode: true,
+        actionSuggestion: '请重新获取验证码'
+      };
+
+    case 2021:
+      return {
+        title: '验证码已过期',
+        description: '验证码有效期为5分钟，请重新获取',
+        shouldClearCode: true,
+        actionSuggestion: '点击"重新发送"获取新验证码'
+      };
+
+    case 2100:
+      return {
+        title: '手机号格式错误',
+        description: '请输入正确的11位手机号码',
+        shouldClearCode: false
+      };
+
+    case 2101:
+      return {
+        title: '邮箱格式错误',
+        description: '请输入正确的邮箱地址格式',
+        shouldClearCode: false
+      };
+
+    default:
+      // 根据错误消息内容进行模糊匹配
+      const lowerMessage = errorMessage.toLowerCase();
+
+      if (lowerMessage.includes('timeout') || lowerMessage.includes('超时')) {
+        return {
+          title: '登录超时',
+          description: '网络连接不稳定，请检查网络后重试',
+          shouldClearCode: false,
+          actionSuggestion: '请检查网络连接后重新尝试'
+        };
+      }
+
+      if (lowerMessage.includes('network') || lowerMessage.includes('网络') ||
+          lowerMessage.includes('failed to fetch') || lowerMessage.includes('connection')) {
+        return {
+          title: '网络连接失败',
+          description: '无法连接到服务器，请检查网络连接',
+          shouldClearCode: false,
+          actionSuggestion: '请检查网络设置后重试'
+        };
+      }
+
+      if (lowerMessage.includes('password') || lowerMessage.includes('密码')) {
+        return {
+          title: '密码错误',
+          description: '您输入的密码不正确',
+          shouldClearCode: false,
+          actionSuggestion: '请检查密码是否正确，或点击"忘记密码"'
+        };
+      }
+
+      if (lowerMessage.includes('user') || lowerMessage.includes('用户')) {
+        return {
+          title: '用户不存在',
+          description: '该账号尚未注册',
+          shouldClearCode: false,
+          actionSuggestion: '请先注册账号或检查输入是否正确'
+        };
+      }
+
+      // 默认错误
+      return {
+        title: '登录失败',
+        description: errorMessage || '登录过程中发生未知错误，请重试',
+        shouldClearCode: false,
+        actionSuggestion: '如问题持续，请联系客服'
+      };
+  }
+}
+
 import '@/styles/animated-signin-21st.css';
 export const CustomLoginPage: React.FC = () => {
   const { toast } = useToast();
@@ -104,7 +223,16 @@ export const CustomLoginPage: React.FC = () => {
     if (!authingClientRef.current) {
       const cfg = getAuthingConfig();
       try {
-        authingClientRef.current = new (AuthenticationClient as any)({ appId: cfg.appId, appHost: cfg.host });
+        // 🔧 FIX: 增加超时配置和重试机制
+        authingClientRef.current = new (AuthenticationClient as any)({
+          appId: cfg.appId,
+          appHost: cfg.host,
+          // 增加超时时间到60秒
+          timeout: 60000,
+          // 添加重试配置
+          retry: 3,
+          retryDelay: 2000
+        });
       } catch (e) {
         console.warn('Authing AuthenticationClient init failed', e);
         authingClientRef.current = null;
@@ -189,23 +317,60 @@ export const CustomLoginPage: React.FC = () => {
 
       // 使用AuthenticationClient进行密码登录
       console.log('🔐 开始密码登录流程...');
-      
+
       const authingClient = ensureAuthingClient();
       if (!authingClient) {
         throw new Error('Authing客户端初始化失败');
       }
-      
-      console.log('🚀 调用SDK密码登录API...', { 
+
+      console.log('🚀 调用SDK密码登录API...', {
         method: contactType + '-password',
         contact: loginForm.contact.substring(0, 3) + '***'
       });
-      
-      // 使用AuthenticationClient进行密码登录
+
+      // 🔧 FIX: 添加重试机制的密码登录
       let result;
-      if (contactType === 'phone') {
-        result = await authingClient.loginByPhonePassword(loginForm.contact, loginForm.password);
-      } else {
-        result = await authingClient.loginByEmail(loginForm.contact, loginForm.password);
+      let lastError;
+      const maxRetries = 3;
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`🔄 登录尝试 ${attempt}/${maxRetries}...`);
+
+          // 设置更长的超时时间
+          const loginPromise = contactType === 'phone'
+            ? authingClient.loginByPhonePassword(loginForm.contact, loginForm.password)
+            : authingClient.loginByEmail(loginForm.contact, loginForm.password);
+
+          // 使用Promise.race来实现自定义超时
+          result = await Promise.race([
+            loginPromise,
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('登录请求超时，请检查网络连接')), 30000)
+            )
+          ]);
+
+          // 如果成功，跳出重试循环
+          if (result && result.id) {
+            console.log(`✅ 第 ${attempt} 次尝试登录成功:`, result);
+            break;
+          }
+        } catch (error) {
+          lastError = error;
+          console.warn(`❌ 第 ${attempt} 次登录尝试失败:`, error);
+
+          // 如果不是最后一次尝试，等待后重试
+          if (attempt < maxRetries) {
+            const delay = attempt * 2000; // 递增延迟：2s, 4s
+            console.log(`⏳ 等待 ${delay}ms 后重试...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      }
+
+      // 如果所有重试都失败了
+      if (!result || !result.id) {
+        throw lastError || new Error('登录失败，请检查网络连接后重试');
       }
       
       console.log('✅ SDK密码登录成功:', result);
@@ -243,17 +408,31 @@ export const CustomLoginPage: React.FC = () => {
         throw new Error('登录失败，请检查账号密码');
       }
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : '登录失败';
-      setError(errorMsg);
-      toast({ title: '登录失败', description: errorMsg, variant: 'destructive' });
-      
+      // 🔧 FIX: 增强错误处理和用户反馈 - 根据Authing错误码提供精确提示
+      const errorInfo = parseAuthingError(error);
+
+      console.error('❌ 登录失败详情:', {
+        originalError: error,
+        parsedError: errorInfo,
+        errorCode: (error as any)?.code,
+        errorMessage: (error as any)?.message
+      });
+
+      setError(errorInfo.title);
+      toast({
+        title: errorInfo.title,
+        description: errorInfo.description,
+        variant: 'destructive',
+        duration: 6000 // 延长显示时间，让用户有足够时间阅读
+      });
+
       // 重置状态，允许重新尝试
-      setLoginForm(prev => ({ 
-        ...prev, 
-        loading: false, 
+      setLoginForm(prev => ({
+        ...prev,
+        loading: false,
         loginSuccess: false,
         // 如果是验证码错误，清空验证码让用户重新输入
-        code: errorMsg.includes('验证码') ? '' : prev.code
+        code: errorInfo.shouldClearCode ? '' : prev.code
       }));
     }
   };

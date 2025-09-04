@@ -56,17 +56,60 @@ export function getPaymentCenterAccessTime(userId?: string): Date | undefined {
  */
 async function hasActiveSubscription(userId: string): Promise<boolean> {
   try {
-    const response = await fetch(`/.netlify/functions/check-subscription-status?userId=${userId}`);
-    
-    if (!response.ok) {
-      console.error('检查订阅状态API失败:', response.status);
-      return false;
+    // 🔧 FIX: 增加重试机制和更好的错误处理
+    let lastError: Error | null = null;
+
+    // 重试机制：最多尝试3次
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        console.log(`🔄 订阅状态检查尝试 ${attempt}/3...`);
+
+        const response = await Promise.race([
+          fetch(`/.netlify/functions/check-subscription-status?userId=${userId}`),
+          // 15秒超时
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('订阅状态检查超时')), 15000)
+          )
+        ]);
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('🔍 订阅状态检查结果:', { userId, hasSubscription: result.hasActiveSubscription });
+          return result.hasActiveSubscription;
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error('未知错误');
+        console.warn(`❌ 第 ${attempt} 次检查失败:`, lastError.message);
+
+        // 如果不是最后一次尝试，等待后重试
+        if (attempt < 3) {
+          const delay = attempt * 500; // 递增延迟：500ms, 1s
+          console.log(`⏳ 等待 ${delay}ms 后重试...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
     }
-    
-    const result = await response.json();
-    console.log('🔍 订阅状态检查结果:', { userId, hasSubscription: result.hasActiveSubscription });
-    
-    return result.hasActiveSubscription;
+
+    // 所有重试都失败了
+    console.error('检查订阅状态异常:', lastError);
+
+    // 🔧 FIX: 在网络错误时使用缓存数据作为降级方案
+    try {
+      const cached = localStorage.getItem(`subscription_status_${userId}`);
+      if (cached) {
+        const cachedStatus = JSON.parse(cached);
+        const isActive = cachedStatus.status === 'active';
+        console.log('🔄 使用缓存订阅状态作为降级方案:', { isActive, status: cachedStatus.status });
+        return isActive;
+      }
+    } catch (e) {
+      console.warn('读取缓存订阅状态失败:', e);
+    }
+
+    // 默认返回false，避免显示错误的优惠信息
+    return false;
   } catch (error) {
     console.error('检查订阅状态异常:', error);
     return false;
