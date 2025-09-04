@@ -255,5 +255,7 @@
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, HEAD, OPTIONS" 
 
+# 移除Next.js插件配置，因为这是Vite项目
+
 [functions]
   node_bundler = "esbuild" 
