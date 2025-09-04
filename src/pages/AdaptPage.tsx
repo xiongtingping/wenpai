@@ -1361,6 +1361,76 @@ export default function AdaptPage() {
   
   // 🔧 FIX: 使用统一状态管理的数据计算剩余次数
   const usageRemaining = effectiveMaxUsage === -1 ? Infinity : Math.max(0, effectiveMaxUsage - effectiveUsageCount);
+  
+  // 🐛 DEBUG: 记录剩余次数计算过程和localStorage数据
+  useEffect(() => {
+    const localStorageData = {
+      globalSettings: localStorage.getItem('globalSettings'),
+      usageCount: localStorage.getItem('usageCount'),
+      maxUsage: localStorage.getItem('maxUsage'),
+      userSubscription: localStorage.getItem('userSubscription'),
+      unifiedUserState: localStorage.getItem('unified-user-state')
+    };
+    
+    console.log('🔍 剩余次数计算调试:', {
+      effectiveUsageCount,
+      effectiveMaxUsage,
+      usageRemaining,
+      effectiveUserTier,
+      calculation: `${effectiveMaxUsage} - ${effectiveUsageCount} = ${usageRemaining}`,
+      unifiedUsageInfo: {
+        isInitialized: unifiedUsageInfo.isInitialized,
+        usageCount: unifiedUsageInfo.usageCount,
+        maxUsage: unifiedUsageInfo.maxUsage,
+        userTier: unifiedUsageInfo.userTier
+      },
+      authStore: { usageCount, maxUsage },
+      primaryStatus: primaryStatus?.status,
+      localStorageData
+    });
+    
+    // 检查是否有异常数据并尝试修复
+    if (effectiveUsageCount < 0) {
+      console.warn('⚠️ 检测到异常的使用次数数据，尝试修复...');
+      // 如果使用次数为负数，重置为0
+      if (unifiedUsageInfo.isInitialized) {
+        // TODO: 调用统一状态管理的重置方法
+      } else {
+        updateMaxUsage(30); // 重置为专业版默认值
+      }
+    }
+    
+    // 检查剩余次数是否异常（如31次这种情况）
+    if (typeof usageRemaining === 'number' && usageRemaining > effectiveMaxUsage && effectiveMaxUsage > 0) {
+      console.warn('⚠️ 检测到剩余次数异常，可能有数据错误:', {
+        usageRemaining,
+        effectiveMaxUsage,
+        effectiveUsageCount,
+        shouldBe: Math.max(0, effectiveMaxUsage - Math.max(0, effectiveUsageCount))
+      });
+      
+      // 自动修复：如果检测到明显的数据错误，自动执行一次数据修复
+      const isObviousDataError = (
+        usageRemaining === 31 && effectiveMaxUsage === 30 // 明确的31次问题
+        || effectiveUsageCount < 0 // 负数使用次数
+        || (effectiveMaxUsage > 0 && usageRemaining > effectiveMaxUsage + 10) // 剩余次数远超限制
+      );
+      
+      if (isObviousDataError) {
+        console.log('🔧 检测到明显数据错误，自动执行修复...');
+        setTimeout(() => {
+          resetUsageData();
+        }, 1000);
+      } else {
+        // 其他情况只刷新订阅状态
+        try {
+          refreshSubscription();
+        } catch (error) {
+          console.error('刷新订阅状态失败:', error);
+        }
+      }
+    }
+  }, [effectiveUsageCount, effectiveMaxUsage, usageRemaining, effectiveUserTier]);
 
   // 🔧 FIX: 将状态变化检测移到useEffect中，避免在render中执行副作用
   const prevStateRef = useRef<{
@@ -1567,6 +1637,52 @@ export default function AdaptPage() {
     }
     return true;
   };
+
+  // 🔧 数据修复函数 - 解决31次等异常数据问题
+  const resetUsageData = useCallback(async () => {
+    console.log('🔄 开始重置使用次数数据...');
+    
+    try {
+      // 1. 清理localStorage中的异常数据
+      const keysToRemove = [
+        'usageCount',
+        'maxUsage', 
+        'unified-user-state',
+        'globalSettings',
+        'userSubscription'
+      ];
+      
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+        console.log(`🗑️ 已清理: ${key}`);
+      });
+      
+      // 2. 重新获取用户订阅状态
+      await refreshSubscription();
+      
+      // 3. 重置为默认值
+      const correctTier = getUserTier(user);
+      const correctMaxUsage = correctTier === 'premium' ? -1 : correctTier === 'pro' ? 30 : 10;
+      
+      updateMaxUsage(correctMaxUsage);
+      
+      // 4. 触发toast提示
+      toast({
+        title: '数据已重置',
+        description: `使用次数已重置，套餐: ${correctTier === 'premium' ? '高级版(无限)' : correctTier === 'pro' ? '专业版(30次)' : '体验版(10次)'}`,
+      });
+      
+      console.log('✅ 使用次数数据重置完成');
+      
+    } catch (error) {
+      console.error('❌ 重置数据失败:', error);
+      toast({
+        title: '重置失败',
+        description: '数据重置过程中发生错误，请稍后重试',
+        variant: 'destructive'
+      });
+    }
+  }, [user, refreshSubscription, updateMaxUsage, toast]);
 
 
 
@@ -4056,6 +4172,17 @@ ${charCountControl.source === 'platform-specific'
                     {usageRemaining === Infinity ? "不限" : usageRemaining}
                   </Badge>
                 </UsageStateWrapper>
+                {/* 异常数据诊断按钮 */}
+                {(typeof usageRemaining === 'number' && usageRemaining > effectiveMaxUsage && effectiveMaxUsage > 0) && (
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={resetUsageData}
+                    className="text-xs"
+                  >
+                    修复数据
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>
