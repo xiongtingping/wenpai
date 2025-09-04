@@ -4352,36 +4352,135 @@ onCheckedChange={(checked) => {
                       </div>
                     </div>
 
-                    {/* 字符数限制 */}
+                    {/* 字符数限制 - 重构版本 */}
                     <div className="mb-4">
-                      <Label className={`text-sm font-medium flex items-center gap-2 mb-2 ${
-                        settingsMode.charCount === 'platform' ? 'text-muted-foreground' : 'text-foreground'
-                      }`}>
-                        <Hash className="h-3 w-3" />
-                        字符数限制
-                      </Label>
-                      <Select
-                        value={globalSettings.charCountPreset}
-                        onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
-                        disabled={settingsMode.charCount === 'platform'}
-                      >
-                        <SelectTrigger className={`h-9 max-w-xs ${
-                          settingsMode.charCount === 'platform' ? 'bg-muted text-muted-foreground cursor-not-allowed' : ''
-                        }`}>
-                          <SelectValue placeholder={t('adapt.selectCharacterLimit')} />
-                        </SelectTrigger>
-                        <SelectContent className="z-50">
-                          <SelectItem value="auto">{t('adapt.autoAdapt')}</SelectItem>
-                          <SelectItem value="mini">{t('adapt.conciseVersion')}</SelectItem>
-                          <SelectItem value="standard">{t('adapt.standardVersion')}</SelectItem>
-                          <SelectItem value="detailed">{t('adapt.detailedVersion')}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className={`text-xs mt-1 ${
-                        settingsMode.charCount === 'platform' ? 'text-muted-foreground' : 'text-muted-foreground'
-                      }`}>
-                        {settingsMode.charCount === 'platform' ? '已禁用，使用平台特定设置' : '根据平台特点自动调整内容长度'}
-                      </p>
+                      {/* 🔧 REFACTOR: 全局字符数下拉菜单 */}
+                      {settingsMode.charCount === 'platform' ? (
+                        /* 平台模式下的提示和快速切换 */
+                        <div className="p-3 bg-accent/30 border border-dashed border-border rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Hash className="h-3 w-3 text-muted-foreground" />
+                              <span className="text-sm font-medium text-muted-foreground">全局字符数限制</span>
+                              <Badge variant="outline" className="text-xs">平台模式</Badge>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-6 px-2 text-xs"
+                              onClick={() => {
+                                setSettingsMode(prev => ({ ...prev, charCount: 'global' }));
+                                toast({
+                                  title: "已切换到全局模式",
+                                  description: "现在可以设置全局字符数限制，将应用到所有平台",
+                                });
+                              }}
+                            >
+                              启用全局设置
+                            </Button>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            当前使用平台特定字符数设置。点击"启用全局设置"可设置统一的字符数限制。
+                          </p>
+                        </div>
+                      ) : (
+                        /* 全局模式下的字符数选择 */
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Hash className="h-3 w-3 text-foreground" />
+                            <Label className="text-sm font-medium text-foreground">
+                              全局字符数限制
+                            </Label>
+                            <Badge variant="secondary" className="text-xs">全局模式</Badge>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Select
+                              value={globalSettings.charCountPreset}
+                              onValueChange={(value) => {
+                                const newValue = value as 'auto' | 'mini' | 'standard' | 'detailed';
+
+                                // 🔧 FIX: 简化更新逻辑，直接更新设置
+                                setGlobalSettings(prev => ({
+                                  ...prev,
+                                  charCountPreset: newValue
+                                }));
+
+                                // 确保在全局模式
+                                if (settingsMode.charCount !== 'global') {
+                                  setSettingsMode(prev => ({ ...prev, charCount: 'global' }));
+                                }
+
+                                // 用户反馈
+                                const descriptions = {
+                                  'auto': '自动适配',
+                                  'mini': '简洁版本',
+                                  'standard': '标准版本',
+                                  'detailed': '详细版本'
+                                };
+
+                                toast({
+                                  title: "全局字符数限制已更新",
+                                  description: `已设置为：${descriptions[newValue]}，将应用到所有平台`,
+                                });
+
+                                // 应用到所有平台
+                                setTimeout(() => applyGlobalSettings(), 100);
+                              }}
+                            >
+                              <SelectTrigger className="h-9 max-w-xs">
+                                <SelectValue placeholder={t('adapt.selectCharacterLimit')} />
+                              </SelectTrigger>
+                              <SelectContent className="z-50">
+                                <SelectItem value="auto">{t('adapt.autoAdapt')}</SelectItem>
+                                <SelectItem value="mini">{t('adapt.conciseVersion')}</SelectItem>
+                                <SelectItem value="standard">{t('adapt.standardVersion')}</SelectItem>
+                                <SelectItem value="detailed">{t('adapt.detailedVersion')}</SelectItem>
+                              </SelectContent>
+                            </Select>
+
+                            {/* 快速设置按钮 */}
+                            <div className="flex items-center gap-1 justify-start">
+                              {[
+                                { label: '自动', value: 'auto' as const },
+                                { label: '简洁', value: 'mini' as const },
+                                { label: '标准', value: 'standard' as const },
+                                { label: '详细', value: 'detailed' as const }
+                              ].map((preset) => (
+                                <Button
+                                  key={preset.value}
+                                  size="sm"
+                                  variant={globalSettings.charCountPreset === preset.value ? "default" : "ghost"}
+                                  className="h-5 px-2 text-xs"
+                                  onClick={() => {
+                                    setGlobalSettings(prev => ({
+                                      ...prev,
+                                      charCountPreset: preset.value
+                                    }));
+
+                                    if (settingsMode.charCount !== 'global') {
+                                      setSettingsMode(prev => ({ ...prev, charCount: 'global' }));
+                                    }
+
+                                    toast({
+                                      title: "快速设置已应用",
+                                      description: `全局字符数已设置为${preset.label}模式`,
+                                    });
+
+                                    setTimeout(() => applyGlobalSettings(), 100);
+                                  }}
+                                >
+                                  {preset.label}
+                                </Button>
+                              ))}
+                            </div>
+
+                            <p className="text-xs text-muted-foreground">
+                              全局设置将应用到所有选中的平台，根据平台特点自动调整内容长度
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
