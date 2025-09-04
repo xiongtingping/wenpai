@@ -47,6 +47,13 @@ module.exports.handler = async (event, context) => {
   try {
     // 🔧 处理 /api/config 路径
     const path = event.path || event.rawUrl || '';
+    console.log('🔍 API请求调试:', {
+      path,
+      method: event.httpMethod,
+      body: event.body?.substring(0, 200),
+      headers: Object.keys(event.headers || {})
+    });
+    
     if (path.includes('/config')) {
       const { env } = event.queryStringParameters || {};
 
@@ -113,8 +120,9 @@ module.exports.handler = async (event, context) => {
       };
     }
 
-    // 🔧 处理 /ai/chat 路径
-    if (path.includes('/ai/chat')) {
+    // 🔧 处理 /ai/chat 路径 - 修复AI请求路由
+    if (path.includes('/ai/chat') || path.includes('ai/chat')) {
+      console.log('🔍 AI Chat 请求路径调试:', path, event.body?.substring(0, 200));
       const body = event.body ? JSON.parse(event.body) : {};
       const { provider, model, messages, temperature, maxTokens, userId, prompt, systemPrompt } = body;
 
@@ -566,6 +574,12 @@ async function generateWithOpenAI(requestBody, headers) {
 async function generateWithDeepSeek(requestBody, headers) {
   try {
     const apiKey = process.env.DEEPSEEK_API_KEY;
+    console.log('🔑 DeepSeek API Key 检查:', {
+      hasKey: !!apiKey,
+      keyLength: apiKey?.length || 0,
+      keyPrefix: apiKey?.substring(0, 8) || 'N/A'
+    });
+    
     if (!apiKey) {
       throw new Error('DeepSeek API key not configured');
     }

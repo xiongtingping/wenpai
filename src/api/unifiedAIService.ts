@@ -63,10 +63,28 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
       };
     } else if (params.model?.includes('deepseek')) {
       const result = await callDeepSeekProxy(messages, params.model);
+      console.log('🔍 DeepSeek代理响应调试:', result);
+      
+      // 🔧 修复: 处理实际的响应数据结构
+      let content = '';
+      if (result.success && result.data) {
+        // 处理后端API返回的格式: { success: true, data: { choices: [...] } }
+        if (result.data.choices && result.data.choices[0]?.message?.content) {
+          content = result.data.choices[0].message.content;
+        } else if (result.data.content) {
+          content = result.data.content;
+        } else if (typeof result.data === 'string') {
+          content = result.data;
+        } else {
+          console.warn('⚠️ DeepSeek响应数据格式异常:', result.data);
+          content = JSON.stringify(result.data);
+        }
+      }
+      
       return {
-        content: result.data || '',
+        content,
         model: params.model || 'deepseek-chat',
-        usage: undefined,
+        usage: result.data?.usage,
         responseTime: 0,
         success: result.success,
         error: result.error
