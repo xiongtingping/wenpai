@@ -190,32 +190,45 @@ export default function MD2WeChatPage() {
             <div className="container mx-auto px-4 py-3">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 {/* 左侧工具组 */}
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 border border-border rounded-md">
-                    <Button
-                      variant={fontSize === 'small' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => handleFontSizeChange('small')}
-                      className="px-2 py-1 text-xs"
-                    >
-                      小
-                    </Button>
-                    <Button
-                      variant={fontSize === 'medium' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => handleFontSizeChange('medium')}
-                      className="px-2 py-1 text-xs"
-                    >
-                      中
-                    </Button>
-                    <Button
-                      variant={fontSize === 'large' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => handleFontSizeChange('large')}
-                      className="px-2 py-1 text-xs"
-                    >
-                      大
-                    </Button>
+                <div className="flex items-center gap-4">
+                  {/* 字体调节 */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">字体大小:</span>
+                    <div className="flex items-center gap-1 border border-border rounded-md">
+                      <Button
+                        variant={fontSize === 'small' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => handleFontSizeChange('small')}
+                        className="px-2 py-1 text-xs"
+                      >
+                        小
+                      </Button>
+                      <Button
+                        variant={fontSize === 'medium' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => handleFontSizeChange('medium')}
+                        className="px-2 py-1 text-xs"
+                      >
+                        中
+                      </Button>
+                      <Button
+                        variant={fontSize === 'large' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => handleFontSizeChange('large')}
+                        className="px-2 py-1 text-xs"
+                      >
+                        大
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* 主题样式 */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">主题样式:</span>
+                    <ThemeSelector
+                      selectedTheme={selectedTheme}
+                      onThemeChange={handleThemeChange}
+                    />
                   </div>
                 </div>
 
@@ -294,13 +307,6 @@ export default function MD2WeChatPage() {
           <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-var(--header-height,64px)-120px)]">
             {/* 编辑器区域 */}
             <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col h-full ${showPreview ? 'border-r border-border' : ''}`}>
-              {/* 主题选择器 */}
-              <div className="p-4 border-b border-border bg-muted/30">
-                <ThemeSelector
-                  selectedTheme={selectedTheme}
-                  onThemeChange={handleThemeChange}
-                />
-              </div>
 
               {/* 编辑器头部 */}
               <div className="p-3 border-b border-border bg-muted/30">

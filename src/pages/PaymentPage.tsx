@@ -589,7 +589,7 @@ export default function PaymentPage() {
 
         {/* 订阅周期切换 - 优化版本 */}
         <div className="flex justify-center mb-4">
-          <div className="flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-2xl p-3 shadow-xl border border-gray-200 max-w-4xl">
+          <div className="flex items-center gap-3 bg-background/90 backdrop-blur-sm rounded-2xl p-3 shadow-xl border border-border max-w-4xl">
             {/* 按月订阅 */}
             <Button
               onClick={() => setSelectedPeriod('monthly')}
@@ -1090,7 +1090,7 @@ export default function PaymentPage() {
                   </div>
                 ) : null}
 
-                <div className="flex justify-center items-center py-6 bg-white rounded-xl border-2 border-green-100 shadow-sm">
+                <div className="flex justify-center items-center py-6 bg-background rounded-xl border-2 border-green-200 dark:border-green-800 shadow-sm">
                   {bufpayPaymentInfo && bufpayOrderId ? (
                     <PaymentQRCode
                       paymentInfo={bufpayPaymentInfo}

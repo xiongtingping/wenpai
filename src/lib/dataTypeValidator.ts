@@ -567,7 +567,7 @@ export class DataTypeValidator {
     }
     
     // Authing用户信息 - 使用宽松验证
-    if (key === '_authing_user') {
+    if (key === '_authing_user' || key === 'authing_user') {
       return { type: 'object', required: false }; // 宽松验证
     }
     

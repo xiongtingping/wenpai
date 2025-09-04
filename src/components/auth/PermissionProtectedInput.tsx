@@ -6,6 +6,7 @@
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserTier } from '@/utils/subscriptionUtils';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -32,11 +33,32 @@ export const PermissionProtectedInput: React.FC<PermissionProtectedInputProps> =
   className = ''
 }) => {
   const { user, isAuthenticated } = useAuth();
+  const { primaryStatus } = useSubscriptionStatus();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // 获取用户当前等级
-  const userTier = getUserTier(user);
+  // 获取用户当前等级 - 优先使用订阅状态
+  const getCurrentTier = () => {
+    // 1. 优先使用订阅状态中的等级信息
+    if (primaryStatus?.status === 'active' && primaryStatus.tier) {
+      return primaryStatus.tier;
+    }
+    
+    // 2. 从订阅状态标签推断
+    if (primaryStatus?.status === 'active') {
+      const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
+      if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
+        return 'premium';
+      } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
+        return 'pro';
+      }
+    }
+    
+    // 3. 最后使用用户数据
+    return getUserTier(user);
+  };
+  
+  const userTier = getCurrentTier();
   
   // 检查权限
   const hasPermission = () => {

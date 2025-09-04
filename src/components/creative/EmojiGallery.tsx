@@ -7,6 +7,7 @@
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserTier } from '@/utils/subscriptionUtils';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { Lock } from 'lucide-react';
@@ -19,10 +20,31 @@ interface EmojiGalleryProps {
 
 export default function EmojiGallery({ emojis, onDelete, onRegenerate }: EmojiGalleryProps) {
   const { user, isAuthenticated } = useAuth();
+  const { primaryStatus } = useSubscriptionStatus();
   const { toast } = useToast();
 
-  // 获取用户当前等级
-  const userTier = getUserTier(user);
+  // 获取用户当前等级 - 优先使用订阅状态
+  const getCurrentTier = () => {
+    // 1. 优先使用订阅状态中的等级信息
+    if (primaryStatus?.status === 'active' && primaryStatus.tier) {
+      return primaryStatus.tier;
+    }
+    
+    // 2. 从订阅状态标签推断
+    if (primaryStatus?.status === 'active') {
+      const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
+      if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
+        return 'premium';
+      } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
+        return 'pro';
+      }
+    }
+    
+    // 3. 最后使用用户数据
+    return getUserTier(user);
+  };
+
+  const userTier = getCurrentTier();
 
   // 检查是否有复制权限（需要专业版或以上）
   const hasPermission = () => {
@@ -36,6 +58,8 @@ export default function EmojiGallery({ emojis, onDelete, onRegenerate }: EmojiGa
       userTier,
       isAuthenticated,
       hasAccess,
+      primaryStatus: primaryStatus?.status,
+      primaryTier: primaryStatus?.tier,
       user: user ? { id: user.id, tier: user.tier } : null
     });
     return hasAccess;

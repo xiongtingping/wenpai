@@ -1663,13 +1663,19 @@ export default function AdaptPage() {
       const correctTier = getUserTier(user);
       const correctMaxUsage = correctTier === 'premium' ? -1 : correctTier === 'pro' ? 30 : 10;
       
+      console.log('🔍 重置数据调试信息:', {
+        userId: user?.id,
+        userTier: correctTier,
+        maxUsage: correctMaxUsage,
+        primaryStatus: primaryStatus?.status,
+        primaryTier: primaryStatus?.tier,
+        userVipLevel: user?.vipLevel,
+        userSubscription: user?.subscription
+      });
+      
       updateMaxUsage(correctMaxUsage);
       
-      // 4. 触发toast提示
-      toast({
-        title: '数据已重置',
-        description: `使用次数已重置，套餐: ${correctTier === 'premium' ? '高级版(无限)' : correctTier === 'pro' ? '专业版(30次)' : '体验版(10次)'}`,
-      });
+      // 4. 静默重置，不显示提示（避免干扰用户体验）
       
       console.log('✅ 使用次数数据重置完成');
       
@@ -1741,15 +1747,16 @@ export default function AdaptPage() {
       }
     }));
 
-    // 当调整平台特定设置时，自动禁用对应的全局设置并切换模式
-    if (key === 'charCount') {
-      setSettingsMode(prev => ({ ...prev, charCount: 'platform' }));
+    // 只有在当前已经是平台模式时才更新对应的全局设置
+    // 这样用户可以自由选择使用全局或平台特定设置
+    if (key === 'charCount' && settingsMode.charCount === 'platform') {
+      // 在平台模式下，禁用全局字符数设置以避免冲突
       setGlobalSettings(prev => ({ ...prev, charCountPreset: 'auto' }));
-    } else if (key === 'useEmoji') {
-      setSettingsMode(prev => ({ ...prev, emoji: 'platform' }));
+    } else if (key === 'useEmoji' && settingsMode.emoji === 'platform') {
+      // 在平台模式下，禁用全局emoji设置以避免冲突
       setGlobalSettings(prev => ({ ...prev, globalEmoji: false }));
-    } else if (key === 'useMdFormat') {
-      setSettingsMode(prev => ({ ...prev, mdFormat: 'platform' }));
+    } else if (key === 'useMdFormat' && settingsMode.mdFormat === 'platform') {
+      // 在平台模式下，禁用全局markdown设置以避免冲突
       setGlobalSettings(prev => ({ ...prev, globalMd: false }));
     }
   };

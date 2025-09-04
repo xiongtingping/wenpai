@@ -246,9 +246,30 @@ export default function BrandLibraryPageFixed() {
 
   // 初始化示例数据已删除 - 保持空状态，等待用户上传
 
-  // 根据维度ID获取对应的图标
-  const getIconForDimension = (dimensionId: string): React.ReactNode => {
+  // 根据维度ID或字符串获取对应的图标
+  const getIconForDimension = (iconOrId: string): React.ReactNode => {
     const iconMap: Record<string, React.ReactNode> = {
+      // 图标字符串映射
+      'tag': <Tag className="h-4 w-4" />,
+      'file-text': <FileText className="h-4 w-4" />,
+      'target': <Target className="h-4 w-4" />,
+      'heart': <Heart className="h-4 w-4" />,
+      'message-square': <MessageSquare className="h-4 w-4" />,
+      'users': <Users className="h-4 w-4" />,
+      'volume-2': <Volume2 className="h-4 w-4" />,
+      'palette': <Palette className="h-4 w-4" />,
+      'map-pin': <MapPin className="h-4 w-4" />,
+      'star': <Star className="h-4 w-4" />,
+      'shield': <Shield className="h-4 w-4" />,
+      'book-open': <BookOpen className="h-4 w-4" />,
+      'layout': <Layout className="h-4 w-4" />,
+      'check-square': <CheckSquare className="h-4 w-4" />,
+      'lightbulb': <Lightbulb className="h-4 w-4" />,
+      'hash': <Hash className="h-4 w-4" />,
+      'search': <Search className="h-4 w-4" />,
+      'x': <X className="h-4 w-4" />,
+      'package': <Package className="h-4 w-4" />,
+      // 维度ID映射（向后兼容）
       'brand-name': <Tag className="h-4 w-4" />,
       'brand-description': <FileText className="h-4 w-4" />,
       'brand-mission': <Target className="h-4 w-4" />,
@@ -267,7 +288,7 @@ export default function BrandLibraryPageFixed() {
       'content-examples': <Lightbulb className="h-4 w-4" />
     };
 
-    return iconMap[dimensionId] || <FileText className="h-4 w-4" />;
+    return iconMap[iconOrId] || <FileText className="h-4 w-4" />;
   };
 
   // 初始化品牌维度
@@ -303,7 +324,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-name',
           title: '品牌名称',
           description: '品牌的正式名称、简称、英文名等',
-          icon: <Tag className="h-4 w-4" />,
+          icon: 'tag',
           placeholder: '请输入品牌的正式名称、简称、英文名等...',
           category: 'basic',
           keywords: [],
@@ -314,7 +335,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-description',
           title: '品牌描述',
           description: '品牌的基本介绍和核心定位',
-          icon: <FileText className="h-4 w-4" />,
+          icon: 'file-text',
           placeholder: '请描述品牌的基本情况、核心定位、主要业务等...',
           category: 'basic',
           keywords: [],
@@ -326,7 +347,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-tone',
           title: '品牌语调/语气',
           description: '品牌的沟通语调和表达风格',
-          icon: <MessageSquare className="h-4 w-4" />,
+          icon: 'message-square',
           placeholder: '请描述品牌的语调特点，如：专业严谨、亲切友好、活泼幽默等...',
           category: 'voice',
           keywords: [],
@@ -337,7 +358,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-personality',
           title: '品牌个性',
           description: '品牌的性格特征和人格化特点',
-          icon: <Heart className="h-4 w-4" />,
+          icon: 'heart',
           placeholder: '请描述品牌的个性特征，如：创新进取、稳重可靠、年轻时尚等...',
           category: 'voice',
           keywords: [],
@@ -349,7 +370,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-slogan',
           title: '品牌Slogan',
           description: '品牌的核心口号和标语',
-          icon: <Hash className="h-4 w-4" />,
+          icon: 'hash',
           placeholder: '请输入品牌的主要Slogan、口号、标语等...',
           category: 'identity',
           keywords: [],
@@ -360,7 +381,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-values',
           title: '品牌价值观',
           description: '品牌坚持的核心价值观念',
-          icon: <Star className="h-4 w-4" />,
+          icon: 'star',
           placeholder: '请描述品牌的核心价值观、理念、原则等...',
           category: 'identity',
           keywords: [],
@@ -371,7 +392,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-vision-mission',
           title: '品牌愿景与使命',
           description: '品牌的长远愿景和使命目标',
-          icon: <Target className="h-4 w-4" />,
+          icon: 'target',
           placeholder: '请描述品牌的愿景目标、使命责任、发展方向等...',
           category: 'identity',
           keywords: [],
@@ -382,7 +403,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-story',
           title: '品牌故事',
           description: '品牌的发展历程和核心故事',
-          icon: <BookOpen className="h-4 w-4" />,
+          icon: 'book-open',
           placeholder: '请描述品牌的创立背景、发展历程、重要里程碑、创始人故事等...',
           category: 'identity',
           keywords: [],
@@ -394,7 +415,7 @@ export default function BrandLibraryPageFixed() {
           id: 'advertising-slogans',
           title: '广告语集',
           description: '品牌的各类广告语和宣传语',
-          icon: <Lightbulb className="h-4 w-4" />,
+          icon: 'lightbulb',
           placeholder: '请输入品牌的广告语、宣传语、营销文案等...',
           category: 'content',
           keywords: [],
@@ -405,7 +426,7 @@ export default function BrandLibraryPageFixed() {
           id: 'product-descriptions',
           title: '产品描述词库',
           description: '产品介绍和描述的常用词汇',
-          icon: <Package className="h-4 w-4" />,
+          icon: 'package',
           placeholder: '请输入产品描述的常用词汇、特色描述、功能介绍等...',
           category: 'content',
           keywords: [],
@@ -416,7 +437,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-topics',
           title: '品牌核心话题',
           description: '品牌经常讨论的核心主题',
-          icon: <MessageSquare className="h-4 w-4" />,
+          icon: 'message-square',
           placeholder: '请输入品牌的核心话题、讨论主题、内容方向等...',
           category: 'content',
           keywords: [],
@@ -427,7 +448,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-hashtags',
           title: '品牌Hashtags',
           description: '品牌的标签和话题标签',
-          icon: <Hash className="h-4 w-4" />,
+          icon: 'hash',
           placeholder: '请输入品牌的Hashtags、话题标签、社交媒体标签等...',
           category: 'content',
           keywords: [],
@@ -438,7 +459,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-keywords',
           title: '品牌关键词',
           description: '品牌的核心关键词和搜索词',
-          icon: <Search className="h-4 w-4" />,
+          icon: 'search',
           placeholder: '请输入品牌的关键词、搜索词、SEO词汇等...',
           category: 'content',
           keywords: [],
@@ -449,7 +470,7 @@ export default function BrandLibraryPageFixed() {
           id: 'brand-forbidden-words',
           title: '品牌禁用词',
           description: '品牌不应使用的词汇和表达',
-          icon: <X className="h-4 w-4" />,
+          icon: 'x',
           placeholder: '请输入品牌应避免使用的词汇、禁用表达、敏感词汇等...',
           category: 'content',
           keywords: [],
@@ -2741,7 +2762,7 @@ export default function BrandLibraryPageFixed() {
                   {getDimensionsByCategory('basic').map((dimension) => (
                     <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
-                        {dimension.icon}
+                        {getIconForDimension(dimension.icon)}
                         <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>
                       </div>
                       <DimensionForm
@@ -2780,7 +2801,7 @@ export default function BrandLibraryPageFixed() {
                   {getDimensionsByCategory('voice').map((dimension) => (
                     <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
-                        {dimension.icon}
+                        {getIconForDimension(dimension.icon)}
                         <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>
                       </div>
                       <DimensionForm
@@ -2819,7 +2840,7 @@ export default function BrandLibraryPageFixed() {
                   {getDimensionsByCategory('identity').map((dimension) => (
                     <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
-                        {dimension.icon}
+                        {getIconForDimension(dimension.icon)}
                         <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>
                       </div>
                       <DimensionForm
@@ -2858,7 +2879,7 @@ export default function BrandLibraryPageFixed() {
                   {getDimensionsByCategory('content').map((dimension) => (
                     <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
-                        {dimension.icon}
+                        {getIconForDimension(dimension.icon)}
                         <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>
                       </div>
                       <DimensionForm

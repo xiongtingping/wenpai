@@ -49,9 +49,9 @@ export const ThemeAwareLogo: React.FC<ThemeAwareLogoProps> = ({
   // 背景圆圈类名（仅在深色模式下显示）
   const backgroundClasses = [
     'absolute inset-0 rounded-full',
-    'bg-background/80 border border-border/50',
-    'dark:bg-white/10 dark:border-white/20',
-    'opacity-0 dark:opacity-100',
+    'bg-transparent border border-transparent',
+    'dark:bg-transparent dark:border-transparent',
+    'opacity-0',
     'transition-opacity duration-300'
   ].join(' ');
   

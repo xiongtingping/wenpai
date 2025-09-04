@@ -13,15 +13,15 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANO
 async function getTotalUsed(userId) {
   try {
     // 统计使用记录表中的次数（示例：usage_count_records）
-    const { data, error } = await supabase
+    const { count, error } = await supabase
       .from('usage_count_records')
-      .select('id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
       .eq('user_id', userId);
 
     if (error) throw error;
 
-    // 使用 count 头获取总次数
-    const totalUsed = data && Array.isArray(data) ? data.length : (typeof data === 'number' ? data : 0);
+    // 使用 count 获取总次数
+    const totalUsed = count || 0;
 
     return { totalUsed };
   } catch (err) {
