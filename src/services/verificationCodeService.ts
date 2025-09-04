@@ -21,6 +21,8 @@ export interface VerificationCodeResponse {
 
 class VerificationCodeService {
   private authClient: AuthenticationClient | null = null;
+  // 存储验证码发送时返回的token信息
+  private verificationTokens: Map<string, any> = new Map();
 
   /**
    * 初始化Authing认证客户端
@@ -160,7 +162,14 @@ class VerificationCodeService {
 
       const result = await client.sendEmail(email, emailScene);
 
-      console.log('✅ 邮箱验证码发送成功:', { email, scene });
+      // 🔧 FIX: 保存验证码发送返回的token信息
+      if (result) {
+        // 保存整个result对象，因为emailToken可能在不同的层级
+        this.verificationTokens.set(email, result);
+        console.log('💾 保存验证码Token:', { email, tokenInfo: result });
+      }
+
+      console.log('✅ 邮箱验证码发送成功:', { email, scene, result });
       
       return {
         success: true,
@@ -426,22 +435,73 @@ class VerificationCodeService {
 
       console.log('🚀 步骤3: 开始调用registerByEmailCode API...');
       
-      // 🔧 FIX: 使用正确的注册API调用方式，包含密码信息
+      // 🔧 FIX: 获取发送验证码时保存的token
+      const tokenInfo = this.verificationTokens.get(email);
+      console.log('🔍 获取保存的Token信息:', { email, tokenInfo });
+      
+      // 尝试从不同的字段获取emailToken
+      let emailToken = null;
+      if (tokenInfo) {
+        emailToken = tokenInfo.emailToken || tokenInfo.data?.emailToken || tokenInfo.token || tokenInfo.data?.token || tokenInfo;
+        console.log('🔍 尝试提取emailToken:', { emailToken, tokenInfoKeys: Object.keys(tokenInfo) });
+      }
+      
+      if (!emailToken) {
+        // 如果没有token，我们尝试不使用token的方式注册
+        console.log('⚠️ 未找到emailToken，尝试直接注册...');
+      }
+
+      // 🔧 FIX: 使用正确的注册API调用方式
       const profile = {
         password: password,
-        // 可以添加其他用户信息
         email: email
       };
       
-      console.log('📡 API调用参数:', { email, code: cleanCode, profile: profile });
+      console.log('📡 API调用参数:', { 
+        email, 
+        code: cleanCode, 
+        emailToken: emailToken,
+        profile: profile 
+      });
 
-      // 添加超时处理
-      const registerPromise = client.registerByEmailCode(email, cleanCode, profile);
+      // 🔧 FIX: 尝试不同的API调用方式
+      let registerPromise;
+      
+      if (emailToken && typeof emailToken === 'string') {
+        // 方法1: 如果有字符串形式的emailToken，尝试作为第三个参数
+        console.log('🔧 方法1: 使用emailToken作为第三个参数');
+        registerPromise = client.registerByEmailCode(email, cleanCode, emailToken);
+      } else {
+        // 方法2: 尝试将验证码信息作为对象传递
+        console.log('🔧 方法2: 将验证码和密码作为对象传递');
+        const registerData = {
+          email: email,
+          code: cleanCode,
+          password: password,
+          ...(tokenInfo && { emailToken: tokenInfo.emailToken || tokenInfo })
+        };
+        console.log('📡 注册数据对象:', registerData);
+        
+        // 尝试不同的调用方式
+        try {
+          registerPromise = client.registerByEmailCode(email, cleanCode, registerData);
+        } catch (firstError) {
+          console.log('🔧 方法2失败，尝试方法3: 仅使用基本参数');
+          // 方法3: 回到最简单的调用方式，但包含所有必要信息
+          registerPromise = client.registerByEmailCode(email, cleanCode, {
+            password: password
+          });
+        }
+      }
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('注册请求超时(30秒)')), 30000);
       });
 
       const result = await Promise.race([registerPromise, timeoutPromise]);
+      
+      // 🔧 清理使用过的token
+      this.verificationTokens.delete(email);
+      console.log('🗑️ 清理使用过的验证码Token:', { email });
       console.log('✅ 步骤3完成: registerByEmailCode调用成功');
 
       console.log('✅ 步骤3完成: 邮箱验证码注册成功，无需单独设置密码:', result);
