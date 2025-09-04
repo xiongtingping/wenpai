@@ -394,6 +394,30 @@ class VerificationCodeService {
   }
 
   /**
+   * 检查邮箱是否已注册
+   */
+  async checkEmailExists(email: string): Promise<boolean> {
+    try {
+      const client = await this.initAuthClient();
+      // 尝试使用该邮箱发送重置密码验证码来检测邮箱是否存在
+      // 如果邮箱不存在，通常会返回错误
+      const result = await client.sendEmail(email, 'RESET_PASSWORD_VERIFY_CODE');
+      return true; // 如果成功发送，说明邮箱已注册
+    } catch (error: any) {
+      // 如果发送失败且错误信息表明用户不存在，则邮箱未注册
+      if (error?.message && (
+        error.message.includes('用户不存在') || 
+        error.message.includes('User does not exist') ||
+        error.message.includes('未找到用户')
+      )) {
+        return false;
+      }
+      // 其他错误情况，假设邮箱已注册（保守处理）
+      return true;
+    }
+  }
+
+  /**
    * 使用验证码注册新用户（邮箱）
    */
   async registerByEmailCode(email: string, code: string, password: string): Promise<VerificationCodeResponse> {
@@ -439,11 +463,49 @@ class VerificationCodeService {
       const tokenInfo = this.verificationTokens.get(email);
       console.log('🔍 获取保存的Token信息:', { email, tokenInfo });
       
-      // 尝试从不同的字段获取emailToken
+      // 🔧 FIX: 尝试从不同的字段获取emailToken，确保获取到字符串值
       let emailToken = null;
       if (tokenInfo) {
-        emailToken = tokenInfo.emailToken || tokenInfo.data?.emailToken || tokenInfo.token || tokenInfo.data?.token || tokenInfo;
-        console.log('🔍 尝试提取emailToken:', { emailToken, tokenInfoKeys: Object.keys(tokenInfo) });
+        // 尝试多种字段名和嵌套结构
+        const candidates = [
+          tokenInfo.emailToken,
+          tokenInfo.data?.emailToken,
+          tokenInfo.token,
+          tokenInfo.data?.token,
+          tokenInfo.data,
+          tokenInfo
+        ];
+        
+        console.log('🔍 Token候选值详情:', {
+          tokenInfo,
+          candidates: candidates.map((c, i) => ({ index: i, value: c, type: typeof c }))
+        });
+        
+        // 找到第一个字符串类型的token
+        for (const candidate of candidates) {
+          if (typeof candidate === 'string' && candidate.length > 0) {
+            emailToken = candidate;
+            break;
+          }
+          // 如果是对象，尝试寻找内部的字符串字段
+          if (candidate && typeof candidate === 'object') {
+            const stringFields = ['emailToken', 'token', 'id', 'key', 'value'];
+            for (const field of stringFields) {
+              if (typeof candidate[field] === 'string' && candidate[field].length > 0) {
+                emailToken = candidate[field];
+                break;
+              }
+            }
+            if (emailToken) break;
+          }
+        }
+        
+        console.log('🔍 最终提取的emailToken:', { 
+          emailToken, 
+          type: typeof emailToken,
+          length: emailToken?.length,
+          tokenInfoKeys: Object.keys(tokenInfo)
+        });
       }
       
       if (!emailToken) {
@@ -540,12 +602,21 @@ class VerificationCodeService {
 
       let errorMessage = '注册失败';
       if (error?.message) {
-        if (error.message.includes('code')) {
-          errorMessage = '验证码错误或已过期';
-        } else if (error.message.includes('email')) {
-          errorMessage = '邮箱已被注册';
+        if (error.message.includes('code') || error.message.includes('验证码')) {
+          errorMessage = '验证码错误或已过期，请重新获取验证码';
+        } else if (error.message.includes('email') || error.message.includes('邮箱')) {
+          // 🔧 FIX: 更详细的邮箱错误处理
+          if (error.message.includes('已存在') || error.message.includes('已被注册') || error.message.includes('已注册')) {
+            errorMessage = '该邮箱已被注册，请使用其他邮箱或尝试登录';
+          } else if (error.message.includes('emailToken') || error.message.includes('进行校验')) {
+            errorMessage = '验证码验证失败，请重新获取验证码后再试';
+          } else {
+            errorMessage = '邮箱验证失败，请检查邮箱格式';
+          }
         } else if (error.message.includes('password')) {
-          errorMessage = '密码格式不符合要求';
+          errorMessage = '密码格式不符合要求（至少6位）';
+        } else if (error.message.includes('权限') || error.message.includes('unauthorized')) {
+          errorMessage = '认证失败，请刷新页面重试';
         } else {
           errorMessage = error.message;
         }
