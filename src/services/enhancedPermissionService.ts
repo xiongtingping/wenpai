@@ -93,12 +93,24 @@ interface FeaturePermissionConfig {
 }
 
 /**
+ * 权限缓存接口
+ */
+interface PermissionCache {
+  permissions: PermissionCheckResult;
+  expiry: number;
+  version: string;
+  userId: string;
+}
+
+/**
  * 增强权限管理服务类
  */
 class EnhancedPermissionService {
   private readonly STORAGE_KEY = 'enhanced_permissions_cache';
   private readonly GRACE_PERIOD_DAYS = 7; // 7天宽限期
   private readonly API_ENDPOINT = '/api/permissions'; // API端点
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 🔧 修复: 添加5分钟缓存TTL
+  private readonly CACHE_VERSION = '1.0.0'; // 缓存版本控制
   
   /**
    * 功能权限配置映射
@@ -153,6 +165,50 @@ class EnhancedPermissionService {
   };
 
   /**
+   * 从缓存获取权限结果
+   */
+  private getPermissionFromCache(userId: string, featureId: string): PermissionCheckResult | null {
+    try {
+      const cacheKey = `${this.STORAGE_KEY}_${userId}_${featureId}`;
+      const cachedData = localStorage.getItem(cacheKey);
+      
+      if (!cachedData) return null;
+      
+      const cache: PermissionCache = JSON.parse(cachedData);
+      
+      // 检查缓存是否过期或版本不匹配
+      if (cache.expiry < Date.now() || cache.version !== this.CACHE_VERSION || cache.userId !== userId) {
+        localStorage.removeItem(cacheKey);
+        return null;
+      }
+      
+      return cache.permissions;
+    } catch (error) {
+      console.warn('读取权限缓存失败:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 设置权限结果到缓存
+   */
+  private setPermissionToCache(userId: string, featureId: string, permissions: PermissionCheckResult): void {
+    try {
+      const cacheKey = `${this.STORAGE_KEY}_${userId}_${featureId}`;
+      const cache: PermissionCache = {
+        permissions,
+        expiry: Date.now() + this.CACHE_TTL,
+        version: this.CACHE_VERSION,
+        userId
+      };
+      
+      localStorage.setItem(cacheKey, JSON.stringify(cache));
+    } catch (error) {
+      console.warn('设置权限缓存失败:', error);
+    }
+  }
+
+  /**
    * 检查功能权限
    */
   async checkFeaturePermission(
@@ -161,6 +217,11 @@ class EnhancedPermissionService {
     userTier: SubscriptionTier,
     userPermissions: string[] = []
   ): Promise<PermissionCheckResult> {
+    // 🔧 修复: 先检查缓存，提高性能
+    const cachedResult = this.getPermissionFromCache(userId, featureId);
+    if (cachedResult) {
+      return cachedResult;
+    }
     const config = this.FEATURE_PERMISSIONS[featureId];
     
     if (!config) {
@@ -250,7 +311,7 @@ class EnhancedPermissionService {
     }
 
     // 权限检查通过
-    return {
+    const result: PermissionCheckResult = {
       hasPermission: true,
       permissionLevel: this.getPermissionLevel(userTier),
       details: {
@@ -260,6 +321,11 @@ class EnhancedPermissionService {
         isExpired: false
       }
     };
+
+    // 🔧 修复: 将结果存入缓存，提高后续访问性能
+    this.setPermissionToCache(userId, featureId, result);
+    
+    return result;
   }
 
   /**
@@ -318,25 +384,30 @@ class EnhancedPermissionService {
         };
       }
 
-      // 新用户或无订阅，返回默认试用状态
-      const defaultExpiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-      return {
-        isExpired: false,
-        expiryDate: defaultExpiryDate.toISOString(),
-        daysRemaining: 30,
-        inGracePeriod: false,
-        requiredActions: []
-      };
+      // 🔧 修复: 安全的fallback - 新用户给予有限试用，而非无限制试用
+      return this.getRestrictedAccess(userId);
     } catch (error: any) {
-      console.warn('检查套餐到期状态失败，使用默认值:', error);
-      return {
-        isExpired: false,
-        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        daysRemaining: 30,
-        inGracePeriod: false,
-        requiredActions: []
-      };
+      console.warn('检查套餐到期状态失败，使用受限访问模式:', error);
+      // 🔧 修复: 查询失败时返回受限访问，而非试用状态
+      return this.getRestrictedAccess(userId);
     }
+  }
+
+  /**
+   * 🔧 新增: 获取受限访问模式 - 更安全的fallback机制
+   */
+  private getRestrictedAccess(userId: string): SubscriptionExpiryCheck {
+    // 对于新用户或查询失败的情况，给予1天的受限试用
+    // 这样可以让用户体验功能，但避免无限制试用被滥用
+    const restrictedExpiryDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    
+    return {
+      isExpired: false,
+      expiryDate: restrictedExpiryDate.toISOString(),
+      daysRemaining: 1, // 仅1天，促使用户尽快注册正式订阅
+      inGracePeriod: false,
+      requiredActions: ['register', 'verify_subscription']
+    };
   }
 
   /**
@@ -540,12 +611,27 @@ class EnhancedPermissionService {
   }
 
   /**
-   * 清除权限缓存
+   * 清除权限缓存 - 🔧 修复: 清除所有相关缓存
    */
   private clearPermissionCache(userId: string): void {
     try {
-      const cacheKey = `${this.STORAGE_KEY}_${userId}`;
-      localStorage.removeItem(cacheKey);
+      // 清除所有该用户的权限缓存
+      const keysToRemove: string[] = [];
+      
+      // 遍历localStorage找到所有相关的缓存
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(`${this.STORAGE_KEY}_${userId}_`)) {
+          keysToRemove.push(key);
+        }
+      }
+      
+      // 批量删除
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      
+      console.debug(`🧹 清除用户权限缓存: ${keysToRemove.length} 项`, { userId, keys: keysToRemove });
     } catch (error) {
       console.error('清除权限缓存失败:', error);
     }

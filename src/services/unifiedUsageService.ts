@@ -8,6 +8,7 @@ import { tokenUsageService } from '@/services/tokenUsageService';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { TokenUsageStats } from '@/services/tokenUsageService';
 import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
+import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 
 /**
  * 使用次数统计接口
@@ -81,34 +82,38 @@ class UnifiedUsageService {
   private syncTimer: NodeJS.Timeout | null = null;
 
   /**
-   * 获取使用次数限额
+   * 获取使用次数限额 - 🔧 修复: 统一使用subscriptionPlans配置
    */
   private getUsageCountLimit(tier: SubscriptionTier): number {
-    switch (tier) {
-      case 'trial':
-        return 10;
-      case 'pro':
-        return 30;
-      case 'premium':
-        return -1; // 不限量
-      default:
-        return 10;
+    try {
+      const plan = getSubscriptionPlan(tier);
+      return plan.limits.adaptUsageLimit;
+    } catch (error) {
+      console.warn(`获取套餐${tier}的使用次数限额失败，使用默认值`, error);
+      const fallbackLimits = {
+        'trial': 10,
+        'pro': 30, 
+        'premium': -1
+      };
+      return fallbackLimits[tier] || 10;
     }
   }
 
   /**
-   * 获取Token限额
+   * 获取Token限额 - 🔧 修复: 统一使用subscriptionPlans配置  
    */
   private getTokenLimit(tier: SubscriptionTier): number {
-    switch (tier) {
-      case 'trial':
-        return 100000; // 10万tokens
-      case 'pro':
-        return 200000; // 20万tokens
-      case 'premium':
-        return 500000; // 50万tokens
-      default:
-        return 100000;
+    try {
+      const plan = getSubscriptionPlan(tier);
+      return plan.limits.tokenLimit;
+    } catch (error) {
+      console.warn(`获取套餐${tier}的Token限额失败，使用默认值`, error);
+      const fallbackLimits = {
+        'trial': 100000,
+        'pro': 200000,
+        'premium': 500000
+      };
+      return fallbackLimits[tier] || 100000;
     }
   }
 

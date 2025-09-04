@@ -7,18 +7,25 @@ import { request } from '@/api/request';
 import type { SubscriptionTier } from '@/types/subscription';
 import { logger } from '@/utils/logger';
 import { createDataService, TABLE_NAMES, getSupabaseClient } from '@/services/supabaseDataService';
+import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 
-// 临时的套餐配置函数，避免循环依赖
+/**
+ * 获取套餐Token限额 - 统一使用subscriptionPlans配置
+ * 🔧 修复: 消除硬编码，确保与订阅计划配置一致
+ */
 function getTokenLimitForTier(tier: SubscriptionTier): number {
-  switch (tier) {
-    case 'trial':
-      return 100000; // 10万tokens
-    case 'pro':
-      return 200000; // 20万tokens
-    case 'premium':
-      return 500000; // 50万tokens
-    default:
-      return 100000;
+  try {
+    const plan = getSubscriptionPlan(tier);
+    return plan.limits.tokenLimit;
+  } catch (error) {
+    console.warn(`获取套餐${tier}的Token限额失败，使用默认值`, error);
+    // 仅在获取配置失败时使用fallback值
+    const fallbackLimits = {
+      'trial': 100000,
+      'pro': 200000, 
+      'premium': 500000
+    };
+    return fallbackLimits[tier] || 100000;
   }
 }
 

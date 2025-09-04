@@ -9,6 +9,7 @@
  */
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { globalDataManager } from '@/services/unifiedDataManager';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -29,25 +30,33 @@ function getSystemTheme(): 'light' | 'dark' {
 }
 
 /**
- * 从localStorage获取保存的主题
+ * 从统一数据管理器获取保存的主题
  */
-function getSavedTheme(): Theme {
+async function getSavedTheme(): Promise<Theme> {
   if (typeof window === 'undefined') return 'system';
   try {
-    const saved = localStorage.getItem('theme') as Theme;
-    return saved && ['light', 'dark', 'system'].includes(saved) ? saved : 'system';
+    // 优先从统一数据管理器获取
+    const saved = await globalDataManager.getData<Theme>('theme');
+    if (saved && ['light', 'dark', 'system'].includes(saved)) {
+      return saved;
+    }
+    
+    // 兜底：从localStorage获取
+    const fallback = localStorage.getItem('theme') as Theme;
+    return fallback && ['light', 'dark', 'system'].includes(fallback) ? fallback : 'system';
   } catch {
     return 'system';
   }
 }
 
 /**
- * 保存主题到localStorage
+ * 保存主题到统一数据管理器
  */
-function saveTheme(theme: Theme): void {
+async function saveTheme(theme: Theme): Promise<void> {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem('theme', theme);
+    // 保存到统一数据管理器（会自动处理云端同步）
+    await globalDataManager.setData('theme', theme);
   } catch {
     // 忽略存储错误
   }
@@ -80,8 +89,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // 初始化主题
   useEffect(() => {
-    const savedTheme = getSavedTheme();
-    setThemeState(savedTheme);
+    const initTheme = async () => {
+      try {
+        const savedTheme = await getSavedTheme();
+        setThemeState(savedTheme);
+      } catch (error) {
+        console.error('主题初始化失败:', error);
+        setThemeState('system');
+      }
+    };
+    
+    initTheme();
   }, []);
 
   // 监听系统主题变化
@@ -118,7 +136,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    saveTheme(newTheme);
+    // 异步保存主题，不阻塞UI更新
+    saveTheme(newTheme).catch(error => {
+      console.error('保存主题失败:', error);
+    });
   };
 
   const value: ThemeContextType = {

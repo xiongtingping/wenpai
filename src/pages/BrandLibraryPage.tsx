@@ -16,7 +16,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { useAuth } from '@/hooks/useAuth';
+import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 import { secureDataManager } from '@/lib/secureDataManager';
+import { quickMigrateUserData } from '@/utils/dataStorageMigration';
 import { PermissionLockedButton, PermissionLockedIconButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionProtectedInput, PermissionProtectedInputField, PermissionProtectedSelect } from '@/components/auth/PermissionProtectedInput';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
@@ -106,17 +108,89 @@ export default function BrandLibraryPageFixed() {
   const { toast } = useToast();
   const { t } = useTranslation();
 
-  // ✅ FIXED: 用户数据隔离 - 品牌资产存储
-  const brandAssetsManager = useUserDataIsolation({
+  // ✅ 修复存储架构：使用Supabase替代localStorage，实现真正的云端持久化
+  const [supabaseDataService, setSupabaseDataService] = useState<any>(null);
+  
+  // 初始化Supabase数据服务
+  useEffect(() => {
+    if (user?.id) {
+      try {
+        const dataService = createDataService(user.id, TABLE_NAMES.USER_BRAND_CORPUS);
+        setSupabaseDataService(dataService);
+        console.log('✅ Supabase数据服务已初始化');
+      } catch (error) {
+        console.error('❌ Supabase数据服务初始化失败:', error);
+        // 降级到localStorage（保持兼容性）
+        console.log('🔄 降级到localStorage存储');
+      }
+    }
+  }, [user?.id]);
+
+  // 初始化加载用户品牌资产数据
+  useEffect(() => {
+    const initializeUserData = async () => {
+      if (user?.id && supabaseDataService) {
+        try {
+          console.log('🔄 初始化加载用户品牌资产数据...');
+          
+          // 优先尝试执行完整数据迁移
+          try {
+            console.log('🔄 检查是否需要数据迁移...');
+            const migrationResult = await quickMigrateUserData(user.id);
+            if (migrationResult.success && migrationResult.migratedItems > 0) {
+              console.log(`✅ 数据迁移成功，迁移了 ${migrationResult.migratedItems} 项数据`);
+              
+              toast({
+                title: "数据同步成功",
+                description: `已将 ${migrationResult.migratedItems} 项数据同步到云端，您的数据现在更安全了！`,
+                duration: 5000
+              });
+            }
+          } catch (migrationError) {
+            console.warn('⚠️ 数据迁移失败，继续使用现有加载方式:', migrationError);
+          }
+          
+          // 从Supabase加载资产数据（如果失败会自动降级到localStorage）
+          const assets = await loadAssetsFromSupabase();
+          setBrandAssets(assets);
+          
+          // 如果没有数据，尝试从localStorage迁移（作为兜底）
+          if (assets.length === 0) {
+            console.log('🔄 尝试从localStorage迁移数据...');
+            const migratedAssets = await migrateAssetsFromLocalStorage();
+            setBrandAssets(migratedAssets);
+          }
+          
+          console.log(`✅ 已加载 ${assets.length} 项品牌资产数据`);
+        } catch (error) {
+          console.error('❌ 初始化用户数据失败:', error);
+          
+          // 最后的兜底方案：直接从localStorage加载
+          try {
+            const localAssets = loadAssetsFromLocalStorage();
+            setBrandAssets(localAssets);
+            console.log(`🔄 从localStorage兜底加载了 ${localAssets.length} 项数据`);
+          } catch (localError) {
+            console.error('❌ localStorage兜底加载也失败:', localError);
+          }
+        }
+      }
+    };
+
+    initializeUserData();
+  }, [user?.id, supabaseDataService]);
+
+  // 📦 临时保留localStorage管理器用于数据迁移
+  const legacyBrandAssetsManager = useUserDataIsolation({
     modulePrefix: 'brand_assets',
     fallbackToGuest: true,
-    enableLogging: true
+    enableLogging: false  // 减少日志噪音
   });
 
-  const brandDimensionsManager = useUserDataIsolation({
+  const legacyBrandDimensionsManager = useUserDataIsolation({
     modulePrefix: 'brand_dimensions',
     fallbackToGuest: true,
-    enableLogging: true
+    enableLogging: false
   });
 
   // 基础状态 - 默认显示智能资料管理（上传品牌资料）
@@ -507,40 +581,180 @@ export default function BrandLibraryPageFixed() {
     }
   }, []);
 
-  // ✅ FIXED: 用户数据隔离 - 品牌资产存储
-  const saveAssetsToStorage = (assets: BrandAsset[]) => {
+  // ✅ 新的Supabase存储方法 - 真正的云端持久化
+  const saveAssetsToSupabase = async (assets: BrandAsset[]) => {
+    if (!supabaseDataService || !user?.id) {
+      console.warn('🔄 Supabase不可用，降级到localStorage');
+      return saveAssetsToLocalStorage(assets);
+    }
+
     try {
-      brandAssetsManager.saveData(assets);
-      console.log('💾 品牌资产已保存到用户隔离存储');
+      // 检查是否已存在品牌资产数据
+      const existing = await supabaseDataService.findMany({
+        filters: { corpusType: 'brand_assets' },
+        limit: 1
+      });
+
+      const assetData = {
+        corpusType: 'brand_assets',
+        corpusName: `品牌资产库_${user.id}`,
+        corpusContent: JSON.stringify(assets),
+        metadata: {
+          assetCount: assets.length,
+          lastModified: new Date().toISOString(),
+          version: '2.0' // 标记为Supabase版本
+        }
+      };
+
+      if (existing.data && existing.data.length > 0) {
+        await supabaseDataService.update(existing.data[0].id, assetData);
+        console.log('✅ 品牌资产已更新到Supabase云端');
+      } else {
+        await supabaseDataService.create(assetData);
+        console.log('✅ 品牌资产已保存到Supabase云端');
+      }
+
+      // 同步备份到localStorage（双写策略）
+      saveAssetsToLocalStorage(assets);
+      
     } catch (error) {
-      console.error('保存资产到用户存储失败:', error);
+      console.error('❌ Supabase保存失败，降级到localStorage:', error);
+      saveAssetsToLocalStorage(assets);
+      
+      toast({
+        title: "部分保存失败",
+        description: "数据已保存到本地，但云端同步失败。请检查网络连接。",
+        variant: "destructive"
+      });
     }
   };
 
-  // ✅ FIXED: 用户数据隔离 - 品牌维度存储
-  const saveDimensionsToStorage = (dimensions: BrandDimension[]) => {
+  // 保留的localStorage保存方法（兼容性和降级）
+  const saveAssetsToLocalStorage = (assets: BrandAsset[]) => {
     try {
-      // 保存时移除icon字段，避免JSX序列化问题
+      legacyBrandAssetsManager.saveData(assets);
+      console.log('💾 品牌资产已保存到localStorage');
+    } catch (error) {
+      console.error('保存资产到localStorage失败:', error);
+    }
+  };
+
+  // 维度数据保存到Supabase
+  const saveDimensionsToSupabase = async (dimensions: BrandDimension[]) => {
+    if (!supabaseDataService || !user?.id) {
+      return saveDimensionsToLocalStorage(dimensions);
+    }
+
+    try {
+      const existing = await supabaseDataService.findMany({
+        filters: { corpusType: 'brand_dimensions' },
+        limit: 1
+      });
+
+      const dimensionsData = {
+        corpusType: 'brand_dimensions',
+        corpusName: `品牌维度_${user.id}`,
+        corpusContent: JSON.stringify(dimensions.map(({ icon, ...rest }) => rest)),
+        metadata: {
+          dimensionCount: dimensions.length,
+          lastModified: new Date().toISOString(),
+          version: '2.0'
+        }
+      };
+
+      if (existing.data && existing.data.length > 0) {
+        await supabaseDataService.update(existing.data[0].id, dimensionsData);
+      } else {
+        await supabaseDataService.create(dimensionsData);
+      }
+
+      // 同步备份到localStorage
+      saveDimensionsToLocalStorage(dimensions);
+      console.log('✅ 品牌维度已保存到Supabase云端');
+      
+    } catch (error) {
+      console.error('❌ Supabase保存维度失败:', error);
+      saveDimensionsToLocalStorage(dimensions);
+    }
+  };
+
+  // 保留的localStorage维度保存（兼容性）
+  const saveDimensionsToLocalStorage = (dimensions: BrandDimension[]) => {
+    try {
       const dimensionsToSave = dimensions.map(({ icon, ...rest }) => rest);
-      brandDimensionsManager.saveData(dimensionsToSave);
-      console.log('💾 品牌维度数据已保存到用户隔离存储');
+      legacyBrandDimensionsManager.saveData(dimensionsToSave);
+      console.log('💾 品牌维度数据已保存到localStorage');
     } catch (error) {
-      console.error('保存品牌维度到用户存储失败:', error);
+      console.error('保存品牌维度到localStorage失败:', error);
     }
   };
 
-  // ✅ FIXED: 用户数据隔离 - 品牌资产加载
-  const loadAssetsFromStorage = (): BrandAsset[] => {
+  // ✅ 新的Supabase加载方法 - 云端数据恢复
+  const loadAssetsFromSupabase = async (): Promise<BrandAsset[]> => {
+    if (!supabaseDataService || !user?.id) {
+      console.log('🔄 Supabase不可用，从 localStorage 加载');
+      return loadAssetsFromLocalStorage();
+    }
+
     try {
-      const result = brandAssetsManager.loadData<BrandAsset[]>();
+      const result = await supabaseDataService.findMany({
+        filters: { corpusType: 'brand_assets' },
+        orderBy: 'updatedAt',
+        orderDirection: 'desc',
+        limit: 1
+      });
+
+      if (result.data && result.data.length > 0) {
+        const assetsData = JSON.parse(result.data[0].corpusContent);
+        console.log('✅ 从 Supabase 云端恢复品牌资产数据', assetsData.length, '项');
+        
+        // 同步备份到localStorage
+        legacyBrandAssetsManager.saveData(assetsData);
+        
+        return assetsData;
+      } else {
+        console.log('📂 Supabase 中无品牌资产数据，尝试从 localStorage 迁移');
+        return await migrateAssetsFromLocalStorage();
+      }
+    } catch (error) {
+      console.error('❌ 从 Supabase 加载失败，降级到 localStorage:', error);
+      return loadAssetsFromLocalStorage();
+    }
+  };
+
+  // 保留的localStorage加载方法
+  const loadAssetsFromLocalStorage = (): BrandAsset[] => {
+    try {
+      const result = legacyBrandAssetsManager.loadData<BrandAsset[]>();
       if (result.success && result.data) {
-        console.log('📂 从用户隔离存储恢复品牌资产数据');
+        console.log('💾 从 localStorage 恢复品牌资产数据');
         return result.data;
       }
     } catch (error) {
-      console.error('从用户存储加载资产失败:', error);
+      console.error('从 localStorage 加载资产失败:', error);
     }
     return [];
+  };
+
+  // 数据迁移：从 localStorage 迁移到 Supabase
+  const migrateAssetsFromLocalStorage = async (): Promise<BrandAsset[]> => {
+    const localAssets = loadAssetsFromLocalStorage();
+    if (localAssets.length > 0) {
+      console.log('🔄 正在迁移', localAssets.length, '项品牌资产数据到 Supabase');
+      
+      try {
+        await saveAssetsToSupabase(localAssets);
+        console.log('✅ 数据迁移完成');
+        
+        toast({
+          title: "数据迁移成功",
+          description: `已将 ${localAssets.length} 项品牌资产同步到云端，现在您的数据更安全了！`
+        });
+      } catch (error) {
+        console.error('❌ 数据迁移失败:', error);
+      }
+    }
+    return localAssets;
   };
 
   // ✅ FIXED: 用户数据隔离 - 品牌维度加载
@@ -614,8 +828,8 @@ export default function BrandLibraryPageFixed() {
                   analysisResult: analysisResult as any
                 } : a
               );
-              // 保存到localStorage
-              saveAssetsToStorage(updated);
+              // 保存到Supabase云端
+              saveAssetsToSupabase(updated);
               return updated;
             });
 
@@ -631,7 +845,7 @@ export default function BrandLibraryPageFixed() {
             const updated = prev.map(a =>
               a.id === asset.id ? { ...a, status: 'error' as const } : a
             );
-            saveAssetsToStorage(updated);
+            saveAssetsToSupabase(updated);
             return updated;
           });
         }
@@ -693,7 +907,7 @@ export default function BrandLibraryPageFixed() {
       const updated = prev.map(d =>
         d.id === id ? { ...d, content } : d
       );
-      saveDimensionsToStorage(updated);
+      saveDimensionsToSupabase(updated);
       return updated;
     });
   };
@@ -706,7 +920,7 @@ export default function BrandLibraryPageFixed() {
       const updated = prev.map(d =>
         d.id === dimensionId ? { ...d, keywords: [...d.keywords, keyword] } : d
       );
-      saveDimensionsToStorage(updated);
+      saveDimensionsToSupabase(updated);
       return updated;
     });
   };
@@ -719,7 +933,7 @@ export default function BrandLibraryPageFixed() {
       const updated = prev.map(d =>
         d.id === dimensionId ? { ...d, keywords: d.keywords.filter(k => k !== keyword) } : d
       );
-      saveDimensionsToStorage(updated);
+      saveDimensionsToSupabase(updated);
       return updated;
     });
   };
@@ -737,7 +951,7 @@ export default function BrandLibraryPageFixed() {
           )
         } : d
       );
-      saveDimensionsToStorage(updated);
+      saveDimensionsToSupabase(updated);
       return updated;
     });
   };
@@ -761,7 +975,7 @@ export default function BrandLibraryPageFixed() {
       const updated = prev.map(d =>
         d.id === dimensionId ? { ...d, items: [...d.items, newItem] } : d
       );
-      saveDimensionsToStorage(updated);
+      saveDimensionsToSupabase(updated);
       return updated;
     });
   };
@@ -796,7 +1010,7 @@ export default function BrandLibraryPageFixed() {
       const updated = prev.map(d =>
         d.id === dimensionId ? { ...d, items: d.items.filter(item => item.id !== itemId) } : d
       );
-      saveDimensionsToStorage(updated);
+      saveDimensionsToSupabase(updated);
       return updated;
     });
   };
@@ -1263,7 +1477,7 @@ export default function BrandLibraryPageFixed() {
         }
         return dimension;
       });
-      saveDimensionsToStorage(updated);
+      saveDimensionsToSupabase(updated);
       return updated;
     });
   };
@@ -1274,7 +1488,7 @@ export default function BrandLibraryPageFixed() {
   const saveBrandDimensions = async () => {
     try {
       // ✅ FIXED: 2025-08-06 实际保存到localStorage
-      saveDimensionsToStorage(brandDimensions);
+      saveDimensionsToSupabase(brandDimensions);
 
       toast({
         title: "保存成功",
@@ -1503,7 +1717,10 @@ export default function BrandLibraryPageFixed() {
     });
 
     setBrandDimensions(updatedDimensions);
-    saveDimensionsToStorage(updatedDimensions);
+    saveDimensionsToSupabase(updatedDimensions);
+    
+    // 同步保存更新后的资产到Supabase
+    saveAssetsToSupabase(updatedAssets);
 
     logger.debug('✅ 删除完成: 共删除 ${deletedItemsCount} 条语料信息');
 
@@ -1562,7 +1779,10 @@ export default function BrandLibraryPageFixed() {
     });
 
     setBrandDimensions(updatedDimensions);
-    saveDimensionsToStorage(updatedDimensions);
+    saveDimensionsToSupabase(updatedDimensions);
+    
+    // 同步保存更新后的资产到Supabase
+    saveAssetsToSupabase(updatedAssets);
 
     logger.debug('✅ 批量删除完成: 删除了 ${assetsToDelete.length} 个资产和 ${totalDeletedItemsCount} 条语料信息');
 
@@ -1647,7 +1867,7 @@ export default function BrandLibraryPageFixed() {
 
     if (cleanedItemsCount > 0) {
       setBrandDimensions(updatedDimensions);
-      saveDimensionsToStorage(updatedDimensions);
+      saveDimensionsToSupabase(updatedDimensions);
 
       logger.debug('✅ 清理完成: 删除了 ${cleanedItemsCount} 条孤立语料信息');
 
@@ -1814,8 +2034,8 @@ export default function BrandLibraryPageFixed() {
       setBrandAssets(prev => [...prev, ...newAssets]);
       setUploadProgress(100);
 
-      // 保存到localStorage实现状态持久化
-      saveAssetsToStorage([...brandAssets, ...newAssets]);
+      // 保存到Supabase云端实现真正的持久化
+      saveAssetsToSupabase([...brandAssets, ...newAssets]);
 
       console.log('📁 文件上传完成，新增资产:', newAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
 

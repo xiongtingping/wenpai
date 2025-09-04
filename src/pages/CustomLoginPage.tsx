@@ -592,8 +592,27 @@ export const CustomLoginPage: React.FC = () => {
   const isPhoneValid = !loginForm.phone || /^1[3-9]\d{9}$/.test(loginForm.phone);
   const [rememberMe, setRememberMe] = useState(() => {
     // 从localStorage恢复记住密码状态
-    return localStorage.getItem('remember_me') === 'true';
+    try {
+      const savedValue = localStorage.getItem('remember_me');
+      console.log('🔍 记住密码状态加载:', savedValue);
+      const result = savedValue === 'true';
+      console.log('🔐 记住密码初始状态:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ 记住密码状态加载失败:', error);
+      return false;
+    }
   });
+
+  // 调试记住密码功能
+  useEffect(() => {
+    console.log('🔐 记住密码状态调试:');
+    console.log('- rememberMe state:', rememberMe);
+    console.log('- localStorage remember_me:', localStorage.getItem('remember_me'));
+    console.log('- localStorage saved_phone:', localStorage.getItem('saved_phone'));
+    console.log('- localStorage saved_password_hash:', localStorage.getItem('saved_password_hash'));
+    console.log('- loginForm.phone:', loginForm.phone);
+  }, [rememberMe, loginForm.phone]);
 
   // 🔧 FIX: 在检查认证状态时显示加载界面
   if (checkingAuth) {
@@ -731,13 +750,22 @@ export const CustomLoginPage: React.FC = () => {
               checked={rememberMe} 
               onChange={(e) => {
                 const checked = e.target.checked;
-                setRememberMe(checked);
-                // 保存记住密码状态到localStorage
-                localStorage.setItem('remember_me', checked.toString());
-                // 如果取消记住，清除保存的凭证
-                if (!checked) {
-                  localStorage.removeItem('saved_phone');
-                  localStorage.removeItem('saved_password_hash');
+                console.log('🔐 记住密码状态变化:', checked);
+                
+                try {
+                  setRememberMe(checked);
+                  // 保存记住密码状态到localStorage
+                  localStorage.setItem('remember_me', checked.toString());
+                  console.log('💾 记住密码状态已保存到localStorage:', checked);
+                  
+                  // 如果取消记住，清除保存的凭证
+                  if (!checked) {
+                    localStorage.removeItem('saved_phone');
+                    localStorage.removeItem('saved_password_hash');
+                    console.log('🗑️ 已清除保存的登录凭据');
+                  }
+                } catch (error) {
+                  console.error('❌ 保存记住密码状态失败:', error);
                 }
               }} 
             />
