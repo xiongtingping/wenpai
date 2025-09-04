@@ -425,10 +425,18 @@ class VerificationCodeService {
       });
 
       console.log('🚀 步骤3: 开始调用registerByEmailCode API...');
-      console.log('📡 API调用参数:', { email, code: cleanCode, profile: null });
+      
+      // 🔧 FIX: 使用正确的注册API调用方式，包含密码信息
+      const profile = {
+        password: password,
+        // 可以添加其他用户信息
+        email: email
+      };
+      
+      console.log('📡 API调用参数:', { email, code: cleanCode, profile: profile });
 
       // 添加超时处理
-      const registerPromise = client.registerByEmailCode(email, cleanCode, null);
+      const registerPromise = client.registerByEmailCode(email, cleanCode, profile);
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('注册请求超时(30秒)')), 30000);
       });
@@ -436,19 +444,7 @@ class VerificationCodeService {
       const result = await Promise.race([registerPromise, timeoutPromise]);
       console.log('✅ 步骤3完成: registerByEmailCode调用成功');
 
-      console.log('✅ 步骤3完成: 邮箱验证码注册成功:', result);
-
-      // 注册成功后立即设置密码
-      console.log('🚀 步骤4: 开始设置用户密码...');
-
-      // 添加密码设置超时处理
-      const passwordPromise = client.updatePassword(password);
-      const passwordTimeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('密码设置请求超时(15秒)')), 15000);
-      });
-
-      await Promise.race([passwordPromise, passwordTimeoutPromise]);
-      console.log('✅ 步骤4完成: 用户密码设置成功');
+      console.log('✅ 步骤3完成: 邮箱验证码注册成功，无需单独设置密码:', result);
       
       return {
         success: true,

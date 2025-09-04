@@ -592,7 +592,7 @@ export default function AdaptPage() {
   const platformStyles = useMemo(() => getPlatformStyles(), [getPlatformStyles]);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [originalContent, setOriginalContent] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
 
@@ -4235,7 +4235,11 @@ onCheckedChange={(checked) => {
                       
                       if (!hasAccess && checked) {
                         // 显示升级提示
-                        console.log('需要高级版权限');
+                        toast({
+                          title: "需要高级版权限",
+                          description: "品牌库资料创作功能仅限高级版用户使用。升级到高级版以使用此功能。",
+                          variant: "default",
+                        });
                         return;
                       }
                       
@@ -4601,7 +4605,7 @@ onCheckedChange={(checked) => {
                       <div className="flex items-center gap-2">
                         {(settingsMode.charCount === 'global' || settingsMode.emoji === 'global' || settingsMode.mdFormat === 'global') && (
                           <div className="text-xs text-muted-foreground bg-accent px-2 py-1 rounded border border-border">
-                            已启用全局设置，全局设置已禁用
+                            已启用全局设置，平台特定设置已禁用
                           </div>
                         )}
                       </div>

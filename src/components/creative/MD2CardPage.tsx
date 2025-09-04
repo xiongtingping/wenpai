@@ -214,31 +214,37 @@ export default function MD2CardPage() {
         return;
       }
 
-      // 检查用户是否登录
-      if (!isAuthenticated) {
-        // 对于实时预览，不显示登录提示，只是不生成
-        return;
-      }
+      // 🔧 FIX: 允许未登录用户进行实时预览，只是显示简化版本
+      const allowPreview = isAuthenticated || content.trim().length > 0;
 
       setIsGenerating(true);
       try {
         // 解析Markdown内容 - 立即更新预览
         const parsedContent = defaultMarkdownParser.parse(content);
         
-        // 获取模板
-        const template = CARD_TEMPLATES.find(t => t.id === templateId);
-        if (!template) {
-          throw new Error('模板不存在');
-        }
+        // 获取模板 - 如果找不到则使用默认配置
+        const template = CARD_TEMPLATES.find(t => t.id === templateId) || {
+          id: 'default',
+          displayName: '默认模板',
+          category: 'knowledge' as const,
+          constraints: {
+            maxSections: 5,
+            maxWordsPerSection: 50,
+            allowImages: true,
+            allowLists: true
+          }
+        };
 
-        // 验证内容是否适合模板
-        const validation = ContentAdapter.validateContentForTemplate(
-          parsedContent, 
-          template.constraints
-        );
+        // 验证内容是否适合模板 - 仅在有完整模板时进行
+        if ('name' in template) {
+          const validation = ContentAdapter.validateContentForTemplate(
+            parsedContent, 
+            template.constraints
+          );
 
-        if (!validation.isValid) {
-          console.warn('内容验证警告:', validation.warnings);
+          if (!validation.isValid) {
+            console.warn('内容验证警告:', validation.warnings);
+          }
         }
 
         // 优化内容以适应模板
@@ -247,13 +253,56 @@ export default function MD2CardPage() {
           template.category
         );
         
-        // 立即生成预览卡片 - 无延迟
+        // 立即生成预览卡片 - 显示真实内容
         const title = extractTitleFromMarkdown(content);
-        const svgContent = `<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100%" height="100%" fill="${config.colors.background}"/>
-          <text x="50%" y="30%" font-family="Arial, sans-serif" font-size="32" fill="${config.colors.text}" text-anchor="middle" dy=".3em">${title}</text>
-          <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="16" fill="${config.colors.primary}" text-anchor="middle" dy=".3em">实时预览</text>
-          <text x="50%" y="70%" font-family="Arial, sans-serif" font-size="14" fill="${config.colors.secondary}" text-anchor="middle" dy=".3em">模板: ${template.displayName}</text>
+        const subtitle = optimizedContent.subtitle || '';
+        const firstSection = optimizedContent.sections[0];
+        const sectionContent = firstSection ? 
+          (typeof firstSection.content === 'string' ? firstSection.content : firstSection.content[0]) 
+          : '';
+        
+        // 创建更丰富的SVG预览（保持现有的简单实现，避免复杂性）
+        const svgContent = `<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg" style="font-family: ${config.typography.primaryFont}, Arial, sans-serif">
+          <!-- 背景渐变 -->
+          <defs>
+            <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:${config.colors.background};stop-opacity:1" />
+              <stop offset="100%" style="stop-color:${lightenColor(config.colors.background, 0.1)};stop-opacity:1" />
+            </linearGradient>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <dropShadow dx="4" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.1)"/>
+            </filter>
+          </defs>
+          
+          <!-- 卡片背景 -->
+          <rect width="100%" height="100%" fill="url(#bgGradient)" rx="16" filter="url(#shadow)"/>
+          
+          <!-- 装饰元素 -->
+          <circle cx="100" cy="100" r="40" fill="${config.colors.primary}" opacity="0.1"/>
+          <circle cx="700" cy="500" r="60" fill="${config.colors.secondary}" opacity="0.08"/>
+          
+          <!-- 标题区域 -->
+          <rect x="40" y="80" width="720" height="80" fill="${config.colors.primary}" rx="8" opacity="0.05"/>
+          <text x="50%" y="130" font-family="${config.typography.primaryFont}, Arial, sans-serif" 
+                font-size="32" font-weight="bold" fill="${config.colors.primary}" 
+                text-anchor="middle" dominant-baseline="middle">${escapeHTML(title)}</text>
+          
+          <!-- 副标题 -->
+          ${subtitle ? `<text x="50%" y="180" font-family="${config.typography.secondaryFont}, Arial, sans-serif" 
+                font-size="20" fill="${config.colors.secondary}" text-anchor="middle" 
+                dominant-baseline="middle">${escapeHTML(subtitle)}</text>` : ''}
+          
+          <!-- 内容区域 -->
+          ${renderSVGContent(optimizedContent.sections, config, 220)}
+          
+          <!-- 底部装饰线 -->
+          <line x1="80" y1="520" x2="720" y2="520" stroke="${config.colors.accent}" stroke-width="2" opacity="0.3"/>
+          
+          <!-- 品牌标识 -->
+          <text x="50%" y="560" font-family="Arial, sans-serif" font-size="14" 
+                fill="${config.colors.secondary}" text-anchor="middle" opacity="0.7">
+            ✨ MD2Card · ${template.displayName}
+          </text>
         </svg>`;
 
         const imageData = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgContent)));
@@ -366,6 +415,52 @@ export default function MD2CardPage() {
     }
   }, [cardData, toast]);
 
+  // 辅助方法：颜色变亮
+  const lightenColor = (color: string, amount: number): string => {
+    const hex = color.replace('#', '');
+    const r = Math.min(255, parseInt(hex.substr(0, 2), 16) + Math.round(255 * amount));
+    const g = Math.min(255, parseInt(hex.substr(2, 2), 16) + Math.round(255 * amount));
+    const b = Math.min(255, parseInt(hex.substr(4, 2), 16) + Math.round(255 * amount));
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  };
+
+  // 辅助方法：HTML转义
+  const escapeHTML = (text: string): string => {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  };
+
+  // 渲染SVG内容
+  const renderSVGContent = (sections: any[], config: CardConfiguration, startY: number): string => {
+    let yPos = startY;
+    let svgContent = '';
+    
+    sections.slice(0, 3).forEach((section, index) => {
+      if (section.type === 'text' && typeof section.content === 'string') {
+        const content = section.content.slice(0, 100) + (section.content.length > 100 ? '...' : '');
+        svgContent += `<text x="60" y="${yPos}" font-family="${config.typography.primaryFont}, Arial, sans-serif" 
+          font-size="16" fill="${config.colors.text}" text-anchor="start">
+          ${escapeHTML(content)}
+        </text>`;
+        yPos += 30;
+      } else if (section.type === 'list' && Array.isArray(section.content)) {
+        section.content.slice(0, 3).forEach((item: string, i: number) => {
+          svgContent += `<text x="60" y="${yPos}" font-family="${config.typography.primaryFont}, Arial, sans-serif" 
+            font-size="14" fill="${config.colors.text}" text-anchor="start">
+            • ${escapeHTML(item.slice(0, 50))}${item.length > 50 ? '...' : ''}
+          </text>`;
+          yPos += 25;
+        });
+      }
+    });
+    
+    return svgContent;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* 主导航栏 */}
@@ -437,18 +532,40 @@ export default function MD2CardPage() {
                   重置
                 </Button>
 
-                {/* 导出按钮 */}
+                {/* 导出按钮组 */}
                 <div className="flex items-center gap-1">
                   <PermissionLockedButton
                     requiredTier="pro"
-                    featureName="MD2Card导出功能"
+                    featureName="MD2Card导出PNG"
                     variant="default"
                     size="sm"
                     onClick={() => handleExportCard('png')}
                     disabled={!cardData?.imageData}
                   >
                     <Download className="w-4 h-4 mr-1" />
-                    导出PNG
+                    PNG
+                  </PermissionLockedButton>
+                  
+                  <PermissionLockedButton
+                    requiredTier="pro"
+                    featureName="MD2Card导出JPG"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleExportCard('jpg')}
+                    disabled={!cardData?.imageData}
+                  >
+                    JPG
+                  </PermissionLockedButton>
+                  
+                  <PermissionLockedButton
+                    requiredTier="free"
+                    featureName="MD2Card导出SVG"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleExportCard('svg')}
+                    disabled={!cardData?.imageData}
+                  >
+                    SVG
                   </PermissionLockedButton>
                 </div>
               </div>
@@ -456,10 +573,10 @@ export default function MD2CardPage() {
           </div>
         </div>
 
-        {/* 主要内容区域 */}
-        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-120px)]">
-          {/* 编辑器和设置区域 */}
-          <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col border-r border-border h-full`}>
+        {/* 主要内容区域 - 修复高度和布局 */}
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-[calc(100vh-160px)] h-[calc(100vh-160px)]">
+          {/* 编辑器和设置区域 - 确保高度与预览区一致 */}
+          <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col border-r border-border h-full min-h-0`}>
             {/* 标签页导航 */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
               <TabsList className="w-full justify-start border-b border-border rounded-none bg-muted/30">
@@ -483,7 +600,7 @@ export default function MD2CardPage() {
                   <div>
                     <h3 className="text-sm font-medium mb-2">选择模板</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-                      {CARD_TEMPLATES.slice(0, 6).map((template) => (
+                      {(CARD_TEMPLATES || DEFAULT_TEMPLATES).slice(0, 6).map((template) => (
                         <Card 
                           key={template.id}
                           className={`cursor-pointer transition-all hover:shadow-md ${
@@ -529,8 +646,8 @@ export default function MD2CardPage() {
                   </div>
                 </div>
 
-                {/* 编辑器内容 */}
-                <div className="flex-1 p-4 overflow-hidden">
+                {/* 编辑器内容 - 修复高度问题 */}
+                <div className="flex-1 p-4 overflow-hidden min-h-0">
                   <PermissionProtectedInput
                     requiredTier="pro"
                     featureName="MD2Card Markdown编辑器"
@@ -538,7 +655,7 @@ export default function MD2CardPage() {
                     <textarea
                       value={markdownContent}
                       onChange={(e) => handleContentChange(e.target.value)}
-                      className="w-full h-full p-3 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-secondary/30 text-foreground font-mono text-sm transition-colors focus:bg-secondary/50 hover:bg-secondary/40"
+                      className="w-full h-full min-h-[500px] p-3 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-secondary/30 text-foreground font-mono text-sm transition-colors focus:bg-secondary/50 hover:bg-secondary/40"
                       placeholder="在这里输入Markdown内容..."
                     />
                   </PermissionProtectedInput>
@@ -627,7 +744,7 @@ export default function MD2CardPage() {
                       {isMobilePreview ? '移动端预览' : '桌面端预览'}
                     </span>
                     <Badge variant="secondary" className="text-xs">
-                      {CARD_TEMPLATES.find(t => t.id === selectedTemplate)?.displayName}
+                      {(CARD_TEMPLATES || DEFAULT_TEMPLATES).find(t => t.id === selectedTemplate)?.displayName}
                     </Badge>
                   </div>
                   <Button
@@ -732,8 +849,65 @@ function extractTitleFromMarkdown(markdown: string): string {
 }
 
 async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg'): Promise<Blob> {
-  // 这里将实现实际的导出逻辑
-  // 现在返回模拟的Blob
-  const response = await fetch(imageData);
-  return response.blob();
+  try {
+    if (format === 'svg') {
+      // SVG格式直接返回
+      const svgBlob = new Blob([imageData.replace('data:image/svg+xml;base64,', atob)], {
+        type: 'image/svg+xml'
+      });
+      return svgBlob;
+    }
+    
+    // 对于PNG/JPG，使用Canvas转换以获得更高质量
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+          reject(new Error('无法创建Canvas上下文'));
+          return;
+        }
+        
+        // 设置高分辨率画布 (2x for retina displays)
+        const scale = 2;
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        
+        // 缩放上下文并启用平滑渲染
+        ctx.scale(scale, scale);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
+        // 如果是JPG，设置白色背景
+        if (format === 'jpg') {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, img.width, img.height);
+        }
+        
+        // 绘制图像
+        ctx.drawImage(img, 0, 0);
+        
+        // 转换为Blob
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('无法生成图片'));
+            }
+          },
+          format === 'png' ? 'image/png' : 'image/jpeg',
+          format === 'jpg' ? 0.95 : undefined // JPG质量设置
+        );
+      };
+      
+      img.onerror = () => reject(new Error('图片加载失败'));
+      img.src = imageData;
+    });
+  } catch (error) {
+    console.error('图片导出失败:', error);
+    throw error;
+  }
 }

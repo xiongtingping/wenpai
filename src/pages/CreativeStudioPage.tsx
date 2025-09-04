@@ -98,7 +98,7 @@ export default function CreativeStudioPage() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* 子模块切换 */}
             <div className="flex flex-col gap-4 mb-6">
-              <TabsList className="unified-tabs-list grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1 h-auto p-1">
+              <TabsList className="unified-tabs-list grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1 h-auto p-1">
                 <TabsTrigger value="calendar" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
                   <Calendar className="w-4 h-4" />
                   <span className="text-xs text-center leading-tight">营销日历</span>
@@ -107,10 +107,12 @@ export default function CreativeStudioPage() {
                   <Sparkles className="w-4 h-4" />
                   <span className="text-xs text-center leading-tight">创意魔方</span>
                 </TabsTrigger>
+                {/* 暂时隐藏朋友圈文案功能
                 <TabsTrigger value="wechat" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
                   <MessageCircle className="w-4 h-4" />
                   <span className="text-xs text-center leading-tight">朋友圈文案</span>
                 </TabsTrigger>
+                */}
                 <TabsTrigger value="emoji" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
                   <Smile className="w-4 h-4" />
                   <span className="text-xs text-center leading-tight">Emoji图库</span>
@@ -136,12 +138,13 @@ export default function CreativeStudioPage() {
               <CreativeCube />
             </TabsContent>
 
-            {/* 朋友圈文案 */}
+            {/* 暂时隐藏朋友圈文案功能
             <TabsContent value="wechat" className="mt-6">
               <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
                 <WechatTemplatePage />
               </React.Suspense>
             </TabsContent>
+            */}
 
             {/* Emoji生成器 */}
             <TabsContent value="emoji" className="mt-6">

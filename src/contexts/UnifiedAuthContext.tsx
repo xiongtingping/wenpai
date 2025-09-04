@@ -224,28 +224,49 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       hasOn: guard && typeof guard.on === 'function'
     });
 
-    // 🔧 FIX: 添加Guard组件错误处理
+    // 🔧 FIX: 添加Guard组件错误处理和防护性检查
     try {
-      // 设置登录成功事件监听
+      // 设置登录成功事件监听 - 增加防护性检查
       if (guard && typeof guard.on === 'function') {
-        guard.on('login', (userInfo: User) => {
-          console.log('✅ Guard登录事件触发:', userInfo);
-          handleAuthingLogin(userInfo);
-        });
+        try {
+          // 为防止事件监听器内部错误，使用包装函数
+          const safeEventHandler = (eventType: string, handler: Function) => {
+            try {
+              guard.on(eventType, (...args: any[]) => {
+                try {
+                  handler(...args);
+                } catch (handlerError) {
+                  console.warn(`🔧 Guard事件处理器(${eventType})执行错误:`, handlerError);
+                }
+              });
+            } catch (listenerError) {
+              console.warn(`🔧 Guard事件监听器(${eventType})注册失败:`, listenerError);
+            }
+          };
 
-        // 🔧 FIX: 添加错误事件监听
-        guard.on('error', (error: any) => {
-          console.warn('🔧 Guard组件错误:', error);
-          // 检查是否是网络错误
-          const isNetworkError = error?.message?.includes('Failed to fetch') ||
-                                error?.message?.includes('ERR_CONNECTION') ||
-                                error?.message?.includes('net::');
-          if (isNetworkError) {
-            console.log('🔧 Guard网络错误，不影响应用运行');
-          } else {
-            console.error('❌ Guard非网络错误:', error);
-          }
-        });
+          // 安全注册登录事件监听器
+          safeEventHandler('login', (userInfo: User) => {
+            console.log('✅ Guard登录事件触发:', userInfo);
+            handleAuthingLogin(userInfo);
+          });
+
+          // 安全注册错误事件监听器
+          safeEventHandler('error', (error: any) => {
+            console.warn('🔧 Guard组件错误:', error);
+            // 检查是否是网络错误
+            const isNetworkError = error?.message?.includes('Failed to fetch') ||
+                                  error?.message?.includes('ERR_CONNECTION') ||
+                                  error?.message?.includes('net::');
+            if (isNetworkError) {
+              console.log('🔧 Guard网络错误，不影响应用运行');
+            } else {
+              console.error('❌ Guard非网络错误:', error);
+            }
+          });
+
+        } catch (eventSetupError) {
+          console.warn('🔧 Guard事件监听器整体设置失败:', eventSetupError);
+        }
       } else {
         console.warn('⚠️ Guard.on方法不可用，跳过事件监听');
       }
