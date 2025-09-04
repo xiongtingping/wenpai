@@ -440,7 +440,7 @@ export default function MD2CardPage() {
                 {/* 导出按钮 */}
                 <div className="flex items-center gap-1">
                   <PermissionLockedButton
-                    requiredTier="premium"
+                    requiredTier="pro"
                     featureName="MD2Card导出功能"
                     variant="default"
                     size="sm"
@@ -532,7 +532,7 @@ export default function MD2CardPage() {
                 {/* 编辑器内容 */}
                 <div className="flex-1 p-4 overflow-hidden">
                   <PermissionProtectedInput
-                    requiredTier="premium"
+                    requiredTier="pro"
                     featureName="MD2Card Markdown编辑器"
                   >
                     <textarea
@@ -644,7 +644,7 @@ export default function MD2CardPage() {
               {/* 预览内容 */}
               <div className="flex-1 p-4 bg-muted/20">
                 <PermissionProtectedInput
-                  requiredTier="premium"
+                  requiredTier="pro"
                   featureName="MD2Card 卡片预览"
                 >
                   <div className={`mx-auto bg-white rounded-lg shadow-lg ${

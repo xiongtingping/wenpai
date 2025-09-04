@@ -1763,9 +1763,6 @@ export default function AdaptPage() {
 
   // Update global settings
   const updateGlobalSetting = (key: keyof GlobalSettings, value: unknown) => {
-    // 记录当前滚动位置
-    const currentScrollY = window.scrollY;
-    
     setGlobalSettings(prev => ({
       ...prev,
       [key]: value
@@ -1790,17 +1787,6 @@ export default function AdaptPage() {
         // globalAutoFormat 不影响模式切换，只是一个功能开关
       }
     }
-    
-    // 恢复滚动位置，避免页面跳转
-    setTimeout(() => {
-      window.scrollTo({ top: currentScrollY, behavior: 'instant' });
-      // 解除任何可能的滚动锁定
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    }, 0);
-    
-    // 移除了禁用时自动切换到平台模式的逻辑
-    // 用户在全局模式下取消勾选选项时，应该保持在全局模式
   };
 
   // Apply global settings to all platforms
@@ -4318,6 +4304,8 @@ ${charCountControl.source === 'platform-specific'
                           onCheckedChange={(checked) => {
                             if (checked) {
                               handleSettingsModeToggle('global');
+                            } else {
+                              handleSettingsModeToggle('platform');
                             }
                           }}
                           className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
@@ -4347,16 +4335,18 @@ ${charCountControl.source === 'platform-specific'
                       <Select
                         value={globalSettings.charCountPreset}
                         onValueChange={(value) => {
+                          console.log('字符数限制选择器 - 选择的值:', value);
+                          console.log('当前settingsMode:', settingsMode);
                           updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed');
                         }}
                         disabled={settingsMode.charCount === 'platform'}
                       >
                         <SelectTrigger className={`h-9 max-w-xs ${
-                          settingsMode.charCount === 'platform' ? 'bg-muted text-muted-foreground cursor-not-allowed' : ''
+                          settingsMode.charCount === 'platform' ? 'bg-muted text-muted-foreground cursor-not-allowed pointer-events-none' : 'pointer-events-auto'
                         }`}>
                           <SelectValue placeholder={t('adapt.selectCharacterLimit')} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="z-50">
                           <SelectItem value="auto">{t('adapt.autoAdapt')}</SelectItem>
                           <SelectItem value="mini">{t('adapt.conciseVersion')}</SelectItem>
                           <SelectItem value="standard">{t('adapt.standardVersion')}</SelectItem>
@@ -4432,6 +4422,8 @@ ${charCountControl.source === 'platform-specific'
                           onCheckedChange={(checked) => {
                             if (checked) {
                               handleSettingsModeToggle('platform');
+                            } else {
+                              handleSettingsModeToggle('global');
                             }
                           }}
                           className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
