@@ -20,6 +20,28 @@ immediateFixLocalStorage();
 // 初始化全局数据验证服务
 GlobalDataValidationService.initialize();
 
+// 🔧 FIX: 添加Guard组件专用错误处理
+window.addEventListener('unhandledrejection', (event) => {
+  const error = event.reason;
+
+  // 检查是否是Authing Guard相关的网络错误
+  if (error?.message?.includes('Failed to fetch') &&
+      (error?.stack?.includes('authing') || error?.stack?.includes('guard'))) {
+    console.warn('🔧 捕获Guard网络错误，静默处理:', error.message);
+    event.preventDefault(); // 阻止错误显示在控制台
+    return;
+  }
+
+  // 检查是否是public-config相关的错误
+  if (error?.message?.includes('Failed to fetch') &&
+      (error?.stack?.includes('public-config') ||
+       error?.stack?.includes('getPublicConfig'))) {
+    console.warn('🔧 捕获Guard public-config错误，静默处理');
+    event.preventDefault(); // 阻止错误显示在控制台
+    return;
+  }
+});
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter

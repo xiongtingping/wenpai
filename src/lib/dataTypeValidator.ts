@@ -175,6 +175,55 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
     pattern: /^\d+$/ // 数字字符串格式
   },
 
+  // 🔧 FIX: 添加缺失的数据模式定义
+  // 适配历史记录模式
+  ADAPT_HISTORY: {
+    type: 'array',
+    required: false,
+    items: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', required: true },
+        timestamp: { type: 'number', required: true },
+        originalContent: { type: 'string', required: false },
+        adaptedContent: { type: 'object', required: false },
+        platforms: { type: 'array', required: false },
+        userId: { type: 'string', required: false }
+      }
+    }
+  },
+
+  // 热点话题数据模式
+  HOT_TOPICS_DATA: {
+    type: 'object',
+    required: false,
+    properties: {
+      topics: { type: 'array', required: false },
+      lastUpdate: { type: 'number', required: false },
+      categories: { type: 'array', required: false },
+      cache: { type: 'object', required: false }
+    }
+  },
+
+  // 资料库项目模式
+  LIBRARY_ITEMS: {
+    type: 'array',
+    required: false,
+    items: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', required: true },
+        title: { type: 'string', required: false },
+        content: { type: 'string', required: false },
+        type: { type: 'string', required: false },
+        tags: { type: 'array', required: false },
+        createdAt: { type: 'number', required: false },
+        updatedAt: { type: 'number', required: false },
+        userId: { type: 'string', required: false }
+      }
+    }
+  },
+
   // 认证守卫模式
   AUTH_GUARD: {
     type: 'object',
@@ -588,7 +637,23 @@ export class DataTypeValidator {
     if (key === 'data_validation_last_run') {
       return DATA_SCHEMAS.DATA_VALIDATION_TIMESTAMP;
     }
-    
+
+    // 🔧 FIX: 添加缺失的数据模式匹配
+    // 适配历史记录 (带用户ID的动态键)
+    if (key.startsWith('adapt_history_')) {
+      return DATA_SCHEMAS.ADAPT_HISTORY;
+    }
+
+    // 热点话题数据
+    if (key === 'hotTopicsData') {
+      return DATA_SCHEMAS.HOT_TOPICS_DATA;
+    }
+
+    // 资料库项目 (带用户ID的动态键)
+    if (key.startsWith('library_items_')) {
+      return DATA_SCHEMAS.LIBRARY_ITEMS;
+    }
+
     // 平台设置 (带用户ID的动态键)
     if (key.startsWith('adapt_platform_settings_')) {
       return DATA_SCHEMAS.ADAPT_PLATFORM_SETTINGS;

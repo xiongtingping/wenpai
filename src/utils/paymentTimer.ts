@@ -64,8 +64,10 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
       try {
         console.log(`🔄 订阅状态检查尝试 ${attempt}/3...`);
 
+        // 🔧 FIX: 修复API连接配置，确保连接到正确的后端服务
+        const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : 'https://www.wenpai.xyz';
         const response = await Promise.race([
-          fetch(`/.netlify/functions/check-subscription-status?userId=${userId}`),
+          fetch(`${apiBaseUrl}/.netlify/functions/check-subscription-status?userId=${userId}`),
           // 15秒超时
           new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error('订阅状态检查超时')), 15000)

@@ -14,6 +14,9 @@ export class GlobalDataValidationService {
    */
   static initialize(): void {
     try {
+      // 🔧 FIX: 首先修复时间戳数据类型问题
+      this.fixTimestampDataType();
+
       // 检查是否需要运行验证
       if (this.shouldRunValidation()) {
         logger.info('开始全局数据验证和修复...');
@@ -29,6 +32,28 @@ export class GlobalDataValidationService {
   }
 
   /**
+   * 🔧 FIX: 修复时间戳数据类型问题
+   */
+  private static fixTimestampDataType(): void {
+    try {
+      const stored = localStorage.getItem(this.VALIDATION_KEY);
+      if (stored) {
+        // 检查是否是数字类型（这是错误的）
+        const parsed = JSON.parse(stored);
+        if (typeof parsed === 'number') {
+          // 转换为字符串格式
+          const corrected = parsed.toString();
+          localStorage.setItem(this.VALIDATION_KEY, corrected);
+          logger.info(`🔧 修复时间戳数据类型: ${parsed} -> "${corrected}"`);
+        }
+      }
+    } catch (error) {
+      // 如果解析失败，说明已经是字符串格式，无需修复
+      logger.debug('时间戳数据类型检查完成');
+    }
+  }
+
+  /**
    * 检查是否需要运行验证
    */
   private static shouldRunValidation(): boolean {
@@ -38,7 +63,7 @@ export class GlobalDataValidationService {
 
       const lastRunTime = parseInt(lastRun, 10);
       const now = Date.now();
-      
+
       return (now - lastRunTime) > this.VALIDATION_INTERVAL;
     } catch (error) {
       logger.warn('检查验证时间失败:', error);
@@ -295,10 +320,17 @@ export class GlobalDataValidationService {
    */
   private static updateValidationTimestamp(): void {
     try {
-      // 确保存储为字符串格式，符合数据验证器的期望
+      // 🔧 FIX: 确保存储为字符串格式，符合数据验证器的期望
       const timestamp = Date.now().toString();
       localStorage.setItem(this.VALIDATION_KEY, timestamp);
       logger.debug(`更新验证时间戳: ${timestamp}`);
+
+      // 🔧 FIX: 验证存储的数据类型
+      const stored = localStorage.getItem(this.VALIDATION_KEY);
+      if (stored && typeof stored !== 'string') {
+        logger.warn('时间戳存储类型异常，重新存储为字符串');
+        localStorage.setItem(this.VALIDATION_KEY, String(stored));
+      }
     } catch (error) {
       logger.warn('更新验证时间戳失败:', error);
     }

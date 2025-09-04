@@ -216,6 +216,27 @@ export const CustomLoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [checkingAuth, setCheckingAuth] = useState(true); // 🔧 FIX: 添加认证检查状态
 
+  // 🔧 FIX: 添加Guard组件错误处理和降级方案
+  const handleGuardError = (error: any) => {
+    console.warn('🔧 Guard组件错误，使用降级方案:', error);
+
+    // 检查是否是网络连接错误
+    const isNetworkError = error?.message?.includes('Failed to fetch') ||
+                          error?.message?.includes('ERR_CONNECTION') ||
+                          error?.message?.includes('net::') ||
+                          error?.code === 'NETWORK_ERROR';
+
+    if (isNetworkError) {
+      console.log('🔧 检测到网络连接问题，继续使用自定义登录流程');
+      // 不显示错误，继续使用自定义登录流程
+      return;
+    }
+
+    // 其他错误才显示给用户
+    console.error('❌ 认证系统错误:', error);
+    // 不设置错误状态，避免影响用户体验
+  };
+
   // 处理登录
   // Authing Web SDK 客户端（验证码优先用 API 发送）
   const authingClientRef = useRef<any>(null);
@@ -223,18 +244,33 @@ export const CustomLoginPage: React.FC = () => {
     if (!authingClientRef.current) {
       const cfg = getAuthingConfig();
       try {
-        // 🔧 FIX: 增加超时配置和重试机制
+        // 🔧 FIX: 优化Authing客户端配置，解决网络连接问题
+        console.log('🔧 初始化Authing客户端，配置:', {
+          appId: cfg.appId,
+          host: cfg.host,
+          domain: cfg.domain
+        });
+
         authingClientRef.current = new (AuthenticationClient as any)({
           appId: cfg.appId,
           appHost: cfg.host,
-          // 增加超时时间到60秒
-          timeout: 60000,
-          // 添加重试配置
-          retry: 3,
-          retryDelay: 2000
+          // 🔧 FIX: 增加网络连接优化配置
+          timeout: 45000, // 45秒超时，平衡用户体验和网络稳定性
+          retry: 2, // 减少重试次数，避免过长等待
+          retryDelay: 1500, // 减少重试延迟
+          // 添加网络连接优化
+          requestConfig: {
+            withCredentials: false, // 避免跨域问题
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+          }
         });
+
+        console.log('✅ Authing客户端初始化成功');
       } catch (e) {
-        console.warn('Authing AuthenticationClient init failed', e);
+        console.error('❌ Authing AuthenticationClient初始化失败:', e);
         authingClientRef.current = null;
       }
     }
@@ -328,25 +364,31 @@ export const CustomLoginPage: React.FC = () => {
         contact: loginForm.contact.substring(0, 3) + '***'
       });
 
-      // 🔧 FIX: 添加重试机制的密码登录
+      // 🔧 FIX: 优化登录重试机制，减少等待时间
       let result;
       let lastError;
-      const maxRetries = 3;
+      const maxRetries = 2; // 减少重试次数
+
+      // 检查网络连接状态
+      const isOnline = navigator.onLine;
+      if (!isOnline) {
+        throw new Error('网络连接已断开，请检查网络设置');
+      }
 
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
           console.log(`🔄 登录尝试 ${attempt}/${maxRetries}...`);
 
-          // 设置更长的超时时间
+          // 设置较短的超时时间，快速失败
           const loginPromise = contactType === 'phone'
             ? authingClient.loginByPhonePassword(loginForm.contact, loginForm.password)
             : authingClient.loginByEmail(loginForm.contact, loginForm.password);
 
-          // 使用Promise.race来实现自定义超时
+          // 🔧 FIX: 减少超时时间，快速失败并重试
           result = await Promise.race([
             loginPromise,
             new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('登录请求超时，请检查网络连接')), 30000)
+              setTimeout(() => reject(new Error('登录请求超时，请检查网络连接')), 20000) // 20秒超时
             )
           ]);
 
@@ -359,9 +401,16 @@ export const CustomLoginPage: React.FC = () => {
           lastError = error;
           console.warn(`❌ 第 ${attempt} 次登录尝试失败:`, error);
 
+          // 🔧 FIX: 检查是否是网络连接问题
+          const errorMessage = error instanceof Error ? error.message : '';
+          const isNetworkError = errorMessage.includes('ERR_CONNECTION') ||
+                                errorMessage.includes('Failed to fetch') ||
+                                errorMessage.includes('Network Error') ||
+                                errorMessage.includes('超时');
+
           // 如果不是最后一次尝试，等待后重试
           if (attempt < maxRetries) {
-            const delay = attempt * 2000; // 递增延迟：2s, 4s
+            const delay = isNetworkError ? 1000 : 1500; // 网络错误快速重试
             console.log(`⏳ 等待 ${delay}ms 后重试...`);
             await new Promise(resolve => setTimeout(resolve, delay));
           }
@@ -415,16 +464,42 @@ export const CustomLoginPage: React.FC = () => {
         originalError: error,
         parsedError: errorInfo,
         errorCode: (error as any)?.code,
-        errorMessage: (error as any)?.message
+        errorMessage: (error as any)?.message,
+        networkStatus: navigator.onLine ? 'online' : 'offline'
       });
 
-      setError(errorInfo.title);
-      toast({
-        title: errorInfo.title,
-        description: errorInfo.description,
-        variant: 'destructive',
-        duration: 6000 // 延长显示时间，让用户有足够时间阅读
-      });
+      // 🔧 FIX: 网络问题时提供降级方案
+      const isNetworkError = errorInfo.title.includes('网络') ||
+                            errorInfo.title.includes('超时') ||
+                            errorInfo.title.includes('连接');
+
+      if (isNetworkError) {
+        // 提供网络问题的具体建议
+        const networkSuggestions = [
+          '1. 检查网络连接是否正常',
+          '2. 尝试刷新页面重新登录',
+          '3. 如果使用WiFi，尝试切换到移动网络',
+          '4. 检查是否有防火墙或代理设置',
+          '5. 稍后重试或联系技术支持'
+        ];
+
+        setError(`${errorInfo.title}\n\n建议解决方案：\n${networkSuggestions.join('\n')}`);
+
+        toast({
+          title: errorInfo.title,
+          description: `${errorInfo.description}\n\n💡 建议：检查网络连接后重试，或尝试刷新页面`,
+          variant: 'destructive',
+          duration: 8000 // 网络错误延长显示时间
+        });
+      } else {
+        setError(errorInfo.title);
+        toast({
+          title: errorInfo.title,
+          description: errorInfo.description,
+          variant: 'destructive',
+          duration: 6000
+        });
+      }
 
       // 重置状态，允许重新尝试
       setLoginForm(prev => ({

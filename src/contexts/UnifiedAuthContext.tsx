@@ -224,20 +224,40 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       hasOn: guard && typeof guard.on === 'function'
     });
 
-    // 设置登录成功事件监听
-    if (guard && typeof guard.on === 'function') {
-      guard.on('login', (userInfo: User) => {
-        console.log('✅ Guard登录事件触发:', userInfo);
-        handleAuthingLogin(userInfo);
-      });
-    } else {
-      console.error('❌ Guard.on方法不可用');
+    // 🔧 FIX: 添加Guard组件错误处理
+    try {
+      // 设置登录成功事件监听
+      if (guard && typeof guard.on === 'function') {
+        guard.on('login', (userInfo: User) => {
+          console.log('✅ Guard登录事件触发:', userInfo);
+          handleAuthingLogin(userInfo);
+        });
+
+        // 🔧 FIX: 添加错误事件监听
+        guard.on('error', (error: any) => {
+          console.warn('🔧 Guard组件错误:', error);
+          // 检查是否是网络错误
+          const isNetworkError = error?.message?.includes('Failed to fetch') ||
+                                error?.message?.includes('ERR_CONNECTION') ||
+                                error?.message?.includes('net::');
+          if (isNetworkError) {
+            console.log('🔧 Guard网络错误，不影响应用运行');
+          } else {
+            console.error('❌ Guard非网络错误:', error);
+          }
+        });
+      } else {
+        console.warn('⚠️ Guard.on方法不可用，跳过事件监听');
+      }
+
+      // 检查当前登录状态
+      checkAuth();
+
+      console.log('✅ 官方Guard认证系统初始化成功');
+    } catch (error) {
+      console.warn('🔧 Guard初始化过程中出现错误:', error);
+      // 不阻止应用启动，继续运行
     }
-
-    // 检查当前登录状态
-    checkAuth();
-
-    console.log('✅ 官方Guard认证系统初始化成功');
   }, [guard, checkAuth]);
 
   /**
@@ -328,22 +348,46 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   // 启动登录模态框（带容器挂载）
   const startLoginModal = () => {
-    if (!guard) return;
-    
-    console.log('🚀 启动Guard登录模态框');
-    guard.show();
+    if (!guard) {
+      console.warn('🔧 Guard不可用，使用降级方案');
+      login(); // 使用自定义登录页面作为降级方案
+      return;
+    }
+
+    try {
+      console.log('🚀 启动Guard登录模态框');
+      guard.show();
+    } catch (error) {
+      console.warn('🔧 Guard.show()失败，使用降级方案:', error);
+      login(); // 使用自定义登录页面作为降级方案
+    }
   };
 
   // 显示Guard模态框
   const showGuard = () => {
-    if (!guard) return;
-    guard.show();
+    if (!guard) {
+      console.warn('🔧 Guard不可用，使用降级方案');
+      login(); // 使用自定义登录页面作为降级方案
+      return;
+    }
+
+    try {
+      guard.show();
+    } catch (error) {
+      console.warn('🔧 Guard.show()失败，使用降级方案:', error);
+      login(); // 使用自定义登录页面作为降级方案
+    }
   };
 
   // 隐藏Guard模态框
   const hideGuard = () => {
     if (!guard) return;
-    guard.hide();
+
+    try {
+      guard.hide();
+    } catch (error) {
+      console.warn('🔧 Guard.hide()失败:', error);
+    }
   };
 
 

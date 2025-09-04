@@ -98,8 +98,8 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
     try {
       logger.info('开始获取订阅状态:', { userId: user.id });
       
-      // 🔧 FIX: 改进API调用，增加重试机制和错误处理
-      const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : '';
+      // 🔧 FIX: 修复API连接配置，确保连接到正确的后端服务
+      const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : 'https://www.wenpai.xyz';
       let lastError: Error | null = null;
       let response: Response | null = null;
 
@@ -140,7 +140,7 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
         }
       }
 
-      // 如果所有重试都失败了
+      // 如果所有重试都失败了，抛出错误
       if (!response || !response.ok) {
         throw lastError || new Error('订阅状态获取失败');
       }
@@ -181,7 +181,7 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
     } catch (error) {
       logger.error('获取订阅状态失败:', error);
 
-      // 🔧 FIX: 提供更友好的错误处理
+      // 提供友好的错误处理
       let errorMessage = '获取订阅状态失败';
       if (error instanceof Error) {
         if (error.message.includes('timeout') || error.message.includes('超时')) {
@@ -197,33 +197,8 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
 
       setError(errorMessage);
 
-      // 🔧 FIX: 在网络错误时使用缓存数据作为降级方案
-      try {
-        const cached = localStorage.getItem(`subscription_status_${user.id}`);
-        if (cached) {
-          const cachedStatus = JSON.parse(cached);
-          logger.info('🔄 使用缓存数据作为降级方案:', cachedStatus);
-          setPrimaryStatus(cachedStatus);
-          setHasActiveSubscription(cachedStatus.status === 'active');
-          return; // 使用缓存数据，不设置默认状态
-        }
-      } catch (e) {
-        logger.warn('读取缓存数据失败:', e);
-      }
-
-      // 如果没有缓存数据，设置默认状态
-      setPrimaryStatus({
-        status: 'inactive',
-        expiresAt: null,
-        daysRemaining: 0,
-        needsAlert: false,
-        alertLevel: 'info',
-        alertMessage: '',
-        statusLabel: '未订阅',
-        statusColor: 'gray'
-      });
-      setAllSubscriptions([]);
-      setHasActiveSubscription(false);
+      // 不使用任何降级方案，直接抛出错误让上层处理
+      throw error;
     } finally {
       setLoading(false);
     }

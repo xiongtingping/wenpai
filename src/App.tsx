@@ -134,6 +134,21 @@ const App: React.FC = () => {
                 username: '请输入用户名',
                 email: '请输入邮箱',
                 password: '请输入密码'
+              },
+              // 🔧 FIX: 添加网络连接优化配置
+              timeout: 30000, // 30秒超时
+              retry: 1, // 减少重试次数
+              retryDelay: 1000, // 1秒重试延迟
+              // 添加错误处理
+              onError: (error: any) => {
+                console.warn('🔧 Guard Provider错误:', error);
+                // 静默处理网络错误，不影响应用启动
+                const isNetworkError = error?.message?.includes('Failed to fetch') ||
+                                      error?.message?.includes('ERR_CONNECTION') ||
+                                      error?.message?.includes('net::');
+                if (isNetworkError) {
+                  console.log('🔧 Guard网络连接问题，应用继续正常运行');
+                }
               }
             }}
           >
