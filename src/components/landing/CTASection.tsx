@@ -21,16 +21,10 @@ export function CTASection() {
       if (isAuthenticated) {
         console.log('用户已登录，跳转到AI内容适配器页面');
         navigate('/adapt');
-        // 页面加载后滚动到内容生成区
+        // 页面加载后滚动到页面顶部
         setTimeout(() => {
-          const contentArea = document.getElementById('content-generation-area');
-          if (contentArea) {
-            contentArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          } else {
-            // 如果内容生成区不存在，滚动到页面中部区域
-            window.scrollTo({ top: window.innerHeight * 0.3, behavior: 'smooth' });
-          }
-        }, 500);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 300);
       } else {
         console.log('用户未登录，设置跳转目标并弹出登录弹窗');
         localStorage.setItem('login_redirect_to', '/adapt');

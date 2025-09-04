@@ -4,6 +4,9 @@
  * @param {object} context - 上下文对象
  * @returns {Promise<object>} 响应对象
  */
+
+// 导入usage-count处理器
+const { handler: usageCountHandler } = require('./api/usage-count.cjs');
 module.exports.handler = async (event, context) => {
   // 动态CORS配置 - 实现您提到的方案
   const allowedOrigins = [
@@ -208,19 +211,26 @@ module.exports.handler = async (event, context) => {
       return await getReferralStats(requestBody, headers);
     }
 
-    // 统一使用次数统计与消费（转发到 usage-count 子路由）
+    // 统一使用次数统计与消费（直接调用 usage-count 处理器）
     if (action === 'user-usage' && requestBody?.userId) {
-      // 兼容 POST body 形式
-      const path = `/.netlify/functions/api/usage-count/user/usage/${encodeURIComponent(requestBody.userId)}`;
-      const resp = await fetch(path, { method: 'GET', headers: { 'Content-Type': 'application/json' }});
-      const data = await resp.json().catch(() => ({}));
-      return { statusCode: resp.status, headers, body: JSON.stringify(data) };
+      // 构建模拟的event对象来调用usage-count处理器
+      const usageEvent = {
+        httpMethod: 'GET',
+        path: `/user/usage/${requestBody.userId}`,
+        headers: event.headers,
+        body: null
+      };
+      return await usageCountHandler(usageEvent, context);
     }
     if (action === 'consume-usage' && requestBody?.userId) {
-      const path = `/.netlify/functions/api/usage-count/consume-usage`;
-      const resp = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: requestBody.userId, amount: requestBody.amount||1 })});
-      const data = await resp.json().catch(() => ({}));
-      return { statusCode: resp.status, headers, body: JSON.stringify(data) };
+      // 构建模拟的event对象来调用usage-count处理器
+      const usageEvent = {
+        httpMethod: 'POST',
+        path: '/consume-usage',
+        headers: event.headers,
+        body: JSON.stringify({ userId: requestBody.userId, amount: requestBody.amount || 1 })
+      };
+      return await usageCountHandler(usageEvent, context);
     }
 
     return {

@@ -36,7 +36,6 @@ import { useUsageStore } from '@/store/usageStore';
 import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { Header } from '@/components/landing/Header';
-import PageNavigation from '@/components/layout/PageNavigation';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import { useDebouncedCallback } from 'use-debounce';
 import { defaultMarkdownParser, ContentAdapter } from './md2card/MarkdownParser';
@@ -372,21 +371,6 @@ export default function MD2CardPage() {
       {/* 主导航栏 */}
       <Header />
 
-      {/* 页面导航 */}
-      <PageNavigation
-        title="MD2Card 卡片生成器"
-        description="将Markdown内容转换为精美的社交媒体卡片，支持多种模板和自定义样式"
-        showAdaptButton={false}
-        showUpgradeButton={false}
-        actions={
-          <RoleBasedUpgradePrompt
-            requiredTier="premium"
-            featureName="MD2Card卡片生成"
-            description="解锁高级模板和导出功能"
-            mode="compact"
-          />
-        }
-      />
       
       <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="h-full bg-background">
@@ -565,6 +549,25 @@ export default function MD2CardPage() {
               <TabsContent value="style" className="flex-1 p-4">
                 <div className="space-y-4">
                   <div>
+                    <h3 className="text-sm font-medium mb-2">字体大小</h3>
+                    <div className="flex gap-1 border border-border rounded-md">
+                      {(['small', 'medium', 'large'] as const).map((size) => (
+                        <Button
+                          key={size}
+                          variant={cardConfig.typography.fontSize === size ? 'default' : 'ghost'}
+                          size="sm"
+                          onClick={() => handleConfigChange({
+                            typography: { ...cardConfig.typography, fontSize: size }
+                          })}
+                          className="flex-1 px-2 py-1 text-xs"
+                        >
+                          {size === 'small' ? '小' : size === 'medium' ? '中' : '大'}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
                     <h3 className="text-sm font-medium mb-2">配色方案</h3>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-2">
@@ -589,25 +592,6 @@ export default function MD2CardPage() {
                           className="w-full h-8 rounded border border-border"
                         />
                       </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium mb-2">字体大小</h3>
-                    <div className="flex gap-1 border border-border rounded-md">
-                      {(['small', 'medium', 'large'] as const).map((size) => (
-                        <Button
-                          key={size}
-                          variant={cardConfig.typography.fontSize === size ? 'default' : 'ghost'}
-                          size="sm"
-                          onClick={() => handleConfigChange({
-                            typography: { ...cardConfig.typography, fontSize: size }
-                          })}
-                          className="flex-1 px-2 py-1 text-xs"
-                        >
-                          {size === 'small' ? '小' : size === 'medium' ? '中' : '大'}
-                        </Button>
-                      ))}
                     </div>
                   </div>
 

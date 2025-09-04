@@ -138,7 +138,7 @@ class SimpleCache {
 class HotTopicsAPI {
   private static instance: HotTopicsAPI;
   private cache = new SimpleCache();
-  private baseUrl = 'https://api-hot.imsyy.top';
+  private baseUrl = import.meta.env.DEV ? 'http://localhost:8888/.netlify/functions/api' : '/.netlify/functions/api';
   private enableLogging = import.meta.env.DEV;
 
   private constructor() {}
@@ -161,14 +161,17 @@ class HotTopicsAPI {
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        // 优化请求配置，增加超时和错误处理
-        const requestUrl = `${this.baseUrl}${url || ''}`;
-        this.log(`尝试请求: ${requestUrl} (第${attempt + 1}次)`);
+        // 通过后端代理请求，避免CORS问题
+        this.log(`尝试通过代理请求: ${url} (第${attempt + 1}次)`);
 
-        const data = await request.get(requestUrl, {
+        const data = await request.post(this.baseUrl, {
+          action: 'hot-topics',
+          platform: url.replace('/', ''), // 提取平台名称
+        }, {
           timeout: 10000, // 10秒超时
           headers: {
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
           }
         });
 

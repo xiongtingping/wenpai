@@ -125,10 +125,12 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
   // 全局设置模式
   GLOBAL_SETTINGS: {
     type: 'object',
+    required: false,
     properties: {
-      version: { type: 'string' },
-      features: { type: 'object' },
-      cache: { type: 'object' }
+      charCountPreset: { type: 'string', enum: ['auto', 'mini', 'standard', 'detailed'], required: false },
+      globalEmoji: { type: 'boolean', required: false },
+      globalMd: { type: 'boolean', required: false },
+      globalAutoFormat: { type: 'boolean', required: false }
     }
   },
 

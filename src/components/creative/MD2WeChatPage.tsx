@@ -29,7 +29,6 @@ import { useAuthStore } from '@/store/authStore';
 import { useUsageStore } from '@/store/usageStore';
 import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
-import PageNavigation from '@/components/layout/PageNavigation';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import { Header } from '@/components/landing/Header';
 import { MarkdownEditor } from './md2wechat/MarkdownEditor';
@@ -183,21 +182,6 @@ export default function MD2WeChatPage() {
       {/* 主导航栏 */}
       <Header />
 
-      {/* 页面导航 */}
-      <PageNavigation
-        title="Markdown排版工具"
-        description="专为微信公众号设计的Markdown转换工具，支持多种主题和实时预览"
-        showAdaptButton={false}
-        showUpgradeButton={false}
-        actions={
-          <RoleBasedUpgradePrompt
-            requiredTier="pro"
-            featureName="Markdown排版工具"
-            description="解锁高级主题和导出功能"
-            mode="compact"
-          />
-        }
-      />
       
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="bg-background">
