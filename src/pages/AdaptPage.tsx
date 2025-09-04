@@ -1251,7 +1251,29 @@ export default function AdaptPage() {
   // 🔧 FIX: 使用统一状态管理的数据，避免闪烁
   const effectiveUsageCount = unifiedUsageInfo.isInitialized ? unifiedUsageInfo.usageCount : usageCount;
   const effectiveMaxUsage = unifiedUsageInfo.isInitialized ? unifiedUsageInfo.maxUsage : maxUsage;
-  const effectiveUserTier = unifiedUsageInfo.isInitialized ? unifiedUsageInfo.userTier : getUserTier(user);
+  
+  // 获取用户当前等级 - 优先使用订阅状态
+  const getCurrentTier = () => {
+    // 1. 优先使用订阅状态中的等级信息
+    if (primaryStatus?.status === 'active' && primaryStatus.tier) {
+      return primaryStatus.tier;
+    }
+    
+    // 2. 从订阅状态标签推断
+    if (primaryStatus?.status === 'active') {
+      const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
+      if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
+        return 'premium';
+      } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
+        return 'pro';
+      }
+    }
+    
+    // 3. 最后使用用户数据
+    return unifiedUsageInfo.isInitialized ? unifiedUsageInfo.userTier : getUserTier(user);
+  };
+  
+  const effectiveUserTier = getCurrentTier();
   
   // 同步实际使用次数和最大使用次数
   useEffect(() => {
@@ -4201,18 +4223,24 @@ ${charCountControl.source === 'platform-specific'
           <CardContent className="p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 flex-1">
-                <PermissionLockedButton
-                  requiredTier="premium"
-                  featureName="品牌库资料创作"
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto p-0 justify-start"
-                  onClick={() => setUseBrandLibrary(!useBrandLibrary)}
-                >
+                <div className="flex items-start gap-3 flex-1">
                   <Checkbox
                     id="use-brand-library"
                     checked={useBrandLibrary}
-                    className="mr-2"
+onCheckedChange={(checked) => {
+                      // 简化版权限检查：只允许高级版用户使用
+                      const tierLevels = { trial: 0, pro: 1, premium: 2 };
+                      const userTier = effectiveUserTier;
+                      const hasAccess = isAuthenticated && tierLevels[userTier] >= tierLevels['premium'];
+                      
+                      if (!hasAccess && checked) {
+                        // 显示升级提示
+                        console.log('需要高级版权限');
+                        return;
+                      }
+                      
+                      setUseBrandLibrary(checked);
+                    }}
                   />
                   <div className="flex-1">
                     <Label htmlFor="use-brand-library" className="text-sm text-primary cursor-pointer">
@@ -4222,7 +4250,7 @@ ${charCountControl.source === 'platform-specific'
                       AI自动遵循品牌语言规范，融入品牌价值，规避公关风险
                     </p>
                   </div>
-                </PermissionLockedButton>
+                </div>
               </div>
               
               <div className="flex items-center gap-2">
@@ -4335,15 +4363,11 @@ ${charCountControl.source === 'platform-specific'
                       <Select
                         value={globalSettings.charCountPreset}
                         onValueChange={(value) => {
-                          console.log('字符数限制选择器 - 选择的值:', value);
-                          console.log('当前settingsMode:', settingsMode);
                           updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed');
                         }}
                         disabled={settingsMode.charCount === 'platform'}
                       >
-                        <SelectTrigger className={`h-9 max-w-xs ${
-                          settingsMode.charCount === 'platform' ? 'bg-muted text-muted-foreground cursor-not-allowed pointer-events-none' : 'pointer-events-auto'
-                        }`}>
+                        <SelectTrigger className="h-9 max-w-xs">
                           <SelectValue placeholder={t('adapt.selectCharacterLimit')} />
                         </SelectTrigger>
                         <SelectContent className="z-50">
