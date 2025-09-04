@@ -137,30 +137,44 @@ class VerificationCodeService {
 
       const client = await this.initAuthClient();
       
-      // 调用Authing SDK发送邮件验证码
-      // 🔧 FIX: 2025-09-02 修复API调用方式，使用正确的EmailScene枚举
+      // 🔧 FIX: 尝试多种邮件发送方式来获取正确的token
+      let result;
       let emailScene: EmailScene;
-      switch (scene.toUpperCase()) {
-        case 'REGISTER':
+      
+      console.log('🔍 发送验证码场景:', scene);
+      
+      try {
+        // 方法1: 标准的注册验证码
+        if (scene.toUpperCase() === 'REGISTER') {
           emailScene = EmailScene.REGISTER_VERIFY_CODE;
-          break;
-        case 'LOGIN':
+          console.log('📧 使用注册验证码场景');
+        } else {
           emailScene = EmailScene.LOGIN_VERIFY_CODE;
-          break;
-        case 'RESET_PASSWORD':
-          emailScene = EmailScene.RESET_PASSWORD_VERIFY_CODE;
-          break;
-        case 'UPDATE_EMAIL':
-        case 'CHANGE_EMAIL':
-          emailScene = EmailScene.EMAIL_BIND_VERIFY_CODE;
-          break;
-        case 'VERIFY_CODE':
-        default:
-          emailScene = EmailScene.LOGIN_VERIFY_CODE;
-          break;
-      }
+          console.log('📧 使用登录验证码场景');
+        }
 
-      const result = await client.sendEmail(email, emailScene);
+        result = await client.sendEmail(email, emailScene);
+        
+        // 检查结果结构
+        console.log('📧 发送验证码API原始结果:', {
+          result,
+          resultType: typeof result,
+          resultKeys: result && typeof result === 'object' ? Object.keys(result) : 'not object'
+        });
+
+      } catch (sendError) {
+        console.log('📧 标准发送方式失败，尝试备用方式:', sendError);
+        
+        // 方法2: 如果注册验证码失败，尝试登录验证码
+        try {
+          emailScene = EmailScene.LOGIN_VERIFY_CODE;
+          result = await client.sendEmail(email, emailScene);
+          console.log('📧 备用方式发送成功');
+        } catch (backupError) {
+          console.log('📧 备用发送方式也失败:', backupError);
+          throw sendError; // 抛出原始错误
+        }
+      }
 
       // 🔧 FIX: 保存验证码发送返回的token信息
       if (result) {
@@ -478,7 +492,15 @@ class VerificationCodeService {
         
         console.log('🔍 Token候选值详情:', {
           tokenInfo,
-          candidates: candidates.map((c, i) => ({ index: i, value: c, type: typeof c }))
+          tokenInfoStringified: JSON.stringify(tokenInfo, null, 2),
+          candidates: candidates.map((c, i) => ({ 
+            index: i, 
+            value: c, 
+            type: typeof c,
+            isObject: typeof c === 'object' && c !== null,
+            keys: (typeof c === 'object' && c !== null) ? Object.keys(c) : undefined,
+            stringified: JSON.stringify(c)
+          }))
         });
         
         // 找到第一个字符串类型的token
@@ -526,33 +548,34 @@ class VerificationCodeService {
         profile: profile 
       });
 
-      // 🔧 FIX: 尝试不同的API调用方式
+      // 🔧 FIX: 尝试多种API调用方式
       let registerPromise;
       
-      if (emailToken && typeof emailToken === 'string') {
-        // 方法1: 如果有字符串形式的emailToken，尝试作为第三个参数
-        console.log('🔧 方法1: 使用emailToken作为第三个参数');
-        registerPromise = client.registerByEmailCode(email, cleanCode, emailToken);
-      } else {
-        // 方法2: 尝试将验证码信息作为对象传递
-        console.log('🔧 方法2: 将验证码和密码作为对象传递');
-        const registerData = {
-          email: email,
-          code: cleanCode,
-          password: password,
-          ...(tokenInfo && { emailToken: tokenInfo.emailToken || tokenInfo })
-        };
-        console.log('📡 注册数据对象:', registerData);
-        
-        // 尝试不同的调用方式
-        try {
-          registerPromise = client.registerByEmailCode(email, cleanCode, registerData);
-        } catch (firstError) {
-          console.log('🔧 方法2失败，尝试方法3: 仅使用基本参数');
-          // 方法3: 回到最简单的调用方式，但包含所有必要信息
+      console.log('🔧 尝试多种注册方式...');
+      
+      try {
+        if (emailToken && typeof emailToken === 'string' && emailToken.length > 10) {
+          // 方法1: 如果有有效的字符串emailToken，尝试4参数调用
+          console.log('🔧 方法1: 使用emailToken字符串 (4参数)');
+          registerPromise = client.registerByEmailCode(email, cleanCode, emailToken, { password });
+        } else {
+          // 方法2: 尝试不使用emailToken的标准3参数调用
+          console.log('🔧 方法2: 标准3参数调用 (email, code, profile)');
           registerPromise = client.registerByEmailCode(email, cleanCode, {
-            password: password
+            password: password,
+            email: email
           });
+        }
+      } catch (apiError) {
+        console.log('🔧 API调用方式1/2失败，尝试方法3: 最简单调用');
+        try {
+          // 方法3: 最简单的调用方式
+          registerPromise = client.registerByEmailCode(email, cleanCode, password);
+        } catch (simpleError) {
+          console.log('🔧 所有标准方法失败，尝试方法4: 使用管理端API');
+          // 方法4: 如果前面都失败，可能需要使用不同的注册方式
+          // 尝试直接创建用户然后验证邮箱
+          throw new Error('所有注册方式均失败，可能是API配置问题');
         }
       }
       const timeoutPromise = new Promise((_, reject) => {
