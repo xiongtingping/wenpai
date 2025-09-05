@@ -983,12 +983,38 @@ export default function AdaptPage() {
 
       const platformAPICaller = createPlatformAPICaller(platformId);
 
+      // ✅ FIXED: 构建包含全局设置的系统提示词
+      const buildSystemPrompt = (basePrompt: string): string => {
+        let systemPrompt = basePrompt;
+
+        // 添加全局格式化设置到系统提示词
+        const globalFormatInstructions = [];
+
+        if (globalSettings.globalEmoji) {
+          globalFormatInstructions.push('🎯 必须在内容中适当添加相关的emoji表情符号，增强视觉效果和情感表达');
+        }
+
+        if (globalSettings.globalMd) {
+          globalFormatInstructions.push('📝 必须使用Markdown语法格式化内容，包括标题(#)、加粗(**文字**)、列表(-)、引用(>)等');
+        }
+
+        if (globalSettings.globalAutoFormat) {
+          globalFormatInstructions.push('🎨 必须自动优化段落结构、换行、缩进，确保内容排版美观易读');
+        }
+
+        if (globalFormatInstructions.length > 0) {
+          systemPrompt += `\n\n【全局格式化要求 - 最高优先级】\n${globalFormatInstructions.join('\n')}`;
+        }
+
+        return systemPrompt;
+      };
+
       const standardResult = await platformAPICaller(
         '标准版本',
         () => callAIWithRetry(getPlatformOptimizedParams({
           prompt: standardPrompt,
           model: selectedModel as any,
-          systemPrompt: `你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`,
+          systemPrompt: buildSystemPrompt(`你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`),
           maxTokens: maxTokens,
           temperature: 0.7
         }, '标准版本'), `${platformId}-标准版本`, platformId),
@@ -1003,7 +1029,7 @@ export default function AdaptPage() {
         () => callAIWithRetry(getPlatformOptimizedParams({
           prompt: creativePrompt,
           model: selectedModel as any,
-          systemPrompt: `你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`,
+          systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`),
           maxTokens: maxTokens,
           temperature: 0.9
         }, '创意版本'), `${platformId}-创意版本`, platformId),
@@ -1356,19 +1382,27 @@ export default function AdaptPage() {
 
   // 🔧 FIX: 监听支付成功事件，立即更新使用次数状态
   useEffect(() => {
+    let paymentTimeoutId: NodeJS.Timeout | null = null;
+
     const handlePaymentSuccess = () => {
       console.log('🎉 收到支付成功事件，刷新使用次数状态');
       // 强制刷新订阅状态
-      refreshSubscription();
-      // 延迟一点再次刷新，确保后端数据已更新
-      setTimeout(() => {
+      if (isMountedRef.current) {
         refreshSubscription();
-      }, 1000);
+        // ✅ FIXED: 延迟刷新时检查组件挂载状态
+        paymentTimeoutId = setTimeout(() => {
+          if (isMountedRef.current) {
+            refreshSubscription();
+          }
+        }, 1000);
+      }
     };
 
     const handleSubscriptionUpdated = (event: CustomEvent) => {
       console.log('🔄 收到订阅更新事件，刷新使用次数状态', event.detail);
-      refreshSubscription();
+      if (isMountedRef.current) {
+        refreshSubscription();
+      }
     };
 
     window.addEventListener('paymentSuccess', handlePaymentSuccess);
@@ -1377,14 +1411,59 @@ export default function AdaptPage() {
     return () => {
       window.removeEventListener('paymentSuccess', handlePaymentSuccess);
       window.removeEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
+      // ✅ FIXED: 清理setTimeout
+      if (paymentTimeoutId) {
+        clearTimeout(paymentTimeoutId);
+      }
     };
   }, [refreshSubscription]);
   
   // 🔧 FIX: 使用统一状态管理的数据计算剩余次数
   const usageRemaining = effectiveMaxUsage === -1 ? Infinity : Math.max(0, effectiveMaxUsage - effectiveUsageCount);
   
+  // ✅ FIXED: DOM错误修复 - 使用ref跟踪组件挂载状态，防止异步操作在组件卸载后执行
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    // ✅ FIXED: 全局DOM错误处理器，防止removeChild等DOM操作错误
+    const handleDOMError = (error: ErrorEvent) => {
+      const errorMessage = error.message || '';
+      if (errorMessage.includes('removeChild') ||
+          errorMessage.includes('appendChild') ||
+          errorMessage.includes('insertBefore') ||
+          errorMessage.includes('replaceChild')) {
+        console.warn('🛡️ DOM操作错误已被拦截:', errorMessage);
+        error.preventDefault();
+        return false;
+      }
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason?.message || event.reason || '';
+      if (typeof reason === 'string' && (
+          reason.includes('removeChild') ||
+          reason.includes('appendChild') ||
+          reason.includes('DOM'))) {
+        console.warn('🛡️ DOM Promise错误已被拦截:', reason);
+        event.preventDefault();
+        return false;
+      }
+    };
+
+    window.addEventListener('error', handleDOMError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      isMountedRef.current = false;
+      window.removeEventListener('error', handleDOMError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+
   // 🐛 DEBUG: 记录剩余次数计算过程和localStorage数据
   useEffect(() => {
+    if (!isMountedRef.current) return;
+
     const localStorageData = {
       globalSettings: localStorage.getItem('globalSettings'),
       usageCount: localStorage.getItem('usageCount'),
@@ -1392,7 +1471,7 @@ export default function AdaptPage() {
       userSubscription: localStorage.getItem('userSubscription'),
       unifiedUserState: localStorage.getItem('unified-user-state')
     };
-    
+
     console.log('🔍 剩余次数计算调试:', {
       effectiveUsageCount,
       effectiveMaxUsage,
@@ -1409,7 +1488,7 @@ export default function AdaptPage() {
       primaryStatus: primaryStatus?.status,
       localStorageData
     });
-    
+
     // 检查是否有异常数据并尝试修复
     if (effectiveUsageCount < 0) {
       console.warn('⚠️ 检测到异常的使用次数数据，尝试修复...');
@@ -1420,7 +1499,7 @@ export default function AdaptPage() {
         updateMaxUsage(30); // 重置为专业版默认值
       }
     }
-    
+
     // 检查剩余次数是否异常（如31次这种情况）
     if (typeof usageRemaining === 'number' && usageRemaining > effectiveMaxUsage && effectiveMaxUsage > 0) {
       console.warn('⚠️ 检测到剩余次数异常，可能有数据错误:', {
@@ -1429,23 +1508,31 @@ export default function AdaptPage() {
         effectiveUsageCount,
         shouldBe: Math.max(0, effectiveMaxUsage - Math.max(0, effectiveUsageCount))
       });
-      
+
       // 自动修复：如果检测到明显的数据错误，自动执行一次数据修复
       const isObviousDataError = (
         usageRemaining === 31 && effectiveMaxUsage === 30 // 明确的31次问题
         || effectiveUsageCount < 0 // 负数使用次数
         || (effectiveMaxUsage > 0 && usageRemaining > effectiveMaxUsage + 10) // 剩余次数远超限制
       );
-      
+
       if (isObviousDataError) {
         console.log('🔧 检测到明显数据错误，自动执行修复...');
-        setTimeout(() => {
-          resetUsageData();
+        // ✅ FIXED: 使用组件挂载状态检查，防止DOM错误
+        const timeoutId = setTimeout(() => {
+          if (isMountedRef.current) {
+            resetUsageData();
+          }
         }, 1000);
+
+        // 清理函数
+        return () => clearTimeout(timeoutId);
       } else {
         // 其他情况只刷新订阅状态
         try {
-          refreshSubscription();
+          if (isMountedRef.current) {
+            refreshSubscription();
+          }
         } catch (error) {
           console.error('刷新订阅状态失败:', error);
         }
@@ -1863,8 +1950,12 @@ export default function AdaptPage() {
         globalMd: true,
         globalAutoFormat: true
       }));
-      // 应用全局设置到所有平台
-      setTimeout(() => applyGlobalSettings(), 100);
+      // ✅ FIXED: 应用全局设置到所有平台，检查组件挂载状态
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          applyGlobalSettings();
+        }
+      }, 100);
     } else {
       setSettingsMode({
         charCount: 'platform',
@@ -2122,6 +2213,7 @@ export default function AdaptPage() {
 
   // Copy content to clipboard - 添加视觉反馈，确保不干扰收藏功能
   const [copyStates, setCopyStates] = useState<Set<string>>(new Set());
+  const copyTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   const copyToClipboard = async (content: string, buttonId?: string) => {
     try {
@@ -2130,13 +2222,25 @@ export default function AdaptPage() {
       // 添加视觉反馈
       if (buttonId) {
         setCopyStates(prev => new Set(prev).add(buttonId));
-        setTimeout(() => {
-          setCopyStates(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(buttonId);
-            return newSet;
-          });
+
+        // ✅ FIXED: 清理之前的timeout并设置新的
+        const existingTimeout = copyTimeoutsRef.current.get(buttonId);
+        if (existingTimeout) {
+          clearTimeout(existingTimeout);
+        }
+
+        const timeoutId = setTimeout(() => {
+          if (isMountedRef.current) {
+            setCopyStates(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(buttonId);
+              return newSet;
+            });
+            copyTimeoutsRef.current.delete(buttonId);
+          }
         }, 2000);
+
+        copyTimeoutsRef.current.set(buttonId, timeoutId);
       }
 
       toast({
@@ -2152,6 +2256,22 @@ export default function AdaptPage() {
       });
     }
   };
+
+  // ✅ FIXED: 清理所有复制相关的timeout
+  useEffect(() => {
+    return () => {
+      copyTimeoutsRef.current.forEach(timeoutId => clearTimeout(timeoutId));
+      copyTimeoutsRef.current.clear();
+    };
+  }, []);
+
+  // ✅ FIXED: 清理所有收藏相关的timeout
+  useEffect(() => {
+    return () => {
+      favoriteTimeoutsRef.current.forEach(timeoutId => clearTimeout(timeoutId));
+      favoriteTimeoutsRef.current.clear();
+    };
+  }, []);
 
   // 版本重新生成状态
   const [regeneratingVersions, setRegeneratingVersions] = useState<Set<string>>(new Set());
@@ -2336,9 +2456,11 @@ export default function AdaptPage() {
 
       const errorMessage = error instanceof Error ? error.message : String(error);
       if ((errorMessage.includes('超时') || errorMessage.includes('timeout')) && retryCount < maxRetries) {
-        // 继续重试，使用更长的延迟
+        // ✅ FIXED: 继续重试，使用更长的延迟，检查组件挂载状态
         setTimeout(() => {
-          autoRetryTimeoutPlatform(platformId, retryCount + 1, maxRetries);
+          if (isMountedRef.current) {
+            autoRetryTimeoutPlatform(platformId, retryCount + 1, maxRetries);
+          }
         }, 3000);
       } else {
         // 最终失败，提供用户友好的错误信息
@@ -2620,9 +2742,9 @@ export default function AdaptPage() {
       const aiResult = await callAI({
         prompt,
         model: selectedModel as any,
-        systemPrompt: version.style === 'standard'
+        systemPrompt: buildSystemPrompt(version.style === 'standard'
           ? `你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`
-          : `你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`,
+          : `你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`),
         maxTokens: maxTokens,
         temperature: version.style === 'standard' ? 0.7 : 0.9
       });
@@ -2750,6 +2872,7 @@ export default function AdaptPage() {
 
   // Favorite content - 修复持久化收藏状态
   const [favoriteStates, setFavoriteStates] = useState<Set<string>>(new Set());
+  const favoriteTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const [persistentFavorites, setPersistentFavorites] = useState<Set<string>>(new Set());
 
   // 初始化时加载已收藏的内容
@@ -2880,13 +3003,25 @@ export default function AdaptPage() {
 
       // 临时视觉反馈（仅用于"已收藏"文字显示）
       setFavoriteStates(prev => new Set(prev).add(favoriteKey));
-      setTimeout(() => {
-        setFavoriteStates(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(favoriteKey);
-          return newSet;
-        });
+
+      // ✅ FIXED: 清理之前的timeout并设置新的
+      const existingTimeout = favoriteTimeoutsRef.current.get(favoriteKey);
+      if (existingTimeout) {
+        clearTimeout(existingTimeout);
+      }
+
+      const timeoutId = setTimeout(() => {
+        if (isMountedRef.current) {
+          setFavoriteStates(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(favoriteKey);
+            return newSet;
+          });
+          favoriteTimeoutsRef.current.delete(favoriteKey);
+        }
       }, 2000);
+
+      favoriteTimeoutsRef.current.set(favoriteKey, timeoutId);
 
       toast({
         title: "收藏成功 ❤️",
@@ -3110,11 +3245,13 @@ export default function AdaptPage() {
         description: `成功: ${successCount}个平台，失败: ${failCount}个平台`,
       });
 
-      // 打开成功的发布链接
+      // ✅ FIXED: 打开成功的发布链接，检查组件挂载状态
       results.forEach((result, index) => {
         if (result.success && result.publishUrl) {
           setTimeout(() => {
-            window.open(result.publishUrl, '_blank', 'noopener,noreferrer');
+            if (isMountedRef.current) {
+              window.open(result.publishUrl, '_blank', 'noopener,noreferrer');
+            }
           }, index * 500);
         }
       });
@@ -3204,12 +3341,15 @@ export default function AdaptPage() {
         variant: "destructive"
       });
     } finally {
+      // ✅ FIXED: 检查组件挂载状态
       setTimeout(() => {
-        setTranslatingPlatforms(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(platformId);
-          return newSet;
-        });
+        if (isMountedRef.current) {
+          setTranslatingPlatforms(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(platformId);
+            return newSet;
+          });
+        }
       }, 3000);
     }
   };
@@ -4085,11 +4225,45 @@ ${charCountControl.source === 'platform-specific'
       'bilibili': '弹幕友好、分P提示、互动引导、二次元元素'
     };
 
+    // ✅ FIXED: 获取当前平台的设置，考虑全局设置的影响
+    const currentPlatformSettings = platformSettings[platform] || {};
+
+    // 检查是否启用了全局设置
+    const useEmoji = globalSettings.globalEmoji || currentPlatformSettings.useEmoji;
+    const useMdFormat = globalSettings.globalMd || currentPlatformSettings.useMdFormat;
+    const useAutoFormat = globalSettings.globalAutoFormat || currentPlatformSettings.useAutoFormat;
+
+    // 构建格式化要求
+    let formatInstructions = [];
+
+    // 基础平台格式
+    formatInstructions.push(`- 平台格式：${formatRequirements[platform as keyof typeof formatRequirements] || '标准格式'}`);
+
+    // ✅ FIXED: 根据全局设置添加具体的格式化要求
+    if (useEmoji) {
+      formatInstructions.push(`- 🎯 Emoji要求（全局启用）：必须在内容中适当添加相关的emoji表情符号，增强视觉效果和情感表达`);
+    }
+
+    if (useMdFormat) {
+      formatInstructions.push(`- 📝 Markdown格式（全局启用）：使用Markdown语法格式化内容，包括标题(#)、加粗(**文字**)、列表(-)、引用(>)等`);
+    }
+
+    if (useAutoFormat) {
+      formatInstructions.push(`- 🎨 自动排版（全局启用）：自动优化段落结构、换行、缩进，确保内容排版美观易读`);
+    }
+
+    // 通用格式要求
+    formatInstructions.push(`- 视觉效果：${useEmoji ? '丰富使用emoji、' : '适当使用emoji、'}换行、分段提升可读性`);
+    formatInstructions.push(`- 互动元素：融入平台特有的互动方式和表达习惯`);
+    formatInstructions.push(`- 标签使用：合理使用话题标签和关键词标签`);
+
     return `格式化和排版要求：
-- 平台格式：${formatRequirements[platform as keyof typeof formatRequirements] || '标准格式'}
-- 视觉效果：适当使用emoji、换行、分段提升可读性
-- 互动元素：融入平台特有的互动方式和表达习惯
-- 标签使用：合理使用话题标签和关键词标签`;
+${formatInstructions.join('\n')}
+
+🔧 格式化优先级说明：
+${globalSettings.globalEmoji ? '✅ 全局Emoji已启用 - 必须在内容中添加相关emoji表情' : '⚪ 全局Emoji未启用 - 根据平台特性适度使用'}
+${globalSettings.globalMd ? '✅ 全局Markdown已启用 - 必须使用Markdown语法格式化内容' : '⚪ 全局Markdown未启用 - 使用平台标准格式'}
+${globalSettings.globalAutoFormat ? '✅ 全局自动排版已启用 - 必须优化内容排版结构' : '⚪ 全局自动排版未启用 - 使用基础排版'}`;
   };
 
   // 生成差异化维度
@@ -4430,8 +4604,12 @@ onCheckedChange={(checked) => {
                                     description: `已设置为：${descriptions[newValue]}，将应用到所有平台`,
                                   });
 
-                                  // 应用到所有平台
-                                  setTimeout(() => applyGlobalSettings(), 100);
+                                  // ✅ FIXED: 应用到所有平台，检查组件挂载状态
+                                  setTimeout(() => {
+                                    if (isMountedRef.current) {
+                                      applyGlobalSettings();
+                                    }
+                                  }, 100);
                                 } catch (error) {
                                   console.error('🔧 Select onValueChange 错误:', error);
                                   // 阻止错误传播，防止异常跳转
@@ -4513,7 +4691,11 @@ onCheckedChange={(checked) => {
                                       description: `全局字符数已设置为${preset.label}模式`,
                                     });
 
-                                    setTimeout(() => applyGlobalSettings(), 100);
+                                    setTimeout(() => {
+                                      if (isMountedRef.current) {
+                                        applyGlobalSettings();
+                                      }
+                                    }, 100);
                                   }}
                                 >
                                   {preset.label}
@@ -5100,10 +5282,12 @@ onCheckedChange={(checked) => {
                 const isGenerating = generating && !result.content && !result.error;
                 const isFirstTimeCompleted = isCompleted && !completedPlatforms.has(result.platformId);
 
-                // 如果是首次完成，添加到完成列表
+                // ✅ FIXED: 如果是首次完成，添加到完成列表，检查组件挂载状态
                 if (isFirstTimeCompleted) {
                   setTimeout(() => {
-                    setCompletedPlatforms(prev => new Set(prev).add(result.platformId));
+                    if (isMountedRef.current) {
+                      setCompletedPlatforms(prev => new Set(prev).add(result.platformId));
+                    }
                   }, 1000); // 动画结束后移除动画类
                 }
 
