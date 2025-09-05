@@ -211,6 +211,9 @@ module.exports.handler = async (event, context) => {
     const body = event.body ? JSON.parse(event.body) : {};
     const { provider, action, platform, model, messages, ...requestBody } = body;
 
+    // ✅ FIXED: 确保messages在requestBody中可用
+    requestBody.messages = messages;
+
     // 🔧 新增：直接AI调用支持（无需action参数，通过model和messages识别）
     if (model && messages && !action) {
       console.log('🔍 直接AI调用检测:', { provider, model });
@@ -656,17 +659,25 @@ async function generateWithDeepSeek(requestBody, headers) {
       keyLength: apiKey?.length || 0,
       keyPrefix: apiKey?.substring(0, 8) || 'N/A'
     });
-    
+
     if (!apiKey) {
       throw new Error('DeepSeek API key not configured');
     }
 
     // ✅ 直接使用实际的模型名称，无需映射
     let apiModel = requestBody.model || 'deepseek-chat';
-    
+
+    // ✅ FIXED: 确保messages数组存在且不为空
+    let messages = requestBody.messages;
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      console.log('⚠️ messages为空，使用默认消息结构');
+      messages = [{ role: 'user', content: 'Hello' }];
+    }
+
     console.log('🔧 DeepSeek模型调用:', {
       模型名称: apiModel,
-      消息数量: requestBody.messages?.length || 0
+      消息数量: messages.length,
+      消息内容: messages.map(m => ({ role: m.role, contentLength: m.content?.length || 0 }))
     });
 
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -677,7 +688,7 @@ async function generateWithDeepSeek(requestBody, headers) {
       },
       body: JSON.stringify({
         model: apiModel,
-        messages: requestBody.messages,
+        messages: messages,
         temperature: requestBody.temperature || 0.7,
         max_tokens: requestBody.maxTokens || 1000
       })
