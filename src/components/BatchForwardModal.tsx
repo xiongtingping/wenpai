@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+// Dialog components removed - using custom modal
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -154,33 +154,50 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
       )}
 
       {/* 正常状态 - 模态弹窗 */}
-      {!isMinimized && (
-        <Dialog open={open} onOpenChange={() => {}}>
-          <DialogContent
-            className="batch-forward-modal-content max-w-5xl max-h-[85vh] overflow-hidden h-[85vh] p-0 [&>button]:hidden"
-            onPointerDownOutside={(e) => e.preventDefault()}
-            onEscapeKeyDown={(e) => e.preventDefault()}
-            aria-describedby="batch-forward-modal-description"
+      {!isMinimized && open && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 999999,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px'
+          }}
+          onClick={(e) => {
+            // 点击遮罩层关闭弹窗
+            if (e.target === e.currentTarget) {
+              handleClose();
+            }
+          }}
+        >
+          <div
             style={{
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 999999,
-              maxWidth: 'min(85vw, 1200px)',
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '0',
+              maxWidth: 'min(90vw, 1200px)',
               maxHeight: '85vh',
-              width: 'auto',
-              height: 'auto'
+              overflow: 'hidden',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              display: 'flex',
+              flexDirection: 'column'
             }}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* 隐藏的描述元素，用于CSS选择器 */}
             <div id="batch-forward-modal-description" className="sr-only">批量转发工作台模态框</div>
 
             {/* 优化后的紧凑头部 - 去除冗余留白 */}
-            <DialogHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-3 border-b bg-accent/50">
-              <DialogTitle className="text-lg font-semibold text-foreground">
+            <div className="flex flex-row items-center justify-between space-y-0 px-6 py-4 border-b bg-gradient-to-r from-primary/10 to-primary/5">
+              <h2 className="text-lg font-semibold text-foreground">
                 批量转发工作台 ({platforms.length}个平台)
-              </DialogTitle>
+              </h2>
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
@@ -201,7 +218,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                   <X className="h-3.5 w-3.5" />
                 </Button>
               </div>
-            </DialogHeader>
+            </div>
 
             {/* 确认关闭对话框 */}
             <AlertDialog open={closeConfirmOpen}>
@@ -220,9 +237,9 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
             </AlertDialog>
 
             {/* 优化后的紧凑内容区域 */}
-            <div className="flex-1 overflow-y-auto px-4 py-3">
+            <div className="flex-1 overflow-y-auto px-6 py-4" style={{ maxHeight: 'calc(85vh - 80px)' }}>
               {/* 优化后的使用说明 - 移至主标题下方，单行展示 */}
-              <div className="flex items-center gap-2 mb-4 p-3 bg-accent/80 rounded-lg border border-border/60">
+              <div className="flex items-center gap-2 mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <Info className="h-4 w-4 text-primary flex-shrink-0" />
                 <span className="text-sm text-foreground font-medium">使用说明：</span>
                 <span className="text-sm text-primary">
@@ -231,9 +248,9 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
               </div>
 
               {/* 优化后的平台网格 - 增加分组边框 */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {platforms.map((platform) => (
-                  <Card key={platform.id} className="border-2 border-border hover:border-primary/50 transition-colors shadow-sm">
+                  <Card key={platform.id} className="border border-border hover:border-primary/30 transition-all shadow-sm hover:shadow-md">
                     {/* 优化后的卡片头部 */}
                     <CardHeader className="pb-3 pt-4 px-4 border-b border-border bg-accent/30">
                       <CardTitle className="flex items-center gap-3 text-base">
@@ -391,8 +408,8 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                 ))}
               </div>
             </div>
-          </DialogContent>
-        </Dialog>
+          </div>
+        </div>
       )}
 
       {/* 关闭确认 AlertDialog */}

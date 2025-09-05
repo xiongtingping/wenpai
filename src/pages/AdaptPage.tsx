@@ -1472,22 +1472,6 @@ export default function AdaptPage() {
       unifiedUserState: localStorage.getItem('unified-user-state')
     };
 
-    console.log('🔍 剩余次数计算调试:', {
-      effectiveUsageCount,
-      effectiveMaxUsage,
-      usageRemaining,
-      effectiveUserTier,
-      calculation: `${effectiveMaxUsage} - ${effectiveUsageCount} = ${usageRemaining}`,
-      unifiedUsageInfo: {
-        isInitialized: unifiedUsageInfo.isInitialized,
-        usageCount: unifiedUsageInfo.usageCount,
-        maxUsage: unifiedUsageInfo.maxUsage,
-        userTier: unifiedUsageInfo.userTier
-      },
-      authStore: { usageCount, maxUsage },
-      primaryStatus: primaryStatus?.status,
-      localStorageData
-    });
 
     // 检查是否有异常数据并尝试修复
     if (effectiveUsageCount < 0) {
@@ -1735,14 +1719,29 @@ export default function AdaptPage() {
 
   // 🔧 FIX: 使用统一状态检查生成条件
   const canGenerate = originalContent.trim().length > 10 && selectedPlatforms.length > 0 && (usageRemaining > 0 || effectiveMaxUsage === -1);
+  
+  // 调试信息 - 只在控制台出现问题时启用
+  // console.log('🔍 canGenerate状态检查:', { canGenerate, generating, usageRemaining, effectiveMaxUsage });
 
   // 检查使用次数并显示提醒
   const checkUsageAndShowReminder = () => {
-    if (usageRemaining <= 3 && usageRemaining > 0) {
+    // 如果剩余次数为0或负数，阻止生成
+    if (usageRemaining <= 0 && effectiveMaxUsage !== -1) {
+      console.log('❌ 使用次数已用完，阻止生成');
       setUsageReminderCount(usageRemaining);
       setShowUsageReminder(true);
       return false;
     }
+    
+    // 如果剩余次数较少（1-3次），显示提醒但允许继续生成
+    if (usageRemaining <= 3 && usageRemaining > 0 && effectiveMaxUsage !== -1) {
+      console.log('⚠️ 使用次数较少，显示提醒但允许生成');
+      setUsageReminderCount(usageRemaining);
+      setShowUsageReminder(true);
+      // 不阻止生成，只是提醒
+    }
+    
+    console.log('✅ 使用次数检查通过');
     return true;
   };
 
@@ -1772,15 +1771,6 @@ export default function AdaptPage() {
       const correctTier = getUserTier(user);
       const correctMaxUsage = correctTier === 'premium' ? -1 : correctTier === 'pro' ? 30 : 10;
       
-      console.log('🔍 重置数据调试信息:', {
-        userId: user?.id,
-        userTier: correctTier,
-        maxUsage: correctMaxUsage,
-        primaryStatus: primaryStatus?.status,
-        primaryTier: primaryStatus?.tier,
-        userVipLevel: user?.vipLevel,
-        userSubscription: user?.subscription
-      });
       
       updateMaxUsage(correctMaxUsage);
       
@@ -2012,7 +2002,14 @@ export default function AdaptPage() {
 
   // 修改generateContent，在内容生成成功后调用saveToHistory
   const generateContent = async () => {
-    if (!checkUsageAndShowReminder()) return;
+    console.log('🚀 generateContent 函数被调用');
+    console.log('🔍 原始内容长度:', originalContent.trim().length);
+    console.log('🔍 选中平台数量:', selectedPlatforms.length);
+    console.log('🔍 生成状态:', generating);
+    
+    const usageCheck = checkUsageAndShowReminder();
+    console.log('🔍 使用次数检查结果:', usageCheck);
+    if (!usageCheck) return;
 
     if (!originalContent.trim()) {
       toast({
@@ -2346,7 +2343,6 @@ export default function AdaptPage() {
 
   // 网络诊断工具
   const runNetworkDiagnostic = async () => {
-    console.log('🔍 开始网络诊断...');
 
     const diagnosticResults = {
       basicConnectivity: false,
@@ -3584,17 +3580,165 @@ export default function AdaptPage() {
   // 新的批量转发工作台状态
   const [batchForwardModalOpen, setBatchForwardModalOpen] = useState(false);
   const [batchForwardPlatforms, setBatchForwardPlatforms] = useState<any[]>([]);
+  
+  // 标题生成状态跟踪
+  const [titleStates, setTitleStates] = useState<Record<string, {
+    hasTitle: boolean;
+    isGenerating: boolean;
+  }>>({});
+  
+  // 当结果更新时，初始化标题状态
+  useEffect(() => {
+    const updates: Record<string, { hasTitle: boolean; isGenerating: boolean }> = {};
+    let hasUpdates = false;
+    
+    results.forEach(result => {
+      if (!titleStates[result.platformId]) {
+        updates[result.platformId] = {
+          hasTitle: false,
+          isGenerating: false
+        };
+        hasUpdates = true;
+      }
+    });
+    
+    if (hasUpdates) {
+      setTitleStates(prev => ({
+        ...prev,
+        ...updates
+      }));
+    }
+  }, [results, titleStates]);
 
   /**
-   * 打开批量一键转发弹窗
+   * 打开批量一键转发弹窗 - 直接启动批量转发工作台
    */
-  const handleBatchPublish = () => {
+  const handleBatchPublish = async () => {
     // 只展示有内容的平台（包括版本内容）
     const available = results.filter(r => {
       return r.content || (r.versions && r.versions.length > 0 && r.versions[0].content);
     }).map(r => r.platformId);
+    
+    if (available.length === 0) {
+      toast({
+        title: "提示",
+        description: "没有找到有内容的平台",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setBatchSelectedPlatforms(available);
-    setBatchPublishOpen(true);
+
+    // 直接构建批量转发平台数据并启动工作台
+    const forwardPlatforms = await Promise.all(
+      available.map(async (pid) => {
+        const result = results.find(r => r.platformId === pid);
+        if (!result) return null;
+
+        // 获取内容、标题和标签
+        let content = '';
+        let title = '';
+        let tags: string[] = [];
+
+        if (result.versions && result.versions.length > 0) {
+          // ✅ 使用选中的版本数据
+          const selectedVersionId = getSelectedVersion(pid);
+          const versionIndex = selectedVersionId === 'version-a' ? 0 : 1;
+          const version = result.versions[versionIndex] || result.versions[0]; // 备用第一个版本
+
+          content = version.content;
+          title = version.title || `${content.substring(0, 30)}...`;
+
+          // 从提取的标签映射中获取标签
+          const versionKey = `${pid}-${selectedVersionId}`;
+          const extractedTags = extractedTagsMap[versionKey] || [];
+          tags = extractedTags.map(tag => tag.startsWith('#') ? tag : `#${tag}`);
+        } else if (result.content) {
+          // ✅ 使用AI生成的基础数据
+          content = result.content;
+          title = `${content.substring(0, 30)}...`; // 备用标题
+
+          // 尝试从结果中获取标签
+          if (result.tags && Array.isArray(result.tags)) {
+            tags = result.tags.map(tag => tag.startsWith('#') ? tag : `#${tag}`);
+          }
+        }
+
+        if (!content) return null;
+
+        // 获取平台信息
+        const platform = platforms.find(p => p.id === pid);
+        if (!platform) return null;
+
+        // 如果没有标签，尝试从提取的标签映射中获取
+        if (tags.length === 0) {
+          const platformKey = `${pid}-version-a`;
+          const extractedTags = extractedTagsMap[platformKey] || [];
+          if (extractedTags.length > 0) {
+            tags = extractedTags.map(tag => tag.startsWith('#') ? tag : `#${tag}`);
+          } else {
+            // 最后备用方案：生成标签
+            try {
+              const { hashtagGenerator } = await import('@/utils/hashtagGenerator');
+              const hashtagSuggestions = await hashtagGenerator.generateHashtags(content, {
+                platformId: pid,
+                maxTags: 5
+              });
+              tags = hashtagSuggestions.map(h => `#${h.tag}`);
+            } catch (error) {
+              console.error('生成标签失败:', error);
+              tags = []; // 确保tags是数组
+            }
+          }
+        }
+
+        return {
+          id: pid,
+          name: platform.name,
+          icon: platform.name.charAt(0),
+          url: platformUrls[pid] || `https://${pid}.com`,
+          title,    // ✅ 使用AI生成的标题
+          content,  // ✅ 使用AI生成的内容
+          tags      // ✅ 使用AI生成过程中提取的标签
+        };
+      })
+    );
+
+    const validPlatforms = forwardPlatforms.filter(Boolean);
+
+    if (validPlatforms.length === 0) {
+      toast({
+        title: "错误",
+        description: "没有找到有效的平台内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 保存到历史记录
+    const shareHistory: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+    validPlatforms.forEach(platform => {
+      if (platform) {
+        shareHistory.unshift({
+          id: Date.now().toString() + Math.random(),
+          platformId: platform.id,
+          platformName: platform.name,
+          content: platform.content,
+          time: new Date().toISOString()
+        });
+      }
+    });
+    localStorage.setItem('shareHistory', JSON.stringify(shareHistory.slice(0, 50)));
+
+    // 打开批量转发工作台
+    setBatchForwardPlatforms(validPlatforms);
+    setBatchForwardModalOpen(true);
+
+    toast({
+      title: "批量转发工作台已启动",
+      description: `已为${validPlatforms.length}个平台准备好内容，平台页面将自动打开`,
+    });
   };
 
   /**
@@ -5190,7 +5334,12 @@ onCheckedChange={(checked) => {
         <Button
           size="lg"
           disabled={!canGenerate || generating}
-          onClick={generateContent}
+          onClick={(e) => {
+            console.log('🎯 按钮被点击了！', { disabled: !canGenerate || generating, canGenerate, generating });
+            e.preventDefault();
+            e.stopPropagation();
+            generateContent();
+          }}
           className="w-full max-w-md theme-hero-button"
         >
           {generating ? (
@@ -5383,6 +5532,14 @@ onCheckedChange={(checked) => {
                               platformName={getPlatformName(result.platformId, platforms)}
                               onTitleChange={(title) => {
                                 console.log(`${result.platformId} 标题已更新:`, title);
+                                // 更新标题状态
+                                setTitleStates(prev => ({
+                                  ...prev,
+                                  [result.platformId]: {
+                                    hasTitle: !!title,
+                                    isGenerating: false
+                                  }
+                                }));
                                 // 同步标题到内容同步store
                                 contentSync.setSelectedTitle(title);
                                 contentSync.setPlatformId(result.platformId);
@@ -5902,11 +6059,14 @@ onCheckedChange={(checked) => {
                 contentLength = result.versions[0].content?.length || 0;
               }
 
+              const titleState = titleStates[result.platformId];
               return {
                 id: result.platformId,
                 name: getPlatformName(result.platformId, platforms),
                 hasContent: !!(result.content || (result.versions && result.versions.length > 0)),
-                contentLength
+                contentLength,
+                hasTitle: titleState?.hasTitle || false,
+                isTitleGenerating: titleState?.isGenerating || false
               };
             })}
             onStartAutomation={handleStartAutomation}

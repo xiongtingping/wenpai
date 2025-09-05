@@ -34,6 +34,8 @@ export interface AutomationUIProps {
     name: string;
     hasContent: boolean;
     contentLength: number;
+    hasTitle?: boolean;          // 是否已生成标题
+    isTitleGenerating?: boolean; // 标题是否正在生成中
   }>;
   onStartAutomation: (selectedPlatforms: string[], options: AutomationOptions) => Promise<void>;
   onCancelAutomation: () => void;
@@ -67,20 +69,24 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
     retryCount: 3
   });
 
-  // 自动选择有内容的平台
+  // 自动选择有内容且有标题的平台
   useEffect(() => {
-    const platformsWithContent = availablePlatforms
-      .filter(p => p.hasContent)
+    const platformsReady = availablePlatforms
+      .filter(p => p.hasContent && p.hasTitle && !p.isTitleGenerating)
       .map(p => p.id);
-    setSelectedPlatforms(platformsWithContent);
+    setSelectedPlatforms(platformsReady);
   }, [availablePlatforms]);
 
   const handlePlatformToggle = (platformId: string) => {
-    setSelectedPlatforms(prev => 
-      prev.includes(platformId)
-        ? prev.filter(id => id !== platformId)
-        : [...prev, platformId]
-    );
+    const platform = availablePlatforms.find(p => p.id === platformId);
+    // 只允许选择有内容且有标题且不在生成中的平台
+    if (platform && platform.hasContent && platform.hasTitle && !platform.isTitleGenerating) {
+      setSelectedPlatforms(prev => 
+        prev.includes(platformId)
+          ? prev.filter(id => id !== platformId)
+          : [...prev, platformId]
+      );
+    }
   };
 
   const handleStartAutomation = async () => {
@@ -185,40 +191,67 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
       <div>
         <h4 className="font-medium text-foreground mb-3">选择转发平台</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {availablePlatforms.map((platform) => (
-            <div
-              key={platform.id}
-              className={`border rounded-lg p-3 cursor-pointer transition-all ${
-                selectedPlatforms.includes(platform.id)
-                  ? 'border-primary bg-accent'
-                  : 'border-border hover:border-border'
-              } ${!platform.hasContent ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => platform.hasContent && handlePlatformToggle(platform.id)}
-            >
+          {availablePlatforms.map((platform) => {
+            const isReady = platform.hasContent && platform.hasTitle && !platform.isTitleGenerating;
+            const isGenerating = platform.isTitleGenerating;
+            const hasNoTitle = platform.hasContent && !platform.hasTitle && !platform.isTitleGenerating;
+            
+            return (
+              <div
+                key={platform.id}
+                className={`border rounded-lg p-3 transition-all ${
+                  selectedPlatforms.includes(platform.id) && isReady
+                    ? 'border-primary bg-accent'
+                    : 'border-border hover:border-border'
+                } ${!isReady ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                onClick={() => isReady && handlePlatformToggle(platform.id)}
+              >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     checked={selectedPlatforms.includes(platform.id)}
-                    disabled={!platform.hasContent}
+                    disabled={!isReady}
                     onChange={() => {}} // 由父级div的onClick处理
                     className="rounded border-border text-primary focus:ring-primary"
                   />
                   <span className="font-medium text-foreground">{platform.name}</span>
                 </div>
                 
-                {platform.hasContent ? (
-                  <span className="text-xs text-foreground bg-accent px-2 py-1 rounded">
-                    {platform.contentLength}字符
-                  </span>
-                ) : (
-                  <span className="text-xs text-muted-foreground bg-accent px-2 py-1 rounded">
-                    无内容
-                  </span>
-                )}
+                <div className="flex flex-col items-end gap-1">
+                  {platform.hasContent ? (
+                    <span className="text-xs text-foreground bg-accent px-2 py-1 rounded">
+                      {platform.contentLength}字符
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground bg-accent px-2 py-1 rounded">
+                      无内容
+                    </span>
+                  )}
+                  
+                  {isGenerating && (
+                    <span className="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded flex items-center gap-1">
+                      <RefreshCw className="h-3 w-3 animate-spin" />
+                      生成标题中
+                    </span>
+                  )}
+                  
+                  {hasNoTitle && (
+                    <span className="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded">
+                      等待标题
+                    </span>
+                  )}
+                  
+                  {isReady && (
+                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                      ✓ 就绪
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
