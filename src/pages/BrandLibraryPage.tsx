@@ -24,6 +24,8 @@ import { PermissionProtectedInput, PermissionProtectedInputField, PermissionProt
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
 import { logger } from '@/utils/logger';
+import { runAllTests } from '@/test/unifiedDataPersistenceTest';
+import { useBrandAssetsData, useBrandDimensionsData } from '@/hooks/useUnifiedDataPersistence';
 import {
   Database, Upload, FileText, File, FileImage,
   AlertCircle, Info, Search, Check, Clock, Trash2,
@@ -108,96 +110,111 @@ export default function BrandLibraryPageFixed() {
   const { toast } = useToast();
   const { t } = useTranslation();
 
-  // ✅ 修复存储架构：使用Supabase替代localStorage，实现真正的云端持久化
-  const [supabaseDataService, setSupabaseDataService] = useState<any>(null);
-  
-  // 初始化Supabase数据服务
-  useEffect(() => {
-    if (user?.id) {
-      try {
-        const dataService = createDataService(user.id, TABLE_NAMES.USER_BRAND_CORPUS);
-        setSupabaseDataService(dataService);
-        console.log('✅ Supabase数据服务已初始化');
-      } catch (error) {
-        console.error('❌ Supabase数据服务初始化失败:', error);
-        // 降级到localStorage（保持兼容性）
-        console.log('🔄 降级到localStorage存储');
-      }
-    }
-  }, [user?.id]);
+  // ✅ 使用统一数据持久化系统 - 解决数据丢失问题
+  const brandAssetsManager = useBrandAssetsData();
+  const brandDimensionsManager = useBrandDimensionsData();
 
-  // 初始化加载用户品牌资产数据
-  useEffect(() => {
-    const initializeUserData = async () => {
-      if (user?.id && supabaseDataService) {
-        try {
-          console.log('🔄 初始化加载用户品牌资产数据...');
-          
-          // 优先尝试执行完整数据迁移
-          try {
-            console.log('🔄 检查是否需要数据迁移...');
-            const migrationResult = await quickMigrateUserData(user.id);
-            if (migrationResult.success && migrationResult.migratedItems > 0) {
-              console.log(`✅ 数据迁移成功，迁移了 ${migrationResult.migratedItems} 项数据`);
-              
-              toast({
-                title: "数据同步成功",
-                description: `已将 ${migrationResult.migratedItems} 项数据同步到云端，您的数据现在更安全了！`,
-                duration: 5000
-              });
-            }
-          } catch (migrationError) {
-            console.warn('⚠️ 数据迁移失败，继续使用现有加载方式:', migrationError);
-          }
-          
-          // 从Supabase加载资产数据（如果失败会自动降级到localStorage）
-          const assets = await loadAssetsFromSupabase();
-          setBrandAssets(assets);
-          
-          // 如果没有数据，尝试从localStorage迁移（作为兜底）
-          if (assets.length === 0) {
-            console.log('🔄 尝试从localStorage迁移数据...');
-            const migratedAssets = await migrateAssetsFromLocalStorage();
-            setBrandAssets(migratedAssets);
-          }
-          
-          console.log(`✅ 已加载 ${assets.length} 项品牌资产数据`);
-        } catch (error) {
-          console.error('❌ 初始化用户数据失败:', error);
-          
-          // 最后的兜底方案：直接从localStorage加载
-          try {
-            const localAssets = loadAssetsFromLocalStorage();
-            setBrandAssets(localAssets);
-            console.log(`🔄 从localStorage兜底加载了 ${localAssets.length} 项数据`);
-          } catch (localError) {
-            console.error('❌ localStorage兜底加载也失败:', localError);
-          }
-        }
-      }
-    };
-
-    initializeUserData();
-  }, [user?.id, supabaseDataService]);
-
-  // 📦 临时保留localStorage管理器用于数据迁移
+  // 兼容性：保留旧的数据管理器用于数据迁移
   const legacyBrandAssetsManager = useUserDataIsolation({
     modulePrefix: 'brand_assets',
     fallbackToGuest: true,
-    enableLogging: false  // 减少日志噪音
+    enableLogging: true
   });
 
   const legacyBrandDimensionsManager = useUserDataIsolation({
     modulePrefix: 'brand_dimensions',
     fallbackToGuest: true,
-    enableLogging: false
+    enableLogging: true
   });
+
+  // ✅ 数据迁移和初始化 - 使用统一数据持久化系统
+  useEffect(() => {
+    const migrateAndInitialize = async () => {
+      if (!user?.id) return;
+
+      try {
+        logger.info('🔄 开始数据迁移和初始化...');
+
+        // 检查是否需要从旧系统迁移数据
+        const legacyAssets = legacyBrandAssetsManager.loadData<BrandAsset[]>();
+        const legacyDimensions = legacyBrandDimensionsManager.loadData<BrandDimension[]>();
+
+        // 如果有旧数据且新系统没有数据，执行迁移
+        if (legacyAssets.success && legacyAssets.data && legacyAssets.data.length > 0) {
+          if (!brandAssetsManager.data || brandAssetsManager.data.length === 0) {
+            logger.info('📦 迁移品牌资产数据到统一系统...');
+            await brandAssetsManager.saveData(legacyAssets.data);
+
+            toast({
+              title: "数据迁移成功",
+              description: `已将 ${legacyAssets.data.length} 项品牌资产迁移到云端存储`,
+              duration: 5000
+            });
+          }
+        }
+
+        if (legacyDimensions.success && legacyDimensions.data && legacyDimensions.data.length > 0) {
+          if (!brandDimensionsManager.data || brandDimensionsManager.data.length === 0) {
+            logger.info('📦 迁移品牌维度数据到统一系统...');
+            await brandDimensionsManager.saveData(legacyDimensions.data);
+          }
+        }
+
+        logger.info('✅ 数据迁移和初始化完成');
+      } catch (error) {
+        logger.error('❌ 数据迁移失败:', error);
+        toast({
+          title: "数据迁移失败",
+          description: "部分数据可能无法正常显示，请刷新页面重试",
+          variant: "destructive"
+        });
+      }
+    };
+
+    migrateAndInitialize();
+  }, [user?.id, brandAssetsManager, brandDimensionsManager]);
 
   // 基础状态 - 默认显示智能资料管理（上传品牌资料）
   const [activeTab, setActiveTab] = useState<string>('assets');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [brandAssets, setBrandAssets] = useState<BrandAsset[]>([]);
+
+  // ✅ 使用统一数据持久化系统的数据
+  const brandAssets = brandAssetsManager.data || [];
+  const brandDimensions = brandDimensionsManager.data || [];
+
+  // 开发环境下暴露测试函数到全局
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      (window as any).testDataPersistence = async () => {
+        console.log('🧪 测试数据持久化系统...');
+
+        // 测试保存数据
+        const testData = { test: true, timestamp: Date.now() };
+        const saveResult = await brandAssetsManager.saveData([testData as any]);
+        console.log('💾 保存结果:', saveResult);
+
+        // 测试加载数据
+        const loadResult = await brandAssetsManager.loadData();
+        console.log('📖 加载结果:', loadResult);
+
+        console.log('✅ 测试完成');
+        return { saveResult, loadResult };
+      };
+    }
+  }, [brandAssetsManager]);
+
+  // 为了兼容现有代码，创建更新函数
+  const setBrandAssets = async (updater: BrandAsset[] | ((prev: BrandAsset[]) => BrandAsset[])) => {
+    const newAssets = typeof updater === 'function' ? updater(brandAssets) : updater;
+    await brandAssetsManager.saveData(newAssets);
+  };
+
+  const setBrandDimensions = async (updater: BrandDimension[] | ((prev: BrandDimension[]) => BrandDimension[])) => {
+    const newDimensions = typeof updater === 'function' ? updater(brandDimensions) : updater;
+    await brandDimensionsManager.saveData(newDimensions);
+  };
+
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
@@ -216,7 +233,6 @@ export default function BrandLibraryPageFixed() {
   const navigate = useNavigate();
 
   // 语料库相关状态
-  const [brandDimensions, setBrandDimensions] = useState<BrandDimension[]>([]);
   const [corpusExtractions, setCorpusExtractions] = useState<BrandCorpusExtraction[]>([]);
   const [isExtractingCorpus, setIsExtractingCorpus] = useState(false);
   const [extractionProgress, setExtractionProgress] = useState(0);
@@ -365,31 +381,8 @@ export default function BrandLibraryPageFixed() {
     return iconMap[iconOrId] || <FileText className="h-4 w-4" />;
   };
 
-  // 初始化品牌维度
+  // 初始化品牌维度 - 使用统一数据持久化系统
   useEffect(() => {
-    // 清除可能有问题的存储数据
-    const clearCorruptedData = async () => {
-      try {
-        const saved = await secureDataManager.getData('brandDimensions', { schemaName: 'BRAND_ASSET' });
-        if (saved) {
-          // 检查是否有序列化的JSX对象
-          const hasCorruptedData = saved.some((dim: any) =>
-            dim.icon && typeof dim.icon === 'object' && dim.icon.type
-          );
-          if (hasCorruptedData) {
-            // 检测到损坏的存储数据，正在清除
-            await secureDataManager.removeData('brandDimensions');
-            await secureDataManager.removeData('brandDimensionsTimestamp');
-          }
-        }
-      } catch (error) {
-        // 清除存储数据时出错，移除所有相关数据
-        await secureDataManager.removeData('brandDimensions');
-        await secureDataManager.removeData('brandDimensionsTimestamp');
-      }
-    };
-
-    clearCorruptedData().catch(console.error);
 
     const initializeDimensions = () => {
       const dimensions: BrandDimension[] = [
@@ -556,76 +549,43 @@ export default function BrandLibraryPageFixed() {
       setBrandDimensions(dimensions);
     };
 
-    // ✅ FIXED: 2025-08-06 优先加载保存的品牌维度数据
-    const savedDimensions = loadDimensionsFromStorage();
-    if (savedDimensions.length > 0) {
-      setBrandDimensions(savedDimensions);
-      // 从localStorage恢复品牌维度数据
-    } else {
-      // 如果没有保存的数据，则初始化默认维度
+    // ✅ 使用统一数据持久化系统 - 数据自动加载
+    // 如果没有维度数据，初始化默认维度
+    if (brandDimensions.length === 0) {
       initializeDimensions();
     }
 
-    // ✅ FIXED: 2025-08-06 页面加载时恢复保存的资产状态
-    const savedAssets = loadAssetsFromStorage();
-    if (savedAssets.length > 0) {
-      setBrandAssets(savedAssets);
-      // 从localStorage恢复资产
-
-      // 检查是否有未完成的分析任务
-      const pendingAssets = savedAssets.filter(asset => asset.status === 'processing');
-      if (pendingAssets.length > 0) {
-        // 发现未完成的分析任务，继续后台处理
-        setTimeout(() => startBackgroundAnalysis(pendingAssets), 2000);
-      }
+    // 检查是否有未完成的分析任务
+    const pendingAssets = brandAssets.filter(asset => asset.status === 'processing');
+    if (pendingAssets.length > 0) {
+      // 发现未完成的分析任务，继续后台处理
+      setTimeout(() => startBackgroundAnalysis(pendingAssets), 2000);
     }
-  }, []);
+  }, [brandDimensions.length, brandAssets]);
 
-  // ✅ 新的Supabase存储方法 - 真正的云端持久化
-  const saveAssetsToSupabase = async (assets: BrandAsset[]) => {
-    if (!supabaseDataService || !user?.id) {
-      console.warn('🔄 Supabase不可用，降级到localStorage');
-      return saveAssetsToLocalStorage(assets);
-    }
-
+  // ✅ 使用统一数据持久化系统保存品牌资产
+  const saveAssetsToUnifiedSystem = async (assets: BrandAsset[]) => {
     try {
-      // 检查是否已存在品牌资产数据
-      const existing = await supabaseDataService.findMany({
-        filters: { corpusType: 'brand_assets' },
-        limit: 1
-      });
-
-      const assetData = {
-        corpusType: 'brand_assets',
-        corpusName: `品牌资产库_${user.id}`,
-        corpusContent: JSON.stringify(assets),
-        metadata: {
-          assetCount: assets.length,
-          lastModified: new Date().toISOString(),
-          version: '2.0' // 标记为Supabase版本
-        }
-      };
-
-      if (existing.data && existing.data.length > 0) {
-        await supabaseDataService.update(existing.data[0].id, assetData);
-        console.log('✅ 品牌资产已更新到Supabase云端');
+      const success = await brandAssetsManager.saveData(assets);
+      if (success) {
+        logger.info('✅ 品牌资产已保存到统一系统');
       } else {
-        await supabaseDataService.create(assetData);
-        console.log('✅ 品牌资产已保存到Supabase云端');
+        logger.error('❌ 品牌资产保存失败');
+        toast({
+          title: "保存失败",
+          description: "品牌资产保存失败，请重试",
+          variant: "destructive"
+        });
       }
-
-      // 同步备份到localStorage（双写策略）
-      saveAssetsToLocalStorage(assets);
-      
+      return success;
     } catch (error) {
-      console.error('❌ Supabase保存失败，降级到localStorage:', error);
-      saveAssetsToLocalStorage(assets);
-      
+      logger.error('❌ 品牌资产保存异常:', error);
       toast({
-        title: "部分保存失败",
-        description: "数据已保存到本地，但云端同步失败。请检查网络连接。",
+        title: "保存异常",
+        description: "品牌资产保存时发生异常，请重试",
         variant: "destructive"
       });
+      return false;
     }
   };
 
@@ -639,42 +599,19 @@ export default function BrandLibraryPageFixed() {
     }
   };
 
-  // 维度数据保存到Supabase
-  const saveDimensionsToSupabase = async (dimensions: BrandDimension[]) => {
-    if (!supabaseDataService || !user?.id) {
-      return saveDimensionsToLocalStorage(dimensions);
-    }
-
+  // ✅ 使用统一数据持久化系统保存品牌维度
+  const saveDimensionsToUnifiedSystem = async (dimensions: BrandDimension[]) => {
     try {
-      const existing = await supabaseDataService.findMany({
-        filters: { corpusType: 'brand_dimensions' },
-        limit: 1
-      });
-
-      const dimensionsData = {
-        corpusType: 'brand_dimensions',
-        corpusName: `品牌维度_${user.id}`,
-        corpusContent: JSON.stringify(dimensions.map(({ icon, ...rest }) => rest)),
-        metadata: {
-          dimensionCount: dimensions.length,
-          lastModified: new Date().toISOString(),
-          version: '2.0'
-        }
-      };
-
-      if (existing.data && existing.data.length > 0) {
-        await supabaseDataService.update(existing.data[0].id, dimensionsData);
+      const success = await brandDimensionsManager.saveData(dimensions);
+      if (success) {
+        logger.info('✅ 品牌维度已保存到统一系统');
       } else {
-        await supabaseDataService.create(dimensionsData);
+        logger.error('❌ 品牌维度保存失败');
       }
-
-      // 同步备份到localStorage
-      saveDimensionsToLocalStorage(dimensions);
-      console.log('✅ 品牌维度已保存到Supabase云端');
-      
+      return success;
     } catch (error) {
-      console.error('❌ Supabase保存维度失败:', error);
-      saveDimensionsToLocalStorage(dimensions);
+      logger.error('❌ 品牌维度保存异常:', error);
+      return false;
     }
   };
 
@@ -689,91 +626,9 @@ export default function BrandLibraryPageFixed() {
     }
   };
 
-  // ✅ 新的Supabase加载方法 - 云端数据恢复
-  const loadAssetsFromSupabase = async (): Promise<BrandAsset[]> => {
-    if (!supabaseDataService || !user?.id) {
-      console.log('🔄 Supabase不可用，从 localStorage 加载');
-      return loadAssetsFromLocalStorage();
-    }
+  // ✅ 数据加载和迁移现在通过统一数据持久化系统自动处理
 
-    try {
-      const result = await supabaseDataService.findMany({
-        filters: { corpusType: 'brand_assets' },
-        orderBy: 'updatedAt',
-        orderDirection: 'desc',
-        limit: 1
-      });
-
-      if (result.data && result.data.length > 0) {
-        const assetsData = JSON.parse(result.data[0].corpusContent);
-        console.log('✅ 从 Supabase 云端恢复品牌资产数据', assetsData.length, '项');
-        
-        // 同步备份到localStorage
-        legacyBrandAssetsManager.saveData(assetsData);
-        
-        return assetsData;
-      } else {
-        console.log('📂 Supabase 中无品牌资产数据，尝试从 localStorage 迁移');
-        return await migrateAssetsFromLocalStorage();
-      }
-    } catch (error) {
-      console.error('❌ 从 Supabase 加载失败，降级到 localStorage:', error);
-      return loadAssetsFromLocalStorage();
-    }
-  };
-
-  // 保留的localStorage加载方法
-  const loadAssetsFromLocalStorage = (): BrandAsset[] => {
-    try {
-      const result = legacyBrandAssetsManager.loadData<BrandAsset[]>();
-      if (result.success && result.data) {
-        console.log('💾 从 localStorage 恢复品牌资产数据');
-        return result.data;
-      }
-    } catch (error) {
-      console.error('从 localStorage 加载资产失败:', error);
-    }
-    return [];
-  };
-
-  // 数据迁移：从 localStorage 迁移到 Supabase
-  const migrateAssetsFromLocalStorage = async (): Promise<BrandAsset[]> => {
-    const localAssets = loadAssetsFromLocalStorage();
-    if (localAssets.length > 0) {
-      console.log('🔄 正在迁移', localAssets.length, '项品牌资产数据到 Supabase');
-      
-      try {
-        await saveAssetsToSupabase(localAssets);
-        console.log('✅ 数据迁移完成');
-        
-        toast({
-          title: "数据迁移成功",
-          description: `已将 ${localAssets.length} 项品牌资产同步到云端，现在您的数据更安全了！`
-        });
-      } catch (error) {
-        console.error('❌ 数据迁移失败:', error);
-      }
-    }
-    return localAssets;
-  };
-
-  // ✅ FIXED: 用户数据隔离 - 品牌维度加载
-  const loadDimensionsFromStorage = (): BrandDimension[] => {
-    try {
-      const result = brandDimensionsManager.loadData<any[]>();
-      if (result.success && result.data) {
-        console.log('📂 从用户隔离存储恢复品牌维度数据');
-        // 重新添加icon字段
-        return result.data.map((dim: any) => ({
-          ...dim,
-          icon: getIconForDimension(dim.id)
-        }));
-      }
-    } catch (error) {
-      console.error('从用户存储加载品牌维度失败:', error);
-    }
-    return [];
-  };
+  // ✅ 品牌维度数据现在通过统一数据持久化系统自动加载
 
   // ✅ FIXED: 2025-08-06 后台异步分析功能
   const startBackgroundAnalysis = async (assets: BrandAsset[]) => {
@@ -829,7 +684,7 @@ export default function BrandLibraryPageFixed() {
                 } : a
               );
               // 保存到Supabase云端
-              saveAssetsToSupabase(updated);
+              saveAssetsToUnifiedSystem(updated);
               return updated;
             });
 
@@ -845,7 +700,7 @@ export default function BrandLibraryPageFixed() {
             const updated = prev.map(a =>
               a.id === asset.id ? { ...a, status: 'error' as const } : a
             );
-            saveAssetsToSupabase(updated);
+            saveAssetsToUnifiedSystem(updated);
             return updated;
           });
         }
@@ -902,40 +757,31 @@ export default function BrandLibraryPageFixed() {
   /**
    * 更新维度内容
    */
-  const updateDimension = (id: string, content: string) => {
-    setBrandDimensions(prev => {
-      const updated = prev.map(d =>
-        d.id === id ? { ...d, content } : d
-      );
-      saveDimensionsToSupabase(updated);
-      return updated;
-    });
+  const updateDimension = async (id: string, content: string) => {
+    const updated = brandDimensions.map(d =>
+      d.id === id ? { ...d, content } : d
+    );
+    await saveDimensionsToUnifiedSystem(updated);
   };
 
   /**
    * 添加关键词到维度
    */
-  const addKeywordToDimension = (dimensionId: string, keyword: string) => {
-    setBrandDimensions(prev => {
-      const updated = prev.map(d =>
-        d.id === dimensionId ? { ...d, keywords: [...d.keywords, keyword] } : d
-      );
-      saveDimensionsToSupabase(updated);
-      return updated;
-    });
+  const addKeywordToDimension = async (dimensionId: string, keyword: string) => {
+    const updated = brandDimensions.map(d =>
+      d.id === dimensionId ? { ...d, keywords: [...d.keywords, keyword] } : d
+    );
+    await saveDimensionsToUnifiedSystem(updated);
   };
 
   /**
    * 从维度移除关键词
    */
-  const removeKeywordFromDimension = (dimensionId: string, keyword: string) => {
-    setBrandDimensions(prev => {
-      const updated = prev.map(d =>
-        d.id === dimensionId ? { ...d, keywords: d.keywords.filter(k => k !== keyword) } : d
-      );
-      saveDimensionsToSupabase(updated);
-      return updated;
-    });
+  const removeKeywordFromDimension = async (dimensionId: string, keyword: string) => {
+    const updated = brandDimensions.map(d =>
+      d.id === dimensionId ? { ...d, keywords: d.keywords.filter(k => k !== keyword) } : d
+    );
+    await saveDimensionsToUnifiedSystem(updated);
   };
 
   /**
@@ -951,7 +797,7 @@ export default function BrandLibraryPageFixed() {
           )
         } : d
       );
-      saveDimensionsToSupabase(updated);
+      // 数据会通过setBrandDimensions自动保存
       return updated;
     });
   };
@@ -975,7 +821,7 @@ export default function BrandLibraryPageFixed() {
       const updated = prev.map(d =>
         d.id === dimensionId ? { ...d, items: [...d.items, newItem] } : d
       );
-      saveDimensionsToSupabase(updated);
+      // 数据会通过setBrandDimensions自动保存
       return updated;
     });
   };
@@ -1010,7 +856,7 @@ export default function BrandLibraryPageFixed() {
       const updated = prev.map(d =>
         d.id === dimensionId ? { ...d, items: d.items.filter(item => item.id !== itemId) } : d
       );
-      saveDimensionsToSupabase(updated);
+      // 数据会通过setBrandDimensions自动保存
       return updated;
     });
   };
@@ -1477,7 +1323,7 @@ export default function BrandLibraryPageFixed() {
         }
         return dimension;
       });
-      saveDimensionsToSupabase(updated);
+      // 数据会通过setBrandDimensions自动保存
       return updated;
     });
   };
@@ -1487,12 +1333,12 @@ export default function BrandLibraryPageFixed() {
    */
   const saveBrandDimensions = async () => {
     try {
-      // ✅ FIXED: 2025-08-06 实际保存到localStorage
-      saveDimensionsToSupabase(brandDimensions);
+      // ✅ 使用统一数据持久化系统保存
+      await brandDimensionsManager.saveData(brandDimensions);
 
       toast({
         title: "保存成功",
-        description: "品牌语料库已保存到本地存储",
+        description: "品牌语料库已保存到云端存储",
       });
     } catch (error) {
       console.error('保存品牌维度失败:', error);
@@ -1717,10 +1563,9 @@ export default function BrandLibraryPageFixed() {
     });
 
     setBrandDimensions(updatedDimensions);
-    saveDimensionsToSupabase(updatedDimensions);
-    
-    // 同步保存更新后的资产到Supabase
-    saveAssetsToSupabase(updatedAssets);
+
+    // 同步保存更新后的资产到统一系统
+    saveAssetsToUnifiedSystem(updatedAssets);
 
     logger.debug('✅ 删除完成: 共删除 ${deletedItemsCount} 条语料信息');
 
@@ -1779,10 +1624,9 @@ export default function BrandLibraryPageFixed() {
     });
 
     setBrandDimensions(updatedDimensions);
-    saveDimensionsToSupabase(updatedDimensions);
-    
-    // 同步保存更新后的资产到Supabase
-    saveAssetsToSupabase(updatedAssets);
+
+    // 同步保存更新后的资产到统一系统
+    saveAssetsToUnifiedSystem(updatedAssets);
 
     logger.debug('✅ 批量删除完成: 删除了 ${assetsToDelete.length} 个资产和 ${totalDeletedItemsCount} 条语料信息');
 
@@ -1867,7 +1711,6 @@ export default function BrandLibraryPageFixed() {
 
     if (cleanedItemsCount > 0) {
       setBrandDimensions(updatedDimensions);
-      saveDimensionsToSupabase(updatedDimensions);
 
       logger.debug('✅ 清理完成: 删除了 ${cleanedItemsCount} 条孤立语料信息');
 
@@ -2034,8 +1877,8 @@ export default function BrandLibraryPageFixed() {
       setBrandAssets(prev => [...prev, ...newAssets]);
       setUploadProgress(100);
 
-      // 保存到Supabase云端实现真正的持久化
-      saveAssetsToSupabase([...brandAssets, ...newAssets]);
+      // 保存到统一数据持久化系统实现真正的持久化
+      saveAssetsToUnifiedSystem([...brandAssets, ...newAssets]);
 
       console.log('📁 文件上传完成，新增资产:', newAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
 
@@ -2170,6 +2013,22 @@ export default function BrandLibraryPageFixed() {
     <div className="min-h-screen particle-background pt-24">
       {/* 主导航栏 */}
       <Header />
+
+      {/* 开发测试按钮 */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed top-20 right-4 z-50">
+          <button
+            onClick={async () => {
+              console.log('🧪 开始测试统一数据持久化系统...');
+              const results = await runAllTests();
+              console.log('🎯 测试结果:', results);
+            }}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+          >
+            测试数据持久化
+          </button>
+        </div>
+      )}
 
       <PageNavigation
         title={t('brandLibrary.title')}

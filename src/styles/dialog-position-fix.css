@@ -1,0 +1,138 @@
+/**
+ * 弹窗定位修复CSS
+ * 解决所有弹窗组件的位置异常问题
+ */
+
+/* 🎯 核心修复：确保所有Dialog弹窗正确居中显示 */
+[data-radix-dialog-content] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 999999 !important;
+  
+  /* 防止父容器transform影响 */
+  will-change: transform !important;
+  isolation: isolate !important;
+  
+  /* 确保在所有视口尺寸下都能正确显示 */
+  max-width: min(90vw, 800px) !important;
+  max-height: 90vh !important;
+  
+  /* 防止内容溢出 */
+  overflow: auto !important;
+  
+  /* 确保可见性 */
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* 🎯 特别修复：资料库弹窗 */
+[role="dialog"][aria-describedby*="bookmark"],
+[role="dialog"][aria-describedby*="collection"],
+[role="dialog"][aria-describedby*="copywriting"] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 999999 !important;
+  max-width: min(90vw, 600px) !important;
+  max-height: 90vh !important;
+  margin: 0 !important;
+  inset: auto !important;
+}
+
+/* 🎯 特别修复：创建文案弹窗 */
+[role="dialog"] .space-y-4:has(input[placeholder*="文案标题"]),
+[role="dialog"] .space-y-6:has(input[placeholder*="文案"]) {
+  max-height: calc(90vh - 120px) !important;
+  overflow-y: auto !important;
+}
+
+/* 🎯 背景遮罩修复 */
+[data-radix-dialog-overlay] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999998 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(8px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(120%) !important;
+}
+
+/* 🎯 防止页面滚动影响弹窗位置 */
+body:has([data-radix-dialog-content]) {
+  overflow: hidden !important;
+}
+
+/* 🎯 移动端适配 */
+@media (max-width: 768px) {
+  [data-radix-dialog-content] {
+    max-width: 95vw !important;
+    max-height: 95vh !important;
+    margin: 10px !important;
+  }
+  
+  [role="dialog"][aria-describedby*="bookmark"],
+  [role="dialog"][aria-describedby*="collection"],
+  [role="dialog"][aria-describedby*="copywriting"] {
+    max-width: 95vw !important;
+    max-height: 95vh !important;
+    margin: 10px !important;
+  }
+}
+
+/* 🎯 确保弹窗在所有容器中都能正确显示 */
+#root [data-radix-dialog-content],
+.app [data-radix-dialog-content],
+body > [data-radix-dialog-content] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 999999 !important;
+}
+
+/* 🎯 修复可能的层级冲突 */
+[data-radix-dialog-content],
+[role="dialog"] {
+  z-index: 999999 !important;
+}
+
+/* 🎯 确保弹窗内容可见 */
+[data-radix-dialog-content] * {
+  visibility: visible !important;
+}
+
+/* 🎯 强制最高优先级样式 */
+html [data-radix-dialog-content],
+html [role="dialog"] {
+  position: fixed !important;
+  z-index: 999999 !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* 🎯 防止transform冲突 */
+[data-radix-dialog-content] {
+  /* 重置可能冲突的transform */
+  translate: none !important;
+  scale: none !important;
+  rotate: none !important;
+}
+
+/* 🎯 确保弹窗动画正常 */
+[data-radix-dialog-content][data-state="open"] {
+  animation-duration: 200ms !important;
+  animation-timing-function: ease-out !important;
+}
+
+[data-radix-dialog-content][data-state="closed"] {
+  animation-duration: 150ms !important;
+  animation-timing-function: ease-in !important;
+}

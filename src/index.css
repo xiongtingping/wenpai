@@ -3,6 +3,7 @@
 @import './styles/typography-system.css';
 @import './automation/automation-modal.css';
 @import './styles/batch-forward-modal-fix.css';
+@import './styles/dialog-position-fix.css';
 
 /**
  * **IMPORTANT** Never break the original structure, only add highly customized new styles
@@ -2941,21 +2942,21 @@ body {
 /* 防止大量DOM变化导致的回流 */
 .page-content {
   contain: layout style;
-  transform: translateZ(0);
+  /* transform: translateZ(0); 🚨 移除：可能影响弹窗定位 */
   isolation: isolate;
 }
 
 /* 优化表单输入框回流 */
 input, textarea, select, button {
   contain: layout style;
-  transform: translateZ(0);
+  /* transform: translateZ(0); 🚨 移除：可能影响弹窗定位 */
   backface-visibility: hidden;
 }
 
 /* 减少自动补全造成的布局抖动 */
 input[autocomplete] {
   contain: layout style;
-  transform: translateZ(0);
+  /* transform: translateZ(0); 🚨 移除：可能影响弹窗定位 */
   backface-visibility: hidden;
 }
 

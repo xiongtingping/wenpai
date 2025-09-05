@@ -26,6 +26,7 @@ import { useUnifiedUserStateManager, useStatePreloader, useSmartStateRefresh } f
 import { GuardProvider } from '@authing/guard-react18';
 import { AuthModalWrapper } from '@/components/auth/AuthModalWrapper';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
+import { AuthDataSyncProvider } from '@/hooks/useAuthDataSync';
 import '@authing/guard-react18/dist/esm/guard.min.css';
 
 // 核心页面组件
@@ -154,10 +155,11 @@ const App: React.FC = () => {
             }}
           >
             <UnifiedAuthProvider>
-              <ErrorBoundary>
-                <StateManagerInitializer />
-                    <>
-                  <ConditionalNavigation>
+              <AuthDataSyncProvider>
+                <ErrorBoundary>
+                  <StateManagerInitializer />
+                      <>
+                    <ConditionalNavigation>
                     <Suspense fallback={<LoadingSpinner />}>
                       <Routes>
                         {/* 首页 */}
@@ -224,8 +226,9 @@ const App: React.FC = () => {
 
                   {/* 返回顶部按钮 */}
                   <ScrollToTop />
-                    </>
-              </ErrorBoundary>
+                      </>
+                </ErrorBoundary>
+              </AuthDataSyncProvider>
             </UnifiedAuthProvider>
           </GuardProvider>
         </ErrorBoundary>
