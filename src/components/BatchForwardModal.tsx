@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 // Dialog components removed - using custom modal
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -121,7 +122,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
 
   if (!open) return null;
 
-  return (
+  const modalContent = (
     <>
       {/* 最小化状态 - 固定在右下角 */}
       {isMinimized && (
@@ -156,18 +157,20 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
       {/* 正常状态 - 模态弹窗 */}
       {!isMinimized && open && (
         <div
+          className="fixed inset-0 flex items-center justify-center p-4 bg-black/50"
           style={{
+            // 确保覆盖任何可能的样式冲突，使用最高优先级
             position: 'fixed',
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 999999,
+            right: 0,
+            bottom: 0,
+            zIndex: 99999,
             display: 'flex',
-            justifyContent: 'center',
             alignItems: 'center',
-            padding: '20px'
+            justifyContent: 'center',
+            padding: '1rem',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)'
           }}
           onClick={(e) => {
             // 点击遮罩层关闭弹窗
@@ -177,16 +180,14 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
           }}
         >
           <div
+            className="bg-background rounded-xl shadow-2xl border border-border flex flex-col overflow-hidden"
             style={{
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              padding: '0',
-              maxWidth: 'min(90vw, 1200px)',
-              maxHeight: '85vh',
-              overflow: 'hidden',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              display: 'flex',
-              flexDirection: 'column'
+              width: 'min(95vw, 1200px)',
+              height: 'min(85vh, 700px)',
+              maxWidth: '1200px',
+              maxHeight: '700px',
+              margin: 'auto', // 确保居中
+              position: 'relative' // 确保正确的定位上下文
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -429,4 +430,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
       </AlertDialog>
     </>
   );
+
+  // 使用Portal将模态框渲染到document.body，避免受父容器样式影响
+  return createPortal(modalContent, document.body);
 };
