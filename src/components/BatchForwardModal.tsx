@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 // Dialog components removed - using custom modal
 import { Button } from '@/components/ui/button';
@@ -46,6 +46,9 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
 
   // 内容同步store
   const contentSync = useContentSyncStore();
+  
+  // ref用于强制设置样式
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // 实时同步的内容
   const [syncedContent, setSyncedContent] = useState({
@@ -139,6 +142,22 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
     return () => document.head.removeChild(style);
   }, []); // 永远执行，避免条件性hooks
 
+  // 强制设置弹窗位置在底部
+  useEffect(() => {
+    if (modalRef.current && open && !isMinimized) {
+      const modal = modalRef.current;
+      // 使用JavaScript直接设置样式，确保不被CSS覆盖
+      modal.style.setProperty('position', 'fixed', 'important');
+      modal.style.setProperty('bottom', '2vh', 'important');
+      modal.style.setProperty('left', '50%', 'important');
+      modal.style.setProperty('transform', 'translateX(-50%)', 'important');
+      modal.style.setProperty('top', 'unset', 'important');
+      modal.style.setProperty('z-index', '99999', 'important');
+      
+      console.log('🔍 强制设置弹窗位置:', modal.getBoundingClientRect());
+    }
+  }, [open, isMinimized]);
+
   if (!open) return null;
 
   const modalContent = (
@@ -194,19 +213,22 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
             }}
           />
           
-          {/* 弹窗内容 - 定位在页面下方，从底部滑入 */}
+          {/* 弹窗内容 - 强制定位在页面底部 */}
           <div
-            className="fixed bg-background rounded-xl shadow-2xl border border-border flex flex-col overflow-hidden transition-all duration-300 ease-out"
+            ref={modalRef}
+            className="bg-background rounded-xl shadow-2xl border border-border flex flex-col overflow-hidden"
             style={{
-              position: 'fixed',
-              bottom: '5vh', // 距离底部5%视窗高度，更靠近底部
-              left: '50%',
-              transform: 'translateX(-50%)', // 水平居中
-              zIndex: 99999,
+              position: 'fixed !important' as any,
+              bottom: '2vh !important' as any,
+              left: '50% !important' as any,
+              transform: 'translateX(-50%) !important' as any,
+              top: 'unset !important' as any,
+              zIndex: '99999 !important' as any,
               width: 'min(95vw, 1200px)',
-              height: 'min(80vh, 650px)',
+              height: 'min(75vh, 600px)',
               maxWidth: '1200px',
-              maxHeight: '650px',
+              maxHeight: '600px',
+              margin: '0 !important' as any,
               animation: 'slideInFromBottom 0.3s ease-out'
             }}
             onClick={(e) => e.stopPropagation()}
@@ -452,5 +474,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
   );
 
   // 使用Portal将模态框渲染到document.body，避免受父容器样式影响
+  // 添加调试日志
+  console.log('🔍 渲染批量转发弹窗到Portal:', { open, isMinimized });
   return createPortal(modalContent, document.body);
 };
