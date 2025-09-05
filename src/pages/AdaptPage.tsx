@@ -1978,8 +1978,10 @@ export default function AdaptPage() {
   });
 
   const saveToHistory = (results: PlatformResult[]) => {
+    console.log('🔍 保存历史记录:', { userId: user?.id, isAuthenticated, resultsCount: results.length });
     const result = historyDataManager.loadData<unknown[]>();
     let list: unknown[] = result.data || [];
+    console.log('🔍 当前历史记录数量:', list.length);
 
     const now = new Date().toISOString();
     results.forEach(r => {
@@ -1998,6 +2000,7 @@ export default function AdaptPage() {
     }
 
     historyDataManager.saveData(list);
+    console.log('✅ 历史记录已保存，新数量:', list.length);
   };
 
   // 修改generateContent，在内容生成成功后调用saveToHistory
@@ -2979,6 +2982,7 @@ export default function AdaptPage() {
       );
 
       const favoriteId = favoritesStore.addFavorite(favoriteItem);
+      console.log('🔍 添加收藏:', { favoriteId, userId: user?.id, platformId, versionId });
 
       // 保持旧系统兼容性 - 使用用户隔离存储
       const favoritesResult = favoritesDataManager.loadData();

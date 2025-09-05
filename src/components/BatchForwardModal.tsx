@@ -120,28 +120,26 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
     setOpenedPlatforms(prev => new Set([...prev, platform.id]));
   };
 
-  if (!open) return null;
-
-  // 添加滑入动画的CSS
+  // 添加滑入动画的CSS - 移到组件顶部避免条件性hooks
   useEffect(() => {
-    if (open) {
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes slideInFromBottom {
-          from {
-            transform: translateX(-50%) translateY(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-          }
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInFromBottom {
+        from {
+          transform: translateX(-50%) translateY(100%);
+          opacity: 0;
         }
-      `;
-      document.head.appendChild(style);
-      return () => document.head.removeChild(style);
-    }
-  }, [open]);
+        to {
+          transform: translateX(-50%) translateY(0);
+          opacity: 1;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []); // 永远执行，避免条件性hooks
+
+  if (!open) return null;
 
   const modalContent = (
     <>
