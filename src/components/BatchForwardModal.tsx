@@ -432,8 +432,6 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
               </div>
             </div>
           </div>
-        </div>
-          </div>
         </>
       )}
 
