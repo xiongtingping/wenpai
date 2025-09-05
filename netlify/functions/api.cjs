@@ -627,13 +627,33 @@ async function generateWithOpenAI(requestBody, headers) {
     }
 
     const data = await response.json();
-    
+
+    // ✅ FIXED: 提取并清理AI生成的内容，移除元数据
+    let cleanContent = '';
+    if (data.choices && data.choices[0]?.message?.content) {
+      cleanContent = data.choices[0].message.content;
+
+      // 清理内容：移除前后多余的换行符和空白字符
+      cleanContent = cleanContent.trim();
+
+      // 移除开头和结尾的多个连续换行符
+      cleanContent = cleanContent.replace(/^\n+/, '').replace(/\n+$/, '');
+
+      // 标准化换行符（将多个连续换行符压缩为最多两个）
+      cleanContent = cleanContent.replace(/\n{3,}/g, '\n\n');
+
+      console.log('🧹 OpenAI内容清理完成，清理后长度:', cleanContent.length);
+    }
+
+    // 返回清理后的纯净内容，而不是完整的API响应
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
-        data: data
+        content: cleanContent, // 直接返回清理后的内容
+        model: requestBody.model || 'gpt-4o',
+        usage: data.usage // 保留使用统计用于计费
       })
     };
   } catch (error) {
@@ -707,7 +727,7 @@ async function generateWithDeepSeek(requestBody, headers) {
 
     const responseText = await response.text();
     console.log('🔍 DeepSeek原始响应长度:', responseText.length);
-    
+
     let data;
     try {
       data = JSON.parse(responseText);
@@ -716,13 +736,33 @@ async function generateWithDeepSeek(requestBody, headers) {
       console.error('❌ JSON解析失败:', parseError, '原始响应前500字符:', responseText.substring(0, 500));
       throw new Error('DeepSeek响应格式错误，无法解析JSON');
     }
-    
+
+    // ✅ FIXED: 提取并清理AI生成的内容，移除元数据
+    let cleanContent = '';
+    if (data.choices && data.choices[0]?.message?.content) {
+      cleanContent = data.choices[0].message.content;
+
+      // 清理内容：移除前后多余的换行符和空白字符
+      cleanContent = cleanContent.trim();
+
+      // 移除开头和结尾的多个连续换行符
+      cleanContent = cleanContent.replace(/^\n+/, '').replace(/\n+$/, '');
+
+      // 标准化换行符（将多个连续换行符压缩为最多两个）
+      cleanContent = cleanContent.replace(/\n{3,}/g, '\n\n');
+
+      console.log('🧹 内容清理完成，清理后长度:', cleanContent.length);
+    }
+
+    // 返回清理后的纯净内容，而不是完整的API响应
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
-        data: data
+        content: cleanContent, // 直接返回清理后的内容
+        model: apiModel,
+        usage: data.usage // 保留使用统计用于计费
       })
     };
   } catch (error) {

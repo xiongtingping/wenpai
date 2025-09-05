@@ -19,6 +19,7 @@ import { callOpenAIProxy, callDeepSeekProxy, callGeminiProxy } from './apiProxy'
 import { generateImage as proxyGenerateImage } from './imageGenerationService';
 import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
 import { logger } from '@/utils/logger';
+import { cleanAIContent, isValidAIContent } from '@/utils/contentCleaner';
 
 /**
  * 环境检测
@@ -64,62 +65,81 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
     } else if (params.model?.includes('deepseek')) {
       const result = await callDeepSeekProxy(messages, params.model);
       console.log('🔍 DeepSeek代理响应调试:', result);
-      
-      // 🔧 修复: 处理实际的响应数据结构
+
+      // ✅ FIXED: 处理优化后的响应数据结构（已清理元数据）
       let content = '';
-      if (result.success && result.data) {
-        // 处理后端API返回的格式: { success: true, data: { choices: [...] } }
-        if (result.data.choices && result.data.choices[0]?.message?.content) {
-          content = result.data.choices[0].message.content;
-          console.log('✅ DeepSeek内容解析成功，长度:', content.length);
-        } else if (result.data.content) {
-          content = result.data.content;
-          console.log('✅ DeepSeek内容解析成功(content字段)，长度:', content.length);
-        } else if (typeof result.data === 'string') {
-          content = result.data;
-          console.log('✅ DeepSeek内容解析成功(字符串)，长度:', content.length);
-        } else {
+      if (result.success) {
+        // 新格式：后端已清理元数据，直接返回content字段
+        if (result.content) {
+          content = result.content;
+          console.log('✅ DeepSeek内容解析成功(已清理)，长度:', content.length);
+        }
+        // 兼容旧格式：处理完整API响应
+        else if (result.data) {
+          if (result.data.choices && result.data.choices[0]?.message?.content) {
+            content = result.data.choices[0].message.content;
+            console.log('✅ DeepSeek内容解析成功(兼容模式)，长度:', content.length);
+          } else if (result.data.content) {
+            content = result.data.content;
+            console.log('✅ DeepSeek内容解析成功(data.content)，长度:', content.length);
+          } else if (typeof result.data === 'string') {
+            content = result.data;
+            console.log('✅ DeepSeek内容解析成功(字符串)，长度:', content.length);
+          }
+        }
+
+        // 如果仍然没有内容，尝试其他字段
+        if (!content && result.data) {
           console.warn('⚠️ DeepSeek响应数据格式异常，尝试提取内容:', result.data);
-          // 尝试从其他可能的格式中提取内容
           if (result.data.text) {
             content = result.data.text;
           } else if (result.data.response) {
             content = result.data.response;
-          } else {
-            content = JSON.stringify(result.data);
           }
         }
       } else {
         console.error('❌ DeepSeek API调用失败:', result.error);
       }
-      
+
+      // ✅ FIXED: 应用内容清理，确保输出纯净
+      const cleanedContent = cleanAIContent(content);
+
+      // 验证内容有效性
+      if (!isValidAIContent(cleanedContent)) {
+        console.warn('⚠️ AI生成内容无效或为错误消息:', cleanedContent.substring(0, 100));
+      }
+
       return {
-        content,
+        content: cleanedContent,
         model: params.model || 'deepseek-chat',
-        usage: result.data?.usage,
+        usage: result.usage || result.data?.usage,
         responseTime: 0,
-        success: result.success,
+        success: result.success && !!cleanedContent,
         error: result.error
       };
     } else if (params.model?.includes('gemini')) {
       const result = await callGeminiProxy(params.prompt);
+      const cleanedContent = cleanAIContent(result.data || '');
+
       return {
-        content: result.data || '',
+        content: cleanedContent,
         model: params.model || 'gemini-pro',
         usage: undefined,
         responseTime: 0,
-        success: result.success,
+        success: result.success && !!cleanedContent,
         error: result.error
       };
     } else {
       // 默认使用OpenAI代理
       const result = await callOpenAIProxy(messages, params.model, params.temperature, params.maxTokens);
+      const cleanedContent = cleanAIContent(result.data || '');
+
       return {
-        content: result.data || '',
+        content: cleanedContent,
         model: params.model || 'gpt-4',
         usage: undefined,
         responseTime: 0,
-        success: result.success,
+        success: result.success && !!cleanedContent,
         error: result.error
       };
     }
