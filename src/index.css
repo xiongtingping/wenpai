@@ -2,6 +2,7 @@
 @import './styles/pricing-fix.css';
 @import './styles/typography-system.css';
 @import './automation/automation-modal.css';
+@import './styles/batch-forward-modal-fix.css';
 
 /**
  * **IMPORTANT** Never break the original structure, only add highly customized new styles

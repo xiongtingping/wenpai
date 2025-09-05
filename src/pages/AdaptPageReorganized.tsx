@@ -5920,7 +5920,7 @@ ${charCountControl.source === 'platform-specific'
         {/* Batch Forward Modal */}
         <BatchForwardModal
           open={batchForwardModalOpen}
-          onClose={() => setBatchForwardModalOpen(false)}
+          onOpenChange={setBatchForwardModalOpen}
           platforms={batchForwardPlatforms}
         />
 

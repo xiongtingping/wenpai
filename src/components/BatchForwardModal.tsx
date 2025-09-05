@@ -157,10 +157,25 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
       {!isMinimized && (
         <Dialog open={open} onOpenChange={() => {}}>
           <DialogContent
-            className="max-w-6xl max-h-[90vh] overflow-hidden h-[90vh] p-0 [&>button]:hidden"
+            className="batch-forward-modal-content max-w-5xl max-h-[85vh] overflow-hidden h-[85vh] p-0 [&>button]:hidden"
             onPointerDownOutside={(e) => e.preventDefault()}
             onEscapeKeyDown={(e) => e.preventDefault()}
+            aria-describedby="batch-forward-modal-description"
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 999999,
+              maxWidth: 'min(85vw, 1200px)',
+              maxHeight: '85vh',
+              width: 'auto',
+              height: 'auto'
+            }}
           >
+            {/* 隐藏的描述元素，用于CSS选择器 */}
+            <div id="batch-forward-modal-description" className="sr-only">批量转发工作台模态框</div>
+
             {/* 优化后的紧凑头部 - 去除冗余留白 */}
             <DialogHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-3 border-b bg-accent/50">
               <DialogTitle className="text-lg font-semibold text-foreground">
