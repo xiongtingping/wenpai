@@ -122,6 +122,27 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
 
   if (!open) return null;
 
+  // 添加滑入动画的CSS
+  useEffect(() => {
+    if (open) {
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes slideInFromBottom {
+          from {
+            transform: translateX(-50%) translateY(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+      return () => document.head.removeChild(style);
+    }
+  }, [open]);
+
   const modalContent = (
     <>
       {/* 最小化状态 - 固定在右下角 */}
@@ -154,40 +175,41 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
         </div>
       )}
 
-      {/* 正常状态 - 模态弹窗 */}
+      {/* 正常状态 - 相对定位弹窗，出现在触发按钮附近 */}
       {!isMinimized && open && (
-        <div
-          className="fixed inset-0 flex items-center justify-center p-4 bg-black/50"
-          style={{
-            // 确保覆盖任何可能的样式冲突，使用最高优先级
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 99999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1rem',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)'
-          }}
-          onClick={(e) => {
-            // 点击遮罩层关闭弹窗
-            if (e.target === e.currentTarget) {
-              handleClose();
-            }
-          }}
-        >
+        <>
+          {/* 半透明遮罩层 */}
           <div
-            className="bg-background rounded-xl shadow-2xl border border-border flex flex-col overflow-hidden"
+            className="fixed inset-0 bg-black/30"
             style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 99998,
+              backgroundColor: 'rgba(0, 0, 0, 0.3)'
+            }}
+            onClick={(e) => {
+              // 点击遮罩层关闭弹窗
+              handleClose();
+            }}
+          />
+          
+          {/* 弹窗内容 - 定位在页面下方，从底部滑入 */}
+          <div
+            className="fixed bg-background rounded-xl shadow-2xl border border-border flex flex-col overflow-hidden transition-all duration-300 ease-out"
+            style={{
+              position: 'fixed',
+              bottom: '5vh', // 距离底部5%视窗高度，更靠近底部
+              left: '50%',
+              transform: 'translateX(-50%)', // 水平居中
+              zIndex: 99999,
               width: 'min(95vw, 1200px)',
-              height: 'min(85vh, 700px)',
+              height: 'min(80vh, 650px)',
               maxWidth: '1200px',
-              maxHeight: '700px',
-              margin: 'auto', // 确保居中
-              position: 'relative' // 确保正确的定位上下文
+              maxHeight: '650px',
+              animation: 'slideInFromBottom 0.3s ease-out'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -411,6 +433,8 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
             </div>
           </div>
         </div>
+          </div>
+        </>
       )}
 
       {/* 关闭确认 AlertDialog */}
