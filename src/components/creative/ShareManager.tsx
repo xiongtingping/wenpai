@@ -703,4 +703,4 @@ const ShareManager: React.FC = () => {
   );
 };
 
-export default ShareManager; 
+export default ShareManager;

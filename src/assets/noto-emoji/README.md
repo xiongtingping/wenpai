@@ -94,4 +94,4 @@ interface NotoEmojiData {
 - **v1.0.0**: 初始集成，支持基础emoji数据和服务
 - 集成了Google Noto Emoji项目的核心功能
 - 提供完整的TypeScript类型支持
-- 实现了现代化的React组件界面 
+- 实现了现代化的React组件界面

@@ -63,7 +63,7 @@ function verifyNewUpgradeUI() {
       el.textContent && el.textContent.includes('解锁') && el.children.length === 0
     );
     
-    console.log(`🔓 "解锁"文字元素数量: ${unlockTexts.length}`);
+    console.log(`
     unlockTexts.forEach((el, index) => {
       if (index < 5) { // 只显示前5个
         console.log(`  文字 ${index + 1}: "${el.textContent.trim()}"`);

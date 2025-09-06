@@ -290,9 +290,6 @@
     opacity: 1 !important;
   }
 
-
-
-
 /* 🎨 统一的多主题设计语言系统
  *
  * 设计原则：
@@ -1770,8 +1767,6 @@
   outline-offset: 2px;
 }
 
-
-
 /* Guard遮罩层修复 */
 .authing-ant-modal-mask,
 .ant-modal-mask,
@@ -1787,8 +1782,6 @@
   height: 100% !important;
   background-color: rgba(0, 0, 0, 0.45) !important;
 }
-
-
 
 /* 防止页面滚动时弹窗消失 */
 body.modal-open,
@@ -2539,7 +2532,7 @@ html.modal-open {
   box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
 }
 
-/* 🔒 权限系统样式 */
+/* 
 .permission-locked-button {
   color: hsl(var(--permission-locked));
   border-color: hsl(var(--permission-locked) / 0.3);
@@ -2812,8 +2805,8 @@ html.modal-open {
   transform: translateY(-2px);
 }
 
-/* 🎨 强制应用的按钮样式 - 🔒 ENCAPSULATED 2025-08-10 */
-/* 🚫 禁止修改：个人中心专用渐变按钮样式系统 */
+/* 🎨 强制应用的按钮样式 - 
+/* 🚫 
 .btn-upgrade-force {
   background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ff8c42 100%) !important;
   color: white !important;
@@ -2854,8 +2847,8 @@ html.modal-open {
   color: white !important;
 }
 
-/* 🎯 容器高度对齐系统 - 🔒 ENCAPSULATED 2025-08-10 */
-/* 🚫 禁止修改：个人中心专用高度对齐CSS系统 */
+/* 🎯 容器高度对齐系统 - 
+/* 🚫 
 .profile-grid-equal-height {
   display: grid !important;
   grid-template-columns: 1fr !important;

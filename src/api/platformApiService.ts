@@ -360,4 +360,4 @@ export function checkPlatformAuth(platformId: string): boolean {
 export function getPlatformAuthUrl(platformId: string): string | null {
   const config = getPlatformApiConfig(platformId);
   return config?.authUrl || null;
-} 
+}

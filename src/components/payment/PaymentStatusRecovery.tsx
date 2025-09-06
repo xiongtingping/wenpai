@@ -306,4 +306,4 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
       })}
     </div>
   );
-}; 
+};

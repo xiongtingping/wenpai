@@ -166,4 +166,4 @@ function makeRequest(url, options = {}) {
 }
 
 // 运行诊断
-checkAuthingAppStatus().catch(console.error); 
+checkAuthingAppStatus().catch(console.error);

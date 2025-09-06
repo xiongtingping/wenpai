@@ -77,4 +77,4 @@ exports.handler = async function(event, context) {
       body: 'Internal Server Error'
     };
   }
-}; 
+};

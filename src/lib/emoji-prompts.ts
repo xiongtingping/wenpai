@@ -127,4 +127,4 @@ export function generateBatchPrompts(
     emotion,
     prompt: `${prompt}，${styleOptions.find(s => s.value === style)?.label || '可爱'}风格，${complexityLabels[complexity - 1]}程度的设计`
   }));
-} 
+}

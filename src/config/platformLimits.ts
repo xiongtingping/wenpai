@@ -310,7 +310,7 @@ export function getCharCountByPreset(
       return {
         min: 50,
         max: Math.min(200, Math.floor(maxChars * 0.9)),
-        target: Math.min(150, Math.floor(maxChars * 0.75))
+        target: Math.min(120, Math.floor(maxChars * 0.6)) // 降低目标至120字，确保更好地控制在200字以内
       };
       
     case 'standard':

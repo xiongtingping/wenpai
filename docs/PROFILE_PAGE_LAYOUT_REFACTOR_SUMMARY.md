@@ -215,4 +215,4 @@ const shouldShowProgress = !isUnlimited && usageCountStats?.availableUses !== -1
 **🎨 重构完成时间**: 2025-08-07  
 **🎯 重构目标**: 顶部信息融合 + 三列布局 + UI修复  
 **📱 兼容性**: 全平台响应式设计  
-**🔒 稳定性**: 保持所有原有功能完整性
+**

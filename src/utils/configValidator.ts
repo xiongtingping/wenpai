@@ -122,7 +122,6 @@ export function validateConfig(configName: string): boolean {
     'creem': import.meta.env.VITE_CREEM_API_KEY,
   };
 
-
   return !!configMap[configName];
 }
 

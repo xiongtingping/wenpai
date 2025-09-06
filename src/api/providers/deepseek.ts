@@ -7,7 +7,7 @@
  * - 标准化的接口实现
  * 
  * 📌 已封装：此提供者已验证可用，请勿修改
- * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
+ * 
  */
 
 import request from '../request';
@@ -16,7 +16,7 @@ import { logger } from '@/utils/logger';
 
 /**
  * DeepSeek服务商配置
- * 🔓 UNLOCKED: AI 禁止修改此配置
+ * 
  */
 export const DEEPSEEK_CONFIG = {
   name: 'deepseek',
@@ -37,7 +37,7 @@ export const DEEPSEEK_CONFIG = {
 
 /**
  * DeepSeek服务商实现类
- * 🔓 UNLOCKED: AI 禁止修改此类
+ * 
  */
 export class DeepSeekProvider {
   private apiKey: string;
@@ -50,7 +50,7 @@ export class DeepSeekProvider {
 
   /**
    * 检查API密钥是否有效
-   * 🔓 UNLOCKED: AI 禁止修改此方法
+   * 
    */
   isConfigured(): boolean {
     return !!(this.apiKey && this.apiKey !== 'your_deepseek_key_here' && this.apiKey.startsWith('sk-'));
@@ -58,7 +58,7 @@ export class DeepSeekProvider {
 
   /**
    * 获取支持的模型列表
-   * 🔓 UNLOCKED: AI 禁止修改此方法
+   * 
    */
   getSupportedModels(): string[] {
     return [...DEEPSEEK_CONFIG.models.chat];
@@ -66,7 +66,7 @@ export class DeepSeekProvider {
 
   /**
    * 检查模型是否支持
-   * 🔓 UNLOCKED: AI 禁止修改此方法
+   * 
    */
   isModelSupported(model: string): boolean {
     return this.getSupportedModels().includes(model);
@@ -74,7 +74,7 @@ export class DeepSeekProvider {
 
   /**
    * 调用DeepSeek聊天接口
-   * 🔓 UNLOCKED: AI 禁止修改此方法
+   * 
    */
   async callChat(params: AICallParams): Promise<AIResponse> {
     const startTime = Date.now();
@@ -158,7 +158,7 @@ export class DeepSeekProvider {
 
   /**
    * 调用DeepSeek图像生成接口（暂不支持）
-   * 🔓 UNLOCKED: AI 禁止修改此方法
+   * 
    */
   async generateImage(params: ImageGenerationParams): Promise<any> {
     console.warn('⚠️ DeepSeek暂不支持图像生成功能');
@@ -171,7 +171,7 @@ export class DeepSeekProvider {
 
   /**
    * 获取提供者信息
-   * 🔓 UNLOCKED: AI 禁止修改此方法
+   * 
    */
   getProviderInfo() {
     return {
@@ -190,7 +190,7 @@ export class DeepSeekProvider {
 
 /**
  * 创建DeepSeek提供者实例
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function createDeepSeekProvider(apiKey: string): DeepSeekProvider {
   return new DeepSeekProvider(apiKey);
@@ -198,7 +198,7 @@ export function createDeepSeekProvider(apiKey: string): DeepSeekProvider {
 
 /**
  * 导出默认配置
- * 🔓 UNLOCKED: AI 禁止修改此导出
+ * 
  */
 export default {
   config: DEEPSEEK_CONFIG,

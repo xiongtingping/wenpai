@@ -276,4 +276,4 @@ export function ConfirmLogoutButton({
       {children}
     </LogoutButton>
   );
-} 
+}

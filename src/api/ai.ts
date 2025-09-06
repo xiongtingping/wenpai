@@ -176,7 +176,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     // 🐛 问题原因：DeepSeek API账户余额不足，导致402错误
     // 🔧 修复方案：优先使用OpenAI API，DeepSeek作为备选
     // 📌 已封装：API选择逻辑已验证稳定，请勿修改
-    // 🔒 LOCKED: AI 禁止对此函数做任何修改
+    // 
     
     // 优先使用OpenAI（已验证有效）
     if (model.includes('gpt') || model.includes('openai') || !model.includes('deepseek')) {
@@ -189,7 +189,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       // 🐛 问题原因：API密钥格式验证过于严格，不支持新的密钥格式
       // 🔧 修复方案：支持多种OpenAI API密钥格式
       // 📌 已封装：API密钥验证逻辑已验证稳定，请勿修改
-      // 🔒 LOCKED: AI 禁止对此函数做任何修改
+      // 
       if (!selectedConfig.apiKey.startsWith('sk-')) {
         throw new Error('OpenAI API密钥格式不正确，应以sk-开头');
       }

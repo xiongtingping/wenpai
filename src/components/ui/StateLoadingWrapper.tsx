@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { useUnifiedUserState } from '@/stores/unifiedUserStateStore';
+import { useAuth } from '@/hooks/useAuth';
 
 interface StateLoadingWrapperProps {
   children: React.ReactNode;
@@ -33,10 +33,8 @@ export const StateLoadingWrapper: React.FC<StateLoadingWrapperProps> = ({
   showLoadingText = true,
   className = ''
 }) => {
-  const { isInitialized, isLoading } = useUnifiedUserState(state => ({
-    isInitialized: state.isInitialized,
-    isLoading: state.isLoading
-  }));
+  const { isLoading } = useAuth();
+  const isInitialized = true; // 简化状态管理
 
   // 如果状态未初始化或正在加载，显示加载状态
   if (!isInitialized || isLoading) {

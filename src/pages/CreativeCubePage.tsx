@@ -39,7 +39,7 @@ const CreativeCubePage: React.FC = () => {
     setIsGenerating(true);
     try {
       // 调用真实AI服务进行创意内容生成
-      const { callAI, AITaskType } = await import('@/api/aiService');
+      const { callAIWithTokenTracking, AITaskType } = await import('@/services/aiWithTokenTracking');
 
       const aiPrompt = `请基于以下需求生成创意内容：${prompt}
 
@@ -67,11 +67,12 @@ const CreativeCubePage: React.FC = () => {
 
 请确保内容具体、实用且富有创意。`;
 
-      const result = await callAI({
+      const result = await callAIWithTokenTracking({
         prompt: aiPrompt,
         taskType: AITaskType.CREATIVE_GENERATION,
         maxTokens: 1000,
-        context: { style: selectedStyle }
+        context: { style: selectedStyle },
+        feature: '创意魔方'
       });
 
       if (result && result.content) {
@@ -264,4 +265,4 @@ const CreativeCubePage: React.FC = () => {
   );
 };
 
-export default CreativeCubePage; 
+export default CreativeCubePage;

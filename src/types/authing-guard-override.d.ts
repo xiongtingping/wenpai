@@ -9,4 +9,3 @@ declare module '@authing/guard/dist/esm/guard.min.js' {
   }
   export default Guard;
 }
-

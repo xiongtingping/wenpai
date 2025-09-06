@@ -70,4 +70,4 @@ export const LoginSuccessToast: React.FC<LoginSuccessToastProps> = ({
       </div>
     </div>
   );
-}; 
+};

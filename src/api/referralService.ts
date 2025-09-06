@@ -134,4 +134,4 @@ export async function copyReferralLink(referrerId: string): Promise<boolean> {
     console.error('复制推荐链接失败:', error);
     return false;
   }
-} 
+}

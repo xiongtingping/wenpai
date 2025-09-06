@@ -148,4 +148,4 @@ export function calculateDiscountCountdown(registrationDate: Date): number {
  */
 export function isInDiscountPeriod(registrationDate: Date): boolean {
   return calculateDiscountCountdown(registrationDate) > 0;
-} 
+}

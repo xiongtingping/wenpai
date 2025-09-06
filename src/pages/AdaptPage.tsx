@@ -92,7 +92,7 @@ import {
 import { useAuthStore } from "@/store/authStore";
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { getUserTier } from '@/utils/subscriptionUtils';
-import { useUsageInfo, useUnifiedUserStateManager } from '@/hooks/useUnifiedUserState';
+// 使用真实的状态存储
 import { cn } from "@/lib/utils";
 import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
 import { UsageReminderDialog } from '@/components/ui/usage-reminder-dialog';
@@ -106,7 +106,8 @@ import {
 import { type StyleType } from '@/config/contentSchemes';
 import { getContentFormById } from '@/config/contentForms';
 import { createPlatformAPICaller } from '../utils/apiRequestQueue';
-import { request, callAI } from '@/api';
+import { request } from '@/api';
+import { callAIWithTokenTracking, type AITaskType } from '@/services/aiWithTokenTracking';
 import { MentionTextarea } from '@/components/ui/mention-textarea';
 import { useContentSyncStore } from '@/stores/contentSyncStore';
 import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
@@ -157,8 +158,6 @@ const platformUrls: Record<string, string> = {
   earthquake: 'https://www.ceic.ac.cn/',                               // 地震信息
   history: 'https://baike.baidu.com/item/%E5%8E%86%E5%8F%B2%E4%B8%8A%E7%9A%84%E4%BB%8A%E5%A4%A9/42704' // 历史上的今天
 };
-
-
 
 // Helper function to get platform name consistently
 function getPlatformName(platformId: string, platforms: any[]): string {
@@ -639,7 +638,7 @@ export default function AdaptPage() {
     };
   };
 
-  // 改进的AI调用重试机制 - 针对WeChat和Zhihu优化
+  // 改进的AI调用重试机制 - 针对WeChat和Zhihu优化，使用Token统计
   const callAIWithRetry = async (params: any, versionName: string, platformId?: string): Promise<any> => {
     let lastError: any = null;
     const originalModel = params.model;
@@ -671,7 +670,11 @@ export default function AdaptPage() {
             }
           }
 
-          const result = await callAI(adjustedParams);
+          const result = await callAIWithTokenTracking({
+            ...adjustedParams,
+            feature: 'AI内容适配器',
+            taskType: AITaskType.CONTENT_ADAPTATION
+          });
 
           if (result.success && result.content && result.content.trim().length > 100) {
             logger.debug('✅ ${versionName} - 第${attempt}次尝试成功');
@@ -689,7 +692,7 @@ export default function AdaptPage() {
           // 🐛 问题原因：DeepSeek API返回402错误（Payment Requihsl(var(--destructive))），需要自动切换到其他模型
           // 🔧 修复方案：添加402错误检测，实现智能降级机制
           // 📌 已封装：模型切换逻辑已验证稳定，请勿修改
-          // 🔒 LOCKED: AI 禁止对此函数做任何修改
+          // 
           if (attempt <= 3) {
             const errorMessage = error instanceof Error ? error.message : String(error);
 
@@ -759,7 +762,7 @@ export default function AdaptPage() {
     // 🐛 问题原因：callAIWithRetry失败时抛出错误，但队列管理器期望返回结果对象
     // 🔧 修复方案：返回标准化的错误结果对象
     // 📌 已封装：错误处理逻辑已验证稳定，请勿修改
-    // 🔒 LOCKED: AI 禁止对此函数做任何修改
+    // 
 
     const errorMessage = lastError ? lastError.message : `${versionName} - 所有重试都失败了`;
     return {
@@ -979,7 +982,7 @@ export default function AdaptPage() {
       // 🐛 问题原因：并发请求导致OpenAI API 429错误
       // 🔧 修复方案：使用队列管理器串行处理请求
       // 📌 已封装：队列请求逻辑已验证稳定，请勿修改
-      // 🔒 LOCKED: AI 禁止对此函数做任何修改
+      // 
 
       const platformAPICaller = createPlatformAPICaller(platformId);
 
@@ -1265,18 +1268,9 @@ export default function AdaptPage() {
     }
   }, [originalContent, toast, user?.id]);
 
-  // 🔧 FIX: 使用统一状态管理，解决状态闪烁问题
-  useUnifiedUserStateManager(); // 初始化统一状态管理
-  const unifiedUsageInfo = useUsageInfo(); // 获取统一的使用次数信息
-
-  // ✅ FIXED: 2025-08-04 修复无限循环问题 + 统一状态管理
-  // 🔧 优先使用统一状态，如果未初始化则使用原有状态
-  const { usageCount, maxUsage, decrementUsage, updateMaxUsage } = useAuthStore();
+  // 使用真实的状态管理
+  const { usageCount, maxUsage, usageRemaining, decrementUsage, updateMaxUsage } = useAuthStore();
   const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
-
-  // 🔧 FIX: 使用统一状态管理的数据，避免闪烁
-  const effectiveUsageCount = unifiedUsageInfo.isInitialized ? unifiedUsageInfo.usageCount : usageCount;
-  const effectiveMaxUsage = unifiedUsageInfo.isInitialized ? unifiedUsageInfo.maxUsage : maxUsage;
   
   // 获取用户当前等级 - 优先使用订阅状态
   const getCurrentTier = () => {
@@ -1419,7 +1413,7 @@ export default function AdaptPage() {
   }, [refreshSubscription]);
   
   // 🔧 FIX: 使用统一状态管理的数据计算剩余次数
-  const usageRemaining = effectiveMaxUsage === -1 ? Infinity : Math.max(0, effectiveMaxUsage - effectiveUsageCount);
+  const calculatedUsageRemaining = maxUsage === -1 ? Infinity : Math.max(0, maxUsage - usageCount);
   
   // ✅ FIXED: DOM错误修复 - 使用ref跟踪组件挂载状态，防止异步操作在组件卸载后执行
   const isMountedRef = useRef(true);
@@ -1472,9 +1466,8 @@ export default function AdaptPage() {
       unifiedUserState: localStorage.getItem('unified-user-state')
     };
 
-
     // 检查是否有异常数据并尝试修复
-    if (effectiveUsageCount < 0) {
+    if (usageCount < 0) {
       console.warn('⚠️ 检测到异常的使用次数数据，尝试修复...');
       // 如果使用次数为负数，重置为0
       if (unifiedUsageInfo.isInitialized) {
@@ -1485,19 +1478,19 @@ export default function AdaptPage() {
     }
 
     // 检查剩余次数是否异常（如31次这种情况）
-    if (typeof usageRemaining === 'number' && usageRemaining > effectiveMaxUsage && effectiveMaxUsage > 0) {
+    if (typeof usageRemaining === 'number' && usageRemaining > maxUsage && maxUsage > 0) {
       console.warn('⚠️ 检测到剩余次数异常，可能有数据错误:', {
         usageRemaining,
-        effectiveMaxUsage,
-        effectiveUsageCount,
-        shouldBe: Math.max(0, effectiveMaxUsage - Math.max(0, effectiveUsageCount))
+        maxUsage,
+        usageCount,
+        shouldBe: Math.max(0, maxUsage - Math.max(0, usageCount))
       });
 
       // 自动修复：如果检测到明显的数据错误，自动执行一次数据修复
       const isObviousDataError = (
-        usageRemaining === 31 && effectiveMaxUsage === 30 // 明确的31次问题
-        || effectiveUsageCount < 0 // 负数使用次数
-        || (effectiveMaxUsage > 0 && usageRemaining > effectiveMaxUsage + 10) // 剩余次数远超限制
+        usageRemaining === 31 && maxUsage === 30 // 明确的31次问题
+        || usageCount < 0 // 负数使用次数
+        || (maxUsage > 0 && usageRemaining > maxUsage + 10) // 剩余次数远超限制
       );
 
       if (isObviousDataError) {
@@ -1522,7 +1515,7 @@ export default function AdaptPage() {
         }
       }
     }
-  }, [effectiveUsageCount, effectiveMaxUsage, usageRemaining, effectiveUserTier]);
+  }, [usageCount, maxUsage, usageRemaining, effectiveUserTier]);
 
   // 🔧 FIX: 将状态变化检测移到useEffect中，避免在render中执行副作用
   const prevStateRef = useRef<{
@@ -1535,8 +1528,8 @@ export default function AdaptPage() {
   useEffect(() => {
     const currentState = {
       tier: effectiveUserTier,
-      maxUsage: effectiveMaxUsage,
-      usageCount: effectiveUsageCount,
+      maxUsage: maxUsage,
+      usageCount: usageCount,
       initialized: unifiedUsageInfo.isInitialized
     };
     
@@ -1552,12 +1545,11 @@ export default function AdaptPage() {
       });
     }
     prevStateRef.current = currentState;
-  }, [effectiveUserTier, effectiveMaxUsage, effectiveUsageCount, unifiedUsageInfo.isInitialized]);
+  }, [effectiveUserTier, maxUsage, usageCount, unifiedUsageInfo.isInitialized]);
 
   // 使用次数提醒弹窗状态
   const [showUsageReminder, setShowUsageReminder] = useState(false);
   const [usageReminderCount, setUsageReminderCount] = useState(0);
-
 
   const platforms = useMemo(() => [
     { id: "xiaohongshu", name: "小红书", description: "适合生活方式、美妆、旅行等分享，强调个人体验和情感共鸣", icon: <Book className="h-4 w-4 text-accent" /> },
@@ -1718,15 +1710,15 @@ export default function AdaptPage() {
   const contentCharCount = originalContent.length;
 
   // 🔧 FIX: 使用统一状态检查生成条件
-  const canGenerate = originalContent.trim().length > 10 && selectedPlatforms.length > 0 && (usageRemaining > 0 || effectiveMaxUsage === -1);
+  const canGenerate = originalContent.trim().length > 10 && selectedPlatforms.length > 0 && (usageRemaining > 0 || maxUsage === -1);
   
   // 调试信息 - 只在控制台出现问题时启用
-  // console.log('🔍 canGenerate状态检查:', { canGenerate, generating, usageRemaining, effectiveMaxUsage });
+  // console.log('🔍 canGenerate状态检查:', { canGenerate, generating, usageRemaining, maxUsage });
 
   // 检查使用次数并显示提醒
   const checkUsageAndShowReminder = () => {
     // 如果剩余次数为0或负数，阻止生成
-    if (usageRemaining <= 0 && effectiveMaxUsage !== -1) {
+    if (usageRemaining <= 0 && maxUsage !== -1) {
       console.log('❌ 使用次数已用完，阻止生成');
       setUsageReminderCount(usageRemaining);
       setShowUsageReminder(true);
@@ -1734,7 +1726,7 @@ export default function AdaptPage() {
     }
     
     // 如果剩余次数较少（1-3次），显示提醒但允许继续生成
-    if (usageRemaining <= 3 && usageRemaining > 0 && effectiveMaxUsage !== -1) {
+    if (usageRemaining <= 3 && usageRemaining > 0 && maxUsage !== -1) {
       console.log('⚠️ 使用次数较少，显示提醒但允许生成');
       setUsageReminderCount(usageRemaining);
       setShowUsageReminder(true);
@@ -1787,9 +1779,6 @@ export default function AdaptPage() {
       });
     }
   }, [user, refreshSubscription, updateMaxUsage, toast]);
-
-
-
 
   // Handle platform selection
   const togglePlatform = (platformId: string, isChecked: boolean) => {
@@ -2283,8 +2272,6 @@ export default function AdaptPage() {
   const [automationRunning, setAutomationRunning] = useState(false);
   const [automationProgress, setAutomationProgress] = useState<AutomationProgress | undefined>();
 
-
-
   // 网络状态检测
   const [networkStatus, setNetworkStatus] = useState<'online' | 'offline' | 'slow'>('online');
 
@@ -2738,14 +2725,16 @@ export default function AdaptPage() {
 3. 如果内容自然长度不够，请增加具体细节、案例或深入分析
 4. 确保内容质量优先，字数适中即可`;
 
-      const aiResult = await callAI({
+      const aiResult = await callAIWithTokenTracking({
         prompt,
         model: selectedModel as any,
         systemPrompt: buildSystemPrompt(version.style === 'standard'
           ? `你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`
           : `你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`),
         maxTokens: maxTokens,
-        temperature: version.style === 'standard' ? 0.7 : 0.9
+        temperature: version.style === 'standard' ? 0.7 : 0.9,
+        feature: 'AI内容适配器',
+        taskType: AITaskType.CONTENT_ADAPTATION
       });
 
       if (aiResult.success && aiResult.content) {
@@ -3374,7 +3363,7 @@ export default function AdaptPage() {
 
   // ✅ FIXED: 已移除模拟翻译功能
   // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
-  // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+  // 
   //
   // 系统现在直接调用真实翻译API，不再提供模拟翻译
   const simulateTranslation = async (content: string): Promise<never> => {
@@ -3452,12 +3441,14 @@ export default function AdaptPage() {
       );
 
       // 使用统一AI服务重新生成内容
-      const aiResult = await callAI({
+      const aiResult = await callAIWithTokenTracking({
         prompt: matrixPrompt,
         model: selectedModel as any,
         systemPrompt: '你是一个专业的多维度内容创作专家，严格按照多维矩阵要求重新生成内容。',
         maxTokens: 2000,
-        temperature: 0.9 // 重新生成时增加更多随机性
+        temperature: 0.9, // 重新生成时增加更多随机性
+        feature: 'AI内容适配器',
+        taskType: AITaskType.CONTENT_ADAPTATION
       });
 
       if (aiResult.success && aiResult.content) {
@@ -3551,11 +3542,11 @@ export default function AdaptPage() {
 
   const handleAIGenerateTitle = async () => {
     try {
-      const { callAI } = await import('@/api/aiService');
-      const result = await callAI({
+      const result = await callAIWithTokenTracking({
         prompt: `为以下内容生成3个吸引人的标题：\n\n${content}`,
-        taskType: 'TITLE_GENERATION',
-        maxTokens: 200
+        maxTokens: 200,
+        feature: '标题生成',
+        taskType: AITaskType.TITLE_GENERATION
       });
       
       const generatedTitle = result.content?.split('\n')[0]?.replace(/^\d+\.\s*/, '') || '生成的标题';
@@ -3947,12 +3938,14 @@ export default function AdaptPage() {
   const callAIGenerate = async (prompt: string, platformId: string): Promise<string> => {
     try {
       // 使用统一的 AI API
-      const result = await callAI({
+      const result = await callAIWithTokenTracking({
         prompt,
         model: selectedModel as any, // 类型转换
         systemPrompt: `你是一个专业的${platformId}内容创作者，请根据用户的需求生成高质量的内容。`,
         temperature: 0.7,
-        maxTokens: 1000
+        maxTokens: 1000,
+        feature: 'AI内容适配器',
+        taskType: AITaskType.CONTENT_ADAPTATION
       });
 
       if (result.success) {
@@ -3996,12 +3989,14 @@ export default function AdaptPage() {
       );
 
       // 使用统一AI服务生成对比内容
-      const aiResult = await callAI({
+      const aiResult = await callAIWithTokenTracking({
         prompt: matrixPrompt,
         model: selectedModel as any,
         systemPrompt: '你是一个专业的多维度内容创作专家，请生成与主要版本不同风格的替代内容。',
         maxTokens: 2000,
-        temperature: 0.9 // 增加随机性以获得不同的结果
+        temperature: 0.9, // 增加随机性以获得不同的结果
+        feature: 'AI内容适配器',
+        taskType: AITaskType.CONTENT_ADAPTATION
       });
 
         if (aiResult.success && aiResult.content) {
@@ -4094,8 +4089,6 @@ export default function AdaptPage() {
 
     loadBrandProfile();
   }, [useBrandLibrary]);
-
-
 
   // 获取平台特色和差异化要求
   const getPlatformCharacteristics = (platform: string): {
@@ -4335,10 +4328,10 @@ ${dimensions.join('\n\n')}
 
 ⚠️ 核心要求（必须严格执行）：
 1. 生成的内容字符数必须在${charCountControl.range.min}-${charCountControl.range.max}字符范围内
-2. 目标字符数为${charCountControl.finalLimit}字符，允许误差不超过5%
+2. 目标字符数为${charCountControl.finalLimit}字符，${globalSettings.charCountPreset === 'mini' ? '精简版允许误差不超过3%（必须严格控制在50-200字内）' : '允许误差不超过5%'}
 3. 绝对禁止生成少于${charCountControl.range.min}字符的内容
-4. 绝对禁止生成超过${charCountControl.finalLimit}字符的内容
-5. 内容必须丰富完整，达到目标字符数要求
+4. 绝对禁止生成超过${charCountControl.range.max}字符的内容
+5. ${globalSettings.charCountPreset === 'mini' ? '精简版要求：内容简洁明了，直达要点，避免冗余描述，严格控制在200字符以内' : '内容必须丰富完整，达到目标字符数要求'}
 
 📊 优先级说明：
 ${charCountControl.source === 'platform-specific'
@@ -4348,12 +4341,10 @@ ${charCountControl.source === 'platform-specific'
   : '✅ 使用平台自动适配字符数（平台限制的90%-95%）'
 }
 
-📝 内容生成策略（确保达到目标字符数）：
-- 详细描述：提供具体的细节和例子
-- 深入分析：增加背景信息和深层次解释
-- 实用建议：添加具体的操作步骤和注意事项
-- 丰富表达：使用多样化的句式和词汇
-- 补充信息：添加相关的知识点和扩展内容
+📝 内容生成策略（${globalSettings.charCountPreset === 'mini' ? '精简版策略' : '确保达到目标字符数'}）：
+${globalSettings.charCountPreset === 'mini' ? 
+'- 精炼表达：直接阐述核心观点，避免冗余\n- 关键信息：只保留最重要的内容要素\n- 简洁明了：使用短句和简单词汇\n- 高效传达：每个字符都有价值，直达要点\n- 控制篇幅：严格限制在200字符以内' :
+'- 详细描述：提供具体的细节和例子\n- 深入分析：增加背景信息和深层次解释\n- 实用建议：添加具体的操作步骤和注意事项\n- 丰富表达：使用多样化的句式和词汇\n- 补充信息：添加相关的知识点和扩展内容'}
 
 🔍 生成后验证（关键步骤）：
 - 必须检查最终内容字符数是否在${charCountControl.range.min}-${charCountControl.range.max}字符范围内
@@ -4382,7 +4373,7 @@ ${charCountControl.source === 'platform-specific'
     const useAutoFormat = globalSettings.globalAutoFormat || currentPlatformSettings.useAutoFormat;
 
     // 构建格式化要求
-    let formatInstructions = [];
+    const formatInstructions = [];
 
     // 基础平台格式
     formatInstructions.push(`- 平台格式：${formatRequirements[platform as keyof typeof formatRequirements] || '标准格式'}`);
@@ -4435,8 +4426,6 @@ ${globalSettings.globalAutoFormat ? '✅ 全局自动排版已启用 - 必须优
 - 独特性：确保内容具有独特的表达方式和视角
 - 随机性：在保持质量的前提下增加内容的随机性和新鲜感`;
   };
-
-
 
   /**
    * 生成有意义的标题
@@ -4641,7 +4630,6 @@ onCheckedChange={(checked) => {
                   </Button>
                 </div>
               </div>
-
 
             </CardHeader>
 
@@ -4908,8 +4896,6 @@ onCheckedChange={(checked) => {
                       </div>
                     </div>
                   </div>
-
-
 
                   {/* 平台特定设置 */}
                   <div className="border-2 border-border bg-accent rounded-lg p-4">
@@ -5221,8 +5207,6 @@ onCheckedChange={(checked) => {
         </Card>
       </div>
 
-
-
       {/* 组合效果预览 */}
       <Card variant="soft" className="mb-6 rounded-xl">
         <CardContent className="pt-6">
@@ -5298,8 +5282,9 @@ onCheckedChange={(checked) => {
                           className="mt-1 p-1 bg-accent border border-border rounded text-xs text-muted-foreground cursor-pointer hover:bg-accent/80 transition-colors"
                           onClick={handleUpgradeClick}
                         >
-                          <span className="mr-1">🔒</span>
+                          <span className="mr-1">
                           去解锁高级功能
+                          </span>
                         </div>
                       )}
                     </div>
@@ -5424,8 +5409,6 @@ onCheckedChange={(checked) => {
             </div>
           </CardHeader>
         </Card>
-
-
 
           <Tabs defaultValue={results[0]?.platformId} className="w-full">
             <TabsList className="mb-4 flex flex-wrap gap-2 w-full h-auto p-2 bg-accent rounded-lg shadow-sm">
@@ -5553,8 +5536,6 @@ onCheckedChange={(checked) => {
                         </div>
                       )}
 
-
-
                       {/* 2. 智能内容生成 */}
                       <div className="bg-card rounded-lg border border-border shadow-md min-h-[120px] mb-4">
                         <div className="px-3 py-2 border-b border-border">
@@ -5662,8 +5643,6 @@ onCheckedChange={(checked) => {
                                           </div>
                                         </div>
                                       </div>
-
-
 
                                       <div className="flex flex-wrap gap-2 mt-auto">
                                         <Button
@@ -5811,8 +5790,6 @@ onCheckedChange={(checked) => {
                                         </div>
                                       </div>
 
-
-
                                       <div className="flex flex-wrap gap-2 mt-auto">
                                         <Button
                                           size="sm"
@@ -5959,7 +5936,6 @@ onCheckedChange={(checked) => {
                                         </div>
                                       )}
 
-
                                     </div>
                                   )
                                 ) : result.error ? (
@@ -6042,12 +6018,8 @@ onCheckedChange={(checked) => {
             ))}
           </Tabs>
 
-
-
         </div>
       )}
-
-
 
       {/* 自动化转发区域 - 独立的主要功能区域 */}
       {(results.length > 0 && !generating) && (
@@ -6294,7 +6266,6 @@ onCheckedChange={(checked) => {
       remainingCount={usageReminderCount}
       userType={userPlan === 'trial' ? 'trial' : 'pro'}
     />
-
 
     {/* 批量转发工作台弹窗 */}
     <BatchForwardModal

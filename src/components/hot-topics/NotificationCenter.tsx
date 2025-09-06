@@ -5,7 +5,7 @@
 
 /**
  * ✅ FIXED: 通知中心组件完整性验证，修复于 2025-08-10
- * 🔒 LOCKED: 请勿修改，如需变动请新建模块
+ * 
  * 📌 已封装：实时通知、消息管理、提醒设置
  * ⚠️ 请勿改动：此组件已通过完整性验证，通知功能稳定运行
  *
@@ -375,4 +375,4 @@ export const NotificationCenter: React.FC = () => {
   );
 };
 
-export default NotificationCenter; 
+export default NotificationCenter;

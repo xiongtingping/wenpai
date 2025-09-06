@@ -84,4 +84,4 @@ console.log('   4. 确保回调URL与当前配置一致');
 console.log('   5. 保存配置并等待生效');
 console.log('   6. 重新测试登录功能');
 
-console.log('\n�� Authing 配置诊断完成！'); 
+console.log('\n�� Authing 配置诊断完成！');

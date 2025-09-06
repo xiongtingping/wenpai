@@ -167,8 +167,6 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
     return false;
   };
 
-
-
   // 初始化数据
   useEffect(() => {
     // 计算最新分类统计，避免显示与实际不一致
@@ -251,8 +249,6 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
     if (excludeCategories) {
       emojis = emojis.filter(emoji => !excludeCategories.includes(emoji.category));
     }
-
-
 
     // 收藏过滤
     if (showFavoritesOnly) {
@@ -383,7 +379,6 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
     setChipKeywords(top);
   }, []);
 
-
   // 切换收藏状态
   const handleToggleFavoritesOnly = () => {
     exitRandomView();
@@ -412,8 +407,6 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
     setFavorites(newFavorites);
     localStorage.setItem(favoritesKey, JSON.stringify(Array.from(newFavorites)));
   };
-
-
 
   // 清除所有过滤器（并退出随机视图）
   const clearFilters = () => {
@@ -615,10 +608,6 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
       });
     }
   };
-
-
-
-
 
   return (
     <div className={`min-h-screen bg-background ${className}`} style={{
@@ -823,8 +812,6 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
           )}
         </div>
 
-
-
       </div>
       {/* 复刻动物头像系统样式 */}
       <style>{`
@@ -853,9 +840,6 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
         .avatar-color { font-size: 0.85rem; color: hsl(var(--muted-foreground)); background: hsl(var(--muted)); padding: 3px 8px; border-radius: 10px; display: inline-block; }
         .hover-button { opacity: 0; transition: opacity 0.2s ease; }
       `}</style>
-
-
-
 
       {/* 随机选择结果视图 - 优化布局 */}
       {showRandomResult && randomSelected && (

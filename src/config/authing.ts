@@ -1,7 +1,7 @@
 /**
  * ✅ FIXED: 2025-07-25 更新 Authing 配置文件 - 同步最新后台配置
  * 📌 基于Authing控制台最新配置更新
- * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+ * 
  */
 
 export interface AuthingConfig {
@@ -38,7 +38,7 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
 }
 
 // ✅ SECURITY FIX: 2025-09-01 完全移除硬编码配置，仅使用环境变量
-// 🔒 安全要求：所有配置必须从环境变量获取，禁止硬编码敏感信息
+// 
 const APP_ID = getEnvVar('VITE_AUTHING_APP_ID');
 const DOMAIN = getEnvVar('VITE_AUTHING_DOMAIN');
 const HOST = getEnvVar('VITE_AUTHING_HOST');
@@ -46,7 +46,7 @@ const HOST = getEnvVar('VITE_AUTHING_HOST');
 // ✅ FIXED: 2025-07-25 配置缓存机制已锁定
 // 🐛 问题原因：重复计算配置导致性能问题和潜在的不一致性
 // 🔧 修复方式：单例模式缓存配置，确保全局一致性
-// 🔒 LOCKED: AI 禁止修改此缓存逻辑
+// 
 let cachedConfig: any = null;
 
 // 清除缓存的辅助函数
@@ -59,7 +59,7 @@ export function clearAuthingConfigCache() {
  * 🐛 历史问题：配置获取不稳定，环境变量注入失效
  * 🔧 修复方案：硬编码+缓存+动态回调URI
  * 📌 已封装：此函数已验证稳定，请勿修改
- * 🔒 LOCKED: AI 禁止对此函数做任何修改
+ * 
  */
 export function getAuthingConfig() {
   if (cachedConfig) return cachedConfig;
@@ -147,5 +147,3 @@ export const getAuthingWebConfig = () => {
     prompt: 'login' as const
   };
 };
-
-

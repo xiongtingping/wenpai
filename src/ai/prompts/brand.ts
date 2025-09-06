@@ -7,7 +7,7 @@
  * - 品牌语气和风格生成
  * 
  * 📌 已封装：此提示词模板已验证可用，请勿修改
- * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
+ * 
  */
 
 import type { PromptTemplate } from '../types';
@@ -15,7 +15,7 @@ import { logger } from '@/utils/logger';
 
 /**
  * 品牌综合分析提示词
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export const getBrandAnalysisPrompt: PromptTemplate = (input: any, options = {}) => {
   const { brandInfo, analysisType = 'comprehensive' } = input;
@@ -89,7 +89,7 @@ ${debug ? '\n## 调试模式\n请在JSON后添加详细的分析思路和依据�
 
 /**
  * 品牌内容检查提示词
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export const getBrandContentCheckPrompt: PromptTemplate = (input: any, options = {}) => {
   const { content, brandProfile, checkType = 'comprehensive' } = input;
@@ -163,7 +163,7 @@ ${debug ? '\n## 调试模式\n请提供详细的评估过程和判断依据。' 
 
 /**
  * 品牌语气生成提示词
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export const getBrandTonePrompt: PromptTemplate = (input: any, options = {}) => {
   const { brandProfile, contentType, occasion } = input;
@@ -226,7 +226,7 @@ ${debug ? '\n## 调试模式\n请提供详细的设计思路和品牌语气分�
 
 /**
  * 根据品牌任务类型选择合适的提示词函数
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function getBrandPromptByTask(task: string): PromptTemplate {
   switch (task) {

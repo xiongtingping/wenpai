@@ -34,4 +34,4 @@ export const ScrollToTop: React.FC<ScrollToTopProps> = ({
   }, [pathname, enabled, behavior]);
 
   return null;
-}; 
+};

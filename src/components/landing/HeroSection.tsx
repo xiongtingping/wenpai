@@ -118,7 +118,6 @@ const HeroSection: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 -translate-x-full group-hover/button:translate-x-full transition-transform duration-700"></div>
               </Button>
 
-
             </div>
           </div>
           

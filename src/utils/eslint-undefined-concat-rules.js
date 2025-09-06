@@ -1,5 +1,5 @@
 /**
- * 🔒 ESLint自定义规则：防止undefined字符串拼接
+ * 
  *
  * 🎯 目标：自动检测可能导致"undefinedundefined"的代码模式
  * 📋 检测范围：

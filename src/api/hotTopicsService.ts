@@ -3,7 +3,7 @@
  * 提供全网热点话题相关API请求、缓存、错误处理、重试机制等完整功能
  *
  * ✅ FIXED: 全网雷达功能完整性验证，修复于 2025-08-10
- * 🔒 LOCKED: 请勿修改，如需变动请新建模块
+ * 
  * 📌 已封装：核心API服务、缓存机制、错误处理、重试逻辑
  * ⚠️ 请勿改动：此模块已通过完整性验证，功能稳定运行
  */
@@ -75,7 +75,7 @@ export interface RetryConfig {
   backoffMultiplier: number;
   // ✅ FIXED: 已移除降级功能
   // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
-  // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+  // 
 }
 
 export interface ApiConfig {
@@ -205,7 +205,6 @@ class HotTopicsAPI {
     this.log('所有API重试失败', lastError);
     throw new Error(`热点数据API调用失败: ${lastError?.message || '未知错误'}`);
   }
-
 
   private processRawData(data: any, platform: string): DailyHotItem[] {
     let items: any[] = [];

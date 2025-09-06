@@ -174,4 +174,4 @@ async function main() {
 // 运行脚本
 if (import.meta.url === `file://${process.argv[1]}`) {
   main();
-} 
+}

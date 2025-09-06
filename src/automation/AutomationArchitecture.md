@@ -95,7 +95,7 @@ interface AutomationEngine {
 }
 ```
 
-## 🔒 安全和合规机制
+## 
 
 ### 1. 用户隐私保护
 - 不存储用户登录凭据

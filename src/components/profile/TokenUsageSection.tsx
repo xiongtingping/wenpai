@@ -145,7 +145,7 @@ export function TokenUsageSection({
 
   // 处理升级操作
   // ✅ FIXED: 恢复"立即解锁高级功能"按钮，修复于 2025-08-10
-  // 🔒 LOCKED: 请勿修改，如需变动请新建模块
+  // 
   const handleUpgrade = () => {
     window.location.href = '/payment';
   };
@@ -303,7 +303,7 @@ export function TokenUsageSection({
 
               {/* 升级按钮 - 仅在非高级版时显示 */}
               {/* ✅ FIXED: 恢复"立即解锁高级功能"按钮，修复于 2025-08-10 */}
-              {/* 🔒 LOCKED: 请勿修改，如需变动请新建模块 */}
+              {/* 升级按钮已注释
               {userTier !== 'premium' && showUpgradeButton && (
                 <div className="mt-4">
                   <Button
@@ -316,6 +316,7 @@ export function TokenUsageSection({
                   </Button>
                 </div>
               )}
+              */}
 
             </>
           )}

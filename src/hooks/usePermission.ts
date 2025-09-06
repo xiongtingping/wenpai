@@ -207,8 +207,6 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
     message: '微信朋友圈文案模板功能需要专业版权限'
   },
 
-
-
   'feature:content-extractor': {
     key: 'feature:content-extractor',
     description: '内容提取功能',
@@ -408,23 +406,19 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
       const config = PERMISSION_CONFIGS[key];
 
       if (!config) {
-        console.warn(`🔒 未找到权限配置: ${key}`);
+        console.warn('权限配置未找到:', key);
         continue;
       }
 
       const hasPermission = config.check(enhancedUser);
 
       // 打印权限检查日志
-      logger.lock(`🔒 权限检查: ${key}`, {
+      logger.lock('权限检查结果', {
         user: enhancedUser ? {
           id: enhancedUser.id,
           isVip: enhancedUser.isVip,
-          vipLevel: enhancedUser.vipLevel,
-          subscription: enhancedUser.subscription,
-          permissions: enhancedUser.permissions,
-          roles: enhancedUser.roles
+          vipLevel: enhancedUser.vipLevel
         } : null,
-        primaryStatus,
         hasActiveSubscription,
         hasPermission,
         config: config.description
@@ -433,7 +427,7 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
       if (!hasPermission) {
         return {
           pass: false,
-          reason: config.message || `缺少权限: ${config.description}`,
+          reason: config.message || ('缺少权限: ' + config.description),
           redirect: config.redirect,
           details: {
             key,
@@ -473,5 +467,5 @@ export const useVipPermission = () => {
  * @deprecated 使用 usePermission('feature:{name}') 替代
  */
 export const useFeaturePermission = (featureId: string) => {
-  return usePermission(`feature:${featureId}`);
-}; 
+  return usePermission('feature:' + featureId);
+};

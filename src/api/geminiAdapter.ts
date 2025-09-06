@@ -3,7 +3,8 @@
  * 使用统一的 AI API 调用方式，禁止直接使用 fetch
  */
 
-import { callAI, AIModel } from './ai';
+import { callAIWithTokenTracking, AITaskType } from '@/services/aiWithTokenTracking';
+import { AIModel } from './ai';
 
 /**
  * AI API响应接口
@@ -25,12 +26,14 @@ export async function callGeminiAPI(
   userPrompt: string
 ): Promise<AIApiResponse> {
   try {
-    const result = await callAI({
+    const result = await callAIWithTokenTracking({
       prompt: userPrompt,
       systemPrompt,
       model: 'gemini-pro' as AIModel,
       maxTokens: 2000,
-      temperature: 0.7
+      temperature: 0.7,
+      taskType: AITaskType.GENERAL_CHAT,
+      feature: 'Gemini API适配器'
     });
 
     if (!result.success) {

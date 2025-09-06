@@ -732,7 +732,6 @@ export default function PaymentPage() {
                           </Badge>
                         )}
 
-
                       </div>
 
                       {/* 右侧标签组 */}
@@ -1108,7 +1107,6 @@ export default function PaymentPage() {
           )}
 
           {/* BufPay 支付状态会通过 PaymentQRCode 组件内部轮询处理 */}
-
 
         </div>
       </div>

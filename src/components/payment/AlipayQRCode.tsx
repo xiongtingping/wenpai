@@ -310,4 +310,4 @@ export default function AlipayQRCode({
       </CardContent>
     </Card>
   );
-} 
+}

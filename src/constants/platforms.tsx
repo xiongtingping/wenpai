@@ -348,4 +348,4 @@ export const platforms = Object.keys(platformNameMap).map(id => ({
   description: `发布到 ${platformNameMap[id as keyof typeof platformNameMap]}`,
   maxLength: platformSpecs[id as keyof typeof platformSpecs]?.maxLength || 1000,
   features: platformSpecs[id as keyof typeof platformSpecs]?.features || []
-})); 
+}));

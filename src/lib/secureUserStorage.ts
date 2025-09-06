@@ -1,5 +1,5 @@
 /**
- * 🔒 安全用户存储管理器
+ * 
  * 专门处理用户数据的安全存储，解决数据隔离和Token安全问题
  */
 
@@ -53,7 +53,7 @@ export class SecureUserStorageManager {
     this.currentUserId = userId;
     
     if (userId) {
-      console.log(`🔒 设置当前用户: ${userId}`);
+      console.log('👤 切换到用户模式');
       // 清理可能的访客数据污染
       this.cleanupGuestData();
     } else {
@@ -83,12 +83,12 @@ export class SecureUserStorageManager {
       // 访客模式
       const key = STORAGE_KEY_PATTERNS.GUEST_DATA(this.guestSessionId!, module);
       secureStorage.setItem(key, data, encrypt);
-      console.log(`💾 访客数据已保存: ${module}`);
+      console.log('💾 访客数据已保存: ' + module);
     } else {
       // 用户模式
       const key = STORAGE_KEY_PATTERNS.USER_DATA(this.currentUserId, module);
       secureStorage.setItem(key, data, encrypt || sensitive);
-      console.log(`💾 用户数据已保存: ${this.currentUserId}:${module}`);
+      console.log('💾 用户数据已保存: ' + this.currentUserId + ':' + module);
     }
   }
 
@@ -118,7 +118,7 @@ export class SecureUserStorageManager {
     const key = STORAGE_KEY_PATTERNS.AUTH_DATA(userId);
     // 认证数据必须加密存储
     secureStorage.setItem(key, authData, true);
-    console.log(`🔒 认证数据已安全存储: ${userId}`);
+    console.log('🔐 认证数据已保存');
   }
 
   /**
@@ -161,10 +161,10 @@ export class SecureUserStorageManager {
 
     userKeys.forEach(key => {
       localStorage.removeItem(key);
-      console.log(`🗑️ 已清理用户数据: ${key}`);
+      console.log('🗑️ 已清理用户数据: ' + key);
     });
 
-    console.log(`✅ 用户 ${this.currentUserId} 的所有数据已清理完成`);
+    console.log('✅ 用户 ' + this.currentUserId + ' 的所有数据已清理完成');
   }
 
   /**
@@ -181,10 +181,10 @@ export class SecureUserStorageManager {
 
     guestKeys.forEach(key => {
       localStorage.removeItem(key);
-      console.log(`🗑️ 已清理访客数据: ${key}`);
+      console.log('🗑️ 已清理访客数据: ' + key);
     });
 
-    console.log(`✅ 访客数据已清理完成`);
+    console.log('✅ 访客数据已清理完成');
   }
 
   /**
@@ -224,9 +224,9 @@ export class SecureUserStorageManager {
         // 删除旧数据
         localStorage.removeItem(oldKey);
         
-        console.log(`📦 数据迁移完成: ${oldKey} -> ${newModule}`);
+        console.log('📦 数据迁移完成: ' + oldKey + ' -> ' + newModule);
       } catch (error) {
-        console.error(`❌ 迁移数据失败: ${oldKey}`, error);
+        console.error('❌ 迁移数据失败: ' + oldKey, error);
       }
     });
   }
@@ -255,7 +255,7 @@ export class SecureUserStorageManager {
     });
 
     if (userIds.size > 1) {
-      violations.push(`发现多个用户的数据: ${Array.from(userIds).join(', ')}`);
+      violations.push('发现多个用户的数据: ' + Array.from(userIds).join(', '));
       recommendations.push('定期清理非当前用户的历史数据');
     }
 
@@ -266,7 +266,7 @@ export class SecureUserStorageManager {
     );
 
     if (oldFormatKeys.length > 0) {
-      violations.push(`发现${oldFormatKeys.length}个旧格式存储键`);
+      violations.push('发现' + oldFormatKeys.length + '个旧格式存储键');
       recommendations.push('运行数据迁移以统一存储格式');
     }
 
@@ -276,7 +276,7 @@ export class SecureUserStorageManager {
         try {
           const data = localStorage.getItem(key);
           if (data && !data.startsWith('U2FsdGVkX1')) { // 未加密
-            violations.push(`发现明文存储的敏感数据: ${key}`);
+            violations.push('发现明文存储的敏感数据: ' + key);
             recommendations.push('对所有认证和敏感数据启用加密存储');
           }
         } catch (error) {

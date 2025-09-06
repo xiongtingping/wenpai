@@ -17,9 +17,6 @@ import { NavBar } from "@/components/ui/tubelight-navbar"
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher"
 import { Home, Radar, Sparkles, Library, FolderOpen, CreditCard } from "lucide-react"
 
-
-
-
 export function Header() {
   const isMobile = useIsMobile()
   const { user, isAuthenticated, login, register } = useUnifiedAuth()
@@ -119,7 +116,6 @@ export function Header() {
             <ThemeToggle />
 
             {/* 开发环境权限切换 */}
-
 
             {isAuthenticated ? (
               <UserAvatar

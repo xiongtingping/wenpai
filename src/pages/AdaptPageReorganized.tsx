@@ -107,7 +107,8 @@ import {
 import { type StyleType } from '@/config/contentSchemes';
 import { getContentFormById } from '@/config/contentForms';
 import { createPlatformAPICaller } from '../utils/apiRequestQueue';
-import { request, callAI } from '@/api';
+import { request } from '@/api';
+import { callAIWithTokenTracking, type AITaskType } from '@/services/aiWithTokenTracking';
 import { MentionTextarea } from '@/components/ui/mention-textarea';
 import { useContentSyncStore } from '@/stores/contentSyncStore';
 import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
@@ -698,7 +699,11 @@ export default function AdaptPage() {
             }
           }
 
-          const result = await callAI(adjustedParams);
+          const result = await callAIWithTokenTracking({
+            ...adjustedParams,
+            feature: 'AI内容适配器',
+            taskType: AITaskType.CONTENT_ADAPTATION
+          });
 
           if (result.success && result.content && result.content.trim().length > 100) {
             logger.debug('✅ ${versionName} - 第${attempt}次尝试成功');
@@ -716,7 +721,7 @@ export default function AdaptPage() {
           // 🐛 问题原因：DeepSeek API返回402错误（Payment Required），需要自动切换到其他模型
           // 🔧 修复方案：添加402错误检测，实现智能降级机制
           // 📌 已封装：模型切换逻辑已验证稳定，请勿修改
-          // 🔒 LOCKED: AI 禁止对此函数做任何修改
+          // 
           if (attempt <= 3) {
             const errorMessage = error instanceof Error ? error.message : String(error);
 
@@ -786,7 +791,7 @@ export default function AdaptPage() {
     // 🐛 问题原因：callAIWithRetry失败时抛出错误，但队列管理器期望返回结果对象
     // 🔧 修复方案：返回标准化的错误结果对象
     // 📌 已封装：错误处理逻辑已验证稳定，请勿修改
-    // 🔒 LOCKED: AI 禁止对此函数做任何修改
+    // 
 
     const errorMessage = lastError ? lastError.message : `${versionName} - 所有重试都失败了`;
     return {
@@ -1015,7 +1020,7 @@ export default function AdaptPage() {
       // 🐛 问题原因：并发请求导致OpenAI API 429错误
       // 🔧 修复方案：使用队列管理器串行处理请求
       // 📌 已封装：队列请求逻辑已验证稳定，请勿修改
-      // 🔒 LOCKED: AI 禁止对此函数做任何修改
+      // 
 
       const platformAPICaller = createPlatformAPICaller(platformId);
 
@@ -1370,10 +1375,10 @@ ${dimensions.join('\n\n')}
 
 ⚠️ 核心要求（必须严格执行）：
 1. 生成的内容字符数必须在${charCountControl.range.min}-${charCountControl.range.max}字符范围内
-2. 目标字符数为${charCountControl.finalLimit}字符，允许误差不超过5%
+2. 目标字符数为${charCountControl.finalLimit}字符，${globalSettings.charCountPreset === 'mini' ? '精简版允许误差不超过3%（必须严格控制在50-200字内）' : '允许误差不超过5%'}
 3. 绝对禁止生成少于${charCountControl.range.min}字符的内容
-4. 绝对禁止生成超过${charCountControl.finalLimit}字符的内容
-5. 内容必须丰富完整，达到目标字符数要求
+4. 绝对禁止生成超过${charCountControl.range.max}字符的内容
+5. ${globalSettings.charCountPreset === 'mini' ? '精简版要求：内容简洁明了，直达要点，避免冗余描述，严格控制在200字符以内' : '内容必须丰富完整，达到目标字符数要求'}
 
 📊 优先级说明：
 ${charCountControl.source === 'platform-specific'
@@ -1383,12 +1388,10 @@ ${charCountControl.source === 'platform-specific'
   : '✅ 使用平台自动适配字符数（平台限制的90%-95%）'
 }
 
-📝 内容生成策略（确保达到目标字符数）：
-- 详细描述：提供具体的细节和例子
-- 深入分析：增加背景信息和深层次解释
-- 实用建议：添加具体的操作步骤和注意事项
-- 丰富表达：使用多样化的句式和词汇
-- 补充信息：添加相关的知识点和扩展内容
+📝 内容生成策略（${globalSettings.charCountPreset === 'mini' ? '精简版策略' : '确保达到目标字符数'}）：
+${globalSettings.charCountPreset === 'mini' ? 
+'- 精炼表达：直接阐述核心观点，避免冗余\n- 关键信息：只保留最重要的内容要素\n- 简洁明了：使用短句和简单词汇\n- 高效传达：每个字符都有价值，直达要点\n- 控制篇幅：严格限制在200字符以内' :
+'- 详细描述：提供具体的细节和例子\n- 深入分析：增加背景信息和深层次解释\n- 实用建议：添加具体的操作步骤和注意事项\n- 丰富表达：使用多样化的句式和词汇\n- 补充信息：添加相关的知识点和扩展内容'}
 
 🔍 生成后验证（关键步骤）：
 - 必须检查最终内容字符数是否在${charCountControl.range.min}-${charCountControl.range.max}字符范围内
@@ -1609,7 +1612,7 @@ ${charCountControl.source === 'platform-specific'
   // ✅ FIXED: 2025-08-04 修复无限循环问题
   // 🐛 问题原因：useAuthStore((state) => state.getUsageRemaining()) 会导致每次渲染都调用get()，触发无限循环
   // 🔧 修复方式：直接从state中计算usageRemaining，避免调用get()方法
-  // 🔒 LOCKED: 此修复已验证解决Tooltip无限循环问题，请勿修改
+  // 
   const { usageCount, maxUsage, decrementUsage } = useAuthStore();
   const usageRemaining = Math.max(0, maxUsage - usageCount);
 
@@ -2608,14 +2611,16 @@ ${charCountControl.source === 'platform-specific'
 3. 如果内容自然长度不够，请增加具体细节、案例或深入分析
 4. 确保内容质量优先，字数适中即可`;
 
-      const aiResult = await callAI({
+      const aiResult = await callAIWithTokenTracking({
         prompt,
         model: selectedModel as any,
         systemPrompt: version.style === 'standard'
           ? `你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`
           : `你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`,
         maxTokens: maxTokens,
-        temperature: version.style === 'standard' ? 0.7 : 0.9
+        temperature: version.style === 'standard' ? 0.7 : 0.9,
+        feature: 'AI内容适配器',
+        taskType: AITaskType.CONTENT_ADAPTATION
       });
 
       if (aiResult.success && aiResult.content) {
@@ -3838,14 +3843,16 @@ ${charCountControl.source === 'platform-specific'
 3. 如果内容自然长度不够，请增加具体细节、案例或深入分析
 4. 确保内容质量优先，字数适中即可`;
 
-      const aiResult = await callAI({
+      const aiResult = await callAIWithTokenTracking({
         prompt,
         model: selectedModel as any,
         systemPrompt: version.style === 'standard'
           ? `你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`
           : `你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`,
         maxTokens: maxTokens,
-        temperature: version.style === 'standard' ? 0.7 : 0.9
+        temperature: version.style === 'standard' ? 0.7 : 0.9,
+        feature: 'AI内容适配器',
+        taskType: AITaskType.CONTENT_ADAPTATION
       });
 
       if (aiResult.success && aiResult.content) {
@@ -4463,7 +4470,7 @@ ${charCountControl.source === 'platform-specific'
 
   // ✅ FIXED: 已移除模拟翻译功能
   // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
-  // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+  // 
   //
   // 系统现在直接调用真实翻译API，不再提供模拟翻译
   const simulateTranslation = async (content: string): Promise<never> => {
@@ -4545,12 +4552,14 @@ ${charCountControl.source === 'platform-specific'
       );
 
       // 使用统一AI服务重新生成内容
-      const aiResult = await callAI({
+      const aiResult = await callAIWithTokenTracking({
         prompt: matrixPrompt,
         model: selectedModel as any,
         systemPrompt: '你是一个专业的多维度内容创作专家，严格按照多维矩阵要求重新生成内容。',
         maxTokens: 2000,
-        temperature: 0.9 // 重新生成时增加更多随机性
+        temperature: 0.9, // 重新生成时增加更多随机性
+        feature: 'AI内容适配器',
+        taskType: AITaskType.CONTENT_ADAPTATION
       });
 
       if (aiResult.success && aiResult.content) {
@@ -4951,7 +4960,7 @@ ${charCountControl.source === 'platform-specific'
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="mini">精简版 (150-300字)</SelectItem>
+                        <SelectItem value="mini">精简版 (50-200字)</SelectItem>
                         <SelectItem value="standard">标准版 (300-600字)</SelectItem>
                         <SelectItem value="detailed">详细版 (600-1200字)</SelectItem>
                         <SelectItem value="auto">自适应 (按平台)</SelectItem>

@@ -137,4 +137,4 @@ console.log('  • 最小等待时间从1分钟增加到2分钟');
 console.log('  • 防抖延迟从3秒增加到5秒');
 console.log('  • 最大等待时间从10秒增加到30秒');
 
-console.log('\n✅ 验证完成'); 
+console.log('\n✅ 验证完成');

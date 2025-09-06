@@ -124,4 +124,4 @@ export function validateNickname(nickname: string): boolean {
   }
   
   return true;
-} 
+}

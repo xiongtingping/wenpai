@@ -7,7 +7,7 @@ import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 /**
  * 品牌调性服务
  * @description 处理品牌资料的分析、存储和应用
- * 🔒 已迁移至 Supabase 数据库，移除 localStorage 依赖
+ * 
  */
 class BrandProfileService {
   private static instance: BrandProfileService;
@@ -731,4 +731,4 @@ export default BrandProfileService;
 // - 移除了 localStorage 品牌档案缓存依赖
 // - 品牌数据现在存储在数据库中，确保用户数据隔离
 // - 需要在使用前调用 setCurrentUserId() 设置用户ID
-// - 如果数据库不可用，品牌档案相关功能将无法使用 
+// - 如果数据库不可用，品牌档案相关功能将无法使用

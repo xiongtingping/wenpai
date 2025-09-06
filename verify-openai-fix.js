@@ -161,4 +161,4 @@ console.log('2. 打开 test-openai-fix.html 进行详细测试');
 console.log('3. 检查浏览器控制台是否还有错误');
 console.log('4. 验证标题生成功能是否正常工作');
 
-console.log('\n✨ 验证完成！'); 
+console.log('\n✨ 验证完成！');

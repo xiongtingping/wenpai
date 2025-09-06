@@ -31,4 +31,4 @@ console.log('- http://localhost:3002/callback');
 console.log('- http://localhost:5173/callback');
 console.log('');
 
-console.log('=== 检查完成 ==='); 
+console.log('=== 检查完成 ===');

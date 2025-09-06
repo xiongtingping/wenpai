@@ -396,9 +396,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
             
             {/* ✅ FIXED: 已移除AI适配器按钮 */}
             {/* 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。 */}
-            {/* 🔒 LOCKED: AI 禁止对此函数或文件做任何修改 */}
             
-
           </div>
         </div>
 
@@ -439,4 +437,4 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   );
 };
 
-export default PageNavigation; 
+export default PageNavigation;

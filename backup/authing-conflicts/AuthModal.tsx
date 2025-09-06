@@ -21,7 +21,6 @@ import { useToast } from '@/hooks/use-toast';
 import { securityUtils } from '@/lib/security';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
-
 /**
  * 认证弹窗组件属性
  */
@@ -311,4 +310,4 @@ export function RegisterButton({
       />
     </>
   );
-} 
+}

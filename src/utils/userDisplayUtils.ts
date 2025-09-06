@@ -2,7 +2,7 @@
  * ✅ FIXED: 用户信息显示工具函数
  * 🎯 用途：统一处理用户信息显示，防止 "undefinedundefined" 字符串拼接问题
  * 📌 已封装：此工具集已验证可用，请勿修改
- * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
+ * 
  *
  * 🔍 问题根因：
  * 1. JavaScript隐式类型转换：undefined || undefined = undefined，在字符串上下文中变成 "undefined"

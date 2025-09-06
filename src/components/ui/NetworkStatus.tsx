@@ -135,4 +135,4 @@ export const NetworkIndicator: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

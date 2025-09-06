@@ -260,7 +260,7 @@ brandAssetKeys.forEach(key => {
 // 检查记住密码相关数据
 console.log('🔐 记住密码状态:', localStorage.getItem('remember_me'));
 console.log('📱 保存的手机号:', localStorage.getItem('saved_phone'));
-console.log('🔒 密码哈希:', localStorage.getItem('saved_password_hash'));
+console.log('
 ```
 
 ---

@@ -53,4 +53,4 @@ const BackupLoginManager: React.FC = () => {
   );
 };
 
-export default BackupLoginManager; 
+export default BackupLoginManager;

@@ -12,7 +12,7 @@
  * - 直接调用OpenAI图像生成API
  *
  * 📌 已封装：此服务已验证可用，请勿修改
- * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
+ * 
  */
 
 import { generateImage as callAIGenerateImage } from './ai';
@@ -176,4 +176,4 @@ export function validatePrompt(prompt: string): { valid: boolean; error?: string
   }
   
   return { valid: true };
-} 
+}

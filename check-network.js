@@ -129,4 +129,4 @@ async function main() {
 }
 
 // 运行诊断
-main().catch(console.error); 
+main().catch(console.error);

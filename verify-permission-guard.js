@@ -49,13 +49,13 @@ setTimeout(() => {
   
   // 7. 检查锁定图标
   const lockIcons = document.querySelectorAll('[data-lucide="lock"], .lucide-lock');
-  console.log(`🔒 锁定图标: ${lockIcons.length > 0 ? '✅ 找到' : '❌ 未找到'} (${lockIcons.length}个)`);
+  console.log(`
   
   // 8. 检查"解锁"标题
   const unlockTitles = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6')).filter(el => 
     el.textContent && el.textContent.includes('解锁')
   );
-  console.log(`🔓 解锁标题: ${unlockTitles.length > 0 ? '✅ 找到' : '❌ 未找到'} (${unlockTitles.length}个)`);
+  console.log(`
   
   console.log('\n🎯 改进效果评估:');
   

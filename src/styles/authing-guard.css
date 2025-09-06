@@ -6,7 +6,6 @@
 #authing_container:empty::before,
 #authing_container:empty::after { content: '' !important; display: none !important; }
 
-
 /* 防止页面滚动 */
 body.authing-guard-open {
   overflow: hidden !important;

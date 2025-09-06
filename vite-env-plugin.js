@@ -13,7 +13,7 @@ export default function envPlugin() {
       envVars = loadEnv(mode, process.cwd(), '');
     },
     transformIndexHtml(html) {
-      // 🔒 SECURITY FIX: 仅注入非敏感环境变量到全局对象
+      // 
       // API 密钥不再注入客户端，改用服务端代理
       const envScript = `
         <script>
@@ -44,4 +44,4 @@ export default function envPlugin() {
       return html.replace('</head>', `${envScript}</head>`);
     }
   };
-} 
+}

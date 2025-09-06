@@ -309,4 +309,4 @@ export const EmojiButton: React.FC<{
   );
 };
 
-export default EmojiPicker; 
+export default EmojiPicker;

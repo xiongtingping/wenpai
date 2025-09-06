@@ -44,4 +44,4 @@ try {
   }
 } catch (error) {
   console.log('❌ Authing配置测试失败:', error.message);
-} 
+}

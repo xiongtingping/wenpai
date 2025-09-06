@@ -5,7 +5,7 @@
  *
  * ✅ FIXED: 2025-08-11 布局重构和日期选择Bug修复
  * ✅ FIXED: 2025-01-15 营销日历功能完整开发和优化完成
- * 🔒 LOCKED: 整个营销日历组件已封装，禁止修改
+ * 
  *
  * 🔧 改进内容：
  * 1. 布局从上下分栏改为左右分栏，提升空间利用率
@@ -605,8 +605,6 @@ function MarketingCalendar() {
     loadUserTasks();
   }, [userId]);
 
-
-
   /**
    * 获取农历信息
    */
@@ -936,8 +934,6 @@ function MarketingCalendar() {
     setDragOverDate(null);
   };
 
-
-
   /**
    * 处理日历日期的拖拽事件
    */
@@ -957,8 +953,6 @@ function MarketingCalendar() {
       handleTaskDragToDate(taskId, dateStr);
     }
   };
-
-
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">

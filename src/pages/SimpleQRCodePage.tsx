@@ -126,4 +126,4 @@ export default function SimpleQRCodePage() {
       </Card>
     </div>
   );
-} 
+}

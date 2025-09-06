@@ -240,4 +240,4 @@ export interface ContentCheckResult {
   isValid: boolean;
   issues: string[];
   suggestions: string[];
-} 
+}

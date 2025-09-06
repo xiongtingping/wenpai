@@ -7,7 +7,7 @@
  * - 用户认证集成
  * - 主题和样式管理
  *
- * 🔒 安全特性：
+ * 
  * - 统一的用户认证和权限控制
  * - 路由守卫和访问控制
  * - 安全的状态管理
@@ -22,7 +22,7 @@ import './i18n';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthGuard, ProGuard, PremiumGuard } from '@/components/auth/RouteGuard';
-import { useUnifiedUserStateManager, useStatePreloader, useSmartStateRefresh } from '@/hooks/useUnifiedUserState';
+import { useAuth } from '@/hooks/useAuth';
 import { GuardProvider } from '@authing/guard-react18';
 import { AuthModalWrapper } from '@/components/auth/AuthModalWrapper';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
@@ -59,8 +59,8 @@ import ShareManagerPage from '@/pages/ShareManagerPage';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 import { CustomLoginPage } from '@/pages/CustomLoginPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
-// 移除调试页面
-// 移除测试组件
+// 临时调试页面
+import TokenDebugPage from '@/pages/TokenDebugPage';
 
 /**
  * 条件性导航组件
@@ -73,9 +73,8 @@ const ConditionalNavigation: React.FC<{ children: React.ReactNode }> = ({ childr
  * 统一状态管理初始化组件 - 修复状态闪烁问题
  */
 const StateManagerInitializer: React.FC = () => {
-  useUnifiedUserStateManager(); // 初始化统一状态管理
-  useStatePreloader(); // 预加载状态
-  useSmartStateRefresh(); // 智能状态刷新
+  // 使用真实的认证状态
+  useAuth();
   return null;
 };
 
@@ -205,8 +204,8 @@ const App: React.FC = () => {
                         <Route path="/privacy" element={<PrivacyPage />} />
                         <Route path="/features" element={<FeatureShowcasePage />} />
 
-
-                        {/* 调试页面已移除 */}
+                        {/* 临时调试页面 - 用于Token统计修复 */}
+                        <Route path="/token-debug" element={<TokenDebugPage />} />
 
                         {/* 错误页面 */}
                         <Route path="/403" element={<ForbiddenPage />} />

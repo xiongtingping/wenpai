@@ -161,4 +161,4 @@ async function handlePaymentFailed(event: any) {
   // 1. 更新支付状态为失败
   // 2. 发送失败通知
   // 3. 提供重试选项
-} 
+}

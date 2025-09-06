@@ -368,8 +368,6 @@ export class TitleGenerationService implements ITitleGenerationService {
     return generateCacheKey(input.content, input.platform, styles, count);
   }
 
-
-
   /**
    * 构建提示词
    */

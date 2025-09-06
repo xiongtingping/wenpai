@@ -40,7 +40,6 @@ export function Footer() {
     }
   }
 
-
   return (
     <footer className="bg-gradient-to-t from-muted/30 to-background border-t border-border/50">
       <div className="container mx-auto px-6 py-12">

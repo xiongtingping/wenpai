@@ -3,7 +3,7 @@
  * 支持按类别快速查看话题
  *
  * ✅ FIXED: 话题分类组件完整性验证，修复于 2025-08-10
- * 🔒 LOCKED: 请勿修改，如需变动请新建模块
+ * 
  * 📌 已封装：话题分类、智能标签、分类管理
  * ⚠️ 请勿改动：此组件已通过完整性验证，分类功能稳定运行
  *
@@ -353,8 +353,6 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
       return 'pets';
     }
 
-
-
     // 未匹配的内容根据常见词汇进行二次分类
     // 优先分配到内容较少的分类，避免都流向娱乐
     if (content.includes('建设') || content.includes('项目') || content.includes('工程') || content.includes('发展')) {
@@ -384,14 +382,6 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
 
     // 最终默认归类为社会（更合理的兜底分类）
     return 'society';
-
-
-
-
-
-
-
-
 
     // 未匹配的内容根据常见词汇进行二次分类
     // 优先分配到内容较少的分类，避免都流向娱乐
@@ -676,4 +666,4 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
   );
 };
 
-export default TopicCategories; 
+export default TopicCategories;

@@ -311,4 +311,4 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
       </CardContent>
     </Card>
   );
-} 
+}

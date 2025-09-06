@@ -201,7 +201,6 @@ export function PricingSection() {
             {t('home.pricing.subtitle')}
           </p>
 
-
           {/* 限时优惠倒计时 - 完全照搬支付中心设计 */}
           {currentUser?.id && showPromoOffer && timeLeft > 0 && (
             <div className="text-center mt-6 mb-8">

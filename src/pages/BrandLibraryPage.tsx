@@ -24,7 +24,6 @@ import { PermissionProtectedInput, PermissionProtectedInputField, PermissionProt
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
 import { logger } from '@/utils/logger';
-import { runAllTests } from '@/test/unifiedDataPersistenceTest';
 import { useBrandAssetsData, useBrandDimensionsData } from '@/hooks/useUnifiedDataPersistence';
 import {
   Database, Upload, FileText, File, FileImage,
@@ -262,8 +261,6 @@ export default function BrandLibraryPageFixed() {
     isOpen: false,
     asset: null
   });
-
-
 
   // ✅ FIXED: 2025-08-06 添加后台分析状态管理
   const [backgroundAnalysisQueue, setBackgroundAnalysisQueue] = useState<BrandAsset[]>([]);
@@ -946,7 +943,7 @@ export default function BrandLibraryPageFixed() {
       const extractions: BrandCorpusExtraction[] = []; // 类型保持为旧版以兼容 UI 渲染
 
       // 动态导入AI服务和品牌语料库服务
-      const { callAI, AITaskType } = await import('@/api/aiService');
+      const { callAIWithTokenTracking, AITaskType } = await import('@/services/aiWithTokenTracking');
       const { BrandCorpusService } = await import('@/services/brandCorpusService');
       const corpusService = BrandCorpusService.getInstance();
 
@@ -1354,7 +1351,7 @@ export default function BrandLibraryPageFixed() {
    * 批量处理品牌语料库提取 v2.0 - 使用增强的AI分析
    * 🆕 v2.0 更新: 多资料支持、增强溯源、置信度评估
    * ✅ FIXED: 2025-08-05 接入真实AI服务进行品牌语料库分析
-   * 🔒 LOCKED: 禁止使用模拟数据或降级方案
+   * 
    */
   const handleBatchCorpusExtraction = async () => {
     console.log('🔍 开始批量AI分析，当前所有资产:', brandAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
@@ -1381,7 +1378,7 @@ export default function BrandLibraryPageFixed() {
       const extractions: BrandCorpusExtraction[] = [];
 
       // 动态导入AI服务和品牌语料库服务
-      const { callAI, AITaskType } = await import('@/api/aiService');
+      const { callAIWithTokenTracking, AITaskType } = await import('@/services/aiWithTokenTracking');
       const { BrandCorpusService } = await import('@/services/brandCorpusService');
 
       const corpusService = BrandCorpusService.getInstance();
@@ -2014,21 +2011,6 @@ export default function BrandLibraryPageFixed() {
       {/* 主导航栏 */}
       <Header />
 
-      {/* 开发测试按钮 */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed top-20 right-4 z-50">
-          <button
-            onClick={async () => {
-              console.log('🧪 开始测试统一数据持久化系统...');
-              const results = await runAllTests();
-              console.log('🎯 测试结果:', results);
-            }}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
-          >
-            测试数据持久化
-          </button>
-        </div>
-      )}
 
       <PageNavigation
         title={t('brandLibrary.title')}
@@ -2055,8 +2037,6 @@ export default function BrandLibraryPageFixed() {
           </AlertDescription>
         </Alert>
 
-
-
         {/* 隐藏的文件输入 */}
         <input
           ref={fileInputRef}
@@ -2079,8 +2059,6 @@ export default function BrandLibraryPageFixed() {
             </CardContent>
           </Card>
         )}
-
-
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="unified-tabs-list grid w-full grid-cols-2">
@@ -2229,8 +2207,6 @@ export default function BrandLibraryPageFixed() {
                 </div>
               </CardContent>
             </Card>
-
-
 
             {/* 智能资料管理 */}
             <Card>
@@ -2747,8 +2723,6 @@ export default function BrandLibraryPageFixed() {
             {/* 🔧 移除整页权限守卫，内容对所有用户可见 */}
             <div>
 
-
-
             {/* 语料库状态和操作栏 */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
@@ -2981,10 +2955,7 @@ export default function BrandLibraryPageFixed() {
             </div>
           </TabsContent>
 
-
         </Tabs>
-
-
 
         {/* PDF智能对话组件 */}
         <PDFChatDialog

@@ -221,4 +221,4 @@ export function getPromoStatus(userId?: string): {
     formattedTime: formatTimeLeft(remainingTime),
     accessTime
   };
-} 
+}

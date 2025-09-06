@@ -107,7 +107,7 @@ export function useEnhancedHotTopics(
         // 简单追加：原始数据 + RSSHub数据
         return [...enhancedOriginal, ...enhancedRSSHub];
 
-      case 'interleave':
+      case 'interleave': {
         // 交错插入：每3个原始数据插入1个RSSHub数据
         const interleaved: EnhancedHotTopic[] = [];
         let rsshubIndex = 0;
@@ -129,8 +129,9 @@ export function useEnhancedHotTopics(
         }
         
         return interleaved;
+      }
 
-      case 'prioritize':
+      case 'prioritize': {
         // 优先级合并：高热度的RSSHub数据优先
         const highPriorityRSSHub = enhancedRSSHub.filter(item => 
           parseInt(item.hot) > 80
@@ -144,6 +145,7 @@ export function useEnhancedHotTopics(
           ...enhancedOriginal,
           ...normalRSSHub
         ];
+      }
 
       default:
         return [...enhancedOriginal, ...enhancedRSSHub];

@@ -335,7 +335,6 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
               </button>
             </div>
 
-
           </div>
         )}
       </div>

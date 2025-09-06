@@ -481,4 +481,4 @@ export default function BrandEmojiPromptBuilder({
       </CardContent>
     </Card>
   );
-} 
+}

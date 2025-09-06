@@ -116,7 +116,6 @@ export function createOfficialAuthSDK(): Guard {
       redirectUri: config.redirectUri,
       mode: 'modal', // 使用modal模式
 
-
       lang: 'zh-CN'
     });
 

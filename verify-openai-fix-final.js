@@ -114,4 +114,4 @@ console.log('  • 全局锁 - 防止并发请求');
 console.log('  • 模型切换 - 自动切换到备用模型');
 console.log('  • 用户提示 - 清晰的错误和等待信息');
 
-console.log('\n✅ 验证完成'); 
+console.log('\n✅ 验证完成');

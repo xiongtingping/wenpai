@@ -404,4 +404,4 @@ export default {
   getFlagsEmojis,
   getRandomEmojis,
   getEmojisByMood
-}; 
+};

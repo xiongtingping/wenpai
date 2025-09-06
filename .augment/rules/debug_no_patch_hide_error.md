@@ -34,7 +34,7 @@ type: "always_apply"
       "severity": "error",
       "description": "必须追溯并解决根因，而不是仅处理表层症状。",
       "criteria": [
-        "禁止仅修改表层报错代码（如 UI 层提示、console.log）而忽略底层逻辑错误",
+        "
         "禁止修复次生问题而不追溯来源",
         "必须明确区分【症状】与【根因候选】"
       ],

@@ -17,7 +17,7 @@ description: "build_check_modern_web_deploy_standard_error"
     "构建配置（Vite/Next.js）：是否正确配置 base 或 assetPrefix，构建目录是否适配部署平台",
     "动态路由与路由守卫：是否正确使用路由库，受保护页面是否正常跳转，404 fallback 是否生效"
   ],
-  "action": "在 push 或部署命令执行时自动运行该规则，输出部署问题清单（按模块列出）、修复建议（代码或配置）并标注高危项（🔥）。禁止修改 UI 样式或重写业务组件，所有建议必须兼容构建与部署平台（如 Vercel、Netlify、静态服务器）。",
+  "action": "在 push 或部署命令执行时自动运行该规则，输出部署问题清单（按模块列出）、修复建议（代码或配置）并标注高危项（🔥）。
   "keywords": [
     "构建失败",
     "部署失败",

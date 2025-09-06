@@ -1,6 +1,6 @@
 /**
  * ✅ FIXED: 2025-08-04 架构级重构 - 安全的Tooltip组件包装器
- * 🔒 LOCKED: 此组件已验证解决setRef无限循环问题，请勿修改
+ * 
  * 
  * 🐛 原问题：Radix UI Tooltip的setRef函数在Array.map中被无限调用
  * 🔧 修复方案：创建安全的ref处理机制，添加防抖和循环检测

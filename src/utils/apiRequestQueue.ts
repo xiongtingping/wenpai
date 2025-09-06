@@ -14,7 +14,7 @@ import { logger } from '@/utils/logger';
  * - 频率限制检测和处理
  * 
  * 📌 已封装：API请求队列逻辑已验证稳定，请勿修改
- * 🔒 LOCKED: AI 禁止对此文件做任何修改
+ * 
  */
 
 interface QueueItem {
@@ -83,7 +83,7 @@ class APIRequestQueue {
       // 🐛 问题原因：addToQueue没有正确等待和传递executeRequest的结果
       // 🔧 修复方案：使用async/await正确处理结果传递
       // 📌 已封装：队列添加逻辑已验证稳定，请勿修改
-      // 🔒 LOCKED: AI 禁止对此函数做任何修改
+      // 
       
       const processAndResolve = async () => {
         try {
@@ -115,7 +115,7 @@ class APIRequestQueue {
       // 🐛 问题原因：processQueue没有等待executeRequest的结果
       // 🔧 修复方案：使用await等待结果并正确传递
       // 📌 已封装：队列处理逻辑已验证稳定，请勿修改
-      // 🔒 LOCKED: AI 禁止对此函数做任何修改
+      // 
       
       try {
         const result = await this.executeRequest(item);
@@ -181,7 +181,7 @@ class APIRequestQueue {
         // 🐛 问题原因：队列管理器抛出错误导致undefined返回值
         // 🔧 修复方案：返回标准化的错误结果对象
         // 📌 已封装：错误处理逻辑已验证稳定，请勿修改
-        // 🔒 LOCKED: AI 禁止对此函数做任何修改
+        // 
         
         const errorMessage = error instanceof Error ? error.message : String(error);
         return {

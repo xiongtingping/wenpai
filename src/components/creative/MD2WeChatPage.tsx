@@ -30,7 +30,7 @@ import { useUsageStore } from '@/store/usageStore';
 import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
-import { Header } from '@/components/landing/Header';
+// import { Header } from '@/components/landing/Header'; // 移除Header导入，该组件作为Tab内容使用
 import { MarkdownEditor } from './md2wechat/MarkdownEditor';
 import { ThemeSelector } from './md2wechat/ThemeSelector';
 import { PreviewPanel } from './md2wechat/PreviewPanel';
@@ -178,12 +178,8 @@ export default function MD2WeChatPage() {
   }, [toast]);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* 主导航栏 */}
-      <Header />
-
-      
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="bg-background">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
         <div className="bg-background">
           {/* 工具栏 */}
           <div className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">

@@ -135,7 +135,6 @@ export function ThemeSelector({
   className
 }: ThemeSelectorProps) {
 
-
   // 获取当前选中的主题配置
   const currentTheme = THEME_CONFIGS.find(theme => theme.id === selectedTheme) || THEME_CONFIGS[0];
 

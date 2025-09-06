@@ -494,4 +494,4 @@ export default function VIPPage() {
       </div>
     </div>
   );
-} 
+}

@@ -404,4 +404,4 @@ export const performanceMonitor = new PerformanceMonitor();
 export const memoryCache = new MemoryCache<string, any>();
 
 // 全局本地存储缓存实例
-export const localStorageCache = new LocalStorageCache(); 
+export const localStorageCache = new LocalStorageCache();

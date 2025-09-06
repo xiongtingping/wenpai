@@ -1,7 +1,7 @@
 /**
  * ✅ V3.3 标题生成系统提示词 - 增强版
  * 🎯 整合语序异常检测和更严格的语义完整性要求
- * 🔒 LOCKED: 该提示词已优化，请勿随意修改核心逻辑
+ * 
  */
 export const getTitleGenerationSystemPrompt = (): string => {
   return `
@@ -53,4 +53,4 @@ export const getTitleGenerationSystemPrompt = (): string => {
 4. 如果生成语句超过平台字符限制，请从**完整词边界**处进行自然修剪
 5. 禁止使用模板化句式，确保结构完整、语义清晰、逻辑合理
   `;
-}; 
+};

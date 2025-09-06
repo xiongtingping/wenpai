@@ -126,4 +126,4 @@ export interface UsageStats {
   tokensRemaining: number;
   /** 使用百分比 */
   usagePercentage: number;
-} 
+}

@@ -67,4 +67,4 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   if (loading) return null;
   if (!isAuthenticated || !user) return fallback ? <>{fallback}</> : null;
   return <>{children}</>;
-}; 
+};

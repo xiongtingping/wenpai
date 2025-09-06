@@ -39,4 +39,4 @@ export type NetworkStatus = {
   isChecking: boolean;
   manualRetry: () => void;
   checkAuthingStatus: () => Promise<void>;
-}; 
+};

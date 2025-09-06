@@ -1,6 +1,6 @@
 /**
  * ✅ FIXED: 2025-01-05 修复 authStore 类型定义和方法
- * 🔓 UNLOCKED: 临时解锁以修复undefined拼接问题
+ * 
  */
 
 import { create } from 'zustand';
@@ -17,7 +17,7 @@ export interface User {
 }
 
 // ✅ FIXED: 2025-08-04 架构级重构 - 消除无限循环的状态管理模式
-// 🔒 LOCKED: 此重构已验证解决React无限循环问题，请勿修改
+// 
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -52,7 +52,7 @@ export interface AuthState {
 }
 
 // ✅ FIXED: 2025-08-04 架构级重构 - 安全的状态管理实现
-// 🔒 LOCKED: 此实现已验证解决无限循环问题，请勿修改
+// 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => {

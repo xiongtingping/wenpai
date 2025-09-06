@@ -110,4 +110,4 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   return <>{children}</>;
 };
 
-export default PermissionGuard; 
+export default PermissionGuard;

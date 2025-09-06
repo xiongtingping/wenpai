@@ -1,15 +1,3 @@
-/**
- * 个人中心页面组件
- * 显示用户信息、设置和账户管理功能
- *
- * 🔒 ENCAPSULATED: 2025-08-10 v1.0.0 - FINAL
- * 📌 此组件已完成优化并封装，禁止随意修改核心功能
- * ✅ 已实现：高度对齐、用户ID一致性、界面优化、功能完整性、友好提示
- * ⚠️  如需修改请参考 PROFILE_CENTER_ENCAPSULATION.md 文档
- * 🚫 AI禁止对此组件进行任何结构性修改
- * 🔐 LOCKED: 核心布局、用户ID逻辑、邀请系统、按钮样式已锁定
- */
-
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from "@/hooks/useAuth";
@@ -163,8 +151,6 @@ export default function ProfilePage() {
 
   // 计算陪伴天数
   const companionDays = calculateCompanionDays(registrationDate);
-
-
 
   /**
    * 生成本地SVG头像（用于默认头像）
@@ -675,7 +661,6 @@ export default function ProfilePage() {
     try {
       // 动态导入统一emoji系统
       const { getRandomEmojis, getAllEmojis, generateEmojiSVG } = await import('@/services/unifiedEmojiSystem');
-
 
       // 优先从“动物类”选择，若不足则退回“全量”
       let pool = getRandomEmojis(1, 'animals');

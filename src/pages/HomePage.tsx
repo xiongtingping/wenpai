@@ -4,7 +4,6 @@ import { WavyBackground } from "@/components/ui/wavy-background";
 import { TrustSection } from "@/components/landing/TrustSection"
 import { HowItWorks } from "@/components/landing/HowItWorks"
 import { FeaturesSection } from "@/components/landing/FeaturesSection"
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection"
 import { PricingSection } from "@/components/landing/PricingSection"
 import { CTASection } from "@/components/landing/CTASection"
 import { Footer } from "@/components/landing/Footer"
@@ -98,10 +97,6 @@ function HomePage() {
               <FeaturesSection />
             </div>
 
-            {/* Testimonials Section */}
-            <div className="py-6 sm:py-8 lg:py-10">
-              <TestimonialsSection />
-            </div>
 
             {/* Pricing Section */}
             <div className="py-4 sm:py-6 lg:py-8 bg-background/60 backdrop-blur-sm">

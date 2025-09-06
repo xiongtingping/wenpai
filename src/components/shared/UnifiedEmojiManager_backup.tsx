@@ -425,8 +425,6 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
     });
   };
 
-
-
   return (
     <div className={`min-h-screen ${className}`} style={{
       background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)',

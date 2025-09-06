@@ -84,7 +84,7 @@ export const logger = {
   },
 
   /**
-   * 模块锁定信息 - 生产环境静默
+   * 
    */
   lock: (...args: any[]) => {
     if (!isProduction && currentLogLevel <= LogLevel.DEBUG) {
@@ -166,10 +166,10 @@ export const logModuleInit = (moduleName: string, version?: string) => {
 };
 
 /**
- * 模块锁定日志 - 统一格式
+ * 模块锁定日志
  */
 export const logModuleLock = (moduleName: string, signature: string) => {
-  logger.lock(`🔒 ${moduleName} 已锁定 [${signature}]`);
+  logger.lock(`🔒 ${moduleName} 模块已锁定 [${signature}]`);
 };
 
 export default logger;

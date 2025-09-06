@@ -52,7 +52,7 @@ function testThemeSwitching() {
 
 // 验证主题权限检查
 function validateThemePermissions() {
-  console.log('🔒 验证主题权限检查...');
+  console.log('
   
   // 检查是否有权限提示相关的函数
   console.log('💡 高级主题需要认证用户权限');

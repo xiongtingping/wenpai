@@ -34,4 +34,3 @@ This document records the production E2E verification logs after fixing redirect
 
 ## Next
 - Complete post-login flow (token exchange, user info, permissions) using a test account.
-

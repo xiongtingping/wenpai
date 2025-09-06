@@ -245,4 +245,4 @@ export default function DirectLinkQRCode({
       </CardContent>
     </Card>
   );
-} 
+}

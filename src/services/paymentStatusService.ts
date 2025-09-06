@@ -2,7 +2,7 @@ import { logger } from '@/utils/logger';
 import { secureStorage } from '@/lib/security';
 import { UnifiedStorageKeyManager } from '@/lib/unifiedStorageManager';
 /**
- * 🔒 安全支付状态持久化服务
+ * 
  * 用于在页面刷新后恢复支付状态和配置
  * 所有敏感支付数据使用加密存储
  */
@@ -44,7 +44,7 @@ class PaymentStatusService {
   }
 
   /**
-   * 🔒 SECURE: 用户数据隔离 - 生成安全存储键
+   * 
    */
   private getStorageKey(type: 'status' | 'config' | 'history'): string {
     if (this.currentUserId) {
@@ -93,7 +93,7 @@ class PaymentStatusService {
       const allPayments = this.getAllPaymentStatuses();
       allPayments[checkoutId] = paymentData;
       
-      // 🔒 支付状态数据加密存储
+      // 
       secureStorage.setItem(this.getStorageKey('status'), allPayments, true);
       
       // 添加到历史记录
@@ -123,7 +123,7 @@ class PaymentStatusService {
    */
   getAllPaymentStatuses(): Record<string, PaymentStatusData> {
     try {
-      // 🔒 从加密存储获取支付状态
+      // 
       const data = secureStorage.getItem<Record<string, PaymentStatusData>>(this.getStorageKey('status'), true);
       return data || {};
     } catch (error) {
@@ -139,7 +139,7 @@ class PaymentStatusService {
     try {
       const allPayments = this.getAllPaymentStatuses();
       delete allPayments[checkoutId];
-      // 🔒 支付状态数据加密存储
+      // 
       secureStorage.setItem(this.getStorageKey('status'), allPayments, true);
       console.log('支付状态已删除:', checkoutId);
     } catch (error) {
@@ -168,7 +168,7 @@ class PaymentStatusService {
       });
       
       if (cleanedCount > 0) {
-        // 🔒 支付状态数据加密存储
+        // 
       secureStorage.setItem(this.getStorageKey('status'), allPayments, true);
         console.log(`已清理 ${cleanedCount} 个过期的支付状态`);
       }
@@ -210,7 +210,7 @@ class PaymentStatusService {
         ...config, // 再应用新配置，避免重复属性
       };
       
-      // 🔒 支付配置加密存储
+      // 
       secureStorage.setItem(this.getStorageKey('config'), newConfig, true);
       console.log('支付配置已保存:', newConfig);
     } catch (error) {
@@ -223,7 +223,7 @@ class PaymentStatusService {
    */
   getPaymentConfig(): PaymentConfig {
     try {
-      // 🔒 从加密存储获取支付配置
+      // 
       const data = secureStorage.getItem<PaymentConfig>(this.getStorageKey('config'), true);
       if (data) {
         return data;
@@ -261,7 +261,7 @@ class PaymentStatusService {
         id: `${paymentData.checkoutId}_${Date.now()}`,
       });
       
-      // 🔒 支付历史加密存储
+      // 
       secureStorage.setItem(this.getStorageKey('history'), history, true);
     } catch (error) {
       console.error('添加到历史记录失败:', error);
@@ -273,7 +273,7 @@ class PaymentStatusService {
    */
   getPaymentHistory(): Array<PaymentStatusData & { id: string }> {
     try {
-      // 🔒 从加密存储获取支付历史
+      // 
       const data = secureStorage.getItem<Array<PaymentStatusData & { id: string }>>(this.getStorageKey('history'), true);
       return data || [];
     } catch (error) {
@@ -287,7 +287,7 @@ class PaymentStatusService {
    */
   clearPaymentHistory(): void {
     try {
-      // 🔒 安全删除支付历史
+      // 
       secureStorage.removeItem(this.getStorageKey('history'));
       console.log('支付历史已清理');
     } catch (error) {
@@ -376,17 +376,17 @@ class PaymentStatusService {
 
       
       if (parsedData.payments) {
-        // 🔒 支付状态安全导入
+        // 
         secureStorage.setItem(this.getStorageKey('status'), parsedData.payments, true);
       }
 
       if (parsedData.config) {
-        // 🔒 支付配置安全导入
+        // 
         secureStorage.setItem(this.getStorageKey('config'), parsedData.config, true);
       }
 
       if (parsedData.history) {
-        // 🔒 支付历史安全导入
+        // 
         secureStorage.setItem(this.getStorageKey('history'), parsedData.history, true);
       }
       
@@ -403,10 +403,10 @@ class PaymentStatusService {
    */
   resetAllData(): void {
     try {
-      // 🔒 安全删除所有支付数据
+      // 
       secureStorage.removeItem(this.getStorageKey('status'));
       secureStorage.removeItem(this.getStorageKey('config'));
-      // 🔒 安全删除支付历史
+      // 
       secureStorage.removeItem(this.getStorageKey('history'));
       console.log('所有支付数据已重置');
     } catch (error) {
@@ -445,4 +445,4 @@ export const paymentStatusService = new PaymentStatusService();
 // 定期清理过期数据
 setInterval(() => {
   paymentStatusService.cleanupExpiredStatuses();
-}, 60 * 60 * 1000); // 每小时清理一次 
+}, 60 * 60 * 1000); // 每小时清理一次

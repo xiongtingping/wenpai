@@ -529,4 +529,4 @@ export default function BrandEmojiGallery({
       </CardContent>
     </Card>
   );
-} 
+}

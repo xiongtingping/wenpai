@@ -196,7 +196,7 @@ const PLATFORM_TITLE_LIMITS = PLATFORM_LIMITS;
 
 // 标题质量评估权重配置 - V3.3增强版
 // ✅ FIXED: 2025-08-03 使用统一权重配置，避免重复定义
-// 🔒 LOCKED: 该配置已优化，请勿随意修改权重分配
+// 
 const QUALITY_WEIGHTS = V3_3_TITLE_SCORE_WEIGHTS;
 
 interface ContentVersion {
@@ -283,11 +283,10 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
   const [editingTitleText, setEditingTitleText] = useState<string>('');
 
-
   const { toast } = useToast();
 
   // ✅ FIXED: 标题生成兜底增强，彻底杜绝空字符串和"暂无生成的标题"
-  // 🔒 LOCKED: AI 禁止对此兜底逻辑做任何修改，如需变更请单独重构新模块
+  // 
   const safeTitle = (title: string) => {
     if (!title || typeof title !== 'string' || title.trim().length === 0) {
       return '智能生成标题';
@@ -596,7 +595,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   const generateTitles = async () => {
     // ✅ FIXED: 优化性能检查 - 减少不必要的生成
     if (globalRequestLockRef.current || isGenerating) {
-      logger.lock('🔒 请求锁：已有请求正在进行，跳过本次请求');
+      logger.lock('生成请求被阻止，已有请求正在进行中');
       return;
     }
     
@@ -1519,8 +1518,6 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             ))}
           </div>
         )}
-
-
 
         {/* Empty state */}
         {!isGenerating && titles.length === 0 && (

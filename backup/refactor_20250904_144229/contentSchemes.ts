@@ -898,4 +898,4 @@ export function getAvailableStyles(): Array<{ id: StyleType; name: string; descr
       icon: '🎣'
     }
   ];
-} 
+}

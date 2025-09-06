@@ -1,7 +1,7 @@
 /**
  * ✅ V3.3 标题评分权重配置 - 增强版
  * 🎯 优化权重分配，强化语义相关性和语序正确性
- * 🔒 LOCKED: 该配置与 src/utils/titleGenerationUtils.ts 中的 TITLE_SCORING_V3_3_CONFIG 保持同步
+ * 
  */
 export const V3_3_TITLE_SCORE_WEIGHTS = {
   semanticRelevance: 0.50,        // 主旨拟合度 (50%) - 标题与原文内容的语义相似度
@@ -40,4 +40,4 @@ export const TITLE_SCORING_V3_3_CONFIG = {
       '小红书工具帮我', '工具小红书优化', '优化工具小红书'
     ]
   }
-} as const; 
+} as const;

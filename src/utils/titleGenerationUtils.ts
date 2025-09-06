@@ -104,7 +104,7 @@ export const isValidTitleForPlatform = (
 /**
  * ✅ FIXED: 2025-08-02 统一权重配置计算 - V3.3增强版
  * 🎯 使用统一的V3.3权重配置，确保评分一致性，强化语义相关性
- * 🔒 LOCKED: 该函数已优化，请勿随意修改权重配置
+ * 
  */
 export const calculateOverallScore = (
   semanticFit: number,
@@ -448,7 +448,7 @@ export const generateTitleSummary = (
 
 /**
  * ✅ FIXED: 2025-08-02 删除重复实现，统一使用独立的safeTrimTitle.ts
- * 🔒 LOCKED: 该函数已移至独立文件，请勿在此处重复实现
+ * 
  * 📌 如需修改safeTrimTitle逻辑，请编辑 src/utils/safeTrimTitle.ts
  */
 // 删除重复的safeTrimTitle函数实现

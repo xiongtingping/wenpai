@@ -170,8 +170,6 @@ export default function BrandLibraryPageFixed() {
     asset: null
   });
 
-
-
   // ✅ FIXED: 2025-08-06 添加后台分析状态管理
   const [backgroundAnalysisQueue, setBackgroundAnalysisQueue] = useState<BrandAsset[]>([]);
   const [isBackgroundAnalysisRunning, setIsBackgroundAnalysisRunning] = useState(false);
@@ -1271,7 +1269,7 @@ export default function BrandLibraryPageFixed() {
    * 批量处理品牌语料库提取 v2.0 - 使用增强的AI分析
    * 🆕 v2.0 更新: 多资料支持、增强溯源、置信度评估
    * ✅ FIXED: 2025-08-05 接入真实AI服务进行品牌语料库分析
-   * 🔒 LOCKED: 禁止使用模拟数据或降级方案
+   * 
    */
   const handleBatchCorpusExtraction = async () => {
     console.log('🔍 开始批量AI分析，当前所有资产:', brandAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
@@ -1953,8 +1951,6 @@ export default function BrandLibraryPageFixed() {
           </AlertDescription>
         </Alert>
 
-
-
         {/* 隐藏的文件输入 */}
         <input
           ref={fileInputRef}
@@ -1977,8 +1973,6 @@ export default function BrandLibraryPageFixed() {
             </CardContent>
           </Card>
         )}
-
-
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="unified-tabs-list grid w-full grid-cols-2">
@@ -2127,8 +2121,6 @@ export default function BrandLibraryPageFixed() {
                 </div>
               </CardContent>
             </Card>
-
-
 
             {/* 智能资料管理 */}
             <Card>
@@ -2645,8 +2637,6 @@ export default function BrandLibraryPageFixed() {
             {/* 🔧 移除整页权限守卫，内容对所有用户可见 */}
             <div>
 
-
-
             {/* 语料库状态和操作栏 */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
@@ -2879,10 +2869,7 @@ export default function BrandLibraryPageFixed() {
             </div>
           </TabsContent>
 
-
         </Tabs>
-
-
 
         {/* PDF智能对话组件 */}
         <PDFChatDialog

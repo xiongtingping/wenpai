@@ -1,55 +1,18 @@
 /**
  * 文件格式支持服务
- * 封装所有文件格式检测、解析和支持功能
  */
 
-import { 
-  SUPPORTED_FILE_FORMATS, 
-  FileFormatInfo, 
-  getFormatByExtension,
-  getAllSupportedExtensions,
-  getAllSupportedMimeTypes,
-  getFormatsGroupedByCategory,
-  generateFormatSupportDescription,
-  CATEGORY_NAMES
-} from '@/config/fileFormatConfig';
+import { SUPPORTED_FILE_FORMATS, getAllSupportedExtensions, getAllSupportedMimeTypes, getFormatByExtension } from '@/config/fileFormatConfig';
 
-export interface FileFormatCheckResult {
+interface FileFormatCheckResult {
   isSupported: boolean;
-  formatInfo?: FileFormatInfo;
   reason?: string;
   suggestions?: string[];
 }
 
-export interface FileFormatSummary {
-  totalFormats: number;
-  categoryCounts: Record<string, number>;
-  supportLevels: Record<string, number>;
-  description: string;
-}
-
-/**
- * 文件格式支持服务类
- */
-export class FileFormatSupportService {
-  private static instance: FileFormatSupportService;
-
-  private constructor() {}
-
-  public static getInstance(): FileFormatSupportService {
-    if (!FileFormatSupportService.instance) {
-      FileFormatSupportService.instance = new FileFormatSupportService();
-    }
-    return FileFormatSupportService.instance;
-  }
-
+class FileFormatSupportService {
   /**
-   * 🔒 服务模块锁定标识
-   */
-  private readonly MODULE_LOCK = 'FILE_FORMAT_SUPPORT_LOCKED_v1.0.0';
-
-  /**
-   * 获取所有支持的文件格式
+   * 获取支持的文件类型列表
    */
   public getSupportedFileTypes(): Array<{
     extension: string;
@@ -255,12 +218,12 @@ export class FileFormatSupportService {
   }
 
   /**
-   * 获取模块锁定信息
+   * 获取
    */
   public getModuleLockInfo(): string {
     return `
-🔒 文件格式支持模块已锁定 [${this.MODULE_LOCK}]
-⚠️  本模块统一管理所有文件格式支持逻辑，禁止擅自修改
+
+⚠️  本模块统一管理所有文件格式支持逻辑，
 📋 如需修改，请提交变更说明并通过审查
 🚫 禁止复制本模块逻辑到其他文件
 📞 如有问题，请联系开发负责人
@@ -269,4 +232,4 @@ export class FileFormatSupportService {
 }
 
 // 导出单例实例
-export default FileFormatSupportService;
+export default new FileFormatSupportService();

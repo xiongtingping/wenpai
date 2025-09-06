@@ -22,8 +22,6 @@ export interface ProxyResponse<T = any> {
   message?: string;
 }
 
-
-
 /**
  * 调用OpenAI API代理
  */

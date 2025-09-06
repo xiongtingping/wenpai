@@ -162,7 +162,7 @@ instance.interceptors.request.use(
       if (error.response?.status === 401) {
         console.error('🔐 认证失败，可能需要重新登录');
 
-        // 🔒 401错误时触发登出（如果是用户认证相关的请求）
+        // 
         const isAuthRequest = error.config?.headers?.Authorization?.includes('Bearer');
         if (isAuthRequest && authTokenGetter) {
           // 通知认证系统token无效

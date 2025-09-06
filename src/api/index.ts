@@ -58,4 +58,4 @@ export type {
   ReferralRewardResponse,
   ImageGenerationRequest,
   ImageGenerationResponse
-} from './types'; 
+} from './types';

@@ -210,4 +210,4 @@ class BrandDatabaseService {
   }
 }
 
-export default BrandDatabaseService; 
+export default BrandDatabaseService;

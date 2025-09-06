@@ -166,4 +166,4 @@ export async function redirectToCheckout(priceId: string, customerEmail?: string
     console.error('跳转到支付页面失败:', error);
     throw error;
   }
-} 
+}

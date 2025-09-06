@@ -64,7 +64,6 @@ const EmojiPage: React.FC = () => {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   
 
-
   const { toast } = useToast();
 
   /**
@@ -234,10 +233,6 @@ const EmojiPage: React.FC = () => {
     });
   };
 
-
-
-
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-2 sm:px-3 lg:px-4 xl:px-6 py-8 space-y-6">
@@ -308,12 +303,7 @@ const EmojiPage: React.FC = () => {
               </CardContent>
             </Card>
 
-
           </TabsContent>
-
-
-
-
 
           {/* {t('emoji.brandEmojiGenerator')} */}
           <TabsContent value="brand-emoji" className="space-y-6">
@@ -341,4 +331,4 @@ const EmojiPage: React.FC = () => {
   );
 };
 
-export default EmojiPage; 
+export default EmojiPage;

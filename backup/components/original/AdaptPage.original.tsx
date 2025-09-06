@@ -154,8 +154,6 @@ const platformUrls: Record<string, string> = {
   history: 'https://baike.baidu.com/item/%E5%8E%86%E5%8F%B2%E4%B8%8A%E7%9A%84%E4%BB%8A%E5%A4%A9/42704' // 历史上的今天
 };
 
-
-
 // Helper function to get platform name consistently
 function getPlatformName(platformId: string, platforms: any[]): string {
   const platform = platforms.find(p => p.id === platformId);
@@ -711,7 +709,7 @@ export default function AdaptPage() {
           // 🐛 问题原因：DeepSeek API返回402错误（Payment Requihsl(var(--destructive))），需要自动切换到其他模型
           // 🔧 修复方案：添加402错误检测，实现智能降级机制
           // 📌 已封装：模型切换逻辑已验证稳定，请勿修改
-          // 🔒 LOCKED: AI 禁止对此函数做任何修改
+          // 
           if (attempt <= 3) {
             const errorMessage = error instanceof Error ? error.message : String(error);
 
@@ -781,7 +779,7 @@ export default function AdaptPage() {
     // 🐛 问题原因：callAIWithRetry失败时抛出错误，但队列管理器期望返回结果对象
     // 🔧 修复方案：返回标准化的错误结果对象
     // 📌 已封装：错误处理逻辑已验证稳定，请勿修改
-    // 🔒 LOCKED: AI 禁止对此函数做任何修改
+    // 
 
     const errorMessage = lastError ? lastError.message : `${versionName} - 所有重试都失败了`;
     return {
@@ -1001,7 +999,7 @@ export default function AdaptPage() {
       // 🐛 问题原因：并发请求导致OpenAI API 429错误
       // 🔧 修复方案：使用队列管理器串行处理请求
       // 📌 已封装：队列请求逻辑已验证稳定，请勿修改
-      // 🔒 LOCKED: AI 禁止对此函数做任何修改
+      // 
 
       const platformAPICaller = createPlatformAPICaller(platformId);
 
@@ -1256,7 +1254,7 @@ export default function AdaptPage() {
   // ✅ FIXED: 2025-08-04 修复无限循环问题
   // 🐛 问题原因：useAuthStore((state) => state.getUsageRemaining()) 会导致每次渲染都调用get()，触发无限循环
   // 🔧 修复方式：直接从state中计算usageRemaining，避免调用get()方法
-  // 🔒 LOCKED: 此修复已验证解决Tooltip无限循环问题，请勿修改
+  // 
   const { usageCount, maxUsage, decrementUsage } = useAuthStore();
   const usageRemaining = Math.max(0, maxUsage - usageCount);
 
@@ -1448,8 +1446,6 @@ export default function AdaptPage() {
     }
     return true;
   };
-
-
 
   // Handle platform selection
   const togglePlatform = (platformId: string, isChecked: boolean) => {
@@ -1889,8 +1885,6 @@ export default function AdaptPage() {
   // 自动化转发状态
   const [automationRunning, setAutomationRunning] = useState(false);
   const [automationProgress, setAutomationProgress] = useState<AutomationProgress | undefined>();
-
-
 
   // 网络状态检测
   const [networkStatus, setNetworkStatus] = useState<'online' | 'offline' | 'slow'>('online');
@@ -2961,7 +2955,7 @@ export default function AdaptPage() {
 
   // ✅ FIXED: 已移除模拟翻译功能
   // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
-  // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+  // 
   //
   // 系统现在直接调用真实翻译API，不再提供模拟翻译
   const simulateTranslation = async (content: string): Promise<never> => {
@@ -3529,8 +3523,6 @@ export default function AdaptPage() {
     loadBrandProfile();
   }, [useBrandLibrary]);
 
-
-
   // 获取平台特色和差异化要求
   const getPlatformCharacteristics = (platform: string): {
     tone: string;
@@ -3836,8 +3828,6 @@ ${charCountControl.source === 'platform-specific'
 - 随机性：在保持质量的前提下增加内容的随机性和新鲜感`;
   };
 
-
-
   /**
    * 生成有意义的标题
    * 从内容中提取关键信息作为标题，而不是使用"版本A"、"版本B"
@@ -4024,7 +4014,6 @@ ${charCountControl.source === 'platform-specific'
                 </div>
               </div>
 
-
             </CardHeader>
 
             {showAdvancedSettings && (
@@ -4139,8 +4128,6 @@ ${charCountControl.source === 'platform-specific'
                       </div>
                     </div>
                   </div>
-
-
 
                   {/* 平台特定设置 */}
                   <div className="border-2 border-border bg-accent rounded-lg p-4">
@@ -4380,8 +4367,6 @@ ${charCountControl.source === 'platform-specific'
         </Card>
       </div>
 
-
-
       {/* 组合效果预览 */}
       <Card variant="soft" className="mb-6 rounded-xl">
         <CardContent className="pt-6">
@@ -4457,7 +4442,7 @@ ${charCountControl.source === 'platform-specific'
                           className="mt-1 p-1 bg-accent border border-border rounded text-xs text-muted-foreground cursor-pointer hover:bg-accent/80 transition-colors"
                           onClick={handleUpgradeClick}
                         >
-                          <span className="mr-1">🔒</span>
+                          <span className="mr-1">
                           去解锁高级功能
                         </div>
                       )}
@@ -4583,8 +4568,6 @@ ${charCountControl.source === 'platform-specific'
           </CardHeader>
         </Card>
 
-
-
           <Tabs defaultValue={results[0]?.platformId} className="w-full">
             <TabsList className="mb-4 flex flex-wrap gap-2 w-full h-auto p-2 bg-accent rounded-lg shadow-sm">
               {results.map(result => {
@@ -4701,8 +4684,6 @@ ${charCountControl.source === 'platform-specific'
                         </div>
                       )}
 
-
-
                       {/* 2. 智能内容生成 */}
                       <div className="bg-card rounded-lg border border-border shadow-md min-h-[120px] mb-4">
                         <div className="px-3 py-2 border-b border-border">
@@ -4810,8 +4791,6 @@ ${charCountControl.source === 'platform-specific'
                                           </div>
                                         </div>
                                       </div>
-
-
 
                                       <div className="flex flex-wrap gap-2 mt-auto">
                                         <Button
@@ -4959,8 +4938,6 @@ ${charCountControl.source === 'platform-specific'
                                         </div>
                                       </div>
 
-
-
                                       <div className="flex flex-wrap gap-2 mt-auto">
                                         <Button
                                           size="sm"
@@ -5107,7 +5084,6 @@ ${charCountControl.source === 'platform-specific'
                                         </div>
                                       )}
 
-
                                     </div>
                                   )
                                 ) : result.error ? (
@@ -5190,12 +5166,8 @@ ${charCountControl.source === 'platform-specific'
             ))}
           </Tabs>
 
-
-
         </div>
       )}
-
-
 
       {/* 自动化转发区域 - 独立的主要功能区域 */}
       {(results.length > 0 && !generating) && (

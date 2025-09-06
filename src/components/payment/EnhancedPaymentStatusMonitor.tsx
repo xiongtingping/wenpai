@@ -496,4 +496,4 @@ export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitor
       </CardContent>
     </Card>
   );
-}; 
+};

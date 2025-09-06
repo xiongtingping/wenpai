@@ -185,8 +185,6 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
         </div>
       </div>
 
-
-
       {/* 平台选择 */}
       <div>
         <h4 className="font-medium text-foreground mb-3">选择转发平台</h4>

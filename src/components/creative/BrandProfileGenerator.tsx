@@ -357,4 +357,4 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
       </CardFooter>
     </Card>
   );
-} 
+}

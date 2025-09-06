@@ -92,4 +92,4 @@ export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
       {text}
     </Button>
   );
-}; 
+};

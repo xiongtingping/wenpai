@@ -155,8 +155,6 @@ function DimensionCard({
   const [showAddInput, setShowAddInput] = useState(false);
   const selectedItem = Array.isArray(selectedItems) ? selectedItems[0] : selectedItems;
 
-
-
   const handleAddItem = () => {
     if (newItem.trim()) {
       onAddCustomItem(newItem.trim());
@@ -563,7 +561,6 @@ export function CreativeCube() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentContent, setCurrentContent] = useState<string>('');
   const [currentContentType, setCurrentContentType] = useState<'text' | 'video'>('text');
-
 
   // 用户数据隔离 - 历史记录持久化
   const historyDataManager = useUserDataIsolation({
@@ -2098,7 +2095,6 @@ ${generateStandardCallToAction()}
         </CardHeader>
         <CardContent className="space-y-4">
 
-
           {/* 九宫格网格 - 紧凑布局 */}
           <div className="grid grid-cols-3 gap-3">
             {dimensions.map((dimension) => (
@@ -2650,7 +2646,6 @@ ${generateStandardCallToAction()}
           )}
         </CardContent>
       </Card>
-
 
     </div>
   );

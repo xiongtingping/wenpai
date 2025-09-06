@@ -50,7 +50,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useUsageStore } from '@/store/usageStore';
 import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
-import { Header } from '@/components/landing/Header';
+// import { Header } from '@/components/landing/Header'; // 移除Header导入，该组件作为Tab内容使用
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import { useDebouncedCallback } from 'use-debounce';
 import { defaultMarkdownParser, ContentAdapter } from './md2card/MarkdownParser';
@@ -345,7 +345,7 @@ export default function MD2CardPage() {
     }
 
     // 移除Markdown格式符号，保留文本内容
-    let cleanText = markdownContent
+    const cleanText = markdownContent
       // 移除代码块
       .replace(/```[\s\S]*?```/g, '')
       .replace(/`[^`]*`/g, '')
@@ -954,7 +954,7 @@ export default function MD2CardPage() {
         }
         break;
         
-      case 'dots':
+      case 'dots': {
         // 生成点阵纹理
         const dotSpacing = 40;
         for (let x = dotSpacing; x < dimensions.width; x += dotSpacing * 2) {
@@ -966,8 +966,9 @@ export default function MD2CardPage() {
           }
         }
         break;
+      }
         
-      case 'waves':
+      case 'waves': {
         // 生成波浪纹理
         const waveY = dimensions.height * (0.3 + Math.random() * 0.4);
         const amplitude = 30;
@@ -980,6 +981,7 @@ export default function MD2CardPage() {
         const opacity = Math.random() * 0.08 + 0.03;
         elements.push(`<path d="${pathD}" stroke="${config.colors.primary}" stroke-width="2" fill="none" opacity="${opacity}"/>`);
         break;
+      }
     }
     
     return elements.join('\n        ');
@@ -1248,12 +1250,8 @@ export default function MD2CardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* 主导航栏 */}
-      <Header />
-
-      
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="bg-background">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
       <div className="h-full bg-background">
         {/* 工具栏 */}
         <div className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
@@ -1288,7 +1286,6 @@ export default function MD2CardPage() {
                     <Smartphone className="w-3 h-3" />
                   </Button>
                 </div>
-
 
                 {/* 重置 */}
                 <Button

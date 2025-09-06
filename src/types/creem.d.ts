@@ -110,4 +110,4 @@ declare module 'creem' {
   }
 
   export default Creem;
-} 
+}

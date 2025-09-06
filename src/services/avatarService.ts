@@ -1,7 +1,7 @@
 /**
  * 头像服务
  * @description 处理用户头像的上传、生成和管理
- * 🔒 已迁移至 Supabase 数据库，移除 localStorage 缓存依赖
+ * 
  */
 
 import { request } from '@/api/request';

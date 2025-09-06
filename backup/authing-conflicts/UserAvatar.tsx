@@ -117,4 +117,4 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}; 
+};

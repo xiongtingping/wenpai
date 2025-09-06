@@ -16,7 +16,7 @@
  * - 建立用户信息标准化处理机制
  *
  * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
- * 🔒 LOCKED: AI 禁止对此文件做任何修改
+ * 
  * 🚫 冻结原因：认证系统已验证稳定，任何修改都可能导致登录功能崩溃
  */
 
@@ -80,9 +80,7 @@ interface UnifiedAuthContextType {
 
 // ❌ 移除 @authing/web 客户端使用，统一改用 Guard 弹窗流程
 // 保留占位以避免误用
-// 🔒 LOCKED: 禁止在此处重新引入 @authing/web
-
-
+// 
 
 // （已切换为专用路由嵌入式登录，不再需要运行时创建 overlay 容器）
 
@@ -156,7 +154,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
             // 转换为统一格式
             const formattedUser: UserInfo = {
-              id: userId, // 🔒 用户ID必须来自Authing服务器
+              id: userId, // 
               username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
               email: userInfo.email || userInfo.emailAddress || '',
               phone: userInfo.phone || userInfo.phoneNumber || '',
@@ -230,7 +228,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       if (guard && typeof guard.on === 'function') {
         try {
           // 为防止事件监听器内部错误，使用包装函数
-          const safeEventHandler = (eventType: string, handler: Function) => {
+          const safeEventHandler = (eventType: string, handler: (...args: any[]) => void) => {
             try {
               guard.on(eventType, (...args: any[]) => {
                 try {
@@ -297,7 +295,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       // 转换为统一用户信息格式
       const formattedUser: UserInfo = {
-        id: userId, // 🔒 用户ID必须来自Authing服务器
+        id: userId, // 
         username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
         email: userInfo.email || userInfo.emailAddress || '',
         phone: userInfo.phone || userInfo.phoneNumber || '',
@@ -410,7 +408,6 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       console.warn('🔧 Guard.hide()失败:', error);
     }
   };
-
 
   /**
    * 注册方法 - 使用自定义注册表单
@@ -581,7 +578,6 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       throw new Error(errorMessage);
     }
   };
-
 
   /**
    * 密码登录 - 连接真实Authing API

@@ -12,7 +12,7 @@ import {
   PopoverContent, 
   PopoverTrigger 
 } from '@/components/ui/popover';
-import { useSubscriptionInfo } from '@/hooks/useUnifiedUserState';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useNavigate } from 'react-router-dom';
 import { SubscriptionStateWrapper } from '@/components/ui/StateLoadingWrapper';
 import { 
@@ -50,7 +50,9 @@ function SubscriptionStatusBadgeContent({
   showDetails = true,
   className = ''
 }: SubscriptionStatusBadgeProps) {
-  const { subscriptionStatus, hasActiveSubscription, userTier } = useSubscriptionInfo();
+  const { primaryStatus, refresh } = useSubscriptionStatus();
+  const subscriptionStatus = primaryStatus;
+  const hasActiveSubscription = primaryStatus?.status === 'active';
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 

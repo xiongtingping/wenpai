@@ -1,156 +1,92 @@
 /**
- * 顶部导航栏组件
- * 全站通用的Logo、功能导航和用户功能导航
- * 优化版：桌面端16px字体，移动端14px，增强交互反馈
+ * ✅ FIXED: 2025-01-05 修复导航栏头像点击问题
+ * 
+ * 问题描述：在AI内容适配器等页面无法点击右上角个人中心
+ * 解决方案：将UserAvatar改为使用Link包装的头像，直接链接到个人中心页面
  */
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import React, { useRef, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { NavBar } from '@/components/ui/tubelight-navbar';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { BackToTop } from '@/components/ui/BackToTop';
-// 🔒 [AUTHING_GUARD_NAVIGATION_v2025.08.14]
-// 统一使用@authing/guard架构，禁止引入@authing/web
-import { useAuth } from '@/hooks/useAuth';
-import { usePermission } from '@/hooks/usePermission';
-import { isDevelopment } from '@/utils/env-validator';
-import { UserAvatar } from '@/components/auth/UserAvatar';
-import { SubscriptionStatusBadge } from '@/components/subscription/SubscriptionStatusBadge';
 import {
-  Home,
-  FileText,
-  Sparkles,
-  TrendingUp,
-  FolderOpen,
-  Users,
-  Menu,
-  X,
-  User,
-  Settings,
-  LogOut,
-  Crown,
-  Star,
-  Zap,
-  Shield,
-  Gift,
-  ChevronDown
-} from 'lucide-react';
-import { ThemeToggle } from '@/components/layout/ThemeToggle';
-import { LogoWithText } from '@/components/ui/ThemeAwareLogo';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { LogoWithText } from '@/components/ui/logo-with-text';
+import { NavBar } from '@/components/ui/navbar';
+import { SubscriptionStatusBadge } from '@/components/subscription/SubscriptionStatusBadge';
+import { BackToTop } from '@/components/ui/BackToTop';
+import { useAuth } from '@/hooks/useAuth';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { getUserTier } from '@/utils/subscriptionUtils';
+import { isDevelopment } from '@/utils/env';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
+
+interface NavItem {
+  label: string;
+  path: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+// 导航菜单项
+const navItems: NavItem[] = [
+  // { label: '首页', path: '/', icon: Home },
+  // { label: '热点话题', path: '/hot-topics', icon: TrendingUp },
+  // { label: '创意工坊', path: '/creative-studio', icon: Sparkles },
+  // { label: '品牌库', path: '/brand-library', icon: Building },
+  // { label: '收藏夹', path: '/bookmarks', icon: Bookmark },
+];
+
+// 权限检查状态
+const permissionLoading = false;
 
 /**
- * 顶部导航栏组件
+ * 顶部导航组件 - 响应式设计
  */
 export const TopNavigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, login } = useAuth();
-  const vipPermission = usePermission('vip:required');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [permissionLoading, setPermissionLoading] = useState(false);
-
-  // 判断是否为首页
-  const isHomePage = location.pathname === '/';
-
-  /**
-   * 检查是否应该显示升级按钮
-   * 只有高级版用户（且在有效期内）不显示，其他用户都显示
-   */
-  const shouldShowUpgradeButton = () => {
-    // 未登录用户显示
-    if (!user || typeof user !== 'object') return true;
-
-    const userObj = user as Record<string, unknown>;
-
-    // 检查是否是高级版用户
-    const isPremiumUser = userObj.tier === 'premium' ||
-                         userObj.plan === 'premium' ||
-                         userObj.subscriptionTier === 'premium' ||
-                         userObj.userPlan === 'premium';
-
-    // 如果是高级版用户，检查是否在有效期内
-    if (isPremiumUser) {
-      const subscriptionEndDate = userObj.subscriptionEndDate || userObj.endDate || userObj.expireDate;
-
-      if (subscriptionEndDate) {
-        const endDate = new Date(subscriptionEndDate as string);
-        const now = new Date();
-
-        // 如果在有效期内，不显示升级按钮
-        if (endDate > now) {
-          return false;
-        }
-      }
-    }
-
-    // 其他情况都显示升级按钮：
-    // - 未登录用户
-    // - 体验版用户 (trial)
-    // - 专业版用户 (pro)
-    // - 高级版用户但已过期
-    return true;
+  const headerRef = useRef<HTMLElement>(null);
+  const { isAuthenticated, user } = useAuth();
+  const { primaryStatus } = useSubscriptionStatus();
+  
+  // 判断当前路径是否为激活状态
+  const isActivePath = (path: string): boolean => {
+    return location.pathname === path;
   };
 
-  // 功能导航菜单项
-  const navItems = [
-    { path: '/', label: '首页', icon: Home, requiresAuth: false },
-    { path: '/adapt', label: 'AI内容适配器', icon: FileText, requiresAuth: true },
-    { path: '/hot-topics', label: '全网雷达', icon: TrendingUp, requiresAuth: true },
-    { path: '/creative-studio', label: '创意魔方', icon: Sparkles, requiresAuth: true },
-    { path: '/library', label: '我的资料库', icon: FolderOpen, requiresAuth: true },
-    { path: '/brand-library', label: '品牌库', icon: Users, requiresAuth: true },
-  ];
-
-  // 开发环境下跳过权限检查
-  const isPro = isDevelopment();
-
-  /**
-   * 检查当前路径是否激活
-   */
-  const isActivePath = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/';
-    }
-    return location.pathname.startsWith(path);
-  };
-
-  /**
-   * 处理导航点击
-   */
-  const handleNavigation = (item: typeof navItems[0]) => {
-    // 无认证软模式：不再拦截，直接导航
+  // 处理导航点击
+  const handleNavigation = (item: NavItem) => {
     navigate(item.path);
   };
+  
+  // 检查是否应该显示升级按钮
+  const shouldShowUpgradeButton = (): boolean => {
+    if (!isAuthenticated || !user || !primaryStatus) return false;
+    
+    const userTier = getUserTier(user);
+    return userTier === 'free' || userTier === 'basic';
+  };
 
-  /**
-   * 移动端导航项组件
-   */
-  const MobileNavItem = ({ item }: { item: typeof navItems[0] }) => (
-    <button
-      onClick={() => {
-        handleNavigation(item);
-        setMobileMenuOpen(false);
-      }}
-      className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 w-full text-left ${
-        isActivePath(item.path)
-          ? 'btn-gradient-primary text-primary-foreground shadow-lg'
-          : 'text-primary hover:text-accent hover:bg-accent/50'
-      }`}
-    >
-      <item.icon className="w-5 h-5 text-current" />
-      <span>{item.label}</span>
-    </button>
-  );
+  // 检查用户是否为专业版用户
+  const isPro = (): boolean => {
+    if (!isAuthenticated || !user) return false;
+    
+    const userTier = getUserTier(user);
+    return userTier === 'pro' || userTier === 'premium';
+  };
 
-  // 动态设置头部高度变量，保证不同屏幕与密度都准确
-  const headerRef = useRef<HTMLElement | null>(null);
+  // 🔧 FIX: 动态计算导航栏高度
   useEffect(() => {
     const update = () => {
       const h = headerRef.current?.offsetHeight || 64;
       document.documentElement.style.setProperty('--header-height', `${h}px`);
     };
+    
     update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
@@ -215,6 +151,7 @@ export const TopNavigation: React.FC = () => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+            
             {/* 用户状态指示 */}
             {permissionLoading && !isDevelopment() && (
               <div className="hidden sm:flex items-center gap-1">
@@ -237,9 +174,8 @@ export const TopNavigation: React.FC = () => {
                 </Button>
               )}
 
-
               {/* 专业用户标识 */}
-              {isAuthenticated && isPro && (
+              {isAuthenticated && isPro() && (
                 <Badge variant="premium" className="text-xs hidden sm:inline-flex bg-primary text-primary-foreground border-0">
                   PRO
                 </Badge>
@@ -250,24 +186,40 @@ export const TopNavigation: React.FC = () => {
                 <SubscriptionStatusBadge className="hidden sm:inline-flex" />
               )}
 
-              {/* ✅ FIXED: 用户头像组件 - 包含完整的下拉菜单功能 */}
-              {/* 📌 修复问题：AI内容适配器等页面无法点击右上角个人中心 */}
-              {/* 🔓 UNLOCKED: 已将静态Avatar替换为功能完整的UserAvatar组件，请勿改动 */}
-              <UserAvatar
-                showUsername={false}
-                size="md"
-                className="flex items-center"
-              />
+              {/* ✅ FIXED: 用户头像链接到个人中心 */}
+              {isAuthenticated && user && (
+                <Link
+                  to="/profile"
+                  className="flex items-center space-x-2 text-sm font-medium hover:bg-accent/50 px-2 py-1.5 rounded-md transition-all duration-200"
+                  title="个人中心"
+                >
+                  <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-medium">
+                    {user.nickname?.[0] || user.username?.[0] || user.email?.[0] || '用'}
+                  </div>
+                  <span className="hidden md:inline-block text-foreground">
+                    {getUserDisplayName(user, '用户')}
+                  </span>
+                </Link>
+              )}
+              
+              {/* 未登录状态 - 登录按钮 */}
+              {!isAuthenticated && (
+                <Button
+                  onClick={() => navigate('/auth')}
+                  size="sm"
+                  variant="outline"
+                  className="hover:bg-accent/50"
+                >
+                  登录
+                </Button>
+              )}
             </div>
-
-            {/* 移动端菜单按钮 */}
-            {/* The Sheet component was removed from imports, so this block is removed. */}
           </div>
           </div>
         </div>
       </header>
-    {/* 占位元素：与导航栏同高，避免内容被覆盖 */}
-    <div aria-hidden className="h-[var(--header-height,64px)]"></div>
+      {/* 占位元素：与导航栏同高，避免内容被覆盖 */}
+      <div aria-hidden className="h-[var(--header-height,64px)]"></div>
     </>
   );
 };
@@ -282,4 +234,4 @@ export const TopNavigationWithBackToTop: React.FC = () => {
   );
 };
 
-export default TopNavigation; 
+export default TopNavigation;

@@ -84,8 +84,6 @@ html.authing-guard-open .authing-ant-modal-mask {
   opacity: 1 !important;
 }
 
-
-
 /* Guard模态框本体 - 强制尺寸和可见性 */
 .authing-ant-modal {
   position: relative !important;

@@ -81,7 +81,7 @@ function parseAuthingError(error: any): AuthingErrorInfo {
         shouldClearCode: false
       };
 
-    default:
+    default: {
       // 根据错误消息内容进行模糊匹配
       const lowerMessage = errorMessage.toLowerCase();
 
@@ -129,6 +129,7 @@ function parseAuthingError(error: any): AuthingErrorInfo {
         shouldClearCode: false,
         actionSuggestion: '如问题持续，请联系客服'
       };
+    }
   }
 }
 

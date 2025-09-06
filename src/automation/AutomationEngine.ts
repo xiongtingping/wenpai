@@ -852,7 +852,7 @@ export class AutomationEngine {
 
   // ✅ FIXED: 已移除降级操作指引功能
   // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
-  // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+  // 
   // 
   // 系统现在直接调用真实自动化API，不再提供降级指引
   private showFallbackInstructions(platformContent: PlatformContent, url: string): void {

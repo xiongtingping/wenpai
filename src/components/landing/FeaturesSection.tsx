@@ -239,15 +239,15 @@ export const FeaturesSection: React.FC = () => {
                 key={index}
                 variant="soft"
                 className="group animate-slideUp rounded-xl"
-                style={{ animationDelay: `${index * 100}ms` }}
+                style={{ animationDelay: (index * 100) + 'ms' }}
               >
                 <CardHeader className="relative">
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`homepage-icon main-feature-icon p-3 rounded-lg ${feature.color} shadow-lg group-hover:shadow-xl transition-all duration-300`}>
+                      <div className={'homepage-icon main-feature-icon p-3 rounded-lg ' + feature.color + ' shadow-lg group-hover:shadow-xl transition-all duration-300'}>
                         <feature.icon className="w-6 h-6" />
                       </div>
-                      <Badge className={`${feature.badgeColor} border-0 shadow-sm`}>
+                      <Badge className={feature.badgeColor + ' border-0 shadow-sm'}>
                         {feature.badge}
                       </Badge>
                     </div>
@@ -270,7 +270,7 @@ export const FeaturesSection: React.FC = () => {
                   </div>
                   <Button 
                     variant="outline" 
-                    className={`w-full border-2 ${feature.borderColor} hover:bg-gradient-to-r ${feature.hoverColor} transition-all duration-300 group-hover:shadow-md`}
+                    className={'w-full border-2 ' + feature.borderColor + ' hover:bg-gradient-to-r ' + feature.hoverColor + ' transition-all duration-300 group-hover:shadow-md'}
                     onClick={(event) => {
                       console.log('功能区按钮被点击:', feature.title, feature.path);
                       console.log('当前认证状态:', isAuthenticated);
@@ -310,10 +310,10 @@ export const FeaturesSection: React.FC = () => {
                 key={index} 
                 variant="soft" 
                 className="group text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 animate-zoomIn"
-                style={{ animationDelay: `${index * 150}ms` }}
+                style={{ animationDelay: (index * 150) + 'ms' }}
               >
                 <CardContent className="p-6">
-                  <div className={`quick-tool-icon quick-tool-${tool.theme} inline-flex items-center justify-center w-12 h-12 rounded-lg ${tool.color} mb-4 shadow-md group-hover:shadow-lg transition-all duration-300`}>
+                  <div className={'quick-tool-icon quick-tool-' + tool.theme + ' inline-flex items-center justify-center w-12 h-12 rounded-lg ' + tool.color + ' mb-4 shadow-md group-hover:shadow-lg transition-all duration-300'}>
                     <tool.icon className="w-6 h-6" />
                   </div>
                   <h4 className="font-semibold text-foreground mb-2 group-hover:text-foreground transition-colors duration-300">
@@ -353,11 +353,11 @@ export const FeaturesSection: React.FC = () => {
               <Card 
                 key={index} 
                 className="group text-center py-6 px-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 animate-slideUp min-h-[220px] flex flex-col justify-center"
-                style={{ animationDelay: `${index * 100}ms` }}
+                style={{ animationDelay: (index * 100) + 'ms' }}
               >
                 <CardContent className="p-0">
                   {/* 图标区域 */}
-                  <div className={`homepage-icon advantage-icon inline-flex items-center justify-center w-12 h-12 rounded-full ${advantage.color} mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-xl`}>
+                  <div className={'homepage-icon advantage-icon inline-flex items-center justify-center w-12 h-12 rounded-full ' + advantage.color + ' mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-xl'}>
                     <advantage.icon className="w-6 h-6" />
                   </div>
                   
@@ -376,8 +376,9 @@ export const FeaturesSection: React.FC = () => {
           </div>
         </div>
 
-
       </div>
     </section>
   );
 };
+
+export default FeaturesSection;

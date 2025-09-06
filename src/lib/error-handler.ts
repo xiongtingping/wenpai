@@ -23,4 +23,4 @@ export const setupGlobalErrorHandler = () => {
   if (process.env.NODE_ENV === 'development') {
     logger.debug('🔧 全局错误处理器已设置');
   }
-}; 
+};

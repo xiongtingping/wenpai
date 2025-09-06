@@ -3,7 +3,7 @@
  * 在浏览器控制台中运行，验证所有封装功能的完整性
  */
 
-console.log('🔒 个人中心封装验证开始...');
+console.log('
 console.log('📋 验证版本: v1.0.0 - FINAL');
 console.log('📅 封装日期: 2025-08-10');
 
@@ -267,7 +267,7 @@ function profileCenterEncapsulationVerification() {
     });
   }
   
-  console.log('\n🔒 封装验证完成！');
+  console.log('\n
   
   return {
     totalScore,

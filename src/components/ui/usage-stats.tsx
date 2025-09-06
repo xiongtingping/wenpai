@@ -138,4 +138,4 @@ export function UsageStatsCard({ usageStats, planName, adaptUsageLimit, tokenLim
       </CardContent>
     </Card>
   );
-} 
+}

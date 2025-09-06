@@ -17,7 +17,7 @@
  * 6. 内容写入品牌语料库 + 可回溯版本
  */
 
-import { callAI, AITaskType } from '@/api/aiService';
+import { callAIWithTokenTracking, type AITaskType } from '@/services/aiWithTokenTracking';
 import { getPrompt, PromptType } from '@/prompts/PromptSystem';
 import { logger } from '@/utils/logger';
 
@@ -356,13 +356,14 @@ export class BrandCorpusService {
       console.log(`📝 [v2.0] Prompt长度: ${prompt.length} 字符`);
 
       // 调用AI进行提取
-      const aiResponse = await callAI({
+      const aiResponse = await callAIWithTokenTracking({
         prompt: prompt,
         taskType: AITaskType.BRAND_CORPUS_EXTRACTION,
         model: 'deepseek-chat',
         maxTokens: 4000,
         temperature: 0.3,
-        systemPrompt: '你是专业的品牌策略顾问，擅长从品牌资料中提取结构化信息。请严格按照JSON格式输出结果。'
+        systemPrompt: '你是专业的品牌策略顾问，擅长从品牌资料中提取结构化信息。请严格按照JSON格式输出结果。',
+        feature: '品牌语料库'
       });
 
       logger.debug('✅ [v2.0] AI提取完成，开始解析结果...');
@@ -580,7 +581,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
       isMultilingual: languageInfo.mixed
     });
 
-    const result = await callAI({
+    const result = await callAIWithTokenTracking({
       prompt: promptData.userPrompt,
       taskType: AITaskType.BRAND_ANALYSIS,
       systemPrompt: promptData.systemPrompt,
@@ -589,7 +590,8 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
         extractionType: 'brand-corpus',
         language: languageInfo.primary,
         version: '2.0.0'
-      }
+      },
+      feature: '品牌语料库'
     });
 
     // 解析AI返回的结构化数据
@@ -619,8 +621,6 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
       'forbiddenWords': '请提取明确提及的禁用词汇、避免使用的表达'
     };
   }
-
-
 
   /**
    * 🔍 解析AI提取结果
@@ -971,7 +971,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
       }))
     });
 
-    const result = await callAI({
+    const result = await callAIWithTokenTracking({
       prompt: promptData.userPrompt,
       taskType: AITaskType.BRAND_ANALYSIS,
       systemPrompt: promptData.systemPrompt,
@@ -980,7 +980,8 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
         conflictCount: conflictingFields.length,
         resolutionType: 'corpus-conflict',
         version: '1.0.0'
-      }
+      },
+      feature: '品牌语料库'
     });
 
     try {

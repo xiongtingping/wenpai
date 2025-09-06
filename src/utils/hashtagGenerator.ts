@@ -1007,8 +1007,6 @@ export class HashtagGenerator {
     return tags;
   }
 
-
-
   /**
    * 基于内容分析生成推荐标签
    */

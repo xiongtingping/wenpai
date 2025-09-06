@@ -92,4 +92,3 @@ export async function resolveAuthingGuardConfig(base: BaseAuthingConfig): Promis
     redirectUri: isLocal ? 'http://localhost:5173/callback' : 'https://www.wenpai.xyz/callback'
   };
 }
-

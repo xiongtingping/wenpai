@@ -3,7 +3,7 @@
  * 显示话题热度变化趋势
  *
  * ✅ FIXED: 话题热度图表组件完整性验证，修复于 2025-08-10
- * 🔒 LOCKED: 请勿修改，如需变动请新建模块
+ * 
  * 📌 已封装：热度可视化、趋势分析、图表展示
  * ⚠️ 请勿改动：此组件已通过完整性验证，图表功能稳定运行
  *
@@ -270,4 +270,4 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
   );
 };
 
-export default TopicHeatChart; 
+export default TopicHeatChart;

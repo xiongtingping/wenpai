@@ -225,4 +225,4 @@ export const PaymentSuccessHandler: React.FC<PaymentSuccessHandlerProps> = ({
       </CardContent>
     </Card>
   );
-}; 
+};

@@ -1,5 +1,5 @@
 /**
- * 🔒 安全的 AI API 代理函数
+ * 
  * 
  * 功能：
  * 1. 在服务端处理 AI API 调用，保护 API 密钥
@@ -15,7 +15,7 @@
 
 const https = require('https');
 
-// 🔒 从环境变量获取 API 密钥（服务端安全）
+// 
 const getAPIKey = (provider) => {
   switch (provider) {
     case 'openai':

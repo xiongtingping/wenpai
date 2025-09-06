@@ -161,4 +161,4 @@ export const isOnline = (): boolean => {
 export const getUserAgent = (): string => {
   const nav = getNavigator();
   return nav ? nav.userAgent : '';
-}; 
+};

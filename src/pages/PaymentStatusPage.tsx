@@ -367,4 +367,4 @@ export default function PaymentStatusPage() {
       </div>
     </div>
   );
-} 
+}

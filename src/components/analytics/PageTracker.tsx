@@ -72,4 +72,4 @@ const PageTracker: React.FC<PageTrackerProps> = ({
 };
 
 export { PageTracker };
-export default PageTracker; 
+export default PageTracker;

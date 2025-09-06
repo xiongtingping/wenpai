@@ -9,12 +9,12 @@ import { logger } from '@/utils/logger';
  * - 调试和日志工具
  * 
  * 📌 已封装：此工具集已验证可用，请勿修改
- * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
+ * 
  */
 
 /**
  * 提示词模板变量替换
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function replaceTemplateVariables(template: string, variables: Record<string, any>): string {
   let result = template;
@@ -29,7 +29,7 @@ export function replaceTemplateVariables(template: string, variables: Record<str
 
 /**
  * 计算文本token数量（估算）
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function estimateTokenCount(text: string): number {
   // 简单估算：中文字符按1.5个token计算，英文单词按1个token计算
@@ -42,7 +42,7 @@ export function estimateTokenCount(text: string): number {
 
 /**
  * 格式化调试信息
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function formatDebugInfo(info: any): string {
   const lines = [
@@ -85,7 +85,7 @@ export function formatDebugInfo(info: any): string {
 
 /**
  * 安全的JSON解析
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function safeJsonParse(text: string, fallback: any = null): any {
   try {
@@ -114,7 +114,7 @@ export function safeJsonParse(text: string, fallback: any = null): any {
 
 /**
  * 清理和格式化文本
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function cleanText(text: string): string {
   return text
@@ -125,7 +125,7 @@ export function cleanText(text: string): string {
 
 /**
  * 截断文本到指定长度
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function truncateText(text: string, maxLength: number, suffix: string = '...'): string {
   if (text.length <= maxLength) {
@@ -137,7 +137,7 @@ export function truncateText(text: string, maxLength: number, suffix: string = '
 
 /**
  * 提取文本中的关键词
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function extractKeywords(text: string, maxCount: number = 10): string[] {
   // 简单的关键词提取：去除停用词，按频率排序
@@ -163,7 +163,7 @@ export function extractKeywords(text: string, maxCount: number = 10): string[] {
 
 /**
  * 生成唯一ID
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -171,7 +171,7 @@ export function generateId(): string {
 
 /**
  * 格式化文件大小
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function formatFileSize(bytes: number): string {
   const units = ['B', 'KB', 'MB', 'GB'];
@@ -188,7 +188,7 @@ export function formatFileSize(bytes: number): string {
 
 /**
  * 延迟函数
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -196,7 +196,7 @@ export function delay(ms: number): Promise<void> {
 
 /**
  * 重试函数
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export async function retry<T>(
   fn: () => Promise<T>,
@@ -225,7 +225,7 @@ export async function retry<T>(
 
 /**
  * 性能监控装饰器
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function withPerformanceMonitoring<T extends (...args: any[]) => Promise<any>>(
   fn: T,
@@ -250,7 +250,7 @@ export function withPerformanceMonitoring<T extends (...args: any[]) => Promise<
 
 /**
  * 缓存装饰器
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * 
  */
 export function withCache<T extends (...args: any[]) => Promise<any>>(
   fn: T,

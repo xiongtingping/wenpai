@@ -96,4 +96,4 @@ export function safeTrimTitle(title: string, maxLength: number): string {
   }
 
   return trimmed;
-} 
+}

@@ -73,24 +73,6 @@ export const AI_MODELS: Record<string, AIModel> = {
       output: 0.00056
     }
   },
-  'deepseek-reasoner': {
-    id: 'deepseek-reasoner',
-    name: 'DeepSeek Reasoner',
-    provider: 'DeepSeek',
-    description: 'DeepSeek推理模型，专注于逻辑推理和复杂问题解决',
-    features: [
-      '逻辑推理能力强',
-      '复杂问题分析',
-      '步骤化思考',
-      '数学和科学计算',
-      '深度思考能力'
-    ],
-    maxTokens: 128000,
-    pricing: {
-      input: 0.00014,
-      output: 0.00056
-    }
-  }
 };
 
 /**
@@ -98,8 +80,8 @@ export const AI_MODELS: Record<string, AIModel> = {
  */
 export const SUBSCRIPTION_MODELS: Record<string, string[]> = {
   trial: ['gpt-4o-mini', 'deepseek-chat'],
-  pro: ['gpt-4o', 'gpt-4o-mini', 'deepseek-chat', 'deepseek-reasoner'],
-  premium: ['gpt-4o', 'gpt-4o-mini', 'deepseek-chat', 'deepseek-reasoner']
+  pro: ['gpt-4o', 'gpt-4o-mini', 'deepseek-chat'],
+  premium: ['gpt-4o', 'gpt-4o-mini', 'deepseek-chat']
 };
 
 /**
@@ -147,4 +129,4 @@ export function getModelProvider(modelId: string): string {
  */
 export function getAllModels(): AIModel[] {
   return Object.values(AI_MODELS);
-} 
+}

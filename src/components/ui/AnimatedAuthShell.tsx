@@ -117,4 +117,3 @@ export const AnimatedAuthShell: React.FC<AnimatedAuthShellProps> = ({
 }
 
 export default AnimatedAuthShell
-

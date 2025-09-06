@@ -51,4 +51,4 @@ export function NicknameSelector({
       </p>
     </div>
   );
-} 
+}

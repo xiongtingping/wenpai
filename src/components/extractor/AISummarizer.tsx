@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Copy, Check, Download, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { callAI } from '@/api/aiService';
+import { callAIWithTokenTracking, type AITaskType } from '@/services/aiWithTokenTracking';
 
 interface AISummarizerProps {
   initialContent?: string;
@@ -55,13 +55,13 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
       console.log('开始生成AI总结，内容长度:', content.length);
       
       // 使用统一的AI服务层
-      const aiService = (await import('@/api/aiService')).callAI;
-      
-      const response = await aiService({
+      const response = await callAIWithTokenTracking({
         prompt: `请为以下内容生成AI智能总结：\n\n${content}\n\n请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`,
         model: 'gpt-4',
         maxTokens: 800,
-        temperature: 0.7
+        temperature: 0.7,
+        taskType: AITaskType.SUMMARIZATION,
+        feature: 'AI智能总结器'
       });
       
       if (response.success && response.content) {
@@ -291,4 +291,4 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
       </Card>
     </div>
   );
-} 
+}

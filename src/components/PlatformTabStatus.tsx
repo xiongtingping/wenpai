@@ -145,4 +145,4 @@ export const PlatformTabStatusWithTooltip: React.FC<PlatformTabStatusProps> = (p
   );
 };
 
-export default PlatformTabStatus; 
+export default PlatformTabStatus;

@@ -89,4 +89,4 @@ console.log('\n📋 配置建议:');
 console.log('1. 设置真实的OpenAI API密钥');
 console.log('2. 设置真实的Creem API密钥');
 console.log('3. 检查网络连接和代理设置');
-console.log('4. 重启开发服务器以应用新配置'); 
+console.log('4. 重启开发服务器以应用新配置');

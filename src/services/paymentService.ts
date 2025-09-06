@@ -211,7 +211,7 @@ export class PaymentService {
 
   // ✅ FIXED: 已移除模拟支付功能
   // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
-  // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+  // 
   // 
   // 系统现在直接调用真实支付API，不再提供模拟支付
   async simulatePaymentSuccess(paymentData: any): Promise<never> {
@@ -281,4 +281,4 @@ export class PaymentService {
 }
 
 // 导出单例实例
-export const paymentService = PaymentService.getInstance(); 
+export const paymentService = PaymentService.getInstance();

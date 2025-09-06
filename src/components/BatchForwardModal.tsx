@@ -142,21 +142,47 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
     return () => document.head.removeChild(style);
   }, []); // 永远执行，避免条件性hooks
 
-  // 强制设置弹窗位置在底部
+  // 强制设置弹窗位置在底部 - 使用更高的z-index和更强制的定位
   useEffect(() => {
     if (modalRef.current && open && !isMinimized) {
       const modal = modalRef.current;
-      // 使用JavaScript直接设置样式，确保不被CSS覆盖
+      // 移除可能影响定位的类名
+      modal.classList.remove('fixed', 'absolute', 'relative');
+      
+      // 使用极高优先级的样式设置
       modal.style.setProperty('position', 'fixed', 'important');
-      modal.style.setProperty('bottom', '2vh', 'important');
+      modal.style.setProperty('bottom', '20px', 'important');
       modal.style.setProperty('left', '50%', 'important');
       modal.style.setProperty('transform', 'translateX(-50%)', 'important');
-      modal.style.setProperty('top', 'unset', 'important');
-      modal.style.setProperty('z-index', '99999', 'important');
+      modal.style.setProperty('top', 'auto', 'important');
+      modal.style.setProperty('right', 'auto', 'important');
+      modal.style.setProperty('z-index', '2147483647', 'important'); // 使用最大z-index值
+      modal.style.setProperty('margin', '0', 'important');
+      modal.style.setProperty('background', 'white', 'important');
+      modal.style.setProperty('border', '1px solid #e2e8f0', 'important');
+      modal.style.setProperty('border-radius', '12px', 'important');
+      modal.style.setProperty('box-shadow', '0 25px 50px -12px rgba(0, 0, 0, 0.25)', 'important');
       
-      console.log('🔍 强制设置弹窗位置:', modal.getBoundingClientRect());
+      console.log('🔍 批量转发弹窗已强制定位到底部，位置:', modal.getBoundingClientRect());
     }
   }, [open, isMinimized]);
+
+  // 确保有专门的容器用于渲染弹窗
+  useEffect(() => {
+    let container = document.getElementById('batch-forward-modal-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'batch-forward-modal-container';
+      container.style.position = 'fixed';
+      container.style.top = '0';
+      container.style.left = '0';
+      container.style.width = '100vw';
+      container.style.height = '100vh';
+      container.style.pointerEvents = 'none';
+      container.style.zIndex = '2147483647';
+      document.body.appendChild(container);
+    }
+  }, []);
 
   if (!open) return null;
 
@@ -164,7 +190,19 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
     <>
       {/* 最小化状态 - 固定在右下角 */}
       {isMinimized && (
-        <div className="fixed bottom-4 right-4 z-50 bg-card border border-border rounded-lg shadow-lg p-3 min-w-[300px]">
+        <div style={{
+          position: 'fixed',
+          bottom: '16px',
+          right: '16px',
+          zIndex: 2147483647,
+          background: 'white',
+          border: '1px solid #e2e8f0',
+          borderRadius: '8px',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+          padding: '12px',
+          minWidth: '300px',
+          pointerEvents: 'auto'
+        }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 btn-gradient-primary rounded"></div>
@@ -174,7 +212,11 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsMinimized(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsMinimized(false);
+                }}
                 className="h-6 w-6 p-0"
               >
                 <Square className="h-3 w-3" />
@@ -182,7 +224,11 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleClose}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleClose();
+                }}
                 className="h-6 w-6 p-0 text-destructive hover:text-destructive"
               >
                 <X className="h-3 w-3" />
@@ -197,18 +243,19 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
         <>
           {/* 半透明遮罩层 */}
           <div
-            className="fixed inset-0 bg-black/30"
             style={{
               position: 'fixed',
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              zIndex: 99998,
-              backgroundColor: 'rgba(0, 0, 0, 0.3)'
+              zIndex: 2147483646,
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              pointerEvents: 'auto'
             }}
             onClick={(e) => {
-              // 点击遮罩层关闭弹窗
+              e.preventDefault();
+              e.stopPropagation();
               handleClose();
             }}
           />
@@ -216,20 +263,28 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
           {/* 弹窗内容 - 强制定位在页面底部 */}
           <div
             ref={modalRef}
-            className="bg-background rounded-xl shadow-2xl border border-border flex flex-col overflow-hidden"
             style={{
-              position: 'fixed !important' as any,
-              bottom: '2vh !important' as any,
-              left: '50% !important' as any,
-              transform: 'translateX(-50%) !important' as any,
-              top: 'unset !important' as any,
-              zIndex: '99999 !important' as any,
+              position: 'fixed',
+              bottom: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              top: 'auto',
+              right: 'auto',
+              zIndex: 2147483647,
               width: 'min(95vw, 1200px)',
               height: 'min(75vh, 600px)',
               maxWidth: '1200px',
               maxHeight: '600px',
-              margin: '0 !important' as any,
-              animation: 'slideInFromBottom 0.3s ease-out'
+              margin: 0,
+              background: 'white',
+              borderRadius: '12px',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              animation: 'slideInFromBottom 0.3s ease-out',
+              pointerEvents: 'auto'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -245,7 +300,11 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setIsMinimized(true)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsMinimized(true);
+                  }}
                   className="h-7 w-7 p-0 hover:bg-accent"
                   title="最小化"
                 >
@@ -254,7 +313,11 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleClose}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleClose();
+                  }}
                   className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-accent"
                   title="关闭"
                 >
@@ -473,8 +536,9 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
     </>
   );
 
-  // 使用Portal将模态框渲染到document.body，避免受父容器样式影响
-  // 添加调试日志
-  console.log('🔍 渲染批量转发弹窗到Portal:', { open, isMinimized });
-  return createPortal(modalContent, document.body);
+  // 使用Portal将模态框渲染到专门的容器，确保不受父容器样式影响
+  console.log('🔍 批量转发弹窗渲染状态:', { open, isMinimized, modalRef: !!modalRef.current });
+  
+  const portalContainer = document.getElementById('batch-forward-modal-container') || document.body;
+  return createPortal(modalContent, portalContainer);
 };

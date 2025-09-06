@@ -471,4 +471,4 @@ export class NotoEmojiService {
 }
 
 // 导出单例实例
-export const notoEmojiService = NotoEmojiService.getInstance(); 
+export const notoEmojiService = NotoEmojiService.getInstance();

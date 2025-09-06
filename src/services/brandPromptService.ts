@@ -603,4 +603,4 @@ ${content}
   }
 }
 
-export default BrandPromptService; 
+export default BrandPromptService;

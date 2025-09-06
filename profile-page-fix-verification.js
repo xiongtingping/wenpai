@@ -59,7 +59,7 @@ function checkJavaScriptErrors() {
 
 // 检查开发环境权限绕过
 function checkDevelopmentPermissionBypass() {
-  console.log('\n🔓 开发环境权限绕过检查:');
+  console.log('\n
   
   // 拦截控制台日志
   const originalConsoleLog = console.log;
@@ -68,7 +68,7 @@ function checkDevelopmentPermissionBypass() {
   console.log = (...args) => {
     const message = args.join(' ');
     if (message.includes('开发环境权限绕过') || 
-        message.includes('🔓 开发环境权限绕过')) {
+        message.includes('
       permissionBypassLogs.push(message);
     }
     originalConsoleLog.apply(console, args);
@@ -183,7 +183,7 @@ function checkMemoryUsage() {
 
 // 检查权限系统状态
 function checkPermissionSystem() {
-  console.log('\n🔒 权限系统状态检查:');
+  console.log('\n
   
   // 拦截权限检查日志
   const originalConsoleLog = console.log;
@@ -192,7 +192,7 @@ function checkPermissionSystem() {
   
   console.log = (...args) => {
     const message = args.join(' ');
-    if (message.includes('🔒 权限检查:')) {
+    if (message.includes('
       permissionLogs.push(message);
       if (message.includes('auth:required')) {
         authRequiredLogs.push(message);

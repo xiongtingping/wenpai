@@ -273,4 +273,4 @@ function SimpleVIPGuard({ children, redirectTo = '/payment' }: {
 }
 
 // 导出简化组件
-export { SimpleVIPGuard }; 
+export { SimpleVIPGuard };

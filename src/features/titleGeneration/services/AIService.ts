@@ -3,7 +3,8 @@
  * 统一管理 AI 模型调用，支持降级策略
  */
 
-import { callAI, callAIWithRetry } from '@/api/ai';
+import { callAIWithTokenTracking, type AITaskType } from '@/services/aiWithTokenTracking';
+import { callAIWithRetry } from '@/api/ai';
 import type { AICallParams } from '@/api/ai';
 import { TitleGenerationConfig } from '../config/titleGeneration.config';
 import { concurrencyManager } from './ConcurrencyManager';
@@ -184,7 +185,11 @@ export class AIService implements IAIService {
     if (config.retries > 0) {
       return await callAIWithRetry(callParams, config.retries);
     } else {
-      return await callAI(callParams);
+      return await callAIWithTokenTracking({
+        ...callParams,
+        taskType: AITaskType.TITLE_GENERATION,
+        feature: '标题生成'
+      });
     }
   }
 

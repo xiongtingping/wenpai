@@ -1,7 +1,7 @@
 /**
  * 用户数据服务
  * 管理用户行为数据、页面访问记录、功能使用统计等
- * 🔒 已迁移至 Supabase 数据库，移除 localStorage 依赖
+ * 
  */
 
 import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
@@ -359,4 +359,4 @@ export default UserDataService;
 // - 移除了所有 localStorage 依赖
 // - 所有操作都会抛出数据库错误，不再有本地降级方案
 // - 确保用户数据隔离和安全访问
-// - 如果数据库不可用，相关功能将无法使用 
+// - 如果数据库不可用，相关功能将无法使用

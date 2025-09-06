@@ -3,7 +3,7 @@
  * 支持自定义话题监控、实时更新和热度追踪
  *
  * ✅ FIXED: 话题订阅服务完整性验证，修复于 2025-08-10
- * 🔒 LOCKED: 请勿修改，如需变动请新建模块
+ * 
  * 📌 已封装：订阅管理、热度追踪、通知服务、数据持久化
  * ⚠️ 请勿改动：此服务已通过完整性验证，功能稳定运行
  *
@@ -648,8 +648,6 @@ function calculateRelevance(keyword: string, title: string, desc?: string): numb
   return calculateEnhancedRelevance(keyword, title, desc || '', '');
 }
 
-
-
 /**
  * 去重搜索结果
  */
@@ -764,8 +762,6 @@ async function generateRealTrendData(keyword: string, days: number): Promise<Top
     return [];
   }
 }
-
-
 
 /**
  * 判断是否为周末
@@ -985,14 +981,6 @@ function generateInsights(
   return insights;
 }
 
-
-
-
-
-
-
-
-
 /**
  * 获取可用的搜索源
  */
@@ -1056,4 +1044,4 @@ export function getSubscriptionStats() {
     notificationEnabled: notificationEnabledCount,
     notificationDisabled: totalCount - notificationEnabledCount
   };
-} 
+}

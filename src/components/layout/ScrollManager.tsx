@@ -44,4 +44,4 @@ export const ScrollManager: React.FC<ScrollManagerProps> = ({
   }, [pathname, autoScrollToTop, behavior]);
 
   return null;
-}; 
+};

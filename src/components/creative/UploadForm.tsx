@@ -225,4 +225,4 @@ export default function UploadForm({ onUploadComplete, onReset }: UploadFormProp
       </CardContent>
     </Card>
   );
-} 
+}

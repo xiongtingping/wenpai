@@ -199,23 +199,20 @@ export class DataPreloadService {
   /**
    * 创建预加载Promise（带超时）
    */
-  private createPreloadPromise(dataKey: string, config: PreloadConfig): Promise<void> {
-    return new Promise(async (resolve, reject) => {
-      // 设置超时
-      const timeout = setTimeout(() => {
+  private async createPreloadPromise(dataKey: string, config: PreloadConfig): Promise<void> {
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
         reject(new Error(`预加载超时: ${dataKey}`));
       }, config.timeout);
-
-      try {
-        // 执行数据加载
-        await globalDataManager.getData(dataKey);
-        clearTimeout(timeout);
-        resolve();
-      } catch (error) {
-        clearTimeout(timeout);
-        reject(error);
-      }
     });
+
+    const loadPromise = async (): Promise<void> => {
+      // 执行数据加载
+      await globalDataManager.getData(dataKey);
+      console.info(`✅ 预加载完成: ${dataKey}`);
+    };
+
+    return Promise.race([loadPromise(), timeoutPromise]);
   }
 
   /**

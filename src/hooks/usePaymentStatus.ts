@@ -349,4 +349,4 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
     refreshStatus,
     clearStatus,
   };
-} 
+}

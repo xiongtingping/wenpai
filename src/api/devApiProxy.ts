@@ -115,4 +115,4 @@ export async function testDevApiConnectivity(): Promise<DevProxyResponse> {
       error: error instanceof Error ? error.message : 'Connection test failed'
     };
   }
-} 
+}

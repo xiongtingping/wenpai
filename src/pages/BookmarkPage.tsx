@@ -66,6 +66,7 @@ import { Header } from '@/components/landing/Header';
 import { useFavoritesStore, favoritesUtils, type FavoriteItem } from '@/stores/favoritesStore';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
+import { safeSaveToLocalStorage, safeLoadFromLocalStorage, checkLocalStorageAvailability, cleanupLocalStorageData } from '@/utils/safeDataStorage';
 
 /**
  * 资料项接口
@@ -162,30 +163,95 @@ export default function BookmarkPage() {
   };
 
   /**
-   * ✅ FIXED: 从localStorage加载数据，支持用户数据隔离
+   * ✅ FIXED: 安全加载数据，支持用户数据隔离和错误处理
    */
   React.useEffect(() => {
-    const storageKey = getStorageKey();
-    console.log('🔑 使用存储键:', storageKey);
+    const initializeData = async () => {
+      const storageKey = getStorageKey();
+      console.log('🔑 使用存储键:', storageKey);
 
-    // 尝试从localStorage加载数据
-    const savedItems = localStorage.getItem(storageKey);
-
-    if (savedItems) {
-      try {
-        const parsedItems = JSON.parse(savedItems);
-        console.log('📂 从localStorage加载资料库数据:', parsedItems.length, '项');
-        setLibraryItems(parsedItems);
+      // 检查localStorage可用性
+      const availability = checkLocalStorageAvailability();
+      if (!availability.available) {
+        console.error('❌ localStorage不可用:', availability.error);
+        toast({
+          title: "存储系统异常",
+          description: availability.error || "无法访问本地存储，数据可能无法保存",
+          variant: "destructive"
+        });
+        setLibraryItems([]);
         return;
-      } catch (error) {
-        console.error('❌ 解析localStorage数据失败:', error);
       }
-    }
 
-    // 如果没有保存的数据，初始化为空数组
-    console.log('🆕 初始化空资料库');
-    setLibraryItems([]);
+      // 清理损坏的数据
+      const cleanedCount = cleanupLocalStorageData('library_items_');
+      if (cleanedCount > 0) {
+        toast({
+          title: "数据清理完成",
+          description: `已清理 ${cleanedCount} 项损坏的数据`
+        });
+      }
+
+      // 安全加载数据
+      const { data, success, error } = safeLoadFromLocalStorage<LibraryItem[]>(storageKey, []);
+      
+      if (success) {
+        setLibraryItems(data || []);
+        if (data && data.length > 0) {
+          console.log('📂 成功加载资料库数据:', data.length, '项');
+        } else {
+          console.log('🆕 初始化空资料库');
+        }
+      } else {
+        console.error('❌ 加载数据失败:', error);
+        toast({
+          title: "数据加载失败",
+          description: error || "无法加载已保存的数据，将从空白开始",
+          variant: "destructive"
+        });
+        setLibraryItems([]);
+      }
+    };
+
+    initializeData();
   }, [user?.id]); // 当用户ID变化时重新加载数据
+
+  /**
+   * ✅ FIXED: 安全保存数据到localStorage
+   */
+  const safeUpdateLibraryItems = (updatedItems: LibraryItem[], actionDescription: string) => {
+    setLibraryItems(updatedItems);
+
+    // 安全保存到localStorage
+    const storageKey = getStorageKey();
+    const saveResult = safeSaveToLocalStorage(storageKey, updatedItems);
+    
+    if (saveResult.success) {
+      console.log(`💾 ${actionDescription}数据保存成功`);
+      
+      // 显示存储使用情况
+      if (saveResult.storageUsed && saveResult.storageUsed > 3 * 1024 * 1024) { // 3MB警告
+        toast({
+          title: "存储空间提醒",
+          description: `当前已使用 ${(saveResult.storageUsed / 1024 / 1024).toFixed(2)}MB 存储空间`,
+        });
+      }
+    } else {
+      console.error(`❌ ${actionDescription}数据保存失败:`, saveResult.error);
+      
+      // 恢复到之前的状态
+      const { data: previousData } = safeLoadFromLocalStorage<LibraryItem[]>(storageKey, []);
+      if (previousData) {
+        setLibraryItems(previousData);
+      }
+      
+      toast({
+        title: `${actionDescription}失败`,
+        description: saveResult.error || "数据保存失败，请重试或联系管理员",
+        variant: "destructive"
+      });
+    }
+  };
 
   /**
    * 获取筛选后的项目
@@ -301,11 +367,8 @@ export default function BookmarkPage() {
       };
 
       const updatedItems = [newItem, ...libraryItems];
-      setLibraryItems(updatedItems);
-
-      // 保存到localStorage
-      const storageKey = getStorageKey();
-      localStorage.setItem(storageKey, JSON.stringify(updatedItems));
+      // ✅ FIXED: 使用安全的数据保存方法
+      safeUpdateLibraryItems(updatedItems, "创建收藏");
 
       setIsAddDialogOpen(false);
       setExtractUrl('');
@@ -360,11 +423,9 @@ export default function BookmarkPage() {
     };
 
     const updatedItems = [collection, ...libraryItems];
-    setLibraryItems(updatedItems);
-
-    // 保存到localStorage
-    const storageKey = getStorageKey();
-    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
+    
+    // ✅ FIXED: 使用安全的数据保存方法
+    safeUpdateLibraryItems(updatedItems, "收藏创建");
 
     setNewCollection({ title: '', url: '', description: '', tags: '', category: '' });
     setIsAddDialogOpen(false);
@@ -409,12 +470,12 @@ export default function BookmarkPage() {
     };
 
     const updatedItems = [copywriting, ...libraryItems];
-    setLibraryItems(updatedItems);
+    
+    // ✅ FIXED: 使用安全的数据保存方法
+    safeUpdateLibraryItems(updatedItems, "文案创建");
 
-    // 保存到localStorage
-    const storageKey = getStorageKey();
-    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
-
+    // 只有保存成功才清空表单和关闭对话框
+    // 如果保存失败，safeUpdateLibraryItems会显示错误并恢复状态
     setNewCopywriting({ title: '', content: '', tags: '', category: '', platform: '' });
     setIsCopywritingDialogOpen(false);
 
@@ -431,11 +492,9 @@ export default function BookmarkPage() {
     const updatedItems = libraryItems.map(item =>
       item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
     );
-    setLibraryItems(updatedItems);
-
-    // 保存到localStorage
-    const storageKey = getStorageKey();
-    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
+    
+    // ✅ FIXED: 使用安全的数据保存方法
+    safeUpdateLibraryItems(updatedItems, "收藏状态更新");
   };
 
   /**
@@ -445,11 +504,9 @@ export default function BookmarkPage() {
     const updatedItems = libraryItems.map(item =>
       item.id === id ? { ...item, isUsed: !item.isUsed } : item
     );
-    setLibraryItems(updatedItems);
-
-    // 保存到localStorage
-    const storageKey = getStorageKey();
-    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
+    
+    // ✅ FIXED: 使用安全的数据保存方法
+    safeUpdateLibraryItems(updatedItems, "使用状态更新");
   };
 
   /**
@@ -470,12 +527,9 @@ export default function BookmarkPage() {
     console.log('🗑️ 删除项目:', id);
 
     const updatedItems = libraryItems.filter(item => item.id !== id);
-    setLibraryItems(updatedItems);
-
-    // ✅ FIXED: 保存到localStorage确保删除状态持久化
-    const storageKey = getStorageKey();
-    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
-    console.log('💾 删除状态已保存到localStorage');
+    
+    // ✅ FIXED: 使用安全的数据保存方法
+    safeUpdateLibraryItems(updatedItems, "删除项目");
 
     toast({
       title: "已删除",
@@ -537,11 +591,9 @@ export default function BookmarkPage() {
     const updatedItems = libraryItems.map(item =>
       item.id === editingItem.id ? editingItem : item
     );
-    setLibraryItems(updatedItems);
-
-    // 保存到localStorage
-    const storageKey = getStorageKey();
-    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
+    
+    // ✅ FIXED: 使用安全的数据保存方法
+    safeUpdateLibraryItems(updatedItems, "编辑保存");
 
     setEditingItem(null);
 
@@ -1144,8 +1196,6 @@ export default function BookmarkPage() {
             </div>
           </TabsContent>
 
-
-
           {/* {t('bookmark.copywritingManagement')} */}
           <TabsContent value="copywriting" className="mt-0">
             <div className="grid gap-4">
@@ -1540,4 +1590,4 @@ export default function BookmarkPage() {
       </div>
     </div>
   );
-} 
+}

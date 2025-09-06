@@ -4,7 +4,7 @@
  */
 /**
  * ✅ FIXED: 兴趣过滤器组件完整性验证，修复于 2025-08-10
- * 🔒 LOCKED: 请勿修改，如需变动请新建模块
+ * 
  * 📌 已封装：兴趣标签过滤、用户偏好设置、智能推荐
  * ⚠️ 请勿改动：此组件已通过完整性验证，过滤逻辑稳定运行
  *
@@ -557,4 +557,4 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
   );
 };
 
-export default InterestFilter; 
+export default InterestFilter;

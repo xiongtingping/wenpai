@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useSubscriptionInfo } from '@/hooks/useUnifiedUserState';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useNavigate } from 'react-router-dom';
 import { 
   AlertTriangle, 
@@ -30,12 +30,14 @@ export function SubscriptionExpiryAlert({
   compact = false,
   className = ''
 }: SubscriptionExpiryAlertProps) {
-  const { subscriptionStatus, hasActiveSubscription, isLoading, isInitialized } = useSubscriptionInfo();
+  const { primaryStatus, refresh } = useSubscriptionStatus();
+  const subscriptionStatus = primaryStatus;
+  const hasActiveSubscription = primaryStatus?.status === 'active';
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
 
-  // 🔧 FIX: 使用统一状态管理，避免闪烁
-  if (!subscriptionStatus?.needsAlert || dismissed || isLoading || !isInitialized) {
+  // 使用真实的订阅状态判断
+  if (!subscriptionStatus?.needsAlert || dismissed) {
     return null;
   }
 

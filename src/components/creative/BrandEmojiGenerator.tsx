@@ -762,4 +762,4 @@ export default function BrandEmojiGenerator({
     </Card>
     </div>
   );
-} 
+}

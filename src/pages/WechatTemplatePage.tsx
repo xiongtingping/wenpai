@@ -763,4 +763,4 @@ const EditTemplateForm: React.FC<EditTemplateFormProps> = ({ template, onSubmit,
   );
 };
 
-export default WechatTemplatePage; 
+export default WechatTemplatePage;

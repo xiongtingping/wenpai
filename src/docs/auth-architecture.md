@@ -178,7 +178,7 @@ if (loading) return <LoadingSpinner />;
 if (error) return <ErrorMessage error={error} />;
 ```
 
-## 🔒 安全考虑
+## 
 
 1. **Token安全**: 使用httpOnly cookie存储敏感token
 2. **权限验证**: 前后端双重权限验证

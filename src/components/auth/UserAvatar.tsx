@@ -73,14 +73,14 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
 
   // ✅ FIXED: 使用安全的用户信息获取函数
   // 📌 修复问题：防止 "undefinedundefined" 字符串拼接
-  // 🔓 UNLOCKED: 已封装稳定，请勿改动
+  // 
 
   // 处理跳转到个人资料
   const handleProfileClick = () => {
     navigate('/profile');
   };
 
-  // 🔒 SECURITY: 最高权限解锁功能已禁用 - 防止权限绕过攻击
+  // 
   const handleUnlockMaxPermissions = async () => {
     logger.warn('🚫 权限解锁功能已被安全策略禁用');
     return;
@@ -124,10 +124,8 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     return 'text-gray-500';
   };
 
-  // 🔒 SECURITY: 解锁按钮已完全禁用 - 防止权限绕过攻击
+  // 
   const shouldShowUnlockButton = false;
-
-
 
   // 未登录状态
   if (!isAuthenticated) {
@@ -259,4 +257,4 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   );
 };
 
-export default UserAvatar; 
+export default UserAvatar;

@@ -651,4 +651,4 @@ export function PDFChatDialog({
   );
 }
 
-export default PDFChatDialog; 
+export default PDFChatDialog;

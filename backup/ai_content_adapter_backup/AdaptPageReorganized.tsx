@@ -716,7 +716,7 @@ export default function AdaptPage() {
           // 🐛 问题原因：DeepSeek API返回402错误（Payment Required），需要自动切换到其他模型
           // 🔧 修复方案：添加402错误检测，实现智能降级机制
           // 📌 已封装：模型切换逻辑已验证稳定，请勿修改
-          // 🔒 LOCKED: AI 禁止对此函数做任何修改
+          // 
           if (attempt <= 3) {
             const errorMessage = error instanceof Error ? error.message : String(error);
 
@@ -786,7 +786,7 @@ export default function AdaptPage() {
     // 🐛 问题原因：callAIWithRetry失败时抛出错误，但队列管理器期望返回结果对象
     // 🔧 修复方案：返回标准化的错误结果对象
     // 📌 已封装：错误处理逻辑已验证稳定，请勿修改
-    // 🔒 LOCKED: AI 禁止对此函数做任何修改
+    // 
 
     const errorMessage = lastError ? lastError.message : `${versionName} - 所有重试都失败了`;
     return {
@@ -1015,7 +1015,7 @@ export default function AdaptPage() {
       // 🐛 问题原因：并发请求导致OpenAI API 429错误
       // 🔧 修复方案：使用队列管理器串行处理请求
       // 📌 已封装：队列请求逻辑已验证稳定，请勿修改
-      // 🔒 LOCKED: AI 禁止对此函数做任何修改
+      // 
 
       const platformAPICaller = createPlatformAPICaller(platformId);
 
@@ -1609,7 +1609,7 @@ ${charCountControl.source === 'platform-specific'
   // ✅ FIXED: 2025-08-04 修复无限循环问题
   // 🐛 问题原因：useAuthStore((state) => state.getUsageRemaining()) 会导致每次渲染都调用get()，触发无限循环
   // 🔧 修复方式：直接从state中计算usageRemaining，避免调用get()方法
-  // 🔒 LOCKED: 此修复已验证解决Tooltip无限循环问题，请勿修改
+  // 
   const { usageCount, maxUsage, decrementUsage } = useAuthStore();
   const usageRemaining = Math.max(0, maxUsage - usageCount);
 
@@ -4463,7 +4463,7 @@ ${charCountControl.source === 'platform-specific'
 
   // ✅ FIXED: 已移除模拟翻译功能
   // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
-  // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+  // 
   //
   // 系统现在直接调用真实翻译API，不再提供模拟翻译
   const simulateTranslation = async (content: string): Promise<never> => {

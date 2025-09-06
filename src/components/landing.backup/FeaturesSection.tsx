@@ -167,7 +167,7 @@ const advantages = [
     bgColor: 'bg-accent',
   },
   {
-    title: '🔒 安全可靠',
+    title: '安全保障',
     description: '企业级安全保障，数据加密存储，保护您的创作成果',
     icon: Shield,
     color: 'text-foreground',
@@ -363,7 +363,6 @@ export const FeaturesSection: React.FC = () => {
             ))}
           </div>
         </div>
-
 
       </div>
     </section>

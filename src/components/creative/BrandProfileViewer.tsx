@@ -143,4 +143,4 @@ export default function BrandProfileViewer({ profile }: BrandProfileViewerProps)
       </CardContent>
     </Card>
   );
-} 
+}
