@@ -6203,24 +6203,70 @@ onCheckedChange={(checked) => {
     <Dialog open={showHistory} onOpenChange={setShowHistory}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>转发历史</DialogTitle>
+          <DialogTitle>内容生成记录</DialogTitle>
           <DialogDescription>
-            查看历史转发记录
+            查看您之前生成的内容适配记录
           </DialogDescription>
         </DialogHeader>
         <div className="py-2 text-foreground max-h-[60vh] overflow-auto">
           {shareHistory.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">暂无转发历史</div>
+            <div className="text-center text-muted-foreground py-8">暂无生成记录</div>
           ) : (
-            <div className="space-y-4">
-              {shareHistory.map(item => (
-                <div key={item.id} className="border rounded p-2 bg-accent">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-primary">{item.platformName}</span>
-                    <span className="text-xs text-muted-foreground">{new Date(item.time).toLocaleString()}</span>
+            <div className="space-y-6">
+              {/* 按日期分组显示 */}
+              {Object.entries(
+                shareHistory.reduce((groups: Record<string, ShareHistoryItem[]>, item) => {
+                  const date = new Date(item.time).toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long', 
+                    day: 'numeric'
+                  });
+                  if (!groups[date]) groups[date] = [];
+                  groups[date].push(item);
+                  return groups;
+                }, {})
+              ).map(([date, items]) => (
+                <div key={date}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <h3 className="font-semibold text-sm text-primary">{date}</h3>
+                    <div className="flex-1 border-t border-border/50"></div>
+                    <Badge variant="secondary" className="text-xs">{items.length}条记录</Badge>
                   </div>
-                  <div className="text-xs break-all mb-1">{item.content}</div>
-                  <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(item.content)}>复制内容</Button>
+                  <div className="space-y-2 ml-2">
+                    {items.map(item => (
+                      <div key={item.id} className="border rounded-lg p-3 bg-card hover:bg-accent/50 transition-colors">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            {getPlatformIcon(item.platformId)}
+                            <span className="font-medium text-sm">{getPlatformName(item.platformId, platforms)}</span>
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(item.time).toLocaleTimeString('zh-CN', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {item.content.length > 120 ? `${item.content.substring(0, 120)}...` : item.content}
+                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-xs text-muted-foreground">{item.content.length} 字符</span>
+                          <Button
+                            variant="ghost" 
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            onClick={() => {
+                              navigator.clipboard.writeText(item.content);
+                              toast({ title: '已复制', description: '内容已复制到剪贴板' });
+                            }}
+                          >
+                            复制
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
