@@ -115,6 +115,7 @@ import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { useAuth } from '@/hooks/useAuth';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { Header } from '@/components/landing/Header';
+import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats';
 
 /**
  * 主流平台内容发布入口URL映射
@@ -592,6 +593,7 @@ export default function AdaptPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated } = useAuth();
+  const unifiedUsageInfo = useUnifiedUsageStats();
   const [originalContent, setOriginalContent] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
 
@@ -1290,7 +1292,7 @@ export default function AdaptPage() {
     }
     
     // 3. 最后使用用户数据
-    return unifiedUsageInfo.isInitialized ? unifiedUsageInfo.userTier : getUserTier(user);
+    return !unifiedUsageInfo.loading ? unifiedUsageInfo.userTier : getUserTier(user);
   };
   
   const effectiveUserTier = getCurrentTier();
@@ -1470,7 +1472,7 @@ export default function AdaptPage() {
     if (usageCount < 0) {
       console.warn('⚠️ 检测到异常的使用次数数据，尝试修复...');
       // 如果使用次数为负数，重置为0
-      if (unifiedUsageInfo.isInitialized) {
+      if (!unifiedUsageInfo.loading) {
         // TODO: 调用统一状态管理的重置方法
       } else {
         updateMaxUsage(30); // 重置为专业版默认值
@@ -1530,7 +1532,7 @@ export default function AdaptPage() {
       tier: effectiveUserTier,
       maxUsage: maxUsage,
       usageCount: usageCount,
-      initialized: unifiedUsageInfo.isInitialized
+      initialized: !unifiedUsageInfo.loading
     };
     
     if (prevStateRef.current && (
@@ -1545,7 +1547,7 @@ export default function AdaptPage() {
       });
     }
     prevStateRef.current = currentState;
-  }, [effectiveUserTier, maxUsage, usageCount, unifiedUsageInfo.isInitialized]);
+  }, [effectiveUserTier, maxUsage, usageCount, unifiedUsageInfo.loading]);
 
   // 使用次数提醒弹窗状态
   const [showUsageReminder, setShowUsageReminder] = useState(false);
