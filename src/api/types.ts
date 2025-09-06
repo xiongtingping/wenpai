@@ -21,7 +21,9 @@ export interface AICallParams {
   /** 用户ID */
   userId?: string;
   /** 上下文 */
-  context?: Array<{ role: string; content: string }>;
+  context?: Array<{ role: string; content: string }> | Record<string, any>;
+  /** 任务类型 */
+  taskType?: any;
   /** 额外参数 */
   extraParams?: Record<string, any>;
 }
@@ -34,6 +36,8 @@ export interface AIResponse {
   content: string;
   /** 使用的模型 */
   model: string;
+  /** 任务类型 */
+  taskType?: any;
   /** 使用情况 */
   usage?: {
     promptTokens: number;
@@ -187,4 +191,4 @@ export interface HotTopicsResponse {
   };
   /** 错误信息 */
   error?: string;
-} 
+}

@@ -264,5 +264,4 @@ export async function getUserTokenStats() {
 }
 
 // 导出原始的AI调用函数，以便需要时使用
-export { callAI as callAIOriginal } from '@/api/aiService';
-export { AITaskType } from '@/api/aiService';
+export { callAI as callAIOriginal, AITaskType } from '@/api/aiService';

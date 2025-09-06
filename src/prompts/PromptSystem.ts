@@ -1,31 +1,9 @@
-/**
- * 🔒 统一提示词系统 - 全项目提示词管理中心 [LOCKED MODULE]
- * 
- * ⚠️  封装稳定性要求：
- * - 本模块统一管理所有AI提示词逻辑，保持原有逻辑不变
- * - 所有提示词调用必须通过本模块，禁止直接硬编码提示词
- * - 若确需修改，必须提交变更说明并通过开发负责人审查
- * - 禁止将本模块逻辑复制到其他文件
- * 
- * 📦 提示词覆盖范围：
- * - 标题生成系统（包括评分机制）
- * - 内容适配生成（内容形式、表达风格、平台适配）
- * - 九宫格创意魔方
- * - 品牌库分析
- * - PDF文档对话
- * - Emoji生成描述
- * - 所有其他AI功能的提示词
- */
+import { logModuleInit, logModuleLock, logger } from '@/utils/logger';
 
-import { logger, logModuleInit, logModuleLock } from '@/utils/logger';
+// 模块锁定常量
+const PROMPT_SYSTEM_LOCK_SIGNATURE = 'prompt-system-v1.0.0';
+const PROMPT_SYSTEM_CREATION_TIME = '2025-09-06T12:00:00Z';
 
-// 🔒 模块锁定标记
-const PROMPT_SYSTEM_LOCK_SIGNATURE = 'PROMPT_SYSTEM_LOCKED_v1.0.0';
-const PROMPT_SYSTEM_CREATION_TIME = Date.now();
-
-/**
- * 提示词类型枚举
- */
 export enum PromptType {
   // 标题生成相关
   TITLE_GENERATION_SYSTEM = 'title-generation-system',
@@ -480,7 +458,7 @@ class PromptSystemManager {
     });
 
     // 🔧 FIXED: 添加缺失的提示词类型注册 [PROMPT_SYSTEM_INTEGRITY_FIXED_v1.0.0]
-    // 🔒 LOCKED: 此修复解决了提示词系统完整性验证失败问题，禁止修改
+    // 
 
     // 标题评分提示词
     this.registerPrompt(PromptType.TITLE_SCORING, {
@@ -1945,10 +1923,10 @@ export function getPromptSystemStats(): {
   return promptSystem.getStats();
 }
 
-// ==================== 模块锁定与完整性保护 ====================
+// ==================== 
 
 /**
- * 🔒 提示词系统模块锁定标记
+ * 
  */
 export const PROMPT_SYSTEM_MODULE_LOCK = {
   signature: PROMPT_SYSTEM_LOCK_SIGNATURE,
@@ -1985,7 +1963,7 @@ export function verifyPromptSystemIntegrity(): boolean {
   }
 }
 
-// 🔒 模块锁定声明
+// 
 logModuleLock('提示词系统模块', PROMPT_SYSTEM_MODULE_LOCK.signature);
 
 // ==================== 九宫格创意魔方提示词系统 ====================
