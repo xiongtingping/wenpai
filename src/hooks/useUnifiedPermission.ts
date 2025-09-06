@@ -6,7 +6,7 @@
 import { useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { 
-  unifiedPermissionManager, 
+  getUnifiedPermissionManager, 
   type UserPermissionContext, 
   type UnifiedPermissionResult 
 } from '@/config/unifiedPermissionConfig';
@@ -36,7 +36,7 @@ export function useUnifiedPermission(permissionKey: string) {
 
   // 执行权限检查
   const permissionResult: UnifiedPermissionResult = useMemo(() => {
-    return unifiedPermissionManager.checkPermission(permissionKey, userContext);
+    return getUnifiedPermissionManager().checkPermission(permissionKey, userContext);
   }, [permissionKey, userContext]);
 
   return {
@@ -73,7 +73,7 @@ export function useMultiplePermissions(permissionKeys: string[]) {
   }), [user, isAuthenticated, subscription]);
 
   const permissionResult: UnifiedPermissionResult = useMemo(() => {
-    return unifiedPermissionManager.checkMultiplePermissions(permissionKeys, userContext);
+    return getUnifiedPermissionManager().checkMultiplePermissions(permissionKeys, userContext);
   }, [permissionKeys, userContext]);
 
   return {
@@ -110,7 +110,7 @@ export function useAnyPermission(permissionKeys: string[]) {
   }), [user, isAuthenticated, subscription]);
 
   const permissionResult: UnifiedPermissionResult = useMemo(() => {
-    return unifiedPermissionManager.checkAnyPermission(permissionKeys, userContext);
+    return getUnifiedPermissionManager().checkAnyPermission(permissionKeys, userContext);
   }, [permissionKeys, userContext]);
 
   return {
@@ -147,7 +147,7 @@ export function useUserPermissions() {
   }), [user, isAuthenticated, subscription]);
 
   const availablePermissions = useMemo(() => {
-    return unifiedPermissionManager.getUserAvailablePermissions(userContext);
+    return getUnifiedPermissionManager().getUserAvailablePermissions(userContext);
   }, [userContext]);
 
   return {

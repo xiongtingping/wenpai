@@ -587,18 +587,29 @@ export class UnifiedPermissionManager {
   }
 }
 
-// 导出单例实例
-export const unifiedPermissionManager = UnifiedPermissionManager.getInstance();
+// 延迟初始化，避免循环依赖
+let _unifiedPermissionManager: UnifiedPermissionManager | null = null;
+
+// 导出单例实例的获取函数
+export const getUnifiedPermissionManager = (): UnifiedPermissionManager => {
+  if (!_unifiedPermissionManager) {
+    _unifiedPermissionManager = UnifiedPermissionManager.getInstance();
+  }
+  return _unifiedPermissionManager;
+};
 
 // 导出便捷函数
 export const checkPermission = (permissionKey: string, user: UserPermissionContext) => 
-  unifiedPermissionManager.checkPermission(permissionKey, user);
+  getUnifiedPermissionManager().checkPermission(permissionKey, user);
 
 export const checkMultiplePermissions = (permissionKeys: string[], user: UserPermissionContext) =>
-  unifiedPermissionManager.checkMultiplePermissions(permissionKeys, user);
+  getUnifiedPermissionManager().checkMultiplePermissions(permissionKeys, user);
 
 export const checkAnyPermission = (permissionKeys: string[], user: UserPermissionContext) =>
-  unifiedPermissionManager.checkAnyPermission(permissionKeys, user);
+  getUnifiedPermissionManager().checkAnyPermission(permissionKeys, user);
+
+// 导出单例实例（向后兼容）
+export const unifiedPermissionManager = getUnifiedPermissionManager();
 
 export default {
   UNIFIED_PERMISSION_CONFIGS,
