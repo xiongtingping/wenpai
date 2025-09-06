@@ -1,6 +1,7 @@
 /**
  * 统一使用量统计Hook
  * @description 统一获取Token使用量和使用次数数据，确保数据的实时同步和一致性显示
+ * 🔧 修复了剩余次数显示问题：高级版无限制显示为 ∞ 而不是 0
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -8,6 +9,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTokenUsageStore } from '@/stores/tokenUsageStore';
 import { unifiedUsageService } from '@/services/unifiedUsageService';
 import { enhancedPermissionService } from '@/services/enhancedPermissionService';
+import { 
+  formatRemainingUses, 
+  calculateUsagePercentage, 
+  getTierDefaultLimit 
+} from '@/utils/usageDisplayUtils';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { TokenUsageStats } from '@/services/tokenUsageService';
 import type { UnifiedUsageStats } from '@/services/unifiedUsageService';
@@ -68,18 +74,10 @@ export interface EnhancedUnifiedUsageStats {
 
 /**
  * 获取使用次数限额的函数
+ * 🔧 修复：使用统一的限额获取逻辑
  */
 function getUsageCountLimit(tier: SubscriptionTier): number {
-  switch (tier) {
-    case 'trial':
-      return 10;
-    case 'pro':
-      return 30;
-    case 'premium':
-      return -1; // 不限量
-    default:
-      return 10;
-  }
+  return getTierDefaultLimit(tier);
 }
 
 /**
@@ -95,11 +93,13 @@ async function fetchUsageCountStats(userId: string, userTier: SubscriptionTier):
 
     // 如果API调用失败，返回默认值而不是模拟数据
     const availableUses = getUsageCountLimit(userTier);
+    const usedCount = 0;
+    
     return {
-      usedCount: 0,
+      usedCount,
       availableUses,
-      usagePercentage: 0,
-      remainingUses: availableUses === -1 ? -1 : availableUses
+      usagePercentage: calculateUsagePercentage(usedCount, availableUses, userTier),
+      remainingUses: availableUses === -1 ? -1 : Math.max(0, availableUses - usedCount)
     };
   }
 }

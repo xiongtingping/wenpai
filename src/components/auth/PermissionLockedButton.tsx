@@ -1,18 +1,14 @@
 /**
- * 权限锁定按钮组件
- * 根据用户权限显示正常按钮或锁定状态的按钮
+ * 权限锁定按钮组件 - 使用统一权限系统
+ * @description 基于统一权限配置的权限锁定按钮，替代分散的权限检查逻辑
  */
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Lock, Crown, Zap } from 'lucide-react';
+import { Lock } from 'lucide-react';
+import { useUnifiedPermission } from '@/hooks/useUnifiedPermission';
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { getUserTier } from "@/utils/subscriptionUtils";
-import { getSubscriptionPlan } from "@/config/subscriptionPlans";
-import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from '@/components/ui/toast';
-import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import type { SubscriptionTier } from '@/types/subscription';
 
 export interface PermissionLockedButtonProps {
   children: React.ReactNode;
@@ -26,7 +22,7 @@ export interface PermissionLockedButtonProps {
 }
 
 /**
- * 权限锁定按钮组件
+ * 权限锁定按钮组件 - 基于统一权限系统
  */
 export const PermissionLockedButton = React.forwardRef<HTMLButtonElement, PermissionLockedButtonProps>((
   {
@@ -41,135 +37,46 @@ export const PermissionLockedButton = React.forwardRef<HTMLButtonElement, Permis
   },
   ref
 ) => {
-  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
 
-  // 获取用户当前等级 - 结合订阅状态和用户数据
-  const userTier = (() => {
-    // 优先使用订阅状态中的等级信息
-    if (hasActiveSubscription && primaryStatus?.status === 'active' && primaryStatus.tier) {
-      return primaryStatus.tier;
-    }
+  // 使用统一权限检查
+  const permissionKey = `tier:${requiredTier}`;
+  const { hasPermission, canUpgrade, upgradeUrl, reason } = useUnifiedPermission(permissionKey);
 
-    // 如果订阅状态中没有等级信息，但有活跃订阅，根据状态标签推断等级
-    if (hasActiveSubscription && primaryStatus?.status === 'active') {
-      const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
-      if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
-        return 'premium';
-      } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
-        return 'pro';
+  // 处理点击事件
+  const handleClick = () => {
+    if (hasPermission) {
+      // 有权限，执行原始点击逻辑
+      onClick?.();
+    } else {
+      // 无权限，跳转到升级页面
+      if (upgradeUrl) {
+        navigate(upgradeUrl);
+      } else {
+        navigate('/payment');
       }
     }
-
-    // 最后使用用户数据中的等级信息
-    return getUserTier(user);
-  })();
-  
-  // 检查权限
-  const hasPermission = () => {
-    if (!isAuthenticated) return false;
-    
-    const tierLevels = { trial: 0, pro: 1, premium: 2 };
-    return tierLevels[userTier] >= tierLevels[requiredTier];
   };
-
-  // 处理升级点击
-  const handleUpgradeClick = () => {
-    const plan = getSubscriptionPlan(requiredTier);
-
-    toast({
-      title: `需要${plan.name}`,
-      description: `${featureName || '此功能'}需要${plan.name}，确定后跳转至支付中心选择${plan.name}`,
-      action: (
-        <ToastAction
-          altText="确定"
-          onClick={() => {
-            // 保存选中的计划到localStorage
-            localStorage.setItem("selectedPlan", requiredTier);
-            // 跳转到支付页面
-            navigate('/payment');
-          }}
-        >
-          确定
-        </ToastAction>
-      )
-    });
-  };
-
-  // 如果有权限，显示正常按钮
-  if (hasPermission()) {
-    return (
-      <Button
-        ref={ref}
-        variant={variant}
-        size={size}
-        className={className}
-        onClick={onClick}
-        disabled={disabled}
-      >
-        {children}
-      </Button>
-    );
-  }
-
-  // 没有权限，显示锁定按钮
-  const plan = getSubscriptionPlan(requiredTier);
-  const lockIcon = requiredTier === 'premium' ? Crown : requiredTier === 'pro' ? Zap : Lock;
-  const LockIcon = lockIcon;
 
   return (
-    <div className="relative group">
-      <Button
-        ref={ref}
-        variant="outline"
-        size={size}
-        className={`${className} permission-locked-button opacity-60 cursor-pointer border-dashed transition-all duration-200 hover:opacity-80`}
-        onClick={handleUpgradeClick}
-        disabled={disabled}
-      >
-        <LockIcon className="h-4 w-4 mr-2" />
-        {children}
-        <span className={`ml-2 text-xs font-bold ${
-          requiredTier === 'premium'
-            ? 'text-white bg-gradient-to-r from-permission-premium to-permission-premium/90 shadow-lg'
-            : requiredTier === 'pro'
-            ? 'text-white bg-gradient-to-r from-permission-pro to-permission-pro/90 shadow-lg'
-            : 'text-white bg-gradient-to-r from-permission-locked to-permission-locked/90 shadow-lg'
-        } px-3 py-1 rounded-full border-0`}>
-          需要{plan.name}
-        </span>
-      </Button>
-
-      {/* 升级按钮 */}
-      <Button
-        size="sm"
-        variant="default"
-        className={`absolute -top-2 -right-2 h-6 px-2 text-xs font-medium shadow-lg ${
-          requiredTier === 'premium'
-            ? 'bg-permission-premium hover:bg-permission-premium/90 text-permission-premium-foreground'
-            : requiredTier === 'pro'
-            ? 'bg-permission-pro hover:bg-permission-pro/90 text-permission-pro-foreground'
-            : 'bg-permission-locked hover:bg-permission-locked/90 text-permission-locked-foreground'
-        } opacity-0 group-hover:opacity-100 transition-opacity duration-200`}
-        onClick={(e) => {
-          e.stopPropagation();
-          // 直接跳转到支付页面
-          localStorage.setItem("selectedPlan", requiredTier);
-          navigate('/payment');
-        }}
-      >
-        升级
-      </Button>
-    </div>
+    <Button
+      ref={ref}
+      variant={hasPermission ? variant : 'outline'}
+      size={size}
+      className={`${className} ${!hasPermission ? 'opacity-70' : ''}`}
+      onClick={handleClick}
+      disabled={disabled}
+    >
+      {!hasPermission && <Lock className="w-4 h-4 mr-1" />}
+      {children}
+    </Button>
   );
 });
 
 PermissionLockedButton.displayName = 'PermissionLockedButton';
 
 /**
- * 权限锁定图标按钮组件
+ * 权限锁定图标按钮组件 - 基于统一权限系统
  */
 export const PermissionLockedIconButton = React.forwardRef<HTMLButtonElement, PermissionLockedButtonProps>((
   {
@@ -184,94 +91,36 @@ export const PermissionLockedIconButton = React.forwardRef<HTMLButtonElement, Pe
   },
   ref
 ) => {
-  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
 
-  // 获取用户当前等级 - 结合订阅状态和用户数据
-  const userTier = (() => {
-    // 优先使用订阅状态中的等级信息
-    if (hasActiveSubscription && primaryStatus?.status === 'active' && primaryStatus.tier) {
-      return primaryStatus.tier;
-    }
+  // 使用统一权限检查
+  const permissionKey = `tier:${requiredTier}`;
+  const { hasPermission, upgradeUrl, reason } = useUnifiedPermission(permissionKey);
 
-    // 如果订阅状态中没有等级信息，但有活跃订阅，根据状态标签推断等级
-    if (hasActiveSubscription && primaryStatus?.status === 'active') {
-      const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
-      if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
-        return 'premium';
-      } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
-        return 'pro';
+  // 处理点击事件
+  const handleClick = () => {
+    if (hasPermission) {
+      onClick?.();
+    } else {
+      if (upgradeUrl) {
+        navigate(upgradeUrl);
+      } else {
+        navigate('/payment');
       }
     }
-
-    // 最后使用用户数据中的等级信息
-    return getUserTier(user);
-  })();
-  
-  // 检查权限
-  const hasPermission = () => {
-    if (!isAuthenticated) return false;
-    
-    const tierLevels = { trial: 0, pro: 1, premium: 2 };
-    return tierLevels[userTier] >= tierLevels[requiredTier];
   };
-
-  // 处理升级点击
-  const handleUpgradeClick = () => {
-    const plan = getSubscriptionPlan(requiredTier);
-
-    toast({
-      title: `需要${plan.name}`,
-      description: `${featureName || '此功能'}需要${plan.name}，确定后跳转至支付中心选择${plan.name}`,
-      action: (
-        <ToastAction
-          altText="确定"
-          onClick={() => {
-            // 保存选中的计划到localStorage
-            localStorage.setItem("selectedPlan", requiredTier);
-            // 跳转到支付页面
-            navigate('/payment');
-          }}
-        >
-          确定
-        </ToastAction>
-      )
-    });
-  };
-
-  // 如果有权限，显示正常按钮
-  if (hasPermission()) {
-    return (
-      <Button
-        ref={ref}
-        variant={variant}
-        size={size}
-        className={className}
-        onClick={onClick}
-        disabled={disabled}
-      >
-        {children}
-      </Button>
-    );
-  }
-
-  // 没有权限，显示锁定图标按钮
-  const lockIcon = requiredTier === 'premium' ? Crown : requiredTier === 'pro' ? Zap : Lock;
-  const LockIcon = lockIcon;
 
   return (
     <Button
       ref={ref}
-      variant="outline"
+      variant={hasPermission ? variant : 'outline'}
       size={size}
-      className={`${className} permission-locked-button opacity-60 cursor-pointer border-dashed transition-all duration-200 relative`}
-      onClick={handleUpgradeClick}
+      className={`${className} ${!hasPermission ? 'opacity-60 cursor-pointer border-dashed' : ''}`}
+      onClick={handleClick}
       disabled={disabled}
-      title={`需要${getSubscriptionPlan(requiredTier).name} - ${featureName || '此功能'}`}
+      title={!hasPermission ? `${reason || `需要${requiredTier}版本`} - ${featureName || '此功能'}` : undefined}
     >
-      <LockIcon className="h-4 w-4" />
+      {!hasPermission ? <Lock className="h-4 w-4" /> : children}
     </Button>
   );
 });

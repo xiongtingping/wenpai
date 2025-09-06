@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { UsageStats } from "@/types/subscription";
 import { Activity, Zap, Database, Clock, Crown, TrendingUp, Calendar, Clock as ClockIcon } from "lucide-react";
+import { formatRemainingUses } from "@/utils/usageDisplayUtils";
 
 interface UsageStatsProps {
   usageStats: UsageStats;
@@ -52,7 +53,7 @@ export function UsageStatsCard({ usageStats, planName, adaptUsageLimit, tokenLim
             />
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>已使用 {usageStats.adaptUsageUsed} 次</span>
-              <span>剩余 {usageStats.adaptUsageRemaining} 次</span>
+              <span>剩余 {formatRemainingUses(usageStats.adaptUsageRemaining, userType)} 次</span>
             </div>
           </div>
         </div>

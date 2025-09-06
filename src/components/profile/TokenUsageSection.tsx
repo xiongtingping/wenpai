@@ -20,6 +20,14 @@ import {
   Database
 } from 'lucide-react';
 import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats';
+import { 
+  formatRemainingUses, 
+  formatUsageDisplay,
+  shouldShowProgressBar,
+  getUsageStatusColor,
+  getProgressBarColor,
+  formatTierName
+} from '@/utils/usageDisplayUtils';
 import type { SubscriptionTier } from '@/types/subscription';
 
 /**
@@ -288,7 +296,7 @@ export function TokenUsageSection({
                         />
                         <div className="flex justify-between text-sm font-medium text-muted-foreground">
                           <span>已使用 {finalUsageCountStats?.usedCount || 0} 次</span>
-                          <span>剩余 {finalUsageCountStats?.remainingUses || 0} 次</span>
+                          <span>剩余 {formatRemainingUses(finalUsageCountStats?.remainingUses || 0, userTier)} 次</span>
                         </div>
                       </>
                     ) : (

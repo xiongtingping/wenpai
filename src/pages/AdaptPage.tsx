@@ -116,6 +116,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { Header } from '@/components/landing/Header';
 import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats';
+import { formatRemainingUses } from '@/utils/usageDisplayUtils';
 
 /**
  * 主流平台内容发布入口URL映射
@@ -4496,7 +4497,7 @@ ${globalSettings.globalAutoFormat ? '✅ 全局自动排版已启用 - 必须优
                 <span className="text-sm text-muted-foreground">{t('adapt.remainingUsage')}</span>
                 <UsageStateWrapper>
                   <Badge variant={usageRemaining <= 5 ? "destructive" : "default"}>
-                    {usageRemaining === Infinity ? "不限" : usageRemaining}
+                    {usageRemaining === -1 || usageRemaining === Infinity ? "∞" : formatRemainingUses(usageRemaining, currentTier)}
                   </Badge>
                 </UsageStateWrapper>
               </div>
