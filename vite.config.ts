@@ -153,27 +153,15 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        // 🔧 优化代码分块策略，按服务类型分组
+        // 简化策略：仅将所有第三方依赖归入单一 vendor（减少跨分组循环依赖几率）
         manualChunks: (id) => {
-          // 按文件路径智能分块，避免循环依赖
-          if (id.includes('services/') || id.includes('Service.ts') || id.includes('API.ts')) {
-            return 'services';
-          }
-          if (id.includes('config/') || id.includes('Manager.ts')) {
-            return 'config';
-          }
-          if (id.includes('lib/') && (id.includes('data') || id.includes('storage'))) {
-            return 'data-lib';
-          }
-          if (id.includes('node_modules/react')) {
-            return 'react-vendor';
-          }
-          if (id.includes('node_modules/@authing')) {
-            return 'auth-vendor';
-          }
           if (id.includes('node_modules')) {
+            if (id.includes('node_modules/@radix-ui')) return 'ui-vendor';
+            if (id.includes('node_modules/lucide-react')) return 'icons-vendor';
+            if (id.includes('node_modules/@authing')) return 'auth-vendor';
             return 'vendor';
           }
+          // 其余保持默认，避免不必要的分块导致初始化顺序问题
         },
         // 使用语义化的chunk文件名
         chunkFileNames: (chunkInfo) => {
