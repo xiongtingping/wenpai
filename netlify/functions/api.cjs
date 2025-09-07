@@ -131,14 +131,26 @@ module.exports.handler = async (event, context) => {
       let actualModel = model;
       
       if (!actualProvider) {
-        if (model?.includes('gpt') || model?.includes('o1')) {
+        // 🎯 智能模型路由识别（按提供商分类）
+        if (model?.includes('gpt-4o') && !model.includes('mini')) {
+          // GPT-4o 走 OpenAI 原生接口
+          actualProvider = 'openai';
+        } else if (model?.includes('gpt-4o-mini')) {
+          // GPT-4o Mini 走 OpenAI 原生接口  
           actualProvider = 'openai';
         } else if (model?.includes('deepseek')) {
+          // 所有 DeepSeek 模型走 DeepSeek 原生接口
           actualProvider = 'deepseek';
-        } else if (model?.includes('gemini')) {
-          actualProvider = 'gemini';
+        } else if (model?.includes('gpt-5') || 
+                   model?.includes('claude') || 
+                   model?.includes('llama') || 
+                   model?.includes('qwen') || 
+                   model?.includes('gemini')) {
+          // 其他所有模型走 AIML API
+          actualProvider = 'aimlapi';
         } else {
-          actualProvider = 'deepseek'; // 默认使用deepseek
+          // 默认降级到 DeepSeek
+          actualProvider = 'deepseek';
           actualModel = 'deepseek-chat';
         }
       }
@@ -179,6 +191,9 @@ module.exports.handler = async (event, context) => {
         case 'gemini':
           result = await generateWithGemini(requestBody, headers);
           break;
+        case 'aimlapi':
+          result = await generateWithAimlapi(requestBody, headers);
+          break;
         default:
           return {
             statusCode: 400,
@@ -211,8 +226,9 @@ module.exports.handler = async (event, context) => {
     const body = event.body ? JSON.parse(event.body) : {};
     const { provider, action, platform, model, messages, ...requestBody } = body;
 
-    // ✅ FIXED: 确保messages在requestBody中可用
+    // ✅ FIXED: 确保messages和model在requestBody中可用
     requestBody.messages = messages;
+    requestBody.model = model;
 
     // 🔧 新增：直接AI调用支持（无需action参数，通过model和messages识别）
     if (model && messages && !action) {
@@ -223,13 +239,25 @@ module.exports.handler = async (event, context) => {
       let actualModel = model;
       
       if (!actualProvider) {
-        if (model?.includes('gpt') || model?.includes('o1')) {
+        // 🎯 智能模型路由识别（按提供商分类）
+        if (model?.includes('gpt-4o') && !model.includes('mini')) {
+          // GPT-4o 走 OpenAI 原生接口
+          actualProvider = 'openai';
+        } else if (model?.includes('gpt-4o-mini')) {
+          // GPT-4o Mini 走 OpenAI 原生接口  
           actualProvider = 'openai';
         } else if (model?.includes('deepseek')) {
+          // 所有 DeepSeek 模型走 DeepSeek 原生接口
           actualProvider = 'deepseek';
-        } else if (model?.includes('gemini')) {
-          actualProvider = 'gemini';
+        } else if (model?.includes('gpt-5') || 
+                   model?.includes('claude') || 
+                   model?.includes('llama') || 
+                   model?.includes('qwen') || 
+                   model?.includes('gemini')) {
+          // 其他所有模型走 AIML API
+          actualProvider = 'aimlapi';
         } else {
+          // 默认降级到 DeepSeek
           actualProvider = 'deepseek';
           actualModel = 'deepseek-chat';
         }
@@ -317,6 +345,8 @@ module.exports.handler = async (event, context) => {
           return await generateWithDeepSeek(requestBody, headers);
         case 'gemini':
           return await generateWithGemini(requestBody, headers);
+        case 'aimlapi':
+          return await generateWithAimlapi(requestBody, headers);
         default:
           return {
             statusCode: 400,
@@ -815,6 +845,119 @@ async function generateWithGemini(requestBody, headers) {
       })
     };
   } catch (error) {
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        success: false,
+        error: error.message
+      })
+    };
+  }
+}
+
+/**
+ * 使用 AIML API 生成内容
+ */
+async function generateWithAimlapi(requestBody, headers) {
+  try {
+    const apiKey = process.env.VITE_AIMLAPI_API_KEY || process.env.AIMLAPI_API_KEY;
+    console.log('🔑 AIML API Key 检查:', {
+      hasKey: !!apiKey,
+      keyLength: apiKey?.length || 0,
+      keyPrefix: apiKey?.substring(0, 8) || 'N/A'
+    });
+    
+    if (!apiKey) {
+      throw new Error('AIML API key not configured');
+    }
+
+    // 确保messages数组存在且不为空
+    let messages = requestBody.messages;
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      console.log('⚠️ messages为空，使用默认消息结构');
+      messages = [{ role: 'user', content: 'Hello' }];
+    }
+
+    // 🎯 模型名称映射：将我们配置的模型名映射到AIML API实际支持的模型ID
+    const modelMapping = {
+      // GPT-5 系列
+      'gpt-5': 'openai/gpt-5-2025-08-07',
+      'gpt-5-mini': 'openai/gpt-5-mini-2025-08-07', 
+      'gpt-5-nano': 'openai/gpt-5-nano-2025-08-07',
+      
+      // Claude 系列
+      'claude-3.5-sonnet': 'claude-3-5-sonnet-20241022',
+      
+      // Gemini 系列  
+      'gemini-2.0-flash': 'google/gemini-2.0-flash-exp',
+      'gemini-2.5-flash': 'google/gemini-2.5-flash',
+      'gemini-1.5-flash-8b': 'google/gemini-1.5-flash-8b',
+      
+      // Meta Llama 系列
+      'llama-3.3-70b-instruct': 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+      
+      // Qwen 系列（使用实际的alibaba前缀）
+      'qwen-max': 'alibaba/qwen-max',
+      'qwen-plus': 'alibaba/qwen-plus', 
+      'qwen-turbo': 'alibaba/qwen-turbo',
+      
+      // DeepSeek 系列（使用实际支持的模型）
+      'deepseek-v3': 'deepseek/deepseek-chat-v3.1',
+      'deepseek-r1': 'deepseek/deepseek-reasoner-v3.1'
+    };
+
+    const actualModel = modelMapping[requestBody.model] || requestBody.model || 'claude-3-5-sonnet-20241022';
+    
+    console.log('🔄 模型映射:', {
+      输入模型: requestBody.model,
+      实际模型: actualModel
+    });
+
+    const response = await fetch('https://api.aimlapi.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      body: JSON.stringify({
+        model: actualModel,
+        messages: messages,
+        temperature: requestBody.temperature || 0.7,
+        max_tokens: requestBody.maxTokens || 1000
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // 提取并清理AI生成的内容
+    let cleanContent = '';
+    if (data.choices && data.choices[0]?.message?.content) {
+      cleanContent = data.choices[0].message.content;
+    }
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        success: true,
+        data: {
+          choices: [{
+            message: {
+              content: cleanContent,
+              role: 'assistant'
+            }
+          }]
+        }
+      })
+    };
+  } catch (error) {
+    console.error('❌ AIML API调用错误:', error);
     return {
       statusCode: 500,
       headers,

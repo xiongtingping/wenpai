@@ -34,6 +34,9 @@ export type PermissionType =
   | 'feature:brand-library'    // 品牌库功能
   | 'feature:unlimited-usage'  // 无限使用功能
   | 'feature:advanced-models'  // 高级模型功能
+  | 'model:trial'            // 体验版AI模型权限
+  | 'model:pro'              // 专业版AI模型权限
+  | 'model:premium'          // 高级版AI模型权限
   | 'theme:basic'            // 基础主题
   | 'theme:advanced'         // 高级主题
   | 'theme:premium';         // 专业主题
@@ -213,6 +216,35 @@ const PERMISSION_CONFIGS = {
       if (!user) return false;
       const userTier = getUserTier(user);
       return userTier === 'pro' || userTier === 'premium';
+    },
+    redirectUrl: '/payment'
+  },
+  'model:trial': {
+    name: '体验版AI模型',
+    description: '基础AI模型，包括Google Gemini 2.5 Flash Lite Preview、Meta Llama 4 Scout、OpenAI GPT-4o Mini、Alibaba Qwen Turbo',
+    requiredTier: 'trial' as SubscriptionTier,
+    check: (user: any) => true, // 体验版模型对所有用户开放
+    redirectUrl: '/payment'
+  },
+  'model:pro': {
+    name: '专业版AI模型',
+    description: '专业AI模型，包括DeepSeek Chat系列、OpenAI GPT-5 Mini、Google Gemini 2.5 Flash、Alibaba Qwen Plus',
+    requiredTier: 'pro' as SubscriptionTier,
+    check: (user: any) => {
+      if (!user) return false;
+      const userTier = getUserTier(user);
+      return userTier === 'pro' || userTier === 'premium';
+    },
+    redirectUrl: '/payment'
+  },
+  'model:premium': {
+    name: '高级版AI模型',
+    description: '顶级AI模型，包括OpenAI GPT-5 Chat Latest、Anthropic Claude Sonnet 4、Google Gemini 2.5 Pro、Alibaba Qwen Max',
+    requiredTier: 'premium' as SubscriptionTier,
+    check: (user: any) => {
+      if (!user) return false;
+      const userTier = getUserTier(user);
+      return userTier === 'premium';
     },
     redirectUrl: '/payment'
   },

@@ -65,19 +65,21 @@ class BrandProfileService {
       if (this.currentUserId) {
         const dataService = this.getDataService();
         
-        // 检查是否已存在
+        // 检查是否已存在（使用brand_name字段替代corpusType）
+        const brandName = `brand_profile_${profile.name}`;
         const existing = await dataService.findMany({
-          filters: { corpusType: 'brand_profile' },
+          filters: { brand_name: brandName },
           limit: 1
         });
         
         const profileData = {
-          corpusType: 'brand_profile',
-          corpusName: profile.name,
-          corpusContent: JSON.stringify(profile),
+          brand_name: brandName,
+          brand_description: `品牌档案: ${profile.name}`,
+          content_samples: [JSON.stringify(profile)],
           metadata: {
             profileId: profile.id,
-            version: '1.0'
+            version: '1.0',
+            corpusType: 'brand_profile' // 在metadata中保存原来的类型信息
           }
         };
         
@@ -106,22 +108,35 @@ class BrandProfileService {
           return latestProfile;
         }
         
-        // 尝试从 Supabase 获取用户品牌数据
+        // 尝试从 Supabase 获取用户品牌数据（使用brand_name字段查询）
         if (this.currentUserId) {
           const dataService = this.getDataService();
+          // 查询brand_name以brand_profile_开头的记录
           const result = await dataService.findMany({
-            filters: { corpusType: 'brand_profile' },
             limit: 1,
-            orderBy: 'updatedAt',
+            orderBy: 'updated_at',
             orderDirection: 'desc'
           });
           
           if (result.data && result.data.length > 0) {
-            const profileData = result.data[0];
-            try {
-              this.currentProfile = JSON.parse(profileData.corpusContent);
-            } catch (parseError) {
-              console.error('解析品牌档案数据失败:', parseError);
+            const profileData = result.data.find(item => 
+              item.brand_name?.startsWith('brand_profile_') || 
+              item.metadata?.corpusType === 'brand_profile'
+            );
+            
+            if (profileData) {
+              try {
+                // 从content_samples数组中获取数据
+                const contentData = profileData.content_samples && profileData.content_samples.length > 0 
+                  ? profileData.content_samples[0] 
+                  : null;
+                
+                if (contentData) {
+                  this.currentProfile = JSON.parse(contentData);
+                }
+              } catch (parseError) {
+                console.error('解析品牌档案数据失败:', parseError);
+              }
             }
           }
         }

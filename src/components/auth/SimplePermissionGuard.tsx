@@ -50,5 +50,6 @@ export const SimplePermissionGuard: React.FC<SimplePermissionGuardProps> = ({
       {children}
     </UnifiedPermissionWrapper>
   );
+};
 
 export default SimplePermissionGuard;

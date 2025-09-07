@@ -141,22 +141,24 @@ export class DataStorageMigration {
         return { success: true, itemCount: 0 };
       }
 
-      // 检查Supabase中是否已存在该类型的数据
+      // 检查Supabase中是否已存在该类型的数据（使用brand_name字段替代corpusType）
+      const uniqueBrandName = `${migration.description}_${this.userId}`;
       const existingData = await this.supabaseService.findMany({
-        filters: { corpusType: migration.corpusType },
+        filters: { brand_name: uniqueBrandName },
         limit: 1
       });
 
       const dataToSave = {
-        corpusType: migration.corpusType,
-        corpusName: `${migration.description}_${this.userId}`,
-        corpusContent: JSON.stringify(parsedData),
+        brand_name: uniqueBrandName,
+        brand_description: `数据迁移: ${migration.description}`,
+        content_samples: [JSON.stringify(parsedData)], // 将数据存储在content_samples数组中
         metadata: {
           migratedFromLocalStorage: true,
           migrationDate: new Date().toISOString(),
           originalStorageKey: migration.storageKey,
           itemCount: Array.isArray(parsedData) ? parsedData.length : 1,
-          dataType: migration.corpusType
+          dataType: migration.corpusType,
+          corpusType: migration.corpusType // 在metadata中保存原来的corpusType信息
         }
       };
 

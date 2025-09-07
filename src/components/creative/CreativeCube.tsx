@@ -56,7 +56,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuthStore } from '@/store/authStore';
-import { callCreativeGeneration } from '@/api/aiService';
+import { callUnifiedAI } from '@/api/unifiedAIService';
+import { AITaskType } from '@/api/aiService';
 import { Label as UILabel } from '@/components/ui/label';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import {
@@ -1858,13 +1859,36 @@ ${generateStandardCallToAction()}
       const contentType = isVideo ? 'video' : 'text';
       
       // 调用统一AI服务生成创意内容
-      console.log('🎨 开始调用创意生成AI服务');
-      const aiResponse = await callCreativeGeneration({
-        targetAudience: selectedItems.target_audience || '通用用户',
-        useCase: selectedItems.use_case || '日常使用',
-        painPoint: selectedItems.pain_point || '需求痛点',
-        contentType,
-        additionalContext: prompt
+      console.log('🎨 开始调用统一AI创意生成服务');
+      
+      // 构建创意生成提示词
+      const creativityPrompt = `请为以下维度生成创意内容：
+
+**目标受众**：${selectedItems.target_audience || '通用用户'}
+**使用场景**：${selectedItems.use_case || '日常使用'}
+**痛点需求**：${selectedItems.pain_point || '需求痛点'}
+**内容类型**：${contentType === 'text' ? '图文内容' : '视频脚本'}
+**行业领域**：${selectedItems.industry || '通用'}
+**附加要求**：${prompt || '无特殊要求'}
+
+请生成符合以上维度要求的高质量创意内容，确保内容具有吸引力、实用性和传播性。
+
+如果是图文内容，请生成完整的文案；
+如果是视频脚本，请包含场景描述、对白和转场提示。`;
+
+      const aiResponse = await callUnifiedAI({
+        prompt: creativityPrompt,
+        taskType: AITaskType.CREATIVE_GENERATION,
+        model: 'gpt-5-mini', // 使用中级模型
+        maxTokens: contentType === 'video' ? 2000 : 1500,
+        temperature: 0.9, // 高创意度
+        context: {
+          targetAudience: selectedItems.target_audience,
+          useCase: selectedItems.use_case,
+          painPoint: selectedItems.pain_point,
+          contentType,
+          industry: selectedItems.industry
+        }
       });
       
       if (aiResponse.success && aiResponse.content) {

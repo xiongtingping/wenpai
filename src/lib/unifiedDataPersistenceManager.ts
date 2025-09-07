@@ -353,20 +353,22 @@ export class UnifiedDataPersistenceManager {
     }
 
     try {
-      // 检查是否已存在
+      // 检查是否已存在（使用brand_name字段替代corpusType）
+      const brandName = `${dataType}_${this.userId}`;
       const existing = await service.findMany({
-        filters: { corpusType: dataType },
+        filters: { brand_name: brandName },
         limit: 1
       });
 
       const recordData = {
-        corpusType: dataType,
-        corpusName: `${dataType}_${this.userId}`,
-        corpusContent: JSON.stringify(data),
+        brand_name: brandName,
+        brand_description: `统一数据存储: ${dataType}`,
+        content_samples: [JSON.stringify(data)],
         metadata: {
           dataType,
           lastUpdated: new Date().toISOString(),
-          version: '2.0'
+          version: '2.0',
+          corpusType: dataType // 在metadata中保存原始类型
         }
       };
 
@@ -601,16 +603,24 @@ export class UnifiedDataPersistenceManager {
     }
 
     try {
+      const brandName = `${dataType}_${this.userId}`;
       const result = await service.findMany({
-        filters: { corpusType: dataType },
+        filters: { brand_name: brandName },
         limit: 1
       });
 
       if (result.data && result.data.length > 0) {
         const record = result.data[0];
-        const data = JSON.parse(record.corpusContent);
-        logger.info(`☁️ 云端加载成功: ${dataType}`);
-        return data;
+        // 从content_samples数组中获取数据
+        const contentData = record.content_samples && record.content_samples.length > 0 
+          ? record.content_samples[0] 
+          : null;
+        
+        if (contentData) {
+          const data = JSON.parse(contentData);
+          logger.info(`☁️ 云端加载成功: ${dataType}`);
+          return data;
+        }
       }
 
       return null;
@@ -678,8 +688,9 @@ export class UnifiedDataPersistenceManager {
     }
 
     try {
+      const brandName = `${dataType}_${this.userId}`;
       const result = await service.findMany({
-        filters: { corpusType: dataType },
+        filters: { brand_name: brandName },
         limit: 1
       });
 

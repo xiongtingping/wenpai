@@ -5,7 +5,8 @@
 
 import { generatePlatformContent, type StyleType } from '@/config/contentSchemes';
 import { getContentFormById } from '@/config/contentForms';
-import { callContentAdapter } from '@/api/aiService';
+import { callUnifiedAI } from '@/api/unifiedAIService';
+import { AITaskType } from '@/api/aiService';
 
 /**
  * 内容适配请求参数
@@ -232,15 +233,27 @@ export async function generateAdaptedContent(
     }
 
     // 调用统一AI服务生成适配内容
-    console.log('🔄 开始调用内容适配AI服务');
-    const aiResponse = await callContentAdapter({
-      originalContent,
-      platform,
-      style,
-      charCount
+    console.log('🔄 开始调用统一AI内容适配服务');
+    
+    // 生成详细的内容适配提示词
+    const adaptationPrompt = generateContentFormPrompt(originalContent, platform, formId, style, charCount);
+    
+    const aiResponse = await callUnifiedAI({
+      prompt: adaptationPrompt,
+      taskType: AITaskType.CONTENT_ADAPTATION,
+      model: 'gpt-4o-mini', // 使用性价比高的模型
+      maxTokens: charCount ? Math.min(charCount * 2, 2000) : 1500,
+      temperature: 0.8,
+      context: {
+        platform,
+        style,
+        charCount,
+        formId,
+        originalLength: originalContent.length
+      }
     });
 
-    if (aiResponse.success) {
+    if (aiResponse.success && aiResponse.content) {
       return {
         success: true,
         data: {
@@ -248,21 +261,14 @@ export async function generateAdaptedContent(
           platform,
           formId,
           style,
-          prompt: `原始内容适配到${platform}平台`
+          prompt: `使用统一AI服务适配到${platform}平台`
         }
       };
     } else {
-      // AI调用失败时，返回生成的提示词作为备选
-      const fallbackPrompt = generateContentFormPrompt(originalContent, platform, formId, style, charCount);
+      // AI调用失败时，返回错误
       return {
-        success: true,
-        data: {
-          adaptedContent: fallbackPrompt,
-          platform,
-          formId,
-          style,
-          prompt: fallbackPrompt
-        }
+        success: false,
+        error: aiResponse.error || '内容适配失败'
       };
     }
   } catch (error) {

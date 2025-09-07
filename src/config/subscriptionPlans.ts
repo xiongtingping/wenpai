@@ -25,7 +25,7 @@ export const getSubscriptionPlans = (): SubscriptionPlan[] => [
     limits: {
       adaptUsageLimit: 10,
       tokenLimit: 100000,
-      availableModels: ['GPT-4o mini', 'DeepSeek v3'],
+      availableModels: ['Google Gemini 2.5 Flash Lite', 'Meta Llama 4 Scout', 'OpenAI GPT-4o Mini', 'Alibaba Qwen Turbo'],
       availableFeatures: ['全网雷达', '我的资料库', '基础AI模型']
     },
     features: [
@@ -57,8 +57,8 @@ export const getSubscriptionPlans = (): SubscriptionPlan[] => [
     limits: {
       adaptUsageLimit: 30,
       tokenLimit: 200000,
-      availableModels: ['GPT-4o', 'GPT-4o mini', 'DeepSeek v3'],
-      availableFeatures: ['全网雷达', '创意魔方', '我的资料库', '高级AI模型']
+      availableModels: ['体验版全部模型', 'DeepSeek Chat系列', 'OpenAI GPT-5 Mini', 'Google Gemini 2.5 Flash', 'Alibaba Qwen Plus'],
+      availableFeatures: ['全网雷达', '创意魔方', '我的资料库', '专业AI模型']
     },
     recommended: true,
     features: [
@@ -92,8 +92,8 @@ export const getSubscriptionPlans = (): SubscriptionPlan[] => [
     limits: {
       adaptUsageLimit: -1, // 不限量
       tokenLimit: 500000,
-      availableModels: ['GPT-4o', 'GPT-4o mini', 'DeepSeek v3'],
-      availableFeatures: ['全网雷达', '创意魔方', '我的资料库', '品牌库', '高级及最新AI模型']
+      availableModels: ['专业版全部模型', 'OpenAI GPT-5 Chat Latest', 'Anthropic Claude Sonnet 4', 'Google Gemini 2.5 Pro', 'Alibaba Qwen Max'],
+      availableFeatures: ['全网雷达', '创意魔方', '我的资料库', '品牌库', '顶级AI模型']
     },
     features: [
       `${i18n.t('payment.plans.features.aiContentAdapter')}（${i18n.t('payment.plans.features.unlimited')}）|up`,

@@ -11,6 +11,17 @@
 
 import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 import { logger } from '@/utils/logger';
+import { 
+  getAvailableModelsForTier, 
+  getModelInfo, 
+  isModelAvailableForTier,
+  getModelsByTier,
+  getAllModels,
+  type AIModel 
+} from '@/config/aiModels';
+import { getUserTier as getUserTierFromStorage } from '@/utils/modelPermissions';
+import { tokenUsageService } from './tokenUsageService';
+import type { SubscriptionTier } from '@/types/subscription';
 
 // 数据存储层级枚举
 export enum StorageLayer {
@@ -66,6 +77,16 @@ export const DATA_CONFIGS: Record<string, DataConfig> = {
   },
   preferredModel: {
     key: 'preferredAIModel',
+    category: DataCategory.USER_CRITICAL,
+    syncToCloud: true
+  },
+  aiModelUsage: {
+    key: 'aiModelUsage',
+    category: DataCategory.USER_CRITICAL,
+    syncToCloud: true
+  },
+  subscriptionTier: {
+    key: 'subscriptionTier',
     category: DataCategory.USER_CRITICAL,
     syncToCloud: true
   },
@@ -472,6 +493,265 @@ export class UnifiedDataManager {
 
     return stats;
   }
+
+  /**
+   * AI模型相关管理方法
+   */
+
+  /**
+   * 获取用户订阅层级
+   */
+  async getUserTier(): Promise<SubscriptionTier> {
+    try {
+      const cachedTier = await this.getData<SubscriptionTier>('subscriptionTier');
+      if (cachedTier) {
+        return cachedTier;
+      }
+      
+      // 从存储获取层级
+      const tier = getUserTierFromStorage();
+      await this.setData('subscriptionTier', tier);
+      return tier;
+    } catch (error) {
+      console.error('获取用户层级失败:', error);
+      return 'trial';
+    }
+  }
+
+  /**
+   * 获取用户可用的AI模型
+   */
+  async getUserAvailableModels(): Promise<AIModel[]> {
+    const userTier = await this.getUserTier();
+    return getAvailableModelsForTier(userTier);
+  }
+
+  /**
+   * 检查用户是否有权限使用指定模型
+   */
+  async hasModelPermission(modelId: string): Promise<boolean> {
+    const userTier = await this.getUserTier();
+    return isModelAvailableForTier(modelId, userTier);
+  }
+
+  /**
+   * 获取用户首选AI模型
+   */
+  async getPreferredModel(): Promise<string> {
+    const preferred = await this.getData<string>('preferredModel');
+    if (preferred) {
+      // 检查权限
+      const hasPermission = await this.hasModelPermission(preferred);
+      if (hasPermission) {
+        return preferred;
+      }
+    }
+    
+    // 返回第一个可用模型
+    const availableModels = await this.getUserAvailableModels();
+    return availableModels[0]?.id || 'gpt-4o-mini';
+  }
+
+  /**
+   * 设置用户首选AI模型
+   */
+  async setPreferredModel(modelId: string): Promise<boolean> {
+    const hasPermission = await this.hasModelPermission(modelId);
+    if (!hasPermission) {
+      console.warn(`用户无权限使用模型: ${modelId}`);
+      return false;
+    }
+    
+    return await this.setData('preferredModel', modelId);
+  }
+
+  /**
+   * 记录AI模型使用情况
+   */
+  async recordModelUsage(modelId: string, tokens: number, feature: string): Promise<void> {
+    try {
+      const usage = await this.getData<Record<string, any>>('aiModelUsage') || {};
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (!usage[today]) {
+        usage[today] = {};
+      }
+      
+      if (!usage[today][modelId]) {
+        usage[today][modelId] = { tokens: 0, calls: 0, features: {} };
+      }
+      
+      usage[today][modelId].tokens += tokens;
+      usage[today][modelId].calls += 1;
+      
+      if (!usage[today][modelId].features[feature]) {
+        usage[today][modelId].features[feature] = 0;
+      }
+      usage[today][modelId].features[feature] += 1;
+      
+      await this.setData('aiModelUsage', usage);
+    } catch (error) {
+      console.error('记录模型使用失败:', error);
+    }
+  }
+
+  /**
+   * 获取AI模型使用统计
+   */
+  async getModelUsageStats(): Promise<{
+    today: Record<string, any>;
+    thisMonth: Record<string, any>;
+    total: Record<string, any>;
+    favoriteModel: string;
+    totalCalls: number;
+    totalTokens: number;
+  }> {
+    try {
+      const usage = await this.getData<Record<string, any>>('aiModelUsage') || {};
+      const today = new Date().toISOString().split('T')[0];
+      const thisMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+      
+      const todayStats = usage[today] || {};
+      const monthlyStats: Record<string, any> = {};
+      const totalStats: Record<string, any> = {};
+      
+      let totalCalls = 0;
+      let totalTokens = 0;
+      const modelCalls: Record<string, number> = {};
+      
+      // 汇总所有统计
+      Object.keys(usage).forEach(date => {
+        const isThisMonth = date.startsWith(thisMonth);
+        
+        Object.keys(usage[date]).forEach(modelId => {
+          const modelStats = usage[date][modelId];
+          
+          // 月度统计
+          if (isThisMonth) {
+            if (!monthlyStats[modelId]) {
+              monthlyStats[modelId] = { tokens: 0, calls: 0, features: {} };
+            }
+            monthlyStats[modelId].tokens += modelStats.tokens;
+            monthlyStats[modelId].calls += modelStats.calls;
+          }
+          
+          // 总体统计
+          if (!totalStats[modelId]) {
+            totalStats[modelId] = { tokens: 0, calls: 0, features: {} };
+          }
+          totalStats[modelId].tokens += modelStats.tokens;
+          totalStats[modelId].calls += modelStats.calls;
+          
+          // 计算最常用模型
+          modelCalls[modelId] = (modelCalls[modelId] || 0) + modelStats.calls;
+          totalCalls += modelStats.calls;
+          totalTokens += modelStats.tokens;
+        });
+      });
+      
+      const favoriteModel = Object.keys(modelCalls).reduce((a, b) => 
+        modelCalls[a] > modelCalls[b] ? a : b, Object.keys(modelCalls)[0] || 'gpt-4o-mini'
+      );
+      
+      return {
+        today: todayStats,
+        thisMonth: monthlyStats,
+        total: totalStats,
+        favoriteModel,
+        totalCalls,
+        totalTokens
+      };
+    } catch (error) {
+      console.error('获取模型使用统计失败:', error);
+      return {
+        today: {},
+        thisMonth: {},
+        total: {},
+        favoriteModel: 'gpt-4o-mini',
+        totalCalls: 0,
+        totalTokens: 0
+      };
+    }
+  }
+
+  /**
+   * 获取AI模型建议
+   */
+  async getModelRecommendations(): Promise<{
+    recommended: AIModel[];
+    reasons: string[];
+  }> {
+    try {
+      const userTier = await this.getUserTier();
+      const availableModels = await this.getUserAvailableModels();
+      const usageStats = await this.getModelUsageStats();
+      
+      // 基于使用习惯和订阅层级推荐
+      const recommendations: AIModel[] = [];
+      const reasons: string[] = [];
+      
+      // 推荐逻辑
+      if (userTier === 'trial') {
+        const trialModels = availableModels.filter(m => m.tier === 'low');
+        recommendations.push(...trialModels.slice(0, 2));
+        reasons.push('基于您的体验版订阅，推荐高性价比模型');
+      } else {
+        // 推荐最常用的模型
+        if (usageStats.favoriteModel && getModelInfo(usageStats.favoriteModel)) {
+          const favoriteModel = getModelInfo(usageStats.favoriteModel);
+          if (favoriteModel && availableModels.some(m => m.id === favoriteModel.id)) {
+            recommendations.push(favoriteModel);
+            reasons.push('基于您的使用习惯推荐');
+          }
+        }
+        
+        // 推荐最新的高级模型
+        const latestModels = availableModels
+          .filter(m => m.tier === 'high')
+          .slice(0, 2);
+        recommendations.push(...latestModels);
+        reasons.push('为您推荐最新的高级AI模型');
+      }
+      
+      return {
+        recommended: recommendations,
+        reasons
+      };
+    } catch (error) {
+      console.error('获取模型推荐失败:', error);
+      return { recommended: [], reasons: [] };
+    }
+  }
+
+  /**
+   * 清理过期的使用统计数据
+   */
+  async cleanupUsageStats(): Promise<void> {
+    try {
+      const usage = await this.getData<Record<string, any>>('aiModelUsage') || {};
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - 90); // 保留90天数据
+      const cutoffStr = cutoffDate.toISOString().split('T')[0];
+      
+      const cleanedUsage: Record<string, any> = {};
+      let removedCount = 0;
+      
+      Object.keys(usage).forEach(date => {
+        if (date >= cutoffStr) {
+          cleanedUsage[date] = usage[date];
+        } else {
+          removedCount++;
+        }
+      });
+      
+      if (removedCount > 0) {
+        await this.setData('aiModelUsage', cleanedUsage);
+        console.log(`✅ 清理了 ${removedCount} 天的过期使用统计数据`);
+      }
+    } catch (error) {
+      console.error('清理使用统计失败:', error);
+    }
+  }
 }
 
 /**
@@ -484,12 +764,24 @@ export const globalDataManager = new UnifiedDataManager();
  */
 export function useUnifiedData() {
   return {
+    // 基础数据管理
     getData: globalDataManager.getData.bind(globalDataManager),
     setData: globalDataManager.setData.bind(globalDataManager),
     preloadData: globalDataManager.preloadCriticalData.bind(globalDataManager),
     cleanupCache: globalDataManager.cleanupExpiredCache.bind(globalDataManager),
     getStats: globalDataManager.getDataStats.bind(globalDataManager),
-    setUserId: globalDataManager.setUserId.bind(globalDataManager)
+    setUserId: globalDataManager.setUserId.bind(globalDataManager),
+    
+    // AI模型管理
+    getUserTier: globalDataManager.getUserTier.bind(globalDataManager),
+    getUserAvailableModels: globalDataManager.getUserAvailableModels.bind(globalDataManager),
+    hasModelPermission: globalDataManager.hasModelPermission.bind(globalDataManager),
+    getPreferredModel: globalDataManager.getPreferredModel.bind(globalDataManager),
+    setPreferredModel: globalDataManager.setPreferredModel.bind(globalDataManager),
+    recordModelUsage: globalDataManager.recordModelUsage.bind(globalDataManager),
+    getModelUsageStats: globalDataManager.getModelUsageStats.bind(globalDataManager),
+    getModelRecommendations: globalDataManager.getModelRecommendations.bind(globalDataManager),
+    cleanupUsageStats: globalDataManager.cleanupUsageStats.bind(globalDataManager)
   };
 }
 

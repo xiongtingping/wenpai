@@ -3,12 +3,14 @@
  * @description 在不修改锁定的aiService.ts的前提下，为AI调用添加Token统计功能
  */
 
-import { callAI as originalCallAI, AITaskType } from '@/api/aiService';
+import { callUnifiedAI } from '@/api/unifiedAIService';
+import { AITaskType } from '@/api/aiService';
 import { tokenUsageService } from '@/services/tokenUsageService';
 import { useAuth } from '@/hooks/useAuth';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { AICallParams, AIResponse } from '@/api/types';
+import { hasModelPermission, getModelPermissionInfo } from '@/utils/modelPermissions';
 
 /**
  * 扩展的AI调用参数，包含Token统计相关信息
@@ -108,7 +110,33 @@ export async function callAIWithTokenTracking(
   const estimatedInputTokens = estimateTokens(params.prompt + (params.systemPrompt || ''));
   
   try {
-    // 1. 检查Token限额（如果有用户信息且未跳过检查）
+    // 1. 检查模型权限
+    if (params.model && !skipLimitCheck) {
+      const hasPermission = hasModelPermission(params.model);
+      if (!hasPermission) {
+        const permissionInfo = getModelPermissionInfo(params.model);
+        const response: AIResponseWithUsage = {
+          content: '',
+          model: params.model,
+          responseTime: Date.now() - startTime,
+          success: false,
+          error: permissionInfo.message,
+          tokenUsage: userInfo ? {
+            inputTokens: 0,
+            outputTokens: 0,
+            totalTokens: 0,
+            userMonthlyUsed: 0,
+            userMonthlyLimit: 0,
+            userMonthlyRemaining: 0,
+            usagePercentage: 0,
+            needUpgrade: true
+          } : undefined
+        };
+        return response;
+      }
+    }
+    
+    // 2. 检查Token限额（如果有用户信息且未跳过检查）
     if (userInfo && !skipLimitCheck) {
       const limitCheck = await tokenUsageService.checkTokenLimit(
         userId,
@@ -140,14 +168,14 @@ export async function callAIWithTokenTracking(
       }
     }
     
-    // 2. 调用原始AI服务
-    const aiResponse = await originalCallAI({
+    // 3. 调用统一AI服务
+    const aiResponse = await callUnifiedAI({
       ...aiParams,
       taskType,
       userId
     });
     
-    // 3. 计算实际Token使用量
+    // 4. 计算实际Token使用量
     let actualInputTokens = estimatedInputTokens;
     let actualOutputTokens = estimateTokens(aiResponse.content);
     let actualTotalTokens = actualInputTokens + actualOutputTokens;
@@ -159,7 +187,7 @@ export async function callAIWithTokenTracking(
       actualTotalTokens = aiResponse.usage.totalTokens || actualTotalTokens;
     }
     
-    // 4. 记录Token使用量（如果调用成功且有用户信息）
+    // 5. 记录Token使用量（如果调用成功且有用户信息）
     if (aiResponse.success && userInfo) {
       await tokenUsageService.recordTokenUsage({
         userId,
@@ -174,7 +202,7 @@ export async function callAIWithTokenTracking(
       });
     }
     
-    // 5. 获取用户最新的Token统计
+    // 6. 获取用户最新的Token统计
     let tokenUsage;
     if (userInfo) {
       const stats = await tokenUsageService.getUserTokenStats(userId, actualUserTier);
@@ -190,7 +218,7 @@ export async function callAIWithTokenTracking(
       };
     }
     
-    // 6. 返回扩展的响应
+    // 7. 返回扩展的响应
     const response: AIResponseWithUsage = {
       ...aiResponse,
       tokenUsage
@@ -263,5 +291,5 @@ export async function getUserTokenStats() {
   );
 }
 
-// 导出原始的AI调用函数，以便需要时使用
-export { callAI as callAIOriginal, AITaskType } from '@/api/aiService';
+// 导出统一AI调用函数，以便需要时使用
+export { callUnifiedAI as callAIOriginal, AITaskType } from '@/api/unifiedAIService';

@@ -108,6 +108,7 @@ import { getContentFormById } from '@/config/contentForms';
 import { createPlatformAPICaller } from '../utils/apiRequestQueue';
 import { request } from '@/api';
 import { callAIWithTokenTracking, type AITaskType } from '@/services/aiWithTokenTracking';
+import { callUnifiedAI } from '@/api/unifiedAIService';
 import { MentionTextarea } from '@/components/ui/mention-textarea';
 import { useContentSyncStore } from '@/stores/contentSyncStore';
 import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
@@ -793,27 +794,19 @@ export default function AdaptPage() {
     mdFormat: 'global'
   });
 
-  // AI模型说明数据
-  const modelDescriptions = {
-    'gpt-4o': {
-      features: 'GPT-4o模型',
-      scenarios: '通用内容创作',
-      style: '准确表达',
-      speed: '响应速度：中等'
-    },
-    'deepseek-v3': {
-      features: '国产大模型，中文优化',
-      scenarios: '适合中文内容、本土化表达',
-      style: '自然流畅、符合中文习惯',
-      speed: '响应速度：较快'
-    },
-    'claude-3.5-sonnet': {
-      features: 'Anthropic最新模型，创意能力强',
-      scenarios: '适合创意写作、文学创作',
-      style: '富有创意、表达生动',
-      speed: '响应速度：中等'
-    }
-  };
+  // AI模型说明数据 - 基于新的三级模型系统
+  const modelDescriptions = useMemo(() => {
+    const descriptions: Record<string, any> = {};
+    allModels.forEach(model => {
+      descriptions[model.id] = {
+        features: model.features.join('、'),
+        scenarios: model.description,
+        tier: model.tier,
+        company: model.company
+      };
+    });
+    return descriptions;
+  }, [allModels]);
 
   // 当前选中模型的说明状态
   const [selectedModelDescription, setSelectedModelDescription] = useState<any>(null);
@@ -1220,10 +1213,11 @@ export default function AdaptPage() {
     setModel(modelId);
     // 更新模型说明
     setSelectedModelDescription(modelDescriptions[modelId as keyof typeof modelDescriptions] || null);
-    // 自动切换API提供商
+    // 自动切换API提供商 - 基于新的提供商配置
     const provider = getModelProvider(modelId);
-    if (provider === 'OpenAI') setCurrentApiProvider('openai');
-    if (provider === 'DeepSeek') setCurrentApiProvider('deepseek');
+    if (provider === 'openai') setCurrentApiProvider('openai');
+    if (provider === 'deepseek') setCurrentApiProvider('deepseek');
+    // AIMLAPI模型通过统一AI服务自动路由，无需设置特定提供商
     toast({
       title: "模型已切换",
       description: `已切换到 ${getModelInfo(modelId)?.name}`,
@@ -5235,88 +5229,293 @@ onCheckedChange={(checked) => {
         </CardContent>
       </Card>
 
-      {/* AI模型选择 */}
-      <Card variant="soft" className="mb-6 rounded-xl">
+      {/* AI模型选择 - 优化精致版本 */}
+      <Card variant="soft" className="mb-6 rounded-xl bg-gradient-to-br from-background to-muted/20 border-border/50">
         <CardContent className="pt-6">
-          <h4 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
-            <Cpu className="h-4 w-4 text-muted-foreground" />
-            AI模型选择
-          </h4>
-          <p className="text-xs text-muted-foreground mb-3">默认优先调用GPT-4o，备选deepseek v3模型，用户可自行选择自己喜欢的模型生成内容</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {allModels.map((model) => {
-              const isAvailable = availableModels.some(m => m.id === model.id);
-              const disabled = !isAvailable || generating;
-              let badge = '';
-              let showUpgradeTip = false;
-
-              if (model.id === 'gpt-4o' && userPlan === 'trial') {
-                badge = '专业版/高级版专属';
-                showUpgradeTip = true;
-              }
-
-              return (
-                <div
-                  key={model.id}
-                  className={`p-3 border rounded-xl cursor-pointer transition-all hover:shadow-e1 ${
-                    selectedModel === model.id
-                      ? 'border-primary bg-accent/80 backdrop-blur-sm'
-                      : disabled
-                      ? 'border-border bg-muted/60 opacity-60 cursor-not-allowed'
-                      : 'border-border bg-card/90 backdrop-blur-sm hover:border-primary/50'
-                  }`}
-                  onClick={() => handleModelSelect(model.id, disabled)}
-                >
-                  <div className="flex items-start space-x-2">
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                      selectedModel === model.id
-                        ? 'border-primary bg-primary'
-                        : 'border-border'
-                    }`}>
-                      {selectedModel === model.id && (
-                        <div className="w-2 h-2 bg-card rounded-full"></div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1 mb-1">
-                        <span className="font-medium text-foreground text-sm">{model.name}</span>
-                        {badge && (
-                          <Badge className="bg-muted text-muted-foreground text-xs">{badge}</Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{model.description}</p>
-                      {showUpgradeTip && (
-                        <div
-                          className="mt-1 p-1 bg-accent border border-border rounded text-xs text-muted-foreground cursor-pointer hover:bg-accent/80 transition-colors"
-                          onClick={handleUpgradeClick}
-                        >
-                          <span className="mr-1">
-                          去解锁高级功能
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h4 className="text-base font-semibold text-foreground flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                  <Sparkles className="h-4 w-4" />
                 </div>
-              );
-            })}
+                AI模型选择
+              </h4>
+              <p className="text-xs text-muted-foreground mt-1">
+                基于订阅计划提供不同级别的AI模型，满足从基础到专业的各种创作需求
+              </p>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span className="px-2 py-1 bg-accent rounded-full">
+                {userPlan === 'trial' ? '体验版' : userPlan === 'pro' ? '专业版' : '高级版'}
+              </span>
+            </div>
           </div>
 
+          {/* 按等级分组显示模型 */}
+          <div className="space-y-4">
+            {/* 体验版模型 */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span className="text-sm font-medium text-green-700">体验版模型</span>
+                <Badge variant="outline" className="text-xs bg-green-50 text-green-600 border-green-200">
+                  基础功能
+                </Badge>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {availableModels.filter(m => m.tier === 'low').map((model) => {
+                  const disabled = generating;
+                  const isSelected = selectedModel === model.id;
+                  
+                  return (
+                    <div
+                      key={model.id}
+                      className={`group relative p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
+                        isSelected
+                          ? 'border-green-400 bg-green-50/80 shadow-md'
+                          : disabled
+                          ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
+                          : 'border-green-200 bg-green-50/40 hover:border-green-300 hover:bg-green-50/60 hover:shadow-sm'
+                      }`}
+                      onClick={() => !disabled && handleModelSelect(model.id, disabled)}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
+                          isSelected
+                            ? 'border-green-500 bg-green-500 shadow-sm'
+                            : 'border-green-300 group-hover:border-green-400'
+                        }`}>
+                          {isSelected && (
+                            <Check className="w-3 h-3 text-white" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-foreground text-sm">{model.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {model.company}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+                            {model.description}
+                          </p>
+                          <div className="flex items-center gap-2 text-xs">
+                            {model.features.slice(0, 2).map((feature, i) => (
+                              <span key={i} className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                                {feature}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 专业版模型 */}
+            {userPlan !== 'trial' && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  <span className="text-sm font-medium text-yellow-700">专业版模型</span>
+                  <Badge variant="outline" className="text-xs bg-yellow-50 text-yellow-600 border-yellow-200">
+                    专业功能
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {availableModels.filter(m => m.tier === 'mid').map((model) => {
+                    const disabled = generating;
+                    const isSelected = selectedModel === model.id;
+                    
+                    return (
+                      <div
+                        key={model.id}
+                        className={`group relative p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
+                          isSelected
+                            ? 'border-yellow-400 bg-yellow-50/80 shadow-md'
+                            : disabled
+                            ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
+                            : 'border-yellow-200 bg-yellow-50/40 hover:border-yellow-300 hover:bg-yellow-50/60 hover:shadow-sm'
+                        }`}
+                        onClick={() => !disabled && handleModelSelect(model.id, disabled)}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
+                            isSelected
+                              ? 'border-yellow-500 bg-yellow-500 shadow-sm'
+                              : 'border-yellow-300 group-hover:border-yellow-400'
+                          }`}>
+                            {isSelected && (
+                              <Check className="w-3 h-3 text-white" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-foreground text-sm">{model.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {model.company}
+                              </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+                              {model.description}
+                            </p>
+                            <div className="flex items-center gap-2 text-xs">
+                              {model.features.slice(0, 2).map((feature, i) => (
+                                <span key={i} className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">
+                                  {feature}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 高级版模型 */}
+            {userPlan === 'premium' && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span className="text-sm font-medium text-red-700">高级版模型</span>
+                  <Badge variant="outline" className="text-xs bg-red-50 text-red-600 border-red-200">
+                    顶级功能
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {availableModels.filter(m => m.tier === 'high').map((model) => {
+                    const disabled = generating;
+                    const isSelected = selectedModel === model.id;
+                    
+                    return (
+                      <div
+                        key={model.id}
+                        className={`group relative p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
+                          isSelected
+                            ? 'border-red-400 bg-red-50/80 shadow-md'
+                            : disabled
+                            ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
+                            : 'border-red-200 bg-red-50/40 hover:border-red-300 hover:bg-red-50/60 hover:shadow-sm'
+                        }`}
+                        onClick={() => !disabled && handleModelSelect(model.id, disabled)}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
+                            isSelected
+                              ? 'border-red-500 bg-red-500 shadow-sm'
+                              : 'border-red-300 group-hover:border-red-400'
+                          }`}>
+                            {isSelected && (
+                              <Check className="w-3 h-3 text-white" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-foreground text-sm">{model.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {model.company}
+                              </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+                              {model.description}
+                            </p>
+                            <div className="flex items-center gap-2 text-xs">
+                              {model.features.slice(0, 2).map((feature, i) => (
+                                <span key={i} className="px-2 py-0.5 bg-red-100 text-red-700 rounded-full">
+                                  {feature}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 升级提示 */}
+            {userPlan !== 'premium' && (
+              <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-full bg-blue-100">
+                    <Crown className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-900">
+                      解锁更多强大AI模型
+                    </p>
+                    <p className="text-xs text-blue-700 mt-0.5">
+                      升级到{userPlan === 'trial' ? '专业版或高级版' : '高级版'}，获得更多顶级AI模型和专业功能
+                    </p>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                    onClick={handleUpgradeClick}
+                  >
+                    立即升级
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 当前选择信息 */}
           {selectedModel && (
-            <div className="mt-2 text-xs text-muted-foreground">
-              <p className="font-medium">当前选择：{getModelInfo(selectedModel)?.name}</p>
-              <p>{getModelInfo(selectedModel)?.description}</p>
+            <div className="mt-4 p-3 bg-accent/50 border border-border/50 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <Bot className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">
+                  当前选择：{getModelInfo(selectedModel)?.name}
+                </span>
+                <Badge variant="secondary" className="text-xs">
+                  {getModelInfo(selectedModel)?.company}
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {getModelInfo(selectedModel)?.description}
+              </p>
             </div>
           )}
 
           {/* 开发环境订阅等级切换 */}
           {import.meta.env.DEV && (
-            <div className="mt-3 flex gap-2 items-center">
-              <span className="text-xs text-muted-foreground">开发环境订阅等级：</span>
-              <Button size="sm" variant={userPlan==='trial'?'default':'outline'} onClick={()=>setUserPlan('trial')}>免费版</Button>
-              <Button size="sm" variant={userPlan==='pro'?'default':'outline'} onClick={()=>setUserPlan('pro')}>专业版</Button>
-              <Button size="sm" variant={userPlan==='premium'?'default':'outline'} onClick={()=>setUserPlan('premium')}>高级版</Button>
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-xs font-medium text-yellow-800">开发环境订阅等级切换：</span>
+                <Button 
+                  size="sm" 
+                  variant={userPlan==='trial'?'default':'outline'} 
+                  className="h-7 text-xs"
+                  onClick={()=>setUserPlan('trial')}
+                >
+                  体验版
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant={userPlan==='pro'?'default':'outline'} 
+                  className="h-7 text-xs"
+                  onClick={()=>setUserPlan('pro')}
+                >
+                  专业版
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant={userPlan==='premium'?'default':'outline'} 
+                  className="h-7 text-xs"
+                  onClick={()=>setUserPlan('premium')}
+                >
+                  高级版
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

@@ -224,21 +224,57 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     // 🔧 FIX: 添加Guard组件错误处理和防护性检查
     try {
+      // 增强的Guard状态验证
+      const isGuardReady = guard && 
+                          typeof guard === 'object' && 
+                          typeof guard.on === 'function' &&
+                          typeof guard.show === 'function';
+      
+      if (!isGuardReady) {
+        console.warn('🔧 Guard对象未就绪或方法不完整，跳过事件监听器注册');
+        
+        // 尝试延迟初始化（通过递归调用useEffect逻辑）
+        setTimeout(() => {
+          if (guard && typeof guard.on === 'function') {
+            console.log('🔧 Guard延迟初始化成功，重新尝试事件注册');
+            // 由于这是函数组件，我们简化处理，让系统在下次渲染时重新检查
+          }
+        }, 1000);
+        
+        return;
+      }
+      
       // 设置登录成功事件监听 - 增加防护性检查
       if (guard && typeof guard.on === 'function') {
         try {
-          // 为防止事件监听器内部错误，使用包装函数
+          // 为防止事件监听器内部错误，使用增强的包装函数
           const safeEventHandler = (eventType: string, handler: (...args: any[]) => void) => {
             try {
-              guard.on(eventType, (...args: any[]) => {
+              // 检查Guard对象是否有有效的on方法
+              if (!guard || typeof guard.on !== 'function') {
+                console.warn(`🔧 Guard对象缺少有效的on方法，跳过${eventType}事件监听器注册`);
+                return;
+              }
+
+              // 创建一个更安全的事件处理器
+              const wrappedHandler = (...args: any[]) => {
                 try {
                   handler(...args);
                 } catch (handlerError) {
                   console.warn(`🔧 Guard事件处理器(${eventType})执行错误:`, handlerError);
                 }
-              });
+              };
+
+              // 尝试注册事件监听器，增加额外的防护
+              guard.on(eventType, wrappedHandler);
+              
             } catch (listenerError) {
               console.warn(`🔧 Guard事件监听器(${eventType})注册失败:`, listenerError);
+              
+              // 如果是数组访问错误，说明Guard内部状态不正确
+              if (listenerError.message?.includes('push')) {
+                console.warn('🔧 Guard内部状态异常，可能需要重新初始化');
+              }
             }
           };
 

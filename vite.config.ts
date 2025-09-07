@@ -47,8 +47,12 @@ export default defineConfig({
   },
   // 开发服务器配置
   server: {
-    port: 3000,
-    host: 'localhost',
+    port: 5173,
+    host: '0.0.0.0',
+    strictPort: true,
+    hmr: {
+      port: 5174
+    },
     proxy: {
       '/api/authing': {
         target: 'https://rzcswqs4sq0f.authing.cn',
@@ -165,8 +169,7 @@ export default defineConfig({
     include: [
       'react',
       'react-dom',
-      // 🔧 [AUTHING_GUARD_FIX_v2025.08.15] 暂时排除@authing/guard，避免正则表达式错误
-      // '@authing/guard',
+      'react-router-dom',
       'axios',
       'crypto-js'
     ],
@@ -179,8 +182,12 @@ export default defineConfig({
     esbuildOptions: {
       define: {
         global: 'globalThis'
-      }
-    }
+      },
+      target: 'esnext'
+    },
+    // 增加超时时间和重试次数
+    force: false,
+    keepNames: true
   }
 
 // ci: rebuild trigger 2025-08-15T00:00:00Z

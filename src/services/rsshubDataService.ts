@@ -238,30 +238,33 @@ class RSSHubDataService {
    */
   async isServiceAvailable(): Promise<boolean> {
     try {
-      // 在开发环境中，如果无法访问RSSHub，直接返回false而不产生错误
+      // 使用内部API代理检查服务可用性，避免CORS问题
       if (import.meta.env.DEV) {
-        console.log('🔍 检查RSSHub服务可用性...');
+        console.log('🔍 通过内部API检查热点数据服务可用性...');
       }
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000); // 3秒超时
 
-      const response = await fetch(`${this.config.baseUrl}/api/namespace`, {
+      // 通过我们的API代理检查服务可用性
+      const response = await fetch('/.netlify/functions/api?action=hot-topics&platform=weibo', {
         method: 'GET',
         signal: controller.signal,
-        mode: 'cors'
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
       clearTimeout(timeoutId);
 
       if (import.meta.env.DEV) {
-        console.log('✅ RSSHub服务检查完成:', response.ok);
+        console.log('✅ 热点数据服务检查完成:', response.ok);
       }
 
       return response.ok;
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.log('ℹ️ RSSHub服务暂时不可用 (这是正常的):', error instanceof Error ? error.message : 'Unknown error');
+        console.log('ℹ️ 热点数据服务暂时不可用:', error instanceof Error ? error.message : 'Unknown error');
       }
       return false;
     }
@@ -358,52 +361,75 @@ class RSSHubDataService {
   }
 
   /**
-   * 私有方法：获取特定平台数据
+   * 私有方法：获取特定平台数据（通过内部API代理）
    */
   private async fetchPlatformData(platform: string): Promise<RSSHubTopic[]> {
-    const routes = this.getPlatformRoutes(platform);
-    const topics: RSSHubTopic[] = [];
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
 
-    for (const route of routes) {
-      try {
-        const url = `${this.config.baseUrl}/${route}`;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
-
-        const response = await fetch(url, {
-          signal: controller.signal,
-          mode: 'cors'
-        });
-
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          const text = await response.text();
-          const parsedTopics = this.parseRSSData(text, platform);
-          topics.push(...parsedTopics);
+      // 通过内部API代理获取数据，避免CORS问题
+      const response = await fetch(`/.netlify/functions/api?action=hot-topics&platform=${platform}`, {
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json'
         }
-      } catch (error) {
-        // 静默处理错误，不在控制台输出警告
-        if (import.meta.env.DEV) {
-          console.log(`ℹ️ ${platform}平台数据暂时不可用`);
-        }
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        // 将API返回的数据转换为RSSHubTopic格式
+        return this.convertApiDataToTopics(data, platform);
       }
+      
+      return [];
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.log(`ℹ️ ${platform}平台数据暂时不可用`);
+      }
+      return [];
     }
-
-    return topics;
   }
 
   /**
-   * 私有方法：获取平台路由配置
+   * 私有方法：将API数据转换为RSSHubTopic格式
+   */
+  private convertApiDataToTopics(apiData: any, platform: string): RSSHubTopic[] {
+    try {
+      const topics: RSSHubTopic[] = [];
+      
+      if (apiData && apiData.data && Array.isArray(apiData.data)) {
+        apiData.data.forEach((item: any, index: number) => {
+          topics.push({
+            id: `api-${platform}-${Date.now()}-${index}`,
+            title: item.title || item.name || '未知标题',
+            description: item.desc || item.description || item.content || '',
+            link: item.url || item.link || '#',
+            pubDate: item.time || item.date || new Date().toISOString(),
+            source: `API-${platform}`,
+            platform,
+            category: this.mapPlatformToCategory(platform),
+            hotScore: item.hot || item.score || Math.max(0, 100 - index * 2),
+            tags: this.extractTags(item.title || '', item.desc || '')
+          });
+        });
+      }
+      
+      return topics;
+    } catch (error) {
+      console.warn('API数据转换失败:', error);
+      return [];
+    }
+  }
+
+  /**
+   * 私有方法：获取平台路由配置（已弃用，改用API代理）
    */
   private getPlatformRoutes(platform: string): string[] {
-    const routeMap: Record<string, string[]> = {
-      weibo: ['weibo/search/hot'],
-      zhihu: ['zhihu/hotlist'],
-      github: ['github/trending/daily'],
-      bilibili: ['bilibili/popular']
-    };
-    return routeMap[platform] || [];
+    // 保留方法以避免破坏现有代码，但实际不再使用
+    return [];
   }
 
   /**

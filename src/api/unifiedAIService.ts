@@ -20,6 +20,9 @@ import { generateImage as proxyGenerateImage } from './imageGenerationService';
 import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
 import { logger } from '@/utils/logger';
 import { cleanAIContent, isValidAIContent } from '@/utils/contentCleaner';
+import { getModelInfo, getModelProvider, isModelAvailableForTier } from '@/config/aiModels';
+import { useAuth } from '@/hooks/useAuth';
+import { createDeepSeekProvider } from './providers/deepseek';
 
 /**
  * 环境检测
@@ -30,119 +33,159 @@ const isDevelopment = !forceProductionMode && import.meta.env.DEV;
 const isProduction = forceProductionMode || import.meta.env.PROD;
 
 /**
+ * AIMLAPI调用函数
+ */
+async function callAIMLAPI(params: AICallParams): Promise<AIResponse> {
+  const startTime = Date.now();
+  const apiKey = import.meta.env.VITE_AIMLAPI_KEY;
+  
+  if (!apiKey) {
+    throw new Error('AIMLAPI密钥未配置');
+  }
+
+  try {
+    const requestBody = {
+      model: params.model,
+      messages: [
+        ...(params.systemPrompt ? [{ role: 'system', content: params.systemPrompt }] : []),
+        { role: 'user', content: params.prompt }
+      ],
+      max_tokens: params.maxTokens || 1000,
+      temperature: params.temperature || 0.7,
+      stream: false
+    };
+
+    const response = await fetch('https://api.aimlapi.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`AIMLAPI调用失败: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    
+    return {
+      content: cleanAIContent(content),
+      model: params.model || 'unknown',
+      usage: data.usage,
+      responseTime: Date.now() - startTime,
+      success: !!content,
+      error: content ? undefined : 'AIMLAPI返回空内容'
+    };
+  } catch (error) {
+    return {
+      content: '',
+      model: params.model || 'unknown',
+      usage: undefined,
+      responseTime: Date.now() - startTime,
+      success: false,
+      error: error instanceof Error ? error.message : 'AIMLAPI调用失败'
+    };
+  }
+}
+
+/**
+ * DeepSeek原生API调用函数
+ */
+async function callDeepSeekNative(params: AICallParams): Promise<AIResponse> {
+  const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error('DeepSeek API密钥未配置');
+  }
+
+  try {
+    const deepseekProvider = createDeepSeekProvider(apiKey);
+    console.log('🚀 调用DeepSeek原生接口:', params.model);
+    
+    return await deepseekProvider.callChat(params);
+  } catch (error) {
+    console.error('❌ DeepSeek原生接口调用失败:', error);
+    return {
+      content: '',
+      model: params.model || 'unknown',
+      usage: undefined,
+      responseTime: 0,
+      success: false,
+      error: error instanceof Error ? error.message : 'DeepSeek原生接口调用失败'
+    };
+  }
+}
+
+/**
+ * 获取用户订阅层级 - 安全获取用户信息
+ */
+function getUserTier(): string {
+  try {
+    const authData = localStorage.getItem('wenpai_auth_state');
+    if (authData) {
+      const { user } = JSON.parse(authData);
+      return user?.subscription?.tier || 'trial';
+    }
+    return 'trial';
+  } catch (error) {
+    console.warn('获取用户信息失败，使用默认层级:', error);
+    return 'trial';
+  }
+}
+
+/**
  * 统一的AI调用服务
- * 根据环境自动选择直连API或代理API
+ * 根据环境、模型配置和用户权限自动路由调用
  * 
  */
 export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
   console.log(`🔧 统一AI服务调用 - 环境: ${isDevelopment ? '开发' : '生产'}`);
   
-  if (isDevelopment) {
-    // 开发环境：直连AI服务商API
-    console.log('🔗 开发环境：使用直连API (ai.ts)');
-    return await callAI(params as any);
+  // 获取模型信息和用户权限
+  const modelInfo = getModelInfo(params.model || '');
+  const userTier = getUserTier();
+  
+  // 检查模型是否存在
+  if (!modelInfo) {
+    return {
+      content: '',
+      model: params.model || 'unknown',
+      usage: undefined,
+      responseTime: 0,
+      success: false,
+      error: `模型 ${params.model} 不存在或未配置`
+    };
+  }
+  
+  // 检查用户权限
+  if (!isModelAvailableForTier(params.model || '', userTier)) {
+    return {
+      content: '',
+      model: params.model || 'unknown',
+      usage: undefined,
+      responseTime: 0,
+      success: false,
+      error: `当前订阅计划 ${userTier} 无权限使用模型 ${modelInfo.name}`
+    };
+  }
+  
+  console.log(`🎯 模型路由: ${modelInfo.name} (${modelInfo.company}) -> ${modelInfo.provider}`);
+  
+  // 根据模型提供商选择调用方式
+  if (modelInfo.provider === 'deepseek') {
+    // DeepSeek模型使用官方原生接口
+    console.log(`🔗 DeepSeek模型使用官方原生接口: ${params.model}`);
+    return await callDeepSeekNative({
+      ...params,
+      model: modelInfo.id // 使用标准化的模型ID
+    });
   } else {
-    // 生产环境：通过后端代理调用
-    console.log('🛡️ 生产环境：使用后端代理 (apiProxy.ts)');
-    
-    // 将callAI格式转换为proxy格式
-    const messages = [
-      ...(params.systemPrompt ? [{ role: 'system', content: params.systemPrompt }] : []),
-      { role: 'user', content: params.prompt }
-    ];
-    
-    // 根据模型选择对应的代理
-    if (params.model?.includes('gpt') || params.model?.includes('openai')) {
-      const result = await callOpenAIProxy(messages, params.model, params.temperature, params.maxTokens);
-      return {
-        content: result.data || '',
-        model: params.model || 'gpt-4',
-        usage: undefined,
-        responseTime: 0,
-        success: result.success,
-        error: result.error
-      };
-    } else if (params.model?.includes('deepseek')) {
-      const result = await callDeepSeekProxy(messages, params.model);
-      console.log('🔍 DeepSeek代理响应调试:', result);
-
-      // ✅ FIXED: 处理优化后的响应数据结构（已清理元数据）
-      let content = '';
-      if (result.success) {
-        // 新格式：后端已清理元数据，直接返回content字段
-        if (result.content) {
-          content = result.content;
-          console.log('✅ DeepSeek内容解析成功(已清理)，长度:', content.length);
-        }
-        // 兼容旧格式：处理完整API响应
-        else if (result.data) {
-          if (result.data.choices && result.data.choices[0]?.message?.content) {
-            content = result.data.choices[0].message.content;
-            console.log('✅ DeepSeek内容解析成功(兼容模式)，长度:', content.length);
-          } else if (result.data.content) {
-            content = result.data.content;
-            console.log('✅ DeepSeek内容解析成功(data.content)，长度:', content.length);
-          } else if (typeof result.data === 'string') {
-            content = result.data;
-            console.log('✅ DeepSeek内容解析成功(字符串)，长度:', content.length);
-          }
-        }
-
-        // 如果仍然没有内容，尝试其他字段
-        if (!content && result.data) {
-          console.warn('⚠️ DeepSeek响应数据格式异常，尝试提取内容:', result.data);
-          if (result.data.text) {
-            content = result.data.text;
-          } else if (result.data.response) {
-            content = result.data.response;
-          }
-        }
-      } else {
-        console.error('❌ DeepSeek API调用失败:', result.error);
-      }
-
-      // ✅ FIXED: 应用内容清理，确保输出纯净
-      const cleanedContent = cleanAIContent(content);
-
-      // 验证内容有效性
-      if (!isValidAIContent(cleanedContent)) {
-        console.warn('⚠️ AI生成内容无效或为错误消息:', cleanedContent.substring(0, 100));
-      }
-
-      return {
-        content: cleanedContent,
-        model: params.model || 'deepseek-chat',
-        usage: result.usage || result.data?.usage,
-        responseTime: 0,
-        success: result.success && !!cleanedContent,
-        error: result.error
-      };
-    } else if (params.model?.includes('gemini')) {
-      const result = await callGeminiProxy(params.prompt);
-      const cleanedContent = cleanAIContent(result.data || '');
-
-      return {
-        content: cleanedContent,
-        model: params.model || 'gemini-pro',
-        usage: undefined,
-        responseTime: 0,
-        success: result.success && !!cleanedContent,
-        error: result.error
-      };
-    } else {
-      // 默认使用OpenAI代理
-      const result = await callOpenAIProxy(messages, params.model, params.temperature, params.maxTokens);
-      const cleanedContent = cleanAIContent(result.data || '');
-
-      return {
-        content: cleanedContent,
-        model: params.model || 'gpt-4',
-        usage: undefined,
-        responseTime: 0,
-        success: result.success && !!cleanedContent,
-        error: result.error
-      };
-    }
+    // 其他模型通过AIMLAPI调用
+    console.log(`🚀 通过AIMLAPI调用模型: ${params.model}`);
+    return await callAIMLAPI(params);
   }
 }
 
