@@ -292,4 +292,5 @@ export async function getUserTokenStats() {
 }
 
 // 导出统一AI调用函数，以便需要时使用
-export { callUnifiedAI as callAIOriginal, AITaskType } from '@/api/unifiedAIService';
+export { callUnifiedAI as callAIOriginal } from '@/api/unifiedAIService';
+export { AITaskType } from '@/api/aiService';

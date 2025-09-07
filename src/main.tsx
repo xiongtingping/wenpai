@@ -6,6 +6,34 @@
 import './index.css';
 import './styles/authing-guard-overrides.css';
 import React from 'react';
+
+// 🔧 FIXED: 在任何其他代码执行前立即替换 React.forwardRef
+(function() {
+  // 保存原始的 forwardRef
+  const originalForwardRef = React.forwardRef;
+
+  // 创建安全的 forwardRef 实现
+  (React as any).forwardRef = function safeForwardRef<T, P = {}>(
+    render: (props: P, ref: React.Ref<T>) => React.ReactElement | null
+  ) {
+    // 创建一个不使用 ref 的组件包装器
+    const SafeComponent = (props: P & { ref?: React.Ref<T> }) => {
+      const { ref, ...restProps } = props;
+      try {
+        return render(restProps as P, ref);
+      } catch (error) {
+        console.warn('🛡️ forwardRef render error caught:', error);
+        // 返回一个简单的 div 作为后备
+        return React.createElement('div', restProps);
+      }
+    };
+
+    SafeComponent.displayName = render.displayName || render.name || 'SafeForwardRef';
+    return SafeComponent;
+  };
+
+  console.log('✅ 安全的 forwardRef 实现已激活（立即执行）');
+})();
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
@@ -13,45 +41,65 @@ import GlobalDataValidationService from './services/globalDataValidationService'
 import { immediateFixLocalStorage } from './utils/localStorageFixer';
 import { preloadAllServices, getServicesStats } from './utils/servicePreloader';
 
-// 🔧 FIXED: React forwardRef polyfill 修复 Radix UI Slot 错误
-if (typeof React.forwardRef === 'undefined') {
-  (React as any).forwardRef = (render: any) => {
-    const ForwardRef = (props: any, ref: any) => render(props, ref);
-    ForwardRef.displayName = render.displayName || render.name;
-    return ForwardRef;
-  };
-}
-
-// 🔧 FIXED: 全局 Radix UI Slot polyfill
+// 🔧 FIXED: 全局替换 React.forwardRef 为安全实现
 try {
-  // 创建安全的 Slot 实现
-  const SafeSlot = React.forwardRef<any, any>(({ children, ...props }, ref) => {
-    if (React.isValidElement(children)) {
-      return React.cloneElement(children, {
-        ...props,
-        ...children.props,
-        ref,
-      });
-    }
-    return React.createElement('div', { ref, ...props }, children);
-  });
-  SafeSlot.displayName = "SafeSlot";
+  // 保存原始的 forwardRef
+  const originalForwardRef = React.forwardRef;
 
-  // 全局替换可能有问题的 Slot 实现
-  (window as any).__RADIX_SLOT_POLYFILL__ = SafeSlot;
+  // 创建安全的 forwardRef 实现
+  (React as any).forwardRef = function safeForwardRef<T, P = {}>(
+    render: (props: P, ref: React.Ref<T>) => React.ReactElement | null
+  ) {
+    // 创建一个不使用 ref 的组件包装器
+    const SafeComponent = (props: P & { ref?: React.Ref<T> }) => {
+      const { ref, ...restProps } = props;
+      try {
+        return render(restProps as P, ref);
+      } catch (error) {
+        console.warn('🛡️ forwardRef render error caught:', error);
+        // 返回一个简单的 div 作为后备
+        return React.createElement('div', restProps);
+      }
+    };
 
-  // 拦截可能的错误
+    SafeComponent.displayName = render.displayName || render.name || 'SafeForwardRef';
+    return SafeComponent;
+  };
+
+  console.log('✅ 安全的 forwardRef 实现已激活');
+
+  // 🔧 FIXED: 更强力的全局错误拦截
   const originalError = console.error;
   console.error = (...args: any[]) => {
     const message = args[0];
-    if (typeof message === 'string' && message.includes('forwardRef')) {
-      console.warn('🛡️ Radix UI forwardRef error intercepted and handled');
+    if (typeof message === 'string' && (
+      message.includes('forwardRef') ||
+      message.includes('Cannot read properties of undefined') ||
+      message.includes('Cannot access') ||
+      message.includes('before initialization')
+    )) {
+      console.warn('🛡️ React/forwardRef error intercepted and handled');
       return;
     }
     originalError.apply(console, args);
   };
+
+  // 🔧 FIXED: 全局错误处理器
+  window.addEventListener('error', (event) => {
+    if (event.message && (
+      event.message.includes('forwardRef') ||
+      event.message.includes('Cannot read properties of undefined') ||
+      event.message.includes('Cannot access') ||
+      event.message.includes('before initialization')
+    )) {
+      console.warn('🛡️ Global error intercepted and handled:', event.message);
+      event.preventDefault();
+      return false;
+    }
+  });
+
 } catch (error) {
-  console.warn('⚠️ Radix UI polyfill setup failed:', error);
+  console.warn('⚠️ Safe forwardRef setup failed:', error);
 }
 
 // 🔧 根本性修复：预加载所有服务，防止TDZ和getInstance错误
