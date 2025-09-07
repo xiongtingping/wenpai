@@ -14,6 +14,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // 🔧 FIXED: 全局替换 @radix-ui/react-slot 以解决 forwardRef 错误
+      "@radix-ui/react-slot": path.resolve(__dirname, "./src/components/ui/safe-slot.tsx"),
     },
   },
   // 环境变量注入，兼容 Vite/Node/Netlify/Vercel

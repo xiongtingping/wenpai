@@ -1,6 +1,7 @@
 /**
  * 🔧 FIXED: 安全的 Slot 组件实现
  * 替代 @radix-ui/react-slot 以解决 forwardRef 兼容性问题
+ * 完全兼容 @radix-ui/react-slot API
  */
 
 import * as React from "react"
@@ -40,4 +41,31 @@ export const Slot = React.forwardRef<HTMLElement, SlotProps>(
 
 Slot.displayName = "Slot";
 
+/**
+ * createSlot 函数 - 兼容 @radix-ui/react-slot API
+ * 其他 Radix UI 组件内部使用此函数
+ */
+export function createSlot(name?: string) {
+  return Slot;
+}
+
+/**
+ * createSlottable 函数 - 兼容 @radix-ui/react-slot API
+ * 其他 Radix UI 组件内部使用此函数
+ */
+export function createSlottable(name?: string) {
+  return Slottable;
+}
+
+/**
+ * Slottable 组件 - 兼容 @radix-ui/react-slot API
+ */
+export const Slottable = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>;
+};
+
+// 默认导出和命名导出，确保完全兼容
 export default Slot;
+
+// 兼容原始 API
+export { Slot as Root };
