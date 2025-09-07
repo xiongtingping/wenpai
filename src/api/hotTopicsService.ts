@@ -1,5 +1,4 @@
-// 🔧 HQ_SAFE_FIX: 防止getInstance错误
-import { SingletonManager } from '../utils/singletonManager';
+// 🔧 HQ_SAFE_FIX: 防止getInstance错误 - 移除SingletonManager依赖
 
 /**
  * 全网雷达API服务 - 完整封装版本
@@ -512,16 +511,33 @@ class HotTopicsAPI {
 
 // ==================== 公共API导出 ====================
 
-const hotTopicsAPI = SingletonManager.getSafeInstance('HotTopicsAPI', () => {
+// 🔧 FIXED: 移除SingletonManager，直接使用标准单例模式
+let hotTopicsAPIInstance: HotTopicsAPI | null = null;
+
+const getHotTopicsAPI = (): HotTopicsAPI => {
+  if (!hotTopicsAPIInstance) {
+    try {
+      hotTopicsAPIInstance = HotTopicsAPI.getInstance();
+    } catch (error) {
+      console.error('❌ HotTopicsAPI初始化失败:', error);
+      throw error;
+    }
+  }
+  return hotTopicsAPIInstance;
+};
+
+// 导出API实例
+const hotTopicsAPI = (() => {
   try {
-    return HotTopicsAPI.getInstance();
+    return getHotTopicsAPI();
   } catch (error) {
-    console.error('❌ HotTopicsAPI初始化失败:', error);
+    console.error('❌ HotTopicsAPI获取失败:', error);
+    // 返回安全的备用实现
     return {
-      getDailyHotAll: () => Promise.resolve({ 
-        code: 500, 
-        message: 'HotTopicsAPI初始化失败', 
-        data: {}, 
+      getDailyHotAll: () => Promise.resolve({
+        code: 500,
+        message: 'HotTopicsAPI初始化失败',
+        data: {},
         updateTime: new Date().toISOString(),
         totalCount: 0
       }),
@@ -535,29 +551,8 @@ const hotTopicsAPI = SingletonManager.getSafeInstance('HotTopicsAPI', () => {
       fetchMoyuCalendar: () => Promise.resolve(null),
       clearCache: () => {},
       getCacheStats: () => ({})
-    }
+    } as any;
   }
-}) || (() => {
-  console.warn('⚠️ 使用HotTopicsAPI备用实例');
-  return {
-    getDailyHotAll: () => Promise.resolve({ 
-      code: 500, 
-      message: 'HotTopicsAPI备用实例', 
-      data: {}, 
-      updateTime: new Date().toISOString(),
-      totalCount: 0
-    }),
-    getDailyHotByPlatform: () => Promise.resolve([]),
-    getSupportedPlatforms: () => [],
-    getPlatformDisplayName: () => '未知平台',
-    getPlatformIconClass: () => 'icon-unknown',
-    aggregateAndSortTopics: () => [],
-    fetchHotTopics: () => Promise.resolve([]),
-    fetchTopicDetail: () => Promise.resolve(null),
-    fetchMoyuCalendar: () => Promise.resolve(null),
-    clearCache: () => {},
-    getCacheStats: () => ({})
-  };
 })();
 
 export async function getDailyHotAll(): Promise<DailyHotResponse> {
