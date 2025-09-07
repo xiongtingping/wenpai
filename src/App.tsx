@@ -7,7 +7,7 @@
  * - 用户认证集成
  * - 主题和样式管理
  *
- * 
+ *
  * - 统一的用户认证和权限控制
  * - 路由守卫和访问控制
  * - 安全的状态管理
@@ -38,7 +38,8 @@ import PaymentPage from '@/pages/PaymentPage';
 import PaymentStatusPage from '@/pages/PaymentStatusPage';
 import PaymentResultPage from '@/pages/PaymentResultPage';
 import PaymentFeedbackPage from '@/pages/PaymentFeedbackPage';
-import AdaptPage from '@/pages/AdaptPage';
+// Lazy loaded below
+// import AdaptPage from '@/pages/AdaptPage';
 // Lazy loaded below
 import HotTopicsPage from '@/pages/HotTopicsPage';
 import EnhancedHotTopicsPage from '@/pages/EnhancedHotTopicsPage';
@@ -69,12 +70,14 @@ const LazyProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
 const LazyHistoryPage = React.lazy(() => import('@/pages/HistoryPage'));
 const LazyShareManagerPage = React.lazy(() => import('@/pages/ShareManagerPage'));
 const LazyWechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
+const LazyAdaptPage = React.lazy(() => import('@/pages/AdaptPage'));
+
 const LazySettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
 
 // 🔧 错误边界包装器，处理懒加载失败
-const LazyWrapper: React.FC<{ children: React.ReactNode; fallback?: React.ReactNode }> = ({ 
-  children, 
-  fallback = <LoadingSpinner text="加载页面中..." /> 
+const LazyWrapper: React.FC<{ children: React.ReactNode; fallback?: React.ReactNode }> = ({
+  children,
+  fallback = <LoadingSpinner text="加载页面中..." />
 }) => (
   <ErrorBoundary fallback={<div>页面加载失败，请刷新重试</div>}>
     <Suspense fallback={fallback}>
@@ -107,7 +110,7 @@ const App: React.FC = () => {
     // 应用启动时检查是否为恶意回调URL
     const currentUrl = window.location.href;
     console.log('🚀 App启动，当前URL:', currentUrl);
-    
+
     // 🔧 DEBUG: 强制检查Authing配置加载情况
     console.log('🔧 检查环境变量加载:', {
       VITE_AUTHING_APP_ID: import.meta.env.VITE_AUTHING_APP_ID,
@@ -115,24 +118,24 @@ const App: React.FC = () => {
       VITE_AUTHING_HOST: import.meta.env.VITE_AUTHING_HOST,
       DEV: import.meta.env.DEV
     });
-    
+
     // 🔧 DEBUG: 检查GuardProvider配置
     const appId = import.meta.env.VITE_AUTHING_APP_ID || (globalThis as any).__ENV__?.VITE_AUTHING_APP_ID;
     const host = import.meta.env.VITE_AUTHING_HOST || (globalThis as any).__ENV__?.VITE_AUTHING_HOST;
     console.log('🔧 GuardProvider配置检查:', { appId, host, hasAppId: !!appId, hasHost: !!host });
-    
+
     // 立即处理恶意回调URL重定向
     if (currentUrl.includes('callbackhttp://')) {
       console.log('🚨 App层检测到恶意回调URL，立即处理重定向...');
-      
+
       const codeMatch = currentUrl.match(/code=([^&]+)/);
       const stateMatch = currentUrl.match(/state=([^&]+)/);
-      
+
       if (codeMatch && stateMatch) {
         const code = codeMatch[1];
         const state = stateMatch[1];
         console.log('✅ App层解析到授权码:', { code: code.substring(0, 10) + '...', state });
-        
+
         // 重定向到正确的回调URL
         const correctCallbackUrl = `${window.location.origin}/callback?code=${code}&state=${state}`;
         console.log('🔄 App层重定向到:', correctCallbackUrl);
@@ -196,7 +199,7 @@ const App: React.FC = () => {
                         <Route path="/callbackhttp/*" element={<CallbackPage />} />
 
                         {/* 核心功能页面 - 需要登录 */}
-                        <Route path="/adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
+                        <Route path="/adapt" element={<AuthGuard><LazyWrapper><LazyAdaptPage /></LazyWrapper></AuthGuard>} />
                         <Route path="/creative-studio" element={<AuthGuard><LazyWrapper><LazyCreativeStudioPage /></LazyWrapper></AuthGuard>} />
                         <Route path="/hot-topics" element={<HotTopicsPage />} />
                         <Route path="/enhanced-hot-topics" element={<EnhancedHotTopicsPage />} />
@@ -231,7 +234,7 @@ const App: React.FC = () => {
                         {/* 错误页面 */}
                         <Route path="/403" element={<ForbiddenPage />} />
                         <Route path="/404" element={<NotFoundPage />} />
-                        
+
                         {/* 捕获所有未匹配路由，检查是否为恶意回调URL */}
                         <Route path="*" element={<CallbackPage />} />
                       </Routes>

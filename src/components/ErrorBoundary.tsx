@@ -47,7 +47,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     // 检查是否为初始化错误
     const isInitializationError = ErrorBoundary.isInitializationError(error);
-    
+
     return {
       hasError: true,
       error,
@@ -86,6 +86,38 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       errorMessage.includes(pattern) || errorStack.includes(pattern)
     );
   }
+
+  // 🔧 TDZ错误处理（防止 componentDidCatch 中调用未定义方法）
+  private isTDZError(error: Error): boolean {
+    try {
+      const msg = (error?.message || '').toLowerCase();
+      return (
+        msg.includes('before initialization') ||
+        msg.includes('cannot access') ||
+        error.name === 'referenceerror'
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  private handleTDZError(): void {
+    try {
+      const key = '__TDZ_RELOAD_COUNT__';
+      const count = Number(sessionStorage.getItem(key) || '0');
+      if (count >= 1) {
+        // 已经重载过一次，停止继续刷新，直接进入降级 UI
+        try { logger.warn('🛑 TDZ 错误已重复出现，停止自动刷新并显示降级界面'); } catch {}
+        return; // getDerivedStateFromError 已将 hasError 置为 true，会展示 fallback
+      }
+      sessionStorage.setItem(key, String(count + 1));
+      try { logger.warn('🔄 检测到 TDZ 错误，1s 后刷新以尝试恢复...'); } catch {}
+    } catch {}
+    setTimeout(() => {
+      try { window.location.reload(); } catch {}
+    }, 1000);
+  }
+
 
   /**
    * 错误信息记录
@@ -205,12 +237,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <CardContent className="space-y-4">
               <div className="text-center">
                 <p className="text-muted-foreground mb-4">
-                  {this.state.isInitializationError 
+                  {this.state.isInitializationError
                     ? '应用初始化过程中遇到问题，这通常是由于配置或依赖问题导致的。'
                     : '抱歉，应用遇到了一个意外错误。我们已经记录了这个问题。'
                   }
                 </p>
-                
+
                 {this.state.error && (
                   <div className="bg-accent p-3 rounded-lg text-left">
                     <p className="text-sm font-medium text-foreground mb-1">错误信息:</p>
@@ -232,15 +264,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </div>
 
               <div className="flex flex-col gap-2">
-                <Button 
+                <Button
                   onClick={this.handleRefresh}
                   className="w-full"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   刷新页面
                 </Button>
-                
-                <Button 
+
+                <Button
                   onClick={this.handleReset}
                   className="w-full"
                   variant="outline"
@@ -248,8 +280,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                   <RefreshCw className="h-4 w-4 mr-2" />
                   重试
                 </Button>
-                
-                <Button 
+
+                <Button
                   onClick={this.handleGoHome}
                   variant="ghost"
                   className="w-full"

@@ -520,6 +520,7 @@ function setModel(modelId: string, userId?: string): void {
 // 移到组件内部以访问翻译函数
 
 export default function AdaptPage() {
+
   const { t } = useTranslation();
   const { toast } = useToast();
 
@@ -696,7 +697,7 @@ export default function AdaptPage() {
           // 🐛 问题原因：DeepSeek API返回402错误（Payment Requihsl(var(--destructive))），需要自动切换到其他模型
           // 🔧 修复方案：添加402错误检测，实现智能降级机制
           // 📌 已封装：模型切换逻辑已验证稳定，请勿修改
-          // 
+          //
           if (attempt <= 3) {
             const errorMessage = error instanceof Error ? error.message : String(error);
 
@@ -766,7 +767,7 @@ export default function AdaptPage() {
     // 🐛 问题原因：callAIWithRetry失败时抛出错误，但队列管理器期望返回结果对象
     // 🔧 修复方案：返回标准化的错误结果对象
     // 📌 已封装：错误处理逻辑已验证稳定，请勿修改
-    // 
+    //
 
     const errorMessage = lastError ? lastError.message : `${versionName} - 所有重试都失败了`;
     return {
@@ -978,7 +979,7 @@ export default function AdaptPage() {
       // 🐛 问题原因：并发请求导致OpenAI API 429错误
       // 🔧 修复方案：使用队列管理器串行处理请求
       // 📌 已封装：队列请求逻辑已验证稳定，请勿修改
-      // 
+      //
 
       const platformAPICaller = createPlatformAPICaller(platformId);
 
@@ -1271,14 +1272,14 @@ export default function AdaptPage() {
   // 使用真实的状态管理
   const { usageCount, maxUsage, usageRemaining, decrementUsage, updateMaxUsage } = useAuthStore();
   const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
-  
+
   // 获取用户当前等级 - 优先使用订阅状态
   const getCurrentTier = () => {
     // 1. 优先使用订阅状态中的等级信息
     if (primaryStatus?.status === 'active' && primaryStatus.tier) {
       return primaryStatus.tier;
     }
-    
+
     // 2. 从订阅状态标签推断
     if (primaryStatus?.status === 'active') {
       const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
@@ -1288,13 +1289,13 @@ export default function AdaptPage() {
         return 'pro';
       }
     }
-    
+
     // 3. 最后使用用户数据
     return !unifiedUsageInfo.loading ? unifiedUsageInfo.userTier : getUserTier(user);
   };
-  
+
   const effectiveUserTier = getCurrentTier();
-  
+
   // 同步实际使用次数和最大使用次数
   useEffect(() => {
     if (user?.id) {
@@ -1365,11 +1366,11 @@ export default function AdaptPage() {
           console.error('同步使用次数失败:', error);
         }
       };
-      
+
       syncUsageStats();
     }
   }, [user?.id, primaryStatus?.status, updateMaxUsage, maxUsage]);
-  
+
   // 同步订阅状态更新后刷新使用次数
   useEffect(() => {
     if (primaryStatus?.status === 'active') {
@@ -1414,10 +1415,10 @@ export default function AdaptPage() {
       }
     };
   }, [refreshSubscription]);
-  
+
   // 🔧 FIX: 使用统一状态管理的数据计算剩余次数
   const calculatedUsageRemaining = maxUsage === -1 ? Infinity : Math.max(0, maxUsage - usageCount);
-  
+
   // ✅ FIXED: DOM错误修复 - 使用ref跟踪组件挂载状态，防止异步操作在组件卸载后执行
   const isMountedRef = useRef(true);
 
@@ -1527,7 +1528,7 @@ export default function AdaptPage() {
     usageCount: number;
     initialized: boolean;
   } | null>(null);
-  
+
   useEffect(() => {
     const currentState = {
       tier: effectiveUserTier,
@@ -1535,7 +1536,7 @@ export default function AdaptPage() {
       usageCount: usageCount,
       initialized: !unifiedUsageInfo.loading
     };
-    
+
     if (prevStateRef.current && (
       prevStateRef.current.tier !== currentState.tier ||
       prevStateRef.current.maxUsage !== currentState.maxUsage ||
@@ -1714,7 +1715,7 @@ export default function AdaptPage() {
 
   // 🔧 FIX: 使用统一状态检查生成条件
   const canGenerate = originalContent.trim().length > 10 && selectedPlatforms.length > 0 && (usageRemaining > 0 || maxUsage === -1);
-  
+
   // 调试信息 - 只在控制台出现问题时启用
   // console.log('🔍 canGenerate状态检查:', { canGenerate, generating, usageRemaining, maxUsage });
 
@@ -1727,7 +1728,7 @@ export default function AdaptPage() {
       setShowUsageReminder(true);
       return false;
     }
-    
+
     // 如果剩余次数较少（1-3次），显示提醒但允许继续生成
     if (usageRemaining <= 3 && usageRemaining > 0 && maxUsage !== -1) {
       console.log('⚠️ 使用次数较少，显示提醒但允许生成');
@@ -1735,7 +1736,7 @@ export default function AdaptPage() {
       setShowUsageReminder(true);
       // 不阻止生成，只是提醒
     }
-    
+
     console.log('✅ 使用次数检查通过');
     return true;
   };
@@ -1743,36 +1744,36 @@ export default function AdaptPage() {
   // 🔧 数据修复函数 - 解决31次等异常数据问题
   const resetUsageData = useCallback(async () => {
     console.log('🔄 开始重置使用次数数据...');
-    
+
     try {
       // 1. 清理localStorage中的异常数据
       const keysToRemove = [
         'usageCount',
-        'maxUsage', 
+        'maxUsage',
         'unified-user-state',
         'globalSettings',
         'userSubscription'
       ];
-      
+
       keysToRemove.forEach(key => {
         localStorage.removeItem(key);
         console.log(`🗑️ 已清理: ${key}`);
       });
-      
+
       // 2. 重新获取用户订阅状态
       await refreshSubscription();
-      
+
       // 3. 重置为默认值
       const correctTier = getUserTier(user);
       const correctMaxUsage = correctTier === 'premium' ? -1 : correctTier === 'pro' ? 30 : 10;
-      
-      
+
+
       updateMaxUsage(correctMaxUsage);
-      
+
       // 4. 静默重置，不显示提示（避免干扰用户体验）
-      
+
       console.log('✅ 使用次数数据重置完成');
-      
+
     } catch (error) {
       console.error('❌ 重置数据失败:', error);
       toast({
@@ -2001,7 +2002,7 @@ export default function AdaptPage() {
     console.log('🔍 原始内容长度:', originalContent.trim().length);
     console.log('🔍 选中平台数量:', selectedPlatforms.length);
     console.log('🔍 生成状态:', generating);
-    
+
     const usageCheck = checkUsageAndShowReminder();
     console.log('🔍 使用次数检查结果:', usageCheck);
     if (!usageCheck) return;
@@ -2029,7 +2030,7 @@ export default function AdaptPage() {
       // 在开始生成前先扣减使用次数，确保即使生成失败也会计算使用次数
       const { incrementUsage } = useAuthStore.getState();
       incrementUsage();
-      
+
       console.log('✅ 使用次数已扣减，剩余:', Math.max(0, maxUsage - (usageCount + 1)));
     } catch (error) {
       console.error('❌ 扣减使用次数失败:', error);
@@ -3366,7 +3367,7 @@ export default function AdaptPage() {
 
   // ✅ FIXED: 已移除模拟翻译功能
   // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
-  // 
+  //
   //
   // 系统现在直接调用真实翻译API，不再提供模拟翻译
   const simulateTranslation = async (content: string): Promise<never> => {
@@ -3551,10 +3552,10 @@ export default function AdaptPage() {
         feature: '标题生成',
         taskType: AITaskType.TITLE_GENERATION
       });
-      
+
       const generatedTitle = result.content?.split('\n')[0]?.replace(/^\d+\.\s*/, '') || '生成的标题';
       setTitle(generatedTitle);
-      
+
       toast({
         title: "AI标题已生成",
         description: generatedTitle,
@@ -3578,18 +3579,18 @@ export default function AdaptPage() {
   // 新的批量转发工作台状态
   const [batchForwardModalOpen, setBatchForwardModalOpen] = useState(false);
   const [batchForwardPlatforms, setBatchForwardPlatforms] = useState<any[]>([]);
-  
+
   // 标题生成状态跟踪
   const [titleStates, setTitleStates] = useState<Record<string, {
     hasTitle: boolean;
     isGenerating: boolean;
   }>>({});
-  
+
   // 当结果更新时，初始化标题状态
   useEffect(() => {
     const updates: Record<string, { hasTitle: boolean; isGenerating: boolean }> = {};
     let hasUpdates = false;
-    
+
     results.forEach(result => {
       if (!titleStates[result.platformId]) {
         updates[result.platformId] = {
@@ -3599,7 +3600,7 @@ export default function AdaptPage() {
         hasUpdates = true;
       }
     });
-    
+
     if (hasUpdates) {
       setTitleStates(prev => ({
         ...prev,
@@ -3616,7 +3617,7 @@ export default function AdaptPage() {
     const available = results.filter(r => {
       return r.content || (r.versions && r.versions.length > 0 && r.versions[0].content);
     }).map(r => r.platformId);
-    
+
     if (available.length === 0) {
       toast({
         title: "提示",
@@ -4345,7 +4346,7 @@ ${charCountControl.source === 'platform-specific'
 }
 
 📝 内容生成策略（${globalSettings.charCountPreset === 'mini' ? '精简版策略' : '确保达到目标字符数'}）：
-${globalSettings.charCountPreset === 'mini' ? 
+${globalSettings.charCountPreset === 'mini' ?
 '- 精炼表达：直接阐述核心观点，避免冗余\n- 关键信息：只保留最重要的内容要素\n- 简洁明了：使用短句和简单词汇\n- 高效传达：每个字符都有价值，直达要点\n- 控制篇幅：严格限制在200字符以内' :
 '- 详细描述：提供具体的细节和例子\n- 深入分析：增加背景信息和深层次解释\n- 实用建议：添加具体的操作步骤和注意事项\n- 丰富表达：使用多样化的句式和词汇\n- 补充信息：添加相关的知识点和扩展内容'}
 
@@ -4546,7 +4547,7 @@ onCheckedChange={(checked) => {
                       const tierLevels = { trial: 0, pro: 1, premium: 2 };
                       const userTier = effectiveUserTier;
                       const hasAccess = isAuthenticated && tierLevels[userTier] >= tierLevels['premium'];
-                      
+
                       if (!hasAccess && checked) {
                         // 显示升级提示
                         toast({
@@ -4556,7 +4557,7 @@ onCheckedChange={(checked) => {
                         });
                         return;
                       }
-                      
+
                       setUseBrandLibrary(checked);
                     }}
                   />
@@ -4570,7 +4571,7 @@ onCheckedChange={(checked) => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="bg-secondary text-secondary-foreground border-border flex-shrink-0">
                   {contentCharCount} 字符
@@ -5266,7 +5267,7 @@ onCheckedChange={(checked) => {
                 {availableModels.filter(m => m.tier === 'low').map((model) => {
                   const disabled = generating;
                   const isSelected = selectedModel === model.id;
-                  
+
                   return (
                     <div
                       key={model.id}
@@ -5328,7 +5329,7 @@ onCheckedChange={(checked) => {
                   {availableModels.filter(m => m.tier === 'mid').map((model) => {
                     const disabled = generating;
                     const isSelected = selectedModel === model.id;
-                    
+
                     return (
                       <div
                         key={model.id}
@@ -5391,7 +5392,7 @@ onCheckedChange={(checked) => {
                   {availableModels.filter(m => m.tier === 'high').map((model) => {
                     const disabled = generating;
                     const isSelected = selectedModel === model.id;
-                    
+
                     return (
                       <div
                         key={model.id}
@@ -5455,9 +5456,9 @@ onCheckedChange={(checked) => {
                       升级到{userPlan === 'trial' ? '专业版或高级版' : '高级版'}，获得更多顶级AI模型和专业功能
                     </p>
                   </div>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
+                  <Button
+                    size="sm"
+                    variant="outline"
                     className="border-blue-300 text-blue-700 hover:bg-blue-50"
                     onClick={handleUpgradeClick}
                   >
@@ -5491,25 +5492,25 @@ onCheckedChange={(checked) => {
             <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
               <div className="flex flex-wrap gap-2 items-center">
                 <span className="text-xs font-medium text-yellow-800">开发环境订阅等级切换：</span>
-                <Button 
-                  size="sm" 
-                  variant={userPlan==='trial'?'default':'outline'} 
+                <Button
+                  size="sm"
+                  variant={userPlan==='trial'?'default':'outline'}
                   className="h-7 text-xs"
                   onClick={()=>setUserPlan('trial')}
                 >
                   体验版
                 </Button>
-                <Button 
-                  size="sm" 
-                  variant={userPlan==='pro'?'default':'outline'} 
+                <Button
+                  size="sm"
+                  variant={userPlan==='pro'?'default':'outline'}
                   className="h-7 text-xs"
                   onClick={()=>setUserPlan('pro')}
                 >
                   专业版
                 </Button>
-                <Button 
-                  size="sm" 
-                  variant={userPlan==='premium'?'default':'outline'} 
+                <Button
+                  size="sm"
+                  variant={userPlan==='premium'?'default':'outline'}
                   className="h-7 text-xs"
                   onClick={()=>setUserPlan('premium')}
                 >
@@ -6398,7 +6399,7 @@ onCheckedChange={(checked) => {
                 shareHistory.reduce((groups: Record<string, ShareHistoryItem[]>, item) => {
                   const date = new Date(item.time).toLocaleDateString('zh-CN', {
                     year: 'numeric',
-                    month: 'long', 
+                    month: 'long',
                     day: 'numeric'
                   });
                   if (!groups[date]) groups[date] = [];
@@ -6433,7 +6434,7 @@ onCheckedChange={(checked) => {
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-xs text-muted-foreground">{item.content.length} 字符</span>
                           <Button
-                            variant="ghost" 
+                            variant="ghost"
                             size="sm"
                             className="h-6 px-2 text-xs"
                             onClick={() => {

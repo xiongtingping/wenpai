@@ -123,7 +123,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: false,
+    sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
     // 🔧 根本性修复：防止变量名压缩导致的TDZ和getInstance错误
     minify: 'terser',
