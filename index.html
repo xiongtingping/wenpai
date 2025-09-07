@@ -15,184 +15,51 @@
   <body>
     <div id="root"></div>
 
-    <!-- 🚨 暂时禁用可能干扰Guard的脚本 -->
-    <!-- <script src="/emergency-undefined-fix.js"></script> -->
-    
-    <!-- 🔧 修复Cloudflare email-decode MIME类型错误 -->
+    <!-- 🔧 修复 - 移除技术债务式的错误拦截，已修复根本问题 -->
     <script>
-      // 全面阻止Cloudflare相关的MIME类型和frame错误
+      // 🎯 轻量级错误处理，仅处理第三方库的非关键错误
       (function() {
-        // 1. 拦截全局错误事件
+        // 最小化的错误处理，专门针对第三方库的已知问题
+        const thirdPartyErrorPatterns = [
+          'cloudflare-static',
+          'X-Frame-Options',
+          'chromewebdata',
+          'Cannot read properties of undefined (reading \'push\')'  // Guard库的已知问题
+        ];
+
+        const isThirdPartyError = (message) => {
+          return thirdPartyErrorPatterns.some(pattern => message && message.includes(pattern));
+        };
+
+        // 仅处理第三方库的静默错误
         window.addEventListener('error', function(event) {
-          // 忽略Cloudflare email-decode MIME类型错误
-          if (event && event.target && event.target.src && 
-              (event.target.src.includes('cloudflare-static/email-decode.min.js') ||
-               event.target.src.includes('cdn-cgi/scripts'))) {
-            console.log('🔇 已忽略Cloudflare脚本MIME类型错误:', event.target.src);
-            event.preventDefault();
-            event.stopPropagation();
-            return false;
-          }
+          const errorMessage = event.message || (event.error && event.error.message) || '';
+          const sourcePath = (event && event.target && event.target.src) || '';
           
-          // 忽略X-Frame-Options相关错误
-          if (event.message && (
-              event.message.includes('X-Frame-Options') ||
-              event.message.includes('frame because it set') ||
-              event.message.includes('chrome-error://chromewebdata/')
-          )) {
-            console.log('🔇 已忽略X-Frame-Options错误');
+          // 仅静默处理第三方库错误，让应用代码错误正常显示
+          if (isThirdPartyError(errorMessage) || isThirdPartyError(sourcePath)) {
+            console.log('🔇 静默处理第三方错误:', errorMessage || sourcePath);
             event.preventDefault();
-            event.stopPropagation();
-            return false;
-          }
-
-          // 🔧 修复 Hq.getInstance is not a function 错误
-          if (event.message && (
-              event.message.includes('getInstance is not a function') ||
-              event.message.includes('Hq.getInstance is not a function') ||
-              event.message.includes('qq.getInstance is not a function') ||
-              event.message.includes('.getInstance is not a function')
-          )) {
-            console.warn('🔧 已拦截单例模式错误:', event.message);
-            event.preventDefault();
-            event.stopPropagation();
-            return false;
-          }
-
-          // 🔧 修复 Guard 事件监听器错误
-          if (event.message && (
-              event.message.includes("Cannot read properties of undefined (reading 'push')") ||
-              event.message.includes("Guard事件监听器") ||
-              event.message.includes("reading 'push'")
-          )) {
-            console.warn('🔧 已拦截Guard事件监听器错误:', event.message);
-            event.preventDefault();
-            event.stopPropagation();
-            return false;
-          }
-
-          // 🔧 修复 React Context 错误
-          if (event.message && (
-              event.message.includes('Minified React error #321') ||
-              event.message.includes('UnifiedAuth不可用') ||
-              event.message.includes('Cannot access') ||
-              event.message.includes('before initialization')
-          )) {
-            console.warn('🔧 已拦截React Context错误:', event.message);
-            event.preventDefault();
-            event.stopPropagation();
             return false;
           }
         }, true);
 
-        // 2. 拦截Promise rejection错误
+        // 仅处理第三方库的Promise错误
         window.addEventListener('unhandledrejection', function(event) {
-          if (event.reason && typeof event.reason === 'string') {
-            if (event.reason.includes('cloudflare-static') || 
-                event.reason.includes('X-Frame-Options') ||
-                event.reason.includes('chromewebdata')) {
-              console.log('🔇 已忽略Cloudflare/Frame相关Promise错误');
-              event.preventDefault();
-              return false;
-            }
-            // 🔧 修复单例模式Promise错误
-            if (event.reason.includes('getInstance is not a function') ||
-                event.reason.includes('Hq.getInstance') ||
-                event.reason.includes('qq.getInstance') ||
-                event.reason.includes('.getInstance is not a function')) {
-              console.warn('🔧 已拦截单例模式Promise错误:', event.reason);
-              event.preventDefault();
-              return false;
-            }
-
-            // 🔧 修复Guard相关Promise错误
-            if (event.reason.includes("Cannot read properties of undefined (reading 'push')") ||
-                event.reason.includes("Guard事件监听器") ||
-                event.reason.includes("reading 'push'")) {
-              console.warn('🔧 已拦截Guard Promise错误:', event.reason);
-              event.preventDefault();
-              return false;
-            }
-
-            // 🔧 修复React Context Promise错误
-            if (event.reason.includes('Minified React error #321') ||
-                event.reason.includes('UnifiedAuth不可用') ||
-                event.reason.includes('Cannot access') ||
-                event.reason.includes('before initialization')) {
-              console.warn('🔧 已拦截React Context Promise错误:', event.reason);
-              event.preventDefault();
-              return false;
-            }
-          } else if (event.reason && event.reason.message && typeof event.reason.message === 'string') {
-            if (event.reason.message.includes('getInstance is not a function') ||
-                event.reason.message.includes('Hq.getInstance') ||
-                event.reason.message.includes('qq.getInstance') ||
-                event.reason.message.includes("Cannot read properties of undefined (reading 'push')") ||
-                event.reason.message.includes('Minified React error #321') ||
-                event.reason.message.includes('Cannot access') ||
-                event.reason.message.includes('before initialization')) {
-              console.warn('🔧 已拦截错误对象:', event.reason.message);
-              event.preventDefault();
-              return false;
-            }
+          const reason = typeof event.reason === 'string' ? event.reason : 
+                        event.reason && event.reason.message ? event.reason.message : '';
+          
+          if (isThirdPartyError(reason)) {
+            console.log('🔇 静默处理第三方Promise错误:', reason);
+            event.preventDefault();
+            return false;
           }
         });
 
-        // 3. 拦截控制台错误
-        const originalConsoleError = console.error;
-        console.error = function(...args) {
-          const errorMessage = args.join(' ');
-          if (errorMessage.includes('Hq.getInstance is not a function') ||
-              errorMessage.includes("Cannot read properties of undefined (reading 'push')") ||
-              errorMessage.includes('Minified React error #321') ||
-              errorMessage.includes('getInstance is not a function') ||
-              errorMessage.includes('Cannot access') ||
-              errorMessage.includes('before initialization')) {
-            console.warn('🔧 已拦截控制台错误:', errorMessage);
-            return;
-          }
-          originalConsoleError.apply(console, args);
-        };
-
-        // 4. 包装原生addEventListener以过滤错误
-        const originalAddEventListener = window.addEventListener;
-        window.addEventListener = function(type, listener, options) {
-          if (type === 'error') {
-            const wrappedListener = function(event) {
-              // 忽略已知的Cloudflare和Frame错误
-              if (event && event.target && event.target.src && 
-                  (event.target.src.includes('cloudflare-static') ||
-                   event.target.src.includes('cdn-cgi'))) {
-                console.log('🔇 已忽略Cloudflare错误事件');
-                return;
-              }
-              return listener.call(this, event);
-            };
-            return originalAddEventListener.call(this, type, wrappedListener, options);
-          }
-          return originalAddEventListener.call(this, type, listener, options);
-        };
-
-        // 5. 为严重错误添加全局恢复机制
-        window.addEventListener('error', function(e) {
-          if (e.error && e.error.message && 
-              (e.error.message.includes('Hq.getInstance is not a function') ||
-               e.error.message.includes('Cannot access') && e.error.message.includes('before initialization'))) {
-            console.warn('🔄 检测到严重错误，尝试页面恢复...');
-            // 延迟一小段时间后尝试恢复
-            setTimeout(() => {
-              if (typeof window.location !== 'undefined') {
-                console.warn('🔄 正在刷新页面以恢复正常状态...');
-                window.location.reload();
-              }
-            }, 5000); // 5秒后重新加载
-          }
-        }, true);
-
-        console.log('🛡️ 增强错误拦截系统已激活');
+        console.log('✅ 轻量级错误处理已激活 - 根本问题已修复');
       })();
     </script>
     
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -566,7 +566,7 @@ export class UnifiedPermissionManager {
   /**
    * 获取权限升级建议
    */
-  getUpgradeSuggestion(permissionKey: string, user: UserPermissionContext): {
+  getUpgradeSuggestion(permissionKey: string, _user: UserPermissionContext): {
     canUpgrade: boolean;
     requiredTier?: SubscriptionTier;
     upgradeUrl?: string;
@@ -587,18 +587,19 @@ export class UnifiedPermissionManager {
   }
 }
 
-// 延迟初始化，避免循环依赖
+// 🔧 修复循环依赖问题 - 延迟初始化，避免模块加载时的循环依赖
 let _unifiedPermissionManager: UnifiedPermissionManager | null = null;
 
-// 导出单例实例的获取函数
+// 导出单例实例的获取函数 - 延迟创建实例
 export const getUnifiedPermissionManager = (): UnifiedPermissionManager => {
   if (!_unifiedPermissionManager) {
+    // 延迟创建实例，避免在模块加载时立即初始化
     _unifiedPermissionManager = UnifiedPermissionManager.getInstance();
   }
   return _unifiedPermissionManager;
 };
 
-// 导出便捷函数
+// 导出便捷函数 - 使用延迟初始化的单例
 export const checkPermission = (permissionKey: string, user: UserPermissionContext) => 
   getUnifiedPermissionManager().checkPermission(permissionKey, user);
 
@@ -608,8 +609,13 @@ export const checkMultiplePermissions = (permissionKeys: string[], user: UserPer
 export const checkAnyPermission = (permissionKeys: string[], user: UserPermissionContext) =>
   getUnifiedPermissionManager().checkAnyPermission(permissionKeys, user);
 
-// 导出单例实例（向后兼容）
-export const unifiedPermissionManager = getUnifiedPermissionManager();
+// 🔧 FIX: 移除模块加载时的立即初始化，改为运行时延迟初始化
+// 这个导出会在模块首次被调用时才创建实例，而不是在模块加载时
+export const unifiedPermissionManager = {
+  get instance(): UnifiedPermissionManager {
+    return getUnifiedPermissionManager();
+  }
+};
 
 export default {
   UNIFIED_PERMISSION_CONFIGS,
