@@ -120,6 +120,43 @@ module.exports.handler = async (event, context) => {
       };
     }
 
+    // 🔧 处理GET请求（热点话题、状态检查等）
+    if (event.httpMethod === 'GET') {
+      const { action, platform } = event.queryStringParameters || {};
+      
+      // 处理热点话题API请求
+      if (action === 'hot-topics') {
+        if (platform) {
+          return await getHotTopicsByPlatform(platform, headers);
+        } else {
+          return await getAggregatedHotTopics(headers);
+        }
+      }
+      
+      // 处理AI状态检查
+      if (action === 'status') {
+        const provider = event.queryStringParameters?.provider;
+        switch (provider) {
+          case 'openai':
+            return await checkOpenAIStatus(headers);
+          case 'deepseek':
+            return await checkDeepSeekStatus(headers);
+          default:
+            return {
+              statusCode: 400,
+              headers,
+              body: JSON.stringify({ error: 'Unknown provider' })
+            };
+        }
+      }
+      
+      return {
+        statusCode: 501,
+        headers,
+        body: JSON.stringify({ error: 'Not implemented for this GET request' })
+      };
+    }
+
     // 🔧 处理 /ai/chat 路径 - 修复AI请求路由
     if (path.includes('/ai/chat') || path.includes('ai/chat')) {
       console.log('🔍 AI Chat 请求路径调试:', path, event.body?.substring(0, 200));
