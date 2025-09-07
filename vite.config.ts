@@ -134,16 +134,21 @@ export default defineConfig({
         keep_fnames: true,
         // 保留关键单例相关的标识符
         reserved: [
-          'getInstance', 'HotTopicsAPI', 'ConfigManager', 
+          'getInstance', 'HotTopicsAPI', 'ConfigManager',
           'UnifiedPermissionManager', 'PaymentService', 'BrandCorpusService',
           'FavoritesService', 'UserDataService', 'DataSyncManager',
-          'instance', 'API', 'Service', 'Manager', 'Handler'
+          'instance', 'API', 'Service', 'Manager', 'Handler',
+          // 🔧 FIXED: 保留 Slot 相关标识符，避免变量名冲突
+          'createSlot', 'createSlottable', 'Slot', 'Slottable', 'pe'
         ]
       },
       compress: {
         // 禁用可能导致初始化顺序问题的优化
         reduce_vars: false,
-        toplevel: false
+        toplevel: false,
+        // 🔧 FIXED: 禁用可能导致变量重命名冲突的优化
+        hoist_vars: false,
+        hoist_funs: false
       }
     },
     rollupOptions: {
