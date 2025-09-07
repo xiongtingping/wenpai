@@ -1185,6 +1185,9 @@ export default function AdaptPage() {
   // 订阅等级本地状态，后续可全局提升
   const [userPlan, setUserPlan] = useState<'trial' | 'pro' | 'premium'>('trial');
 
+  // 当前用户等级状态 - 修复 currentTier is not defined 错误
+  const [currentTier, setCurrentTier] = useState<'trial' | 'pro' | 'premium'>('trial');
+
   // 内容形式和风格选择
   const [selectedFormId, setSelectedFormId] = useState<string | undefined>(undefined);
   const [selectedStyle, setSelectedStyle] = useState<StyleType | undefined>(undefined);
@@ -1304,7 +1307,7 @@ export default function AdaptPage() {
       const syncUsageStats = async () => {
         try {
           // 获取用户当前等级 - 与其他组件保持一致的逻辑
-          const currentTier = (() => {
+          const calculatedTier = (() => {
             // 优先使用订阅状态中的等级信息
             if (primaryStatus?.status === 'active' && primaryStatus.tier) {
               return primaryStatus.tier;
@@ -1324,18 +1327,21 @@ export default function AdaptPage() {
             return getUserTier(user);
           })();
 
+          // 更新组件状态中的 currentTier
+          setCurrentTier(calculatedTier);
+
           // 🔧 FIX: 恢复正确的使用次数限制配置
           let newMaxUsage = 10; // 默认体验版
-          if (currentTier === 'pro') {
+          if (calculatedTier === 'pro') {
             newMaxUsage = 30; // 🔧 FIX: 专业版恢复为30次/月
-          } else if (currentTier === 'premium') {
+          } else if (calculatedTier === 'premium') {
             newMaxUsage = -1; // 高级版无限制
           }
 
           // 🔧 FIX: 立即更新最大使用次数，避免状态闪烁
           if (newMaxUsage !== maxUsage) {
             console.log('🔄 更新使用次数限制:', {
-              currentTier,
+              currentTier: calculatedTier,
               oldMaxUsage: maxUsage,
               newMaxUsage,
               hasActiveSubscription: primaryStatus?.status === 'active'

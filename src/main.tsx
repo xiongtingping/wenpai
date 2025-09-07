@@ -43,14 +43,15 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BrowserRouter
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true
-      }}
-    >
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>
+  // 🔧 FIX: 暂时禁用React.StrictMode以避免Portal DOM操作冲突
+  // React严格模式会导致组件双重渲染，与Portal的DOM操作产生冲突
+  // 特别是在MD2WeChatPage等使用Toast的组件中会出现removeChild错误
+  <BrowserRouter
+    future={{
+      v7_startTransition: true,
+      v7_relativeSplatPath: true
+    }}
+  >
+    <App />
+  </BrowserRouter>
 );

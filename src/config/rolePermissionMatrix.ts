@@ -97,15 +97,15 @@ export enum SubscriptionTier {
 }
 
 /**
- * 角色权限映射配置
+ * 基础角色权限配置（不包含继承关系）
  */
-export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
+const BASE_ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
   [SystemRole.GUEST]: [
     Permission.READ_BASIC_CONTENT,
     Permission.TIER_TRIAL,
     Permission.THEME_BASIC
   ],
-  
+
   [SystemRole.USER]: [
     Permission.READ_BASIC_CONTENT,
     Permission.CREATE_BASIC_CONTENT,
@@ -116,7 +116,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     Permission.THEME_BASIC,
     Permission.API_ACCESS_BASIC
   ],
-  
+
   [SystemRole.VIP]: [
     Permission.READ_BASIC_CONTENT,
     Permission.CREATE_BASIC_CONTENT,
@@ -136,7 +136,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     Permission.API_ACCESS_BASIC,
     Permission.DATA_EXPORT
   ],
-  
+
   [SystemRole.TRIAL_USER]: [
     Permission.READ_BASIC_CONTENT,
     Permission.CREATE_BASIC_CONTENT,
@@ -146,7 +146,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     Permission.THEME_BASIC,
     Permission.API_ACCESS_BASIC
   ],
-  
+
   [SystemRole.PRO_USER]: [
     Permission.READ_BASIC_CONTENT,
     Permission.CREATE_BASIC_CONTENT,
@@ -168,7 +168,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     Permission.API_ACCESS_ADVANCED,
     Permission.DATA_EXPORT
   ],
-  
+
   [SystemRole.PREMIUM_USER]: [
     Permission.READ_BASIC_CONTENT,
     Permission.CREATE_BASIC_CONTENT,
@@ -195,36 +195,58 @@ export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     Permission.DATA_EXPORT,
     Permission.DATA_IMPORT
   ],
-  
+
+  // 管理角色的基础权限（不包含继承）
   [SystemRole.MODERATOR]: [
-    // 包含所有用户权限
-    ...ROLE_PERMISSIONS[SystemRole.PREMIUM_USER] || [],
     Permission.USER_VIEW,
     Permission.CMS_EDIT
   ],
-  
+
   [SystemRole.ADMIN]: [
-    // 包含所有moderator权限
-    ...ROLE_PERMISSIONS[SystemRole.MODERATOR] || [],
     Permission.USER_EDIT,
     Permission.USER_DELETE,
     Permission.SYSTEM_CONFIG,
     Permission.DATA_BACKUP,
     Permission.DATA_RESTORE
   ],
-  
+
   [SystemRole.SUPER_ADMIN]: [
-    // 包含所有admin权限
-    ...ROLE_PERMISSIONS[SystemRole.ADMIN] || [],
     // 超级管理员拥有所有权限
     ...Object.values(Permission)
   ]
 };
 
 /**
- * 订阅级别权限映射
+ * 完整的角色权限映射配置（包含继承关系）
  */
-export const TIER_PERMISSIONS: Record<SubscriptionTier, Permission[]> = {
+export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
+  // 基础用户角色
+  [SystemRole.GUEST]: BASE_ROLE_PERMISSIONS[SystemRole.GUEST],
+  [SystemRole.USER]: BASE_ROLE_PERMISSIONS[SystemRole.USER],
+  [SystemRole.VIP]: BASE_ROLE_PERMISSIONS[SystemRole.VIP],
+  [SystemRole.TRIAL_USER]: BASE_ROLE_PERMISSIONS[SystemRole.TRIAL_USER],
+  [SystemRole.PRO_USER]: BASE_ROLE_PERMISSIONS[SystemRole.PRO_USER],
+  [SystemRole.PREMIUM_USER]: BASE_ROLE_PERMISSIONS[SystemRole.PREMIUM_USER],
+
+  // 管理角色（包含继承关系）
+  [SystemRole.MODERATOR]: [
+    ...BASE_ROLE_PERMISSIONS[SystemRole.PREMIUM_USER],
+    ...BASE_ROLE_PERMISSIONS[SystemRole.MODERATOR]
+  ],
+
+  [SystemRole.ADMIN]: [
+    ...BASE_ROLE_PERMISSIONS[SystemRole.PREMIUM_USER],
+    ...BASE_ROLE_PERMISSIONS[SystemRole.MODERATOR],
+    ...BASE_ROLE_PERMISSIONS[SystemRole.ADMIN]
+  ],
+
+  [SystemRole.SUPER_ADMIN]: BASE_ROLE_PERMISSIONS[SystemRole.SUPER_ADMIN]
+};
+
+/**
+ * 基础订阅级别权限配置（不包含继承关系）
+ */
+const BASE_TIER_PERMISSIONS: Record<SubscriptionTier, Permission[]> = {
   [SubscriptionTier.TRIAL]: [
     Permission.READ_BASIC_CONTENT,
     Permission.CREATE_BASIC_CONTENT,
@@ -232,7 +254,7 @@ export const TIER_PERMISSIONS: Record<SubscriptionTier, Permission[]> = {
     Permission.THEME_BASIC,
     Permission.API_ACCESS_BASIC
   ],
-  
+
   [SubscriptionTier.PRO]: [
     Permission.READ_BASIC_CONTENT,
     Permission.CREATE_BASIC_CONTENT,
@@ -251,10 +273,8 @@ export const TIER_PERMISSIONS: Record<SubscriptionTier, Permission[]> = {
     Permission.API_ACCESS_ADVANCED,
     Permission.DATA_EXPORT
   ],
-  
+
   [SubscriptionTier.PREMIUM]: [
-    // 包含所有Pro权限
-    ...TIER_PERMISSIONS[SubscriptionTier.PRO] || [],
     Permission.TIER_PREMIUM,
     Permission.THEME_PREMIUM,
     Permission.FEATURE_BRAND_LIBRARY,
@@ -262,6 +282,24 @@ export const TIER_PERMISSIONS: Record<SubscriptionTier, Permission[]> = {
     Permission.BRAND_LIBRARY,
     Permission.API_KEY_MANAGE,
     Permission.DATA_IMPORT
+  ]
+};
+
+/**
+ * 完整的订阅级别权限映射（包含继承关系）
+ */
+export const TIER_PERMISSIONS: Record<SubscriptionTier, Permission[]> = {
+  [SubscriptionTier.TRIAL]: BASE_TIER_PERMISSIONS[SubscriptionTier.TRIAL],
+
+  [SubscriptionTier.PRO]: [
+    ...BASE_TIER_PERMISSIONS[SubscriptionTier.TRIAL],
+    ...BASE_TIER_PERMISSIONS[SubscriptionTier.PRO]
+  ],
+
+  [SubscriptionTier.PREMIUM]: [
+    ...BASE_TIER_PERMISSIONS[SubscriptionTier.TRIAL],
+    ...BASE_TIER_PERMISSIONS[SubscriptionTier.PRO],
+    ...BASE_TIER_PERMISSIONS[SubscriptionTier.PREMIUM]
   ]
 };
 

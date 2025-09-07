@@ -181,7 +181,7 @@ function useToast() {
         listeners.splice(index, 1)
       }
     }
-  }, [state])
+  }, []) // 🔧 FIX: 移除state依赖，避免无限循环
 
   return {
     ...state,

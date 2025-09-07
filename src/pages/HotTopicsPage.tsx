@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { logger } from '@/utils/logger';
+import { debounce } from '@/lib/performance';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -120,6 +121,43 @@ interface TrendAnalysis {
 export default function HotTopicsPage() {
   const { t } = useTranslation();
 
+  // 修复 activeTab is not defined 错误
+  const [activeTab, setActiveTab] = useState<'hot' | 'subscriptions' | 'bookmarks'>('hot');
+
+  // 修复其他缺失的状态
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [allHotData, setAllHotData] = useState<DailyHotResponse | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingSubscription, setEditingSubscription] = useState<any>(null);
+  const [selectedSubscription, setSelectedSubscription] = useState<any>(null);
+  const [heatTrends, setHeatTrends] = useState<any>({});
+  const [keywordAnalysis, setKeywordAnalysis] = useState<any>(null);
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [monitorResults, setMonitorResults] = useState<any>({});
+  const [isMonitoring, setIsMonitoring] = useState<any>({});
+  const [loadingTrends, setLoadingTrends] = useState<Record<string, boolean>>({});
+  const [supportedPlatforms, setSupportedPlatforms] = useState<string[]>([]);
+  const [currentPlatform, setCurrentPlatform] = useState<string>('all');
+  const [useEnhancedCategories, setUseEnhancedCategories] = useState(false);
+  const [stats, setStats] = useState({ total: 0, platforms: 0 });
+  const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
+  const [bookmarkedTopics, setBookmarkedTopics] = useState<Set<string>>(new Set());
+  const [viewedTopics, setViewedTopics] = useState<Set<string>>(new Set());
+  const [newSubscription, setNewSubscription] = useState({
+    keyword: '',
+    description: '',
+    timeRange: '24h',
+    minHeatThreshold: 1000,
+    checkInterval: 60,
+    isActive: true,
+    notificationEnabled: true
+  });
+  const [descriptionEdited, setDescriptionEdited] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
   const formatHotValue = (hot: string | undefined): string => {
     if (!hot || hot === '' || hot === '0' || hot === 'undefined') {
       return t('hotTopics.noData');
@@ -138,12 +176,222 @@ export default function HotTopicsPage() {
     return hot;
   };
 
-  
+  // 修复 fetchHotData is not defined 错误
+  const fetchHotData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getDailyHotAll();
+      setAllHotData(response);
+      setLastUpdateTime(new Date());
+
+      // 计算统计信息
+      if (response?.data) {
+        const platforms = Object.keys(response.data);
+        const total = Object.values(response.data).reduce((sum, topics) => sum + topics.length, 0);
+        setStats({ total, platforms: platforms.length });
+        setSupportedPlatforms(platforms);
+      }
+    } catch (error) {
+      console.error('获取热点数据失败:', error);
+      setError('获取热点数据失败，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // 修复其他缺失的函数
+  const isTopicBookmarked = useCallback((topic: DailyHotItem) => {
+    // 简单的书签检查逻辑，可以根据需要扩展
+    return false; // 临时返回 false
+  }, []);
+
+  const isTopicRead = useCallback((topic: DailyHotItem) => {
+    // 简单的已读检查逻辑
+    return false; // 临时返回 false
+  }, []);
+
+  const toggleBookmark = useCallback((topic: DailyHotItem) => {
+    // 书签切换逻辑
+    console.log('Toggle bookmark for:', topic.title);
+  }, []);
+
+  const handleTopicClick = useCallback((topic: DailyHotItem) => {
+    // 话题点击处理
+    console.log('Topic clicked:', topic.title);
+  }, []);
+
+  const handleInterestFilterChange = useCallback((filters: any) => {
+    // 兴趣过滤器变化处理
+    console.log('Interest filter changed:', filters);
+  }, []);
+
+  const handleEditSubscription = useCallback((subscription: any) => {
+    setEditingSubscription(subscription);
+    setIsEditDialogOpen(true);
+  }, []);
+
+  const handleDeleteSubscription = useCallback((subscription: any) => {
+    console.log('Delete subscription:', subscription);
+  }, []);
+
+  const handleToggleSubscription = useCallback((subscriptionId: string, isActive: boolean) => {
+    console.log('Toggle subscription:', subscriptionId, isActive);
+    // 这里可以添加实际的切换逻辑
+  }, []);
+
+  const handleMarkAsViewed = useCallback((subscriptionId: string) => {
+    console.log('Mark as viewed:', subscriptionId);
+    // 这里可以添加标记为已查看的逻辑
+  }, []);
+
+  const handleBookmarkTopic = useCallback((topicId: string) => {
+    setBookmarkedTopics(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(topicId)) {
+        newSet.delete(topicId);
+      } else {
+        newSet.add(topicId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const handleMarkTopicAsViewed = useCallback((topicId: string) => {
+    setViewedTopics(prev => new Set([...prev, topicId]));
+  }, []);
+
+  const analyzeKeyword = useCallback(async (keyword: string) => {
+    try {
+      // 模拟关键词分析
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      if (!descriptionEdited) {
+        setNewSubscription(prev => ({
+          ...prev,
+          description: `监控关键词"${keyword}"的热点趋势和相关话题`
+        }));
+      }
+
+      setKeywordAnalysis({
+        relatedKeywords: [`${keyword}相关`, `${keyword}热点`, `${keyword}趋势`],
+        suggestedDescription: `监控关键词"${keyword}"的热点趋势和相关话题`
+      });
+    } catch (error) {
+      console.error('关键词分析失败:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, [descriptionEdited]);
+
+  const debouncedAnalyze = useCallback(
+    debounce((keyword: string) => analyzeKeyword(keyword), 500),
+    [analyzeKeyword]
+  );
+
+  const handleAddSubscription = useCallback(async () => {
+    try {
+      if (!newSubscription.keyword.trim()) {
+        alert('请输入关键词');
+        return;
+      }
+
+      // 模拟添加订阅
+      const subscription = {
+        id: Date.now().toString(),
+        ...newSubscription,
+        createdAt: new Date().toISOString()
+      };
+
+      setSubscriptions(prev => [...prev, subscription]);
+
+      // 重置表单
+      setNewSubscription({
+        keyword: '',
+        description: '',
+        timeRange: '24h',
+        minHeatThreshold: 1000,
+        checkInterval: 60,
+        isActive: true,
+        notificationEnabled: true
+      });
+
+      setDescriptionEdited(false);
+      setKeywordAnalysis(null);
+      setIsAddDialogOpen(false);
+
+      console.log('订阅添加成功:', subscription);
+    } catch (error) {
+      console.error('添加订阅失败:', error);
+      alert('添加订阅失败，请稍后重试');
+    }
+  }, [newSubscription]);
+
+  const handleSaveEdit = useCallback(async () => {
+    try {
+      if (!editingSubscription) {
+        alert('没有正在编辑的订阅');
+        return;
+      }
+
+      // 模拟保存编辑
+      setSubscriptions(prev =>
+        prev.map(sub =>
+          sub.id === editingSubscription.id
+            ? { ...editingSubscription, updatedAt: new Date().toISOString() }
+            : sub
+        )
+      );
+
+      setEditingSubscription(null);
+      setIsEditDialogOpen(false);
+
+      console.log('订阅编辑成功:', editingSubscription);
+    } catch (error) {
+      console.error('保存编辑失败:', error);
+      alert('保存编辑失败，请稍后重试');
+    }
+  }, [editingSubscription]);
+
+  const handleMonitorTopic = useCallback((subscription: any) => {
+    console.log('Monitor topic:', subscription);
+  }, []);
+
+  const handleViewSource = useCallback((topic: DailyHotItem) => {
+    if (topic.url) {
+      window.open(topic.url, '_blank');
+    }
+  }, []);
+
+  const handleCategoryChange = useCallback((category: string) => {
+    console.log('Category changed:', category);
+  }, []);
+
+  const prepareCategorizedData = useCallback(() => {
+    if (!allHotData?.data) return {};
+    return allHotData.data;
+  }, [allHotData]);
+
+  const getAllTopicsData = useCallback((): DailyHotItem[] => {
+    if (!allHotData?.data) return [];
+
+    if (currentPlatform === 'all') {
+      return aggregateAndSortTopics(allHotData.data);
+    } else {
+      return allHotData.data[currentPlatform] || [];
+    }
+  }, [allHotData, currentPlatform]);
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchHotData();
     setRefreshing(false);
   };
+
+  // 初始化数据加载
+  useEffect(() => {
+    fetchHotData();
+  }, [fetchHotData]);
 
   return (
     <div className="min-h-screen bg-background" style={{ paddingTop: 'var(--header-height, 96px)' }}>

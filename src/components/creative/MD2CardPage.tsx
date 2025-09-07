@@ -492,7 +492,7 @@ export default function MD2CardPage() {
   // 监听内容和配置变化，触发生成
   useEffect(() => {
     debouncedGenerate(markdownContent, selectedTemplate, cardConfig);
-  }, [markdownContent, selectedTemplate, cardConfig, debouncedGenerate]);
+  }, [markdownContent, selectedTemplate, cardConfig]); // 🔧 FIX: 移除debouncedGenerate依赖，避免无限循环
 
   // 处理内容变化
   const handleContentChange = useCallback((content: string) => {

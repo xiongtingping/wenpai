@@ -66,16 +66,24 @@ export function Header() {
   useEffect(() => {
     const el = document.querySelector('header.theme-header-bg') as HTMLElement | null;
     const update = () => {
-      const h = el?.offsetHeight || 64;
+      const h = el?.offsetHeight || 96; // 增加默认高度到96px
       document.documentElement.style.setProperty('--header-height', `${h}px`);
+      console.log('🔧 Header高度已设置:', `${h}px`); // 添加调试日志
     };
+
+    // 延迟执行确保DOM完全渲染
+    const timer = setTimeout(update, 100);
     update();
+
     window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', update);
+    };
   }, []);
 
   return (
-    <header className="theme-header-bg fixed top-0 left-0 right-0 z-[99999] shadow-lg backdrop-blur-md border-b border-border/10" style={{ position: 'fixed' }}>
+    <header className="theme-header-bg fixed top-0 left-0 right-0 z-[99999] shadow-lg backdrop-blur-md border-b border-border/10">
       <nav className="container mx-auto px-6 py-4 flex items-center">
         {/* Logo - 固定在左侧 */}
         <div className="flex-shrink-0">

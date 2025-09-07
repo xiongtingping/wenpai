@@ -146,11 +146,9 @@ export default function CreativeStudioPage() {
 
             {/* Emoji生成器 */}
             <TabsContent value="emoji" className="mt-6">
-              <div className="bg-card rounded-lg border border-border">
-                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                  <EmojiPage />
-                </React.Suspense>
-              </div>
+              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                <EmojiPage />
+              </React.Suspense>
             </TabsContent>
 
             {/* Markdown排版工具 */}

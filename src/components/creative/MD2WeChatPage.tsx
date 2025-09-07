@@ -3,7 +3,7 @@
  * 支持多主题、实时预览、导出等功能
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, ErrorInfo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -78,6 +78,7 @@ export default function MD2WeChatPage() {
   const [isConverting, setIsConverting] = useState(false);
   const [isMobilePreview, setIsMobilePreview] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   // 文档统计
   const [wordCount, setWordCount] = useState(0);
@@ -90,48 +91,94 @@ export default function MD2WeChatPage() {
     setEstimatedReadTime(Math.ceil(words / 200)); // 假设每分钟阅读200字
   }, [markdownContent]);
 
-  // 实时转换函数 - 优化响应性和体验
-  const debouncedConvert = useDebouncedCallback(
-    async (content: string, theme: string, size: string) => {
-      if (!content.trim()) {
-        setPreviewHtml('');
-        return;
-      }
+  // 🔧 FIX: 简化转换函数，避免Hook调用问题
+  const convertContent = useCallback(async (content: string, theme: string, size: string) => {
+    if (!content.trim()) {
+      setPreviewHtml('');
+      return;
+    }
 
-      // 检查用户是否登录 - 实时预览不需要阻止
-      if (!isAuthenticated) {
-        // 对于实时预览，不阻止转换，只是不计算使用次数
-      }
+    setIsConverting(true);
+    try {
+      const result = await convertMarkdownToHTML({
+        markdown: content,
+        theme,
+        fontSize: size as 'small' | 'medium' | 'large'
+      });
 
-      setIsConverting(true);
-      try {
-        const result = await convertMarkdownToHTML({
-          markdown: content,
-          theme,
-          fontSize: size as 'small' | 'medium' | 'large'
-        });
-        
-        if (result.success) {
-          setPreviewHtml(result.html);
-        } else {
-          throw new Error(result.error || '转换失败');
-        }
-      } catch (error) {
-        console.error('转换失败:', error);
-        // 实时预览中不显示错误提示，避免干扰用户输入
-        // 设置基础的HTML预览
-        setPreviewHtml(`<div class="markdown-content">${content.replace(/\n/g, '<br>')}</div>`);
-      } finally {
-        setIsConverting(false);
+      if (result.success) {
+        setPreviewHtml(result.html);
+      } else {
+        throw new Error(result.error || '转换失败');
       }
-    },
-    150  // 减少防抖延迟从500ms到150ms
-  );
+    } catch (error) {
+      console.error('转换失败:', error);
+      // 设置基础的HTML预览
+      setPreviewHtml(`<div class="markdown-content">${content.replace(/\n/g, '<br>')}</div>`);
+    } finally {
+      setIsConverting(false);
+    }
+  }, []);
+
+  // 使用简单的防抖机制
+  const debouncedConvert = useDebouncedCallback(convertContent, 150);
 
   // 监听内容和主题变化，触发转换
   useEffect(() => {
     debouncedConvert(markdownContent, selectedTheme, fontSize);
-  }, [markdownContent, selectedTheme, fontSize, debouncedConvert]);
+  }, [markdownContent, selectedTheme, fontSize]); // 🔧 FIX: 移除debouncedConvert依赖，避免无限循环
+
+  // 组件卸载时的清理
+  useEffect(() => {
+    return () => {
+      // 清理可能存在的动态创建的DOM元素
+      try {
+        const dynamicInputs = document.querySelectorAll('input[type="file"][style*="display: none"], input[type="file"][style*="position: absolute"]');
+        dynamicInputs.forEach(input => {
+          try {
+            if (input && input.parentNode && input.parentNode.contains(input)) {
+              input.parentNode.removeChild(input);
+            }
+          } catch (error) {
+            console.warn('清理动态input元素时出错:', error);
+          }
+        });
+      } catch (error) {
+        console.warn('组件清理时出错:', error);
+      }
+    };
+  }, []);
+
+  // 错误处理
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      if (event.message && event.message.includes('removeChild')) {
+        console.warn('捕获到DOM操作错误，已处理:', event.message);
+        setHasError(true);
+        // 3秒后重置错误状态
+        setTimeout(() => setHasError(false), 3000);
+        event.preventDefault();
+        return false;
+      }
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (event.reason && typeof event.reason === 'string' && event.reason.includes('removeChild')) {
+        console.warn('捕获到Promise DOM错误，已处理:', event.reason);
+        setHasError(true);
+        setTimeout(() => setHasError(false), 3000);
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
 
   // 处理内容变化
   const handleContentChange = useCallback((content: string) => {
@@ -166,6 +213,68 @@ export default function MD2WeChatPage() {
     reader.readAsText(file);
   }, [toast]);
 
+  // 安全的文件选择处理
+  const handleFileSelect = useCallback(() => {
+    try {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.md,.txt';
+      input.style.display = 'none';
+      input.style.position = 'absolute';
+      input.style.left = '-9999px';
+
+      const cleanup = () => {
+        try {
+          if (input && input.parentNode) {
+            input.parentNode.removeChild(input);
+          }
+        } catch (cleanupError) {
+          console.warn('DOM清理警告:', cleanupError);
+        }
+      };
+
+      const handleChange = (e: Event) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+          handleImportDocument(file);
+        }
+
+        // 移除事件监听器
+        input.removeEventListener('change', handleChange);
+
+        // 延迟清理DOM元素，避免立即操作冲突
+        setTimeout(cleanup, 100);
+      };
+
+      // 添加错误处理
+      const handleError = () => {
+        input.removeEventListener('change', handleChange);
+        input.removeEventListener('error', handleError);
+        setTimeout(cleanup, 100);
+      };
+
+      input.addEventListener('change', handleChange);
+      input.addEventListener('error', handleError);
+
+      // 安全地添加到DOM
+      try {
+        document.body.appendChild(input);
+        input.click();
+      } catch (appendError) {
+        console.error('DOM操作失败:', appendError);
+        cleanup();
+        throw appendError;
+      }
+    } catch (error) {
+      console.error('文件选择失败:', error);
+      toast({
+        title: '文件选择失败',
+        description: '请重试或检查浏览器权限',
+        variant: 'destructive'
+      });
+    }
+  }, [handleImportDocument, toast]);
+
   // 重置内容
   const handleReset = useCallback(() => {
     setMarkdownContent('# 欢迎使用Markdown排版工具\n\n开始你的创作之旅...');
@@ -177,12 +286,28 @@ export default function MD2WeChatPage() {
     });
   }, [toast]);
 
+  // 如果有错误，显示简化的错误恢复界面
+  if (hasError) {
+    return (
+      <div className="bg-background">
+        <div className="container mx-auto px-4 py-6 max-w-7xl">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <RefreshCw className="w-8 h-8 mx-auto mb-4 text-muted-foreground animate-spin" />
+              <p className="text-muted-foreground">正在恢复组件状态...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
-        <div className="bg-background">
+        <div className="h-full bg-background">
           {/* 工具栏 */}
-          <div className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
+          <div className="border-b border-border bg-card">
             <div className="container mx-auto px-4 py-3">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 {/* 左侧工具组 */}
@@ -254,16 +379,7 @@ export default function MD2WeChatPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = '.md,.txt';
-                      input.onchange = (e) => {
-                        const file = (e.target as HTMLInputElement).files?.[0];
-                        if (file) handleImportDocument(file);
-                      };
-                      input.click();
-                    }}
+                    onClick={handleFileSelect}
                   >
                     <Upload className="w-4 h-4 mr-1" />
                     导入
