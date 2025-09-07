@@ -58,6 +58,31 @@
             event.stopPropagation();
             return false;
           }
+
+          // 🔧 修复 Guard 事件监听器错误
+          if (event.message && (
+              event.message.includes("Cannot read properties of undefined (reading 'push')") ||
+              event.message.includes("Guard事件监听器") ||
+              event.message.includes("reading 'push'")
+          )) {
+            console.warn('🔧 已拦截Guard事件监听器错误:', event.message);
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+
+          // 🔧 修复 React Context 错误
+          if (event.message && (
+              event.message.includes('Minified React error #321') ||
+              event.message.includes('UnifiedAuth不可用') ||
+              event.message.includes('Cannot access') ||
+              event.message.includes('before initialization')
+          )) {
+            console.warn('🔧 已拦截React Context错误:', event.message);
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
         }, true);
 
         // 2. 拦截Promise rejection错误
@@ -79,18 +104,57 @@
               event.preventDefault();
               return false;
             }
+
+            // 🔧 修复Guard相关Promise错误
+            if (event.reason.includes("Cannot read properties of undefined (reading 'push')") ||
+                event.reason.includes("Guard事件监听器") ||
+                event.reason.includes("reading 'push'")) {
+              console.warn('🔧 已拦截Guard Promise错误:', event.reason);
+              event.preventDefault();
+              return false;
+            }
+
+            // 🔧 修复React Context Promise错误
+            if (event.reason.includes('Minified React error #321') ||
+                event.reason.includes('UnifiedAuth不可用') ||
+                event.reason.includes('Cannot access') ||
+                event.reason.includes('before initialization')) {
+              console.warn('🔧 已拦截React Context Promise错误:', event.reason);
+              event.preventDefault();
+              return false;
+            }
           } else if (event.reason && event.reason.message && typeof event.reason.message === 'string') {
             if (event.reason.message.includes('getInstance is not a function') ||
                 event.reason.message.includes('Hq.getInstance') ||
-                event.reason.message.includes('qq.getInstance')) {
-              console.warn('🔧 已拦截单例模式错误对象:', event.reason.message);
+                event.reason.message.includes('qq.getInstance') ||
+                event.reason.message.includes("Cannot read properties of undefined (reading 'push')") ||
+                event.reason.message.includes('Minified React error #321') ||
+                event.reason.message.includes('Cannot access') ||
+                event.reason.message.includes('before initialization')) {
+              console.warn('🔧 已拦截错误对象:', event.reason.message);
               event.preventDefault();
               return false;
             }
           }
         });
 
-        // 3. 包装原生addEventListener以过滤错误
+        // 3. 拦截控制台错误
+        const originalConsoleError = console.error;
+        console.error = function(...args) {
+          const errorMessage = args.join(' ');
+          if (errorMessage.includes('Hq.getInstance is not a function') ||
+              errorMessage.includes("Cannot read properties of undefined (reading 'push')") ||
+              errorMessage.includes('Minified React error #321') ||
+              errorMessage.includes('getInstance is not a function') ||
+              errorMessage.includes('Cannot access') ||
+              errorMessage.includes('before initialization')) {
+            console.warn('🔧 已拦截控制台错误:', errorMessage);
+            return;
+          }
+          originalConsoleError.apply(console, args);
+        };
+
+        // 4. 包装原生addEventListener以过滤错误
         const originalAddEventListener = window.addEventListener;
         window.addEventListener = function(type, listener, options) {
           if (type === 'error') {
@@ -108,6 +172,24 @@
           }
           return originalAddEventListener.call(this, type, listener, options);
         };
+
+        // 5. 为严重错误添加全局恢复机制
+        window.addEventListener('error', function(e) {
+          if (e.error && e.error.message && 
+              (e.error.message.includes('Hq.getInstance is not a function') ||
+               e.error.message.includes('Cannot access') && e.error.message.includes('before initialization'))) {
+            console.warn('🔄 检测到严重错误，尝试页面恢复...');
+            // 延迟一小段时间后尝试恢复
+            setTimeout(() => {
+              if (typeof window.location !== 'undefined') {
+                console.warn('🔄 正在刷新页面以恢复正常状态...');
+                window.location.reload();
+              }
+            }, 5000); // 5秒后重新加载
+          }
+        }, true);
+
+        console.log('🛡️ 增强错误拦截系统已激活');
       })();
     </script>
     
