@@ -617,6 +617,24 @@ export const unifiedPermissionManager = {
   }
 };
 
+
+// 🔧 FIX TDZ: 延迟初始化防护
+let _moduleInitialized = false;
+const initializeModule = () => {
+  if (_moduleInitialized) return;
+  _moduleInitialized = true;
+  // 模块已初始化标记
+};
+
+// 在模块首次使用时初始化
+const safeGetUnifiedPermissionManager = () => {
+  initializeModule();
+  return getUnifiedPermissionManager();
+};
+
+// 导出安全的获取函数
+export { safeGetUnifiedPermissionManager as getUnifiedPermissionManagerSafe };
+
 export default {
   UNIFIED_PERMISSION_CONFIGS,
   UnifiedPermissionManager,

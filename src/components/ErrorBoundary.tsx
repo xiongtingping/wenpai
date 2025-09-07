@@ -91,6 +91,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
    * 错误信息记录
    */
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    if (this.isTDZError(error)) {
+      this.handleTDZError();
+      return;
+    }
     // 使用logger系统记录错误，生产环境仍然会记录错误信息
     logger.error('🚨 应用错误被捕获:', {
       error: error.message,

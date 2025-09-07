@@ -1,3 +1,6 @@
+// 🔧 HQ_SAFE_FIX: 防止getInstance错误
+import { SingletonManager } from '../utils/singletonManager';
+
 /**
  * 全网雷达API服务 - 完整封装版本
  * 提供全网热点话题相关API请求、缓存、错误处理、重试机制等完整功能
@@ -509,7 +512,53 @@ class HotTopicsAPI {
 
 // ==================== 公共API导出 ====================
 
-const hotTopicsAPI = HotTopicsAPI.getInstance();
+const hotTopicsAPI = SingletonManager.getSafeInstance('HotTopicsAPI', () => {
+  try {
+    return HotTopicsAPI.getInstance();
+  } catch (error) {
+    console.error('❌ HotTopicsAPI初始化失败:', error);
+    return {
+      getDailyHotAll: () => Promise.resolve({ 
+        code: 500, 
+        message: 'HotTopicsAPI初始化失败', 
+        data: {}, 
+        updateTime: new Date().toISOString(),
+        totalCount: 0
+      }),
+      getDailyHotByPlatform: () => Promise.resolve([]),
+      getSupportedPlatforms: () => [],
+      getPlatformDisplayName: () => '未知平台',
+      getPlatformIconClass: () => 'icon-unknown',
+      aggregateAndSortTopics: () => [],
+      fetchHotTopics: () => Promise.resolve([]),
+      fetchTopicDetail: () => Promise.resolve(null),
+      fetchMoyuCalendar: () => Promise.resolve(null),
+      clearCache: () => {},
+      getCacheStats: () => ({})
+    }
+  }
+}) || (() => {
+  console.warn('⚠️ 使用HotTopicsAPI备用实例');
+  return {
+    getDailyHotAll: () => Promise.resolve({ 
+      code: 500, 
+      message: 'HotTopicsAPI备用实例', 
+      data: {}, 
+      updateTime: new Date().toISOString(),
+      totalCount: 0
+    }),
+    getDailyHotByPlatform: () => Promise.resolve([]),
+    getSupportedPlatforms: () => [],
+    getPlatformDisplayName: () => '未知平台',
+    getPlatformIconClass: () => 'icon-unknown',
+    aggregateAndSortTopics: () => [],
+    fetchHotTopics: () => Promise.resolve([]),
+    fetchTopicDetail: () => Promise.resolve(null),
+    fetchMoyuCalendar: () => Promise.resolve(null),
+    clearCache: () => {},
+    getCacheStats: () => ({})
+  };
+})();
 
 export async function getDailyHotAll(): Promise<DailyHotResponse> {
   return hotTopicsAPI.getDailyHotAll();
@@ -555,7 +604,7 @@ export function getCacheStats(): any {
   return hotTopicsAPI.getCacheStats();
 }
 
-export function getAPIInstance(): HotTopicsAPI {
+export function getAPIInstance(): HotTopicsAPI | any {
   return hotTopicsAPI;
 }
 

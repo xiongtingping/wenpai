@@ -117,16 +117,63 @@ export default defineConfig({
     host: true
   },
   // 🚨 [CRITICAL_BUILD_FIX_v2025.08.14] 修复构建配置，解决undefinedundefined问题
+  // 🔧 TDZ Error Fix: 优化代码分割和变量名生成
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
+    target: 'esnext',
+    // 🔧 根本性修复：防止变量名压缩导致的TDZ和getInstance错误
+    minify: 'terser',
+    terserOptions: {
+      mangle: {
+        // 保持类名和函数名不被压缩
+        keep_classnames: true,
+        keep_fnames: true,
+        // 保留关键单例相关的标识符
+        reserved: [
+          'getInstance', 'HotTopicsAPI', 'ConfigManager', 
+          'UnifiedPermissionManager', 'PaymentService', 'BrandCorpusService',
+          'FavoritesService', 'UserDataService', 'DataSyncManager',
+          'instance', 'API', 'Service', 'Manager', 'Handler'
+        ]
+      },
+      compress: {
+        // 禁用可能导致初始化顺序问题的优化
+        reduce_vars: false,
+        toplevel: false
+      }
+    },
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
-          i18n: ['react-i18next', 'i18next', 'i18next-browser-languagedetector']
+        // 🔧 优化代码分块策略，按服务类型分组
+        manualChunks: (id) => {
+          // 按文件路径智能分块，避免循环依赖
+          if (id.includes('services/') || id.includes('Service.ts') || id.includes('API.ts')) {
+            return 'services';
+          }
+          if (id.includes('config/') || id.includes('Manager.ts')) {
+            return 'config';
+          }
+          if (id.includes('lib/') && (id.includes('data') || id.includes('storage'))) {
+            return 'data-lib';
+          }
+          if (id.includes('node_modules/react')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/@authing')) {
+            return 'auth-vendor';
+          }
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+        // 使用语义化的chunk文件名
+        chunkFileNames: (chunkInfo) => {
+          const facadeModuleId = chunkInfo.facadeModuleId ? 
+            chunkInfo.facadeModuleId.split('/').pop()?.replace(/\.[^.]+$/, '') : 
+            chunkInfo.name || 'unknown';
+          return `assets/${facadeModuleId}-[hash].js`;
         }
       },
       plugins: [

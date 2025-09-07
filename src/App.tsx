@@ -39,28 +39,49 @@ import PaymentStatusPage from '@/pages/PaymentStatusPage';
 import PaymentResultPage from '@/pages/PaymentResultPage';
 import PaymentFeedbackPage from '@/pages/PaymentFeedbackPage';
 import AdaptPage from '@/pages/AdaptPage';
-import CreativeStudioPage from '@/pages/CreativeStudioPage';
+// Lazy loaded below
 import HotTopicsPage from '@/pages/HotTopicsPage';
 import EnhancedHotTopicsPage from '@/pages/EnhancedHotTopicsPage';
 import BookmarkPage from '@/pages/BookmarkPage';
-import BrandLibraryPage from '@/pages/BrandLibraryPage';
-import ProfilePage from '@/pages/ProfilePage';
+// Lazy loaded below
+// Lazy loaded below
 import TermsPage from '@/pages/TermsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
 import EmojiPage from '@/pages/EmojiPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
 import CallbackPage from '@/pages/CallbackPage';
-import SettingsPage from '@/pages/SettingsPage';
-import HistoryPage from '@/pages/HistoryPage';
+// Lazy loaded below
+// Lazy loaded below
 import UpgradeComparisonPage from '@/pages/UpgradeComparisonPage';
 import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
-import ShareManagerPage from '@/pages/ShareManagerPage';
-import WechatTemplatePage from '@/pages/WechatTemplatePage';
+// Lazy loaded below
+// Lazy loaded below
 import { CustomLoginPage } from '@/pages/CustomLoginPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 // 临时调试页面
 import TokenDebugPage from '@/pages/TokenDebugPage';
+
+// 🔧 FIX: 懒加载组件，避免TDZ错误和循环依赖
+const LazyCreativeStudioPage = React.lazy(() => import('@/pages/CreativeStudioPage'));
+const LazyBrandLibraryPage = React.lazy(() => import('@/pages/BrandLibraryPage'));
+const LazyProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
+const LazyHistoryPage = React.lazy(() => import('@/pages/HistoryPage'));
+const LazyShareManagerPage = React.lazy(() => import('@/pages/ShareManagerPage'));
+const LazyWechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
+const LazySettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
+
+// 🔧 错误边界包装器，处理懒加载失败
+const LazyWrapper: React.FC<{ children: React.ReactNode; fallback?: React.ReactNode }> = ({ 
+  children, 
+  fallback = <LoadingSpinner text="加载页面中..." /> 
+}) => (
+  <ErrorBoundary fallback={<div>页面加载失败，请刷新重试</div>}>
+    <Suspense fallback={fallback}>
+      {children}
+    </Suspense>
+  </ErrorBoundary>
+);
 
 /**
  * 条件性导航组件
@@ -176,20 +197,20 @@ const App: React.FC = () => {
 
                         {/* 核心功能页面 - 需要登录 */}
                         <Route path="/adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
-                        <Route path="/creative-studio" element={<AuthGuard><CreativeStudioPage /></AuthGuard>} />
+                        <Route path="/creative-studio" element={<AuthGuard><LazyWrapper><LazyCreativeStudioPage /></LazyWrapper></AuthGuard>} />
                         <Route path="/hot-topics" element={<HotTopicsPage />} />
                         <Route path="/enhanced-hot-topics" element={<EnhancedHotTopicsPage />} />
                         <Route path="/bookmark" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
                         <Route path="/library" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
-                        <Route path="/brand-library" element={<AuthGuard><BrandLibraryPage /></AuthGuard>} />
-                        <Route path="/history" element={<AuthGuard><HistoryPage /></AuthGuard>} />
+                        <Route path="/brand-library" element={<AuthGuard><LazyWrapper><LazyBrandLibraryPage /></LazyWrapper></AuthGuard>} />
+                        <Route path="/history" element={<AuthGuard><LazyWrapper><LazyHistoryPage /></LazyWrapper></AuthGuard>} />
                         <Route path="/emoji" element={<EmojiPage />} />
-                        <Route path="/share-manager" element={<AuthGuard><ShareManagerPage /></AuthGuard>} />
-                        <Route path="/wechat-templates" element={<AuthGuard><WechatTemplatePage /></AuthGuard>} />
+                        <Route path="/share-manager" element={<AuthGuard><LazyWrapper><LazyShareManagerPage /></LazyWrapper></AuthGuard>} />
+                        <Route path="/wechat-templates" element={<AuthGuard><LazyWrapper><LazyWechatTemplatePage /></LazyWrapper></AuthGuard>} />
 
                         {/* 用户相关页面 - 需要登录 */}
-                        <Route path="/profile" element={<AuthGuard><ProfilePage /></AuthGuard>} />
-                        <Route path="/settings" element={<AuthGuard><SettingsPage /></AuthGuard>} />
+                        <Route path="/profile" element={<AuthGuard><LazyWrapper><LazyProfilePage /></LazyWrapper></AuthGuard>} />
+                        <Route path="/settings" element={<AuthGuard><LazyWrapper><LazySettingsPage /></LazyWrapper></AuthGuard>} />
 
                         {/* 支付相关页面 */}
                         <Route path="/payment" element={<PaymentPage />} />

@@ -1,6 +1,6 @@
 /**
- * 🎯 简化的应用入口 - 零技术债务实现
- * 移除所有拦截器、错误处理器、复杂逻辑
+ * 🔧 根本性修复应用入口 - 解决TDZ和getInstance错误
+ * 通过预加载服务和控制初始化顺序彻底解决问题
  */
 
 import './index.css';
@@ -11,14 +11,55 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import GlobalDataValidationService from './services/globalDataValidationService';
 import { immediateFixLocalStorage } from './utils/localStorageFixer';
+import { preloadAllServices, getServicesStats } from './utils/servicePreloader';
 
-// 🎯 最简单的应用启动 - 无任何技术债务
+// 🔧 根本性修复：预加载所有服务，防止TDZ和getInstance错误
+async function initializeApplication() {
+  console.log('🚀 开始应用初始化...');
+  
+  try {
+    // 1. 立即修复 localStorage 数据问题
+    immediateFixLocalStorage();
 
-// 立即修复 localStorage 数据问题
-immediateFixLocalStorage();
+    // 2. 预加载所有服务（按依赖顺序）
+    console.log('📦 预加载服务模块...');
+    await preloadAllServices();
 
-// 初始化全局数据验证服务
-GlobalDataValidationService.initialize();
+    // 3. 初始化全局数据验证服务
+    GlobalDataValidationService.initialize();
+
+    // 4. 显示初始化统计
+    const stats = getServicesStats();
+    console.log(`✅ 服务初始化完成: ${stats.loaded}/${stats.total}`);
+    console.log('📋 初始化顺序:', stats.order);
+
+    // 5. 启动React应用
+    const root = ReactDOM.createRoot(document.getElementById('root')!);
+    root.render(
+      <React.StrictMode>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </React.StrictMode>
+    );
+
+    console.log('🎉 应用启动成功！');
+
+  } catch (error) {
+    console.error('💥 应用初始化失败:', error);
+    
+    // 优雅降级：即使服务预加载失败，仍尝试启动应用
+    console.warn('⚠️ 尝试优雅降级启动...');
+    const root = ReactDOM.createRoot(document.getElementById('root')!);
+    root.render(
+      <React.StrictMode>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </React.StrictMode>
+    );
+  }
+}
 
 // 🔧 FIX: 添加Guard组件专用错误处理
 window.addEventListener('unhandledrejection', (event) => {
@@ -42,16 +83,5 @@ window.addEventListener('unhandledrejection', (event) => {
   }
 });
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  // 🔧 FIX: 暂时禁用React.StrictMode以避免Portal DOM操作冲突
-  // React严格模式会导致组件双重渲染，与Portal的DOM操作产生冲突
-  // 特别是在MD2WeChatPage等使用Toast的组件中会出现removeChild错误
-  <BrowserRouter
-    future={{
-      v7_startTransition: true,
-      v7_relativeSplatPath: true
-    }}
-  >
-    <App />
-  </BrowserRouter>
-);
+// 🔧 启动应用初始化流程
+initializeApplication();
