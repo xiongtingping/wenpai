@@ -1,19 +1,7 @@
 import * as React from "react"
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
-
-// 🔧 FIXED: 创建安全的 Slot 替代组件，避免 forwardRef 错误
-const SafeSlot = React.forwardRef<any, any>(({ children, ...props }, ref) => {
-  if (React.isValidElement(children)) {
-    return React.cloneElement(children, {
-      ...props,
-      ...children.props,
-      ref,
-    });
-  }
-  return <div ref={ref} {...props}>{children}</div>;
-});
-SafeSlot.displayName = "SafeSlot";
+import { Slot } from "@/components/ui/safe-slot"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -450,7 +438,7 @@ const SidebarGroupLabel = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & { asChild?: boolean }
 >(({ className, asChild = false, ...props }, ref) => {
-  const Comp = asChild ? SafeSlot : "div"
+  const Comp = asChild ? Slot : "div"
 
   return (
     <Comp
@@ -471,7 +459,7 @@ const SidebarGroupAction = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<"button"> & { asChild?: boolean }
 >(({ className, asChild = false, ...props }, ref) => {
-  const Comp = asChild ? SafeSlot : "button"
+  const Comp = asChild ? Slot : "button"
 
   return (
     <Comp
@@ -571,7 +559,7 @@ const SidebarMenuButton = React.forwardRef<
     },
     ref
   ) => {
-    const Comp = asChild ? SafeSlot : "button"
+    const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
 
     const button = (
@@ -616,7 +604,7 @@ const SidebarMenuAction = React.forwardRef<
     showOnHover?: boolean
   }
 >(({ className, asChild = false, showOnHover = false, ...props }, ref) => {
-  const Comp = asChild ? SafeSlot : "button"
+  const Comp = asChild ? Slot : "button"
 
   return (
     <Comp
@@ -730,7 +718,7 @@ const SidebarMenuSubButton = React.forwardRef<
     isActive?: boolean
   }
 >(({ asChild = false, size = "md", isActive, className, ...props }, ref) => {
-  const Comp = asChild ? SafeSlot : "a"
+  const Comp = asChild ? Slot : "a"
 
   return (
     <Comp

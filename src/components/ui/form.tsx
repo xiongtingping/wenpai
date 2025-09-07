@@ -11,19 +11,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
-
-// 🔧 FIXED: 创建安全的 Slot 替代组件，避免 forwardRef 错误
-const SafeSlot = React.forwardRef<any, any>(({ children, ...props }, ref) => {
-  if (React.isValidElement(children)) {
-    return React.cloneElement(children, {
-      ...props,
-      ...children.props,
-      ref,
-    });
-  }
-  return <div ref={ref} {...props}>{children}</div>;
-});
-SafeSlot.displayName = "SafeSlot";
+import { Slot } from "@/components/ui/safe-slot"
 
 const Form = FormProvider
 
@@ -114,13 +102,13 @@ const FormLabel = React.forwardRef<
 FormLabel.displayName = "FormLabel"
 
 const FormControl = React.forwardRef<
-  React.ElementRef<typeof SafeSlot>,
-  React.ComponentPropsWithoutRef<typeof SafeSlot>
+  React.ElementRef<typeof Slot>,
+  React.ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
   return (
-    <SafeSlot
+    <Slot
       ref={ref}
       id={formItemId}
       aria-describedby={
