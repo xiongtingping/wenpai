@@ -407,6 +407,28 @@ export class PermissionChecker {
   }
 
   /**
+   * 🔧 内部方法：计算订阅级别的完整权限（包含继承）
+   * 避免对 TIER_PERMISSIONS 常量的依赖，防止循环依赖
+   */
+  private static calculateTierPermissions(tier: SubscriptionTier, basePermissions: Permission[]): Permission[] {
+    switch (tier) {
+      case SubscriptionTier.PRO:
+        return [
+          ...BASE_TIER_PERMISSIONS[SubscriptionTier.TRIAL] || [],
+          ...basePermissions
+        ];
+      case SubscriptionTier.PREMIUM:
+        return [
+          ...BASE_TIER_PERMISSIONS[SubscriptionTier.TRIAL] || [],
+          ...BASE_TIER_PERMISSIONS[SubscriptionTier.PRO] || [],
+          ...basePermissions
+        ];
+      default:
+        return basePermissions;
+    }
+  }
+
+  /**
    * 检查角色是否有指定权限
    */
   static hasRolePermission(role: SystemRole, permission: Permission): boolean {
@@ -428,7 +450,9 @@ export class PermissionChecker {
    * 检查订阅级别是否有指定权限
    */
   static hasTierPermission(tier: SubscriptionTier, permission: Permission): boolean {
-    const tierPermissions = TIER_PERMISSIONS[tier] || [];
+    // 🎯 根本修复：直接使用基础权限计算，避免对 TIER_PERMISSIONS 的依赖
+    const basePermissions = BASE_TIER_PERMISSIONS[tier] || [];
+    const tierPermissions = this.calculateTierPermissions(tier, basePermissions);
     
     // 直接权限检查
     if (tierPermissions.includes(permission)) {
@@ -468,8 +492,10 @@ export class PermissionChecker {
    * 获取订阅级别的所有权限（包括继承）
    */
   static getAllTierPermissions(tier: SubscriptionTier): Permission[] {
-    const basePermissions = TIER_PERMISSIONS[tier] || [];
-    return this.getInheritedPermissions(basePermissions);
+    // 🎯 根本修复：直接计算权限，避免对 TIER_PERMISSIONS 常量的依赖
+    const basePermissions = BASE_TIER_PERMISSIONS[tier] || [];
+    const tierPermissions = this.calculateTierPermissions(tier, basePermissions);
+    return this.getInheritedPermissions(tierPermissions);
   }
   
   /**
