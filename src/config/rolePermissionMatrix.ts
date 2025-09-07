@@ -385,10 +385,34 @@ export const PERMISSION_GROUPS = {
  */
 export class PermissionChecker {
   /**
+   * 🔧 内部方法：计算角色的完整权限（包含继承）
+   * 避免对 ROLE_PERMISSIONS 常量的依赖，防止循环依赖
+   */
+  private static calculateRolePermissions(role: SystemRole, basePermissions: Permission[]): Permission[] {
+    switch (role) {
+      case SystemRole.MODERATOR:
+        return [
+          ...BASE_ROLE_PERMISSIONS[SystemRole.PREMIUM_USER] || [],
+          ...basePermissions
+        ];
+      case SystemRole.ADMIN:
+        return [
+          ...BASE_ROLE_PERMISSIONS[SystemRole.PREMIUM_USER] || [],
+          ...BASE_ROLE_PERMISSIONS[SystemRole.MODERATOR] || [],
+          ...basePermissions
+        ];
+      default:
+        return basePermissions;
+    }
+  }
+
+  /**
    * 检查角色是否有指定权限
    */
   static hasRolePermission(role: SystemRole, permission: Permission): boolean {
-    const rolePermissions = ROLE_PERMISSIONS[role] || [];
+    // 🎯 根本修复：直接使用基础权限计算，避免对 ROLE_PERMISSIONS 的依赖
+    const basePermissions = BASE_ROLE_PERMISSIONS[role] || [];
+    const rolePermissions = this.calculateRolePermissions(role, basePermissions);
     
     // 直接权限检查
     if (rolePermissions.includes(permission)) {
@@ -434,8 +458,10 @@ export class PermissionChecker {
    * 获取角色的所有权限（包括继承）
    */
   static getAllRolePermissions(role: SystemRole): Permission[] {
-    const basePermissions = ROLE_PERMISSIONS[role] || [];
-    return this.getInheritedPermissions(basePermissions);
+    // 🎯 根本修复：直接计算权限，避免对 ROLE_PERMISSIONS 常量的依赖
+    const basePermissions = BASE_ROLE_PERMISSIONS[role] || [];
+    const rolePermissions = this.calculateRolePermissions(role, basePermissions);
+    return this.getInheritedPermissions(rolePermissions);
   }
   
   /**
