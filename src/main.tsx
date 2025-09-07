@@ -13,6 +13,15 @@ import GlobalDataValidationService from './services/globalDataValidationService'
 import { immediateFixLocalStorage } from './utils/localStorageFixer';
 import { preloadAllServices, getServicesStats } from './utils/servicePreloader';
 
+// 🔧 FIXED: React forwardRef polyfill 修复 Radix UI Slot 错误
+if (typeof React.forwardRef === 'undefined') {
+  (React as any).forwardRef = (render: any) => {
+    const ForwardRef = (props: any, ref: any) => render(props, ref);
+    ForwardRef.displayName = render.displayName || render.name;
+    return ForwardRef;
+  };
+}
+
 // 🔧 根本性修复：预加载所有服务，防止TDZ和getInstance错误
 async function initializeApplication() {
   console.log('🚀 开始应用初始化...');

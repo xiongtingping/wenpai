@@ -1,8 +1,20 @@
 import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+
+// 🔧 FIXED: 创建安全的 Slot 替代组件，避免 forwardRef 错误
+const SafeSlot = React.forwardRef<any, any>(({ children, ...props }, ref) => {
+  if (React.isValidElement(children)) {
+    return React.cloneElement(children, {
+      ...props,
+      ...children.props,
+      ref,
+    });
+  }
+  return <div ref={ref} {...props}>{children}</div>;
+});
+SafeSlot.displayName = "SafeSlot";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -96,7 +108,7 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, animation, asChild = false, loading = false, icon, iconPosition = "left", children, disabled, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+    const Comp = asChild ? SafeSlot : "button"
     
     return (
       <Comp
