@@ -45,6 +45,19 @@
             event.stopPropagation();
             return false;
           }
+
+          // 🔧 修复 Hq.getInstance is not a function 错误
+          if (event.message && (
+              event.message.includes('getInstance is not a function') ||
+              event.message.includes('Hq.getInstance is not a function') ||
+              event.message.includes('qq.getInstance is not a function') ||
+              event.message.includes('.getInstance is not a function')
+          )) {
+            console.warn('🔧 已拦截单例模式错误:', event.message);
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
         }, true);
 
         // 2. 拦截Promise rejection错误
@@ -54,6 +67,23 @@
                 event.reason.includes('X-Frame-Options') ||
                 event.reason.includes('chromewebdata')) {
               console.log('🔇 已忽略Cloudflare/Frame相关Promise错误');
+              event.preventDefault();
+              return false;
+            }
+            // 🔧 修复单例模式Promise错误
+            if (event.reason.includes('getInstance is not a function') ||
+                event.reason.includes('Hq.getInstance') ||
+                event.reason.includes('qq.getInstance') ||
+                event.reason.includes('.getInstance is not a function')) {
+              console.warn('🔧 已拦截单例模式Promise错误:', event.reason);
+              event.preventDefault();
+              return false;
+            }
+          } else if (event.reason && event.reason.message && typeof event.reason.message === 'string') {
+            if (event.reason.message.includes('getInstance is not a function') ||
+                event.reason.message.includes('Hq.getInstance') ||
+                event.reason.message.includes('qq.getInstance')) {
+              console.warn('🔧 已拦截单例模式错误对象:', event.reason.message);
               event.preventDefault();
               return false;
             }
