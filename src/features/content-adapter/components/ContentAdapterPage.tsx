@@ -6,7 +6,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { History } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { History, Copy } from 'lucide-react';
 import { Header } from '@/components/landing/Header';
 import { PageNavigation } from '@/components/layout/PageNavigation';
 import { useToast } from '@/hooks/use-toast';
@@ -988,6 +989,132 @@ export function ContentAdapterPage({
     }
   };
 
+  // 确认发布函数 - 一键转发确认Dialog的处理函数
+  const confirmPublish = async () => {
+    if (!pendingPublish) return;
+
+    try {
+      // 复制内容到剪贴板
+      await navigator.clipboard.writeText(pendingPublish.content);
+      
+      // 记录转发历史
+      const historyItem = {
+        id: Date.now().toString(),
+        platformId: pendingPublish.platformId,
+        platformName: getPlatformName(pendingPublish.platformId, availablePlatforms),
+        content: pendingPublish.content,
+        time: new Date().toISOString()
+      };
+      
+      const existingHistory = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+      existingHistory.push(historyItem);
+      
+      // 限制历史记录数量
+      if (existingHistory.length > 100) {
+        existingHistory.splice(0, existingHistory.length - 100);
+      }
+      
+      localStorage.setItem('shareHistory', JSON.stringify(existingHistory));
+
+      // 打开对应平台
+      const platformUrl = platformUrls[pendingPublish.platformId];
+      if (platformUrl) {
+        window.open(platformUrl, '_blank', 'noopener,noreferrer');
+      }
+
+      // 关闭Dialog
+      setPublishDialogOpen(false);
+      setPendingPublish(null);
+
+      toast({
+        title: "转发成功",
+        description: `内容已复制，${getPlatformName(pendingPublish.platformId, availablePlatforms)}发布页面已打开`,
+      });
+
+    } catch (error) {
+      console.error('转发失败:', error);
+      toast({
+        title: "转发失败",
+        description: "复制内容或打开页面时出现错误",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // 批量发布Dialog相关函数
+  const handleBatchPublishConfirm = async () => {
+    if (batchQueue.length === 0) return;
+
+    try {
+      // 开始处理队列中的第一个任务
+      const firstTask = batchQueue[0];
+      setBatchCurrent(firstTask);
+      setBatchQueue(prev => prev.slice(1));
+
+      // 复制内容到剪贴板
+      await navigator.clipboard.writeText(firstTask.content);
+      
+      // 记录转发历史
+      const historyItem = {
+        id: Date.now().toString(),
+        platformId: firstTask.platformId,
+        platformName: getPlatformName(firstTask.platformId, availablePlatforms),
+        content: firstTask.content,
+        time: new Date().toISOString()
+      };
+      
+      const existingHistory = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+      existingHistory.push(historyItem);
+      localStorage.setItem('shareHistory', JSON.stringify(existingHistory));
+
+      // 打开对应平台
+      const platformUrl = platformUrls[firstTask.platformId];
+      if (platformUrl) {
+        window.open(platformUrl, '_blank', 'noopener,noreferrer');
+      }
+
+      toast({
+        title: "批量发布进行中",
+        description: `正在处理${getPlatformName(firstTask.platformId, availablePlatforms)}，还剩${batchQueue.length}个平台`,
+      });
+
+      // 如果还有更多任务，等待一段时间后继续
+      if (batchQueue.length > 0) {
+        setTimeout(() => {
+          handleBatchPublishConfirm();
+        }, 3000); // 3秒间隔
+      } else {
+        // 所有任务完成
+        setBatchPublishOpen(false);
+        setBatchCurrent(null);
+        toast({
+          title: "批量发布完成",
+          description: "所有平台的内容都已处理完成",
+        });
+      }
+
+    } catch (error) {
+      console.error('批量发布失败:', error);
+      toast({
+        title: "批量发布失败",
+        description: "处理过程中出现错误",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // 取消批量发布
+  const handleBatchPublishCancel = () => {
+    setBatchPublishOpen(false);
+    setBatchQueue([]);
+    setBatchCurrent(null);
+    setBatchSelectedPlatforms([]);
+    toast({
+      title: "批量发布已取消",
+      description: "批量发布操作已取消",
+    });
+  };
+
 
   return (
     <div className="min-h-screen bg-background pt-24">
@@ -1131,7 +1258,7 @@ export function ContentAdapterPage({
                 return {
                   id: result.platformId,
                   name: getPlatformName(result.platformId, availablePlatforms),
-                  hasContent: !!result.content || (result.versions && result.versions.length > 0),
+                  hasContent: !!(result.content || (result.versions && result.versions.length > 0)),
                   contentLength,
                   hasTitle: titleState?.hasTitle || false,
                   isTitleGenerating: titleState?.isGenerating || false
@@ -1269,6 +1396,67 @@ export function ContentAdapterPage({
             <Button variant="default" onClick={confirmPublish}>
               跳转并发布
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 批量发布Dialog - 传统批量转发功能 */}
+      <Dialog open={batchPublishOpen} onOpenChange={setBatchPublishOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>批量发布到平台</DialogTitle>
+            <DialogDescription>
+              {batchCurrent ? 
+                `正在处理：${getPlatformName(batchCurrent.platformId, availablePlatforms)}` : 
+                `将内容发布到${batchSelectedPlatforms.length}个平台`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {batchCurrent ? (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <div className="text-lg font-medium">
+                    正在处理：{getPlatformName(batchCurrent.platformId, availablePlatforms)}
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    还有 {batchQueue.length} 个平台等待处理
+                  </div>
+                </div>
+                <div className="bg-accent rounded p-3 text-sm max-h-32 overflow-auto">
+                  {batchCurrent.content}
+                </div>
+                <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">
+                  💡 内容已复制到剪贴板，平台页面已打开。请在平台上粘贴并发布内容。
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="text-sm">
+                  将为以下平台复制内容并打开发布页面：
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {batchSelectedPlatforms.map(platformId => (
+                    <Badge key={platformId} variant="outline" className="justify-center">
+                      {getPlatformName(platformId, availablePlatforms)}
+                    </Badge>
+                  ))}
+                </div>
+                <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">
+                  💡 系统将依次为每个平台复制内容并打开发布页面，请按提示操作。
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleBatchPublishCancel}>
+              取消
+            </Button>
+            {!batchCurrent && (
+              <Button onClick={handleBatchPublishConfirm} disabled={batchSelectedPlatforms.length === 0}>
+                开始批量发布
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
