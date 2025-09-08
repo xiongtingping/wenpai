@@ -71,6 +71,7 @@ export interface UseContentAdapterEngineParams {
   selectedModel: string;
   useBrandLibrary: boolean;
   brandProfile?: any;
+  onGenerationComplete?: (results: PlatformResult[]) => void;
 }
 
 // Hook返回值
@@ -255,6 +256,11 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
         title: "内容生成完成",
         description: `已为 ${selectedPlatforms.length} 个平台生成内容`,
       });
+
+      // 调用完成回调保存历史记录
+      if (params.onGenerationComplete) {
+        params.onGenerationComplete(results.filter(r => r.content));
+      }
 
     } catch (error) {
       console.error('批量生成失败:', error);

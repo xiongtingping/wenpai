@@ -46,13 +46,17 @@ interface ResultsDisplayProps {
   // 版本选择状态
   selectedVersions: Record<string, string>; // platformId -> versionId
 
+  // 收藏状态
+  favoriteStates?: Set<string>;
+  persistentFavorites?: Set<string>;
+
   // 操作回调
   onContentUpdate: (platformId: string, content: string) => void;
   onRetry: (platformId: string) => void;
   onGenerateComparison: (platformId: string) => void;
   onGenerateTitle: (platformId: string, content: string) => void;
   onCopyContent: (content: string, platformId: string) => void;
-  onSaveToFavorites: (platformId: string, content: string) => void;
+  onSaveToFavorites: (platformId: string, content: string, versionId?: string) => void;
   onPublishToPlatform: (platformId: string, content: string) => void;
   onVersionSelect: (platformId: string, versionId: string) => void;
   
@@ -112,7 +116,9 @@ function PlatformResultCard({
   getPlatformIcon,
   getPlatformName,
   getEffectiveCharCount,
-  extractedTagsMap
+  extractedTagsMap,
+  favoriteStates,
+  persistentFavorites
 }: {
   result: PlatformResult;
   isRetrying: boolean;
@@ -125,12 +131,14 @@ function PlatformResultCard({
   onGenerateComparison: (platformId: string) => void;
   onGenerateTitle: (platformId: string, content: string) => void;
   onCopyContent: (content: string, platformId: string) => void;
-  onSaveToFavorites: (platformId: string, content: string) => void;
+  onSaveToFavorites: (platformId: string, content: string, versionId?: string) => void;
   onPublishToPlatform: (platformId: string, content: string) => void;
   getPlatformIcon: (platformId: string) => React.ReactNode;
   getPlatformName: (platformId: string) => string;
   getEffectiveCharCount: (platformId: string) => number;
   extractedTagsMap: Record<string, string[]>;
+  favoriteStates?: Set<string>;
+  persistentFavorites?: Set<string>;
 }) {
   const { toast } = useToast();
   const targetCharCount = getEffectiveCharCount(result.platformId);
@@ -362,15 +370,24 @@ function PlatformResultCard({
                 复制
               </Button>
               
-              <Button
-                onClick={() => onSaveToFavorites(result.platformId, result.content)}
-                size="sm"
-                variant="outline"
-                className="flex items-center gap-1"
-              >
-                <Heart className="h-3 w-3" />
-                收藏
-              </Button>
+              {(() => {
+                const favoriteKey = `${result.platformId}-main`;
+                const isInPersistent = persistentFavorites?.has(favoriteKey) ?? false;
+                const isInFavorites = favoriteStates?.has(favoriteKey) ?? false;
+                const isFavorited = isInPersistent || isInFavorites;
+                
+                return (
+                  <Button
+                    onClick={() => onSaveToFavorites(result.platformId, result.content, 'main')}
+                    size="sm"
+                    variant="outline"
+                    className={`flex items-center gap-1 ${isFavorited ? 'bg-accent border-border text-foreground' : ''}`}
+                  >
+                    <Heart className={`h-3 w-3 ${isFavorited ? 'fill-current text-primary' : ''}`} />
+                    {isFavorited ? '已收藏 ❤️' : '收藏'}
+                  </Button>
+                );
+              })()}
               
               <Button
                 onClick={() => onPublishToPlatform(result.platformId, result.content)}
@@ -473,6 +490,8 @@ export function ResultsDisplay({
               getPlatformName={getPlatformName}
               getEffectiveCharCount={getEffectiveCharCount}
               extractedTagsMap={extractedTagsMap}
+              favoriteStates={favoriteStates}
+              persistentFavorites={persistentFavorites}
             />
           </TabsContent>
         ))}

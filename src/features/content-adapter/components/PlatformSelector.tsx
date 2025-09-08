@@ -17,6 +17,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { 
+  Settings, 
+  ChevronDown, 
+  ChevronUp, 
+  Globe, 
+  Sliders,
+  Hash,
+  FileText,
+  Palette
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 // 平台信息接口
@@ -97,6 +115,18 @@ export function PlatformSelector({
   t
 }: PlatformSelectorProps) {
   const { toast } = useToast();
+
+  // 设置面板状态 - 从原版完整迁移
+  const [showSettings, setShowSettings] = React.useState<Record<string, boolean>>({});
+  const [showAdvancedSettings, setShowAdvancedSettings] = React.useState(false);
+
+  // 切换设置面板显示
+  const toggleSettings = (platformId: string) => {
+    setShowSettings(prev => ({
+      ...prev,
+      [platformId]: !prev[platformId]
+    }));
+  };
 
   // 全选/取消全选
   const handleSelectAll = () => {
@@ -200,6 +230,19 @@ export function PlatformSelector({
                         <Badge variant="outline" className="text-xs">
                           {getPlatformMaxCharCount(platform.id)} 字符
                         </Badge>
+                        {isSelected && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleSettings(platform.id);
+                            }}
+                          >
+                            <Settings className="h-3 w-3" />
+                          </Button>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -207,28 +250,136 @@ export function PlatformSelector({
               })}
             </div>
 
-            {/* 平台设置预览 - 简化版本 */}
-            {selectedPlatforms.length > 0 && (
-              <div className="mt-6 p-4 bg-muted/20 rounded-lg">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-medium">已选择平台</h3>
-                  <Badge variant="outline" className="text-xs">
-                    {selectedPlatforms.length}个平台
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {selectedPlatforms.map((platformId) => (
-                    <div key={platformId} className="flex items-center gap-2 p-2 bg-background rounded border">
+            {/* 平台设置面板 - 从原版完整迁移 */}
+            {selectedPlatforms.map((platformId) => {
+              if (!showSettings[platformId]) return null;
+              
+              const settings = platformSettings[platformId] || {};
+              const maxCharCount = getPlatformMaxCharCount(platformId);
+              const recommendedCharCount = getPlatformRecommendedCharCount(platformId);
+              
+              return (
+                <div key={`settings-${platformId}`} className="mt-4 border rounded-lg p-4 bg-muted/20">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
                       {getPlatformIcon(platformId)}
-                      <span className="text-xs font-medium truncate">
-                        {getPlatformName(platformId)}
-                      </span>
+                      <h3 className="font-medium">{getPlatformName(platformId)} 设置</h3>
                     </div>
-                  ))}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleSettings(platformId)}
+                    >
+                      <ChevronUp className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* 字符数设置 */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">
+                          字符数限制
+                        </Label>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>推荐：{recommendedCharCount}</span>
+                          <span>•</span>
+                          <span>最大：{maxCharCount}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Slider
+                          value={[settings.charCount || recommendedCharCount]}
+                          onValueChange={([value]) => onPlatformSettingUpdate(platformId, 'charCount', value)}
+                          max={maxCharCount}
+                          min={Math.min(50, recommendedCharCount)}
+                          step={10}
+                          className="w-full"
+                        />
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>{Math.min(50, recommendedCharCount)}</span>
+                          <span className="font-medium">
+                            当前：{settings.charCount || recommendedCharCount} 字符
+                          </span>
+                          <span>{maxCharCount}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onPlatformSettingUpdate(platformId, 'charCount', recommendedCharCount)}
+                        >
+                          推荐值
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onPlatformSettingUpdate(platformId, 'charCount', Math.floor(maxCharCount * 0.8))}
+                        >
+                          80%
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onPlatformSettingUpdate(platformId, 'charCount', maxCharCount)}
+                        >
+                          最大值
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* 格式设置 */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium">格式设置</h4>
+                      <div className="grid grid-cols-1 gap-3">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`emoji-${platformId}`}
+                            checked={settings.useEmoji || false}
+                            onCheckedChange={(checked) => 
+                              onPlatformSettingUpdate(platformId, 'useEmoji', checked)
+                            }
+                          />
+                          <Label htmlFor={`emoji-${platformId}`} className="text-sm flex items-center gap-1">
+                            <Hash className="h-3 w-3" />
+                            使用表情符号
+                          </Label>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`markdown-${platformId}`}
+                            checked={settings.useMdFormat || false}
+                            onCheckedChange={(checked) => 
+                              onPlatformSettingUpdate(platformId, 'useMdFormat', checked)
+                            }
+                          />
+                          <Label htmlFor={`markdown-${platformId}`} className="text-sm flex items-center gap-1">
+                            <FileText className="h-3 w-3" />
+                            使用Markdown格式
+                          </Label>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`autoformat-${platformId}`}
+                            checked={settings.useAutoFormat !== false}
+                            onCheckedChange={(checked) => 
+                              onPlatformSettingUpdate(platformId, 'useAutoFormat', checked)
+                            }
+                          />
+                          <Label htmlFor={`autoformat-${platformId}`} className="text-sm flex items-center gap-1">
+                            <Palette className="h-3 w-3" />
+                            自动格式化
+                          </Label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })}
 
             {/* 选择提示 */}
             {selectedPlatforms.length === 0 && (

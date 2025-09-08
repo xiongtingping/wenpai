@@ -44,13 +44,62 @@ import {
 import { getAvailableModelsForTier } from '@/config/aiModels';
 import { getAvailablePlatforms } from '@/api/contentAdapter';
 
+// 导入收藏系统
+import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
+import { useUserDataIsolation } from '@/utils/userDataIsolation';
+
+/**
+ * 主流平台内容发布入口URL映射 - 从原版完整迁移
+ * 用于一键转发跳转
+ */
+const platformUrls: Record<string, string> = {
+  // 主流社交媒体平台
+  weibo: 'https://weibo.com/compose',
+  xiaohongshu: 'https://creator.xiaohongshu.com/publish/publish',
+  zhihu: 'https://zhuanlan.zhihu.com/write',
+  douyin: 'https://creator.douyin.com/creator-micro/content/upload',
+  wechat: 'https://mp.weixin.qq.com/',
+  
+  // 视频平台
+  bilibili: 'https://member.bilibili.com/platform/upload/text/edit',
+  kuaishou: 'https://cp.kuaishou.com/article/publish',
+  
+  // 资讯平台
+  toutiao: 'https://mp.toutiao.com/profile_v4/graphic/publish',
+  baijiahao: 'https://baijiahao.baidu.com/builder/rc/edit',
+  
+  // 国际平台
+  facebook: 'https://www.facebook.com/pages/create/',
+  twitter: 'https://twitter.com/compose/tweet',
+  linkedin: 'https://www.linkedin.com/feed/',
+  
+  // 技术社区
+  v2ex: 'https://www.v2ex.com/new',
+  github: 'https://github.com/new',
+  juejin: 'https://juejin.cn/editor/drafts/new',
+  csdn: 'https://mp.csdn.net/mp_blog/creation/editor',
+  
+  // 其他平台
+  sspai: 'https://sspai.com/write',
+  video: 'https://channels.weixin.qq.com/', // 视频号
+  wangyi: 'https://mp.163.com/nb2.html' // 网易号
+};
+
+// 历史记录类型定义
+type ShareHistoryItem = {
+  id: string;
+  platformId: string;
+  platformName: string;
+  content: string;
+  time: string;
+};
+
 // 平台URL映射 - 从platformUtils导入
 import {
   getPlatformIcon,
   getPlatformName,
   getPlatformMaxCharCount,
-  getPlatformRecommendedCharCount,
-  platformUrls
+  getPlatformRecommendedCharCount
 } from '@/utils/platformUtils';
 
 // 国际化Hook (模拟)
@@ -94,6 +143,17 @@ export function ContentAdapterPage({
   const { usageCount, maxUsage, usageRemaining, decrementUsage, updateMaxUsage } = useAuthStore();
   const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
   const unifiedUsageInfo = useUnifiedUsageStats();
+
+  // 收藏系统
+  const favoritesStore = useFavoritesStore();
+  const favoritesDataManager = useUserDataIsolation({
+    modulePrefix: 'adapt_favorites'
+  });
+
+  // 历史记录系统
+  const historyDataManager = useUserDataIsolation({
+    modulePrefix: 'adapt_history'
+  });
 
   // 🔧 FIX: 获取用户当前等级 - 优先使用订阅状态
   const getCurrentTier = () => {
@@ -179,7 +239,8 @@ export function ContentAdapterPage({
     platformSettings,
     selectedModel,
     useBrandLibrary,
-    brandProfile
+    brandProfile,
+    onGenerationComplete: saveToHistory
   });
 
   // 使用生成队列Hook
@@ -206,9 +267,15 @@ export function ContentAdapterPage({
   // 版本选择状态
   const [selectedVersions, setSelectedVersions] = React.useState<Record<string, string>>({});
 
-  // 批量转发状态
+  // 批量转发状态 - 从原版完整迁移
   const [batchForwardModalOpen, setBatchForwardModalOpen] = React.useState(false);
   const [batchForwardPlatforms, setBatchForwardPlatforms] = React.useState<any[]>([]);
+  
+  // 传统批量转发Dialog状态
+  const [batchPublishOpen, setBatchPublishOpen] = React.useState(false);
+  const [batchSelectedPlatforms, setBatchSelectedPlatforms] = React.useState<string[]>([]);
+  const [batchQueue, setBatchQueue] = React.useState<{ platformId: string; content: string }[]>([]);
+  const [batchCurrent, setBatchCurrent] = React.useState<{ platformId: string; content: string } | null>(null);
 
   // 自动化转发状态
   const [automationRunning, setAutomationRunning] = React.useState(false);
@@ -216,7 +283,16 @@ export function ContentAdapterPage({
 
   // 历史记录状态
   const [showHistory, setShowHistory] = React.useState(false);
-  const [shareHistory, setShareHistory] = React.useState<any[]>([]);
+  const [shareHistory, setShareHistory] = React.useState<ShareHistoryItem[]>([]);
+
+  // 发布Dialog状态 - 从原版完整迁移
+  const [publishDialogOpen, setPublishDialogOpen] = React.useState(false);
+  const [pendingPublish, setPendingPublish] = React.useState<{ platformId: string; content: string } | null>(null);
+
+  // 收藏功能状态
+  const [favoriteStates, setFavoriteStates] = React.useState<Set<string>>(new Set());
+  const [persistentFavorites, setPersistentFavorites] = React.useState<Set<string>>(new Set());
+  const favoriteTimeoutsRef = React.useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // 初始化选中平台
   React.useEffect(() => {
@@ -224,6 +300,119 @@ export function ContentAdapterPage({
       updateSelectedPlatforms(initialPlatforms);
     }
   }, [initialPlatforms, updateSelectedPlatforms]);
+
+  // 初始化收藏状态
+  React.useEffect(() => {
+    try {
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const favoriteKeys = favorites.map((fav: any) =>
+        `${fav.metadata?.platformId || fav.source}${fav.metadata?.versionId ? `-${fav.metadata.versionId}` : ''}`
+      );
+      setPersistentFavorites(new Set(favoriteKeys));
+    } catch (error) {
+      console.error('加载收藏状态失败:', error);
+    }
+  }, []);
+
+  // 清理收藏相关的timeout
+  React.useEffect(() => {
+    return () => {
+      favoriteTimeoutsRef.current.forEach(timeoutId => clearTimeout(timeoutId));
+      favoriteTimeoutsRef.current.clear();
+    };
+  }, []);
+
+  // 加载历史记录
+  React.useEffect(() => {
+    if (showHistory) {
+      loadShareHistory();
+    }
+  }, [showHistory, loadShareHistory]);
+
+  // 🔧 FIX: 同步实际使用次数和最大使用次数 - 从原版完整迁移
+  React.useEffect(() => {
+    if (user?.id) {
+      const syncUsageStats = async () => {
+        try {
+          // 获取用户当前等级 - 与其他组件保持一致的逻辑
+          const calculatedTier = (() => {
+            // 优先使用订阅状态中的等级信息
+            if (primaryStatus?.status === 'active' && primaryStatus.tier) {
+              return primaryStatus.tier;
+            }
+
+            // 如果订阅状态中没有等级信息，但有活跃订阅，根据状态标签推断等级
+            if (primaryStatus?.status === 'active') {
+              const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
+              if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
+                return 'premium';
+              } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
+                return 'pro';
+              }
+            }
+
+            // 回退到用户基本信息中的等级
+            return getUserTier(user);
+          })();
+
+          // 🔧 FIX: 恢复正确的使用次数限制配置
+          let newMaxUsage = 10; // 默认体验版
+          if (calculatedTier === 'pro') {
+            newMaxUsage = 30; // 🔧 FIX: 专业版恢复为30次/月
+          } else if (calculatedTier === 'premium') {
+            newMaxUsage = -1; // 高级版无限制
+          }
+
+          // 🔧 FIX: 立即更新最大使用次数，避免状态闪烁
+          if (newMaxUsage !== maxUsage) {
+            console.log('🔄 更新使用次数限制:', {
+              currentTier: calculatedTier,
+              oldMaxUsage: maxUsage,
+              newMaxUsage,
+              hasActiveSubscription: primaryStatus?.status === 'active'
+            });
+            updateMaxUsage(newMaxUsage);
+          }
+
+        } catch (error) {
+          console.error('同步使用次数失败:', error);
+        }
+      };
+
+      syncUsageStats();
+    }
+  }, [user?.id, primaryStatus?.status, updateMaxUsage, maxUsage]);
+
+  // 🔧 FIX: 监听支付成功事件，立即更新使用次数状态 - 从原版完整迁移
+  React.useEffect(() => {
+    let paymentTimeoutId: NodeJS.Timeout | null = null;
+
+    const handlePaymentSuccess = () => {
+      console.log('🎉 收到支付成功事件，刷新使用次数状态');
+      // 强制刷新订阅状态
+      refreshSubscription();
+      // 延迟刷新
+      paymentTimeoutId = setTimeout(() => {
+        refreshSubscription();
+      }, 1000);
+    };
+
+    const handleSubscriptionUpdated = (event: CustomEvent) => {
+      console.log('🔄 收到订阅更新事件，刷新使用次数状态', event.detail);
+      refreshSubscription();
+    };
+
+    window.addEventListener('paymentSuccess', handlePaymentSuccess);
+    window.addEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
+
+    return () => {
+      window.removeEventListener('paymentSuccess', handlePaymentSuccess);
+      window.removeEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
+      if (paymentTimeoutId) {
+        clearTimeout(paymentTimeoutId);
+      }
+    };
+  }, [refreshSubscription]);
 
   // 获取可用数据
   const availablePlatforms = getAvailablePlatforms();
@@ -237,7 +426,7 @@ export function ContentAdapterPage({
     ...(selectedPlatforms.length === 0 ? ['请选择至少一个目标平台'] : [])
   ]));
 
-  // 检查使用次数
+  // 检查使用次数并显示提醒 - 从原版完整迁移
   const checkUsageAndShowReminder = () => {
     // 如果剩余次数为0或负数，阻止生成
     if (effectiveUsageRemaining <= 0 && maxUsage !== -1) {
@@ -249,6 +438,19 @@ export function ContentAdapterPage({
       });
       return false;
     }
+
+    // 如果剩余次数较少（1-3次），显示提醒但允许继续生成
+    if (effectiveUsageRemaining <= 3 && effectiveUsageRemaining > 0 && maxUsage !== -1) {
+      console.log('⚠️ 使用次数较少，显示提醒但允许生成');
+      toast({
+        title: "使用次数较少",
+        description: `剩余${effectiveUsageRemaining}次使用机会，建议及时升级`,
+        variant: "destructive"
+      });
+      // 不阻止生成，只是提醒
+    }
+
+    console.log('✅ 使用次数检查通过');
     return true;
   };
 
@@ -350,12 +552,177 @@ export function ContentAdapterPage({
     // 复制逻辑已在ResultsDisplay组件中处理
   };
 
-  // 处理收藏
-  const handleSaveToFavorites = (platformId: string, content: string) => {
-    // TODO: 实现收藏功能
+  // 处理收藏 - 从原版AdaptPage完整迁移
+  const handleSaveToFavorites = async (platformId: string, content: string, versionId?: string) => {
+    if (!isAuthenticated || !user) {
+      toast({
+        title: "请先登录",
+        description: "登录后才能收藏内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!content || content.trim().length === 0) {
+      toast({
+        title: "无法收藏",
+        description: "没有可收藏的内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const favoriteKey = versionId ? `${platformId}-${versionId}` : platformId;
+
+      // 检查是否已收藏
+      if (persistentFavorites.has(favoriteKey)) {
+        // 取消收藏
+        const existingFavorites = favoritesStore.favorites.filter(fav =>
+          fav.metadata?.platformId === platformId && 
+          (versionId ? fav.metadata?.versionId === versionId : !fav.metadata?.versionId)
+        );
+        
+        existingFavorites.forEach(fav => {
+          favoritesStore.removeFavorite(fav.id);
+        });
+
+        // 从本地存储中移除
+        const favoritesResult = favoritesDataManager.loadData();
+        const favorites = (favoritesResult.data as any[]) || [];
+        const updatedFavorites = favorites.filter((fav: any) => {
+          const key = `${fav.metadata?.platformId || fav.source}${fav.metadata?.versionId ? `-${fav.metadata.versionId}` : ''}`;
+          return key !== favoriteKey;
+        });
+        favoritesDataManager.saveData(updatedFavorites);
+
+        setPersistentFavorites(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(favoriteKey);
+          return newSet;
+        });
+
+        toast({
+          title: "取消收藏",
+          description: "已取消收藏该内容",
+        });
+      } else {
+        // 添加收藏
+        const favoriteItem = favoritesUtils.createFavoriteItem(
+          'content-generation',
+          `${getPlatformName(platformId)}内容 - ${versionId || '主版本'}`,
+          content,
+          '内容适配器',
+          {
+            description: `来自${getPlatformName(platformId)}的适配内容`,
+            tags: [], // TODO: 可以从结果中提取标签
+            metadata: {
+              platformId,
+              versionId,
+              originalContent: originalContent.slice(0, 100) + '...',
+              charCount: content.length,
+              createdBy: 'ai-adapter',
+              userId: user.id
+            }
+          }
+        );
+
+        const favoriteId = favoritesStore.addFavorite(favoriteItem);
+        console.log('🔍 添加收藏:', { favoriteId, userId: user.id, platformId, versionId });
+
+        // 同时保存到本地存储（向后兼容）
+        const favoritesResult = favoritesDataManager.loadData();
+        const favorites = (favoritesResult.data as any[]) || [];
+        const legacyFavoriteItem = {
+          id: favoriteId,
+          title: favoriteItem.title,
+          content: favoriteItem.content,
+          description: favoriteItem.description,
+          tags: favoriteItem.tags,
+          source: favoriteItem.source,
+          metadata: favoriteItem.metadata,
+          createdAt: Date.now()
+        };
+        favorites.push(legacyFavoriteItem);
+        favoritesDataManager.saveData(favorites);
+
+        setPersistentFavorites(prev => new Set(prev).add(favoriteKey));
+
+        // 临时视觉反馈
+        setFavoriteStates(prev => new Set(prev).add(favoriteKey));
+
+        // 设置自动清除视觉反馈
+        const existingTimeout = favoriteTimeoutsRef.current.get(favoriteKey);
+        if (existingTimeout) {
+          clearTimeout(existingTimeout);
+        }
+
+        const timeoutId = setTimeout(() => {
+          setFavoriteStates(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(favoriteKey);
+            return newSet;
+          });
+          favoriteTimeoutsRef.current.delete(favoriteKey);
+        }, 3000);
+
+        favoriteTimeoutsRef.current.set(favoriteKey, timeoutId);
+
+        toast({
+          title: "收藏成功 ❤️",
+          description: "内容已添加到我的资料库 > 收藏夹",
+        });
+      }
+    } catch (error) {
+      console.error('收藏操作失败:', error);
+      toast({
+        title: "收藏失败",
+        description: "收藏操作出现错误，请重试",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // 保存到历史记录 - 从原版AdaptPage完整迁移
+  const saveToHistory = React.useCallback((results: any[]) => {
+    console.log('🔍 保存历史记录:', { userId: user?.id, isAuthenticated, resultsCount: results.length });
+    const result = historyDataManager.loadData<unknown[]>();
+    let list: unknown[] = result.data || [];
+    console.log('🔍 当前历史记录数量:', list.length);
+
+    const now = new Date().toISOString();
+    results.forEach(r => {
+      if (r.content) {
+        list.push({
+          platformId: r.platformId,
+          content: r.content,
+          timestamp: now
+        });
+      }
+    });
+
+    // 限制历史记录数量，避免存储过大
+    if (list.length > 100) {
+      list = list.slice(-100);
+    }
+
+    historyDataManager.saveData(list);
+    console.log('✅ 历史记录已保存，新数量:', list.length);
+  }, [historyDataManager, user?.id, isAuthenticated]);
+
+  // 加载转发历史
+  const loadShareHistory = React.useCallback(() => {
+    const history: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+    setShareHistory(history);
+  }, []);
+
+  // 清空转发历史
+  const clearShareHistory = () => {
+    localStorage.removeItem('shareHistory');
+    setShareHistory([]);
     toast({
-      title: "已收藏",
-      description: `${getPlatformName(platformId)}的内容已添加到收藏夹`,
+      title: '已清空',
+      description: '转发历史已清空'
     });
   };
 
@@ -621,24 +988,6 @@ export function ContentAdapterPage({
     }
   };
 
-  // 历史记录管理函数 - 从原版完整迁移
-  const loadShareHistory = React.useCallback(() => {
-    const history = JSON.parse(localStorage.getItem('shareHistory') || '[]');
-    setShareHistory(history);
-  }, []);
-
-  const clearShareHistory = () => {
-    localStorage.removeItem('shareHistory');
-    setShareHistory([]);
-    toast({
-      title: '已清空',
-      description: '转发历史已清空'
-    });
-  };
-
-  React.useEffect(() => {
-    if (showHistory) loadShareHistory();
-  }, [showHistory, loadShareHistory]);
 
   return (
     <div className="min-h-screen bg-background pt-24">
@@ -738,6 +1087,8 @@ export function ContentAdapterPage({
             showComparison={showComparison}
             extractedTagsMap={extractedTagsMap}
             selectedVersions={selectedVersions}
+            favoriteStates={favoriteStates}
+            persistentFavorites={persistentFavorites}
             onContentUpdate={updatePlatformContent}
             onRetry={handleRetry}
             onGenerateComparison={handleGenerateComparison}
@@ -886,6 +1237,37 @@ export function ContentAdapterPage({
             </Button>
             <Button variant="default" onClick={() => setShowHistory(false)}>
               关闭
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 一键转发确认Dialog - 从原版完整迁移 */}
+      <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>一键转发确认</DialogTitle>
+            <DialogDescription>
+              确认转发内容到选择的平台
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2 text-foreground">
+            <p className="mb-3">
+              内容将被复制到剪贴板，然后跳转到{pendingPublish ? getPlatformName(pendingPublish.platformId, availablePlatforms) : ''}平台发布页面。
+            </p>
+            <div className="bg-accent rounded p-3 mt-2 text-sm break-all max-h-32 overflow-auto border">
+              {pendingPublish?.content}
+            </div>
+            <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
+              💡 提示：跳转后请登录对应平台，然后粘贴内容并发布
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPublishDialogOpen(false)}>
+              取消
+            </Button>
+            <Button variant="default" onClick={confirmPublish}>
+              跳转并发布
             </Button>
           </DialogFooter>
         </DialogContent>
