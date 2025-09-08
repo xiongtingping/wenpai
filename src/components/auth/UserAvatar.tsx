@@ -186,7 +186,15 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     <div className={`flex items-center gap-2 ${className}`}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-auto p-0">
+          <Button 
+            variant="ghost" 
+            className="relative h-auto p-0 z-[100]"
+            onClick={(e) => {
+              // 🔧 FIX: 确保点击事件正确处理
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
             <Avatar className={sizeClasses[size]}>
               <AvatarImage
                 src={getUserAvatar(user)}
@@ -219,7 +227,13 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           
-          <DropdownMenuItem onClick={handleProfileClick}>
+          <DropdownMenuItem 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleProfileClick();
+            }}
+          >
             <User className="mr-2 h-4 w-4" />
             <span>{t('nav.profile')}</span>
           </DropdownMenuItem>

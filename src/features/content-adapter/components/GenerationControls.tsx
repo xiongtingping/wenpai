@@ -195,7 +195,12 @@ export function GenerationControls({
                           ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
                           : 'border-green-200 bg-green-50/40 hover:border-green-300 hover:bg-green-50/60 hover:shadow-sm'
                       }`}
-                      onClick={() => !disabled && onModelChange(model.id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (!disabled) {
+                          onModelChange(model.id);
+                        }
+                      }}
                     >
                       <div className="flex items-start gap-3">
                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
@@ -232,8 +237,8 @@ export function GenerationControls({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {availableModels.filter(m => m.tier === 'mid').map((model) => {
-                  // 🔧 FIX: 根据用户实际权限判断是否可用
-                  const userCanUsePro = availableModels.some(m => m.id === model.id);
+                  // 🔧 FIX: 修复专业版模型权限判断
+                  const userCanUsePro = availableModels.some(m => m.id === model.id && m.tier === 'mid');
                   const disabled = !userCanUsePro || generating;
                   const isSelected = selectedModel === model.id;
 
@@ -247,7 +252,12 @@ export function GenerationControls({
                           ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
                           : 'border-yellow-200 bg-yellow-50/40 hover:border-yellow-300 hover:bg-yellow-50/60 hover:shadow-sm'
                       }`}
-                      onClick={() => !disabled && onModelChange(model.id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (!disabled) {
+                          onModelChange(model.id);
+                        }
+                      }}
                     >
                       <div className="flex items-start gap-3">
                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
@@ -292,8 +302,8 @@ export function GenerationControls({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {availableModels.filter(m => m.tier === 'high').map((model) => {
-                  // 🔧 FIX: 根据用户实际权限判断是否可用
-                  const userCanUsePremium = availableModels.some(m => m.id === model.id);
+                  // 🔧 FIX: 修复高级版模型权限判断
+                  const userCanUsePremium = availableModels.some(m => m.id === model.id && m.tier === 'high');
                   const disabled = !userCanUsePremium || generating;
                   const isSelected = selectedModel === model.id;
 
@@ -307,7 +317,12 @@ export function GenerationControls({
                           ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
                           : 'border-red-200 bg-red-50/40 hover:border-red-300 hover:bg-red-50/60 hover:shadow-sm'
                       }`}
-                      onClick={() => !disabled && onModelChange(model.id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (!disabled) {
+                          onModelChange(model.id);
+                        }
+                      }}
                     >
                       <div className="flex items-start gap-3">
                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${

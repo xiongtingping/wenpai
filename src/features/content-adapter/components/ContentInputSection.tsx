@@ -86,11 +86,9 @@ export function ContentInputSection({
               <span className="text-sm text-muted-foreground">
                 剩余使用次数
               </span>
-              <UsageStateWrapper>
-                <Badge variant={usageRemaining <= 5 ? "destructive" : "default"}>
-                  {formatRemainingUses(usageRemaining, currentTier)}
-                </Badge>
-              </UsageStateWrapper>
+              <Badge variant={usageRemaining <= 5 ? "destructive" : "default"}>
+                {formatRemainingUses(usageRemaining, currentTier)}
+              </Badge>
             </div>
           </div>
         </CardHeader>
@@ -198,19 +196,7 @@ export function ContentInputSection({
                   id="use-brand-library"
                   checked={useBrandLibrary}
                   onCheckedChange={(checked) => {
-                    // 🔧 FIX: 修复权限检查逻辑，确保checkbox可以正常工作
-                    const tierLevels = { trial: 0, pro: 1, premium: 2 };
-                    const userTierLevel = tierLevels[currentTier as keyof typeof tierLevels] || 0;
-                    const hasAccess = userTierLevel >= tierLevels['premium'];
-
-                    if (!hasAccess && checked) {
-                      // 显示升级提示但不阻止状态更新
-                      console.warn("需要高级版权限：品牌库资料创作功能仅限高级版用户使用");
-                      // TODO: 显示升级弹窗
-                      return;
-                    }
-
-                    // 🔧 FIX: 确保状态正确更新
+                    // 🔧 FIX: 允许用户勾选/取消勾选，权限验证移到生成阶段
                     onBrandLibraryChange(!!checked);
                   }}
                 />

@@ -126,10 +126,14 @@ export function ContentFormSelector({
                       className={`cursor-pointer transition-all hover:shadow-e1 p-3 rounded-xl ${
                         selectedFormId === form.id ? 'ring-2 ring-primary bg-accent/80 backdrop-blur-sm' : 'bg-card/90 backdrop-blur-sm'
                       }`}
-                      onClick={() => {
-                        const newFormId = selectedFormId === form.id ? undefined : form.id;
-                        onFormChange(newFormId);
-                        // 移除自动折叠逻辑，让用户手动决定何时收起
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // 🔧 FIX: 修复内容形式选择逻辑
+                        if (selectedFormId === form.id) {
+                          onFormChange(undefined); // 取消选择
+                        } else {
+                          onFormChange(form.id); // 选择新的内容形式
+                        }
                       }}
                     >
                       <div className="flex items-start gap-2">
@@ -230,8 +234,9 @@ export function ContentFormSelector({
                   className={`cursor-pointer transition-all hover:shadow-e1 p-3 rounded-xl ${
                     selectedStyle === style.id ? 'ring-2 ring-primary bg-accent/80 backdrop-blur-sm' : 'bg-card/90 backdrop-blur-sm'
                   }`}
-                  onClick={() => {
-                    // 如果点击的是已选中的风格，则取消选择
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // 🔧 FIX: 修复表达风格选择逻辑
                     if (selectedStyle === style.id) {
                       onStyleChange(undefined); // 完全取消选择
                     } else {
@@ -297,21 +302,42 @@ export function ContentFormSelector({
         </Collapsible>
         </div>
 
-        {/* 自定义提示词输入 */}
+        {/* 最终提示词预览 */}
         <div className="mt-6 pt-6 border-t">
-          <Label htmlFor="custom-prompt" className="text-sm font-medium text-foreground">
-            自定义提示词（可选）
+          <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            最终提示词预览
           </Label>
-          <Textarea
-            id="custom-prompt"
-            value={customPrompt}
-            onChange={(e) => onCustomPromptChange?.(e.target.value)}
-            placeholder="如：特定的表达方式、关键词、语气风格等..."
-            className="mt-2 min-h-[60px] text-sm"
-          />
-          <p className="text-xs text-muted-foreground mt-1">
-            输入您的个性化创作要求，将与系统提示词结合使用
-          </p>
+          <div className="mt-2 p-3 bg-muted/50 rounded-lg border border-border">
+            <div className="text-sm text-muted-foreground space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-foreground">基础要素：</span>
+                <span>原始内容</span>
+                {useBrandLibrary && <Badge variant="outline" className="text-xs">+ 品牌库</Badge>}
+                {selectedPlatforms.length > 0 && <Badge variant="outline" className="text-xs">+ {selectedPlatforms.length}个平台</Badge>}
+              </div>
+              
+              {selectedFormId && (
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-foreground">内容形式：</span>
+                  <Badge variant="secondary" className="text-xs">{selectedForm?.name}</Badge>
+                </div>
+              )}
+              
+              {selectedStyle && (
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-foreground">表达风格：</span>
+                  <Badge variant="secondary" className="text-xs">{availableStyles.find(s => s.id === selectedStyle)?.name}</Badge>
+                </div>
+              )}
+              
+              <div className="mt-3 p-2 bg-background rounded border border-border/50">
+                <p className="text-xs text-muted-foreground font-mono leading-relaxed">
+                  💡 AI将根据以上配置自动构建多维矩阵提示词，确保生成内容符合平台特性、内容形式和表达风格要求
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         </div>

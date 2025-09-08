@@ -194,7 +194,11 @@ export function PlatformSelector({
                         : 'bg-card/90 backdrop-blur-sm hover:shadow-lg hover:border-border'
                       }
                     `}
-                    onClick={() => onPlatformToggle(platform.id)}
+                    onClick={(e) => {
+                      // 🔧 FIX: 确保点击Card时正确切换状态
+                      e.preventDefault();
+                      onPlatformToggle(platform.id);
+                    }}
                   >
                     <CardHeader className="pb-1 pt-4 flex-shrink-0">
                       <div className="flex justify-between items-start">
@@ -210,8 +214,10 @@ export function PlatformSelector({
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={(checked) => {
-                              // 🔧 FIX: 修复checkbox事件处理，阻止事件冒泡
-                              onPlatformToggle(platform.id);
+                              // 🔧 FIX: 使用checked参数，避免双重切换
+                              if (checked !== isSelected) {
+                                onPlatformToggle(platform.id);
+                              }
                             }}
                             onClick={(e) => {
                               // 🔧 FIX: 阻止事件冒泡，避免重复触发
@@ -223,18 +229,18 @@ export function PlatformSelector({
                       </div>
                     </CardHeader>
                     <CardContent className="pt-0 pb-3 flex-1 flex flex-col justify-between">
-                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3 break-words">
                         {platform.description}
                       </p>
                       <div className="flex items-center justify-between mt-2">
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs flex-shrink-0">
                           {getPlatformMaxCharCount(platform.id)} 字符
                         </Badge>
                         {isSelected && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 w-6 p-0"
+                            className="h-6 w-6 p-0 flex-shrink-0"
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleSettings(platform.id);
