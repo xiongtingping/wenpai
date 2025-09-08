@@ -302,6 +302,39 @@ export function ContentAdapterPage({
     }
   }, [initialPlatforms, updateSelectedPlatforms]);
 
+  // 加载转发历史
+  const loadShareHistory = React.useCallback(() => {
+    const history: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+    setShareHistory(history);
+  }, []);
+
+  // 保存到历史记录 - 从原版AdaptPage完整迁移  
+  const saveToHistory = React.useCallback((results: any[]) => {
+    console.log('🔍 保存历史记录:', { userId: user?.id, isAuthenticated, resultsCount: results.length });
+    const result = historyDataManager.loadData<unknown[]>();
+    let list: unknown[] = result.data || [];
+    console.log('🔍 当前历史记录数量:', list.length);
+
+    const now = new Date().toISOString();
+    results.forEach(r => {
+      if (r.content) {
+        list.push({
+          platformId: r.platformId,
+          content: r.content,
+          timestamp: now
+        });
+      }
+    });
+
+    // 限制历史记录数量，避免存储过大
+    if (list.length > 100) {
+      list = list.slice(-100);
+    }
+
+    historyDataManager.saveData(list);
+    console.log('✅ 历史记录已保存，新数量:', list.length);
+  }, [historyDataManager, user?.id, isAuthenticated]);
+
   // 初始化收藏状态
   React.useEffect(() => {
     try {
@@ -684,38 +717,6 @@ export function ContentAdapterPage({
     }
   };
 
-  // 保存到历史记录 - 从原版AdaptPage完整迁移
-  const saveToHistory = React.useCallback((results: any[]) => {
-    console.log('🔍 保存历史记录:', { userId: user?.id, isAuthenticated, resultsCount: results.length });
-    const result = historyDataManager.loadData<unknown[]>();
-    let list: unknown[] = result.data || [];
-    console.log('🔍 当前历史记录数量:', list.length);
-
-    const now = new Date().toISOString();
-    results.forEach(r => {
-      if (r.content) {
-        list.push({
-          platformId: r.platformId,
-          content: r.content,
-          timestamp: now
-        });
-      }
-    });
-
-    // 限制历史记录数量，避免存储过大
-    if (list.length > 100) {
-      list = list.slice(-100);
-    }
-
-    historyDataManager.saveData(list);
-    console.log('✅ 历史记录已保存，新数量:', list.length);
-  }, [historyDataManager, user?.id, isAuthenticated]);
-
-  // 加载转发历史
-  const loadShareHistory = React.useCallback(() => {
-    const history: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
-    setShareHistory(history);
-  }, []);
 
   // 清空转发历史
   const clearShareHistory = () => {
