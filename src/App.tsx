@@ -71,6 +71,7 @@ const LazyHistoryPage = React.lazy(() => import('@/pages/HistoryPage'));
 const LazyShareManagerPage = React.lazy(() => import('@/pages/ShareManagerPage'));
 const LazyWechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
 const LazyAdaptPage = React.lazy(() => import('@/pages/AdaptPage'));
+const LazyNewAdaptPage = React.lazy(() => import('@/pages/NewAdaptPage'));
 
 const LazySettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
 
@@ -199,7 +200,8 @@ const App: React.FC = () => {
                         <Route path="/callbackhttp/*" element={<CallbackPage />} />
 
                         {/* 核心功能页面 - 需要登录 */}
-                        <Route path="/adapt" element={<AuthGuard><LazyWrapper><LazyAdaptPage /></LazyWrapper></AuthGuard>} />
+                        <Route path="/adapt" element={<AuthGuard><LazyWrapper><LazyNewAdaptPage /></LazyWrapper></AuthGuard>} />
+                        <Route path="/adapt-new" element={<AuthGuard><LazyWrapper><LazyNewAdaptPage /></LazyWrapper></AuthGuard>} />
                         <Route path="/creative-studio" element={<AuthGuard><LazyWrapper><LazyCreativeStudioPage /></LazyWrapper></AuthGuard>} />
                         <Route path="/hot-topics" element={<HotTopicsPage />} />
                         <Route path="/enhanced-hot-topics" element={<EnhancedHotTopicsPage />} />

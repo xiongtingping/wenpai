@@ -382,12 +382,22 @@ export async function generateMultiPlatformContent(
  */
 export function getAvailablePlatforms() {
   return [
-    { id: 'xiaohongshu', name: '小红书', icon: '📖' },
-    { id: 'weibo', name: '微博', icon: '🐦' },
-    { id: 'wechat', name: '微信', icon: '💬' },
-    { id: 'douyin', name: '抖音', icon: '🎵' },
-    { id: 'zhihu', name: '知乎', icon: '🤔' },
-    { id: 'bilibili', name: 'B站', icon: '📺' }
+    { id: "xiaohongshu", name: "小红书", description: "适合生活方式、美妆、旅行等分享，强调个人体验和情感共鸣", icon: '📖' },
+    { id: "zhihu", name: "知乎", description: "适合专业知识分享和理性讨论，强调逻辑和论证", icon: '🤔' },
+    { id: "douyin", name: "抖音", description: "适合短视频脚本，活泼有趣，强调视听效果", icon: '🎵' },
+    { id: "weibo", name: "新浪微博", description: "简短有力的观点表达，适合热点话题讨论", icon: '🐦' },
+    { id: "wechat", name: "公众号", description: "深度内容，适合教程、观点和专业分析", icon: '💬' },
+    { id: "bilibili", name: "B站", description: "适合视频脚本，兼具专业性和趣味性", icon: '📺' },
+    { id: "twitter", name: "X（推特）", description: "简短、直接的表达，支持多种语言和国际化视角", icon: '🐦' },
+    { id: "video", name: "视频号", description: "视频内容与互动引导并重，亲和力强", icon: '🎬' },
+    { id: "baijia", name: "百家号", description: "长篇深度内容，SEO友好，权威感强，适合资讯类内容", icon: '🌐' },
+    { id: "kuaishou", name: "快手", description: "接地气表达，真实朴实，亲民风格，适合生活记录", icon: '⚡' },
+    { id: "wangyi", name: "网易小蜜蜂", description: "注重原创性，文笔流畅，观点独特，适合深度评论", icon: '📰' },
+    { id: "toutiao", name: "头条号", description: "标题党友好，热点敏感，算法推荐，适合时事评论", icon: '🌐' },
+    { id: "facebook", name: "Facebook", description: "国际化社交平台，适合品牌推广和社区互动", icon: '📘' },
+    { id: "linkedin", name: "LinkedIn", description: "专业职场社交平台，适合商务内容和职业发展", icon: '💼' },
+    { id: "instagram", name: "Instagram", description: "视觉化社交平台，适合图片和短视频内容", icon: '📷' },
+    { id: "douban", name: "豆瓣", description: "文艺青年聚集地，适合文化评论和生活方式分享", icon: '🎭' }
   ];
 }
 

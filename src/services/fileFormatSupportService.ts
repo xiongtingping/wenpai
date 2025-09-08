@@ -2,12 +2,19 @@
  * 文件格式支持服务
  */
 
-import { SUPPORTED_FILE_FORMATS, getAllSupportedExtensions, getAllSupportedMimeTypes, getFormatByExtension } from '@/config/fileFormatConfig';
+import { SUPPORTED_FILE_FORMATS, getAllSupportedExtensions, getAllSupportedMimeTypes, getFormatByExtension, getFormatsGroupedByCategory, CATEGORY_NAMES, generateFormatSupportDescription, FileFormatInfo } from '@/config/fileFormatConfig';
 
 interface FileFormatCheckResult {
   isSupported: boolean;
   reason?: string;
   suggestions?: string[];
+}
+
+interface FileFormatSummary {
+  totalFormats: number;
+  categoryCounts: Record<string, number>;
+  supportLevels: Record<string, number>;
+  description: string;
 }
 
 class FileFormatSupportService {

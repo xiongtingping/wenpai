@@ -6,11 +6,12 @@
 import { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ContentAdapterService } from '../services/contentAdapterService';
-import type { 
-  GlobalSettings, 
-  PlatformSettings, 
+import type {
+  GlobalSettings,
+  PlatformSettings,
   ContentGenerationRequest,
-  ContentGenerationResponse 
+  ContentGenerationResponse,
+  ContentVersion
 } from '../services/contentAdapterService';
 import { type StyleType } from '@/config/contentSchemes';
 import { getAlternativeContentForm, getAlternativeStyle } from '../utils/promptBuilders';
@@ -27,13 +28,12 @@ export interface PlatformResult {
   content: string;
   steps: GenerationStep[];
   source: 'ai' | 'manual';
-  versions?: {
-    id: string;
-    content: string;
-    style: 'standard' | 'creative';
-    timestamp: number;
-  }[];
+  versions?: ContentVersion[]; // 使用统一的ContentVersion接口
   error?: string;
+  charCount?: number;
+  targetCharCount?: number;
+  canRetry?: boolean;
+  tags?: string[];
 }
 
 // Hook状态
@@ -59,6 +59,9 @@ export interface ContentAdapterEngineState {
     hasTitle: boolean;
     isGenerating: boolean;
   }>;
+
+  // 标签提取状态
+  extractedTagsMap: Record<string, string[]>; // platformId-versionId -> tags[]
 }
 
 // Hook参数
@@ -115,6 +118,9 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     hasTitle: boolean;
     isGenerating: boolean;
   }>>({});
+
+  // 标签提取状态
+  const [extractedTagsMap, setExtractedTagsMap] = useState<Record<string, string[]>>({});
 
   // 更新步骤状态
   const updateStep = useCallback((
@@ -181,26 +187,45 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
           
           updateStep(platformId, 1, 'completed');
           
-          // 步骤3: 调用AI服务
-          updateStep(platformId, 2, 'loading', '🤖 调用AI服务生成内容...');
-          
-          const result = await serviceRef.current!.generateContent(platformRequest);
-          
-          if (result.success && result.content) {
+          // 步骤3: 调用AI服务生成多版本内容
+          updateStep(platformId, 2, 'loading', '🤖 调用AI服务生成多版本内容...');
+
+          const result = await serviceRef.current!.generateMultipleVersions(platformRequest);
+
+          if (result.success && result.versions && result.versions.length > 0) {
             updateStep(platformId, 2, 'completed');
-            
+
             // 步骤4: 处理结果
             updateStep(platformId, 3, 'loading', '📝 处理生成结果...');
-            
-            // 更新结果内容
-            setResults(prev => prev.map(r => 
-              r.platformId === platformId 
-                ? { ...r, content: result.content!, error: undefined }
+
+            // 使用第一个版本作为默认内容，保存所有版本
+            const defaultContent = result.versions[0].content;
+
+            // 更新标签映射
+            result.versions.forEach(version => {
+              const versionKey = `${platformId}-${version.id}`;
+              if (version.tags && version.tags.length > 0) {
+                setExtractedTagsMap(prev => ({
+                  ...prev,
+                  [versionKey]: version.tags!
+                }));
+              }
+            });
+
+            // 更新结果内容，包含多版本
+            setResults(prev => prev.map(r =>
+              r.platformId === platformId
+                ? {
+                    ...r,
+                    content: defaultContent,
+                    versions: result.versions,
+                    error: undefined
+                  }
                 : r
             ));
-            
-            updateStep(platformId, 3, 'completed', '✅ 生成完成');
-            
+
+            updateStep(platformId, 3, 'completed', `✅ 生成完成 (${result.versions.length}个版本)`);
+
           } else {
             throw new Error(result.error || '生成失败');
           }
@@ -507,7 +532,8 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     comparisonContent,
     showComparison,
     titleStates,
-    
+    extractedTagsMap,
+
     // 方法
     generateContent,
     retryPlatform,

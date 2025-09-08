@@ -15,6 +15,352 @@ import {
 import { getUnifiedCharCountLimit, getPlatformCharCountAdvice } from '@/config/platformLimits';
 import { type StyleType } from '@/config/contentSchemes';
 
+/**
+ * 平台特定的超时配置
+ */
+function getPlatformTimeoutConfig(platformId: string) {
+  const isLongContentPlatform = ['wechat', 'zhihu'].includes(platformId);
+  return {
+    isLongContent: isLongContentPlatform,
+    initialTimeout: isLongContentPlatform ? 90000 : 30000, // 90秒 vs 30秒
+    retryDelay: isLongContentPlatform ? 3000 : 1000, // 3秒 vs 1秒
+    maxRetries: isLongContentPlatform ? 4 : 3,
+    patientMessage: isLongContentPlatform ? '正在生成长篇内容，请耐心等待...' : '正在生成内容...'
+  };
+}
+
+/**
+ * 改进的AI调用重试机制 - 针对WeChat和Zhihu优化，使用Token统计
+ * 从原版AdaptPage.tsx完整迁移，保持100%逻辑一致
+ */
+async function callAIWithRetry(params: any, versionName: string, platformId?: string): Promise<any> {
+  let lastError: any = null;
+  const originalModel = params.model;
+  const timeoutConfig = getPlatformTimeoutConfig(platformId || '');
+  const maxRetries = timeoutConfig.maxRetries;
+
+  try {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🔄 ${versionName} - 第${attempt}次尝试调用AI (模型: ${params.model})`);
+
+        // 为WeChat和Zhihu使用优化的参数
+        const adjustedParams = { ...params };
+        if (timeoutConfig.isLongContent) {
+          adjustedParams.temperature = Math.min(adjustedParams.temperature || 0.7, 0.5);
+          adjustedParams.maxTokens = Math.max(adjustedParams.maxTokens || 2000, 2500);
+
+          // 添加平台特定的系统提示
+          if (platformId === 'wechat') {
+            adjustedParams.systemPrompt += '\n重要：生成微信公众号专业长文，内容要深入、有价值、结构清晰。';
+          } else if (platformId === 'zhihu') {
+            adjustedParams.systemPrompt += '\n重要：生成知乎深度回答，要有专业见解、逻辑清晰、内容丰富。';
+          }
+        }
+
+        const result = await callAIWithTokenTracking({
+          ...adjustedParams,
+          feature: 'AI内容适配器',
+          taskType: AITaskType.CONTENT_ADAPTATION
+        });
+
+        if (result.success && result.content && result.content.trim().length > 100) {
+          console.log(`✅ ${versionName} - 第${attempt}次尝试成功`);
+          return result;
+        } else {
+          const errorMsg = result.error || '生成内容为空或过短';
+          lastError = new Error(errorMsg);
+          console.log(`❌ ${versionName} - 第${attempt}次尝试失败: ${errorMsg}`);
+        }
+      } catch (error) {
+        lastError = error;
+        console.error(`🚨 ${versionName} - 第${attempt}次尝试异常:`, error);
+
+        // 智能模型切换策略
+        if (attempt <= 3) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+
+          // 检测402错误（账户余额不足）
+          if (errorMessage.includes('402') || errorMessage.includes('Payment Required')) {
+            console.log(`🚨 ${versionName} - 检测到402错误，启动智能降级`);
+
+            if (params.model.includes('deepseek')) {
+              console.log(`🔄 ${versionName} - DeepSeek余额不足，切换到GPT-4o-mini`);
+              params.model = 'gpt-4o-mini';
+            } else if (params.model.includes('gpt-4o-mini')) {
+              console.log(`🔄 ${versionName} - GPT-4o-mini失败，切换到GPT-3.5-turbo`);
+              params.model = 'gpt-3.5-turbo';
+            } else if (params.model.includes('gpt-3.5-turbo')) {
+              console.log(`🔄 ${versionName} - GPT-3.5-turbo失败，尝试使用Gemini`);
+              params.model = 'gemini-pro';
+            }
+          } else {
+            // 其他错误类型的模型切换策略
+            if (params.model.includes('deepseek')) {
+              console.log(`🔄 ${versionName} - DeepSeek失败，切换到GPT-4o-mini`);
+              params.model = 'gpt-4o-mini';
+            } else if (params.model.includes('gpt-4o-mini')) {
+              console.log(`🔄 ${versionName} - GPT-4o-mini失败，切换到GPT-3.5-turbo`);
+              params.model = 'gpt-3.5-turbo';
+            }
+          }
+        }
+      }
+
+      // 如果不是最后一次尝试，等待一段时间再重试
+      if (attempt < maxRetries) {
+        const delay = Math.min(timeoutConfig.retryDelay * Math.pow(2, attempt - 1), 10000);
+        console.log(`⏳ ${versionName} - 等待${delay}ms后重试...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  } finally {
+    // 恢复原始模型设置
+    params.model = originalModel;
+  }
+
+  const errorMessage = lastError ? lastError.message : `${versionName} - 所有重试都失败了`;
+  return {
+    success: false,
+    error: errorMessage,
+    content: null
+  };
+}
+
+/**
+ * 内容版本接口
+ */
+export interface ContentVersion {
+  id: string;
+  content: string;
+  style: 'standard' | 'creative';
+  title: string;
+  charCount: number;
+  tags?: string[]; // 新增：提取的标签
+  validation?: {
+    isValid: boolean;
+    actualCount: number;
+    targetRange: { min: number; max: number };
+    warning?: string;
+  };
+}
+
+/**
+ * 提取和清理内容中的标签和配图建议 - 从原版AdaptPage.tsx完整迁移
+ */
+function extractAndCleanContent(content: string): { cleanContent: string; extractedTags: string[] } {
+  if (!content) return { cleanContent: '', extractedTags: [] };
+
+  let cleanContent = content;
+  const extractedTags: string[] = [];
+
+  // 1. 提取所有话题标签（#标签名格式）
+  const hashtagRegex = /#[\u4e00-\u9fa5a-zA-Z0-9_]+/g;
+  const hashtags = content.match(hashtagRegex) || [];
+
+  // 去掉#号，只保留标签名
+  hashtags.forEach(tag => {
+    const tagName = tag.substring(1); // 去掉#号
+    if (tagName && !extractedTags.includes(tagName)) {
+      extractedTags.push(tagName);
+    }
+  });
+
+  // 从内容中移除所有话题标签
+  cleanContent = cleanContent.replace(hashtagRegex, '').trim();
+
+  // 2. 移除配图建议文案（多种格式）
+  const imagePatterns = [
+    /（配图建议：[^）]*）/g,
+    /\(配图建议：[^)]*\)/g,
+    /【配图建议：[^】]*】/g,
+    /\[配图建议：[^\]]*\]/g,
+    /配图建议：[^\n]*/g,
+    /图片建议：[^\n]*/g,
+    /建议配图：[^\n]*/g,
+    /\n\s*配图：[^\n]*/g,
+    /\n\s*图片：[^\n]*/g
+  ];
+
+  imagePatterns.forEach(pattern => {
+    cleanContent = cleanContent.replace(pattern, '');
+  });
+
+  // 3. 清理多余的空行和空格
+  cleanContent = cleanContent
+    .replace(/\n\s*\n\s*\n/g, '\n\n') // 多个连续空行变为两个
+    .replace(/^\s+|\s+$/g, '') // 去掉首尾空格
+    .trim();
+
+  console.log('🧹 内容清理完成:', {
+    原始长度: content.length,
+    清理后长度: cleanContent.length,
+    提取标签: extractedTags
+  });
+
+  return { cleanContent, extractedTags };
+}
+
+/**
+ * 生成多个版本的内容 - 从原版AdaptPage.tsx完整迁移
+ * 保持100%逻辑一致，包括版本A（标准）和版本B（创意）
+ */
+async function generateMultipleVersions(
+  basePrompt: string,
+  platformId: string,
+  selectedModel: string,
+  globalSettings: GlobalSettings,
+  platformSettings: Record<string, any>
+): Promise<ContentVersion[]> {
+  const versions: ContentVersion[] = [];
+
+  // 版本A：标准风格，结构化表达
+  const standardPrompt = `${basePrompt}\n\n【版本要求】请生成标准风格的内容，要求：\n- 结构清晰，逻辑严谨\n- 表达准确，用词规范\n- 重点突出，层次分明`;
+
+  // 版本B：创新风格，灵活化表达
+  const creativePrompt = `${basePrompt}\n\n【版本要求】请生成创新风格的内容，要求：\n- 表达生动，富有创意\n- 语言灵活，贴近用户\n- 情感丰富，引人入胜`;
+
+  try {
+    console.log(`开始为平台 ${platformId} 生成多版本内容`);
+    console.log('使用模型:', selectedModel);
+    console.log('提示词长度:', basePrompt.length);
+
+    // 使用统一字符数控制系统获取最终限制
+    const charCountControl = getUnifiedCharCountLimit(
+      platformId,
+      globalSettings.charCountPreset,
+      platformSettings[platformId]?.charCount
+    );
+    const platformAdvice = getPlatformCharCountAdvice(platformId);
+
+    // 计算token数，确保有足够空间生成目标字符数的内容
+    let maxTokens: number;
+    const targetChars = charCountControl.finalLimit;
+
+    if (globalSettings.charCountPreset === 'detailed') {
+      const minTokensFor800Chars = 800;
+      const targetTokens = Math.max(minTokensFor800Chars, Math.floor(targetChars / 0.8));
+      maxTokens = Math.min(targetTokens, 6000);
+    } else if (globalSettings.charCountPreset === 'standard') {
+      maxTokens = Math.min(Math.floor(targetChars / 1.0), 4000);
+    } else if (globalSettings.charCountPreset === 'mini') {
+      maxTokens = Math.min(Math.floor(targetChars / 1.2), 2000);
+    } else {
+      maxTokens = Math.min(Math.floor(targetChars / 1.0), 3000);
+    }
+
+    const charCountInstruction = `【内容生成要求】
+平台特性：${platformAdvice}
+重要要求：
+1. 生成的内容要完整、有价值，符合平台特性
+2. 内容要自然流畅，不要为了凑字数而添加无意义内容
+3. 如果内容自然长度不够，请增加具体细节、案例或深入分析
+4. 确保内容质量优先，字数适中即可`;
+
+    // 构建包含全局设置的系统提示词
+    const buildSystemPrompt = (basePrompt: string): string => {
+      let systemPrompt = basePrompt;
+
+      // 添加全局格式化设置到系统提示词
+      const globalFormatInstructions = [];
+
+      if (globalSettings.globalEmoji) {
+        globalFormatInstructions.push('🎯 必须在内容中适当添加相关的emoji表情符号，增强视觉效果和情感表达');
+      }
+
+      if (globalSettings.globalMd) {
+        globalFormatInstructions.push('📝 必须使用Markdown语法格式化内容，包括标题(#)、加粗(**文字**)、列表(-)、引用(>)等');
+      }
+
+      if (globalSettings.globalAutoFormat) {
+        globalFormatInstructions.push('🎨 必须自动优化段落结构、换行、缩进，确保内容排版美观易读');
+      }
+
+      if (globalFormatInstructions.length > 0) {
+        systemPrompt += `\n\n【全局格式化要求 - 最高优先级】\n${globalFormatInstructions.join('\n')}`;
+      }
+
+      return systemPrompt;
+    };
+
+    // 生成标准版本
+    const standardResult = await callAIWithRetry({
+      prompt: standardPrompt,
+      model: selectedModel,
+      systemPrompt: buildSystemPrompt(`你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`),
+      maxTokens: maxTokens,
+      temperature: 0.7
+    }, '标准版本', platformId);
+
+    // 生成创意版本
+    const creativeResult = await callAIWithRetry({
+      prompt: creativePrompt,
+      model: selectedModel,
+      systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`),
+      maxTokens: maxTokens,
+      temperature: 0.9
+    }, '创意版本', platformId);
+
+    // 处理标准版本结果
+    if (standardResult.success && standardResult.content) {
+      const { cleanContent, extractedTags } = extractAndCleanContent(standardResult.content);
+      const actualCharCount = cleanContent.length;
+
+      versions.push({
+        id: 'version-a',
+        content: cleanContent,
+        style: 'standard',
+        title: '标准版本',
+        charCount: actualCharCount,
+        tags: extractedTags
+      });
+    }
+
+    // 处理创意版本结果
+    if (creativeResult.success && creativeResult.content) {
+      const { cleanContent, extractedTags } = extractAndCleanContent(creativeResult.content);
+      const actualCharCount = cleanContent.length;
+
+      versions.push({
+        id: 'version-b',
+        content: cleanContent,
+        style: 'creative',
+        title: '创意版本',
+        charCount: actualCharCount,
+        tags: extractedTags
+      });
+    }
+
+    // 如果两个版本都失败了，尝试生成一个基础版本
+    if (versions.length === 0) {
+      console.log('两个版本都失败，尝试生成基础版本');
+      const fallbackResult = await callAIWithRetry({
+        prompt: basePrompt,
+        model: selectedModel,
+        systemPrompt: '你是一个内容创作专家，请生成高质量的内容。',
+        maxTokens: 2000,
+        temperature: 0.8
+      }, '基础版本', platformId);
+
+      if (fallbackResult.success && fallbackResult.content) {
+        versions.push({
+          id: 'version-fallback',
+          content: fallbackResult.content,
+          style: 'standard',
+          title: '生成版本',
+          charCount: fallbackResult.content.length
+        });
+      }
+    }
+
+    console.log(`平台 ${platformId} 最终生成了 ${versions.length} 个版本`);
+    return versions;
+  } catch (error) {
+    console.error('生成多版本内容失败:', error);
+    return [];
+  }
+}
+
 // 类型定义
 export interface GlobalSettings {
   charCountPreset: 'auto' | 'mini' | 'standard' | 'detailed';
@@ -144,6 +490,57 @@ export class ContentAdapterService {
       return {
         success: false,
         error: error instanceof Error ? error.message : '生成失败'
+      };
+    }
+  }
+
+  /**
+   * 生成多版本内容 - 新增方法，支持版本A和版本B
+   */
+  async generateMultipleVersions(request: ContentGenerationRequest): Promise<{
+    success: boolean;
+    versions: ContentVersion[];
+    error?: string;
+  }> {
+    try {
+      // 创建状态依赖的函数
+      const charCountGenerator = createMatrixPromptGenerator(this.globalSettings, this.platformSettings);
+      const formatGenerator = createFormatDimensionGenerator(this.globalSettings, this.platformSettings);
+
+      // 生成矩阵提示词
+      const matrixPrompt = await generateMatrixPrompt(
+        request.originalContent,
+        request.platform,
+        request.formId,
+        request.style,
+        request.charCount,
+        request.customPrompt,
+        request.useBrandLibrary || false,
+        request.brandProfile,
+        request.charCount ? charCountGenerator : undefined,
+        formatGenerator
+      );
+
+      // 调用多版本生成函数
+      const versions = await generateMultipleVersions(
+        matrixPrompt,
+        request.platform,
+        request.model || 'deepseek-chat',
+        this.globalSettings,
+        this.platformSettings
+      );
+
+      return {
+        success: versions.length > 0,
+        versions,
+        error: versions.length === 0 ? '生成失败，请重试' : undefined
+      };
+    } catch (error) {
+      console.error('生成多版本内容失败:', error);
+      return {
+        success: false,
+        versions: [],
+        error: error instanceof Error ? error.message : '未知错误'
       };
     }
   }

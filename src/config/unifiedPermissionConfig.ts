@@ -12,6 +12,19 @@
 import { SystemRole, Permission, SubscriptionTier, PermissionChecker } from './rolePermissionMatrix';
 import { logger } from '@/utils/logger';
 
+// 安全的角色转换函数
+function safeRoleToString(role: any): string {
+  if (role === null || role === undefined) {
+    return '';
+  }
+  try {
+    return role.toString();
+  } catch (error) {
+    console.warn('🛠️ safeRoleToString error:', error);
+    return '';
+  }
+}
+
 /**
  * 权限检查结果
  */
@@ -353,7 +366,7 @@ export class UnifiedPermissionManager {
         details: {
           key: permissionKey,
           userPermissions: user.permissions || [],
-          userRoles: (user.roles || []).map(role => role.toString()),
+          userRoles: (user.roles || []).map(role => safeRoleToString(role)),
           userTier: user.tier,
           isVip: !!user.isVip,
           isLoggedIn: user.isAuthenticated
@@ -368,7 +381,7 @@ export class UnifiedPermissionManager {
         details: {
           key: permissionKey,
           userPermissions: user.permissions || [],
-          userRoles: (user.roles || []).map(role => role.toString()),
+          userRoles: (user.roles || []).map(role => safeRoleToString(role)),
           userTier: user.tier,
           isVip: !!user.isVip,
           isLoggedIn: user.isAuthenticated
@@ -392,7 +405,7 @@ export class UnifiedPermissionManager {
           details: {
             key: permissionKey,
             userPermissions: user.permissions || [],
-            userRoles: (user.roles || []).map(role => role.toString()),
+            userRoles: (user.roles || []).map(role => safeRoleToString(role)),
             userTier: user.tier,
             isVip: !!user.isVip,
             isLoggedIn: user.isAuthenticated
@@ -405,7 +418,7 @@ export class UnifiedPermissionManager {
         details: {
           key: permissionKey,
           userPermissions: user.permissions || [],
-          userRoles: (user.roles || []).map(role => role.toString()),
+          userRoles: (user.roles || []).map(role => safeRoleToString(role)),
           userTier: user.tier,
           isVip: !!user.isVip,
           isLoggedIn: user.isAuthenticated
@@ -425,7 +438,7 @@ export class UnifiedPermissionManager {
           details: {
             key: permissionKey,
             userPermissions: user.permissions || [],
-            userRoles: (user.roles || []).map(role => role.toString()),
+            userRoles: (user.roles || []).map(role => safeRoleToString(role)),
             userTier: user.tier,
             isVip: !!user.isVip,
             isLoggedIn: user.isAuthenticated
@@ -448,7 +461,7 @@ export class UnifiedPermissionManager {
           details: {
             key: permissionKey,
             userPermissions: user.permissions || [],
-            userRoles: (user.roles || []).map(role => role.toString()),
+            userRoles: (user.roles || []).map(role => safeRoleToString(role)),
             userTier: user.tier,
             isVip: !!user.isVip,
             isLoggedIn: user.isAuthenticated
@@ -460,7 +473,7 @@ export class UnifiedPermissionManager {
     // 基于权限列表的检查
     if (config.requiredPermissions && user.permissions) {
       const hasAllPermissions = config.requiredPermissions.every(permission =>
-        user.permissions!.includes(permission.toString())
+        user.permissions!.includes(safeRoleToString(permission))
       );
       
       if (hasAllPermissions) {
@@ -469,7 +482,7 @@ export class UnifiedPermissionManager {
           details: {
             key: permissionKey,
             userPermissions: user.permissions || [],
-            userRoles: (user.roles || []).map(role => role.toString()),
+            userRoles: (user.roles || []).map(role => safeRoleToString(role)),
             userTier: user.tier,
             isVip: !!user.isVip,
             isLoggedIn: user.isAuthenticated
@@ -490,7 +503,7 @@ export class UnifiedPermissionManager {
       details: {
         key: permissionKey,
         userPermissions: user.permissions || [],
-        userRoles: (user.roles || []).map(role => role.toString()),
+        userRoles: (user.roles || []).map(role => safeRoleToString(role)),
         userTier: user.tier,
         isVip: !!user.isVip,
         isLoggedIn: user.isAuthenticated
@@ -514,7 +527,7 @@ export class UnifiedPermissionManager {
       details: {
         key: permissionKeys.join(','),
         userPermissions: user.permissions || [],
-        userRoles: (user.roles || []).map(role => role.toString()),
+        userRoles: (user.roles || []).map(role => safeRoleToString(role)),
         userTier: user.tier,
         isVip: !!user.isVip,
         isLoggedIn: user.isAuthenticated
@@ -535,7 +548,7 @@ export class UnifiedPermissionManager {
         details: {
           key: permissionKeys.join(' OR '),
           userPermissions: user.permissions || [],
-          userRoles: (user.roles || []).map(role => role.toString()),
+          userRoles: (user.roles || []).map(role => safeRoleToString(role)),
           userTier: user.tier,
           isVip: !!user.isVip,
           isLoggedIn: user.isAuthenticated

@@ -58,14 +58,25 @@ JSON.stringify = function(value: any, replacer?: ((this: any, key: string, value
   return result;
 };
 
-// 拦截模板字符串
+// 拦截模板字符串 - 修复版本
 const originalToString = Object.prototype.toString;
 Object.prototype.toString = function() {
-  const result = originalToString.call(this);
-  if (result === 'undefined') {
+  // 安全检查：如果this是undefined或null，返回安全值
+  if (this === undefined || this === null) {
+    console.warn('🛠️ toString called on undefined/null, returning empty string');
     return '';
   }
-  return result;
+
+  try {
+    const result = originalToString.call(this);
+    if (result === 'undefined') {
+      return '';
+    }
+    return result;
+  } catch (error) {
+    console.warn('🛠️ toString error caught:', error);
+    return '';
+  }
 };
 
 // React 组件修复器

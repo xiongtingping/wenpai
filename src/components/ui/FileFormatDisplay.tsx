@@ -18,7 +18,7 @@ import {
   XCircle
 } from 'lucide-react';
 
-import FileFormatSupportService from '@/services/fileFormatSupportService';
+import fileFormatSupportService from '@/services/fileFormatSupportService';
 import { 
   getFormatsGroupedByCategory, 
   CATEGORY_NAMES, 
@@ -39,7 +39,7 @@ export default function FileFormatDisplay({
   className = ''
 }: FileFormatDisplayProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
-  const formatService = FileFormatSupportService.getInstance();
+  const formatService = fileFormatSupportService;
   const groupedFormats = getFormatsGroupedByCategory();
   const summary = formatService.getFormatSupportSummary();
 
