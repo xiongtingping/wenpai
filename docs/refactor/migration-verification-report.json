@@ -1,0 +1,86 @@
+{
+  "timestamp": "2025-09-08T01:56:13.463Z",
+  "originalFile": "src/pages/AdaptPage.tsx",
+  "migratedFile": "src/features/content-adapter/utils/promptBuilders.ts",
+  "totalFunctions": 12,
+  "results": [
+    {
+      "function": "generateMatrixPrompt",
+      "status": "PASS",
+      "originalMD5": "d335d6718658efc091a3c6ce255da4d7",
+      "migratedMD5": "d335d6718658efc091a3c6ce255da4d7"
+    },
+    {
+      "function": "getPlatformCharacteristics",
+      "status": "PASS",
+      "originalMD5": "4b207db6d4bbc3a6ca3c29a0e5e5c4c1",
+      "migratedMD5": "4b207db6d4bbc3a6ca3c29a0e5e5c4c1"
+    },
+    {
+      "function": "getAlternativeContentForm",
+      "status": "PASS",
+      "originalMD5": "8776f48214f610f447578d66021c0ebc",
+      "migratedMD5": "8776f48214f610f447578d66021c0ebc"
+    },
+    {
+      "function": "getAlternativeStyle",
+      "status": "PASS",
+      "originalMD5": "57c64d4445813bf66968c0e3b2f5d6ae",
+      "migratedMD5": "57c64d4445813bf66968c0e3b2f5d6ae"
+    },
+    {
+      "function": "generatePlatformDimension",
+      "status": "PASS",
+      "originalMD5": "f3e1bb4ac97e472e84b1cf16b8d395d9",
+      "migratedMD5": "f3e1bb4ac97e472e84b1cf16b8d395d9"
+    },
+    {
+      "function": "generateContentFormDimension",
+      "status": "PASS",
+      "originalMD5": "299405af8c0dc70fc602aad23ab7670d",
+      "migratedMD5": "299405af8c0dc70fc602aad23ab7670d"
+    },
+    {
+      "function": "generateContentDimension",
+      "status": "PASS",
+      "originalMD5": "8699ea5befc8a36b79645cfb65fb3ce8",
+      "migratedMD5": "8699ea5befc8a36b79645cfb65fb3ce8"
+    },
+    {
+      "function": "generateBrandDimension",
+      "status": "PASS",
+      "originalMD5": "ed0458b9cf4e59b0f1e7438ba9d2e621",
+      "migratedMD5": "ed0458b9cf4e59b0f1e7438ba9d2e621"
+    },
+    {
+      "function": "generateStyleDimension",
+      "status": "PASS",
+      "originalMD5": "798865bbd024356647f6142f4f125e61",
+      "migratedMD5": "798865bbd024356647f6142f4f125e61"
+    },
+    {
+      "function": "generateCustomDimension",
+      "status": "PASS",
+      "originalMD5": "e72045d8a3de2d3706720d0d545836fb",
+      "migratedMD5": "e72045d8a3de2d3706720d0d545836fb"
+    },
+    {
+      "function": "generateDifferentiationDimension",
+      "status": "PASS",
+      "originalMD5": "ac6bf8dfbe33e6d2b9277778a57e9179",
+      "migratedMD5": "ac6bf8dfbe33e6d2b9277778a57e9179"
+    },
+    {
+      "function": "generateMeaningfulTitle",
+      "status": "PASS",
+      "originalMD5": "d0140ec7820436bcea2e04f4bf7b395e",
+      "migratedMD5": "d0140ec7820436bcea2e04f4bf7b395e"
+    }
+  ],
+  "summary": {
+    "passed": 12,
+    "failed": 0,
+    "missing": 0
+  },
+  "allPassed": true
+}
