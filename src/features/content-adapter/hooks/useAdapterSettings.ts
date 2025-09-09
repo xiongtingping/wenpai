@@ -427,13 +427,14 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
   }, [
     globalSettings, platformSettings, settingsMode, selectedPlatforms,
     selectedFormId, selectedStyle, useBrandLibrary, brandProfile,
-    customPrompt, selectedModel, autoSave, saveSettings
+    customPrompt, selectedModel, autoSave
+    // 🔧 FIX: 移除saveSettings依赖，避免无限循环
   ]);
 
   // 初始化时加载设置
   useEffect(() => {
     loadSettings();
-  }, [loadSettings]);
+  }, []); // 🔧 FIX: 移除loadSettings依赖，避免无限循环
 
   return {
     // 状态

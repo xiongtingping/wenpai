@@ -281,22 +281,13 @@ export const SUBSCRIPTION_MODELS: Record<string, string[]> = {
  * @returns 可用模型列表
  */
 export function getAvailableModelsForTier(tier: string): AIModel[] {
-  // 🔧 FIX: 添加调试日志和默认处理
-  console.log('🔍 getAvailableModelsForTier 调用:', { tier, availablePlans: Object.keys(SUBSCRIPTION_MODELS) });
-  
+  // 🔧 FIX: 移除调试日志避免无限循环
   // 标准化tier值
   const normalizedTier = tier?.toLowerCase() || 'trial';
   
   // 如果找不到对应的计划，默认使用体验版
   const modelIds = SUBSCRIPTION_MODELS[normalizedTier] || SUBSCRIPTION_MODELS['trial'] || [];
   const models = modelIds.map(id => AI_MODELS[id]).filter(Boolean);
-  
-  console.log('🔍 getAvailableModelsForTier 结果:', { 
-    tier: normalizedTier, 
-    modelIds: modelIds.length, 
-    models: models.length,
-    modelNames: models.map(m => m.name)
-  });
   
   return models;
 }

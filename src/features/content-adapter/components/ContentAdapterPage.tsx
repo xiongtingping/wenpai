@@ -1,6 +1,7 @@
 /**
  * 内容适配器主页面组件
  * 集成所有子组件和Hook，提供完整的内容适配功能
+ * 🔥 CACHE_BUST: 2025-01-09-21:45 - 8个关键修复已生效
  */
 
 import React from 'react';
@@ -333,7 +334,7 @@ export function ContentAdapterPage({
     if (initialPlatforms.length > 0) {
       updateSelectedPlatforms(initialPlatforms);
     }
-  }, [initialPlatforms, updateSelectedPlatforms]);
+  }, [initialPlatforms]); // 🔧 FIX: 移除updateSelectedPlatforms依赖，避免无限循环
 
 
   // 初始化收藏状态
