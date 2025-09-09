@@ -4,7 +4,7 @@
  * 🔥 CACHE_BUST: 2025-01-09-21:45 - 8个关键修复已生效
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -177,13 +177,13 @@ export function ContentAdapterPage({
 
   const effectiveUserTier = getCurrentTier();
 
-  // 🔧 FIX: 使用统一状态管理的数据计算剩余次数
+  // 🔧 FIX: 使用统一状态管理的数据计算剩余次数，添加缓存机制
   const getEffectiveUsageRemaining = () => {
     if (propUsageRemaining !== undefined) return propUsageRemaining;
 
     // 优先使用统一状态管理的数据
-    if (!unifiedUsageInfo.loading) {
-      return unifiedUsageInfo.remainingUses;
+    if (!unifiedUsageInfo.loading && unifiedUsageInfo.usageCountStats) {
+      return unifiedUsageInfo.usageCountStats.remainingUses;
     }
 
     // 回退到原有状态
@@ -191,6 +191,29 @@ export function ContentAdapterPage({
   };
 
   const effectiveUsageRemaining = getEffectiveUsageRemaining();
+  
+  // 🔧 FIX: 缓存剩余次数，避免频繁重新计算，初始值设为无限制避免闪烁
+  const [cachedUsageRemaining, setCachedUsageRemaining] = useState<number>(-1);
+  
+  useEffect(() => {
+    // 🔧 FIX: 如果是初始的-1值或者数值真的变化了才更新
+    if (effectiveUsageRemaining !== cachedUsageRemaining) {
+      // 🔧 FIX: 对于premium用户，优先保持无限制状态，避免闪烁到10
+      if (cachedUsageRemaining === -1 && effectiveUsageRemaining > 0 && effectiveUserTier === 'premium') {
+        // premium用户保持无限制，不更新为有限制值
+        console.log('🔧 阻止premium用户闪烁到有限制值:', effectiveUsageRemaining);
+        return;
+      }
+      
+      // 延迟更新，避免闪烁
+      const timeoutId = setTimeout(() => {
+        setCachedUsageRemaining(effectiveUsageRemaining);
+        console.log('🔄 更新缓存的剩余次数:', { from: cachedUsageRemaining, to: effectiveUsageRemaining, tier: effectiveUserTier });
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [effectiveUsageRemaining, cachedUsageRemaining, effectiveUserTier]);
   const { t } = useTranslation();
 
   // 使用设置管理Hook
@@ -392,8 +415,10 @@ export function ContentAdapterPage({
           })();
 
           // 🔧 FIX: 恢复正确的使用次数限制配置
-          let newMaxUsage = 10; // 默认体验版
-          if (calculatedTier === 'pro') {
+          let newMaxUsage = -1; // 🔧 FIX: 默认设为无限制，避免闪烁
+          if (calculatedTier === 'trial') {
+            newMaxUsage = 10; // 体验版10次/月
+          } else if (calculatedTier === 'pro') {
             newMaxUsage = 30; // 🔧 FIX: 专业版恢复为30次/月
           } else if (calculatedTier === 'premium') {
             newMaxUsage = -1; // 高级版无限制
@@ -464,8 +489,9 @@ export function ContentAdapterPage({
 
   // 检查使用次数并显示提醒 - 从原版完整迁移
   const checkUsageAndShowReminder = () => {
+    // 🔧 FIX: 使用缓存的剩余次数，避免数据闪烁
     // 如果剩余次数为0或负数，阻止生成
-    if (effectiveUsageRemaining <= 0 && maxUsage !== -1) {
+    if (cachedUsageRemaining <= 0 && maxUsage !== -1) {
       console.log('❌ 使用次数已用完，阻止生成');
       toast({
         title: "使用次数已用完",
@@ -476,11 +502,11 @@ export function ContentAdapterPage({
     }
 
     // 如果剩余次数较少（1-3次），显示提醒但允许继续生成
-    if (effectiveUsageRemaining <= 3 && effectiveUsageRemaining > 0 && maxUsage !== -1) {
+    if (cachedUsageRemaining <= 3 && cachedUsageRemaining > 0 && maxUsage !== -1) {
       console.log('⚠️ 使用次数较少，显示提醒但允许生成');
       toast({
         title: "使用次数较少",
-        description: `剩余${effectiveUsageRemaining}次使用机会，建议及时升级`,
+        description: `剩余${cachedUsageRemaining}次使用机会，建议及时升级`,
         variant: "destructive"
       });
       // 不阻止生成，只是提醒
@@ -1149,7 +1175,7 @@ export function ContentAdapterPage({
         <ContentInputSection
           originalContent={originalContent}
           onContentChange={setOriginalContent}
-          usageRemaining={effectiveUsageRemaining}
+          usageRemaining={cachedUsageRemaining}
           currentTier={effectiveUserTier}
           useBrandLibrary={useBrandLibrary}
           onBrandLibraryChange={updateBrandLibrary}
@@ -1165,6 +1191,11 @@ export function ContentAdapterPage({
               ? selectedPlatforms.filter(id => id !== platformId)
               : [...selectedPlatforms, platformId];
             updateSelectedPlatforms(newPlatforms);
+          }}
+          onBatchSelect={(platformIds) => {
+            // 批量选择函数 - 直接设置选中的平台列表
+            updateSelectedPlatforms(platformIds);
+            console.log('批量选择平台:', { selected: platformIds.length, total: availablePlatforms.length });
           }}
           platformSettings={platformSettings}
           onPlatformSettingUpdate={handlePlatformSettingUpdate}

@@ -1,12 +1,6 @@
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 const languages = [
   { code: 'zh-CN', name: '中文', flag: '🇨🇳' },
@@ -15,9 +9,26 @@ const languages = [
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // 点击外部关闭下拉菜单
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+    setIsOpen(false);
   };
 
   const currentLanguage = languages.find(lang => 
@@ -27,31 +38,58 @@ export function LanguageSwitcher() {
   ) || languages[0];
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2">
-          <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline">{currentLanguage.flag} {currentLanguage.name}</span>
-          <span className="sm:hidden">{currentLanguage.flag}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {languages.map((language) => (
-          <DropdownMenuItem
-            key={language.code}
-            onClick={() => changeLanguage(language.code)}
-            className={
-              (i18n.language === language.code || 
-               (language.code === 'zh-CN' && i18n.language === 'zh') ||
-               (language.code === 'en-US' && i18n.language === 'en'))
-              ? 'bg-accent' : ''
-            }
-          >
-            <span className="mr-2">{language.flag}</span>
-            {language.name}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="relative" ref={dropdownRef}>
+      <button
+        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-3"
+        onClick={() => {
+          setIsOpen(!isOpen);
+          
+          // 确保根元素可交互
+          const root = document.getElementById('root');
+          if (root && root.hasAttribute('aria-hidden')) {
+            root.removeAttribute('aria-hidden');
+          }
+        }}
+        type="button"
+        aria-expanded={isOpen}
+        data-testid="native-language-switcher-trigger"
+      >
+        <Globe className="h-4 w-4" />
+        <span className="hidden sm:inline">{currentLanguage.flag} {currentLanguage.name}</span>
+        <span className="sm:hidden">{currentLanguage.flag}</span>
+      </button>
+
+      {isOpen && (
+        <div 
+          className="absolute right-0 top-full mt-2 w-48 bg-popover border border-border rounded-md shadow-lg z-[999999]"
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 8px)',
+            right: '0px',
+            zIndex: 999999,
+            backgroundColor: 'var(--popover)',
+            borderColor: 'var(--border)',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {languages.map((language) => (
+            <button
+              key={language.code}
+              className={`w-full flex items-center px-3 py-2 text-sm hover:bg-accent text-left ${
+                (i18n.language === language.code || 
+                 (language.code === 'zh-CN' && i18n.language === 'zh') ||
+                 (language.code === 'en-US' && i18n.language === 'en'))
+                ? 'bg-accent' : ''
+              }`}
+              onClick={() => changeLanguage(language.code)}
+            >
+              <span className="mr-2">{language.flag}</span>
+              {language.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
