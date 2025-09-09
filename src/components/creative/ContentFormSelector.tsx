@@ -3,24 +3,10 @@
  * 支持四大内容分类和多维提示词矩阵系统
  */
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react';
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-// ✅ FIXED: 2025-08-04 使用SafeTooltip替代原始Tooltip，防止setRef无限循环
-import { SafeTooltip } from "@/components/ui/SafeTooltip";
-// 🚨 REMOVED: TooltipProvider导入，因为SafeTooltip不需要Provider
 import { 
   Collapsible,
   CollapsibleContent,
@@ -29,17 +15,12 @@ import {
 import { 
   ChevronDown,
   ChevronUp,
-  Info,
   Check,
-  Sparkles,
   Target,
-  Heart,
-  Zap
+  Heart
 } from "lucide-react";
 import { 
   contentCategories, 
-  type ContentForm,
-  type ContentCategory,
   getContentFormById
 } from '@/config/contentForms';
 import { 
@@ -53,11 +34,6 @@ interface ContentFormSelectorProps {
   onFormChange: (formId: string | undefined) => void;
   onStyleChange: (style: StyleType | undefined) => void;
   className?: string;
-  // 新增props用于动态预览
-  selectedPlatforms?: string[];
-  useBrandLibrary?: boolean;
-  customPrompt?: string;
-  onCustomPromptChange?: (prompt: string) => void;
 }
 
 export function ContentFormSelector({
@@ -65,13 +41,8 @@ export function ContentFormSelector({
   selectedStyle,
   onFormChange,
   onStyleChange,
-  className,
-  selectedPlatforms = [],
-  useBrandLibrary = false,
-  customPrompt = '',
-  onCustomPromptChange
+  className
 }: ContentFormSelectorProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isContentFormOpen, setIsContentFormOpen] = useState(false);
   const [isStyleOpen, setIsStyleOpen] = useState(false);
 
@@ -302,43 +273,6 @@ export function ContentFormSelector({
         </Collapsible>
         </div>
 
-        {/* 最终提示词预览 */}
-        <div className="mt-6 pt-6 border-t">
-          <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-            <Sparkles className="h-4 w-4" />
-            最终提示词预览
-          </Label>
-          <div className="mt-2 p-3 bg-muted/50 rounded-lg border border-border">
-            <div className="text-sm text-muted-foreground space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-foreground">基础要素：</span>
-                <span>原始内容</span>
-                {useBrandLibrary && <Badge variant="outline" className="text-xs">+ 品牌库</Badge>}
-                {selectedPlatforms.length > 0 && <Badge variant="outline" className="text-xs">+ {selectedPlatforms.length}个平台</Badge>}
-              </div>
-              
-              {selectedFormId && (
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-foreground">内容形式：</span>
-                  <Badge variant="secondary" className="text-xs">{selectedForm?.name}</Badge>
-                </div>
-              )}
-              
-              {selectedStyle && (
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-foreground">表达风格：</span>
-                  <Badge variant="secondary" className="text-xs">{availableStyles.find(s => s.id === selectedStyle)?.name}</Badge>
-                </div>
-              )}
-              
-              <div className="mt-3 p-2 bg-background rounded border border-border/50">
-                <p className="text-xs text-muted-foreground font-mono leading-relaxed">
-                  💡 AI将根据以上配置自动构建多维矩阵提示词，确保生成内容符合平台特性、内容形式和表达风格要求
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
 
         </div>
       </div>
