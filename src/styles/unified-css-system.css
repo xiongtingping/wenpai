@@ -1,0 +1,268 @@
+/* 
+ * Unified CSS System (统一CSS系统)
+ * 按照正确的层级顺序导入所有样式层
+ * 
+ * 架构：Design Token（变量层） + Base Layer（基础层） + Utility Class（工具层） + Component Layer（组件层）
+ */
+
+/* 🎨 Layer 1: Design Tokens (变量层) */
+@import './design-tokens.css';
+
+/* 🏗️ Layer 2: Base Layer (基础层) */
+@import './base-layer.css';
+
+/* 🔧 Layer 3: Utility Classes (工具层) */
+@import './utility-classes.css';
+
+/* 🧩 Layer 4: Component Layer (组件层) */
+@import './component-layer.css';
+
+/* 🎯 Critical Dialog Fixes (关键弹窗修复) */
+@layer critical {
+  /* 🚨 最高优先级修复 - 覆盖所有Tailwind CSS规则 */
+  
+  /* 重置所有可能的Tailwind transform变量 */
+  [role="dialog"],
+  [data-radix-dialog-content],
+  .quick-reference-dialog,
+  div[data-state="open"][role="dialog"],
+  div[role="dialog"][data-state="open"] {
+    /* 🎯 强制重置Tailwind CSS变量 */
+    --tw-translate-x: 0 !important;
+    --tw-translate-y: 0 !important;
+    --tw-rotate: 0 !important;
+    --tw-skew-x: 0 !important;
+    --tw-skew-y: 0 !important;
+    --tw-scale-x: 1 !important;
+    --tw-scale-y: 1 !important;
+    
+    /* 🎯 强制定位 */
+    position: fixed !important;
+    top: var(--dialog-position-y) !important;
+    left: var(--dialog-position-x) !important;
+    right: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+    inset-block: auto !important;
+    inset-inline: auto !important;
+    
+    /* 🎯 强制transform */
+    transform: var(--dialog-transform) !important;
+    transform-origin: var(--dialog-transform-origin) !important;
+    
+    /* 🎯 强制可见性 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    z-index: var(--dialog-z-content) !important;
+  }
+  
+  /* 🎯 特殊处理：具有Tailwind类的元素 */
+  .fixed.left-\[50\%\].top-1\/2.z-50.grid.w-full.max-w-lg.-translate-x-1\/2.-translate-y-1\/2,
+  .fixed.left-\[50\%\].top-1\/2.-translate-x-1\/2.-translate-y-1\/2,
+  div[class*="fixed"][class*="left-"][class*="top-"][class*="translate"],
+  div[class*="fixed"][class*="grid"][class*="w-full"],
+  div[class*="translate-x"][class*="translate-y"] {
+    /* 🎯 完全覆盖Tailwind的定位和transform */
+    --tw-translate-x: 0 !important;
+    --tw-translate-y: 0 !important;
+    position: fixed !important;
+    top: var(--dialog-position-y) !important;
+    left: var(--dialog-position-x) !important;
+    transform: var(--dialog-transform) !important;
+    transform-origin: var(--dialog-transform-origin) !important;
+    
+    /* 🎯 布局重置 */
+    display: flex !important;
+    flex-direction: column !important;
+    grid: none !important;
+    grid-template-columns: none !important;
+    grid-template-rows: none !important;
+    width: auto !important;
+    max-width: var(--dialog-max-width) !important;
+  }
+  
+  /* 🎯 Dialog Overlay修复 */
+  [data-radix-dialog-overlay],
+  div[data-state="open"][class*="inset-0"],
+  div[data-state="open"][class*="bg-black"],
+  div[data-state="open"][class*="bg-foreground"],
+  div[class*="fixed"][class*="inset-0"][class*="z-"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    inset: 0 !important;
+    z-index: var(--dialog-z-overlay) !important;
+    background: var(--dialog-overlay-bg) !important;
+    backdrop-filter: var(--dialog-backdrop-filter) !important;
+  }
+}
+
+/* 🎯 Debug Utilities (调试工具) */
+@layer debug {
+  /* 开发环境调试样式 */
+  .debug-dialog-position {
+    outline: 2px solid red !important;
+    outline-offset: -2px !important;
+  }
+  
+  .debug-dialog-position::before {
+    content: "Dialog Position Debug" !important;
+    position: absolute !important;
+    top: -30px !important;
+    left: 0 !important;
+    background: red !important;
+    color: white !important;
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+    z-index: 999999 !important;
+  }
+  
+  .debug-overlay-position {
+    outline: 2px solid blue !important;
+    outline-offset: -2px !important;
+  }
+  
+  .debug-overlay-position::before {
+    content: "Overlay Position Debug" !important;
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    background: blue !important;
+    color: white !important;
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+    z-index: 999999 !important;
+  }
+}
+
+/* 🎯 Performance Optimizations (性能优化) */
+@layer performance {
+  /* GPU加速 */
+  [data-radix-dialog-overlay],
+  [data-radix-dialog-content],
+  [role="dialog"] {
+    will-change: transform, opacity !important;
+    backface-visibility: hidden !important;
+    perspective: 1000px !important;
+    transform-style: preserve-3d !important;
+  }
+  
+  /* 减少重绘 */
+  [data-radix-dialog-content] {
+    isolation: isolate !important;
+    contain: layout style paint !important;
+  }
+  
+  /* 优化滚动 */
+  .dialog-body {
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+  }
+}
+
+/* 🎯 Accessibility Enhancements (无障碍增强) */
+@layer accessibility {
+  /* Focus管理 */
+  [data-radix-dialog-content]:focus {
+    outline: none !important;
+  }
+  
+  [data-radix-dialog-content]:focus-visible {
+    outline: 2px solid var(--color-ring) !important;
+    outline-offset: 2px !important;
+  }
+  
+  /* 高对比度模式支持 */
+  @media (prefers-contrast: high) {
+    [data-radix-dialog-content] {
+      border-width: 2px !important;
+    }
+    
+    [data-radix-dialog-overlay] {
+      background: rgba(0, 0, 0, 0.8) !important;
+    }
+  }
+  
+  /* 减少动画模式 */
+  @media (prefers-reduced-motion: reduce) {
+    [data-radix-dialog-content],
+    [data-radix-dialog-overlay] {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+  
+  /* 屏幕阅读器优化 */
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+}
+
+/* 🎯 Print Styles (打印样式) */
+@layer print {
+  @media print {
+    [data-radix-dialog-overlay],
+    [data-radix-dialog-content] {
+      position: static !important;
+      transform: none !important;
+      box-shadow: none !important;
+      border: 1px solid #000 !important;
+      background: white !important;
+      color: black !important;
+    }
+    
+    [data-radix-dialog-overlay] {
+      display: none !important;
+    }
+  }
+}
+
+/* 🎯 Browser Compatibility (浏览器兼容性) */
+@layer compatibility {
+  /* Safari兼容性 */
+  @supports (-webkit-backdrop-filter: blur(1px)) {
+    [data-radix-dialog-overlay] {
+      -webkit-backdrop-filter: var(--dialog-backdrop-filter) !important;
+    }
+  }
+  
+  /* Firefox兼容性 */
+  @-moz-document url-prefix() {
+    [data-radix-dialog-content] {
+      transform: var(--dialog-transform) !important;
+    }
+  }
+  
+  /* Edge兼容性 */
+  @supports (-ms-ime-align: auto) {
+    [data-radix-dialog-content] {
+      transform: var(--dialog-transform) !important;
+    }
+  }
+}
+
+/* 🎯 Final Override (最终覆盖) */
+@layer final {
+  /* 确保所有弹窗都使用统一的定位系统 */
+  [role="dialog"]:not(.custom-positioned) {
+    position: fixed !important;
+    top: var(--dialog-position-y) !important;
+    left: var(--dialog-position-x) !important;
+    transform: var(--dialog-transform) !important;
+    transform-origin: var(--dialog-transform-origin) !important;
+    z-index: var(--dialog-z-content) !important;
+  }
+}

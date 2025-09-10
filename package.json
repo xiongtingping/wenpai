@@ -16,11 +16,7 @@
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
-    "test:build": "npm run build && npm run preview",
+
     "clean": "rm -rf dist node_modules/.vite",
     "type-check": "tsc --noEmit",
     "sync-authing-env": "node sync-authing-env.js",
@@ -92,6 +88,7 @@
     "jsonwebtoken": "^9.0.2",
     "jsqr": "^1.4.0",
     "jszip": "^3.10.1",
+    "lodash-es": "^4.17.21",
     "lucide-react": "^0.503.0",
     "lunar-javascript": "^1.7.3",
     "mammoth": "^1.9.1",
@@ -131,19 +128,15 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
-    "@playwright/test": "^1.55.0",
-    "@testing-library/jest-dom": "^6.8.0",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
+
+    "@types/lodash-es": "^4.17.12",
     "eslint": "^9.22.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
-    "jsdom": "^26.1.0",
-    "playwright": "^1.55.0",
+
     "terser": "^5.43.1",
     "typescript-eslint": "^8.26.1",
-    "vite": "^7.0.5",
-    "vitest": "^3.2.4"
+    "vite": "^7.0.5"
   }
 }

@@ -160,7 +160,7 @@ async function initializeApplication() {
 
     console.log('🎉 应用启动成功！');
 
-    // 🔧 FIX: 根本性解决 Authing Guard aria-hidden 冲突
+    // 🔧 FIX: 智能解决 Authing Guard aria-hidden 冲突
     const ensureRootInteractable = () => {
       const root = document.getElementById('root');
       if (root) {
@@ -168,35 +168,78 @@ async function initializeApplication() {
         root.style.pointerEvents = 'auto';
         root.style.visibility = 'visible';
         root.style.opacity = '1';
-        
-        // 🔧 彻底阻止 Authing Guard 设置 aria-hidden
+
+        // 🔧 智能检测：只阻止 Authing Guard 设置的 aria-hidden
         if (root.hasAttribute('aria-hidden')) {
-          console.log('🚫 检测到 Authing Guard 设置 aria-hidden，立即移除');
-          root.removeAttribute('aria-hidden');
-          
-          // 如果需要保存状态（为了恢复），存储在自定义属性中
-          root.setAttribute('data-guard-aria-hidden', 'blocked');
+          // 检查是否有活跃的弹窗组件
+          const hasActiveDialog = document.querySelector('[role="dialog"][data-state="open"], .quick-reference-dialog[data-state="open"]');
+          const hasAuthingGuard = document.querySelector('.authing-guard-container, [class*="authing"]');
+
+          // 只有在没有活跃弹窗但有Authing Guard时才移除aria-hidden
+          if (!hasActiveDialog && hasAuthingGuard) {
+            console.log('🚫 检测到 Authing Guard 设置 aria-hidden，立即移除');
+            root.removeAttribute('aria-hidden');
+            root.setAttribute('data-guard-aria-hidden', 'blocked');
+          } else if (hasActiveDialog) {
+            // 🚨 修复：弹窗打开时移除aria-hidden，避免焦点冲突
+            console.log('🔧 检测到活跃弹窗，移除 aria-hidden 避免焦点冲突');
+            root.removeAttribute('aria-hidden');
+            root.removeAttribute('data-aria-hidden');
+            root.style.pointerEvents = 'auto';
+            root.style.visibility = 'visible';
+            root.style.opacity = '1';
+          }
         }
       }
     };
 
-    // 🔧 创建简化的 MutationObserver 监控根元素属性变化  
+    // 🔧 创建智能的 MutationObserver 监控根元素属性变化
     const createAriaHiddenBlocker = () => {
       const root = document.getElementById('root');
       if (!root) return;
 
+      // 防抖处理，避免频繁触发
+      let debounceTimer: NodeJS.Timeout | null = null;
+
       const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
-            const target = mutation.target as Element;
-            if (target === root && target.hasAttribute('aria-hidden')) {
-              // 简单粗暴：始终阻止在根元素上设置 aria-hidden
-              console.log('🚫 阻止 Authing Guard 在根元素设置 aria-hidden');
-              target.removeAttribute('aria-hidden');
-              target.setAttribute('data-guard-blocked', 'true');
+        // 清除之前的定时器
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+        }
+
+        // 防抖处理，减少性能影响
+        debounceTimer = setTimeout(() => {
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+              const target = mutation.target as Element;
+              if (target === root && target.hasAttribute('aria-hidden')) {
+
+                // 🔧 智能检测：区分 Authing Guard 和其他弹窗
+                const hasActiveDialog = document.querySelector('[role="dialog"][data-state="open"], .quick-reference-dialog[data-state="open"]');
+                const hasAuthingGuard = document.querySelector('.authing-guard-container, [class*="authing"], [id*="authing"]');
+                const hasRadixPortal = document.querySelector('[data-radix-portal]');
+
+                // 如果有活跃的弹窗（如快速引用），允许aria-hidden但确保交互性
+                if (hasActiveDialog || hasRadixPortal) {
+                  console.log('✅ 检测到活跃弹窗，保留 aria-hidden 但确保根元素交互性');
+                  target.style.pointerEvents = 'auto';
+                  target.style.visibility = 'visible';
+                  target.style.opacity = '1';
+                }
+                // 如果只有 Authing Guard，则移除 aria-hidden
+                else if (hasAuthingGuard) {
+                  console.log('🚫 阻止 Authing Guard 在根元素设置 aria-hidden');
+                  target.removeAttribute('aria-hidden');
+                  target.setAttribute('data-guard-blocked', 'true');
+                }
+                // 其他情况保持默认行为
+                else {
+                  console.log('ℹ️ 未知来源的 aria-hidden，保持默认行为');
+                }
+              }
             }
-          }
-        });
+          });
+        }, 50); // 50ms 防抖
       });
 
       observer.observe(root, {
@@ -205,30 +248,66 @@ async function initializeApplication() {
         subtree: false
       });
 
-      console.log('✅ 已启动 aria-hidden 阻止器，防止 Guard 干扰根元素');
-      return observer;
+      // 同时监听整个文档的变化，以便检测弹窗的出现和消失
+      const documentObserver = new MutationObserver(() => {
+        // 当DOM结构变化时，重新检查根元素状态
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+        }
+        debounceTimer = setTimeout(() => {
+          ensureRootInteractable();
+        }, 100);
+      });
+
+      documentObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+
+      console.log('✅ 已启动智能 aria-hidden 管理器，支持弹窗共存');
+
+      return {
+        disconnect: () => {
+          observer.disconnect();
+          documentObserver.disconnect();
+          if (debounceTimer) {
+            clearTimeout(debounceTimer);
+          }
+        }
+      };
     };
 
     // 立即执行一次，然后启动监控
     ensureRootInteractable();
     const ariaHiddenBlocker = createAriaHiddenBlocker();
 
-    // 使用 ResizeObserver 监听 DOM 变化，确保交互性
+    // 🔧 优化性能：减少 ResizeObserver 的使用，改用更轻量的方式
+    let resizeDebounceTimer: NodeJS.Timeout | null = null;
+
     if ('ResizeObserver' in window) {
       const resizeObserver = new ResizeObserver(() => {
-        ensureRootInteractable();
+        // 防抖处理，避免频繁调用
+        if (resizeDebounceTimer) {
+          clearTimeout(resizeDebounceTimer);
+        }
+        resizeDebounceTimer = setTimeout(() => {
+          ensureRootInteractable();
+        }, 200); // 200ms 防抖
       });
-      
+
       const root = document.getElementById('root');
       if (root) {
         resizeObserver.observe(root);
       }
     }
 
-    // 在窗口关闭时清理 observer
+    // 在窗口关闭时清理所有 observer
     window.addEventListener('beforeunload', () => {
       if (ariaHiddenBlocker) {
         ariaHiddenBlocker.disconnect();
+      }
+      if (resizeDebounceTimer) {
+        clearTimeout(resizeDebounceTimer);
       }
     });
 

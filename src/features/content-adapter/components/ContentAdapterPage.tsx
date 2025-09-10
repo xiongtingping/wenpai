@@ -239,7 +239,7 @@ export function ContentAdapterPage({
     getEffectiveSettings,
     validateSettings
   } = useAdapterSettings({
-    autoSave: true,
+    autoSave: false, // 🔧 临时禁用自动保存，避免页面加载时误触发Toast
     storageKey: 'content-adapter-settings'
   });
 

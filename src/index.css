@@ -13,6 +13,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 🎯 统一CSS系统 - 最高优先级导入 */
+@import './styles/unified-css-system.css';
+
 @layer base {
   :root {
     /* 默认使用护眼米色主题 */

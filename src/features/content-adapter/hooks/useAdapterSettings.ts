@@ -114,7 +114,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
   const {
     defaultGlobalSettings = {},
     defaultPlatformSettings = {},
-    autoSave = true,
+    autoSave = false, // 🔧 默认禁用自动保存，避免页面加载时误触发Toast
     storageKey = 'content-adapter-settings'
   } = params;
 
@@ -357,6 +357,8 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
       });
     } finally {
       setLoading(false);
+      // 无论加载成功或失败，都标记为已初始化
+      setIsInitialized(true);
     }
   }, [storageKey, defaultGlobal, toast]);
 
@@ -415,9 +417,11 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
     }
   }, [toast]);
 
-  // 自动保存
+  // 自动保存 - 仅在设置实际变化后才保存，避免页面加载时误触发
+  const [isInitialized, setIsInitialized] = useState(false);
+  
   useEffect(() => {
-    if (autoSave) {
+    if (autoSave && isInitialized) {
       const timeoutId = setTimeout(() => {
         saveSettings();
       }, 1000);
@@ -427,7 +431,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
   }, [
     globalSettings, platformSettings, settingsMode, selectedPlatforms,
     selectedFormId, selectedStyle, useBrandLibrary, brandProfile,
-    customPrompt, selectedModel, autoSave
+    customPrompt, selectedModel, autoSave, isInitialized
     // 🔧 FIX: 移除saveSettings依赖，避免无限循环
   ]);
 

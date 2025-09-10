@@ -1,0 +1,360 @@
+/* 
+ * Component Layer (组件层)
+ * 具体组件的样式定义，基于Design Tokens和Utility Classes
+ */
+
+@layer components {
+  /* 🎯 Dialog Component */
+  .dialog {
+    /* 使用工具类组合 */
+    @apply u-center-fixed u-size-dialog u-bg-dialog u-border-dialog u-shadow-dialog;
+    @apply u-flex-column u-gap-dialog u-performance u-visible u-focus-none;
+    @apply u-dialog-reset-transform;
+  }
+  
+  .dialog-overlay {
+    @apply u-dialog-overlay u-backdrop-dialog;
+  }
+  
+  .dialog-content {
+    @apply u-dialog-content u-flex-column;
+  }
+  
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: var(--dialog-gap);
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--dialog-gap);
+  }
+  
+  .dialog-title {
+    @apply u-text-dialog-title;
+    margin: 0;
+  }
+  
+  .dialog-description {
+    @apply u-text-dialog-caption;
+    margin-top: var(--spacing-xs);
+  }
+  
+  .dialog-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-xs) 0;
+  }
+  
+  .dialog-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    padding-top: var(--dialog-gap);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--dialog-gap);
+  }
+  
+  .dialog-close {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    width: 24px;
+    height: 24px;
+    border-radius: var(--dialog-button-radius);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-muted-foreground);
+    @apply u-transition-dialog;
+  }
+  
+  .dialog-close:hover {
+    background: var(--color-muted);
+    color: var(--color-foreground);
+  }
+  
+  /* 🎯 Quick Reference Dialog Component */
+  .quick-reference-dialog {
+    @apply dialog;
+    /* 特殊的快速引用弹窗样式 */
+    max-width: min(95vw, 768px) !important;
+    max-height: 85vh !important;
+  }
+  
+  .quick-reference-dialog .dialog-header {
+    background: var(--color-muted);
+    margin: calc(-1 * var(--dialog-padding));
+    margin-bottom: var(--dialog-gap);
+    padding: var(--dialog-padding);
+    border-radius: var(--dialog-border-radius) var(--dialog-border-radius) 0 0;
+  }
+  
+  .quick-reference-dialog .dialog-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+  
+  .quick-reference-dialog .dialog-title svg {
+    width: 20px;
+    height: 20px;
+    color: var(--color-primary);
+  }
+  
+  .quick-reference-dialog .dialog-body {
+    min-height: 300px;
+    max-height: 60vh;
+  }
+  
+  /* 🎯 Tab Component in Dialog */
+  .dialog-tabs {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .dialog-tabs-list {
+    display: flex;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--dialog-gap);
+  }
+  
+  .dialog-tabs-trigger {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--color-muted-foreground);
+    border-bottom: 2px solid transparent;
+    @apply u-transition-fast;
+  }
+  
+  .dialog-tabs-trigger:hover {
+    color: var(--color-foreground);
+    background: var(--color-muted);
+  }
+  
+  .dialog-tabs-trigger[data-state="active"] {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+  
+  .dialog-tabs-content {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  /* 🎯 Search Component in Dialog */
+  .dialog-search {
+    position: relative;
+    margin-bottom: var(--dialog-gap);
+  }
+  
+  .dialog-search-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    padding-left: 40px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-size: var(--font-size-sm);
+    @apply u-transition-fast;
+  }
+  
+  .dialog-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-ring);
+  }
+  
+  .dialog-search-icon {
+    position: absolute;
+    left: var(--spacing-sm);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--color-muted-foreground);
+  }
+  
+  /* 🎯 List Component in Dialog */
+  .dialog-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+  
+  .dialog-list-item {
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    @apply u-transition-fast;
+  }
+  
+  .dialog-list-item:hover {
+    background: var(--color-muted);
+    border-color: var(--color-primary);
+  }
+  
+  .dialog-list-item[data-selected="true"] {
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+    border-color: var(--color-primary);
+  }
+  
+  .dialog-list-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-2xl);
+    color: var(--color-muted-foreground);
+    text-align: center;
+  }
+  
+  .dialog-list-empty svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: var(--spacing-md);
+    opacity: 0.5;
+  }
+  
+  /* 🎯 Button Component in Dialog */
+  .dialog-button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--dialog-button-radius);
+    border: 1px solid var(--color-border);
+    background: var(--color-background);
+    color: var(--color-foreground);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    @apply u-transition-fast;
+  }
+  
+  .dialog-button:hover {
+    background: var(--color-muted);
+  }
+  
+  .dialog-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .dialog-button-primary {
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+    border-color: var(--color-primary);
+  }
+  
+  .dialog-button-primary:hover:not(:disabled) {
+    background: var(--color-primary);
+    opacity: 0.9;
+  }
+  
+  .dialog-button-secondary {
+    background: var(--color-secondary);
+    color: var(--color-secondary-foreground);
+    border-color: var(--color-secondary);
+  }
+  
+  .dialog-button-ghost {
+    background: transparent;
+    border-color: transparent;
+  }
+  
+  .dialog-button-ghost:hover {
+    background: var(--color-muted);
+  }
+  
+  /* 🎯 Badge Component in Dialog */
+  .dialog-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    background: var(--color-muted);
+    color: var(--color-muted-foreground);
+  }
+  
+  .dialog-badge-primary {
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+  
+  .dialog-badge-secondary {
+    background: var(--color-secondary);
+    color: var(--color-secondary-foreground);
+  }
+  
+  /* 🎯 Responsive Components */
+  @media (max-width: 768px) {
+    .dialog {
+      @apply u-mobile-dialog;
+    }
+    
+    .dialog-header {
+      padding-bottom: var(--spacing-sm);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .dialog-footer {
+      padding-top: var(--spacing-sm);
+      margin-top: var(--spacing-sm);
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
+    
+    .dialog-button {
+      width: 100%;
+    }
+    
+    .quick-reference-dialog .dialog-header {
+      margin: calc(-1 * var(--spacing-md));
+      margin-bottom: var(--spacing-sm);
+      padding: var(--spacing-md);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .dialog {
+      @apply u-desktop-dialog;
+    }
+  }
+  
+  /* 🎯 Animation States */
+  .dialog[data-state="open"] {
+    @apply u-animate-dialog-enter;
+  }
+  
+  .dialog[data-state="closed"] {
+    @apply u-animate-dialog-exit;
+  }
+  
+  .dialog-overlay[data-state="open"] {
+    @apply u-animate-overlay-enter;
+  }
+  
+  .dialog-overlay[data-state="closed"] {
+    @apply u-animate-overlay-exit;
+  }
+  
+  /* 🎯 Dark Mode Support */
+  [data-theme="dark"] .dialog {
+    border-color: var(--color-border);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+  
+  [data-theme="dark"] .dialog-overlay {
+    background: rgba(0, 0, 0, 0.7);
+  }
+}

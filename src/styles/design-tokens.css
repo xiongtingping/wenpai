@@ -1,0 +1,203 @@
+/* 
+ * Design Tokens (变量层)
+ * 统一的设计令牌系统，定义所有设计变量
+ */
+
+@layer tokens {
+  :root {
+    /* 🎨 Color Tokens */
+    --color-primary: hsl(var(--primary));
+    --color-primary-foreground: hsl(var(--primary-foreground));
+    --color-secondary: hsl(var(--secondary));
+    --color-secondary-foreground: hsl(var(--secondary-foreground));
+    --color-background: hsl(var(--background));
+    --color-foreground: hsl(var(--foreground));
+    --color-muted: hsl(var(--muted));
+    --color-muted-foreground: hsl(var(--muted-foreground));
+    --color-border: hsl(var(--border));
+    --color-input: hsl(var(--input));
+    --color-ring: hsl(var(--ring));
+    
+    /* 🎨 Dialog Color Tokens */
+    --dialog-background: var(--color-background);
+    --dialog-foreground: var(--color-foreground);
+    --dialog-border: var(--color-border);
+    --dialog-overlay-bg: rgba(0, 0, 0, 0.5);
+    --dialog-shadow-color: rgba(0, 0, 0, 0.25);
+    
+    /* 📏 Spacing Tokens */
+    --spacing-xs: 0.25rem;    /* 4px */
+    --spacing-sm: 0.5rem;     /* 8px */
+    --spacing-md: 1rem;       /* 16px */
+    --spacing-lg: 1.5rem;     /* 24px */
+    --spacing-xl: 2rem;       /* 32px */
+    --spacing-2xl: 3rem;      /* 48px */
+    --spacing-3xl: 4rem;      /* 64px */
+    
+    /* 📏 Dialog Spacing Tokens */
+    --dialog-padding: var(--spacing-lg);
+    --dialog-gap: var(--spacing-md);
+    --dialog-header-padding: var(--spacing-lg);
+    --dialog-content-padding: var(--spacing-lg);
+    --dialog-footer-padding: var(--spacing-lg);
+    
+    /* 📐 Size Tokens */
+    --size-xs: 20rem;         /* 320px */
+    --size-sm: 24rem;         /* 384px */
+    --size-md: 32rem;         /* 512px */
+    --size-lg: 48rem;         /* 768px */
+    --size-xl: 64rem;         /* 1024px */
+    --size-2xl: 80rem;        /* 1280px */
+    
+    /* 📐 Dialog Size Tokens */
+    --dialog-min-width: var(--size-xs);
+    --dialog-max-width: min(95vw, var(--size-lg));
+    --dialog-max-height: 85vh;
+    --dialog-min-height: 200px;
+    
+    /* 🎯 Z-Index Tokens */
+    --z-base: 0;
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    --z-toast: 1080;
+    --z-dialog-overlay: 999998;
+    --z-dialog-content: 999999;
+    
+    /* 🎯 Dialog Z-Index Tokens */
+    --dialog-z-overlay: var(--z-dialog-overlay);
+    --dialog-z-content: var(--z-dialog-content);
+    
+    /* 🎨 Border Radius Tokens */
+    --radius-none: 0;
+    --radius-sm: 0.125rem;     /* 2px */
+    --radius-md: 0.25rem;      /* 4px */
+    --radius-lg: 0.5rem;       /* 8px */
+    --radius-xl: 0.75rem;      /* 12px */
+    --radius-2xl: 1rem;        /* 16px */
+    --radius-full: 9999px;
+    
+    /* 🎨 Dialog Border Radius Tokens */
+    --dialog-border-radius: var(--radius-lg);
+    --dialog-button-radius: var(--radius-md);
+    
+    /* 🌟 Shadow Tokens */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    
+    /* 🌟 Dialog Shadow Tokens */
+    --dialog-shadow: var(--shadow-2xl);
+    --dialog-overlay-shadow: none;
+    
+    /* 🎭 Animation Tokens */
+    --duration-fast: 150ms;
+    --duration-normal: 200ms;
+    --duration-slow: 300ms;
+    --duration-slower: 500ms;
+    
+    /* 🎭 Dialog Animation Tokens */
+    --dialog-duration: var(--duration-normal);
+    --dialog-overlay-duration: var(--duration-fast);
+    
+    /* 🎭 Easing Tokens */
+    --ease-linear: linear;
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+    
+    /* 🎭 Dialog Easing Tokens */
+    --dialog-easing: var(--ease-out);
+    --dialog-overlay-easing: var(--ease-in-out);
+    
+    /* 🔤 Typography Tokens */
+    --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    
+    /* 🔤 Font Size Tokens */
+    --font-size-xs: 0.75rem;   /* 12px */
+    --font-size-sm: 0.875rem;  /* 14px */
+    --font-size-md: 1rem;      /* 16px */
+    --font-size-lg: 1.125rem;  /* 18px */
+    --font-size-xl: 1.25rem;   /* 20px */
+    --font-size-2xl: 1.5rem;   /* 24px */
+    --font-size-3xl: 1.875rem; /* 30px */
+    
+    /* 🔤 Dialog Typography Tokens */
+    --dialog-title-size: var(--font-size-xl);
+    --dialog-content-size: var(--font-size-md);
+    --dialog-caption-size: var(--font-size-sm);
+    
+    /* 🔤 Font Weight Tokens */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    /* 🔤 Dialog Font Weight Tokens */
+    --dialog-title-weight: var(--font-weight-semibold);
+    --dialog-content-weight: var(--font-weight-normal);
+    
+    /* 🔤 Line Height Tokens */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+    
+    /* 🔤 Dialog Line Height Tokens */
+    --dialog-title-line-height: var(--line-height-tight);
+    --dialog-content-line-height: var(--line-height-normal);
+    
+    /* 🎯 Position Tokens */
+    --position-center-x: 50vw;
+    --position-center-y: 50vh;
+    --transform-center: translate(-50%, -50%);
+    --transform-origin-center: 0 0;
+    
+    /* 🎯 Dialog Position Tokens */
+    --dialog-position-x: var(--position-center-x);
+    --dialog-position-y: var(--position-center-y);
+    --dialog-transform: var(--transform-center);
+    --dialog-transform-origin: var(--transform-origin-center);
+    
+    /* 🔧 Backdrop Tokens */
+    --backdrop-blur: blur(8px);
+    --backdrop-saturate: saturate(120%);
+    --backdrop-brightness: brightness(0.8);
+    
+    /* 🔧 Dialog Backdrop Tokens */
+    --dialog-backdrop-blur: var(--backdrop-blur);
+    --dialog-backdrop-saturate: var(--backdrop-saturate);
+    --dialog-backdrop-filter: var(--dialog-backdrop-blur) var(--dialog-backdrop-saturate);
+  }
+  
+  /* 🌙 Dark Mode Tokens */
+  [data-theme="dark"] {
+    --dialog-overlay-bg: rgba(0, 0, 0, 0.7);
+    --dialog-shadow-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  /* 📱 Mobile Tokens */
+  @media (max-width: 768px) {
+    :root {
+      --dialog-max-width: 95vw;
+      --dialog-max-height: 90vh;
+      --dialog-padding: var(--spacing-md);
+      --dialog-border-radius: var(--radius-md);
+    }
+  }
+  
+  /* 🖥️ Desktop Tokens */
+  @media (min-width: 1024px) {
+    :root {
+      --dialog-max-width: min(90vw, var(--size-lg));
+      --dialog-padding: var(--spacing-xl);
+    }
+  }
+}

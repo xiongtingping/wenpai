@@ -1,0 +1,327 @@
+/* 
+ * Utility Classes (工具层)
+ * 可复用的工具类，用于快速样式应用
+ */
+
+@layer utilities {
+  /* 🎯 Position Utilities */
+  .u-center-absolute {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+  
+  .u-center-fixed {
+    position: fixed !important;
+    top: var(--position-center-y) !important;
+    left: var(--position-center-x) !important;
+    transform: var(--transform-center) !important;
+    transform-origin: var(--transform-origin-center) !important;
+  }
+  
+  .u-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    inset: 0 !important;
+  }
+  
+  /* 🎯 Dialog Utilities */
+  .u-dialog-overlay {
+    @apply u-fullscreen;
+    z-index: var(--dialog-z-overlay) !important;
+    background: var(--dialog-overlay-bg) !important;
+    backdrop-filter: var(--dialog-backdrop-filter) !important;
+    pointer-events: auto !important;
+  }
+  
+  .u-dialog-content {
+    @apply u-center-fixed;
+    z-index: var(--dialog-z-content) !important;
+    min-width: var(--dialog-min-width) !important;
+    max-width: var(--dialog-max-width) !important;
+    max-height: var(--dialog-max-height) !important;
+    background: var(--dialog-background) !important;
+    border: 1px solid var(--dialog-border) !important;
+    border-radius: var(--dialog-border-radius) !important;
+    box-shadow: var(--dialog-shadow) !important;
+    padding: var(--dialog-padding) !important;
+  }
+  
+  .u-dialog-reset-transform {
+    --tw-translate-x: 0 !important;
+    --tw-translate-y: 0 !important;
+    --tw-rotate: 0 !important;
+    --tw-skew-x: 0 !important;
+    --tw-skew-y: 0 !important;
+    --tw-scale-x: 1 !important;
+    --tw-scale-y: 1 !important;
+    transform: var(--dialog-transform) !important;
+  }
+  
+  /* 🎯 Layout Utilities */
+  .u-flex-column {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .u-flex-center {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .u-grid-none {
+    display: flex !important;
+    grid: none !important;
+    grid-template-columns: none !important;
+    grid-template-rows: none !important;
+  }
+  
+  /* 🎯 Visibility Utilities */
+  .u-visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+  
+  .u-hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+  
+  /* 🎯 Z-Index Utilities */
+  .u-z-overlay {
+    z-index: var(--dialog-z-overlay) !important;
+  }
+  
+  .u-z-content {
+    z-index: var(--dialog-z-content) !important;
+  }
+  
+  .u-z-modal {
+    z-index: var(--z-modal) !important;
+  }
+  
+  .u-z-popover {
+    z-index: var(--z-popover) !important;
+  }
+  
+  /* 🎯 Size Utilities */
+  .u-size-dialog {
+    width: auto !important;
+    min-width: var(--dialog-min-width) !important;
+    max-width: var(--dialog-max-width) !important;
+    min-height: var(--dialog-min-height) !important;
+    max-height: var(--dialog-max-height) !important;
+  }
+  
+  .u-size-fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+  
+  /* 🎯 Spacing Utilities */
+  .u-p-dialog {
+    padding: var(--dialog-padding) !important;
+  }
+  
+  .u-gap-dialog {
+    gap: var(--dialog-gap) !important;
+  }
+  
+  .u-m-none {
+    margin: 0 !important;
+  }
+  
+  /* 🎯 Border Utilities */
+  .u-border-dialog {
+    border: 1px solid var(--dialog-border) !important;
+    border-radius: var(--dialog-border-radius) !important;
+  }
+  
+  .u-border-none {
+    border: none !important;
+  }
+  
+  /* 🎯 Background Utilities */
+  .u-bg-dialog {
+    background: var(--dialog-background) !important;
+    color: var(--dialog-foreground) !important;
+  }
+  
+  .u-bg-overlay {
+    background: var(--dialog-overlay-bg) !important;
+  }
+  
+  .u-bg-transparent {
+    background: transparent !important;
+  }
+  
+  /* 🎯 Shadow Utilities */
+  .u-shadow-dialog {
+    box-shadow: var(--dialog-shadow) !important;
+  }
+  
+  .u-shadow-none {
+    box-shadow: none !important;
+  }
+  
+  /* 🎯 Overflow Utilities */
+  .u-overflow-visible {
+    overflow: visible !important;
+  }
+  
+  .u-overflow-hidden {
+    overflow: hidden !important;
+  }
+  
+  .u-overflow-auto {
+    overflow: auto !important;
+  }
+  
+  /* 🎯 Performance Utilities */
+  .u-performance {
+    will-change: transform !important;
+    isolation: isolate !important;
+    contain: layout style paint !important;
+    backface-visibility: hidden !important;
+  }
+  
+  /* 🎯 Animation Utilities */
+  .u-animate-dialog-enter {
+    animation: dialog-enter var(--dialog-duration) var(--dialog-easing) !important;
+  }
+  
+  .u-animate-dialog-exit {
+    animation: dialog-exit var(--dialog-duration) var(--dialog-easing) !important;
+  }
+  
+  .u-animate-overlay-enter {
+    animation: overlay-enter var(--dialog-overlay-duration) var(--dialog-overlay-easing) !important;
+  }
+  
+  .u-animate-overlay-exit {
+    animation: overlay-exit var(--dialog-overlay-duration) var(--dialog-overlay-easing) !important;
+  }
+  
+  /* 🎯 Typography Utilities */
+  .u-text-dialog-title {
+    font-size: var(--dialog-title-size) !important;
+    font-weight: var(--dialog-title-weight) !important;
+    line-height: var(--dialog-title-line-height) !important;
+  }
+  
+  .u-text-dialog-content {
+    font-size: var(--dialog-content-size) !important;
+    font-weight: var(--dialog-content-weight) !important;
+    line-height: var(--dialog-content-line-height) !important;
+  }
+  
+  .u-text-dialog-caption {
+    font-size: var(--dialog-caption-size) !important;
+    color: var(--color-muted-foreground) !important;
+  }
+  
+  /* 🎯 Focus Utilities */
+  .u-focus-none {
+    outline: none !important;
+  }
+  
+  .u-focus-ring {
+    outline: 2px solid var(--color-ring) !important;
+    outline-offset: 2px !important;
+  }
+  
+  /* 🎯 Cursor Utilities */
+  .u-cursor-pointer {
+    cursor: pointer !important;
+  }
+  
+  .u-cursor-default {
+    cursor: default !important;
+  }
+  
+  /* 🎯 Transition Utilities */
+  .u-transition-dialog {
+    transition: all var(--dialog-duration) var(--dialog-easing) !important;
+  }
+  
+  .u-transition-fast {
+    transition: all var(--duration-fast) var(--ease-out) !important;
+  }
+  
+  .u-transition-slow {
+    transition: all var(--duration-slow) var(--ease-in-out) !important;
+  }
+  
+  /* 🎯 Backdrop Utilities */
+  .u-backdrop-dialog {
+    backdrop-filter: var(--dialog-backdrop-filter) !important;
+  }
+  
+  .u-backdrop-none {
+    backdrop-filter: none !important;
+  }
+  
+  /* 📱 Responsive Utilities */
+  @media (max-width: 768px) {
+    .u-mobile-dialog {
+      max-width: 95vw !important;
+      max-height: 90vh !important;
+      padding: var(--spacing-md) !important;
+      border-radius: var(--radius-md) !important;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .u-desktop-dialog {
+      max-width: min(90vw, var(--size-lg)) !important;
+      padding: var(--spacing-xl) !important;
+    }
+  }
+  
+  /* 🎯 State Utilities */
+  .u-state-open {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+  
+  .u-state-closed {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+  
+  /* 🎯 Reset Utilities */
+  .u-reset-all {
+    all: unset !important;
+  }
+  
+  .u-reset-position {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+  
+  .u-reset-tailwind-transform {
+    --tw-translate-x: 0 !important;
+    --tw-translate-y: 0 !important;
+    --tw-rotate: 0 !important;
+    --tw-skew-x: 0 !important;
+    --tw-skew-y: 0 !important;
+    --tw-scale-x: 1 !important;
+    --tw-scale-y: 1 !important;
+  }
+}

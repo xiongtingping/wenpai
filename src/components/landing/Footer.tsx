@@ -108,7 +108,7 @@ export function Footer() {
 
               {/* 交个朋友 */}
               <a
-                href="https://linktr.ee/xiongtingping"
+                href="https://bento.me/pandatalk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105"
