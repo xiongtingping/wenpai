@@ -1,9 +1,10 @@
+/* 🎯 所有@import必须在最前面 */
 @import './styles/number-display-fix.css';
 @import './styles/pricing-fix.css';
 @import './styles/typography-system.css';
 @import './automation/automation-modal.css';
 @import './styles/batch-forward-modal-fix.css';
-@import './styles/dialog-position-fix.css';
+@import './styles/unified-css-system.css';
 
 /**
  * **IMPORTANT** Never break the original structure, only add highly customized new styles
@@ -12,9 +13,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* 🎯 统一CSS系统 - 最高优先级导入 */
-@import './styles/unified-css-system.css';
 
 @layer base {
   :root {

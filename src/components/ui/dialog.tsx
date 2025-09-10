@@ -7,61 +7,23 @@ import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const Dialog = DialogPrimitive.Root
-
 const DialogTrigger = DialogPrimitive.Trigger
-
-const DialogPortal = ({ ...props }) => {
-  // 创建独立的Portal容器，避免全局样式影响
-  React.useEffect(() => {
-    let portalContainer = document.getElementById('dialog-portal-root');
-    if (!portalContainer) {
-      portalContainer = document.createElement('div');
-      portalContainer.id = 'dialog-portal-root';
-      // 重置可能影响定位的样式
-      portalContainer.style.cssText = `
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        pointer-events: none !important;
-        z-index: 50 !important;
-        transform: none !important;
-      `;
-      document.body.appendChild(portalContainer);
-    }
-  }, []);
-
-  const portalContainer = document.getElementById('dialog-portal-root') || document.body;
-  return <DialogPrimitive.Portal container={portalContainer} {...props} />;
-}
-
 const DialogClose = DialogPrimitive.Close
+
+// 稳定的Portal实现 - 移除复杂的动态创建逻辑
+const DialogPortal = DialogPrimitive.Portal
 
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
+>(({ className, style, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
       "fixed inset-0 z-40 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
-    style={{
-      transform: 'none',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      width: '100vw',
-      height: '100vh',
-      zIndex: 999998,
-      background: 'rgba(0, 0, 0, 0.5)',
-      pointerEvents: 'auto',
-      ...props.style
-    }}
+    style={style}
     {...props}
   />
 ))
@@ -70,24 +32,45 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+>(({ className, style, children, ...props }, ref) => (
   <DialogPortal>
-    <DialogOverlay />
+    <DialogOverlay 
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 49,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backdropFilter: 'blur(4px)'
+      }}
+    />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-1/2 data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-1/2 sm:rounded-lg",
+        "fixed grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg sm:rounded-lg",
         className
       )}
       style={{
-        position: 'fixed',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
-        zIndex: 999999,
-        pointerEvents: 'auto',
-        ...props.style
-      }}
+        ...style,
+        position: 'fixed !important',
+        top: '50vh !important',
+        left: '50vw !important', 
+        transform: 'translate(-50%, -50%) !important',
+        transformOrigin: 'center center !important',
+        right: 'auto !important',
+        bottom: 'auto !important',
+        inset: 'auto !important',
+        margin: '0 !important',
+        zIndex: '999999 !important',
+        visibility: 'visible !important',
+        opacity: '1 !important',
+        pointerEvents: 'auto !important',
+        display: 'block !important',
+        // 🚨 禁用所有动画和过渡
+        animation: 'none !important',
+        transition: 'none !important',
+        transitionDuration: '0s !important',
+        animationDuration: '0s !important'
+      } as React.CSSProperties}
       {...props}
     >
       {children}

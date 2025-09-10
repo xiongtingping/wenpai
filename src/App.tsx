@@ -70,7 +70,6 @@ const LazyProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
 const LazyHistoryPage = React.lazy(() => import('@/pages/HistoryPage'));
 const LazyShareManagerPage = React.lazy(() => import('@/pages/ShareManagerPage'));
 const LazyWechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
-const LazyAdaptPage = React.lazy(() => import('@/pages/AdaptPage'));
 const LazyNewAdaptPage = React.lazy(() => import('@/pages/NewAdaptPage'));
 
 const LazySettingsPage = React.lazy(() => import('@/pages/SettingsPage'));

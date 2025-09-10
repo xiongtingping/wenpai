@@ -17,88 +17,94 @@
 /* 🧩 Layer 4: Component Layer (组件层) */
 @import './component-layer.css';
 
-/* 🎯 Critical Dialog Fixes (关键弹窗修复) */
-@layer critical {
-  /* 🚨 最高优先级修复 - 覆盖所有Tailwind CSS规则 */
-  
-  /* 重置所有可能的Tailwind transform变量 */
-  [role="dialog"],
-  [data-radix-dialog-content],
-  .quick-reference-dialog,
-  div[data-state="open"][role="dialog"],
-  div[role="dialog"][data-state="open"] {
-    /* 🎯 强制重置Tailwind CSS变量 */
-    --tw-translate-x: 0 !important;
-    --tw-translate-y: 0 !important;
-    --tw-rotate: 0 !important;
-    --tw-skew-x: 0 !important;
-    --tw-skew-y: 0 !important;
-    --tw-scale-x: 1 !important;
-    --tw-scale-y: 1 !important;
-    
-    /* 🎯 强制定位 */
+/* 🎯 Dialog Styles (弹窗样式) - 包含必要的动画支持 */
+@layer dialog {
+  /* 🎯 终极修复：彻底禁用所有动态定位 */
+  html body div[role="dialog"][data-state="open"],
+  html body div[data-radix-dialog-content][data-state="open"],
+  html body [role="dialog"].fixed,
+  html body div[role="dialog"]:not(.custom-positioned),
+  html body div[role="dialog"][id*="radix"],
+  html body [role="dialog"]:is([data-state="open"]) {
     position: fixed !important;
-    top: var(--dialog-position-y) !important;
-    left: var(--dialog-position-x) !important;
+    top: 50vh !important;
+    left: 50vw !important;
     right: auto !important;
     bottom: auto !important;
     inset: auto !important;
-    inset-block: auto !important;
-    inset-inline: auto !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: center center !important;
+    z-index: 999999 !important;
+    margin: 0 !important;
     
-    /* 🎯 强制transform */
-    transform: var(--dialog-transform) !important;
-    transform-origin: var(--dialog-transform-origin) !important;
-    
-    /* 🎯 强制可见性 */
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    z-index: var(--dialog-z-content) !important;
-  }
-  
-  /* 🎯 特殊处理：具有Tailwind类的元素 */
-  .fixed.left-\[50\%\].top-1\/2.z-50.grid.w-full.max-w-lg.-translate-x-1\/2.-translate-y-1\/2,
-  .fixed.left-\[50\%\].top-1\/2.-translate-x-1\/2.-translate-y-1\/2,
-  div[class*="fixed"][class*="left-"][class*="top-"][class*="translate"],
-  div[class*="fixed"][class*="grid"][class*="w-full"],
-  div[class*="translate-x"][class*="translate-y"] {
-    /* 🎯 完全覆盖Tailwind的定位和transform */
+    /* 强制重置所有可能影响位置的属性 */
     --tw-translate-x: 0 !important;
     --tw-translate-y: 0 !important;
-    position: fixed !important;
-    top: var(--dialog-position-y) !important;
-    left: var(--dialog-position-x) !important;
-    transform: var(--dialog-transform) !important;
-    transform-origin: var(--dialog-transform-origin) !important;
+    translate: none !important;
     
-    /* 🎯 布局重置 */
-    display: flex !important;
-    flex-direction: column !important;
-    grid: none !important;
-    grid-template-columns: none !important;
-    grid-template-rows: none !important;
-    width: auto !important;
-    max-width: var(--dialog-max-width) !important;
+    /* 禁用Radix UI的自动定位 */
+    --radix-dialog-content-transform-origin: center center !important;
+    --radix-popper-transform-origin: center center !important;
   }
   
-  /* 🎯 Dialog Overlay修复 */
-  [data-radix-dialog-overlay],
-  div[data-state="open"][class*="inset-0"],
-  div[data-state="open"][class*="bg-black"],
-  div[data-state="open"][class*="bg-foreground"],
-  div[class*="fixed"][class*="inset-0"][class*="z-"] {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    inset: 0 !important;
-    z-index: var(--dialog-z-overlay) !important;
-    background: var(--dialog-overlay-bg) !important;
+  /* 🚨 强制覆盖任何JavaScript设置的内联样式 */
+  html body div[role="dialog"][style*="top"] {
+    top: 50vh !important;
+  }
+  
+  html body div[role="dialog"][style*="left"] {
+    left: 50vw !important;
+  }
+  
+  html body div[role="dialog"][style*="transform"] {
+    transform: translate(-50%, -50%) !important;
+  }
+  
+  /* Radix UI动画状态控制 - 确保弹窗正确显示 */
+  [data-state="open"] {
+    animation-name: dialogFadeIn !important;
+    animation-duration: 200ms !important;
+    animation-timing-function: ease-out !important;
+    animation-fill-mode: forwards !important;
+  }
+  
+  [data-state="closed"] {
+    animation-name: dialogFadeOut !important;
+    animation-duration: 150ms !important;
+    animation-timing-function: ease-in !important;
+    animation-fill-mode: forwards !important;
+  }
+  
+  /* 样式增强 */
+  [role="dialog"] {
+    box-shadow: var(--dialog-shadow) !important;
+  }
+  
+  [data-radix-dialog-overlay] {
     backdrop-filter: var(--dialog-backdrop-filter) !important;
+  }
+  
+  /* 关键动画定义 */
+  @keyframes dialogFadeIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+  
+  @keyframes dialogFadeOut {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.95);
+    }
   }
 }
 
@@ -254,15 +260,7 @@
   }
 }
 
-/* 🎯 Final Override (最终覆盖) */
+/* 🎯 Final Layer (最终层) */
 @layer final {
-  /* 确保所有弹窗都使用统一的定位系统 */
-  [role="dialog"]:not(.custom-positioned) {
-    position: fixed !important;
-    top: var(--dialog-position-y) !important;
-    left: var(--dialog-position-x) !important;
-    transform: var(--dialog-transform) !important;
-    transform-origin: var(--dialog-transform-origin) !important;
-    z-index: var(--dialog-z-content) !important;
-  }
+  /* 保留空间供将来扩展使用 */
 }

@@ -160,36 +160,21 @@ async function initializeApplication() {
 
     console.log('🎉 应用启动成功！');
 
-    // 🔧 FIX: 智能解决 Authing Guard aria-hidden 冲突
+    // 🔧 FIX: 彻底解决 aria-hidden 焦点冲突
     const ensureRootInteractable = () => {
       const root = document.getElementById('root');
       if (root) {
-        // 强制确保根元素可交互，即使有 aria-hidden
+        // 🚨 强制移除所有 aria-hidden，确保弹窗可用
+        if (root.hasAttribute('aria-hidden')) {
+          console.log('🚫 强制移除根元素 aria-hidden，确保弹窗焦点可用');
+          root.removeAttribute('aria-hidden');
+          root.removeAttribute('data-aria-hidden');
+        }
+        
+        // 确保根元素始终可交互
         root.style.pointerEvents = 'auto';
         root.style.visibility = 'visible';
         root.style.opacity = '1';
-
-        // 🔧 智能检测：只阻止 Authing Guard 设置的 aria-hidden
-        if (root.hasAttribute('aria-hidden')) {
-          // 检查是否有活跃的弹窗组件
-          const hasActiveDialog = document.querySelector('[role="dialog"][data-state="open"], .quick-reference-dialog[data-state="open"]');
-          const hasAuthingGuard = document.querySelector('.authing-guard-container, [class*="authing"]');
-
-          // 只有在没有活跃弹窗但有Authing Guard时才移除aria-hidden
-          if (!hasActiveDialog && hasAuthingGuard) {
-            console.log('🚫 检测到 Authing Guard 设置 aria-hidden，立即移除');
-            root.removeAttribute('aria-hidden');
-            root.setAttribute('data-guard-aria-hidden', 'blocked');
-          } else if (hasActiveDialog) {
-            // 🚨 修复：弹窗打开时移除aria-hidden，避免焦点冲突
-            console.log('🔧 检测到活跃弹窗，移除 aria-hidden 避免焦点冲突');
-            root.removeAttribute('aria-hidden');
-            root.removeAttribute('data-aria-hidden');
-            root.style.pointerEvents = 'auto';
-            root.style.visibility = 'visible';
-            root.style.opacity = '1';
-          }
-        }
       }
     };
 
@@ -213,33 +198,14 @@ async function initializeApplication() {
             if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
               const target = mutation.target as Element;
               if (target === root && target.hasAttribute('aria-hidden')) {
-
-                // 🔧 智能检测：区分 Authing Guard 和其他弹窗
-                const hasActiveDialog = document.querySelector('[role="dialog"][data-state="open"], .quick-reference-dialog[data-state="open"]');
-                const hasAuthingGuard = document.querySelector('.authing-guard-container, [class*="authing"], [id*="authing"]');
-                const hasRadixPortal = document.querySelector('[data-radix-portal]');
-
-                // 如果有活跃的弹窗（如快速引用），允许aria-hidden但确保交互性
-                if (hasActiveDialog || hasRadixPortal) {
-                  console.log('✅ 检测到活跃弹窗，保留 aria-hidden 但确保根元素交互性');
-                  target.style.pointerEvents = 'auto';
-                  target.style.visibility = 'visible';
-                  target.style.opacity = '1';
-                }
-                // 如果只有 Authing Guard，则移除 aria-hidden
-                else if (hasAuthingGuard) {
-                  console.log('🚫 阻止 Authing Guard 在根元素设置 aria-hidden');
-                  target.removeAttribute('aria-hidden');
-                  target.setAttribute('data-guard-blocked', 'true');
-                }
-                // 其他情况保持默认行为
-                else {
-                  console.log('ℹ️ 未知来源的 aria-hidden，保持默认行为');
-                }
+                // 🚨 强制移除所有 aria-hidden，确保弹窗始终可用
+                console.log('🚫 检测到根元素设置 aria-hidden，强制移除');
+                target.removeAttribute('aria-hidden');
+                target.removeAttribute('data-aria-hidden');
               }
             }
           });
-        }, 50); // 50ms 防抖
+        }, 10); // 减少延迟，快速响应
       });
 
       observer.observe(root, {

@@ -65,7 +65,9 @@
 - **建立问题模式库**：  
   记录已发现的问题模式，建立检查清单，在后续开发中主动避免重复问题。
 
-### 3.6 重大问题根因修复案例 - TDZ和getInstance错误
+### 3.6 重大问题根因修复案例
+
+#### 3.6.1 TDZ和getInstance错误
 - **问题背景**：  
   频繁出现"Cannot access 'Rt' before initialization"和"Hq.getInstance is not a function"错误
 - **根本原因**：  
@@ -78,6 +80,64 @@
   构建后的代码中关键标识符（getInstance、HotTopicsAPI等）必须保持可读，不能被压缩为短变量名
 - **禁止方案**：  
   严禁使用SingletonManager等patch式修复方案，必须从构建配置层面彻底解决
+
+#### 3.6.2 Dialog弹窗3993px定位异常错误
+- **问题背景**：  
+  快速引用对话框出现神秘的`top: '3993px'`定位值，导致弹窗显示在屏幕外，用户无法看到
+- **根本原因分析过程**：  
+  - 通过系统性排查发现3993px来源于`authing-guard.min.js`认证库
+  - Authing认证库在DOM操作时会干扰其他弹窗组件的定位计算
+  - Radix UI Dialog组件受到外部库的样式干扰，无法正常居中显示
+- **失败的修复尝试**（patch式修复，已证明无效）：  
+  - CSS !important覆盖 → 被外部干扰覆盖
+  - JavaScript原型方法拦截 → 无法完全阻止干扰
+  - MutationObserver监控 → 性能问题且治标不治本
+  - Radix UI配置调整 → 根本问题未解决
+- **根本性解决方案**：  
+  - **完全绕过外部干扰**：使用手动DOM创建（document.createElement）替代React组件渲染
+  - **精确视窗居中计算**：基于当前可见视窗区域进行数学居中，而非基于文档顶部
+  - **实时位置跟踪**：监听scroll/resize事件，确保弹窗始终在可见区域中心
+  - **绝对定位系统**：使用position: absolute配合精确像素值，完全控制定位
+- **技术实现详情**：  
+  ```javascript
+  // 核心解决方案代码模式
+  const getViewportInfo = () => {
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    return {
+      centerX: scrollX + window.innerWidth / 2,
+      centerY: scrollY + window.innerHeight / 2,
+      visibleTop: scrollY,
+      visibleLeft: scrollX
+    };
+  };
+  
+  // 遮罩层：覆盖当前可见区域
+  overlay.style.cssText = `
+    position: absolute !important;
+    top: ${visibleTop}px !important;
+    left: ${visibleLeft}px !important;
+  `;
+  
+  // 弹窗：精确居中于可见区域
+  modal.style.cssText = `
+    position: absolute !important;
+    top: ${centerY}px !important;
+    left: ${centerX}px !important;
+    transform: translate(-50%, -50%) !important;
+  `;
+  ```
+- **验证标准**：  
+  - 弹窗必须在当前可视区域精确居中，不受页面滚动位置影响
+  - 背景遮罩必须完全覆盖当前可见的视窗区域
+  - 滚动页面时弹窗位置实时跟随，始终保持居中
+  - 控制台日志显示精确的居中计算数据
+- **禁止方案**：  
+  - 严禁使用CSS覆盖、!important声明等patch式修复
+  - 严禁使用Radix UI、Material UI等可能受外部干扰的组件库
+  - 严禁基于vh/vw单位的相对定位（无法应对滚动场景）
+- **适用场景扩展**：  
+  所有弹窗、对话框、浮层组件都应采用此模式，确保在复杂的第三方库环境中稳定工作
 
 ## 4. 功能模块与系统操作
 

@@ -1,283 +1,64 @@
 /* 
  * Base Layer (基础层)
- * 基础样式重置和全局样式定义
+ * 只包含最基础的全局样式，不包含组件特定样式
  */
 
 @layer base {
-  /* 🔄 CSS Reset & Normalization */
-  *,
-  *::before,
-  *::after {
+  /* 🎨 全局重置 */
+  * {
     box-sizing: border-box;
+  }
+
+  html, body {
     margin: 0;
     padding: 0;
-  }
-  
-  html {
     font-family: var(--font-family-sans);
-    line-height: var(--line-height-normal);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
   }
-  
-  body {
-    font-family: var(--font-family-sans);
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-feature-settings: "kern", "liga";
-    font-variant-numeric: normal;
+
+  /* 🎯 全局焦点样式 */
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
   }
-  
-  /* 🎯 Dialog Base Styles - 最高优先级 */
-  
-  /* Dialog Overlay Base */
-  [data-radix-dialog-overlay],
-  div[data-state="open"][class*="inset-0"],
-  div[data-state="open"][class*="bg-black"],
-  div[data-state="open"][class*="bg-foreground"] {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    inset: 0 !important;
-    z-index: var(--dialog-z-overlay) !important;
-    background: var(--dialog-overlay-bg) !important;
-    backdrop-filter: var(--dialog-backdrop-filter) !important;
-    pointer-events: auto !important;
-    opacity: 1 !important;
-    visibility: visible !important;
+
+  /* 🎭 全局动画控制 */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
-  
-  /* Dialog Content Base - 覆盖所有Tailwind规则 */
-  [data-radix-dialog-content],
-  div[role="dialog"],
-  div[data-state="open"].fixed,
-  div[data-state="open"][role="dialog"],
-  .quick-reference-dialog {
-    /* 🎯 强制定位 - 覆盖Tailwind transform */
-    position: fixed !important;
-    top: var(--dialog-position-y) !important;
-    left: var(--dialog-position-x) !important;
-    right: auto !important;
-    bottom: auto !important;
-    inset: auto !important;
-    inset-block: auto !important;
-    inset-inline: auto !important;
-    
-    /* 🎯 强制transform - 覆盖Tailwind CSS变量 */
-    transform: var(--dialog-transform) !important;
-    transform-origin: var(--dialog-transform-origin) !important;
-    
-    /* 🎯 重置Tailwind CSS变量 */
-    --tw-translate-x: 0 !important;
-    --tw-translate-y: 0 !important;
-    --tw-rotate: 0 !important;
-    --tw-skew-x: 0 !important;
-    --tw-skew-y: 0 !important;
-    --tw-scale-x: 1 !important;
-    --tw-scale-y: 1 !important;
-    
-    /* 🎯 层级和可见性 */
-    z-index: var(--dialog-z-content) !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    
-    /* 🎯 尺寸控制 */
-    width: auto !important;
-    min-width: var(--dialog-min-width) !important;
-    max-width: var(--dialog-max-width) !important;
-    min-height: var(--dialog-min-height) !important;
-    max-height: var(--dialog-max-height) !important;
-    
-    /* 🎯 布局控制 */
-    display: flex !important;
-    flex-direction: column !important;
-    grid: none !important;
-    grid-template-columns: none !important;
-    grid-template-rows: none !important;
-    
-    /* 🎯 外观样式 */
-    background: var(--dialog-background) !important;
-    color: var(--dialog-foreground) !important;
-    border: 1px solid var(--dialog-border) !important;
-    border-radius: var(--dialog-border-radius) !important;
-    box-shadow: var(--dialog-shadow) !important;
-    padding: var(--dialog-padding) !important;
-    margin: 0 !important;
-    
-    /* 🎯 性能优化 */
-    will-change: transform !important;
-    isolation: isolate !important;
-    contain: layout style paint !important;
-    
-    /* 🎯 溢出控制 */
-    overflow: visible !important;
-  }
-  
-  /* 🎯 特殊选择器 - 针对具体的Tailwind类组合 */
-  .fixed.left-\[50\%\].top-1\/2.z-50.grid.w-full.max-w-lg.-translate-x-1\/2.-translate-y-1\/2,
-  .fixed.left-\[50\%\].top-1\/2.-translate-x-1\/2.-translate-y-1\/2,
-  div[class*="fixed"][class*="left-"][class*="top-"][class*="translate"] {
-    /* 🎯 完全覆盖Tailwind的定位和transform */
-    position: fixed !important;
-    top: var(--dialog-position-y) !important;
-    left: var(--dialog-position-x) !important;
-    transform: var(--dialog-transform) !important;
-    transform-origin: var(--dialog-transform-origin) !important;
-    
-    /* 🎯 重置所有Tailwind transform变量 */
-    --tw-translate-x: 0 !important;
-    --tw-translate-y: 0 !important;
-    
-    /* 🎯 布局重置 */
-    display: flex !important;
-    flex-direction: column !important;
-    grid: none !important;
-    width: auto !important;
-    max-width: var(--dialog-max-width) !important;
-  }
-  
-  /* 🎯 Dialog内容区域 */
-  [data-radix-dialog-content] > *,
-  .quick-reference-dialog > * {
-    flex-shrink: 0;
-  }
-  
-  /* 🎯 Dialog标题 */
-  [data-radix-dialog-title],
-  .dialog-title {
-    font-size: var(--dialog-title-size);
-    font-weight: var(--dialog-title-weight);
-    line-height: var(--dialog-title-line-height);
-    margin-bottom: var(--dialog-gap);
-  }
-  
-  /* 🎯 Dialog描述 */
-  [data-radix-dialog-description],
-  .dialog-description {
-    font-size: var(--dialog-caption-size);
-    color: var(--color-muted-foreground);
-    margin-bottom: var(--dialog-gap);
-  }
-  
-  /* 🎯 Dialog关闭按钮 */
-  [data-radix-dialog-close],
-  .dialog-close {
+
+  /* 🔧 辅助工具类 */
+  .sr-only {
     position: absolute;
-    top: var(--spacing-md);
-    right: var(--spacing-md);
-    width: 24px;
-    height: 24px;
-    border-radius: var(--dialog-button-radius);
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-muted-foreground);
-    transition: all var(--dialog-duration) var(--dialog-easing);
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
-  
-  [data-radix-dialog-close]:hover,
-  .dialog-close:hover {
-    background: var(--color-muted);
-    color: var(--color-foreground);
-  }
-  
-  /* 🎯 Portal容器 */
+
+  /* 🎨 Portal容器基础样式 */
   [data-radix-portal] {
     position: fixed;
-    top: 0;
-    left: 0;
-    z-index: var(--z-modal);
+    inset: 0;
+    z-index: var(--z-modal-backdrop);
     pointer-events: none;
   }
-  
+
   [data-radix-portal] > * {
     pointer-events: auto;
   }
-  
-  /* 🎯 动画基础 */
-  [data-state="open"] {
-    animation: dialog-enter var(--dialog-duration) var(--dialog-easing);
-  }
-  
-  [data-state="closed"] {
-    animation: dialog-exit var(--dialog-duration) var(--dialog-easing);
-  }
-  
-  /* 🎭 Dialog动画定义 */
-  @keyframes dialog-enter {
-    from {
-      opacity: 0;
-      transform: var(--dialog-transform) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: var(--dialog-transform) scale(1);
-    }
-  }
-  
-  @keyframes dialog-exit {
-    from {
-      opacity: 1;
-      transform: var(--dialog-transform) scale(1);
-    }
-    to {
-      opacity: 0;
-      transform: var(--dialog-transform) scale(0.95);
-    }
-  }
-  
-  @keyframes overlay-enter {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  
-  @keyframes overlay-exit {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
-    }
-  }
-  
-  /* 📱 响应式基础 */
-  @media (max-width: 768px) {
-    [data-radix-dialog-content],
-    .quick-reference-dialog {
-      max-width: 95vw !important;
-      max-height: 90vh !important;
-      padding: var(--spacing-md) !important;
-      border-radius: var(--radius-md) !important;
-    }
-  }
-  
-  /* 🔧 性能优化 */
-  [data-radix-dialog-overlay],
-  [data-radix-dialog-content] {
-    backface-visibility: hidden;
-    perspective: 1000px;
-  }
-  
-  /* 🎯 Focus管理 */
-  [data-radix-dialog-content]:focus {
-    outline: none;
-  }
-  
-  /* 🎯 滚动锁定 */
-  body:has([data-state="open"]) {
-    overflow: hidden;
-  }
+
+  /* 基础层完毕 - 具体组件样式由组件层处理 */
 }

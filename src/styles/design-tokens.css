@@ -65,8 +65,8 @@
     --z-popover: 1060;
     --z-tooltip: 1070;
     --z-toast: 1080;
-    --z-dialog-overlay: 999998;
-    --z-dialog-content: 999999;
+    --z-dialog-overlay: 1045;
+    --z-dialog-content: 1055;
     
     /* 🎯 Dialog Z-Index Tokens */
     --dialog-z-overlay: var(--z-dialog-overlay);
@@ -154,17 +154,17 @@
     --dialog-title-line-height: var(--line-height-tight);
     --dialog-content-line-height: var(--line-height-normal);
     
-    /* 🎯 Position Tokens */
+    /* 🎯 Position Tokens - 恢复原值避免影响其他组件 */
     --position-center-x: 50vw;
     --position-center-y: 50vh;
     --transform-center: translate(-50%, -50%);
     --transform-origin-center: 0 0;
     
-    /* 🎯 Dialog Position Tokens */
-    --dialog-position-x: var(--position-center-x);
-    --dialog-position-y: var(--position-center-y);
-    --dialog-transform: var(--transform-center);
-    --dialog-transform-origin: var(--transform-origin-center);
+    /* 🎯 Dialog Position Tokens - 使用专门的弹窗值 */
+    --dialog-position-x: 50%;
+    --dialog-position-y: 50%;
+    --dialog-transform: translate(-50%, -50%);
+    --dialog-transform-origin: center center;
     
     /* 🔧 Backdrop Tokens */
     --backdrop-blur: blur(8px);
