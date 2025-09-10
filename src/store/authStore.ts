@@ -67,7 +67,14 @@ export const useAuthStore = create<AuthState>()(
         }
         lastUsageCount = usageCount;
         lastMaxUsage = maxUsage;
-        lastComputedUsage = Math.max(0, maxUsage - usageCount);
+        
+        // 🔧 FIX: 处理无限制情况（maxUsage为-1）
+        if (maxUsage === -1) {
+          lastComputedUsage = -1; // 无限制
+        } else {
+          lastComputedUsage = Math.max(0, maxUsage - usageCount);
+        }
+        
         return lastComputedUsage;
       };
 
@@ -77,14 +84,14 @@ export const useAuthStore = create<AuthState>()(
         isLoading: false,
         error: null,
         usageCount: 0,
-        maxUsage: 10,
+        maxUsage: -1, // 🔧 FIX: 初始值设为无限制，避免闪烁
         userActions: [],
         inviteCode: Math.random().toString(36).substr(2, 9),
         inviteClicks: 0,
         referrer: null,
 
         // ✅ 计算属性：初始值，会在状态更新时自动重新计算
-        usageRemaining: 10,
+        usageRemaining: -1, // 🔧 FIX: 初始值设为无限制，避免闪烁
 
         setUser: (user) => set((state) => {
           // 当用户变化时，更新邀请码以绑定用户ID

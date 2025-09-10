@@ -146,7 +146,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
             console.log('✅ 从 Guard 检测到用户登录状态:', userInfo);
             
             // 🚨 关键：用户ID必须来自Authing真实API，不能本地生成
-            const userId = userInfo.id || userInfo.userId || userInfo.sub;
+            const userInfoAny = userInfo as any;
+            const userId = userInfo.id || userInfoAny.userId || userInfoAny.sub;
             if (!userId) {
               console.error('❌ Authing API未返回有效用户ID:', userInfo);
               throw new Error('认证系统错误：未获取到有效用户ID');
@@ -154,15 +155,15 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
             // 转换为统一格式
             const formattedUser: UserInfo = {
-              id: userId, // 
+              id: userId,
               username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
-              email: userInfo.email || userInfo.emailAddress || '',
-              phone: userInfo.phone || userInfo.phoneNumber || '',
+              email: userInfo.email || userInfoAny.emailAddress || '',
+              phone: userInfo.phone || userInfoAny.phoneNumber || '',
               nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
-              avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
+              avatar: userInfoAny.avatar || userInfo.photo || userInfoAny.picture || '',
               loginTime: new Date().toISOString(),
-              roles: userInfo.roles || ['user'],
-              permissions: userInfo.permissions || ['basic'],
+              roles: Array.isArray(userInfo.roles) ? userInfo.roles : ['user'],
+              permissions: Array.isArray(userInfoAny.permissions) ? userInfoAny.permissions : ['basic'],
               ...userInfo
             };
             
@@ -265,14 +266,65 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
                 }
               };
 
-              // 尝试注册事件监听器，增加额外的防护
-              guard.on(eventType, wrappedHandler);
+              // 🔧 增强的事件监听器注册 - 防止内部状态错误
+              try {
+                // 安全地访问Guard的内部状态（使用类型断言）
+                const guardAny = guard as any;
+                
+                // 检查Guard对象的内部状态
+                if (guardAny._eventListeners === undefined) {
+                  // 如果事件监听器列表未初始化，手动初始化
+                  console.log('🔧 Guard事件监听器列表未初始化，手动初始化...');
+                  guardAny._eventListeners = {};
+                }
+                
+                // 确保特定事件类型的监听器数组存在
+                if (!guardAny._eventListeners[eventType]) {
+                  guardAny._eventListeners[eventType] = [];
+                }
+                
+                // 现在安全地注册事件监听器
+                guardAny.on(eventType, wrappedHandler);
+                
+                console.log(`✅ Guard事件监听器(${eventType})注册成功`);
+                
+              } catch (registrationError) {
+                // 如果还是失败，尝试直接操作内部数组
+                try {
+                  const guardAny = guard as any;
+                  if (!guardAny._eventListeners) {
+                    guardAny._eventListeners = {};
+                  }
+                  if (!guardAny._eventListeners[eventType]) {
+                    guardAny._eventListeners[eventType] = [];
+                  }
+                  
+                  // 直接添加到事件监听器数组
+                  guardAny._eventListeners[eventType].push(wrappedHandler);
+                  console.log(`✅ Guard事件监听器(${eventType})通过直接操作注册成功`);
+                  
+                } catch (directError) {
+                  console.warn(`🔧 Guard事件监听器(${eventType})所有注册方式都失败:`, directError);
+                  
+                  // 最后的备用方案：延迟重试
+                  setTimeout(() => {
+                    try {
+                      if (guard && typeof (guard as any).on === 'function') {
+                        (guard as any).on(eventType, wrappedHandler);
+                        console.log(`✅ Guard事件监听器(${eventType})延迟注册成功`);
+                      }
+                    } catch (retryError) {
+                      console.warn(`🔧 Guard事件监听器(${eventType})延迟重试也失败:`, retryError);
+                    }
+                  }, 2000);
+                }
+              }
               
             } catch (listenerError) {
               console.warn(`🔧 Guard事件监听器(${eventType})注册失败:`, listenerError);
               
               // 如果是数组访问错误，说明Guard内部状态不正确
-              if (listenerError.message?.includes('push')) {
+              if (listenerError instanceof Error && listenerError.message?.includes('push')) {
                 console.warn('🔧 Guard内部状态异常，可能需要重新初始化');
               }
             }
@@ -323,7 +375,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       console.log('🔐 处理Guard登录成功:', userInfo);
 
       // 🚨 关键：用户ID必须来自Authing真实API，不能本地生成
-      const userId = userInfo.id || userInfo.userId || userInfo.sub;
+      const userInfoAny = userInfo as any;
+      const userId = userInfo.id || userInfoAny.userId || userInfoAny.sub;
       if (!userId) {
         console.error('❌ Authing登录API未返回有效用户ID:', userInfo);
         throw new Error('认证系统错误：未获取到有效用户ID');
@@ -331,15 +384,15 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       // 转换为统一用户信息格式
       const formattedUser: UserInfo = {
-        id: userId, // 
+        id: userId,
         username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
-        email: userInfo.email || userInfo.emailAddress || '',
-        phone: userInfo.phone || userInfo.phoneNumber || '',
+        email: userInfo.email || userInfoAny.emailAddress || '',
+        phone: userInfo.phone || userInfoAny.phoneNumber || '',
         nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
-        avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
+        avatar: userInfoAny.avatar || userInfo.photo || userInfoAny.picture || '',
         loginTime: new Date().toISOString(),
-        roles: userInfo.roles || ['user'],
-        permissions: userInfo.permissions || ['basic'],
+        roles: Array.isArray(userInfo.roles) ? userInfo.roles : ['user'],
+        permissions: Array.isArray(userInfoAny.permissions) ? userInfoAny.permissions : ['basic'],
         ...userInfo
       };
 
@@ -691,7 +744,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       if (!result.success) {
         throw new Error(result.message);
       }
-      return result;
+      // 根据接口定义，返回void
     } catch (error) {
       console.error('发送验证码失败:', error);
       throw error;
@@ -724,7 +777,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       if (result.success && result.data) {
         // 注册成功，设置用户信息
         handleAuthingLogin(result.data);
-        return result;
+        // 根据接口定义，返回void
+        return;
       } else {
         throw new Error(result.message);
       }

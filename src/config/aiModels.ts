@@ -96,33 +96,6 @@ export const AI_MODELS: Record<string, AIModel> = {
     pricing: { input: 0.5, output: 1.5 }
   },
 
-  // DeepSeek - 专业版（备选）(使用官方原生接口)
-  'deepseek/deepseek-chat': {
-    id: 'deepseek-chat', // 标准化为原生接口支持的ID
-    name: 'DeepSeek Chat V2',
-    provider: 'deepseek',
-    company: 'DeepSeek',
-    tier: 'mid',
-    type: 'text',
-    description: 'DeepSeek对话模型V2版本',
-    features: ['深度推理', '专业对话', '高质量输出'],
-    maxTokens: 32768,
-    pricing: { input: 0.5, output: 1.5 }
-  },
-
-  // DeepSeek - 专业版（特定版本）(使用官方原生接口)
-  'deepseek/deepseek-chat-v3-0324': {
-    id: 'deepseek-chat', // 标准化为原生接口支持的ID
-    name: 'DeepSeek Chat V3 0324',
-    provider: 'deepseek',
-    company: 'DeepSeek',
-    tier: 'mid',
-    type: 'text',
-    description: 'DeepSeek对话模型V3-0324版本',
-    features: ['最新架构', '专业推理', '优化性能'],
-    maxTokens: 32768,
-    pricing: { input: 0.6, output: 1.8 }
-  },
 
   // OpenAI - 专业版
   'openai/gpt-5-mini-2025-08-07': {
@@ -246,8 +219,6 @@ export const SUBSCRIPTION_MODELS: Record<string, string[]> = {
     'qwen-turbo',                              // Alibaba Cloud
     // 专业版模型
     'deepseek-chat',                           // DeepSeek
-    'deepseek/deepseek-chat',                  // DeepSeek
-    'deepseek/deepseek-chat-v3-0324',          // DeepSeek
     'openai/gpt-5-mini-2025-08-07',            // OpenAI
     'google/gemini-2.5-flash',                 // Google
     'qwen-plus'                                // Alibaba Cloud
@@ -262,8 +233,6 @@ export const SUBSCRIPTION_MODELS: Record<string, string[]> = {
     'qwen-turbo',                              // Alibaba Cloud
     // 专业版模型
     'deepseek-chat',                           // DeepSeek
-    'deepseek/deepseek-chat',                  // DeepSeek
-    'deepseek/deepseek-chat-v3-0324',          // DeepSeek
     'openai/gpt-5-mini-2025-08-07',            // OpenAI
     'google/gemini-2.5-flash',                 // Google
     'qwen-plus',                               // Alibaba Cloud

@@ -11,6 +11,8 @@ import { logger } from '@/utils/logger';
 interface UseSubscriptionStatusReturn {
   /** 主要订阅状态 */
   primaryStatus: SubscriptionStatus;
+  /** 订阅状态（primaryStatus的别名，保持向后兼容） */
+  subscriptionStatus: SubscriptionStatus;
   /** 所有订阅状态 */
   allSubscriptions: Array<SubscriptionStatus & { 
     subscriptionType: string;
@@ -20,6 +22,8 @@ interface UseSubscriptionStatusReturn {
   hasActiveSubscription: boolean;
   /** 是否正在加载 */
   loading: boolean;
+  /** 初始加载状态 */
+  initialLoading: boolean;
   /** 错误信息 */
   error: string | null;
   /** 刷新订阅状态 */
@@ -28,15 +32,17 @@ interface UseSubscriptionStatusReturn {
 
 /**
  * 订阅状态管理Hook
+ * @param userId 可选的用户ID，如果不提供则使用当前登录用户
  */
-export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
+export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusReturn {
   const { user } = useAuth();
+  const targetUserId = userId || user?.id;
   const [isInitialized, setIsInitialized] = useState(false); // 防止重复初始化
   const [primaryStatus, setPrimaryStatus] = useState<SubscriptionStatus>(() => {
     // 如果用户已登录，尝试从缓存获取状态，避免闪烁
-    if (user?.id) {
+    if (targetUserId) {
       try {
-        const cached = localStorage.getItem(`subscription_status_${user.id}`);
+        const cached = localStorage.getItem(`subscription_status_${targetUserId}`);
         if (cached) {
           const cachedStatus = JSON.parse(cached);
           logger.info('🚀 使用缓存订阅状态，避免闪烁:', cachedStatus);
@@ -50,12 +56,13 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
     // 默认状态
     return {
       status: 'inactive',
+      tier: 'trial', // 🔧 FIX: 默认为试用用户
       expiresAt: null,
       daysRemaining: 0,
       needsAlert: false,
       alertLevel: 'info',
       alertMessage: '',
-      statusLabel: '未订阅',
+      statusLabel: '试用用户',
       statusColor: 'gray'
     };
   });
@@ -65,9 +72,9 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
   }>>([]);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(() => {
     // 如果用户已登录，尝试从缓存推断活跃订阅状态
-    if (user?.id) {
+    if (targetUserId) {
       try {
-        const cached = localStorage.getItem(`subscription_status_${user.id}`);
+        const cached = localStorage.getItem(`subscription_status_${targetUserId}`);
         if (cached) {
           const cachedStatus = JSON.parse(cached);
           const isActive = cachedStatus.status === 'active';
@@ -88,7 +95,7 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
    * 获取订阅状态
    */
   const fetchSubscriptionStatus = useCallback(async () => {
-    if (!user?.id) {
+    if (!targetUserId) {
       return;
     }
 
@@ -96,10 +103,37 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
     setError(null);
 
     try {
-      logger.info('开始获取订阅状态:', { userId: user.id });
+      logger.info('开始获取订阅状态:', { userId: targetUserId });
       
-      // 🔧 FIX: 修复API连接配置，确保连接到正确的后端服务
-      const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : 'https://www.wenpai.xyz';
+      // 🔧 FIX: 暂时禁用订阅状态获取，避免网络请求循环
+      // 在开发环境中，由于后端服务可能不可用，直接返回默认状态
+      if (import.meta.env.DEV) {
+        logger.info('🔧 开发环境：使用默认订阅状态，避免网络请求循环');
+        
+        const defaultStatus = {
+          status: 'active' as const,
+          tier: 'premium', // 🔧 FIX: 开发环境默认设为premium用户
+          expiresAt: '2025-10-02T10:39:17.867+00:00', // 模拟到期时间  
+          daysRemaining: 30,
+          needsAlert: false,
+          alertLevel: 'info' as const,
+          alertMessage: '',
+          statusLabel: '高级版',
+          statusColor: 'green'
+        };
+        
+        console.log('🔍 [useSubscriptionStatus] 开发环境返回默认状态:', defaultStatus);
+        
+        setPrimaryStatus(defaultStatus);
+        setAllSubscriptions([]);
+        setHasActiveSubscription(true);
+        
+        logger.info('✅ 开发环境订阅状态设置完成');
+        return;
+      }
+
+      // 生产环境的正常API调用逻辑
+      const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:5173' : 'https://www.wenpai.xyz';
       let lastError: Error | null = null;
       let response: Response | null = null;
 
@@ -109,7 +143,7 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
           logger.info(`🔄 订阅状态获取尝试 ${attempt}/3...`);
 
           response = await Promise.race([
-            fetch(`${apiBaseUrl}/.netlify/functions/subscription-status/${user.id}`, {
+            fetch(`${apiBaseUrl}/.netlify/functions/subscription-status/${targetUserId}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json'
@@ -165,14 +199,14 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
 
       // 缓存订阅状态，避免下次闪烁
       try {
-        localStorage.setItem(`subscription_status_${user.id}`, JSON.stringify(data.primaryStatus));
+        localStorage.setItem(`subscription_status_${targetUserId}`, JSON.stringify(data.primaryStatus));
         logger.info('✅ 订阅状态已缓存');
       } catch (e) {
         logger.warn('缓存订阅状态失败:', e);
       }
 
       logger.info('订阅状态获取成功:', {
-        userId: user.id,
+        userId: targetUserId,
         status: data.primaryStatus.status,
         needsAlert: data.primaryStatus.needsAlert,
         daysRemaining: data.primaryStatus.daysRemaining
@@ -202,22 +236,27 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [targetUserId]);
 
   /**
    * 刷新订阅状态
    */
   const refresh = useCallback(async () => {
     await fetchSubscriptionStatus();
-  }, []);
+  }, [fetchSubscriptionStatus]);
 
   // 用户登录后自动获取订阅状态 - 防止重复调用
   useEffect(() => {
-    if (user?.id && !isInitialized) {
+    if (targetUserId && !isInitialized) {
       setIsInitialized(true);
-      fetchSubscriptionStatus();
+      fetchSubscriptionStatus().finally(() => {
+        setInitialLoading(false);
+      });
+    } else if (!targetUserId) {
+      // 如果没有用户ID，直接设置初始加载为false
+      setInitialLoading(false);
     }
-  }, [user?.id, isInitialized]); // 添加初始化状态检查
+  }, [targetUserId, isInitialized, fetchSubscriptionStatus]); // 添加初始化状态检查
 
   // 🔧 FIX: 监听支付成功事件，自动刷新订阅状态
   useEffect(() => {
@@ -251,19 +290,26 @@ export function useSubscriptionStatus(): UseSubscriptionStatusReturn {
     });
   }, [primaryStatus.status]); // 移除hasActiveSubscription依赖，避免循环
 
-  // 定期刷新状态（每5分钟）
+  // 定期刷新状态（每5分钟）- 🔧 FIX: 开发环境中禁用定期刷新，避免大量API请求
   useEffect(() => {
-    if (!user?.id) return;
+    if (!targetUserId) return;
+    
+    // 🔧 开发环境中禁用定期刷新，避免不必要的API请求
+    if (import.meta.env.DEV) {
+      console.log('🔧 开发环境：禁用订阅状态定期刷新');
+      return;
+    }
 
     const interval = setInterval(() => {
       fetchSubscriptionStatus();
     }, 5 * 60 * 1000); // 5分钟
 
     return () => clearInterval(interval);
-  }, [user?.id, fetchSubscriptionStatus]);
+  }, [targetUserId, fetchSubscriptionStatus]);
 
   return {
     primaryStatus,
+    subscriptionStatus: primaryStatus, // 🔧 FIX: 添加别名以保持向后兼容
     allSubscriptions,
     hasActiveSubscription,
     loading,

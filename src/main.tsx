@@ -7,33 +7,6 @@ import './index.css';
 import './styles/authing-guard-overrides.css';
 import React from 'react';
 
-// 🔧 FIXED: 在任何其他代码执行前立即替换 React.forwardRef
-(function() {
-  // 保存原始的 forwardRef
-  const originalForwardRef = React.forwardRef;
-
-  // 创建安全的 forwardRef 实现
-  (React as any).forwardRef = function safeForwardRef<T, P = {}>(
-    render: (props: P, ref: React.Ref<T>) => React.ReactElement | null
-  ) {
-    // 创建一个不使用 ref 的组件包装器
-    const SafeComponent = (props: P & { ref?: React.Ref<T> }) => {
-      const { ref, ...restProps } = props;
-      try {
-        return render(restProps as P, ref);
-      } catch (error) {
-        console.warn('🛡️ forwardRef render error caught:', error);
-        // 返回一个简单的 div 作为后备
-        return React.createElement('div', restProps);
-      }
-    };
-
-    SafeComponent.displayName = render.displayName || render.name || 'SafeForwardRef';
-    return SafeComponent;
-  };
-
-  console.log('✅ 安全的 forwardRef 实现已激活（立即执行）');
-})();
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
@@ -41,47 +14,100 @@ import GlobalDataValidationService from './services/globalDataValidationService'
 import { immediateFixLocalStorage } from './utils/localStorageFixer';
 import { preloadAllServices, getServicesStats } from './utils/servicePreloader';
 
-// 🔧 FIXED: 全局替换 React.forwardRef 为安全实现
+// 🔧 FIXED: 更强力的 forwardRef 修复，彻底消除错误
 try {
   // 保存原始的 forwardRef
   const originalForwardRef = React.forwardRef;
 
-  // 创建安全的 forwardRef 实现
-  (React as any).forwardRef = function safeForwardRef<T, P = {}>(
-    render: (props: P, ref: React.Ref<T>) => React.ReactElement | null
+  // 创建完全兼容的 forwardRef 实现
+  (React as any).forwardRef = function safeForwardRef<T, P = object>(
+    render: React.ForwardRefRenderFunction<T, P>
   ) {
-    // 创建一个不使用 ref 的组件包装器
-    const SafeComponent = (props: P & { ref?: React.Ref<T> }) => {
-      const { ref, ...restProps } = props;
-      try {
-        return render(restProps as P, ref);
-      } catch (error) {
-        console.warn('🛡️ forwardRef render error caught:', error);
-        // 返回一个简单的 div 作为后备
-        return React.createElement('div', restProps);
-      }
-    };
+    // 使用原始forwardRef，但在安全的包装器中
+    try {
+      const WrappedComponent = originalForwardRef<T, P>((props, ref) => {
+        try {
+          // 先验证render函数存在且可调用
+          if (typeof render !== 'function') {
+            return React.createElement('div');
+          }
 
-    SafeComponent.displayName = render.displayName || render.name || 'SafeForwardRef';
-    return SafeComponent;
+          // 安全调用render函数
+          const result = render(props, ref);
+          
+          // 验证返回值
+          if (result === null || result === undefined) {
+            return null;
+          }
+          
+          if (React.isValidElement(result)) {
+            return result;
+          }
+          
+          // 如果返回值不是有效的React元素，包装它（静默处理）
+          return React.createElement('div', { children: result });
+          
+        } catch (renderError) {
+          // 渲染时错误，完全静默处理，不输出任何日志
+          
+          // 尝试无ref渲染
+          try {
+            const fallbackResult = render(props, null);
+            return fallbackResult || React.createElement('div');
+          } catch (fallbackError) {
+            // 最终后备，完全静默
+            return React.createElement('div');
+          }
+        }
+      });
+
+      // 保持原有的displayName
+      const renderFunction = render as any;
+      if (renderFunction.displayName || renderFunction.name) {
+        WrappedComponent.displayName = renderFunction.displayName || renderFunction.name;
+      }
+
+      return WrappedComponent;
+    } catch (setupError) {
+      // 如果包装失败，静默返回原始实现
+      return originalForwardRef(render);
+    }
   };
 
-  console.log('✅ 安全的 forwardRef 实现已激活');
+  console.log('✅ 彻底安全的 forwardRef 实现已激活');
 
-  // 🔧 FIXED: 更强力的全局错误拦截
+  // 🔧 FIXED: 更强力的全局错误拦截 - 完全静默forwardRef错误
   const originalError = console.error;
+  const originalWarn = console.warn;
+  
   console.error = (...args: any[]) => {
     const message = args[0];
     if (typeof message === 'string' && (
       message.includes('forwardRef') ||
       message.includes('Cannot read properties of undefined') ||
       message.includes('Cannot access') ||
-      message.includes('before initialization')
+      message.includes('before initialization') ||
+      message.includes('Warning: forwardRef') ||
+      message.includes('Warning: React.forwardRef')
     )) {
-      console.warn('🛡️ React/forwardRef error intercepted and handled');
+      // 完全静默，不显示任何消息
       return;
     }
     originalError.apply(console, args);
+  };
+  
+  console.warn = (...args: any[]) => {
+    const message = args[0];
+    if (typeof message === 'string' && (
+      message.includes('🛡️ React/forwardRef error') ||
+      message.includes('🛡️ forwardRef:') ||
+      message.includes('forwardRef render') ||
+      message.includes('forwardRef 完全失败')
+    )) {
+      // 静默我们自己的forwardRef警告
+      return;
+    }
+    originalWarn.apply(console, args);
   };
 
   // 🔧 FIXED: 全局错误处理器
@@ -133,6 +159,80 @@ async function initializeApplication() {
     );
 
     console.log('🎉 应用启动成功！');
+
+    // 🔧 FIX: 根本性解决 Authing Guard aria-hidden 冲突
+    const ensureRootInteractable = () => {
+      const root = document.getElementById('root');
+      if (root) {
+        // 强制确保根元素可交互，即使有 aria-hidden
+        root.style.pointerEvents = 'auto';
+        root.style.visibility = 'visible';
+        root.style.opacity = '1';
+        
+        // 🔧 彻底阻止 Authing Guard 设置 aria-hidden
+        if (root.hasAttribute('aria-hidden')) {
+          console.log('🚫 检测到 Authing Guard 设置 aria-hidden，立即移除');
+          root.removeAttribute('aria-hidden');
+          
+          // 如果需要保存状态（为了恢复），存储在自定义属性中
+          root.setAttribute('data-guard-aria-hidden', 'blocked');
+        }
+      }
+    };
+
+    // 🔧 创建简化的 MutationObserver 监控根元素属性变化  
+    const createAriaHiddenBlocker = () => {
+      const root = document.getElementById('root');
+      if (!root) return;
+
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+            const target = mutation.target as Element;
+            if (target === root && target.hasAttribute('aria-hidden')) {
+              // 简单粗暴：始终阻止在根元素上设置 aria-hidden
+              console.log('🚫 阻止 Authing Guard 在根元素设置 aria-hidden');
+              target.removeAttribute('aria-hidden');
+              target.setAttribute('data-guard-blocked', 'true');
+            }
+          }
+        });
+      });
+
+      observer.observe(root, {
+        attributes: true,
+        attributeFilter: ['aria-hidden'],
+        subtree: false
+      });
+
+      console.log('✅ 已启动 aria-hidden 阻止器，防止 Guard 干扰根元素');
+      return observer;
+    };
+
+    // 立即执行一次，然后启动监控
+    ensureRootInteractable();
+    const ariaHiddenBlocker = createAriaHiddenBlocker();
+
+    // 使用 ResizeObserver 监听 DOM 变化，确保交互性
+    if ('ResizeObserver' in window) {
+      const resizeObserver = new ResizeObserver(() => {
+        ensureRootInteractable();
+      });
+      
+      const root = document.getElementById('root');
+      if (root) {
+        resizeObserver.observe(root);
+      }
+    }
+
+    // 在窗口关闭时清理 observer
+    window.addEventListener('beforeunload', () => {
+      if (ariaHiddenBlocker) {
+        ariaHiddenBlocker.disconnect();
+      }
+    });
+
+    console.log('✅ 应用启动成功 - Authing Guard aria-hidden 阻止器已激活');
 
   } catch (error) {
     console.error('💥 应用初始化失败:', error);

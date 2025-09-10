@@ -318,6 +318,27 @@ class TokenUsageService {
     try {
       logger.debug('🔍 开始获取用户Token统计:', { userId, userTier });
       
+      // 🔧 FIX: 开发环境返回模拟数据，避免数据库查询失败
+      if (import.meta.env.DEV) {
+        console.log('🔧 开发环境：使用模拟Token使用统计');
+        
+        const monthlyLimit = getTokenLimitForTier(userTier);
+        const monthlyUsed = Math.floor(monthlyLimit * 0.25); // 模拟使用25%
+        const dailyUsed = Math.floor(monthlyUsed * 0.1); // 模拟今日使用
+        
+        return {
+          userId,
+          userTier,
+          monthlyLimit,
+          monthlyUsed,
+          monthlyRemaining: monthlyLimit - monthlyUsed,
+          dailyUsed,
+          usagePercentage: (monthlyUsed / monthlyLimit) * 100,
+          needUpgrade: false,
+          lastUpdated: new Date().toISOString()
+        };
+      }
+      
       const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
       const monthKey = this.getCurrentMonthKey();
       const dateKey = this.getCurrentDateKey();

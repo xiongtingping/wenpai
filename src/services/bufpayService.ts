@@ -26,7 +26,7 @@ export class BufPayService {
       });
 
       // 使用统一的create-order接口
-      const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : '';
+      const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:5173' : '';
       const response = await fetch(`${apiBaseUrl}/.netlify/functions/create-order`, {
         method: 'POST',
         headers: {

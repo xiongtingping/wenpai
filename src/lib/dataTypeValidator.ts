@@ -100,13 +100,10 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
     }
   },
 
-  // Amplitude分析数据模式
+  // Amplitude分析数据模式（宽松验证）
   AMP_UNSENT: {
-    type: 'object',
-    properties: {
-      events: { type: 'array', items: { type: 'object' } },
-      lastSent: { type: 'string' }
-    }
+    type: 'any', // 宽松类型，允许各种数据格式
+    required: false
   },
 
   // 访客会话信息模式
@@ -292,6 +289,74 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
   SIMPLE_STRING: {
     type: 'string',
     sanitize: true
+  },
+
+  // 🔧 FIX: 添加缺失的数据模式定义
+  // 传统测试数据模式（宽松验证）
+  LEGACY_TEST_DATA: {
+    type: 'any', // 宽松类型，允许任何数据
+    required: false
+  },
+
+  // 内容适配器设置模式
+  CONTENT_ADAPTER_SETTINGS: {
+    type: 'object',
+    required: false,
+    properties: {
+      selectedModel: { type: 'string', required: false },
+      platforms: { type: 'array', required: false },
+      globalSettings: { type: 'object', required: false },
+      lastUsed: { type: 'string', required: false },
+      customPrompts: { type: 'object', required: false }
+    }
+  },
+
+  // 品牌维度数据模式（宽松验证）
+  BRAND_DIMENSIONS: {
+    type: 'any', // 宽松类型，允许各种数据格式
+    required: false
+  },
+
+  // 🔧 FIX: 添加缺失的使用统计数据模式
+  // 使用次数统计模式
+  usageCountStats: {
+    type: 'object',
+    required: false,
+    properties: {
+      usedCount: { type: 'number', required: false },
+      availableUses: { type: 'number', required: false },
+      usagePercentage: { type: 'number', required: false },
+      remainingUses: { type: 'number', required: false },
+      lastUpdated: { type: 'string', required: false }
+    }
+  },
+
+  // Token使用统计模式
+  tokenUsageStats: {
+    type: 'object',
+    required: false,
+    properties: {
+      userId: { type: 'string', required: false },
+      userTier: { type: 'string', enum: ['trial', 'pro', 'premium'], required: false },
+      monthlyLimit: { type: 'number', required: false },
+      monthlyUsed: { type: 'number', required: false },
+      monthlyRemaining: { type: 'number', required: false },
+      dailyUsed: { type: 'number', required: false },
+      usagePercentage: { type: 'number', required: false },
+      needUpgrade: { type: 'boolean', required: false },
+      lastUpdated: { type: 'string', required: false }
+    }
+  },
+
+  // 扩展统计模式
+  extendedUsageStats: {
+    type: 'object',
+    required: false,
+    properties: {
+      timeSaved: { type: 'number', required: false },
+      contentGenerated: { type: 'number', required: false },
+      registrationDate: { type: 'string', required: false }
+    }
   }
 };
 
@@ -394,6 +459,8 @@ export class DataTypeValidator {
         return typeof data === 'object' && data !== null && !Array.isArray(data);
       case 'array':
         return Array.isArray(data);
+      case 'any': // 🔧 FIX: 添加宽松类型支持
+        return true; // 允许任何类型
       default:
         return false;
     }
@@ -648,9 +715,19 @@ export class DataTypeValidator {
       return { type: 'object', required: false };
     }
     
+    // 传统测试数据
+    if (key.includes('legacy_test_data')) {
+      return DATA_SCHEMAS.LEGACY_TEST_DATA;
+    }
+    
+    // 内容适配器设置
+    if (key.includes('content-adapter-settings')) {
+      return DATA_SCHEMAS.CONTENT_ADAPTER_SETTINGS;
+    }
+    
     // 品牌维度数据 (带用户ID的动态键)
     if (key.includes(':brand_dimensions') || key.includes('brand_dimensions')) {
-      return { type: 'object', required: false };
+      return DATA_SCHEMAS.BRAND_DIMENSIONS;
     }
     
     // 适配历史记录 (带用户ID的动态键)
@@ -724,6 +801,22 @@ export class DataTypeValidator {
     // 统一用户状态
     if (key.includes('unified-user-state')) {
       return DATA_SCHEMAS['unified-user-state'];
+    }
+    
+    // 🔧 FIX: 添加使用统计数据模式匹配
+    // 使用次数统计
+    if (key.includes('usageCountStats') || key.includes('usage_count_stats')) {
+      return DATA_SCHEMAS.usageCountStats;
+    }
+    
+    // Token使用统计
+    if (key.includes('tokenUsageStats') || key.includes('token_usage_stats')) {
+      return DATA_SCHEMAS.tokenUsageStats;
+    }
+    
+    // 扩展统计
+    if (key.includes('extendedUsageStats') || key.includes('extended_usage_stats')) {
+      return DATA_SCHEMAS.extendedUsageStats;
     }
     
     // 通知数据

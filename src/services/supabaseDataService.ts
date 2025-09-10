@@ -92,9 +92,9 @@ export class SupabaseDataService {
     const now = new Date().toISOString();
     return {
       ...data,
-      userId: this.userId,
-      createdAt: data.createdAt || now,
-      updatedAt: now
+      user_id: this.userId, // 🔧 FIX: 使用snake_case字段名
+      created_at: data.createdAt || now, // 🔧 FIX: 使用snake_case字段名
+      updated_at: now // 🔧 FIX: 使用snake_case字段名
     } as DatabaseRecord;
   }
 
@@ -189,7 +189,7 @@ export class SupabaseDataService {
         .from(this.tableName)
         .select('*')
         .eq('id', id)
-        .eq('userId', this.userId)
+        .eq('user_id', this.userId) // 🔧 FIX: 使用snake_case字段名
         .single();
 
       if (error) {
@@ -222,7 +222,7 @@ export class SupabaseDataService {
 
       const updateData = {
         ...data,
-        updatedAt: new Date().toISOString()
+        updated_at: new Date().toISOString() // 🔧 FIX: 使用snake_case字段名
       };
 
       const client = await getSupabaseClient();
@@ -230,7 +230,7 @@ export class SupabaseDataService {
         .from(this.tableName)
         .update(updateData)
         .eq('id', id)
-        .eq('userId', this.userId)
+        .eq('user_id', this.userId) // 🔧 FIX: 使用snake_case字段名
         .select()
         .single();
 

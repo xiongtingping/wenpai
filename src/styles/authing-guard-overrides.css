@@ -1,8 +1,26 @@
+/* 🔧 FIX: 强制确保根元素交互正常，即使有 aria-hidden */
+#root[aria-hidden="true"] {
+  pointer-events: auto !important;
+  /* 覆盖 aria-hidden 的交互阻止 */
+}
+
+#root[data-aria-hidden="true"] {
+  pointer-events: auto !important;
+  /* 覆盖 data-aria-hidden 的交互阻止 */
+}
+
 /* Only active while Guard is open; fix viewport anchoring and stacking context issues */
 html.authing-guard-open, body.authing-guard-open {
   transform: none !important;
   -webkit-transform: none !important;
   overflow: hidden !important;
+}
+
+/* 🔧 FIX: 确保应用内容在 Guard 打开时仍可交互 */
+html.authing-guard-open #root[aria-hidden] {
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* 修复accessibility问题：正确处理焦点陷阱 */

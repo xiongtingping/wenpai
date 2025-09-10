@@ -1,14 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Sun, Moon, Palette, Lock, Crown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
 import { usePermission } from '@/hooks/usePermission';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
 import { useAuth } from '@/hooks/useAuth';
@@ -96,6 +88,8 @@ export const ThemeToggle: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme(user));
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<ThemeConfig | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   
   // 获取订阅状态以同步权限更新
@@ -105,6 +99,20 @@ export const ThemeToggle: React.FC = () => {
   const basicPermission = usePermission('theme:basic');
   const advancedPermission = usePermission('theme:advanced');
   const premiumPermission = usePermission('theme:premium');
+
+  // 点击外部关闭下拉菜单
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
 
   // 监听用户变化，重新加载主题
   useEffect(() => {
@@ -233,10 +241,12 @@ export const ThemeToggle: React.FC = () => {
   const handleThemeChange = (themeConfig: ThemeConfig) => {
     if (hasThemePermission(themeConfig)) {
       setTheme(themeConfig.value);
+      setIsOpen(false);
     } else {
       // 权限不足，显示升级对话框
       setSelectedTheme(themeConfig);
       setUpgradeDialogOpen(true);
+      setIsOpen(false);
     }
   };
 
@@ -262,83 +272,116 @@ export const ThemeToggle: React.FC = () => {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label="切换主题"
-            className="h-9 w-9 p-0 rounded-full hover:bg-accent border border-border/50 bg-card/50 backdrop-blur-sm relative z-[9999]"
-            title={`切换主题 - ${getUserPermissionLevel()}`}
+      <div className="relative" ref={dropdownRef}>
+        <button
+          className="h-9 w-9 p-0 rounded-full hover:bg-accent border border-border/50 bg-card/50 backdrop-blur-sm relative z-[9999] inline-flex items-center justify-center text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+          aria-label="切换主题"
+          title={`切换主题 - ${getUserPermissionLevel()}`}
+          onClick={() => {
+            setIsOpen(!isOpen);
+            
+            // 确保根元素可交互
+            const root = document.getElementById('root');
+            if (root && root.hasAttribute('aria-hidden')) {
+              root.removeAttribute('aria-hidden');
+            }
+          }}
+          type="button"
+          aria-expanded={isOpen}
+          data-testid="native-theme-toggle-trigger"
+        >
+          <div className="text-foreground">
+            {currentTheme.icon}
+          </div>
+        </button>
+
+        {isOpen && (
+          <div 
+            className="absolute right-0 top-full mt-2 w-64 bg-popover border border-border rounded-md shadow-lg z-[999999]"
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 8px)',
+              right: '0px',
+              zIndex: 999999,
+              backgroundColor: 'var(--popover)',
+              borderColor: 'var(--border)',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+            }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-foreground">
-              {currentTheme.icon}
+            {/* 标题 */}
+            <div className="px-3 py-2 text-sm font-medium text-foreground">
+              主题切换
             </div>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64 z-[99999]">
-          <div className="px-3 py-2 text-sm font-medium text-foreground">
-            主题切换
-          </div>
-          <div className="px-3 py-1 text-xs text-muted-foreground">
-            <SubscriptionStateWrapper>
-              {getUserPermissionLevel()}
-            </SubscriptionStateWrapper>
-          </div>
-          <DropdownMenuSeparator />
+            <div className="px-3 py-1 text-xs text-muted-foreground">
+              <SubscriptionStateWrapper>
+                {getUserPermissionLevel()}
+              </SubscriptionStateWrapper>
+            </div>
+            
+            {/* 分隔线 */}
+            <div className="my-1 border-t border-border"></div>
 
-          {themes.map((themeOption) => {
-            const hasPermission = hasThemePermission(themeOption);
-            const isCurrentTheme = theme === themeOption.value;
+            {/* 主题选项 */}
+            {themes.map((themeOption) => {
+              const hasPermission = hasThemePermission(themeOption);
+              const isCurrentTheme = theme === themeOption.value;
 
-            return (
-              <DropdownMenuItem
-                key={themeOption.value}
-                onClick={() => handleThemeChange(themeOption)}
-                className={`flex items-center gap-3 px-3 py-2 ${
-                  isCurrentTheme ? 'bg-accent' : ''
-                } ${!hasPermission ? 'opacity-60' : ''}`}
-                disabled={!hasPermission}
-              >
-                <div className="flex items-center gap-2 flex-1">
-                  {themeOption.icon}
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">{themeOption.label}</span>
-                      {themeOption.badge && (
-                        <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                          {themeOption.badge}
-                        </Badge>
-                      )}
+              return (
+                <button
+                  key={themeOption.value}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-accent ${
+                    isCurrentTheme ? 'bg-accent' : ''
+                  } ${!hasPermission ? 'opacity-60' : ''}`}
+                  onClick={() => handleThemeChange(themeOption)}
+                  disabled={!hasPermission}
+                >
+                  <div className="flex items-center gap-2 flex-1">
+                    {themeOption.icon}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{themeOption.label}</span>
+                        {themeOption.badge && (
+                          <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                            {themeOption.badge}
+                          </Badge>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {themeOption.description}
+                      </span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      {themeOption.description}
-                    </span>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-1">
-                  {!hasPermission && (
-                    <Lock className="h-3 w-3 text-muted-foreground" />
-                  )}
-                  {isCurrentTheme && (
-                    <span className="text-xs text-primary">✓</span>
-                  )}
-                </div>
-              </DropdownMenuItem>
-            );
-          })}
+                  <div className="flex items-center gap-1">
+                    {!hasPermission && (
+                      <Lock className="h-3 w-3 text-muted-foreground" />
+                    )}
+                    {isCurrentTheme && (
+                      <span className="text-xs text-primary">✓</span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
 
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => navigate('/payment')}
-            className="flex items-center gap-2 px-3 py-2 text-sm"
-          >
-            <Crown className="h-4 w-4 text-primary" />
-            <span>解锁更多主题</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            {/* 分隔线 */}
+            <div className="my-1 border-t border-border"></div>
+            
+            {/* 升级按钮 */}
+            <button
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-accent"
+              onClick={() => {
+                setIsOpen(false);
+                navigate('/payment');
+              }}
+            >
+              <Crown className="h-4 w-4 text-primary" />
+              <span>解锁更多主题</span>
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* 升级引导对话框 */}
       {selectedTheme && (

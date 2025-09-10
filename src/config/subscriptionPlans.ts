@@ -90,8 +90,8 @@ export const getSubscriptionPlans = (): SubscriptionPlan[] => [
       savedAmount: 198
     },
     limits: {
-      adaptUsageLimit: -1, // 不限量
-      tokenLimit: 500000,
+      adaptUsageLimit: -1, // 使用次数无限制
+      tokenLimit: 500000, // 🔧 FIX: Premium用户token有限制(50万/月)，使用次数无限制
       availableModels: ['专业版全部模型', 'OpenAI GPT-5 Chat Latest', 'Anthropic Claude Sonnet 4', 'Google Gemini 2.5 Pro', 'Alibaba Qwen Max'],
       availableFeatures: ['全网雷达', '创意魔方', '我的资料库', '品牌库', '顶级AI模型']
     },

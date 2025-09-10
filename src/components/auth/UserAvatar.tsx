@@ -3,19 +3,12 @@
  * 使用统一认证系统显示用户信息和操作
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+// 已移除 Radix UI DropdownMenu 导入，使用原生实现
 import { Badge } from '@/components/ui/badge';
 import { LogIn, User, LogOut, Shield, Settings, Crown, Zap, HelpCircle, Palette } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -49,6 +42,24 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   const navigate = useNavigate();
   const [unlockLoading, setUnlockLoading] = useState(false);
   const { t } = useTranslation();
+  
+  // 原生下拉菜单状态
+  const [isNativeDropdownOpen, setIsNativeDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  // 点击外部关闭下拉菜单
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsNativeDropdownOpen(false);
+      }
+    }
+    
+    if (isNativeDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isNativeDropdownOpen]);
 
   // 简单的主题切换功能
   const toggleTheme = () => {
@@ -131,42 +142,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   if (!isAuthenticated) {
     return (
       <div className={`flex items-center gap-2 ${className}`}>
-        {/* 生产环境下显示解锁权限按钮 */}
-        {shouldShowUnlockButton && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 text-orange-600 hover:text-orange-700 border-orange-200 hover:bg-orange-50"
-              >
-                <Zap className="h-4 w-4" />
-                {t('auth.unlockTestPermissions')}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-64 z-[9999]" align="end">
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{t('auth.testMode')}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {t('auth.testModeDescription')}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={handleUnlockMaxPermissions}
-                disabled={unlockLoading}
-                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 focus:text-orange-700 focus:bg-orange-50"
-              >
-                <Zap className="mr-2 h-4 w-4" />
-                <span>
-                  {unlockLoading ? t('auth.unlocking') : t('auth.activateMaxPermissions')}
-                </span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        {/* 已移除解锁权限按钮的 Radix UI 实现 */}
         
         <Button
           onClick={() => login()}
@@ -181,33 +157,54 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     );
   }
 
-  // 已登录状态
+  // 已登录状态 - 使用原生下拉菜单实现
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button 
-            variant="ghost" 
-            className="relative h-auto p-0 z-[100]"
-            onClick={(e) => {
-              // 🔧 FIX: 确保点击事件正确处理
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            <Avatar className={sizeClasses[size]}>
-              <AvatarImage
-                src={getUserAvatar(user)}
-                alt={getUserDisplayName(user, '用户头像')}
-              />
-              <AvatarFallback className="bg-accent text-primary">
-                {getUserAvatarFallback(user)}
-              </AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-64 z-[99999]" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
+    <div className={`flex items-center gap-2 relative ${className}`} ref={dropdownRef}>
+      {/* 原生实现的用户头像按钮 */}
+      <button
+        className="relative h-auto p-2 hover:bg-accent/50 rounded-md cursor-pointer border-none bg-transparent outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        onClick={() => {
+          setIsNativeDropdownOpen(!isNativeDropdownOpen);
+          
+          // 确保根元素可交互
+          const root = document.getElementById('root');
+          if (root && root.hasAttribute('aria-hidden')) {
+            root.removeAttribute('aria-hidden');
+          }
+        }}
+        type="button"
+        aria-expanded={isNativeDropdownOpen}
+        data-testid="native-user-avatar-trigger"
+      >
+        <Avatar className={sizeClasses[size]}>
+          <AvatarImage
+            src={getUserAvatar(user)}
+            alt={getUserDisplayName(user, '用户头像')}
+          />
+          <AvatarFallback className="bg-accent text-primary">
+            {getUserAvatarFallback(user)}
+          </AvatarFallback>
+        </Avatar>
+      </button>
+
+      {/* 原生下拉菜单 */}
+      {isNativeDropdownOpen && (
+        <div 
+          data-dropdown-menu="native"
+          className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[999999]"
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 8px)',
+            right: '0px',
+            zIndex: 999999,
+            backgroundColor: 'var(--background)',
+            borderColor: 'var(--border)',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* 用户信息标题 */}
+          <div className="px-4 py-3 border-b border-border">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
                 {getUserDisplayName(user, t('auth.user'))}
@@ -224,49 +221,50 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
                 </Badge>
               </div>
             </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          
-          <DropdownMenuItem 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleProfileClick();
-            }}
-          >
-            <User className="mr-2 h-4 w-4" />
-            <span>{t('nav.profile')}</span>
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem onClick={() => window.open('https://docs.wenpai.ai', '_blank')}>
-            <HelpCircle className="mr-2 h-4 w-4" />
-            <span>{t('nav.help')}</span>
-          </DropdownMenuItem>
-          
-          {/* 生产环境下显示解锁权限按钮，无论用户等级 */}
-          {shouldShowUnlockButton && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={handleUnlockMaxPermissions}
-                disabled={unlockLoading}
-                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 focus:text-orange-700 focus:bg-orange-50"
-              >
-                <Zap className="mr-2 h-4 w-4" />
-                <span>
-                  {unlockLoading ? t('auth.unlocking') : t('auth.unlockMaxPermissions')}
-                </span>
-              </DropdownMenuItem>
-            </>
-          )}
-          
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={logout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>{t('auth.logout')}</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </div>
+
+          {/* 菜单项 */}
+          <div className="py-1">
+            <button
+              className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsNativeDropdownOpen(false);
+                handleProfileClick();
+              }}
+            >
+              <User className="mr-2 h-4 w-4" />
+              <span>{t('nav.profile')}</span>
+            </button>
+
+            <button
+              className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
+              onClick={() => {
+                setIsNativeDropdownOpen(false);
+                window.open('https://docs.wenpai.ai', '_blank');
+              }}
+            >
+              <HelpCircle className="mr-2 h-4 w-4" />
+              <span>{t('nav.help')}</span>
+            </button>
+
+            {/* 分隔线 */}
+            <div className="my-1 border-t border-border"></div>
+
+            <button
+              className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
+              onClick={() => {
+                setIsNativeDropdownOpen(false);
+                logout();
+              }}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>{t('auth.logout')}</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

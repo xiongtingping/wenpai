@@ -120,6 +120,7 @@ export function getAuthingConfig() {
 
 /**
  * 获取 Guard 配置
+ * 🔧 修复aria-hidden冲突：配置Guard以避免干扰主应用交互
  */
 export const getGuardConfig = () => {
   const config = getAuthingConfig();
@@ -127,7 +128,23 @@ export const getGuardConfig = () => {
     appId: config.appId,
     domain: config.domain,
     redirectUri: config.redirectUri,
-    mode: 'modal' as const
+    mode: 'modal' as const,
+    // 🔧 FIX: 防止Guard模态框干扰主应用交互
+    config: {
+      // 禁用全局aria-hidden设置，避免阻止主应用点击
+      disableAriaHidden: true,
+      // 使用自定义容器，避免影响根元素
+      container: 'authing-guard-container',
+      // 确保模态框层级不会干扰主应用
+      zIndex: 1000,
+      // 优化无障碍访问配置
+      accessibility: {
+        // 不阻止主应用焦点管理
+        disableFocusManagement: false,
+        // 不设置根元素aria-hidden
+        preventRootAriaHidden: true
+      }
+    }
   };
 };
 

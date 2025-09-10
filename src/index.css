@@ -2847,27 +2847,47 @@ html.modal-open {
   color: white !important;
 }
 
-/* 🎯 容器高度对齐系统 - 
-/* 🚫 
+/* 🎯 个人中心左右对称布局系统 - 精致版本 */
 .profile-grid-equal-height {
   display: grid !important;
   grid-template-columns: 1fr !important;
   gap: 1.5rem !important;
+  align-items: stretch !important;
+  margin-bottom: 1rem !important;
+}
+
+@media (min-width: 768px) {
+  .profile-grid-equal-height {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1.75rem !important;
+  }
 }
 
 @media (min-width: 1024px) {
   .profile-grid-equal-height {
     grid-template-columns: 1fr 1fr !important;
-    gap: 2rem !important;
+    gap: 2.25rem !important;
     align-items: stretch !important;
-    min-height: 650px !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .profile-grid-equal-height {
+    gap: 2.5rem !important;
   }
 }
 
 .profile-grid-item {
   display: flex !important;
   flex-direction: column !important;
-  min-height: 100% !important;
+  height: 100% !important;
+  min-height: fit-content !important;
+}
+
+/* 确保所有Card在网格中保持一致的外观 */
+.profile-grid-item .card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid hsl(var(--border)) !important;
 }
 
 /* ✅ FIXED: 2025-08-04 SafeTooltip动画样式 */

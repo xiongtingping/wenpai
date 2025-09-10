@@ -43,17 +43,35 @@ export interface DataConfig {
   category: DataCategory;
   ttl?: number;           // 缓存过期时间（秒）
   syncToCloud?: boolean;  // 是否同步到云端
-  fallbackLayer?: StorageLayer;
+  // 🚫 移除 fallbackLayer：不使用降级方案，严格按照数据分类访问
 }
 
-// 预定义数据配置
+/**
+ * 预定义数据配置
+ * 
+ * 数据存储分类原则：
+ * 
+ * 1. USER_CRITICAL (用户关键数据) -> Supabase 云端存储
+ *    - 用户的个人数据、偏好设置、收藏夹等
+ *    - 需要跨设备同步和持久化存储
+ *    - 必须要求用户登录后才能访问
+ * 
+ * 2. APP_STATE (应用状态数据) -> Zustand 状态管理
+ *    - 应用的临时状态、UI 状态、当前会话数据
+ *    - 在应用运行期间保持，不持久化存储
+ *    - 刷新页面后重置为默认值
+ * 
+ * 3. CACHE_TEMP (缓存临时数据) -> localStorage 本地缓存
+ *    - 临时缓存、会话数据、本地快照等
+ *    - 有 TTL 过期时间，可以被清理
+ *    - 不需要跨设备同步
+ */
 export const DATA_CONFIGS: Record<string, DataConfig> = {
-  // 用户关键数据 - 必须云端持久化
+  // 用户关键数据 - 必须云端持久化 (Supabase)
   favorites: {
     key: 'favorites',
     category: DataCategory.USER_CRITICAL,
-    syncToCloud: true,
-    fallbackLayer: StorageLayer.CACHE
+    syncToCloud: true
   },
   bookmarkedTopics: {
     key: 'bookmarked-topics',
@@ -96,20 +114,22 @@ export const DATA_CONFIGS: Record<string, DataConfig> = {
     syncToCloud: true
   },
 
-  // 应用状态 - Zustand管理
+  // 应用状态 - Zustand管理（不持久化）
   selectedPlan: {
     key: 'selectedPlan',
     category: DataCategory.APP_STATE,
     ttl: 3600 // 1小时
   },
-  theme: {
-    key: 'theme',
-    category: DataCategory.APP_STATE,
-    syncToCloud: true // 跨设备同步主题
-  },
   selectedPlatforms: {
     key: 'selectedPlatforms',
     category: DataCategory.APP_STATE
+  },
+  
+  // 用户偏好设置 - 云端持久化 (Supabase)
+  theme: {
+    key: 'theme',
+    category: DataCategory.USER_CRITICAL,
+    syncToCloud: true // 跨设备同步主题
   },
 
   // 缓存临时 - localStorage
@@ -206,11 +226,7 @@ export class UnifiedDataManager {
     } catch (error) {
       console.error(`❌ 获取数据失败 ${key}:`, error);
       
-      // 降级策略
-      if (config.fallbackLayer) {
-        return this.getDataFromLayer<T>(key, config.fallbackLayer);
-      }
-      
+      // 🚫 移除降级策略：严格按照数据分类访问，不使用降级方案
       return null;
     }
   }
@@ -221,8 +237,8 @@ export class UnifiedDataManager {
   async setData<T>(key: string, data: T): Promise<boolean> {
     const config = DATA_CONFIGS[key];
     if (!config) {
-      console.warn(`⚠️ 未知数据键: ${key}，保存到缓存`);
-      return this.setCacheData(key, data);
+      console.error(`❌ 未知数据键: ${key}，拒绝保存 - 需要在 DATA_CONFIGS 中配置`);
+      return false;
     }
 
     try {
@@ -269,15 +285,16 @@ export class UnifiedDataManager {
     }
 
     try {
+      // 🔧 FIX: 使用正确的数据库字段名
       const result = await this.supabaseService.findMany({
-        filters: { corpusType: `user_${key}` },
+        filters: { brand_name: `user_${key}` },
         limit: 1,
-        orderBy: 'updatedAt',
+        orderBy: 'updated_at',
         orderDirection: 'desc'
       });
 
       if (result.data && result.data.length > 0) {
-        const data = JSON.parse(result.data[0].corpusContent);
+        const data = JSON.parse(result.data[0].brand_description || '{}');
         this.updateCache(key, data); // 更新缓存
         return data;
       }
@@ -301,19 +318,19 @@ export class UnifiedDataManager {
     try {
       // 检查是否已存在
       const existing = await this.supabaseService.findMany({
-        filters: { corpusType: `user_${key}` },
+        filters: { brand_name: `user_${key}` },
         limit: 1
       });
 
       const recordData = {
-        corpusType: `user_${key}`,
-        corpusName: `用户${key}数据_${this.userId}`,
-        corpusContent: JSON.stringify(data),
-        metadata: {
+        brand_name: `user_${key}`,
+        // 🔧 FIX: 暂时使用可能存在的字段名
+        brand_description: JSON.stringify(data),
+        metadata: JSON.stringify({
           dataKey: key,
           lastUpdated: new Date().toISOString(),
           version: '1.0'
-        }
+        })
       };
 
       if (existing.data && existing.data.length > 0) {
@@ -332,20 +349,27 @@ export class UnifiedDataManager {
 
   /**
    * 从状态层获取数据（Zustand stores）
+   * 严格按照配置的存储层级访问，不使用降级方案
    */
   private getStateData<T>(key: string): T | null {
-    // 这里需要根据具体的store来实现
-    // 暂时返回null，需要后续集成具体的store
-    console.warn(`⚠️ 状态数据访问暂未实现: ${key}`);
+    // 🚫 移除降级方案：状态数据只从应用状态中获取
+    // 这里应该集成具体的 Zustand stores
+    // 目前返回 null，表示状态层暂未初始化或数据不存在
+    
+    console.debug(`📝 状态数据访问: ${key} - 需要集成 Zustand store`);
     return null;
   }
 
   /**
    * 保存数据到状态层
+   * 严格按照配置的存储层级保存，不使用降级方案
    */
   private setStateData<T>(key: string, data: T): boolean {
-    // 这里需要根据具体的store来实现
-    console.warn(`⚠️ 状态数据保存暂未实现: ${key}`);
+    // 🚫 移除降级方案：状态数据只保存到应用状态中
+    // 这里应该集成具体的 Zustand stores
+    // 目前返回 false，表示状态层保存失败或暂未实现
+    
+    console.debug(`📝 状态数据保存: ${key} - 需要集成 Zustand store`);
     return false;
   }
 

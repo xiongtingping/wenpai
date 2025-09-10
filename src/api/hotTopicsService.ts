@@ -140,7 +140,7 @@ class SimpleCache {
 class HotTopicsAPI {
   private static instance: HotTopicsAPI;
   private cache = new SimpleCache();
-  private baseUrl = import.meta.env.DEV ? 'http://localhost:8888/.netlify/functions/api' : '/.netlify/functions/api';
+  private baseUrl = import.meta.env.DEV ? 'http://localhost:5173/.netlify/functions/api' : '/.netlify/functions/api';
   private enableLogging = import.meta.env.DEV;
 
   private constructor() {}

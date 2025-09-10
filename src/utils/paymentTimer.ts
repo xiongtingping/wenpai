@@ -56,7 +56,29 @@ export function getPaymentCenterAccessTime(userId?: string): Date | undefined {
  */
 async function hasActiveSubscription(userId: string): Promise<boolean> {
   try {
-    // 🔧 FIX: 增加重试机制和更好的错误处理
+    // 🔧 FIX: 开发环境直接使用缓存数据或返回默认状态，避免网络请求
+    if (import.meta.env.DEV) {
+      console.log('🔧 开发环境：使用缓存或默认订阅状态检查');
+      
+      // 尝试读取缓存订阅状态
+      try {
+        const cached = localStorage.getItem(`subscription_status_${userId}`);
+        if (cached) {
+          const cachedStatus = JSON.parse(cached);
+          const isActive = cachedStatus.status === 'active';
+          console.log('✅ 使用缓存订阅状态:', { isActive, status: cachedStatus.status });
+          return isActive;
+        }
+      } catch (e) {
+        console.warn('读取缓存订阅状态失败:', e);
+      }
+
+      // 开发环境默认返回true，表示有活跃订阅（不显示促销）
+      console.log('🔧 开发环境：默认返回活跃订阅状态');
+      return true;
+    }
+
+    // 生产环境的正常API调用逻辑
     let lastError: Error | null = null;
 
     // 重试机制：最多尝试3次
@@ -64,8 +86,7 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
       try {
         console.log(`🔄 订阅状态检查尝试 ${attempt}/3...`);
 
-        // 🔧 FIX: 修复API连接配置，确保连接到正确的后端服务
-        const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:8888' : 'https://www.wenpai.xyz';
+        const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:5173' : 'https://www.wenpai.xyz';
         const response = await Promise.race([
           fetch(`${apiBaseUrl}/.netlify/functions/check-subscription-status?userId=${userId}`),
           // 15秒超时

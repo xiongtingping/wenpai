@@ -103,6 +103,7 @@ export function TokenUsageSection({
   className = '',
   externalUserStats
 }: TokenUsageSectionProps) {
+  
   const {
     tokenStats,
     usageCountStats,
@@ -126,6 +127,7 @@ export function TokenUsageSection({
     monthlyRemaining: externalUserStats.tokenLimit === -1 ? -1 : externalUserStats.tokenLimit - externalUserStats.usedTokens,
     usagePercentage: externalUserStats.tokenLimit === -1 ? 0 : (externalUserStats.usedTokens / externalUserStats.tokenLimit) * 100
   } : tokenStats;
+
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -296,7 +298,7 @@ export function TokenUsageSection({
                         />
                         <div className="flex justify-between text-sm font-medium text-muted-foreground">
                           <span>已使用 {finalUsageCountStats?.usedCount || 0} 次</span>
-                          <span>剩余 {formatRemainingUses(finalUsageCountStats?.remainingUses || 0, userTier)} 次</span>
+                          <span>剩余 {formatRemainingUses(finalUsageCountStats?.remainingUses ?? 0, userTier)} 次</span>
                         </div>
                       </>
                     ) : (

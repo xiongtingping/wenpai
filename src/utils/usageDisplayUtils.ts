@@ -132,6 +132,8 @@ export function getProgressBarColor(usedCount: number, availableUses: number, ti
  * 获取套餐对应的默认限额
  * @param tier 订阅级别
  * @returns 默认使用限额
+ * 🔧 FIX: 与subscriptionPlans.ts中的adaptUsageLimit保持一致
+ * 使用静态配置避免循环依赖问题
  */
 export function getTierDefaultLimit(tier: SubscriptionTier): number {
   switch (tier) {

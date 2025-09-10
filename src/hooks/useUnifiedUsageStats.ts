@@ -1,22 +1,26 @@
 /**
  * 统一使用量统计Hook
- * @description 统一获取Token使用量和使用次数数据，确保数据的实时同步和一致性显示
+ * @description 通过统一数据管理器获取Token使用量和使用次数数据，确保数据的实时同步和一致性显示
  * 🔧 修复了剩余次数显示问题：高级版无限制显示为 ∞ 而不是 0
+ * 🔧 修复了数据闪烁问题：使用统一的缓存机制和数据管理中心
+ * 🔧 修复了Supabase同步问题：所有数据变更都通过数据管理中心同步
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTokenUsageStore } from '@/stores/tokenUsageStore';
-import { unifiedUsageService } from '@/services/unifiedUsageService';
+import { unifiedUsageDataManager } from '@/services/unifiedUsageDataManager';
+import type { UsageCountStats } from '@/services/unifiedUsageDataManager';
 import { enhancedPermissionService } from '@/services/enhancedPermissionService';
 import { 
   formatRemainingUses, 
   calculateUsagePercentage, 
   getTierDefaultLimit 
 } from '@/utils/usageDisplayUtils';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { TokenUsageStats } from '@/services/tokenUsageService';
-import type { UnifiedUsageStats } from '@/services/unifiedUsageService';
+import { logger } from '@/utils/logger';
 
 /**
  * 使用次数统计接口
@@ -81,17 +85,16 @@ function getUsageCountLimit(tier: SubscriptionTier): number {
 }
 
 /**
- * 获取使用次数数据（调用真实API）
+ * 获取使用次数数据（通过统一数据管理器）
  */
 async function fetchUsageCountStats(userId: string, userTier: SubscriptionTier): Promise<UsageCountStats> {
   try {
-    // 调用统一使用服务获取真实数据
-    const { unifiedUsageService } = await import('@/services/unifiedUsageService');
-    return await unifiedUsageService.getUserUsageCountStats(userId, userTier);
+    // 🔧 FIX: 通过统一数据管理器获取数据，确保缓存一致性
+    return await unifiedUsageDataManager.getUserUsageCountStats(userId, userTier);
   } catch (error) {
-    console.error('获取使用次数统计失败:', error);
+    logger.error('获取使用次数统计失败:', { userId, userTier, error });
 
-    // 如果API调用失败，返回默认值而不是模拟数据
+    // 如果获取失败，返回默认值
     const availableUses = getUsageCountLimit(userTier);
     const usedCount = 0;
     
@@ -99,25 +102,21 @@ async function fetchUsageCountStats(userId: string, userTier: SubscriptionTier):
       usedCount,
       availableUses,
       usagePercentage: calculateUsagePercentage(usedCount, availableUses, userTier),
-      remainingUses: availableUses === -1 ? -1 : Math.max(0, availableUses - usedCount)
+      remainingUses: availableUses === -1 ? -1 : Math.max(0, availableUses - usedCount),
+      lastUpdated: new Date().toISOString()
     };
   }
 }
 
 /**
- * 获取扩展统计数据（调用真实API）
+ * 获取扩展统计数据（通过统一数据管理器）
  */
 async function fetchExtendedStats(userId: string): Promise<ExtendedStats> {
   try {
-    // 这里可以调用后端API获取真实的扩展统计数据
-    // 暂时返回基础数据，后续可扩展
-    return {
-      timeSaved: 0, // 节省时间（分钟）
-      contentGenerated: 0, // 生成内容数量
-      registrationDate: new Date().toLocaleDateString('zh-CN') // 注册日期
-    };
+    // 🔧 FIX: 通过统一数据管理器获取扩展统计
+    return await unifiedUsageDataManager.getExtendedStats(userId);
   } catch (error) {
-    console.error('获取扩展统计失败:', error);
+    logger.error('获取扩展统计失败:', { userId, error });
     return {
       timeSaved: 0,
       contentGenerated: 0,
@@ -137,14 +136,17 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
   checkPermission: (featureId: string) => Promise<boolean>;
   consumeUsage: (amount?: number) => Promise<boolean>;
 } {
+  console.log('🔍 [useUnifiedUsageStats] Hook初始化，外部传入userTier:', externalUserTier);
   const { user } = useAuth();
   const { currentStats: tokenStats, refreshStats: refreshTokenStatsStore } = useTokenUsageStore();
+  const { subscriptionStatus, hasActiveSubscription } = useSubscriptionStatus(user?.id);
   
   const [usageCountStats, setUsageCountStats] = useState<UsageCountStats>({
     usedCount: 0,
-    availableUses: 10,
+    availableUses: -1, // 🔧 FIX: 默认值设为无限制，避免闪烁
     usagePercentage: 0,
-    remainingUses: 10
+    remainingUses: -1, // 🔧 FIX: 默认值设为无限制，避免闪烁
+    lastUpdated: new Date().toISOString()
   });
 
   const [extendedStats, setExtendedStats] = useState<ExtendedStats>({
@@ -165,24 +167,104 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
 
   // 获取用户套餐类型 - 优先使用外部传入的等级
   const getUserTier = useCallback((): SubscriptionTier => {
-    return externalUserTier || (user?.subscription as any)?.tier || 'trial';
-  }, [user, externalUserTier]);
+    console.log('🔍 [useUnifiedUsageStats] getUserTier开始计算:', {
+      externalUserTier,
+      hasUser: !!user,
+      userId: user?.id,
+      subscriptionStatus: subscriptionStatus?.status,
+      hasActiveSubscription
+    });
+    
+    // 1. 🔧 FIX: 强制优先使用外部传入的等级，避免不一致
+    if (externalUserTier) {
+      console.log('🔍 [useUnifiedUsageStats] 使用外部userTier:', externalUserTier);
+      return externalUserTier;
+    }
+    
+    // 2. 尝试从用户对象获取
+    if ((user?.subscription as any)?.tier) {
+      console.log('🔎 从用户对象获取套餐类型:', (user?.subscription as any)?.tier);
+      return (user?.subscription as any)?.tier;
+    }
+    
+    // 3. 🔧 FIX: 从订阅状态服务获取真实套餐信息
+    if (subscriptionStatus && hasActiveSubscription) {
+      // 🔧 FIX: 统一套餐类型判断逻辑，避免premium/pro切换
+      let tier: SubscriptionTier = 'trial';
+      
+      // 优先从tier字段获取，但需要验证有效性
+      if (subscriptionStatus.tier && ['trial', 'pro', 'premium'].includes(subscriptionStatus.tier)) {
+        tier = subscriptionStatus.tier as SubscriptionTier;
+        console.log('🔎 从订阅状态tier获取套餐类型:', tier, subscriptionStatus);
+      } else if (subscriptionStatus.status === 'active') {
+        // 🔧 FIX: 活跃订阅统一设置为premium，避免来回切换
+        tier = 'premium';
+        console.log('🔎 活跃订阅设置为premium套餐:', { 
+          status: subscriptionStatus.status, 
+          hasActive: hasActiveSubscription 
+        });
+      }
+      
+      return tier;
+    }
+    
+    // 4. 降级方案：从缓存获取
+    try {
+      const cachedSubStatus = localStorage.getItem('unified-user-state');
+      if (cachedSubStatus) {
+        const userState = JSON.parse(cachedSubStatus);
+        if (userState.subscriptionStatus?.status === 'active') {
+          console.log('🔎 从缓存获取套餐类型: pro');
+          return 'pro';
+        }
+      }
+    } catch (error) {
+      console.warn('无法从缓存获取订阅状态:', error);
+    }
+    
+    // 5. 默认为体验版
+    console.log('🔎 使用默认套餐类型: trial');
+    return 'trial';
+  }, [user, externalUserTier, subscriptionStatus, hasActiveSubscription]);
 
-  const userTier = getUserTier();
+  // 🔧 FIX: 使用useMemo缓存userTier，避免重复计算导致的闪烁
+  const userTier = useMemo(() => {
+    return getUserTier();
+  }, [getUserTier]);
+  
+  // 🔎 调试信息
+  useEffect(() => {
+    console.log('🔎 useUnifiedUsageStats 调试信息:', {
+      userId: user?.id,
+      userTier,
+      subscriptionStatus,
+      hasActiveSubscription,
+      externalUserTier,
+      userSubscription: (user as any)?.subscription
+    });
+  }, [user?.id, getUserTier, subscriptionStatus, hasActiveSubscription, externalUserTier]); // 🔧 FIX: 避免循环依赖
 
   /**
-   * 刷新Token统计
+   * 刷新Token统计（通过统一数据管理器）
    */
   const refreshTokenStats = useCallback(async () => {
     if (!user?.id) return;
 
     try {
-      await refreshTokenStatsStore(user.id, userTier);
+      // 🔧 FIX: 通过统一数据管理器获取Token统计
+      // 🔧 CRITICAL FIX: 使用实时计算的userTier，确保与传入参数一致
+      const currentUserTier = getUserTier();
+      const tokenStatsData = await unifiedUsageDataManager.getTokenUsageStats(user.id, currentUserTier);
+      
+      // 更新本地Token存储状态
+      if (tokenStatsData) {
+        await refreshTokenStatsStore(user.id, currentUserTier);
+      }
     } catch (error) {
-      console.error('刷新Token统计失败:', error);
+      logger.error('刷新Token统计失败:', { userId: user.id, userTier: currentUserTier, error });
       setError(error instanceof Error ? error.message : '刷新Token统计失败');
     }
-  }, [user?.id, userTier, refreshTokenStatsStore]);
+  }, [user?.id, getUserTier, refreshTokenStatsStore]); // 🔧 FIX: 避免循环依赖
 
   /**
    * 检查功能权限
@@ -209,16 +291,19 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       console.error('检查功能权限失败:', error);
       return false;
     }
-  }, [user?.id, user?.permissions, userTier]);
+  }, [user?.id, user?.permissions, getUserTier]); // 🔧 FIX: 避免循环依赖
 
   /**
-   * 消费使用次数
+   * 消费使用次数（通过统一数据管理器）
    */
   const consumeUsage = useCallback(async (amount: number = 1): Promise<boolean> => {
     if (!user?.id) return false;
 
     try {
-      const success = await unifiedUsageService.consumeUsageCount(user.id, userTier, amount);
+      // 🔧 FIX: 通过统一数据管理器消费使用次数，确保原子操作和数据一致性
+      // 🔧 CRITICAL FIX: 使用实时计算的userTier
+      const currentUserTier = getUserTier();
+      const success = await unifiedUsageDataManager.consumeUsageCount(user.id, currentUserTier, amount);
 
       if (success) {
         // 刷新使用次数统计
@@ -227,25 +312,35 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
 
       return success;
     } catch (error) {
-      console.error('消费使用次数失败:', error);
+      logger.error('消费使用次数失败:', { userId: user.id, amount, error });
       return false;
     }
-  }, [user?.id, userTier]);
+  }, [user?.id, getUserTier]); // 🔧 FIX: 避免循环依赖
 
   /**
-   * 刷新使用次数统计
+   * 刷新使用次数统计（通过统一数据管理器）
    */
   const refreshUsageCountStats = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      logger.debug('refreshUsageCountStats: 用户未登录，跳过');
+      return;
+    }
+
+    logger.debug('refreshUsageCountStats: 开始刷新', { userId: user.id, userTier: getUserTier() });
 
     try {
-      const stats = await unifiedUsageService.getUserUsageCountStats(user.id, userTier);
+      // 🔧 FIX: 通过统一数据管理器获取使用次数统计
+      // 🔧 CRITICAL FIX: 使用实时计算的userTier，确保与传入参数一致
+      const currentUserTier = getUserTier();
+      const stats = await unifiedUsageDataManager.getUserUsageCountStats(user.id, currentUserTier);
+      logger.debug('refreshUsageCountStats: 获取到统计数据', stats);
       setUsageCountStats(stats);
+      logger.debug('refreshUsageCountStats: 统计数据已设置');
     } catch (error) {
-      console.error('刷新使用次数统计失败:', error);
+      logger.error('refreshUsageCountStats: 刷新使用次数统计失败:', { userId: user.id, userTier: currentUserTier, error });
       setError(error instanceof Error ? error.message : '刷新使用次数统计失败');
     }
-  }, [user?.id, userTier]);
+  }, [user?.id, getUserTier]); // 🔧 FIX: 使用getUserTier引用避免循环依赖
 
   /**
    * 刷新扩展统计
@@ -263,7 +358,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
   }, [user?.id]);
 
   /**
-   * 刷新所有统计数据
+   * 刷新所有统计数据（通过统一数据管理器）
    */
   const refreshStats = useCallback(async () => {
     if (!user?.id) return;
@@ -272,12 +367,24 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     setError(null);
 
     try {
-      // 1. 刷新基础统计数据
-      await Promise.all([
-        refreshTokenStats(),
-        refreshUsageCountStats(),
-        refreshExtendedStats()
-      ]);
+      // 🔧 CRITICAL FIX: 使用实时计算的userTier
+      const currentUserTier = getUserTier();
+      logger.info('refreshStats: 开始刷新所有统计数据', { userId: user.id, userTier: currentUserTier });
+      
+      // 🔧 FIX: 通过统一数据管理器刷新所有数据
+      const unifiedData = await unifiedUsageDataManager.refreshAllStats(user.id, currentUserTier);
+      
+      // 更新状态
+      if (unifiedData.tokenStats) {
+        // Token统计通过Store更新
+        await refreshTokenStats().catch(err => logger.error('refreshTokenStats 失败:', err));
+      }
+      
+      // 直接使用统一数据
+      setUsageCountStats(unifiedData.usageCountStats);
+      setExtendedStats(unifiedData.extendedStats);
+      
+      logger.info('refreshStats: 统一统计数据刷新完成');
 
       // 2. 检查套餐到期状态
       try {
@@ -290,7 +397,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
 
         // 3. 自动处理套餐到期
         if (expiryCheck.isExpired) {
-          await enhancedPermissionService.autoHandleSubscriptionExpiry(user.id, userTier);
+          await enhancedPermissionService.autoHandleSubscriptionExpiry(user.id, currentUserTier);
         }
       } catch (error) {
         console.warn('检查套餐到期状态失败:', error);
@@ -318,16 +425,58 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     } finally {
       setLoading(false);
     }
-  }, [user?.id, userTier, refreshTokenStats, refreshUsageCountStats, refreshExtendedStats, checkPermission]);
+  }, [user?.id, getUserTier, refreshTokenStats, refreshUsageCountStats, refreshExtendedStats, checkPermission]); // 🔧 FIX: 避免循环依赖
 
-  // 自动加载数据
+  // 🔧 FIX: 在用户套餐类型变化时更新初始统计
   useEffect(() => {
-    if (user?.id) {
-      refreshStats();
+    if (userTier) {
+      const newLimit = getTierDefaultLimit(userTier);
+      const newRemaining = newLimit === -1 ? -1 : newLimit;
+      
+      // 如果套餐类型发生变化，更新初始统计值
+      setUsageCountStats(prev => {
+        if (prev.availableUses !== newLimit) {
+          console.log(`🔄 套餐类型变化: ${prev.availableUses} → ${newLimit} (${userTier})`);
+          return {
+            ...prev,
+            availableUses: newLimit,
+            remainingUses: newRemaining === -1 ? -1 : Math.max(0, newLimit - prev.usedCount),
+            usagePercentage: calculateUsagePercentage(prev.usedCount, newLimit, userTier)
+          };
+        }
+        return prev;
+      });
     }
-  }, [user?.id, refreshStats]);
+  }, [getUserTier]); // 🔧 FIX: 避免循环依赖
+  
+  // 🔧 FIX: 初始化统一数据管理器并防抖刷新
+  useEffect(() => {
+    if (!user?.id) return;
+    
+    // 初始化统一数据管理器
+    const initializeDataManager = async () => {
+      try {
+        await unifiedUsageDataManager.initializeUser(user.id);
+        logger.info('✅ 统一数据管理器初始化完成', { userId: user.id });
+      } catch (error) {
+        logger.error('❌ 统一数据管理器初始化失败', { userId: user.id, error });
+      }
+    };
+    
+    // 防抖延迟500ms
+    const timeoutId = setTimeout(async () => {
+      await initializeDataManager();
+      refreshStats();
+    }, 500);
+    
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [user?.id, getUserTier]); // 🔧 FIX: 使用getUserTier函数引用而不是userTier值，避免循环依赖
 
-  return {
+  const returnValue = {
     tokenStats,
     usageCountStats,
     extendedStats,
@@ -344,6 +493,25 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     checkPermission,
     consumeUsage
   };
+  
+  console.log('🔍 [useUnifiedUsageStats] 返回数据:', {
+    externalUserTier,
+    computedUserTier: userTier,
+    tokenStats: tokenStats ? {
+      monthlyUsed: tokenStats.monthlyUsed,
+      monthlyLimit: tokenStats.monthlyLimit,
+      monthlyRemaining: tokenStats.monthlyRemaining
+    } : null,
+    usageCountStats: {
+      usedCount: usageCountStats.usedCount,
+      availableUses: usageCountStats.availableUses,
+      remainingUses: usageCountStats.remainingUses
+    },
+    loading,
+    error
+  });
+  
+  return returnValue;
 }
 
 export default useUnifiedUsageStats;

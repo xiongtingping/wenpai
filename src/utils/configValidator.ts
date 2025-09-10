@@ -104,7 +104,7 @@ function getPaymentAPIEndpoint(): string {
   }
 
   if (import.meta.env.DEV) {
-    return 'http://localhost:8888/.netlify/functions/checkout';
+    return 'http://localhost:5173/.netlify/functions/checkout';
   }
 
   return '/.netlify/functions/checkout';

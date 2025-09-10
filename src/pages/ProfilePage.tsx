@@ -57,6 +57,7 @@ import { avatarService } from '@/services/avatarService';
 import { isDevelopment } from '@/utils/env-validator';
 import { getUserTier } from '@/utils/subscriptionUtils';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+// import '@/utils/debugUsageStats'; // 🔧 DEBUG: 导入调试工具 (已移除)
 
 /**
  * 个人中心页面组件
@@ -130,13 +131,31 @@ export default function ProfilePage() {
    * 使用真实的Authing用户数据 - 优先使用订阅状态数据
    */
   const userTier = (() => {
+    // 🔧 FIX: 统一用户层级判断逻辑，确保与统计系统一致
     // 如果有活跃订阅，使用订阅状态数据中的tier字段
     if (hasActiveSubscription && primaryStatus?.status === 'active' && primaryStatus.tier) {
+      console.log('🔍 [ProfilePage] userTier计算路径1:', {
+        hasActiveSubscription,
+        primaryStatus: primaryStatus?.status,
+        tier: primaryStatus?.tier,
+        result: primaryStatus.tier
+      });
       return primaryStatus.tier;
     }
     // 否则使用用户对象的等级
-    return getUserTier(user);
+    const fallbackTier = getUserTier(user);
+    console.log('🔍 [ProfilePage] userTier计算路径2:', {
+      hasActiveSubscription,
+      primaryStatus: primaryStatus?.status,
+      primaryTier: primaryStatus?.tier,
+      fallbackTier,
+      userObject: user
+    });
+    return fallbackTier;
   })();
+  
+  // 🔍 DEBUG: 记录最终计算结果
+  console.log('🎯 [ProfilePage] 最终 userTier:', userTier);
   
   const getAccountType = () => {
     if (userTier === 'trial') return t('auth.trialUser');
@@ -1209,7 +1228,7 @@ export default function ProfilePage() {
           </Card>
         </div>
 
-        {/* 第二行：使用统计和邀请奖励 - 确保高度一致对齐 */}
+        {/* 第二行：使用统计和邀请奖励 - 左右对称布局 */}
         <div className="profile-grid-equal-height">
           {/* 左侧：使用统计 */}
           <div className="profile-grid-item">
@@ -1314,13 +1333,13 @@ export default function ProfilePage() {
                 {/* 邀请按钮 - 与左侧升级按钮对齐 */}
                 <div className="mt-4">
                   <Button
-                    variant="ghost"
-                    size="hero"
-                    className="w-full h-14 text-lg rounded-xl btn-invite-force"
+                    variant="default"
+                    size="lg"
+                    className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 border-0 shadow-lg flex items-center justify-center gap-2"
                     onClick={handleInviteFriends}
                   >
-                    <Users className="w-5 h-5" style={{ color: 'white' }} />
-                    {t('profile.inviteFriends')}
+                    <Users className="w-5 h-5 text-white" />
+                    <span className="text-white">{t('profile.inviteFriends')}</span>
                   </Button>
                 </div>
               </CardContent>
@@ -1329,69 +1348,69 @@ export default function ProfilePage() {
 
         </div>
 
-        {/* 第三行：反馈奖励 - 紧凑布局 */}
-        <div className="mt-6">
-          <Card variant="soft" className="w-full rounded-xl overflow-hidden relative">
-            <CardHeader className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-foreground relative z-10 rounded-t-xl pb-3 pt-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-orange-500/10 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0 border border-orange-500/20">
-                  <HelpCircle className="w-5 h-5 drop-shadow-sm text-orange-500" />
+        {/* 第三行：反馈奖励 - 精致小巧布局 */}
+        <div className="mt-4">
+          <Card variant="soft" className="w-full rounded-lg overflow-hidden relative border border-border shadow-md">
+            <CardHeader className="bg-gradient-secondary text-foreground relative z-10 rounded-t-lg border-b border-border py-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-orange-500/10 backdrop-blur-sm rounded-md flex items-center justify-center shadow-sm border border-orange-500/20">
+                  <HelpCircle className="w-4 h-4 drop-shadow-sm text-orange-500" />
                 </div>
                 <div>
-                  <div className="text-lg font-bold text-foreground">{t('profile.feedbackRewards')}</div>
+                  <div className="text-base font-bold text-foreground">{t('profile.feedbackRewards')}</div>
                   <div className="text-xs font-normal text-muted-foreground">{t('profile.feedbackDescription')}</div>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-4 pb-4 relative z-10">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+            <CardContent className="p-4 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 {/* 反馈规则说明 */}
-                <div className="rounded-lg p-2.5 border border-border shadow-sm relative overflow-hidden bg-accent">
-                  <div className="flex items-center gap-2 mb-1.5 relative z-10">
+                <div className="rounded-lg p-3 border border-border shadow-sm relative overflow-hidden bg-accent">
+                  <div className="flex items-center gap-2 mb-2 relative z-10">
                     <div className="w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center shadow-sm">
                       <Award className="w-3 h-3 text-white drop-shadow-sm" />
                     </div>
-                    <h3 className="font-semibold text-foreground text-xs">{t('profile.feedbackRules')}</h3>
+                    <h3 className="font-semibold text-foreground text-sm">{t('profile.feedbackRules')}</h3>
                   </div>
-                  <p className="text-muted-foreground font-medium text-xs relative z-10 leading-tight">
+                  <p className="text-muted-foreground font-medium text-xs relative z-10 leading-relaxed">
                     {t('profile.feedbackRule')}
                   </p>
                 </div>
 
                 {/* 反馈邮箱卡片 */}
-                <div className="rounded-lg p-2.5 border border-border shadow-sm relative overflow-hidden bg-accent">
-                  <div className="flex items-center gap-2 mb-1.5 relative z-10">
+                <div className="rounded-lg p-3 border border-border shadow-sm relative overflow-hidden bg-accent">
+                  <div className="flex items-center gap-2 mb-2 relative z-10">
                     <div className="w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center shadow-sm">
                       <Mail className="w-3 h-3 text-white drop-shadow-sm" />
                     </div>
-                    <h3 className="font-semibold text-foreground text-xs">{t('profile.feedbackEmail')}</h3>
+                    <h3 className="font-semibold text-foreground text-sm">{t('profile.feedbackEmail')}</h3>
                   </div>
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-2">
                     <Input
                       value="hello@wenpai.xyz"
                       readOnly
-                      className="text-xs h-7 border border-border rounded-md bg-accent font-mono flex-1"
+                      className="text-xs h-8 border border-border rounded-md bg-accent font-mono flex-1"
                     />
                     <Button
                       variant="soft"
                       size="sm"
                       onClick={handleCopyFeedbackEmail}
-                      className="h-7 px-1.5 rounded-md bg-orange-500 text-white hover:bg-orange-600"
+                      className="h-8 px-2 rounded-md bg-orange-500 text-white hover:bg-orange-600"
                     >
-                      <Copy className="w-2.5 h-2.5" />
+                      <Copy className="w-3 h-3" />
                     </Button>
                   </div>
                 </div>
               </div>
 
-              {/* 反馈按钮 - 紧凑设计 */}
+              {/* 反馈按钮 - 小巧精致设计 */}
               <Button
-                variant="ghost"
+                variant="soft"
                 size="sm"
-                className="w-full h-8 text-xs rounded-lg bg-gradient-to-r from-orange-500/10 to-orange-600/10 border border-orange-500/20 text-orange-600 hover:from-orange-500/20 hover:to-orange-600/20"
+                className="w-full h-9 text-sm font-semibold rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 border-0 shadow-md"
                 onClick={handleCopyFeedbackEmail}
               >
-                <HelpCircle className="w-3 h-3 mr-1.5" />
+                <HelpCircle className="w-4 h-4 mr-2" />
                 {t('profile.submitFeedback')}
               </Button>
             </CardContent>

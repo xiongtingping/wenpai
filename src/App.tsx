@@ -161,6 +161,17 @@ const App: React.FC = () => {
                 email: '请输入邮箱',
                 password: '请输入密码'
               },
+              // 🔧 FIX: 防止 aria-hidden 干扰主应用交互
+              modal: {
+                // 禁用全局 aria-hidden 设置
+                disableGlobalAriaHidden: true,
+                // 不设置根元素的 aria-hidden
+                preventBodyAriaHidden: true,
+                // 使用专用容器
+                container: '#authing-guard-container',
+                // 确保模态框层级不会干扰主应用
+                zIndex: 1000
+              },
               // 🔧 FIX: 添加网络连接优化配置
               timeout: 30000, // 30秒超时
               retry: 1, // 减少重试次数
