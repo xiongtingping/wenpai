@@ -91,10 +91,11 @@ export const NewPermissionGuard: React.FC<NewPermissionGuardProps> = ({
         {/* 原始内容 */}
         <div
           className="relative pointer-events-none select-none"
+          className="permission-content-blurred"
           style={{
-            opacity: 1 - overlayOpacity + 0.3,
-            filter: 'blur(0.5px)'
-          }}
+            opacity: 1 - overlayOpacity + parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--permission-overlay-opacity-base')),
+            filter: getComputedStyle(document.documentElement).getPropertyValue('--permission-blur-filter')
+          } as React.CSSProperties}
         >
           {children}
         </div>
@@ -102,10 +103,11 @@ export const NewPermissionGuard: React.FC<NewPermissionGuardProps> = ({
         {/* 权限遮罩 */}
         <div
           className="absolute inset-0 z-50 flex items-center justify-center p-4"
+          className="permission-overlay"
           style={{
             backgroundColor: `rgba(255, 255, 255, ${overlayOpacity})`,
-            backdropFilter: 'blur(2px)'
-          }}
+            backdropFilter: getComputedStyle(document.documentElement).getPropertyValue('--permission-backdrop-filter')
+          } as React.CSSProperties}
         >
             <div className="text-center bg-card rounded-lg shadow-lg border p-6 max-w-sm">
               <Lock className="h-12 w-12 text-primary mx-auto mb-4" />

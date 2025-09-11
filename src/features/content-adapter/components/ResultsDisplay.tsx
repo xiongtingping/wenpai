@@ -299,7 +299,7 @@ function PlatformResultCard({
               <Textarea
                 value={result.content}
                 onChange={(e) => onContentUpdate(result.platformId, e.target.value)}
-                className="min-h-[120px] text-sm"
+                className="content-textarea text-sm"
                 placeholder="生成的内容将显示在这里..."
               />
             </div>
@@ -311,7 +311,7 @@ function PlatformResultCard({
                 <Textarea
                   value={comparisonContent}
                   readOnly
-                  className="min-h-[120px] text-sm bg-muted/50"
+                  className="content-textarea text-sm bg-muted/50"
                 />
               </div>
             )}

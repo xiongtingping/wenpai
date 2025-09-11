@@ -189,19 +189,7 @@ export const PerformanceStats: React.FC<{ visible?: boolean }> = ({ visible = fa
   if (!visible) return null;
   
   return (
-    <div style={{
-      position: 'fixed',
-      top: '10px',
-      right: '10px',
-      background: 'hsl(var(--foreground) / 0.8)',
-      color: 'hsl(var(--background))',
-      padding: '10px',
-      borderRadius: '5px',
-      fontSize: '0.75rem',
-      fontFamily: 'monospace',
-      zIndex: 9999,
-      minWidth: '200px'
-    }}>
+    <div className="performance-monitor">
       <div><strong>📊 性能监控</strong></div>
       <div>渲染次数: {stats.renderCount}</div>
       <div>平均渲染时间: {stats.averageRenderTime.toFixed(2)}ms</div>

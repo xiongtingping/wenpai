@@ -10,6 +10,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { globalDataManager } from '@/services/unifiedDataManager';
+import { userSettingsService } from '@/services/userSettingsService';
+import { useAuth } from '@/hooks/useAuth';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -30,18 +32,24 @@ function getSystemTheme(): 'light' | 'dark' {
 }
 
 /**
- * 从统一数据管理器获取保存的主题
+ * 从用户设置服务获取保存的主题
  */
 async function getSavedTheme(): Promise<Theme> {
   if (typeof window === 'undefined') return 'system';
   try {
-    // 优先从统一数据管理器获取
+    // 优先从用户设置服务获取
+    const mode = await userSettingsService.getThemeMode();
+    if (mode && ['light', 'dark', 'system'].includes(mode)) {
+      return mode;
+    }
+
+    // 兜底1：从统一数据管理器获取
     const saved = await globalDataManager.getData<Theme>('theme');
     if (saved && ['light', 'dark', 'system'].includes(saved)) {
       return saved;
     }
-    
-    // 兜底：从localStorage获取
+
+    // 兜底2：从localStorage获取
     const fallback = localStorage.getItem('theme') as Theme;
     return fallback && ['light', 'dark', 'system'].includes(fallback) ? fallback : 'system';
   } catch {
@@ -50,15 +58,24 @@ async function getSavedTheme(): Promise<Theme> {
 }
 
 /**
- * 保存主题到统一数据管理器
+ * 保存主题到用户设置服务
  */
 async function saveTheme(theme: Theme): Promise<void> {
   if (typeof window === 'undefined') return;
   try {
-    // 保存到统一数据管理器（会自动处理云端同步）
+    // 优先保存到用户设置服务（会自动处理云端同步）
+    await userSettingsService.saveThemeMode(theme);
+
+    // 同时保存到统一数据管理器以保持兼容性
     await globalDataManager.setData('theme', theme);
-  } catch {
-    // 忽略存储错误
+  } catch (error) {
+    console.warn('保存主题设置失败:', error);
+    // 兜底：保存到localStorage
+    try {
+      localStorage.setItem('theme', theme);
+    } catch {
+      // 忽略存储错误
+    }
   }
 }
 
@@ -86,11 +103,17 @@ function applyTheme(actualTheme: 'light' | 'dark'): void {
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('system');
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
+  const { user } = useAuth();
 
-  // 初始化主题
+  // 初始化主题和响应用户变化
   useEffect(() => {
     const initTheme = async () => {
       try {
+        // 如果用户已登录，初始化用户设置服务
+        if (user?.id) {
+          userSettingsService.setUserId(user.id);
+        }
+
         const savedTheme = await getSavedTheme();
         setThemeState(savedTheme);
       } catch (error) {
@@ -98,9 +121,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setThemeState('system');
       }
     };
-    
+
     initTheme();
-  }, []);
+  }, [user?.id]); // 依赖用户ID，用户变化时重新初始化
 
   // 监听系统主题变化
   useEffect(() => {

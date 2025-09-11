@@ -4,12 +4,7 @@ export function TrustSection() {
   return (
     <section className="py-16 opacity-0 animate-fadeIn bg-[hsl(var(--muted))] relative" id="trust-section">
       {/* 顶部渐变过渡层 - 从白色过渡到浅灰色 */}
-      <div 
-        className="absolute top-0 left-0 right-0 h-10"
-        style={{
-          background: 'linear-gradient(to bottom, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)'
-        }}
-      />
+      <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-background to-muted" />
       
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">

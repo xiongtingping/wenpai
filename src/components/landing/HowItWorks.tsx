@@ -64,8 +64,8 @@ export function HowItWorks() {
             return (
               <div
                 key={title}
-                className="group bg-card rounded-xl p-8 border border-border shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-                style={{ animationDelay: `${i * 0.1 + 0.1}s` }}
+                className="group bg-card rounded-xl p-8 border border-border shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 how-it-works-step"
+                style={{ '--animation-delay': `${i * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--landing-animation-delay-step')) + parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--landing-animation-delay-base'))}s` } as React.CSSProperties}
               >
                 <div className="flex flex-col items-center text-center">
                   {/* 渐变圆形背景图标 */}

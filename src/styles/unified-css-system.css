@@ -1,7 +1,7 @@
-/* 
+/*
  * Unified CSS System (统一CSS系统)
  * 按照正确的层级顺序导入所有样式层
- * 
+ *
  * 架构：Design Token（变量层） + Base Layer（基础层） + Utility Class（工具层） + Component Layer（组件层）
  */
 
@@ -16,6 +16,82 @@
 
 /* 🧩 Layer 4: Component Layer (组件层) */
 @import './component-layer.css';
+
+/* 🎯 CSS系统统一规范 */
+
+/*
+ * ===== CSS 系统架构分析报告 =====
+ *
+ * 📊 当前状态分析：
+ *
+ * ✅ 已实现的良好实践：
+ * 1. 四层架构已建立：Design Tokens → Base Layer → Utility Classes → Component Layer
+ * 2. 设计令牌系统完善：颜色、间距、阴影、圆角等都有统一变量
+ * 3. 多主题系统完整：light/dark/beige/gold/rainbow/green 六套主题
+ * 4. Tailwind CSS 集成良好：使用 CSS 变量作为 Tailwind 颜色令牌
+ * 5. 组件变体系统：使用 cva (class-variance-authority) 管理组件样式
+ *
+ * ⚠️ 发现的问题：
+ *
+ * 1. 硬编码样式问题：
+ *    - 部分组件仍使用内联样式 style={{}}
+ *    - 存在硬编码颜色值（#ffffff, rgb(), rgba()）
+ *    - 硬编码尺寸值（width: 100px, height: 50px）
+ *
+ * 2. 样式一致性问题：
+ *    - 同类组件使用不同的样式模式
+ *    - 重复的样式定义
+ *    - 主题切换时部分组件样式不一致
+ *
+ * 3. 架构违规问题：
+ *    - 部分组件直接使用 Tailwind 类而非设计令牌
+ *    - 组件层样式混入了工具类定义
+ *    - 缺乏统一的命名规范
+ *
+ * 📋 统一方案：
+ *
+ * Phase 1: 设计令牌标准化
+ * - 统一所有颜色、间距、字体、阴影令牌
+ * - 建立语义化命名规范
+ * - 确保所有主题完整覆盖
+ *
+ * Phase 2: 组件样式重构
+ * - 消除所有硬编码样式
+ * - 统一组件变体系统
+ * - 建立组件样式继承体系
+ *
+ * Phase 3: 工具类优化
+ * - 基于设计令牌创建语义化工具类
+ * - 移除重复和冗余的工具类
+ * - 建立响应式设计规范
+ *
+ * Phase 4: 质量保证
+ * - 建立样式 lint 规则
+ * - 创建自动化测试
+ * - 文档化最佳实践
+ */
+
+/* 🔧 临时修复：硬编码样式替换映射 */
+:root {
+  /* 常见硬编码颜色的设计令牌替换 */
+  --hardcoded-white: hsl(var(--background));
+  --hardcoded-black: hsl(var(--foreground));
+  --hardcoded-blue: hsl(var(--primary));
+  --hardcoded-red: hsl(var(--destructive));
+  --hardcoded-green: hsl(var(--success));
+  --hardcoded-yellow: hsl(var(--warning));
+  --hardcoded-gray: hsl(var(--muted));
+
+  /* 常见硬编码尺寸的设计令牌替换 */
+  --size-xs: 0.5rem;    /* 8px */
+  --size-sm: 0.75rem;   /* 12px */
+  --size-md: 1rem;      /* 16px */
+  --size-lg: 1.25rem;   /* 20px */
+  --size-xl: 1.5rem;    /* 24px */
+  --size-2xl: 2rem;     /* 32px */
+  --size-3xl: 3rem;     /* 48px */
+  --size-4xl: 4rem;     /* 64px */
+}
 
 /* 🎯 Dialog Styles (弹窗样式) - 包含必要的动画支持 */
 @layer dialog {

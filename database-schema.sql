@@ -85,6 +85,60 @@ CREATE INDEX IF NOT EXISTS idx_user_preferences_priority ON user_preferences(syn
 CREATE INDEX IF NOT EXISTS idx_user_preferences_updated ON user_preferences(updated_at);
 
 -- ============================================
+-- 创建 user_preferences 表的 RPC 函数
+-- ============================================
+CREATE OR REPLACE FUNCTION create_user_preferences_table()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- 检查表是否已存在
+    IF NOT EXISTS (
+        SELECT FROM information_schema.tables
+        WHERE table_schema = 'public'
+        AND table_name = 'user_preferences'
+    ) THEN
+        -- 创建表
+        CREATE TABLE user_preferences (
+            id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+            user_id TEXT NOT NULL,
+            data_key TEXT NOT NULL,
+            data_value JSONB NOT NULL,
+            data_category TEXT NOT NULL DEFAULT 'preference',
+            sync_priority INTEGER DEFAULT 5,
+            created_at TIMESTAMPTZ DEFAULT NOW(),
+            updated_at TIMESTAMPTZ DEFAULT NOW(),
+            version INTEGER DEFAULT 1,
+            device_info JSONB DEFAULT '{}'::jsonb,
+            metadata JSONB DEFAULT '{}'::jsonb,
+
+            CONSTRAINT user_preferences_unique UNIQUE (user_id, data_key),
+            CONSTRAINT user_preferences_category_check CHECK (data_category IN ('preference')),
+            CONSTRAINT user_preferences_priority_check CHECK (sync_priority BETWEEN 1 AND 10)
+        );
+
+        -- 创建索引
+        CREATE INDEX idx_user_preferences_user_id ON user_preferences(user_id);
+        CREATE INDEX idx_user_preferences_key ON user_preferences(data_key);
+        CREATE INDEX idx_user_preferences_priority ON user_preferences(sync_priority);
+        CREATE INDEX idx_user_preferences_updated ON user_preferences(updated_at);
+
+        -- 启用 RLS
+        ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
+
+        -- 创建 RLS 策略
+        CREATE POLICY "Users can only access their own preferences" ON user_preferences
+            FOR ALL USING (auth.uid()::text = user_id);
+
+        RAISE NOTICE 'user_preferences table created successfully';
+    ELSE
+        RAISE NOTICE 'user_preferences table already exists';
+    END IF;
+END;
+$$;
+
+-- ============================================
 -- 用户通用数据表
 -- ============================================
 CREATE TABLE IF NOT EXISTS user_general_data (

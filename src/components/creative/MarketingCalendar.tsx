@@ -364,8 +364,8 @@ const SortableTodoItem: React.FC<{
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
+    opacity: isDragging ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--calendar-drag-opacity')) : 1,
+  } as React.CSSProperties;
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -957,8 +957,8 @@ function MarketingCalendar() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
       {/* 左侧 - 紧凑型日历视图 */}
-      <Card className="h-[600px] flex flex-col overflow-hidden">
-        <CardHeader className="pb-2 flex-shrink-0 h-[70px] p-4">
+      <Card className="calendar-card flex flex-col overflow-hidden">
+        <CardHeader className="pb-2 flex-shrink-0 calendar-header p-4">
           <CardTitle className="flex items-center gap-2 text-lg mb-2">
             <Calendar className="w-4 h-4 flex-shrink-0" />
             <span className="leading-none">营销日历</span>
@@ -972,9 +972,9 @@ function MarketingCalendar() {
             点击日期查看待办，双击快速添加
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-3 h-[480px] flex flex-col overflow-hidden">
+        <CardContent className="p-3 calendar-content flex flex-col overflow-hidden">
           {/* 月份导航 - 更紧凑布局 */}
-          <div className="flex items-center justify-between mb-3 h-[48px] flex-shrink-0">
+          <div className="flex items-center justify-between mb-3 calendar-nav flex-shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -984,14 +984,14 @@ function MarketingCalendar() {
               <ChevronLeft className="w-4 h-4" />
             </Button>
 
-            <div className="text-center flex-1 h-[48px] flex flex-col justify-center">
+            <div className="text-center flex-1 calendar-nav flex flex-col justify-center">
               <div className="creative-module-subtitle">
                 {currentDate.toLocaleDateString('zh-CN', {
                   year: 'numeric',
                   month: 'long'
                 })}
               </div>
-              <div className="creative-module-small h-[16px] flex items-center justify-center">
+              <div className="creative-module-small calendar-nav-item flex items-center justify-center">
                 {lunarInfo ? (
                   `${lunarInfo.getYearInGanZhi()}年 ${lunarInfo.getYearShengXiao()}年`
                 ) : (
@@ -1023,7 +1023,7 @@ function MarketingCalendar() {
 
           {/* 月历视图 */}
           <div
-            className="border rounded-lg overflow-hidden h-[470px] flex flex-col"
+            className="border rounded-lg overflow-hidden calendar-grid flex flex-col"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -1040,9 +1040,9 @@ function MarketingCalendar() {
             </div>
 
             {/* 日期网格 - 固定高度 */}
-            <div className="h-[420px] flex flex-col">
+            <div className="calendar-week flex flex-col">
               {calendarData.map((week, weekIndex) => (
-                <div key={weekIndex} className="grid grid-cols-7 border-t h-[70px]">
+                <div key={weekIndex} className="grid grid-cols-7 border-t calendar-day">
                   {week.map((dayInfo, dayIndex) => {
                   const isCurrentMonth = dayInfo.date.getMonth() === currentDate.getMonth();
 
@@ -1073,7 +1073,7 @@ function MarketingCalendar() {
                     <div
                       key={dayIndex}
                       className={`
-                        h-full min-h-[70px] p-1 border-r border-b cursor-pointer transition-all relative flex flex-col
+                        h-full calendar-day p-1 border-r border-b cursor-pointer transition-all relative flex flex-col
                         ${!isCurrentMonth ? 'opacity-40 bg-muted/30 text-muted-foreground' : 'hover:bg-accent'}
                         ${isToday ? 'bg-primary/10 border-primary' : ''}
                         ${isSelected ? 'bg-primary/20 border-primary border-2' : ''}
@@ -1255,8 +1255,8 @@ function MarketingCalendar() {
       </Card>
 
       {/* 右侧 - Todo任务列表 */}
-      <Card className="h-[600px] flex flex-col overflow-hidden">
-        <CardHeader className="pb-2 flex-shrink-0 h-[70px] p-4">
+      <Card className="calendar-card flex flex-col overflow-hidden">
+        <CardHeader className="pb-2 flex-shrink-0 calendar-header p-4">
           <div className="flex items-center justify-between mb-2 min-h-[32px]">
             <CardTitle className="flex items-center gap-2 text-lg">
               <CheckCircle className="w-4 h-4 flex-shrink-0" />
@@ -1328,7 +1328,7 @@ function MarketingCalendar() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="p-3 h-[530px] overflow-hidden flex flex-col">
+        <CardContent className="p-3 calendar-todo overflow-hidden flex flex-col">
           {/* 统计和筛选控件合并区域 */}
           <div className="p-3 bg-muted/30 rounded-lg flex-shrink-0 mb-2">
             {/* 任务统计 */}
@@ -1440,7 +1440,7 @@ function MarketingCalendar() {
           </div>
 
           {/* 任务列表 - 支持滚动 */}
-          <div className="h-[360px] overflow-y-auto pr-1">
+          <div className="calendar-todo-list overflow-y-auto pr-1">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}

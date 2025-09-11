@@ -33,7 +33,7 @@ const AppInput = (props: InputProps) => {
   };
 
   return (
-    <div className="w-full min-w-[200px] relative">
+    <div className="w-full auth-input-container relative">
       {label && 
         <label className='block mb-2 text-sm font-medium text-foreground'>
           {label}
@@ -51,16 +51,16 @@ const AppInput = (props: InputProps) => {
         {isHovering && (
           <>
             <div
-              className="absolute pointer-events-none top-0 left-0 right-0 h-[2px] z-20 rounded-t-md overflow-hidden"
+              className="absolute pointer-events-none top-0 left-0 right-0 auth-border-top z-20 rounded-t-md overflow-hidden"
               style={{
-                background: `radial-gradient(30px circle at ${mousePosition.x}px 0px, hsl(var(--primary)) 0%, transparent 70%)`,
-              }}
+                background: `radial-gradient(var(--auth-gradient-size) circle at ${mousePosition.x}px 0px, hsl(var(--primary)) 0%, transparent 70%)`,
+              } as React.CSSProperties}
             />
             <div
-              className="absolute pointer-events-none bottom-0 left-0 right-0 h-[2px] z-20 rounded-b-md overflow-hidden"
+              className="absolute pointer-events-none bottom-0 left-0 right-0 auth-border-bottom z-20 rounded-b-md overflow-hidden"
               style={{
-                background: `radial-gradient(30px circle at ${mousePosition.x}px 2px, hsl(var(--primary)) 0%, transparent 70%)`,
-              }}
+                background: `radial-gradient(var(--auth-gradient-size) circle at ${mousePosition.x}px var(--auth-border-height), hsl(var(--primary)) 0%, transparent 70%)`,
+              } as React.CSSProperties}
             />
           </>
         )}
@@ -314,7 +314,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
             登录或注册您的文派账户
           </DialogDescription>
         </DialogHeader>
-        <div className="flex h-[600px]">
+        <div className="flex auth-modal-container">
           {/* 左侧表单区域 */}
           <div className="w-full lg:w-1/2 p-8 flex flex-col justify-center">
             <div className="space-y-6">

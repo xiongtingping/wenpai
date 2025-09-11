@@ -4,7 +4,6 @@
  */
 
 import './index.css';
-import './styles/authing-guard-overrides.css';
 import React from 'react';
 
 import ReactDOM from 'react-dom/client';

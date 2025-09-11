@@ -23,8 +23,9 @@ export interface UserSetting {
 export const SETTING_KEYS = {
   // 主题设置
   THEME: 'user_theme',
-  THEME_MODE: 'theme_mode', // light, dark, auto
+  THEME_MODE: 'theme_mode', // light, dark, system
   THEME_COLOR: 'theme_color',
+  THEME_PREFERENCE: 'theme_preference', // 统一主题偏好设置
   
   // UI设置
   UI_LANGUAGE: 'ui_language',
@@ -103,6 +104,7 @@ export class UserSettingsService {
   private static instance: UserSettingsService;
   private cache = new Map<string, any>();
   private userId: string | null = null;
+  private tableValidated = false;
 
   private constructor() {}
 
@@ -120,8 +122,41 @@ export class UserSettingsService {
     if (this.userId !== userId) {
       this.userId = userId;
       this.cache.clear(); // 清除缓存
+      this.tableValidated = false; // 重置验证状态
     }
   }
+
+  /**
+   * 验证数据库表结构
+   */
+  private async validateTable(): Promise<boolean> {
+    if (this.tableValidated) {
+      return true;
+    }
+
+    try {
+      // 🔧 FIX: 使用实际的表结构字段名
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('id, user_id, key, value')
+        .limit(1);
+
+      if (error) {
+        console.error('数据库表验证失败:', error);
+        console.error('可能的原因: 表不存在、权限不足或字段名不匹配');
+        return false;
+      }
+
+      this.tableValidated = true;
+      console.log('✅ user_preferences 表验证成功');
+      return true;
+    } catch (error) {
+      console.error('数据库表验证异常:', error);
+      return false;
+    }
+  }
+
+
 
   /**
    * 保存设置
@@ -131,35 +166,34 @@ export class UserSettingsService {
       throw new Error('用户未登录，无法保存设置');
     }
 
-    const category = SETTING_CATEGORIES[key as keyof typeof SETTING_CATEGORIES] || 'preference';
-    const priority = SETTING_PRIORITIES[key as keyof typeof SETTING_PRIORITIES] || 5;
-
+    // 🔧 FIX: 使用实际的表结构字段名，让数据库自动生成 UUID
     const settingData = {
-      id: `${this.userId}_${key}`,
       user_id: this.userId,
-      data_key: key,
-      data_value: value,
-      data_category: category,
-      sync_priority: priority,
-      metadata: {
-        ...metadata,
-        last_updated: new Date().toISOString(),
-        setting_version: '1.0'
-      }
+      key: key,
+      value: value
     };
 
-    const { data, error } = await supabase
-      .from('user_preferences')
-      .upsert(settingData, {
-        onConflict: 'user_id,data_key'
-      });
+    try {
+      // 🔧 FIX: 使用实际的表结构字段名
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert(settingData, {
+          onConflict: 'user_id,key'
+        });
 
-    if (error) {
-      throw new Error(`保存设置失败: ${error.message}`);
+      if (error) {
+        console.error('保存设置失败:', error);
+        console.error('保存数据:', settingData);
+        throw new Error(`保存设置失败: ${error.message}`);
+      }
+
+      // 更新缓存
+      this.cache.set(key, value);
+    } catch (error) {
+      console.error('保存设置异常:', error);
+      console.error('保存数据:', settingData);
+      throw error;
     }
-
-    // 更新缓存
-    this.cache.set(key, value);
   }
 
   /**
@@ -170,29 +204,19 @@ export class UserSettingsService {
       throw new Error('用户未登录，无法保存设置');
     }
 
+    // 🔧 FIX: 使用实际的表结构字段名，让数据库自动生成 UUID
     const settingsData = Object.entries(settings).map(([key, value]) => {
-      const category = SETTING_CATEGORIES[key as keyof typeof SETTING_CATEGORIES] || 'preference';
-      const priority = SETTING_PRIORITIES[key as keyof typeof SETTING_PRIORITIES] || 5;
-
       return {
-        id: `${this.userId}_${key}`,
         user_id: this.userId,
-        data_key: key,
-        data_value: value,
-        data_category: category,
-        sync_priority: priority,
-        metadata: {
-          ...metadata,
-          last_updated: new Date().toISOString(),
-          setting_version: '1.0'
-        }
+        key: key,
+        value: value
       };
     });
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('user_preferences')
       .upsert(settingsData, {
-        onConflict: 'user_id,data_key'
+        onConflict: 'user_id,key'
       });
 
     if (error) {
@@ -218,27 +242,38 @@ export class UserSettingsService {
       return this.cache.get(key);
     }
 
+    // 🔧 FIX: 验证表结构
+    const isTableValid = await this.validateTable();
+    if (!isTableValid) {
+      console.warn('数据库表验证失败，返回默认值');
+      return defaultValue;
+    }
+
     try {
+      // 🔧 FIX: 使用实际的表结构字段名
       const { data, error } = await supabase
         .from('user_preferences')
-        .select('data_value')
+        .select('value')
         .eq('user_id', this.userId)
-        .eq('data_key', key)
+        .eq('key', key)
         .single();
 
       if (error && error.code !== 'PGRST116') {
         console.error('获取设置失败:', error);
+        console.error('查询参数:', { userId: this.userId, key });
+        console.error('错误详情:', { code: error.code, message: error.message, details: error.details });
         return defaultValue;
       }
 
-      const value = data?.data_value ?? defaultValue;
-      
+      const value = data?.value ?? defaultValue;
+
       // 缓存结果
       this.cache.set(key, value);
-      
+
       return value;
     } catch (error) {
       console.error('获取设置异常:', error);
+      console.error('查询参数:', { userId: this.userId, key });
       return defaultValue;
     }
   }
@@ -263,23 +298,43 @@ export class UserSettingsService {
 
     // 批量获取未缓存的数据
     if (uncachedKeys.length > 0) {
+      // 🔧 FIX: 验证表结构
+      const isTableValid = await this.validateTable();
+      if (!isTableValid) {
+        console.warn('数据库表验证失败，跳过批量获取');
+        return result;
+      }
+
       try {
-        const { data, error } = await supabase
+        // 🔧 FIX: 使用实际的表结构字段名
+        let query = supabase
           .from('user_preferences')
-          .select('data_key, data_value')
-          .eq('user_id', this.userId)
-          .in('data_key', uncachedKeys);
+          .select('key, value')
+          .eq('user_id', this.userId);
+
+        // 🔧 FIX: 对于 in 操作符，确保数组格式正确
+        if (uncachedKeys.length === 1) {
+          // 单个键使用 eq 而不是 in
+          query = query.eq('key', uncachedKeys[0]);
+        } else {
+          // 多个键使用 in，确保数组格式正确
+          query = query.in('key', uncachedKeys);
+        }
+
+        const { data, error } = await query;
 
         if (error && error.code !== 'PGRST116') {
           console.error('批量获取设置失败:', error);
+          console.error('查询参数:', { userId: this.userId, keys: uncachedKeys });
         } else if (data) {
           data.forEach(setting => {
-            result[setting.data_key] = setting.data_value;
-            this.cache.set(setting.data_key, setting.data_value);
+            result[setting.key] = setting.value;
+            this.cache.set(setting.key, setting.value);
           });
         }
       } catch (error) {
         console.error('批量获取设置异常:', error);
+        console.error('查询参数:', { userId: this.userId, keys: uncachedKeys });
       }
     }
 
@@ -295,9 +350,10 @@ export class UserSettingsService {
     }
 
     try {
+      // 🔧 FIX: 使用实际的表结构字段名
       const { data, error } = await supabase
         .from('user_preferences')
-        .select('data_key, data_value')
+        .select('key, value')
         .eq('user_id', this.userId);
 
       if (error) {
@@ -307,8 +363,8 @@ export class UserSettingsService {
 
       const result: Record<string, any> = {};
       data.forEach(setting => {
-        result[setting.data_key] = setting.data_value;
-        this.cache.set(setting.data_key, setting.data_value);
+        result[setting.key] = setting.value;
+        this.cache.set(setting.key, setting.value);
       });
 
       return result;
@@ -326,11 +382,12 @@ export class UserSettingsService {
       throw new Error('用户未登录，无法删除设置');
     }
 
+    // 🔧 FIX: 使用实际的表结构字段名
     const { error } = await supabase
       .from('user_preferences')
       .delete()
       .eq('user_id', this.userId)
-      .eq('data_key', key);
+      .eq('key', key);
 
     if (error) {
       throw new Error(`删除设置失败: ${error.message}`);
@@ -387,6 +444,69 @@ export class UserSettingsService {
    */
   clearCache(): void {
     this.cache.clear();
+  }
+
+  // ==================== 主题设置专用方法 ====================
+
+  /**
+   * 获取用户主题设置
+   */
+  async getThemeSettings(): Promise<{
+    mode: 'light' | 'dark' | 'system';
+    color?: string;
+    preference?: string;
+  }> {
+    const settings = await this.getSettings([
+      SETTING_KEYS.THEME_MODE,
+      SETTING_KEYS.THEME_COLOR,
+      SETTING_KEYS.THEME_PREFERENCE
+    ]);
+
+    return {
+      mode: settings[SETTING_KEYS.THEME_MODE] || 'system',
+      color: settings[SETTING_KEYS.THEME_COLOR],
+      preference: settings[SETTING_KEYS.THEME_PREFERENCE]
+    };
+  }
+
+  /**
+   * 保存用户主题设置
+   */
+  async saveThemeSettings(themeSettings: {
+    mode?: 'light' | 'dark' | 'system';
+    color?: string;
+    preference?: string;
+  }): Promise<void> {
+    const settingsToSave: Record<string, any> = {};
+
+    if (themeSettings.mode !== undefined) {
+      settingsToSave[SETTING_KEYS.THEME_MODE] = themeSettings.mode;
+    }
+    if (themeSettings.color !== undefined) {
+      settingsToSave[SETTING_KEYS.THEME_COLOR] = themeSettings.color;
+    }
+    if (themeSettings.preference !== undefined) {
+      settingsToSave[SETTING_KEYS.THEME_PREFERENCE] = themeSettings.preference;
+    }
+
+    if (Object.keys(settingsToSave).length > 0) {
+      await this.saveSettings(settingsToSave);
+    }
+  }
+
+  /**
+   * 获取主题模式
+   */
+  async getThemeMode(): Promise<'light' | 'dark' | 'system'> {
+    const mode = await this.getSetting(SETTING_KEYS.THEME_MODE);
+    return mode || 'system';
+  }
+
+  /**
+   * 保存主题模式
+   */
+  async saveThemeMode(mode: 'light' | 'dark' | 'system'): Promise<void> {
+    await this.saveSetting(SETTING_KEYS.THEME_MODE, mode);
   }
 }
 

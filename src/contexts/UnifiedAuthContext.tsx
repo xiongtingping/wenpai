@@ -22,7 +22,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGuard, User } from '@authing/guard-react18';
+// Guard组件已移除，仅使用自定义表单和@authing/web SDK
 import { getAuthingConfig } from '@/config/authing';
 import { useAuthStore } from '@/store/authStore';
 import { authService } from '@/services/authService';
@@ -67,10 +67,7 @@ interface UnifiedAuthContextType {
   resetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
   hasPermission: (permission: string) => boolean;
   hasRole: (role: string) => boolean;
-  guard: any;
-  startLoginModal: () => void;
-  showGuard: () => void;
-  hideGuard: () => void;
+  // Guard相关方法已移除
   // 自定义模态框状态
   customAuthModalOpen: boolean;
   setCustomAuthModalOpen: (open: boolean) => void;
@@ -103,8 +100,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const navigate = useNavigate();
   const authStore = useAuthStore();
   
-  // 使用官方Guard React18 Hook
-  const guard = useGuard();
+  // Guard Hook已移除 - 使用自定义认证流程
 
   // 获取用户信息 - 使用官方API，增加网络错误处理
   const checkAuth = useCallback(async () => {
@@ -137,63 +133,10 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
       }
       
-      // 如果 localStorage 中没有，再检查 Guard session
-      if (guard) {
-        try {
-          const userInfo: User | null = await guard.trackSession();
-          
-          if (userInfo) {
-            console.log('✅ 从 Guard 检测到用户登录状态:', userInfo);
-            
-            // 🚨 关键：用户ID必须来自Authing真实API，不能本地生成
-            const userInfoAny = userInfo as any;
-            const userId = userInfo.id || userInfoAny.userId || userInfoAny.sub;
-            if (!userId) {
-              console.error('❌ Authing API未返回有效用户ID:', userInfo);
-              throw new Error('认证系统错误：未获取到有效用户ID');
-            }
-
-            // 转换为统一格式
-            const formattedUser: UserInfo = {
-              id: userId,
-              username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
-              email: userInfo.email || userInfoAny.emailAddress || '',
-              phone: userInfo.phone || userInfoAny.phoneNumber || '',
-              nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
-              avatar: userInfoAny.avatar || userInfo.photo || userInfoAny.picture || '',
-              loginTime: new Date().toISOString(),
-              roles: Array.isArray(userInfo.roles) ? userInfo.roles : ['user'],
-              permissions: Array.isArray(userInfoAny.permissions) ? userInfoAny.permissions : ['basic'],
-              ...userInfo
-            };
-            
-            setUser(formattedUser);
-            localStorage.setItem('authing_user', JSON.stringify(formattedUser));
-            // 同步到 authStore
-            authStore.setUser({
-              id: formattedUser.id,
-              username: formattedUser.username,
-              email: formattedUser.email,
-              phone: formattedUser.phone,
-              nickname: formattedUser.nickname,
-              avatar: formattedUser.avatar,
-              loginTime: formattedUser.loginTime
-            });
-          } else {
-            console.log('👤 用户未登录');
-            setUser(null);
-            authStore.setUser(null);
-          }
-        } catch (guardError) {
-          console.warn('⚠️ Guard session 检查失败，可能是网络问题:', guardError);
-          setUser(null);
-          authStore.setUser(null);
-        }
-      } else {
-        console.log('👤 Guard 未初始化，用户未登录');
-        setUser(null);
-        authStore.setUser(null);
-      }
+      // Guard session检查已移除 - 仅依赖localStorage和自定义认证流程
+      console.log('👤 未找到本地用户信息，设置为未登录状态');
+      setUser(null);
+      authStore.setUser(null);
     } catch (error) {
       console.error('获取用户信息失败:', error);
       // 网络错误不应该阻止应用启动
@@ -203,174 +146,15 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     } finally {
       setLoading(false);
     }
-  }, [guard]);
+  }, []); // Guard依赖已移除
 
-  /**
-   * 初始化认证系统 - 使用官方Guard Hook
-   */
-  useEffect(() => {
-    if (!guard) {
-      console.warn('⚠️ Guard Hook未返回有效对象');
-      return;
-    }
+  // Guard初始化useEffect已移除 - 使用自定义认证流程
 
-    console.log('🔧 开始官方Guard认证系统初始化');
-    console.log('🧪 Guard对象检查:', {
-      guard: !!guard,
-      type: typeof guard,
-      methods: guard ? Object.getOwnPropertyNames(guard).filter(name => typeof guard[name] === 'function') : [],
-      hasShow: guard && typeof guard.show === 'function',
-      hasOn: guard && typeof guard.on === 'function'
-    });
-
-    // 🔧 FIX: 添加Guard组件错误处理和防护性检查
-    try {
-      // 增强的Guard状态验证
-      const isGuardReady = guard && 
-                          typeof guard === 'object' && 
-                          typeof guard.on === 'function' &&
-                          typeof guard.show === 'function';
-      
-      if (!isGuardReady) {
-        console.warn('🔧 Guard对象未就绪或方法不完整，跳过事件监听器注册');
-        
-        // 尝试延迟初始化（通过递归调用useEffect逻辑）
-        setTimeout(() => {
-          if (guard && typeof guard.on === 'function') {
-            console.log('🔧 Guard延迟初始化成功，重新尝试事件注册');
-            // 由于这是函数组件，我们简化处理，让系统在下次渲染时重新检查
-          }
-        }, 1000);
-        
-        return;
-      }
-      
-      // 设置登录成功事件监听 - 增加防护性检查
-      if (guard && typeof guard.on === 'function') {
-        try {
-          // 为防止事件监听器内部错误，使用增强的包装函数
-          const safeEventHandler = (eventType: string, handler: (...args: any[]) => void) => {
-            try {
-              // 检查Guard对象是否有有效的on方法
-              if (!guard || typeof guard.on !== 'function') {
-                console.warn(`🔧 Guard对象缺少有效的on方法，跳过${eventType}事件监听器注册`);
-                return;
-              }
-
-              // 创建一个更安全的事件处理器
-              const wrappedHandler = (...args: any[]) => {
-                try {
-                  handler(...args);
-                } catch (handlerError) {
-                  console.warn(`🔧 Guard事件处理器(${eventType})执行错误:`, handlerError);
-                }
-              };
-
-              // 🔧 增强的事件监听器注册 - 防止内部状态错误
-              try {
-                // 安全地访问Guard的内部状态（使用类型断言）
-                const guardAny = guard as any;
-                
-                // 检查Guard对象的内部状态
-                if (guardAny._eventListeners === undefined) {
-                  // 如果事件监听器列表未初始化，手动初始化
-                  console.log('🔧 Guard事件监听器列表未初始化，手动初始化...');
-                  guardAny._eventListeners = {};
-                }
-                
-                // 确保特定事件类型的监听器数组存在
-                if (!guardAny._eventListeners[eventType]) {
-                  guardAny._eventListeners[eventType] = [];
-                }
-                
-                // 现在安全地注册事件监听器
-                guardAny.on(eventType, wrappedHandler);
-                
-                console.log(`✅ Guard事件监听器(${eventType})注册成功`);
-                
-              } catch (registrationError) {
-                // 如果还是失败，尝试直接操作内部数组
-                try {
-                  const guardAny = guard as any;
-                  if (!guardAny._eventListeners) {
-                    guardAny._eventListeners = {};
-                  }
-                  if (!guardAny._eventListeners[eventType]) {
-                    guardAny._eventListeners[eventType] = [];
-                  }
-                  
-                  // 直接添加到事件监听器数组
-                  guardAny._eventListeners[eventType].push(wrappedHandler);
-                  console.log(`✅ Guard事件监听器(${eventType})通过直接操作注册成功`);
-                  
-                } catch (directError) {
-                  console.warn(`🔧 Guard事件监听器(${eventType})所有注册方式都失败:`, directError);
-                  
-                  // 最后的备用方案：延迟重试
-                  setTimeout(() => {
-                    try {
-                      if (guard && typeof (guard as any).on === 'function') {
-                        (guard as any).on(eventType, wrappedHandler);
-                        console.log(`✅ Guard事件监听器(${eventType})延迟注册成功`);
-                      }
-                    } catch (retryError) {
-                      console.warn(`🔧 Guard事件监听器(${eventType})延迟重试也失败:`, retryError);
-                    }
-                  }, 2000);
-                }
-              }
-              
-            } catch (listenerError) {
-              console.warn(`🔧 Guard事件监听器(${eventType})注册失败:`, listenerError);
-              
-              // 如果是数组访问错误，说明Guard内部状态不正确
-              if (listenerError instanceof Error && listenerError.message?.includes('push')) {
-                console.warn('🔧 Guard内部状态异常，可能需要重新初始化');
-              }
-            }
-          };
-
-          // 安全注册登录事件监听器
-          safeEventHandler('login', (userInfo: User) => {
-            console.log('✅ Guard登录事件触发:', userInfo);
-            handleAuthingLogin(userInfo);
-          });
-
-          // 安全注册错误事件监听器
-          safeEventHandler('error', (error: any) => {
-            console.warn('🔧 Guard组件错误:', error);
-            // 检查是否是网络错误
-            const isNetworkError = error?.message?.includes('Failed to fetch') ||
-                                  error?.message?.includes('ERR_CONNECTION') ||
-                                  error?.message?.includes('net::');
-            if (isNetworkError) {
-              console.log('🔧 Guard网络错误，不影响应用运行');
-            } else {
-              console.error('❌ Guard非网络错误:', error);
-            }
-          });
-
-        } catch (eventSetupError) {
-          console.warn('🔧 Guard事件监听器整体设置失败:', eventSetupError);
-        }
-      } else {
-        console.warn('⚠️ Guard.on方法不可用，跳过事件监听');
-      }
-
-      // 检查当前登录状态
-      checkAuth();
-
-      console.log('✅ 官方Guard认证系统初始化成功');
-    } catch (error) {
-      console.warn('🔧 Guard初始化过程中出现错误:', error);
-      // 不阻止应用启动，继续运行
-    }
-  }, [guard, checkAuth]);
 
   /**
    * 处理Guard登录成功事件
    */
-  const handleAuthingLogin = (userInfo: User) => {
+  const handleAuthingLogin = (userInfo: any) => {
     try {
       console.log('🔐 处理Guard登录成功:', userInfo);
 
@@ -410,8 +194,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         loginTime: formattedUser.loginTime
       });
 
-      // 自动隐藏Guard模态框
-      guard?.hide();
+      // Guard模态框已移除 - 无需隐藏
 
       // 处理登录成功后的跳转
       const redirectTarget = localStorage.getItem('login_redirect_to') || '/';
@@ -454,49 +237,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
 
-  // 启动登录模态框（带容器挂载）
-  const startLoginModal = () => {
-    if (!guard) {
-      console.warn('🔧 Guard不可用，使用降级方案');
-      login(); // 使用自定义登录页面作为降级方案
-      return;
-    }
-
-    try {
-      console.log('🚀 启动Guard登录模态框');
-      guard.show();
-    } catch (error) {
-      console.warn('🔧 Guard.show()失败，使用降级方案:', error);
-      login(); // 使用自定义登录页面作为降级方案
-    }
-  };
-
-  // 显示Guard模态框
-  const showGuard = () => {
-    if (!guard) {
-      console.warn('🔧 Guard不可用，使用降级方案');
-      login(); // 使用自定义登录页面作为降级方案
-      return;
-    }
-
-    try {
-      guard.show();
-    } catch (error) {
-      console.warn('🔧 Guard.show()失败，使用降级方案:', error);
-      login(); // 使用自定义登录页面作为降级方案
-    }
-  };
-
-  // 隐藏Guard模态框
-  const hideGuard = () => {
-    if (!guard) return;
-
-    try {
-      guard.hide();
-    } catch (error) {
-      console.warn('🔧 Guard.hide()失败:', error);
-    }
-  };
+  // Guard相关登录模态框函数已移除 - 使用自定义登录页面
 
   /**
    * 注册方法 - 使用自定义注册表单
@@ -528,14 +269,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       console.log('🚪 开始登出流程...');
 
-      if (!guard) {
-        setError('Guard未初始化');
-        return;
-      }
-
-      // 使用官方登出方法
-      console.log('🚀 执行Guard登出');
-      guard.logout();
+      // Guard已移除，直接清除本地状态
+      console.log('🚀 执行自定义登出流程');
 
       // 清除本地状态
       setUser(null);
@@ -832,10 +567,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     resetPassword,
     hasPermission,
     hasRole,
-    guard,
-    startLoginModal,
-    showGuard,
-    hideGuard,
+    // Guard相关方法已移除
     customAuthModalOpen,
     setCustomAuthModalOpen,
     customAuthModalTab,

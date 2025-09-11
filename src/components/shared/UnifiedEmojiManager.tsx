@@ -610,9 +610,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
   };
 
   return (
-    <div className={`min-h-screen bg-background ${className}`} style={{
-      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-    }}>
+    <div className={`min-h-screen bg-background emoji-manager-container ${className}`}>
       {/* 头部标题区 - 调整图片/文字排版与层级 */}
       {/* 顶部留白（移除标题与统计文案） */}
       <div className="pt-6" />
@@ -914,14 +912,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
         <>
           {viewMode === 'grid' && (
             <div className="mx-auto max-w-6xl px-1 sm:px-2 lg:px-3 xl:px-4 pb-8">
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                  gap: '14px',
-                  marginTop: '24px'
-                }}
-              >
+              <div className="emoji-grid-container">
               {displayEmojis.map((emoji) => {
               const isSelected = allowMultiSelect && selectedEmojis.some(e => e.id === emoji.id);
               const isFavorited = favorites.has(emoji.id);
@@ -932,7 +923,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                   data-emoji-id={emoji.id}
                   className={`avatar-card group ${highlightedId === emoji.id ? 'ring-4 ring-primary' : ''}`}
                   onClick={(e) => handleEmojiClick(emoji, e)}
-                  style={{}}
+                  data-emoji-color={emoji.color}
                 >
                   {/* 收藏按钮 */}
                   {allowFavorites && (
@@ -956,7 +947,10 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                   </div>
 
                   {/* 复刻动物头像卡片内容 */}
-                  <div className="avatar-display" style={{ backgroundColor: emoji.color }}>
+                  <div
+                    className="avatar-display emoji-avatar-bg"
+                    style={{ '--emoji-bg-color': emoji.color } as React.CSSProperties}
+                  >
                     {emoji.emoji}
                   </div>
                   <div className="avatar-name">{emoji.name}</div>
@@ -990,8 +984,8 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                 >
                   {/* Emoji显示 */}
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm"
-                    style={{ backgroundColor: emoji.color }}
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm emoji-avatar-bg"
+                    style={{ '--emoji-bg-color': emoji.color } as React.CSSProperties}
                   >
                     {emoji.emoji}
                   </div>
@@ -1061,8 +1055,8 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
 
                   {/* 大尺寸Emoji显示 */}
                   <div
-                    className="w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center text-6xl shadow-lg transition-transform duration-200 group-hover:scale-110"
-                    style={{ backgroundColor: emoji.color }}
+                    className="w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center text-6xl shadow-lg transition-transform duration-200 group-hover:scale-110 emoji-avatar-bg"
+                    style={{ '--emoji-bg-color': emoji.color } as React.CSSProperties}
                   >
                     {emoji.emoji}
                   </div>

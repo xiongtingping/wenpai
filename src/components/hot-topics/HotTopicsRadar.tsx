@@ -558,7 +558,8 @@ export default function HotTopicsRadar({
   };
 
   return (
-    <div className={`hot-topics-radar ${className}`} style={{ maxHeight }}>
+    <div className={`hot-topics-radar ${className}`}
+         style={{ '--hot-topics-max-height': maxHeight || 'var(--hot-topics-radar-max-height)' } as React.CSSProperties}>
       <Card className="h-full bg-card dark:bg-card border-border dark:border-border">
         <CardHeader className={compact ? 'pb-3' : 'pb-4'}>
           <div className="flex items-center justify-between">

@@ -60,17 +60,8 @@ export function LanguageSwitcher() {
       </button>
 
       {isOpen && (
-        <div 
-          className="absolute right-0 top-full mt-2 w-48 bg-popover border border-border rounded-md shadow-lg z-[999999]"
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 8px)',
-            right: '0px',
-            zIndex: 999999,
-            backgroundColor: 'var(--popover)',
-            borderColor: 'var(--border)',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
-          }}
+        <div
+          className="language-dropdown"
           onClick={(e) => e.stopPropagation()}
         >
           {languages.map((language) => (

@@ -149,10 +149,7 @@ export const SafeTooltip: React.FC<SafeTooltipProps> = React.memo(({
             ${align === 'start' ? 'left-0' : ''}
             ${align === 'end' ? 'right-0' : ''}
           `}
-          style={{
-            animation: 'fadeIn 0.2s ease-in-out',
-            animationFillMode: 'both'
-          }}
+          className="animation-fade-in"
         >
           {content}
         </div>

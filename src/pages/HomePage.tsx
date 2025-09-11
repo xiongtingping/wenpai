@@ -62,7 +62,7 @@ function HomePage() {
       {/* Header - 独立于背景之外，确保固定定位 */}
       <Header />
       {/* 动态占位，避免被头部遮挡，同时让头部悬浮于任何滚动位置均可见 */}
-      <div aria-hidden className="h-[var(--header-height,64px)]"></div>
+      <div aria-hidden className="header-spacer"></div>
 
       {/* 全页面背景效果 */}
       <WavyBackground
@@ -76,7 +76,7 @@ function HomePage() {
 
           <main className="flex-1 w-full">
             {/* Hero Section - 由组件内部控制首屏高度与间距（已考虑Header高度） */}
-            <div className="relative min-h-[calc(100vh-var(--header-height,64px))] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-0">
+            <div className="relative hero-section flex items-center justify-center px-4 sm:px-6 lg:px-8 py-0">
               <div className="max-w-7xl mx-auto text-center w-full">
                 <HeroSection />
               </div>

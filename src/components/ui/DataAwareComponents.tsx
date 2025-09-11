@@ -217,11 +217,7 @@ export function SmartSkeleton({
             {Array(lines).fill(0).map((_, i) => (
               <div
                 key={i}
-                className={baseClass}
-                style={{
-                  width: i === lines - 1 ? '75%' : '100%',
-                  height: '1rem'
-                }}
+                className={`${baseClass} skeleton-line ${i === lines - 1 ? 'skeleton-line-partial' : 'skeleton-line-full'}`}
               />
             ))}
           </div>
@@ -252,7 +248,7 @@ export function SmartSkeleton({
         );
 
       case 'custom':
-        return children || <div className={baseClass} style={{ width, height }} />;
+        return children || <div className={`${baseClass} dynamic-bg-color`} style={{ '--dynamic-bg-color': 'hsl(var(--muted))', width, height } as React.CSSProperties} />;
 
       default:
         return (
@@ -262,11 +258,7 @@ export function SmartSkeleton({
               {Array(lines).fill(0).map((_, i) => (
                 <div
                   key={i}
-                  className={baseClass}
-                  style={{
-                    width: i === lines - 1 ? '60%' : '100%',
-                    height: '1rem'
-                  }}
+                  className={`${baseClass} skeleton-line ${i === lines - 1 ? 'skeleton-line-narrow' : 'skeleton-line-full'}`}
                 />
               ))}
             </div>
@@ -276,7 +268,7 @@ export function SmartSkeleton({
   };
 
   return (
-    <div className="animate-pulse" style={{ width, height }}>
+    <div className="animate-pulse dynamic-bg-color" style={{ '--dynamic-bg-color': 'transparent', width, height } as React.CSSProperties}>
       {renderSkeleton()}
     </div>
   );

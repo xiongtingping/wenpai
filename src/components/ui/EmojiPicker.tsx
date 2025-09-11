@@ -148,7 +148,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 ${className}`}>
-      <div className="bg-background border rounded-lg shadow-lg w-96 max-h-[600px] flex flex-col">
+      <div className="bg-background border rounded-lg shadow-lg emoji-picker-container flex flex-col">
         {/* 头部 */}
         <div className="p-4 border-b">
           <div className="flex items-center justify-between mb-3">
@@ -248,7 +248,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
                 {currentDisplayMode !== 'unicode' && (
                   <span 
                     className="text-2xl emoji-font absolute inset-0 flex items-center justify-center"
-                    style={{ display: 'none' }}
+                    className="hidden"
                   >
                     {getEmojiDisplay(emoji.unified, 'unicode')}
                   </span>

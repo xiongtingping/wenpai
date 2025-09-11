@@ -93,17 +93,17 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
               </div>
               
               {/* 环绕的能量粒子 */}
-              <div className="absolute inset-0 animate-spin" style={{ animationDuration: '8s' }}>
+              <div className="absolute inset-0 animate-spin ai-particle-container">
                 {[...Array(6)].map((_, i) => (
                   <div
                     key={i}
-                    className="absolute w-2 h-2 bg-primary rounded-full opacity-60"
+                    className="absolute w-2 h-2 bg-primary rounded-full opacity-60 ai-particle"
                     style={{
                       top: '50%',
                       left: '50%',
-                      transform: `rotate(${i * 60}deg) translateY(-40px) translateX(-4px)`,
-                      animationDelay: `${i * 0.2}s`
-                    }}
+                      transform: `rotate(${i * 60}deg) translateY(var(--ai-particle-translate-y)) translateX(var(--ai-particle-translate-x))`,
+                      animationDelay: `${i * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ai-particle-delay-step'))}s`
+                    } as React.CSSProperties}
                   >
                     <div className="w-full h-full bg-primary rounded-full animate-pulse"></div>
                   </div>
@@ -112,7 +112,7 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
 
               {/* 雷达扫描效果 */}
               <div className="absolute inset-0 rounded-full border-2 border-primary opacity-30 animate-ping"></div>
-              <div className="absolute inset-0 rounded-full border border-border opacity-20 animate-ping" style={{ animationDelay: '0.5s' }}></div>
+              <div className="absolute inset-0 rounded-full border border-border opacity-20 animate-ping ai-radar-secondary"></div>
             </div>
 
             {/* 动态文案 - 简化以避免重复 */}
@@ -129,11 +129,11 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
 
             {/* 进度波浪动画 */}
             <div className="w-32 h-1 bg-muted rounded-full overflow-hidden mb-4">
-              <div className="h-full bg-primary rounded-full animate-pulse"
-                   style={{ 
-                     width: '60%',
-                     animation: 'wave 2s ease-in-out infinite'
-                   }}>
+              <div className="h-full bg-primary rounded-full animate-pulse ai-progress-wave"
+                   style={{
+                     width: 'var(--ai-progress-width)',
+                     animation: 'var(--ai-progress-animation)'
+                   } as React.CSSProperties}>
               </div>
             </div>
           </div>
@@ -209,11 +209,11 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
         
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
+          50% { transform: translateY(var(--ai-float-translate-y)); }
         }
         
         .animate-float {
-          animation: float 3s ease-in-out infinite;
+          animation: var(--ai-float-animation);
         }
       `}</style>
     </div>

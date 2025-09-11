@@ -29,7 +29,7 @@ const AppInput = (props: InputProps) => {
   };
 
   return (
-    <div className="w-full min-w-[200px] relative">
+    <div className="w-full login-input-container relative">
       { label && 
         <label className='block mb-2 text-sm'>
           {label}
@@ -48,16 +48,16 @@ const AppInput = (props: InputProps) => {
         {isHovering && (
           <>
             <div
-              className="absolute pointer-events-none top-0 left-0 right-0 h-[2px] z-20 rounded-t-md overflow-hidden"
+              className="login-border-top"
               style={{
-                background: `radial-gradient(30px circle at ${mousePosition.x}px 0px, var(--color-text-primary) 0%, transparent 70%)`,
-              }}
+                background: `radial-gradient(var(--login-gradient-size) circle at ${mousePosition.x}px 0px, var(--color-text-primary) 0%, transparent 70%)`,
+              } as React.CSSProperties}
             />
             <div
-              className="absolute pointer-events-none bottom-0 left-0 right-0 h-[2px] z-20 rounded-b-md overflow-hidden"
+              className="login-border-bottom"
               style={{
-                background: `radial-gradient(30px circle at ${mousePosition.x}px 2px, var(--color-text-primary) 0%, transparent 70%)`,
-              }}
+                background: `radial-gradient(var(--login-gradient-size) circle at ${mousePosition.x}px var(--login-border-height), var(--color-text-primary) 0%, transparent 70%)`,
+              } as React.CSSProperties}
             />
           </>
         )}
@@ -111,20 +111,20 @@ const Page = () => {
 
   return (
     <div className="h-screen w-[100%] bg-[var(--color-bg)] flex items-center justify-center p-4">
-    <div className='card w-[80%] lg:w-[70%] md:w-[55%] flex justify-between h-[600px]'>
+    <div className='card login-card flex justify-between'>
       <div
         className='w-full lg:w-1/2 px-4 lg:px-16 left h-full relative overflow-hidden'
         onMouseMove={handleMouseMove}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}>
           <div
-            className={`absolute pointer-events-none w-[500px] h-[500px] bg-gradient-to-r from-purple-300/30 via-blue-300/30 to-pink-300/30 rounded-full blur-3xl transition-opacity duration-200 ${
+            className={`login-glow-effect ${
               isHovering ? 'opacity-100' : 'opacity-0'
             }`}
             style={{
-              transform: `translate(${mousePosition.x - 250}px, ${mousePosition.y - 250}px)`,
-              transition: 'transform 0.1s ease-out'
-            }}
+              transform: `translate(${mousePosition.x - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--login-glow-offset')) || 250}px, ${mousePosition.y - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--login-glow-offset')) || 250}px)`,
+              transition: 'transform var(--animation-duration-fast) ease-out'
+            } as React.CSSProperties}
           />
           <div className="form-container sign-in-container h-full z-10">
             <form className='text-center py-10 md:py-20 grid gap-2 h-full' onSubmit={()=>{e.preventDefault();}}>
@@ -145,7 +145,7 @@ const Page = () => {
                                   social.gradient || social.bg
                                 } scale-y-0 origin-bottom transition-transform duration-500 ease-in-out group-hover:scale-y-100`}
                               />
-                              <span className="text-[1.5rem] text-[hsl(203,92%,8%)] transition-all duration-500 ease-in-out z-[2] group-hover:text-[var(--color-text-primary)] group-hover:rotate-y-360">
+                              <span className="login-social-icon">
                                 {social.icon}
                               </span>
                             </a>

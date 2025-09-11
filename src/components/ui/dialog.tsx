@@ -34,43 +34,15 @@ const DialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
 >(({ className, style, children, ...props }, ref) => (
   <DialogPortal>
-    <DialogOverlay 
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 49,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(4px)'
-      }}
-    />
+    <DialogOverlay className="dialog-overlay-fixed" />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
+        "dialog-content-fixed",
         "fixed grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg sm:rounded-lg",
         className
       )}
-      style={{
-        ...style,
-        position: 'fixed !important',
-        top: '50vh !important',
-        left: '50vw !important', 
-        transform: 'translate(-50%, -50%) !important',
-        transformOrigin: 'center center !important',
-        right: 'auto !important',
-        bottom: 'auto !important',
-        inset: 'auto !important',
-        margin: '0 !important',
-        zIndex: '999999 !important',
-        visibility: 'visible !important',
-        opacity: '1 !important',
-        pointerEvents: 'auto !important',
-        display: 'block !important',
-        // 🚨 禁用所有动画和过渡
-        animation: 'none !important',
-        transition: 'none !important',
-        transitionDuration: '0s !important',
-        animationDuration: '0s !important'
-      } as React.CSSProperties}
+      style={style}
       {...props}
     >
       {children}

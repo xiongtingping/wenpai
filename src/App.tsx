@@ -23,11 +23,9 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthGuard, ProGuard, PremiumGuard } from '@/components/auth/RouteGuard';
 import { useAuth } from '@/hooks/useAuth';
-import { GuardProvider } from '@authing/guard-react18';
 import { AuthModalWrapper } from '@/components/auth/AuthModalWrapper';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { AuthDataSyncProvider } from '@/hooks/useAuthDataSync';
-import '@authing/guard-react18/dist/esm/guard.min.css';
 
 // 核心页面组件
 import HomePage from '@/pages/HomePage';
@@ -119,10 +117,7 @@ const App: React.FC = () => {
       DEV: import.meta.env.DEV
     });
 
-    // 🔧 DEBUG: 检查GuardProvider配置
-    const appId = import.meta.env.VITE_AUTHING_APP_ID || (globalThis as any).__ENV__?.VITE_AUTHING_APP_ID;
-    const host = import.meta.env.VITE_AUTHING_HOST || (globalThis as any).__ENV__?.VITE_AUTHING_HOST;
-    console.log('🔧 GuardProvider配置检查:', { appId, host, hasAppId: !!appId, hasHost: !!host });
+    // GuardProvider 已移除 - 仅使用自定义登录表单
 
     // 立即处理恶意回调URL重定向
     if (currentUrl.includes('callbackhttp://')) {
@@ -149,45 +144,6 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <ThemeProvider>
         <ErrorBoundary>
-          <GuardProvider
-            appId={import.meta.env.VITE_AUTHING_APP_ID || (globalThis as any).__ENV__?.VITE_AUTHING_APP_ID}
-            mode="modal"
-            host={import.meta.env.VITE_AUTHING_HOST || (globalThis as any).__ENV__?.VITE_AUTHING_HOST}
-            config={{
-              autoRegister: true,
-              placeholder: {
-                username: '请输入用户名',
-                email: '请输入邮箱',
-                password: '请输入密码'
-              },
-              // 🔧 FIX: 防止 aria-hidden 干扰主应用交互
-              modal: {
-                // 禁用全局 aria-hidden 设置
-                disableGlobalAriaHidden: true,
-                // 不设置根元素的 aria-hidden
-                preventBodyAriaHidden: true,
-                // 使用专用容器
-                container: '#authing-guard-container',
-                // 确保模态框层级不会干扰主应用
-                zIndex: 1000
-              },
-              // 🔧 FIX: 添加网络连接优化配置
-              timeout: 30000, // 30秒超时
-              retry: 1, // 减少重试次数
-              retryDelay: 1000, // 1秒重试延迟
-              // 添加错误处理
-              onError: (error: any) => {
-                console.warn('🔧 Guard Provider错误:', error);
-                // 静默处理网络错误，不影响应用启动
-                const isNetworkError = error?.message?.includes('Failed to fetch') ||
-                                      error?.message?.includes('ERR_CONNECTION') ||
-                                      error?.message?.includes('net::');
-                if (isNetworkError) {
-                  console.log('🔧 Guard网络连接问题，应用继续正常运行');
-                }
-              }
-            }}
-          >
             <UnifiedAuthProvider>
               <AuthDataSyncProvider>
                 <ErrorBoundary>
@@ -265,7 +221,6 @@ const App: React.FC = () => {
                 </ErrorBoundary>
               </AuthDataSyncProvider>
             </UnifiedAuthProvider>
-          </GuardProvider>
         </ErrorBoundary>
       </ThemeProvider>
     </ErrorBoundary>

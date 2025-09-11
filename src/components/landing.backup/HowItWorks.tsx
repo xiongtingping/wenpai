@@ -58,7 +58,7 @@ export function HowItWorks() {
               <div
                 key={title}
                 className="group bg-card rounded-xl p-8 border border-border shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-                style={{ animationDelay: `${i * 0.1 + 0.1}s` }}
+                style={{ '--animation-delay': `${i * 0.1 + 0.1}s` } as React.CSSProperties}
               >
                 <div className="flex flex-col items-center text-center">
                   {/* 渐变圆形背景图标 */}

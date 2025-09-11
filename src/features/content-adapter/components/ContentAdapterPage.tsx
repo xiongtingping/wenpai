@@ -42,6 +42,9 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 
+// 导入统一Z-Index管理器
+import { zIndexManager, ZIndexLayers } from '@/utils/zIndexManager';
+
 // 导入工具函数和配置
 import { getAvailableModelsForTier } from '@/config/aiModels';
 import { getAvailablePlatforms } from '@/api/contentAdapter';
@@ -1318,7 +1321,10 @@ export function ContentAdapterPage({
 
       {/* 历史记录弹窗 - 从原版完整迁移 */}
       <Dialog open={showHistory} onOpenChange={setShowHistory}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent 
+          className="max-w-2xl"
+          style={zIndexManager.createModalStyles('DIALOG_CONTENT')}
+        >
           <DialogHeader>
             <DialogTitle>内容生成记录</DialogTitle>
             <DialogDescription>
@@ -1405,7 +1411,7 @@ export function ContentAdapterPage({
 
       {/* 一键转发确认Dialog - 从原版完整迁移 */}
       <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
-        <DialogContent>
+        <DialogContent style={zIndexManager.createModalStyles('DIALOG_CONTENT')}>
           <DialogHeader>
             <DialogTitle>一键转发确认</DialogTitle>
             <DialogDescription>
@@ -1436,7 +1442,10 @@ export function ContentAdapterPage({
 
       {/* 批量发布Dialog - 传统批量转发功能 */}
       <Dialog open={batchPublishOpen} onOpenChange={setBatchPublishOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent 
+          className="max-w-2xl"
+          style={zIndexManager.createModalStyles('DIALOG_CONTENT')}
+        >
           <DialogHeader>
             <DialogTitle>批量发布到平台</DialogTitle>
             <DialogDescription>

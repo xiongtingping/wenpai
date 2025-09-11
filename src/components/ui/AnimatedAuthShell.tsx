@@ -94,9 +94,8 @@ export const AnimatedAuthShell: React.FC<AnimatedAuthShellProps> = ({
     <div className={`login-container ${isDarkMode ? 'dark' : 'light'}`}>
       <canvas id="particles" ref={canvasRef} className="particles-canvas"></canvas>
 
-      <button className="nav-back" aria-label="返回首页" onClick={() => navigate('/')}
-        style={{position:'fixed', top:16, left:16, display:'inline-flex', alignItems:'center', gap:8, background:'rgba(255,255,255,.6)', border:'1px solid rgba(2,6,23,.08)', color:'#111827', padding:'6px 10px', borderRadius:12, backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', cursor:'pointer'}}>
-        <ArrowLeft size={16} /> <span style={{fontSize:12}}>返回</span>
+      <button className="auth-nav-back" aria-label="返回首页" onClick={() => navigate('/')}>
+        <ArrowLeft size={16} /> <span className="auth-nav-back-text">返回</span>
       </button>
 
       <div className="theme-toggle" onClick={toggleDarkMode}>

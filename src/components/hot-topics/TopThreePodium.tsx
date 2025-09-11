@@ -62,9 +62,9 @@ export default function TopThreePodium({
       alignItems: 'center',
       justifyContent: 'flex-end',
       position: 'relative' as const,
-      transition: 'all 0.3s ease',
+      transition: getComputedStyle(document.documentElement).getPropertyValue('--podium-transition'),
       cursor: 'pointer',
-      borderRadius: '12px',
+      borderRadius: getComputedStyle(document.documentElement).getPropertyValue('--podium-border-radius'),
       overflow: 'hidden'
     };
 
@@ -72,28 +72,28 @@ export default function TopThreePodium({
       case 1:
         return {
           ...baseStyles,
-          height: '280px',
+          height: getComputedStyle(document.documentElement).getPropertyValue('--podium-rank1-height'),
           background: 'linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(var(--warning)) 100%)',
-          boxShadow: '0 8px 32px hsl(var(--warning) / 0.3)',
-          transform: 'scale(1.05)',
-          zIndex: 3
+          boxShadow: getComputedStyle(document.documentElement).getPropertyValue('--podium-rank1-shadow'),
+          transform: `scale(${getComputedStyle(document.documentElement).getPropertyValue('--podium-rank1-scale')})`,
+          zIndex: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--podium-rank1-z-index'))
         };
       case 2:
         return {
           ...baseStyles,
-          height: '240px',
+          height: getComputedStyle(document.documentElement).getPropertyValue('--podium-rank2-height'),
           background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground)) 100%)',
-          boxShadow: '0 6px 24px hsl(var(--muted) / 0.3)',
-          transform: 'scale(1.02)',
-          zIndex: 2
+          boxShadow: getComputedStyle(document.documentElement).getPropertyValue('--podium-rank2-shadow'),
+          transform: `scale(${getComputedStyle(document.documentElement).getPropertyValue('--podium-rank2-scale')})`,
+          zIndex: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--podium-rank2-z-index'))
         };
       case 3:
         return {
           ...baseStyles,
-          height: '200px',
+          height: getComputedStyle(document.documentElement).getPropertyValue('--podium-rank3-height'),
           background: 'linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(var(--warning)) 100%)',
-          boxShadow: '0 4px 16px hsl(var(--warning) / 0.3)',
-          zIndex: 1
+          boxShadow: getComputedStyle(document.documentElement).getPropertyValue('--podium-rank3-shadow'),
+          zIndex: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--podium-rank3-z-index'))
         };
       default:
         return baseStyles;
@@ -148,7 +148,7 @@ export default function TopThreePodium({
           <p className="text-muted-foreground">今日最热门话题前三名</p>
         </div>
 
-        <div className="flex items-end justify-center gap-4 h-[320px]">
+        <div className="flex items-end justify-center gap-4 podium-container">
           {topThree.map((topic, index) => {
             const rank = index + 1;
             const podiumStyle = getPodiumStyle(rank);
@@ -156,7 +156,7 @@ export default function TopThreePodium({
             return (
               <div
                 key={`${topic.platform}-${topic.title}`}
-                className="flex-1 max-w-[200px]"
+                className="flex-1 podium-item"
                 style={podiumStyle}
                 onClick={() => onTopicClick?.(topic)}
               >

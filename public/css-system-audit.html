@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS系统审查工具</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .section-header {
+            background: #f8f9fa;
+            padding: 15px;
+            font-weight: 600;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-content {
+            padding: 15px;
+            display: none;
+        }
+        .section.active .section-content {
+            display: block;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-success { background: #28a745; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-danger { background: #dc3545; }
+        .result-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .issue-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        .issue-error {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .issue-warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        .issue-info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+        }
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+        .section.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+        .health-indicator {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 CSS系统审查工具</h1>
+            <p>全面分析和检查CSS系统的一致性、设计令牌使用和主题适配</p>
+        </div>
+        
+        <div class="content">
+            <!-- 控制面板 -->
+            <div class="section active">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>🎛️ 控制面板</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <button class="btn" onclick="runFullAudit()">🔍 完整审查</button>
+                    <button class="btn btn-warning" onclick="checkHardcodedStyles()">⚠️ 硬编码样式检查</button>
+                    <button class="btn btn-success" onclick="checkThemeConsistency()">🌈 主题一致性检查</button>
+                    <button class="btn btn-danger" onclick="checkComponentConsistency()">🧩 组件一致性检查</button>
+                    <button class="btn" onclick="generateReport()">📊 生成报告</button>
+                    <button class="btn" onclick="clearResults()">🗑️ 清空结果</button>
+                </div>
+            </div>
+
+            <!-- 统计概览 -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>📊 统计概览</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="stats" id="statsContainer">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalIssues">0</div>
+                            <div class="stat-label">总问题数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="hardcodedIssues">0</div>
+                            <div class="stat-label">硬编码问题</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="themeIssues">0</div>
+                            <div class="stat-label">主题问题</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="componentIssues">0</div>
+                            <div class="stat-label">组件问题</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="healthScore" style="width: 0%"></div>
+                    </div>
+                    <div class="health-indicator">
+                        <span>CSS系统健康度: <span id="healthPercentage">0%</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 检查结果 -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>📋 检查结果</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="result-box" id="resultsContainer">
+                        点击上方按钮开始检查...
+                    </div>
+                </div>
+            </div>
+
+            <!-- 修复建议 -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>💡 修复建议</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="result-box" id="recommendationsContainer">
+                        运行检查后将显示修复建议...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let auditResults = {
+            totalIssues: 0,
+            hardcodedIssues: 0,
+            themeIssues: 0,
+            componentIssues: 0,
+            issues: [],
+            recommendations: []
+        };
+
+        // 硬编码颜色映射
+        const HARDCODED_COLORS = {
+            '#ffffff': 'hsl(var(--background))',
+            '#000000': 'hsl(var(--foreground))',
+            '#fff': 'hsl(var(--background))',
+            '#000': 'hsl(var(--foreground))',
+            'white': 'hsl(var(--background))',
+            'black': 'hsl(var(--foreground))',
+            'rgb(37, 99, 235)': 'hsl(var(--primary))',
+            'rgb(59, 130, 246)': 'hsl(var(--primary) / 0.8)',
+            'rgb(29, 78, 216)': 'hsl(var(--primary) / 1.2)',
+            '#ef4444': 'hsl(var(--destructive))',
+            '#dc2626': 'hsl(var(--destructive) / 1.1)',
+        };
+
+        // 切换区域显示
+        function toggleSection(header) {
+            const section = header.parentElement;
+            section.classList.toggle('active');
+        }
+
+        // 记录结果
+        function logResult(message, type = 'info') {
+            const container = document.getElementById('resultsContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            container.innerHTML += `<div class="issue-item issue-${type}">[${timestamp}] ${message}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('totalIssues').textContent = auditResults.totalIssues;
+            document.getElementById('hardcodedIssues').textContent = auditResults.hardcodedIssues;
+            document.getElementById('themeIssues').textContent = auditResults.themeIssues;
+            document.getElementById('componentIssues').textContent = auditResults.componentIssues;
+            
+            // 计算健康度 (100% - 问题比例)
+            const totalElements = document.querySelectorAll('*').length;
+            const healthScore = Math.max(0, 100 - (auditResults.totalIssues / totalElements * 100));
+            document.getElementById('healthScore').style.width = healthScore + '%';
+            document.getElementById('healthPercentage').textContent = Math.round(healthScore) + '%';
+        }
+
+        // 运行完整审查
+        async function runFullAudit() {
+            logResult('🚀 开始完整CSS系统审查...', 'info');
+            auditResults = { totalIssues: 0, hardcodedIssues: 0, themeIssues: 0, componentIssues: 0, issues: [], recommendations: [] };
+            
+            await checkHardcodedStyles();
+            await checkThemeConsistency();
+            await checkComponentConsistency();
+            
+            logResult('✅ 完整审查完成！', 'info');
+            generateReport();
+        }
+
+        // 检查硬编码样式
+        async function checkHardcodedStyles() {
+            logResult('🔍 检查硬编码样式...', 'info');
+            
+            // 检查内联样式
+            const elementsWithInlineStyles = document.querySelectorAll('[style]');
+            logResult(`📊 发现 ${elementsWithInlineStyles.length} 个使用内联样式的元素`, 'warning');
+            
+            elementsWithInlineStyles.forEach((element, index) => {
+                const style = element.getAttribute('style');
+                if (style && (style.includes('#') || style.includes('rgb(') || style.includes('px'))) {
+                    auditResults.hardcodedIssues++;
+                    auditResults.totalIssues++;
+                    logResult(`❌ 内联样式包含硬编码值: ${element.tagName} - ${style.substring(0, 50)}...`, 'error');
+                }
+            });
+
+            // 检查计算样式中的硬编码颜色
+            const allElements = document.querySelectorAll('*');
+            let checkedElements = 0;
+            
+            for (let i = 0; i < Math.min(allElements.length, 100); i++) {
+                const element = allElements[i];
+                const computedStyle = getComputedStyle(element);
+                
+                ['color', 'backgroundColor', 'borderColor'].forEach(prop => {
+                    const value = computedStyle.getPropertyValue(prop);
+                    if (HARDCODED_COLORS[value]) {
+                        auditResults.hardcodedIssues++;
+                        auditResults.totalIssues++;
+                        logResult(`⚠️ 硬编码颜色: ${element.tagName} ${prop}: ${value} → 建议: ${HARDCODED_COLORS[value]}`, 'warning');
+                    }
+                });
+                
+                checkedElements++;
+            }
+            
+            logResult(`✅ 硬编码样式检查完成，检查了 ${checkedElements} 个元素`, 'info');
+            updateStats();
+        }
+
+        // 检查主题一致性
+        async function checkThemeConsistency() {
+            logResult('🌈 检查主题一致性...', 'info');
+            
+            const themes = ['light', 'dark', 'beige', 'gold', 'rainbow', 'green'];
+            const originalTheme = document.documentElement.getAttribute('data-theme');
+            
+            for (const theme of themes) {
+                logResult(`🎨 检查主题: ${theme}`, 'info');
+                document.documentElement.setAttribute('data-theme', theme);
+                
+                // 等待样式应用
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // 检查关键元素
+                const criticalElements = document.querySelectorAll('button, .card, input');
+                criticalElements.forEach(element => {
+                    const style = getComputedStyle(element);
+                    
+                    // 简单的对比度检查
+                    if (style.color === style.backgroundColor) {
+                        auditResults.themeIssues++;
+                        auditResults.totalIssues++;
+                        logResult(`❌ ${theme}主题下颜色对比度问题: ${element.tagName}`, 'error');
+                    }
+                });
+            }
+            
+            // 恢复原主题
+            if (originalTheme) {
+                document.documentElement.setAttribute('data-theme', originalTheme);
+            }
+            
+            logResult('✅ 主题一致性检查完成', 'info');
+            updateStats();
+        }
+
+        // 检查组件一致性
+        async function checkComponentConsistency() {
+            logResult('🧩 检查组件一致性...', 'info');
+            
+            // 检查按钮一致性
+            const buttons = document.querySelectorAll('button, .btn');
+            const buttonStyles = new Set();
+            
+            buttons.forEach(button => {
+                const style = getComputedStyle(button);
+                const styleKey = `${style.backgroundColor}-${style.color}-${style.borderColor}`;
+                buttonStyles.add(styleKey);
+            });
+            
+            if (buttonStyles.size > 10) {
+                auditResults.componentIssues++;
+                auditResults.totalIssues++;
+                logResult(`⚠️ 按钮样式不一致: 发现 ${buttonStyles.size} 种不同样式`, 'warning');
+            }
+            
+            // 检查卡片一致性
+            const cards = document.querySelectorAll('.card, [class*="Card"], .rounded-lg');
+            const cardStyles = new Set();
+            
+            cards.forEach(card => {
+                const style = getComputedStyle(card);
+                const styleKey = `${style.backgroundColor}-${style.borderColor}-${style.boxShadow}`;
+                cardStyles.add(styleKey);
+            });
+            
+            if (cardStyles.size > 8) {
+                auditResults.componentIssues++;
+                auditResults.totalIssues++;
+                logResult(`⚠️ 卡片样式不一致: 发现 ${cardStyles.size} 种不同样式`, 'warning');
+            }
+            
+            logResult('✅ 组件一致性检查完成', 'info');
+            updateStats();
+        }
+
+        // 生成报告
+        function generateReport() {
+            logResult('📊 生成详细报告...', 'info');
+            
+            const recommendations = [];
+            
+            if (auditResults.hardcodedIssues > 0) {
+                recommendations.push(`🔧 发现 ${auditResults.hardcodedIssues} 个硬编码样式问题，建议使用设计令牌替换`);
+            }
+            
+            if (auditResults.themeIssues > 0) {
+                recommendations.push(`🎨 发现 ${auditResults.themeIssues} 个主题适配问题，建议检查颜色对比度`);
+            }
+            
+            if (auditResults.componentIssues > 0) {
+                recommendations.push(`🧩 发现 ${auditResults.componentIssues} 个组件一致性问题，建议使用统一的变体系统`);
+            }
+            
+            if (auditResults.totalIssues === 0) {
+                recommendations.push('🎉 恭喜！CSS系统状态良好，未发现重大问题');
+            }
+            
+            const container = document.getElementById('recommendationsContainer');
+            container.innerHTML = recommendations.map(rec => `<div class="issue-item issue-info">${rec}</div>`).join('');
+            
+            logResult('✅ 报告生成完成', 'info');
+        }
+
+        // 清空结果
+        function clearResults() {
+            document.getElementById('resultsContainer').innerHTML = '点击上方按钮开始检查...';
+            document.getElementById('recommendationsContainer').innerHTML = '运行检查后将显示修复建议...';
+            auditResults = { totalIssues: 0, hardcodedIssues: 0, themeIssues: 0, componentIssues: 0, issues: [], recommendations: [] };
+            updateStats();
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            logResult('🎨 CSS系统审查工具已就绪', 'info');
+            updateStats();
+        });
+    </script>
+</body>
+</html>

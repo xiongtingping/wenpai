@@ -141,7 +141,8 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
                     ? 'bg-primary' 
                     : 'bg-muted hover:bg-accent'
                 }`}
-                style={{ height: `${Math.max(height, 10)}%` }}
+                style={{ '--heat-bar-height': `${Math.max(height, 10)}%` } as React.CSSProperties}
+                className="heat-chart-bar"
                 title={`${data.date || '未知日期'}: ${(data.heat || 0).toLocaleString()}`}
               />
               <span className="text-xs text-muted-foreground mt-1 transform rotate-45 origin-left">

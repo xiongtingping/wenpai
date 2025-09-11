@@ -72,13 +72,13 @@ export const WavyBackground = ({
       const trimmed = v.trim();
       return trimmed && trimmed.length > 0 ? `hsl(${trimmed})` : fallback;
     };
-    
+
     return [
-      toHsl(getComputedStyle(doc).getPropertyValue('--primary').trim(), 'hsl(221 83% 53%)'),
-      toHsl(getComputedStyle(doc).getPropertyValue('--primary').trim().replace(/\d+/g, (match) => String(Math.max(10, parseInt(match) - 20))), 'hsl(221 83% 33%)'),
-      toHsl(getComputedStyle(doc).getPropertyValue('--accent').trim(), 'hsl(210 40% 94%)'),
-      toHsl(getComputedStyle(doc).getPropertyValue('--secondary').trim(), 'hsl(214 32% 91%)'),
-      toHsl(getComputedStyle(doc).getPropertyValue('--muted').trim(), 'hsl(210 40% 96%)'),
+      toHsl(getComputedStyle(doc).getPropertyValue('--primary').trim(), getComputedStyle(doc).getPropertyValue('--wave-color-primary')),
+      toHsl(getComputedStyle(doc).getPropertyValue('--primary').trim().replace(/\d+/g, (match) => String(Math.max(10, parseInt(match) - 20))), getComputedStyle(doc).getPropertyValue('--wave-color-primary-dark')),
+      toHsl(getComputedStyle(doc).getPropertyValue('--accent').trim(), getComputedStyle(doc).getPropertyValue('--wave-color-accent')),
+      toHsl(getComputedStyle(doc).getPropertyValue('--secondary').trim(), getComputedStyle(doc).getPropertyValue('--wave-color-secondary')),
+      toHsl(getComputedStyle(doc).getPropertyValue('--muted').trim(), getComputedStyle(doc).getPropertyValue('--wave-color-muted')),
     ];
   };
   
@@ -89,19 +89,21 @@ export const WavyBackground = ({
     // 使用主题感知的背景色
     const doc = document.documentElement;
     const bgVar = getComputedStyle(doc).getPropertyValue('--background').trim();
-    const bg = backgroundFill || (bgVar ? `hsl(${bgVar})` : 'hsl(0 0% 100%)');
-    
+    const bg = backgroundFill || (bgVar ? `hsl(${bgVar})` : getComputedStyle(doc).getPropertyValue('--wave-background-fallback'));
+
     ctx.fillStyle = bg;
     ctx.globalAlpha = 1;
     ctx.fillRect(0, 0, w, h);
-    
+
     // 更新波浪颜色以适应主题
     const currentColors = getThemeAwareColors();
-    ctx.globalAlpha = waveOpacity ?? 0.15;
-    
+    const waveOpacityValue = waveOpacity ?? (parseFloat(getComputedStyle(doc).getPropertyValue('--wave-opacity')) || 0.15);
+    ctx.globalAlpha = waveOpacityValue;
+
     for (i = 0; i < 5; i++) {
       ctx.beginPath();
-      ctx.lineWidth = waveWidth || 50;
+      const waveWidthValue = waveWidth || parseInt(getComputedStyle(doc).getPropertyValue('--wave-width')) || 50;
+      ctx.lineWidth = waveWidthValue;
       ctx.strokeStyle = currentColors[i % currentColors.length];
       for (x = 0; x < w; x += 5) {
         const y = noise(x / 800, 0.3 * i, nt) * 100;
@@ -135,19 +137,19 @@ export const WavyBackground = ({
   return (
     <div
       className={cn(
-        "relative",
+        "relative wave-container",
         containerClassName
       )}
-      style={{ minHeight: (containerHeight || '80vh') }}
+      style={{ '--wave-min-height': containerHeight || '80vh' } as React.CSSProperties}
     >
       <canvas
-        className="absolute inset-0 z-0 pointer-events-none"
+        className="absolute inset-0 z-0 pointer-events-none wave-canvas"
         ref={canvasRef}
         id="canvas"
         style={{
-          ...(isSafari ? { filter: `blur(${blur}px)` } : {}),
+          ...(isSafari ? { filter: `blur(${blur || 'var(--wave-blur)'}px)` } : {}),
           pointerEvents: 'none'
-        }}
+        } as React.CSSProperties}
       ></canvas>
       <div className={cn("relative z-10", className)} {...props}>
         {children}

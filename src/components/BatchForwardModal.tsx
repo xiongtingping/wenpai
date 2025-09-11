@@ -151,17 +151,17 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
       
       // 使用极高优先级的样式设置
       modal.style.setProperty('position', 'fixed', 'important');
-      modal.style.setProperty('bottom', '20px', 'important');
+      modal.style.setProperty('bottom', 'var(--batch-modal-bottom-offset)', 'important');
       modal.style.setProperty('left', '50%', 'important');
       modal.style.setProperty('transform', 'translateX(-50%)', 'important');
       modal.style.setProperty('top', 'auto', 'important');
       modal.style.setProperty('right', 'auto', 'important');
-      modal.style.setProperty('z-index', '2147483647', 'important'); // 使用最大z-index值
+      modal.style.setProperty('z-index', 'var(--batch-modal-z-index)', 'important');
       modal.style.setProperty('margin', '0', 'important');
       modal.style.setProperty('background', 'white', 'important');
-      modal.style.setProperty('border', '1px solid #e2e8f0', 'important');
-      modal.style.setProperty('border-radius', '12px', 'important');
-      modal.style.setProperty('box-shadow', '0 25px 50px -12px rgba(0, 0, 0, 0.25)', 'important');
+      modal.style.setProperty('border', 'var(--batch-modal-border)', 'important');
+      modal.style.setProperty('border-radius', 'var(--batch-modal-border-radius)', 'important');
+      modal.style.setProperty('box-shadow', 'var(--batch-modal-shadow)', 'important');
       
       console.log('🔍 批量转发弹窗已强制定位到底部，位置:', modal.getBoundingClientRect());
     }
@@ -190,19 +190,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
     <>
       {/* 最小化状态 - 固定在右下角 */}
       {isMinimized && (
-        <div style={{
-          position: 'fixed',
-          bottom: '16px',
-          right: '16px',
-          zIndex: 2147483647,
-          background: 'white',
-          border: '1px solid #e2e8f0',
-          borderRadius: '8px',
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-          padding: '12px',
-          minWidth: '300px',
-          pointerEvents: 'auto'
-        }}>
+        <div className="batch-modal-minimized">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 btn-gradient-primary rounded"></div>
@@ -243,16 +231,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
         <>
           {/* 半透明遮罩层 */}
           <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 2147483646,
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              pointerEvents: 'auto'
-            }}
+            className="batch-modal-overlay"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -263,29 +242,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
           {/* 弹窗内容 - 强制定位在页面底部 */}
           <div
             ref={modalRef}
-            style={{
-              position: 'fixed',
-              bottom: '20px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              top: 'auto',
-              right: 'auto',
-              zIndex: 2147483647,
-              width: 'min(95vw, 1200px)',
-              height: 'min(75vh, 600px)',
-              maxWidth: '1200px',
-              maxHeight: '600px',
-              margin: 0,
-              background: 'white',
-              borderRadius: '12px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              animation: 'slideInFromBottom 0.3s ease-out',
-              pointerEvents: 'auto'
-            }}
+            className="batch-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
             {/* 隐藏的描述元素，用于CSS选择器 */}
@@ -343,7 +300,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
             </AlertDialog>
 
             {/* 优化后的紧凑内容区域 */}
-            <div className="flex-1 overflow-y-auto px-6 py-4" style={{ maxHeight: 'calc(85vh - 80px)' }}>
+            <div className="flex-1 overflow-y-auto px-6 py-4 batch-modal-scroll-content">
               {/* 优化后的使用说明 - 移至主标题下方，单行展示 */}
               <div className="flex items-center gap-2 mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <Info className="h-4 w-4 text-primary flex-shrink-0" />

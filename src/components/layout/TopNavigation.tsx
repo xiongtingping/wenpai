@@ -219,7 +219,7 @@ export const TopNavigation: React.FC = () => {
         </div>
       </header>
       {/* 占位元素：与导航栏同高，避免内容被覆盖 */}
-      <div aria-hidden className="h-[var(--header-height,64px)]"></div>
+      <div aria-hidden className="header-spacer"></div>
     </>
   );
 };

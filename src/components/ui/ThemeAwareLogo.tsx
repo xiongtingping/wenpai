@@ -35,8 +35,8 @@ export const ThemeAwareLogo: React.FC<ThemeAwareLogoProps> = ({
   // 判断是否为深色主题
   const isDarkTheme = theme === 'dark';
   
-  // 选择合适的logo文件 - 使用新的ikigai四圆logo
-  const logoSrc = '/ikigai_4circles_multiply.svg';
+  // 选择合适的logo文件 - 使用透明背景的ikigai四圆logo
+  const logoSrc = '/ikigai_4circles_transparent.svg';
   
   // 构建容器类名
   const containerClasses = [
@@ -71,12 +71,8 @@ export const ThemeAwareLogo: React.FC<ThemeAwareLogoProps> = ({
           // 深色模式下的额外优化
           'dark:brightness-110 dark:contrast-110',
           // 确保图片在所有主题下都有良好的对比度
-          isDarkTheme ? 'filter-none' : ''
+          isDarkTheme ? 'theme-aware-logo-dark' : 'theme-aware-logo-light'
         ].filter(Boolean).join(' ')}
-        style={{
-          // 为深色主题提供额外的阴影效果
-          filter: isDarkTheme ? 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))' : 'none'
-        }}
       />
     </div>
   );

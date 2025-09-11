@@ -229,15 +229,7 @@ export function PricingSection() {
           <div className="mt-4 flex justify-center items-center space-x-4">
             <Button
               onClick={() => setBilling("monthly")}
-              style={{
-                background: billing === "monthly" ? "#2563eb" : "#e5e7eb",
-                color: billing === "monthly" ? "white !important" : "#374151 !important",
-                border: billing === "monthly" ? "none" : "1px solid #d1d5db",
-                padding: "12px 24px",
-                fontWeight: "600",
-                transition: "all 0.3s ease",
-                borderRadius: "6px"
-              }}
+              className={`pricing-button-monthly ${billing === "monthly" ? "active" : "inactive"}`}
             >
               {t('home.pricing.monthlyBilling')}
             </Button>
@@ -248,23 +240,7 @@ export function PricingSection() {
             />
             <Button
               onClick={() => setBilling("yearly")}
-              style={{
-                background: billing === "yearly"
-                  ? "linear-gradient(to right, #f97316, #ef4444, #ec4899)"
-                  : "linear-gradient(to right, #fbbf24, #f97316, #ef4444)",
-                color: "white !important",
-                border: billing === "yearly" ? "none" : "2px solid #f59e0b",
-                boxShadow: billing === "yearly"
-                  ? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-                  : "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                transform: billing === "yearly" ? "scale(1.1)" : "scale(1.08)",
-                padding: "12px 24px",
-                fontWeight: "600",
-                transition: "all 0.3s ease",
-                position: "relative",
-                overflow: "hidden",
-                borderRadius: "6px"
-              }}
+              className={`pricing-button-yearly ${billing === "yearly" ? "active" : "inactive"}`}
             >
               <span className="relative z-10 drop-shadow-sm">
                 {t('home.pricing.yearlyBilling')} <span className="text-xs ml-1 font-extrabold text-yellow-200">({t('home.pricing.yearlyDiscount')})</span>
@@ -320,7 +296,7 @@ export function PricingSection() {
                     <div className="text-center">
                       <div className="flex items-baseline justify-center gap-2">
                         <div className="text-5xl font-extrabold text-foreground pricing-price">
-                          <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥0</span>
+                          <span className="pricing-price-text">¥0</span>
                         </div>
                         <span className="text-base text-muted-foreground">{t('home.pricing.permanentFree')}</span>
                       </div>
@@ -330,7 +306,7 @@ export function PricingSection() {
                       {isAuthenticated && showPromoOffer ? (
                         <div className="flex items-baseline justify-center gap-2">
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
-                            <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥{pricing.discountPrice}</span>
+                            <span className="pricing-price-text">¥{pricing.discountPrice}</span>
                           </div>
                           <span className="text-base text-muted-foreground">/{billing === "monthly" ? t('home.pricing.monthShort') : t('home.pricing.yearShort')}</span>
                           <div className="flex flex-col items-start ml-2">
@@ -341,7 +317,7 @@ export function PricingSection() {
                       ) : (
                         <div className="flex items-baseline justify-center gap-2">
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
-                            <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥{pricing.originalPrice}</span>
+                            <span className="pricing-price-text">¥{pricing.originalPrice}</span>
                           </div>
                           <span className="text-base text-muted-foreground">/{billing === "monthly" ? t('home.pricing.monthShort') : t('home.pricing.yearShort')}</span>
                         </div>

@@ -145,7 +145,7 @@ export const UndefinedFixer: React.FC<{ children: React.ReactNode }> = ({ childr
     return () => observer.disconnect();
   }, []);
   
-  return <div ref={containerRef} style={{ display: 'contents' }}>{children}</div>;
+  return <div ref={containerRef} className="contents">{children}</div>;
 };
 
 // 高阶组件：自动包装组件以修复 undefinedundefined

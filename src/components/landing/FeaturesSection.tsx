@@ -221,7 +221,8 @@ export const FeaturesSection: React.FC = () => {
           </h2>
           
           {/* 3️⃣ 副标题（描述文本）优化 */}
-          <p className="text-base text-muted-foreground leading-relaxed max-w-4xl mx-auto mt-4 mb-10 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
+          <p className="text-base text-muted-foreground leading-relaxed max-w-4xl mx-auto mt-4 mb-10 animate-fadeInUp features-subtitle"
+             style={{ '--animation-delay': 'var(--features-subtitle-delay)' } as React.CSSProperties}>
             {t('home.featuresSection.toolsDescription')}
           </p>
         </div>
@@ -238,8 +239,8 @@ export const FeaturesSection: React.FC = () => {
               <Card
                 key={index}
                 variant="soft"
-                className="group animate-slideUp rounded-xl"
-                style={{ animationDelay: (index * 100) + 'ms' }}
+                className="group animate-slideUp rounded-xl features-main-card"
+                style={{ '--animation-delay': `${index * parseInt(getComputedStyle(document.documentElement).getPropertyValue('--features-main-delay-step')) + parseInt(getComputedStyle(document.documentElement).getPropertyValue('--features-main-delay-base'))}ms` } as React.CSSProperties}
               >
                 <CardHeader className="relative">
                   <div>
@@ -308,9 +309,9 @@ export const FeaturesSection: React.FC = () => {
             {quickTools.map((tool, index) => (
               <Card 
                 key={index} 
-                variant="soft" 
-                className="group text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 animate-zoomIn"
-                style={{ animationDelay: (index * 150) + 'ms' }}
+                variant="soft"
+                className="group text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 animate-zoomIn features-tools-card"
+                style={{ '--animation-delay': `${index * parseInt(getComputedStyle(document.documentElement).getPropertyValue('--features-tools-delay-step')) + parseInt(getComputedStyle(document.documentElement).getPropertyValue('--features-tools-delay-base'))}ms` } as React.CSSProperties}
               >
                 <CardContent className="p-6">
                   <div className={'quick-tool-icon quick-tool-' + tool.theme + ' inline-flex items-center justify-center w-12 h-12 rounded-lg ' + tool.color + ' mb-4 shadow-md group-hover:shadow-lg transition-all duration-300'}>
@@ -351,9 +352,9 @@ export const FeaturesSection: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {advantages.map((advantage, index) => (
               <Card 
-                key={index} 
-                className="group text-center py-6 px-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 animate-slideUp min-h-[220px] flex flex-col justify-center"
-                style={{ animationDelay: (index * 100) + 'ms' }}
+                key={index}
+                className="group text-center py-6 px-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 animate-slideUp min-h-[220px] flex flex-col justify-center features-advantages-card"
+                style={{ '--animation-delay': `${index * parseInt(getComputedStyle(document.documentElement).getPropertyValue('--features-advantages-delay-step')) + parseInt(getComputedStyle(document.documentElement).getPropertyValue('--features-advantages-delay-base'))}ms` } as React.CSSProperties}
               >
                 <CardContent className="p-0">
                   {/* 图标区域 */}
