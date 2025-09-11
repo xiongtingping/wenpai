@@ -194,14 +194,14 @@ export function GenerationControls({
   return (
     <div className="space-y-6">
       {/* 内容形式和风格选择 */}
-      <Card>
+      <Card className="pb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
             内容形式与风格
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-h-[120px]">
           <ContentFormSelector
             selectedFormId={selectedFormId}
             selectedStyle={selectedStyle}

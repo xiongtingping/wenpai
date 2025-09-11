@@ -1,0 +1,53 @@
+/* 简化的ContentFormSelector样式 - 重构版本 */
+/* 移除了所有复杂的手动DOM样式，使用简单的React组件样式 */
+
+/* 基础下拉菜单动画 - 向下展开 */
+@keyframes dropdown-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 向上展开动画 */
+@keyframes dropdown-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 智能定位下拉菜单样式 */
+.dropdown-up {
+  animation: dropdown-fade-in-up 0.2s ease-out;
+}
+
+.dropdown-down {
+  animation: dropdown-fade-in 0.2s ease-out;
+}
+
+/* 确保下拉菜单在移动设备上正确显示 */
+@media (max-width: 768px) {
+  .content-form-dropdown-container {
+    max-width: 95vw !important;
+    margin: 0 2.5vw !important;
+  }
+}
+
+/* 下拉菜单项的悬停效果 */
+.cursor-pointer {
+  transition: all 0.2s ease !important;
+}
+
+.cursor-pointer:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
