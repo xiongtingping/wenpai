@@ -15,10 +15,10 @@ const textareaVariants = cva(
         enhanced: "border-border bg-background hover:bg-muted/30 focus:bg-background shadow-e0 hover:shadow-e1 focus:shadow-e1",
       },
       size: {
-        default: "min-h-[80px] px-3 py-2",
-        sm: "min-h-[60px] px-2 py-1 text-sm",
-        lg: "min-h-[120px] px-4 py-3",
-        xl: "min-h-[160px] px-4 py-4 text-base",
+        default: "textarea-size-default px-3 py-2",
+        sm: "textarea-size-sm px-2 py-1 text-sm",
+        lg: "textarea-size-lg px-4 py-3",
+        xl: "textarea-size-xl px-4 py-4 text-base",
       },
     },
     defaultVariants: {

@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Copy, Check, Download, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { callAIWithTokenTracking, type AITaskType } from '@/services/aiWithTokenTracking';
+import { callAIWithTokenTracking, AITaskType } from '@/services/aiWithTokenTracking';
 
 interface AISummarizerProps {
   initialContent?: string;

@@ -142,7 +142,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
         format: bookmark.url ? 'link' : 'text',
         source: bookmark.platform || '全网雷达',
         tags: bookmark.tags || [],
-        createdAt: new Date(bookmark.timestamp).toISOString(),
+        createdAt: new Date(bookmark.timestamp || bookmark.createdAt).toISOString(),
         summary: this.generateSummary(bookmark.content || bookmark.description || ''),
         metadata: {
           url: bookmark.url,

@@ -156,7 +156,7 @@ export default function EnhancedTopicCategories({
     const title = 'title' in item ? item.title : '';
     const hot = 'hot' in item ? item.hot : (item as RSSHubTopic).hotScore?.toString() || '0';
     const url = 'url' in item ? item.url : (item as RSSHubTopic).link;
-    const platform = 'platform' in item ? item.platform : (item as RSSHubTopic).platform;
+    const platform = 'platform' in item ? item.platform : (item as any).platform;
 
     return (
       <div key={`${isRSSHub ? 'rsshub' : 'original'}-${index}`} className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-md transition-colors">

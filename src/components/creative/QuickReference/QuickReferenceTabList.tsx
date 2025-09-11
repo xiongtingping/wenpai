@@ -29,8 +29,8 @@ interface QuickReferenceTabListProps {
 export function QuickReferenceTabList({
   activeTab,
   onTabChange,
-  counts = {},
-  loading = {},
+  counts = {} as Record<TabType, number>,
+  loading = {} as Record<TabType, boolean>,
   disabled = false
 }: QuickReferenceTabListProps) {
   

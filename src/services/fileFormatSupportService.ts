@@ -8,6 +8,7 @@ interface FileFormatCheckResult {
   isSupported: boolean;
   reason?: string;
   suggestions?: string[];
+  formatInfo?: any; // 🔧 FIXED: 添加缺失的formatInfo属性
 }
 
 interface FileFormatSummary {
@@ -17,7 +18,7 @@ interface FileFormatSummary {
   description: string;
 }
 
-class FileFormatSupportService {
+export class FileFormatSupportService {
   /**
    * 获取支持的文件类型列表
    */
@@ -238,5 +239,5 @@ class FileFormatSupportService {
   }
 }
 
-// 导出单例实例
+// 🔧 FIXED: 移除单例模式，改为导出类和默认实例
 export default new FileFormatSupportService();

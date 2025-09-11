@@ -12,6 +12,8 @@ import App from './App.tsx';
 import GlobalDataValidationService from './services/globalDataValidationService';
 import { immediateFixLocalStorage } from './utils/localStorageFixer';
 import { preloadAllServices, getServicesStats } from './utils/servicePreloader';
+import { registerAllServices } from './config/serviceRegistry';
+import { preloadServices, container } from './utils/DIContainer';
 
 // 🔧 FIXED: 更强力的 forwardRef 修复，彻底消除错误
 try {
@@ -135,17 +137,28 @@ async function initializeApplication() {
     // 1. 立即修复 localStorage 数据问题
     immediateFixLocalStorage();
 
-    // 2. 预加载所有服务（按依赖顺序）
-    console.log('📦 预加载服务模块...');
+    // 2. 注册所有服务到DI容器（替代单例模式）
+    console.log('🔧 注册服务到DI容器...');
+    await registerAllServices();
+
+    // 3. 预加载关键服务（防止TDZ错误）
+    console.log('📦 预加载关键服务...');
+    await preloadServices();
+
+    // 4. 预加载传统服务模块（向后兼容）
+    console.log('📦 预加载传统服务模块...');
     await preloadAllServices();
 
-    // 3. 初始化全局数据验证服务
+    // 5. 初始化全局数据验证服务
     GlobalDataValidationService.initialize();
 
-    // 4. 显示初始化统计
-    const stats = getServicesStats();
-    console.log(`✅ 服务初始化完成: ${stats.loaded}/${stats.total}`);
-    console.log('📋 初始化顺序:', stats.order);
+    // 6. 显示初始化统计
+    const diStats = container.getStats();
+    const legacyStats = getServicesStats();
+    console.log(`✅ DI容器服务: ${diStats.instantiated}/${diStats.registered}`);
+    console.log(`✅ 传统服务: ${legacyStats.loaded}/${legacyStats.total}`);
+    console.log('📋 DI初始化顺序:', diStats.order);
+    console.log('📋 传统初始化顺序:', legacyStats.order);
 
     // 5. 启动React应用
     const root = ReactDOM.createRoot(document.getElementById('root')!);

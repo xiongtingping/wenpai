@@ -24,7 +24,7 @@
   .dialog-overlay-fixed {
     position: fixed !important;
     inset: 0 !important;
-    z-index: 49 !important;
+    z-index: var(--z-dialog-overlay) !important;
     background-color: hsl(var(--foreground) / 0.5) !important;
     backdrop-filter: blur(4px) !important;
   }
@@ -39,7 +39,7 @@
     bottom: auto !important;
     inset: auto !important;
     margin: 0 !important;
-    z-index: 999999 !important;
+    z-index: var(--z-dialog-content) !important;
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
@@ -519,6 +519,192 @@
 
   .auth-modal-container {
     height: var(--auth-modal-height);
+  }
+
+  /* 🎨 Creative Components System */
+  .brand-emoji-scroll {
+    height: var(--brand-emoji-scroll-height);
+  }
+
+  .progress-bar-container {
+    height: var(--progress-bar-height);
+  }
+
+  .progress-bar {
+    height: var(--progress-bar-height);
+    width: var(--progress-width);
+  }
+
+  .card-preview-container {
+    width: var(--card-width);
+    height: var(--card-height);
+    min-width: var(--card-preview-min-width);
+    min-height: var(--card-preview-min-height);
+  }
+
+  /* 💳 Payment Page System */
+  .payment-button-monthly,
+  .payment-button-yearly {
+    padding: var(--payment-button-padding);
+    font-weight: var(--payment-button-font-weight);
+    font-size: var(--payment-button-font-size);
+    transition: var(--payment-transition);
+    border-radius: var(--payment-button-border-radius);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .payment-button-monthly {
+    min-width: var(--payment-button-min-width-monthly);
+  }
+
+  .payment-button-yearly {
+    min-width: var(--payment-button-min-width-yearly);
+  }
+
+  .payment-button-active {
+    background: #2563eb;
+    color: white;
+    border: none;
+  }
+
+  .payment-button-inactive {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+  }
+
+  .payment-button-yearly-active {
+    background: linear-gradient(to right, #f97316, #ef4444, #ec4899);
+    color: white;
+    border: none;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transform: scale(1.05);
+  }
+
+  .payment-button-yearly-inactive {
+    background: linear-gradient(to right, #fbbf24, #f97316, #ef4444);
+    color: white;
+    border: 2px solid #f59e0b;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: scale(1.02);
+  }
+
+  .payment-card {
+    min-height: var(--payment-card-min-height);
+  }
+
+  .payment-pricing {
+    min-height: var(--payment-pricing-min-height);
+  }
+
+  .payment-features {
+    min-height: var(--payment-features-min-height);
+  }
+
+  /* 📝 Textarea Size System */
+  .textarea-size-default {
+    min-height: var(--textarea-min-height-default);
+  }
+
+  .textarea-size-sm {
+    min-height: var(--textarea-min-height-sm);
+  }
+
+  .textarea-size-lg {
+    min-height: var(--textarea-min-height-lg);
+  }
+
+  .textarea-size-xl {
+    min-height: var(--textarea-min-height-xl);
+  }
+
+  /* 📜 Scroll Area System */
+  .scroll-bar-vertical {
+    width: var(--scroll-bar-width);
+    padding: var(--scroll-bar-padding);
+  }
+
+  .scroll-bar-horizontal {
+    height: var(--scroll-bar-width);
+    padding: var(--scroll-bar-padding);
+  }
+
+  /* 📏 Separator System */
+  .separator-horizontal {
+    height: var(--separator-thickness);
+  }
+
+  .separator-vertical {
+    width: var(--separator-thickness);
+  }
+
+  /* 🔐 Custom Login Page System */
+  .login-segmented-spacing {
+    margin-top: var(--login-segmented-margin);
+    margin-bottom: var(--login-segmented-margin);
+  }
+
+  .login-code-field {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--login-form-gap);
+  }
+
+  .login-code-input-container {
+    position: relative;
+  }
+
+  .login-code-button {
+    padding: var(--login-button-padding);
+  }
+
+  .login-register-form {
+    margin-top: var(--login-form-margin-top);
+  }
+
+  .login-error-message {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: var(--login-error-margin-top);
+    color: #ef4444;
+    font-size: var(--login-error-font-size);
+  }
+
+  .login-form-options {
+    margin-top: var(--login-options-margin-top);
+  }
+
+  .login-remember-label {
+    user-select: none;
+  }
+
+  /* 🎮 Command Component System */
+  .command-list {
+    max-height: var(--command-list-max-height);
+  }
+
+  /* 🍞 Toast Component System */
+  .toast-viewport {
+    top: var(--toast-viewport-top);
+    right: var(--toast-viewport-right);
+    z-index: var(--toast-viewport-z-index);
+    max-width: var(--toast-viewport-max-width);
+    padding: var(--toast-viewport-padding);
+  }
+
+  /* 📱 Drawer Component System */
+  .drawer-content {
+    margin-top: var(--drawer-content-margin-top);
+    border-top-left-radius: var(--drawer-content-border-radius);
+    border-top-right-radius: var(--drawer-content-border-radius);
+  }
+
+  .drawer-handle {
+    margin-top: var(--drawer-handle-margin-top);
+    height: var(--drawer-handle-height);
+    width: var(--drawer-handle-width);
   }
   
   .dialog-header {

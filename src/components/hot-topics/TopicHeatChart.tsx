@@ -137,12 +137,11 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
             <div key={index} className="flex flex-col items-center flex-1">
               <div 
                 className={`w-full rounded-t transition-all duration-300 ${
-                  isLatest 
-                    ? 'bg-primary' 
+                  isLatest
+                    ? 'bg-primary'
                     : 'bg-muted hover:bg-accent'
                 }`}
                 style={{ '--heat-bar-height': `${Math.max(height, 10)}%` } as React.CSSProperties}
-                className="heat-chart-bar"
                 title={`${data.date || '未知日期'}: ${(data.heat || 0).toLocaleString()}`}
               />
               <span className="text-xs text-muted-foreground mt-1 transform rotate-45 origin-left">

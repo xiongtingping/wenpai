@@ -139,7 +139,13 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
       }
     `;
     document.head.appendChild(style);
-    return () => document.head.removeChild(style);
+
+    // 🔧 FIXED: 正确的cleanup函数返回类型
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
+      }
+    };
   }, []); // 永远执行，避免条件性hooks
 
   // 强制设置弹窗位置在底部 - 使用更高的z-index和更强制的定位
@@ -179,7 +185,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
       container.style.width = '100vw';
       container.style.height = '100vh';
       container.style.pointerEvents = 'none';
-      container.style.zIndex = '2147483647';
+      container.style.zIndex = 'var(--z-critical)';
       document.body.appendChild(container);
     }
   }, []);

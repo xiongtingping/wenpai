@@ -41,9 +41,12 @@ export interface TopicBookmark {
   id: string;
   title: string;
   description: string;
+  content?: string; // 🔧 FIXED: 添加content字段
   category: string;
   tags: string[];
   url?: string;
+  platform?: string; // 🔧 FIXED: 添加platform字段
+  timestamp?: number; // 🔧 FIXED: 添加timestamp字段
   createdAt: number;
 }
 

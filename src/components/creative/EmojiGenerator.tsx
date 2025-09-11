@@ -29,8 +29,8 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
    */
   const createPlaceholderImage = (emotion: string, text: string = '生成失败') => {
     const svgContent = `
-      <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" fill="hsl(var(--muted))"/>
+      <svg width="var(--emoji-placeholder-size)" height="var(--emoji-placeholder-size)" xmlns="http://www.w3.org/2000/svg">
+        <rect width="var(--emoji-placeholder-size)" height="var(--emoji-placeholder-size)" fill="hsl(var(--muted))"/>
         <text x="32" y="32" text-anchor="middle" dy=".3em" fill="hsl(var(--muted-foreground))" font-size="8">${emotion}</text>
         <text x="32" y="44" text-anchor="middle" dy=".3em" fill="hsl(var(--muted-foreground))" font-size="6">${text}</text>
       </svg>
@@ -277,10 +277,10 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
               <span>生成进度</span>
               <span>{currentCount}/{totalCount} ({Math.round(progress)}%)</span>
             </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div 
-                className="bg-accent h-2 rounded-full transition-all duration-300" 
-                style={{ width: `${progress}%` }}
+            <div className="w-full bg-muted rounded-full progress-bar-container">
+              <div
+                className="bg-accent progress-bar rounded-full transition-all duration-300"
+                style={{ '--progress-width': `${progress}%` } as React.CSSProperties}
               ></div>
             </div>
             {currentEmotion && (

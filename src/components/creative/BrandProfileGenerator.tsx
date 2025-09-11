@@ -29,7 +29,8 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
   const { toast } = useToast();
 
   // 获取支持的文件类型
-  const aiService = AIAnalysisService.getInstance();
+  // 🔧 FIXED: 使用新的构造函数而不是getInstance
+  const aiService = new AIAnalysisService();
   const supportedFileTypes = aiService.getSupportedFileTypes();
 
   // 表单状态
@@ -67,7 +68,8 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
 
       // 开始 AI 分析
       setIsAnalyzing(true);
-      const brandService = BrandProfileService.getInstance();
+      // 🔧 FIXED: 使用新的构造函数而不是getInstance
+      const brandService = new BrandProfileService();
       const analysisResult = await brandService.analyzeFiles(Array.from(files));
 
       // 更新表单数据

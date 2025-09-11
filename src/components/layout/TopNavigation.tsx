@@ -16,14 +16,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogoWithText } from '@/components/ui/logo-with-text';
-import { NavBar } from '@/components/ui/navbar';
+// import { LogoWithText } from '@/components/ui/logo-with-text';
+// import { NavBar } from '@/components/ui/navbar';
 import { SubscriptionStatusBadge } from '@/components/subscription/SubscriptionStatusBadge';
 import { BackToTop } from '@/components/ui/BackToTop';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { getUserTier } from '@/utils/subscriptionUtils';
-import { isDevelopment } from '@/utils/env';
+// import { isDevelopment } from '@/utils/env';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 interface NavItem {
@@ -67,9 +67,9 @@ export const TopNavigation: React.FC = () => {
   // 检查是否应该显示升级按钮
   const shouldShowUpgradeButton = (): boolean => {
     if (!isAuthenticated || !user || !primaryStatus) return false;
-    
+
     const userTier = getUserTier(user);
-    return userTier === 'free' || userTier === 'basic';
+    return userTier === 'trial';
   };
 
   // 检查用户是否为专业版用户
@@ -101,28 +101,23 @@ export const TopNavigation: React.FC = () => {
           <div className="flex items-center">
             <Link to="/" className="group">
               <div className="flex items-center space-x-3">
-                <LogoWithText
-                  size="md"
-                  textSize="lg"
-                  showHoverEffect={true}
-                  showBackground={true}
-                />
+                <div className="text-xl font-bold">文派</div>
               </div>
             </Link>
           </div>
 
           {/* 中间导航菜单 - 绝对居中 */}
           <div className="absolute left-1/2 transform -translate-x-1/2 z-10">
-            <div className="hidden lg:flex items-center">
-              <NavBar
-                positionClassName="relative"
-                items={navItems.map(item => ({
-                  name: item.label,
-                  url: item.path,
-                  icon: item.icon,
-                  onClick: (e) => { e.preventDefault(); handleNavigation(item); }
-                }))}
-              />
+            <div className="hidden lg:flex items-center space-x-6">
+              {navItems.map(item => (
+                <button
+                  key={item.path}
+                  onClick={(e: any) => { e.preventDefault(); handleNavigation(item); }}
+                  className="text-sm font-medium hover:text-primary transition-colors"
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -153,7 +148,7 @@ export const TopNavigation: React.FC = () => {
             </DropdownMenu>
             
             {/* 用户状态指示 */}
-            {permissionLoading && !isDevelopment() && (
+            {permissionLoading && (
               <div className="hidden sm:flex items-center gap-1">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                 <span className="text-xs text-secondary">权限加载中...</span>

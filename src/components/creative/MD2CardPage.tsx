@@ -72,6 +72,15 @@ export interface CardTemplate {
   previewImage: string;
   isCustomizable: boolean;
   isFree: boolean;
+  isPopular?: boolean; // 🔧 FIXED: 添加缺失的属性
+  isNew?: boolean; // 🔧 FIXED: 添加缺失的属性
+  tags: string[]; // 🔧 FIXED: 添加缺失的属性
+  constraints: { // 🔧 FIXED: 添加缺失的属性
+    maxSections: number;
+    maxWordsPerSection: number;
+    allowImages: boolean;
+    allowLists: boolean;
+  };
 }
 
 // 卡片生成配置
@@ -1594,9 +1603,10 @@ export default function MD2CardPage() {
                             ...prev,
                             colors: {
                               primary: '#3B82F6',
-                              secondary: '#64748B', 
+                              secondary: '#64748B',
                               background: '#F8FAFC',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#2563EB'
                             }
                           }))}
                         />
@@ -1612,7 +1622,8 @@ export default function MD2CardPage() {
                               primary: '#10B981',
                               secondary: '#059669',
                               background: '#F0FDF4',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#047857'
                             }
                           }))}
                         />
@@ -1628,7 +1639,8 @@ export default function MD2CardPage() {
                               primary: '#8B5CF6',
                               secondary: '#A855F7',
                               background: '#FAF5FF',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#7C3AED'
                             }
                           }))}
                         />
@@ -1644,7 +1656,8 @@ export default function MD2CardPage() {
                               primary: '#F59E0B',
                               secondary: '#EA580C',
                               background: '#FFFBEB',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#D97706'
                             }
                           }))}
                         />
@@ -1660,7 +1673,8 @@ export default function MD2CardPage() {
                               primary: '#EC4899',
                               secondary: '#BE185D',
                               background: '#FDF2F8',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#DB2777'
                             }
                           }))}
                         />
@@ -1676,7 +1690,8 @@ export default function MD2CardPage() {
                               primary: '#374151',
                               secondary: '#6B7280',
                               background: '#F9FAFB',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#4B5563'
                             }
                           }))}
                         />
@@ -1692,7 +1707,8 @@ export default function MD2CardPage() {
                               primary: '#EF4444',
                               secondary: '#DC2626',
                               background: '#FEF2F2',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#B91C1C'
                             }
                           }))}
                         />
@@ -1708,7 +1724,8 @@ export default function MD2CardPage() {
                               primary: '#06B6D4',
                               secondary: '#0891B2',
                               background: '#F0FDFF',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#0E7490'
                             }
                           }))}
                         />
@@ -1724,7 +1741,8 @@ export default function MD2CardPage() {
                               primary: '#EAB308',
                               secondary: '#CA8A04',
                               background: '#FEFCE8',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#A16207'
                             }
                           }))}
                         />
@@ -1740,7 +1758,8 @@ export default function MD2CardPage() {
                               primary: '#F97316',
                               secondary: '#EA580C',
                               background: '#FFF7ED',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#C2410C'
                             }
                           }))}
                         />
@@ -1756,7 +1775,8 @@ export default function MD2CardPage() {
                               primary: '#22C55E',
                               secondary: '#16A34A',
                               background: '#F0FDF4',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#15803D'
                             }
                           }))}
                         />
@@ -1772,7 +1792,8 @@ export default function MD2CardPage() {
                               primary: '#4F46E5',
                               secondary: '#4338CA',
                               background: '#F8FAFC',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#3730A3'
                             }
                           }))}
                         />
@@ -1791,7 +1812,8 @@ export default function MD2CardPage() {
                               primary: '#0EA5E9',
                               secondary: '#0284C7',
                               background: '#F0F9FF',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#0369A1'
                             }
                           }))}
                         />
@@ -1807,7 +1829,8 @@ export default function MD2CardPage() {
                               primary: '#059669',
                               secondary: '#047857',
                               background: '#ECFDF5',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#065F46'
                             }
                           }))}
                         />
@@ -1823,7 +1846,8 @@ export default function MD2CardPage() {
                               primary: '#7C3AED',
                               secondary: '#6D28D9',
                               background: '#F5F3FF',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#5B21B6'
                             }
                           }))}
                         />
@@ -1839,7 +1863,8 @@ export default function MD2CardPage() {
                               primary: '#1F2937',
                               secondary: '#111827',
                               background: '#F9FAFB',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#374151'
                             }
                           }))}
                         />
@@ -1855,7 +1880,8 @@ export default function MD2CardPage() {
                               primary: '#FB7185',
                               secondary: '#F43F5E',
                               background: '#FFF1F2',
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: '#E11D48'
                             }
                           }))}
                         />
@@ -1876,7 +1902,8 @@ export default function MD2CardPage() {
                               primary: generateRandomColor(),
                               secondary: generateRandomColor(),
                               background: `hsl(${Math.floor(Math.random() * 360)}, ${Math.floor(Math.random() * 25) + 10}%, ${Math.floor(Math.random() * 10) + 90}%)`,
-                              text: '#1F2937'
+                              text: '#1F2937',
+                              accent: generateRandomColor()
                             };
                             
                             setCardConfig(prev => ({
@@ -2173,8 +2200,14 @@ export default function MD2CardPage() {
               justifyContent: 'center',
               transition: 'background-color 0.2s'
             }}
-            onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
-            onMouseOut={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+            onMouseOver={(e) => {
+              const target = e.target as HTMLElement;
+              target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+            }}
+            onMouseOut={(e) => {
+              const target = e.target as HTMLElement;
+              target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            }}
             onClick={(e) => {
               e.stopPropagation();
               setIsFullscreenOpen(false);

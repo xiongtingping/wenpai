@@ -41,7 +41,8 @@ export default function BrandContentGenerator() {
 
     setIsGenerating(true);
     try {
-      const brandService = BrandProfileService.getInstance();
+      // 🔧 FIXED: 使用新的构造函数而不是getInstance
+      const brandService = new BrandProfileService();
       
       // 从数据库获取当前品牌档案
       const profile = await brandService.getCurrentProfile();
@@ -115,7 +116,8 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
     }
 
     try {
-      const brandService = BrandProfileService.getInstance();
+      // 🔧 FIXED: 使用新的构造函数而不是getInstance
+      const brandService = new BrandProfileService();
       const result = await brandService.checkContent(generatedContent);
       setContentCheckResult(result);
 

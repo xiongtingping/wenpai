@@ -69,9 +69,9 @@ export function useUnifiedDataPersistence<T = any>(dataType: string) {
       setLastOperation(result);
       
       if (result.success && result.data !== null) {
-        setData(result.data);
+        setData(result.data as T);
         logger.info(`✅ 数据加载成功: ${dataType}`, { source: result.source });
-        return result.data;
+        return result.data as T;
       } else {
         setData(null);
         if (result.error) {

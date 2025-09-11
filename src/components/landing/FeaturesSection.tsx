@@ -262,7 +262,7 @@ export const FeaturesSection: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 mb-6">
-                    {feature.features.map((item, idx) => (
+                    {feature.features.map((item: string, idx: number) => (
                       <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
                         <CheckCircle className="w-4 h-4 text-foreground flex-shrink-0" />
                         <span>{item}</span>

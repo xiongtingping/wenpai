@@ -181,8 +181,8 @@ export default function ForgotPasswordPage() {
             </div>
 
             {/* 验证码 */}
-            <div className={`form-field ${codeFocused || formData.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'8px'}}>
-              <div style={{position:'relative'}}>
+            <div className={`form-field ${codeFocused || formData.code ? 'active' : ''} login-code-field`}>
+              <div className="login-code-input-container">
                 <input
                   type="text"
                   id="code"
@@ -196,8 +196,7 @@ export default function ForgotPasswordPage() {
               </div>
               <button
                 type="button"
-                className="login-button"
-                style={{padding:'10px 14px'}}
+                className="login-button login-code-button"
                 disabled={sendingCode || codeCountdown > 0}
                 onClick={handleSendCode}
               >
@@ -248,7 +247,7 @@ export default function ForgotPasswordPage() {
                 {formData.showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
               {formData.confirmPassword && formData.newPassword !== formData.confirmPassword && (
-                <span className="error-message" style={{position:'absolute', right:0, top:'100%', marginTop:4, color:'#ef4444', fontSize:12}}>
+                <span className="error-message login-error-message">
                   两次密码不一致
                 </span>
               )}

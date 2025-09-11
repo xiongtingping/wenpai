@@ -593,17 +593,7 @@ export default function PaymentPage() {
             {/* 按月订阅 */}
             <Button
               onClick={() => setSelectedPeriod('monthly')}
-              style={{
-                background: selectedPeriod === 'monthly' ? "#2563eb" : "#f3f4f6",
-                color: selectedPeriod === 'monthly' ? "white" : "#374151",
-                border: selectedPeriod === 'monthly' ? "none" : "1px solid #d1d5db",
-                padding: "14px 28px",
-                fontWeight: "600",
-                fontSize: "16px",
-                transition: "all 0.3s ease",
-                borderRadius: "12px",
-                minWidth: "120px"
-              }}
+              className={`payment-button-monthly ${selectedPeriod === 'monthly' ? 'payment-button-active' : 'payment-button-inactive'}`}
             >
               {t('payment.billing.monthly')}
             </Button>
@@ -626,25 +616,7 @@ export default function PaymentPage() {
 
               <Button
                 onClick={() => setSelectedPeriod('yearly')}
-                style={{
-                  background: selectedPeriod === 'yearly'
-                    ? "linear-gradient(to right, #f97316, #ef4444, #ec4899)"
-                    : "linear-gradient(to right, #fbbf24, #f97316, #ef4444)",
-                  color: "white",
-                  border: selectedPeriod === 'yearly' ? "none" : "2px solid #f59e0b",
-                  boxShadow: selectedPeriod === 'yearly'
-                    ? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-                    : "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  transform: selectedPeriod === 'yearly' ? "scale(1.05)" : "scale(1.02)",
-                  padding: "14px 28px",
-                  fontWeight: "600",
-                  fontSize: "16px",
-                  transition: "all 0.3s ease",
-                  position: "relative",
-                  overflow: "hidden",
-                  borderRadius: "12px",
-                  minWidth: "140px"
-                }}
+                className={`payment-button-yearly ${selectedPeriod === 'yearly' ? 'payment-button-yearly-active' : 'payment-button-yearly-inactive'}`}
               >
                 <span className="relative z-10 drop-shadow-sm">
                   {t('payment.billing.yearly')} <span className="text-xs ml-1 font-extrabold text-yellow-200">({t('payment.billing.savingsPercent')})</span>
@@ -702,7 +674,7 @@ export default function PaymentPage() {
             return (
               <div key={plan.id} className="relative pt-4">
                 <Card
-                  className={`transition-all duration-300 relative group w-full flex flex-col rounded-lg min-h-[520px] ${
+                  className={`transition-all duration-300 relative group w-full flex flex-col rounded-lg payment-card ${
                     isDowngrade
                       ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-50'
                       : isSelected
@@ -764,7 +736,7 @@ export default function PaymentPage() {
                     <p className="text-gray-600 text-xs md:text-sm leading-relaxed h-6 flex items-center justify-center">{plan.description}</p>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col space-y-3 pb-3 px-4">
-                    <div className="text-center pricing-container min-h-[70px] flex flex-col justify-center">
+                    <div className="text-center pricing-container payment-pricing flex flex-col justify-center">
                       <div className="space-y-2">
                         <div className="text-3xl md:text-4xl font-bold text-gray-900 flex items-baseline justify-center gap-1">
                           <span className="text-xl md:text-2xl">¥</span>
@@ -783,7 +755,7 @@ export default function PaymentPage() {
 
                       </div>
                     </div>
-                    <div className="flex-1 space-y-1 mt-2 min-h-[240px]">
+                    <div className="flex-1 space-y-1 mt-2 payment-features">
                       {plan.features.map((feature, index) => {
                         // 解析功能标记
                         let featureText = feature;

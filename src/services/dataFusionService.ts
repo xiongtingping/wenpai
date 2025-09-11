@@ -4,7 +4,9 @@
  */
 
 import { DailyHotItem, getDailyHotAll } from '@/api/hotTopicsService';
-import hotTopicsApi, { HotTopicItem } from '@/api/hotTopicsApi';
+// 🔧 FIXED: 修复导入类型问题
+import hotTopicsApi from '@/api/hotTopicsApi';
+import type { HotTopicItem } from '@/types/hotTopics';
 
 export interface FusedHotTopic {
   id: string;
@@ -169,8 +171,8 @@ class DataFusionService {
       title: item.title,
       description: item.desc,
       url: item.url,
-      source: item.mobilUrl || 'unknown',
-      category: this.mapCategory(item.mobilUrl || 'other'),
+      source: item.mobil_url || 'unknown',
+      category: this.mapCategory(item.mobil_url || 'other'),
       hotScore: this.calculateDailyHotScore(item),
       publishTime: new Date().toISOString(),
       tags: this.extractTagsFromTitle(item.title),
@@ -371,7 +373,7 @@ class DataFusionService {
         : [];
 
       const dailyHotPlatforms = dailyHotData.status === 'fulfilled'
-        ? [...new Set(dailyHotData.value.map(item => item.mobilUrl || 'unknown'))]
+        ? [...new Set(dailyHotData.value.map(item => item.mobil_url || 'unknown'))]
         : [];
 
       return {

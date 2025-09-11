@@ -648,6 +648,16 @@ const safeGetUnifiedPermissionManager = () => {
 // 导出安全的获取函数
 export { safeGetUnifiedPermissionManager as getUnifiedPermissionManagerSafe };
 
+// 🔧 FIXED: 添加命名导出以支持serviceRegistry
+export const unifiedPermissionConfig = {
+  UNIFIED_PERMISSION_CONFIGS,
+  UnifiedPermissionManager,
+  unifiedPermissionManager,
+  checkPermission,
+  checkMultiplePermissions,
+  checkAnyPermission
+};
+
 export default {
   UNIFIED_PERMISSION_CONFIGS,
   UnifiedPermissionManager,

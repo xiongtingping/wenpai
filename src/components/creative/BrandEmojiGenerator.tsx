@@ -619,7 +619,7 @@ export default function BrandEmojiGenerator({
                     </Badge>
                   )}
                 </div>
-                <ScrollArea className="h-[500px] rounded-xl border border-border/50">
+                <ScrollArea className="brand-emoji-scroll rounded-xl border border-border/50">
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
                   {results.map((result, index) => (
                     <div

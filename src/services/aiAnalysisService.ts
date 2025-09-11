@@ -1,6 +1,6 @@
 import { BrandAnalysisResult, ContentCheckResult } from '@/types/brand';
 import { callOpenAIProxy } from '@/api/localApiProxy';
-import FileFormatSupportService from '@/services/fileFormatSupportService';
+import FileFormatSupportService, { FileFormatSupportService as FileFormatSupportServiceClass } from '@/services/fileFormatSupportService';
 // PDF 解析依赖
 import * as pdfjsLib from 'pdfjs-dist';
 // Word 文档解析
@@ -24,23 +24,15 @@ if (typeof window !== 'undefined') {
   /**
    * AI 分析服务
    * @description 处理品牌资料的 AI 分析，使用 GPT-4o 模型
+   *
+   * 🔧 FIXED: 移除单例模式，改为依赖注入管理
    */
-  class AIAnalysisService {
-    private static instance: AIAnalysisService;
+  export class AIAnalysisService {
 
-    private constructor() {
+    constructor() {
+      // 🔧 FIXED: 改为公共构造函数，支持依赖注入
       // 使用API代理，不需要直接配置API密钥
     }
-
-  /**
-   * 获取服务实例（单例模式）
-   */
-  public static getInstance(): AIAnalysisService {
-    if (!AIAnalysisService.instance) {
-      AIAnalysisService.instance = new AIAnalysisService();
-    }
-    return AIAnalysisService.instance;
-  }
 
   /**
    * 获取支持的文件类型（使用统一的文件格式支持服务）
@@ -50,7 +42,8 @@ if (typeof window !== 'undefined') {
     mimeType: string;
     description: string;
   }> {
-    const formatSupportService = FileFormatSupportService.getInstance();
+    // 🔧 FIXED: 使用新的构造函数而不是getInstance
+    const formatSupportService = new FileFormatSupportServiceClass();
     return formatSupportService.getSupportedFileTypes();
   }
 
@@ -58,7 +51,8 @@ if (typeof window !== 'undefined') {
    * 检查文件类型是否支持（使用统一的文件格式支持服务）
    */
   public isFileTypeSupported(file: File): boolean {
-    const formatSupportService = FileFormatSupportService.getInstance();
+    // 🔧 FIXED: 使用新的构造函数而不是getInstance
+    const formatSupportService = new FileFormatSupportServiceClass();
     return formatSupportService.isFileTypeSupported(file);
   }
 

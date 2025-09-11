@@ -13,15 +13,16 @@
 import request from '../request';
 import type { AICallParams, AIResponse, ImageGenerationParams } from '../types';
 import { logger } from '@/utils/logger';
+import { getAIEndpoint } from '@/config/aiEndpoints';
 
 /**
- * DeepSeek服务商配置
+ * DeepSeek服务商配置 - 🔧 已迁移到统一端点管理
  * 
  */
 export const DEEPSEEK_CONFIG = {
   name: 'deepseek',
   displayName: 'DeepSeek',
-  baseURL: 'https://api.deepseek.com',
+  baseURL: getAIEndpoint('deepseek')?.baseURL || 'https://api.deepseek.com', // 备用硬编码
   models: {
     chat: [
       'deepseek-chat',

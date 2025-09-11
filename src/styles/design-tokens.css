@@ -133,8 +133,8 @@
     --features-advantages-delay-step: 100ms;
 
     /* 📤 Batch Forward Modal Tokens */
-    --batch-modal-z-index: 2147483647;
-    --batch-modal-z-index-overlay: 2147483646;
+    --batch-modal-z-index: var(--z-critical);
+    --batch-modal-z-index-overlay: var(--z-overlay);
     --batch-modal-bottom-offset: 20px;
     --batch-modal-border-radius: 12px;
     --batch-modal-border: 1px solid #e2e8f0;
@@ -231,6 +231,64 @@
     --auth-border-height: 2px;
     --auth-gradient-size: 30px;
     --auth-modal-height: 600px;
+
+    /* 🎨 Creative Components Tokens */
+    --brand-emoji-scroll-height: 500px;
+    --emoji-placeholder-size: 64px;
+    --progress-bar-height: 2px;
+    --card-preview-min-width: 200px;
+    --card-preview-min-height: 150px;
+
+    /* 💳 Payment Page Tokens */
+    --payment-button-padding: 14px 28px;
+    --payment-button-font-size: 16px;
+    --payment-button-font-weight: 600;
+    --payment-button-border-radius: 12px;
+    --payment-button-min-width-monthly: 120px;
+    --payment-button-min-width-yearly: 140px;
+    --payment-card-min-height: 520px;
+    --payment-pricing-min-height: 70px;
+    --payment-features-min-height: 240px;
+    --payment-transition: all 0.3s ease;
+
+    /* 📝 Textarea Component Tokens */
+    --textarea-min-height-default: 80px;
+    --textarea-min-height-sm: 60px;
+    --textarea-min-height-lg: 120px;
+    --textarea-min-height-xl: 160px;
+
+    /* 📜 Scroll Area Tokens */
+    --scroll-bar-width: 2.5rem;
+    --scroll-bar-padding: 1px;
+
+    /* 📏 Separator Tokens */
+    --separator-thickness: 1px;
+
+    /* 🔐 Custom Login Page Tokens */
+    --login-segmented-margin: 8px;
+    --login-form-gap: 8px;
+    --login-button-padding: 10px 14px;
+    --login-form-margin-top: 24px;
+    --login-error-margin-top: 4px;
+    --login-error-font-size: 12px;
+    --login-options-margin-top: 12px;
+
+    /* 🎮 Command Component Tokens */
+    --command-list-max-height: 300px;
+
+    /* 🍞 Toast Component Tokens */
+    --toast-viewport-top: 4px;
+    --toast-viewport-right: 4px;
+    --toast-viewport-z-index: 999999;
+    --toast-viewport-max-width: 420px;
+    --toast-viewport-padding: 4px;
+
+    /* 📱 Drawer Component Tokens */
+    --drawer-content-margin-top: 24px;
+    --drawer-content-border-radius: 10px;
+    --drawer-handle-margin-top: 4px;
+    --drawer-handle-height: 2px;
+    --drawer-handle-width: 100px;
     --color-input: hsl(var(--input));
     --color-ring: hsl(var(--ring));
     

@@ -62,7 +62,7 @@ export const useAuth = () => {
       resetPassword: () => Promise.reject(new Error('简化实现中不支持')),
 
       // Guard实例（兼容性）
-      guard: auth.guard
+      guard: (auth as any).guard || null
     };
   } catch (error) {
     // 🚨 临时兼容性处理：如果UnifiedAuth不可用，返回默认值

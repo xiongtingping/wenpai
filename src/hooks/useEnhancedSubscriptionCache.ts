@@ -105,7 +105,6 @@ export function useEnhancedSubscriptionCache(
       
       // 转换为SubscriptionStatus格式
       const status = calculateSubscriptionStatus({
-        id: userId,
         subscription: result.subscription
       });
 

@@ -6,7 +6,7 @@ import { Children,
   useEffect,
   useRef,
   useState, } from 'react'
-import Image from 'next/image';
+// import Image from 'next/image';
 
 interface InputProps {
   label?: string;
@@ -127,7 +127,7 @@ const Page = () => {
             } as React.CSSProperties}
           />
           <div className="form-container sign-in-container h-full z-10">
-            <form className='text-center py-10 md:py-20 grid gap-2 h-full' onSubmit={()=>{e.preventDefault();}}>
+            <form className='text-center py-10 md:py-20 grid gap-2 h-full' onSubmit={(e)=>{e.preventDefault();}}>
               <div className='grid gap-4 md:gap-6 mb-2'>
                 <h1 className='text-3xl md:text-4xl font-extrabold' onClick={(e) => {e.preventDefault()}}>Sign in</h1>
                 <div className="social-container">
@@ -176,12 +176,10 @@ const Page = () => {
           </div>
         </div>
         <div className='hidden lg:block w-1/2 right h-full overflow-hidden'>
-            <Image
+            <img
               src='https://images.pexels.com/photos/7102037/pexels-photo-7102037.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
-              loader={({ src }) => src}
               width={1000}
               height={1000}
-              priority
               alt="Carousel image"
               className="w-full h-full object-cover transition-transform duration-300 opacity-30"
             />

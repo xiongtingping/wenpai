@@ -603,4 +603,7 @@ export function getAPIInstance(): HotTopicsAPI | any {
   return hotTopicsAPI;
 }
 
+// 🔧 FIXED: 添加命名导出以支持serviceRegistry
+export { hotTopicsAPI as HotTopicsAPI };
+
 export default hotTopicsAPI;

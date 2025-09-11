@@ -103,7 +103,7 @@ export function QuickReferenceItemCard({
     onSelect(item);
   };
 
-  const handleCheckboxChange = (e: React.MouseEvent) => {
+  const handleCheckboxChange = (e: React.FormEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     onSelect(item);
   };

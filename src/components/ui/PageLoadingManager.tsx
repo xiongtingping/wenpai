@@ -264,8 +264,7 @@ export const PageLoadingScreen: React.FC<PageLoadingScreenProps> = ({
             {showProgress && (
               <div className="w-full bg-muted rounded-full h-2">
                 <div 
-                  className="bg-primary h-2 rounded-full transition-all duration-300 ease-out"
-                  className="progress-bar"
+                  className="bg-primary h-2 rounded-full transition-all duration-300 ease-out progress-bar"
                   style={{ '--progress-width': `${Math.min(state.progress, 100)}%` } as React.CSSProperties}
                 />
               </div>

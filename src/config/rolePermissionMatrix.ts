@@ -564,6 +564,18 @@ export class PermissionChecker {
   }
 }
 
+// 🔧 FIXED: 添加命名导出以支持serviceRegistry
+export const rolePermissionMatrix = {
+  SystemRole,
+  Permission,
+  SubscriptionTier,
+  ROLE_PERMISSIONS,
+  TIER_PERMISSIONS,
+  PERMISSION_INHERITANCE,
+  PERMISSION_GROUPS,
+  PermissionChecker
+};
+
 export default {
   SystemRole,
   Permission,

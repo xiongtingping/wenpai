@@ -145,10 +145,13 @@ export function TokenStatsDebugPanel() {
       // const result = await tokenStatsTester.testTokenStatsQuery(effectiveUserId, testTier);
       
       // 模拟结果
-      const result = { success: true, stats: { monthlyUsed: 0, monthlyLimit: 1000 } };
-      
+      const result: { success: boolean; stats?: { monthlyUsed: number; monthlyLimit: number }; error?: string } = {
+        success: true,
+        stats: { monthlyUsed: 0, monthlyLimit: 1000 }
+      };
+
       if (result.success) {
-        alert(`统计查询功能暂时不可用\n模拟结果 - 已使用: ${result.stats.monthlyUsed}\n限额: ${result.stats.monthlyLimit}`);
+        alert(`统计查询功能暂时不可用\n模拟结果 - 已使用: ${result.stats?.monthlyUsed}\n限额: ${result.stats?.monthlyLimit}`);
       } else {
         alert(`统计查询失败: ${result.error}`);
       }

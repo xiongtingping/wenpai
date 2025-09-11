@@ -3,7 +3,7 @@
  * 统一管理 AI 模型调用，支持降级策略
  */
 
-import { callAIWithTokenTracking, type AITaskType } from '@/services/aiWithTokenTracking';
+import { callAIWithTokenTracking, AITaskType } from '@/services/aiWithTokenTracking';
 import { callAIWithRetry } from '@/api/ai';
 import type { AICallParams } from '@/api/ai';
 import { TitleGenerationConfig } from '../config/titleGeneration.config';

@@ -20,7 +20,13 @@
     "clean": "rm -rf dist node_modules/.vite",
     "type-check": "tsc --noEmit",
     "sync-authing-env": "node sync-authing-env.js",
-    "check-authing-config": "node check-authing-config.js"
+    "check-authing-config": "node check-authing-config.js",
+
+    "tech-debt:console-strip": "node scripts/strip-console-logs.js strip src",
+    "tech-debt:console-verify": "node scripts/strip-console-logs.js verify src",
+    "tech-debt:console-restore": "node scripts/strip-console-logs.js restore src",
+    "tech-debt:audit": "npm run type-check && npm run lint && npm run tech-debt:console-verify",
+    "build:production": "npm run tech-debt:console-strip && npm run build && npm run tech-debt:console-restore"
   },
   "dependencies": {
     "@authing/guard-react18": "^5.3.9",

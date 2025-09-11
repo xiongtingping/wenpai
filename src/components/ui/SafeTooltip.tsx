@@ -140,7 +140,7 @@ export const SafeTooltip: React.FC<SafeTooltipProps> = React.memo(({
         <div
           className={`
             absolute z-50 px-2 py-1 text-xs text-primary-foreground bg-foreground rounded shadow-lg
-            whitespace-nowrap pointer-events-none
+            whitespace-nowrap pointer-events-none animation-fade-in
             ${side === 'top' ? 'bottom-full mb-1' : ''}
             ${side === 'bottom' ? 'top-full mt-1' : ''}
             ${side === 'left' ? 'right-full mr-1' : ''}
@@ -149,7 +149,6 @@ export const SafeTooltip: React.FC<SafeTooltipProps> = React.memo(({
             ${align === 'start' ? 'left-0' : ''}
             ${align === 'end' ? 'right-0' : ''}
           `}
-          className="animation-fade-in"
         >
           {content}
         </div>

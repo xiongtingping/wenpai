@@ -50,6 +50,7 @@ export interface UserActions {
  * 用户数据记录
  */
 export interface UserDataRecord {
+  id?: string; // 🔧 FIXED: 添加id字段
   userId: string;
   isTempUser: boolean;
   realUserId?: string;
@@ -66,7 +67,8 @@ class UserDataService {
   private static instance: UserDataService;
   private tempUserPrefix = 'temp_';
 
-  private constructor() {}
+  // 🔧 FIXED: 改为公共构造函数以支持DI容器
+  constructor() {}
 
   /**
    * 获取单例实例
@@ -352,6 +354,9 @@ class UserDataService {
     console.log('数据库中的过期数据清理应由后端定期任务处理');
   }
 }
+
+// 🔧 FIXED: 添加命名导出以支持serviceRegistry
+export { UserDataService };
 
 export default UserDataService;
 

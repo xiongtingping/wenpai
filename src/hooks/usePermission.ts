@@ -416,7 +416,7 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
       logger.lock('权限检查结果', {
         user: enhancedUser ? {
           id: enhancedUser.id,
-          isVip: enhancedUser.isVip,
+          isVip: (enhancedUser as any).isVip,
           vipLevel: enhancedUser.vipLevel
         } : null,
         hasActiveSubscription,
@@ -433,7 +433,7 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
             key,
             userPermissions: enhancedUser?.permissions || [],
             userRoles: enhancedUser?.roles || [],
-            isVip: !!enhancedUser?.isVip,
+            isVip: !!(enhancedUser as any)?.isVip,
             isLoggedIn: isAuthenticated
           }
         };
@@ -447,7 +447,7 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
         key: keys.join(','),
         userPermissions: enhancedUser?.permissions || [],
         userRoles: enhancedUser?.roles || [],
-        isVip: !!enhancedUser?.isVip,
+        isVip: !!(enhancedUser as any)?.isVip,
         isLoggedIn: isAuthenticated
       }
     };

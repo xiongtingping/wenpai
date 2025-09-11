@@ -425,14 +425,12 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
 
       {/* 预览内容区域 */}
       <div className="flex-1 flex items-center justify-center p-4 bg-muted/20 overflow-auto">
-        <div 
-          className="relative bg-white rounded-lg shadow-lg transition-all duration-200"
+        <div
+          className="relative bg-white rounded-lg shadow-lg transition-all duration-200 card-preview-container"
           style={{
-            width: dimensions.width,
-            height: dimensions.height,
-            minWidth: 200,
-            minHeight: 150
-          }}
+            '--card-width': `${dimensions.width}px`,
+            '--card-height': `${dimensions.height}px`
+          } as React.CSSProperties}
         >
           {/* 隐藏的Canvas用于渲染 */}
           <canvas

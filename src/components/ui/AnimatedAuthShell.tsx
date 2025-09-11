@@ -41,8 +41,8 @@ export const AnimatedAuthShell: React.FC<AnimatedAuthShellProps> = ({
     class Particle {
       x: number; y: number; size: number; speedX: number; speedY: number; color: string
       constructor() {
-        this.x = Math.random() * canvas.width
-        this.y = Math.random() * canvas.height
+        this.x = Math.random() * (canvas?.width || 800)
+        this.y = Math.random() * (canvas?.height || 600)
         this.size = Math.random() * 3 + 1
         this.speedX = (Math.random() - 0.5) * 0.5
         this.speedY = (Math.random() - 0.5) * 0.5
@@ -53,12 +53,13 @@ export const AnimatedAuthShell: React.FC<AnimatedAuthShellProps> = ({
       update() {
         this.x += this.speedX
         this.y += this.speedY
-        if (this.x > canvas.width) this.x = 0
-        if (this.x < 0) this.x = canvas.width
-        if (this.y > canvas.height) this.y = 0
-        if (this.y < 0) this.y = canvas.height
+        if (this.x > (canvas?.width || 800)) this.x = 0
+        if (this.x < 0) this.x = canvas?.width || 800
+        if (this.y > (canvas?.height || 600)) this.y = 0
+        if (this.y < 0) this.y = canvas?.height || 600
       }
       draw() {
+        if (!ctx) return;
         ctx.fillStyle = this.color
         ctx.beginPath()
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)

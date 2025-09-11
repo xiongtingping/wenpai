@@ -247,8 +247,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
                 {/* Unicode 回退显示 */}
                 {currentDisplayMode !== 'unicode' && (
                   <span 
-                    className="text-2xl emoji-font absolute inset-0 flex items-center justify-center"
-                    className="hidden"
+                    className="text-2xl emoji-font absolute inset-0 flex items-center justify-center hidden"
                   >
                     {getEmojiDisplay(emoji.unified, 'unicode')}
                   </span>

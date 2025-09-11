@@ -33,90 +33,41 @@ const isDevelopment = !forceProductionMode && import.meta.env.DEV;
 const isProduction = forceProductionMode || import.meta.env.PROD;
 
 /**
- * AIMLAPI调用函数
+ * AIMLAPI调用函数 - 使用统一管理器
  */
 async function callAIMLAPI(params: AICallParams): Promise<AIResponse> {
-  const startTime = Date.now();
-  const apiKey = import.meta.env.VITE_AIMLAPI_KEY;
+  // 🔧 已迁移到统一AI管理器，此函数保留用于兼容性
+  const { aiManager } = await import('./unifiedAIManager');
+  const result = await aiManager.callAI(params);
   
-  if (!apiKey) {
-    throw new Error('AIMLAPI密钥未配置');
-  }
-
-  try {
-    const requestBody = {
-      model: params.model,
-      messages: [
-        ...(params.systemPrompt ? [{ role: 'system', content: params.systemPrompt }] : []),
-        { role: 'user', content: params.prompt }
-      ],
-      max_tokens: params.maxTokens || 1000,
-      temperature: params.temperature || 0.7,
-      stream: false
-    };
-
-    const response = await fetch('https://api.aimlapi.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (!response.ok) {
-      throw new Error(`AIMLAPI调用失败: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '';
-    
-    return {
-      content: cleanAIContent(content),
-      model: params.model || 'unknown',
-      usage: data.usage,
-      responseTime: Date.now() - startTime,
-      success: !!content,
-      error: content ? undefined : 'AIMLAPI返回空内容'
-    };
-  } catch (error) {
-    return {
-      content: '',
-      model: params.model || 'unknown',
-      usage: undefined,
-      responseTime: Date.now() - startTime,
-      success: false,
-      error: error instanceof Error ? error.message : 'AIMLAPI调用失败'
-    };
-  }
+  // 转换为原有接口格式
+  return {
+    content: result.content,
+    model: result.model,
+    usage: result.usage,
+    responseTime: result.responseTime,
+    success: result.success,
+    error: result.error
+  };
 }
 
 /**
- * DeepSeek原生API调用函数
+ * DeepSeek原生API调用函数 - 使用统一管理器
  */
 async function callDeepSeekNative(params: AICallParams): Promise<AIResponse> {
-  const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+  // 🔧 已迁移到统一AI管理器，此函数保留用于兼容性
+  const { aiManager } = await import('./unifiedAIManager');
+  const result = await aiManager.callAI(params);
   
-  if (!apiKey) {
-    throw new Error('DeepSeek API密钥未配置');
-  }
-
-  try {
-    const deepseekProvider = createDeepSeekProvider(apiKey);
-    console.log('🚀 调用DeepSeek原生接口:', params.model);
-    
-    return await deepseekProvider.callChat(params);
-  } catch (error) {
-    console.error('❌ DeepSeek原生接口调用失败:', error);
-    return {
-      content: '',
-      model: params.model || 'unknown',
-      usage: undefined,
-      responseTime: 0,
-      success: false,
-      error: error instanceof Error ? error.message : 'DeepSeek原生接口调用失败'
-    };
-  }
+  // 转换为原有接口格式
+  return {
+    content: result.content,
+    model: result.model,
+    usage: result.usage,
+    responseTime: result.responseTime,
+    success: result.success,
+    error: result.error
+  };
 }
 
 /**
@@ -137,79 +88,56 @@ function getUserTier(): string {
 }
 
 /**
- * 统一的AI调用服务
- * 根据环境、模型配置和用户权限自动路由调用
- * 
+ * 统一的AI调用服务 - 完全使用新的统一管理器
+ * 🔧 已迁移到统一AI管理器，消除所有硬编码问题
  */
 export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
-  console.log(`🔧 统一AI服务调用 - 环境: ${isDevelopment ? '开发' : '生产'}`);
+  console.log('🔧 统一AI服务调用 - 使用新的统一管理器');
   
-  // 获取模型信息和用户权限
-  const modelInfo = getModelInfo(params.model || '');
-  const userTier = getUserTier();
-  
-  // 检查模型是否存在
-  if (!modelInfo) {
+  try {
+    // 导入并使用统一AI管理器
+    const { aiManager } = await import('./unifiedAIManager');
+    const result = await aiManager.callAI(params);
+    
+    // 转换为原有接口格式，保持兼容性
+    return {
+      content: result.content,
+      model: result.model,
+      usage: result.usage,
+      responseTime: result.responseTime,
+      success: result.success,
+      error: result.error
+    };
+  } catch (error) {
+    console.error('❌ 统一AI服务调用失败:', error);
     return {
       content: '',
       model: params.model || 'unknown',
       usage: undefined,
       responseTime: 0,
       success: false,
-      error: `模型 ${params.model} 不存在或未配置`
+      error: error instanceof Error ? error.message : '统一AI服务调用失败'
     };
-  }
-  
-  // 检查用户权限
-  if (!isModelAvailableForTier(params.model || '', userTier)) {
-    return {
-      content: '',
-      model: params.model || 'unknown',
-      usage: undefined,
-      responseTime: 0,
-      success: false,
-      error: `当前订阅计划 ${userTier} 无权限使用模型 ${modelInfo.name}`
-    };
-  }
-  
-  console.log(`🎯 模型路由: ${modelInfo.name} (${modelInfo.company}) -> ${modelInfo.provider}`);
-  
-  // 根据模型提供商选择调用方式
-  if (modelInfo.provider === 'deepseek') {
-    // DeepSeek模型使用官方原生接口
-    console.log(`🔗 DeepSeek模型使用官方原生接口: ${params.model}`);
-    return await callDeepSeekNative({
-      ...params,
-      model: modelInfo.id // 使用标准化的模型ID
-    });
-  } else {
-    // 其他模型通过AIMLAPI调用
-    console.log(`🚀 通过AIMLAPI调用模型: ${params.model}`);
-    return await callAIMLAPI(params);
   }
 }
 
 /**
- * 统一的图像生成服务
- * 根据环境自动选择直连API或代理API
- * 
+ * 统一的图像生成服务 - 使用新的统一管理器
+ * 🔧 已迁移到统一AI管理器，消除硬编码问题
  */
 export async function generateUnifiedImage(params: ImageGenerationParams): Promise<any> {
-  console.log(`🖼️ 统一图像生成服务 - 环境: ${isDevelopment ? '开发' : '生产'}`);
+  console.log('🖼️ 统一图像生成服务 - 使用新的统一管理器');
   
-  if (isDevelopment) {
-    // 开发环境：直连OpenAI图像API
-    console.log('🔗 开发环境：使用直连图像API (ai.ts)');
-    return await directGenerateImage(params as any);
-  } else {
-    // 生产环境：通过后端代理调用
-    console.log('🛡️ 生产环境：使用后端代理 (imageGenerationService.ts)');
-    return await proxyGenerateImage({
-      prompt: params.prompt,
-      n: params.n,
-      size: params.size,
-      response_format: params.response_format
-    });
+  try {
+    // 导入并使用统一AI管理器
+    const { aiManager } = await import('./unifiedAIManager');
+    return await aiManager.generateImage(params);
+  } catch (error) {
+    console.error('❌ 统一图像生成失败:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '统一图像生成失败'
+    };
   }
 }
 

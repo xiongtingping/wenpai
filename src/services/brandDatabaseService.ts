@@ -3,24 +3,15 @@ import { BrandProfile } from '@/types/brand';
 /**
  * 品牌数据库服务
  * @description 处理品牌档案的数据库存储和检索
+ *
+ * 🔧 FIXED: 移除单例模式，改为依赖注入管理
  */
-class BrandDatabaseService {
-  private static instance: BrandDatabaseService;
+export class BrandDatabaseService {
   private dbName = 'BrandLibraryDB';
   private version = 1;
 
-  private constructor() {
+  constructor() {
     this.initDatabase();
-  }
-
-  /**
-   * 获取服务实例（单例模式）
-   */
-  public static getInstance(): BrandDatabaseService {
-    if (!BrandDatabaseService.instance) {
-      BrandDatabaseService.instance = new BrandDatabaseService();
-    }
-    return BrandDatabaseService.instance;
   }
 
   /**
@@ -210,4 +201,6 @@ class BrandDatabaseService {
   }
 }
 
+// 🔧 FIXED: 移除默认导出，使用命名导出
+// 不再提供getInstance方法，通过DI容器管理
 export default BrandDatabaseService;

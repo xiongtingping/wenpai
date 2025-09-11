@@ -83,7 +83,7 @@ export function QuickReferenceSelector({
         height: ${viewportInfo.viewportHeight}px !important;
         background-color: rgba(0, 0, 0, 0.6) !important;
         backdrop-filter: blur(4px) !important;
-        z-index: 2147483647 !important;
+        z-index: var(--z-dialog-overlay) !important;
         margin: 0 !important;
         padding: 0 !important;
       `;
@@ -102,7 +102,7 @@ export function QuickReferenceSelector({
         width: 600px !important;
         max-width: 90vw !important;
         max-height: 80vh !important;
-        z-index: 2147483648 !important;
+        z-index: var(--z-dialog-content) !important;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
         overflow: hidden !important;
       `;
@@ -450,8 +450,9 @@ export function QuickReferenceSelector({
             // 更新标签页UI
             tabButtons.forEach(b => {
               b.classList.remove('active');
-              b.style.backgroundColor = 'transparent';
-              b.style.color = '#6b7280';
+              const button = b as HTMLElement;
+              button.style.backgroundColor = 'transparent';
+              button.style.color = '#6b7280';
             });
             button.classList.add('active');
             

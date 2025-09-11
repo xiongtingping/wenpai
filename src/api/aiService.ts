@@ -143,6 +143,7 @@ export enum AITaskType {
   TAG_GENERATION = 'tag_generation',
   PDF_CHAT = 'pdf_chat',
   CONTENT_SUMMARY = 'content_summary',
+  SUMMARIZATION = 'summarization', // 🔧 FIXED: 添加SUMMARIZATION类型
   CONTENT_EXTRACTION = 'content_extraction',
   BRAND_ANALYSIS = 'brand_analysis',
   BRAND_DESCRIPTION = 'brand_description',
@@ -227,6 +228,7 @@ function getDefaultMaxTokens(taskType: AITaskType): number {
     [AITaskType.TAG_GENERATION]: 200,
     [AITaskType.PDF_CHAT]: 1500,
     [AITaskType.CONTENT_SUMMARY]: 800,
+    [AITaskType.SUMMARIZATION]: 800, // 🔧 FIXED: 添加SUMMARIZATION映射
     [AITaskType.CONTENT_EXTRACTION]: 1000,
     [AITaskType.BRAND_ANALYSIS]: 1200,
     [AITaskType.BRAND_DESCRIPTION]: 800,
@@ -252,6 +254,7 @@ function getDefaultTemperature(taskType: AITaskType): number {
     [AITaskType.TAG_GENERATION]: 0.5,
     [AITaskType.PDF_CHAT]: 0.7,
     [AITaskType.CONTENT_SUMMARY]: 0.5,
+    [AITaskType.SUMMARIZATION]: 0.5, // 🔧 FIXED: 添加SUMMARIZATION映射
     [AITaskType.CONTENT_EXTRACTION]: 0.3,
     [AITaskType.BRAND_ANALYSIS]: 0.3,
     [AITaskType.BRAND_DESCRIPTION]: 0.7,
@@ -313,6 +316,7 @@ Your output must feel like it was written by a real KOC or content strategist �
     [AITaskType.TAG_GENERATION]: '你是一个专业的标签生成专家，擅长为内容生成相关的标签和关键词。',
     [AITaskType.PDF_CHAT]: '你是一个专业的PDF文档分析助手，能够准确理解文档内容并回答相关问题。',
     [AITaskType.CONTENT_SUMMARY]: '你是一个专业的内容分析师，擅长提取和总结内容的核心信息。',
+    [AITaskType.SUMMARIZATION]: '你是一个专业的内容总结专家，擅长将复杂内容提炼为简洁明了的摘要。', // 🔧 FIXED: 添加SUMMARIZATION映射
     [AITaskType.CONTENT_EXTRACTION]: '你是一个专业的内容提取专家，擅长从各种格式的内容中提取关键信息。',
     [AITaskType.BRAND_ANALYSIS]: '你是一个专业的品牌分析师，擅长分析品牌内容的调性、关键词、目标受众等特征。',
     [AITaskType.BRAND_DESCRIPTION]: '你是一个专业的品牌文案师，擅长撰写吸引人的品牌介绍和描述。',

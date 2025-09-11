@@ -207,7 +207,8 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
         });
 
         if (contactType === 'email') {
-          result = await authClient.registerByEmailCode(contact, cleanCode, null);
+          // 🔧 FIXED: 修复registerByEmailCode参数类型
+          result = await authClient.registerByEmailCode(contact, cleanCode);
           // 注册成功后立即设置密码
           if (result) {
             await authClient.updatePassword(password);
@@ -286,10 +287,12 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       let result;
       if (contact.includes('@')) {
         // 使用邮箱重置密码
-        result = await authClient.resetPasswordByEmail(contact, code, newPassword);
+        // 🔧 FIXED: 使用正确的API方法名
+        result = await authClient.resetPasswordByEmailCode(contact, code, newPassword);
       } else {
         // 使用手机号重置密码
-        result = await authClient.resetPasswordByPhone(contact, code, newPassword);
+        // 🔧 FIXED: 使用正确的API方法名
+        result = await authClient.resetPasswordByPhoneCode(contact, code, newPassword);
       }
 
       if (result) {

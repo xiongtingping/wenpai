@@ -658,7 +658,7 @@ export const CustomLoginPage: React.FC = () => {
         </div>
 
         {/* 登录方式选择（分段按钮） */}
-        <div className="segmented" style={{marginTop:8, marginBottom:8}}>
+        <div className="segmented login-segmented-spacing">
           <button type="button" className={`seg-btn ${loginMethod==='password'?'active':''}`} onClick={() => setLoginMethod('password')}>密码登录</button>
           <button type="button" className={`seg-btn ${loginMethod==='code'?'active':''}`} onClick={() => setLoginMethod('code')}>验证码登录</button>
         </div>
@@ -686,8 +686,8 @@ export const CustomLoginPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className={`form-field ${loginCodeFocused || loginForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'8px'}}>
-            <div style={{position:'relative'}}>
+          <div className={`form-field ${loginCodeFocused || loginForm.code ? 'active' : ''} login-code-field`}>
+            <div className="login-code-input-container">
               <input
                 type="text"
                 id="login-code"
@@ -701,8 +701,7 @@ export const CustomLoginPage: React.FC = () => {
             </div>
             <button
               type="button"
-              className="login-button"
-              style={{padding:'10px 14px'}}
+              className="login-button login-code-button"
               disabled={loginForm.sendingCode || loginForm.codeCountdown > 0 || !isPhoneValid}
               onClick={async () => {
                 try {
@@ -796,7 +795,7 @@ export const CustomLoginPage: React.FC = () => {
       </p>
       {/* 注册模式下的表单（手机号/邮箱 + 验证码） */}
       {mode === 'register' && (
-        <form className="login-form" onSubmit={handleRegister} style={{marginTop: 24}}>
+        <form className="login-form login-register-form" onSubmit={handleRegister}>
 
           {/* 已移除邮箱选项，只保留手机号注册 */}
 
@@ -815,8 +814,8 @@ export const CustomLoginPage: React.FC = () => {
           </div>
 
           {/* 验证码 */}
-          <div className={`form-field ${registerCodeFocused || registerForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'8px'}}>
-            <div style={{position:'relative'}}>
+          <div className={`form-field ${registerCodeFocused || registerForm.code ? 'active' : ''} login-code-field`}>
+            <div className="login-code-input-container">
               <input
                 type="text"
                 id="register-code"
@@ -830,8 +829,7 @@ export const CustomLoginPage: React.FC = () => {
             </div>
             <button
               type="button"
-              className="login-button"
-              style={{padding:'10px 14px'}}
+              className="login-button login-code-button"
               disabled={registerForm.sendingCode || registerForm.codeCountdown > 0 || !registerForm.phone}
               onClick={async () => {
                 try {
@@ -898,14 +896,14 @@ export const CustomLoginPage: React.FC = () => {
             />
             <label htmlFor="register-confirm">确认密码</label>
             {registerForm.confirmPassword && !passwordsMatch && (
-              <span className="error-message" style={{position:'absolute', right:0, top:'100%', marginTop:4, color:'#ef4444', fontSize:12}}>
+              <span className="error-message login-error-message">
                 两次密码不一致
               </span>
             )}
           </div>
 
-          <div className="form-options" style={{marginTop:12}}>
-            <label className="remember-me" style={{userSelect:'none'}}>
+          <div className="form-options login-form-options">
+            <label className="remember-me login-remember-label">
               <input
                 type="checkbox"
                 checked={registerAgreed}

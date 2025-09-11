@@ -113,7 +113,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
         const defaultStatus = {
           status: 'active' as const,
           tier: 'premium', // 🔧 FIX: 开发环境默认设为premium用户
-          expiresAt: '2025-10-02T10:39:17.867+00:00', // 模拟到期时间  
+          expiresAt: new Date('2025-10-02T10:39:17.867+00:00'), // 模拟到期时间
           daysRemaining: 30,
           needsAlert: false,
           alertLevel: 'info' as const,

@@ -32,7 +32,6 @@ export function MentionTextarea({
         value={value}
         onChange={handleTextChange}
         placeholder={placeholder}
-        className={className}
         className={`mention-textarea ${className}`}
         style={{ '--textarea-min-height': minHeight } as React.CSSProperties}
       />

@@ -13,15 +13,16 @@
 import request from '../request';
 import type { AICallParams, AIResponse, ImageGenerationParams } from '../types';
 import { logger } from '@/utils/logger';
+import { getAIEndpoint } from '@/config/aiEndpoints';
 
 /**
- * OpenAI服务商配置
+ * OpenAI服务商配置 - 🔧 已迁移到统一端点管理
  * 
  */
 export const OPENAI_CONFIG = {
   name: 'openai',
   displayName: 'OpenAI',
-  baseURL: 'https://api.openai.com',
+  baseURL: getAIEndpoint('openai')?.baseURL || 'https://api.openai.com', // 备用硬编码
   models: {
     chat: [
       'gpt-4o',

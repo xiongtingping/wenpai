@@ -7,30 +7,25 @@ import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 /**
  * 品牌调性服务
  * @description 处理品牌资料的分析、存储和应用
- * 
+ *
+ * 🔧 FIXED: 移除单例模式，改为依赖注入管理
  */
-class BrandProfileService {
-  private static instance: BrandProfileService;
+export class BrandProfileService {
   private currentProfile: BrandProfile | null = null;
   private currentUserId: string | null = null;
   private aiService: AIAnalysisService;
   private dbService: BrandDatabaseService;
   private promptService: BrandPromptService;
 
-  private constructor() {
-    this.aiService = AIAnalysisService.getInstance();
-    this.dbService = BrandDatabaseService.getInstance();
-    this.promptService = BrandPromptService.getInstance();
-  }
-
-  /**
-   * 获取服务实例（单例模式）
-   */
-  public static getInstance(): BrandProfileService {
-    if (!BrandProfileService.instance) {
-      BrandProfileService.instance = new BrandProfileService();
-    }
-    return BrandProfileService.instance;
+  constructor(
+    aiService?: AIAnalysisService,
+    dbService?: BrandDatabaseService,
+    promptService?: BrandPromptService
+  ) {
+    // 支持依赖注入，如果没有提供则创建新实例（向后兼容）
+    this.aiService = aiService || new AIAnalysisService();
+    this.dbService = dbService || new BrandDatabaseService();
+    this.promptService = promptService || new BrandPromptService();
   }
 
   /**

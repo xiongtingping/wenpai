@@ -29,7 +29,8 @@ export default function BrandToneAnalyzer() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const brandService = BrandProfileService.getInstance();
+  // 🔧 FIXED: 使用新的构造函数而不是getInstance
+  const brandService = new BrandProfileService();
 
   useEffect(() => {
     loadBrandAnalysis();

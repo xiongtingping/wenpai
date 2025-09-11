@@ -132,13 +132,16 @@ export default defineConfig({
         // 保持类名和函数名不被压缩
         keep_classnames: true,
         keep_fnames: true,
-        // 保留关键单例相关的标识符
+        // 🔧 FIXED: 保留DI容器和服务相关的标识符
         reserved: [
           'getInstance', 'HotTopicsAPI', 'ConfigManager',
           'UnifiedPermissionManager', 'PaymentService', 'BrandCorpusService',
           'FavoritesService', 'UserDataService', 'DataSyncManager',
           'instance', 'API', 'Service', 'Manager', 'Handler',
-          // 🔧 FIXED: 保留 Slot 相关标识符，避免变量名冲突
+          // DI容器相关
+          'DIContainer', 'container', 'registerService', 'getService',
+          'ServiceFactory', 'ServiceDefinition',
+          // 保留 Slot 相关标识符，避免变量名冲突
           'createSlot', 'createSlottable', 'Slot', 'Slottable', 'pe'
         ]
       },
@@ -148,7 +151,10 @@ export default defineConfig({
         toplevel: false,
         // 🔧 FIXED: 禁用可能导致变量重命名冲突的优化
         hoist_vars: false,
-        hoist_funs: false
+        hoist_funs: false,
+        // 🔧 生产环境清理console.log
+        drop_console: process.env.NODE_ENV === 'production' ? ['log', 'debug', 'info'] : false,
+        drop_debugger: process.env.NODE_ENV === 'production'
       }
     },
     rollupOptions: {

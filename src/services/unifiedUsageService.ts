@@ -153,14 +153,17 @@ class UnifiedUsageService {
         
         // 模拟Token统计
         const tokenLimit = this.getTokenLimit(userTier);
+        const monthlyUsed = Math.floor(tokenLimit * 0.3); // 30%
         const tokenStats = {
           userId,
           userTier,
           dailyUsed: Math.floor(tokenLimit * 0.1), // 10%
-          monthlyUsed: Math.floor(tokenLimit * 0.3), // 30%
+          monthlyUsed,
+          monthlyRemaining: tokenLimit - monthlyUsed, // 🔧 FIXED: 添加monthlyRemaining
           dailyLimit: tokenLimit,
           monthlyLimit: tokenLimit,
           usagePercentage: 30,
+          needUpgrade: false, // 🔧 FIXED: 添加needUpgrade
           lastUpdated: new Date().toISOString()
         };
 

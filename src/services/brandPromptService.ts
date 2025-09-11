@@ -3,21 +3,11 @@ import { BrandProfile, BrandPromptConfig } from '@/types/brand';
 /**
  * 品牌调性 Prompt 构造函数服务
  * @description 根据品牌档案构建用于内容生成的 prompt
+ *
+ * 🔧 FIXED: 移除单例模式，改为依赖注入管理
  */
-class BrandPromptService {
-  private static instance: BrandPromptService;
-
-  private constructor() {}
-
-  /**
-   * 获取服务实例（单例模式）
-   */
-  public static getInstance(): BrandPromptService {
-    if (!BrandPromptService.instance) {
-      BrandPromptService.instance = new BrandPromptService();
-    }
-    return BrandPromptService.instance;
-  }
+export class BrandPromptService {
+  constructor() {}
 
   /**
    * 构建品牌核心价值信息

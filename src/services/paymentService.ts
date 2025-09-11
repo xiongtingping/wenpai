@@ -35,19 +35,14 @@ export interface UpgradeMembershipResponse {
   error?: string;
 }
 
+/**
+ * 🔧 FIXED: 移除单例模式，改为依赖注入管理
+ */
 export class PaymentService {
-  private static instance: PaymentService;
   private apiBaseUrl: string;
 
-  private constructor() {
+  constructor() {
     this.apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-  }
-
-  public static getInstance(): PaymentService {
-    if (!PaymentService.instance) {
-      PaymentService.instance = new PaymentService();
-    }
-    return PaymentService.instance;
   }
 
   /**
@@ -281,4 +276,8 @@ export class PaymentService {
 }
 
 // 导出单例实例
-export const paymentService = PaymentService.getInstance();
+// 🔧 FIXED: 移除getInstance调用，改为通过DI容器获取
+// export const paymentService = PaymentService.getInstance();
+
+// 临时兼容性导出，建议使用DI容器获取服务
+export const paymentService = new PaymentService();

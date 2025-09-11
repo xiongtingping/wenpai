@@ -102,21 +102,15 @@ class SimpleCache {
 
 /**
  * MD2WeChat转换服务类
+ *
+ * 🔧 FIXED: 移除单例模式，改为依赖注入管理
  */
 export class MD2WeChatService {
-  private static instance: MD2WeChatService;
   private cache = new SimpleCache();
   private baseUrl = '/api/md2wechat';
   private enableLogging = process.env.NODE_ENV === 'development';
 
-  private constructor() {}
-
-  static getInstance(): MD2WeChatService {
-    if (!MD2WeChatService.instance) {
-      MD2WeChatService.instance = new MD2WeChatService();
-    }
-    return MD2WeChatService.instance;
-  }
+  constructor() {}
 
   /**
    * 转换Markdown为HTML
@@ -361,7 +355,11 @@ export class MD2WeChatService {
 }
 
 // 导出服务实例
-export const md2wechatService = MD2WeChatService.getInstance();
+// 🔧 FIXED: 移除getInstance调用，改为通过DI容器获取
+// export const md2wechatService = MD2WeChatService.getInstance();
+
+// 临时兼容性导出，建议使用DI容器获取服务
+export const md2wechatService = new MD2WeChatService();
 
 // 导出便捷函数
 export const convertMarkdownToHTML = (request: ConversionRequest) => 
