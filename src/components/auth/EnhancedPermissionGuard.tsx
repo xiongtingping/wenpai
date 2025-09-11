@@ -97,13 +97,13 @@ export const EnhancedPermissionGuard: React.FC<EnhancedPermissionGuardProps> = (
       case 'pro':
         return {
           icon: Zap,
-          color: 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30',
-          buttonColor: 'bg-blue-600 hover:bg-blue-700'
+          color: 'text-primary bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30',
+          buttonColor: 'bg-primary hover:bg-blue-700'
         };
       default:
         return {
           icon: Lock,
-          color: 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30',
+          color: 'text-muted-foreground bg-muted dark:text-gray-400 dark:bg-foreground/30',
           buttonColor: 'bg-gray-600 hover:bg-gray-700'
         };
     }
@@ -136,7 +136,7 @@ export const EnhancedPermissionGuard: React.FC<EnhancedPermissionGuardProps> = (
           {showUpgradeButton && (
             <Button
               onClick={handleUpgradeClick}
-              className={`${buttonColor} text-white font-medium`}
+              className={`${buttonColor} text-background font-medium`}
             >
               <IconComponent className="h-4 w-4 mr-2" />
               升级到{plan.name}
@@ -168,8 +168,8 @@ export const EnhancedPermissionGuard: React.FC<EnhancedPermissionGuardProps> = (
         className="absolute inset-0 z-50 flex items-center justify-center p-4"
         style={{
           backgroundColor: `rgba(255, 255, 255, ${overlayOpacity + 0.1})`,
-          backdropFilter: 'blur(4px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(4px) saturate(150%)'
+          backdropFilter: 'blur(var(--spacing-1)) saturate(150%)',
+          WebkitBackdropFilter: 'blur(var(--spacing-1)) saturate(150%)'
         }}
       >
         <div className="text-center space-y-4 max-w-sm">
@@ -194,7 +194,7 @@ export const EnhancedPermissionGuard: React.FC<EnhancedPermissionGuardProps> = (
             <Button
               onClick={handleUpgradeClick}
               size="sm"
-              className={`${buttonColor} text-white font-medium shadow-lg`}
+              className={`${buttonColor} text-background font-medium shadow-lg`}
             >
               <IconComponent className="h-4 w-4 mr-2" />
               升级到{plan.name}
@@ -208,7 +208,7 @@ export const EnhancedPermissionGuard: React.FC<EnhancedPermissionGuardProps> = (
       {showUpgradeButton && (
         <Button
           size="sm"
-          className={`absolute top-2 right-2 z-60 ${buttonColor} text-white font-medium shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200`}
+          className={`absolute top-2 right-2 z-60 ${buttonColor} text-background font-medium shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200`}
           onClick={handleUpgradeClick}
         >
           升级

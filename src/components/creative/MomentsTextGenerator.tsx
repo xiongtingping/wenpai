@@ -920,7 +920,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
         <div className="mb-6 lg:mb-8">
           <div className="text-center mb-4 lg:mb-6">
             <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-3 sm:mb-4">
-              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-background" />
             </div>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
               朋友圈文案生成器
@@ -932,19 +932,19 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
           
           {/* 统计信息卡片 - 响应式网格 */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 lg:mb-6">
-            <Card className="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm border-0 shadow-lg">
-              <div className="text-xl sm:text-2xl font-bold text-blue-600">{stats.total}</div>
+            <Card className="text-center p-3 sm:p-4 bg-background/70 backdrop-blur-sm border-0 shadow-lg">
+              <div className="text-xl sm:text-2xl font-bold text-primary">{stats.total}</div>
               <div className="text-xs sm:text-sm text-muted-foreground">总模板数</div>
             </Card>
-            <Card className="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm border-0 shadow-lg">
-              <div className="text-xl sm:text-2xl font-bold text-red-500">{stats.favorites}</div>
+            <Card className="text-center p-3 sm:p-4 bg-background/70 backdrop-blur-sm border-0 shadow-lg">
+              <div className="text-xl sm:text-2xl font-bold text-destructive">{stats.favorites}</div>
               <div className="text-xs sm:text-sm text-muted-foreground">我的收藏</div>
             </Card>
-            <Card className="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm border-0 shadow-lg">
-              <div className="text-xl sm:text-2xl font-bold text-green-600">{filteredTemplates.length}</div>
+            <Card className="text-center p-3 sm:p-4 bg-background/70 backdrop-blur-sm border-0 shadow-lg">
+              <div className="text-xl sm:text-2xl font-bold text-success">{filteredTemplates.length}</div>
               <div className="text-xs sm:text-sm text-muted-foreground">筛选结果</div>
             </Card>
-            <Card className="text-center p-3 sm:p-4 bg-white/70 backdrop-blur-sm border-0 shadow-lg">
+            <Card className="text-center p-3 sm:p-4 bg-background/70 backdrop-blur-sm border-0 shadow-lg">
               <div className="text-xl sm:text-2xl font-bold text-purple-600">{industryTemplates.length}</div>
               <div className="text-xs sm:text-sm text-muted-foreground">行业模板</div>
             </Card>
@@ -952,7 +952,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
         </div>
 
         {/* 操作栏 - 响应式优化 */}
-        <Card className="mb-4 lg:mb-6 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+        <Card className="mb-4 lg:mb-6 bg-background/80 backdrop-blur-sm border-0 shadow-xl">
           <CardContent className="p-4 sm:p-6">
             {/* 主要操作按钮 - 响应式布局 */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-4">
@@ -1032,7 +1032,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                     placeholder="搜索文案、标签或内容..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 sm:pl-12 h-10 sm:h-12 text-base sm:text-lg border-2 focus:border-blue-500 bg-white"
+                    className="pl-10 sm:pl-12 h-10 sm:h-12 text-base sm:text-lg border-2 focus:border-primary bg-background"
                   />
                   {searchQuery && (
                     <Button
@@ -1069,7 +1069,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
               
               {/* 搜索建议 - 增强动画版 */}
               {showSuggestions && searchSuggestions.length > 0 && (
-                <Card className="absolute top-full left-0 right-0 z-10 mt-2 bg-white shadow-xl search-suggestions-enter-active border-0">
+                <Card className="absolute top-full left-0 right-0 z-10 mt-2 bg-background shadow-xl search-suggestions-enter-active border-0">
                   <CardContent className="p-2">
                     {searchSuggestions.map((suggestion, index) => (
                       <Button
@@ -1097,7 +1097,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                   variant="outline"
                   size="sm"
                   onClick={() => handleButtonClick(`quick-${filter.id}`, filter.action)}
-                  className={`bg-white hover:bg-accent border-muted-foreground/20 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 tag-hover fade-in ${
+                  className={`bg-background hover:bg-accent border-muted-foreground/20 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 tag-hover fade-in ${
                     buttonClickAnimation === `quick-${filter.id}` ? 'pulse-on-click' : ''
                   }`}
                   style={{ animationDelay: `${index * 100}ms` }}
@@ -1121,8 +1121,8 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                     }}
                     className={`flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3 h-auto transition-all hover:scale-105 fade-in ${
                       selectedCategory === category.id 
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white filter-tag-active' 
-                        : 'bg-white hover:bg-accent'
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-background filter-tag-active' 
+                        : 'bg-background hover:bg-accent'
                     } ${buttonClickAnimation === `category-${category.id}` ? 'pulse-on-click' : ''}`}
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
@@ -1149,8 +1149,8 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                   onClick={() => handleButtonClick('mood-all', () => setSelectedMood(''))}
                   className={`text-xs sm:text-sm px-2 sm:px-3 py-2 h-auto transition-all hover:scale-105 fade-in ${
                     selectedMood === '' 
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white filter-tag-active' 
-                      : 'bg-white hover:bg-accent'
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-background filter-tag-active' 
+                      : 'bg-background hover:bg-accent'
                   } ${buttonClickAnimation === 'mood-all' ? 'pulse-on-click' : ''}`}
                 >
                   <span className="hidden sm:inline">全部心情</span>
@@ -1164,8 +1164,8 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                     onClick={() => handleButtonClick(`mood-${mood.id}`, () => setSelectedMood(mood.id))}
                     className={`text-xs sm:text-sm px-2 sm:px-3 py-2 h-auto transition-all hover:scale-105 fade-in ${
                       selectedMood === mood.id 
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white filter-tag-active' 
-                        : `bg-white hover:bg-accent ${mood.color}`
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-background filter-tag-active' 
+                        : `bg-background hover:bg-accent ${mood.color}`
                     } ${buttonClickAnimation === `mood-${mood.id}` ? 'pulse-on-click' : ''}`}
                     style={{ animationDelay: `${index * 80}ms` }}
                   >
@@ -1218,7 +1218,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                               <span>{holiday.emoji}</span>
                               <span className="text-xs sm:text-sm">{holiday.name}</span>
                               {holiday.isActive && (
-                                <Badge variant="default" className="ml-1 text-xs bg-green-500">热门</Badge>
+                                <Badge variant="default" className="ml-1 text-xs bg-success">热门</Badge>
                               )}
                             </div>
                           </SelectItem>
@@ -1246,7 +1246,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
 
         {/* 装饰面板 */}
         {showDecorationPanel && (
-          <Card className="mb-6 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+          <Card className="mb-6 bg-background/80 backdrop-blur-sm border-0 shadow-xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Palette className="w-5 h-5" />
@@ -1349,7 +1349,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
         )}
 
         {/* 行业模板展示 - 响应式优化 */}
-        <Card className="mb-4 lg:mb-6 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+        <Card className="mb-4 lg:mb-6 bg-background/80 backdrop-blur-sm border-0 shadow-xl">
           <CardHeader className="pb-3 sm:pb-4">
             <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
               <Users className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -1380,7 +1380,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
         </Card>
 
         {/* 节假日模板展示 - 响应式优化 */}
-        <Card className="mb-4 lg:mb-6 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+        <Card className="mb-4 lg:mb-6 bg-background/80 backdrop-blur-sm border-0 shadow-xl">
           <CardHeader className="pb-3 sm:pb-4">
             <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
               <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -1401,7 +1401,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                     <div className="text-base sm:text-xl mb-1">{holiday.emoji}</div>
                     <div className="text-xs font-medium line-clamp-2">{holiday.name}</div>
                     {holiday.isActive && (
-                      <Badge variant="default" className="mt-1 text-xs bg-green-500 px-1 py-0 h-4">热门</Badge>
+                      <Badge variant="default" className="mt-1 text-xs bg-success px-1 py-0 h-4">热门</Badge>
                     )}
                   </CardContent>
                 </Card>
@@ -1422,7 +1422,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
               return (
                 <Card 
                   key={template.id} 
-                  className={`template-card group bg-white/90 backdrop-blur-sm border-0 shadow-lg ${
+                  className={`template-card group bg-background/90 backdrop-blur-sm border-0 shadow-lg ${
                     index % 4 === 0 ? 'fade-in' : 
                     index % 4 === 1 ? 'fade-in-delay-1' :
                     index % 4 === 2 ? 'fade-in-delay-2' : 'fade-in-delay-3'
@@ -1435,7 +1435,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                         <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                           <Badge 
                             variant="outline" 
-                            className="text-xs bg-white/80 px-1 sm:px-2 py-0 h-5 sm:h-6 tag-hover"
+                            className="text-xs bg-background/80 px-1 sm:px-2 py-0 h-5 sm:h-6 tag-hover"
                             style={{ borderColor: categoryStyle.color }}
                           >
                             <span className="text-xs">{categoryStyle.icon}</span>
@@ -1459,7 +1459,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                       >
                         <Heart 
                           className={`w-3 h-3 sm:w-4 sm:h-4 transition-all duration-300 ${
-                            template.isFavorite ? 'fill-red-500 text-red-500 scale-110' : 'text-muted-foreground hover:text-red-500'
+                            template.isFavorite ? 'fill-red-500 text-destructive scale-110' : 'text-muted-foreground hover:text-destructive'
                           }`} 
                         />
                       </Button>
@@ -1476,12 +1476,12 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                     
                     <div className="flex flex-wrap gap-1 mb-3 sm:mb-4">
                       {template.tags.slice(0, 3).map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs bg-white/60 px-1 py-0 h-4 tag-hover">
+                        <Badge key={index} variant="secondary" className="text-xs bg-background/60 px-1 py-0 h-4 tag-hover">
                           {tag}
                         </Badge>
                       ))}
                       {template.tags.length > 3 && (
-                        <Badge variant="secondary" className="text-xs bg-white/60 px-1 py-0 h-4 tag-hover">
+                        <Badge variant="secondary" className="text-xs bg-background/60 px-1 py-0 h-4 tag-hover">
                           +{template.tags.length - 3}
                         </Badge>
                       )}
@@ -1543,7 +1543,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
               const moodTag = moodTags.find(m => m.id === template.mood);
               
               return (
-                <Card key={template.id} className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all">
+                <Card key={template.id} className="bg-background/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       <div className="flex-1">
@@ -1575,7 +1575,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                         
                         <div className="flex flex-wrap gap-1">
                           {template.tags.map((tag, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs bg-white/60">
+                            <Badge key={index} variant="secondary" className="text-xs bg-background/60">
                               {tag}
                             </Badge>
                           ))}
@@ -1591,7 +1591,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                         >
                           <Heart 
                             className={`w-5 h-5 transition-colors ${
-                              template.isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground hover:text-red-500'
+                              template.isFavorite ? 'fill-red-500 text-destructive' : 'text-muted-foreground hover:text-destructive'
                             }`} 
                           />
                         </Button>
@@ -1633,7 +1633,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
 
         {/* 空状态 */}
         {filteredTemplates.length === 0 && (
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+          <Card className="bg-background/80 backdrop-blur-sm border-0 shadow-xl">
             <CardContent className="py-16">
               <div className="text-center">
                 <div className="w-24 h-24 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-6">

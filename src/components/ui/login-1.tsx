@@ -50,7 +50,7 @@ const AppInput = (props: InputProps) => {
             <div
               className="login-border-top"
               style={{
-                background: `radial-gradient(var(--login-gradient-size) circle at ${mousePosition.x}px 0px, var(--color-text-primary) 0%, transparent 70%)`,
+                background: `radial-gradient(var(--login-gradient-size) circle at ${mousePosition.x}px 0, var(--color-text-primary) 0%, transparent 70%)`,
               } as React.CSSProperties}
             />
             <div
@@ -138,7 +138,7 @@ const Page = () => {
                           <li key={index} className="list-none">
                             <a
                               href={social.href}
-                              className={`w-[2.5rem] md:w-[3rem] h-[2.5rem] md:h-[3rem] bg-[var(--color-bg-2)] rounded-full flex justify-center items-center relative z-[1] border-3 border-[var(--color-text-primary)] overflow-hidden group`}
+                              className={`w-[var(--spacing-10)] md:w-[var(--spacing-12)] h-[var(--spacing-10)] md:h-[var(--spacing-12)] bg-[var(--color-bg-2)] rounded-full flex justify-center items-center relative z-[1] border-3 border-[var(--color-text-primary)] overflow-hidden group`}
                             >
                               <div
                                 className={`absolute inset-0 w-full h-full ${
@@ -164,11 +164,11 @@ const Page = () => {
               <a href="#" className='font-light text-sm md:text-md'>Forgot your password?</a>
               <div className='flex gap-4 justify-center items-center'>
                  <button 
-                  className="group/button relative inline-flex justify-center items-center overflow-hidden rounded-md bg-[var(--color-border)] px-4 py-1.5 text-xs font-normal text-white transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-[var(--color-text-primary)] cursor-pointer"
+                  className="group/button relative inline-flex justify-center items-center overflow-hidden rounded-md bg-[var(--color-border)] px-4 py-1.5 text-xs font-normal text-background transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-[var(--color-text-primary)] cursor-pointer"
                 >
                 <span className="text-sm px-2 py-1">Sign In</span>
                 <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-13deg)_translateX(-100%)] group-hover/button:duration-1000 group-hover/button:[transform:skew(-13deg)_translateX(100%)]">
-                  <div className="relative h-full w-8 bg-white/20" />
+                  <div className="relative h-full w-8 bg-background/20" />
                 </div>
               </button>
               </div>

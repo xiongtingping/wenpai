@@ -63,7 +63,7 @@ const getTypeInfo = (type: string) => {
       };
     default:
       return {
-        color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+        color: 'bg-muted text-gray-800 dark:bg-foreground dark:text-gray-200',
         label: '未知'
       };
   }

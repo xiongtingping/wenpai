@@ -100,7 +100,7 @@ export function useUnifiedDataPersistence<T = any>(dataType: string) {
     
     try {
       const result = await unifiedDataPersistenceManager.deleteData(dataType);
-      setLastOperation(result);
+      setLastOperation(result as any);
       
       if (result.success) {
         setData(null);

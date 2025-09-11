@@ -32,7 +32,7 @@ function TestResultDisplay({ result, title }: { result: any; title: string }) {
 
   const isSuccess = result.success;
   const IconComponent = isSuccess ? CheckCircle : XCircle;
-  const colorClass = isSuccess ? 'text-green-500' : 'text-red-500';
+  const colorClass = isSuccess ? 'text-success' : 'text-destructive';
 
   return (
     <div className="border rounded-lg p-3 space-y-2">
@@ -45,7 +45,7 @@ function TestResultDisplay({ result, title }: { result: any; title: string }) {
       </div>
       
       {result.error && (
-        <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
+        <div className="text-sm text-destructive bg-red-50 p-2 rounded">
           错误: {result.error}
         </div>
       )}
@@ -162,14 +162,14 @@ export function TokenStatsDebugPanel() {
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
+      <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-background rounded-t-lg">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-background/20 rounded-lg flex items-center justify-center">
             <Bug className="w-5 h-5" />
           </div>
           <div>
             <CardTitle className="text-xl">Token统计调试面板</CardTitle>
-            <div className="text-white/80 text-sm">测试和调试Token使用量统计功能</div>
+            <div className="text-background/80 text-sm">测试和调试Token使用量统计功能</div>
           </div>
         </div>
       </CardHeader>
@@ -256,7 +256,7 @@ export function TokenStatsDebugPanel() {
         {testResults && (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-blue-500" />
+              <AlertCircle className="w-5 h-5 text-primary" />
               <h3 className="font-medium">测试结果</h3>
               <Badge 
                 variant={testResults.success ? "default" : "destructive"}
@@ -305,7 +305,7 @@ export function TokenStatsDebugPanel() {
         {isRunning && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div className="flex items-center gap-3">
-              <RefreshCw className="w-5 h-5 text-yellow-600 animate-spin" />
+              <RefreshCw className="w-5 h-5 text-warning animate-spin" />
               <div>
                 <div className="font-medium text-yellow-900">正在运行测试...</div>
                 <div className="text-sm text-yellow-700">请稍候，正在测试Token统计功能的各个方面</div>

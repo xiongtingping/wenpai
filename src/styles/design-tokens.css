@@ -17,15 +17,43 @@
     --color-border: hsl(var(--border));
 
     /* 🎯 Extended Spacing Tokens */
-    --spacing-1-5: 0.375rem;  /* 6px */
-    --spacing-2-5: 0.625rem;  /* 10px */
+    --spacing-1-5: 0.375rem;  /* var(--spacing-1-5) */
+    --spacing-2-5: 0.625rem;  /* var(--spacing-2-5) */
 
     /* 🎨 Extended Font Tokens */
     --font-family-ui: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    --font-size-xs: 0.75rem;  /* 12px */
+    --font-size-xs: var(--spacing-3);  /* var(--spacing-3) */
+
+    /* 🎯 Dialog定位令牌 - 防止定位问题复发 */
+    --dialog-position-strategy: fixed;
+    --dialog-center-x: 50%;
+    --dialog-center-y: 50%;
+    --dialog-transform: translate(-50%, -50%);
+    --dialog-z-index: 50;
+    --dialog-overlay-z-index: 40;
+
+    /* 🎯 Dialog尺寸令牌 */
+    --dialog-size-small-width: 320px;
+    --dialog-size-small-height: 200px;
+    --dialog-size-medium-width: 400px;
+    --dialog-size-medium-height: 250px;
+    --dialog-size-large-width: 600px;
+    --dialog-size-large-height: 400px;
+    --dialog-size-fullscreen-width: 95vw;
+    --dialog-size-fullscreen-height: 95vh;
+
+    /* 🎯 Dialog阴影令牌 */
+    --shadow-dialog: 0 25px 50px -var(--spacing-3) rgba(0, 0, 0, 0.25);
+    --shadow-dialog-overlay: 0 0 0 1px rgba(0, 0, 0, 0.05);
+
+    /* 🎯 Dialog动画令牌 */
+    --animation-dialog-enter: fadeIn 200ms ease-out;
+    --animation-dialog-exit: fadeOut 150ms ease-in;
+    --animation-overlay-enter: fadeIn 200ms ease-out;
+    --animation-overlay-exit: fadeOut 150ms ease-in;
 
     /* 🎯 Extended Radius Tokens */
-    --radius-md: 0.75rem;  /* 12px */
+    --radius-md: var(--spacing-3);  /* var(--spacing-3) */
 
     /* 🎨 Transition Tokens */
     --transition-smooth: 200ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -44,9 +72,9 @@
     --layout-skeleton-width-full: 100%;
     --layout-skeleton-width-partial: 75%;
     --layout-skeleton-width-narrow: 60%;
-    --layout-skeleton-height: 1rem;
+    --layout-skeleton-height: var(--spacing-4);
     --layout-sidebar-width: 16rem;
-    --layout-sidebar-width-icon: 3rem;
+    --layout-sidebar-width-icon: var(--spacing-12);
     --layout-sidebar-width-mobile: 18rem;
 
     /* 🎯 Chart System Tokens */
@@ -68,7 +96,7 @@
     --wave-background-fallback: hsl(0 0% 100%);
     --wave-width: 50;
     --wave-opacity: 0.15;
-    --wave-blur: 4px;
+    --wave-blur: var(--spacing-1);
 
     /* 🎨 Animation System Tokens */
     --animation-fade-in: fadeIn 0.2s ease-in-out;
@@ -84,11 +112,11 @@
     --login-card-width-desktop: 70%;
     --login-card-height: 600px;
     --login-input-min-width: 200px;
-    --login-border-height: 2px;
+    --login-border-height: var(--spacing-0-5);
     --login-gradient-size: 30px;
     --login-glow-size: 500px;
     --login-glow-offset: 250px;
-    --login-social-icon-size: 1.5rem;
+    --login-social-icon-size: var(--spacing-6);
     --login-social-text-color: hsl(203, 92%, 8%);
 
     /* 🎯 Textarea Component Tokens */
@@ -96,29 +124,29 @@
 
     /* 🌐 Language Switcher Tokens */
     --language-dropdown-width: 12rem;
-    --language-dropdown-offset: 8px;
+    --language-dropdown-offset: var(--spacing-2);
     --language-dropdown-z-index: 999999;
-    --language-dropdown-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --language-dropdown-shadow: 0 var(--spacing-2-5) 15px -3px rgba(0, 0, 0, 0.1), 0 var(--spacing-1) var(--spacing-1-5) -var(--spacing-0-5) rgba(0, 0, 0, 0.05);
 
     /* 🏠 Landing Page Tokens */
     --landing-animation-delay-base: 0.1s;
     --landing-animation-delay-step: 0.1s;
 
     /* 💰 Pricing Section Tokens */
-    --pricing-button-padding: 12px 24px;
+    --pricing-button-padding: var(--spacing-3) var(--spacing-6);
     --pricing-button-font-weight: 600;
-    --pricing-button-border-radius: 6px;
+    --pricing-button-border-radius: var(--spacing-1-5);
     --pricing-button-transition: all 0.3s ease;
-    --pricing-monthly-bg: #2563eb;
+    --pricing-monthly-bg: hsl(var(--primary));
     --pricing-monthly-color: white;
-    --pricing-monthly-inactive-bg: #e5e7eb;
+    --pricing-monthly-inactive-bg: hsl(var(--border));
     --pricing-monthly-inactive-color: #374151;
-    --pricing-monthly-inactive-border: 1px solid #d1d5db;
-    --pricing-yearly-gradient-active: linear-gradient(to right, #f97316, #ef4444, #ec4899);
-    --pricing-yearly-gradient-inactive: linear-gradient(to right, #fbbf24, #f97316, #ef4444);
-    --pricing-yearly-border: 2px solid #f59e0b;
-    --pricing-yearly-shadow-active: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    --pricing-yearly-shadow-inactive: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --pricing-monthly-inactive-border: 1px solid hsl(var(--border));
+    --pricing-yearly-gradient-active: linear-gradient(to right, #f97316, hsl(var(--destructive)), #ec4899);
+    --pricing-yearly-gradient-inactive: linear-gradient(to right, #fbbf24, #f97316, hsl(var(--destructive)));
+    --pricing-yearly-border: var(--spacing-0-5) solid hsl(var(--warning));
+    --pricing-yearly-shadow-active: 0 25px 50px -var(--spacing-3) rgba(0, 0, 0, 0.25);
+    --pricing-yearly-shadow-inactive: 0 var(--spacing-5) 25px -5px rgba(0, 0, 0, 0.1), 0 var(--spacing-2-5) var(--spacing-2-5) -5px rgba(0, 0, 0, 0.04);
     --pricing-yearly-scale-active: 1.1;
     --pricing-yearly-scale-inactive: 1.08;
     --pricing-font-family: system-ui, -apple-system, sans-serif;
@@ -135,43 +163,43 @@
     /* 📤 Batch Forward Modal Tokens */
     --batch-modal-z-index: var(--z-critical);
     --batch-modal-z-index-overlay: var(--z-overlay);
-    --batch-modal-bottom-offset: 20px;
-    --batch-modal-border-radius: 12px;
+    --batch-modal-bottom-offset: var(--spacing-5);
+    --batch-modal-border-radius: var(--spacing-3);
     --batch-modal-border: 1px solid #e2e8f0;
-    --batch-modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --batch-modal-shadow: 0 25px 50px -var(--spacing-3) rgba(0, 0, 0, 0.25);
     --batch-modal-width: min(95vw, 1200px);
     --batch-modal-height: min(75vh, 600px);
     --batch-modal-max-width: 1200px;
     --batch-modal-max-height: 600px;
     --batch-modal-animation: slideInFromBottom 0.3s ease-out;
     --batch-modal-overlay-bg: rgba(0, 0, 0, 0.3);
-    --batch-minimized-bottom: 16px;
-    --batch-minimized-right: 16px;
-    --batch-minimized-border-radius: 8px;
-    --batch-minimized-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    --batch-minimized-padding: 12px;
+    --batch-minimized-bottom: var(--spacing-4);
+    --batch-minimized-right: var(--spacing-4);
+    --batch-minimized-border-radius: var(--spacing-2);
+    --batch-minimized-shadow: 0 var(--spacing-2-5) 15px -3px rgba(0, 0, 0, 0.1);
+    --batch-minimized-padding: var(--spacing-3);
     --batch-minimized-min-width: 300px;
-    --batch-content-max-height: calc(85vh - 80px);
+    --batch-content-max-height: calc(85vh - var(--spacing-20));
 
     /* 🤖 AI Content Generation Animation Tokens */
     --ai-animation-spin-duration: 8s;
     --ai-particle-delay-step: 0.2s;
-    --ai-particle-translate-y: -40px;
-    --ai-particle-translate-x: -4px;
+    --ai-particle-translate-y: -var(--spacing-10);
+    --ai-particle-translate-x: -var(--spacing-1);
     --ai-radar-delay: 0.5s;
     --ai-progress-width: 60%;
     --ai-progress-animation: wave 2s ease-in-out infinite;
-    --ai-float-translate-y: -10px;
+    --ai-float-translate-y: -var(--spacing-2-5);
     --ai-float-animation: float 3s ease-in-out infinite;
 
     /* 📊 Performance Monitor Tokens */
-    --perf-monitor-top: 10px;
-    --perf-monitor-right: 10px;
+    --perf-monitor-top: var(--spacing-2-5);
+    --perf-monitor-right: var(--spacing-2-5);
     --perf-monitor-bg: hsl(var(--foreground) / 0.8);
     --perf-monitor-color: hsl(var(--background));
-    --perf-monitor-padding: 10px;
+    --perf-monitor-padding: var(--spacing-2-5);
     --perf-monitor-border-radius: 5px;
-    --perf-monitor-font-size: 0.75rem;
+    --perf-monitor-font-size: var(--spacing-3);
     --perf-monitor-font-family: monospace;
     --perf-monitor-z-index: 9999;
     --perf-monitor-min-width: 200px;
@@ -179,15 +207,15 @@
     /* 🔒 Permission Guard Tokens */
     --permission-overlay-opacity-base: 0.3;
     --permission-blur-filter: blur(0.5px);
-    --permission-backdrop-filter: blur(2px);
+    --permission-backdrop-filter: blur(var(--spacing-0-5));
     --permission-overlay-bg-opacity: 0.8;
 
     /* 📅 Marketing Calendar Tokens */
     --calendar-card-height: 600px;
     --calendar-header-height: 70px;
     --calendar-content-height: 480px;
-    --calendar-nav-height: 48px;
-    --calendar-nav-item-height: 16px;
+    --calendar-nav-height: var(--spacing-12);
+    --calendar-nav-item-height: var(--spacing-4);
     --calendar-grid-height: 470px;
     --calendar-week-height: 420px;
     --calendar-day-height: 70px;
@@ -198,23 +226,23 @@
     /* 🔥 Hot Topics Tokens */
     --hot-topics-radar-max-height: 600px;
     --podium-container-height: 320px;
-    --podium-border-radius: 12px;
+    --podium-border-radius: var(--spacing-3);
     --podium-transition: all 0.3s ease;
     --podium-rank1-height: 280px;
     --podium-rank1-scale: 1.05;
     --podium-rank1-z-index: 3;
-    --podium-rank1-shadow: 0 8px 32px hsl(var(--warning) / 0.3);
+    --podium-rank1-shadow: 0 var(--spacing-2) var(--spacing-8) hsl(var(--warning) / 0.3);
     --podium-rank2-height: 240px;
     --podium-rank2-scale: 1.02;
     --podium-rank2-z-index: 2;
-    --podium-rank2-shadow: 0 6px 24px hsl(var(--muted) / 0.3);
+    --podium-rank2-shadow: 0 var(--spacing-1-5) var(--spacing-6) hsl(var(--muted) / 0.3);
     --podium-rank3-height: 200px;
     --podium-rank3-z-index: 1;
-    --podium-rank3-shadow: 0 4px 16px hsl(var(--warning) / 0.3);
+    --podium-rank3-shadow: 0 var(--spacing-1) var(--spacing-4) hsl(var(--warning) / 0.3);
     --podium-max-width: 200px;
 
     /* 🏗️ Layout Tokens */
-    --header-height: 64px;
+    --header-height: var(--spacing-16);
 
     /* 📝 Content Adapter Tokens */
     --content-textarea-min-height: 120px;
@@ -228,22 +256,22 @@
 
     /* 🔐 Auth Modal Tokens */
     --auth-input-min-width: 200px;
-    --auth-border-height: 2px;
+    --auth-border-height: var(--spacing-0-5);
     --auth-gradient-size: 30px;
     --auth-modal-height: 600px;
 
     /* 🎨 Creative Components Tokens */
     --brand-emoji-scroll-height: 500px;
-    --emoji-placeholder-size: 64px;
-    --progress-bar-height: 2px;
+    --emoji-placeholder-size: var(--spacing-16);
+    --progress-bar-height: var(--spacing-0-5);
     --card-preview-min-width: 200px;
     --card-preview-min-height: 150px;
 
     /* 💳 Payment Page Tokens */
-    --payment-button-padding: 14px 28px;
-    --payment-button-font-size: 16px;
+    --payment-button-padding: var(--spacing-3-5) var(--spacing-7);
+    --payment-button-font-size: var(--spacing-4);
     --payment-button-font-weight: 600;
-    --payment-button-border-radius: 12px;
+    --payment-button-border-radius: var(--spacing-3);
     --payment-button-min-width-monthly: 120px;
     --payment-button-min-width-yearly: 140px;
     --payment-card-min-height: 520px;
@@ -252,42 +280,42 @@
     --payment-transition: all 0.3s ease;
 
     /* 📝 Textarea Component Tokens */
-    --textarea-min-height-default: 80px;
+    --textarea-min-height-default: var(--spacing-20);
     --textarea-min-height-sm: 60px;
     --textarea-min-height-lg: 120px;
     --textarea-min-height-xl: 160px;
 
     /* 📜 Scroll Area Tokens */
-    --scroll-bar-width: 2.5rem;
+    --scroll-bar-width: var(--spacing-10);
     --scroll-bar-padding: 1px;
 
     /* 📏 Separator Tokens */
     --separator-thickness: 1px;
 
     /* 🔐 Custom Login Page Tokens */
-    --login-segmented-margin: 8px;
-    --login-form-gap: 8px;
-    --login-button-padding: 10px 14px;
-    --login-form-margin-top: 24px;
-    --login-error-margin-top: 4px;
-    --login-error-font-size: 12px;
-    --login-options-margin-top: 12px;
+    --login-segmented-margin: var(--spacing-2);
+    --login-form-gap: var(--spacing-2);
+    --login-button-padding: var(--spacing-2-5) var(--spacing-3-5);
+    --login-form-margin-top: var(--spacing-6);
+    --login-error-margin-top: var(--spacing-1);
+    --login-error-font-size: var(--spacing-3);
+    --login-options-margin-top: var(--spacing-3);
 
     /* 🎮 Command Component Tokens */
     --command-list-max-height: 300px;
 
     /* 🍞 Toast Component Tokens */
-    --toast-viewport-top: 4px;
-    --toast-viewport-right: 4px;
+    --toast-viewport-top: var(--spacing-1);
+    --toast-viewport-right: var(--spacing-1);
     --toast-viewport-z-index: 999999;
     --toast-viewport-max-width: 420px;
-    --toast-viewport-padding: 4px;
+    --toast-viewport-padding: var(--spacing-1);
 
     /* 📱 Drawer Component Tokens */
-    --drawer-content-margin-top: 24px;
-    --drawer-content-border-radius: 10px;
-    --drawer-handle-margin-top: 4px;
-    --drawer-handle-height: 2px;
+    --drawer-content-margin-top: var(--spacing-6);
+    --drawer-content-border-radius: var(--spacing-2-5);
+    --drawer-handle-margin-top: var(--spacing-1);
+    --drawer-handle-height: var(--spacing-0-5);
     --drawer-handle-width: 100px;
     --color-input: hsl(var(--input));
     --color-ring: hsl(var(--ring));
@@ -296,17 +324,17 @@
     --dialog-background: var(--color-background);
     --dialog-foreground: var(--color-foreground);
     --dialog-border: var(--color-border);
-    --dialog-overlay-bg: rgba(0, 0, 0, 0.5);
+    --dialog-overlay-bg: hsl(var(--foreground) / 0.5);
     --dialog-shadow-color: rgba(0, 0, 0, 0.25);
     
     /* 📏 Spacing Tokens */
-    --spacing-xs: 0.25rem;    /* 4px */
-    --spacing-sm: 0.5rem;     /* 8px */
-    --spacing-md: 1rem;       /* 16px */
-    --spacing-lg: 1.5rem;     /* 24px */
-    --spacing-xl: 2rem;       /* 32px */
-    --spacing-2xl: 3rem;      /* 48px */
-    --spacing-3xl: 4rem;      /* 64px */
+    --spacing-xs: var(--spacing-1);    /* var(--spacing-1) */
+    --spacing-sm: var(--spacing-2);     /* var(--spacing-2) */
+    --spacing-md: var(--spacing-4);       /* var(--spacing-4) */
+    --spacing-lg: var(--spacing-6);     /* var(--spacing-6) */
+    --spacing-xl: var(--spacing-8);       /* var(--spacing-8) */
+    --spacing-2xl: var(--spacing-12);      /* var(--spacing-12) */
+    --spacing-3xl: var(--spacing-16);      /* var(--spacing-16) */
     
     /* 📏 Dialog Spacing Tokens */
     --dialog-padding: var(--spacing-lg);
@@ -354,11 +382,11 @@
     
     /* 🎨 Border Radius Tokens */
     --radius-none: 0;
-    --radius-sm: 0.125rem;     /* 2px */
-    --radius-md: 0.25rem;      /* 4px */
-    --radius-lg: 0.5rem;       /* 8px */
-    --radius-xl: 0.75rem;      /* 12px */
-    --radius-2xl: 1rem;        /* 16px */
+    --radius-sm: 0.125rem;     /* var(--spacing-0-5) */
+    --radius-md: var(--spacing-1);      /* var(--spacing-1) */
+    --radius-lg: var(--spacing-2);       /* var(--spacing-2) */
+    --radius-xl: var(--spacing-3);      /* var(--spacing-3) */
+    --radius-2xl: var(--spacing-4);        /* var(--spacing-4) */
     --radius-full: 9999px;
     
     /* 🎨 Dialog Border Radius Tokens */
@@ -366,11 +394,11 @@
     --dialog-button-radius: var(--radius-md);
     
     /* 🌟 Shadow Tokens */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    --shadow-sm: 0 1px var(--spacing-0-5) 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 var(--spacing-1) var(--spacing-1-5) -1px rgb(0 0 0 / 0.1), 0 var(--spacing-0-5) var(--spacing-1) -var(--spacing-0-5) rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 var(--spacing-2-5) 15px -3px rgb(0 0 0 / 0.1), 0 var(--spacing-1) var(--spacing-1-5) -var(--spacing-1) rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 var(--spacing-5) 25px -5px rgb(0 0 0 / 0.1), 0 var(--spacing-2) var(--spacing-2-5) -var(--spacing-1-5) rgb(0 0 0 / 0.1);
+    --shadow-2xl: 0 25px 50px -var(--spacing-3) rgb(0 0 0 / 0.25);
     
     /* 🌟 Dialog Shadow Tokens */
     --dialog-shadow: var(--shadow-2xl);
@@ -402,12 +430,12 @@
     --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
     
     /* 🔤 Font Size Tokens */
-    --font-size-xs: 0.75rem;   /* 12px */
-    --font-size-sm: 0.875rem;  /* 14px */
-    --font-size-md: 1rem;      /* 16px */
-    --font-size-lg: 1.125rem;  /* 18px */
-    --font-size-xl: 1.25rem;   /* 20px */
-    --font-size-2xl: 1.5rem;   /* 24px */
+    --font-size-xs: var(--spacing-3);   /* var(--spacing-3) */
+    --font-size-sm: 0.875rem;  /* var(--spacing-3-5) */
+    --font-size-md: var(--spacing-4);      /* var(--spacing-4) */
+    --font-size-lg: 1.125rem;  /* var(--spacing-4-5) */
+    --font-size-xl: var(--spacing-5);   /* var(--spacing-5) */
+    --font-size-2xl: var(--spacing-6);   /* var(--spacing-6) */
     --font-size-3xl: 1.875rem; /* 30px */
     
     /* 🔤 Dialog Typography Tokens */
@@ -447,7 +475,7 @@
     --dialog-transform-origin: center center;
     
     /* 🔧 Backdrop Tokens */
-    --backdrop-blur: blur(8px);
+    --backdrop-blur: blur(var(--spacing-2));
     --backdrop-saturate: saturate(120%);
     --backdrop-brightness: brightness(0.8);
     
@@ -460,7 +488,7 @@
   /* 🌙 Dark Mode Tokens */
   [data-theme="dark"] {
     --dialog-overlay-bg: rgba(0, 0, 0, 0.7);
-    --dialog-shadow-color: rgba(0, 0, 0, 0.5);
+    --dialog-shadow-color: hsl(var(--foreground) / 0.5);
   }
   
   /* 📱 Mobile Tokens */

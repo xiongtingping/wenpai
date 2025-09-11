@@ -133,11 +133,9 @@ export default function HistoryPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* 面包屑导航 */}
-        <PageNavigation 
-          items={[
-            { label: '首页', href: '/' },
-            { label: '历史记录' }
-          ]}
+        <PageNavigation
+          title="历史记录"
+          description="查看您的使用历史和生成记录"
         />
         
         <div className="mb-8 mt-4">

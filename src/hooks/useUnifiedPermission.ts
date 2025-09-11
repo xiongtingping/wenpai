@@ -5,24 +5,27 @@
 
 import { useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { 
-  getUnifiedPermissionManager, 
-  type UserPermissionContext, 
-  type UnifiedPermissionResult 
+import {
+  getUnifiedPermissionManager,
+  type UserPermissionContext,
+  type UnifiedPermissionResult
 } from '@/config/unifiedPermissionConfig';
-import type { SubscriptionTier } from '@/types/subscription';
+import type { SystemRole } from '@/config/rolePermissionMatrix';
+import type { SubscriptionTier as UserSubscriptionTier } from '@/types/subscription';
+import type { SubscriptionTier } from '@/config/rolePermissionMatrix';
 
 /**
  * 统一权限检查Hook
  */
 export function useUnifiedPermission(permissionKey: string) {
-  const { user, isAuthenticated, subscription } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const subscription = (user as any)?.subscription;
 
   // 构建用户权限上下文
   const userContext: UserPermissionContext = useMemo(() => ({
     id: user?.id,
     isAuthenticated,
-    roles: user?.roles || [],
+    roles: (user?.roles || []) as SystemRole[],
     tier: (subscription?.tier || user?.subscription?.tier || 'trial') as SubscriptionTier,
     isVip: user?.isVip || subscription?.tier === 'premium' || subscription?.tier === 'pro',
     vipLevel: subscription?.tier || user?.subscription?.tier,
@@ -55,12 +58,13 @@ export function useUnifiedPermission(permissionKey: string) {
  * 多权限检查Hook (AND逻辑)
  */
 export function useMultiplePermissions(permissionKeys: string[]) {
-  const { user, isAuthenticated, subscription } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const subscription = (user as any)?.subscription;
 
   const userContext: UserPermissionContext = useMemo(() => ({
     id: user?.id,
     isAuthenticated,
-    roles: user?.roles || [],
+    roles: (user?.roles || []) as SystemRole[],
     tier: (subscription?.tier || user?.subscription?.tier || 'trial') as SubscriptionTier,
     isVip: user?.isVip || subscription?.tier === 'premium' || subscription?.tier === 'pro',
     vipLevel: subscription?.tier || user?.subscription?.tier,
@@ -92,12 +96,13 @@ export function useMultiplePermissions(permissionKeys: string[]) {
  * 任一权限检查Hook (OR逻辑)
  */
 export function useAnyPermission(permissionKeys: string[]) {
-  const { user, isAuthenticated, subscription } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const subscription = (user as any)?.subscription;
 
   const userContext: UserPermissionContext = useMemo(() => ({
     id: user?.id,
     isAuthenticated,
-    roles: user?.roles || [],
+    roles: (user?.roles || []) as SystemRole[],
     tier: (subscription?.tier || user?.subscription?.tier || 'trial') as SubscriptionTier,
     isVip: user?.isVip || subscription?.tier === 'premium' || subscription?.tier === 'pro',
     vipLevel: subscription?.tier || user?.subscription?.tier,
@@ -129,12 +134,13 @@ export function useAnyPermission(permissionKeys: string[]) {
  * 用户可用权限Hook
  */
 export function useUserPermissions() {
-  const { user, isAuthenticated, subscription } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const subscription = (user as any)?.subscription;
 
   const userContext: UserPermissionContext = useMemo(() => ({
     id: user?.id,
     isAuthenticated,
-    roles: user?.roles || [],
+    roles: (user?.roles || []) as SystemRole[],
     tier: (subscription?.tier || user?.subscription?.tier || 'trial') as SubscriptionTier,
     isVip: user?.isVip || subscription?.tier === 'premium' || subscription?.tier === 'pro',
     vipLevel: subscription?.tier || user?.subscription?.tier,

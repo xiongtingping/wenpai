@@ -234,7 +234,7 @@ const TaskForm: React.FC<{
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium mb-2">
-          任务标题 <span className="text-red-500">*</span>
+          任务标题 <span className="text-destructive">*</span>
         </label>
         <Input
           value={formData.title}
@@ -243,11 +243,11 @@ const TaskForm: React.FC<{
             if (titleError) setTitleError('');
           }}
           placeholder="输入任务标题..."
-          className={titleError ? 'border-red-500' : ''}
+          className={titleError ? 'border-destructive' : ''}
           required
         />
         {titleError && (
-          <p className="text-red-500 text-xs mt-1">{titleError}</p>
+          <p className="text-destructive text-xs mt-1">{titleError}</p>
         )}
       </div>
 
@@ -416,7 +416,7 @@ const SortableTodoItem: React.FC<{
           className="mt-0.5"
         >
           {task.status === 'completed' ? (
-            <CheckCircle className="w-4 h-4 text-green-600" />
+            <CheckCircle className="w-4 h-4 text-success" />
           ) : (
             <Circle className="w-4 h-4 text-muted-foreground hover:text-foreground" />
           )}
@@ -463,7 +463,7 @@ const SortableTodoItem: React.FC<{
             variant="ghost"
             size="sm"
             onClick={() => onDelete(task.id)}
-            className="h-7 w-7 p-0 text-red-500 hover:text-red-700"
+            className="h-7 w-7 p-0 text-destructive hover:text-red-700"
           >
             ×
           </Button>
@@ -1032,7 +1032,7 @@ function MarketingCalendar() {
             <div className="grid grid-cols-7 bg-muted flex-shrink-0 marketing-calendar-header">
               {['一', '二', '三', '四', '五', '六', '日'].map((day, index) => (
                 <div key={index} className={`p-1.5 text-center creative-module-label ${
-                  index >= 5 ? 'marketing-calendar-weekend text-red-600' : ''
+                  index >= 5 ? 'marketing-calendar-weekend text-destructive' : ''
                 }`}>
                   {day}
                 </div>
@@ -1092,7 +1092,7 @@ function MarketingCalendar() {
                       <div className="flex items-center justify-between mb-0.5">
                         <span className={`text-xs font-medium ${
                           isToday ? 'text-primary font-bold' : ''
-                        } ${isWeekend && isCurrentMonth ? 'text-red-600 dark:text-red-400' : ''} ${
+                        } ${isWeekend && isCurrentMonth ? 'text-destructive dark:text-red-400' : ''} ${
                           !isCurrentMonth ? 'text-muted-foreground' : ''
                         }`}>
                           {dayInfo.date.getDate()}
@@ -1100,7 +1100,7 @@ function MarketingCalendar() {
                         <div className="flex items-center gap-1">
                           {/* 高优先级任务红色标注 */}
                           {highPriorityTasks.length > 0 && (
-                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" title={`${highPriorityTasks.length}个高优先级任务`} />
+                            <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" title={`${highPriorityTasks.length}个高优先级任务`} />
                           )}
 
                           {/* 未完成任务数量 */}
@@ -1131,8 +1131,8 @@ function MarketingCalendar() {
                                         {pendingTasks.slice(0, 3).map((task, idx) => (
                                           <div key={idx} className="text-xs flex items-center gap-2 ml-2">
                                             <div className={`w-2 h-2 rounded-full ${
-                                              task.priority === 'high' ? 'bg-red-500' :
-                                              task.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                                              task.priority === 'high' ? 'bg-destructive' :
+                                              task.priority === 'medium' ? 'bg-warning' : 'bg-success'
                                             }`} />
                                             <span>{task.title}</span>
                                           </div>
@@ -1148,12 +1148,12 @@ function MarketingCalendar() {
                                     {/* 已完成任务 */}
                                     {completedTasks.length > 0 && (
                                       <div>
-                                        <div className="text-xs font-medium text-green-600 mb-1">
+                                        <div className="text-xs font-medium text-success mb-1">
                                           已完成 ({completedTasks.length}个)
                                         </div>
                                         {completedTasks.slice(0, 2).map((task, idx) => (
                                           <div key={idx} className="text-xs flex items-center gap-2 ml-2">
-                                            <div className="w-2 h-2 rounded-full bg-green-500" />
+                                            <div className="w-2 h-2 rounded-full bg-success" />
                                             <span className="line-through opacity-60">{task.title}</span>
                                           </div>
                                         ))}
@@ -1175,16 +1175,16 @@ function MarketingCalendar() {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="w-2 h-2 bg-green-500 rounded-full opacity-60" />
+                                  <div className="w-2 h-2 bg-success rounded-full opacity-60" />
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="max-w-xs">
                                   <div className="space-y-1">
-                                    <div className="font-medium text-xs mb-2 text-green-600">
+                                    <div className="font-medium text-xs mb-2 text-success">
                                       {dateStr} 已完成任务 ({completedTasks.length}个)
                                     </div>
                                     {completedTasks.slice(0, 5).map((task, idx) => (
                                       <div key={idx} className="text-xs flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                                        <div className="w-2 h-2 rounded-full bg-success" />
                                         <span className="line-through opacity-60">{task.title}</span>
                                       </div>
                                     ))}
@@ -1210,7 +1210,7 @@ function MarketingCalendar() {
 
                       {/* 节气 - 紧凑显示 */}
                       {dayInfo.solarTerm && (
-                        <div className="text-xs text-green-600 font-medium mb-0.5 truncate">
+                        <div className="text-xs text-success font-medium mb-0.5 truncate">
                           {dayInfo.solarTerm}
                         </div>
                       )}
@@ -1257,7 +1257,7 @@ function MarketingCalendar() {
       {/* 右侧 - Todo任务列表 */}
       <Card className="calendar-card flex flex-col overflow-hidden">
         <CardHeader className="pb-2 flex-shrink-0 calendar-header p-4">
-          <div className="flex items-center justify-between mb-2 min-h-[32px]">
+          <div className="flex items-center justify-between mb-2 min-h-[var(--spacing-8)]">
             <CardTitle className="flex items-center gap-2 text-lg">
               <CheckCircle className="w-4 h-4 flex-shrink-0" />
               <span className="leading-none">待办事项</span>
@@ -1345,7 +1345,7 @@ function MarketingCalendar() {
                   className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
                   onClick={() => setFilters(prev => ({ ...prev, status: 'completed' }))}
                 >
-                  <div className="text-base font-bold text-green-600">
+                  <div className="text-base font-bold text-success">
                     {tasks.filter(t => t.status === 'completed').length}
                   </div>
                   <div className="text-xs text-muted-foreground">已完成</div>
@@ -1363,7 +1363,7 @@ function MarketingCalendar() {
                   className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
                   onClick={() => setFilters(prev => ({ ...prev, priority: 'high' }))}
                 >
-                  <div className="text-base font-bold text-red-600">
+                  <div className="text-base font-bold text-destructive">
                     {tasks.filter(t => t.priority === 'high').length}
                   </div>
                   <div className="text-xs text-muted-foreground">高优先级</div>

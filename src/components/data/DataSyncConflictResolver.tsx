@@ -43,11 +43,11 @@ const getConflictTypeIcon = (type: ConflictType) => {
     case ConflictType.BOTH_MODIFIED:
       return <GitMerge className="w-4 h-4 text-orange-500" />;
     case ConflictType.VERSION_MISMATCH:
-      return <AlertTriangle className="w-4 h-4 text-red-500" />;
+      return <AlertTriangle className="w-4 h-4 text-destructive" />;
     case ConflictType.LOCAL_NEW_REMOTE_EXISTS:
-      return <Copy className="w-4 h-4 text-blue-500" />;
+      return <Copy className="w-4 h-4 text-primary" />;
     default:
-      return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+      return <AlertTriangle className="w-4 h-4 text-warning" />;
   }
 };
 
@@ -156,7 +156,7 @@ const ConflictItem: React.FC<{
           {/* 本地版本 */}
           <div className="border rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
-              <Upload className="w-4 h-4 text-blue-500" />
+              <Upload className="w-4 h-4 text-primary" />
               <span className="font-medium text-sm">本地版本</span>
             </div>
             <p className="text-xs text-muted-foreground">
@@ -172,7 +172,7 @@ const ConflictItem: React.FC<{
           {/* 远程版本 */}
           <div className="border rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
-              <Download className="w-4 h-4 text-green-500" />
+              <Download className="w-4 h-4 text-success" />
               <span className="font-medium text-sm">远程版本</span>
             </div>
             <p className="text-xs text-muted-foreground">
@@ -303,13 +303,13 @@ export const DataSyncConflictResolver: React.FC<DataSyncConflictResolverProps> =
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-green-500">{resolvedCount}</div>
+                <div className="text-2xl font-bold text-success">{resolvedCount}</div>
                 <p className="text-xs text-muted-foreground">已解决冲突</p>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-blue-500">{conflictStats.needsManualReview}</div>
+                <div className="text-2xl font-bold text-primary">{conflictStats.needsManualReview}</div>
                 <p className="text-xs text-muted-foreground">需要手动处理</p>
               </CardContent>
             </Card>
@@ -368,15 +368,15 @@ export const DataSyncConflictResolver: React.FC<DataSyncConflictResolverProps> =
           {(detectionError || resolutionError) && (
             <Card className="border-red-200 bg-red-50">
               <CardContent className="pt-4">
-                <div className="flex items-center gap-2 text-red-600">
+                <div className="flex items-center gap-2 text-destructive">
                   <AlertTriangle className="w-4 h-4" />
                   <span className="font-medium">错误信息</span>
                 </div>
                 {detectionError && (
-                  <p className="text-sm text-red-600 mt-1">检测错误：{detectionError}</p>
+                  <p className="text-sm text-destructive mt-1">检测错误：{detectionError}</p>
                 )}
                 {resolutionError && (
-                  <p className="text-sm text-red-600 mt-1">解决错误：{resolutionError}</p>
+                  <p className="text-sm text-destructive mt-1">解决错误：{resolutionError}</p>
                 )}
               </CardContent>
             </Card>
@@ -397,7 +397,7 @@ export const DataSyncConflictResolver: React.FC<DataSyncConflictResolverProps> =
           ) : (
             <Card className="text-center py-8">
               <CardContent>
-                <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
+                <CheckCircle className="w-12 h-12 text-success mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">没有冲突</h3>
                 <p className="text-muted-foreground">所有数据都已同步，没有检测到冲突。</p>
               </CardContent>

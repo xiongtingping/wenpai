@@ -252,9 +252,9 @@ export function GenerationControls({
             {/* 体验版模型 - 所有模型放一排 */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <div className="w-2 h-2 rounded-full bg-success"></div>
                 <span className="text-sm font-medium text-green-700">体验版模型</span>
-                <Badge variant="outline" className="text-xs bg-green-50 text-green-600 border-green-200">
+                <Badge variant="outline" className="text-xs bg-green-50 text-success border-green-200">
                   基础功能
                 </Badge>
               </div>
@@ -283,10 +283,10 @@ export function GenerationControls({
                       <div className="flex items-center gap-2">
                         <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                           isSelected
-                            ? 'border-green-500 bg-green-500 shadow-sm'
+                            ? 'border-green-500 bg-success shadow-sm'
                             : 'border-green-300 bg-transparent group-hover:border-green-400'
                         }`}>
-                          {isSelected && <Check className="h-2.5 w-2.5 text-white" />}
+                          {isSelected && <Check className="h-2.5 w-2.5 text-background" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h5 className="font-medium text-xs text-foreground truncate">{model.name}</h5>
@@ -306,9 +306,9 @@ export function GenerationControls({
             {/* 专业版模型 - 所有模型放一排 */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                <div className="w-2 h-2 rounded-full bg-warning"></div>
                 <span className="text-sm font-medium text-yellow-700">专业版模型</span>
-                <Badge variant="outline" className="text-xs bg-yellow-50 text-yellow-600 border-yellow-200">
+                <Badge variant="outline" className="text-xs bg-yellow-50 text-warning border-yellow-200">
                   专业功能
                 </Badge>
               </div>
@@ -338,12 +338,12 @@ export function GenerationControls({
                       <div className="flex items-center gap-2">
                         <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                           isSelected
-                            ? 'border-yellow-500 bg-yellow-500 shadow-sm'
+                            ? 'border-yellow-500 bg-warning shadow-sm'
                             : disabled 
                             ? 'border-yellow-300 bg-transparent'
                             : 'border-yellow-300 bg-transparent group-hover:border-yellow-400'
                         }`}>
-                          {isSelected ? <Check className="h-2.5 w-2.5 text-white" /> : disabled && <Crown className="h-2.5 w-2.5 text-yellow-500" />}
+                          {isSelected ? <Check className="h-2.5 w-2.5 text-background" /> : disabled && <Crown className="h-2.5 w-2.5 text-warning" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h5 className="font-medium text-xs text-foreground truncate">{model.name}</h5>
@@ -357,7 +357,7 @@ export function GenerationControls({
                       {disabled && !generating && (
                         <div className="absolute inset-0 bg-background/60 rounded-lg flex items-center justify-center">
                           <div className="text-center">
-                            <Crown className="h-3 w-3 text-yellow-500 mx-auto mb-0.5" />
+                            <Crown className="h-3 w-3 text-warning mx-auto mb-0.5" />
                             <p className="text-xs text-muted-foreground">需要专业版</p>
                           </div>
                         </div>
@@ -371,9 +371,9 @@ export function GenerationControls({
             {/* 高级版模型 - 所有模型放一排 */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                <div className="w-2 h-2 rounded-full bg-destructive"></div>
                 <span className="text-sm font-medium text-red-700">高级版模型</span>
-                <Badge variant="outline" className="text-xs bg-red-50 text-red-600 border-red-200">
+                <Badge variant="outline" className="text-xs bg-red-50 text-destructive border-red-200">
                   顶级功能
                 </Badge>
               </div>
@@ -403,12 +403,12 @@ export function GenerationControls({
                       <div className="flex items-center gap-2">
                         <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                           isSelected
-                            ? 'border-red-500 bg-red-500 shadow-sm'
+                            ? 'border-destructive bg-destructive shadow-sm'
                             : disabled 
                             ? 'border-red-300 bg-transparent'
                             : 'border-red-300 bg-transparent group-hover:border-red-400'
                         }`}>
-                          {isSelected ? <Check className="h-2.5 w-2.5 text-white" /> : disabled && <Crown className="h-2.5 w-2.5 text-red-500" />}
+                          {isSelected ? <Check className="h-2.5 w-2.5 text-background" /> : disabled && <Crown className="h-2.5 w-2.5 text-destructive" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h5 className="font-medium text-xs text-foreground truncate">{model.name}</h5>
@@ -422,7 +422,7 @@ export function GenerationControls({
                       {disabled && !generating && (
                         <div className="absolute inset-0 bg-background/60 rounded-lg flex items-center justify-center">
                           <div className="text-center">
-                            <Crown className="h-3 w-3 text-red-500 mx-auto mb-0.5" />
+                            <Crown className="h-3 w-3 text-destructive mx-auto mb-0.5" />
                             <p className="text-xs text-muted-foreground">需要高级版</p>
                           </div>
                         </div>

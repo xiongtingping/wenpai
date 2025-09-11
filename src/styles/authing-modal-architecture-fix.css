@@ -56,7 +56,7 @@
   justify-content: center !important;
   
   /* 背景遮罩 */
-  background: rgba(0, 0, 0, 0.5) !important;
+  background: hsl(var(--foreground) / 0.5) !important;
   
   /* 确保可交互 */
   pointer-events: auto !important;
@@ -93,8 +93,8 @@
   
   /* 样式设置 */
   background: white !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+  border-radius: var(--spacing-2) !important;
+  box-shadow: 0 var(--spacing-1) var(--spacing-3) rgba(0,0,0,0.3) !important;
   
   /* 重置边距 */
   margin: 0 !important;
@@ -124,10 +124,10 @@
   
   /* 样式设置 */
   background: white !important;
-  border-radius: 8px !important;
+  border-radius: var(--spacing-2) !important;
   
   /* 内边距 */
-  padding: 20px !important;
+  padding: var(--spacing-5) !important;
   margin: 0 !important;
   inset: auto !important;
 }

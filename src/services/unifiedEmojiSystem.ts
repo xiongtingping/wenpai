@@ -58,63 +58,63 @@ export interface EmojiSizeConfig {
  */
 export const EMOJI_SIZE_CONFIG: Record<EmojiUsageContext, Record<PlatformType, EmojiSizeConfig>> = {
   avatar: {
-    desktop: { fontSize: '2rem', width: '64px', height: '64px', borderRadius: '50%' },
-    mobile: { fontSize: '1.5rem', width: '48px', height: '48px', borderRadius: '50%' },
-    tablet: { fontSize: '1.75rem', width: '56px', height: '56px', borderRadius: '50%' }
+    desktop: { fontSize: 'var(--spacing-8)', width: 'var(--spacing-16)', height: 'var(--spacing-16)', borderRadius: '50%' },
+    mobile: { fontSize: 'var(--spacing-6)', width: 'var(--spacing-12)', height: 'var(--spacing-12)', borderRadius: '50%' },
+    tablet: { fontSize: '1.75rem', width: 'var(--spacing-14)', height: 'var(--spacing-14)', borderRadius: '50%' }
   },
   decoration: {
-    desktop: { fontSize: '1.25rem', lineHeight: '1.5' },
-    mobile: { fontSize: '1rem', lineHeight: '1.4' },
+    desktop: { fontSize: 'var(--spacing-5)', lineHeight: '1.5' },
+    mobile: { fontSize: 'var(--spacing-4)', lineHeight: '1.4' },
     tablet: { fontSize: '1.125rem', lineHeight: '1.45' }
   },
   button: {
-    desktop: { fontSize: '1rem', padding: '0.5rem', borderRadius: '0.375rem' },
-    mobile: { fontSize: '0.875rem', padding: '0.375rem', borderRadius: '0.25rem' },
+    desktop: { fontSize: 'var(--spacing-4)', padding: 'var(--spacing-2)', borderRadius: '0.375rem' },
+    mobile: { fontSize: '0.875rem', padding: '0.375rem', borderRadius: 'var(--spacing-1)' },
     tablet: { fontSize: '0.9375rem', padding: '0.4375rem', borderRadius: '0.3125rem' }
   },
   title: {
-    desktop: { fontSize: '1.5rem', lineHeight: '1.2' },
-    mobile: { fontSize: '1.25rem', lineHeight: '1.3' },
+    desktop: { fontSize: 'var(--spacing-6)', lineHeight: '1.2' },
+    mobile: { fontSize: 'var(--spacing-5)', lineHeight: '1.3' },
     tablet: { fontSize: '1.375rem', lineHeight: '1.25' }
   },
   content: {
-    desktop: { fontSize: '1rem', lineHeight: '1.6' },
+    desktop: { fontSize: 'var(--spacing-4)', lineHeight: '1.6' },
     mobile: { fontSize: '0.875rem', lineHeight: '1.5' },
     tablet: { fontSize: '0.9375rem', lineHeight: '1.55' }
   },
   card: {
-    desktop: { fontSize: '1.125rem', padding: '0.75rem', borderRadius: '0.5rem' },
-    mobile: { fontSize: '1rem', padding: '0.5rem', borderRadius: '0.375rem' },
+    desktop: { fontSize: '1.125rem', padding: 'var(--spacing-3)', borderRadius: 'var(--spacing-2)' },
+    mobile: { fontSize: 'var(--spacing-4)', padding: 'var(--spacing-2)', borderRadius: '0.375rem' },
     tablet: { fontSize: '1.0625rem', padding: '0.625rem', borderRadius: '0.4375rem' }
   },
   icon: {
-    desktop: { fontSize: '1rem', width: '24px', height: '24px' },
-    mobile: { fontSize: '0.875rem', width: '20px', height: '20px' },
+    desktop: { fontSize: 'var(--spacing-4)', width: 'var(--spacing-6)', height: 'var(--spacing-6)' },
+    mobile: { fontSize: '0.875rem', width: 'var(--spacing-5)', height: 'var(--spacing-5)' },
     tablet: { fontSize: '0.9375rem', width: '22px', height: '22px' }
   },
   badge: {
-    desktop: { fontSize: '0.75rem', padding: '0.25rem 0.5rem', borderRadius: '9999px' },
+    desktop: { fontSize: 'var(--spacing-3)', padding: 'var(--spacing-1) var(--spacing-2)', borderRadius: '9999px' },
     mobile: { fontSize: '0.625rem', padding: '0.1875rem 0.375rem', borderRadius: '9999px' },
     tablet: { fontSize: '0.6875rem', padding: '0.21875rem 0.4375rem', borderRadius: '9999px' }
   },
   notification: {
-    desktop: { fontSize: '1rem', padding: '0.75rem', borderRadius: '0.5rem' },
-    mobile: { fontSize: '0.875rem', padding: '0.5rem', borderRadius: '0.375rem' },
+    desktop: { fontSize: 'var(--spacing-4)', padding: 'var(--spacing-3)', borderRadius: 'var(--spacing-2)' },
+    mobile: { fontSize: '0.875rem', padding: 'var(--spacing-2)', borderRadius: '0.375rem' },
     tablet: { fontSize: '0.9375rem', padding: '0.625rem', borderRadius: '0.4375rem' }
   },
   status: {
-    desktop: { fontSize: '0.875rem', width: '16px', height: '16px' },
-    mobile: { fontSize: '0.75rem', width: '14px', height: '14px' },
+    desktop: { fontSize: '0.875rem', width: 'var(--spacing-4)', height: 'var(--spacing-4)' },
+    mobile: { fontSize: 'var(--spacing-3)', width: 'var(--spacing-3-5)', height: 'var(--spacing-3-5)' },
     tablet: { fontSize: '0.8125rem', width: '15px', height: '15px' }
   },
   reaction: {
-    desktop: { fontSize: '1.25rem', padding: '0.375rem', borderRadius: '0.375rem' },
-    mobile: { fontSize: '1rem', padding: '0.25rem', borderRadius: '0.25rem' },
+    desktop: { fontSize: 'var(--spacing-5)', padding: '0.375rem', borderRadius: '0.375rem' },
+    mobile: { fontSize: 'var(--spacing-4)', padding: 'var(--spacing-1)', borderRadius: 'var(--spacing-1)' },
     tablet: { fontSize: '1.125rem', padding: '0.3125rem', borderRadius: '0.3125rem' }
   },
   picker: {
-    desktop: { fontSize: '1.5rem', width: '40px', height: '40px', padding: '0.5rem' },
-    mobile: { fontSize: '1.25rem', width: '36px', height: '36px', padding: '0.375rem' },
+    desktop: { fontSize: 'var(--spacing-6)', width: 'var(--spacing-10)', height: 'var(--spacing-10)', padding: 'var(--spacing-2)' },
+    mobile: { fontSize: 'var(--spacing-5)', width: 'var(--spacing-9)', height: 'var(--spacing-9)', padding: '0.375rem' },
     tablet: { fontSize: '1.375rem', width: '38px', height: '38px', padding: '0.4375rem' }
   }
 };

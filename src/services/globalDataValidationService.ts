@@ -269,7 +269,7 @@ export class GlobalDataValidationService {
         
         // 保留最新的或最完整的用户数据
         let bestKey = existingUserKeys[0];
-        let bestData = null;
+        let bestData: any = null;
 
         existingUserKeys.forEach(key => {
           try {
@@ -396,7 +396,7 @@ export class GlobalDataValidationService {
       }
 
     } catch (error) {
-      issues.push(`数据健康检查失败: ${error.message}`);
+      issues.push(`数据健康检查失败: ${(error as Error).message}`);
     }
 
     return {

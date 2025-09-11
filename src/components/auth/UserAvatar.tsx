@@ -54,11 +54,12 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
         setIsNativeDropdownOpen(false);
       }
     }
-    
+
     if (isNativeDropdownOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
+    return undefined;
   }, [isNativeDropdownOpen]);
 
   // 简单的主题切换功能
@@ -111,28 +112,28 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     const userTier = getUserTier(user);
     
     if (userTier === 'trial') {
-      return 'bg-gray-100 text-gray-700 border-gray-200';
+      return 'bg-muted text-gray-700 border-border';
     } else if (userTier === 'pro') {
       return 'bg-blue-100 text-blue-700 border-blue-200';
     } else if (userTier === 'premium') {
       return 'bg-purple-100 text-purple-700 border-purple-200';
     }
     
-    return 'bg-gray-100 text-gray-700 border-gray-200';
+    return 'bg-muted text-gray-700 border-border';
   };
   
   const getTierIconColor = () => {
     const userTier = getUserTier(user);
     
     if (userTier === 'trial') {
-      return 'text-gray-500';
+      return 'text-muted-foreground';
     } else if (userTier === 'pro') {
-      return 'text-blue-500';
+      return 'text-primary';
     } else if (userTier === 'premium') {
       return 'text-purple-500';
     }
     
-    return 'text-gray-500';
+    return 'text-muted-foreground';
   };
 
   // 
@@ -191,15 +192,15 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       {isNativeDropdownOpen && (
         <div 
           data-dropdown-menu="native"
-          className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[999999]"
+          className="absolute right-0 top-full mt-2 w-64 bg-background dark:bg-gray-800 border border-border dark:border-gray-700 rounded-md shadow-lg z-[999999]"
           style={{
             position: 'absolute',
-            top: 'calc(100% + 8px)',
-            right: '0px',
+            top: 'calc(100% + var(--spacing-2))',
+            right: '0',
             zIndex: 999999,
             backgroundColor: 'var(--background)',
             borderColor: 'var(--border)',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+            boxShadow: '0 var(--spacing-2-5) 15px -3px rgba(0, 0, 0, 0.1), 0 var(--spacing-1) var(--spacing-1-5) -var(--spacing-0-5) rgba(0, 0, 0, 0.05)'
           }}
           onClick={(e) => e.stopPropagation()}
         >

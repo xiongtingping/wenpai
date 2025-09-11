@@ -3,7 +3,7 @@
 /* 搜索建议动画 */
 .search-suggestions-enter {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-var(--spacing-2-5));
 }
 
 .search-suggestions-enter-active {
@@ -19,7 +19,7 @@
 
 .search-suggestions-exit-active {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-var(--spacing-2-5));
   transition: all 150ms ease-in;
 }
 
@@ -30,8 +30,8 @@
 }
 
 .template-card:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-var(--spacing-0-5)) scale(1.02);
+  box-shadow: 0 var(--spacing-5) 25px -5px rgba(0, 0, 0, 0.1), 0 var(--spacing-2-5) var(--spacing-2-5) -5px rgba(0, 0, 0, 0.04);
 }
 
 /* 按钮脉冲动画 */
@@ -80,22 +80,22 @@
 .loading-dots::after {
   content: '';
   display: inline-block;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
+  width: var(--spacing-1);
+  height: var(--spacing-1);
+  border-radius: var(--radius-full);
   background-color: currentColor;
-  margin-left: 4px;
+  margin-left: var(--spacing-1);
   animation: loadingDots 1.4s infinite ease-in-out;
 }
 
 .loading-dots::before {
   content: '';
   display: inline-block;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
+  width: var(--spacing-1);
+  height: var(--spacing-1);
+  border-radius: var(--radius-full);
   background-color: currentColor;
-  margin-right: 2px;
+  margin-right: var(--spacing-0-5);
   animation: loadingDots 1.4s infinite ease-in-out 0.2s;
 }
 
@@ -118,7 +118,7 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(var(--spacing-5));
   }
   to {
     opacity: 1;
@@ -146,7 +146,7 @@
 
 .tag-hover:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 var(--spacing-1) var(--spacing-2) rgba(0, 0, 0, 0.1);
 }
 
 /* 按钮加载状态 */
@@ -161,12 +161,12 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 16px;
-  height: 16px;
-  margin: -8px 0 0 -8px;
-  border: 2px solid transparent;
+  width: var(--spacing-4);
+  height: var(--spacing-4);
+  margin: -var(--spacing-2) 0 0 -var(--spacing-2);
+  border: var(--spacing-0-5) solid transparent;
   border-top-color: currentColor;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   animation: spin 1s linear infinite;
 }
 
@@ -183,7 +183,7 @@
 
 @keyframes countUp {
   from {
-    transform: translateY(10px);
+    transform: translateY(var(--spacing-2-5));
     opacity: 0;
   }
   to {
@@ -213,7 +213,7 @@
 
 .modal-content-enter {
   opacity: 0;
-  transform: scale(0.9) translateY(-20px);
+  transform: scale(0.9) translateY(-var(--spacing-5));
 }
 
 .modal-content-enter-active {
@@ -229,15 +229,15 @@
 
 .modal-content-exit-active {
   opacity: 0;
-  transform: scale(0.9) translateY(-20px);
+  transform: scale(0.9) translateY(-var(--spacing-5));
   transition: all 150ms ease-in;
 }
 
 /* 搜索结果高亮 */
 .search-highlight {
   background-color: rgba(59, 130, 246, 0.2);
-  padding: 1px 2px;
-  border-radius: 2px;
+  padding: 1px var(--spacing-0-5);
+  border-radius: var(--spacing-0-5);
   animation: highlight 2s ease-out;
 }
 
@@ -349,7 +349,7 @@
 /* 悬停提示动画 */
 .tooltip-enter {
   opacity: 0;
-  transform: translateY(4px);
+  transform: translateY(var(--spacing-1));
 }
 
 .tooltip-enter-active {
@@ -365,6 +365,6 @@
 
 .tooltip-exit-active {
   opacity: 0;
-  transform: translateY(4px);
+  transform: translateY(var(--spacing-1));
   transition: all 150ms ease-in;
 }

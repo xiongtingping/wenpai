@@ -48,7 +48,7 @@ import { getUserTier } from "@/utils/subscriptionUtils";
 import { paymentStatusService } from '@/services/paymentStatusService';
 // 已删除creemOptimizer导入，直接使用Creem API
 
-const CreemAlipayQRCode: React.FC<{ 
+const CreemAlipayQRCode: React.FC<{
   priceId: string;
   planName: string;
   price: number;
@@ -57,8 +57,10 @@ const CreemAlipayQRCode: React.FC<{
   planName,
   price,
 }) => {
+  const { t } = useTranslation();
+
   return (
-    <AlipayQRCode 
+    <AlipayQRCode
       priceId={priceId}
       title={`${planName} - ${t('payment.qrCodeTitle')}`}
       showPrice={true}
@@ -228,7 +230,12 @@ export default function PaymentPage() {
           action,
           targetTier: selectedPlan.tier,
           targetPeriod: selectedPeriod,
-          currentSubscription,
+          currentSubscription: currentSubscription ? {
+            ...currentSubscription,
+            expires_at: typeof currentSubscription.expires_at === 'string'
+              ? currentSubscription.expires_at
+              : currentSubscription.expires_at.toISOString()
+          } : undefined,
           allowManualAmount: false // 默认不允许手动输入
         };
 
@@ -609,7 +616,7 @@ export default function PaymentPage() {
             <div className="relative">
               {/* 推荐标签 */}
               <div className="absolute -top-4 -right-3 z-20">
-                <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-xl px-3 py-1 text-xs font-bold rounded-full border-2 border-white animate-bounce">
+                <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-background shadow-xl px-3 py-1 text-xs font-bold rounded-full border-2 border-white animate-bounce">
                   💰 {t('payment.billing.yearlySavings')}
                 </Badge>
               </div>
@@ -632,7 +639,7 @@ export default function PaymentPage() {
         {/* 限时优惠倒计时 */}
         {currentUser?.id && showPromoOffer && timeLeft > 0 && (
           <div className="text-center mb-8">
-            <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
+            <div className="bg-gradient-to-r from-red-500 to-pink-500 text-background px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <Zap className="h-4 w-4 animate-pulse" />
                 <span className="text-sm font-medium">{t('payment.promotion.title')}</span>
@@ -676,7 +683,7 @@ export default function PaymentPage() {
                 <Card
                   className={`transition-all duration-300 relative group w-full flex flex-col rounded-lg payment-card ${
                     isDowngrade
-                      ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-50'
+                      ? 'opacity-50 cursor-not-allowed border-border bg-gray-50'
                       : isSelected
                       ? 'border-primary shadow-lg scale-105 bg-primary/5 cursor-pointer'
                       : 'border-border hover:border-primary/50 hover:shadow-md hover:scale-102 cursor-pointer'
@@ -690,7 +697,7 @@ export default function PaymentPage() {
                       <div className="flex flex-wrap gap-1">
                         {/* 推荐标签 */}
                         {plan.recommended && (
-                          <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-xl px-3 py-1 text-xs font-bold rounded-full border border-white flex items-center gap-1">
+                          <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-background shadow-xl px-3 py-1 text-xs font-bold rounded-full border border-white flex items-center gap-1">
                             <Star className="h-3 w-3 fill-current" />
                             {t('payment.labels.recommended')}
                           </Badge>
@@ -698,7 +705,7 @@ export default function PaymentPage() {
 
                         {/* 高级版标签 */}
                         {plan.premiumLabel && (
-                          <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-xl px-3 py-1 text-xs font-bold rounded-full border border-white flex items-center gap-1">
+                          <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-background shadow-xl px-3 py-1 text-xs font-bold rounded-full border border-white flex items-center gap-1">
                             <Crown className="h-3 w-3 fill-current" />
                             {selectedPeriod === 'yearly' ? t('payment.labels.savings') : t('payment.labels.premium')}
                           </Badge>
@@ -710,7 +717,7 @@ export default function PaymentPage() {
                       <div className="flex flex-wrap gap-1">
                         {/* 限时优惠标签 */}
                         {showPromoOffer && timeLeft > 0 && plan.tier !== 'trial' && (
-                          <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg px-3 py-1 text-xs animate-pulse rounded-full border border-white flex items-center gap-1">
+                          <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-background shadow-lg px-3 py-1 text-xs animate-pulse rounded-full border border-white flex items-center gap-1">
                             <Zap className="h-3 w-3 fill-current" />
                             {t('payment.labels.limited')}
                           </Badge>
@@ -718,7 +725,7 @@ export default function PaymentPage() {
 
                         {/* 年付优惠标签 */}
                         {selectedPeriod === 'yearly' && (plan.tier === 'pro' || plan.tier === 'premium') && (
-                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg px-3 py-1 text-xs rounded-full border border-white">
+                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-background shadow-lg px-3 py-1 text-xs rounded-full border border-white">
                             {t('payment.billing.compareMonthly', { amount: getYearlySavings(plan) })}
                           </Badge>
                         )}
@@ -729,27 +736,27 @@ export default function PaymentPage() {
                   <CardHeader className="text-center pb-2 pt-4">
                     <CardTitle className="text-xl md:text-2xl font-bold mb-1 h-8 flex items-center justify-center">
                       <div className="flex items-center justify-center gap-2">
-                        {plan.tier === 'premium' && <Crown className="h-5 w-5 text-yellow-500" />}
-                        <span className="text-gray-900">{plan.name}</span>
+                        {plan.tier === 'premium' && <Crown className="h-5 w-5 text-warning" />}
+                        <span className="text-foreground">{plan.name}</span>
                       </div>
                     </CardTitle>
-                    <p className="text-gray-600 text-xs md:text-sm leading-relaxed h-6 flex items-center justify-center">{plan.description}</p>
+                    <p className="text-muted-foreground text-xs md:text-sm leading-relaxed h-6 flex items-center justify-center">{plan.description}</p>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col space-y-3 pb-3 px-4">
                     <div className="text-center pricing-container payment-pricing flex flex-col justify-center">
                       <div className="space-y-2">
-                        <div className="text-3xl md:text-4xl font-bold text-gray-900 flex items-baseline justify-center gap-1">
+                        <div className="text-3xl md:text-4xl font-bold text-foreground flex items-baseline justify-center gap-1">
                           <span className="text-xl md:text-2xl">¥</span>
                           <span>{currentPrice}</span>
-                          <span className="text-base text-gray-600 font-medium">/{selectedPeriod === 'monthly' ? t('payment.billing.month') : t('payment.billing.year')}</span>
+                          <span className="text-base text-muted-foreground font-medium">/{selectedPeriod === 'monthly' ? t('payment.billing.month') : t('payment.billing.year')}</span>
                         </div>
                         {showPromoOffer && timeLeft > 0 && plan.tier !== 'trial' && (
                           <>
-                            <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
+                            <div className="bg-gradient-to-r from-red-500 to-pink-500 text-background px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                               <Zap className="h-4 w-4" />
                               {t('payment.promotion.specialOffer', { amount: savedAmount.toFixed(2) })}
                             </div>
-                            <div className="text-lg text-gray-500 line-through">{t('payment.promotion.originalPrice', { price: originalPrice })}</div>
+                            <div className="text-lg text-muted-foreground line-through">{t('payment.promotion.originalPrice', { price: originalPrice })}</div>
                           </>
                         )}
 
@@ -772,17 +779,17 @@ export default function PaymentPage() {
                         return (
                           <div key={index} className="flex items-start gap-2 text-sm">
                             <div className="mt-0.5">
-                              <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                              <Check className="h-3.5 w-3.5 text-success flex-shrink-0" />
                             </div>
                             <span className="text-gray-700 leading-snug flex items-center gap-1.5 flex-wrap">
                               {featureText}
                               {badgeType === 'new' && (
-                                <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold shadow-sm">
+                                <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-background text-xs px-1.5 py-0.5 rounded-full font-bold shadow-sm">
                                   NEW
                                 </Badge>
                               )}
                               {badgeType === 'up' && (
-                                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-0.5">
+                                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-background text-xs px-1.5 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-0.5">
                                   <TrendingUp className="h-2.5 w-2.5" />
                                   UP
                                 </Badge>
@@ -796,7 +803,7 @@ export default function PaymentPage() {
                       <Button
                         variant={plan.recommended ? "gradient" : "default"}
                         size="lg"
-                        className={`w-full font-semibold transition-all duration-300 ${
+                        className={`w-full font-semibold transition-all duration-300 flex items-center justify-center text-center ${
                           plan.recommended
                             ? 'shadow-lg hover:shadow-xl hover:-translate-y-1'
                             : 'shadow-md hover:shadow-lg hover:-translate-y-0.5'
@@ -867,7 +874,7 @@ export default function PaymentPage() {
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <CreditCard className="h-5 w-5 text-white" />
+                      <CreditCard className="h-5 w-5 text-background" />
                     </div>
                     <h3 className="text-xl font-bold text-foreground">{t('payment.paymentInfo.title')}</h3>
                   </div>
@@ -875,7 +882,7 @@ export default function PaymentPage() {
                     <div className="text-3xl font-bold text-foreground">¥{getCurrentPrice()}</div>
                     <div className="text-sm text-muted-foreground font-medium">{selectedPeriod === 'monthly' ? t('payment.billing.monthlyShort') : t('payment.billing.yearlyShort')}</div>
                     {dynamicPricing && (
-                      <div className="text-xs text-blue-600 mt-1">{dynamicPricing.priceDescription}</div>
+                      <div className="text-xs text-primary mt-1">{dynamicPricing.priceDescription}</div>
                     )}
                   </div>
                 </div>
@@ -891,12 +898,12 @@ export default function PaymentPage() {
                       请在支付宝中手动输入金额：<span className="font-bold text-lg text-blue-900">¥{dynamicPricing.finalAmount}</span>
                     </p>
                     {dynamicPricing.priceType === 'prorated' && (
-                      <p className="text-xs text-blue-600">
+                      <p className="text-xs text-primary">
                         补差价计算：根据您的剩余订阅时间计算的升级费用
                       </p>
                     )}
                     {dynamicPricing.discountAmount > 0 && (
-                      <p className="text-xs text-blue-600">
+                      <p className="text-xs text-primary">
                         已为您节省：¥{dynamicPricing.discountAmount.toFixed(2)}
                       </p>
                     )}
@@ -913,12 +920,12 @@ export default function PaymentPage() {
                 </div>
 
                 {/* 按年支付引导 */}
-                {selectedPeriod === 'monthly' && selectedPlan.tier !== 'trial' && (
+                {selectedPeriod === 'monthly' && selectedPlan && (selectedPlan.tier as any) !== 'trial' && (
                   <div className="mb-6 p-4 bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center">
-                          <Percent className="h-4 w-4 text-white" />
+                          <Percent className="h-4 w-4 text-background" />
                         </div>
                         <div>
                           <div className="font-semibold text-orange-800">{t('payment.yearlyPromotion.title')}</div>
@@ -931,7 +938,7 @@ export default function PaymentPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setSelectedPeriod('yearly')}
-                        className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white border-none hover:from-orange-600 hover:to-yellow-600 font-semibold"
+                        className="bg-gradient-to-r from-orange-500 to-yellow-500 text-background border-none hover:from-orange-600 hover:to-yellow-600 font-semibold"
                       >
                         {t('payment.billing.switchToYearly')}
                       </Button>
@@ -943,19 +950,19 @@ export default function PaymentPage() {
                 {dynamicPricing && dynamicPricing.discountAmount > 0 && (
                   <div className="flex flex-wrap gap-3 mb-6">
                     {dynamicPricing.priceType === 'promo' && (
-                      <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
+                      <span className="bg-gradient-to-r from-red-500 to-pink-500 text-background px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Zap className="h-4 w-4" />
                         限时优惠：节省¥{dynamicPricing.discountAmount.toFixed(2)}
                       </span>
                     )}
                     {dynamicPricing.priceType === 'prorated' && (
-                      <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
+                      <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-background px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <TrendingUp className="h-4 w-4" />
                         补差价升级：节省¥{dynamicPricing.discountAmount.toFixed(2)}
                       </span>
                     )}
                     {selectedPeriod === 'yearly' && dynamicPricing.priceType === 'original' && (
-                      <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
+                      <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-background px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Percent className="h-4 w-4" />
                         年付优惠：节省¥{getYearlySavings(selectedPlan)}
                       </span>
@@ -966,7 +973,7 @@ export default function PaymentPage() {
                 <Button
                   onClick={handlePayment}
                   disabled={isCreatingCheckout}
-                  className="w-full !flex !items-center !justify-center !bg-gradient-to-r !from-blue-600 !to-indigo-600 hover:!from-blue-700 hover:!to-indigo-700 !text-white text-xl font-bold py-4 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl disabled:opacity-50 !border-none !text-center"
+                  className="w-full !flex !items-center !justify-center !bg-gradient-to-r !from-blue-600 !to-indigo-600 hover:!from-blue-700 hover:!to-indigo-700 !text-background text-xl font-bold py-4 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl disabled:opacity-50 !border-none !text-center"
                 >
                   {isCreatingCheckout ? (
                     <div className="flex items-center gap-2">
@@ -981,11 +988,11 @@ export default function PaymentPage() {
                 {/* 支付错误提示 */}
                 {checkoutError && (
                   <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-                    <div className="flex items-center gap-2 text-red-600">
+                    <div className="flex items-center gap-2 text-destructive">
                       <AlertCircle className="h-5 w-5" />
                       <span className="font-medium">{t('payment.messages.orderCreateError')}</span>
                     </div>
-                    <p className="text-red-600 text-sm mt-1">{checkoutError}</p>
+                    <p className="text-destructive text-sm mt-1">{checkoutError}</p>
                     <Button
                       variant="outline"
                       size="sm"
@@ -1007,7 +1014,7 @@ export default function PaymentPage() {
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <span className="text-white text-lg font-bold">支</span>
+                      <span className="text-background text-lg font-bold">支</span>
                     </div>
                     <h3 className="text-xl font-bold text-foreground">{t('payment.paymentInfo.alipayQr')}</h3>
                   </div>
@@ -1015,7 +1022,7 @@ export default function PaymentPage() {
                     <div className="text-3xl font-bold text-foreground">¥{getCurrentPrice()}</div>
                     <div className="text-sm text-muted-foreground font-medium">{selectedPeriod === 'monthly' ? t('payment.billing.monthlyShort') : t('payment.billing.yearlyShort')}</div>
                     {dynamicPricing && (
-                      <div className="text-xs text-blue-600 mt-1">{dynamicPricing.priceDescription}</div>
+                      <div className="text-xs text-primary mt-1">{dynamicPricing.priceDescription}</div>
                     )}
                   </div>
                 </div>
@@ -1047,13 +1054,13 @@ export default function PaymentPage() {
                 {(showPromoOffer && timeLeft > 0) || selectedPeriod === 'yearly' ? (
                   <div className="flex flex-wrap gap-3 mb-6">
                     {showPromoOffer && timeLeft > 0 && (
-                      <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
+                      <span className="bg-gradient-to-r from-red-500 to-pink-500 text-background px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Zap className="h-4 w-4" />
                         {t('payment.labels.limited')}时优惠中
                       </span>
                     )}
                     {selectedPeriod === 'yearly' && (
-                      <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
+                      <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-background px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Percent className="h-4 w-4" />
                         {t('payment.billing.yearlyShort')}优惠
                       </span>
@@ -1071,7 +1078,7 @@ export default function PaymentPage() {
                       onPaymentError={handleBufpayError}
                     />
                   ) : (
-                    <div className="text-red-600 font-semibold">{t('payment.paymentInfo.generatingQr')}</div>
+                    <div className="text-destructive font-semibold">{t('payment.paymentInfo.generatingQr')}</div>
                   )}
                 </div>
               </CardContent>

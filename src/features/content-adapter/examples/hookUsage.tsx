@@ -96,7 +96,8 @@ export function ContentAdapterExample() {
     const request = {
       originalContent: originalContent.trim(),
       formId: selectedFormId,
-      style: selectedStyle
+      style: selectedStyle,
+      platform: selectedPlatforms[0] || 'default'
     };
 
     await generateContent(request, selectedPlatforms);
@@ -123,7 +124,8 @@ export function ContentAdapterExample() {
     const request = {
       originalContent: originalContent.trim(),
       formId: selectedFormId,
-      style: selectedStyle
+      style: selectedStyle,
+      platform: platformId
     };
 
     await retryPlatform(platformId, request);
@@ -251,19 +253,19 @@ export function ContentAdapterExample() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div className="text-center">
                 <div className="text-2xl font-bold">{queueStats.total}</div>
-                <div className="text-sm text-gray-500">总任务</div>
+                <div className="text-sm text-muted-foreground">总任务</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{queueStats.running}</div>
-                <div className="text-sm text-gray-500">运行中</div>
+                <div className="text-2xl font-bold text-primary">{queueStats.running}</div>
+                <div className="text-sm text-muted-foreground">运行中</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{queueStats.completed}</div>
-                <div className="text-sm text-gray-500">已完成</div>
+                <div className="text-2xl font-bold text-success">{queueStats.completed}</div>
+                <div className="text-sm text-muted-foreground">已完成</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{queueStats.failed}</div>
-                <div className="text-sm text-gray-500">失败</div>
+                <div className="text-2xl font-bold text-destructive">{queueStats.failed}</div>
+                <div className="text-sm text-muted-foreground">失败</div>
               </div>
             </div>
             
@@ -323,7 +325,8 @@ export function ContentAdapterExample() {
                         onClick={() => generateComparison(result.platformId, {
                           originalContent: originalContent.trim(),
                           formId: selectedFormId,
-                          style: selectedStyle
+                          style: selectedStyle,
+                          platform: result.platformId
                         })}
                         size="sm"
                         variant="outline"
@@ -353,7 +356,7 @@ export function ContentAdapterExample() {
                               step.status === 'completed' ? 'bg-green-100 text-green-800' :
                               step.status === 'loading' ? 'bg-blue-100 text-blue-800' :
                               step.status === 'error' ? 'bg-red-100 text-red-800' :
-                              'bg-gray-100 text-gray-600'
+                              'bg-muted text-muted-foreground'
                             }`}
                           >
                             {step.message}
@@ -365,7 +368,7 @@ export function ContentAdapterExample() {
 
                   {/* 内容显示 */}
                   {result.error ? (
-                    <div className="text-red-600 text-sm">
+                    <div className="text-destructive text-sm">
                       错误: {result.error}
                     </div>
                   ) : (
@@ -377,7 +380,7 @@ export function ContentAdapterExample() {
                         className="w-full h-32 p-3 border rounded-md text-sm"
                         placeholder="生成的内容将显示在这里..."
                       />
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-muted-foreground mt-1">
                         字符数: {result.content.length} / 
                         目标: {getEffectiveSettings(result.platformId).charCount}
                       </div>

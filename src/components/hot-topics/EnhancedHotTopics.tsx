@@ -193,9 +193,9 @@ export default function EnhancedHotTopics({ className }: EnhancedHotTopicsProps)
    */
   const getTrendIcon = (direction: string) => {
     switch (direction) {
-      case 'up': return <TrendingUp className="h-4 w-4 text-green-500" />;
-      case 'down': return <TrendingDown className="h-4 w-4 text-red-500" />;
-      default: return <Minus className="h-4 w-4 text-gray-500" />;
+      case 'up': return <TrendingUp className="h-4 w-4 text-success" />;
+      case 'down': return <TrendingDown className="h-4 w-4 text-destructive" />;
+      default: return <Minus className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -241,7 +241,7 @@ export default function EnhancedHotTopics({ className }: EnhancedHotTopicsProps)
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-lg flex items-center space-x-2">
-                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-warning" />
                     <span>增强版全网雷达</span>
                   </CardTitle>
                   <CardDescription>
@@ -278,7 +278,7 @@ export default function EnhancedHotTopics({ className }: EnhancedHotTopicsProps)
                       <p className="text-sm font-medium">RSSHub 数据</p>
                       <p className="text-2xl font-bold">{stats.rsshub.count}</p>
                     </div>
-                    <Globe className="h-8 w-8 text-blue-500" />
+                    <Globe className="h-8 w-8 text-primary" />
                   </div>
                 </CardContent>
               </Card>
@@ -289,7 +289,7 @@ export default function EnhancedHotTopics({ className }: EnhancedHotTopicsProps)
                       <p className="text-sm font-medium">DailyHot 数据</p>
                       <p className="text-2xl font-bold">{stats.dailyhot.count}</p>
                     </div>
-                    <Target className="h-8 w-8 text-green-500" />
+                    <Target className="h-8 w-8 text-success" />
                   </div>
                 </CardContent>
               </Card>
@@ -353,7 +353,7 @@ export default function EnhancedHotTopics({ className }: EnhancedHotTopicsProps)
           {error && (
             <Card className="border-red-200 bg-red-50">
               <CardContent className="pt-6">
-                <div className="flex items-center space-x-2 text-red-600">
+                <div className="flex items-center space-x-2 text-destructive">
                   <AlertCircle className="h-4 w-4" />
                   <span>{error}</span>
                 </div>

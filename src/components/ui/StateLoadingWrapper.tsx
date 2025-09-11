@@ -33,7 +33,7 @@ export const StateLoadingWrapper: React.FC<StateLoadingWrapperProps> = ({
   showLoadingText = true,
   className = ''
 }) => {
-  const { isLoading } = useAuth();
+  const { loading: isLoading } = useAuth();
   const isInitialized = true; // 简化状态管理
 
   // 如果状态未初始化或正在加载，显示加载状态
@@ -46,7 +46,7 @@ export const StateLoadingWrapper: React.FC<StateLoadingWrapperProps> = ({
       <div className={`flex items-center space-x-2 ${className}`}>
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
         {showLoadingText && (
-          <span className="text-sm text-gray-500">加载中...</span>
+          <span className="text-sm text-muted-foreground">加载中...</span>
         )}
       </div>
     );
@@ -66,9 +66,9 @@ export const SubscriptionStateWrapper: React.FC<{
   return (
     <StateLoadingWrapper
       fallback={
-        <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded text-xs bg-gray-100 ${className}`}>
+        <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded text-xs bg-muted ${className}`}>
           <div className="animate-spin rounded-full h-3 w-3 border-b border-gray-400"></div>
-          <span className="text-gray-500">检查订阅状态...</span>
+          <span className="text-muted-foreground">检查订阅状态...</span>
         </div>
       }
     >
@@ -89,7 +89,7 @@ export const UsageStateWrapper: React.FC<{
       fallback={
         <div className={`inline-flex items-center space-x-1 text-sm ${className}`}>
           <div className="animate-spin rounded-full h-3 w-3 border-b border-gray-400"></div>
-          <span className="text-gray-500">检查使用次数...</span>
+          <span className="text-muted-foreground">检查使用次数...</span>
         </div>
       }
     >
@@ -109,8 +109,8 @@ export const UserStateWrapper: React.FC<{
     <StateLoadingWrapper
       fallback={
         <div className={`inline-flex items-center space-x-1 ${className}`}>
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-          <span className="text-sm text-gray-500">加载用户信息...</span>
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+          <span className="text-sm text-muted-foreground">加载用户信息...</span>
         </div>
       }
     >

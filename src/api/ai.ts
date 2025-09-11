@@ -239,9 +239,9 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     if (regenerationSeed || variationLevel || styleVariation) {
       const { prompt: newPrompt, systemPrompt: newSystemPrompt, temperature: newTemperature } =
         generateVariationPrompt(prompt, systemPrompt, {
-          regenerationSeed,
-          variationLevel,
-          styleVariation,
+          ...(regenerationSeed && { regenerationSeed }),
+          ...(variationLevel && { variationLevel }),
+          ...(styleVariation && { styleVariation }),
           baseTemperature: temperature
         });
 

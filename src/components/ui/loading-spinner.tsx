@@ -59,7 +59,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       {/* 旋转器 */}
       <div
         className={cn(
-          'animate-spin rounded-full border-2 border-gray-300 border-t-blue-600',
+          'animate-spin rounded-full border-2 border-border border-t-blue-600',
           sizeClasses[size]
         )}
         role="status"
@@ -103,7 +103,7 @@ export const InlineLoader: React.FC<{
     <div className="flex items-center gap-2 py-2">
       <div
         className={cn(
-          'animate-spin rounded-full border-2 border-gray-300 border-t-blue-600',
+          'animate-spin rounded-full border-2 border-border border-t-blue-600',
           size === 'sm' ? 'w-4 h-4' : 'w-5 h-5'
         )}
       />

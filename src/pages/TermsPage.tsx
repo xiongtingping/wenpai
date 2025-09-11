@@ -345,7 +345,7 @@ export default function TermsPage() {
                   <h5 className="font-semibold text-foreground">微信客服</h5>
                 </div>
                 <div className="flex flex-col items-center">
-                  <div className="bg-white p-2 rounded-lg border border-gray-200 mb-2">
+                  <div className="bg-background p-2 rounded-lg border border-border mb-2">
                     <img
                       src="/微信图片_2025-09-02_134203_916.png"
                       alt="客服微信二维码"

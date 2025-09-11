@@ -60,6 +60,7 @@ import { CustomLoginPage } from '@/pages/CustomLoginPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 // 临时调试页面
 import TokenDebugPage from '@/pages/TokenDebugPage';
+import DialogTestPage from '@/pages/DialogTestPage';
 
 // 🔧 FIX: 懒加载组件，避免TDZ错误和循环依赖
 const LazyCreativeStudioPage = React.lazy(() => import('@/pages/CreativeStudioPage'));
@@ -198,6 +199,9 @@ const App: React.FC = () => {
 
                         {/* 临时调试页面 - 用于Token统计修复 */}
                         <Route path="/token-debug" element={<TokenDebugPage />} />
+
+                        {/* Dialog定位测试页面 */}
+                        <Route path="/dialog-test" element={<DialogTestPage />} />
 
                         {/* 错误页面 */}
                         <Route path="/403" element={<ForbiddenPage />} />

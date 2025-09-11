@@ -297,8 +297,9 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
     return {
       total: state.pendingConflicts.length,
       resolved: state.resolvedCount,
-      needsManualReview: state.pendingConflicts.filter(c => 
-        dataSyncConflictResolver.getResolutionStrategy?.(c) === 'manual_resolution'
+      needsManualReview: state.pendingConflicts.filter(c =>
+        // 简化逻辑：假设需要手动审查的冲突是那些具有复杂数据类型或版本不匹配的冲突
+        c.dataType === 'complex' || c.type === 'version_mismatch'
       ).length
     };
   }, [state.pendingConflicts, state.resolvedCount]);

@@ -16,6 +16,7 @@ export interface SettingsModeState {
   charCount: SettingsMode;
   emoji: SettingsMode;
   mdFormat: SettingsMode;
+  autoFormat: SettingsMode;
 }
 
 // Hook状态
@@ -135,7 +136,8 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
   const [settingsMode, setSettingsMode] = useState<SettingsModeState>({
     charCount: 'global',
     emoji: 'global',
-    mdFormat: 'global'
+    mdFormat: 'global',
+    autoFormat: 'global'
   });
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [selectedFormId, setSelectedFormId] = useState<string>();
@@ -189,7 +191,8 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
     setSettingsMode({
       charCount: 'global',
       emoji: 'global',
-      mdFormat: 'global'
+      mdFormat: 'global',
+      autoFormat: 'global'
     });
   }, []);
 

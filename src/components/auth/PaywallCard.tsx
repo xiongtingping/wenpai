@@ -42,7 +42,7 @@ const getTierConfig = (tier: SubscriptionTier) => {
     trial: {
       name: '体验版',
       icon: <Star className="h-4 w-4" />,
-      color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      color: 'bg-muted text-gray-800 dark:bg-foreground dark:text-gray-200'
     },
     pro: {
       name: '专业版',

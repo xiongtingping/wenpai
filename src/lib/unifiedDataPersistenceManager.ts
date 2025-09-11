@@ -519,7 +519,7 @@ export class UnifiedDataPersistenceManager {
 
     return {
       success: localData !== null,
-      data: localData,
+      data: localData || undefined,
       source: 'local',
       timestamp: Date.now()
     };
@@ -564,7 +564,7 @@ export class UnifiedDataPersistenceManager {
 
     return {
       success: false,
-      data: null,
+      data: undefined,
       source: 'local',
       timestamp: Date.now()
     };

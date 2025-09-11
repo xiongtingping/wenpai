@@ -179,7 +179,7 @@ class IntelligentCategoryService {
     // 如果没有任何匹配，尝试基于内容长度和常见词汇进行模糊分类
     if (sortedCategories.length === 0) {
       const fuzzyCategory = this.performFuzzyClassification(content);
-      if (fuzzyCategory.category !== '其他') {
+      if ((fuzzyCategory as any).category !== '其他') {
         return fuzzyCategory;
       }
 
@@ -588,11 +588,11 @@ class IntelligentCategoryService {
    * 更新分类词典
    */
   updateCategoryDictionary(category: string, keywords: string[], weight: number = 1.0): void {
-    if (this.categoryDictionary[category]) {
-      this.categoryDictionary[category].keywords = [...new Set([...this.categoryDictionary[category].keywords, ...keywords])];
-      this.categoryDictionary[category].weight = weight;
+    if ((this.categoryDictionary as any)[category]) {
+      (this.categoryDictionary as any)[category].keywords = [...new Set([...(this.categoryDictionary as any)[category].keywords, ...keywords])];
+      (this.categoryDictionary as any)[category].weight = weight;
     } else {
-      this.categoryDictionary[category] = {
+      (this.categoryDictionary as any)[category] = {
         keywords,
         weight,
         subCategories: []

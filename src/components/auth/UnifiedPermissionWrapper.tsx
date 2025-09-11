@@ -41,9 +41,9 @@ const getTierIcon = (tier?: string) => {
     case 'premium':
       return <Crown className="w-4 h-4 text-purple-500" />;
     case 'pro':
-      return <Zap className="w-4 h-4 text-blue-500" />;
+      return <Zap className="w-4 h-4 text-primary" />;
     default:
-      return <Star className="w-4 h-4 text-gray-500" />;
+      return <Star className="w-4 h-4 text-muted-foreground" />;
   }
 };
 
@@ -55,9 +55,9 @@ const getTierColor = (tier?: string) => {
     case 'premium':
       return 'text-purple-600 bg-purple-50 border-purple-200';
     case 'pro':
-      return 'text-blue-600 bg-blue-50 border-blue-200';
+      return 'text-primary bg-blue-50 border-blue-200';
     default:
-      return 'text-gray-600 bg-gray-50 border-gray-200';
+      return 'text-muted-foreground bg-gray-50 border-border';
   }
 };
 
@@ -195,7 +195,7 @@ export function UnifiedPermissionWrapper({
           </div>
           
           {/* 覆盖层 */}
-          <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-lg">
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg">
             <div className="text-center p-4">
               <div className="flex items-center justify-center mb-2">
                 <div className={`p-2 rounded-full ${getTierColor(requiredLevel)}`}>
@@ -241,7 +241,7 @@ export function UnifiedPermissionWrapper({
           {/* 升级提示 - 悬停显示 */}
           {canUpgrade && (
             <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent rounded-b-lg opacity-0 hover:opacity-100 transition-opacity">
-              <p className="text-white text-xs text-center">
+              <p className="text-background text-xs text-center">
                 点击升级到{requiredLevel}版本
               </p>
             </div>

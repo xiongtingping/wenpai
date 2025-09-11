@@ -199,9 +199,10 @@ export function markSubscriptionAsViewed(subscriptionId: string): TopicSubscript
   const subscriptions = getTopicSubscriptions();
   const index = subscriptions.findIndex(s => s.id === subscriptionId);
 
-  if (index !== -1) {
+  if (index !== -1 && subscriptions[index]) {
+    const subscription = subscriptions[index];
     subscriptions[index] = {
-      ...subscriptions[index],
+      ...subscription,
       hasNewResults: false,
       newResultsCount: 0,
       lastViewedAt: new Date().toISOString()
@@ -221,11 +222,12 @@ export function markSubscriptionHasNewResults(subscriptionId: string, newResults
   const subscriptions = getTopicSubscriptions();
   const index = subscriptions.findIndex(s => s.id === subscriptionId);
 
-  if (index !== -1) {
+  if (index !== -1 && subscriptions[index]) {
+    const subscription = subscriptions[index];
     subscriptions[index] = {
-      ...subscriptions[index],
+      ...subscription,
       hasNewResults: true,
-      newResultsCount: (subscriptions[index].newResultsCount || 0) + newResultsCount,
+      newResultsCount: (subscription.newResultsCount || 0) + newResultsCount,
       lastCheckAt: new Date().toISOString()
     };
 

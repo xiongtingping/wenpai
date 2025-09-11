@@ -140,9 +140,9 @@ class MultiDimensionalTrendService {
     return items
       .filter(item => this.isRelevantToKeyword(item, keyword))
       .map(item => ({
-        timestamp: item.timestamp || new Date().toISOString(),
+        timestamp: typeof item.timestamp === 'string' ? item.timestamp : new Date().toISOString(),
         value: this.parseHeatValue(item.hot),
-        platform: item.platform,
+        platform: item.platform || 'unknown',
         category: this.inferCategory(item)
       }))
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());

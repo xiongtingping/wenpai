@@ -51,9 +51,9 @@ export function PreviewPanel({
 
   // 字体大小映射
   const fontSizeMap = {
-    small: '14px',
-    medium: '16px',
-    large: '18px'
+    small: 'var(--spacing-3-5)',
+    medium: 'var(--spacing-4)',
+    large: 'var(--spacing-4-5)'
   };
 
   // 生成主题样式
@@ -80,23 +80,23 @@ export function PreviewPanel({
     switch (themeId) {
       case 'bytedance':
         return {
-          '--primary-color': '#1e40af',
+          '--primary-color': 'hsl(var(--primary))',
           '--background-color': '#f8fafc',
           '--text-color': '#1e293b',
-          '--accent-color': '#3b82f6',
+          '--accent-color': 'hsl(var(--primary))',
           '--border-color': '#e2e8f0'
         };
       case 'apple':
         return {
           '--primary-color': '#007aff',
-          '--background-color': '#ffffff',
-          '--text-color': '#000000',
+          '--background-color': 'hsl(var(--background))',
+          '--text-color': 'hsl(var(--foreground))',
           '--accent-color': '#5ac8fa',
           '--border-color': '#d1d1d6'
         };
       case 'sports':
         return {
-          '--primary-color': '#f59e0b',
+          '--primary-color': 'hsl(var(--warning))',
           '--background-color': '#fef3c7',
           '--text-color': '#92400e',
           '--accent-color': '#fbbf24',
@@ -104,10 +104,10 @@ export function PreviewPanel({
         };
       case 'chinese':
         return {
-          '--primary-color': '#dc2626',
+          '--primary-color': 'hsl(var(--destructive))',
           '--background-color': '#fef2f2',
           '--text-color': '#7f1d1d',
-          '--accent-color': '#ef4444',
+          '--accent-color': 'hsl(var(--destructive))',
           '--border-color': '#fca5a5'
         };
       case 'cyber':
@@ -121,7 +121,7 @@ export function PreviewPanel({
       default: // default theme
         return {
           '--primary-color': '#ff6b6b',
-          '--background-color': '#ffffff',
+          '--background-color': 'hsl(var(--background))',
           '--text-color': '#333333',
           '--accent-color': '#ff8787',
           '--border-color': '#eeeeee'
@@ -205,7 +205,7 @@ export function PreviewPanel({
     .wechat-container {
       max-width: ${isMobilePreview ? '375px' : '800px'};
       margin: 0 auto;
-      padding: 20px;
+      padding: var(--spacing-5);
       background: var(--background-color);
       color: var(--text-color);
       font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -219,7 +219,7 @@ export function PreviewPanel({
       color: var(--primary-color);
       margin: 1.5em 0 0.8em 0;
       padding-bottom: 0.3em;
-      border-bottom: 2px solid var(--primary-color);
+      border-bottom: var(--spacing-0-5) solid var(--primary-color);
     }
     
     .wechat-h2 {
@@ -228,7 +228,7 @@ export function PreviewPanel({
       color: var(--primary-color);
       margin: 1.3em 0 0.6em 0;
       padding-left: 0.5em;
-      border-left: 4px solid var(--primary-color);
+      border-left: var(--spacing-1) solid var(--primary-color);
     }
     
     .wechat-h3 {
@@ -247,8 +247,8 @@ export function PreviewPanel({
       margin: 1em 0;
       padding: 0.8em 1em;
       background: color-mix(in srgb, var(--primary-color) 8%, transparent);
-      border-left: 4px solid var(--primary-color);
-      border-radius: 0 4px 4px 0;
+      border-left: var(--spacing-1) solid var(--primary-color);
+      border-radius: var(--radius-none) var(--spacing-1) var(--spacing-1) 0;
       font-style: italic;
     }
     
@@ -263,7 +263,7 @@ export function PreviewPanel({
     .wechat-pre {
       background: color-mix(in srgb, var(--primary-color) 5%, transparent);
       padding: 1em;
-      border-radius: 6px;
+      border-radius: var(--spacing-1-5);
       overflow-x: auto;
       margin: 1em 0;
       border: 1px solid var(--border-color);
@@ -300,7 +300,7 @@ export function PreviewPanel({
       max-width: 100%;
       height: auto;
       margin: 1em 0;
-      border-radius: 4px;
+      border-radius: var(--spacing-1);
     }
     
     a {

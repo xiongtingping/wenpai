@@ -422,14 +422,14 @@ export function DataLoadingBoundary({
   if (hasError) {
     return (
       <div className="p-4 text-center">
-        <div className="text-red-500 mb-2">数据加载出现错误</div>
+        <div className="text-destructive mb-2">数据加载出现错误</div>
         <button 
           onClick={() => {
             setHasError(false);
             setIsLoading(true);
             startTimeRef.current = Date.now();
           }}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-4 py-2 bg-primary text-background rounded hover:bg-primary"
         >
           重新加载
         </button>
@@ -476,8 +476,8 @@ export function PreloadIndicator({
   return (
     <div className={`
       fixed ${positionClasses[position]} 
-      bg-white/90 backdrop-blur-sm 
-      border border-gray-200 
+      bg-background/90 backdrop-blur-sm 
+      border border-border 
       rounded-lg shadow-lg 
       px-3 py-2 
       text-sm 
@@ -486,10 +486,10 @@ export function PreloadIndicator({
       ${className}
     `}>
       <div className="flex items-center space-x-2">
-        <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full" />
+        <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
         <span>加载中...</span>
         {showProgress && (
-          <span className="text-gray-500">
+          <span className="text-muted-foreground">
             {Math.round(skeletonContext.loadingProgress * 100)}%
           </span>
         )}

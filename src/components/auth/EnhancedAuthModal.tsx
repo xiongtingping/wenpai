@@ -53,7 +53,7 @@ const AppInput = (props: InputProps) => {
             <div
               className="absolute pointer-events-none top-0 left-0 right-0 auth-border-top z-20 rounded-t-md overflow-hidden"
               style={{
-                background: `radial-gradient(var(--auth-gradient-size) circle at ${mousePosition.x}px 0px, hsl(var(--primary)) 0%, transparent 70%)`,
+                background: `radial-gradient(var(--auth-gradient-size) circle at ${mousePosition.x}px 0, hsl(var(--primary)) 0%, transparent 70%)`,
               } as React.CSSProperties}
             />
             <div
@@ -331,7 +331,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
               </div>
 
               {error && (
-                <div className="text-red-500 text-sm p-3 bg-red-50 dark:bg-red-900/20 rounded-md">
+                <div className="text-destructive text-sm p-3 bg-red-50 dark:bg-red-900/20 rounded-md">
                   {error}
                 </div>
               )}

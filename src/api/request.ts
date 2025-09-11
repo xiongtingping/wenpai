@@ -121,8 +121,13 @@ instance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${getAPIConfig().deepseek.apiKey}`;
       config.baseURL = getAPIConfig().deepseek.baseURL;
     } else if (url.includes('creem') || url.includes('api.creem.com')) {
-      (config.headers as any)['x-api-key'] = getAPIConfig().creem.apiKey;
-      config.baseURL = getAPIConfig().creem.baseURL;
+      const apiConfig = getAPIConfig();
+      if (apiConfig?.creem?.apiKey) {
+        (config.headers as any)['x-api-key'] = apiConfig.creem.apiKey;
+      }
+      if (apiConfig?.creem?.baseURL) {
+        config.baseURL = apiConfig.creem.baseURL;
+      }
     }
 
     logger.debug('🔧 API请求:', {

@@ -90,8 +90,8 @@ export const PermissionOverlay: React.FC<PermissionOverlayProps> = ({
         className="absolute inset-0 z-50 flex items-center justify-center"
         style={{
           backgroundColor: `rgba(255, 255, 255, ${Math.min(opacity + 0.1, 0.95)})`,
-          backdropFilter: 'blur(8px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(8px) saturate(150%)'
+          backdropFilter: 'blur(var(--spacing-2)) saturate(150%)',
+          WebkitBackdropFilter: 'blur(var(--spacing-2)) saturate(150%)'
         }}
       >
         <UpgradePromptCard

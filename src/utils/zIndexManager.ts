@@ -117,7 +117,7 @@ export class ZIndexManager {
       position: 'fixed',
       inset: 0,
       zIndex: this.getZIndexValue('OVERLAY'),
-      backgroundColor: 'rgba(0, 0, 0, 0.5)'
+      backgroundColor: 'hsl(var(--foreground) / 0.5)'
     };
   }
 

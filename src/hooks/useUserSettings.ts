@@ -161,15 +161,15 @@ export function useUserSettings() {
 export function useThemeSettings() {
   const { getSetting, saveSetting, loading } = useUserSettings();
   const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'auto'>('auto');
-  const [themeColor, setThemeColor] = useState<string>('#3b82f6');
+  const [themeColor, setThemeColor] = useState<string>('hsl(var(--primary))');
 
   useEffect(() => {
     const loadThemeSettings = async () => {
       const mode = await getSetting(SETTING_KEYS.THEME_MODE, 'auto');
-      const color = await getSetting(SETTING_KEYS.THEME_COLOR, '#3b82f6');
+      const color = await getSetting(SETTING_KEYS.THEME_COLOR, 'hsl(var(--primary))');
       
-      setThemeMode(mode);
-      setThemeColor(color);
+      setThemeMode((mode || 'auto') as 'light' | 'dark' | 'auto');
+      setThemeColor(color || 'hsl(var(--primary))');
     };
 
     loadThemeSettings();
@@ -221,10 +221,10 @@ export function useUISettings() {
       const anim = await getSetting(SETTING_KEYS.UI_ANIMATIONS, true);
       const sidebar = await getSetting(SETTING_KEYS.UI_SIDEBAR_COLLAPSED, false);
       
-      setLanguage(lang);
-      setDensity(dens);
-      setAnimations(anim);
-      setSidebarCollapsed(sidebar);
+      setLanguage(lang || 'zh-CN');
+      setDensity((dens || 'comfortable') as 'compact' | 'comfortable' | 'spacious');
+      setAnimations(anim ?? true);
+      setSidebarCollapsed(sidebar ?? false);
     };
 
     loadUISettings();

@@ -235,8 +235,8 @@
   }
   
   .u-focus-ring {
-    outline: 2px solid var(--color-ring) !important;
-    outline-offset: 2px !important;
+    outline: var(--spacing-0-5) solid var(--color-ring) !important;
+    outline-offset: var(--spacing-0-5) !important;
   }
   
   /* 🎯 Cursor Utilities */

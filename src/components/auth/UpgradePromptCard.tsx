@@ -74,9 +74,9 @@ export const UpgradePromptCard: React.FC<UpgradePromptCardProps> = ({
   const getPlanIcon = (tier: string) => {
     switch (tier) {
       case 'trial':
-        return <Sparkles className="h-5 w-5 text-gray-500" />;
+        return <Sparkles className="h-5 w-5 text-muted-foreground" />;
       case 'pro':
-        return <Zap className="h-5 w-5 text-blue-500" />;
+        return <Zap className="h-5 w-5 text-primary" />;
       case 'premium':
         return <Crown className="h-5 w-5 text-purple-500" />;
       default:
@@ -88,16 +88,16 @@ export const UpgradePromptCard: React.FC<UpgradePromptCardProps> = ({
   const getPlanTheme = (tier: string) => {
     const themes = {
       trial: {
-        border: 'border-gray-200',
+        border: 'border-border',
         bg: 'bg-gray-50',
-        badge: 'bg-gray-100 text-gray-800',
+        badge: 'bg-muted text-gray-800',
         button: 'bg-gray-600 hover:bg-gray-700'
       },
       pro: {
         border: 'border-blue-200',
         bg: 'bg-blue-50',
         badge: 'bg-blue-100 text-blue-800',
-        button: 'bg-blue-600 hover:bg-blue-700'
+        button: 'bg-primary hover:bg-blue-700'
       },
       premium: {
         border: 'border-purple-200',
@@ -189,7 +189,7 @@ export const UpgradePromptCard: React.FC<UpgradePromptCardProps> = ({
             <div className="space-y-2">
               {currentPlan?.features.slice(0, 3).map((feature, index) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
-                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  <Check className="h-4 w-4 text-success flex-shrink-0" />
                   <span>{feature}</span>
                 </div>
               ))}
@@ -250,7 +250,7 @@ export const UpgradePromptCard: React.FC<UpgradePromptCardProps> = ({
               <div className="space-y-2">
                 {requiredPlan.features.slice(0, 3).map((feature, index) => (
                   <div key={index} className="flex items-center gap-2 text-sm">
-                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    <Check className="h-4 w-4 text-success flex-shrink-0" />
                     <span>{feature}</span>
                   </div>
                 ))}
@@ -264,7 +264,7 @@ export const UpgradePromptCard: React.FC<UpgradePromptCardProps> = ({
               
               <Button 
                 onClick={() => handleUpgrade(requiredPlan.id)}
-                className={`w-full ${getPlanTheme(requiredTier).button} text-white`}
+                className={`w-full ${getPlanTheme(requiredTier).button} text-background`}
                 size="lg"
               >
                 <Crown className="h-4 w-4 mr-2" />

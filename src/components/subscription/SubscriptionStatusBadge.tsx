@@ -145,7 +145,7 @@ function SubscriptionStatusBadgeContent({
           <CardContent className="space-y-4">
             {/* 状态信息 */}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">当前状态</span>
+              <span className="text-sm text-muted-foreground">当前状态</span>
               <Badge variant={getBadgeVariant()}>
                 {primaryStatus.statusLabel}
               </Badge>
@@ -153,7 +153,7 @@ function SubscriptionStatusBadgeContent({
             
             {primaryStatus.expiresAt && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">到期时间</span>
+                <span className="text-sm text-muted-foreground">到期时间</span>
                 <div className="flex items-center space-x-1 text-sm">
                   <Calendar className="w-3 h-3" />
                   <span>{new Date(primaryStatus.expiresAt).toLocaleDateString('zh-CN')}</span>
@@ -163,11 +163,11 @@ function SubscriptionStatusBadgeContent({
             
             {primaryStatus.daysRemaining > 0 && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">剩余天数</span>
+                <span className="text-sm text-muted-foreground">剩余天数</span>
                 <span className={`text-sm font-medium ${
-                  primaryStatus.daysRemaining <= 3 ? 'text-red-600' :
+                  primaryStatus.daysRemaining <= 3 ? 'text-destructive' :
                   primaryStatus.daysRemaining <= 7 ? 'text-orange-600' :
-                  'text-green-600'
+                  'text-success'
                 }`}>
                   {primaryStatus.daysRemaining} 天
                 </span>

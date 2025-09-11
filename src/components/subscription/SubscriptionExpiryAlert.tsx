@@ -131,24 +131,24 @@ export function SubscriptionExpiryAlert({
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-3">
             <div className={`p-2 rounded-full ${
-              primaryStatus.alertLevel === 'danger' ? 'bg-red-100 text-red-600' :
+              primaryStatus.alertLevel === 'danger' ? 'bg-red-100 text-destructive' :
               primaryStatus.alertLevel === 'warning' ? 'bg-orange-100 text-orange-600' :
-              'bg-yellow-100 text-yellow-600'
+              'bg-yellow-100 text-warning'
             }`}>
               {getAlertIcon()}
             </div>
             
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-2">
-                <h3 className="font-semibold text-gray-900">
+                <h3 className="font-semibold text-foreground">
                   订阅到期提醒
                 </h3>
                 <Badge 
                   variant="outline"
                   className={`${
-                    primaryStatus.statusColor === 'red' ? 'border-red-500 text-red-600' :
+                    primaryStatus.statusColor === 'red' ? 'border-destructive text-destructive' :
                     primaryStatus.statusColor === 'orange' ? 'border-orange-500 text-orange-600' :
-                    'border-yellow-500 text-yellow-600'
+                    'border-yellow-500 text-warning'
                   }`}
                 >
                   {primaryStatus.statusLabel}
@@ -160,7 +160,7 @@ export function SubscriptionExpiryAlert({
               </AlertDescription>
               
               {primaryStatus.expiresAt && (
-                <div className="text-sm text-gray-600 mb-3">
+                <div className="text-sm text-muted-foreground mb-3">
                   <Calendar className="w-4 h-4 inline mr-1" />
                   到期时间：{new Date(primaryStatus.expiresAt).toLocaleDateString('zh-CN')}
                 </div>
@@ -192,7 +192,7 @@ export function SubscriptionExpiryAlert({
             variant="ghost"
             size="sm"
             onClick={() => setDismissed(true)}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-muted-foreground"
           >
             <X className="w-4 h-4" />
           </Button>

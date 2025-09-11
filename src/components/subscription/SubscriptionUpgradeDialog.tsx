@@ -218,7 +218,7 @@ export function SubscriptionUpgradeDialog({
                         <div className="text-sm text-muted-foreground">{item.description}</div>
                       </div>
                       <div className={`font-medium ${
-                        item.amount < 0 ? 'text-green-600' : 
+                        item.amount < 0 ? 'text-success' : 
                         item.amount === 0 ? 'text-muted-foreground' : 'text-foreground'
                       }`}>
                         {item.amount < 0 ? '-' : ''}¥{Math.abs(item.amount)}
@@ -236,7 +236,7 @@ export function SubscriptionUpgradeDialog({
                   </div>
 
                   {upgradeCalculation.calculation.savedAmount > 0 && (
-                    <div className="flex items-center gap-2 text-sm text-green-600">
+                    <div className="flex items-center gap-2 text-sm text-success">
                       <CheckCircle className="h-4 w-4" />
                       为您节省 ¥{upgradeCalculation.calculation.savedAmount}
                       （{upgradeCalculation.calculation.discountPercentage}% 折扣）

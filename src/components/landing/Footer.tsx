@@ -71,8 +71,8 @@ export function Footer() {
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105"
                 title={t('footer.feedbackTooltip')}
               >
-                <div className="w-8 h-8 bg-blue-500/10 rounded-md flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
-                  <FeishuIcon className="w-4 h-4 text-blue-600" />
+                <div className="w-8 h-8 bg-primary/10 rounded-md flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <FeishuIcon className="w-4 h-4 text-primary" />
                 </div>
                 <div className="text-left">
                   <div className="font-medium text-foreground text-sm">{t('footer.feedback')}</div>
@@ -86,11 +86,11 @@ export function Footer() {
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105 relative"
                 title={t('footer.emailTooltip')}
               >
-                <div className="w-8 h-8 bg-green-500/10 rounded-md flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
+                <div className="w-8 h-8 bg-success/10 rounded-md flex items-center justify-center group-hover:bg-success/20 transition-colors">
                   {emailCopied ? (
-                    <Check className="w-4 h-4 text-green-600" />
+                    <Check className="w-4 h-4 text-success" />
                   ) : (
-                    <Mail className="w-4 h-4 text-green-600" />
+                    <Mail className="w-4 h-4 text-success" />
                   )}
                 </div>
                 <div className="text-left">
@@ -100,7 +100,7 @@ export function Footer() {
                   <div className="text-xs text-muted-foreground">hello@wenpai.xyz</div>
                 </div>
                 {emailCopied && (
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs px-2 py-1 rounded shadow-lg">
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-success text-background text-xs px-2 py-1 rounded shadow-lg">
                     {t('success.dataExported')}
                   </div>
                 )}
@@ -143,14 +143,14 @@ export function Footer() {
                 {/* 二维码弹窗 - 优化布局 */}
                 {showQRCode && (
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-4 z-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 min-w-[280px]">
+                    <div className="bg-background dark:bg-gray-800 rounded-2xl shadow-2xl border border-border dark:border-gray-700 p-6 min-w-[280px]">
                       <div className="text-center">
                         <div className="mb-4">
                           <h3 className="text-lg font-semibold text-foreground mb-1">客服支持</h3>
                           <p className="text-sm text-muted-foreground">扫码添加客服微信，获得专业帮助</p>
                         </div>
 
-                        <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 mb-4">
+                        <div className="bg-gray-50 dark:bg-foreground rounded-xl p-4 mb-4">
                           <img
                             src="/微信图片_2025-09-02_134203_916.png"
                             alt="客服二维码"
@@ -172,7 +172,7 @@ export function Footer() {
                       </div>
                     </div>
                     {/* 箭头指示器 */}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-transparent border-t-white dark:border-t-gray-800"></div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[var(--spacing-2)] border-r-[var(--spacing-2)] border-t-[var(--spacing-2)] border-transparent border-t-white dark:border-t-gray-800"></div>
                   </div>
                 )}
               </div>

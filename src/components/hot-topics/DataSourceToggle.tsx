@@ -115,17 +115,17 @@ export default function DataSourceToggle({ onToggle, className }: DataSourceTogg
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2">
-                    <Zap className="h-5 w-5 text-blue-500" />
+                    <Zap className="h-5 w-5 text-primary" />
                     <CardTitle className="text-lg">数据源增强</CardTitle>
                   </div>
                   <div className="flex items-center space-x-2">
                     {isAvailable ? (
-                      <Badge variant="outline" className="text-green-600 border-green-200">
+                      <Badge variant="outline" className="text-success border-green-200">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         可用
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="text-red-600 border-red-200">
+                      <Badge variant="outline" className="text-destructive border-red-200">
                         <AlertCircle className="h-3 w-3 mr-1" />
                         不可用
                       </Badge>
@@ -163,9 +163,9 @@ export default function DataSourceToggle({ onToggle, className }: DataSourceTogg
             <CardContent className="pt-0">
               <div className="space-y-4">
                 {/* 功能说明 */}
-                <div className="bg-white/50 rounded-lg p-4 border border-blue-100">
+                <div className="bg-background/50 rounded-lg p-4 border border-blue-100">
                   <div className="flex items-start space-x-3">
-                    <Info className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <Info className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                     <div className="text-sm space-y-2">
                       <p className="font-medium text-blue-900">RSSHub 数据源增强功能</p>
                       <ul className="text-blue-700 space-y-1">
@@ -181,16 +181,16 @@ export default function DataSourceToggle({ onToggle, className }: DataSourceTogg
                 {/* 数据统计 */}
                 {isEnabled && isAvailable && (
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/50 rounded-lg p-3 border border-blue-100">
+                    <div className="bg-background/50 rounded-lg p-3 border border-blue-100">
                       <div className="flex items-center space-x-2">
-                        <Target className="h-4 w-4 text-blue-500" />
+                        <Target className="h-4 w-4 text-primary" />
                         <span className="text-sm font-medium">补充数据</span>
                       </div>
                       <p className="text-lg font-bold text-blue-900 mt-1">{stats.count} 条</p>
                     </div>
-                    <div className="bg-white/50 rounded-lg p-3 border border-blue-100">
+                    <div className="bg-background/50 rounded-lg p-3 border border-blue-100">
                       <div className="flex items-center space-x-2">
-                        <Globe className="h-4 w-4 text-blue-500" />
+                        <Globe className="h-4 w-4 text-primary" />
                         <span className="text-sm font-medium">覆盖平台</span>
                       </div>
                       <p className="text-lg font-bold text-blue-900 mt-1">{stats.platforms.length} 个</p>
@@ -216,7 +216,7 @@ export default function DataSourceToggle({ onToggle, className }: DataSourceTogg
                 {!isAvailable && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                     <div className="flex items-start space-x-3">
-                      <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                      <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
                       <div className="text-sm">
                         <p className="font-medium text-red-900">RSSHub 服务暂时不可用</p>
                         <p className="text-red-700 mt-1">

@@ -579,7 +579,7 @@ export default function BrandEmojiGenerator({
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="p-1.5 rounded-full bg-red-100 dark:bg-red-900/30">
-                          <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                          <XCircle className="w-4 h-4 text-destructive dark:text-red-400" />
                         </div>
                         <div>
                           <div className="font-semibold text-foreground">{errorCount}</div>
@@ -698,7 +698,7 @@ export default function BrandEmojiGenerator({
                 <CardContent className="p-6">
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30 flex-shrink-0">
-                      <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <Sparkles className="w-5 h-5 text-primary dark:text-blue-400" />
                     </div>
                     <div className="space-y-3">
                       <h4 className="font-semibold text-foreground">使用提示</h4>

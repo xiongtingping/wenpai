@@ -324,7 +324,7 @@ export class UnifiedStorageStrategy {
 
       // 数据解密
       if (result.success && result.data && config.encrypted) {
-        result.data = this.decrypt(result.data);
+        result.data = this.decrypt(result.data as string);
       }
 
       // 数据解压

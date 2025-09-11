@@ -131,13 +131,13 @@ class SubscriptionDataService {
   private getTierColor(tier: SubscriptionTier): string {
     switch (tier) {
       case 'trial': 
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+        return 'bg-muted text-gray-800 dark:bg-gray-800 dark:text-gray-200';
       case 'pro': 
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
       case 'premium': 
         return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
       default: 
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+        return 'bg-muted text-gray-800 dark:bg-gray-800 dark:text-gray-200';
     }
   }
 
@@ -150,7 +150,7 @@ class SubscriptionDataService {
         name: '体验版',
         price: '免费',
         icon: 'Star',
-        color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+        color: 'bg-muted text-gray-800 dark:bg-gray-800 dark:text-gray-200',
         features: ['基础功能', '10次/月使用', '10万Token/月', '基础模型'],
         limits: {
           adaptUsageLimit: 10,

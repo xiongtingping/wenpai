@@ -152,9 +152,9 @@ export default function RSSHubIndicator({ onDataUpdate, className }: RSSHubIndic
             <Globe className="h-4 w-4 mr-1" />
             <span className="text-xs">RSSHub</span>
             {isAvailable ? (
-              <CheckCircle className="h-3 w-3 ml-1 text-green-500" />
+              <CheckCircle className="h-3 w-3 ml-1 text-success" />
             ) : (
-              <AlertCircle className="h-3 w-3 ml-1 text-red-500" />
+              <AlertCircle className="h-3 w-3 ml-1 text-destructive" />
             )}
             {isEnabled && stats.count > 0 && (
               <Badge variant="secondary" className="ml-1 h-4 text-xs">
@@ -197,13 +197,13 @@ export default function RSSHubIndicator({ onDataUpdate, className }: RSSHubIndic
                   <div className="flex items-center space-x-1">
                     {isAvailable ? (
                       <>
-                        <CheckCircle className="h-3 w-3 text-green-500" />
-                        <span className="text-green-600">可用</span>
+                        <CheckCircle className="h-3 w-3 text-success" />
+                        <span className="text-success">可用</span>
                       </>
                     ) : (
                       <>
-                        <AlertCircle className="h-3 w-3 text-red-500" />
-                        <span className="text-red-600">不可用</span>
+                        <AlertCircle className="h-3 w-3 text-destructive" />
+                        <span className="text-destructive">不可用</span>
                       </>
                     )}
                   </div>

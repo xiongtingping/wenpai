@@ -242,7 +242,7 @@ export const ThemeGuard: React.FC<ThemeGuardProps> = ({
   requiredTier,
   isSelected = false,
   onClick,
-  previewColor = '#3b82f6'
+  previewColor = 'hsl(var(--primary))'
 }) => {
   const { hasPermission } = useSubscriptionGuard(requiredTier);
 

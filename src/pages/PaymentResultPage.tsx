@@ -17,7 +17,7 @@ import PaymentDataCleanupService from '@/services/paymentDataCleanupService';
 export default function PaymentResultPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser } = useAuth() as any;
   
   const [isLoading, setIsLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<'checking' | 'success' | 'failed' | 'pending'>('checking');
@@ -209,7 +209,7 @@ export default function PaymentResultPage() {
             <Card className="border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800">
               <CardHeader className="text-center">
                 <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
-                  <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+                  <CheckCircle className="h-8 w-8 text-success dark:text-green-400" />
                 </div>
                 <CardTitle className="text-green-800 dark:text-green-200">支付成功！</CardTitle>
               </CardHeader>
@@ -219,7 +219,7 @@ export default function PaymentResultPage() {
                 </p>
                 
                 {orderInfo && (
-                  <div className="bg-white dark:bg-gray-900 rounded-lg p-4 space-y-2 text-sm">
+                  <div className="bg-background dark:bg-foreground rounded-lg p-4 space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">订单号</span>
                       <span className="font-mono">{orderInfo.order_id}</span>
@@ -243,7 +243,7 @@ export default function PaymentResultPage() {
                 
                 <div className="space-y-3">
                   {autoRedirectCountdown && (
-                    <p className="text-sm text-green-600 dark:text-green-400">
+                    <p className="text-sm text-success dark:text-green-400">
                       {autoRedirectCountdown} 秒后自动跳转到首页
                     </p>
                   )}
@@ -261,7 +261,7 @@ export default function PaymentResultPage() {
             <Card className="border-yellow-200 bg-yellow-50 dark:bg-yellow-950 dark:border-yellow-800">
               <CardHeader className="text-center">
                 <div className="mx-auto w-16 h-16 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mb-4">
-                  <Clock className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
+                  <Clock className="h-8 w-8 text-warning dark:text-yellow-400" />
                 </div>
                 <CardTitle className="text-yellow-800 dark:text-yellow-200">等待支付</CardTitle>
               </CardHeader>
@@ -271,7 +271,7 @@ export default function PaymentResultPage() {
                 </p>
                 
                 {orderInfo && (
-                  <div className="bg-white dark:bg-gray-900 rounded-lg p-4 space-y-2 text-sm">
+                  <div className="bg-background dark:bg-foreground rounded-lg p-4 space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">订单号</span>
                       <span className="font-mono">{orderInfo.order_id}</span>
@@ -305,7 +305,7 @@ export default function PaymentResultPage() {
             <Card className="border-red-200 bg-red-50 dark:bg-red-950 dark:border-red-800">
               <CardHeader className="text-center">
                 <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mb-4">
-                  <XCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
+                  <XCircle className="h-8 w-8 text-destructive dark:text-red-400" />
                 </div>
                 <CardTitle className="text-red-800 dark:text-red-200">支付失败</CardTitle>
               </CardHeader>

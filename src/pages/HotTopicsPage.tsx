@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/logger';
 import { debounce } from '@/lib/performance';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -55,7 +56,6 @@ import {
   Shield,
   Heart
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import PageNavigation from '@/components/layout/PageNavigation';
@@ -120,6 +120,7 @@ interface TrendAnalysis {
 
 export default function HotTopicsPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   // 修复 activeTab is not defined 错误
   const [activeTab, setActiveTab] = useState<'hot' | 'subscriptions' | 'bookmarks'>('hot');
@@ -134,6 +135,7 @@ export default function HotTopicsPage() {
   const [editingSubscription, setEditingSubscription] = useState<any>(null);
   const [selectedSubscription, setSelectedSubscription] = useState<any>(null);
   const [heatTrends, setHeatTrends] = useState<any>({});
+  const [trendAnalysis, setTrendAnalysis] = useState<any>({});
   const [keywordAnalysis, setKeywordAnalysis] = useState<any>(null);
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [monitorResults, setMonitorResults] = useState<any>({});
@@ -243,6 +245,38 @@ export default function HotTopicsPage() {
   const handleMarkAsViewed = useCallback((subscriptionId: string) => {
     console.log('Mark as viewed:', subscriptionId);
     // 这里可以添加标记为已查看的逻辑
+  }, []);
+
+  const loadHeatTrends = useCallback((keyword: string) => {
+    console.log('Loading heat trends for:', keyword);
+    // 模拟加载热度趋势数据
+    const mockTrends = Array.from({ length: 7 }, (_, i) => ({
+      date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toISOString(),
+      heat: Math.floor(Math.random() * 10000) + 1000
+    }));
+    setHeatTrends((prev: any) => ({ ...prev, [keyword]: mockTrends }));
+  }, []);
+
+  const getTrendAnalysis = useCallback((keyword: string) => {
+    console.log('Getting trend analysis for:', keyword);
+    // 模拟趋势分析数据
+    const mockAnalysis = {
+      trendDirection: ['rising', 'falling', 'stable'][Math.floor(Math.random() * 3)],
+      volatility: ['high', 'medium', 'low'][Math.floor(Math.random() * 3)],
+      peakHeat: Math.floor(Math.random() * 50000) + 10000,
+      peakDate: new Date(Date.now() - Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000).toISOString(),
+      prediction: {
+        nextDayHeat: Math.floor(Math.random() * 40000) + 8000,
+        confidence: Math.random() * 0.4 + 0.6 // 0.6-1.0
+      },
+      insights: [
+        '该话题在社交媒体上讨论热度持续上升',
+        '预计未来24小时内热度将保持高位',
+        '建议关注相关衍生话题的发展'
+      ]
+    };
+    setTrendAnalysis((prev: any) => ({ ...prev, [keyword]: mockAnalysis }));
+    return mockAnalysis;
   }, []);
 
   const handleBookmarkTopic = useCallback((topicId: string) => {
@@ -394,7 +428,7 @@ export default function HotTopicsPage() {
   }, [fetchHotData]);
 
   return (
-    <div className="min-h-screen bg-background" style={{ paddingTop: 'var(--header-height, 96px)' }}>
+    <div className="min-h-screen bg-background" style={{ paddingTop: 'var(--header-height, var(--spacing-24))' }}>
       <Header />
 
       {/* 页面导航 - PROTECTED COMPONENT */}
@@ -948,8 +982,8 @@ export default function HotTopicsPage() {
               {keywordAnalysis && (
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">AI</span>
+                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                      <span className="text-background text-xs font-bold">AI</span>
                     </div>
                     <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100">智能关键词分析</h4>
                   </div>
@@ -996,7 +1030,7 @@ export default function HotTopicsPage() {
                         <ul className="space-y-1">
                           {keywordAnalysis.monitoringTips.map((tip: string, index: number) => (
                             <li key={index} className="text-xs text-blue-700 dark:text-blue-300 flex items-start gap-1">
-                              <span className="text-blue-500 mt-0.5">•</span>
+                              <span className="text-primary mt-0.5">•</span>
                               <span>{tip}</span>
                             </li>
                           ))}
@@ -1007,7 +1041,7 @@ export default function HotTopicsPage() {
                     {/* 分类和标签 */}
                     <div className="flex items-center justify-between pt-2 border-t border-blue-200 dark:border-blue-800">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-blue-600 dark:text-blue-400">分类:</span>
+                        <span className="text-xs text-primary dark:text-blue-400">分类:</span>
                         <Badge variant="outline" className="text-xs border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-300">
                           {keywordAnalysis.category}
                         </Badge>
@@ -1028,7 +1062,7 @@ export default function HotTopicsPage() {
 
               <div className="bg-muted/20 p-3 rounded-lg border border-muted/30">
                 <div className="flex items-center gap-2 mb-2">
-                  <Info className="w-4 h-4 text-blue-500" />
+                  <Info className="w-4 h-4 text-primary" />
                   <span className="text-sm font-medium text-foreground">搜索范围</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -1142,7 +1176,7 @@ export default function HotTopicsPage() {
                     id="edit-subscription-keyword"
                     placeholder={t('hotTopics.keywordPlaceholder')}
                     value={editingSubscription.keyword}
-                    onChange={(e) => setEditingSubscription(prev => prev ? { ...prev, keyword: e.target.value } : null)}
+                    onChange={(e) => setEditingSubscription((prev: any) => prev ? { ...prev, keyword: e.target.value } : null)}
                   />
                 </div>
 
@@ -1152,13 +1186,13 @@ export default function HotTopicsPage() {
                     id="edit-subscription-description"
                     placeholder="描述这个订阅的用途和目标"
                     value={editingSubscription.description || ''}
-                    onChange={(e) => setEditingSubscription(prev => prev ? { ...prev, description: e.target.value } : null)}
+                    onChange={(e) => setEditingSubscription((prev: any) => prev ? { ...prev, description: e.target.value } : null)}
                   />
                 </div>
 
                 <div className="bg-muted/20 p-3 rounded-lg border border-muted/30">
                   <div className="flex items-center gap-2 mb-2">
-                    <Info className="w-4 h-4 text-blue-500" />
+                    <Info className="w-4 h-4 text-primary" />
                     <span className="text-sm font-medium text-foreground">搜索范围</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
@@ -1171,7 +1205,7 @@ export default function HotTopicsPage() {
                     <Label htmlFor="edit-timeRange" className="text-sm font-medium text-foreground">时间范围</Label>
                     <Select
                       value={editingSubscription.timeRange || '24h'}
-                      onValueChange={(value) => setEditingSubscription(prev => prev ? { ...prev, timeRange: value } : null)}
+                      onValueChange={(value) => setEditingSubscription((prev: any) => prev ? { ...prev, timeRange: value } : null)}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -1193,7 +1227,7 @@ export default function HotTopicsPage() {
                       type="number"
                       placeholder="1000"
                       value={editingSubscription.minHeatThreshold || ''}
-                      onChange={(e) => setEditingSubscription(prev => prev ? { ...prev, minHeatThreshold: parseInt(e.target.value) || undefined } : null)}
+                      onChange={(e) => setEditingSubscription((prev: any) => prev ? { ...prev, minHeatThreshold: parseInt(e.target.value) || undefined } : null)}
                     />
                   </div>
                 </div>
@@ -1207,7 +1241,7 @@ export default function HotTopicsPage() {
                           key={interval}
                           variant={editingSubscription.checkInterval === interval ? "default" : "outline"}
                           size="sm"
-                          onClick={() => setEditingSubscription(prev => prev ? { ...prev, checkInterval: interval } : null)}
+                          onClick={() => setEditingSubscription((prev: any) => prev ? { ...prev, checkInterval: interval } : null)}
                           className="text-xs"
                         >
                           {interval >= 60 ? `${interval / 60}h` : `${interval}m`}
@@ -1219,7 +1253,7 @@ export default function HotTopicsPage() {
                       type="number"
                       placeholder="自定义"
                       value={editingSubscription.checkInterval}
-                      onChange={(e) => setEditingSubscription(prev => prev ? { ...prev, checkInterval: parseInt(e.target.value) || 30 } : null)}
+                      onChange={(e) => setEditingSubscription((prev: any) => prev ? { ...prev, checkInterval: parseInt(e.target.value) || 30 } : null)}
                       className="w-20"
                     />
                   </div>
@@ -1232,7 +1266,7 @@ export default function HotTopicsPage() {
                     type="number"
                     placeholder="50000"
                     value={editingSubscription.maxHeatThreshold || ''}
-                    onChange={(e) => setEditingSubscription(prev => prev ? { ...prev, maxHeatThreshold: parseInt(e.target.value) || undefined } : null)}
+                    onChange={(e) => setEditingSubscription((prev: any) => prev ? { ...prev, maxHeatThreshold: parseInt(e.target.value) || undefined } : null)}
                   />
                 </div>
 
@@ -1240,7 +1274,7 @@ export default function HotTopicsPage() {
                   <Switch
                     id="edit-notificationEnabled"
                     checked={editingSubscription.notificationEnabled}
-                    onCheckedChange={(checked) => setEditingSubscription(prev => prev ? { ...prev, notificationEnabled: checked } : null)}
+                    onCheckedChange={(checked) => setEditingSubscription((prev: any) => prev ? { ...prev, notificationEnabled: checked } : null)}
                   />
                   <Label htmlFor="edit-notificationEnabled" className="text-sm font-medium text-foreground">启用通知</Label>
                 </div>
@@ -1279,7 +1313,7 @@ export default function HotTopicsPage() {
                     <Card className="border shadow-sm bg-card">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2 mb-2">
-                          <TrendingUp className="w-4 h-4 text-blue-500" />
+                          <TrendingUp className="w-4 h-4 text-primary" />
                           <span className="text-sm font-medium text-muted-foreground">趋势方向</span>
                         </div>
                         <div className="text-xl font-bold text-foreground">
@@ -1296,7 +1330,7 @@ export default function HotTopicsPage() {
                     <Card className="border shadow-sm bg-card">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2 mb-2">
-                          <Flame className="w-4 h-4 text-red-500" />
+                          <Flame className="w-4 h-4 text-destructive" />
                           <span className="text-sm font-medium text-muted-foreground">峰值热度</span>
                         </div>
                         <div className="text-xl font-bold text-foreground">
@@ -1311,7 +1345,7 @@ export default function HotTopicsPage() {
                     <Card className="border shadow-sm bg-card">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2 mb-2">
-                          <Users className="w-4 h-4 text-green-500" />
+                          <Users className="w-4 h-4 text-success" />
                           <span className="text-sm font-medium text-muted-foreground">预测热度</span>
                         </div>
                         <div className="text-xl font-bold text-foreground">
@@ -1335,8 +1369,8 @@ export default function HotTopicsPage() {
                       <div className="h-56 w-full">
                         {/* 简化的趋势图表 */}
                         <div className="flex items-end justify-between h-full border-b border-l pl-8 pb-4">
-                          {heatTrends[selectedSubscription.keyword].map((trend, index) => {
-                            const maxHeat = Math.max(...heatTrends[selectedSubscription.keyword].map(t => t.heat));
+                          {heatTrends[selectedSubscription.keyword].map((trend: any, index: number) => {
+                            const maxHeat = Math.max(...heatTrends[selectedSubscription.keyword].map((t: any) => t.heat));
                             const height = (trend.heat / maxHeat) * 100;
                             const date = new Date(trend.date);
 
@@ -1347,8 +1381,8 @@ export default function HotTopicsPage() {
                                 </div>
                                 <div
                                   className={`w-8 rounded-t transition-all duration-300 ${
-                                    trend.trend === 'up' ? 'bg-green-500' :
-                                    trend.trend === 'down' ? 'bg-red-500' : 'bg-blue-500'
+                                    trend.trend === 'up' ? 'bg-success' :
+                                    trend.trend === 'down' ? 'bg-destructive' : 'bg-primary'
                                   }`}
                                   style={{ height: `${height}%` }}
                                   title={`${trend.date}: ${trend.heat}热度, ${trend.mentions}提及`}
@@ -1373,7 +1407,7 @@ export default function HotTopicsPage() {
                     </CardHeader>
                     <CardContent className="pt-0">
                       <div className="space-y-3">
-                        {trendAnalysis[selectedSubscription.keyword].insights.map((insight, index) => (
+                        {trendAnalysis[selectedSubscription.keyword].insights.map((insight: any, index: number) => (
                           <div key={index} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
                             <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                             <p className="text-base leading-relaxed text-foreground">{insight}</p>
@@ -1404,7 +1438,7 @@ export default function HotTopicsPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {heatTrends[selectedSubscription.keyword].map((trend, index) => (
+                            {heatTrends[selectedSubscription.keyword].map((trend: any, index: number) => (
                               <tr key={index} className="border-b border-muted/50 hover:bg-muted/30">
                                 <td className="py-3 px-3 text-foreground">{trend.date}</td>
                                 <td className="py-3 px-3 font-medium text-foreground">{(trend.heat / 10000).toFixed(1)}万</td>

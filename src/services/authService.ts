@@ -91,7 +91,7 @@ class AuthService {
         success: true,
         message: '登录成功',
         user: this.formatUserInfo(result),
-        token: result.token || result.access_token
+        token: result.token || (result as any).access_token
       };
 
     } catch (error: any) {

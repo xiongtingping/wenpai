@@ -14,7 +14,7 @@ export function useScrollAnimation() {
         })
       },
       { 
-        rootMargin: '0px 0px -50px 0px', // 提前50px触发动画
+        rootMargin: '0 0 -50px 0', // 提前50px触发动画
         threshold: 0.1 
       }
     )

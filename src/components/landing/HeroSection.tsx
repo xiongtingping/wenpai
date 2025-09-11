@@ -49,7 +49,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative px-4 sm:px-6 lg:px-8 min-h-[calc(100vh-var(--header-height,64px))] flex flex-col justify-center pt-20 sm:pt-24 lg:pt-28 pb-12">
+    <section className="relative px-4 sm:px-6 lg:px-8 min-h-[calc(100vh-var(--header-height,var(--spacing-16)))] flex flex-col justify-center pt-20 sm:pt-24 lg:pt-28 pb-12">
       <div className="max-w-7xl mx-auto w-full">
         <div className="text-center w-full">
           {/* 主标题 - 移除大logo后的优化布局 */}
@@ -96,18 +96,18 @@ const HeroSection: React.FC = () => {
           </div>
           
           {/* 主要行动按钮 - 增强视觉效果 */}
-          <div className="mb-20">
-            <div className="relative group inline-block">
+          <div className="mb-20 flex justify-center w-full">
+            <div className="relative group">
               <Button
                 onClick={handleButtonClick}
                 size="lg"
-                className="relative inline-flex items-center justify-center px-14 py-6 text-xl font-bold rounded-xl overflow-hidden group/button min-h-[4rem] theme-hero-button text-white shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
+                className="relative flex items-center justify-center px-14 py-6 text-xl font-bold rounded-xl overflow-hidden group/button min-h-[var(--spacing-16)] theme-hero-button text-background shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 mx-auto"
               >
-                <span className="relative z-10 hero-button-content gap-3">
+                <span className="relative z-10 flex items-center justify-center gap-3 w-full">
                   <svg className="w-7 h-7 group-hover/button:rotate-12 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
-                  <span className="hero-button-text font-bold">{t('home.getStarted')}</span>
+                  <span className="font-bold text-center">{t('home.getStarted')}</span>
                   <svg className="w-6 h-6 group-hover/button:translate-x-2 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>

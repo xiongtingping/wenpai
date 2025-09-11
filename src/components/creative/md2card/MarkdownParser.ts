@@ -102,7 +102,7 @@ export class MarkdownParser {
           break;
           
         case 'list': {
-          const listItems = token.items.map(item =>
+          const listItems = token.items.map((item: any) =>
             this.parseInlineElements(item.text)
           );
           sections.push({

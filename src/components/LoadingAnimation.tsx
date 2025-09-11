@@ -146,7 +146,7 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
             transform: translateY(-50%) scaleX(1);
           }
           100% {
-            left: calc(100% + 20px);
+            left: calc(100% + var(--spacing-5));
             transform: translateY(-50%) scaleX(1);
           }
         }
@@ -169,7 +169,7 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
             transform: translateY(0);
           }
           50% {
-            transform: translateY(-8px);
+            transform: translateY(-var(--spacing-2));
           }
         }
       `}</style>
@@ -227,10 +227,10 @@ export const InlineLoadingAnimation: React.FC<{ message?: string }> = ({ message
       <style>{`
         @keyframes moveAnimal {
           0% {
-            left: -40px;
+            left: -var(--spacing-10);
           }
           100% {
-            left: calc(100% + 20px);
+            left: calc(100% + var(--spacing-5));
           }
         }
       `}</style>

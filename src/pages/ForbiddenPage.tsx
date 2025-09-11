@@ -48,9 +48,9 @@ export default function ForbiddenPage() {
         <Card className="text-center">
           <CardHeader>
             <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <Shield className="w-8 h-8 text-red-600" />
+              <Shield className="w-8 h-8 text-destructive" />
             </div>
-            <CardTitle className="text-2xl text-red-600">{t('errors.forbidden.title')}</CardTitle>
+            <CardTitle className="text-2xl text-destructive">{t('errors.forbidden.title')}</CardTitle>
             <CardDescription className="text-base">
               {t('errors.forbidden.subtitle')}
             </CardDescription>
@@ -136,7 +136,7 @@ export default function ForbiddenPage() {
             <div className="text-sm text-muted-foreground space-y-2">
               <p>{t('errors.forbidden.help.description')}</p>
               <ul className="list-disc list-inside space-y-1 ml-2">
-                {t('errors.forbidden.help.suggestions', { returnObjects: true }).map((suggestion, index) => (
+                {(t('errors.forbidden.help.suggestions', { returnObjects: true }) as any[]).map((suggestion: any, index: number) => (
                   <li key={index}>{suggestion}</li>
                 ))}
               </ul>

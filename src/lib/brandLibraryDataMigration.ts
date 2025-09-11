@@ -158,7 +158,7 @@ export class BrandLibraryDataManager {
   async deleteDimensionItem(dimensionId: string, itemId: string, currentDimensions: BrandDimension[]): Promise<boolean> {
     const updatedDimensions = currentDimensions.map(dimension =>
       dimension.id === dimensionId 
-        ? { ...dimension, items: dimension.items.filter(item => item.id !== itemId) }
+        ? { ...dimension, items: dimension.items.filter((item: any) => item.id !== itemId) }
         : dimension
     );
     return await this.saveBrandDimensions(updatedDimensions);
@@ -172,7 +172,7 @@ export class BrandLibraryDataManager {
       dimension.id === dimensionId 
         ? {
             ...dimension,
-            items: dimension.items.map(item =>
+            items: dimension.items.map((item: any) =>
               item.id === itemId ? { ...item, ...updates, updatedAt: new Date() } : item
             )
           }
@@ -199,7 +199,7 @@ export class BrandLibraryDataManager {
   async removeKeywordFromDimension(dimensionId: string, keyword: string, currentDimensions: BrandDimension[]): Promise<boolean> {
     const updatedDimensions = currentDimensions.map(dimension =>
       dimension.id === dimensionId 
-        ? { ...dimension, keywords: dimension.keywords.filter(k => k !== keyword) }
+        ? { ...dimension, keywords: dimension.keywords.filter((k: string) => k !== keyword) }
         : dimension
     );
     return await this.saveBrandDimensions(updatedDimensions);
@@ -220,10 +220,10 @@ export class BrandLibraryDataManager {
     // 删除相关的维度数据
     const updatedDimensions = currentDimensions.map(dimension => ({
       ...dimension,
-      items: dimension.items.filter(item => 
+      items: dimension.items.filter((item: any) =>
         !assetsToDelete.some(assetId => item.source?.includes(assetId))
       ),
-      keywords: dimension.keywords.filter(keyword =>
+      keywords: dimension.keywords.filter((keyword: string) =>
         !assetsToDelete.some(assetId => keyword.includes(assetId))
       )
     }));
@@ -240,13 +240,13 @@ export class BrandLibraryDataManager {
     
     const updatedDimensions = currentDimensions.map(dimension => ({
       ...dimension,
-      items: dimension.items.filter(item => {
+      items: dimension.items.filter((item: any) => {
         // 保留手动添加的项目和有效的资产关联项目
         return item.source === '手动添加' || 
                !item.source || 
                assetIds.has(item.source);
       }),
-      keywords: dimension.keywords.filter(keyword => {
+      keywords: dimension.keywords.filter((keyword: string) => {
         // 保留不包含资产ID的关键词
         return !currentAssets.some(asset => keyword.includes(asset.id));
       })

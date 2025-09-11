@@ -124,7 +124,7 @@ export const NotificationCenter: React.FC = () => {
       case 'warning':
         return <AlertCircle className="w-4 h-4 text-orange-500 dark:text-orange-400" />;
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />;
+        return <CheckCircle className="w-4 h-4 text-success dark:text-green-400" />;
       default:
         return <Info className="w-4 h-4 text-primary" />;
     }

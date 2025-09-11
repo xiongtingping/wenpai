@@ -110,7 +110,7 @@ export default function PaymentFeedbackPage() {
             <Card className="border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800">
               <CardHeader className="text-center">
                 <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
-                  <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+                  <CheckCircle className="h-8 w-8 text-success dark:text-green-400" />
                 </div>
                 <CardTitle className="text-green-800 dark:text-green-200">反馈已提交</CardTitle>
               </CardHeader>
@@ -170,10 +170,10 @@ export default function PaymentFeedbackPage() {
                     placeholder="请输入订单号，如：WP1234567890"
                     value={formData.orderId}
                     onChange={(e) => handleInputChange('orderId', e.target.value)}
-                    className={errors.orderId ? 'border-red-500' : ''}
+                    className={errors.orderId ? 'border-destructive' : ''}
                   />
                   {errors.orderId && (
-                    <p className="text-sm text-red-500">{errors.orderId}</p>
+                    <p className="text-sm text-destructive">{errors.orderId}</p>
                   )}
                 </div>
 
@@ -187,10 +187,10 @@ export default function PaymentFeedbackPage() {
                     placeholder="请输入支付金额，如：29.00"
                     value={formData.amount}
                     onChange={(e) => handleInputChange('amount', e.target.value)}
-                    className={errors.amount ? 'border-red-500' : ''}
+                    className={errors.amount ? 'border-destructive' : ''}
                   />
                   {errors.amount && (
-                    <p className="text-sm text-red-500">{errors.amount}</p>
+                    <p className="text-sm text-destructive">{errors.amount}</p>
                   )}
                 </div>
 
@@ -203,10 +203,10 @@ export default function PaymentFeedbackPage() {
                     rows={4}
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
-                    className={errors.description ? 'border-red-500' : ''}
+                    className={errors.description ? 'border-destructive' : ''}
                   />
                   {errors.description && (
-                    <p className="text-sm text-red-500">{errors.description}</p>
+                    <p className="text-sm text-destructive">{errors.description}</p>
                   )}
                 </div>
 

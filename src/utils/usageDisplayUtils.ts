@@ -96,11 +96,11 @@ export function getUsageStatusColor(usedCount: number, availableUses: number, ti
   const percentage = calculateUsagePercentage(usedCount, availableUses, tier);
   
   if (percentage >= 90) {
-    return 'text-red-600'; // 即将用完
+    return 'text-destructive'; // 即将用完
   } else if (percentage >= 70) {
-    return 'text-yellow-600'; // 使用较多
+    return 'text-warning'; // 使用较多
   } else {
-    return 'text-green-600'; // 使用正常
+    return 'text-success'; // 使用正常
   }
 }
 
@@ -120,11 +120,11 @@ export function getProgressBarColor(usedCount: number, availableUses: number, ti
   const percentage = calculateUsagePercentage(usedCount, availableUses, tier);
   
   if (percentage >= 90) {
-    return 'bg-red-500';
+    return 'bg-destructive';
   } else if (percentage >= 70) {
-    return 'bg-yellow-500';
+    return 'bg-warning';
   } else {
-    return 'bg-green-500';
+    return 'bg-success';
   }
 }
 

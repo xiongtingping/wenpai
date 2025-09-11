@@ -192,8 +192,8 @@ export class DynamicPricingService {
     if (context.currentSubscription) {
       // 使用补差价计算工具
       const proratedCalc = calculateProratedUpgrade(
-        context.currentSubscription,
-        context.targetTier,
+        { ...context.currentSubscription, order_id: context.currentSubscription?.id || '' } as any,
+        context.targetTier as any,
         context.targetPeriod
       );
 
@@ -247,8 +247,8 @@ export class DynamicPricingService {
 
     // 使用补差价计算工具
     const proratedCalc = calculateProratedUpgrade(
-      context.currentSubscription,
-      context.targetTier,
+      { ...context.currentSubscription, order_id: context.currentSubscription?.id || '' } as any,
+      context.targetTier as any,
       context.targetPeriod
     );
 

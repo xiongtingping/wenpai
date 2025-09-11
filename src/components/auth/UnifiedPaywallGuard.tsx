@@ -46,7 +46,7 @@ const getTierConfig = (tier: SubscriptionTier) => {
     trial: {
       name: '体验版',
       icon: <Star className="h-4 w-4" />,
-      color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+      color: 'bg-muted text-gray-800 dark:bg-foreground dark:text-gray-200',
       price: '免费'
     },
     pro: {
@@ -145,7 +145,7 @@ export const UnifiedPaywallGuard: React.FC<UnifiedPaywallGuardProps> = ({
               {children}
             </div>
             <div 
-              className="absolute inset-0 bg-background/30 backdrop-blur-[2px] flex items-center justify-center cursor-pointer hover:bg-background/40 transition-colors"
+              className="absolute inset-0 bg-background/30 backdrop-blur-[var(--spacing-0-5)] flex items-center justify-center cursor-pointer hover:bg-background/40 transition-colors"
               onClick={handleUpgradeClick}
             >
               <div className="text-center p-4 bg-background/90 rounded-lg shadow-lg border max-w-xs">

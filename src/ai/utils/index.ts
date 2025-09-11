@@ -95,7 +95,7 @@ export function safeJsonParse(text: string, fallback: any = null): any {
     try {
       // 尝试提取JSON代码块
       const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
-      if (jsonMatch) {
+      if (jsonMatch && jsonMatch[1]) {
         return JSON.parse(jsonMatch[1]);
       }
       

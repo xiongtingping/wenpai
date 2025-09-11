@@ -106,7 +106,7 @@ export class OpenAIProvider {
       }
 
       // 添加上下文消息
-      if (params.context && params.context.length > 0) {
+      if (params.context && Array.isArray(params.context) && params.context.length > 0) {
         messages.push(...params.context);
       }
 

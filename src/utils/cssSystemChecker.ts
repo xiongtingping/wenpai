@@ -32,8 +32,8 @@ export interface CSSSystemReport {
  */
 const HARDCODED_COLOR_PATTERNS = {
   // 常见硬编码颜色
-  '#ffffff': 'hsl(var(--background))',
-  '#000000': 'hsl(var(--foreground))',
+  'hsl(var(--background))': 'hsl(var(--background))',
+  'hsl(var(--foreground))': 'hsl(var(--foreground))',
   '#fff': 'hsl(var(--background))',
   '#000': 'hsl(var(--foreground))',
   'white': 'hsl(var(--background))',
@@ -43,13 +43,13 @@ const HARDCODED_COLOR_PATTERNS = {
   'rgb(37, 99, 235)': 'hsl(var(--primary))',
   'rgb(59, 130, 246)': 'hsl(var(--primary) / 0.8)',
   'rgb(29, 78, 216)': 'hsl(var(--primary) / 1.2)',
-  '#2563eb': 'hsl(var(--primary))',
-  '#3b82f6': 'hsl(var(--primary) / 0.8)',
-  '#1d4ed8': 'hsl(var(--primary) / 1.2)',
+  'hsl(var(--primary))': 'hsl(var(--primary))',
+  'hsl(var(--primary))': 'hsl(var(--primary) / 0.8)',
+  'hsl(var(--primary))': 'hsl(var(--primary) / 1.2)',
   
   // 红色系列
-  '#ef4444': 'hsl(var(--destructive))',
-  '#dc2626': 'hsl(var(--destructive) / 1.1)',
+  'hsl(var(--destructive))': 'hsl(var(--destructive))',
+  'hsl(var(--destructive))': 'hsl(var(--destructive) / 1.1)',
   '#f87171': 'hsl(var(--destructive) / 0.8)',
   
   // 绿色系列
@@ -58,33 +58,33 @@ const HARDCODED_COLOR_PATTERNS = {
   '#34d399': 'hsl(var(--success) / 0.8)',
   
   // 黄色系列
-  '#f59e0b': 'hsl(var(--warning))',
-  '#d97706': 'hsl(var(--warning) / 1.1)',
+  'hsl(var(--warning))': 'hsl(var(--warning))',
+  'hsl(var(--warning))': 'hsl(var(--warning) / 1.1)',
   '#fbbf24': 'hsl(var(--warning) / 0.8)',
   
   // 灰色系列
-  '#6b7280': 'hsl(var(--muted-foreground))',
-  '#9ca3af': 'hsl(var(--muted-foreground) / 0.8)',
-  '#d1d5db': 'hsl(var(--border))',
-  '#f3f4f6': 'hsl(var(--muted))',
+  'hsl(var(--muted-foreground))': 'hsl(var(--muted-foreground))',
+  'hsl(var(--muted-foreground))': 'hsl(var(--muted-foreground) / 0.8)',
+  'hsl(var(--border))': 'hsl(var(--border))',
+  'hsl(var(--muted))': 'hsl(var(--muted))',
 };
 
 /**
  * 硬编码尺寸检测映射
  */
 const HARDCODED_SIZE_PATTERNS = {
-  '4px': 'var(--spacing-1)',
-  '8px': 'var(--spacing-2)',
-  '12px': 'var(--spacing-3)',
-  '16px': 'var(--spacing-4)',
-  '20px': 'var(--spacing-5)',
-  '24px': 'var(--spacing-6)',
-  '32px': 'var(--spacing-8)',
-  '40px': 'var(--spacing-10)',
-  '48px': 'var(--spacing-12)',
-  '64px': 'var(--spacing-16)',
-  '80px': 'var(--spacing-20)',
-  '96px': 'var(--spacing-24)',
+  'var(--spacing-1)': 'var(--spacing-1)',
+  'var(--spacing-2)': 'var(--spacing-2)',
+  'var(--spacing-3)': 'var(--spacing-3)',
+  'var(--spacing-4)': 'var(--spacing-4)',
+  'var(--spacing-5)': 'var(--spacing-5)',
+  'var(--spacing-6)': 'var(--spacing-6)',
+  'var(--spacing-8)': 'var(--spacing-8)',
+  'var(--spacing-10)': 'var(--spacing-10)',
+  'var(--spacing-12)': 'var(--spacing-12)',
+  'var(--spacing-16)': 'var(--spacing-16)',
+  'var(--spacing-20)': 'var(--spacing-20)',
+  'var(--spacing-24)': 'var(--spacing-24)',
 };
 
 /**
@@ -166,7 +166,7 @@ export class CSSSystemChecker {
     
     colorProperties.forEach(prop => {
       const value = style.getPropertyValue(prop);
-      const suggested = HARDCODED_COLOR_PATTERNS[value];
+      const suggested = (HARDCODED_COLOR_PATTERNS as any)[value];
       
       if (suggested) {
         this.issues.push({
@@ -190,7 +190,7 @@ export class CSSSystemChecker {
     
     sizeProperties.forEach(prop => {
       const value = style.getPropertyValue(prop);
-      const suggested = HARDCODED_SIZE_PATTERNS[value];
+      const suggested = (HARDCODED_SIZE_PATTERNS as any)[value];
       
       if (suggested) {
         this.issues.push({

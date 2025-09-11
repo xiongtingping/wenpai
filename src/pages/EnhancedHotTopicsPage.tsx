@@ -32,7 +32,7 @@ export default function EnhancedHotTopicsPage() {
       {/* 页面标题 */}
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-2">
-          <Zap className="h-8 w-8 text-yellow-500" />
+          <Zap className="h-8 w-8 text-warning" />
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             增强版全网雷达
           </h1>
@@ -47,7 +47,7 @@ export default function EnhancedHotTopicsPage() {
         <Card className="border-blue-200 bg-blue-50/50">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-3 mb-3">
-              <Globe className="h-8 w-8 text-blue-500" />
+              <Globe className="h-8 w-8 text-primary" />
               <h3 className="font-semibold text-lg">RSSHub 集成</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
@@ -55,15 +55,15 @@ export default function EnhancedHotTopicsPage() {
             </p>
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-success" />
                 <span>实时数据更新</span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-success" />
                 <span>多平台覆盖</span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-success" />
                 <span>智能分类标签</span>
               </div>
             </div>
@@ -73,7 +73,7 @@ export default function EnhancedHotTopicsPage() {
         <Card className="border-green-200 bg-green-50/50">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-3 mb-3">
-              <Target className="h-8 w-8 text-green-500" />
+              <Target className="h-8 w-8 text-success" />
               <h3 className="font-semibold text-lg">数据融合</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
@@ -81,15 +81,15 @@ export default function EnhancedHotTopicsPage() {
             </p>
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-success" />
                 <span>智能去重算法</span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-success" />
                 <span>热度评分系统</span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-success" />
                 <span>趋势分析</span>
               </div>
             </div>
@@ -107,15 +107,15 @@ export default function EnhancedHotTopicsPage() {
             </p>
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-success" />
                 <span>分类统计分析</span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-success" />
                 <span>数据源对比</span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-success" />
                 <span>自定义配置</span>
               </div>
             </div>
@@ -191,7 +191,7 @@ export default function EnhancedHotTopicsPage() {
         )}
 
         {activeMode === 'rsshub' && (
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-muted-foreground py-8">
             RSSHub 集成功能开发中...
           </div>
         )}
@@ -218,7 +218,7 @@ export default function EnhancedHotTopicsPage() {
       </div>
 
       {/* 技术说明 */}
-      <Card className="border-gray-200">
+      <Card className="border-border">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Info className="h-5 w-5" />

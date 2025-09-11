@@ -10,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { UsageStateWrapper } from '@/components/ui/StateLoadingWrapper';
-import { QuickReferenceSelector } from '@/components/creative/QuickReferenceSelector';
+import { QuickReferenceTrigger } from '@/components/creative/QuickReference/QuickReferenceTrigger';
+import { cn } from '@/lib/utils';
 
 interface ContentInputSectionProps {
   // 内容状态
@@ -97,7 +98,18 @@ export function ContentInputSection({
           <div className="space-y-3">
             <Textarea
               placeholder={placeholder}
-              className={`min-h-[${minHeight}] resize-none`}
+              className={cn(
+                `min-h-[${minHeight}] resize-none`,
+                // 使用设计令牌的主题适配样式
+                "bg-background border-border text-foreground",
+                "placeholder:text-muted-foreground",
+                "focus:border-ring focus:ring-2 focus:ring-ring/20",
+                "transition-all duration-200",
+                // 响应式字体大小
+                "text-sm md:text-base",
+                // 错误状态样式
+                originalContent.length > 5000 && "border-destructive focus:border-destructive focus:ring-destructive/20"
+              )}
               value={originalContent}
               onChange={(e) => onContentChange(e.target.value)}
               data-testid="original-content-input"
@@ -136,10 +148,10 @@ export function ContentInputSection({
               </div>
             )}
             
-            {/* 快速引用功能 - 从原版完整迁移 */}
+            {/* 快速引用功能 - 使用新的现代化组件 */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <QuickReferenceSelector
+                <QuickReferenceTrigger
                   multiSelect={true}
                   onSelect={(content) => {
                     // 在当前内容后追加引用内容
@@ -148,6 +160,9 @@ export function ContentInputSection({
                       content;
                     onContentChange(newContent);
                   }}
+                  variant="outline"
+                  size="sm"
+                  className="bg-primary/5 border-primary/20 text-primary hover:bg-primary/10"
                 />
                 <span className="text-xs text-muted-foreground">
                   从品牌库、资料库、雷达收藏快速导入内容
@@ -159,6 +174,11 @@ export function ContentInputSection({
                 <span className="text-xs text-muted-foreground">
                   字符数: {originalContent.length}
                 </span>
+                {originalContent.length > 5000 && (
+                  <span className="text-xs text-destructive">
+                    建议控制在5000字符以内
+                  </span>
+                )}
               </div>
             </div>
 

@@ -31,7 +31,7 @@
   unicode-bidi: normal !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
   font-weight: 800 !important;
-  font-size: 3rem !important;
+  font-size: var(--spacing-12) !important;
   line-height: 1 !important;
   text-align: center !important;
   vertical-align: baseline !important;
@@ -78,7 +78,7 @@
 @media (max-width: 768px) {
   .pricing-price,
   .text-5xl.font-extrabold {
-    font-size: 2.5rem !important;
+    font-size: var(--spacing-10) !important;
     line-height: 1 !important;
   }
 }
@@ -267,14 +267,14 @@
 /* ===== 深色模式功能对比表格专用修复 ===== */
 /* 针对PricingSection中的功能对比表格 */
 [data-theme="dark"] .overflow-x-auto table {
-  border: 2px solid hsl(215 15% 45%) !important;
+  border: var(--spacing-0-5) solid hsl(215 15% 45%) !important;
   background-color: hsl(215 28% 15%) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 var(--spacing-1) var(--spacing-1-5) -1px hsl(var(--foreground) / 0.5), 0 var(--spacing-0-5) var(--spacing-1) -1px rgba(0, 0, 0, 0.4) !important;
 }
 
 [data-theme="dark"] .overflow-x-auto table thead {
   background-color: hsl(215 20% 28%) !important;
-  border-bottom: 2px solid hsl(215 15% 45%) !important;
+  border-bottom: var(--spacing-0-5) solid hsl(215 15% 45%) !important;
 }
 
 [data-theme="dark"] .overflow-x-auto table th {
@@ -327,7 +327,7 @@
 
 /* 深色模式下表格圆角和阴影 */
 [data-theme="dark"] .overflow-x-auto table.rounded-lg {
-  border-radius: 0.5rem !important;
+  border-radius: var(--spacing-2) !important;
   overflow: hidden !important;
 }
 

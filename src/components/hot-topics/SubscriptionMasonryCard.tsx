@@ -124,9 +124,9 @@ export const SubscriptionMasonryCard: React.FC<SubscriptionMasonryCardProps> = (
               <Target className="w-5 h-5 text-primary" />
               {/* 红点提示 */}
               {subscription.hasNewResults && (
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full flex items-center justify-center">
                   {subscription.newResultsCount && subscription.newResultsCount > 0 && subscription.newResultsCount < 10 && (
-                    <span className="text-white text-xs font-bold leading-none">
+                    <span className="text-background text-xs font-bold leading-none">
                       {subscription.newResultsCount}
                     </span>
                   )}
@@ -223,7 +223,7 @@ export const SubscriptionMasonryCard: React.FC<SubscriptionMasonryCardProps> = (
           <div className="border-t border-border/30 pt-4">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500" />
+                <CheckCircle className="w-4 h-4 text-success" />
                 最新发现
               </h4>
               <Badge variant="secondary" className="text-xs">

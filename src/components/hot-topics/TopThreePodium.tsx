@@ -103,7 +103,7 @@ export default function TopThreePodium({
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Trophy className="w-8 h-8 text-yellow-500 dark:text-yellow-400" />;
+        return <Trophy className="w-8 h-8 text-warning dark:text-yellow-400" />;
       case 2:
         return <Medal className="w-6 h-6 text-muted-foreground" />;
       case 3:
@@ -141,7 +141,7 @@ export default function TopThreePodium({
       <CardContent className="p-6">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
-            <Trophy className="w-6 h-6 text-yellow-500 dark:text-yellow-400" />
+            <Trophy className="w-6 h-6 text-warning dark:text-yellow-400" />
             热度排行榜
             <Flame className="w-6 h-6 text-orange-500 dark:text-orange-400" />
           </h2>
@@ -182,7 +182,7 @@ export default function TopThreePodium({
 
                     {/* 热度值 */}
                     <div className="flex items-center justify-center gap-1 mb-2">
-                      <Zap className="w-3 h-3 text-yellow-500 dark:text-yellow-400" />
+                      <Zap className="w-3 h-3 text-warning dark:text-yellow-400" />
                       <span className="text-xs font-medium text-foreground">
                         {formatHotValue(topic.hot)}
                       </span>

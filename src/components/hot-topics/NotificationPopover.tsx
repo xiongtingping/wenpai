@@ -121,13 +121,13 @@ export const NotificationPopover: React.FC<NotificationPopoverProps> = ({
   const getNotificationIcon = (level: NotificationLevel) => {
     switch (level) {
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className="w-4 h-4 text-success" />;
       case 'warning':
-        return <AlertCircle className="w-4 h-4 text-yellow-500" />;
+        return <AlertCircle className="w-4 h-4 text-warning" />;
       case 'error':
-        return <AlertCircle className="w-4 h-4 text-red-500" />;
+        return <AlertCircle className="w-4 h-4 text-destructive" />;
       default:
-        return <Info className="w-4 h-4 text-blue-500" />;
+        return <Info className="w-4 h-4 text-primary" />;
     }
   };
 
@@ -281,7 +281,7 @@ export const NotificationPopover: React.FC<NotificationPopoverProps> = ({
                                 onClick={() => handleToggleFavorite(notification.id)}
                               >
                                 {favoriteNotifications.has(notification.id) ? (
-                                  <Star className="w-3 h-3 text-yellow-500" />
+                                  <Star className="w-3 h-3 text-warning" />
                                 ) : (
                                   <StarOff className="w-3 h-3" />
                                 )}

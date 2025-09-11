@@ -230,11 +230,11 @@ export const DataAwareComponent: React.FC<{
     return (
       <div className={className}>
         {errorComponent ? errorComponent(error) : (
-          <div className="text-red-500 text-sm">
+          <div className="text-destructive text-sm">
             加载失败: {error}
             <button 
               onClick={refetch}
-              className="ml-2 text-blue-500 hover:underline"
+              className="ml-2 text-primary hover:underline"
             >
               重试
             </button>
@@ -257,7 +257,7 @@ export const DataAwareComponent: React.FC<{
   if (!data && !isLoading) {
     return (
       <div className={className}>
-        {emptyComponent || <div className="text-gray-500 text-sm">暂无数据</div>}
+        {emptyComponent || <div className="text-muted-foreground text-sm">暂无数据</div>}
       </div>
     );
   }
@@ -282,7 +282,7 @@ export const SkeletonPlaceholder: React.FC<{
       {Array.from({ length: rows }).map((_, index) => (
         <div
           key={index}
-          className="h-4 bg-gray-200 rounded"
+          className="h-4 bg-muted rounded"
           style={{ width: `${100 - (index * 10)}%` }}
         />
       ))}
@@ -368,9 +368,9 @@ export const DataSyncIndicator: React.FC<{
       case 'syncing':
         return <span className="animate-spin">🔄</span>;
       case 'error':
-        return <span className="text-red-500">❌</span>;
+        return <span className="text-destructive">❌</span>;
       default:
-        return <span className="text-green-500">✅</span>;
+        return <span className="text-success">✅</span>;
     }
   };
 
@@ -386,7 +386,7 @@ export const DataSyncIndicator: React.FC<{
   };
 
   return (
-    <div className={`flex items-center text-xs text-gray-500 ${className}`}>
+    <div className={`flex items-center text-xs text-muted-foreground ${className}`}>
       {showIcon && getSyncIcon()}
       <span className="ml-1">{getSyncText()}</span>
     </div>

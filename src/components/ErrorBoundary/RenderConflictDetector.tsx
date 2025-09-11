@@ -254,12 +254,12 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
     if (hasError) {
       const defaultFallback = (
         <div style={{
-          padding: '20px',
-          border: '2px solid hsl(var(--destructive))',
-          borderRadius: '8px',
+          padding: 'var(--spacing-5)',
+          border: 'var(--spacing-0-5) solid hsl(var(--destructive))',
+          borderRadius: 'var(--spacing-2)',
           backgroundColor: 'hsl(var(--destructive) / 0.1)',
           color: 'hsl(var(--destructive))',
-          margin: '10px'
+          margin: 'var(--spacing-2-5)'
         }}>
           <h3>🚨 渲染冲突检测器</h3>
           <p><strong>错误类型:</strong> {conflictDetected ? '渲染冲突/无限循环' : '渲染错误'}</p>
@@ -268,11 +268,11 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
           <button 
             onClick={() => this.attemptAutoRecovery()}
             style={{
-              padding: '8px 16px',
+              padding: 'var(--spacing-2) var(--spacing-4)',
               backgroundColor: 'hsl(var(--primary))',
               color: 'hsl(var(--background))',
               border: 'none',
-              borderRadius: '4px',
+              borderRadius: 'var(--spacing-1)',
               cursor: 'pointer'
             }}
           >

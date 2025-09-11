@@ -243,7 +243,7 @@ function DimensionCard({
                         className={`h-3.5 w-3.5 p-0 rounded-full text-xs ${
                           isPinned
                             ? 'bg-amber-200 hover:bg-amber-300 text-amber-700 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 dark:text-amber-300'
-                            : 'bg-blue-100 hover:bg-blue-200 text-blue-600 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300'
+                            : 'bg-blue-100 hover:bg-blue-200 text-primary dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300'
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -261,7 +261,7 @@ function DimensionCard({
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-3.5 w-3.5 p-0 rounded-full bg-red-100 hover:bg-red-200 text-red-600 text-xs"
+                        className="h-3.5 w-3.5 p-0 rounded-full bg-red-100 hover:bg-red-200 text-destructive text-xs"
                         onClick={(e) => {
                           e.stopPropagation();
                           onRemoveItem(item);
@@ -303,7 +303,7 @@ function DimensionCard({
                       className={`h-3.5 w-3.5 p-0 rounded-full text-xs ${
                         isPinned
                           ? 'bg-amber-200 hover:bg-amber-300 text-amber-700 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 dark:text-amber-300'
-                          : 'bg-blue-100 hover:bg-blue-200 text-blue-600 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300'
+                          : 'bg-blue-100 hover:bg-blue-200 text-primary dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300'
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -321,7 +321,7 @@ function DimensionCard({
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-3.5 w-3.5 p-0 rounded-full bg-red-100 hover:bg-red-200 text-red-600 text-xs"
+                      className="h-3.5 w-3.5 p-0 rounded-full bg-red-100 hover:bg-red-200 text-destructive text-xs"
                       onClick={(e) => {
                         e.stopPropagation();
                         onRemoveItem(item);

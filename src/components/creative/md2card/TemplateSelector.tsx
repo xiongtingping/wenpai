@@ -282,14 +282,14 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
           
           {/* 热门/新标识 */}
           {template.isPopular && (
-            <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+            <div className="absolute top-2 left-2 bg-orange-500 text-background text-xs px-2 py-1 rounded-full flex items-center gap-1">
               <Star className="w-3 h-3" />
               热门
             </div>
           )}
           
           {template.isNew && (
-            <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+            <div className="absolute top-2 left-2 bg-success text-background text-xs px-2 py-1 rounded-full">
               新
             </div>
           )}

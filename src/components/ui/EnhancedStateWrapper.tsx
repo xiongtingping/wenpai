@@ -108,13 +108,13 @@ const DefaultErrorComponent: React.FC<{
   enableRetry?: boolean; 
   onRetry?: () => void;
 }> = ({ error, enableRetry, onRetry }) => (
-  <div className="flex items-center space-x-2 text-red-600 text-sm">
+  <div className="flex items-center space-x-2 text-destructive text-sm">
     <AlertCircle className="w-4 h-4" />
     <span>{error}</span>
     {enableRetry && onRetry && (
       <button
         onClick={onRetry}
-        className="text-blue-600 hover:text-blue-800 underline ml-2"
+        className="text-primary hover:text-blue-800 underline ml-2"
       >
         重试
       </button>
@@ -126,8 +126,8 @@ const DefaultErrorComponent: React.FC<{
  * 获取状态钩子
  */
 function useStateStatus(stateType: StateType): LoadingState {
-  const { isLoading: authLoading, isAuthenticated, user } = useAuth();
-  const { primaryStatus, isLoading: subLoading, error: subError } = useSubscriptionStatus();
+  const { loading: authLoading, isAuthenticated, user } = useAuth();
+  const { primaryStatus, loading: subLoading, error: subError } = useSubscriptionStatus();
   const { loading: usageLoading, error: usageError, lastUpdated } = useUnifiedUsageStats();
 
   return useMemo(() => {

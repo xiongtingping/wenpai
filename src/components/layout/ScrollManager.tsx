@@ -41,6 +41,7 @@ export const ScrollManager: React.FC<ScrollManagerProps> = ({
 
     // 更新前一个路径
     previousPathname.current = pathname;
+    return undefined;
   }, [pathname, autoScrollToTop, behavior]);
 
   return null;

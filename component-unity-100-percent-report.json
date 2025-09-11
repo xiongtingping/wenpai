@@ -1,0 +1,1474 @@
+{
+  "timestamp": "2025-09-11T13:37:36.315Z",
+  "summary": {
+    "totalComponents": 83,
+    "compliantComponents": 9,
+    "unityScore": 11
+  },
+  "violations": [
+    {
+      "file": "src/components/ui/AnimatedAuthShell.tsx",
+      "component": "AnimatedAuthShell",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 40
+    },
+    {
+      "file": "src/components/ui/BackToTop.tsx",
+      "component": "BackToTop",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/CountdownTimer.tsx",
+      "component": "CountdownTimer",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "hardcoded-styles",
+          "message": "使用了硬编码Tailwind类，应使用语义化类",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 35
+    },
+    {
+      "file": "src/components/ui/DataAwareComponents.tsx",
+      "component": "DataAwareComponents",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/EmojiPicker.tsx",
+      "component": "EmojiPicker",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/EnhancedStateWrapper.tsx",
+      "component": "EnhancedStateWrapper",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "hardcoded-styles",
+          "message": "使用了硬编码Tailwind类，应使用语义化类",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 35
+    },
+    {
+      "file": "src/components/ui/FileFormatDisplay.tsx",
+      "component": "FileFormatDisplay",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/LanguageSwitcher.tsx",
+      "component": "LanguageSwitcher",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 40
+    },
+    {
+      "file": "src/components/ui/NetworkStatus.tsx",
+      "component": "NetworkStatus",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/PageLoadingManager.tsx",
+      "component": "PageLoadingManager",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/RoleBasedUpgradePrompt.tsx",
+      "component": "RoleBasedUpgradePrompt",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/SafeTooltip.tsx",
+      "component": "SafeTooltip",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/ScrollToTop.tsx",
+      "component": "ScrollToTop",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/StateLoadingWrapper.tsx",
+      "component": "StateLoadingWrapper",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "hardcoded-styles",
+          "message": "使用了硬编码Tailwind类，应使用语义化类",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 35
+    },
+    {
+      "file": "src/components/ui/ThemeAwareLogo.tsx",
+      "component": "ThemeAwareLogo",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/ThemeAwareText.tsx",
+      "component": "ThemeAwareText",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "hardcoded-styles",
+          "message": "使用了硬编码Tailwind类，应使用语义化类",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        }
+      ],
+      "score": 50
+    },
+    {
+      "file": "src/components/ui/ThemeAwareUpgradeCard.tsx",
+      "component": "ThemeAwareUpgradeCard",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "hardcoded-styles",
+          "message": "使用了硬编码Tailwind类，应使用语义化类",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 35
+    },
+    {
+      "file": "src/components/ui/ThemeSwitcher.tsx",
+      "component": "ThemeSwitcher",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/ThemeUpgradeDialog.tsx",
+      "component": "ThemeUpgradeDialog",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "hardcoded-styles",
+          "message": "使用了硬编码Tailwind类，应使用语义化类",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 35
+    },
+    {
+      "file": "src/components/ui/accordion.tsx",
+      "component": "accordion",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/alert-dialog.tsx",
+      "component": "alert-dialog",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/animated-sign-in.tsx",
+      "component": "animated-sign-in",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 40
+    },
+    {
+      "file": "src/components/ui/avatar-upload.tsx",
+      "component": "avatar-upload",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/avatar.tsx",
+      "component": "avatar",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/badge.tsx",
+      "component": "badge",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/breadcrumb.tsx",
+      "component": "breadcrumb",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/calendar.tsx",
+      "component": "calendar",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/components/ui/carousel.tsx",
+      "component": "carousel",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/components/ui/chart.tsx",
+      "component": "chart",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/checkbox.tsx",
+      "component": "checkbox",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/collapsible.tsx",
+      "component": "collapsible",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 40
+    },
+    {
+      "file": "src/components/ui/command.tsx",
+      "component": "command",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/contact-verification.tsx",
+      "component": "contact-verification",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/context-menu.tsx",
+      "component": "context-menu",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/dev-tools.tsx",
+      "component": "dev-tools",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/dialog-portal.tsx",
+      "component": "dialog-portal",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 40
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "component": "dialog",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/drawer.tsx",
+      "component": "drawer",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/dropdown-menu.tsx",
+      "component": "dropdown-menu",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/form.tsx",
+      "component": "form",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/hover-card.tsx",
+      "component": "hover-card",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/components/ui/input-otp.tsx",
+      "component": "input-otp",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/label.tsx",
+      "component": "label",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/loading-spinner.tsx",
+      "component": "loading-spinner",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/components/ui/login-1.tsx",
+      "component": "login-1",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/mention-textarea.tsx",
+      "component": "mention-textarea",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 40
+    },
+    {
+      "file": "src/components/ui/menubar.tsx",
+      "component": "menubar",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/navigation-menu.tsx",
+      "component": "navigation-menu",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/network-status.tsx",
+      "component": "network-status",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/nickname-selector.tsx",
+      "component": "nickname-selector",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/pagination.tsx",
+      "component": "pagination",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/components/ui/popover.tsx",
+      "component": "popover",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/components/ui/progress.tsx",
+      "component": "progress",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/radio-group.tsx",
+      "component": "radio-group",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/resizable.tsx",
+      "component": "resizable",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/safe-slot.tsx",
+      "component": "safe-slot",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/scroll-area.tsx",
+      "component": "scroll-area",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/components/ui/security-config.tsx",
+      "component": "security-config",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/select.tsx",
+      "component": "select",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/separator.tsx",
+      "component": "separator",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/components/ui/skeleton.tsx",
+      "component": "skeleton",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/components/ui/slider.tsx",
+      "component": "slider",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/sonner.tsx",
+      "component": "sonner",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/switch.tsx",
+      "component": "switch",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/table.tsx",
+      "component": "table",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/tabs.tsx",
+      "component": "tabs",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/toaster.tsx",
+      "component": "toaster",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 40
+    },
+    {
+      "file": "src/components/ui/toggle-group.tsx",
+      "component": "toggle-group",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/components/ui/tooltip.tsx",
+      "component": "tooltip",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/components/ui/tubelight-navbar.tsx",
+      "component": "tubelight-navbar",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/components/ui/upgrade-button.tsx",
+      "component": "upgrade-button",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/usage-reminder-dialog.tsx",
+      "component": "usage-reminder-dialog",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/usage-stats.tsx",
+      "component": "usage-stats",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        },
+        {
+          "type": "cnUsage",
+          "message": "缺少必需的模式: cnUsage",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/components/ui/wavy-background.tsx",
+      "component": "wavy-background",
+      "isCompliant": false,
+      "violations": [
+        {
+          "type": "cvaUsage",
+          "message": "缺少必需的模式: cvaUsage",
+          "severity": "error"
+        },
+        {
+          "type": "designTokens",
+          "message": "缺少必需的模式: designTokens",
+          "severity": "error"
+        },
+        {
+          "type": "forwardRef",
+          "message": "缺少必需的模式: forwardRef",
+          "severity": "error"
+        }
+      ],
+      "score": 55
+    }
+  ],
+  "recommendations": [
+    "使用cva定义组件变体",
+    "使用React.forwardRef包装组件",
+    "使用cn工具函数合并类名",
+    "使用语义化的设计令牌类名",
+    "遵循统一的命名规范"
+  ]
+}

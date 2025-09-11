@@ -256,7 +256,7 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
     if (value <= -10) return 'text-orange-500 dark:text-orange-400';
     if (value <= 10) return 'text-muted-foreground';
     if (value <= 40) return 'text-primary';
-    return 'text-green-600 dark:text-green-400';
+    return 'text-success dark:text-green-400';
   };
 
   /**
@@ -395,7 +395,7 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
                             <span className="text-center font-medium">中性</span>
                             <span className="flex items-center gap-1.5">
                               <span>想看</span>
-                              <ThumbsUp className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+                              <ThumbsUp className="w-3.5 h-3.5 text-success dark:text-green-400" />
                             </span>
                           </div>
                         </div>
@@ -412,7 +412,7 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
                   <div className="bg-card dark:bg-card rounded-xl p-6 border border-border space-y-5">
                     <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                      <Eye className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      <Eye className="h-4 w-4 text-success dark:text-green-400" />
                     </div>
                     <div>
                       <h4 className="text-base font-semibold text-foreground">偏好关键词</h4>
@@ -462,7 +462,7 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
                   <div className="bg-card dark:bg-card rounded-xl p-6 border border-border space-y-5">
                     <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                      <EyeOff className="h-4 w-4 text-red-600 dark:text-red-400" />
+                      <EyeOff className="h-4 w-4 text-destructive dark:text-red-400" />
                     </div>
                     <div>
                       <h4 className="text-base font-semibold text-foreground">屏蔽关键词</h4>

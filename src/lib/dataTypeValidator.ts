@@ -102,7 +102,7 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
 
   // Amplitude分析数据模式（宽松验证）
   AMP_UNSENT: {
-    type: 'any', // 宽松类型，允许各种数据格式
+    type: 'object', // 修改为object类型
     required: false
   },
 
@@ -294,7 +294,7 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
   // 🔧 FIX: 添加缺失的数据模式定义
   // 传统测试数据模式（宽松验证）
   LEGACY_TEST_DATA: {
-    type: 'any', // 宽松类型，允许任何数据
+    type: 'object', // 修改为object类型
     required: false
   },
 
@@ -313,7 +313,7 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
 
   // 品牌维度数据模式（宽松验证）
   BRAND_DIMENSIONS: {
-    type: 'any', // 宽松类型，允许各种数据格式
+    type: 'array', // 修改为array类型
     required: false
   },
 

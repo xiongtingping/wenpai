@@ -307,7 +307,7 @@ const getTierInfo = (tier: SubscriptionTier) => {
     icon: tier === 'trial' ? <Star className="h-4 w-4" /> :
           tier === 'pro' ? <Zap className="h-4 w-4" /> :
           <Crown className="h-4 w-4" />,
-    color: tier === 'trial' ? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' :
+    color: tier === 'trial' ? 'bg-muted text-gray-800 dark:bg-gray-800 dark:text-gray-200' :
            tier === 'pro' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
            'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
     features: [
@@ -355,6 +355,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
 
       return () => clearInterval(timer);
     }
+    return undefined;
   }, [user?.registrationDate]);
 
   // 获取权限配置（提供安全回退以避免条件性Hooks）
@@ -432,29 +433,29 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
           className="absolute inset-0 z-50 flex items-center justify-center p-4"
           style={{
             backgroundColor: `rgba(255, 255, 255, ${Math.min(overlayOpacity + 0.1, 0.95)})`,
-            backdropFilter: 'blur(8px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(8px) saturate(180%)'
+            backdropFilter: 'blur(var(--spacing-2)) saturate(180%)',
+            WebkitBackdropFilter: 'blur(var(--spacing-2)) saturate(180%)'
           }}
         >
           <div
-            className="w-full max-w-4xl bg-white/95 dark:bg-gray-900/95 rounded-2xl p-6 shadow-2xl border border-white/20"
+            className="w-full max-w-4xl bg-background/95 dark:bg-foreground/95 rounded-2xl p-6 shadow-2xl border border-white/20"
             style={{
-              backdropFilter: 'blur(20px) saturate(200%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(200%)',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1)'
+              backdropFilter: 'blur(var(--spacing-5)) saturate(200%)',
+              WebkitBackdropFilter: 'blur(var(--spacing-5)) saturate(200%)',
+              boxShadow: '0 25px 50px -var(--spacing-3) rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1)'
             }}
           >
             {/* 限时优惠倒计时 */}
             {user?.registrationDate && isInDiscountPeriod(new Date(user.registrationDate)) && discountCountdown > 0 && (
               <div className="mb-4">
-                <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white p-3 rounded-lg shadow-lg animate-pulse">
+                <div className="bg-gradient-to-r from-red-500 to-orange-500 text-background p-3 rounded-lg shadow-lg animate-pulse">
                   <div className="flex items-center justify-center gap-3">
                     <span className="font-bold text-sm">🔥 限时优惠</span>
                     <CountdownTimer
                       initialSeconds={discountCountdown}
                       variant="compact"
                       showIcon={false}
-                      className="text-white font-mono text-lg font-bold"
+                      className="text-background font-mono text-lg font-bold"
                     />
                     <span className="text-xs">后恢复原价</span>
                   </div>
@@ -495,14 +496,14 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
                     key={plan.id}
                     className={`relative transition-all duration-300 hover:shadow-lg backdrop-blur-sm ${
                       isRequired
-                        ? 'border-4 border-primary shadow-2xl scale-105 bg-white/90 dark:bg-gray-900/90'
+                        ? 'border-4 border-primary shadow-2xl scale-105 bg-background/90 dark:bg-foreground/90'
                         : isRecommended
-                        ? 'border-2 border-primary/50 shadow-lg bg-white/85 dark:bg-gray-900/85'
-                        : 'border-2 border-border hover:border-border-strong bg-white/80 dark:bg-gray-900/80'
+                        ? 'border-2 border-primary/50 shadow-lg bg-background/85 dark:bg-foreground/85'
+                        : 'border-2 border-border hover:border-border-strong bg-background/80 dark:bg-foreground/80'
                     }`}
                     style={{
-                      backdropFilter: 'blur(12px) saturate(150%)',
-                      WebkitBackdropFilter: 'blur(12px) saturate(150%)'
+                      backdropFilter: 'blur(var(--spacing-3)) saturate(150%)',
+                      WebkitBackdropFilter: 'blur(var(--spacing-3)) saturate(150%)'
                     }}
                   >
                     {/* 推荐标签 */}
@@ -543,15 +544,15 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
                               <span className="text-lg text-muted-foreground line-through">
                                 ¥{pricing.originalPrice}
                               </span>
-                              <Badge className="bg-red-500 text-white text-xs px-2 py-1">
+                              <Badge className="bg-destructive text-background text-xs px-2 py-1">
                                 -{pricing.discountPercentage}%
                               </Badge>
                             </div>
-                            <div className="text-2xl font-bold text-red-600">
+                            <div className="text-2xl font-bold text-destructive">
                               ¥{pricing.discountPrice}
                             </div>
                             <div className="text-xs text-muted-foreground dark:text-muted-foreground">每月</div>
-                            <div className="text-xs text-red-500 mt-1">
+                            <div className="text-xs text-destructive mt-1">
                               限时优惠价，立省¥{pricing.savedAmount}
                             </div>
                           </div>

@@ -47,7 +47,7 @@ const THEME_CONFIGS: ThemeConfig[] = [
     isDefault: true,
     preview: {
       primaryColor: '#ff6b6b',
-      backgroundColor: '#ffffff',
+      backgroundColor: 'hsl(var(--background))',
       textColor: '#333333'
     }
   },
@@ -59,7 +59,7 @@ const THEME_CONFIGS: ThemeConfig[] = [
     category: 'business',
     icon: <Zap className="w-4 h-4" />,
     preview: {
-      primaryColor: '#1e40af',
+      primaryColor: 'hsl(var(--primary))',
       backgroundColor: '#f8fafc',
       textColor: '#1e293b'
     }
@@ -73,8 +73,8 @@ const THEME_CONFIGS: ThemeConfig[] = [
     icon: <Mountain className="w-4 h-4" />,
     preview: {
       primaryColor: '#007aff',
-      backgroundColor: '#ffffff',
-      textColor: '#000000'
+      backgroundColor: 'hsl(var(--background))',
+      textColor: 'hsl(var(--foreground))'
     }
   },
   {
@@ -85,7 +85,7 @@ const THEME_CONFIGS: ThemeConfig[] = [
     category: 'creative',
     icon: <Sparkles className="w-4 h-4" />,
     preview: {
-      primaryColor: '#f59e0b',
+      primaryColor: 'hsl(var(--warning))',
       backgroundColor: '#fef3c7',
       textColor: '#92400e'
     }
@@ -99,7 +99,7 @@ const THEME_CONFIGS: ThemeConfig[] = [
     icon: <Waves className="w-4 h-4" />,
     requiresPremium: true,
     preview: {
-      primaryColor: '#dc2626',
+      primaryColor: 'hsl(var(--destructive))',
       backgroundColor: '#fef2f2',
       textColor: '#7f1d1d'
     }
@@ -213,7 +213,7 @@ export function ThemeSelector({
             {/* 高级主题标识 */}
             {theme.requiresPremium && (
               <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
-                <Star className="w-2 h-2 text-white" />
+                <Star className="w-2 h-2 text-background" />
               </div>
             )}
           </button>
@@ -225,4 +225,3 @@ export function ThemeSelector({
 
 // 导出主题配置供其他组件使用
 export { THEME_CONFIGS };
-export type { ThemeConfig };

@@ -127,7 +127,7 @@ export function fixLocalStorageArrayIssues(): {
         }
       }
     } catch (error) {
-      errors.push(`${key}: ${error.message}`);
+      errors.push(`${key}: ${(error as Error).message}`);
       console.error(`❌ 修复数据失败: ${key}`, error);
     }
   });

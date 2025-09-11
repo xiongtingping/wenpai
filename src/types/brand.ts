@@ -1,3 +1,5 @@
+import React from 'react';
+
 /**
  * 品牌档案接口
  * @description 定义品牌调性和相关资料的数据结构
@@ -184,6 +186,36 @@ export interface BrandToneAnalysis {
     brandRecognition: number;      // 品牌识别度 (1-10)
     riskControl: number;           // 风险控制 (1-10)
   };
+}
+
+/**
+ * 品牌信息条目接口
+ */
+export interface BrandInfoItem {
+  id: string;
+  content: string;
+  source: string;
+  confidence: number;
+  isPinned: boolean;
+  isBlocked: boolean;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  aiGenerated?: boolean; // AI生成的标识
+}
+
+/**
+ * 品牌语料库维度接口
+ */
+export interface BrandDimension {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  placeholder: string;
+  category: string;
+  keywords: string[];
+  content: string;
+  items: BrandInfoItem[]; // 支持多条信息
 }
 
 /**

@@ -149,7 +149,6 @@ export class DeepSeekProvider {
       return {
         content: '',
         model: params.model || 'deepseek-chat',
-        usage: undefined,
         responseTime,
         success: false,
         error: error instanceof Error ? error.message : 'DeepSeek调用失败'

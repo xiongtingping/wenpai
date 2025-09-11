@@ -10,7 +10,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTokenUsageStore } from '@/stores/tokenUsageStore';
 import { unifiedUsageDataManager } from '@/services/unifiedUsageDataManager';
-import type { UsageCountStats } from '@/services/unifiedUsageDataManager';
+import type { UsageCountStats as ServiceUsageCountStats } from '@/services/unifiedUsageDataManager';
 import { enhancedPermissionService } from '@/services/enhancedPermissionService';
 import { 
   formatRemainingUses, 
@@ -103,7 +103,7 @@ async function fetchUsageCountStats(userId: string, userTier: SubscriptionTier):
       availableUses,
       usagePercentage: calculateUsagePercentage(usedCount, availableUses, userTier),
       remainingUses: availableUses === -1 ? -1 : Math.max(0, availableUses - usedCount),
-      lastUpdated: new Date().toISOString()
+      // lastUpdated: new Date().toISOString() // 移除不存在的属性
     };
   }
 }
@@ -146,7 +146,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     availableUses: -1, // 🔧 FIX: 默认值设为无限制，避免闪烁
     usagePercentage: 0,
     remainingUses: -1, // 🔧 FIX: 默认值设为无限制，避免闪烁
-    lastUpdated: new Date().toISOString()
+    // lastUpdated: new Date().toISOString() // 移除不存在的属性
   });
 
   const [extendedStats, setExtendedStats] = useState<ExtendedStats>({
@@ -261,6 +261,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
         await refreshTokenStatsStore(user.id, currentUserTier);
       }
     } catch (error) {
+      const currentUserTier = getUserTier();
       logger.error('刷新Token统计失败:', { userId: user.id, userTier: currentUserTier, error });
       setError(error instanceof Error ? error.message : '刷新Token统计失败');
     }
@@ -337,6 +338,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       setUsageCountStats(stats);
       logger.debug('refreshUsageCountStats: 统计数据已设置');
     } catch (error) {
+      const currentUserTier = getUserTier();
       logger.error('refreshUsageCountStats: 刷新使用次数统计失败:', { userId: user.id, userTier: currentUserTier, error });
       setError(error instanceof Error ? error.message : '刷新使用次数统计失败');
     }

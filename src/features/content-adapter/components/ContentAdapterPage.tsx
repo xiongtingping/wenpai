@@ -53,6 +53,9 @@ import { getAvailablePlatforms } from '@/api/contentAdapter';
 import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
 
+// 导入增强历史记录组件
+import { EnhancedHistoryDialog } from './EnhancedHistoryDialog';
+
 /**
  * 主流平台内容发布入口URL映射 - 从原版完整迁移
  * 用于一键转发跳转
@@ -550,7 +553,8 @@ export function ContentAdapterPage({
       style: selectedStyle,
       customPrompt: customPrompt.trim() || undefined,
       useBrandLibrary,
-      brandProfile
+      brandProfile,
+      platform: selectedPlatforms[0] || 'default' // 添加必需的platform属性
     };
 
     await generateContent(request, selectedPlatforms);
@@ -564,7 +568,8 @@ export function ContentAdapterPage({
       style: selectedStyle,
       customPrompt: customPrompt.trim() || undefined,
       useBrandLibrary,
-      brandProfile
+      brandProfile,
+      platform: platformId // 添加必需的platform属性
     };
 
     await retryPlatform(platformId, request);
@@ -578,7 +583,8 @@ export function ContentAdapterPage({
       style: selectedStyle,
       customPrompt: customPrompt.trim() || undefined,
       useBrandLibrary,
-      brandProfile
+      brandProfile,
+      platform: platformId // 添加必需的platform属性
     };
 
     await generateComparison(platformId, request);
@@ -675,11 +681,11 @@ export function ContentAdapterPage({
         // 添加收藏
         const favoriteItem = favoritesUtils.createFavoriteItem(
           'content-generation',
-          `${getPlatformName(platformId)}内容 - ${versionId || '主版本'}`,
+          `${getPlatformName(platformId, availablePlatforms)}内容 - ${versionId || '主版本'}`,
           content,
           '内容适配器',
           {
-            description: `来自${getPlatformName(platformId)}的适配内容`,
+            description: `来自${getPlatformName(platformId, availablePlatforms)}的适配内容`,
             tags: [], // TODO: 可以从结果中提取标签
             metadata: {
               platformId,
@@ -757,6 +763,13 @@ export function ContentAdapterPage({
       title: '已清空',
       description: '转发历史已清空'
     });
+  };
+
+  // 删除单个历史记录
+  const deleteHistoryItem = (id: string) => {
+    const updatedHistory = shareHistory.filter(item => item.id !== id);
+    setShareHistory(updatedHistory);
+    localStorage.setItem('shareHistory', JSON.stringify(updatedHistory));
   };
 
   // 处理发布 - 一键转发功能
@@ -867,7 +880,7 @@ export function ContentAdapterPage({
         if (!content) return null;
 
         // 获取平台信息
-        const platform = platforms.find(p => p.id === pid);
+        const platform = availablePlatforms.find((p: any) => p.id === pid);
         if (!platform) return null;
 
         return {
@@ -1007,7 +1020,16 @@ export function ContentAdapterPage({
   // 重试单个平台
   const handleRetryPlatform = async (platformId: string) => {
     try {
-      await retryPlatform(platformId);
+      const request = {
+        originalContent: originalContent.trim(),
+        formId: selectedFormId,
+        style: selectedStyle,
+        customPrompt: customPrompt.trim() || undefined,
+        useBrandLibrary,
+        brandProfile,
+        platform: platformId
+      };
+      await retryPlatform(platformId, request);
       toast({
         title: "重试成功",
         description: `${platformId} 平台内容已重新生成`,
@@ -1262,7 +1284,7 @@ export function ContentAdapterPage({
             onPublishToPlatform={handlePublishToPlatform}
             onVersionSelect={handleVersionSelect}
             getPlatformIcon={getPlatformIcon}
-            getPlatformName={getPlatformName}
+            getPlatformName={(platformId: string) => getPlatformName(platformId, availablePlatforms)}
             getEffectiveCharCount={(platformId) => getEffectiveSettings(platformId).charCount}
             t={t}
           />
@@ -1319,95 +1341,15 @@ export function ContentAdapterPage({
         platforms={batchForwardPlatforms}
       />
 
-      {/* 历史记录弹窗 - 从原版完整迁移 */}
-      <Dialog open={showHistory} onOpenChange={setShowHistory}>
-        <DialogContent 
-          className="max-w-2xl"
-          style={zIndexManager.createModalStyles('DIALOG_CONTENT')}
-        >
-          <DialogHeader>
-            <DialogTitle>内容生成记录</DialogTitle>
-            <DialogDescription>
-              查看您之前生成的内容适配记录
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-2 text-foreground max-h-[60vh] overflow-auto">
-            {shareHistory.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">暂无生成记录</div>
-            ) : (
-              <div className="space-y-6">
-                {/* 按日期分组显示 */}
-                {Object.entries(
-                  shareHistory.reduce((groups: Record<string, any[]>, item) => {
-                    const date = new Date(item.time).toLocaleDateString('zh-CN', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    });
-                    if (!groups[date]) groups[date] = [];
-                    groups[date].push(item);
-                    return groups;
-                  }, {})
-                ).map(([date, items]) => (
-                  <div key={date}>
-                    <h3 className="text-sm font-semibold text-primary mb-3 border-b pb-1">
-                      {date}
-                    </h3>
-                    <div className="space-y-3">
-                      {items.map((item, index) => (
-                        <div key={`${item.id}-${index}`} className="bg-accent/50 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="text-xs">
-                                {item.platformName || item.platformId}
-                              </Badge>
-                              <span className="text-xs text-muted-foreground">
-                                {new Date(item.time).toLocaleTimeString('zh-CN', {
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                              </span>
-                            </div>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                navigator.clipboard.writeText(item.content);
-                                toast({
-                                  title: "已复制",
-                                  description: "内容已复制到剪贴板"
-                                });
-                              }}
-                              className="h-6 px-2"
-                            >
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <p className="text-sm text-foreground line-clamp-3">
-                            {item.content}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={clearShareHistory}
-              disabled={shareHistory.length === 0}
-            >
-              清空历史
-            </Button>
-            <Button variant="default" onClick={() => setShowHistory(false)}>
-              关闭
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* 增强历史记录弹窗 */}
+      <EnhancedHistoryDialog
+        open={showHistory}
+        onOpenChange={setShowHistory}
+        shareHistory={shareHistory}
+        onClearHistory={clearShareHistory}
+        onDeleteItem={deleteHistoryItem}
+        availablePlatforms={availablePlatforms}
+      />
 
       {/* 一键转发确认Dialog - 从原版完整迁移 */}
       <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>

@@ -14,7 +14,7 @@
 }
 
 /* 特别针对 Authing Guard 的隐藏辅助元素 */
-[aria-hidden="true"] div[tabindex="0"][style*="width: 0px"][style*="height: 0px"] {
+[aria-hidden="true"] div[tabindex="0"][style*="width: 0"][style*="height: 0"] {
   /* 完全移除这些元素的交互能力 */
   display: none !important;
 }

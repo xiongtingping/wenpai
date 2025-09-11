@@ -594,8 +594,11 @@ export class SubscriptionCacheStrategy {
           .sort((a, b) => a!.item.createdAt - b!.item.createdAt);
 
         const itemsToRemove = items.slice(0, storageCount - this.config.maxStorageItems);
-        for (const { key } of itemsToRemove) {
-          localStorage.removeItem(key);
+        for (const item of itemsToRemove) {
+          if (item && item.key) {
+            const { key } = item;
+            localStorage.removeItem(key);
+          }
         }
       }
     } catch (error) {

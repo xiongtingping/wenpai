@@ -79,11 +79,11 @@ interface PermissionTextProps extends Omit<ThemeAwareTextProps, 'variant'> {
 }
 
 const permissionTextVariants = {
-  title: 'text-foreground dark:text-white font-semibold',
+  title: 'text-foreground dark:text-background font-semibold',
   description: 'text-muted-foreground dark:text-slate-300',
   hint: 'text-muted-foreground dark:text-slate-400 text-xs',
   warning: 'text-orange-600 dark:text-orange-400',
-  success: 'text-green-600 dark:text-green-400'
+  success: 'text-success dark:text-green-400'
 };
 
 export const PermissionText: React.FC<PermissionTextProps> = ({
@@ -119,11 +119,11 @@ interface UpgradeTextProps extends Omit<ThemeAwareTextProps, 'variant'> {
 }
 
 const upgradeTextVariants = {
-  title: 'text-foreground dark:text-white font-bold',
+  title: 'text-foreground dark:text-background font-bold',
   feature: 'text-foreground dark:text-slate-200',
-  price: 'text-foreground dark:text-white font-bold',
-  discount: 'text-red-600 dark:text-red-400 font-medium',
-  cta: 'text-primary-foreground dark:text-white font-semibold'
+  price: 'text-foreground dark:text-background font-bold',
+  discount: 'text-destructive dark:text-red-400 font-medium',
+  cta: 'text-primary-foreground dark:text-background font-semibold'
 };
 
 export const UpgradeText: React.FC<UpgradeTextProps> = ({

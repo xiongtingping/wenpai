@@ -527,8 +527,8 @@ export default function HotTopicsRadar({
                         <Heart
                           className={`w-4 h-4 transition-colors ${
                             isBookmarked
-                              ? 'fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400'
-                              : 'text-muted-foreground hover:text-red-500 dark:hover:text-red-400'
+                              ? 'fill-red-500 text-destructive dark:fill-red-400 dark:text-red-400'
+                              : 'text-muted-foreground hover:text-destructive dark:hover:text-red-400'
                           }`}
                         />
                       </Button>

@@ -830,7 +830,7 @@ export default function MD2CardPage() {
       
       // 防止内容溢出画布
       if (yPos > dimensions.height * 0.85) {
-        return svgContent;
+        return;
       }
     });
     
@@ -913,7 +913,7 @@ export default function MD2CardPage() {
       }
       
       // 防止内容超出边界
-      if (yPos > dimensions.height - 100) return;
+      if (yPos > dimensions.height - 100) return undefined;
     });
     
     return svgContent;
@@ -1350,20 +1350,20 @@ export default function MD2CardPage() {
         {/* 主要内容区域 - 对称美观布局 */}
         <div className="flex-1 flex flex-col lg:flex-row gap-0 bg-gradient-to-r from-slate-50/30 to-blue-50/30" style={{minHeight: 'calc(100vh - 160px)'}}>
           {/* 左侧：编辑器和设置区域 */}
-          <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col ${showPreview ? 'border-r-2 border-border/60' : ''} bg-white/80 backdrop-blur-sm`} style={{minHeight: '100%', height: 'auto'}}>
+          <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col ${showPreview ? 'border-r-2 border-border/60' : ''} bg-background/80 backdrop-blur-sm`} style={{minHeight: '100%', height: 'auto'}}>
             {/* 标签页导航 */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
               {/* 优化的标签页导航 */}
               <TabsList className="w-full justify-center border-b border-border/40 rounded-none bg-gradient-to-r from-white/90 to-slate-50/90 px-6 py-4 h-auto shadow-sm">
-                <TabsTrigger value="template" className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white/80">
+                <TabsTrigger value="template" className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:bg-background/80">
                   <Square className="w-4 h-4" />
                   模板选择
                 </TabsTrigger>
-                <TabsTrigger value="content" className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white/80">
+                <TabsTrigger value="content" className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:bg-background/80">
                   <Edit3 className="w-4 h-4" />
                   内容编辑
                 </TabsTrigger>
-                <TabsTrigger value="styles" className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white/80">
+                <TabsTrigger value="styles" className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:bg-background/80">
                   <Palette className="w-4 h-4" />
                   快速样式
                 </TabsTrigger>
@@ -1431,8 +1431,8 @@ export default function MD2CardPage() {
                         <button 
                           className={`px-2 py-1 text-xs rounded transition-all ${
                             cardConfig.typography.fontSize === 'small' 
-                              ? 'bg-blue-500 text-white' 
-                              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                              ? 'bg-primary text-background' 
+                              : 'bg-background border border-slate-200 text-slate-600 hover:bg-slate-50'
                           }`}
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1444,8 +1444,8 @@ export default function MD2CardPage() {
                         <button 
                           className={`px-2 py-1 text-xs rounded transition-all ${
                             cardConfig.typography.fontSize === 'medium' 
-                              ? 'bg-blue-500 text-white' 
-                              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                              ? 'bg-primary text-background' 
+                              : 'bg-background border border-slate-200 text-slate-600 hover:bg-slate-50'
                           }`}
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1457,8 +1457,8 @@ export default function MD2CardPage() {
                         <button 
                           className={`px-2 py-1 text-xs rounded transition-all ${
                             cardConfig.typography.fontSize === 'large' 
-                              ? 'bg-blue-500 text-white' 
-                              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                              ? 'bg-primary text-background' 
+                              : 'bg-background border border-slate-200 text-slate-600 hover:bg-slate-50'
                           }`}
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1472,7 +1472,7 @@ export default function MD2CardPage() {
                     
                     <div className="flex flex-wrap gap-2">
                       {/* 标题工具 */}
-                      <div className="flex gap-1 p-1 bg-white rounded-lg border border-slate-200">
+                      <div className="flex gap-1 p-1 bg-background rounded-lg border border-slate-200">
                         <button 
                           className="p-2 rounded hover:bg-slate-100 transition-colors" 
                           title="一级标题 (Ctrl+1)"
@@ -1497,7 +1497,7 @@ export default function MD2CardPage() {
                       </div>
 
                       {/* 文本样式工具 */}
-                      <div className="flex gap-1 p-1 bg-white rounded-lg border border-slate-200">
+                      <div className="flex gap-1 p-1 bg-background rounded-lg border border-slate-200">
                         <button 
                           className="p-2 rounded hover:bg-slate-100 transition-colors" 
                           title="加粗 (Ctrl+B)"
@@ -1522,7 +1522,7 @@ export default function MD2CardPage() {
                       </div>
 
                       {/* 列表工具 */}
-                      <div className="flex gap-1 p-1 bg-white rounded-lg border border-slate-200">
+                      <div className="flex gap-1 p-1 bg-background rounded-lg border border-slate-200">
                         <button 
                           className="p-2 rounded hover:bg-slate-100 transition-colors" 
                           title="无序列表"
@@ -1547,7 +1547,7 @@ export default function MD2CardPage() {
                       </div>
 
                       {/* 链接工具 */}
-                      <div className="flex gap-1 p-1 bg-white rounded-lg border border-slate-200">
+                      <div className="flex gap-1 p-1 bg-background rounded-lg border border-slate-200">
                         <button 
                           className="p-2 rounded hover:bg-slate-100 transition-colors" 
                           title="链接"
@@ -1888,7 +1888,7 @@ export default function MD2CardPage() {
                         
                         {/* 随机配色 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border-2 border-dashed border-gray-300 shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 bg-gradient-to-br from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400"
+                          className="group relative w-10 h-10 rounded-md border-2 border-dashed border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 bg-gradient-to-br from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400"
                           title="随机配色"
                           onClick={() => {
                             const generateRandomColor = () => {
@@ -1912,7 +1912,7 @@ export default function MD2CardPage() {
                             }));
                           }}
                         >
-                          <div className="absolute inset-0 flex items-center justify-center text-white text-xs font-bold">
+                          <div className="absolute inset-0 flex items-center justify-center text-background text-xs font-bold">
                             🎲
                           </div>
                         </button>
@@ -1931,7 +1931,7 @@ export default function MD2CardPage() {
                           onChange={(e) => handleConfigChange({
                             colors: { ...cardConfig.colors, primary: e.target.value }
                           })}
-                          className="w-full h-8 rounded-md border border-gray-200 cursor-pointer hover:border-purple-300 transition-colors"
+                          className="w-full h-8 rounded-md border border-border cursor-pointer hover:border-purple-300 transition-colors"
                         />
                       </div>
                       <div className="space-y-1">
@@ -1942,7 +1942,7 @@ export default function MD2CardPage() {
                           onChange={(e) => handleConfigChange({
                             colors: { ...cardConfig.colors, secondary: e.target.value }
                           })}
-                          className="w-full h-8 rounded-md border border-gray-200 cursor-pointer hover:border-purple-300 transition-colors"
+                          className="w-full h-8 rounded-md border border-border cursor-pointer hover:border-purple-300 transition-colors"
                         />
                       </div>
                       <div className="space-y-1">
@@ -1953,7 +1953,7 @@ export default function MD2CardPage() {
                           onChange={(e) => handleConfigChange({
                             colors: { ...cardConfig.colors, background: e.target.value }
                           })}
-                          className="w-full h-8 rounded-md border border-gray-200 cursor-pointer hover:border-purple-300 transition-colors"
+                          className="w-full h-8 rounded-md border border-border cursor-pointer hover:border-purple-300 transition-colors"
                         />
                       </div>
                       </div>
@@ -1980,18 +1980,18 @@ export default function MD2CardPage() {
                             setMarkdownContent(currentContent); // 恢复原内容
                           }, 100);
                         }}
-                        className="w-full h-12 text-base font-medium bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                        className="w-full h-12 text-base font-medium bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-background rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                       >
                         🎲 重新生成背景样式
                       </Button>
                       
                       <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-4">
                         {['圆形', '三角形', '线条', '点阵', '波浪'].map((style, index) => (
-                          <div key={style} className="text-center p-2 bg-white/50 rounded-lg border border-orange-100">
+                          <div key={style} className="text-center p-2 bg-background/50 rounded-lg border border-orange-100">
                             <div className="text-lg mb-1">
                               {['○', '△', '—', '···', '～'][index]}
                             </div>
-                            <div className="text-xs text-gray-600">{style}</div>
+                            <div className="text-xs text-muted-foreground">{style}</div>
                           </div>
                         ))}
                       </div>
@@ -2081,7 +2081,7 @@ export default function MD2CardPage() {
                         
                         return (
                           <div className="relative w-full h-full flex items-center justify-center">
-                            <div className={`bg-white rounded-xl shadow-2xl border-2 border-gray-200/50 ring-1 ring-gray-300/20 hover:shadow-3xl transition-all duration-300 ${
+                            <div className={`bg-background rounded-xl shadow-2xl border-2 border-border/50 ring-1 ring-gray-300/20 hover:shadow-3xl transition-all duration-300 ${
                               isGenerating ? 'animate-pulse shadow-pulse' : 'shadow-[0_10px_40px_-15px_rgba(0,0,0,0.3)]'
                             }`}
                             style={{
@@ -2104,8 +2104,8 @@ export default function MD2CardPage() {
                                 }}
                               />
                               {/* 悬停放大提示 */}
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-xl flex items-center justify-center">
-                                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                              <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-300 rounded-xl flex items-center justify-center">
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-foreground/50 text-background px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
                                   <Maximize className="w-4 h-4" />
                                   点击放大查看
                                 </div>
@@ -2176,7 +2176,7 @@ export default function MD2CardPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '80px 40px 40px 40px'
+            padding: 'var(--spacing-20) var(--spacing-10) var(--spacing-10) var(--spacing-10)'
           }}
           onClick={() => setIsFullscreenOpen(false)}
         >
@@ -2184,17 +2184,17 @@ export default function MD2CardPage() {
           <button
             style={{
               position: 'absolute',
-              top: '16px',
-              right: '16px',
+              top: 'var(--spacing-4)',
+              right: 'var(--spacing-4)',
               color: 'white',
               background: 'rgba(255, 255, 255, 0.2)',
               border: 'none',
               cursor: 'pointer',
               zIndex: 1000000,
-              width: '40px',
-              height: '40px',
+              width: 'var(--spacing-10)',
+              height: 'var(--spacing-10)',
               borderRadius: '50%',
-              fontSize: '18px',
+              fontSize: 'var(--spacing-4-5)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -2222,13 +2222,13 @@ export default function MD2CardPage() {
               src={cardData.imageData} 
               alt="卡片全屏预览" 
               style={{
-                maxWidth: 'calc(100vw - 80px)',
+                maxWidth: 'calc(100vw - var(--spacing-20))',
                 maxHeight: 'calc(100vh - 180px)',
                 width: 'auto',
                 height: 'auto',
                 display: 'block',
                 objectFit: 'contain',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+                boxShadow: '0 25px 50px -var(--spacing-3) hsl(var(--foreground) / 0.5)'
               }}
               onClick={(e) => e.stopPropagation()}
             />
@@ -2238,11 +2238,11 @@ export default function MD2CardPage() {
           <div 
             style={{
               position: 'absolute',
-              bottom: '16px',
+              bottom: 'var(--spacing-4)',
               left: '50%',
               transform: 'translateX(-50%)',
               color: 'rgba(255, 255, 255, 0.8)',
-              fontSize: '14px'
+              fontSize: 'var(--spacing-3-5)'
             }}
           >
             按 ESC 或点击空白区域关闭

@@ -81,63 +81,111 @@
 - **禁止方案**：  
   严禁使用SingletonManager等patch式修复方案，必须从构建配置层面彻底解决
 
-#### 3.6.2 Dialog弹窗3993px定位异常错误
-- **问题背景**：  
-  快速引用对话框出现神秘的`top: '3993px'`定位值，导致弹窗显示在屏幕外，用户无法看到
-- **根本原因分析过程**：  
-  - 通过系统性排查发现3993px来源于`authing-guard.min.js`认证库
-  - Authing认证库在DOM操作时会干扰其他弹窗组件的定位计算
-  - Radix UI Dialog组件受到外部库的样式干扰，无法正常居中显示
-- **失败的修复尝试**（patch式修复，已证明无效）：  
-  - CSS !important覆盖 → 被外部干扰覆盖
-  - JavaScript原型方法拦截 → 无法完全阻止干扰
-  - MutationObserver监控 → 性能问题且治标不治本
-  - Radix UI配置调整 → 根本问题未解决
-- **根本性解决方案**：  
-  - **完全绕过外部干扰**：使用手动DOM创建（document.createElement）替代React组件渲染
-  - **精确视窗居中计算**：基于当前可见视窗区域进行数学居中，而非基于文档顶部
-  - **实时位置跟踪**：监听scroll/resize事件，确保弹窗始终在可见区域中心
-  - **绝对定位系统**：使用position: absolute配合精确像素值，完全控制定位
-- **技术实现详情**：  
-  ```javascript
-  // 核心解决方案代码模式
-  const getViewportInfo = () => {
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-    return {
-      centerX: scrollX + window.innerWidth / 2,
-      centerY: scrollY + window.innerHeight / 2,
-      visibleTop: scrollY,
-      visibleLeft: scrollX
-    };
-  };
-  
-  // 遮罩层：覆盖当前可见区域
-  overlay.style.cssText = `
-    position: absolute !important;
-    top: ${visibleTop}px !important;
-    left: ${visibleLeft}px !important;
-  `;
-  
-  // 弹窗：精确居中于可见区域
-  modal.style.cssText = `
-    position: absolute !important;
-    top: ${centerY}px !important;
-    left: ${centerX}px !important;
+#### 3.6.2 Dialog弹窗定位异常错误（完整解决方案）
+- **问题背景**：
+  快速引用Dialog弹窗显示在浏览器窗口的左上角，而不是预期的屏幕中央位置，导致用户无法正常使用弹窗功能
+- **根本原因分析**：
+  - **CSS选择器不匹配**：CSS修复文件使用`[data-radix-dialog-content]`选择器，但实际Dialog元素只有`[role="dialog"]`属性
+  - **动画类冲突**：Tailwind CSS的`slide-in-from-left-1/2`和`slide-in-from-top-[48%]`动画类干扰了Dialog的定位计算
+  - **样式优先级问题**：多重样式系统（Radix UI + Tailwind + CSS变量 + 内联样式）导致优先级冲突
+  - **组件库架构冲突**：Radix UI Dialog组件的DOM结构与预期的CSS选择器不一致
+- **失败的修复尝试**（patch式修复，已证明不可持续）：
+  - 单一CSS选择器修复 → 无法匹配实际DOM结构
+  - 纯CSS !important覆盖 → 被动画类和内联样式覆盖
+  - 单次JavaScript修复 → 无法应对组件重新渲染
+  - CSS变量设置 → 在某些情况下被忽略
+- **根本性解决方案**：
+  - **多选择器CSS支持**：同时支持`[role="dialog"]`和`[data-radix-dialog-content]`选择器
+  - **JavaScript运行时修复器**：在Dialog打开时自动清除冲突样式并强制应用正确定位
+  - **双重保护机制**：CSS基础修复 + JavaScript强化修复，确保在各种情况下都能正常工作
+  - **样式冲突消除**：移除导致定位冲突的动画类，重置所有可能影响定位的CSS属性
+- **技术实现详情**：
+  ```css
+  /* CSS修复：支持多种Dialog选择器 */
+  [role="dialog"],
+  [data-radix-dialog-content] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
     transform: translate(-50%, -50%) !important;
-  `;
+    z-index: 1055 !important;
+    margin: 0 !important;
+    inset: auto !important;
+  }
+
+  /* 快速引用Dialog特殊修复 */
+  [role="dialog"].quick-reference-dialog,
+  [data-radix-dialog-content].quick-reference-dialog {
+    max-width: min(95vw, 1024px) !important;
+    max-height: 85vh !important;
+    --position-center-y: 50% !important;
+    --position-center-x: 50% !important;
+    --dialog-transform: translate(-50%, -50%) !important;
+  }
   ```
-- **验证标准**：  
-  - 弹窗必须在当前可视区域精确居中，不受页面滚动位置影响
-  - 背景遮罩必须完全覆盖当前可见的视窗区域
-  - 滚动页面时弹窗位置实时跟随，始终保持居中
-  - 控制台日志显示精确的居中计算数据
-- **禁止方案**：  
-  - 严禁使用CSS覆盖、!important声明等patch式修复
-  - 严禁使用Radix UI、Material UI等可能受外部干扰的组件库
-  - 严禁基于vh/vw单位的相对定位（无法应对滚动场景）
-- **适用场景扩展**：  
-  所有弹窗、对话框、浮层组件都应采用此模式，确保在复杂的第三方库环境中稳定工作
+
+  ```javascript
+  // JavaScript运行时修复器
+  useEffect(() => {
+    if (!open) return;
+
+    const fixDialogPosition = () => {
+      // 多选择器查找Dialog元素
+      const dialogElement = document.querySelector('[role="dialog"].quick-reference-dialog') ||
+                           document.querySelector('[role="dialog"]') ||
+                           document.querySelector('[data-radix-dialog-content].quick-reference-dialog');
+
+      if (dialogElement) {
+        // 清除冲突样式
+        dialogElement.style.removeProperty('top');
+        dialogElement.style.removeProperty('left');
+        dialogElement.style.removeProperty('transform');
+
+        // 强制应用正确定位
+        dialogElement.style.setProperty('position', 'fixed', 'important');
+        dialogElement.style.setProperty('top', '50%', 'important');
+        dialogElement.style.setProperty('left', '50%', 'important');
+        dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+        dialogElement.style.setProperty('z-index', '1055', 'important');
+        dialogElement.style.setProperty('margin', '0', 'important');
+      }
+    };
+
+    // 多时机执行修复
+    fixDialogPosition();
+    setTimeout(fixDialogPosition, 50);
+    setTimeout(fixDialogPosition, 150);
+    setTimeout(fixDialogPosition, 300);
+  }, [open]);
+  ```
+- **修改的文件列表**：
+  1. `src/styles/dialog-positioning-fix-clean.css` - 更新CSS选择器支持多种Dialog元素类型
+  2. `src/components/creative/QuickReference/QuickReferenceDialog.tsx` - 添加JavaScript运行时修复器
+  3. `src/styles/dialog-positioning-fix.css` - 修复CSS语法错误，统一选择器
+- **验证标准**：
+  - Dialog必须始终显示在浏览器视口的正中央（centerX: 720, centerY: 339 for 1440x678视口）
+  - 背景遮罩必须完全覆盖整个浏览器视口
+  - Dialog打开时控制台显示"🎯 Dialog定位修复已应用"日志
+  - 通过`getBoundingClientRect()`验证Dialog中心点与视口中心点偏差小于5像素
+  - 在不同屏幕尺寸下都能正确居中显示
+- **防复发措施**：
+  - **依赖更新监控**：Radix UI和Tailwind CSS更新前必须进行Dialog定位回归测试
+  - **自动化测试**：添加Dialog定位的视觉回归测试用例
+  - **代码审查清单**：Dialog相关修改必须检查定位影响
+  - **Lint规则**：禁止在Dialog组件中使用可能冲突的内联定位样式
+  - **文档维护**：维护Dialog组件使用最佳实践文档
+- **禁止方案**：
+  - 严禁删除或修改现有的双重保护机制（CSS + JavaScript）
+  - 严禁移除`!important`声明，这是确保样式优先级的关键
+  - 严禁使用单一修复方案，必须保持多重保护
+  - 严禁在没有充分测试的情况下升级Radix UI或Tailwind CSS版本
+- **适用场景扩展**：
+  此解决方案适用于所有基于Radix UI的Dialog组件，包括但不限于：
+  - 快速引用Dialog
+  - 确认对话框
+  - 表单弹窗
+  - 图片预览弹窗
+  - 设置面板等
 
 ## 4. 功能模块与系统操作
 
@@ -253,4 +301,20 @@ Claude MUST read and strictly follow these rules.
 
 **目标：保持系统稳定、避免破坏、提升可维护性**
 **执行模式：强制读取 → 严格遵循 → 持续验证 → 违规纠正**
-- 所有的保存都是保存到supabase，而不是本地模拟。统一数据化管理系统（数据持久化、数据预加载、用户数据隔离、用户数据安全性）
+
+## 8. 数据管理与测试规范
+
+### 8.1 数据持久化策略
+- **统一数据化管理系统**：
+  所有的保存都是保存到Supabase，而不是本地模拟。统一数据化管理系统包括：
+  - 数据持久化：所有用户数据必须持久化到Supabase数据库
+  - 数据预加载：系统启动时预加载必要的用户数据
+  - 用户数据隔离：确保不同用户的数据完全隔离
+  - 用户数据安全性：所有敏感数据必须加密存储和传输
+
+### 8.2 测试文件管理
+- **测试完成后清理**：
+  测试完成后必须删除创建的test测试文件和代码，保持代码库的整洁性。
+  - 临时测试文件不得提交到版本控制系统
+  - 测试数据不得污染生产环境
+  - 测试完成后必须恢复原始状态

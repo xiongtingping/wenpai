@@ -51,7 +51,7 @@ class UnifiedHeatScoreService {
    * 标准化热度分数
    */
   normalizeHeatScore(item: DailyHotItem): NormalizedHeatScore {
-    const platform = item.platform.toLowerCase();
+    const platform = item.platform?.toLowerCase() || 'unknown';
     const rawValue = this.parseHeatValue(item.hot);
     
     // 获取平台基准
@@ -65,8 +65,8 @@ class UnifiedHeatScoreService {
     baseScore *= platformWeight;
     
     // 时间衰减（如果有时间信息）
-    if (item.timestamp || item.publishedAt) {
-      const timeDecay = this.calculateTimeDecay(item.timestamp || item.publishedAt);
+    if (item.timestamp || (item as any).publishedAt) {
+      const timeDecay = this.calculateTimeDecay(item.timestamp || (item as any).publishedAt);
       baseScore *= timeDecay;
     }
     
@@ -347,7 +347,7 @@ class UnifiedHeatScoreService {
    * 更新平台基准值
    */
   updatePlatformBaseline(platform: string, baseline: { min: number; max: number; unit: string }): void {
-    this.platformBaselines[platform] = baseline;
+    this.platformBaselines[platform] = { ...baseline, avgHeat: 0 };
   }
 
   /**
@@ -357,7 +357,7 @@ class UnifiedHeatScoreService {
     const stats: Record<string, { count: number; totalScore: number; maxScore: number }> = {};
     
     items.forEach(item => {
-      const platform = item.platform.toLowerCase();
+      const platform = item.platform?.toLowerCase() || 'unknown';
       const score = this.normalizeHeatScore(item).score;
       
       if (!stats[platform]) {

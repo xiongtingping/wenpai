@@ -68,9 +68,9 @@ export const PermissionUpgradeCard: React.FC<PermissionUpgradeCardProps> = ({
   const getPlanIcon = (tier: string) => {
     switch (tier) {
       case 'trial':
-        return <Sparkles className="h-5 w-5 text-gray-500" />;
+        return <Sparkles className="h-5 w-5 text-muted-foreground" />;
       case 'pro':
-        return <Zap className="h-5 w-5 text-blue-500" />;
+        return <Zap className="h-5 w-5 text-primary" />;
       case 'premium':
         return <Crown className="h-5 w-5 text-purple-500" />;
       default:
@@ -82,20 +82,20 @@ export const PermissionUpgradeCard: React.FC<PermissionUpgradeCardProps> = ({
   const getPlanTheme = (tier: string, isSelected: boolean = false) => {
     const themes = {
       trial: {
-        border: isSelected ? 'border-gray-400' : 'border-gray-200',
-        bg: isSelected ? 'bg-gray-50' : 'bg-white',
-        badge: 'bg-gray-100 text-gray-800',
+        border: isSelected ? 'border-gray-400' : 'border-border',
+        bg: isSelected ? 'bg-gray-50' : 'bg-background',
+        badge: 'bg-muted text-gray-800',
         button: 'bg-gray-600 hover:bg-gray-700'
       },
       pro: {
         border: isSelected ? 'border-blue-400' : 'border-blue-200',
-        bg: isSelected ? 'bg-blue-50' : 'bg-white',
+        bg: isSelected ? 'bg-blue-50' : 'bg-background',
         badge: 'bg-blue-100 text-blue-800',
-        button: 'bg-blue-600 hover:bg-blue-700'
+        button: 'bg-primary hover:bg-blue-700'
       },
       premium: {
         border: isSelected ? 'border-purple-400' : 'border-purple-200',
-        bg: isSelected ? 'bg-purple-50' : 'bg-white',
+        bg: isSelected ? 'bg-purple-50' : 'bg-background',
         badge: 'bg-purple-100 text-purple-800',
         button: 'bg-purple-600 hover:bg-purple-700'
       }
@@ -147,7 +147,7 @@ export const PermissionUpgradeCard: React.FC<PermissionUpgradeCardProps> = ({
             <div className="space-y-2">
               {currentPlan?.features.slice(0, 4).map((feature, index) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
-                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  <Check className="h-4 w-4 text-success flex-shrink-0" />
                   <span>{feature}</span>
                 </div>
               ))}
@@ -218,7 +218,7 @@ export const PermissionUpgradeCard: React.FC<PermissionUpgradeCardProps> = ({
                 <div className="space-y-2">
                   {plan.features.slice(0, 4).map((feature, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <Check className="h-4 w-4 text-success flex-shrink-0" />
                       <span>{feature}</span>
                     </div>
                   ))}
@@ -232,7 +232,7 @@ export const PermissionUpgradeCard: React.FC<PermissionUpgradeCardProps> = ({
 
                 <Button
                   onClick={() => handleUpgrade(plan.id)}
-                  className={`w-full ${theme.button} text-white`}
+                  className={`w-full ${theme.button} text-background`}
                   size="lg"
                 >
                   <Crown className="h-4 w-4 mr-2" />

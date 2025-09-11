@@ -11,6 +11,7 @@
 
 import { supabase } from '@/config/supabase';
 import { logger } from '@/utils/logger';
+import React from 'react';
 
 // 简化的表结构定义
 const ESSENTIAL_TABLES = {

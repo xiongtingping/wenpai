@@ -178,7 +178,7 @@ export const ThemeAwareUpgradeCard: React.FC<ThemeAwareUpgradeCardProps> = ({
           className={`
             ${sizeClasses.button} 
             ${theme.buttonColor} 
-            text-white font-medium w-full
+            text-background font-medium w-full
             ${animated ? 'transform transition-all duration-200 hover:scale-105' : ''}
             shadow-lg
           `}

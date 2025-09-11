@@ -815,27 +815,27 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
       <style>{`
         .avatar-card {
           background: hsl(var(--background));
-          border-radius: 16px; /* 更紧凑圆角 */
-          padding: 14px;       /* 减少内边距 */
+          border-radius: var(--spacing-4); /* 更紧凑圆角 */
+          padding: var(--spacing-3-5);       /* 减少内边距 */
           text-align: center;
-          box-shadow: 0 6px 24px hsl(var(--foreground) / 0.08);
+          box-shadow: 0 var(--spacing-1-5) var(--spacing-6) hsl(var(--foreground) / 0.08);
           transition: box-shadow 0.2s ease, transform 0.2s ease;
           cursor: pointer;
           position: relative;
         }
         .avatar-card:hover {
           transform: translateY(-3px);
-          box-shadow: 0 10px 32px hsl(var(--foreground) / 0.16);
+          box-shadow: 0 var(--spacing-2-5) var(--spacing-8) hsl(var(--foreground) / 0.16);
         }
         .avatar-card:hover .hover-button { opacity: 1; }
         .avatar-display {
-          width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 12px; /* 更紧凑的图标与间距 */
+          width: 72px; height: 72px; border-radius: var(--radius-full); margin: 0 auto var(--spacing-3); /* 更紧凑的图标与间距 */
           display: flex; align-items: center; justify-content: center;
-          font-size: 3rem; box-shadow: 0 3px 12px hsl(var(--foreground) / 0.08);
+          font-size: var(--spacing-12); box-shadow: 0 3px var(--spacing-3) hsl(var(--foreground) / 0.08);
         }
-        .avatar-name { font-weight: 600; color: hsl(var(--foreground)); margin-bottom: 4px; }
-        .avatar-emoji { margin-bottom: 8px; }
-        .avatar-color { font-size: 0.85rem; color: hsl(var(--muted-foreground)); background: hsl(var(--muted)); padding: 3px 8px; border-radius: 10px; display: inline-block; }
+        .avatar-name { font-weight: 600; color: hsl(var(--foreground)); margin-bottom: var(--spacing-1); }
+        .avatar-emoji { margin-bottom: var(--spacing-2); }
+        .avatar-color { font-size: 0.85rem; color: hsl(var(--muted-foreground)); background: hsl(var(--muted)); padding: 3px var(--spacing-2); border-radius: var(--spacing-2-5); display: inline-block; }
         .hover-button { opacity: 0; transition: opacity 0.2s ease; }
       `}</style>
 

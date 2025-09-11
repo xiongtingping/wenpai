@@ -39,15 +39,15 @@
   /* ===== 字号系统 ===== */
   :root {
     /* 基础字号 */
-    --text-xs: 0.75rem;      /* 12px - 辅助信息、标签 */
-    --text-sm: 0.875rem;     /* 14px - 小号正文、说明 */
-    --text-base: 1rem;       /* 16px - 标准正文 */
-    --text-lg: 1.125rem;     /* 18px - 大号正文、小标题 */
-    --text-xl: 1.25rem;      /* 20px - 中等标题 */
-    --text-2xl: 1.5rem;      /* 24px - 大标题 */
+    --text-xs: var(--spacing-3);      /* var(--spacing-3) - 辅助信息、标签 */
+    --text-sm: 0.875rem;     /* var(--spacing-3-5) - 小号正文、说明 */
+    --text-base: var(--spacing-4);       /* var(--spacing-4) - 标准正文 */
+    --text-lg: 1.125rem;     /* var(--spacing-4-5) - 大号正文、小标题 */
+    --text-xl: var(--spacing-5);      /* var(--spacing-5) - 中等标题 */
+    --text-2xl: var(--spacing-6);      /* var(--spacing-6) - 大标题 */
     --text-3xl: 1.875rem;    /* 30px - 主标题 */
-    --text-4xl: 2.25rem;     /* 36px - 超大标题 */
-    --text-5xl: 3rem;        /* 48px - 展示标题 */
+    --text-4xl: 2.25rem;     /* var(--spacing-9) - 超大标题 */
+    --text-5xl: var(--spacing-12);        /* var(--spacing-12) - 展示标题 */
     --text-6xl: 3.75rem;     /* 60px - 英雄标题 */
   }
 

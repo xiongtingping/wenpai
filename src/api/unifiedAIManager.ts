@@ -215,8 +215,8 @@ export class UnifiedAIManager {
       const response = await this.makeHTTPRequest(config, requestBody);
       
       // 解析响应
-      const aiResponse = this.parseAIResponse(response, config, params, startTime);
-      
+      const aiResponse = await this.parseAIResponse(response, config, params, startTime);
+
       return {
         ...aiResponse,
         provider: config.provider,
@@ -320,7 +320,7 @@ export class UnifiedAIManager {
     config: UnifiedAIConfig, 
     params: AICallParams, 
     startTime: number
-  ): AIResponse {
+  ): Promise<AIResponse> {
     return response.json().then(data => {
       const responseTime = Date.now() - startTime;
       
@@ -533,6 +533,3 @@ logger.info('🤖 统一AI管理器已加载', {
   providers: status.availableProviders,
   message: '所有AI调用已统一管理，硬编码问题已解决'
 });
-
-// 导出类型
-export type { UnifiedAIConfig, ExtendedAIResponse };

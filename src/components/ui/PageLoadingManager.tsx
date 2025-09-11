@@ -230,7 +230,7 @@ export const PageLoadingScreen: React.FC<PageLoadingScreenProps> = ({
       <div className={`flex items-center justify-center min-h-screen p-6 ${className}`}>
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center space-y-4">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
+            <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
             <h3 className="text-lg font-semibold text-foreground">加载失败</h3>
             <p className="text-muted-foreground text-sm">
               {state.error || '页面加载时发生错误'}

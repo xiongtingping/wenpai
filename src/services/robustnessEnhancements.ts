@@ -295,7 +295,7 @@ export class RetryManager {
           return {
             success: false,
             error: errorType,
-            errorMessage: error?.message,
+            errorMessage: (error as Error)?.message,
             retries: attempt - 1,
             duration: Date.now() - startTime
           };

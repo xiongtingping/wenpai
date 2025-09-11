@@ -48,12 +48,12 @@ const getMainFeatures = (t: any) => [
     description: t('home.featuresSection.mainFeatures.contentAdapter.description'),
     icon: Zap,
     path: '/new-adapt',
-    color: 'bg-gradient-to-br from-yellow-500 to-orange-600 text-white',
+    color: 'bg-gradient-to-br from-yellow-500 to-orange-600 text-background',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: `🔥 ${t('home.featuresSection.mainFeatures.contentAdapter.badge')}`,
-    badgeColor: 'bg-gradient-to-r from-red-500 to-orange-500 text-white',
+    badgeColor: 'bg-gradient-to-r from-red-500 to-orange-500 text-background',
     features: t('home.featuresSection.mainFeatures.contentAdapter.features', { returnObjects: true })
   },
   {
@@ -61,12 +61,12 @@ const getMainFeatures = (t: any) => [
     description: t('home.featuresSection.mainFeatures.creativeCube.description'),
     icon: Sparkles,
     path: '/creative-studio',
-    color: 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white',
+    color: 'bg-gradient-to-br from-purple-500 to-indigo-600 text-background',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: `💎 ${t('home.featuresSection.mainFeatures.creativeCube.badge')}`,
-    badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white',
+    badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500 text-background',
     features: t('home.featuresSection.mainFeatures.creativeCube.features', { returnObjects: true })
   },
   {
@@ -74,12 +74,12 @@ const getMainFeatures = (t: any) => [
     description: t('home.featuresSection.mainFeatures.hotRadar.description'),
     icon: TrendingUp,
     path: '/hot-topics',
-    color: 'bg-gradient-to-br from-green-500 to-emerald-600 text-white',
+    color: 'bg-gradient-to-br from-green-500 to-emerald-600 text-background',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: `🔥 ${t('home.featuresSection.mainFeatures.hotRadar.badge')}`,
-    badgeColor: 'bg-gradient-to-r from-green-500 to-teal-500 text-white',
+    badgeColor: 'bg-gradient-to-r from-green-500 to-teal-500 text-background',
     features: t('home.featuresSection.mainFeatures.hotRadar.features', { returnObjects: true })
   },
   {
@@ -87,12 +87,12 @@ const getMainFeatures = (t: any) => [
     description: t('home.featuresSection.mainFeatures.myLibrary.description'),
     icon: FolderOpen,
     path: '/brand-library',
-    color: 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white',
+    color: 'bg-gradient-to-br from-blue-500 to-cyan-600 text-background',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: `💡 ${t('home.featuresSection.mainFeatures.myLibrary.badge')}`,
-    badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white',
+    badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-background',
     features: t('home.featuresSection.mainFeatures.myLibrary.features', { returnObjects: true })
   },
   {
@@ -100,12 +100,12 @@ const getMainFeatures = (t: any) => [
     description: t('home.featuresSection.mainFeatures.brandLibrary.description'),
     icon: Users,
     path: '/brand-library',
-    color: 'bg-gradient-to-br from-rose-500 to-pink-600 text-white',
+    color: 'bg-gradient-to-br from-rose-500 to-pink-600 text-background',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: `👑 ${t('home.featuresSection.mainFeatures.brandLibrary.badge')}`,
-    badgeColor: 'bg-gradient-to-r from-rose-500 to-pink-500 text-white',
+    badgeColor: 'bg-gradient-to-r from-rose-500 to-pink-500 text-background',
     features: t('home.featuresSection.mainFeatures.brandLibrary.features', { returnObjects: true })
   },
 ];
@@ -119,7 +119,7 @@ const getQuickTools = (t: any) => [
     description: t('home.featuresSection.quickTools.emojiGenerator.description'),
     icon: Smile,
     path: '/emoji',
-    color: 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white',
+    color: 'bg-gradient-to-br from-yellow-400 to-orange-500 text-background',
     theme: 'warm',
   },
   {
@@ -127,7 +127,7 @@ const getQuickTools = (t: any) => [
     description: t('home.featuresSection.quickTools.wechatTemplate.description'),
     icon: MessageCircle,
     path: '/wechat-templates',
-    color: 'bg-gradient-to-br from-green-400 to-emerald-500 text-white',
+    color: 'bg-gradient-to-br from-green-400 to-emerald-500 text-background',
     theme: 'nature',
   },
   {
@@ -135,7 +135,7 @@ const getQuickTools = (t: any) => [
     description: t('home.featuresSection.quickTools.history.description'),
     icon: Clock,
     path: '/history',
-    color: 'bg-gradient-to-br from-purple-400 to-indigo-500 text-white',
+    color: 'bg-gradient-to-br from-purple-400 to-indigo-500 text-background',
     theme: 'elegant',
   },
   {
@@ -143,7 +143,7 @@ const getQuickTools = (t: any) => [
     description: t('home.featuresSection.quickTools.settings.description'),
     icon: Settings,
     path: '/settings',
-    color: 'bg-gradient-to-br from-gray-400 to-slate-500 text-white',
+    color: 'bg-gradient-to-br from-gray-400 to-slate-500 text-background',
     theme: 'neutral',
   },
 ];
@@ -156,28 +156,28 @@ const getAdvantages = (t: any) => [
     title: `🤖 ${t('home.featuresSection.advantages.aiPowered.title')}`,
     description: t('home.featuresSection.advantages.aiPowered.description'),
     icon: Target,
-    color: 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white',
+    color: 'bg-gradient-to-br from-indigo-500 to-purple-600 text-background',
     bgColor: 'bg-accent',
   },
   {
     title: `🌐 ${t('home.featuresSection.advantages.multiPlatform.title')}`,
     description: t('home.featuresSection.advantages.multiPlatform.description'),
     icon: Globe,
-    color: 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white',
+    color: 'bg-gradient-to-br from-cyan-500 to-blue-600 text-background',
     bgColor: 'bg-accent',
   },
   {
     title: `🎨 ${t('home.featuresSection.advantages.professionalTools.title')}`,
     description: t('home.featuresSection.advantages.professionalTools.description'),
     icon: Palette,
-    color: 'bg-gradient-to-br from-pink-500 to-rose-600 text-white',
+    color: 'bg-gradient-to-br from-pink-500 to-rose-600 text-background',
     bgColor: 'bg-accent',
   },
   {
     title: `🔒 ${t('home.featuresSection.advantages.security.title')}`,
     description: t('home.featuresSection.advantages.security.description'),
     icon: Shield,
-    color: 'bg-gradient-to-br from-emerald-500 to-green-600 text-white',
+    color: 'bg-gradient-to-br from-emerald-500 to-green-600 text-background',
     bgColor: 'bg-accent',
   },
 ];

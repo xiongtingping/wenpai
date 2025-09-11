@@ -126,29 +126,29 @@ export function ExportControls({
           background: #fff;
           max-width: 800px;
           margin: 0 auto;
-          padding: 20px;
+          padding: var(--spacing-5);
         }
         h1, h2, h3 { color: #ff6b6b; margin-top: 1.5em; margin-bottom: 0.8em; }
-        h1 { font-size: 1.5em; border-bottom: 2px solid #ff6b6b; padding-bottom: 0.3em; }
-        h2 { font-size: 1.3em; border-left: 4px solid #ff6b6b; padding-left: 0.5em; }
+        h1 { font-size: 1.5em; border-bottom: var(--spacing-0-5) solid #ff6b6b; padding-bottom: 0.3em; }
+        h2 { font-size: 1.3em; border-left: var(--spacing-1) solid #ff6b6b; padding-left: 0.5em; }
         h3 { font-size: 1.1em; }
         p { margin: 0.8em 0; text-align: justify; }
         blockquote { 
           margin: 1em 0; padding: 0.8em 1em; 
-          background: #ffeaea; border-left: 4px solid #ff6b6b; 
-          border-radius: 0 4px 4px 0; font-style: italic; 
+          background: #ffeaea; border-left: var(--spacing-1) solid #ff6b6b; 
+          border-radius: var(--radius-none) var(--spacing-1) var(--spacing-1) 0; font-style: italic; 
         }
         code { 
           background: #f5f5f5; padding: 0.2em 0.4em; 
           border-radius: 3px; font-family: 'Monaco', 'Menlo', monospace; 
         }
         pre { 
-          background: #f8f8f8; padding: 1em; border-radius: 6px; 
+          background: #f8f8f8; padding: 1em; border-radius: var(--spacing-1-5); 
           overflow-x: auto; margin: 1em 0; border: 1px solid #eee; 
         }
         ul, ol { margin: 0.8em 0; padding-left: 2em; }
         li { margin: 0.3em 0; }
-        img { max-width: 100%; height: auto; margin: 1em 0; border-radius: 4px; }
+        img { max-width: 100%; height: auto; margin: 1em 0; border-radius: var(--spacing-1); }
         a { color: #ff6b6b; text-decoration: none; }
         a:hover { text-decoration: underline; }
         strong { color: #ff6b6b; }

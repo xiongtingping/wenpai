@@ -416,7 +416,7 @@ export default function MD2WeChatPage() {
           </div>
 
           {/* 主要内容区域 */}
-          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-var(--header-height,64px)-120px)]">
+          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-var(--header-height,var(--spacing-16))-120px)]">
             {/* 编辑器区域 */}
             <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col h-full ${showPreview ? 'border-r border-border' : ''}`}>
 

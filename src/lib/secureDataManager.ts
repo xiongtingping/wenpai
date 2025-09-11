@@ -7,7 +7,7 @@ import { secureStorage } from '@/lib/security';
 import { UnifiedStorageKeyManager } from '@/lib/unifiedStorageManager';
 import { userSwitchDataCleaner } from '@/lib/userSwitchDataCleaner';
 import { guestDataIsolation } from '@/lib/guestDataIsolation';
-import { storageQuotaManager } from '@/lib/storageQuotaManager';
+import { storageQuotaManager, StorageQuotaManager } from '@/lib/storageQuotaManager';
 import { safeLocalStorage, dataTypeValidator } from '@/lib/dataTypeValidator';
 
 export interface SecurityConfig {
@@ -277,7 +277,7 @@ export class SecureDataManager {
       userIsolation: !!this.currentUserId,
       dataValidation: this.config.enableDataValidation,
       encryption: this.config.enableEncryption,
-      quotaStatus: `${Math.round(quotaInfo.percentage * 100)}% (${storageQuotaManager.formatBytes(quotaInfo.used)})`,
+      quotaStatus: `${Math.round(quotaInfo.percentage * 100)}% (${StorageQuotaManager.formatBytes(quotaInfo.used)})`,
       recommendations
     };
   }

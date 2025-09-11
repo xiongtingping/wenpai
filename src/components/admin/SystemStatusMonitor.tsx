@@ -100,6 +100,7 @@ export const SystemStatusMonitor: React.FC = () => {
       const interval = setInterval(fetchSystemStatus, 30000); // 30秒刷新一次
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [autoRefresh]);
 
   if (loading && !systemStatus) {

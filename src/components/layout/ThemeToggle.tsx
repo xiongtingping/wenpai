@@ -61,7 +61,7 @@ const themes: ThemeConfig[] = [
   {
     value: 'green',
     label: '绿色',
-    icon: <div className="w-4 h-4 rounded-full bg-green-500" />,
+    icon: <div className="w-4 h-4 rounded-full bg-success" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
     description: '护眼绿色主题，自然清新风格',
@@ -300,12 +300,12 @@ export const ThemeToggle: React.FC = () => {
             className="absolute right-0 top-full mt-2 w-64 bg-popover border border-border rounded-md shadow-lg z-[999999]"
             style={{
               position: 'absolute',
-              top: 'calc(100% + 8px)',
-              right: '0px',
+              top: 'calc(100% + var(--spacing-2))',
+              right: '0',
               zIndex: 999999,
               backgroundColor: 'var(--popover)',
               borderColor: 'var(--border)',
-              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+              boxShadow: '0 var(--spacing-2-5) 15px -3px rgba(0, 0, 0, 0.1), 0 var(--spacing-1) var(--spacing-1-5) -var(--spacing-0-5) rgba(0, 0, 0, 0.05)'
             }}
             onClick={(e) => e.stopPropagation()}
           >

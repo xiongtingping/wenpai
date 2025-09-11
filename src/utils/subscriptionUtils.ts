@@ -31,10 +31,10 @@ export function adaptAuthUser(user: AuthSystemUser | null): AuthUser | null {
   return {
     ...user,
     subscription: user.subscription ? {
-      tier: user.subscription.tier,
-      isActive: user.subscription.isActive,
-      expiresAt: user.subscription.expiresAt,
-      features: user.subscription.features
+      tier: user.subscription.tier as any,
+      isActive: (user.subscription as any).isActive,
+      expiresAt: (user.subscription as any).expiresAt,
+      features: (user.subscription as any).features
     } : undefined
   };
 }

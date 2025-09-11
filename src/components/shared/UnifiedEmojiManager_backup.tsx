@@ -433,7 +433,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
       {/* 头部标题区 - 沿用旧版风格 */}
       <div className="text-center text-primary-foreground mb-8 pt-8">
         <h1 className="text-4xl font-bold mb-4" style={{
-          textShadow: '2px 2px 4px hsl(var(--foreground) / 0.3)'
+          textShadow: 'var(--spacing-0-5) var(--spacing-0-5) var(--spacing-1) hsl(var(--foreground) / 0.3)'
         }}>
           🎨 Emoji管理系统
         </h1>
@@ -643,7 +643,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                   onClick={(e) => handleEmojiClick(emoji, e)}
                   style={{
                     transform: isSelected ? 'translateY(-5px)' : 'none',
-                    boxShadow: isSelected ? '0 12px 40px hsl(var(--foreground) / 0.2)' : '0 8px 32px hsl(var(--foreground) / 0.1)'
+                    boxShadow: isSelected ? '0 var(--spacing-3) var(--spacing-10) hsl(var(--foreground) / 0.2)' : '0 var(--spacing-2) var(--spacing-8) hsl(var(--foreground) / 0.1)'
                   }}
                 >
                   {/* 收藏按钮 */}

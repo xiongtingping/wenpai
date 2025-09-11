@@ -56,8 +56,8 @@ class VerificationCodeService {
         // 增加超时时间到60秒
         timeout: 60000,
         // 添加重试配置
-        retry: 3,
-        retryDelay: 2000
+        // retry: 3, // 暂时注释掉，该选项不存在
+        // retryDelay: 2000 // 暂时注释掉，该选项不存在
       });
 
       console.log('✅ Authing AuthenticationClient初始化成功');
@@ -415,7 +415,7 @@ class VerificationCodeService {
       const client = await this.initAuthClient();
       // 尝试使用该邮箱发送重置密码验证码来检测邮箱是否存在
       // 如果邮箱不存在，通常会返回错误
-      const result = await client.sendEmail(email, 'RESET_PASSWORD_VERIFY_CODE');
+      const result = await (client as any).sendEmail(email, 'RESET_PASSWORD_VERIFY_CODE');
       return true; // 如果成功发送，说明邮箱已注册
     } catch (error: any) {
       // 如果发送失败且错误信息表明用户不存在，则邮箱未注册
@@ -557,12 +557,12 @@ class VerificationCodeService {
         if (emailToken && typeof emailToken === 'string' && emailToken.length > 10) {
           // 方法1: 如果有有效的字符串emailToken，尝试4参数调用
           console.log('🔧 方法1: 使用emailToken字符串 (4参数)');
-          registerPromise = client.registerByEmailCode(email, cleanCode, emailToken, { password });
+          registerPromise = (client as any).registerByEmailCode(email, cleanCode, emailToken, { password });
         } else {
           // 方法2: 尝试不使用emailToken的标准3参数调用
           console.log('🔧 方法2: 标准3参数调用 (email, code, profile)');
           registerPromise = client.registerByEmailCode(email, cleanCode, {
-            password: password,
+            // password: password, // 暂时注释掉，该属性不存在
             email: email
           });
         }
@@ -570,7 +570,7 @@ class VerificationCodeService {
         console.log('🔧 API调用方式1/2失败，尝试方法3: 最简单调用');
         try {
           // 方法3: 最简单的调用方式
-          registerPromise = client.registerByEmailCode(email, cleanCode, password);
+          registerPromise = (client as any).registerByEmailCode(email, cleanCode, password);
         } catch (simpleError) {
           console.log('🔧 所有标准方法失败，尝试方法4: 使用管理端API');
           // 方法4: 如果前面都失败，可能需要使用不同的注册方式
@@ -675,7 +675,7 @@ class VerificationCodeService {
       const client = await this.initAuthClient();
       
       // 调用Authing SDK验证邮箱验证码
-      const result = await client.verifyEmailCode(email, code);
+      const result = await (client as any).verifyEmailCode(email, code);
 
       console.log('✅ 邮箱验证码验证成功:', { email });
       

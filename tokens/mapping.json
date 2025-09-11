@@ -1,0 +1,355 @@
+{
+  "$schema": "https://schemas.tokens.studio/mapping.json",
+  "meta": {
+    "version": "1.0.0",
+    "description": "Tailwind ↔ Radix ↔ CSS Variables 映射配置",
+    "lastModified": "2024-01-15"
+  },
+  "colorMapping": {
+    "semantic": {
+      "primary": {
+        "tailwind": "bg-primary",
+        "radix": "color=\"blue\"",
+        "cssVar": "hsl(var(--primary))",
+        "description": "主要品牌色"
+      },
+      "secondary": {
+        "tailwind": "bg-secondary",
+        "radix": "color=\"gray\"",
+        "cssVar": "hsl(var(--secondary))",
+        "description": "次要色"
+      },
+      "destructive": {
+        "tailwind": "bg-destructive",
+        "radix": "color=\"red\"",
+        "cssVar": "hsl(var(--destructive))",
+        "description": "危险色"
+      },
+      "warning": {
+        "tailwind": "bg-warning",
+        "radix": "color=\"yellow\"",
+        "cssVar": "hsl(var(--warning))",
+        "description": "警告色"
+      },
+      "success": {
+        "tailwind": "bg-success",
+        "radix": "color=\"green\"",
+        "cssVar": "hsl(var(--success))",
+        "description": "成功色"
+      },
+      "muted": {
+        "tailwind": "bg-muted",
+        "radix": "color=\"gray\"",
+        "cssVar": "hsl(var(--muted))",
+        "description": "静音色"
+      },
+      "accent": {
+        "tailwind": "bg-accent",
+        "radix": "color=\"accent\"",
+        "cssVar": "hsl(var(--accent))",
+        "description": "强调色"
+      }
+    },
+    "text": {
+      "primary": {
+        "tailwind": "text-foreground",
+        "radix": "color=\"foreground\"",
+        "cssVar": "hsl(var(--foreground))",
+        "description": "主要文字色"
+      },
+      "secondary": {
+        "tailwind": "text-muted-foreground",
+        "radix": "color=\"muted\"",
+        "cssVar": "hsl(var(--muted-foreground))",
+        "description": "次要文字色"
+      },
+      "onPrimary": {
+        "tailwind": "text-primary-foreground",
+        "radix": "color=\"white\"",
+        "cssVar": "hsl(var(--primary-foreground))",
+        "description": "主色上的文字"
+      }
+    }
+  },
+  "spacingMapping": {
+    "scale": {
+      "xs": {
+        "tailwind": "p-1",
+        "radix": "size=\"1\"",
+        "cssVar": "var(--spacing-1)",
+        "value": "0.25rem"
+      },
+      "sm": {
+        "tailwind": "p-2",
+        "radix": "size=\"2\"",
+        "cssVar": "var(--spacing-2)",
+        "value": "0.5rem"
+      },
+      "md": {
+        "tailwind": "p-4",
+        "radix": "size=\"3\"",
+        "cssVar": "var(--spacing-4)",
+        "value": "1rem"
+      },
+      "lg": {
+        "tailwind": "p-6",
+        "radix": "size=\"4\"",
+        "cssVar": "var(--spacing-6)",
+        "value": "1.5rem"
+      },
+      "xl": {
+        "tailwind": "p-8",
+        "radix": "size=\"5\"",
+        "cssVar": "var(--spacing-8)",
+        "value": "2rem"
+      }
+    }
+  },
+  "radiusMapping": {
+    "scale": {
+      "none": {
+        "tailwind": "rounded-none",
+        "radix": "radius=\"none\"",
+        "cssVar": "var(--radius-none)",
+        "value": "0"
+      },
+      "sm": {
+        "tailwind": "rounded-sm",
+        "radix": "radius=\"1\"",
+        "cssVar": "var(--radius-sm)",
+        "value": "0.125rem"
+      },
+      "md": {
+        "tailwind": "rounded-md",
+        "radix": "radius=\"2\"",
+        "cssVar": "var(--radius-md)",
+        "value": "0.375rem"
+      },
+      "lg": {
+        "tailwind": "rounded-lg",
+        "radix": "radius=\"3\"",
+        "cssVar": "var(--radius-lg)",
+        "value": "0.5rem"
+      },
+      "xl": {
+        "tailwind": "rounded-xl",
+        "radix": "radius=\"4\"",
+        "cssVar": "var(--radius-xl)",
+        "value": "0.75rem"
+      },
+      "full": {
+        "tailwind": "rounded-full",
+        "radix": "radius=\"full\"",
+        "cssVar": "var(--radius-full)",
+        "value": "9999px"
+      }
+    }
+  },
+  "fontSizeMapping": {
+    "scale": {
+      "xs": {
+        "tailwind": "text-xs",
+        "radix": "size=\"1\"",
+        "cssVar": "var(--font-size-xs)",
+        "value": "0.75rem"
+      },
+      "sm": {
+        "tailwind": "text-sm",
+        "radix": "size=\"2\"",
+        "cssVar": "var(--font-size-sm)",
+        "value": "0.875rem"
+      },
+      "base": {
+        "tailwind": "text-base",
+        "radix": "size=\"3\"",
+        "cssVar": "var(--font-size-base)",
+        "value": "1rem"
+      },
+      "lg": {
+        "tailwind": "text-lg",
+        "radix": "size=\"4\"",
+        "cssVar": "var(--font-size-lg)",
+        "value": "1.125rem"
+      },
+      "xl": {
+        "tailwind": "text-xl",
+        "radix": "size=\"5\"",
+        "cssVar": "var(--font-size-xl)",
+        "value": "1.25rem"
+      },
+      "2xl": {
+        "tailwind": "text-2xl",
+        "radix": "size=\"6\"",
+        "cssVar": "var(--font-size-2xl)",
+        "value": "1.5rem"
+      }
+    }
+  },
+  "shadowMapping": {
+    "scale": {
+      "sm": {
+        "tailwind": "shadow-sm",
+        "radix": "shadow=\"1\"",
+        "cssVar": "var(--shadow-sm)",
+        "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)"
+      },
+      "md": {
+        "tailwind": "shadow-md",
+        "radix": "shadow=\"2\"",
+        "cssVar": "var(--shadow-md)",
+        "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+      },
+      "lg": {
+        "tailwind": "shadow-lg",
+        "radix": "shadow=\"3\"",
+        "cssVar": "var(--shadow-lg)",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)"
+      },
+      "xl": {
+        "tailwind": "shadow-xl",
+        "radix": "shadow=\"4\"",
+        "cssVar": "var(--shadow-xl)",
+        "value": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)"
+      }
+    }
+  },
+  "componentMapping": {
+    "button": {
+      "variants": {
+        "default": {
+          "tailwind": "bg-primary text-primary-foreground hover:bg-primary/90",
+          "radix": "variant=\"solid\" color=\"blue\"",
+          "cssClass": "button--primary"
+        },
+        "secondary": {
+          "tailwind": "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "radix": "variant=\"soft\" color=\"gray\"",
+          "cssClass": "button--secondary"
+        },
+        "destructive": {
+          "tailwind": "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "radix": "variant=\"solid\" color=\"red\"",
+          "cssClass": "button--destructive"
+        },
+        "outline": {
+          "tailwind": "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "radix": "variant=\"outline\" color=\"gray\"",
+          "cssClass": "button--outline"
+        },
+        "ghost": {
+          "tailwind": "hover:bg-accent hover:text-accent-foreground",
+          "radix": "variant=\"ghost\" color=\"gray\"",
+          "cssClass": "button--ghost"
+        }
+      },
+      "sizes": {
+        "sm": {
+          "tailwind": "h-9 rounded-md px-3",
+          "radix": "size=\"1\"",
+          "cssClass": "button--sm"
+        },
+        "default": {
+          "tailwind": "h-10 px-4 py-2",
+          "radix": "size=\"2\"",
+          "cssClass": "button--default"
+        },
+        "lg": {
+          "tailwind": "h-11 rounded-md px-8",
+          "radix": "size=\"3\"",
+          "cssClass": "button--lg"
+        }
+      }
+    },
+    "dialog": {
+      "parts": {
+        "overlay": {
+          "tailwind": "fixed inset-0 z-50 bg-black/80",
+          "radix": "Overlay",
+          "cssClass": "dialog__overlay"
+        },
+        "content": {
+          "tailwind": "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200",
+          "radix": "Content",
+          "cssClass": "dialog__content"
+        },
+        "header": {
+          "tailwind": "flex flex-col space-y-1.5 text-center sm:text-left",
+          "radix": "Title",
+          "cssClass": "dialog__header"
+        },
+        "title": {
+          "tailwind": "text-lg font-semibold leading-none tracking-tight",
+          "radix": "Title",
+          "cssClass": "dialog__title"
+        },
+        "description": {
+          "tailwind": "text-sm text-muted-foreground",
+          "radix": "Description",
+          "cssClass": "dialog__description"
+        }
+      }
+    },
+    "card": {
+      "variants": {
+        "default": {
+          "tailwind": "rounded-lg border bg-card text-card-foreground shadow-sm",
+          "radix": "variant=\"classic\"",
+          "cssClass": "card--default"
+        },
+        "elevated": {
+          "tailwind": "rounded-lg border bg-card text-card-foreground shadow-lg",
+          "radix": "variant=\"surface\"",
+          "cssClass": "card--elevated"
+        }
+      },
+      "parts": {
+        "header": {
+          "tailwind": "flex flex-col space-y-1.5 p-6",
+          "cssClass": "card__header"
+        },
+        "title": {
+          "tailwind": "text-2xl font-semibold leading-none tracking-tight",
+          "cssClass": "card__title"
+        },
+        "description": {
+          "tailwind": "text-sm text-muted-foreground",
+          "cssClass": "card__description"
+        },
+        "content": {
+          "tailwind": "p-6 pt-0",
+          "cssClass": "card__content"
+        },
+        "footer": {
+          "tailwind": "flex items-center p-6 pt-0",
+          "cssClass": "card__footer"
+        }
+      }
+    }
+  },
+  "migrationRules": {
+    "hardcodedColors": {
+      "#ffffff": "hsl(var(--background))",
+      "#000000": "hsl(var(--foreground))",
+      "#3b82f6": "hsl(var(--primary))",
+      "#ef4444": "hsl(var(--destructive))",
+      "#22c55e": "hsl(var(--success))",
+      "#f59e0b": "hsl(var(--warning))",
+      "#6b7280": "hsl(var(--muted-foreground))"
+    },
+    "hardcodedSizes": {
+      "4px": "var(--spacing-1)",
+      "8px": "var(--spacing-2)",
+      "12px": "var(--spacing-3)",
+      "16px": "var(--spacing-4)",
+      "20px": "var(--spacing-5)",
+      "24px": "var(--spacing-6)",
+      "32px": "var(--spacing-8)"
+    },
+    "hardcodedRadius": {
+      "4px": "var(--radius-sm)",
+      "6px": "var(--radius-md)",
+      "8px": "var(--radius-lg)",
+      "12px": "var(--radius-xl)"
+    }
+  }
+}

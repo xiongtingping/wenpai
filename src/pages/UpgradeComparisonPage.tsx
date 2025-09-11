@@ -35,7 +35,7 @@ export default function UpgradeComparisonPage() {
       tier: 'pro' as const,
       description: '使用AI快速生成高质量的创意内容，提升内容创作效率',
       icon: <Wand2 className="h-5 w-5" />,
-      color: 'text-blue-500'
+      color: 'text-primary'
     },
     {
       name: '品牌库',
@@ -91,7 +91,7 @@ export default function UpgradeComparisonPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <h2 className="text-xl font-semibold">原有权限遮罩</h2>
-                  <Badge variant="outline" className="text-red-600 border-red-200">
+                  <Badge variant="outline" className="text-destructive border-red-200">
                     旧版本
                   </Badge>
                 </div>
@@ -144,7 +144,7 @@ export default function UpgradeComparisonPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <h2 className="text-xl font-semibold">新版升级界面</h2>
-                  <Badge variant="outline" className="text-green-600 border-green-200">
+                  <Badge variant="outline" className="text-success border-green-200">
                     新版本
                   </Badge>
                 </div>
@@ -163,7 +163,7 @@ export default function UpgradeComparisonPage() {
                   </div>
                 </Card>
 
-                <div className="text-sm text-green-600 space-y-2">
+                <div className="text-sm text-success space-y-2">
                   <p>✅ 清晰的版本对比，用户能看到所有差异</p>
                   <p>✅ 显示当前版本 vs 目标版本的功能对比</p>
                   <p>✅ 明确的价格信息和升级理由</p>
@@ -179,7 +179,7 @@ export default function UpgradeComparisonPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Eye className="h-5 w-5 text-blue-500" />
+                    <Eye className="h-5 w-5 text-primary" />
                     清晰的版本对比
                   </CardTitle>
                 </CardHeader>
@@ -193,7 +193,7 @@ export default function UpgradeComparisonPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <ArrowRight className="h-5 w-5 text-green-500" />
+                    <ArrowRight className="h-5 w-5 text-success" />
                     直观的升级流程
                   </CardTitle>
                 </CardHeader>
@@ -221,7 +221,7 @@ export default function UpgradeComparisonPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-success" />
                     功能清单对比
                   </CardTitle>
                 </CardHeader>
@@ -235,7 +235,7 @@ export default function UpgradeComparisonPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-yellow-500" />
+                    <Star className="h-5 w-5 text-warning" />
                     推荐标识
                   </CardTitle>
                 </CardHeader>
@@ -249,7 +249,7 @@ export default function UpgradeComparisonPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-blue-500" />
+                    <Zap className="h-5 w-5 text-primary" />
                     一键跳转支付
                   </CardTitle>
                 </CardHeader>

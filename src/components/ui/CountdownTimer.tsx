@@ -76,7 +76,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
       <Badge 
         className={`
           animate-pulse bg-gradient-to-r from-red-500 to-orange-500 
-          text-white border-0 px-3 py-1 ${className}
+          text-background border-0 px-3 py-1 ${className}
         `}
       >
         <Zap className="h-3 w-3 mr-1" />
@@ -102,9 +102,9 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
           ${isUrgent ? 'bg-red-100' : 'bg-blue-100'}
         `}>
           {isUrgent ? (
-            <Zap className="h-4 w-4 text-red-600" />
+            <Zap className="h-4 w-4 text-destructive" />
           ) : (
-            <Clock className="h-4 w-4 text-blue-600" />
+            <Clock className="h-4 w-4 text-primary" />
           )}
         </div>
       )}
@@ -118,14 +118,14 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
           </span>
           <span className={`
             text-xs
-            ${isUrgent ? 'text-red-600' : 'text-blue-600'}
+            ${isUrgent ? 'text-destructive' : 'text-primary'}
           `}>
             剩余
           </span>
         </div>
         <span className={`
           text-xs
-          ${isUrgent ? 'text-red-500' : 'text-blue-500'}
+          ${isUrgent ? 'text-destructive' : 'text-primary'}
         `}>
           {isUrgent ? '限时优惠即将结束！' : '限时优惠进行中'}
         </span>

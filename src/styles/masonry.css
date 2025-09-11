@@ -6,13 +6,13 @@
 /* 瀑布流容器 */
 .masonry-grid {
   display: flex;
-  margin-left: -24px; /* 负边距抵消列的左边距 */
+  margin-left: -var(--spacing-6); /* 负边距抵消列的左边距 */
   width: auto;
 }
 
 /* 瀑布流列 */
 .masonry-grid-column {
-  padding-left: 24px; /* 列间距 */
+  padding-left: var(--spacing-6); /* 列间距 */
   background-clip: padding-box;
 }
 
@@ -26,21 +26,21 @@
 /* 响应式间距调整 */
 @media (max-width: 768px) {
   .masonry-grid {
-    margin-left: -16px;
+    margin-left: -var(--spacing-4);
   }
   
   .masonry-grid-column {
-    padding-left: 16px;
+    padding-left: var(--spacing-4);
   }
 }
 
 @media (max-width: 480px) {
   .masonry-grid {
-    margin-left: -12px;
+    margin-left: -var(--spacing-3);
   }
   
   .masonry-grid-column {
-    padding-left: 12px;
+    padding-left: var(--spacing-3);
   }
 }
 
@@ -51,8 +51,8 @@
 }
 
 .subscription-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-var(--spacing-0-5));
+  box-shadow: 0 var(--spacing-2) 25px rgba(0, 0, 0, 0.1);
 }
 
 /* 加载动画 */
@@ -64,11 +64,11 @@
 }
 
 .masonry-loading-spinner {
-  width: 40px;
-  height: 40px;
+  width: var(--spacing-10);
+  height: var(--spacing-10);
   border: 3px solid #f3f3f3;
   border-top: 3px solid #3498db;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   animation: spin 1s linear infinite;
 }
 
@@ -80,14 +80,14 @@
 /* 空状态样式 */
 .masonry-empty {
   text-align: center;
-  padding: 48px 24px;
-  color: #6b7280;
+  padding: var(--spacing-12) var(--spacing-6);
+  color: hsl(var(--muted-foreground));
 }
 
 .masonry-empty-icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 16px;
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  margin: 0 auto var(--spacing-4);
   opacity: 0.5;
 }
 
@@ -107,7 +107,7 @@
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(var(--spacing-5));
   }
   to {
     opacity: 1;
@@ -125,26 +125,26 @@
 .masonry-card-content img {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
+  border-radius: var(--spacing-2);
 }
 
 /* 监控结果项目样式 */
 .monitor-result-item {
   transition: all 0.2s ease;
-  border-radius: 8px;
+  border-radius: var(--spacing-2);
   overflow: hidden;
 }
 
 .monitor-result-item:hover {
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateX(var(--spacing-1));
+  box-shadow: 0 var(--spacing-1) var(--spacing-3) rgba(0, 0, 0, 0.1);
 }
 
 /* 平台标签样式 */
 .platform-badge {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: var(--spacing-2-5);
+  padding: var(--spacing-0-5) var(--spacing-1-5);
+  border-radius: var(--spacing-1);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -152,8 +152,8 @@
 
 /* 时间标签样式 */
 .time-badge {
-  font-size: 10px;
-  color: #6b7280;
+  font-size: var(--spacing-2-5);
+  color: hsl(var(--muted-foreground));
   font-weight: 400;
 }
 
@@ -161,40 +161,40 @@
 .heat-indicator {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 10px;
-  color: #ef4444;
+  gap: var(--spacing-1);
+  font-size: var(--spacing-2-5);
+  color: hsl(var(--destructive));
   font-weight: 500;
 }
 
 .heat-indicator::before {
   content: "🔥";
-  font-size: 12px;
+  font-size: var(--spacing-3);
 }
 
 /* 状态指示器 */
 .status-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  width: var(--spacing-2);
+  height: var(--spacing-2);
+  border-radius: var(--radius-full);
   display: inline-block;
-  margin-right: 6px;
+  margin-right: var(--spacing-1-5);
 }
 
 .status-indicator.active {
   background-color: #10b981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 0 var(--spacing-0-5) rgba(16, 185, 129, 0.2);
 }
 
 .status-indicator.inactive {
-  background-color: #6b7280;
-  box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.2);
+  background-color: hsl(var(--muted-foreground));
+  box-shadow: 0 0 0 var(--spacing-0-5) rgba(107, 114, 128, 0.2);
 }
 
 /* 操作按钮组 */
 .action-buttons {
   display: flex;
-  gap: 4px;
+  gap: var(--spacing-1);
   opacity: 0.7;
   transition: opacity 0.2s ease;
 }
@@ -207,25 +207,25 @@
 .result-count {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 10px;
+  font-size: var(--spacing-2-5);
+  padding: var(--spacing-0-5) var(--spacing-1-5);
+  border-radius: var(--spacing-2-5);
   font-weight: 600;
 }
 
 /* 无结果状态 */
 .no-results {
   text-align: center;
-  padding: 24px;
-  color: #9ca3af;
-  border: 2px dashed #e5e7eb;
-  border-radius: 8px;
-  margin-top: 16px;
+  padding: var(--spacing-6);
+  color: hsl(var(--muted-foreground));
+  border: var(--spacing-0-5) dashed hsl(var(--border));
+  border-radius: var(--spacing-2);
+  margin-top: var(--spacing-4);
 }
 
 .no-results-icon {
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 12px;
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  margin: 0 auto var(--spacing-3);
   opacity: 0.5;
 }

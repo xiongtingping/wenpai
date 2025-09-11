@@ -77,7 +77,7 @@
 }
 
 .automation-modal-button-success {
-  @apply bg-green-600 text-white;
+  @apply bg-success text-background;
 }
 
 /* 警告模态框样式 */

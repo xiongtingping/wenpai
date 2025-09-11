@@ -74,7 +74,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
             {showCount && unreadCount < 100 ? (
               <Badge 
                 variant="destructive" 
-                className="h-5 min-w-[20px] text-xs font-medium px-1 flex items-center justify-center"
+                className="h-5 min-w-[var(--spacing-5)] text-xs font-medium px-1 flex items-center justify-center"
               >
                 {unreadCount}
               </Badge>

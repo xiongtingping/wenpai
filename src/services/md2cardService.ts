@@ -414,7 +414,7 @@ export class MD2CardService {
       // 设置水印样式
       ctx.globalAlpha = 0.3;
       ctx.fillStyle = config.colors.accent;
-      ctx.font = '12px Arial';
+      ctx.font = 'var(--spacing-3) Arial';
       
       const text = config.branding.watermark;
       const metrics = ctx.measureText(text);

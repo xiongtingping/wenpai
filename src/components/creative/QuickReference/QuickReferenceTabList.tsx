@@ -95,7 +95,7 @@ export function QuickReferenceTabList({
             <Badge 
               variant={activeTab === tab.value ? "default" : "secondary"}
               className={`
-                text-xs px-1.5 py-0.5 h-5 min-w-[20px] rounded-full
+                text-xs px-1.5 py-0.5 h-5 min-w-[var(--spacing-5)] rounded-full
                 ${activeTab === tab.value 
                   ? 'bg-primary/10 text-primary border-primary/20' 
                   : 'bg-muted text-muted-foreground'

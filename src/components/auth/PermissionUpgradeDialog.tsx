@@ -45,8 +45,8 @@ export const PermissionUpgradeDialog: React.FC<PermissionUpgradeDialogProps> = (
         <div
           className="sticky top-0 bg-background/98 border-b p-6 flex items-center justify-between"
           style={{
-            backdropFilter: 'blur(12px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(12px) saturate(180%)'
+            backdropFilter: 'blur(var(--spacing-3)) saturate(180%)',
+            WebkitBackdropFilter: 'blur(var(--spacing-3)) saturate(180%)'
           }}
         >
           <div>

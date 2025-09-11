@@ -34,7 +34,7 @@ try {
           }
 
           // 安全调用render函数
-          const result = render(props, ref);
+          const result = render(props as P, ref);
           
           // 验证返回值
           if (result === null || result === undefined) {
@@ -53,7 +53,7 @@ try {
           
           // 尝试无ref渲染
           try {
-            const fallbackResult = render(props, null);
+            const fallbackResult = render(props as P, null);
             return fallbackResult || React.createElement('div');
           } catch (fallbackError) {
             // 最终后备，完全静默
@@ -71,7 +71,7 @@ try {
       return WrappedComponent;
     } catch (setupError) {
       // 如果包装失败，静默返回原始实现
-      return originalForwardRef(render);
+      return originalForwardRef(render as any);
     }
   };
 
@@ -123,6 +123,7 @@ try {
       event.preventDefault();
       return false;
     }
+    return undefined;
   });
 
 } catch (error) {

@@ -92,10 +92,10 @@ const FeatureShowcasePage: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         {/* 页面标题 */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl font-bold text-foreground dark:text-background mb-4">
             🚀 文派全功能展示
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground dark:text-gray-300 max-w-2xl mx-auto">
             体验最新的AI内容创作工具，解锁营销创意的无限可能
           </p>
         </div>
@@ -107,12 +107,12 @@ const FeatureShowcasePage: React.FC = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white/20 rounded-full">
+                    <div className="p-3 bg-background/20 rounded-full">
                       <Gift className="h-8 w-8" />
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold mb-1">🔥 新用户限时优惠</h3>
-                      <p className="text-white/90">专业版立享74折，高级版立享80折优惠</p>
+                      <p className="text-background/90">专业版立享74折，高级版立享80折优惠</p>
                     </div>
                   </div>
                   <div className="text-center">
@@ -138,7 +138,7 @@ const FeatureShowcasePage: React.FC = () => {
           <div className="text-center mb-8">
             <Button 
               onClick={simulateNewUser}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 text-lg"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-background px-8 py-3 text-lg"
             >
               <AlertTriangle className="h-5 w-5 mr-2" />
               模拟新用户注册（查看限时优惠）
@@ -168,9 +168,9 @@ const FeatureShowcasePage: React.FC = () => {
                     {plan.tier === 'premium' ? (
                       <Crown className="h-6 w-6 text-purple-600" />
                     ) : plan.tier === 'pro' ? (
-                      <Zap className="h-6 w-6 text-blue-600" />
+                      <Zap className="h-6 w-6 text-primary" />
                     ) : (
-                      <Star className="h-6 w-6 text-gray-600" />
+                      <Star className="h-6 w-6 text-muted-foreground" />
                     )}
                     <CardTitle className="text-xl">{plan.name}</CardTitle>
                   </div>
@@ -184,11 +184,11 @@ const FeatureShowcasePage: React.FC = () => {
                           <span className="text-lg text-muted-foreground line-through">
                             ¥{plan.monthly.originalPrice}
                           </span>
-                          <Badge className="bg-red-500 text-white text-xs">
+                          <Badge className="bg-destructive text-background text-xs">
                             -{plan.monthly.discountPercentage}%
                           </Badge>
                         </div>
-                        <div className="text-3xl font-bold text-red-600">
+                        <div className="text-3xl font-bold text-destructive">
                           ¥{plan.monthly.discountPrice}
                         </div>
                         <div className="text-sm text-muted-foreground">每月</div>

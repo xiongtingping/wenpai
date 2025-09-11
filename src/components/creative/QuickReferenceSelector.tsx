@@ -82,7 +82,7 @@ export function QuickReferenceSelector({
         width: ${viewportInfo.viewportWidth}px !important;
         height: ${viewportInfo.viewportHeight}px !important;
         background-color: rgba(0, 0, 0, 0.6) !important;
-        backdrop-filter: blur(4px) !important;
+        backdrop-filter: blur(var(--spacing-1)) !important;
         z-index: var(--z-dialog-overlay) !important;
         margin: 0 !important;
         padding: 0 !important;
@@ -97,13 +97,13 @@ export function QuickReferenceSelector({
         left: ${viewportInfo.centerX}px !important;
         transform: translate(-50%, -50%) !important;
         background-color: white !important;
-        border-radius: 12px !important;
-        padding: 32px !important;
+        border-radius: var(--spacing-3) !important;
+        padding: var(--spacing-8) !important;
         width: 600px !important;
         max-width: 90vw !important;
         max-height: 80vh !important;
         z-index: var(--z-dialog-content) !important;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+        box-shadow: 0 25px 50px -var(--spacing-3) hsl(var(--foreground) / 0.5) !important;
         overflow: hidden !important;
       `;
 
@@ -117,68 +117,68 @@ export function QuickReferenceSelector({
       modal.innerHTML = `
         <div style="width: 100%; height: 100%; display: flex; flex-direction: column; max-height: 70vh;">
           <!-- 头部 -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
-            <h2 style="font-size: 24px; font-weight: bold; margin: 0; display: flex; align-items: center; gap: 12px; color: #1f2937;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-6); padding-bottom: var(--spacing-4); border-bottom: 1px solid hsl(var(--border));">
+            <h2 style="font-size: var(--spacing-6); font-weight: bold; margin: 0; display: flex; align-items: center; gap: var(--spacing-3); color: #1f2937;">
               🔗 快速引用
             </h2>
-            <div style="display: flex; gap: 8px;">
-              <button id="refresh-data" style="padding: 8px; border: none; border-radius: 6px; background-color: #f3f4f6; cursor: pointer;" title="刷新数据">
+            <div style="display: flex; gap: var(--spacing-2);">
+              <button id="refresh-data" style="padding: var(--spacing-2); border: none; border-radius: var(--spacing-1-5); background-color: hsl(var(--muted)); cursor: pointer;" title="刷新数据">
                 🔄
               </button>
-              <button id="modal-close" style="padding: 8px; border: none; border-radius: 6px; background-color: #fee2e2; color: #dc2626; cursor: pointer; font-size: 16px;">
+              <button id="modal-close" style="padding: var(--spacing-2); border: none; border-radius: var(--spacing-1-5); background-color: #fee2e2; color: hsl(var(--destructive)); cursor: pointer; font-size: var(--spacing-4);">
                 ✕
               </button>
             </div>
           </div>
 
           <!-- 搜索栏 -->
-          <div style="position: relative; margin-bottom: 24px;">
+          <div style="position: relative; margin-bottom: var(--spacing-6);">
             <input
               id="search-input"
               type="text"
               placeholder="搜索内容、标题或标签..."
-              style="width: 100%; padding: 12px 12px 12px 40px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none;"
+              style="width: 100%; padding: var(--spacing-3) var(--spacing-3) var(--spacing-3) var(--spacing-10); border: 1px solid hsl(var(--border)); border-radius: var(--spacing-2); font-size: var(--spacing-3-5); outline: none;"
             />
-            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af;">🔍</span>
+            <span style="position: absolute; left: var(--spacing-3); top: 50%; transform: translateY(-50%); color: hsl(var(--muted-foreground));">🔍</span>
           </div>
 
           <!-- 标签页 -->
-          <div id="tabs-container" style="margin-bottom: 24px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; background-color: #f9fafb; border-radius: 8px; padding: 4px;">
-              <button id="tab-brand" class="tab-button active" data-tab="brand" style="padding: 12px; border: none; border-radius: 6px; background-color: white; cursor: pointer; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+          <div id="tabs-container" style="margin-bottom: var(--spacing-6);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--spacing-2); background-color: hsl(var(--muted)); border-radius: var(--spacing-2); padding: var(--spacing-1);">
+              <button id="tab-brand" class="tab-button active" data-tab="brand" style="padding: var(--spacing-3); border: none; border-radius: var(--spacing-1-5); background-color: white; cursor: pointer; font-weight: 500; box-shadow: 0 1px var(--spacing-0-5) rgba(0,0,0,0.05);">
                 📦 品牌库
               </button>
-              <button id="tab-library" class="tab-button" data-tab="library" style="padding: 12px; border: none; border-radius: 6px; background-color: transparent; cursor: pointer; color: #6b7280;">
+              <button id="tab-library" class="tab-button" data-tab="library" style="padding: var(--spacing-3); border: none; border-radius: var(--spacing-1-5); background-color: transparent; cursor: pointer; color: hsl(var(--muted-foreground));">
                 📚 我的资料库
               </button>
-              <button id="tab-radar" class="tab-button" data-tab="radar" style="padding: 12px; border: none; border-radius: 6px; background-color: transparent; cursor: pointer; color: #6b7280;">
+              <button id="tab-radar" class="tab-button" data-tab="radar" style="padding: var(--spacing-3); border: none; border-radius: var(--spacing-1-5); background-color: transparent; cursor: pointer; color: hsl(var(--muted-foreground));">
                 📡 全网雷达
               </button>
             </div>
           </div>
 
           <!-- 内容区域 -->
-          <div id="content-area" style="flex: 1; min-height: 0; overflow-y: auto; margin-bottom: 24px;">
+          <div id="content-area" style="flex: 1; min-height: 0; overflow-y: auto; margin-bottom: var(--spacing-6);">
             <div id="loading-indicator" style="display: flex; align-items: center; justify-content: center; height: 200px;">
-              <div style="display: flex; align-items: center; gap: 12px; color: #6b7280;">
-                <div style="width: 20px; height: 20px; border: 2px solid #e5e7eb; border-top: 2px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+              <div style="display: flex; align-items: center; gap: var(--spacing-3); color: hsl(var(--muted-foreground));">
+                <div style="width: var(--spacing-5); height: var(--spacing-5); border: var(--spacing-0-5) solid hsl(var(--border)); border-top: var(--spacing-0-5) solid hsl(var(--primary)); border-radius: var(--radius-full); animation: spin 1s linear infinite;"></div>
                 <span>加载中...</span>
               </div>
             </div>
-            <div id="items-container" style="display: none; gap: 12px; flex-direction: column;"></div>
-            <div id="empty-state" style="display: none; text-align: center; padding: 40px; color: #6b7280;">
+            <div id="items-container" style="display: none; gap: var(--spacing-3); flex-direction: column;"></div>
+            <div id="empty-state" style="display: none; text-align: center; padding: var(--spacing-10); color: hsl(var(--muted-foreground));">
               <p>暂无数据</p>
             </div>
           </div>
 
           <!-- 底部操作栏 -->
-          <div id="multi-select-footer" style="display: none; padding-top: 16px; border-top: 1px solid #e5e7eb; justify-content: space-between; align-items: center;">
-            <span id="selection-count" style="color: #6b7280; font-size: 14px;">已选择 0 项</span>
-            <div style="display: flex; gap: 12px;">
-              <button id="clear-selection" style="padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; color: #6b7280; cursor: pointer; font-size: 14px;">
+          <div id="multi-select-footer" style="display: none; padding-top: var(--spacing-4); border-top: 1px solid hsl(var(--border)); justify-content: space-between; align-items: center;">
+            <span id="selection-count" style="color: hsl(var(--muted-foreground)); font-size: var(--spacing-3-5);">已选择 0 项</span>
+            <div style="display: flex; gap: var(--spacing-3);">
+              <button id="clear-selection" style="padding: var(--spacing-2) var(--spacing-4); border: 1px solid hsl(var(--border)); border-radius: var(--spacing-1-5); background-color: white; color: hsl(var(--muted-foreground)); cursor: pointer; font-size: var(--spacing-3-5);">
                 清空选择
               </button>
-              <button id="confirm-selection" style="padding: 8px 16px; border: none; border-radius: 6px; background-color: #3b82f6; color: white; cursor: pointer; font-size: 14px; font-weight: 500;">
+              <button id="confirm-selection" style="padding: var(--spacing-2) var(--spacing-4); border: none; border-radius: var(--spacing-1-5); background-color: hsl(var(--primary)); color: white; cursor: pointer; font-size: var(--spacing-3-5); font-weight: 500;">
                 确认选择
               </button>
             </div>
@@ -193,7 +193,7 @@ export function QuickReferenceSelector({
             background-color: white !important;
             color: #1f2937 !important;
             font-weight: 500 !important;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+            box-shadow: 0 1px var(--spacing-0-5) rgba(0,0,0,0.05) !important;
           }
         </style>
       `;
@@ -269,9 +269,9 @@ export function QuickReferenceSelector({
           const itemElement = document.createElement('div');
           itemElement.className = 'quick-ref-item';
           itemElement.style.cssText = `
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 16px;
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--spacing-2);
+            padding: var(--spacing-4);
             cursor: pointer;
             transition: all 0.2s;
             background: white;
@@ -279,40 +279,40 @@ export function QuickReferenceSelector({
           
           const isSelected = currentSelectedItems.some(s => s.id === item.id);
           if (isSelected) {
-            itemElement.style.borderColor = '#3b82f6';
+            itemElement.style.borderColor = 'hsl(var(--primary))';
             itemElement.style.backgroundColor = '#eff6ff';
           }
 
-          const typeColor = item.type === 'brand' ? '#3b82f6' : item.type === 'library' ? '#10b981' : '#8b5cf6';
+          const typeColor = item.type === 'brand' ? 'hsl(var(--primary))' : item.type === 'library' ? '#10b981' : '#8b5cf6';
           const typeLabel = item.type === 'brand' ? '品牌库' : item.type === 'library' ? '资料库' : '雷达收藏';
           const formatIcon = item.format === 'link' ? '🔗' : item.format === 'image' ? '🖼️' : '📄';
 
           itemElement.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-              <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--spacing-2);">
+              <div style="display: flex; align-items: center; gap: var(--spacing-2); flex: 1;">
                 ${multiSelect ? `<input type="checkbox" ${isSelected ? 'checked' : ''} style="margin: 0;">` : ''}
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: var(--spacing-2);">
                   <span>${formatIcon}</span>
-                  <h4 style="margin: 0; font-size: 14px; font-weight: 500; color: #1f2937;">${item.title}</h4>
+                  <h4 style="margin: 0; font-size: var(--spacing-3-5); font-weight: 500; color: #1f2937;">${item.title}</h4>
                 </div>
               </div>
-              <span style="background: ${typeColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">
+              <span style="background: ${typeColor}; color: white; padding: var(--spacing-0-5) var(--spacing-2); border-radius: var(--spacing-3); font-size: var(--spacing-3);">
                 ${typeLabel}
               </span>
             </div>
-            <p style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280; line-height: 1.4;">
+            <p style="margin: 0 0 var(--spacing-2) 0; font-size: 13px; color: hsl(var(--muted-foreground)); line-height: 1.4;">
               ${item.summary || item.content.substring(0, 100) + '...'}
             </p>
-            <div style="display: flex; justify-content: between; align-items: center; gap: 8px;">
-              <div style="display: flex; flex-wrap: gap: 4px; flex: 1;">
+            <div style="display: flex; justify-content: between; align-items: center; gap: var(--spacing-2);">
+              <div style="display: flex; flex-wrap: gap: var(--spacing-1); flex: 1;">
                 ${item.tags.slice(0, 3).map(tag => 
-                  `<span style="background: #f3f4f6; color: #4b5563; padding: 2px 6px; border-radius: 4px; font-size: 11px;">
+                  `<span style="background: hsl(var(--muted)); color: #4b5563; padding: var(--spacing-0-5) var(--spacing-1-5); border-radius: var(--spacing-1); font-size: 11px;">
                     ${tag}
                   </span>`
                 ).join('')}
-                ${item.tags.length > 3 ? `<span style="color: #9ca3af; font-size: 11px;">+${item.tags.length - 3}</span>` : ''}
+                ${item.tags.length > 3 ? `<span style="color: hsl(var(--muted-foreground)); font-size: 11px;">+${item.tags.length - 3}</span>` : ''}
               </div>
-              <span style="color: #9ca3af; font-size: 11px;">
+              <span style="color: hsl(var(--muted-foreground)); font-size: 11px;">
                 ${new Date(item.createdAt).toLocaleDateString()}
               </span>
             </div>
@@ -321,14 +321,14 @@ export function QuickReferenceSelector({
           itemElement.addEventListener('click', () => handleItemClick(item));
           itemElement.addEventListener('mouseenter', () => {
             if (!isSelected) {
-              itemElement.style.backgroundColor = '#f9fafb';
-              itemElement.style.borderColor = '#d1d5db';
+              itemElement.style.backgroundColor = 'hsl(var(--muted))';
+              itemElement.style.borderColor = 'hsl(var(--border))';
             }
           });
           itemElement.addEventListener('mouseleave', () => {
             if (!isSelected) {
               itemElement.style.backgroundColor = 'white';
-              itemElement.style.borderColor = '#e5e7eb';
+              itemElement.style.borderColor = 'hsl(var(--border))';
             }
           });
 
@@ -452,7 +452,7 @@ export function QuickReferenceSelector({
               b.classList.remove('active');
               const button = b as HTMLElement;
               button.style.backgroundColor = 'transparent';
-              button.style.color = '#6b7280';
+              button.style.color = 'hsl(var(--muted-foreground))';
             });
             button.classList.add('active');
             

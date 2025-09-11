@@ -110,7 +110,7 @@ const HeroSection: React.FC = () => {
               <Button
                 onClick={handleButtonClick}
                 size="lg"
-                className="relative inline-flex items-center justify-center bg-gradient-to-r from-hsl(var(--primary))-600 via-indigo-600 to-hsl(var(--accent))-600 hover:from-hsl(var(--primary))-700 hover:via-indigo-700 hover:to-hsl(var(--accent))-700 text-primary-foreground px-14 py-6 text-xl font-bold rounded-2xl transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-3xl border-0 overflow-hidden group/button min-h-[4rem]"
+                className="relative inline-flex items-center justify-center bg-gradient-to-r from-hsl(var(--primary))-600 via-indigo-600 to-hsl(var(--accent))-600 hover:from-hsl(var(--primary))-700 hover:via-indigo-700 hover:to-hsl(var(--accent))-700 text-primary-foreground px-14 py-6 text-xl font-bold rounded-2xl transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-3xl border-0 overflow-hidden group/button min-h-[var(--spacing-16)]"
               >
                 <span className="relative z-10 hero-button-content gap-3">
                   <svg className="w-7 h-7 group-hover/button:rotate-12 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

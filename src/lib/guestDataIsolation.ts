@@ -365,8 +365,8 @@ export class GuestDataIsolationManager {
     storageUsage: number; // 字节
   } {
     const allKeys = Object.keys(localStorage);
-    const guestDataKeys = this.currentSessionId 
-      ? allKeys.filter(key => key.includes(this.currentSessionId))
+    const guestDataKeys = this.currentSessionId
+      ? allKeys.filter(key => key.includes(this.currentSessionId!))
       : [];
     
     let storageUsage = 0;

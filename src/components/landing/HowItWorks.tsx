@@ -24,9 +24,9 @@ export function HowItWorks() {
 
   // 统一渐变色彩配置
   const stepColors = [
-    "bg-gradient-to-br from-blue-500 to-indigo-600 text-white",
-    "bg-gradient-to-br from-emerald-500 to-teal-600 text-white",
-    "bg-gradient-to-br from-purple-500 to-pink-600 text-white"
+    "bg-gradient-to-br from-blue-500 to-indigo-600 text-background",
+    "bg-gradient-to-br from-emerald-500 to-teal-600 text-background",
+    "bg-gradient-to-br from-purple-500 to-pink-600 text-background"
   ]
   const stepIcons = [FileText, Settings, Sparkles]
   const stepTitles = [

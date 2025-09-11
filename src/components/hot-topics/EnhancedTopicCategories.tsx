@@ -290,7 +290,7 @@ export default function EnhancedTopicCategories({
       {rsshubEnabled && (
         <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
           <div className="flex items-center space-x-2 text-sm">
-            <Zap className="h-4 w-4 text-blue-500" />
+            <Zap className="h-4 w-4 text-primary" />
             <span className="text-blue-700 dark:text-blue-300">
               RSSHub数据增强已启用，为各分类提供补充热点数据
             </span>

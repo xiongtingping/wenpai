@@ -51,6 +51,8 @@ export const IndependentComponentsDemo: React.FC = () => {
           onContentChange={setOriginalContent}
           usageRemaining={100}
           currentTier="pro"
+          useBrandLibrary={false}
+          onBrandLibraryChange={() => {}}
           t={t}
           placeholder="在这里输入您要适配的内容..."
           minHeight="150px"
@@ -61,23 +63,44 @@ export const IndependentComponentsDemo: React.FC = () => {
       <section>
         <h2 className="text-2xl font-semibold mb-4">2. 平台选择组件</h2>
         <PlatformSelector
+          availablePlatforms={[
+            { id: 'weibo', name: '微博', maxCharCount: 140 },
+            { id: 'wechat', name: '微信', maxCharCount: 2000 },
+            { id: 'xiaohongshu', name: '小红书', maxCharCount: 1000 }
+          ]}
           selectedPlatforms={selectedPlatforms}
-          onPlatformsChange={setSelectedPlatforms}
+          onPlatformToggle={(platformId) => {
+            setSelectedPlatforms(prev =>
+              prev.includes(platformId)
+                ? prev.filter(id => id !== platformId)
+                : [...prev, platformId]
+            );
+          }}
           globalSettings={{
-            charCount: 500,
-            useEmoji: true,
-            useMdFormat: false,
-            useAutoFormat: true
+            charCountPreset: '500',
+            globalEmoji: true,
+            globalMd: false,
+            globalAutoFormat: true
           }}
           platformSettings={{}}
-          onGlobalSettingsChange={() => {}}
-          onPlatformSettingsChange={() => {}}
+          onGlobalSettingsUpdate={{
+            charCountPreset: () => {},
+            globalEmoji: () => {},
+            globalMd: () => {},
+            globalAutoFormat: () => {}
+          }}
+          onPlatformSettingUpdate={() => {}}
           settingsMode={{
             charCount: 'global',
             emoji: 'global',
-            mdFormat: 'global'
+            mdFormat: 'global',
+            autoFormat: 'global'
           }}
           onSettingsModeChange={() => {}}
+          getPlatformIcon={(platformId: string) => <span>📱</span>}
+          getPlatformName={(platformId: string) => platformId}
+          getPlatformMaxCharCount={(platformId: string) => 1000}
+          getPlatformRecommendedCharCount={(platformId: string) => 500}
           t={t}
         />
       </section>
@@ -102,6 +125,14 @@ export const IndependentComponentsDemo: React.FC = () => {
             console.log('开始生成内容...');
           }}
           generating={false}
+          queueRunning={false}
+          availableModels={[
+            { id: 'gpt-4', name: 'GPT-4', description: 'OpenAI GPT-4', tier: 'premium', company: 'OpenAI' }
+          ]}
+          onStopGeneration={() => {}}
+          onStartAutomation={() => {}}
+          onStopAutomation={() => {}}
+          onClearResults={() => {}}
           validationErrors={[]}
           t={t}
         />
@@ -111,40 +142,64 @@ export const IndependentComponentsDemo: React.FC = () => {
       <section>
         <h2 className="text-2xl font-semibold mb-4">4. 结果展示组件</h2>
         <ResultsDisplay
-          results={{
-            xiaohongshu: {
+          results={[
+            {
+              platformId: 'xiaohongshu',
               content: '🌟 今天要给大家分享一个超实用的小技巧！\n\n相信很多小伙伴都遇到过这样的问题...',
-              title: '实用技巧分享',
-              status: 'completed',
-              timestamp: Date.now(),
-              metadata: { charCount: 150, platform: 'xiaohongshu' }
+              steps: [
+                { name: 'prepare', status: 'completed', message: '准备完成' },
+                { name: 'prompt', status: 'completed', message: '提示词构建完成' },
+                { name: 'ai', status: 'completed', message: 'AI生成完成' },
+                { name: 'process', status: 'completed', message: '处理完成' }
+              ],
+              source: 'ai',
+              versions: [{
+                id: '1',
+                content: '🌟 今天要给大家分享一个超实用的小技巧！\n\n相信很多小伙伴都遇到过这样的问题...',
+                style: 'standard' as const,
+                title: '实用技巧分享',
+                charCount: 150
+              }]
             },
-            douyin: {
+            {
+              platformId: 'douyin',
               content: '🔥 这个技巧太实用了！\n\n#实用技巧 #生活小窍门 #必看',
-              title: '实用技巧',
-              status: 'completed',
-              timestamp: Date.now(),
-              metadata: { charCount: 80, platform: 'douyin' }
+              steps: [
+                { name: 'prepare', status: 'completed', message: '准备完成' },
+                { name: 'prompt', status: 'completed', message: '提示词构建完成' },
+                { name: 'ai', status: 'completed', message: 'AI生成完成' },
+                { name: 'process', status: 'completed', message: '处理完成' }
+              ],
+              source: 'ai',
+              versions: [{
+                id: '1',
+                content: '🔥 这个技巧太实用了！\n\n#实用技巧 #生活小窍门 #必看',
+                style: 'creative' as const,
+                title: '实用技巧',
+                charCount: 80
+              }]
             }
-          }}
-          selectedPlatforms={['xiaohongshu', 'douyin']}
-          generating={false}
-          retryingPlatforms={[]}
-          regeneratingVersions={[]}
-          onRetryPlatform={() => {}}
-          onRegenerateVersion={() => {}}
+          ]}
+          retryingPlatforms={new Set()}
+          generatingComparison={new Set()}
+          titleStates={{}}
+          comparisonContent={{}}
+          showComparison={{}}
+          extractedTagsMap={{}}
+          selectedVersions={{}}
+          favoriteStates={new Set()}
+          persistentFavorites={new Set()}
+          onContentUpdate={() => {}}
+          onRetry={() => {}}
           onGenerateComparison={() => {}}
           onGenerateTitle={() => {}}
-          onContentEdit={() => {}}
           onCopyContent={() => {}}
-          onSaveContent={() => {}}
-          onPublishContent={() => {}}
-          generationSteps={[
-            { status: 'completed', message: '分析原始内容' },
-            { status: 'completed', message: '生成平台适配内容' },
-            { status: 'completed', message: '优化内容质量' },
-            { status: 'completed', message: '生成完成' }
-          ]}
+          onSaveToFavorites={() => {}}
+          onPublishToPlatform={() => {}}
+          onVersionSelect={() => {}}
+          getPlatformIcon={() => <span>📱</span>}
+          getPlatformName={(id) => id}
+          getEffectiveCharCount={() => 500}
           t={t}
         />
       </section>
@@ -171,8 +226,8 @@ export const CustomCompositionDemo: React.FC = () => {
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                 step >= stepNum
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-600'
+                  ? 'bg-primary text-background'
+                  : 'bg-muted text-muted-foreground'
               }`}
             >
               {stepNum}
@@ -180,7 +235,7 @@ export const CustomCompositionDemo: React.FC = () => {
             {stepNum < 4 && (
               <div
                 className={`w-16 h-1 ${
-                  step > stepNum ? 'bg-blue-600' : 'bg-gray-200'
+                  step > stepNum ? 'bg-primary' : 'bg-muted'
                 }`}
               />
             )}
@@ -198,13 +253,15 @@ export const CustomCompositionDemo: React.FC = () => {
               onContentChange={setOriginalContent}
               usageRemaining={100}
               currentTier="pro"
+              useBrandLibrary={false}
+              onBrandLibraryChange={() => {}}
               t={t}
             />
             <div className="mt-4 flex justify-end">
               <button
                 onClick={() => setStep(2)}
                 disabled={!originalContent.trim()}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
+                className="px-6 py-2 bg-primary text-background rounded-lg disabled:opacity-50"
               >
                 下一步
               </button>
@@ -216,31 +273,57 @@ export const CustomCompositionDemo: React.FC = () => {
           <div>
             <h2 className="text-2xl font-semibold mb-4">步骤2: 选择平台</h2>
             <PlatformSelector
+              availablePlatforms={[
+                { id: 'weibo', name: '微博', maxCharCount: 140 },
+                { id: 'wechat', name: '微信', maxCharCount: 2000 },
+                { id: 'xiaohongshu', name: '小红书', maxCharCount: 1000 }
+              ]}
               selectedPlatforms={selectedPlatforms}
-              onPlatformsChange={setSelectedPlatforms}
-              globalSettings={{}}
+              onPlatformToggle={(platformId) => {
+                setSelectedPlatforms(prev =>
+                  prev.includes(platformId)
+                    ? prev.filter(id => id !== platformId)
+                    : [...prev, platformId]
+                );
+              }}
+              globalSettings={{
+                charCountPreset: '500',
+                globalEmoji: true,
+                globalMd: false,
+                globalAutoFormat: true
+              }}
               platformSettings={{}}
-              onGlobalSettingsChange={() => {}}
-              onPlatformSettingsChange={() => {}}
+              onGlobalSettingsUpdate={{
+                charCountPreset: () => {},
+                globalEmoji: () => {},
+                globalMd: () => {},
+                globalAutoFormat: () => {}
+              }}
+              onPlatformSettingUpdate={() => {}}
               settingsMode={{
                 charCount: 'global',
                 emoji: 'global',
-                mdFormat: 'global'
+                mdFormat: 'global',
+                autoFormat: 'global'
               }}
               onSettingsModeChange={() => {}}
+              getPlatformIcon={(platformId: string) => <span>📱</span>}
+              getPlatformName={(platformId: string) => platformId}
+              getPlatformMaxCharCount={(platformId: string) => 1000}
+              getPlatformRecommendedCharCount={(platformId: string) => 500}
               t={t}
             />
             <div className="mt-4 flex justify-between">
               <button
                 onClick={() => setStep(1)}
-                className="px-6 py-2 bg-gray-600 text-white rounded-lg"
+                className="px-6 py-2 bg-gray-600 text-background rounded-lg"
               >
                 上一步
               </button>
               <button
                 onClick={() => setStep(3)}
                 disabled={selectedPlatforms.length === 0}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
+                className="px-6 py-2 bg-primary text-background rounded-lg disabled:opacity-50"
               >
                 下一步
               </button>
@@ -266,13 +349,21 @@ export const CustomCompositionDemo: React.FC = () => {
               onCustomPromptChange={() => {}}
               onGenerate={() => setStep(4)}
               generating={false}
+              queueRunning={false}
+              availableModels={[
+                { id: 'gpt-4', name: 'GPT-4', description: 'OpenAI GPT-4', tier: 'premium', company: 'OpenAI' }
+              ]}
+              onStopGeneration={() => {}}
+              onStartAutomation={() => {}}
+              onStopAutomation={() => {}}
+              onClearResults={() => {}}
               validationErrors={[]}
               t={t}
             />
             <div className="mt-4 flex justify-between">
               <button
                 onClick={() => setStep(2)}
-                className="px-6 py-2 bg-gray-600 text-white rounded-lg"
+                className="px-6 py-2 bg-gray-600 text-background rounded-lg"
               >
                 上一步
               </button>
@@ -284,32 +375,39 @@ export const CustomCompositionDemo: React.FC = () => {
           <div>
             <h2 className="text-2xl font-semibold mb-4">步骤4: 查看结果</h2>
             <ResultsDisplay
-              results={{}}
-              selectedPlatforms={selectedPlatforms}
-              generating={false}
-              retryingPlatforms={[]}
-              regeneratingVersions={[]}
-              onRetryPlatform={() => {}}
-              onRegenerateVersion={() => {}}
+              results={[]}
+              retryingPlatforms={new Set()}
+              generatingComparison={new Set()}
+              titleStates={{}}
+              comparisonContent={{}}
+              showComparison={{}}
+              extractedTagsMap={{}}
+              selectedVersions={{}}
+              favoriteStates={new Set()}
+              persistentFavorites={new Set()}
+              onContentUpdate={() => {}}
+              onRetry={() => {}}
               onGenerateComparison={() => {}}
               onGenerateTitle={() => {}}
-              onContentEdit={() => {}}
               onCopyContent={() => {}}
-              onSaveContent={() => {}}
-              onPublishContent={() => {}}
-              generationSteps={[]}
+              onSaveToFavorites={() => {}}
+              onPublishToPlatform={() => {}}
+              onVersionSelect={() => {}}
+              getPlatformIcon={() => <span>📱</span>}
+              getPlatformName={(id) => id}
+              getEffectiveCharCount={() => 500}
               t={t}
             />
             <div className="mt-4 flex justify-between">
               <button
                 onClick={() => setStep(3)}
-                className="px-6 py-2 bg-gray-600 text-white rounded-lg"
+                className="px-6 py-2 bg-gray-600 text-background rounded-lg"
               >
                 上一步
               </button>
               <button
                 onClick={() => setStep(1)}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg"
+                className="px-6 py-2 bg-success text-background rounded-lg"
               >
                 重新开始
               </button>

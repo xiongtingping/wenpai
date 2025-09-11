@@ -55,7 +55,7 @@ export class SecureUserStorageManager {
     if (userId) {
       console.log('👤 切换到用户模式');
       // 清理可能的访客数据污染
-      this.cleanupGuestData();
+      this.clearGuestData();
     } else {
       console.log('👤 切换到访客模式');
       // 生成新的访客会话ID
@@ -156,7 +156,7 @@ export class SecureUserStorageManager {
     const userKeys = allKeys.filter(key => 
       key.includes(`:user:${this.currentUserId}:`) ||
       key.includes(`_${this.currentUserId}`) ||
-      key === STORAGE_KEY_PATTERNS.AUTH_DATA(this.currentUserId)
+      key === STORAGE_KEY_PATTERNS.AUTH_DATA(this.currentUserId!)
     );
 
     userKeys.forEach(key => {

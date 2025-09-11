@@ -47,8 +47,8 @@ const buttonVariants = cva(
         light: "bg-muted text-foreground hover:bg-muted/80 shadow-e0 hover:shadow-e1 hover:-translate-y-0.5",
 
         // 🎨 专用高级按钮变体
-        upgradePremium: "btn-upgrade-premium text-white font-bold",
-        invitePremium: "btn-invite-premium text-white font-bold",
+        upgradePremium: "btn-upgrade-premium text-background font-bold",
+        invitePremium: "btn-invite-premium text-background font-bold",
       },
       size: {
         default: "h-10 px-4 py-2",

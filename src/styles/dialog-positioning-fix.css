@@ -1,0 +1,210 @@
+/**
+ * Dialog定位修复CSS
+ * 专门解决Dialog组件的定位和显示问题
+ */
+
+/* 🎯 全局Dialog定位修复 - 使用最高优先级 */
+[role="dialog"],
+[data-radix-dialog-content] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1055 !important;
+  contain: none !important;
+  isolation: auto !important;
+  margin: 0 !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* 🎯 背景遮罩层修复 */
+[data-radix-dialog-overlay] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 1045 !important;
+  background-color: hsl(var(--foreground) / 0.5) !important;
+  backdrop-filter: blur(var(--spacing-1)) !important;
+  contain: none !important;
+  isolation: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* 🎯 Portal容器修复 */
+#dialog-portal-root,
+[data-radix-portal] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  pointer-events: none !important;
+  z-index: 1000 !important;
+  contain: none !important;
+  isolation: auto !important;
+  transform: none !important;
+  clip-path: none !important;
+  filter: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+/* 🎯 快速引用Dialog特殊修复 */
+[data-radix-dialog-content].quick-reference-dialog {
+  max-width: min(95vw, 1024px) !important;
+  max-height: 85vh !important;
+  min-width: 320px !important;
+  min-height: 200px !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* 🎯 移动端特殊适配 */
+@media (max-width: 640px) {
+  [role="dialog"],
+  [data-radix-dialog-content] {
+    max-width: 98vw !important;
+    max-height: 90vh !important;
+    min-width: 280px !important;
+    padding: var(--spacing-4) !important;
+    border-radius: var(--spacing-3) !important;
+  }
+
+  [role="dialog"].quick-reference-dialog,
+  [data-radix-dialog-content].quick-reference-dialog {
+    max-width: 98vw !important;
+    max-height: 90vh !important;
+  }
+}
+
+/* 🎯 平板端适配 */
+@media (min-width: 641px) and (max-width: 1024px) {
+  [role="dialog"].quick-reference-dialog,
+  [data-radix-dialog-content].quick-reference-dialog {
+    max-width: 90vw !important;
+    max-height: 80vh !important;
+  }
+}
+
+/* 🎯 桌面端适配 */
+@media (min-width: 1025px) {
+  [data-radix-dialog-content].quick-reference-dialog {
+    max-width: 1024px !important;
+    max-height: 85vh !important;
+  }
+}
+
+/* 🎯 调试模式样式 */
+.dialog-debug [data-radix-dialog-overlay] {
+  background-color: rgba(255, 0, 0, 0.3) !important;
+  border: var(--spacing-0-5) solid red !important;
+}
+
+.dialog-debug [data-radix-dialog-content] {
+  border: 3px solid lime !important;
+  box-shadow: 0 0 var(--spacing-5) rgba(0, 255, 0, 0.5) !important;
+}
+
+.dialog-debug #dialog-portal-root {
+  border: var(--spacing-0-5) dashed blue !important;
+  background: rgba(0, 0, 255, 0.1) !important;
+}
+
+/* 🎯 强制可见性修复 */
+[data-state="open"] [data-radix-dialog-overlay],
+[data-state="open"] [data-radix-dialog-content] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+[data-state="open"] [data-radix-dialog-content] {
+  display: flex !important;
+}
+
+/* 🎯 防止被其他元素遮挡 */
+[data-radix-dialog-overlay],
+[data-radix-dialog-content] {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+/* 🎯 确保动画正常工作 */
+[data-radix-dialog-content][data-state="open"] {
+  animation-name: dialog-content-show !important;
+  animation-duration: 200ms !important;
+  animation-timing-function: ease-out !important;
+}
+
+[data-radix-dialog-overlay][data-state="open"] {
+  animation-name: dialog-overlay-show !important;
+  animation-duration: 200ms !important;
+  animation-timing-function: ease-out !important;
+}
+
+@keyframes dialog-content-show {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dialog-overlay-show {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 🎯 主题适配 */
+[data-theme="dark"] [data-radix-dialog-overlay] {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-theme="light"] [data-radix-dialog-overlay] {
+  background-color: hsl(var(--foreground) / 0.5) !important;
+}
+
+/* 🎯 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  [data-radix-dialog-content] {
+    border: var(--spacing-0-5) solid currentColor !important;
+  }
+  
+  [data-radix-dialog-overlay] {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* 🎯 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+  [data-radix-dialog-content],
+  [data-radix-dialog-overlay] {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -251,7 +251,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
     if (config.branding.watermark) {
       ctx.globalAlpha = 0.3;
       ctx.fillStyle = config.colors.accent;
-      ctx.font = '12px Arial';
+      ctx.font = 'var(--spacing-3) Arial';
       
       const text = config.branding.watermark;
       const metrics = ctx.measureText(text);
@@ -426,7 +426,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
       {/* 预览内容区域 */}
       <div className="flex-1 flex items-center justify-center p-4 bg-muted/20 overflow-auto">
         <div
-          className="relative bg-white rounded-lg shadow-lg transition-all duration-200 card-preview-container"
+          className="relative bg-background rounded-lg shadow-lg transition-all duration-200 card-preview-container"
           style={{
             '--card-width': `${dimensions.width}px`,
             '--card-height': `${dimensions.height}px`
@@ -467,7 +467,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
 
           {/* 尺寸信息 */}
           {template && (
-            <div className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded">
+            <div className="absolute bottom-2 right-2 bg-foreground/75 text-background text-xs px-2 py-1 rounded">
               {template.dimensions.width} × {template.dimensions.height}
             </div>
           )}

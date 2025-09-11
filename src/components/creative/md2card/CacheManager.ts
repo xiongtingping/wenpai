@@ -360,7 +360,7 @@ export class MD2CardCacheManager {
 
     // 预解析常用Markdown
     if (config.commonMarkdown) {
-      const { MarkdownParser } = await import('./md2card/MarkdownParser');
+      const { MarkdownParser } = await import('./MarkdownParser');
       const parser = new MarkdownParser();
       
       config.commonMarkdown.forEach(markdown => {
@@ -396,7 +396,7 @@ export class MD2CardCacheManager {
       const expiredKeys: string[] = [];
       
       for (const [key, item] of cache['cache'].entries()) {
-        if (cache['isExpired'](item)) {
+        if ((cache as any)['isExpired'](item)) {
           expiredKeys.push(key);
         }
       }

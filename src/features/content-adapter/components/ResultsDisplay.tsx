@@ -82,7 +82,7 @@ function StepIndicator({ steps }: { steps: GenerationStep[] }) {
             step.status === 'completed' ? 'bg-green-100 text-green-800' :
             step.status === 'loading' ? 'bg-blue-100 text-blue-800' :
             step.status === 'error' ? 'bg-red-100 text-red-800' :
-            'bg-gray-100 text-gray-600'
+            'bg-muted text-muted-foreground'
           }`}
         >
           {step.status === 'completed' && <CheckCircle className="h-3 w-3" />}
@@ -106,6 +106,7 @@ function PlatformResultCard({
   titleState,
   comparisonContent,
   showComparison,
+  selectedVersions,
   onContentUpdate,
   onRetry,
   onGenerateComparison,
@@ -113,6 +114,7 @@ function PlatformResultCard({
   onCopyContent,
   onSaveToFavorites,
   onPublishToPlatform,
+  onVersionSelect,
   getPlatformIcon,
   getPlatformName,
   getEffectiveCharCount,
@@ -126,6 +128,7 @@ function PlatformResultCard({
   titleState?: { hasTitle: boolean; isGenerating: boolean };
   comparisonContent?: string;
   showComparison?: boolean;
+  selectedVersions: Record<string, string>;
   onContentUpdate: (platformId: string, content: string) => void;
   onRetry: (platformId: string) => void;
   onGenerateComparison: (platformId: string) => void;
@@ -133,6 +136,7 @@ function PlatformResultCard({
   onCopyContent: (content: string, platformId: string) => void;
   onSaveToFavorites: (platformId: string, content: string, versionId?: string) => void;
   onPublishToPlatform: (platformId: string, content: string) => void;
+  onVersionSelect: (platformId: string, versionId: string) => void;
   getPlatformIcon: (platformId: string) => React.ReactNode;
   getPlatformName: (platformId: string) => string;
   getEffectiveCharCount: (platformId: string) => number;
@@ -244,7 +248,7 @@ function PlatformResultCard({
 
         {/* 内容展示 */}
         {result.error ? (
-          <div className="text-red-600 text-sm p-3 bg-red-50 rounded-lg">
+          <div className="text-destructive text-sm p-3 bg-red-50 rounded-lg">
             <p className="font-medium">生成失败</p>
             <p>{result.error}</p>
           </div>
@@ -256,9 +260,9 @@ function PlatformResultCard({
                 <label className="text-sm font-medium">生成内容</label>
                 <div className="flex items-center gap-2">
                   <span className={`text-xs ${
-                    result.content.length > targetCharCount ? 'text-red-600' :
+                    result.content.length > targetCharCount ? 'text-destructive' :
                     result.content.length > targetCharCount * 0.9 ? 'text-amber-600' :
-                    'text-green-600'
+                    'text-success'
                   }`}>
                     {result.content.length} / {targetCharCount} 字符
                   </span>
@@ -418,6 +422,8 @@ export function ResultsDisplay({
   showComparison,
   extractedTagsMap,
   selectedVersions,
+  favoriteStates,
+  persistentFavorites,
   onContentUpdate,
   onRetry,
   onGenerateComparison,
@@ -464,7 +470,7 @@ export function ResultsDisplay({
                 {getPlatformName(result.platformId)}
               </span>
               {result.error && (
-                <XCircle className="h-3 w-3 text-red-500" />
+                <XCircle className="h-3 w-3 text-destructive" />
               )}
             </TabsTrigger>
           ))}
@@ -479,6 +485,7 @@ export function ResultsDisplay({
               titleState={titleStates[result.platformId]}
               comparisonContent={comparisonContent[result.platformId]}
               showComparison={showComparison[result.platformId]}
+              selectedVersions={selectedVersions}
               onContentUpdate={onContentUpdate}
               onRetry={onRetry}
               onGenerateComparison={onGenerateComparison}
@@ -486,6 +493,7 @@ export function ResultsDisplay({
               onCopyContent={onCopyContent}
               onSaveToFavorites={onSaveToFavorites}
               onPublishToPlatform={onPublishToPlatform}
+              onVersionSelect={onVersionSelect}
               getPlatformIcon={getPlatformIcon}
               getPlatformName={getPlatformName}
               getEffectiveCharCount={getEffectiveCharCount}

@@ -18,6 +18,7 @@ import { getAlternativeContentForm, getAlternativeStyle } from '../utils/promptB
 
 // 生成步骤状态
 export interface GenerationStep {
+  name: string;
   status: 'waiting' | 'loading' | 'completed' | 'error';
   message: string;
 }
@@ -135,6 +136,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
         const newSteps = [...result.steps];
         if (newSteps[stepIndex]) {
           newSteps[stepIndex] = {
+            ...newSteps[stepIndex],
             status,
             message: message || newSteps[stepIndex].message
           };
@@ -159,10 +161,10 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       platformId,
       content: '',
       steps: [
-        { status: 'waiting', message: '准备生成...' },
-        { status: 'waiting', message: '构建提示词...' },
-        { status: 'waiting', message: '调用AI服务...' },
-        { status: 'waiting', message: '处理结果...' }
+        { name: 'prepare', status: 'waiting', message: '准备生成...' },
+        { name: 'prompt', status: 'waiting', message: '构建提示词...' },
+        { name: 'ai', status: 'waiting', message: '调用AI服务...' },
+        { name: 'process', status: 'waiting', message: '处理结果...' }
       ],
       source: 'ai' as const
     }));
@@ -365,7 +367,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
               newVersions[versionIndex] = {
                 ...newVersions[versionIndex],
                 content: result.content!,
-                timestamp: Date.now()
+                // timestamp: Date.now() // 移除不存在的属性
               };
             }
             

@@ -66,7 +66,7 @@ export function Header() {
   useEffect(() => {
     const el = document.querySelector('header.theme-header-bg') as HTMLElement | null;
     const update = () => {
-      const h = el?.offsetHeight || 96; // 增加默认高度到96px
+      const h = el?.offsetHeight || 96; // 增加默认高度到var(--spacing-24)
       document.documentElement.style.setProperty('--header-height', `${h}px`);
       console.log('🔧 Header高度已设置:', `${h}px`); // 添加调试日志
     };

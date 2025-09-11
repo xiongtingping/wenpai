@@ -64,6 +64,7 @@ interface SettingsModeState {
   charCount: SettingsMode;
   emoji: SettingsMode;
   mdFormat: SettingsMode;
+  autoFormat: SettingsMode;
 }
 
 interface PlatformSelectorProps {
@@ -512,7 +513,7 @@ export function PlatformSelector({
                         : 'border-muted-foreground'
                     }`}>
                       {settingsType === 'global' && (
-                        <div className="w-full h-full rounded-full bg-white scale-50"></div>
+                        <div className="w-full h-full rounded-full bg-background scale-50"></div>
                       )}
                     </div>
                   </div>
@@ -716,7 +717,7 @@ export function PlatformSelector({
                         : 'border-muted-foreground'
                     }`}>
                       {settingsType === 'platform' && selectedPlatforms.length > 0 && (
-                        <div className="w-full h-full rounded-full bg-white scale-50"></div>
+                        <div className="w-full h-full rounded-full bg-background scale-50"></div>
                       )}
                     </div>
                   </div>

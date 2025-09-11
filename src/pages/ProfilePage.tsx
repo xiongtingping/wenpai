@@ -972,15 +972,15 @@ export default function ProfilePage() {
                           <Badge
                             className={`text-xs font-semibold ${
                               userTier === 'trial' 
-                                ? 'bg-gray-100 text-gray-700 border-gray-200' :
+                                ? 'bg-muted text-gray-700 border-border' :
                               userTier === 'pro' 
                                 ? 'bg-blue-100 text-blue-700 border-blue-200' :
                                 'bg-purple-100 text-purple-700 border-purple-200'
                             }`}
                           >
                             <Crown className={`w-3 h-3 mr-1 ${
-                              userTier === 'trial' ? 'text-gray-500' :
-                              userTier === 'pro' ? 'text-blue-500' :
+                              userTier === 'trial' ? 'text-muted-foreground' :
+                              userTier === 'pro' ? 'text-primary' :
                               'text-purple-500'
                             }`} />
                             {getAccountType()}
@@ -1077,7 +1077,7 @@ export default function ProfilePage() {
                           <div className="w-2 h-2 bg-primary rounded-full"></div>
                           {t('profile.phone')}
                           {verificationStatus.phone && (
-                            <Check className="w-3 h-3 text-green-500" />
+                            <Check className="w-3 h-3 text-success" />
                           )}
                         </Label>
                         <div className="flex gap-2">
@@ -1099,7 +1099,7 @@ export default function ProfilePage() {
                             {isVerifyingPhone ? (
                               <RefreshCw className="w-3 h-3 animate-spin text-foreground" />
                             ) : verificationStatus.phone ? (
-                              <Check className="w-3 h-3 text-green-500" />
+                              <Check className="w-3 h-3 text-success" />
                             ) : showVerificationInput.phone ? (
                               t('common.confirm')
                             ) : (
@@ -1127,7 +1127,7 @@ export default function ProfilePage() {
                           <div className="w-2 h-2 bg-primary rounded-full"></div>
                           {t('profile.email')}
                           {verificationStatus.email && (
-                            <Check className="w-3 h-3 text-green-500" />
+                            <Check className="w-3 h-3 text-success" />
                           )}
                         </Label>
                         <div className="flex gap-2">
@@ -1155,7 +1155,7 @@ export default function ProfilePage() {
                             {isVerifyingEmail ? (
                               <RefreshCw className="w-3 h-3 animate-spin text-foreground" />
                             ) : verificationStatus.email ? (
-                              <Check className="w-3 h-3 text-green-500" />
+                              <Check className="w-3 h-3 text-success" />
                             ) : showVerificationInput.email ? (
                               '确认'
                             ) : (
@@ -1179,8 +1179,8 @@ export default function ProfilePage() {
 
                         {verificationStatus.email && (
                           <div className="border border-green-200 bg-green-50 rounded-md p-2">
-                            <p className="text-xs flex items-center gap-2 text-green-600">
-                              <Check className="w-3 h-3 text-green-500" />
+                            <p className="text-xs flex items-center gap-2 text-success">
+                              <Check className="w-3 h-3 text-success" />
                               {t('profile.verifySuccess')}
                             </p>
                           </div>
@@ -1335,11 +1335,11 @@ export default function ProfilePage() {
                   <Button
                     variant="default"
                     size="lg"
-                    className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 border-0 shadow-lg flex items-center justify-center gap-2"
+                    className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-background hover:from-blue-600 hover:to-purple-700 border-0 shadow-lg flex items-center justify-center gap-2"
                     onClick={handleInviteFriends}
                   >
-                    <Users className="w-5 h-5 text-white" />
-                    <span className="text-white">{t('profile.inviteFriends')}</span>
+                    <Users className="w-5 h-5 text-background" />
+                    <span className="text-background">{t('profile.inviteFriends')}</span>
                   </Button>
                 </div>
               </CardContent>
@@ -1368,7 +1368,7 @@ export default function ProfilePage() {
                 <div className="rounded-lg p-3 border border-border shadow-sm relative overflow-hidden bg-accent">
                   <div className="flex items-center gap-2 mb-2 relative z-10">
                     <div className="w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center shadow-sm">
-                      <Award className="w-3 h-3 text-white drop-shadow-sm" />
+                      <Award className="w-3 h-3 text-background drop-shadow-sm" />
                     </div>
                     <h3 className="font-semibold text-foreground text-sm">{t('profile.feedbackRules')}</h3>
                   </div>
@@ -1381,7 +1381,7 @@ export default function ProfilePage() {
                 <div className="rounded-lg p-3 border border-border shadow-sm relative overflow-hidden bg-accent">
                   <div className="flex items-center gap-2 mb-2 relative z-10">
                     <div className="w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center shadow-sm">
-                      <Mail className="w-3 h-3 text-white drop-shadow-sm" />
+                      <Mail className="w-3 h-3 text-background drop-shadow-sm" />
                     </div>
                     <h3 className="font-semibold text-foreground text-sm">{t('profile.feedbackEmail')}</h3>
                   </div>
@@ -1395,7 +1395,7 @@ export default function ProfilePage() {
                       variant="soft"
                       size="sm"
                       onClick={handleCopyFeedbackEmail}
-                      className="h-8 px-2 rounded-md bg-orange-500 text-white hover:bg-orange-600"
+                      className="h-8 px-2 rounded-md bg-orange-500 text-background hover:bg-orange-600"
                     >
                       <Copy className="w-3 h-3" />
                     </Button>
@@ -1407,7 +1407,7 @@ export default function ProfilePage() {
               <Button
                 variant="soft"
                 size="sm"
-                className="w-full h-9 text-sm font-semibold rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 border-0 shadow-md"
+                className="w-full h-9 text-sm font-semibold rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 text-background hover:from-orange-600 hover:to-orange-700 border-0 shadow-md"
                 onClick={handleCopyFeedbackEmail}
               >
                 <HelpCircle className="w-4 h-4 mr-2" />

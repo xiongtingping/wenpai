@@ -88,7 +88,7 @@ export const PermissionAwareContainer: React.FC<PermissionAwareContainerProps> =
               <div>
                 <h3 className="text-lg font-semibold mb-2">{featureName}</h3>
                 <p className="text-muted-foreground mb-4">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold text-white bg-gradient-to-r ${tierInfo.color} shadow-lg`}>
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold text-background bg-gradient-to-r ${tierInfo.color} shadow-lg`}>
                     <TierIcon className="w-4 h-4 mr-1" />
                     需要{tierInfo.name}
                   </span>
@@ -99,7 +99,7 @@ export const PermissionAwareContainer: React.FC<PermissionAwareContainerProps> =
               </div>
               <Button 
                 onClick={() => navigate('/upgrade')}
-                className={`bg-gradient-to-r ${tierInfo.color} hover:opacity-90 text-white shadow-lg`}
+                className={`bg-gradient-to-r ${tierInfo.color} hover:opacity-90 text-background shadow-lg`}
               >
                 <TierIcon className="w-4 h-4 mr-2" />
                 升级解锁

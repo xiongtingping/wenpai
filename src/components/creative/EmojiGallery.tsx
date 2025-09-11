@@ -110,8 +110,8 @@ export default function EmojiGallery({ emojis, onDelete, onRegenerate }: EmojiGa
               title={hasPermission() ? "点击复制链接" : "需要专业版权限"}
             />
             {!hasPermission() && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded">
-                <Lock className="w-4 h-4 text-white" />
+              <div className="absolute inset-0 flex items-center justify-center bg-foreground/20 rounded">
+                <Lock className="w-4 h-4 text-background" />
               </div>
             )}
           </div>

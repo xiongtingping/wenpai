@@ -18,6 +18,11 @@ export interface QuickReferenceItem {
   createdAt: string;
   summary?: string;
   metadata?: Record<string, any>;
+  // 新增字段用于数据验证和可靠性
+  verified?: boolean;
+  lastUpdated?: string;
+  reliability?: 'high' | 'medium' | 'low';
+  sourceUrl?: string;
 }
 
 export interface QuickReferenceDataService {
@@ -25,6 +30,9 @@ export interface QuickReferenceDataService {
   getLibraryItems(): Promise<QuickReferenceItem[]>;
   getRadarItems(): Promise<QuickReferenceItem[]>;
   searchItems(query: string, type?: 'brand' | 'library' | 'radar'): Promise<QuickReferenceItem[]>;
+  validateItem(item: QuickReferenceItem): boolean;
+  refreshData(type: 'brand' | 'library' | 'radar'): Promise<void>;
+  clearCache(): void;
 }
 
 class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
@@ -54,21 +62,23 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
       // 从品牌资产数据获取
       const brandAssets = await globalDataManager.getData<any[]>('brand_assets') || [];
       
-      const items: QuickReferenceItem[] = brandAssets.map(asset => ({
-        id: asset.id || `brand-${Date.now()}-${Math.random()}`,
-        title: asset.name || asset.title || '未命名品牌资产',
-        content: asset.description || asset.content || '',
-        type: 'brand' as const,
-        format: this.detectFormat(asset),
-        source: '品牌库',
-        tags: asset.tags || [],
-        createdAt: asset.createdAt || new Date().toISOString(),
-        summary: asset.summary || this.generateSummary(asset.description || asset.content || ''),
-        metadata: {
-          assetType: asset.type,
-          category: asset.category
-        }
-      }));
+      const items: QuickReferenceItem[] = brandAssets
+        .map(asset => this.enhanceItem({
+          id: asset.id || `brand-${Date.now()}-${Math.random()}`,
+          title: asset.name || asset.title || '未命名品牌资产',
+          content: asset.description || asset.content || '',
+          type: 'brand' as const,
+          format: this.detectFormat(asset),
+          source: '品牌库',
+          tags: asset.tags || [],
+          createdAt: asset.createdAt || new Date().toISOString(),
+          summary: asset.summary || this.generateSummary(asset.description || asset.content || ''),
+          metadata: {
+            assetType: asset.type,
+            category: asset.category
+          }
+        }))
+        .filter(item => this.validateItem(item)); // 过滤无效数据
 
       // 缓存结果
       this.cache.set(cacheKey, { data: items, timestamp: Date.now() });
@@ -227,10 +237,101 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
   }
 
   /**
+   * 验证引用项目的数据完整性和可靠性
+   */
+  validateItem(item: QuickReferenceItem): boolean {
+    // 基础字段验证
+    if (!item.id || !item.title || !item.content || !item.type) {
+      return false;
+    }
+
+    // 内容长度验证
+    if (item.content.length < 10 || item.content.length > 50000) {
+      return false;
+    }
+
+    // 标题长度验证
+    if (item.title.length < 2 || item.title.length > 200) {
+      return false;
+    }
+
+    // 标签验证
+    if (item.tags && item.tags.length > 20) {
+      return false;
+    }
+
+    // URL格式验证（如果是链接类型）
+    if (item.format === 'link' && item.sourceUrl) {
+      try {
+        new URL(item.sourceUrl);
+      } catch {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * 增强数据项目，添加可靠性评估
+   */
+  private enhanceItem(item: QuickReferenceItem): QuickReferenceItem {
+    const enhanced = { ...item };
+
+    // 评估可靠性
+    enhanced.reliability = this.assessReliability(item);
+
+    // 设置验证状态
+    enhanced.verified = this.validateItem(item);
+
+    // 更新时间戳
+    enhanced.lastUpdated = new Date().toISOString();
+
+    return enhanced;
+  }
+
+  /**
+   * 评估内容可靠性
+   */
+  private assessReliability(item: QuickReferenceItem): 'high' | 'medium' | 'low' {
+    let score = 0;
+
+    // 内容长度评分
+    if (item.content.length > 100) score += 1;
+    if (item.content.length > 500) score += 1;
+
+    // 标签数量评分
+    if (item.tags.length > 0) score += 1;
+    if (item.tags.length > 2) score += 1;
+
+    // 来源评分
+    if (item.source) score += 1;
+    if (item.sourceUrl) score += 1;
+
+    // 摘要评分
+    if (item.summary) score += 1;
+
+    // 元数据评分
+    if (item.metadata && Object.keys(item.metadata).length > 0) score += 1;
+
+    // 时效性评分
+    if (item.createdAt) {
+      const createdDate = new Date(item.createdAt);
+      const daysSinceCreated = (Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceCreated < 30) score += 1; // 30天内的内容更可靠
+    }
+
+    if (score >= 7) return 'high';
+    if (score >= 4) return 'medium';
+    return 'low';
+  }
+
+  /**
    * 清除缓存
    */
   clearCache(): void {
     this.cache.clear();
+    console.log('快速引用数据缓存已清除');
   }
 
   /**

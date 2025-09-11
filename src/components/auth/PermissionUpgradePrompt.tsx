@@ -41,7 +41,7 @@ export const PermissionUpgradePrompt: React.FC<PermissionUpgradePromptProps> = (
       case 'premium':
         return <Crown className="h-5 w-5 text-purple-500 dark:text-purple-400" />;
       case 'pro':
-        return <Zap className="h-5 w-5 text-blue-500 dark:text-blue-400" />;
+        return <Zap className="h-5 w-5 text-primary dark:text-blue-400" />;
       default:
         return <Lock className="h-5 w-5 text-muted-foreground" />;
     }
@@ -103,11 +103,11 @@ export const PermissionUpgradePrompt: React.FC<PermissionUpgradePromptProps> = (
         <div className="space-y-4">
           <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 text-yellow-500 dark:text-yellow-400" />
+              <Star className="h-4 w-4 text-warning dark:text-yellow-400" />
               <span>更多功能</span>
             </div>
             <div className="flex items-center gap-1">
-              <Zap className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+              <Zap className="h-4 w-4 text-primary dark:text-blue-400" />
               <span>更快速度</span>
             </div>
             <div className="flex items-center gap-1">
@@ -145,7 +145,7 @@ export const InlinePermissionPrompt: React.FC<PermissionUpgradePromptProps> = ({
       case 'premium':
         return <Crown className="h-4 w-4 text-purple-500 dark:text-purple-400" />;
       case 'pro':
-        return <Zap className="h-4 w-4 text-blue-500 dark:text-blue-400" />;
+        return <Zap className="h-4 w-4 text-primary dark:text-blue-400" />;
       default:
         return <Lock className="h-4 w-4 text-muted-foreground" />;
     }

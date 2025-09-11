@@ -102,7 +102,7 @@ export default function PrivacyPage() {
             </h3>
             <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
-                {t('privacy.sections.dataUsage.purposes', { returnObjects: true }).map((purpose, index) => (
+                {(t('privacy.sections.dataUsage.purposes', { returnObjects: true }) as any[]).map((purpose: any, index: number) => (
                   <li key={index}>{purpose}</li>
                 ))}
               </ul>
@@ -162,7 +162,7 @@ export default function PrivacyPage() {
             <h3 className="text-lg font-semibold mb-3">{t('privacy.sections.dataRetention.title')}</h3>
             <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
-                {t('privacy.sections.dataRetention.periods', { returnObjects: true }).map((period, index) => (
+                {(t('privacy.sections.dataRetention.periods', { returnObjects: true }) as any[]).map((period: any, index: number) => (
                   <li key={index}>{period}</li>
                 ))}
               </ul>

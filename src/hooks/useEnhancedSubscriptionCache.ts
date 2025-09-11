@@ -104,9 +104,12 @@ export function useEnhancedSubscriptionCache(
       const result = await unifiedSubscriptionService.getUserSubscriptionStatus(userId, user);
       
       // 转换为SubscriptionStatus格式
-      const status = calculateSubscriptionStatus({
-        subscription: result.subscription
-      });
+      const status = calculateSubscriptionStatus(
+        result.subscription ? {
+          expires_at: result.subscription.endDate?.toISOString() || '',
+          status: new Date() < new Date(result.subscription.endDate) ? 'active' : 'inactive'
+        } : null
+      );
 
       return status;
     } catch (error) {

@@ -432,7 +432,7 @@ export class RobustUnifiedDataManager {
     const { data: localData } = safeLoadFromLocalStorage<T>(key);
     if (localData !== null) {
       this.setEnhancedCache(key, localData);
-      return localData;
+      return localData as T;
     }
 
     throw new Error(`数据不存在: ${key}`);

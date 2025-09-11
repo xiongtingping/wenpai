@@ -18,6 +18,7 @@ import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { useAuth } from '@/hooks/useAuth';
 import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 import { secureDataManager } from '@/lib/secureDataManager';
+import { getAIAnalysisService, getUserDataService, getStorageQuotaManager } from '@/config/serviceRegistry';
 import { quickMigrateUserData } from '@/utils/dataStorageMigration';
 import { PermissionLockedButton, PermissionLockedIconButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionProtectedInput, PermissionProtectedInputField, PermissionProtectedSelect } from '@/components/auth/PermissionProtectedInput';
@@ -294,7 +295,7 @@ export default function BrandLibraryPageFixed() {
 
   // 过滤和排序后的资产列表
   const filteredAndSortedAssets = brandAssets
-    .filter(asset => {
+    .filter((asset: any) => {
       // 搜索过滤
       const matchesSearch = asset.name.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -304,7 +305,7 @@ export default function BrandLibraryPageFixed() {
 
       return matchesSearch && matchesCategory;
     })
-    .sort((a, b) => {
+    .sort((a: any, b: any) => {
       switch (sortOption) {
         case 'date-new':
           return new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime();
@@ -323,10 +324,23 @@ export default function BrandLibraryPageFixed() {
       }
     });
 
-  // 服务实例
-  const aiService = AIAnalysisService.getInstance();
-  const webExtractor = WebContentExtractorService.getInstance();
-  const corpusService = BrandCorpusService.getInstance();
+  // 服务实例状态
+  const [aiService, setAiService] = useState<any>(null);
+  const webExtractor = null; // TODO: 需要添加到serviceRegistry
+  const corpusService = null; // TODO: 需要添加到serviceRegistry
+
+  // 初始化服务
+  useEffect(() => {
+    const initServices = async () => {
+      try {
+        const ai = await getAIAnalysisService();
+        setAiService(ai);
+      } catch (error) {
+        console.error('服务初始化失败:', error);
+      }
+    };
+    initServices();
+  }, []);
 
   // 检查API配置
   // 已删除API配置检查，直接使用配置管理器
@@ -553,7 +567,7 @@ export default function BrandLibraryPageFixed() {
     }
 
     // 检查是否有未完成的分析任务
-    const pendingAssets = brandAssets.filter(asset => asset.status === 'processing');
+    const pendingAssets = brandAssets.filter((asset: any) => asset.status === 'processing');
     if (pendingAssets.length > 0) {
       // 发现未完成的分析任务，继续后台处理
       setTimeout(() => startBackgroundAnalysis(pendingAssets), 2000);
@@ -748,14 +762,14 @@ export default function BrandLibraryPageFixed() {
    * 获取维度分类
    */
   const getDimensionsByCategory = (category: string) => {
-    return brandDimensions.filter(d => d.category === category);
+    return brandDimensions.filter((d: any) => d.category === category);
   };
 
   /**
    * 更新维度内容
    */
   const updateDimension = async (id: string, content: string) => {
-    const updated = brandDimensions.map(d =>
+    const updated = brandDimensions.map((d: any) =>
       d.id === id ? { ...d, content } : d
     );
     await saveDimensionsToUnifiedSystem(updated);
@@ -765,7 +779,7 @@ export default function BrandLibraryPageFixed() {
    * 添加关键词到维度
    */
   const addKeywordToDimension = async (dimensionId: string, keyword: string) => {
-    const updated = brandDimensions.map(d =>
+    const updated = brandDimensions.map((d: any) =>
       d.id === dimensionId ? { ...d, keywords: [...d.keywords, keyword] } : d
     );
     await saveDimensionsToUnifiedSystem(updated);
@@ -775,8 +789,8 @@ export default function BrandLibraryPageFixed() {
    * 从维度移除关键词
    */
   const removeKeywordFromDimension = async (dimensionId: string, keyword: string) => {
-    const updated = brandDimensions.map(d =>
-      d.id === dimensionId ? { ...d, keywords: d.keywords.filter(k => k !== keyword) } : d
+    const updated = brandDimensions.map((d: any) =>
+      d.id === dimensionId ? { ...d, keywords: d.keywords.filter((k: string) => k !== keyword) } : d
     );
     await saveDimensionsToUnifiedSystem(updated);
   };
@@ -828,8 +842,8 @@ export default function BrandLibraryPageFixed() {
    */
   const deleteDimensionItem = (dimensionId: string, itemId: string) => {
     // 找到要删除的项目
-    const dimension = brandDimensions.find(d => d.id === dimensionId);
-    const item = dimension?.items.find(i => i.id === itemId);
+    const dimension = brandDimensions.find((d: any) => d.id === dimensionId);
+    const item = dimension?.items.find((i: any) => i.id === itemId);
 
     if (!item) {
       console.error('未找到要删除的项目:', { dimensionId, itemId });
@@ -1354,13 +1368,13 @@ export default function BrandLibraryPageFixed() {
    * 
    */
   const handleBatchCorpusExtraction = async () => {
-    console.log('🔍 开始批量AI分析，当前所有资产:', brandAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
+    console.log('🔍 开始批量AI分析，当前所有资产:', brandAssets.map((a: any) => ({ id: a.id, name: a.name, status: a.status })));
 
-    const unprocessedAssets = brandAssets.filter(asset =>
+    const unprocessedAssets = brandAssets.filter((asset: any) =>
       asset.status === 'uploaded' || asset.status === 'error' || asset.status === 'processing'
     );
 
-    console.log('📋 找到待处理资产:', unprocessedAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
+    console.log('📋 找到待处理资产:', unprocessedAssets.map((a: any) => ({ id: a.id, name: a.name, status: a.status })));
 
     if (unprocessedAssets.length === 0) {
       console.log('⚠️ 没有找到可处理的文件');
@@ -1529,14 +1543,14 @@ export default function BrandLibraryPageFixed() {
     console.log('🗑️ 开始删除资产:', assetToDelete.name);
 
     // 从品牌资料库中删除文件
-    const updatedAssets = brandAssets.filter(a => a.id !== assetToDelete.id);
+    const updatedAssets = brandAssets.filter((a: any) => a.id !== assetToDelete.id);
     setBrandAssets(updatedAssets);
 
     // 从品牌语料库中删除相关信息 - 修复版本
     let deletedItemsCount = 0;
-    const updatedDimensions = brandDimensions.map(dimension => {
+    const updatedDimensions = brandDimensions.map((dimension: any) => {
       // 删除来源匹配的items
-      const filteredItems = dimension.items.filter(item => {
+      const filteredItems = dimension.items.filter((item: any) => {
         const shouldDelete = item.source === assetToDelete.name ||
                            item.source.includes(assetToDelete.name) ||
                            (item.source.startsWith(assetToDelete.name.split('.')[0])); // 处理文件名变化
@@ -1584,19 +1598,19 @@ export default function BrandLibraryPageFixed() {
     console.log('🗑️ 开始批量删除资产:', Array.from(selectedAssetsForBatch));
 
     // 获取要删除的资产信息
-    const assetsToDelete = brandAssets.filter(asset => selectedAssetsForBatch.has(asset.id));
-    const assetNames = assetsToDelete.map(asset => asset.name);
+    const assetsToDelete = brandAssets.filter((asset: any) => selectedAssetsForBatch.has(asset.id));
+    const assetNames = assetsToDelete.map((asset: any) => asset.name);
 
     // 从品牌资料库中删除文件
-    const updatedAssets = brandAssets.filter(asset => !selectedAssetsForBatch.has(asset.id));
+    const updatedAssets = brandAssets.filter((asset: any) => !selectedAssetsForBatch.has(asset.id));
     setBrandAssets(updatedAssets);
 
     // 从品牌语料库中删除相关信息
     let totalDeletedItemsCount = 0;
-    const updatedDimensions = brandDimensions.map(dimension => {
+    const updatedDimensions = brandDimensions.map((dimension: any) => {
       // 删除来源匹配的items
-      const filteredItems = dimension.items.filter(item => {
-        const shouldDelete = assetNames.some(assetName =>
+      const filteredItems = dimension.items.filter((item: any) => {
+        const shouldDelete = assetNames.some((assetName: any) =>
           item.source === assetName ||
           item.source.includes(assetName) ||
           item.source.startsWith(assetName.split('.')[0])
@@ -1660,7 +1674,7 @@ export default function BrandLibraryPageFixed() {
     if (selectedAssetsForBatch.size === filteredAndSortedAssets.length) {
       setSelectedAssetsForBatch(new Set());
     } else {
-      setSelectedAssetsForBatch(new Set(filteredAndSortedAssets.map(asset => asset.id)));
+      setSelectedAssetsForBatch(new Set(filteredAndSortedAssets.map((asset: any) => asset.id)));
     }
   };
 
@@ -1668,17 +1682,17 @@ export default function BrandLibraryPageFixed() {
    * 清理孤立的语料信息（来源文件已不存在）
    */
   const cleanupOrphanedCorpusData = () => {
-    const existingAssetNames = brandAssets.map(asset => asset.name);
+    const existingAssetNames = brandAssets.map((asset: any) => asset.name);
     let cleanedItemsCount = 0;
 
     console.log('🧹 开始清理孤立语料信息...');
     console.log('📂 当前存在的资产:', existingAssetNames);
 
-    const updatedDimensions = brandDimensions.map(dimension => {
+    const updatedDimensions = brandDimensions.map((dimension: any) => {
       // 清理items中的孤立数据
-      const filteredItems = dimension.items.filter(item => {
+      const filteredItems = dimension.items.filter((item: any) => {
         // 检查来源是否还存在
-        const sourceExists = existingAssetNames.some(assetName =>
+        const sourceExists = existingAssetNames.some((assetName: any) =>
           item.source === assetName ||
           item.source.includes(assetName) ||
           item.source.startsWith(assetName.split('.')[0])
@@ -1742,7 +1756,7 @@ export default function BrandLibraryPageFixed() {
     const selectedCategory = SYSTEM_CATEGORIES.find(cat => cat.value === newCategory);
     const categoryLabel = selectedCategory ? selectedCategory.label : newCategory;
 
-    const updatedAssets = brandAssets.map(asset =>
+    const updatedAssets = brandAssets.map((asset: any) =>
       asset.id === assetToEdit.id
         ? { ...asset, category: newCategory }
         : asset
@@ -1938,7 +1952,10 @@ export default function BrandLibraryPageFixed() {
       setExtractionProgress(10);
 
       // 使用WebContentExtractorService进行内容提取
-      const extractionResult = await webExtractor.extractFromUrl(webUrl, {
+      if (!webExtractor) {
+        throw new Error('网页提取服务暂未可用，请稍后再试');
+      }
+      const extractionResult = await (webExtractor as any).extractFromUrl(webUrl, {
         includeBrandAnalysis: true,
         maxContentLength: 5000
       });
@@ -1957,7 +1974,10 @@ export default function BrandLibraryPageFixed() {
 
       // 转换为品牌资产并添加到列表
       const actualCategory = selectedCategory === 'all' ? '品牌资料' : selectedCategory;
-      const brandAsset = webExtractor.convertToBrandAsset(extractionResult, actualCategory);
+      if (!webExtractor) {
+        throw new Error('网页提取服务暂未可用，请稍后再试');
+      }
+      const brandAsset = (webExtractor as any).convertToBrandAsset(extractionResult, actualCategory);
 
       setBrandAssets(prev => [brandAsset, ...prev]);
 
@@ -2311,7 +2331,7 @@ export default function BrandLibraryPageFixed() {
                       featureName="PDF智能对话"
                       variant="outline"
                       size="sm"
-                      disabled={!brandAssets.some(asset => asset.type === 'document')}
+                      disabled={!brandAssets.some((asset: any) => asset.type === 'document')}
                       onClick={() => setShowPdfDialog(true)}
                       className="border-border text-primary hover:bg-accent"
                     >
@@ -2372,13 +2392,13 @@ export default function BrandLibraryPageFixed() {
                   </div>
                   <div className="text-center p-3 bg-card rounded-lg border border-border">
                     <div className="text-2xl font-bold text-foreground">
-                      {brandAssets.filter(a => a.status === 'analyzed').length}
+                      {brandAssets.filter((a: any) => a.status === 'analyzed').length}
                     </div>
                     <div className="text-sm text-muted-foreground">已分析</div>
                   </div>
                   <div className="text-center p-3 bg-card rounded-lg border border-border">
                     <div className="text-2xl font-bold text-foreground">
-                      {brandAssets.filter(a => a.status === 'uploaded').length}
+                      {brandAssets.filter((a: any) => a.status === 'uploaded').length}
                     </div>
                     <div className="text-sm text-muted-foreground">待分析</div>
                   </div>
@@ -2403,7 +2423,7 @@ export default function BrandLibraryPageFixed() {
                 ) : viewMode === 'grid' ? (
                   // 网格视图
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredAndSortedAssets.map((asset) => (
+                    {filteredAndSortedAssets.map((asset: any) => (
                       <Card key={asset.id} className="p-4 hover:shadow-md transition-shadow">
                         <div className="flex flex-col space-y-3">
                           <div className="flex items-center gap-3">
@@ -2549,7 +2569,7 @@ export default function BrandLibraryPageFixed() {
                 ) : (
                   // 列表视图
                   <div className="space-y-3">
-                    {filteredAndSortedAssets.map((asset) => (
+                    {filteredAndSortedAssets.map((asset: any) => (
                       <Card key={asset.id} className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3 flex-1">
@@ -2646,13 +2666,13 @@ export default function BrandLibraryPageFixed() {
                                 className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
                                 onClick={() => {
                                   console.log('重新分析文件:', asset.name);
-                                  const updatedAssets = brandAssets.map(a =>
+                                  const updatedAssets = brandAssets.map((a: any) =>
                                     a.id === asset.id ? { ...a, status: 'processing' as const } : a
                                   );
                                   setBrandAssets(updatedAssets);
 
                                   setTimeout(() => {
-                                    const finalAssets = brandAssets.map(a =>
+                                    const finalAssets = brandAssets.map((a: any) =>
                                       a.id === asset.id ? { ...a, status: 'analyzed' as const } : a
                                     );
                                     setBrandAssets(finalAssets);
@@ -2812,7 +2832,7 @@ export default function BrandLibraryPageFixed() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 brand-card-content">
-                  {getDimensionsByCategory('basic').map((dimension) => (
+                  {getDimensionsByCategory('basic').map((dimension: any) => (
                     <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
                         {getIconForDimension(dimension.icon)}
@@ -2851,7 +2871,7 @@ export default function BrandLibraryPageFixed() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 brand-card-content">
-                  {getDimensionsByCategory('voice').map((dimension) => (
+                  {getDimensionsByCategory('voice').map((dimension: any) => (
                     <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
                         {getIconForDimension(dimension.icon)}
@@ -2890,7 +2910,7 @@ export default function BrandLibraryPageFixed() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 brand-card-content">
-                  {getDimensionsByCategory('identity').map((dimension) => (
+                  {getDimensionsByCategory('identity').map((dimension: any) => (
                     <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
                         {getIconForDimension(dimension.icon)}
@@ -2929,7 +2949,7 @@ export default function BrandLibraryPageFixed() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 brand-card-content">
-                  {getDimensionsByCategory('content').map((dimension) => (
+                  {getDimensionsByCategory('content').map((dimension: any) => (
                     <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
                         {getIconForDimension(dimension.icon)}
@@ -2960,8 +2980,8 @@ export default function BrandLibraryPageFixed() {
         {/* PDF智能对话组件 */}
         <PDFChatDialog
           documents={brandAssets
-            .filter(asset => asset.type === 'document')
-            .map(asset => ({
+            .filter((asset: any) => asset.type === 'document')
+            .map((asset: any) => ({
               id: asset.id,
               name: asset.name,
               content: asset.content || '文档内容暂未提取',
@@ -3592,7 +3612,7 @@ function DimensionForm({
               placeholder={dimension.placeholder}
               value={newItemContent}
               onChange={(e) => setNewItemContent(e.target.value)}
-              className="min-h-[80px] text-sm resize-none"
+              className="min-h-[var(--spacing-20)] text-sm resize-none"
             />
             <div className="flex gap-2">
               <Button

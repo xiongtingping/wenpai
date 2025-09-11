@@ -35,7 +35,7 @@ export const ThemeUpgradeDialog: React.FC<ThemeUpgradeDialogProps> = ({
   const navigate = useNavigate();
 
   const tierInfo = {
-    trial: { name: '体验版', color: 'bg-gray-100 text-gray-800' },
+    trial: { name: '体验版', color: 'bg-muted text-gray-800' },
     pro: { name: '专业版', color: 'bg-blue-100 text-blue-800' },
     premium: { name: '高级版', color: 'bg-purple-100 text-purple-800' }
   };

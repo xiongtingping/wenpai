@@ -169,12 +169,12 @@ export function PricingSection() {
             <div className="flex items-center gap-2 flex-1">
               <span className="font-medium">{text}</span>
               {badgeType === 'new' && (
-                <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">
+                <span className="bg-gradient-to-r from-orange-500 to-red-500 text-background text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">
                   NEW
                 </span>
               )}
               {badgeType === 'up' && (
-                <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-1">
+                <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-background text-xs px-2 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-1">
                   <TrendingUp className="h-3 w-3" />
                   UP
                 </span>
@@ -204,7 +204,7 @@ export function PricingSection() {
           {/* 限时优惠倒计时 - 完全照搬支付中心设计 */}
           {currentUser?.id && showPromoOffer && timeLeft > 0 && (
             <div className="text-center mt-6 mb-8">
-              <div className="promo-banner text-white px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
+              <div className="promo-banner text-background px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
                 <div className="flex items-center justify-center gap-2 mb-3">
                   <Zap className="h-4 w-4 animate-pulse" />
                   <span className="text-sm font-medium">{t('home.pricing.limitedTimeOffer')}</span>
@@ -272,7 +272,7 @@ export function PricingSection() {
                   </span>
                 )}
                 {isPremium && (
-                  <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg border border-purple/20">
+                  <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 text-background text-xs font-bold px-4 py-2 rounded-full shadow-lg border border-purple/20">
                     <Crown className="w-3 h-3 mr-1 inline fill-current" />
                     {billing === 'yearly' ? t('home.pricing.moreSavings') : t('home.pricing.allFeatures')}
                   </span>
@@ -336,7 +336,7 @@ export function PricingSection() {
                 <Button
                   variant={isRecommended ? "gradient" : "default"}
                   size="lg"
-                  className={`mt-8 w-full font-semibold transition-all duration-300 ${
+                  className={`mt-8 w-full font-semibold transition-all duration-300 flex items-center justify-center text-center ${
                     isRecommended
                       ? 'shadow-lg hover:shadow-xl hover:-translate-y-1'
                       : 'shadow-md hover:shadow-lg hover:-translate-y-0.5'
@@ -349,12 +349,12 @@ export function PricingSection() {
                 >
                   {isTrial ? (
                     <>
-                      <Sparkles className="w-4 h-4 mr-2" />
+                      <Sparkles className="w-4 h-4 mr-2 flex-shrink-0" />
                       {t('home.pricing.startFreeUse')}
                     </>
                   ) : (
                     <>
-                      <Crown className="w-4 h-4 mr-2" />
+                      <Crown className="w-4 h-4 mr-2 flex-shrink-0" />
                       {t('home.pricing.upgradeToTitle')}{plan.name}
                     </>
                   )}

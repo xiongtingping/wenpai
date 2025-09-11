@@ -321,7 +321,7 @@ export function TokenUsageSection({
                     className="w-full h-12 text-base font-bold rounded-xl btn-upgrade-force"
                     size="lg"
                   >
-                    <Crown className="w-5 h-5 text-white" />
+                    <Crown className="w-5 h-5 text-background" />
                     立即解锁高级功能
                   </Button>
                 </div>

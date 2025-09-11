@@ -35,7 +35,7 @@
  *
  * 1. 硬编码样式问题：
  *    - 部分组件仍使用内联样式 style={{}}
- *    - 存在硬编码颜色值（#ffffff, rgb(), rgba()）
+ *    - 存在硬编码颜色值（hsl(var(--background)), rgb(), rgba()）
  *    - 硬编码尺寸值（width: 100px, height: 50px）
  *
  * 2. 样式一致性问题：
@@ -83,14 +83,14 @@
   --hardcoded-gray: hsl(var(--muted));
 
   /* 常见硬编码尺寸的设计令牌替换 */
-  --size-xs: 0.5rem;    /* 8px */
-  --size-sm: 0.75rem;   /* 12px */
-  --size-md: 1rem;      /* 16px */
-  --size-lg: 1.25rem;   /* 20px */
-  --size-xl: 1.5rem;    /* 24px */
-  --size-2xl: 2rem;     /* 32px */
-  --size-3xl: 3rem;     /* 48px */
-  --size-4xl: 4rem;     /* 64px */
+  --size-xs: var(--spacing-2);    /* var(--spacing-2) */
+  --size-sm: var(--spacing-3);   /* var(--spacing-3) */
+  --size-md: var(--spacing-4);      /* var(--spacing-4) */
+  --size-lg: var(--spacing-5);   /* var(--spacing-5) */
+  --size-xl: var(--spacing-6);    /* var(--spacing-6) */
+  --size-2xl: var(--spacing-8);     /* var(--spacing-8) */
+  --size-3xl: var(--spacing-12);     /* var(--spacing-12) */
+  --size-4xl: var(--spacing-16);     /* var(--spacing-16) */
 }
 
 /* 🎯 Dialog Styles (弹窗样式) - 包含必要的动画支持 */
@@ -188,8 +188,8 @@
 @layer debug {
   /* 开发环境调试样式 */
   .debug-dialog-position {
-    outline: 2px solid red !important;
-    outline-offset: -2px !important;
+    outline: var(--spacing-0-5) solid red !important;
+    outline-offset: -var(--spacing-0-5) !important;
   }
   
   .debug-dialog-position::before {
@@ -199,45 +199,45 @@
     left: 0 !important;
     background: red !important;
     color: white !important;
-    padding: 4px 8px !important;
-    font-size: 12px !important;
+    padding: var(--spacing-1) var(--spacing-2) !important;
+    font-size: var(--spacing-3) !important;
     z-index: 999999 !important;
   }
   
   .debug-overlay-position {
-    outline: 2px solid blue !important;
-    outline-offset: -2px !important;
+    outline: var(--spacing-0-5) solid blue !important;
+    outline-offset: -var(--spacing-0-5) !important;
   }
   
   .debug-overlay-position::before {
     content: "Overlay Position Debug" !important;
     position: absolute !important;
-    top: 10px !important;
-    left: 10px !important;
+    top: var(--spacing-2-5) !important;
+    left: var(--spacing-2-5) !important;
     background: blue !important;
     color: white !important;
-    padding: 4px 8px !important;
-    font-size: 12px !important;
+    padding: var(--spacing-1) var(--spacing-2) !important;
+    font-size: var(--spacing-3) !important;
     z-index: 999999 !important;
   }
 }
 
 /* 🎯 Performance Optimizations (性能优化) */
 @layer performance {
-  /* GPU加速 */
+  /* GPU加速 - 临时禁用可能影响定位的属性 */
   [data-radix-dialog-overlay],
   [data-radix-dialog-content],
   [role="dialog"] {
     will-change: transform, opacity !important;
     backface-visibility: hidden !important;
-    perspective: 1000px !important;
-    transform-style: preserve-3d !important;
+    /* perspective: 1000px !important; 🚨 临时移除：可能影响定位 */
+    /* transform-style: preserve-3d !important; 🚨 临时移除：可能影响定位 */
   }
   
-  /* 减少重绘 */
+  /* 减少重绘 - 移除可能影响fixed定位的contain属性 */
   [data-radix-dialog-content] {
     isolation: isolate !important;
-    contain: layout style paint !important;
+    /* contain: layout style paint !important; 🚨 移除：影响fixed定位 */
   }
   
   /* 优化滚动 */
@@ -255,14 +255,14 @@
   }
   
   [data-radix-dialog-content]:focus-visible {
-    outline: 2px solid var(--color-ring) !important;
-    outline-offset: 2px !important;
+    outline: var(--spacing-0-5) solid var(--color-ring) !important;
+    outline-offset: var(--spacing-0-5) !important;
   }
   
   /* 高对比度模式支持 */
   @media (prefers-contrast: high) {
     [data-radix-dialog-content] {
-      border-width: 2px !important;
+      border-width: var(--spacing-0-5) !important;
     }
     
     [data-radix-dialog-overlay] {

@@ -122,7 +122,7 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
                 AI内容引擎
                 <Sparkles className="w-5 h-5 text-foreground animate-pulse" />
               </h3>
-              <p className="text-sm text-muted-foreground transition-all duration-500 min-h-[20px]">
+              <p className="text-sm text-muted-foreground transition-all duration-500 min-h-[var(--spacing-5)]">
                 {currentMessage}
               </p>
             </div>
@@ -208,7 +208,7 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
         }
         
         @keyframes float {
-          0%, 100% { transform: translateY(0px); }
+          0%, 100% { transform: translateY(0); }
           50% { transform: translateY(var(--ai-float-translate-y)); }
         }
         

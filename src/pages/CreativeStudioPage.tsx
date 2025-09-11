@@ -72,7 +72,7 @@ export default function CreativeStudioPage() {
   const [activeTab, setActiveTab] = useState('calendar');
 
   return (
-    <div className="min-h-screen bg-background" style={{ paddingTop: 'var(--header-height, 96px)' }}>
+    <div className="min-h-screen bg-background" style={{ paddingTop: 'var(--header-height, var(--spacing-24))' }}>
         {/* 主导航栏 */}
         <Header />
 

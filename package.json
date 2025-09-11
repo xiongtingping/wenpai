@@ -26,7 +26,29 @@
     "tech-debt:console-verify": "node scripts/strip-console-logs.js verify src",
     "tech-debt:console-restore": "node scripts/strip-console-logs.js restore src",
     "tech-debt:audit": "npm run type-check && npm run lint && npm run tech-debt:console-verify",
-    "build:production": "npm run tech-debt:console-strip && npm run build && npm run tech-debt:console-restore"
+    "build:production": "npm run tech-debt:console-strip && npm run build && npm run tech-debt:console-restore",
+
+    "dialog:health-check": "node scripts/dialog-health-check.js",
+    "dialog:test": "vitest run src/tests/dialog-positioning.test.ts",
+    "dialog:lint": "eslint src --ext ts,tsx --config eslint-rules/dialog-style-rules.js",
+    "dialog:audit": "npm run dialog:health-check && npm run dialog:test && npm run dialog:lint",
+    "dialog:fix": "npm run dialog:lint -- --fix",
+
+    "tokens:build": "node tokens/scripts/build.js",
+    "style:check": "node scripts/style-system-check.js",
+    "style:lint": "stylelint 'src/**/*.{css,scss}' --fix",
+    "style:assessment": "node scripts/style-system-assessment.js",
+    "style:fix": "npm run style:lint && npm run tokens:build",
+    "style:ci": "npm run style:check && npm run style:lint",
+    "style:audit": "npm run tokens:build && npm run style:check && npm run style:assessment",
+
+    "perfect:coverage": "node scripts/achieve-100-percent-coverage.js",
+    "perfect:compliance": "node scripts/enforce-100-percent-compliance.js",
+    "perfect:compliance:fix": "node scripts/enforce-100-percent-compliance.js --fix",
+    "perfect:unity": "node scripts/achieve-100-percent-component-unity.js",
+    "perfect:unity:fix": "node scripts/achieve-100-percent-component-unity.js --fix",
+    "perfect:all": "npm run perfect:coverage && npm run perfect:compliance:fix && npm run perfect:unity:fix",
+    "perfect:validate": "npm run perfect:compliance && npm run perfect:unity"
   },
   "dependencies": {
     "@authing/guard-react18": "^5.3.9",

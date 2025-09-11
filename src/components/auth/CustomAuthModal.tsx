@@ -133,7 +133,7 @@ export const CustomAuthModal: React.FC<CustomAuthModalProps> = ({
         </DialogHeader>
 
         {error && (
-          <div className="text-red-500 text-sm p-2 bg-red-50 rounded">
+          <div className="text-destructive text-sm p-2 bg-red-50 rounded">
             {error}
           </div>
         )}

@@ -198,12 +198,13 @@ export class FileFormatSupportService {
     let message = `✅ ${formatInfo.name} - ${formatInfo.description}`;
     
     // 添加质量说明
-    const qualityText = {
+    const qualityMap: Record<string, string> = {
       excellent: '完美解析',
-      good: '高质量解析', 
+      good: '高质量解析',
       fair: 'OCR识别',
       limited: '需要转换'
-    }[formatInfo.parseQuality];
+    };
+    const qualityText = qualityMap[formatInfo.parseQuality] || '未知质量';
     
     message += ` (${qualityText})`;
     
@@ -214,7 +215,7 @@ export class FileFormatSupportService {
     }
     
     if (formatInfo.limitations) {
-      suggestions.push(...formatInfo.limitations.map(limit => `注意: ${limit}`));
+      suggestions.push(...formatInfo.limitations.map((limit: any) => `注意: ${limit}`));
     }
 
     return {

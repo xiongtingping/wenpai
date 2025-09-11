@@ -259,7 +259,7 @@ export async function generateAdaptedContent(
         data: {
           adaptedContent: aiResponse.content,
           platform,
-          formId,
+          ...(formId && { formId }),
           style,
           prompt: `使用统一AI服务适配到${platform}平台`
         }
@@ -313,7 +313,7 @@ export async function regenerateAdaptedContent(
       data: {
         adaptedContent: prompt,
         platform,
-        formId,
+        ...(formId && { formId }),
         style,
         prompt
       }
@@ -361,7 +361,7 @@ export async function generateMultiPlatformContent(
       generateAdaptedContent({
         originalContent,
         platform,
-        formId,
+        ...(formId && { formId }),
         style
       })
     );

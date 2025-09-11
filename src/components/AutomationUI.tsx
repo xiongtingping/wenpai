@@ -241,7 +241,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
                   )}
                   
                   {isReady && (
-                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                    <span className="text-xs text-success bg-green-100 px-2 py-1 rounded">
                       ✓ 就绪
                     </span>
                   )}

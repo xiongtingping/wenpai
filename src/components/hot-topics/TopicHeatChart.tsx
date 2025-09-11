@@ -99,7 +99,7 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
-        return <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />;
+        return <TrendingUp className="w-4 h-4 text-success dark:text-green-400" />;
       case 'down':
         return <TrendingDown className="w-4 h-4 text-destructive" />;
       default:
@@ -111,7 +111,7 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
   const getTrendColor = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
-        return 'text-green-600 dark:text-green-400';
+        return 'text-success dark:text-green-400';
       case 'down':
         return 'text-destructive';
       default:

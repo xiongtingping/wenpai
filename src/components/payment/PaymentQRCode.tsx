@@ -189,7 +189,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
     return (
       <Card className="w-full max-w-md mx-auto border-green-200 bg-green-50/50 shadow-lg">
         <CardHeader className="text-center pb-4">
-          <CardTitle className="text-green-600 text-2xl font-bold">🎉 支付成功！</CardTitle>
+          <CardTitle className="text-success text-2xl font-bold">🎉 支付成功！</CardTitle>
         </CardHeader>
         <CardContent className="text-center space-y-4">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -199,7 +199,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
             <p className="text-green-700 font-semibold text-lg">
               订单支付完成！
             </p>
-            <p className="text-green-600 text-sm">
+            <p className="text-success text-sm">
               您的权限正在开通中，请稍候...
             </p>
           </div>
@@ -209,7 +209,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
             </p>
             <Button 
               onClick={() => window.location.href = '/'} 
-              className="w-full bg-green-600 hover:bg-green-700"
+              className="w-full bg-success hover:bg-green-700"
               variant="default"
             >
               返回首页
@@ -250,7 +250,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
     return (
       <Card className="w-full max-w-md mx-auto border-red-200 bg-red-50/50">
         <CardHeader className="text-center">
-          <CardTitle className="text-red-600">支付失败</CardTitle>
+          <CardTitle className="text-destructive">支付失败</CardTitle>
         </CardHeader>
         <CardContent className="text-center space-y-4">
           <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
@@ -261,13 +261,13 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
               支付处理失败
             </p>
             {errorMessage && (
-              <p className="text-red-600 text-sm">
+              <p className="text-destructive text-sm">
                 {errorMessage}
               </p>
             )}
           </div>
           <div className="space-y-2">
-            <Button onClick={handleRefresh} className="w-full bg-red-600 hover:bg-red-700">
+            <Button onClick={handleRefresh} className="w-full bg-destructive hover:bg-red-700">
               重新下单
             </Button>
             <Button variant="outline" onClick={handleFeedback} className="w-full border-red-300">

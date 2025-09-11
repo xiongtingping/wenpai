@@ -471,8 +471,8 @@ export class PermissionChecker {
     const inherited = new Set(basePermissions);
     
     basePermissions.forEach(permission => {
-      const inheritedPerms = PERMISSION_INHERITANCE[permission] || [];
-      inheritedPerms.forEach(perm => inherited.add(perm));
+      const inheritedPerms = (PERMISSION_INHERITANCE as any)[permission] || [];
+      inheritedPerms.forEach((perm: Permission) => inherited.add(perm));
     });
     
     return Array.from(inherited);

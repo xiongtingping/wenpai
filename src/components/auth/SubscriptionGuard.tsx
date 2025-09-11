@@ -93,7 +93,7 @@ const getTierInfo = (tier: SubscriptionTier) => {
     icon: tier === 'trial' ? <Star className="h-4 w-4" /> :
           tier === 'pro' ? <Zap className="h-4 w-4" /> :
           <Crown className="h-4 w-4" />,
-    color: tier === 'trial' ? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' :
+    color: tier === 'trial' ? 'bg-muted text-gray-800 dark:bg-gray-800 dark:text-gray-200' :
            tier === 'pro' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
            'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
     features: [
@@ -167,7 +167,7 @@ export const SubscriptionGuard: React.FC<SubscriptionGuardProps> = ({
         className="absolute inset-0 z-50 flex items-center justify-center p-4"
         style={{ 
           backgroundColor: `rgba(255, 255, 255, ${overlayOpacity})`,
-          backdropFilter: 'blur(2px)'
+          backdropFilter: 'blur(var(--spacing-0-5))'
         }}
       >
         <Card className="w-full max-w-md shadow-2xl border-2">
