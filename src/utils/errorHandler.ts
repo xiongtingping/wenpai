@@ -1,9 +1,34 @@
 import { logger } from '@/utils/logger';
 import request from '@/api/request';
 /**
- * 全局错误处理工具
- * 用于捕获和处理应用中的各种错误
+ * 🛡️ 统一错误处理系统
+ * 
+ * 功能增强：
+ * - 统一错误消息格式化
+ * - 敏感信息过滤和脱敏
+ * - 错误级别分类和处理
+ * - 用户友好的错误提示
+ * - 错误恢复建议
+ * - 安全的错误日志记录
  */
+
+// 敏感信息模式
+const SENSITIVE_PATTERNS = [
+  // API密钥
+  /[a-zA-Z0-9]{32,}/g,
+  // Token
+  /bearer\s+[a-zA-Z0-9._-]+/gi,
+  // 密码
+  /password["\']?\s*[:=]\s*["\']?[^"'\s]+/gi,
+  // 手机号
+  /1[3-9]\d{9}/g,
+  // 邮箱
+  /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+  // IP地址
+  /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g,
+  // 文件路径
+  /\/[a-zA-Z0-9._/-]+/g,
+];
 
 /**
  * 错误类型枚举
@@ -24,12 +49,17 @@ export enum ErrorType {
 export interface ErrorInfo {
   type: ErrorType;
   message: string;
+  sanitizedMessage: string; // 脱敏后的消息
   stack?: string;
+  sanitizedStack?: string; // 脱敏后的堆栈
   timestamp: string;
   url: string;
   userAgent: string;
   errorId: string;
   context?: Record<string, any>;
+  userFriendlyMessage: string; // 用户友好消息
+  recoverySuggestions: string[]; // 恢复建议
+  riskLevel: 'low' | 'medium' | 'high' | 'critical'; // 风险级别
 }
 
 /**
@@ -37,6 +67,63 @@ export interface ErrorInfo {
  */
 function generateErrorId(): string {
   return `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+/**
+ * 清理敏感信息
+ */
+function sanitizeMessage(message: string): string {
+  let sanitized = message;
+  
+  // 替换敏感信息模式
+  SENSITIVE_PATTERNS.forEach(pattern => {
+    sanitized = sanitized.replace(pattern, '[REDACTED]');
+  });
+  
+  // 移除URL参数
+  sanitized = sanitized.replace(/[?&][a-zA-Z0-9_]+=([^&\s]+)/g, (match, value) => {
+    return match.replace(value, '[PARAM_REDACTED]');
+  });
+  
+  // 移除可能的用户数据
+  sanitized = sanitized.replace(/user[_-]?id["\']?\s*[:=]\s*["\']?[^"'\s,}]+/gi, 'user_id: [REDACTED]');
+  sanitized = sanitized.replace(/session[_-]?id["\']?\s*[:=]\s*["\']?[^"'\s,}]+/gi, 'session_id: [REDACTED]');
+  
+  return sanitized;
+}
+
+/**
+ * 确定风险级别
+ */
+function determineRiskLevel(errorType: ErrorType, message: string): 'low' | 'medium' | 'high' | 'critical' {
+  const lowerMessage = message.toLowerCase();
+  
+  // 严重风险 - 系统级错误或安全相关
+  if (errorType === ErrorType.CONFIG || 
+      lowerMessage.includes('security') ||
+      lowerMessage.includes('critical') ||
+      lowerMessage.includes('fatal')) {
+    return 'critical';
+  }
+  
+  // 高风险 - 认证或支付相关
+  if (errorType === ErrorType.AUTH || 
+      errorType === ErrorType.PAYMENT ||
+      lowerMessage.includes('unauthorized') ||
+      lowerMessage.includes('forbidden')) {
+    return 'high';
+  }
+  
+  // 中等风险 - 网络或AI服务
+  if (errorType === ErrorType.NETWORK || 
+      errorType === ErrorType.AI ||
+      lowerMessage.includes('timeout') ||
+      lowerMessage.includes('service unavailable')) {
+    return 'medium';
+  }
+  
+  // 低风险 - 运行时错误
+  return 'low';
 }
 
 /**
@@ -69,30 +156,55 @@ function getErrorType(error: Error | string): ErrorType {
  * 记录错误信息
  */
 export function logError(error: Error | string, context?: Record<string, any>): ErrorInfo {
+  const originalMessage = typeof error === 'string' ? error : error.message;
+  const originalStack = typeof error === 'string' ? undefined : error.stack;
+  const errorType = getErrorType(error);
+  
   const errorInfo: ErrorInfo = {
-    type: getErrorType(error),
-    message: typeof error === 'string' ? error : error.message,
-    stack: typeof error === 'string' ? undefined : error.stack,
+    type: errorType,
+    message: originalMessage,
+    sanitizedMessage: sanitizeMessage(originalMessage),
+    stack: originalStack,
+    sanitizedStack: originalStack ? sanitizeMessage(originalStack) : undefined,
     timestamp: new Date().toISOString(),
     url: window.location.href,
     userAgent: navigator.userAgent,
     errorId: generateErrorId(),
-    context
+    context,
+    userFriendlyMessage: getUserFriendlyMessage(error),
+    recoverySuggestions: getErrorRecoverySuggestions(errorType),
+    riskLevel: determineRiskLevel(errorType, originalMessage)
   };
 
-  // 控制台输出
-  console.error('🚨 应用错误:', {
-    ...errorInfo,
+  // 控制台输出 - 根据风险级别选择输出方式
+  const logMethod = errorInfo.riskLevel === 'critical' ? 'error' :
+                   errorInfo.riskLevel === 'high' ? 'error' :
+                   errorInfo.riskLevel === 'medium' ? 'warn' : 'log';
+
+  console[logMethod](`🛡️ [${errorInfo.riskLevel.toUpperCase()}] 应用错误:`, {
+    id: errorInfo.errorId,
+    type: errorInfo.type,
+    // 生产环境使用脱敏消息，开发环境显示原始消息
+    message: import.meta.env.PROD ? errorInfo.sanitizedMessage : errorInfo.message,
+    userMessage: errorInfo.userFriendlyMessage,
+    suggestions: errorInfo.recoverySuggestions,
+    context: errorInfo.context,
     // 在开发环境中显示更多信息
     ...(import.meta.env.DEV && {
-      fullError: error,
-      componentStack: context?.componentStack
+      originalMessage: errorInfo.message,
+      stack: errorInfo.stack,
+      fullError: error
     })
   });
 
-  // 发送错误报告到服务器（生产环境）
+  // 发送错误报告到服务器（生产环境，仅使用脱敏数据）
   if (import.meta.env.PROD) {
-    reportErrorToServer(errorInfo).catch(() => {
+    reportErrorToServer({
+      ...errorInfo,
+      // 确保上报的是脱敏数据
+      message: errorInfo.sanitizedMessage,
+      stack: errorInfo.sanitizedStack
+    }).catch(() => {
       // 静默处理发送失败
     });
   }

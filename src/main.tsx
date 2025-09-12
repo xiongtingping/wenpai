@@ -14,6 +14,9 @@ import { immediateFixLocalStorage } from './utils/localStorageFixer';
 import { preloadAllServices, getServicesStats } from './utils/servicePreloader';
 import { registerAllServices } from './config/serviceRegistry';
 import { preloadServices, container } from './utils/DIContainer';
+import { autoFixAllDialogs } from './utils/dialogPositionFixer';
+import { autoMigrateOnStartup } from './utils/configMigration';
+import { setupGlobalErrorHandler } from './utils/errorHandler';
 
 // 🔧 FIXED: 更强力的 forwardRef 修复，彻底消除错误
 try {
@@ -138,6 +141,14 @@ async function initializeApplication() {
     // 1. 立即修复 localStorage 数据问题
     immediateFixLocalStorage();
 
+    // 1.5. 重新启用自动迁移敏感配置
+    console.log('🔄 开始配置迁移检查...');
+    await autoMigrateOnStartup();
+
+    // 1.6. 初始化全局错误处理器
+    console.log('🛡️ 初始化全局错误处理器...');
+    setupGlobalErrorHandler();
+
     // 2. 注册所有服务到DI容器（替代单例模式）
     console.log('🔧 注册服务到DI容器...');
     await registerAllServices();
@@ -165,7 +176,12 @@ async function initializeApplication() {
     const root = ReactDOM.createRoot(document.getElementById('root')!);
     root.render(
       <React.StrictMode>
-        <BrowserRouter>
+        <BrowserRouter 
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+        >
           <App />
         </BrowserRouter>
       </React.StrictMode>
@@ -288,9 +304,102 @@ async function initializeApplication() {
       if (resizeDebounceTimer) {
         clearTimeout(resizeDebounceTimer);
       }
+      if (dialogFixer) {
+        dialogFixer.disconnect();
+      }
     });
 
     console.log('✅ 应用启动成功 - Authing Guard aria-hidden 阻止器已激活');
+
+    // 🎯 启动全局Dialog定位修复器（优化防循环版本）
+    const startDialogAutoFixer = () => {
+      let isFixing = false; // 防止重复修复
+      let lastFixTime = 0;
+      
+      const safeAutoFix = () => {
+        const now = Date.now();
+        // 防抖：至少间隔2秒才能再次修复
+        if (isFixing || (now - lastFixTime) < 2000) {
+          return;
+        }
+        
+        isFixing = true;
+        lastFixTime = now;
+        
+        try {
+          const fixedCount = autoFixAllDialogs();
+          if (fixedCount > 0) {
+            console.log(`🎯 修复了 ${fixedCount} 个Dialog，下次检查延迟5秒`);
+          }
+        } catch (error) {
+          console.error('Dialog修复出错:', error);
+        } finally {
+          isFixing = false;
+        }
+      };
+
+      // 减少定期检查频率，从5秒改为30秒
+      const checkInterval = setInterval(() => {
+        safeAutoFix();
+      }, 30000); // 每30秒检查一次
+
+      // 监听DOM变化，当有Dialog出现时立即修复（防抖版本）
+      let debounceTimer: NodeJS.Timeout | null = null;
+      
+      const dialogObserver = new MutationObserver((mutations) => {
+        // 清除之前的定时器
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+        }
+        
+        // 防抖处理，500ms内只执行一次
+        debounceTimer = setTimeout(() => {
+          let foundDialog = false;
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' && !foundDialog) {
+              mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                  const element = node as Element;
+                  // 检查是否是Dialog元素或包含Dialog的容器
+                  if (element.matches('[role="dialog"], [data-radix-dialog-content]') ||
+                      element.querySelector('[role="dialog"], [data-radix-dialog-content]')) {
+                    foundDialog = true;
+                  }
+                }
+              });
+            }
+          });
+          
+          if (foundDialog) {
+            console.log('🎯 检测到新Dialog，执行修复');
+            safeAutoFix();
+          }
+        }, 500);
+      });
+
+      // 监听document.body的变化，但限制监听范围
+      dialogObserver.observe(document.body, {
+        childList: true,
+        subtree: false // 减少监听范围，只监听直接子元素
+      });
+
+      console.log('🎯 全局Dialog定位修复器已启动（防循环版本）');
+
+      // 返回清理函数
+      return {
+        disconnect: () => {
+          clearInterval(checkInterval);
+          dialogObserver.disconnect();
+          if (debounceTimer) {
+            clearTimeout(debounceTimer);
+          }
+          console.log('🧹 Dialog定位修复器已清理');
+        }
+      };
+    };
+
+    // 启动Dialog修复器
+    const dialogFixer = startDialogAutoFixer();
 
   } catch (error) {
     console.error('💥 应用初始化失败:', error);
@@ -300,7 +409,12 @@ async function initializeApplication() {
     const root = ReactDOM.createRoot(document.getElementById('root')!);
     root.render(
       <React.StrictMode>
-        <BrowserRouter>
+        <BrowserRouter 
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+        >
           <App />
         </BrowserRouter>
       </React.StrictMode>

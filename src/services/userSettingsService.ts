@@ -10,11 +10,8 @@ import { supabase } from '@/config/supabase';
 export interface UserSetting {
   id: string;
   user_id: string;
-  data_key: string;
-  data_value: any;
-  data_category: 'preference' | 'theme' | 'ui' | 'feature' | 'content';
-  sync_priority: number; // 1-10, 10最高
-  metadata: Record<string, any>;
+  key: string;
+  value: any;
   created_at?: string;
   updated_at?: string;
 }
@@ -142,9 +139,16 @@ export class UserSettingsService {
         .limit(1);
 
       if (error) {
-        console.error('数据库表验证失败:', error);
-        console.error('可能的原因: 表不存在、权限不足或字段名不匹配');
-        return false;
+        console.log('user_preferences表不存在，尝试创建...');
+        
+        // 尝试创建表
+        const created = await this.createUserPreferencesTable();
+        if (created) {
+          this.tableValidated = true;
+          return true;
+        } else {
+          throw new Error('无法创建user_preferences表');
+        }
       }
 
       this.tableValidated = true;
@@ -152,8 +156,46 @@ export class UserSettingsService {
       return true;
     } catch (error) {
       console.error('数据库表验证异常:', error);
-      return false;
+      throw error;
     }
+  }
+
+  /**
+   * 创建user_preferences表
+   */
+  private async createUserPreferencesTable(): Promise<boolean> {
+    console.error('❌ user_preferences表不存在！');
+    console.error('');
+    console.error('📋 请在Supabase SQL编辑器中执行以下SQL语句：');
+    console.error('');
+    console.error(`CREATE TABLE IF NOT EXISTS user_preferences (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id VARCHAR(100) NOT NULL,
+  key VARCHAR(255) NOT NULL,
+  value TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  CONSTRAINT unique_user_key UNIQUE(user_id, key)
+);
+
+-- 创建索引
+CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON user_preferences(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_preferences_key ON user_preferences(key);
+
+-- 启用RLS
+ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
+
+-- 创建RLS策略
+DROP POLICY IF EXISTS "Users can access own preferences" ON user_preferences;
+CREATE POLICY "Users can access own preferences" ON user_preferences
+  USING (user_id::text = auth.uid()::text)
+  WITH CHECK (user_id::text = auth.uid()::text);`);
+    
+    console.error('');
+    console.error('🔗 或者使用简化版本: cat /Users/xiong/wenpai/supabase-setup-simple.sql');
+    console.error('');
+    
+    throw new Error('请先在Supabase中创建user_preferences表，然后刷新页面');
   }
 
 
@@ -245,7 +287,7 @@ export class UserSettingsService {
     // 🔧 FIX: 验证表结构
     const isTableValid = await this.validateTable();
     if (!isTableValid) {
-      console.warn('数据库表验证失败，返回默认值');
+      console.debug('数据库表不可用，使用默认值');
       return defaultValue;
     }
 
@@ -256,7 +298,8 @@ export class UserSettingsService {
         .select('value')
         .eq('user_id', this.userId)
         .eq('key', key)
-        .single();
+        .limit(1)
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         console.error('获取设置失败:', error);

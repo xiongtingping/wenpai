@@ -108,7 +108,7 @@ export function getAuthingConfig() {
     DEV: import.meta.env.DEV
   });
   
-  console.log('🔧 Authing配置 (硬编码):', {
+  console.log('🔧 Authing配置 (环境变量):', {
     appId: cachedConfig.appId,
     domain: cachedConfig.domain,
     host: cachedConfig.host,

@@ -251,8 +251,26 @@ export class UserInfoNormalizer {
    * 验证手机号格式
    */
   private isValidPhone(phone: string): boolean {
+    // 更新：支持所有有效的中国手机号段（13x, 14x, 15x, 16x, 17x, 18x, 19x）
     const phoneRegex = /^1[3-9]\d{9}$/;
-    return phoneRegex.test(phone);
+    
+    // 🔧 修复Unicode引号和特殊字符问题：清理所有非数字字符和Unicode引号
+    let cleanPhone = phone;
+    
+    // 移除所有类型的引号字符（包括Unicode引号）
+    cleanPhone = cleanPhone.replace(/["""'']/g, '');
+    
+    // 清除所有非数字字符
+    cleanPhone = cleanPhone.replace(/\D/g, '');
+    
+    const isValid = phoneRegex.test(cleanPhone);
+    
+    // 如果原始phone包含引号但数字有效，记录警告
+    if (!isValid && /["""'']/.test(phone)) {
+      console.warn(`📱 手机号包含异常字符，已尝试清理: "${phone}" -> "${cleanPhone}"`);
+    }
+    
+    return isValid;
   }
 
   /**

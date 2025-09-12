@@ -901,7 +901,7 @@
 
   /* 🍞 Toast Component System */
   .toast-viewport {
-    top: var(--toast-viewport-top);
+    bottom: var(--toast-viewport-bottom);
     right: var(--toast-viewport-right);
     z-index: var(--toast-viewport-z-index);
     max-width: var(--toast-viewport-max-width);

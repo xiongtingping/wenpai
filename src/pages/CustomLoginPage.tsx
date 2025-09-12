@@ -1,24 +1,32 @@
 /**
- * 自定义登录/注册页面
- * 提供原生的登录注册表单，不依赖第三方服务
+ * 21st.dev风格的登录/注册页面
+ * 使用手机号+密码/验证码登录方式
  */
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Sun, Moon, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { AnimatedAuthShell } from '@/components/ui/AnimatedAuthShell';
 import { AuthenticationClient } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
 import { verificationCodeService } from '@/services/verificationCodeService';
 
-// 🔧 FIX: Authing错误码解析器 - 提供友好的错误提示
+// 手机号验证函数
+const validatePhone = (phone: string) => {
+  const phoneRegex = /^1[3-9]\d{9}$/;
+  return phoneRegex.test(phone);
+};
+
+// Authing错误信息接口
 interface AuthingErrorInfo {
-  title: string;
-  description: string;
-  shouldClearCode: boolean;
+  code?: string;
+  message?: string;
+  title?: string;
+  description?: string;
   actionSuggestion?: string;
+  type?: 'network' | 'validation' | 'auth' | 'unknown';
+  shouldClearCode?: boolean;
 }
 
 function parseAuthingError(error: any): AuthingErrorInfo {
@@ -134,11 +142,15 @@ function parseAuthingError(error: any): AuthingErrorInfo {
 }
 
 import '@/styles/animated-signin-21st.css';
+
 export const CustomLoginPage: React.FC = () => {
   const { toast } = useToast();
   const { guard, handleAuthingLogin, user, isAuthenticated } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  // 主题状态管理
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // 登录表单状态 - 只保留手机号
   const [loginForm, setLoginForm] = useState(() => {
@@ -187,10 +199,20 @@ export const CustomLoginPage: React.FC = () => {
         return;
       }
       setCheckingAuth(false); // 检查完成，显示登录表单
-    }, 500);
+    }, 1000); // 增加延迟时间，确保认证上下文完全初始化
 
     return () => clearTimeout(timer);
   }, [isAuthenticated, user, navigate]);
+
+  // 🔧 FIX: 添加备用机制，如果认证上下文长时间未响应，直接显示登录表单
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      console.log('⚠️ 认证检查超时，强制显示登录表单');
+      setCheckingAuth(false);
+    }, 3000); // 3秒后强制显示登录表单
+
+    return () => clearTimeout(fallbackTimer);
+  }, []);
 
   // 处理URL参数，支持直接跳转到注册页面
   useEffect(() => {
@@ -469,9 +491,9 @@ export const CustomLoginPage: React.FC = () => {
       });
 
       // 🔧 FIX: 网络问题时提供降级方案
-      const isNetworkError = errorInfo.title.includes('网络') ||
-                            errorInfo.title.includes('超时') ||
-                            errorInfo.title.includes('连接');
+      const isNetworkError = errorInfo.title?.includes('网络') ||
+                            errorInfo.title?.includes('超时') ||
+                            errorInfo.title?.includes('连接');
 
       if (isNetworkError) {
         // 提供网络问题的具体建议
@@ -492,7 +514,7 @@ export const CustomLoginPage: React.FC = () => {
           duration: 8000 // 网络错误延长显示时间
         });
       } else {
-        setError(errorInfo.title);
+        setError(errorInfo.title || errorInfo.message || '登录失败');
         toast({
           title: errorInfo.title,
           description: errorInfo.description,
@@ -591,51 +613,149 @@ export const CustomLoginPage: React.FC = () => {
   };
 
   const isPhoneValid = !loginForm.phone || /^1[3-9]\d{9}$/.test(loginForm.phone);
-  const [rememberMe, setRememberMe] = useState(() => {
-    // 从localStorage恢复记住密码状态
-    try {
-      const savedValue = localStorage.getItem('remember_me');
-      console.log('🔍 记住密码状态加载:', savedValue);
-      const result = savedValue === 'true';
-      console.log('🔐 记住密码初始状态:', result);
-      return result;
-    } catch (error) {
-      console.error('❌ 记住密码状态加载失败:', error);
-      return false;
-    }
-  });
+  const [rememberMe, setRememberMe] = useState(false);
 
-  // 调试记住密码功能
+  // 主题切换功能
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle("dark-mode");
+  };
+
+  // 初始化主题
   useEffect(() => {
-    console.log('🔐 记住密码状态调试:');
-    console.log('- rememberMe state:', rememberMe);
-    console.log('- localStorage remember_me:', localStorage.getItem('remember_me'));
-    console.log('- localStorage saved_phone:', localStorage.getItem('saved_phone'));
-    console.log('- localStorage saved_password_hash:', localStorage.getItem('saved_password_hash'));
-    console.log('- loginForm.phone:', loginForm.phone);
-  }, [rememberMe, loginForm.phone]);
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setIsDarkMode(prefersDark);
+    if (prefersDark) {
+      document.documentElement.classList.add("dark-mode");
+    }
+  }, []);
+
+  // 粒子动画效果
+  useEffect(() => {
+    const canvas = document.getElementById("particles") as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const setCanvasSize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    setCanvasSize();
+    window.addEventListener("resize", setCanvasSize);
+
+    class Particle {
+      x: number;
+      y: number;
+      size: number;
+      speedX: number;
+      speedY: number;
+      color: string;
+
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.color = isDarkMode
+          ? `rgba(255, 255, 255, ${Math.random() * 0.2})`
+          : `rgba(0, 0, 100, ${Math.random() * 0.2})`;
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x > canvas.width) this.x = 0;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.y > canvas.height) this.y = 0;
+        if (this.y < 0) this.y = canvas.height;
+      }
+
+      draw() {
+        if (!ctx) return;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    const particles: Particle[] = [];
+    const particleCount = Math.min(100, Math.floor((canvas.width * canvas.height) / 15000));
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+
+    const animate = () => {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (const particle of particles) {
+        particle.update();
+        particle.draw();
+      }
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener("resize", setCanvasSize);
+    };
+  }, [isDarkMode]);
 
   // 🔧 FIX: 在检查认证状态时显示加载界面
   if (checkingAuth) {
     return (
-      <AnimatedAuthShell
-        title="欢迎"
-        subtitle="正在检查登录状态..."
-      >
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-muted-foreground">检查中...</span>
+      <div className={`login-container ${isDarkMode ? "dark" : "light"}`}>
+        <canvas id="particles" className="particles-canvas"></canvas>
+        <div className="theme-toggle" onClick={toggleDarkMode}>
+          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
         </div>
-      </AnimatedAuthShell>
+        <div className="login-card">
+          <div className="login-card-inner">
+            <div className="login-header">
+              <h1>欢迎</h1>
+              <p>正在检查登录状态...</p>
+            </div>
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-muted-foreground">检查中...</span>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <AnimatedAuthShell
-      title="欢迎"
-      subtitle={mode === 'register' ? '创建您的账户' : '请登录以继续'}
-    >
-      <div>
+    <div className={`login-container ${isDarkMode ? "dark" : "light"}`}>
+      <canvas id="particles" className="particles-canvas"></canvas>
+
+      {/* 返回首页按钮 */}
+      <button className="auth-nav-back" onClick={() => navigate('/')}>
+        <ArrowLeft size={16} />
+        <span className="auth-nav-back-text">返回</span>
+      </button>
+
+      {/* 主题切换按钮 */}
+      <div className="theme-toggle" onClick={toggleDarkMode}>
+        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+      </div>
+
+      <div className="login-card">
+        <div className="login-card-inner">
+          <div className="login-header">
+            <h1>欢迎</h1>
+            <p>{mode === 'register' ? '创建您的账户' : '请登录以继续'}</p>
+          </div>
+
       {/* 与 21st.dev 模板一致的表单结构与类名（手机号 + 密码/验证码登录） */}
       {mode === 'login' && (
         <>
@@ -658,7 +778,7 @@ export const CustomLoginPage: React.FC = () => {
         </div>
 
         {/* 登录方式选择（分段按钮） */}
-        <div className="segmented login-segmented-spacing">
+        <div className="segmented" style={{marginTop:8, marginBottom:8}}>
           <button type="button" className={`seg-btn ${loginMethod==='password'?'active':''}`} onClick={() => setLoginMethod('password')}>密码登录</button>
           <button type="button" className={`seg-btn ${loginMethod==='code'?'active':''}`} onClick={() => setLoginMethod('code')}>验证码登录</button>
         </div>
@@ -686,8 +806,8 @@ export const CustomLoginPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className={`form-field ${loginCodeFocused || loginForm.code ? 'active' : ''} login-code-field`}>
-            <div className="login-code-input-container">
+          <div className={`form-field ${loginCodeFocused || loginForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'8px'}}>
+            <div style={{position:'relative'}}>
               <input
                 type="text"
                 id="login-code"
@@ -701,40 +821,41 @@ export const CustomLoginPage: React.FC = () => {
             </div>
             <button
               type="button"
-              className="login-button login-code-button"
+              className="login-button"
+              style={{padding:'10px 14px'}}
               disabled={loginForm.sendingCode || loginForm.codeCountdown > 0 || !isPhoneValid}
               onClick={async () => {
                 try {
                   setLoginForm(prev => ({ ...prev, sendingCode: true }));
-                  
+
                   const result = await verificationCodeService.sendSmsCode(loginForm.phone, 'LOGIN');
-                  
+
                   if (result.success) {
-                    toast({ 
-                      title: '发送成功', 
-                      description: result.message 
+                    toast({
+                      title: '发送成功',
+                      description: result.message
                     });
-                    
+
                     // 启动倒计时
-                    let secs = 60; 
+                    let secs = 60;
                     setLoginForm(prev => ({ ...prev, codeCountdown: secs }));
-                    const timer = setInterval(() => { 
-                      secs -= 1; 
-                      setLoginForm(prev => ({ ...prev, codeCountdown: Math.max(0, secs) })); 
-                      if (secs <= 0) clearInterval(timer); 
+                    const timer = setInterval(() => {
+                      secs -= 1;
+                      setLoginForm(prev => ({ ...prev, codeCountdown: Math.max(0, secs) }));
+                      if (secs <= 0) clearInterval(timer);
                     }, 1000);
                   } else {
-                    toast({ 
-                      title: '发送失败', 
-                      description: result.message, 
-                      variant: 'destructive' 
+                    toast({
+                      title: '发送失败',
+                      description: result.message,
+                      variant: 'destructive'
                     });
                   }
                 } catch (err) {
                   const msg = err instanceof Error ? err.message : '发送验证码失败';
                   toast({ title: '发送失败', description: msg, variant: 'destructive' });
-                } finally { 
-                  setLoginForm(prev => ({ ...prev, sendingCode: false })); 
+                } finally {
+                  setLoginForm(prev => ({ ...prev, sendingCode: false }));
                 }
               }}
             >
@@ -745,30 +866,7 @@ export const CustomLoginPage: React.FC = () => {
 
         <div className="form-options">
           <label className="remember-me">
-            <input 
-              type="checkbox" 
-              checked={rememberMe} 
-              onChange={(e) => {
-                const checked = e.target.checked;
-                console.log('🔐 记住密码状态变化:', checked);
-                
-                try {
-                  setRememberMe(checked);
-                  // 保存记住密码状态到localStorage
-                  localStorage.setItem('remember_me', checked.toString());
-                  console.log('💾 记住密码状态已保存到localStorage:', checked);
-                  
-                  // 如果取消记住，清除保存的凭证
-                  if (!checked) {
-                    localStorage.removeItem('saved_phone');
-                    localStorage.removeItem('saved_password_hash');
-                    console.log('🗑️ 已清除保存的登录凭据');
-                  }
-                } catch (error) {
-                  console.error('❌ 保存记住密码状态失败:', error);
-                }
-              }} 
-            />
+            <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
             <span className="checkmark"></span>
             记住我
           </label>
@@ -779,7 +877,7 @@ export const CustomLoginPage: React.FC = () => {
           type="submit"
           className="login-button"
           disabled={
-            loginForm.loading || 
+            loginForm.loading ||
             loginForm.loginSuccess ||
             (loginMethod === 'password' ? (!loginForm.password || !isPhoneValid) : (!loginForm.code || !isPhoneValid))
           }
@@ -795,7 +893,7 @@ export const CustomLoginPage: React.FC = () => {
       </p>
       {/* 注册模式下的表单（手机号/邮箱 + 验证码） */}
       {mode === 'register' && (
-        <form className="login-form login-register-form" onSubmit={handleRegister}>
+        <form className="login-form" onSubmit={handleRegister} style={{marginTop: 24}}>
 
           {/* 已移除邮箱选项，只保留手机号注册 */}
 
@@ -814,8 +912,8 @@ export const CustomLoginPage: React.FC = () => {
           </div>
 
           {/* 验证码 */}
-          <div className={`form-field ${registerCodeFocused || registerForm.code ? 'active' : ''} login-code-field`}>
-            <div className="login-code-input-container">
+          <div className={`form-field ${registerCodeFocused || registerForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'8px'}}>
+            <div style={{position:'relative'}}>
               <input
                 type="text"
                 id="register-code"
@@ -829,40 +927,41 @@ export const CustomLoginPage: React.FC = () => {
             </div>
             <button
               type="button"
-              className="login-button login-code-button"
+              className="login-button"
+              style={{padding:'10px 14px'}}
               disabled={registerForm.sendingCode || registerForm.codeCountdown > 0 || !registerForm.phone}
               onClick={async () => {
                 try {
                   setRegisterForm(prev => ({ ...prev, sendingCode: true }));
-                  
+
                   const result = await verificationCodeService.sendSmsCode(registerForm.phone, 'REGISTER');
-                  
+
                   if (result.success) {
-                    toast({ 
-                      title: '发送成功', 
-                      description: result.message 
+                    toast({
+                      title: '发送成功',
+                      description: result.message
                     });
-                    
+
                     // 启动倒计时
-                    let secs = 60; 
+                    let secs = 60;
                     setRegisterForm(prev => ({ ...prev, codeCountdown: secs }));
-                    const timer = setInterval(() => { 
-                      secs -= 1; 
-                      setRegisterForm(prev => ({ ...prev, codeCountdown: Math.max(0, secs) })); 
-                      if (secs <= 0) clearInterval(timer); 
+                    const timer = setInterval(() => {
+                      secs -= 1;
+                      setRegisterForm(prev => ({ ...prev, codeCountdown: Math.max(0, secs) }));
+                      if (secs <= 0) clearInterval(timer);
                     }, 1000);
                   } else {
-                    toast({ 
-                      title: '发送失败', 
-                      description: result.message, 
-                      variant: 'destructive' 
+                    toast({
+                      title: '发送失败',
+                      description: result.message,
+                      variant: 'destructive'
                     });
                   }
                 } catch (err) {
                   const msg = err instanceof Error ? err.message : '发送验证码失败';
                   toast({ title: '发送失败', description: msg, variant: 'destructive' });
-                } finally { 
-                  setRegisterForm(prev => ({ ...prev, sendingCode: false })); 
+                } finally {
+                  setRegisterForm(prev => ({ ...prev, sendingCode: false }));
                 }
               }}
             >
@@ -896,14 +995,14 @@ export const CustomLoginPage: React.FC = () => {
             />
             <label htmlFor="register-confirm">确认密码</label>
             {registerForm.confirmPassword && !passwordsMatch && (
-              <span className="error-message login-error-message">
+              <span className="error-message" style={{position:'absolute', right:0, top:'100%', marginTop:4, color:'#ef4444', fontSize:12}}>
                 两次密码不一致
               </span>
             )}
           </div>
 
-          <div className="form-options login-form-options">
-            <label className="remember-me login-remember-label">
+          <div className="form-options" style={{marginTop:12}}>
+            <label className="remember-me" style={{userSelect:'none'}}>
               <input
                 type="checkbox"
                 checked={registerAgreed}
@@ -935,8 +1034,9 @@ export const CustomLoginPage: React.FC = () => {
           </button>
         </form>
       )}
+        </div>
+      </div>
     </div>
-    </AnimatedAuthShell>
   );
 };
 

@@ -27,6 +27,9 @@ import { getAuthingConfig } from '@/config/authing';
 import { useAuthStore } from '@/store/authStore';
 import { authService } from '@/services/authService';
 import { verificationCodeService } from '@/services/verificationCodeService';
+import { TokenService, TokenInfo } from '@/utils/tokenManager';
+import { AuthingTokenService } from '@/utils/authTokenHandler';
+import { SessionService, SessionEventCallbacks } from '@/utils/sessionManager';
 
 /**
  * 用户信息接口
@@ -52,6 +55,11 @@ interface UnifiedAuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  
+  // 会话状态
+  sessionWarning: boolean;
+  sessionRemainingTime: number;
+  
   login: (redirectTo?: string) => Promise<void>;
   register: (redirectTo?: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -67,6 +75,11 @@ interface UnifiedAuthContextType {
   resetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
   hasPermission: (permission: string) => boolean;
   hasRole: (role: string) => boolean;
+  
+  // 会话管理
+  extendSession: () => void;
+  dismissSessionWarning: () => void;
+  
   // Guard相关方法已移除
   // 自定义模态框状态
   customAuthModalOpen: boolean;
@@ -94,10 +107,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  // 会话管理状态
+  const [sessionWarning, setSessionWarning] = useState(false);
+  const [sessionRemainingTime, setSessionRemainingTime] = useState(0);
+  
   // 自定义模态框状态
   const [customAuthModalOpen, setCustomAuthModalOpen] = useState(false);
   const [customAuthModalTab, setCustomAuthModalTab] = useState<'login' | 'register'>('login');
   const navigate = useNavigate();
+
+  // 将Token管理器初始化移到组件的后面，在所有函数定义之后
   const authStore = useAuthStore();
   
   // Guard Hook已移除 - 使用自定义认证流程
@@ -154,7 +173,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   /**
    * 处理Guard登录成功事件
    */
-  const handleAuthingLogin = (userInfo: any) => {
+  const handleAuthingLogin = async (userInfo: any) => {
     try {
       console.log('🔐 处理Guard登录成功:', userInfo);
 
@@ -179,6 +198,18 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         permissions: Array.isArray(userInfoAny.permissions) ? userInfoAny.permissions : ['basic'],
         ...userInfo
       };
+
+      // 🎫 保存Token到安全管理器
+      if (userInfo.access_token || userInfo.token) {
+        try {
+          const tokenInfo = AuthingTokenService.createTokenFromLogin(userInfo);
+          await TokenService.setToken('authing', tokenInfo);
+          console.log('🎫 Token saved to secure storage');
+        } catch (tokenError) {
+          console.warn('⚠️ Failed to save token:', tokenError);
+          // 继续登录流程，但记录警告
+        }
+      }
 
       // 存储用户信息
       setUser(formattedUser);
@@ -265,9 +296,22 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   /**
    * 登出方法 - 使用官方Guard API
    */
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       console.log('🚪 开始登出流程...');
+
+      // 🎫 清除Token和执行Authing登出
+      try {
+        const token = await TokenService.getToken('authing', false);
+        if (token) {
+          await AuthingTokenService.logout(token);
+        }
+        await TokenService.removeToken('authing');
+        console.log('🎫 Token cleared from secure storage');
+      } catch (tokenError) {
+        console.warn('⚠️ Failed to clear token:', tokenError);
+        // 继续登出流程
+      }
 
       // Guard已移除，直接清除本地状态
       console.log('🚀 执行自定义登出流程');
@@ -278,6 +322,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 同步到 authStore
       authStore.logout();
       localStorage.removeItem('login_redirect_to');
+      
+      // 🔐 注意：不自动清除记住密码数据，保持用户选择
+      // 用户如果选择了"记住密码"，登出后应该保留这个设置
+      // 只有在用户主动取消"记住密码"时才清除
+      console.log('ℹ️ 记住密码数据已保留，如需清除请在登录页面取消勾选');
 
       // 跳转到首页
       navigate('/');
@@ -288,13 +337,26 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       console.error('❌ 登出失败:', error);
       setError('登出失败');
     }
-  };
+  }, [navigate, authStore]);
 
   // 其他方法的简化实现
   const refreshToken = async () => {
-    // Guard 弹窗流程下无需手动刷新，交由官方流程处理
-    console.log('🔄 refreshToken (no-op under Guard modal flow)');
-    return;
+    try {
+      console.log('🔄 Manual token refresh requested');
+      
+      const result = await TokenService.refreshToken('authing');
+      if (result.success) {
+        console.log('✅ Token refreshed successfully');
+      } else {
+        console.warn('⚠️ Token refresh failed:', result.error);
+        if (result.shouldLogout) {
+          await logout();
+        }
+      }
+    } catch (error) {
+      console.error('❌ Token refresh error:', error);
+      setError('Token刷新失败');
+    }
   };
 
   const updateUser = async (updates: Partial<UserInfo>) => {
@@ -542,16 +604,107 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     return user.roles.includes(role);
   };
 
+  // 会话管理功能
+  const extendSession = useCallback(() => {
+    SessionService.extend();
+    setSessionWarning(false);
+    console.log('🔄 用户手动延长会话');
+  }, []);
+
+  const dismissSessionWarning = useCallback(() => {
+    setSessionWarning(false);
+  }, []);
+
   // 初始化时检查认证状态
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // 🎫 Token管理系统初始化
+  useEffect(() => {
+    const initTokenManagement = async () => {
+      try {
+        console.log('🎫 初始化Token管理系统...');
+        
+        // 注册Authing Token刷新处理器
+        TokenService.registerRefreshHandler('authing', AuthingTokenService.createRefreshHandler());
+        
+        // 设置Token事件回调
+        TokenService.setCallbacks({
+          onTokenRefreshed: (newToken) => {
+            console.log('🔄 Token已刷新:', newToken.source);
+          },
+          onTokenExpired: (expiredToken) => {
+            console.warn('⏰ Token已过期:', expiredToken.source);
+          },
+          onTokenError: (error, token) => {
+            console.error('❌ Token错误:', error, token?.source);
+          },
+          onLogoutRequired: (reason) => {
+            console.warn('🚪 需要重新登录:', reason);
+            logout();
+          }
+        });
+        
+        console.log('✅ Token管理系统初始化完成');
+        
+      } catch (error) {
+        console.error('💥 Token管理初始化失败:', error);
+      }
+    };
+    
+    // 避免在初始渲染时立即执行，延迟执行防止循环
+    setTimeout(() => {
+      initTokenManagement();
+    }, 1000);
+  }, [logout]); // 使用稳定的logout引用
+
+  // 🕐 会话管理系统初始化
+  useEffect(() => {
+    if (!user) return; // 只在已登录时启动会话管理
+
+    console.log('🕐 启动会话管理...');
+    
+    // 启动用户会话
+    SessionService.start(user.id);
+    
+    // 设置会话事件回调
+    SessionService.setCallbacks({
+      onSessionWarning: (remainingTime) => {
+        console.warn('⚠️ 会话即将过期，剩余时间:', Math.floor(remainingTime / 1000 / 60), '分钟');
+        setSessionWarning(true);
+        setSessionRemainingTime(remainingTime);
+      },
+      onSessionExpired: () => {
+        console.warn('💥 会话已过期，自动登出');
+        setSessionWarning(false);
+        logout();
+      },
+      onSessionExtended: (newExpiryTime) => {
+        console.log('✅ 会话已延长至:', new Date(newExpiryTime).toISOString());
+        setSessionWarning(false);
+      },
+      onActivityDetected: (activityType) => {
+        // 静默处理用户活动，不输出日志避免控制台污染
+      },
+    });
+
+    return () => {
+      // 用户登出时清理会话
+      SessionService.end();
+    };
+  }, [user, logout]);
 
   const contextValue: UnifiedAuthContextType = {
     user,
     isAuthenticated: !!user,
     loading,
     error,
+    
+    // 会话状态
+    sessionWarning,
+    sessionRemainingTime,
+    
     login,
     register,
     logout,
@@ -567,6 +720,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     resetPassword,
     hasPermission,
     hasRole,
+    
+    // 会话管理
+    extendSession,
+    dismissSessionWarning,
+    
     // Guard相关方法已移除
     customAuthModalOpen,
     setCustomAuthModalOpen,

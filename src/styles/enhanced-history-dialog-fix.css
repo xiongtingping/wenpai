@@ -1,0 +1,240 @@
+/**
+ * 历史记录弹窗专用修复CSS
+ * 🚨 紧急修复：解决弹窗位置错误、内容截断、尺寸异常问题
+ * 
+ * 问题症状：
+ * - 弹窗显示在页面左上角而非居中位置
+ * - 内容截断，部分区域被截断
+ * - 尺寸异常，可能超出视窗边界
+ */
+
+/* ========================================
+   🚨 最高优先级修复 - 历史记录弹窗
+   ======================================== */
+
+/* 🎯 超强选择器 - 确保样式生效 */
+.enhanced-history-dialog,
+[data-radix-dialog-content].enhanced-history-dialog,
+[role="dialog"].enhanced-history-dialog,
+body > div[data-radix-portal] [data-radix-dialog-content].enhanced-history-dialog,
+body > [data-radix-portal] [role="dialog"].enhanced-history-dialog,
+#dialog-portal-root .enhanced-history-dialog,
+[data-radix-portal] .enhanced-history-dialog {
+  /* 🚨 强制居中定位 - 最高优先级 */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  
+  /* 🚨 强制尺寸设置 */
+  max-width: min(95vw, 1024px) !important;
+  max-height: 85vh !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 320px !important;
+  min-height: 200px !important;
+  
+  /* 🚨 强制层级和可见性 */
+  z-index: 1055 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  
+  /* 🚨 重置可能影响定位的属性 */
+  margin: 0 !important;
+  inset: auto !important;
+  contain: none !important;
+  isolation: auto !important;
+  clip-path: none !important;
+  filter: none !important;
+  
+  /* 🚨 确保在视窗内 */
+  max-width: calc(100vw - 2rem) !important;
+  max-height: calc(100vh - 2rem) !important;
+  
+  /* 🚨 基础样式 */
+  background: hsl(var(--background)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 25px 50px -12px hsl(var(--foreground) / 0.25) !important;
+  padding: 1.5rem !important;
+  overflow: hidden !important;
+}
+
+/* ========================================
+   🚨 响应式修复
+   ======================================== */
+
+/* 移动端适配 */
+@media (max-width: 640px) {
+  .enhanced-history-dialog,
+  [data-radix-dialog-content].enhanced-history-dialog,
+  [role="dialog"].enhanced-history-dialog {
+    max-width: calc(100vw - 1rem) !important;
+    max-height: calc(100vh - 1rem) !important;
+    min-width: 280px !important;
+    padding: 1rem !important;
+    
+    /* 确保不超出视窗 */
+    width: calc(100vw - 1rem) !important;
+    height: auto !important;
+  }
+}
+
+/* 平板端适配 */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .enhanced-history-dialog,
+  [data-radix-dialog-content].enhanced-history-dialog,
+  [role="dialog"].enhanced-history-dialog {
+    max-width: 90vw !important;
+    max-height: 85vh !important;
+    width: auto !important;
+    height: auto !important;
+  }
+}
+
+/* 桌面端适配 */
+@media (min-width: 1025px) {
+  .enhanced-history-dialog,
+  [data-radix-dialog-content].enhanced-history-dialog,
+  [role="dialog"].enhanced-history-dialog {
+    max-width: 1024px !important;
+    max-height: 85vh !important;
+    width: auto !important;
+    height: auto !important;
+  }
+}
+
+/* ========================================
+   🚨 内容滚动修复
+   ======================================== */
+
+/* 历史记录弹窗内的滚动容器 */
+.enhanced-history-dialog .dialog-content-scrollable,
+.enhanced-history-dialog [class*="overflow-auto"],
+.enhanced-history-dialog [class*="flex-1"] {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  
+  /* 自定义滚动条 */
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted)) hsl(var(--background));
+}
+
+.enhanced-history-dialog .dialog-content-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.enhanced-history-dialog .dialog-content-scrollable::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+.enhanced-history-dialog .dialog-content-scrollable::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+.enhanced-history-dialog .dialog-content-scrollable::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* ========================================
+   🚨 调试模式
+   ======================================== */
+
+/* 调试模式 - 添加明显的边框便于识别 */
+.dialog-debug .enhanced-history-dialog {
+  border: 3px solid lime !important;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.7) !important;
+}
+
+.dialog-debug .enhanced-history-dialog::before {
+  content: "🎯 历史记录弹窗 - 修复模式";
+  position: absolute;
+  top: -30px;
+  left: 0;
+  background: lime;
+  color: black;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  z-index: 9999;
+}
+
+/* ========================================
+   🚨 强制覆盖可能的冲突样式
+   ======================================== */
+
+/* 覆盖可能的Tailwind CSS类 */
+.enhanced-history-dialog[class*="top-"],
+.enhanced-history-dialog[class*="left-"],
+.enhanced-history-dialog[class*="right-"],
+.enhanced-history-dialog[class*="bottom-"] {
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* 覆盖可能的transform类 */
+.enhanced-history-dialog[class*="translate-"],
+.enhanced-history-dialog[class*="transform"] {
+  transform: translate(-50%, -50%) !important;
+}
+
+/* 覆盖可能的定位类 */
+.enhanced-history-dialog[class*="absolute"],
+.enhanced-history-dialog[class*="relative"],
+.enhanced-history-dialog[class*="static"] {
+  position: fixed !important;
+}
+
+/* ========================================
+   🚨 性能优化
+   ======================================== */
+
+.enhanced-history-dialog {
+  will-change: transform, opacity !important;
+  backface-visibility: hidden !important;
+  transform-style: preserve-3d !important;
+}
+
+/* ========================================
+   🚨 动画修复
+   ======================================== */
+
+/* 确保弹窗动画不影响定位 */
+.enhanced-history-dialog[data-state="open"] {
+  animation: enhanced-history-dialog-enter 0.2s ease-out !important;
+}
+
+.enhanced-history-dialog[data-state="closed"] {
+  animation: enhanced-history-dialog-exit 0.15s ease-in !important;
+}
+
+@keyframes enhanced-history-dialog-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes enhanced-history-dialog-exit {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}

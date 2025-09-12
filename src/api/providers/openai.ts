@@ -22,7 +22,7 @@ import { getAIEndpoint } from '@/config/aiEndpoints';
 export const OPENAI_CONFIG = {
   name: 'openai',
   displayName: 'OpenAI',
-  baseURL: getAIEndpoint('openai')?.baseURL || 'https://api.openai.com', // 备用硬编码
+  baseURL: getAIEndpoint('openai')?.baseURL || 'https://api.openai.com', // 环境变量系统兜底值
   models: {
     chat: [
       'gpt-4o',

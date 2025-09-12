@@ -305,8 +305,8 @@
     --command-list-max-height: 300px;
 
     /* 🍞 Toast Component Tokens */
-    --toast-viewport-top: var(--spacing-1);
-    --toast-viewport-right: var(--spacing-1);
+    --toast-viewport-bottom: var(--spacing-4);
+    --toast-viewport-right: var(--spacing-4);
     --toast-viewport-z-index: 999999;
     --toast-viewport-max-width: 420px;
     --toast-viewport-padding: var(--spacing-1);

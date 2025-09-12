@@ -412,17 +412,19 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
 
       const hasPermission = config.check(enhancedUser);
 
-      // 打印权限检查日志
-      logger.lock('权限检查结果', {
-        user: enhancedUser ? {
-          id: enhancedUser.id,
-          isVip: (enhancedUser as any).isVip,
-          vipLevel: enhancedUser.vipLevel
-        } : null,
-        hasActiveSubscription,
-        hasPermission,
-        config: config.description
-      });
+      // 开发环境调试日志（降低频次）
+      if (import.meta.env.DEV && Math.random() < 0.05) { // 只有5%的概率输出日志
+        logger.debug('权限检查结果', {
+          user: enhancedUser ? {
+            id: enhancedUser.id,
+            isVip: (enhancedUser as any).isVip,
+            vipLevel: enhancedUser.vipLevel
+          } : null,
+          hasActiveSubscription,
+          hasPermission,
+          config: config.description
+        });
+      }
 
       if (!hasPermission) {
         return {

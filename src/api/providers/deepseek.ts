@@ -22,7 +22,7 @@ import { getAIEndpoint } from '@/config/aiEndpoints';
 export const DEEPSEEK_CONFIG = {
   name: 'deepseek',
   displayName: 'DeepSeek',
-  baseURL: getAIEndpoint('deepseek')?.baseURL || 'https://api.deepseek.com', // 备用硬编码
+  baseURL: getAIEndpoint('deepseek')?.baseURL || 'https://api.deepseek.com', // 环境变量系统兜底值
   models: {
     chat: [
       'deepseek-chat',

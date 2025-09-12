@@ -288,19 +288,18 @@ export function QuickReferenceDialog({
       <DialogContent
         className={cn(
           // 🎯 修复尺寸和布局：使用响应式设计
-          "max-w-4xl w-[95vw] max-h-[85vh] flex flex-col",
+          "quick-reference-dialog max-w-4xl flex flex-col",
           "bg-background border-border text-foreground",
           "shadow-2xl rounded-lg",
-          "overflow-hidden",
-          // 🎯 添加特殊标识类用于CSS选择器
-          "quick-reference-dialog"
+          "overflow-hidden"
         )}
         style={{
-          // 🎯 移除冲突的定位样式，让基础Dialog组件和CSS处理定位
+          // 🎯 统一的弹窗样式，与CSS系统保持一致
           maxHeight: '85vh',
-          maxWidth: 'min(95vw, 1024px)', // max-w-4xl = 1024px
+          maxWidth: 'min(95vw, 1024px)',
           width: 'auto',
-          height: 'auto'
+          height: 'auto',
+          zIndex: 1055
         }}
       >
         <DialogHeader className="flex-shrink-0 pb-4">
@@ -499,7 +498,7 @@ function QuickReferenceItemList({
   }
 
   return (
-    <div className="flex-1 min-h-0">
+    <div className="dialog-content-scrollable flex-1 min-h-0">
       <ScrollArea className="h-full">
         <div className="space-y-3 pr-4 pb-4">
           {items.map((item) => (
@@ -613,7 +612,7 @@ function QuickReferenceItemCard({
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(item.metadata.url, '_blank');
+                window.open(item.metadata?.url, '_blank');
               }}
               className="h-8 w-8 p-0"
             >

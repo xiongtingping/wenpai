@@ -26,6 +26,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AuthModalWrapper } from '@/components/auth/AuthModalWrapper';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { AuthDataSyncProvider } from '@/hooks/useAuthDataSync';
+import SessionManager from '@/components/auth/SessionManager';
 
 // 核心页面组件
 import HomePage from '@/pages/HomePage';
@@ -56,7 +57,7 @@ import UpgradeComparisonPage from '@/pages/UpgradeComparisonPage';
 import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 // Lazy loaded below
 // Lazy loaded below
-import { CustomLoginPage } from '@/pages/CustomLoginPage';
+import { CustomLoginPage } from '@/pages/CustomLoginPage21st';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 // 临时调试页面
 import TokenDebugPage from '@/pages/TokenDebugPage';
@@ -143,22 +144,25 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider>
-        <ErrorBoundary>
-            <UnifiedAuthProvider>
-              <AuthDataSyncProvider>
-                <ErrorBoundary>
-                  <StateManagerInitializer />
-                      <>
-                    <ConditionalNavigation>
+      <UnifiedAuthProvider>
+        <ThemeProvider>
+          <AuthDataSyncProvider>
+            <ErrorBoundary>
+              <StateManagerInitializer />
+              <>
+                <ConditionalNavigation>
                     <Suspense fallback={<LoadingSpinner />}>
                       <Routes>
                         {/* 首页 */}
                         <Route path="/" element={<HomePage />} />
 
-                        {/* 登录页面 */}
-                        <Route path="/custom-login" element={<CustomLoginPage />} />
+                        {/* 登录注册页面 */}
+                        <Route path="/login" element={<CustomLoginPage />} />
+                        <Route path="/register" element={<CustomLoginPage />} />
                         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+                        {/* 兼容旧路由 */}
+                        <Route path="/custom-login" element={<CustomLoginPage />} />
 
                         {/* 登录回调页面 - 支持各种回调URL格式 */}
                         <Route path="/callback" element={<CallbackPage />} />
@@ -219,14 +223,16 @@ const App: React.FC = () => {
                   {/* 自定义认证模态框 */}
                   <AuthModalWrapper />
 
+                  {/* 会话管理 */}
+                  <SessionManager />
+
                   {/* 返回顶部按钮 */}
                   <ScrollToTop />
-                      </>
-                </ErrorBoundary>
-              </AuthDataSyncProvider>
-            </UnifiedAuthProvider>
-        </ErrorBoundary>
-      </ThemeProvider>
+                </>
+              </ErrorBoundary>
+            </AuthDataSyncProvider>
+          </ThemeProvider>
+        </UnifiedAuthProvider>
     </ErrorBoundary>
   );
 };

@@ -184,5 +184,24 @@ export function immediateFixLocalStorage(): void {
 
   if (validationResult.invalid.length > 0) {
     console.warn('⚠️ 仍有无效数据:', validationResult.invalid);
+    
+    // 🔧 尝试清理剩余的无效数据项
+    validationResult.invalid.forEach(({ key, errors }) => {
+      console.log(`🧹 清理无效数据项: ${key}`, { errors });
+      
+      // 对于无法修复的数据，直接删除以避免持续报错
+      if (errors.some(error => 
+        error.includes('无法解析') || 
+        error.includes('无效格式') ||
+        error.includes('类型不匹配')
+      )) {
+        try {
+          localStorage.removeItem(key);
+          console.log(`✅ 已删除无效数据项: ${key}`);
+        } catch (e) {
+          console.error(`❌ 删除数据项失败: ${key}`, e);
+        }
+      }
+    });
   }
 }

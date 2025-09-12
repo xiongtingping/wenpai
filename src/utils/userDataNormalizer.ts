@@ -219,7 +219,16 @@ export class UserDataNormalizer {
   private isValidPhone(phone: string): boolean {
     // 简单的手机号验证（支持中国手机号）
     const phoneRegex = /^1[3-9]\d{9}$/;
-    const cleanPhone = phone.replace(/\D/g, '');
+    
+    // 🔧 修复Unicode引号问题：清理特殊字符
+    let cleanPhone = phone;
+    
+    // 移除所有类型的引号字符（包括Unicode引号""''）
+    cleanPhone = cleanPhone.replace(/["""'']/g, '');
+    
+    // 清除所有非数字字符
+    cleanPhone = cleanPhone.replace(/\D/g, '');
+    
     return phoneRegex.test(cleanPhone);
   }
   

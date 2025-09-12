@@ -18,6 +18,7 @@ export interface DataSchema {
   pattern?: RegExp;
   enum?: unknown[];
   sanitize?: boolean;
+  transform?: (value: any) => any;
 }
 
 /**
@@ -102,7 +103,7 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
 
   // Amplitude分析数据模式（宽松验证）
   AMP_UNSENT: {
-    type: 'object', // 修改为object类型
+    type: 'any', // 允许任何类型，因为Amplitude的数据结构可变
     required: false
   },
 
@@ -449,6 +450,8 @@ export class DataTypeValidator {
    */
   private validateType(data: unknown, expectedType: string): boolean {
     switch (expectedType) {
+      case 'any':
+        return true; // 接受任何类型
       case 'string':
         return typeof data === 'string';
       case 'number':
@@ -459,8 +462,6 @@ export class DataTypeValidator {
         return typeof data === 'object' && data !== null && !Array.isArray(data);
       case 'array':
         return Array.isArray(data);
-      case 'any': // 🔧 FIX: 添加宽松类型支持
-        return true; // 允许任何类型
       default:
         return false;
     }
@@ -611,7 +612,18 @@ export class DataTypeValidator {
       };
     }
 
-    const result = this.validate(data, schema);
+    // 🔧 应用数据转换（如果定义）
+    let transformedData = data;
+    if (schema.transform && typeof schema.transform === 'function') {
+      try {
+        transformedData = schema.transform(data);
+        console.log(`🔄 数据转换应用于 [${key}]: ${typeof data} -> ${typeof transformedData}`);
+      } catch (error) {
+        console.warn(`数据转换失败 [${key}]:`, error);
+      }
+    }
+
+    const result = this.validate(transformedData, schema);
     
     if (!result.isValid) {
       console.error(`数据验证失败 [${key}]:`, result.errors);
@@ -619,7 +631,7 @@ export class DataTypeValidator {
 
     return {
       isValid: result.isValid,
-      sanitizedData: result.sanitizedData,
+      sanitizedData: result.isValid ? (result.sanitizedData !== undefined ? result.sanitizedData : transformedData) : result.sanitizedData,
       errors: result.errors
     };
   }
@@ -705,13 +717,47 @@ export class DataTypeValidator {
     }
 
     // 🔧 FIX: 添加缺失的数据模式匹配
-    // remember_me简单字符串
+    // remember_me布尔值
     if (key === 'remember_me') {
-      return { type: 'string', required: false };
+      return { type: 'boolean', required: false };
+    }
+    
+    // 保存的手机号(支持字符串类型，自动转换number)
+    if (key === 'saved_phone') {
+      return { 
+        type: 'string', 
+        required: false,
+        // 自动转换number为string并清理Unicode引号
+        transform: (value: any) => {
+          let cleanValue = value;
+          if (typeof value === 'number') {
+            cleanValue = value.toString();
+          } else if (typeof value === 'string') {
+            // 🔧 修复Unicode引号问题：清理所有类型的引号字符
+            cleanValue = value.replace(/["""'']/g, '');
+          }
+          return cleanValue;
+        }
+      };
     }
     
     // content-sync-storage
     if (key === 'content-sync-storage') {
+      return { type: 'object', required: false };
+    }
+    
+    // 会话状态数据
+    if (key === 'wenpai_session_state') {
+      return { type: 'object', required: false };
+    }
+    
+    // 会话同步数据
+    if (key === 'wenpai_session_sync') {
+      return { type: 'object', required: false };
+    }
+    
+    // 安全配置密钥(实际是object类型)
+    if (key === 'secure_config_key') {
       return { type: 'object', required: false };
     }
     
@@ -753,11 +799,6 @@ export class DataTypeValidator {
     // emoji收藏
     if (key.includes('emoji-favorites-')) {
       return { type: 'array', required: false };
-    }
-    
-    // 保存的手机号
-    if (key === 'saved_phone') {
-      return { type: 'string', required: false };
     }
     
     // 全局设置 (带用户ID的动态键)
