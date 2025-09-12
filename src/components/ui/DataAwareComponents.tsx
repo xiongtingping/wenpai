@@ -344,8 +344,8 @@ export function SkeletonProvider({
 
     checkDataReadiness();
     
-    // 定期检查数据状态
-    const interval = setInterval(checkDataReadiness, 100);
+    // 🔧 PERF FIX: 定期检查数据状态，优化频率避免过度检查
+    const interval = setInterval(checkDataReadiness, 500);
     
     // 3秒后如果还没准备好，强制显示内容
     const forceShow = setTimeout(() => {

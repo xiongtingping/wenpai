@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,16 +14,13 @@ import {
   Search, 
   Copy, 
   Trash2, 
-  Calendar,
   Filter,
   Download,
-  SortAsc,
-  SortDesc,
   Clock,
   Tag
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { zIndexManager } from '@/utils/zIndexManager';
+import { startDialogPositionFix } from '@/utils/dialogPositionFixer';
 import {
   Select,
   SelectContent,
@@ -55,12 +52,6 @@ export interface ShareHistoryItem {
 // 排序选项
 type SortOption = 'time-desc' | 'time-asc' | 'platform' | 'content-length';
 
-// 筛选选项
-interface FilterOptions {
-  platform: string;
-  dateRange: string;
-  searchQuery: string;
-}
 
 interface EnhancedHistoryDialogProps {
   open: boolean;
@@ -84,7 +75,29 @@ export function EnhancedHistoryDialog({
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
   const [selectedDateRange, setSelectedDateRange] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('time-desc');
-  const [showFilters, setShowFilters] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // 🎯 使用通用Dialog定位修复器（纯JavaScript版本）
+  React.useEffect(() => {
+    if (!open) return;
+
+    let cleanup: (() => void) | null = null;
+
+    // 延迟启动修复器，确保Dialog已完全渲染
+    const startTimer = setTimeout(() => {
+      cleanup = startDialogPositionFix(open, {
+        selector: '.enhanced-history-dialog',
+        maxWidth: 'min(95vw, 1024px)',
+        maxHeight: '85vh',
+        debug: true
+      });
+    }, 10);
+
+    return () => {
+      clearTimeout(startTimer);
+      if (cleanup) cleanup();
+    };
+  }, [open]);
 
   // 获取唯一平台列表
   const uniquePlatforms = useMemo(() => {
@@ -227,9 +240,9 @@ export function EnhancedHistoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
-        className="max-w-4xl max-h-[90vh] flex flex-col"
-        style={zIndexManager.createModalStyles('DIALOG_CONTENT')}
+      <DialogContent
+        ref={dialogRef}
+        className="enhanced-history-dialog max-w-4xl max-h-[85vh] flex flex-col overflow-hidden"
       >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -334,17 +347,17 @@ export function EnhancedHistoryDialog({
           </div>
         </div>
 
-        {/* 历史记录列表 */}
-        <div className="flex-1 overflow-auto">
+        {/* 历史记录列表 - 修复滚动和尺寸问题 */}
+        <div className="dialog-content-scrollable flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
           {filteredAndSortedHistory.length === 0 ? (
             <div className="text-center text-muted-foreground py-12">
               {shareHistory.length === 0 ? '暂无生成记录' : '没有符合条件的记录'}
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-6 pr-2">
               {Object.entries(groupedHistory).map(([date, items]) => (
                 <div key={date}>
-                  <h3 className="text-sm font-semibold text-primary mb-3 border-b pb-1 sticky top-0 bg-background">
+                  <h3 className="text-sm font-semibold text-primary mb-3 border-b pb-1 sticky top-0 bg-background z-10">
                     {date}
                   </h3>
                   <div className="space-y-3">

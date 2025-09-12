@@ -1,0 +1,326 @@
+/**
+ * 统一弹窗定位系统 - 最终版本
+ * 解决所有弹窗显示问题的根本性方案
+ * 
+ * 🎯 修复目标：
+ * 1. 历史记录弹窗显示不全问题
+ * 2. 快速引用弹窗位置异常问题
+ * 3. 统一z-index层级管理
+ * 4. 响应式布局适配
+ */
+
+/* ========================================
+   🎯 CSS变量定义 - 基于设计令牌系统
+   ======================================== */
+:root {
+  /* Z-Index层级 */
+  --z-dialog-overlay: 1045;
+  --z-dialog-content: 1055;
+  --z-dialog-critical: 1065;
+  
+  /* 弹窗尺寸 */
+  --dialog-max-width-mobile: 98vw;
+  --dialog-max-width-tablet: 90vw;
+  --dialog-max-width-desktop: 1024px;
+  --dialog-max-height: 85vh;
+  --dialog-min-width: 320px;
+  --dialog-min-height: 200px;
+  
+  /* 间距 */
+  --dialog-padding: 1.5rem;
+  --dialog-gap: 1rem;
+  
+  /* 边距安全区域 */
+  --dialog-safe-margin: 1rem;
+}
+
+/* ========================================
+   🎯 核心弹窗定位修复
+   ======================================== */
+
+/* 所有Dialog组件的统一定位 - 增强选择器优先级 */
+[role="dialog"],
+[data-radix-dialog-content],
+.dialog-content,
+.unified-dialog,
+body > div[data-radix-portal] [data-radix-dialog-content],
+body > [data-radix-portal] [role="dialog"] {
+  /* 🔧 强制居中定位 */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+
+  /* 🔧 层级管理 */
+  z-index: var(--z-dialog-content) !important;
+
+  /* 🔧 重置可能影响定位的属性 */
+  margin: 0 !important;
+  inset: auto !important;
+  contain: none !important;
+  isolation: auto !important;
+
+  /* 🔧 确保可见性 */
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+
+  /* 🔧 基础样式 */
+  background: hsl(var(--background)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 25px 50px -12px hsl(var(--foreground) / 0.25) !important;
+
+  /* 🔧 内容处理 */
+  overflow: hidden !important;
+  padding: var(--dialog-padding) !important;
+}
+
+/* 弹窗遮罩层统一样式 */
+[data-radix-dialog-overlay],
+.dialog-overlay,
+.unified-dialog-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: var(--z-dialog-overlay) !important;
+  background: hsl(var(--foreground) / 0.5) !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+/* ========================================
+   🎯 响应式尺寸适配
+   ======================================== */
+
+/* 移动端适配 (0-640px) */
+@media (max-width: 640px) {
+  [role="dialog"],
+  [data-radix-dialog-content],
+  .dialog-content,
+  .unified-dialog {
+    max-width: var(--dialog-max-width-mobile) !important;
+    max-height: 90vh !important;
+    min-width: 280px !important;
+    padding: 1rem !important;
+    margin: var(--dialog-safe-margin) !important;
+    
+    /* 确保不超出视窗 */
+    width: calc(100vw - 2 * var(--dialog-safe-margin)) !important;
+    height: auto !important;
+    max-height: calc(100vh - 2 * var(--dialog-safe-margin)) !important;
+  }
+}
+
+/* 平板端适配 (641px-1024px) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  [role="dialog"],
+  [data-radix-dialog-content],
+  .dialog-content,
+  .unified-dialog {
+    max-width: var(--dialog-max-width-tablet) !important;
+    max-height: var(--dialog-max-height) !important;
+    min-width: var(--dialog-min-width) !important;
+    width: auto !important;
+    height: auto !important;
+  }
+}
+
+/* 桌面端适配 (1025px+) */
+@media (min-width: 1025px) {
+  [role="dialog"],
+  [data-radix-dialog-content],
+  .dialog-content,
+  .unified-dialog {
+    max-width: var(--dialog-max-width-desktop) !important;
+    max-height: var(--dialog-max-height) !important;
+    min-width: var(--dialog-min-width) !important;
+    min-height: var(--dialog-min-height) !important;
+    width: auto !important;
+    height: auto !important;
+  }
+}
+
+/* ========================================
+   🎯 特定弹窗类型修复
+   ======================================== */
+
+/* 历史记录弹窗特殊处理 - 强制修复定位问题 */
+.enhanced-history-dialog,
+[data-radix-dialog-content].enhanced-history-dialog,
+[role="dialog"].enhanced-history-dialog {
+  /* 🚨 强制居中定位 - 最高优先级 */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+
+  /* 🚨 强制尺寸设置 */
+  max-width: min(95vw, 1024px) !important;
+  max-height: 85vh !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 320px !important;
+  min-height: 200px !important;
+
+  /* 🚨 强制层级和可见性 */
+  z-index: 1055 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+
+  /* 🚨 重置可能影响定位的属性 */
+  margin: 0 !important;
+  inset: auto !important;
+  contain: none !important;
+  isolation: auto !important;
+  clip-path: none !important;
+  filter: none !important;
+
+  /* 🚨 确保在视窗内 */
+  max-width: calc(100vw - 2rem) !important;
+  max-height: calc(100vh - 2rem) !important;
+}
+
+/* 快速引用弹窗特殊处理 - 强制修复定位问题 */
+.quick-reference-dialog,
+[data-radix-dialog-content].quick-reference-dialog,
+[role="dialog"].quick-reference-dialog {
+  /* 🚨 强制居中定位 - 最高优先级 */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+
+  /* 🚨 强制尺寸设置 */
+  max-width: min(95vw, 1024px) !important;
+  max-height: 85vh !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 320px !important;
+  min-height: 200px !important;
+
+  /* 🚨 强制层级和可见性 */
+  z-index: 1055 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+
+  /* 🚨 重置可能影响定位的属性 */
+  margin: 0 !important;
+  inset: auto !important;
+  contain: none !important;
+  isolation: auto !important;
+  clip-path: none !important;
+  filter: none !important;
+
+  /* 🚨 确保在视窗内 */
+  max-width: calc(100vw - 2rem) !important;
+  max-height: calc(100vh - 2rem) !important;
+}
+
+/* 批量转发弹窗特殊处理 */
+.batch-forward-modal {
+  max-width: min(90vw, 1200px) !important;
+  max-height: 85vh !important;
+  z-index: var(--z-dialog-critical) !important;
+}
+
+/* ========================================
+   🎯 内容滚动处理
+   ======================================== */
+
+/* 弹窗内容区域滚动 */
+.dialog-content-scrollable {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  
+  /* 自定义滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted)) hsl(var(--background));
+}
+
+.dialog-content-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dialog-content-scrollable::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+.dialog-content-scrollable::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+.dialog-content-scrollable::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* ========================================
+   🎯 动画和过渡效果
+   ======================================== */
+
+/* 弹窗进入动画 */
+[role="dialog"][data-state="open"],
+[data-radix-dialog-content][data-state="open"] {
+  animation: dialog-enter 0.2s ease-out;
+}
+
+/* 弹窗退出动画 */
+[role="dialog"][data-state="closed"],
+[data-radix-dialog-content][data-state="closed"] {
+  animation: dialog-exit 0.15s ease-in;
+}
+
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dialog-exit {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+
+/* ========================================
+   🎯 调试和开发辅助
+   ======================================== */
+
+/* 调试模式样式 */
+.dialog-debug [role="dialog"],
+.dialog-debug [data-radix-dialog-content] {
+  border: 2px solid lime !important;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5) !important;
+}
+
+.dialog-debug [data-radix-dialog-overlay] {
+  background: rgba(255, 0, 0, 0.3) !important;
+  border: 2px solid red !important;
+}
+
+/* 性能优化 */
+[role="dialog"],
+[data-radix-dialog-content] {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}

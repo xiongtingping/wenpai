@@ -57,7 +57,7 @@ export function PricingSection() {
     };
 
     updateTimer();
-    const interval = setInterval(updateTimer, 100); // 100ms更新一次以显示毫秒
+    const interval = setInterval(updateTimer, 1000); // 🔧 PERF FIX: 优化从100ms到1000ms，避免过度渲染
 
     return () => clearInterval(interval);
   }, [currentUser?.id]);

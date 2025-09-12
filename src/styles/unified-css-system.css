@@ -103,8 +103,8 @@
   html body div[role="dialog"][id*="radix"],
   html body [role="dialog"]:is([data-state="open"]) {
     position: fixed !important;
-    top: 50vh !important;
-    left: 50vw !important;
+    top: 50% !important;
+    left: 50% !important;
     right: auto !important;
     bottom: auto !important;
     inset: auto !important;
@@ -125,11 +125,11 @@
   
   /* 🚨 强制覆盖任何JavaScript设置的内联样式 */
   html body div[role="dialog"][style*="top"] {
-    top: 50vh !important;
+    top: 50% !important;
   }
   
   html body div[role="dialog"][style*="left"] {
-    left: 50vw !important;
+    left: 50% !important;
   }
   
   html body div[role="dialog"][style*="transform"] {
