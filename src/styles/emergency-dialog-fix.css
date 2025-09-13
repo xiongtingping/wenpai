@@ -1,0 +1,252 @@
+/**
+ * 🚨 历史记录弹窗紧急修复CSS
+ * 
+ * 目标：彻底解决定位异常问题
+ * 策略：超高优先级 + 多重选择器 + 强制覆盖
+ * 
+ * 修复原理：
+ * 1. 使用最高优先级选择器确保样式生效
+ * 2. 强制覆盖所有可能的冲突样式
+ * 3. 移除动画和变换类的干扰
+ * 4. 确保在所有设备上正确居中
+ */
+
+/* ========================================
+   🚨 超高优先级修复 - 历史记录弹窗
+   ======================================== */
+
+/* 🎯 最强选择器组合 - 确保100%生效 */
+html body div[data-radix-portal] [role="dialog"].enhanced-history-dialog,
+html body div[data-radix-portal] [data-radix-dialog-content].enhanced-history-dialog,
+html body [data-radix-portal] [role="dialog"].enhanced-history-dialog,
+html body [data-radix-portal] [data-radix-dialog-content].enhanced-history-dialog,
+body > div[data-radix-portal] [role="dialog"].enhanced-history-dialog,
+body > [data-radix-portal] [role="dialog"].enhanced-history-dialog,
+#dialog-portal-root .enhanced-history-dialog,
+[data-radix-portal] .enhanced-history-dialog,
+.enhanced-history-dialog[role="dialog"],
+.enhanced-history-dialog[data-radix-dialog-content],
+.enhanced-history-dialog {
+  /* 🚨 强制居中定位 - 绝对最高优先级 */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  
+  /* 🚨 清除可能的干扰属性 */
+  inset: auto !important;
+  margin: 0 !important;
+  translate: none !important;
+  
+  /* 🚨 强制尺寸设置 */
+  max-width: min(95vw, 1024px) !important;
+  max-height: 85vh !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 320px !important;
+  min-height: 200px !important;
+  
+  /* 🚨 强制层级和可见性 */
+  z-index: 1055 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  
+  /* 🚨 基础样式 */
+  background: hsl(var(--background)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 25px 50px -12px hsl(var(--foreground) / 0.25) !important;
+  padding: 1.5rem !important;
+  overflow: hidden !important;
+  
+  /* 🚨 性能优化 */
+  will-change: transform, opacity !important;
+  backface-visibility: hidden !important;
+  transform-style: preserve-3d !important;
+  
+  /* 🚨 重置可能影响定位的属性 */
+  contain: none !important;
+  isolation: auto !important;
+  clip-path: none !important;
+  filter: none !important;
+}
+
+/* ========================================
+   🚨 强制覆盖Tailwind CSS类
+   ======================================== */
+
+/* 覆盖所有可能的定位类 */
+.enhanced-history-dialog[class*="top-"],
+.enhanced-history-dialog[class*="left-"],
+.enhanced-history-dialog[class*="right-"],
+.enhanced-history-dialog[class*="bottom-"],
+.enhanced-history-dialog[class*="inset-"] {
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  inset: auto !important;
+}
+
+/* 覆盖所有可能的transform类 */
+.enhanced-history-dialog[class*="translate-"],
+.enhanced-history-dialog[class*="transform"],
+.enhanced-history-dialog[class*="scale-"],
+.enhanced-history-dialog[class*="rotate-"] {
+  transform: translate(-50%, -50%) !important;
+}
+
+/* 覆盖所有可能的position类 */
+.enhanced-history-dialog[class*="absolute"],
+.enhanced-history-dialog[class*="relative"],
+.enhanced-history-dialog[class*="static"] {
+  position: fixed !important;
+}
+
+/* ========================================
+   🚨 移除动画干扰
+   ======================================== */
+
+/* 强制移除所有可能的动画类 */
+.enhanced-history-dialog[class*="slide-"],
+.enhanced-history-dialog[class*="fade-"],
+.enhanced-history-dialog[class*="zoom-"],
+.enhanced-history-dialog[class*="data-[state="] {
+  animation: none !important;
+  transition: opacity 0.2s ease-out !important;
+}
+
+/* 特别处理Radix UI的动画类 */
+.enhanced-history-dialog[data-state="open"],
+.enhanced-history-dialog[data-state="closed"] {
+  animation: none !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* ========================================
+   🚨 响应式修复
+   ======================================== */
+
+/* 移动端特殊处理 */
+@media (max-width: 640px) {
+  html body div[data-radix-portal] [role="dialog"].enhanced-history-dialog,
+  html body [data-radix-portal] [role="dialog"].enhanced-history-dialog,
+  .enhanced-history-dialog {
+    max-width: calc(100vw - 1rem) !important;
+    max-height: calc(100vh - 1rem) !important;
+    min-width: 280px !important;
+    padding: 1rem !important;
+    
+    /* 确保不超出视窗 */
+    width: calc(100vw - 1rem) !important;
+    height: auto !important;
+    
+    /* 保持居中 */
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+}
+
+/* 平板端适配 */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .enhanced-history-dialog {
+    max-width: calc(95vw) !important;
+    max-height: calc(90vh) !important;
+  }
+}
+
+/* ========================================
+   🚨 调试模式
+   ======================================== */
+
+/* 调试模式 - 添加明显的视觉标识 */
+.dialog-debug .enhanced-history-dialog {
+  border: 3px solid lime !important;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.7) !important;
+}
+
+.dialog-debug .enhanced-history-dialog::before {
+  content: "🎯 历史记录弹窗 - 紧急修复模式";
+  position: absolute;
+  top: -35px;
+  left: 0;
+  background: lime;
+  color: black;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  z-index: 9999;
+  white-space: nowrap;
+}
+
+/* ========================================
+   🚨 内容区域修复
+   ======================================== */
+
+/* 历史记录弹窗内的滚动容器 */
+.enhanced-history-dialog .dialog-content-scrollable,
+.enhanced-history-dialog [class*="overflow-auto"],
+.enhanced-history-dialog [class*="flex-1"] {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  
+  /* 自定义滚动条 */
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted)) hsl(var(--background));
+}
+
+.enhanced-history-dialog .dialog-content-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.enhanced-history-dialog .dialog-content-scrollable::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+.enhanced-history-dialog .dialog-content-scrollable::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+.enhanced-history-dialog .dialog-content-scrollable::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* ========================================
+   🚨 最终保险措施
+   ======================================== */
+
+/* 如果以上都失效，使用JavaScript样式注入 */
+.enhanced-history-dialog[style*="position"] {
+  position: fixed !important;
+}
+
+.enhanced-history-dialog[style*="top"] {
+  top: 50% !important;
+}
+
+.enhanced-history-dialog[style*="left"] {
+  left: 50% !important;
+}
+
+.enhanced-history-dialog[style*="transform"] {
+  transform: translate(-50%, -50%) !important;
+}
+
+/* 确保背景遮罩正确 */
+[data-radix-dialog-overlay] {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1050 !important;
+  background-color: hsl(var(--background) / 0.8) !important;
+  backdrop-filter: blur(4px) !important;
+}

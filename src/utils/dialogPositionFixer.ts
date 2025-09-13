@@ -136,7 +136,7 @@ export function fixDialogPosition(options: DialogFixOptions = {}) {
 export function startDialogPositionFix(isOpen: boolean, options: DialogFixOptions = {}): () => void {
   if (!isOpen) return () => {};
 
-  const fix = () => fixDialogPosition({ ...options, debug: true });
+  const fix = () => fixDialogPosition(options); // 使用传入的选项，不强制覆盖debug
 
   // 多时机执行修复，确保在各种情况下都能正确定位
   fix();
@@ -145,17 +145,34 @@ export function startDialogPositionFix(isOpen: boolean, options: DialogFixOption
   const timer3 = setTimeout(fix, 300);
 
   // 监听DOM变化，如果Dialog结构发生变化则重新修复
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'attributes' && (mutation.target as Element).matches('[role="dialog"]')) {
-        fix();
-      }
+  // 🔥 紧急修复：非debug模式下禁用MutationObserver，避免无限循环
+  let observer: MutationObserver | null = null;
+  
+  if (options.debug) {
+    // 只在debug模式下启用MutationObserver
+    let isFixing = false;
+    observer = new MutationObserver((mutations) => {
+      // 防止修复过程中触发新的修复
+      if (isFixing) return;
+      
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && (mutation.target as Element).matches('[role="dialog"]')) {
+          // 只有在class属性变化时才修复，避免style变化触发循环
+          if (mutation.attributeName === 'class') {
+            isFixing = true;
+            setTimeout(() => {
+              fix();
+              isFixing = false;
+            }, 100); // 防抖延迟
+          }
+        }
+      });
     });
-  });
 
-  const dialogElement = document.querySelector('[role="dialog"]');
-  if (dialogElement) {
-    observer.observe(dialogElement, { attributes: true, attributeFilter: ['style', 'class'] });
+    const dialogElement = document.querySelector('[role="dialog"]');
+    if (dialogElement) {
+      observer.observe(dialogElement, { attributes: true, attributeFilter: ['class'] }); // 只监听class，不监听style
+    }
   }
 
   // 返回清理函数
@@ -163,7 +180,9 @@ export function startDialogPositionFix(isOpen: boolean, options: DialogFixOption
     clearTimeout(timer1);
     clearTimeout(timer2);
     clearTimeout(timer3);
-    observer.disconnect();
+    if (observer) {
+      observer.disconnect();
+    }
   };
 }
 

@@ -42,7 +42,18 @@ export class AuthingTokenHandler {
       this.authClient = new AuthenticationClient({
         appId: config.appId,
         appHost: config.host,
-        timeout: 30000,
+        // 🔧 FIX: 统一超时时间到90秒，解决认证超时问题
+        timeout: 90000,
+        // 🔧 FIX: 添加网络优化配置
+        requestConfig: {
+          withCredentials: false,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache',
+            'User-Agent': 'WenPai-App/1.0.0'
+          }
+        }
       });
 
       this.isInitialized = true;

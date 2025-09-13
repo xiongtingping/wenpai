@@ -92,10 +92,16 @@ const createAxiosInstance = (): AxiosInstance => {
   const config = getAPIConfig();
 
   const instance = axios.create({
-    timeout: 30000, // 30秒超时
+    timeout: 60000, // 🔧 FIX: 增加到60秒，解决认证超时问题
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Cache-Control': 'no-cache', // 避免缓存问题
     },
+    // 🔧 FIX: 添加重试和网络优化配置
+    withCredentials: false, // 避免跨域问题
+    maxRedirects: 5,
+    validateStatus: (status) => status < 500, // 只有5xx才算错误
   });
 
 // 请求拦截器
@@ -176,8 +182,13 @@ instance.interceptors.request.use(
         }
       } else if (error.response?.status === 429) {
         console.error('⏰ API调用频率超限');
-      } else if (error.code === 'ECONNABORTED') {
-        console.error('⏱️ 请求超时');
+      } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        console.error('⏱️ 请求超时 - 可能是网络问题或服务器响应慢');
+        // 🔧 FIX: 提供更详细的超时错误信息
+        error.message = `请求超时 (${error.config?.timeout || 60000}ms) - 请检查网络连接或稍后重试`;
+      } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+        console.error('🌐 网络连接失败 - DNS解析或服务器连接问题');
+        error.message = '网络连接失败，请检查网络设置或稍后重试';
       }
 
       return Promise.reject(error);

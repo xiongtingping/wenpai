@@ -398,8 +398,9 @@ async function initializeApplication() {
       };
     };
 
-    // 启动Dialog修复器
-    const dialogFixer = startDialogAutoFixer();
+    // 🔥 紧急禁用：全局Dialog修复器导致控制台消息爆炸
+    // const dialogFixer = startDialogAutoFixer();
+    console.log('🚫 全局Dialog定位修复器已禁用（防止控制台爆炸）');
 
   } catch (error) {
     console.error('💥 应用初始化失败:', error);

@@ -1,0 +1,105 @@
+
+> wenpai@0.0.0 build
+> vite build
+
+vite v7.1.3 building for production...
+transforming...
+[plugin vite:resolve] Module "events" has been externalized for browser compatibility, imported by "/Users/xiong/wenpai/node_modules/readable-stream/lib/_stream_readable.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "stream" has been externalized for browser compatibility, imported by "/Users/xiong/wenpai/node_modules/readable-stream/lib/internal/streams/stream.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "buffer" has been externalized for browser compatibility, imported by "/Users/xiong/wenpai/node_modules/readable-stream/node_modules/safe-buffer/index.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "events" has been externalized for browser compatibility, imported by "/Users/xiong/wenpai/node_modules/readable-stream/lib/internal/streams/stream-browser.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "buffer" has been externalized for browser compatibility, imported by "/Users/xiong/wenpai/node_modules/core-util-is/lib/util.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "stream" has been externalized for browser compatibility, imported by "/Users/xiong/wenpai/node_modules/readable-stream/readable.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "stream" has been externalized for browser compatibility, imported by "/Users/xiong/wenpai/node_modules/readable-stream/writable.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin vite:resolve] Module "buffer" has been externalized for browser compatibility, imported by "/Users/xiong/wenpai/node_modules/string_decoder/node_modules/safe-buffer/index.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+✓ 3343 modules transformed.
+[esbuild css minify]
+▲ [WARNING] Expected identifier but found whitespace [css-syntax-error]
+
+    <stdin>:5041:4:
+      5041 │ top: 50% !important;
+           ╵     ^
+
+
+▲ [WARNING] Unexpected "50%" [css-syntax-error]
+
+    <stdin>:5041:5:
+      5041 │ top: 50% !important;
+           ╵      ~~~
+
+
+rendering chunks...
+[plugin vite:reporter] 
+(!) /Users/xiong/wenpai/src/services/verificationCodeService.ts is dynamically imported by /Users/xiong/wenpai/src/components/auth/EnhancedAuthModal.tsx, /Users/xiong/wenpai/src/components/auth/EnhancedAuthModal.tsx, /Users/xiong/wenpai/src/pages/ProfilePage.tsx, /Users/xiong/wenpai/src/pages/ProfilePage.tsx, /Users/xiong/wenpai/src/pages/ProfilePage.tsx, /Users/xiong/wenpai/src/pages/ProfilePage.tsx but also statically imported by /Users/xiong/wenpai/src/contexts/UnifiedAuthContext.tsx, /Users/xiong/wenpai/src/pages/CustomLoginPage21st.tsx, /Users/xiong/wenpai/src/pages/ForgotPasswordPage.tsx, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/xiong/wenpai/src/lib/dataSync.ts is dynamically imported by /Users/xiong/wenpai/src/utils/servicePreloader.ts but also statically imported by /Users/xiong/wenpai/src/hooks/useAuthDataSync.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/xiong/wenpai/src/services/paymentService.ts is dynamically imported by /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/utils/servicePreloader.ts but also statically imported by /Users/xiong/wenpai/src/components/payment/PaymentSuccessHandler.tsx, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/xiong/wenpai/src/utils/paymentUtils.ts is dynamically imported by /Users/xiong/wenpai/src/services/bufpayService.ts but also statically imported by /Users/xiong/wenpai/src/components/payment/PaymentQRCode.tsx, /Users/xiong/wenpai/src/pages/PaymentFeedbackPage.tsx, /Users/xiong/wenpai/src/services/orderService.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/xiong/wenpai/src/services/paymentDataCleanupService.ts is dynamically imported by /Users/xiong/wenpai/src/pages/PaymentPage.tsx but also statically imported by /Users/xiong/wenpai/src/pages/PaymentResultPage.tsx, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/xiong/wenpai/src/api/hotTopicsService.ts is dynamically imported by /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/utils/servicePreloader.ts but also statically imported by /Users/xiong/wenpai/src/pages/HotTopicsPage.tsx, /Users/xiong/wenpai/src/services/dataFusionService.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/xiong/wenpai/src/services/favoritesService.ts is dynamically imported by /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/utils/servicePreloader.ts but also statically imported by /Users/xiong/wenpai/src/services/quickReferenceDataService.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/xiong/wenpai/src/utils/DIContainer.ts is dynamically imported by /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/config/serviceRegistry.ts but also statically imported by /Users/xiong/wenpai/src/config/serviceRegistry.ts, /Users/xiong/wenpai/src/main.tsx, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/index.html                                       2.71 kB │ gzip:   1.48 kB
+dist/assets/index-CYJu7yl1.css                      338.81 kB │ gzip:  51.74 kB
+dist/assets/checkbox-yfgZxCyQ.js                      0.70 kB │ gzip:   0.41 kB
+dist/assets/tooltip-CMXEktQ5.js                       0.80 kB │ gzip:   0.45 kB
+dist/assets/unifiedAIService-Cdq93Ryd.js              1.36 kB │ gzip:   0.83 kB
+dist/assets/zIndexManager-KMYnboyP.js                 1.64 kB │ gzip:   0.80 kB
+dist/assets/usageStore-BMgniR7M.js                    1.75 kB │ gzip:   0.73 kB
+dist/assets/PermissionLockedButton-Dvvj-mZO.js        2.03 kB │ gzip:   0.89 kB
+dist/assets/PermissionProtectedInput-8vNY_pd1.js      2.11 kB │ gzip:   1.07 kB
+dist/assets/orderStatusService-DxQK45tp.js            2.70 kB │ gzip:   1.30 kB
+dist/assets/brandDatabaseService-CgkAMtHr.js          2.89 kB │ gzip:   0.82 kB
+dist/assets/md2wechatService-D2u92oaw.js              3.44 kB │ gzip:   1.55 kB
+dist/assets/RoleBasedUpgradePrompt-Egs9cip9.js        3.45 kB │ gzip:   1.31 kB
+dist/assets/userDataService-Cxc8vzFc.js               3.81 kB │ gzip:   1.38 kB
+dist/assets/HistoryPage-DRULb44Z.js                   3.93 kB │ gzip:   1.69 kB
+dist/assets/configManager-CGUVxM5e.js                 5.14 kB │ gzip:   2.30 kB
+dist/assets/storageQuotaManager-DXPF0kMD.js           5.28 kB │ gzip:   2.08 kB
+dist/assets/SettingsPage-BsO0l_0g.js                  8.24 kB │ gzip:   2.12 kB
+dist/assets/rolePermissionMatrix-BS4ZCuz7.js          8.55 kB │ gzip:   2.31 kB
+dist/assets/brandPromptService-DEwlM0wZ.js            9.15 kB │ gzip:   3.22 kB
+dist/assets/aiService-DI9dM66y.js                     9.25 kB │ gzip:   4.02 kB
+dist/assets/unifiedPermissionConfig-BNSikfIi.js       9.53 kB │ gzip:   2.18 kB
+dist/assets/fileFormatSupportService-xhaYI2Ce.js     11.16 kB │ gzip:   4.15 kB
+dist/assets/brandProfileService-MDZnphuz.js          12.00 kB │ gzip:   3.78 kB
+dist/assets/aiAnalysisService-B8123Hlo.js            12.50 kB │ gzip:   5.07 kB
+dist/assets/WechatTemplatePage-DUX49dbK.js           13.95 kB │ gzip:   3.72 kB
+dist/assets/brandCorpusService-DaBHpi8x.js           17.63 kB │ gzip:   6.67 kB
+dist/assets/batchForward-CD7dRvBC.js                 17.93 kB │ gzip:   5.96 kB
+dist/assets/ShareManagerPage-DSmUHsLk.js             18.01 kB │ gzip:   4.73 kB
+dist/assets/unifiedAIManager-T_8yCN61.js             19.46 kB │ gzip:   6.15 kB
+dist/assets/MD2WeChatPage-B3iR-izr.js                26.00 kB │ gzip:   7.64 kB
+dist/assets/useUnifiedUsageStats-BaAyBV8-.js         29.80 kB │ gzip:   8.93 kB
+dist/assets/icons-vendor-CoSqybNI.js                 37.63 kB │ gzip:  11.40 kB
+dist/assets/ProfilePage-CGBYbB4G.js                  40.99 kB │ gzip:  10.60 kB
+dist/assets/MD2CardPage-DPwvsiQ2.js                  57.62 kB │ gzip:  14.45 kB
+dist/assets/PromptSystem-BD7O-SC1.js                 58.18 kB │ gzip:  19.27 kB
+dist/assets/CreativeStudioPage-LNsZ_z9P.js           63.22 kB │ gzip:  19.01 kB
+dist/assets/BrandLibraryPage-92WLxxW-.js             84.40 kB │ gzip:  20.73 kB
+dist/assets/ui-vendor-CimeDq5q.js                   130.60 kB │ gzip:  35.78 kB
+dist/assets/NewAdaptPage-D-DcVucy.js                187.01 kB │ gzip:  54.32 kB
+dist/assets/index-bhweyY8-.js                       980.35 kB │ gzip: 250.32 kB
+dist/assets/auth-vendor-BiThLoQ1.js               2,577.55 kB │ gzip: 674.20 kB
+dist/assets/vendor-XFdlQwIP.js                    2,950.48 kB │ gzip: 840.29 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 23.04s

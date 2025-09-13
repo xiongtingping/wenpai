@@ -50,7 +50,10 @@ export class DIContainer {
       ...definition
     });
     
-    console.log(`📝 注册服务: ${definition.name}`);
+    // 只在debug模式下输出服务注册日志
+    if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+      console.log(`📝 注册服务: ${definition.name}`);
+    }
   }
 
   /**
@@ -111,7 +114,10 @@ export class DIContainer {
       throw new Error(`❌ 服务 ${name} 未注册`);
     }
 
-    console.log(`🔄 加载服务: ${name}`);
+    // 只在debug模式下输出服务加载日志
+    if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+      console.log(`🔄 加载服务: ${name}`);
+    }
 
     // 先加载依赖
     if (definition.dependencies) {
@@ -124,7 +130,10 @@ export class DIContainer {
     try {
       const instance = await definition.factory();
       this.initializationOrder.push(name);
-      console.log(`✅ 服务加载完成: ${name}`);
+      // 只在debug模式下输出服务加载完成日志
+      if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+        console.log(`✅ 服务加载完成: ${name}`);
+      }
       return instance;
     } catch (error) {
       console.error(`❌ 服务加载失败: ${name}`, error);

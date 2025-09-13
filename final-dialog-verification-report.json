@@ -1,0 +1,78 @@
+{
+  "timestamp": "2025-09-13T01:13:38.196Z",
+  "successRate": 100,
+  "score": 35,
+  "maxScore": 35,
+  "status": "EXCELLENT",
+  "fixes": [
+    "✅ src/styles/enhanced-history-dialog-fix.css: 强制固定定位",
+    "✅ src/styles/enhanced-history-dialog-fix.css: 垂直居中",
+    "✅ src/styles/enhanced-history-dialog-fix.css: 水平居中",
+    "✅ src/styles/enhanced-history-dialog-fix.css: 居中变换",
+    "✅ src/styles/enhanced-history-dialog-fix.css: z-index层级",
+    "✅ src/styles/enhanced-history-dialog-fix.css: CSS类选择器",
+    "✅ src/styles/emergency-dialog-fix.css: 强制固定定位",
+    "✅ src/styles/emergency-dialog-fix.css: 垂直居中",
+    "✅ src/styles/emergency-dialog-fix.css: 水平居中",
+    "✅ src/styles/emergency-dialog-fix.css: 居中变换",
+    "✅ src/styles/emergency-dialog-fix.css: z-index层级",
+    "✅ src/styles/emergency-dialog-fix.css: CSS类选择器",
+    "✅ src/styles/unified-dialog-positioning.css: 强制固定定位",
+    "✅ src/styles/unified-dialog-positioning.css: 垂直居中",
+    "✅ src/styles/unified-dialog-positioning.css: 水平居中",
+    "✅ src/styles/unified-dialog-positioning.css: 居中变换",
+    "✅ src/styles/unified-dialog-positioning.css: z-index层级",
+    "✅ src/styles/unified-dialog-positioning.css: CSS类选择器",
+    "✅ CSS引入: @import './styles/enhanced-history-dialog-fix.css'",
+    "✅ CSS引入: @import './styles/emergency-dialog-fix.css'",
+    "✅ CSS引入: @import './styles/unified-dialog-positioning.css'",
+    "✅ 组件修复: CSS类名设置",
+    "✅ 组件修复: 内联固定定位",
+    "✅ 组件修复: 内联垂直居中",
+    "✅ 组件修复: 内联水平居中",
+    "✅ 组件修复: 内联居中变换",
+    "✅ 组件修复: 三重保护机制注释",
+    "✅ 组件修复: 实时监控功能",
+    "✅ 组件修复: 监控清理功能",
+    "✅ 诊断脚本存在: scripts/emergency-dialog-diagnosis.js",
+    "✅ 诊断脚本存在: public/emergency-dialog-diagnosis.js",
+    "✅ 响应式: 移动端断点",
+    "✅ 响应式: 平板端断点",
+    "✅ 响应式: 移动端宽度计算",
+    "✅ 响应式: 移动端高度计算"
+  ],
+  "issues": [],
+  "cssFiles": [
+    {
+      "path": "src/styles/enhanced-history-dialog-fix.css",
+      "exists": true,
+      "score": 6,
+      "maxScore": 6
+    },
+    {
+      "path": "src/styles/emergency-dialog-fix.css",
+      "exists": true,
+      "score": 6,
+      "maxScore": 6
+    },
+    {
+      "path": "src/styles/unified-dialog-positioning.css",
+      "exists": true,
+      "score": 6,
+      "maxScore": 6
+    }
+  ],
+  "componentFiles": [
+    {
+      "path": "/Users/xiong/wenpai/src/features/content-adapter/components/EnhancedHistoryDialog.tsx",
+      "exists": true,
+      "hasEnhancedFixes": true
+    }
+  ],
+  "recommendations": [
+    "1. 在浏览器中测试历史记录弹窗功能",
+    "2. 验证不同屏幕尺寸下的表现",
+    "3. 检查弹窗内容是否完整显示",
+    "4. 确认弹窗居中定位正确"
+  ]
+}

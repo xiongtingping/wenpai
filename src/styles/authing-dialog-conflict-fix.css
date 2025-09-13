@@ -1,0 +1,213 @@
+/**
+ * 🚨 Authing Guard与历史记录弹窗冲突修复CSS
+ * 
+ * 根本问题：Authing Guard的z-index和CSS样式会影响其他弹窗的定位
+ * 解决方案：隔离Authing Guard的样式影响，确保历史记录弹窗正常显示
+ */
+
+/* ========================================
+   🚨 Authing Guard z-index隔离
+   ======================================== */
+
+/* 确保Authing Guard不会影响其他弹窗 */
+.authing-ant-modal-root,
+.authing-ant-modal-wrap,
+.authing-ant-modal-mask,
+[class*="authing"] {
+  /* 限制Authing的z-index范围，不影响其他弹窗 */
+  z-index: 999999 !important;
+}
+
+/* 确保历史记录弹窗的z-index高于Authing Guard */
+.enhanced-history-dialog,
+[role="dialog"].enhanced-history-dialog,
+[data-radix-dialog-content].enhanced-history-dialog {
+  z-index: 1000000 !important; /* 比Authing Guard更高 */
+}
+
+/* ========================================
+   🚨 防止Authing Guard影响页面transform
+   ======================================== */
+
+/* 当Authing Guard打开时，防止其影响其他弹窗的定位参照系 */
+html.authing-guard-open .enhanced-history-dialog,
+html.authing-guard-open [role="dialog"].enhanced-history-dialog,
+html.authing-guard-open [data-radix-dialog-content].enhanced-history-dialog {
+  /* 强制使用viewport作为定位参照系 */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1000000 !important;
+  
+  /* 确保不受Authing Guard的transform影响 */
+  contain: layout style paint !important;
+  isolation: isolate !important;
+}
+
+/* ========================================
+   🚨 防止Authing Guard的CSS变量影响
+   ======================================== */
+
+/* 重置可能被Authing Guard修改的CSS变量 */
+.enhanced-history-dialog {
+  /* 重置可能的CSS变量污染 */
+  --z-index: 1000000;
+  --position: fixed;
+  --top: 50%;
+  --left: 50%;
+  --transform: translate(-50%, -50%);
+}
+
+/* ========================================
+   🚨 防止Authing Guard的全局样式影响
+   ======================================== */
+
+/* 当Authing Guard存在时，保护历史记录弹窗不受影响 */
+body:has(.authing-ant-modal-root) .enhanced-history-dialog,
+body:has([class*="authing"]) .enhanced-history-dialog {
+  /* 强制重置所有可能被Authing影响的样式 */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1000000 !important;
+  
+  /* 防止被Authing的全局样式覆盖 */
+  margin: 0 !important;
+  inset: auto !important;
+  translate: none !important;
+  scale: none !important;
+  rotate: none !important;
+}
+
+/* ========================================
+   🚨 Authing Guard弹窗背景遮罩隔离
+   ======================================== */
+
+/* 确保Authing Guard的背景遮罩不会影响历史记录弹窗 */
+.authing-ant-modal-mask {
+  /* 限制遮罩的影响范围 */
+  z-index: 999998 !important; /* 低于历史记录弹窗 */
+}
+
+/* 当历史记录弹窗打开时，确保其背景遮罩在Authing之上 */
+[data-radix-dialog-overlay] {
+  z-index: 999999 !important; /* 在Authing Guard之上，但低于弹窗内容 */
+}
+
+/* ========================================
+   🚨 防止Authing Guard的动画影响
+   ======================================== */
+
+/* 防止Authing Guard的动画影响历史记录弹窗 */
+.enhanced-history-dialog {
+  /* 禁用可能被Authing影响的动画 */
+  animation: none !important;
+  transition: opacity 0.2s ease-out !important;
+  
+  /* 确保变换不受Authing影响 */
+  transform-origin: center center !important;
+  transform-style: flat !important;
+}
+
+/* ========================================
+   🚨 Portal容器隔离
+   ======================================== */
+
+/* 确保Radix UI的Portal不受Authing影响 */
+[data-radix-portal] {
+  /* 确保Portal容器的定位不受Authing影响 */
+  position: relative !important;
+  z-index: auto !important;
+}
+
+/* 特别处理：当Authing Guard存在时的Portal */
+body:has(.authing-ant-modal-root) [data-radix-portal] .enhanced-history-dialog {
+  /* 强制使用最高优先级 */
+  z-index: 1000000 !important;
+  position: fixed !important;
+  
+  /* 确保定位计算正确 */
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* ========================================
+   🚨 响应式冲突修复
+   ======================================== */
+
+/* 移动端：防止Authing Guard影响历史记录弹窗的响应式布局 */
+@media (max-width: 640px) {
+  body:has(.authing-ant-modal-root) .enhanced-history-dialog,
+  body:has([class*="authing"]) .enhanced-history-dialog {
+    max-width: calc(100vw - 1rem) !important;
+    max-height: calc(100vh - 1rem) !important;
+    width: calc(100vw - 1rem) !important;
+    
+    /* 确保居中不受Authing影响 */
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+}
+
+/* ========================================
+   🚨 调试模式：Authing冲突检测
+   ======================================== */
+
+/* 调试模式：当检测到Authing Guard时显示警告 */
+.dialog-debug body:has(.authing-ant-modal-root) .enhanced-history-dialog::before {
+  content: "⚠️ 检测到Authing Guard - 冲突修复已激活";
+  position: absolute;
+  top: -60px;
+  left: 0;
+  background: orange;
+  color: white;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 4px;
+  z-index: 9999;
+  white-space: nowrap;
+}
+
+/* ========================================
+   🚨 强制覆盖：最后的保险措施
+   ======================================== */
+
+/* 如果以上都失效，使用最强的选择器 */
+html body div[data-radix-portal] [role="dialog"].enhanced-history-dialog,
+html body [data-radix-portal] [role="dialog"].enhanced-history-dialog {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1000000 !important;
+  
+  /* 完全隔离，不受任何外部影响 */
+  contain: layout style paint !important;
+  isolation: isolate !important;
+}
+
+/* 特殊情况：同时存在Authing Guard和历史记录弹窗时的处理 */
+html.authing-guard-open body [data-radix-portal] .enhanced-history-dialog {
+  /* 使用最高优先级确保显示 */
+  z-index: 1000001 !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  
+  /* 确保可见性 */
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  
+  /* 防止被Authing的全局样式重置 */
+  display: flex !important;
+  flex-direction: column !important;
+}

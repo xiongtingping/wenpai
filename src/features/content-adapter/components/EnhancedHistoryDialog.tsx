@@ -77,25 +77,109 @@ export function EnhancedHistoryDialog({
   const [sortBy, setSortBy] = useState<SortOption>('time-desc');
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  // 🎯 使用通用Dialog定位修复器（纯JavaScript版本）
+  // 🎯 简化的定位修复机制 - 移除循环监控避免性能问题
   React.useEffect(() => {
     if (!open) return;
 
-    let cleanup: (() => void) | null = null;
+    console.log('🔍 历史记录弹窗打开，状态:', { open, timestamp: new Date().toISOString() });
 
-    // 延迟启动修复器，确保Dialog已完全渲染
-    const startTimer = setTimeout(() => {
-      cleanup = startDialogPositionFix(open, {
-        selector: '.enhanced-history-dialog',
-        maxWidth: 'min(95vw, 1024px)',
-        maxHeight: '85vh',
-        debug: true
-      });
-    }, 10);
+    const fixDialogPosition = () => {
+      // 查找Dialog元素 - 使用多种选择器确保找到
+      const dialogElement = (
+        document.querySelector('[role="dialog"][class*="enhanced-history-dialog"]') ||
+        document.querySelector('.enhanced-history-dialog') ||
+        document.querySelector('[role="dialog"]')
+      ) as HTMLElement;
+
+      if (dialogElement) {
+        console.log('🎯 应用历史记录弹窗定位修复...', dialogElement);
+
+        // 🚨 强制清除所有inset相关属性 - 这是问题的根源！
+        dialogElement.style.removeProperty('inset');
+        dialogElement.style.removeProperty('inset-block');
+        dialogElement.style.removeProperty('inset-inline');
+        dialogElement.style.removeProperty('inset-block-start');
+        dialogElement.style.removeProperty('inset-block-end');
+        dialogElement.style.removeProperty('inset-inline-start');
+        dialogElement.style.removeProperty('inset-inline-end');
+
+        // 🚨 强制重置inset为unset，覆盖所有CSS规则
+        dialogElement.style.setProperty('inset', 'unset', 'important');
+        dialogElement.style.setProperty('inset-block', 'unset', 'important');
+        dialogElement.style.setProperty('inset-inline', 'unset', 'important');
+
+        // 🚨 强制应用正确定位 - 最高优先级，使用视窗单位
+        dialogElement.style.setProperty('position', 'fixed', 'important');
+        dialogElement.style.setProperty('top', '50vh', 'important');  // 🔥 使用vh单位确保相对于视窗
+        dialogElement.style.setProperty('left', '50vw', 'important'); // 🔥 使用vw单位确保相对于视窗
+        dialogElement.style.setProperty('right', 'auto', 'important');
+        dialogElement.style.setProperty('bottom', 'auto', 'important');
+        dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+        dialogElement.style.setProperty('z-index', '1000000', 'important');
+        dialogElement.style.setProperty('margin', '0', 'important');
+        dialogElement.style.setProperty('max-width', 'min(95vw, 1024px)', 'important');
+        dialogElement.style.setProperty('max-height', '85vh', 'important');
+        dialogElement.style.setProperty('display', 'flex', 'important');
+        dialogElement.style.setProperty('flex-direction', 'column', 'important');
+        dialogElement.style.setProperty('visibility', 'visible', 'important');
+        dialogElement.style.setProperty('opacity', '1', 'important');
+        dialogElement.style.setProperty('contain', 'layout style paint', 'important');
+        dialogElement.style.setProperty('isolation', 'isolate', 'important');
+
+        // 🚨 验证修复效果
+        const computedStyle = window.getComputedStyle(dialogElement);
+        console.log('✅ 修复后的样式:', {
+          position: computedStyle.position,
+          top: computedStyle.top,
+          left: computedStyle.left,
+          transform: computedStyle.transform,
+          zIndex: computedStyle.zIndex
+        });
+      } else {
+        console.log('❌ 未找到弹窗元素，检查所有可能的选择器...');
+
+        // 详细检查所有可能的元素
+        const allDialogs = document.querySelectorAll('[role="dialog"]');
+        const allEnhanced = document.querySelectorAll('.enhanced-history-dialog');
+        const allRadix = document.querySelectorAll('[data-radix-dialog-content]');
+        const allOpen = document.querySelectorAll('[data-state="open"]');
+
+        console.log('🔍 调试信息:', {
+          'role="dialog"': allDialogs.length,
+          '.enhanced-history-dialog': allEnhanced.length,
+          '[data-radix-dialog-content]': allRadix.length,
+          '[data-state="open"]': allOpen.length,
+          'open状态': open
+        });
+
+        if (allDialogs.length > 0) {
+          console.log('🔍 找到的dialog元素:', Array.from(allDialogs).map(el => ({
+            className: el.className,
+            id: (el as HTMLElement).id,
+            tagName: el.tagName,
+            dataState: el.getAttribute('data-state')
+          })));
+        }
+
+        if (allOpen.length > 0) {
+          console.log('🔍 找到的open状态元素:', Array.from(allOpen).map(el => ({
+            className: el.className,
+            id: (el as HTMLElement).id,
+            tagName: el.tagName,
+            role: el.getAttribute('role')
+          })));
+        }
+      }
+    };
+
+    // 🎯 执行修复，仅在弹窗打开时执行一次
+    fixDialogPosition();
+
+    // 延迟执行确保DOM完全渲染
+    const timer = setTimeout(fixDialogPosition, 100);
 
     return () => {
-      clearTimeout(startTimer);
-      if (cleanup) cleanup();
+      clearTimeout(timer);
     };
   }, [open]);
 

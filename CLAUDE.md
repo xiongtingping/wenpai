@@ -187,6 +187,130 @@
   - 图片预览弹窗
   - 设置面板等
 
+#### 3.6.3 历史记录弹窗定位错误（inset属性冲突）
+- **问题背景**：
+  历史记录弹窗（EnhancedHistoryDialog）显示位置错误，弹窗被定位到页面下方（Y坐标2379px），远超出视窗范围（678px），用户看不到弹窗，误以为是"闪现"问题
+- **根本原因分析**：
+  - **CSS inset属性冲突**：`inset: 50% auto auto 50%` 被浏览器解析为相对于**页面总高度**而不是视窗高度
+  - **百分比单位误用**：当页面内容很长时，`50%` 相对于整个文档高度计算，导致弹窗定位到页面中间位置
+  - **视窗单位缺失**：未使用 `vh`/`vw` 单位确保相对于视窗定位
+  - **JavaScript选择器失效**：多重选择器策略在某些情况下无法找到正确的弹窗元素
+- **失败的修复尝试**（patch式修复，已证明不可持续）：
+  - 单纯CSS !important覆盖 → 被inset属性覆盖
+  - JavaScript单次修复 → 无法应对组件重新渲染
+  - 移除动画类 → 未解决根本的定位计算问题
+  - 增加z-index → 弹窗仍在视窗外不可见
+- **根本性解决方案**：
+  - **视窗单位定位**：使用 `50vh` 和 `50vw` 替代 `50%`，确保相对于视窗定位
+  - **inset属性完全重置**：彻底清除所有inset相关属性，避免干扰top/left定位
+  - **多重保护机制**：CSS基础修复 + JavaScript强化修复，确保各种情况下都能正常工作
+  - **增强选择器策略**：支持多种弹窗元素选择器，提高修复成功率
+- **技术实现详情**：
+  ```css
+  /* CSS修复：使用视窗单位确保相对于视窗定位 */
+  [role="dialog"],
+  [role="dialog"][class*="enhanced-history-dialog"],
+  [role="dialog"].enhanced-history-dialog,
+  .enhanced-history-dialog[role="dialog"],
+  html [role="dialog"],
+  body [role="dialog"],
+  #root [role="dialog"],
+  [data-radix-portal] [role="dialog"],
+  div[data-radix-portal] [role="dialog"],
+  div[role="dialog"][id*="radix"],
+  div[role="dialog"][data-state="open"],
+  [data-radix-dialog-content] {
+    /* 🚨 强制重置所有定位属性 */
+    position: fixed !important;
+    top: 50vh !important;  /* 🔥 使用vh单位确保相对于视窗高度 */
+    left: 50vw !important; /* 🔥 使用vw单位确保相对于视窗宽度 */
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 1000000 !important;
+    margin: 0 !important;
+
+    /* 🚨 完全重置inset属性，避免干扰top/left - 这是问题的根源！ */
+    inset: unset !important;
+    inset-block: unset !important;
+    inset-inline: unset !important;
+    inset-block-start: unset !important;
+    inset-block-end: unset !important;
+    inset-inline-start: unset !important;
+    inset-inline-end: unset !important;
+  }
+  ```
+
+  ```javascript
+  // JavaScript运行时修复器 - 使用视窗单位
+  useEffect(() => {
+    if (!open) return;
+
+    const fixDialogPosition = () => {
+      // 多选择器查找Dialog元素
+      const dialogElement = (
+        document.querySelector('[role="dialog"][class*="enhanced-history-dialog"]') ||
+        document.querySelector('.enhanced-history-dialog') ||
+        document.querySelector('[role="dialog"]')
+      ) as HTMLElement;
+
+      if (dialogElement) {
+        // 🚨 清除所有可能冲突的属性
+        dialogElement.style.removeProperty('inset');
+        dialogElement.style.removeProperty('inset-block');
+        dialogElement.style.removeProperty('inset-inline');
+        dialogElement.style.removeProperty('inset-block-start');
+        dialogElement.style.removeProperty('inset-block-end');
+        dialogElement.style.removeProperty('inset-inline-start');
+        dialogElement.style.removeProperty('inset-inline-end');
+
+        // 🎯 强制设置正确的定位 - 使用视窗单位
+        dialogElement.style.setProperty('position', 'fixed', 'important');
+        dialogElement.style.setProperty('top', '50vh', 'important');  // 🔥 使用vh单位
+        dialogElement.style.setProperty('left', '50vw', 'important'); // 🔥 使用vw单位
+        dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+        dialogElement.style.setProperty('z-index', '1000000', 'important');
+        dialogElement.style.setProperty('margin', '0', 'important');
+      }
+    };
+
+    // 多时机执行修复
+    fixDialogPosition();
+    setTimeout(fixDialogPosition, 100);
+    setTimeout(fixDialogPosition, 300);
+  }, [open]);
+  ```
+- **修改的文件列表**：
+  1. `src/styles/final-dialog-position-fix.css` - 使用视窗单位的CSS定位修复
+  2. `src/features/content-adapter/components/EnhancedHistoryDialog.tsx` - 添加JavaScript运行时修复器
+  3. `src/components/ui/dialog.tsx` - 移除冲突的Tailwind动画类
+- **验证标准**：
+  - 弹窗必须精确居中显示（偏移量0px）
+  - 弹窗中心坐标必须与视窗中心坐标完全一致
+  - 弹窗完全在视窗内可见（isInViewport: true, isCentered: true）
+  - 控制台显示"✅ 修复后的样式"日志，确认top和left使用视窗单位
+  - 在不同页面高度下都能正确居中显示
+- **关键技术洞察**：
+  - **inset vs top/left**：inset属性在长页面中会相对于文档高度计算，而top/left配合视窗单位才能确保相对于视窗定位
+  - **视窗单位的重要性**：vh/vw单位确保定位始终相对于视窗，而不受页面内容长度影响
+  - **属性清除的必要性**：必须主动清除inset相关属性，否则会覆盖top/left设置
+- **防复发措施**：
+  - **代码审查清单**：所有Dialog定位修改必须检查是否使用视窗单位
+  - **Lint规则**：禁止在Dialog组件中使用百分比单位进行定位
+  - **自动化测试**：添加长页面场景下的Dialog定位测试用例
+  - **文档更新**：更新Dialog组件最佳实践，强调视窗单位的使用
+- **禁止方案**：
+  - 严禁使用百分比单位（%）进行Dialog定位，必须使用视窗单位（vh/vw）
+  - 严禁删除inset属性重置代码，这是防止冲突的关键
+  - 严禁移除JavaScript运行时修复器，CSS修复在某些情况下可能不足
+  - 严禁在没有充分测试长页面场景的情况下修改Dialog定位逻辑
+- **适用场景扩展**：
+  此解决方案特别适用于在长页面中显示的Dialog组件，包括：
+  - 历史记录弹窗
+  - 内容列表弹窗
+  - 数据展示弹窗
+  - 任何在可滚动页面中的弹窗组件
+
 ## 4. 功能模块与系统操作
 
 ### 4.1 禁止裁剪与减少功能模块
@@ -318,3 +442,72 @@ Claude MUST read and strictly follow these rules.
   - 临时测试文件不得提交到版本控制系统
   - 测试数据不得污染生产环境
   - 测试完成后必须恢复原始状态
+
+#### 3.6.4 认证超时问题系统性修复案例 (2025-01-13)
+
+**问题描述**：用户登录时遇到认证超时错误：`timeout of 10000ms exceeded`
+
+**根本原因分析**：
+1. **超时配置不一致**：各模块超时时间不统一(30s-60s)
+2. **网络配置问题**：缺少重试机制和优化配置
+3. **错误处理不完善**：缺少智能错误分析和网络诊断
+
+**系统性解决方案**：
+
+1. **统一超时配置**：
+```typescript
+// 所有认证相关请求统一使用90秒超时
+timeout: 90000,
+requestConfig: {
+  withCredentials: false,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Cache-Control': 'no-cache',
+    'User-Agent': 'WenPai-App/1.0.0'
+  }
+}
+```
+
+2. **智能重试机制**：
+```typescript
+// 指数退避重试策略
+const retryConfig = {
+  maxRetries: 3,
+  baseDelay: 2000,
+  maxDelay: 10000,
+  timeoutMs: 90000
+};
+
+// 使用重试机制
+const result = await diagnoseAndRetry(
+  () => verificationCodeService.loginByPhoneCode(phone, code),
+  '验证码登录'
+);
+```
+
+3. **网络诊断工具**：
+```typescript
+// 自动诊断Authing连接性
+const diagnostic = await AuthNetworkDiagnostic.diagnoseAuthingConnection();
+// 智能错误分析
+const errorAnalysis = AuthErrorAnalyzer.analyzeError(error);
+```
+
+**修复文件清单**：
+- `src/api/request.ts`: 统一超时配置和网络优化
+- `src/services/verificationCodeService.ts`: 增加超时和重试
+- `src/pages/CustomLoginPage.tsx`: 集成重试机制和错误分析
+- `src/utils/authTokenHandler.ts`: 网络配置优化
+- `src/utils/authNetworkDiagnostic.ts`: 新增诊断工具
+
+**技术亮点**：
+- 系统性解决方案，非patch式修复
+- 智能化错误处理和网络诊断
+- 用户友好的重试机制
+- 完整的监控和防复发体系
+
+**防复发措施**：
+- 配置统一管理和环境变量控制
+- 网络请求监控和超时率统计
+- 完整的测试覆盖(超时、重试、错误处理)

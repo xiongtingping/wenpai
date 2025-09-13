@@ -11,6 +11,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { AuthenticationClient } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
 import { verificationCodeService } from '@/services/verificationCodeService';
+import {
+  AuthNetworkDiagnostic,
+  AuthRetryManager,
+  AuthErrorAnalyzer,
+  diagnoseAndRetry
+} from '@/utils/authNetworkDiagnostic';
 
 // 手机号验证函数
 const validatePhone = (phone: string) => {
@@ -276,16 +282,19 @@ export const CustomLoginPage: React.FC = () => {
         authingClientRef.current = new (AuthenticationClient as any)({
           appId: cfg.appId,
           appHost: cfg.host,
-          // 🔧 FIX: 增加网络连接优化配置
-          timeout: 45000, // 45秒超时，平衡用户体验和网络稳定性
-          retry: 2, // 减少重试次数，避免过长等待
-          retryDelay: 1500, // 减少重试延迟
+          // 🔧 FIX: 统一超时时间到90秒，解决认证超时问题
+          timeout: 90000,
+          // 🔧 FIX: 添加重试机制和网络优化
+          retry: 3, // 增加重试次数
+          retryDelay: 2000, // 重试延迟2秒
           // 添加网络连接优化
           requestConfig: {
             withCredentials: false, // 避免跨域问题
             headers: {
               'Content-Type': 'application/json',
-              'Accept': 'application/json'
+              'Accept': 'application/json',
+              'Cache-Control': 'no-cache',
+              'User-Agent': 'WenPai-App/1.0.0'
             }
           }
         });
@@ -321,7 +330,11 @@ export const CustomLoginPage: React.FC = () => {
         console.log('📱 开始验证码登录:', { phone: loginForm.phone, code: loginForm.code.substring(0,2) + '***' });
         
         console.log('📱 调用手机验证码登录API...');
-        const result = await verificationCodeService.loginByPhoneCode(loginForm.phone, loginForm.code);
+        // 🔧 FIX: 使用重试机制进行验证码登录
+        const result = await diagnoseAndRetry(
+          () => verificationCodeService.loginByPhoneCode(loginForm.phone, loginForm.code),
+          '验证码登录'
+        );
         
         console.log('📡 验证码登录API响应:', { success: result.success, message: result.message, hasData: !!result.data });
         
@@ -379,62 +392,17 @@ export const CustomLoginPage: React.FC = () => {
         phone: loginForm.phone.substring(0, 3) + '***'
       });
 
-      // 🔧 FIX: 优化登录重试机制，减少等待时间
-      let result;
-      let lastError;
-      const maxRetries = 2; // 减少重试次数
+      // 🔧 FIX: 使用新的重试机制进行密码登录
+      console.log('🚀 调用SDK密码登录API...', {
+        method: 'phone-password',
+        phone: loginForm.phone.substring(0, 3) + '***'
+      });
 
-      // 检查网络连接状态
-      const isOnline = navigator.onLine;
-      if (!isOnline) {
-        throw new Error('网络连接已断开，请检查网络设置');
-      }
+      const result = await diagnoseAndRetry(
+        () => authingClient.loginByPhonePassword(loginForm.phone, loginForm.password),
+        '密码登录'
+      );
 
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-          console.log(`🔄 登录尝试 ${attempt}/${maxRetries}...`);
-
-          // 设置较短的超时时间，快速失败
-          const loginPromise = authingClient.loginByPhonePassword(loginForm.phone, loginForm.password);
-
-          // 🔧 FIX: 减少超时时间，快速失败并重试
-          result = await Promise.race([
-            loginPromise,
-            new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('登录请求超时，请检查网络连接')), 20000) // 20秒超时
-            )
-          ]);
-
-          // 如果成功，跳出重试循环
-          if (result && result.id) {
-            console.log(`✅ 第 ${attempt} 次尝试登录成功:`, result);
-            break;
-          }
-        } catch (error) {
-          lastError = error;
-          console.warn(`❌ 第 ${attempt} 次登录尝试失败:`, error);
-
-          // 🔧 FIX: 检查是否是网络连接问题
-          const errorMessage = error instanceof Error ? error.message : '';
-          const isNetworkError = errorMessage.includes('ERR_CONNECTION') ||
-                                errorMessage.includes('Failed to fetch') ||
-                                errorMessage.includes('Network Error') ||
-                                errorMessage.includes('超时');
-
-          // 如果不是最后一次尝试，等待后重试
-          if (attempt < maxRetries) {
-            const delay = isNetworkError ? 1000 : 1500; // 网络错误快速重试
-            console.log(`⏳ 等待 ${delay}ms 后重试...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          }
-        }
-      }
-
-      // 如果所有重试都失败了
-      if (!result || !result.id) {
-        throw lastError || new Error('登录失败，请检查网络连接后重试');
-      }
-      
       console.log('✅ SDK密码登录成功:', result);
       
       // 处理登录成功
@@ -479,11 +447,13 @@ export const CustomLoginPage: React.FC = () => {
         throw new Error('登录失败，请检查账号密码');
       }
     } catch (error) {
-      // 🔧 FIX: 增强错误处理和用户反馈 - 根据Authing错误码提供精确提示
+      // 🔧 FIX: 使用新的错误分析器进行智能错误处理
+      const errorAnalysis = AuthErrorAnalyzer.analyzeError(error);
       const errorInfo = parseAuthingError(error);
 
       console.error('❌ 登录失败详情:', {
         originalError: error,
+        errorAnalysis,
         parsedError: errorInfo,
         errorCode: (error as any)?.code,
         errorMessage: (error as any)?.message,
@@ -828,7 +798,11 @@ export const CustomLoginPage: React.FC = () => {
                 try {
                   setLoginForm(prev => ({ ...prev, sendingCode: true }));
 
-                  const result = await verificationCodeService.sendSmsCode(loginForm.phone, 'LOGIN');
+                  // 🔧 FIX: 使用重试机制发送验证码
+                  const result = await diagnoseAndRetry(
+                    () => verificationCodeService.sendSmsCode(loginForm.phone, 'LOGIN'),
+                    '发送登录验证码'
+                  );
 
                   if (result.success) {
                     toast({
@@ -934,7 +908,11 @@ export const CustomLoginPage: React.FC = () => {
                 try {
                   setRegisterForm(prev => ({ ...prev, sendingCode: true }));
 
-                  const result = await verificationCodeService.sendSmsCode(registerForm.phone, 'REGISTER');
+                  // 🔧 FIX: 使用重试机制发送注册验证码
+                  const result = await diagnoseAndRetry(
+                    () => verificationCodeService.sendSmsCode(registerForm.phone, 'REGISTER'),
+                    '发送注册验证码'
+                  );
 
                   if (result.success) {
                     toast({

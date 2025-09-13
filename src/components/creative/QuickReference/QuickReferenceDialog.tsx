@@ -61,20 +61,96 @@ export function QuickReferenceDialog({
       if (dialogElement) {
         const element = dialogElement as HTMLElement;
 
-        // 强制清除可能冲突的样式
+        // 🚨 清除所有可能冲突的属性 - 包括inset相关属性
         element.style.removeProperty('top');
         element.style.removeProperty('left');
+        element.style.removeProperty('right');
+        element.style.removeProperty('bottom');
         element.style.removeProperty('transform');
         element.style.removeProperty('translate');
         element.style.removeProperty('inset');
+        element.style.removeProperty('inset-block');
+        element.style.removeProperty('inset-inline');
+        element.style.removeProperty('inset-block-start');
+        element.style.removeProperty('inset-block-end');
+        element.style.removeProperty('inset-inline-start');
+        element.style.removeProperty('inset-inline-end');
 
-        // 强制设置正确的定位样式 - 使用最高优先级
+        // 🔥 强制设置为initial值，彻底清除inset影响
+        element.style.setProperty('inset', 'initial', 'important');
+        element.style.setProperty('inset-block', 'initial', 'important');
+        element.style.setProperty('inset-inline', 'initial', 'important');
+
+        // 🎯 强制设置正确的定位 - 使用视窗单位避免页面高度影响
         element.style.setProperty('position', 'fixed', 'important');
-        element.style.setProperty('top', '50%', 'important');
-        element.style.setProperty('left', '50%', 'important');
+        element.style.setProperty('top', '50vh', 'important');  // 🔥 使用vh单位
+        element.style.setProperty('left', '50vw', 'important'); // 🔥 使用vw单位
         element.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
         element.style.setProperty('z-index', '1055', 'important');
         element.style.setProperty('margin', '0', 'important');
+
+        // 🚨 终极修复：使用最强力的方法确保弹窗可见
+        setTimeout(() => {
+          const rect = element.getBoundingClientRect();
+          console.log('🔍 弹窗位置检查:', { top: rect.top, left: rect.left, visible: rect.top >= 0 && rect.left >= 0 });
+
+          // 如果弹窗不可见，使用终极修复方案
+          if (rect.top < 0 || rect.top > window.innerHeight - 100 || rect.left < 0) {
+            console.log('🚨 弹窗不可见，启动终极修复');
+
+            // 🔥 方法1：完全重写样式，移除所有可能的干扰
+            const newStyle = [
+              'position: fixed !important',
+              'top: 100px !important',
+              'left: 100px !important',
+              'right: auto !important',
+              'bottom: auto !important',
+              'transform: none !important',
+              'translate: none !important',
+              'z-index: 999999 !important',
+              'margin: 0 !important',
+              'padding: 24px !important',
+              'background: white !important',
+              'border-radius: 8px !important',
+              'box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important',
+              'max-height: 80vh !important',
+              'max-width: 80vw !important',
+              'overflow: auto !important',
+              'display: flex !important',
+              'flex-direction: column !important',
+              'width: 438px !important',
+              'height: 482px !important'
+            ].join('; ');
+
+            element.style.cssText = newStyle;
+
+            // 🔥 方法2：如果cssText不生效，逐个强制设置
+            element.style.setProperty('position', 'fixed', 'important');
+            element.style.setProperty('top', '100px', 'important');
+            element.style.setProperty('left', '100px', 'important');
+            element.style.setProperty('right', 'auto', 'important');
+            element.style.setProperty('bottom', 'auto', 'important');
+            element.style.setProperty('transform', 'none', 'important');
+            element.style.setProperty('z-index', '999999', 'important');
+
+            console.log('🎯 终极修复完成，强制设置为固定位置');
+
+            // 🔄 持续监控并强制修复
+            const observer = new MutationObserver(() => {
+              const currentRect = element.getBoundingClientRect();
+              if (currentRect.top < 0 || currentRect.left < 0) {
+                element.style.setProperty('top', '100px', 'important');
+                element.style.setProperty('left', '100px', 'important');
+                element.style.setProperty('transform', 'none', 'important');
+                console.log('🔧 持续修复：重置位置');
+              }
+            });
+            observer.observe(element, { attributes: true, attributeFilter: ['style'] });
+
+            // 10秒后停止监控
+            setTimeout(() => observer.disconnect(), 10000);
+          }
+        }, 100);
 
         // 设置CSS变量作为备用
         element.style.setProperty('--position-center-y', '50%');
@@ -82,7 +158,23 @@ export function QuickReferenceDialog({
         element.style.setProperty('--dialog-transform', 'translate(-50%, -50%)');
         element.style.setProperty('--transform-origin-center', 'center');
 
-        console.log('🎯 Dialog定位修复已应用');
+        // 🔍 验证修复效果
+        const rect = element.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(element);
+        console.log('🎯 Dialog定位修复已应用', {
+          计算样式: {
+            top: computedStyle.top,
+            left: computedStyle.left,
+            transform: computedStyle.transform
+          },
+          实际位置: {
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height
+          },
+          是否在视窗内: rect.top >= 0 && rect.left >= 0 && rect.bottom <= window.innerHeight && rect.right <= window.innerWidth
+        });
       }
     };
 

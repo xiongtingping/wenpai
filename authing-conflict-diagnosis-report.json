@@ -1,0 +1,59 @@
+{
+  "timestamp": "2025-09-13T01:19:55.496Z",
+  "successRate": 100,
+  "score": 19,
+  "maxScore": 19,
+  "status": "EXCELLENT",
+  "authingFiles": [
+    {
+      "path": "src/styles/authing-modal-architecture-fix.css",
+      "exists": true,
+      "size": 4969,
+      "hasConflictFix": false
+    },
+    {
+      "path": "src/styles/authing-accessibility-fix.css",
+      "exists": true,
+      "size": 1273,
+      "hasConflictFix": false
+    },
+    {
+      "path": "src/styles/authing-dialog-conflict-fix.css",
+      "exists": true,
+      "size": 5761,
+      "hasConflictFix": true
+    }
+  ],
+  "conflictFixes": [
+    "✅ src/styles/authing-modal-architecture-fix.css 存在",
+    "✅ src/styles/authing-accessibility-fix.css 存在",
+    "✅ src/styles/authing-dialog-conflict-fix.css 存在",
+    "✅ src/styles/authing-dialog-conflict-fix.css 包含历史记录弹窗修复",
+    "✅ src/styles/authing-dialog-conflict-fix.css 包含z-index冲突修复",
+    "✅ 组件修复: Authing Guard检测",
+    "✅ 组件修复: Authing元素查找",
+    "✅ 组件修复: 高优先级z-index设置",
+    "✅ 组件修复: CSS隔离设置",
+    "✅ 组件修复: CSS隔离保护",
+    "✅ 组件修复: 冲突模式日志",
+    "✅ z-index管理: Authing Guard z-index限制",
+    "✅ z-index管理: 历史记录弹窗高优先级",
+    "✅ z-index管理: 同时存在时的最高优先级",
+    "✅ Portal隔离: Radix Portal选择器",
+    "✅ Portal隔离: Authing存在检测",
+    "✅ Portal隔离: CSS containment",
+    "✅ Portal隔离: CSS isolation"
+  ],
+  "cssImports": [
+    "✅ @import './styles/authing-modal-architecture-fix.css'",
+    "✅ @import './styles/authing-accessibility-fix.css'",
+    "✅ @import './styles/authing-dialog-conflict-fix.css'"
+  ],
+  "issues": [],
+  "recommendations": [
+    "1. 在有Authing Guard的环境中测试历史记录弹窗",
+    "2. 验证z-index层级是否正确",
+    "3. 检查弹窗定位是否不受Authing影响",
+    "4. 确认CSS隔离是否有效"
+  ]
+}

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弹窗位置检查</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .debug-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="debug-panel">
+        <h1>🔍 弹窗位置检查工具</h1>
+        <p class="success">✅ 好消息：弹窗没有闪现，是正常显示的！</p>
+        <p>现在我们需要检查弹窗的实际位置和可见性。</p>
+        
+        <h3>请在主应用页面控制台运行以下代码：</h3>
+        
+        <div class="code-block">// 🔍 检查弹窗位置和可见性
+function checkDialogPosition() {
+  const dialog = document.querySelector('[role="dialog"]');
+  
+  if (!dialog) {
+    console.log('❌ 未找到弹窗');
+    return;
+  }
+  
+  const rect = dialog.getBoundingClientRect();
+  const viewport = {
+    width: window.innerWidth,
+    height: window.innerHeight
+  };
+  
+  const style = window.getComputedStyle(dialog);
+  
+  console.log('📊 弹窗详细信息:');
+  console.log('位置:', {
+    top: rect.top,
+    left: rect.left,
+    right: rect.right,
+    bottom: rect.bottom,
+    width: rect.width,
+    height: rect.height
+  });
+  
+  console.log('视窗:', viewport);
+  
+  console.log('样式:', {
+    position: style.position,
+    top: style.top,
+    left: style.left,
+    transform: style.transform,
+    zIndex: style.zIndex,
+    display: style.display,
+    visibility: style.visibility,
+    opacity: style.opacity
+  });
+  
+  // 检查是否在视窗内
+  const isInViewport = rect.top >= 0 && 
+                      rect.left >= 0 && 
+                      rect.bottom <= viewport.height && 
+                      rect.right <= viewport.width;
+  
+  console.log('🎯 可见性分析:');
+  console.log('是否在视窗内:', isInViewport);
+  
+  if (!isInViewport) {
+    console.log('⚠️ 弹窗位置问题:');
+    if (rect.top < 0) console.log('- 超出顶部边界');
+    if (rect.left < 0) console.log('- 超出左侧边界');
+    if (rect.bottom > viewport.height) console.log('- 超出底部边界');
+    if (rect.right > viewport.width) console.log('- 超出右侧边界');
+  }
+  
+  // 计算应该的中心位置
+  const expectedCenterX = viewport.width / 2;
+  const expectedCenterY = viewport.height / 2;
+  const actualCenterX = rect.left + rect.width / 2;
+  const actualCenterY = rect.top + rect.height / 2;
+  
+  console.log('🎯 居中分析:');
+  console.log('期望中心:', { x: expectedCenterX, y: expectedCenterY });
+  console.log('实际中心:', { x: actualCenterX, y: actualCenterY });
+  console.log('偏移量:', { 
+    x: Math.abs(actualCenterX - expectedCenterX).toFixed(1) + 'px',
+    y: Math.abs(actualCenterY - expectedCenterY).toFixed(1) + 'px'
+  });
+  
+  // 强制修复位置
+  console.log('🔧 尝试强制修复位置...');
+  dialog.style.setProperty('position', 'fixed', 'important');
+  dialog.style.setProperty('top', '50%', 'important');
+  dialog.style.setProperty('left', '50%', 'important');
+  dialog.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+  dialog.style.setProperty('z-index', '1000000', 'important');
+  dialog.style.setProperty('inset', 'unset', 'important');
+  
+  // 验证修复效果
+  setTimeout(() => {
+    const newRect = dialog.getBoundingClientRect();
+    const newCenterX = newRect.left + newRect.width / 2;
+    const newCenterY = newRect.top + newRect.height / 2;
+    
+    console.log('✅ 修复后位置:', {
+      top: newRect.top,
+      left: newRect.left,
+      centerX: newCenterX,
+      centerY: newCenterY,
+      偏移量: {
+        x: Math.abs(newCenterX - expectedCenterX).toFixed(1) + 'px',
+        y: Math.abs(newCenterY - expectedCenterY).toFixed(1) + 'px'
+      }
+    });
+    
+    const isNowCentered = Math.abs(newCenterX - expectedCenterX) < 10 && 
+                         Math.abs(newCenterY - expectedCenterY) < 10;
+    
+    if (isNowCentered) {
+      console.log('🎉 弹窗已成功居中！');
+    } else {
+      console.log('❌ 弹窗仍未正确居中');
+    }
+  }, 100);
+}
+
+// 运行检查
+checkDialogPosition();</div>
+        
+        <h3>步骤：</h3>
+        <ol>
+            <li>在主应用页面点击历史记录按钮</li>
+            <li>复制上面的代码到控制台运行</li>
+            <li>查看详细的位置分析结果</li>
+            <li>告诉我输出的具体信息</li>
+        </ol>
+        
+        <h3>预期结果：</h3>
+        <p>如果弹窗位置正确，应该看到：</p>
+        <ul>
+            <li>✅ 是否在视窗内: true</li>
+            <li>✅ 偏移量: X和Y都小于10px</li>
+            <li>✅ 弹窗已成功居中！</li>
+        </ul>
+        
+        <p>如果位置不正确，会显示具体的问题和自动修复结果。</p>
+    </div>
+</body>
+</html>

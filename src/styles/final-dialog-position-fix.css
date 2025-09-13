@@ -1,0 +1,106 @@
+/* 🎯 历史记录弹窗最终修复 - 彻底解决定位问题 */
+
+/* 🚨 超强选择器 - 覆盖所有可能的CSS规则 */
+[role="dialog"],
+[role="dialog"][class*="enhanced-history-dialog"],
+[role="dialog"].enhanced-history-dialog,
+.enhanced-history-dialog[role="dialog"],
+[role="dialog"][class*="quick-reference-dialog"],
+[role="dialog"].quick-reference-dialog,
+.quick-reference-dialog[role="dialog"],
+html [role="dialog"],
+body [role="dialog"],
+#root [role="dialog"],
+[data-radix-portal] [role="dialog"],
+div[data-radix-portal] [role="dialog"],
+div[role="dialog"][id*="radix"],
+div[role="dialog"][data-state="open"],
+[data-radix-dialog-content] {
+  /* 🚨 强制重置所有定位属性 */
+  position: fixed !important;
+  top: 50vh !important;  /* 🔥 使用vh单位确保相对于视窗高度 */
+  left: 50vw !important; /* 🔥 使用vw单位确保相对于视窗宽度 */
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1000000 !important;
+  margin: 0 !important;
+
+  /* 🚨 完全重置inset属性，避免干扰top/left - 这是问题的根源！ */
+  inset: unset !important;
+  inset-block: unset !important;
+  inset-inline: unset !important;
+  inset-block-start: unset !important;
+  inset-block-end: unset !important;
+  inset-inline-start: unset !important;
+  inset-inline-end: unset !important;
+
+  /* 🔥 强制重置所有可能的inset相关属性 */
+  inset-area: unset !important;
+  inset-inline-end: unset !important;
+  inset-inline-start: unset !important;
+  inset-block-end: unset !important;
+  inset-block-start: unset !important;
+
+  /* 🔧 确保transform不会导致弹窗移出视窗 */
+  max-height: 90vh !important;
+  max-width: 90vw !important;
+
+  /* 尺寸控制 */
+  max-width: min(95vw, 1024px) !important;
+  max-height: 85vh !important;
+  width: auto !important;
+  height: auto !important;
+
+  /* 可见性 */
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+
+  /* 完全隔离保护 */
+  contain: layout style paint !important;
+  isolation: isolate !important;
+
+  /* 禁用所有动画 */
+  animation: none !important;
+  transition: none !important;
+}
+
+/* 禁用所有子元素的动画和过渡效果 */
+[role="dialog"].enhanced-history-dialog *,
+[role="dialog"].enhanced-history-dialog *::before,
+[role="dialog"].enhanced-history-dialog *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* 确保 Portal 容器正确定位 */
+[data-radix-portal] {
+  position: relative !important;
+  z-index: 1000000 !important;
+}
+
+/* 移动端响应式修复 */
+@media (max-width: 768px) {
+  [role="dialog"].enhanced-history-dialog {
+    max-width: calc(100vw - 1rem) !important;
+    max-height: calc(100vh - 1rem) !important;
+  }
+}
+
+/* 平板端响应式修复 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  [role="dialog"].enhanced-history-dialog {
+    max-width: 90vw !important;
+    max-height: 85vh !important;
+  }
+}
+
+/* 桌面端响应式修复 */
+@media (min-width: 1025px) {
+  [role="dialog"].enhanced-history-dialog {
+    max-width: 1024px !important;
+    max-height: 85vh !important;
+  }
+}

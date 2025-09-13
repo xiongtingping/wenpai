@@ -48,16 +48,23 @@ class VerificationCodeService {
         throw new Error(`Authing配置缺失: appId=${!!config.appId}, host=${!!config.host}`);
       }
 
-      // 🔧 FIX: 增加超时配置和重试机制
+      // 🔧 FIX: 增加超时配置和网络优化
       this.authClient = new AuthenticationClient({
         appId: config.appId,
         appHost: `https://${config.domain}`,
         protocol: 'oidc',
-        // 增加超时时间到60秒
-        timeout: 60000,
-        // 添加重试配置
-        // retry: 3, // 暂时注释掉，该选项不存在
-        // retryDelay: 2000 // 暂时注释掉，该选项不存在
+        // 🔧 FIX: 统一超时时间到90秒，解决认证超时问题
+        timeout: 90000,
+        // 🔧 FIX: 添加网络优化配置
+        requestConfig: {
+          withCredentials: false,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache',
+            'User-Agent': 'WenPai-App/1.0.0'
+          }
+        }
       });
 
       console.log('✅ Authing AuthenticationClient初始化成功');

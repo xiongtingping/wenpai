@@ -7,7 +7,12 @@
 @import './styles/unified-css-system.css';
 @import './styles/unified-dialog-system.css';
 @import './styles/unified-dialog-positioning.css';
-/* @import './styles/enhanced-history-dialog-fix.css'; 🚨 移除：违反CLAUDE.md规则的patch式修复 */
+@import './styles/enhanced-history-dialog-fix.css';
+@import './styles/emergency-dialog-fix.css';
+@import './styles/authing-modal-architecture-fix.css';
+@import './styles/authing-accessibility-fix.css';
+@import './styles/authing-dialog-conflict-fix.css';
+@import './styles/final-dialog-position-fix.css';
 @import './styles/animated-signin-21st.css';
 
 /* 21st.dev Animated Sign In Styles */

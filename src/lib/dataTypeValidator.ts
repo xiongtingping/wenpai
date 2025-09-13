@@ -103,8 +103,13 @@ export const DATA_SCHEMAS: Record<string, DataSchema> = {
 
   // Amplitude分析数据模式（宽松验证）
   AMP_UNSENT: {
-    type: 'any', // 允许任何类型，因为Amplitude的数据结构可变
-    required: false
+    type: 'array', // Amplitude未发送事件通常是数组格式
+    required: false,
+    // 数组项验证规则（宽松）
+    items: {
+      type: 'object',
+      required: false
+    }
   },
 
   // 访客会话信息模式
@@ -617,7 +622,10 @@ export class DataTypeValidator {
     if (schema.transform && typeof schema.transform === 'function') {
       try {
         transformedData = schema.transform(data);
-        console.log(`🔄 数据转换应用于 [${key}]: ${typeof data} -> ${typeof transformedData}`);
+        // 只在debug模式下输出详细日志
+        if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_MODE === 'true') {
+          console.log(`🔄 数据转换应用于 [${key}]: ${typeof data} -> ${typeof transformedData}`);
+        }
       } catch (error) {
         console.warn(`数据转换失败 [${key}]:`, error);
       }

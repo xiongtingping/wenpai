@@ -73,8 +73,9 @@ const DialogContent = React.forwardRef<
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-        "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
-        "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
+        // 🚨 移除导致定位错误的slide动画类
+        // "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
+        // "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
         "sm:rounded-lg",
         className
       )}
@@ -99,9 +100,10 @@ const DialogContent = React.forwardRef<
         translate: 'none',
         rotate: 'none',
         scale: 'none',
-        inset: 'auto',
-        insetBlock: 'auto',
-        insetInline: 'auto',
+        // 🚨 完全移除inset相关属性，避免干扰top/left
+        inset: 'unset',
+        insetBlock: 'unset',
+        insetInline: 'unset',
 
         // 🎯 确保可见性
         display: 'flex',

@@ -103,12 +103,14 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
     setError(null);
 
     try {
-      logger.info('开始获取订阅状态:', { userId: targetUserId });
-      
       // 🔧 FIX: 暂时禁用订阅状态获取，避免网络请求循环
       // 在开发环境中，由于后端服务可能不可用，直接返回默认状态
       if (import.meta.env.DEV) {
-        logger.info('🔧 开发环境：使用默认订阅状态，避免网络请求循环');
+        // 减少重复日志，只在必要时输出
+        if (!(window as any).__dev_subscription_logged) {
+          logger.info('🔧 开发环境：使用默认订阅状态，避免网络请求循环');
+          (window as any).__dev_subscription_logged = true;
+        }
         
         const defaultStatus = {
           status: 'active' as const,
@@ -283,11 +285,17 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
   // 🔧 FIX: 同步primaryStatus变化到hasActiveSubscription - 避免循环依赖
   useEffect(() => {
     const isActive = primaryStatus.status === 'active';
+    const previousActive = hasActiveSubscription;
     setHasActiveSubscription(isActive);
-    logger.info('🔄 同步活跃订阅状态:', { 
-      to: isActive, 
-      status: primaryStatus.status 
-    });
+    
+    // 只在状态真正变化时记录日志
+    if (previousActive !== isActive) {
+      logger.info('🔄 同步活跃订阅状态:', { 
+        from: previousActive, 
+        to: isActive, 
+        status: primaryStatus.status 
+      });
+    }
   }, [primaryStatus.status]); // 移除hasActiveSubscription依赖，避免循环
 
   // 定期刷新状态（每5分钟）- 🔧 FIX: 开发环境中禁用定期刷新，避免大量API请求
