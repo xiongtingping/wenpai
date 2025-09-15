@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -89,8 +90,7 @@ interface ContentTemplate {
 /**
  * 一键转发管理组件
  */
-const ShareManager: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('publish');
+const ShareManager: React.FC = () => { const [activeTab, setActiveTab] = useState('publish');
   const [publishTasks, setPublishTasks] = useState<PublishTask[]>([]);
   const [contentTemplates, setContentTemplates] = useState<ContentTemplate[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
@@ -99,7 +99,7 @@ const ShareManager: React.FC = () => {
     content: '',
     scheduledTime: '',
     useTemplate: false
-  });
+   });
   const [isPublishing, setIsPublishing] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ContentTemplate | null>(null);
 
@@ -211,7 +211,7 @@ const ShareManager: React.FC = () => {
   const handlePublish = async () => {
     if (!publishContent.title.trim() || !publishContent.content.trim()) {
       toast({
-        title: "请填写完整内容",
+        title: t('components.labels.请填写完整内容'),
         description: "标题和内容不能为空",
         variant: "destructive",
       });
@@ -220,7 +220,7 @@ const ShareManager: React.FC = () => {
 
     if (selectedPlatforms.length === 0) {
       toast({
-        title: "请选择发布平台",
+        title: t('components.labels.请选择发布平台'),
         description: "至少选择一个平台进行发布",
         variant: "destructive",
       });
@@ -295,7 +295,7 @@ const ShareManager: React.FC = () => {
       }));
 
       toast({
-        title: "发布完成",
+        title: t('components.labels.发布完成'),
         description: `内容已发布到 ${selectedPlatforms.length} 个平台`,
       });
 
@@ -311,8 +311,8 @@ const ShareManager: React.FC = () => {
 
     } catch (error) {
       toast({
-        title: "发布失败",
-        description: "请稍后重试",
+        title: t('components.errors.发布失败'),
+        description: t('components.errors.请稍后重试'),
         variant: "destructive",
       });
     } finally {
@@ -674,8 +674,8 @@ const ShareManager: React.FC = () => {
                         <div className="text-sm text-muted-foreground">
                           {platform.status === 'active' && platform.lastSync && 
                             `最后同步：${platform.lastSync.toLocaleString()}`}
-                          {platform.status === 'inactive' && '未连接'}
-                          {platform.status === 'error' && '连接错误'}
+                          {platform.status === 'inactive' && t('components.text.未连接_ba6')}
+                          {platform.status === 'error' && t('components.errors.连接错误')}
                         </div>
                       </div>
                     </div>
@@ -684,9 +684,9 @@ const ShareManager: React.FC = () => {
                         variant={platform.status === 'active' ? 'default' : 
                                 platform.status === 'error' ? 'destructive' : 'secondary'}
                       >
-                        {platform.status === 'active' && '已连接'}
-                        {platform.status === 'inactive' && '未连接'}
-                        {platform.status === 'error' && '连接错误'}
+                        {platform.status === 'active' && t('components.text.已连接_yem')}
+                        {platform.status === 'inactive' && t('components.text.未连接_ba6')}
+                        {platform.status === 'error' && t('components.errors.连接错误')}
                       </Badge>
                       <Button variant="outline" size="sm">
                         {platform.status === 'active' ? '重新连接' : '连接'}

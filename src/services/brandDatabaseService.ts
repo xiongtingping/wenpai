@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { BrandProfile } from '@/types/brand';
 
 /**
@@ -22,8 +23,8 @@ export class BrandDatabaseService {
       const request = indexedDB.open(this.dbName, this.version);
 
       request.onerror = () => {
-        console.error('数据库初始化失败');
-        reject(new Error('数据库初始化失败'));
+        console.error(i18n.t('common.errors.数据库初始化失败'));
+        reject(new Error(i18n.t('common.errors.数据库初始化失败')));
       };
 
       request.onsuccess = () => {
@@ -59,7 +60,7 @@ export class BrandDatabaseService {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(new Error('数据库连接失败'));
+      request.onerror = () => reject(new Error(i18n.t('common.errors.数据库连接失败')));
 
       request.onsuccess = () => {
         const db = request.result;
@@ -74,8 +75,8 @@ export class BrandDatabaseService {
         };
 
         saveRequest.onerror = () => {
-          console.error('品牌档案保存失败');
-          reject(new Error('品牌档案保存失败'));
+          console.error(i18n.t('common.errors.品牌档案保存失败'));
+          reject(new Error(i18n.t('common.errors.品牌档案保存失败')));
         };
       };
     });
@@ -89,7 +90,7 @@ export class BrandDatabaseService {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(new Error('数据库连接失败'));
+      request.onerror = () => reject(new Error(i18n.t('common.errors.数据库连接失败')));
 
       request.onsuccess = () => {
         const db = request.result;
@@ -103,8 +104,8 @@ export class BrandDatabaseService {
         };
 
         getRequest.onerror = () => {
-          console.error('获取品牌档案失败');
-          reject(new Error('获取品牌档案失败'));
+          console.error(i18n.t('common.errors.获取品牌档案失败'));
+          reject(new Error(i18n.t('common.errors.获取品牌档案失败')));
         };
       };
     });
@@ -117,7 +118,7 @@ export class BrandDatabaseService {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(new Error('数据库连接失败'));
+      request.onerror = () => reject(new Error(i18n.t('common.errors.数据库连接失败')));
 
       request.onsuccess = () => {
         const db = request.result;
@@ -131,8 +132,8 @@ export class BrandDatabaseService {
         };
 
         getAllRequest.onerror = () => {
-          console.error('获取所有品牌档案失败');
-          reject(new Error('获取所有品牌档案失败'));
+          console.error(i18n.t('common.errors.获取所有品牌档案失败'));
+          reject(new Error(i18n.t('common.errors.获取所有品牌档案失败')));
         };
       };
     });
@@ -146,7 +147,7 @@ export class BrandDatabaseService {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(new Error('数据库连接失败'));
+      request.onerror = () => reject(new Error(i18n.t('common.errors.数据库连接失败')));
 
       request.onsuccess = () => {
         const db = request.result;
@@ -161,8 +162,8 @@ export class BrandDatabaseService {
         };
 
         deleteRequest.onerror = () => {
-          console.error('品牌档案删除失败');
-          reject(new Error('品牌档案删除失败'));
+          console.error(i18n.t('common.errors.品牌档案删除失败'));
+          reject(new Error(i18n.t('common.errors.品牌档案删除失败')));
         };
       };
     });

@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { BrandProfile, BrandPromptConfig } from '@/types/brand';
 
 /**
@@ -272,19 +273,19 @@ export class BrandPromptService {
     }
 
     if (config.followLanguageGuidelines) {
-      requirements.push('自动遵循品牌的语言规范');
+      requirements.push(i18n.t('services.text.自动遵循品牌的语_psx'));
     }
 
     if (config.includeBrandValues) {
-      requirements.push('融入品牌价值观');
+      requirements.push(i18n.t('services.text.融入品牌价值观_jom'));
     }
 
     if (config.maintainBrandConsistency) {
-      requirements.push('保持品牌形象始终如一');
+      requirements.push(i18n.t('services.text.保持品牌形象始终_1in'));
     }
 
     if (config.useCoreTopics) {
-      requirements.push('围绕品牌核心话题展开');
+      requirements.push(i18n.t('services.text.围绕品牌核心话题_nft'));
     }
 
     if (config.applyBrandHashtags) {

@@ -3,6 +3,7 @@
  * 提供类型安全的数据存储操作，自动处理用户隔离和权限验证
  */
 
+import i18n from '@/i18n';
 import { useState, useEffect, useCallback } from 'react';
 import { useDataStorage } from '@/utils/dataStorageManager';
 import { useAuth } from '@/hooks/useAuth';
@@ -67,7 +68,7 @@ export function useSecureStorage<T = any>(
    * 处理错误
    */
   const handleError = useCallback((err: Error) => {
-    const errorMessage = err.message || '操作失败';
+    const errorMessage = err.message || i18n.t('common.errors.操作失败');
     setError(errorMessage);
     onError?.(err);
     console.error(`存储操作失败 [${dataType}]:`, err);
@@ -214,7 +215,7 @@ export function useBatchStorage() {
         items.map(item => dataStorage.save(item.dataType, item.value))
       );
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '批量保存失败';
+      const errorMessage = err instanceof Error ? err.message : i18n.t('common.errors.批量保存失败');
       setError(errorMessage);
       throw err;
     } finally {
@@ -239,7 +240,7 @@ export function useBatchStorage() {
         return acc;
       }, {} as Record<string, T | null>);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '批量加载失败';
+      const errorMessage = err instanceof Error ? err.message : i18n.t('common.errors.批量加载失败');
       setError(errorMessage);
       throw err;
     } finally {
@@ -256,7 +257,7 @@ export function useBatchStorage() {
         dataTypes.map(dataType => dataStorage.remove(dataType))
       );
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '批量删除失败';
+      const errorMessage = err instanceof Error ? err.message : i18n.t('common.errors.批量删除失败');
       setError(errorMessage);
       throw err;
     } finally {

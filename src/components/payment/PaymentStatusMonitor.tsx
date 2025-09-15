@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,19 +33,16 @@ interface PaymentStatusMonitorProps {
   refreshInterval?: number;
 }
 
-export const PaymentStatusMonitor: React.FC<PaymentStatusMonitorProps> = ({
-  checkoutId,
+export const PaymentStatusMonitor: React.FC<any> = ({ checkoutId,
   apiKey,
   onPaymentSuccess,
   onPaymentFailed,
   autoRefresh = true,
-  refreshInterval = 3000,
-}) => {
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>({
+  refreshInterval = 3000 }) => { const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>({
     status: 'pending',
     message: '等待支付...',
     progress: 0,
-  });
+   });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
 
@@ -82,12 +80,12 @@ export const PaymentStatusMonitor: React.FC<PaymentStatusMonitorProps> = ({
         case 'failed':
         case 'cancelled':
           newStatus = 'failed';
-          message = '支付失败';
+          message = t('components.messages.支付失败');
           progress = 0;
           break;
         case 'expired':
           newStatus = 'expired';
-          message = '支付已过期';
+          message = t('components.messages.支付已过期');
           progress = 0;
           break;
         default:
@@ -119,7 +117,7 @@ export const PaymentStatusMonitor: React.FC<PaymentStatusMonitorProps> = ({
       } else if (newStatus === 'failed' && onPaymentFailed) {
         onPaymentFailed(message);
         toast({
-          title: "支付失败",
+          title: t('components.messages.支付失败'),
           description: message,
           variant: "destructive",
         });
@@ -129,7 +127,7 @@ export const PaymentStatusMonitor: React.FC<PaymentStatusMonitorProps> = ({
       console.error('获取支付状态失败:', error);
       setPaymentStatus({
         status: 'failed',
-        message: '获取支付状态失败',
+        message: t('components.errors.获取支付状态失败'),
         progress: 0,
         error: error.message,
       });

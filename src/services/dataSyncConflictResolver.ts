@@ -3,6 +3,7 @@
  * @description 处理数据同步过程中的冲突，提供多种冲突解决策略
  */
 
+import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
 
 /**
@@ -185,7 +186,7 @@ export class DataSyncConflictResolver {
         results.set(conflict.id, {
           success: false,
           strategy: ConflictResolutionStrategy.MANUAL_RESOLUTION,
-          error: error instanceof Error ? error.message : '未知错误'
+          error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误')
         });
       }
     }
@@ -296,7 +297,7 @@ export class DataSyncConflictResolver {
         success: false,
         strategy: ConflictResolutionStrategy.MERGE,
         needsManualReview: true,
-        error: error instanceof Error ? error.message : '合并失败'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.合并失败')
       };
     }
   }
@@ -325,7 +326,7 @@ export class DataSyncConflictResolver {
   private mergeData(localData: any, remoteData: any): any {
     if (typeof localData !== 'object' || typeof remoteData !== 'object') {
       // 非对象类型，无法合并，抛出错误
-      throw new Error('无法合并非对象类型的数据');
+      throw new Error(i18n.t('common.errors.无法合并非对象类型的数据'));
     }
 
     if (Array.isArray(localData) && Array.isArray(remoteData)) {
@@ -520,7 +521,7 @@ export class DataSyncConflictResolver {
         results.set(conflictId, {
           success: false,
           strategy,
-          error: error instanceof Error ? error.message : '未知错误'
+          error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误')
         });
       }
     }

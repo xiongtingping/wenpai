@@ -88,7 +88,7 @@ export abstract class PlatformAdapterBase {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : '发布失败',
+        error: error instanceof Error ? error.message : i18n.t('common.errors.发布失败'),
         platformId: this.platformId
       };
     }

@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useEffect, createContext, useContext, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { dataPreloader, useDataPreloader } from '@/services/enhancedDataPreloader';
 import { globalDataManager } from '@/services/unifiedDataManager';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,12 +36,11 @@ interface SkeletonContextState {
 
 // === Context ===
 
-const SkeletonContext = createContext<SkeletonContextState>({
-  isDataReady: false,
+const SkeletonContext = createContext<SkeletonContextState>({ isDataReady: false,
   criticalDataKeys: [],
   loadingProgress: 0,
   preloadStats: null
-});
+ });
 
 // === 数据感知组件 ===
 
@@ -128,7 +128,7 @@ export function DataAwareComponent<T>({
 
     } catch (error) {
       if (mountedRef.current) {
-        const errorMsg = error instanceof Error ? error.message : '数据加载失败';
+        const errorMsg = error instanceof Error ? error.message : t('components.errors.数据加载失败');
         const errorState: DataLoadingState = {
           isLoading: false,
           hasData: false,

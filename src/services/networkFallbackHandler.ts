@@ -3,6 +3,7 @@
  * @description 提供网络请求失败时的降级策略，确保应用在网络异常情况下的可用性
  */
 
+import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
 
 /**
@@ -150,7 +151,7 @@ export class NetworkFallbackHandler {
     try {
       // 检查网络状态
       if (this.networkStatus === NetworkStatus.OFFLINE) {
-        return await this.handleFallback<T>(config, new Error('网络离线'));
+        return await this.handleFallback<T>(config, new Error(i18n.t('common.errors.网络离线')));
       }
 
       // 执行请求
@@ -315,7 +316,7 @@ export class NetworkFallbackHandler {
         };
 
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error('未知错误');
+        lastError = error instanceof Error ? error : new Error(i18n.t('common.errors.未知错误'));
         
         if (attempt < retries) {
           logger.warn(`请求失败，${retryDelay}ms后重试 (${attempt + 1}/${retries}):`, error);
@@ -324,7 +325,7 @@ export class NetworkFallbackHandler {
       }
     }
 
-    throw lastError || new Error('请求失败');
+    throw lastError || new Error(i18n.t('common.errors.请求失败'));
   }
 
   /**
@@ -392,7 +393,7 @@ export class NetworkFallbackHandler {
       data: config.defaultData || null,
       success: !!config.defaultData,
       isDefault: true,
-      error: config.defaultData ? undefined : '无缓存数据且无默认数据',
+      error: config.defaultData ? undefined : i18n.t('common.errors.无缓存数据且无默认数据'),
       networkStatus: this.networkStatus
     };
   }

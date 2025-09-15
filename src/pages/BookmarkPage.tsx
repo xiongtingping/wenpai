@@ -99,10 +99,8 @@ interface LibraryItem {
  * 我的资料库页面组件
  * @returns React 组件
  */
-export default function BookmarkPage() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { toast } = useToast();
+export default function BookmarkPage() { const navigate = useNavigate();
+  const { toast  } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ✅ FIXED: 添加用户认证
@@ -175,7 +173,7 @@ export default function BookmarkPage() {
       if (!availability.available) {
         console.error('❌ localStorage不可用:', availability.error);
         toast({
-          title: "存储系统异常",
+          title: t('pages.labels.存储系统异常'),
           description: availability.error || "无法访问本地存储，数据可能无法保存",
           variant: "destructive"
         });
@@ -187,7 +185,7 @@ export default function BookmarkPage() {
       const cleanedCount = cleanupLocalStorageData('library_items_');
       if (cleanedCount > 0) {
         toast({
-          title: "数据清理完成",
+          title: t('pages.labels.数据清理完成'),
           description: `已清理 ${cleanedCount} 项损坏的数据`
         });
       }
@@ -198,14 +196,14 @@ export default function BookmarkPage() {
       if (success) {
         setLibraryItems(data || []);
         if (data && data.length > 0) {
-          console.log('📂 成功加载资料库数据:', data.length, '项');
+          console.log('📂 成功加载资料库数据:', data.length, t('pages.messages.项'));
         } else {
           console.log('🆕 初始化空资料库');
         }
       } else {
         console.error('❌ 加载数据失败:', error);
         toast({
-          title: "数据加载失败",
+          title: t('pages.labels.数据加载失败'),
           description: error || "无法加载已保存的数据，将从空白开始",
           variant: "destructive"
         });
@@ -232,7 +230,7 @@ export default function BookmarkPage() {
       // 显示存储使用情况
       if (saveResult.storageUsed && saveResult.storageUsed > 3 * 1024 * 1024) { // 3MB警告
         toast({
-          title: "存储空间提醒",
+          title: t('pages.labels.存储空间提醒'),
           description: `当前已使用 ${(saveResult.storageUsed / 1024 / 1024).toFixed(2)}MB 存储空间`,
         });
       }
@@ -325,7 +323,7 @@ export default function BookmarkPage() {
     if (extractMethod === 'url' && !extractUrl.trim()) {
       toast({
         title: "请输入URL",
-        description: "请提供有效的网页地址",
+        description: t('pages.messages.请提供有效的网页地址'),
         variant: "destructive"
       });
       return;
@@ -333,8 +331,8 @@ export default function BookmarkPage() {
 
     if (extractMethod === 'file' && !selectedFile) {
       toast({
-        title: "请选择文件",
-        description: "请上传要提取内容的文件",
+        title: t('pages.labels.请选择文件'),
+        description: t('pages.messages.请上传要提取内容的文件'),
         variant: "destructive"
       });
       return;
@@ -352,10 +350,10 @@ export default function BookmarkPage() {
         type: 'extraction',
         source: extractMethod === 'url' ? extractUrl : selectedFile?.name,
         sourceType: extractMethod,
-                  tags: ['内容提取', extractMethod === 'url' ? '网页提取' : selectedFile?.type.includes('image') ? 'OCR识别' : selectedFile?.type.includes('pdf') ? 'PDF提取' : '文档提取'],
+                  tags: [t('pages.labels.内容提取'), extractMethod === 'url' ? t('pages.messages.网页提取') : selectedFile?.type.includes('image') ? 'OCR识别' : selectedFile?.type.includes('pdf') ? 'PDF提取' : t('pages.messages.文档提取')],
         isFavorite: false,
         isUsed: false,
-        category: '智能提取',
+        category: t('pages.messages.智能提取'),
         summary: extractMethod === 'url' ? '从网页中智能提取的结构化内容，包含核心信息和关键观点...' : selectedFile?.type.includes('image') ? '通过OCR技术从图片中识别提取的文字内容...' : selectedFile?.type.includes('pdf') ? '从PDF文档中提取的文字和结构化信息...' : '从文档中智能提取的核心内容...',
         metadata: {
           wordCount: 350,
@@ -368,20 +366,20 @@ export default function BookmarkPage() {
 
       const updatedItems = [newItem, ...libraryItems];
       // ✅ FIXED: 使用安全的数据保存方法
-      safeUpdateLibraryItems(updatedItems, "创建收藏");
+      safeUpdateLibraryItems(updatedItems, t('pages.messages.创建收藏'));
 
       setIsAddDialogOpen(false);
       setExtractUrl('');
       setSelectedFile(null);
 
       toast({
-        title: "内容提取成功",
-        description: "内容已智能提取并添加到资料库",
+        title: t('pages.labels.内容提取成功'),
+        description: t('pages.messages.内容已智能提取并添加到资料库'),
       });
     } catch {
       toast({
-        title: "内容提取失败",
-        description: "请检查网络连接或文件格式后重试",
+        title: t('pages.messages.内容提取失败'),
+        description: t('pages.messages.请检查网络连接或文件格式后重试'),
         variant: "destructive"
       });
     } finally {
@@ -398,7 +396,7 @@ export default function BookmarkPage() {
   const createCollection = () => {
     if (!newCollection.title.trim() || !newCollection.url.trim()) {
       toast({
-        title: "请填写完整信息",
+        title: t('pages.labels.请填写完整信息'),
         description: "标题和URL不能为空",
         variant: "destructive"
       });
@@ -410,14 +408,14 @@ export default function BookmarkPage() {
     const collection: LibraryItem = {
       id: Date.now().toString(),
       title: newCollection.title.trim(),
-      content: newCollection.description.trim() || '暂无描述',
+      content: newCollection.description.trim() || t('pages.messages.暂无描述'),
       type: 'collection',
       source: newCollection.url.trim(),
       sourceType: 'url',
       tags,
       isFavorite: false,
       isUsed: false,
-      category: newCollection.category || '未分类',
+      category: newCollection.category || t('pages.messages.未分类'),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -425,14 +423,14 @@ export default function BookmarkPage() {
     const updatedItems = [collection, ...libraryItems];
     
     // ✅ FIXED: 使用安全的数据保存方法
-    safeUpdateLibraryItems(updatedItems, "收藏创建");
+    safeUpdateLibraryItems(updatedItems, t('pages.messages.收藏创建'));
 
     setNewCollection({ title: '', url: '', description: '', tags: '', category: '' });
     setIsAddDialogOpen(false);
 
     toast({
-      title: "收藏成功",
-      description: "新收藏已保存到资料库",
+      title: t('pages.labels.收藏成功'),
+      description: t('pages.messages.新收藏已保存到资料库'),
     });
   };
 
@@ -442,8 +440,8 @@ export default function BookmarkPage() {
   const createCopywriting = () => {
     if (!newCopywriting.title.trim() || !newCopywriting.content.trim()) {
       toast({
-        title: "请填写完整信息",
-        description: "标题和内容不能为空",
+        title: t('pages.labels.请填写完整信息'),
+        description: t('pages.messages.标题和内容不能为空'),
         variant: "destructive"
       });
       return;
@@ -459,7 +457,7 @@ export default function BookmarkPage() {
       tags,
       isFavorite: false,
       isUsed: false,
-      category: newCopywriting.category || '未分类',
+      category: newCopywriting.category || t('pages.messages.未分类'),
       platform: newCopywriting.platform || undefined,
       metadata: {
         wordCount: newCopywriting.content.trim().split(/\s+/).length,
@@ -472,7 +470,7 @@ export default function BookmarkPage() {
     const updatedItems = [copywriting, ...libraryItems];
     
     // ✅ FIXED: 使用安全的数据保存方法
-    safeUpdateLibraryItems(updatedItems, "文案创建");
+    safeUpdateLibraryItems(updatedItems, t('pages.messages.文案创建'));
 
     // 只有保存成功才清空表单和关闭对话框
     // 如果保存失败，safeUpdateLibraryItems会显示错误并恢复状态
@@ -480,8 +478,8 @@ export default function BookmarkPage() {
     setIsCopywritingDialogOpen(false);
 
     toast({
-      title: "文案创建成功",
-      description: "新文案已保存到资料库",
+      title: t('pages.labels.文案创建成功'),
+      description: t('pages.messages.新文案已保存到资料库'),
     });
   };
 
@@ -494,7 +492,7 @@ export default function BookmarkPage() {
     );
     
     // ✅ FIXED: 使用安全的数据保存方法
-    safeUpdateLibraryItems(updatedItems, "收藏状态更新");
+    safeUpdateLibraryItems(updatedItems, t('pages.messages.收藏状态更新'));
   };
 
   /**
@@ -506,7 +504,7 @@ export default function BookmarkPage() {
     );
     
     // ✅ FIXED: 使用安全的数据保存方法
-    safeUpdateLibraryItems(updatedItems, "使用状态更新");
+    safeUpdateLibraryItems(updatedItems, t('pages.messages.使用状态更新'));
   };
 
   /**
@@ -515,8 +513,8 @@ export default function BookmarkPage() {
   const copyContent = (content: string) => {
     navigator.clipboard.writeText(content);
     toast({
-      title: "已复制到剪贴板",
-      description: "内容已复制",
+      title: t('pages.labels.已复制到剪贴板'),
+      description: t('pages.messages.内容已复制'),
     });
   };
 
@@ -529,11 +527,11 @@ export default function BookmarkPage() {
     const updatedItems = libraryItems.filter(item => item.id !== id);
     
     // ✅ FIXED: 使用安全的数据保存方法
-    safeUpdateLibraryItems(updatedItems, "删除项目");
+    safeUpdateLibraryItems(updatedItems, t('pages.messages.删除项目'));
 
     toast({
-      title: "已删除",
-      description: "项目已从资料库中永久移除",
+      title: t('pages.labels.已删除'),
+      description: t('pages.messages.项目已从资料库中永久移除'),
     });
   };
 
@@ -565,13 +563,13 @@ export default function BookmarkPage() {
   const getTypeInfo = (type: string) => {
     switch (type) {
       case 'collection':
-        return { icon: Bookmark, name: '网络剪藏' };
+        return { icon: Bookmark, name: t('pages.messages.网络剪藏') };
       case 'extraction':
-        return { icon: Zap, name: '内容提取' };
+        return { icon: Zap, name: t('pages.labels.内容提取') };
       case 'copywriting':
-        return { icon: Brain, name: '文案管理' };
+        return { icon: Brain, name: t('pages.messages.文案管理') };
       default:
-        return { icon: FileText, name: '其他' };
+        return { icon: FileText, name: t('pages.messages.其他') };
     }
   };
 
@@ -593,13 +591,13 @@ export default function BookmarkPage() {
     );
     
     // ✅ FIXED: 使用安全的数据保存方法
-    safeUpdateLibraryItems(updatedItems, "编辑保存");
+    safeUpdateLibraryItems(updatedItems, t('pages.messages.编辑保存'));
 
     setEditingItem(null);
 
     toast({
-      title: "保存成功",
-      description: "内容已更新",
+      title: t('pages.labels.保存成功'),
+      description: t('pages.messages.内容已更新'),
     });
   };
 
@@ -686,13 +684,13 @@ export default function BookmarkPage() {
       URL.revokeObjectURL(url);
 
       toast({
-        title: "导出成功",
+        title: t('pages.labels.导出成功'),
         description: `已导出 ${allData.totalCount} 项资料到 MD 文件`,
       });
     } catch (error) {
       console.error('导出失败:', error);
       toast({
-        title: "导出失败",
+        title: t('pages.errors.导出失败'),
         description: "导出过程中发生错误，请重试",
         variant: "destructive",
       });
@@ -728,8 +726,8 @@ export default function BookmarkPage() {
 
       {/* 页面导航 */}
       <PageNavigation
-        title={t('bookmark.title')}
-        description={t('bookmark.description')}
+        title={t('pages.titles.书签管理')}
+        description={t('pages.descriptions.书签管理')}
         showAdaptButton={false}
       />
 
@@ -744,7 +742,7 @@ export default function BookmarkPage() {
               </TabsTrigger>
               <TabsTrigger value="favorites" className="unified-tab-trigger">
                 <Heart className="tab-icon" />
-                <span>{t('bookmark.myFavorites')}</span>
+                <span></span>
                 {favoritesStore.totalCount > 0 && (
                   <Badge variant="secondary" className="ml-1 text-xs px-1 py-0 h-4 min-w-4">
                     {favoritesStore.totalCount}
@@ -875,7 +873,7 @@ export default function BookmarkPage() {
             </CardContent>
           </Card>
 
-          {/* {t('bookmark.myFavorites')} */}
+          {/*  */}
           <TabsContent value="favorites" className="mt-0">
             <div className="grid gap-4">
               {favoritesStore.favorites.length === 0 ? (
@@ -917,8 +915,8 @@ export default function BookmarkPage() {
                               onClick={() => {
                                 navigator.clipboard.writeText(favorite.content);
                                 toast({
-                                  title: "复制成功",
-                                  description: "内容已复制到剪贴板",
+                                  title: t('pages.labels.复制成功'),
+                                  description: t('pages.messages.内容已复制到剪贴板'),
                                 });
                               }}
                             >
@@ -930,8 +928,8 @@ export default function BookmarkPage() {
                               onClick={() => {
                                 favoritesStore.removeFavorite(favorite.id);
                                 toast({
-                                  title: "取消收藏",
-                                  description: "已从我的收藏中移除",
+                                  title: t('pages.labels.取消收藏'),
+                                  description: t('pages.messages.已从我的收藏中移除'),
                                 });
                               }}
                               className="text-destructive hover:text-destructive"
@@ -1052,13 +1050,13 @@ export default function BookmarkPage() {
                               // 跳转到AI内容适配器并预填充内容
                               navigate('/adapt', {
                                 state: {
-                                  prefilledContent: item.content || '暂无内容',
+                                  prefilledContent: item.content || t('pages.messages.暂无内容'),
                                   source: 'library',
-                                  sourceTitle: item.title || '未命名资料'
+                                  sourceTitle: item.title || t('pages.labels.未命名资料')
                                 }
                               });
                             }}
-                            title="快速创作"
+                            title={t('pages.buttons.快速生成')}
                           >
                             <Zap className="w-4 h-4" />
                           </Button>
@@ -1105,7 +1103,7 @@ export default function BookmarkPage() {
                   <FolderOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-foreground mb-2">暂无资料</h3>
                   <p className="text-muted-foreground">
-                    {searchQuery || selectedTags.length > 0 ? '没有找到匹配的资料' : '请使用右上角的按钮开始添加您的第一个资料'}
+                    {searchQuery || selectedTags.length > 0 ? t('pages.messages.没有找到匹配的资料') : t('pages.messages.请使用右上角的按钮开始添加您的第一个资料')}
                   </p>
                 </CardContent>
               </Card>
@@ -1145,8 +1143,8 @@ export default function BookmarkPage() {
                             onClick={() => {
                               navigator.clipboard.writeText(item.content);
                               toast({
-                                title: "复制成功",
-                                description: "内容已复制到剪贴板",
+                                title: t('pages.labels.复制成功'),
+                                description: t('pages.messages.内容已复制到剪贴板'),
                               });
                             }}
                           >
@@ -1188,7 +1186,7 @@ export default function BookmarkPage() {
                     <Bookmark className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-foreground mb-2">暂无网络剪藏</h3>
                     <p className="text-muted-foreground">
-                      请使用右上角的"网络剪藏"按钮开始剪藏网络内容
+                      请使用右上角的t('pages.messages.网络剪藏')按钮开始剪藏网络内容
                     </p>
                   </CardContent>
                 </Card>
@@ -1196,7 +1194,7 @@ export default function BookmarkPage() {
             </div>
           </TabsContent>
 
-          {/* {t('bookmark.copywritingManagement')} */}
+          {/*  */}
           <TabsContent value="copywriting" className="mt-0">
             <div className="grid gap-4">
               {copywritingItems.map((item) => {
@@ -1229,8 +1227,8 @@ export default function BookmarkPage() {
                             onClick={() => {
                               navigator.clipboard.writeText(item.content);
                               toast({
-                                title: "复制成功",
-                                description: "内容已复制到剪贴板",
+                                title: t('pages.labels.复制成功'),
+                                description: t('pages.messages.内容已复制到剪贴板'),
                               });
                             }}
                           >
@@ -1270,9 +1268,9 @@ export default function BookmarkPage() {
                 <Card>
                   <CardContent className="p-12 text-center">
                     <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">{t('bookmark.noCopywriting')}</h3>
+                    <h3 className="text-lg font-medium text-foreground mb-2"></h3>
                     <p className="text-muted-foreground">
-                      {t('bookmark.noCopywritingDescription')}
+                      
                     </p>
                   </CardContent>
                 </Card>
@@ -1296,7 +1294,7 @@ export default function BookmarkPage() {
                 <Input
                   value={newCollection.title}
                   onChange={(e) => setNewCollection({ ...newCollection, title: e.target.value })}
-                  placeholder="输入收藏标题"
+                  placeholder={t('components.labels.占位符')}
                 />
               </div>
               <div>
@@ -1304,7 +1302,7 @@ export default function BookmarkPage() {
                 <Input
                   value={newCollection.url}
                   onChange={(e) => setNewCollection({ ...newCollection, url: e.target.value })}
-                  placeholder="输入网页链接"
+                  placeholder={t('pages.messages.输入网页链接')}
                 />
               </div>
               <div>
@@ -1359,7 +1357,7 @@ export default function BookmarkPage() {
                 <Input
                   value={newCopywriting.title}
                   onChange={(e) => setNewCopywriting({ ...newCopywriting, title: e.target.value })}
-                  placeholder="输入文案标题"
+                  placeholder={t('components.labels.占位符')}
                 />
               </div>
               <div>
@@ -1367,8 +1365,8 @@ export default function BookmarkPage() {
                 <Textarea
                   value={newCopywriting.content}
                   onChange={(e) => setNewCopywriting({ ...newCopywriting, content: e.target.value })}
-                  placeholder="输入文案内容"
-                  rows={8}
+                  placeholder={t('components.labels.占位符')}
+        rows={8}
                 />
               </div>
               <div>
@@ -1413,8 +1411,8 @@ export default function BookmarkPage() {
             <DialogHeader>
               <DialogTitle>编辑内容</DialogTitle>
               <DialogDescription>
-                修改{editingItem?.type === 'collection' ? '网络收藏' : 
-                     editingItem?.type === 'extraction' ? '内容提取' : '文案管理'}内容
+                修改{editingItem?.type === 'collection' ? t('pages.messages.网络收藏') : 
+                     editingItem?.type === 'extraction' ? t('pages.labels.内容提取') : t('pages.messages.文案管理')}内容
               </DialogDescription>
             </DialogHeader>
             {editingItem && (
@@ -1424,7 +1422,7 @@ export default function BookmarkPage() {
                   <Input
                     value={editingItem.title}
                     onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                    placeholder="输入标题"
+                    placeholder={t('components.labels.占位符')}
                   />
                 </div>
                 <div>
@@ -1432,8 +1430,8 @@ export default function BookmarkPage() {
                   <Textarea
                     value={editingItem.content}
                     onChange={(e) => setEditingItem({ ...editingItem, content: e.target.value })}
-                    placeholder="输入内容"
-                    rows={8}
+                    placeholder={t('components.labels.占位符')}
+        rows={8}
                   />
                 </div>
                 {editingItem.type === 'collection' && (
@@ -1463,7 +1461,7 @@ export default function BookmarkPage() {
                     <Input
                       value={editingItem.category || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
-                      placeholder="分类名称"
+                      placeholder={t('components.labels.占位符')}
                     />
                   </div>
                 </div>
@@ -1473,7 +1471,7 @@ export default function BookmarkPage() {
                     <Input
                       value={editingItem.platform || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, platform: e.target.value })}
-                      placeholder="发布平台"
+                      placeholder={t('components.labels.占位符')}
                     />
                   </div>
                 )}
@@ -1505,8 +1503,8 @@ export default function BookmarkPage() {
                 </Button>
               </div>
               <DialogDescription>
-                {viewingItem?.type === 'collection' ? '网络收藏' : 
-                 viewingItem?.type === 'extraction' ? '内容提取' : '文案管理'}
+                {viewingItem?.type === 'collection' ? t('pages.messages.网络收藏') : 
+                 viewingItem?.type === 'extraction' ? t('pages.labels.内容提取') : t('pages.messages.文案管理')}
                 {viewingItem?.source && ` • 来源：${viewingItem.source}`}
               </DialogDescription>
             </DialogHeader>

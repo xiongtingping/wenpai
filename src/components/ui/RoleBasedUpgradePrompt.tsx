@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Zap, Lock, ArrowRight } from 'lucide-react';
@@ -30,14 +31,11 @@ interface RoleBasedUpgradePromptProps {
 /**
  * 基于用户角色的升级提示组件
  */
-export const RoleBasedUpgradePrompt: React.FC<RoleBasedUpgradePromptProps> = ({
-  requiredTier,
+export const RoleBasedUpgradePrompt: React.FC<any> = ({ requiredTier,
   featureName,
   description,
   mode = 'compact',
-  className = ''
-}) => {
-  const { user, isAuthenticated } = useAuth();
+  className = '' }) => { const { user, isAuthenticated  } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -105,7 +103,7 @@ export const RoleBasedUpgradePrompt: React.FC<RoleBasedUpgradePromptProps> = ({
           className={`${theme.badgeColor} font-medium border-dashed`}
         >
           <Lock className={`h-3 w-3 mr-1 ${theme.lockColor}`} />
-{requiredTier === 'pro' ? '专业版/高级版专属' : '高级版专属'}
+{requiredTier === 'pro' ? '专业版/高级版专属' : t('components.messages.高级版专属')}
         </Badge>
 
         {/* 升级按钮 */}
@@ -144,7 +142,7 @@ export const RoleBasedUpgradePrompt: React.FC<RoleBasedUpgradePromptProps> = ({
               {featureName}
             </h3>
             <Badge variant="outline" className={`${theme.badgeColor} text-xs`}>
-    {requiredTier === 'pro' ? '专业版/高级版专属' : '高级版专属'}
+    {requiredTier === 'pro' ? '专业版/高级版专属' : t('components.messages.高级版专属')}
             </Badge>
           </div>
           

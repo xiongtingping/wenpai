@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,8 +26,7 @@ interface QuickReferenceItemListProps {
   onAddNew?: () => void;
 }
 
-export function QuickReferenceItemList({
-  items,
+export function QuickReferenceItemList({ items,
   type,
   loading = false,
   error = null,
@@ -36,7 +36,7 @@ export function QuickReferenceItemList({
   onItemSelect,
   onRefresh,
   onAddNew
-}: QuickReferenceItemListProps) {
+ }: QuickReferenceItemListProps) {
 
   /**
    * 获取类型信息
@@ -46,34 +46,34 @@ export function QuickReferenceItemList({
       case 'brand':
         return {
           icon: Database,
-          label: '品牌库',
-          emptyTitle: '暂无品牌库内容',
+          label: t('components.labels.品牌库'),
+          emptyTitle: t('components.labels.暂无品牌库内容'),
           emptyDescription: '您还没有添加任何品牌资产或语料库内容',
-          addButtonText: '添加品牌资产'
+          addButtonText: t('components.actions.添加品牌资产')
         };
       case 'library':
         return {
           icon: Bookmark,
-          label: '资料库',
-          emptyTitle: '暂无资料库内容',
+          label: t('components.labels.资料库'),
+          emptyTitle: t('components.labels.暂无资料库内容'),
           emptyDescription: '您还没有收藏任何资料到个人资料库',
-          addButtonText: '添加资料'
+          addButtonText: t('components.actions.添加资料')
         };
       case 'radar':
         return {
           icon: Radar,
-          label: '雷达收藏',
-          emptyTitle: '暂无雷达收藏内容',
+          label: t('components.labels.雷达收藏'),
+          emptyTitle: t('components.labels.暂无雷达收藏内容'),
           emptyDescription: '您还没有收藏任何热点话题或雷达内容',
-          addButtonText: '浏览热点'
+          addButtonText: t('components.actions.浏览热点')
         };
       default:
         return {
           icon: Database,
-          label: '内容',
-          emptyTitle: '暂无内容',
+          label: t('components.labels.内容'),
+          emptyTitle: t('components.labels.暂无内容'),
           emptyDescription: '暂时没有可用的内容',
-          addButtonText: '添加内容'
+          addButtonText: t('components.actions.添加内容')
         };
     }
   };

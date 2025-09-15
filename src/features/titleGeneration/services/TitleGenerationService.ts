@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 /**
  * 标题生成服务
  * 核心业务逻辑，协调各个服务组件
@@ -483,7 +484,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       /^\d+\.\s*(.+)$/gm,  // 1. 标题
       /^-\s*(.+)$/gm,      // - 标题
       /^\*\s*(.+)$/gm,     // * 标题
-      /^"(.+)"$/gm,        // "标题"
+      /^"(.+)"$/gm,        // i18n.t('services.text.标题_1p2')
       /^【(.+)】$/gm        // 【标题】
     ];
 

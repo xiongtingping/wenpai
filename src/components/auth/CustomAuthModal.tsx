@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,12 +15,9 @@ interface CustomAuthModalProps {
   defaultTab?: 'login' | 'register';
 }
 
-export const CustomAuthModal: React.FC<CustomAuthModalProps> = ({
-  isOpen,
+export const CustomAuthModal: React.FC<any> = ({ isOpen,
   onClose,
-  defaultTab = 'login'
-}) => {
-  const { handleAuthingLogin } = useUnifiedAuth();
+  defaultTab = 'login' }) => { const { handleAuthingLogin  } = useUnifiedAuth();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +64,7 @@ export const CustomAuthModal: React.FC<CustomAuthModalProps> = ({
       }
     } catch (error: any) {
       console.error('❌ 登录失败:', error);
-      setError(error.message || '登录失败');
+      setError(error.message || t('components.errors.登录失败'));
     } finally {
       setLoading(false);
     }
@@ -99,7 +97,7 @@ export const CustomAuthModal: React.FC<CustomAuthModalProps> = ({
       }
     } catch (error: any) {
       console.error('❌ 注册失败:', error);
-      setError(error.message || '注册失败');
+      setError(error.message || t('components.errors.注册失败'));
     } finally {
       setLoading(false);
     }
@@ -121,7 +119,7 @@ export const CustomAuthModal: React.FC<CustomAuthModalProps> = ({
       console.log('✅ 验证码发送成功');
     } catch (error: any) {
       console.error('❌ 验证码发送失败:', error);
-      setError(error.message || '验证码发送失败');
+      setError(error.message || t('components.errors.验证码发送失败'));
     }
   };
 

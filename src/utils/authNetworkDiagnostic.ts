@@ -3,6 +3,7 @@
  * 解决认证超时问题的系统性方案
  */
 
+import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
 import { getAuthingConfig } from '@/config/authing';
 
@@ -96,7 +97,7 @@ export class AuthNetworkDiagnostic {
       return {
         success: false,
         latency,
-        error: error.message || '未知网络错误',
+        error: error.message || i18n.t('utils.errors.未知网络错误'),
         suggestions
       };
     }
@@ -175,7 +176,7 @@ export class AuthRetryManager {
     
     // 所有重试都失败了
     console.error(`❌ ${operationName} - 所有重试都失败`);
-    throw new Error(`${operationName}失败: ${lastError?.message || '未知错误'} (已重试${this.config.maxRetries}次)`);
+    throw new Error(`${operationName}失败: ${lastError?.message || i18n.t('utils.errors.未知错误')} (已重试${this.config.maxRetries}次)`);
   }
 
   /**
@@ -260,7 +261,7 @@ export class AuthErrorAnalyzer {
     // 服务器错误
     if (message.includes('5') && message.includes('0')) {
       return {
-        category: '服务器错误',
+        category: i18n.t('utils.text.服务器错误_g7x'),
         severity: 'high',
         suggestions: [
           'Authing服务暂时不可用',
@@ -273,7 +274,7 @@ export class AuthErrorAnalyzer {
     
     // 默认错误
     return {
-      category: '未知错误',
+      category: i18n.t('utils.errors.未知错误'),
       severity: 'medium',
       suggestions: [
         '请稍后重试',

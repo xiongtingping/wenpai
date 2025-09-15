@@ -10,6 +10,7 @@
  * 
  */
 
+import i18n from '@/i18n';
 import request from '../../api/request';
 import type { AIProviderInterface } from '../types';
 import { logger } from '@/utils/logger';
@@ -101,15 +102,7 @@ export class OpenAIProvider implements AIProviderInterface {
       });
 
       if (!this.isConfigured()) {
-        throw new Error('OpenAI API密钥未配置');
-      }
-
-      const messages = [];
-      
-      // 添加系统提示词
-      if (params.systemPrompt) {
-        messages.push({
-          role: 'system',
+        throw new Error(i18n.t('aiProviders.openai.keyNotConfiguredi18n.t('ai.message._qtl')system',
           content: params.systemPrompt
         });
       }
@@ -143,7 +136,7 @@ export class OpenAIProvider implements AIProviderInterface {
       const responseTime = Date.now() - startTime;
       const content = response.choices?.[0]?.message?.content || '';
       
-      logger.debug('✅ OpenAI内容生成成功:', {
+      logger.debug(i18n.t('ai.status.OpenAI_j9a'), {
         model: requestData.model,
         responseTime: `${responseTime}ms`,
         contentLength: content.length,
@@ -159,13 +152,13 @@ export class OpenAIProvider implements AIProviderInterface {
 
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      console.error('❌ OpenAI内容生成失败:', error);
+      console.error(i18n.t('ai.error.OpenAI_av9'), error);
       
       return {
         success: false,
         content: '',
         model: params.model || 'gpt-4o',
-        error: error instanceof Error ? error.message : 'OpenAI调用失败'
+        error: error instanceof Error ? error.message : i18n.t('ai.error.OpenAI调用_psc')
       };
     }
   }
@@ -195,7 +188,7 @@ export class OpenAIProvider implements AIProviderInterface {
       });
 
       if (!this.isConfigured()) {
-        throw new Error('OpenAI API密钥未配置');
+        throw new Error(i18n.t('aiProviders.openai.keyNotConfigured'));
       }
 
       const requestData = {
@@ -216,7 +209,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
       const images = response.data?.map((item: any) => item.url) || [];
       
-      logger.debug('✅ OpenAI图像生成成功:', {
+      logger.debug(i18n.t('ai.status.OpenAI_w5n'), {
         model: requestData.model,
         imagesCount: images.length
       });
@@ -228,13 +221,13 @@ export class OpenAIProvider implements AIProviderInterface {
       };
 
     } catch (error) {
-      console.error('❌ OpenAI图像生成失败:', error);
+      console.error(i18n.t('ai.error.OpenAI_i61'), error);
       
       return {
         success: false,
         images: [],
         model: params.model || 'dall-e-3',
-        error: error instanceof Error ? error.message : 'OpenAI图像生成失败'
+        error: error instanceof Error ? error.message : i18n.t('ai.error.OpenAI图像_kg7')
       };
     }
   }

@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Smile, Heart, Star, Zap, Image, Globe } from 'lucide-react';
 import { Button } from './button';
 import { Input } from './input';
@@ -49,15 +50,12 @@ interface EmojiPickerProps {
 /**
  * Emoji 选择器组件
  */
-export const EmojiPicker: React.FC<EmojiPickerProps> = ({
-  onSelect,
+export const EmojiPicker: React.FC<any> = ({ onSelect,
   open = false,
   onClose,
   className = '',
   displayMode = 'unicode',
-  defaultCDNType = 'noto-color'
-}) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  defaultCDNType = 'noto-color' }) => { const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('popular');
   const [currentDisplayMode, setCurrentDisplayMode] = useState<EmojiDisplayMode>(displayMode);
   const [currentCDNType, setCurrentCDNType] = useState(defaultCDNType);
@@ -68,7 +66,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   const filteredEmojis = useMemo(() => {
     if (searchQuery.trim()) {
       return searchEmojis(searchQuery);
-    }
+     }
     
     switch (selectedCategory) {
       case 'popular':
@@ -133,15 +131,15 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
 
   // 分类配置
   const categories = [
-    { id: 'popular', label: '热门', icon: Star },
-    { id: 'smileys', label: '表情', icon: Smile },
-    { id: 'animals', label: '动物', icon: Heart },
-    { id: 'food', label: '食物', icon: Zap },
-    { id: 'activity', label: '活动', icon: Zap },
-    { id: 'travel', label: '旅行', icon: Zap },
-    { id: 'objects', label: '物体', icon: Zap },
-    { id: 'symbols', label: '符号', icon: Zap },
-    { id: 'flags', label: '旗帜', icon: Zap }
+    { id: 'popular', label: t('components.labels.热门'), icon: Star },
+    { id: 'smileys', label: t('components.labels.表情'), icon: Smile },
+    { id: 'animals', label: t('components.labels.动物'), icon: Heart },
+    { id: 'food', label: t('components.labels.食物'), icon: Zap },
+    { id: 'activity', label: t('components.labels.活动'), icon: Zap },
+    { id: 'travel', label: t('components.labels.旅行'), icon: Zap },
+    { id: 'objects', label: t('components.labels.物体'), icon: Zap },
+    { id: 'symbols', label: t('components.labels.符号'), icon: Zap },
+    { id: 'flags', label: t('components.labels.旗帜'), icon: Zap }
   ];
 
   if (!open) return null;

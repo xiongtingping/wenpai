@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,7 +28,7 @@ import type { SubscriptionTier } from '@/types/subscription';
 /**
  * 测试结果显示组件
  */
-function TestResultDisplay({ result, title }: { result: any; title: string }) {
+function TestResultDisplay({ result, title  }: { result: any; title: string }) {
   if (!result) return null;
 
   const isSuccess = result.success;
@@ -107,14 +108,14 @@ export function TokenStatsDebugPanel() {
       // setTestReport(report);
       
       // 临时模拟结果
-      const mockResults = { success: true, message: '测试功能暂时不可用' };
+      const mockResults = { success: true, message: t('components.messages.测试功能暂时不可用') };
       setTestResults(mockResults);
       setTestReport('TokenStatsTester 模块暂时不可用');
 
       console.log('✅ Token统计功能测试完成:', mockResults);
     } catch (error) {
       console.error('❌ Token统计功能测试失败:', error);
-      setTestReport(`# 测试执行失败\n\n错误: ${error instanceof Error ? error.message : '未知错误'}`);
+      setTestReport(`# 测试执行失败\n\n错误: ${error instanceof Error ? error.message : t('components.errors.未知错误')}`);
     } finally {
       setIsRunning(false);
     }
@@ -133,7 +134,7 @@ export function TokenStatsDebugPanel() {
       
       alert('测试记录创建功能暂时不可用');
     } catch (error) {
-      alert(`创建测试记录失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      alert(`创建测试记录失败: ${error instanceof Error ? error.message : t('components.errors.未知错误')}`);
     }
   };
 
@@ -156,7 +157,7 @@ export function TokenStatsDebugPanel() {
         alert(`统计查询失败: ${result.error}`);
       }
     } catch (error) {
-      alert(`测试统计查询失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      alert(`测试统计查询失败: ${error instanceof Error ? error.message : t('components.errors.未知错误')}`);
     }
   };
 
@@ -281,7 +282,7 @@ export function TokenStatsDebugPanel() {
               />
               <TestResultDisplay 
                 result={testResults.results.featureStatsQuery} 
-                title="功能统计查询" 
+                title={t('components.labels.功能统计查询')} 
               />
             </div>
           </div>

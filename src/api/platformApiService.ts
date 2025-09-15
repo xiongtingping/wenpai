@@ -3,6 +3,7 @@
  * 支持主流平台的内容直接发布功能
  * 需要用户配置相应的API密钥和授权信息
  */
+import i18n from '@/i18n';
 import request from './request';
 
 /**
@@ -208,10 +209,10 @@ async function publishToWeibo(content: PublishContent, config: PlatformApiConfig
         response: data
       };
     } else {
-      return { success: false, error: data.error || '发布失败' };
+      return { success: false, error: data.error || i18n.t('api.errors.发布失败') };
     }
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : '网络错误' };
+    return { success: false, error: error instanceof Error ? error.message : i18n.t('api.errors.网络错误') };
   }
 }
 
@@ -229,7 +230,7 @@ async function publishToZhihu(content: PublishContent, config: PlatformApiConfig
 
     // 知乎API需要先创建草稿，然后发布
     const draftData = await request.post(`${config.apiBaseUrl}/drafts`, {
-      title: content.title || '新文章',
+      title: content.title || i18n.t('api.labels.新文章'),
       content: content.text,
       topics: content.hashtags || []
     }, {
@@ -252,9 +253,9 @@ async function publishToZhihu(content: PublishContent, config: PlatformApiConfig
       }
     }
     
-    return { success: false, error: '发布失败' };
+    return { success: false, error: i18n.t('api.errors.发布失败') };
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : '网络错误' };
+    return { success: false, error: error instanceof Error ? error.message : i18n.t('api.errors.网络错误') };
   }
 }
 
@@ -287,10 +288,10 @@ async function publishToTwitter(content: PublishContent, config: PlatformApiConf
         response: data
       };
     } else {
-      return { success: false, error: data.errors?.[0]?.message || '发布失败' };
+      return { success: false, error: data.errors?.[0]?.message || i18n.t('api.errors.发布失败') };
     }
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : '网络错误' };
+    return { success: false, error: error instanceof Error ? error.message : i18n.t('api.errors.网络错误') };
   }
 }
 
@@ -303,7 +304,7 @@ async function publishToTwitter(content: PublishContent, config: PlatformApiConf
 export async function publishContent(platformId: string, content: PublishContent): Promise<PublishResult> {
   const config = loadPlatformApiConfig(platformId);
   if (!config) {
-    return { success: false, error: '平台配置不存在' };
+    return { success: false, error: i18n.t('api.errors.平台配置不存在') };
   }
 
   switch (platformId) {
@@ -334,7 +335,7 @@ export async function batchPublishContent(platforms: string[], content: PublishC
     } catch (error) {
       results.push({
         success: false,
-        error: error instanceof Error ? error.message : '发布失败'
+        error: error instanceof Error ? error.message : i18n.t('api.errors.发布失败')
       });
     }
   }

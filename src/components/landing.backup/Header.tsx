@@ -9,26 +9,25 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserAvatar } from "@/components/auth/UserAvatar"
 import { useToast } from "@/hooks/use-toast"
 
-const HelpDocumentation = () => {
-  const topics = [
+const HelpDocumentation = () => { const topics = [
     {
-      title: "内容适配",
+      title: t('components.labels.内容适配'),
       content: "文派AI可根据平台特性智能转换您的内容，调整文风、排版和互动元素，无需手动修改即可适配各平台。"
-    },
+     },
     {
-      title: "创意魔方",
+      title: t('components.labels.创意魔方'),
       content: "九宫格创意魔方、营销日历、文案管理等创意工具，帮助您快速生成创意内容，提升创作效率。"
     },
     {
-      title: "全网雷达",
-      content: "全网雷达"
+      title: t('components.labels.全网雷达'),
+      content: t('components.labels.全网雷达')
     },
     {
-      title: "我的资料库",
+      title: t('components.labels.我的资料库'),
       content: "管理网络收藏、内容提取、文案库等，为您的创作提供丰富的素材支持。"
     },
     {
-              title: "内容提取",
+              title: t('components.labels.内容提取'),
       content: "智能提取网页、文档内容，支持多种格式转换，快速获取创作素材。"
     },
     {
@@ -36,11 +35,11 @@ const HelpDocumentation = () => {
       content: "AI驱动的emoji图片生成器，支持多种风格和定制选项，提升内容视觉表现力。"
     },
     {
-      title: "品牌库",
-      content: "品牌库"
+      title: t('components.labels.品牌库'),
+      content: t('components.labels.品牌库')
     },
     {
-      title: "一键转发",
+      title: t('components.labels.一键转发'),
       content: "支持一键将内容转发到多个平台，自动适配各平台格式要求。"
     }
   ]

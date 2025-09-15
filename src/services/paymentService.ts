@@ -3,6 +3,7 @@
  * 处理支付相关的API调用和业务逻辑
  */
 
+import i18n from '@/i18n';
 import { securityUtils } from '@/lib/security';
 import request from '@/api/request';
 
@@ -68,7 +69,7 @@ export class PaymentService {
       securityUtils.secureLog('支付订单创建成功', { orderId: order.id, amount });
       return order;
     } catch (error: any) {
-      securityUtils.secureLog('创建支付订单失败', { error: error.message }, 'error');
+      securityUtils.secureLog(i18n.t('common.errors.创建支付订单失败'), { error: error.message }, 'error');
       throw error;
     }
   }
@@ -89,7 +90,7 @@ export class PaymentService {
       securityUtils.secureLog('支付验证结果', { orderId, success: result.success });
       return result.success;
     } catch (error: any) {
-      securityUtils.secureLog('验证支付失败', { orderId, error: error.message }, 'error');
+      securityUtils.secureLog(i18n.t('common.errors.验证支付失败'), { orderId, error: error.message }, 'error');
       throw error;
     }
   }
@@ -104,7 +105,7 @@ export class PaymentService {
           'Authorization': `Bearer ${this.getAuthToken()}`,
         },
       });
-      securityUtils.secureLog('会员升级成功', {
+      securityUtils.secureLog(i18n.t('common.messages.会员升级成功'), {
         planTier: payload.planTier,
         planPeriod: payload.planPeriod
       });
@@ -112,10 +113,10 @@ export class PaymentService {
       return {
         success: true,
         subscription: result.subscription,
-        message: '会员升级成功',
+        message: i18n.t('common.messages.会员升级成功'),
       };
     } catch (error: any) {
-      securityUtils.secureLog('升级会员失败', {
+      securityUtils.secureLog(i18n.t('common.messages.升级会员失败'), {
         planTier: payload.planTier,
         error: error.message
       }, 'error');
@@ -124,7 +125,7 @@ export class PaymentService {
         success: false,
         subscription: null,
         error: error.message,
-        message: '升级会员失败',
+        message: i18n.t('common.messages.升级会员失败'),
       };
     }
   }
@@ -141,7 +142,7 @@ export class PaymentService {
       });
       return order;
     } catch (error: any) {
-      securityUtils.secureLog('获取订单状态失败', { orderId, error: error.message }, 'error');
+      securityUtils.secureLog(i18n.t('common.errors.获取订单状态失败'), { orderId, error: error.message }, 'error');
       throw error;
     }
   }
@@ -162,7 +163,7 @@ export class PaymentService {
       });
       return history;
     } catch (error: any) {
-      securityUtils.secureLog('获取支付历史失败', { userId, error: error.message }, 'error');
+      securityUtils.secureLog(i18n.t('common.errors.获取支付历史失败'), { userId, error: error.message }, 'error');
       throw error;
     }
   }
@@ -175,7 +176,7 @@ export class PaymentService {
       // 1. 验证支付
       const isPaymentValid = await this.verifyPayment(orderId, paymentData);
       if (!isPaymentValid) {
-        throw new Error('支付验证失败');
+        throw new Error(i18n.t('common.errors.支付验证失败'));
       }
 
       // 2. 获取订单信息
@@ -190,7 +191,7 @@ export class PaymentService {
 
       securityUtils.secureLog('支付成功处理完成', { orderId });
     } catch (error: any) {
-      securityUtils.secureLog('处理支付成功失败', { orderId, error: error.message }, 'error');
+      securityUtils.secureLog(i18n.t('common.errors.处理支付成功失败'), { orderId, error: error.message }, 'error');
       throw error;
     }
   }

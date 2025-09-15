@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/hooks/useTheme';
 
 interface ThemeAwareLogoProps {
@@ -17,8 +18,7 @@ interface ThemeAwareLogoProps {
   showBackground?: boolean;
 }
 
-const sizeClasses = {
-  sm: 'w-6 h-6',
+const sizeClasses = {sm: 'w-6 h-6',
   md: 'w-9 h-9',
   lg: 'w-10 h-10',
   xl: 'w-12 h-12'
@@ -106,7 +106,7 @@ const spacingClasses = {
 };
 
 export const LogoWithText: React.FC<LogoWithTextProps> = ({
-  text = '文派',
+  text = t('components.messages.文派'),
   textSize = 'lg',
   textClassName = '',
   spacing = 'md',

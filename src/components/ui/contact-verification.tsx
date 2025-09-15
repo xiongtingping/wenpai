@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,13 +27,12 @@ interface ContactVerificationProps {
 /**
  * 联系方式验证组件
  */
-export function ContactVerification({
-  currentPhone = '',
+export function ContactVerification({ currentPhone = '',
   currentEmail = '',
   onPhoneChange,
   onEmailChange,
   disabled = false
-}: ContactVerificationProps) {
+ }: ContactVerificationProps) {
   const [phone, setPhone] = useState(currentPhone);
   const [email, setEmail] = useState(currentEmail);
   const [phoneCode, setPhoneCode] = useState('');
@@ -76,8 +76,8 @@ export function ContactVerification({
   const sendPhoneCode = async () => {
     if (!validatePhone(phone)) {
       toast({
-        title: "手机号格式错误",
-        description: "请输入正确的手机号",
+        title: t('components.labels.手机号格式错误'),
+        description: t('components.messages.请输入正确的手机号'),
         variant: "destructive"
       });
       return;
@@ -90,13 +90,13 @@ export function ContactVerification({
       
       setPhoneCountdown(60);
       toast({
-        title: "验证码已发送",
-        description: "请查看您的手机短信",
+        title: t('components.labels.验证码已发送'),
+        description: t('components.messages.请查看您的手机短信'),
       });
     } catch (error) {
       console.error('发送手机验证码失败:', error);
       toast({
-        title: "发送失败",
+        title: t('components.labels.发送失败'),
         description: "验证码发送失败，请重试",
         variant: "destructive"
       });
@@ -111,8 +111,8 @@ export function ContactVerification({
   const verifyPhoneCode = async () => {
     if (!phoneCode.trim()) {
       toast({
-        title: "验证码不能为空",
-        description: "请输入验证码",
+        title: t('components.labels.验证码不能为空'),
+        description: t('components.messages.请输入验证码'),
         variant: "destructive"
       });
       return;
@@ -128,20 +128,20 @@ export function ContactVerification({
         setPhoneVerified(true);
         onPhoneChange?.(phone);
         toast({
-          title: "手机号验证成功",
-          description: "您的手机号已验证",
+          title: t('components.labels.手机号验证成功'),
+          description: t('components.messages.您的手机号已验证'),
         });
       } else {
         toast({
-          title: "验证码错误",
-          description: "请输入正确的验证码",
+          title: t('components.labels.验证码错误'),
+          description: t('components.messages.请输入正确的验证码'),
           variant: "destructive"
         });
       }
     } catch (error) {
       console.error('验证手机验证码失败:', error);
       toast({
-        title: "验证失败",
+        title: t('components.labels.验证失败'),
         description: "验证码验证失败，请重试",
         variant: "destructive"
       });
@@ -156,8 +156,8 @@ export function ContactVerification({
   const verifyEmail = async () => {
     if (!validateEmail(email)) {
       toast({
-        title: "邮箱格式错误",
-        description: "请输入正确的邮箱地址",
+        title: t('components.labels.邮箱格式错误'),
+        description: t('components.messages.请输入正确的邮箱地址'),
         variant: "destructive"
       });
       return;
@@ -172,13 +172,13 @@ export function ContactVerification({
       setEmailVerified(true);
       onEmailChange?.(email);
       toast({
-        title: "邮箱验证成功",
-        description: "您的邮箱已验证",
+        title: t('components.labels.邮箱验证成功'),
+        description: t('components.messages.您的邮箱已验证'),
       });
     } catch (error) {
       console.error('验证邮箱失败:', error);
       toast({
-        title: "验证失败",
+        title: t('components.labels.验证失败'),
         description: "邮箱验证失败，请重试",
         variant: "destructive"
       });
@@ -212,8 +212,8 @@ export function ContactVerification({
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="请输入手机号"
-                disabled={disabled || phoneVerified}
+                placeholder={t('components.labels.占位符')}
+        disabled={disabled || phoneVerified}
                 maxLength={11}
               />
               {!phoneVerified && (
@@ -222,7 +222,7 @@ export function ContactVerification({
                   disabled={disabled || isSendingPhoneCode || phoneCountdown > 0 || !validatePhone(phone)}
                   size="sm"
                 >
-                  {isSendingPhoneCode ? '发送中...' : phoneCountdown > 0 ? `${phoneCountdown}s` : '发送验证码'}
+                  {isSendingPhoneCode ? '发送中...' : phoneCountdown > 0 ? `${phoneCountdown}s` : t('components.messages.发送验证码')}
                 </Button>
               )}
             </div>
@@ -245,7 +245,7 @@ export function ContactVerification({
                   disabled={disabled || isVerifyingPhone || !phoneCode.trim()}
                   size="sm"
                 >
-                  {isVerifyingPhone ? '验证中...' : '验证'}
+                  {isVerifyingPhone ? '验证中...' : t('components.messages.验证')}
                 </Button>
               </div>
             </div>
@@ -283,8 +283,8 @@ export function ContactVerification({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="请输入邮箱地址"
-                disabled={disabled || emailVerified}
+                placeholder={t('components.labels.占位符')}
+        disabled={disabled || emailVerified}
               />
               {!emailVerified && (
                 <Button
@@ -292,7 +292,7 @@ export function ContactVerification({
                   disabled={disabled || isVerifyingEmail || !validateEmail(email)}
                   size="sm"
                 >
-                  {isVerifyingEmail ? '验证中...' : '验证'}
+                  {isVerifyingEmail ? '验证中...' : t('components.messages.验证')}
                 </Button>
               )}
             </div>

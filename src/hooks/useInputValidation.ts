@@ -219,7 +219,7 @@ export function useInputValidation(
   const getRiskLevelClass = () => {
     switch (state.riskLevel) {
       case 'critical':
-        return 'border-red-500 bg-red-50 text-red-900';
+        return 'border-destructive bg-red-50 text-red-900';
       case 'high':
         return 'border-orange-500 bg-orange-50 text-orange-900';
       case 'medium':

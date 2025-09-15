@@ -3,6 +3,7 @@
  * 前端安全调用，不直接使用Creem SDK，避免API密钥泄露
  */
 
+import i18n from '@/i18n';
 import QRCode from "qrcode";
 import { createCreemCheckout as directCreateCheckout } from "./creemService";
 import request from './request';
@@ -45,7 +46,7 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
   try {
     // 检查网络连接
     if (!navigator.onLine) {
-      throw new Error('网络连接不可用');
+      throw new Error(i18n.t('api.errors.网络连接不可用'));
     }
 
     const apiEndpoint = getAPIEndpoint();
@@ -116,7 +117,7 @@ export async function getAlipayQRCode(priceId: string, customerEmail?: string) {
       null;
 
     if (!alipayQr) {
-      throw new Error('该产品未配置支付宝二维码支付');
+      throw new Error(i18n.t('api.errors.该产品未配置支付宝二维码支付'));
     }
 
     return {
@@ -154,7 +155,7 @@ export async function generateAlipayQRCode(priceId: string, customerEmail?: stri
     const qrResult = await getAlipayQRCode(priceId, customerEmail);
     
     if (!qrResult.success || !qrResult.qrUrl) {
-      throw new Error('无法获取支付链接');
+      throw new Error(i18n.t('api.errors.无法获取支付链接'));
     }
 
     // 生成二维码图片
@@ -189,7 +190,7 @@ export async function startCheckout(priceId: string, customerEmail?: string) {
   try {
     // 检查网络连接
     if (!navigator.onLine) {
-      throw new Error('网络连接不可用');
+      throw new Error(i18n.t('api.errors.网络连接不可用'));
     }
 
     // 调用后端API创建支付检查点（统一 request）
@@ -255,7 +256,7 @@ async function createDirectCreemCheckout(priceId: string, customerEmail?: string
     const result = await directCreateCheckout(priceId, customerEmail);
 
     if (!result.success) {
-      throw new Error('创建支付检查点失败');
+      throw new Error(i18n.t('api.errors.创建支付检查点失败'));
     }
 
     // 转换为统一格式
@@ -274,9 +275,9 @@ async function createDirectCreemCheckout(priceId: string, customerEmail?: string
 
     if (error.message.includes('API密钥')) {
       userFriendlyError = '支付配置错误，请联系管理员';
-    } else if (error.message.includes('网络')) {
+    } else if (error.message.includes(i18n.t('api.errors.网络'))) {
       userFriendlyError = '网络连接失败，请检查网络设置';
-    } else if (error.message.includes('产品')) {
+    } else if (error.message.includes(i18n.t('api.errors.产品'))) {
       userFriendlyError = '商品信息错误，请重新选择套餐';
     }
 

@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -63,8 +64,7 @@ interface ExtractResult {
  * 内容提取组件
  * @returns React 组件
  */
-export function ContentExtractor() {
-  const { toast } = useToast();
+export function ContentExtractor() { const { toast  } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // 状态管理
@@ -127,11 +127,11 @@ export function ContentExtractor() {
         setExtractResults(prev => [result, ...prev]);
         
         toast({
-          title: "内容提取成功",
+          title: t('components.labels.内容提取成功'),
           description: "已成功提取网页内容",
         });
       } else {
-        throw new Error(response.error || '提取失败');
+        throw new Error(response.error || t('components.errors.提取失败'));
       }
     } catch (error) {
       console.error('内容提取失败:', error);
@@ -150,7 +150,7 @@ export function ContentExtractor() {
       setExtractResults(prev => [errorResult, ...prev]);
       
       toast({
-        title: "提取失败",
+        title: t('components.errors.提取失败'),
         description: error instanceof Error ? error.message : "请检查URL是否有效或稍后重试",
         variant: "destructive"
       });
@@ -165,7 +165,7 @@ export function ContentExtractor() {
   const extractFromFile = async () => {
     if (!selectedFile) {
       toast({
-        title: "请选择文件",
+        title: t('components.labels.请选择文件'),
         description: "请上传要提取内容的文件",
         variant: "destructive"
       });
@@ -200,7 +200,7 @@ export function ContentExtractor() {
       setExtractResults(prev => [mockResult, ...prev]);
       
       toast({
-        title: "文件提取成功",
+        title: t('components.labels.文件提取成功'),
         description: `已成功提取 ${selectedFile.name} 的内容`,
       });
     } catch {
@@ -218,7 +218,7 @@ export function ContentExtractor() {
       setExtractResults(prev => [errorResult, ...prev]);
       
       toast({
-        title: "文件提取失败",
+        title: t('components.labels.文件提取失败'),
         description: "请检查文件格式或稍后重试",
         variant: "destructive"
       });
@@ -233,7 +233,7 @@ export function ContentExtractor() {
   const extractFromText = async () => {
     if (!text.trim()) {
       toast({
-        title: "请输入文本",
+        title: t('components.labels.请输入文本'),
         description: "请提供要处理的文本内容",
         variant: "destructive"
       });
@@ -254,7 +254,7 @@ export function ContentExtractor() {
         contentType: contentType,
         content: text,
         metadata: {
-          title: '文本内容',
+          title: t('components.labels.文本内容'),
           description: '从手动输入的文本中提取的内容',
           wordCount: text.split(/\s+/).length,
           charCount: text.length
@@ -266,7 +266,7 @@ export function ContentExtractor() {
       setExtractResults(prev => [mockResult, ...prev]);
       
       toast({
-        title: "文本处理成功",
+        title: t('components.labels.文本处理成功'),
         description: "已成功处理文本内容",
       });
     } catch {
@@ -278,13 +278,13 @@ export function ContentExtractor() {
         content: '',
         extractedAt: new Date().toISOString(),
         status: 'error',
-        error: '文本处理失败'
+        error: t('components.errors.文本处理失败')
       };
       
       setExtractResults(prev => [errorResult, ...prev]);
       
       toast({
-        title: "文本处理失败",
+        title: t('components.errors.文本处理失败'),
         description: "请稍后重试",
         variant: "destructive"
       });
@@ -306,7 +306,7 @@ export function ContentExtractor() {
       };
       
       reader.onerror = () => {
-        reject(new Error('文件读取失败'));
+        reject(new Error(t('components.errors.文件读取失败')));
       };
       
       if (file.type.includes('text') || file.name.endsWith('.md') || file.name.endsWith('.json')) {
@@ -344,7 +344,7 @@ export function ContentExtractor() {
   const copyResult = (content: string) => {
     navigator.clipboard.writeText(content);
     toast({
-      title: "已复制到剪贴板",
+      title: t('components.labels.已复制到剪贴板'),
       description: "提取内容已复制",
     });
   };
@@ -364,7 +364,7 @@ export function ContentExtractor() {
     URL.revokeObjectURL(url);
     
     toast({
-      title: "下载成功",
+      title: t('components.labels.下载成功'),
       description: "提取内容已下载",
     });
   };
@@ -639,7 +639,7 @@ export function ContentExtractor() {
                       </div>
                     ) : (
                       <div className="text-destructive">
-                        {result.error || '提取失败'}
+                        {result.error || t('components.errors.提取失败')}
                       </div>
                     )}
 

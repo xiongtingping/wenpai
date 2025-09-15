@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sun, Moon, Palette, Lock, Crown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { usePermission } from '@/hooks/usePermission';
@@ -25,7 +26,7 @@ interface ThemeConfig {
 const themes: ThemeConfig[] = [
   {
     value: 'light',
-    label: '浅色',
+    label: t('components.labels.浅色'),
     icon: <Sun className="h-4 w-4 text-foreground" />,
     permissionLevel: 'basic',
     requiredPermission: 'theme:basic',
@@ -33,7 +34,7 @@ const themes: ThemeConfig[] = [
   },
   {
     value: 'dark',
-    label: '深色',
+    label: t('components.labels.深色'),
     icon: <Moon className="h-4 w-4 text-foreground" />,
     permissionLevel: 'advanced',
     requiredPermission: 'theme:advanced',
@@ -42,7 +43,7 @@ const themes: ThemeConfig[] = [
   },
   {
     value: 'rainbow',
-    label: '彩虹色',
+    label: t('components.labels.彩虹色'),
     icon: <div className="w-4 h-4 rounded-full bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
@@ -51,7 +52,7 @@ const themes: ThemeConfig[] = [
   },
   {
     value: 'beige',
-    label: '护眼米色',
+    label: t('components.labels.护眼米色'),
     icon: <div className="w-4 h-4 rounded-full bg-amber-200 border border-amber-300" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
@@ -60,7 +61,7 @@ const themes: ThemeConfig[] = [
   },
   {
     value: 'green',
-    label: '绿色',
+    label: t('components.labels.绿色'),
     icon: <div className="w-4 h-4 rounded-full bg-success" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
@@ -69,14 +70,13 @@ const themes: ThemeConfig[] = [
   },
 ];
 
-function getInitialTheme(user?: any): Theme {
-  const themeKey = generateStorageKey('wenpai-theme', user);
+function getInitialTheme(user?: any): Theme { const themeKey = generateStorageKey('wenpai-theme', user);
   const stored = localStorage.getItem(themeKey) as Theme;
   
   // 如果有存储的主题且是有效主题，返回存储的主题
   if (stored && themes.some(t => t.value === stored)) {
     return stored;
-  }
+   }
   
   // 🔧 修复：默认主题始终是 light，避免权限检查过早
   // 不再根据系统偏好自动设置深色主题，因为需要先进行权限检查
@@ -275,7 +275,7 @@ export const ThemeToggle: React.FC = () => {
       <div className="relative" ref={dropdownRef}>
         <button
           className="h-9 w-9 p-0 rounded-full hover:bg-accent border border-border/50 bg-card/50 backdrop-blur-sm relative z-[9999] inline-flex items-center justify-center text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-          aria-label="切换主题"
+          aria-label={t('components.labels.标签')}
           title={`切换主题 - ${getUserPermissionLevel()}`}
           onClick={() => {
             setIsOpen(!isOpen);

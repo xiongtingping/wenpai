@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -71,8 +72,7 @@ interface BrandEmojiGeneratorProps {
 /**
  * 调用统一的AI图像生成服务
  */
-async function generateEmojiImage(prompt: string, referenceImage?: File | null, count: number = 1): Promise<string[]> {
-  try {
+async function generateEmojiImage(prompt: string, referenceImage?: File | null, count: number = 1): Promise<string[]> { try {
     // 使用统一的AI服务层
     const aiService = (await import('@/api/aiService')).callAI;
     
@@ -82,7 +82,7 @@ async function generateEmojiImage(prompt: string, referenceImage?: File | null, 
       n: count,
       size: '512x512' as const,
       response_format: 'url' as const
-    };
+     };
 
     // 如果有参考图片，添加图片上传
     if (referenceImage) {
@@ -107,7 +107,7 @@ async function generateEmojiImage(prompt: string, referenceImage?: File | null, 
         // 暂时返回模拟数据
         return ['https://example.com/emoji1.png', 'https://example.com/emoji2.png'];
       } else {
-        throw new Error(response.error || '图像生成失败');
+        throw new Error(response.error || t('components.errors.图像生成失败'));
       }
     } else {
       const response = await aiService({
@@ -124,7 +124,7 @@ async function generateEmojiImage(prompt: string, referenceImage?: File | null, 
         // 暂时返回模拟数据
         return ['https://example.com/emoji1.png', 'https://example.com/emoji2.png'];
       } else {
-        throw new Error(response.error || '图像生成失败');
+        throw new Error(response.error || t('components.errors.图像生成失败'));
       }
     }
   } catch (error) {
@@ -215,7 +215,7 @@ export default function BrandEmojiGenerator({
           ));
           
           toast({
-            title: "生成成功",
+            title: t('components.labels.生成成功'),
             description: `${prompt.emotion} emoji 已生成 ${imageUrls.length} 个`,
           });
           
@@ -225,12 +225,12 @@ export default function BrandEmojiGenerator({
             index === i ? { 
               ...result, 
               status: 'error', 
-              error: error instanceof Error ? error.message : '生成失败'
+              error: error instanceof Error ? error.message : t('components.errors.生成失败')
             } : result
           ));
           
           toast({
-            title: "生成失败",
+            title: t('components.errors.生成失败'),
             description: `${prompt.emotion} emoji 生成失败`,
             variant: "destructive"
           });
@@ -251,13 +251,13 @@ export default function BrandEmojiGenerator({
       );
       
       toast({
-        title: "生成完成",
+        title: t('components.labels.生成完成'),
         description: `已生成 ${totalGenerated} 个emoji图片`,
       });
       
     } catch (error) {
       toast({
-        title: "生成失败",
+        title: t('components.errors.生成失败'),
         description: "批量生成过程中出现错误",
         variant: "destructive"
       });
@@ -284,7 +284,7 @@ export default function BrandEmojiGenerator({
       ));
       
       toast({
-        title: "重新生成成功",
+        title: t('components.labels.重新生成成功'),
         description: `${prompt.emotion} emoji 已重新生成 ${imageUrls.length} 个`,
       });
       
@@ -293,12 +293,12 @@ export default function BrandEmojiGenerator({
         i === index ? { 
           ...result, 
           status: 'error', 
-          error: error instanceof Error ? error.message : '生成失败'
+          error: error instanceof Error ? error.message : t('components.errors.生成失败')
         } : result
       ));
       
       toast({
-        title: "重新生成失败",
+        title: t('components.labels.重新生成失败'),
         description: `${prompt.emotion} emoji 重新生成失败`,
         variant: "destructive"
       });
@@ -315,7 +315,7 @@ export default function BrandEmojiGenerator({
     a.click();
     
     toast({
-      title: "下载成功",
+      title: t('components.labels.下载成功'),
       description: `${emotion} emoji ${index + 1} 已下载`,
     });
   };
@@ -328,7 +328,7 @@ export default function BrandEmojiGenerator({
     
     if (successfulResults.length === 0) {
       toast({
-        title: "没有可下载的图片",
+        title: t('components.labels.没有可下载的图片'),
         description: "请先生成emoji图片",
         variant: "destructive"
       });
@@ -338,7 +338,7 @@ export default function BrandEmojiGenerator({
     const totalImages = successfulResults.reduce((sum, result) => sum + result.urls.length, 0);
     
     toast({
-      title: "批量下载",
+      title: t('components.labels.批量下载'),
       description: `开始下载 ${totalImages} 个emoji图片`,
     });
     
@@ -528,7 +528,7 @@ export default function BrandEmojiGenerator({
                         className="px-6 py-3 font-semibold shadow-md hover:shadow-lg transition-all duration-200"
                       >
                         <Zap className="w-5 h-5 mr-2" />
-                        {isGenerating ? '生成中...' : '开始生成'}
+                        {isGenerating ? '生成中...' : t('components.text.开始生成_2li')}
                       </Button>
 
                       {totalImages > 0 && (

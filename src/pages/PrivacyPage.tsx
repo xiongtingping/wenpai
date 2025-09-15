@@ -30,7 +30,7 @@ export default function PrivacyPage() {
           className="flex items-center gap-2 text-primary hover:bg-accent"
         >
           <ArrowLeft className="h-4 w-4" />
-          {t('common.back')}
+          
         </Button>
       </div>
 
@@ -42,54 +42,54 @@ export default function PrivacyPage() {
             </div>
             <div>
               <CardTitle className="text-3xl font-bold text-foreground">
-                {t('privacy.title')}
+                
               </CardTitle>
-              <p className="text-primary font-medium">{t('privacy.subtitle')}</p>
+              <p className="text-primary font-medium"></p>
             </div>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              {t('privacy.lastUpdated')}: {t('privacy.updateDate')}
+              {t('privacy.lastUpdated')}: t('privacy.updateDate')
             </span>
             <span className="flex items-center gap-1">
               <FileText className="h-4 w-4" />
-              {t('privacy.version')}: v2.0
+              : v2.0
             </span>
           </div>
           <p className="text-muted-foreground leading-relaxed mt-3">
-            {t('privacy.description')}
+            
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
               <Database className="h-5 w-5 text-primary" />
-              {t('privacy.sections.dataCollection.title')}
+              
             </h3>
             <div className="space-y-3 text-muted-foreground">
               <div>
                 <h4 className="font-medium mb-2 text-foreground">{t('privacy.sections.dataCollection.accountInfo.title')}</h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li><strong>{t('privacy.sections.dataCollection.accountInfo.registration')}:</strong> {t('privacy.sections.dataCollection.accountInfo.registrationDesc')}</li>
-                  <li><strong>{t('privacy.sections.dataCollection.accountInfo.profile')}:</strong> {t('privacy.sections.dataCollection.accountInfo.profileDesc')}</li>
-                  <li><strong>{t('privacy.sections.dataCollection.accountInfo.verification')}:</strong> {t('privacy.sections.dataCollection.accountInfo.verificationDesc')}</li>
+                  <li><strong>:</strong> </li>
+                  <li><strong>:</strong> {t('privacy.sections.dataCollection.accountInfo.profileDesc')}</li>
+                  <li><strong>:</strong> </li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium mb-2 text-foreground">{t('privacy.sections.dataCollection.usageData.title')}</h4>
+                <h4 className="font-medium mb-2 text-foreground"></h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li><strong>{t('privacy.sections.dataCollection.usageData.functionality')}:</strong> {t('privacy.sections.dataCollection.usageData.functionalityDesc')}</li>
-                  <li><strong>{t('privacy.sections.dataCollection.usageData.content')}:</strong> {t('privacy.sections.dataCollection.usageData.contentDesc')}</li>
-                  <li><strong>{t('privacy.sections.dataCollection.usageData.platformAdapt')}:</strong> {t('privacy.sections.dataCollection.usageData.platformAdaptDesc')}</li>
+                  <li><strong>{t('privacy.sections.dataCollection.usageData.functionality')}:</strong> </li>
+                  <li><strong>:</strong> </li>
+                  <li><strong>{t('privacy.sections.dataCollection.usageData.platformAdapt')}:</strong> </li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium mb-2 text-foreground">{t('privacy.sections.dataCollection.technicalData.title')}</h4>
+                <h4 className="font-medium mb-2 text-foreground"></h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li><strong>{t('privacy.sections.dataCollection.technicalData.device')}:</strong> {t('privacy.sections.dataCollection.technicalData.deviceDesc')}</li>
-                  <li><strong>{t('privacy.sections.dataCollection.technicalData.network')}:</strong> {t('privacy.sections.dataCollection.technicalData.networkDesc')}</li>
-                  <li><strong>{t('privacy.sections.dataCollection.technicalData.logs')}:</strong> {t('privacy.sections.dataCollection.technicalData.logsDesc')}</li>
+                  <li><strong>:</strong> {t('privacy.sections.dataCollection.technicalData.deviceDesc')}</li>
+                  <li><strong>:</strong> </li>
+                  <li><strong>:</strong> {t('privacy.sections.dataCollection.technicalData.logsDesc')}</li>
                 </ul>
               </div>
             </div>
@@ -98,7 +98,7 @@ export default function PrivacyPage() {
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <Brain className="h-5 w-5 text-primary" />
-              {t('privacy.sections.dataUsage.title')}
+              
             </h3>
             <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
@@ -112,29 +112,29 @@ export default function PrivacyPage() {
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              {t('privacy.sections.dataSharing.title')}
+              
             </h3>
             <div className="space-y-3 text-muted-foreground">
               <div className="p-4 rounded-lg border bg-card border-border">
-                <p className="font-medium text-foreground mb-2">{t('privacy.sections.dataSharing.noSalePromise')}</p>
+                <p className="font-medium text-foreground mb-2"></p>
                 <p className="text-sm text-muted-foreground">
-                  {t('privacy.sections.dataSharing.noSaleDesc')}
+                  
                 </p>
               </div>
               <div>
                 <h4 className="font-medium mb-2">{t('privacy.sections.dataSharing.necessarySharing.title')}</h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>{t('privacy.sections.dataSharing.necessarySharing.payment')}</li>
-                  <li>{t('privacy.sections.dataSharing.necessarySharing.cloud')}</li>
-                  <li>{t('privacy.sections.dataSharing.necessarySharing.ai')}</li>
+                  <li></li>
+                  <li></li>
+                  <li></li>
                   <li>{t('privacy.sections.dataSharing.necessarySharing.support')}</li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium mb-2">{t('privacy.sections.dataSharing.legal.title')}</h4>
+                <h4 className="font-medium mb-2"></h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>{t('privacy.sections.dataSharing.legal.disclosure')}</li>
-                  <li>{t('privacy.sections.dataSharing.legal.protection')}</li>
+                  <li></li>
+                  <li></li>
                   <li>{t('privacy.sections.dataSharing.legal.cooperation')}</li>
                 </ul>
               </div>
@@ -159,7 +159,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold mb-3">{t('privacy.sections.dataRetention.title')}</h3>
+            <h3 className="text-lg font-semibold mb-3"></h3>
             <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
                 {(t('privacy.sections.dataRetention.periods', { returnObjects: true }) as any[]).map((period: any, index: number) => (
@@ -172,16 +172,16 @@ export default function PrivacyPage() {
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <Eye className="h-5 w-5 text-primary" />
-              {t('privacy.sections.userRights.title')}
+              
             </h3>
             <div className="space-y-3 text-muted-foreground">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-medium mb-2">{t('privacy.sections.userRights.basicRights.title')}</h4>
+                  <h4 className="font-medium mb-2"></h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm">
-                    <li>{t('privacy.sections.userRights.basicRights.access')}</li>
+                    <li></li>
                     <li>{t('privacy.sections.userRights.basicRights.correction')}</li>
-                    <li>{t('privacy.sections.userRights.basicRights.deletion')}</li>
+                    <li></li>
                     <li>{t('privacy.sections.userRights.basicRights.portability')}</li>
                   </ul>
                 </div>

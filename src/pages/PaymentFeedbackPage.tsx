@@ -3,6 +3,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,14 +16,13 @@ import { Header } from '@/components/landing/Header';
 import { generateFeedbackEmail } from '@/utils/paymentUtils';
 import { logger } from '@/utils/logger';
 
-export default function PaymentFeedbackPage() {
-  const navigate = useNavigate();
+export default function PaymentFeedbackPage() { const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
     orderId: '',
     amount: '',
     description: ''
-  });
+   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -39,20 +39,20 @@ export default function PaymentFeedbackPage() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.orderId.trim()) {
-      newErrors.orderId = '请输入订单号';
+      newErrors.orderId = t('pages.errors.请输入订单号');
     }
 
     if (!formData.amount.trim()) {
-      newErrors.amount = '请输入支付金额';
+      newErrors.amount = t('pages.errors.请输入支付金额');
     } else {
       const amount = parseFloat(formData.amount);
       if (isNaN(amount) || amount <= 0) {
-        newErrors.amount = '请输入有效的金额';
+        newErrors.amount = t('pages.errors.请输入有效的金额');
       }
     }
 
     if (!formData.description.trim()) {
-      newErrors.description = '请描述遇到的问题';
+      newErrors.description = t('pages.errors.请描述遇到的问题');
     } else if (formData.description.trim().length < 10) {
       newErrors.description = '问题描述至少需要10个字符';
     }
@@ -232,7 +232,7 @@ export default function PaymentFeedbackPage() {
             <CardContent className="pt-6">
               <div className="text-sm text-muted-foreground space-y-2">
                 <h4 className="font-medium text-foreground mb-3">反馈说明</h4>
-                <p>• 点击"发送反馈邮件"会自动打开您的邮件客户端</p>
+                <p>• 点击t('pages.messages.发送反馈邮件')会自动打开您的邮件客户端</p>
                 <p>• 邮件内容已自动填写，您只需发送即可</p>
                 <p>• 请保留支付截图等相关凭证，以便我们快速处理</p>
                 <p>• 我们通常在24小时内回复并处理您的问题</p>

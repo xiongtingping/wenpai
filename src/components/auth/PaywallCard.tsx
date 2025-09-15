@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Lock, Crown, Zap, Star, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,13 +38,12 @@ export interface PaywallCardProps {
 /**
  * 获取等级配置
  */
-const getTierConfig = (tier: SubscriptionTier) => {
-  const configs = {
+const getTierConfig = (tier: SubscriptionTier) => { const configs = {
     trial: {
       name: '体验版',
       icon: <Star className="h-4 w-4" />,
       color: 'bg-muted text-gray-800 dark:bg-foreground dark:text-gray-200'
-    },
+     },
     pro: {
       name: '专业版',
       icon: <Zap className="h-4 w-4" />,
@@ -71,7 +71,7 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
   allowPreview = true,
   mode = 'overlay',
   className = '',
-  upgradeButtonText = '立即升级'
+  upgradeButtonText = t('components.actions.立即升级')
 }) => {
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);

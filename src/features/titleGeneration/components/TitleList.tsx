@@ -4,6 +4,7 @@
  */
 
 import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,13 +12,12 @@ import { Copy, Star, RotateCcw, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { TitleListProps, GeneratedTitle } from '../types/titleGeneration.types';
 
-export const TitleList = memo<TitleListProps>(({
-  titles,
+export const TitleList = memo<TitleListProps>(({ titles,
   onTitleSelect,
   onTitleCopy,
   showScores = true,
   className
-}) => {
+ }) => {
   if (titles.length === 0) {
     return (
       <div className={cn("text-center py-8 text-muted-foreground", className)}>
@@ -175,7 +175,7 @@ const TitleCard = memo<TitleCardProps>(({
               size="sm"
               className="h-8 w-8 p-0"
               onClick={(e) => onCopy(title.title, e)}
-              title="复制标题"
+              title=
             >
               <Copy className="w-4 h-4" />
             </Button>

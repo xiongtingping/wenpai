@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Crown } from 'lucide-react';
@@ -28,14 +29,11 @@ interface UpgradeButtonProps {
 /**
  * 升级专业版按钮组件
  */
-export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
-  variant = 'default',
+export const UpgradeButton: React.FC<any> = ({ variant = 'default',
   size = 'sm',
   showIcon = true,
-  text = '立即解锁高级功能',
-  className = '',
-}) => {
-  const { user } = useAuth();
+  text = t('components.messages.立即解锁高级功能'),
+  className = '' }) => { const { user  } = useAuth();
 
   /**
    * 检查是否应该显示升级按钮

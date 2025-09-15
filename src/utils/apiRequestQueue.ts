@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
 
 /**
@@ -203,7 +204,7 @@ class APIRequestQueue {
     return errorMessage.includes('429') || 
            errorMessage.includes('Too Many Requests') ||
            errorMessage.includes('rate limit') ||
-           errorMessage.includes('频率超限');
+           errorMessage.includes(i18n.t('utils.errors.频率超限'));
   }
 
   /**

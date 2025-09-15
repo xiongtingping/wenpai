@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserTier } from '@/utils/subscriptionUtils';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
@@ -18,7 +19,7 @@ interface EmojiGalleryProps {
   onRegenerate: (emotion: string) => void;
 }
 
-export default function EmojiGallery({ emojis, onDelete, onRegenerate }: EmojiGalleryProps) {
+export default function EmojiGallery({ emojis, onDelete, onRegenerate  }: EmojiGalleryProps) {
   const { user, isAuthenticated } = useAuth();
   const { primaryStatus } = useSubscriptionStatus();
   const { toast } = useToast();
@@ -33,9 +34,9 @@ export default function EmojiGallery({ emojis, onDelete, onRegenerate }: EmojiGa
     // 2. 从订阅状态标签推断
     if (primaryStatus?.status === 'active') {
       const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
-      if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
+      if (statusLabel.includes(t('components.labels.高级版')) || statusLabel.includes('premium')) {
         return 'premium';
-      } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
+      } else if (statusLabel.includes(t('components.labels.专业版')) || statusLabel.includes('pro')) {
         return 'pro';
       }
     }
@@ -72,7 +73,7 @@ export default function EmojiGallery({ emojis, onDelete, onRegenerate }: EmojiGa
     if (!hasPermission()) {
       console.log('EmojiGallery: 权限不足，显示升级提示');
       toast({
-        title: "需要专业版",
+        title: t('components.labels.需要专业版'),
         description: "Emoji复制功能需要专业版权限，确定后跳转至支付中心选择专业版",
         action: (
           <ToastAction
@@ -92,7 +93,7 @@ export default function EmojiGallery({ emojis, onDelete, onRegenerate }: EmojiGa
     console.log('EmojiGallery: 权限通过，执行复制');
     navigator.clipboard.writeText(url);
     toast({
-      title: "复制成功",
+      title: t('components.labels.复制成功'),
       description: `已复制 ${emotion} 的链接到剪贴板`,
     });
   };
@@ -107,7 +108,7 @@ export default function EmojiGallery({ emojis, onDelete, onRegenerate }: EmojiGa
               alt={emotion}
               className={`w-16 h-16 mx-auto ${hasPermission() ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'}`}
               onClick={() => handleCopyClick(url, emotion)}
-              title={hasPermission() ? "点击复制链接" : "需要专业版权限"}
+              title={hasPermission() ? t('components.labels.点击复制链接') : t('components.labels.需要专业版权限')}
             />
             {!hasPermission() && (
               <div className="absolute inset-0 flex items-center justify-center bg-foreground/20 rounded">

@@ -14,6 +14,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,7 +46,7 @@ export interface InterestFilters {
 /**
  * 兴趣调节组件
  */
-const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
+const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('categories');
@@ -63,36 +64,36 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
 
   // 分类定义
   const categories = [
-    { id: 'entertainment', label: '娱乐', icon: '🎬', description: '明星、电影、综艺' },
-    { id: 'technology', label: '科技', icon: '💻', description: '技术、AI、互联网' },
-    { id: 'sports', label: '体育', icon: '⚽', description: '足球、篮球、比赛' },
-    { id: 'gaming', label: '游戏', icon: '🎮', description: '电竞、游戏、直播' },
-    { id: 'automotive', label: '汽车', icon: '🚗', description: '汽车、新能源车' },
-    { id: 'economy', label: '财经', icon: '💰', description: '经济、股票、投资' },
-    { id: 'society', label: '社会', icon: '👥', description: '社会事件、新闻' },
-    { id: 'education', label: '教育', icon: '📚', description: '学校、考试、培训' },
-    { id: 'health', label: '健康', icon: '🏥', description: '医疗、疾病、保健' },
-    { id: 'lifestyle', label: '生活', icon: '🏠', description: '时尚、美容、家居' },
-    { id: 'travel', label: '旅游', icon: '✈️', description: '旅游、旅行、景点' },
-    { id: 'food', label: '美食', icon: '🍜', description: '美食、餐厅、烹饪' },
-    { id: 'science', label: '科学', icon: '🔬', description: '科学研究、学术' },
-    { id: 'culture', label: '文化', icon: '🎨', description: '文化、艺术、历史' },
-    { id: 'international', label: '国际', icon: '🌍', description: '国际新闻、外交' },
-    { id: 'realestate', label: '房产', icon: '🏢', description: '房产、房价、楼市' },
-    { id: 'weather', label: '天气', icon: '🌤️', description: '天气、气候、自然灾害' },
-    { id: 'environment', label: '环保', icon: '🌱', description: '环保、生态、节能' },
-    { id: 'agriculture', label: '农业', icon: '🌾', description: '农业、农村、农产品' },
-    { id: 'pets', label: '宠物', icon: '🐕', description: '宠物、猫狗、宠物用品' }
+    { id: 'entertainment', label: t('components.labels.娱乐'), icon: '🎬', description: '明星、电影、综艺' },
+    { id: 'technology', label: t('components.labels.科技'), icon: '💻', description: '技术、AI、互联网' },
+    { id: 'sports', label: t('components.labels.体育'), icon: '⚽', description: '足球、篮球、比赛' },
+    { id: 'gaming', label: t('components.labels.游戏'), icon: '🎮', description: '电竞、游戏、直播' },
+    { id: 'automotive', label: t('components.labels.汽车'), icon: '🚗', description: '汽车、新能源车' },
+    { id: 'economy', label: t('components.labels.财经'), icon: '💰', description: '经济、股票、投资' },
+    { id: 'society', label: t('components.labels.社会'), icon: '👥', description: '社会事件、新闻' },
+    { id: 'education', label: t('components.labels.教育'), icon: '📚', description: '学校、考试、培训' },
+    { id: 'health', label: t('components.labels.健康'), icon: '🏥', description: '医疗、疾病、保健' },
+    { id: 'lifestyle', label: t('components.labels.生活'), icon: '🏠', description: '时尚、美容、家居' },
+    { id: 'travel', label: t('components.labels.旅游'), icon: '✈️', description: '旅游、旅行、景点' },
+    { id: 'food', label: t('components.labels.美食'), icon: '🍜', description: '美食、餐厅、烹饪' },
+    { id: 'science', label: t('components.labels.科学'), icon: '🔬', description: '科学研究、学术' },
+    { id: 'culture', label: t('components.labels.文化'), icon: '🎨', description: '文化、艺术、历史' },
+    { id: 'international', label: t('components.labels.国际'), icon: '🌍', description: '国际新闻、外交' },
+    { id: 'realestate', label: t('components.labels.房产'), icon: '🏢', description: '房产、房价、楼市' },
+    { id: 'weather', label: t('components.labels.天气'), icon: '🌤️', description: '天气、气候、自然灾害' },
+    { id: 'environment', label: t('components.labels.环保'), icon: '🌱', description: '环保、生态、节能' },
+    { id: 'agriculture', label: t('components.labels.农业'), icon: '🌾', description: '农业、农村、农产品' },
+    { id: 'pets', label: t('components.labels.宠物'), icon: '🐕', description: '宠物、猫狗、宠物用品' }
   ];
 
   // 平台选项
   const platformOptions = [
-    { value: 'weibo', label: '微博' },
-    { value: 'zhihu', label: '知乎' },
+    { value: 'weibo', label: t('components.labels.微博') },
+    { value: 'zhihu', label: t('components.labels.知乎') },
     { value: 'bilibili', label: 'B站' },
-    { value: 'douyin', label: '抖音' },
-    { value: 'toutiao', label: '头条' },
-    { value: 'baidu', label: '百度' }
+    { value: 'douyin', label: t('components.labels.抖音') },
+    { value: 'toutiao', label: t('components.labels.头条') },
+    { value: 'baidu', label: t('components.labels.百度') }
   ];
 
   useEffect(() => {
@@ -242,7 +243,7 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
     if (value <= -80) return '非常不想看';
     if (value <= -40) return '不想看';
     if (value <= -10) return '较少推荐';
-    if (value <= 10) return '中性';
+    if (value <= 10) return t('components.text.中性_f8n');
     if (value <= 40) return '较多推荐';
     if (value <= 80) return '想看';
     return '非常想看';
@@ -313,7 +314,7 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
                 <Button variant="default" size="sm" onClick={() => {
                   // 保存当前设置（实际上已经自动保存了）
                   toast({
-                    title: "设置已保存",
+                    title: t('components.labels.设置已保存'),
                     description: "您的兴趣偏好设置已成功保存",
                   });
                 }} className="h-9 px-4 text-sm font-medium">

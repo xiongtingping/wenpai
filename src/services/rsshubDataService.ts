@@ -404,7 +404,7 @@ class RSSHubDataService {
         apiData.data.forEach((item: any, index: number) => {
           topics.push({
             id: `api-${platform}-${Date.now()}-${index}`,
-            title: item.title || item.name || '未知标题',
+            title: item.title || item.name || i18n.t('common.labels.未知标题'),
             description: item.desc || item.description || item.content || '',
             link: item.url || item.link || '#',
             pubDate: item.time || item.date || new Date().toISOString(),

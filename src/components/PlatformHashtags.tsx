@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Tag, Plus, X, Copy, Edit3, RotateCcw } from 'lucide-react';
 import { hashtagGenerator, HashtagSuggestion } from '../utils/hashtagGenerator';
 import { logger } from '@/utils/logger';
@@ -16,13 +17,10 @@ export interface PlatformHashtagsProps {
   onTagsChange?: (tags: string[]) => void;
 }
 
-export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
-  platformId,
+export const PlatformHashtags: React.FC<any> = ({ platformId,
   content,
   extractedTags,
-  onTagsChange
-}) => {
-  const [tags, setTags] = useState<string[]>([]);
+  onTagsChange }) => { const [tags, setTags] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true); // Default to expanded
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -30,7 +28,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
   const [copyFeedback, setCopyFeedback] = useState(false);
 
   // Debug log to ensure component is rendering
-  console.log(`🏷️ PlatformHashtags rendering for ${platformId}, content length: ${content.length}, tags: ${tags.length}`);
+  console.log(`🏷️ PlatformHashtags rendering for ${platformId }, content length: ${content.length}, tags: ${tags.length}`);
 
   // Platform-specific hashtag limits
   const getPlatformLimits = (platformId: string) => {
@@ -222,9 +220,9 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="p-1 text-muted-foreground hover:text-muted-foreground rounded text-xs"
-            title={isExpanded ? "收起" : "展开"}
+            title={isExpanded ? t('components.labels.收起') : t('components.labels.展开')}
           >
-            {isExpanded ? "收起" : "展开"}
+            {isExpanded ? t('components.labels.收起') : t('components.labels.展开')}
           </button>
 
           <button

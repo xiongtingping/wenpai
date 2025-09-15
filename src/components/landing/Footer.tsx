@@ -50,13 +50,13 @@ export function Footer() {
             <div className="flex items-center justify-center gap-3 mb-3">
               <img
                 src="/ikigai_4circles_multiply.svg"
-                alt={`${t('nav.home')} Logo`}
+                alt="WenPai Logo"
                 className="w-8 h-8 flex-shrink-0"
               />
               <h3 className="text-xl font-bold text-foreground leading-none">文派</h3>
             </div>
             <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
-              {t('footer.brandTagline')}
+              
             </p>
           </div>
 
@@ -69,7 +69,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105"
-                title={t('footer.feedbackTooltip')}
+                title={t('components.labels.标题')}
               >
                 <div className="w-8 h-8 bg-primary/10 rounded-md flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                   <FeishuIcon className="w-4 h-4 text-primary" />
@@ -84,7 +84,7 @@ export function Footer() {
               <button
                 onClick={handleEmailCopy}
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105 relative"
-                title={t('footer.emailTooltip')}
+                title={t('components.labels.标题')}
               >
                 <div className="w-8 h-8 bg-success/10 rounded-md flex items-center justify-center group-hover:bg-success/20 transition-colors">
                   {emailCopied ? (
@@ -101,7 +101,7 @@ export function Footer() {
                 </div>
                 {emailCopied && (
                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-success text-background text-xs px-2 py-1 rounded shadow-lg">
-                    {t('success.dataExported')}
+                    
                   </div>
                 )}
               </button>
@@ -112,7 +112,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105"
-                title="与开发者交个朋友"
+                title={t('components.labels.标题')}
               >
                 <div className="w-8 h-8 bg-purple-500/10 rounded-md flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
                   <User className="w-4 h-4 text-purple-600" />
@@ -191,7 +191,7 @@ export function Footer() {
                 className="hover:text-foreground transition-colors flex items-center gap-1"
               >
                 <FileText className="w-3 h-3" />
-                {t('footer.termsOfService')}
+                
               </a>
               <span className="text-muted-foreground/30">|</span>
               <a

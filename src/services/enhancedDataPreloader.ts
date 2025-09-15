@@ -11,6 +11,7 @@
  * - 后台刷新（定期更新数据）
  */
 
+import i18n from '@/i18n';
 import { UnifiedDataManager, globalDataManager } from './unifiedDataManager';
 import { logger } from '@/utils/logger';
 
@@ -362,7 +363,7 @@ export class EnhancedDataPreloader {
         };
 
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error('加载失败');
+        lastError = error instanceof Error ? error : new Error(i18n.t('common.errors.加载失败'));
         
         logger.warn(`⚠️ 预加载失败 ${key} (尝试 ${attempt}/${maxRetries}):`, error);
         
@@ -379,7 +380,7 @@ export class EnhancedDataPreloader {
       success: false,
       loadTime: Date.now() - startTime,
       source: 'fallback',
-      error: lastError?.message || '加载失败'
+      error: lastError?.message || i18n.t('common.errors.加载失败')
     };
   }
 

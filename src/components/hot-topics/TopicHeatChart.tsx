@@ -12,6 +12,7 @@
  */
 
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -45,14 +46,11 @@ interface TopicHeatChartProps {
 /**
  * 热度趋势图表组件
  */
-export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
-  keyword,
+export const TopicHeatChart: React.FC<any> = ({ keyword,
   trends,
   timeRange = '7d',
   loading = false,
-  onRefresh
-}) => {
-  // 计算趋势统计
+  onRefresh }) => { // 计算趋势统计
   const stats = useMemo(() => {
     if (trends.length === 0) return null;
     
@@ -79,7 +77,7 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
       min: minHeat,
       average: avgHeat,
       trend: change > 0 ? 'up' : change < 0 ? 'down' : 'stable'
-    };
+     };
   }, [trends]);
 
   // 生成图表数据
@@ -142,7 +140,7 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
                     : 'bg-muted hover:bg-accent'
                 }`}
                 style={{ '--heat-bar-height': `${Math.max(height, 10)}%` } as React.CSSProperties}
-                title={`${data.date || '未知日期'}: ${(data.heat || 0).toLocaleString()}`}
+                title={`${data.date || t('components.labels.未知日期')}: ${(data.heat || 0).toLocaleString()}`}
               />
               <span className="text-xs text-muted-foreground mt-1 transform rotate-45 origin-left">
                 {data.date || '未知'}

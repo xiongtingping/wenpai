@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -205,8 +206,7 @@ const DEFAULT_TEMPLATES: CardTemplate[] = [
 /**
  * MD2Card主页面组件
  */
-export default function MD2CardPage() {
-  const { toast } = useToast();
+export default function MD2CardPage() { const { toast  } = useToast();
   const { user, isAuthenticated } = useAuthStore();
   const { recordUsage } = useUsageStore();
   
@@ -294,7 +294,7 @@ export default function MD2CardPage() {
     }, 0);
   }, [markdownContent]);
 
-  const insertLineMarkdown = useCallback((prefix: string, defaultText: string = '内容') => {
+  const insertLineMarkdown = useCallback((prefix: string, defaultText: string = t('components.text.内容_23n')) => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
@@ -417,7 +417,7 @@ export default function MD2CardPage() {
         const template = CARD_TEMPLATES.find(t => t.id === templateId) || 
                         DEFAULT_TEMPLATES.find(t => t.id === templateId) || {
           id: 'default',
-          displayName: '默认模板',
+          displayName: t('components.text.默认模板_dgl'),
           category: 'knowledge' as const,
           constraints: {
             maxSections: 5,
@@ -520,7 +520,7 @@ export default function MD2CardPage() {
     const template = CARD_TEMPLATES.find(t => t.id === templateId) || 
                     DEFAULT_TEMPLATES.find(t => t.id === templateId);
     toast({
-      title: '模板已切换',
+      title: t('components.labels.模板已切换'),
       description: `已切换到 ${template?.displayName} 模板`,
     });
   }, [toast]);
@@ -542,7 +542,7 @@ export default function MD2CardPage() {
       const content = e.target?.result as string;
       setMarkdownContent(content);
       toast({
-        title: '文档导入成功',
+        title: t('components.labels.文档导入成功'),
         description: `已导入文档: ${file.name}`,
       });
     };
@@ -604,7 +604,7 @@ export default function MD2CardPage() {
     setActiveTab('content');
     
     toast({
-      title: '已完全重置',
+      title: t('components.labels.已完全重置'),
       description: '内容、模板和样式配置已恢复初始状态',
     });
   }, [toast]);
@@ -613,7 +613,7 @@ export default function MD2CardPage() {
   const handleExportCard = useCallback(async (format: 'png' | 'jpg' | 'svg') => {
     if (!cardData?.imageData) {
       toast({
-        title: '无法导出',
+        title: t('components.labels.无法导出'),
         description: '请先生成卡片',
         variant: 'destructive'
       });
@@ -660,13 +660,13 @@ export default function MD2CardPage() {
       console.log(`📥 文件下载触发成功: ${a.download}`);
 
       toast({
-        title: '导出成功',
+        title: t('components.labels.导出成功'),
         description: `卡片已导出为 ${format.toUpperCase()} 格式`,
       });
     } catch (error) {
       console.error('❌ 导出失败:', error);
       toast({
-        title: '导出失败',
+        title: t('components.errors.导出失败'),
         description: error instanceof Error ? error.message : '导出过程中发生错误，请稍后重试',
         variant: 'destructive'
       });
@@ -1483,7 +1483,7 @@ export default function MD2CardPage() {
                         <button 
                           className="p-2 rounded hover:bg-slate-100 transition-colors" 
                           title="二级标题 (Ctrl+2)"
-                          onClick={() => insertLineMarkdown('## ', '副标题')}
+                          onClick={() => insertLineMarkdown('## ', t('components.text.副标题_dd7'))}
                         >
                           <Heading2 className="w-4 h-4" />
                         </button>
@@ -1525,22 +1525,22 @@ export default function MD2CardPage() {
                       <div className="flex gap-1 p-1 bg-background rounded-lg border border-slate-200">
                         <button 
                           className="p-2 rounded hover:bg-slate-100 transition-colors" 
-                          title="无序列表"
-                          onClick={() => insertLineMarkdown('- ', '列表项')}
+                          title={t('components.labels.标题')}
+        onClick={() => insertLineMarkdown('- ', '列表项')}
                         >
                           <List className="w-4 h-4" />
                         </button>
                         <button 
                           className="p-2 rounded hover:bg-slate-100 transition-colors" 
-                          title="有序列表"
-                          onClick={() => insertLineMarkdown('1. ', '列表项')}
+                          title={t('components.labels.标题')}
+        onClick={() => insertLineMarkdown('1. ', '列表项')}
                         >
                           <ListOrdered className="w-4 h-4" />
                         </button>
                         <button 
                           className="p-2 rounded hover:bg-slate-100 transition-colors" 
-                          title="引用"
-                          onClick={() => insertLineMarkdown('> ', '引用内容')}
+                          title={t('components.labels.标题')}
+        onClick={() => insertLineMarkdown('> ', '引用内容')}
                         >
                           <Quote className="w-4 h-4" />
                         </button>
@@ -1550,8 +1550,8 @@ export default function MD2CardPage() {
                       <div className="flex gap-1 p-1 bg-background rounded-lg border border-slate-200">
                         <button 
                           className="p-2 rounded hover:bg-slate-100 transition-colors" 
-                          title="链接"
-                          onClick={() => insertMarkdown('[', '](https://example.com)', '链接文本')}
+                          title={t('components.labels.标题')}
+        onClick={() => insertMarkdown('[', '](https://example.com)', '链接文本')}
                         >
                           <Link className="w-4 h-4" />
                         </button>
@@ -1598,8 +1598,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #3B82F6, #64748B)' }}
-                          title="蓝色商务"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#3B82F6',
@@ -1615,8 +1615,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #10B981, #059669)' }}
-                          title="绿色清新"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#10B981',
@@ -1632,8 +1632,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #8B5CF6, #A855F7)' }}
-                          title="紫色优雅"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#8B5CF6',
@@ -1649,8 +1649,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #F59E0B, #EA580C)' }}
-                          title="橙色活力"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#F59E0B',
@@ -1666,8 +1666,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #EC4899, #BE185D)' }}
-                          title="粉色温馨"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#EC4899',
@@ -1683,8 +1683,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #374151, #6B7280)' }}
-                          title="暗色专业"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#374151',
@@ -1700,8 +1700,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #EF4444, #DC2626)' }}
-                          title="红色热情"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#EF4444',
@@ -1717,8 +1717,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #06B6D4, #0891B2)' }}
-                          title="青色清爽"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#06B6D4',
@@ -1734,8 +1734,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #EAB308, #CA8A04)' }}
-                          title="黄色阳光"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#EAB308',
@@ -1751,8 +1751,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
-                          title="玫瑰金"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#F97316',
@@ -1768,8 +1768,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #22C55E, #16A34A)' }}
-                          title="薄荷绿"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#22C55E',
@@ -1785,8 +1785,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #4F46E5, #4338CA)' }}
-                          title="靛青深邃"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#4F46E5',
@@ -1805,8 +1805,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #0EA5E9, #0284C7)' }}
-                          title="湖水蓝"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#0EA5E9',
@@ -1822,8 +1822,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #059669, #047857)' }}
-                          title="森林绿"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#059669',
@@ -1839,8 +1839,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #7C3AED, #6D28D9)' }}
-                          title="紫罗兰"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#7C3AED',
@@ -1856,8 +1856,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #1F2937, #111827)' }}
-                          title="石墨黑"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#1F2937',
@@ -1873,8 +1873,8 @@ export default function MD2CardPage() {
                         <button
                           className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                           style={{ background: 'linear-gradient(135deg, #FB7185, #F43F5E)' }}
-                          title="珊瑚橙"
-                          onClick={() => setCardConfig(prev => ({
+                          title={t('components.labels.标题')}
+        onClick={() => setCardConfig(prev => ({
                             ...prev,
                             colors: {
                               primary: '#FB7185',
@@ -1889,7 +1889,7 @@ export default function MD2CardPage() {
                         {/* 随机配色 */}
                         <button
                           className="group relative w-10 h-10 rounded-md border-2 border-dashed border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 bg-gradient-to-br from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400"
-                          title="随机配色"
+                          title={t('components.labels.标题')}
                           onClick={() => {
                             const generateRandomColor = () => {
                               const hue = Math.floor(Math.random() * 360);
@@ -2294,7 +2294,7 @@ async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg
   try {
     // 环境检查
     if (typeof window === 'undefined') {
-      throw new Error('导出功能需要在浏览器环境中运行');
+      throw new Error(t('components.errors.导出功能需要在浏览器环境中运行'));
     }
     
     // 解析SVG内容
@@ -2357,7 +2357,7 @@ async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg
     return new Promise((resolve, reject) => {
       // 确保在浏览器环境中运行
       if (typeof window === 'undefined' || typeof document === 'undefined') {
-        reject(new Error('导出功能需要在浏览器环境中运行'));
+        reject(new Error(t('components.errors.导出功能需要在浏览器环境中运行')));
         return;
       }
       
@@ -2397,7 +2397,7 @@ async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg
             if (blob) {
               resolve(blob);
             } else {
-              reject(new Error('无法生成图片'));
+              reject(new Error(t('components.errors.无法生成图片')));
             }
           },
           format === 'png' ? 'image/png' : 'image/jpeg',
@@ -2405,7 +2405,7 @@ async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg
         );
       };
       
-      img.onerror = () => reject(new Error('图片加载失败'));
+      img.onerror = () => reject(new Error(t('components.errors.图片加载失败')));
       
       // 使用处理后的SVG内容创建data URL
       try {

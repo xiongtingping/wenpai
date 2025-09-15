@@ -8,6 +8,7 @@
  * - 保持向后兼容性
  */
 
+import i18n from '@/i18n';
 import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 import { logger } from '@/utils/logger';
 
@@ -93,7 +94,7 @@ export class DataStorageMigration {
           result.errors.push(`${migration.description}迁移失败: ${migrationResult.error}`);
         }
       } catch (error) {
-        const errorMsg = `${migration.description}迁移异常: ${error instanceof Error ? error.message : '未知错误'}`;
+        const errorMsg = `${migration.description}迁移异常: ${error instanceof Error ? error.message : i18n.t('utils.errors.未知错误')}`;
         result.errors.push(errorMsg);
         result.success = false;
         result.details[migration.corpusType] = {
@@ -180,7 +181,7 @@ export class DataStorageMigration {
       };
 
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : '未知错误';
+      const errorMsg = error instanceof Error ? error.message : i18n.t('utils.errors.未知错误');
       console.error(`❌ ${migration.description}迁移失败:`, error);
       return { 
         success: false, 
@@ -274,7 +275,7 @@ export class DataStorageMigration {
       };
 
     } catch (error) {
-      issues.push(`验证过程出错: ${error instanceof Error ? error.message : '未知错误'}`);
+      issues.push(`验证过程出错: ${error instanceof Error ? error.message : i18n.t('utils.errors.未知错误')}`);
       return {
         isValid: false,
         issues,
@@ -314,7 +315,7 @@ export class DataStorageMigration {
             console.log(`🔄 已恢复: ${backupKey} -> ${originalKey}`);
           }
         } catch (error) {
-          const errorMsg = `恢复${backupKey}失败: ${error instanceof Error ? error.message : '未知错误'}`;
+          const errorMsg = `恢复${backupKey}失败: ${error instanceof Error ? error.message : i18n.t('utils.errors.未知错误')}`;
           result.errors.push(errorMsg);
           result.success = false;
         }
@@ -325,7 +326,7 @@ export class DataStorageMigration {
 
     } catch (error) {
       result.success = false;
-      result.errors.push(`回滚过程异常: ${error instanceof Error ? error.message : '未知错误'}`);
+      result.errors.push(`回滚过程异常: ${error instanceof Error ? error.message : i18n.t('utils.errors.未知错误')}`);
       return result;
     }
   }
@@ -342,7 +343,7 @@ export async function quickMigrateUserData(userId: string): Promise<MigrationRes
     return {
       success: false,
       migratedItems: 0,
-      errors: [error instanceof Error ? error.message : '迁移初始化失败'],
+      errors: [error instanceof Error ? error.message : i18n.t('utils.errors.迁移初始化失败')],
       details: {}
     };
   }
@@ -358,7 +359,7 @@ export async function validateUserDataMigration(userId: string) {
   } catch (error) {
     return {
       isValid: false,
-      issues: [error instanceof Error ? error.message : '验证失败'],
+      issues: [error instanceof Error ? error.message : i18n.t('utils.errors.验证失败')],
       supabaseDataCount: 0,
       localBackupCount: 0
     };

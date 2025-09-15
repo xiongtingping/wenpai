@@ -17,18 +17,18 @@ export const baseEmotions = [
  * 风格选项
  */
 export const styleOptions = [
-  { value: 'cute', label: '可爱风格', emoji: '🥰' },
-  { value: 'modern', label: '现代简约', emoji: '✨' },
-  { value: 'vintage', label: '复古经典', emoji: '📷' },
-  { value: 'cartoon', label: '卡通动漫', emoji: '🎨' },
-  { value: 'minimalist', label: '极简主义', emoji: '⚪' },
+  { value: 'cute', label: i18n.t('common.labels.可爱风格'), emoji: '🥰' },
+  { value: 'modern', label: i18n.t('common.labels.现代简约'), emoji: '✨' },
+  { value: 'vintage', label: i18n.t('common.labels.复古经典'), emoji: '📷' },
+  { value: 'cartoon', label: i18n.t('common.labels.卡通动漫'), emoji: '🎨' },
+  { value: 'minimalist', label: i18n.t('common.labels.极简主义'), emoji: '⚪' },
   { value: '3d', label: '3D立体', emoji: '🎯' },
 ];
 
 /**
  * 复杂度描述
  */
-export const complexityLabels = ['简单', '适中', '复杂', '非常复杂', '极度复杂'];
+export const complexityLabels = [i18n.t('common.labels.简单'), i18n.t('common.labels.适中'), i18n.t('common.labels.复杂'), i18n.t('common.labels.非常复杂'), i18n.t('common.labels.极度复杂')];
 
 /**
  * 根据品牌和角色描述构建情绪prompt
@@ -53,7 +53,7 @@ export function generateBasePrompt(uploadedData: { image?: File; description?: s
   if (!uploadedData) return '';
 
   let basePrompt = '';
-  const styleLabel = styleOptions.find(s => s.value === style)?.label || '可爱';
+  const styleLabel = styleOptions.find(s => s.value === style)?.label || i18n.t('common.labels.可爱');
   
   if (uploadedData.image) {
     basePrompt = `基于上传的品牌图片，创建一个${styleLabel}的Emoji表情`;
@@ -125,6 +125,6 @@ export function generateBatchPrompts(
   
   return emotionPrompts.map(({ emotion, prompt }) => ({
     emotion,
-    prompt: `${prompt}，${styleOptions.find(s => s.value === style)?.label || '可爱'}风格，${complexityLabels[complexity - 1]}程度的设计`
+    prompt: `${prompt}，${styleOptions.find(s => s.value === style)?.label || i18n.t('common.labels.可爱')}风格，${complexityLabels[complexity - 1]}程度的设计`
   }));
 }

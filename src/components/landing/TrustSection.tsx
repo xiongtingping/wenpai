@@ -56,12 +56,12 @@ export function TrustSection() {
           </div>
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 theme-platform-card-bg rounded-xl shadow-sm border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 mx-auto group">
             <Rss className="h-8 w-8 theme-platform-icon-3 mb-2 group-hover:scale-110 transition-transform duration-300" />
-            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-300">{t('home.trust.platforms.wangyi')}</span>
+            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-300">{t('home.trust.platforms.toutiao')}</span>
           </div>
           {/* 新增平台logo */}
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 theme-platform-card-bg rounded-xl shadow-sm border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 mx-auto group">
             <Newspaper className="h-8 w-8 theme-platform-icon-1 mb-2 group-hover:scale-110 transition-transform duration-300" />
-            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-300">{t('home.trust.platforms.toutiao')}</span>
+            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-300">{t('home.trust.platforms.wangyi')}</span>
           </div>
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 theme-platform-card-bg rounded-xl shadow-sm border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 mx-auto group">
             <Facebook className="h-8 w-8 theme-platform-icon-2 mb-2 group-hover:scale-110 transition-transform duration-300" />
@@ -86,7 +86,7 @@ export function TrustSection() {
 
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 theme-platform-card-bg rounded-xl shadow-sm border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 mx-auto group">
             <SquarePlay className="h-8 w-8 theme-platform-icon-1 mb-2 group-hover:scale-110 transition-transform duration-300" />
-            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-300">{t('home.trust.platforms.shipinhao')}</span>
+            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-300">{t('home.trust.platforms.youtube')}</span>
           </div>
         </div>
         

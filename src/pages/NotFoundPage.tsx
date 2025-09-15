@@ -15,23 +15,23 @@ function NotFoundPage() {
         <Card className="text-center">
           <CardHeader>
             <div className="mx-auto w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <span className="text-4xl font-bold text-primary">{t('errors.notFoundPage.title')}</span>
+              <span className="text-4xl font-bold text-primary"></span>
             </div>
-            <CardTitle className="text-2xl text-foreground">{t('errors.notFoundPage.subtitle')}</CardTitle>
+            <CardTitle className="text-2xl text-foreground"></CardTitle>
             <p className="text-muted-foreground">
-              {t('errors.notFoundPage.description')}
+              
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* 主要操作按钮 */}
             <Button onClick={() => navigate('/')} className="w-full">
               <Home className="w-4 h-4 mr-2" />
-              {t('errors.notFoundPage.returnHome')}
+              
             </Button>
             
             {/* 建议操作 */}
             <div className="pt-4">
-              <h4 className="font-medium text-foreground mb-3">{t('errors.notFoundPage.suggestions.title')}</h4>
+              <h4 className="font-medium text-foreground mb-3"></h4>
               <div className="grid grid-cols-1 gap-2">
                 <Button 
                   variant="outline" 
@@ -40,7 +40,7 @@ function NotFoundPage() {
                   className="justify-start"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  {t('errors.notFoundPage.suggestions.checkUrl')}
+                  
                 </Button>
                 <Button 
                   variant="outline" 
@@ -49,7 +49,7 @@ function NotFoundPage() {
                   className="justify-start"
                 >
                   <Home className="w-4 h-4 mr-2" />
-                  {t('errors.notFoundPage.suggestions.goHome')}
+                  
                 </Button>
                 <Button 
                   variant="outline" 
@@ -59,7 +59,7 @@ function NotFoundPage() {
                 >
                   <a href="mailto:hello@wenpai.xyz">
                     <MessageCircle className="w-4 h-4 mr-2" />
-                    {t('errors.notFoundPage.suggestions.contactUs')}
+                    
                   </a>
                 </Button>
               </div>
@@ -73,10 +73,10 @@ function NotFoundPage() {
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-muted-foreground mt-0.5" />
               <div className="text-sm text-muted-foreground">
-                <p className="mb-2">{t('errors.notFoundPage.suggestions.title')}</p>
+                <p className="mb-2"></p>
                 <ul className="space-y-1 text-xs">
                   <li>• {t('errors.notFoundPage.suggestions.checkUrl')}</li>
-                  <li>• {t('errors.notFoundPage.suggestions.useNavigation')}</li>
+                  <li>• </li>
                   <li>• {t('errors.notFoundPage.suggestions.contactUs')}</li>
                 </ul>
               </div>

@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -72,7 +73,7 @@ interface ResultsDisplayProps {
 /**
  * 生成步骤指示器
  */
-function StepIndicator({ steps }: { steps: GenerationStep[] }) {
+function StepIndicator({ steps  }: { steps: GenerationStep[] }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
       {steps.map((step, index) => (
@@ -152,12 +153,12 @@ function PlatformResultCard({
       await navigator.clipboard.writeText(result.content);
       onCopyContent(result.content, result.platformId);
       toast({
-        title: "已复制到剪贴板",
+        title: t('components.labels.已复制到剪贴板'),
         description: `${getPlatformName(result.platformId)}的内容已复制`,
       });
     } catch (error) {
       toast({
-        title: "复制失败",
+        title: t('components.labels.复制失败'),
         description: "请手动选择并复制内容",
         variant: "destructive"
       });

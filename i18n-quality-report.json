@@ -1,0 +1,2199 @@
+{
+  "timestamp": "2025-09-14T02:27:52.242Z",
+  "summary": {
+    "totalIssues": 363,
+    "errorCount": 257,
+    "warningCount": 64,
+    "infoCount": 42
+  },
+  "statistics": {
+    "totalKeys": 1409,
+    "translatedKeys": 1325,
+    "missingKeys": 63,
+    "inconsistentKeys": 1,
+    "duplicateKeys": 255
+  },
+  "completeness": {
+    "percentage": 94
+  },
+  "issues": [
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.subtitle",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.233Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.updateDate",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.version",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.description",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceOverview.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceOverview.description",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceOverview.services.aiContent.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceOverview.services.aiContent.description",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceOverview.services.platformAdapt.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceOverview.services.platformAdapt.description",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceOverview.services.brandManagement.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceOverview.services.brandManagement.description",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceOverview.services.hotTopics.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceOverview.services.hotTopics.description",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.accountUsage.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.accountUsage.registration.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.accountUsage.registration.requirements",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.accountUsage.limitations.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.accountUsage.limitations.rules",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.trial.name",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.trial.description",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.pro.name",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.pro.description",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.premium.name",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.premium.description",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.offer.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.offer.description",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.offer.monthlyPayment",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.offer.yearlyPayment",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.plans.offer.yearlySaving",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.billing.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.billing.feeCollection.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.billing.feeCollection.rules",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.billing.discountPolicy.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.subscription.billing.discountPolicy.rules",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.contentStandards.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.contentStandards.requirements.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.contentStandards.requirements.rules",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.contentStandards.prohibitedActions.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.contentStandards.prohibitedActions.rules",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.aiContent.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.aiContent.ownership.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.aiContent.ownership.rules",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.aiContent.quality.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.aiContent.quality.disclaimers",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.intellectualProperty.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.intellectualProperty.rules",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceAvailability.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.serviceAvailability.commitments",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.disclaimers.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.disclaimers.statements",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.disputeResolution.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.disputeResolution.procedures",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.termUpdates.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.termUpdates.policies",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.contact.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.contact.description",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.contact.methods.customerEmail.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.contact.methods.customerEmail.value",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.contact.methods.workingHours.title",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "missing_translation",
+      "message": "en-US 缺少翻译键: terms.sections.contact.methods.workingHours.value",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.acceptTerms",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.agreement",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userRights",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userObligations",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.serviceDescription",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.privacyProtection",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.intellectualProperty",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.disclaimers",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.governing",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.contactInfo",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.introduction.title",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.introduction.content",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.serviceScope.title",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.serviceScope.aiContent",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.serviceScope.platformAdapt",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.serviceScope.brandManagement",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.serviceScope.hotTopics",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.serviceScope.contentExtraction",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userRightsDetails.title",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userRightsDetails.freeUsage",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userRightsDetails.paidFeatures",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userRightsDetails.dataPortability",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userRightsDetails.accountDeletion",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userObligationsDetails.title",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userObligationsDetails.legalUsage",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userObligationsDetails.respectIPR",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userObligationsDetails.accurateInfo",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.userObligationsDetails.accountSecurity",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.intellectualPropertyDetails.title",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.intellectualPropertyDetails.platformIP",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.intellectualPropertyDetails.userContent",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.intellectualPropertyDetails.aiGenerated",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.intellectualPropertyDetails.thirdPartyIP",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.disclaimersDetails.title",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.disclaimersDetails.serviceAvailability",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.disclaimersDetails.contentAccuracy",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.disclaimersDetails.thirdPartyServices",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.disclaimersDetails.dataLoss",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.contactDetails.title",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.contactDetails.email",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.contactDetails.website",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "extra_key",
+      "message": "en-US 存在多余键: terms.contactDetails.feedback",
+      "severity": "info",
+      "timestamp": "2025-09-14T02:27:52.234Z"
+    },
+    {
+      "type": "inconsistent_translation",
+      "message": "en-US 键 language.chinese 翻译不一致: \"中文\" -> \"中文\"",
+      "severity": "warning",
+      "timestamp": "2025-09-14T02:27:52.235Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 内容适配 (路径: nav.adapt, home.features.adapt.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 创意魔方 (路径: nav.creative, home.features.creative.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 全网雷达 (路径: nav.hotTopics, home.features.radar.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 品牌库 (路径: nav.brandLibrary, home.features.brandLibrary.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 内容提取器 (路径: nav.extractor, home.features.extractor.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 表情生成器 (路径: nav.emoji, home.features.emoji.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: /月 (路径: home.pricing.pro.period, home.pricing.premium.period)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 专业版 (路径: home.pricing.pro.name, home.pricing.professionalVersion)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 立即升级 (路径: home.pricing.upgrade, home.pricing.upgradeToTitle)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 全网雷达 (路径: nav.hotTopics, home.pricing.comparisonTable.hotRadar)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 创意魔方 (路径: nav.creative, home.pricing.comparisonTable.creativeCube)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 品牌库 (路径: nav.brandLibrary, home.pricing.comparisonTable.brandLibrary)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 联系销售 (路径: home.pricing.contact, home.cta.contactSales)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: AI内容适配器 (路径: home.pricing.comparisonTable.aiContentAdapter, home.featuresSection.mainFeatures.contentAdapter.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 创意魔方 (路径: nav.creative, home.featuresSection.mainFeatures.creativeCube.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 专业版 (路径: home.pricing.pro.name, home.featuresSection.mainFeatures.creativeCube.badge)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 全网雷达 (路径: nav.hotTopics, home.featuresSection.mainFeatures.hotRadar.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 我的资料库 (路径: home.pricing.comparisonTable.myLibrary, home.featuresSection.mainFeatures.myLibrary.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 品牌库 (路径: nav.brandLibrary, home.featuresSection.mainFeatures.brandLibrary.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 高级版 (路径: home.pricing.premiumVersion, home.featuresSection.mainFeatures.brandLibrary.badge)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 朋友圈模板 (路径: nav.wechatTemplate, home.featuresSection.quickTools.wechatTemplate.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: AI驱动 (路径: home.highlights.aiPowered, home.featuresSection.advantages.aiPowered.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 服务条款 (路径: nav.terms, footer.termsOfService)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 隐私政策 (路径: nav.privacy, footer.privacyPolicy)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 品牌库 (路径: nav.brandLibrary, brandLibrary.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 创意魔方 (路径: nav.creative, creative.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: AI驱动 (路径: home.highlights.aiPowered, creative.aiPowered)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 品牌调性 (路径: brandLibrary.brandTone, creative.brandTone)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 全网雷达 (路径: nav.hotTopics, hotTopics.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 微博 (路径: home.trust.platforms.weibo, hotTopics.weibo)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 知乎 (路径: home.trust.platforms.zhihu, hotTopics.zhihu)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 抖音 (路径: home.trust.platforms.douyin, hotTopics.douyin)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 内容提取器 (路径: nav.extractor, extractor.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 历史记录 (路径: home.featuresSection.quickTools.history.title, adapt.buttons.history)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 生成内容 (路径: creative.generateContent, adapt.buttons.generate)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 取消 (路径: common.cancel, adapt.buttons.cancel)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 确认 (路径: common.confirm, adapt.buttons.confirm)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 自动化转发完成 (路径: adapt.messages.automationCompleted, adapt.automation.completed)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 自动化转发失败 (路径: adapt.errors.automationFailed, adapt.automation.failed)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 自定义提示 (路径: creative.customPrompt, emoji.customPrompt)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 下载 (路径: common.download, emoji.download)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 复制 (路径: common.copy, emoji.copy)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 复制成功 (路径: emoji.copySuccess, wechatTemplate.copySuccess)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 复制失败 (路径: emoji.copyFailed, wechatTemplate.copyFailed)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 我的资料库 (路径: home.pricing.comparisonTable.myLibrary, bookmark.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 升级套餐 (路径: nav.upgrade, upgrade.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 当前套餐 (路径: home.pricing.currentPlan, upgrade.currentPlan)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 立即升级 (路径: home.pricing.upgrade, upgrade.upgradeNow)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 联系销售 (路径: home.pricing.contact, upgrade.contactSales)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 免费版 (路径: home.pricing.free.name, upgrade.freePlan)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 专业版 (路径: home.pricing.pro.name, upgrade.proPlan)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 企业版 (路径: home.pricing.premium.name, upgrade.premiumPlan)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 未知错误 (路径: common.unknownError, errors.unknownError)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 返回首页 (路径: errors.notFoundPage.returnHome, errors.notFoundPage.suggestions.goHome)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 联系我们 (路径: footer.contactUs, errors.notFoundPage.suggestions.contactUs)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 返回首页 (路径: errors.notFoundPage.returnHome, errors.forbidden.backToHome)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 返回 (路径: common.back, errors.forbidden.goBack)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 首页 (路径: nav.home, errors.forbidden.home)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 最后更新 (路径: hotTopics.lastUpdated, terms.lastUpdated)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 体验版 (路径: home.pricing.trialVersion, terms.sections.subscription.plans.trial.name)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 专业版 (路径: home.pricing.pro.name, terms.sections.subscription.plans.pro.name)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 高级版 (路径: home.pricing.premiumVersion, terms.sections.subscription.plans.premium.name)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 联系我们 (路径: footer.contactUs, terms.sections.contact.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 最后更新 (路径: hotTopics.lastUpdated, privacy.lastUpdated)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 2024年12月 (路径: terms.updateDate, privacy.updateDate)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 版本 (路径: terms.version, privacy.version)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 个人资料 (路径: auth.profile, privacy.sections.dataCollection.accountInfo.profile)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 客服邮箱 (路径: terms.sections.contact.methods.customerEmail.title, privacy.sections.contactUs.supportEmail)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 个人中心 (路径: nav.profile, profile.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 邮箱 (路径: settings.email, profile.email)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 按年订阅 (路径: home.pricing.yearlyBilling, payment.billing.yearly)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 月付 (路径: terms.sections.subscription.plans.offer.monthlyPayment, payment.billing.monthlyShort)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 年付 (路径: terms.sections.subscription.plans.offer.yearlyPayment, payment.billing.yearlyShort)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 月 (路径: home.pricing.monthShort, payment.billing.month)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 年 (路径: home.pricing.yearShort, payment.billing.year)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 立省17% (路径: home.pricing.yearlyDiscount, payment.billing.savingsPercent)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 推荐 (路径: home.pricing.recommended, payment.labels.recommended)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 全部功能 (路径: home.pricing.allFeatures, payment.labels.premium)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 更省 (路径: home.pricing.moreSavings, payment.labels.savings)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 限时优惠进行中 (路径: home.pricing.limitedTimeOffer, payment.promotion.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 优惠即将结束，立即享受特价！ (路径: home.pricing.offerEndingSoon, payment.promotion.endingSoon)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 切换年付 (路径: payment.billing.switchToYearly, payment.yearlyPromotion.switchButton)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 重试 (路径: adapt.buttons.retry, payment.actions.retry)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 请稍后重试 (路径: emoji.generateFailedDescription, payment.messages.tryAgainLater)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 体验版 (路径: home.pricing.trialVersion, payment.plans.trial.name)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 专业版 (路径: home.pricing.pro.name, payment.plans.pro.name)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 高级版 (路径: home.pricing.premiumVersion, payment.plans.premium.name)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: AI内容适配器 (路径: home.pricing.comparisonTable.aiContentAdapter, payment.plans.features.aiContentAdapter)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 全网雷达 (路径: nav.hotTopics, payment.plans.features.hotRadar)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 创意魔方 (路径: nav.creative, payment.plans.features.creativeCube)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 我的资料库 (路径: home.pricing.comparisonTable.myLibrary, payment.plans.features.myLibrary)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 品牌库 (路径: nav.brandLibrary, payment.plans.features.brandLibrary)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: /月 (路径: home.pricing.pro.period, payment.plans.features.perMonth)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 次/月 (路径: home.pricing.comparisonTable.timesPerMonth, payment.plans.features.timesPerMonth)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 品牌库 (路径: nav.brandLibrary, brandLibraryPage.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 提取内容 (路径: brandLibrary.extractContent, brandLibraryPage.upload.extractContent)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 智能资料管理 (路径: brandLibraryPage.tabs.assets, brandLibraryPage.management.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 待分析 (路径: brandLibraryPage.management.stats.pending, brandLibraryPage.management.status.pending)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 已分析 (路径: brandLibraryPage.management.stats.analyzed, brandLibraryPage.management.status.analyzed)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 错误 (路径: common.error, brandLibraryPage.management.status.error)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 品牌语料库 (路径: brandLibraryPage.tabs.dimensions, brandLibraryPage.corpus.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 品牌名称 (路径: brandLibrary.brandName, brandLibraryPage.corpus.dimensions.brandName)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 品牌描述 (路径: brandLibrary.brandDescription, brandLibraryPage.corpus.dimensions.brandDescription)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 保存 (路径: common.save, brandLibraryPage.corpus.actions.save)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 取消 (路径: common.cancel, brandLibraryPage.corpus.actions.cancel)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 删除 (路径: common.delete, brandLibraryPage.corpus.actions.delete)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 选择分类 (路径: wechatTemplate.categorySelect, brandLibraryPage.placeholders.selectCategory)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 排序 (路径: common.sort, brandLibraryPage.placeholders.sort)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 登录 (路径: auth.login, customLoginPage.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 注册 (路径: auth.register, customLoginPage.registerTitle)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 手机号 (路径: profile.phone, customLoginPage.form.phone)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 登录 (路径: auth.login, customLoginPage.form.loginButton)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 返回 (路径: common.back, customLoginPage.navigation.backToHome)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 注册 (路径: auth.register, customLoginPage.navigation.register)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 隐私政策 (路径: nav.privacy, customLoginPage.privacy.privacyPolicy)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 服务条款 (路径: nav.terms, customLoginPage.privacy.termsOfService)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 高效便捷 (路径: home.highlights.timeSaving, about.values.efficiency.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 团队协作 (路径: upgrade.teamCollaboration, about.features.teamwork.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 联系我们 (路径: footer.contactUs, about.contact.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 意见反馈 (路径: footer.feedback, about.contact.feedback)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 必选 (路径: creativeCube.dimensions.required, creativeCube.controls.required)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 编辑 (路径: common.edit, creativeCube.actions.edit)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 复制 (路径: common.copy, creativeCube.actions.copy)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 保存 (路径: common.save, creativeCube.actions.save)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 取消 (路径: common.cancel, creativeCube.actions.cancel)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 取消钉住 (路径: brandLibraryPage.corpus.actions.unpin, creativeCube.messages.optionUnpinned)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 生成失败 (路径: emoji.generateFailed, creativeCube.errors.generateFailed)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 导出成功 (路径: emoji.exportSuccess, creativeCube.success.exportSuccess)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 内容已复制 (路径: adapt.messages.contentCopied, creativeCube.success.contentCopied)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 用户 (路径: auth.user, creativeCube.userModes.user)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 编辑内容... (Ctrl+Enter保存，Escape取消，失去焦点自动保存) (路径: creativeCube.placeholders.editContent, creativeCube.editing.editPlaceholder)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 主要内容 (路径: creativeCube.result.mainContent, creativeCube.comments.mainContentSection)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 生活方式 (路径: wechatTemplate.categories.lifestyle, creativeCube.platforms.lifestyle)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "zh-CN 存在重复键: 内容形式 (路径: creativeCube.formats.contentForms, promptSystem.dimensions.contentFormatName)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.238Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Creative Cube (路径: nav.creative, home.features.creative.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Trending Radar (路径: nav.hotTopics, home.features.radar.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Brand Library (路径: nav.brandLibrary, home.features.brandLibrary.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Content Extractor (路径: nav.extractor, home.features.extractor.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Emoji Generator (路径: nav.emoji, home.features.emoji.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Free (路径: home.pricing.free.name, home.pricing.free.price)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: /month (路径: home.pricing.pro.period, home.pricing.premium.period)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Professional (路径: home.pricing.pro.name, home.pricing.professionalVersion)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Upgrade Now (路径: home.pricing.upgrade, home.pricing.upgradeToTitle)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Trending Radar (路径: nav.hotTopics, home.pricing.comparisonTable.hotRadar)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Creative Cube (路径: nav.creative, home.pricing.comparisonTable.creativeCube)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Brand Library (路径: nav.brandLibrary, home.pricing.comparisonTable.brandLibrary)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: /month (路径: home.pricing.pro.period, home.pricing.comparisonTable.timesPerMonth)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Contact Sales (路径: home.pricing.contact, home.cta.contactSales)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: AI Content Adapter (路径: home.pricing.comparisonTable.aiContentAdapter, home.featuresSection.mainFeatures.contentAdapter.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Creative Cube (路径: nav.creative, home.featuresSection.mainFeatures.creativeCube.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Trending Radar (路径: nav.hotTopics, home.featuresSection.mainFeatures.hotRadar.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: My Library (路径: home.pricing.comparisonTable.myLibrary, home.featuresSection.mainFeatures.myLibrary.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Brand Library (路径: nav.brandLibrary, home.featuresSection.mainFeatures.brandLibrary.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Premium (路径: home.pricing.premiumVersion, home.featuresSection.mainFeatures.brandLibrary.badge)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Emoji Generator (路径: nav.emoji, home.featuresSection.quickTools.emojiGenerator.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: WeChat Templates (路径: nav.wechatTemplate, home.featuresSection.quickTools.wechatTemplate.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Settings (路径: nav.settings, home.featuresSection.quickTools.settings.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: AI-Powered (路径: home.highlights.aiPowered, home.featuresSection.advantages.aiPowered.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Terms of Service (路径: nav.terms, footer.termsOfService)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Privacy Policy (路径: nav.privacy, footer.privacyPolicy)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Brand Library (路径: nav.brandLibrary, brandLibrary.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Creative Cube (路径: nav.creative, creative.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Brand Tone (路径: brandLibrary.brandTone, creative.brandTone)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Trending Radar (路径: nav.hotTopics, hotTopics.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Weibo (路径: home.trust.platforms.weibo, hotTopics.weibo)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Zhihu (路径: home.trust.platforms.zhihu, hotTopics.zhihu)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Douyin (路径: home.trust.platforms.douyin, hotTopics.douyin)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Bilibili (路径: home.trust.platforms.bilibili, hotTopics.bilibili)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Content Extractor (路径: nav.extractor, extractor.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: History (路径: home.featuresSection.quickTools.history.title, adapt.buttons.history)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Generate Content (路径: creative.generateContent, adapt.buttons.generate)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Cancel (路径: common.cancel, adapt.buttons.cancel)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Confirm (路径: common.confirm, adapt.buttons.confirm)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Custom Prompt (路径: creative.customPrompt, emoji.customPrompt)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Download (路径: common.download, emoji.download)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Copy (路径: common.copy, emoji.copy)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Copy Success (路径: emoji.copySuccess, wechatTemplate.copySuccess)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Copy Failed (路径: emoji.copyFailed, wechatTemplate.copyFailed)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: My Library (路径: home.pricing.comparisonTable.myLibrary, bookmark.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Current Plan (路径: home.pricing.currentPlan, upgrade.currentPlan)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Features (路径: footer.features, upgrade.features)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Upgrade Now (路径: home.pricing.upgrade, upgrade.upgradeNow)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Contact Sales (路径: home.pricing.contact, upgrade.contactSales)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Unlimited (路径: home.pricing.comparisonTable.unlimited, upgrade.unlimited)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Unknown error (路径: common.unknownError, errors.unknownError)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Home (路径: nav.home, errors.forbidden.home)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Terms of Service (路径: nav.terms, terms.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: User Rights (路径: terms.userRights, terms.userRightsDetails.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: User Obligations (路径: terms.userObligations, terms.userObligationsDetails.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Intellectual Property (路径: terms.intellectualProperty, terms.intellectualPropertyDetails.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Disclaimers (路径: terms.disclaimers, terms.disclaimersDetails.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Contact Us (路径: footer.contactUs, terms.contactDetails.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Last Updated (路径: hotTopics.lastUpdated, privacy.lastUpdated)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Profile Center (路径: nav.profile, profile.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Email (路径: settings.email, profile.email)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Annual Subscription (路径: home.pricing.yearlyBilling, payment.billing.yearly)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: month (路径: home.pricing.monthShort, payment.billing.month)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: year (路径: home.pricing.yearShort, payment.billing.year)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Save 17% (路径: home.pricing.yearlyDiscount, payment.billing.savingsPercent)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Recommended (路径: home.pricing.recommended, payment.labels.recommended)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: All Features (路径: home.pricing.allFeatures, payment.labels.premium)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: More Savings (路径: home.pricing.moreSavings, payment.labels.savings)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Current Plan (路径: home.pricing.currentPlan, payment.labels.currentPlan)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Offer ending soon, enjoy special pricing now! (路径: home.pricing.offerEndingSoon, payment.promotion.endingSoon)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Switch to Yearly (路径: payment.billing.switchToYearly, payment.yearlyPromotion.switchButton)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Retry (路径: adapt.buttons.retry, payment.actions.retry)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Please try again later (路径: emoji.generateFailedDescription, payment.messages.tryAgainLater)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Trial (路径: home.pricing.trialVersion, payment.plans.trial.name)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Professional (路径: home.pricing.pro.name, payment.plans.pro.name)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Premium (路径: home.pricing.premiumVersion, payment.plans.premium.name)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: AI Content Adapter (路径: home.pricing.comparisonTable.aiContentAdapter, payment.plans.features.aiContentAdapter)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Trending Radar (路径: nav.hotTopics, payment.plans.features.hotRadar)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Creative Cube (路径: nav.creative, payment.plans.features.creativeCube)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: My Library (路径: home.pricing.comparisonTable.myLibrary, payment.plans.features.myLibrary)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Brand Library (路径: nav.brandLibrary, payment.plans.features.brandLibrary)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Unlimited (路径: home.pricing.comparisonTable.unlimited, payment.plans.features.unlimited)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: /month (路径: home.pricing.pro.period, payment.plans.features.perMonth)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Brand Library (路径: nav.brandLibrary, brandLibraryPage.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Manage your brand assets and resource library (路径: brandLibrary.description, brandLibraryPage.description)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Supported Formats (路径: extractor.supportedFormats, brandLibraryPage.upload.supportedFormats)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Extract Content (路径: brandLibrary.extractContent, brandLibraryPage.upload.extractContent)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Smart Asset Management (路径: brandLibraryPage.tabs.assets, brandLibraryPage.management.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Pending (路径: brandLibraryPage.management.stats.pending, brandLibraryPage.management.status.pending)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Analyzed (路径: brandLibraryPage.management.stats.analyzed, brandLibraryPage.management.status.analyzed)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Error (路径: common.error, brandLibraryPage.management.status.error)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Brand Corpus (路径: brandLibraryPage.tabs.dimensions, brandLibraryPage.corpus.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Brand Name (路径: brandLibrary.brandName, brandLibraryPage.corpus.dimensions.brandName)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Brand Description (路径: brandLibrary.brandDescription, brandLibraryPage.corpus.dimensions.brandDescription)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Brand Values (路径: brandLibrary.brandValues, brandLibraryPage.corpus.dimensions.brandValues)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Save (路径: common.save, brandLibraryPage.corpus.actions.save)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Cancel (路径: common.cancel, brandLibraryPage.corpus.actions.cancel)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Delete (路径: common.delete, brandLibraryPage.corpus.actions.delete)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Select Category (路径: wechatTemplate.categorySelect, brandLibraryPage.placeholders.selectCategory)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Sort (路径: common.sort, brandLibraryPage.placeholders.sort)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Login (路径: customLoginPage.title, customLoginPage.form.loginButton)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Please enter phone number (路径: profile.enterPhone, customLoginPage.validation.phoneRequired)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Back (路径: common.back, customLoginPage.navigation.backToHome)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Register (路径: customLoginPage.registerTitle, customLoginPage.navigation.register)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Privacy Policy (路径: nav.privacy, customLoginPage.privacy.privacyPolicy)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Terms of Service (路径: nav.terms, customLoginPage.privacy.termsOfService)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Team Collaboration (路径: upgrade.teamCollaboration, about.features.teamwork.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Contact Us (路径: footer.contactUs, about.contact.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Feedback (路径: footer.feedback, about.contact.feedback)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Creative Cube (路径: nav.creative, creativeCube.title)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Edit (路径: common.edit, creativeCube.actions.edit)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Copy (路径: common.copy, creativeCube.actions.copy)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Save (路径: common.save, creativeCube.actions.save)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Cancel (路径: common.cancel, creativeCube.actions.cancel)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Content copied (路径: adapt.messages.contentCopied, creativeCube.success.contentCopied)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: User (路径: auth.user, creativeCube.userModes.user)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Edit content... (Ctrl+Enter to save, Escape to cancel, auto-save on blur) (路径: creativeCube.placeholders.editContent, creativeCube.editing.editPlaceholder)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Main Content (路径: creativeCube.result.mainContent, creativeCube.comments.mainContentSection)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Lifestyle (路径: wechatTemplate.categories.lifestyle, creativeCube.platforms.lifestyle)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Video Script (路径: creativeCube.contentTypes.video, promptSystem.contentForms.videoScript.name)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "duplicate_key",
+      "message": "en-US 存在重复键: Target Audience (路径: brandLibrary.targetAudience, promptSystem.dimensions.targetAudienceName)",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "chinese_in_english",
+      "message": "en-US 键 language.chinese 包含中文字符: \"中文\"",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.239Z"
+    },
+    {
+      "type": "chinese_in_english",
+      "message": "en-US 键 privacy.subtitle 包含中文字符: \"文派隐私政策\"",
+      "severity": "error",
+      "timestamp": "2025-09-14T02:27:52.240Z"
+    }
+  ]
+}

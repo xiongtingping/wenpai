@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { BrandProfile, BrandPromptConfig, BrandToneAnalysis } from '@/types/brand';
 import AIAnalysisService from './aiAnalysisService';
 import BrandDatabaseService from './brandDatabaseService';
@@ -151,7 +152,7 @@ export class BrandProfileService {
   public async generatePrompt(topic: string): Promise<string> {
     const profile = await this.getCurrentProfile();
     if (!profile) {
-      throw new Error('未设置品牌档案');
+      throw new Error(i18n.t('common.errors.未设置品牌档案'));
     }
 
     // 使用默认配置
@@ -182,7 +183,7 @@ export class BrandProfileService {
   ): Promise<string> {
     const profile = await this.getCurrentProfile();
     if (!profile) {
-      throw new Error('未设置品牌档案');
+      throw new Error(i18n.t('common.errors.未设置品牌档案'));
     }
 
     return this.promptService.buildBrandPrompt(profile, topic, config);
@@ -202,7 +203,7 @@ export class BrandProfileService {
   ): Promise<string> {
     const profile = await this.getCurrentProfile();
     if (!profile) {
-      throw new Error('未设置品牌档案');
+      throw new Error(i18n.t('common.errors.未设置品牌档案'));
     }
 
     return this.promptService.buildPlatformBrandPrompt(profile, topic, platform, config);
@@ -216,7 +217,7 @@ export class BrandProfileService {
   public async generateContentCheckPrompt(content: string): Promise<string> {
     const profile = await this.getCurrentProfile();
     if (!profile) {
-      throw new Error('未设置品牌档案');
+      throw new Error(i18n.t('common.errors.未设置品牌档案'));
     }
 
     return this.promptService.buildContentCheckPrompt(profile, content);
@@ -230,7 +231,7 @@ export class BrandProfileService {
   public async generateOptimizationPrompt(content: string): Promise<string> {
     const profile = await this.getCurrentProfile();
     if (!profile) {
-      throw new Error('未设置品牌档案');
+      throw new Error(i18n.t('common.errors.未设置品牌档案'));
     }
 
     return this.promptService.buildOptimizationPrompt(profile, content);
@@ -250,7 +251,7 @@ export class BrandProfileService {
   ): Promise<string> {
     const profile = await this.getCurrentProfile();
     if (!profile) {
-      throw new Error('未设置品牌档案');
+      throw new Error(i18n.t('common.errors.未设置品牌档案'));
     }
 
     return this.promptService.buildMultiVersionPrompt(profile, topic, versionCount, config);
@@ -573,7 +574,7 @@ ${combinedContent}
   }> {
     const profile = await this.getCurrentProfile();
     if (!profile) {
-      throw new Error('未设置品牌档案');
+      throw new Error(i18n.t('common.errors.未设置品牌档案'));
     }
 
     try {
@@ -720,7 +721,7 @@ ${combinedContent}
   public async updatePlatformStrategy(platform: keyof BrandProfile['platformStrategies'] | string, strategy: any): Promise<void> {
     const profile = await this.getCurrentProfile();
     if (!profile) {
-      throw new Error('未设置品牌档案');
+      throw new Error(i18n.t('common.errors.未设置品牌档案'));
     }
 
     // 更新平台策略

@@ -116,11 +116,11 @@ export function SessionTimeoutDialog({
 
         <div className="space-y-3 text-sm text-muted-foreground">
           <div className="flex items-start space-x-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+            <div className="w-2 h-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
             <p>点击"延长会话"可以继续使用30分钟</p>
           </div>
           <div className="flex items-start space-x-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+            <div className="w-2 h-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
             <p>任何页面操作都会自动延长会话时间</p>
           </div>
           <div className="flex items-start space-x-2">
@@ -186,8 +186,8 @@ export const sessionTimeoutDialogStyles = `
 /* 响应式设计 */
 @media (max-width: 640px) {
   .session-timeout-dialog {
-    margin: 1rem;
-    width: calc(100vw - 2rem);
+    margin: var(--spacing-4);
+    width: calc(100vw - var(--spacing-8));
     max-width: none;
   }
 }

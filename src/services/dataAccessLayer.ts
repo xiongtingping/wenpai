@@ -9,6 +9,7 @@
  * - 错误处理和重试机制
  */
 
+import i18n from '@/i18n';
 import { createDataService, TABLE_NAMES, type DatabaseRecord, type QueryOptions, type QueryResult } from './supabaseDataService';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -120,8 +121,8 @@ export class DataAccessLayer {
         
         // 如果是权限错误或数据不存在，不重试
         if (error instanceof Error && (
-          error.message.includes('无权访问') ||
-          error.message.includes('不存在') ||
+          error.message.includes(i18n.t('common.errors.无权访问')) ||
+          error.message.includes(i18n.t('common.errors.不存在')) ||
           error.message.includes('PGRST116')
         )) {
           throw error;
@@ -395,7 +396,7 @@ export function useDataAccessLayer() {
   const { user, isAuthenticated } = useAuth();
   
   if (!isAuthenticated || !user?.id) {
-    throw new Error('数据访问层需要用户登录');
+    throw new Error(i18n.t('common.errors.数据访问层需要用户登录'));
   }
 
   const dal = new DataAccessLayer(user.id, user.isAdmin || false);

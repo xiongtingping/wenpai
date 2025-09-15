@@ -9,6 +9,7 @@
  * - 内存缓存管理
  */
 
+import i18n from '@/i18n';
 import { globalDataManager, DATA_CONFIGS } from '@/services/unifiedDataManager';
 
 // 路由数据依赖配置
@@ -349,7 +350,7 @@ export class DataPreloadService {
     try {
       await Promise.race([
         promise,
-        new Promise((_, reject) => setTimeout(() => reject(new Error('等待超时')), timeout))
+        new Promise((_, reject) => setTimeout(() => reject(new Error(i18n.t('common.errors.等待超时'))), timeout))
       ]);
       return true;
     } catch {

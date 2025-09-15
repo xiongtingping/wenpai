@@ -2,6 +2,7 @@
  * BufPay 支付服务
  */
 
+import i18n from '@/i18n';
 import { PaymentRequest, PaymentResponse, BUFPAY_CONFIG } from '@/types/payment';
 import { OrderService } from './orderService';
 import { logger } from '@/utils/logger';
@@ -43,7 +44,7 @@ export class BufPayService {
       const result = await response.json();
       
       if (!result.success) {
-        throw new Error(result.error || '创建订单失败');
+        throw new Error(result.error || i18n.t('common.errors.创建订单失败'));
       }
 
       logger.info('支付订单创建成功:', { 
@@ -80,17 +81,17 @@ export class BufPayService {
       const result = await response.json();
       
       const statusMap: Record<string, string> = {
-        'not_exist': '订单不存在',
+        'not_exist': i18n.t('common.errors.订单不存在'),
         'new': '等待支付',
         'payed': '支付成功，处理中',
         'success': '支付成功',
-        'fee_error': '余额不足',
+        'fee_error': i18n.t('common.errors.余额不足'),
         'expire': '订单已过期'
       };
 
       return {
         status: result.status,
-        message: statusMap[result.status] || '未知状态'
+        message: statusMap[result.status] || i18n.t('common.messages.未知状态')
       };
     } catch (error) {
       logger.error('查询支付状态失败:', error);
@@ -125,20 +126,20 @@ export class BufPayService {
 
       if (!isValidSign) {
         logger.error('支付回调签名验证失败:', notifyData);
-        return { success: false, message: '签名验证失败' };
+        return { success: false, message: i18n.t('common.messages.签名验证失败') };
       }
 
       // 2. 查询订单
       const order = await OrderService.getOrderById(notifyData.order_id);
       if (!order) {
         logger.error('订单不存在:', { orderId: notifyData.order_id });
-        return { success: false, message: '订单不存在' };
+        return { success: false, message: i18n.t('common.errors.订单不存在') };
       }
 
       // 3. 检查订单状态
       if (order.status === 'paid' || order.status === 'processed') {
         logger.info('订单已处理，跳过:', { orderId: notifyData.order_id, status: order.status });
-        return { success: true, message: '订单已处理' };
+        return { success: true, message: i18n.t('common.messages.订单已处理') };
       }
 
       // 4. 更新订单为已支付
@@ -157,10 +158,10 @@ export class BufPayService {
         durationType: order.duration_type
       });
 
-      return { success: true, message: '处理成功' };
+      return { success: true, message: i18n.t('common.messages.处理成功') };
     } catch (error) {
       logger.error('处理支付回调失败:', error);
-      return { success: false, message: '处理失败' };
+      return { success: false, message: i18n.t('common.messages.处理失败') };
     }
   }
 
@@ -178,7 +179,7 @@ export class BufPayService {
 
       const order = await OrderService.getOrderById(orderId);
       if (!order) {
-        throw new Error('订单不存在');
+        throw new Error(i18n.t('common.errors.订单不存在'));
       }
 
       const isPaid = order.status === 'paid' || order.status === 'processed';

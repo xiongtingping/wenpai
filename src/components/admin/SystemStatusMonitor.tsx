@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,23 +27,22 @@ import type { SystemHealthStatus } from '@/services/systemMonitorService';
 /**
  * 状态指示器组件
  */
-const StatusIndicator: React.FC<{
-  status: 'healthy' | 'warning' | 'critical' | 'online' | 'degraded' | 'offline';
+const StatusIndicator: React.FC<{ status: 'healthy' | 'warning' | 'critical' | 'online' | 'degraded' | 'offline';
   size?: 'sm' | 'md' | 'lg';
-}> = ({ status, size = 'md' }) => {
+ }> = ({ status, size = 'md' }) => {
   const getStatusConfig = () => {
     switch (status) {
       case 'healthy':
       case 'online':
-        return { icon: CheckCircle, color: 'text-foreground', bgColor: 'bg-accent', label: '正常' };
+        return { icon: CheckCircle, color: 'text-foreground', bgColor: 'bg-accent', label: t('components.labels.正常') };
       case 'warning':
       case 'degraded':
-        return { icon: AlertTriangle, color: 'text-foreground', bgColor: 'bg-accent', label: '警告' };
+        return { icon: AlertTriangle, color: 'text-foreground', bgColor: 'bg-accent', label: t('components.labels.警告') };
       case 'critical':
       case 'offline':
-        return { icon: XCircle, color: 'text-destructive', bgColor: 'bg-destructive/10', label: '异常' };
+        return { icon: XCircle, color: 'text-destructive', bgColor: 'bg-destructive/10', label: t('components.labels.异常') };
       default:
-        return { icon: Activity, color: 'text-muted-foreground', bgColor: 'bg-accent', label: '未知' };
+        return { icon: Activity, color: 'text-muted-foreground', bgColor: 'bg-accent', label: t('components.labels.未知') };
     }
   };
 
@@ -148,12 +148,12 @@ export const SystemStatusMonitor: React.FC = () => {
                 onClick={() => setAutoRefresh(!autoRefresh)}
               >
                 <Settings className="h-4 w-4 mr-2" />
-                {autoRefresh ? '自动刷新' : '手动刷新'}
+                {autoRefresh ? '自动刷新' : t('components.text.手动刷新_8u5')}
               </Button>
             </div>
           </div>
           <CardDescription>
-            最后更新: {lastRefresh || '未知'}
+            最后更新: {lastRefresh || t('components.labels.未知')}
           </CardDescription>
         </CardHeader>
         <CardContent>

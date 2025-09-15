@@ -10,6 +10,7 @@
  * - 错误监控与日志
  * - 性能优化
  */
+import i18n from '@/i18n';
 import request from './request';
 
 // ==================== 类型定义 ====================
@@ -472,12 +473,12 @@ class HotTopicsAPI {
       });
 
       if (Object.keys(aggregatedData).length === 0) {
-        throw new Error('所有平台数据获取失败');
+        throw new Error(i18n.t('api.errors.所有平台数据获取失败'));
       }
 
       const response: DailyHotResponse = {
         code: 200,
-        message: '获取成功',
+        message: i18n.t('api.messages.获取成功'),
         data: aggregatedData,
         updateTime: new Date().toISOString(),
         cacheTime: Date.now(),
@@ -504,7 +505,7 @@ class HotTopicsAPI {
       return response;
 
     } catch (error) {
-      this.logger.error('聚合热点数据失败', error);
+      this.logger.error(i18n.t('api.errors.聚合热点数据失败'), error);
       endTimer();
 
       // 尝试返回过期缓存
@@ -587,7 +588,7 @@ class HotTopicsAPI {
         return this.aggregateAndSortTopics(allData.data);
       }
     } catch (error) {
-      this.logger.error('获取热点话题失败', error);
+      this.logger.error(i18n.t('api.errors.获取热点话题失败'), error);
       return [];
     }
   }
@@ -598,10 +599,10 @@ class HotTopicsAPI {
   async fetchTopicDetail(topicId: string): Promise<DailyHotItem | null> {
     try {
       // 这里可以根据需要实现具体的话题详情获取逻辑
-      this.logger.debug('获取话题详情', { topicId });
+      this.logger.debug(i18n.t('common.text.获取话题详情_imm'), { topicId });
       return null;
     } catch (error) {
-      this.logger.error('获取话题详情失败', error);
+      this.logger.error(i18n.t('api.errors.获取话题详情失败'), error);
       return null;
     }
   }
@@ -616,7 +617,7 @@ class HotTopicsAPI {
       endTimer();
       return res.data;
     } catch (error) {
-      this.logger.error('获取摩鱼日历失败', error);
+      this.logger.error(i18n.t('api.errors.获取摩鱼日历失败'), error);
       endTimer();
       throw error;
     }
@@ -715,11 +716,11 @@ class HotTopicsAPI {
     const tags: string[] = [];
 
     // 简单的标签提取逻辑
-    if (title.includes('热搜')) tags.push('热搜');
-    if (title.includes('爆料')) tags.push('爆料');
-    if (title.includes('官宣')) tags.push('官宣');
-    if (title.includes('首次')) tags.push('首次');
-    if (title.includes('突发')) tags.push('突发');
+    if (title.includes(i18n.t('api.labels.热搜'))) tags.push(i18n.t('api.labels.热搜'));
+    if (title.includes(i18n.t('api.labels.爆料'))) tags.push(i18n.t('api.labels.爆料'));
+    if (title.includes(i18n.t('api.labels.官宣'))) tags.push(i18n.t('api.labels.官宣'));
+    if (title.includes(i18n.t('api.labels.首次'))) tags.push(i18n.t('api.labels.首次'));
+    if (title.includes(i18n.t('api.labels.突发'))) tags.push(i18n.t('api.labels.突发'));
 
     return tags;
   }

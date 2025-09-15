@@ -4,6 +4,7 @@
  */
 
 import React, { useMemo, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats';
@@ -68,7 +69,7 @@ interface EnhancedStateWrapperProps {
 /**
  * 默认骨架屏组件
  */
-const DefaultSkeleton: React.FC<{ mode: string }> = ({ mode }) => {
+const DefaultSkeleton: React.FC<{ mode: string  }> = ({ mode }) => {
   switch (mode) {
     case 'card':
       return (
@@ -325,7 +326,7 @@ export const EnhancedStateWrapper: React.FC<EnhancedStateWrapperProps> = ({
     return (
       <div className={className}>
         <DefaultErrorComponent
-          error={stateStatus.error || '加载失败'}
+          error={stateStatus.error || t('components.errors.加载失败')}
           enableRetry={enableRetry}
           onRetry={onRetry}
         />

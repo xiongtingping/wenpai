@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -27,8 +28,7 @@ import {
   Gift
 } from 'lucide-react';
 
-const FeatureShowcasePage: React.FC = () => {
-  const { user, updateUser } = useAuth();
+const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useAuth();
   const [discountCountdown, setDiscountCountdown] = useState(0);
 
   // 模拟新用户注册（用于演示）
@@ -60,8 +60,8 @@ const FeatureShowcasePage: React.FC = () => {
   const features = [
     {
       id: 'hot-topics',
-      name: '全网雷达',
-      description: '实时热点话题追踪和分析',
+      name: t('pages.messages.全网雷达'),
+      description: t('pages.messages.实时热点话题追踪和分析'),
       icon: <TrendingUp className="h-6 w-6" />,
       permission: 'auth:required' as const,
       tier: 'trial',
@@ -69,7 +69,7 @@ const FeatureShowcasePage: React.FC = () => {
     },
     {
       id: 'creative-studio',
-      name: '创意魔方',
+      name: t('pages.messages.创意魔方'),
       description: 'AI驱动的创意内容生成工具',
       icon: <Sparkles className="h-6 w-6" />,
       permission: 'feature:creative-studio' as const,
@@ -78,8 +78,8 @@ const FeatureShowcasePage: React.FC = () => {
     },
     {
       id: 'brand-library',
-      name: '品牌库',
-      description: '企业级品牌资产管理系统',
+      name: t('pages.messages.品牌库'),
+      description: t('pages.messages.企业级品牌资产管理系统'),
       icon: <Palette className="h-6 w-6" />,
       permission: 'feature:brand-library' as const,
       tier: 'premium',
@@ -196,10 +196,10 @@ const FeatureShowcasePage: React.FC = () => {
                     ) : (
                       <div>
                         <div className="text-3xl font-bold">
-                          {plan.tier === 'trial' ? '免费' : `¥${plan.monthly.originalPrice}`}
+                          {plan.tier === 'trial' ? t('pages.messages.免费') : `¥${plan.monthly.originalPrice}`}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {plan.tier === 'trial' ? '永久免费' : '每月'}
+                          {plan.tier === 'trial' ? t('pages.messages.永久免费') : t('pages.messages.每月')}
                         </div>
                       </div>
                     )}
@@ -249,7 +249,7 @@ const FeatureShowcasePage: React.FC = () => {
                       </div>
                     </div>
                     <Badge variant="outline" className="text-xs">
-                      {feature.tier === 'pro' ? '专业版功能' : '高级版功能'}
+                      {feature.tier === 'pro' ? t('pages.messages.专业版功能') : t('pages.messages.高级版功能')}
                     </Badge>
                   </CardContent>
                 </Card>

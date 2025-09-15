@@ -50,8 +50,8 @@ function HomePage() {
     <div className="min-h-screen relative">
       {/* 页面访问记录 */}
       <PageTracker
-        title={t('home.title')}
-        description={t('home.heroSubtitle')}
+        title={t('pages.titles.首页')}
+        description={t('pages.descriptions.首页')}
         metadata={{
           layout: 'landing',
           hasNavigation: false,

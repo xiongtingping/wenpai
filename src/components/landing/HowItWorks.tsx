@@ -29,16 +29,22 @@ export function HowItWorks() {
     "bg-gradient-to-br from-purple-500 to-pink-600 text-background"
   ]
   const stepIcons = [FileText, Settings, Sparkles]
-  const stepTitles = [
+  
+  // 使用工厂函数或在渲染时调用，避免在组件外部调用t函数
+  const getStepTitles = () => [
     t('home.howItWorks.step1.title'),
     t('home.howItWorks.step2.title'),
     t('home.howItWorks.step3.title')
   ]
-  const stepDescs = [
+  
+  const getStepDescs = () => [
     t('home.howItWorks.step1.description'),
     t('home.howItWorks.step2.description'),
     t('home.howItWorks.step3.description')
   ]
+  
+  const stepTitles = getStepTitles()
+  const stepDescs = getStepDescs()
 
   return (
     <section className="py-10" id="how-it-works-section">

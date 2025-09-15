@@ -3,6 +3,7 @@
  * 支持标准的支付流程：notify_url + return_url
  */
 
+import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
 import { StandardOrderService, type CreateOrderParams } from '@/services/standardOrderService';
 
@@ -104,7 +105,7 @@ export class StandardBufPayService {
       logger.info('BufPay API 响应:', result);
 
       if (result.code !== 200) {
-        throw new Error(`BufPay 创建支付失败: ${result.message || '未知错误'}`);
+        throw new Error(`BufPay 创建支付失败: ${result.message || i18n.t('common.errors.未知错误')}`);
       }
 
       // 3. 更新订单的支付平台订单号
@@ -121,7 +122,7 @@ export class StandardBufPayService {
         orderId: order.order_id,
         paymentUrl: result.data?.pay_url,
         qrCode: result.data?.qr_code,
-        message: '支付订单创建成功',
+        message: i18n.t('common.messages.支付订单创建成功'),
         order
       };
 
@@ -131,7 +132,7 @@ export class StandardBufPayService {
       return {
         success: false,
         orderId: '',
-        message: error instanceof Error ? error.message : '创建支付订单失败'
+        message: error instanceof Error ? error.message : i18n.t('common.errors.创建支付订单失败')
       };
     }
   }
@@ -172,7 +173,7 @@ export class StandardBufPayService {
       return {
         success: result.code === 200,
         status: result.data?.status || 'unknown',
-        message: result.message || '查询成功',
+        message: result.message || i18n.t('common.messages.查询成功'),
         data: result.data
       };
 
@@ -181,7 +182,7 @@ export class StandardBufPayService {
       return {
         success: false,
         status: 'error',
-        message: error instanceof Error ? error.message : '查询失败'
+        message: error instanceof Error ? error.message : i18n.t('common.errors.查询失败')
       };
     }
   }
@@ -291,13 +292,13 @@ export class StandardBufPayService {
     if (!this.SECRET_KEY) {
       return {
         isValid: false,
-        message: '缺少密钥配置'
+        message: i18n.t('common.messages.缺少密钥配置')
       };
     }
 
     return {
       isValid: true,
-      message: '支付环境配置正常'
+      message: i18n.t('common.messages.支付环境配置正常')
     };
   }
 }

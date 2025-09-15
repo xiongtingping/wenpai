@@ -4,6 +4,7 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
@@ -64,11 +65,10 @@ const PageLoadingContext = createContext<PageLoadingContextType | null>(null);
 /**
  * 使用页面加载上下文
  */
-export function usePageLoading() {
-  const context = useContext(PageLoadingContext);
+export function usePageLoading() { const context = useContext(PageLoadingContext);
   if (!context) {
     throw new Error('usePageLoading must be used within a PageLoadingProvider');
-  }
+   }
   return context;
 }
 
@@ -98,8 +98,8 @@ const PHASE_MESSAGE_MAP: Record<PageLoadingPhase, string> = {
   [PageLoadingPhase.LOADING_USAGE_STATS]: '获取使用统计...',
   [PageLoadingPhase.LOADING_PERMISSIONS]: '验证权限...',
   [PageLoadingPhase.LOADING_PAGE_DATA]: '加载页面数据...',
-  [PageLoadingPhase.COMPLETE]: '加载完成',
-  [PageLoadingPhase.ERROR]: '加载失败'
+  [PageLoadingPhase.COMPLETE]: t('components.messages.加载完成'),
+  [PageLoadingPhase.ERROR]: t('components.errors.加载失败')
 };
 
 /**
@@ -233,7 +233,7 @@ export const PageLoadingScreen: React.FC<PageLoadingScreenProps> = ({
             <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
             <h3 className="text-lg font-semibold text-foreground">加载失败</h3>
             <p className="text-muted-foreground text-sm">
-              {state.error || '页面加载时发生错误'}
+              {state.error || t('components.errors.页面加载时发生错误')}
             </p>
             {state.canRetry && (
               <Button onClick={retry} className="w-full">

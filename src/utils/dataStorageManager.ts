@@ -8,6 +8,7 @@
  * - sessionStorage：临时数据（表单缓存、草稿）
  */
 
+import i18n from '@/i18n';
 import { useAuth } from '@/hooks/useAuth';
 
 export type StorageType = 'database' | 'localStorage' | 'sessionStorage';
@@ -94,7 +95,7 @@ export class DataStorageManager {
    */
   private validateUserAccess(config: StorageConfig): void {
     if (config.requireAuth && !this.isAuthenticated) {
-      throw new Error('需要用户登录才能访问此数据');
+      throw new Error(i18n.t('utils.errors.需要用户登录才能访问此数据'));
     }
     
     if (config.sensitive && !this.user?.id) {

@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import QRCode from 'qrcode';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,11 +20,10 @@ interface DirectLinkQRCodeProps {
   showControls?: boolean;
 }
 
-export default function DirectLinkQRCode({
-  defaultUrl = 'https://www.creem.io/payment/prod_3nJOuQeVStqkp6JaDcrKHf',
+export default function DirectLinkQRCode({ defaultUrl = 'https://www.creem.io/payment/prod_3nJOuQeVStqkp6JaDcrKHf',
   title = 'Creem支付链接二维码',
   showControls = true
-}: DirectLinkQRCodeProps) {
+ }: DirectLinkQRCodeProps) {
   const [paymentUrl, setPaymentUrl] = useState(defaultUrl);
   const [qrCodeDataURL, setQrCodeDataURL] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ export default function DirectLinkQRCode({
 
   const generateQRCode = async (url: string) => {
     if (!url) {
-      setError('请输入有效的支付链接');
+      setError(t('components.errors.请输入有效的支付链接'));
       setQrCodeDataURL('');
       return;
     }
@@ -67,7 +67,7 @@ export default function DirectLinkQRCode({
       console.log('二维码生成成功:', url);
     } catch (err: any) {
       console.error('生成二维码失败:', err);
-      setError(err.message || '生成二维码失败');
+      setError(err.message || t('components.errors.生成二维码失败'));
       setQrCodeDataURL('');
     } finally {
       setLoading(false);
@@ -86,12 +86,12 @@ export default function DirectLinkQRCode({
     try {
       await navigator.clipboard.writeText(paymentUrl);
       toast({
-        title: "链接已复制",
+        title: t('components.labels.链接已复制'),
         description: "支付链接已复制到剪贴板",
       });
     } catch (error) {
       toast({
-        title: "复制失败",
+        title: t('components.labels.复制失败'),
         description: "无法复制链接到剪贴板",
         variant: "destructive",
       });
@@ -118,12 +118,12 @@ export default function DirectLinkQRCode({
       ]);
       
       toast({
-        title: "二维码已复制",
+        title: t('components.labels.二维码已复制'),
         description: "二维码图片已复制到剪贴板",
       });
     } catch (error) {
       toast({
-        title: "复制失败",
+        title: t('components.labels.复制失败'),
         description: "无法复制二维码到剪贴板",
         variant: "destructive",
       });

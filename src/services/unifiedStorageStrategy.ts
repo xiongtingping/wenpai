@@ -15,6 +15,7 @@
  * - 同步策略：实时同步、离线支持、冲突解决
  */
 
+import i18n from '@/i18n';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { safeSaveToLocalStorage, safeLoadFromLocalStorage } from '@/utils/safeDataStorage';
 import { logger } from '@/utils/logger';
@@ -279,7 +280,7 @@ export class UnifiedStorageStrategy {
       logger.error(`数据保存失败: ${key}`, error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : '保存失败'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.保存失败')
       };
     }
   }
@@ -338,7 +339,7 @@ export class UnifiedStorageStrategy {
       return {
         success: false,
         data: defaultValue,
-        error: error instanceof Error ? error.message : '加载失败'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.加载失败')
       };
     }
   }
@@ -349,7 +350,7 @@ export class UnifiedStorageStrategy {
   async remove(key: string): Promise<StorageResult> {
     const config = STORAGE_CONFIG[key];
     if (!config) {
-      return { success: false, error: '未配置的数据类型' };
+      return { success: false, error: i18n.t('common.errors.未配置的数据类型') };
     }
 
     try {
@@ -376,7 +377,7 @@ export class UnifiedStorageStrategy {
       logger.error(`数据删除失败: ${key}`, error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : '删除失败'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.删除失败')
       };
     }
   }
@@ -603,7 +604,7 @@ export class UnifiedStorageStrategy {
       return {
         success: false,
         data: defaultValue,
-        error: '无权访问其他用户的数据',
+        error: i18n.t('common.errors.无权访问其他用户的数据'),
         source: 'local'
       };
     }
@@ -623,7 +624,7 @@ export class UnifiedStorageStrategy {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : '删除失败'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.删除失败')
       };
     }
   }
@@ -663,7 +664,7 @@ export class UnifiedStorageStrategy {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : '数据库保存失败'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.数据库保存失败')
       };
     }
   }
@@ -713,7 +714,7 @@ export class UnifiedStorageStrategy {
       return {
         success: false,
         data: defaultValue,
-        error: error instanceof Error ? error.message : '数据库加载失败',
+        error: error instanceof Error ? error.message : i18n.t('common.errors.数据库加载失败'),
         source: 'database'
       };
     }
@@ -739,7 +740,7 @@ export class UnifiedStorageStrategy {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : '数据库删除失败'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.数据库删除失败')
       };
     }
   }

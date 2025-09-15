@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,7 @@ interface BrandProfileGeneratorProps {
  * 品牌资料上传和分析组件
  * @description 处理品牌资料的上传、分析和品牌调性生成
  */
-export default function BrandProfileGenerator({ onProfileGenerated, existingProfile }: BrandProfileGeneratorProps) {
+export default function BrandProfileGenerator({ onProfileGenerated, existingProfile  }: BrandProfileGeneratorProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -62,7 +63,7 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
       }
 
       toast({
-        title: "文件上传成功",
+        title: t('components.labels.文件上传成功'),
         description: `已成功上传 ${files.length} 个品牌资料文件`,
       });
 
@@ -106,14 +107,14 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
       onProfileGenerated(newProfile);
 
       toast({
-        title: "分析完成",
+        title: t('components.labels.分析完成'),
         description: "AI 已完成品牌资料分析并保存到数据库",
       });
     } catch (error) {
       console.error('处理失败:', error);
       toast({
-        title: "处理失败",
-        description: error instanceof Error ? error.message : "文件处理过程中发生错误",
+        title: t('components.errors.处理失败'),
+        description: error instanceof Error ? error.message : t('components.errors.文件处理过程中发生错误'),
         variant: "destructive",
       });
     } finally {
@@ -178,12 +179,12 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
       onProfileGenerated(newProfile);
 
       toast({
-        title: "分析完成",
+        title: t('components.labels.分析完成'),
         description: "已成功生成品牌调性档案",
       });
     } catch (error) {
       toast({
-        title: "分析失败",
+        title: t('components.labels.分析失败'),
         description: "品牌资料分析过程中发生错误",
         variant: "destructive",
       });

@@ -3,6 +3,7 @@
  * 使用统一的 AI API 调用方式，禁止直接使用 fetch
  */
 
+import i18n from '@/i18n';
 import { callAI, callAIWithRetry, AIModel } from './ai';
 
 // 调试环境变量
@@ -86,7 +87,7 @@ export async function callOpenAIDevProxy(options: {
       throw new Error('网络连接失败，请检查网络设置或配置代理');
     }
     
-    throw new Error(`OpenAI API连接失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    throw new Error(`OpenAI API连接失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
   }
 }
 

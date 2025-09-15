@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,10 +29,9 @@ interface HistoryItem {
  * 历史记录页面组件
  * @returns React 组件
  */
-export default function HistoryPage() {
-  const [history, setHistory] = useState<HistoryItem[]>([]);
+export default function HistoryPage() { const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const { toast  } = useToast();
   const { user, isAuthenticated } = useAuth();
 
   // ✅ FIXED: 用户数据隔离 - 历史记录存储，禁用循环日志
@@ -58,8 +58,8 @@ export default function HistoryPage() {
   const copyToClipboard = (content: string) => {
     navigator.clipboard.writeText(content);
     toast({
-      title: "已复制",
-      description: "内容已复制到剪贴板",
+      title: t('pages.labels.已复制'),
+      description: t('pages.messages.内容已复制到剪贴板'),
     });
   };
 
@@ -72,8 +72,8 @@ export default function HistoryPage() {
     historyDataManager.saveData(newHistory);
 
     toast({
-      title: "删除成功",
-      description: "历史记录已删除",
+      title: t('pages.labels.删除成功'),
+      description: t('pages.messages.历史记录已删除'),
     });
   };
 
@@ -85,8 +85,8 @@ export default function HistoryPage() {
     historyDataManager.removeData();
 
     toast({
-      title: "清空成功",
-      description: "所有历史记录已清空",
+      title: t('pages.labels.清空成功'),
+      description: t('pages.messages.所有历史记录已清空'),
     });
   };
 
@@ -95,14 +95,14 @@ export default function HistoryPage() {
    */
   const getPlatformName = (platformId: string): string => {
     const platformNames: Record<string, string> = {
-      'wechat': '微信',
-      'weibo': '微博',
-      'douyin': '抖音',
-      'xiaohongshu': '小红书',
-      'zhihu': '知乎',
+      'wechat': t('pages.messages.微信'),
+      'weibo': t('pages.messages.微博'),
+      'douyin': t('pages.messages.抖音'),
+      'xiaohongshu': t('pages.messages.小红书'),
+      'zhihu': t('pages.messages.知乎'),
       'bilibili': 'B站',
-      'toutiao': '头条',
-      'kuaishou': '快手',
+      'toutiao': t('pages.messages.头条'),
+      'kuaishou': t('pages.messages.快手'),
     };
     return platformNames[platformId] || platformId;
   };
@@ -134,8 +134,8 @@ export default function HistoryPage() {
       <div className="container mx-auto px-4 py-8">
         {/* 面包屑导航 */}
         <PageNavigation
-          title="历史记录"
-          description="查看您的使用历史和生成记录"
+          title={t('components.labels.标题')}
+          description={t('components.labels.描述')}
         />
         
         <div className="mb-8 mt-4">

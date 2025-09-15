@@ -27,9 +27,7 @@ import {
 /**
  * 设置页面组件
  */
-const SettingsPage: React.FC = () => {
-  const { t } = useTranslation();
-  const { user, logout } = useAuth();
+const SettingsPage: React.FC = () => { const { user, logout  } = useAuth();
   const adminPermission = usePermission('admin:access');
   const [notifications, setNotifications] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
@@ -50,10 +48,10 @@ const SettingsPage: React.FC = () => {
             <Settings className="h-16 w-16 text-primary drop-shadow-sm" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {t('settings.title')}
+            
           </h1>
           <p className="text-muted-foreground">
-            {t('settings.description')}
+            
           </p>
         </div>
 
@@ -65,7 +63,7 @@ const SettingsPage: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-foreground">
               <User className="h-5 w-5 text-primary" />
-              {t('settings.account')}
+              
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -75,15 +73,15 @@ const SettingsPage: React.FC = () => {
                 <span className="text-sm font-mono text-foreground">{user?.id}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">{t('settings.email')}</span>
+                <span className="text-sm text-muted-foreground"></span>
                 <span className="text-sm text-foreground">{user?.email}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">{t('settings.username')}</span>
+                <span className="text-sm text-muted-foreground"></span>
                 <span className="text-sm text-foreground">{user?.username || t('settings.notSet')}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">{t('settings.vipStatus')}</span>
+                <span className="text-sm text-muted-foreground"></span>
                 <Badge variant={user?.isVip ? "default" : "secondary"}>
                   {user?.isVip ? t('settings.vipUser') : t('settings.regularUser')}
                 </Badge>
@@ -97,17 +95,17 @@ const SettingsPage: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-primary">
               <Bell className="h-5 w-5 text-secondary" />
-              {t('settings.notifications')}
+              
             </CardTitle>
             <CardDescription className="text-secondary">
-              {t('settings.notificationPreferences')}
+              
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-foreground">{t('settings.pushNotifications')}</p>
+                  <p className="text-sm font-medium text-foreground"></p>
                   <p className="text-sm text-muted-foreground">{t('settings.pushNotificationDescription')}</p>
                 </div>
                 <Switch
@@ -124,17 +122,17 @@ const SettingsPage: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-foreground">
               <Palette className="h-5 w-5 text-muted-foreground" />
-              {t('settings.appSettings')}
+              
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              {t('settings.customizeAppBehavior')}
+              
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-foreground">{t('settings.autoSave')}</p>
+                  <p className="text-sm font-medium text-foreground"></p>
                   <p className="text-sm text-muted-foreground">{t('settings.autoSaveDescription')}</p>
                 </div>
                 <Switch
@@ -144,8 +142,8 @@ const SettingsPage: React.FC = () => {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-foreground">{t('settings.darkMode')}</p>
-                  <p className="text-sm text-muted-foreground">{t('settings.useDarkTheme')}</p>
+                  <p className="text-sm font-medium text-foreground"></p>
+                  <p className="text-sm text-muted-foreground"></p>
                 </div>
                 <Switch
                   checked={darkMode}
@@ -161,7 +159,7 @@ const SettingsPage: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-foreground">
               <Shield className="h-5 w-5 text-muted-foreground" />
-              {t('settings.security')}
+              
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               {t('settings.manageAccountSecurity')}
@@ -171,12 +169,12 @@ const SettingsPage: React.FC = () => {
             <div className="space-y-4">
               <Button variant="outline" className="w-full justify-start">
                 <Key className="h-4 w-4 mr-2" />
-                {t('settings.changePassword')}
+                
               </Button>
               {adminPermission.pass && (
                 <Button variant="outline" className="w-full justify-start">
                   <Shield className="h-4 w-4 mr-2" />
-                  {t('settings.adminPanel')}
+                  
                 </Button>
               )}
             </div>
@@ -187,7 +185,7 @@ const SettingsPage: React.FC = () => {
         <div className="flex gap-4">
           <Button className="flex-1">
             <Save className="h-4 w-4 mr-2" />
-            {t('settings.saveSettings')}
+            
           </Button>
           <Button variant="outline" onClick={handleLogout}>
             <LogOut className="h-4 w-4 mr-2" />

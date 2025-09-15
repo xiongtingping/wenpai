@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Settings, 
   Key, 
@@ -48,7 +49,7 @@ interface PlatformApiManagerProps {
  * @param props 组件属性
  * @returns React组件
  */
-export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerProps) {
+export function PlatformApiManager({ open, onOpenChange  }: PlatformApiManagerProps) {
   const { toast } = useToast();
   const [platforms, setPlatforms] = useState<PlatformApiConfig[]>([]);
   const [editingPlatform, setEditingPlatform] = useState<PlatformApiConfig | null>(null);
@@ -109,7 +110,7 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
     setEditingPlatform(null);
     
     toast({
-      title: "配置已保存",
+      title: t('components.labels.配置已保存'),
       description: `${editingPlatform.platformName}的API配置已更新`,
     });
   };
@@ -127,7 +128,7 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
     ));
     
     toast({
-      title: "配置已清除",
+      title: t('components.labels.配置已清除'),
       description: "平台API配置已清除",
     });
   };
@@ -141,12 +142,12 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
     if (authUrl) {
       window.open(authUrl, '_blank', 'noopener,noreferrer');
       toast({
-        title: "授权页面已打开",
+        title: t('components.labels.授权页面已打开'),
         description: "请在授权页面完成授权，然后返回配置访问令牌",
       });
     } else {
       toast({
-        title: "授权失败",
+        title: t('components.labels.授权失败'),
         description: "该平台暂不支持授权",
         variant: "destructive"
       });
@@ -165,7 +166,7 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
     setPlatforms(platformsWithConfig);
     
     toast({
-      title: "状态已刷新",
+      title: t('components.labels.状态已刷新'),
       description: "平台配置状态已更新",
     });
   };
@@ -347,7 +348,7 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
                     <div>
                       <h4 className="font-semibold mb-2">配置步骤</h4>
                       <ol className="text-sm text-muted-foreground space-y-1">
-                        <li>1. 点击"授权"按钮，在平台官网完成授权</li>
+                        <li>1. 点击{t('components.text.授权_e28')}按钮，在平台官网完成授权</li>
                         <li>2. 获取API密钥和访问令牌</li>
                         <li>3. 在配置页面填入相关信息</li>
                         <li>4. 保存配置，即可使用API直发功能</li>

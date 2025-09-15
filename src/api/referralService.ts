@@ -3,6 +3,7 @@
  * @description 处理推荐人和被推荐人的奖励逻辑
  */
 
+import i18n from '@/i18n';
 import request from './request';
 
 /**
@@ -72,7 +73,7 @@ export async function sendReferralReward(requestBody: ReferralRewardRequest): Pr
     return result as ReferralRewardResponse;
   } catch (error) {
     console.error('推荐奖励API调用错误:', error);
-    throw new Error(`推荐奖励API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    throw new Error(`推荐奖励API调用失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
   }
 }
 
@@ -89,7 +90,7 @@ export async function getReferralStats(referrerId: string): Promise<ReferralStat
     return (result as any)?.success ? (result as any).data : null;
   } catch (error) {
     console.error('推荐统计API调用失败:', error);
-    throw new Error(`推荐统计API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    throw new Error(`推荐统计API调用失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
   }
 }
 
@@ -106,7 +107,7 @@ export async function validateReferrerId(referrerId: string): Promise<boolean> {
     return !!((result as any)?.success && (result as any)?.isValid);
   } catch (error) {
     console.error('推荐人验证API调用失败:', error);
-    throw new Error(`推荐人验证API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    throw new Error(`推荐人验证API调用失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
   }
 }
 

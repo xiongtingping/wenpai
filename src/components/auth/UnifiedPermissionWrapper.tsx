@@ -4,6 +4,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Crown, Zap, Star, ArrowRight, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -36,15 +37,14 @@ interface UnifiedPermissionWrapperProps {
 /**
  * 获取等级图标
  */
-const getTierIcon = (tier?: string) => {
-  switch (tier) {
+const getTierIcon = (tier?: string) => { switch (tier) {
     case 'premium':
       return <Crown className="w-4 h-4 text-purple-500" />;
     case 'pro':
       return <Zap className="w-4 h-4 text-primary" />;
     default:
       return <Star className="w-4 h-4 text-muted-foreground" />;
-  }
+   }
 };
 
 /**
@@ -170,7 +170,7 @@ export function UnifiedPermissionWrapper({
                 {getTierIcon(requiredLevel)}
               </div>
             </div>
-            <CardTitle className="text-lg">{featureName || '功能锁定'}</CardTitle>
+            <CardTitle className="text-lg">{featureName || t('components.labels.功能锁定')}</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <p className="text-muted-foreground">

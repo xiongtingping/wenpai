@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 /**
  * Authing注册助手
  * 处理注册端点检测和多端点尝试策略
@@ -59,7 +60,7 @@ function generateRegisterUrlVariants(config: RegisterConfig): string[] {
     {
       url: `${host}/${appId}/register`,
       params: new URLSearchParams(baseParams),
-      description: '专用注册端点'
+      description: i18n.t('utils.text.专用注册端点_f2h')
     },
     
     // 变体2: 注册端点（signup）
@@ -134,7 +135,7 @@ export async function getBestRegisterUrl(config: RegisterConfig): Promise<{
   for (let i = 0; i < quickTestVariants.length; i++) {
     const url = quickTestVariants[i];
     const description = [
-      '专用注册端点',
+      i18n.t('utils.text.专用注册端点_f2h'),
       '注册端点(signup)', 
       '登录端点+注册提示'
     ][i];

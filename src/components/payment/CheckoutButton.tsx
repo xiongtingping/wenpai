@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { redirectToCheckout } from '@/api/creemClientService';
@@ -20,8 +21,7 @@ interface CheckoutButtonProps {
   showIcon?: boolean;
 }
 
-export default function CheckoutButton({
-  priceId,
+export default function CheckoutButton({ priceId,
   customerEmail,
   children = '立即支付',
   variant = 'default',
@@ -29,14 +29,14 @@ export default function CheckoutButton({
   className = '',
   disabled = false,
   showIcon = true
-}: CheckoutButtonProps) {
+ }: CheckoutButtonProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const handleCheckout = async () => {
     if (!priceId) {
       toast({
-        title: "错误",
+        title: t('components.labels.错误'),
         description: "产品ID不能为空",
         variant: "destructive",
       });
@@ -51,14 +51,14 @@ export default function CheckoutButton({
       await redirectToCheckout(priceId, customerEmail);
       
       toast({
-        title: "正在跳转",
+        title: t('components.labels.正在跳转'),
         description: "正在跳转到支付页面...",
       });
     } catch (error: any) {
       console.error('支付跳转失败:', error);
       
       toast({
-        title: "支付失败",
+        title: t('components.labels.支付失败'),
         description: error.message || "无法跳转到支付页面，请稍后重试",
         variant: "destructive",
       });

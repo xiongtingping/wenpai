@@ -111,7 +111,7 @@ export function PasswordStrengthIndicator({
               <div key={index} className="flex items-start gap-2 text-xs">
                 <div className="mt-0.5 shrink-0">
                   {strength.isValid ? (
-                    <CheckCircle className="h-3 w-3 text-green-500" />
+                    <CheckCircle className="h-3 w-3 text-success" />
                   ) : (
                     <AlertCircle className="h-3 w-3 text-amber-500" />
                   )}
@@ -126,7 +126,7 @@ export function PasswordStrengthIndicator({
       {/* 安全提示 */}
       {strength.level === 'very-strong' && (
         <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-950/20 rounded-md">
-          <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />
+          <CheckCircle className="h-4 w-4 text-success shrink-0" />
           <span className="text-xs text-green-700 dark:text-green-300">
             密码强度优秀，请妥善保管您的账户信息
           </span>
@@ -145,9 +145,9 @@ function RequirementItem({ met, text }: RequirementItemProps) {
   return (
     <div className="flex items-center gap-2">
       {met ? (
-        <CheckCircle className="h-3 w-3 text-green-500 shrink-0" />
+        <CheckCircle className="h-3 w-3 text-success shrink-0" />
       ) : (
-        <XCircle className="h-3 w-3 text-red-500 shrink-0" />
+        <XCircle className="h-3 w-3 text-destructive shrink-0" />
       )}
       <span 
         className={`text-xs ${

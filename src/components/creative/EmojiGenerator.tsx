@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { buildEmotionPrompts } from '@/lib/emoji-prompts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,7 +16,7 @@ interface EmojiGeneratorProps {
   uploadedImage?: File | null;
 }
 
-export default function EmojiGenerator({ character, brand, uploadedImage }: EmojiGeneratorProps) {
+export default function EmojiGenerator({ character, brand, uploadedImage  }: EmojiGeneratorProps) {
   const [results, setResults] = useState<Array<{ emotion: string; url: string }>>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -27,7 +28,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
   /**
    * 创建SVG占位符图片
    */
-  const createPlaceholderImage = (emotion: string, text: string = '生成失败') => {
+  const createPlaceholderImage = (emotion: string, text: string = t('components.labels.生成失败')) => {
     const svgContent = `
       <svg width="var(--emoji-placeholder-size)" height="var(--emoji-placeholder-size)" xmlns="http://www.w3.org/2000/svg">
         <rect width="var(--emoji-placeholder-size)" height="var(--emoji-placeholder-size)" fill="hsl(var(--muted))"/>
@@ -85,7 +86,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
             console.log('Emoji描述生成成功:', response.content);
             return createPlaceholderImage(emotion, '描述已生成');
           } else {
-            throw new Error(response.error || '图像生成失败');
+            throw new Error(response.error || t('components.errors.图像生成失败'));
           }
         } else {
           // 从prompt中提取emotion信息
@@ -103,7 +104,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
             console.log('Emoji描述生成成功:', response.content);
             return createPlaceholderImage(emotion, '描述已生成');
           } else {
-            throw new Error(response.error || '图像生成失败');
+            throw new Error(response.error || t('components.errors.图像生成失败'));
           }
         }
       } catch (error) {
@@ -224,11 +225,11 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
           // 返回错误占位符
           emojis.push({ 
             emotion, 
-            url: createPlaceholderImage(emotion, '生成失败')
+            url: createPlaceholderImage(emotion, t('components.labels.生成失败'))
           });
           
           // 如果连续失败2次，暂停更长时间
-          const recentFailures = emojis.slice(-2).filter(e => e.url.includes('生成失败')).length;
+          const recentFailures = emojis.slice(-2).filter(e => e.url.includes(t('components.labels.生成失败'))).length;
           if (recentFailures >= 2) {
             console.log('检测到连续失败，暂停8秒...');
             await new Promise(resolve => setTimeout(resolve, 8000));
@@ -238,14 +239,14 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
 
       setResults(emojis);
       toast({
-        title: "生成完成",
+        title: t('components.labels.生成完成'),
         description: `成功生成 ${emojis.length} 个个性化Emoji`,
       });
     } catch (error) {
       console.error('批量生成失败:', error);
       toast({
-        title: "生成失败",
-        description: error instanceof Error ? error.message : "请重试",
+        title: t('components.labels.生成失败'),
+        description: error instanceof Error ? error.message : t('components.errors.请重试'),
         variant: "destructive",
       });
     } finally {

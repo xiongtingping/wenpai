@@ -1,0 +1,246 @@
+/**
+ * 🚨 快速引用弹窗紧急修复CSS - 解决弹窗显示在顶部的问题
+ * 
+ * 目标：强制快速引用弹窗正确居中显示
+ * 策略：超高优先级选择器 + 强制样式覆盖 + 完全重置
+ * 
+ * 根本问题：弹窗显示在网页顶部，只能看到一半
+ * 解决方案：使用最强的CSS选择器和!important声明
+ */
+
+/* ========================================
+   🚨 超强选择器 - 快速引用弹窗专用
+   ======================================== */
+
+/* 🎯 最高优先级选择器组合 */
+html body div[data-radix-portal] [role="dialog"],
+html body div[data-radix-portal] [data-radix-dialog-content],
+html body [data-radix-portal] [role="dialog"],
+html body [data-radix-portal] [data-radix-dialog-content],
+body > div[data-radix-portal] [role="dialog"],
+body > [data-radix-portal] [role="dialog"],
+[data-radix-portal] [role="dialog"],
+[data-radix-dialog-content],
+.quick-reference-dialog[role="dialog"],
+.quick-reference-dialog[data-radix-dialog-content],
+.quick-reference-dialog,
+[role="dialog"].quick-reference-dialog,
+[role="dialog"][class*="quick-reference"],
+[class*="quick-reference"][role="dialog"] {
+  /* 🚨 强制居中定位 - 绝对最高优先级 */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  
+  /* 🚨 完全重置inset属性 - 关键！ */
+  inset: auto !important;
+  inset-block: auto !important;
+  inset-inline: auto !important;
+  inset-block-start: auto !important;
+  inset-block-end: auto !important;
+  inset-inline-start: auto !important;
+  inset-inline-end: auto !important;
+  
+  /* 🚨 清除干扰属性 */
+  margin: 0 !important;
+  translate: none !important;
+  
+  /* 🚨 强制尺寸设置 */
+  max-width: min(95vw, 1024px) !important;
+  max-height: 85vh !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 320px !important;
+  min-height: 200px !important;
+  
+  /* 🚨 强制层级和可见性 */
+  z-index: 999999 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  
+  /* 🚨 基础样式 */
+  background: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: var(--spacing-2) !important;
+  box-shadow: 0 25px 50px -var(--spacing-3) rgba(0, 0, 0, 0.25) !important;
+  padding: var(--spacing-6) !important;
+  overflow: auto !important;
+  
+  /* 🚨 重置可能影响定位的属性 */
+  contain: none !important;
+  isolation: auto !important;
+  clip-path: none !important;
+  filter: none !important;
+  
+  /* 🚨 性能优化 */
+  will-change: transform, opacity !important;
+  backface-visibility: hidden !important;
+  transform-style: preserve-3d !important;
+}
+
+/* ========================================
+   🚨 强制覆盖所有可能的CSS类
+   ======================================== */
+
+/* 覆盖Tailwind CSS定位类 */
+[role="dialog"][class*="top-"],
+[role="dialog"][class*="left-"],
+[role="dialog"][class*="right-"],
+[role="dialog"][class*="bottom-"],
+[role="dialog"][class*="inset-"],
+[data-radix-dialog-content][class*="top-"],
+[data-radix-dialog-content][class*="left-"],
+[data-radix-dialog-content][class*="right-"],
+[data-radix-dialog-content][class*="bottom-"],
+[data-radix-dialog-content][class*="inset-"] {
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  inset: auto !important;
+}
+
+/* 覆盖transform类 */
+[role="dialog"][class*="translate-"],
+[role="dialog"][class*="transform"],
+[role="dialog"][class*="scale-"],
+[role="dialog"][class*="rotate-"],
+[data-radix-dialog-content][class*="translate-"],
+[data-radix-dialog-content][class*="transform"],
+[data-radix-dialog-content][class*="scale-"],
+[data-radix-dialog-content][class*="rotate-"] {
+  transform: translate(-50%, -50%) !important;
+}
+
+/* 覆盖position类 */
+[role="dialog"][class*="absolute"],
+[role="dialog"][class*="relative"],
+[role="dialog"][class*="static"],
+[data-radix-dialog-content][class*="absolute"],
+[data-radix-dialog-content][class*="relative"],
+[data-radix-dialog-content][class*="static"] {
+  position: fixed !important;
+}
+
+/* ========================================
+   🚨 背景遮罩修复
+   ======================================== */
+
+/* 确保背景遮罩正确显示 */
+[data-radix-dialog-overlay],
+.dialog-overlay,
+[class*="overlay"] {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999998 !important;
+  background-color: hsl(var(--foreground) / 0.5) !important;
+  backdrop-filter: blur(var(--spacing-1)) !important;
+}
+
+/* ========================================
+   🚨 移除动画干扰
+   ======================================== */
+
+/* 强制移除所有可能的动画类 */
+[role="dialog"][class*="slide-"],
+[role="dialog"][class*="fade-"],
+[role="dialog"][class*="zoom-"],
+[role="dialog"][data-state],
+[data-radix-dialog-content][class*="slide-"],
+[data-radix-dialog-content][class*="fade-"],
+[data-radix-dialog-content][class*="zoom-"],
+[data-radix-dialog-content][data-state] {
+  animation: none !important;
+  transition: opacity 0.2s ease-out !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* 特别处理Radix UI的动画状态 */
+[role="dialog"][data-state="open"],
+[role="dialog"][data-state="closed"],
+[data-radix-dialog-content][data-state="open"],
+[data-radix-dialog-content][data-state="closed"] {
+  animation: none !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* ========================================
+   🚨 响应式修复
+   ======================================== */
+
+/* 移动端特殊处理 */
+@media (max-width: 640px) {
+  [role="dialog"],
+  [data-radix-dialog-content] {
+    max-width: calc(100vw - var(--spacing-4)) !important;
+    max-height: calc(100vh - var(--spacing-4)) !important;
+    min-width: 280px !important;
+    padding: var(--spacing-4) !important;
+    
+    /* 确保居中 */
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+}
+
+/* 平板端适配 */
+@media (min-width: 641px) and (max-width: 1024px) {
+  [role="dialog"],
+  [data-radix-dialog-content] {
+    max-width: calc(90vw) !important;
+    max-height: calc(85vh) !important;
+  }
+}
+
+/* ========================================
+   🚨 调试模式
+   ======================================== */
+
+/* 调试模式样式 */
+.dialog-debug [role="dialog"],
+.dialog-debug [data-radix-dialog-content] {
+  border: 3px solid red !important;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.7) !important;
+}
+
+.dialog-debug [role="dialog"]::before,
+.dialog-debug [data-radix-dialog-content]::before {
+  content: "🚨 快速引用弹窗 - 紧急修复";
+  position: absolute;
+  top: -35px;
+  left: 0;
+  background: red;
+  color: white;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--spacing-3);
+  font-weight: bold;
+  border-radius: var(--spacing-1);
+  z-index: 999999;
+  white-space: nowrap;
+}
+
+/* ========================================
+   🚨 最终保险措施
+   ======================================== */
+
+/* 如果以上都失效，使用内联样式覆盖 */
+[role="dialog"][style],
+[data-radix-dialog-content][style] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}

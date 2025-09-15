@@ -17,9 +17,7 @@ import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
  * 创意魔方页面
  * 提供内容创作和创意生成功能
  */
-const CreativeCubePage: React.FC = () => {
-  const { t } = useTranslation();
-  const [prompt, setPrompt] = useState('');
+const CreativeCubePage: React.FC = () => { const [prompt, setPrompt] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState('creative');
@@ -27,7 +25,7 @@ const CreativeCubePage: React.FC = () => {
   // 🔧 移除整页权限检查，改为按钮级权限控制
 
   const contentStyles = [
-    { id: 'creative', name: t('creative.styles.creative'), icon: Sparkles, description: t('creative.styleDescriptions.creative') },
+    { id: 'creative', name: t('creative.styles.creative'), icon: Sparkles, description: t('creative.styleDescriptions.creative')  },
     { id: 'professional', name: t('creative.styles.professional'), icon: Briefcase, description: t('creative.styleDescriptions.professional') },
     { id: 'casual', name: t('creative.styles.casual'), icon: Coffee, description: t('creative.styleDescriptions.casual') },
     { id: 'persuasive', name: t('creative.styles.persuasive'), icon: Target, description: t('creative.styleDescriptions.persuasive') },
@@ -72,7 +70,7 @@ const CreativeCubePage: React.FC = () => {
         taskType: AITaskType.CREATIVE_GENERATION,
         maxTokens: 1000,
         context: { style: selectedStyle },
-        feature: '创意魔方'
+        feature: t('pages.messages.创意魔方')
       });
 
       if (result && result.content) {
@@ -99,14 +97,14 @@ const CreativeCubePage: React.FC = () => {
 
       {/* 页面导航 */}
       <PageNavigation
-        title={t('creative.title')}
-        description={t('creative.description')}
+        title={t('components.labels.标题')}
+        description={t('components.labels.描述')}
         showAdaptButton={false}
         showUpgradeButton={false}
         actions={
           <RoleBasedUpgradePrompt
             requiredTier="pro"
-            featureName={t('creative.title')}
+            featureName=
             description={t('creative.upgradeRequired')}
             mode="compact"
           />
@@ -132,13 +130,13 @@ const CreativeCubePage: React.FC = () => {
                 <Label htmlFor="prompt" className="text-foreground">内容描述</Label>
                 <PermissionProtectedInput
                   requiredTier="pro"
-                  featureName="创意魔方内容输入"
+                  featureName=
                 >
                   <Textarea
                     id="prompt"
                     variant="enhanced"
-                    placeholder={t('creative.contentPlaceholder')}
-                    value={prompt}
+                    placeholder={t('components.labels.占位符')}
+        value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     rows={4}
                   />
@@ -165,7 +163,7 @@ const CreativeCubePage: React.FC = () => {
 
               <PermissionLockedButton
                 requiredTier="pro"
-                featureName={t('creative.title')}
+                featureName=
                 onClick={handleGenerate}
                 disabled={!prompt.trim() || isGenerating}
                 className="w-full"
@@ -199,7 +197,7 @@ const CreativeCubePage: React.FC = () => {
             <CardContent>
               <PermissionProtectedInput
                 requiredTier="pro"
-                featureName="创意魔方内容输出"
+                featureName={t('pages.messages.创意魔方内容输出')}
               >
                 {generatedContent ? (
                   <div className="space-y-4">

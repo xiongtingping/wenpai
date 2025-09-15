@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
 import { AtSign } from "lucide-react";
 import { quickReferenceDataService, QuickReferenceItem } from '@/services/quickReferenceDataService';
@@ -19,11 +20,10 @@ interface QuickReferenceSelectorProps {
 /**
  * 快速引用选择器组件
  */
-export function QuickReferenceSelector({
-  onSelect,
+export function QuickReferenceSelector({ onSelect,
   className,
   multiSelect = false
-}: QuickReferenceSelectorProps) {
+ }: QuickReferenceSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('brand');
   const [searchQuery, setSearchQuery] = useState('');
@@ -122,7 +122,7 @@ export function QuickReferenceSelector({
               🔗 快速引用
             </h2>
             <div style="display: flex; gap: var(--spacing-2);">
-              <button id="refresh-data" style="padding: var(--spacing-2); border: none; border-radius: var(--spacing-1-5); background-color: hsl(var(--muted)); cursor: pointer;" title="刷新数据">
+              <button id="refresh-data" style="padding: var(--spacing-2); border: none; border-radius: var(--spacing-1-5); background-color: hsl(var(--muted)); cursor: pointer;" title=$>
                 🔄
               </button>
               <button id="modal-close" style="padding: var(--spacing-2); border: none; border-radius: var(--spacing-1-5); background-color: #fee2e2; color: hsl(var(--destructive)); cursor: pointer; font-size: var(--spacing-4);">
@@ -284,7 +284,7 @@ export function QuickReferenceSelector({
           }
 
           const typeColor = item.type === 'brand' ? 'hsl(var(--primary))' : item.type === 'library' ? '#10b981' : '#8b5cf6';
-          const typeLabel = item.type === 'brand' ? '品牌库' : item.type === 'library' ? '资料库' : '雷达收藏';
+          const typeLabel = item.type === 'brand' ? t('components.labels.品牌库') : item.type === 'library' ? t('components.labels.资料库') : t('components.labels.雷达收藏');
           const formatIcon = item.format === 'link' ? '🔗' : item.format === 'image' ? '🖼️' : '📄';
 
           itemElement.innerHTML = `

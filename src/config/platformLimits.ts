@@ -191,7 +191,7 @@ export function validateCharCount(platformId: string, charCount: number): {
   } else if (!isInRecommendedRange) {
     message = `建议字符数范围：${limit.recommendedRange.min}-${limit.recommendedRange.max}字符`;
   } else {
-    message = '字符数符合要求';
+    message = i18n.t('common.messages.字符数符合要求');
   }
   
   return { isValid, isInRecommendedRange, message };

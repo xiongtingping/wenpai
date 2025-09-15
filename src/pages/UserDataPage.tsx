@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,8 +48,7 @@ interface UserDataRecord {
 /**
  * 用户数据查看页面
  */
-export default function UserDataPage() {
-  const authState = useAuthStore();
+export default function UserDataPage() { const authState = useAuthStore();
   const [userData, setUserData] = useState<UserDataRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +57,7 @@ export default function UserDataPage() {
 
   useEffect(() => {
     loadUserData();
-  }, [currentUserId]);
+   }, [currentUserId]);
 
   /**
    * 加载用户数据
@@ -80,7 +80,7 @@ export default function UserDataPage() {
       }
     } catch (err) {
       console.error('加载用户数据失败:', err);
-      setError('加载用户数据失败');
+      setError(t('pages.errors.加载用户数据失败'));
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export default function UserDataPage() {
    * 格式化持续时间
    */
   const formatDuration = (duration?: number) => {
-    if (!duration) return '未知';
+    if (!duration) return t('pages.messages.未知');
     const minutes = Math.floor(duration / 60000);
     const seconds = Math.floor((duration % 60000) / 1000);
     return `${minutes}分${seconds}秒`;
@@ -140,8 +140,8 @@ export default function UserDataPage() {
       <div className="container mx-auto px-4 py-8">
       {/* 页面访问记录 */}
       <PageTracker 
-        title="用户数据管理"
-        description="查看和管理用户数据记录"
+        title={t('components.labels.标题')}
+        description=$
         metadata={{
           layout: 'tool',
           hasNavigation: true,
@@ -223,7 +223,7 @@ export default function UserDataPage() {
                           <div className="flex items-center justify-between mb-2">
                             <div className="font-medium">{visit.page}</div>
                             <Badge variant="outline">
-                              {record.isTempUser ? '临时用户' : '正式用户'}
+                              {record.isTempUser ? t('pages.messages.临时用户') : t('pages.messages.正式用户')}
                             </Badge>
                           </div>
                           <div className="text-sm text-muted-foreground space-y-1">
@@ -258,7 +258,7 @@ export default function UserDataPage() {
                           <div className="flex items-center justify-between mb-2">
                             <div className="font-medium">{usage.feature}</div>
                             <Badge variant="outline">
-                              {record.isTempUser ? '临时用户' : '正式用户'}
+                              {record.isTempUser ? t('pages.messages.临时用户') : t('pages.messages.正式用户')}
                             </Badge>
                           </div>
                           <div className="text-sm text-muted-foreground space-y-1">
@@ -297,7 +297,7 @@ export default function UserDataPage() {
                           <div className="flex items-center justify-between mb-2">
                             <div className="font-medium">{content.title}</div>
                             <Badge variant="outline">
-                              {record.isTempUser ? '临时用户' : '正式用户'}
+                              {record.isTempUser ? t('pages.messages.临时用户') : t('pages.messages.正式用户')}
                             </Badge>
                           </div>
                           <div className="text-sm text-muted-foreground space-y-1">

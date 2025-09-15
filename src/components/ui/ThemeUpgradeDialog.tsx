@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -25,19 +26,16 @@ interface ThemeUpgradeDialogProps {
   currentTier?: 'trial' | 'pro' | 'premium';
 }
 
-export const ThemeUpgradeDialog: React.FC<ThemeUpgradeDialogProps> = ({
-  open,
+export const ThemeUpgradeDialog: React.FC<any> = ({ open,
   onOpenChange,
   themeName,
   requiredTier,
-  currentTier = 'trial'
-}) => {
-  const navigate = useNavigate();
+  currentTier = 'trial' }) => { const navigate = useNavigate();
 
   const tierInfo = {
-    trial: { name: '体验版', color: 'bg-muted text-gray-800' },
-    pro: { name: '专业版', color: 'bg-blue-100 text-blue-800' },
-    premium: { name: '高级版', color: 'bg-purple-100 text-purple-800' }
+    trial: { name: t('components.messages.体验版'), color: 'bg-muted text-gray-800'  },
+    pro: { name: t('components.messages.专业版'), color: 'bg-blue-100 text-blue-800' },
+    premium: { name: t('components.messages.高级版'), color: 'bg-purple-100 text-purple-800' }
   };
 
   const handleUpgrade = () => {
@@ -50,14 +48,14 @@ export const ThemeUpgradeDialog: React.FC<ThemeUpgradeDialogProps> = ({
       return {
         title: `解锁 ${themeName} 主题`,
         description: '升级到专业版即可使用深色主题，提升夜间使用体验',
-        features: ['深色主题', '护眼模式', '专业功能'],
+        features: [t('components.messages.深色主题'), t('components.messages.护眼模式'), t('components.messages.专业功能')],
         price: '¥29/月'
       };
     } else {
       return {
         title: `解锁 ${themeName} 主题`,
         description: '升级到高级版即可使用全部主题，包括蓝色、米色、绿色等多种风格',
-        features: ['全部主题', '个性化定制', '高级功能'],
+        features: [t('components.messages.全部主题'), t('components.messages.个性化定制'), t('components.messages.高级功能')],
         price: '¥79/月'
       };
     }

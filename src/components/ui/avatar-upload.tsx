@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
@@ -30,15 +31,14 @@ interface AvatarUploadProps {
 /**
  * 头像上传组件
  */
-export function AvatarUpload({
-  currentAvatar,
-  nickname = '用户',
+export function AvatarUpload({ currentAvatar,
+  nickname = t('components.messages.用户'),
   size = 'md',
   showUploadButton = true,
   showRandomButton = true,
   onAvatarChange,
   disabled = false
-}: AvatarUploadProps) {
+ }: AvatarUploadProps) {
   const [avatarUrl, setAvatarUrl] = useState(currentAvatar || '');
   const [isUploading, setIsUploading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -98,7 +98,7 @@ export function AvatarUpload({
         onAvatarChange?.(randomAvatarUrl);
 
         toast({
-          title: "头像生成成功",
+          title: t('components.labels.头像生成成功'),
           description: `已为您生成可爱的${selectedEmoji.name} ${selectedEmoji.emoji}头像`,
         });
       } else {
@@ -116,13 +116,13 @@ export function AvatarUpload({
         onAvatarChange?.(randomAvatarUrl);
 
         toast({
-          title: "头像生成成功",
-          description: "已为您生成新的随机头像",
+          title: t('components.labels.头像生成成功'),
+          description: t('components.messages.已为您生成新的随机头像'),
         });
       } catch (fallbackError) {
         console.error('Dicebear API也失败了:', fallbackError);
         toast({
-          title: "生成失败",
+          title: t('components.labels.生成失败'),
           description: "随机头像生成失败，请重试",
           variant: "destructive"
         });
@@ -142,8 +142,8 @@ export function AvatarUpload({
     // 验证文件类型
     if (!file.type.startsWith('image/')) {
       toast({
-        title: "文件类型错误",
-        description: "请选择图片文件",
+        title: t('components.labels.文件类型错误'),
+        description: t('components.messages.请选择图片文件'),
         variant: "destructive"
       });
       return;
@@ -152,7 +152,7 @@ export function AvatarUpload({
     // 验证文件大小（最大 5MB）
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: "文件过大",
+        title: t('components.labels.文件过大'),
         description: "图片大小不能超过 5MB",
         variant: "destructive"
       });
@@ -167,13 +167,13 @@ export function AvatarUpload({
       onAvatarChange?.(imageUrl);
       
       toast({
-        title: "头像上传成功",
-        description: "您的头像已更新",
+        title: t('components.labels.头像上传成功'),
+        description: t('components.messages.您的头像已更新'),
       });
     } catch (error) {
       console.error('上传头像失败:', error);
       toast({
-        title: "上传失败",
+        title: t('components.labels.上传失败'),
         description: "头像上传失败，请重试",
         variant: "destructive"
       });
@@ -201,7 +201,7 @@ export function AvatarUpload({
       {/* 头像显示 */}
       <div className="relative">
         <Avatar className={getSizeClass()}>
-          <AvatarImage src={avatarUrl} alt={getUserAltText({ nickname }, '头像')} />
+          <AvatarImage src={avatarUrl} alt={getUserAltText({ nickname }, t('components.messages.头像'))} />
           <AvatarFallback className="bg-primary text-primary-foreground text-lg font-semibold">
             {getInitials()}
           </AvatarFallback>
@@ -226,7 +226,7 @@ export function AvatarUpload({
             className="flex-1"
           >
             <Camera className="h-4 w-4 mr-2" />
-            {isUploading ? '上传中...' : '上传头像'}
+            {isUploading ? '上传中...' : t('components.messages.上传头像')}
           </Button>
         )}
         
@@ -239,7 +239,7 @@ export function AvatarUpload({
             className="flex-1"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            {isGenerating ? '生成中...' : '随机头像'}
+            {isGenerating ? '生成中...' : t('components.messages.随机头像')}
           </Button>
         )}
       </div>
@@ -255,7 +255,7 @@ export function AvatarUpload({
 
       {/* 提示信息 */}
       <div className="text-xs text-muted-foreground text-center">
-        <p>或点击"随机头像"生成个性化头像</p>
+        <p>或点击t('components.messages.随机头像')生成个性化头像</p>
       </div>
     </div>
   );

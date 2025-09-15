@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserTier } from '@/utils/subscriptionUtils';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
@@ -26,13 +27,10 @@ interface PermissionProtectedInputProps {
 /**
  * 权限保护输入容器组件
  */
-export const PermissionProtectedInput: React.FC<PermissionProtectedInputProps> = ({
-  requiredTier,
+export const PermissionProtectedInput: React.FC<any> = ({ requiredTier,
   featureName,
   children,
-  className = ''
-}) => {
-  const { user, isAuthenticated } = useAuth();
+  className = '' }) => { const { user, isAuthenticated  } = useAuth();
   const { primaryStatus } = useSubscriptionStatus();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -47,9 +45,9 @@ export const PermissionProtectedInput: React.FC<PermissionProtectedInputProps> =
     // 2. 从订阅状态标签推断
     if (primaryStatus?.status === 'active') {
       const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
-      if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
+      if (statusLabel.includes(t('components.labels.高级版')) || statusLabel.includes('premium')) {
         return 'premium';
-      } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
+      } else if (statusLabel.includes(t('components.labels.专业版')) || statusLabel.includes('pro')) {
         return 'pro';
       }
     }

@@ -3,6 +3,7 @@
  * 集成第三方API，提供转换功能和缓存机制
  */
 
+import i18n from '@/i18n';
 import { request } from '@/api/request';
 import { logger } from '@/utils/logger';
 
@@ -148,13 +149,13 @@ export class MD2WeChatService {
 
     } catch (error) {
       const processingTime = Date.now() - startTime;
-      this.log('转换失败', { error: error instanceof Error ? error.message : String(error), processingTime });
+      this.log(i18n.t('common.errors.转换失败'), { error: error instanceof Error ? error.message : String(error), processingTime });
       
       return {
         success: false,
         html: '',
         preview: '',
-        error: error instanceof Error ? error.message : '转换失败',
+        error: error instanceof Error ? error.message : i18n.t('common.errors.转换失败'),
         processingTime
       };
     }
@@ -196,7 +197,7 @@ export class MD2WeChatService {
       */
 
     } catch (error) {
-      throw new Error(`API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(`API调用失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
     }
   }
 
@@ -266,7 +267,7 @@ export class MD2WeChatService {
         'cyber'
       ];
     } catch (error) {
-      this.log('获取主题列表失败', { error });
+      this.log(i18n.t('common.errors.获取主题列表失败'), { error });
       return ['default'];
     }
   }
@@ -297,7 +298,7 @@ export class MD2WeChatService {
         resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
       };
     } catch (error) {
-      this.log('获取配额状态失败', { error });
+      this.log(i18n.t('common.errors.获取配额状态失败'), { error });
       return {
         used: 0,
         remaining: 100,

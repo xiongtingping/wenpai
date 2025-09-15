@@ -3,6 +3,7 @@
  * 支持差价升级（按剩余天数折算）和 prorate（按比例）结算
  */
 
+import i18n from '@/i18n';
 import { supabase } from '@/config/supabase';
 import { getSubscriptionPlans } from '@/config/subscriptionPlans';
 import { logger } from '@/utils/logger';
@@ -64,18 +65,18 @@ export class SubscriptionUpgradeService {
       // 1. 获取用户当前订阅
       const currentSubscription = await this.getCurrentSubscription(userId);
       if (!currentSubscription) {
-        throw new Error('用户没有有效的订阅');
+        throw new Error(i18n.t('common.errors.用户没有有效的订阅'));
       }
 
       // 2. 检查是否为升级（不支持降级）
       if (!this.isUpgrade(currentSubscription.subscription_type as SubscriptionTier, targetTier)) {
-        throw new Error('不支持降级或平级操作');
+        throw new Error(i18n.t('common.errors.不支持降级或平级操作'));
       }
 
       // 3. 计算剩余天数
       const remainingDays = this.calculateRemainingDays(currentSubscription.expires_at);
       if (remainingDays <= 0) {
-        throw new Error('当前订阅已过期');
+        throw new Error(i18n.t('common.errors.当前订阅已过期'));
       }
 
       // 4. 获取订阅计划价格
@@ -84,7 +85,7 @@ export class SubscriptionUpgradeService {
       const targetPlan = subscriptionPlans.find(p => p.tier === targetTier);
 
       if (!currentPlan || !targetPlan) {
-        throw new Error('找不到订阅计划配置');
+        throw new Error(i18n.t('common.errors.找不到订阅计划配置'));
       }
 
       // 5. 计算当前订阅的原始价格和已支付金额（使用原价，不含优惠）
@@ -138,7 +139,7 @@ export class SubscriptionUpgradeService {
           ),
           breakdown: [
             {
-              item: '目标订阅价格',
+              item: i18n.t('services.text.目标订阅价格_qgt'),
               amount: targetPrice,
               description: `${targetTier === 'pro' ? '专业版' : '高级版'} ${targetPeriod === 'yearly' ? '年付' : '月付'}`
             },
@@ -195,7 +196,7 @@ export class SubscriptionUpgradeService {
       // 2. 获取当前订阅
       const currentSubscription = await this.getCurrentSubscription(userId);
       if (!currentSubscription) {
-        throw new Error('找不到当前订阅');
+        throw new Error(i18n.t('common.errors.找不到当前订阅'));
       }
 
       // 3. 计算新的到期时间
@@ -243,7 +244,7 @@ export class SubscriptionUpgradeService {
       logger.error('执行升级失败:', error);
       return {
         success: false,
-        message: `升级失败: ${error instanceof Error ? error.message : '未知错误'}`
+        message: `升级失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`
       };
     }
   }

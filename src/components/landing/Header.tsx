@@ -157,7 +157,7 @@ export function Header() {
                   } catch (err) { console.warn('Header DOM probe failed', err); }
                   login();
                 }}>
-                  {t('auth.login')}
+                  
                 </Button>
                 <Button
                   onClick={(e) => {
@@ -167,7 +167,7 @@ export function Header() {
                   className="bg-primary hover:bg-primary/90"
                   type="button" // 明确指定按钮类型
                 >
-                  {t('auth.register')}
+                  
                 </Button>
               </div>
             )}
@@ -192,7 +192,7 @@ export function Header() {
                       login('/adapt');
                     }
                   }}>
-                    {t('nav.adapt')}
+                    
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
@@ -203,7 +203,7 @@ export function Header() {
                       login('/hot-topics');
                     }
                   }}>
-                    {t('nav.hotTopics')}
+                    
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
@@ -214,7 +214,7 @@ export function Header() {
                       login('/creative-studio');
                     }
                   }}>
-                    {t('nav.creative')}
+                    
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
@@ -225,7 +225,7 @@ export function Header() {
                       login('/library');
                     }
                   }}>
-                    {t('nav.bookmark')}
+                    
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
@@ -236,27 +236,26 @@ export function Header() {
                       login('/brand-library');
                     }
                   }}>
-                    {t('nav.brandLibrary')}
+                    
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
                   <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
                     navigate('/payment');
                   }}>
-                    {t('nav.upgrade')}
+                    
                   </Button>
                 </SheetClose>
 
                 {/* 移动端主题切换 */}
                 <div className="flex items-center justify-start px-2">
-                  <span className="text-sm font-medium mr-3">{t('settings.theme')}</span>
+                  <span className="text-sm font-medium mr-3">主题</span>
                   <LanguageSwitcher />
             <ThemeToggle />
                 </div>
 
                 {/* 移动端开发环境权限切换 */}
                 <div className="flex items-center justify-start px-2">
-                  <span className="text-sm font-medium mr-3">{t('settings.devTools')}</span>
                       </div>
 
                 {/* 移除分割线 */}

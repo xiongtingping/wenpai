@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Tag, Plus, X, Copy, Save, RotateCcw, Star,
   Edit3, Trash2, Download, Upload, Settings
@@ -44,13 +45,10 @@ export interface HashtagManagerProps {
   onSaveTemplate?: (template: HashtagTemplate) => void;
 }
 
-export const HashtagManager: React.FC<HashtagManagerProps> = ({
-  initialTags,
+export const HashtagManager: React.FC<any> = ({ initialTags,
   platformId,
   onTagsChange,
-  onSaveTemplate
-}) => {
-  const [tags, setTags] = useState<HashtagData[]>(initialTags);
+  onSaveTemplate }) => { const [tags, setTags] = useState<HashtagData[]>(initialTags);
   const [editingTag, setEditingTag] = useState<string | null>(null);
   const [newTagText, setNewTagText] = useState('');
   const [showTemplates, setShowTemplates] = useState(false);
@@ -59,7 +57,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
 
   // 从localStorage加载模板
   useEffect(() => {
-    const savedTemplates = localStorage.getItem(`hashtag_templates_${platformId}`);
+    const savedTemplates = localStorage.getItem(`hashtag_templates_${platformId }`);
     if (savedTemplates) {
       setTemplates(JSON.parse(savedTemplates));
     }
@@ -219,7 +217,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
           <button
             onClick={() => setShowTemplates(!showTemplates)}
             className="p-2 text-muted-foreground hover:text-muted-foreground rounded-lg hover:bg-accent"
-            title="模板管理"
+            title=
           >
             <Star className="h-4 w-4" />
           </button>
@@ -227,7 +225,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
           <button
             onClick={() => setResetDialogOpen(true)}
             className="p-2 text-muted-foreground hover:text-muted-foreground rounded-lg hover:bg-accent"
-            title="重置标签"
+            title=$
           >
             <RotateCcw className="h-4 w-4" />
           </button>

@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -53,7 +54,7 @@ interface SecurityStatus {
  * @param props 组件属性
  * @returns React 组件
  */
-export function SecurityConfig({ className }: SecurityConfigProps) {
+export function SecurityConfig({ className  }: SecurityConfigProps) {
   const [securityStatus, setSecurityStatus] = useState<SecurityStatus>({
     encryptionEnabled: true,
     dataMaskingEnabled: true,
@@ -112,7 +113,7 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
       }));
 
       toast({
-        title: "安全检查完成",
+        title: t('components.labels.安全检查完成'),
         description: `发现 ${vulnerabilitiesFound} 个潜在安全问题`,
         variant: vulnerabilitiesFound > 0 ? "destructive" : "default"
       });
@@ -120,8 +121,8 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
     } catch (error) {
       console.error('安全检查失败:', error);
       toast({
-        title: "安全检查失败",
-        description: "请稍后重试",
+        title: t('components.errors.安全检查失败'),
+        description: t('components.messages.请稍后重试'),
         variant: "destructive"
       });
     } finally {
@@ -148,8 +149,8 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
       });
 
       toast({
-        title: "敏感数据已清理",
-        description: "所有敏感数据已从本地存储中移除",
+        title: t('components.labels.敏感数据已清理'),
+        description: t('components.messages.所有敏感数据已从本地存储中移除'),
       });
 
       // 重新执行安全检查
@@ -158,8 +159,8 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
     } catch (error) {
       console.error('清理敏感数据失败:', error);
       toast({
-        title: "清理失败",
-        description: "请稍后重试",
+        title: t('components.labels.清理失败'),
+        description: t('components.messages.请稍后重试'),
         variant: "destructive"
       });
     }
@@ -195,15 +196,15 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
       URL.revokeObjectURL(url);
 
       toast({
-        title: "安全报告已导出",
-        description: "报告已下载到本地",
+        title: t('components.labels.安全报告已导出'),
+        description: t('components.messages.报告已下载到本地'),
       });
 
     } catch (error) {
       console.error('导出安全报告失败:', error);
       toast({
-        title: "导出失败",
-        description: "请稍后重试",
+        title: t('components.labels.导出失败'),
+        description: t('components.messages.请稍后重试'),
         variant: "destructive"
       });
     }
@@ -237,7 +238,7 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
                 <span className="text-sm font-medium">数据加密</span>
               </div>
               <Badge variant={securityStatus.encryptionEnabled ? "default" : "destructive"}>
-                {securityStatus.encryptionEnabled ? "已启用" : "未启用"}
+                {securityStatus.encryptionEnabled ? t('components.messages.已启用') : t('components.messages.未启用')}
               </Badge>
             </div>
 
@@ -247,7 +248,7 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
                 <span className="text-sm font-medium">数据脱敏</span>
               </div>
               <Badge variant={securityStatus.dataMaskingEnabled ? "default" : "destructive"}>
-                {securityStatus.dataMaskingEnabled ? "已启用" : "未启用"}
+                {securityStatus.dataMaskingEnabled ? t('components.messages.已启用') : t('components.messages.未启用')}
               </Badge>
             </div>
 
@@ -257,7 +258,7 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
                 <span className="text-sm font-medium">安全日志</span>
               </div>
               <Badge variant={securityStatus.secureLoggingEnabled ? "default" : "destructive"}>
-                {securityStatus.secureLoggingEnabled ? "已启用" : "未启用"}
+                {securityStatus.secureLoggingEnabled ? t('components.messages.已启用') : t('components.messages.未启用')}
               </Badge>
             </div>
 

@@ -9,13 +9,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
-import GlobalDataValidationService from './services/globalDataValidationService';
-import { immediateFixLocalStorage } from './utils/localStorageFixer';
-import { preloadAllServices, getServicesStats } from './utils/servicePreloader';
-import { registerAllServices } from './config/serviceRegistry';
-import { preloadServices, container } from './utils/DIContainer';
-import { autoFixAllDialogs } from './utils/dialogPositionFixer';
-import { autoMigrateOnStartup } from './utils/configMigration';
+// 🚀 性能优化：仅导入必要的核心服务
 import { setupGlobalErrorHandler } from './utils/errorHandler';
 
 // 🔧 FIXED: 更强力的 forwardRef 修复，彻底消除错误
@@ -133,46 +127,13 @@ try {
   console.warn('⚠️ Safe forwardRef setup failed:', error);
 }
 
-// 🔧 根本性修复：预加载所有服务，防止TDZ和getInstance错误
-async function initializeApplication() {
-  console.log('🚀 开始应用初始化...');
-  
+// 🚀 快速启动应用 - 性能优化
+function initializeApplication() {
   try {
-    // 1. 立即修复 localStorage 数据问题
-    immediateFixLocalStorage();
-
-    // 1.5. 重新启用自动迁移敏感配置
-    console.log('🔄 开始配置迁移检查...');
-    await autoMigrateOnStartup();
-
-    // 1.6. 初始化全局错误处理器
-    console.log('🛡️ 初始化全局错误处理器...');
+    // 仅初始化必要的错误处理
     setupGlobalErrorHandler();
 
-    // 2. 注册所有服务到DI容器（替代单例模式）
-    console.log('🔧 注册服务到DI容器...');
-    await registerAllServices();
-
-    // 3. 预加载关键服务（防止TDZ错误）
-    console.log('📦 预加载关键服务...');
-    await preloadServices();
-
-    // 4. 预加载传统服务模块（向后兼容）
-    console.log('📦 预加载传统服务模块...');
-    await preloadAllServices();
-
-    // 5. 初始化全局数据验证服务
-    GlobalDataValidationService.initialize();
-
-    // 6. 显示初始化统计
-    const diStats = container.getStats();
-    const legacyStats = getServicesStats();
-    console.log(`✅ DI容器服务: ${diStats.instantiated}/${diStats.registered}`);
-    console.log(`✅ 传统服务: ${legacyStats.loaded}/${legacyStats.total}`);
-    console.log('📋 DI初始化顺序:', diStats.order);
-    console.log('📋 传统初始化顺序:', legacyStats.order);
-
-    // 5. 启动React应用
+    // 立即启动React应用 - 其他服务按需加载
     const root = ReactDOM.createRoot(document.getElementById('root')!);
     root.render(
       <React.StrictMode>
@@ -187,7 +148,7 @@ async function initializeApplication() {
       </React.StrictMode>
     );
 
-    console.log('🎉 应用启动成功！');
+    console.log('🎉 应用快速启动完成！');
 
     // 🔧 FIX: 彻底解决 aria-hidden 焦点冲突
     const ensureRootInteractable = () => {

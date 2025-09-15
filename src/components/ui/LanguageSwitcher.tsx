@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
 
 const languages = [
-  { code: 'zh-CN', name: '中文', flag: '🇨🇳' },
+  { code: 'zh-CN', name: t('components.messages.中文'), flag: '🇨🇳' },
   { code: 'en-US', name: 'English', flag: '🇺🇸' }
 ];
 

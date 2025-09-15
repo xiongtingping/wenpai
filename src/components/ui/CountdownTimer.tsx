@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Clock, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -20,20 +21,17 @@ interface CountdownTimerProps {
   variant?: 'default' | 'urgent' | 'compact';
 }
 
-export const CountdownTimer: React.FC<CountdownTimerProps> = ({
-  initialSeconds,
+export const CountdownTimer: React.FC<any> = ({ initialSeconds,
   onComplete,
   showIcon = true,
   className = '',
-  variant = 'default'
-}) => {
-  const [seconds, setSeconds] = useState(initialSeconds);
+  variant = 'default' }) => { const [seconds, setSeconds] = useState(initialSeconds);
 
   useEffect(() => {
     if (seconds <= 0) {
       onComplete?.();
       return;
-    }
+     }
 
     const timer = setInterval(() => {
       setSeconds(prev => {
@@ -127,7 +125,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
           text-xs
           ${isUrgent ? 'text-destructive' : 'text-primary'}
         `}>
-          {isUrgent ? '限时优惠即将结束！' : '限时优惠进行中'}
+          {isUrgent ? '限时优惠即将结束！' : t('components.messages.限时优惠进行中')}
         </span>
       </div>
     </div>

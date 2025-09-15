@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Lock, Crown, Zap, Star } from 'lucide-react';
 import { Button, ButtonProps } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,8 +31,7 @@ export interface PaywallButtonProps extends Omit<ButtonProps, 'onClick'> {
 /**
  * 获取等级图标
  */
-const getTierIcon = (tier: SubscriptionTier) => {
-  switch (tier) {
+const getTierIcon = (tier: SubscriptionTier) => { switch (tier) {
     case 'premium':
       return <Crown className="h-4 w-4" />;
     case 'pro':
@@ -39,7 +39,7 @@ const getTierIcon = (tier: SubscriptionTier) => {
     case 'trial':
     default:
       return <Star className="h-4 w-4" />;
-  }
+   }
 };
 
 /**
@@ -67,7 +67,7 @@ export const PaywallButton: React.FC<PaywallButtonProps> = ({
   onClick,
   showTierBadge = false,
   lockedText,
-  upgradeButtonText = '立即升级',
+  upgradeButtonText = t('components.actions.立即升级'),
   children,
   disabled,
   className = '',

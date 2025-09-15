@@ -84,8 +84,8 @@ div[role="dialog"][data-state="open"],
 /* 移动端响应式修复 */
 @media (max-width: 768px) {
   [role="dialog"].enhanced-history-dialog {
-    max-width: calc(100vw - 1rem) !important;
-    max-height: calc(100vh - 1rem) !important;
+    max-width: calc(100vw - var(--spacing-4)) !important;
+    max-height: calc(100vh - var(--spacing-4)) !important;
   }
 }
 

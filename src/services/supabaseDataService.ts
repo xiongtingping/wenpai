@@ -8,6 +8,7 @@
  * - 统一的错误处理和日志记录
  */
 
+import i18n from '@/i18n';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from '@/config/supabase';
 import { logger } from '@/utils/logger';
@@ -81,7 +82,7 @@ export class SupabaseDataService {
    */
   private validateUserId(recordUserId?: string): void {
     if (recordUserId && recordUserId !== this.userId) {
-      throw new Error('无权访问其他用户的数据');
+      throw new Error(i18n.t('common.errors.无权访问其他用户的数据'));
     }
   }
 
@@ -174,7 +175,7 @@ export class SupabaseDataService {
       console.error(`查询${this.tableName}记录异常:`, error);
       return {
         data: [],
-        error: error instanceof Error ? error.message : '查询失败'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.查询失败')
       };
     }
   }
@@ -217,7 +218,7 @@ export class SupabaseDataService {
       // 先验证记录是否属于当前用户
       const existingRecord = await this.findById(id);
       if (!existingRecord) {
-        throw new Error('记录不存在或无权访问');
+        throw new Error(i18n.t('common.errors.记录不存在或无权访问'));
       }
 
       const updateData = {
@@ -255,7 +256,7 @@ export class SupabaseDataService {
       // 先验证记录是否属于当前用户
       const existingRecord = await this.findById(id);
       if (!existingRecord) {
-        throw new Error('记录不存在或无权访问');
+        throw new Error(i18n.t('common.errors.记录不存在或无权访问'));
       }
 
       const client = await getSupabaseClient();

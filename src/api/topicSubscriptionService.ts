@@ -11,6 +11,7 @@
  * 📌 所有API地址从环境变量获取，严禁硬编码
  */
 
+import i18n from '@/i18n';
 import request from './request';
 import { logger } from '@/utils/logger';
 import {
@@ -853,7 +854,7 @@ export async function getTrendAnalysis(keyword: string, days: number = 7): Promi
   const trends = await getTopicHeatTrend(keyword, days);
 
   if (trends.length === 0) {
-    throw new Error('无法获取趋势数据');
+    throw new Error(i18n.t('api.errors.无法获取趋势数据'));
   }
 
   // 计算统计数据

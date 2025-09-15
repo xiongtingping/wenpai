@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useCallback, useEffect, ErrorInfo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -65,8 +66,7 @@ export interface ThemeConfig {
 /**
  * MD2WeChat主页面组件
  */
-export default function MD2WeChatPage() {
-  const { toast } = useToast();
+export default function MD2WeChatPage() { const { toast  } = useToast();
   const { user, isAuthenticated } = useAuthStore();
   const { recordUsage } = useUsageStore();
   
@@ -109,7 +109,7 @@ export default function MD2WeChatPage() {
       if (result.success) {
         setPreviewHtml(result.html);
       } else {
-        throw new Error(result.error || '转换失败');
+        throw new Error(result.error || t('components.errors.转换失败'));
       }
     } catch (error) {
       console.error('转换失败:', error);
@@ -189,7 +189,7 @@ export default function MD2WeChatPage() {
   const handleThemeChange = useCallback((theme: string) => {
     setSelectedTheme(theme);
     toast({
-      title: '主题已切换',
+      title: t('components.labels.主题已切换'),
       description: `已切换到 ${theme} 主题`,
     });
   }, [toast]);
@@ -206,7 +206,7 @@ export default function MD2WeChatPage() {
       const content = e.target?.result as string;
       setMarkdownContent(content);
       toast({
-        title: '文档导入成功',
+        title: t('components.labels.文档导入成功'),
         description: `已导入文档: ${file.name}`,
       });
     };
@@ -268,7 +268,7 @@ export default function MD2WeChatPage() {
     } catch (error) {
       console.error('文件选择失败:', error);
       toast({
-        title: '文件选择失败',
+        title: t('components.errors.文件选择失败'),
         description: '请重试或检查浏览器权限',
         variant: 'destructive'
       });
@@ -281,7 +281,7 @@ export default function MD2WeChatPage() {
     setSelectedTheme('default');
     setFontSize('medium');
     toast({
-      title: '内容已重置',
+      title: t('components.labels.内容已重置'),
       description: '编辑器已恢复初始状态',
     });
   }, [toast]);
@@ -401,7 +401,7 @@ export default function MD2WeChatPage() {
                     featureName="Markdown导出功能"
                     onClick={() => {
                       toast({
-                        title: '导出功能',
+                        title: t('components.labels.导出功能'),
                         description: '正在准备导出...'
                       });
                     }}

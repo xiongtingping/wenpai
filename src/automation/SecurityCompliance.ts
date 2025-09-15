@@ -41,7 +41,7 @@ export class SecurityComplianceChecker {
         severity: 'high',
         check: (content: string) => ({
           passed: content.length <= 1000,
-          message: content.length > 1000 ? `内容超出限制：${content.length}/1000字符` : '内容长度符合要求'
+          message: content.length > 1000 ? `内容超出限制：${content.length}/1000字符` : i18n.t('common.messages.内容长度符合要求')
         })
       },
       {
@@ -54,7 +54,7 @@ export class SecurityComplianceChecker {
           const foundWords = sensitiveWords.filter(word => content.includes(word));
           return {
             passed: foundWords.length === 0,
-            message: foundWords.length > 0 ? `发现敏感词：${foundWords.join(', ')}` : '未发现敏感词'
+            message: foundWords.length > 0 ? `发现敏感词：${foundWords.join(', ')}` : i18n.t('common.messages.未发现敏感词')
           };
         }
       },
@@ -79,7 +79,7 @@ export class SecurityComplianceChecker {
         severity: 'high',
         check: (content: string) => ({
           passed: content.length <= 2000,
-          message: content.length > 2000 ? `内容超出限制：${content.length}/2000字符` : '内容长度符合要求'
+          message: content.length > 2000 ? `内容超出限制：${content.length}/2000字符` : i18n.t('common.messages.内容长度符合要求')
         })
       },
       {
@@ -92,7 +92,7 @@ export class SecurityComplianceChecker {
           const malformedTags = hashtags.filter(tag => !tag.endsWith('#'));
           return {
             passed: malformedTags.length === 0,
-            message: malformedTags.length > 0 ? `话题标签格式不正确：${malformedTags.join(', ')}` : '话题标签格式正确'
+            message: malformedTags.length > 0 ? `话题标签格式不正确：${malformedTags.join(', ')}` : i18n.t('common.messages.话题标签格式正确')
           };
         }
       }
@@ -107,7 +107,7 @@ export class SecurityComplianceChecker {
         severity: 'high',
         check: (content: string) => ({
           passed: content.length <= 2200,
-          message: content.length > 2200 ? `内容超出限制：${content.length}/2200字符` : '内容长度符合要求'
+          message: content.length > 2200 ? `内容超出限制：${content.length}/2200字符` : i18n.t('common.messages.内容长度符合要求')
         })
       },
       {
@@ -117,7 +117,7 @@ export class SecurityComplianceChecker {
         severity: 'critical',
         check: () => ({
           passed: true,
-          message: '请确保上传视频文件或图片内容'
+          message: i18n.t('common.messages.请确保上传视频文件或图片内容')
         })
       }
     ];
@@ -131,7 +131,7 @@ export class SecurityComplianceChecker {
         severity: 'medium',
         check: (content: string) => ({
           passed: content.length >= 200,
-          message: content.length < 200 ? `内容过短，建议至少200字符，当前${content.length}字符` : '内容长度适合'
+          message: content.length < 200 ? `内容过短，建议至少200字符，当前${content.length}字符` : i18n.t('common.messages.内容长度适合')
         })
       },
       {
@@ -276,7 +276,7 @@ export class SecurityComplianceChecker {
           overallCompliance: false,
           checks: [],
           recommendations: [],
-          warnings: [`合规检查失败: ${error instanceof Error ? error.message : '未知错误'}`]
+          warnings: [`合规检查失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`]
         });
       }
     }

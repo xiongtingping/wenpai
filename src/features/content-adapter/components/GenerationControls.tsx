@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -90,8 +91,7 @@ interface GenerationControlsProps {
 /**
  * 生成控制组件
  */
-export function GenerationControls({
-  generating,
+export function GenerationControls({ generating,
   queueRunning,
   selectedFormId,
   selectedStyle,
@@ -115,7 +115,7 @@ export function GenerationControls({
   onBatchPublish,
   validationErrors,
   t
-}: GenerationControlsProps) {
+ }: GenerationControlsProps) {
 
   // 用户设置 Hook
   const { saveSetting, isLoggedIn } = useUserSettings();
@@ -182,7 +182,7 @@ export function GenerationControls({
       console.error('❌ 保存模型偏好失败:', error);
       toast({
         title: "❌ 保存失败",
-        description: error instanceof Error ? error.message : "保存过程中出现错误",
+        description: error instanceof Error ? error.message : t('components.errors.保存过程中出现错误'),
         variant: "destructive",
         duration: 4000,
       });

@@ -9,6 +9,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 export interface LoadingSpinnerProps {
@@ -34,12 +35,14 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   className,
   centered = true
 }) => {
+  const { t } = useTranslation();
+  
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-6 h-6',
     lg: 'w-8 h-8',
     xl: 'w-12 h-12'
-  };
+   };
 
   const textSizeClasses = {
     sm: 'text-xs',
@@ -63,7 +66,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
           sizeClasses[size]
         )}
         role="status"
-        aria-label="加载中"
+        aria-label={t('components.labels.加载中')}
       />
       
       {/* 加载文本 */}
@@ -98,7 +101,8 @@ export const FullScreenLoader: React.FC<{
 export const InlineLoader: React.FC<{
   text?: string;
   size?: 'sm' | 'md';
-}> = ({ text = '加载中', size = 'sm' }) => {
+}> = ({ text, size = 'sm' }) => {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-2 py-2">
       <div
@@ -107,7 +111,7 @@ export const InlineLoader: React.FC<{
           size === 'sm' ? 'w-4 h-4' : 'w-5 h-5'
         )}
       />
-      <span className="text-sm text-muted-foreground">{text}</span>
+      <span className="text-sm text-muted-foreground">{text || t('components.messages.加载中')}</span>
     </div>
   );
 };

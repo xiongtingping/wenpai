@@ -54,7 +54,7 @@ function validateConfig(config: any): void {
   }
 
   if (!config.domain || !config.domain.includes('authing.cn')) {
-    errors.push('域名配置无效');
+    errors.push(i18n.t('common.errors.域名配置无效'));
   }
 
   if (!config.redirectUri || !config.redirectUri.startsWith('http')) {

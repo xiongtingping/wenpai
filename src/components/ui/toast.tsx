@@ -18,13 +18,13 @@ const ToastViewport = React.forwardRef<
       className
     )}
     style={{
-      bottom: '1rem',
-      right: '1rem',
+      bottom: 'var(--spacing-4)',
+      right: 'var(--spacing-4)',
       top: 'auto',
       left: 'auto',
       zIndex: 999999,
       maxWidth: '420px',
-      padding: '0.25rem'
+      padding: 'var(--spacing-1)'
     }}
     {...props}
   />

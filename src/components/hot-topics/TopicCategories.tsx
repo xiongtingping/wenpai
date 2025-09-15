@@ -1,6 +1,6 @@
 /**
- * 话题分类组件
- * 支持按类别快速查看话题
+ * {t('topicCategories.description')}
+ * 
  *
  * ✅ FIXED: 话题分类组件完整性验证，修复于 2025-08-10
  * 
@@ -18,9 +18,9 @@ import { DailyHotItem } from '@/api/hotTopicsService';
 import { ExternalLink, Bookmark, MoreVertical, ArrowUp, Eye, EyeOff, Pin, Trash2, GripVertical, ChevronDown, ChevronUp } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-// 用户兴趣权重系统
+// 
 interface UserInterestWeights {
-  [category: string]: number; // 分类权重 (0-1)
+  [category: string]: number; // 
 }
 
 interface CategoryScore {
@@ -41,13 +41,13 @@ interface TopicCategoriesProps {
   interestFilterComponent?: React.ReactNode;
 }
 
-// 用户兴趣权重管理
+// 
 const getUserInterestWeights = (): UserInterestWeights => {
   try {
     const stored = localStorage.getItem('user-interest-weights');
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    console.error('获取用户兴趣权重失败:', error);
+    console.error(t('topicCategories.errors.getWeightsFailed'), error);
     return {};
   }
 };
@@ -56,7 +56,7 @@ const saveUserInterestWeights = (weights: UserInterestWeights): void => {
   try {
     localStorage.setItem('user-interest-weights', JSON.stringify(weights));
   } catch (error) {
-    console.error('保存用户兴趣权重失败:', error);
+    console.error(t('topicCategories.errors.saveWeightsFailed'), error);
   }
 };
 
@@ -125,14 +125,14 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
   // 平台显示名称映射
   const getPlatformDisplayName = (platform: string): string => {
     const platformNames: Record<string, string> = {
-      'weibo': '微博',
-      'zhihu': '知乎',
-      'bilibili': 'B站',
-      'douyin': '抖音',
-      'toutiao': '头条',
-      'baidu': '百度',
-      '36kr': '36氪',
-      'ithome': 'IT之家'
+      'weibo': t('topicCategories.platforms.weibo'),
+      'zhihu': t('topicCategories.platforms.zhihu'),
+      'bilibili': t('topicCategories.platforms.bilibili'),
+      'douyin': t('topicCategories.platforms.douyin'),
+      'toutiao': t('topicCategories.platforms.toutiao'),
+      'baidu': t('topicCategories.platforms.baidu'),
+      '36kr': t('topicCategories.platforms.36kr'),
+      'ithome': t('topicCategories.platforms.ithome')
     };
     return platformNames[platform] || platform;
   };
@@ -140,12 +140,12 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
   // 格式化热度值
   const formatHotValue = (hot: string | undefined): string => {
     if (!hot || hot === '' || hot === '0' || hot === 'undefined') {
-      return '暂无数据';
+      return t('topicCategories.heat.noData');
     }
 
     const num = parseInt(hot);
     if (isNaN(num)) {
-      return hot || '暂无数据';
+      return hot || t('topicCategories.heat.noData');
     }
 
     if (num >= 1000000) {
@@ -202,27 +202,27 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
 
   // 话题分类定义（带主题色）
   const categories = [
-    { id: 'all', label: '全部', icon: '🔥' },
-    { id: 'entertainment', label: '娱乐', icon: '🎬', theme: 'from-pink-500/20 to-rose-500/20 border-pink-200' },
-    { id: 'technology', label: '科技', icon: '💻', theme: 'from-blue-500/20 to-cyan-500/20 border-blue-200' },
-    { id: 'sports', label: '体育', icon: '⚽', theme: 'from-green-500/20 to-emerald-500/20 border-green-200' },
-    { id: 'gaming', label: '游戏', icon: '🎮', theme: 'from-purple-500/20 to-violet-500/20 border-purple-200' },
-    { id: 'automotive', label: '汽车', icon: '🚗', theme: 'from-muted to-muted/80 border-border' },
-    { id: 'economy', label: '财经', icon: '💰', theme: 'from-yellow-500/20 to-orange-500/20 border-yellow-200' },
-    { id: 'society', label: '社会', icon: '👥', theme: 'from-indigo-500/20 to-blue-500/20 border-indigo-200' },
-    { id: 'education', label: '教育', icon: '📚', theme: 'from-teal-500/20 to-cyan-500/20 border-teal-200' },
-    { id: 'health', label: '健康', icon: '🏥', theme: 'from-red-500/20 to-pink-500/20 border-red-200' },
-    { id: 'lifestyle', label: '生活', icon: '🏠', theme: 'from-amber-500/20 to-yellow-500/20 border-amber-200' },
-    { id: 'travel', label: '旅游', icon: '✈️', theme: 'from-sky-500/20 to-blue-500/20 border-sky-200' },
-    { id: 'food', label: '美食', icon: '🍜', theme: 'from-orange-500/20 to-red-500/20 border-orange-200' },
-    { id: 'science', label: '科学', icon: '🔬', theme: 'from-emerald-500/20 to-teal-500/20 border-emerald-200' },
-    { id: 'culture', label: '文化', icon: '🎨', theme: 'from-violet-500/20 to-purple-500/20 border-violet-200' },
-    { id: 'international', label: '国际', icon: '🌍', theme: 'from-cyan-500/20 to-blue-500/20 border-cyan-200' },
-    { id: 'realestate', label: '房产', icon: '🏢', theme: 'from-muted to-muted/80 border-border' },
-    { id: 'weather', label: '天气', icon: '🌤️', theme: 'from-sky-400/20 to-blue-400/20 border-sky-200' },
-    { id: 'environment', label: '环保', icon: '🌱', theme: 'from-green-400/20 to-emerald-400/20 border-green-200' },
-    { id: 'agriculture', label: '农业', icon: '🌾', theme: 'from-yellow-400/20 to-amber-400/20 border-yellow-200' },
-    { id: 'pets', label: '宠物', icon: '🐕', theme: 'from-pink-400/20 to-rose-400/20 border-pink-200' }
+    { id: 'all', label: t('topicCategories.categories.all'), icon: '🔥' },
+    { id: 'entertainment', label: t('topicCategories.categories.entertainment'), icon: '🎬', theme: 'from-pink-500/20 to-rose-500/20 border-pink-200' },
+    { id: 'technology', label: t('topicCategories.categories.technology'), icon: '💻', theme: 'from-blue-500/20 to-cyan-500/20 border-blue-200' },
+    { id: 'sports', label: t('topicCategories.categories.sports'), icon: '⚽', theme: 'from-green-500/20 to-emerald-500/20 border-green-200' },
+    { id: 'gaming', label: t('topicCategories.categories.gaming'), icon: '🎮', theme: 'from-purple-500/20 to-violet-500/20 border-purple-200' },
+    { id: 'automotive', label: t('topicCategories.categories.automotive'), icon: '🚗', theme: 'from-muted to-muted/80 border-border' },
+    { id: 'economy', label: t('topicCategories.categories.economy'), icon: '💰', theme: 'from-yellow-500/20 to-orange-500/20 border-yellow-200' },
+    { id: 'society', label: t('topicCategories.categories.society'), icon: '👥', theme: 'from-indigo-500/20 to-blue-500/20 border-indigo-200' },
+    { id: 'education', label: t('topicCategories.categories.education'), icon: '📚', theme: 'from-teal-500/20 to-cyan-500/20 border-teal-200' },
+    { id: 'health', label: t('topicCategories.categories.health'), icon: '🏥', theme: 'from-red-500/20 to-pink-500/20 border-red-200' },
+    { id: 'lifestyle', label: t('topicCategories.categories.lifestyle'), icon: '🏠', theme: 'from-amber-500/20 to-yellow-500/20 border-amber-200' },
+    { id: 'travel', label: t('topicCategories.categories.travel'), icon: '✈️', theme: 'from-sky-500/20 to-blue-500/20 border-sky-200' },
+    { id: 'food', label: t('topicCategories.categories.food'), icon: '🍜', theme: 'from-orange-500/20 to-red-500/20 border-orange-200' },
+    { id: 'science', label: t('topicCategories.categories.science'), icon: '🔬', theme: 'from-emerald-500/20 to-teal-500/20 border-emerald-200' },
+    { id: 'culture', label: t('topicCategories.categories.culture'), icon: '🎨', theme: 'from-violet-500/20 to-purple-500/20 border-violet-200' },
+    { id: 'international', label: t('topicCategories.categories.international'), icon: '🌍', theme: 'from-cyan-500/20 to-blue-500/20 border-cyan-200' },
+    { id: 'realestate', label: t('topicCategories.categories.realestate'), icon: '🏢', theme: 'from-muted to-muted/80 border-border' },
+    { id: 'weather', label: t('topicCategories.categories.weather'), icon: '🌤️', theme: 'from-sky-400/20 to-blue-400/20 border-sky-200' },
+    { id: 'environment', label: t('topicCategories.categories.environment'), icon: '🌱', theme: 'from-green-400/20 to-emerald-400/20 border-green-200' },
+    { id: 'agriculture', label: t('topicCategories.categories.agriculture'), icon: '🌾', theme: 'from-yellow-400/20 to-amber-400/20 border-yellow-200' },
+    { id: 'pets', label: t('topicCategories.categories.pets'), icon: '🐕', theme: 'from-pink-400/20 to-rose-400/20 border-pink-200' }
   ];
 
   /**
@@ -536,7 +536,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleCategoryAction(category.id, isPinned ? 'unpin' : 'pin')}>
                                 <Pin className="w-3 h-3 mr-2" />
-                                {isPinned ? '取消置顶' : '置顶'}
+                                {isPinned ? t('topicCategories.actions.unpin') : t('topicCategories.actions.pin')}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleCategoryAction(category.id, 'hide')}>
                                 <EyeOff className="w-3 h-3 mr-2" />
@@ -555,8 +555,8 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                           // 空状态占位符
                           <div className="flex flex-col items-center justify-center h-full text-center p-4">
                             <div className="text-4xl mb-2 opacity-50">{category.icon}</div>
-                            <p className="text-sm text-muted-foreground mb-1">暂无{category.label}相关话题</p>
-                            <p className="text-xs text-muted-foreground opacity-70">等待热点数据更新...</p>
+                            <p className="text-sm text-muted-foreground mb-1"></p>
+                            <p className="text-xs text-muted-foreground opacity-70">$</p>
                           </div>
                         ) : (
                           displayTopics.map((topic, index) => {

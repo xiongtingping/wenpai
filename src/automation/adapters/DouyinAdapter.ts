@@ -3,6 +3,7 @@
  * 实现抖音特定的自动化发布逻辑
  */
 
+import i18n from '@/i18n';
 import { PlatformAdapterBase, LoginStatus, PublishOptions, PublishResult } from './PlatformAdapterBase';
 import { logger } from '@/utils/logger';
 
@@ -204,7 +205,7 @@ export class DouyinAdapter extends PlatformAdapterBase {
       suggestions.push('📚 教程类：制作分步骤的教学视频');
     }
     
-    if (content.includes('分享') || content.includes('推荐')) {
+    if (content.includes(i18n.t('common.text.分享_kpl')) || content.includes('推荐')) {
       suggestions.push('💡 分享类：展示产品或经验分享');
     }
     
@@ -287,7 +288,7 @@ export class DouyinAdapter extends PlatformAdapterBase {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : '发布失败',
+        error: error instanceof Error ? error.message : i18n.t('common.errors.发布失败'),
         platformId: this.platformId,
         needsManualAction: true
       };

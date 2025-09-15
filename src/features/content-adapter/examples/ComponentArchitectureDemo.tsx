@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ContentAdapterPage,
   ContentInputSection,
@@ -13,14 +14,13 @@ import {
 } from '../components';
 
 // 演示：完整的内容适配器页面
-export const FullPageDemo: React.FC = () => {
-  return (
+export const FullPageDemo: React.FC = () => { return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-8">内容适配器 - 完整页面演示</h1>
       <ContentAdapterPage />
     </div>
   );
-};
+ };
 
 // 演示：独立组件使用
 export const IndependentComponentsDemo: React.FC = () => {
@@ -147,17 +147,17 @@ export const IndependentComponentsDemo: React.FC = () => {
               platformId: 'xiaohongshu',
               content: '🌟 今天要给大家分享一个超实用的小技巧！\n\n相信很多小伙伴都遇到过这样的问题...',
               steps: [
-                { name: 'prepare', status: 'completed', message: '准备完成' },
-                { name: 'prompt', status: 'completed', message: '提示词构建完成' },
+                { name: 'prepare', status: 'completed', message: t('common.messages.准备完成') },
+                { name: 'prompt', status: 'completed', message: t('common.messages.提示词构建完成') },
                 { name: 'ai', status: 'completed', message: 'AI生成完成' },
-                { name: 'process', status: 'completed', message: '处理完成' }
+                { name: 'process', status: 'completed', message: t('common.messages.处理完成') }
               ],
               source: 'ai',
               versions: [{
                 id: '1',
                 content: '🌟 今天要给大家分享一个超实用的小技巧！\n\n相信很多小伙伴都遇到过这样的问题...',
                 style: 'standard' as const,
-                title: '实用技巧分享',
+                title: t('common.labels.实用技巧分享'),
                 charCount: 150
               }]
             },
@@ -165,17 +165,17 @@ export const IndependentComponentsDemo: React.FC = () => {
               platformId: 'douyin',
               content: '🔥 这个技巧太实用了！\n\n#实用技巧 #生活小窍门 #必看',
               steps: [
-                { name: 'prepare', status: 'completed', message: '准备完成' },
-                { name: 'prompt', status: 'completed', message: '提示词构建完成' },
+                { name: 'prepare', status: 'completed', message: t('common.messages.准备完成') },
+                { name: 'prompt', status: 'completed', message: t('common.messages.提示词构建完成') },
                 { name: 'ai', status: 'completed', message: 'AI生成完成' },
-                { name: 'process', status: 'completed', message: '处理完成' }
+                { name: 'process', status: 'completed', message: t('common.messages.处理完成') }
               ],
               source: 'ai',
               versions: [{
                 id: '1',
                 content: '🔥 这个技巧太实用了！\n\n#实用技巧 #生活小窍门 #必看',
                 style: 'creative' as const,
-                title: '实用技巧',
+                title: t('common.labels.实用技巧'),
                 charCount: 80
               }]
             }

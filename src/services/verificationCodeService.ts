@@ -3,6 +3,7 @@
  * 基于Authing Web SDK实现邮箱和手机验证码发送
  */
 
+import i18n from '@/i18n';
 import { AuthenticationClient, EmailScene } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
 
@@ -71,7 +72,7 @@ class VerificationCodeService {
       return this.authClient;
     } catch (error) {
       console.error('❌ Authing AuthenticationClient初始化失败:', error);
-      throw new Error('认证客户端初始化失败');
+      throw new Error(i18n.t('common.errors.认证客户端初始化失败'));
     }
   }
 
@@ -84,7 +85,7 @@ class VerificationCodeService {
       if (!/^1[3-9]\d{9}$/.test(phone)) {
         return {
           success: false,
-          message: '请输入有效的手机号码'
+          message: i18n.t('common.messages.请输入有效的手机号码')
         };
       }
 
@@ -99,23 +100,23 @@ class VerificationCodeService {
       
       return {
         success: true,
-        message: '验证码已发送到您的手机',
+        message: i18n.t('common.messages.验证码已发送到您的手机'),
         data: result
       };
 
     } catch (error: any) {
       console.error('❌ 发送手机验证码失败:', error);
       
-      let errorMessage = '发送验证码失败';
+      let errorMessage = i18n.t('common.errors.发送验证码失败');
       
       // 根据错误类型返回具体错误信息
       if (error?.message) {
         if (error.message.includes('rate limit')) {
           errorMessage = '发送频率过快，请稍后再试';
         } else if (error.message.includes('phone')) {
-          errorMessage = '手机号格式错误';
+          errorMessage = i18n.t('common.errors.手机号格式错误');
         } else if (error.message.includes('invalid')) {
-          errorMessage = '无效的请求参数';
+          errorMessage = i18n.t('common.errors.无效的请求参数');
         } else {
           errorMessage = error.message;
         }
@@ -138,7 +139,7 @@ class VerificationCodeService {
       if (!emailRegex.test(email)) {
         return {
           success: false,
-          message: '请输入有效的邮箱地址'
+          message: i18n.t('common.messages.请输入有效的邮箱地址')
         };
       }
 
@@ -194,7 +195,7 @@ class VerificationCodeService {
       
       return {
         success: true,
-        message: '验证码已发送到您的邮箱',
+        message: i18n.t('common.messages.验证码已发送到您的邮箱'),
         data: result
       };
 
@@ -208,16 +209,16 @@ class VerificationCodeService {
         stack: error?.stack
       });
       
-      let errorMessage = '发送验证码失败';
+      let errorMessage = i18n.t('common.errors.发送验证码失败');
       
       // 根据错误类型返回具体错误信息
       if (error?.message) {
         if (error.message.includes('rate limit')) {
           errorMessage = '发送频率过快，请稍后再试';
         } else if (error.message.includes('email')) {
-          errorMessage = '邮箱格式错误';
+          errorMessage = i18n.t('common.errors.邮箱格式错误');
         } else if (error.message.includes('invalid')) {
-          errorMessage = '无效的请求参数';
+          errorMessage = i18n.t('common.errors.无效的请求参数');
         } else {
           errorMessage = error.message;
         }
@@ -238,14 +239,14 @@ class VerificationCodeService {
       if (!/^1[3-9]\d{9}$/.test(phone)) {
         return {
           success: false,
-          message: '请输入有效的手机号码'
+          message: i18n.t('common.messages.请输入有效的手机号码')
         };
       }
 
       if (!code || code.length < 4) {
         return {
           success: false,
-          message: '请输入有效的验证码'
+          message: i18n.t('common.messages.请输入有效的验证码')
         };
       }
 
@@ -262,23 +263,23 @@ class VerificationCodeService {
       
       return {
         success: true,
-        message: '登录成功',
+        message: i18n.t('common.messages.登录成功'),
         data: result
       };
 
     } catch (error: any) {
       console.error('❌ 手机验证码登录失败:', error);
       
-      let errorMessage = '登录失败';
+      let errorMessage = i18n.t('common.errors.登录失败');
       if (error?.message) {
-        if (error.message.includes('code') || error.message.includes('验证码')) {
-          errorMessage = '验证码错误或已过期';
+        if (error.message.includes('code') || error.message.includes(i18n.t('common.errors.验证码'))) {
+          errorMessage = i18n.t('common.errors.验证码错误或已过期');
         } else if (error.message.includes('phone')) {
-          errorMessage = '手机号不存在或未注册';
-        } else if (error.message.includes('授权码') || error.message.includes('authorization')) {
+          errorMessage = i18n.t('common.errors.手机号不存在或未注册');
+        } else if (error.message.includes(i18n.t('common.errors.授权码')) || error.message.includes('authorization')) {
           errorMessage = '验证码无效，请重新获取';
         } else if (error.message.includes('400')) {
-          errorMessage = '请检查手机号格式或重新获取验证码';
+          errorMessage = i18n.t('common.errors.请检查手机号格式或重新获取验证码');
         } else {
           errorMessage = error.message;
         }
@@ -300,14 +301,14 @@ class VerificationCodeService {
       if (!emailRegex.test(email)) {
         return {
           success: false,
-          message: '请输入有效的邮箱地址'
+          message: i18n.t('common.messages.请输入有效的邮箱地址')
         };
       }
 
       if (!code || code.length < 4) {
         return {
           success: false,
-          message: '请输入有效的验证码'
+          message: i18n.t('common.messages.请输入有效的验证码')
         };
       }
 
@@ -324,23 +325,23 @@ class VerificationCodeService {
       
       return {
         success: true,
-        message: '登录成功',
+        message: i18n.t('common.messages.登录成功'),
         data: result
       };
 
     } catch (error: any) {
       console.error('❌ 邮箱验证码登录失败:', error);
       
-      let errorMessage = '登录失败';
+      let errorMessage = i18n.t('common.errors.登录失败');
       if (error?.message) {
-        if (error.message.includes('code') || error.message.includes('验证码')) {
-          errorMessage = '验证码错误或已过期';
+        if (error.message.includes('code') || error.message.includes(i18n.t('common.errors.验证码'))) {
+          errorMessage = i18n.t('common.errors.验证码错误或已过期');
         } else if (error.message.includes('email')) {
-          errorMessage = '邮箱不存在或未注册';
-        } else if (error.message.includes('授权码') || error.message.includes('authorization')) {
+          errorMessage = i18n.t('common.errors.邮箱不存在或未注册');
+        } else if (error.message.includes(i18n.t('common.errors.授权码')) || error.message.includes('authorization')) {
           errorMessage = '验证码无效，请重新获取';
         } else if (error.message.includes('400')) {
-          errorMessage = '请检查邮箱格式或重新获取验证码';
+          errorMessage = i18n.t('common.errors.请检查邮箱格式或重新获取验证码');
         } else {
           errorMessage = error.message;
         }
@@ -361,14 +362,14 @@ class VerificationCodeService {
       if (!/^1[3-9]\d{9}$/.test(phone)) {
         return {
           success: false,
-          message: '请输入有效的手机号码'
+          message: i18n.t('common.messages.请输入有效的手机号码')
         };
       }
 
       if (!code || code.length < 4) {
         return {
           success: false,
-          message: '请输入有效的验证码'
+          message: i18n.t('common.messages.请输入有效的验证码')
         };
       }
 
@@ -387,21 +388,21 @@ class VerificationCodeService {
       
       return {
         success: true,
-        message: '注册成功',
+        message: i18n.t('common.messages.注册成功'),
         data: result
       };
 
     } catch (error: any) {
       console.error('❌ 手机验证码注册失败:', error);
       
-      let errorMessage = '注册失败';
+      let errorMessage = i18n.t('common.errors.注册失败');
       if (error?.message) {
         if (error.message.includes('code')) {
-          errorMessage = '验证码错误或已过期';
+          errorMessage = i18n.t('common.errors.验证码错误或已过期');
         } else if (error.message.includes('phone')) {
-          errorMessage = '手机号已被注册';
+          errorMessage = i18n.t('common.errors.手机号已被注册');
         } else if (error.message.includes('password')) {
-          errorMessage = '密码格式不符合要求';
+          errorMessage = i18n.t('common.errors.密码格式不符合要求');
         } else {
           errorMessage = error.message;
         }
@@ -427,9 +428,9 @@ class VerificationCodeService {
     } catch (error: any) {
       // 如果发送失败且错误信息表明用户不存在，则邮箱未注册
       if (error?.message && (
-        error.message.includes('用户不存在') || 
+        error.message.includes(i18n.t('common.errors.用户不存在')) || 
         error.message.includes('User does not exist') ||
-        error.message.includes('未找到用户')
+        error.message.includes(i18n.t('common.errors.未找到用户'))
       )) {
         return false;
       }
@@ -447,14 +448,14 @@ class VerificationCodeService {
       if (!emailRegex.test(email)) {
         return {
           success: false,
-          message: '请输入有效的邮箱地址'
+          message: i18n.t('common.messages.请输入有效的邮箱地址')
         };
       }
 
       if (!code || code.length < 4) {
         return {
           success: false,
-          message: '请输入有效的验证码'
+          message: i18n.t('common.messages.请输入有效的验证码')
         };
       }
 
@@ -600,7 +601,7 @@ class VerificationCodeService {
       
       return {
         success: true,
-        message: '注册成功',
+        message: i18n.t('common.messages.注册成功'),
         data: result
       };
 
@@ -621,7 +622,7 @@ class VerificationCodeService {
       console.error('❌ 完整错误对象:', JSON.stringify(error, null, 2));
 
       // 特别检查认证相关错误
-      if (error?.message?.includes('登录') || error?.message?.includes('权限') || error?.message?.includes('unauthorized')) {
+      if (error?.message?.includes(i18n.t('common.errors.登录')) || error?.message?.includes(i18n.t('common.errors.权限')) || error?.message?.includes('unauthorized')) {
         console.error('🚨 认证相关错误检测到！');
         console.error('🔍 当前认证状态:', {
           hasToken: !!localStorage.getItem('authing_token'),
@@ -630,22 +631,22 @@ class VerificationCodeService {
         });
       }
 
-      let errorMessage = '注册失败';
+      let errorMessage = i18n.t('common.errors.注册失败');
       if (error?.message) {
-        if (error.message.includes('code') || error.message.includes('验证码')) {
+        if (error.message.includes('code') || error.message.includes(i18n.t('common.errors.验证码'))) {
           errorMessage = '验证码错误或已过期，请重新获取验证码';
-        } else if (error.message.includes('email') || error.message.includes('邮箱')) {
+        } else if (error.message.includes('email') || error.message.includes(i18n.t('common.errors.邮箱'))) {
           // 🔧 FIX: 更详细的邮箱错误处理
-          if (error.message.includes('已存在') || error.message.includes('已被注册') || error.message.includes('已注册')) {
+          if (error.message.includes(i18n.t('common.errors.已存在')) || error.message.includes(i18n.t('common.errors.已被注册')) || error.message.includes(i18n.t('common.errors.已注册'))) {
             errorMessage = '该邮箱已被注册，请使用其他邮箱或尝试登录';
-          } else if (error.message.includes('emailToken') || error.message.includes('进行校验')) {
+          } else if (error.message.includes('emailToken') || error.message.includes(i18n.t('common.errors.进行校验'))) {
             errorMessage = '验证码验证失败，请重新获取验证码后再试';
           } else {
             errorMessage = '邮箱验证失败，请检查邮箱格式';
           }
         } else if (error.message.includes('password')) {
           errorMessage = '密码格式不符合要求（至少6位）';
-        } else if (error.message.includes('权限') || error.message.includes('unauthorized')) {
+        } else if (error.message.includes(i18n.t('common.errors.权限')) || error.message.includes('unauthorized')) {
           errorMessage = '认证失败，请刷新页面重试';
         } else {
           errorMessage = error.message;
@@ -668,14 +669,14 @@ class VerificationCodeService {
       if (!emailRegex.test(email)) {
         return {
           success: false,
-          message: '请输入有效的邮箱地址'
+          message: i18n.t('common.messages.请输入有效的邮箱地址')
         };
       }
 
       if (!code || code.length < 4) {
         return {
           success: false,
-          message: '请输入有效的验证码'
+          message: i18n.t('common.messages.请输入有效的验证码')
         };
       }
 
@@ -688,19 +689,19 @@ class VerificationCodeService {
       
       return {
         success: true,
-        message: '邮箱验证成功',
+        message: i18n.t('common.messages.邮箱验证成功'),
         data: result
       };
 
     } catch (error: any) {
       console.error('❌ 验证邮箱验证码失败:', error);
       
-      let errorMessage = '验证失败';
+      let errorMessage = i18n.t('common.errors.验证失败');
       if (error?.message) {
         if (error.message.includes('code')) {
-          errorMessage = '验证码错误或已过期';
+          errorMessage = i18n.t('common.errors.验证码错误或已过期');
         } else if (error.message.includes('email')) {
-          errorMessage = '邮箱地址错误';
+          errorMessage = i18n.t('common.errors.邮箱地址错误');
         } else {
           errorMessage = error.message;
         }
@@ -722,14 +723,14 @@ class VerificationCodeService {
       if (!/^1[3-9]\d{9}$/.test(phone)) {
         return {
           success: false,
-          message: '请输入有效的手机号码'
+          message: i18n.t('common.messages.请输入有效的手机号码')
         };
       }
 
       if (!code || code.length < 4) {
         return {
           success: false,
-          message: '请输入有效的验证码'
+          message: i18n.t('common.messages.请输入有效的验证码')
         };
       }
 
@@ -742,7 +743,7 @@ class VerificationCodeService {
         
         return {
           success: true,
-          message: '手机号验证成功',
+          message: i18n.t('common.messages.手机号验证成功'),
           data: loginResult.data
         };
       } else {
@@ -755,12 +756,12 @@ class VerificationCodeService {
     } catch (error: any) {
       console.error('❌ 验证手机验证码失败:', error);
       
-      let errorMessage = '验证失败';
+      let errorMessage = i18n.t('common.errors.验证失败');
       if (error?.message) {
         if (error.message.includes('code')) {
-          errorMessage = '验证码错误或已过期';
+          errorMessage = i18n.t('common.errors.验证码错误或已过期');
         } else if (error.message.includes('phone')) {
-          errorMessage = '手机号格式错误';
+          errorMessage = i18n.t('common.errors.手机号格式错误');
         } else {
           errorMessage = error.message;
         }
@@ -781,14 +782,14 @@ class VerificationCodeService {
       if (!/^1[3-9]\d{9}$/.test(phone)) {
         return {
           success: false,
-          message: '请输入有效的手机号码'
+          message: i18n.t('common.messages.请输入有效的手机号码')
         };
       }
 
       if (!code || code.length < 4) {
         return {
           success: false,
-          message: '请输入有效的验证码'
+          message: i18n.t('common.messages.请输入有效的验证码')
         };
       }
 
@@ -808,21 +809,21 @@ class VerificationCodeService {
       
       return {
         success: true,
-        message: '密码重置成功',
+        message: i18n.t('common.messages.密码重置成功'),
         data: result
       };
 
     } catch (error: any) {
       console.error('❌ 手机验证码重置密码失败:', error);
       
-      let errorMessage = '密码重置失败';
+      let errorMessage = i18n.t('common.errors.密码重置失败');
       if (error?.message) {
         if (error.message.includes('code')) {
-          errorMessage = '验证码错误或已过期';
+          errorMessage = i18n.t('common.errors.验证码错误或已过期');
         } else if (error.message.includes('phone')) {
-          errorMessage = '手机号不存在或未注册';
+          errorMessage = i18n.t('common.errors.手机号不存在或未注册');
         } else if (error.message.includes('password')) {
-          errorMessage = '密码格式不符合要求';
+          errorMessage = i18n.t('common.errors.密码格式不符合要求');
         } else {
           errorMessage = error.message;
         }

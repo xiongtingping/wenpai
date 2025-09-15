@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -61,13 +62,12 @@ interface BrandEmojiGalleryProps {
 /**
  * 品牌Emoji画廊组件
  */
-export default function BrandEmojiGallery({
-  emojis,
+export default function BrandEmojiGallery({ emojis,
   onDelete,
   onRegenerate,
   onToggleFavorite,
   className = ''
-}: BrandEmojiGalleryProps) {
+ }: BrandEmojiGalleryProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState<EmojiResult | null>(null);
@@ -92,12 +92,12 @@ export default function BrandEmojiGallery({
     try {
       await navigator.clipboard.writeText(url);
       toast({
-        title: "复制成功",
+        title: t('components.labels.复制成功'),
         description: `${emotion} 图片链接已复制到剪贴板`,
       });
     } catch (error) {
       toast({
-        title: "复制失败",
+        title: t('components.labels.复制失败'),
         description: "请手动复制链接",
         variant: "destructive"
       });
@@ -114,7 +114,7 @@ export default function BrandEmojiGallery({
     a.click();
     
     toast({
-      title: "下载成功",
+      title: t('components.labels.下载成功'),
       description: `${emoji.emotion} emoji 已下载`,
     });
   };
@@ -125,7 +125,7 @@ export default function BrandEmojiGallery({
   const handleBatchDownload = () => {
     if (filteredEmojis.length === 0) {
       toast({
-        title: "没有可下载的图片",
+        title: t('components.labels.没有可下载的图片'),
         description: "请先选择要下载的emoji",
         variant: "destructive"
       });
@@ -133,7 +133,7 @@ export default function BrandEmojiGallery({
     }
     
     toast({
-      title: "批量下载",
+      title: t('components.labels.批量下载'),
       description: `开始下载 ${filteredEmojis.length} 个emoji图片`,
     });
     
@@ -197,7 +197,7 @@ export default function BrandEmojiGallery({
               alt={emoji.emotion}
               className="w-full h-16 object-contain cursor-pointer hover:scale-105 transition-transform"
               onClick={() => handlePreview(emoji)}
-              title="点击预览大图"
+              title=$
             />
             
             {/* 悬停操作按钮 */}
@@ -243,7 +243,7 @@ export default function BrandEmojiGallery({
               variant="ghost"
               className="w-6 h-6 p-0 text-primary hover:text-primary"
               onClick={() => onToggleFavorite?.(emoji.emotion)}
-              title={emoji.isFavorite ? "取消收藏" : "收藏"}
+              title={emoji.isFavorite ? t('components.labels.取消收藏') : t('components.labels.收藏')}
             >
               <Heart className={`w-3 h-3 ${emoji.isFavorite ? 'fill-current' : ''}`} />
             </Button>
@@ -253,7 +253,7 @@ export default function BrandEmojiGallery({
                 variant="ghost"
                 className="w-6 h-6 p-0 text-foreground hover:text-foreground"
                 onClick={() => onRegenerate(emoji.emotion)}
-                title="重新生成"
+                title=
               >
                 <RefreshCw className="w-3 h-3" />
               </Button>
@@ -264,7 +264,7 @@ export default function BrandEmojiGallery({
                 variant="ghost"
                 className="w-6 h-6 p-0 text-destructive hover:text-destructive"
                 onClick={() => onDelete(emoji.emotion)}
-                title="删除"
+                title=
               >
                 <Trash2 className="w-3 h-3" />
               </Button>
@@ -291,7 +291,7 @@ export default function BrandEmojiGallery({
             alt={emoji.emotion}
             className="w-12 h-12 object-contain cursor-pointer"
             onClick={() => handlePreview(emoji)}
-            title="点击预览大图"
+            title=$
           />
           
           {/* 信息 */}

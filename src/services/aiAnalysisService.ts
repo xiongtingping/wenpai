@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { BrandAnalysisResult, ContentCheckResult } from '@/types/brand';
 import { callOpenAIProxy } from '@/api/localApiProxy';
 import FileFormatSupportService, { FileFormatSupportService as FileFormatSupportServiceClass } from '@/services/fileFormatSupportService';
@@ -198,7 +199,7 @@ ${content}
       };
     } catch (error) {
       console.error('AI 分析失败:', error);
-      throw new Error('品牌资料分析失败');
+      throw new Error(i18n.t('common.errors.品牌资料分析失败'));
     }
   }
 
@@ -221,7 +222,7 @@ ${content}
       }
 
       if (contents.length === 0) {
-        throw new Error('没有可分析的文件内容');
+        throw new Error(i18n.t('common.errors.没有可分析的文件内容'));
       }
 
       // 合并所有内容进行分析
@@ -229,7 +230,7 @@ ${content}
       return await this.analyzeBrandContent(combinedContent);
     } catch (error) {
       console.error('文件分析失败:', error);
-      throw new Error('文件分析失败');
+      throw new Error(i18n.t('common.errors.文件分析失败'));
     }
   }
 
@@ -319,7 +320,7 @@ ${content}
       }
     } catch (error) {
       console.error('内容检查失败:', error);
-      throw new Error('内容检查失败');
+      throw new Error(i18n.t('common.errors.内容检查失败'));
     }
   }
 
@@ -434,7 +435,7 @@ ${content}
               console.error('Word文档解析失败:', wordError);
 
               // 提供详细的错误信息和建议
-              const errorMessage = `Word文档解析失败: ${file.name}\n错误信息: ${(wordError as any)?.message || '未知错误'}\n\n建议解决方案：\n1. 检查文档是否损坏\n2. 尝试用Word重新保存文档\n3. 另存为.docx格式（推荐）\n4. 复制文档内容到文本文件\n5. 转换为PDF格式后上传`;
+              const errorMessage = `Word文档解析失败: ${file.name}\n错误信息: ${(wordError as any)?.message || i18n.t('common.errors.未知错误')}\n\n建议解决方案：\n1. 检查文档是否损坏\n2. 尝试用Word重新保存文档\n3. 另存为.docx格式（推荐）\n4. 复制文档内容到文本文件\n5. 转换为PDF格式后上传`;
 
               resolve(errorMessage);
             }
@@ -550,7 +551,7 @@ ${content}
       };
       
       reader.onerror = (e) => {
-        reject(new Error('文件读取失败'));
+        reject(new Error(i18n.t('common.errors.文件读取失败')));
       };
 
       // 根据文件类型选择读取方式

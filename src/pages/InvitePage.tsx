@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,8 +14,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from 'react-router-dom';
 
-function InvitePage() {
-  const { toast } = useToast();
+function InvitePage() { const { toast  } = useToast();
   const { user } = useAuth(); // 使用当前认证系统获取用户信息
   const userId = user?.id || null;
   const _isTempUser = !userId;
@@ -34,13 +34,13 @@ function InvitePage() {
       trackInviteClick();
       
       toast({
-        title: "邀请链接已复制",
+        title: t('pages.labels.邀请链接已复制'),
         description: "去发给好友吧！",
       });
     } catch (_error) {
       toast({
-        title: "复制失败",
-        description: "请手动复制邀请链接",
+        title: t('pages.labels.复制失败'),
+        description: t('pages.messages.请手动复制邀请链接'),
         variant: "destructive",
       });
     }

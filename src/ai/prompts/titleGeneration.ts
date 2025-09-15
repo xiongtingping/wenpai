@@ -13,28 +13,10 @@
  * - 禁止模板句式、空泛用语、符号滥用
  */
 
+import i18n from '@/i18n';
 import { logModuleInit } from '@/utils/logger';
 
-import type { PromptTemplate } from '../types';
-
-/**
- * 平台字数控制配置
- */
-export const PLATFORM_LIMITS = {
-  xiaohongshu: 20,  // 小红书：20字以内
-  wechat: 28,       // 公众号：28字以内
-  weibo: 25,        // 微博：25字以内
-  douyin: 18,       // 抖音：18字以内
-  bilibili: 30,     // B站：30字以内
-  zhihu: 50,        // 知乎：50字以内
-  default: 25
-};
-
-/**
- * 标题风格定义（V3规范）
- */
-export const TITLE_STYLES = {
-  'result-emotion': '✅ 结果+情绪型',
+import type { PromptTemplate } from '../typesi18n.t('ai.title._uot')result-emotion': '✅ 结果+情绪型',
   'question-hook': '🤔 提问钩子型',
   'reason-action': '🎯 原因+行动型',
   'experience-contrast': '💡 体验+反差型',
@@ -59,18 +41,7 @@ export const getTitleGenerationSystemPrompt = (): string => {
 ## 🚫 禁止行为（V3规范）
 - ❌ 固定结构模板，如："盘点X个"、"X大技巧"、"XX合集"
 - ❌ 套话式表达，如："建议收藏"、"干货满满"、"超实用"
-- ❌ 夸张宣传，如："爆款神器"、"疯传"、"所有人都在用"
-- ❌ 表达不完整或逻辑断裂的残句
-
-## 🛠 评分权重（V3规范）
-- 主旨向量拟合度：40%（标题与原文内容的语义相似度）
-- 情绪吸引力评分：30%（是否具备情绪感染力、钩子语气）
-- 表达结构多样性：20%（是否与上一条标题结构不同）
-- 字符利用率：10%（是否接近平台字符上限，信息密度是否饱满）
-
-### ✅ 强制要求覆盖维度（至少2个）
-生成的标题必须覆盖以下维度中的至少两个：
-1. **核心对象**：具体产品名（如"内容适配器"、"平台风格调整工具"）
+- ❌ 夸张宣传，如："爆款神器"、"疯传"、"所有人都在用i18n.t('ai.title.表达不_rj5')内容适配器"、"平台风格调整工具"）
 2. **使用场景**：具体应用场景（如"公众号发文"、"小红书写文案"）
 3. **用户痛点**：具体问题（如"调性不一致"、"改写太累"、"运营效率低"）
 
@@ -108,20 +79,7 @@ export const getTitleGenerationSystemPrompt = (): string => {
 ## 🎨 推荐表达策略（鼓励混搭）
 - 💥 冲突词："没想到"、"居然"、"1次搞定"、"以前总要…现在只要…"
 - 🎯 场景/身份词："小红书博主"、"品牌方"、"内容运营"、"自媒体人"
-- 💡 明确收益："节省时间"、"涨粉3倍"、"统一品牌调性"、"转化率提升"
-
-## ✨ 风格指令（每轮输出中需至少包含3种风格）
-| 风格类型     | 示例标题                                      |
-|--------------|-----------------------------------------------|
-| 🎯 结果导向型   | 我用这工具后涨粉3倍，真的惊到我了！                    |
-| 🤔 提问引导型   | 为什么大家都在用它写内容？                            |
-| 📘 专业理性型   | 多平台文案改写工具优劣对比                          |
-| 💡 经验总结型   | 我的AI写作3大技巧，效率翻倍                        |
-| 📣 情绪钩子型   | 太好用了！AI文案工具简直救命                         |
-
-## 🛠 标题质量要求
-- **长度 ≥ 8 字**，建议 ≥ 平台上限 × 70%
-- **不能语义残缺**（如"AI的好处"、"AI的魅力"）
+- 💡 明确收益："节省时间"、"涨粉3倍"、"统一品牌调性"、"转化率提升i18n.t('ai.title.风_g86')AI的好处"、"AI的魅力"）
 - **不得使用模板化结构**（如"盘点X个"、"X大技巧"、"建议收藏"）
 - **不得使用滥情词语**（如"干货满满"、"效率拉满"）或无意义标点（如"！！！"、"｜"）
 
@@ -168,7 +126,7 @@ export const getTitleGenerationPrompt: PromptTemplate = (input: any, options = {
   // 风格偏好处理
   const preferredStyles = stylePreference.length > 0 
     ? stylePreference.map((style: string) => TITLE_STYLES[style as keyof typeof TITLE_STYLES] || style).join('、')
-    : '所有风格';
+    : i18n.t('aiPrompts.status.allStyles');
 
   return `请基于以下正文内容生成${outputCount}个高吸引力标题（V3规范）：
 
@@ -180,7 +138,7 @@ ${allContent}
 - **输出数量**: ${outputCount}个标题
 - **风格要求**: 必须包含多种结构风格，避免格式单一
 - **吸引力要素**: 包含情绪/场景/动作/转变等要素
-- **确保多样性**: ${ensureDiversity ? '是' : '否'}
+- **确保多样性**: ${ensureDiversity ? i18n.t('aiPrompts.status.yes') : i18n.t('aiPrompts.status.no')}
 
 ## 🔍 内容分析要求（强化语义提取）
 请先深度分析正文内容的：
@@ -188,7 +146,7 @@ ${allContent}
 2. **用户收益**：明确的价值主张和使用效果（如"节省80%时间"、"效率翻倍"、"涨粉3倍"）
 3. **使用场景**：具体的应用场景和目标用户（如"小红书种草"、"公众号发文"、"职场内容改写"）
 4. **关键动作**：用户具体做了什么（如"一键适配"、"自动生成"、"批量改写"）
-5. **量化效果**：具体的数据或效果（如"80%时间"、"3倍效率"、"10分钟完成"）
+5. **量化效果**：具体的数据或效果（如"80%时间"、"3倍效率"、i18n.t(i18n.t('ai.status.aistatu_235'))）
 
 ## 📤 输出格式
 请按以下JSON格式输出：
@@ -200,12 +158,12 @@ ${allContent}
     "userBenefits": ["节省80%时间", "效率翻倍", "一键适配"],
     "useScenarios": ["小红书种草笔记", "公众号发文", "职场内容改写"],
     "keyActions": ["一键适配", "自动生成", "批量改写"],
-    "quantifiedEffects": ["80%时间节省", "3倍效率提升", "10分钟完成"],
+    "quantifiedEffects": ["80%时间节省", "3倍效率提升", i18n.t(i18n.t('ai.status.aistatu_235'))],
     "mainTheme": "AI工具提升内容创作效率"
   },
   "titles": [
     {
-      "title": "标题内容",
+      "title": i18n.t('aiPrompts.titleGeneration.titleContent'),
       "style": "✅ 结果+情绪型",
       "length": 18,
       "semanticFit": 0.85,
@@ -228,21 +186,9 @@ ${allContent}
 7. **场景信息明确**：必须包含具体的使用场景或平台信息
 8. **禁止模板套用**：不得直接套用模板而忽略内容上下文
 
-${debug ? '\n## 🔧 调试模式\n请提供详细的内容分析过程和标题生成推理。' : ''}
+${debug ? i18n.t('ai.title.n_86o') : ''}
 
-现在开始分析内容并生成标题：`;
-};
-
-/**
- * 标题质量检查提示词
- */
-export const getTitleQualityCheckPrompt: PromptTemplate = (input: any, options = {}) => {
-  const { title, originalContent, platform } = input;
-  const { debug = false } = options;
-  
-  const titleLimit = PLATFORM_LIMITS[platform as keyof typeof PLATFORM_LIMITS] || PLATFORM_LIMITS.default;
-
-  return `请对以下标题进行质量检查：
+现在开始分析内容并生成标题：i18n.t('ai.title._btk')请对以下标题进行质量检查：
 
 ## 📝 原文内容
 ${originalContent}
@@ -299,4 +245,4 @@ ${debug ? '\n## 🔧 调试模式\n请提供详细的评估过程和判断依据
 现在开始质量检查：`;
 };
 
-logModuleInit('智能标题生成 Prompt 系统');
+logModuleInit(i18n.t('ai.title.智能标题生成P_h35'));

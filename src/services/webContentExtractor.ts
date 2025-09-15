@@ -3,6 +3,7 @@
  * 支持从URL提取网页内容，并进行智能分析和品牌信息提取
  */
 
+import i18n from '@/i18n';
 import { callAI } from '@/api/unifiedAIService';
 import { BrandAsset } from '@/types/brand';
 import React from 'react';
@@ -91,7 +92,7 @@ export class WebContentExtractorService {
         // 调用后端API进行网页内容提取
         const extractedData = await request.post('/api/extract-web-content', { url: normalizedUrl });
         pageContent = extractedData.content || '';
-        pageTitle = extractedData.title || '未知标题';
+        pageTitle = extractedData.title || i18n.t('common.labels.未知标题');
 
       } catch (error) {
         console.warn('直接内容提取失败，使用AI分析URL:', error);
@@ -107,7 +108,7 @@ export class WebContentExtractorService {
         });
 
         if (!extractionResponse.success || !extractionResponse.content) {
-          throw new Error(extractionResponse.error || '内容提取失败');
+          throw new Error(extractionResponse.error || i18n.t('common.errors.内容提取失败'));
         }
 
         // 解析提取结果
@@ -125,7 +126,7 @@ export class WebContentExtractorService {
       const result: WebExtractionResult = {
         id: resultId,
         url: normalizedUrl,
-        title: extractedData.title || '未知标题',
+        title: extractedData.title || i18n.t('common.labels.未知标题'),
         content: extractedData.content || '',
         extractedAt: new Date().toISOString(),
         metadata: {
@@ -160,7 +161,7 @@ export class WebContentExtractorService {
       return {
         id: resultId,
         url: url,
-        title: '提取失败',
+        title: i18n.t('common.labels.提取失败'),
         content: '',
         extractedAt: new Date().toISOString(),
         metadata: {
@@ -169,7 +170,7 @@ export class WebContentExtractorService {
           domain: this.extractDomain(url) || 'unknown'
         },
         status: 'error',
-        error: error instanceof Error ? error.message : '未知错误'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误')
       };
     }
   }
@@ -252,7 +253,7 @@ URL: ${url}
 
 请按照以下JSON格式返回分析结果：
 {
-  "title": "网页标题",
+  "title": i18n.t('common.labels.网页标题'),
   "content": "主要内容摘要",
   "description": "内容描述",
   "keywords": ["关键词1", "关键词2"],
@@ -280,7 +281,7 @@ URL: ${url}
 
     // 如果AI分析失败，返回基础信息
     return {
-      title: title || '未知标题',
+      title: title || i18n.t('common.labels.未知标题'),
       content: content || '',
       description: content.substring(0, 200) + '...',
       keywords: [],
@@ -329,7 +330,7 @@ URL: ${url}
     } catch (error) {
       console.warn('解析提取响应失败:', error);
       return {
-        title: '解析失败',
+        title: i18n.t('common.labels.解析失败'),
         content: response,
         description: '无法解析AI响应',
         keywords: [],
@@ -344,7 +345,7 @@ URL: ${url}
   private parseTextResponse(response: string): any {
     const lines = response.split('\n');
     const result: any = {
-      title: '未知标题',
+      title: i18n.t('common.labels.未知标题'),
       content: response,
       keywords: [],
       language: 'zh-CN'
@@ -352,7 +353,7 @@ URL: ${url}
 
     // 简单的文本解析逻辑
     for (const line of lines) {
-      if (line.includes('标题') || line.includes('title')) {
+      if (line.includes(i18n.t('common.labels.标题')) || line.includes('title')) {
         result.title = line.replace(/.*[:：]/, '').trim();
       } else if (line.includes('描述') || line.includes('description')) {
         result.description = line.replace(/.*[:：]/, '').trim();
@@ -406,7 +407,7 @@ ${content.substring(0, 2000)}
       });
 
       if (!response.success || !response.content) {
-        throw new Error('品牌分析失败');
+        throw new Error(i18n.t('common.errors.品牌分析失败'));
       }
 
       // 解析分析结果
@@ -497,7 +498,7 @@ ${content.substring(0, 2000)}
         results.push({
           id: `web-extract-${Date.now()}`,
           url: url,
-          title: '提取失败',
+          title: i18n.t('common.labels.提取失败'),
           content: '',
           extractedAt: new Date().toISOString(),
           metadata: {
@@ -506,7 +507,7 @@ ${content.substring(0, 2000)}
             domain: this.extractDomain(url) || 'unknown'
           },
           status: 'error',
-          error: error instanceof Error ? error.message : '未知错误'
+          error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误')
         });
       }
     }
@@ -532,7 +533,7 @@ ${content.substring(0, 2000)}
 {
   "accessible": true/false,
   "status": "HTTP状态码或错误信息",
-  "message": "详细说明"
+  "message": i18n.t('common.messages.详细说明')
 }`;
 
       const response = await callAI({
@@ -564,7 +565,7 @@ ${content.substring(0, 2000)}
     } catch (error) {
       return {
         accessible: false,
-        error: error instanceof Error ? error.message : '检查失败'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.检查失败')
       };
     }
   }

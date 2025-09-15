@@ -19,6 +19,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import './i18n';
+import { useTranslation } from 'react-i18next';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthGuard, ProGuard, PremiumGuard } from '@/components/auth/RouteGuard';
@@ -62,6 +63,7 @@ import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 // 临时调试页面
 import TokenDebugPage from '@/pages/TokenDebugPage';
 import DialogTestPage from '@/pages/DialogTestPage';
+import I18nTestPage from '@/pages/I18nTestPage';
 
 // 🔧 FIX: 懒加载组件，避免TDZ错误和循环依赖
 const LazyCreativeStudioPage = React.lazy(() => import('@/pages/CreativeStudioPage'));
@@ -77,14 +79,15 @@ const LazySettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
 // 🔧 错误边界包装器，处理懒加载失败
 const LazyWrapper: React.FC<{ children: React.ReactNode; fallback?: React.ReactNode }> = ({
   children,
-  fallback = <LoadingSpinner text="加载页面中..." />
-}) => (
-  <ErrorBoundary fallback={<div>页面加载失败，请刷新重试</div>}>
-    <Suspense fallback={fallback}>
-      {children}
-    </Suspense>
-  </ErrorBoundary>
-);
+  fallback
+}) => { return (
+    <ErrorBoundary fallback={<div>{t('app.errors.pageLoadFailed') }</div>}>
+      <Suspense fallback={fallback || <LoadingSpinner text={t('app.common.loading')} />}>
+        {children}
+      </Suspense>
+    </ErrorBoundary>
+  );
+};
 
 /**
  * 条件性导航组件
@@ -206,6 +209,9 @@ const App: React.FC = () => {
 
                         {/* Dialog定位测试页面 */}
                         <Route path="/dialog-test" element={<DialogTestPage />} />
+
+                        {/* 国际化测试页面 */}
+                        <Route path="/i18n-test" element={<I18nTestPage />} />
 
                         {/* 错误页面 */}
                         <Route path="/403" element={<ForbiddenPage />} />

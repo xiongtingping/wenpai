@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -76,8 +77,7 @@ interface UnifiedEmojiManagerProps {
   emojiClassName?: string;
 }
 
-const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
-  mode = 'selector',
+const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selector',
   showSearch = true,
   showCategories = true,
   showStats = false,
@@ -101,7 +101,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
   className = '',
   cardClassName = '',
   emojiClassName = ''
-}) => {
+ }) => {
   // 基础状态
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -237,14 +237,14 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
     if (newFavorites.has(emojiId)) {
       newFavorites.delete(emojiId);
       toast({
-        title: "取消收藏",
+        title: t('components.labels.取消收藏'),
         description: "已从收藏中移除",
         duration: 1500,
       });
     } else {
       newFavorites.add(emojiId);
       toast({
-        title: "添加收藏",
+        title: t('components.labels.添加收藏'),
         description: "已添加到收藏",
         duration: 1500,
       });

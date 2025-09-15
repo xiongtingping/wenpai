@@ -4,6 +4,7 @@
  */
 
 import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -24,16 +25,15 @@ export interface TitleGenerationProgressProps {
   className?: string;
 }
 
-const STAGE_CONFIG = {
-  idle: {
+const STAGE_CONFIG = {idle: {
     icon: Clock,
-    label: '准备中',
+    label: t('components.labels.准备中'),
     description: '等待开始生成',
     color: 'text-muted-foreground'
   },
   validating: {
     icon: CheckCircle,
-    label: '验证输入',
+    label: t('components.labels.验证输入'),
     description: '检查内容格式和长度',
     color: 'text-primary'
   },
@@ -45,19 +45,19 @@ const STAGE_CONFIG = {
   },
   processing: {
     icon: Sparkles,
-    label: '处理结果',
+    label: t('components.labels.处理结果'),
     description: '解析和清理生成结果',
     color: 'text-foreground'
   },
   scoring: {
     icon: Calculator,
-    label: '质量评分',
+    label: t('components.labels.质量评分'),
     description: '计算标题质量评分',
     color: 'text-foreground'
   },
   complete: {
     icon: CheckCircle,
-    label: '生成完成',
+    label: t('components.labels.生成完成'),
     description: '标题生成成功完成',
     color: 'text-foreground'
   }

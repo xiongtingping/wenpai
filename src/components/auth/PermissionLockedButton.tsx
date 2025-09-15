@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
 import { useUnifiedPermission } from '@/hooks/useUnifiedPermission';
@@ -38,6 +39,8 @@ export const PermissionLockedButton = React.forwardRef<HTMLButtonElement, Permis
   ref
 ) => {
   const navigate = useNavigate();
+
+  const { t } = useTranslation();
 
   // 使用统一权限检查
   const permissionKey = `tier:${requiredTier}`;
@@ -118,7 +121,7 @@ export const PermissionLockedIconButton = React.forwardRef<HTMLButtonElement, Pe
       className={`${className} ${!hasPermission ? 'opacity-60 cursor-pointer border-dashed' : ''}`}
       onClick={handleClick}
       disabled={disabled}
-      title={!hasPermission ? `${reason || `需要${requiredTier}版本`} - ${featureName || '此功能'}` : undefined}
+      title={!hasPermission ? `${reason || `需要${requiredTier}版本`} - ${featureName || t('components.labels.此功能')}` : undefined}
     >
       {!hasPermission ? <Lock className="h-4 w-4" /> : children}
     </Button>

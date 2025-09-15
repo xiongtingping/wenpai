@@ -1,8 +1,8 @@
 import { useEffect } from "react"
+import { useTranslation } from 'react-i18next';
 import { CheckCircle, FileText, Settings, Sparkles } from "lucide-react"
 
-export function HowItWorks() {
-  useEffect(() => {
+export function HowItWorks() { useEffect(() => {
     // 动效可选，保留原有滚动监听
     const handleScroll = () => {
       const section = document.getElementById("how-it-works-section")
@@ -11,7 +11,7 @@ export function HowItWorks() {
         const windowHeight = window.innerHeight
         if (rect.top < windowHeight * 0.7 && rect.bottom > 0) {
           // 可加动画触发逻辑
-        }
+         }
       }
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -26,7 +26,7 @@ export function HowItWorks() {
     "from-hsl(var(--accent))-400 via-hsl(var(--accent))-500 to-hsl(var(--destructive))-400"
   ]
   const stepIcons = [FileText, Settings, Sparkles]
-  const stepTitles = ["输入原始内容", "选择目标平台", "一键获取所有版本"]
+  const stepTitles = [t('components.labels.输入原始内容'), t('components.labels.选择目标平台'), t('components.labels.一键获取所有版本')]
   const stepDescs = [
     "粘贴或输入您想要适配的内容，AI将智能分析结构和核心信息。",
     "勾选需要适配的平台，支持多平台同时生成，每个平台都有独特优化。",

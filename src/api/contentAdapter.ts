@@ -3,6 +3,7 @@
  * 用于生成不同平台适配的内容
  */
 
+import i18n from '@/i18n';
 import { generatePlatformContent, type StyleType } from '@/config/contentSchemes';
 import { getContentFormById } from '@/config/contentForms';
 import { callUnifiedAI } from '@/api/unifiedAIService';
@@ -221,14 +222,14 @@ export async function generateAdaptedContent(
     if (!originalContent.trim()) {
       return {
         success: false,
-        error: '原始内容不能为空'
+        error: i18n.t('api.errors.原始内容不能为空')
       };
     }
 
     if (!platform) {
       return {
         success: false,
-        error: '请选择目标平台'
+        error: i18n.t('api.errors.请选择目标平台')
       };
     }
 
@@ -268,14 +269,14 @@ export async function generateAdaptedContent(
       // AI调用失败时，返回错误
       return {
         success: false,
-        error: aiResponse.error || '内容适配失败'
+        error: aiResponse.error || i18n.t('api.errors.内容适配失败')
       };
     }
   } catch (error) {
     console.error('生成适配内容失败:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : '生成适配内容失败'
+      error: error instanceof Error ? error.message : i18n.t('api.errors.生成适配内容失败')
     };
   }
 }
@@ -294,14 +295,14 @@ export async function regenerateAdaptedContent(
     if (!originalContent.trim()) {
       return {
         success: false,
-        error: '原始内容不能为空'
+        error: i18n.t('api.errors.原始内容不能为空')
       };
     }
 
     if (!platform) {
       return {
         success: false,
-        error: '请选择目标平台'
+        error: i18n.t('api.errors.请选择目标平台')
       };
     }
 
@@ -322,7 +323,7 @@ export async function regenerateAdaptedContent(
     console.error('重新生成适配内容失败:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : '重新生成适配内容失败'
+      error: error instanceof Error ? error.message : i18n.t('api.errors.重新生成适配内容失败')
     };
   }
 }
@@ -345,14 +346,14 @@ export async function generateMultiPlatformContent(
     if (!originalContent.trim()) {
       return platforms.map(() => ({
         success: false,
-        error: '原始内容不能为空'
+        error: i18n.t('api.errors.原始内容不能为空')
       }));
     }
 
     if (platforms.length === 0) {
       return [{
         success: false,
-        error: '请选择至少一个目标平台'
+        error: i18n.t('api.errors.请选择至少一个目标平台')
       }];
     }
 
@@ -372,7 +373,7 @@ export async function generateMultiPlatformContent(
     console.error('批量生成多平台内容失败:', error);
     return platforms.map(() => ({
       success: false,
-      error: error instanceof Error ? error.message : '批量生成多平台内容失败'
+      error: error instanceof Error ? error.message : i18n.t('api.errors.批量生成多平台内容失败')
     }));
   }
 }

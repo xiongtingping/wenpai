@@ -3,6 +3,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 interface DirectLoginFormProps {
@@ -10,8 +11,7 @@ interface DirectLoginFormProps {
   onError?: (error: string) => void;
 }
 
-export const DirectLoginForm: React.FC<DirectLoginFormProps> = ({ onLogin, onError }) => {
-  const [email, setEmail] = useState('');
+export const DirectLoginForm: React.FC<any> = ({ onLogin, onError }) => { const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -27,9 +27,9 @@ export const DirectLoginForm: React.FC<DirectLoginFormProps> = ({ onLogin, onErr
       // 必须调用真实的Authing API进行登录，不允许使用模拟数据
       throw new Error('DirectLoginForm已被禁用：必须使用真实的Authing API进行登录，不允许模拟登录');
       
-    } catch (error) {
+     } catch (error) {
       console.error('❌ 登录失败:', error);
-      const errorMsg = error instanceof Error ? error.message : '登录失败';
+      const errorMsg = error instanceof Error ? error.message : t('components.errors.登录失败');
       onError?.(errorMsg);
     } finally {
       setLoading(false);

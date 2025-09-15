@@ -3,6 +3,7 @@
  * @description 提供订阅状态查询和临期提醒功能
  */
 
+import i18n from '@/i18n';
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { calculateSubscriptionStatus, type SubscriptionStatus } from '@/utils/subscriptionStatusUtils';
@@ -62,7 +63,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
       needsAlert: false,
       alertLevel: 'info',
       alertMessage: '',
-      statusLabel: '试用用户',
+      statusLabel: i18n.t('common.labels.试用用户'),
       statusColor: 'gray'
     };
   });
@@ -120,7 +121,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
           needsAlert: false,
           alertLevel: 'info' as const,
           alertMessage: '',
-          statusLabel: '高级版',
+          statusLabel: i18n.t('common.labels.高级版'),
           statusColor: 'green' as const
         };
         
@@ -153,7 +154,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
             }),
             // 30秒超时
             new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error('订阅状态获取超时')), 30000)
+              setTimeout(() => reject(new Error(i18n.t('common.errors.订阅状态获取超时'))), 30000)
             )
           ]);
 
@@ -164,7 +165,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
           }
         } catch (error) {
-          lastError = error instanceof Error ? error : new Error('未知错误');
+          lastError = error instanceof Error ? error : new Error(i18n.t('common.errors.未知错误'));
           logger.warn(`❌ 第 ${attempt} 次尝试失败:`, lastError.message);
 
           // 如果不是最后一次尝试，等待后重试
@@ -178,7 +179,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
 
       // 如果所有重试都失败了，抛出错误
       if (!response || !response.ok) {
-        throw lastError || new Error('订阅状态获取失败');
+        throw lastError || new Error(i18n.t('common.errors.订阅状态获取失败'));
       }
 
       // 检查响应内容类型
@@ -218,11 +219,11 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
       logger.error('获取订阅状态失败:', error);
 
       // 提供友好的错误处理
-      let errorMessage = '获取订阅状态失败';
+      let errorMessage = i18n.t('common.errors.获取订阅状态失败');
       if (error instanceof Error) {
-        if (error.message.includes('timeout') || error.message.includes('超时')) {
+        if (error.message.includes('timeout') || error.message.includes(i18n.t('common.errors.超时'))) {
           errorMessage = '网络连接超时，请检查网络后重试';
-        } else if (error.message.includes('Failed to fetch') || error.message.includes('网络')) {
+        } else if (error.message.includes('Failed to fetch') || error.message.includes(i18n.t('common.errors.网络'))) {
           errorMessage = '网络连接失败，请检查网络设置';
         } else if (error.message.includes('500')) {
           errorMessage = '服务暂时不可用，请稍后重试';

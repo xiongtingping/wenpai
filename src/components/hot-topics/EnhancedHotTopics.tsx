@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,7 +41,7 @@ interface EnhancedHotTopicsProps {
   className?: string;
 }
 
-export default function EnhancedHotTopics({ className }: EnhancedHotTopicsProps) {
+export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps) {
   const { toast } = useToast();
 
   // 状态管理
@@ -100,7 +101,7 @@ export default function EnhancedHotTopics({ className }: EnhancedHotTopicsProps)
       await refreshData();
     } catch (error) {
       console.error('初始化失败:', error);
-      setError('初始化失败');
+      setError(t('components.errors.初始化失败'));
     } finally {
       setLoading(false);
     }
@@ -123,14 +124,14 @@ export default function EnhancedHotTopics({ className }: EnhancedHotTopicsProps)
       setStats(statistics);
 
       toast({
-        title: "数据更新成功",
+        title: t('components.labels.数据更新成功'),
         description: `获取到 ${topics.length} 条融合热点数据`,
       });
     } catch (error) {
       console.error('刷新数据失败:', error);
-      setError(error instanceof Error ? error.message : '刷新失败');
+      setError(error instanceof Error ? error.message : t('components.errors.刷新失败'));
       toast({
-        title: "数据更新失败",
+        title: t('components.labels.数据更新失败'),
         description: "请检查网络连接后重试",
         variant: "destructive"
       });
@@ -337,7 +338,7 @@ export default function EnhancedHotTopics({ className }: EnhancedHotTopicsProps)
                 </Select>
                 <Select value={selectedSource} onValueChange={setSelectedSource}>
                   <SelectTrigger className="w-full md:w-48">
-                    <SelectValue placeholder="数据源" />
+                    <SelectValue placeholder={t('components.labels.占位符')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">全部来源</SelectItem>

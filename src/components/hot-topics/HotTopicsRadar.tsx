@@ -14,6 +14,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -148,8 +149,7 @@ interface TrendAnalysis {
 /**
  * 全网雷达组件
  */
-export default function HotTopicsRadar({
-  showNavigation = false,
+export default function HotTopicsRadar({ showNavigation = false,
   defaultTab = 'hot',
   showStats = true,
   showSearch = true,
@@ -159,11 +159,11 @@ export default function HotTopicsRadar({
   className = '',
   maxHeight,
   compact = false,
-  title = '全网雷达',
+  title = t('components.labels.全网雷达'),
   onTopicClick,
   onSubscriptionChange,
   onBookmarkChange
-}: HotTopicsRadarProps) {
+ }: HotTopicsRadarProps) {
   const { toast } = useToast();
   
   // 状态管理
@@ -288,7 +288,7 @@ export default function HotTopicsRadar({
       console.error('加载热点话题失败:', error);
       setError('加载数据失败，请稍后重试');
       toast({
-        title: "加载失败",
+        title: t('components.labels.加载失败'),
         description: "无法获取热点话题数据，请检查网络连接",
         variant: "destructive"
       });
@@ -319,7 +319,7 @@ export default function HotTopicsRadar({
     setRefreshing(false);
 
     toast({
-      title: "刷新成功",
+      title: t('components.labels.刷新成功'),
       description: "数据已更新到最新状态",
     });
   };
@@ -404,13 +404,13 @@ export default function HotTopicsRadar({
     if (newBookmarks.has(topicId)) {
       newBookmarks.delete(topicId);
       toast({
-        title: "取消收藏",
+        title: t('components.labels.取消收藏'),
         description: `已取消收藏"${topic.title}"`,
       });
     } else {
       newBookmarks.add(topicId);
       toast({
-        title: "收藏成功",
+        title: t('components.labels.收藏成功'),
         description: `已收藏"${topic.title}"`,
       });
     }

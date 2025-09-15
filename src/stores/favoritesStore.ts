@@ -3,6 +3,7 @@
  * 整合所有页面的收藏功能，统一管理收藏内容
  */
 
+import i18n from '@/i18n';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { generateStorageKey } from '@/utils/userDataIsolation';
@@ -346,19 +347,19 @@ export const favoritesUtils = {
     const errors: string[] = [];
     
     if (!item.title) {
-      errors.push('标题不能为空');
+      errors.push(i18n.t('common.errors.标题不能为空'));
     }
     
     if (!item.content) {
-      errors.push('内容不能为空');
+      errors.push(i18n.t('common.errors.内容不能为空'));
     }
     
     if (!item.type) {
-      errors.push('类型不能为空');
+      errors.push(i18n.t('common.errors.类型不能为空'));
     }
     
     if (!item.source) {
-      errors.push('来源不能为空');
+      errors.push(i18n.t('common.errors.来源不能为空'));
     }
     
     return {

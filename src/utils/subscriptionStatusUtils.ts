@@ -41,7 +41,7 @@ export function calculateSubscriptionStatus(
       needsAlert: false,
       alertLevel: 'info',
       alertMessage: '',
-      statusLabel: '未订阅',
+      statusLabel: i18n.t('common.status.notSubscribed'),
       statusColor: 'gray'
     };
   }
@@ -59,7 +59,7 @@ export function calculateSubscriptionStatus(
       needsAlert: true,
       alertLevel: 'danger',
       alertMessage: '您的订阅已过期，请立即续费以继续使用服务',
-      statusLabel: '已过期',
+      statusLabel: i18n.t('common.status.expired'),
       statusColor: 'red'
     };
   }
@@ -73,7 +73,7 @@ export function calculateSubscriptionStatus(
       needsAlert: true,
       alertLevel: 'danger',
       alertMessage: '您的订阅今天到期，立即续费避免服务中断',
-      statusLabel: '今日到期',
+      statusLabel: i18n.t('common.status.expirestoday'),
       statusColor: 'red'
     };
   }
@@ -114,7 +114,7 @@ export function calculateSubscriptionStatus(
     needsAlert: false,
     alertLevel: 'info',
     alertMessage: '',
-    statusLabel: '有效',
+    statusLabel: i18n.t('utils.labels.有效'),
     statusColor: 'green'
   };
 }
@@ -130,9 +130,9 @@ export function formatExpiryDisplay(expiresAt: Date | null): string {
   const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
   
   if (daysRemaining <= 0) {
-    return '已过期';
+    return i18n.t('common.status.expired');
   } else if (daysRemaining === 1) {
-    return '今日到期';
+    return i18n.t('common.status.expirestoday');
   } else if (daysRemaining <= 7) {
     return `${daysRemaining}天后到期`;
   } else {

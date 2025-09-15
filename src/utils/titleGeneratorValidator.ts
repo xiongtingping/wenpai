@@ -63,14 +63,14 @@ const COMPLETENESS_CHECKS = [
     description: "标题长度应至少5个字符"
   },
   {
-    check: (title: string) => !title.endsWith('真的'),
+    check: (title: string) => !title.endsWith(i18n.t('utils.labels.真的')),
     name: "完整结尾检查",
-    description: "标题不应以'真的'结尾"
+    description: "标题不应以i18n.t('utils.labels.真的')结尾"
   },
   {
-    check: (title: string) => !title.endsWith('让我'),
+    check: (title: string) => !title.endsWith(i18n.t('utils.labels.让我')),
     name: "完整表达检查", 
-    description: "标题不应以'让我'结尾"
+    description: "标题不应以i18n.t('utils.labels.让我')结尾"
   },
   {
     check: (title: string) => !/^[，。！？\s]*$/.test(title),

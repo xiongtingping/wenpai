@@ -21,6 +21,7 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 // Guard组件已移除，仅使用自定义表单和@authing/web SDK
 import { getAuthingConfig } from '@/config/authing';
@@ -102,8 +103,7 @@ const UnifiedAuthContext = createContext<UnifiedAuthContextType | undefined>(und
 /**
  * 统一认证提供者组件
  */
-export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserInfo | null>(null);
+export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => { const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -143,7 +143,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
             nickname: parsedUser.nickname,
             avatar: parsedUser.avatar,
             loginTime: parsedUser.loginTime
-          });
+           });
           setLoading(false);
           return;
         } catch (e) {
@@ -240,7 +240,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     } catch (error) {
       console.error('❌ 处理Guard登录失败:', error);
-      setError('登录处理失败');
+      setError(t('common.errors.登录处理失败'));
     }
   };
 
@@ -289,7 +289,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     } catch (error) {
       console.error('❌ 注册跳转失败:', error);
-      setError('注册跳转失败');
+      setError(t('common.errors.注册跳转失败'));
     }
   };
 
@@ -335,7 +335,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     } catch (error) {
       console.error('❌ 登出失败:', error);
-      setError('登出失败');
+      setError(t('common.errors.登出失败'));
     }
   }, [navigate, authStore]);
 
@@ -361,7 +361,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const updateUser = async (updates: Partial<UserInfo>) => {
     if (!user) {
-      throw new Error('用户未登录');
+      throw new Error(t('common.errors.用户未登录'));
     }
 
     try {
@@ -410,7 +410,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         const result = await authService.updateProfile(sensitiveUpdates);
         
         if (!result.success) {
-          throw new Error(result.message || '敏感信息更新失败');
+          throw new Error(result.message || t('common.errors.敏感信息更新失败'));
         }
       }
 
@@ -460,7 +460,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       
     } catch (error) {
       console.error('❌ 用户信息更新失败:', error);
-      const errorMessage = error instanceof Error ? error.message : '更新用户信息失败';
+      const errorMessage = error instanceof Error ? error.message : t('common.errors.更新用户信息失败');
       throw new Error(errorMessage);
     }
   };
@@ -483,7 +483,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         throw new Error(result.message);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '登录失败';
+      const errorMessage = error instanceof Error ? error.message : t('common.errors.登录失败');
       setError(errorMessage);
       throw error;
     } finally {
@@ -505,7 +505,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         throw new Error(result.message);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '登录失败';
+      const errorMessage = error instanceof Error ? error.message : t('common.errors.登录失败');
       setError(errorMessage);
       throw error;
     } finally {
@@ -527,7 +527,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         throw new Error(result.message);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '登录失败';
+      const errorMessage = error instanceof Error ? error.message : t('common.errors.登录失败');
       setError(errorMessage);
       throw error;
     } finally {
@@ -568,7 +568,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           userInfo.password
         );
       } else {
-        throw new Error('注册信息不完整');
+        throw new Error(t('common.errors.注册信息不完整'));
       }
       
       if (result.success && result.data) {
@@ -580,7 +580,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         throw new Error(result.message);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '注册失败';
+      const errorMessage = error instanceof Error ? error.message : t('common.errors.注册失败');
       setError(errorMessage);
       throw error;
     } finally {

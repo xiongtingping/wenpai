@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,8 +31,7 @@ import { DailyHotItem } from '@/api/hotTopicsService';
  * 热点话题详情页面组件
  * @returns React 组件
  */
-export default function HotTopicDetailPage() {
-  const { platform, title } = useParams<{ platform: string; title: string }>();
+export default function HotTopicDetailPage() { const { platform, title  } = useParams<{ platform: string; title: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -63,7 +63,7 @@ export default function HotTopicDetailPage() {
               platform: platform,
               desc: decodeURIComponent(title),
               content: `关于"${decodeURIComponent(title)}"的话题在${platform}平台引发了广泛讨论。这个话题涉及多个方面的内容，包括背景信息、相关讨论和重要观点。`,
-              relatedTopics: [`${decodeURIComponent(title)}相关讨论`, '热门话题', '实时讨论'],
+              relatedTopics: [`${decodeURIComponent(title)}相关讨论`, t('pages.labels.热门话题'), t('pages.labels.实时讨论')],
               rank: 1
             });
           }
@@ -101,14 +101,14 @@ export default function HotTopicDetailPage() {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       toast({
-        title: "链接已复制",
-        description: "话题链接已复制到剪贴板",
+        title: t('pages.labels.链接已复制'),
+        description: t('pages.messages.话题链接已复制到剪贴板'),
       });
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       toast({
-        title: "复制失败",
-        description: "无法复制链接到剪贴板",
+        title: t('pages.labels.复制失败'),
+        description: t('pages.messages.无法复制链接到剪贴板'),
         variant: "destructive"
       });
     }
@@ -128,16 +128,16 @@ export default function HotTopicDetailPage() {
         localStorage.setItem('bookmarkedTopics', JSON.stringify(newBookmarks));
         setIsBookmarked(false);
         toast({
-          title: "已取消收藏",
-          description: "话题已从收藏中移除",
+          title: t('pages.labels.已取消收藏'),
+          description: t('pages.messages.话题已从收藏中移除'),
         });
       } else {
         bookmarks.push(topic);
         localStorage.setItem('bookmarkedTopics', JSON.stringify(bookmarks));
         setIsBookmarked(true);
         toast({
-          title: "已收藏",
-          description: "话题已添加到收藏",
+          title: t('pages.labels.已收藏'),
+          description: t('pages.messages.话题已添加到收藏'),
         });
       }
     }
@@ -155,15 +155,15 @@ export default function HotTopicDetailPage() {
 
   const getPlatformDisplayName = (platform: string) => {
     const platformNames: Record<string, string> = {
-      'weibo': '微博',
-      'zhihu': '知乎',
-      'douyin': '抖音',
+      'weibo': t('pages.messages.微博'),
+      'zhihu': t('pages.messages.知乎'),
+      'douyin': t('pages.messages.抖音'),
       'bilibili': 'B站',
-      'baidu': '百度',
+      'baidu': t('pages.messages.百度'),
       '36kr': '36氪',
       'ithome': 'IT之家',
-      'sspai': '少数派',
-      'juejin': '掘金',
+      'sspai': t('pages.messages.少数派'),
+      'juejin': t('pages.messages.掘金'),
       'csdn': 'CSDN',
       'github': 'GitHub',
       'v2ex': 'V2EX',
@@ -262,7 +262,7 @@ export default function HotTopicDetailPage() {
                       className="flex items-center gap-1"
                     >
                       {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      {copied ? '已复制' : '复制链接'}
+                      {copied ? t('pages.messages.已复制') : t('pages.messages.复制链接')}
                     </Button>
                     <Button
                       variant="outline"
@@ -271,7 +271,7 @@ export default function HotTopicDetailPage() {
                       className="flex items-center gap-1"
                     >
                       {isBookmarked ? <Bookmark className="w-4 h-4" /> : <BookmarkPlus className="w-4 h-4" />}
-                      {isBookmarked ? '已收藏' : '收藏'}
+                      {isBookmarked ? t('pages.labels.已收藏') : t('pages.messages.收藏')}
                     </Button>
                   </div>
                 </div>

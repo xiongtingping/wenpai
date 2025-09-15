@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 /**
  * 文件格式支持配置模块
  * 统一管理所有支持的文件格式信息和文案
@@ -33,13 +34,13 @@ export const FILE_CATEGORIES = {
  * 文件格式类别中文名称
  */
 export const CATEGORY_NAMES = {
-  [FILE_CATEGORIES.TEXT]: '文本格式',
+  [FILE_CATEGORIES.TEXT]: i18n.t('config.text.文本格式_te9'),
   [FILE_CATEGORIES.DOCUMENT]: 'Word文档',
   [FILE_CATEGORIES.SPREADSHEET]: 'Excel表格',
   [FILE_CATEGORIES.PRESENTATION]: 'PowerPoint演示',
   [FILE_CATEGORIES.PDF]: 'PDF文档',
   [FILE_CATEGORIES.IMAGE]: '图片格式',
-  [FILE_CATEGORIES.DATA]: '数据格式'
+  [FILE_CATEGORIES.DATA]: i18n.t('config.text.数据格式_z5l')
 } as const;
 
 /**

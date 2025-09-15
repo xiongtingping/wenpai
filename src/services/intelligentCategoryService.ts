@@ -1,43 +1,10 @@
+import i18n from '@/i18n';
 /**
  * 智能分类标签提取优化服务
  * 解决用户反馈的问题2：自动分类标签提取优化
  */
 
-import { DailyHotItem } from '@/api/hotTopicsService';
-
-export interface CategoryConfig {
-  enableMultiLabel: boolean; // 是否启用多标签分类
-  confidenceThreshold: number; // 置信度阈值
-  maxLabelsPerItem: number; // 每个项目最大标签数
-  enableSemanticAnalysis: boolean; // 是否启用语义分析
-}
-
-export interface CategoryResult {
-  primary: string; // 主要分类
-  secondary: string[]; // 次要分类
-  confidence: number; // 置信度
-  tags: string[]; // 提取的标签
-  reasoning: string; // 分类理由
-}
-
-export interface CategoryStats {
-  distribution: Record<string, number>;
-  totalItems: number;
-  averageConfidence: number;
-  multiLabelItems: number;
-}
-
-class IntelligentCategoryService {
-  private config: CategoryConfig = {
-    enableMultiLabel: true,
-    confidenceThreshold: 0.8, // 提升到80%置信度阈值
-    maxLabelsPerItem: 3,
-    enableSemanticAnalysis: true
-  };
-
-  // 增强的分类词典 - 优化版本，提升置信度
-  private categoryDictionary = {
-    '科技': {
+import { DailyHotItem } from '@/api/hotTopicsServicei18n.t('services.label.expor_1wf')科技': {
       keywords: ['AI', '人工智能', '机器学习', '深度学习', '算法', '技术', '创新', '研发', '数字化', '互联网', '软件', '硬件', '芯片', '5G', '6G', '区块链', '云计算', '物联网', 'IoT', '自动驾驶', '机器人', '虚拟现实', 'VR', '增强现实', 'AR', '量子计算', '生物技术', '科学', '工程', '编程', '代码', '开发', '程序', '系统', '网络', '数据', '智能', '电子', '计算机', '手机', '电脑', '应用', 'app', '平台', '科研', '实验', '发明', '专利'],
       weight: 1.2,
       subCategories: ['人工智能', '互联网', '硬件', '软件', '通信技术', '新兴技术']
@@ -329,7 +296,7 @@ class IntelligentCategoryService {
     const contextWords: Record<string, string[]> = {
       '科技': ['发布', '推出', '升级', '更新', '版本', '功能', '性能', '测试', '体验', '用户', '市场', '产品'],
       '娱乐': ['发布', '上映', '播出', '首播', '首映', '票房', '收视率', '观众', '粉丝', '评价', '口碑', '热议'],
-      '体育': ['比赛', '赛事', '冠军', '胜利', '失败', '成绩', '纪录', '训练', '教练', '队员', '联赛', '锦标赛'],
+      '体育': ['比赛', '赛事', '冠军', '胜利', i18n.t(i18n.t('services.error.services_5ae')), '成绩', '纪录', '训练', '教练', '队员', '联赛', '锦标赛'],
       '财经': ['上涨', '下跌', '投资', '收益', '亏损', '股价', '市值', '融资', 'IPO', '财报', '业绩', '营收'],
       '政治': ['政策', '法规', '会议', '决定', '宣布', '实施', '改革', '措施', '方案', '计划', '目标', '成果'],
       '社会': ['事件', '现象', '问题', '解决', '改善', '影响', '关注', '讨论', '反响', '民众', '社区', '公众'],
@@ -389,14 +356,7 @@ class IntelligentCategoryService {
         /粉丝|观众|网友|热议|讨论/,
         /电影|电视剧|综艺|音乐|游戏|动漫/
       ],
-      '体育': [
-        /比分|\d+:\d+/,
-        /冠军|亚军|季军|第\d+名/,
-        /联赛|杯赛|锦标赛|世界杯|奥运/,
-        /球员|教练|裁判|队员/,
-        /进球|得分|胜利|失败|平局/
-      ],
-      '财经': [
+      '体育i18n.t('services.error._90w')财经': [
         /[¥$€£]\d+|人民币\d+|美元\d+/,
         /股价|市值|涨跌|收盘|开盘/,
         /投资|融资|上市|IPO|并购/,
@@ -482,37 +442,7 @@ class IntelligentCategoryService {
       secondary: [],
       confidence: 0.4,
       tags: [],
-      reasoning: '无法确定分类'
-    };
-  }
-
-  /**
-   * 提取标签
-   */
-  private extractTags(content: string, categoryKeywords: string[] = []): string[] {
-    const tags = new Set<string>();
-    
-    // 添加匹配的分类关键词
-    categoryKeywords.forEach(keyword => tags.add(keyword));
-    
-    // 提取其他重要词汇
-    const words = content.match(/[\u4e00-\u9fa5]{2,}|[a-zA-Z]{3,}/g) || [];
-    const importantWords = words.filter(word => {
-      return word.length >= 2 && word.length <= 6 && !this.isStopWord(word);
-    });
-    
-    // 选择前5个重要词汇
-    importantWords.slice(0, 5).forEach(word => tags.add(word));
-    
-    return Array.from(tags).slice(0, 8); // 最多8个标签
-  }
-
-  /**
-   * 判断是否为停用词
-   */
-  private isStopWord(word: string): boolean {
-    const stopWords = new Set([
-      '的', '了', '在', '是', '有', '和', '与', '或', '但', '而', '也', '都', '被', '把', '给', '让', '使', '对', '向', '从', '到', '为', '以', '及', '等', '如', '像', '比', '很', '更', '最', '非常', '特别', '尤其', '特殊', '一般', '普通', '正常', '基本', '主要', '重要', '关键', '核心', '中心', '焦点', '热点', '话题', '新闻', '消息', '报道', '信息', '内容', '文章', '标题', '描述'
+      reasoning: i18n.t('services.text.无法确定分类i1_fx4')services.label._wzm')的', '了', '在', '是', '有', '和', '与', '或', '但', '而', '也', '都', '被', '把', '给', '让', '使', '对', '向', '从', '到', '为', '以', '及', '等', '如', '像', '比', '很', '更', '最', '非常', '特别', '尤其', '特殊', '一般', '普通', '正常', '基本', '主要', '重要', '关键', '核心', '中心', '焦点', '热点', '话题', '新闻', '消息', '报道', '信息', '内容', '文章', '标题', '描述'
     ]);
     return stopWords.has(word.toLowerCase());
   }

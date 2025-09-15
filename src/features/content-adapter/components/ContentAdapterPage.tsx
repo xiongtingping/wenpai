@@ -13,6 +13,7 @@ import { Header } from '@/components/landing/Header';
 import { PageNavigation } from '@/components/layout/PageNavigation';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats';
@@ -61,33 +62,33 @@ import { EnhancedHistoryDialog } from './EnhancedHistoryDialog';
  * 用于一键转发跳转
  */
 const platformUrls: Record<string, string> = {
-  // 主流社交媒体平台
+  // Main social media platforms
   weibo: 'https://weibo.com/compose',
   xiaohongshu: 'https://creator.xiaohongshu.com/publish/publish',
   zhihu: 'https://zhuanlan.zhihu.com/write',
   douyin: 'https://creator.douyin.com/creator-micro/content/upload',
   wechat: 'https://mp.weixin.qq.com/',
   
-  // 视频平台
+  // Video platforms
   bilibili: 'https://member.bilibili.com/platform/upload/text/edit',
   kuaishou: 'https://cp.kuaishou.com/article/publish',
   
-  // 资讯平台
+  // News platforms
   toutiao: 'https://mp.toutiao.com/profile_v4/graphic/publish',
   baijiahao: 'https://baijiahao.baidu.com/builder/rc/edit',
   
-  // 国际平台
+  // International platforms
   facebook: 'https://www.facebook.com/pages/create/',
   twitter: 'https://twitter.com/compose/tweet',
   linkedin: 'https://www.linkedin.com/feed/',
   
-  // 技术社区
+  // Tech communities
   v2ex: 'https://www.v2ex.com/new',
   github: 'https://github.com/new',
   juejin: 'https://juejin.cn/editor/drafts/new',
   csdn: 'https://mp.csdn.net/mp_blog/creation/editor',
   
-  // 其他平台
+  // Other platforms
   sspai: 'https://sspai.com/write',
   video: 'https://channels.weixin.qq.com/', // 视频号
   wangyi: 'https://mp.163.com/nb2.html' // 网易号
@@ -109,20 +110,6 @@ import {
   getPlatformMaxCharCount,
   getPlatformRecommendedCharCount
 } from '@/utils/platformUtils';
-
-// 国际化Hook (模拟)
-const useTranslation = () => ({
-  t: (key: string) => {
-    const translations: Record<string, string> = {
-      'adapt.inputOriginalContent': '输入原始内容',
-      'adapt.remainingUsage': '剩余使用次数',
-      'adapt.selectPlatforms': '选择目标平台',
-      'adapt.contentPlaceholder': '请输入要适配的原始内容...',
-      'adapt.history': '历史记录'
-    };
-    return translations[key] || key;
-  }
-});
 
 interface ContentAdapterPageProps {
   // 用户状态
@@ -315,12 +302,12 @@ export function ContentAdapterPage({
   } = useGenerationQueue({
     maxConcurrency: 3,
     onTaskComplete: (task, result) => {
-      console.log('任务完成:', task.platformId, result);
+      console.log('Task completed:', task.platformId, result);
     },
     onQueueComplete: () => {
       toast({
-        title: "批量生成完成",
-        description: "所有平台内容已生成完毕",
+        title: t('adapt.messages.batchGenerateCompleted'),
+        description: t('adapt.messages.allPlatformsGenerated'),
       });
     }
   });
@@ -375,7 +362,7 @@ export function ContentAdapterPage({
       );
       setPersistentFavorites(new Set(favoriteKeys));
     } catch (error) {
-      console.error('加载收藏状态失败:', error);
+      console.error('Failed to load favorite states:', error);
     }
   }, []);
 
@@ -409,9 +396,9 @@ export function ContentAdapterPage({
             // 如果订阅状态中没有等级信息，但有活跃订阅，根据状态标签推断等级
             if (primaryStatus?.status === 'active') {
               const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
-              if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
+              if (statusLabel.includes(t('components.labels.高级版')) || statusLabel.includes('premium')) {
                 return 'premium';
-              } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
+              } else if (statusLabel.includes(t('components.labels.专业版')) || statusLabel.includes('pro')) {
                 return 'pro';
               }
             }
@@ -442,7 +429,7 @@ export function ContentAdapterPage({
           }
 
         } catch (error) {
-          console.error('同步使用次数失败:', error);
+          console.error('Failed to sync usage stats:', error);
         }
       };
 
@@ -489,8 +476,8 @@ export function ContentAdapterPage({
   const validation = validateSettings();
   const validationErrors = Array.from(new Set([
     ...validation.errors,
-    ...(originalContent.trim().length === 0 ? ['请输入原始内容'] : []),
-    ...(selectedPlatforms.length === 0 ? ['请选择至少一个目标平台'] : [])
+    ...(originalContent.trim().length === 0 ? [t('adapt.validation.enterContent')] : []),
+    ...(selectedPlatforms.length === 0 ? [t('adapt.validation.selectPlatforms')] : [])
   ]));
 
   // 检查使用次数并显示提醒 - 从原版完整迁移
@@ -500,8 +487,8 @@ export function ContentAdapterPage({
     if (cachedUsageRemaining <= 0 && maxUsage !== -1) {
       console.log('❌ 使用次数已用完，阻止生成');
       toast({
-        title: "使用次数已用完",
-        description: "请升级套餐以继续使用",
+        title: t('adapt.errors.usageExhausted'),
+        description: t('adapt.messages.upgradeRequired'),
         variant: "destructive"
       });
       return false;
@@ -511,8 +498,8 @@ export function ContentAdapterPage({
     if (cachedUsageRemaining <= 3 && cachedUsageRemaining > 0 && maxUsage !== -1) {
       console.log('⚠️ 使用次数较少，显示提醒但允许生成');
       toast({
-        title: "使用次数较少",
-        description: `剩余${cachedUsageRemaining}次使用机会，建议及时升级`,
+        title: t('adapt.errors.usageLow'),
+        description: t("adapt.messages.usageReminder", { count: cachedUsageRemaining }),
         variant: "destructive"
       });
       // 不阻止生成，只是提醒
@@ -526,7 +513,7 @@ export function ContentAdapterPage({
   const handleGenerate = async () => {
     if (validationErrors.length > 0) {
       toast({
-        title: "无法开始生成",
+        title: t('adapt.errors.cannotStart'),
         description: validationErrors[0],
         variant: "destructive"
       });
@@ -599,7 +586,7 @@ export function ContentAdapterPage({
   const handleStartAutomation = () => {
     if (validationErrors.length > 0) {
       toast({
-        title: "无法启动自动化",
+        title: t('adapt.errors.cannotStartAutomation'),
         description: validationErrors[0],
         variant: "destructive"
       });
@@ -627,8 +614,8 @@ export function ContentAdapterPage({
   const handleSaveToFavorites = async (platformId: string, content: string, versionId?: string) => {
     if (!isAuthenticated || !user) {
       toast({
-        title: "请先登录",
-        description: "登录后才能收藏内容",
+        title: t('adapt.errors.loginRequired'),
+        description: t('adapt.messages.loginToFavorite'),
         variant: "destructive"
       });
       return;
@@ -636,8 +623,8 @@ export function ContentAdapterPage({
 
     if (!content || content.trim().length === 0) {
       toast({
-        title: "无法收藏",
-        description: "没有可收藏的内容",
+        title: t('adapt.errors.cannotFavorite'),
+        description: t('adapt.errors.noContentToFavorite'),
         variant: "destructive"
       });
       return;
@@ -648,7 +635,7 @@ export function ContentAdapterPage({
 
       // 检查是否已收藏
       if (persistentFavorites.has(favoriteKey)) {
-        // 取消收藏
+        // $收藏
         const existingFavorites = favoritesStore.favorites.filter(fav =>
           fav.metadata?.platformId === platformId && 
           (versionId ? fav.metadata?.versionId === versionId : !fav.metadata?.versionId)
@@ -674,8 +661,8 @@ export function ContentAdapterPage({
         });
 
         toast({
-          title: "取消收藏",
-          description: "已取消收藏该内容",
+          title: t('adapt.messages.favoriteRemoved'),
+          description: t('adapt.messages.favoriteRemovedDescription'),
         });
       } else {
         // 添加收藏
@@ -740,15 +727,15 @@ export function ContentAdapterPage({
         favoriteTimeoutsRef.current.set(favoriteKey, timeoutId);
 
         toast({
-          title: "收藏成功 ❤️",
-          description: "内容已添加到我的资料库 > 收藏夹",
+          title: t('adapt.messages.favoriteSuccess'),
+          description: t('adapt.messages.favoriteAdded'),
         });
       }
     } catch (error) {
-      console.error('收藏操作失败:', error);
+      console.error('Favorite operation failed:', error);
       toast({
-        title: "收藏失败",
-        description: "收藏操作出现错误，请重试",
+        title: t('adapt.errors.favoriteFailed'),
+        description: t('adapt.messages.favoriteError'),
         variant: "destructive"
       });
     }
@@ -760,8 +747,8 @@ export function ContentAdapterPage({
     localStorage.removeItem('shareHistory');
     setShareHistory([]);
     toast({
-      title: '已清空',
-      description: '转发历史已清空'
+      title: t('adapt.messages.historyCleared'),
+      description: t('adapt.messages.historyClearedDesc')
     });
   };
 
@@ -793,27 +780,27 @@ export function ContentAdapterPage({
         if (url) {
           window.open(url, '_blank', 'noopener,noreferrer');
           toast({
-            title: "内容已复制，正在跳转",
-            description: `内容已复制到剪贴板，正在打开${getPlatformName(platformId, availablePlatforms)}官网`,
+            title: t('adapt.messages.contentCopiedAndRedirecting'),
+            description: t('adapt.messages.contentCopiedToClipboard', { platform: getPlatformName(platformId, availablePlatforms) }),
           });
         } else {
           toast({
-            title: "内容已复制",
-            description: `内容已复制到剪贴板，请手动前往${getPlatformName(platformId, availablePlatforms)}发布`,
+            title: t('adapt.messages.contentCopied'),
+            description: t('adapt.messages.contentCopiedManual', { platform: getPlatformName(platformId, availablePlatforms) }),
           });
         }
       }).catch(() => {
         toast({
-          title: "复制失败",
-          description: "无法复制内容到剪贴板，请手动复制",
+          title: t('adapt.errors.copyFailed'),
+          description: t('adapt.messages.copyToClipboardFailed'),
           variant: "destructive"
         });
       });
     } catch (error) {
-      console.error('一键转发失败:', error);
+      console.error('One-click forward failed:', error);
       toast({
-        title: "转发失败",
-        description: "一键转发功能出现错误",
+        title: t('adapt.errors.forwardFailed'),
+        description: t('adapt.messages.oneClickForwardFailed'),
         variant: "destructive"
       });
     }
@@ -845,8 +832,8 @@ export function ContentAdapterPage({
 
     if (available.length === 0) {
       toast({
-        title: "没有可转发的内容",
-        description: "请先生成内容后再进行批量转发",
+        title: t('adapt.errors.noContentToForward'),
+        description: t('adapt.messages.generateContentFirst'),
         variant: "destructive"
       });
       return;
@@ -899,8 +886,8 @@ export function ContentAdapterPage({
 
     if (validPlatforms.length === 0) {
       toast({
-        title: "没有有效的转发平台",
-        description: "请检查平台配置",
+        title: t('adapt.errors.noValidPlatforms'),
+        description: t('adapt.messages.checkPlatformConfig'),
         variant: "destructive"
       });
       return;
@@ -911,8 +898,8 @@ export function ContentAdapterPage({
     setBatchForwardModalOpen(true);
 
     toast({
-      title: "批量转发工作台已启动",
-      description: `已为${validPlatforms.length}个平台准备好内容`,
+      title: t('adapt.messages.batchForwardStarted'),
+      description: t("adapt.messages.platformPrepared", { count: validPlatforms.length }),
     });
   };
 
@@ -929,8 +916,8 @@ export function ContentAdapterPage({
       });
 
       toast({
-        title: "启动自动化转发",
-        description: `准备自动转发到 ${selectedPlatforms.length} 个平台`,
+        title: t('adapt.messages.startingAutomation'),
+        description: t("adapt.messages.preparingAutomation", { count: selectedPlatforms.length }),
       });
 
       // 动态导入自动化模块
@@ -975,27 +962,27 @@ export function ContentAdapterPage({
 
       if (successCount > 0) {
         toast({
-          title: "自动化转发完成",
-          description: `成功: ${successCount}个, 失败: ${failureCount}个`,
+          title: t('adapt.messages.automationCompleted'),
+          description: t("adapt.messages.automationSuccess", { success: successCount, failure: failureCount }),
         });
       } else {
         toast({
-          title: "自动化转发失败",
-          description: "所有平台转发都失败了，请检查网络连接和平台状态",
+          title: t('adapt.errors.automationFailed'),
+          description: t('adapt.messages.automationAllFailed'),
           variant: "destructive"
         });
       }
 
     } catch (error) {
-      console.error('自动化转发失败:', error);
+      console.error('Automation forward failed:', error);
       setAutomationProgress(prev => prev ? {
         ...prev,
         status: 'error'
       } : undefined);
 
       toast({
-        title: "自动化转发失败",
-        description: error instanceof Error ? error.message : '未知错误',
+        title: t('adapt.errors.automationFailed'),
+        description: error instanceof Error ? error.message : t('common.unknownError'),
         variant: "destructive"
       });
     } finally {
@@ -1003,7 +990,7 @@ export function ContentAdapterPage({
     }
   };
 
-  // 取消自动化转发
+  // 自动化转发
   const handleCancelAutomation = () => {
     setAutomationRunning(false);
     setAutomationProgress(prev => prev ? {
@@ -1012,8 +999,8 @@ export function ContentAdapterPage({
     } : undefined);
 
     toast({
-      title: "已取消自动化转发",
-      description: "自动化转发操作已被用户取消",
+      title: t('adapt.messages.automationCancelled'),
+      description: t('adapt.messages.automationCancelledByUser'),
     });
   };
 
@@ -1031,13 +1018,13 @@ export function ContentAdapterPage({
       };
       await retryPlatform(platformId, request);
       toast({
-        title: "重试成功",
-        description: `${platformId} 平台内容已重新生成`,
+        title: t('adapt.messages.retrySuccess'),
+        description: t('adapt.messages.retrySuccess', { platform: platformId }),
       });
     } catch (error) {
       toast({
-        title: "重试失败",
-        description: error instanceof Error ? error.message : '未知错误',
+        title: t('adapt.errors.retryFailed'),
+        description: error instanceof Error ? error.message : t('common.unknownError'),
         variant: "destructive"
       });
     }
@@ -1081,15 +1068,15 @@ export function ContentAdapterPage({
       setPendingPublish(null);
 
       toast({
-        title: "转发成功",
-        description: `内容已复制，${getPlatformName(pendingPublish.platformId, availablePlatforms)}发布页面已打开`,
+        title: t('adapt.messages.forwardSuccess'),
+        description: t('adapt.messages.forwardSuccessDesc', { platform: getPlatformName(pendingPublish.platformId, availablePlatforms) }),
       });
 
     } catch (error) {
-      console.error('转发失败:', error);
+      console.error('Forward failed:', error);
       toast({
-        title: "转发失败",
-        description: "复制内容或打开页面时出现错误",
+        title: t('adapt.errors.forwardFailed'),
+        description: t('adapt.messages.copyContentAndOpenPage'),
         variant: "destructive"
       });
     }
@@ -1128,8 +1115,8 @@ export function ContentAdapterPage({
       }
 
       toast({
-        title: "批量发布进行中",
-        description: `正在处理${getPlatformName(firstTask.platformId, availablePlatforms)}，还剩${batchQueue.length}个平台`,
+        title: t('adapt.messages.batchPublishStarted'),
+        description: t("adapt.messages.processingPlatform", { platform: getPlatformName(firstTask.platformId, availablePlatforms), remaining: batchQueue.length }),
       });
 
       // 如果还有更多任务，等待一段时间后继续
@@ -1142,30 +1129,30 @@ export function ContentAdapterPage({
         setBatchPublishOpen(false);
         setBatchCurrent(null);
         toast({
-          title: "批量发布完成",
-          description: "所有平台的内容都已处理完成",
+          title: t('adapt.messages.batchPublishCompleted'),
+          description: t('adapt.messages.allTasksCompleted'),
         });
       }
 
     } catch (error) {
-      console.error('批量发布失败:', error);
+      console.error('Batch publish failed:', error);
       toast({
-        title: "批量发布失败",
-        description: "处理过程中出现错误",
+        title: t('adapt.errors.batchPublishFailed'),
+        description: t('adapt.messages.batchPublishProcessError'),
         variant: "destructive"
       });
     }
   };
 
-  // 取消批量发布
+  // 批量发布
   const handleBatchPublishCancel = () => {
     setBatchPublishOpen(false);
     setBatchQueue([]);
     setBatchCurrent(null);
     setBatchSelectedPlatforms([]);
     toast({
-      title: "批量发布已取消",
-      description: "批量发布操作已取消",
+      title: t('adapt.messages.batchPublishCancelled'),
+      description: t('adapt.messages.batchPublishOperationCancelled'),
     });
   };
 
@@ -1177,8 +1164,8 @@ export function ContentAdapterPage({
 
       {/* 页面导航 */}
       <PageNavigation
-        title="AI内容适配器"
-        description="智能适配多平台内容，一键生成符合各平台特色的优质内容"
+        title={t('components.labels.标题')}
+        description={t('components.labels.描述')}
         showAdaptButton={false}
         actions={
           <div className="flex items-center space-x-3">
@@ -1189,7 +1176,7 @@ export function ContentAdapterPage({
               className="flex items-center space-x-2"
             >
               <History className="h-4 w-4" />
-              <span>历史记录</span>
+              <span></span>
             </Button>
           </div>
         }
@@ -1293,7 +1280,7 @@ export function ContentAdapterPage({
             <div className="p-6">
               <AIContentGenerationAnimation
                 platforms={selectedPlatforms}
-                message="多平台内容适配引擎运行中..."
+                message={t('components.labels.消息')}
                 showProgress={true}
               />
             </div>
@@ -1355,28 +1342,28 @@ export function ContentAdapterPage({
       <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
         <DialogContent style={zIndexManager.createModalStyles('DIALOG_CONTENT')}>
           <DialogHeader>
-            <DialogTitle>一键转发确认</DialogTitle>
+            <DialogTitle></DialogTitle>
             <DialogDescription>
-              确认转发内容到选择的平台
+              
             </DialogDescription>
           </DialogHeader>
           <div className="py-2 text-foreground">
             <p className="mb-3">
-              内容将被复制到剪贴板，然后跳转到{pendingPublish ? getPlatformName(pendingPublish.platformId, availablePlatforms) : ''}平台发布页面。
+              {t('adapt.dialogs.forwardConfirm.contentWillBeCopied', { platform: pendingPublish ? getPlatformName(pendingPublish.platformId, availablePlatforms) : '' })}
             </p>
             <div className="bg-accent rounded p-3 mt-2 text-sm break-all max-h-32 overflow-auto border">
               {pendingPublish?.content}
             </div>
             <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
-              💡 提示：跳转后请登录对应平台，然后粘贴内容并发布
+              
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPublishDialogOpen(false)}>
-              取消
+              
             </Button>
             <Button variant="default" onClick={confirmPublish}>
-              跳转并发布
+              
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1389,11 +1376,11 @@ export function ContentAdapterPage({
           style={zIndexManager.createModalStyles('DIALOG_CONTENT')}
         >
           <DialogHeader>
-            <DialogTitle>批量发布到平台</DialogTitle>
+            <DialogTitle></DialogTitle>
             <DialogDescription>
               {batchCurrent ? 
-                `正在处理：${getPlatformName(batchCurrent.platformId, availablePlatforms)}` : 
-                `将内容发布到${batchSelectedPlatforms.length}个平台`
+                t("adapt.dialogs.batchPublishProcessing", { platform: getPlatformName(batchCurrent.platformId, availablePlatforms) }) : 
+                t("adapt.dialogs.batchPublishDescription", { count: batchSelectedPlatforms.length })
               }
             </DialogDescription>
           </DialogHeader>
@@ -1402,23 +1389,23 @@ export function ContentAdapterPage({
               <div className="space-y-4">
                 <div className="text-center">
                   <div className="text-lg font-medium">
-                    正在处理：{getPlatformName(batchCurrent.platformId, availablePlatforms)}
+                    {t('adapt.dialogs.batchPublish.processing', { platform: getPlatformName(batchCurrent.platformId, availablePlatforms) })}
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    还有 {batchQueue.length} 个平台等待处理
+                    
                   </div>
                 </div>
                 <div className="bg-accent rounded p-3 text-sm max-h-32 overflow-auto">
                   {batchCurrent.content}
                 </div>
                 <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">
-                  💡 内容已复制到剪贴板，平台页面已打开。请在平台上粘贴并发布内容。
+                  
                 </div>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="text-sm">
-                  将为以下平台复制内容并打开发布页面：
+                  
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {batchSelectedPlatforms.map(platformId => (
@@ -1428,18 +1415,18 @@ export function ContentAdapterPage({
                   ))}
                 </div>
                 <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">
-                  💡 系统将依次为每个平台复制内容并打开发布页面，请按提示操作。
+                  {t('adapt.dialogs.batchPublish.systemWillProcess')}
                 </div>
               </div>
             )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleBatchPublishCancel}>
-              取消
+              
             </Button>
             {!batchCurrent && (
               <Button onClick={handleBatchPublishConfirm} disabled={batchSelectedPlatforms.length === 0}>
-                开始批量发布
+                {t('adapt.buttons.startBatchPublish')}
               </Button>
             )}
           </DialogFooter>

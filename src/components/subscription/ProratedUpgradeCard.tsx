@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,12 +33,11 @@ interface ProratedUpgradeCardProps {
   className?: string;
 }
 
-export function ProratedUpgradeCard({
-  targetTier,
+export function ProratedUpgradeCard({ targetTier,
   targetPeriod,
   onUpgrade,
   className = ''
-}: ProratedUpgradeCardProps) {
+ }: ProratedUpgradeCardProps) {
   const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
   const { user } = useAuth();
   const [calculation, setCalculation] = useState<any>(null);
@@ -73,7 +73,7 @@ export function ProratedUpgradeCard({
       const data = await response.json();
       
       if (!data.success) {
-        throw new Error('计算升级费用失败');
+        throw new Error(t('components.errors.计算升级费用失败'));
       }
 
       setCalculation(data.calculation);
@@ -81,7 +81,7 @@ export function ProratedUpgradeCard({
 
     } catch (error) {
       logger.error('计算补差价失败:', error);
-      setError(error instanceof Error ? error.message : '计算失败');
+      setError(error instanceof Error ? error.message : t('components.errors.计算失败'));
     } finally {
       setLoading(false);
     }

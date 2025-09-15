@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -31,16 +32,13 @@ interface ThemeAwareUpgradeCardProps {
 /**
  * 主题感知升级卡片组件
  */
-export const ThemeAwareUpgradeCard: React.FC<ThemeAwareUpgradeCardProps> = ({
-  requiredTier,
+export const ThemeAwareUpgradeCard: React.FC<any> = ({ requiredTier,
   featureName,
   description,
   size = 'normal',
   animated = true,
-  className = ''
-}) => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  className = '' }) => { const navigate = useNavigate();
+  const { toast  } = useToast();
   const plan = getSubscriptionPlan(requiredTier);
 
   // 处理升级点击
@@ -50,7 +48,7 @@ export const ThemeAwareUpgradeCard: React.FC<ThemeAwareUpgradeCardProps> = ({
       description: `解锁${featureName}的全部功能，立即体验专业级内容创作`,
       action: (
         <ToastAction
-          altText="立即升级"
+          altText=$
           onClick={() => {
             localStorage.setItem("selectedPlan", requiredTier);
             navigate('/payment');

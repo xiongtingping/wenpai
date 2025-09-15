@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -24,10 +25,9 @@ import { BrandToneAnalysis } from '@/types/brand';
  * 品牌调性分析组件
  * @description 展示品牌调性的各个维度分析结果
  */
-export default function BrandToneAnalyzer() {
-  const [analysis, setAnalysis] = useState<BrandToneAnalysis | null>(null);
+export default function BrandToneAnalyzer() { const [analysis, setAnalysis] = useState<BrandToneAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const { toast  } = useToast();
 
   // 🔧 FIXED: 使用新的构造函数而不是getInstance
   const brandService = new BrandProfileService();
@@ -45,7 +45,7 @@ export default function BrandToneAnalyzer() {
       const hasProfile = await brandService.hasBrandProfile();
       if (!hasProfile) {
         toast({
-          title: "未找到品牌档案",
+          title: t('components.labels.未找到品牌档案'),
           description: "请先上传品牌资料进行分析",
           variant: "destructive"
         });
@@ -118,7 +118,7 @@ export default function BrandToneAnalyzer() {
     } catch (error) {
       console.error('加载品牌分析失败:', error);
       toast({
-        title: "加载失败",
+        title: t('components.labels.加载失败'),
         description: "品牌分析数据加载失败",
         variant: "destructive"
       });

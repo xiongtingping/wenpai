@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,14 +18,11 @@ interface PaymentStatusRecoveryProps {
   onNoActivePayments?: () => void;
 }
 
-export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
-  onRecoveryComplete,
-  onNoActivePayments,
-}) => {
-  const [activePayments, setActivePayments] = useState<PaymentStatusData[]>([]);
+export const PaymentStatusRecovery: React.FC<any> = ({ onRecoveryComplete,
+  onNoActivePayments }) => { const [activePayments, setActivePayments] = useState<PaymentStatusData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [recoveredPayments, setRecoveredPayments] = useState<string[]>([]);
-  const { toast } = useToast();
+  const { toast  } = useToast();
 
   useEffect(() => {
     loadActivePayments();
@@ -45,7 +43,7 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
     } catch (error) {
       console.error('加载活跃支付状态失败:', error);
       toast({
-        title: "加载失败",
+        title: t('components.labels.加载失败'),
         description: "无法加载支付状态",
         variant: "destructive",
       });
@@ -60,7 +58,7 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
   const recoverPayment = (checkoutId: string) => {
     setRecoveredPayments(prev => [...prev, checkoutId]);
     toast({
-      title: "支付状态已恢复",
+      title: t('components.labels.支付状态已恢复'),
       description: "正在监控支付状态",
     });
   };
@@ -74,7 +72,7 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
     setRecoveredPayments(prev => prev.filter(id => id !== checkoutId));
     
     toast({
-      title: "支付状态已删除",
+      title: t('components.labels.支付状态已删除'),
       description: "已清理该支付记录",
     });
   };
@@ -102,7 +100,7 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
    */
   const handlePaymentFailed = (checkoutId: string, error: string) => {
     toast({
-      title: "支付失败",
+      title: t('components.labels.支付失败'),
       description: error,
       variant: "destructive",
     });
@@ -117,7 +115,7 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
     setRecoveredPayments(prev => prev.filter(id => id !== checkoutId));
     
     toast({
-      title: "支付已过期",
+      title: t('components.labels.支付已过期'),
       description: "请重新发起支付",
       variant: "destructive",
     });
@@ -221,7 +219,7 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={() => removePayment(payment.checkoutId)}
-                      title="删除"
+                      title={t('components.labels.标题')}
                     >
                       <X className="h-4 w-4" />
                     </Button>

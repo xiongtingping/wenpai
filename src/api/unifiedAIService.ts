@@ -14,6 +14,7 @@
  * 
  */
 
+import i18n from '@/i18n';
 import { callAI, generateImage as directGenerateImage } from './ai';
 import { callOpenAIProxy, callDeepSeekProxy, callGeminiProxy } from './apiProxy';
 import { generateImage as proxyGenerateImage } from './imageGenerationService';
@@ -136,7 +137,7 @@ export async function generateUnifiedImage(params: ImageGenerationParams): Promi
     console.error('❌ 统一图像生成失败:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : '统一图像生成失败'
+      error: error instanceof Error ? error.message : i18n.t('api.errors.统一图像生成失败')
     };
   }
 }

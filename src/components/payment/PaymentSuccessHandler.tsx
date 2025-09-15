@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,14 +18,11 @@ interface PaymentSuccessHandlerProps {
   onComplete?: () => void;
 }
 
-export const PaymentSuccessHandler: React.FC<PaymentSuccessHandlerProps> = ({
-  paymentData,
-  onComplete,
-}) => {
-  const [isProcessing, setIsProcessing] = useState(true);
+export const PaymentSuccessHandler: React.FC<any> = ({ paymentData,
+  onComplete }) => { const [isProcessing, setIsProcessing] = useState(true);
   const [upgradeResult, setUpgradeResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
+  const { toast  } = useToast();
   const { user } = useAuth();
 
   // 处理支付成功后的业务逻辑
@@ -62,10 +60,10 @@ export const PaymentSuccessHandler: React.FC<PaymentSuccessHandlerProps> = ({
 
       } catch (error: any) {
         console.error('处理支付成功失败:', error);
-        setError(error.message || '处理支付成功时发生错误');
+        setError(error.message || t('components.errors.处理支付成功时发生错误'));
         
         toast({
-          title: "处理失败",
+          title: t('components.labels.处理失败'),
           description: "支付成功但会员升级失败，请联系客服",
           variant: "destructive",
         });

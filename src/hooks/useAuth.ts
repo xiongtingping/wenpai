@@ -9,6 +9,7 @@
  * 4. 根因导向修复
  */
 
+import i18n from '@/i18n';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 
 /**
@@ -57,9 +58,9 @@ export const useAuth = () => {
       loginWithPassword: auth.login,
       loginWithEmailCode: auth.login,
       loginWithPhoneCode: auth.login,
-      sendVerificationCode: () => Promise.reject(new Error('简化实现中不支持')),
+      sendVerificationCode: () => Promise.reject(new Error(i18n.t('common.errors.简化实现中不支持'))),
       registerUser: auth.login,
-      resetPassword: () => Promise.reject(new Error('简化实现中不支持')),
+      resetPassword: () => Promise.reject(new Error(i18n.t('common.errors.简化实现中不支持'))),
 
       // Guard实例（兼容性）
       guard: (auth as any).guard || null

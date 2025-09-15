@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
@@ -40,12 +41,12 @@ import {
  * 二级页面导航配置
  */
 const SECONDARY_NAV_ITEMS = [
-  { path: '/', label: '首页', icon: Home },
+  { path: '/', label: t('components.labels.首页'), icon: Home },
   { path: '/adapt', label: 'AI内容适配器', icon: FileText },
-  { path: '/creative-studio', label: '创意魔方', icon: Sparkles },
-  { path: '/hot-topics', label: '全网雷达', icon: TrendingUp },
-  { path: '/library', label: '我的资料库', icon: FolderOpen },
-  { path: '/brand-library', label: '品牌库', icon: Users },
+  { path: '/creative-studio', label: t('components.labels.创意魔方'), icon: Sparkles },
+  { path: '/hot-topics', label: t('components.labels.全网雷达'), icon: TrendingUp },
+  { path: '/library', label: t('components.labels.我的资料库'), icon: FolderOpen },
+  { path: '/brand-library', label: t('components.labels.品牌库'), icon: Users },
 ];
 
 /**
@@ -70,10 +71,9 @@ interface PageConfig {
 /**
  * 页面配置映射
  */
-const PAGE_CONFIGS: Record<string, PageConfig> = {
-  '/': {
+const PAGE_CONFIGS: Record<string, string> = {'/': {
     path: '/',
-    title: '文派',
+    title: t('components.labels.文派'),
     icon: Home,
     level: 1,
   },
@@ -87,7 +87,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/creative-studio': {
     path: '/creative-studio',
-    title: '创意魔方',
+    title: t('components.labels.创意魔方'),
     icon: Sparkles,
     level: 2,
     parent: '/',
@@ -95,7 +95,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/library': {
     path: '/library',
-    title: '我的资料库',
+    title: t('components.labels.我的资料库'),
     icon: FolderOpen,
     level: 2,
     parent: '/',
@@ -103,7 +103,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/bookmarks': {
     path: '/bookmarks',
-    title: '网络收藏',
+    title: t('components.labels.网络收藏'),
     icon: Bookmark,
     level: 3,
     parent: '/library',
@@ -111,7 +111,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/brand-library': {
     path: '/brand-library',
-    title: '品牌库',
+    title: t('components.labels.品牌库'),
     icon: Users,
     level: 2,
     parent: '/',
@@ -119,7 +119,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/brand-corpus': {
     path: '/brand-corpus',
-    title: '品牌语料库',
+    title: t('components.labels.品牌语料库'),
     icon: Database,
     level: 3,
     parent: '/brand-library',
@@ -127,7 +127,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/brand-assets': {
     path: '/brand-assets',
-    title: '资料管理',
+    title: t('components.labels.资料管理'),
     icon: FolderOpen,
     level: 3,
     parent: '/brand-library',
@@ -135,7 +135,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/content-extractor': {
     path: '/content-extractor',
-    title: '内容提取',
+    title: t('components.labels.内容提取'),
     icon: FileText,
     level: 3,
     parent: '/brand-library',
@@ -167,7 +167,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/share-manager': {
     path: '/share-manager',
-    title: '一键转发',
+    title: t('components.labels.一键转发'),
     icon: Upload,
     level: 2,
     parent: '/',
@@ -175,7 +175,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/wechat-templates': {
     path: '/wechat-templates',
-    title: '朋友圈模板',
+    title: t('components.labels.朋友圈模板'),
     icon: MessageCircle,
     level: 2,
     parent: '/',
@@ -183,7 +183,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/hot-topics': {
     path: '/hot-topics',
-    title: '全网雷达',
+    title: t('components.labels.全网雷达'),
     icon: TrendingUp,
     level: 2,
     parent: '/',
@@ -192,7 +192,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
 
   '/profile': {
     path: '/profile',
-    title: '个人中心',
+    title: t('components.labels.个人中心'),
     icon: Settings,
     level: 2,
     parent: '/',
@@ -200,7 +200,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/invite': {
     path: '/invite',
-    title: '邀请好友',
+    title: t('components.labels.邀请好友'),
     icon: Users,
     level: 3,
     parent: '/profile',
@@ -208,7 +208,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/history': {
     path: '/history',
-    title: '历史记录',
+    title: t('components.labels.历史记录'),
     icon: FileText,
     level: 2,
     parent: '/',
@@ -216,7 +216,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/payment': {
     path: '/payment',
-    title: '订阅管理',
+    title: t('components.labels.订阅管理'),
     icon: Crown,
     level: 2,
     parent: '/',
@@ -375,7 +375,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground break-words">
-                {title || PAGE_CONFIGS[path]?.title || '页面'}
+                {title || PAGE_CONFIGS[path]?.title || t('components.labels.页面')}
               </h1>
               {PAGE_CONFIGS[path]?.badge && (
                 <Badge variant="outline" className="text-xs bg-accent text-foreground border-border animate-pulse">

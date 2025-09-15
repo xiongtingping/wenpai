@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -20,11 +21,10 @@ interface NicknameSelectorProps {
 /**
  * 昵称选择器组件
  */
-export function NicknameSelector({
-  currentNickname = '',
+export function NicknameSelector({ currentNickname = '',
   onNicknameChange,
   disabled = false
-}: NicknameSelectorProps) {
+ }: NicknameSelectorProps) {
   const [customNickname, setCustomNickname] = useState(currentNickname);
 
   /**
@@ -42,7 +42,7 @@ export function NicknameSelector({
         id="custom-nickname"
         value={customNickname}
         onChange={(e) => handleCustomNicknameChange(e.target.value)}
-        placeholder="输入您喜欢的昵称"
+        placeholder={t('components.messages.输入您喜欢的昵称')}
         disabled={disabled}
         maxLength={20}
       />

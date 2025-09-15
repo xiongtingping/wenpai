@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Settings, Lock, Eye, EyeOff, Crown, Zap, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,16 +33,13 @@ interface FeatureZoneGuardProps {
 /**
  * 功能区域权限守卫
  */
-export const FeatureZoneGuard: React.FC<FeatureZoneGuardProps> = ({
-  children,
+export const FeatureZoneGuard: React.FC<any> = ({ children,
   requiredTier,
   zoneName,
   description,
   allowPreview = true,
-  className = ''
-}) => {
-  const [previewMode, setPreviewMode] = useState(false);
-  const { hasPermission, userTier, needsUpgrade } = useSubscriptionGuard(requiredTier);
+  className = '' }) => { const [previewMode, setPreviewMode] = useState(false);
+  const { hasPermission, userTier, needsUpgrade  } = useSubscriptionGuard(requiredTier);
 
   // 如果有权限，直接渲染
   if (hasPermission) {
@@ -73,7 +71,7 @@ export const FeatureZoneGuard: React.FC<FeatureZoneGuardProps> = ({
               <Settings className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium">{zoneName}</span>
               <Badge variant="outline" className="text-xs">
-                需要 {requiredTier === 'pro' ? '专业版' : '高级版'}
+                需要 {requiredTier === 'pro' ? t('components.labels.专业版') : t('components.labels.高级版')}
               </Badge>
             </div>
           </div>
@@ -189,7 +187,7 @@ export const SettingItemGuard: React.FC<SettingItemGuardProps> = ({
       <div className="relative">
         <div 
           className="pointer-events-none select-none opacity-50 grayscale"
-          title={`需要 ${requiredTier === 'pro' ? '专业版' : '高级版'} 权限`}
+          title={`需要 ${requiredTier === 'pro' ? t('components.labels.专业版') : t('components.labels.高级版')} 权限`}
         >
           {children}
         </div>
@@ -200,7 +198,7 @@ export const SettingItemGuard: React.FC<SettingItemGuardProps> = ({
               <TooltipTrigger asChild>
                 <Badge variant="secondary" className="text-xs">
                   <Lock className="h-3 w-3 mr-1" />
-                  {requiredTier === 'pro' ? '专业版' : '高级版'}
+                  {requiredTier === 'pro' ? t('components.labels.专业版') : t('components.labels.高级版')}
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
@@ -271,7 +269,7 @@ export const ThemeGuard: React.FC<ThemeGuardProps> = ({
           <div className="font-medium text-sm">{themeName}</div>
           {!hasPermission && (
             <div className="text-xs text-muted-foreground">
-              需要 {requiredTier === 'pro' ? '专业版' : '高级版'}
+              需要 {requiredTier === 'pro' ? t('components.labels.专业版') : t('components.labels.高级版')}
             </div>
           )}
         </div>

@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Bot, RefreshCw, CheckCircle, XCircle, AlertCircle, 
   Play, Pause, Square, Eye, Copy, ExternalLink 
@@ -52,22 +53,19 @@ export interface AutomationOptions {
   retryCount: number;
 }
 
-export const AutomationUI: React.FC<AutomationUIProps> = ({
-  availablePlatforms,
+export const AutomationUI: React.FC<any> = ({ availablePlatforms,
   onStartAutomation,
   onCancelAutomation,
   onRetryPlatform,
   onBatchPublish,
   progress,
-  isRunning
-}) => {
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  isRunning }) => { const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [options] = useState<AutomationOptions>({
     enablePreview: true,
     enableConfirmation: true,
     method: 'auto',
     retryCount: 3
-  });
+   });
 
   // 自动选择有内容且有标题的平台
   useEffect(() => {
@@ -152,7 +150,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
               {getStatusIcon(progress.status)}
               <span className="text-sm text-muted-foreground">
                 {progress.status === 'running' && `正在处理: ${progress.current}`}
-                {progress.status === 'error' && '转发失败'}
+                {progress.status === 'error' && t('components.errors.转发失败')}
                 {progress.status === 'cancelled' && '已取消'}
               </span>
             </div>
@@ -375,7 +373,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
                     <button
                       onClick={() => window.open(result.url, '_blank')}
                       className="p-1 text-muted-foreground hover:text-muted-foreground rounded"
-                      title="重新打开发布页面"
+                      title={t('components.labels.标题')}
                     >
                       <ExternalLink className="h-4 w-4" />
                     </button>
@@ -402,7 +400,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
                 <li>• 内容已自动复制到剪贴板，可直接粘贴</li>
                 <li>• 请根据各平台要求添加图片、标签等</li>
                 <li>• 发布前请检查内容格式和平台规范</li>
-                <li>• 如有问题可点击"重试"或"重新打开"</li>
+                <li>• 如有问题可点击{t('components.text.重试_zav')}或"重新打开"</li>
               </ul>
             </div>
           )}

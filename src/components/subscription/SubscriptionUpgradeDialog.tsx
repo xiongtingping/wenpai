@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -38,13 +39,12 @@ interface SubscriptionUpgradeDialogProps {
   onUpgradeSuccess?: () => void;
 }
 
-export function SubscriptionUpgradeDialog({
-  open,
+export function SubscriptionUpgradeDialog({ open,
   onOpenChange,
   targetTier,
   targetPeriod,
   onUpgradeSuccess
-}: SubscriptionUpgradeDialogProps) {
+ }: SubscriptionUpgradeDialogProps) {
   const { user } = useAuth();
   const [upgradeCalculation, setUpgradeCalculation] = useState<UpgradeCalculation | null>(null);
   const [loading, setLoading] = useState(false);
@@ -72,7 +72,7 @@ export function SubscriptionUpgradeDialog({
       );
       setUpgradeCalculation(calculation);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '计算升级费用失败';
+      const errorMessage = error instanceof Error ? error.message : t('components.errors.计算升级费用失败');
       setError(errorMessage);
       logger.error('计算升级费用失败:', error);
     } finally {
@@ -122,7 +122,7 @@ export function SubscriptionUpgradeDialog({
         }
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '升级失败';
+      const errorMessage = error instanceof Error ? error.message : t('components.errors.升级失败');
       setError(errorMessage);
       logger.error('升级失败:', error);
     } finally {

@@ -10,6 +10,7 @@
  */
 
 import React, { forwardRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -65,11 +66,10 @@ export const SecureInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Se
     );
 
     // 处理受控组件
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const newValue = e.target.value;
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => { const newValue = e.target.value;
       validation.handleChange(newValue);
       controlledOnChange?.(e);
-    };
+     };
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       validation.handleBlur();
@@ -84,28 +84,28 @@ export const SecureInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Se
       
       let icon = <Shield className="w-4 h-4" />;
       let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'default';
-      let text = '安全';
+      let text = t('components.messages.安全');
 
       switch (riskLevel) {
         case 'critical':
           icon = <XCircle className="w-4 h-4" />;
           variant = 'destructive';
-          text = '高危';
+          text = t('components.messages.高危');
           break;
         case 'high':
           icon = <AlertTriangle className="w-4 h-4" />;
           variant = 'destructive';
-          text = '危险';
+          text = t('components.messages.危险');
           break;
         case 'medium':
           icon = <AlertTriangle className="w-4 h-4" />;
           variant = 'secondary';
-          text = '警告';
+          text = t('components.messages.警告');
           break;
         case 'low':
           icon = isValid ? <CheckCircle className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />;
           variant = isValid ? 'default' : 'secondary';
-          text = isValid ? '安全' : '注意';
+          text = isValid ? t('components.messages.安全') : t('components.messages.注意');
           break;
       }
 
@@ -187,7 +187,7 @@ export const SecureInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Se
       let baseClass = className || '';
       
       if (validation.shouldShowError) {
-        baseClass += ' border-red-500 focus:border-red-500 focus:ring-red-500';
+        baseClass += ' border-destructive focus:border-destructive focus:ring-red-500';
       } else if (validation.shouldShowWarning) {
         baseClass += ' border-yellow-500 focus:border-yellow-500 focus:ring-yellow-500';
       } else if (validation.isValid && validation.touched) {
@@ -219,7 +219,7 @@ export const SecureInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Se
         )}
         
         {description && (
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-muted-foreground dark:text-gray-400">
             {description}
           </p>
         )}
@@ -243,7 +243,7 @@ export const SecureInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Se
           {isPasswordType && (
             <button
               type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-muted-foreground dark:hover:text-gray-300"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -253,7 +253,7 @@ export const SecureInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Se
 
         {/* 验证中指示器 */}
         {validation.isValidating && (
-          <div className="flex items-center space-x-2 text-xs text-gray-500">
+          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
             <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-500"></div>
             <span>验证中...</span>
           </div>
@@ -267,7 +267,7 @@ export const SecureInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Se
 
         {/* 字符统计 */}
         {(variant === 'textarea' || props.maxLength) && (
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs text-muted-foreground">
             <span>
               {validation.value.length}
               {props.maxLength && `/${props.maxLength}`} 字符

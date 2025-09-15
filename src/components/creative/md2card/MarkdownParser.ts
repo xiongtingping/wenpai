@@ -77,7 +77,7 @@ export class MarkdownParser {
     let subtitle = '';
 
     for (const token of tokens) {
-      switch (token.type) {
+  switch (token.type) {
         case 'heading':
           if (token.depth === 1 && !title) {
             title = token.text;
@@ -138,7 +138,7 @@ export class MarkdownParser {
     const metadata = this.generateMetadata(markdown, sections);
 
     return {
-      title: title || '未命名卡片',
+      title: title || i18n.t('components.labels.未命名卡片'),
       subtitle,
       sections,
       metadata

@@ -8,6 +8,7 @@
  * 📌 所有API地址从环境变量获取，严禁硬编码
  */
 
+import i18n from '@/i18n';
 import request from './request';
 import { getAPIConfig } from './request';
 import { logger } from '@/utils/logger';
@@ -324,7 +325,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     // 已删除浏览器网络修复功能
 
     // 详细的错误分析和用户友好提示
-    let userFriendlyError = '未知错误';
+    let userFriendlyError = i18n.t('common.errors.unknownError');
     const technicalError = error instanceof Error ? error.message : String(error);
 
     if (technicalError.includes('404')) {
@@ -398,7 +399,7 @@ async function handleStreamResponse(
       model,
       responseTime: Date.now() - startTime,
       success: false,
-      error: '流式响应处理失败'
+      error: i18n.t('api.errors.流式响应处理失败')
     };
   }
 }
@@ -526,7 +527,7 @@ export async function generateImage(params: ImageGenerationParams): Promise<Imag
       model,
       responseTime: Date.now() - startTime,
       success: false,
-      error: error instanceof Error ? error.message : '未知错误'
+      error: error instanceof Error ? error.message : i18n.t('common.errors.unknownError')
     };
   }
 }
@@ -592,7 +593,7 @@ export async function callAIWithRetry(
       }
       
       // ✅ FIXED: 处理非异常错误（如429）
-      lastError = new Error(result.error || '调用失败');
+      lastError = new Error(result.error || i18n.t('common.errors.callFailed'));
       
       // 检查是否是429错误
       const is429Error = result.error && result.error.includes('429');
@@ -622,7 +623,7 @@ export async function callAIWithRetry(
       } else if (typeof error === 'string') {
         lastError = new Error(error);
       } else {
-        lastError = new Error('未知错误');
+        lastError = new Error(i18n.t('common.errors.unknownError'));
       }
       
       // 等待一段时间后重试
@@ -642,7 +643,7 @@ export async function callAIWithRetry(
     }
   }
   
-  throw lastError || new Error('所有重试都失败了');
+  throw lastError || new Error(i18n.t('api.errors.所有重试都失败了'));
 }
 
 /**
@@ -718,7 +719,7 @@ export async function checkAIStatus(): Promise<{
       openai: false,
       gemini: false,
       deepseek: false,
-      message: `AI服务检查失败: ${error instanceof Error ? error.message : '未知错误'}`
+      message: `AI服务检查失败: ${error instanceof Error ? error.message : i18n.t('common.errors.unknownError')}`
     };
   }
 }

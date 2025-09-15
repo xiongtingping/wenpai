@@ -3,6 +3,7 @@
  * 提供支付状态监控的便捷接口
  */
 
+import i18n from '@/i18n';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { paymentStatusService, PaymentStatusData } from '@/services/paymentStatusService';
@@ -114,12 +115,12 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
         case 'failed':
         case 'cancelled':
           newStatus = 'failed';
-          message = '支付失败';
+          message = i18n.t('common.messages.支付失败');
           progress = 0;
           break;
         case 'expired':
           newStatus = 'expired';
-          message = '支付已过期';
+          message = i18n.t('common.messages.支付已过期');
           progress = 0;
           break;
         default:
@@ -176,14 +177,14 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
       } else if (newStatus === 'failed' && onPaymentFailed) {
         onPaymentFailed(message);
         toast({
-          title: "支付失败",
+          title: i18n.t('common.messages.支付失败'),
           description: message,
           variant: "destructive",
         });
       } else if (newStatus === 'expired' && onPaymentExpired) {
         onPaymentExpired();
         toast({
-          title: "支付已过期",
+          title: i18n.t('common.messages.支付已过期'),
           description: "请重新发起支付",
           variant: "destructive",
         });
@@ -202,7 +203,7 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
       setPaymentStatus(prev => ({
         ...prev,
         status: newRetryCount >= maxRetries ? 'failed' : 'pending',
-        message: newRetryCount >= maxRetries ? '获取支付状态失败' : '网络异常，正在重试...',
+        message: newRetryCount >= maxRetries ? i18n.t('common.errors.获取支付状态失败') : '网络异常，正在重试...',
         progress: 0,
         error: error.message,
         lastChecked: new Date().toISOString(),

@@ -3,6 +3,7 @@
  * 处理Markdown到卡片的转换、渲染和导出
  */
 
+import i18n from '@/i18n';
 import { ParsedContent, MarkdownParser, ContentAdapter } from '@/components/creative/md2card/MarkdownParser';
 import { CardTemplate, CardConfiguration } from '@/components/creative/MD2CardPage';
 import { ExportOptions } from '@/components/creative/md2card/ExportControls';
@@ -71,7 +72,7 @@ export class MD2CardService {
       if (!template) {
         return {
           success: false,
-          error: '模板不存在'
+          error: i18n.t('common.errors.模板不存在')
         };
       }
 
@@ -114,7 +115,7 @@ export class MD2CardService {
       console.error('卡片生成失败:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : '未知错误'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误')
       };
     }
   }
@@ -486,7 +487,7 @@ export class MD2CardService {
           if (blob) {
             resolve(blob);
           } else {
-            reject(new Error('无法生成图片'));
+            reject(new Error(i18n.t('common.errors.无法生成图片')));
           }
         },
         options.format.mimeType,

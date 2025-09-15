@@ -230,10 +230,10 @@ export function getUserPlaceholder(fieldName: string): string {
  * 获取安全的title属性文本
  * 
  * @param user 用户对象
- * @param action 操作描述，如 '查看资料'、'编辑信息' 等
+ * @param action 操作描述，如 i18n.t('utils.labels.查看资料')、'编辑信息' 等
  * @returns 安全的title文本
  */
-export function getUserTitle(user?: UserInfo | null, action: string = '查看资料'): string {
+export function getUserTitle(user?: UserInfo | null, action: string = i18n.t('utils.labels.查看资料')): string {
   const displayName = getUserDisplayName(user, '用户');
   return `${action} - ${displayName}`;
 }

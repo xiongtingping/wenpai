@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -50,8 +51,7 @@ interface CardPreviewProps {
 /**
  * 卡片预览主组件
  */
-export const CardPreview: React.FC<CardPreviewProps> = ({
-  parsedContent,
+export const CardPreview: React.FC<any> = ({ parsedContent,
   template,
   configuration,
   isGenerating,
@@ -61,9 +61,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
   onZoomChange,
   onExport,
   onShare,
-  className = ''
-}) => {
-  const { toast } = useToast();
+  className = '' }) => { const { toast  } = useToast();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [renderedCard, setRenderedCard] = useState<string | null>(null);
@@ -136,7 +134,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
     } catch (error) {
       console.error('渲染卡片失败:', error);
       toast({
-        title: '渲染失败',
+        title: t('components.labels.渲染失败'),
         description: '卡片渲染过程中发生错误',
         variant: 'destructive'
       });
@@ -301,13 +299,13 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
       ]);
 
       toast({
-        title: '复制成功',
+        title: t('components.labels.复制成功'),
         description: '卡片图片已复制到剪贴板',
       });
     } catch (error) {
       console.error('复制失败:', error);
       toast({
-        title: '复制失败',
+        title: t('components.errors.复制失败'),
         description: '无法复制图片到剪贴板',
         variant: 'destructive'
       });

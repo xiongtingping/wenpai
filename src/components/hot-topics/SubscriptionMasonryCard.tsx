@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -50,8 +51,7 @@ interface SubscriptionMasonryCardProps {
 /**
  * 格式化时间显示
  */
-const formatTimeAgo = (dateString: string): string => {
-  if (!dateString) return '未知时间';
+const formatTimeAgo = (dateString: string): string => { if (!dateString) return '未知时间';
 
   try {
     const date = new Date(dateString);
@@ -61,7 +61,7 @@ const formatTimeAgo = (dateString: string): string => {
     if (isNaN(diff)) return '未知时间';
 
     if (diff < 60000) return '刚刚';
-    if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`;
+    if (diff < 3600000) return `${Math.floor(diff / 60000) }分钟前`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`;
     if (diff < 604800000) return `${Math.floor(diff / 86400000)}天前`;
     return date.toLocaleDateString('zh-CN');
@@ -182,7 +182,7 @@ export const SubscriptionMasonryCard: React.FC<SubscriptionMasonryCardProps> = (
               onClick={() => onMonitor(subscription)}
               disabled={isMonitoring}
               className="h-8 px-2"
-              title="立即检查"
+              title={t('components.labels.标题')}
             >
               <Eye className="w-4 h-4" />
             </Button>
@@ -191,7 +191,7 @@ export const SubscriptionMasonryCard: React.FC<SubscriptionMasonryCardProps> = (
               size="sm"
               onClick={() => onTrends(subscription)}
               className="h-8 px-2"
-              title="查看趋势"
+              title={t('components.labels.标题')}
             >
               <BarChart className="w-4 h-4" />
             </Button>
@@ -200,7 +200,7 @@ export const SubscriptionMasonryCard: React.FC<SubscriptionMasonryCardProps> = (
               size="sm"
               onClick={() => onEdit(subscription)}
               className="h-8 px-2"
-              title="编辑订阅"
+              title={t('components.labels.标题')}
             >
               <Edit className="w-4 h-4" />
             </Button>
@@ -209,7 +209,7 @@ export const SubscriptionMasonryCard: React.FC<SubscriptionMasonryCardProps> = (
               size="sm"
               onClick={() => onDelete(subscription.id)}
               className="h-8 px-2 text-destructive hover:text-destructive"
-              title="删除订阅"
+              title={t('components.labels.删除订阅')}
             >
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -274,7 +274,7 @@ export const SubscriptionMasonryCard: React.FC<SubscriptionMasonryCardProps> = (
                             e.stopPropagation();
                             window.open(result.url, '_blank');
                           }}
-                          title="查看原文"
+                          title={t('components.labels.标题')}
                         >
                           <ExternalLink className="w-3 h-3" />
                         </Button>
@@ -287,7 +287,7 @@ export const SubscriptionMasonryCard: React.FC<SubscriptionMasonryCardProps> = (
                               e.stopPropagation();
                               onDeleteResult(subscription.id, result.id);
                             }}
-                            title="删除此结果"
+                            title={t('components.labels.删除此结果')}
                           >
                             <X className="w-3 h-3" />
                           </Button>

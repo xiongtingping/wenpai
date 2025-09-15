@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 // Dialog components removed - using custom modal
 import { Button } from '@/components/ui/button';
@@ -34,12 +35,9 @@ interface BatchForwardModalProps {
   platforms: Platform[];
 }
 
-export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
-  open,
+export const BatchForwardModal: React.FC<any> = ({ open,
   onOpenChange,
-  platforms
-}) => {
-  const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
+  platforms }) => { const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
   const [isMinimized, setIsMinimized] = useState(false);
   const [openedPlatforms, setOpenedPlatforms] = useState<Set<string>>(new Set());
   const [expandedPlatforms, setExpandedPlatforms] = useState<Set<string>>(new Set());
@@ -56,7 +54,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
     content: '',
     tags: [] as string[],
     platformId: ''
-  });
+   });
 
   // 监听内容同步store的变化
   useEffect(() => {
@@ -269,7 +267,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                     setIsMinimized(true);
                   }}
                   className="h-7 w-7 p-0 hover:bg-accent"
-                  title="最小化"
+                  title={t('components.labels.标题')}
                 >
                   <Minus className="h-3.5 w-3.5" />
                 </Button>
@@ -282,7 +280,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                     handleClose();
                   }}
                   className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-accent"
-                  title="关闭"
+                  title={t('components.labels.标题')}
                 >
                   <X className="h-3.5 w-3.5" />
                 </Button>
@@ -372,12 +370,12 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                           size="sm"
                           onClick={() => copyToClipboard(
                             isContentSynced && syncedContent.title ? syncedContent.title : platform.title,
-                            '标题',
+                            t('components.actions.标题'),
                             platform.name
                           )}
                           className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
                         >
-                          {getCopyButtonState(platform.name, '标题') ? (
+                          {getCopyButtonState(platform.name, t('components.actions.标题')) ? (
                             <Check className="h-3 w-3 text-foreground mr-1" />
                           ) : (
                             <Copy className="h-3 w-3 mr-1" />
@@ -389,12 +387,12 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                           size="sm"
                           onClick={() => copyToClipboard(
                             isContentSynced && syncedContent.content ? syncedContent.content : platform.content,
-                            '内容',
+                            t('components.actions.内容'),
                             platform.name
                           )}
                           className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
                         >
-                          {getCopyButtonState(platform.name, '内容') ? (
+                          {getCopyButtonState(platform.name, t('components.actions.内容')) ? (
                             <Check className="h-3 w-3 text-foreground mr-1" />
                           ) : (
                             <Copy className="h-3 w-3 mr-1" />
@@ -408,12 +406,12 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                             isContentSynced && syncedContent.tags.length > 0
                               ? syncedContent.tags.join(' ')
                               : platform.tags.join(' '),
-                            '标签',
+                            t('components.actions.标签'),
                             platform.name
                           )}
                           className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
                         >
-                          {getCopyButtonState(platform.name, '标签') ? (
+                          {getCopyButtonState(platform.name, t('components.actions.标签')) ? (
                             <Check className="h-3 w-3 text-foreground mr-1" />
                           ) : (
                             <Copy className="h-3 w-3 mr-1" />

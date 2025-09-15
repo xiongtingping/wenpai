@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,8 +15,7 @@ import { BrandProfile } from '@/types/brand';
  * 品牌内容生成组件
  * @description 使用品牌档案生成符合品牌调性的内容
  */
-export default function BrandContentGenerator() {
-  const [topic, setTopic] = useState('');
+export default function BrandContentGenerator() { const [topic, setTopic] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentProfile, setCurrentProfile] = useState<BrandProfile | null>(null);
@@ -23,7 +23,7 @@ export default function BrandContentGenerator() {
     isValid: boolean;
     issues: string[];
     suggestions: string[];
-  } | null>(null);
+   } | null>(null);
   const { toast } = useToast();
 
   /**
@@ -32,7 +32,7 @@ export default function BrandContentGenerator() {
   const handleGenerateContent = async () => {
     if (!topic.trim()) {
       toast({
-        title: "请输入主题",
+        title: t('components.labels.请输入主题'),
         description: "请先输入要生成内容的主题",
         variant: "destructive",
       });
@@ -48,7 +48,7 @@ export default function BrandContentGenerator() {
       const profile = await brandService.getCurrentProfile();
       if (!profile) {
         toast({
-          title: "未找到品牌档案",
+          title: t('components.labels.未找到品牌档案'),
           description: "请先创建品牌档案",
           variant: "destructive",
         });
@@ -87,14 +87,14 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
       setContentCheckResult(checkResult);
 
       toast({
-        title: "内容生成完成",
+        title: t('components.labels.内容生成完成'),
         description: "已生成符合品牌调性的内容",
       });
     } catch (error) {
       console.error('内容生成失败:', error);
       toast({
-        title: "生成失败",
-        description: error instanceof Error ? error.message : "内容生成过程中发生错误",
+        title: t('components.labels.生成失败'),
+        description: error instanceof Error ? error.message : t('components.errors.内容生成过程中发生错误'),
         variant: "destructive",
       });
     } finally {
@@ -108,7 +108,7 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
   const handleCheckContent = async () => {
     if (!generatedContent.trim()) {
       toast({
-        title: "请先生成内容",
+        title: t('components.labels.请先生成内容'),
         description: "请先生成要检查的内容",
         variant: "destructive",
       });
@@ -123,12 +123,12 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
 
       if (result.isValid) {
         toast({
-          title: "内容检查通过",
+          title: t('components.labels.内容检查通过'),
           description: "内容符合品牌调性要求",
         });
       } else {
         toast({
-          title: "内容需要优化",
+          title: t('components.labels.内容需要优化'),
           description: `发现 ${result.issues.length} 个问题需要调整`,
           variant: "destructive",
         });
@@ -136,7 +136,7 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
     } catch (error) {
       console.error('内容检查失败:', error);
       toast({
-        title: "检查失败",
+        title: t('components.labels.检查失败'),
         description: "内容检查过程中发生错误",
         variant: "destructive",
       });
@@ -232,7 +232,7 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
                 <AlertCircle className="h-4 w-4 text-destructive" />
               )}
               <h4 className="font-medium">
-                {contentCheckResult.isValid ? '内容检查通过' : '内容需要优化'}
+                {contentCheckResult.isValid ? t('components.labels.内容检查通过') : t('components.labels.内容需要优化')}
               </h4>
             </div>
             

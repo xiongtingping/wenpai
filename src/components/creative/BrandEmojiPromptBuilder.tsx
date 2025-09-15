@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -64,12 +65,11 @@ interface BrandEmojiPromptBuilderProps {
 /**
  * 构建提示词
  */
-export function buildPrompts(characterDesc: string, brand: string, uploadedImage?: File | null): PromptData[] {
-  // 基础品牌描述增强
+export function buildPrompts(characterDesc: string, brand: string, uploadedImage?: File | null): PromptData[] { // 基础品牌描述增强
   const enhancedDesc = characterDesc.trim() || '可爱的卡通形象';
   
   // 构建更详细的提示词模板
-  const basePrompt = `一个${brand}品牌的${enhancedDesc}，`;
+  const basePrompt = `一个${brand }品牌的${enhancedDesc}，`;
   
   return baseEmotions.map((emotion) => {
     // 根据不同表情类型构建更具体的描述
@@ -213,7 +213,7 @@ export default function BrandEmojiPromptBuilder({
     const styleSuffix = [
       styleOptions.emojiStyle && '表情风格为 emoji',
       styleOptions.cartoonStyle && '扁平卡通风',
-      styleOptions.transparentBg && '透明背景'
+      styleOptions.transparentBg && t('components.labels.透明背景')
     ].filter(Boolean).join('，');
     
     return basePrompts.map(prompt => ({
@@ -247,7 +247,7 @@ export default function BrandEmojiPromptBuilder({
   const copyPrompt = (prompt: string) => {
     navigator.clipboard.writeText(prompt);
     toast({
-      title: "复制成功",
+      title: t('components.labels.复制成功'),
       description: "提示词已复制到剪贴板",
     });
   };
@@ -275,7 +275,7 @@ export default function BrandEmojiPromptBuilder({
     URL.revokeObjectURL(url);
     
     toast({
-      title: "导出成功",
+      title: t('components.labels.导出成功'),
       description: "提示词已导出为JSON文件",
     });
   };
@@ -287,7 +287,7 @@ export default function BrandEmojiPromptBuilder({
     const selected = prompts.filter(p => p.selected);
     if (selected.length === 0) {
       toast({
-        title: "请选择表情",
+        title: t('components.labels.请选择表情'),
         description: "至少选择一个表情进行生成",
         variant: "destructive"
       });

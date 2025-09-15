@@ -5,6 +5,7 @@
  * 所有示例都使用 callAI() 函数，确保项目中的 AI 调用统一管理。
  */
 
+import i18n from '@/i18n';
 import { callAI, callAIBatch, callAIWithRetry, checkAIStatus, estimateAICost } from './ai';
 
 /**
@@ -193,7 +194,7 @@ export async function userPermissionExample(userId: string, userPrompt: string) 
     return {
       content: "您没有权限使用AI服务，请升级账户或联系管理员。",
       success: false,
-      error: "权限不足"
+      error: i18n.t('api.errors.权限不足')
     };
   }
 
@@ -230,7 +231,7 @@ export async function modelComparisonExample(prompt: string) {
       };
     } catch (error) {
       results[model] = {
-        error: error instanceof Error ? error.message : '未知错误',
+        error: error instanceof Error ? error.message : i18n.t('api.errors.未知错误'),
         success: false
       };
     }

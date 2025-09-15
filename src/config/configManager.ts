@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
 import request from '@/api/request';
 /**
@@ -359,7 +360,7 @@ export class ConfigManager {
       return this.config;
     } catch (error) {
       console.error('配置加载失败:', error);
-      throw new Error(`配置加载失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(`配置加载失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
     }
   }
 

@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -33,10 +34,9 @@ import {
  * 开发工具组件
  * 仅在开发环境下显示
  */
-export const DevTools: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(false);
+export const DevTools: React.FC = () => { const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('auth');
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated  } = useAuth();
   const vipPermission = usePermission('vip:required');
   const authPermission = usePermission('auth:required');
 
@@ -55,7 +55,7 @@ export const DevTools: React.FC = () => {
         className="bg-background/80 backdrop-blur-sm border-2"
       >
         {isVisible ? <EyeOff className="h-4 w-4" /> : <Bug className="h-4 w-4" />}
-        {isVisible ? '隐藏' : 'Dev'}
+        {isVisible ? t('components.messages.隐藏') : 'Dev'}
       </Button>
 
       {/* 开发工具面板 */}
@@ -84,14 +84,14 @@ export const DevTools: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">登录状态</span>
                     <Badge variant={isAuthenticated ? "default" : "destructive"}>
-                      {isAuthenticated ? "已登录" : "未登录"}
+                      {isAuthenticated ? t('components.messages.已登录') : t('components.messages.未登录')}
                     </Badge>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">认证状态</span>
                     <Badge variant={isAuthenticated ? "default" : "secondary"}>
-                      {isAuthenticated ? "已认证" : "未认证"}
+                      {isAuthenticated ? t('components.messages.已认证') : t('components.messages.未认证')}
                     </Badge>
                   </div>
 
@@ -101,10 +101,10 @@ export const DevTools: React.FC = () => {
                       <div className="space-y-1">
                         <p className="text-xs font-medium">用户信息</p>
                         <div className="text-xs space-y-1">
-                          <p>ID: {getUserId(user, '未知')}</p>
-                          <p>邮箱: {getUserEmail(user, '未设置')}</p>
-                          <p>用户名: {getUserUsername(user, '未设置')}</p>
-                          <p>VIP: {user.isVip ? '是' : '否'}</p>
+                          <p>ID: {getUserId(user, t('components.messages.未知'))}</p>
+                          <p>邮箱: {getUserEmail(user, t('components.messages.未设置'))}</p>
+                          <p>用户名: {getUserUsername(user, t('components.messages.未设置'))}</p>
+                          <p>VIP: {user.isVip ? t('components.messages.是') : t('components.messages.否')}</p>
                         </div>
                       </div>
                     </>
@@ -118,14 +118,14 @@ export const DevTools: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">登录权限</span>
                     <Badge variant={authPermission.pass ? "default" : "destructive"}>
-                      {authPermission.pass ? "通过" : "失败"}
+                      {authPermission.pass ? t('components.messages.通过') : t('components.messages.失败')}
                     </Badge>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">VIP权限</span>
                     <Badge variant={vipPermission.pass ? "default" : "secondary"}>
-                      {vipPermission.pass ? "通过" : "失败"}
+                      {vipPermission.pass ? t('components.messages.通过') : t('components.messages.失败')}
                     </Badge>
                   </div>
 
@@ -135,8 +135,8 @@ export const DevTools: React.FC = () => {
                       <div className="space-y-1">
                         <p className="text-xs font-medium">用户权限</p>
                         <div className="text-xs">
-                          <p>权限: {user.permissions?.join(', ') || '无'}</p>
-                          <p>角色: {user.roles?.join(', ') || '无'}</p>
+                          <p>权限: {user.permissions?.join(', ') || t('components.messages.无')}</p>
+                          <p>角色: {user.roles?.join(', ') || t('components.messages.无')}</p>
                         </div>
                       </div>
                     </>

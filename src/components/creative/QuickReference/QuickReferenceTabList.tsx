@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Database, Bookmark, Radar } from "lucide-react";
@@ -26,10 +27,9 @@ interface QuickReferenceTabListProps {
   disabled?: boolean;
 }
 
-export function QuickReferenceTabList({
-  activeTab,
+export function QuickReferenceTabList({ activeTab,
   onTabChange,
-  counts = {} as Record<TabType, number>,
+  counts = { } as Record<TabType, number>,
   loading = {} as Record<TabType, boolean>,
   disabled = false
 }: QuickReferenceTabListProps) {
@@ -37,21 +37,21 @@ export function QuickReferenceTabList({
   const tabs: TabInfo[] = [
     {
       value: 'brand',
-      label: '品牌库',
+      label: t('components.labels.品牌库'),
       icon: <Database className="h-4 w-4" />,
       description: '品牌资产和语料库内容',
       count: counts.brand
     },
     {
       value: 'library',
-      label: '我的资料库',
+      label: t('components.labels.我的资料库'),
       icon: <Bookmark className="h-4 w-4" />,
       description: '个人收藏的资料内容',
       count: counts.library
     },
     {
       value: 'radar',
-      label: '全网雷达',
+      label: t('components.labels.全网雷达'),
       icon: <Radar className="h-4 w-4" />,
       description: '热点话题和雷达收藏',
       count: counts.radar

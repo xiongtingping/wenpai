@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import type { AICallParams, AIResponse } from './types';
 
 // Logger interface
@@ -377,7 +378,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       taskType,
       responseTime: Date.now() - startTime,
       success: false,
-      error: '提示词不能为空'
+      error: i18n.t('api.errors.提示词不能为空')
     };
   }
 
@@ -444,7 +445,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       taskType,
       responseTime: Date.now() - startTime,
       success: false,
-      error: error instanceof Error ? error.message : '未知错误'
+      error: error instanceof Error ? error.message : i18n.t('common.errors.unknownError')
     };
   }
 }
@@ -614,7 +615,7 @@ export async function initializeAIService(): Promise<{
       violations
     };
   } catch (error) {
-    const errorMessage = `❌ AI服务模块初始化异常: ${error instanceof Error ? error.message : '未知错误'}`;
+    const errorMessage = `❌ AI服务模块初始化异常: ${error instanceof Error ? error.message : i18n.t('common.errors.unknownError')}`;
     console.error(errorMessage);
 
     return {

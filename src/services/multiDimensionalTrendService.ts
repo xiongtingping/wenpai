@@ -3,6 +3,7 @@
  * 解决用户反馈的问题3：多维度趋势分析
  */
 
+import i18n from '@/i18n';
 import { DailyHotItem } from '@/api/hotTopicsService';
 
 export interface TrendDataPoint {
@@ -362,7 +363,7 @@ class MultiDimensionalTrendService {
     if (temporal.direction === 'rising' && temporal.velocity > 100) {
       insights.push({
         type: 'pattern',
-        title: '快速上升趋势',
+        title: i18n.t('common.labels.快速上升趋势'),
         description: `话题热度正在快速上升，预计将持续增长`,
         importance: 'high',
         actionable: true
@@ -373,7 +374,7 @@ class MultiDimensionalTrendService {
     if (platform.dominantPlatforms[0]?.share > 0.6) {
       insights.push({
         type: 'pattern',
-        title: '平台集中度高',
+        title: i18n.t('common.labels.平台集中度高'),
         description: `话题主要集中在${platform.dominantPlatforms[0].platform}平台`,
         importance: 'medium',
         actionable: true
@@ -384,7 +385,7 @@ class MultiDimensionalTrendService {
     if (sentiment.polarization > 0.7) {
       insights.push({
         type: 'anomaly',
-        title: '情感极化严重',
+        title: i18n.t('common.labels.情感极化严重'),
         description: '话题引发了强烈的正负面情感对立',
         importance: 'high',
         actionable: true
@@ -409,9 +410,9 @@ class MultiDimensionalTrendService {
   private inferCategory(item: DailyHotItem): string {
     // 简化的分类推断
     const title = item.title.toLowerCase();
-    if (title.includes('科技') || title.includes('ai')) return '科技';
-    if (title.includes('娱乐') || title.includes('明星')) return '娱乐';
-    if (title.includes('体育') || title.includes('比赛')) return '体育';
+    if (title.includes(i18n.t('common.labels.科技')) || title.includes('ai')) return i18n.t('common.labels.科技');
+    if (title.includes(i18n.t('common.labels.娱乐')) || title.includes(i18n.t('common.labels.明星'))) return i18n.t('common.labels.娱乐');
+    if (title.includes(i18n.t('common.labels.体育')) || title.includes(i18n.t('common.labels.比赛'))) return i18n.t('common.labels.体育');
     return '其他';
   }
 

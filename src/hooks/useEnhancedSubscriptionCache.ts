@@ -3,6 +3,7 @@
  * @description 基于智能缓存策略的订阅状态管理，优化性能和用户体验
  */
 
+import i18n from '@/i18n';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -192,7 +193,7 @@ export function useEnhancedSubscriptionCache(
       const status = await getSubscriptionStatus(true, opts.strategy!);
       setPrimaryStatus(status);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '获取订阅状态失败';
+      const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.获取订阅状态失败');
       setError(errorMessage);
       logger.error('刷新订阅状态失败:', error);
     } finally {
@@ -214,7 +215,7 @@ export function useEnhancedSubscriptionCache(
       const status = await getSubscriptionStatus(false);
       setPrimaryStatus(status);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '强制刷新失败';
+      const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.强制刷新失败');
       setError(errorMessage);
       logger.error('强制刷新订阅状态失败:', error);
     } finally {

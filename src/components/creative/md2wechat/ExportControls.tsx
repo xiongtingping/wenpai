@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -59,12 +60,11 @@ interface ExportOption {
 /**
  * 导出控制组件
  */
-export function ExportControls({
-  htmlContent,
+export function ExportControls({ htmlContent,
   markdownContent,
   theme,
   className
-}: ExportControlsProps) {
+ }: ExportControlsProps) {
   const { toast } = useToast();
   const [isCodeDialogOpen, setIsCodeDialogOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -75,13 +75,13 @@ export function ExportControls({
     try {
       await navigator.clipboard.writeText(content);
       toast({
-        title: '复制成功',
+        title: t('components.labels.复制成功'),
         description: `${label}已复制到剪贴板`,
       });
       return true;
     } catch (error) {
       toast({
-        title: '复制失败',
+        title: t('components.labels.复制失败'),
         description: '请手动选择内容复制',
         variant: 'destructive'
       });
@@ -103,12 +103,12 @@ export function ExportControls({
       URL.revokeObjectURL(url);
       
       toast({
-        title: '下载成功',
+        title: t('components.labels.下载成功'),
         description: `文件 ${filename} 已保存`,
       });
     } catch (error) {
       toast({
-        title: '下载失败',
+        title: t('components.labels.下载失败'),
         description: '文件下载时出现错误',
         variant: 'destructive'
       });
@@ -200,7 +200,7 @@ export function ExportControls({
       // 这里可以集成html2canvas或类似库
       await new Promise(resolve => setTimeout(resolve, 2000)); // 模拟导出过程
       toast({
-        title: '功能开发中',
+        title: t('components.labels.功能开发中'),
         description: '图片导出功能即将上线',
       });
     } finally {
@@ -215,7 +215,7 @@ export function ExportControls({
       // 这里可以集成jsPDF或类似库
       await new Promise(resolve => setTimeout(resolve, 2000)); // 模拟导出过程
       toast({
-        title: '功能开发中',
+        title: t('components.labels.功能开发中'),
         description: 'PDF导出功能即将上线',
       });
     } finally {
@@ -258,21 +258,21 @@ export function ExportControls({
   const downloadOptions: ExportOption[] = [
     {
       id: 'html',
-      label: '下载HTML文件',
+      label: t('components.text.下载HTML文件_36r'),
       description: '保存为完整的HTML文档',
       icon: <FileText className="w-4 h-4" />,
       action: handleDownloadHTML
     },
     {
       id: 'markdown',
-      label: '下载Markdown文件',
+      label: t('components.text.下载Markdo_6vd'),
       description: '保存为.md格式文件',
       icon: <FileDown className="w-4 h-4" />,
       action: handleDownloadMarkdown
     },
     {
       id: 'image',
-      label: '导出为图片',
+      label: t('components.labels.导出为图片'),
       description: '生成PNG格式图片',
       icon: <Image className="w-4 h-4" />,
       action: handleExportImage,

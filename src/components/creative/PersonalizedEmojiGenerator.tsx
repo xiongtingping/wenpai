@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,9 +27,8 @@ interface EmojiImage {
 
 type Step = 'upload' | 'build' | 'generate' | 'gallery';
 
-export default function PersonalizedEmojiGenerator() {
-  const [currentStep, setCurrentStep] = useState<Step>('upload');
-  const [uploadedData, setUploadedData] = useState<{ image?: File; description?: string } | null>(null);
+export default function PersonalizedEmojiGenerator() { const [currentStep, setCurrentStep] = useState<Step>('upload');
+  const [uploadedData, setUploadedData] = useState<{ image?: File; description?: string  } | null>(null);
   const [prompt, setPrompt] = useState('');
   const [batchPrompts, setBatchPrompts] = useState<Array<{ emotion: string; prompt: string }>>([]);
   const [generatedImages, setGeneratedImages] = useState<EmojiImage[]>([]);
@@ -39,10 +39,10 @@ export default function PersonalizedEmojiGenerator() {
 
   // 步骤配置
   const steps = [
-    { id: 'upload', title: '品牌信息', description: '输入品牌角色和品牌名称' },
-    { id: 'build', title: '构建提示词', description: '生成个性化生成提示词' },
+    { id: 'upload', title: t('components.labels.品牌信息'), description: t('components.labels.输入品牌角色和品牌名称') },
+    { id: 'build', title: t('components.labels.构建提示词'), description: t('components.labels.生成个性化生成提示词') },
     { id: 'generate', title: '生成Emoji', description: 'AI生成个性化Emoji' },
-    { id: 'gallery', title: '作品展示', description: '查看和管理生成的Emoji' },
+    { id: 'gallery', title: t('components.labels.作品展示'), description: '查看和管理生成的Emoji' },
   ];
 
   const currentStepIndex = steps.findIndex(step => step.id === currentStep);

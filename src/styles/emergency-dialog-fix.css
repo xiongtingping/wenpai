@@ -59,9 +59,9 @@ body > [data-radix-portal] [role="dialog"].enhanced-history-dialog,
   /* 🚨 基础样式 */
   background: hsl(var(--background)) !important;
   border: 1px solid hsl(var(--border)) !important;
-  border-radius: 0.5rem !important;
-  box-shadow: 0 25px 50px -12px hsl(var(--foreground) / 0.25) !important;
-  padding: 1.5rem !important;
+  border-radius: var(--spacing-2) !important;
+  box-shadow: 0 25px 50px -var(--spacing-3) hsl(var(--foreground) / 0.25) !important;
+  padding: var(--spacing-6) !important;
   overflow: hidden !important;
   
   /* 🚨 性能优化 */
@@ -137,13 +137,13 @@ body > [data-radix-portal] [role="dialog"].enhanced-history-dialog,
   html body div[data-radix-portal] [role="dialog"].enhanced-history-dialog,
   html body [data-radix-portal] [role="dialog"].enhanced-history-dialog,
   .enhanced-history-dialog {
-    max-width: calc(100vw - 1rem) !important;
-    max-height: calc(100vh - 1rem) !important;
+    max-width: calc(100vw - var(--spacing-4)) !important;
+    max-height: calc(100vh - var(--spacing-4)) !important;
     min-width: 280px !important;
-    padding: 1rem !important;
+    padding: var(--spacing-4) !important;
     
     /* 确保不超出视窗 */
-    width: calc(100vw - 1rem) !important;
+    width: calc(100vw - var(--spacing-4)) !important;
     height: auto !important;
     
     /* 保持居中 */
@@ -178,10 +178,10 @@ body > [data-radix-portal] [role="dialog"].enhanced-history-dialog,
   left: 0;
   background: lime;
   color: black;
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--spacing-3);
   font-weight: bold;
-  border-radius: 4px;
+  border-radius: var(--spacing-1);
   z-index: 9999;
   white-space: nowrap;
 }
@@ -205,7 +205,7 @@ body > [data-radix-portal] [role="dialog"].enhanced-history-dialog,
 }
 
 .enhanced-history-dialog .dialog-content-scrollable::-webkit-scrollbar {
-  width: 6px;
+  width: var(--spacing-1-5);
 }
 
 .enhanced-history-dialog .dialog-content-scrollable::-webkit-scrollbar-track {
@@ -248,5 +248,5 @@ body > [data-radix-portal] [role="dialog"].enhanced-history-dialog,
   inset: 0 !important;
   z-index: 1050 !important;
   background-color: hsl(var(--background) / 0.8) !important;
-  backdrop-filter: blur(4px) !important;
+  backdrop-filter: blur(var(--spacing-1)) !important;
 }

@@ -3,6 +3,7 @@
  * 严格遵循CLAUDE.md规则 - 禁止本地模拟，必须使用真实API验证
  */
 
+import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
 
 /**
@@ -94,7 +95,7 @@ export class ApiKeyValidator {
 
     return {
       isValid: true,
-      message: '格式验证通过',
+      message: i18n.t('utils.messages.格式验证通过'),
       provider: API_PROVIDERS[provider].name
     };
   }
@@ -118,7 +119,7 @@ export class ApiKeyValidator {
           }
         }),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('验证超时')), this.VALIDATION_TIMEOUT)
+          setTimeout(() => reject(new Error(i18n.t('utils.errors.验证超时'))), this.VALIDATION_TIMEOUT)
         )
       ]);
 
@@ -148,7 +149,7 @@ export class ApiKeyValidator {
       return {
         isValid: false,
         provider: 'openai',
-        message: error instanceof Error ? error.message : '验证过程中发生错误'
+        message: error instanceof Error ? error.message : i18n.t('utils.errors.验证过程中发生错误')
       };
     }
   }

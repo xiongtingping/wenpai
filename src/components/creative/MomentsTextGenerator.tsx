@@ -1,10 +1,10 @@
 /**
- * 朋友圈文案生成器组件
- * 优化后的UI设计：更好的视觉层次、响应式布局、增强的交互体验
- * 功能：智能搜索、分类筛选、收藏管理、AI生成、装饰系统、预览编辑
+ * t('momentsGenerator.title')
+ * t('momentsGenerator.description')
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,14 +76,14 @@ interface TextTemplate {
  */
 const categories = [
   { id: 'all', name: '全部', icon: <Grid className="w-4 h-4" />, color: 'hsl(var(--muted-foreground))', description: '查看所有文案模板' },
-  { id: 'daily', name: '日常生活', icon: <Coffee className="w-4 h-4" />, color: 'hsl(220 14.3% 95.9%)', description: '记录生活点滴美好' },
-  { id: 'emotion', name: '情感心情', icon: <Heart className="w-4 h-4" />, color: 'hsl(0 84.2% 60.2%)', description: '表达内心真实感受' },
-  { id: 'work', name: '工作学习', icon: <BookOpen className="w-4 h-4" />, color: 'hsl(142.1 76.2% 36.3%)', description: '职场成长与学习心得' },
-  { id: 'travel', name: '旅行生活', icon: <Plane className="w-4 h-4" />, color: 'hsl(221.2 83.2% 53.3%)', description: '记录旅途精彩瞬间' },
-  { id: 'food', name: '美食分享', icon: <Utensils className="w-4 h-4" />, color: 'hsl(47.9 95.8% 53.1%)', description: '分享美食与味蕾体验' },
-  { id: 'fitness', name: '健身运动', icon: <Dumbbell className="w-4 h-4" />, color: 'hsl(173 80% 40%)', description: '运动打卡与健康生活' },
-  { id: 'night', name: '深夜时光', icon: <Clock className="w-4 h-4" />, color: 'hsl(258.3 89.5% 66.3%)', description: '夜深人静的思考时刻' },
-  { id: 'festival', name: '节日祝福', icon: <Gift className="w-4 h-4" />, color: 'hsl(346.8 77.2% 49.8%)', description: '节庆祝福与特殊时刻' },
+  { id: 'daily', name: t('momentsGenerator.categories.daily'), icon: <Coffee className="w-4 h-4" />, color: 'hsl(220 14.3% 95.9%)', description: '记录生活点滴美好' },
+  { id: 'emotion', name: t('components.text.情感心情_87i'), icon: <Heart className="w-4 h-4" />, color: 'hsl(0 84.2% 60.2%)', description: '表达内心真实感受' },
+  { id: 'work', name: t('components.text.工作学习_dg8'), icon: <BookOpen className="w-4 h-4" />, color: 'hsl(142.1 76.2% 36.3%)', description: '职场成长与学习心得' },
+  { id: 'travel', name: t('components.text.旅行生活_vnp'), icon: <Plane className="w-4 h-4" />, color: 'hsl(221.2 83.2% 53.3%)', description: '记录旅途精彩瞬间' },
+  { id: 'food', name: t('momentsGenerator.categories.food'), icon: <Utensils className="w-4 h-4" />, color: 'hsl(47.9 95.8% 53.1%)', description: '分享美食与味蕾体验' },
+  { id: 'fitness', name: t('momentsGenerator.categories.fitness'), icon: <Dumbbell className="w-4 h-4" />, color: 'hsl(173 80% 40%)', description: '运动打卡与健康生活' },
+  { id: 'night', name: t('components.text.深夜时光_9em'), icon: <Clock className="w-4 h-4" />, color: 'hsl(258.3 89.5% 66.3%)', description: '夜深人静的思考时刻' },
+  { id: 'festival', name: t('components.text.节日祝福_loy'), icon: <Gift className="w-4 h-4" />, color: 'hsl(346.8 77.2% 49.8%)', description: '节庆祝福与特殊时刻' },
 ];
 
 /**
@@ -92,7 +92,7 @@ const categories = [
 const industryTemplates = [
   { id: 'restaurant', name: '餐饮行业', icon: <Utensils className="w-4 h-4" />, emoji: '🍕', count: 28 },
   { id: 'beauty', name: '美妆时尚', icon: <Sparkles className="w-4 h-4" />, emoji: '💄', count: 32 },
-  { id: 'fitness', name: '健身运动', icon: <Dumbbell className="w-4 h-4" />, emoji: '💪', count: 24 },
+  { id: 'fitness', name: t('momentsGenerator.categories.fitness'), icon: <Dumbbell className="w-4 h-4" />, emoji: '💪', count: 24 },
   { id: 'education', name: '教育培训', icon: <BookOpen className="w-4 h-4" />, emoji: '📚', count: 26 },
   { id: 'retail', name: '电商零售', icon: <Tag className="w-4 h-4" />, emoji: '🛍️', count: 35 },
   { id: 'travel', name: '旅游出行', icon: <Plane className="w-4 h-4" />, emoji: '✈️', count: 29 },
@@ -126,19 +126,11 @@ const decorationElements = {
     cute: ['(｡♥‿♥｡)', '(๑´ڡ`๑)', '(◡ ‿ ◡)', '(´∀｀)♡', '(✿◠‿◠)'],
     surprised: ['(⊙_⊙)', '(°o°)', 'ヽ(°〇°)ﾉ', '(◎_◎)', '(゜o゜)'],
     strong: ['ᕦ(ò_óˇ)ᕤ', '(ง •̀_•́)ง', '💪(￣▽￣)💪', 'ᕙ(⇀‸↼‶)ᕗ'],
-    thinking: ['(´･ω･`)', '(￣ω￣)', '(´-ω-`)', '(￣へ￣)', '(๑•́ ₃ •̀๑)']
-  }
-};
-
-/**
- * 心情标签配置 - 增强版
- */
-const moodTags = [
-  { id: 'happy', name: '开心', emoji: '😊', color: 'bg-yellow-50 text-yellow-700 border-yellow-200', description: '快乐正能量' },
+    thinking: ['(´･ω･`)', '(￣ω￣)', '(´-ω-`)', '(￣へ￣)', '(๑•́ ₃ •̀๑)happy', name: '开心', emoji: '😊', color: 'bg-yellow-50 text-yellow-700 border-yellow-200', description: '快乐正能量' },
   { id: 'romantic', name: '浪漫', emoji: '💕', color: 'bg-pink-50 text-pink-700 border-pink-200', description: '温柔甜蜜' },
   { id: 'motivational', name: '励志', emoji: '💪', color: 'bg-orange-50 text-orange-700 border-orange-200', description: '积极向上' },
   { id: 'casual', name: '随性', emoji: '😎', color: 'bg-blue-50 text-blue-700 border-blue-200', description: '轻松自在' },
-  { id: 'thoughtful', name: '深思', emoji: '🤔', color: 'bg-purple-50 text-purple-700 border-purple-200', description: '深度思考' },
+  { id: 'thoughtful', name: '深思', emoji: '🤔', color: 'bg-purple-50 text-purple-700 border-purple-200', description: t('components.text.深度思考_bpo') },
   { id: 'funny', name: '搞笑', emoji: '😂', color: 'bg-green-50 text-green-700 border-green-200', description: '幽默风趣' },
 ];
 
@@ -147,7 +139,7 @@ const moodTags = [
  */
 const viewModes = [
   { id: 'grid', name: '网格视图', icon: <Grid className="w-4 h-4" /> },
-  { id: 'list', name: '列表视图', icon: <List className="w-4 h-4" /> },
+  { id: 'list', name: t('components.text.列表视图_5ar'), icon: <List className="w-4 h-4" /> },
 ];
 
 /**
@@ -156,7 +148,7 @@ const viewModes = [
 const sortOptions = [
   { id: 'useCount', name: '使用次数', icon: <TrendingUp className="w-4 h-4" /> },
   { id: 'created', name: '创建时间', icon: <Clock className="w-4 h-4" /> },
-  { id: 'title', name: '标题排序', icon: <Tag className="w-4 h-4" /> },
+  { id: 'title', name: t(), icon: <Tag className="w-4 h-4" /> },
   { id: 'favorite', name: '收藏优先', icon: <Heart className="w-4 h-4" /> },
 ];
 
@@ -265,10 +257,10 @@ export function MomentsTextGenerator() {
       // 日常生活
       {
         id: '1',
-        title: '晨光微醺',
+        title: t('components.labels.晨光微醺'),
         content: '☀️ 清晨的第一缕阳光\n透过百叶窗洒在桌案上\n咖啡香气缓缓升腾\n新的一天，从容开始\n\n愿你我都能在平凡中\n找到属于自己的小确幸 ✨',
         category: 'daily',
-        tags: ['晨光', '咖啡', '小确幸', '生活'],
+        tags: ['晨光', t('components.text.咖啡_x5o'), '小确幸', '生活'],
         mood: 'thoughtful',
         isFavorite: false,
         useCount: 15,
@@ -276,10 +268,10 @@ export function MomentsTextGenerator() {
       },
       {
         id: '2',
-        title: '周末慢时光',
+        title: t('components.labels.周末慢时光'),
         content: '🌿 Weekend vibes\n没有闹钟的早晨\n慵懒地窝在沙发里\n阳光正好，微风不燥\n\n这样的周末\n值得用来虚度 💫\n\n#周末 #慢生活',
         category: 'daily',
-        tags: ['周末', '慵懒', '阳光', 'weekend'],
+        tags: [t('components.text.周末_17g'), '慵懒', '阳光', 'weekend'],
         mood: 'casual',
         isFavorite: true,
         useCount: 28,
@@ -289,7 +281,7 @@ export function MomentsTextGenerator() {
       // 情感心情
       {
         id: '3',
-        title: '月光下的思绪',
+        title: t('components.labels.月光下的思绪'),
         content: '🌙 夜深了\n窗外的月光很亮\n想起了很多人和事\n\n有些话不必说出口\n有些情不必刻意表达\n懂的人自然会懂\n\n晚安，世界 ⭐',
         category: 'emotion',
         tags: ['夜晚', '思绪', '月光', '晚安'],
@@ -300,7 +292,7 @@ export function MomentsTextGenerator() {
       },
       {
         id: '4',
-        title: '春天的约定',
+        title: t('components.labels.春天的约定'),
         content: '🌸 春天来了\n樱花开了\n想和你一起\n踏青赏花\n\n约定好的春天\n我们如期而至 💕\n\n有你在的季节\n都是人间四月天',
         category: 'emotion',
         tags: ['春天', '樱花', '约定', '浪漫'],
@@ -313,10 +305,10 @@ export function MomentsTextGenerator() {
       // 工作学习
       {
         id: '5',
-        title: '深夜加班记',
+        title: t('components.labels.深夜加班记'),
         content: '💻 又是一个加班的夜晚\n办公室的灯还亮着\n外面的世界已经安静\n\n虽然累，但充实\n每一份努力\n都是在为梦想加分 ✨\n\n#加班 #奋斗 #梦想',
         category: 'work',
-        tags: ['加班', '奋斗', '努力', '梦想'],
+        tags: [t('components.text.加班_8kf'), t('components.text.奋斗_cc1'), '努力', '梦想'],
         mood: 'motivational',
         isFavorite: false,
         useCount: 23,
@@ -324,7 +316,7 @@ export function MomentsTextGenerator() {
       },
       {
         id: '6',
-        title: '读书时光',
+        title: t('components.labels.读书时光'),
         content: '📚 今天读了一本好书\n\"知识就是力量\"\n这句话永远不过时\n\n在书的世界里\n我们可以遇见更好的自己\n\n Reading makes a full man 📖\n\n你今天读书了吗？',
         category: 'work',
         tags: ['读书', '知识', '成长', '学习'],
@@ -337,7 +329,7 @@ export function MomentsTextGenerator() {
       // 旅行生活
       {
         id: '7',
-        title: '远方的诗',
+        title: t('components.labels.远方的诗'),
         content: '✈️ 背上行囊\n去看世界的模样\n\n山川湖海\n日出日落\n每一处风景\n都是心灵的洗礼 🏔️\n\n人生就是一场旅行\n在乎的不是目的地\n而是沿途的风景 🌅',
         category: 'travel',
         tags: ['旅行', '风景', '行囊', '远方'],
@@ -348,7 +340,7 @@ export function MomentsTextGenerator() {
       },
       {
         id: '8',
-        title: '海边漫步',
+        title: t('components.labels.海边漫步'),
         content: '🌊 走在海边\n听浪花拍打岸边的声音\n\n海风轻抚脸颊\n带走了城市的喧嚣\n留下了内心的宁静 🐚\n\n面朝大海\n春暖花开 🌸',
         category: 'travel',
         tags: ['海边', '海浪', '宁静', '自然'],
@@ -361,10 +353,10 @@ export function MomentsTextGenerator() {
       // 美食分享
       {
         id: '9',
-        title: '深夜食堂',
+        title: t('components.labels.深夜食堂'),
         content: '🍜 深夜的泡面\n加个煎蛋\n再来点火腿\n\n简单的美食\n却能温暖整个夜晚 🥚\n\n有时候幸福很简单\n就是一碗热腾腾的面条\n\n#深夜食堂 #泡面 #小确幸',
         category: 'food',
-        tags: ['深夜', '泡面', '美食', '温暖'],
+        tags: ['深夜', t('components.text.泡面_ju6'), '美食', '温暖'],
         mood: 'happy',
         isFavorite: false,
         useCount: 56,
@@ -372,10 +364,10 @@ export function MomentsTextGenerator() {
       },
       {
         id: '10',
-        title: '下午茶时光',
+        title: t('components.labels.下午茶时光'),
         content: '☕ 午后的咖啡馆\n点一杯拿铁\n配上精致的小点心\n\n阳光透过玻璃窗\n洒在木质桌面上 ☀️\n\n这样的下午茶时光\n让忙碌的生活慢下来 🍰\n\n#下午茶 #咖啡 #慢生活',
         category: 'food',
-        tags: ['下午茶', '咖啡', '点心', '悠闲'],
+        tags: [t('components.text.下午茶_lut'), t('components.text.咖啡_x5o'), '点心', '悠闲'],
         mood: 'casual',
         isFavorite: true,
         useCount: 71,
@@ -385,10 +377,10 @@ export function MomentsTextGenerator() {
       // 健身运动
       {
         id: '11',
-        title: '晨跑日记',
+        title: t('components.labels.晨跑日记'),
         content: '🏃‍♀️ 今天的晨跑打卡\n6公里，用时30分钟\n\n晨风习习\n心情舒畅\n汗水是最好的见证 💪\n\n运动不仅锻炼身体\n更是对意志力的磨炼\n\n坚持，就是胜利！\n\n#晨跑 #健身 #坚持',
         category: 'fitness',
-        tags: ['晨跑', '健身', '坚持', '运动'],
+        tags: ['晨跑', t('components.text.健身_ugh'), '坚持', '运动'],
         mood: 'motivational',
         isFavorite: false,
         useCount: 43,
@@ -396,10 +388,10 @@ export function MomentsTextGenerator() {
       },
       {
         id: '12',
-        title: '瑜伽冥想',
+        title: t('components.labels.瑜伽冥想'),
         content: '🧘‍♀️ 今日瑜伽练习\n在音乐中找到内心的平静\n\n呼吸，伸展，放松\n让身心都得到释放 🕯️\n\n瑜伽不仅是体式的练习\n更是与内在自我的对话\n\n#瑜伽 #冥想 #内心平静',
         category: 'fitness',
-        tags: ['瑜伽', '冥想', '放松', '内心'],
+        tags: ['瑜伽', t('components.text.冥想_05f'), '放松', '内心'],
         mood: 'thoughtful',
         isFavorite: true,
         useCount: 37,
@@ -409,8 +401,8 @@ export function MomentsTextGenerator() {
       // 深夜时光
       {
         id: '13',
-        title: '夜色如墨',
-        content: '🌃 夜已深\n城市的灯火依然闪烁\n\n在这寂静的夜里\n思绪如潮水般涌来\n\n想起白天的忙碌\n想起远方的朋友\n想起未完成的梦想 ⭐\n\n夜晚，总是让人多愁善感\n\n晚安，今天的自己',
+        title: t('components.labels.夜色如墨'),
+        content: $,
         category: 'night',
         tags: ['夜晚', '思绪', '灯火', '晚安'],
         mood: 'thoughtful',
@@ -420,7 +412,7 @@ export function MomentsTextGenerator() {
       },
       {
         id: '14',
-        title: '失眠夜话',
+        title: t('components.labels.失眠夜话'),
         content: '😴 又是一个失眠的夜晚\n翻来覆去睡不着\n\n索性起来看看月亮\n听听夜风的声音 🌙\n\n失眠的夜里\n总是想得特别多\n关于过去，关于未来\n\n或许这就是深夜的魅力\n让人与内心深处的自己对话',
         category: 'night',
         tags: ['失眠', '深夜', '月亮', '思考'],
@@ -433,7 +425,7 @@ export function MomentsTextGenerator() {
       // 节日祝福
       {
         id: '15',
-        title: '春节祝福',
+        title: t('components.labels.春节祝福'),
         content: '🧧 新年快乐！\n祝大家在新的一年里\n身体健康，工作顺利\n爱情甜蜜，友情深厚 💕\n\n愿所有的美好\n都如期而至\n愿所有的努力\n都有收获 🎆\n\n新年新气象\n一起加油吧！\n\n#春节快乐 #新年祝福',
         category: 'festival',
         tags: ['春节', '新年', '祝福', '快乐'],
@@ -444,10 +436,10 @@ export function MomentsTextGenerator() {
       },
       {
         id: '16',
-        title: '生日快乐',
+        title: t('components.labels.生日快乐'),
         content: '🎂 Today is my birthday!\n感谢这一年来\n所有的经历和成长\n\n感谢身边的每一个人\n给我的爱与支持 💝\n\n新的一岁\n希望自己能够\n更加勇敢，更加善良\n\n生日快乐，我的dear self! 🎉\n\n#生日快乐 #感恩 #成长',
         category: 'festival',
-        tags: ['生日', '感恩', '成长', '快乐'],
+        tags: ['生日', t('components.text.感恩_c8r'), '成长', '快乐'],
         mood: 'happy',
         isFavorite: false,
         useCount: 83,
@@ -587,7 +579,7 @@ export function MomentsTextGenerator() {
       setTimeout(() => setCopyingId(null), 600);
     } catch (error) {
       toast({
-        title: "复制失败",
+        title: t(),
         description: "请手动选中并复制文案内容",
         variant: "destructive"
       });
@@ -608,8 +600,8 @@ export function MomentsTextGenerator() {
         
         // 显示相应的toast消息
         toast({
-          title: newFavoriteState ? "❤️ 已添加到收藏" : "💔 已取消收藏",
-          description: `"${template.title}" ${newFavoriteState ? '已收藏' : '已取消收藏'}`,
+          title: newFavoriteState ? "❤️ 已添加到收藏" : $,
+          description: `"${template.title}" ${newFavoriteState ? t('components.labels.已收藏') : t()}`,
         });
         
         return { ...template, isFavorite: newFavoriteState };
@@ -636,8 +628,8 @@ export function MomentsTextGenerator() {
   const addNewTemplate = () => {
     if (!newTemplate.title.trim() || !newTemplate.content.trim()) {
       toast({
-        title: "请填写完整信息",
-        description: "标题和内容不能为空",
+        title: t('components.labels.请填写完整信息'),
+        description: ,
         variant: "destructive"
       });
       return;
@@ -676,7 +668,7 @@ export function MomentsTextGenerator() {
     setShowCreateDialog(false);
 
     toast({
-      title: "添加成功",
+      title: t(),
       description: "新文案已添加到模板库",
     });
   };
@@ -687,7 +679,7 @@ export function MomentsTextGenerator() {
   const generateAIText = async () => {
     if (!aiPrompt.trim()) {
       toast({
-        title: "请输入生成提示",
+        title: t($),
         description: "请描述你想要的文案内容",
         variant: "destructive"
       });
@@ -701,11 +693,11 @@ export function MomentsTextGenerator() {
       const aiService = (await import('@/api/aiService')).callAI;
       
       const styleMap: Record<string, string> = {
-        casual: '轻松随性',
-        romantic: '浪漫温馨',
-        motivational: '励志正能量',
-        funny: '幽默搞笑',
-        thoughtful: '深度思考'
+        casual: t('components.text.轻松随性_asj'),
+        romantic: t('components.text.浪漫温馨_d57'),
+        motivational: t('components.text.励志正能量_lcj'),
+        funny: t('components.text.幽默搞笑_d5p'),
+        thoughtful: t('components.text.深度思考_bpo')
       };
       const lengthMap: Record<string, string> = {
         short: '简短精练，50字以内',
@@ -759,7 +751,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
         content: generatedContent,
         category: 'daily',
         mood: aiStyle as TextTemplate['mood'],
-        tags: ['AI生成', styleMap[aiStyle], '原创'],
+        tags: [t('momentsGenerator.tabs.generate'), styleMap[aiStyle], '原创'],
         isFavorite: false,
         useCount: 0,
         createdAt: new Date().toISOString()
@@ -770,15 +762,15 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
       setAIPrompt('');
 
       toast({
-        title: "AI生成成功",
+        title: ,
         description: "新文案已添加到模板库",
       });
 
     } catch (error) {
-      console.error('AI生成失败:', error);
+      console.error(t('components.error.AI生成失败_kbm'), error);
       toast({
-        title: "生成失败",
-        description: "AI生成文案失败，请稍后重试",
+        title: t(),
+        description: ,
         variant: "destructive"
       });
     } finally {
@@ -820,7 +812,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
         });
         
         toast({
-          title: "分享成功",
+          title: t($),
           description: `"${template.title}" 已分享`,
         });
       } catch (error) {
@@ -830,7 +822,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
       // 退匠到复制功能
       copyTemplate(template);
       toast({
-        title: "已复制到剪贴板",
+        title: t('components.labels.已复制到剪贴板'),
         description: "您可以手动分享该内容",
       });
     }
@@ -897,9 +889,9 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
   const quickFilters = [
     { id: 'popular', name: '热门文案', action: () => setSortBy('useCount') },
     { id: 'latest', name: '最新添加', action: () => setSortBy('created') },
-    { id: 'favorites', name: '我的收藏', action: () => setShowFavoritesOnly(!showFavoritesOnly) },
+    { id: 'favorites', name: t('momentsGenerator.tabs.favorites'), action: () => setShowFavoritesOnly(!showFavoritesOnly) },
     { id: 'romantic', name: '浪漫系列', action: () => setSelectedMood('romantic') },
-    { id: 'motivational', name: '励志正能量', action: () => setSelectedMood('motivational') },
+    { id: 'motivational', name: t('components.text.励志正能量_lcj'), action: () => setSelectedMood('motivational') },
   ];
 
   /**
@@ -953,9 +945,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
 
         {/* 操作栏 - 响应式优化 */}
         <Card className="mb-4 lg:mb-6 bg-background/80 backdrop-blur-sm border-0 shadow-xl">
-          <CardContent className="p-4 sm:p-6">
-            {/* 主要操作按钮 - 响应式布局 */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-4">
+          <CardContent className="p-4 sm:p-6flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-4">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                 <Dialog open={showAIDialog} onOpenChange={setShowAIDialog}>
                   <DialogTrigger asChild>
@@ -1029,7 +1019,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                 <div className="relative flex-1">
                   <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
                   <Input
-                    placeholder="搜索文案、标签或内容..."
+                    placeholder=$
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 sm:pl-12 h-10 sm:h-12 text-base sm:text-lg border-2 focus:border-primary bg-background"
@@ -1080,16 +1070,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
                         <Search className="w-4 h-4 mr-3 text-muted-foreground" />
-                        <span className="search-highlight">{suggestion}</span>
-                      </Button>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {/* 快速筛选按钮 - 响应式优化 */}
-            <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
+                        <span className="search-highlight$flex flex-wrap gap-2 mb-4 sm:mb-6">
               <span className="text-xs sm:text-sm font-medium text-muted-foreground self-center mr-1 sm:mr-2 w-full sm:w-auto mb-1 sm:mb-0">快速筛选：</span>
               {quickFilters.map((filter, index) => (
                 <Button
@@ -1141,8 +1122,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
 
             {/* 心情筛选 - 响应式网格 */}
             <div className="mb-4 sm:mb-6">
-              <Label className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 block">心情标签</Label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
+              <Label className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 block$grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
                 <Button
                   variant={selectedMood === '' ? "default" : "outline"}
                   size="sm"
@@ -1523,7 +1503,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                           ) : (
                             <>
                               <Copy className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
-                              <span className="hidden sm:inline">复制</span>
+                              <span className="hidden sm:inline">$</span>
                             </>
                           )}
                         </Button>
@@ -1670,9 +1650,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
           </DialogHeader>
           <div className="space-y-6">
             <div>
-              <Label className="text-base font-medium">生成提示</Label>
-              <Textarea
-                placeholder="请详细描述你想要的文案内容，比如：关于周末慢生活的温馨文案，要有咖啡和阳光的元素..."
+              <Label className="text-base font-medium请详细描述你想要的文案内容，比如：关于周末慢生活的温馨文案，要有咖啡和阳光的元素..."
                 value={aiPrompt}
                 onChange={(e) => setAIPrompt(e.target.value)}
                 rows={4}
@@ -1801,9 +1779,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
           </DialogHeader>
           <div className="space-y-6">
             <div>
-              <Label className="text-base font-medium">文案标题</Label>
-              <Input
-                placeholder="给你的文案起个吸引人的名字..."
+              <Label className="text-base font-medium给你的文案起个吸引人的名字..."
                 value={newTemplate.title}
                 onChange={(e) => setNewTemplate(prev => ({ ...prev, title: e.target.value }))}
                 className="h-12"
@@ -1882,9 +1858,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
             </div>
             
             <div>
-              <Label className="text-sm font-medium">标签（用逗号分隔）</Label>
-              <Input
-                placeholder="标签1, 标签2, 标签3..."
+              <Label className="text-sm font-medium{t('components.label.标签用逗号分_3ok')}标签1, 标签2, 标签3..."
                 value={newTemplate.tags}
                 onChange={(e) => setNewTemplate(prev => ({ ...prev, tags: e.target.value }))}
               />

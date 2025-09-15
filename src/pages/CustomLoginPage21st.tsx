@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Sun, Moon, ArrowLeft, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -19,8 +20,7 @@ import SecureInput from '@/components/ui/SecureInput';
 import { ValidationRules } from '@/utils/inputValidator';
 
 // 手机号验证函数
-const validatePhone = (phone: string) => {
-  const phoneRegex = /^1[3-9]\d{9}$/;
+const validatePhone = (phone: string) => { const phoneRegex = /^1[3-9]\d{9 }$/;
   return phoneRegex.test(phone);
 };
 
@@ -52,17 +52,17 @@ const PasswordRule: React.FC<{ text: string; isValid: boolean; optional?: boolea
   <div className="flex items-center space-x-2">
     <div className={`w-2 h-2 rounded-full ${
       isValid
-        ? 'bg-green-500'
+        ? 'bg-success'
         : optional
           ? 'bg-gray-300 dark:bg-gray-600'
-          : 'bg-red-500'
+          : 'bg-destructive'
     }`} />
     <span className={`text-xs ${
       isValid
-        ? 'text-green-600 dark:text-green-400'
+        ? 'text-success dark:text-green-400'
         : optional
-          ? 'text-gray-500 dark:text-gray-400'
-          : 'text-red-500 dark:text-red-400'
+          ? 'text-muted-foreground dark:text-gray-400'
+          : 'text-destructive dark:text-red-400'
     }`}>
       {text}
     </span>
@@ -315,7 +315,7 @@ export const CustomLoginPage: React.FC = () => {
   const handleGetVerificationCode = async () => {
     if (!validatePhone(phone)) {
       toast({
-        title: "手机号格式错误",
+        title: t('pages.labels.手机号格式错误'),
         description: "请输入正确的11位手机号码",
         variant: "destructive",
       });
@@ -327,7 +327,7 @@ export const CustomLoginPage: React.FC = () => {
       await verificationCodeService.sendSmsCode(phone, mode === 'register' ? 'REGISTER' : 'LOGIN');
       
       toast({
-        title: "验证码已发送",
+        title: t('pages.labels.验证码已发送'),
         description: `验证码已发送至 ${phone}，请注意查收`,
       });
 
@@ -345,7 +345,7 @@ export const CustomLoginPage: React.FC = () => {
     } catch (error: any) {
       console.error('发送验证码失败:', error);
       toast({
-        title: "发送失败",
+        title: t('pages.labels.发送失败'),
         description: error.message || "验证码发送失败，请稍后重试",
         variant: "destructive",
       });
@@ -358,7 +358,7 @@ export const CustomLoginPage: React.FC = () => {
   const handleGetRegisterVerificationCode = async () => {
     if (!validatePhone(phone)) {
       toast({
-        title: "手机号格式错误",
+        title: t('pages.labels.手机号格式错误'),
         description: "请输入正确的11位手机号码",
         variant: "destructive",
       });
@@ -370,7 +370,7 @@ export const CustomLoginPage: React.FC = () => {
       await verificationCodeService.sendSmsCode(phone, 'REGISTER');
 
       toast({
-        title: "验证码已发送",
+        title: t('pages.labels.验证码已发送'),
         description: `验证码已发送至 ${phone}，请注意查收`,
       });
 
@@ -388,7 +388,7 @@ export const CustomLoginPage: React.FC = () => {
     } catch (error: any) {
       console.error('发送注册验证码失败:', error);
       toast({
-        title: "发送失败",
+        title: t('pages.labels.发送失败'),
         description: error.message || "验证码发送失败，请稍后重试",
         variant: "destructive",
       });
@@ -404,7 +404,7 @@ export const CustomLoginPage: React.FC = () => {
 
     if (!validatePhone(phone)) {
       toast({
-        title: "手机号格式错误",
+        title: t('pages.labels.手机号格式错误'),
         description: "请输入正确的11位手机号码",
         variant: "destructive",
       });
@@ -414,7 +414,7 @@ export const CustomLoginPage: React.FC = () => {
     if (mode === 'login') {
       if (loginType === 'password' && !password) {
         toast({
-          title: "请输入密码",
+          title: t('pages.labels.请输入密码'),
           variant: "destructive",
         });
         return;
@@ -422,7 +422,7 @@ export const CustomLoginPage: React.FC = () => {
       
       if (loginType === 'code' && !verificationCode) {
         toast({
-          title: "请输入验证码",
+          title: t('pages.labels.请输入验证码'),
           variant: "destructive",
         });
         return;
@@ -430,7 +430,7 @@ export const CustomLoginPage: React.FC = () => {
     } else {
       if (!verificationCode || !password || !confirmPassword) {
         toast({
-          title: "请填写完整信息",
+          title: t('pages.labels.请填写完整信息'),
           variant: "destructive",
         });
         return;
@@ -438,8 +438,8 @@ export const CustomLoginPage: React.FC = () => {
       
       if (password !== confirmPassword) {
         toast({
-          title: "密码不一致",
-          description: "两次输入的密码不一致",
+          title: t('pages.labels.密码不一致'),
+          description: t('pages.messages.两次输入的密码不一致'),
           variant: "destructive",
         });
         return;
@@ -447,8 +447,8 @@ export const CustomLoginPage: React.FC = () => {
       
       if (!agreeTerms) {
         toast({
-          title: "请同意隐私政策和服务条款",
-          description: "您需要阅读并同意我们的隐私政策和服务条款才能注册",
+          title: t('pages.labels.请同意隐私政策和服务条款'),
+          description: t('pages.messages.您需要阅读并同意我们的隐私政策和服务条款'),
           variant: "destructive",
         });
         return;
@@ -489,7 +489,7 @@ export const CustomLoginPage: React.FC = () => {
           }
 
           toast({
-            title: "登录成功",
+            title: t('pages.labels.登录成功'),
             description: "欢迎回来！",
           });
 
@@ -503,7 +503,7 @@ export const CustomLoginPage: React.FC = () => {
           await handleAuthingLogin(result);
           
           toast({
-            title: "注册成功",
+            title: t('pages.labels.注册成功'),
             description: "欢迎加入文派AI！",
           });
 
@@ -523,7 +523,7 @@ export const CustomLoginPage: React.FC = () => {
     } catch (error: any) {
       console.error('认证失败:', error);
       toast({
-        title: mode === 'login' ? "登录失败" : "注册失败",
+        title: mode === 'login' ? t('pages.labels.登录失败') : t('pages.labels.注册失败'),
         description: error.message || "操作失败，请稍后重试",
         variant: "destructive",
       });
@@ -552,7 +552,7 @@ export const CustomLoginPage: React.FC = () => {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className={`absolute rounded-full opacity-20 ${isDarkMode ? 'bg-white' : 'bg-white'}`}
+              className={`absolute rounded-full opacity-20 ${isDarkMode ? 'bg-background' : 'bg-background'}`}
               style={{
                 width: `${Math.random() * 100 + 50}px`,
                 height: `${Math.random() * 100 + 50}px`,
@@ -568,7 +568,7 @@ export const CustomLoginPage: React.FC = () => {
         {/* 返回按钮 */}
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 z-20 p-3 bg-white/10 dark:bg-gray-800/10 backdrop-blur-sm rounded-xl hover:bg-white/20 dark:hover:bg-gray-800/20 transition-all duration-300 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+          className="absolute top-4 left-4 z-20 p-3 bg-background/10 dark:bg-gray-800/10 backdrop-blur-sm rounded-xl hover:bg-background/20 dark:hover:bg-gray-800/20 transition-all duration-300 text-gray-700 dark:text-gray-300 hover:text-foreground dark:hover:text-background"
         >
           <ArrowLeft size={20} />
         </button>
@@ -576,26 +576,26 @@ export const CustomLoginPage: React.FC = () => {
         {/* 主题切换按钮 */}
         <button
           onClick={toggleDarkMode}
-          className="absolute top-4 right-4 z-20 p-3 bg-white/10 dark:bg-gray-800/10 backdrop-blur-sm rounded-xl hover:bg-white/20 dark:hover:bg-gray-800/20 transition-all duration-300 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+          className="absolute top-4 right-4 z-20 p-3 bg-background/10 dark:bg-gray-800/10 backdrop-blur-sm rounded-xl hover:bg-background/20 dark:hover:bg-gray-800/20 transition-all duration-300 text-gray-700 dark:text-gray-300 hover:text-foreground dark:hover:text-background"
         >
           {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>
 
         {/* 加载卡片 */}
         <div className="relative z-10 w-full max-w-md mx-4">
-          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20 dark:border-gray-700/20">
+          <div className="bg-background/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20 dark:border-gray-700/20">
             <div className="text-center space-y-6">
               <div className="space-y-3">
                 <div className="flex items-center justify-center mb-2">
                   <LogoWithText
                     size="lg"
                     textSize="xl"
-                    text="文派欢迎您"
+                    text={t('components.labels.文本')}
                     showHoverEffect={false}
                     showBackground={true}
                   />
                 </div>
-                <p className="text-gray-600 dark:text-gray-300 font-medium">
+                <p className="text-muted-foreground dark:text-gray-300 font-medium">
                   正在检查登录状态...
                 </p>
               </div>
@@ -603,10 +603,10 @@ export const CustomLoginPage: React.FC = () => {
               {/* 精致的加载动画 */}
               <div className="flex flex-col items-center justify-center space-y-4 py-8">
                 <div className="relative">
-                  <div className="w-8 h-8 border-3 border-gray-200 dark:border-gray-600 rounded-full"></div>
+                  <div className="w-8 h-8 border-3 border-border dark:border-gray-600 rounded-full"></div>
                   <div className="absolute top-0 left-0 w-8 h-8 border-3 border-transparent border-t-blue-600 rounded-full animate-spin"></div>
                 </div>
-                <span className="text-gray-600 dark:text-gray-300 font-medium animate-pulse">
+                <span className="text-muted-foreground dark:text-gray-300 font-medium animate-pulse">
                   检查中...
                 </span>
               </div>
@@ -635,7 +635,7 @@ export const CustomLoginPage: React.FC = () => {
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
-            className={`absolute rounded-full opacity-20 ${isDarkMode ? 'bg-white' : 'bg-white'}`}
+            className={`absolute rounded-full opacity-20 ${isDarkMode ? 'bg-background' : 'bg-background'}`}
             style={{
               width: `${30 + Math.random() * 60}px`,
               height: `${30 + Math.random() * 60}px`,
@@ -651,21 +651,21 @@ export const CustomLoginPage: React.FC = () => {
       {/* 返回首页按钮 */}
       <button
         onClick={() => navigate('/')}
-        className="absolute top-4 left-4 z-50 p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300"
+        className="absolute top-4 left-4 z-50 p-3 rounded-full bg-background/10 backdrop-blur-sm border border-white/20 hover:bg-background/20 transition-all duration-300"
       >
-        <ArrowLeft size={20} className={isDarkMode ? "text-white" : "text-gray-700"} />
+        <ArrowLeft size={20} className={isDarkMode ? "text-background" : "text-gray-700"} />
       </button>
 
       {/* 主题切换按钮 */}
       <button
         onClick={toggleDarkMode}
-        className="absolute top-4 right-4 z-50 p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300"
+        className="absolute top-4 right-4 z-50 p-3 rounded-full bg-background/10 backdrop-blur-sm border border-white/20 hover:bg-background/20 transition-all duration-300"
       >
-        {isDarkMode ? <Sun size={20} className="text-white" /> : <Moon size={20} className="text-gray-700" />}
+        {isDarkMode ? <Sun size={20} className="text-background" /> : <Moon size={20} className="text-gray-700" />}
       </button>
 
       <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden transform transition-all duration-300 hover:shadow-3xl">
+        <div className="bg-background/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden transform transition-all duration-300 hover:shadow-3xl">
           <div className="p-8">
             <div className="text-center mb-8">
               {mode === 'register' ? (
@@ -677,27 +677,27 @@ export const CustomLoginPage: React.FC = () => {
                   <LogoWithText
                     size="lg"
                     textSize="xl"
-                    text="文派欢迎您"
+                    text={t('components.labels.文本')}
                     showHoverEffect={false}
                     showBackground={true}
                   />
                 </div>
               )}
-              <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">
-                {mode === 'register' ? "请填写信息创建您的账户" : "请登录继续"}
+              <p className="text-muted-foreground dark:text-gray-300 text-sm font-medium">
+                {mode === 'register' ? t('pages.messages.请填写信息创建您的账户') : t('pages.messages.请登录继续')}
               </p>
             </div>
 
             {/* 登录类型切换 - 仅在登录模式下显示 */}
             {mode === 'login' && (
-              <div className="flex mb-8 bg-gray-100 dark:bg-gray-700 rounded-xl p-1.5 shadow-inner">
+              <div className="flex mb-8 bg-muted dark:bg-gray-700 rounded-xl p-1.5 shadow-inner">
                 <button
                   type="button"
                   onClick={() => setLoginType('password')}
                   className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${
                     loginType === 'password'
-                      ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-md transform scale-[1.02]'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-600/50'
+                      ? 'bg-background dark:bg-gray-600 text-primary dark:text-blue-400 shadow-md transform scale-[1.02]'
+                      : 'text-muted-foreground dark:text-gray-300 hover:text-foreground dark:hover:text-background hover:bg-background/50 dark:hover:bg-gray-600/50'
                   }`}
                 >
                   密码登录
@@ -707,8 +707,8 @@ export const CustomLoginPage: React.FC = () => {
                   onClick={() => setLoginType('code')}
                   className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${
                     loginType === 'code'
-                      ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-md transform scale-[1.02]'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-600/50'
+                      ? 'bg-background dark:bg-gray-600 text-primary dark:text-blue-400 shadow-md transform scale-[1.02]'
+                      : 'text-muted-foreground dark:text-gray-300 hover:text-foreground dark:hover:text-background hover:bg-background/50 dark:hover:bg-gray-600/50'
                   }`}
                 >
                   验证码登录
@@ -720,7 +720,7 @@ export const CustomLoginPage: React.FC = () => {
               {/* 手机号输入框 - 安全增强版 */}
               <SecureInput
                 type="tel"
-                label="手机号"
+                label={t('components.labels.标签')}
                 description="请输入11位中国大陆手机号码"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -744,8 +744,8 @@ export const CustomLoginPage: React.FC = () => {
                     onBlur={() => setIsPasswordFocused(false)}
                     required
                     autoComplete="current-password"
-                    className={`w-full px-4 py-4 pr-20 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
-                      isDarkMode ? "text-white" : "text-gray-900"
+                    className={`w-full px-4 py-4 pr-20 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
+                      isDarkMode ? "text-background" : "text-foreground"
                     } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
                     placeholder=" "
                   />
@@ -753,8 +753,8 @@ export const CustomLoginPage: React.FC = () => {
                     htmlFor="password"
                     className={`absolute left-4 transition-all duration-300 pointer-events-none font-medium ${
                       isPasswordFocused || password
-                        ? "-top-2.5 text-xs bg-white/95 dark:bg-gray-800/95 px-2 text-blue-600 dark:text-blue-400"
-                        : "top-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                        ? "-top-2.5 text-xs bg-background/95 dark:bg-gray-800/95 px-2 text-primary dark:text-blue-400"
+                        : "top-4 text-muted-foreground dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
                     密码
@@ -765,7 +765,7 @@ export const CustomLoginPage: React.FC = () => {
                     type="button"
                     onMouseEnter={() => setShowPasswordTips(true)}
                     onMouseLeave={() => setShowPasswordTips(false)}
-                    className="absolute right-12 top-4 text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110"
+                    className="absolute right-12 top-4 text-gray-400 dark:text-muted-foreground hover:text-primary dark:hover:text-blue-400 transition-all duration-300 hover:scale-110"
                   >
                     <Info size={16} />
                   </button>
@@ -774,16 +774,16 @@ export const CustomLoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-300 hover:scale-110"
+                    className="absolute right-4 top-4 text-muted-foreground dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-300 hover:scale-110"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
 
                   {/* 密码提示弹窗 */}
                   {showPasswordTips && (
-                    <div className="absolute top-full left-0 mt-2 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-lg z-50 w-full max-w-sm">
-                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">密码要求：</h4>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="absolute top-full left-0 mt-2 p-4 bg-background dark:bg-gray-800 border border-border dark:border-gray-600 rounded-xl shadow-lg z-50 w-full max-w-sm">
+                      <h4 className="text-sm font-semibold text-foreground dark:text-background mb-3">密码要求：</h4>
+                      <div className="text-sm text-muted-foreground dark:text-gray-400">
                         <p>• 8-20位字符，包含数字和字母</p>
                       </div>
                     </div>
@@ -799,8 +799,8 @@ export const CustomLoginPage: React.FC = () => {
                     onFocus={() => setIsCodeFocused(true)}
                     onBlur={() => setIsCodeFocused(false)}
                     required
-                    className={`w-full px-4 py-4 pr-32 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
-                      isDarkMode ? "text-white" : "text-gray-900"
+                    className={`w-full px-4 py-4 pr-32 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
+                      isDarkMode ? "text-background" : "text-foreground"
                     } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
                     placeholder=" "
                   />
@@ -808,8 +808,8 @@ export const CustomLoginPage: React.FC = () => {
                     htmlFor="code"
                     className={`absolute left-4 transition-all duration-300 pointer-events-none font-medium ${
                       isCodeFocused || verificationCode
-                        ? "-top-2.5 text-xs bg-white/95 dark:bg-gray-800/95 px-2 text-blue-600 dark:text-blue-400"
-                        : "top-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                        ? "-top-2.5 text-xs bg-background/95 dark:bg-gray-800/95 px-2 text-primary dark:text-blue-400"
+                        : "top-4 text-muted-foreground dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
                     验证码
@@ -818,9 +818,9 @@ export const CustomLoginPage: React.FC = () => {
                     type="button"
                     onClick={handleGetVerificationCode}
                     disabled={!validatePhone(phone) || countdown > 0}
-                    className="absolute right-3 top-3 px-4 py-2 text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-md"
+                    className="absolute right-3 top-3 px-4 py-2 text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-background rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-md"
                   >
-                    {countdown > 0 ? `${countdown}s` : "获取验证码"}
+                    {countdown > 0 ? `${countdown}s` : t('pages.messages.获取验证码')}
                   </button>
                 </div>
               ) : null}
@@ -836,8 +836,8 @@ export const CustomLoginPage: React.FC = () => {
                     onFocus={() => setIsRegisterCodeFocused(true)}
                     onBlur={() => setIsRegisterCodeFocused(false)}
                     required
-                    className={`w-full px-4 py-4 pr-32 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
-                      isDarkMode ? "text-white" : "text-gray-900"
+                    className={`w-full px-4 py-4 pr-32 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
+                      isDarkMode ? "text-background" : "text-foreground"
                     } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
                     placeholder=" "
                   />
@@ -845,8 +845,8 @@ export const CustomLoginPage: React.FC = () => {
                     htmlFor="registerCode"
                     className={`absolute left-4 transition-all duration-300 pointer-events-none font-medium ${
                       isRegisterCodeFocused || registerVerificationCode
-                        ? "-top-2.5 text-xs bg-white/95 dark:bg-gray-800/95 px-2 text-blue-600 dark:text-blue-400"
-                        : "top-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                        ? "-top-2.5 text-xs bg-background/95 dark:bg-gray-800/95 px-2 text-primary dark:text-blue-400"
+                        : "top-4 text-muted-foreground dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
                     验证码
@@ -855,9 +855,9 @@ export const CustomLoginPage: React.FC = () => {
                     type="button"
                     onClick={handleGetRegisterVerificationCode}
                     disabled={!validatePhone(phone) || registerCountdown > 0}
-                    className="absolute right-3 top-3 px-4 py-2 text-sm font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-md"
+                    className="absolute right-3 top-3 px-4 py-2 text-sm font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-background rounded-lg hover:from-green-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-md"
                   >
-                    {registerCountdown > 0 ? `${registerCountdown}s` : "获取验证码"}
+                    {registerCountdown > 0 ? `${registerCountdown}s` : t('pages.messages.获取验证码')}
                   </button>
                 </div>
               )}
@@ -874,8 +874,8 @@ export const CustomLoginPage: React.FC = () => {
                     onBlur={() => setIsPasswordFocused(false)}
                     required
                     autoComplete="new-password"
-                    className={`w-full px-4 py-4 pr-20 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
-                      isDarkMode ? "text-white" : "text-gray-900"
+                    className={`w-full px-4 py-4 pr-20 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
+                      isDarkMode ? "text-background" : "text-foreground"
                     } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
                     placeholder=" "
                   />
@@ -883,8 +883,8 @@ export const CustomLoginPage: React.FC = () => {
                     htmlFor="registerPassword"
                     className={`absolute left-4 transition-all duration-300 pointer-events-none font-medium ${
                       isPasswordFocused || password
-                        ? "-top-2.5 text-xs bg-white/95 dark:bg-gray-800/95 px-2 text-blue-600 dark:text-blue-400"
-                        : "top-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                        ? "-top-2.5 text-xs bg-background/95 dark:bg-gray-800/95 px-2 text-primary dark:text-blue-400"
+                        : "top-4 text-muted-foreground dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
                     设置密码
@@ -895,7 +895,7 @@ export const CustomLoginPage: React.FC = () => {
                     type="button"
                     onMouseEnter={() => setShowPasswordTips(true)}
                     onMouseLeave={() => setShowPasswordTips(false)}
-                    className="absolute right-12 top-4 text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110"
+                    className="absolute right-12 top-4 text-gray-400 dark:text-muted-foreground hover:text-primary dark:hover:text-blue-400 transition-all duration-300 hover:scale-110"
                   >
                     <Info size={16} />
                   </button>
@@ -904,14 +904,14 @@ export const CustomLoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-300 hover:scale-110"
+                    className="absolute right-4 top-4 text-muted-foreground dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-300 hover:scale-110"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
 
                   {/* 密码强度指示器 */}
                   {password && (
-                    <div className="mt-3 p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg border border-gray-200/50 dark:border-gray-600/50">
+                    <div className="mt-3 p-4 bg-background/50 dark:bg-gray-800/50 rounded-lg border border-border/50 dark:border-gray-600/50">
                       <PasswordStrengthIndicator
                         password={password}
                         showPassword={showPassword}
@@ -934,8 +934,8 @@ export const CustomLoginPage: React.FC = () => {
                     onFocus={() => setIsConfirmPasswordFocused(true)}
                     onBlur={() => setIsConfirmPasswordFocused(false)}
                     required
-                    className={`w-full px-4 py-4 pr-12 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
-                      isDarkMode ? "text-white" : "text-gray-900"
+                    className={`w-full px-4 py-4 pr-12 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
+                      isDarkMode ? "text-background" : "text-foreground"
                     } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
                     placeholder=" "
                   />
@@ -943,8 +943,8 @@ export const CustomLoginPage: React.FC = () => {
                     htmlFor="confirmPassword"
                     className={`absolute left-4 transition-all duration-300 pointer-events-none font-medium ${
                       isConfirmPasswordFocused || confirmPassword
-                        ? "-top-2.5 text-xs bg-white/95 dark:bg-gray-800/95 px-2 text-blue-600 dark:text-blue-400"
-                        : "top-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                        ? "-top-2.5 text-xs bg-background/95 dark:bg-gray-800/95 px-2 text-primary dark:text-blue-400"
+                        : "top-4 text-muted-foreground dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
                     确认密码
@@ -952,7 +952,7 @@ export const CustomLoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-300 hover:scale-110"
+                    className="absolute right-4 top-4 text-muted-foreground dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-300 hover:scale-110"
                   >
                     {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -961,8 +961,8 @@ export const CustomLoginPage: React.FC = () => {
 
               {/* 密码不匹配错误提示 */}
               {mode === 'register' && confirmPassword && !validatePasswordMatch() && (
-                <div className="text-red-500 text-sm flex items-center space-x-2 -mt-3">
-                  <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                <div className="text-destructive text-sm flex items-center space-x-2 -mt-3">
+                  <span className="w-1 h-1 bg-destructive rounded-full"></span>
                   <span>两次输入的密码不一致</span>
                 </div>
               )}
@@ -988,15 +988,15 @@ export const CustomLoginPage: React.FC = () => {
                         setAgreeTerms(!agreeTerms);
                       }
                     }}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-primary border-border rounded focus:ring-blue-500"
                   />
-                  <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">
-                    {mode === 'login' ? '记住我' : (
+                  <span className="text-sm text-muted-foreground dark:text-gray-300 font-medium">
+                    {mode === 'login' ? t('pages.messages.记住我') : (
                       <span className="leading-relaxed">
                         我已阅读并同意
                         <a
                           href="/privacy"
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 hover:underline decoration-2 underline-offset-2 mx-1 px-1 py-0.5 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 font-semibold"
+                          className="text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 hover:underline decoration-2 underline-offset-2 mx-1 px-1 py-0.5 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 font-semibold"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -1005,7 +1005,7 @@ export const CustomLoginPage: React.FC = () => {
                         和
                         <a
                           href="/terms"
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 hover:underline decoration-2 underline-offset-2 mx-1 px-1 py-0.5 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 font-semibold"
+                          className="text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 hover:underline decoration-2 underline-offset-2 mx-1 px-1 py-0.5 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 font-semibold"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -1018,7 +1018,7 @@ export const CustomLoginPage: React.FC = () => {
                 {mode === 'login' && loginType === 'password' && (
                   <a
                     href="/forgot-password"
-                    className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 hover:underline decoration-2 underline-offset-2 px-1 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                    className="text-sm font-medium text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 hover:underline decoration-2 underline-offset-2 px-1 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
                   >
                     忘记密码？
                   </a>
@@ -1028,7 +1028,7 @@ export const CustomLoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading || (mode === 'register' && !agreeTerms)}
-                className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] disabled:hover:scale-100 shadow-lg hover:shadow-xl"
+                className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-background font-bold rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] disabled:hover:scale-100 shadow-lg hover:shadow-xl"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -1036,19 +1036,19 @@ export const CustomLoginPage: React.FC = () => {
                     处理中...
                   </span>
                 ) : (
-                  mode === 'login' ? '登录' : '创建账户'
+                  mode === 'login' ? t('pages.messages.登录') : t('pages.messages.创建账户')
                 )}
               </button>
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-300 inline-flex items-center gap-2">
+              <p className="text-sm text-muted-foreground dark:text-gray-300 inline-flex items-center gap-2">
                 <span>{mode === 'login' ? '没有账户？' : '已有账户？'}</span>
                 <button
                   onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-all duration-300 hover:scale-105 underline-offset-4 hover:underline"
+                  className="text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-all duration-300 hover:scale-105 underline-offset-4 hover:underline"
                 >
-                  {mode === 'login' ? '立即注册' : '立即登录'}
+                  {mode === 'login' ? t('pages.messages.立即注册') : t('pages.messages.立即登录')}
                 </button>
               </p>
             </div>

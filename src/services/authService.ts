@@ -3,6 +3,7 @@
  * 严格遵循api_prohibit_local_mock_error规则
  */
 
+import i18n from '@/i18n';
 import { AuthenticationClient, EmailScene } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
 
@@ -54,7 +55,7 @@ class AuthService {
       return this.authClient;
     } catch (error) {
       console.error('❌ Authing AuthenticationClient初始化失败:', error);
-      throw new Error('认证客户端初始化失败');
+      throw new Error(i18n.t('common.errors.认证客户端初始化失败'));
     }
   }
 
@@ -66,7 +67,7 @@ class AuthService {
       if (!username || !password) {
         return {
           success: false,
-          message: '用户名和密码不能为空'
+          message: i18n.t('common.messages.用户名和密码不能为空')
         };
       }
 
@@ -89,7 +90,7 @@ class AuthService {
       
       return {
         success: true,
-        message: '登录成功',
+        message: i18n.t('common.messages.登录成功'),
         user: this.formatUserInfo(result),
         token: result.token || (result as any).access_token
       };
@@ -97,14 +98,14 @@ class AuthService {
     } catch (error: any) {
       console.error('❌ 密码登录失败:', error);
       
-      let errorMessage = '登录失败';
+      let errorMessage = i18n.t('common.errors.登录失败');
       if (error?.message) {
         if (error.message.includes('password')) {
-          errorMessage = '密码错误';
+          errorMessage = i18n.t('common.errors.密码错误');
         } else if (error.message.includes('user')) {
-          errorMessage = '用户不存在';
+          errorMessage = i18n.t('common.errors.用户不存在');
         } else if (error.message.includes('locked')) {
-          errorMessage = '账号已被锁定';
+          errorMessage = i18n.t('common.errors.账号已被锁定');
         } else {
           errorMessage = error.message;
         }
@@ -139,14 +140,14 @@ class AuthService {
         if (updates.email && !updates.verifiedEmail) {
           return {
             success: false,
-            message: '更新邮箱需要先验证邮箱验证码'
+            message: i18n.t('common.messages.更新邮箱需要先验证邮箱验证码')
           };
         }
         
         if (updates.phone && !updates.verifiedPhone) {
           return {
             success: false,
-            message: '更新手机号需要先验证手机验证码'
+            message: i18n.t('common.messages.更新手机号需要先验证手机验证码')
           };
         }
       }
@@ -162,7 +163,7 @@ class AuthService {
       if (Object.keys(updateData).length === 0) {
         return {
           success: false,
-          message: '没有需要更新的数据'
+          message: i18n.t('common.messages.没有需要更新的数据')
         };
       }
 
@@ -173,23 +174,23 @@ class AuthService {
       
       return {
         success: true,
-        message: '个人资料更新成功',
+        message: i18n.t('common.messages.个人资料更新成功'),
         user: this.formatUserInfo(result)
       };
 
     } catch (error: any) {
       console.error('❌ 用户资料更新失败:', error);
       
-      let errorMessage = '更新失败';
+      let errorMessage = i18n.t('common.errors.更新失败');
       if (error?.message) {
-        if (error.message.includes('验证码')) {
+        if (error.message.includes(i18n.t('common.errors.验证码'))) {
           errorMessage = '验证码相关错误：' + error.message;
         } else if (error.message.includes('email')) {
-          errorMessage = '邮箱格式错误或已被使用';
+          errorMessage = i18n.t('common.errors.邮箱格式错误或已被使用');
         } else if (error.message.includes('phone')) {
-          errorMessage = '手机号格式错误或已被使用';
+          errorMessage = i18n.t('common.errors.手机号格式错误或已被使用');
         } else if (error.message.includes('unauthorized')) {
-          errorMessage = '权限不足';
+          errorMessage = i18n.t('common.errors.权限不足');
         } else {
           errorMessage = error.message;
         }
@@ -260,7 +261,7 @@ class AuthService {
       if (!oldPassword || !newPassword) {
         return {
           success: false,
-          message: '原密码和新密码不能为空'
+          message: i18n.t('common.messages.原密码和新密码不能为空')
         };
       }
 
@@ -279,18 +280,18 @@ class AuthService {
       
       return {
         success: true,
-        message: '密码修改成功'
+        message: i18n.t('common.messages.密码修改成功')
       };
 
     } catch (error: any) {
       console.error('❌ 密码修改失败:', error);
       
-      let errorMessage = '密码修改失败';
+      let errorMessage = i18n.t('common.errors.密码修改失败');
       if (error?.message) {
         if (error.message.includes('old password')) {
-          errorMessage = '原密码错误';
+          errorMessage = i18n.t('common.errors.原密码错误');
         } else if (error.message.includes('policy')) {
-          errorMessage = '新密码不符合安全策略';
+          errorMessage = i18n.t('common.errors.新密码不符合安全策略');
         } else {
           errorMessage = error.message;
         }
@@ -306,13 +307,13 @@ class AuthService {
   async sendEmailCode(email: string): Promise<void> {
     try {
       if (!email || !email.trim()) {
-        throw new Error('邮箱地址不能为空');
+        throw new Error(i18n.t('common.errors.邮箱地址不能为空'));
       }
 
       // 验证邮箱格式
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        throw new Error('邮箱格式不正确');
+        throw new Error(i18n.t('common.errors.邮箱格式不正确'));
       }
 
       const client = await this.initAuthClient();
@@ -326,14 +327,14 @@ class AuthService {
     } catch (error: any) {
       console.error('❌ 邮箱验证码发送失败:', error);
       
-      let errorMessage = '发送验证码失败';
+      let errorMessage = i18n.t('common.errors.发送验证码失败');
       if (error?.message) {
         if (error.message.includes('email')) {
-          errorMessage = '邮箱格式错误或不存在';
+          errorMessage = i18n.t('common.errors.邮箱格式错误或不存在');
         } else if (error.message.includes('frequency')) {
           errorMessage = '发送频率过高，请稍后重试';
         } else if (error.message.includes('quota')) {
-          errorMessage = '今日发送次数已达上限';
+          errorMessage = i18n.t('common.errors.今日发送次数已达上限');
         } else {
           errorMessage = error.message;
         }
@@ -349,13 +350,13 @@ class AuthService {
   async sendPhoneCode(phone: string): Promise<void> {
     try {
       if (!phone || !phone.trim()) {
-        throw new Error('手机号不能为空');
+        throw new Error(i18n.t('common.errors.手机号不能为空'));
       }
 
       // 验证手机号格式
       const phoneRegex = /^1[3-9]\d{9}$/;
       if (!phoneRegex.test(phone)) {
-        throw new Error('手机号格式不正确');
+        throw new Error(i18n.t('common.errors.手机号格式不正确'));
       }
 
       const client = await this.initAuthClient();
@@ -368,14 +369,14 @@ class AuthService {
     } catch (error: any) {
       console.error('❌ 手机验证码发送失败:', error);
       
-      let errorMessage = '发送验证码失败';
+      let errorMessage = i18n.t('common.errors.发送验证码失败');
       if (error?.message) {
         if (error.message.includes('phone')) {
-          errorMessage = '手机号格式错误或不存在';
+          errorMessage = i18n.t('common.errors.手机号格式错误或不存在');
         } else if (error.message.includes('frequency')) {
           errorMessage = '发送频率过高，请稍后重试';
         } else if (error.message.includes('quota')) {
-          errorMessage = '今日发送次数已达上限';
+          errorMessage = i18n.t('common.errors.今日发送次数已达上限');
         } else {
           errorMessage = error.message;
         }
@@ -392,18 +393,18 @@ class AuthService {
   async verifyEmailCode(email: string, code: string): Promise<void> {
     try {
       if (!email || !code) {
-        throw new Error('邮箱和验证码不能为空');
+        throw new Error(i18n.t('common.errors.邮箱和验证码不能为空'));
       }
 
       // 验证邮箱格式
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        throw new Error('邮箱格式不正确');
+        throw new Error(i18n.t('common.errors.邮箱格式不正确'));
       }
 
       // 验证码格式检查
       if (code.length < 4) {
-        throw new Error('验证码长度不正确');
+        throw new Error(i18n.t('common.errors.验证码长度不正确'));
       }
 
       // 🔧 在个人资料更新场景中，验证码的有效性将在updateProfile时验证
@@ -412,7 +413,7 @@ class AuthService {
     } catch (error: any) {
       console.error('❌ 邮箱验证码验证失败:', error);
       
-      let errorMessage = '验证码验证失败';
+      let errorMessage = i18n.t('common.errors.验证码验证失败');
       if (error?.message) {
         errorMessage = error.message;
       }
@@ -428,17 +429,17 @@ class AuthService {
   async verifyPhoneCode(phone: string, code: string): Promise<void> {
     try {
       if (!phone || !code) {
-        throw new Error('手机号和验证码不能为空');
+        throw new Error(i18n.t('common.errors.手机号和验证码不能为空'));
       }
 
       // 验证手机号格式
       if (!/^1[3-9]\d{9}$/.test(phone)) {
-        throw new Error('手机号格式不正确');
+        throw new Error(i18n.t('common.errors.手机号格式不正确'));
       }
 
       // 验证码格式检查
       if (code.length < 4) {
-        throw new Error('验证码长度不正确');
+        throw new Error(i18n.t('common.errors.验证码长度不正确'));
       }
 
       // 🔧 由于Authing SDK没有独立的verifySmsCode方法
@@ -449,7 +450,7 @@ class AuthService {
     } catch (error: any) {
       console.error('❌ 手机验证码验证失败:', error);
       
-      let errorMessage = '验证码验证失败';
+      let errorMessage = i18n.t('common.errors.验证码验证失败');
       if (error?.message) {
         errorMessage = error.message;
       }

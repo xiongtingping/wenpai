@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,10 +23,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { StandardOrderService, type StandardOrder } from '@/services/standardOrderService';
 import { logger } from '@/utils/logger';
 
-export function StandardPaymentResultPage() {
-  const [searchParams] = useSearchParams();
+export function StandardPaymentResultPage() { const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, refreshUser } = useAuth() as any;
+  const { user, refreshUser  } = useAuth() as any;
   
   const [order, setOrder] = useState<StandardOrder | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,7 @@ export function StandardPaymentResultPage() {
 
   useEffect(() => {
     if (!orderId) {
-      setError('缺少订单号');
+      setError(t('pages.errors.缺少订单号'));
       setLoading(false);
       return;
     }
@@ -54,7 +54,7 @@ export function StandardPaymentResultPage() {
       const result = await StandardOrderService.checkPaymentStatus(orderId);
       
       if (!result.order) {
-        setError('订单不存在');
+        setError(t('pages.errors.订单不存在'));
         return;
       }
 
@@ -69,7 +69,7 @@ export function StandardPaymentResultPage() {
       }
     } catch (error) {
       logger.error('检查订单状态失败:', error);
-      setError(error instanceof Error ? error.message : '查询订单失败');
+      setError(error instanceof Error ? error.message : t('pages.errors.查询订单失败'));
     } finally {
       setLoading(false);
     }
@@ -103,7 +103,7 @@ export function StandardPaymentResultPage() {
       // 刷新用户状态以获取最新的订阅信息
       if (user && refreshUser) {
         await refreshUser();
-        logger.info('支付成功后用户状态刷新完成');
+        logger.info(t('pages.messages.支付成功后用户状态刷新完成'));
       }
     } catch (error) {
       logger.warn('刷新用户状态失败:', error);
@@ -117,7 +117,7 @@ export function StandardPaymentResultPage() {
       case 'paid':
         return {
           icon: <CheckCircle className="h-16 w-16 text-success" />,
-          title: '支付成功',
+          title: t('pages.labels.支付成功'),
           description: '您的订阅已激活，可以开始使用高级功能了！',
           color: 'text-success',
           bgColor: 'bg-green-50',
@@ -126,7 +126,7 @@ export function StandardPaymentResultPage() {
       case 'failed':
         return {
           icon: <XCircle className="h-16 w-16 text-destructive" />,
-          title: '支付失败',
+          title: t('pages.labels.支付失败'),
           description: '支付过程中出现问题，请重试或联系客服',
           color: 'text-destructive',
           bgColor: 'bg-red-50',
@@ -137,7 +137,7 @@ export function StandardPaymentResultPage() {
           icon: polling ? 
             <Loader2 className="h-16 w-16 text-primary animate-spin" /> :
             <Clock className="h-16 w-16 text-primary" />,
-          title: '支付处理中',
+          title: t('pages.labels.支付处理中'),
           description: polling ? '正在确认支付状态，请稍候...' : '支付正在处理中，请稍候',
           color: 'text-primary',
           bgColor: 'bg-blue-50',
@@ -146,7 +146,7 @@ export function StandardPaymentResultPage() {
       case 'cancelled':
         return {
           icon: <XCircle className="h-16 w-16 text-muted-foreground" />,
-          title: '订单已取消',
+          title: t('pages.labels.订单已取消'),
           description: '订单已被取消，如有疑问请联系客服',
           color: 'text-muted-foreground',
           bgColor: 'bg-gray-50',
@@ -155,7 +155,7 @@ export function StandardPaymentResultPage() {
       default:
         return {
           icon: <AlertCircle className="h-16 w-16 text-warning" />,
-          title: '状态未知',
+          title: t('pages.labels.状态未知'),
           description: '订单状态异常，请联系客服处理',
           color: 'text-warning',
           bgColor: 'bg-yellow-50',
@@ -169,8 +169,8 @@ export function StandardPaymentResultPage() {
   };
 
   const formatProductName = (productType: string, durationType: string) => {
-    const tierName = productType === 'professional' ? '专业版' : '高级版';
-    const durationName = durationType === 'yearly' ? '年付' : '月付';
+    const tierName = productType === 'professional' ? t('pages.messages.专业版') : t('pages.messages.高级版');
+    const durationName = durationType === 'yearly' ? t('pages.messages.年付') : t('pages.messages.月付');
     return `${tierName} (${durationName})`;
   };
 
@@ -250,9 +250,9 @@ export function StandardPaymentResultPage() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">状态：</span>
                     <Badge variant={order.status === 'paid' ? 'default' : 'secondary'}>
-                      {order.status === 'paid' ? '已支付' : 
-                       order.status === 'pending' ? '处理中' :
-                       order.status === 'failed' ? '失败' : '已取消'}
+                      {order.status === 'paid' ? t('pages.messages.已支付') : 
+                       order.status === 'pending' ? t('pages.messages.处理中') :
+                       order.status === 'failed' ? t('pages.messages.失败') : t('pages.messages.已取消')}
                     </Badge>
                   </div>
                   <div className="flex justify-between">

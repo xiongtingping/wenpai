@@ -9,6 +9,7 @@
  * - 初始化基础数据
  */
 
+import i18n from '@/i18n';
 import { supabase } from '@/config/supabase';
 import { logger } from '@/utils/logger';
 import React from 'react';
@@ -361,14 +362,14 @@ export function useDatabaseInitialization() {
         setStatus({
           loading: false,
           initialized: success,
-          error: success ? undefined : '数据库初始化未完全成功'
+          error: success ? undefined : i18n.t('common.errors.数据库初始化未完全成功')
         });
       })
       .catch(error => {
         setStatus({
           loading: false,
           initialized: false,
-          error: error.message || '数据库初始化失败'
+          error: error.message || i18n.t('common.errors.数据库初始化失败')
         });
       });
   }, []);

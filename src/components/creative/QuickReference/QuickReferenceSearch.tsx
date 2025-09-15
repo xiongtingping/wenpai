@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,8 +22,7 @@ interface QuickReferenceSearchProps {
   onFilterChange?: (filters: string[]) => void;
 }
 
-export function QuickReferenceSearch({
-  value,
+export function QuickReferenceSearch({ value,
   onChange,
   onSearch,
   placeholder = "搜索内容、标题或标签...",
@@ -30,7 +30,7 @@ export function QuickReferenceSearch({
   showFilters = false,
   activeFilters = [],
   onFilterChange
-}: QuickReferenceSearchProps) {
+ }: QuickReferenceSearchProps) {
   const [isFocused, setIsFocused] = useState(false);
 
   // 防抖搜索
@@ -66,11 +66,11 @@ export function QuickReferenceSearch({
 
   // 可用的过滤器选项
   const filterOptions = [
-    { value: 'recent', label: '最近添加' },
-    { value: 'popular', label: '热门内容' },
-    { value: 'text', label: '文本内容' },
-    { value: 'link', label: '链接内容' },
-    { value: 'image', label: '图片内容' }
+    { value: 'recent', label: t('components.labels.最近添加') },
+    { value: 'popular', label: t('components.labels.热门内容') },
+    { value: 'text', label: t('components.labels.文本内容') },
+    { value: 'link', label: t('components.labels.链接内容') },
+    { value: 'image', label: t('components.labels.图片内容') }
   ];
 
   // 切换过滤器

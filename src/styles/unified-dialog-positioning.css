@@ -27,11 +27,11 @@
   --dialog-min-height: 200px;
   
   /* 间距 */
-  --dialog-padding: 1.5rem;
-  --dialog-gap: 1rem;
+  --dialog-padding: var(--spacing-6);
+  --dialog-gap: var(--spacing-4);
   
   /* 边距安全区域 */
-  --dialog-safe-margin: 1rem;
+  --dialog-safe-margin: var(--spacing-4);
 }
 
 /* ========================================
@@ -70,8 +70,8 @@ body > [data-radix-portal] [role="dialog"] {
   /* 🔧 基础样式 */
   background: hsl(var(--background)) !important;
   border: 1px solid hsl(var(--border)) !important;
-  border-radius: 0.5rem !important;
-  box-shadow: 0 25px 50px -12px hsl(var(--foreground) / 0.25) !important;
+  border-radius: var(--spacing-2) !important;
+  box-shadow: 0 25px 50px -var(--spacing-3) hsl(var(--foreground) / 0.25) !important;
 
   /* 🔧 内容处理 */
   overflow: hidden !important;
@@ -86,7 +86,7 @@ body > [data-radix-portal] [role="dialog"] {
   inset: 0 !important;
   z-index: var(--z-dialog-overlay) !important;
   background: hsl(var(--foreground) / 0.5) !important;
-  backdrop-filter: blur(2px) !important;
+  backdrop-filter: blur(var(--spacing-0-5)) !important;
 }
 
 /* ========================================
@@ -102,7 +102,7 @@ body > [data-radix-portal] [role="dialog"] {
     max-width: var(--dialog-max-width-mobile) !important;
     max-height: 90vh !important;
     min-width: 280px !important;
-    padding: 1rem !important;
+    padding: var(--spacing-4) !important;
     margin: var(--dialog-safe-margin) !important;
     
     /* 确保不超出视窗 */
@@ -180,20 +180,27 @@ body > [data-radix-portal] [role="dialog"] {
   filter: none !important;
 
   /* 🚨 确保在视窗内 */
-  max-width: calc(100vw - 2rem) !important;
-  max-height: calc(100vh - 2rem) !important;
+  max-width: calc(100vw - var(--spacing-8)) !important;
+  max-height: calc(100vh - var(--spacing-8)) !important;
 }
 
-/* 快速引用弹窗特殊处理 - 强制修复定位问题 */
+/* 快速引用弹窗特殊处理 - 使用视窗单位确保相对于视窗定位 */
 .quick-reference-dialog,
 [data-radix-dialog-content].quick-reference-dialog,
-[role="dialog"].quick-reference-dialog {
-  /* 🚨 强制居中定位 - 最高优先级 */
+[role="dialog"].quick-reference-dialog,
+[role="dialog"][class*="quick-reference-dialog"],
+html [role="dialog"].quick-reference-dialog,
+body [role="dialog"].quick-reference-dialog,
+#root [role="dialog"].quick-reference-dialog,
+[data-radix-portal] [role="dialog"].quick-reference-dialog {
+  /* 🚨 强制居中定位 - 使用视窗单位 */
   position: fixed !important;
-  top: 50% !important;
-  left: 50% !important;
+  top: 50vh !important;  /* 🔥 使用vh单位确保相对于视窗高度 */
+  left: 50vw !important; /* 🔥 使用vw单位确保相对于视窗宽度 */
+  right: auto !important;
+  bottom: auto !important;
   transform: translate(-50%, -50%) !important;
-
+  
   /* 🚨 强制尺寸设置 */
   max-width: min(95vw, 1024px) !important;
   max-height: 85vh !important;
@@ -203,24 +210,28 @@ body > [data-radix-portal] [role="dialog"] {
   min-height: 200px !important;
 
   /* 🚨 强制层级和可见性 */
-  z-index: 1055 !important;
+  z-index: 1000000 !important;
   display: flex !important;
   flex-direction: column !important;
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
 
-  /* 🚨 重置可能影响定位的属性 */
+  /* 🚨 完全重置inset属性，避免干扰top/left - 这是问题的根源！ */
+  inset: unset !important;
+  inset-block: unset !important;
+  inset-inline: unset !important;
+  inset-block-start: unset !important;
+  inset-block-end: unset !important;
+  inset-inline-start: unset !important;
+  inset-inline-end: unset !important;
+  
+  /* 🚨 其他重置属性 */
   margin: 0 !important;
-  inset: auto !important;
   contain: none !important;
   isolation: auto !important;
   clip-path: none !important;
   filter: none !important;
-
-  /* 🚨 确保在视窗内 */
-  max-width: calc(100vw - 2rem) !important;
-  max-height: calc(100vh - 2rem) !important;
 }
 
 /* 批量转发弹窗特殊处理 */
@@ -247,7 +258,7 @@ body > [data-radix-portal] [role="dialog"] {
 }
 
 .dialog-content-scrollable::-webkit-scrollbar {
-  width: 6px;
+  width: var(--spacing-1-5);
 }
 
 .dialog-content-scrollable::-webkit-scrollbar-track {
@@ -308,13 +319,13 @@ body > [data-radix-portal] [role="dialog"] {
 /* 调试模式样式 */
 .dialog-debug [role="dialog"],
 .dialog-debug [data-radix-dialog-content] {
-  border: 2px solid lime !important;
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5) !important;
+  border: var(--spacing-0-5) solid lime !important;
+  box-shadow: 0 0 var(--spacing-2-5) rgba(0, 255, 0, 0.5) !important;
 }
 
 .dialog-debug [data-radix-dialog-overlay] {
   background: rgba(255, 0, 0, 0.3) !important;
-  border: 2px solid red !important;
+  border: var(--spacing-0-5) solid red !important;
 }
 
 /* 性能优化 */

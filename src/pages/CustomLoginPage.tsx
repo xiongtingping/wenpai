@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Sun, Moon, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -16,166 +17,107 @@ import {
   AuthRetryManager,
   AuthErrorAnalyzer,
   diagnoseAndRetry
-} from '@/utils/authNetworkDiagnostic';
-
-// 手机号验证函数
-const validatePhone = (phone: string) => {
-  const phoneRegex = /^1[3-9]\d{9}$/;
-  return phoneRegex.test(phone);
-};
-
-// Authing错误信息接口
-interface AuthingErrorInfo {
-  code?: string;
-  message?: string;
-  title?: string;
-  description?: string;
-  actionSuggestion?: string;
-  type?: 'network' | 'validation' | 'auth' | 'unknown';
+} from '@/utils/authNetworkDiagnosticnetwork' | 'validation' | 'auth' | 'unknown';
   shouldClearCode?: boolean;
 }
 
-function parseAuthingError(error: any): AuthingErrorInfo {
+function parseAuthingError(error: any, t: any): AuthingErrorInfo {
   const errorCode = error?.code;
-  const errorMessage = error?.message || (error instanceof Error ? error.message : '登录失败');
-
-  // 根据Authing错误码提供精确的错误提示
-  switch (errorCode) {
-    case 2333:
-      return {
-        title: '账号或密码错误',
-        description: '请检查您输入的手机号/邮箱和密码是否正确',
+  const errorMessage = error?.message || (error instanceof Error ? error.message : t('customLoginPage.errors.loginFailedcustomLoginPage.errors.accountOrPasswordError'),
+        description: t('customLoginPage.errors.checkCredentials'),
         shouldClearCode: false,
-        actionSuggestion: '忘记密码？点击下方链接重置'
+        actionSuggestion: t('customLoginPage.errors.forgotPasswordHint')
       };
 
     case 2001:
       return {
-        title: '账号不存在',
-        description: '该手机号/邮箱尚未注册，请先注册账号',
+        title: t('customLoginPage.errors.accountNotExists'),
+        description: t('customLoginPage.errors.phoneNotRegistered'),
         shouldClearCode: false,
-        actionSuggestion: '点击下方"注册"按钮创建新账号'
+        actionSuggestion: t('customLoginPage.errors.registerSuggestion')
       };
 
     case 2004:
       return {
-        title: '账号已被锁定',
-        description: '您的账号因多次登录失败被暂时锁定，请稍后重试或联系客服',
+        title: t('customLoginPage.errors.accountLocked'),
+        description: t('customLoginPage.errors.accountLockedDesc'),
         shouldClearCode: false,
-        actionSuggestion: '请等待30分钟后重试，或联系客服解锁'
+        actionSuggestion: t('customLoginPage.errors.waitAndRetry', { minutes: 30 })
       };
 
     case 2020:
       return {
-        title: '验证码错误',
-        description: '您输入的验证码不正确或已过期',
+        title: t('customLoginPage.errors.codeError'),
+        description: t('customLoginPage.errors.codeIncorrectOrExpired'),
         shouldClearCode: true,
-        actionSuggestion: '请重新获取验证码'
+        actionSuggestion: t('customLoginPage.errors.getNewCode')
       };
 
     case 2021:
       return {
-        title: '验证码已过期',
-        description: '验证码有效期为5分钟，请重新获取',
+        title: t('customLoginPage.errors.codeExpired'),
+        description: t('customLoginPage.errors.codeValidTime', { minutes: 5 }),
         shouldClearCode: true,
-        actionSuggestion: '点击"重新发送"获取新验证码'
+        actionSuggestion: t('customLoginPage.errors.resendCode')
       };
 
     case 2100:
       return {
-        title: '手机号格式错误',
-        description: '请输入正确的11位手机号码',
+        title: t('customLoginPage.errors.phoneFormatError'),
+        description: t('customLoginPage.validation.phoneFormat', { digits: 11 }),
         shouldClearCode: false
       };
 
     case 2101:
       return {
-        title: '邮箱格式错误',
-        description: '请输入正确的邮箱地址格式',
-        shouldClearCode: false
-      };
-
-    default: {
-      // 根据错误消息内容进行模糊匹配
-      const lowerMessage = errorMessage.toLowerCase();
-
-      if (lowerMessage.includes('timeout') || lowerMessage.includes('超时')) {
+        title: t('customLoginPage.errors.emailFormatError'),
+        description: t('customLoginPage.validation.emailFormattimeout') || lowerMessage.includes(t('pages.messages.超时'))) {
         return {
-          title: '登录超时',
-          description: '网络连接不稳定，请检查网络后重试',
+          title: t('customLoginPage.errors.loginTimeout'),
+          description: t('customLoginPage.errors.networkUnstable'),
           shouldClearCode: false,
-          actionSuggestion: '请检查网络连接后重新尝试'
+          actionSuggestion: t('customLoginPage.errors.checkNetworkAndRetry')
         };
       }
 
-      if (lowerMessage.includes('network') || lowerMessage.includes('网络') ||
+      if (lowerMessage.includes('network') || lowerMessage.includes(t('pages.messages.网络')) ||
           lowerMessage.includes('failed to fetch') || lowerMessage.includes('connection')) {
         return {
-          title: '网络连接失败',
-          description: '无法连接到服务器，请检查网络连接',
+          title: t('customLoginPage.errors.networkConnectionFailed'),
+          description: t('customLoginPage.errors.cannotConnectServer'),
           shouldClearCode: false,
-          actionSuggestion: '请检查网络设置后重试'
+          actionSuggestion: t('customLoginPage.errors.checkNetworkSettings')
         };
       }
 
-      if (lowerMessage.includes('password') || lowerMessage.includes('密码')) {
+      if (lowerMessage.includes('password') || lowerMessage.includes(t('pages.messages.密码'))) {
         return {
-          title: '密码错误',
-          description: '您输入的密码不正确',
+          title: t('customLoginPage.errors.passwordError'),
+          description: t('customLoginPage.errors.passwordIncorrect'),
           shouldClearCode: false,
-          actionSuggestion: '请检查密码是否正确，或点击"忘记密码"'
+          actionSuggestion: t('customLoginPage.errors.checkPasswordOrReset')
         };
       }
 
-      if (lowerMessage.includes('user') || lowerMessage.includes('用户')) {
+      if (lowerMessage.includes('user') || lowerMessage.includes(t('pages.messages.用户'))) {
         return {
-          title: '用户不存在',
-          description: '该账号尚未注册',
+          title: t('customLoginPage.errors.userNotExists'),
+          description: t('customLoginPage.errors.accountNotRegistered'),
           shouldClearCode: false,
-          actionSuggestion: '请先注册账号或检查输入是否正确'
-        };
-      }
-
-      // 默认错误
-      return {
-        title: '登录失败',
-        description: errorMessage || '登录过程中发生未知错误，请重试',
+          actionSuggestion: t('customLoginPage.errors.registerOrCheckInputcustomLoginPage.errors.loginFailed'),
+        description: errorMessage || t('customLoginPage.errors.unknownError'),
         shouldClearCode: false,
-        actionSuggestion: '如问题持续，请联系客服'
+        actionSuggestion: t('customLoginPage.errors.contactSupport')
       };
     }
   }
 }
 
-import '@/styles/animated-signin-21st.css';
-
-export const CustomLoginPage: React.FC = () => {
-  const { toast } = useToast();
-  const { guard, handleAuthingLogin, user, isAuthenticated } = useAuth();
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-
-  // 主题状态管理
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // 登录表单状态 - 只保留手机号
-  const [loginForm, setLoginForm] = useState(() => {
-    // 如果记住密码，恢复保存的手机号
-    const savedPhone = localStorage.getItem('saved_phone') || '';
+import '@/styles/animated-signin-21st.csssaved_phone') || '';
     return {
       phone: savedPhone, // 从localStorage恢复手机号
       password: '',
-      code: '', // 验证码
-      showPassword: false,
-      loading: false,
-      sendingCode: false,
-      codeCountdown: 0,
-      loginSuccess: false // 添加登录成功状态
-    };
-  });
-
-  // 登录方式状态 - 移除邮箱选项
-  const [loginMethod, setLoginMethod] = useState<'password' | 'code'>('password');
+      code: 'password' | 'code'>('password');
 
   // 注册表单状态 - 只保留手机号
   const [registerForm, setRegisterForm] = useState({
@@ -200,20 +142,7 @@ export const CustomLoginPage: React.FC = () => {
       if (isAuthenticated && user) {
         console.log('✅ 检测到用户已登录，自动跳转到首页', user);
         const redirectTo = localStorage.getItem('login_redirect_to') || '/';
-        localStorage.removeItem('login_redirect_to');
-        navigate(redirectTo, { replace: true });
-        return;
-      }
-      setCheckingAuth(false); // 检查完成，显示登录表单
-    }, 1000); // 增加延迟时间，确保认证上下文完全初始化
-
-    return () => clearTimeout(timer);
-  }, [isAuthenticated, user, navigate]);
-
-  // 🔧 FIX: 添加备用机制，如果认证上下文长时间未响应，直接显示登录表单
-  useEffect(() => {
-    const fallbackTimer = setTimeout(() => {
-      console.log('⚠️ 认证检查超时，强制显示登录表单');
+        localStorage.removeItem('login_redirect_to⚠️ 认证检查超时，强制显示登录表单');
       setCheckingAuth(false);
     }, 3000); // 3秒后强制显示登录表单
 
@@ -225,28 +154,7 @@ export const CustomLoginPage: React.FC = () => {
     const tab = searchParams.get('tab');
     if (tab === 'register') {
       setMode('register');
-      console.log('🔄 URL参数检测：切换到注册模式');
-    }
-  }, [searchParams]);
-  // 浮动标签交互状态（仅用于视觉触发，逻辑仍用原有字段）
-  const [loginPhoneFocused, setLoginPhoneFocused] = useState(false);
-  const [loginPasswordFocused, setLoginPasswordFocused] = useState(false);
-  const [loginCodeFocused, setLoginCodeFocused] = useState(false);
-  const [registerPhoneFocused, setRegisterPhoneFocused] = useState(false);
-  const [registerPasswordFocused, setRegisterPasswordFocused] = useState(false);
-  const [registerConfirmFocused, setRegisterConfirmFocused] = useState(false);
-  const [registerCodeFocused, setRegisterCodeFocused] = useState(false);
-
-  const [registerAgreed, setRegisterAgreed] = useState(false);
-
-  const passwordsMatch = registerForm.password && registerForm.confirmPassword && registerForm.password === registerForm.confirmPassword;
-
-  const [error, setError] = useState('');
-  const [checkingAuth, setCheckingAuth] = useState(true); // 🔧 FIX: 添加认证检查状态
-
-  // 🔧 FIX: 添加Guard组件错误处理和降级方案
-  const handleGuardError = (error: any) => {
-    console.warn('🔧 Guard组件错误，使用降级方案:', error);
+      console.log('🔄 URL参数检测：切换到注册模式🔧 Guard组件错误，使用降级方案:', error);
 
     // 检查是否是网络连接错误
     const isNetworkError = error?.message?.includes('Failed to fetch') ||
@@ -255,13 +163,7 @@ export const CustomLoginPage: React.FC = () => {
                           error?.code === 'NETWORK_ERROR';
 
     if (isNetworkError) {
-      console.log('🔧 检测到网络连接问题，继续使用自定义登录流程');
-      // 不显示错误，继续使用自定义登录流程
-      return;
-    }
-
-    // 其他错误才显示给用户
-    console.error('❌ 认证系统错误:', error);
+      console.log('🔧 检测到网络连接问题，继续使用自定义登录流程❌ 认证系统错误:', error);
     // 不设置错误状态，避免影响用户体验
   };
 
@@ -299,9 +201,9 @@ export const CustomLoginPage: React.FC = () => {
           }
         });
 
-        console.log('✅ Authing客户端初始化成功');
+        console.log(t('pages.status.Authin_5e6'));
       } catch (e) {
-        console.error('❌ Authing AuthenticationClient初始化失败:', e);
+        console.error(t('pages.error.Authin_mkd'), e);
         authingClientRef.current = null;
       }
     }
@@ -321,9 +223,9 @@ export const CustomLoginPage: React.FC = () => {
     });
 
     try {
-      if (!loginForm.phone) throw new Error('请填写手机号');
-      if (loginMethod === 'password' && !loginForm.password) throw new Error('请输入密码');
-      if (loginMethod === 'code' && !loginForm.code) throw new Error('请输入验证码');
+      if (!loginForm.phone) throw new Error(t('customLoginPage.validation.phoneRequired'));
+      if (loginMethod === 'password' && !loginForm.password) throw new Error(t('customLoginPage.validation.passwordRequired'));
+      if (loginMethod === 'code' && !loginForm.code) throw new Error(t('customLoginPage.validation.codeRequired'));
 
       // 验证码登录使用专用API
       if (loginMethod === 'code') {
@@ -333,45 +235,34 @@ export const CustomLoginPage: React.FC = () => {
         // 🔧 FIX: 使用重试机制进行验证码登录
         const result = await diagnoseAndRetry(
           () => verificationCodeService.loginByPhoneCode(loginForm.phone, loginForm.code),
-          '验证码登录'
+          t('pages.messages.验证码登录')
         );
         
         console.log('📡 验证码登录API响应:', { success: result.success, message: result.message, hasData: !!result.data });
         
         if (result.success) {
-          console.log('✅ 验证码登录成功，开始处理登录状态...');
-          
-          // 立即设置成功状态，防止重复提交
-          setLoginForm(prev => ({ 
-            ...prev, 
-            code: '', 
+          console.log(t('pages.status.验证码登录成_eaq{t('pages.status._l7d')', 
             loading: true,
             loginSuccess: true, // 标记登录成功
             codeCountdown: 0
           }));
           
-          toast({ 
-            title: '登录成功', 
-            description: '正在跳转，请勿重复操作...',
-            duration: 3000 
-          });
-          
-          // 使用UnifiedAuthContext的handleAuthingLogin处理登录成功
-          if (result.data && handleAuthingLogin) {
-            console.log('🔐 调用handleAuthingLogin处理登录状态...');
+          toast({
+            title: t('customLoginPage.form.loginSuccess'),
+            description: t('customLoginPage.messages.redirectingToHome🔐 调用handleAuthingLogin处理登录状态...');
             handleAuthingLogin(result.data);
             
             // 延迟跳转，确保状态更新完成
             setTimeout(() => {
               const redirectTo = localStorage.getItem('login_redirect_to') || '/';
               localStorage.removeItem('login_redirect_to');
-              console.log('🎯 验证码登录成功，跳转到:', redirectTo);
+              console.log(t('pages.status.验证码登录_r94'), redirectTo);
               navigate(redirectTo, { replace: true });
             }, 800);
           } else {
             console.error('❌ 登录数据或处理函数缺失:', { data: result.data, handler: !!handleAuthingLogin });
             setLoginForm(prev => ({ ...prev, loading: false, loginSuccess: false }));
-            throw new Error('登录处理失败，请重试');
+            throw new Error();
           }
           return;
         } else {
@@ -384,7 +275,7 @@ export const CustomLoginPage: React.FC = () => {
 
       const authingClient = ensureAuthingClient();
       if (!authingClient) {
-        throw new Error('Authing客户端初始化失败');
+        throw new Error();
       }
 
       console.log('🚀 调用SDK密码登录API...', {
@@ -400,14 +291,10 @@ export const CustomLoginPage: React.FC = () => {
 
       const result = await diagnoseAndRetry(
         () => authingClient.loginByPhonePassword(loginForm.phone, loginForm.password),
-        '密码登录'
+        t('pages.messages.密码登录')
       );
 
-      console.log('✅ SDK密码登录成功:', result);
-      
-      // 处理登录成功
-      if (result && result.id) {
-        console.log('🔄 触发登录成功处理...', result);
+      console.log(t('pages.status.SDK密码登_5ib{t('pages.status.resu_yzh')🔄 触发登录成功处理...', result);
         
         // 设置登录成功状态
         setLoginForm(prev => ({ 
@@ -417,41 +304,19 @@ export const CustomLoginPage: React.FC = () => {
         }));
         
         toast({
-          title: '登录成功',
-          description: '正在跳转...',
-          duration: 2000
-        });
-        
-        // 调用统一认证的登录处理
-        if (handleAuthingLogin) {
-          handleAuthingLogin(result);
-          
-          // 如果选择记住密码，保存登录信息
-          if (rememberMe) {
-            localStorage.setItem('saved_phone', loginForm.phone);
+          title: t('customLoginPage.form.loginSuccess'),
+          description: t('customLoginPage.form.redirectingsaved_phone', loginForm.phone);
             // 注意：出于安全考虑，我们不直接保存密码，而是保存一个简单的哈希标记
             const simpleHash = btoa(loginForm.phone + '_remembered');
             localStorage.setItem('saved_password_hash', simpleHash);
-            console.log('💾 已保存记住密码信息');
-          }
-          
-          // 延迟跳转，确保状态更新完成
-          setTimeout(() => {
-            const redirectTo = localStorage.getItem('login_redirect_to') || '/';
+            console.log(t('pages.text.已保存记住_rkz{t('pages.status._3t2')login_redirect_to') || '/';
             localStorage.removeItem('login_redirect_to');
             console.log('🎯 密码登录成功，跳转到:', redirectTo);
             navigate(redirectTo, { replace: true });
           }, 800);
         }
       } else {
-        throw new Error('登录失败，请检查账号密码');
-      }
-    } catch (error) {
-      // 🔧 FIX: 使用新的错误分析器进行智能错误处理
-      const errorAnalysis = AuthErrorAnalyzer.analyzeError(error);
-      const errorInfo = parseAuthingError(error);
-
-      console.error('❌ 登录失败详情:', {
+        throw new Error(t('customLoginPage.errors.loginFailed❌ 登录失败详情:', {
         originalError: error,
         errorAnalysis,
         parsedError: errorInfo,
@@ -461,9 +326,9 @@ export const CustomLoginPage: React.FC = () => {
       });
 
       // 🔧 FIX: 网络问题时提供降级方案
-      const isNetworkError = errorInfo.title?.includes('网络') ||
-                            errorInfo.title?.includes('超时') ||
-                            errorInfo.title?.includes('连接');
+      const isNetworkError = errorInfo.title?.includes(t('pages.messages.网络')) ||
+                            errorInfo.title?.includes(t('pages.messages.超时')) ||
+                            errorInfo.title?.includes(t('pages.labels.连接'));
 
       if (isNetworkError) {
         // 提供网络问题的具体建议
@@ -480,26 +345,11 @@ export const CustomLoginPage: React.FC = () => {
         toast({
           title: errorInfo.title,
           description: `${errorInfo.description}\n\n💡 建议：检查网络连接后重试，或尝试刷新页面`,
-          variant: 'destructive',
-          duration: 8000 // 网络错误延长显示时间
-        });
-      } else {
-        setError(errorInfo.title || errorInfo.message || '登录失败');
+          variant: 'destructivecustomLoginPage.errors.loginFailed'));
         toast({
           title: errorInfo.title,
           description: errorInfo.description,
-          variant: 'destructive',
-          duration: 6000
-        });
-      }
-
-      // 重置状态，允许重新尝试
-      setLoginForm(prev => ({
-        ...prev,
-        loading: false,
-        loginSuccess: false,
-        // 如果是验证码错误，清空验证码让用户重新输入
-        code: errorInfo.shouldClearCode ? '' : prev.code
+          variant: 'destructive' : prev.code
       }));
     }
   };
@@ -513,25 +363,25 @@ export const CustomLoginPage: React.FC = () => {
     try {
       // 验证表单
       if (!registerForm.phone || !registerForm.password) {
-        throw new Error('请填写完整的注册信息');
+        throw new Error(t('customLoginPage.validation.completeInfo'));
       }
 
       if (registerForm.password !== registerForm.confirmPassword) {
-        throw new Error('两次输入的密码不一致');
+        throw new Error(t('customLoginPage.validation.passwordMismatch'));
       }
 
       if (registerForm.password.length < 6) {
-        throw new Error('密码长度至少6位');
+        throw new Error(t('customLoginPage.validation.passwordTooShort', { min: 6 }));
       }
 
       // 验证手机号格式
       if (!/^1[3-9]\d{9}$/.test(registerForm.phone)) {
-        throw new Error('请输入有效的手机号');
+        throw new Error(t('customLoginPage.validation.phoneInvalid'));
       }
 
       // 使用验证码注册
       if (!registerForm.code) {
-        throw new Error('请输入验证码');
+        throw new Error(t('customLoginPage.validation.codeRequired'));
       }
       
       const result = await verificationCodeService.registerByPhoneCode(
@@ -541,7 +391,7 @@ export const CustomLoginPage: React.FC = () => {
       );
       
       if (result.success) {
-        toast({ title: '注册成功', description: '正在跳转到登录...' });
+        toast({ title: t('customLoginPage.messages.registerSuccess'), description: t('customLoginPage.messages.registerSuccessRedirect') });
 
         // 清空注册表单
         setRegisterForm({
@@ -553,27 +403,22 @@ export const CustomLoginPage: React.FC = () => {
           loading: false,
           sendingCode: false,
           codeCountdown: 0,
-          code: ''
-        });
-
-        // 延迟切换到登录模式，给用户看到成功提示的时间
-        setTimeout(() => {
-          setMode('login');
+          code: '$login');
           // 如果是从注册页面跳转来的，更新URL
           if (searchParams.get('tab') === 'register') {
             navigate('/custom-login', { replace: true });
           }
-          console.log('✅ 注册成功，已切换到登录模式');
+          console.log(t('pages.status.注册成功已_0lg'));
         }, 1500);
       } else {
         throw new Error(result.message);
       }
 
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : '注册失败';
+      const errorMsg = error instanceof Error ? error.message : t('customLoginPage.errors.registerFailed');
       setError(errorMsg);
       toast({
-        title: '注册失败',
+        title: t('customLoginPage.errors.registerFailed'),
         description: errorMsg,
         variant: 'destructive'
       });
@@ -696,7 +541,7 @@ export const CustomLoginPage: React.FC = () => {
             </div>
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span className="ml-3 text-muted-foreground">检查中...</span>
+              <span className="ml-3 text-muted-foreground">$</span>
             </div>
           </div>
         </div>
@@ -706,12 +551,9 @@ export const CustomLoginPage: React.FC = () => {
 
   return (
     <div className={`login-container ${isDarkMode ? "dark" : "light"}`}>
-      <canvas id="particles" className="particles-canvas"></canvas>
-
-      {/* 返回首页按钮 */}
-      <button className="auth-nav-back" onClick={() => navigate('/')}>
+      <canvas id="particles" className="particles-canvasauth-nav-back" onClick={() => navigate('/')}>
         <ArrowLeft size={16} />
-        <span className="auth-nav-back-text">返回</span>
+        <span className="auth-nav-back-text"></span>
       </button>
 
       {/* 主题切换按钮 */}
@@ -722,8 +564,8 @@ export const CustomLoginPage: React.FC = () => {
       <div className="login-card">
         <div className="login-card-inner">
           <div className="login-header">
-            <h1>欢迎</h1>
-            <p>{mode === 'register' ? '创建您的账户' : '请登录以继续'}</p>
+            <h1>$</h1>
+            <p>{mode === 'register' ? t('customLoginPage.registerSubtitle') : t('customLoginPage.subtitle')}</p>
           </div>
 
       {/* 与 21st.dev 模板一致的表单结构与类名（手机号 + 密码/验证码登录） */}
@@ -744,13 +586,13 @@ export const CustomLoginPage: React.FC = () => {
             onBlur={() => setLoginPhoneFocused(false)}
             required
           />
-          <label htmlFor="phone">手机号</label>
+          <label htmlFor="phone">$</label>
         </div>
 
         {/* 登录方式选择（分段按钮） */}
         <div className="segmented" style={{marginTop:8, marginBottom:8}}>
-          <button type="button" className={`seg-btn ${loginMethod==='password'?'active':''}`} onClick={() => setLoginMethod('password')}>密码登录</button>
-          <button type="button" className={`seg-btn ${loginMethod==='code'?'active':''}`} onClick={() => setLoginMethod('code')}>验证码登录</button>
+          <button type="button" className={`seg-btn ${loginMethod==='password'?'active':''}`} onClick={() => setLoginMethod('password')}>$</button>
+          <button type="button" className={`seg-btn ${loginMethod==='code'?'active':''}`} onClick={() => setLoginMethod('code')}>$</button>
         </div>
 
         {/* 密码或验证码 */}
@@ -765,7 +607,7 @@ export const CustomLoginPage: React.FC = () => {
               onBlur={() => setLoginPasswordFocused(false)}
               required
             />
-            <label htmlFor="password">密码</label>
+            <label htmlFor="password">$</label>
             <button
               type="button"
               className="toggle-password"
@@ -776,7 +618,7 @@ export const CustomLoginPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className={`form-field ${loginCodeFocused || loginForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'8px'}}>
+          <div className={`form-field ${loginCodeFocused || loginForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'var(--spacing-2)'}}>
             <div style={{position:'relative'}}>
               <input
                 type="text"
@@ -787,12 +629,12 @@ export const CustomLoginPage: React.FC = () => {
                 onBlur={() => setLoginCodeFocused(false)}
                 required
               />
-              <label htmlFor="login-code">验证码</label>
+              <label htmlFor="login-code">$</label>
             </div>
             <button
               type="button"
               className="login-button"
-              style={{padding:'10px 14px'}}
+              style={{padding:'var(--spacing-2-5) var(--spacing-3-5)'}}
               disabled={loginForm.sendingCode || loginForm.codeCountdown > 0 || !isPhoneValid}
               onClick={async () => {
                 try {
@@ -801,12 +643,12 @@ export const CustomLoginPage: React.FC = () => {
                   // 🔧 FIX: 使用重试机制发送验证码
                   const result = await diagnoseAndRetry(
                     () => verificationCodeService.sendSmsCode(loginForm.phone, 'LOGIN'),
-                    '发送登录验证码'
+                    t('customLoginPage.form.sendingCode')
                   );
 
                   if (result.success) {
                     toast({
-                      title: '发送成功',
+                      title: t('customLoginPage.messages.sendSuccess'),
                       description: result.message
                     });
 
@@ -820,20 +662,20 @@ export const CustomLoginPage: React.FC = () => {
                     }, 1000);
                   } else {
                     toast({
-                      title: '发送失败',
+                      title: t('customLoginPage.errors.sendFailed'),
                       description: result.message,
                       variant: 'destructive'
                     });
                   }
                 } catch (err) {
-                  const msg = err instanceof Error ? err.message : '发送验证码失败';
-                  toast({ title: '发送失败', description: msg, variant: 'destructive' });
+                  const msg = err instanceof Error ? err.message : t('customLoginPage.errors.sendCodeFailed');
+                  toast({ title: t('customLoginPage.errors.sendFailed'), description: msg, variant: 'destructive' });
                 } finally {
                   setLoginForm(prev => ({ ...prev, sendingCode: false }));
                 }
               }}
             >
-              {loginForm.sendingCode ? '获取中...' : (loginForm.codeCountdown > 0 ? `${loginForm.codeCountdown}s` : '获取验证码')}
+              {loginForm.sendingCode ? t('customLoginPage.form.gettingCode') : (loginForm.codeCountdown > 0 ? `${loginForm.codeCountdown}s` : t('customLoginPage.form.getCode'))}
             </button>
           </div>
         )}
@@ -842,9 +684,9 @@ export const CustomLoginPage: React.FC = () => {
           <label className="remember-me">
             <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
             <span className="checkmark"></span>
-            记住我
+            
           </label>
-          <Link to="/forgot-password" className="forgot-password">忘记密码?</Link>
+          <Link to="/forgot-password" className="forgot-password">$?</Link>
         </div>
 
         <button
@@ -856,14 +698,14 @@ export const CustomLoginPage: React.FC = () => {
             (loginMethod === 'password' ? (!loginForm.password || !isPhoneValid) : (!loginForm.code || !isPhoneValid))
           }
         >
-          {loginForm.loginSuccess ? '登录成功，跳转中...' : (loginForm.loading ? '登录中...' : '登录')}
+          {loginForm.loginSuccess ? `$，$` : (loginForm.loading ? t('customLoginPage.form.loggingIn') : t('customLoginPage.form.loginButton'))}
         </button>
       </form>
         </>
       )}
 
       <p className="signup-prompt">
-        没有账号? <a href="#" onClick={(e) => { e.preventDefault(); setMode('register'); }}>{'注册'}</a>
+         <a href="#" onClick={(e) => { e.preventDefault(); setMode('register'); }}>$</a>
       </p>
       {/* 注册模式下的表单（手机号/邮箱 + 验证码） */}
       {mode === 'register' && (
@@ -882,11 +724,11 @@ export const CustomLoginPage: React.FC = () => {
               onBlur={() => setRegisterPhoneFocused(false)}
               required
             />
-            <label htmlFor="register-phone">手机号</label>
+            <label htmlFor="register-phone">$</label>
           </div>
 
           {/* 验证码 */}
-          <div className={`form-field ${registerCodeFocused || registerForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'8px'}}>
+          <div className={`form-field ${registerCodeFocused || registerForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'var(--spacing-2)'}}>
             <div style={{position:'relative'}}>
               <input
                 type="text"
@@ -897,12 +739,12 @@ export const CustomLoginPage: React.FC = () => {
                 onBlur={() => setRegisterCodeFocused(false)}
                 required
               />
-              <label htmlFor="register-code">验证码</label>
+              <label htmlFor="register-code">$</label>
             </div>
             <button
               type="button"
               className="login-button"
-              style={{padding:'10px 14px'}}
+              style={{padding:'var(--spacing-2-5) var(--spacing-3-5)'}}
               disabled={registerForm.sendingCode || registerForm.codeCountdown > 0 || !registerForm.phone}
               onClick={async () => {
                 try {
@@ -911,12 +753,12 @@ export const CustomLoginPage: React.FC = () => {
                   // 🔧 FIX: 使用重试机制发送注册验证码
                   const result = await diagnoseAndRetry(
                     () => verificationCodeService.sendSmsCode(registerForm.phone, 'REGISTER'),
-                    '发送注册验证码'
+                    t('customLoginPage.form.sendingCode')
                   );
 
                   if (result.success) {
                     toast({
-                      title: '发送成功',
+                      title: t('customLoginPage.messages.sendSuccess'),
                       description: result.message
                     });
 
@@ -930,20 +772,20 @@ export const CustomLoginPage: React.FC = () => {
                     }, 1000);
                   } else {
                     toast({
-                      title: '发送失败',
+                      title: t('customLoginPage.errors.sendFailed'),
                       description: result.message,
                       variant: 'destructive'
                     });
                   }
                 } catch (err) {
-                  const msg = err instanceof Error ? err.message : '发送验证码失败';
-                  toast({ title: '发送失败', description: msg, variant: 'destructive' });
+                  const msg = err instanceof Error ? err.message : t('customLoginPage.errors.sendCodeFailed');
+                  toast({ title: t('customLoginPage.errors.sendFailed'), description: msg, variant: 'destructive' });
                 } finally {
                   setRegisterForm(prev => ({ ...prev, sendingCode: false }));
                 }
               }}
             >
-              {registerForm.sendingCode ? '获取中...' : (registerForm.codeCountdown > 0 ? `${registerForm.codeCountdown}s` : '获取验证码')}
+              {registerForm.sendingCode ? t('customLoginPage.form.gettingCode') : (registerForm.codeCountdown > 0 ? `${registerForm.codeCountdown}s` : t('customLoginPage.form.getCode'))}
             </button>
           </div>
 
@@ -958,7 +800,7 @@ export const CustomLoginPage: React.FC = () => {
               onBlur={() => setRegisterPasswordFocused(false)}
               required
             />
-            <label htmlFor="register-password">密码（至少6位）</label>
+            <label htmlFor="register-password">（$）</label>
           </div>
 
           <div className={`form-field ${registerConfirmFocused || registerForm.confirmPassword ? 'active' : ''} ${registerForm.confirmPassword && !passwordsMatch ? 'invalid' : ''}`}>
@@ -971,10 +813,10 @@ export const CustomLoginPage: React.FC = () => {
               onBlur={() => setRegisterConfirmFocused(false)}
               required
             />
-            <label htmlFor="register-confirm">确认密码</label>
+            <label htmlFor="register-confirm"></label>
             {registerForm.confirmPassword && !passwordsMatch && (
-              <span className="error-message" style={{position:'absolute', right:0, top:'100%', marginTop:4, color:'#ef4444', fontSize:12}}>
-                两次密码不一致
+              <span className="error-message" style={{position:'absolute', right:0, top:'100%', marginTop:4, color:'hsl(var(--destructive))', fontSize:12}}>
+                
               </span>
             )}
           </div>
@@ -990,25 +832,25 @@ export const CustomLoginPage: React.FC = () => {
                 }}
               />
               <span className="checkmark"></span>
-              我已阅读并同意 <Link
+               <Link
                 to="/privacy"
                 className="forgot-password"
                 onClick={(e) => e.stopPropagation()}
                 target="_blank"
-              >隐私政策</Link> 和 <Link
+              ></Link>  <Link
                 to="/terms"
                 className="forgot-password"
                 onClick={(e) => e.stopPropagation()}
                 target="_blank"
-              >服务条款</Link>
+              ></Link>
             </label>
           </div>
           <p className="signup-prompt">
-            已有账号？<a href="#" onClick={(e)=>{e.preventDefault(); setMode('login');}}>返回登录</a>
+            {t('customLoginPage.navigation.hasAccount')}<a href="#" onClick={(e)=>{e.preventDefault(); setMode('login');}}></a>
           </p>
 
           <button type="submit" className="login-button" disabled={registerForm.loading || !registerAgreed || !passwordsMatch}>
-            {registerForm.loading ? '注册中...' : '立即注册'}
+            {registerForm.loading ? t('customLoginPage.form.registering') : t('customLoginPage.form.registerButton')}
           </button>
         </form>
       )}

@@ -9,6 +9,7 @@
  * - 跨设备数据同步
  */
 
+import i18n from '@/i18n';
 import { globalDataManager } from '@/services/unifiedDataManager';
 
 // 书签类型
@@ -152,7 +153,7 @@ export class BookmarkService {
         console.log('✅ 书签添加成功:', item.title);
         return id;
       } else {
-        throw new Error('保存书签失败');
+        throw new Error(i18n.t('common.errors.保存书签失败'));
       }
     } catch (error) {
       console.error('添加书签失败:', error);
@@ -185,7 +186,7 @@ export class BookmarkService {
         console.log('✅ 话题书签添加成功:', topic.title);
         return id;
       } else {
-        throw new Error('保存话题书签失败');
+        throw new Error(i18n.t('common.errors.保存话题书签失败'));
       }
     } catch (error) {
       console.error('添加话题书签失败:', error);
@@ -208,7 +209,7 @@ export class BookmarkService {
         console.log('✅ 书签移除成功:', id);
         return true;
       } else {
-        throw new Error('保存书签失败');
+        throw new Error(i18n.t('common.errors.保存书签失败'));
       }
     } catch (error) {
       console.error('移除书签失败:', error);
@@ -231,7 +232,7 @@ export class BookmarkService {
         console.log('✅ 话题书签移除成功:', id);
         return true;
       } else {
-        throw new Error('保存话题书签失败');
+        throw new Error(i18n.t('common.errors.保存话题书签失败'));
       }
     } catch (error) {
       console.error('移除话题书签失败:', error);
@@ -374,7 +375,7 @@ export class BookmarkService {
         console.log('✅ 所有书签已清空');
         return true;
       } else {
-        throw new Error('清空书签失败');
+        throw new Error(i18n.t('common.errors.清空书签失败'));
       }
     } catch (error) {
       console.error('清空书签失败:', error);

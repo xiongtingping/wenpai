@@ -12,6 +12,7 @@
  * - 错误统一处理
  */
 
+import i18n from '@/i18n';
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { logger } from '@/utils/logger';
 
@@ -213,7 +214,7 @@ export const request = {
       const response = await axiosInstance.get<T>(url, config);
       return response.data;
     } catch (error) {
-      throw new Error(`GET请求失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(`GET请求失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
     }
   },
 
@@ -225,7 +226,7 @@ export const request = {
       const response = await axiosInstance.post<T>(url, data, config);
       return response.data;
     } catch (error) {
-      throw new Error(`POST请求失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(`POST请求失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
     }
   },
 
@@ -237,7 +238,7 @@ export const request = {
       const response = await axiosInstance.put<T>(url, data, config);
       return response.data;
     } catch (error) {
-      throw new Error(`PUT请求失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(`PUT请求失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
     }
   },
 
@@ -249,7 +250,7 @@ export const request = {
       const response = await axiosInstance.delete<T>(url, config);
       return response.data;
     } catch (error) {
-      throw new Error(`DELETE请求失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(`DELETE请求失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
     }
   },
 
@@ -261,7 +262,7 @@ export const request = {
       const response = await axiosInstance.request<T>(config);
       return response.data;
     } catch (error) {
-      throw new Error(`请求失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(`请求失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
     }
   },
 };

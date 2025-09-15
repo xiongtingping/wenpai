@@ -10,15 +10,9 @@
  * 
  */
 
+import i18n from '@/i18n';
 import type { PromptTemplate } from '../types';
-import { logger } from '@/utils/logger';
-
-/**
- * 品牌综合分析提示词
- * 
- */
-export const getBrandAnalysisPrompt: PromptTemplate = (input: any, options = {}) => {
-  const { brandInfo, analysisType = 'comprehensive' } = input;
+import { logger } from '@/utils/loggeri18n.t('ai.message._zua')comprehensive' } = input;
   const { debug = false } = options;
 
   return `你是一名专业的品牌策略分析专家，请对以下品牌资料进行深度分析：
@@ -158,18 +152,7 @@ ${content}
 
 ${debug ? '\n## 调试模式\n请提供详细的评估过程和判断依据。' : ''}
 
-现在开始检查：`;
-};
-
-/**
- * 品牌语气生成提示词
- * 
- */
-export const getBrandTonePrompt: PromptTemplate = (input: any, options = {}) => {
-  const { brandProfile, contentType, occasion } = input;
-  const { debug = false } = options;
-
-  return `你是专业的品牌语言设计师，请为品牌设计合适的语气和表达方式：
+现在开始检查：i18n.t('ai.message._ln9')你是专业的品牌语言设计师，请为品牌设计合适的语气和表达方式：
 
 ## 品牌信息
 - 品牌名称: ${brandProfile?.brandName || '未知'}
@@ -244,4 +227,4 @@ export function getBrandPromptByTask(task: string): PromptTemplate {
   }
 }
 
-logger.debug('🔧 品牌分析提示词模板已加载');
+logger.debug(i18n.t('ai.message.品牌分析提_29j'));

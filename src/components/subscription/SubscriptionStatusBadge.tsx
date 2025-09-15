@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,10 +32,9 @@ interface SubscriptionStatusBadgeProps {
   className?: string;
 }
 
-export function SubscriptionStatusBadge({
-  showDetails = true,
+export function SubscriptionStatusBadge({ showDetails = true,
   className = ''
-}: SubscriptionStatusBadgeProps) {
+ }: SubscriptionStatusBadgeProps) {
   return (
     <SubscriptionStateWrapper className={className}>
       <SubscriptionStatusBadgeContent
@@ -113,7 +113,7 @@ function SubscriptionStatusBadgeContent({
         onClick={() => navigate('/payment')}
       >
         {getBadgeIcon()}
-        <span className="text-xs">{subscriptionStatus?.statusLabel || '未订阅'}</span>
+        <span className="text-xs">{subscriptionStatus?.statusLabel || t('components.labels.未订阅')}</span>
       </Badge>
     );
   }

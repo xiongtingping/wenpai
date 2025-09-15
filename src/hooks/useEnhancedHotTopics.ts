@@ -3,6 +3,7 @@
  * 在不修改原有API的基础上，为热点数据提供RSSHub补充
  */
 
+import i18n from '@/i18n';
 import { useState, useEffect, useCallback } from 'react';
 import { DailyHotItem } from '@/api/hotTopicsService';
 import rsshubDataService, { RSSHubTopic } from '@/services/rsshubDataService';
@@ -57,7 +58,7 @@ export function useEnhancedHotTopics(
       setRSSHubData(limitedTopics);
     } catch (err) {
       console.warn('RSSHub数据加载失败:', err);
-      setError(err instanceof Error ? err.message : '加载失败');
+      setError(err instanceof Error ? err.message : i18n.t('common.errors.加载失败'));
       setRSSHubData([]);
     } finally {
       setIsLoading(false);

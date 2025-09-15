@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Wand2, Copy, RefreshCw, Sparkles, Grid3X3, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -31,13 +32,12 @@ interface PromptBuilderProps {
   onBack: () => void;
 }
 
-export default function PromptBuilder({ 
-  uploadedData, 
+export default function PromptBuilder({ uploadedData, 
   onPromptReady, 
   onBatchPromptsReady,
   onBrandChange,
   onBack 
-}: PromptBuilderProps) {
+ }: PromptBuilderProps) {
   const [generatedPrompt, setGeneratedPrompt] = useState('');
   const [customPrompt, setCustomPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -84,12 +84,12 @@ export default function PromptBuilder({
     try {
       await navigator.clipboard.writeText(promptToCopy);
       toast({
-        title: "复制成功",
+        title: t('components.labels.复制成功'),
         description: "Prompt已复制到剪贴板",
       });
     } catch (err) {
       toast({
-        title: "复制失败",
+        title: t('components.labels.复制失败'),
         description: "请手动复制文本",
         variant: "destructive",
       });
@@ -104,12 +104,12 @@ export default function PromptBuilder({
     try {
       await navigator.clipboard.writeText(promptsText);
       toast({
-        title: "复制成功",
+        title: t('components.labels.复制成功'),
         description: "批量提示词已复制到剪贴板",
       });
     } catch (err) {
       toast({
-        title: "复制失败",
+        title: t('components.labels.复制失败'),
         description: "请手动复制文本",
         variant: "destructive",
       });
@@ -124,7 +124,7 @@ export default function PromptBuilder({
       const finalPrompt = useCustomPrompt ? customPrompt : generatedPrompt;
       if (!finalPrompt.trim()) {
         toast({
-          title: "提示词不能为空",
+          title: t('components.labels.提示词不能为空'),
           description: "请先生成或输入提示词",
           variant: "destructive",
         });
@@ -134,7 +134,7 @@ export default function PromptBuilder({
     } else {
       if (batchPrompts.length === 0) {
         toast({
-          title: "批量提示词为空",
+          title: t('components.labels.批量提示词为空'),
           description: "请先生成批量提示词",
           variant: "destructive",
         });

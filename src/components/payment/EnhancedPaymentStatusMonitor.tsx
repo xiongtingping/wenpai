@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -48,8 +49,7 @@ interface PollingConfig {
   successInterval: number;
 }
 
-export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitorProps> = ({
-  checkoutId,
+export const EnhancedPaymentStatusMonitor: React.FC<any> = ({ checkoutId,
   apiKey,
   onPaymentSuccess,
   onPaymentFailed,
@@ -59,14 +59,12 @@ export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitor
   maxRetries = 10,
   enableNotifications = true,
   enableSound = true,
-  showAdvancedInfo = false,
-}) => {
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>({
+  showAdvancedInfo = false }) => { const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>({
     status: 'pending',
     message: '等待支付...',
     progress: 0,
     retryCount: 0,
-  });
+   });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -138,12 +136,12 @@ export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitor
         case 'failed':
         case 'cancelled':
           newStatus = 'failed';
-          message = '支付失败';
+          message = t('components.messages.支付失败');
           progress = 0;
           break;
         case 'expired':
           newStatus = 'expired';
-          message = '支付已过期';
+          message = t('components.messages.支付已过期');
           progress = 0;
           break;
         default:
@@ -194,14 +192,14 @@ export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitor
       } else if (newStatus === 'failed' && onPaymentFailed) {
         onPaymentFailed(message);
         toast({
-          title: "支付失败",
+          title: t('components.messages.支付失败'),
           description: message,
           variant: "destructive",
         });
       } else if (newStatus === 'expired' && onPaymentExpired) {
         onPaymentExpired();
         toast({
-          title: "支付已过期",
+          title: t('components.messages.支付已过期'),
           description: "请重新发起支付",
           variant: "destructive",
         });
@@ -219,7 +217,7 @@ export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitor
       setPaymentStatus(prev => ({
         ...prev,
         status: retryCountRef.current >= maxRetries ? 'failed' : 'pending',
-        message: retryCountRef.current >= maxRetries ? '获取支付状态失败' : '网络异常，正在重试...',
+        message: retryCountRef.current >= maxRetries ? t('components.errors.获取支付状态失败') : '网络异常，正在重试...',
         progress: 0,
         error: error.message,
         lastChecked: new Date().toISOString(),
@@ -315,7 +313,7 @@ export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitor
   const togglePause = () => {
     setIsPaused(!isPaused);
     toast({
-      title: isPaused ? "恢复监控" : "暂停监控",
+      title: isPaused ? t('components.labels.恢复监控') : t('components.labels.暂停监控'),
       description: isPaused ? "已恢复自动检测" : "已暂停自动检测",
     });
   };
@@ -380,7 +378,7 @@ export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitor
               variant="ghost"
               size="sm"
               onClick={togglePause}
-              title={isPaused ? "恢复监控" : "暂停监控"}
+              title={isPaused ? t('components.labels.恢复监控') : t('components.labels.暂停监控')}
             >
               {isPaused ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
             </Button>
@@ -388,7 +386,7 @@ export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitor
               variant="ghost"
               size="sm"
               onClick={() => setShowSettings(!showSettings)}
-              title="设置"
+              title={t('components.labels.标题')}
             >
               <Settings className="h-4 w-4" />
             </Button>

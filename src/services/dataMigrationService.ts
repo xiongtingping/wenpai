@@ -9,6 +9,7 @@
  * 5. 冲突检测和解决
  */
 
+import i18n from '@/i18n';
 import { unifiedStorage, STORAGE_CONFIG, DataCategory, StorageLayer } from './unifiedStorageStrategy';
 import { safeSaveToLocalStorage, safeLoadFromLocalStorage } from '@/utils/safeDataStorage';
 import { logger } from '@/utils/logger';
@@ -160,7 +161,7 @@ export class DataMigrationService {
 
       } catch (error) {
         failedCount++;
-        const errorMsg = error instanceof Error ? error.message : '未知错误';
+        const errorMsg = error instanceof Error ? error.message : i18n.t('common.errors.未知错误');
         errors.push(`${migration.key}: ${errorMsg}`);
         logger.error(`迁移异常: ${migration.key}`, error);
       }
@@ -323,7 +324,7 @@ export class DataMigrationService {
       } catch (error) {
         issues.push({
           key,
-          issue: `数据验证失败: ${error instanceof Error ? error.message : '未知错误'}`,
+          issue: `数据验证失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`,
           severity: 'medium'
         });
       }
@@ -522,14 +523,14 @@ export class DataMigrationService {
       const saveResult = await unifiedStorage.save(key, localResult.data);
       
       if (!saveResult.success) {
-        throw new Error(saveResult.error || '保存失败');
+        throw new Error(saveResult.error || i18n.t('common.errors.保存失败'));
       }
 
       // 验证迁移结果
       const verifyResult = await this.verifyMigration(key, localResult.data);
       
       if (!verifyResult) {
-        throw new Error('迁移验证失败');
+        throw new Error(i18n.t('common.errors.迁移验证失败'));
       }
 
       // 更新迁移记录
@@ -540,7 +541,7 @@ export class DataMigrationService {
       return { success: true };
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.未知错误');
       
       if (migrationRecord!) {
         migrationRecord.status = MigrationStatus.FAILED;

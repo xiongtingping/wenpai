@@ -3,6 +3,7 @@
  * 封装内容生成、重试、对比等核心业务逻辑
  */
 
+import i18n from '@/i18n';
 import { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ContentAdapterService } from '../services/contentAdapterService';
@@ -230,11 +231,11 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
             updateStep(platformId, 3, 'completed', `✅ 生成完成 (${result.versions.length}个版本)`);
 
           } else {
-            throw new Error(result.error || '生成失败');
+            throw new Error(result.error || i18n.t('common.errors.生成失败'));
           }
           
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '生成失败';
+          const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.生成失败');
           
           // 更新错误状态
           setResults(prev => prev.map(r => 
@@ -255,7 +256,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       await Promise.all(promises);
       
       toast({
-        title: "内容生成完成",
+        title: i18n.t('common.labels.内容生成完成'),
         description: `已为 ${selectedPlatforms.length} 个平台生成内容`,
       });
 
@@ -267,7 +268,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     } catch (error) {
       console.error('批量生成失败:', error);
       toast({
-        title: "生成失败",
+        title: i18n.t('common.errors.生成失败'),
         description: "请检查网络连接后重试",
         variant: "destructive"
       });
@@ -304,15 +305,15 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
         ));
 
         toast({
-          title: "重试成功",
+          title: i18n.t('common.labels.重试成功'),
           description: `${platformId} 内容已重新生成`,
         });
       } else {
-        throw new Error(result.error || '重试失败');
+        throw new Error(result.error || i18n.t('common.errors.重试失败'));
       }
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '重试失败';
+      const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.重试失败');
       
       setResults(prev => prev.map(r => 
         r.platformId === platformId 
@@ -321,7 +322,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       ));
 
       toast({
-        title: "重试失败",
+        title: i18n.t('common.errors.重试失败'),
         description: errorMessage,
         variant: "destructive"
       });
@@ -377,17 +378,17 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
         }));
 
         toast({
-          title: "版本重新生成成功",
+          title: i18n.t('common.labels.版本重新生成成功'),
           description: `${platformId} ${versionId} 已更新`,
         });
       } else {
-        throw new Error(result.error || '版本重新生成失败');
+        throw new Error(result.error || i18n.t('common.errors.版本重新生成失败'));
       }
 
     } catch (error) {
       toast({
-        title: "版本重新生成失败",
-        description: error instanceof Error ? error.message : '重新生成失败',
+        title: i18n.t('common.errors.版本重新生成失败'),
+        description: error instanceof Error ? error.message : i18n.t('common.errors.重新生成失败'),
         variant: "destructive"
       });
     } finally {
@@ -437,17 +438,17 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
         }));
 
         toast({
-          title: "对比内容生成成功",
+          title: i18n.t('common.labels.对比内容生成成功'),
           description: `已为${platformId}生成替代版本`,
         });
       } else {
-        throw new Error(result.error || '对比内容生成失败');
+        throw new Error(result.error || i18n.t('common.errors.对比内容生成失败'));
       }
 
     } catch (error) {
       toast({
-        title: "对比内容生成失败",
-        description: error instanceof Error ? error.message : '生成失败',
+        title: i18n.t('common.errors.对比内容生成失败'),
+        description: error instanceof Error ? error.message : i18n.t('common.errors.生成失败'),
         variant: "destructive"
       });
     } finally {
@@ -482,7 +483,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
           description: result.content,
         });
       } else {
-        throw new Error(result.error || '标题生成失败');
+        throw new Error(result.error || i18n.t('common.errors.标题生成失败'));
       }
 
     } catch (error) {
@@ -492,7 +493,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       }));
 
       toast({
-        title: "标题生成失败",
+        title: i18n.t('common.errors.标题生成失败'),
         description: "请稍后重试",
         variant: "destructive"
       });

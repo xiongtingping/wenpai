@@ -4,6 +4,7 @@
  */
 
 import React, { useRef, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
@@ -32,12 +33,11 @@ interface MarkdownEditorProps {
 /**
  * Markdown编辑器组件
  */
-export function MarkdownEditor({
-  content,
+export function MarkdownEditor({ content,
   onChange,
   className,
   placeholder = '在此输入Markdown内容...'
-}: MarkdownEditorProps) {
+ }: MarkdownEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [cursorPosition, setCursorPosition] = useState(0);
 
@@ -87,7 +87,7 @@ export function MarkdownEditor({
   }, [insertText]);
 
   const insertCode = useCallback(() => {
-    insertText('`代码`', 1, 3);
+    insertText('代码', 1, 3);
   }, [insertText]);
 
   const insertLink = useCallback(() => {
@@ -233,8 +233,8 @@ export function MarkdownEditor({
             variant="ghost"
             size="sm"
             onClick={insertList}
-            title="无序列表"
-            className="px-2 py-1 h-7"
+            title={t('components.labels.标题')}
+        className="px-2 py-1 h-7"
           >
             <List className="w-3 h-3" />
           </Button>
@@ -242,8 +242,8 @@ export function MarkdownEditor({
             variant="ghost"
             size="sm"
             onClick={insertOrderedList}
-            title="有序列表"
-            className="px-2 py-1 h-7"
+            title={t('components.labels.标题')}
+        className="px-2 py-1 h-7"
           >
             <ListOrdered className="w-3 h-3" />
           </Button>
@@ -251,8 +251,8 @@ export function MarkdownEditor({
             variant="ghost"
             size="sm"
             onClick={insertQuote}
-            title="引用"
-            className="px-2 py-1 h-7"
+            title={t('components.labels.标题')}
+        className="px-2 py-1 h-7"
           >
             <Quote className="w-3 h-3" />
           </Button>
@@ -275,7 +275,7 @@ export function MarkdownEditor({
             variant="ghost"
             size="sm"
             onClick={insertImage}
-            title="图片"
+            title={t('components.labels.图片')}
             className="px-2 py-1 h-7"
           >
             <Image className="w-3 h-3" />
@@ -284,8 +284,8 @@ export function MarkdownEditor({
             variant="ghost"
             size="sm"
             onClick={insertTable}
-            title="表格"
-            className="px-2 py-1 h-7"
+            title={t('components.labels.标题')}
+        className="px-2 py-1 h-7"
           >
             <Table className="w-3 h-3" />
           </Button>
@@ -293,7 +293,7 @@ export function MarkdownEditor({
             variant="ghost"
             size="sm"
             onClick={insertDivider}
-            title="分割线"
+            title={t('components.labels.标题')}
             className="px-2 py-1 h-7"
           >
             <Minus className="w-3 h-3" />

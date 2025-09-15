@@ -6,6 +6,7 @@
  */
 
 import React, { useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -47,11 +48,10 @@ const permissionLoading = false;
 /**
  * 顶部导航组件 - 响应式设计
  */
-export const TopNavigation: React.FC = () => {
-  const location = useLocation();
+export const TopNavigation: React.FC = () => { const location = useLocation();
   const navigate = useNavigate();
   const headerRef = useRef<HTMLElement>(null);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user  } = useAuth();
   const { primaryStatus } = useSubscriptionStatus();
   
   // 判断当前路径是否为激活状态
@@ -163,7 +163,7 @@ export const TopNavigation: React.FC = () => {
                   onClick={() => navigate('/payment')}
                   size="sm"
                   className="btn-upgrade-gradient text-primary-foreground p-2 rounded-lg transition-all duration-200 hover:shadow-lg hidden sm:flex"
-                  title="升级到高级版"
+                  title=
                 >
                   <Crown className="w-4 h-4" />
                 </Button>
@@ -186,7 +186,7 @@ export const TopNavigation: React.FC = () => {
                 <Link
                   to="/profile"
                   className="flex items-center space-x-2 text-sm font-medium hover:bg-accent/50 px-2 py-1.5 rounded-md transition-all duration-200"
-                  title="个人中心"
+                  title=
                 >
                   <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-medium">
                     {user.nickname?.[0] || user.username?.[0] || user.email?.[0] || '用'}

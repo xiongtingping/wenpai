@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
@@ -15,10 +16,9 @@ import {
   formatTimeLeft 
 } from "@/utils/paymentTimer";
 
-export function PricingSection() {
-  const [billing, setBilling] = useState<SubscriptionPeriod>("monthly")
+export function PricingSection() { const [billing, setBilling] = useState<SubscriptionPeriod>("monthly")
   const [timeLeft, setTimeLeft] = useState(0);
-  const { toast } = useToast()
+  const { toast  } = useToast()
   const { user: currentUser, isAuthenticated } = useAuth();
   
   // 使用统一认证状态
@@ -60,7 +60,7 @@ export function PricingSection() {
       navigate("/payment");
       
       toast({
-        title: "正在为您跳转到支付页面",
+        title: t('components.labels.正在为您跳转到支付页面'),
         description: "请完成支付以开通相应功能",
       });
     } else {
@@ -69,7 +69,7 @@ export function PricingSection() {
       // login("/payment"); // This line is removed as per the edit hint
     
       toast({
-        title: "正在为您跳转到登录页面",
+        title: t('components.labels.正在为您跳转到登录页面'),
         description: "完成登录后将为您导向支付页面",
       });
     }
@@ -78,10 +78,10 @@ export function PricingSection() {
   // 判断功能是否为当前套餐专属
   function getFeatureStatus(feature: string, planTier: string) {
     // 这里可根据feature内容和planTier灵活判断
-    if (feature.includes('创意魔方') && planTier === 'trial') return { disabled: true, label: '专业版专属' };
-    if (feature.includes('品牌库') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
-    if (feature.includes('高级模型') && planTier === 'trial') return { disabled: true, label: '专业版专属' };
-    if (feature.includes('最新模型') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
+    if (feature.includes(t('components.labels.创意魔方')) && planTier === 'trial') return { disabled: true, label: t('components.labels.专业版专属') };
+    if (feature.includes(t('components.labels.品牌库')) && planTier !== 'premium') return { disabled: true, label: t('components.labels.高级版专属') };
+    if (feature.includes(t('components.labels.高级模型')) && planTier === 'trial') return { disabled: true, label: t('components.labels.专业版专属') };
+    if (feature.includes(t('components.labels.最新模型')) && planTier !== 'premium') return { disabled: true, label: t('components.labels.高级版专属') };
     // 其他功能默认可用
     return { disabled: false, label: '' };
   }
@@ -92,7 +92,7 @@ export function PricingSection() {
       .filter(f => !/免费|专业版/.test(f)) // 只去掉"免费"、"专业版"等文案，保留次数信息
       .map((feature, index) => {
         const text = feature
-          .replace(/创意工作室/g, '创意魔方') // 替换
+          .replace(/创意工作室/g, t('components.labels.创意魔方')) // 替换
           .replace(/九宫格创意魔方/g, '九宫格创意魔方法') // 替换
           .replace(/专业功能/g, '更多功能') // 替换
           .replace(/专业版/g, '') // 去除专业版

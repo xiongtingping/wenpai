@@ -4,6 +4,7 @@
  * 
  */
 
+import i18n from '@/i18n';
 import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 import { useAuthStore } from '@/store/authStore';
 
@@ -125,7 +126,7 @@ class UserDataService {
       return newRecord;
     } catch (error) {
       console.error('获取或创建用户记录失败:', error);
-      throw new Error(`数据库操作失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(`数据库操作失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
     }
   }
 

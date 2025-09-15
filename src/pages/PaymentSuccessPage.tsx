@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,10 +19,9 @@ import { getUserDisplayName } from '@/utils/userDisplayUtils';
  * 支付成功页面组件
  * @returns React 组件
  */
-export default function PaymentSuccessPage() {
-  const [searchParams] = useSearchParams();
+export default function PaymentSuccessPage() { const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast  } = useToast();
   const { user } = useAuth();
   // const { getOrderStatus, formatAmount, getPaymentMethodName } = usePayment(); // This line was removed as per the edit hint.
   
@@ -61,8 +61,8 @@ export default function PaymentSuccessPage() {
       } catch (error) {
         console.error('加载订单信息失败:', error);
         toast({
-          title: "加载订单信息失败",
-          description: "请稍后重试",
+          title: t('pages.errors.加载订单信息失败'),
+          description: t('pages.messages.请稍后重试'),
           variant: "destructive"
         });
       } finally {
@@ -85,8 +85,8 @@ export default function PaymentSuccessPage() {
       // await refreshUser(); 
       
       toast({
-        title: "用户信息已更新",
-        description: "您的订阅状态已同步",
+        title: t('pages.labels.用户信息已更新'),
+        description: t('pages.messages.您的订阅状态已同步'),
       });
     } catch (error) {
       console.error('刷新用户信息失败:', error);
@@ -106,14 +106,14 @@ export default function PaymentSuccessPage() {
    * 获取订阅状态显示
    */
   const getSubscriptionStatus = () => {
-    if (!user) return { status: 'unknown', text: '未知', color: 'hsl(var(--muted-foreground))' };
+    if (!user) return { status: 'unknown', text: t('pages.messages.未知'), color: 'hsl(var(--muted-foreground))' };
     
     // 这里可以根据实际的用户订阅状态逻辑来判断
     if (user.isVip || user.isProUser) {
-      return { status: 'active', text: '已激活', color: 'hsl(var(--success))' };
+      return { status: 'active', text: t('pages.messages.已激活'), color: 'hsl(var(--success))' };
     }
     
-    return { status: 'pending', text: '处理中', color: 'hsl(var(--warning))' };
+    return { status: 'pending', text: t('pages.errors.处理中'), color: 'hsl(var(--warning))' };
   };
 
   if (loading) {
@@ -182,7 +182,7 @@ export default function PaymentSuccessPage() {
                     <div className="flex items-center gap-2">
                       {planInfo?.tier === 'premium' && <Crown className="w-4 h-4 text-primary" />}
                       {planInfo?.tier === 'pro' && <Star className="w-4 h-4 text-primary" />}
-                      <span className="font-semibold text-foreground">{planInfo?.name || '未知计划'}</span>
+                      <span className="font-semibold text-foreground">{planInfo?.name || t('pages.messages.未知计划')}</span>
                     </div>
                   </div>
                   <div className="flex justify-between">
@@ -193,12 +193,12 @@ export default function PaymentSuccessPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">用户ID：</span>
-                    <span className="font-mono text-sm text-foreground">{user?.id || '未知'}</span>
+                    <span className="font-mono text-sm text-foreground">{user?.id || t('pages.messages.未知')}</span>
                   </div>
                   {/* ✅ FIXED: 用户名显示 - 使用安全的用户信息获取函数 */}
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">用户名：</span>
-                    <span className="text-foreground">{getUserDisplayName(user, '未知用户')}</span>
+                    <span className="text-foreground">{getUserDisplayName(user, t('pages.messages.未知用户'))}</span>
                   </div>
                 </div>
               </div>
@@ -231,7 +231,7 @@ export default function PaymentSuccessPage() {
                   <div>
                     <h4 className="font-semibold mb-2">功能限制</h4>
                     <ul className="space-y-1 text-sm text-muted-foreground">
-                      <li>AI内容适配器：{planInfo.limits.adaptUsageLimit === -1 ? '不限次数' : `${planInfo.limits.adaptUsageLimit}次/月`}</li>
+                      <li>AI内容适配器：{planInfo.limits.adaptUsageLimit === -1 ? t('pages.messages.不限次数') : `${planInfo.limits.adaptUsageLimit}次/月`}</li>
                       <li>Token限制：{planInfo.limits.tokenLimit.toLocaleString()}</li>
                       <li>可用模型：{planInfo.limits.availableModels.join(', ')}</li>
                     </ul>

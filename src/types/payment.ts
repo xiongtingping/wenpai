@@ -132,17 +132,17 @@ export const PAYMENT_STATUS_MAP = {
   'new': '新订单',
   'payed': '已支付未回调',
   'success': '支付成功',
-  'fee_error': '余额不足',
+  'fee_error': i18n.t('common.errors.余额不足'),
   'expire': '订单已过期'
 } as const;
 
 // 错误状态映射
 export const PAYMENT_ERROR_MAP = {
-  'sign_error': '签名错误',
+  'sign_error': i18n.t('common.errors.签名错误'),
   'order_payed': '订单已支付',
   'order_expire': '订单已过期',
   'free_limit': '免费版达到每日订单限制',
-  'fee_error': '余额不足',
+  'fee_error': i18n.t('common.errors.余额不足'),
   'qr_limit': '无可用二维码',
   'missing_argument': '缺少参数'
 } as const;

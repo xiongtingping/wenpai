@@ -1,6 +1,6 @@
 /**
- * 创意工作室页面
- * 包含九宫格创意魔方、营销日历、朋友圈模板和Emoji生成器
+ * t('creativeStudio.title')
+ * t('creativeStudio.description')
  */
 
 import React, { useState, useEffect } from 'react';
@@ -46,6 +46,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import { CreativeCube } from '@/components/creative/CreativeCube';
 import MarketingCalendar from '@/components/creative/MarketingCalendar';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
@@ -66,9 +67,8 @@ import PageNavigation from '@/components/layout/PageNavigation';
  * 创意工作室页面组件
  * @returns React 组件
  */
-export default function CreativeStudioPage() {
-  const navigate = useNavigate();
-  const { toast } = useToast();
+export default function CreativeStudioPage() { const navigate = useNavigate();
+  const { toast  } = useToast();
   const [activeTab, setActiveTab] = useState('calendar');
 
   return (
@@ -78,14 +78,14 @@ export default function CreativeStudioPage() {
 
         {/* 页面导航 */}
         <PageNavigation
-          title="创意魔方"
-          description="激发创意灵感，快速生成高质量内容"
+          title={t('components.labels.标题')}
+        description="激发创意灵感，快速生成高质量内容"
           showAdaptButton={false}
           showUpgradeButton={false}
           actions={
             <RoleBasedUpgradePrompt
               requiredTier="pro"
-              featureName="创意魔方"
+              featureName={t('pages.labels.创意魔方')}
               description="该功能区为专业版/高级版专属，包含九宫格创意魔方、营销日历、朋友圈模板等专业创意工具"
               mode="compact"
             />

@@ -9,6 +9,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Crown, Zap, Star, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -41,14 +42,13 @@ export interface UnifiedPaywallGuardProps {
 /**
  * 获取等级配置
  */
-const getTierConfig = (tier: SubscriptionTier) => {
-  const configs = {
+const getTierConfig = (tier: SubscriptionTier) => { const configs = {
     trial: {
       name: '体验版',
       icon: <Star className="h-4 w-4" />,
       color: 'bg-muted text-gray-800 dark:bg-foreground dark:text-gray-200',
       price: '免费'
-    },
+     },
     pro: {
       name: '专业版',
       icon: <Zap className="h-4 w-4" />,
@@ -76,7 +76,7 @@ export const UnifiedPaywallGuard: React.FC<UnifiedPaywallGuardProps> = ({
   mode = 'button',
   className = '',
   showUpgradeHint = true,
-  upgradeButtonText = '立即升级'
+  upgradeButtonText = t('components.actions.立即升级')
 }) => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();

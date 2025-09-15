@@ -8,6 +8,7 @@
  * 4. 一致性检查和修复
  */
 
+import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
 
 /**
@@ -292,7 +293,7 @@ export class UserInfoNormalizer {
    */
   merge(...sources: StandardUserInfo[]): StandardUserInfo {
     if (sources.length === 0) {
-      throw new Error('至少需要一个用户信息源');
+      throw new Error(i18n.t('common.errors.至少需要一个用户信息源'));
     }
 
     if (sources.length === 1) {

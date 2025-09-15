@@ -3,6 +3,7 @@
  * 用于在不同页面间同步用户选择的内容（标题、版本、标签等）
  */
 
+import i18n from '@/i18n';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -273,19 +274,19 @@ export const contentSyncUtils = {
     const errors: string[] = [];
     
     if (!state.selectedTitle) {
-      errors.push('未选择标题');
+      errors.push(i18n.t('common.errors.未选择标题'));
     }
     
     if (!state.selectedContent) {
-      errors.push('未选择内容版本');
+      errors.push(i18n.t('common.errors.未选择内容版本'));
     }
     
     if (!state.selectedVersion) {
-      errors.push('未指定版本');
+      errors.push(i18n.t('common.errors.未指定版本'));
     }
     
     if (state.selectedTags.length === 0) {
-      errors.push('未设置标签');
+      errors.push(i18n.t('common.errors.未设置标签'));
     }
     
     return {

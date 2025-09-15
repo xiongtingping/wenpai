@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
@@ -19,8 +20,7 @@ interface InputProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const AppInput = (props: InputProps) => {
-  const { label, placeholder, icon, ...rest } = props;
+const AppInput = (props: InputProps) => { const { label, placeholder, icon, ...rest  } = props;
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
 
@@ -140,12 +140,12 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
         } else if (contactType === 'phone') {
           result = await authClient.loginByPhoneCode(identifier, code);
         } else {
-          throw new Error('验证码登录仅支持邮箱或手机号');
+          throw new Error(t('components.errors.验证码登录仅支持邮箱或手机号'));
         }
       }
 
       if (result) {
-        console.log('✅ 登录成功:', result);
+        console.log(t('components.status.登录成功_hd3'), result);
         
         // 处理记住登录状态
         if (rememberMe) {
@@ -161,8 +161,8 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
         onClose();
       }
     } catch (error: any) {
-      console.error('❌ 登录失败:', error);
-      const errorMessage = error.message || error.code || '登录失败';
+      console.error(t('components.error.登录失败_6dn'), error);
+      const errorMessage = error.message || error.code || t();
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -191,7 +191,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
         } else if (contactType === 'phone') {
           result = await authClient.registerByPhoneCode(contact, password);
         } else {
-          throw new Error('注册请使用邮箱或手机号');
+          throw new Error(t('components.errors.注册请使用邮箱或手机号'));
         }
       } else {
         const code = formData.get('code') as string;
@@ -206,17 +206,10 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
           联系方式: contact
         });
 
-        if (contactType === 'email') {
-          // 🔧 FIXED: 修复registerByEmailCode参数类型
-          result = await authClient.registerByEmailCode(contact, cleanCode);
-          // 注册成功后立即设置密码
-          if (result) {
-            await authClient.updatePassword(password);
-          }
-        } else if (contactType === 'phone') {
+        if (contactType === 'emailphone') {
           result = await authClient.registerByPhoneCode(contact, cleanCode, password);
         } else {
-          throw new Error('验证码注册请使用邮箱或手机号');
+          throw new Error(t('components.errors.验证码注册请使用邮箱或手机号'));
         }
       }
 
@@ -226,15 +219,15 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
         onClose();
       }
     } catch (error: any) {
-      console.error('❌ 注册失败:', error);
-      console.error('❌ EnhancedAuthModal注册错误详情:', {
+      console.error(t('components.error.注册失败_aj2'), error);
+      console.error(t('components.error.Enhanc_c0s'), {
         message: error?.message,
         code: error?.code,
         status: error?.status,
         response: error?.response?.data,
         stack: error?.stack?.split('\n')[0] // 只显示第一行堆栈
       });
-      const errorMessage = error.message || error.code || '注册失败';
+      const errorMessage = error.message || error.code || t();
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -264,10 +257,10 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
         }
       }
       
-      console.log('✅ 验证码发送成功');
+      console.log(t('components.status.验证码发送成_sgt'));
     } catch (error: any) {
-      console.error('❌ 验证码发送失败:', error);
-      setError(error.message || '验证码发送失败');
+      console.error(t('components.error.验证码发送失_ybt'), error);
+      setError(error.message || t());
     }
   };
 
@@ -296,13 +289,13 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       }
 
       if (result) {
-        console.log('✅ 密码重置成功');
+        console.log(t('components.status.密码重置成功_rnd'));
         setShowForgotPassword(false);
         setActiveTab('login');
       }
     } catch (error: any) {
-      console.error('❌ 密码重置失败:', error);
-      setError(error.message || '密码重置失败');
+      console.error(t('components.error.密码重置失败_j4a'), error);
+      setError(error.message || t($));
     } finally {
       setLoading(false);
     }
@@ -376,8 +369,8 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                         name="identifier"
                         type="text"
                         placeholder="手机号/邮箱/用户名"
-                        label="账号"
-                        autoComplete="username"
+                        label={t('components.labels.标签')}
+        autoComplete="username"
                         required
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginContact(e.target.value)}
                       />
@@ -387,7 +380,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                           name="password"
                           type="password"
                           placeholder="请输入密码"
-                          label="密码"
+                          label={t('components.labels.标签')}
                           autoComplete="current-password"
                           required
                         />
@@ -488,8 +481,8 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                           name="password"
                           type="password"
                           placeholder="请输入密码"
-                          label="密码"
-                          autoComplete="new-password"
+                          label={t('components.labels.标签')}
+        autoComplete="new-password"
                           required
                         />
                       ) : (
@@ -540,8 +533,8 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                       name="contact"
                       type="text"
                       placeholder="手机号或邮箱"
-                      label="联系方式"
-                      required
+                      label={t('components.labels.标签')}
+        required
                     />
                     
                     <div className="space-y-2">
@@ -572,8 +565,8 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                       name="newPassword"
                       type="password"
                       placeholder="请输入新密码"
-                      label="新密码"
-                      autoComplete="new-password"
+                      label={t('components.labels.标签')}
+        autoComplete="new-password"
                       required
                     />
 

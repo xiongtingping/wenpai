@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,20 +26,19 @@ import {
   CheckCircle
 } from 'lucide-react';
 
-export default function UpgradeComparisonPage() {
-  const [showOldOverlay, setShowOldOverlay] = useState(false);
+export default function UpgradeComparisonPage() { const [showOldOverlay, setShowOldOverlay] = useState(false);
   const [showNewDialog, setShowNewDialog] = useState(false);
 
   const demoFeatures = [
     {
-      name: '创意魔方',
+      name: t('pages.messages.创意魔方'),
       tier: 'pro' as const,
       description: '使用AI快速生成高质量的创意内容，提升内容创作效率',
       icon: <Wand2 className="h-5 w-5" />,
       color: 'text-primary'
-    },
+     },
     {
-      name: '品牌库',
+      name: t('pages.messages.品牌库'),
       tier: 'premium' as const,
       description: '智能品牌资产管理，支持多维度分析和自动去重',
       icon: <Database className="h-5 w-5" />,
@@ -71,7 +71,7 @@ export default function UpgradeComparisonPage() {
               <span className={feature.color}>{feature.icon}</span>
               {feature.name}
               <Badge variant="secondary" className="ml-2">
-                {feature.tier === 'pro' ? '专业版' : '高级版'}
+                {feature.tier === 'pro' ? t('pages.messages.专业版') : t('pages.messages.高级版')}
               </Badge>
             </Button>
           ))}
@@ -154,7 +154,7 @@ export default function UpgradeComparisonPage() {
                     <Lock className="h-12 w-12 text-muted-foreground mx-auto" />
                     <h3 className="text-lg font-semibold">需要升级解锁</h3>
                     <p className="text-muted-foreground">
-                      {selectedFeature.name} 需要 {selectedFeature.tier === 'pro' ? '专业版' : '高级版'} 权限
+                      {selectedFeature.name} 需要 {selectedFeature.tier === 'pro' ? t('pages.messages.专业版') : t('pages.messages.高级版')} 权限
                     </p>
                     <Button onClick={() => setShowNewDialog(true)}>
                       <Crown className="h-4 w-4 mr-2" />
@@ -305,14 +305,14 @@ export default function UpgradeComparisonPage() {
 {`// 原有方式
 <PermissionOverlay
   show={true}
-  featureName="创意魔方"
+  featureName=
   requiredTier="pro"
 />
 
 // 新方式 - 自动使用新的升级界面
 <PermissionOverlay
   show={true}
-  featureName="创意魔方"
+  featureName=${t('pages.messages.创意魔方')}
   requiredTier="pro"
 />`}
                       </pre>

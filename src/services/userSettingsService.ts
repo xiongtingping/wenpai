@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 /**
  * 用户设置管理服务
  * 提供统一的用户设置保存、加载和管理功能
@@ -224,7 +225,7 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
         });
 
       if (error) {
-        console.error('保存设置失败:', error);
+        console.error(i18n.t('services.text.保存设置失败_df4'), error);
         console.error('保存数据:', settingData);
         throw new Error(`保存设置失败: ${error.message}`);
       }

@@ -3,6 +3,7 @@
  * 管理标题生成的状态和业务逻辑
  */
 
+import i18n from '@/i18n';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { titleGenerationService } from '../services/TitleGenerationService';
 import { TitleGenerationConfig } from '../config/titleGeneration.config';
@@ -164,7 +165,7 @@ export const useTitleGeneration = (
         clearTimeout(generationTimeoutRef.current);
       }
 
-      const errorMessage = error instanceof Error ? error.message : '生成失败';
+      const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.生成失败');
       
       setState(prev => ({
         ...prev,

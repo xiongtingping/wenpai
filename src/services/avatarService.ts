@@ -4,6 +4,7 @@
  * 
  */
 
+import i18n from '@/i18n';
 import { request } from '@/api/request';
 import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 
@@ -60,7 +61,7 @@ class AvatarService {
     if (!file.type.startsWith('image/')) {
       return {
         valid: false,
-        error: '请选择有效的图片文件'
+        error: i18n.t('common.errors.请选择有效的图片文件')
       };
     }
 
@@ -141,7 +142,7 @@ class AvatarService {
       // 🚨 API失败时必须抛出错误，不能使用本地URL临时方案
       return {
         success: false,
-        error: `头像上传API调用失败: ${error instanceof Error ? error.message : '未知错误'}`
+        error: `头像上传API调用失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`
       };
     }
   }
@@ -161,7 +162,7 @@ class AvatarService {
       return true;
     } catch (error) {
       console.error('更新用户头像失败:', error);
-      throw new Error(`更新用户头像失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(`更新用户头像失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
     }
   }
 
@@ -369,7 +370,7 @@ class AvatarService {
               });
               resolve(compressedFile);
             } else {
-              reject(new Error('图片压缩失败'));
+              reject(new Error(i18n.t('common.errors.图片压缩失败')));
             }
           },
           file.type,
@@ -377,7 +378,7 @@ class AvatarService {
         );
       };
 
-      img.onerror = () => reject(new Error('图片加载失败'));
+      img.onerror = () => reject(new Error(i18n.t('common.errors.图片加载失败')));
       img.src = URL.createObjectURL(file);
     });
   }

@@ -45,13 +45,13 @@ export function safeSaveToLocalStorage(key: string, data: any): SaveResult {
   } catch (error: any) {
     console.error(`❌ 数据保存失败: ${key}`, error);
     
-    let errorMessage = '数据保存失败';
+    let errorMessage = i18n.t('common.errors.dataSaveFailed');
     
     if (error.name === 'QuotaExceededError' || error.message.includes('quota')) {
       errorMessage = '存储空间不足，请清理浏览器数据或联系管理员';
     } else if (error.message.includes('JSON')) {
       errorMessage = '数据格式错误，无法保存';
-    } else if (error.message.includes('隐私模式') || error.message.includes('private')) {
+    } else if (error.message.includes(i18n.t('common.status.privateMode')) || error.message.includes('private')) {
       errorMessage = '当前浏览器处于隐私模式，无法保存数据';
     }
     
@@ -88,7 +88,7 @@ export function safeLoadFromLocalStorage<T>(key: string, defaultValue?: T): { da
   } catch (error: any) {
     console.error(`❌ 数据加载失败: ${key}`, error);
     
-    let errorMessage = '数据加载失败';
+    let errorMessage = i18n.t('common.errors.dataLoadFailed');
     if (error.message.includes('JSON')) {
       errorMessage = '数据格式损坏，无法读取';
     }
@@ -149,7 +149,7 @@ export function checkLocalStorageAvailability(): { available: boolean; error?: s
     
     if (error.name === 'QuotaExceededError') {
       errorMessage = 'localStorage存储空间已满';
-    } else if (error.message.includes('private') || error.message.includes('隐私')) {
+    } else if (error.message.includes('private') || error.message.includes(i18n.t('utils.errors.隐私'))) {
       errorMessage = '浏览器隐私模式限制了localStorage使用';
     }
     

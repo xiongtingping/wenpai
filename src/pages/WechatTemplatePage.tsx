@@ -34,9 +34,7 @@ interface WechatTemplate {
 /**
  * 微信朋友圈文案模板页面组件
  */
-const WechatTemplatePage: React.FC = () => {
-  const { t } = useTranslation();
-  const [templates, setTemplates] = useState<WechatTemplate[]>([]);
+const WechatTemplatePage: React.FC = () => { const [templates, setTemplates] = useState<WechatTemplate[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<WechatTemplate[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -44,24 +42,24 @@ const WechatTemplatePage: React.FC = () => {
   const [selectedOccasion, setSelectedOccasion] = useState<string>('all');
   const [editingTemplate, setEditingTemplate] = useState<WechatTemplate | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const { toast } = useToast();
+  const { toast  } = useToast();
 
   // 预设分类
   const categories = [
-    '日常分享', '节日祝福', '心情表达', '美食分享', '旅行记录', 
-    '工作感悟', '生活感悟', '励志鸡汤', '搞笑段子', '其他'
+    t('pages.messages.日常分享'), t('pages.messages.节日祝福'), t('pages.messages.心情表达'), t('pages.messages.美食分享'), t('pages.messages.旅行记录'), 
+    t('pages.messages.工作感悟'), t('pages.messages.生活感悟'), t('pages.messages.励志鸡汤'), t('pages.messages.搞笑段子'), t('pages.messages.其他')
   ];
 
   // 预设标签
   const allTags = [
-    '温馨', '搞笑', '励志', '文艺', '小清新', '治愈', '正能量', 
-    '节日', '生日', '新年', '情人节', '母亲节', '父亲节', '感恩节'
+    t('pages.messages.温馨'), t('pages.messages.搞笑'), t('pages.messages.励志'), t('pages.messages.文艺'), t('pages.messages.小清新'), t('pages.messages.治愈'), t('pages.messages.正能量'), 
+    t('pages.messages.节日'), t('pages.messages.生日'), t('pages.messages.新年'), t('pages.messages.情人节'), t('pages.messages.母亲节'), t('pages.messages.父亲节'), t('pages.messages.感恩节')
   ];
 
   // 预设场合
   const occasions = [
-    '日常', '生日', '新年', '情人节', '母亲节', '父亲节', '感恩节', 
-    '圣诞节', '春节', '中秋节', '国庆节', '毕业季', '工作', '旅行'
+    t('pages.messages.日常'), t('pages.messages.生日'), t('pages.messages.新年'), t('pages.messages.情人节'), t('pages.messages.母亲节'), t('pages.messages.父亲节'), t('pages.messages.感恩节'), 
+    t('pages.messages.圣诞节'), t('pages.messages.春节'), t('pages.messages.中秋节'), t('pages.messages.国庆节'), t('pages.messages.毕业季'), t('pages.messages.工作'), t('pages.messages.旅行')
   ];
 
   /**
@@ -184,14 +182,14 @@ const WechatTemplatePage: React.FC = () => {
     <div className="container mx-auto p-6 space-y-6 particle-background min-h-screen">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="creative-module-title text-foreground">{t('wechatTemplate.title')}</h1>
-          <p className="creative-module-description text-muted-foreground">{t('wechatTemplate.description')}</p>
+          <h1 className="creative-module-title text-foreground"></h1>
+          <p className="creative-module-description text-muted-foreground"></p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
-              {t('wechatTemplate.addTemplate')}
+              
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
@@ -209,7 +207,7 @@ const WechatTemplatePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <PermissionProtectedInput
               requiredTier="pro"
-              featureName="文案搜索"
+              featureName={t('components.labels.名称')}
             >
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -224,10 +222,10 @@ const WechatTemplatePage: React.FC = () => {
             </PermissionProtectedInput>
             <PermissionProtectedSelect
               requiredTier="pro"
-              featureName="分类筛选"
+              featureName={t('components.labels.名称')}
               value={selectedCategory}
               onValueChange={setSelectedCategory}
-              placeholder="选择分类"
+              placeholder={t('components.labels.占位符')}
             >
               <SelectItem value="all">全部分类</SelectItem>
               {categories.map(category => (
@@ -236,10 +234,10 @@ const WechatTemplatePage: React.FC = () => {
             </PermissionProtectedSelect>
             <PermissionProtectedSelect
               requiredTier="pro"
-              featureName="场合筛选"
+              featureName={t('pages.messages.场合筛选')}
               value={selectedOccasion}
               onValueChange={setSelectedOccasion}
-              placeholder="选择场合"
+              placeholder={t('components.labels.占位符')}
             >
               <SelectItem value="all">全部场合</SelectItem>
               {occasions.map(occasion => (
@@ -248,7 +246,7 @@ const WechatTemplatePage: React.FC = () => {
             </PermissionProtectedSelect>
             <PermissionLockedButton
               requiredTier="pro"
-              featureName="标签过滤"
+              featureName={t('components.labels.名称')}
               variant="outline"
               onClick={() => setSelectedTags([])}
             >
@@ -413,7 +411,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
         <div className="flex gap-2">
           <PermissionLockedButton
             requiredTier="pro"
-            featureName="朋友圈文案模板"
+            featureName={t('components.labels.名称')}
             onClick={handleCopy}
             className="flex-1"
           >
@@ -483,15 +481,15 @@ const AddTemplateForm: React.FC<AddTemplateFormProps> = ({ onSubmit, categories,
           <Input
             value={formData.title}
             onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-            placeholder="模板标题"
-            required
+            placeholder={t('components.labels.占位符')}
+        required
           />
         </div>
         <div>
           <label className="text-sm font-medium">分类</label>
           <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
             <SelectTrigger>
-              <SelectValue placeholder="选择分类" />
+              <SelectValue placeholder={t('components.labels.占位符')} />
             </SelectTrigger>
             <SelectContent>
               {categories.map(category => (
@@ -542,7 +540,7 @@ const AddTemplateForm: React.FC<AddTemplateFormProps> = ({ onSubmit, categories,
           <label className="text-sm font-medium">场合</label>
           <Select value={formData.occasion} onValueChange={(value) => setFormData(prev => ({ ...prev, occasion: value }))}>
             <SelectTrigger>
-              <SelectValue placeholder="选择场合" />
+              <SelectValue placeholder={t('components.labels.占位符')} />
             </SelectTrigger>
             <SelectContent>
               {occasions.map(occasion => (
@@ -645,15 +643,15 @@ const EditTemplateForm: React.FC<EditTemplateFormProps> = ({ template, onSubmit,
           <Input
             value={formData.title}
             onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-            placeholder="模板标题"
-            required
+            placeholder={t('components.labels.占位符')}
+        required
           />
         </div>
         <div>
           <label className="text-sm font-medium">分类</label>
           <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
             <SelectTrigger>
-              <SelectValue placeholder="选择分类" />
+              <SelectValue placeholder={t('components.labels.占位符')} />
             </SelectTrigger>
             <SelectContent>
               {categories.map(category => (
@@ -704,7 +702,7 @@ const EditTemplateForm: React.FC<EditTemplateFormProps> = ({ template, onSubmit,
           <label className="text-sm font-medium">场合</label>
           <Select value={formData.occasion} onValueChange={(value) => setFormData(prev => ({ ...prev, occasion: value }))}>
             <SelectTrigger>
-              <SelectValue placeholder="选择场合" />
+              <SelectValue placeholder={t('pages.messages.选择场合')} />
             </SelectTrigger>
             <SelectContent>
               {occasions.map(occasion => (

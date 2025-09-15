@@ -3,6 +3,7 @@
  * 统一封装所有AI调用逻辑，替代分散的调用方式
  */
 
+import i18n from '@/i18n';
 import { callAIWithTokenTracking, type AICallParamsWithTracking, type AIResponseWithUsage } from '@/services/aiWithTokenTracking';
 import { AITaskType } from '@/api/aiService';
 import { generateMatrixPrompt } from '../utils/promptBuilders';
@@ -68,7 +69,7 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
           console.log(`✅ ${versionName} - 第${attempt}次尝试成功`);
           return result;
         } else {
-          const errorMsg = result.error || '生成内容为空或过短';
+          const errorMsg = result.error || i18n.t('common.errors.生成内容为空或过短');
           lastError = new Error(errorMsg);
           console.log(`❌ ${versionName} - 第${attempt}次尝试失败: ${errorMsg}`);
         }
@@ -290,7 +291,7 @@ async function generateMultipleVersions(
       systemPrompt: buildSystemPrompt(`你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`),
       maxTokens: maxTokens,
       temperature: 0.7
-    }, '标准版本', platformId);
+    }, i18n.t('common.labels.标准版本'), platformId);
 
     // 生成创意版本
     const creativeResult = await callAIWithRetry({
@@ -299,7 +300,7 @@ async function generateMultipleVersions(
       systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`),
       maxTokens: maxTokens,
       temperature: 0.9
-    }, '创意版本', platformId);
+    }, i18n.t('common.labels.创意版本'), platformId);
 
     // 处理标准版本结果
     if (standardResult.success && standardResult.content) {
@@ -310,7 +311,7 @@ async function generateMultipleVersions(
         id: 'version-a',
         content: cleanContent,
         style: 'standard',
-        title: '标准版本',
+        title: i18n.t('common.labels.标准版本'),
         charCount: actualCharCount,
         tags: extractedTags
       });
@@ -325,7 +326,7 @@ async function generateMultipleVersions(
         id: 'version-b',
         content: cleanContent,
         style: 'creative',
-        title: '创意版本',
+        title: i18n.t('common.labels.创意版本'),
         charCount: actualCharCount,
         tags: extractedTags
       });
@@ -347,7 +348,7 @@ async function generateMultipleVersions(
           id: 'version-fallback',
           content: fallbackResult.content,
           style: 'standard',
-          title: '生成版本',
+          title: i18n.t('common.labels.生成版本'),
           charCount: fallbackResult.content.length
         });
       }
@@ -489,7 +490,7 @@ export class ContentAdapterService {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : '生成失败'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.生成失败')
       };
     }
   }
@@ -540,7 +541,7 @@ export class ContentAdapterService {
       return {
         success: false,
         versions: [],
-        error: error instanceof Error ? error.message : '未知错误'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误')
       };
     }
   }
@@ -613,12 +614,12 @@ export class ContentAdapterService {
 
       return {
         success: false,
-        error: result.error || '标题生成失败'
+        error: result.error || i18n.t('common.errors.标题生成失败')
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : '标题生成失败'
+        error: error instanceof Error ? error.message : i18n.t('common.errors.标题生成失败')
       };
     }
   }

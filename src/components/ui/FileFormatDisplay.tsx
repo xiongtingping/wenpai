@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,12 +33,11 @@ interface FileFormatDisplayProps {
   className?: string;
 }
 
-export default function FileFormatDisplay({ 
-  mode = 'compact',
+export default function FileFormatDisplay({ mode = 'compact',
   showCategories = true,
   showQuality = true,
   className = ''
-}: FileFormatDisplayProps) {
+ }: FileFormatDisplayProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const formatService = fileFormatSupportService;
   const groupedFormats = getFormatsGroupedByCategory();
@@ -65,11 +65,11 @@ export default function FileFormatDisplay({
 
   const getQualityText = (quality: string) => {
     switch (quality) {
-      case 'excellent': return '完美支持';
-      case 'good': return '良好支持';
-      case 'fair': return '基础支持';
-      case 'limited': return '有限支持';
-      default: return '未知';
+      case 'excellent': return t('components.messages.完美支持');
+      case 'good': return t('components.messages.良好支持');
+      case 'fair': return t('components.messages.基础支持');
+      case 'limited': return t('components.messages.有限支持');
+      default: return t('components.messages.未知');
     }
   };
 

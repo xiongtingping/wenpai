@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +18,7 @@ interface AISummarizerProps {
   onSummaryGenerated?: (summary: string) => void;
 }
 
-export default function AISummarizer({ initialContent = '', onSummaryGenerated }: AISummarizerProps) {
+export default function AISummarizer({ initialContent = '', onSummaryGenerated  }: AISummarizerProps) {
   const [content, setContent] = useState(initialContent);
   const [summary, setSummary] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -39,7 +40,7 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
    */
   const generateSummary = async () => {
     if (!content.trim()) {
-      toast.error('请输入要总结的内容');
+      toast.error(t('components.errors.请输入要总结的内容'));
       return;
     }
 
@@ -81,7 +82,7 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
       }
     } catch (error) {
       console.error('AI总结生成失败:', error);
-      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      const errorMessage = error instanceof Error ? error.message : t('components.errors.未知错误');
       toast.error(`总结生成失败: ${errorMessage}`);
     } finally {
       setIsGenerating(false);
@@ -97,7 +98,7 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
     try {
       await navigator.clipboard.writeText(summary);
       setIsCopied(true);
-      toast.success('总结已复制到剪贴板');
+      toast.success(t('components.messages.总结已复制到剪贴板'));
       
       setTimeout(() => setIsCopied(false), 2000);
     } catch (error) {
@@ -122,7 +123,7 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    toast.success('总结已下载');
+    toast.success(t('components.messages.总结已下载'));
   };
 
   /**
@@ -134,7 +135,7 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
-    toast.info('内容已清空');
+    toast.info(t('components.messages.内容已清空'));
   };
 
   /**
@@ -144,7 +145,7 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
     if (content.trim()) {
       generateSummary();
     } else {
-      toast.error('请先输入内容');
+      toast.error(t('components.errors.请先输入内容'));
     }
   };
 
@@ -194,9 +195,7 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   生成中...
                 </>
-              ) : (
-                '生成AI总结'
-              )}
+              ) : ()}
             </Button>
             
             <Button 

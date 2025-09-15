@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -86,8 +87,7 @@ interface UnifiedEmojiManagerProps {
   emojiClassName?: string;
 }
 
-const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
-  mode = 'selector',
+const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selector',
   showSearch = true,
   showCategories = true,
   showStats = false,
@@ -110,7 +110,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
   className = '',
   cardClassName = '',
   emojiClassName = ''
-}) => {
+ }) => {
   // 基础状态
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
@@ -392,14 +392,14 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
     if (newFavorites.has(emojiId)) {
       newFavorites.delete(emojiId);
       toast({
-        title: "取消收藏",
+        title: t('components.labels.取消收藏'),
         description: "已从收藏中移除",
         duration: 1500,
       });
     } else {
       newFavorites.add(emojiId);
       toast({
-        title: "添加收藏",
+        title: t('components.labels.添加收藏'),
         description: "已添加到收藏",
         duration: 1500,
       });
@@ -576,7 +576,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
 
       // 如果所有方法都失败
       toast({
-        title: "随机选择失败",
+        title: t('components.labels.随机选择失败'),
         description: "暂时无法获取emoji，请稍后重试",
         variant: "destructive",
         duration: 4000,
@@ -584,7 +584,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
     } catch (error) {
       console.error('随机选择失败:', error);
       toast({
-        title: "随机选择失败",
+        title: t('components.labels.随机选择失败'),
         description: "生成随机emoji时出现错误，请稍后重试",
         variant: "destructive",
         duration: 4000,
@@ -597,12 +597,12 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
     try {
       await navigator.clipboard.writeText(emoji.emoji);
       toast({
-        title: "复制成功",
+        title: t('components.labels.复制成功'),
         description: `${emoji.name} ${emoji.emoji} 已复制到剪贴板`,
       });
     } catch (error) {
       toast({
-        title: "复制失败",
+        title: t('components.errors.复制失败'),
         description: "请手动复制emoji",
         variant: "destructive",
       });
@@ -629,7 +629,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                 setSelectedCategory('all');
               }}
               className="px-3.5 py-1.5 text-sm font-semibold"
-              title="查看全部"
+              title={t('components.labels.标题')}
             >
               📋 查看全部
             </Button>
@@ -639,10 +639,10 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
               <span className="text-sm font-medium text-foreground">排序</span>
               <div className="flex items-center gap-1">
                 {([
-                  { key: 'name', label: '名称' },
-                  { key: 'category', label: '分类' },
-                  { key: 'color', label: '颜色' },
-                  { key: 'popularity', label: '热度' },
+                  { key: 'name', label: t('components.labels.名称') },
+                  { key: 'category', label: t('components.labels.分类') },
+                  { key: 'color', label: t('components.labels.颜色') },
+                  { key: 'popularity', label: t('components.labels.热度') },
                 ] as Array<{key: SortMode; label: string}>).map(opt => (
                   <button
                     key={opt.key}
@@ -668,7 +668,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                 onClick={handleRandomSelect}
                 variant="outline"
                 size="sm"
-                title="随机选择"
+                title={t('components.labels.标题')}
               >
                 <Shuffle className="w-4 h-4" />
               </Button>
@@ -680,7 +680,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                 onClick={handleToggleFavoritesOnly}
                 variant={showFavoritesOnly ? "destructive" : "outline"}
                 size="sm"
-                title={showFavoritesOnly ? '退出收藏视图' : '仅显示收藏'}
+                title={showFavoritesOnly ? t('components.labels.退出收藏视图') : t('components.labels.仅显示收藏')}
               >
                 <Star className="w-4 h-4" />
               </Button>
@@ -691,7 +691,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
               onClick={clearFilters}
               variant="outline"
               size="sm"
-              title="清除过滤"
+              title={t('components.labels.标题')}
             >
               <RotateCcw className="w-4 h-4" />
             </Button>
@@ -703,7 +703,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                   onClick={() => setViewMode('grid')}
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
                   size="sm"
-                  title="网格视图"
+                  title={t('components.labels.标题')}
                 >
                   <Grid3X3 className="w-4 h-4" />
                 </Button>
@@ -711,7 +711,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                   onClick={() => setViewMode('list')}
                   variant={viewMode === 'list' ? 'default' : 'outline'}
                   size="sm"
-                  title="列表视图"
+                  title={t('components.labels.标题')}
                 >
                   <List className="w-4 h-4" />
                 </Button>
@@ -719,7 +719,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                   onClick={() => setViewMode('large')}
                   variant={viewMode === 'large' ? 'default' : 'outline'}
                   size="sm"
-                  title="大图视图"
+                  title={t('components.labels.标题')}
                 >
                   <Eye className="w-4 h-4" />
                 </Button>
@@ -749,7 +749,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                       key={token}
                       onClick={() => toggleSearchToken(token)}
                       className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${active ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground hover:bg-accent'}`}
-                      title={active ? '点击清空搜索' : '点击搜索该关键词'}
+                      title={active ? t('components.labels.点击清空搜索') : t('components.labels.点击搜索该关键词')}
                     >
                       {token}
                       {active && <span className="ml-1">✕</span>}

@@ -5,15 +5,11 @@
 @import './automation/automation-modal.css';
 @import './styles/batch-forward-modal-fix.css';
 @import './styles/unified-css-system.css';
-@import './styles/unified-dialog-system.css';
-@import './styles/unified-dialog-positioning.css';
-@import './styles/enhanced-history-dialog-fix.css';
-@import './styles/emergency-dialog-fix.css';
 @import './styles/authing-modal-architecture-fix.css';
 @import './styles/authing-accessibility-fix.css';
-@import './styles/authing-dialog-conflict-fix.css';
-@import './styles/final-dialog-position-fix.css';
 @import './styles/animated-signin-21st.css';
+/* 🎯 统一Dialog定位修复 - 遵循CLAUDE.md 3.6.4规范 */
+@import './styles/dialog-position-fix-final.css';
 
 /* 21st.dev Animated Sign In Styles */
 .login-container {
@@ -47,19 +43,19 @@
 
 .theme-toggle {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: var(--spacing-5);
+  right: var(--spacing-5);
   z-index: 1000;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   width: 50px;
   height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(var(--spacing-2-5));
   transition: all 0.3s ease;
   color: white;
 }
@@ -73,16 +69,16 @@
   position: relative;
   z-index: 10;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 24px;
+  border-radius: var(--spacing-6);
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.1),
+    0 var(--spacing-5) var(--spacing-10) rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(var(--spacing-2-5));
+  -webkit-backdrop-filter: blur(var(--spacing-2-5));
   border: 1px solid rgba(255, 255, 255, 0.2);
   width: 100%;
   max-width: 420px;
-  margin: 20px;
+  margin: var(--spacing-5);
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
@@ -94,7 +90,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.95); /* 暗色主题下的亮色文字 */
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 var(--spacing-5) var(--spacing-10) rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
@@ -104,7 +100,7 @@
 }
 
 .login-card-inner {
-  padding: 40px;
+  padding: var(--spacing-10);
 }
 
 .login-header {
@@ -114,9 +110,9 @@
 }
 
 .login-header h1 {
-  font-size: 32px;
+  font-size: var(--spacing-8);
   font-weight: 700;
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-2-5);
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -131,7 +127,7 @@
 }
 
 .login-header p {
-  font-size: 16px;
+  font-size: var(--spacing-4);
   color: #666;
   margin: 0;
 }
@@ -143,20 +139,20 @@
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--spacing-5);
 }
 
 .form-field {
   position: relative;
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-5);
 }
 
 .form-field input {
   width: 100%;
-  padding: 16px 20px;
-  border: 2px solid #e1e5e9;
-  border-radius: 12px;
-  font-size: 16px;
+  padding: var(--spacing-4) var(--spacing-5);
+  border: var(--spacing-0-5) solid #e1e5e9;
+  border-radius: var(--spacing-3);
+  font-size: var(--spacing-4);
   background: transparent;
   transition: all 0.3s ease;
   outline: none;
@@ -182,13 +178,13 @@
 
 .form-field label {
   position: absolute;
-  left: 20px;
+  left: var(--spacing-5);
   top: 50%;
   transform: translateY(-50%);
   background: inherit;
-  padding: 0 8px;
+  padding: 0 var(--spacing-2);
   color: rgba(15, 23, 42, 0.7);
-  font-size: 16px;
+  font-size: var(--spacing-4);
   font-weight: 500;
   transition: all 0.3s ease;
   pointer-events: none;
@@ -201,7 +197,7 @@
 .form-field.active label,
 .form-field input:focus + label {
   top: 0;
-  font-size: 12px;
+  font-size: var(--spacing-3);
   color: #667eea;
   font-weight: 600;
 }
@@ -212,19 +208,19 @@
 }
 
 .form-field.invalid input {
-  border-color: #ef4444;
+  border-color: hsl(var(--destructive));
 }
 
 .form-field.invalid label {
-  color: #ef4444;
+  color: hsl(var(--destructive));
 }
 
 .error-message {
   position: absolute;
-  bottom: -20px;
+  bottom: -var(--spacing-5);
   left: 0;
-  color: #ef4444;
-  font-size: 12px;
+  color: hsl(var(--destructive));
+  font-size: var(--spacing-3);
   font-weight: 500;
 }
 
@@ -256,14 +252,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 20px 0;
+  margin: var(--spacing-5) 0;
 }
 
 .remember-me {
   display: flex;
   align-items: center;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--spacing-3-5);
   color: rgba(15, 23, 42, 0.8);
   font-weight: 500;
 }
@@ -277,11 +273,11 @@
 }
 
 .checkmark {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #e1e5e9;
-  border-radius: 4px;
-  margin-right: 8px;
+  width: var(--spacing-4-5);
+  height: var(--spacing-4-5);
+  border: var(--spacing-0-5) solid #e1e5e9;
+  border-radius: var(--spacing-1);
+  margin-right: var(--spacing-2);
   position: relative;
   transition: all 0.3s ease;
 }
@@ -304,18 +300,18 @@
   content: '';
   position: absolute;
   left: 5px;
-  top: 2px;
-  width: 4px;
-  height: 8px;
+  top: var(--spacing-0-5);
+  width: var(--spacing-1);
+  height: var(--spacing-2);
   border: solid white;
-  border-width: 0 2px 2px 0;
+  border-width: 0 var(--spacing-0-5) var(--spacing-0-5) 0;
   transform: rotate(45deg);
 }
 
 .forgot-password {
   color: #667eea;
   text-decoration: none;
-  font-size: 14px;
+  font-size: var(--spacing-3-5);
   font-weight: 500;
   transition: color 0.3s ease;
 }
@@ -337,18 +333,18 @@
   padding: 15px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--spacing-3);
   color: white;
-  font-size: 16px;
+  font-size: var(--spacing-4);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin: 10px 0;
+  margin: var(--spacing-2-5) 0;
 }
 
 .login-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  transform: translateY(-var(--spacing-0-5));
+  box-shadow: 0 var(--spacing-2-5) var(--spacing-5) rgba(102, 126, 234, 0.3);
 }
 
 .login-button:active {
@@ -388,9 +384,9 @@
 
 .separator span {
   background: inherit;
-  padding: 0 20px;
+  padding: 0 var(--spacing-5);
   color: #666;
-  font-size: 14px;
+  font-size: var(--spacing-3-5);
 }
 
 .dark .separator span {
@@ -401,14 +397,14 @@
   display: flex;
   gap: 15px;
   justify-content: center;
-  margin: 20px 0;
+  margin: var(--spacing-5) 0;
 }
 
 .social-button {
   width: 50px;
   height: 50px;
-  border: 2px solid #e1e5e9;
-  border-radius: 12px;
+  border: var(--spacing-0-5) solid #e1e5e9;
+  border-radius: var(--spacing-3);
   background: transparent;
   display: flex;
   align-items: center;
@@ -419,7 +415,7 @@
 }
 
 .social-button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-var(--spacing-0-5));
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -450,9 +446,9 @@
 
 .signup-prompt {
   text-align: center;
-  margin: 20px 0 0 0;
+  margin: var(--spacing-5) 0 0 0;
   color: rgba(15, 23, 42, 0.8);
-  font-size: 14px;
+  font-size: var(--spacing-3-5);
   font-weight: 500;
 }
 
@@ -544,10 +540,10 @@
 /* Floating animations */
 @keyframes cardFloat {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+    transform: translateY(0) rotate(0deg);
   }
   33% {
-    transform: translateY(-10px) rotate(0.5deg);
+    transform: translateY(-var(--spacing-2-5)) rotate(0.5deg);
   }
   66% {
     transform: translateY(-5px) rotate(-0.5deg);
@@ -556,7 +552,7 @@
 
 @keyframes themeToggleFloat {
   0%, 100% {
-    transform: translateY(0px);
+    transform: translateY(0);
   }
   50% {
     transform: translateY(-5px);
@@ -592,12 +588,12 @@
 @keyframes inputGlow {
   0%, 100% {
     box-shadow:
-      0 4px 16px rgba(31, 38, 135, 0.2),
+      0 var(--spacing-1) var(--spacing-4) rgba(31, 38, 135, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
   50% {
     box-shadow:
-      0 6px 24px rgba(31, 38, 135, 0.3),
+      0 var(--spacing-1-5) var(--spacing-6) rgba(31, 38, 135, 0.3),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 }
@@ -3689,7 +3685,7 @@ div[data-authing] {
 
   10% {
     opacity: 1;
-    background-size: 16px 16px;
+    background-size: var(--spacing-4) var(--spacing-4);
     transform: scale(0.2);
     -webkit-mask-image: radial-gradient(
       circle at center,
@@ -3877,16 +3873,16 @@ div[data-authing] {
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000;
-  background-image: radial-gradient(#00000021 1px, transparent 1px);
-  background-size: 16px 16px;
+  background-image: radial-gradient(hsl(var(--foreground))21 1px, transparent 1px);
+  background-size: var(--spacing-4) var(--spacing-4);
 }
 
 .lab-bg::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(#00000021 1px, transparent 1px);
-  background-size: 16px 16px;
+  background-image: radial-gradient(hsl(var(--foreground))21 1px, transparent 1px);
+  background-size: var(--spacing-4) var(--spacing-4);
   -webkit-mask-image: radial-gradient(circle at center, transparent 0%, transparent 100%);
   mask-image: radial-gradient(circle at center, transparent 0%, transparent 100%);
   animation: ripple 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -3897,9 +3893,9 @@ div[data-authing] {
 }
 
 .dark .lab-bg::before {
-  background-image: radial-gradient(#ffffff22 1px, transparent 1px);
+  background-image: radial-gradient(hsl(var(--background))22 1px, transparent 1px);
 }
 
 .dark .lab-bg {
-  background-image: radial-gradient(#ffffff22 1px, transparent 1px);
+  background-image: radial-gradient(hsl(var(--background))22 1px, transparent 1px);
 }

@@ -1,0 +1,165 @@
+/**
+ * 🎯 Dialog定位终极修复 - 遵循CLAUDE.md 3.6.4规范
+ * 
+ * 目标：使用视窗单位确保所有Dialog正确居中显示
+ * 策略：简单、有效、可维护的CSS规则
+ * 
+ * 关键技术洞察：
+ * - 使用vh/vw单位确保定位始终相对于视窗
+ * - 完全重置inset属性避免冲突
+ * - 避免过度复杂的选择器
+ */
+
+/* ========================================
+   🎯 核心Dialog定位修复
+   ======================================== */
+
+/* 所有Dialog组件的基础样式 - 温和的修复 */
+[role="dialog"],
+[data-radix-dialog-content] {
+  /* 🔥 基础定位 - 使用视窗单位 */
+  position: fixed !important;
+  top: 50vh !important;
+  left: 50vw !important;
+  transform: translate(-50%, -50%) !important;
+
+  /* 🔥 重置inset属性，避免干扰 */
+  inset: unset !important;
+  inset-block: unset !important;
+  inset-inline: unset !important;
+  inset-block-start: unset !important;
+  inset-block-end: unset !important;
+  inset-inline-start: unset !important;
+  inset-inline-end: unset !important;
+
+  /* 🔥 基础样式 */
+  z-index: 1055 !important;
+  margin: 0 !important;
+  
+  /* 🔥 响应式尺寸 */
+  max-width: min(95vw, 1024px) !important;
+  max-height: 85vh !important;
+
+  /* 🔥 确保可见性 */
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* 🎯 快速引用Dialog终极修复 - 最高优先级 */
+.quick-reference-dialog[role="dialog"],
+[role="dialog"].quick-reference-dialog,
+[role="dialog"][class*="quick-reference"],
+[class*="quick-reference"][role="dialog"] {
+  /* 🎯 安全的视窗单位定位 - 合理优先级 */
+  position: fixed !important;
+  top: 50vh !important;
+  left: 50vw !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1055 !important;
+  margin: 0 !important;
+  
+  /* 🔥 完全清除所有可能的定位干扰 */
+  inset: unset !important;
+  inset-block: unset !important;
+  inset-inline: unset !important;
+  inset-block-start: unset !important;
+  inset-block-end: unset !important;
+  inset-inline-start: unset !important;
+  inset-inline-end: unset !important;
+  
+  /* 🎯 合理的尺寸控制 */
+  max-width: min(90vw, 1000px) !important;
+  max-height: 85vh !important;
+  width: auto !important;
+  height: auto !important;
+  
+  /* 🔧 确保可见性 */
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* 历史记录Dialog特殊处理 - 保持正常响应式布局 */
+[role="dialog"].enhanced-history-dialog,
+[role="dialog"][class*="enhanced-history-dialog"] {
+  /* 🔥 使用正常的响应式尺寸 */
+  width: auto !important;
+  height: auto !important;
+  max-width: min(95vw, 1024px) !important;
+  max-height: 85vh !important;
+  
+  /* 🔥 保持正常居中 */
+  top: 50vh !important;
+  left: 50vw !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* ========================================
+   🎯 背景遮罩统一修复
+   ======================================== */
+
+[data-radix-dialog-overlay] {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1050 !important;
+  background-color: hsl(var(--background) / 0.8) !important;
+  backdrop-filter: blur(var(--spacing-1)) !important;
+}
+
+/* ========================================
+   🎯 响应式适配
+   ======================================== */
+
+/* 移动端适配 */
+@media (max-width: 640px) {
+  [role="dialog"],
+  [data-radix-dialog-content] {
+    max-width: calc(100vw - var(--spacing-4)) !important;
+    max-height: calc(100vh - var(--spacing-4)) !important;
+    padding: var(--spacing-4) !important;
+  }
+}
+
+/* ========================================
+   🎯 动画处理
+   ======================================== */
+
+/* 简单的进入/退出动画 */
+[role="dialog"][data-state="open"],
+[data-radix-dialog-content][data-state="open"] {
+  animation: dialog-fade-in 0.2s ease-out;
+}
+
+[role="dialog"][data-state="closed"],
+[data-radix-dialog-content][data-state="closed"] {
+  animation: dialog-fade-out 0.15s ease-in;
+}
+
+@keyframes dialog-fade-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dialog-fade-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}

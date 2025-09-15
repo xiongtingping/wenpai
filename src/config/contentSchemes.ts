@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 /**
  * 内容方案配置
  * 定义不同风格的内容生成方案
@@ -20,16 +21,7 @@ export interface ContentScheme {
 /**
  * 风格类型枚举
  */
-export type StyleType = 'professional' | 'funny' | 'real' | 'hook';
-
-/**
- * 平台提示词模板接口
- */
-export interface PlatformPromptTemplate {
-  name: string;
-  styleGuide: string;
-  prompt: (input: string) => string;
-}
+export type StyleType = 'professional' | 'funny' | 'real' | 'hook' | 'global-adaptation';
 
 /**
  * 风格提示词模板接口
@@ -42,12 +34,17 @@ export interface StylePromptTemplate {
 }
 
 /**
- * 全域内容适配方案
- * 针对不同平台特点的内容生成方案
+ * 平台提示词模板接口
  */
-export const globalContentAdaptationScheme: ContentScheme = {
+export interface PlatformPromptTemplate {
+  name: string;
+  styleGuide: string;
+  prompt: (input: string) => string;
+}
+
+const globalAdaptationScheme = {
   id: 'global-adaptation',
-  name: '全域内容适配方案',
+  name: i18n.t('config.text.全域内容适配方案_10u'),
   description: '针对小红书、微博、微信、抖音、知乎、B站等主流平台的专业内容适配方案，确保内容符合各平台特色和用户习惯',
   icon: '🌐',
   color: 'from-hsl(var(--accent))-500 to-indigo-600',
@@ -71,34 +68,16 @@ export const stylePromptTemplates: Record<StyleType, StylePromptTemplate> = {
     name: '专业风格',
     description: '专业 + 客观 + 洞察',
     characteristics: [
-      '使用专业术语和行业词汇',
-      '客观分析，避免主观情绪',
-      '提供深度洞察和独到见解',
-      '逻辑清晰，结构严谨',
-      '引用权威数据和案例',
-      '保持专业权威性'
+      i18n.t('config.text.使用专业术语和行_r6n'),
+      i18n.t('config.text.客观分析避免主_7sx'),
+      i18n.t('config.text.提供深度洞察和独_891'),
+      i18n.t('config.text.逻辑清晰结构严_fx5'),
+      i18n.t('config.text.引用权威数据和案_fff'),
+      i18n.t('config.text.保持专业权威性_r6u')
     ],
     prompt: (input: string, platform: string) => {
       const platformPrompts = {
-        xiaohongshu: `你是一位小红书平台的专业内容创作者，擅长撰写专业、客观、有洞察力的种草笔记。
-
-请根据以下原始内容，生成一篇符合专业风格的小红书笔记：
-
-原始内容：
-${input}
-
-专业风格要求：
-- 使用专业术语和行业词汇
-- 客观分析，避免主观情绪
-- 提供深度洞察和独到见解
-- 逻辑清晰，结构严谨
-- 引用权威数据和案例
-- 保持专业权威性
-
-请输出格式如下：
-
-标题：XXXXX（专业性强，准确表达主题）
-内容：XXXX（专业分析，逻辑清晰，有深度洞察）`,
+        xiaohongshu: i18n.t('config.title.你是一位小红书平_z5a'),
 
         weibo: `你是一位微博平台的专业内容创作者，擅长撰写专业、客观、有洞察力的微博内容。
 
@@ -120,25 +99,7 @@ ${input}
 标题：#专业话题#
 内容：XXXX（简洁表达专业观点，可使用专业术语）`,
 
-        wechat: `你是一位微信公众号的专业内容编辑，擅长撰写专业、客观、有洞察力的深度文章。
-
-请根据以下原始内容，撰写一篇专业文章，结构清晰，逻辑完整，用词严谨：
-
-原始内容：
-${input}
-
-专业风格要求：
-- 使用专业术语和行业词汇
-- 客观分析，避免主观情绪
-- 提供深度洞察和独到见解
-- 逻辑清晰，结构严谨
-- 引用权威数据和案例
-- 保持专业权威性
-
-输出格式如下：
-
-标题：XXXXX（专业性强，准确表达主题）
-内容：XXXX（不少于500字，具有深度与可读性）`,
+        wechat: i18n.t('config.title.你是一位微信公众_0ie'),
 
         douyin: `你是一位抖音平台的专业内容创作者，擅长撰写专业、客观、有洞察力的短视频脚本。
 
@@ -184,25 +145,7 @@ ${input}
 标题：XXXXX（如"如何看待…"、"为什么…"）
 内容：1）观点陈述 2）逻辑论证（含举例）3）总结归纳`,
 
-        bilibili: `你是一位B站平台的专业内容创作者，擅长撰写专业、客观、有洞察力的视频简介。
-
-请将以下原始内容改写为适合B站风格的专业视频简介：
-
-原始内容：
-${input}
-
-专业风格要求：
-- 使用专业术语和行业词汇
-- 客观分析，避免主观情绪
-- 提供深度洞察和独到见解
-- 逻辑清晰，结构严谨
-- 引用权威数据和案例
-- 保持专业权威性
-
-输出格式如下：
-
-标题：【XXXX】（用【】包围，专业性强）
-简介内容：XXXXX（语言专业严谨，有深度洞察）`
+        bilibili: i18n.t('config.title.你是一位B站平台_rr2')
       };
 
       return platformPrompts[platform as keyof typeof platformPrompts] || platformPrompts.xiaohongshu;
@@ -211,36 +154,18 @@ ${input}
 
   funny: {
     name: '幽默风格',
-    description: '幽默 + 自嘲 + 网络热词 + 惊叹 + 标题党',
+    description: i18n.t('config.title.幽默自嘲_kfo'),
     characteristics: [
-      '使用幽默风趣的表达',
-      '适当自嘲和调侃',
-      '融入网络热词和流行语',
-      '使用惊叹号和夸张表达',
-      '标题党风格吸引注意',
-      '轻松活泼的语调'
+      i18n.t('config.text.使用幽默风趣的表_k9k'),
+      i18n.t('config.text.适当自嘲和调侃_0qc'),
+      i18n.t('config.text.融入网络热词和流_fnw'),
+      i18n.t('config.text.使用惊叹号和夸张_a6g'),
+      i18n.t(i18n.t('config.title.configt_f99')),
+      i18n.t('config.text.轻松活泼的语调_gxu')
     ],
     prompt: (input: string, platform: string) => {
       const platformPrompts = {
-        xiaohongshu: `你是一位小红书平台的幽默内容创作者，擅长撰写有趣、有梗、吸引眼球的内容。
-
-请根据以下原始内容，生成一篇符合幽默风格的小红书笔记：
-
-原始内容：
-${input}
-
-幽默风格要求：
-- 使用幽默风趣的表达
-- 适当自嘲和调侃
-- 融入网络热词和流行语
-- 使用惊叹号和夸张表达
-- 标题党风格吸引注意
-- 轻松活泼的语调
-
-请输出格式如下：
-
-标题：XXXXX（有趣吸引人，可以使用惊叹号）
-内容：XXXX（幽默表达，有梗有趣，轻松活泼）`,
+        xiaohongshu: i18n.t('config.title.你是一位小红书平_jrm'),
 
         weibo: `你是一位微博平台的幽默内容创作者，擅长撰写有趣、有梗、吸引眼球的微博内容。
 
@@ -262,25 +187,7 @@ ${input}
 标题：#幽默话题#
 内容：XXXX（简洁幽默表达，可使用网络流行语）`,
 
-        wechat: `你是一位微信公众号的幽默内容编辑，擅长撰写有趣、有梗、吸引眼球的文章。
-
-请根据以下原始内容，撰写一篇幽默文章：
-
-原始内容：
-${input}
-
-幽默风格要求：
-- 使用幽默风趣的表达
-- 适当自嘲和调侃
-- 融入网络热词和流行语
-- 使用惊叹号和夸张表达
-- 标题党风格吸引注意
-- 轻松活泼的语调
-
-输出格式如下：
-
-标题：XXXXX（有趣吸引人，可以使用惊叹号）
-内容：XXXX（幽默表达，有梗有趣，轻松活泼）`,
+        wechat: i18n.t('config.title.你是一位微信公众_eax'),
 
         douyin: `你是一位抖音平台的幽默内容创作者，擅长撰写有趣、有梗、吸引眼球的短视频脚本。
 
@@ -326,25 +233,7 @@ ${input}
 标题：XXXXX（如"如何看待…"、"为什么…"）
 内容：1）幽默观点陈述 2）轻松论证（含调侃）3）总结归纳`,
 
-        bilibili: `你是一位B站平台的幽默内容创作者，擅长撰写有趣、有梗、吸引眼球的视频简介。
-
-请将以下原始内容改写为适合B站风格的幽默视频简介：
-
-原始内容：
-${input}
-
-幽默风格要求：
-- 使用幽默风趣的表达
-- 适当自嘲和调侃
-- 融入网络热词和流行语
-- 使用惊叹号和夸张表达
-- 标题党风格吸引注意
-- 轻松活泼的语调
-
-输出格式如下：
-
-标题：【XXXX】（用【】包围，有趣吸引人）
-简介内容：XXXXX（语言幽默风趣，有梗有趣）`
+        bilibili: i18n.t('config.title.你是一位B站平台_g9i')
       };
 
       return platformPrompts[platform as keyof typeof platformPrompts] || platformPrompts.xiaohongshu;
@@ -355,34 +244,16 @@ ${input}
     name: '真实风格',
     description: '真实感 + 主观 + 分享型',
     characteristics: [
-      '第一人称真实体验',
-      '主观感受和情感表达',
-      '分享个人经历和故事',
-      '真实可信的表达方式',
-      '避免过度包装和修饰',
-      '贴近生活的语言'
+      i18n.t('config.text.第一人称真实体验_sl2'),
+      i18n.t('config.text.主观感受和情感表_0ql'),
+      i18n.t('config.text.分享个人经历和故_oc8'),
+      i18n.t('config.text.真实可信的表达方_6t0'),
+      i18n.t('config.text.避免过度包装和修_fpo'),
+      i18n.t('config.text.贴近生活的语言_qkf')
     ],
     prompt: (input: string, platform: string) => {
       const platformPrompts = {
-        xiaohongshu: `你是一位小红书平台的真实内容创作者，擅长撰写真实、有温度、有共鸣的内容。
-
-请根据以下原始内容，生成一篇符合真实风格的小红书笔记：
-
-原始内容：
-${input}
-
-真实风格要求：
-- 第一人称真实体验
-- 主观感受和情感表达
-- 分享个人经历和故事
-- 真实可信的表达方式
-- 避免过度包装和修饰
-- 贴近生活的语言
-
-请输出格式如下：
-
-标题：XXXXX（真实感受，有温度）
-内容：XXXX（个人体验，真实分享，有共鸣）`,
+        xiaohongshu: i18n.t('config.title.你是一位小红书平_0oq'),
 
         weibo: `你是一位微博平台的真实内容创作者，擅长撰写真实、有温度、有共鸣的微博内容。
 
@@ -404,25 +275,7 @@ ${input}
 标题：#真实话题#
 内容：XXXX（简洁真实表达，分享个人感受）`,
 
-        wechat: `你是一位微信公众号的真实内容编辑，擅长撰写真实、有温度、有共鸣的文章。
-
-请根据以下原始内容，撰写一篇真实文章：
-
-原始内容：
-${input}
-
-真实风格要求：
-- 第一人称真实体验
-- 主观感受和情感表达
-- 分享个人经历和故事
-- 真实可信的表达方式
-- 避免过度包装和修饰
-- 贴近生活的语言
-
-输出格式如下：
-
-标题：XXXXX（真实感受，有温度）
-内容：XXXX（个人体验，真实分享，有共鸣）`,
+        wechat: i18n.t('config.title.你是一位微信公众_z7k'),
 
         douyin: `你是一位抖音平台的真实内容创作者，擅长撰写真实、有温度、有共鸣的短视频脚本。
 
@@ -468,25 +321,7 @@ ${input}
 标题：XXXXX（如"如何看待…"、"为什么…"）
 内容：1）真实观点陈述 2）个人经历分享 3）总结归纳`,
 
-        bilibili: `你是一位B站平台的真实内容创作者，擅长撰写真实、有温度、有共鸣的视频简介。
-
-请将以下原始内容改写为适合B站风格的真实视频简介：
-
-原始内容：
-${input}
-
-真实风格要求：
-- 第一人称真实体验
-- 主观感受和情感表达
-- 分享个人经历和故事
-- 真实可信的表达方式
-- 避免过度包装和修饰
-- 贴近生活的语言
-
-输出格式如下：
-
-标题：【XXXX】（用【】包围，真实感受）
-简介内容：XXXXX（语言真实可信，有温度）`
+        bilibili: i18n.t('config.title.你是一位B站平台_enq')
       };
 
       return platformPrompts[platform as keyof typeof platformPrompts] || platformPrompts.xiaohongshu;
@@ -514,16 +349,10 @@ ${input}
 原始内容：
 ${input}`,
 
-        weibo: `你是一位微博运营策划，请将以下内容改写为具有高话题性和引流钩子的文案：
-- 使用强标题句 + #话题#
-- 引导转发或提问结尾
-
-原始内容：
-${input}`,
+        weibo: i18n.t('config.title.你是一位微博运营_hyq'),
 
         wechat: `请将以下内容撰写为微信公众号引流转化型文章：
-- 开头用"你是否也有这种经历…"
-- 标题引发共鸣（如"XX人群的通病，其实可以这样解决"）
+- 开头用"你是否也有这种经历…i18n.t('config.title.标题引发共_11s')XX人群的通病，其实可以这样解决"）
 - 中段结构：问题现象→痛点加深→建议解决方案
 
 原始内容：
@@ -545,25 +374,16 @@ ${input}`,
 原始内容：
 ${input}`,
 
-        bilibili: `请将以下内容改写为B站风格强钩子标题+简介：
-- 标题参考：【99%人都不知道的XX】
-- 简介说明人设+诱因+冲突感
-
-原始内容：
-${input}`
+        bilibili: i18n.t('config.title.请将以下内容改写为适合B站的内容')
       };
 
       return platformPrompts[platform as keyof typeof platformPrompts] || platformPrompts.xiaohongshu;
     }
-  }
-};
+  },
 
-/**
- * 平台提示词模板配置
- */
-export const platformPromptTemplates: Record<string, PlatformPromptTemplate> = {
-  xiaohongshu: {
-    name: '小红书',
+  'global-adaptation': {
+    name: '全域内容适配方案',
+    description: '针对小红书、微博、微信、抖音、知乎、B站等主流平台的专业内容适配方案',
     styleGuide: `风格：亲切、细腻、有生活美学。常用表达如"巨好用"、"闭眼入"、"姐妹们看过来！"。
 写作结构建议：
 1. 用钩子吸引点击（如"这玩意也太香了吧！"）
@@ -591,20 +411,7 @@ ${input}
 建议加入话题标签（#XX#）、@用户，以及简短带情绪的句子。
 
 语言要有"爽感"，结尾建议引导讨论或投票。`,
-    prompt: (input: string) => `你是一位擅长撰写微博热评内容的用户。
-
-请根据以下原始内容，生成一条微博内容：
-- 语言要短小有力，最好控制在200字以内
-- 带话题 #XX#
-- 引导读者转发/讨论
-
-原始内容：
-${input}
-
-输出格式如下：
-
-标题：#关键词话题#
-内容：XXXX（简洁表达观点，可使用网络流行语）`,
+    prompt: (input: string) => i18n.t('config.title.你是一位擅长撰写_fdh'),
   },
 
   wechat: {
@@ -613,17 +420,7 @@ ${input}
 文章结构要清晰，有逻辑，有洞察，支持引用权威观点或数据。
 
 语言正式、准确、避免AI腔和口语化表达。`,
-    prompt: (input: string) => `你是一位专业内容编辑，负责撰写适合微信公众平台发布的深度内容文章。
-
-请根据以下原始内容，撰写一篇专业文章，结构清晰，逻辑完整，用词严谨：
-
-原始内容：
-${input}
-
-输出格式如下：
-
-标题：XXXXX（专业性强，准确表达主题）
-内容：XXXX（不少于500字，具有深度与可读性）`,
+    prompt: (input: string) => i18n.t('config.title.你是一位专业内容_wzx'),
   },
 
   douyin: {
@@ -632,21 +429,7 @@ ${input}
 语气需具备"语音转文字感"，如"姐妹们，这也太离谱了吧！"
 
 建议输出3段式脚本：开头吸引人→中段反转→结尾高能引导互动。`,
-    prompt: (input: string) => `你是一位抖音短视频脚本创作者。
-
-请将以下原始内容改写为适合拍摄抖音短视频的文字脚本，语气活泼，有情绪反转，适合配乐节奏：
-
-原始内容：
-${input}
-
-输出格式如下：
-
-标题：XXXXX（爆点标题）
-脚本内容：
-画面一：[脚本文案]
-画面二：[脚本文案]
-画面三：[脚本文案]
-结尾Call to Action：[引导关注/评论的话语]`,
+    prompt: (input: string) => i18n.t('config.title.你是一位抖音短视_sjv'),
   },
 
   zhihu: {
@@ -672,17 +455,7 @@ ${input}
     styleGuide: `风格：年轻、活力、有梗。适合视频简介、开箱稿、搞笑吐槽、安利型内容。
 
 语气要轻松、能玩梗，适合"弹幕场景"共鸣感。`,
-    prompt: (input: string) => `你是一位B站视频up主，擅长撰写搞笑、有共鸣的内容简介。
-
-请将以下原始内容改写为适合B站风格的视频简介，语气年轻、有梗、接地气：
-
-原始内容：
-${input}
-
-输出格式如下：
-
-标题：【XXXX】（用【】包围，带有梗或情绪）
-简介内容：XXXXX（语言轻松活泼，可带调侃或二次元语气）`,
+    prompt: (input: string) => i18n.t('config.title.你是一位B站视频_b9z'),
   },
 };
 
@@ -696,7 +469,7 @@ export const platformSpecifications = {
     features: ['图文笔记', '种草推荐', '生活分享', '话题挑战'],
     bestPractices: [
       '使用高质量图片',
-      '添加相关话题标签',
+      i18n.t('config.label.添加相关话题标签_76o'),
       '分享真实使用体验',
       '与粉丝互动回复'
     ]
@@ -707,7 +480,7 @@ export const platformSpecifications = {
     features: ['实时动态', '话题讨论', '热点追踪', '粉丝互动'],
     bestPractices: [
       '抓住热点话题',
-      '使用话题标签',
+      i18n.t('config.label.使用话题标签_4hm'),
       '配图增强表达',
       '引导用户互动'
     ]
@@ -750,7 +523,7 @@ export const platformSpecifications = {
     hashtagCount: 10,
     features: ['视频平台', '弹幕互动', '二次元文化', '年轻群体'],
     bestPractices: [
-      '标题有梗有趣',
+      i18n.t('config.title.标题有梗有趣_7xc'),
       '内容接地气',
       '与弹幕互动',
       '保持年轻活力'
@@ -759,10 +532,46 @@ export const platformSpecifications = {
 };
 
 /**
+ * 平台提示词模板映射
+ */
+export const platformPromptTemplates: Record<string, PlatformPromptTemplate> = {
+  xiaohongshu: {
+    name: '小红书',
+    styleGuide: `风格：亲切、细腻、有生活美学。常用表达如"巨好用"、"闭眼入"、"姐妹们看过来！"。`,
+    prompt: (input: string) => `请将以下内容改写为小红书风格：\n\n${input}`
+  },
+  weibo: {
+    name: '微博', 
+    styleGuide: `风格：简洁、有观点、热点感强。适合蹭热度和互动。`,
+    prompt: (input: string) => `请将以下内容改写为微博风格：\n\n${input}`
+  },
+  wechat: {
+    name: '微信',
+    styleGuide: `风格：专业、权威，适合职场人群阅读。`,
+    prompt: (input: string) => `请将以下内容改写为微信公众号风格：\n\n${input}`
+  },
+  douyin: {
+    name: '抖音',
+    styleGuide: `风格：轻松、有趣、上头。适合配合视频节奏。`,
+    prompt: (input: string) => `请将以下内容改写为抖音短视频脚本：\n\n${input}`
+  },
+  zhihu: {
+    name: '知乎',
+    styleGuide: `风格：理性、深度、结构化。建议"总-分-总"结构。`,
+    prompt: (input: string) => `请将以下内容改写为知乎回答风格：\n\n${input}`
+  },
+  bilibili: {
+    name: 'B站',
+    styleGuide: `风格：年轻、活力、有梗。适合视频简介、开箱稿。`,
+    prompt: (input: string) => `请将以下内容改写为B站风格：\n\n${input}`
+  }
+};
+
+/**
  * 内容方案列表
  */
 export const contentSchemes: ContentScheme[] = [
-  globalContentAdaptationScheme,
+  globalAdaptationScheme,
   {
     id: 'universal',
     name: '通用适配方案',
@@ -808,37 +617,9 @@ export const contentSchemes: ContentScheme[] = [
 ];
 
 /**
- * 获取方案配置
+ * 获取内容适配提示词
  */
-export function getContentScheme(schemeId: string): ContentScheme | undefined {
-  return contentSchemes.find(scheme => scheme.id === schemeId);
-}
-
-/**
- * 获取平台提示词模板
- */
-export function getPlatformPromptTemplate(platform: string): PlatformPromptTemplate | undefined {
-  return platformPromptTemplates[platform];
-}
-
-/**
- * 获取风格提示词模板
- */
-export function getStylePromptTemplate(style: StyleType): StylePromptTemplate | undefined {
-  return stylePromptTemplates[style];
-}
-
-/**
- * 获取平台技术规格
- */
-export function getPlatformSpecification(platform: string) {
-  return platformSpecifications[platform as keyof typeof platformSpecifications];
-}
-
-/**
- * 生成平台适配内容（带风格）
- */
-export function generatePlatformContent(
+export function getContentAdaptationPrompt(
   originalContent: string,
   platform: string,
   schemeId: string = 'global-adaptation',
@@ -869,6 +650,20 @@ export function generatePlatformContent(
 }
 
 /**
+ * 获取平台提示词模板
+ */
+export function getPlatformPromptTemplate(platform: string): PlatformPromptTemplate | undefined {
+  return platformPromptTemplates[platform];
+}
+
+/**
+ * 获取风格提示词模板
+ */
+export function getStylePromptTemplate(style: StyleType): StylePromptTemplate | undefined {
+  return stylePromptTemplates[style];
+}
+
+/**
  * 获取所有可用风格
  */
 export function getAvailableStyles(): Array<{ id: StyleType; name: string; description: string; icon: string }> {
@@ -882,7 +677,7 @@ export function getAvailableStyles(): Array<{ id: StyleType; name: string; descr
     {
       id: 'funny',
       name: '幽默风格',
-      description: '幽默 + 自嘲 + 网络热词 + 惊叹 + 标题党',
+      description: i18n.t('config.title.幽默自嘲_kfo'),
       icon: '😄'
     },
     {

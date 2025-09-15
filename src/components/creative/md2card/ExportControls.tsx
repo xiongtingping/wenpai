@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -144,7 +145,7 @@ export const EXPORT_QUALITIES: ExportQuality[] = [
   },
   {
     id: 'high',
-    name: '高质量',
+    name: t('components.text.高质量_jl1'),
     scale: 2,
     jpegQuality: 0.9,
     description: '高质量，适合打印'
@@ -170,15 +171,12 @@ interface ExportControlsProps {
 /**
  * 导出控制主组件
  */
-export const ExportControls: React.FC<ExportControlsProps> = ({
-  parsedContent,
+export const ExportControls: React.FC<any> = ({ parsedContent,
   template,
   configuration,
   disabled = false,
   onExport,
-  className = ''
-}) => {
-  const { toast } = useToast();
+  className = '' }) => { const { toast  } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
@@ -191,7 +189,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
   const handleQuickExport = async () => {
     if (!parsedContent || !template) {
       toast({
-        title: '无法导出',
+        title: t('components.labels.无法导出'),
         description: '请先生成卡片内容',
         variant: 'destructive'
       });
@@ -211,7 +209,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
   const handleAdvancedExport = async () => {
     if (!parsedContent || !template) {
       toast({
-        title: '无法导出',
+        title: t('components.labels.无法导出'),
         description: '请先生成卡片内容',
         variant: 'destructive'
       });
@@ -254,7 +252,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
       setExportProgress(100);
 
       toast({
-        title: '导出成功',
+        title: t('components.labels.导出成功'),
         description: `卡片已导出为 ${options.format.name} 格式`,
       });
 
@@ -266,7 +264,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
     } catch (error) {
       console.error('导出失败:', error);
       toast({
-        title: '导出失败',
+        title: t('components.errors.导出失败'),
         description: '导出过程中发生错误，请稍后重试',
         variant: 'destructive'
       });
@@ -279,7 +277,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
   const handleCopyToClipboard = async () => {
     if (!parsedContent || !template) {
       toast({
-        title: '无法复制',
+        title: t('components.labels.无法复制'),
         description: '请先生成卡片内容',
         variant: 'destructive'
       });
@@ -290,13 +288,13 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
       // 这里应该实现实际的复制逻辑
       // 生成PNG格式的图片并复制到剪贴板
       toast({
-        title: '复制成功',
+        title: t('components.labels.复制成功'),
         description: '卡片已复制到剪贴板',
       });
     } catch (error) {
       console.error('复制失败:', error);
       toast({
-        title: '复制失败',
+        title: t('components.errors.复制失败'),
         description: '无法复制到剪贴板',
         variant: 'destructive'
       });
@@ -307,7 +305,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
   const handleShare = async () => {
     if (!parsedContent || !template) {
       toast({
-        title: '无法分享',
+        title: t('components.labels.无法分享'),
         description: '请先生成卡片内容',
         variant: 'destructive'
       });
@@ -328,7 +326,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
       // 回退到复制链接
       await navigator.clipboard.writeText(window.location.href);
       toast({
-        title: '链接已复制',
+        title: t('components.labels.链接已复制'),
         description: '分享链接已复制到剪贴板',
       });
     }

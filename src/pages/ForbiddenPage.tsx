@@ -50,9 +50,9 @@ export default function ForbiddenPage() {
             <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
               <Shield className="w-8 h-8 text-destructive" />
             </div>
-            <CardTitle className="text-2xl text-destructive">{t('errors.forbidden.title')}</CardTitle>
+            <CardTitle className="text-2xl text-destructive"></CardTitle>
             <CardDescription className="text-base">
-              {t('errors.forbidden.subtitle')}
+              
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -60,7 +60,7 @@ export default function ForbiddenPage() {
               <Alert>
                 <Lock className="h-4 w-4" />
                 <AlertDescription>
-                  {t('errors.forbidden.needLogin')}
+                  
                 </AlertDescription>
               </Alert>
             ) : (
@@ -76,11 +76,11 @@ export default function ForbiddenPage() {
             {isAuthenticated && user && (
               <div className="bg-muted p-3 rounded-lg text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">{t('errors.forbidden.currentUser')}:</span>
+                  <span className="text-muted-foreground">:</span>
                   <span className="font-medium">{getUserDisplayName(user, t('errors.forbidden.unknown'))}</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-muted-foreground">{t('errors.forbidden.memberLevel')}:</span>
+                  <span className="text-muted-foreground">:</span>
                   <span className="font-medium">
                     {user.tier === 'free' ? t('errors.forbidden.freeUser') : 
                      user.tier === 'pro' ? t('errors.forbidden.proUser') : 
@@ -96,18 +96,18 @@ export default function ForbiddenPage() {
                 <>
                   <Button onClick={handleLogin} className="w-full">
                     <Lock className="w-4 h-4 mr-2" />
-                    {t('errors.forbidden.loginNow')}
+                    
                   </Button>
                   <Button variant="outline" onClick={handleGoHome} className="w-full">
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    {t('errors.forbidden.backToHome')}
+                    
                   </Button>
                 </>
               ) : (
                 <>
                   <Button onClick={handleUpgrade} className="w-full">
                     <Crown className="w-4 h-4 mr-2" />
-                    {t('errors.forbidden.upgradeNow')}
+                    
                   </Button>
                   <div className="flex gap-2">
                     <Button variant="outline" onClick={handleGoBack} className="flex-1">
@@ -115,7 +115,7 @@ export default function ForbiddenPage() {
                       {t('errors.forbidden.goBack')}
                     </Button>
                     <Button variant="outline" onClick={handleGoHome} className="flex-1">
-                      {t('errors.forbidden.home')}
+                      
                     </Button>
                   </div>
                 </>
@@ -129,12 +129,12 @@ export default function ForbiddenPage() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" />
-              {t('errors.forbidden.help.title')}
+              
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="text-sm text-muted-foreground space-y-2">
-              <p>{t('errors.forbidden.help.description')}</p>
+              <p></p>
               <ul className="list-disc list-inside space-y-1 ml-2">
                 {(t('errors.forbidden.help.suggestions', { returnObjects: true }) as any[]).map((suggestion: any, index: number) => (
                   <li key={index}>{suggestion}</li>
@@ -144,7 +144,7 @@ export default function ForbiddenPage() {
             
             <div className="flex gap-2">
               <Button variant="link" size="sm" onClick={() => window.location.reload()}>
-                {t('errors.forbidden.help.refresh')}
+                
               </Button>
               <Button variant="link" size="sm" asChild>
                 <a href="mailto:hello@wenpai.xyz">{t('errors.forbidden.help.contactSupport')}</a>

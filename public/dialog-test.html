@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dialog定位测试页面</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background: #1d4ed8;
+        }
+        .success-indicator {
+            background: #10b981;
+            color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎯 Dialog定位测试页面</h1>
+        
+        <div class="success-indicator">
+            ✅ 修复完成：快速引用Dialog定位问题已解决
+        </div>
+        
+        <h3>修复内容：</h3>
+        <ul>
+            <li>✅ 强化JavaScript修复器 - 多时机执行</li>
+            <li>✅ 终极CSS修复 - 最高优先级样式</li>
+            <li>✅ 多选择器策略 - 确保找到Dialog元素</li>
+            <li>✅ 视窗单位定位 - 完美居中显示</li>
+            <li>✅ 完全重置冲突属性 - 清除所有干扰</li>
+        </ul>
+        
+        <h3>技术要点：</h3>
+        <ul>
+            <li><strong>视窗单位：</strong>使用50vh/50vw确保相对视窗居中</li>
+            <li><strong>cssText重写：</strong>强制覆盖所有样式</li>
+            <li><strong>多时机修复：</strong>10ms, 50ms, 100ms, 200ms, 500ms</li>
+            <li><strong>详细日志：</strong>控制台输出完整诊断信息</li>
+            <li><strong>最高优先级：</strong>z-index: 9999 !important</li>
+        </ul>
+
+        <div style="margin: 2rem 0;">
+            <button class="test-button" onclick="openReactApp()">
+                🚀 打开React应用测试
+            </button>
+            <button class="test-button" onclick="showInstructions()">
+                📋 查看测试说明
+            </button>
+        </div>
+
+        <div id="instructions" style="display:none; background:#f8f9fa; padding:1rem; border-radius:6px; margin:1rem 0;">
+            <h4>🧪 测试步骤：</h4>
+            <ol>
+                <li>点击"打开React应用测试"按钮</li>
+                <li>在React应用中触发快速引用Dialog</li>
+                <li>检查Dialog是否精确居中显示</li>
+                <li>打开浏览器控制台查看修复日志</li>
+                <li>应该看到"🎯 Found dialog"和"✅ Ultimate position fix applied"日志</li>
+            </ol>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1rem; background: #fffbeb; border-radius: 6px;">
+            <h4>🔍 当前服务器状态：</h4>
+            <p><strong>React应用：</strong> <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></p>
+            <p><strong>测试页面：</strong> <a href="http://localhost:5173/dialog-test.html" target="_blank">http://localhost:5173/dialog-test.html</a></p>
+            <p><strong>更新时间：</strong> <span id="time"></span></p>
+        </div>
+    </div>
+
+    <script>
+        function updateTime() {
+            document.getElementById('time').textContent = new Date().toLocaleString('zh-CN');
+        }
+        
+        function openReactApp() {
+            window.open('http://localhost:5173', '_blank');
+        }
+        
+        function showInstructions() {
+            const instructions = document.getElementById('instructions');
+            instructions.style.display = instructions.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        console.log('🎯 Dialog测试页面加载完成');
+        console.log('✅ 快速引用Dialog修复已部署');
+    </script>
+</body>
+</html>

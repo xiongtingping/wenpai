@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Upload, Image, FileText, X, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +19,7 @@ interface UploadFormProps {
   onReset: () => void;
 }
 
-export default function UploadForm({ onUploadComplete, onReset }: UploadFormProps) {
+export default function UploadForm({ onUploadComplete, onReset  }: UploadFormProps) {
   const [uploadType, setUploadType] = useState<'image' | 'description'>('image');
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [description, setDescription] = useState('');
@@ -35,7 +36,7 @@ export default function UploadForm({ onUploadComplete, onReset }: UploadFormProp
 
     // 验证文件类型
     if (!file.type.startsWith('image/')) {
-      setError('请上传图片文件');
+      setError(t('components.errors.请上传图片文件'));
       return;
     }
 
@@ -61,7 +62,7 @@ export default function UploadForm({ onUploadComplete, onReset }: UploadFormProp
    */
   const handleDescriptionSubmit = () => {
     if (!description.trim()) {
-      setError('请输入品牌描述');
+      setError(t('components.errors.请输入品牌描述'));
       return;
     }
 

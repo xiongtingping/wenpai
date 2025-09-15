@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -38,8 +39,7 @@ interface StatusCheckResult {
  * 支付服务状态检查页面
  * @returns {JSX.Element}
  */
-export default function PaymentStatusPage() {
-  const [checkResults, setCheckResults] = useState<StatusCheckResult[]>([]);
+export default function PaymentStatusPage() { const [checkResults, setCheckResults] = useState<StatusCheckResult[]>([]);
   const [isChecking, setIsChecking] = useState(false);
   const [lastCheckTime, setLastCheckTime] = useState<string>('');
 
@@ -54,22 +54,22 @@ export default function PaymentStatusPage() {
     try {
       // 1. 检查网络连接
       results.push({
-        name: '网络连接',
+        name: t('pages.messages.网络连接'),
         status: navigator.onLine ? 'success' : 'error',
-        message: navigator.onLine ? '网络连接正常' : '网络连接不可用',
-        details: navigator.onLine ? '可以访问互联网' : '请检查网络设置',
+        message: navigator.onLine ? t('pages.messages.网络连接正常') : t('pages.messages.网络连接不可用'),
+        details: navigator.onLine ? t('pages.messages.可以访问互联网') : t('pages.messages.请检查网络设置'),
         timestamp: now
-      });
+       });
 
       // 2. 检查配置验证
       try {
         const configResult = await validateAllConfigs();
         results.push({
-          name: '配置验证',
+          name: t('pages.messages.配置验证'),
           status: configResult.isValid ? 'success' : 'warning',
-          message: configResult.isValid ? '配置验证通过' : '配置验证失败',
+          message: configResult.isValid ? t('pages.messages.配置验证通过') : t('pages.messages.配置验证失败'),
           details: configResult.isValid 
-            ? '所有必需配置已正确设置'
+            ? t('pages.messages.所有必需配置已正确设置')
             : `缺失配置: ${configResult.missingConfigs.join(', ')}`,
           timestamp: now
         });
@@ -98,16 +98,16 @@ export default function PaymentStatusPage() {
             name: check.name,
             status: value ? 'success' : 'error',
             message: value ? `${check.name}已配置` : `${check.name}未配置`,
-            details: value ? '配置正确' : '请在环境变量中配置此值',
+            details: value ? t('pages.messages.配置正确') : t('pages.messages.请在环境变量中配置此值'),
             timestamp: now
           });
         });
 
       } catch (error: any) {
         results.push({
-          name: '配置验证',
+          name: t('pages.messages.配置验证'),
           status: 'error',
-          message: '配置验证过程出错',
+          message: t('pages.messages.配置验证过程出错'),
           details: error.message,
           timestamp: now
         });
@@ -127,16 +127,16 @@ export default function PaymentStatusPage() {
           name: `浏览器${check.name}`,
           status: isSupported ? 'success' : 'error',
           message: isSupported ? `${check.name}支持正常` : `${check.name}不支持`,
-          details: isSupported ? '浏览器功能正常' : '请使用现代浏览器',
+          details: isSupported ? t('pages.messages.浏览器功能正常') : t('pages.messages.请使用现代浏览器'),
           timestamp: now
         });
       });
 
     } catch (error: any) {
       results.push({
-        name: '状态检查',
+        name: t('pages.messages.状态检查'),
         status: 'error',
-        message: '状态检查过程出错',
+        message: t('pages.messages.状态检查过程出错'),
         details: error.message,
         timestamp: now
       });
@@ -211,7 +211,7 @@ export default function PaymentStatusPage() {
           ) : (
             <RefreshCw className="h-5 w-5" />
           )}
-          {isChecking ? '检查中...' : '重新检查'}
+          {isChecking ? '检查中...' : t('pages.messages.重新检查')}
         </Button>
       </div>
 
@@ -274,8 +274,8 @@ export default function PaymentStatusPage() {
                       variant={result.status === 'success' ? 'default' : 'destructive'}
                       className="text-xs"
                     >
-                      {result.status === 'success' ? '正常' : 
-                       result.status === 'warning' ? '警告' : '错误'}
+                      {result.status === 'success' ? t('pages.messages.正常') : 
+                       result.status === 'warning' ? t('pages.messages.警告') : t('pages.messages.错误')}
                     </Badge>
                   </div>
                   <p className="text-sm text-foreground mb-1">{result.message}</p>

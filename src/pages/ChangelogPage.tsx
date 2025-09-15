@@ -7,45 +7,44 @@ import { Link } from "react-router-dom";
  * 更新日志页面组件
  * 显示文派平台的版本更新历史
  */
-export default function ChangelogPage() {
-  const changelogData = [
+export default function ChangelogPage() { const changelogData = [
     {
       version: "v1.2.0",
       date: "2024-12-19",
       type: "feature",
-      title: "内容编辑与翻译功能",
+      title: t('pages.labels.内容编辑与翻译功能'),
       changes: [
         "新增内容编辑功能，用户可直接在生成框中修改内容",
         "新增一键翻译功能，支持中英文互译",
         "新增内容收藏功能，可在我的页面查看收藏内容",
         "优化平台设置界面，修复重复显示问题",
-        "新增登录状态保持功能"
+        t('pages.messages.新增登录状态保持功能')
       ]
-    },
+     },
     {
       version: "v1.1.0",
       date: "2024-12-18",
       type: "feature",
-      title: "支付系统与用户管理",
+      title: t('pages.labels.支付系统与用户管理'),
       changes: [
         "新增支付中心，支持支付宝和微信支付",
         "新增30分钟限时优惠倒计时功能",
-        "新增用户注册登录系统",
+        t('pages.messages.新增用户注册登录系统'),
         "新增我的页面，支持个人信息管理",
-        "新增邀请奖励系统"
+        t('pages.messages.新增邀请奖励系统')
       ]
     },
     {
       version: "v1.0.0",
       date: "2024-12-17",
       type: "release",
-      title: "文派正式发布",
+      title: t('pages.labels.文派正式发布'),
       changes: [
         "支持8大主流平台内容适配",
         "集成OpenAI、Gemini、DeepSeek三大AI模型",
-        "智能内容生成与平台优化",
+        t('pages.messages.智能内容生成与平台优化'),
         "响应式设计，支持移动端使用",
-        "基础用户使用次数管理"
+        t('pages.messages.基础用户使用次数管理')
       ]
     }
   ];
@@ -66,13 +65,13 @@ export default function ChangelogPage() {
   const getTypeText = (type: string) => {
     switch (type) {
       case "feature":
-        return "新功能";
+        return t('pages.messages.新功能');
       case "fix":
-        return "修复";
+        return t('pages.messages.修复');
       case "release":
-        return "发布";
+        return t('pages.messages.发布');
       default:
-        return "更新";
+        return t('pages.messages.更新');
     }
   };
 

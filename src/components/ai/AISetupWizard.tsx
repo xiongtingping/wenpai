@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,12 +26,11 @@ import { toast } from "@/hooks/use-toast";
 /**
  * AI API 设置向导组件
  */
-export function AISetupWizard() {
-  const [apiKeys, setApiKeys] = useState({
+export function AISetupWizard() { const [apiKeys, setApiKeys] = useState({
     openai: '',
     deepseek: '',
     gemini: ''
-  });
+   });
 
   const [showKeys, setShowKeys] = useState({
     openai: false,
@@ -90,7 +90,7 @@ VITE_ENABLE_IMAGE_GENERATION=true`;
 
     navigator.clipboard.writeText(config);
     toast({
-      title: "配置已复制",
+      title: t('components.labels.配置已复制'),
       description: "请粘贴到 .env.local 文件中并重启开发服务器",
     });
   };
@@ -258,7 +258,7 @@ VITE_ENABLE_IMAGE_GENERATION=true`;
           <ol className="list-decimal list-inside space-y-3 text-sm">
             <li>
               <strong>获取API密钥：</strong>
-              点击上方"获取密钥"链接，注册并获取对应的API密钥
+              点击上方{t('components.text.获取密钥_blx')}链接，注册并获取对应的API密钥
             </li>
             <li>
               <strong>输入密钥：</strong>

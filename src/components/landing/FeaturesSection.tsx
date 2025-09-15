@@ -209,7 +209,7 @@ export const FeaturesSection: React.FC = () => {
               className="text-sm px-3 py-1 rounded-full bg-card text-foreground border-border shadow-sm hover:bg-card/80 transition-colors duration-300 animate-fadeInDown"
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              🚀 {t('home.featuresSection.coreFeatures')}
+              🚀 
             </Badge>
           </div>
           
@@ -289,7 +289,7 @@ export const FeaturesSection: React.FC = () => {
                       }
                     }}
                   >
-                    {t('home.featuresSection.tryNow')}
+                    
                     <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                   </Button>
                 </CardContent>
@@ -329,7 +329,7 @@ export const FeaturesSection: React.FC = () => {
                       size="sm" 
                       className="w-full hover:bg-accent/50 transition-colors duration-300"
                     >
-                      {t('home.featuresSection.useTool')}
+                      
                     </Button>
                   </Link>
                 </CardContent>

@@ -6,6 +6,7 @@
  * 🔧 修复了Supabase同步问题：所有数据变更都通过数据管理中心同步
  */
 
+import i18n from '@/i18n';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTokenUsageStore } from '@/stores/tokenUsageStore';
@@ -340,7 +341,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     } catch (error) {
       const currentUserTier = getUserTier();
       logger.error('refreshUsageCountStats: 刷新使用次数统计失败:', { userId: user.id, userTier: currentUserTier, error });
-      setError(error instanceof Error ? error.message : '刷新使用次数统计失败');
+      setError(error instanceof Error ? error.message : i18n.t('common.errors.刷新使用次数统计失败'));
     }
   }, [user?.id, getUserTier]); // 🔧 FIX: 使用getUserTier引用避免循环依赖
 
@@ -355,7 +356,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       setExtendedStats(stats);
     } catch (error) {
       console.error('刷新扩展统计失败:', error);
-      setError(error instanceof Error ? error.message : '刷新扩展统计失败');
+      setError(error instanceof Error ? error.message : i18n.t('common.errors.刷新扩展统计失败'));
     }
   }, [user?.id]);
 
@@ -423,7 +424,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       setLastUpdated(new Date().toISOString());
     } catch (error) {
       console.error('刷新统计数据失败:', error);
-      setError(error instanceof Error ? error.message : '刷新统计数据失败');
+      setError(error instanceof Error ? error.message : i18n.t('common.errors.刷新统计数据失败'));
     } finally {
       setLoading(false);
     }

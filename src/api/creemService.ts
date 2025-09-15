@@ -4,6 +4,7 @@
  * 注意：此文件仅用于开发环境测试，生产环境应使用Netlify函数
  */
 
+import i18n from '@/i18n';
 import { Creem } from "creem";
 import QRCode from "qrcode";
 import request from './request';
@@ -42,7 +43,7 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
     };
   } catch (error: any) {
     console.error('Creem API调用失败:', error);
-    throw new Error(error.message || '创建支付失败');
+    throw new Error(error.message || i18n.t('api.errors.创建支付失败'));
   }
 }
 
@@ -65,7 +66,7 @@ export async function getAlipayQRCode(priceId: string, customerEmail?: string) {
       null;
 
     if (!alipayQr) {
-      throw new Error('该产品未配置支付宝二维码支付');
+      throw new Error(i18n.t('api.errors.该产品未配置支付宝二维码支付'));
     }
 
     return {
@@ -90,7 +91,7 @@ export async function generateAlipayQRCode(priceId: string, customerEmail?: stri
     const result = await getAlipayQRCode(priceId, customerEmail);
     
     if (!result.success || !result.qrUrl) {
-      throw new Error('无法获取支付链接');
+      throw new Error(i18n.t('api.errors.无法获取支付链接'));
     }
 
     // 生成二维码图片

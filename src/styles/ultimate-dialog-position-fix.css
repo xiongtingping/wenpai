@@ -1,0 +1,92 @@
+/**
+ * 🚨 终极Dialog定位修复
+ * 
+ * 问题：Dialog一直显示在左上角
+ * 解决：最高优先级的CSS规则强制居中
+ */
+
+/* 🚨 终极选择器优先级 - 使用所有可能的高优先级组合 */
+html body #root [data-radix-portal] [role="dialog"].quick-reference-dialog,
+html body #root [data-radix-portal] [role="dialog"],
+html body div[data-radix-portal] [role="dialog"].quick-reference-dialog,
+html body div[data-radix-portal] [role="dialog"],
+body #root [data-radix-portal] [role="dialog"].quick-reference-dialog,
+body #root [data-radix-portal] [role="dialog"],
+#root [data-radix-portal] [role="dialog"].quick-reference-dialog,
+#root [data-radix-portal] [role="dialog"],
+[data-radix-portal] [role="dialog"].quick-reference-dialog,
+[data-radix-portal] [role="dialog"],
+div[role="dialog"].quick-reference-dialog,
+.quick-reference-dialog[role="dialog"],
+[role="dialog"].quick-reference-dialog {
+  /* 🚨 终极定位 - 直接使用calc()计算居中 */
+  position: fixed !important;
+  top: calc(50vh - 300px) !important; /* 视窗高度的50% - Dialog高度的一半 */
+  left: calc(50vw - 400px) !important; /* 视窗宽度的50% - Dialog宽度的一半 */
+  
+  /* 🚨 固定尺寸 */
+  width: 800px !important;
+  height: 600px !important;
+  
+  /* 🚨 完全重置变换 */
+  transform: none !important;
+  translate: none !important;
+  scale: none !important;
+  rotate: none !important;
+  
+  /* 🚨 重置inset */
+  inset: auto !important;
+  top: calc(50vh - 300px) !important; /* 重复设置确保生效 */
+  left: calc(50vw - 400px) !important; /* 重复设置确保生效 */
+  right: auto !important;
+  bottom: auto !important;
+  
+  /* 🚨 重置margin */
+  margin: 0 !important;
+  
+  /* 🚨 确保可见 */
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 999999 !important;
+  
+  /* 🚨 调试样式 */
+  background: white !important;
+  border: var(--spacing-2-5) solid lime !important;
+  box-shadow: 0 0 100px rgba(0, 255, 0, 1) !important;
+  
+  /* 🚨 强制覆盖任何可能的定位样式 */
+  position: fixed !important; /* 再次强制 */
+}
+
+/* 🚨 特殊处理 - 针对可能的内联样式 */
+[role="dialog"].quick-reference-dialog[style] {
+  top: calc(50vh - 300px) !important;
+  left: calc(50vw - 400px) !important;
+  position: fixed !important;
+  transform: none !important;
+}
+
+/* 🚨 移除可能的动画类影响 */
+[role="dialog"].quick-reference-dialog[class*="animate"],
+[role="dialog"].quick-reference-dialog[class*="transition"],
+[role="dialog"].quick-reference-dialog[class*="duration"] {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* 🚨 最终保险 - 使用CSS Grid强制居中 */
+body:has([role="dialog"].quick-reference-dialog) {
+  display: grid !important;
+  place-items: center !important;
+  position: relative !important;
+}
+
+body:has([role="dialog"].quick-reference-dialog) [role="dialog"].quick-reference-dialog {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  margin: 0 !important;
+}

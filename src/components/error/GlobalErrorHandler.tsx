@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { X, RefreshCw, AlertTriangle, Wifi, Shield, Clock } from 'lucide-react';
@@ -32,8 +33,7 @@ interface GlobalErrorState {
 }
 
 // 全局错误状态
-const globalErrorState: GlobalErrorState = {
-  errors: [],
+const globalErrorState: GlobalErrorState = {errors: [],
   isVisible: false
 };
 
@@ -115,7 +115,7 @@ export function clearAllErrors() {
  */
 export function createErrorFromAPIError(error: any, url?: string): Omit<ErrorInfo, 'id' | 'timestamp'> {
   let type: ErrorInfo['type'] = 'unknown';
-  const message = error.message || '未知错误';
+  const message = error.message || t('components.errors.未知错误');
   const suggestion = error.suggestion || '';
   
   // 根据错误特征判断类型
@@ -224,7 +224,7 @@ export const GlobalErrorHandler: React.FC = () => {
               size="sm"
               onClick={() => window.location.reload()}
               className="h-6 w-6 p-0"
-              title="刷新页面"
+              title=
             >
               <RefreshCw className="h-3 w-3" />
             </Button>
@@ -233,7 +233,7 @@ export const GlobalErrorHandler: React.FC = () => {
               size="sm"
               onClick={() => removeGlobalError(latestError.id)}
               className="h-6 w-6 p-0"
-              title="关闭"
+              title=
             >
               <X className="h-3 w-3" />
             </Button>
@@ -255,7 +255,7 @@ export function setupGlobalErrorHandler() {
     const errorInfo = createErrorFromAPIError(event.reason);
     addGlobalError({
       ...errorInfo,
-      message: errorInfo.message || '发生了未知错误'
+      message: errorInfo.message || t('components.errors.发生了未知错误')
     });
   });
 
@@ -264,7 +264,7 @@ export function setupGlobalErrorHandler() {
     console.error('全局JavaScript错误:', event.error);
     
     addGlobalError({
-      message: event.message || '页面发生错误',
+      message: event.message || t('components.messages.页面发生错误'),
       suggestion: '请刷新页面重试',
       type: 'unknown',
       url: event.filename

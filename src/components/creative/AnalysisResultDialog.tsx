@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -65,11 +66,10 @@ interface AnalysisResultDialogProps {
 /**
  * 分析结果查看对话框组件
  */
-export function AnalysisResultDialog({ 
-  isOpen, 
+export function AnalysisResultDialog({ isOpen, 
   onOpenChange, 
   asset 
-}: AnalysisResultDialogProps) {
+ }: AnalysisResultDialogProps) {
   const { toast } = useToast();
 
   if (!asset || !asset.analysisResult) {
@@ -87,7 +87,7 @@ export function AnalysisResultDialog({
     const content = JSON.stringify(result, null, 2);
     navigator.clipboard.writeText(content);
     toast({
-      title: "已复制",
+      title: t('components.labels.已复制'),
       description: "分析结果已复制到剪贴板",
       duration: 3000,
     });
@@ -109,7 +109,7 @@ export function AnalysisResultDialog({
     URL.revokeObjectURL(url);
     
     toast({
-      title: "下载完成",
+      title: t('components.labels.下载完成'),
       description: "分析结果已下载为JSON文件",
       duration: 3000,
     });

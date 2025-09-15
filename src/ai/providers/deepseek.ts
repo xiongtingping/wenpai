@@ -10,6 +10,7 @@
  * 
  */
 
+import i18n from '@/i18n';
 import request from '../../api/request';
 import type { AIProviderInterface } from '../types';
 import { logger } from '@/utils/logger';
@@ -95,15 +96,7 @@ export class DeepSeekProvider implements AIProviderInterface {
       });
 
       if (!this.isConfigured()) {
-        throw new Error('DeepSeek API密钥未配置');
-      }
-
-      const messages = [];
-      
-      // 添加系统提示词
-      if (params.systemPrompt) {
-        messages.push({
-          role: 'system',
+        throw new Error(i18n.t('aiProviders.deepseek.keyNotConfiguredi18n.t('ai.message._5gm')system',
           content: params.systemPrompt
         });
       }
@@ -137,7 +130,7 @@ export class DeepSeekProvider implements AIProviderInterface {
       const responseTime = Date.now() - startTime;
       const content = response.choices?.[0]?.message?.content || '';
       
-      logger.debug('✅ DeepSeek内容生成成功:', {
+      logger.debug(i18n.t('ai.status.DeepSe_3xq'), {
         model: requestData.model,
         responseTime: `${responseTime}ms`,
         contentLength: content.length,
@@ -153,13 +146,13 @@ export class DeepSeekProvider implements AIProviderInterface {
 
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      console.error('❌ DeepSeek内容生成失败:', error);
+      console.error(i18n.t('ai.error.DeepSe_nxm'), error);
       
       return {
         success: false,
         content: '',
         model: params.model || 'deepseek-chat',
-        error: error instanceof Error ? error.message : 'DeepSeek调用失败'
+        error: error instanceof Error ? error.message : i18n.t('ai.error.DeepSeek_1mk')
       };
     }
   }
@@ -179,13 +172,13 @@ export class DeepSeekProvider implements AIProviderInterface {
     model: string;
     error?: string;
   }> {
-    console.warn('⚠️ DeepSeek暂不支持图像生成功能');
+    console.warn(i18n.t('ai.status.DeepS_idx'));
     
     return {
       success: false,
       images: [],
       model: params.model || 'deepseek-chat',
-      error: 'DeepSeek暂不支持图像生成功能，请使用OpenAI等其他提供者'
+      error: i18n.t('ai.status.DeepSeek_t1u')
     };
   }
 

@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -38,8 +39,7 @@ interface PermissionLockedElementProps {
 /**
  * 权限锁定元素组件
  */
-export const PermissionLockedElement: React.FC<PermissionLockedElementProps> = ({
-  children,
+export const PermissionLockedElement: React.FC<any> = ({ children,
   requiredRole,
   featureName,
   elementType = 'button',
@@ -47,9 +47,7 @@ export const PermissionLockedElement: React.FC<PermissionLockedElementProps> = (
   className = '',
   onClick,
   showUpgradeTooltip = true,
-  lockedTooltip
-}) => {
-  const { hasPermission, role } = useUserRole();
+  lockedTooltip }) => { const { hasPermission, role  } = useUserRole();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -61,7 +59,7 @@ export const PermissionLockedElement: React.FC<PermissionLockedElementProps> = (
     const plan = getSubscriptionPlan(requiredRole);
     
     toast({
-      title: "需要升级",
+      title: t('components.labels.需要升级'),
       description: `${featureName}需要${plan.name}，请升级后使用`,
     });
     
@@ -197,7 +195,7 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
     const plan = getSubscriptionPlan(requiredRole);
     
     toast({
-      title: "需要升级",
+      title: t('components.labels.需要升级'),
       description: `${featureName}需要${plan.name}，请升级后使用`,
     });
     

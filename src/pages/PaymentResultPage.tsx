@@ -3,6 +3,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,10 +15,9 @@ import { BufPayService } from '@/services/bufpayService';
 import { logger } from '@/utils/logger';
 import PaymentDataCleanupService from '@/services/paymentDataCleanupService';
 
-export default function PaymentResultPage() {
-  const [searchParams] = useSearchParams();
+export default function PaymentResultPage() { const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, refreshUser } = useAuth() as any;
+  const { user, refreshUser  } = useAuth() as any;
   
   const [isLoading, setIsLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<'checking' | 'success' | 'failed' | 'pending'>('checking');
@@ -141,16 +141,16 @@ export default function PaymentResultPage() {
           setPaymentStatus('pending');
         } else if (result.order.status === 'expired') {
           setPaymentStatus('failed');
-          setError('订单已过期');
+          setError(t('pages.errors.订单已过期'));
         } else {
           setPaymentStatus('failed');
-          setError('支付失败');
+          setError(t('pages.errors.支付失败'));
         }
       }
     } catch (error) {
       logger.error('检查支付结果失败:', error);
       setPaymentStatus('failed');
-      setError(error instanceof Error ? error.message : '查询支付状态失败');
+      setError(error instanceof Error ? error.message : t('pages.errors.查询支付状态失败'));
     } finally {
       setIsLoading(false);
     }
@@ -333,7 +333,7 @@ export default function PaymentResultPage() {
                 <h4 className="font-medium text-foreground mb-3">温馨提示</h4>
                 <p>• 支付成功后会员权限会立即生效</p>
                 <p>• 如有支付问题，请联系客服：support@wenpai.xyz</p>
-                <p>• 支付成功但未到账，请点击支付页面的"支付反馈"按钮</p>
+                <p>• 支付成功但未到账，请点击支付页面的t('pages.messages.支付反馈')按钮</p>
               </div>
             </CardContent>
           </Card>

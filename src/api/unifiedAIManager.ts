@@ -10,6 +10,7 @@
  * 📌 遵循CLAUDE.md规则：禁止硬编码、统一管理、真实API
  */
 
+import i18n from '@/i18n';
 import { getAIEndpoint, buildAPIURL, getAPIHeaders, supportsFeature } from '@/config/aiEndpoints';
 import { getAPIKey, validateAPIKey, keyManager } from '@/config/apiKeyManager';
 import { getModelInfo, isModelAvailableForTier } from '@/config/aiModels';
@@ -469,7 +470,7 @@ export class UnifiedAIManager {
       
       return {
         success: false,
-        error: error instanceof Error ? error.message : '图像生成失败'
+        error: error instanceof Error ? error.message : i18n.t('api.errors.图像生成失败')
       };
     }
   }

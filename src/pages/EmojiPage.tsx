@@ -50,9 +50,7 @@ import { BackToTop } from '@/components/ui/BackToTop';
 /**
  * Emoji生成器主组件
  */
-const EmojiPage: React.FC = () => {
-  const { t } = useTranslation();
-  const [emojis, setEmojis] = useState<NotoEmojiData[]>([]);
+const EmojiPage: React.FC = () => { const [emojis, setEmojis] = useState<NotoEmojiData[]>([]);
   const [filteredEmojis, setFilteredEmojis] = useState<NotoEmojiData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -64,7 +62,7 @@ const EmojiPage: React.FC = () => {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   
 
-  const { toast } = useToast();
+  const { toast  } = useToast();
 
   /**
    * 获取emoji分类统计
@@ -135,7 +133,7 @@ const EmojiPage: React.FC = () => {
       const response = await fetch(imageUrl);
       
       if (!response.ok) {
-        throw new Error('下载失败');
+        throw new Error(t('pages.errors.下载失败'));
       }
       
       const blob = await response.blob();
@@ -241,12 +239,12 @@ const EmojiPage: React.FC = () => {
           <TabsList className="unified-tabs-list grid w-full grid-cols-2">
             <TabsTrigger value="gallery" className="unified-tab-trigger">
               <Grid3X3 className="tab-icon" />
-              <span>{t('emoji.gallery')}</span>
+              <span></span>
             </TabsTrigger>
             <TabsTrigger value="brand-emoji" className="unified-tab-trigger">
               <Building2 className="tab-icon" />
-              <span className="tab-text-mobile">{t('emoji.brandEmoji')}</span>
-              <span className="tab-text-desktop">{t('emoji.brandEmojiGenerator')}</span>
+              <span className="tab-text-mobile"></span>
+              <span className="tab-text-desktop"></span>
             </TabsTrigger>
           </TabsList>
 
@@ -259,7 +257,7 @@ const EmojiPage: React.FC = () => {
                   {t('emoji.gallery')}
                 </CardTitle>
                 <CardDescription className="creative-module-description">
-                  {t('emoji.galleryDescription')}
+                  
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -305,13 +303,13 @@ const EmojiPage: React.FC = () => {
 
           </TabsContent>
 
-          {/* {t('emoji.brandEmojiGenerator')} */}
+          {/*  */}
           <TabsContent value="brand-emoji" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building2 className="w-5 h-5" />
-                  {t('emoji.brandEmojiGenerator')}
+                  
                 </CardTitle>
                 <CardDescription>
                   {t('emoji.brandEmojiDescription')}

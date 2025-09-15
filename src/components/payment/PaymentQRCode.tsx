@@ -3,6 +3,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -19,14 +20,11 @@ interface PaymentQRCodeProps {
   onPaymentError?: (error: string) => void;
 }
 
-export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
-  paymentInfo,
+export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
   orderId,
   onPaymentSuccess,
   onPaymentTimeout,
-  onPaymentError
-}) => {
-  const [timeLeft, setTimeLeft] = useState(paymentInfo.expires_in || 900); // 默认15分钟
+  onPaymentError }) => { const [timeLeft, setTimeLeft] = useState(paymentInfo.expires_in || 900); // 默认15分钟
   const [isPolling, setIsPolling] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed' | 'timeout'>('pending');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -38,7 +36,7 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
       setIsPolling(false);
       onPaymentTimeout?.();
       return;
-    }
+     }
 
     const timer = setInterval(() => {
       setTimeLeft(prev => prev - 1);
@@ -73,9 +71,9 @@ export const PaymentQRCode: React.FC<PaymentQRCodeProps> = ({
                    event.data.status === 'failed') {
           console.log('❌ iframe通知支付失败:', event.data);
           setPaymentStatus('failed');
-          setErrorMessage(event.data.message || '支付失败');
+          setErrorMessage(event.data.message || t('components.errors.支付失败'));
           setIsPolling(false);
-          onPaymentError?.(event.data.message || '支付失败');
+          onPaymentError?.(event.data.message || t('components.errors.支付失败'));
         }
       }
     };

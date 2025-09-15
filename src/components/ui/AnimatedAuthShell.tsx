@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next';
 import { Sun, Moon, ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
@@ -9,12 +10,9 @@ interface AnimatedAuthShellProps {
 }
 
 // 采用 21st.dev animated-sign-in 组件相同的结构与特效，确保视觉100%一致
-export const AnimatedAuthShell: React.FC<AnimatedAuthShellProps> = ({
-  title = 'Welcome',
+export const AnimatedAuthShell: React.FC<any> = ({ title = 'Welcome',
   subtitle = 'Please sign in to continue',
-  children,
-}) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  children }) => { const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(false)
 
   // 初始化主题
@@ -22,7 +20,7 @@ export const AnimatedAuthShell: React.FC<AnimatedAuthShellProps> = ({
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     setIsDarkMode(prefersDark)
     if (prefersDark) document.documentElement.classList.add('dark-mode')
-  }, [])
+   }, [])
 
   // 粒子特效（与原组件一致的颜色与速度逻辑）
   useEffect(() => {
@@ -95,7 +93,7 @@ export const AnimatedAuthShell: React.FC<AnimatedAuthShellProps> = ({
     <div className={`login-container ${isDarkMode ? 'dark' : 'light'}`}>
       <canvas id="particles" ref={canvasRef} className="particles-canvas"></canvas>
 
-      <button className="auth-nav-back" aria-label="返回首页" onClick={() => navigate('/')}>
+      <button className="auth-nav-back" aria-label= onClick={() => navigate('/')}>
         <ArrowLeft size={16} /> <span className="auth-nav-back-text">返回</span>
       </button>
 

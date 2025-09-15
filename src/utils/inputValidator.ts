@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 /**
  * 🔒 输入验证和安全过滤系统
  * 
@@ -182,7 +183,7 @@ export class InputValidator {
     } catch (error) {
       console.error('输入验证过程中出错:', error);
       result.isValid = false;
-      result.errors.push('输入验证失败');
+      result.errors.push(i18n.t('utils.errors.输入验证失败'));
       result.riskLevel = 'critical';
     }
 
@@ -337,7 +338,7 @@ export class InputValidator {
   private detectSensitiveInfo(input: string, result: ValidationResult): void {
     for (const pattern of SENSITIVE_INFO_PATTERNS) {
       if (pattern.test(input)) {
-        result.warnings.push('输入可能包含敏感个人信息');
+        result.warnings.push(i18n.t('utils.errors.输入可能包含敏感个人信息'));
         break;
       }
     }
@@ -493,7 +494,7 @@ export const ValidationRules = {
 
   // 邮箱规则
   email: {
-    name: '邮箱',
+    name: i18n.t('utils.text.邮箱_5f6'),
     pattern: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$/,
     maxLength: 100,
     required: true,
@@ -517,7 +518,7 @@ export const ValidationRules = {
 
   // 手机号规则
   phone: {
-    name: '手机号',
+    name: i18n.t('utils.text.手机号_f19'),
     pattern: /^1[3-9]\d{9}$/,
     required: true,
     sanitizer: (value: string) => value.replace(/\D/g, '')

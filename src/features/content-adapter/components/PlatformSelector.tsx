@@ -4,6 +4,7 @@
  */
 
 import React, { useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -111,8 +112,7 @@ interface PlatformSelectorProps {
 /**
  * 平台选择组件
  */
-export function PlatformSelector({
-  availablePlatforms,
+export function PlatformSelector({ availablePlatforms,
   selectedPlatforms,
   onPlatformToggle,
   onBatchSelect,
@@ -127,7 +127,7 @@ export function PlatformSelector({
   getPlatformMaxCharCount,
   getPlatformRecommendedCharCount,
   t
-}: PlatformSelectorProps) {
+ }: PlatformSelectorProps) {
   const { toast } = useToast();
   const { 
     loading: settingsLoading,
@@ -226,7 +226,7 @@ export function PlatformSelector({
     }
     
     console.log('全选操作完成:', {
-      操作: isAllSelected ? '取消全选' : '全选',
+      操作: isAllSelected ? t('components.text.取消全选_otw') : t('components.text.全选_ay6'),
       使用批量函数: !!onBatchSelect,
       当前选中: selectedPlatforms.length,
       可用平台: availablePlatforms.length
@@ -239,7 +239,7 @@ export function PlatformSelector({
     onPlatformSettingUpdate(platformId, 'charCount', recommended);
     
     toast({
-      title: "已应用推荐设置",
+      title: t('components.labels.已应用推荐设置'),
       description: `${getPlatformName(platformId)}字符数已设置为推荐值：${recommended}字符`,
     });
   };
@@ -274,7 +274,7 @@ export function PlatformSelector({
         
         console.log('✅ 全局设置保存成功');
       } else {
-        throw new Error('保存设置失败');
+        throw new Error(t('components.errors.保存设置失败'));
       }
       
     } catch (error) {
@@ -283,7 +283,7 @@ export function PlatformSelector({
       // 显示错误提示
       toast({
         title: "❌ 保存失败",
-        description: error instanceof Error ? error.message : "保存全局设置时出现错误",
+        description: error instanceof Error ? error.message : t('components.errors.保存全局设置时出现错误'),
         variant: "destructive",
         duration: 4000,
       });
@@ -323,7 +323,7 @@ export function PlatformSelector({
         
         console.log('✅ 平台设置保存成功');
       } else {
-        throw new Error('保存设置失败');
+        throw new Error(t('components.errors.保存设置失败'));
       }
       
     } catch (error) {
@@ -332,7 +332,7 @@ export function PlatformSelector({
       // 显示错误提示
       toast({
         title: "❌ 保存失败", 
-        description: error instanceof Error ? error.message : "保存平台设置时出现错误",
+        description: error instanceof Error ? error.message : t('components.errors.保存平台设置时出现错误'),
         variant: "destructive",
         duration: 4000,
       });
@@ -379,7 +379,7 @@ export function PlatformSelector({
                 size="sm"
                 onClick={handleSelectAll}
               >
-                {selectedPlatforms.length === availablePlatforms.length ? '取消全选' : '全选'}
+                {selectedPlatforms.length === availablePlatforms.length ? t('components.text.取消全选_otw') : t('components.text.全选_ay6')}
               </Button>
             </div>
           </div>

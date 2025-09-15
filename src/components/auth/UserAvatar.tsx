@@ -152,7 +152,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           className="flex items-center gap-2"
         >
           <LogIn className="h-4 w-4" />
-          {t('auth.login')}
+          $
         </Button>
       </div>
     );
@@ -236,7 +236,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               }}
             >
               <User className="mr-2 h-4 w-4" />
-              <span>{t('nav.profile')}</span>
+              <span></span>
             </button>
 
             <button
@@ -247,7 +247,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               }}
             >
               <HelpCircle className="mr-2 h-4 w-4" />
-              <span>{t('nav.help')}</span>
+              <span></span>
             </button>
 
             {/* 分隔线 */}

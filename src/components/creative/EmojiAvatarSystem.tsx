@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -19,13 +20,12 @@ interface EmojiAvatarSystemProps {
   maxHeight?: string;
 }
 
-const EmojiAvatarSystem: React.FC<EmojiAvatarSystemProps> = ({
-  onEmojiSelect,
+const EmojiAvatarSystem: React.FC<EmojiAvatarSystemProps> = ({ onEmojiSelect,
   showDownload = true,
   showCopy = true,
   compact = false,
   maxHeight = '600px'
-}) => {
+ }) => {
   const [selectedEmoji, setSelectedEmoji] = useState<UnifiedEmojiItem | null>(null);
   const { toast } = useToast();
 
@@ -35,7 +35,7 @@ const EmojiAvatarSystem: React.FC<EmojiAvatarSystemProps> = ({
     onEmojiSelect?.(emoji);
 
     toast({
-      title: "头像已选择",
+      title: t('components.labels.头像已选择'),
       description: `选择了${emoji.name} ${emoji.emoji}`,
     });
   };

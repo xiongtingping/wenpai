@@ -31,7 +31,7 @@ export default function TermsPage() {
           className="flex items-center gap-2 text-primary hover:bg-accent"
         >
           <ArrowLeft className="h-4 w-4" />
-{t('common.back')}
+
         </Button>
       </div>
 
@@ -73,7 +73,7 @@ export default function TermsPage() {
             </h3>
             <div className="space-y-4 text-muted-foreground">
               <p className="leading-relaxed text-lg">
-                文派（以下简称"我们"）是一个基于人工智能的内容创作和适配平台，为用户提供以下核心服务：
+                文派（以下简称t('pages.messages.我们')）是一个基于人工智能的内容创作和适配平台，为用户提供以下核心服务：
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-card p-4 rounded-lg border border-border">
@@ -286,7 +286,7 @@ export default function TermsPage() {
             <h3 className="text-lg font-semibold mb-3">8. 免责声明</h3>
             <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
-                <li>我们的服务按"现状"提供，不提供任何明示或暗示的保证</li>
+                <li>我们的服务按t('pages.messages.现状')提供，不提供任何明示或暗示的保证</li>
                 <li>我们不保证生成内容的准确性、完整性或适用性</li>
                 <li>您使用服务产生的任何直接或间接损失，我们不承担责任</li>
                 <li>我们不对第三方服务或内容承担责任</li>
@@ -348,7 +348,7 @@ export default function TermsPage() {
                   <div className="bg-background p-2 rounded-lg border border-border mb-2">
                     <img
                       src="/微信图片_2025-09-02_134203_916.png"
-                      alt="客服微信二维码"
+                      alt={t('pages.messages.客服微信二维码')}
                       className="w-16 h-16 object-contain"
                     />
                   </div>

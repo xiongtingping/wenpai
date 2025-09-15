@@ -3,6 +3,7 @@
  * 确保localStorage存储和读取数据的类型安全，防止XSS和数据污染
  */
 
+import i18n from '@/i18n';
 import { SecurityUtils } from '@/lib/security';
 
 /**
@@ -396,7 +397,7 @@ export class DataTypeValidator {
 
       // 必填检查
       if (schema.required && (data === null || data === undefined)) {
-        errors.push('数据不能为空');
+        errors.push(i18n.t('common.errors.数据不能为空'));
         return { isValid: false, errors };
       }
 
@@ -445,7 +446,7 @@ export class DataTypeValidator {
     } catch (error) {
       return {
         isValid: false,
-        errors: [`验证过程出错: ${error instanceof Error ? error.message : '未知错误'}`]
+        errors: [`验证过程出错: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`]
       };
     }
   }
@@ -492,7 +493,7 @@ export class DataTypeValidator {
 
     // 正则验证
     if (schema.pattern && !schema.pattern.test(data)) {
-      errors.push('字符串格式不符合要求');
+      errors.push(i18n.t('common.errors.字符串格式不符合要求'));
     }
 
     // 枚举检查
@@ -954,7 +955,7 @@ export class DataTypeValidator {
       } catch (error) {
         invalidItems.push({
           key,
-          errors: [`JSON解析失败: ${error instanceof Error ? error.message : '未知错误'}`]
+          errors: [`JSON解析失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`]
         });
       }
     });

@@ -3,6 +3,7 @@
  * 处理批量生成、重试队列、自动化流程等
  */
 
+import i18n from '@/i18n';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -207,7 +208,7 @@ export function useGenerationQueue(params: UseGenerationQueueParams = {}): UseGe
       onTaskComplete?.(task, result);
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '任务执行失败';
+      const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.任务执行失败');
       
       // 更新任务失败状态
       setQueue(prev => prev.map(t => {
@@ -263,7 +264,7 @@ export function useGenerationQueue(params: UseGenerationQueueParams = {}): UseGe
           onQueueComplete?.();
           
           toast({
-            title: "队列处理完成",
+            title: i18n.t('common.labels.队列处理完成'),
             description: `共处理 ${queue.length} 个任务`,
           });
         }
@@ -366,7 +367,7 @@ export function useGenerationQueue(params: UseGenerationQueueParams = {}): UseGe
     startQueue();
 
     toast({
-      title: "自动化流程已启动",
+      title: i18n.t('common.labels.自动化流程已启动'),
       description: `将为 ${platforms.length} 个平台生成内容`,
     });
 

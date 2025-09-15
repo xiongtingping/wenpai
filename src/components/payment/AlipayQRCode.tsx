@@ -4,6 +4,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { generateAlipayQRCode } from "@/api/creemClientService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +22,7 @@ interface AlipayQRCodeProps {
 /**
  * 支付宝Logo组件
  */
-const AlipayLogo: React.FC<{ size?: number }> = ({ size = 24 }) => (
+const AlipayLogo: React.FC<{ size?: number  }> = ({ size = 24 }) => (
   <div 
     className="bg-primary text-primary-foreground rounded flex items-center justify-center font-bold"
     style={{ width: size, height: size, fontSize: size * 0.6 }}
@@ -42,7 +43,7 @@ const AlipayLogo: React.FC<{ size?: number }> = ({ size = 24 }) => (
 export default function AlipayQRCode({
   priceId,
   customerEmail,
-  title = "使用支付宝扫码付款",
+  title = t('components.labels.使用支付宝扫码付款'),
   showPrice = true,
   onRefresh
 }: AlipayQRCodeProps) {
@@ -80,7 +81,7 @@ export default function AlipayQRCode({
         setRetryCount(0); // 重置重试计数
         console.log('二维码获取成功');
       } else {
-        throw new Error('二维码生成失败');
+        throw new Error(t('components.errors.二维码生成失败'));
       }
     } catch (error: any) {
       console.error('二维码获取失败:', error);
@@ -92,19 +93,19 @@ export default function AlipayQRCode({
       // 根据错误类型提供不同的错误信息
       let errorMessage = '二维码生成失败，请稍后重试';
 
-      if (error.message.includes('网络连接') || error.message.includes('Failed to fetch')) {
+      if (error.message.includes(t('components.errors.网络连接')) || error.message.includes('Failed to fetch')) {
         errorMessage = '🌐 网络连接失败，请检查网络设置后重试';
-      } else if (error.message.includes('支付服务') || error.message.includes('暂时不可用')) {
+      } else if (error.message.includes(t('components.errors.支付服务')) || error.message.includes(t('components.errors.暂时不可用'))) {
         errorMessage = '💳 支付服务暂时不可用，请稍后重试';
-      } else if (error.message.includes('配置') || error.message.includes('401') || error.message.includes('Unauthorized')) {
+      } else if (error.message.includes(t('components.errors.配置')) || error.message.includes('401') || error.message.includes('Unauthorized')) {
         errorMessage = '🔑 支付服务配置错误，请联系管理员';
-      } else if (error.message.includes('产品') || error.message.includes('404')) {
+      } else if (error.message.includes(t('components.errors.产品')) || error.message.includes('404')) {
         errorMessage = '📦 商品信息不存在，请重新选择套餐';
       } else if (error.message.includes('429')) {
         errorMessage = '🚦 请求过于频繁，请稍后重试';
       } else if (error.message.includes('500')) {
         errorMessage = '⚠️ 支付服务器错误，请稍后重试';
-      } else if (error.message.includes('timeout') || error.message.includes('超时')) {
+      } else if (error.message.includes('timeout') || error.message.includes(t('components.errors.超时'))) {
         errorMessage = '⏰ 请求超时，请检查网络后重试';
       }
 
@@ -116,7 +117,7 @@ export default function AlipayQRCode({
       }
 
       // 如果是网络错误且重试次数少于3次，自动重试
-      if ((error.message.includes('网络') || error.message.includes('Failed to fetch') || error.message.includes('timeout')) && newRetryCount < 3 && !isRetry) {
+      if ((error.message.includes(t('components.errors.网络')) || error.message.includes('Failed to fetch') || error.message.includes('timeout')) && newRetryCount < 3 && !isRetry) {
         console.log(`网络错误，3秒后自动重试...`);
         setTimeout(() => {
           fetchQRCode(true);

@@ -9,6 +9,7 @@
  * 4. 性能优化 - 预计算权限映射，避免运行时计算
  */
 
+import i18n from '@/i18n';
 import { SystemRole, Permission, SubscriptionTier, PermissionChecker } from './rolePermissionMatrix';
 import { logger } from '@/utils/logger';
 
@@ -92,7 +93,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     description: '需要登录',
     requiredPermissions: [Permission.AUTH_REQUIRED],
     redirect: '/login',
-    message: '请先登录'
+    message: i18n.t('common.messages.请先登录')
   },
 
   // VIP权限
@@ -112,7 +113,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.FEATURE_CREATIVE_STUDIO],
     requiredTier: SubscriptionTier.PRO,
     redirect: '/payment',
-    message: '创意魔方功能需要专业版权限',
+    message: i18n.t('common.messages.创意魔方功能需要专业版权限'),
     upgradeUrl: '/payment',
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
@@ -140,7 +141,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.FEATURE_BRAND_LIBRARY],
     requiredTier: SubscriptionTier.PREMIUM,
     redirect: '/payment',
-    message: '品牌库功能需要高级版权限',
+    message: i18n.t('common.messages.品牌库功能需要高级版权限'),
     upgradeUrl: '/payment',
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
@@ -165,7 +166,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.FEATURE_UNLIMITED_USAGE],
     requiredTier: SubscriptionTier.PREMIUM,
     redirect: '/payment',
-    message: '无限使用功能需要高级版权限',
+    message: i18n.t('common.messages.无限使用功能需要高级版权限'),
     upgradeUrl: '/payment'
   },
 
@@ -200,9 +201,9 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
   // 订阅等级权限
   'tier:trial': {
     key: 'tier:trial',
-    description: '体验版权限',
+    description: i18n.t('common.messages.体验版权限'),
     requiredPermissions: [Permission.TIER_TRIAL],
-    message: '体验版权限',
+    message: i18n.t('common.messages.体验版权限'),
     customCheck: () => true // 所有用户都有体验版权限
   },
 
@@ -212,7 +213,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.TIER_PRO],
     requiredTier: SubscriptionTier.PRO,
     redirect: '/payment',
-    message: '需要专业版或更高版本',
+    message: i18n.t('common.messages.需要专业版或更高版本'),
     upgradeUrl: '/payment',
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
@@ -240,7 +241,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.TIER_PREMIUM],
     requiredTier: SubscriptionTier.PREMIUM,
     redirect: '/payment',
-    message: '需要高级版',
+    message: i18n.t('common.messages.需要高级版'),
     upgradeUrl: '/payment',
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
@@ -264,7 +265,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     key: 'theme:basic',
     description: '基础主题切换权限',
     requiredPermissions: [Permission.THEME_BASIC],
-    message: '基础主题权限',
+    message: i18n.t('common.messages.基础主题权限'),
     customCheck: () => true // 所有用户都有基础主题权限
   },
 
@@ -274,7 +275,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.THEME_ADVANCED],
     requiredTier: SubscriptionTier.PRO,
     redirect: '/payment',
-    message: '高级主题需要专业版或更高版本',
+    message: i18n.t('common.messages.高级主题需要专业版或更高版本'),
     upgradeUrl: '/payment'
   },
 
@@ -284,7 +285,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.THEME_PREMIUM],
     requiredTier: SubscriptionTier.PREMIUM,
     redirect: '/payment',
-    message: '专业主题需要高级版',
+    message: i18n.t('common.messages.专业主题需要高级版'),
     upgradeUrl: '/payment'
   },
 
@@ -304,7 +305,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.USER_VIEW],
     requiredRoles: [SystemRole.MODERATOR, SystemRole.ADMIN, SystemRole.SUPER_ADMIN],
     redirect: '/',
-    message: '没有用户查看权限'
+    message: i18n.t('common.messages.没有用户查看权限')
   },
 
   // API权限
@@ -359,7 +360,7 @@ export class UnifiedPermissionManager {
     const config = UNIFIED_PERMISSION_CONFIGS[permissionKey];
     
     if (!config) {
-      logger.warn('权限配置未找到:', permissionKey);
+      logger.warn(i18n.t('config.text.权限配置未找到_c0x'), permissionKey);
       return {
         pass: false,
         reason: '权限配置未找到: ' + permissionKey,

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next';
 import { motion } from "framer-motion"
 import { Link, useLocation } from "react-router-dom"
 import { LucideIcon } from "lucide-react"
@@ -17,7 +18,7 @@ interface NavBarProps {
   positionClassName?: string
 }
 
-export function NavBar({ items, className, positionClassName }: NavBarProps) {
+export function NavBar({ items, className, positionClassName  }: NavBarProps) {
   const location = useLocation()
   const [isMobile, setIsMobile] = useState(false)
 
@@ -27,7 +28,7 @@ export function NavBar({ items, className, positionClassName }: NavBarProps) {
     
     // 精确匹配首页
     if (currentPath === '/') {
-      return '首页'
+      return t('components.messages.首页')
     }
 
     // 为其他路径进行精确匹配
@@ -46,7 +47,7 @@ export function NavBar({ items, className, positionClassName }: NavBarProps) {
         // 检查是否为该模块的子页面
         return currentPath.includes(item.url.split('/')[1] || '')
       })
-      return fallbackItem?.name || '首页'
+      return fallbackItem?.name || t('components.messages.首页')
     }
 
     return activeItem.name

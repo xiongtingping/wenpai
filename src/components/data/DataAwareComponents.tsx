@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { globalDataManager } from '@/services/unifiedDataManager';
 
@@ -33,7 +34,7 @@ const DataContext = createContext<DataContextType | null>(null);
 /**
  * 数据提供者组件
  */
-export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const DataProvider: React.FC<{ children: React.ReactNode  }> = ({ children }) => {
   const [preloadedData] = useState(() => new Map<string, any>());
   const [loadingStates] = useState(() => new Map<string, DataLoadingState>());
 
@@ -138,7 +139,7 @@ export function useSmartData<T>(
           }
         }
       } catch (err) {
-        const error = err instanceof Error ? err : new Error('数据加载失败');
+        const error = err instanceof Error ? err : new Error(t('components.errors.数据加载失败'));
         console.error(`数据加载失败 ${dataKey}:`, error);
         
         if (mounted.current) {
@@ -169,7 +170,7 @@ export function useSmartData<T>(
         }
       }
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('刷新失败');
+      const error = err instanceof Error ? err : new Error(t('components.errors.刷新失败'));
       if (mounted.current) {
         setError(error.message);
         setIsLoading(false);

@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
 import request from '@/api/request';
 /**
@@ -39,7 +40,7 @@ export async function validateAllConfigs(): Promise<ConfigValidationResult> {
 
   // 检查网络连接
   if (!navigator.onLine) {
-    result.errors.push('网络连接不可用');
+    result.errors.push(i18n.t('utils.errors.网络连接不可用'));
     result.isValid = false;
   }
 
@@ -54,14 +55,14 @@ export async function validateAllConfigs(): Promise<ConfigValidationResult> {
   const authingAppId = import.meta.env.VITE_AUTHING_APP_ID;
   if (!authingAppId) {
     result.missingConfigs.push('Authing App ID');
-    result.warnings.push('用户认证功能将不可用');
+    result.warnings.push(i18n.t('utils.errors.用户认证功能将不可用'));
   }
 
   // 检查Creem支付配置
   const creemApiKey = import.meta.env.VITE_CREEM_API_KEY;
   if (!creemApiKey) {
     result.missingConfigs.push('Creem API Key');
-    result.warnings.push('支付功能将不可用');
+    result.warnings.push(i18n.t('utils.errors.支付功能将不可用'));
   }
 
   // 测试支付API连接

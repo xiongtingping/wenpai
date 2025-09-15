@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -62,14 +63,13 @@ interface EnhancedHistoryDialogProps {
   availablePlatforms: any[];
 }
 
-export function EnhancedHistoryDialog({
-  open,
+export function EnhancedHistoryDialog({ open,
   onOpenChange,
   shareHistory,
   onClearHistory,
   onDeleteItem,
   availablePlatforms
-}: EnhancedHistoryDialogProps) {
+ }: EnhancedHistoryDialogProps) {
   // 状态管理
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
@@ -77,14 +77,11 @@ export function EnhancedHistoryDialog({
   const [sortBy, setSortBy] = useState<SortOption>('time-desc');
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  // 🎯 简化的定位修复机制 - 移除循环监控避免性能问题
+  // 🎯 精简修复器 - 遵循CLAUDE.md 3.6.4规范
   React.useEffect(() => {
     if (!open) return;
 
-    console.log('🔍 历史记录弹窗打开，状态:', { open, timestamp: new Date().toISOString() });
-
     const fixDialogPosition = () => {
-      // 查找Dialog元素 - 使用多种选择器确保找到
       const dialogElement = (
         document.querySelector('[role="dialog"][class*="enhanced-history-dialog"]') ||
         document.querySelector('.enhanced-history-dialog') ||
@@ -92,9 +89,9 @@ export function EnhancedHistoryDialog({
       ) as HTMLElement;
 
       if (dialogElement) {
-        console.log('🎯 应用历史记录弹窗定位修复...', dialogElement);
+        console.log('🎯 历史记录Dialog定位修复已应用');
 
-        // 🚨 强制清除所有inset相关属性 - 这是问题的根源！
+        // 清除inset冲突属性
         dialogElement.style.removeProperty('inset');
         dialogElement.style.removeProperty('inset-block');
         dialogElement.style.removeProperty('inset-inline');
@@ -103,84 +100,21 @@ export function EnhancedHistoryDialog({
         dialogElement.style.removeProperty('inset-inline-start');
         dialogElement.style.removeProperty('inset-inline-end');
 
-        // 🚨 强制重置inset为unset，覆盖所有CSS规则
-        dialogElement.style.setProperty('inset', 'unset', 'important');
-        dialogElement.style.setProperty('inset-block', 'unset', 'important');
-        dialogElement.style.setProperty('inset-inline', 'unset', 'important');
-
-        // 🚨 强制应用正确定位 - 最高优先级，使用视窗单位
+        // 简单的视窗单位定位，保持响应式布局
         dialogElement.style.setProperty('position', 'fixed', 'important');
-        dialogElement.style.setProperty('top', '50vh', 'important');  // 🔥 使用vh单位确保相对于视窗
-        dialogElement.style.setProperty('left', '50vw', 'important'); // 🔥 使用vw单位确保相对于视窗
-        dialogElement.style.setProperty('right', 'auto', 'important');
-        dialogElement.style.setProperty('bottom', 'auto', 'important');
+        dialogElement.style.setProperty('top', '50vh', 'important');
+        dialogElement.style.setProperty('left', '50vw', 'important');
         dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
-        dialogElement.style.setProperty('z-index', '1000000', 'important');
+        dialogElement.style.setProperty('z-index', '1055', 'important');
         dialogElement.style.setProperty('margin', '0', 'important');
-        dialogElement.style.setProperty('max-width', 'min(95vw, 1024px)', 'important');
-        dialogElement.style.setProperty('max-height', '85vh', 'important');
-        dialogElement.style.setProperty('display', 'flex', 'important');
-        dialogElement.style.setProperty('flex-direction', 'column', 'important');
-        dialogElement.style.setProperty('visibility', 'visible', 'important');
-        dialogElement.style.setProperty('opacity', '1', 'important');
-        dialogElement.style.setProperty('contain', 'layout style paint', 'important');
-        dialogElement.style.setProperty('isolation', 'isolate', 'important');
-
-        // 🚨 验证修复效果
-        const computedStyle = window.getComputedStyle(dialogElement);
-        console.log('✅ 修复后的样式:', {
-          position: computedStyle.position,
-          top: computedStyle.top,
-          left: computedStyle.left,
-          transform: computedStyle.transform,
-          zIndex: computedStyle.zIndex
-        });
-      } else {
-        console.log('❌ 未找到弹窗元素，检查所有可能的选择器...');
-
-        // 详细检查所有可能的元素
-        const allDialogs = document.querySelectorAll('[role="dialog"]');
-        const allEnhanced = document.querySelectorAll('.enhanced-history-dialog');
-        const allRadix = document.querySelectorAll('[data-radix-dialog-content]');
-        const allOpen = document.querySelectorAll('[data-state="open"]');
-
-        console.log('🔍 调试信息:', {
-          'role="dialog"': allDialogs.length,
-          '.enhanced-history-dialog': allEnhanced.length,
-          '[data-radix-dialog-content]': allRadix.length,
-          '[data-state="open"]': allOpen.length,
-          'open状态': open
-        });
-
-        if (allDialogs.length > 0) {
-          console.log('🔍 找到的dialog元素:', Array.from(allDialogs).map(el => ({
-            className: el.className,
-            id: (el as HTMLElement).id,
-            tagName: el.tagName,
-            dataState: el.getAttribute('data-state')
-          })));
-        }
-
-        if (allOpen.length > 0) {
-          console.log('🔍 找到的open状态元素:', Array.from(allOpen).map(el => ({
-            className: el.className,
-            id: (el as HTMLElement).id,
-            tagName: el.tagName,
-            role: el.getAttribute('role')
-          })));
-        }
+        
+        console.log('✅ 历史记录Dialog位置已修复');
       }
     };
 
-    // 🎯 执行修复，仅在弹窗打开时执行一次
     fixDialogPosition();
-
-    // 延迟执行确保DOM完全渲染
-    const timer = setTimeout(fixDialogPosition, 100);
-
-    return () => {
-      clearTimeout(timer);
-    };
+    setTimeout(fixDialogPosition, 100);
+    setTimeout(fixDialogPosition, 300);
   }, [open]);
 
   // 获取唯一平台列表
@@ -274,12 +208,12 @@ export function EnhancedHistoryDialog({
     try {
       await navigator.clipboard.writeText(content);
       toast({
-        title: "已复制",
+        title: t('components.labels.已复制'),
         description: "内容已复制到剪贴板"
       });
     } catch (error) {
       toast({
-        title: "复制失败",
+        title: t('components.labels.复制失败'),
         description: "无法复制到剪贴板",
         variant: "destructive"
       });
@@ -290,7 +224,7 @@ export function EnhancedHistoryDialog({
   const handleDeleteItem = (id: string) => {
     onDeleteItem(id);
     toast({
-      title: "已删除",
+      title: t('components.labels.已删除'),
       description: "历史记录已删除"
     });
   };
@@ -309,7 +243,7 @@ export function EnhancedHistoryDialog({
     URL.revokeObjectURL(url);
     
     toast({
-      title: "导出成功",
+      title: t('components.labels.导出成功'),
       description: "历史记录已导出到文件"
     });
   };
@@ -471,7 +405,7 @@ export function EnhancedHistoryDialog({
                               variant="ghost"
                               onClick={() => handleCopy(item.content)}
                               className="h-8 w-8 p-0"
-                              title="复制内容"
+                              title={t('components.labels.标题')}
                             >
                               <Copy className="h-3 w-3" />
                             </Button>
@@ -480,7 +414,7 @@ export function EnhancedHistoryDialog({
                               variant="ghost"
                               onClick={() => handleDeleteItem(item.id)}
                               className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                              title="删除记录"
+                              title={t('components.labels.删除记录')}
                             >
                               <Trash2 className="h-3 w-3" />
                             </Button>

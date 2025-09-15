@@ -3,6 +3,7 @@
  * 管理全局设置、平台设置、模式切换等
  */
 
+import i18n from '@/i18n';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { GlobalSettings, PlatformSettings } from '../services/contentAdapterService';
@@ -267,7 +268,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
 
     // 验证选中平台
     if (selectedPlatforms.length === 0) {
-      errors.push('请至少选择一个目标平台');
+      errors.push(i18n.t('common.errors.请至少选择一个目标平台'));
     }
 
     // 验证字符数设置
@@ -280,7 +281,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
 
     // 验证品牌库设置
     if (useBrandLibrary && !brandProfile) {
-      errors.push('启用品牌库时必须提供品牌档案');
+      errors.push(i18n.t('common.errors.启用品牌库时必须提供品牌档案'));
     }
 
     return {
@@ -310,12 +311,12 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
       localStorage.setItem(storageKey, JSON.stringify(settingsData));
       
       toast({
-        title: "设置已保存",
+        title: i18n.t('common.labels.设置已保存'),
         description: "您的配置已成功保存",
       });
     } catch (error) {
       toast({
-        title: "保存失败",
+        title: i18n.t('common.labels.保存失败'),
         description: "设置保存时发生错误",
         variant: "destructive"
       });
@@ -354,7 +355,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
     } catch (error) {
       console.error('加载设置失败:', error);
       toast({
-        title: "加载设置失败",
+        title: i18n.t('common.errors.加载设置失败'),
         description: "将使用默认设置",
         variant: "destructive"
       });
@@ -405,14 +406,14 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
       if (settingsData.selectedModel) setSelectedModel(settingsData.selectedModel);
 
       toast({
-        title: "设置导入成功",
+        title: i18n.t('common.labels.设置导入成功'),
         description: "配置已成功导入",
       });
 
       return true;
     } catch (error) {
       toast({
-        title: "导入失败",
+        title: i18n.t('common.labels.导入失败'),
         description: "设置文件格式错误",
         variant: "destructive"
       });

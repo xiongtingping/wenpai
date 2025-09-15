@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -167,7 +168,7 @@ const advantages = [
     bgColor: 'bg-accent',
   },
   {
-    title: '安全保障',
+    title: t('components.labels.安全保障'),
     description: '企业级安全保障，数据加密存储，保护您的创作成果',
     icon: Shield,
     color: 'text-foreground',
@@ -178,8 +179,7 @@ const advantages = [
 /**
  * 功能特性展示区域组件
  */
-export const FeaturesSection: React.FC = () => {
-  const { login, isAuthenticated } = useAuth();
+export const FeaturesSection: React.FC = () => { const { login, isAuthenticated  } = useAuth();
   const navigate = useNavigate();
 
   return (

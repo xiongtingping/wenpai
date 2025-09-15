@@ -11,6 +11,7 @@
  * - 监控告警：操作统计和异常监控
  */
 
+import i18n from '@/i18n';
 import { 
   dataLockManager, 
   retryManager, 
@@ -163,7 +164,7 @@ export class RobustUnifiedDataManager {
       return {
         success: false,
         error: StorageError.UNKNOWN_ERROR,
-        errorMessage: error instanceof Error ? error.message : '获取数据失败',
+        errorMessage: error instanceof Error ? error.message : i18n.t('common.errors.获取数据失败'),
         duration: Date.now() - startTime
       };
     }
@@ -229,7 +230,7 @@ export class RobustUnifiedDataManager {
       return {
         success: false,
         error: StorageError.UNKNOWN_ERROR,
-        errorMessage: error instanceof Error ? error.message : '保存数据失败',
+        errorMessage: error instanceof Error ? error.message : i18n.t('common.errors.保存数据失败'),
         duration: Date.now() - startTime
       };
     }
@@ -261,7 +262,7 @@ export class RobustUnifiedDataManager {
           results[key] = {
             success: false,
             error: StorageError.UNKNOWN_ERROR,
-            errorMessage: result.reason?.message || '批量获取失败'
+            errorMessage: result.reason?.message || i18n.t('common.errors.批量获取失败')
           };
         }
       });
@@ -302,7 +303,7 @@ export class RobustUnifiedDataManager {
       return {
         success: false,
         error: StorageError.UNKNOWN_ERROR,
-        errorMessage: error instanceof Error ? error.message : '检查数据存在性失败'
+        errorMessage: error instanceof Error ? error.message : i18n.t('common.errors.检查数据存在性失败')
       };
     }
   }
@@ -398,7 +399,7 @@ export class RobustUnifiedDataManager {
         return {
           success: false,
           error: StorageError.UNKNOWN_ERROR,
-          errorMessage: error instanceof Error ? error.message : '获取操作失败'
+          errorMessage: error instanceof Error ? error.message : i18n.t('common.errors.获取操作失败')
         };
       }
     }
@@ -472,7 +473,7 @@ export class RobustUnifiedDataManager {
         return {
           success: false,
           error: StorageError.UNKNOWN_ERROR,
-          errorMessage: error instanceof Error ? error.message : '保存操作失败',
+          errorMessage: error instanceof Error ? error.message : i18n.t('common.errors.保存操作失败'),
           duration: Date.now() - startTime
         };
       }
@@ -626,7 +627,7 @@ export class RobustUnifiedDataManager {
    */
   private recordFailure(startTime: number, error: any): void {
     this.stats.failedOperations++;
-    this.stats.lastError = error instanceof Error ? error.message : '未知错误';
+    this.stats.lastError = error instanceof Error ? error.message : i18n.t('common.errors.未知错误');
     this.stats.lastErrorTime = new Date();
     
     const duration = Date.now() - startTime;

@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,8 +12,7 @@ import { ExternalLink, Copy, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import DirectLinkQRCode from '@/components/payment/DirectLinkQRCode';
 
-export default function SimpleQRCodePage() {
-  const { toast } = useToast();
+export default function SimpleQRCodePage() { const { toast  } = useToast();
   
   const creemPaymentUrl = 'https://www.creem.io/payment/prod_3nJOuQeVStqkp6JaDcrKHf';
 
@@ -20,13 +20,13 @@ export default function SimpleQRCodePage() {
     try {
       await navigator.clipboard.writeText(creemPaymentUrl);
       toast({
-        title: "链接已复制",
+        title: t('pages.labels.链接已复制'),
         description: "Creem支付链接已复制到剪贴板",
       });
     } catch (error) {
       toast({
-        title: "复制失败",
-        description: "无法复制链接到剪贴板",
+        title: t('pages.labels.复制失败'),
+        description: t('pages.messages.无法复制链接到剪贴板'),
         variant: "destructive",
       });
     }

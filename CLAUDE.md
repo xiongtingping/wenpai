@@ -443,7 +443,113 @@ Claude MUST read and strictly follow these rules.
   - 测试数据不得污染生产环境
   - 测试完成后必须恢复原始状态
 
-#### 3.6.4 认证超时问题系统性修复案例 (2025-01-13)
+#### 3.6.4 快速引用弹窗定位异常根本性修复 (2025-01-13)
+
+**问题描述**：快速引用Dialog弹窗位置显示异常，可能出现定位错误或不可见的情况
+
+**根本原因分析**：
+1. **JavaScript修复器过于复杂**：包含终极修复、持续监控等复杂逻辑，反而造成冲突
+2. **inset属性冲突**：inset属性在长页面中相对于文档高度计算，而非视窗高度
+3. **百分比单位误用**：使用50%相对于整个页面高度，而非视窗高度
+4. **CSS选择器冗余**：多个修复文件存在样式冲突
+
+**系统性解决方案**：
+
+1. **简化JavaScript修复器**：
+```javascript
+// 精简修复器 - 遵循CLAUDE.md规范
+useEffect(() => {
+  if (!open) return;
+
+  const fixDialogPosition = () => {
+    const dialogElement = (
+      document.querySelector('[role="dialog"][class*="quick-reference-dialog"]') ||
+      document.querySelector('.quick-reference-dialog') ||
+      document.querySelector('[role="dialog"]')
+    ) as HTMLElement;
+
+    if (dialogElement) {
+      // 清除inset冲突属性
+      dialogElement.style.removeProperty('inset');
+      dialogElement.style.removeProperty('inset-block');
+      // ... 其他inset属性
+
+      // 使用视窗单位强制定位
+      dialogElement.style.setProperty('position', 'fixed', 'important');
+      dialogElement.style.setProperty('top', '50vh', 'important');
+      dialogElement.style.setProperty('left', '50vw', 'important');
+      dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+    }
+  };
+
+  fixDialogPosition();
+  setTimeout(fixDialogPosition, 100);
+  setTimeout(fixDialogPosition, 300);
+}, [open]);
+```
+
+2. **CSS视窗单位修复**：
+```css
+/* 使用视窗单位确保相对于视窗定位 */
+[role="dialog"].quick-reference-dialog,
+[role="dialog"][class*="quick-reference-dialog"] {
+  position: fixed !important;
+  top: 50vh !important;  /* 视窗高度50% */
+  left: 50vw !important; /* 视窗宽度50% */
+  transform: translate(-50%, -50%) !important;
+  
+  /* 完全重置inset属性 */
+  inset: unset !important;
+  inset-block: unset !important;
+  inset-inline: unset !important;
+  inset-block-start: unset !important;
+  inset-block-end: unset !important;
+  inset-inline-start: unset !important;
+  inset-inline-end: unset !important;
+}
+```
+
+**修复文件清单**：
+- `src/components/creative/QuickReference/QuickReferenceDialog.tsx`: 简化JavaScript修复器
+- `src/styles/unified-dialog-positioning.css`: 更新CSS使用视窗单位
+
+**关键技术洞察**：
+- **视窗单位的重要性**：vh/vw单位确保定位始终相对于视窗，不受页面内容长度影响
+- **inset属性清除的必要性**：必须主动清除inset相关属性，否则会覆盖top/left设置
+- **简化修复逻辑**：过于复杂的修复器可能引入新问题，简单有效的修复更可靠
+
+**防复发措施**：
+- 禁止使用百分比单位进行Dialog定位，必须使用视窗单位
+- 禁止在Dialog修复器中添加过于复杂的逻辑
+- 所有Dialog定位修改必须检查是否使用视窗单位
+- 严禁删除inset属性重置代码
+
+**更新 - 强化修复 (2025-01-13 22:20)**：
+- **问题升级**：用户反馈弹窗仍显示在网页顶部，只能看到一半，背景层同理
+- **根本原因**：多个CSS文件存在样式冲突，JavaScript修复器不够强制
+- **强化解决方案**：
+  1. 创建专用紧急修复CSS文件`quick-reference-dialog-emergency-fix.css`，使用超高优先级选择器
+  2. 强化JavaScript修复器，增加持续监控和多重修复机制
+  3. 完全重写Dialog样式，使用cssText方法彻底覆盖
+- **修复验证**：增加详细的控制台日志输出，实时监控Dialog位置和样式状态
+
+**紧急更新 - 终极修复 (2025-01-13 22:35)**：
+- **严重问题**：Dialog完全不可见，背景层显示不全，强化修复导致更严重问题
+- **根本原因分析**：
+  1. 过度复杂的CSS修复文件相互冲突
+  2. JavaScript cssText重写破坏了Dialog基本功能
+  3. 可能存在全局CSS规则强制隐藏Dialog元素
+- **终极解决方案**：
+  1. 创建`dialog-basic-fix.css`终极修复，使用最高优先级强制显示
+  2. 添加红色边框和调试信息，便于视觉确认
+  3. 实现终极JavaScript诊断器，深度检测所有Dialog相关元素
+  4. 强制重置所有可能隐藏Dialog的CSS属性
+- **调试特征**：
+  - Dialog应显示红色边框和"🚨 DIALOG VISIBLE - 调试模式"标签
+  - 背景遮罩应显示红色半透明效果
+  - 控制台输出完整的Dialog诊断信息
+
+#### 3.6.5 认证超时问题系统性修复案例 (2025-01-13)
 
 **问题描述**：用户登录时遇到认证超时错误：`timeout of 10000ms exceeded`
 

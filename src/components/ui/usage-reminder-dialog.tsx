@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,34 +17,33 @@ interface UsageReminderDialogProps {
  * 使用次数提醒弹窗组件
  * @description 当用户使用次数不足时显示提醒弹窗
  */
-export function UsageReminderDialog({
-  isOpen,
+export function UsageReminderDialog({ isOpen,
   onClose,
   onUpgrade,
   remainingCount,
   userType
-}: UsageReminderDialogProps) {
+ }: UsageReminderDialogProps) {
   const getDialogContent = () => {
     if (userType === 'trial') {
       return {
-        title: '使用次数即将用完',
+        title: t('components.labels.使用次数即将用完'),
         description: `仅剩 ${remainingCount} 次调用机会，立即升级享受更多功能！`,
-        upgradeText: '立即升级',
-        upgradeDescription: '升级后享受更多使用次数和高级功能'
+        upgradeText: t('components.messages.立即升级'),
+        upgradeDescription: t('components.messages.升级后享受更多使用次数和高级功能')
       };
     } else if (userType === 'pro') {
       return {
-        title: '使用次数即将用完',
+        title: t('components.labels.使用次数即将用完'),
         description: `仅剩 ${remainingCount} 次调用机会，升级后不限次！`,
-        upgradeText: '升级高级版',
-        upgradeDescription: '升级到高级版享受不限量使用'
+        upgradeText: t('components.messages.升级高级版'),
+        upgradeDescription: t('components.messages.升级到高级版享受不限量使用')
       };
     }
     return {
-      title: '使用次数即将用完',
+      title: t('components.labels.使用次数即将用完'),
       description: `仅剩 ${remainingCount} 次调用机会`,
-      upgradeText: '立即升级',
-      upgradeDescription: '升级后享受更多使用次数'
+      upgradeText: t('components.messages.立即升级'),
+      upgradeDescription: t('components.messages.升级后享受更多使用次数')
     };
   };
 

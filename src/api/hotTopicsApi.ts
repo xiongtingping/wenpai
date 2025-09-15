@@ -3,6 +3,7 @@
  * 整合 RSSHub 数据和本地缓存
  */
 
+import i18n from '@/i18n';
 import rsshubService, { HotTopicItem, PlatformConfig } from '../services/rsshubService';
 
 export interface HotTopicsResponse {
@@ -54,7 +55,7 @@ class HotTopicsApi {
         total: 0,
         categories: [],
         lastUpdated: new Date().toISOString(),
-        error: error instanceof Error ? error.message : '未知错误'
+        error: error instanceof Error ? error.message : i18n.t('api.errors.未知错误')
       };
     }
   }
@@ -83,7 +84,7 @@ class HotTopicsApi {
         total: 0,
         categories: [],
         lastUpdated: new Date().toISOString(),
-        error: error instanceof Error ? error.message : '未知错误'
+        error: error instanceof Error ? error.message : i18n.t('api.errors.未知错误')
       };
     }
   }
@@ -137,7 +138,7 @@ class HotTopicsApi {
         total: 0,
         categories: [],
         lastUpdated: new Date().toISOString(),
-        error: error instanceof Error ? error.message : '未知错误'
+        error: error instanceof Error ? error.message : i18n.t('api.errors.未知错误')
       };
     }
   }

@@ -3,6 +3,7 @@
  * @description 提供统一的AI模型权限验证功能
  */
 
+import i18n from '@/i18n';
 import { getModelInfo, isModelAvailableForTier } from '@/config/aiModels';
 import type { SubscriptionTier } from '@/types/subscription';
 
@@ -49,7 +50,7 @@ export function getModelPermissionInfo(modelId: string) {
       requiredTier: 'premium' as SubscriptionTier,
       currentTier: userTier,
       needsUpgrade: true,
-      message: '模型不存在'
+      message: i18n.t('utils.messages.模型不存在')
     };
   }
 
@@ -65,7 +66,7 @@ export function getModelPermissionInfo(modelId: string) {
     needsUpgrade,
     message: hasPermission 
       ? `有权限使用 ${model.name}` 
-      : `需要${requiredTier === 'pro' ? '专业版' : '高级版'}权限才能使用 ${model.name}`
+      : `需要${requiredTier === 'pro' ? i18n.t('utils.messages.专业版') : i18n.t('utils.messages.高级版')}权限才能使用 ${model.name}`
   };
 }
 
@@ -97,7 +98,7 @@ export function getUpgradeRecommendation(modelId: string) {
   return {
     from: currentTier,
     to: requiredTier,
-    message: `升级到${requiredTier === 'pro' ? '专业版' : '高级版'}以解锁更多AI模型`,
+    message: `升级到${requiredTier === 'pro' ? i18n.t('utils.messages.专业版') : i18n.t('utils.messages.高级版')}以解锁更多AI模型`,
     benefits: requiredTier === 'pro' 
       ? ['专业版AI模型', '更多创意功能', '更高Token限额'] 
       : ['所有顶级AI模型', '无限制使用', '品牌库功能', '所有高级功能']

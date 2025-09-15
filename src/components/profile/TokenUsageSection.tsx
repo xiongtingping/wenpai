@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -54,10 +55,9 @@ interface TokenUsageSectionProps {
 /**
  * 格式化数字显示
  */
-function formatNumber(num: number): string {
-  if (num >= 1000000) {
+function formatNumber(num: number): string { if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + 'M';
-  } else if (num >= 1000) {
+   } else if (num >= 1000) {
     return (num / 1000).toFixed(1) + 'K';
   }
   return num.toLocaleString();
@@ -154,7 +154,7 @@ export function TokenUsageSection({
   };
 
   // 处理升级操作
-  // ✅ FIXED: 恢复"立即解锁高级功能"按钮，修复于 2025-08-10
+  // ✅ FIXED: 恢复按钮，修复于 2025-08-10
   // 
   const handleUpgrade = () => {
     window.location.href = '/payment';
@@ -269,7 +269,7 @@ export function TokenUsageSection({
                       <div className="flex items-center gap-2">
                         <h3 className="font-bold text-foreground text-lg">使用次数</h3>
                         <InfoTooltip
-                          title="使用次数说明"
+                          title={t('components.labels.标题')}
                           content={[
                             "统计规则：主要计算AI内容适配器的调用次数",
                             "计量单位：每次调用AI内容适配器计为1次使用",
@@ -312,7 +312,7 @@ export function TokenUsageSection({
               </div>
 
               {/* 升级按钮 - 仅在非高级版时显示 */}
-              {/* ✅ FIXED: 恢复"立即解锁高级功能"按钮，修复于 2025-08-10 */}
+              {/* ✅ FIXED: 恢复按钮，修复于 2025-08-10 */}
               {/* 升级按钮已注释
               {userTier !== 'premium' && showUpgradeButton && (
                 <div className="mt-4">

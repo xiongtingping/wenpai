@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,11 +27,10 @@ import { PaymentSuccessHandler } from './PaymentSuccessHandler';
 /**
  * 增强版支付宝二维码组件
  */
-const EnhancedCreemAlipayQRCode: React.FC<{ 
-  productId: string; 
+const EnhancedCreemAlipayQRCode: React.FC<{ productId: string; 
   apiKey: string;
   onCheckoutCreated?: (checkout: any) => void;
-}> = ({ productId, apiKey, onCheckoutCreated }) => {
+ }> = ({ productId, apiKey, onCheckoutCreated }) => {
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [price, setPrice] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,7 +57,7 @@ const EnhancedCreemAlipayQRCode: React.FC<{
         null;
         
       if (!alipayQr) {
-        setError('该产品未配置支付宝二维码支付');
+        setError(t('components.errors.该产品未配置支付宝二维码支付'));
         setQrUrl(null);
         setPrice(null);
         setLoading(false);
@@ -83,7 +83,7 @@ const EnhancedCreemAlipayQRCode: React.FC<{
       
     } catch (err: any) {
       console.error('创建支付订单失败:', err);
-      setError(err?.message || "二维码获取失败");
+      setError(err?.message || t('components.errors.二维码获取失败'));
       setQrUrl(null);
       setPrice(null);
     } finally {
@@ -222,7 +222,7 @@ export default function EnhancedPaymentPage() {
       setShowQRCode(true);
       setPaymentStatus('pending');
       toast({
-        title: "支付二维码已显示",
+        title: t('components.labels.支付二维码已显示'),
         description: "请使用手机扫码完成支付",
       });
       
@@ -297,7 +297,7 @@ export default function EnhancedPaymentPage() {
     }
     
     toast({
-      title: "支付失败",
+      title: t('components.labels.支付失败'),
       description: error,
       variant: "destructive",
     });
@@ -524,7 +524,7 @@ export default function EnhancedPaymentPage() {
                   if (currentCheckout) {
                     paymentStatusService.savePaymentStatus(currentCheckout.id, {
                       status: 'expired',
-                      message: '支付已过期',
+                      message: t('components.messages.支付已过期'),
                       progress: 0,
                     });
                   }

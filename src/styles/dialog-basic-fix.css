@@ -1,0 +1,160 @@
+/**
+ * 🚨 终极Dialog修复 - 强制显示所有Dialog
+ * 使用最高优先级确保Dialog和背景层都能正常显示
+ */
+
+/* 🔥 终极选择器 - 覆盖所有可能的Dialog元素 */
+html [role="dialog"],
+body [role="dialog"],
+#root [role="dialog"],
+[data-radix-portal] [role="dialog"],
+[data-radix-portal] [data-radix-dialog-content],
+div[data-radix-portal] [role="dialog"],
+div[data-radix-portal] [data-radix-dialog-content],
+[role="dialog"],
+[data-radix-dialog-content],
+.dialog,
+.modal {
+  /* 🚨 强制显示 - 最高优先级 */
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  
+  /* 🚨 强制定位 */
+  position: fixed !important;
+  top: 10% !important;
+  left: 10% !important;
+  right: 10% !important;
+  bottom: 10% !important;
+  
+  /* 🚨 强制尺寸 */
+  width: 80vw !important;
+  height: 80vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 300px !important;
+  min-height: 200px !important;
+  
+  /* 🚨 强制层级 */
+  z-index: 999999 !important;
+  
+  /* 🚨 强制样式 */
+  background: white !important;
+  border: var(--spacing-0-5) solid red !important; /* 调试用红色边框 */
+  border-radius: var(--spacing-2) !important;
+  padding: var(--spacing-5) !important;
+  box-shadow: 0 0 50px rgba(255, 0, 0, 0.5) !important; /* 调试用红色阴影 */
+  
+  /* 🚨 重置所有可能的隐藏属性 */
+  transform: none !important;
+  translate: none !important;
+  scale: none !important;
+  rotate: none !important;
+  clip: none !important;
+  clip-path: none !important;
+  mask: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  
+  /* 🚨 重置inset */
+  inset: auto !important;
+  inset-block: auto !important;
+  inset-inline: auto !important;
+  inset-block-start: auto !important;
+  inset-block-end: auto !important;
+  inset-inline-start: auto !important;
+  inset-inline-end: auto !important;
+  
+  /* 🚨 强制布局 */
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+  gap: var(--spacing-4) !important;
+  
+  /* 🚨 强制文字可见 */
+  color: black !important;
+  font-size: var(--spacing-3-5) !important;
+  line-height: 1.5 !important;
+  
+  /* 🚨 强制溢出处理 */
+  overflow: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* 🔥 终极背景遮罩修复 */
+html [data-radix-dialog-overlay],
+body [data-radix-dialog-overlay],
+#root [data-radix-dialog-overlay],
+[data-radix-portal] [data-radix-dialog-overlay],
+div[data-radix-portal] [data-radix-dialog-overlay],
+[data-radix-dialog-overlay],
+.dialog-overlay,
+.modal-overlay {
+  /* 🚨 强制显示背景遮罩 */
+  display: block !important;
+  visibility: visible !important;
+  opacity: 0.8 !important;
+  pointer-events: auto !important;
+  
+  /* 🚨 强制全屏覆盖 */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  
+  /* 🚨 强制层级 */
+  z-index: 999998 !important;
+  
+  /* 🚨 强制背景 */
+  background: rgba(255, 0, 0, 0.3) !important; /* 调试用红色半透明背景 */
+  backdrop-filter: blur(var(--spacing-0-5)) !important;
+  
+  /* 🚨 重置所有可能的隐藏属性 */
+  inset: 0 !important;
+  transform: none !important;
+  translate: none !important;
+  scale: none !important;
+  clip: none !important;
+  clip-path: none !important;
+  mask: none !important;
+  filter: none !important;
+}
+
+/* 🔥 强制所有子元素可见 */
+[role="dialog"] *,
+[data-radix-dialog-content] * {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  color: black !important;
+}
+
+/* 🔥 特殊处理可能的flex布局 */
+[role="dialog"] > div,
+[data-radix-dialog-content] > div {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* 🔥 调试信息 */
+[role="dialog"]::before,
+[data-radix-dialog-content]::before {
+  content: "🚨 DIALOG VISIBLE - 调试模式" !important;
+  position: absolute !important;
+  top: -30px !important;
+  left: 0 !important;
+  background: red !important;
+  color: white !important;
+  padding: 5px var(--spacing-2-5) !important;
+  font-size: var(--spacing-3) !important;
+  font-weight: bold !important;
+  z-index: 9999999 !important;
+  border-radius: var(--spacing-1) !important;
+}

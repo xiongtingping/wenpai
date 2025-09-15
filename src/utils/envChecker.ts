@@ -147,7 +147,7 @@ export class EnvChecker {
       name: 'VITE_DEV_MODE',
       value: devMode || '未设置',
       isValid,
-      message: isValid ? '开发模式配置正确' : '请设置开发模式（true/false）',
+      message: isValid ? i18n.t('utils.messages.开发模式配置正确') : '请设置开发模式（true/false）',
       required: false
     };
   }
@@ -179,7 +179,7 @@ export class EnvChecker {
       name: 'VITE_ENCRYPTION_KEY',
       value: key ? `${key.substring(0, 10)}...` : '未设置',
       isValid,
-      message: isValid ? '加密密钥配置正确' : '请设置至少32位的加密密钥',
+      message: isValid ? i18n.t('utils.messages.加密密钥配置正确') : '请设置至少32位的加密密钥',
       required: false
     };
   }
@@ -306,7 +306,7 @@ export const checkEnvironmentVariables = (): EnvCheckSummary => {
       name: config.key,
       value: config.value,
       isValid: config.value && config.value !== 'your-' + config.key.toLowerCase().replace('vite_', '') + '-key',
-      message: config.value && config.value !== 'your-' + config.key.toLowerCase().replace('vite_', '') + '-key' ? '配置正确' : '请设置有效的' + config.description,
+      message: config.value && config.value !== 'your-' + config.key.toLowerCase().replace('vite_', '') + '-key' ? i18n.t('utils.messages.配置正确') : i18n.t('utils.messages.请设置有效的') + config.description,
       required: config.required
     };
     results.push(result);

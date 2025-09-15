@@ -3,6 +3,7 @@
  * 当Netlify Functions不可用时提供备用方案
  */
 
+import i18n from '@/i18n';
 import request from './request';
 
 // API端点配置
@@ -46,7 +47,7 @@ export async function callOpenAIProxy(
       data
     };
   } catch (error) {
-    throw new Error(`AI服务连接失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    throw new Error(`AI服务连接失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
   }
 }
 
@@ -102,7 +103,7 @@ export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
       error: error instanceof Error ? error.message : 'Unknown error',
       data: {
         available: false,
-        error: '网络连接失败'
+        error: i18n.t('api.errors.网络连接失败')
       }
     };
   }

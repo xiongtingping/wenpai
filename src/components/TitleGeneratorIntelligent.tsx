@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 import { Sparkles, RefreshCw, Copy, Edit, Check, X } from "lucide-react";
 import { callAI, callAIWithRetry } from '@/api/ai';
 import {
@@ -30,7 +31,7 @@ const fixTruncatedJSON = (truncatedJson: string): string | null => {
     JSON.parse(truncatedJson);
     return truncatedJson;
   } catch (error) {
-    logger.debug('🔧 开始修复截断的JSON...');
+    logger.debug('🔧', t('titleGenerator.logs.fixingJson'));
   }
 
   // 查找最后一个完整的对象或数组
@@ -65,11 +66,7 @@ const fixTruncatedJSON = (truncatedJson: string): string | null => {
   const closeBraces = (fixedJson.match(/\}/g) || []).length;
   if (openBraces > closeBraces) {
     const missingBraces = openBraces - closeBraces;
-    fixedJson += '}'.repeat(missingBraces);
-  }
-
-  // 4. 尝试修复未完成的数组元素
-  if (fixedJson.endsWith(',')) {
+    fixedJson += '},')) {
     fixedJson = fixedJson.slice(0, -1);
   }
 
@@ -84,10 +81,10 @@ const fixTruncatedJSON = (truncatedJson: string): string | null => {
   // 6. 验证修复后的JSON
   try {
     JSON.parse(fixedJson);
-    logger.debug('✅ JSON修复成功');
+    logger.debug();
     return fixedJson;
   } catch (error) {
-    console.log('❌ JSON修复失败，尝试更激进的修复...');
+    console.log(t('components.error.JSON修复_q40'));
     
     // 7. 更激进的修复：查找最后一个完整的对象
     const lastCompleteObjectMatch = fixedJson.match(/\{[^{}]*\}/g);
@@ -120,39 +117,16 @@ const fixTruncatedJSON = (truncatedJson: string): string | null => {
           }`;
           try {
             JSON.parse(minimalJson);
-            logger.debug('✅ 构建最小有效JSON成功');
+            logger.debug();
             return minimalJson;
           } catch (error) {
-            console.log('❌ 最小JSON构建失败');
+            console.log(t('components.error.最小JSON_3lo'));
           }
         }
       }
     }
 
-    console.log('❌ 所有JSON修复方法都失败了');
-    return null;
-  }
-};
-
-// ✅ FIXED: 使用导入的PLATFORM_LIMITS，避免重复声明
-
-// ✅ FIXED: 添加标题质量检查函数
-const checkTitleQuality = (
-  title: string,
-  semanticFit: number,
-  platformId: string,
-  platformLimits: Record<string, number>
-): {
-  isQualified: boolean;
-  issues: string[];
-  suggestions: string[];
-} => {
-  const issues: string[] = [];
-  const suggestions: string[] = [];
-  
-  // ✅ FIXED: 优化语义贴合度检查 - 降低门槛，提高通过率
-  if (semanticFit < 0.6) { // 从0.75降低到0.6
-    issues.push('语义贴合度不足60%');
+    console.log(t('components.error.所有JSON_g72{t('components.title._nez')语义贴合度不足60%');
     suggestions.push('增强与原文内容的关联性');
   }
 
@@ -167,42 +141,19 @@ const checkTitleQuality = (
 
   // ✅ FIXED: 保留内容检查 - 这是必要的
   if (title.includes('undefined') || title.includes('null')) {
-    issues.push('标题包含无效内容');
-    suggestions.push('清理标题中的无效字符');
+    issues.push();
+    suggestions.push();
   }
 
   // ✅ FIXED: 优化空泛检查 - 减少过于严格的限制
-  const genericWords = ['AI真强', '神器推荐']; // 移除'这个工具', '很好用'，这些词汇可能出现在正常标题中
-  if (genericWords.some(word => title.includes(word))) {
-    issues.push('标题过于空泛');
+  const genericWords = ['AI真强', '神器推荐']; // 移除'这个工具', '很好用标题过于空泛');
     suggestions.push('使用具体的产品名称和明确价值主张');
   }
 
   // ✅ FIXED: 新增基础质量检查 - 确保标题有基本内容
   if (title.trim().length < 3) {
-    issues.push('标题内容过少');
-    suggestions.push('增加标题内容');
-  }
-
-  return {
-    isQualified: issues.length === 0,
-    issues,
-    suggestions
-  };
-};
-
-// 使用统一的平台限制配置（从AI prompt系统导入）
-const PLATFORM_TITLE_LIMITS = PLATFORM_LIMITS;
-
-// 标题质量评估权重配置 - V3.3增强版
-// ✅ FIXED: 2025-08-03 使用统一权重配置，避免重复定义
-// 
-const QUALITY_WEIGHTS = V3_3_TITLE_SCORE_WEIGHTS;
-
-interface ContentVersion {
-  id: string;
-  content: string;
-  style: 'standard' | 'creative';
+    issues.push();
+    suggestions.push(standard' | 'creative';
   title: string;
   charCount: number;
 }
@@ -241,23 +192,7 @@ interface ContentAnalysis {
   mainTopic: string;
   keyPoints: string[];
   valueProposition: string;
-  tone: 'informative' | 'engaging' | 'emotional' | 'practical';
-  entities: string[];
-  actionWords: string[];
-  semanticSimilarity: number; // 语义相似度评分
-  contentLength: number;
-  coreMessage: string; // 核心信息提炼
-  // 新增强化字段
-  coreObjects: string[]; // 核心对象（具体工具名）
-  userBenefits: string[]; // 用户收益（具体效果）
-  useScenarios: string[]; // 使用场景（具体平台/场景）
-  keyActions: string[]; // 关键动作（具体操作）
-  quantifiedEffects: string[]; // 量化效果（具体数据）
-  userPainPoints: string[]; // 用户痛点（具体问题）
-}
-
-// 标题风格枚举
-type TitleStyle = 'result-emotion' | 'question-hook' | 'reason-action' | 'experience-contrast' | 'tool-value';
+  tone: 'informative' | 'engaging' | 'emotional' | 'practicalresult-emotion' | 'question-hook' | 'reason-action' | 'experience-contrast' | 'tool-value';
 
 interface TitleStyleConfig {
   name: string;
@@ -284,12 +219,13 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   const [editingTitleText, setEditingTitleText] = useState<string>('');
 
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // ✅ FIXED: 标题生成兜底增强，彻底杜绝空字符串和"暂无生成的标题"
   // 
   const safeTitle = (title: string) => {
     if (!title || typeof title !== 'string' || title.trim().length === 0) {
-      return '智能生成标题';
+      return ;
     }
     return title.trim();
   };
@@ -310,40 +246,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   const last429TimeRef = useRef<number>(0);
   const totalApiCallsRef = useRef<number>(0);
   const successfulApiCallsRef = useRef<number>(0);
-  const lastContentRef = useRef<string>(''); // ✅ FIXED: 跟踪上一次的内容，避免平台切换时的重复触发
-
-  // 极速节流配置
-  // ✅ FIXED: 保守节流配置 - 减少429错误，提高成功率
-  const getThrottleConfig = () => {
-    const now = Date.now();
-    const timeSinceLast429 = now - last429TimeRef.current;
-    const baseInterval = 3000; // ✅ FIXED: 增加基础间隔到3秒，减少429错误
-    const consecutive429Multiplier = Math.pow(1.1, Math.min(consecutive429CountRef.current, 2)); // ✅ FIXED: 更保守的指数退避
-    const dynamicInterval = baseInterval * consecutive429Multiplier;
-    
-    // ✅ FIXED: 更保守的429错误后等待时间
-    if (timeSinceLast429 < 10000) { // 10秒内
-      return Math.max(dynamicInterval, 5000); // 至少5秒
-    }
-    
-    // ✅ FIXED: 更保守的总调用次数限制
-    const totalCalls = totalApiCallsRef.current;
-    if (totalCalls > 20) { // 降低阈值，更保守
-      return Math.max(dynamicInterval, 3000); // 至少3秒
-    }
-    
-    return dynamicInterval;
-  };
-
-  // 处理429错误的更智能策略
-  const handle429Error = () => {
-    const now = Date.now();
-    consecutive429CountRef.current++;
-    last429TimeRef.current = now;
-    totalApiCallsRef.current++;
-    
-    const waitTime = getThrottleConfig();
-    logger.warn('🚨 检测到429错误，连续次数: ${consecutive429CountRef.current}, 总调用次数: ${totalApiCallsRef.current}, 等待时间: ${waitTime}ms');
+  const lastContentRef = useRef<string>('$🚨 检测到429错误，连续次数: ${consecutive429CountRef.current}, 总调用次数: ${totalApiCallsRef.current}, 等待时间: ${waitTime}ms');
     
     toast({
       title: "API调用频率超限",
@@ -370,22 +273,11 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     // ✅ FIXED: 优化API调用限制 - 减少等待时间
     if (timeSinceLastCall < minInterval) {
       const delay = Math.min(minInterval - timeSinceLastCall, 2000); // 最大等待2秒
-      console.log(`⏱️ API调用限制：需要等待${Math.ceil(delay / 1000)}秒`);
-      return delay;
-    }
-    
-    return 0;
-  };
-
-  // ✅ FIXED: 移除初始化useEffect，避免干扰正常的生成逻辑
-
-  // ✅ FIXED: 彻底修复平台切换逻辑 - 只更新现有标题，绝对不生成新标题
-  useEffect(() => {
-    console.log(`🔄 平台切换检查: ${platformId || '未知'} (${platformName || '未知平台'})`);
+      console.log(`⏱️ API调用限制：需要等待${Math.ceil(delay / 1000)}秒$🔄 平台切换检查: ${platformId || '未知'} (${platformName || '未知平台'})`);
 
     // ✅ FIXED: 平台切换时只更新现有标题的平台信息和字符利用率，绝对不重新生成
     if (titles.length > 0) {
-      console.log(`🔄 平台切换: 更新现有标题的平台信息和字符利用率，不重新生成`);
+      console.log(t('components.title.平台切换_1gs'));
       setTitles(prevTitles =>
         prevTitles.map(title => {
           const newUtilizationScore = title.length / titleLimit;
@@ -404,25 +296,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         })
       );
     } else {
-      console.log(`🔄 平台切换: 没有现有标题，不进行任何操作`);
-    }
-  }, [platformId, platformName]); // ✅ FIXED: 只监听平台变化，绝对不触发生成
-
-  // ✅ FIXED: 性能优化 - 使用useMemo优化计算
-  const titleLimit = useMemo(() => {
-    return PLATFORM_TITLE_LIMITS[platformId as keyof typeof PLATFORM_TITLE_LIMITS] || 25;
-  }, [platformId]);
-  
-  const minTitleLength = useMemo(() => {
-    return Math.max(8, Math.floor(titleLimit * 0.7)); // 最短不少于8字，建议≥平台限制的70%
-  }, [titleLimit]);
-
-  // ✅ FIXED: 移除重复的useEffect，避免平台切换时重复触发
-  // 字符限制更新逻辑已合并到平台切换useEffect中
-
-  // 标题风格配置（V3规范）
-  const titleStyles: Record<TitleStyle, TitleStyleConfig> = {
-    'result-emotion': {
+      console.log(t('components.title.平台切换_2yw{t('components.title._537')result-emotion': {
       name: '✅ 结果+情绪型',
       description: '强调使用结果 + 情感评价',
       minLength: 10,
@@ -442,7 +316,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     },
     'experience-contrast': {
       name: '💡 体验+反差型',
-      description: '从"以前"到"现在"的转变',
+      description: t('components.labels.从')以前"到"现在"的转变',
       minLength: 12,
       patterns: ['以前要{old_way}，现在{new_way}', '{tool}前后对比：{contrast}', '没用{tool}前{before}，用了后{after}']
     },
@@ -450,152 +324,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       name: '🛠️ 工具+明确价值型',
       description: '工具名称 + 功能/收益',
       minLength: 8,
-      patterns: ['{tool}：{value}，{benefit}', '{tool}帮我{action}，{result}', '{tool}的{feature}功能，{benefit}']
-    }
-  };
-
-  // 🚫 移除本地内容分析函数：只保留AI模式
-
-  // 🚫 移除本地实体提取函数：只保留AI模式
-
-  // 🚫 移除本地主题识别函数：只保留AI模式
-
-  // 🚫 移除所有本地分析函数：只保留AI模式
-
-  // 提取核心对象（具体工具名、产品名）
-  const extractCoreObjects = (text: string): string[] => {
-    const objects: string[] = [];
-
-    // 匹配具体工具名
-    const toolPatterns = [
-      /([^\s]{2,8}(?:AI|GPT|工具|助手|平台|系统|软件|应用))/g,
-      /(文派|ChatGPT|Claude|Midjourney|Figma|Notion|飞书|钉钉)/g,
-      /([^\s]{2,6}(?:生成器|适配器|编辑器|创作器))/g
-    ];
-
-    toolPatterns.forEach(pattern => {
-      const matches = text.match(pattern) || [];
-      objects.push(...matches);
-    });
-
-    return [...new Set(objects)].filter(obj => obj.length >= 2 && obj.length <= 10);
-  };
-
-  // 提取用户收益（具体效果、价值）
-  const extractUserBenefits = (text: string): string[] => {
-    const benefits: string[] = [];
-
-    // 匹配效果描述
-    const benefitPatterns = [
-      /(?:节省|提升|增加|减少|优化)([^\s]{2,8})/g,
-      /([^\s]{2,8})(?:翻倍|倍增|提升|增长)/g,
-      /(\d+%?)(?:的?(?:时间|效率|质量|速度))/g,
-      /(一键|自动|智能|快速)([^\s]{2,6})/g
-    ];
-
-    benefitPatterns.forEach(pattern => {
-      const matches = text.match(pattern) || [];
-      benefits.push(...matches);
-    });
-
-    return [...new Set(benefits)].filter(benefit => benefit.length >= 2);
-  };
-
-  // 提取使用场景（具体平台、场景）
-  const extractUseScenarios = (text: string): string[] => {
-    const scenarios: string[] = [];
-
-    // 匹配平台和场景
-    const scenarioPatterns = [
-      /(小红书|微博|抖音|B站|公众号|知乎|朋友圈)/g,
-      /([^\s]{2,6}(?:发文|创作|写作|营销|推广))/g,
-      /(职场|工作|学习|生活|商务)([^\s]{2,6})/g
-    ];
-
-    scenarioPatterns.forEach(pattern => {
-      const matches = text.match(pattern) || [];
-      scenarios.push(...matches);
-    });
-
-    return [...new Set(scenarios)].filter(scenario => scenario.length >= 2);
-  };
-
-  // 提取关键动作（具体操作）
-  const extractKeyActions = (text: string): string[] => {
-    const actions: string[] = [];
-
-    // 匹配动作词
-    const actionPatterns = [
-      /(一键|自动|智能|批量)([^\s]{2,6})/g,
-      /([^\s]{2,6}(?:生成|创建|制作|编辑|修改|优化))/g,
-      /(适配|转换|改写|调整|定制)([^\s]{2,6})?/g
-    ];
-
-    actionPatterns.forEach(pattern => {
-      const matches = text.match(pattern) || [];
-      actions.push(...matches);
-    });
-
-    return [...new Set(actions)].filter(action => action.length >= 2);
-  };
-
-  // 提取量化效果（具体数据）
-  const extractQuantifiedEffects = (text: string): string[] => {
-    const effects: string[] = [];
-
-    // 匹配数字和效果
-    const effectPatterns = [
-      /(\d+(?:\.\d+)?[%倍]?)(?:的?(?:时间|效率|质量|速度|提升|增长))/g,
-      /(?:节省|提升|增加)(\d+(?:\.\d+)?[%倍]?)/g,
-      /(\d+(?:分钟|小时|天|秒))(?:内|完成)/g
-    ];
-
-    effectPatterns.forEach(pattern => {
-      const matches = text.match(pattern) || [];
-      effects.push(...matches);
-    });
-
-    return [...new Set(effects)].filter(effect => effect.length >= 1);
-  };
-
-  // 提取用户痛点（具体问题）
-  const extractUserPainPoints = (text: string): string[] => {
-    const painPoints: string[] = [];
-
-    // 匹配痛点描述
-    const painPatterns = [
-      /([^\s]{2,6}(?:太累|很累|麻烦|困难|复杂))/g,
-      /([^\s]{2,6}(?:不一致|不统一|不匹配))/g,
-      /(效率低|速度慢|耗时长|浪费时间)/g,
-      /(重复|繁琐|机械|无聊)([^\s]{2,6})/g,
-      /([^\s]{2,6}(?:问题|痛点|难点|瓶颈))/g,
-      /(缺少|缺乏|没有)([^\s]{2,6})/g
-    ];
-
-    painPatterns.forEach(pattern => {
-      const matches = text.match(pattern) || [];
-      painPoints.push(...matches);
-    });
-
-    return [...new Set(painPoints)].filter(pain => pain.length >= 2);
-  };
-
-  // 生成自然、内容感知的标题（符合Prompt文档规范）
-  // 🚫 移除generateNaturalTitle函数：只保留AI模式
-
-  // 🚫 移除所有本地生成函数：只保留AI模式
-
-  // 🚫 移除所有本地生成相关函数：只保留AI模式
-
-  // 🚫 移除本地评分函数：只保留AI模式
-
-  // 🚫 移除本地结构分析函数：只保留AI模式
-
-  // 🤖 AI模式：标题生成主函数（按规范优化）
-  const generateTitles = async () => {
-    // ✅ FIXED: 优化性能检查 - 减少不必要的生成
-    if (globalRequestLockRef.current || isGenerating) {
-      logger.lock('生成请求被阻止，已有请求正在进行中');
+      patterns: ['{tool}：{value}，{benefit}', '{tool}帮我{action}，{result}', '{tool}的{feature}功能，{benefit});
       return;
     }
     
@@ -625,7 +354,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
       if (!sourceContent || contentLength < 3) { // ✅ FIXED: 进一步减少最小内容长度要求
         toast({
-          title: "内容不足",
+          title: t('components.labels.内容不足'),
           description: "请提供更多内容以生成标题（最少3字符）",
           variant: "destructive"
         });
@@ -644,7 +373,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         // ✅ FIXED: 根据用户选择的模型调整超时时间
         const userSelectedModel = localStorage.getItem('preferredAIModel') || 'deepseek-v3';
         const timeout = userSelectedModel.includes('deepseek') ? 30000 : 15000; // DeepSeek 30秒，其他15秒
-        setTimeout(() => reject(new Error('生成超时')), timeout);
+        setTimeout(() => reject(new Error(t('components.errors.生成超时'))), timeout);
       });
 
       try {
@@ -665,16 +394,16 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           console.log('🔄 尝试备用模型...');
           const fallbackPromise = attemptAIGeneration(sourceContent, true); // 使用备用模型
           const fallbackTimeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('备用模型也超时')), 12000); // 12秒超时
+            setTimeout(() => reject(new Error(t('components.errors.备用模型也超时'))), 12000); // 12秒超时
           });
 
           try {
             await Promise.race([fallbackPromise, fallbackTimeoutPromise]);
-            logger.debug('✅ 备用模型生成成功');
+            logger.debug();
           } catch (fallbackError) {
-            console.log('❌ 备用模型也失败了:', fallbackError);
+            console.log(t('components.error.备用模型也失_3n5'), fallbackError);
             if (isDeepSeekSelected) {
-              throw new Error('DeepSeek模型超时，备用模型也失败，请稍后重试');
+              throw new Error();
             } else {
               throw new Error('所有AI模型都超时，请稍后重试');
             }
@@ -685,35 +414,35 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       }
 
     } catch (error) {
-      console.error('AI标题生成失败:', error);
+      console.error(t('components.error.AI标题生成失败_ccs'), error);
       
       // ✅ FIXED: 优化错误处理 - 提供更详细的错误信息和解决方案
       let errorMessage = "AI生成失败，请稍后重试";
       let actionMessage = "请检查网络连接和API配置后重试";
       
       if (error instanceof Error) {
-        if (error.message.includes('429') || error.message.includes('频率超限') || error.message.includes('Too Many Requests')) {
+        if (error.message.includes('429') || error.message.includes(t('components.errors.频率超限')) || error.message.includes('Too Many Requests')) {
           errorMessage = "AI服务繁忙，请稍后重试";
           actionMessage = "系统正在自动重试，请耐心等待1-2分钟";
         } else if (error.message.includes('404') || error.message.includes('Not Found')) {
           errorMessage = "AI模型不可用";
-          actionMessage = "系统已自动切换到其他模型";
+          actionMessage = t('components.messages.系统已自动切换到其他模型');
         } else if (error.message.includes('DeepSeek模型超时')) {
           errorMessage = "DeepSeek模型超时";
           actionMessage = "系统已尝试备用模型，请稍后重试或检查网络连接";
-        } else if (error.message.includes('DeepSeek模型超时，备用模型也失败')) {
-          errorMessage = "DeepSeek模型超时，备用模型也失败";
+        } else if (error.message.includes()) {
+          errorMessage = ;
           actionMessage = "请稍后重试，或切换到其他AI模型";
-        } else if (error.message.includes('生成超时')) {
+        } else if (error.message.includes(t('components.errors.生成超时'))) {
           errorMessage = "AI生成超时";
           actionMessage = "系统已自动切换到备用AI模型，请重试";
-        } else if (error.message.includes('备用模型也超时')) {
+        } else if (error.message.includes(t('components.errors.备用模型也超时'))) {
           errorMessage = "所有AI模型都超时";
           actionMessage = "请检查网络连接，或稍后重试";
         } else if (error.message.includes('API密钥') || error.message.includes('401')) {
-          errorMessage = "AI配置错误，请检查API密钥";
+          errorMessage = ;
           actionMessage = "请检查.env.local文件中的API密钥配置";
-        } else if (error.message.includes('所有AI模型都失败了')) {
+        } else if (error.message.includes()) {
           // 检查用户选择的模型
           const userSelectedModel = localStorage.getItem('preferredAIModel') || 'deepseek-v3';
           if (userSelectedModel.includes('deepseek')) {
@@ -721,21 +450,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             actionMessage = "请稍后重试，或切换到其他AI模型";
           } else {
             errorMessage = "所有AI服务都不可用";
-            actionMessage = "请检查网络连接和API配置后重试";
-          }
-        }
-      }
-      
-      // 只有在没有本地生成成功的情况下才显示错误
-      if (titles.length === 0) {
-        setHasError(true);
-        setHasFailedGeneration(true);
-        setErrorMessage(errorMessage);
-        
-        toast({
-          title: errorMessage,
-          description: actionMessage,
-          variant: "destructive"
+            actionMessage = "请检查网络连接和API配置后重试$destructive"
         });
       }
     } finally {
@@ -817,7 +532,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         }, 1); // ✅ FIXED: 保持1次重试，最大化响应速度
 
         if (!aiResponse.success || !aiResponse.content) {
-          throw new Error(aiResponse.error || 'AI调用失败');
+          throw new Error(aiResponse.error || $);
         }
 
         // Step 3: 解析AI响应格式（按规范推荐结构）
@@ -838,7 +553,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           try {
             aiResult = JSON.parse(jsonContent);
           } catch (directParseError) {
-            console.log('⚠️ 直接JSON解析失败，尝试清理内容后重新解析');
+            console.log(t('components.error.直接JSO_5o1'));
             
             // 3. 清理可能的markdown格式和多余字符
             const cleanedContent = jsonContent
@@ -853,7 +568,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
               try {
                 aiResult = JSON.parse(cleanedContent);
               } catch (cleanedParseError) {
-                console.log('⚠️ 清理后JSON解析仍然失败，尝试查找JSON对象');
+                console.log(t('components.error.清理后JS_evt'));
                 
                 // 5. 查找第一个{和最后一个}之间的内容
                 const jsonObjectMatch = cleanedContent.match(/\{[\s\S]*\}/);
@@ -861,7 +576,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                   try {
                     aiResult = JSON.parse(jsonObjectMatch[0]);
                   } catch (objectParseError) {
-                    console.log('⚠️ JSON对象解析失败，尝试修复截断的JSON');
+                    console.log(t('components.error.JSON对_0j2'));
                     
                     // 6. 尝试修复截断的JSON
                     const fixedJson = fixTruncatedJSON(jsonObjectMatch[0]);
@@ -870,12 +585,12 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                         aiResult = JSON.parse(fixedJson);
                         logger.debug('✅ 成功修复截断的JSON');
                       } catch (fixedParseError) {
-                        const errorMessage = fixedParseError instanceof Error ? fixedParseError.message : '未知错误';
-                        throw new Error(`修复后JSON解析失败: ${errorMessage}`);
+                        const errorMessage = fixedParseError instanceof Error ? fixedParseError.message : t();
+                        throw new Error();
                       }
                     } else {
-                      const errorMessage = objectParseError instanceof Error ? objectParseError.message : '未知错误';
-                      throw new Error(`JSON对象解析失败: ${errorMessage}`);
+                      const errorMessage = objectParseError instanceof Error ? objectParseError.message : t();
+                      throw new Error();
                     }
                   }
                 } else {
@@ -902,20 +617,16 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             }
             
             if (!aiResult.titles || !Array.isArray(aiResult.titles)) {
-              throw new Error('AI响应缺少标题数组');
+              throw new Error();
             }
           }
           
-          logger.debug('✅ JSON解析成功:', aiResult);
+          logger.debug(, aiResult);
         } catch (parseError) {
-          console.error('❌ AI响应解析失败:', parseError);
+          console.error(t('components.error.AI响应解析_oji'), parseError);
           console.error('📝 原始响应内容:', aiResponse.content);
-          const errorMessage = parseError instanceof Error ? parseError.message : '未知错误';
-          throw new Error(`AI响应格式错误: ${errorMessage}`);
-        }
-
-        // Step 4: 标题过滤逻辑（V3.1 规范）
-        console.log('🔍 Step 4: 应用V3.1质量过滤逻辑');
+          const errorMessage = parseError instanceof Error ? parseError.message : t();
+          throw new Error(🔍 Step 4: 应用V3.1质量过滤逻辑');
         
         // 已删除标题评分工具，使用简化评分
         
@@ -934,7 +645,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             semanticFit: titleData.semanticFit || 0.8,
             platform: platformId,
             isComplete: true,
-            styleDescription: titleData.style || '结果导向型',
+            styleDescription: titleData.style || t('components.labels.结果导向型'),
             emotionalScore: emotionalScore,
             diversityScore: titleData.structuralDiversity || 0.8,
             semanticCompleteness: semanticCompleteness,
@@ -946,7 +657,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         });
 
         // ✅ FIXED: 应用质量过滤
-        console.log(`🔍 开始质量过滤，共 ${newTitles.length} 个标题`);
+        console.log(t('components.title.开始质量过_qpk'));
         const qualifiedTitles = newTitles.filter(title => {
           const qualityCheck = checkTitleQuality(
             title.title,
@@ -966,22 +677,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           return qualityCheck.isQualified;
         });
         
-        console.log(`📊 质量过滤结果: ${qualifiedTitles.length}/${newTitles.length} 个标题通过`);
-
-        if (qualifiedTitles.length > 0) {
-          // ✅ FIXED: 记录成功的模型
-          successfulModel = modelConfig.name;
-          logger.debug('✅ ${modelConfig.name} 模型调用成功，生成 ${qualifiedTitles.length} 个标题');
-          
-          // 更新标题状态
-          setTitles(qualifiedTitles);
-          setSelectedTitle(qualifiedTitles[0].title);
-          onTitleChange?.(qualifiedTitles[0].title);
-          
-          // 显示成功提示
-          toast({
-            title: "标题生成成功",
-            description: `使用 ${modelConfig.name} 模型生成了 ${qualifiedTitles.length} 个标题`,
+        console.log(t('components.title.质量过滤结_4o9{t('components.status._0ag')components.title.mode_kdacomponents.title.componen_sf4')}),
+            description: $,
             variant: "default"
           });
           
@@ -1002,8 +699,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           
           // 显示成功提示
           toast({
-            title: "标题生成成功",
-            description: `使用 ${modelConfig.name} 模型生成了1个标题（质量过滤后保留最佳）`,
+            title: t(),
+            description: $,
             variant: "default"
           });
           
@@ -1011,54 +708,29 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         }
 
       } catch (error) {
-        console.error(`❌ ${modelConfig.name} 模型调用失败:`, error);
+        console.error(t('components.error.mode_szp'), error);
         lastError = error instanceof Error ? error : new Error(String(error));
         
         // 如果不是最后一个模型，继续尝试下一个
         if (modelConfig !== aiModels[aiModels.length - 1]) {
-          console.log(`🔄 ${modelConfig.name} 失败，切换到下一个模型...`);
+          console.log(t('components.error.mod_vje'));
           continue;
         }
       }
     }
 
     // 所有模型都失败了
-    console.error('❌ 所有AI模型都失败了:', lastError);
-    
-    // 记录失败信息
-    const failedModels = aiModels.map(m => m.name).join(', ');
+    console.error(t('components.error.所有AI模型_rld{t('components.error.last_ess'), ');
     console.error(`📊 失败统计: 尝试了 ${aiModels.length} 个模型 (${failedModels})`);
     
     // 显示错误提示
     toast({
       title: "AI生成失败",
-      description: `所有模型都无法生成标题，请检查网络连接和API配置`,
+      description: ,
       variant: "destructive"
     });
     
-    throw lastError || new Error('所有AI模型都失败了');
-  };
-
-  // 🚫 移除本地生成功能 - 只保留AI模式
-  const attemptLocalGeneration = async (sourceContent: string) => {
-    throw new Error('本地生成功能已禁用，只支持AI模式');
-  };
-
-  // Select title
-  const handleTitleSelect = (title: string) => {
-    setSelectedTitle(title);
-    onTitleChange?.(title);
-  };
-
-  // ✅ FIXED: 简化复制标题功能 - 使用统一的toast提醒
-  const handleCopyTitle = async (title: string) => {
-    try {
-      // 使用现代剪贴板API
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(title);
-      } else {
-        // 降级方案：使用传统方法
-        const textArea = document.createElement('textarea');
+    throw lastError || new Error(本地生成功能已禁用，只支持AI模式textarea');
         textArea.value = title;
         textArea.style.position = 'fixed';
         textArea.style.left = '-999999px';
@@ -1066,24 +738,19 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-      }
-
-      // 显示成功提醒
-      const titlePreview = title.length > 30 ? title.substring(0, 30) + '...' : title;
+        document.execCommand('copy...' : title;
       toast({
-        title: "✅ 标题已复制",
+        title: $,
         description: `"${titlePreview}" 已复制到剪贴板`,
         duration: 2000,
       });
 
-      logger.debug('✅ 标题复制成功:', titlePreview);
+      logger.debug()}, titlePreview);
     } catch (error) {
-      console.error('复制失败:', error);
+      console.error(t('components.error.复制失败_dj9'), error);
       toast({
-        title: "❌ 复制失败",
-        description: "请手动选择并复制标题内容",
+        title: ,
+        description: ,
         variant: "destructive",
         duration: 3000,
       });
@@ -1097,30 +764,16 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       [titleId]: feedback
     }));
 
-    console.log(`📊 标题反馈收集:`, {
+    console.log(t('components.title.标题反馈收_wr0'), {
       titleId,
       feedback,
-      title: titles.find(t => t.id === titleId)?.title || '未知标题',
+      title: titles.find(t => t.id === titleId)?.title || t(),
       platform: platformId || '未知平台'
     });
 
     toast({
-      title: feedback === 'like' ? "感谢反馈" : "已记录反馈",
-      description: feedback === 'like' ? "我们会继续优化标题质量" : "我们会改进这类标题的生成",
-    });
-  };
-
-  // 开始编辑标题
-  const handleStartEdit = (titleId: string, currentTitle: string) => {
-    setEditingTitleId(titleId);
-    setEditingTitleText(currentTitle);
-  };
-
-  // 保存编辑的标题
-  const handleSaveEdit = () => {
-    if (!editingTitleId || !editingTitleText.trim()) {
-      toast({
-        title: "编辑失败",
+      title: feedback === 'like' ? t('components.labels.感谢反馈') : t('components.labels.已记录反馈'),
+      description: feedback === 'like' ?  : components.error.componen_fli')}),
         description: "标题不能为空",
         variant: "destructive"
       });
@@ -1151,15 +804,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     setEditingTitleText('');
 
     toast({
-      title: "标题已保存",
-      description: "标题编辑成功",
-    });
-  };
-
-  // 取消编辑
-  const handleCancelEdit = () => {
-    setEditingTitleId(null);
-    setEditingTitleText('');
+      title: t(),
+      description: components.text._oq4')}');
   };
 
   // 清理平台切换时的状态
@@ -1266,9 +912,9 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     try {
       await generateTitles();
     } catch (error) {
-      console.error('标题生成失败:', error);
+      console.error(t({t('components.error.componen_dv4'))}, error);
       toast({
-        title: "标题生成失败",
+        title: t(),
         description: "请检查网络连接和API配置后重试",
         variant: "destructive"
       });
@@ -1314,10 +960,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-foreground" />
-            <span>智能标题生成</span>
-          </div>
-          <Badge variant="outline" className="text-xs">
+            <Sparkles className="h-5 w-5 text-foregroundoutline" className="text-xs">
             {memoizedPlatformName} (限{titleLimit}字)
           </Badge>
         </CardTitle>
@@ -1327,28 +970,12 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             <div className="text-destructive mb-2">
               <X className="h-8 w-8 mx-auto" />
             </div>
-            <p className="text-sm text-muted-foreground mb-2">标题生成遇到问题</p>
-            <p className="text-xs text-muted-foreground mb-4">{errorMessage}</p>
-            <Button size="sm" onClick={handleErrorRecovery}>
-              重新尝试
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // ✅ FIXED: 添加生成失败但无标题的状态检查
-  if (hasFailedGeneration && !isGenerating && titles.length === 0) {
-    return (
-      <Card className="w-full">
+            <p className="text-sm text-muted-foreground mb-2)}text-xs text-muted-foreground mb-4">{errorMessage}</p>
+            <Button size="smw-full">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-foreground" />
-              <span>智能标题生成</span>
-            </div>
-            <Badge variant="outline" className="text-xs">
+              <Sparkles className="h-5 w-5 text-foreground{t('components.title._n8h')}outline" className="text-xs">
               {memoizedPlatformName} (限{titleLimit}字)
             </Badge>
           </CardTitle>
@@ -1358,8 +985,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             <div className="text-destructive mb-2">
               <X className="h-8 w-8 mx-auto" />
             </div>
-            <p className="text-sm text-muted-foreground mb-2">标题生成遇到问题</p>
-            <p className="text-xs text-muted-foreground mb-4">AI服务暂时不可用，请稍后重试</p>
+            <p className="text-sm text-muted-foreground mb-2)}text-xs text-muted-foreground mb-4">AI服务暂时不可用，请稍后重试</p>
             <Button size="sm" onClick={handleErrorRecovery}>
               重新尝试
             </Button>
@@ -1374,10 +1000,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-foreground" />
-            <span>智能标题生成</span>
-          </div>
-          <Badge variant="outline" className="text-xs">
+            <Sparkles className="h-5 w-5 text-foreground$outline" className="text-xs">
             {memoizedPlatformName} (限{titleLimit}字)
           </Badge>
         </CardTitle>
@@ -1397,7 +1020,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             ) : (
               <Sparkles className="h-4 w-4" />
             )}
-            {isGenerating ? `为${memoizedPlatformName}分析中...` : `为${memoizedPlatformName}生成标题`}
+            {isGenerating ? `为${memoizedPlatformName}分析中...` : $}
           </Button>
         </div>
 
@@ -1430,8 +1053,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                       value={editingTitleText}
                       onChange={(e) => setEditingTitleText(e.target.value)}
                       className="min-h-[60px] text-sm leading-relaxed"
-                      placeholder="编辑标题..."
-                      maxLength={titleLimit}
+                      placeholder={t('components.labels.占位符')}
+        maxLength={titleLimit}
                     />
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
@@ -1443,25 +1066,12 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                           onClick={handleSaveEdit}
                           className="h-7 px-2"
                         >
-                          <Check className="h-3 w-3 mr-1" />
-                          保存
-                        </Button>
-                        <Button
-                          size="sm"
+                          <Check className="h-3 w-3 mr-1sm"
                           variant="outline"
                           onClick={handleCancelEdit}
                           className="h-7 px-2"
                         >
-                          <X className="h-3 w-3 mr-1" />
-                          取消
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  // 显示模式
-                  <div 
-                    className="flex items-start justify-between gap-3 cursor-pointer"
+                          <X className="h-3 w-3 mr-1flex items-start justify-between gap-3 cursor-pointer"
                     onClick={() => handleTitleSelect(title.title)}
                   >
                     <div className="flex-1">
@@ -1483,31 +1093,23 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1">
-                      {/* 编辑按钮 */}
-                      <Button
-                        size="sm"
+                    <div className="flex items-center gap-1{t('components.button._3zr')}sm"
                         variant="ghost"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleStartEdit(title.id, title.title);
                         }}
                         className="h-7 w-7 p-0"
-                        title="编辑标题"
+                        title=)}
                       >
-                        <Edit className="h-3 w-3" />
-                      </Button>
-
-                      {/* 复制按钮 */}
-                      <Button
-                        size="sm"
+                        <Edit className="h-3 w-3sm"
                         variant="ghost"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleCopyTitle(title.title);
                         }}
                         className="h-7 w-7 p-0 transition-all duration-200"
-                        title="复制标题"
+                        title=)}
                       >
                         <Copy className="h-3 w-3" />
                       </Button>
@@ -1522,8 +1124,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         {/* Empty state */}
         {!isGenerating && titles.length === 0 && (
           <div className="text-center py-4 text-muted-foreground">
-            <p className="text-sm">暂无生成的标题</p>
-            <Button size="sm" variant="outline" onClick={generateTitles} className="mt-2">
+            <p className="text-sm{t('components.title.暂无生成的标题_9lp')}sm" variant="outline" onClick={generateTitles} className="mt-2">
               开始智能分析
             </Button>
           </div>

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useGuard, User, JwtTokenStatus } from '@authing/guard-react18';
 
 /**
  * 🔐 认证回调页面 - 按照官方示例实现
  */
-const CallbackPage: React.FC = () => {
-  const navigate = useNavigate();
+const CallbackPage: React.FC = () => { const navigate = useNavigate();
   const guard = useGuard();
   const [processingStep, setProcessingStep] = useState('处理登录回调...');
 
@@ -27,7 +27,7 @@ const CallbackPage: React.FC = () => {
         if (codeMatch && stateMatch) {
           const code = codeMatch[1];
           const state = stateMatch[1];
-          console.log('✅ 从重复URL中解析到授权码:', { code: code.substring(0, 10) + '...', state });
+          console.log('✅ 从重复URL中解析到授权码:', { code: code.substring(0, 10) + '...', state  });
           
           // 重新构造正确的回调URL - 根据当前域名决定
           const isProduction = currentUrl.includes('www.wenpai.xyz');
@@ -64,7 +64,7 @@ const CallbackPage: React.FC = () => {
       
       if (!loginStatus) {
         console.error('Guard is not get login status');
-        setProcessingStep('登录状态验证失败');
+        setProcessingStep(t('pages.messages.登录状态验证失败'));
         return;
       }
       

@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -28,8 +29,7 @@ interface QuickReferenceItemCardProps {
 /**
  * 获取格式图标
  */
-const getFormatIcon = (format: string) => {
-  switch (format) {
+const getFormatIcon = (format: string) => { switch (format) {
     case 'link':
       return <Link className="h-4 w-4" />;
     case 'image':
@@ -38,7 +38,7 @@ const getFormatIcon = (format: string) => {
       return <FileText className="h-4 w-4" />;
     default:
       return <FileText className="h-4 w-4" />;
-  }
+   }
 };
 
 /**
@@ -49,22 +49,22 @@ const getTypeInfo = (type: string) => {
     case 'brand':
       return {
         color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-        label: '品牌库'
+        label: t('components.labels.品牌库')
       };
     case 'library':
       return {
         color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        label: '资料库'
+        label: t('components.labels.资料库')
       };
     case 'radar':
       return {
         color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-        label: '雷达收藏'
+        label: t('components.labels.雷达收藏')
       };
     default:
       return {
         color: 'bg-muted text-gray-800 dark:bg-foreground dark:text-gray-200',
-        label: '未知'
+        label: t('components.labels.未知')
       };
   }
 };

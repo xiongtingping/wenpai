@@ -4,6 +4,7 @@
  */
 
 import React, { useRef, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,14 +34,13 @@ interface PreviewPanelProps {
 /**
  * 预览面板组件
  */
-export function PreviewPanel({
-  htmlContent,
+export function PreviewPanel({ htmlContent,
   theme,
   fontSize,
   isMobilePreview = false,
   isLoading = false,
   className
-}: PreviewPanelProps) {
+ }: PreviewPanelProps) {
   const { toast } = useToast();
   const previewRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -152,7 +152,7 @@ export function PreviewPanel({
 
       return processedHtml;
     } catch (error) {
-      setPreviewError('内容处理失败');
+      setPreviewError(t('components.errors.内容处理失败'));
       return html;
     }
   };
@@ -164,13 +164,13 @@ export function PreviewPanel({
         const htmlContent = previewRef.current.innerHTML;
         await navigator.clipboard.writeText(htmlContent);
         toast({
-          title: '复制成功',
+          title: t('components.labels.复制成功'),
           description: '预览内容已复制到剪贴板',
         });
       }
     } catch (error) {
       toast({
-        title: '复制失败',
+        title: t('components.labels.复制失败'),
         description: '请手动选择内容复制',
         variant: 'destructive'
       });
@@ -194,7 +194,7 @@ export function PreviewPanel({
   // 错误处理
   useEffect(() => {
     if (htmlContent && htmlContent.includes('error')) {
-      setPreviewError('转换过程中出现错误');
+      setPreviewError(t('components.errors.转换过程中出现错误'));
     } else {
       setPreviewError(null);
     }
@@ -356,8 +356,8 @@ export function PreviewPanel({
             variant="ghost"
             size="sm"
             onClick={handleRefreshPreview}
-            title="刷新预览"
-            className="px-2 py-1 h-7"
+            title={t('components.labels.标题')}
+        className="px-2 py-1 h-7"
           >
             <RefreshCw className="w-3 h-3" />
           </Button>
@@ -365,8 +365,8 @@ export function PreviewPanel({
             variant="ghost"
             size="sm"
             onClick={handleCopyPreview}
-            title="复制预览内容"
-            className="px-2 py-1 h-7"
+            title={t('components.labels.标题')}
+        className="px-2 py-1 h-7"
           >
             <Copy className="w-3 h-3" />
           </Button>
@@ -374,7 +374,7 @@ export function PreviewPanel({
             variant="ghost"
             size="sm"
             onClick={toggleFullscreen}
-            title={isFullscreen ? '退出全屏' : '全屏预览'}
+            title={isFullscreen ? t('components.labels.退出全屏') : t('components.labels.全屏预览')}
             className="px-2 py-1 h-7"
           >
             {isFullscreen ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
