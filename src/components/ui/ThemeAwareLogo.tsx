@@ -106,12 +106,14 @@ const spacingClasses = {
 };
 
 export const LogoWithText: React.FC<LogoWithTextProps> = ({
-  text = t('components.messages.文派'),
+  text,
   textSize = 'lg',
   textClassName = '',
   spacing = 'md',
   ...logoProps
 }) => {
+  const { t } = useTranslation();
+  const defaultText = text || t('components.messages.文派');
   const defaultTextClasses = [
     'font-bold',
     textSizeClasses[textSize],
@@ -124,7 +126,7 @@ export const LogoWithText: React.FC<LogoWithTextProps> = ({
     <div className={`flex items-center ${spacingClasses[spacing]} group`}>
       <ThemeAwareLogo {...logoProps} />
       <span className={defaultTextClasses}>
-        {text}
+        {defaultText}
       </span>
     </div>
   );

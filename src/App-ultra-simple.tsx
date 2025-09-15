@@ -48,7 +48,7 @@ function UltraSimplePage() {
         border: '1px solid #eab308'
       }}>
         <h3 style={{ color: '#a16207', margin: '0 0 var(--spacing-4) 0' }}>🔄 下一步计划</h3>
-        <p style={{ margin: 0, color: '#713f12' }}>
+        <p className="text-amber-800" >
           逐步恢复完整功能，包括用户认证、内容创作工具、品牌库管理等核心功能。
         </p>
       </div>

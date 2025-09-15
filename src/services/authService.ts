@@ -6,30 +6,25 @@
 import i18n from '@/i18n';
 import { AuthenticationClient, EmailScene } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
+import {
+  StandardUserInfo,
+  SessionUserInfo,
+  LoginResponse as UnifiedLoginResponse,
+  RegisterResponse,
+  SendCodeRequest,
+  SendCodeResponse,
+  VerifyCodeRequest,
+  VerifyCodeResponse
+} from '@/types/unifiedAuth';
 
-export interface AuthUser {
-  id: string;
-  username?: string;
-  email?: string;
-  phone?: string;
-  nickname?: string;
-  avatar?: string;
-  loginTime?: string;
-  roles?: string[];
-  permissions?: string[];
-}
-
-export interface LoginResponse {
-  success: boolean;
-  message: string;
-  user?: AuthUser;
-  token?: string;
-}
+// 向后兼容的类型别名
+export type AuthUser = SessionUserInfo;
+export type LoginResponse = UnifiedLoginResponse;
 
 export interface UpdateProfileResponse {
   success: boolean;
   message: string;
-  user?: AuthUser;
+  user?: SessionUserInfo;
 }
 
 class AuthService {
@@ -204,7 +199,7 @@ class AuthService {
   /**
    * 获取当前用户信息 - 连接真实Authing API
    */
-  async getCurrentUser(): Promise<AuthUser | null> {
+  async getCurrentUser(): Promise<SessionUserInfo | null> {
     try {
       const client = await this.initAuthClient();
       
@@ -233,7 +228,7 @@ class AuthService {
   /**
    * 格式化用户信息 - 确保数据一致性
    */
-  private formatUserInfo(userInfo: any): AuthUser {
+  private formatUserInfo(userInfo: any): SessionUserInfo {
     // 🚨 关键：用户ID必须来自Authing服务器，不能为空
     const userId = userInfo.id || userInfo.userId || userInfo.sub;
     if (!userId) {
@@ -249,7 +244,21 @@ class AuthService {
       avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
       loginTime: new Date().toISOString(),
       roles: Array.isArray(userInfo.roles) ? userInfo.roles : ['user'],
-      permissions: Array.isArray(userInfo.permissions) ? userInfo.permissions : ['basic']
+      permissions: Array.isArray(userInfo.permissions) ? userInfo.permissions : ['basic'],
+      // 添加SessionUserInfo特有字段
+      loginMethod: 'password',
+      deviceInfo: {
+        userAgent: navigator.userAgent,
+        ip: 'unknown',
+        location: undefined
+      },
+      subscription: {
+        tier: 'trial',
+        status: 'active',
+        features: ['basic']
+      },
+      isVip: false,
+      vipLevel: 'trial'
     };
   }
 

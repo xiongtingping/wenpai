@@ -42,66 +42,64 @@ export function Footer() {
 
   return (
     <footer className="bg-gradient-to-t from-muted/30 to-background border-t border-border/50">
-      <div className="container mx-auto px-6 py-12">
-        {/* 主要内容区域 */}
+      <div className="ds-container py-8">
+        {/* 主要内容区域 - 紧凑设计 */}
         <div className="max-w-4xl mx-auto">
-          {/* 品牌标语区域 */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-3">
+          {/* 品牌标语区域 - 精简 */}
+          <div className="ds-text-centered mb-6">
+            <div className="flex items-center justify-center gap-2 mb-2">
               <img
                 src="/ikigai_4circles_multiply.svg"
                 alt="WenPai Logo"
-                className="w-8 h-8 flex-shrink-0"
+                className="w-6 h-6 flex-shrink-0 footer-logo"
+                style={{
+                  filter: 'drop-shadow(0 0 0 transparent)',
+                  mixBlendMode: 'multiply'
+                }}
               />
-              <h3 className="text-xl font-bold text-foreground leading-none">文派</h3>
+              <h3 className="ds-title-section ds-text-primary leading-none">文派</h3>
             </div>
-            <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
-              
+            <p className="ds-text-helper ds-text-secondary max-w-sm mx-auto">
+              AI驱动的内容创作平台
             </p>
           </div>
 
-          {/* 联系方式区域 */}
-          <div className="mb-8">
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+          {/* 联系方式区域 - 精简横向布局 */}
+          <div className="mb-6">
+            <div className="flex flex-wrap justify-center items-center gap-4 max-w-3xl mx-auto">
               {/* 建议反馈 */}
               <a
                 href="https://w5vi53wcc1.feishu.cn/wiki/CUPlw67YsiKT2skn190cWEVwnkh?from=from_copylink"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105"
+                className="group flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 ds-transition-standard"
                 title={t('components.labels.标题')}
               >
-                <div className="w-8 h-8 bg-primary/10 rounded-md flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <FeishuIcon className="w-4 h-4 text-primary" />
+                <div className="ds-icon-small bg-primary/10 text-primary group-hover:bg-primary/20 ds-transition-standard">
+                  <FeishuIcon className="w-3 h-3" />
                 </div>
-                <div className="text-left">
-                  <div className="font-medium text-foreground text-sm">{t('footer.feedback')}</div>
-                  <div className="text-xs text-muted-foreground">Feishu Docs</div>
-                </div>
+                <span className="ds-text-helper ds-text-primary font-medium">{t('footer.feedback')}</span>
               </a>
 
               {/* 邮箱联系 */}
               <button
                 onClick={handleEmailCopy}
-                className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105 relative"
+                className="group flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 ds-transition-standard relative"
                 title={t('components.labels.标题')}
               >
-                <div className="w-8 h-8 bg-success/10 rounded-md flex items-center justify-center group-hover:bg-success/20 transition-colors">
+                <div className="ds-icon-small bg-success/10 text-success group-hover:bg-success/20 ds-transition-standard">
                   {emailCopied ? (
-                    <Check className="w-4 h-4 text-success" />
+                    <Check className="w-3 h-3" />
                   ) : (
-                    <Mail className="w-4 h-4 text-success" />
+                    <Mail className="w-3 h-3" />
                   )}
                 </div>
-                <div className="text-left">
-                  <div className="font-medium text-foreground text-sm">
-                    {emailCopied ? t('common.success') + '!' : t('footer.contactUs')}
-                  </div>
-                  <div className="text-xs text-muted-foreground">hello@wenpai.xyz</div>
-                </div>
+                <span className="ds-text-helper ds-text-primary font-medium">
+                  {emailCopied ? '已复制!' : t('footer.contactUs')}
+                </span>
                 {emailCopied && (
                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-success text-background text-xs px-2 py-1 rounded shadow-lg">
-                    
+                    已复制到剪贴板
                   </div>
                 )}
               </button>
@@ -111,68 +109,56 @@ export function Footer() {
                 href="https://bento.me/pandatalk"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105"
+                className="group flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 ds-transition-standard"
                 title={t('components.labels.标题')}
               >
-                <div className="w-8 h-8 bg-purple-500/10 rounded-md flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
-                  <User className="w-4 h-4 text-purple-600" />
+                <div className="ds-icon-small bg-purple-500/10 text-purple-600 group-hover:bg-purple-500/20 ds-transition-standard">
+                  <User className="w-3 h-3" />
                 </div>
-                <div className="text-left">
-                  <div className="font-medium text-foreground text-sm">交个朋友</div>
-                  <div className="text-xs text-muted-foreground">开发者信息</div>
-                </div>
+                <span className="ds-text-helper ds-text-primary font-medium">交个朋友</span>
               </a>
 
               {/* 客服二维码 */}
               <div className="relative">
                 <button
                   onClick={() => setShowQRCode(!showQRCode)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-105 min-w-[140px]"
+                  className="group flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 ds-transition-standard"
                 >
-                  <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center hover:bg-orange-500/20 transition-colors flex-shrink-0">
-                    <svg className="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="ds-icon-small bg-orange-500/10 text-orange-600 group-hover:bg-orange-500/20 ds-transition-standard">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 2.5c0 .83-.67 1.5-1.5 1.5S12 7.33 12 6.5 12.67 5 13.5 5s1.5.67 1.5 1.5zM12 17.5c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z"/>
                     </svg>
                   </div>
-                  <div className="text-left flex-1">
-                    <div className="font-medium text-foreground text-sm leading-tight">客服支持</div>
-                    <div className="text-xs text-muted-foreground leading-tight mt-0.5">点击显示二维码</div>
-                  </div>
+                  <span className="ds-text-helper ds-text-primary font-medium">客服支持</span>
                 </button>
 
-                {/* 二维码弹窗 - 优化布局 */}
+                {/* 二维码弹窗 - 精简版 */}
                 {showQRCode && (
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-4 z-50">
-                    <div className="bg-background dark:bg-gray-800 rounded-2xl shadow-2xl border border-border dark:border-gray-700 p-6 min-w-[280px]">
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50">
+                    <div className="bg-background rounded-xl shadow-xl border border-border p-4 min-w-[200px]">
                       <div className="text-center">
-                        <div className="mb-4">
-                          <h3 className="text-lg font-semibold text-foreground mb-1">客服支持</h3>
-                          <p className="text-sm text-muted-foreground">扫码添加客服微信，获得专业帮助</p>
-                        </div>
+                        <h3 className="ds-text-helper ds-text-primary font-semibold mb-2">客服支持</h3>
 
-                        <div className="bg-gray-50 dark:bg-foreground rounded-xl p-4 mb-4">
+                        <div className="bg-gray-50 dark:bg-foreground rounded-lg p-2 mb-3">
                           <img
                             src="/微信图片_2025-09-02_134203_916.png"
                             alt="客服二维码"
-                            className="w-36 h-36 object-contain mx-auto rounded-lg"
+                            className="w-24 h-24 object-contain mx-auto rounded"
                           />
                         </div>
 
-                        <div className="space-y-2 mb-4">
-                          <p className="text-sm text-foreground font-medium">工作时间：9:00-18:00</p>
-                          <p className="text-xs text-muted-foreground">我们将在工作时间内及时回复您的消息</p>
-                        </div>
+                        <p className="text-xs text-muted-foreground mb-3">工作时间：9:00-18:00</p>
 
                         <button
                           onClick={() => setShowQRCode(false)}
-                          className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-colors"
+                          className="px-3 py-1 text-xs bg-muted hover:bg-muted/80 text-foreground rounded ds-transition-standard"
                         >
                           关闭
                         </button>
                       </div>
                     </div>
                     {/* 箭头指示器 */}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[var(--spacing-2)] border-r-[var(--spacing-2)] border-t-[var(--spacing-2)] border-transparent border-t-white dark:border-t-gray-800"></div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-background"></div>
                   </div>
                 )}
               </div>
@@ -180,40 +166,34 @@ export function Footer() {
           </div>
 
           {/* 分隔线 */}
-          <div className="border-t border-border/50 mb-6"></div>
+          <div className="border-t border-border/50 my-4"></div>
 
-          {/* 底部信息 */}
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
-            {/* 法律链接 */}
-            <div className="flex items-center gap-4">
+          {/* 底部信息 - 精简版 */}
+          <div className="ds-text-centered">
+            <div className="flex flex-wrap justify-center items-center gap-4 mb-2">
               <a
                 href="/terms"
-                className="hover:text-foreground transition-colors flex items-center gap-1"
+                className="ds-text-helper ds-text-secondary hover:text-foreground ds-transition-standard"
               >
-                <FileText className="w-3 h-3" />
-                
+                服务条款
               </a>
-              <span className="text-muted-foreground/30">|</span>
+              <span className="ds-text-helper text-muted-foreground/30">|</span>
               <a
                 href="/privacy"
-                className="hover:text-foreground transition-colors flex items-center gap-1"
+                className="ds-text-helper ds-text-secondary hover:text-foreground ds-transition-standard"
               >
-                <FileText className="w-3 h-3" />
                 {t('footer.privacyPolicy')}
               </a>
+              <span className="ds-text-helper text-muted-foreground/30">|</span>
+              <a
+                href="https://www.wenpai.xyz"
+                className="ds-text-helper ds-text-secondary hover:text-foreground ds-transition-standard"
+              >
+                www.wenpai.xyz
+              </a>
             </div>
-
-            {/* 版权信息 */}
-            <div className="text-center sm:text-right">
-              <div>© 2025 {t('footer.brandDescription')}</div>
-              <div className="mt-1">
-                <a
-                  href="https://www.wenpai.xyz"
-                  className="hover:text-foreground transition-colors"
-                >
-                  www.wenpai.xyz
-                </a>
-              </div>
+            <div className="ds-text-helper ds-text-secondary">
+              © 2025 {t('footer.brandDescription')}
             </div>
           </div>
         </div>

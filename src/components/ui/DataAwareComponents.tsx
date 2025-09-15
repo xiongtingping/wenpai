@@ -67,6 +67,7 @@ export function DataAwareComponent<T>({
   onDataLoaded,
   onError
 }: DataAwareComponentProps<T>) {
+  const { t } = useTranslation();
   const [data, setData] = useState<T | null>(null);
   const [loadingState, setLoadingState] = useState<DataLoadingState>({
     isLoading: true,

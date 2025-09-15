@@ -15,7 +15,9 @@ import { BufPayService } from '@/services/bufpayService';
 import { logger } from '@/utils/logger';
 import PaymentDataCleanupService from '@/services/paymentDataCleanupService';
 
-export default function PaymentResultPage() { const [searchParams] = useSearchParams();
+export default function PaymentResultPage() {
+  const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, refreshUser  } = useAuth() as any;
   

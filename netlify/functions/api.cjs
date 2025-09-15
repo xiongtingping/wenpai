@@ -364,8 +364,9 @@ module.exports.handler = async (event, context) => {
       }
     }
 
-    // 处理热点话题API请求
+    // 处理热点话题API请求 - 支持POST请求
     if (action === 'hot-topics') {
+      console.log('🔍 处理热点话题请求:', { platform, action });
       if (platform) {
         return await getHotTopicsByPlatform(platform, headers);
       } else {
@@ -449,19 +450,28 @@ module.exports.handler = async (event, context) => {
  */
 async function getHotTopicsByPlatform(platform, headers) {
   try {
+    console.log(`🔍 获取${platform}平台数据...`);
+    
+    // 创建超时控制器
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    
     const response = await fetch(`https://api-hot.imsyy.top/${platform}`, {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         'Accept': 'application/json'
       },
-      timeout: 8000
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log(`✅ ${platform}平台数据获取成功，条目数: ${data.data?.length || 0}`);
     
     return {
       statusCode: 200,
@@ -469,6 +479,7 @@ async function getHotTopicsByPlatform(platform, headers) {
       body: JSON.stringify(data)
     };
   } catch (error) {
+    console.error(`❌ ${platform}平台数据获取失败:`, error.message);
     return {
       statusCode: 500,
       headers,
@@ -490,13 +501,19 @@ async function getAggregatedHotTopics(headers) {
     
     for (const platform of mainPlatforms) {
       try {
+        // 创建超时控制器
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        
         const response = await fetch(`https://api-hot.imsyy.top/${platform}`, {
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             'Accept': 'application/json'
           },
-          timeout: 8000
+          signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           const data = await response.json();
@@ -544,13 +561,19 @@ async function getAggregatedHotTopics(headers) {
  */
 async function getAllHotTopics(headers) {
   try {
+    // 创建超时控制器
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    
     const response = await fetch('https://api-hot.imsyy.top/all', {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         'Accept': 'application/json'
       },
-      timeout: 8000
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

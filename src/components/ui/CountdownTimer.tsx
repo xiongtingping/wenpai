@@ -21,11 +21,15 @@ interface CountdownTimerProps {
   variant?: 'default' | 'urgent' | 'compact';
 }
 
-export const CountdownTimer: React.FC<any> = ({ initialSeconds,
+export const CountdownTimer: React.FC<any> = ({ 
+  initialSeconds,
   onComplete,
   showIcon = true,
   className = '',
-  variant = 'default' }) => { const [seconds, setSeconds] = useState(initialSeconds);
+  variant = 'default' 
+}) => {
+  const { t } = useTranslation();
+  const [seconds, setSeconds] = useState(initialSeconds);
 
   useEffect(() => {
     if (seconds <= 0) {

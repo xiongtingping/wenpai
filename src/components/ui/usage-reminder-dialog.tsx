@@ -23,6 +23,8 @@ export function UsageReminderDialog({ isOpen,
   remainingCount,
   userType
  }: UsageReminderDialogProps) {
+  const { t } = useTranslation();
+  
   const getDialogContent = () => {
     if (userType === 'trial') {
       return {

@@ -1,0 +1,226 @@
+name: 🏛️ CSS治理强制执行
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - '**/*.css'
+      - '**/*.scss'
+      - '**/*.jsx'
+      - '**/*.tsx'
+      - 'src/**/*'
+
+jobs:
+  css-governance-check:
+    name: 🔍 CSS治理合规性检查
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: 📦 设置Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: 📦 安装依赖
+      run: npm ci
+    
+    - name: 🏛️ CSS治理宪章检查
+      run: |
+        echo "🏛️ 开始CSS治理合规性检查..."
+        node scripts/css-governance-enforcer.js check
+      continue-on-error: false
+    
+    - name: 🎯 Stylelint治理检查
+      run: |
+        echo "🎯 运行Stylelint治理规则..."
+        npx stylelint "src/**/*.{css,scss}" --config .stylelintrc.governance.js
+      continue-on-error: false
+    
+    - name: 🔍 设计令牌使用检查
+      run: |
+        echo "🔍 检查设计令牌使用情况..."
+        # 检查硬编码颜色
+        if grep -r "#[0-9a-fA-F]\{3,6\}" src/ --include="*.css" --include="*.scss"; then
+          echo "❌ 发现硬编码颜色值！"
+          exit 1
+        fi
+        
+        # 检查硬编码尺寸
+        if grep -r "\b[0-9]\+px\b" src/ --include="*.css" --include="*.scss" | grep -v "var("; then
+          echo "❌ 发现硬编码尺寸值！"
+          exit 1
+        fi
+        
+        echo "✅ 设计令牌使用检查通过"
+    
+    - name: 🚨 Transform属性冲突检查
+      run: |
+        echo "🚨 检查Transform属性冲突..."
+        # 检查全局transform
+        if grep -r "^\s*\*\s*{[^}]*transform" src/ --include="*.css" --include="*.scss"; then
+          echo "❌ 发现全局transform属性！这可能导致布局问题"
+          exit 1
+        fi
+        
+        # 检查button元素的transform
+        if grep -r "button\s*{[^}]*transform" src/ --include="*.css" --include="*.scss"; then
+          echo "❌ 发现button元素的transform属性！这可能导致按钮居中问题"
+          exit 1
+        fi
+        
+        echo "✅ Transform属性检查通过"
+    
+    - name: 📊 CSS层级顺序检查
+      run: |
+        echo "📊 检查CSS层级顺序..."
+        node -e "
+        const fs = require('fs');
+        const content = fs.readFileSync('src/index.css', 'utf8');
+        const layerMatch = content.match(/@layer\s+([^;]+)/);
+        
+        if (!layerMatch) {
+          console.log('❌ 未找到@layer声明！');
+          process.exit(1);
+        }
+        
+        const layers = layerMatch[1].split(',').map(l => l.trim());
+        const expectedOrder = ['reset', 'tokens', 'base', 'components', 'utilities', 'overrides', 'emergency'];
+        
+        for (let i = 0; i < layers.length; i++) {
+          if (layers[i] !== expectedOrder[i]) {
+            console.log(\`❌ 层级顺序错误！期望: \${expectedOrder[i]}, 实际: \${layers[i]}\`);
+            process.exit(1);
+          }
+        }
+        
+        console.log('✅ CSS层级顺序正确');
+        "
+    
+    - name: 🎯 内联样式检查
+      run: |
+        echo "🎯 检查内联样式使用..."
+        # 检查JSX/TSX文件中的内联样式
+        if grep -r "style\s*=\s*{{" src/ --include="*.jsx" --include="*.tsx"; then
+          echo "❌ 发现内联样式！请使用CSS类"
+          exit 1
+        fi
+        
+        echo "✅ 内联样式检查通过"
+    
+    - name: 📈 生成治理报告
+      run: |
+        echo "📈 生成CSS治理合规性报告..."
+        node scripts/css-governance-enforcer.js report > css-governance-report.txt
+        cat css-governance-report.txt
+      continue-on-error: true
+    
+    - name: 📤 上传治理报告
+      uses: actions/upload-artifact@v4
+      with:
+        name: css-governance-report
+        path: css-governance-report.txt
+        retention-days: 30
+      if: always()
+
+  css-performance-check:
+    name: 🚀 CSS性能影响检查
+    runs-on: ubuntu-latest
+    needs: css-governance-check
+    
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+    
+    - name: 📦 设置Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: 📦 安装依赖
+      run: npm ci
+    
+    - name: 🚀 CSS性能检查
+      run: |
+        echo "🚀 检查CSS性能影响..."
+        
+        # 检查低性能动画属性
+        if grep -r "animation.*\(width\|height\|top\|left\|margin\|padding\)" src/ --include="*.css" --include="*.scss"; then
+          echo "⚠️ 警告：发现低性能动画属性"
+        fi
+        
+        # 检查过度使用!important
+        important_count=$(grep -r "!important" src/ --include="*.css" --include="*.scss" | wc -l)
+        if [ $important_count -gt 10 ]; then
+          echo "⚠️ 警告：!important使用过多 ($important_count 处)"
+        fi
+        
+        # 检查CSS文件大小
+        find src/ -name "*.css" -exec wc -c {} + | sort -n | tail -5
+        
+        echo "✅ CSS性能检查完成"
+
+  css-accessibility-check:
+    name: ♿ CSS可访问性检查
+    runs-on: ubuntu-latest
+    needs: css-governance-check
+    
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+    
+    - name: 📦 设置Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: 📦 安装依赖
+      run: npm ci
+    
+    - name: ♿ 可访问性检查
+      run: |
+        echo "♿ 检查CSS可访问性..."
+        
+        # 检查焦点样式
+        if ! grep -r ":focus" src/ --include="*.css" --include="*.scss"; then
+          echo "⚠️ 警告：缺少焦点样式定义"
+        fi
+        
+        # 检查颜色对比度相关变量
+        if ! grep -r "contrast\|a11y" src/ --include="*.css" --include="*.scss"; then
+          echo "⚠️ 警告：建议添加可访问性相关的颜色变量"
+        fi
+        
+        echo "✅ 可访问性检查完成"
+
+  css-governance-summary:
+    name: 📋 治理检查总结
+    runs-on: ubuntu-latest
+    needs: [css-governance-check, css-performance-check, css-accessibility-check]
+    if: always()
+    
+    steps:
+    - name: 📋 生成总结报告
+      run: |
+        echo "📋 CSS治理检查总结"
+        echo "===================="
+        echo "🏛️ 治理合规性: ${{ needs.css-governance-check.result }}"
+        echo "🚀 性能检查: ${{ needs.css-performance-check.result }}"
+        echo "♿ 可访问性检查: ${{ needs.css-accessibility-check.result }}"
+        echo "===================="
+        
+        if [ "${{ needs.css-governance-check.result }}" != "success" ]; then
+          echo "❌ CSS治理检查失败！请修复违规后重新提交"
+          exit 1
+        fi
+        
+        echo "✅ 所有CSS治理检查通过！"

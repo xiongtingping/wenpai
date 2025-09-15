@@ -553,7 +553,7 @@ export default function PaymentPage() {
   // 如果支付成功，显示成功处理页面
   if (paymentStatus === 'paid' && currentCheckout) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+      <div className="payment-page payment-container min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
         <div className="container mx-auto max-w-4xl">
           <PaymentSuccessHandler
             paymentData={currentCheckout}
@@ -565,7 +565,7 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="payment-page payment-container min-h-screen bg-background">
       {/* 统一Header */}
       <Header />
 
@@ -574,8 +574,8 @@ export default function PaymentPage() {
         {/* 页面标题 */}
         <div className="text-center mb-8 mt-8">
           <div className="mb-6 flex flex-col items-center">
-            <h1 className="text-4xl font-bold text-foreground mb-4 block"></h1>
-            <p className="text-lg text-muted-foreground block">$</p>
+            <h1 className="text-4xl font-bold text-foreground mb-4 block">{t('payment.title')}</h1>
+            <p className="text-lg text-muted-foreground block">{t('payment.description')}</p>
           </div>
         </div>
         {/* 支付状态恢复 */}
@@ -599,7 +599,7 @@ export default function PaymentPage() {
               onClick={() => setSelectedPeriod('monthly')}
               className={`payment-button-monthly ${selectedPeriod === 'monthly' ? 'payment-button-active' : 'payment-button-inactive'}`}
             >
-              
+              {t('payment.billing.monthly')}
             </Button>
 
             {/* 切换按钮 - 使用 Switch 组件 */}
@@ -614,7 +614,7 @@ export default function PaymentPage() {
               {/* 推荐标签 */}
               <div className="absolute -top-4 -right-3 z-20">
                 <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-background shadow-xl px-3 py-1 text-xs font-bold rounded-full border-2 border-white animate-bounce">
-                  💰 $
+                  💰 {t('payment.labels.savings')}
                 </Badge>
               </div>
 
@@ -623,7 +623,7 @@ export default function PaymentPage() {
                 className={`payment-button-yearly ${selectedPeriod === 'yearly' ? 'payment-button-yearly-active' : 'payment-button-yearly-inactive'}`}
               >
                 <span className="relative z-10 drop-shadow-sm">
-                   <span className="text-xs ml-1 font-extrabold text-yellow-200">(t('payment.billing.savingsPercent'))</span>
+                  {t('payment.billing.yearly')} <span className="text-xs ml-1 font-extrabold text-yellow-200">({t('payment.billing.savingsPercent')})</span>
                 </span>
                 {selectedPeriod === 'yearly' && (
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-400/20 to-red-400/20 animate-pulse"></div>
@@ -639,7 +639,7 @@ export default function PaymentPage() {
             <div className="bg-gradient-to-r from-red-500 to-pink-500 text-background px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <Zap className="h-4 w-4 animate-pulse" />
-                <span className="text-sm font-medium"></span>
+                <span className="text-sm font-medium">{t('payment.billing.limitedTimeOffer')}</span>
               </div>
 
               {/* 突出显示的倒计时（包含毫秒） */}
@@ -653,7 +653,7 @@ export default function PaymentPage() {
                 <span className="inline-block min-w-[3ch] text-3xl md:text-4xl">{Math.floor((timeLeftMs % 1000) / 10).toString().padStart(2, '0')}</span>
               </div>
 
-              <div className="text-xs opacity-90">$</div>
+              <div className="text-xs opacity-90">{t('payment.billing.offerEndingSoon')}</div>
             </div>
           </div>
         )}
@@ -696,7 +696,7 @@ export default function PaymentPage() {
                         {plan.recommended && (
                           <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-background shadow-xl px-3 py-1 text-xs font-bold rounded-full border border-white flex items-center gap-1">
                             <Star className="h-3 w-3 fill-current" />
-                            
+                            {t('payment.plans.recommended')}
                           </Badge>
                         )}
 
@@ -796,11 +796,11 @@ export default function PaymentPage() {
                         );
                       })}
                     </div>
-                    <div className="mt-3">
+                    <div className="mt-3 flex justify-center">
                       <Button
                         variant={plan.recommended ? "gradient" : "default"}
                         size="lg"
-                        className={`w-full font-semibold transition-all duration-300 flex items-center justify-center text-center ${
+                        className={`font-semibold transition-all duration-300 flex items-center justify-center text-center px-8 py-3 ${
                           plan.recommended
                             ? 'shadow-lg hover:shadow-xl hover:-translate-y-1'
                             : 'shadow-md hover:shadow-lg hover:-translate-y-0.5'
@@ -835,22 +835,22 @@ export default function PaymentPage() {
                         })() ? (
                           <>
                             <Check className="w-4 h-4 mr-2" />
-                            
+                            {t('payment.labels.currentPlan')}
                           </>
                         ) : isDowngrade ? (
                           <>
                             <Check className="w-4 h-4 mr-2 opacity-50" />
-                            已拥有更高版本
+                            {t('payment.plans.alreadyHaveHigher')}
                           </>
                         ) : isSelected ? (
                           <>
                             <Check className="w-4 h-4 mr-2" />
-                            
+                            {t('payment.plans.selected')}
                           </>
                         ) : (
                           <>
                             <Crown className="w-4 h-4 mr-2" />
-                            
+                            {t('payment.plans.selectPlan')}
                           </>
                         )}
                       </Button>
@@ -873,7 +873,7 @@ export default function PaymentPage() {
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
                       <CreditCard className="h-5 w-5 text-background" />
                     </div>
-                    <h3 className="text-xl font-bold text-foreground"></h3>
+                    <h3 className="text-xl font-bold text-foreground">{t('payment.paymentInfo.title')}</h3>
                   </div>
                   <div className="text-right">
                     <div className="text-3xl font-bold text-foreground">¥{getCurrentPrice()}</div>
@@ -975,7 +975,7 @@ export default function PaymentPage() {
                   {isCreatingCheckout ? (
                     <div className="flex items-center gap-2">
                       <RefreshCw className="h-5 w-5 animate-spin" />
-                      
+                      {t('payment.actions.creating')}
                     </div>
                   ) : (
                     t('payment.actions.payNow', { amount: getCurrentPrice() })

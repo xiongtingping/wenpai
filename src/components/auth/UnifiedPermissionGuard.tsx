@@ -5,7 +5,7 @@
  * @created 2025-08-12
  */
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Lock, Crown, Zap, Star, ArrowRight, Sparkles, Check, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,7 @@ import { getSubscriptionPlan, SUBSCRIPTION_PLANS, calculateDiscountCountdown, is
 import type { SubscriptionTier } from '@/types/subscription';
 import { PermissionUpgradeDialog } from './PermissionUpgradeDialog';
 import { CountdownTimer } from '@/components/ui/CountdownTimer';
+import { usePermissionInteraction } from '@/utils/permissionInteractionUtils';
 
 /**
  * 权限类型
@@ -327,7 +328,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
   featureName,
   description,
   showOverlay = true,
-  overlayOpacity = 0.3,
+  overlayOpacity = 0.6,
   className = '',
   fallback,
   disableInteraction = true,
@@ -337,6 +338,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
   const navigate = useNavigate();
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [discountCountdown, setDiscountCountdown] = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // 计算限时优惠倒计时
   useEffect(() => {
@@ -382,6 +384,9 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
   // 获取所需等级信息
   const requiredTierInfo = getTierInfo(effectivePermissionConfig.requiredTier);
   const currentTierInfo = getTierInfo(userTier);
+  
+  // 使用增强的交互禁用控制
+  usePermissionInteraction(hasPermission, contentRef);
 
   // 处理升级 - 直接跳转到支付页面
   const handleUpgrade = (planId?: string) => {
@@ -418,19 +423,15 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
       <div className={`relative ${className}`}>
         {/* 原始内容 - 半透明显示，增强磨砂效果 */}
         <div
-          className={`relative ${disableInteraction ? 'pointer-events-none select-none' : ''}`}
-          style={{
-            opacity: 1 - overlayOpacity + 0.2,
-            filter: 'blur(1.5px) saturate(80%)',
-            WebkitFilter: 'blur(1.5px) saturate(80%)'
-          }}
+          ref={contentRef}
+          className={`relative ${disableInteraction ? 'permission-disabled' : ''}`}
         >
           {children}
         </div>
 
         {/* 定价方案对比 - 直接显示，无弹窗，增强磨砂效果 */}
         <div
-          className="absolute inset-0 z-50 flex items-center justify-center p-4"
+          className="absolute inset-0 permission-guard-overlay flex items-center justify-center p-4"
           style={{
             backgroundColor: `rgba(255, 255, 255, ${Math.min(overlayOpacity + 0.1, 0.95)})`,
             backdropFilter: 'blur(var(--spacing-2)) saturate(180%)',

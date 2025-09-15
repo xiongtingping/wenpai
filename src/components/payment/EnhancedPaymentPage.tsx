@@ -161,6 +161,7 @@ const EnhancedCreemAlipayQRCode: React.FC<{ productId: string;
  * 增强版支付页面主组件
  */
 export default function EnhancedPaymentPage() {
+  const { t } = useTranslation();
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<SubscriptionPeriod>('monthly');
   const [timeLeft, setTimeLeft] = useState(0);

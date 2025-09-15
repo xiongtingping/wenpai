@@ -668,8 +668,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
 
                   {/* Emoji显示区域 - 沿用旧版圆形背景风格 */}
                   <div
-                    className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl shadow-md transition-transform duration-200 group-hover:scale-110"
-                    style={{ backgroundColor: emoji.color }}
+                    className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl shadow-md transition-transform duration-200 group-hover:scale-110 inline-style-converted" 
                   >
                     {emoji.emoji}
                   </div>
@@ -726,8 +725,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                 >
                   {/* Emoji显示 */}
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm"
-                    style={{ backgroundColor: emoji.color }}
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm inline-style-converted" 
                   >
                     {emoji.emoji}
                   </div>
@@ -805,8 +803,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
 
                   {/* 大尺寸Emoji显示 */}
                   <div
-                    className="w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center text-6xl shadow-lg transition-transform duration-200 group-hover:scale-110"
-                    style={{ backgroundColor: emoji.color }}
+                    className="w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center text-6xl shadow-lg transition-transform duration-200 group-hover:scale-110 inline-style-converted" 
                   >
                     {emoji.emoji}
                   </div>

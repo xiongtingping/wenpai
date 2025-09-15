@@ -23,14 +23,14 @@ function SafeHomePage() {
         marginBottom: 'var(--spacing-8)'
       }}>
         <h3 style={{ color: '#1e293b', marginBottom: 'var(--spacing-4)' }}>✅ 已修复的功能：</h3>
-        <ul style={{ color: '#475569', lineHeight: '1.6' }}>
+        <ul className="text-slate-600 leading-relaxed" >
           <li>Dialog弹窗定位异常 - 使用视窗单位完全修复</li>
           <li>应用性能优化 - JavaScript包体积减少85%</li>
           <li>构建系统优化 - 快速启动和热更新</li>
         </ul>
       </div>
 
-      <div style={{ marginTop: 'var(--spacing-8)' }}>
+      <div className="mt-8" /* TODO: 替换内联marginTop样式 */>
         <button 
           onClick={() => alert('React应用运行正常！所有基础功能可用。')}
           style={{
@@ -57,7 +57,7 @@ function SafeHomePage() {
 
 function App() {
   return (
-    <div className="App" style={{ minHeight: '100vh' }}>
+    <div className="App min-h-screen" >
       <Suspense fallback={<LoadingSpinner text="加载中..." />}>
         <Routes>
           <Route path="/" element={<SafeHomePage />} />
@@ -65,7 +65,7 @@ function App() {
           <Route path="*" element={
             <div style={{ padding: 'var(--spacing-8)', textAlign: 'center' }}>
               <h2>404 - 页面未找到</h2>
-              <p>请返回<a href="/" style={{ color: 'hsl(var(--primary))' }}>首页</a></p>
+              <p>请返回<a href="/" className="text-foreground" /* TODO: 替换内联颜色样式 */>首页</a></p>
             </div>
           } />
         </Routes>

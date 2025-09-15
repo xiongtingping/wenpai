@@ -1,9 +1,10 @@
 /**
- * t('creativeStudio.title')
- * t('creativeStudio.description')
+ * 创意工作室页面
+ * Creative Studio Page
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -46,13 +47,12 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from 'react-i18next';
 import { CreativeCube } from '@/components/creative/CreativeCube';
 import MarketingCalendar from '@/components/creative/MarketingCalendar';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionAwareContainer } from '@/components/auth/PermissionAwareContainer';
 import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
-import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
+import { EnhancedUnifiedPermissionGuard } from '@/components/auth/EnhancedUnifiedPermissionGuard';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import { Header } from '@/components/landing/Header';
 
@@ -67,8 +67,10 @@ import PageNavigation from '@/components/layout/PageNavigation';
  * 创意工作室页面组件
  * @returns React 组件
  */
-export default function CreativeStudioPage() { const navigate = useNavigate();
-  const { toast  } = useToast();
+export default function CreativeStudioPage() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('calendar');
 
   return (
@@ -78,8 +80,8 @@ export default function CreativeStudioPage() { const navigate = useNavigate();
 
         {/* 页面导航 */}
         <PageNavigation
-          title={t('components.labels.标题')}
-        description="激发创意灵感，快速生成高质量内容"
+          title="创意工作室"
+          description="包含营销日历、创意魔方、Emoji图库、Markdown排版等多种创意工具"
           showAdaptButton={false}
           showUpgradeButton={false}
           actions={
@@ -92,7 +94,12 @@ export default function CreativeStudioPage() { const navigate = useNavigate();
           }
         />
 
-        <div className="container mx-auto px-4 py-8">
+        <EnhancedUnifiedPermissionGuard
+          requiredPermission="feature:creative-studio"
+          mode="overlay"
+          overlayIntensity="medium"
+        >
+          <div className="container mx-auto px-4 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* 子模块切换 */}
             <div className="flex flex-col gap-4 mb-6">
@@ -127,45 +134,58 @@ export default function CreativeStudioPage() { const navigate = useNavigate();
             </div>
 
             {/* 营销日历 */}
-            <TabsContent value="calendar" className="mt-6">
-              <MarketingCalendar />
+            <TabsContent value="calendar" className="mt-8">
+              <div className="creative-studio-module">
+                <MarketingCalendar />
+              </div>
             </TabsContent>
 
-            {/* 九宫格创意魔方法 */}
-            <TabsContent value="cube" className="mt-6">
-              <CreativeCube />
+            {/* 九宫格创意魔方 */}
+            <TabsContent value="cube" className="mt-8">
+              <div className="creative-studio-module">
+                <CreativeCube />
+              </div>
             </TabsContent>
 
             {/* 暂时隐藏朋友圈文案功能
-            <TabsContent value="wechat" className="mt-6">
-              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                <WechatTemplatePage />
-              </React.Suspense>
+            <TabsContent value="wechat" className="mt-8">
+              <div className="creative-studio-module">
+                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                  <WechatTemplatePage />
+                </React.Suspense>
+              </div>
             </TabsContent>
             */}
 
-            {/* Emoji生成器 */}
-            <TabsContent value="emoji" className="mt-6">
-              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                <EmojiPage />
-              </React.Suspense>
+            {/* Emoji图库 */}
+            <TabsContent value="emoji" className="mt-8">
+              <div className="creative-studio-module">
+                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                  <EmojiPage />
+                </React.Suspense>
+              </div>
             </TabsContent>
 
             {/* Markdown排版工具 */}
-            <TabsContent value="md2wechat" className="mt-6">
-              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                <MD2WeChatPage />
-              </React.Suspense>
+            <TabsContent value="md2wechat" className="mt-8">
+              <div className="creative-studio-module">
+                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                  <MD2WeChatPage />
+                </React.Suspense>
+              </div>
             </TabsContent>
 
             {/* MD2Card卡片生成 */}
-            <TabsContent value="md2card" className="mt-6">
-              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                <MD2CardPage />
-              </React.Suspense>
+            <TabsContent value="md2card" className="mt-8">
+              <div className="creative-studio-module">
+                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                  <MD2CardPage />
+                </React.Suspense>
+              </div>
             </TabsContent>
           </Tabs>
-        </div>
+          </div>
+        </EnhancedUnifiedPermissionGuard>
       </div>
   );
 }

@@ -20,6 +20,7 @@ interface UploadFormProps {
 }
 
 export default function UploadForm({ onUploadComplete, onReset  }: UploadFormProps) {
+  const { t } = useTranslation();
   const [uploadType, setUploadType] = useState<'image' | 'description'>('image');
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [description, setDescription] = useState('');

@@ -30,8 +30,6 @@ interface ContentInputSectionProps {
   placeholder?: string;
   minHeight?: string;
 
-  // 国际化
-  t: (key: string) => string;
 }
 
 /**
@@ -71,8 +69,7 @@ export function ContentInputSection({
   useBrandLibrary,
   onBrandLibraryChange,
   placeholder = "请输入要适配的原始内容...",
-  minHeight = "200px",
-  t
+  minHeight = "200px"
 }: ContentInputSectionProps) {
   
   return (

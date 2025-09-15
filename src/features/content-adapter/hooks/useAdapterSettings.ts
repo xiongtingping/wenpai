@@ -146,7 +146,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
   const [useBrandLibrary, setUseBrandLibrary] = useState(false);
   const [brandProfile, setBrandProfile] = useState<any>();
   const [customPrompt, setCustomPrompt] = useState('');
-  const [selectedModel, setSelectedModel] = useState('deepseek-chat');
+  const [selectedModel, setSelectedModel] = useState('google/gemini-2.5-flash-lite-preview'); // 使用体验版模型作为默认值
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -350,7 +350,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
         setUseBrandLibrary(settingsData.useBrandLibrary || false);
         setBrandProfile(settingsData.brandProfile);
         setCustomPrompt(settingsData.customPrompt || '');
-        setSelectedModel(settingsData.selectedModel || 'deepseek-chat');
+        setSelectedModel(settingsData.selectedModel || 'google/gemini-2.5-flash-lite-preview');
       }
     } catch (error) {
       console.error('加载设置失败:', error);

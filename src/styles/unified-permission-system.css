@@ -1,0 +1,304 @@
+/**
+ * 统一权限系统CSS变量配置
+ * @description 中央化管理所有权限守卫组件的样式参数，确保一致性和可维护性
+ * @author 权限系统团队
+ * @created 2025-01-15
+ */
+
+:root {
+  /* ========== 权限守卫核心参数 ========== */
+  
+  /* 透明度配置 - 统一为0.6 */
+  --permission-overlay-opacity: 0.6;
+  --permission-overlay-opacity-light: 0.5;
+  --permission-overlay-opacity-heavy: 0.8;
+  --permission-content-opacity: 0.4; /* 被保护内容的透明度 */
+  
+  /* 层级管理 - 确保权限遮罩在最上层 */
+  --permission-overlay-z-index: 1000;
+  --permission-upgrade-button-z-index: 1001;
+  --permission-preview-overlay-z-index: 1002;
+  --permission-dialog-z-index: 1003;
+  
+  /* 模糊效果配置 */
+  --permission-blur-strength: 8px;
+  --permission-blur-light: 4px;
+  --permission-blur-heavy: 12px;
+  --permission-backdrop-saturation: 150%;
+  
+  /* 颜色配置 */
+  --permission-overlay-bg: rgba(255, 255, 255, var(--permission-overlay-opacity));
+  --permission-overlay-bg-dark: rgba(0, 0, 0, 0.4);
+  --permission-lock-color: hsl(var(--primary));
+  --permission-border-color: hsl(var(--border));
+  
+  /* ========== 订阅等级主题色 ========== */
+  
+  /* 体验版 */
+  --tier-trial-bg: hsl(var(--muted));
+  --tier-trial-text: hsl(var(--muted-foreground));
+  --tier-trial-icon: hsl(var(--muted-foreground));
+  
+  /* 专业版 */
+  --tier-pro-bg: hsl(var(--primary) / 0.1);
+  --tier-pro-text: hsl(var(--primary));
+  --tier-pro-icon: hsl(var(--primary));
+  --tier-pro-accent: hsl(var(--primary) / 0.2);
+  
+  /* 高级版 */
+  --tier-premium-bg: hsl(282 83% 51% / 0.1);
+  --tier-premium-text: hsl(282 83% 51%);
+  --tier-premium-icon: hsl(282 83% 51%);
+  --tier-premium-accent: hsl(282 83% 51% / 0.2);
+  
+  /* ========== 显示模式配置 ========== */
+  
+  /* 遮罩模式 */
+  --permission-overlay-backdrop: blur(var(--permission-blur-strength)) saturate(var(--permission-backdrop-saturation));
+  --permission-overlay-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* 按钮模式 */
+  --permission-button-bg: hsl(var(--background) / 0.95);
+  --permission-button-border: hsl(var(--border));
+  --permission-button-hover: hsl(var(--accent));
+  --permission-button-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  
+  /* 卡片模式 */
+  --permission-card-bg: hsl(var(--card));
+  --permission-card-border: hsl(var(--border));
+  --permission-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --permission-card-radius: 0.75rem;
+  
+  /* 预览模式 */
+  --permission-preview-filter: grayscale(0.8) opacity(0.6);
+  --permission-preview-hover-filter: grayscale(0.6) opacity(0.8);
+  
+  /* ========== 交互状态 ========== */
+  
+  /* 禁用状态 */
+  --permission-disabled-opacity: 0.5;
+  --permission-disabled-filter: grayscale(1);
+  --permission-disabled-cursor: not-allowed;
+  
+  /* 悬浮状态 */
+  --permission-hover-opacity: 0.8;
+  --permission-hover-scale: 1.02;
+  --permission-hover-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.2);
+  
+  /* ========== 动画配置 ========== */
+  
+  /* 进入动画 */
+  --permission-enter-duration: 300ms;
+  --permission-enter-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --permission-enter-transform: scale(0.95) translateY(10px);
+  
+  /* 退出动画 */
+  --permission-exit-duration: 200ms;
+  --permission-exit-easing: cubic-bezier(0.4, 0, 1, 1);
+  --permission-exit-transform: scale(0.98) translateY(-5px);
+  
+  /* ========== 响应式断点 ========== */
+  
+  /* 移动端优化 */
+  --permission-mobile-padding: 1rem;
+  --permission-mobile-blur: 6px;
+  --permission-mobile-overlay-opacity: 0.7;
+}
+
+/* ========== 暗色主题适配 ========== */
+[data-theme="dark"] {
+  --permission-overlay-bg: rgba(0, 0, 0, var(--permission-overlay-opacity));
+  --permission-button-bg: hsl(var(--background) / 0.9);
+  --permission-card-bg: hsl(var(--background) / 0.95);
+  --permission-lock-color: hsl(var(--primary));
+}
+
+/* ========== 权限守卫统一样式类 ========== */
+
+/* 权限容器基础样式 */
+.permission-container {
+  position: relative;
+  isolation: isolate;
+}
+
+/* 权限遮罩基础样式 */
+.permission-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: var(--permission-overlay-z-index);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--permission-overlay-bg);
+  backdrop-filter: var(--permission-overlay-backdrop);
+  -webkit-backdrop-filter: var(--permission-overlay-backdrop);
+  transition: var(--permission-overlay-transition);
+}
+
+/* 权限内容禁用样式 */
+.permission-content {
+  opacity: var(--permission-content-opacity);
+  filter: blur(2px) grayscale(0.3);
+  pointer-events: none;
+  user-select: none;
+  transition: var(--permission-overlay-transition);
+}
+
+/* 升级按钮样式 */
+.permission-upgrade-button {
+  z-index: var(--permission-upgrade-button-z-index);
+  background-color: var(--permission-button-bg);
+  border: 1px solid var(--permission-button-border);
+  border-radius: 0.5rem;
+  box-shadow: var(--permission-button-shadow);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: var(--permission-overlay-transition);
+}
+
+.permission-upgrade-button:hover {
+  background-color: var(--permission-button-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--permission-hover-shadow);
+}
+
+/* 权限卡片样式 */
+.permission-card {
+  background-color: var(--permission-card-bg);
+  border: 1px solid var(--permission-card-border);
+  border-radius: var(--permission-card-radius);
+  box-shadow: var(--permission-card-shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* 订阅等级标签样式 */
+.tier-badge-trial {
+  background-color: var(--tier-trial-bg);
+  color: var(--tier-trial-text);
+}
+
+.tier-badge-pro {
+  background-color: var(--tier-pro-bg);
+  color: var(--tier-pro-text);
+}
+
+.tier-badge-premium {
+  background-color: var(--tier-premium-bg);
+  color: var(--tier-premium-text);
+}
+
+/* 权限图标样式 */
+.permission-icon {
+  color: var(--permission-lock-color);
+  transition: var(--permission-overlay-transition);
+}
+
+.permission-icon-trial {
+  color: var(--tier-trial-icon);
+}
+
+.permission-icon-pro {
+  color: var(--tier-pro-icon);
+}
+
+.permission-icon-premium {
+  color: var(--tier-premium-icon);
+}
+
+/* ========== 显示模式变体 ========== */
+
+/* 按钮模式 */
+.permission-mode-button .permission-overlay {
+  background-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.permission-mode-button .permission-content {
+  opacity: 0.5;
+  filter: none;
+}
+
+/* 卡片模式 */
+.permission-mode-card {
+  min-height: 200px;
+  border: 2px dashed var(--permission-border-color);
+  border-radius: var(--permission-card-radius);
+  background-color: var(--tier-trial-bg);
+}
+
+/* 预览模式 */
+.permission-mode-preview .permission-content {
+  filter: var(--permission-preview-filter);
+  transition: filter 0.3s ease;
+}
+
+.permission-mode-preview:hover .permission-content {
+  filter: var(--permission-preview-hover-filter);
+}
+
+/* 禁用模式 */
+.permission-mode-disabled {
+  opacity: var(--permission-disabled-opacity);
+  filter: var(--permission-disabled-filter);
+  cursor: var(--permission-disabled-cursor);
+}
+
+/* ========== 响应式适配 ========== */
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  :root {
+    --permission-blur-strength: var(--permission-mobile-blur);
+    --permission-overlay-opacity: var(--permission-mobile-overlay-opacity);
+  }
+  
+  .permission-overlay {
+    padding: var(--permission-mobile-padding);
+  }
+  
+  .permission-card {
+    max-width: 90vw;
+    margin: 1rem;
+  }
+  
+  .permission-upgrade-button {
+    min-height: 44px; /* iOS推荐的最小触摸目标 */
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  :root {
+    --permission-overlay-opacity: 0.8;
+    --permission-blur-strength: 2px;
+  }
+  
+  .permission-overlay {
+    border: 2px solid var(--permission-border-color);
+  }
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+  .permission-overlay,
+  .permission-content,
+  .permission-upgrade-button {
+    transition: none;
+  }
+}
+
+/* ========== 打印样式 ========== */
+@media print {
+  .permission-overlay {
+    display: none !important;
+  }
+  
+  .permission-content {
+    opacity: 1 !important;
+    filter: none !important;
+    pointer-events: auto !important;
+    user-select: auto !important;
+  }
+}

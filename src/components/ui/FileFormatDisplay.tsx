@@ -33,11 +33,13 @@ interface FileFormatDisplayProps {
   className?: string;
 }
 
-export default function FileFormatDisplay({ mode = 'compact',
+export default function FileFormatDisplay({ 
+  mode = 'compact',
   showCategories = true,
   showQuality = true,
   className = ''
- }: FileFormatDisplayProps) {
+}: FileFormatDisplayProps) {
+  const { t } = useTranslation();
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const formatService = fileFormatSupportService;
   const groupedFormats = getFormatsGroupedByCategory();

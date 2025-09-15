@@ -41,6 +41,7 @@ export function PreviewPanel({ htmlContent,
   isLoading = false,
   className
  }: PreviewPanelProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const previewRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);

@@ -22,6 +22,7 @@ import './i18n';
 import { useTranslation } from 'react-i18next';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { EnhancedErrorBoundary } from '@/components/errors/EnhancedErrorBoundary';
 import { AuthGuard, ProGuard, PremiumGuard } from '@/components/auth/RouteGuard';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthModalWrapper } from '@/components/auth/AuthModalWrapper';
@@ -80,7 +81,9 @@ const LazySettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
 const LazyWrapper: React.FC<{ children: React.ReactNode; fallback?: React.ReactNode }> = ({
   children,
   fallback
-}) => { return (
+}) => {
+  const { t } = useTranslation();
+  return (
     <ErrorBoundary fallback={<div>{t('app.errors.pageLoadFailed') }</div>}>
       <Suspense fallback={fallback || <LoadingSpinner text={t('app.common.loading')} />}>
         {children}
@@ -109,6 +112,8 @@ const StateManagerInitializer: React.FC = () => {
  * 主应用组件
  */
 const App: React.FC = () => {
+  const { t } = useTranslation();
+  
   useEffect(() => {
     // 应用启动时检查是否为恶意回调URL
     const currentUrl = window.location.href;
@@ -146,7 +151,14 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <ErrorBoundary>
+    <EnhancedErrorBoundary
+      level="application"
+      enableAutoRecovery={true}
+      enablePerformanceTracking={true}
+      onError={(error) => {
+        console.error('🚨 应用级错误:', error);
+      }}
+    >
       <UnifiedAuthProvider>
         <ThemeProvider>
           <AuthDataSyncProvider>
@@ -239,7 +251,7 @@ const App: React.FC = () => {
             </AuthDataSyncProvider>
           </ThemeProvider>
         </UnifiedAuthProvider>
-    </ErrorBoundary>
+    </EnhancedErrorBoundary>
   );
 };
 

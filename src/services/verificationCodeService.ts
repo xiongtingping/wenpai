@@ -6,7 +6,18 @@
 import i18n from '@/i18n';
 import { AuthenticationClient, EmailScene } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
+import {
+  SendCodeRequest,
+  SendCodeResponse,
+  VerifyCodeRequest,
+  VerifyCodeResponse,
+  LoginResponse,
+  RegisterResponse,
+  VerificationCodeScene,
+  VerificationCodeType
+} from '@/types/unifiedAuth';
 
+// 向后兼容的类型别名
 export interface VerificationCodeOptions {
   email?: string;
   phone?: string;
@@ -79,7 +90,7 @@ class VerificationCodeService {
   /**
    * 发送手机验证码
    */
-  async sendSmsCode(phone: string, scene: string = 'LOGIN'): Promise<VerificationCodeResponse> {
+  async sendSmsCode(phone: string, scene: string = 'LOGIN'): Promise<SendCodeResponse> {
     try {
       // 验证手机号格式
       if (!/^1[3-9]\d{9}$/.test(phone)) {
@@ -132,7 +143,7 @@ class VerificationCodeService {
   /**
    * 发送邮箱验证码
    */
-  async sendEmailCode(email: string, scene: string = 'LOGIN'): Promise<VerificationCodeResponse> {
+  async sendEmailCode(email: string, scene: string = 'LOGIN'): Promise<SendCodeResponse> {
     try {
       // 验证邮箱格式
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -234,7 +245,7 @@ class VerificationCodeService {
   /**
    * 验证手机验证码并登录
    */
-  async loginByPhoneCode(phone: string, code: string): Promise<VerificationCodeResponse> {
+  async loginByPhoneCode(phone: string, code: string): Promise<LoginResponse> {
     try {
       if (!/^1[3-9]\d{9}$/.test(phone)) {
         return {
@@ -295,7 +306,7 @@ class VerificationCodeService {
   /**
    * 验证邮箱验证码并登录
    */
-  async loginByEmailCode(email: string, code: string): Promise<VerificationCodeResponse> {
+  async loginByEmailCode(email: string, code: string): Promise<LoginResponse> {
     try {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
@@ -357,7 +368,7 @@ class VerificationCodeService {
   /**
    * 使用验证码注册新用户
    */
-  async registerByPhoneCode(phone: string, code: string, password: string): Promise<VerificationCodeResponse> {
+  async registerByPhoneCode(phone: string, code: string, password: string): Promise<RegisterResponse> {
     try {
       if (!/^1[3-9]\d{9}$/.test(phone)) {
         return {
@@ -442,7 +453,7 @@ class VerificationCodeService {
   /**
    * 使用验证码注册新用户（邮箱）
    */
-  async registerByEmailCode(email: string, code: string, password: string): Promise<VerificationCodeResponse> {
+  async registerByEmailCode(email: string, code: string, password: string): Promise<RegisterResponse> {
     try {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
@@ -663,7 +674,7 @@ class VerificationCodeService {
   /**
    * 验证邮箱验证码（用于更新邮箱）
    */
-  async verifyEmailCode(email: string, code: string): Promise<VerificationCodeResponse> {
+  async verifyEmailCode(email: string, code: string): Promise<VerifyCodeResponse> {
     try {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
@@ -718,7 +729,7 @@ class VerificationCodeService {
    * 验证手机验证码（用于更新手机号）
    * 🔧 FIX: 2025-08-30 移除不存在的verifySmsCode方法，使用登录验证流程
    */
-  async verifyPhoneCode(phone: string, code: string): Promise<VerificationCodeResponse> {
+  async verifyPhoneCode(phone: string, code: string): Promise<VerifyCodeResponse> {
     try {
       if (!/^1[3-9]\d{9}$/.test(phone)) {
         return {
@@ -777,7 +788,7 @@ class VerificationCodeService {
   /**
    * 使用手机验证码重置密码
    */
-  async resetPasswordByPhoneCode(phone: string, code: string, newPassword: string): Promise<VerificationCodeResponse> {
+  async resetPasswordByPhoneCode(phone: string, code: string, newPassword: string): Promise<VerifyCodeResponse> {
     try {
       if (!/^1[3-9]\d{9}$/.test(phone)) {
         return {

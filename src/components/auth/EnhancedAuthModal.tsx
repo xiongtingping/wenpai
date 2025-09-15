@@ -20,7 +20,8 @@ interface InputProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const AppInput = (props: InputProps) => { const { label, placeholder, icon, ...rest  } = props;
+const AppInput = (props: InputProps) => {
+  const { label, placeholder, icon, ...rest } = props;
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
 
@@ -85,6 +86,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
   onClose,
   defaultTab = 'login'
 }) => {
+  const { t } = useTranslation();
   const { handleAuthingLogin } = useUnifiedAuth();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(defaultTab);

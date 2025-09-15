@@ -2,13 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
 
-const languages = [
+const createLanguages = (t: (key: string) => string) => [
   { code: 'zh-CN', name: t('components.messages.中文'), flag: '🇨🇳' },
   { code: 'en-US', name: 'English', flag: '🇺🇸' }
 ];
 
 export function LanguageSwitcher() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const languages = createLanguages(t);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -61,24 +62,38 @@ export function LanguageSwitcher() {
 
       {isOpen && (
         <div
-          className="language-dropdown"
+          className="absolute right-0 top-full mt-2 w-48 bg-popover border border-border rounded-md shadow-lg z-[999999]"
           onClick={(e) => e.stopPropagation()}
         >
-          {languages.map((language) => (
-            <button
-              key={language.code}
-              className={`w-full flex items-center px-3 py-2 text-sm hover:bg-accent text-left ${
-                (i18n.language === language.code || 
-                 (language.code === 'zh-CN' && i18n.language === 'zh') ||
-                 (language.code === 'en-US' && i18n.language === 'en'))
-                ? 'bg-accent' : ''
-              }`}
-              onClick={() => changeLanguage(language.code)}
-            >
-              <span className="mr-2">{language.flag}</span>
-              {language.name}
-            </button>
-          ))}
+          {/* 标题 */}
+          <div className="px-3 py-2 text-sm font-medium text-foreground border-b border-border">
+            {t('settings.language')}
+          </div>
+
+          {/* 语言选项 */}
+          {languages.map((language) => {
+            const isCurrentLanguage = (i18n.language === language.code ||
+             (language.code === 'zh-CN' && i18n.language === 'zh') ||
+             (language.code === 'en-US' && i18n.language === 'en'));
+
+            return (
+              <button
+                key={language.code}
+                className={`w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-accent ${
+                  isCurrentLanguage ? 'bg-accent' : ''
+                }`}
+                onClick={() => changeLanguage(language.code)}
+              >
+                <span className="text-lg">{language.flag}</span>
+                <div className="flex flex-col">
+                  <span className="text-sm">{language.name}</span>
+                </div>
+                {isCurrentLanguage && (
+                  <span className="ml-auto text-xs text-primary">✓</span>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

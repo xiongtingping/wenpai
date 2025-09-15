@@ -34,9 +34,11 @@ import {
  * 开发工具组件
  * 仅在开发环境下显示
  */
-export const DevTools: React.FC = () => { const [isVisible, setIsVisible] = useState(false);
+export const DevTools: React.FC = () => {
+  const { t } = useTranslation();
+  const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('auth');
-  const { user, isAuthenticated  } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const vipPermission = usePermission('vip:required');
   const authPermission = usePermission('auth:required');
 

@@ -41,7 +41,7 @@ export const platformIcons = {
 
 export const platformNameMap = {
   wechat: '微信公众号',
-  xiaohongshu: t('common.labels.小红书'),
+  xiaohongshu: '小红书',
   bilibili: 'B站',
   weibo: '微博',
   douyin: '抖音',
@@ -96,7 +96,7 @@ export const platformSpecs = {
     supportHashtags: true,
     supportMentions: true,
     optimalLength: [50, 200],
-    features: [t('common.labels.图片'), '视频', '话题标签', '@用户', '定位', '商品标签']
+    features: ['图片', '视频', '话题标签', '@用户', '定位', '商品标签']
   },
   bilibili: {
     maxLength: 500,
@@ -106,7 +106,7 @@ export const platformSpecs = {
     supportHashtags: true,
     supportMentions: true,
     optimalLength: [100, 300],
-    features: ['视频', '专栏', '动态', t('common.labels.图片'), '话题', '@用户', '表情包']
+    features: ['视频', '专栏', '动态', '图片', '话题', '@用户', '表情包']
   },
   weibo: {
     maxLength: 2000,
@@ -116,7 +116,7 @@ export const platformSpecs = {
     supportHashtags: true,
     supportMentions: true,
     optimalLength: [50, 140],
-    features: [t('common.labels.图片'), '视频', '话题', '@用户', '定位', '投票', '表情']
+    features: ['图片', '视频', '话题', '@用户', '定位', '投票', '表情']
   },
   douyin: {
     maxLength: 100,
@@ -216,7 +216,7 @@ export const platformSpecs = {
     supportHashtags: true,
     supportMentions: true,
     optimalLength: [50, 200],
-    features: ['推文', t('common.labels.图片'), '视频', '话题', '@用户', '投票', '空间']
+    features: ['推文', '图片', '视频', '话题', '@用户', '投票', '空间']
   },
   linkedin: {
     maxLength: 3000,
@@ -226,7 +226,7 @@ export const platformSpecs = {
     supportHashtags: true,
     supportMentions: true,
     optimalLength: [500, 1500],
-    features: ['文章', t('common.labels.图片'), '视频', '话题', '@用户', '投票', '活动']
+    features: ['文章', '图片', '视频', '话题', '@用户', '投票', '活动']
   },
   facebook: {
     maxLength: 63206,
@@ -236,7 +236,7 @@ export const platformSpecs = {
     supportHashtags: true,
     supportMentions: true,
     optimalLength: [100, 500],
-    features: ['帖子', t('common.labels.图片'), '视频', '话题', '@用户', '投票', '活动']
+    features: ['帖子', '图片', '视频', '话题', '@用户', '投票', '活动']
   }
 };
 

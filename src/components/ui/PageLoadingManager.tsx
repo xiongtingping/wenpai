@@ -98,8 +98,8 @@ const PHASE_MESSAGE_MAP: Record<PageLoadingPhase, string> = {
   [PageLoadingPhase.LOADING_USAGE_STATS]: '获取使用统计...',
   [PageLoadingPhase.LOADING_PERMISSIONS]: '验证权限...',
   [PageLoadingPhase.LOADING_PAGE_DATA]: '加载页面数据...',
-  [PageLoadingPhase.COMPLETE]: t('components.messages.加载完成'),
-  [PageLoadingPhase.ERROR]: t('components.errors.加载失败')
+  [PageLoadingPhase.COMPLETE]: '加载完成',
+  [PageLoadingPhase.ERROR]: '加载失败'
 };
 
 /**
@@ -223,6 +223,7 @@ export const PageLoadingScreen: React.FC<PageLoadingScreenProps> = ({
   showProgress = true,
   LoadingIcon = Loader2
 }) => {
+  const { t } = useTranslation();
   const { state, retry, hasError } = usePageLoading();
 
   if (hasError) {

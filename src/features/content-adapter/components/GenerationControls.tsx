@@ -55,7 +55,7 @@ interface GenerationControlsProps {
     id: string;
     name: string;
     description: string;
-    tier: string;
+    tier: 'low' | 'mid' | 'high';
     company: string;
   }>;
   onModelChange: (model: string) => void;
@@ -83,9 +83,6 @@ interface GenerationControlsProps {
   
   // 验证状态
   validationErrors: string[];
-  
-  // 国际化
-  t: (key: string) => string;
 }
 
 /**
@@ -113,10 +110,12 @@ export function GenerationControls({ generating,
   onStopAutomation,
   onClearResults,
   onBatchPublish,
-  validationErrors,
-  t
+  validationErrors
  }: GenerationControlsProps) {
 
+  // Translation Hook
+  const { t } = useTranslation();
+  
   // 用户设置 Hook
   const { saveSetting, isLoggedIn } = useUserSettings();
   
@@ -135,6 +134,18 @@ export function GenerationControls({ generating,
 
   // 获取模型信息
   const currentModel = availableModels.find(m => m.id === selectedModel);
+
+  // 调试信息
+  console.log('🔍 GenerationControls - 模型数据调试:', {
+    availableModelsCount: availableModels.length,
+    selectedModel,
+    currentModel,
+    lowTierModels: availableModels.filter(m => m?.tier === 'low').length,
+    midTierModels: availableModels.filter(m => m?.tier === 'mid').length,
+    highTierModels: availableModels.filter(m => m?.tier === 'high').length,
+    sampleModel: availableModels[0],
+    allModels: availableModels.map(m => ({ id: m?.id, name: m?.name, tier: m?.tier }))
+  });
 
   // 保存模型选择
   const handleSaveModelPreference = async () => {
@@ -211,25 +222,25 @@ export function GenerationControls({ generating,
         </CardContent>
       </Card>
 
-      {/* AI模型选择 - 精美分层版本（从原版完整迁移） */}
-      <Card className="mb-6 rounded-xl bg-gradient-to-br from-background to-muted/20 border-border/50">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h4 className="text-base font-semibold text-foreground flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                  <Sparkles className="h-4 w-4" />
-                </div>
-                AI模型选择
-              </h4>
-              <p className="text-xs text-muted-foreground mt-1">
-                基于订阅计划提供不同级别的AI模型，满足从基础到专业的各种创作需求
-              </p>
+      {/* AI模型选择 */}
+      <Card className="unified-card mb-6">
+        <CardHeader className="unified-card-header">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="unified-icon-container">
+                <Sparkles className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="unified-title">AI模型选择</h4>
+                <p className="unified-description">
+                  基于订阅计划提供不同级别的AI模型，满足从基础到专业的各种创作需求
+                </p>
+              </div>
             </div>
             <Button
               variant="outline"
               size="sm"
-              className="h-7 px-3 text-xs flex items-center gap-1"
+              className="flex items-center gap-2 min-w-[100px]"
               onClick={handleSaveModelPreference}
               disabled={!selectedModel || saving}
             >
@@ -246,32 +257,38 @@ export function GenerationControls({ generating,
               )}
             </Button>
           </div>
+        </CardHeader>
+        <CardContent className="unified-content pt-0">
 
           {/* 按等级分组显示模型 */}
-          <div className="space-y-4">
-            {/* 体验版模型 - 所有模型放一排 */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-success"></div>
-                <span className="text-sm font-medium text-green-700">体验版模型</span>
-                <Badge variant="outline" className="text-xs bg-green-50 text-success border-green-200">
-                  基础功能
-                </Badge>
+          <div className="space-y-6">
+            {/* 体验版模型 */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full bg-success shadow-sm"></div>
+                  <span className="text-sm font-semibold text-green-700">体验版模型</span>
+                  <Badge variant="outline" className="text-xs bg-green-50 text-success border-green-200 px-2 py-1">
+                    基础功能
+                  </Badge>
+                </div>
+                <span className="text-xs text-muted-foreground">免费使用</span>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {availableModels.filter(m => m.tier === 'low').map((model) => {
+                  console.log('🔍 渲染体验版模型:', model);
                   const disabled = generating;
                   const isSelected = selectedModel === model.id;
 
                   return (
                     <div
                       key={model.id}
-                      className={`group relative p-2 border rounded-lg cursor-pointer transition-all duration-200 ${
+                      className={`group relative p-4 border rounded-xl cursor-pointer unified-transition ${
                         isSelected
-                          ? 'border-green-400 bg-green-50/80 shadow-sm'
+                          ? 'unified-selected border-green-500 bg-green-50 shadow-md ring-2 ring-green-200'
                           : disabled
                           ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
-                          : 'border-green-200 bg-green-50/40 hover:border-green-300 hover:bg-green-50/60'
+                          : 'unified-unselected border-green-200 bg-green-50/30 hover:border-green-400 hover:bg-green-50/60 hover:shadow-sm'
                       }`}
                       onClick={(e) => {
                         e.preventDefault();
@@ -280,21 +297,26 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                      <div className="flex items-start gap-3">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 unified-transition ${
                           isSelected
                             ? 'border-green-500 bg-success shadow-sm'
                             : 'border-green-300 bg-transparent group-hover:border-green-400'
                         }`}>
-                          {isSelected && <Check className="h-2.5 w-2.5 text-background" />}
+                          {isSelected && <Check className="h-3 w-3 text-background" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h5 className="font-medium text-xs text-foreground truncate">{model.name}</h5>
-                          <div className="flex items-center gap-1 mt-0.5">
-                            <Badge variant="outline" className="text-xs px-1 py-0 h-4 bg-green-100 text-green-700 border-green-300">
-                              {model.company}
+                          <h5 className="font-semibold text-sm text-foreground mb-1 truncate">
+                            {model?.name || '测试模型名称'}
+                          </h5>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="outline" className="text-xs px-2 py-1 bg-green-100 text-green-700 border-green-300">
+                              {model?.company || 'Unknown'}
                             </Badge>
                           </div>
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {model?.description || '测试模型描述'}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -303,16 +325,19 @@ export function GenerationControls({ generating,
               </div>
             </div>
 
-            {/* 专业版模型 - 所有模型放一排 */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-warning"></div>
-                <span className="text-sm font-medium text-yellow-700">专业版模型</span>
-                <Badge variant="outline" className="text-xs bg-yellow-50 text-warning border-yellow-200">
-                  专业功能
-                </Badge>
+            {/* 专业版模型 */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full bg-warning shadow-sm"></div>
+                  <span className="text-sm font-semibold text-yellow-700">专业版模型</span>
+                  <Badge variant="outline" className="text-xs bg-yellow-50 text-warning border-yellow-200 px-2 py-1">
+                    专业功能
+                  </Badge>
+                </div>
+                <span className="text-xs text-muted-foreground">需要订阅</span>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {availableModels.filter(m => m.tier === 'mid').map((model) => {
                   const userCanUsePro = availableModels.some(m => m.id === model.id && m.tier === 'mid');
                   const disabled = !userCanUsePro || generating;
@@ -321,12 +346,12 @@ export function GenerationControls({ generating,
                   return (
                     <div
                       key={model.id}
-                      className={`group relative p-2 border rounded-lg cursor-pointer transition-all duration-200 ${
+                      className={`group relative p-4 border rounded-xl cursor-pointer unified-transition ${
                         isSelected
-                          ? 'border-yellow-400 bg-yellow-50/80 shadow-sm'
+                          ? 'unified-selected border-yellow-500 bg-yellow-50 shadow-md ring-2 ring-yellow-200'
                           : disabled
                           ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
-                          : 'border-yellow-200 bg-yellow-50/40 hover:border-yellow-300 hover:bg-yellow-50/60'
+                          : 'unified-unselected border-yellow-200 bg-yellow-50/30 hover:border-yellow-400 hover:bg-yellow-50/60 hover:shadow-sm'
                       }`}
                       onClick={(e) => {
                         e.preventDefault();
@@ -335,30 +360,35 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                      <div className="flex items-start gap-3">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 unified-transition ${
                           isSelected
                             ? 'border-yellow-500 bg-warning shadow-sm'
-                            : disabled 
+                            : disabled
                             ? 'border-yellow-300 bg-transparent'
                             : 'border-yellow-300 bg-transparent group-hover:border-yellow-400'
                         }`}>
-                          {isSelected ? <Check className="h-2.5 w-2.5 text-background" /> : disabled && <Crown className="h-2.5 w-2.5 text-warning" />}
+                          {isSelected ? <Check className="h-3 w-3 text-background" /> : disabled && <Crown className="h-3 w-3 text-warning" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h5 className="font-medium text-xs text-foreground truncate">{model.name}</h5>
-                          <div className="flex items-center gap-1 mt-0.5">
-                            <Badge variant="outline" className="text-xs px-1 py-0 h-4 bg-yellow-100 text-yellow-700 border-yellow-300">
-                              {model.company}
+                          <h5 className="font-semibold text-sm text-foreground mb-1 truncate">
+                            {model?.name || '专业版模型'}
+                          </h5>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="outline" className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 border-yellow-300">
+                              {model?.company || 'Unknown'}
                             </Badge>
                           </div>
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {model?.description || '专业级AI模型'}
+                          </p>
                         </div>
                       </div>
                       {disabled && !generating && (
-                        <div className="absolute inset-0 bg-background/60 rounded-lg flex items-center justify-center">
-                          <div className="text-center">
-                            <Crown className="h-3 w-3 text-warning mx-auto mb-0.5" />
-                            <p className="text-xs text-muted-foreground">需要专业版</p>
+                        <div className="absolute inset-0 bg-background/80 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                          <div className="text-center p-2">
+                            <Crown className="h-4 w-4 text-warning mx-auto mb-1" />
+                            <p className="text-xs font-medium text-muted-foreground">需要专业版</p>
                           </div>
                         </div>
                       )}
@@ -368,16 +398,19 @@ export function GenerationControls({ generating,
               </div>
             </div>
 
-            {/* 高级版模型 - 所有模型放一排 */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-destructive"></div>
-                <span className="text-sm font-medium text-red-700">高级版模型</span>
-                <Badge variant="outline" className="text-xs bg-red-50 text-destructive border-red-200">
-                  顶级功能
-                </Badge>
+            {/* 高级版模型 */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full bg-destructive shadow-sm"></div>
+                  <span className="text-sm font-semibold text-red-700">高级版模型</span>
+                  <Badge variant="outline" className="text-xs bg-red-50 text-destructive border-red-200 px-2 py-1">
+                    顶级功能
+                  </Badge>
+                </div>
+                <span className="text-xs text-muted-foreground">企业级</span>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {availableModels.filter(m => m.tier === 'high').map((model) => {
                   const userCanUsePremium = availableModels.some(m => m.id === model.id && m.tier === 'high');
                   const disabled = !userCanUsePremium || generating;
@@ -386,12 +419,12 @@ export function GenerationControls({ generating,
                   return (
                     <div
                       key={model.id}
-                      className={`group relative p-2 border rounded-lg cursor-pointer transition-all duration-200 ${
+                      className={`group relative p-4 border rounded-xl cursor-pointer unified-transition ${
                         isSelected
-                          ? 'border-red-400 bg-red-50/80 shadow-sm'
+                          ? 'unified-selected border-red-500 bg-red-50 shadow-md ring-2 ring-red-200'
                           : disabled
                           ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
-                          : 'border-red-200 bg-red-50/40 hover:border-red-300 hover:bg-red-50/60'
+                          : 'unified-unselected border-red-200 bg-red-50/30 hover:border-red-400 hover:bg-red-50/60 hover:shadow-sm'
                       }`}
                       onClick={(e) => {
                         e.preventDefault();
@@ -400,30 +433,35 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                      <div className="flex items-start gap-3">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 unified-transition ${
                           isSelected
                             ? 'border-destructive bg-destructive shadow-sm'
-                            : disabled 
+                            : disabled
                             ? 'border-red-300 bg-transparent'
                             : 'border-red-300 bg-transparent group-hover:border-red-400'
                         }`}>
-                          {isSelected ? <Check className="h-2.5 w-2.5 text-background" /> : disabled && <Crown className="h-2.5 w-2.5 text-destructive" />}
+                          {isSelected ? <Check className="h-3 w-3 text-background" /> : disabled && <Crown className="h-3 w-3 text-destructive" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h5 className="font-medium text-xs text-foreground truncate">{model.name}</h5>
-                          <div className="flex items-center gap-1 mt-0.5">
-                            <Badge variant="outline" className="text-xs px-1 py-0 h-4 bg-red-100 text-red-700 border-red-300">
-                              {model.company}
+                          <h5 className="font-semibold text-sm text-foreground mb-1 truncate">
+                            {model?.name || '高级版模型'}
+                          </h5>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="outline" className="text-xs px-2 py-1 bg-red-100 text-red-700 border-red-300">
+                              {model?.company || 'Unknown'}
                             </Badge>
                           </div>
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {model?.description || '顶级AI模型'}
+                          </p>
                         </div>
                       </div>
                       {disabled && !generating && (
-                        <div className="absolute inset-0 bg-background/60 rounded-lg flex items-center justify-center">
-                          <div className="text-center">
-                            <Crown className="h-3 w-3 text-destructive mx-auto mb-0.5" />
-                            <p className="text-xs text-muted-foreground">需要高级版</p>
+                        <div className="absolute inset-0 bg-background/80 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                          <div className="text-center p-2">
+                            <Crown className="h-4 w-4 text-destructive mx-auto mb-1" />
+                            <p className="text-xs font-medium text-muted-foreground">需要高级版</p>
                           </div>
                         </div>
                       )}

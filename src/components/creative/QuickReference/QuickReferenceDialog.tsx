@@ -274,16 +274,9 @@ export function QuickReferenceDialog({ open,
           "quick-reference-dialog max-w-4xl flex flex-col",
           "bg-background border-border text-foreground",
           "shadow-2xl rounded-lg",
-          "overflow-hidden"
+          "overflow-hidden",
+          "inline-style-converted"
         )}
-        style={{
-          // 🎯 统一的弹窗样式，与CSS系统保持一致
-          maxHeight: '85vh',
-          maxWidth: 'min(95vw, 1024px)',
-          width: 'auto',
-          height: 'auto',
-          zIndex: 1055
-        }}
       >
         <DialogHeader className="flex-shrink-0 pb-4">
           <DialogTitle className="flex items-center gap-2 text-lg font-semibold">

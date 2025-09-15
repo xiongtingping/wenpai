@@ -1,5 +1,4 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
@@ -232,7 +231,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
               <CardTitle className="text-xl text-foreground">
-                {this.state.isInitializationError ? t('components.errors.应用初始化失败') : t('components.errors.应用遇到问题')}
+                {this.state.isInitializationError ? '应用初始化失败' : '应用遇到问题'}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">

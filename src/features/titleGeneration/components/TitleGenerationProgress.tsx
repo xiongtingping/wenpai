@@ -25,7 +25,8 @@ export interface TitleGenerationProgressProps {
   className?: string;
 }
 
-const STAGE_CONFIG = {idle: {
+const createStageConfig = (t: (key: string) => string) => ({
+  idle: {
     icon: Clock,
     label: t('components.labels.准备中'),
     description: '等待开始生成',
@@ -61,7 +62,7 @@ const STAGE_CONFIG = {idle: {
     description: '标题生成成功完成',
     color: 'text-foreground'
   }
-};
+});
 
 export const TitleGenerationProgress = memo<TitleGenerationProgressProps>(({
   loading,
@@ -69,6 +70,8 @@ export const TitleGenerationProgress = memo<TitleGenerationProgressProps>(({
   currentStage,
   className
 }) => {
+  const { t } = useTranslation();
+  const STAGE_CONFIG = createStageConfig(t);
   const stageConfig = STAGE_CONFIG[currentStage];
   const IconComponent = stageConfig.icon;
 

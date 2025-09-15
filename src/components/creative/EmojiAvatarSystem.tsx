@@ -68,8 +68,7 @@ const EmojiAvatarSystem: React.FC<EmojiAvatarSystemProps> = ({ onEmojiSelect,
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
               <div
-                className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
-                style={{ backgroundColor: selectedEmoji.color }}
+                className="w-16 h-16 rounded-full flex items-center justify-center text-2xl inline-style-converted" 
               >
                 {selectedEmoji.emoji}
               </div>

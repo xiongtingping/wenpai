@@ -47,47 +47,47 @@ export function HowItWorks() {
   const stepDescs = getStepDescs()
 
   return (
-    <section className="py-10" id="how-it-works-section">
-      <div className="container mx-auto px-6">
+    <section id="how-it-works-section">
+      <div className="ds-container">
         {/* 1️⃣ 标题区优化 */}
-        <div className="text-center max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
+        <div className="ds-text-centered ds-container-narrow">
+          <h2 className="ds-title-main ds-text-primary mb-4">
             {t('home.howItWorks.title')}
           </h2>
-          <p className="text-lg text-foreground mb-4">
+          <p className="ds-title-section ds-text-primary mb-4">
             {t('home.howItWorks.subtitle')}
           </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-foreground mt-4">
+          <div className="flex items-center justify-center gap-2 ds-text-helper ds-text-primary mt-4">
             <span className="text-lg">✅</span>
             {t('home.howItWorks.benefits')}
           </div>
         </div>
 
         {/* 2️⃣ 三步内容卡片优化 */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+        <div className="mt-16 ds-grid-3 ds-container-wide">
           {stepTitles.map((title, i) => {
             const Icon = stepIcons[i]
             return (
               <div
                 key={title}
-                className="group bg-card rounded-xl p-8 border border-border shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 how-it-works-step"
-                style={{ '--animation-delay': `${i * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--landing-animation-delay-step')) + parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--landing-animation-delay-base'))}s` } as React.CSSProperties}
+                className="group ds-card ds-card-padding ds-transition-standard ds-hover-lift how-it-works-step"
+                style={{ '--animation-delay': `${i * 0.1 + 0.1}s` } as React.CSSProperties}
               >
-                <div className="flex flex-col items-center text-center">
+                <div className="ds-text-centered ds-space-y-standard">
                   {/* 渐变圆形背景图标 */}
                   <div
-                    className={`homepage-icon how-it-works-icon flex items-center justify-center w-20 h-20 rounded-full ${stepColors[i]} shadow-lg mb-6 transition-all duration-300 group-hover:scale-110`}
+                    className={`homepage-icon how-it-works-icon ds-icon-main ${stepColors[i]} shadow-lg ds-icon-centered group-hover:scale-110 ds-transition-standard`}
                   >
-                    <Icon className="w-10 h-10" />
+                    <Icon className="w-6 h-6" />
                   </div>
-                  
+
                   {/* 主标题 */}
-                  <h3 className="text-lg font-semibold text-foreground mb-3">
+                  <h3 className="ds-title-section ds-text-primary">
                     {title}
                   </h3>
-                  
+
                   {/* 描述文字 */}
-                  <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
+                  <p className="ds-text-body ds-text-secondary leading-relaxed max-w-xs mx-auto">
                     {stepDescs[i]}
                   </p>
                 </div>
@@ -97,12 +97,12 @@ export function HowItWorks() {
         </div>
 
         {/* 3️⃣ 最下方蓝色提示条优化 */}
-        <div className="mt-16 max-w-4xl mx-auto">
-          <div className="rounded-lg bg-card text-center px-6 py-4 border border-border shadow-sm">
-            <h3 className="text-lg font-semibold text-foreground mb-2">
+        <div className="mt-16 ds-container-narrow">
+          <div className="ds-card ds-text-centered px-6 py-4">
+            <h3 className="ds-title-section ds-text-primary mb-2">
               {t('home.howItWorks.efficiency.title')}
             </h3>
-            <p className="text-sm text-foreground">
+            <p className="ds-text-body ds-text-primary">
               {t('home.howItWorks.efficiency.description')}
             </p>
           </div>

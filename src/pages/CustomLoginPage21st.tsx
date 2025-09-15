@@ -70,6 +70,7 @@ const PasswordRule: React.FC<{ text: string; isValid: boolean; optional?: boolea
 );
 
 export const CustomLoginPage: React.FC = () => {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { guard, handleAuthingLogin, user, isAuthenticated } = useAuth();
   const [searchParams] = useSearchParams();
@@ -536,14 +537,7 @@ export const CustomLoginPage: React.FC = () => {
   if (checkingAuth) {
     return (
       <div
-        className={`min-h-screen flex items-center justify-center relative overflow-hidden ${isDarkMode ? "dark" : ""}`}
-        style={{
-          backgroundImage: isDarkMode
-            ? 'linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483, #2d1b69, #0f0c29)'
-            : 'linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe)',
-          backgroundSize: '400% 400%',
-          animation: isDarkMode ? 'gradientFlowDark 20s ease infinite' : 'gradientFlow 15s ease infinite'
-        }}
+        className={`inline-style-converted min-h-screen flex items-center justify-center relative overflow-hidden ${isDarkMode ? "dark" : ""}`}
       >
         <canvas id="particles" className="absolute inset-0 z-0"></canvas>
 
@@ -619,14 +613,7 @@ export const CustomLoginPage: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center relative overflow-hidden ${isDarkMode ? "dark" : ""}`}
-      style={{
-        backgroundImage: isDarkMode
-          ? 'linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483, #2d1b69, #0f0c29)'
-          : 'linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe)',
-        backgroundSize: '400% 400%',
-        animation: isDarkMode ? 'gradientFlowDark 20s ease infinite' : 'gradientFlow 15s ease infinite'
-      }}
+      className={`inline-style-converted min-h-screen flex items-center justify-center relative overflow-hidden ${isDarkMode ? "dark" : ""}`}
     >
       <canvas id="particles" className="absolute inset-0 z-0"></canvas>
 

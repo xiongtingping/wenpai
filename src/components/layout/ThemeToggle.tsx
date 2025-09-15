@@ -23,7 +23,7 @@ interface ThemeConfig {
   badge?: string;
 }
 
-const themes: ThemeConfig[] = [
+const createThemes = (t: (key: string) => string): ThemeConfig[] => [
   {
     value: 'light',
     label: t('components.labels.浅色'),
@@ -70,11 +70,15 @@ const themes: ThemeConfig[] = [
   },
 ];
 
-function getInitialTheme(user?: any): Theme { const themeKey = generateStorageKey('wenpai-theme', user);
+function getInitialTheme(user?: any): Theme { 
+  const themeKey = generateStorageKey('wenpai-theme', user);
   const stored = localStorage.getItem(themeKey) as Theme;
   
+  // 有效的主题值
+  const validThemes = ['light', 'dark', 'rainbow', 'beige', 'green'];
+  
   // 如果有存储的主题且是有效主题，返回存储的主题
-  if (stored && themes.some(t => t.value === stored)) {
+  if (stored && validThemes.includes(stored)) {
     return stored;
    }
   
@@ -84,7 +88,9 @@ function getInitialTheme(user?: any): Theme { const themeKey = generateStorageKe
 }
 
 export const ThemeToggle: React.FC = () => {
+  const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
+  const themes = createThemes(t);
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme(user));
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<ThemeConfig | null>(null);
@@ -275,11 +281,11 @@ export const ThemeToggle: React.FC = () => {
       <div className="relative" ref={dropdownRef}>
         <button
           className="h-9 w-9 p-0 rounded-full hover:bg-accent border border-border/50 bg-card/50 backdrop-blur-sm relative z-[9999] inline-flex items-center justify-center text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-          aria-label={t('components.labels.标签')}
+          aria-label={`${t('settings.darkMode')} - ${getUserPermissionLevel()}`}
           title={`切换主题 - ${getUserPermissionLevel()}`}
           onClick={() => {
             setIsOpen(!isOpen);
-            
+
             // 确保根元素可交互
             const root = document.getElementById('root');
             if (root && root.hasAttribute('aria-hidden')) {
@@ -296,22 +302,13 @@ export const ThemeToggle: React.FC = () => {
         </button>
 
         {isOpen && (
-          <div 
+          <div
             className="absolute right-0 top-full mt-2 w-64 bg-popover border border-border rounded-md shadow-lg z-[999999]"
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + var(--spacing-2))',
-              right: '0',
-              zIndex: 999999,
-              backgroundColor: 'var(--popover)',
-              borderColor: 'var(--border)',
-              boxShadow: '0 var(--spacing-2-5) 15px -3px rgba(0, 0, 0, 0.1), 0 var(--spacing-1) var(--spacing-1-5) -var(--spacing-0-5) rgba(0, 0, 0, 0.05)'
-            }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* 标题 */}
             <div className="px-3 py-2 text-sm font-medium text-foreground">
-              主题切换
+              {t('settings.darkMode')}
             </div>
             <div className="px-3 py-1 text-xs text-muted-foreground">
               <SubscriptionStateWrapper>

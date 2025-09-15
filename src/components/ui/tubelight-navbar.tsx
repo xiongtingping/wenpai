@@ -19,6 +19,7 @@ interface NavBarProps {
 }
 
 export function NavBar({ items, className, positionClassName  }: NavBarProps) {
+  const { t } = useTranslation();
   const location = useLocation()
   const [isMobile, setIsMobile] = useState(false)
 

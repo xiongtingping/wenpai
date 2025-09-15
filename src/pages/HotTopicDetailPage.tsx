@@ -31,7 +31,9 @@ import { DailyHotItem } from '@/api/hotTopicsService';
  * 热点话题详情页面组件
  * @returns React 组件
  */
-export default function HotTopicDetailPage() { const { platform, title  } = useParams<{ platform: string; title: string }>();
+export default function HotTopicDetailPage() {
+  const { t } = useTranslation();
+  const { platform, title  } = useParams<{ platform: string; title: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   

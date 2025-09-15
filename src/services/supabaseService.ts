@@ -1,4 +1,5 @@
 import { supabase } from '@/config/supabase'
+import { getDataServices } from './serviceInitializer';
 import type {
   UserProfile,
   UserSubscription,
@@ -19,17 +20,78 @@ import type {
 
 export class UserProfileService {
   static async getProfile(userId: string): Promise<UserProfile | null> {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle()
+    const startTime = performance.now();
+    const cacheKey = `user_profile_${userId}`;
     
-    if (error) {
-      console.error('Error fetching user profile:', error)
-      return null
+    try {
+      // 尝试从缓存获取
+      const services = getDataServices();
+      if (services.cache) {
+        const cached = services.cache.get<UserProfile>(cacheKey);
+        if (cached) {
+          services.performance?.recordDataLoadingEvent(
+            'user_profile_cache_hit',
+            startTime,
+            performance.now(),
+            true,
+            { userId, source: 'cache' }
+          );
+          return cached;
+        }
+      }
+
+      // 从数据库获取
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle()
+      
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        services.performance?.recordDataLoadingEvent(
+          'user_profile_db_error',
+          startTime,
+          performance.now(),
+          false,
+          { userId, error: error.message }
+        );
+        return null;
+      }
+
+      // 缓存结果
+      if (data && services.cache) {
+        services.cache.set(cacheKey, data, { 
+          ttl: 300000, // 5分钟
+          priority: 'high'
+        });
+      }
+
+      services.performance?.recordDataLoadingEvent(
+        'user_profile_db_success',
+        startTime,
+        performance.now(),
+        true,
+        { userId, source: 'database', cached: !!data }
+      );
+
+      return data;
+
+    } catch (error) {
+      console.error('User profile service error:', error);
+      const services = getDataServices();
+      services.performance?.recordDataLoadingEvent(
+        'user_profile_service_error',
+        startTime,
+        performance.now(),
+        false,
+        { 
+          userId, 
+          error: error instanceof Error ? error.message : 'Unknown error' 
+        }
+      );
+      return null;
     }
-    return data
   }
 
   static async createProfile(profile: Partial<UserProfile>): Promise<UserProfile | null> {
@@ -47,18 +109,74 @@ export class UserProfileService {
   }
 
   static async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile | null> {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .update(updates)
-      .eq('user_id', userId)
-      .select()
-      .single()
+    const startTime = performance.now();
+    const cacheKey = `user_profile_${userId}`;
     
-    if (error) {
-      console.error('Error updating user profile:', error)
-      return null
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .update(updates)
+        .eq('user_id', userId)
+        .select()
+        .single()
+      
+      if (error) {
+        console.error('Error updating user profile:', error);
+        const services = getDataServices();
+        services.performance?.recordDataLoadingEvent(
+          'user_profile_update_error',
+          startTime,
+          performance.now(),
+          false,
+          { userId, error: error.message }
+        );
+        return null;
+      }
+
+      // 更新缓存
+      const services = getDataServices();
+      if (data && services.cache) {
+        services.cache.set(cacheKey, data, { 
+          ttl: 300000, // 5分钟
+          priority: 'high'
+        });
+      }
+
+      // 添加同步任务
+      if (data && services.sync) {
+        await services.sync.addSyncTask(
+          `user_profile_${userId}`,
+          'update',
+          data,
+          'high'
+        );
+      }
+
+      services.performance?.recordDataLoadingEvent(
+        'user_profile_update_success',
+        startTime,
+        performance.now(),
+        true,
+        { userId, fieldsUpdated: Object.keys(updates) }
+      );
+
+      return data;
+
+    } catch (error) {
+      console.error('User profile update service error:', error);
+      const services = getDataServices();
+      services.performance?.recordDataLoadingEvent(
+        'user_profile_update_service_error',
+        startTime,
+        performance.now(),
+        false,
+        { 
+          userId, 
+          error: error instanceof Error ? error.message : 'Unknown error' 
+        }
+      );
+      return null;
     }
-    return data
   }
 }
 

@@ -99,8 +99,10 @@ interface LibraryItem {
  * 我的资料库页面组件
  * @returns React 组件
  */
-export default function BookmarkPage() { const navigate = useNavigate();
-  const { toast  } = useToast();
+export default function BookmarkPage() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ✅ FIXED: 添加用户认证
@@ -742,7 +744,7 @@ export default function BookmarkPage() { const navigate = useNavigate();
               </TabsTrigger>
               <TabsTrigger value="favorites" className="unified-tab-trigger">
                 <Heart className="tab-icon" />
-                <span></span>
+                <span>{t('bookmark.myFavorites')}</span>
                 {favoritesStore.totalCount > 0 && (
                   <Badge variant="secondary" className="ml-1 text-xs px-1 py-0 h-4 min-w-4">
                     {favoritesStore.totalCount}
@@ -759,11 +761,11 @@ export default function BookmarkPage() { const navigate = useNavigate();
               </TabsTrigger>
             </TabsList>
 
-            {/* 操作按钮区域 */}
-            <div className="flex flex-wrap gap-2">
+            {/* 操作按钮区域 - 水平排列，紧凑布局 */}
+            <div className="flex items-center gap-2">
               <Button
                 onClick={() => setIsAddDialogOpen(true)}
-                className="library-action-button flex items-center gap-2"
+                className="flex items-center gap-1 px-3 py-2 text-sm"
                 variant="outline"
                 size="sm"
               >
@@ -772,7 +774,7 @@ export default function BookmarkPage() { const navigate = useNavigate();
               </Button>
               <Button
                 onClick={() => setIsCopywritingDialogOpen(true)}
-                className="library-action-button flex items-center gap-2"
+                className="flex items-center gap-1 px-3 py-2 text-sm"
                 variant="outline"
                 size="sm"
               >
@@ -781,7 +783,7 @@ export default function BookmarkPage() { const navigate = useNavigate();
               </Button>
               <Button
                 onClick={handleExportData}
-                className="library-action-button flex items-center gap-2"
+                className="flex items-center gap-1 px-3 py-2 text-sm"
                 variant="outline"
                 size="sm"
               >

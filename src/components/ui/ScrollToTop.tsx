@@ -11,7 +11,9 @@ interface ScrollToTopProps {
 export const ScrollToTop: React.FC<ScrollToTopProps> = ({
   threshold = 300,
   className = ""
-}) => { const [isVisible, setIsVisible] = useState(false);
+}) => {
+  const { t } = useTranslation();
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const toggleVisibility = () => {

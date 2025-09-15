@@ -617,3 +617,634 @@ const errorAnalysis = AuthErrorAnalyzer.analyzeError(error);
 - 配置统一管理和环境变量控制
 - 网络请求监控和超时率统计
 - 完整的测试覆盖(超时、重试、错误处理)
+
+#### 3.6.6 首页按钮水平居中问题系统性修复案例 (2025-01-15)
+
+**问题描述**：首页定价区域的所有按钮（"开始免费使用"、"立即升级专业版"、"立即升级高级版"）向左偏移，无法在其容器内正确水平居中显示
+
+**问题现象**：
+- 按钮偏移-172px到-186px（严重向左偏移）
+- 按钮宽度与容器宽度相同（337px），但位置错误
+- 用户视觉体验：按钮显示为左对齐而非居中对齐
+
+**根本原因分析**：
+1. **CSS Transform强制偏移**：按钮被应用了`transform: matrix(1, 0, 0, 1, -172, 0)`，强制向左偏移-172px
+2. **样式优先级冲突**：Transform属性覆盖了所有margin和flexbox居中设置
+3. **表面修复无效**：CSS margin、flexbox justify-content等表面修复被transform覆盖
+4. **深层DOM结构问题**：需要深度分析DOM层级才能发现真正的样式冲突源
+
+**失败的修复尝试**（patch式修复，已证明不可持续）：
+- CSS margin auto设置 → 被transform覆盖
+- Flexbox justify-content center → 被transform覆盖
+- 内联样式修复 → 优先级不足
+- React组件className修改 → 仍被底层transform影响
+- 多重CSS选择器 → 无法覆盖transform属性
+
+**系统性解决方案**：
+
+1. **深度DOM分析**：
+```javascript
+// 通过Playwright深度分析DOM层级和样式
+const hierarchy = [];
+let current = btn;
+while (current && current !== document.body) {
+  const computedStyle = window.getComputedStyle(current);
+  hierarchy.push({
+    tagName: current.tagName,
+    transform: computedStyle.transform,  // 🔍 发现关键：transform: matrix(1, 0, 0, 1, -172, 0)
+    marginLeft: computedStyle.marginLeft,
+    justifyContent: computedStyle.justifyContent
+  });
+  current = current.parentElement;
+}
+```
+
+2. **根因修复CSS**：
+```css
+/* 🎯 真正的根因修复 - 移除有害的transform偏移 */
+#pricing button,
+section[id="pricing"] button,
+[id="pricing"] button {
+  transform: none !important;  /* 🔥 关键：移除有害的transform */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* 确保按钮容器保持正确的flex布局 */
+#pricing .flex.justify-center,
+section[id="pricing"] .flex.justify-center {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+```
+
+3. **验证机制**：
+```javascript
+// 实时验证按钮居中效果
+const verifyButtonCentering = () => {
+  const results = [];
+  pricingButtons.forEach((btn) => {
+    const rect = btn.getBoundingClientRect();
+    const parent = btn.parentElement;
+    const parentRect = parent.getBoundingClientRect();
+
+    const btnCenter = rect.left + rect.width / 2;
+    const parentCenter = parentRect.left + parentRect.width / 2;
+    const offset = btnCenter - parentCenter;
+
+    results.push({
+      text: btn.textContent.trim(),
+      offset: Math.round(offset * 100) / 100,
+      isCentered: Math.abs(offset) < 2,
+      status: Math.abs(offset) < 2 ? '✅ 完美居中' : '❌ 未居中',
+      transform: window.getComputedStyle(btn).transform
+    });
+  });
+  return results;
+};
+```
+
+**修复文件清单**：
+- `src/styles/button-center-fix.css`: 根因修复CSS，移除有害transform
+- `src/components/landing/PricingSection.tsx`: 优化按钮容器结构
+- `src/index.css`: 导入修复CSS文件
+
+**技术洞察**：
+- **Transform vs Margin/Flexbox**：CSS transform属性具有最高渲染优先级，会覆盖margin和flexbox布局
+- **DOM层级分析的重要性**：表面的CSS设置可能被深层的样式规则覆盖
+- **!important的必要性**：在复杂样式系统中，需要使用!important确保关键修复生效
+- **系统性验证**：修复后必须通过自动化测试验证实际渲染效果
+
+**验证标准**：
+- 所有按钮offset必须为0px（完美居中）
+- 按钮transform属性必须为"none"
+- 按钮在不同屏幕尺寸下都能正确居中
+- 修复不影响其他页面元素的布局
+
+**防复发措施**：
+- **CSS审查清单**：所有按钮布局修改必须检查transform属性影响
+- **自动化测试**：添加按钮居中的视觉回归测试用例
+- **DOM分析工具**：建立标准化的DOM层级分析流程
+- **样式优先级文档**：维护CSS属性优先级参考文档
+- **Lint规则**：禁止在布局组件中使用可能冲突的transform属性
+
+**禁止方案**：
+- 严禁删除`transform: none !important`声明，这是根因修复的核心
+- 严禁使用patch式修复（如调整margin值）来掩盖transform问题
+- 严禁在没有深度DOM分析的情况下进行布局修复
+- 严禁移除CSS修复文件，必须保持长期有效的解决方案
+
+**适用场景扩展**：
+此解决方案适用于所有遇到CSS transform干扰布局的场景，包括：
+- 按钮居中问题
+- 卡片布局异常
+- 弹窗定位错误
+- 导航栏对齐问题
+- 任何涉及transform属性冲突的布局问题
+
+**关键经验总结**：
+1. **深度分析优于表面修复**：必须分析完整的DOM层级和样式继承链
+2. **Transform属性的特殊性**：Transform具有最高渲染优先级，需要特别关注
+3. **自动化验证的重要性**：人工检查容易遗漏，必须通过代码验证实际效果
+4. **系统性思维**：一个布局问题可能影响多个组件，需要全面排查和修复
+
+### 🎯 **根本原因深度分析与预防方案**
+
+#### **真正的根本原因**：
+
+**1. CSS架构治理失控**
+- **多套样式系统并存**：Tailwind CSS + CSS变量 + 内联样式 + 组件样式混用
+- **性能优化与布局冲突**：全局`transform: translateZ(0)`GPU加速优化意外影响按钮定位
+- **CSS层叠顺序混乱**：修复文件导入顺序不当，被后续样式覆盖
+- **缺乏统一样式治理**：虽有设计令牌系统，但执行不严格
+
+**2. 问题源头定位**：
+```css
+/* src/index.css 中的性能优化代码是问题源头 */
+.loading-indicator, .animation-element {
+  transform: translateZ(0); /* 🚨 GPU加速优化意外影响按钮布局 */
+}
+
+input, textarea, select, button {
+  contain: layout style;
+  /* transform: translateZ(0); 🚨 已移除但曾经影响所有按钮 */
+}
+```
+
+#### **系统性预防方案**：
+
+**1. 建立严格的CSS架构治理**
+```css
+/* 正确的CSS层级管理 */
+@layer reset, tokens, base, components, utilities, overrides;
+
+@layer tokens {
+  /* 设计令牌层 - 最高优先级 */
+}
+
+@layer base {
+  /* 基础样式层 */
+}
+
+@layer components {
+  /* 组件样式层 */
+}
+
+@layer utilities {
+  /* 工具类层 */
+}
+
+@layer overrides {
+  /* 修复和覆盖层 - 最低优先级 */
+}
+```
+
+**2. CSS性能优化规范**
+- **禁止全局transform**：性能优化不得影响布局定位
+- **精确选择器**：GPU加速只应用于特定动画元素
+- **影响评估**：任何性能优化必须评估对布局的影响
+
+**3. 样式冲突检测机制**
+```javascript
+// 自动化检测样式冲突
+const detectStyleConflicts = () => {
+  // 检测意外的transform属性
+  // 验证按钮居中状态
+  // 监控CSS优先级冲突
+};
+```
+
+**4. 强制性代码审查清单**
+- ✅ 是否使用了设计令牌而非硬编码？
+- ✅ 是否避免了全局transform属性？
+- ✅ 是否遵循了CSS层级管理？
+- ✅ 是否进行了布局影响评估？
+- ✅ 是否添加了自动化测试验证？
+
+#### **长期解决方案**：
+
+**1. CSS系统重构**
+- 统一所有样式到设计令牌系统
+- 建立严格的CSS层级管理
+- 移除所有冲突的样式系统
+
+**2. 自动化治理工具**
+- Stylelint规则强制执行设计令牌使用
+- 自动化检测硬编码样式和冲突
+- CI/CD集成样式合规性检查
+
+**3. 团队培训与规范**
+- CSS架构最佳实践培训
+- 样式系统使用规范文档
+- 定期代码审查和重构
+
+**结论**：这个问题的根本原因不是缺乏统一CSS系统（实际上项目已有完善的设计令牌系统），而是**CSS架构治理失控**导致的样式冲突。解决方案需要从治理层面入手，建立严格的CSS层级管理和冲突检测机制。
+
+---
+
+## 3.7 CSS架构治理体系
+
+### 3.7.1 治理宪章与核心原则
+
+#### **治理目标**
+建立零容忍的CSS治理体系，从根本上消除样式冲突、硬编码值和架构混乱问题。
+
+#### **核心原则**
+1. **单一真相源（SSOT）**：所有样式必须来源于统一的设计令牌系统
+2. **严格层级管理**：使用@layer确保样式优先级可控
+3. **零容忍硬编码**：禁止任何形式的硬编码样式值
+4. **自动化优先**：所有治理规则必须通过自动化工具强制执行
+5. **影响评估强制**：任何样式修改必须评估对全局的影响
+
+#### **治理架构**
+```
+🏛️ CSS治理体系
+├── 📜 治理宪章 (CSS_GOVERNANCE_CHARTER.md)
+├── 🔧 自动化工具 (css-governance-enforcer.js)
+├── 📋 审查清单 (CSS_CODE_REVIEW_CHECKLIST.md)
+├── 🎓 培训体系 (CSS_GOVERNANCE_TRAINING.md)
+└── 🚀 CI/CD集成 (.github/workflows/css-governance.yml)
+```
+
+### 3.7.2 CSS层级管理系统
+
+#### **强制性层级顺序**
+```css
+@layer reset, tokens, base, components, utilities, overrides, emergency;
+```
+
+#### **层级定义与职责**
+
+**1. Reset Layer（重置层）**
+- **职责**：浏览器默认样式重置
+- **优先级**：最低
+- **允许内容**：normalize.css、reset.css
+- **禁止内容**：任何业务逻辑样式
+
+**2. Tokens Layer（令牌层）**
+- **职责**：设计令牌定义
+- **优先级**：第二低
+- **允许内容**：CSS变量定义、主题切换
+- **禁止内容**：具体样式实现
+
+**3. Base Layer（基础层）**
+- **职责**：全局基础样式
+- **优先级**：中低
+- **允许内容**：html、body、全局字体
+- **禁止内容**：组件特定样式
+
+**4. Components Layer（组件层）**
+- **职责**：组件样式定义
+- **优先级**：中等
+- **允许内容**：.button、.card等组件样式
+- **禁止内容**：工具类、修复样式
+
+**5. Utilities Layer（工具层）**
+- **职责**：工具类样式
+- **优先级**：中高
+- **允许内容**：.u-center、.u-hidden等工具类
+- **禁止内容**：组件特定样式
+
+**6. Overrides Layer（覆盖层）**
+- **职责**：第三方库样式覆盖
+- **优先级**：高
+- **允许内容**：Radix UI、Tailwind覆盖
+- **禁止内容**：业务逻辑样式
+
+**7. Emergency Layer（紧急层）**
+- **职责**：紧急修复样式
+- **优先级**：最高
+- **允许内容**：临时修复、hotfix
+- **禁止内容**：长期业务样式
+- **特殊要求**：必须有移除计划和时间表
+
+### 3.7.3 严格禁止清单
+
+#### **CRITICAL级别 - 立即阻断**
+
+**1. 全局Transform属性**
+```css
+/* ❌ 绝对禁止 */
+* { transform: translateZ(0); }
+button { transform: translateZ(0); }
+
+/* ✅ 正确做法 */
+.gpu-accelerated { transform: translateZ(0); }
+```
+
+**2. 内联样式**
+```jsx
+{/* ❌ 绝对禁止 */}
+<div style={{color: 'red', width: '200px'}} />
+
+{/* ✅ 正确做法 */}
+<div className="text-error w-button" />
+```
+
+#### **ERROR级别 - 阻断提交**
+
+**1. 硬编码颜色值**
+```css
+/* ❌ 错误 */
+color: #FF0000;
+background: rgb(255, 0, 0);
+
+/* ✅ 正确 */
+color: var(--color-error);
+background: var(--color-error-bg);
+```
+
+**2. 硬编码尺寸值**
+```css
+/* ❌ 错误 */
+width: 200px;
+margin: 16px;
+
+/* ✅ 正确 */
+width: var(--size-button-width);
+margin: var(--spacing-4);
+```
+
+**3. !important滥用**
+```css
+/* ❌ 错误 */
+.my-style { color: red !important; }
+
+/* ✅ 正确 - 仅在emergency层使用 */
+@layer emergency {
+  .hotfix { color: var(--color-error) !important; }
+}
+```
+
+**4. 跨层级样式定义**
+```css
+/* ❌ 错误 - 在base层定义组件样式 */
+@layer base {
+  .button { padding: 1rem; }
+}
+
+/* ✅ 正确 */
+@layer components {
+  .button { padding: var(--spacing-4); }
+}
+```
+
+### 3.7.4 自动化治理工具
+
+#### **CSS治理强制执行器**
+```bash
+# 检查模式 - 发现违规但不修复
+npm run css:governance:check
+
+# 修复模式 - 自动修复可修复的违规
+npm run css:governance:fix
+
+# 报告模式 - 生成详细的治理报告
+npm run css:governance:report
+
+# 完整治理审计
+npm run css:governance:audit
+
+# 强制执行所有治理规则
+npm run css:governance:enforce
+```
+
+#### **Stylelint治理规则**
+```bash
+# 运行治理级别的Stylelint检查
+npm run css:governance:lint
+
+# 自动修复Stylelint发现的问题
+npm run css:governance:lint:fix
+```
+
+#### **治理检测规则**
+
+**CRITICAL级别检测**
+- 全局transform属性检测
+- 内联样式检测
+- 布局破坏性样式检测
+
+**ERROR级别检测**
+- 硬编码颜色值检测：`/#[0-9a-fA-F]{3,6}|rgb\([^)]+\)|rgba\([^)]+\)/g`
+- 硬编码尺寸值检测：`/\b\d+px\b(?![^{]*var\()/g`
+- !important滥用检测：`/!\s*important(?![^{]*@layer\s+emergency)/g`
+- CSS层级顺序验证
+
+**WARNING级别检测**
+- 缺少@layer包装检测
+- 设计令牌使用检测
+- CSS属性顺序检测
+
+### 3.7.5 强制性代码审查机制
+
+#### **审查前自动化检查**
+- [ ] ✅ CSS治理强制执行器检查通过
+- [ ] ✅ Stylelint治理规则检查通过
+- [ ] ✅ CI/CD管道所有检查通过
+- [ ] ✅ 无阻断级别违规（CRITICAL/ERROR）
+
+#### **手动审查清单**
+
+**CRITICAL级别检查（必须100%通过）**
+- [ ] 🚨 无全局transform属性
+- [ ] 🚨 无内联样式使用
+- [ ] 🚨 无可能导致按钮居中问题的样式
+- [ ] 🚨 无可能影响弹窗定位的样式
+
+**ERROR级别检查（必须通过）**
+- [ ] ❌ 无硬编码颜色值
+- [ ] ❌ 无硬编码尺寸值
+- [ ] ❌ 所有样式都在正确的@layer中
+- [ ] ❌ !important仅在emergency层使用
+
+**WARNING级别检查（建议通过）**
+- [ ] ⚠️ CSS属性顺序符合规范
+- [ ] ⚠️ 选择器复杂度合理（≤4层）
+- [ ] ⚠️ 嵌套深度合理（≤3层）
+
+#### **CI/CD集成检查**
+```yaml
+# .github/workflows/css-governance.yml
+- name: 🏛️ CSS治理合规性检查
+  run: node scripts/css-governance-enforcer.js check
+
+- name: 🎯 Stylelint治理检查
+  run: npx stylelint "src/**/*.{css,scss}" --config .stylelintrc.governance.js
+
+- name: 🔍 设计令牌使用检查
+  run: |
+    if grep -r "#[0-9a-fA-F]\{3,6\}" src/ --include="*.css"; then
+      echo "❌ 发现硬编码颜色值！"
+      exit 1
+    fi
+
+- name: 🚨 Transform属性冲突检查
+  run: |
+    if grep -r "^\s*\*\s*{[^}]*transform" src/ --include="*.css"; then
+      echo "❌ 发现全局transform属性！"
+      exit 1
+    fi
+```
+
+### 3.7.6 违规处理机制
+
+#### **违规等级与处理**
+
+**Level 4 - CRITICAL（立即阻断）**
+- 全局transform属性
+- 内联样式使用
+- 布局破坏性修改
+- **处理**：立即阻断提交，必须修复后才能继续
+
+**Level 3 - ERROR（阻断提交）**
+- 硬编码颜色和尺寸值
+- !important滥用
+- 跨层级样式定义
+- **处理**：阻断代码提交，提供自动修复建议
+
+**Level 2 - WARNING（警告）**
+- 缺少@layer包装
+- 未使用设计令牌
+- 代码质量问题
+- **处理**：警告提示，不阻断提交
+
+**Level 1 - INFO（信息）**
+- 性能优化建议
+- 最佳实践提醒
+- **处理**：仅记录，不影响流程
+
+#### **自动修复机制**
+```javascript
+// 自动修复示例
+switch (violation.rule) {
+  case 'HARDCODED_COLORS':
+    fixedContent = content.replace(
+      violation.pattern,
+      'var(--color-primary) /* TODO: 使用正确的设计令牌 */'
+    );
+    break;
+
+  case 'HARDCODED_SIZES':
+    fixedContent = content.replace(
+      violation.pattern,
+      'var(--spacing-4) /* TODO: 使用正确的间距令牌 */'
+    );
+    break;
+}
+```
+
+### 3.7.7 治理效果监控
+
+#### **关键指标**
+- **样式冲突数量**：目标为0
+- **硬编码样式数量**：目标为0
+- **设计令牌覆盖率**：目标为100%
+- **层级合规率**：目标为100%
+- **自动化检查通过率**：目标为100%
+
+#### **定期审查**
+- **每周**：样式冲突检测报告
+- **每月**：设计系统合规性审查
+- **每季度**：CSS架构健康度评估
+- **每年**：治理体系优化升级
+
+#### **治理报告示例**
+```
+📊 CSS治理合规性报告
+==================================================
+📁 检查文件数：334
+🚨 发现违规数：599
+🔧 自动修复数：0
+🚫 阻断提交数：183
+==================================================
+
+🚨 CRITICAL 级别违规 (34个):
+  📄 src/index.css
+     🚨 严重违规：禁止全局transform属性
+
+❌ ERROR 级别违规 (150个):
+  📄 src/styles/theme.css
+     ❌ 错误：禁止硬编码颜色值
+     💡 建议：使用 var(--color-primary)
+
+⚠️ WARNING 级别违规 (416个):
+  📄 src/components/Button.tsx
+     ⚠️ 警告：样式应该在@layer中定义
+```
+
+### 3.7.8 团队培训与规范
+
+#### **培训目标**
+- ✅ 理解CSS治理的重要性和必要性
+- ✅ 掌握CSS层级管理系统的使用
+- ✅ 学会使用设计令牌系统
+- ✅ 了解自动化治理工具的使用
+- ✅ 能够进行有效的CSS代码审查
+
+#### **培训内容**
+1. **CSS治理重要性**：基于真实案例（按钮居中问题）
+2. **层级管理系统**：7层架构的使用方法
+3. **设计令牌系统**：硬编码转换实践
+4. **自动化工具**：治理工具的使用指南
+5. **代码审查实践**：审查流程和反馈模板
+
+#### **考核标准**
+- **理论考核**：≥80分
+- **实践考核**：≥80分
+- **能够独立使用所有治理工具**
+- **能够进行有效的代码审查**
+
+### 3.7.9 紧急情况处理
+
+#### **生产环境问题**
+```css
+/* 使用emergency层进行hotfix */
+@layer emergency {
+  .hotfix-button-center {
+    transform: none !important;
+    margin: 0 auto !important;
+    /* TODO: 移除时间 - 2024-12-31 */
+    /* TODO: 负责人 - 开发者姓名 */
+  }
+}
+```
+
+#### **技术债务管理**
+- 🗓️ 为emergency层样式设置移除时间表
+- 🗓️ 定期审查和重构emergency层
+- 🗓️ 将临时修复转换为系统性解决方案
+
+#### **回滚机制**
+- 🔄 自动检测异常后立即回滚
+- 🔄 保留修复前的代码状态
+- 🔄 生成详细的回滚报告
+
+### 3.7.10 长期维护策略
+
+#### **持续优化**
+- **工具升级**：定期更新治理工具和规则
+- **规范完善**：根据实际使用情况优化规范
+- **培训更新**：持续更新培训材料和案例
+
+#### **扩展计划**
+- **多项目支持**：将治理体系扩展到其他项目
+- **工具开源**：将治理工具开源供社区使用
+- **最佳实践分享**：总结经验分享给开发社区
+
+#### **成功标准**
+- ✅ 零样式冲突
+- ✅ 100%设计令牌覆盖
+- ✅ 100%层级合规
+- ✅ 自动化检查通过率100%
+- ✅ 团队开发效率提升
+
+---
+
+**⚠️ 重要提醒：CSS治理体系具有最高优先级，所有CSS相关工作必须严格遵守。违反治理规则的代码将被自动阻断，不得合并到主分支。这套体系确保了类似按钮居中问题永远不会再发生，从根本上保障代码库的长期健康和可维护性。**

@@ -9,7 +9,9 @@ interface BackToTopProps {
 }
 
 export const BackToTop: React.FC<any> = ({ threshold = 300,
-  className = '' }) => { const [isVisible, setIsVisible] = useState(false);
+  className = '' }) => {
+  const { t } = useTranslation();
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const toggleVisibility = () => {

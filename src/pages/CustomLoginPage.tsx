@@ -590,7 +590,7 @@ import '@/styles/animated-signin-21st.csssaved_phone') || '';
         </div>
 
         {/* 登录方式选择（分段按钮） */}
-        <div className="segmented" style={{marginTop:8, marginBottom:8}}>
+        <div className="segmented inline-style-converted" >
           <button type="button" className={`seg-btn ${loginMethod==='password'?'active':''}`} onClick={() => setLoginMethod('password')}>$</button>
           <button type="button" className={`seg-btn ${loginMethod==='code'?'active':''}`} onClick={() => setLoginMethod('code')}>$</button>
         </div>
@@ -619,7 +619,7 @@ import '@/styles/animated-signin-21st.csssaved_phone') || '';
           </div>
         ) : (
           <div className={`form-field ${loginCodeFocused || loginForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'var(--spacing-2)'}}>
-            <div style={{position:'relative'}}>
+            <div className="relative" /* TODO: 复杂内联样式已转换 */>
               <input
                 type="text"
                 id="login-code"
@@ -709,7 +709,7 @@ import '@/styles/animated-signin-21st.csssaved_phone') || '';
       </p>
       {/* 注册模式下的表单（手机号/邮箱 + 验证码） */}
       {mode === 'register' && (
-        <form className="login-form" onSubmit={handleRegister} style={{marginTop: 24}}>
+        <form className="login-form inline-style-converted" >
 
           {/* 已移除邮箱选项，只保留手机号注册 */}
 
@@ -729,7 +729,7 @@ import '@/styles/animated-signin-21st.csssaved_phone') || '';
 
           {/* 验证码 */}
           <div className={`form-field ${registerCodeFocused || registerForm.code ? 'active' : ''}`} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'var(--spacing-2)'}}>
-            <div style={{position:'relative'}}>
+            <div className="relative" /* TODO: 复杂内联样式已转换 */>
               <input
                 type="text"
                 id="register-code"
@@ -821,8 +821,8 @@ import '@/styles/animated-signin-21st.csssaved_phone') || '';
             )}
           </div>
 
-          <div className="form-options" style={{marginTop:12}}>
-            <label className="remember-me" style={{userSelect:'none'}}>
+          <div className="form-options inline-style-converted" >
+            <label className="remember-me select-none" >
               <input
                 type="checkbox"
                 checked={registerAgreed}

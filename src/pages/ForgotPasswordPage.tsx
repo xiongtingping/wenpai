@@ -149,14 +149,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center relative overflow-hidden ${isDarkMode ? "dark" : ""}`}
-      style={{
-        background: isDarkMode
-          ? 'linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483, #2d1b69, #0f0c29)'
-          : 'linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe)',
-        backgroundSize: '400% 400%',
-        animation: isDarkMode ? 'gradientFlowDark 20s ease infinite' : 'gradientFlow 15s ease infinite'
-      }}
+      className={`min-h-screen flex items-center justify-center relative overflow-hidden inline-style-converted ${isDarkMode ? "dark" : ""}`}
     >
       <canvas id="particles" className="absolute inset-0 z-0"></canvas>
 

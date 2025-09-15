@@ -30,7 +30,9 @@ export const ThemeUpgradeDialog: React.FC<any> = ({ open,
   onOpenChange,
   themeName,
   requiredTier,
-  currentTier = 'trial' }) => { const navigate = useNavigate();
+  currentTier = 'trial' }) => { 
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const tierInfo = {
     trial: { name: t('components.messages.体验版'), color: 'bg-muted text-gray-800'  },

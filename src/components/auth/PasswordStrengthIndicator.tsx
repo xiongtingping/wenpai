@@ -36,8 +36,7 @@ export function PasswordStrengthIndicator({
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium">密码强度</span>
             <span 
-              className="text-sm font-semibold" 
-              style={{ color: display.color }}
+              className="text-sm font-semibold inline-style-converted" 
             >
               {display.label}
             </span>

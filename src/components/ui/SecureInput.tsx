@@ -49,6 +49,7 @@ export const SecureInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Se
     onBlur: controlledOnBlur,
     ...props
   }, ref) => {
+    const { t } = useTranslation();
     const [showPassword, setShowPassword] = React.useState(false);
     const isPasswordType = props.type === 'password';
     
@@ -66,7 +67,8 @@ export const SecureInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Se
     );
 
     // 处理受控组件
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => { const newValue = e.target.value;
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const newValue = e.target.value;
       validation.handleChange(newValue);
       controlledOnChange?.(e);
      };

@@ -213,8 +213,8 @@ export class UnifiedStorageStrategy {
   constructor(supabaseUrl?: string, supabaseKey?: string) {
     // 初始化Supabase客户端
     this.supabase = createClient(
-      supabaseUrl || process.env.VITE_SUPABASE_URL || '',
-      supabaseKey || process.env.VITE_SUPABASE_ANON_KEY || ''
+      supabaseUrl || import.meta.env.VITE_SUPABASE_URL || '',
+      supabaseKey || import.meta.env.VITE_SUPABASE_ANON_KEY || ''
     );
 
     // 生成加密密钥

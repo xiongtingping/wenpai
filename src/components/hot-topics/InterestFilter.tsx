@@ -47,6 +47,7 @@ export interface InterestFilters {
  * 兴趣调节组件
  */
 const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('categories');
@@ -142,6 +143,13 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
     localStorage.setItem('interestFilters', JSON.stringify(newFilters));
     setFilters(newFilters);
     onFilterChange(newFilters);
+
+    // 显示保存成功提示
+    toast({
+      title: "设置已保存",
+      description: "您的兴趣偏好设置已成功保存",
+      duration: 2000,
+    });
   };
 
   /**
@@ -312,10 +320,11 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
               </span>
               <div className="flex items-center gap-3">
                 <Button variant="default" size="sm" onClick={() => {
-                  // 保存当前设置（实际上已经自动保存了）
+                  // 手动触发保存提示
                   toast({
-                    title: t('components.labels.设置已保存'),
+                    title: "设置已保存",
                     description: "您的兴趣偏好设置已成功保存",
+                    duration: 2000,
                   });
                 }} className="h-9 px-4 text-sm font-medium">
                   保存设置
@@ -354,32 +363,30 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
                   </p>
                 </div>
 
-                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                   {categories.map((category) => {
                     const preference = filters.categoryPreferences[category.id] || 0;
                     return (
-                      <div key={category.id} className="bg-card dark:bg-card rounded-xl p-6 border border-border space-y-5 shadow-sm">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                              <span className="text-2xl">{category.icon}</span>
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="text-base font-semibold text-foreground">{category.label}</h4>
-                              <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
-                            </div>
+                      <div key={category.id} className="bg-card dark:bg-card rounded-lg p-4 border border-border space-y-4 shadow-sm">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xl">{category.icon}</span>
                           </div>
-                          <div className="text-right min-w-[100px]">
-                            <div className={`text-base font-semibold ${getPreferenceColor(preference)}`}>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-foreground truncate">{category.label}</h4>
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{category.description}</p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <div className={`text-xs font-semibold ${getPreferenceColor(preference)}`}>
                               {getPreferenceLabel(preference)}
                             </div>
-                            <div className="text-sm text-muted-foreground mt-1">
+                            <div className="text-xs text-muted-foreground mt-0.5">
                               {preference > 0 ? '+' : ''}{preference}
                             </div>
                           </div>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           <Slider
                             value={[preference]}
                             onValueChange={(value) => updateCategoryPreference(category.id, value[0])}
@@ -388,15 +395,15 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
                             step={10}
                             className="w-full"
                           />
-                          <div className="flex justify-between items-center text-xs text-muted-foreground px-1">
-                            <span className="flex items-center gap-1.5">
-                              <ThumbsDown className="w-3.5 h-3.5 text-destructive/70" />
+                          <div className="flex justify-between items-center text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <ThumbsDown className="w-3 h-3 text-destructive/70" />
                               <span>不想看</span>
                             </span>
                             <span className="text-center font-medium">中性</span>
-                            <span className="flex items-center gap-1.5">
+                            <span className="flex items-center gap-1">
                               <span>想看</span>
-                              <ThumbsUp className="w-3.5 h-3.5 text-success dark:text-green-400" />
+                              <ThumbsUp className="w-3 h-3 text-success dark:text-green-400" />
                             </span>
                           </div>
                         </div>

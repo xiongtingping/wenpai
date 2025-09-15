@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PermissionOverlay } from '@/components/auth/PermissionOverlay';
-import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
+import { EnhancedUnifiedPermissionGuard } from '@/components/auth/EnhancedUnifiedPermissionGuard';
 import { UpgradePromptCard } from '@/components/auth/UpgradePromptCard';
 import { PermissionUpgradeDialog } from '@/components/auth/PermissionUpgradeDialog';
 import { 

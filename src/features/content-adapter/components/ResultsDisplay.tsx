@@ -66,8 +66,6 @@ interface ResultsDisplayProps {
   getPlatformName: (platformId: string) => string;
   getEffectiveCharCount: (platformId: string) => number;
   
-  // 国际化
-  t: (key: string) => string;
 }
 
 /**
@@ -148,6 +146,8 @@ function PlatformResultCard({
   const { toast } = useToast();
   const targetCharCount = getEffectiveCharCount(result.platformId);
 
+  const { t } = useTranslation();
+  
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(result.content);
@@ -435,9 +435,9 @@ export function ResultsDisplay({
   onVersionSelect,
   getPlatformIcon,
   getPlatformName,
-  getEffectiveCharCount,
-  t
+  getEffectiveCharCount
 }: ResultsDisplayProps) {
+  const { t } = useTranslation();
 
   if (results.length === 0) {
     return (

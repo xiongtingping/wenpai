@@ -439,10 +439,10 @@ export default function HotTopicsPage() {
         // 移除actions中的刷新按钮
       />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4">
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'hot' | 'subscriptions' | 'bookmarks')} className="w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
             <TabsList className="unified-tabs-list grid w-full grid-cols-3 max-w-md">
               <TabsTrigger value="hot" className="unified-tab-trigger">
                 <TrendingUp className="tab-icon" />
@@ -495,7 +495,7 @@ export default function HotTopicsPage() {
           </div>
 
           {/* 全网热点标签页 */}
-          <TabsContent value="hot">
+          <TabsContent value="hot" className="mt-1">
             {/* 加载状态显示 */}
             {loading && !error && (
               <Card className="mb-6">
@@ -743,7 +743,7 @@ export default function HotTopicsPage() {
                 <EnhancedTopicCategories
                   originalData={prepareCategorizedData()}
                   onCategoryClick={handleCategoryChange}
-                  className="mb-6"
+                  className="mb-2"
                 />
               ) : (
                 <TopicCategories

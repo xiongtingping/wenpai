@@ -55,7 +55,9 @@ export const EmojiPicker: React.FC<any> = ({ onSelect,
   onClose,
   className = '',
   displayMode = 'unicode',
-  defaultCDNType = 'noto-color' }) => { const [searchQuery, setSearchQuery] = useState('');
+  defaultCDNType = 'noto-color' }) => { 
+  const { t } = useTranslation();
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('popular');
   const [currentDisplayMode, setCurrentDisplayMode] = useState<EmojiDisplayMode>(displayMode);
   const [currentCDNType, setCurrentCDNType] = useState(defaultCDNType);

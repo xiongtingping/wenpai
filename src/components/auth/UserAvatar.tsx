@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -46,7 +47,66 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   // 原生下拉菜单状态
   const [isNativeDropdownOpen, setIsNativeDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   
+  // 简化的智能定位逻辑
+  const calculateDropdownPosition = () => {
+    if (!triggerRef.current) return;
+
+    const triggerRect = triggerRef.current.getBoundingClientRect();
+    const dropdownWidth = 256; // w-64 = 16rem = 256px
+    const viewportWidth = window.innerWidth;
+    const margin = 16; // 安全边距
+
+    console.log('🎯 定位计算:', {
+      triggerLeft: triggerRect.left,
+      triggerRight: triggerRect.right,
+      triggerBottom: triggerRect.bottom,
+      viewportWidth,
+      dropdownWidth
+    });
+
+    // 计算最佳水平位置
+    let left: number;
+    let right: number | undefined;
+
+    // 尝试右对齐（弹窗右边缘与触发器右边缘对齐）
+    const rightAlignLeft = triggerRect.right - dropdownWidth;
+
+    if (rightAlignLeft >= margin) {
+      // 右对齐有足够空间
+      left = rightAlignLeft;
+      console.log('📍 右对齐定位, left:', left);
+    } else {
+      // 右对齐空间不足，尝试左对齐
+      if (triggerRect.left + dropdownWidth <= viewportWidth - margin) {
+        left = triggerRect.left;
+        console.log('📍 左对齐定位, left:', left);
+      } else {
+        // 都不够，贴右边
+        left = viewportWidth - dropdownWidth - margin;
+        console.log('📍 贴右边定位, left:', left);
+      }
+    }
+
+    const style: React.CSSProperties = {
+      position: 'fixed',
+      top: triggerRect.bottom + 8,
+      left: left,
+      zIndex: 999999,
+      width: dropdownWidth,
+      maxHeight: '85vh',
+      overflowY: 'auto',
+      backgroundColor: 'var(--background)',
+      border: '1px solid var(--border)',
+      borderRadius: '8px',
+      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+    };
+
+    setDropdownStyle(style);
+  };
+
   // 点击外部关闭下拉菜单
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -60,6 +120,17 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
     return undefined;
+  }, [isNativeDropdownOpen]);
+
+  // 当弹窗打开时计算位置
+  useEffect(() => {
+    if (isNativeDropdownOpen) {
+      // 延迟计算，确保DOM已渲染
+      setTimeout(calculateDropdownPosition, 0);
+      // 监听窗口大小变化
+      window.addEventListener('resize', calculateDropdownPosition);
+      return () => window.removeEventListener('resize', calculateDropdownPosition);
+    }
   }, [isNativeDropdownOpen]);
 
   // 简单的主题切换功能
@@ -163,10 +234,17 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     <div className={`flex items-center gap-2 relative ${className}`} ref={dropdownRef}>
       {/* 原生实现的用户头像按钮 */}
       <button
+        ref={triggerRef}
         className="relative h-auto p-2 hover:bg-accent/50 rounded-md cursor-pointer border-none bg-transparent outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         onClick={() => {
-          setIsNativeDropdownOpen(!isNativeDropdownOpen);
-          
+          const newState = !isNativeDropdownOpen;
+          setIsNativeDropdownOpen(newState);
+
+          // 如果打开弹窗，立即计算位置
+          if (newState) {
+            setTimeout(calculateDropdownPosition, 0);
+          }
+
           // 确保根元素可交互
           const root = document.getElementById('root');
           if (root && root.hasAttribute('aria-hidden')) {
@@ -188,20 +266,12 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
         </Avatar>
       </button>
 
-      {/* 原生下拉菜单 */}
-      {isNativeDropdownOpen && (
-        <div 
+      {/* 原生下拉菜单 - 使用Portal渲染到body */}
+      {isNativeDropdownOpen && createPortal(
+        <div
           data-dropdown-menu="native"
-          className="absolute right-0 top-full mt-2 w-64 bg-background dark:bg-gray-800 border border-border dark:border-gray-700 rounded-md shadow-lg z-[999999]"
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + var(--spacing-2))',
-            right: '0',
-            zIndex: 999999,
-            backgroundColor: 'var(--background)',
-            borderColor: 'var(--border)',
-            boxShadow: '0 var(--spacing-2-5) 15px -3px rgba(0, 0, 0, 0.1), 0 var(--spacing-1) var(--spacing-1-5) -var(--spacing-0-5) rgba(0, 0, 0, 0.05)'
-          }}
+          className="bg-background dark:bg-gray-800 border border-border dark:border-gray-700 rounded-md shadow-lg"
+          style={dropdownStyle}
           onClick={(e) => e.stopPropagation()}
         >
           {/* 用户信息标题 */}
@@ -236,7 +306,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               }}
             >
               <User className="mr-2 h-4 w-4" />
-              <span></span>
+              <span>{t('auth.profile')}</span>
             </button>
 
             <button
@@ -247,7 +317,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               }}
             >
               <HelpCircle className="mr-2 h-4 w-4" />
-              <span></span>
+              <span>{t('navigation.help')}</span>
             </button>
 
             {/* 分隔线 */}
@@ -264,7 +334,8 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               <span>{t('auth.logout')}</span>
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

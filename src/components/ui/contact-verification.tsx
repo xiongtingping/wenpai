@@ -27,12 +27,14 @@ interface ContactVerificationProps {
 /**
  * 联系方式验证组件
  */
-export function ContactVerification({ currentPhone = '',
+export function ContactVerification({ 
+  currentPhone = '',
   currentEmail = '',
   onPhoneChange,
   onEmailChange,
   disabled = false
- }: ContactVerificationProps) {
+}: ContactVerificationProps) {
+  const { t } = useTranslation();
   const [phone, setPhone] = useState(currentPhone);
   const [email, setEmail] = useState(currentEmail);
   const [phoneCode, setPhoneCode] = useState('');

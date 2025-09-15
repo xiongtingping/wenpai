@@ -134,6 +134,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
   const [showRandomResult, setShowRandomResult] = useState(false);
   const [randomSelected, setRandomSelected] = useState<UnifiedEmojiItem | null>(null);
 
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { user } = useAuth();
 

@@ -14,7 +14,9 @@ import PageNavigation from '@/components/layout/PageNavigation';
 /**
  * 关于我们页面组件
  */
-const AboutPage: React.FC = () => { return (
+const AboutPage: React.FC = () => {
+  const { t } = useTranslation();
+  return (
     <div className="min-h-screen bg-background">
       <PageNavigation
         title={t('pages.labels.关于我们') }

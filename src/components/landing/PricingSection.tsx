@@ -186,13 +186,13 @@ export function PricingSection() {
   }
 
   return (
-    <section id="pricing" className="py-6 relative overflow-hidden">
+    <section id="pricing" className="pricing-section relative overflow-hidden">
 
-      <div className="container mx-auto px-4 md:px-12 relative z-10">
+      <div className="ds-container relative z-10">
         {/* 🎯 标题区域优化 */}
-        <div className="text-center max-w-4xl mx-auto py-4">
+        <div className="ds-text-centered ds-container-narrow py-4">
           {/* 主标题 */}
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground leading-snug">
+          <h2 className="ds-title-main ds-text-primary leading-snug">
             {t('home.pricing.title')}
           </h2>
 
@@ -203,7 +203,7 @@ export function PricingSection() {
 
           {/* 限时优惠倒计时 - 完全照搬支付中心设计 */}
           {currentUser?.id && showPromoOffer && timeLeft > 0 && (
-            <div className="text-center mt-6 mb-8">
+            <div className="text-center mt-6 mb-4">
               <div className="promo-banner text-background px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
                 <div className="flex items-center justify-center gap-2 mb-3">
                   <Zap className="h-4 w-4 animate-pulse" />
@@ -225,22 +225,47 @@ export function PricingSection() {
               </div>
             </div>
           )}
-          
-          <div className="mt-4 flex justify-center items-center space-x-4">
+
+          {/* 计费周期切换 - 紧凑间距 */}
+          <div
+            className={`flex justify-center items-center ${currentUser?.id && showPromoOffer && timeLeft > 0 ? 'mt-2' : 'mt-6'}`}
+            style={{
+              gap: '6px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
             <Button
               onClick={() => setBilling("monthly")}
               className={`pricing-button-monthly ${billing === "monthly" ? "active" : "inactive"}`}
+              style={{
+                margin: '0',
+                marginLeft: '0',
+                marginRight: '0'
+              }}
             >
               {t('home.pricing.monthlyBilling')}
             </Button>
             <Switch
               checked={billing === "yearly"}
               onCheckedChange={(checked) => setBilling(checked ? "yearly" : "monthly")}
-              className="mx-4"
+              style={{
+                marginLeft: '8px',
+                marginRight: '8px',
+                margin: '0 8px',
+                width: '60px',
+                height: '32px'
+              }}
             />
             <Button
               onClick={() => setBilling("yearly")}
               className={`pricing-button-yearly ${billing === "yearly" ? "active" : "inactive"}`}
+              style={{
+                margin: '0',
+                marginLeft: '0',
+                marginRight: '0'
+              }}
             >
               <span className="relative z-10 drop-shadow-sm">
                 {t('home.pricing.yearlyBilling')} <span className="text-xs ml-1 font-extrabold text-yellow-200">({t('home.pricing.yearlyDiscount')})</span>
@@ -333,20 +358,21 @@ export function PricingSection() {
                   {renderFeatures(plan.features, plan)}
                 </ul>
                 
-                <Button
-                  variant={isRecommended ? "gradient" : "default"}
-                  size="lg"
-                  className={`mt-8 w-full font-semibold transition-all duration-300 flex items-center justify-center text-center ${
-                    isRecommended
-                      ? 'shadow-lg hover:shadow-xl hover:-translate-y-1'
-                      : 'shadow-md hover:shadow-lg hover:-translate-y-0.5'
-                  } ${
-                    isTrial
-                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-0'
-                      : ''
-                  }`}
-                  onClick={() => isTrial ? handlePlanClick(plan.id) : handlePlanClick(plan.id)}
-                >
+                <div className="flex justify-center items-center w-full">
+                  <Button
+                    variant={isRecommended ? "gradient" : "default"}
+                    size="lg"
+                    className={`mt-8 mx-auto w-auto px-8 font-semibold transition-all duration-300 flex items-center justify-center text-center ${
+                      isRecommended
+                        ? 'shadow-lg hover:shadow-xl hover:-translate-y-1'
+                        : 'shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                    } ${
+                      isTrial
+                        ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-0'
+                        : ''
+                    }`}
+                    onClick={() => isTrial ? handlePlanClick(plan.id) : handlePlanClick(plan.id)}
+                  >
                   {isTrial ? (
                     <>
                       <Sparkles className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -358,7 +384,8 @@ export function PricingSection() {
                       {t('home.pricing.upgradeToTitle')}{plan.name}
                     </>
                   )}
-                </Button>
+                  </Button>
+                </div>
               </Card>
             );
           })}

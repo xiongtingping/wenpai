@@ -4,6 +4,7 @@
  */
 
 import './index.css';
+import './styles/user-avatar-dropdown-fix.css';
 import React from 'react';
 
 import ReactDOM from 'react-dom/client';
@@ -11,6 +12,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 // 🚀 性能优化：仅导入必要的核心服务
 import { setupGlobalErrorHandler } from './utils/errorHandler';
+import { initializeDataServices } from './services/serviceInitializer';
 
 // 🔧 FIXED: 更强力的 forwardRef 修复，彻底消除错误
 try {
@@ -128,10 +130,26 @@ try {
 }
 
 // 🚀 快速启动应用 - 性能优化
-function initializeApplication() {
+async function initializeApplication() {
   try {
     // 仅初始化必要的错误处理
     setupGlobalErrorHandler();
+
+    // 🚀 初始化数据持久化服务
+    console.log('🔧 正在初始化数据服务...');
+    await initializeDataServices({
+      enablePerformanceMonitoring: true,
+      enableWebVitals: true,
+      performanceReportInterval: 300000, // 5分钟报告一次
+      cacheMaxSize: 1000,
+      cacheMaxMemoryMB: 100,
+      syncBatchSize: 50,
+      syncInterval: 30000, // 30秒同步间隔
+      enableCompression: true,
+      defaultStorageLevel: 'hybrid',
+      enableDataIsolation: true
+    });
+    console.log('✅ 数据服务初始化完成');
 
     // 立即启动React应用 - 其他服务按需加载
     const root = ReactDOM.createRoot(document.getElementById('root')!);
@@ -265,9 +283,10 @@ function initializeApplication() {
       if (resizeDebounceTimer) {
         clearTimeout(resizeDebounceTimer);
       }
-      if (dialogFixer) {
-        dialogFixer.disconnect();
-      }
+      // dialogFixer已被禁用，移除相关清理代码
+      // if (dialogFixer) {
+      //   dialogFixer.disconnect();
+      // }
     });
 
     console.log('✅ 应用启动成功 - Authing Guard aria-hidden 阻止器已激活');
@@ -407,4 +426,26 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 // 🔧 启动应用初始化流程
-initializeApplication();
+initializeApplication().catch(error => {
+  console.error('💥 应用初始化失败:', error);
+  
+  // 即使初始化失败也要启动应用（优雅降级）
+  try {
+    const root = ReactDOM.createRoot(document.getElementById('root')!);
+    root.render(
+      <React.StrictMode>
+        <BrowserRouter 
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+        >
+          <App />
+        </BrowserRouter>
+      </React.StrictMode>
+    );
+    console.log('⚠️ 应用已优雅降级启动');
+  } catch (fallbackError) {
+    console.error('💥💥 应用完全启动失败:', fallbackError);
+  }
+});

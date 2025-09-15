@@ -49,22 +49,22 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative px-4 sm:px-6 lg:px-8 min-h-[calc(100vh-var(--header-height,var(--spacing-16)))] flex flex-col justify-center pt-20 sm:pt-24 lg:pt-28 pb-12">
-      <div className="max-w-7xl mx-auto w-full">
-        <div className="text-center w-full">
-          {/* 主标题 - 移除大logo后的优化布局 */}
+    <section className="relative min-h-[calc(100vh-var(--header-height,var(--spacing-16)))] flex flex-col justify-center pt-20 sm:pt-24 lg:pt-28 pb-12">
+      <div className="ds-container-wide">
+        <div className="ds-text-centered w-full">
+          {/* 主标题 - 应用设计系统 */}
           <div className="mb-10 mt-0">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 leading-tight">
+            <h1 className="ds-title-main mb-8 leading-tight">
               <span className="rainbow-logo-text">
                 {t('home.heroTitle')}
               </span>
             </h1>
 
             {/* 核心价值主张 - 优化排版结构 */}
-            <div className="max-w-4xl mx-auto text-center">
+            <div className="ds-container-narrow ds-text-centered">
               {/* 第一行：核心价值主张 */}
               <div className="mb-10">
-                <p className="text-xl sm:text-2xl font-bold leading-relaxed theme-hero-subtitle">
+                <p className="ds-title-sub leading-relaxed theme-hero-subtitle">
                   <strong className="theme-hero-subtitle">
                     {t('home.heroSubtitle')}
                   </strong>
@@ -72,7 +72,7 @@ const HeroSection: React.FC = () => {
               </div>
 
               {/* 第二行：四个要点 - 修复对齐问题 */}
-              <div className="text-lg sm:text-xl theme-hero-points-text font-medium mb-12">
+              <div className="ds-title-section theme-hero-points-text font-medium mb-12">
                 <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 sm:gap-x-12 lg:gap-x-16">
                   <div className="flex items-center gap-2">
                     <span className="theme-hero-points-dot text-2xl leading-none">·</span>
@@ -101,7 +101,7 @@ const HeroSection: React.FC = () => {
               <Button
                 onClick={handleButtonClick}
                 size="lg"
-                className="relative flex items-center justify-center px-14 py-6 text-xl font-bold rounded-xl overflow-hidden group/button min-h-[var(--spacing-16)] theme-hero-button text-background shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 mx-auto"
+                className="ds-btn-primary ds-btn-centered relative overflow-hidden group/button theme-hero-button text-background shadow-2xl hover:shadow-3xl ds-hover-scale ds-transition-standard px-14 py-6 text-xl font-bold rounded-xl"
               >
                 <span className="relative z-10 flex items-center justify-center gap-3 w-full">
                   <svg className="w-7 h-7 group-hover/button:rotate-12 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,63 +122,78 @@ const HeroSection: React.FC = () => {
           </div>
           
           {/* 核心优势 - 重新设计 */}
-          <div className="max-w-5xl mx-auto mt-14 sm:mt-16 lg:mt-20">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="ds-container-wide mt-14 sm:mt-16 lg:mt-20">
+            <div className="ds-grid-3">
               {/* 快速生成 */}
               <div className="group relative">
-                <div className="enhanced-card p-6 rounded-xl transition-all duration-300 hover:scale-105">
+                <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale">
                   <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-all duration-300 shadow-e1">
-                      <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="ds-icon-decorative bg-primary text-primary-foreground mr-3 ds-icon-centered group-hover:scale-110 ds-transition-standard">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-foreground" dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.title')}}></h3>
-                      <p className="text-sm text-muted-foreground font-medium">{t('home.advantages.fastGeneration.subtitle')}</p>
+                      <h3 className="ds-title-section ds-text-primary" dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.title')}}></h3>
+                      <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.fastGeneration.subtitle')}</p>
                     </div>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <p className="ds-text-body ds-text-secondary leading-relaxed">
                     <span dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.description')}}></span>
                   </p>
                 </div>
               </div>
-              
+
               {/* 品牌一致 */}
               <div className="group relative">
-                <div className="enhanced-card p-6 rounded-2xl transition-all duration-300 hover:scale-105">
+                <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale">
                   <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                      <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="ds-icon-decorative bg-primary text-primary-foreground mr-3 ds-icon-centered group-hover:scale-110 ds-transition-standard">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-foreground" dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.title')}}></h3>
-                      <p className="text-sm text-muted-foreground font-medium">{t('home.advantages.brandConsistency.subtitle')}</p>
+                      <h3 className="ds-title-section ds-text-primary" dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.title')}}></h3>
+                      <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.brandConsistency.subtitle')}</p>
                     </div>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <p className="ds-text-body ds-text-secondary leading-relaxed">
                     <span dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.description')}}></span>
                   </p>
                 </div>
               </div>
-              
+
               {/* 成本节省 */}
               <div className="group relative">
-                <div className="enhanced-card p-6 rounded-2xl transition-all duration-300 hover:scale-105">
+                <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale">
                   <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                      <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="ds-icon-decorative bg-primary text-primary-foreground mr-3 ds-icon-centered group-hover:scale-110 ds-transition-standard">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-foreground" dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.title')}}></h3>
-                      <p className="text-sm text-muted-foreground font-medium">{t('home.advantages.costSaving.subtitle')}</p>
+                      <h3 className="ds-title-section ds-text-primary" dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.title')}}></h3>
+                      <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.costSaving.subtitle')}</p>
                     </div>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <p className="ds-text-body ds-text-secondary leading-relaxed">
                     <span dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.description')}}></span>
                   </p>
                 </div>

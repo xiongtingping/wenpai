@@ -1,24 +1,18 @@
+@import './design-tokens.css';
+@import './base-layer.css';
+@import './utility-classes.css';
+@import './component-layer.css';
 /*
  * Unified CSS System (统一CSS系统)
  * 按照正确的层级顺序导入所有样式层
  *
  * 架构：Design Token（变量层） + Base Layer（基础层） + Utility Class（工具层） + Component Layer（组件层）
  */
-
 /* 🎨 Layer 1: Design Tokens (变量层) */
-@import './design-tokens.css';
-
 /* 🏗️ Layer 2: Base Layer (基础层) */
-@import './base-layer.css';
-
 /* 🔧 Layer 3: Utility Classes (工具层) */
-@import './utility-classes.css';
-
 /* 🧩 Layer 4: Component Layer (组件层) */
-@import './component-layer.css';
-
 /* 🎯 CSS系统统一规范 */
-
 /*
  * ===== CSS 系统架构分析报告 =====
  *
@@ -70,10 +64,9 @@
  * - 创建自动化测试
  * - 文档化最佳实践
  */
-
 /* 🔧 临时修复：硬编码样式替换映射 */
 :root {
-  /* 常见硬编码颜色的设计令牌替换 */
+  /* 常见硬编码颜色的设计令牌替换 */;
   --hardcoded-white: hsl(var(--background));
   --hardcoded-black: hsl(var(--foreground));
   --hardcoded-blue: hsl(var(--primary));
@@ -81,18 +74,16 @@
   --hardcoded-green: hsl(var(--success));
   --hardcoded-yellow: hsl(var(--warning));
   --hardcoded-gray: hsl(var(--muted));
-
-  /* 常见硬编码尺寸的设计令牌替换 */
-  --size-xs: var(--spacing-2);    /* var(--spacing-2) */
-  --size-sm: var(--spacing-3);   /* var(--spacing-3) */
-  --size-md: var(--spacing-4);      /* var(--spacing-4) */
-  --size-lg: var(--spacing-5);   /* var(--spacing-5) */
+  /* 常见硬编码尺寸的设计令牌替换 */;
+  --size-xs: var(--spacing-2);    /* var(--spacing-2) */;
+  --size-sm: var(--spacing-3);   /* var(--spacing-3) */;
+  --size-md: var(--spacing-4);      /* var(--spacing-4) */;
+  --size-lg: var(--spacing-5);   /* var(--spacing-5) */;
   --size-xl: var(--spacing-6);    /* var(--spacing-6) */
   --size-2xl: var(--spacing-8);     /* var(--spacing-8) */
   --size-3xl: var(--spacing-12);     /* var(--spacing-12) */
   --size-4xl: var(--spacing-16);     /* var(--spacing-16) */
 }
-
 /* 🎯 Dialog Styles (弹窗样式) - 包含必要的动画支持 */
 @layer dialog {
   /* 🎯 终极修复：彻底禁用所有动态定位 */
@@ -112,30 +103,24 @@
     transform-origin: center center !important;
     z-index: 999999 !important;
     margin: 0 !important;
-    
-    /* 强制重置所有可能影响位置的属性 */
-    --tw-translate-x: 0 !important;
+    /* 强制重置所有可能影响位置的属性 */;
+  --tw-translate-x: 0 !important;
     --tw-translate-y: 0 !important;
     translate: none !important;
-    
-    /* 禁用Radix UI的自动定位 */
-    --radix-dialog-content-transform-origin: center center !important;
+    /* 禁用Radix UI的自动定位 */;
+  --radix-dialog-content-transform-origin: center center !important;
     --radix-popper-transform-origin: center center !important;
   }
-  
   /* 🚨 强制覆盖任何JavaScript设置的内联样式 */
   html body div[role="dialog"][style*="top"] {
     top: 50% !important;
   }
-  
   html body div[role="dialog"][style*="left"] {
     left: 50% !important;
   }
-  
   html body div[role="dialog"][style*="transform"] {
     transform: translate(-50%, -50%) !important;
   }
-  
   /* Radix UI动画状态控制 - 确保弹窗正确显示 */
   [data-state="open"] {
     animation-name: dialogFadeIn !important;
@@ -143,23 +128,19 @@
     animation-timing-function: ease-out !important;
     animation-fill-mode: forwards !important;
   }
-  
   [data-state="closed"] {
     animation-name: dialogFadeOut !important;
     animation-duration: 150ms !important;
     animation-timing-function: ease-in !important;
     animation-fill-mode: forwards !important;
   }
-  
   /* 样式增强 */
   [role="dialog"] {
     box-shadow: var(--dialog-shadow) !important;
   }
-  
   [data-radix-dialog-overlay] {
     backdrop-filter: var(--dialog-backdrop-filter) !important;
   }
-  
   /* 关键动画定义 */
   @keyframes dialogFadeIn {
     from {
@@ -171,7 +152,6 @@
       transform: translate(-50%, -50%) scale(1);
     }
   }
-  
   @keyframes dialogFadeOut {
     from {
       opacity: 1;
@@ -183,7 +163,6 @@
     }
   }
 }
-
 /* 🎯 Debug Utilities (调试工具) */
 @layer debug {
   /* 开发环境调试样式 */
@@ -191,7 +170,6 @@
     outline: var(--spacing-0-5) solid red !important;
     outline-offset: -var(--spacing-0-5) !important;
   }
-  
   .debug-dialog-position::before {
     content: "Dialog Position Debug" !important;
     position: absolute !important;
@@ -203,12 +181,10 @@
     font-size: var(--spacing-3) !important;
     z-index: 999999 !important;
   }
-  
   .debug-overlay-position {
     outline: var(--spacing-0-5) solid blue !important;
     outline-offset: -var(--spacing-0-5) !important;
   }
-  
   .debug-overlay-position::before {
     content: "Overlay Position Debug" !important;
     position: absolute !important;
@@ -221,7 +197,6 @@
     z-index: 999999 !important;
   }
 }
-
 /* 🎯 Performance Optimizations (性能优化) */
 @layer performance {
   /* GPU加速 - 临时禁用可能影响定位的属性 */
@@ -233,43 +208,36 @@
     /* perspective: 1000px !important; 🚨 临时移除：可能影响定位 */
     /* transform-style: preserve-3d !important; 🚨 临时移除：可能影响定位 */
   }
-  
   /* 减少重绘 - 移除可能影响fixed定位的contain属性 */
   [data-radix-dialog-content] {
     isolation: isolate !important;
     /* contain: layout style paint !important; 🚨 移除：影响fixed定位 */
   }
-  
   /* 优化滚动 */
   .dialog-body {
     -webkit-overflow-scrolling: touch !important;
     overscroll-behavior: contain !important;
   }
 }
-
 /* 🎯 Accessibility Enhancements (无障碍增强) */
 @layer accessibility {
   /* Focus管理 */
   [data-radix-dialog-content]:focus {
     outline: none !important;
   }
-  
   [data-radix-dialog-content]:focus-visible {
     outline: var(--spacing-0-5) solid var(--color-ring) !important;
     outline-offset: var(--spacing-0-5) !important;
   }
-  
   /* 高对比度模式支持 */
   @media (prefers-contrast: high) {
     [data-radix-dialog-content] {
       border-width: var(--spacing-0-5) !important;
     }
-    
     [data-radix-dialog-overlay] {
       background: rgba(0, 0, 0, 0.8) !important;
     }
   }
-  
   /* 减少动画模式 */
   @media (prefers-reduced-motion: reduce) {
     [data-radix-dialog-content],
@@ -278,7 +246,6 @@
       transition: none !important;
     }
   }
-  
   /* 屏幕阅读器优化 */
   .sr-only {
     position: absolute !important;
@@ -292,7 +259,6 @@
     border: 0 !important;
   }
 }
-
 /* 🎯 Print Styles (打印样式) */
 @layer print {
   @media print {
@@ -305,13 +271,11 @@
       background: white !important;
       color: black !important;
     }
-    
     [data-radix-dialog-overlay] {
       display: none !important;
     }
   }
 }
-
 /* 🎯 Browser Compatibility (浏览器兼容性) */
 @layer compatibility {
   /* Safari兼容性 */
@@ -320,14 +284,12 @@
       -webkit-backdrop-filter: var(--dialog-backdrop-filter) !important;
     }
   }
-  
   /* Firefox兼容性 */
   @-moz-document url-prefix() {
     [data-radix-dialog-content] {
       transform: var(--dialog-transform) !important;
     }
   }
-  
   /* Edge兼容性 */
   @supports (-ms-ime-align: auto) {
     [data-radix-dialog-content] {
@@ -335,7 +297,6 @@
     }
   }
 }
-
 /* 🎯 Final Layer (最终层) */
 @layer final {
   /* 保留空间供将来扩展使用 */

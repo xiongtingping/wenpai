@@ -960,7 +960,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-foregroundoutline" className="text-xs">
+            <Sparkles className="h-5 w-5 text-foregroundoutline text-xs">
             {memoizedPlatformName} (限{titleLimit}字)
           </Badge>
         </CardTitle>
@@ -975,7 +975,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-foreground{t('components.title._n8h')}outline" className="text-xs">
+              <Sparkles className="h-5 w-5 text-foreground{t('components.title._n8h')}outline text-xs">
               {memoizedPlatformName} (限{titleLimit}字)
             </Badge>
           </CardTitle>
@@ -1000,7 +1000,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-foreground$outline" className="text-xs">
+            <Sparkles className="h-5 w-5 text-foreground$outline text-xs">
             {memoizedPlatformName} (限{titleLimit}字)
           </Badge>
         </CardTitle>
@@ -1066,10 +1066,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                           onClick={handleSaveEdit}
                           className="h-7 px-2"
                         >
-                          <Check className="h-3 w-3 mr-1sm"
-                          variant="outline"
-                          onClick={handleCancelEdit}
-                          className="h-7 px-2"
+                          <Check className="h-3 w-3 mr-1sm h-7 px-2"
                         >
                           <X className="h-3 w-3 mr-1flex items-start justify-between gap-3 cursor-pointer"
                     onClick={() => handleTitleSelect(title.title)}
@@ -1124,7 +1121,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         {/* Empty state */}
         {!isGenerating && titles.length === 0 && (
           <div className="text-center py-4 text-muted-foreground">
-            <p className="text-sm{t('components.title.暂无生成的标题_9lp')}sm" variant="outline" onClick={generateTitles} className="mt-2">
+            <p className="text-sm{t('components.title.暂无生成的标题_9lp')}sm mt-2">
               开始智能分析
             </Button>
           </div>

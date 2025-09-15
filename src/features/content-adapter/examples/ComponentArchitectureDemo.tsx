@@ -14,7 +14,9 @@ import {
 } from '../components';
 
 // 演示：完整的内容适配器页面
-export const FullPageDemo: React.FC = () => { return (
+export const FullPageDemo: React.FC = () => {
+  const { t } = useTranslation();
+  return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-8">内容适配器 - 完整页面演示</h1>
       <ContentAdapterPage />
@@ -24,20 +26,9 @@ export const FullPageDemo: React.FC = () => { return (
 
 // 演示：独立组件使用
 export const IndependentComponentsDemo: React.FC = () => {
+  const { t } = useTranslation();
   const [originalContent, setOriginalContent] = React.useState('');
   const [selectedPlatforms, setSelectedPlatforms] = React.useState<string[]>([]);
-  
-  // 模拟翻译函数
-  const t = (key: string) => {
-    const translations: Record<string, string> = {
-      'adapt.inputOriginalContent': '输入原始内容',
-      'adapt.remainingUsage': '剩余使用次数',
-      'adapt.selectPlatforms': '选择目标平台',
-      'adapt.generateContent': '生成内容',
-      'adapt.results': '生成结果'
-    };
-    return translations[key] || key;
-  };
 
   return (
     <div className="container mx-auto py-8 space-y-8">

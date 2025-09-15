@@ -24,6 +24,7 @@ export default function DirectLinkQRCode({ defaultUrl = 'https://www.creem.io/pa
   title = 'Creem支付链接二维码',
   showControls = true
  }: DirectLinkQRCodeProps) {
+  const { t } = useTranslation();
   const [paymentUrl, setPaymentUrl] = useState(defaultUrl);
   const [qrCodeDataURL, setQrCodeDataURL] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -193,8 +194,7 @@ export default function DirectLinkQRCode({ defaultUrl = 'https://www.creem.io/pa
               <img 
                 src={qrCodeDataURL} 
                 alt="支付二维码" 
-                className="border-2 border-border rounded-lg"
-                style={{ width: 300, height: 300 }}
+                className="border-2 border-border rounded-lg inline-style-converted" 
               />
             </div>
             

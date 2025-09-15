@@ -50,7 +50,9 @@ import { BackToTop } from '@/components/ui/BackToTop';
 /**
  * Emoji生成器主组件
  */
-const EmojiPage: React.FC = () => { const [emojis, setEmojis] = useState<NotoEmojiData[]>([]);
+const EmojiPage: React.FC = () => {
+  const { t } = useTranslation();
+  const [emojis, setEmojis] = useState<NotoEmojiData[]>([]);
   const [filteredEmojis, setFilteredEmojis] = useState<NotoEmojiData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -60,9 +62,8 @@ const EmojiPage: React.FC = () => { const [emojis, setEmojis] = useState<NotoEmo
   const [isGenerating, setIsGenerating] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  
 
-  const { toast  } = useToast();
+  const { toast } = useToast();
 
   /**
    * 获取emoji分类统计
@@ -249,29 +250,34 @@ const EmojiPage: React.FC = () => { const [emojis, setEmojis] = useState<NotoEmo
           </TabsList>
 
           {/* Emoji图库 */}
-          <TabsContent value="gallery" className="space-y-6">
-            <Card className="emoji-gallery-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 creative-module-title">
-                  <Grid3X3 className="w-5 h-5" />
-                  {t('emoji.gallery')}
-                </CardTitle>
-                <CardDescription className="creative-module-description">
-                  
-                </CardDescription>
+          <TabsContent value="gallery" className="mt-6">
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader className="pb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Grid3X3 className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-semibold">
+                      {t('emoji.gallery')}
+                    </CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground mt-1">
+                      浏览和搜索海量Emoji表情，一键复制使用
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <UnifiedEmojiManager
                   mode="gallery"
                   showSearch={true}
                   showCategories={true}
                   showStats={true}
                   showActions={true}
-                  gridCols={viewMode === 'grid' ? 10 : 6}
-                  maxHeight="600px"
+                  gridCols={viewMode === 'grid' ? 12 : 8}
+                  maxHeight="500px"
                   compact={false}
                   allowMultiSelect={false}
-
                   allowCopy={true}
                   allowRandom={true}
                   source="all"
@@ -303,19 +309,25 @@ const EmojiPage: React.FC = () => { const [emojis, setEmojis] = useState<NotoEmo
 
           </TabsContent>
 
-          {/*  */}
-          <TabsContent value="brand-emoji" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="w-5 h-5" />
-                  
-                </CardTitle>
-                <CardDescription>
-                  {t('emoji.brandEmojiDescription')}
-                </CardDescription>
+          {/* 品牌Emoji */}
+          <TabsContent value="brand-emoji" className="mt-6">
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader className="pb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Building2 className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-semibold">
+                      品牌专属Emoji
+                    </CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground mt-1">
+                      {t('emoji.brandEmojiDescription')}
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="p-6">
                 <PersonalizedEmojiGenerator />
               </CardContent>
             </Card>

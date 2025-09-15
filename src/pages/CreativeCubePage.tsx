@@ -17,7 +17,9 @@ import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
  * 创意魔方页面
  * 提供内容创作和创意生成功能
  */
-const CreativeCubePage: React.FC = () => { const [prompt, setPrompt] = useState('');
+const CreativeCubePage: React.FC = () => {
+  const { t } = useTranslation();
+  const [prompt, setPrompt] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState('creative');

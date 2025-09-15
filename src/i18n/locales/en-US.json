@@ -5963,7 +5963,7 @@
     "description": "Choose the subscription plan that's right for you and unlock more powerful features",
     "qrCodeTitle": "Scan to Pay",
     "billing": {
-      "monthly": "Monthly Subscription",
+      "monthly": "Monthly Payment",
       "yearly": "Annual Subscription",
       "monthlyShort": "Monthly",
       "yearlyShort": "Yearly",
@@ -5972,7 +5972,9 @@
       "savingsPercent": "Save 17%",
       "yearlySavings": "Save Money",
       "compareMonthly": "Save ${{amount}} vs Monthly",
-      "switchToYearly": "Switch to Yearly"
+      "switchToYearly": "Switch to Yearly",
+      "limitedTimeOffer": "Limited Time Offer",
+      "offerEndingSoon": "Offer ending soon, enjoy special pricing now!"
     },
     "labels": {
       "recommended": "Recommended",
@@ -6038,6 +6040,10 @@
         "name": "Premium",
         "description": "Ideal for professional teams and enterprise users"
       },
+      "recommended": "Recommended",
+      "alreadyHaveHigher": "Already have higher version",
+      "selected": "Selected",
+      "selectPlan": "Select This Plan",
       "features": {
         "aiContentAdapter": "AI Content Adapter",
         "hotRadar": "Trending Radar",

@@ -23,7 +23,7 @@ import { quickMigrateUserData } from '@/utils/dataStorageMigration';
 import { PermissionLockedButton, PermissionLockedIconButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionProtectedInput, PermissionProtectedInputField, PermissionProtectedSelect } from '@/components/auth/PermissionProtectedInput';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
-import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
+import { EnhancedUnifiedPermissionGuard } from '@/components/auth/EnhancedUnifiedPermissionGuard';
 import { logger } from '@/utils/logger';
 import { useBrandAssetsData, useBrandDimensionsData } from '@/hooks/useUnifiedDataPersistence';
 import {
@@ -2031,7 +2031,6 @@ export default function BrandLibraryPageFixed() {
       {/* 主导航栏 */}
       <Header />
 
-
       <PageNavigation
         title={t('brandLibrary.title')}
         description={t('brandLibrary.description')}
@@ -2047,7 +2046,12 @@ export default function BrandLibraryPageFixed() {
         }
       />
 
-      <div className="container mx-auto px-4 py-8">
+      <EnhancedUnifiedPermissionGuard
+        requiredPermission="feature:brand-library"
+        mode="overlay"
+        overlayIntensity="medium"
+      >
+        <div className="container mx-auto px-4 py-8">
         {/* 使用提示 */}
         <Alert className="mb-6 enhanced-card rounded-xl">
           <Info className="h-4 w-4 text-primary" />
@@ -2101,7 +2105,7 @@ export default function BrandLibraryPageFixed() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Upload className="h-5 w-5 flex-shrink-0" style={{ marginTop: '1px' }} />
+                  <Upload className="h-5 w-5 flex-shrink-0 inline-style-converted"  />
                   <span>上传品牌资料</span>
                   <Button
                     variant="ghost"
@@ -3753,6 +3757,8 @@ function DimensionForm({
           </div>
         </div>
       )}
+        </div>
+      </EnhancedUnifiedPermissionGuard>
     </div>
   );
 }

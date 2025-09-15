@@ -14,7 +14,7 @@ export function useScrollAnimation() {
         })
       },
       {
-        rootMargin: '0 0 50px 0', // 修复格式，使用正值
+        rootMargin: '0px 0px 50px 0px',
         threshold: 0.1
       }
     )

@@ -11,6 +11,7 @@
  * 🎨 DESIGN: 修复深色模式下分类标签和图标颜色显示异常问题
  */
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -119,6 +120,8 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
   isTopicBookmarked,
   interestFilterComponent
 }) => {
+  const { t } = useTranslation();
+
   // 获取用户兴趣权重
   const userWeights = getUserInterestWeights();
 
@@ -432,17 +435,17 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
   };
 
   return (
-    <div className="mb-6">
+    <div className="mb-2">
       <Card>
-        <CardHeader className="pb-4">
-          <div className="space-y-4">
+        <CardHeader className="pb-2">
+          <div className="space-y-2">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <span className="text-lg">📊</span>
-                分类热点信息流
+              <CardTitle className="flex items-center gap-2 text-base">
+                <span className="text-base">📊</span>
+                今日最热门话题
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                按分类多列展示所有热点话题，一目了然查看全网热点
+              <p className="text-xs text-muted-foreground mt-0.5">
+                按分类展示全网热点话题
               </p>
             </div>
             {interestFilterComponent && (
@@ -452,16 +455,16 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
             )}
           </div>
         </CardHeader>
-        <CardContent className="px-4">
+        <CardContent className="px-4 pt-0">
           {/* 响应式网格布局，确保分类清晰分离 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {categories
               .filter(cat => cat.id !== 'all' && !hiddenCategories.has(cat.id))
               .map(category => ({
                 ...category,
                 topics: getTopicsByCategory(category.id)
               }))
-              // 移除过滤条件，让所有分类都显示
+              // 显示所有分类，包括空分类
               .sort((a, b) => {
                 // 置顶分类排在前面
                 const aIsPinned = pinnedCategories.has(a.id);
@@ -469,7 +472,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                 if (aIsPinned && !bIsPinned) return -1;
                 if (!aIsPinned && bIsPinned) return 1;
 
-                // 按话题数量排序：话题多的排在前面
+                // 按话题数量排序：话题多的排在前面，但保留空分类
                 const aCount = a.topics.length;
                 const bCount = b.topics.length;
                 if (aCount !== bCount) {
@@ -553,10 +556,10 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                       <div className="space-y-1 flex-1 overflow-y-auto">
                         {categoryTopics.length === 0 ? (
                           // 空状态占位符
-                          <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                            <div className="text-4xl mb-2 opacity-50">{category.icon}</div>
-                            <p className="text-sm text-muted-foreground mb-1"></p>
-                            <p className="text-xs text-muted-foreground opacity-70">$</p>
+                          <div className="flex flex-col items-center justify-center h-24 text-center p-3">
+                            <div className="text-2xl mb-1 opacity-50">{category.icon}</div>
+                            <p className="text-xs text-muted-foreground mb-1">暂无热点</p>
+                            <p className="text-xs text-muted-foreground opacity-70">等待更新中...</p>
                           </div>
                         ) : (
                           displayTopics.map((topic, index) => {

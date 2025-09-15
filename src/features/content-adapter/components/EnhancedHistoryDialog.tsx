@@ -70,6 +70,8 @@ export function EnhancedHistoryDialog({ open,
   onDeleteItem,
   availablePlatforms
  }: EnhancedHistoryDialogProps) {
+  const { t } = useTranslation();
+  
   // 状态管理
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');

@@ -1,12 +1,11 @@
-/* 
+/*
  * Design Tokens (变量层)
  * 统一的设计令牌系统，定义所有设计变量
  */
-
 @layer tokens {
   :root {
-    /* 🎨 Color Tokens */
-    --color-primary: hsl(var(--primary));
+    /* 🎨 Color Tokens */;
+  --color-primary: hsl(var(--primary));
     --color-primary-foreground: hsl(var(--primary-foreground));
     --color-secondary: hsl(var(--secondary));
     --color-secondary-foreground: hsl(var(--secondary-foreground));
@@ -15,25 +14,21 @@
     --color-muted: hsl(var(--muted));
     --color-muted-foreground: hsl(var(--muted-foreground));
     --color-border: hsl(var(--border));
-
     /* 🎯 Extended Spacing Tokens */
     --spacing-1-5: 0.375rem;  /* var(--spacing-1-5) */
     --spacing-2-5: 0.625rem;  /* var(--spacing-2-5) */
-
-    /* 🎨 Extended Font Tokens */
-    --font-family-ui: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* 🎨 Extended Font Tokens */;
+  --font-family-ui: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     --font-size-xs: var(--spacing-3);  /* var(--spacing-3) */
-
-    /* 🎯 Dialog定位令牌 - 防止定位问题复发 */
-    --dialog-position-strategy: fixed;
+    /* 🎯 Dialog定位令牌 - 防止定位问题复发 */;
+  --dialog-position-strategy: fixed;
     --dialog-center-x: 50%;
     --dialog-center-y: 50%;
     --dialog-transform: translate(-50%, -50%);
     --dialog-z-index: 50;
     --dialog-overlay-z-index: 40;
-
-    /* 🎯 Dialog尺寸令牌 */
-    --dialog-size-small-width: 320px;
+    /* 🎯 Dialog尺寸令牌 */;
+  --dialog-size-small-width: 320px;
     --dialog-size-small-height: 200px;
     --dialog-size-medium-width: 400px;
     --dialog-size-medium-height: 250px;
@@ -41,23 +36,18 @@
     --dialog-size-large-height: 400px;
     --dialog-size-fullscreen-width: 95vw;
     --dialog-size-fullscreen-height: 95vh;
-
-    /* 🎯 Dialog阴影令牌 */
-    --shadow-dialog: 0 25px 50px -var(--spacing-3) rgba(0, 0, 0, 0.25);
+    /* 🎯 Dialog阴影令牌 */;
+  --shadow-dialog: 0 25px 50px -var(--spacing-3) rgba(0, 0, 0, 0.25);
     --shadow-dialog-overlay: 0 0 0 1px rgba(0, 0, 0, 0.05);
-
-    /* 🎯 Dialog动画令牌 */
-    --animation-dialog-enter: fadeIn 200ms ease-out;
+    /* 🎯 Dialog动画令牌 */;
+  --animation-dialog-enter: fadeIn 200ms ease-out;
     --animation-dialog-exit: fadeOut 150ms ease-in;
     --animation-overlay-enter: fadeIn 200ms ease-out;
     --animation-overlay-exit: fadeOut 150ms ease-in;
-
-    /* 🎯 Extended Radius Tokens */
-    --radius-md: var(--spacing-3);  /* var(--spacing-3) */
-
-    /* 🎨 Transition Tokens */
-    --transition-smooth: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-
+    /* 🎯 Extended Radius Tokens */;
+  --radius-md: var(--spacing-3);  /* var(--spacing-3) */
+    /* 🎨 Transition Tokens */;
+  --transition-smooth: 200ms cubic-bezier(0.4, 0, 0.2, 1);
     /* 🎯 Dynamic Color System */
     --dynamic-color-1: var(--primary);
     --dynamic-color-2: var(--secondary);
@@ -67,16 +57,14 @@
     --dynamic-color-6: var(--success);
     --dynamic-color-7: var(--warning);
     --dynamic-color-8: var(--info);
-
-    /* 🎯 Layout System Tokens */
-    --layout-skeleton-width-full: 100%;
+    /* 🎯 Layout System Tokens */;
+  --layout-skeleton-width-full: 100%;
     --layout-skeleton-width-partial: 75%;
     --layout-skeleton-width-narrow: 60%;
     --layout-skeleton-height: var(--spacing-4);
     --layout-sidebar-width: 16rem;
     --layout-sidebar-width-icon: var(--spacing-12);
     --layout-sidebar-width-mobile: 18rem;
-
     /* 🎯 Chart System Tokens */
     --chart-color-1: hsl(var(--primary));
     --chart-color-2: hsl(var(--secondary));
@@ -86,9 +74,8 @@
     --chart-color-6: hsl(var(--success));
     --chart-color-7: hsl(var(--warning));
     --chart-color-8: hsl(var(--info));
-
-    /* 🌊 Wave Background System Tokens */
-    --wave-color-primary: hsl(221 83% 53%);
+    /* 🌊 Wave Background System Tokens */;
+  --wave-color-primary: hsl(221 83% 53%);
     --wave-color-primary-dark: hsl(221 83% 33%);
     --wave-color-accent: hsl(210 40% 94%);
     --wave-color-secondary: hsl(214 32% 91%);
@@ -97,17 +84,15 @@
     --wave-width: 50;
     --wave-opacity: 0.15;
     --wave-blur: var(--spacing-1);
-
-    /* 🎨 Animation System Tokens */
-    --animation-fade-in: fadeIn 0.2s ease-in-out;
+    /* 🎨 Animation System Tokens */;
+  --animation-fade-in: fadeIn 0.2s ease-in-out;
     --animation-duration-fast: 0.1s;
     --animation-duration-normal: 0.2s;
     --animation-duration-slow: 0.5s;
     --animation-easing-smooth: ease-in-out;
     --animation-easing-bounce: ease-out;
-
-    /* 🎯 Login Component Tokens */
-    --login-card-width-mobile: 80%;
+    /* 🎯 Login Component Tokens */;
+  --login-card-width-mobile: 80%;
     --login-card-width-tablet: 55%;
     --login-card-width-desktop: 70%;
     --login-card-height: 600px;
@@ -118,22 +103,18 @@
     --login-glow-offset: 250px;
     --login-social-icon-size: var(--spacing-6);
     --login-social-text-color: hsl(203, 92%, 8%);
-
-    /* 🎯 Textarea Component Tokens */
-    --textarea-min-height: 200px;
-
-    /* 🌐 Language Switcher Tokens */
-    --language-dropdown-width: 12rem;
+    /* 🎯 Textarea Component Tokens */;
+  --textarea-min-height: 200px;
+    /* 🌐 Language Switcher Tokens */;
+  --language-dropdown-width: 12rem;
     --language-dropdown-offset: var(--spacing-2);
     --language-dropdown-z-index: 999999;
     --language-dropdown-shadow: 0 var(--spacing-2-5) 15px -3px rgba(0, 0, 0, 0.1), 0 var(--spacing-1) var(--spacing-1-5) -var(--spacing-0-5) rgba(0, 0, 0, 0.05);
-
-    /* 🏠 Landing Page Tokens */
-    --landing-animation-delay-base: 0.1s;
+    /* 🏠 Landing Page Tokens */;
+  --landing-animation-delay-base: 0.1s;
     --landing-animation-delay-step: 0.1s;
-
-    /* 💰 Pricing Section Tokens */
-    --pricing-button-padding: var(--spacing-3) var(--spacing-6);
+    /* 💰 Pricing Section Tokens */;
+  --pricing-button-padding: var(--spacing-3) var(--spacing-6);
     --pricing-button-font-weight: 600;
     --pricing-button-border-radius: var(--spacing-1-5);
     --pricing-button-transition: all 0.3s ease;
@@ -150,18 +131,16 @@
     --pricing-yearly-scale-active: 1.1;
     --pricing-yearly-scale-inactive: 1.08;
     --pricing-font-family: system-ui, -apple-system, sans-serif;
-
-    /* 🎯 Features Section Tokens */
-    --features-subtitle-delay: 0.2s;
+    /* 🎯 Features Section Tokens */;
+  --features-subtitle-delay: 0.2s;
     --features-main-delay-base: 0ms;
     --features-main-delay-step: 100ms;
     --features-tools-delay-base: 0ms;
     --features-tools-delay-step: 150ms;
     --features-advantages-delay-base: 0ms;
     --features-advantages-delay-step: 100ms;
-
-    /* 📤 Batch Forward Modal Tokens */
-    --batch-modal-z-index: var(--z-critical);
+    /* 📤 Batch Forward Modal Tokens */;
+  --batch-modal-z-index: var(--z-critical);
     --batch-modal-z-index-overlay: var(--z-overlay);
     --batch-modal-bottom-offset: var(--spacing-5);
     --batch-modal-border-radius: var(--spacing-3);
@@ -180,9 +159,8 @@
     --batch-minimized-padding: var(--spacing-3);
     --batch-minimized-min-width: 300px;
     --batch-content-max-height: calc(85vh - var(--spacing-20));
-
-    /* 🤖 AI Content Generation Animation Tokens */
-    --ai-animation-spin-duration: 8s;
+    /* 🤖 AI Content Generation Animation Tokens */;
+  --ai-animation-spin-duration: 8s;
     --ai-particle-delay-step: 0.2s;
     --ai-particle-translate-y: -var(--spacing-10);
     --ai-particle-translate-x: -var(--spacing-1);
@@ -191,9 +169,8 @@
     --ai-progress-animation: wave 2s ease-in-out infinite;
     --ai-float-translate-y: -var(--spacing-2-5);
     --ai-float-animation: float 3s ease-in-out infinite;
-
-    /* 📊 Performance Monitor Tokens */
-    --perf-monitor-top: var(--spacing-2-5);
+    /* 📊 Performance Monitor Tokens */;
+  --perf-monitor-top: var(--spacing-2-5);
     --perf-monitor-right: var(--spacing-2-5);
     --perf-monitor-bg: hsl(var(--foreground) / 0.8);
     --perf-monitor-color: hsl(var(--background));
@@ -203,15 +180,13 @@
     --perf-monitor-font-family: monospace;
     --perf-monitor-z-index: 9999;
     --perf-monitor-min-width: 200px;
-
-    /* 🔒 Permission Guard Tokens */
-    --permission-overlay-opacity-base: 0.3;
+    /* 🔒 Permission Guard Tokens */;
+  --permission-overlay-opacity-base: 0.3;
     --permission-blur-filter: blur(0.5px);
     --permission-backdrop-filter: blur(var(--spacing-0-5));
     --permission-overlay-bg-opacity: 0.8;
-
-    /* 📅 Marketing Calendar Tokens */
-    --calendar-card-height: 600px;
+    /* 📅 Marketing Calendar Tokens */;
+  --calendar-card-height: 600px;
     --calendar-header-height: 70px;
     --calendar-content-height: 480px;
     --calendar-nav-height: var(--spacing-12);
@@ -222,9 +197,8 @@
     --calendar-todo-height: 530px;
     --calendar-todo-list-height: 360px;
     --calendar-drag-opacity: 0.5;
-
-    /* 🔥 Hot Topics Tokens */
-    --hot-topics-radar-max-height: 600px;
+    /* 🔥 Hot Topics Tokens */;
+  --hot-topics-radar-max-height: 600px;
     --podium-container-height: 320px;
     --podium-border-radius: var(--spacing-3);
     --podium-transition: all 0.3s ease;
@@ -240,35 +214,28 @@
     --podium-rank3-z-index: 1;
     --podium-rank3-shadow: 0 var(--spacing-1) var(--spacing-4) hsl(var(--warning) / 0.3);
     --podium-max-width: 200px;
-
-    /* 🏗️ Layout Tokens */
-    --header-height: var(--spacing-16);
-
-    /* 📝 Content Adapter Tokens */
-    --content-textarea-min-height: 120px;
-
-    /* 😀 Emoji Picker Tokens */
-    --emoji-picker-width: 24rem;
+    /* 🏗️ Layout Tokens */;
+  --header-height: var(--spacing-16);
+    /* 📝 Content Adapter Tokens */;
+  --content-textarea-min-height: 120px;
+    /* 😀 Emoji Picker Tokens */;
+  --emoji-picker-width: 24rem;
     --emoji-picker-max-height: 600px;
-
-    /* 🏠 Home Page Tokens */
-    --hero-section-min-height: calc(100vh - var(--header-height));
-
-    /* 🔐 Auth Modal Tokens */
-    --auth-input-min-width: 200px;
+    /* 🏠 Home Page Tokens */;
+  --hero-section-min-height: calc(100vh - var(--header-height));
+    /* 🔐 Auth Modal Tokens */;
+  --auth-input-min-width: 200px;
     --auth-border-height: var(--spacing-0-5);
     --auth-gradient-size: 30px;
     --auth-modal-height: 600px;
-
-    /* 🎨 Creative Components Tokens */
-    --brand-emoji-scroll-height: 500px;
+    /* 🎨 Creative Components Tokens */;
+  --brand-emoji-scroll-height: 500px;
     --emoji-placeholder-size: var(--spacing-16);
     --progress-bar-height: var(--spacing-0-5);
     --card-preview-min-width: 200px;
     --card-preview-min-height: 150px;
-
-    /* 💳 Payment Page Tokens */
-    --payment-button-padding: var(--spacing-3-5) var(--spacing-7);
+    /* 💳 Payment Page Tokens */;
+  --payment-button-padding: var(--spacing-3-5) var(--spacing-7);
     --payment-button-font-size: var(--spacing-4);
     --payment-button-font-weight: 600;
     --payment-button-border-radius: var(--spacing-3);
@@ -278,219 +245,184 @@
     --payment-pricing-min-height: 70px;
     --payment-features-min-height: 240px;
     --payment-transition: all 0.3s ease;
-
-    /* 📝 Textarea Component Tokens */
-    --textarea-min-height-default: var(--spacing-20);
+    /* 📝 Textarea Component Tokens */;
+  --textarea-min-height-default: var(--spacing-20);
     --textarea-min-height-sm: 60px;
     --textarea-min-height-lg: 120px;
     --textarea-min-height-xl: 160px;
-
-    /* 📜 Scroll Area Tokens */
-    --scroll-bar-width: var(--spacing-10);
+    /* 📜 Scroll Area Tokens */;
+  --scroll-bar-width: var(--spacing-10);
     --scroll-bar-padding: 1px;
-
-    /* 📏 Separator Tokens */
-    --separator-thickness: 1px;
-
-    /* 🔐 Custom Login Page Tokens */
-    --login-segmented-margin: var(--spacing-2);
+    /* 📏 Separator Tokens */;
+  --separator-thickness: 1px;
+    /* 🔐 Custom Login Page Tokens */;
+  --login-segmented-margin: var(--spacing-2);
     --login-form-gap: var(--spacing-2);
     --login-button-padding: var(--spacing-2-5) var(--spacing-3-5);
     --login-form-margin-top: var(--spacing-6);
     --login-error-margin-top: var(--spacing-1);
     --login-error-font-size: var(--spacing-3);
     --login-options-margin-top: var(--spacing-3);
-
-    /* 🎮 Command Component Tokens */
-    --command-list-max-height: 300px;
-
-    /* 🍞 Toast Component Tokens */
-    --toast-viewport-bottom: var(--spacing-4);
+    /* 🎮 Command Component Tokens */;
+  --command-list-max-height: 300px;
+    /* 🍞 Toast Component Tokens */;
+  --toast-viewport-bottom: var(--spacing-4);
     --toast-viewport-right: var(--spacing-4);
     --toast-viewport-z-index: 999999;
     --toast-viewport-max-width: 420px;
     --toast-viewport-padding: var(--spacing-1);
-
-    /* 📱 Drawer Component Tokens */
-    --drawer-content-margin-top: var(--spacing-6);
+    /* 📱 Drawer Component Tokens */;
+  --drawer-content-margin-top: var(--spacing-6);
     --drawer-content-border-radius: var(--spacing-2-5);
     --drawer-handle-margin-top: var(--spacing-1);
     --drawer-handle-height: var(--spacing-0-5);
     --drawer-handle-width: 100px;
     --color-input: hsl(var(--input));
     --color-ring: hsl(var(--ring));
-    
-    /* 🎨 Dialog Color Tokens */
-    --dialog-background: var(--color-background);
+    /* 🎨 Dialog Color Tokens */;
+  --dialog-background: var(--color-background);
     --dialog-foreground: var(--color-foreground);
     --dialog-border: var(--color-border);
     --dialog-overlay-bg: hsl(var(--foreground) / 0.5);
     --dialog-shadow-color: rgba(0, 0, 0, 0.25);
-    
-    /* 📏 Spacing Tokens */
-    --spacing-xs: var(--spacing-1);    /* var(--spacing-1) */
-    --spacing-sm: var(--spacing-2);     /* var(--spacing-2) */
-    --spacing-md: var(--spacing-4);       /* var(--spacing-4) */
-    --spacing-lg: var(--spacing-6);     /* var(--spacing-6) */
-    --spacing-xl: var(--spacing-8);       /* var(--spacing-8) */
+    /* 📏 Spacing Tokens */;
+  --spacing-xs: var(--spacing-1);    /* var(--spacing-1) */;
+  --spacing-sm: var(--spacing-2);     /* var(--spacing-2) */;
+  --spacing-md: var(--spacing-4);       /* var(--spacing-4) */;
+  --spacing-lg: var(--spacing-6);     /* var(--spacing-6) */;
+  --spacing-xl: var(--spacing-8);       /* var(--spacing-8) */
     --spacing-2xl: var(--spacing-12);      /* var(--spacing-12) */
     --spacing-3xl: var(--spacing-16);      /* var(--spacing-16) */
-    
-    /* 📏 Dialog Spacing Tokens */
-    --dialog-padding: var(--spacing-lg);
+    /* 📏 Dialog Spacing Tokens */;
+  --dialog-padding: var(--spacing-lg);
     --dialog-gap: var(--spacing-md);
     --dialog-header-padding: var(--spacing-lg);
     --dialog-content-padding: var(--spacing-lg);
     --dialog-footer-padding: var(--spacing-lg);
-    
-    /* 📐 Size Tokens */
-    --size-xs: 20rem;         /* 320px */
-    --size-sm: 24rem;         /* 384px */
-    --size-md: 32rem;         /* 512px */
-    --size-lg: 48rem;         /* 768px */
-    --size-xl: 64rem;         /* 1024px */
+    /* 📐 Size Tokens */;
+  --size-xs: 20rem;         /* 320px */;
+  --size-sm: 24rem;         /* 384px */;
+  --size-md: 32rem;         /* 512px */;
+  --size-lg: 48rem;         /* 768px */;
+  --size-xl: 64rem;         /* 1024px */
     --size-2xl: 80rem;        /* 1280px */
-    
-    /* 📐 Dialog Size Tokens */
-    --dialog-min-width: var(--size-xs);
+    /* 📐 Dialog Size Tokens */;
+  --dialog-min-width: var(--size-xs);
     --dialog-max-width: min(95vw, var(--size-lg));
     --dialog-max-height: 85vh;
     --dialog-min-height: 200px;
-    
-    /* 🎯 统一Z-Index层级管理系统 */
-    --z-base: 0;                    /* 基础层级 */
-    --z-background: -1;             /* 背景装饰 */
-    --z-content: 1;                 /* 普通内容 */
-    --z-dropdown: 1000;             /* 下拉菜单 */
-    --z-sticky: 1010;              /* 粘性元素 */
-    --z-fixed: 1020;               /* 固定定位 */
-    --z-overlay: 1030;              /* 遮罩层 */
-    --z-modal-backdrop: 1040;       /* 模态框背景 */
-    --z-modal: 1050;                /* 模态框内容 */
-    --z-dialog-overlay: 1045;       /* 对话框遮罩 */
-    --z-dialog-content: 1055;       /* 对话框内容 */
-    --z-popover: 1060;              /* 弹出提示 */
-    --z-tooltip: 1070;              /* 工具提示 */
-    --z-toast: 1080;                /* 消息通知 */
-    --z-critical: 1090;             /* 关键系统弹窗 */
-    --z-authing: 1100000;           /* 认证相关（需要覆盖第三方库） */
-    --z-emergency: 2147483640;      /* 紧急覆盖层（接近最大值） */
-    
-    /* 🎯 Dialog Z-Index Tokens */
-    --dialog-z-overlay: var(--z-dialog-overlay);
+    /* 🎯 统一Z-Index层级管理系统 */;
+  --z-base: 0;                    /* 基础层级 */;
+  --z-background: -1;             /* 背景装饰 */;
+  --z-content: 1;                 /* 普通内容 */;
+  --z-dropdown: 1000;             /* 下拉菜单 */;
+  --z-sticky: 1010;              /* 粘性元素 */;
+  --z-fixed: 1020;               /* 固定定位 */;
+  --z-overlay: 1030;              /* 遮罩层 */;
+  --z-modal-backdrop: 1040;       /* 模态框背景 */;
+  --z-modal: 1050;                /* 模态框内容 */;
+  --z-dialog-overlay: 1045;       /* 对话框遮罩 */;
+  --z-dialog-content: 1055;       /* 对话框内容 */;
+  --z-popover: 1060;              /* 弹出提示 */;
+  --z-tooltip: 1070;              /* 工具提示 */;
+  --z-toast: 1080;                /* 消息通知 */;
+  --z-critical: 1090;             /* 关键系统弹窗 */;
+  --z-authing: 1100000;           /* 认证相关（需要覆盖第三方库） */;
+  --z-emergency: 2147483640;      /* 紧急覆盖层（接近最大值） */
+    /* 🎯 Dialog Z-Index Tokens */;
+  --dialog-z-overlay: var(--z-dialog-overlay);
     --dialog-z-content: var(--z-dialog-content);
-    
-    /* 🎨 Border Radius Tokens */
-    --radius-none: 0;
-    --radius-sm: 0.125rem;     /* var(--spacing-0-5) */
-    --radius-md: var(--spacing-1);      /* var(--spacing-1) */
-    --radius-lg: var(--spacing-2);       /* var(--spacing-2) */
-    --radius-xl: var(--spacing-3);      /* var(--spacing-3) */
-    --radius-2xl: var(--spacing-4);        /* var(--spacing-4) */
-    --radius-full: 9999px;
-    
-    /* 🎨 Dialog Border Radius Tokens */
-    --dialog-border-radius: var(--radius-lg);
+    /* 🎨 Border Radius Tokens */;
+  --radius-none: 0;
+    --radius-sm: 0.125rem;     /* var(--spacing-0-5) */;
+  --radius-md: var(--spacing-1);      /* var(--spacing-1) */;
+  --radius-lg: var(--spacing-2);       /* var(--spacing-2) */;
+  --radius-xl: var(--spacing-3);      /* var(--spacing-3) */
+    --radius-2xl: var(--spacing-4);        /* var(--spacing-4) */;
+  --radius-full: 9999px;
+    /* 🎨 Dialog Border Radius Tokens */;
+  --dialog-border-radius: var(--radius-lg);
     --dialog-button-radius: var(--radius-md);
-    
-    /* 🌟 Shadow Tokens */
-    --shadow-sm: 0 1px var(--spacing-0-5) 0 rgb(0 0 0 / 0.05);
+    /* 🌟 Shadow Tokens */;
+  --shadow-sm: 0 1px var(--spacing-0-5) 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 var(--spacing-1) var(--spacing-1-5) -1px rgb(0 0 0 / 0.1), 0 var(--spacing-0-5) var(--spacing-1) -var(--spacing-0-5) rgb(0 0 0 / 0.1);
     --shadow-lg: 0 var(--spacing-2-5) 15px -3px rgb(0 0 0 / 0.1), 0 var(--spacing-1) var(--spacing-1-5) -var(--spacing-1) rgb(0 0 0 / 0.1);
     --shadow-xl: 0 var(--spacing-5) 25px -5px rgb(0 0 0 / 0.1), 0 var(--spacing-2) var(--spacing-2-5) -var(--spacing-1-5) rgb(0 0 0 / 0.1);
     --shadow-2xl: 0 25px 50px -var(--spacing-3) rgb(0 0 0 / 0.25);
-    
-    /* 🌟 Dialog Shadow Tokens */
-    --dialog-shadow: var(--shadow-2xl);
+    /* 🌟 Dialog Shadow Tokens */;
+  --dialog-shadow: var(--shadow-2xl);
     --dialog-overlay-shadow: none;
-    
-    /* 🎭 Animation Tokens */
-    --duration-fast: 150ms;
+    /* 🎭 Animation Tokens */;
+  --duration-fast: 150ms;
     --duration-normal: 200ms;
     --duration-slow: 300ms;
     --duration-slower: 500ms;
-    
-    /* 🎭 Dialog Animation Tokens */
-    --dialog-duration: var(--duration-normal);
+    /* 🎭 Dialog Animation Tokens */;
+  --dialog-duration: var(--duration-normal);
     --dialog-overlay-duration: var(--duration-fast);
-    
-    /* 🎭 Easing Tokens */
-    --ease-linear: linear;
+    /* 🎭 Easing Tokens */;
+  --ease-linear: linear;
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
-    
-    /* 🎭 Dialog Easing Tokens */
-    --dialog-easing: var(--ease-out);
+    /* 🎭 Dialog Easing Tokens */;
+  --dialog-easing: var(--ease-out);
     --dialog-overlay-easing: var(--ease-in-out);
-    
-    /* 🔤 Typography Tokens */
-    --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    /* 🔤 Typography Tokens */;
+  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-    
-    /* 🔤 Font Size Tokens */
-    --font-size-xs: var(--spacing-3);   /* var(--spacing-3) */
-    --font-size-sm: 0.875rem;  /* var(--spacing-3-5) */
-    --font-size-md: var(--spacing-4);      /* var(--spacing-4) */
-    --font-size-lg: 1.125rem;  /* var(--spacing-4-5) */
-    --font-size-xl: var(--spacing-5);   /* var(--spacing-5) */
+    /* 🔤 Font Size Tokens */;
+  --font-size-xs: var(--spacing-3);   /* var(--spacing-3) */;
+  --font-size-sm: 0.875rem;  /* var(--spacing-3-5) */;
+  --font-size-md: var(--spacing-4);      /* var(--spacing-4) */;
+  --font-size-lg: 1.125rem;  /* var(--spacing-4-5) */;
+  --font-size-xl: var(--spacing-5);   /* var(--spacing-5) */
     --font-size-2xl: var(--spacing-6);   /* var(--spacing-6) */
     --font-size-3xl: 1.875rem; /* 30px */
-    
-    /* 🔤 Dialog Typography Tokens */
-    --dialog-title-size: var(--font-size-xl);
+    /* 🔤 Dialog Typography Tokens */;
+  --dialog-title-size: var(--font-size-xl);
     --dialog-content-size: var(--font-size-md);
     --dialog-caption-size: var(--font-size-sm);
-    
-    /* 🔤 Font Weight Tokens */
-    --font-weight-normal: 400;
+    /* 🔤 Font Weight Tokens */;
+  --font-weight-normal: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
-    
-    /* 🔤 Dialog Font Weight Tokens */
-    --dialog-title-weight: var(--font-weight-semibold);
+    /* 🔤 Dialog Font Weight Tokens */;
+  --dialog-title-weight: var(--font-weight-semibold);
     --dialog-content-weight: var(--font-weight-normal);
-    
-    /* 🔤 Line Height Tokens */
-    --line-height-tight: 1.25;
+    /* 🔤 Line Height Tokens */;
+  --line-height-tight: 1.25;
     --line-height-normal: 1.5;
     --line-height-relaxed: 1.75;
-    
-    /* 🔤 Dialog Line Height Tokens */
-    --dialog-title-line-height: var(--line-height-tight);
+    /* 🔤 Dialog Line Height Tokens */;
+  --dialog-title-line-height: var(--line-height-tight);
     --dialog-content-line-height: var(--line-height-normal);
-    
-    /* 🎯 Position Tokens - 恢复原值避免影响其他组件 */
-    --position-center-x: 50vw;
+    /* 🎯 Position Tokens - 恢复原值避免影响其他组件 */;
+  --position-center-x: 50vw;
     --position-center-y: 50vh;
     --transform-center: translate(-50%, -50%);
     --transform-origin-center: 0 0;
-    
-    /* 🎯 Dialog Position Tokens - 使用专门的弹窗值 */
-    --dialog-position-x: 50%;
+    /* 🎯 Dialog Position Tokens - 使用专门的弹窗值 */;
+  --dialog-position-x: 50%;
     --dialog-position-y: 50%;
     --dialog-transform: translate(-50%, -50%);
     --dialog-transform-origin: center center;
-    
-    /* 🔧 Backdrop Tokens */
-    --backdrop-blur: blur(var(--spacing-2));
+    /* 🔧 Backdrop Tokens */;
+  --backdrop-blur: blur(var(--spacing-2));
     --backdrop-saturate: saturate(120%);
     --backdrop-brightness: brightness(0.8);
-    
-    /* 🔧 Dialog Backdrop Tokens */
-    --dialog-backdrop-blur: var(--backdrop-blur);
+    /* 🔧 Dialog Backdrop Tokens */;
+  --dialog-backdrop-blur: var(--backdrop-blur);
     --dialog-backdrop-saturate: var(--backdrop-saturate);
     --dialog-backdrop-filter: var(--dialog-backdrop-blur) var(--dialog-backdrop-saturate);
   }
-  
   /* 🌙 Dark Mode Tokens */
   [data-theme="dark"] {
     --dialog-overlay-bg: rgba(0, 0, 0, 0.7);
     --dialog-shadow-color: hsl(var(--foreground) / 0.5);
   }
-  
   /* 📱 Mobile Tokens */
   @media (max-width: 768px) {
     :root {
@@ -500,7 +432,6 @@
       --dialog-border-radius: var(--radius-md);
     }
   }
-  
   /* 🖥️ Desktop Tokens */
   @media (min-width: 1024px) {
     :root {

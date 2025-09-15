@@ -47,7 +47,7 @@ function HomePage() {
   }, [location])
 
   return (
-    <div className="min-h-screen relative">
+    <div className="homepage-container min-h-screen relative">
       {/* 页面访问记录 */}
       <PageTracker
         title={t('pages.titles.首页')}
@@ -76,35 +76,34 @@ function HomePage() {
 
           <main className="flex-1 w-full">
             {/* Hero Section - 由组件内部控制首屏高度与间距（已考虑Header高度） */}
-            <div className="relative hero-section flex items-center justify-center px-4 sm:px-6 lg:px-8 py-0">
-              <div className="max-w-7xl mx-auto text-center w-full">
+            <div className="relative hero-section flex items-center justify-center ds-container py-0">
+              <div className="text-center w-full">
                 <HeroSection />
               </div>
             </div>
 
             {/* Trust Section */}
-            <div className="py-4 sm:py-6 lg:py-8 bg-background/60 backdrop-blur-sm mt-6 sm:mt-8 lg:mt-10">
+            <div className="ds-section-spacing-small ds-bg-section-primary">
               <TrustSection />
             </div>
 
             {/* How It Works */}
-            <div className="py-8 sm:py-10 lg:py-12">
+            <div className="ds-section-spacing">
               <HowItWorks />
             </div>
 
             {/* Features Section */}
-            <div className="py-6 sm:py-8 lg:py-10 bg-card/30 backdrop-blur-sm">
+            <div className="ds-section-spacing ds-bg-section-secondary">
               <FeaturesSection />
             </div>
 
-
             {/* Pricing Section */}
-            <div className="py-4 sm:py-6 lg:py-8 bg-background/60 backdrop-blur-sm">
+            <div className="ds-section-spacing ds-bg-section-primary">
               <PricingSection />
             </div>
 
             {/* CTA Section */}
-            <div className="py-8 sm:py-12 lg:py-16">
+            <div className="ds-section-spacing-large">
               <CTASection />
             </div>
           </main>

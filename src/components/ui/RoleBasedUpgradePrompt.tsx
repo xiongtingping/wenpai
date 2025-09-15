@@ -31,11 +31,15 @@ interface RoleBasedUpgradePromptProps {
 /**
  * 基于用户角色的升级提示组件
  */
-export const RoleBasedUpgradePrompt: React.FC<any> = ({ requiredTier,
+export const RoleBasedUpgradePrompt: React.FC<any> = ({ 
+  requiredTier,
   featureName,
   description,
   mode = 'compact',
-  className = '' }) => { const { user, isAuthenticated  } = useAuth();
+  className = '' 
+}) => {
+  const { t } = useTranslation();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 

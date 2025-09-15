@@ -130,6 +130,7 @@ export function ContentAdapterPage({
   initialContent = '',
   initialPlatforms = []
 }: ContentAdapterPageProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
@@ -207,7 +208,6 @@ export function ContentAdapterPage({
       return () => clearTimeout(timeoutId);
     }
   }, [effectiveUsageRemaining, cachedUsageRemaining, effectiveUserTier]);
-  const { t } = useTranslation();
 
   // 使用设置管理Hook
   const {
@@ -470,7 +470,27 @@ export function ContentAdapterPage({
 
   // 获取可用数据
   const availablePlatforms = getAvailablePlatforms();
-  const availableModels = getAvailableModelsForTier(effectiveUserTier as any);
+  let availableModels = getAvailableModelsForTier(effectiveUserTier as any);
+
+  // 备用方案：如果没有获取到模型，使用默认的体验版模型
+  if (!availableModels || availableModels.length === 0) {
+    console.warn('⚠️ 未获取到模型数据，使用默认体验版模型');
+    availableModels = getAvailableModelsForTier('trial');
+  }
+
+  // 调试信息
+  console.log('🔍 ContentAdapterPage - 模型数据调试:', {
+    effectiveUserTier,
+    availableModelsCount: availableModels.length,
+    sampleModels: availableModels.slice(0, 3).map(m => ({
+      id: m?.id,
+      name: m?.name,
+      tier: m?.tier,
+      company: m?.company,
+      description: m?.description,
+      fullModel: m
+    }))
+  });
 
   // 验证设置
   const validation = validateSettings();
@@ -1158,31 +1178,31 @@ export function ContentAdapterPage({
 
 
   return (
-    <div className="min-h-screen bg-background pt-24">
+    <div className="min-h-screen bg-background" style={{ paddingTop: 'var(--header-height, var(--spacing-24))' }}>
       {/* 主导航栏 */}
       <Header />
 
       {/* 页面导航 */}
       <PageNavigation
-        title={t('components.labels.标题')}
-        description={t('components.labels.描述')}
+        title="AI内容适配器"
+        description="智能多平台内容适配，一键生成适合不同平台的优质内容"
         showAdaptButton={false}
         actions={
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <Button
-              variant="soft"
+              variant="outline"
               size="sm"
               onClick={() => setShowHistory(true)}
-              className="flex items-center space-x-2"
+              className="flex items-center gap-2"
             >
               <History className="h-4 w-4" />
-              <span></span>
+              <span>历史记录</span>
             </Button>
           </div>
         }
       />
 
-      <div className="container mx-auto py-6 px-4">
+      <div className="container mx-auto py-8 px-4 space-y-8">
         {/* 内容输入区域 */}
         <ContentInputSection
           originalContent={originalContent}

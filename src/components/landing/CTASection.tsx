@@ -44,24 +44,24 @@ export function CTASection() {
   };
 
   return (
-    <section className="py-10 bg-background">
-      <div className="container mx-auto text-center">
+    <section className="bg-background">
+      <div className="ds-container ds-text-centered">
         {/* 1️⃣ 主标题 */}
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-2 drop-shadow-sm">
+        <h2 className="ds-title-main ds-text-primary mb-2 drop-shadow-sm">
           {t('home.cta.title')}
         </h2>
 
         {/* 2️⃣ 副标题 */}
-        <p className="text-base text-muted-foreground text-center mb-6 max-w-xl mx-auto leading-relaxed">
+        <p className="ds-text-body ds-text-secondary mb-6 ds-container-narrow leading-relaxed">
           {t('home.cta.subtitle')}
         </p>
-        
+
         {/* 3️⃣ CTA 按钮 */}
         <div className="w-full flex justify-center">
           <Button
             size="lg"
             variant="gradient"
-            className="px-10 py-5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+            className="ds-btn-primary ds-btn-centered px-10 py-5 rounded-xl font-bold shadow-lg hover:shadow-xl ds-transition-standard"
             onClick={handleButtonClick}
           >
             <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

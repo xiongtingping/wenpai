@@ -42,6 +42,7 @@ interface EnhancedHotTopicsProps {
 }
 
 export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
 
   // 状态管理

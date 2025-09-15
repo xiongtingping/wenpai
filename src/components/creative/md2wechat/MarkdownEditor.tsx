@@ -38,6 +38,7 @@ export function MarkdownEditor({ content,
   className,
   placeholder = '在此输入Markdown内容...'
  }: MarkdownEditorProps) {
+  const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [cursorPosition, setCursorPosition] = useState(0);
 
@@ -316,12 +317,9 @@ export function MarkdownEditor({ content,
             'bg-secondary/30 text-foreground font-mono text-sm leading-6 border border-border rounded-lg',
             'placeholder:text-muted-foreground',
             'overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent',
-            'focus:bg-secondary/50 hover:bg-secondary/40 transition-colors'
+            'focus:bg-secondary/50 hover:bg-secondary/40 transition-colors',
+            'inline-style-converted'
           )}
-          style={{
-            minHeight: '400px',
-            maxHeight: 'none'
-          }}
         />
 
         {/* 语法提示面板 */}

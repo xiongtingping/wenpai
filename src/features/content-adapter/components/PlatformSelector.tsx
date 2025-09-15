@@ -26,16 +26,17 @@ import {
   DialogDescription,
   DialogFooter
 } from '@/components/ui/dialog';
-import { 
-  Settings, 
-  ChevronDown, 
-  ChevronUp, 
-  Globe, 
+import {
+  Settings,
+  ChevronDown,
+  ChevronUp,
+  Globe,
   Sliders,
   Hash,
   FileText,
   Palette,
-  Loader2
+  Loader2,
+  Save
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useContentAdapterSettings } from '@/hooks/useUserSettings';
@@ -104,9 +105,6 @@ interface PlatformSelectorProps {
   getPlatformName: (platformId: string) => string;
   getPlatformMaxCharCount: (platformId: string) => number;
   getPlatformRecommendedCharCount: (platformId: string) => number;
-  
-  // 国际化
-  t: (key: string) => string;
 }
 
 /**
@@ -125,9 +123,9 @@ export function PlatformSelector({ availablePlatforms,
   getPlatformIcon,
   getPlatformName,
   getPlatformMaxCharCount,
-  getPlatformRecommendedCharCount,
-  t
+  getPlatformRecommendedCharCount
  }: PlatformSelectorProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { 
     loading: settingsLoading,
@@ -363,21 +361,30 @@ export function PlatformSelector({ availablePlatforms,
   };
 
   return (
-    <div className="mb-8">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl">
-              选择目标平台
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">
-                已选择 {selectedPlatforms.length} / {availablePlatforms.length}
+    <div className="space-y-6">
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader className="pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Globe className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-semibold">选择目标平台</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  选择内容发布的目标平台
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary" className="text-xs font-medium">
+                {selectedPlatforms.length}/{availablePlatforms.length}
               </Badge>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleSelectAll}
+                className="min-w-[100px]"
               >
                 {selectedPlatforms.length === availablePlatforms.length ? t('components.text.取消全选_otw') : t('components.text.全选_ay6')}
               </Button>
@@ -385,10 +392,10 @@ export function PlatformSelector({ availablePlatforms,
           </div>
         </CardHeader>
         
-        <CardContent>
-          <div className="space-y-6">
+        <CardContent className="p-6">
+          <div className="space-y-8">
             {/* 平台选择网格 */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {availablePlatforms.map((platform) => {
                 const isSelected = selectedPlatforms.includes(platform.id);
 
@@ -396,10 +403,10 @@ export function PlatformSelector({ availablePlatforms,
                   <Card
                     key={platform.id}
                     className={`
-                      relative border cursor-pointer transition-all duration-200 h-36 flex flex-col rounded-xl overflow-hidden
+                      relative border cursor-pointer transition-all duration-200 h-32 flex flex-col rounded-lg overflow-hidden group
                       ${isSelected
-                        ? 'border-primary bg-primary/5 shadow-md ring-1 ring-primary/20'
-                        : 'bg-card/90 backdrop-blur-sm hover:shadow-lg hover:border-border'
+                        ? 'border-primary bg-primary/5 shadow-md ring-2 ring-primary/20'
+                        : 'border-border hover:border-primary/50 hover:shadow-md hover:bg-accent/50'
                       }
                     `}
                     onClick={(e) => {
@@ -407,36 +414,32 @@ export function PlatformSelector({ availablePlatforms,
                       onPlatformToggle(platform.id);
                     }}
                   >
-                    <CardHeader className="pb-2 pt-3 px-3 flex-shrink-0">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center space-x-2 min-w-0 flex-1">
-                          <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <CardHeader className="p-3 pb-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
                             {getPlatformIcon(platform.id)}
                           </div>
-                          <CardTitle className="text-sm font-semibold truncate leading-tight text-foreground flex-1">
+                          <CardTitle className="text-sm font-medium truncate text-foreground">
                             {getPlatformName(platform.id)}
                           </CardTitle>
                         </div>
-                        <div className="flex-shrink-0 ml-2">
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={() => {
-                              onPlatformToggle(platform.id);
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
-                            className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                          />
-                        </div>
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => {
+                            onPlatformToggle(platform.id);
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                          className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                        />
                       </div>
                     </CardHeader>
-                    <CardContent className="pt-0 pb-3 px-3 flex-1 flex flex-col justify-center">
-                      <div className="text-center">
-                        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3 break-words">
-                          {platform.description}
-                        </p>
-                      </div>
+                    <CardContent className="p-3 pt-0 flex-1 flex items-center justify-center">
+                      <p className="text-xs text-muted-foreground text-center leading-relaxed line-clamp-2">
+                        {platform.description}
+                      </p>
                     </CardContent>
                   </Card>
                 );
@@ -444,80 +447,75 @@ export function PlatformSelector({ availablePlatforms,
             </div>
 
             {/* 平台设置区域 */}
-            <div className="space-y-6 mt-8 border-t border-border pt-6">
-              {selectedPlatforms.length === 0 && (
-                <div className="text-center py-4 text-muted-foreground bg-muted/20 rounded-lg">
-                  <p className="text-sm">请选择至少一个目标平台开始内容适配</p>
+            {selectedPlatforms.length > 0 && (
+              <div className="space-y-6 pt-6 border-t border-border">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Settings className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">平台设置</h3>
+                    <p className="text-sm text-muted-foreground">
+                      配置选中平台的个性化参数
+                    </p>
+                  </div>
                 </div>
-              )}
               
-              <div className="mb-6">
-                <div className="flex items-center gap-2">
-                  <Settings className="h-5 w-5 text-primary" />
-                  <h2 className="text-lg font-semibold">平台设置</h2>
-                </div>
-              </div>
-              
-              {/* 全局设置 */}
-              <Card 
-                className={`transition-all duration-300 ${
-                  settingsType === 'global' 
-                    ? 'bg-accent/50 ring-2 ring-primary/20 shadow-md' 
-                    : 'bg-muted/20 opacity-60'
-                }`}
-                onClick={() => setSettingsType('global')}
-              >
-                <CardHeader 
-                  className={`pb-4 cursor-pointer ${
-                    settingsType === 'global' ? '' : 'opacity-50'
+                {/* 全局设置 */}
+                <Card
+                  className={`unified-transition cursor-pointer border ${
+                    settingsType === 'global'
+                      ? 'unified-selected'
+                      : 'unified-unselected'
                   }`}
+                  onClick={() => setSettingsType('global')}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${
-                        settingsType === 'global' ? 'bg-primary/10' : 'bg-muted'
-                      }`}>
-                        <Globe className={`h-5 w-5 ${
-                          settingsType === 'global' ? 'text-primary' : 'text-muted-foreground'
-                        }`} />
-                      </div>
-                      <div className="flex-1">
-                        <CardTitle className={`text-lg ${
-                          settingsType === 'global' ? 'text-foreground' : 'text-muted-foreground'
+                  <CardHeader className="unified-card-header">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`unified-icon-container ${
+                          settingsType === 'global' ? 'bg-primary/10' : 'bg-muted/50'
                         }`}>
-                          全局设置
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          为所有选中平台应用统一配置
-                        </p>
+                          <Globe className={`h-5 w-5 ${
+                            settingsType === 'global' ? 'text-primary' : 'text-muted-foreground'
+                          }`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className={`unified-title ${
+                            settingsType === 'global' ? 'text-foreground' : 'text-muted-foreground'
+                          }`}>
+                            全局设置
+                          </CardTitle>
+                          <p className="unified-description">
+                            为所有选中平台应用统一配置，包括字符数预设和格式选项
+                          </p>
+                        </div>
                       </div>
                       {settingsType === 'global' && (
                         <Button
-                          onClick={handleSaveGlobalSettings}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSaveGlobalSettings();
+                          }}
                           size="sm"
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-1 px-3"
                           disabled={selectedPlatforms.length === 0 || isSavingGlobal}
                         >
                           {isSavingGlobal ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              保存中
+                            </>
                           ) : (
-                            <Globe className="h-3 w-3" />
+                            <>
+                              <Save className="h-3 w-3" />
+                              保存
+                            </>
                           )}
-                          {isSavingGlobal ? '保存中...' : '保存设置'}
                         </Button>
                       )}
                     </div>
-                    <div className={`w-4 h-4 rounded-full border-2 ${
-                      settingsType === 'global' 
-                        ? 'border-primary bg-primary' 
-                        : 'border-muted-foreground'
-                    }`}>
-                      {settingsType === 'global' && (
-                        <div className="w-full h-full rounded-full bg-background scale-50"></div>
-                      )}
-                    </div>
-                  </div>
-                </CardHeader>
+                  </CardHeader>
                 {settingsType === 'global' && (
                   <CardContent className="space-y-4 pt-0">
                     {/* 字符数预设 - 紧凑卡片布局 */}
@@ -660,66 +658,69 @@ export function PlatformSelector({ availablePlatforms,
               </Card>
               
               {/* 平台个性化设置 */}
-              <Card 
-                className={`transition-all duration-300 ${
-                  settingsType === 'platform' 
-                    ? 'bg-accent/50 ring-2 ring-primary/20 shadow-md' 
-                    : 'bg-muted/20 opacity-60'
+              <Card
+                className={`unified-transition cursor-pointer border ${
+                  settingsType === 'platform' && selectedPlatforms.length > 0
+                    ? 'unified-selected'
+                    : selectedPlatforms.length === 0
+                      ? 'border-border/30 bg-muted/20 opacity-60 cursor-not-allowed'
+                      : 'unified-unselected'
                 }`}
                 onClick={() => selectedPlatforms.length > 0 && setSettingsType('platform')}
               >
-                <CardHeader 
-                  className={`pb-4 cursor-pointer ${
-                    settingsType === 'platform' ? '' : 'opacity-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
+                <CardHeader className="unified-card-header">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${
-                        settingsType === 'platform' ? 'bg-primary/10' : 'bg-muted'
+                      <div className={`unified-icon-container ${
+                        settingsType === 'platform' && selectedPlatforms.length > 0
+                          ? 'bg-primary/10'
+                          : 'bg-muted/50'
                       }`}>
                         <Sliders className={`h-5 w-5 ${
-                          settingsType === 'platform' ? 'text-primary' : 'text-muted-foreground'
+                          settingsType === 'platform' && selectedPlatforms.length > 0
+                            ? 'text-primary'
+                            : 'text-muted-foreground'
                         }`} />
                       </div>
-                      <div className="flex-1">
-                        <CardTitle className={`text-lg ${
-                          settingsType === 'platform' ? 'text-foreground' : 'text-muted-foreground'
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className={`unified-title ${
+                          settingsType === 'platform' && selectedPlatforms.length > 0
+                            ? 'text-foreground'
+                            : 'text-muted-foreground'
                         }`}>
                           平台个性化设置
                         </CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {selectedPlatforms.length === 0 
-                            ? '请先选择平台以启用个性化设置' 
-                            : `为${selectedPlatforms.length}个选中平台定制专属设置`
+                        <p className="unified-description">
+                          {selectedPlatforms.length === 0
+                            ? '请先选择平台以启用个性化设置功能'
+                            : `为${selectedPlatforms.length}个选中平台定制专属参数和格式选项`
                           }
                         </p>
                       </div>
-                      {settingsType === 'platform' && selectedPlatforms.length > 0 && (
-                        <Button
-                          onClick={handleSavePlatformSettings}
-                          size="sm"
-                          className="flex items-center gap-2"
-                          disabled={selectedPlatforms.length === 0 || isSavingPlatform}
-                        >
-                          {isSavingPlatform ? (
+                    </div>
+                    {settingsType === 'platform' && selectedPlatforms.length > 0 && (
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSavePlatformSettings();
+                        }}
+                        size="sm"
+                        className="flex items-center gap-1 px-3"
+                        disabled={selectedPlatforms.length === 0 || isSavingPlatform}
+                      >
+                        {isSavingPlatform ? (
+                          <>
                             <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <Sliders className="h-3 w-3" />
-                          )}
-                          {isSavingPlatform ? '保存中...' : '保存设置'}
-                        </Button>
-                      )}
-                    </div>
-                    <div className={`w-4 h-4 rounded-full border-2 ${
-                      settingsType === 'platform' && selectedPlatforms.length > 0
-                        ? 'border-primary bg-primary' 
-                        : 'border-muted-foreground'
-                    }`}>
-                      {settingsType === 'platform' && selectedPlatforms.length > 0 && (
-                        <div className="w-full h-full rounded-full bg-background scale-50"></div>
-                      )}
-                    </div>
+                            保存中
+                          </>
+                        ) : (
+                          <>
+                            <Save className="h-3 w-3" />
+                            保存
+                          </>
+                        )}
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
                 {settingsType === 'platform' && selectedPlatforms.length > 0 && (
@@ -860,7 +861,8 @@ export function PlatformSelector({ availablePlatforms,
                   </CardContent>
                 )}
               </Card>
-            </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

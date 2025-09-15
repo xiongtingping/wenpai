@@ -31,14 +31,16 @@ interface AvatarUploadProps {
 /**
  * 头像上传组件
  */
-export function AvatarUpload({ currentAvatar,
-  nickname = t('components.messages.用户'),
+export function AvatarUpload({ 
+  currentAvatar,
+  nickname = '用户',
   size = 'md',
   showUploadButton = true,
   showRandomButton = true,
   onAvatarChange,
   disabled = false
- }: AvatarUploadProps) {
+}: AvatarUploadProps) {
+  const { t } = useTranslation();
   const [avatarUrl, setAvatarUrl] = useState(currentAvatar || '');
   const [isUploading, setIsUploading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);

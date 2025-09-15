@@ -24,8 +24,7 @@ interface AlipayQRCodeProps {
  */
 const AlipayLogo: React.FC<{ size?: number  }> = ({ size = 24 }) => (
   <div 
-    className="bg-primary text-primary-foreground rounded flex items-center justify-center font-bold"
-    style={{ width: size, height: size, fontSize: size * 0.6 }}
+    className="bg-primary text-primary-foreground rounded flex items-center justify-center font-bold inline-style-converted" 
   >
     支
   </div>
@@ -247,8 +246,7 @@ export default function AlipayQRCode({
                 <img 
                   src={qrCodeDataURL} 
                   alt="支付宝二维码" 
-                  className="border-4 border-border rounded-xl shadow-lg"
-                  style={{ width: 220, height: 220 }}
+                  className="border-4 border-border rounded-xl shadow-lg inline-style-converted" 
                 />
                 {/* 二维码上的价格显示 */}
                 {showPrice && price !== null && (

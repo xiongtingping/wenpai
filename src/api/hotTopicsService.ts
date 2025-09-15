@@ -159,7 +159,7 @@ class HotTopicsAPI {
     }
   }
 
-  private async fetchWithRetry(url: string, maxRetries = 3): Promise<any> {
+  private async fetchWithRetry(url: string, maxRetries = 2): Promise<any> {
     let lastError: Error = new Error('Unknown error');
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -171,7 +171,7 @@ class HotTopicsAPI {
           action: 'hot-topics',
           platform: url.replace('/', ''), // 提取平台名称
         }, {
-          timeout: 10000, // 10秒超时
+          timeout: 30000, // 30秒超时，适应网络爬取延迟
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -184,6 +184,7 @@ class HotTopicsAPI {
 
         // 验证数据格式
         if (typeof data === 'object' && (data.code === 200 || Array.isArray(data.data) || Array.isArray(data))) {
+          this.log(`✅ ${url}平台数据获取成功`);
           return data;
         } else {
           throw new Error('API返回数据格式异常');
@@ -191,14 +192,36 @@ class HotTopicsAPI {
 
       } catch (error) {
         lastError = error as Error;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        
         this.log(`API请求失败 (尝试 ${attempt + 1}/${maxRetries + 1}):`, {
-          error: error instanceof Error ? error.message : String(error),
+          error: errorMessage,
           url: `${this.baseUrl}${url || ''}`
         });
 
+        // 智能错误判断：某些错误不需要重试
+        const nonRetryableErrors = [
+          'Unexpected token',
+          'JSON.parse',
+          'Syntax error',
+          'Unauthorized',
+          'Forbidden',
+          'Not Found'
+        ];
+
+        const shouldNotRetry = nonRetryableErrors.some(pattern => 
+          errorMessage.includes(pattern)
+        );
+
+        if (shouldNotRetry) {
+          this.log(`⚠️ 检测到不可重试错误，跳过重试: ${errorMessage}`);
+          break;
+        }
+
         if (attempt < maxRetries) {
-          // 指数退避策略
-          const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+          // 减少重试延迟，避免长时间阻塞
+          const delay = Math.min(1000 * (attempt + 1), 3000);
+          this.log(`🔄 ${delay}ms后重试...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }

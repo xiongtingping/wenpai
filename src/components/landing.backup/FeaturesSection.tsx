@@ -209,7 +209,7 @@ export const FeaturesSection: React.FC = () => { const { login, isAuthenticated 
           </h2>
           
           {/* 3️⃣ 副标题（描述文本）优化 */}
-          <p className="text-base text-muted-foreground leading-relaxed max-w-4xl mx-auto mt-4 mb-10 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
+          <p className="text-base text-muted-foreground leading-relaxed max-w-4xl mx-auto mt-4 mb-10 animate-fadeInUp inline-style-converted" >
             从内容创作到分发管理，文派提供全方位的
             <span className="text-primary font-semibold">AI驱动工具</span>，
             助力创作者提升效率和质量

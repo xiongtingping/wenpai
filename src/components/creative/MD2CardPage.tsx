@@ -206,7 +206,9 @@ const DEFAULT_TEMPLATES: CardTemplate[] = [
 /**
  * MD2Card主页面组件
  */
-export default function MD2CardPage() { const { toast  } = useToast();
+export default function MD2CardPage() {
+  const { t } = useTranslation();
+  const { toast } = useToast();
   const { user, isAuthenticated } = useAuthStore();
   const { recordUsage } = useUsageStore();
   
@@ -1348,9 +1350,9 @@ export default function MD2CardPage() { const { toast  } = useToast();
         </div>
 
         {/* 主要内容区域 - 对称美观布局 */}
-        <div className="flex-1 flex flex-col lg:flex-row gap-0 bg-gradient-to-r from-slate-50/30 to-blue-50/30" style={{minHeight: 'calc(100vh - 160px)'}}>
+        <div className="flex-1 flex flex-col lg:flex-row gap-0 bg-gradient-to-r from-slate-50/30 to-blue-50/30 min-h-screen" >
           {/* 左侧：编辑器和设置区域 */}
-          <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col ${showPreview ? 'border-r-2 border-border/60' : ''} bg-background/80 backdrop-blur-sm`} style={{minHeight: '100%', height: 'auto'}}>
+          <div className={`inline-style-converted ${showPreview ? 'lg:w-1/2' : 'w-full'}`}>
             {/* 标签页导航 */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
               {/* 优化的标签页导航 */}
@@ -1579,7 +1581,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
               </TabsContent>
 
               {/* 快速样式 */}
-              <TabsContent value="styles" className="p-4 overflow-y-auto" style={{height: 'auto', maxHeight: 'none'}}>
+              <TabsContent value="styles" className="p-4 overflow-y-auto inline-style-converted" >
                 <div className="space-y-4">
                   {/* 颜色设置 */}
                   <div className="bg-gradient-to-br from-purple-50/50 to-pink-50/50 rounded-xl p-4 border border-purple-100/50 shadow-sm">
@@ -1596,8 +1598,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                       <div className="grid grid-cols-6 gap-2 mb-4">
                         {/* 蓝色商务 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #3B82F6, #64748B)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1613,8 +1614,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 绿色清新 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #10B981, #059669)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1630,8 +1630,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 紫色优雅 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #8B5CF6, #A855F7)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1647,8 +1646,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 橙色活力 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #F59E0B, #EA580C)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1664,8 +1662,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 粉色温馨 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #EC4899, #BE185D)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1681,8 +1678,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 暗色专业 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #374151, #6B7280)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1698,8 +1694,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 红色热情 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #EF4444, #DC2626)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1715,8 +1710,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 青色清爽 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #06B6D4, #0891B2)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1732,8 +1726,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 黄色阳光 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #EAB308, #CA8A04)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1749,8 +1742,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 玫瑰金 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1766,8 +1758,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 薄荷绿 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #22C55E, #16A34A)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1783,8 +1774,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 靛青深邃 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #4F46E5, #4338CA)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1803,8 +1793,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                       <div className="grid grid-cols-6 gap-2 mb-4">
                         {/* 湖水蓝 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #0EA5E9, #0284C7)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1820,8 +1809,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 森林绿 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #059669, #047857)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1837,8 +1825,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 紫罗兰 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #7C3AED, #6D28D9)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1854,8 +1841,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 石墨黑 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #1F2937, #111827)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1871,8 +1857,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         {/* 珊瑚橙 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-                          style={{ background: 'linear-gradient(135deg, #FB7185, #F43F5E)' }}
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 inline-style-converted" 
                           title={t('components.labels.标题')}
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -2081,27 +2066,15 @@ export default function MD2CardPage() { const { toast  } = useToast();
                         
                         return (
                           <div className="relative w-full h-full flex items-center justify-center">
-                            <div className={`bg-background rounded-xl shadow-2xl border-2 border-border/50 ring-1 ring-gray-300/20 hover:shadow-3xl transition-all duration-300 ${
+                            <div className={`inline-style-converted bg-background rounded-xl shadow-2xl border-2 border-border/50 ring-1 ring-gray-300/20 hover:shadow-3xl transition-all duration-300 ${
                               isGenerating ? 'animate-pulse shadow-pulse' : 'shadow-[0_10px_40px_-15px_rgba(0,0,0,0.3)]'
-                            }`}
-                            style={{
-                              maxWidth,
-                              maxHeight,
-                              width: 'auto',
-                              height: 'auto',
-                              aspectRatio: dimensions.aspectRatio
-                            }}>
+                            }`}>
                           {cardData?.imageData ? (
                             <div className="relative group cursor-pointer" onClick={() => setIsFullscreenOpen(true)}>
                               <img 
                                 src={cardData.imageData} 
                                 alt="Generated Card" 
-                                className="w-full h-full object-contain rounded-xl transition-all duration-300 group-hover:scale-[1.02]"
-                                style={{
-                                  maxWidth: '100%',
-                                  maxHeight: '100%',
-                                  objectFit: 'contain'
-                                }}
+                                className="w-full h-full object-contain rounded-xl transition-all duration-300 group-hover:scale-[1.02] inline-style-converted" 
                               />
                               {/* 悬停放大提示 */}
                               <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-300 rounded-xl flex items-center justify-center">
@@ -2113,10 +2086,7 @@ export default function MD2CardPage() { const { toast  } = useToast();
                             </div>
                           ) : (
                             <div 
-                              className="w-full h-full flex items-center justify-center border-2 border-dashed border-blue-200 bg-gradient-to-br from-white to-blue-50/50 rounded-xl backdrop-blur-sm"
-                              style={{
-                                minHeight: '200px'
-                              }}
+                              className="w-full h-full flex items-center justify-center border-2 border-dashed border-blue-200 bg-gradient-to-br from-white to-blue-50/50 rounded-xl backdrop-blur-sm inline-style-converted" 
                             >
                               <div className="text-center text-muted-foreground">
                                 {isGenerating ? (

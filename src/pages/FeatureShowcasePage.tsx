@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
+import { EnhancedUnifiedPermissionGuard } from '@/components/auth/EnhancedUnifiedPermissionGuard';
 import { useAuth } from '@/hooks/useAuth';
 import { SUBSCRIPTION_PLANS, calculateDiscountCountdown, isInDiscountPeriod } from '@/config/subscriptionPlans';
 import { CountdownTimer } from '@/components/ui/CountdownTimer';

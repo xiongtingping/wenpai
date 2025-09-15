@@ -64,6 +64,9 @@ export function lazyLoadImage(img: HTMLImageElement, src: string): void {
         observer.unobserve(img);
       }
     });
+  }, {
+    rootMargin: '0px 0px 0px 0px',
+    threshold: 0.1
   });
   
   observer.observe(img);

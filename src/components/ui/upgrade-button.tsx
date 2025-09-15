@@ -40,7 +40,7 @@ export const UpgradeButton: React.FC<any> = ({ variant = 'default',
    * 只有高级版用户（且在有效期内）不显示，其他用户都显示
    */
   const shouldShowUpgradeButton = () => {
-    // 未登录用户显示
+  const { t } = useTranslation();    // 未登录用户显示
     if (!user || typeof user !== 'object') return true;
 
     const userObj = user as Record<string, unknown>;

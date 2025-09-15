@@ -1,8 +1,7 @@
-/* 
+/*
  * Component Layer (组件层)
  * 具体组件的样式定义，基于Design Tokens和Utility Classes
  */
-
 @layer components {
   /* 🎯 Dialog Component */
   .dialog {
@@ -11,15 +10,12 @@
     @apply u-flex-column u-gap-dialog u-performance u-visible u-focus-none;
     @apply u-dialog-reset-transform;
   }
-
   .dialog-overlay {
     @apply u-dialog-overlay u-backdrop-dialog;
   }
-
   .dialog-content {
     @apply u-dialog-content u-flex-column;
   }
-
   /* 🚨 修复Dialog组件的样式问题 - 确保完全覆盖视口 */
   [data-radix-dialog-overlay] {
     position: fixed !important;
@@ -36,17 +32,16 @@
     padding: 0 !important;
     border: none !important;
     outline: none !important;
-    /* 🎯 关键修复：重置可能影响定位的属性 */
-    transform: none !important;
+    /* 🎯 关键修复：重置可能影响定位的属性 */;
+  transform: none !important;
     translate: none !important;
     contain: none !important;
     isolation: auto !important;
     clip-path: none !important;
     filter: none !important;
-    /* 确保在body上渲染 */
-    inset: 0 !important;
+    /* 确保在body上渲染 */;
+  inset: 0 !important;
   }
-
   [data-radix-dialog-content] {
     position: fixed !important;
     top: 50% !important;
@@ -60,13 +55,12 @@
     opacity: 1 !important;
     pointer-events: auto !important;
     display: block !important;
-    /* 禁用所有动画和过渡 */
-    animation: none !important;
+    /* 禁用所有动画和过渡 */;
+  animation: none !important;
     transition: none !important;
     transition-duration: 0s !important;
     animation-duration: 0s !important;
   }
-
   /* 🎯 强制修复：确保Dialog overlay完全覆盖视口 */
   .dialog-overlay-fullscreen {
     position: fixed !important;
@@ -81,19 +75,17 @@
     border: none !important;
     outline: none !important;
     box-sizing: border-box !important;
-    /* 确保在所有设备上都能正确显示 */
-    min-width: 100vw !important;
+    /* 确保在所有设备上都能正确显示 */;
+  min-width: 100vw !important;
     min-height: 100vh !important;
     max-width: 100vw !important;
     max-height: 100vh !important;
   }
-
   /* 🔍 调试模式：可以临时启用来检查覆盖范围 */
   .dialog-overlay-debug {
     border: var(--spacing-0-5) solid red !important;
     background: rgba(255, 0, 0, 0.2) !important;
   }
-
   /* 🎯 独立Dialog Portal容器 - 完全不受其他样式影响 */
   #dialog-portal-root {
     position: fixed !important;
@@ -116,7 +108,6 @@
     background: transparent !important;
     overflow: visible !important;
   }
-
   /* 🎯 Dialog Portal内的overlay样式 - 确保完全覆盖视口 */
   #dialog-portal-root [data-radix-dialog-overlay],
   #dialog-portal-root .dialog-overlay-fullscreen,
@@ -151,7 +142,6 @@
     pointer-events: auto !important;
     overflow: hidden !important;
   }
-
   /* 🎯 Dialog Portal内的content样式 - 确保内容正确居中显示 */
   #dialog-portal-root [data-radix-dialog-content],
   body > [data-radix-portal] [data-radix-dialog-content],
@@ -161,46 +151,39 @@
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     z-index: 1055 !important;
-
-    /* 🎯 使用CSS变量确保主题适配 */
-    background: hsl(var(--background)) !important;
+    /* 🎯 使用CSS变量确保主题适配 */;
+  background: hsl(var(--background)) !important;
     border: 1px solid hsl(var(--border)) !important;
     color: hsl(var(--foreground)) !important;
-
-    /* 🎯 视觉效果 */
-    border-radius: var(--spacing-2) !important;
+    /* 🎯 视觉效果 */;
+  border-radius: var(--spacing-2) !important;
     box-shadow: 0 25px 50px -var(--spacing-3) rgba(0, 0, 0, 0.25) !important;
-
-    /* 🎯 响应式尺寸 */
-    max-width: min(95vw, 1024px) !important;
+    /* 🎯 响应式尺寸 */;
+  max-width: min(95vw, 1024px) !important;
     max-height: 85vh !important;
     width: auto !important;
     height: auto !important;
     min-width: 320px !important;
     min-height: 200px !important;
-
-    /* 🎯 重置影响定位的属性 */
-    margin: 0 !important;
+    /* 🎯 重置影响定位的属性 */;
+  margin: 0 !important;
     padding: var(--spacing-6) !important;
     contain: none !important;
     isolation: auto !important;
     clip-path: none !important;
     filter: none !important;
-
-    /* 🎯 交互和布局 */
-    pointer-events: auto !important;
+    /* 🎯 交互和布局 */;
+  pointer-events: auto !important;
     overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
   }
-
   /* 🎯 确保Dialog内容区域的滚动 */
   #dialog-portal-root [data-radix-dialog-content] > *,
   body > [data-radix-portal] [data-radix-dialog-content] > *,
   body > div[data-radix-portal] [data-radix-dialog-content] > * {
     flex-shrink: 0;
   }
-
   #dialog-portal-root [data-radix-dialog-content] .flex-1,
   body > [data-radix-portal] [data-radix-dialog-content] .flex-1,
   body > div[data-radix-portal] [data-radix-dialog-content] .flex-1 {
@@ -208,17 +191,14 @@
     min-height: 0 !important;
     overflow: hidden !important;
   }
-
   /* 🎯 调试样式 - 可以临时启用来检查Dialog显示 */
   .dialog-debug #dialog-portal-root [data-radix-dialog-overlay] {
     background-color: rgba(255, 0, 0, 0.3) !important; /* 红色半透明背景 */
   }
-
   .dialog-debug #dialog-portal-root [data-radix-dialog-content] {
-    border: 3px solid lime !important; /* 绿色边框 */
-    background: yellow !important; /* 黄色背景 */
+    border: 3px solid lime !important; /* 绿色边框 */;
+  background: yellow !important; /* 黄色背景 */
   }
-
   /* 🎯 移动端响应式适配 */
   @media (max-width: 640px) {
     #dialog-portal-root [data-radix-dialog-content],
@@ -231,7 +211,6 @@
       border-radius: var(--spacing-3) !important;
     }
   }
-
   /* 🎯 平板端适配 */
   @media (min-width: 641px) and (max-width: 1024px) {
     #dialog-portal-root [data-radix-dialog-content],
@@ -241,7 +220,6 @@
       max-height: 80vh !important;
     }
   }
-
   /* 🎯 强制显示样式 - 确保Dialog可见 */
   #dialog-portal-root[data-state="open"] [data-radix-dialog-overlay],
   body > [data-radix-portal][data-state="open"] [data-radix-dialog-overlay] {
@@ -249,7 +227,6 @@
     visibility: visible !important;
     opacity: 1 !important;
   }
-
   #dialog-portal-root[data-state="open"] [data-radix-dialog-content],
   body > [data-radix-portal][data-state="open"] [data-radix-dialog-content] {
     display: flex !important;
@@ -264,28 +241,23 @@
     contain: none !important;
     isolation: auto !important;
   }
-
   /* 🎨 Emoji Manager Component */
   .emoji-manager-container {
     font-family: var(--font-family-ui);
   }
-
   .emoji-grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: var(--spacing-3);
     margin-top: var(--spacing-6);
   }
-
   /* 🖼️ Theme Aware Logo Component */
   .theme-aware-logo-dark {
     filter: drop-shadow(0 1px var(--spacing-0-5) hsl(var(--foreground) / 0.3));
   }
-
   .theme-aware-logo-light {
     filter: none;
   }
-
   /* 🔐 Auth Shell Component */
   .auth-nav-back {
     position: fixed;
@@ -304,35 +276,28 @@
     cursor: pointer;
     transition: var(--transition-smooth);
   }
-
   .auth-nav-back:hover {
     background: hsl(var(--background) / 0.8);
     border-color: hsl(var(--border) / 0.2);
   }
-
   .auth-nav-back-text {
     font-size: var(--font-size-xs);
   }
-
   /* 📊 Progress Component */
   .bg-primary.transition-all {
     transform: translateX(calc(-100% + var(--progress-value, 0%)));
   }
-
   /* 🎯 Dynamic Color System */
   .dynamic-bg-color {
     background-color: var(--dynamic-bg-color);
   }
-
   .emoji-avatar-bg {
     background-color: var(--emoji-bg-color);
     transition: var(--transition-smooth);
   }
-
   .chart-item-bg {
     background-color: var(--chart-item-color);
   }
-
   /* 🎯 Layout System Classes */
   .skeleton-line {
     height: var(--layout-skeleton-height);
@@ -340,26 +305,21 @@
     border-radius: var(--radius-sm);
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-
   .skeleton-line-full {
     width: var(--layout-skeleton-width-full);
   }
-
   .skeleton-line-partial {
     width: var(--layout-skeleton-width-partial);
   }
-
   .skeleton-line-narrow {
     width: var(--layout-skeleton-width-narrow);
   }
-
   /* 🎯 Sidebar System */
   .sidebar-container {
     --sidebar-width: var(--layout-sidebar-width);
     --sidebar-width-icon: var(--layout-sidebar-width-icon);
     --sidebar-width-mobile: var(--layout-sidebar-width-mobile);
   }
-
   /* 🎯 Chart System */
   .chart-color-1 { background-color: var(--chart-color-1); }
   .chart-color-2 { background-color: var(--chart-color-2); }
@@ -369,47 +329,39 @@
   .chart-color-6 { background-color: var(--chart-color-6); }
   .chart-color-7 { background-color: var(--chart-color-7); }
   .chart-color-8 { background-color: var(--chart-color-8); }
-
   /* 🌊 Wave Background System */
   .wave-container {
     min-height: var(--wave-min-height);
   }
-
   .wave-canvas {
     position: absolute;
     inset: 0;
     z-index: 0;
     pointer-events: none;
   }
-
   /* 🎨 Animation System */
   .animation-fade-in {
     animation: var(--animation-fade-in);
     animation-fill-mode: both;
   }
-
   /* 🔐 Login Component System */
   .login-input-container {
     min-width: var(--login-input-min-width);
   }
-
   .login-card {
     width: var(--login-card-width-mobile);
     height: var(--login-card-height);
   }
-
   @media (min-width: 768px) {
     .login-card {
       width: var(--login-card-width-tablet);
     }
   }
-
   @media (min-width: 1024px) {
     .login-card {
       width: var(--login-card-width-desktop);
     }
   }
-
   .login-border-top {
     position: absolute;
     pointer-events: none;
@@ -421,7 +373,6 @@
     border-radius: var(--radius-md) var(--radius-md) 0 0;
     overflow: hidden;
   }
-
   .login-border-bottom {
     position: absolute;
     pointer-events: none;
@@ -433,7 +384,6 @@
     border-radius: var(--radius-none) 0 var(--radius-md) var(--radius-md);
     overflow: hidden;
   }
-
   .login-glow-effect {
     position: absolute;
     pointer-events: none;
@@ -444,7 +394,6 @@
     filter: blur(var(--spacing-12));
     transition: opacity var(--animation-duration-normal);
   }
-
   .login-social-icon {
     font-size: var(--login-social-icon-size);
     color: var(--login-social-text-color);
@@ -452,22 +401,18 @@
     z-index: 2;
     position: relative;
   }
-
   .login-social-icon:hover {
     color: hsl(var(--foreground));
     transform: rotateY(360deg);
   }
-
   /* 📝 Textarea Component System */
   .mention-textarea {
     min-height: var(--textarea-min-height);
   }
-
   /* 📊 Progress Bar System */
   .progress-bar {
     width: var(--progress-width);
   }
-
   /* 🌐 Language Switcher System */
   .language-dropdown {
     position: absolute;
@@ -481,12 +426,10 @@
     box-shadow: var(--language-dropdown-shadow);
     margin-top: var(--spacing-2);
   }
-
   /* 🏠 Landing Page System */
   .how-it-works-step {
     animation-delay: var(--animation-delay);
   }
-
   /* 💰 Pricing Section System */
   .pricing-button-monthly {
     padding: var(--pricing-button-padding);
@@ -494,19 +437,16 @@
     border-radius: var(--pricing-button-border-radius);
     transition: var(--pricing-button-transition);
   }
-
   .pricing-button-monthly.active {
     background: var(--pricing-monthly-bg);
     color: var(--pricing-monthly-color);
     border: none;
   }
-
   .pricing-button-monthly.inactive {
     background: var(--pricing-monthly-inactive-bg);
     color: var(--pricing-monthly-inactive-color);
     border: var(--pricing-monthly-inactive-border);
   }
-
   .pricing-button-yearly {
     padding: var(--pricing-button-padding);
     font-weight: var(--pricing-button-font-weight);
@@ -516,42 +456,34 @@
     overflow: hidden;
     color: white;
   }
-
   .pricing-button-yearly.active {
     background: var(--pricing-yearly-gradient-active);
     border: none;
     box-shadow: var(--pricing-yearly-shadow-active);
     transform: scale(var(--pricing-yearly-scale-active));
   }
-
   .pricing-button-yearly.inactive {
     background: var(--pricing-yearly-gradient-inactive);
     border: var(--pricing-yearly-border);
     box-shadow: var(--pricing-yearly-shadow-inactive);
     transform: scale(var(--pricing-yearly-scale-inactive));
   }
-
   .pricing-price-text {
     font-family: var(--pricing-font-family);
   }
-
   /* 🎯 Features Section System */
   .features-subtitle {
     animation-delay: var(--animation-delay);
   }
-
   .features-main-card {
     animation-delay: var(--animation-delay);
   }
-
   .features-tools-card {
     animation-delay: var(--animation-delay);
   }
-
   .features-advantages-card {
     animation-delay: var(--animation-delay);
   }
-
   /* 📤 Batch Forward Modal System */
   .batch-modal-minimized {
     position: fixed;
@@ -566,7 +498,6 @@
     min-width: var(--batch-minimized-min-width);
     pointer-events: auto;
   }
-
   .batch-modal-overlay {
     position: fixed;
     top: 0;
@@ -577,7 +508,6 @@
     background-color: var(--batch-modal-overlay-bg);
     pointer-events: auto;
   }
-
   .batch-modal-content {
     position: fixed;
     bottom: var(--batch-modal-bottom-offset);
@@ -601,20 +531,16 @@
     animation: var(--batch-modal-animation);
     pointer-events: auto;
   }
-
   .batch-modal-scroll-content {
     max-height: var(--batch-content-max-height);
   }
-
   /* 🤖 AI Content Generation Animation System */
   .ai-particle-container {
     animation-duration: var(--ai-animation-spin-duration);
   }
-
   .ai-radar-secondary {
     animation-delay: var(--ai-radar-delay);
   }
-
   /* 📊 Performance Monitor System */
   .performance-monitor {
     position: fixed;
@@ -629,7 +555,6 @@
     z-index: var(--perf-monitor-z-index);
     min-width: var(--perf-monitor-min-width);
   }
-
   /* 🔒 Permission Guard System */
   .permission-overlay {
     position: absolute;
@@ -640,122 +565,96 @@
     justify-content: center;
     padding: var(--spacing-4);
   }
-
   /* 📅 Marketing Calendar System */
   .calendar-card {
     height: var(--calendar-card-height);
   }
-
   .calendar-header {
     height: var(--calendar-header-height);
   }
-
   .calendar-content {
     height: var(--calendar-content-height);
   }
-
   .calendar-nav {
     height: var(--calendar-nav-height);
   }
-
   .calendar-nav-item {
     height: var(--calendar-nav-item-height);
   }
-
   .calendar-grid {
     height: var(--calendar-grid-height);
   }
-
   .calendar-week {
     height: var(--calendar-week-height);
   }
-
   .calendar-day {
     height: var(--calendar-day-height);
     min-height: var(--calendar-day-height);
   }
-
   .calendar-todo {
     height: var(--calendar-todo-height);
   }
-
   .calendar-todo-list {
     height: var(--calendar-todo-list-height);
   }
-
   /* 🔥 Hot Topics System */
   .hot-topics-radar {
     max-height: var(--hot-topics-max-height, var(--hot-topics-radar-max-height));
   }
-
   .podium-container {
     height: var(--podium-container-height);
   }
-
   .podium-item {
     max-width: var(--podium-max-width);
   }
-
   .heat-chart-bar {
     height: var(--heat-bar-height);
   }
-
   /* 🏗️ Layout System */
   .header-spacer {
     height: var(--header-height);
   }
-
   /* 📝 Content Adapter System */
   .content-textarea {
     min-height: var(--content-textarea-min-height);
   }
-
   /* 😀 Emoji Picker System */
   .emoji-picker-container {
     width: var(--emoji-picker-width);
     max-height: var(--emoji-picker-max-height);
   }
-
   /* 🏠 Home Page System */
   .hero-section {
     min-height: var(--hero-section-min-height);
   }
-
   /* 🔐 Auth Modal System */
   .auth-input-container {
     min-width: var(--auth-input-min-width);
   }
-
   .auth-border-top,
   .auth-border-bottom {
     height: var(--auth-border-height);
   }
-
   .auth-modal-container {
     height: var(--auth-modal-height);
   }
-
   /* 🎨 Creative Components System */
   .brand-emoji-scroll {
     height: var(--brand-emoji-scroll-height);
   }
-
   .progress-bar-container {
     height: var(--progress-bar-height);
   }
-
   .progress-bar {
     height: var(--progress-bar-height);
     width: var(--progress-width);
   }
-
   .card-preview-container {
     width: var(--card-width);
     height: var(--card-height);
     min-width: var(--card-preview-min-width);
     min-height: var(--card-preview-min-height);
   }
-
   /* 💳 Payment Page System */
   .payment-button-monthly,
   .payment-button-yearly {
@@ -767,27 +666,22 @@
     position: relative;
     overflow: hidden;
   }
-
   .payment-button-monthly {
     min-width: var(--payment-button-min-width-monthly);
   }
-
   .payment-button-yearly {
     min-width: var(--payment-button-min-width-yearly);
   }
-
   .payment-button-active {
     background: hsl(var(--primary));
     color: white;
     border: none;
   }
-
   .payment-button-inactive {
     background: hsl(var(--muted));
     color: #374151;
     border: 1px solid hsl(var(--border));
   }
-
   .payment-button-yearly-active {
     background: linear-gradient(to right, #f97316, hsl(var(--destructive)), #ec4899);
     color: white;
@@ -795,7 +689,6 @@
     box-shadow: 0 25px 50px -var(--spacing-3) rgba(0, 0, 0, 0.25);
     transform: scale(1.05);
   }
-
   .payment-button-yearly-inactive {
     background: linear-gradient(to right, #fbbf24, #f97316, hsl(var(--destructive)));
     color: white;
@@ -803,80 +696,63 @@
     box-shadow: 0 var(--spacing-5) 25px -5px rgba(0, 0, 0, 0.1), 0 var(--spacing-2-5) var(--spacing-2-5) -5px rgba(0, 0, 0, 0.04);
     transform: scale(1.02);
   }
-
   .payment-card {
     min-height: var(--payment-card-min-height);
   }
-
   .payment-pricing {
     min-height: var(--payment-pricing-min-height);
   }
-
   .payment-features {
     min-height: var(--payment-features-min-height);
   }
-
   /* 📝 Textarea Size System */
   .textarea-size-default {
     min-height: var(--textarea-min-height-default);
   }
-
   .textarea-size-sm {
     min-height: var(--textarea-min-height-sm);
   }
-
   .textarea-size-lg {
     min-height: var(--textarea-min-height-lg);
   }
-
   .textarea-size-xl {
     min-height: var(--textarea-min-height-xl);
   }
-
   /* 📜 Scroll Area System */
   .scroll-bar-vertical {
     width: var(--scroll-bar-width);
     padding: var(--scroll-bar-padding);
   }
-
   .scroll-bar-horizontal {
     height: var(--scroll-bar-width);
     padding: var(--scroll-bar-padding);
   }
-
   /* 📏 Separator System */
   .separator-horizontal {
     height: var(--separator-thickness);
   }
-
   .separator-vertical {
     width: var(--separator-thickness);
   }
-
   /* 🔐 Custom Login Page System */
   .login-segmented-spacing {
     margin-top: var(--login-segmented-margin);
     margin-bottom: var(--login-segmented-margin);
   }
-
   .login-code-field {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: var(--login-form-gap);
   }
-
   .login-code-input-container {
     position: relative;
   }
-
   .login-code-button {
     padding: var(--login-button-padding);
   }
-
   .login-register-form {
     margin-top: var(--login-form-margin-top);
   }
-
   .login-error-message {
     position: absolute;
     right: 0;
@@ -885,20 +761,16 @@
     color: hsl(var(--destructive));
     font-size: var(--login-error-font-size);
   }
-
   .login-form-options {
     margin-top: var(--login-options-margin-top);
   }
-
   .login-remember-label {
     user-select: none;
   }
-
   /* 🎮 Command Component System */
   .command-list {
     max-height: var(--command-list-max-height);
   }
-
   /* 🍞 Toast Component System */
   .toast-viewport {
     bottom: var(--toast-viewport-bottom);
@@ -907,20 +779,17 @@
     max-width: var(--toast-viewport-max-width);
     padding: var(--toast-viewport-padding);
   }
-
   /* 📱 Drawer Component System */
   .drawer-content {
     margin-top: var(--drawer-content-margin-top);
     border-top-left-radius: var(--drawer-content-border-radius);
     border-top-right-radius: var(--drawer-content-border-radius);
   }
-
   .drawer-handle {
     margin-top: var(--drawer-handle-margin-top);
     height: var(--drawer-handle-height);
     width: var(--drawer-handle-width);
   }
-  
   .dialog-header {
     display: flex;
     align-items: center;
@@ -929,23 +798,19 @@
     border-bottom: 1px solid var(--color-border);
     margin-bottom: var(--dialog-gap);
   }
-  
   .dialog-title {
     @apply u-text-dialog-title;
     margin: 0;
   }
-  
   .dialog-description {
     @apply u-text-dialog-caption;
     margin-top: var(--spacing-xs);
   }
-  
   .dialog-body {
     flex: 1;
     overflow-y: auto;
     padding: var(--spacing-xs) 0;
   }
-  
   .dialog-footer {
     display: flex;
     align-items: center;
@@ -955,7 +820,6 @@
     border-top: 1px solid var(--color-border);
     margin-top: var(--dialog-gap);
   }
-  
   .dialog-close {
     position: absolute;
     top: var(--spacing-md);
@@ -972,20 +836,17 @@
     color: var(--color-muted-foreground);
     @apply u-transition-dialog;
   }
-  
   .dialog-close:hover {
     background: var(--color-muted);
     color: var(--color-foreground);
   }
-  
   /* 🎯 Quick Reference Dialog Component */
   .quick-reference-dialog {
     @apply dialog;
-    /* 特殊的快速引用弹窗样式 */
-    max-width: min(95vw, 768px) !important;
+    /* 特殊的快速引用弹窗样式 */;
+  max-width: min(95vw, 768px) !important;
     max-height: 85vh !important;
   }
-  
   .quick-reference-dialog .dialog-header {
     background: var(--color-muted);
     margin: calc(-1 * var(--dialog-padding));
@@ -993,37 +854,31 @@
     padding: var(--dialog-padding);
     border-radius: var(--dialog-border-radius) var(--dialog-border-radius) 0 0;
   }
-  
   .quick-reference-dialog .dialog-title {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
   }
-  
   .quick-reference-dialog .dialog-title svg {
     width: var(--spacing-5);
     height: var(--spacing-5);
     color: var(--color-primary);
   }
-  
   .quick-reference-dialog .dialog-body {
     min-height: 300px;
     max-height: 60vh;
   }
-  
   /* 🎯 Tab Component in Dialog */
   .dialog-tabs {
     display: flex;
     flex-direction: column;
     height: 100%;
   }
-  
   .dialog-tabs-list {
     display: flex;
     border-bottom: 1px solid var(--color-border);
     margin-bottom: var(--dialog-gap);
   }
-  
   .dialog-tabs-trigger {
     flex: 1;
     padding: var(--spacing-sm) var(--spacing-md);
@@ -1034,28 +889,23 @@
     border-bottom: var(--spacing-0-5) solid transparent;
     @apply u-transition-fast;
   }
-  
   .dialog-tabs-trigger:hover {
     color: var(--color-foreground);
     background: var(--color-muted);
   }
-  
   .dialog-tabs-trigger[data-state="active"] {
     color: var(--color-primary);
     border-bottom-color: var(--color-primary);
   }
-  
   .dialog-tabs-content {
     flex: 1;
     overflow-y: auto;
   }
-  
   /* 🎯 Search Component in Dialog */
   .dialog-search {
     position: relative;
     margin-bottom: var(--dialog-gap);
   }
-  
   .dialog-search-input {
     width: 100%;
     padding: var(--spacing-sm) var(--spacing-md);
@@ -1067,13 +917,11 @@
     font-size: var(--font-size-sm);
     @apply u-transition-fast;
   }
-  
   .dialog-search-input:focus {
     outline: none;
     border-color: var(--color-primary);
     box-shadow: 0 0 0 var(--spacing-0-5) var(--color-ring);
   }
-  
   .dialog-search-icon {
     position: absolute;
     left: var(--spacing-sm);
@@ -1083,14 +931,12 @@
     height: var(--spacing-4);
     color: var(--color-muted-foreground);
   }
-  
   /* 🎯 List Component in Dialog */
   .dialog-list {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
   }
-  
   .dialog-list-item {
     padding: var(--spacing-sm);
     border: 1px solid var(--color-border);
@@ -1098,18 +944,15 @@
     cursor: pointer;
     @apply u-transition-fast;
   }
-  
   .dialog-list-item:hover {
     background: var(--color-muted);
     border-color: var(--color-primary);
   }
-  
   .dialog-list-item[data-selected="true"] {
     background: var(--color-primary);
     color: var(--color-primary-foreground);
     border-color: var(--color-primary);
   }
-  
   .dialog-list-empty {
     display: flex;
     flex-direction: column;
@@ -1119,14 +962,12 @@
     color: var(--color-muted-foreground);
     text-align: center;
   }
-  
   .dialog-list-empty svg {
     width: var(--spacing-12);
     height: var(--spacing-12);
     margin-bottom: var(--spacing-md);
     opacity: 0.5;
   }
-  
   /* 🎯 Button Component in Dialog */
   .dialog-button {
     padding: var(--spacing-sm) var(--spacing-md);
@@ -1139,42 +980,34 @@
     font-weight: var(--font-weight-medium);
     @apply u-transition-fast;
   }
-  
   .dialog-button:hover {
     background: var(--color-muted);
   }
-  
   .dialog-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
   .dialog-button-primary {
     background: var(--color-primary);
     color: var(--color-primary-foreground);
     border-color: var(--color-primary);
   }
-  
   .dialog-button-primary:hover:not(:disabled) {
     background: var(--color-primary);
     opacity: 0.9;
   }
-  
   .dialog-button-secondary {
     background: var(--color-secondary);
     color: var(--color-secondary-foreground);
     border-color: var(--color-secondary);
   }
-  
   .dialog-button-ghost {
     background: transparent;
     border-color: transparent;
   }
-  
   .dialog-button-ghost:hover {
     background: var(--color-muted);
   }
-  
   /* 🎯 Badge Component in Dialog */
   .dialog-badge {
     display: inline-flex;
@@ -1186,75 +1019,61 @@
     background: var(--color-muted);
     color: var(--color-muted-foreground);
   }
-  
   .dialog-badge-primary {
     background: var(--color-primary);
     color: var(--color-primary-foreground);
   }
-  
   .dialog-badge-secondary {
     background: var(--color-secondary);
     color: var(--color-secondary-foreground);
   }
-  
   /* 🎯 Responsive Components */
   @media (max-width: 768px) {
     .dialog {
       @apply u-mobile-dialog;
     }
-    
     .dialog-header {
       padding-bottom: var(--spacing-sm);
       margin-bottom: var(--spacing-sm);
     }
-    
     .dialog-footer {
       padding-top: var(--spacing-sm);
       margin-top: var(--spacing-sm);
       flex-direction: column;
       gap: var(--spacing-xs);
     }
-    
     .dialog-button {
       width: 100%;
     }
-    
     .quick-reference-dialog .dialog-header {
       margin: calc(-1 * var(--spacing-md));
       margin-bottom: var(--spacing-sm);
       padding: var(--spacing-md);
     }
   }
-  
   @media (min-width: 1024px) {
     .dialog {
       @apply u-desktop-dialog;
     }
   }
-  
   /* 🎯 Animation States */
   .dialog[data-state="open"] {
     @apply u-animate-dialog-enter;
   }
-  
   .dialog[data-state="closed"] {
     @apply u-animate-dialog-exit;
   }
-  
   .dialog-overlay[data-state="open"] {
     @apply u-animate-overlay-enter;
   }
-  
   .dialog-overlay[data-state="closed"] {
     @apply u-animate-overlay-exit;
   }
-  
   /* 🎯 Dark Mode Support */
   [data-theme="dark"] .dialog {
     border-color: var(--color-border);
     box-shadow: 0 25px 50px -var(--spacing-3) hsl(var(--foreground) / 0.5);
   }
-  
   [data-theme="dark"] .dialog-overlay {
     background: rgba(0, 0, 0, 0.7);
   }

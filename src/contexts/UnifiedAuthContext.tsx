@@ -30,6 +30,7 @@ import { authService } from '@/services/authService';
 import { verificationCodeService } from '@/services/verificationCodeService';
 import { TokenService, TokenInfo } from '@/utils/tokenManager';
 import { AuthingTokenService } from '@/utils/authTokenHandler';
+import { TokenSecurityManager, SecureTokenInfo } from '@/utils/secureTokenStorage';
 import { SessionService, SessionEventCallbacks } from '@/utils/sessionManager';
 
 /**
@@ -103,7 +104,9 @@ const UnifiedAuthContext = createContext<UnifiedAuthContextType | undefined>(und
 /**
  * 统一认证提供者组件
  */
-export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => { const [user, setUser] = useState<UserInfo | null>(null);
+export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { t } = useTranslation();
+  const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -199,14 +202,34 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         ...userInfo
       };
 
-      // 🎫 保存Token到安全管理器
+      // 🔐 保存Token到安全存储器（使用新的安全机制）
       if (userInfo.access_token || userInfo.token) {
         try {
-          const tokenInfo = AuthingTokenService.createTokenFromLogin(userInfo);
-          await TokenService.setToken('authing', tokenInfo);
-          console.log('🎫 Token saved to secure storage');
+          const secureTokenInfo: SecureTokenInfo = {
+            accessToken: userInfo.access_token || userInfo.token,
+            refreshToken: userInfo.refresh_token,
+            expiresAt: userInfo.expires_at ? new Date(userInfo.expires_at).getTime() : Date.now() + (24 * 60 * 60 * 1000),
+            userId: formattedUser.id,
+            source: 'authing',
+            metadata: {
+              loginTime: formattedUser.loginTime,
+              username: formattedUser.username,
+              email: formattedUser.email,
+              phone: formattedUser.phone
+            }
+          };
+          
+          const success = await TokenSecurityManager.storeAuthToken(secureTokenInfo);
+          console.log(success ? '🔐 Token已安全存储' : '⚠️ Token存储失败，使用备用方案');
+          
+          // 备用方案：如果安全存储失败，使用原有方式
+          if (!success) {
+            const tokenInfo = AuthingTokenService.createTokenFromLogin(userInfo);
+            await TokenService.setToken('authing', tokenInfo);
+            console.log('🎫 Token已存储到备用位置');
+          }
         } catch (tokenError) {
-          console.warn('⚠️ Failed to save token:', tokenError);
+          console.warn('⚠️ Token存储失败:', tokenError);
           // 继续登录流程，但记录警告
         }
       }
@@ -395,7 +418,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           return hasChanged;
         })
         .reduce((obj, key) => {
-          obj[key] = updates[key as keyof UserInfo];
+          obj[key] = updates[key as keyof StandardUserInfo];
           return obj;
         }, {} as Record<string, any>);
 

@@ -1415,8 +1415,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                         <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                           <Badge 
                             variant="outline" 
-                            className="text-xs bg-background/80 px-1 sm:px-2 py-0 h-5 sm:h-6 tag-hover"
-                            style={{ borderColor: categoryStyle.color }}
+                            className="text-xs bg-background/80 px-1 sm:px-2 py-0 h-5 sm:h-6 tag-hover inline-style-converted" 
                           >
                             <span className="text-xs">{categoryStyle.icon}</span>
                             <span className="ml-1 hidden sm:inline text-xs">{categories.find(c => c.id === template.category)?.name}</span>
@@ -1530,7 +1529,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                         <div className="flex items-center gap-3 mb-3">
                           <h3 className="font-semibold text-lg">{template.title}</h3>
                           <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs" style={{ borderColor: categoryStyle.color }}>
+                            <Badge variant="outline" className="text-xs inline-style-converted" >
                               {categoryStyle.icon}
                               <span className="ml-1">{categories.find(c => c.id === template.category)?.name}</span>
                             </Badge>

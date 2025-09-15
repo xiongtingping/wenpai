@@ -34,7 +34,9 @@ interface WechatTemplate {
 /**
  * 微信朋友圈文案模板页面组件
  */
-const WechatTemplatePage: React.FC = () => { const [templates, setTemplates] = useState<WechatTemplate[]>([]);
+const WechatTemplatePage: React.FC = () => {
+  const { t } = useTranslation();
+  const [templates, setTemplates] = useState<WechatTemplate[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<WechatTemplate[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');

@@ -1299,7 +1299,7 @@ function MarketingCalendar() {
             </Dialog>
           </div>
 
-          <CardDescription className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 text-sm text-muted-foreground">
             <span className="text-xs">
               {selectedDate
                 ? `显示 ${selectedDate} 的待办`
@@ -1325,7 +1325,7 @@ function MarketingCalendar() {
                 </Button>
               )}
             </div>
-          </CardDescription>
+          </div>
         </CardHeader>
 
         <CardContent className="p-3 calendar-todo overflow-hidden flex flex-col">
