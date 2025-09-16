@@ -8,6 +8,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 
 interface StateLoadingWrapperProps {
@@ -33,6 +34,7 @@ export const StateLoadingWrapper: React.FC<StateLoadingWrapperProps> = ({
   showLoadingText = true,
   className = ''
 }) => {
+  const { t } = useTranslation();
   const { loading: isLoading } = useAuth();
   const isInitialized = true; // 简化状态管理
 
@@ -46,7 +48,7 @@ export const StateLoadingWrapper: React.FC<StateLoadingWrapperProps> = ({
       <div className={`flex items-center space-x-2 ${className}`}>
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
         {showLoadingText && (
-          <span className="text-sm text-muted-foreground">加载中...</span>
+          <span className="text-sm text-muted-foreground">{t('app.common.loading')}</span>
         )}
       </div>
     );

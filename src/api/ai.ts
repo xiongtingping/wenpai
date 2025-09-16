@@ -26,7 +26,7 @@ export type AIModel =
 /**
  * 图像生成模型类型定义
  */
-export type ImageModel = 
+export type ImageModel = ;
   | 'dall-e-3' | 'dall-e-2' | 'midjourney'
   | 'stable-diffusion' | 'deepfloyd';
 
@@ -131,15 +131,15 @@ export interface ImageGenerationResponse {
  * ```typescript
  * // 基础对话
  * const result = await callAI({
- *   prompt: "你好，请介绍一下人工智能",
- *   model: "gpt-4"
+ *   prompt: '你好，请介绍一下人工智能',
+ *   model: 'gpt-4'
  * });
  * 
  * // 带系统提示词的对话
  * const result = await callAI({
- *   prompt: "分析这段代码的性能问题",
- *   model: "gpt-4",
- *   systemPrompt: "你是一个专业的代码审查专家",
+ *   prompt: '分析这段代码的性能问题',
+ *   model: 'gpt-4',
+ *   systemPrompt: '你是一个专业的代码审查专家',
  *   temperature: 0.3
  * });
  * ```
@@ -178,7 +178,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     // 🔧 修复方案：优先使用OpenAI API，DeepSeek作为备选
     // 📌 已封装：API选择逻辑已验证稳定，请勿修改
     // 
-    
+
     // 优先使用OpenAI（已验证有效）
     if (model.includes('gpt') || model.includes('openai') || !model.includes('deepseek')) {
       selectedConfig = apiConfig.openai;
@@ -238,7 +238,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     let adjustedTemperature = temperature;
 
     if (regenerationSeed || variationLevel || styleVariation) {
-      const { prompt: newPrompt, systemPrompt: newSystemPrompt, temperature: newTemperature } =
+      const { prompt: newPrompt, systemPrompt: newSystemPrompt, temperature: newTemperature } =;
         generateVariationPrompt(prompt, systemPrompt, {
           ...(regenerationSeed && { regenerationSeed }),
           ...(variationLevel && { variationLevel }),
@@ -272,7 +272,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     }
 
     // 检查是否为长内容生成请求
-    const isLongContentRequest = systemPrompt?.includes('微信公众号') ||
+    const isLongContentRequest = systemPrompt?.includes('微信公众号') ||;
                                 systemPrompt?.includes('知乎') ||
                                 maxTokens > 2000;
 
@@ -293,7 +293,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       headers: {
         'Authorization': `Bearer ${selectedConfig.apiKey}`,
         'Content-Type': 'application/json',
-        ...(userId && { 'X-User-ID': userId })
+        ...(userId && { 'X-User-ID': userId });
       },
       timeout: isLongContentRequest ? 180000 : 150000 // 长内容3分钟，普通内容2.5分钟
     });
@@ -355,7 +355,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       model,
       endpoint: selectedConfig?.baseURL,
       error: technicalError,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString();
     });
 
     return {
@@ -399,7 +399,7 @@ async function handleStreamResponse(
       model,
       responseTime: Date.now() - startTime,
       success: false,
-      error: i18n.t('api.errors.流式响应处理失败')
+      error: i18n.t('api.errors.流式响应处理失败');
     };
   }
 }
@@ -440,16 +440,16 @@ function getModelMapping(model: AIModel): string {
  * ```typescript
  * // 基础图像生成
  * const result = await generateImage({
- *   prompt: "一只可爱的小猫坐在花园里",
- *   model: "dall-e-3",
- *   size: "1024x1024"
+ *   prompt: '一只可爱的小猫坐在花园里',
+ *   model: 'dall-e-3',
+ *   size: '1024x1024'
  * });
  * 
  * // 带参考图像的变体生成
  * const result = await generateImage({
- *   prompt: "将这个图像变成水彩画风格",
- *   model: "dall-e-3",
- *   referenceImage: "data:image/jpeg;base64,..."
+ *   prompt: '将这个图像变成水彩画风格',
+ *   model: 'dall-e-3',
+ *   referenceImage: 'data:image/jpeg;base64,...'
  * });
  * ```
  */
@@ -510,7 +510,7 @@ export async function generateImage(params: ImageGenerationParams): Promise<Imag
       url: item.url,
       revisedPrompt: item.revised_prompt
     }));
-    
+
     return {
       images,
       model,
@@ -521,13 +521,13 @@ export async function generateImage(params: ImageGenerationParams): Promise<Imag
 
   } catch (error) {
     console.error('图像生成API调用失败:', error);
-    
+
     return {
       images: [],
       model,
       responseTime: Date.now() - startTime,
       success: false,
-      error: error instanceof Error ? error.message : i18n.t('common.errors.unknownError')
+      error: error instanceof Error ? error.message : i18n.t('common.errors.unknownError');
     };
   }
 }
@@ -554,17 +554,17 @@ function getImageModelMapping(model: ImageModel): string {
  * @param params 通用参数
  * @returns 响应结果数组
  */
-export async function callAIBatch(
+export async function callAIBatch(;
   prompts: string[], 
   params: Omit<AICallParams, 'prompt'> = {}
 ): Promise<AIResponse[]> {
   const results: AIResponse[] = [];
-  
+
   for (const prompt of prompts) {
     const result = await callAI({ ...params, prompt });
     results.push(result);
   }
-  
+
   return results;
 }
 
@@ -575,7 +575,7 @@ export async function callAIBatch(
  * @param maxRetries 最大重试次数
  * @returns AI响应结果
  */
-export async function callAIWithRetry(
+export async function callAIWithRetry(;
   params: AICallParams, 
   maxRetries: number = 8
 ): Promise<AIResponse> {
@@ -587,24 +587,24 @@ export async function callAIWithRetry(
     console.log(`🔄 第${i + 1}次尝试调用AI...`);
     try {
       const result = await callAI(params);
-      
+
       if (result.success) {
         return result;
       }
-      
+
       // ✅ FIXED: 处理非异常错误（如429）
       lastError = new Error(result.error || i18n.t('common.errors.callFailed'));
-      
+
       // 检查是否是429错误
       const is429Error = result.error && result.error.includes('429');
-      
+
       // 调试日志
-      console.log(`🔍 重试机制调试: result.error="${result.error}", is429Error=${is429Error}, 重试次数=${i+1}/${maxRetries}`);
-      
+      console.log(`🔍 重试机制调试: result.error='${result.error}', is429Error=${is429Error}, 重试次数=${i+1}/${maxRetries}`);
+
       // 等待一段时间后重试 - 使用指数退避策略，针对429错误增加延迟
       if (i < maxRetries - 1) {
-        let delay = Math.min(Math.pow(2, i) * 1000, 10000); // 基础延迟
-        
+        let delay = Math.min(Math.pow(2, i) * 1000, 10000); // 基础延迟;
+
         // 如果是429错误，增加更长的延迟
         if (is429Error) {
           delay = Math.min(Math.pow(2, i) * 3000, 60000); // 429错误延迟更长，最大60秒
@@ -612,10 +612,10 @@ export async function callAIWithRetry(
         } else {
           console.log(`🔄 第${i + 1}次重试失败，${delay/1000}秒后进行第${i + 2}次重试...`);
         }
-        
+
         await new Promise(resolve => setTimeout(resolve, delay));
       }
-      
+
     } catch (error) {
       // 确保429错误能正确传递
       if (error instanceof Error) {
@@ -625,11 +625,11 @@ export async function callAIWithRetry(
       } else {
         lastError = new Error(i18n.t('common.errors.unknownError'));
       }
-      
+
       // 等待一段时间后重试
       if (i < maxRetries - 1) {
-        let delay = Math.min(Math.pow(2, i) * 1000, 10000); // 基础延迟
-        
+        let delay = Math.min(Math.pow(2, i) * 1000, 10000); // 基础延迟;
+
         // 如果是429错误，增加更长的延迟
         if (lastError && lastError.message.includes('429')) {
           delay = Math.min(Math.pow(2, i) * 3000, 60000); // 429错误延迟更长，最大60秒
@@ -637,12 +637,12 @@ export async function callAIWithRetry(
         } else {
           console.log(`🔄 第${i + 1}次重试失败，${delay/1000}秒后进行第${i + 2}次重试...`);
         }
-        
+
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }
-  
+
   throw lastError || new Error(i18n.t('api.errors.所有重试都失败了'));
 }
 
@@ -730,7 +730,7 @@ export async function checkAIStatus(): Promise<{
  * @returns 可用模型列表
  */
 export function getAvailableModels(): AIModel[] {
-  return [
+  return [;
     'gpt-4o', // ✅ FIXED: 优先推荐GPT-4o（已验证有效）
     'gpt-4',
     'gpt-4-turbo',
@@ -754,9 +754,9 @@ export function getAvailableModels(): AIModel[] {
  * @returns 估算成本（美元）
  */
 export function estimateAICost(prompt: string, model: AIModel = 'gpt-4'): number {
-  const promptTokens = Math.ceil(prompt.length / 4); // 粗略估算
-  const completionTokens = Math.ceil(promptTokens * 0.5); // 假设回复长度是提示的一半
-  
+  const promptTokens = Math.ceil(prompt.length / 4); // 粗略估算;
+  const completionTokens = Math.ceil(promptTokens * 0.5); // 假设回复长度是提示的一半;
+
   const costPer1kTokens = {
     'gpt-4': 0.03,
     'gpt-4o': 0.005, // ✅ FIXED: GPT-4o的实际价格
@@ -775,7 +775,7 @@ export function estimateAICost(prompt: string, model: AIModel = 'gpt-4'): number
     'llama': 0.001,
     'mistral': 0.001
   };
-  
+
   const cost = costPer1kTokens[model] || 0.01;
   return (promptTokens + completionTokens) * cost / 1000;
 }
@@ -814,7 +814,7 @@ function generateVariationPrompt(
   const variationInstructions = generateVariationInstructions(variationLevel, styleVariation);
 
   // 添加随机种子以确保差异
-  const seedInstruction = regenerationSeed
+  const seedInstruction = regenerationSeed;
     ? `\n\n【差异化要求】这是第${regenerationSeed}次生成，请确保与之前的版本有明显差异。`
     : `\n\n【差异化要求】请生成与常规版本不同的内容变体。`;
 
@@ -823,7 +823,7 @@ function generateVariationPrompt(
 
   // 构建增强的系统提示词
   const systemVariationPrompt = getSystemVariationPrompt(styleVariation);
-  const enhancedSystemPrompt = originalSystemPrompt
+  const enhancedSystemPrompt = originalSystemPrompt;
     ? `${originalSystemPrompt}\n\n${systemVariationPrompt}`
     : systemVariationPrompt;
 

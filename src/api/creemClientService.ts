@@ -4,8 +4,8 @@
  */
 
 import i18n from '@/i18n';
-import QRCode from "qrcode";
-import { createCreemCheckout as directCreateCheckout } from "./creemService";
+import QRCode from 'qrcode';
+import { createCreemCheckout as directCreateCheckout } from './creemService';
 import request from './request';
 import { logger } from '@/utils/logger';
 
@@ -24,7 +24,7 @@ export function getAPIEndpoint(): string {
   // 开发环境：优先尝试直接使用Creem服务
   if (import.meta.env.DEV) {
     logger.debug('🔧 开发环境：使用直接Creem服务调用');
-    return '/api/creem/direct'; // 使用直接调用方式
+    return '/api/creem/direct'; // 使用直接调用方式;
   }
 
   // 生产环境使用Netlify Functions
@@ -106,9 +106,9 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
 export async function getAlipayQRCode(priceId: string, customerEmail?: string) {
   try {
     const result = await createCreemCheckout(priceId, customerEmail);
-    
+
     // 优先使用后端返回的二维码URL
-    const alipayQr = 
+    const alipayQr =
       result.qrCodeUrl ||
       result.checkout?.alipayQrCodeUrl ||
       result.checkout?.alipay_qr_code_url ||
@@ -140,7 +140,7 @@ export async function getAlipayQRCode(priceId: string, customerEmail?: string) {
 export async function generateAlipayQRCode(priceId: string, customerEmail?: string) {
   try {
     const result = await createCreemCheckout(priceId, customerEmail);
-    
+
     // 优先使用后端返回的二维码图片
     if ((result as any).qrCodeDataURL) {
       return {
@@ -150,10 +150,10 @@ export async function generateAlipayQRCode(priceId: string, customerEmail?: stri
         originalUrl: result.qrCodeUrl || result.url
       };
     }
-    
+
     // 如果后端没有返回二维码图片，则在前端生成
     const qrResult = await getAlipayQRCode(priceId, customerEmail);
-    
+
     if (!qrResult.success || !qrResult.qrUrl) {
       throw new Error(i18n.t('api.errors.无法获取支付链接'));
     }
@@ -222,7 +222,7 @@ export async function startCheckout(priceId: string, customerEmail?: string) {
 export async function redirectToCheckout(priceId: string, customerEmail?: string) {
   try {
     const result = await startCheckout(priceId, customerEmail);
-    
+
     if (result.success && result.url) {
       // 跳转到Creem支付页面
       window.location.href = result.url;

@@ -160,7 +160,9 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
 
   // 处理跳转到个人资料
   const handleProfileClick = () => {
+    console.log('🎯 点击个人资料按钮，准备跳转到 /profile');
     navigate('/profile');
+    console.log('🎯 navigate 函数已调用');
   };
 
   // 
@@ -317,7 +319,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               }}
             >
               <HelpCircle className="mr-2 h-4 w-4" />
-              <span>{t('navigation.help')}</span>
+              <span>{t('navigation.help') === 'navigation.help' ? '帮助文档' : t('navigation.help')}</span>
             </button>
 
             {/* 分隔线 */}
@@ -326,8 +328,15 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
             <button
               className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
               onClick={() => {
+                console.log('🚪 退出登录按钮被点击');
                 setIsNativeDropdownOpen(false);
-                logout();
+                try {
+                  console.log('🚪 开始执行logout函数');
+                  logout();
+                  console.log('🚪 logout函数执行完成');
+                } catch (error) {
+                  console.error('🚪 logout函数执行失败:', error);
+                }
               }}
             >
               <LogOut className="mr-2 h-4 w-4" />

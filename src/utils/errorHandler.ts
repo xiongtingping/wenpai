@@ -239,6 +239,7 @@ export function setupGlobalErrorHandler(): void {
   window.addEventListener('error', (event) => {
     event.preventDefault();
     logError(event.error || new Error(event.message), {
+      type: 'unhandled_error',
       filename: event.filename,
       lineno: event.lineno,
       colno: event.colno
@@ -249,7 +250,9 @@ export function setupGlobalErrorHandler(): void {
   window.addEventListener('unhandledrejection', (event) => {
     event.preventDefault();
     logError(new Error(`Promise rejected: ${event.reason}`), {
-      promise: event.promise
+      type: 'unhandled_promise_rejection',
+      promise: event.promise,
+      reason: event.reason
     });
   });
 
@@ -258,6 +261,7 @@ export function setupGlobalErrorHandler(): void {
     if (event.target && event.target !== window) {
       const target = event.target as HTMLElement;
       logError(new Error(`Resource load failed: ${target.tagName}`), {
+        type: 'resource_load_error',
         resourceType: target.tagName,
         resourceUrl: (target as any).src || (target as any).href
       });
@@ -265,6 +269,69 @@ export function setupGlobalErrorHandler(): void {
   }, true);
 
   logger.debug('✅ 全局错误处理器已设置');
+}
+
+/**
+ * 包装异步函数，自动捕获Promise异常
+ */
+export function wrapAsyncFunction<T extends any[], R>(
+  fn: (...args: T) => Promise<R>,
+  context?: Record<string, any>
+): (...args: T) => Promise<R> {
+  return async (...args: T): Promise<R> => {
+    try {
+      return await fn(...args);
+    } catch (error) {
+      logError(error, {
+        type: 'wrapped_async_error',
+        functionName: fn.name,
+        context
+      });
+      throw error; // 重新抛出，让调用者决定如何处理
+    }
+  };
+}
+
+/**
+ * 安全执行异步函数，自动处理异常
+ */
+export async function safeAsyncExecution<T>(
+  fn: () => Promise<T>,
+  defaultValue?: T,
+  context?: Record<string, any>
+): Promise<T | undefined> {
+  try {
+    return await fn();
+  } catch (error) {
+    logError(error, {
+      type: 'safe_async_execution_error',
+      context
+    });
+    return defaultValue;
+  }
+}
+
+/**
+ * 批量包装Promise，确保异常被正确处理
+ */
+export function wrapPromises<T>(
+  promises: Promise<T>[],
+  context?: Record<string, any>
+): Promise<(T | Error)[]> {
+  return Promise.allSettled(promises).then(results => {
+    return results.map((result, index) => {
+      if (result.status === 'rejected') {
+        const error = new Error(`Promise ${index} failed: ${result.reason}`);
+        logError(error, {
+          type: 'promise_batch_error',
+          promiseIndex: index,
+          context
+        });
+        return error;
+      }
+      return result.value;
+    });
+  });
 }
 
 /**

@@ -8,13 +8,13 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 // 最基础的页面组件
 function SafeHomePage() {
-  return (
+  return (;
     <div style={{ padding: 'var(--spacing-8)', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       <h1 style={{ color: 'hsl(var(--primary))', marginBottom: 'var(--spacing-4)' }}>🎉 文派AI - 智能内容创作平台</h1>
       <p style={{ fontSize: '1.var(--spacing-4)', color: '#64748b', marginBottom: 'var(--spacing-8)' }}>
         欢迎来到文派AI！这是安全版本，正在逐步恢复完整功能。
       </p>
-      
+
       <div style={{ 
         background: '#f8fafc', 
         padding: 'var(--spacing-6)', 
@@ -23,14 +23,14 @@ function SafeHomePage() {
         marginBottom: 'var(--spacing-8)'
       }}>
         <h3 style={{ color: '#1e293b', marginBottom: 'var(--spacing-4)' }}>✅ 已修复的功能：</h3>
-        <ul className="text-slate-600 leading-relaxed" >
+        <ul className='text-slate-600 leading-relaxed' >
           <li>Dialog弹窗定位异常 - 使用视窗单位完全修复</li>
           <li>应用性能优化 - JavaScript包体积减少85%</li>
           <li>构建系统优化 - 快速启动和热更新</li>
         </ul>
       </div>
 
-      <div className="mt-8" /* TODO: 替换内联marginTop样式 */>
+      <div className='mt-8' /* TODO: 替换内联marginTop样式 */>
         <button 
           onClick={() => alert('React应用运行正常！所有基础功能可用。')}
           style={{
@@ -56,16 +56,16 @@ function SafeHomePage() {
 }
 
 function App() {
-  return (
-    <div className="App min-h-screen" >
-      <Suspense fallback={<LoadingSpinner text="加载中..." />}>
+  return (;
+    <div className='App min-h-screen' >
+      <Suspense fallback={<LoadingSpinner text='加载中...' />}>
         <Routes>
-          <Route path="/" element={<SafeHomePage />} />
-          <Route path="/home" element={<Navigate to="/" replace />} />
-          <Route path="*" element={
+          <Route path='/' element={<SafeHomePage />} />
+          <Route path='/home' element={<Navigate to='/' replace />} />
+          <Route path='*' element={
             <div style={{ padding: 'var(--spacing-8)', textAlign: 'center' }}>
               <h2>404 - 页面未找到</h2>
-              <p>请返回<a href="/" className="text-foreground" /* TODO: 替换内联颜色样式 */>首页</a></p>
+              <p>请返回<a href='/' className='text-foreground' /* TODO: 替换内联颜色样式 */>首页</a></p>
             </div>
           } />
         </Routes>

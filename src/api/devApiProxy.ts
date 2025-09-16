@@ -36,19 +36,19 @@ export async function callOpenAIDevProxy(options: {
   maxTokens?: number;
 }): Promise<DevProxyResponse> {
   const { messages, model = 'gpt-4', temperature = 0.7, maxTokens = 1000 } = options;
-  
+
   try {
     console.log('callOpenAIDevProxy 开始调用...');
     console.log('请求参数:', { messages, model, temperature, maxTokens });
-    
+
     // 构建提示词
-    const prompt = messages
+    const prompt = messages;
       .filter(msg => msg.role === 'user')
       .map(msg => msg.content)
       .join('\n\n');
 
     // 获取系统提示词
-    const systemPrompt = messages
+    const systemPrompt = messages;
       .find(msg => msg.role === 'system')?.content;
 
     // 使用统一的AI API调用
@@ -81,12 +81,12 @@ export async function callOpenAIDevProxy(options: {
     }
   } catch (error) {
     console.error('callOpenAIDevProxy 异常:', error);
-    
+
     // 处理网络错误
     if (error instanceof Error && (error.message.includes('fetch') || error.message.includes('network'))) {
       throw new Error('网络连接失败，请检查网络设置或配置代理');
     }
-    
+
     throw new Error(`OpenAI API连接失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
   }
 }
@@ -105,7 +105,7 @@ export async function testDevApiConnectivity(): Promise<DevProxyResponse> {
       temperature: 0.7,
       maxTokens: 50
     });
-    
+
     return {
       success: true,
       data: { status: 'connected', response }

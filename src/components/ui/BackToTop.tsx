@@ -42,7 +42,7 @@ export const BackToTop: React.FC<any> = ({ threshold = 300,
       onClick={scrollToTop}
       size="sm"
       className={`fixed bottom-6 right-6 z-[90] h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-primary hover:bg-primary/90 text-primary-foreground ${className}`}
-      aria-label={t('components.labels.标签')}
+      aria-label={t('components.labels.返回顶部')}
         title={t('components.labels.返回顶部')}
     >
       <ArrowUp className="h-5 w-5" />

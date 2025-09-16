@@ -5,8 +5,8 @@
  */
 
 import i18n from '@/i18n';
-import { Creem } from "creem";
-import QRCode from "qrcode";
+import { Creem } from 'creem';
+import QRCode from 'qrcode';
 import request from './request';
 
 // 开发环境直接使用Creem SDK
@@ -56,9 +56,9 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
 export async function getAlipayQRCode(priceId: string, customerEmail?: string) {
   try {
     const result = await createCreemCheckout(priceId, customerEmail);
-    
+
     // 提取支付宝二维码URL
-    const alipayQr = 
+    const alipayQr =
       result.checkout.alipayQrCodeUrl ||
       result.checkout.alipay_qr_code_url ||
       (result.checkout.qrCodes && result.checkout.qrCodes.alipay) ||
@@ -89,7 +89,7 @@ export async function getAlipayQRCode(priceId: string, customerEmail?: string) {
 export async function generateAlipayQRCode(priceId: string, customerEmail?: string) {
   try {
     const result = await getAlipayQRCode(priceId, customerEmail);
-    
+
     if (!result.success || !result.qrUrl) {
       throw new Error(i18n.t('api.errors.无法获取支付链接'));
     }
@@ -156,7 +156,7 @@ export async function startCheckout(priceId: string, customerEmail?: string) {
 export async function redirectToCheckout(priceId: string, customerEmail?: string) {
   try {
     const result = await startCheckout(priceId, customerEmail);
-    
+
     if (result.success && result.url) {
       // 跳转到Creem支付页面
       window.location.href = result.url;

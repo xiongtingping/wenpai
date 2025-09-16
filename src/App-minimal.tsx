@@ -7,7 +7,7 @@ import { Routes, Route } from 'react-router-dom';
 
 // 最简单的首页组件
 function SimpleHomePage() {
-  return (
+  return (;
     <div style={{ padding: 'var(--spacing-8)', fontFamily: 'Arial, sans-serif' }}>
       <h1 style={{ color: 'blue' }}>🎉 文派AI - 智能内容创作平台</h1>
       <p>欢迎来到文派AI！这是简化版本，用于诊断问题。</p>
@@ -21,11 +21,11 @@ function SimpleHomePage() {
 }
 
 function App() {
-  return (
-    <div className="App">
+  return (;
+    <div className='App'>
       <Routes>
-        <Route path="/" element={<SimpleHomePage />} />
-        <Route path="*" element={<div>404 - 页面未找到</div>} />
+        <Route path='/' element={<SimpleHomePage />} />
+        <Route path='*' element={<div>404 - 页面未找到</div>} />
       </Routes>
     </div>
   );

@@ -49,7 +49,7 @@ const request: Request = {
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data);
     });
     return response.json();
   },
@@ -62,7 +62,7 @@ const request: Request = {
 async function getAIConfig(): Promise<AIConfig> {
   return {
     deepseek: {
-      baseURL: import.meta.env.VITE_DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1',
+      baseURL: import.meta.env.VITE_DEEPSEEK_BASE_URL || 'https:// api.deepseek.com/v1',
       apiKey: import.meta.env.VITE_DEEPSEEK_API_KEY || ''
     }
   };
@@ -72,44 +72,44 @@ function getPrompt(type: PromptType, params: any): { userPrompt: string; systemP
   // 基础提示词映射
   const prompts: Record<PromptType, { userPrompt: string; systemPrompt: string }> = {
     [PromptType.PDF_CHAT_SYSTEM]: {
-      userPrompt: "请分析这个PDF文档",
-      systemPrompt: "你是一个专业的PDF文档分析助手。"
+      userPrompt: '请分析这个PDF文档',
+      systemPrompt: '你是一个专业的PDF文档分析助手。'
     },
     [PromptType.CONTENT_ADAPTATION_SYSTEM]: {
-      userPrompt: "请适配这个内容",
-      systemPrompt: "你是一个内容适配专家。"
+      userPrompt: '请适配这个内容',
+      systemPrompt: '你是一个内容适配专家。'
     },
     [PromptType.CREATIVE_GENERATION_SYSTEM]: {
-      userPrompt: "请生成创意内容",
-      systemPrompt: "你是一个创意生成专家。"
+      userPrompt: '请生成创意内容',
+      systemPrompt: '你是一个创意生成专家。'
     },
     [PromptType.BRAND_ANALYSIS_SYSTEM]: {
-      userPrompt: "请分析这个品牌",
-      systemPrompt: "你是一个品牌分析专家。"
+      userPrompt: '请分析这个品牌',
+      systemPrompt: '你是一个品牌分析专家。'
     },
     [PromptType.TITLE_GENERATION_USER]: {
-      userPrompt: "请为以下内容生成标题",
-      systemPrompt: "你是一个标题生成专家。"
+      userPrompt: '请为以下内容生成标题',
+      systemPrompt: '你是一个标题生成专家。'
     },
     [PromptType.TITLE_QUALITY_CHECK]: {
-      userPrompt: "请检查标题质量",
-      systemPrompt: "你是一个内容质量检查专家。"
+      userPrompt: '请检查标题质量',
+      systemPrompt: '你是一个内容质量检查专家。'
     },
     [PromptType.PLATFORM_STYLE_ADAPTATION]: {
-      userPrompt: "请适配平台风格",
-      systemPrompt: "你是一个平台风格适配专家。"
+      userPrompt: '请适配平台风格',
+      systemPrompt: '你是一个平台风格适配专家。'
     },
     [PromptType.CONTENT_FORM_PROCESSING]: {
-      userPrompt: "请处理内容格式",
-      systemPrompt: "你是一个内容格式处理专家。"
+      userPrompt: '请处理内容格式',
+      systemPrompt: '你是一个内容格式处理专家。'
     },
     [PromptType.EXPRESSION_STYLE_MANAGEMENT]: {
-      userPrompt: "请管理表达风格",
-      systemPrompt: "你是一个表达风格管理专家。"
+      userPrompt: '请管理表达风格',
+      systemPrompt: '你是一个表达风格管理专家。'
     }
   };
-  
-  return prompts[type] || { userPrompt: "请帮助我", systemPrompt: "你是一个AI助手。" };
+
+  return prompts[type] || { userPrompt: '请帮助我', systemPrompt: '你是一个AI助手。' };
 }
 
 async function queueAPICall(queueId: string, apiCall: () => Promise<any>, delay: number = 0, retries: number = 3): Promise<any> {
@@ -170,7 +170,7 @@ function validateModuleIntegrity(): boolean {
     };
 
     // 检查关键函数是否存在
-    const requiredFunctions = [
+    const requiredFunctions = [;
       'callAI',
       'callPDFChat',
       'callContentAdapter',
@@ -292,7 +292,7 @@ Your job is to generate emotionally resonant and platform-ready marketing conten
    - Start with a strong emotional hook.
    - Present a realistic pain point within the selected scenario.
    - Transition naturally into a solution or product tied to the industry.
-   - Close with relatable interaction prompts (e.g. "你也有这种烦恼吗？快来评论！").
+   - Close with relatable interaction prompts (e.g. '你也有这种烦恼吗？快来评论！').
 
 4. 🎥 For video content:
    - Output a structured script with: Scene description, camera movement, dialogue/subtitle, visual cues, BGM suggestion, emotional tone.
@@ -300,7 +300,7 @@ Your job is to generate emotionally resonant and platform-ready marketing conten
 
 5. 💬 Language must:
    - Match the tone and voice of the selected audience.
-   - Avoid marketing clichés like "提升用户体验" or "打造差异化".
+   - Avoid marketing clichés like '提升用户体验' or '打造差异化'.
    - Use conversational, emoji-rich, platform-native expressions.
 
 ---
@@ -342,15 +342,15 @@ Your output must feel like it was written by a real KOC or content strategist �
  * ```typescript
  * // 标准调用方式
  * const result = await callAI({
- *   prompt: "请帮我生成一段品牌介绍",
+ *   prompt: '请帮我生成一段品牌介绍',
  *   taskType: AITaskType.BRAND_DESCRIPTION,
  * });
  *
  * // 带上下文的调用
  * const result = await callAI({
- *   prompt: "分析这个品牌",
+ *   prompt: '分析这个品牌',
  *   taskType: AITaskType.BRAND_ANALYSIS,
- *   context: { brandName: "示例品牌", industry: "科技" }
+ *   context: { brandName: '示例品牌', industry: '科技' }
  * });
  * ```
  */
@@ -378,7 +378,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       taskType,
       responseTime: Date.now() - startTime,
       success: false,
-      error: i18n.t('api.errors.提示词不能为空')
+      error: i18n.t('api.errors.提示词不能为空');
     };
   }
 
@@ -445,7 +445,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       taskType,
       responseTime: Date.now() - startTime,
       success: false,
-      error: error instanceof Error ? error.message : i18n.t('common.errors.unknownError')
+      error: error instanceof Error ? error.message : i18n.t('common.errors.unknownError');
     };
   }
 }
@@ -455,7 +455,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
  */
 async function callDeepSeekDirect(config: any, params: any): Promise<AIResponse> {
   const { prompt, model, maxTokens, temperature, systemPrompt, userId, startTime, taskType } = params;
-  
+
   try {
     // 验证DeepSeek配置
     if (!config.deepseek.apiKey) {
@@ -513,7 +513,7 @@ async function callDeepSeekDirect(config: any, params: any): Promise<AIResponse>
  */
 async function callAIViaBackend(params: any): Promise<AIResponse> {
   const { prompt, model, maxTokens, temperature, systemPrompt, userId, startTime } = params;
-  
+
   try {
     console.log('🏢 通过后端API调用AI服务（通过队列管理）');
 
@@ -599,7 +599,7 @@ export async function initializeAIService(): Promise<{
     const status = await checkAIStatus();
 
     const success = integrityCheck && status.deepseek;
-    const message = success
+    const message = success;
       ? '✅ AI服务模块初始化成功'
       : `❌ AI服务模块初始化失败: ${status.message}`;
 
@@ -826,7 +826,7 @@ export async function callEmojiGenerator(params: {
 
   const systemPrompt = `你是一个专业的表情符号设计师，擅长创作有趣、生动的表情符号描述。`;
 
-  const prompt = `请为以下要求生成表情符号的详细描述：
+  const prompt = `请为以下要求生成表情符号的详细描述：;
 
 角色：${character}
 品牌风格：${brand}
@@ -907,7 +907,7 @@ export async function callTitleQualityChecker(params: {
     title,
     originalContent,
     platform,
-    otherTitles: otherTitles.join('\n')
+    otherTitles: otherTitles.join('\n');
   });
 
   return await callAI({
@@ -1056,7 +1056,7 @@ export async function callMultiDimensionalMatrixGenerator(params: {
   const { originalContent, platform, dimensions } = params;
 
   // 🎯 构建多维矩阵提示词
-  const matrixPrompt = `你是一位专业的多维度内容创作专家，请根据以下多维矩阵要求生成高质量内容：
+  const matrixPrompt = `你是一位专业的多维度内容创作专家，请根据以下多维矩阵要求生成高质量内容：;
 
 ## 📊 多维矩阵维度（按优先级排序）
 
@@ -1168,7 +1168,7 @@ export async function callContentQualityController(params: {
   // ✅ 核心信息保留检查
   const originalKeywords = originalContent.match(/[\u4e00-\u9fa5]{2,}/g) || [];
   const generatedKeywords = cleanedContent.match(/[\u4e00-\u9fa5]{2,}/g) || [];
-  const keywordRetention = originalKeywords.filter(keyword =>
+  const keywordRetention = originalKeywords.filter(keyword =>;
     generatedKeywords.some(gk => gk.includes(keyword) || keyword.includes(gk))
   ).length / originalKeywords.length;
 
@@ -1277,7 +1277,7 @@ export async function callMultiVersionContentGenerator(params: {
   }
 
   // 选择最佳版本（这里简化为选择评分最高的）
-  const bestVersion = versions.reduce((best, current) =>
+  const bestVersion = versions.reduce((best, current) =>;
     current.score > best.score ? current : best
   );
 

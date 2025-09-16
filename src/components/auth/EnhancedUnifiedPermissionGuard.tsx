@@ -108,6 +108,9 @@ export interface EnhancedUnifiedPermissionGuardProps {
   
   /** 是否自动记录权限检查日志 */
   enableLogging?: boolean;
+  
+  /** 预览模式下的自定义消息 */
+  previewMessage?: string;
 }
 
 /**
@@ -169,7 +172,8 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
   upgradeUrl,
   onUpgradeClick,
   showUpgradeHint = true,
-  enableLogging = false
+  enableLogging = false,
+  previewMessage
 }) => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -482,7 +486,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
               <Lock className="w-8 h-8 text-primary mx-auto mb-3" />
               <h3 className="font-semibold mb-2">预览模式</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                您正在预览功能界面
+                {previewMessage || "您正在预览功能界面"}
               </p>
               <Button size="sm" className="w-full" onClick={handleUpgradeClick}>
                 <Crown className="w-4 h-4 mr-2" />

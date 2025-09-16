@@ -1,5 +1,5 @@
 /**
- * 🚀 文派 - 主应用组件 (已清理测试代码)
+ * 🚀 文派 - 主应用组件 (已清理测试代码);
  *
  * 功能：
  * - 统一路由管理
@@ -113,7 +113,7 @@ const StateManagerInitializer: React.FC = () => {
  */
 const App: React.FC = () => {
   const { t } = useTranslation();
-  
+
   useEffect(() => {
     // 应用启动时检查是否为恶意回调URL
     const currentUrl = window.location.href;
@@ -130,7 +130,7 @@ const App: React.FC = () => {
     // GuardProvider 已移除 - 仅使用自定义登录表单
 
     // 立即处理恶意回调URL重定向
-    if (currentUrl.includes('callbackhttp://')) {
+    if (currentUrl.includes('callbackhttp:// ')) {
       console.log('🚨 App层检测到恶意回调URL，立即处理重定向...');
 
       const codeMatch = currentUrl.match(/code=([^&]+)/);
@@ -152,7 +152,7 @@ const App: React.FC = () => {
 
   return (
     <EnhancedErrorBoundary
-      level="application"
+      level='application'
       enableAutoRecovery={true}
       enablePerformanceTracking={true}
       onError={(error) => {
@@ -169,68 +169,68 @@ const App: React.FC = () => {
                     <Suspense fallback={<LoadingSpinner />}>
                       <Routes>
                         {/* 首页 */}
-                        <Route path="/" element={<HomePage />} />
+                        <Route path='/' element={<HomePage />} />
 
                         {/* 登录注册页面 */}
-                        <Route path="/login" element={<CustomLoginPage />} />
-                        <Route path="/register" element={<CustomLoginPage />} />
-                        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                        <Route path='/login' element={<CustomLoginPage />} />
+                        <Route path='/register' element={<CustomLoginPage />} />
+                        <Route path='/forgot-password' element={<ForgotPasswordPage />} />
 
                         {/* 兼容旧路由 */}
-                        <Route path="/custom-login" element={<CustomLoginPage />} />
+                        <Route path='/custom-login' element={<CustomLoginPage />} />
 
                         {/* 登录回调页面 - 支持各种回调URL格式 */}
-                        <Route path="/callback" element={<CallbackPage />} />
-                        <Route path="/callback/" element={<CallbackPage />} />
-                        <Route path="/callback/*" element={<CallbackPage />} />
-                        <Route path="/callbackhttp/*" element={<CallbackPage />} />
+                        <Route path='/callback' element={<CallbackPage />} />
+                        <Route path='/callback/' element={<CallbackPage />} />
+                        <Route path='/callback/*' element={<CallbackPage />} />
+                        <Route path='/callbackhttp/*' element={<CallbackPage />} />
 
                         {/* 核心功能页面 - 需要登录 */}
-                        <Route path="/adapt" element={<AuthGuard><LazyWrapper><LazyNewAdaptPage /></LazyWrapper></AuthGuard>} />
-                        <Route path="/adapt-new" element={<AuthGuard><LazyWrapper><LazyNewAdaptPage /></LazyWrapper></AuthGuard>} />
-                        <Route path="/creative-studio" element={<AuthGuard><LazyWrapper><LazyCreativeStudioPage /></LazyWrapper></AuthGuard>} />
-                        <Route path="/hot-topics" element={<HotTopicsPage />} />
-                        <Route path="/enhanced-hot-topics" element={<EnhancedHotTopicsPage />} />
-                        <Route path="/bookmark" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
-                        <Route path="/library" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
-                        <Route path="/brand-library" element={<AuthGuard><LazyWrapper><LazyBrandLibraryPage /></LazyWrapper></AuthGuard>} />
-                        <Route path="/history" element={<AuthGuard><LazyWrapper><LazyHistoryPage /></LazyWrapper></AuthGuard>} />
-                        <Route path="/emoji" element={<EmojiPage />} />
-                        <Route path="/share-manager" element={<AuthGuard><LazyWrapper><LazyShareManagerPage /></LazyWrapper></AuthGuard>} />
-                        <Route path="/wechat-templates" element={<AuthGuard><LazyWrapper><LazyWechatTemplatePage /></LazyWrapper></AuthGuard>} />
+                        <Route path='/adapt' element={<AuthGuard><LazyWrapper><LazyNewAdaptPage /></LazyWrapper></AuthGuard>} />
+                        <Route path='/adapt-new' element={<AuthGuard><LazyWrapper><LazyNewAdaptPage /></LazyWrapper></AuthGuard>} />
+                        <Route path='/creative-studio' element={<AuthGuard><LazyWrapper><LazyCreativeStudioPage /></LazyWrapper></AuthGuard>} />
+                        <Route path='/hot-topics' element={<HotTopicsPage />} />
+                        <Route path='/enhanced-hot-topics' element={<EnhancedHotTopicsPage />} />
+                        <Route path='/bookmark' element={<AuthGuard><BookmarkPage /></AuthGuard>} />
+                        <Route path='/library' element={<AuthGuard><BookmarkPage /></AuthGuard>} />
+                        <Route path='/brand-library' element={<AuthGuard><LazyWrapper><LazyBrandLibraryPage /></LazyWrapper></AuthGuard>} />
+                        <Route path='/history' element={<AuthGuard><LazyWrapper><LazyHistoryPage /></LazyWrapper></AuthGuard>} />
+                        <Route path='/emoji' element={<EmojiPage />} />
+                        <Route path='/share-manager' element={<AuthGuard><LazyWrapper><LazyShareManagerPage /></LazyWrapper></AuthGuard>} />
+                        <Route path='/wechat-templates' element={<AuthGuard><LazyWrapper><LazyWechatTemplatePage /></LazyWrapper></AuthGuard>} />
 
                         {/* 用户相关页面 - 需要登录 */}
-                        <Route path="/profile" element={<AuthGuard><LazyWrapper><LazyProfilePage /></LazyWrapper></AuthGuard>} />
-                        <Route path="/settings" element={<AuthGuard><LazyWrapper><LazySettingsPage /></LazyWrapper></AuthGuard>} />
+                        <Route path='/profile' element={<AuthGuard><LazyWrapper><LazyProfilePage /></LazyWrapper></AuthGuard>} />
+                        <Route path='/settings' element={<AuthGuard><LazyWrapper><LazySettingsPage /></LazyWrapper></AuthGuard>} />
 
                         {/* 支付相关页面 */}
-                        <Route path="/payment" element={<PaymentPage />} />
-                        <Route path="/payment/result" element={<PaymentResultPage />} />
-                        <Route path="/payment/feedback" element={<PaymentFeedbackPage />} />
-                        <Route path="/payment-status" element={<PaymentStatusPage />} />
-                        <Route path="/upgrade" element={<UpgradeComparisonPage />} />
+                        <Route path='/payment' element={<PaymentPage />} />
+                        <Route path='/payment/result' element={<PaymentResultPage />} />
+                        <Route path='/payment/feedback' element={<PaymentFeedbackPage />} />
+                        <Route path='/payment-status' element={<PaymentStatusPage />} />
+                        <Route path='/upgrade' element={<UpgradeComparisonPage />} />
 
                         {/* 信息页面 */}
-                        <Route path="/about" element={<AboutPage />} />
-                        <Route path="/terms" element={<TermsPage />} />
-                        <Route path="/privacy" element={<PrivacyPage />} />
-                        <Route path="/features" element={<FeatureShowcasePage />} />
+                        <Route path='/about' element={<AboutPage />} />
+                        <Route path='/terms' element={<TermsPage />} />
+                        <Route path='/privacy' element={<PrivacyPage />} />
+                        <Route path='/features' element={<FeatureShowcasePage />} />
 
                         {/* 临时调试页面 - 用于Token统计修复 */}
-                        <Route path="/token-debug" element={<TokenDebugPage />} />
+                        <Route path='/token-debug' element={<TokenDebugPage />} />
 
                         {/* Dialog定位测试页面 */}
-                        <Route path="/dialog-test" element={<DialogTestPage />} />
+                        <Route path='/dialog-test' element={<DialogTestPage />} />
 
                         {/* 国际化测试页面 */}
-                        <Route path="/i18n-test" element={<I18nTestPage />} />
+                        <Route path='/i18n-test' element={<I18nTestPage />} />
 
                         {/* 错误页面 */}
-                        <Route path="/403" element={<ForbiddenPage />} />
-                        <Route path="/404" element={<NotFoundPage />} />
+                        <Route path='/403' element={<ForbiddenPage />} />
+                        <Route path='/404' element={<NotFoundPage />} />
 
                         {/* 捕获所有未匹配路由，检查是否为恶意回调URL */}
-                        <Route path="*" element={<CallbackPage />} />
+                        <Route path='*' element={<CallbackPage />} />
                       </Routes>
                     </Suspense>
                   </ConditionalNavigation>

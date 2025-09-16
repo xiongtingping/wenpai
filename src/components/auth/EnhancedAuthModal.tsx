@@ -370,8 +370,8 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                       <AppInput
                         name="identifier"
                         type="text"
-                        placeholder="手机号/邮箱/用户名"
-                        label={t('components.labels.标签')}
+                        placeholder="手机号"
+                        label="手机号"
         autoComplete="username"
                         required
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLoginContact(e.target.value)}
@@ -382,7 +382,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                           name="password"
                           type="password"
                           placeholder="请输入密码"
-                          label={t('components.labels.标签')}
+                          label={t('components.labels.密码')}
                           autoComplete="current-password"
                           required
                         />
@@ -471,9 +471,9 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                       <AppInput
                         name="contact"
                         type="text"
-                        placeholder="手机号或邮箱"
-                        label="手机号/邮箱"
-                        autoComplete="email"
+                        placeholder="手机号"
+                        label="手机号"
+                        autoComplete="tel"
                         required
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRegisterContact(e.target.value)}
                       />
@@ -483,7 +483,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                           name="password"
                           type="password"
                           placeholder="请输入密码"
-                          label={t('components.labels.标签')}
+                          label={t('components.labels.密码')}
         autoComplete="new-password"
                           required
                         />
@@ -534,8 +534,8 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                     <AppInput
                       name="contact"
                       type="text"
-                      placeholder="手机号或邮箱"
-                      label={t('components.labels.标签')}
+                      placeholder="手机号"
+                      label="手机号"
         required
                     />
                     
@@ -567,7 +567,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
                       name="newPassword"
                       type="password"
                       placeholder="请输入新密码"
-                      label={t('components.labels.标签')}
+                      label={t('components.labels.新密码')}
         autoComplete="new-password"
                       required
                     />

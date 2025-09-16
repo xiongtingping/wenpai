@@ -1186,6 +1186,15 @@
       "warning": "警告",
       "success": "成功",
       "failed": "失败",
+      "标签": "标签",
+      "手机号/邮箱": "手机号",
+      "密码": "密码",
+      "验证码": "验证码",
+      "新密码": "新密码",
+      "文本": "文派",
+      "文本内容": "文本内容",
+      "文本处理成功": "文本处理成功",
+      "返回顶部": "返回顶部",
       "paymentType": "支付类型",
       "order": "订单",
       "orderUser": "订单用户",
@@ -4827,6 +4836,9 @@
     }
   },
   "app": {
+    "common": {
+      "loading": "加载中..."
+    },
     "loading": {
       "loadingPage": "加载页面中..."
     },
@@ -6623,10 +6635,10 @@
     "errors": {
       "loginFailed": "登录失败",
       "accountOrPasswordError": "账号或密码错误",
-      "checkCredentials": "请检查您输入的手机号/邮箱和密码是否正确",
+      "checkCredentials": "请检查您输入的手机号和密码是否正确",
       "forgotPasswordHint": "忘记密码？点击下方链接重置",
       "accountNotExists": "账号不存在",
-      "phoneNotRegistered": "该手机号/邮箱尚未注册，请先注册账号",
+      "phoneNotRegistered": "该手机号尚未注册，请先注册账号",
       "registerSuggestion": "点击下方\"注册\"按钮创建新账号",
       "accountLocked": "账号已被锁定",
       "accountLockedDesc": "您的账号因多次登录失败被暂时锁定，请稍后重试或联系客服",
@@ -6676,7 +6688,8 @@
       "noAccount": "没有账号？",
       "register": "注册",
       "hasAccount": "已有账号？",
-      "backToLogin": "返回登录"
+      "backToLogin": "返回登录",
+      "help": "帮助文档"
     },
     "privacy": {
       "agreement": "我已阅读并同意",
@@ -11376,6 +11389,7 @@
       "转发失败": "转发失败",
       "复制失败": "复制失败",
       "请手动复制": "请手动复制",
+      "文本处理失败": "文本处理失败",
       "严重性能问题": "严重性能问题",
       "添加正确的依赖数组": "添加正确的依赖数组",
       "性能警告": "性能警告",

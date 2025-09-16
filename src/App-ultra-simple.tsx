@@ -6,7 +6,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 function UltraSimplePage() {
-  return (
+  return (;
     <div style={{ 
       padding: 'var(--spacing-8)', 
       fontFamily: 'system-ui', 
@@ -22,7 +22,7 @@ function UltraSimplePage() {
       }}>
         🎉 文派AI 恢复成功！
       </h1>
-      
+
       <div style={{ 
         background: '#f0f9ff', 
         padding: 'var(--spacing-6)', 
@@ -48,7 +48,7 @@ function UltraSimplePage() {
         border: '1px solid #eab308'
       }}>
         <h3 style={{ color: '#a16207', margin: '0 0 var(--spacing-4) 0' }}>🔄 下一步计划</h3>
-        <p className="text-amber-800" >
+        <p className='text-amber-800' >
           逐步恢复完整功能，包括用户认证、内容创作工具、品牌库管理等核心功能。
         </p>
       </div>
@@ -80,16 +80,16 @@ function UltraSimplePage() {
       }}>
         <p>当前时间：{new Date().toLocaleString('zh-CN')}</p>
         <p>版本：超简化安全模式</p>
-        <p>端口：http://localhost:5173</p>
+        <p>端口：http:// localhost:5173</p>
       </div>
     </div>
   );
 }
 
 function App() {
-  return (
+  return (;
     <Routes>
-      <Route path="*" element={<UltraSimplePage />} />
+      <Route path='*' element={<UltraSimplePage />} />
     </Routes>
   );
 }

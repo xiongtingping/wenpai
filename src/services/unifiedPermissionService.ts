@@ -6,80 +6,23 @@
  */
 
 import type { SubscriptionTier } from '@/types/subscription';
+import type { 
+  ExtendedPermissionType, 
+  PermissionCheckResult, 
+  PermissionConfig, 
+  SessionUserInfo,
+  IPermissionService
+} from '@/types/permissions';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 
 /**
- * 扩展的权限类型定义
+ * 订阅等级权重映射
  */
-export type ExtendedPermissionType =
-  | 'auth:required'           // 需要登录
-  | 'tier:trial'             // 体验版权限
-  | 'tier:pro'               // 专业版权限
-  | 'tier:premium'           // 高级版权限
-  | 'feature:creative-studio' // 创意魔方功能
-  | 'feature:creative-cube'    // 创意魔方-九宫格
-  | 'feature:marketing-calendar' // 营销日历
-  | 'feature:wechat-templates' // 微信朋友圈文案模板
-  | 'feature:emoji-generator'  // Emoji生成功能
-  | 'feature:brand-library'    // 品牌库功能
-  | 'feature:unlimited-usage'  // 无限使用功能
-  | 'feature:advanced-models'  // 高级模型功能
-  | 'model:trial'            // 体验版AI模型权限
-  | 'model:pro'              // 专业版AI模型权限
-  | 'model:premium'          // 高级版AI模型权限
-  | 'theme:basic'            // 基础主题
-  | 'theme:advanced'         // 高级主题
-  | 'theme:premium';         // 专业主题
-
-/**
- * 权限检查结果接口
- */
-export interface PermissionCheckResult {
-  /** 是否有权限 */
-  hasPermission: boolean;
-  /** 用户当前等级 */
-  userTier: SubscriptionTier;
-  /** 所需等级 */
-  requiredTier: SubscriptionTier;
-  /** 缺失的权限列表 */
-  missingPermissions: string[];
-  /** 建议操作 */
-  suggestedAction: 'upgrade' | 'login' | 'none';
-  /** 升级目标等级 */
-  upgradeTarget?: 'pro' | 'premium';
-  /** 权限配置信息 */
-  permissionConfig: PermissionConfig;
-}
-
-/**
- * 权限配置接口
- */
-export interface PermissionConfig {
-  name: string;
-  description: string;
-  requiredTier: SubscriptionTier;
-  check: (user: any) => boolean;
-  redirectUrl: string;
-  category: 'auth' | 'tier' | 'feature' | 'model' | 'theme';
-  priority: 'low' | 'medium' | 'high' | 'critical';
-}
-
-/**
- * 用户信息接口（扩展）
- */
-export interface SessionUserInfo {
-  id?: string;
-  email?: string;
-  subscription?: {
-    tier: SubscriptionTier;
-    status: string;
-    expiresAt?: string;
-  };
-  vipLevel?: string;
-  isVip?: boolean;
-  permissions?: string[];
-  registrationDate?: string;
-}
+const SUBSCRIPTION_TIERS: Record<SubscriptionTier, number> = {
+  trial: 0,
+  pro: 1,
+  premium: 2
+} as const;
 
 /**
  * 获取用户当前订阅等级
@@ -494,7 +437,173 @@ export const useUnifiedPermissionCheck = (
 // React导入
 import React from 'react';
 
-// 导出类型和常量
-export type { SessionUserInfo, PermissionCheckResult, PermissionConfig };
-export { getUserTier, UNIFIED_PERMISSION_CONFIGS };
+// 🔒 安全修复：导入服务器端权限验证服务
+// 🔧 P1-1: 移除循环依赖 - 使用依赖注入替代直接导入
+// import { ServerPermissionService } from './serverPermissionService';
+
+/**
+ * 🔧 P1-1: 依赖注入容器 - 解决循环依赖
+ * 允许在运行时注入ServerPermissionService
+ */
+class ServiceContainer {
+  private static serverPermissionService: any = null;
+  
+  static setServerPermissionService(service: any) {
+    this.serverPermissionService = service;
+  }
+  
+  static getServerPermissionService() {
+    return this.serverPermissionService;
+  }
+}
+
+export { ServiceContainer };
+
+/**
+ * 增强的权限检查结果（包含服务器验证）
+ */
+export interface EnhancedPermissionCheckResult extends PermissionCheckResult {
+  serverVerified?: boolean;
+  serverResult?: any;
+  verificationTimestamp?: string;
+}
+
+/**
+ * 增强的统一权限服务类（集成服务器端验证）
+ */
+export class EnhancedUnifiedPermissionService extends UnifiedPermissionService {
+  /**
+   * 🔒 安全检查：结合前端和服务器端验证
+   */
+  static async checkPermissionSecure(
+    user: SessionUserInfo | null,
+    permissionType: ExtendedPermissionType
+  ): Promise<EnhancedPermissionCheckResult> {
+    // 先进行前端检查
+    const frontendResult = this.checkPermission(user, permissionType);
+    
+    // 如果前端检查失败，直接返回
+    if (!frontendResult.hasPermission) {
+      return {
+        ...frontendResult,
+        serverVerified: false
+      };
+    }
+
+    try {
+      // 进行服务器端验证（通过依赖注入）
+      const serverPermissionService = ServiceContainer.getServerPermissionService();
+      if (!serverPermissionService) {
+        console.warn('⚠️ ServerPermissionService未注入，跳过服务器端验证');
+        return {
+          ...frontendResult,
+          serverVerified: false
+        };
+      }
+      
+      const serverResult = await serverPermissionService.verifyPermission(permissionType);
+      
+      if (serverResult) {
+        return {
+          ...frontendResult,
+          hasPermission: serverResult.hasPermission, // 以服务器结果为准
+          serverVerified: true,
+          serverResult: serverResult,
+          verificationTimestamp: new Date().toISOString(),
+          missingPermissions: serverResult.hasPermission ? [] : [permissionType]
+        };
+      } else {
+        // 服务器验证失败，使用前端结果但标记未验证
+        console.warn('⚠️ 服务器端权限验证失败，使用前端结果');
+        return {
+          ...frontendResult,
+          serverVerified: false
+        };
+      }
+    } catch (error) {
+      console.error('❌ 服务器端权限验证错误:', error);
+      return {
+        ...frontendResult,
+        serverVerified: false
+      };
+    }
+  }
+
+  /**
+   * 🔒 关键操作权限检查（必须通过服务器验证）
+   */
+  static async checkSecurePermissions(
+    user: SessionUserInfo | null,
+    permissionTypes: ExtendedPermissionType[]
+  ): Promise<{ success: boolean; error?: string; results?: any }> {
+    try {
+      // 先进行前端批量检查
+      const frontendResults = this.checkMultiplePermissions(user, permissionTypes);
+      const frontendAllPass = frontendResults.every(result => result.hasPermission);
+      
+      if (!frontendAllPass) {
+        const failedPermissions = frontendResults
+          .filter(result => !result.hasPermission)
+          .map(result => result.missingPermissions)
+          .flat();
+          
+        return {
+          success: false,
+          error: `前端权限检查失败，缺少权限: ${failedPermissions.join(', ')}`
+        };
+      }
+
+      // 进行服务器端安全验证（通过依赖注入）
+      const serverPermissionService = ServiceContainer.getServerPermissionService();
+      if (!serverPermissionService) {
+        return {
+          success: false,
+          error: 'ServerPermissionService未注入，无法进行安全验证'
+        };
+      }
+      
+      const serverResult = await serverPermissionService.verifySecurePermissions(permissionTypes);
+      
+      return serverResult;
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '权限验证失败'
+      };
+    }
+  }
+}
+
+/**
+ * React Hook：增强的权限检查（包含服务器验证）
+ */
+export const useEnhancedPermissionCheck = (
+  user: SessionUserInfo | null,
+  permissionType: ExtendedPermissionType,
+  enableServerVerification: boolean = false
+): EnhancedPermissionCheckResult => {
+  const [result, setResult] = React.useState<EnhancedPermissionCheckResult>(() => 
+    UnifiedPermissionService.checkPermission(user, permissionType)
+  );
+
+  React.useEffect(() => {
+    if (enableServerVerification) {
+      EnhancedUnifiedPermissionService.checkPermissionSecure(user, permissionType)
+        .then(setResult)
+        .catch(error => {
+          console.error('❌ 增强权限检查失败:', error);
+          setResult(prev => ({ ...prev, serverVerified: false }));
+        });
+    } else {
+      setResult(UnifiedPermissionService.checkPermission(user, permissionType));
+    }
+  }, [user, permissionType, enableServerVerification]);
+
+  return result;
+};
+
+// 导出增强功能
+export { ServerPermissionService };
+export type { EnhancedPermissionCheckResult };
 export default UnifiedPermissionService;

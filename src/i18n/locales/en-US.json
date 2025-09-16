@@ -1186,6 +1186,15 @@
       "warning": "Warning",
       "success": "Success",
       "failed": "Failed",
+      "标签": "Label",
+      "手机号/邮箱": "Phone",
+      "密码": "Password",
+      "验证码": "Verification Code",
+      "新密码": "New Password",
+      "文本": "WenPai",
+      "文本内容": "Text Content",
+      "文本处理成功": "Text Processing Successful",
+      "返回顶部": "Back to Top",
       "paymentType": "Payment type",
       "order": "Order",
       "orderUser": "Order user",
@@ -4827,6 +4836,9 @@
     }
   },
   "app": {
+    "common": {
+      "loading": "Loading..."
+    },
     "loading": {
       "loadingPage": "Loading page..."
     },
@@ -6478,10 +6490,10 @@
     "errors": {
       "loginFailed": "Login Failed",
       "accountOrPasswordError": "Incorrect account or password",
-      "checkCredentials": "Please check if your phone/email and password are correct",
+      "checkCredentials": "Please check if your phone and password are correct",
       "forgotPasswordHint": "Forgot password? Click the link below to reset",
       "accountNotExists": "Account does not exist",
-      "phoneNotRegistered": "This phone/email is not registered, please register first",
+      "phoneNotRegistered": "This phone is not registered, please register first",
       "registerSuggestion": "Click the \"Register\" button below to create a new account",
       "accountLocked": "Account is locked",
       "accountLockedDesc": "Your account has been temporarily locked due to multiple failed login attempts, please try again later or contact customer service",
@@ -6531,7 +6543,8 @@
       "noAccount": "No account?",
       "register": "Register",
       "hasAccount": "Already have an account?",
-      "backToLogin": "Back to Login"
+      "backToLogin": "Back to Login",
+      "help": "Help Documentation"
     },
     "privacy": {
       "agreement": "I have read and agree to the",
@@ -11228,9 +11241,10 @@
   },
   "components": {
     "errors": {
-      "转发失败": "转发失败 (EN)",
-      "复制失败": "复制失败 (EN)",
-      "请手动复制": "请手动复制 (EN)",
+      "转发失败": "Forward Failed",
+      "复制失败": "Copy Failed",
+      "请手动复制": "Please Copy Manually",
+      "文本处理失败": "Text Processing Failed",
       "严重性能问题": "严重性能问题 (EN)",
       "添加正确的依赖数组": "添加正确的依赖数组 (EN)",
       "性能警告": "性能警告 (EN)",

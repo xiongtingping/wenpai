@@ -2046,11 +2046,6 @@ export default function BrandLibraryPageFixed() {
         }
       />
 
-      <EnhancedUnifiedPermissionGuard
-        requiredPermission="feature:brand-library"
-        mode="overlay"
-        overlayIntensity="medium"
-      >
         <div className="container mx-auto px-4 py-8">
         {/* 使用提示 */}
         <Alert className="mb-6 enhanced-card rounded-xl">
@@ -3325,6 +3320,7 @@ export default function BrandLibraryPageFixed() {
           </DialogContent>
         </Dialog>
       )}
+        </div>
     </div>
   );
 }
@@ -3757,8 +3753,6 @@ function DimensionForm({
           </div>
         </div>
       )}
-        </div>
-      </EnhancedUnifiedPermissionGuard>
     </div>
   );
 }

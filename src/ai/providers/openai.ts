@@ -26,7 +26,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
   constructor() {
     this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
-    this.baseURL = 'https://api.openai.com';
+    this.baseURL = 'https:// api.openai.com';
   }
 
   /**
@@ -60,7 +60,7 @@ export class OpenAIProvider implements AIProviderInterface {
    * 
    */
   getSupportedModels(): string[] {
-    return [
+    return [;
       'gpt-4o',
       'gpt-4o-mini',
       'gpt-4-turbo',
@@ -92,13 +92,13 @@ export class OpenAIProvider implements AIProviderInterface {
     error?: string;
   }> {
     const startTime = Date.now();
-    
+
     try {
       console.log('🤖 OpenAI内容生成开始:', {
         model: params.model || 'gpt-4o',
         promptLength: params.prompt.length,
         hasSystem: !!params.systemPrompt,
-        hasContext: !!(params.context && params.context.length > 0)
+        hasContext: !!(params.context && params.context.length > 0);
       });
 
       if (!this.isConfigured()) {
@@ -135,7 +135,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
       const responseTime = Date.now() - startTime;
       const content = response.choices?.[0]?.message?.content || '';
-      
+
       logger.debug(i18n.t('ai.status.OpenAI_j9a'), {
         model: requestData.model,
         responseTime: `${responseTime}ms`,
@@ -153,12 +153,12 @@ export class OpenAIProvider implements AIProviderInterface {
     } catch (error) {
       const responseTime = Date.now() - startTime;
       console.error(i18n.t('ai.error.OpenAI_av9'), error);
-      
+
       return {
         success: false,
         content: '',
         model: params.model || 'gpt-4o',
-        error: error instanceof Error ? error.message : i18n.t('ai.error.OpenAI调用_psc')
+        error: error instanceof Error ? error.message : i18n.t('ai.error.OpenAI调用_psc');
       };
     }
   }
@@ -208,7 +208,7 @@ export class OpenAIProvider implements AIProviderInterface {
       });
 
       const images = response.data?.map((item: any) => item.url) || [];
-      
+
       logger.debug(i18n.t('ai.status.OpenAI_w5n'), {
         model: requestData.model,
         imagesCount: images.length
@@ -222,12 +222,12 @@ export class OpenAIProvider implements AIProviderInterface {
 
     } catch (error) {
       console.error(i18n.t('ai.error.OpenAI_i61'), error);
-      
+
       return {
         success: false,
         images: [],
         model: params.model || 'dall-e-3',
-        error: error instanceof Error ? error.message : i18n.t('ai.error.OpenAI图像_kg7')
+        error: error instanceof Error ? error.message : i18n.t('ai.error.OpenAI图像_kg7');
       };
     }
   }

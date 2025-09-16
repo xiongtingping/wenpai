@@ -44,7 +44,7 @@ const LoadingSpinner: React.FC = () => (
 export const AuthGuard: React.FC<AuthGuardProps> = ({
   children,
   requireAuth = true,
-  redirectTo = '/login',
+  redirectTo = '/custom-login',
   fallback,
   showLoading = true
 }) => {

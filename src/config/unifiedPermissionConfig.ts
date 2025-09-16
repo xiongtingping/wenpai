@@ -68,6 +68,7 @@ export interface UserPermissionContext {
 
 /**
  * 权限配置项
+ * 🔒 安全修复：移除 allowInDev 属性，确保所有环境都执行相同的权限检查
  */
 interface PermissionConfigItem {
   key: string;
@@ -79,7 +80,6 @@ interface PermissionConfigItem {
   redirect?: string;
   message?: string;
   upgradeUrl?: string;
-  allowInDev?: boolean;
 }
 
 /**
@@ -375,20 +375,8 @@ export class UnifiedPermissionManager {
       };
     }
 
-    // 开发环境检查
-    if (config.allowInDev && import.meta.env.DEV) {
-      return {
-        pass: true,
-        details: {
-          key: permissionKey,
-          userPermissions: user.permissions || [],
-          userRoles: (user.roles || []).map(role => safeRoleToString(role)),
-          userTier: user.tier,
-          isVip: !!user.isVip,
-          isLoggedIn: user.isAuthenticated
-        }
-      };
-    }
+    // 🔒 安全修复：移除开发环境权限绕过，所有环境都必须遵循相同的权限检查规则
+    // 开发环境也必须进行正常的权限验证，确保安全性一致
 
     // 自定义检查函数优先
     if (config.customCheck) {

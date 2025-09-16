@@ -20,7 +20,8 @@ import SecureInput from '@/components/ui/SecureInput';
 import { ValidationRules } from '@/utils/inputValidator';
 
 // 手机号验证函数
-const validatePhone = (phone: string) => { const phoneRegex = /^1[3-9]\d{9 }$/;
+const validatePhone = (phone: string) => {
+  const phoneRegex = /^1[3-9]\d{9}$/;
   return phoneRegex.test(phone);
 };
 
@@ -584,7 +585,7 @@ export const CustomLoginPage: React.FC = () => {
                   <LogoWithText
                     size="lg"
                     textSize="xl"
-                    text={t('components.labels.文本')}
+                    text="文派"
                     showHoverEffect={false}
                     showBackground={true}
                   />
@@ -664,7 +665,7 @@ export const CustomLoginPage: React.FC = () => {
                   <LogoWithText
                     size="lg"
                     textSize="xl"
-                    text={t('components.labels.文本')}
+                    text="文派"
                     showHoverEffect={false}
                     showBackground={true}
                   />
@@ -707,7 +708,7 @@ export const CustomLoginPage: React.FC = () => {
               {/* 手机号输入框 - 安全增强版 */}
               <SecureInput
                 type="tel"
-                label={t('components.labels.标签')}
+                label="手机号"
                 description="请输入11位中国大陆手机号码"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}

@@ -32,6 +32,8 @@ import { TokenService, TokenInfo } from '@/utils/tokenManager';
 import { AuthingTokenService } from '@/utils/authTokenHandler';
 import { TokenSecurityManager, SecureTokenInfo } from '@/utils/secureTokenStorage';
 import { SessionService, SessionEventCallbacks } from '@/utils/sessionManager';
+// 🔒 安全修复：导入安全用户状态管理服务
+import { SecureUserStateService } from '@/services/secureUserStateService';
 
 /**
  * 用户信息接口
@@ -124,51 +126,58 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   
   // Guard Hook已移除 - 使用自定义认证流程
 
-  // 获取用户信息 - 使用官方API，增加网络错误处理
+  // 🔒 安全修复：使用安全用户状态管理检查认证状态
   const checkAuth = useCallback(async () => {
     try {
-      console.log('🔍 检查用户登录状态...');
+      console.log('🔍 安全检查用户登录状态...');
       setLoading(true);
       
-      // 首先检查 localStorage 中的用户信息
-      const storedUser = localStorage.getItem('authing_user');
-      if (storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser);
-          console.log('✅ 从 localStorage 恢复用户状态:', parsedUser);
-          setUser(parsedUser);
-          // 同步到 authStore
-          authStore.setUser({
-            id: parsedUser.id,
-            username: parsedUser.username,
-            email: parsedUser.email,
-            phone: parsedUser.phone,
-            nickname: parsedUser.nickname,
-            avatar: parsedUser.avatar,
-            loginTime: parsedUser.loginTime
-           });
-          setLoading(false);
-          return;
-        } catch (e) {
-          console.warn('⚠️ localStorage 中的用户信息解析失败:', e);
-          localStorage.removeItem('authing_user');
-        }
+      // 🔒 安全修复：使用异步安全用户状态管理服务
+      const secureUser = await SecureUserStateService.getUserState();
+      if (secureUser) {
+        console.log('✅ 从安全存储恢复用户状态:', { userId: secureUser.id });
+        setUser(secureUser);
+        // 同步到 authStore
+        authStore.setUser({
+          id: secureUser.id,
+          username: secureUser.username,
+          email: secureUser.email,
+          phone: secureUser.phone,
+          nickname: secureUser.nickname,
+          avatar: secureUser.avatar,
+          loginTime: secureUser.loginTime
+        });
+        setLoading(false);
+        return;
       }
       
-      // Guard session检查已移除 - 仅依赖localStorage和自定义认证流程
-      console.log('👤 未找到本地用户信息，设置为未登录状态');
+      console.log('👤 未找到有效的用户状态，设置为未登录状态');
       setUser(null);
       authStore.setUser(null);
     } catch (error) {
-      console.error('获取用户信息失败:', error);
-      // 网络错误不应该阻止应用启动
-      console.log('🔄 网络错误，跳过认证检查');
+      console.error('安全认证检查失败:', error);
+      // 出现错误时清除可能损坏的状态
+      SecureUserStateService.clearUserState();
+
+      // 清除所有可能损坏的localStorage数据
+      try {
+        localStorage.removeItem('authing_user');
+        localStorage.removeItem('_authing_user');
+        localStorage.removeItem('_authing_token');
+        localStorage.removeItem('login_redirect_to');
+        localStorage.removeItem('wenpai-remember-login');
+        localStorage.removeItem('wenpai-login-timestamp');
+        console.log('🧹 已清除所有可能损坏的认证数据');
+      } catch (cleanupError) {
+        console.error('清理localStorage失败:', cleanupError);
+      }
+
       setUser(null);
       authStore.setUser(null);
     } finally {
       setLoading(false);
     }
-  }, []); // Guard依赖已移除
+  }, [authStore]);
 
   // Guard初始化useEffect已移除 - 使用自定义认证流程
 
@@ -234,9 +243,14 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
       }
 
-      // 存储用户信息
+      // 🔒 安全修复：使用异步安全用户状态管理存储用户信息
       setUser(formattedUser);
-      localStorage.setItem('authing_user', JSON.stringify(formattedUser));
+      const storeSuccess = await SecureUserStateService.storeUserState(formattedUser);
+      if (!storeSuccess) {
+        console.warn('⚠️ 安全存储用户状态失败，使用备用存储');
+        localStorage.setItem('authing_user', JSON.stringify(formattedUser));
+      }
+      
       // 同步到 authStore
       authStore.setUser({
         id: formattedUser.id,
@@ -339,12 +353,15 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // Guard已移除，直接清除本地状态
       console.log('🚀 执行自定义登出流程');
 
-      // 清除本地状态
+      // 🔒 安全修复：使用安全用户状态管理清除用户状态
       setUser(null);
-      localStorage.removeItem('authing_user');
+      SecureUserStateService.clearUserState();
+      
+      // 清除其他认证相关项
+      localStorage.removeItem('login_redirect_to');
+
       // 同步到 authStore
       authStore.logout();
-      localStorage.removeItem('login_redirect_to');
       
       // 🔐 注意：不自动清除记住密码数据，保持用户选择
       // 用户如果选择了"记住密码"，登出后应该保留这个设置
@@ -454,10 +471,15 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           console.warn('⚠️ Authing服务器更新异常，仅更新本地:', error);
         }
         
-        // 更新本地状态（作为后备）
+        // 🔒 安全修复：使用异步安全用户状态管理更新用户信息
         const updatedUser = { ...user, ...basicUpdates };
         setUser(updatedUser);
-        localStorage.setItem('authing_user', JSON.stringify(updatedUser));
+        
+        const updateSuccess = await SecureUserStateService.updateUserState(basicUpdates);
+        if (!updateSuccess) {
+          console.warn('⚠️ 安全更新用户状态失败，使用备用方案');
+          localStorage.setItem('authing_user', JSON.stringify(updatedUser));
+        }
         
         // 同步到 authStore
         authStore.setUser({
@@ -616,13 +638,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const hasPermission = (permission: string): boolean => {
-    if (import.meta.env.DEV) return true;
+    // 🔒 安全修复：移除开发环境权限绕过，确保权限检查在所有环境中都生效
     if (!user || !user.permissions) return false;
     return user.permissions.includes(permission);
   };
 
   const hasRole = (role: string): boolean => {
-    if (import.meta.env.DEV) return true;
+    // 🔒 安全修复：移除开发环境权限绕过，确保角色检查在所有环境中都生效
     if (!user || !user.roles) return false;
     return user.roles.includes(role);
   };

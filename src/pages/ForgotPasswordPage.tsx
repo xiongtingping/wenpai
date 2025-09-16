@@ -131,7 +131,7 @@ export default function ForgotPasswordPage() {
 
         // 延迟跳转到登录页面
         setTimeout(() => {
-          navigate('/login');
+          navigate('/custom-login');
         }, 1500);
       } else {
         throw new Error(result.message);
@@ -397,7 +397,7 @@ export default function ForgotPasswordPage() {
               <p className="text-gray-600 dark:text-gray-300 text-sm">
                 想起密码了？
                 <Link
-                  to="/login"
+                  to="/custom-login"
                   className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold ml-1 transition-all duration-300 hover:underline decoration-2 underline-offset-2"
                 >
                   返回登录

@@ -31,7 +31,7 @@ export interface ProxyResponse<T = any> {
  * @param maxTokens 最大token数（可选，从配置获取默认值）
  * @returns Promise with response data
  */
-export async function callOpenAIProxy(
+export async function callOpenAIProxy(;
   messages: any[],
   model?: string,
   temperature?: number,
@@ -40,7 +40,7 @@ export async function callOpenAIProxy(
   try {
     // ✅ FIXED: 从配置管理器获取默认值，消除硬编码
     const aiConfig = await getAIConfig();
-    
+
     const requestData = {
       provider: 'openai',
       action: 'generate',
@@ -72,7 +72,7 @@ export async function callOpenAIProxy(
  * @param temperature 温度参数（可选，从配置获取默认值）
  * @returns Promise with response data
  */
-export async function callDeepSeekProxy(
+export async function callDeepSeekProxy(;
   messages: any[],
   model?: string,
   temperature?: number
@@ -80,7 +80,7 @@ export async function callDeepSeekProxy(
   try {
     // ✅ FIXED: 从配置管理器获取默认值，消除硬编码
     const aiConfig = await getAIConfig();
-    
+
     const requestData = {
       provider: 'deepseek',
       action: 'generate',

@@ -12,7 +12,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 // 🚀 性能优化：仅导入必要的核心服务
 import { setupGlobalErrorHandler } from './utils/errorHandler';
-import { initializeDataServices } from './services/serviceInitializer';
+import ServiceInitializer from './services/serviceInitializer';
 
 // 🔧 FIXED: 更强力的 forwardRef 修复，彻底消除错误
 try {
@@ -135,21 +135,10 @@ async function initializeApplication() {
     // 仅初始化必要的错误处理
     setupGlobalErrorHandler();
 
-    // 🚀 初始化数据持久化服务
-    console.log('🔧 正在初始化数据服务...');
-    await initializeDataServices({
-      enablePerformanceMonitoring: true,
-      enableWebVitals: true,
-      performanceReportInterval: 300000, // 5分钟报告一次
-      cacheMaxSize: 1000,
-      cacheMaxMemoryMB: 100,
-      syncBatchSize: 50,
-      syncInterval: 30000, // 30秒同步间隔
-      enableCompression: true,
-      defaultStorageLevel: 'hybrid',
-      enableDataIsolation: true
-    });
-    console.log('✅ 数据服务初始化完成');
+    // 🚀 初始化服务依赖
+    console.log('🔧 正在初始化服务依赖...');
+    await ServiceInitializer.initialize();
+    console.log('✅ 服务依赖初始化完成');
 
     // 立即启动React应用 - 其他服务按需加载
     const root = ReactDOM.createRoot(document.getElementById('root')!);

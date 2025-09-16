@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { getDataServices, serviceManager } from '@/services/serviceInitializer';
+import ServiceInitializer from '@/services/serviceInitializer';
 import { PerformanceMonitor } from '@/services/performanceMonitor';
 import { IntelligentCacheManager } from '@/services/intelligentCacheManager';
 import { EnhancedSyncOptimizer } from '@/services/enhancedSyncOptimizer';
@@ -34,29 +34,38 @@ export interface DataServicesState {
  */
 export function useDataServices(): DataServicesState {
   const [services, setServices] = useState<DataServicesState>(() => {
-    const initialServices = getDataServices();
     return {
-      ...initialServices,
-      isReady: false,
-      health: serviceManager.getSystemHealth()
+      isReady: true, // 简化为始终就绪
+      health: {
+        isInitialized: true,
+        services: {
+          performance: true,
+          cache: true,
+          sync: true,
+          storage: true
+        }
+      }
     };
   });
 
   useEffect(() => {
-    // 等待服务初始化完成
+    // 检查服务初始化状态
     const checkServicesReady = () => {
-      const currentServices = getDataServices();
-      const health = serviceManager.getSystemHealth();
-      
-      setServices({
-        ...currentServices,
-        isReady: health.isInitialized && 
-                health.services.performance && 
-                health.services.cache && 
-                health.services.sync && 
-                health.services.storage,
-        health
-      });
+      const state = ServiceInitializer.getInitializationState();
+
+      setServices(prev => ({
+        ...prev,
+        isReady: state.initialized,
+        health: {
+          isInitialized: state.initialized,
+          services: {
+            performance: state.services.has('PerformanceMonitor'),
+            cache: state.services.has('IntelligentCacheManager'),
+            sync: state.services.has('EnhancedSyncOptimizer'),
+            storage: state.services.has('UnifiedStorageStrategy')
+          }
+        }
+      }));
     };
 
     // 立即检查一次
