@@ -107,11 +107,24 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     setDropdownStyle(style);
   };
 
-  // 点击外部关闭下拉菜单
+  // 🔧 FIX: 修复Portal下拉菜单的外部点击检测
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      
+      // 检查点击是否在触发器内
+      const isInTrigger = dropdownRef.current && dropdownRef.current.contains(target);
+      
+      // 🔧 FIX: 检查点击是否在Portal渲染的下拉菜单内
+      const dropdownElement = document.querySelector('[data-dropdown-menu="native"]') as HTMLElement;
+      const isInDropdown = dropdownElement && dropdownElement.contains(target);
+      
+      // 只有当点击既不在触发器内，也不在下拉菜单内时，才关闭菜单
+      if (!isInTrigger && !isInDropdown) {
+        console.log('🔥 检测到外部点击，关闭下拉菜单');
         setIsNativeDropdownOpen(false);
+      } else {
+        console.log('🔥 点击在菜单内部，保持菜单打开');
       }
     }
 
@@ -159,10 +172,47 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   // 
 
   // 处理跳转到个人资料
-  const handleProfileClick = () => {
+  const handleProfileClick = async () => {
     console.log('🎯 点击个人资料按钮，准备跳转到 /profile');
-    navigate('/profile');
-    console.log('🎯 navigate 函数已调用');
+    
+    // 🔧 FIX: 立即尝试导航，不等待状态更新
+    try {
+      console.log('🎯 立即尝试导航 (方案1)');
+      navigate('/profile');
+      console.log('🎯 React Router 立即导航成功');
+      setIsNativeDropdownOpen(false);
+      return;
+    } catch (navError) {
+      console.warn('🎯 立即导航失败，尝试延迟导航:', navError);
+    }
+    
+    try {
+      // 方案2：先关闭下拉菜单，再导航
+      setIsNativeDropdownOpen(false);
+      console.log('🎯 下拉菜单已关闭');
+      
+      // 延迟导航
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
+      console.log('🎯 开始延迟导航到 /profile');
+      try {
+        navigate('/profile');
+        console.log('🎯 React Router 延迟导航成功');
+      } catch (navError) {
+        console.error('🎯 React Router导航失败，尝试window.location:', navError);
+        window.location.href = '/profile';
+        console.log('🎯 window.location 跳转已执行');
+      }
+    } catch (error) {
+      console.error('🎯 所有导航方案都失败，尝试最终备用方案:', error);
+      try {
+        window.location.href = '/profile';
+        console.log('🎯 最终备用方案跳转已执行');
+      } catch (finalError) {
+        console.error('🎯 所有导航方案都失败了:', finalError);
+        alert('无法跳转到个人资料页面，请手动访问 /profile');
+      }
+    }
   };
 
   // 
@@ -274,7 +324,11 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           data-dropdown-menu="native"
           className="bg-background dark:bg-gray-800 border border-border dark:border-gray-700 rounded-md shadow-lg"
           style={dropdownStyle}
-          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => {
+            // 🔧 FIX: 改用mouseDown，并且只阻止冒泡到document，不阻止内部事件
+            console.log('🔥 下拉菜单容器mouseDown事件');
+            // 不调用stopPropagation，让内部按钮事件正常执行
+          }}
         >
           {/* 用户信息标题 */}
           <div className="px-4 py-3 border-b border-border">
@@ -300,11 +354,23 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           <div className="py-1">
             <button
               className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
-              onClick={(e) => {
+              onMouseDown={(e) => {
+                // 🔧 FIX: 使用mouseDown而不是click，避免与外部点击监听器冲突
+                console.log('🔥 个人资料按钮mouseDown事件');
                 e.preventDefault();
                 e.stopPropagation();
-                setIsNativeDropdownOpen(false);
-                handleProfileClick();
+                
+                // 立即执行导航，不等待异步操作
+                console.log('🔥 立即执行个人资料导航');
+                try {
+                  // 方案1：立即导航
+                  navigate('/profile');
+                  console.log('🔥 导航成功执行');
+                  setIsNativeDropdownOpen(false);
+                } catch (error) {
+                  console.error('🔥 导航失败，尝试备用方案:', error);
+                  window.location.href = '/profile';
+                }
               }}
             >
               <User className="mr-2 h-4 w-4" />
@@ -313,9 +379,15 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
 
             <button
               className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
-              onClick={() => {
+              onMouseDown={(e) => {
+                // 🔧 FIX: 导航到本地关于页面，替代无法访问的外部文档
+                console.log('🔥 帮助文档按钮mouseDown事件');
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('🔥 导航到关于页面');
+                navigate('/about');
                 setIsNativeDropdownOpen(false);
-                window.open('https://docs.wenpai.ai', '_blank');
               }}
             >
               <HelpCircle className="mr-2 h-4 w-4" />
@@ -327,15 +399,28 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
 
             <button
               className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
-              onClick={() => {
-                console.log('🚪 退出登录按钮被点击');
-                setIsNativeDropdownOpen(false);
+              onMouseDown={(e) => {
+                // 🔧 FIX: 使用mouseDown事件，立即执行
+                console.log('🚪 退出登录按钮mouseDown事件');
+                e.preventDefault();
+                e.stopPropagation();
+                
                 try {
-                  console.log('🚪 开始执行logout函数');
+                  console.log('🚪 立即执行logout函数');
                   logout();
                   console.log('🚪 logout函数执行完成');
+                  setIsNativeDropdownOpen(false);
                 } catch (error) {
                   console.error('🚪 logout函数执行失败:', error);
+                  // 备用方案：强制清除并刷新页面
+                  try {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = '/';
+                    console.log('🚪 备用方案：强制清除存储并跳转首页');
+                  } catch (backupError) {
+                    console.error('🚪 备用方案也失败了:', backupError);
+                  }
                 }
               }}
             >

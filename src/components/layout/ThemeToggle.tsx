@@ -72,18 +72,23 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
 
 function getInitialTheme(user?: any): Theme { 
   const themeKey = generateStorageKey('wenpai-theme', user);
-  const stored = localStorage.getItem(themeKey) as Theme;
+  const userStoredTheme = localStorage.getItem(themeKey) as Theme;
+  const globalStoredTheme = localStorage.getItem('theme') as Theme;
   
   // 有效的主题值
   const validThemes = ['light', 'dark', 'rainbow', 'beige', 'green'];
   
+  // 🔧 FIX: 优先使用用户特定的主题，然后是全局主题
+  const stored = userStoredTheme || globalStoredTheme;
+  
   // 如果有存储的主题且是有效主题，返回存储的主题
   if (stored && validThemes.includes(stored)) {
+    console.log(`🎨 加载持久化主题: ${stored}`);
     return stored;
-   }
+  }
   
   // 🔧 修复：默认主题始终是 light，避免权限检查过早
-  // 不再根据系统偏好自动设置深色主题，因为需要先进行权限检查
+  console.log('🎨 使用默认主题: light');
   return 'light';
 }
 
@@ -217,14 +222,25 @@ export const ThemeToggle: React.FC = () => {
   useEffect(() => {
     const html = document.documentElement;
     html.setAttribute('data-theme', theme);
-    // also toggle .dark class for tailwind `dark:` compatibility if any component uses it
+    
+    // 🔧 FIX: 统一主题类管理，确保持久化
+    html.classList.remove('light', 'dark', 'rainbow', 'beige', 'green');
+    html.classList.add(theme);
+    
+    // Tailwind兼容性：dark类单独处理
     if (theme === 'dark') {
       html.classList.add('dark');
     } else {
       html.classList.remove('dark');
     }
+    
+    // 🔧 FIX: 同时保存到两个位置确保持久化
     const themeKey = generateStorageKey('wenpai-theme', user);
     localStorage.setItem(themeKey, theme);
+    // 也保存到标准key，确保兼容性
+    localStorage.setItem('theme', theme);
+    
+    console.log(`🎨 主题已切换并持久化: ${theme}`);
   }, [theme, user]);
 
   const currentTheme = themes.find(t => t.value === theme) || themes[0];
@@ -308,7 +324,7 @@ export const ThemeToggle: React.FC = () => {
           >
             {/* 标题 */}
             <div className="px-3 py-2 text-sm font-medium text-foreground">
-              {t('settings.darkMode')}
+              主题设置
             </div>
             <div className="px-3 py-1 text-xs text-muted-foreground">
               <SubscriptionStateWrapper>

@@ -5,39 +5,39 @@ import { generateStorageKey } from '@/utils/userDataIsolation';
 import { userSettingsService, SETTING_KEYS } from '@/services/userSettingsService';
 
 /**
- * 🎨 统一的多主题设计语言
- * 主题类型定义
+ * 🎨 统一的多主题设计语言 
+ * 主题类型定义 - 与ThemeToggle保持一致
  */
-export type Theme = 'light' | 'dark' | 'beige' | 'gold' | 'rainbow';
+export type Theme = 'light' | 'dark' | 'rainbow' | 'beige' | 'green';
 
 /**
- * 🎨 主题配置 - 统一的设计语言
+ * 🎨 主题配置 - 统一的设计语言，与ThemeToggle保持一致
  */
 export const THEMES: Record<Theme, { name: string; description: string; icon: string }> = {
   light: {
-    name: '明亮模式',
+    name: '浅色',
     description: '清新明亮，适合白天使用',
     icon: '☀️'
   },
   dark: {
-    name: '深色模式',
+    name: '深色',
     description: '护眼深色，适合夜间使用',
     icon: '🌙'
+  },
+  rainbow: {
+    name: '彩虹色',
+    description: '活力彩虹，多彩渐变风格',
+    icon: '🌈'
   },
   beige: {
     name: '护眼米色',
     description: '温暖米色，长时间使用更舒适',
     icon: '🌾'
   },
-  gold: {
-    name: '专业金色',
-    description: '奢华金色，商务专业风格',
-    icon: '🏆'
-  },
-  rainbow: {
-    name: '彩虹色',
-    description: '活力彩虹，多彩渐变风格',
-    icon: '🌈'
+  green: {
+    name: '绿色',
+    description: '护眼绿色，自然清新风格',
+    icon: '🌿'
   }
 };
 
@@ -53,10 +53,10 @@ export function useTheme() {
     return generateStorageKey('wenpai_theme', user);
   }, [user?.id]);
 
-  const [theme, setTheme] = useState<Theme>('beige'); // 默认使用护眼米色主题
+  const [theme, setTheme] = useState<Theme>('light'); // 🔧 FIX: 默认主题改为light，与ThemeToggle一致
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // 🎨 切换主题 - 增强的过渡效果，支持云端同步
+  // 🎨 切换主题 - 与ThemeToggle保持一致的存储方式
   const switchTheme = useCallback(async (next: Theme) => {
     // 添加过渡类，创建平滑的主题切换效果
     document.documentElement.classList.add('theme-transitioning');
@@ -64,60 +64,92 @@ export function useTheme() {
     setTheme(next);
     document.documentElement.setAttribute('data-theme', next);
 
-    // 保存到云端和本地
-    try {
-      if (user?.id) {
-        // 保存到用户设置服务（云端同步）
-        await userSettingsService.saveSetting(SETTING_KEYS.THEME_COLOR, next);
-      }
-
-      // 兜底：保存到本地存储
-      const themeKey = getThemeStorageKey();
-      localStorage.setItem(themeKey, next);
-    } catch (error) {
-      console.warn('保存主题设置失败:', error);
-      // 兜底：保存到本地存储
-      const themeKey = getThemeStorageKey();
-      localStorage.setItem(themeKey, next);
+    // 🔧 FIX: 与ThemeToggle保持一致的主题应用
+    const html = document.documentElement;
+    html.classList.remove('light', 'dark', 'rainbow', 'beige', 'green');
+    html.classList.add(next);
+    
+    // Tailwind dark类兼容性
+    if (next === 'dark') {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
     }
 
-    // 过渡完成后移除过渡类（与CSS中的过渡时间匹配）
+    // 🔧 FIX: 与ThemeToggle保持一致的存储方式
+    try {
+      // 保存到ThemeToggle使用的标准位置
+      localStorage.setItem('theme', next);
+      
+      // 保存到用户特定位置
+      const themeKey = getThemeStorageKey();
+      localStorage.setItem(themeKey, next);
+      
+      // 如果用户已登录，也保存到云端
+      if (user?.id) {
+        await userSettingsService.saveSetting(SETTING_KEYS.THEME_COLOR, next);
+      }
+      
+      console.log(`🎨 useTheme切换主题: ${next}`);
+    } catch (error) {
+      console.warn('保存主题设置失败:', error);
+    }
+
+    // 过渡完成后移除过渡类
     setTimeout(() => {
       document.documentElement.classList.remove('theme-transitioning');
     }, 500);
   }, [getThemeStorageKey, user?.id]);
 
-  // 初始化和监听用户变化，重新加载主题设置
+  // 🔧 FIX: 初始化时从ThemeToggle相同位置读取主题
   useEffect(() => {
     const loadTheme = async () => {
       try {
         let savedTheme: Theme | null = null;
 
-        // 如果用户已登录，从云端获取
-        if (user?.id) {
-          userSettingsService.setUserId(user.id);
-          savedTheme = await userSettingsService.getSetting(SETTING_KEYS.THEME_COLOR) as Theme;
-        }
-
-        // 兜底：从本地存储获取
+        // 🔧 FIX: 优先从ThemeToggle使用的标准位置读取
+        savedTheme = localStorage.getItem('theme') as Theme | null;
+        
+        // 兜底1：从用户特定位置获取
         if (!savedTheme) {
           const themeKey = getThemeStorageKey();
           savedTheme = localStorage.getItem(themeKey) as Theme | null;
         }
 
-        const newTheme = savedTheme || 'beige';
+        // 兜底2：如果用户已登录，从云端获取
+        if (!savedTheme && user?.id) {
+          userSettingsService.setUserId(user.id);
+          savedTheme = await userSettingsService.getSetting(SETTING_KEYS.THEME_COLOR) as Theme;
+        }
+
+        const validThemes = ['light', 'dark', 'rainbow', 'beige', 'green'];
+        const newTheme = (savedTheme && validThemes.includes(savedTheme)) ? savedTheme : 'light';
 
         if (newTheme !== theme || !isInitialized) {
           setTheme(newTheme);
-          document.documentElement.setAttribute('data-theme', newTheme);
+          
+          // 🔧 FIX: 应用主题时与ThemeToggle保持一致
+          const html = document.documentElement;
+          html.setAttribute('data-theme', newTheme);
+          html.classList.remove('light', 'dark', 'rainbow', 'beige', 'green');
+          html.classList.add(newTheme);
+          
+          // Tailwind dark类兼容性
+          if (newTheme === 'dark') {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+          
           setIsInitialized(true);
+          console.log(`🎨 useTheme加载主题: ${newTheme}`);
         }
       } catch (error) {
         console.warn('加载主题设置失败:', error);
         // 使用默认主题
         if (!isInitialized) {
-          setTheme('beige');
-          document.documentElement.setAttribute('data-theme', 'beige');
+          setTheme('light');
+          document.documentElement.setAttribute('data-theme', 'light');
           setIsInitialized(true);
         }
       }

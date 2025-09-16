@@ -17,7 +17,7 @@ import React, { Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+// import { ThemeProvider } from '@/contexts/ThemeContext'; // 🔧 FIX: 禁用ThemeContext，使用ThemeToggle统一管理主题
 import './i18n';
 import { useTranslation } from 'react-i18next';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -115,6 +115,42 @@ const App: React.FC = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
+    // 🔧 FIX: 应用启动时立即加载持久化主题，避免闪烁
+    const loadPersistedTheme = () => {
+      try {
+        // 从localStorage读取持久化主题
+        const globalTheme = localStorage.getItem('theme');
+        const validThemes = ['light', 'dark', 'rainbow', 'beige', 'green'];
+        
+        if (globalTheme && validThemes.includes(globalTheme)) {
+          console.log(`🎨 App启动时加载持久化主题: ${globalTheme}`);
+          
+          const html = document.documentElement;
+          html.setAttribute('data-theme', globalTheme);
+          
+          // 清除所有主题类，应用新主题
+          html.classList.remove('light', 'dark', 'rainbow', 'beige', 'green');
+          html.classList.add(globalTheme);
+          
+          // Tailwind dark类兼容性
+          if (globalTheme === 'dark') {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+          
+          console.log(`🎨 主题已在App启动时应用: ${globalTheme}`);
+        } else {
+          console.log('🎨 App启动时使用默认浅色主题');
+        }
+      } catch (error) {
+        console.error('🎨 加载持久化主题失败:', error);
+      }
+    };
+    
+    // 立即执行主题加载
+    loadPersistedTheme();
+
     // 应用启动时检查是否为恶意回调URL
     const currentUrl = window.location.href;
     console.log('🚀 App启动，当前URL:', currentUrl);
@@ -160,7 +196,7 @@ const App: React.FC = () => {
       }}
     >
       <UnifiedAuthProvider>
-        <ThemeProvider>
+        {/* <ThemeProvider> 🔧 FIX: 禁用ThemeContext，避免与ThemeToggle冲突 */}
           <AuthDataSyncProvider>
             <ErrorBoundary>
               <StateManagerInitializer />
@@ -249,7 +285,7 @@ const App: React.FC = () => {
                 </>
               </ErrorBoundary>
             </AuthDataSyncProvider>
-          </ThemeProvider>
+          {/* </ThemeProvider> 🔧 FIX: 禁用ThemeContext，避免与ThemeToggle冲突 */}
         </UnifiedAuthProvider>
     </EnhancedErrorBoundary>
   );
