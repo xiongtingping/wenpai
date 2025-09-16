@@ -21,7 +21,6 @@ import {
   Tag
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { startDialogPositionFix } from '@/utils/dialogPositionFixer';
 import {
   Select,
   SelectContent,
@@ -79,45 +78,6 @@ export function EnhancedHistoryDialog({ open,
   const [sortBy, setSortBy] = useState<SortOption>('time-desc');
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  // 🎯 精简修复器 - 遵循CLAUDE.md 3.6.4规范
-  React.useEffect(() => {
-    if (!open) return;
-
-    const fixDialogPosition = () => {
-      const dialogElement = (
-        document.querySelector('[role="dialog"][class*="enhanced-history-dialog"]') ||
-        document.querySelector('.enhanced-history-dialog') ||
-        document.querySelector('[role="dialog"]')
-      ) as HTMLElement;
-
-      if (dialogElement) {
-        console.log('🎯 历史记录Dialog定位修复已应用');
-
-        // 清除inset冲突属性
-        dialogElement.style.removeProperty('inset');
-        dialogElement.style.removeProperty('inset-block');
-        dialogElement.style.removeProperty('inset-inline');
-        dialogElement.style.removeProperty('inset-block-start');
-        dialogElement.style.removeProperty('inset-block-end');
-        dialogElement.style.removeProperty('inset-inline-start');
-        dialogElement.style.removeProperty('inset-inline-end');
-
-        // 简单的视窗单位定位，保持响应式布局
-        dialogElement.style.setProperty('position', 'fixed', 'important');
-        dialogElement.style.setProperty('top', '50vh', 'important');
-        dialogElement.style.setProperty('left', '50vw', 'important');
-        dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
-        dialogElement.style.setProperty('z-index', '1055', 'important');
-        dialogElement.style.setProperty('margin', '0', 'important');
-        
-        console.log('✅ 历史记录Dialog位置已修复');
-      }
-    };
-
-    fixDialogPosition();
-    setTimeout(fixDialogPosition, 100);
-    setTimeout(fixDialogPosition, 300);
-  }, [open]);
 
   // 获取唯一平台列表
   const uniquePlatforms = useMemo(() => {

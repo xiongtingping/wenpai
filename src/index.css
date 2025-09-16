@@ -17,6 +17,9 @@
 @import './styles/profile-emergency-fix.css';
 /* 🎯 AI模型选择器样式 */
 @import './styles/ai-model-selector.css';
+/* 🎯 统一Dialog系统 */
+@import './styles/unified-dialog-system.css';
+/* 移除调试样式，使用统一Dialog系统 */
 
 
 

@@ -498,7 +498,7 @@ export function PlatformSelector({ availablePlatforms,
                             handleSaveGlobalSettings();
                           }}
                           size="sm"
-                          className="flex items-center gap-1 px-4 min-w-[80px]"
+                          className="flex items-center gap-1 px-4 min-w-[96px] max-w-[120px]"
                           disabled={selectedPlatforms.length === 0 || isSavingGlobal}
                         >
                           {isSavingGlobal ? (
@@ -705,7 +705,7 @@ export function PlatformSelector({ availablePlatforms,
                           handleSavePlatformSettings();
                         }}
                         size="sm"
-                        className="flex items-center gap-1 px-4 min-w-[80px]"
+                        className="flex items-center gap-1 px-4 min-w-[96px] max-w-[120px]"
                         disabled={selectedPlatforms.length === 0 || isSavingPlatform}
                       >
                         {isSavingPlatform ? (

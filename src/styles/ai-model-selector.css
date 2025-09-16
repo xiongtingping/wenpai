@@ -10,19 +10,103 @@
     margin-bottom: var(--spacing-6);
   }
 
-  /* ===== 平台选择器修复 ===== */
+  /* ===== 平台选择器修复 - 超强化版 ===== */
   .platform-card-title {
     @apply text-sm font-medium text-foreground;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
     color: hsl(var(--foreground)) !important;
+    min-height: 1.5rem !important;
+    line-height: 1.5 !important;
+    width: 100% !important;
+    max-width: none !important;
+    position: relative !important;
+  }
+
+  /* 🚨 超级强化：多重选择器覆盖所有可能的平台名称元素 */
+  .platform-card-title,
+  [class*="platform"] .platform-card-title,
+  [role="gridcell"] .platform-card-title,
+  .platform-card .platform-card-title,
+  [data-testid*="platform"] .platform-card-title,
+  .platform-selector .platform-card-title,
+  .platform-grid .platform-card-title {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 🎯 平台卡片容器修复 */
+  [class*="platform-card"],
+  .platform-selector [role="gridcell"],
+  .platform-grid > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  /* 🎯 平台卡片头部区域修复 */
+  [class*="platform-card"] > div:first-child,
+  .platform-card-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    padding: 0.75rem !important;
+  }
+
+  /* 🎯 平台名称容器修复 */
+  [class*="platform-card"] .flex.items-center.gap-2,
+  .platform-name-container {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  /* 🎯 平台图标修复 */
+  .platform-card-title + div,
+  .platform-icon {
+    flex-shrink: 0 !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   .platform-card-title:empty::before {
     content: "平台名称";
     color: hsl(var(--muted-foreground));
     font-style: italic;
+  }
+
+  /* 🚨 修复可能的CSS冲突 - 更强力 */
+  .platform-card-title *,
+  .platform-card-title span,
+  .platform-card-title::before,
+  .platform-card-title::after {
+    display: inline !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: inherit !important;
+  }
+
+  /* 🎯 防止Tailwind类冲突 */
+  .platform-card-title.truncate {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
   }
 
   .ai-model-selector-header {
@@ -60,11 +144,12 @@
   }
 
   .ai-model-save-button {
-    @apply flex items-center gap-2 h-9 px-3;
+    @apply flex items-center gap-2 h-9 px-4;
     transition: var(--transition-smooth);
     white-space: nowrap;
     width: auto;
-    min-width: auto;
+    min-width: 96px; /* 确保按钮有合适的最小宽度 */
+    max-width: 140px; /* 防止按钮过宽 */
   }
 
   .ai-model-save-icon {
