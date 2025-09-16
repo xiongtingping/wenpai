@@ -49,7 +49,7 @@ const request: Request = {
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data);
+      body: JSON.stringify(data)
     });
     return response.json();
   },
@@ -170,7 +170,7 @@ function validateModuleIntegrity(): boolean {
     };
 
     // 检查关键函数是否存在
-    const requiredFunctions = [;
+    const requiredFunctions = [
       'callAI',
       'callPDFChat',
       'callContentAdapter',
@@ -378,7 +378,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       taskType,
       responseTime: Date.now() - startTime,
       success: false,
-      error: i18n.t('api.errors.提示词不能为空');
+      error: i18n.t('api.errors.提示词不能为空')
     };
   }
 
@@ -445,7 +445,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       taskType,
       responseTime: Date.now() - startTime,
       success: false,
-      error: error instanceof Error ? error.message : i18n.t('common.errors.unknownError');
+      error: error instanceof Error ? error.message : i18n.t('common.errors.unknownError')
     };
   }
 }
@@ -599,7 +599,7 @@ export async function initializeAIService(): Promise<{
     const status = await checkAIStatus();
 
     const success = integrityCheck && status.deepseek;
-    const message = success;
+    const message = success
       ? '✅ AI服务模块初始化成功'
       : `❌ AI服务模块初始化失败: ${status.message}`;
 
@@ -907,7 +907,7 @@ export async function callTitleQualityChecker(params: {
     title,
     originalContent,
     platform,
-    otherTitles: otherTitles.join('\n');
+    otherTitles: otherTitles.join('\n')
   });
 
   return await callAI({
@@ -1168,7 +1168,7 @@ export async function callContentQualityController(params: {
   // ✅ 核心信息保留检查
   const originalKeywords = originalContent.match(/[\u4e00-\u9fa5]{2,}/g) || [];
   const generatedKeywords = cleanedContent.match(/[\u4e00-\u9fa5]{2,}/g) || [];
-  const keywordRetention = originalKeywords.filter(keyword =>;
+  const keywordRetention = originalKeywords.filter(keyword =>
     generatedKeywords.some(gk => gk.includes(keyword) || keyword.includes(gk))
   ).length / originalKeywords.length;
 
@@ -1277,7 +1277,7 @@ export async function callMultiVersionContentGenerator(params: {
   }
 
   // 选择最佳版本（这里简化为选择评分最高的）
-  const bestVersion = versions.reduce((best, current) =>;
+  const bestVersion = versions.reduce((best, current) =>
     current.score > best.score ? current : best
   );
 

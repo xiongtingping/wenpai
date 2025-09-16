@@ -60,7 +60,7 @@ export class DeepSeekProvider implements AIProviderInterface {
    * 
    */
   getSupportedModels(): string[] {
-    return [;
+    return [
       'deepseek-chat',
       'deepseek-coder'
     ];

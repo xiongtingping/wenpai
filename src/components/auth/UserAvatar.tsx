@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 // 已移除 Radix UI DropdownMenu 导入，使用原生实现
 import { Badge } from '@/components/ui/badge';
-import { LogIn, User, LogOut, Shield, Settings, Crown, Zap, HelpCircle, Palette } from 'lucide-react';
+import { LogIn, User, LogOut, Shield, Settings, Crown, Zap, Palette } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getUserDisplayName, getUserAvatarFallback, getUserAvatar } from '@/utils/userDisplayUtils';
 // 简化权限管理 - 移除复杂的权限管理器
@@ -377,22 +377,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               <span>{t('auth.profile')}</span>
             </button>
 
-            <button
-              className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
-              onMouseDown={(e) => {
-                // 🔧 FIX: 导航到本地关于页面，替代无法访问的外部文档
-                console.log('🔥 帮助文档按钮mouseDown事件');
-                e.preventDefault();
-                e.stopPropagation();
-                
-                console.log('🔥 导航到关于页面');
-                navigate('/about');
-                setIsNativeDropdownOpen(false);
-              }}
-            >
-              <HelpCircle className="mr-2 h-4 w-4" />
-              <span>{t('navigation.help') === 'navigation.help' ? '帮助文档' : t('navigation.help')}</span>
-            </button>
+
 
             {/* 分隔线 */}
             <div className="my-1 border-t border-border"></div>

@@ -4860,8 +4860,7 @@
     "upgrade": "Upgrade",
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
-    "profile": "Profile Center",
-    "help": "Help Docs"
+    "profile": "Profile Center"
   },
   "auth": {
     "login": "Sign In",
@@ -5233,7 +5232,7 @@
     "customerService": "Customer Service",
     "blog": "Blog",
     "partners": "Partners",
-    "helpCenter": "Help Center",
+
     "contactUs": "Contact Us",
     "feedback": "Feedback",
     "community": "Community",
@@ -5686,19 +5685,7 @@
       "upgradeNow": "Upgrade Membership",
       "backToHome": "Back to Home",
       "goBack": "Go Back",
-      "home": "Home",
-      "help": {
-        "title": "Need Help?",
-        "description": "If you believe this is an error, please try the following:",
-        "suggestions": [
-          "Check your network connection",
-          "Refresh the page and try again",
-          "Clear your browser cache",
-          "Contact customer service for assistance"
-        ],
-        "refresh": "Refresh Page",
-        "contactSupport": "Contact Support"
-      }
+      "home": "Home"
     }
   },
   "success": {
@@ -6543,8 +6530,7 @@
       "noAccount": "No account?",
       "register": "Register",
       "hasAccount": "Already have an account?",
-      "backToLogin": "Back to Login",
-      "help": "Help Documentation"
+      "backToLogin": "Back to Login"
     },
     "privacy": {
       "agreement": "I have read and agree to the",

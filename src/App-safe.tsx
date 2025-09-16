@@ -8,7 +8,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 // 最基础的页面组件
 function SafeHomePage() {
-  return (;
+  return (
     <div style={{ padding: 'var(--spacing-8)', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       <h1 style={{ color: 'hsl(var(--primary))', marginBottom: 'var(--spacing-4)' }}>🎉 文派AI - 智能内容创作平台</h1>
       <p style={{ fontSize: '1.var(--spacing-4)', color: '#64748b', marginBottom: 'var(--spacing-8)' }}>
@@ -56,7 +56,7 @@ function SafeHomePage() {
 }
 
 function App() {
-  return (;
+  return (
     <div className='App min-h-screen' >
       <Suspense fallback={<LoadingSpinner text='加载中...' />}>
         <Routes>

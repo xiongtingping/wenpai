@@ -42,7 +42,7 @@ export class EncryptionService {
     try {
       // 从环境变量或安全存储获取主密钥
       const masterKey = await this.getMasterKey();
-      
+
       // 使用PBKDF2派生加密密钥
       const keyMaterial = await crypto.subtle.importKey(
         'raw',
@@ -52,9 +52,11 @@ export class EncryptionService {
         ['deriveKey']
       );
 
-      // 生成随机盐值
-      const salt = crypto.getRandomValues(new Uint8Array(16));
-      
+      // 🔧 FIX: 使用固定盐值确保密钥一致性
+      // 使用应用标识符作为固定盐值，确保每次生成的密钥相同
+      const appSalt = 'wenpai-encryption-salt-v1';
+      const salt = new TextEncoder().encode(appSalt);
+
       // 派生AES密钥
       this.cryptoKey = await crypto.subtle.deriveKey(
         {
@@ -73,7 +75,7 @@ export class EncryptionService {
       );
 
       this.keyGenerationTime = Date.now();
-      console.log('🔐 新的加密密钥已生成');
+      console.log('🔐 固定盐值加密密钥已生成');
 
     } catch (error) {
       console.error('❌ 密钥生成失败:', error);
@@ -97,12 +99,12 @@ export class EncryptionService {
       return storedKey;
     }
 
-    // 生成新的主密钥（仅在开发环境）
+    // 🔧 FIX: 使用固定的开发环境主密钥确保一致性
     if (import.meta.env.DEV) {
-      const newKey = this.generateRandomKey(32);
-      localStorage.setItem('_enc_master_key', newKey);
-      console.warn('⚠️ 开发环境生成临时主密钥');
-      return newKey;
+      const devMasterKey = 'wenpai-dev-master-key-2025-fixed-v1';
+      localStorage.setItem('_enc_master_key', devMasterKey);
+      console.warn('⚠️ 开发环境使用固定主密钥');
+      return devMasterKey;
     }
 
     throw new Error('No master encryption key found');
@@ -153,8 +155,9 @@ export class EncryptionService {
       encryptedData.set(iv, 0);
       encryptedData.set(new Uint8Array(ciphertext), iv.length);
 
-      // 转换为Base64进行存储
-      return this.arrayBufferToBase64(encryptedData.buffer);
+      // 转换为Base64进行存储，添加AES格式标识符
+      const base64Data = this.arrayBufferToBase64(encryptedData.buffer);
+      return 'AES256GCM:' + base64Data;
 
     } catch (error) {
       console.error('❌ 数据加密失败:', error);
@@ -163,7 +166,7 @@ export class EncryptionService {
   }
 
   /**
-   * 解密数据
+   * 解密数据 - 支持格式标识符
    */
   static async decrypt(encryptedData: string): Promise<string> {
     try {
@@ -171,11 +174,17 @@ export class EncryptionService {
         throw new Error('Invalid encrypted data');
       }
 
+      // 检查并移除AES格式标识符
+      let base64Data = encryptedData;
+      if (encryptedData.startsWith('AES256GCM:')) {
+        base64Data = encryptedData.substring(10); // 移除 'AES256GCM:' 前缀
+      }
+
       const key = await this.getCryptoKey();
-      
+
       // 从Base64解码
-      const encryptedBytes = new Uint8Array(this.base64ToArrayBuffer(encryptedData));
-      
+      const encryptedBytes = new Uint8Array(this.base64ToArrayBuffer(base64Data));
+
       // 分离IV和密文
       const iv = encryptedBytes.slice(0, this.IV_LENGTH);
       const ciphertext = encryptedBytes.slice(this.IV_LENGTH);
@@ -348,19 +357,87 @@ export class SecureEncryption {
   }
 
   /**
-   * 自动选择最佳解密方式
+   * 智能解密方式 - 修复AES-256-GCM与降级解密的兼容性问题
    */
   static async decrypt(encryptedData: string): Promise<string> {
-    if (EncryptionService.isAvailable()) {
-      try {
-        return await EncryptionService.decrypt(encryptedData);
-      } catch (error) {
-        console.warn('⚠️ 高级解密失败，尝试降级解密');
-        return FallbackEncryptionService.decrypt(encryptedData);
-      }
-    } else {
+    if (!EncryptionService.isAvailable()) {
+      // Web Crypto API不可用，直接使用降级解密
       return FallbackEncryptionService.decrypt(encryptedData);
     }
+
+    try {
+      // 🔍 优先检查格式标识符
+      if (encryptedData.startsWith('AES256GCM:')) {
+        // 明确标识为AES加密数据
+        return await EncryptionService.decrypt(encryptedData);
+      }
+
+      // 🔍 检测数据格式来判断加密方式
+      const isAESEncrypted = this.isAESEncryptedData(encryptedData);
+
+      if (isAESEncrypted) {
+        // 使用AES-256-GCM解密
+        return await EncryptionService.decrypt(encryptedData);
+      } else {
+        // 使用降级解密
+        console.log('🔄 检测到降级加密数据，使用降级解密');
+        return FallbackEncryptionService.decrypt(encryptedData);
+      }
+    } catch (error) {
+      console.error('❌ 智能解密失败:', error);
+      throw new Error('Decryption failed');
+    }
+  }
+
+  /**
+   * 检测是否为AES加密数据
+   */
+  private static isAESEncryptedData(encryptedData: string): boolean {
+    try {
+      // AES加密的数据通常更长，且包含IV和认证标签
+      // 降级加密的数据相对较短
+      const decoded = atob(encryptedData);
+
+      // AES-256-GCM加密的数据至少包含：
+      // - 12字节IV + 16字节认证标签 + 实际数据
+      // 所以最少28字节，Base64编码后至少38个字符
+      if (decoded.length < 28) {
+        return false;
+      }
+
+      // 检查数据是否包含典型的AES特征
+      // AES加密的数据通常具有更高的随机性
+      const randomnessScore = this.calculateRandomnessScore(decoded);
+      return randomnessScore > 0.7; // 随机性阈值
+
+    } catch (error) {
+      // Base64解码失败，可能不是有效的加密数据
+      return false;
+    }
+  }
+
+  /**
+   * 计算数据的随机性分数
+   */
+  private static calculateRandomnessScore(data: string): number {
+    if (data.length === 0) return 0;
+
+    // 计算字符分布的熵
+    const charCounts = new Map<string, number>();
+    for (const char of data) {
+      charCounts.set(char, (charCounts.get(char) || 0) + 1);
+    }
+
+    let entropy = 0;
+    const length = data.length;
+    for (const count of charCounts.values()) {
+      const probability = count / length;
+      entropy -= probability * Math.log2(probability);
+    }
+
+    // 归一化到0-1范围
+    const maxEntropy = Math.log2(Math.min(256, length));
+    return entropy / maxEntropy;
   }
 
   /**

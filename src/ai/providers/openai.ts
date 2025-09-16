@@ -60,7 +60,7 @@ export class OpenAIProvider implements AIProviderInterface {
    * 
    */
   getSupportedModels(): string[] {
-    return [;
+    return [
       'gpt-4o',
       'gpt-4o-mini',
       'gpt-4-turbo',

@@ -60,10 +60,13 @@ class VerificationCodeService {
         throw new Error(`Authing配置缺失: appId=${!!config.appId}, host=${!!config.host}`);
       }
 
-      // 🔧 FIX: 增加超时配置和网络优化
+      // 🔧 FIX: 增加超时配置和网络优化 + 本地开发通过Vite代理避免CORS
+      const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+      const appHost = isLocal ? `${window.location.origin}/api/authing` : `https://${config.domain}`;
+
       this.authClient = new AuthenticationClient({
         appId: config.appId,
-        appHost: `https://${config.domain}`,
+        appHost,
         protocol: 'oidc',
         // 🔧 FIX: 统一超时时间到90秒，解决认证超时问题
         timeout: 90000,
@@ -79,7 +82,7 @@ class VerificationCodeService {
         }
       });
 
-      console.log('✅ Authing AuthenticationClient初始化成功');
+      console.log('✅ Authing AuthenticationClient初始化成功，appHost:', appHost);
       return this.authClient;
     } catch (error) {
       console.error('❌ Authing AuthenticationClient初始化失败:', error);

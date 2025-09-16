@@ -136,7 +136,7 @@ const AboutPage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="px-12 pb-12">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                 {[
                   {
                     icon: Zap,
@@ -175,14 +175,19 @@ const AboutPage: React.FC = () => {
                     color: 'text-orange-600'
                   }
                 ].map((feature, index) => (
-                  <div key={index} className="flex items-start gap-4 p-6 rounded-xl bg-background/80 hover:bg-primary/5 transition-all duration-300 group">
-                    <div className={`w-12 h-12 bg-accent rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
-                      <feature.icon className={`w-6 h-6 ${feature.color}`} />
+                  <div key={index} className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-background via-background to-primary/5 border border-border hover:border-primary/30 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+                    <div className="p-8">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className={`w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                          <feature.icon className={`w-8 h-8 ${feature.color}`} />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-bold text-xl mb-2 text-foreground group-hover:text-primary transition-colors">{feature.title}</h4>
+                        </div>
+                      </div>
+                      <p className="text-muted-foreground text-base leading-relaxed">{feature.description}</p>
                     </div>
-                    <div>
-                      <h4 className="font-bold text-lg mb-2 text-foreground">{feature.title}</h4>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
-                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                   </div>
                 ))}
               </div>
@@ -294,11 +299,23 @@ const AboutPage: React.FC = () => {
                       color: 'hover:border-purple-500 hover:bg-purple-500/10 hover:text-purple-600'
                     }
                   ].map((contact, index) => (
-                    <Button 
+                    <Button
                       key={index}
-                      variant="outline" 
+                      variant="outline"
                       size="lg"
                       className={`h-auto p-6 flex-col gap-3 transition-all duration-300 ${contact.color} group`}
+                      onClick={() => {
+                        if (index === 0) {
+                          // 意见反馈 - 发送邮件
+                          window.location.href = 'mailto:feedback@wenpai.xyz';
+                        } else if (index === 1) {
+                          // 商务合作 - 发送邮件
+                          window.location.href = 'mailto:business@wenpai.xyz';
+                        } else if (index === 2) {
+                          // 技术支持 - 发送邮件
+                          window.location.href = 'mailto:support@wenpai.xyz';
+                        }
+                      }}
                     >
                       <contact.icon className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
                       <span className="font-semibold">{contact.title}</span>

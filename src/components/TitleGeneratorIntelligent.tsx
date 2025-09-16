@@ -430,8 +430,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         } else if (error.message.includes('DeepSeek模型超时')) {
           errorMessage = "DeepSeek模型超时";
           actionMessage = "系统已尝试备用模型，请稍后重试或检查网络连接";
-        } else if (error.message.includes()) {
-          errorMessage = ;
+        } else if (error.message.includes('模型不可用')) {
+          errorMessage = "AI模型暂时不可用";
           actionMessage = "请稍后重试，或切换到其他AI模型";
         } else if (error.message.includes(t('components.errors.生成超时'))) {
           errorMessage = "AI生成超时";
@@ -440,9 +440,9 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           errorMessage = "所有AI模型都超时";
           actionMessage = "请检查网络连接，或稍后重试";
         } else if (error.message.includes('API密钥') || error.message.includes('401')) {
-          errorMessage = ;
+          errorMessage = "API密钥配置错误";
           actionMessage = "请检查.env.local文件中的API密钥配置";
-        } else if (error.message.includes()) {
+        } else if (error.message.includes('网络错误')) {
           // 检查用户选择的模型
           const userSelectedModel = localStorage.getItem('preferredAIModel') || 'deepseek-v3';
           if (userSelectedModel.includes('deepseek')) {

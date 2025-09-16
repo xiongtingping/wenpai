@@ -34,7 +34,8 @@ import {
   FolderOpen,
   ChevronRight,
   Database,
-  MessageSquare
+  MessageSquare,
+  HelpCircle
 } from 'lucide-react';
 
 /**
@@ -222,6 +223,7 @@ const PAGE_CONFIGS: Record<string, string> = {'/': {
     parent: '/',
     category: 'user-tools',
   },
+
 };
 
 /**

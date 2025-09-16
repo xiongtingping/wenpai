@@ -5,9 +5,6 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
@@ -71,18 +68,29 @@ function InfoTooltip({ title, content }: { title: string; content: string[] }) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted hover:bg-accent transition-colors cursor-help">
-            <span className="text-xs font-bold text-muted-foreground">ℹ️</span>
+          <button style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '16px',
+            height: '16px',
+            borderRadius: '50%',
+            background: '#f3f4f6',
+            border: 'none',
+            cursor: 'help',
+            transition: 'all 0.2s'
+          }}>
+            <span style={{fontSize: '12px', fontWeight: 'bold', color: '#6b7280'}}>ℹ️</span>
           </button>
         </TooltipTrigger>
-        <TooltipContent className="max-w-xs">
-          <div className="space-y-2">
-            <div className="font-medium">{title}</div>
-            <ul className="text-sm space-y-1">
+        <TooltipContent style={{maxWidth: '300px', background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px'}}>
+          <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+            <div style={{fontWeight: '600', fontSize: '14px', color: '#1f2937'}}>{title}</div>
+            <ul style={{fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '4px', margin: 0, padding: 0, listStyle: 'none'}}>
               {content.map((item, index) => (
-                <li key={index} className="flex items-start gap-1">
-                  <span className="text-primary mt-1">•</span>
-                  <span>{item}</span>
+                <li key={index} style={{display: 'flex', alignItems: 'flex-start', gap: '4px'}}>
+                  <span style={{color: '#3b82f6', marginTop: '2px', fontSize: '12px'}}>•</span>
+                  <span style={{color: '#1f2937'}}>{item}</span>
                 </li>
               ))}
             </ul>
@@ -103,7 +111,8 @@ export function TokenUsageSection({
   className = '',
   externalUserStats
 }: TokenUsageSectionProps) {
-  
+  const { t } = useTranslation(); // 🔧 FIX: 添加国际化函数初始化
+
   const {
     tokenStats,
     usageCountStats,
@@ -161,50 +170,86 @@ export function TokenUsageSection({
   };
 
   return (
-    <div className={`${className}`}>
-      <Card variant="soft" className="h-full flex flex-col rounded-xl overflow-hidden relative">
-        <CardHeader className="bg-gradient-secondary text-foreground relative z-10 rounded-t-xl">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-primary/10 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0 border border-border">
-                <Database className="w-6 h-6 drop-shadow-sm text-primary" />
-              </div>
-              <div>
-                <div className="text-xl font-bold text-foreground">使用统计</div>
-                <div className="text-muted-foreground text-sm font-normal">{planName} - 查看您的使用情况</div>
-              </div>
+    <div className={`${className}`} style={{
+      background: 'white',
+      border: '1px solid #e5e7eb',
+      borderRadius: '12px',
+      padding: '2rem',
+      boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1)',
+      minHeight: '500px',
+      display: 'flex',
+      flexDirection: 'column',
+      visibility: 'visible',
+      opacity: 1
+    }}>
+      <div style={{marginBottom: '1.5rem'}}>
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+            <Database className="w-6 h-6" style={{color: '#3b82f6'}} />
+            <div>
+              <div style={{fontSize: '1.125rem', fontWeight: '600', color: '#1f2937'}}>使用统计</div>
+              <div style={{color: '#6b7280', fontSize: '0.875rem', fontWeight: 'normal'}}>{planName} - 查看您的使用情况</div>
             </div>
-            <Button
-              variant="soft"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="bg-card/20 backdrop-blur-sm border-border/30 text-primary-foreground hover:bg-card/30 hover:border-border/50 rounded-lg"
-            >
-              <RefreshCw className={`w-4 h-4 text-muted-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
-            </Button>
           </div>
-        </CardHeader>
+          <Button
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            style={{
+              background: isRefreshing 
+                ? '#f3f4f6'
+                : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+              border: 'none',
+              borderRadius: '6px',
+              color: isRefreshing ? '#6b7280' : 'white',
+              boxShadow: !isRefreshing 
+                ? '0 1px 3px 0 rgba(59, 130, 246, 0.3)' 
+                : 'none'
+            }}
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-muted-foreground' : ''}`} style={{color: isRefreshing ? '#6b7280' : 'white'}} />
+          </Button>
+        </div>
+      </div>
 
-        <CardContent className="flex-1 flex flex-col p-6 relative z-10">
-          {loading && !finalTokenStats ? (
-            <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-8 h-8 animate-spin text-primary" />
-              <span className="ml-3 text-lg font-medium text-foreground">加载中...</span>
-            </div>
-          ) : (
-            <>
-              {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
-              <div className="flex-1 space-y-4">
-                {/* Token使用量统计卡片 */}
-                <div className="bg-accent rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden">
-                  <div className="flex items-center justify-between mb-4 relative z-10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center shadow-e0">
-                        <Zap className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
+      {loading && !finalTokenStats ? (
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 0'}}>
+          <RefreshCw className="w-8 h-8 animate-spin" style={{color: '#3b82f6'}} />
+          <span style={{marginLeft: '12px', fontSize: '18px', fontWeight: '500', color: '#1f2937'}}>加载中...</span>
+        </div>
+      ) : (
+        <>
+          {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
+          <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1}}>
+            {/* Token使用量统计卡片 */}
+                <div style={{
+                  minWidth: '280px', 
+                  position: 'relative',
+                  background: '#f9fafb',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  border: '1px solid #e5e7eb',
+                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', position: 'relative', zIndex: 10}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        background: '#3b82f6',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+                      }}>
+                        <Zap className="w-5 h-5" style={{color: 'white', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-foreground text-lg">Token使用量</h3>
+                      <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0}}>
+                        <h3 style={{fontWeight: '600', color: '#1f2937', fontSize: '14px', whiteSpace: 'nowrap'}}>Token使用量</h3>
                         <InfoTooltip
                           title="Token统计说明"
                           content={[
@@ -215,29 +260,62 @@ export function TokenUsageSection({
                         />
                       </div>
                     </div>
-                    <Badge
-                      variant={finalTokenStats && finalTokenStats.monthlyLimit === -1 ? "default" :
-                              finalTokenStats && finalTokenStats.usagePercentage > 80 ? "destructive" :
-                              finalTokenStats && finalTokenStats.usagePercentage > 60 ? "secondary" : "default"}
-                      className="text-sm font-bold btn-gradient-primary text-primary-foreground border-0 shadow-lg rounded-xl px-3 py-1"
-                    >
+                    <span style={{
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      padding: '4px 12px',
+                      borderRadius: '12px',
+                      background: finalTokenStats && finalTokenStats.monthlyLimit === -1 
+                        ? '#3b82f6'
+                        : finalTokenStats && finalTokenStats.usagePercentage > 80 
+                        ? '#ef4444'
+                        : finalTokenStats && finalTokenStats.usagePercentage > 60 
+                        ? '#f59e0b'
+                        : '#3b82f6',
+                      color: 'white'
+                    }}>
                       {finalTokenStats?.monthlyLimit === -1 ? '无限制' : `${Math.round(finalTokenStats?.usagePercentage || 0)}%`}
-                    </Badge>
+                    </span>
                   </div>
 
-                  <div className="space-y-4 relative z-10">
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', zIndex: 10}}>
                     {finalTokenStats?.monthlyLimit === -1 ? (
-                      <div className="text-center py-3 bg-accent rounded-xl">
-                        <div className="text-2xl font-bold btn-gradient-primary bg-clip-text text-transparent mb-1">∞</div>
-                        <div className="text-sm font-medium text-muted-foreground">无限制Token</div>
+                      <div style={{
+                        textAlign: 'center',
+                        padding: '1rem',
+                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.1))',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(59, 130, 246, 0.2)'
+                      }}>
+                        <div style={{
+                          fontSize: '24px',
+                          fontWeight: 'bold',
+                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          marginBottom: '8px'
+                        }}>∞</div>
+                        <div style={{fontSize: '14px', fontWeight: '500', color: '#6b7280'}}>无限制Token</div>
                       </div>
                     ) : (
                       <>
-                        <Progress
-                          value={Math.min(finalTokenStats?.usagePercentage || 0, 100)}
-                          className="h-3 bg-muted rounded-full shadow-inner"
-                        />
-                        <div className="flex justify-between text-sm font-medium text-muted-foreground">
+                        <div style={{
+                          width: '100%',
+                          height: '12px',
+                          background: '#f3f4f6',
+                          borderRadius: '6px',
+                          overflow: 'hidden',
+                          position: 'relative'
+                        }}>
+                          <div style={{
+                            height: '100%',
+                            width: `${Math.min(finalTokenStats?.usagePercentage || 0, 100)}%`,
+                            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                            borderRadius: '6px',
+                            transition: 'width 0.3s ease'
+                          }} />
+                        </div>
+                        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '500', color: '#6b7280'}}>
                           <span>已使用 {formatNumber(finalTokenStats?.monthlyUsed || 0)} tokens</span>
                           <span>剩余 {formatNumber(finalTokenStats?.monthlyRemaining || 0)} tokens</span>
                         </div>
@@ -246,30 +324,76 @@ export function TokenUsageSection({
                   </div>
 
                   {/* Token继承说明 */}
-                  <div className="mt-3 bg-accent border border-border rounded-lg p-3 relative z-10 shadow-e0">
-                    <div className="flex items-start gap-3">
-                      <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-xs font-bold mt-0.5 flex-shrink-0">
-                        ℹ️
+                  <div style={{
+                    marginTop: '12px', 
+                    backgroundColor: 'white', 
+                    border: '1px solid #e5e7eb', 
+                    borderRadius: '8px', 
+                    padding: '12px',
+                    display: 'block',
+                    width: '100%'
+                  }}>
+                    <div style={{display: 'flex', alignItems: 'flex-start', gap: '12px', width: '100%'}}>
+                      <div style={{
+                        width: '20px', 
+                        height: '20px', 
+                        backgroundColor: 'var(--primary)', 
+                        borderRadius: '50%', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        marginTop: '2px'
+                      }}>
+                        <span style={{fontSize: '12px', color: 'white'}}>ℹ️</span>
                       </div>
-                      <div className="text-sm text-foreground">
-                        <span className="font-bold">重要说明：</span>
-                        tokens在会员有效期内可以继承到下个月续用，不会清零浪费。
+                      <div style={{
+                        flex: 1, 
+                        fontSize: '14px', 
+                        lineHeight: '1.5', 
+                        color: '#1f2937',
+                        minWidth: 0,
+                        wordBreak: 'break-word'
+                      }}>
+                        <span style={{fontWeight: '600'}}>重要说明：</span>
+                        <span>tokens在会员有效期内可以继承到下个月续用，不会清零浪费。</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* 使用次数统计卡片 */}
-<div className="bg-accent rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden">
-                  <div className="flex items-center justify-between mb-4 relative z-10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center shadow-e0">
-                        <Target className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
+                <div style={{
+                  minWidth: '280px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  background: '#f9fafb',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  border: '1px solid #e5e7eb',
+                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', position: 'relative', zIndex: 10}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        background: '#3b82f6',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+                      }}>
+                        <Target className="w-5 h-5" style={{color: 'white', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-foreground text-lg">使用次数</h3>
+                      <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0}}>
+                        <h3 style={{fontWeight: '600', color: '#1f2937', fontSize: '14px', whiteSpace: 'nowrap'}}>使用次数</h3>
                         <InfoTooltip
-                          title={t('components.labels.标题')}
+                          title="使用次数说明"
                           content={[
                             "统计规则：主要计算AI内容适配器的调用次数",
                             "计量单位：每次调用AI内容适配器计为1次使用",
@@ -279,59 +403,90 @@ export function TokenUsageSection({
                         />
                       </div>
                     </div>
-                    <Badge
-                      variant={finalUsageCountStats && finalUsageCountStats.usagePercentage > 80 ? "destructive" :
-                              finalUsageCountStats && finalUsageCountStats.usagePercentage > 60 ? "secondary" : "default"}
-                      className="text-sm font-bold btn-gradient-primary text-primary-foreground border-0 shadow-lg rounded-xl px-3 py-1"
-                    >
+                    <span style={{
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      padding: '4px 12px',
+                      borderRadius: '12px',
+                      background: finalUsageCountStats && finalUsageCountStats.availableUses === -1
+                        ? '#3b82f6'
+                        : finalUsageCountStats && finalUsageCountStats.usagePercentage > 80 
+                        ? '#ef4444'
+                        : finalUsageCountStats && finalUsageCountStats.usagePercentage > 60 
+                        ? '#f59e0b'
+                        : '#3b82f6',
+                      color: 'white'
+                    }}>
                       {(finalUsageCountStats && finalUsageCountStats.availableUses === -1) ? '无限制' :
                        `${finalUsageCountStats?.usedCount || 0}/${finalUsageCountStats?.availableUses || 0}`}
-                    </Badge>
+                    </span>
                   </div>
 
-                  <div className="space-y-4 relative z-10">
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', zIndex: 10}}>
                     {finalUsageCountStats && finalUsageCountStats.availableUses !== -1 ? (
                       <>
-                        <Progress
-                          value={Math.min(finalUsageCountStats?.usagePercentage || 0, 100)}
-                          className="h-3 bg-muted rounded-full shadow-inner"
-                        />
-                        <div className="flex justify-between text-sm font-medium text-muted-foreground">
+                        <div style={{
+                          width: '100%',
+                          height: '12px',
+                          background: '#f3f4f6',
+                          borderRadius: '6px',
+                          overflow: 'hidden',
+                          position: 'relative'
+                        }}>
+                          <div style={{
+                            height: '100%',
+                            width: `${Math.min(finalUsageCountStats?.usagePercentage || 0, 100)}%`,
+                            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                            borderRadius: '6px',
+                            transition: 'width 0.3s ease'
+                          }} />
+                        </div>
+                        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '500', color: '#6b7280'}}>
                           <span>已使用 {finalUsageCountStats?.usedCount || 0} 次</span>
                           <span>剩余 {formatRemainingUses(finalUsageCountStats?.remainingUses ?? 0, userTier)} 次</span>
                         </div>
                       </>
                     ) : (
-                      <div className="text-center py-3 bg-accent rounded-xl">
-                        <div className="text-2xl font-bold btn-gradient-accent bg-clip-text text-transparent mb-1">∞</div>
-                        <div className="text-sm font-medium text-muted-foreground">无限制使用</div>
+                      <div style={{
+                        textAlign: 'center',
+                        padding: '12px',
+                        background: '#f9fafb',
+                        borderRadius: '12px'
+                      }}>
+                        <div style={{
+                          fontSize: '24px',
+                          fontWeight: 'bold',
+                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          marginBottom: '4px'
+                        }}>∞</div>
+                        <div style={{fontSize: '14px', fontWeight: '500', color: '#6b7280'}}>无限制使用</div>
                       </div>
                     )}
                   </div>
-                </div>
-              </div>
+            </div>
+          </div>
 
-              {/* 升级按钮 - 仅在非高级版时显示 */}
-              {/* ✅ FIXED: 恢复按钮，修复于 2025-08-10 */}
-              {/* 升级按钮已注释
-              {userTier !== 'premium' && showUpgradeButton && (
-                <div className="mt-4">
-                  <Button
-                    onClick={handleUpgrade}
-                    className="w-full h-12 text-base font-bold rounded-xl btn-upgrade-force"
-                    size="lg"
-                  >
-                    <Crown className="w-5 h-5 text-background" />
-                    立即解锁高级功能
-                  </Button>
-                </div>
-              )}
-              */}
-
-            </>
+          {/* 升级按钮 - 仅在非高级版时显示 */}
+          {/* ✅ FIXED: 恢复按钮，修复于 2025-08-10 */}
+          {/* 升级按钮已注释
+          {userTier !== 'premium' && showUpgradeButton && (
+            <div className="mt-4">
+              <Button
+                onClick={handleUpgrade}
+                className="w-full h-12 text-base font-bold rounded-xl btn-upgrade-force"
+                size="lg"
+              >
+                <Crown className="w-5 h-5 text-background" />
+                立即解锁高级功能
+              </Button>
+            </div>
           )}
-        </CardContent>
-      </Card>
+          */}
+
+        </>
+      )}
     </div>
   );
 }

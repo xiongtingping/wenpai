@@ -6,7 +6,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 function UltraSimplePage() {
-  return (;
+  return (
     <div style={{ 
       padding: 'var(--spacing-8)', 
       fontFamily: 'system-ui', 
@@ -87,7 +87,7 @@ function UltraSimplePage() {
 }
 
 function App() {
-  return (;
+  return (
     <Routes>
       <Route path='*' element={<UltraSimplePage />} />
     </Routes>

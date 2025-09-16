@@ -22,7 +22,7 @@ export interface AIApiResponse {
  * @param userPrompt 用户输入
  * @returns AI 返回内容
  */
-export async function callGeminiAPI(;
+export async function callGeminiAPI(
   systemPrompt: string,
   userPrompt: string
 ): Promise<AIApiResponse> {

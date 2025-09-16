@@ -4,6 +4,10 @@ import path from 'path'
 // @ts-expect-error - vite-env-plugin.js is a custom plugin without types
 import envPlugin from './vite-env-plugin.js'
 
+// 🔧 Dev/HMR 端口自适应，避免 WebSocket 5174 冲突
+const DEV_PORT = Number(process.env.PORT) || Number(process.env.VITE_DEV_PORT) || 5173;
+const HMR_PORT = Number(process.env.VITE_HMR_PORT) || DEV_PORT;
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), envPlugin()],
@@ -49,11 +53,12 @@ export default defineConfig({
   },
   // 开发服务器配置
   server: {
-    port: 5173,
+    port: DEV_PORT,
     host: '0.0.0.0',
     strictPort: true,
     hmr: {
-      port: 5174
+      port: HMR_PORT,
+      clientPort: HMR_PORT
     },
     proxy: {
       '/api/authing': {

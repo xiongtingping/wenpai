@@ -2,6 +2,7 @@
 @import './base-layer.css';
 @import './utility-classes.css';
 @import './component-layer.css';
+/* Profile样式已统一到 profile-unified-system.css */
 /*
  * Unified CSS System (统一CSS系统)
  * 按照正确的层级顺序导入所有样式层

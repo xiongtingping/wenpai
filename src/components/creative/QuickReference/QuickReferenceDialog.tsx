@@ -266,6 +266,46 @@ export function QuickReferenceDialog({ open,
     }
   }, [open, resetState]);
 
+  // 🎯 精简修复器 - 遵循CLAUDE.md规范
+  useEffect(() => {
+    if (!open) return;
+
+    const fixDialogPosition = () => {
+      const dialogElement = (
+        document.querySelector('[role="dialog"][class*="quick-reference-dialog"]') ||
+        document.querySelector('.quick-reference-dialog') ||
+        document.querySelector('[role="dialog"]')
+      ) as HTMLElement;
+
+      if (dialogElement) {
+        console.log('🎯 快速引用Dialog定位修复已应用');
+
+        // 清除inset冲突属性
+        dialogElement.style.removeProperty('inset');
+        dialogElement.style.removeProperty('inset-block');
+        dialogElement.style.removeProperty('inset-inline');
+        dialogElement.style.removeProperty('inset-block-start');
+        dialogElement.style.removeProperty('inset-block-end');
+        dialogElement.style.removeProperty('inset-inline-start');
+        dialogElement.style.removeProperty('inset-inline-end');
+
+        // 使用视窗单位强制定位
+        dialogElement.style.setProperty('position', 'fixed', 'important');
+        dialogElement.style.setProperty('top', '50vh', 'important');
+        dialogElement.style.setProperty('left', '50vw', 'important');
+        dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+        dialogElement.style.setProperty('z-index', '1055', 'important');
+        dialogElement.style.setProperty('margin', '0', 'important');
+
+        console.log('✅ 快速引用Dialog位置已修复');
+      }
+    };
+
+    fixDialogPosition();
+    setTimeout(fixDialogPosition, 100);
+    setTimeout(fixDialogPosition, 300);
+  }, [open]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent

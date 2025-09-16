@@ -59,7 +59,7 @@ export async function streamingAIExample() {
  * 批量AI调用示例
  */
 export async function batchAIExample() {
-  const prompts = [;
+  const prompts = [
     '写一个JavaScript函数来反转字符串',
     '写一个CSS样式来创建渐变背景',
     '写一个TypeScript接口定义用户对象'

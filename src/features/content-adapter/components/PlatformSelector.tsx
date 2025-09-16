@@ -420,7 +420,7 @@ export function PlatformSelector({ availablePlatforms,
                           <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
                             {getPlatformIcon(platform.id)}
                           </div>
-                          <CardTitle className="text-sm font-medium truncate text-foreground">
+                          <CardTitle className="text-sm font-medium truncate text-foreground platform-card-title">
                             {getPlatformName(platform.id)}
                           </CardTitle>
                         </div>
@@ -498,7 +498,7 @@ export function PlatformSelector({ availablePlatforms,
                             handleSaveGlobalSettings();
                           }}
                           size="sm"
-                          className="flex items-center gap-1 px-3"
+                          className="flex items-center gap-1 px-4 min-w-[80px]"
                           disabled={selectedPlatforms.length === 0 || isSavingGlobal}
                         >
                           {isSavingGlobal ? (
@@ -705,7 +705,7 @@ export function PlatformSelector({ availablePlatforms,
                           handleSavePlatformSettings();
                         }}
                         size="sm"
-                        className="flex items-center gap-1 px-3"
+                        className="flex items-center gap-1 px-4 min-w-[80px]"
                         disabled={selectedPlatforms.length === 0 || isSavingPlatform}
                       >
                         {isSavingPlatform ? (

@@ -13,6 +13,12 @@
 @import './styles/permission-guard-z-index.css';
 @import './styles/permission-interaction-disable.css';
 @import './styles/unified-permission-system.css';
+/* 🚨 Profile页面紧急修复 */
+@import './styles/profile-emergency-fix.css';
+/* 🎯 AI模型选择器样式 */
+@import './styles/ai-model-selector.css';
+
+
 
 /* @import必须在最前面 */
 /* 🎯 所有 */
@@ -2974,42 +2980,7 @@ html.modal-open {
   color: white !important;
 }
 /* 🎯 个人中心左右对称布局系统 - 精致版本 */
-.profile-grid-equal-height {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  gap: var(--spacing-6) !important;
-  align-items: stretch !important;
-  margin-bottom: var(--spacing-4) !important;
-}
-@media (min-width: 768px) {
-  .profile-grid-equal-height {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 1.75rem !important;
-  }
-}
-@media (min-width: 1024px) {
-  .profile-grid-equal-height {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 2.25rem !important;
-    align-items: stretch !important;
-  }
-}
-@media (min-width: 1280px) {
-  .profile-grid-equal-height {
-    gap: var(--spacing-10) !important;
-  }
-}
-.profile-grid-item {
-  display: flex !important;
-  flex-direction: column !important;
-  height: 100% !important;
-  min-height: fit-content !important;
-}
-/* 确保所有Card在网格中保持一致的外观 */
-.profile-grid-item .card {
-  box-shadow: 0 var(--spacing-1) var(--spacing-1-5) -1px rgba(0, 0, 0, 0.1), 0 var(--spacing-0-5) var(--spacing-1) -1px rgba(0, 0, 0, 0.06) !important;
-  border: 1px solid hsl(var(--border)) !important;
-}
+/* Profile样式已迁移到 profile-unified-system.css */
 /* ✅ FIXED: 2025-08-04 SafeTooltip动画样式 */
 @keyframes fadeIn {
   from {

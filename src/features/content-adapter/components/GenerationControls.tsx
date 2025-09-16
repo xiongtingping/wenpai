@@ -222,17 +222,17 @@ export function GenerationControls({ generating,
         </CardContent>
       </Card>
 
-      {/* AI模型选择 */}
-      <Card className="unified-card mb-6">
-        <CardHeader className="unified-card-header">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="unified-icon-container">
-                <Sparkles className="h-5 w-5 text-primary" />
+      {/* AI模型选择 - 优化版本 */}
+      <Card className="ai-model-selector-card">
+        <CardHeader className="ai-model-selector-header">
+          <div className="ai-model-header-layout">
+            <div className="ai-model-title-section">
+              <div className="ai-model-icon-container">
+                <Sparkles className="ai-model-icon" />
               </div>
-              <div>
-                <h4 className="unified-title">AI模型选择</h4>
-                <p className="unified-description">
+              <div className="ai-model-title-content">
+                <h4 className="ai-model-title">AI模型选择</h4>
+                <p className="ai-model-description">
                   基于订阅计划提供不同级别的AI模型，满足从基础到专业的各种创作需求
                 </p>
               </div>
@@ -240,41 +240,41 @@ export function GenerationControls({ generating,
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center gap-2 min-w-[100px]"
+              className="ai-model-save-button"
               onClick={handleSaveModelPreference}
               disabled={!selectedModel || saving}
             >
               {saving ? (
                 <>
-                  <RefreshCw className="h-3 w-3 animate-spin" />
+                  <RefreshCw className="ai-model-save-icon animate-spin" />
                   保存中...
                 </>
               ) : (
                 <>
-                  <Save className="h-3 w-3" />
+                  <Save className="ai-model-save-icon" />
                   记住选择
                 </>
               )}
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="unified-content pt-0">
+        <CardContent className="ai-model-selector-content">
 
           {/* 按等级分组显示模型 */}
-          <div className="space-y-6">
+          <div className="ai-model-tiers-container">
             {/* 体验版模型 */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-success shadow-sm"></div>
-                  <span className="text-sm font-semibold text-green-700">体验版模型</span>
-                  <Badge variant="outline" className="text-xs bg-green-50 text-success border-green-200 px-2 py-1">
+            <div className="ai-model-tier-section">
+              <div className="ai-model-tier-header">
+                <div className="ai-model-tier-info">
+                  <div className="ai-model-tier-indicator ai-model-tier-indicator--trial"></div>
+                  <span className="ai-model-tier-name ai-model-tier-name--trial">体验版模型</span>
+                  <Badge variant="outline" className="ai-model-tier-badge ai-model-tier-badge--trial">
                     基础功能
                   </Badge>
                 </div>
-                <span className="text-xs text-muted-foreground">免费使用</span>
+                <span className="ai-model-tier-price">免费使用</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="ai-model-grid">
                 {availableModels.filter(m => m.tier === 'low').map((model) => {
                   console.log('🔍 渲染体验版模型:', model);
                   const disabled = generating;
@@ -283,12 +283,12 @@ export function GenerationControls({ generating,
                   return (
                     <div
                       key={model.id}
-                      className={`group relative p-4 border rounded-xl cursor-pointer unified-transition ${
+                      className={`ai-model-card ai-model-card--trial ${
                         isSelected
-                          ? 'unified-selected border-green-500 bg-green-50 shadow-md ring-2 ring-green-200'
+                          ? 'ai-model-card--selected'
                           : disabled
-                          ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
-                          : 'unified-unselected border-green-200 bg-green-50/30 hover:border-green-400 hover:bg-green-50/60 hover:shadow-sm'
+                          ? 'ai-model-card--disabled'
+                          : 'ai-model-card--available'
                       }`}
                       onClick={(e) => {
                         e.preventDefault();
@@ -297,24 +297,22 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 unified-transition ${
-                          isSelected
-                            ? 'border-green-500 bg-success shadow-sm'
-                            : 'border-green-300 bg-transparent group-hover:border-green-400'
+                      <div className="ai-model-card-content">
+                        <div className={`ai-model-radio ai-model-radio--trial ${
+                          isSelected ? 'ai-model-radio--selected' : ''
                         }`}>
-                          {isSelected && <Check className="h-3 w-3 text-background" />}
+                          {isSelected && <Check className="ai-model-radio-check" />}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-semibold text-sm text-foreground mb-1 truncate">
+                        <div className="ai-model-info">
+                          <h5 className="ai-model-name">
                             {model?.name || '测试模型名称'}
                           </h5>
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className="text-xs px-2 py-1 bg-green-100 text-green-700 border-green-300">
+                          <div className="ai-model-meta">
+                            <Badge variant="outline" className="ai-model-company-badge ai-model-company-badge--trial">
                               {model?.company || 'Unknown'}
                             </Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2">
+                          <p className="ai-model-description-text">
                             {model?.description || '测试模型描述'}
                           </p>
                         </div>
@@ -326,18 +324,18 @@ export function GenerationControls({ generating,
             </div>
 
             {/* 专业版模型 */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-warning shadow-sm"></div>
-                  <span className="text-sm font-semibold text-yellow-700">专业版模型</span>
-                  <Badge variant="outline" className="text-xs bg-yellow-50 text-warning border-yellow-200 px-2 py-1">
+            <div className="ai-model-tier-section">
+              <div className="ai-model-tier-header">
+                <div className="ai-model-tier-info">
+                  <div className="ai-model-tier-indicator ai-model-tier-indicator--pro"></div>
+                  <span className="ai-model-tier-name ai-model-tier-name--pro">专业版模型</span>
+                  <Badge variant="outline" className="ai-model-tier-badge ai-model-tier-badge--pro">
                     专业功能
                   </Badge>
                 </div>
-                <span className="text-xs text-muted-foreground">需要订阅</span>
+                <span className="ai-model-tier-price">需要订阅</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="ai-model-grid">
                 {availableModels.filter(m => m.tier === 'mid').map((model) => {
                   const userCanUsePro = availableModels.some(m => m.id === model.id && m.tier === 'mid');
                   const disabled = !userCanUsePro || generating;
@@ -346,12 +344,12 @@ export function GenerationControls({ generating,
                   return (
                     <div
                       key={model.id}
-                      className={`group relative p-4 border rounded-xl cursor-pointer unified-transition ${
+                      className={`ai-model-card ai-model-card--pro ${
                         isSelected
-                          ? 'unified-selected border-yellow-500 bg-yellow-50 shadow-md ring-2 ring-yellow-200'
+                          ? 'ai-model-card--selected'
                           : disabled
-                          ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
-                          : 'unified-unselected border-yellow-200 bg-yellow-50/30 hover:border-yellow-400 hover:bg-yellow-50/60 hover:shadow-sm'
+                          ? 'ai-model-card--disabled'
+                          : 'ai-model-card--available'
                       }`}
                       onClick={(e) => {
                         e.preventDefault();
@@ -360,35 +358,31 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 unified-transition ${
-                          isSelected
-                            ? 'border-yellow-500 bg-warning shadow-sm'
-                            : disabled
-                            ? 'border-yellow-300 bg-transparent'
-                            : 'border-yellow-300 bg-transparent group-hover:border-yellow-400'
+                      <div className="ai-model-card-content">
+                        <div className={`ai-model-radio ai-model-radio--pro ${
+                          isSelected ? 'ai-model-radio--selected' : ''
                         }`}>
-                          {isSelected ? <Check className="h-3 w-3 text-background" /> : disabled && <Crown className="h-3 w-3 text-warning" />}
+                          {isSelected ? <Check className="ai-model-radio-check" /> : disabled && <Crown className="ai-model-radio-crown" />}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-semibold text-sm text-foreground mb-1 truncate">
+                        <div className="ai-model-info">
+                          <h5 className="ai-model-name">
                             {model?.name || '专业版模型'}
                           </h5>
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 border-yellow-300">
+                          <div className="ai-model-meta">
+                            <Badge variant="outline" className="ai-model-company-badge ai-model-company-badge--pro">
                               {model?.company || 'Unknown'}
                             </Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2">
+                          <p className="ai-model-description-text">
                             {model?.description || '专业级AI模型'}
                           </p>
                         </div>
                       </div>
                       {disabled && !generating && (
-                        <div className="absolute inset-0 bg-background/80 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                          <div className="text-center p-2">
-                            <Crown className="h-4 w-4 text-warning mx-auto mb-1" />
-                            <p className="text-xs font-medium text-muted-foreground">需要专业版</p>
+                        <div className="ai-model-upgrade-overlay">
+                          <div className="ai-model-upgrade-content">
+                            <Crown className="ai-model-upgrade-icon" />
+                            <p className="ai-model-upgrade-text">需要专业版</p>
                           </div>
                         </div>
                       )}
@@ -399,18 +393,18 @@ export function GenerationControls({ generating,
             </div>
 
             {/* 高级版模型 */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-destructive shadow-sm"></div>
-                  <span className="text-sm font-semibold text-red-700">高级版模型</span>
-                  <Badge variant="outline" className="text-xs bg-red-50 text-destructive border-red-200 px-2 py-1">
+            <div className="ai-model-tier-section">
+              <div className="ai-model-tier-header">
+                <div className="ai-model-tier-info">
+                  <div className="ai-model-tier-indicator ai-model-tier-indicator--premium"></div>
+                  <span className="ai-model-tier-name ai-model-tier-name--premium">高级版模型</span>
+                  <Badge variant="outline" className="ai-model-tier-badge ai-model-tier-badge--premium">
                     顶级功能
                   </Badge>
                 </div>
-                <span className="text-xs text-muted-foreground">企业级</span>
+                <span className="ai-model-tier-price">企业级</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="ai-model-grid">
                 {availableModels.filter(m => m.tier === 'high').map((model) => {
                   const userCanUsePremium = availableModels.some(m => m.id === model.id && m.tier === 'high');
                   const disabled = !userCanUsePremium || generating;
@@ -419,12 +413,12 @@ export function GenerationControls({ generating,
                   return (
                     <div
                       key={model.id}
-                      className={`group relative p-4 border rounded-xl cursor-pointer unified-transition ${
+                      className={`ai-model-card ai-model-card--premium ${
                         isSelected
-                          ? 'unified-selected border-red-500 bg-red-50 shadow-md ring-2 ring-red-200'
+                          ? 'ai-model-card--selected'
                           : disabled
-                          ? 'border-border bg-muted/40 opacity-60 cursor-not-allowed'
-                          : 'unified-unselected border-red-200 bg-red-50/30 hover:border-red-400 hover:bg-red-50/60 hover:shadow-sm'
+                          ? 'ai-model-card--disabled'
+                          : 'ai-model-card--available'
                       }`}
                       onClick={(e) => {
                         e.preventDefault();
@@ -433,35 +427,31 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 unified-transition ${
-                          isSelected
-                            ? 'border-destructive bg-destructive shadow-sm'
-                            : disabled
-                            ? 'border-red-300 bg-transparent'
-                            : 'border-red-300 bg-transparent group-hover:border-red-400'
+                      <div className="ai-model-card-content">
+                        <div className={`ai-model-radio ai-model-radio--premium ${
+                          isSelected ? 'ai-model-radio--selected' : ''
                         }`}>
-                          {isSelected ? <Check className="h-3 w-3 text-background" /> : disabled && <Crown className="h-3 w-3 text-destructive" />}
+                          {isSelected ? <Check className="ai-model-radio-check" /> : disabled && <Crown className="ai-model-radio-crown" />}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-semibold text-sm text-foreground mb-1 truncate">
+                        <div className="ai-model-info">
+                          <h5 className="ai-model-name">
                             {model?.name || '高级版模型'}
                           </h5>
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className="text-xs px-2 py-1 bg-red-100 text-red-700 border-red-300">
+                          <div className="ai-model-meta">
+                            <Badge variant="outline" className="ai-model-company-badge ai-model-company-badge--premium">
                               {model?.company || 'Unknown'}
                             </Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2">
+                          <p className="ai-model-description-text">
                             {model?.description || '顶级AI模型'}
                           </p>
                         </div>
                       </div>
                       {disabled && !generating && (
-                        <div className="absolute inset-0 bg-background/80 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                          <div className="text-center p-2">
-                            <Crown className="h-4 w-4 text-destructive mx-auto mb-1" />
-                            <p className="text-xs font-medium text-muted-foreground">需要高级版</p>
+                        <div className="ai-model-upgrade-overlay">
+                          <div className="ai-model-upgrade-content">
+                            <Crown className="ai-model-upgrade-icon" />
+                            <p className="ai-model-upgrade-text">需要高级版</p>
                           </div>
                         </div>
                       )}
@@ -475,17 +465,17 @@ export function GenerationControls({ generating,
 
           {/* 当前选择的模型信息 */}
           {selectedModel && currentModel && (
-            <div className="mt-4 p-3 bg-accent/50 border border-border/50 rounded-lg">
-              <div className="flex items-center gap-2 mb-1">
-                <Bot className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">
+            <div className="ai-model-current-selection">
+              <div className="ai-model-current-header">
+                <Bot className="ai-model-current-icon" />
+                <span className="ai-model-current-title">
                   当前选择：{currentModel.name}
                 </span>
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="ai-model-current-badge">
                   {currentModel.company}
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="ai-model-current-description">
                 {currentModel.description}
               </p>
             </div>

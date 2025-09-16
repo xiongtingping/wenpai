@@ -4860,8 +4860,7 @@
     "upgrade": "升级套餐",
     "terms": "服务条款",
     "privacy": "隐私政策",
-    "profile": "个人中心",
-    "help": "帮助文档"
+    "profile": "个人中心"
   },
   "auth": {
     "login": "登录",
@@ -5234,7 +5233,7 @@
     "customerService": "客服支持",
     "blog": "技术博客",
     "partners": "合作伙伴",
-    "helpCenter": "帮助中心",
+
     "contactUs": "联系我们",
     "feedback": "意见反馈",
     "community": "用户社区",
@@ -5687,19 +5686,7 @@
       "upgradeNow": "升级会员",
       "backToHome": "返回首页",
       "goBack": "返回",
-      "home": "首页",
-      "help": {
-        "title": "需要帮助？",
-        "description": "如果您认为这是一个错误，请尝试以下操作：",
-        "suggestions": [
-          "检查您的网络连接",
-          "刷新页面重试",
-          "清除浏览器缓存",
-          "联系客服获取帮助"
-        ],
-        "refresh": "刷新页面",
-        "contactSupport": "联系客服"
-      }
+      "home": "首页"
     }
   },
   "success": {
@@ -6688,8 +6675,7 @@
       "noAccount": "没有账号？",
       "register": "注册",
       "hasAccount": "已有账号？",
-      "backToLogin": "返回登录",
-      "help": "帮助文档"
+      "backToLogin": "返回登录"
     },
     "privacy": {
       "agreement": "我已阅读并同意",

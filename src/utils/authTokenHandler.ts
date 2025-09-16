@@ -39,9 +39,12 @@ export class AuthingTokenHandler {
     try {
       const config = getAuthingConfig();
       
+      const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+      const appHost = isLocal ? `${window.location.origin}/api/authing` : (config.host?.startsWith('http') ? config.host : `https://${config.host}`);
+
       this.authClient = new AuthenticationClient({
         appId: config.appId,
-        appHost: config.host,
+        appHost,
         // 🔧 FIX: 统一超时时间到90秒，解决认证超时问题
         timeout: 90000,
         // 🔧 FIX: 添加网络优化配置
@@ -57,7 +60,7 @@ export class AuthingTokenHandler {
       });
 
       this.isInitialized = true;
-      console.log('🔐 Authing token handler initialized');
+      console.log('🔐 Authing token handler initialized, appHost:', appHost);
     } catch (error) {
       console.error('Failed to initialize Authing client:', error);
     }

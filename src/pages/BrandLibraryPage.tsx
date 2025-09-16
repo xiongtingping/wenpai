@@ -3320,7 +3320,6 @@ export default function BrandLibraryPageFixed() {
           </DialogContent>
         </Dialog>
       )}
-        </div>
     </div>
   );
 }

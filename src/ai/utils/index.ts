@@ -45,7 +45,7 @@ export function estimateTokenCount(text: string): number {
  * 
  */
 export function formatDebugInfo(info: any): string {
-  const lines = [;
+  const lines = [
     '🔍 AI调试信息',
     '================',
     `类型: ${info.type}`,
@@ -141,7 +141,7 @@ export function truncateText(text: string, maxLength: number, suffix: string = '
  */
 export function extractKeywords(text: string, maxCount: number = 10): string[] {
   // 简单的关键词提取：去除停用词，按频率排序
-  const stopWords = new Set([;
+  const stopWords = new Set([
     '的', '了', '在', '是', '我', '有', '和', '就', '不', '人', '都', '一', '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好', '自己', '这'
   ]);
 
@@ -198,7 +198,7 @@ export function delay(ms: number): Promise<void> {
  * 重试函数
  * 
  */
-export async function retry<T>(;
+export async function retry<T>(
   fn: () => Promise<T>,
   maxAttempts: number = 3,
   delayMs: number = 1000
@@ -227,7 +227,7 @@ export async function retry<T>(;
  * 性能监控装饰器
  * 
  */
-export function withPerformanceMonitoring<T extends (...args: any[]) => Promise<any>>(;
+export function withPerformanceMonitoring<T extends (...args: any[]) => Promise<any>>(
   fn: T,
   name: string
 ): T {
@@ -252,7 +252,7 @@ export function withPerformanceMonitoring<T extends (...args: any[]) => Promise<
  * 缓存装饰器
  * 
  */
-export function withCache<T extends (...args: any[]) => Promise<any>>(;
+export function withCache<T extends (...args: any[]) => Promise<any>>(
   fn: T,
   ttl: number = 5 * 60 * 1000  // 默认5分钟
 ): T {

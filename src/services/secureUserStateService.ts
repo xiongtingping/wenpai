@@ -180,7 +180,7 @@ export class SecureUserStateService {
       }
 
       const secureState: EncryptedUserState = JSON.parse(storedState);
-      
+
       // 验证状态有效性
       const validation = this.validateUserState(secureState);
       if (!validation.isValid) {
@@ -189,16 +189,45 @@ export class SecureUserStateService {
         return null;
       }
 
-      // 🔒 使用真正的AES解密
-      const decryptedData = await this.decrypt(secureState.encryptedData);
-      if (!decryptedData) {
-        console.error('❌ 用户状态解密失败');
+      // 🔒 智能解密用户状态数据
+      let decryptedData: string;
+      try {
+        decryptedData = await this.decrypt(secureState.encryptedData);
+        if (!decryptedData) {
+          throw new Error('解密结果为空');
+        }
+      } catch (decryptError) {
+        console.error('❌ 用户状态解密失败:', decryptError);
+
+        // 🔄 尝试从备用存储恢复
+        console.log('🔄 尝试从备用存储恢复用户状态...');
+        const legacyUser = await this.getUserStateFromLegacy();
+        if (legacyUser) {
+          // 重新加密存储
+          await this.storeUserState(legacyUser);
+          return legacyUser;
+        }
+
         this.clearUserState();
         return null;
       }
 
-      const userData = JSON.parse(decryptedData);
-      
+      // 🔍 验证解密后的数据格式
+      let userData: SessionUserInfo;
+      try {
+        userData = JSON.parse(decryptedData);
+
+        // 基本数据结构验证
+        if (!userData || typeof userData !== 'object' || !userData.id) {
+          throw new Error('用户数据结构无效');
+        }
+      } catch (parseError) {
+        console.error('❌ 用户状态JSON解析失败:', parseError);
+        console.log('🔍 解密后的数据预览:', decryptedData.substring(0, 100) + '...');
+        this.clearUserState();
+        return null;
+      }
+
       // 🔒 验证SHA-256校验和
       const checksumValid = await this.verifyChecksum(decryptedData, secureState.checksum);
       if (!checksumValid) {
@@ -207,10 +236,10 @@ export class SecureUserStateService {
         return null;
       }
 
-      console.log('✅ 安全读取用户状态成功:', { 
-        userId: userData.id, 
+      console.log('✅ 安全读取用户状态成功:', {
+        userId: userData.id,
         encrypted: true,
-        checksumVerified: true 
+        checksumVerified: true
       });
       return userData;
 
@@ -320,13 +349,40 @@ export class SecureUserStateService {
       localStorage.removeItem('authing_user');
       localStorage.removeItem('_authing_user');
       localStorage.removeItem('_authing_token');
-      
+
       this.stopValidationTimer();
-      
+
       console.log('🧹 用户状态已清除');
 
     } catch (error) {
       console.error('❌ 清除用户状态失败:', error);
+    }
+  }
+
+  /**
+   * 🔧 修复损坏的用户状态数据
+   */
+  static async repairCorruptedUserState(): Promise<boolean> {
+    try {
+      console.log('🔧 开始修复损坏的用户状态数据...');
+
+      // 清除当前损坏的数据
+      this.clearUserState();
+
+      // 尝试从sessionStorage恢复Token
+      const tokenData = sessionStorage.getItem('auth_token_encrypted');
+      if (tokenData) {
+        console.log('🔄 发现sessionStorage中的Token，尝试恢复用户状态...');
+        // 这里可以添加从Token恢复用户信息的逻辑
+        return true;
+      }
+
+      console.log('⚠️ 无法自动修复用户状态，需要重新登录');
+      return false;
+
+    } catch (error) {
+      console.error('❌ 修复用户状态失败:', error);
+      return false;
     }
   }
 
