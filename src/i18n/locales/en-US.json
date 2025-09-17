@@ -1186,7 +1186,7 @@
       "warning": "Warning",
       "success": "Success",
       "failed": "Failed",
-      "标签": "Label",
+      "标签": "标签 (EN)",
       "手机号/邮箱": "Phone",
       "密码": "Password",
       "验证码": "Verification Code",
@@ -1367,8 +1367,7 @@
       "原文内容": "原文内容 (EN)",
       "平台": "平台 (EN)",
       "最佳标题内容": "最佳标题内容 (EN)",
-      "内容": "内容 (EN)",
-      "标签": "标签 (EN)"
+      "内容": "内容 (EN)"
     },
     "actions": {
       "cancel": "Cancel",
@@ -4843,7 +4842,70 @@
       "loadingPage": "Loading page..."
     },
     "errors": {
-      "pageLoadFailed": "Page failed to load, please refresh and try again"
+      "pageLoadFailed": "Page failed to load, please refresh and try again",
+      "loadThemeFailed": "Failed to load persisted theme",
+      "unknownError": "Unknown error",
+      "unknownErrorType": "Unknown error type",
+      "noStackTrace": "No stack trace",
+      "appLevelErrorDetails": "App-level error details",
+      "appLevelError": "App-level error",
+      "simplified": "simplified",
+      "removeRedundant": "Remove redundant",
+      "avoidNestedErrorBoundary": "Avoid nested error boundary confusion",
+      "removeRedundantEndTag": "Remove redundant end tag"
+    },
+    "theme": {
+      "loadPersistedTheme": "Load persisted theme on app startup",
+      "themeApplied": "Theme applied on app startup",
+      "useDefaultLightTheme": "Use default light theme on app startup",
+      "clearAllThemeClasses": "Clear all theme classes, apply new theme",
+      "tailwindDarkCompatibility": "Tailwind dark class compatibility",
+      "loadThemeImmediately": "Execute theme loading immediately",
+      "fromLocalStorage": "Read persisted theme from localStorage"
+    },
+    "startup": {
+      "checkMaliciousCallback": "Check for malicious callback URL on app startup",
+      "guardProviderRemoved": "GuardProvider removed - only use custom login form",
+      "parseAuthCode": "App layer parsed authorization code",
+      "redirectToCorrect": "App layer redirect to",
+      "detectMaliciousCallback": "App layer detected malicious callback URL, handling redirect immediately...",
+      "safelySerializeError": "Safely serialize error object",
+      "useRealAuthState": "Use real authentication state"
+    },
+    "comments": {
+      "mainAppComponent": "WenPai - Main App Component (Test code cleaned)",
+      "unifiedAuthPermission": "Unified user authentication and permission control",
+      "routeGuardAccess": "Route guard and access control",
+      "secureStateManagement": "Secure state management",
+      "corePageComponents": "Core page components",
+      "businessFunctionPages": "Business function pages",
+      "tempDebugPages": "Temporary debug pages",
+      "lazyLoadComponents": "Lazy load components, avoid TDZ errors and circular dependencies",
+      "errorBoundaryWrapper": "Error boundary wrapper, handle lazy loading failures",
+      "conditionalNavComponent": "Conditional navigation component",
+      "unifiedStateInit": "Unified state management initializer - fix state flashing issue",
+      "mainAppComponentTitle": "Main App Component"
+    },
+    "routes": {
+      "homePage": "Home Page",
+      "loginRegisterPages": "Login and Register Pages",
+      "compatibleOldRoutes": "Compatible Old Routes",
+      "loginCallbackPage": "Login Callback Page - Support various callback URL formats",
+      "coreFunctionPages": "Core Function Pages - Login Required",
+      "userRelatedPages": "User Related Pages - Login Required",
+      "paymentRelatedPages": "Payment Related Pages",
+      "infoPages": "Information Pages",
+      "tempDebugPages": "Temporary Debug Pages - For Token Statistics Fix",
+      "dialogPositionTestPage": "Dialog Position Test Page",
+      "i18nTestPage": "Internationalization Test Page",
+      "errorPages": "Error Pages",
+      "catchAllRoutes": "Catch all unmatched routes, check for malicious callback URLs"
+    },
+    "globalComponents": {
+      "globalNotification": "Global Notification Component",
+      "customAuthModal": "Custom Authentication Modal",
+      "sessionManagement": "Session Management",
+      "backToTopButton": "Back to Top Button"
     }
   },
   "nav": {
@@ -5232,7 +5294,6 @@
     "customerService": "Customer Service",
     "blog": "Blog",
     "partners": "Partners",
-
     "contactUs": "Contact Us",
     "feedback": "Feedback",
     "community": "Community",
@@ -5381,18 +5442,23 @@
       "create": "Create"
     },
     "status": {
-      "loading": "Loading...",
-      "refreshing": "Refreshing...",
-      "success": "Operation successful",
-      "bookmarked": "Added to bookmarks",
-      "shared": "Shared successfully"
+      "idle": "Idle",
+      "loading": "Loading",
+      "success": "Success",
+      "error": "Error",
+      "refreshing": "Refreshing",
+      "cached": "Cached",
+      "expired": "Expired"
     },
     "errors": {
-      "loadFailed": "Load failed, please try again",
-      "refreshFailed": "Refresh failed",
-      "bookmarkFailed": "Bookmark failed",
-      "shareFailed": "Share failed",
-      "networkError": "Network error"
+      "fetchFailed": "Failed to fetch hot topics",
+      "invalidResponse": "Invalid server response",
+      "emptyResponse": "Server returned empty data",
+      "parseError": "Data parsing error",
+      "networkTimeout": "Network request timeout",
+      "unauthorized": "Unauthorized access",
+      "rateLimitExceeded": "Rate limit exceeded",
+      "serviceUnavailable": "Service unavailable"
     },
     "card": {
       "hotIndex": "Hot Index",
@@ -5427,6 +5493,30 @@
       "notifications": "Notification Settings",
       "autoRefresh": "Auto Refresh",
       "refreshInterval": "Refresh Interval"
+    },
+    "service": {
+      "loading": "Loading hot topics...",
+      "loadingFailed": "Failed to load hot topics",
+      "noData": "No hot topics data available",
+      "refreshing": "Refreshing data...",
+      "refreshSuccess": "Data refreshed successfully",
+      "refreshFailed": "Failed to refresh data",
+      "cacheExpired": "Cache expired, fetching new data...",
+      "networkError": "Network connection failed, please check network settings",
+      "serverError": "Server error, please try again later",
+      "dataParseError": "Failed to parse data",
+      "requestTimeout": "Request timeout, please retry"
+    },
+    "logs": {
+      "fetchStart": "Starting to fetch hot topics",
+      "fetchSuccess": "Hot topics fetched successfully",
+      "fetchError": "Failed to fetch hot topics",
+      "cacheHit": "Using cached data",
+      "cacheMiss": "Cache miss, requesting new data",
+      "dataProcessing": "Processing data",
+      "dataProcessed": "Data processing completed",
+      "filterApplied": "Filter conditions applied",
+      "sortApplied": "Sort rules applied"
     }
   },
   "extractor": {
@@ -5626,7 +5716,90 @@
     "sortBy": "Sort By",
     "lastAdded": "Recently Added",
     "mostUsed": "Most Used",
-    "alphabetical": "Alphabetical"
+    "alphabetical": "Alphabetical",
+    "storage": {
+      "useStorageKey": "Use storage key",
+      "unavailable": "Unavailable",
+      "cannotAccessLocalStorage": "Cannot access local storage",
+      "dataMayNotSave": "Data may not be saved",
+      "cannotAccessLocalStorageAndDataMayNotSave": "Cannot access local storage, data may not be saved",
+      "cleaned": "Cleaned",
+      "corruptedDataItems": "corrupted data items",
+      "initEmptyLibrary": "Initialize empty library",
+      "loadDataFailed": "Failed to load data",
+      "cannotLoadSavedData": "Cannot load saved data",
+      "startFromBlank": "Will start from blank",
+      "whenUserChanges": "Reload data when user changes",
+      "dataSaveSuccess": "Data saved successfully",
+      "warning": "Warning",
+      "currentlyUsed": "Currently used",
+      "storageSpace": "storage space",
+      "dataSaveFailed": "Data save failed",
+      "failed": "Failed",
+      "dataSaveFailedRetry": "Data save failed, please retry or contact administrator"
+    },
+    "extraction": {
+      "pleaseInput": "Please input",
+      "pleaseUploadFile": "Please upload file to extract content",
+      "contentExtraction": "Content Extraction",
+      "contentExtractionFailed": "Content extraction failed",
+      "pleaseCheck": "Please check",
+      "configuration": "configuration",
+      "intelligentExtractedContent": "Intelligently extracted structured content from web pages",
+      "coreInfoAndKeyPoints": "Contains core information and key points",
+      "through": "Through",
+      "ocrTechExtractText": "OCR technology to extract text content from images",
+      "from": "From",
+      "documentTextAndStructure": "Text and structured information extracted from documents",
+      "intelligentExtractedCore": "Core content intelligently extracted from documents",
+      "contentExtractedAndAdded": "Content has been intelligently extracted and added to library",
+      "checkNetworkOrFormat": "Please check network connection or file format and retry"
+    },
+    "actions": {
+      "titleAndContentRequired": "Title and content cannot be empty",
+      "newBookmarkSaved": "New bookmark saved to library",
+      "titleAndContentCannotBeEmpty": "Title and content cannot be empty",
+      "newContentSaved": "New content saved to library",
+      "contentCopied": "Content copied",
+      "deleteItem": "Delete item",
+      "itemRemovedPermanently": "Item permanently removed from library",
+      "contentUpdated": "Content updated",
+      "contentCopiedToClipboard": "Content copied to clipboard",
+      "removedFromBookmarks": "Removed from my bookmarks"
+    },
+    "export": {
+      "myLibraryExport": "My Library Export",
+      "exportTime": "Export Time",
+      "totalMaterials": "Total Materials",
+      "items": "items",
+      "libraryContent": "Library Content",
+      "type": "Type",
+      "createTime": "Create Time",
+      "source": "Source",
+      "category": "Category",
+      "tags": "Tags",
+      "content": "Content",
+      "summary": "Summary",
+      "myBookmarkContent": "My Bookmark Content",
+      "bookmarkTime": "Bookmark Time",
+      "platform": "Platform",
+      "exported": "Exported",
+      "itemsToFile": "items to file",
+      "file": "file",
+      "exportFailed": "Export failed",
+      "exportError": "Error occurred during export",
+      "pleaseRetry": "Please retry"
+    },
+    "ui": {
+      "webClipping": "Web Clipping",
+      "createCopywriting": "Create Copywriting",
+      "exportData": "Export Data",
+      "noWebClipping": "No web clipping",
+      "webClippingDialog": "Web Clipping Dialog",
+      "createCopywritingDialog": "Create Copywriting Dialog",
+      "addWebContentToLibrary": "Add web content to library",
+      "createNewCopywritingContent": "Create new copywriting content"
+    }
   },
   "upgrade": {
     "title": "Upgrade Plan",
@@ -5955,7 +6128,102 @@
     "sendCode": "Send Code",
     "enterSmsCode": "Please enter SMS verification code",
     "verifySuccess": "Verification successful!",
-    "inviteRewardRules": "Invite Reward Rules"
+    "inviteRewardRules": "Invite Reward Rules",
+    "navigation": {
+      "title": "Profile Center",
+      "description": "Manage your account information and settings"
+    },
+    "sections": {
+      "personalInfo": "First row: Personal information area",
+      "headerTitle": "Header title and logout button",
+      "contentArea": "Content area - Two column layout",
+      "leftSection": "Left: Avatar and basic information",
+      "rightSection": "Right: Detailed information and actions",
+      "avatar": "Avatar",
+      "user": "User"
+    },
+    "userInfo": {
+      "basicInfo": "Basic Information",
+      "accountInfo": "Account Information",
+      "nickname": "Nickname",
+      "email": "Email",
+      "phone": "Phone",
+      "joinDate": "Join Date",
+      "lastLogin": "Last Login",
+      "accountType": "Account Type",
+      "subscription": "Subscription Status",
+      "usage": "Usage",
+      "settings": "Personal Settings"
+    },
+    "actions": {
+      "editProfile": "Edit Profile",
+      "changeAvatar": "Change Avatar",
+      "changePassword": "Change Password",
+      "logout": "Logout",
+      "save": "Save",
+      "cancel": "Cancel",
+      "upload": "Upload",
+      "delete": "Delete",
+      "refresh": "Refresh",
+      "copy": "Copy",
+      "share": "Share",
+      "export": "Export",
+      "import": "Import"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended",
+      "expired": "Expired",
+      "trial": "Trial",
+      "premium": "Premium",
+      "professional": "Professional",
+      "free": "Free"
+    },
+    "messages": {
+      "saveSuccess": "Save successful",
+      "saveFailed": "Save failed",
+      "uploadSuccess": "Upload successful",
+      "uploadFailed": "Upload failed",
+      "deleteSuccess": "Delete successful",
+      "deleteFailed": "Delete failed",
+      "copySuccess": "Copy successful",
+      "copyFailed": "Copy failed",
+      "loginRequired": "Please login first",
+      "loginToManage": "Please login to manage your account information",
+      "profileUpdated": "Profile updated",
+      "avatarUpdated": "Avatar updated",
+      "passwordChanged": "Password changed",
+      "logoutSuccess": "Logout successful"
+    },
+    "form": {
+      "nickname": "Nickname",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "bio": "Bio",
+      "website": "Website",
+      "location": "Location",
+      "birthday": "Birthday",
+      "gender": "Gender",
+      "occupation": "Occupation",
+      "company": "Company",
+      "department": "Department",
+      "position": "Position"
+    },
+    "placeholders": {
+      "enterNickname": "Enter nickname",
+      "enterEmail": "Enter email address",
+      "enterPhone": "Enter phone number",
+      "enterBio": "Enter bio",
+      "enterWebsite": "Enter website",
+      "selectLocation": "Select location",
+      "selectBirthday": "Select birthday",
+      "selectGender": "Select gender",
+      "enterOccupation": "Enter occupation",
+      "enterCompany": "Enter company name",
+      "enterDepartment": "Enter department",
+      "enterPosition": "Enter position"
+    }
   },
   "payment": {
     "title": "Subscription Center",
@@ -6003,9 +6271,17 @@
       "generatingQr": "Generating payment QR code..."
     },
     "actions": {
-      "payNow": "Pay Now ${{amount}}",
-      "creating": "Creating order...",
-      "retry": "Retry"
+      "selectPlan": "Select Plan",
+      "upgradeToPro": "Upgrade to Pro",
+      "upgradeToPremium": "Upgrade to Premium",
+      "payNow": "Pay Now",
+      "confirmPayment": "Confirm Payment",
+      "cancelPayment": "Cancel Payment",
+      "retryPayment": "Retry Payment",
+      "backToHome": "Back to Home",
+      "contactSupport": "Contact Support",
+      "viewOrderHistory": "View Order History",
+      "downloadInvoice": "Download Invoice"
     },
     "messages": {
       "orderCreated": "Payment order created",
@@ -6027,40 +6303,78 @@
       "seconds": "seconds"
     },
     "plans": {
-      "trial": {
-        "name": "Trial",
-        "description": "Experience basic features for free"
-      },
-      "pro": {
-        "name": "Professional",
-        "description": "Perfect for individual creators and small businesses"
-      },
-      "premium": {
-        "name": "Premium",
-        "description": "Ideal for professional teams and enterprise users"
-      },
+      "freePlan": "Free Plan",
+      "proPlan": "Pro Plan",
+      "premiumPlan": "Premium Plan",
+      "currentPlan": "Current Plan",
       "recommended": "Recommended",
-      "alreadyHaveHigher": "Already have higher version",
-      "selected": "Selected",
-      "selectPlan": "Select This Plan",
-      "features": {
-        "aiContentAdapter": "AI Content Adapter",
-        "hotRadar": "Trending Radar",
-        "creativeCube": "Creative Cube",
-        "myLibrary": "My Library",
-        "brandLibrary": "Brand Library",
-        "tokenQuota": "Token Quota",
-        "basicModels": "Basic AI Models",
-        "advancedModels": "Advanced AI Models",
-        "advancedLatestModels": "Advanced & Latest AI Models",
-        "lightTheme": "Light Theme",
-        "darkLightTheme": "Light/Dark Theme",
-        "allThemes": "All Themes",
-        "unlimited": "Unlimited",
-        "perMonth": "/month",
-        "timesPerMonth": "times/month",
-        "thousandTokens": "K"
-      }
+      "popular": "Popular",
+      "bestValue": "Best Value",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "save": "Save",
+      "perMonth": "per month",
+      "perYear": "per year",
+      "billed": "billed",
+      "billedMonthly": "billed monthly",
+      "billedYearly": "billed yearly"
+    },
+    "navigation": {
+      "pageTitle": "Payment Center",
+      "paymentCenter": "Payment Center",
+      "selectPlan": "Select Plan",
+      "paymentMethod": "Payment Method",
+      "orderSummary": "Order Summary",
+      "backToPlans": "Back to Plans"
+    },
+    "methods": {
+      "selectPaymentMethod": "Select Payment Method",
+      "wechatPay": "WeChat Pay",
+      "alipay": "Alipay",
+      "unionPay": "UnionPay",
+      "creditCard": "Credit Card",
+      "paypal": "PayPal",
+      "applePay": "Apple Pay",
+      "googlePay": "Google Pay",
+      "bankTransfer": "Bank Transfer"
+    },
+    "order": {
+      "orderDetails": "Order Details",
+      "planName": "Plan Name",
+      "billingCycle": "Billing Cycle",
+      "originalPrice": "Original Price",
+      "discount": "Discount",
+      "couponDiscount": "Coupon Discount",
+      "finalPrice": "Final Price",
+      "totalAmount": "Total Amount",
+      "tax": "Tax",
+      "currency": "Currency",
+      "orderNumber": "Order Number",
+      "createTime": "Create Time",
+      "expireTime": "Expire Time"
+    },
+    "status": {
+      "processing": "Processing...",
+      "paymentProcessing": "Payment processing, please wait...",
+      "paymentSuccess": "Payment Successful",
+      "paymentFailed": "Payment Failed",
+      "paymentCancelled": "Payment Cancelled",
+      "paymentTimeout": "Payment Timeout",
+      "orderCreated": "Order created successfully",
+      "orderFailed": "Order creation failed",
+      "redirecting": "Redirecting to payment page...",
+      "pleaseWait": "Please wait",
+      "doNotClose": "Please do not close this page"
+    },
+    "errors": {
+      "networkError": "Network connection failed, please check network and retry",
+      "serverError": "Server error, please try again later",
+      "paymentError": "Payment failed, please retry or change payment method",
+      "invalidOrder": "Invalid order information",
+      "orderExpired": "Order has expired",
+      "insufficientBalance": "Insufficient balance",
+      "paymentMethodUnavailable": "Payment method unavailable",
+      "unknownError": "Unknown error, please contact support"
     }
   },
   "brandLibraryPage": {
@@ -6865,80 +7179,80 @@
     },
     "platforms": {
       "xiaohongshu": {
-        "tone": "Authentic Sharing, Product Recommendation",
-        "contentStyle": "Lifestyle, Practical, Aesthetic Expression",
-        "interactionStyle": "Encourage Saving, Sharing, Use Emojis and Topic Tags"
+        "tone": "Authentic sharing, product recommendations",
+        "contentStyle": "Lifestyle, practical, aesthetic expression",
+        "interactionStyle": "Encourage saving, sharing, use emojis and hashtags"
       },
       "douyin": {
-        "tone": "Relaxed, Fun, Strong Rhythm",
-        "contentStyle": "Fast-paced, High-density Information, Strong Visual Effects",
-        "interactionStyle": "Guide Likes, Comments, Shares, Use Trending Topics and Challenges"
+        "tone": "Light and fun, strong rhythm",
+        "contentStyle": "Fast-paced, high-density information, strong visual effects",
+        "interactionStyle": "Guide likes, comments, shares, use trending topics and challenges"
       },
       "wechat": {
-        "tone": "Authoritative, Professional, In-depth Analysis",
-        "contentStyle": "Authoritative, In-depth, Practical",
-        "interactionStyle": "Guide Following, Sharing, Establish Professional Image"
+        "tone": "Authoritative, professional, in-depth analysis",
+        "contentStyle": "Authoritative, in-depth, practical",
+        "interactionStyle": "Guide following, sharing, establish professional image"
       },
       "weibo": {
-        "tone": "Concise, Powerful, Trend-sensitive",
-        "contentStyle": "News-oriented, Timely, Clear Viewpoints",
-        "interactionStyle": "Trigger Discussions, Retweet Spread, Focus on Hot Topics"
+        "tone": "Concise and powerful, sensitive to trends",
+        "contentStyle": "News-oriented, timely, clear viewpoints",
+        "interactionStyle": "Trigger discussions, retweets, focus on trending topics"
       },
       "zhihu": {
-        "tone": "Professional Depth, Clear Logic",
-        "contentStyle": "Knowledge-based, Professional, Strong Critical Thinking",
-        "interactionStyle": "Provoke Thinking, Professional Discussion, Provide Valuable Insights"
+        "tone": "Professional depth, clear logic",
+        "contentStyle": "Knowledge-based, professional, strong critical thinking",
+        "interactionStyle": "Provoke thinking, professional discussions, provide valuable insights"
       },
       "bilibili": {
-        "tone": "Youthful Energy, Creative",
-        "contentStyle": "Entertaining, Creative, Highly Interactive",
-        "interactionStyle": "Guide Triple Actions, Bullet Comment Interaction, Integrate Bilibili Culture"
+        "tone": "Young and energetic, highly creative",
+        "contentStyle": "Entertaining, creative, highly interactive",
+        "interactionStyle": "Guide triple actions, bullet comment interaction, integrate B-site culture"
       }
     },
     "contentForms": {
       "imagePlanting": {
-        "name": "Image-Text Product Recommendation",
-        "description": "First-person Perspective, Share Real Usage Experience, Natural and Friendly Language, Integrate Emoji Expression and Comment Interaction Guidance",
-        "outputType": "Pure Copy, User Provides Images"
+        "name": "Image-Text Planting",
+        "description": "First-person perspective, sharing authentic usage experience, natural and friendly language, integrating emoji expressions and comment interaction guidance",
+        "outputType": "Pure copy, user-provided images"
       },
       "videoScript": {
         "name": "Video Script",
-        "description": "Contains Complete Video Production Elements Including Scene Description, Copy, Sound Effects",
+        "description": "Contains complete video production elements including scene descriptions, copy, sound effects",
         "outputType": "Structured Script"
       },
       "professionalAnalysis": {
         "name": "Professional Analysis",
-        "description": "In-depth Analysis of Topics or Phenomena, Provide Professional Insights and Valuable Viewpoints",
+        "description": "In-depth analysis of topics or phenomena, providing professional insights and valuable viewpoints",
         "outputType": "Long-form Analysis"
       }
     },
     "expressionStyles": {
       "professional": {
-        "name": "Professional Authoritative",
-        "description": "Use Professional Terms, Clear Logic, Authoritative and Credible"
+        "name": "Professional Authority",
+        "description": "Use professional terminology, clear logic, authoritative and credible"
       },
       "casual": {
-        "name": "Casual Natural",
-        "description": "Friendly and Natural Language, Close to Life, Easy to Understand"
+        "name": "Casual and Natural",
+        "description": "Language is friendly and natural, close to life, easy to understand"
       },
       "funny": {
-        "name": "Humorous",
-        "description": "Use Humorous Elements, Increase Fun and Spreadability"
+        "name": "Humorous and Witty",
+        "description": "Use humorous elements to increase fun and shareability"
       },
       "emotional": {
         "name": "Emotional",
-        "description": "Focus on Emotional Expression, Create Resonance and Emotional Connection"
+        "description": "Focus on emotional expression, create resonance and emotional connection"
       }
     },
     "prompts": {
       "titleGeneration": {
-        "description": "Title Generation AI System Prompt, Contains Complete Generation Specifications and Scoring Mechanism"
+        "description": "Title generation AI system prompt, including complete generation specifications and scoring mechanism"
       },
       "titleGenerationUser": {
-        "description": "Title Generation User Prompt Template, Supports Platform Customization and Style Preferences"
+        "description": "Title generation user prompt template, supporting platform customization and style preferences"
       },
       "titleQualityCheck": {
-        "description": "V3 Version Title Quality Check Prompt, 5-Dimensional Scoring Analysis"
+        "description": "V3 version title quality check prompt, 5-dimension scoring analysis"
       },
       "brandCorpusExtraction": {
         "description": "Brand Corpus AI Extraction Prompt, Supports 9-Dimensional Structured Extraction"
@@ -6963,10 +7277,10 @@
       }
     },
     "errors": {
-      "templateNotFound": "Prompt Template Not Found: {{type}}",
-      "missingParams": "Missing Prompt Parameters: {{params}}",
-      "integrityCheckFailed": "Prompt System Integrity Check Failed: Missing Prompt Types",
-      "integrityCheckException": "Prompt System Integrity Check Exception:"
+      "templateNotFound": "Prompt template does not exist",
+      "missingParams": "Missing prompt parameters",
+      "integrityCheckFailed": "Prompt system integrity check failed: missing prompt types",
+      "integrityCheckException": "Prompt system integrity check exception"
     },
     "logs": {
       "integrityCheckPassed": "Prompt system integrity check passed",
@@ -7070,17 +7384,12 @@
       "sizeMapping": "Emoji Size Configuration Mapping"
     },
     "contexts": {
-      "avatar": "Avatar",
-      "decoration": "Decoration",
-      "button": "Button",
-      "title": "Title",
-      "content": "Content",
       "card": "Card",
       "icon": "Icon",
       "badge": "Badge",
       "notification": "Notification",
-      "status": "Status Indicator",
-      "reaction": "Reaction/Emoji Response",
+      "status": "Status indicator",
+      "reaction": "Reaction/emoji response",
       "picker": "Picker"
     },
     "categories": {
@@ -7099,21 +7408,18 @@
       "nature": "Beauty of Nature"
     },
     "colors": {
-      "red": "Red",
-      "blue": "Blue",
-      "green": "Green",
-      "yellow": "Yellow",
-      "purple": "Purple",
-      "brown": "Brown",
-      "gray": "Gray",
-      "white": "White",
-      "black": "Black",
       "orange": "Orange",
+      "brown": "Brown",
+      "white": "White",
+      "blackWhite": "Black and white",
+      "yellow": "Yellow",
       "pink": "Pink",
-      "colorful": "Colorful",
-      "gold": "Gold",
-      "silver": "Silver",
-      "blackWhite": "Black & White"
+      "green": "Green",
+      "blue": "Blue",
+      "red": "Red",
+      "gray": "Gray",
+      "black": "Black",
+      "purple": "Purple"
     },
     "extended": {
       "animals": "Extended Animal Emojis",
@@ -7174,18 +7480,138 @@
       "removeAnomalies": "Remove Initial Anomalies"
     },
     "comments": {
-      "ensureMinimum": "Ensure Each Main Category Has at Least minCount Items (Deduplicated and Supplemented)",
-      "existingSet": "Existing Set: Deduplicate by \"Emoji Character\"",
-      "mapRawData": "Map Raw Data into Candidate Pool",
-      "supplementByCategory": "Supplement by Category",
-      "qualityCheckAfter": "Supplement Again After Quality Check to Ensure >100 After Deduplication",
-      "colorMapping": "Mapping from Color Descriptions to CSS Color Values",
-      "uniqueIdentifier": "Introduce Unique Identifier to Ensure Different dataURL Each Time (Avoid Cache/Re-render Issues)",
-      "colorConversion": "Convert Color Descriptions to CSS Color Values",
-      "unicodeHandling": "Handle Unicode to Base64 Encoding to Avoid btoa Unicode Issues",
-      "dynamicCounting": "Dynamically Calculate Category Counts Based on Data Source to Avoid Inconsistency with Static Configuration",
-      "auxiliaryMatching": "Auxiliary Matching: Match Only by Keywords to Avoid Name Substring False Positives",
-      "otherCategory": "Other = Does Not Belong to Any Positive Subcategory"
+      "animalEmojis": "Extended animal emojis (100 items)",
+      "foodEmojis": "Extended food emojis (100 items)",
+      "objectEmojis": "Extended object emojis (100 items)",
+      "emotionEmojis": "Emotion emojis (100 items)",
+      "natureEmojis": "Extended nature emojis (100 items)",
+      "newAnimalEmojis": "70 new animal emojis added",
+      "newFoodEmojis": "75 new food emojis added",
+      "deduplication": "Nature deduplication: Remove duplicate \"rainbow\""
+    },
+    "animals": {
+      "cat": "Little Cat",
+      "dog": "Little Dog",
+      "bear": "Little Bear",
+      "rabbit": "Little Rabbit",
+      "fox": "Little Fox",
+      "panda": "Little Panda",
+      "lion": "Little Lion",
+      "cow": "Little Cow",
+      "pig": "Little Pig",
+      "frog": "Little Frog",
+      "chick": "Little Chick",
+      "penguin": "Little Penguin",
+      "bird": "Little Bird",
+      "dragon": "Little Dragon",
+      "unicorn": "Little Unicorn",
+      "koala": "Little Koala",
+      "kangaroo": "Little Kangaroo",
+      "sheep": "Little Sheep",
+      "horse": "Little Horse",
+      "camel": "Little Camel",
+      "llama": "Little Llama",
+      "buffalo": "Little Buffalo",
+      "bison": "Little Bison",
+      "boar": "Little Boar",
+      "mouse": "Little Mouse",
+      "hamster": "Little Hamster",
+      "squirrel": "Little Squirrel",
+      "raccoon": "Little Raccoon",
+      "badger": "Little Badger",
+      "otter": "Little Otter",
+      "skunk": "Little Skunk",
+      "wombat": "Little Wombat",
+      "sealion": "Little Sea Lion",
+      "seal": "Little Seal",
+      "walrus": "Little Walrus",
+      "shark": "Little Shark"
+    },
+    "foods": {
+      "apple": "Apple",
+      "banana": "Banana",
+      "tea": "Tea",
+      "milk": "Milk",
+      "juice": "Juice"
+    },
+    "emotions": {
+      "happy": "Happy",
+      "laugh": "Laugh",
+      "loveEyes": "Love Eyes",
+      "shy": "Shy",
+      "sleepy": "Sleepy",
+      "angry": "Angry",
+      "crying": "Crying",
+      "fear": "Fear",
+      "positive": "Positive",
+      "negative": "Negative",
+      "love": "Love",
+      "other": "Other"
+    },
+    "keywords": {
+      "cute": "Cute",
+      "pet": "Pet",
+      "loyal": "Loyal",
+      "fluffy": "Fluffy",
+      "jump": "Jump",
+      "smart": "Smart",
+      "china": "China",
+      "king": "King",
+      "mane": "Mane",
+      "strength": "Strength",
+      "farm": "Farm",
+      "free": "Free",
+      "fly": "Fly",
+      "myth": "Myth",
+      "pure": "Pure",
+      "australia": "Australia",
+      "gentle": "Gentle",
+      "run": "Run",
+      "elegant": "Elegant",
+      "desert": "Desert",
+      "hump": "Hump",
+      "twoHumps": "Two humps",
+      "wild": "Wild",
+      "grassland": "Grassland",
+      "tusk": "Tusk",
+      "small": "Small",
+      "flexible": "Flexible",
+      "ears": "Ears",
+      "nuts": "Nuts",
+      "tail": "Tail",
+      "mask": "Mask",
+      "dig": "Dig",
+      "stripes": "Stripes",
+      "swim": "Swim",
+      "smell": "Smell",
+      "square": "Square",
+      "madagascar": "Madagascar",
+      "bigEyes": "Big eyes",
+      "ocean": "Ocean",
+      "performance": "Performance",
+      "arctic": "Arctic",
+      "dangerous": "Dangerous",
+      "fruit": "Fruit",
+      "drink": "Drink",
+      "boxed": "Boxed",
+      "smile": "Smile",
+      "pleasant": "Pleasant",
+      "funny": "Funny",
+      "tears": "Tears",
+      "adore": "Adore",
+      "infatuated": "Infatuated",
+      "blush": "Blush",
+      "embarrassed": "Embarrassed",
+      "sleep": "Sleep",
+      "tired": "Tired",
+      "anger": "Anger",
+      "dissatisfied": "Dissatisfied",
+      "sad": "Sad",
+      "scared": "Scared",
+      "frightened": "Frightened",
+      "meteor": "Meteor",
+      "wish": "Wish",
+      "nightSky": "Night sky"
     }
   },
   "intelligentCategory": {
@@ -7214,19 +7640,8 @@
       "education": "Education",
       "health": "Health",
       "automotive": "Automotive",
-      "food": "Food",
-      "travel": "Travel",
-      "culture": "Culture",
       "military": "Military",
-      "law": "Law",
-      "environment": "Environment",
-      "international": "International",
-      "livelihood": "Livelihood",
-      "religion": "Religion",
-      "agriculture": "Agriculture",
-      "transportation": "Transportation",
-      "realEstate": "Real Estate",
-      "other": "Other"
+      "livelihood": "Livelihood"
     },
     "subcategories": {
       "ai": "Artificial Intelligence",
@@ -7266,16 +7681,68 @@
       "template": "{{confidence}} belongs to {{category}} category, key features: {{keywords}}"
     },
     "comments": {
-      "enhancedDictionary": "Enhanced Classification Dictionary - Optimized Version, Improved Confidence",
-      "confidenceImprovement": "Improved to 80% Confidence Threshold",
-      "calculateScores": "Calculate Score for Each Category",
-      "sortScores": "Sort Scores",
-      "fuzzyFallback": "If No Matches, Try Fuzzy Classification Based on Content Length and Common Vocabulary",
-      "optimizeConfidence": "Optimize Confidence Calculation - Ensure High-quality Classification Reaches 80%+",
-      "boostLowScore": "If Original Score is Low but Has Clear Keyword Matches, Boost Confidence",
-      "furtherBoost": "If Score is Still Low but Content Relevance is Strong, Further Boost",
-      "secondaryThreshold": "Determine Secondary Categories - Raise Secondary Classification Threshold",
-      "improvedThreshold": "Improved Secondary Classification Threshold"
+      "serviceDescription": "Intelligent category tag extraction optimization service",
+      "problemDescription": "Solving user feedback issue 2: Automatic category tag extraction optimization"
+    },
+    "subCategories": {
+      "artificialIntelligence": "Artificial Intelligence",
+      "internet": "Internet",
+      "hardware": "Hardware",
+      "software": "Software",
+      "communicationTech": "Communication Technology",
+      "emergingTech": "Emerging Technology",
+      "filmTV": "Film & TV",
+      "music": "Music",
+      "gaming": "Gaming",
+      "influencer": "Influencer",
+      "variety": "Variety Shows",
+      "anime": "Anime",
+      "football": "Football",
+      "basketball": "Basketball",
+      "olympics": "Olympics",
+      "otherSports": "Other Sports",
+      "fitness": "Fitness",
+      "esports": "Esports",
+      "stockMarket": "Stock Market",
+      "investment": "Investment",
+      "enterprise": "Enterprise",
+      "realEstate": "Real Estate",
+      "macroEconomy": "Macro Economy",
+      "financialPolicy": "Financial Policy",
+      "domesticPolitics": "Domestic Politics",
+      "internationalRelations": "International Relations",
+      "policyRegulation": "Policy & Regulation",
+      "diplomacy": "Diplomacy",
+      "localGovernment": "Local Government",
+      "livelihood": "Livelihood",
+      "publicWelfare": "Public Welfare",
+      "community": "Community",
+      "hotEvents": "Hot Events",
+      "socialPhenomena": "Social Phenomena",
+      "basicEducation": "Basic Education",
+      "higherEducation": "Higher Education",
+      "vocationalEducation": "Vocational Education",
+      "onlineEducation": "Online Education",
+      "educationPolicy": "Education Policy",
+      "medical": "Medical",
+      "wellness": "Wellness",
+      "mentalHealth": "Mental Health",
+      "diseasePrevention": "Disease Prevention",
+      "healthyLiving": "Healthy Living",
+      "newEnergyVehicles": "New Energy Vehicles",
+      "traditionalCars": "Traditional Cars",
+      "autonomousDriving": "Autonomous Driving",
+      "autoTechnology": "Auto Technology",
+      "mobilityServices": "Mobility Services",
+      "nationalDefense": "National Defense",
+      "militaryEquipment": "Military Equipment",
+      "militaryExercises": "Military Exercises",
+      "militaryPersonnel": "Military Personnel",
+      "militaryTechnology": "Military Technology",
+      "housingIssues": "Housing Issues",
+      "employmentIssues": "Employment Issues",
+      "socialSecurity": "Social Security",
+      "qualityOfLife": "Quality of Life"
     }
   },
   "topicCategories": {
@@ -7789,11 +8256,14 @@
       "saved": "Title saved"
     },
     "errors": {
-      "contentRequired": "Please enter content",
-      "contentTooShort": "Content too short, please enter more content",
-      "generationFailed": "Generation failed, please try again",
-      "networkError": "Network error, please check connection",
-      "invalidResponse": "Invalid response format"
+      "generationFailed": "Title generation failed",
+      "noValidTitles": "No valid titles generated",
+      "parseResponseFailed": "Failed to parse response",
+      "invalidResponse": "Invalid response",
+      "networkError": "Network error",
+      "modelError": "Model error",
+      "timeoutError": "Timeout error",
+      "unknownError": "Unknown error"
     },
     "platforms": {
       "xiaohongshu": "Xiaohongshu",
@@ -7848,6 +8318,56 @@
       "fixingJson": "Start fixing truncated JSON",
       "jsonFixed": "JSON fixed successfully",
       "jsonFixFailed": "JSON fix failed"
+    },
+    "jsonFix": {
+      "fixTruncatedJson": "Fix truncated JSON response",
+      "alreadyValidJson": "If already valid JSON, return directly",
+      "findLastCompleteObject": "Find last complete object or array",
+      "fixUnclosedString": "Try to fix unclosed strings",
+      "findLastUnclosedQuote": "Find last unclosed quote position",
+      "fixUnclosedArray": "Try to fix unclosed arrays",
+      "fixUnclosedObject": "Try to fix unclosed objects",
+      "fixIncompleteProperty": "Try to fix incomplete object properties",
+      "removeLastComma": "Remove last comma",
+      "validateFixedJson": "Validate fixed JSON",
+      "jsonFixFailed": "JSON fix failed",
+      "aggressiveFix": "More aggressive fix: find last complete object",
+      "useLastCompleteObject": "Use last complete object",
+      "continueOtherFixes": "Continue trying other fix methods"
+    },
+    "generation": {
+      "generationTimeout": "Generation timeout",
+      "contentSource": "Content source",
+      "userSelectedModel": "User selected model",
+      "optimizeAiGeneration": "Optimize AI generation - reduce backup model calls, improve success rate",
+      "adjustTimeoutByModel": "Adjust timeout based on user selected model",
+      "buildAiPrompt": "Build AI Prompt",
+      "callAiApi": "Call AI API",
+      "conservativeTemperature": "More conservative temperature setting, reduce randomness",
+      "reduceTokens": "Further reduce tokens, improve response speed",
+      "keepOneRetry": "Keep 1 retry, maximize response speed",
+      "resultOriented": "Result-oriented",
+      "aiGenerated": "AI Generated",
+      "extractedContent": "Extracted content"
+    },
+    "ui": {
+      "titleGenerator": "Title Generator",
+      "generateTitles": "Generate Titles",
+      "generating": "Generating...",
+      "regenerate": "Regenerate",
+      "selectTitle": "Select Title",
+      "editTitle": "Edit Title",
+      "saveTitle": "Save Title",
+      "cancelEdit": "Cancel Edit",
+      "copyTitle": "Copy Title",
+      "likeTitle": "Like",
+      "dislikeTitle": "Dislike",
+      "titleLength": "Title Length",
+      "titleStyle": "Title Style",
+      "confidence": "Confidence",
+      "semanticFit": "Semantic Fit",
+      "diversityScore": "Diversity Score",
+      "overallScore": "Overall Score"
     }
   },
   "momentsGenerator": {
@@ -8085,14 +8605,25 @@
   "aiPrompts": {
     "titleGeneration": {
       "targetPlatform": "Target Platform",
-      "wordLimit": "Word Limit",
-      "wordsWithin": "words within",
-      "titleContent": "Title Content",
+      "characterLimit": "Character Limit",
+      "charactersWithin": "characters within",
       "currentLength": "Current Length",
-      "words": "words",
+      "character": "characters",
       "ifExceedsLimit": "If title exceeds limit",
       "pleaseCall": "please call",
-      "truncateAtWordBoundary": "truncate at word boundary and close semantics"
+      "truncateAtWordBoundary": "truncate at word boundary and close semantics",
+      "generateTitle": "Generate Title",
+      "titleOptimization": "Title Optimization",
+      "contentAnalysis": "Content Analysis",
+      "platformAdaptation": "Platform Adaptation",
+      "qualityAssessment": "Quality Assessment",
+      "userRequirements": "User Requirements",
+      "outputFormat": "Output Format",
+      "generationRules": "Generation Rules",
+      "evaluationCriteria": "Evaluation Criteria",
+      "bestPractices": "Best Practices",
+      "commonMistakes": "Common Mistakes",
+      "improvementSuggestions": "Improvement Suggestions"
     },
     "brand": {
       "riskReminder": "Potential Risk Reminder"
@@ -8127,6 +8658,24 @@
       "yes": "Yes",
       "no": "No",
       "allStyles": "All Styles"
+    },
+    "systemPrompts": {
+      "titleGenerationExpert": "You are an AI assistant skilled at generating 'high-attraction content titles'",
+      "generateBasedOnContent": "Please generate titles based on the main content provided by users that meet platform requirements, are naturally and completely expressed, structurally diverse, thematically relevant, and have click appeal",
+      "contentAlignmentConstraints": "Enhanced content theme alignment (fitting) constraints",
+      "semanticConstraints": "Must execute the following semantic constraints",
+      "titleMustBeBased": "Titles must be generated based on the main content provided by users (version A/B), and must not deviate from the text theme",
+      "semanticCoverage": "Title semantics should cover the main content's",
+      "coreObject": "Core object (e.g., WenPai tools, AI content platform adaptation, etc.)",
+      "userBenefits": "User benefits (e.g., multi-platform adaptation, time-saving, effort-saving, efficiency improvement)",
+      "usageScenarios": "Usage scenarios (e.g., Xiaohongshu, WeChat official accounts, Douyin content creation)",
+      "keyActions": "Key actions (e.g., one-click generation, intelligent adaptation, batch processing)",
+      "quantifiedEffects": "Quantified effects (e.g., save 80% time, support 10+ platforms)",
+      "prohibitedContent": "Prohibited content",
+      "fabricatedData": "Fabricated data: Do not add specific numbers, percentages, times, etc. not mentioned in the main text",
+      "generalizedExpression": "Generalized expression: Avoid vague concepts like 'AI artifact', 'efficiency tool'",
+      "deviateFromTheme": "Deviate from theme: Title content must be highly consistent with core information in the main text",
+      "templateApplication": "Template application: Prohibit using templated structures like 'Top X', 'X Tips'"
     }
   },
   "api": {
@@ -11230,7 +11779,7 @@
       "转发失败": "Forward Failed",
       "复制失败": "Copy Failed",
       "请手动复制": "Please Copy Manually",
-      "文本处理失败": "Text Processing Failed",
+      "文本处理失败": "文本处理失败 (EN)",
       "严重性能问题": "严重性能问题 (EN)",
       "添加正确的依赖数组": "添加正确的依赖数组 (EN)",
       "性能警告": "性能警告 (EN)",
@@ -11409,7 +11958,6 @@
       "是否有效或稍后重试": "是否有效或稍后重试 (EN)",
       "文件读取失败": "文件读取失败 (EN)",
       "请检查文件格式": "请检查文件格式 (EN)",
-      "文本处理失败": "文本处理失败 (EN)",
       "初始化失败": "初始化失败 (EN)",
       "刷新数据失败": "刷新数据失败 (EN)",
       "分类数据失败": "分类数据失败 (EN)",
@@ -39168,6 +39716,60 @@
       "重置数据持久化状_uuu": "重置数据持久化状态失败:',",
       "重置失败_34w": "重置失败'),",
       "重置时发生异常_wn9": "重置时发生异常，请刷新页面重试\","
+    }
+  },
+  "contentForms": {
+    "comments": {
+      "imageTextForms": "Image-text content forms",
+      "videoForms": "Video content forms",
+      "interviewForms": "Interview/dialogue content forms",
+      "insightForms": "Insight content forms"
+    },
+    "names": {
+      "imageTextPlanting": "Image-text Planting",
+      "imageTextInfo": "Image-text Information",
+      "comedyReversal": "Comedy/Reversal Video",
+      "unboxingReview": "Unboxing/Review",
+      "tutorialExplanation": "Tutorial/Explanation",
+      "knowledgeSharing": "Knowledge Sharing",
+      "lifeVlog": "Life Vlog",
+      "roleplayDialogue": "Roleplay Dialogue",
+      "virtualInterview": "Virtual Interview",
+      "streetInterview": "Street Interview",
+      "trendOpinion": "Trend Opinion Expression",
+      "emotionalResonance": "Emotional Resonance",
+      "marketingCopy": "Marketing Copy"
+    },
+    "categories": {
+      "imageText": "Image-text",
+      "video": "Video",
+      "interview": "Interview/Dialogue",
+      "insight": "Insight"
+    },
+    "outputTypes": {
+      "pureText": "Pure text, user provides images",
+      "shortVideoScript": "Short video script",
+      "interviewScript": "Interview script",
+      "dialogueScript": "Dialogue/interview script",
+      "opinionArticle": "Opinion article",
+      "emotionalContent": "Emotional content",
+      "marketingContent": "Marketing content",
+      "opinionEmotionalMarketing": "Opinion/emotional/marketing content"
+    },
+    "descriptions": {
+      "imageTextPlanting": "First-person perspective, telling real usage experience, natural and friendly language, integrating emoji expression and comment interaction guidance",
+      "imageTextInfo": "Mainly for information delivery, clear structure, prominent focus, suitable for knowledge popularization and key point summary",
+      "comedyReversal": "Highlighting humor and unexpected reversals, building minimalist but high-impact content structure",
+      "unboxingReview": "Complete recording of unboxing process, objective evaluation of product pros and cons, providing purchase advice",
+      "tutorialExplanation": "Clear step-by-step teaching content, focusing on practicality and operability",
+      "knowledgeSharing": "In-depth and easy-to-understand sharing of professional knowledge, using accessible language",
+      "lifeVlog": "Recording real life moments, showing personal style and life attitude",
+      "roleplayDialogue": "Setting character identities, showing different viewpoints or situations through dialogue",
+      "virtualInterview": "Host questions + guest answers format, simulating podcast, live interview scenarios",
+      "streetInterview": "Simulating street interview format, collecting real opinions from different groups",
+      "trendOpinion": "Expert perspective on new trends, using 'opinion → evidence → summary/extension' structure",
+      "emotionalResonance": "Touching users' emotional resonance, triggering deep thinking and emotional connection",
+      "marketingCopy": "Conversion-targeted marketing content, highlighting product value and user benefits"
     }
   }
 }

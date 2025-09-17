@@ -1,0 +1,77 @@
+🌐 开始国际化扫描...
+📁 找到 588 个文件需要扫描
+📊 进度: 50/50
+📊 进度: 100/100
+📊 进度: 150/150
+📊 进度: 200/200
+📊 进度: 250/250
+📊 进度: 300/300
+📊 进度: 350/350
+📊 进度: 400/400
+📊 进度: 450/450
+📊 进度: 500/500
+📊 进度: 550/550
+
+📊 国际化扫描报告
+==================================================
+
+📁 文件统计:
+  总文件数: 588
+  已扫描: 588
+  发现硬编码文本: 30719 处
+
+📝 按类型分布:
+  text: 25585 处
+  error: 2131 处
+  description: 1480 处
+  title: 533 处
+  message: 369 处
+  label: 348 处
+  placeholder: 228 处
+  button: 37 处
+  navigation: 8 处
+
+⚡ 按优先级分布:
+  low: 24673 处
+  high: 5794 处
+  medium: 252 处
+
+📄 问题最多的文件 (前10):
+  /src/services/unifiedEmojiSystem.ts: 2003 处
+  /src/prompts/PromptSystem.ts: 1561 处
+  /src/components/creative/CreativeCube.tsx: 1470 处
+  /src/services/intelligentCategoryService.ts: 1041 处
+  /src/utils/hashtagGenerator.ts: 780 处
+  /src/pages/BrandLibraryPage.tsx: 691 处
+  /src/components/hot-topics/TopicCategories.tsx: 610 处
+  /src/config/contentSchemes.ts: 514 处
+  /src/components/creative/MomentsTextGenerator.tsx: 413 处
+  /src/config/contentForms.ts: 375 处
+
+💾 详细报告已保存到: /Users/xiong/wenpai/i18n-scan-report.json
+
+🔥 高优先级项目 (5794 处):
+  /src/App.tsx:147 - "加载持久化主题失败" (error)
+  /src/App.tsx:207 - "应用级错误详情" (error)
+  /src/App.tsx:216 - "应用级错误" (error)
+  /src/App.tsx:216 - "简化" (error)
+  /src/App.tsx:223 - "移除冗余的" (error)
+  /src/App.tsx:223 - "避免嵌套错误边界混乱" (error)
+  /src/App.tsx:308 - "移除冗余的" (error)
+  /src/App.tsx:308 - "结束标签" (error)
+  /src/ai/prompts/brand.ts:149 - "潜在风险提醒" (error)
+  /src/ai/prompts/brand.ts:149 - "潜在风险提醒" (error)
+  /src/ai/prompts/titleGeneration.ts:137 - "目标平台" (title)
+  /src/ai/prompts/titleGeneration.ts:137 - "字数限制" (title)
+  /src/ai/prompts/titleGeneration.ts:137 - "字以内" (title)
+  /src/ai/prompts/titleGeneration.ts:201 - "字数限制" (title)
+  /src/ai/prompts/titleGeneration.ts:201 - "字以内" (title)
+  /src/ai/prompts/titleGeneration.ts:202 - "当前长度" (title)
+  /src/ai/prompts/titleGeneration.ts:202 - "字" (title)
+  /src/ai/prompts/titleGenerationSystemPrompt.ts:29 - "如有超字数标题" (title)
+  /src/ai/prompts/titleGenerationSystemPrompt.ts:29 - "请调用" (title)
+  /src/ai/prompts/titleGenerationSystemPrompt.ts:29 - "以词语边界截断并闭合语义" (title)
+  ... 还有 5774 处高优先级项目
+
+🎯 扫描完成!
+🚨 发现硬编码中文文本，建议进行国际化处理!

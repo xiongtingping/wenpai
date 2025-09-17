@@ -174,7 +174,7 @@ export function QuickReferenceItemList({ items,
   );
 
   return (
-    <ScrollArea className="h-full max-h-[50vh]">
+    <ScrollArea className="max-h-[50vh]">
       {loading ? renderLoading() : 
        error ? renderError() : 
        items.length === 0 ? renderEmpty() : 

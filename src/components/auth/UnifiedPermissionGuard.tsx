@@ -439,7 +439,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
           }}
         >
           <div
-            className="w-full max-w-4xl bg-background/95 dark:bg-foreground/95 rounded-2xl p-6 shadow-2xl border border-white/20"
+            className="max-w-4xl bg-background/95 dark:bg-foreground/95 rounded-2xl p-6 shadow-2xl border border-white/20"
             style={{
               backdropFilter: 'blur(var(--spacing-5)) saturate(200%)',
               WebkitBackdropFilter: 'blur(var(--spacing-5)) saturate(200%)',

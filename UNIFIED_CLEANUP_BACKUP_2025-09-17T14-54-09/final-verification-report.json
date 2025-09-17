@@ -1,0 +1,64 @@
+{
+  "confirmed": {
+    "backup": [
+      "src/contexts/UnifiedAuthContext.tsx.backup",
+      "src/components/layout/TopNavigation.tsx.backup",
+      "src/styles/authing-dialog-conflict-fix.css.backup",
+      "src/styles/dialog-basic-fix.css.backup",
+      "src/styles/dialog-overlay-fix.css.backup",
+      "src/styles/dialog-position-fix-final.css.backup",
+      "src/styles/dialog-viewport-fix.css.backup",
+      "src/styles/emergency-dialog-fix.css.backup",
+      "src/styles/final-dialog-position-fix.css.backup",
+      "src/styles/profile-page-optimization.css.backup",
+      "src/styles/quick-reference-dialog-targeted-fix.css.backup",
+      "src/styles/quick-reference-dialog-visible-fix.css.backup",
+      "src/styles/ultimate-dialog-position-fix.css.backup",
+      "src/styles/unified-dialog-system.css.backup",
+      "src/components/landing.backup/"
+    ],
+    "empty": [],
+    "deprecated": [
+      "src/App-minimal.tsx",
+      "src/App-safe.tsx",
+      "src/App-ultra-simple.tsx"
+    ],
+    "testFiles": [
+      "src/components/creative/QuickReference/QuickReferenceTestDialog.tsx",
+      "src/components/examples/DataServicesDemo.tsx",
+      "src/features/content-adapter/examples/ComponentArchitectureDemo.tsx",
+      "src/main-minimal-test.tsx",
+      "src/services/__tests__/encryptionService.test.ts",
+      "src/services/__tests__/secureUserStateService.test.ts",
+      "src/tests/permission-guard-system.test.tsx"
+    ]
+  },
+  "rejected": [
+    {
+      "file": "src/components/shared/UnifiedEmojiManager_backup.tsx",
+      "reason": "被引用或导入"
+    },
+    {
+      "file": "src/components/shared/UnifiedEmojiManager_old.tsx",
+      "reason": "被引用或导入"
+    },
+    {
+      "file": "src/api/hotTopicsService_backup.ts",
+      "reason": "被引用或导入"
+    },
+    {
+      "file": "src/services/tokenUsageService.backup.ts",
+      "reason": "被引用或导入"
+    },
+    {
+      "file": "src/styles/dialog-ultimate-override.css.backup",
+      "reason": "被引用或导入"
+    },
+    {
+      "file": "src/styles/quick-reference-dialog-only.css.backup",
+      "reason": "被引用或导入"
+    }
+  ],
+  "totalConfirmed": 25,
+  "timestamp": "2025-09-17T14:49:52.115Z"
+}

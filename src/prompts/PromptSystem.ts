@@ -1,21 +1,21 @@
 import { logModuleInit, logModuleLock, logger } from '@/utils/logger';
 
-// 模块锁定常量
+// {t('promptSystem.module.lockConstant')}
 const PROMPT_SYSTEM_LOCK_SIGNATURE = 'prompt-system-v1.0.0';
 const PROMPT_SYSTEM_CREATION_TIME = '2025-09-06T12:00:00Z';
 
 export enum PromptType {
-  // 标题生成相关
+  // {t('promptSystem.module.titleGeneration')}
   TITLE_GENERATION_SYSTEM = 'title-generation-system',
   TITLE_GENERATION_USER = 'title-generation-user',
   TITLE_QUALITY_CHECK = 'title-quality-check',
 
-  // 品牌语料库相关提示词
+  // {t('promptSystem.module.brandCorpus')}
   BRAND_CORPUS_EXTRACTION = 'brand-corpus-extraction',
   BRAND_CORPUS_CONFLICT_RESOLUTION = 'brand-corpus-conflict-resolution',
   TITLE_SCORING = 'title-scoring',
   
-  // 内容适配相关
+  // {t('promptSystem.module.contentAdaptation')}
   CONTENT_ADAPTATION_SYSTEM = 'content-adaptation-system',
   CONTENT_FORM_GENERATION = 'content-form-generation',
   PLATFORM_ADAPTATION = 'platform-adaptation',
@@ -23,33 +23,33 @@ export enum PromptType {
   CONTENT_FORM_PROCESSING = 'content-form-processing',
   EXPRESSION_STYLE_MANAGEMENT = 'expression-style-management',
   
-  // 创意生成相关
+  // {t('promptSystem.module.creativeGeneration')}
   CREATIVE_GENERATION_SYSTEM = 'creative-generation-system',
   CREATIVE_CUBE_PROMPT = 'creative-cube-prompt',
   
-  // 品牌分析相关
+  // {t('promptSystem.module.brandAnalysis')}
   BRAND_ANALYSIS_SYSTEM = 'brand-analysis-system',
   BRAND_TONE_ANALYSIS = 'brand-tone-analysis',
   BRAND_KEYWORD_EXTRACTION = 'brand-keyword-extraction',
   
-  // 文档处理相关
+  // {t('promptSystem.module.documentProcessing')}
   PDF_CHAT_SYSTEM = 'pdf-chat-system',
   DOCUMENT_ANALYSIS = 'document-analysis',
   
-  // 其他功能
+  // {t('promptSystem.module.otherFunctions')}
   EMOJI_GENERATION = 'emoji-generation',
   CONTENT_SUMMARY = 'content-summary'
 }
 
 /**
- * 提示词参数接口
+ * {t('promptSystem.interfaces.promptParams')}
  */
 export interface PromptParams {
   [key: string]: any;
 }
 
 /**
- * 平台特征配置接口
+ * {t('promptSystem.interfaces.platformFeatures')}
  */
 export interface PlatformCharacteristics {
   tone: string;
@@ -61,7 +61,7 @@ export interface PlatformCharacteristics {
 }
 
 /**
- * 内容形式配置接口
+ * {t('promptSystem.interfaces.contentForm')}
  */
 export interface ContentFormConfig {
   id: string;
@@ -74,7 +74,7 @@ export interface ContentFormConfig {
 }
 
 /**
- * 表达风格配置接口
+ * {t('promptSystem.interfaces.expressionStyle')}
  */
 export interface ExpressionStyleConfig {
   id: string;
@@ -85,7 +85,7 @@ export interface ExpressionStyleConfig {
 }
 
 /**
- * 提示词模板接口
+ * {t('promptSystem.interfaces.promptTemplate')}
  */
 export interface PromptTemplate {
   type: PromptType;
@@ -98,7 +98,7 @@ export interface PromptTemplate {
 }
 
 /**
- * 🎯 统一提示词管理器
+ * 🎯 {t('promptSystem.core.unifiedManager')}
  */
 class PromptSystemManager {
   private templates: Map<PromptType, PromptTemplate> = new Map();
@@ -115,7 +115,7 @@ class PromptSystemManager {
   }
 
   /**
-   * 初始化平台特征数据
+   * {t('promptSystem.core.initializePlatformData')}
    */
   private initializePlatformData(): void {
     // 小红书
@@ -180,7 +180,7 @@ class PromptSystemManager {
   }
 
   /**
-   * 初始化内容形式配置
+   * {t('promptSystem.core.initializeContentForms')}
    */
   private initializeContentForms(): void {
     // 图文种草
@@ -249,7 +249,7 @@ class PromptSystemManager {
   }
 
   /**
-   * 初始化表达风格配置
+   * {t('promptSystem.core.initializeExpressionStyles')}
    */
   private initializeExpressionStyles(): void {
     // 专业风格
@@ -310,7 +310,7 @@ class PromptSystemManager {
   }
 
   /**
-   * 初始化所有提示词模板
+   * {t('promptSystem.core.initializePromptTemplates')}
    */
   private initializePrompts(): void {
     if (this.initialized) return;

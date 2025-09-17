@@ -297,7 +297,7 @@ export default function BrandEmojiPromptBuilder({
   };
 
   return (
-    <Card className={`w-full max-w-4xl mx-auto ${className}`}>
+    <Card className={`max-w-4xl mx-auto ${className}`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl">
           <Sparkles className="w-6 h-6" />

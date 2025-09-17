@@ -14,49 +14,123 @@ const DialogClose = DialogPrimitive.Close
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, style, ...props }, ref) => (
-  <DialogPrimitive.Overlay
-    ref={ref}
-    className={cn(
-      "fixed inset-0 bg-foreground/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 dialog-overlay-fullscreen",
-      className
-    )}
-    style={{
-      ...style,
-      // 🎯 强制背景遮罩完全覆盖视口 - 放在最后确保优先级
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      width: '100vw',
-      height: '100vh',
-      zIndex: 1045,
-      backgroundColor: 'hsl(var(--foreground) / 0.5)',
-      backdropFilter: 'blur(var(--spacing-1))',
+>(({ className, style, ...props }, ref) => {
+  // 🎯 背景遮罩层JavaScript运行时修复器
+  React.useEffect(() => {
+    const fixOverlaySize = () => {
+      try {
+        // 查找所有可能的背景遮罩层元素
+        const overlaySelectors = [
+          '.dialog-background-overlay',
+          '.dialog-overlay-fullscreen',
+          '[data-state="open"][class*="fixed"][class*="bg-foreground"]',
+          '[data-state="open"][class*="backdrop-blur"]',
+          'div[data-aria-hidden="true"][data-state="open"]'
+        ];
 
-      // 🎯 关键修复：重置可能影响定位的属性
-      transform: 'none',
-      translate: 'none',
-      contain: 'none',
-      isolation: 'auto',
-      clipPath: 'none',
-      filter: 'none',
-      inset: '0',
-      margin: 0,
-      padding: 0,
-      border: 'none',
-      outline: 'none',
+        overlaySelectors.forEach(selector => {
+          const overlays = document.querySelectorAll(selector);
+          overlays.forEach((overlay: Element) => {
+            const htmlOverlay = overlay as HTMLElement;
+            
+            // 🔥 获取实际窗口尺寸，而不依赖vh/vw单位
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const documentHeight = Math.max(
+              document.body.scrollHeight,
+              document.body.offsetHeight,
+              document.documentElement.clientHeight,
+              document.documentElement.scrollHeight,
+              document.documentElement.offsetHeight,
+              windowHeight
+            );
+            
+            // 🚨 使用实际像素值强制设置背景层尺寸
+            htmlOverlay.style.setProperty('position', 'fixed', 'important');
+            htmlOverlay.style.setProperty('top', '0px', 'important');
+            htmlOverlay.style.setProperty('left', '0px', 'important');
+            htmlOverlay.style.setProperty('right', '0px', 'important');
+            htmlOverlay.style.setProperty('bottom', '0px', 'important');
+            htmlOverlay.style.setProperty('width', `${windowWidth}px`, 'important');
+            htmlOverlay.style.setProperty('height', `${windowHeight}px`, 'important');
+            htmlOverlay.style.setProperty('min-width', `${windowWidth}px`, 'important');
+            htmlOverlay.style.setProperty('min-height', `${windowHeight}px`, 'important');
+            htmlOverlay.style.setProperty('max-width', `${windowWidth}px`, 'important');
+            htmlOverlay.style.setProperty('max-height', `${windowHeight}px`, 'important');
+            htmlOverlay.style.setProperty('margin', '0px', 'important');
+            htmlOverlay.style.setProperty('padding', '0px', 'important');
+            htmlOverlay.style.setProperty('border', 'none', 'important');
+            htmlOverlay.style.setProperty('transform', 'none', 'important');
+            htmlOverlay.style.setProperty('z-index', '1045', 'important');
+            
+            // 🚨 额外保险：使用inset覆盖
+            htmlOverlay.style.setProperty('inset', '0px', 'important');
+            
+            // 🚨 强制重绘
+            htmlOverlay.style.setProperty('will-change', 'auto');
+            htmlOverlay.offsetHeight; // 强制重排
+            
+            console.log(`🎯 背景遮罩层JavaScript修复已应用 ${selector}: ${windowWidth}x${windowHeight}px`);
+          });
+        });
+      } catch (error) {
+        console.warn('⚠️ 背景遮罩层修复器失败:', error);
+      }
+    };
 
-      // 🎯 确保可见性
-      display: 'block',
-      visibility: 'visible',
-      opacity: 1,
-      pointerEvents: 'auto'
-    }}
-    {...props}
-  />
-))
+    // 立即执行一次
+    fixOverlaySize();
+    
+    // 延迟执行多次确保修复生效
+    setTimeout(fixOverlaySize, 50);
+    setTimeout(fixOverlaySize, 150);
+    setTimeout(fixOverlaySize, 300);
+    setTimeout(fixOverlaySize, 500);
+    setTimeout(fixOverlaySize, 1000);
+    
+    // 监听窗口大小变化
+    const handleResize = () => {
+      setTimeout(fixOverlaySize, 100);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return (
+    <DialogPrimitive.Overlay
+      ref={ref}
+      className={cn(
+        "fixed inset-0 bg-foreground/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 dialog-overlay-fullscreen dialog-background-overlay",
+        className
+      )}
+      style={{
+        ...style,
+        // 🎯 使用实际窗口尺寸而非vh/vw单位
+        position: 'fixed',
+        top: '0px',
+        left: '0px',
+        right: '0px',
+        bottom: '0px',
+        width: `${typeof window !== 'undefined' ? window.innerWidth : 1920}px`,
+        height: `${typeof window !== 'undefined' ? window.innerHeight : 1080}px`,
+        minWidth: `${typeof window !== 'undefined' ? window.innerWidth : 1920}px`,
+        minHeight: `${typeof window !== 'undefined' ? window.innerHeight : 1080}px`,
+        zIndex: 1045,
+        backgroundColor: 'hsl(var(--foreground) / 0.5)',
+        backdropFilter: 'blur(var(--spacing-1))',
+        opacity: 1,
+        margin: '0px',
+        padding: '0px',
+        inset: '0px'
+      }}
+      {...props}
+    />
+  );
+})
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef<
@@ -68,8 +142,8 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        // 🎯 修复定位：确保Dialog正确居中显示
-        "fixed grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg duration-200",
+        // 🎯 修复定位：确保Dialog正确居中显示 - 移除语义矛盾
+        "fixed grid max-w-lg gap-4 border bg-background p-6 shadow-lg duration-200",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",

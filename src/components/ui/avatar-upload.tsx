@@ -218,7 +218,7 @@ export function AvatarUpload({
       </div>
 
       {/* 操作按钮 */}
-      <div className="flex flex-col sm:flex-row gap-2 w-full max-w-xs">
+      <div className="flex flex-col sm:flex-row gap-2 max-w-xs mx-auto">
         {showUploadButton && (
           <Button
             variant="outline"

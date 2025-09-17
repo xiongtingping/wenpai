@@ -225,7 +225,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       // 默认错误界面
       return (
         <div className="min-h-screen bg-accent flex items-center justify-center p-4">
-          <Card className="w-full max-w-md">
+          <Card className="max-w-md mx-auto">
             <CardHeader className="text-center">
               <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
                 <AlertTriangle className="h-6 w-6 text-destructive" />

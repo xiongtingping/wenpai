@@ -1,6 +1,6 @@
 /**
- * 设置页面
- * 用户个性化设置和系统配置
+ * Settings Page
+ * User personalization settings and system configuration
  */
 
 import React, { useState } from 'react';

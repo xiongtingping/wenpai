@@ -1,240 +1,425 @@
-/*
- * 统一Dialog样式系统
- * 基于设计令牌的Dialog组件样式，确保定位问题不再复发
+/**
+ * 🎯 统一Dialog系统CSS
+ * 
+ * 遵循CLAUDE.md和CSS命名规范标准
+ * 基于BEM方法论和设计令牌系统
+ * 
+ * 架构：
+ * - Design Tokens（设计令牌）
+ * - Base Layer（基础样式）
+ * - Component Layer（组件样式）
+ * - Modifier Layer（修饰符样式）
+ * - Utility Layer（工具类样式）
  */
 
-@layer components {
-  /* 🎯 统一Dialog基础样式 - 使用设计令牌 */
-  .unified-dialog {
-    /* 强制定位 - 使用设计令牌确保一致性 */
-    position: var(--dialog-position-strategy) !important;
-    top: var(--dialog-center-y) !important;
-    left: var(--dialog-center-x) !important;
+/* ========================================
+   🎨 Design Tokens（设计令牌层）
+   ======================================== */
+
+:root {
+  /* Dialog基础令牌 */
+  --dialog-z-index: 1055;
+  --dialog-overlay-z-index: 1050;
+  --dialog-border-radius: 8px;
+  --dialog-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --dialog-backdrop-filter: blur(4px);
+  
+  /* Dialog定位令牌 */
+  --dialog-position-top: 50vh;
+  --dialog-position-left: 50vw;
+  --dialog-transform: translate(-50%, -50%);
+  
+  /* Dialog尺寸令牌 */
+  --dialog-max-width: min(95vw, 1200px);
+  --dialog-min-width: 320px;
+  --dialog-max-height: 90vh;
+  --dialog-min-height: 200px;
+  
+  /* 快速引用Dialog特定令牌 */
+  --quick-reference-dialog-max-width: min(95vw, 1200px);
+  --quick-reference-dialog-min-width: 600px;
+  --quick-reference-dialog-position-top: calc(50vh + 40px); /* 向下偏移确保上边距 */
+  
+  /* 历史记录Dialog特定令牌 */
+  --history-dialog-max-width: min(85vw, 1000px);
+  --history-dialog-position-top: 50vh;
+  
+  /* 动画令牌 */
+  --dialog-animation-duration: 200ms;
+  --dialog-animation-timing: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ========================================
+   🏗️ Base Layer（基础Dialog样式）
+   ======================================== */
+
+@layer dialog-base {
+  /* Dialog基础类 */
+  .dialog {
+    /* 基础定位 */
+    position: fixed !important;
+    top: var(--dialog-position-top) !important;
+    left: var(--dialog-position-left) !important;
     transform: var(--dialog-transform) !important;
     z-index: var(--dialog-z-index) !important;
     
-    /* 重置可能冲突的属性 */
+    /* 清除冲突属性 */
+    inset: unset !important;
+    inset-block: unset !important;
+    inset-inline: unset !important;
     margin: 0 !important;
-    inset: auto !important;
-    translate: none !important;
-    rotate: none !important;
-    scale: none !important;
     
-    /* 基础样式 */
-    display: flex;
-    flex-direction: column;
-    background: var(--color-background);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-dialog);
-    
-    /* 确保可见性 */
+    /* 基础可见性 */
+    display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
     
-    /* 防止内容溢出 */
-    overflow: hidden;
-    max-width: calc(100vw - var(--spacing-8));
-    max-height: calc(100vh - var(--spacing-8));
+    /* 基础尺寸 */
+    max-width: var(--dialog-max-width) !important;
+    min-width: var(--dialog-min-width) !important;
+    max-height: var(--dialog-max-height) !important;
+    min-height: var(--dialog-min-height) !important;
+    width: auto !important;
+    height: auto !important;
+    
+    /* 基础外观 */
+    border-radius: var(--dialog-border-radius) !important;
+    box-shadow: var(--dialog-shadow) !important;
+    
+    /* 布局 */
+    flex-direction: column !important;
+    overflow: hidden !important;
   }
-
-  /* 🎯 统一Dialog Overlay样式 */
-  .unified-dialog-overlay {
+  
+  /* Dialog遮罩层 */
+  .dialog__overlay {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
     z-index: var(--dialog-overlay-z-index) !important;
-    
-    background: hsl(var(--foreground) / 0.5);
-    backdrop-filter: blur(var(--spacing-1));
-    
-    /* 确保覆盖整个视口 */
-    width: 100vw !important;
-    height: 100vh !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  /* 🎯 Dialog尺寸变体 */
-  .unified-dialog--small {
-    min-width: var(--dialog-size-small-width);
-    min-height: var(--dialog-size-small-height);
-    max-width: min(95vw, 400px);
-    max-height: min(85vh, 300px);
-  }
-
-  .unified-dialog--medium {
-    min-width: var(--dialog-size-medium-width);
-    min-height: var(--dialog-size-medium-height);
-    max-width: min(95vw, 600px);
-    max-height: min(85vh, 500px);
-  }
-
-  .unified-dialog--large {
-    min-width: var(--dialog-size-large-width);
-    min-height: var(--dialog-size-large-height);
-    max-width: min(95vw, 1024px);
-    max-height: min(85vh, 700px);
-  }
-
-  .unified-dialog--fullscreen {
-    min-width: var(--dialog-size-fullscreen-width);
-    min-height: var(--dialog-size-fullscreen-height);
-    max-width: var(--dialog-size-fullscreen-width);
-    max-height: var(--dialog-size-fullscreen-height);
-  }
-
-  /* 🎯 Dialog样式变体 */
-  .unified-dialog--elevated {
-    box-shadow: var(--shadow-dialog), var(--shadow-dialog-overlay);
-    border-radius: var(--radius-xl);
-  }
-
-  .unified-dialog--minimal {
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-  }
-
-  /* 🎯 Dialog动画状态 */
-  .unified-dialog[data-state="open"] {
-    animation: var(--animation-dialog-enter);
-  }
-
-  .unified-dialog[data-state="closed"] {
-    animation: var(--animation-dialog-exit);
-  }
-
-  .unified-dialog-overlay[data-state="open"] {
-    animation: var(--animation-overlay-enter);
-  }
-
-  .unified-dialog-overlay[data-state="closed"] {
-    animation: var(--animation-overlay-exit);
-  }
-
-  /* 🎯 Dialog内容区域 */
-  .unified-dialog__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-md);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .unified-dialog__title {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-foreground);
-    margin: 0;
-  }
-
-  .unified-dialog__description {
-    font-size: var(--font-size-sm);
-    color: var(--color-muted-foreground);
-    margin: var(--spacing-xs) 0 0;
-  }
-
-  .unified-dialog__content {
-    flex: 1;
-    padding: var(--spacing-lg);
-    overflow-y: auto;
-  }
-
-  .unified-dialog__footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .unified-dialog__close {
-    position: absolute;
-    top: var(--spacing-md);
-    right: var(--spacing-md);
-    width: var(--spacing-6);
-    height: var(--spacing-6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: transparent;
-    color: var(--color-muted-foreground);
-    cursor: pointer;
-    border-radius: var(--radius-sm);
-    transition: all 0.2s ease;
-  }
-
-  .unified-dialog__close:hover {
-    background: var(--color-muted);
-    color: var(--color-foreground);
-  }
-
-  .unified-dialog__close:focus-visible {
-    outline: var(--spacing-0-5) solid var(--color-ring);
-    outline-offset: var(--spacing-0-5);
+    backdrop-filter: var(--dialog-backdrop-filter) !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 }
 
-/* 🎯 兼容性修复 - 确保覆盖可能冲突的样式 */
-@layer utilities {
-  /* 强制覆盖任何可能的定位冲突 */
-  .unified-dialog-force-center {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    z-index: 50 !important;
-    margin: 0 !important;
-    inset: auto !important;
-  }
+/* ========================================
+   🧩 Component Layer（组件特定样式）
+   ======================================== */
 
-  /* 强制覆盖任何可能的Overlay冲突 */
-  .unified-dialog-overlay-force {
-    position: fixed !important;
-    inset: 0 !important;
-    z-index: 40 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    margin: 0 !important;
-    padding: 0 !important;
+@layer dialog-components {
+  /* 快速引用Dialog */
+  .dialog--quick-reference,
+  .quick-reference-dialog {
+    /* 特定定位 */
+    top: var(--quick-reference-dialog-position-top) !important;
+    
+    /* 特定尺寸 */
+    max-width: var(--quick-reference-dialog-max-width) !important;
+    min-width: var(--quick-reference-dialog-min-width) !important;
+    
+    /* 调试边框（生产环境移除） */
+    border: 3px solid #ff0000 !important;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5) !important;
   }
-}
-
-/* 🎯 响应式适配 */
-@media (max-width: 640px) {
-  .unified-dialog {
-    max-width: calc(100vw - var(--spacing-4)) !important;
-    max-height: calc(100vh - var(--spacing-4)) !important;
-    margin: var(--spacing-2) !important;
+  
+  /* 历史记录Dialog */
+  .dialog--history,
+  .enhanced-history-dialog {
+    /* 特定定位 */
+    top: var(--history-dialog-position-top) !important;
+    
+    /* 特定尺寸 */
+    max-width: var(--history-dialog-max-width) !important;
+    
+    /* 重置为默认样式，避免被快速引用样式影响 */
+    border: 1px solid hsl(var(--border)) !important;
+    box-shadow: var(--dialog-shadow) !important;
+    background: hsl(var(--background)) !important;
   }
-
-  .unified-dialog--fullscreen {
+  
+  /* 确认Dialog */
+  .dialog--confirmation {
+    max-width: min(90vw, 500px) !important;
+    min-width: 300px !important;
+  }
+  
+  /* 表单Dialog */
+  .dialog--form {
+    max-width: min(90vw, 600px) !important;
+    min-width: 400px !important;
+  }
+  
+  /* 全屏Dialog */
+  .dialog--fullscreen {
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
     max-width: 100vw !important;
     max-height: 100vh !important;
-    margin: 0 !important;
-    border-radius: var(--radius-none) !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
   }
 }
 
-/* 🎯 主题适配 */
-[data-theme="dark"] .unified-dialog {
-  box-shadow: 0 25px 50px -var(--spacing-3) hsl(var(--foreground) / 0.5);
+/* ========================================
+   🎛️ Modifier Layer（状态修饰符）
+   ======================================== */
+
+@layer dialog-modifiers {
+  /* 打开状态 */
+  .dialog--open,
+  .dialog[data-state="open"] {
+    animation: dialogFadeIn var(--dialog-animation-duration) var(--dialog-animation-timing) forwards !important;
+  }
+  
+  /* 关闭状态 */
+  .dialog--closed,
+  .dialog[data-state="closed"] {
+    animation: dialogFadeOut var(--dialog-animation-duration) var(--dialog-animation-timing) forwards !important;
+  }
+  
+  /* 加载状态 */
+  .dialog--loading {
+    cursor: wait !important;
+  }
+  
+  /* 错误状态 */
+  .dialog--error {
+    border-color: hsl(var(--destructive)) !important;
+  }
+  
+  /* 禁用状态 */
+  .dialog--disabled {
+    pointer-events: none !important;
+    opacity: 0.6 !important;
+  }
 }
 
-[data-theme="light"] .unified-dialog {
-  box-shadow: 0 25px 50px -var(--spacing-3) rgba(0, 0, 0, 0.15);
+/* ========================================
+   🔧 Utility Layer（工具类）
+   ======================================== */
+
+@layer dialog-utilities {
+  /* 调试工具类 */
+  .dialog-debug {
+    outline: 2px solid red !important;
+    outline-offset: -2px !important;
+  }
+  
+  .dialog-debug::before {
+    content: "🚨 DEBUG MODE" !important;
+    position: absolute !important;
+    top: -30px !important;
+    left: 0 !important;
+    background: red !important;
+    color: white !important;
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+    z-index: 999999 !important;
+  }
+  
+  /* 隐藏工具类 */
+  .dialog-hidden {
+    display: none !important;
+  }
+  
+  /* 强制可见工具类 */
+  .dialog-force-visible {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
 }
 
-/* 🎯 无障碍支持 */
-@media (prefers-reduced-motion: reduce) {
-  .unified-dialog,
-  .unified-dialog-overlay {
-    animation: none !important;
-    transition: none !important;
+/* ========================================
+   📱 Responsive Layer（响应式）
+   ======================================== */
+
+@layer dialog-responsive {
+  /* 移动端适配 */
+  @media (max-width: 640px) {
+    .dialog {
+      max-width: calc(100vw - 32px) !important;
+      min-width: 280px !important;
+      max-height: calc(100vh - 64px) !important;
+    }
+    
+    .dialog--quick-reference,
+    .quick-reference-dialog {
+      top: calc(50vh + 20px) !important; /* 移动端减少偏移 */
+      max-width: calc(98vw - 20px) !important;
+      min-width: 350px !important;
+    }
+    
+    .dialog--fullscreen {
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      width: 100vw !important;
+      height: 100vh !important;
+    }
+  }
+  
+  /* 平板端适配 */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .dialog {
+      max-width: min(90vw, 800px) !important;
+    }
+    
+    .dialog--quick-reference,
+    .quick-reference-dialog {
+      max-width: min(92vw, 1000px) !important;
+    }
+  }
+  
+  /* 大屏适配 */
+  @media (min-width: 1400px) {
+    .dialog--quick-reference,
+    .quick-reference-dialog {
+      max-width: min(80vw, 1400px) !important;
+    }
+  }
+}
+
+/* ========================================
+   🎬 Animation Layer（动画）
+   ======================================== */
+
+@layer dialog-animations {
+  /* 渐入动画 */
+  @keyframes dialogFadeIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+  
+  /* 渐出动画 */
+  @keyframes dialogFadeOut {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+  }
+  
+  /* 滑入动画（从顶部） */
+  @keyframes dialogSlideInFromTop {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -100%);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+  }
+  
+  /* 缩放动画 */
+  @keyframes dialogZoomIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+}
+
+/* ========================================
+   🎯 Browser Compatibility（浏览器兼容性）
+   ======================================== */
+
+@layer dialog-compatibility {
+  /* Safari兼容性 */
+  @supports (-webkit-backdrop-filter: blur(1px)) {
+    .dialog__overlay {
+      -webkit-backdrop-filter: var(--dialog-backdrop-filter) !important;
+    }
+  }
+  
+  /* Firefox兼容性 */
+  @-moz-document url-prefix() {
+    .dialog {
+      transform: var(--dialog-transform) !important;
+    }
+  }
+  
+  /* Edge兼容性 */
+  @supports (-ms-ime-align: auto) {
+    .dialog {
+      transform: var(--dialog-transform) !important;
+    }
+  }
+}
+
+/* ========================================
+   🔍 High-Level Selectors（高优先级选择器）
+   ======================================== */
+
+/* 确保Radix UI元素也应用样式 */
+[data-radix-dialog-content][role="dialog"] {
+  @extend .dialog;
+}
+
+[data-radix-dialog-overlay] {
+  @extend .dialog__overlay;
+}
+
+/* 确保快速引用Dialog的特殊选择器 */
+[role="dialog"].quick-reference-dialog,
+[role="dialog"][class*="quick-reference"],
+[data-radix-dialog-content].quick-reference-dialog,
+[role="dialog"]:has([class*="quick-reference"]) {
+  @extend .dialog--quick-reference;
+}
+
+/* 确保历史记录Dialog的特殊选择器 */
+[role="dialog"].enhanced-history-dialog,
+[role="dialog"][class*="enhanced-history"],
+[role="dialog"]:has([class*="enhanced-history"]),
+[role="dialog"]:has([class*="history"]) {
+  @extend .dialog--history;
+}
+
+/* ========================================
+   🚨 Emergency Overrides（紧急覆盖）
+   ======================================== */
+
+@layer emergency {
+  /* 临时修复 - 生产环境应移除 */
+  html body [role="dialog"] {
+    /* 强制覆盖任何可能的样式冲突 */
+    position: fixed !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* 快速引用Dialog紧急修复 */
+  html body [role="dialog"].quick-reference-dialog,
+  html body [role="dialog"][class*="quick-reference"] {
+    top: calc(50vh + 40px) !important;
+    left: 50vw !important;
+    transform: translate(-50%, -50%) !important;
+    max-width: min(95vw, 1200px) !important;
+    min-width: 600px !important;
   }
 }

@@ -162,7 +162,7 @@ export function TokenStatsDebugPanel() {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="max-w-4xl mx-auto">
       <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-background rounded-t-lg">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-background/20 rounded-lg flex items-center justify-center">

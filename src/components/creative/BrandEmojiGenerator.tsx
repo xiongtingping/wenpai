@@ -391,7 +391,7 @@ export default function BrandEmojiGenerator({
   const totalImages = results.reduce((sum, result) => sum + (result.urls?.length || 0), 0);
 
   return (
-    <div className={`w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
+    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
       <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
         <CardHeader className="pb-6">
           <div className="text-center space-y-3">

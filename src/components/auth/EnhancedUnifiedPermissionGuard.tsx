@@ -542,7 +542,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
           WebkitBackdropFilter: `blur(var(--permission-blur-${overlayIntensity})) saturate(var(--permission-backdrop-saturation))`
         }}
       >
-        <div className="w-full max-w-4xl permission-card p-6">
+        <div className="max-w-4xl permission-card p-6">
           {/* 限时优惠倒计时 */}
           {user?.registrationDate && isInDiscountPeriod(new Date(user.registrationDate)) && discountCountdown > 0 && (
             <div className="mb-4">

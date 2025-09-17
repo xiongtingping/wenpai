@@ -4,47 +4,51 @@ import i18n from '@/i18n';
  * 解决用户反馈的问题2：自动分类标签提取优化
  */
 
-import { DailyHotItem } from '@/api/hotTopicsServicei18n.t('services.label.expor_1wf')科技': {
+import { DailyHotItem } from '@/api/hotTopicsService';
+
+// 分类配置
+const categoryConfig = {
+  [t('intelligentCategory.categories.technology')]: {
       keywords: ['AI', '人工智能', '机器学习', '深度学习', '算法', '技术', '创新', '研发', '数字化', '互联网', '软件', '硬件', '芯片', '5G', '6G', '区块链', '云计算', '物联网', 'IoT', '自动驾驶', '机器人', '虚拟现实', 'VR', '增强现实', 'AR', '量子计算', '生物技术', '科学', '工程', '编程', '代码', '开发', '程序', '系统', '网络', '数据', '智能', '电子', '计算机', '手机', '电脑', '应用', 'app', '平台', '科研', '实验', '发明', '专利'],
       weight: 1.2,
       subCategories: ['人工智能', '互联网', '硬件', '软件', '通信技术', '新兴技术']
     },
-    '娱乐': {
+    [t('intelligentCategory.categories.entertainment')]: {
       keywords: ['明星', '演员', '歌手', '电影', '电视剧', '综艺', '音乐', '演唱会', '娱乐', '艺人', '导演', '编剧', '影视', '娱乐圈', '偶像', '网红', '直播', '短视频', '游戏', '电竞', '动漫', '二次元', '表演', '舞台', '剧场', '票房', '首映', '预告', '海报', '粉丝', '追星', '爱豆', '选秀', '真人秀', '脱口秀', '相声', '小品', '戏剧', '音乐会', '演出', '娱乐新闻', '八卦', '绯闻', '恋情', '结婚', '离婚'],
       weight: 1.1,
       subCategories: ['影视', '音乐', '游戏', '网红', '综艺', '动漫']
     },
-    '体育': {
+    [t('intelligentCategory.categories.sports')]: {
       keywords: ['体育', '运动', '比赛', '足球', '篮球', '奥运', '世界杯', '冠军', '球员', '赛事', '训练', '健身', '竞技', '联赛', '马拉松', '游泳', '网球', '羽毛球', '乒乓球', '排球', '田径', '体操'],
       weight: 1.0,
       subCategories: ['足球', '篮球', '奥运', '其他运动', '健身', '电竞']
     },
-    '财经': {
+    [t('intelligentCategory.categories.finance')]: {
       keywords: ['股票', '经济', '金融', '投资', '银行', '基金', '货币', '财经', '市场', '企业', '上市', 'IPO', '融资', '创业', '商业', '贸易', '房地产', '保险', '债券', '外汇', 'GDP', '通胀', '央行'],
       weight: 1.0,
       subCategories: ['股市', '投资', '企业', '房地产', '宏观经济', '金融政策']
     },
-    '政治': {
+    [t('intelligentCategory.categories.politics')]: {
       keywords: ['政府', '政策', '法律', '选举', '外交', '国际', '会议', '领导', '改革', '治理', '政治', '国家', '政府', '部门', '官员', '法规', '条例', '政策', '外交部', '国务院', '人大', '政协'],
       weight: 1.0,
       subCategories: ['国内政治', '国际关系', '政策法规', '外交', '地方政府']
     },
-    '社会': {
+    [t('intelligentCategory.categories.society')]: {
       keywords: ['社会', '民生', '公益', '慈善', '志愿', '社区', '居民', '市民', '群众', '百姓', '生活', '日常', '新闻', '事件', '热点', '话题', '讨论', '关注', '民意', '舆论'],
       weight: 0.8,
       subCategories: ['民生', '公益', '社区', '热点事件', '社会现象']
     },
-    '教育': {
+    [t('intelligentCategory.categories.education')]: {
       keywords: ['教育', '学校', '学生', '老师', '考试', '升学', '培训', '课程', '教学', '学习', '知识', '大学', '中学', '小学', '幼儿园', '高考', '中考', '研究生', '博士', '学术', '科研'],
       weight: 1.0,
       subCategories: ['基础教育', '高等教育', '职业教育', '在线教育', '教育政策']
     },
-    '健康': {
+    [t('intelligentCategory.categories.health')]: {
       keywords: ['健康', '医疗', '医院', '医生', '疾病', '治疗', '药物', '养生', '锻炼', '营养', '保健', '康复', '心理', '精神', '身体', '运动', '饮食', '睡眠', '疫苗', '防疫'],
       weight: 1.0,
       subCategories: ['医疗', '养生', '心理健康', '疾病防治', '健康生活']
     },
-    '汽车': {
+    [t('intelligentCategory.categories.automotive')]: {
       keywords: ['汽车', '车', '新能源', '电动车', '自动驾驶', '特斯拉', '比亚迪', '汽车品牌', '车型', '汽车工业', '交通', '出行', '驾驶', '车展', '汽车技术'],
       weight: 1.0,
       subCategories: ['新能源车', '传统汽车', '自动驾驶', '汽车技术', '出行服务']
@@ -64,7 +68,7 @@ import { DailyHotItem } from '@/api/hotTopicsServicei18n.t('services.label.expor
       weight: 1.0,
       subCategories: ['传统文化', '现代文化', '文学', '艺术', '文化活动']
     },
-    '军事': {
+    [t('intelligentCategory.categories.military')]: {
       keywords: ['军事', '军队', '国防', '武器', '装备', '演习', '训练', '战略', '战术', '军官', '士兵', '部队', '军工', '导弹', '战机', '军舰', '坦克', '雷达', '卫星', '航母', '潜艇', '火箭', '核武器', '军演', '阅兵', '征兵', '退役', '军校', '军区', '作战', '防务', '安全', '维和', '反恐'],
       weight: 1.0,
       subCategories: ['国防建设', '军事装备', '军事演习', '军事人员', '军工科技']
@@ -84,7 +88,7 @@ import { DailyHotItem } from '@/api/hotTopicsServicei18n.t('services.label.expor
       weight: 1.0,
       subCategories: ['外交关系', '国际贸易', '国际组织', '全球事务', '国际冲突']
     },
-    '民生': {
+    [t('intelligentCategory.categories.livelihood')]: {
       keywords: ['民生', '生活', '居民', '市民', '百姓', '群众', '社区', '街道', '村庄', '农村', '城市', '住房', '房价', '租房', '物价', '消费', '收入', '工资', '就业', '失业', '养老', '退休', '医保', '社保', '福利', '补贴', '救助', '扶贫', '脱贫', '致富', '小康', '幸福', '满意度'],
       weight: 1.1,
       subCategories: ['住房问题', '就业问题', '社会保障', '民生福利', '生活质量']
@@ -294,14 +298,14 @@ import { DailyHotItem } from '@/api/hotTopicsServicei18n.t('services.label.expor
 
     // 基于分类的上下文词汇
     const contextWords: Record<string, string[]> = {
-      '科技': ['发布', '推出', '升级', '更新', '版本', '功能', '性能', '测试', '体验', '用户', '市场', '产品'],
-      '娱乐': ['发布', '上映', '播出', '首播', '首映', '票房', '收视率', '观众', '粉丝', '评价', '口碑', '热议'],
-      '体育': ['比赛', '赛事', '冠军', '胜利', i18n.t(i18n.t('services.error.services_5ae')), '成绩', '纪录', '训练', '教练', '队员', '联赛', '锦标赛'],
-      '财经': ['上涨', '下跌', '投资', '收益', '亏损', '股价', '市值', '融资', 'IPO', '财报', '业绩', '营收'],
-      '政治': ['政策', '法规', '会议', '决定', '宣布', '实施', '改革', '措施', '方案', '计划', '目标', '成果'],
-      '社会': ['事件', '现象', '问题', '解决', '改善', '影响', '关注', '讨论', '反响', '民众', '社区', '公众'],
-      '教育': ['学校', '学生', '老师', '课程', '考试', '成绩', '招生', '毕业', '学习', '教学', '培训', '知识'],
-      '健康': ['治疗', '预防', '症状', '疾病', '健康', '医疗', '药物', '检查', '诊断', '康复', '保健', '养生']
+      [t('intelligentCategory.categories.technology')]: ['发布', '推出', '升级', '更新', '版本', '功能', '性能', '测试', '体验', '用户', '市场', '产品'],
+      [t('intelligentCategory.categories.entertainment')]: ['发布', '上映', '播出', '首播', '首映', '票房', '收视率', '观众', '粉丝', '评价', '口碑', '热议'],
+      [t('intelligentCategory.categories.sports')]: ['比赛', '赛事', '冠军', '胜利', '失败', '成绩', '纪录', '训练', '教练', '队员', '联赛', '锦标赛'],
+      [t('intelligentCategory.categories.finance')]: ['上涨', '下跌', '投资', '收益', '亏损', '股价', '市值', '融资', 'IPO', '财报', '业绩', '营收'],
+      [t('intelligentCategory.categories.politics')]: ['政策', '法规', '会议', '决定', '宣布', '实施', '改革', '措施', '方案', '计划', '目标', '成果'],
+      [t('intelligentCategory.categories.society')]: ['事件', '现象', '问题', '解决', '改善', '影响', '关注', '讨论', '反响', '民众', '社区', '公众'],
+      [t('intelligentCategory.categories.education')]: ['学校', '学生', '老师', '课程', '考试', '成绩', '招生', '毕业', '学习', '教学', '培训', '知识'],
+      [t('intelligentCategory.categories.health')]: ['治疗', '预防', '症状', '疾病', '健康', '医疗', '药物', '检查', '诊断', '康复', '保健', '养生']
     };
 
     const categoryContextWords = contextWords[category] || [];
@@ -324,11 +328,11 @@ import { DailyHotItem } from '@/api/hotTopicsServicei18n.t('services.label.expor
     }
 
     // 数字和特殊符号相关性（某些分类更常见）
-    if (category === '科技' && /\d+/.test(content)) {
+    if (category === t('intelligentCategory.categories.technology') && /\d+/.test(content)) {
       relevanceScore += 0.1; // 科技类常有版本号、参数等
     }
 
-    if (category === '财经' && /[¥$€£%]/.test(content)) {
+    if (category === t('intelligentCategory.categories.finance') && /[¥$€£%]/.test(content)) {
       relevanceScore += 0.15; // 财经类常有货币符号
     }
 
@@ -341,7 +345,7 @@ import { DailyHotItem } from '@/api/hotTopicsServicei18n.t('services.label.expor
   private performFuzzyClassification(content: string): CategoryResult {
     // 基于常见模式和语境进行分类
     const patterns = {
-      '科技': [
+      [t('intelligentCategory.categories.technology')]: [
         /\d+(\.\d+)?[gG][bB]/, // 存储容量
         /\d+[nm]工艺/, // 制程工艺
         /版本\d+/, // 版本号
@@ -349,42 +353,48 @@ import { DailyHotItem } from '@/api/hotTopicsServicei18n.t('services.label.expor
         /[aA][pP][pP]|应用|软件|系统|网络|数据|智能|电子/,
         /发布|推出|升级|更新|测试|体验/
       ],
-      '娱乐': [
+      [t('intelligentCategory.categories.entertainment')]: [
         /票房|收视率|评分|口碑/,
         /主演|导演|制片|编剧|演员|明星/,
         /上映|播出|首映|首播|定档/,
         /粉丝|观众|网友|热议|讨论/,
         /电影|电视剧|综艺|音乐|游戏|动漫/
       ],
-      '体育i18n.t('services.error._90w')财经': [
+      t('intelligentCategory.categories.sports'): [
+        /比赛|赛事|冠军|胜利|失败|成绩|纪录|训练|教练|队员|联赛|锦标赛/,
+        /奥运|世界杯|欧洲杯|亚洲杯|联赛|锦标赛/,
+        /运动员|教练|裁判|观众|粉丝|球迷/,
+        /体育场|赛场|训练场|健身房|运动场/
+      ],
+      [t('intelligentCategory.categories.finance')]: [
         /[¥$€£]\d+|人民币\d+|美元\d+/,
         /股价|市值|涨跌|收盘|开盘/,
         /投资|融资|上市|IPO|并购/,
         /营收|利润|亏损|财报|业绩/,
         /\d+%|百分之\d+|增长|下降/
       ],
-      '政治': [
+      [t('intelligentCategory.categories.politics')]: [
         /政府|国务院|人大|政协|党委/,
         /政策|法规|条例|办法|规定/,
         /会议|峰会|论坛|座谈|研讨/,
         /领导|官员|部长|市长|省长/,
         /改革|发展|建设|规划|实施/
       ],
-      '社会': [
+      [t('intelligentCategory.categories.society')]: [
         /市民|居民|群众|百姓|民众/,
         /社区|街道|村庄|小区|社会/,
         /事件|现象|问题|情况|状况/,
         /关注|热议|讨论|反响|影响/,
         /生活|日常|民生|福利|保障/
       ],
-      '教育': [
+      [t('intelligentCategory.categories.education')]: [
         /学校|大学|中学|小学|幼儿园/,
         /学生|老师|教师|校长|教授/,
         /考试|高考|中考|招生|录取/,
         /课程|教学|学习|培训|教育/,
         /成绩|分数|排名|升学|毕业/
       ],
-      '健康': [
+      [t('intelligentCategory.categories.health')]: [
         /医院|诊所|医生|护士|患者/,
         /疾病|症状|治疗|药物|手术/,
         /健康|养生|保健|营养|锻炼/,

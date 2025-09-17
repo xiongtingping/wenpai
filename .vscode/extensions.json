@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "augment.vscode-augment",
-        "menglong.augment-infinity"
+        "menglong.augment-infinity",
+        "anthropic.claude-code"
     ]
 }

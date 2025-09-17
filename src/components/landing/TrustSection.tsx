@@ -21,7 +21,7 @@ export function TrustSection() {
         </div>
 
         {/* 简化的平台图标展示 */}
-        <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-6 items-center justify-items-center mx-auto w-full max-w-5xl">
+        <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-6 items-center justify-items-center mx-auto max-w-5xl">
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 theme-platform-card-bg rounded-xl shadow-sm border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 mx-auto group">
             <Book className="h-8 w-8 theme-platform-icon-1 mb-2 group-hover:scale-110 transition-transform duration-300" />
             <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-300">{t('home.trust.platforms.xiaohongshu')}</span>

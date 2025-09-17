@@ -19,6 +19,46 @@ import {
   shouldShowPromoOffer
 } from "@/utils/paymentTimer";
 
+/**
+ * 年度计费按钮组件 - 职责分离版本
+ * 容器组件：负责背景效果和布局
+ * 内容组件：负责按钮内容和交互
+ */
+interface YearlyButtonWithHighlightProps {
+  billing: SubscriptionPeriod;
+  onClick: () => void;
+  className: string;
+  children: React.ReactNode;
+}
+
+function YearlyButtonWithHighlight({ 
+  billing, 
+  onClick, 
+  className, 
+  children 
+}: YearlyButtonWithHighlightProps) {
+  return (
+    <div className="relative">
+      {/* 容器组件：背景效果容器 */}
+      {billing === "yearly" && (
+        <div className="bg-gradient-highlight-container" />
+      )}
+      {/* 内容组件：按钮内容 */}
+      <Button
+        onClick={onClick}
+        className={`${className} relative z-10`}
+        style={{
+          margin: '0',
+          marginLeft: '0',
+          marginRight: '0'
+        }}
+      >
+        {children}
+      </Button>
+    </div>
+  );
+}
+
 export function PricingSection() {
   const [billing, setBilling] = useState<SubscriptionPeriod>("monthly")
   const [timeLeft, setTimeLeft] = useState(0);
@@ -258,22 +298,15 @@ export function PricingSection() {
                 height: '32px'
               }}
             />
-            <Button
+            <YearlyButtonWithHighlight
+              billing={billing}
               onClick={() => setBilling("yearly")}
               className={`pricing-button-yearly ${billing === "yearly" ? "active" : "inactive"}`}
-              style={{
-                margin: '0',
-                marginLeft: '0',
-                marginRight: '0'
-              }}
             >
-              <span className="relative z-10 drop-shadow-sm">
+              <span className="drop-shadow-sm">
                 {t('home.pricing.yearlyBilling')} <span className="text-xs ml-1 font-extrabold text-yellow-200">({t('home.pricing.yearlyDiscount')})</span>
               </span>
-              {billing === "yearly" && (
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-400/20 to-red-400/20 animate-pulse"></div>
-              )}
-            </Button>
+            </YearlyButtonWithHighlight>
           </div>
 
         </div>

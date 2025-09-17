@@ -290,6 +290,11 @@ div[class*="ds-icon"] {
   transform: translateX(28px) !important;
 }
 
+/* 🎯 定价组件专用样式 - 组件责任分离 */
+.bg-gradient-highlight-container {
+  @apply absolute inset-0 bg-gradient-to-r from-purple-500 via-blue-500 to-green-500 rounded-lg opacity-75 blur-sm;
+}
+
 /* 🎨 Footer Logo 主题适配 */
 .footer-logo {
   /* 在浅色主题下使用正常显示 */

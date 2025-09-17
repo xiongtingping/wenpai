@@ -45,17 +45,17 @@ export interface PlatformPromptTemplate {
 const globalAdaptationScheme = {
   id: 'global-adaptation',
   name: i18n.t('config.text.全域内容适配方案_10u'),
-  description: '针对小红书、微博、微信、抖音、知乎、B站等主流平台的专业内容适配方案，确保内容符合各平台特色和用户习惯',
+  description: t('contentSchemes.globalAdaptation.description'),
   icon: '🌐',
   color: 'from-hsl(var(--accent))-500 to-indigo-600',
   platforms: ['xiaohongshu', 'weibo', 'wechat', 'douyin', 'zhihu', 'bilibili'],
   features: [
-    '多平台风格适配',
-    '专业提示词模板',
-    '平台特色优化',
-    '用户习惯匹配',
-    '内容结构规范',
-    '互动引导设计'
+    t('contentSchemes.features.multiPlatformAdaptation'),
+    t('contentSchemes.features.professionalTemplates'),
+    t('contentSchemes.features.platformOptimization'),
+    t('contentSchemes.features.userHabitMatching'),
+    t('contentSchemes.features.contentStructureStandards'),
+    t('contentSchemes.features.interactionGuidanceDesign')
   ],
   isDefault: true
 };
@@ -65,8 +65,8 @@ const globalAdaptationScheme = {
  */
 export const stylePromptTemplates: Record<StyleType, StylePromptTemplate> = {
   professional: {
-    name: '专业风格',
-    description: '专业 + 客观 + 洞察',
+    name: t('contentSchemes.styles.professional.name'),
+    description: t('contentSchemes.styles.professional.description'),
     characteristics: [
       i18n.t('config.text.使用专业术语和行_r6n'),
       i18n.t('config.text.客观分析避免主_7sx'),
@@ -153,7 +153,7 @@ ${input}
   },
 
   funny: {
-    name: '幽默风格',
+    name: t('contentSchemes.styles.funny.name'),
     description: i18n.t('config.title.幽默自嘲_kfo'),
     characteristics: [
       i18n.t('config.text.使用幽默风趣的表_k9k'),
@@ -241,8 +241,8 @@ ${input}
   },
 
   real: {
-    name: '真实风格',
-    description: '真实感 + 主观 + 分享型',
+    name: t('contentSchemes.styles.real.name'),
+    description: t('contentSchemes.styles.real.description'),
     characteristics: [
       i18n.t('config.text.第一人称真实体验_sl2'),
       i18n.t('config.text.主观感受和情感表_0ql'),
@@ -329,8 +329,8 @@ ${input}
   },
 
   hook: {
-    name: '钩子风格',
-    description: '钩子型 + 精准用户导向 + 高点击转化',
+    name: t('contentSchemes.styles.hook.name'),
+    description: t('contentSchemes.styles.hook.description'),
     characteristics: [
       '开头设置强烈钩子',
       '精准定位目标用户',
@@ -382,7 +382,7 @@ ${input}`,
   },
 
   'global-adaptation': {
-    name: '全域内容适配方案',
+    name: t('contentSchemes.globalAdaptation.name'),
     description: '针对小红书、微博、微信、抖音、知乎、B站等主流平台的专业内容适配方案',
     styleGuide: `风格：亲切、细腻、有生活美学。常用表达如"巨好用"、"闭眼入"、"姐妹们看过来！"。
 写作结构建议：
@@ -406,7 +406,7 @@ ${input}
   },
 
   weibo: {
-    name: '微博',
+    name: t('contentSchemes.platforms.weibo'),
     styleGuide: `风格：简洁、有观点、热点感强。适合蹭热度和互动。
 建议加入话题标签（#XX#）、@用户，以及简短带情绪的句子。
 
@@ -415,7 +415,7 @@ ${input}
   },
 
   wechat: {
-    name: '微信',
+    name: t('contentSchemes.platforms.wechat'),
     styleGuide: `风格：专业、权威，适合职场人群阅读。
 文章结构要清晰，有逻辑，有洞察，支持引用权威观点或数据。
 
@@ -424,7 +424,7 @@ ${input}
   },
 
   douyin: {
-    name: '抖音',
+    name: t('contentSchemes.platforms.douyin'),
     styleGuide: `风格：轻松、有趣、上头。适合配合视频节奏，具备情绪反转。
 语气需具备"语音转文字感"，如"姐妹们，这也太离谱了吧！"
 
@@ -433,7 +433,7 @@ ${input}
   },
 
   zhihu: {
-    name: '知乎',
+    name: t('contentSchemes.platforms.zhihu'),
     styleGuide: `风格：理性、深度、结构化。建议"总-分-总"结构，内容逻辑要严谨，有证据或数据支持。
 
 语气需克制、专业，避免情绪化或商业化表述。`,
@@ -451,7 +451,7 @@ ${input}
   },
 
   bilibili: {
-    name: 'B站',
+    name: t('contentSchemes.platforms.bilibili'),
     styleGuide: `风格：年轻、活力、有梗。适合视频简介、开箱稿、搞笑吐槽、安利型内容。
 
 语气要轻松、能玩梗，适合"弹幕场景"共鸣感。`,
@@ -536,32 +536,32 @@ export const platformSpecifications = {
  */
 export const platformPromptTemplates: Record<string, PlatformPromptTemplate> = {
   xiaohongshu: {
-    name: '小红书',
+    name: t('contentSchemes.platforms.xiaohongshu'),
     styleGuide: `风格：亲切、细腻、有生活美学。常用表达如"巨好用"、"闭眼入"、"姐妹们看过来！"。`,
     prompt: (input: string) => `请将以下内容改写为小红书风格：\n\n${input}`
   },
   weibo: {
-    name: '微博', 
+    name: t('contentSchemes.platforms.weibo'), 
     styleGuide: `风格：简洁、有观点、热点感强。适合蹭热度和互动。`,
     prompt: (input: string) => `请将以下内容改写为微博风格：\n\n${input}`
   },
   wechat: {
-    name: '微信',
+    name: t('contentSchemes.platforms.wechat'),
     styleGuide: `风格：专业、权威，适合职场人群阅读。`,
     prompt: (input: string) => `请将以下内容改写为微信公众号风格：\n\n${input}`
   },
   douyin: {
-    name: '抖音',
+    name: t('contentSchemes.platforms.douyin'),
     styleGuide: `风格：轻松、有趣、上头。适合配合视频节奏。`,
     prompt: (input: string) => `请将以下内容改写为抖音短视频脚本：\n\n${input}`
   },
   zhihu: {
-    name: '知乎',
+    name: t('contentSchemes.platforms.zhihu'),
     styleGuide: `风格：理性、深度、结构化。建议"总-分-总"结构。`,
     prompt: (input: string) => `请将以下内容改写为知乎回答风格：\n\n${input}`
   },
   bilibili: {
-    name: 'B站',
+    name: t('contentSchemes.platforms.bilibili'),
     styleGuide: `风格：年轻、活力、有梗。适合视频简介、开箱稿。`,
     prompt: (input: string) => `请将以下内容改写为B站风格：\n\n${input}`
   }
@@ -574,8 +574,8 @@ export const contentSchemes: ContentScheme[] = [
   globalAdaptationScheme,
   {
     id: 'universal',
-    name: '通用适配方案',
-    description: '适用于大多数平台的基础内容适配，保持内容核心价值的同时进行适度调整',
+    name: t('contentSchemes.schemes.universal.name'),
+    description: t('contentSchemes.schemes.universal.description'),
     icon: '🔄',
     color: 'from-hsl(var(--primary))-500 to-cyan-500',
     platforms: ['general'],
@@ -588,8 +588,8 @@ export const contentSchemes: ContentScheme[] = [
   },
   {
     id: 'marketing',
-    name: '营销推广方案',
-    description: '专注于营销效果的内容适配，强调转化率和用户行动引导',
+    name: t('contentSchemes.schemes.marketing.name'),
+    description: t('contentSchemes.schemes.marketing.description'),
     icon: '📈',
     color: 'from-hsl(var(--success))-500 to-emerald-500',
     platforms: ['marketing'],
@@ -602,8 +602,8 @@ export const contentSchemes: ContentScheme[] = [
   },
   {
     id: 'creative',
-    name: '创意写作方案',
-    description: '注重创意性和独特性的内容生成，适合需要差异化表达的场景',
+    name: t('contentSchemes.schemes.creative.name'),
+    description: t('contentSchemes.schemes.creative.description'),
     icon: '✨',
     color: 'from-hsl(var(--accent))-500 to-hsl(var(--accent))-500',
     platforms: ['creative'],
@@ -670,26 +670,26 @@ export function getAvailableStyles(): Array<{ id: StyleType; name: string; descr
   return [
     {
       id: 'professional',
-      name: '专业风格',
-      description: '专业 + 客观 + 洞察',
+      name: t('contentSchemes.styles.professional.name'),
+      description: t('contentSchemes.styles.professional.description'),
       icon: '🎯'
     },
     {
       id: 'funny',
-      name: '幽默风格',
+      name: t('contentSchemes.styles.funny.name'),
       description: i18n.t('config.title.幽默自嘲_kfo'),
       icon: '😄'
     },
     {
       id: 'real',
-      name: '真实风格',
-      description: '真实感 + 主观 + 分享型',
+      name: t('contentSchemes.styles.real.name'),
+      description: t('contentSchemes.styles.real.description'),
       icon: '💝'
     },
     {
       id: 'hook',
-      name: '钩子风格',
-      description: '钩子型 + 精准用户导向 + 高点击转化',
+      name: t('contentSchemes.styles.hook.name'),
+      description: t('contentSchemes.styles.hook.description'),
       icon: '🎣'
     }
   ];

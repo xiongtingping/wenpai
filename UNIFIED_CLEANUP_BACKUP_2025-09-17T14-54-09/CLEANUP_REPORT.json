@@ -1,0 +1,478 @@
+{
+  "operation": "统一代码库清理",
+  "startTime": "2025-09-17T14:54:09.833Z",
+  "endTime": "2025-09-17T14:54:10.204Z",
+  "duration": "0秒",
+  "backupDirectory": "UNIFIED_CLEANUP_BACKUP_2025-09-17T14-54-09",
+  "statistics": {
+    "totalProcessed": 63,
+    "totalDeleted": 66,
+    "totalFailed": 0,
+    "categoriesProcessed": 6
+  },
+  "deletedFiles": [
+    {
+      "path": "src/styles/authing-dialog-conflict-fix.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 6922,
+      "deletedAt": "2025-09-17T14:54:09.902Z"
+    },
+    {
+      "path": "src/styles/dialog-basic-fix.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 4508,
+      "deletedAt": "2025-09-17T14:54:09.902Z"
+    },
+    {
+      "path": "src/styles/dialog-overlay-fix.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 4391,
+      "deletedAt": "2025-09-17T14:54:09.903Z"
+    },
+    {
+      "path": "src/styles/dialog-position-fix-final.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 4596,
+      "deletedAt": "2025-09-17T14:54:09.903Z"
+    },
+    {
+      "path": "src/styles/dialog-ultimate-override.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 6965,
+      "deletedAt": "2025-09-17T14:54:09.903Z"
+    },
+    {
+      "path": "src/styles/dialog-viewport-fix.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 5004,
+      "deletedAt": "2025-09-17T14:54:09.904Z"
+    },
+    {
+      "path": "src/styles/emergency-dialog-fix.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 7751,
+      "deletedAt": "2025-09-17T14:54:09.904Z"
+    },
+    {
+      "path": "src/styles/final-dialog-position-fix.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 3222,
+      "deletedAt": "2025-09-17T14:54:09.904Z"
+    },
+    {
+      "path": "src/styles/profile-page-optimization.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 34240,
+      "deletedAt": "2025-09-17T14:54:09.905Z"
+    },
+    {
+      "path": "src/styles/quick-reference-dialog-only.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 5036,
+      "deletedAt": "2025-09-17T14:54:09.906Z"
+    },
+    {
+      "path": "src/styles/quick-reference-dialog-targeted-fix.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 7329,
+      "deletedAt": "2025-09-17T14:54:09.907Z"
+    },
+    {
+      "path": "src/styles/quick-reference-dialog-visible-fix.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 5171,
+      "deletedAt": "2025-09-17T14:54:09.907Z"
+    },
+    {
+      "path": "src/styles/ultimate-dialog-position-fix.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 3142,
+      "deletedAt": "2025-09-17T14:54:09.907Z"
+    },
+    {
+      "path": "src/styles/unified-dialog-system.css.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 6419,
+      "deletedAt": "2025-09-17T14:54:09.908Z"
+    },
+    {
+      "path": "src/contexts/UnifiedAuthContext.tsx.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 25822,
+      "deletedAt": "2025-09-17T14:54:09.908Z"
+    },
+    {
+      "path": "src/components/layout/TopNavigation.tsx.backup",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 10138,
+      "deletedAt": "2025-09-17T14:54:09.909Z"
+    },
+    {
+      "path": "src/components/shared/UnifiedEmojiManager_backup.tsx",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 32520,
+      "deletedAt": "2025-09-17T14:54:09.909Z"
+    },
+    {
+      "path": "src/components/shared/UnifiedEmojiManager_old.tsx",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 7443,
+      "deletedAt": "2025-09-17T14:54:09.909Z"
+    },
+    {
+      "path": "src/api/hotTopicsService_backup.ts",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 24442,
+      "deletedAt": "2025-09-17T14:54:09.910Z"
+    },
+    {
+      "path": "src/api/creemClientService.ts.backup.20250803-234623",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 9525,
+      "deletedAt": "2025-09-17T14:54:09.910Z"
+    },
+    {
+      "path": "src/automation/batchForward.ts.backup.20250803-234623",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 12103,
+      "deletedAt": "2025-09-17T14:54:09.910Z"
+    },
+    {
+      "path": "src/services/tokenUsageService.backup.ts",
+      "category": "backupFiles",
+      "type": "file",
+      "size": 19201,
+      "deletedAt": "2025-09-17T14:54:09.910Z"
+    },
+    {
+      "path": "src/components/landing.backup",
+      "category": "backupFiles",
+      "type": "directory",
+      "size": 0,
+      "deletedAt": "2025-09-17T14:54:09.917Z"
+    },
+    {
+      "path": "src/components/PerformanceMonitor.tsx",
+      "category": "duplicateFiles",
+      "type": "file",
+      "size": 0,
+      "deletedAt": "2025-09-17T14:54:09.943Z"
+    },
+    {
+      "path": "src/components/creative/md2card/PerformanceMonitor.tsx",
+      "category": "duplicateFiles",
+      "type": "file",
+      "size": 15938,
+      "deletedAt": "2025-09-17T14:54:09.948Z"
+    },
+    {
+      "path": "src/features/titleGeneration/components/PerformanceMonitor.tsx",
+      "category": "duplicateFiles",
+      "type": "file",
+      "size": 12543,
+      "deletedAt": "2025-09-17T14:54:09.952Z"
+    },
+    {
+      "path": "src/components/ui/ScrollToTop.tsx",
+      "category": "duplicateFiles",
+      "type": "file",
+      "size": 1417,
+      "deletedAt": "2025-09-17T14:54:09.959Z"
+    },
+    {
+      "path": "src/components/ui/DataAwareComponents.tsx",
+      "category": "duplicateFiles",
+      "type": "file",
+      "size": 14349,
+      "deletedAt": "2025-09-17T14:54:09.962Z"
+    },
+    {
+      "path": "src/components/creative/md2wechat/ExportControls.tsx",
+      "category": "duplicateFiles",
+      "type": "file",
+      "size": 13565,
+      "deletedAt": "2025-09-17T14:54:09.965Z"
+    },
+    {
+      "path": "src/utils/cssSystemChecker.ts",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 15720,
+      "deletedAt": "2025-09-17T14:54:10.018Z"
+    },
+    {
+      "path": "src/utils/dialogPositionFixer.ts",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 9083,
+      "deletedAt": "2025-09-17T14:54:10.022Z"
+    },
+    {
+      "path": "src/utils/envChecker.ts",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 9475,
+      "deletedAt": "2025-09-17T14:54:10.024Z"
+    },
+    {
+      "path": "src/utils/localStorageFixer.ts",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 6632,
+      "deletedAt": "2025-09-17T14:54:10.026Z"
+    },
+    {
+      "path": "src/utils/paymentTimer.ts",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 7836,
+      "deletedAt": "2025-09-17T14:54:10.028Z"
+    },
+    {
+      "path": "src/utils/zIndexManager.ts",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 4746,
+      "deletedAt": "2025-09-17T14:54:10.035Z"
+    },
+    {
+      "path": "src/utils/tooltipSafetyWrapper.ts",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 6492,
+      "deletedAt": "2025-09-17T14:54:10.036Z"
+    },
+    {
+      "path": "src/components/AIContentGenerationAnimation.tsx",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 9226,
+      "deletedAt": "2025-09-17T14:54:10.038Z"
+    },
+    {
+      "path": "src/components/AutomationUI.tsx",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 18391,
+      "deletedAt": "2025-09-17T14:54:10.041Z"
+    },
+    {
+      "path": "src/components/BatchForwardModal.tsx",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 22057,
+      "deletedAt": "2025-09-17T14:54:10.044Z"
+    },
+    {
+      "path": "src/components/HashtagManager.tsx",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 14594,
+      "deletedAt": "2025-09-17T14:54:10.046Z"
+    },
+    {
+      "path": "src/components/LoadingAnimation.tsx",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 7523,
+      "deletedAt": "2025-09-17T14:54:10.049Z"
+    },
+    {
+      "path": "src/components/PlatformHashtags.tsx",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 12233,
+      "deletedAt": "2025-09-17T14:54:10.051Z"
+    },
+    {
+      "path": "src/components/PlatformStatusIndicator.tsx",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 7425,
+      "deletedAt": "2025-09-17T14:54:10.054Z"
+    },
+    {
+      "path": "src/components/PlatformTabStatus.tsx",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 3919,
+      "deletedAt": "2025-09-17T14:54:10.059Z"
+    },
+    {
+      "path": "src/components/TitleGeneratorIntelligent.tsx",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 45847,
+      "deletedAt": "2025-09-17T14:54:10.062Z"
+    },
+    {
+      "path": "src/components/UndefinedFixer.tsx",
+      "category": "unusedFiles",
+      "type": "file",
+      "size": 4855,
+      "deletedAt": "2025-09-17T14:54:10.064Z"
+    },
+    {
+      "path": "src/components/creative/QuickReference/QuickReferenceTest.tsx",
+      "category": "testFiles",
+      "type": "file",
+      "size": 10232,
+      "deletedAt": "2025-09-17T14:54:10.092Z"
+    },
+    {
+      "path": "src/components/creative/QuickReference/QuickReferenceTestDialog.tsx",
+      "category": "testFiles",
+      "type": "file",
+      "size": 6874,
+      "deletedAt": "2025-09-17T14:54:10.097Z"
+    },
+    {
+      "path": "src/components/examples/DataServicesDemo.tsx",
+      "category": "testFiles",
+      "type": "file",
+      "size": 9808,
+      "deletedAt": "2025-09-17T14:54:10.097Z"
+    },
+    {
+      "path": "src/features/content-adapter/examples/ComponentArchitectureDemo.tsx",
+      "category": "testFiles",
+      "type": "file",
+      "size": 15055,
+      "deletedAt": "2025-09-17T14:54:10.098Z"
+    },
+    {
+      "path": "src/main-minimal-test.tsx",
+      "category": "testFiles",
+      "type": "file",
+      "size": 931,
+      "deletedAt": "2025-09-17T14:54:10.103Z"
+    },
+    {
+      "path": "src/services/__tests__/encryptionService.test.ts",
+      "category": "testFiles",
+      "type": "file",
+      "size": 14063,
+      "deletedAt": "2025-09-17T14:54:10.105Z"
+    },
+    {
+      "path": "src/services/__tests__/secureUserStateService.test.ts",
+      "category": "testFiles",
+      "type": "file",
+      "size": 18937,
+      "deletedAt": "2025-09-17T14:54:10.107Z"
+    },
+    {
+      "path": "src/tests/permission-guard-system.test.tsx",
+      "category": "testFiles",
+      "type": "file",
+      "size": 23378,
+      "deletedAt": "2025-09-17T14:54:10.112Z"
+    },
+    {
+      "path": "src/services/__tests__",
+      "category": "testFiles",
+      "type": "directory",
+      "size": 0,
+      "deletedAt": "2025-09-17T14:54:10.114Z"
+    },
+    {
+      "path": "src/tests",
+      "category": "testFiles",
+      "type": "directory",
+      "size": 0,
+      "deletedAt": "2025-09-17T14:54:10.114Z"
+    },
+    {
+      "path": "src/App-minimal.tsx",
+      "category": "deprecatedFiles",
+      "type": "file",
+      "size": 951,
+      "deletedAt": "2025-09-17T14:54:10.124Z"
+    },
+    {
+      "path": "src/App-safe.tsx",
+      "category": "deprecatedFiles",
+      "type": "file",
+      "size": 2818,
+      "deletedAt": "2025-09-17T14:54:10.128Z"
+    },
+    {
+      "path": "src/App-ultra-simple.tsx",
+      "category": "deprecatedFiles",
+      "type": "file",
+      "size": 2944,
+      "deletedAt": "2025-09-17T14:54:10.131Z"
+    },
+    {
+      "path": "codebase-audit-report.json",
+      "category": "reportFiles",
+      "type": "file",
+      "size": 150686,
+      "deletedAt": "2025-09-17T14:54:10.177Z"
+    },
+    {
+      "path": "component-design-report.md",
+      "category": "reportFiles",
+      "type": "file",
+      "size": 16676,
+      "deletedAt": "2025-09-17T14:54:10.192Z"
+    },
+    {
+      "path": "precise-usage-report.json",
+      "category": "reportFiles",
+      "type": "file",
+      "size": 214606,
+      "deletedAt": "2025-09-17T14:54:10.196Z"
+    },
+    {
+      "path": "safe-cleanup-report.json",
+      "category": "reportFiles",
+      "type": "file",
+      "size": 14578,
+      "deletedAt": "2025-09-17T14:54:10.201Z"
+    },
+    {
+      "path": "final-verification-report.json",
+      "category": "reportFiles",
+      "type": "file",
+      "size": 2208,
+      "deletedAt": "2025-09-17T14:54:10.202Z"
+    },
+    {
+      "path": "cleanup-files.sh",
+      "category": "reportFiles",
+      "type": "file",
+      "size": 6302,
+      "deletedAt": "2025-09-17T14:54:10.204Z"
+    },
+    {
+      "path": "final-safe-delete.sh",
+      "category": "reportFiles",
+      "type": "file",
+      "size": 2965,
+      "deletedAt": "2025-09-17T14:54:10.204Z"
+    }
+  ],
+  "failedDeletions": []
+}

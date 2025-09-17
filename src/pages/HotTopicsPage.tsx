@@ -456,7 +456,7 @@ export default function HotTopicsPage() {
               </TabsTrigger>
               <TabsTrigger value="bookmarks" className="unified-tab-trigger">
                 <Bookmark className="tab-icon" />
-                <span className="tab-text-mobile">收藏</span>
+                <span className="tab-text-mobile">{t('hotTopics.buttons.bookmark')}</span>
                 <span className="tab-text-desktop">灵感夹</span>
               </TabsTrigger>
             </TabsList>

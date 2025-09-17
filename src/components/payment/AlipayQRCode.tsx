@@ -151,7 +151,7 @@ export default function AlipayQRCode({
   // 加载状态
   if (loading) {
     return (
-      <Card className="w-full max-w-sm mx-auto border-primary bg-accent">
+      <Card className="max-w-sm mx-auto border-primary bg-accent">
         <CardHeader className="pb-4">
           <CardTitle className="text-center flex items-center justify-center gap-2">
             <AlipayLogo size={32} />
@@ -171,7 +171,7 @@ export default function AlipayQRCode({
   // 错误状态
   if (error) {
     return (
-      <Card className="w-full max-w-sm mx-auto border-destructive bg-destructive/10">
+      <Card className="max-w-sm mx-auto border-destructive bg-destructive/10">
         <CardHeader className="pb-4">
           <CardTitle className="text-center flex items-center justify-center gap-2">
             <AlertCircle className="h-6 w-6 text-destructive" />
@@ -222,7 +222,7 @@ export default function AlipayQRCode({
 
   // 正常显示二维码
   return (
-    <Card className="w-full max-w-sm mx-auto border-primary bg-accent">
+    <Card className="max-w-sm mx-auto border-primary bg-accent">
       <CardHeader className="pb-4">
         <CardTitle className="text-center flex items-center justify-center gap-2">
           <AlipayLogo size={32} />

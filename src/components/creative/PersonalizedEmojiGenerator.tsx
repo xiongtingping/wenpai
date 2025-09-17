@@ -252,7 +252,7 @@ export default function PersonalizedEmojiGenerator() { const [currentStep, setCu
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       <div className="space-y-6">
         {/* 步骤指示器 - 优化布局 */}
         <Card className="border border-border/50 shadow-sm bg-card/95 backdrop-blur-sm">

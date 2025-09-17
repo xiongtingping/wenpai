@@ -1,0 +1,442 @@
+{
+  "summary": {
+    "totalSafeToDelete": 77,
+    "backupFiles": 40,
+    "duplicateFiles": 15,
+    "debugFiles": 8,
+    "deprecatedFiles": 7,
+    "unusedUtilities": 7
+  },
+  "safeToDelete": {
+    "backupFiles": [
+      {
+        "file": "src/components/landing.backup/CTASection.tsx",
+        "size": 3972,
+        "lastModified": "2025-09-06T09:12:12.917Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/FeaturesSection.tsx",
+        "size": 15244,
+        "lastModified": "2025-09-15T07:46:57.470Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/Footer.tsx",
+        "size": 1628,
+        "lastModified": "2025-08-26T10:21:41.436Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/Header.tsx",
+        "size": 15396,
+        "lastModified": "2025-09-14T06:01:15.047Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/HeroSection.tsx",
+        "size": 11305,
+        "lastModified": "2025-09-11T13:35:55.189Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/HowItWorks.tsx",
+        "size": 4630,
+        "lastModified": "2025-09-14T06:01:15.046Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/PricingSection.tsx",
+        "size": 20201,
+        "lastModified": "2025-09-14T06:01:15.045Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/ScrollAnimation.tsx",
+        "size": 914,
+        "lastModified": "2025-09-14T06:04:40.462Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/TrustSection.tsx",
+        "size": 7309,
+        "lastModified": "2025-09-17T14:29:15.744Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/api/creemClientService.ts.backup.20250803-234623",
+        "size": 9525,
+        "lastModified": "2025-08-03T15:46:23.037Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/api/hotTopicsService_backup.ts",
+        "size": 24442,
+        "lastModified": "2025-09-14T06:06:56.243Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/automation/batchForward.ts.backup.20250803-234623",
+        "size": 12103,
+        "lastModified": "2025-08-03T15:46:23.059Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/CTASection.tsx",
+        "size": 3972,
+        "lastModified": "2025-09-06T09:12:12.917Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/FeaturesSection.tsx",
+        "size": 15244,
+        "lastModified": "2025-09-15T07:46:57.470Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/Footer.tsx",
+        "size": 1628,
+        "lastModified": "2025-08-26T10:21:41.436Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/Header.tsx",
+        "size": 15396,
+        "lastModified": "2025-09-14T06:01:15.047Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/HeroSection.tsx",
+        "size": 11305,
+        "lastModified": "2025-09-11T13:35:55.189Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/HowItWorks.tsx",
+        "size": 4630,
+        "lastModified": "2025-09-14T06:01:15.046Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/PricingSection.tsx",
+        "size": 20201,
+        "lastModified": "2025-09-14T06:01:15.045Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/ScrollAnimation.tsx",
+        "size": 914,
+        "lastModified": "2025-09-14T06:04:40.462Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/landing.backup/TrustSection.tsx",
+        "size": 7309,
+        "lastModified": "2025-09-17T14:29:15.744Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/layout/TopNavigation.tsx.backup",
+        "size": 10138,
+        "lastModified": "2025-09-06T12:00:52.001Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/shared/UnifiedEmojiManager_backup.tsx",
+        "size": 32520,
+        "lastModified": "2025-09-15T07:46:57.462Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/shared/UnifiedEmojiManager_old.tsx",
+        "size": 7443,
+        "lastModified": "2025-09-14T06:01:15.000Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/contexts/UnifiedAuthContext.tsx.backup",
+        "size": 25822,
+        "lastModified": "2025-09-11T02:30:08.375Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/services/tokenUsageService.backup.ts",
+        "size": 19201,
+        "lastModified": "2025-09-14T05:54:01.313Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/authing-dialog-conflict-fix.css.backup",
+        "size": 6922,
+        "lastModified": "2025-09-17T11:10:10.333Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/dialog-basic-fix.css.backup",
+        "size": 4508,
+        "lastModified": "2025-09-17T11:10:10.324Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/dialog-overlay-fix.css.backup",
+        "size": 4391,
+        "lastModified": "2025-09-17T11:10:10.333Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/dialog-position-fix-final.css.backup",
+        "size": 4596,
+        "lastModified": "2025-09-17T11:10:10.326Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/dialog-ultimate-override.css.backup",
+        "size": 6965,
+        "lastModified": "2025-09-17T11:10:10.327Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/dialog-viewport-fix.css.backup",
+        "size": 5004,
+        "lastModified": "2025-09-17T11:10:10.327Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/emergency-dialog-fix.css.backup",
+        "size": 7751,
+        "lastModified": "2025-09-17T11:10:10.326Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/final-dialog-position-fix.css.backup",
+        "size": 3222,
+        "lastModified": "2025-09-17T11:10:10.325Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/profile-page-optimization.css.backup",
+        "size": 34240,
+        "lastModified": "2025-09-16T06:29:00.785Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/quick-reference-dialog-only.css.backup",
+        "size": 5036,
+        "lastModified": "2025-09-17T11:10:10.328Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/quick-reference-dialog-targeted-fix.css.backup",
+        "size": 7329,
+        "lastModified": "2025-09-17T11:10:10.331Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/quick-reference-dialog-visible-fix.css.backup",
+        "size": 5171,
+        "lastModified": "2025-09-17T11:10:10.332Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/ultimate-dialog-position-fix.css.backup",
+        "size": 3142,
+        "lastModified": "2025-09-17T11:10:10.326Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/styles/unified-dialog-system.css.backup",
+        "size": 6419,
+        "lastModified": "2025-09-17T11:10:10.334Z",
+        "reason": "匹配删除模式"
+      }
+    ],
+    "duplicateFiles": [
+      {
+        "file": "src/components/PerformanceMonitor.tsx",
+        "keepInstead": "src/components/ErrorBoundary/PerformanceMonitor.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/creative/md2card/PerformanceMonitor.tsx",
+        "keepInstead": "src/components/ErrorBoundary/PerformanceMonitor.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/features/titleGeneration/components/PerformanceMonitor.tsx",
+        "keepInstead": "src/components/ErrorBoundary/PerformanceMonitor.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/landing.backup/CTASection.tsx",
+        "keepInstead": "src/components/landing/CTASection.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/landing.backup/FeaturesSection.tsx",
+        "keepInstead": "src/components/landing/FeaturesSection.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/landing.backup/Footer.tsx",
+        "keepInstead": "src/components/landing/Footer.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/landing.backup/Header.tsx",
+        "keepInstead": "src/components/landing/Header.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/landing.backup/HeroSection.tsx",
+        "keepInstead": "src/components/landing/HeroSection.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/landing.backup/HowItWorks.tsx",
+        "keepInstead": "src/components/landing/HowItWorks.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/landing.backup/PricingSection.tsx",
+        "keepInstead": "src/components/landing/PricingSection.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/landing.backup/ScrollAnimation.tsx",
+        "keepInstead": "src/components/landing/ScrollAnimation.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/landing.backup/TrustSection.tsx",
+        "keepInstead": "src/components/landing/TrustSection.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/ui/ScrollToTop.tsx",
+        "keepInstead": "src/components/layout/ScrollToTop.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/ui/DataAwareComponents.tsx",
+        "keepInstead": "src/components/data/DataAwareComponents.tsx",
+        "reason": "重复实现，保留主版本"
+      },
+      {
+        "file": "src/components/creative/md2wechat/ExportControls.tsx",
+        "keepInstead": "src/components/creative/md2card/ExportControls.tsx",
+        "reason": "重复实现，保留主版本"
+      }
+    ],
+    "debugFiles": [
+      {
+        "file": "src/components/creative/QuickReference/QuickReferenceTest.tsx",
+        "size": 10232,
+        "lastModified": "2025-09-11T13:35:55.091Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/creative/QuickReference/QuickReferenceTestDialog.tsx",
+        "size": 6874,
+        "lastModified": "2025-09-17T10:49:00.780Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/components/examples/DataServicesDemo.tsx",
+        "size": 9808,
+        "lastModified": "2025-09-17T14:29:50.434Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/features/content-adapter/examples/ComponentArchitectureDemo.tsx",
+        "size": 15055,
+        "lastModified": "2025-09-15T02:43:18.792Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/main-minimal-test.tsx",
+        "size": 931,
+        "lastModified": "2025-09-14T06:04:40.669Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/services/__tests__/encryptionService.test.ts",
+        "size": 14063,
+        "lastModified": "2025-09-16T01:54:02.078Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/services/__tests__/secureUserStateService.test.ts",
+        "size": 18937,
+        "lastModified": "2025-09-16T01:55:50.938Z",
+        "reason": "匹配删除模式"
+      },
+      {
+        "file": "src/tests/permission-guard-system.test.tsx",
+        "size": 23378,
+        "lastModified": "2025-09-16T00:47:37.891Z",
+        "reason": "匹配删除模式"
+      }
+    ],
+    "deprecatedFiles": [
+      {
+        "file": "src/components/shared/UnifiedEmojiManager_backup.tsx",
+        "reason": "已废弃的实现"
+      },
+      {
+        "file": "src/components/shared/UnifiedEmojiManager_old.tsx",
+        "reason": "已废弃的实现"
+      },
+      {
+        "file": "src/App-minimal.tsx",
+        "reason": "已废弃的实现"
+      },
+      {
+        "file": "src/App-safe.tsx",
+        "reason": "已废弃的实现"
+      },
+      {
+        "file": "src/App-ultra-simple.tsx",
+        "reason": "已废弃的实现"
+      },
+      {
+        "file": "src/services/tokenUsageService.backup.ts",
+        "reason": "已废弃的实现"
+      },
+      {
+        "file": "src/api/hotTopicsService_backup.ts",
+        "reason": "已废弃的实现"
+      }
+    ],
+    "unusedUtilities": [
+      {
+        "file": "src/utils/cssSystemChecker.ts",
+        "reason": "可能未被使用的工具函数，需要验证"
+      },
+      {
+        "file": "src/utils/dialogPositionFixer.ts",
+        "reason": "可能未被使用的工具函数，需要验证"
+      },
+      {
+        "file": "src/utils/envChecker.ts",
+        "reason": "可能未被使用的工具函数，需要验证"
+      },
+      {
+        "file": "src/utils/localStorageFixer.ts",
+        "reason": "可能未被使用的工具函数，需要验证"
+      },
+      {
+        "file": "src/utils/paymentTimer.ts",
+        "reason": "可能未被使用的工具函数，需要验证"
+      },
+      {
+        "file": "src/utils/zIndexManager.ts",
+        "reason": "可能未被使用的工具函数，需要验证"
+      },
+      {
+        "file": "src/utils/tooltipSafetyWrapper.ts",
+        "reason": "可能未被使用的工具函数，需要验证"
+      }
+    ]
+  },
+  "timestamp": "2025-09-17T14:42:56.913Z"
+}

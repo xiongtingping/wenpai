@@ -5,7 +5,7 @@ description: "Example description"
 
 {
   "module": "Security",
-  "name": "security_prohibit_hardcoded_config_error",
+  "name": "禁止硬编码security_prohibit_hardcoded_config_error",
   "severity": "error",
   "description": "禁止硬编码配置项，所有 API 地址、密钥、redirectUri、模型参数等必须从 .env 或环境变量中读取。严禁在代码中直接写死平台域名、token、ID 等敏感配置。",
   "criteria": [

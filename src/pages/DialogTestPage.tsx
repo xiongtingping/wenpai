@@ -3,10 +3,19 @@
  * 专门用于测试和调试Dialog组件的定位问题
  */
 
-import React from 'react';
-import { QuickReferenceTest } from '@/components/creative/QuickReference/QuickReferenceTest';
+import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { QuickReferenceTrigger } from '@/components/creative/QuickReference/QuickReferenceTrigger';
 
 export default function DialogTestPage() {
+  const [selectedContent, setSelectedContent] = useState('');
+
+  const handleSelect = (content: string) => {
+    setSelectedContent(content);
+    console.log('选择的内容:', content);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* 页面标题 */}
@@ -17,8 +26,36 @@ export default function DialogTestPage() {
         </p>
       </div>
 
-      {/* 测试组件 */}
-      <QuickReferenceTest />
+      {/* 简化的测试组件 */}
+      <div className="p-6 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>快速引用Dialog测试</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-3">
+              <QuickReferenceTrigger
+                onSelect={handleSelect}
+                multiSelect={false}
+              />
+              
+              <QuickReferenceTrigger
+                onSelect={handleSelect}
+                multiSelect={true}
+                variant="default"
+              />
+            </div>
+
+            {/* 选择的内容显示 */}
+            {selectedContent && (
+              <div className="mt-4 p-4 bg-muted rounded-lg">
+                <h4 className="font-medium mb-2">选择的内容:</h4>
+                <pre className="text-sm whitespace-pre-wrap">{selectedContent}</pre>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

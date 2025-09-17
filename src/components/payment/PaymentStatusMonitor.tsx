@@ -186,7 +186,7 @@ export const PaymentStatusMonitor: React.FC<any> = ({ checkoutId,
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="max-w-md mx-auto">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2">
           {getStatusIcon()}

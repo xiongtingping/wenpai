@@ -177,7 +177,7 @@ export const PaymentStatusRecovery: React.FC<any> = ({ onRecoveryComplete,
 
   if (isLoading) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="max-w-md mx-auto">
         <CardContent className="flex flex-col items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
           <p className="text-muted-foreground">正在检查支付状态...</p>
@@ -192,7 +192,7 @@ export const PaymentStatusRecovery: React.FC<any> = ({ onRecoveryComplete,
 
   return (
     <div className="space-y-4">
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="max-w-md mx-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-foreground" />

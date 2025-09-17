@@ -1,3 +1,6 @@
+/* 🎯 Dialog定位修复 - 遵循CLAUDE.md 3.6.2节规范 */
+@import './styles/dialog-positioning-fix-clean.css';
+
 @import './styles/number-display-fix.css';
 @import './styles/pricing-fix.css';
 @import './styles/typography-system.css';
@@ -7,7 +10,10 @@
 @import './styles/authing-modal-architecture-fix.css';
 @import './styles/authing-accessibility-fix.css';
 @import './styles/animated-signin-21st.css';
-@import './styles/dialog-position-fix-final.css';
+/* 🎯 快速引用Dialog修复CSS - 恢复到工作状态 */
+@import './styles/dialog-ultimate-override.css';
+@import './styles/quick-reference-dialog-only.css';
+@import './styles/quick-reference-compact-ui.css';
 @import './styles/button-center-fix.css';
 @import './styles/design-system.css';
 @import './styles/permission-guard-z-index.css';
@@ -17,9 +23,7 @@
 @import './styles/profile-emergency-fix.css';
 /* 🎯 AI模型选择器样式 */
 @import './styles/ai-model-selector.css';
-/* 🎯 统一Dialog系统 */
-@import './styles/unified-dialog-system.css';
-/* 移除调试样式，使用统一Dialog系统 */
+/* 🎯 统一Dialog系统 - 已整合到新的统一文件中 */
 
 
 

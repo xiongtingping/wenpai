@@ -156,7 +156,7 @@ export default function PromptBuilder({ uploadedData,
   }, [uploadedData, style, complexity, generationMode, useCustomPrompt]);
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Wand2 className="w-5 h-5" />

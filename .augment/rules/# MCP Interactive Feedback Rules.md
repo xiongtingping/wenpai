@@ -1,5 +1,5 @@
 ---
-type: "always_apply"
+type: "manual"
 ---
 
 # MCP Interactive Feedback Rules

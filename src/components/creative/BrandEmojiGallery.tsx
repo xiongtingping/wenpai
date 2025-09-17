@@ -365,7 +365,7 @@ export default function BrandEmojiGallery({ emojis,
   );
 
   return (
-    <Card className={`w-full max-w-7xl mx-auto ${className}`}>
+    <Card className={`max-w-7xl mx-auto ${className}`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl">
           <Image className="w-6 h-6" />

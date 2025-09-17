@@ -1,0 +1,144 @@
+/**
+ * 🎯 快速引用Dialog专用修复 - 不影响其他Dialog
+ * 
+ * 解决问题：
+ * 1. 快速引用Dialog顶部紧贴问题
+ * 2. 避免影响历史记录Dialog布局
+ * 
+ * 策略：使用极精确的选择器，仅针对快速引用Dialog
+ */
+
+/* ========================================
+   🎯 精确选择器 - 仅快速引用Dialog
+   ======================================== */
+
+/* 🎯 基于类名的精确匹配 */
+[role="dialog"].quick-reference-dialog,
+[data-radix-dialog-content].quick-reference-dialog,
+.quick-reference-dialog[role="dialog"],
+.quick-reference-dialog[data-radix-dialog-content],
+
+/* 🎯 基于ID模式匹配（Radix生成的ID） */
+[role="dialog"][id*="radix"][aria-labelledby*="radix"]:has(.quick-reference-dialog),
+[data-radix-dialog-content][id*="radix"]:has(.quick-reference-dialog),
+
+/* 🎯 基于内容特征匹配 */
+[role="dialog"]:has([class*="quick-reference"]),
+[data-radix-dialog-content]:has([class*="quick-reference"]),
+
+/* 🎯 基于aria标签匹配 */
+[role="dialog"][aria-labelledby*="quick-reference"],
+[role="dialog"][aria-describedby*="quick-reference"] {
+
+  /* 🚨 视窗居中定位 - 增加呼吸感 */
+  position: fixed !important;
+  top: calc(50vh + 40px) !important;    /* 🔥 关键修复：向下偏移40px确保上边距 */
+  left: 50vw !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 999999 !important;
+  
+  /* 🚨 清除可能的定位干扰 */
+  inset: unset !important;
+  inset-block: unset !important;
+  inset-inline: unset !important;
+  margin: 0 !important;
+  
+  /* 🚨 确保可见性 */
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  
+  /* 🚨 调试样式 - 红色边框便于确认 */
+  border: 3px solid #ff0000 !important;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.5) !important;
+  background: #ffffff !important;
+  
+  /* 🚨 调整尺寸设置 - 增加宽度 */
+  max-width: min(95vw, 1200px) !important;   /* 🔥 从1000px增加到1200px，90vw增加到95vw */
+  max-height: calc(90vh - 40px) !important;  /* 减去上下边距 */
+  min-width: 600px !important;               /* 🔥 从400px增加到600px */
+  min-height: 300px !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 20px !important;
+  
+  /* 🚨 内容样式 */
+  color: #000000 !important;
+  font-size: 14px !important;
+  
+  /* 🚨 清除动画避免定位冲突 */
+  animation: none !important;
+  transition: opacity 0.2s ease !important;
+}
+
+/* ========================================
+   🎯 排除历史记录Dialog - 避免影响
+   ======================================== */
+
+/* 🚨 明确排除历史记录Dialog */
+[role="dialog"].enhanced-history-dialog,
+[role="dialog"][class*="enhanced-history"],
+[role="dialog"][aria-labelledby*="history"],
+[role="dialog"][aria-describedby*="history"],
+[role="dialog"]:has([class*="enhanced-history"]),
+[role="dialog"]:has([class*="history"]) {
+  /* 重置到默认值，避免被快速引用样式影响 */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  background: hsl(var(--background)) !important;
+  max-width: min(85vw, 1000px) !important;
+  max-height: 70vh !important;
+}
+
+/* ========================================
+   🎯 移动端适配
+   ======================================== */
+
+@media (max-width: 640px) {
+  [role="dialog"].quick-reference-dialog,
+  [data-radix-dialog-content].quick-reference-dialog,
+  .quick-reference-dialog[role="dialog"],
+  [role="dialog"]:has([class*="quick-reference"]) {
+    top: calc(50vh + 20px) !important;  /* 🔥 移动端也向下偏移20px */
+    left: 50vw !important;
+    max-width: calc(98vw - 20px) !important;  /* 🔥 移动端也增加宽度 */
+    max-height: calc(90vh - 20px) !important;
+    min-width: 350px !important;              /* 🔥 移动端最小宽度从280px增加到350px */
+    padding: 16px !important;
+  }
+}
+
+/* ========================================
+   🎯 调试标识 - 确认CSS生效
+   ======================================== */
+
+[role="dialog"].quick-reference-dialog::before,
+[role="dialog"]:has([class*="quick-reference"])::before {
+  content: "🎯 快速引用Dialog - 已修复定位" !important;
+  position: absolute !important;
+  top: -40px !important;
+  left: 0 !important;
+  background: #ff0000 !important;
+  color: #ffffff !important;
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  border-radius: 4px !important;
+  z-index: 999999 !important;
+  white-space: nowrap !important;
+}
+
+/* ========================================
+   🎯 性能优化
+   ======================================== */
+
+[role="dialog"].quick-reference-dialog,
+[role="dialog"]:has([class*="quick-reference"]) {
+  will-change: transform !important;
+  backface-visibility: hidden !important;
+}

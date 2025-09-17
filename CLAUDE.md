@@ -1248,3 +1248,447 @@ switch (violation.rule) {
 ---
 
 **⚠️ 重要提醒：CSS治理体系具有最高优先级，所有CSS相关工作必须严格遵守。违反治理规则的代码将被自动阻断，不得合并到主分支。这套体系确保了类似按钮居中问题永远不会再发生，从根本上保障代码库的长期健康和可维护性。**
+
+## 3.8 CSS命名规范统一系统
+
+### 3.8.1 命名规范宪章
+
+#### **统一目标**
+建立项目级别的CSS和React组件命名规范统一系统，确保代码库的一致性、可维护性和长期健康发展。
+
+#### **核心原则**
+1. **一致性优先**：所有命名必须遵循统一的规范，不允许例外
+2. **语义化命名**：命名必须清晰表达功能和用途
+3. **可维护性**：命名规范必须便于长期维护和扩展
+4. **自动化强制**：通过工具自动检查和强制执行规范
+5. **零技术债务**：禁止为了快速交付而违反命名规范
+
+#### **适用范围**
+- CSS文件和类名
+- React组件和Hook
+- 设计令牌和变量
+- 文件和目录组织
+- 导入和引用路径
+
+### 3.8.2 CSS命名规范体系
+
+#### **文件命名规范**
+
+**强制性规则**：
+- **kebab-case命名法**：所有CSS文件必须使用kebab-case（如：`dialog-positioning-fix.css`）
+- **统一前缀系统**：
+  - `fix-*` - 修复相关CSS文件（如：`fix-history-dialog-positioning.css`）
+  - `design-tokens-*` - 设计令牌文件（如：`design-tokens-dialog.css`）
+  - `unified-*` - 统一系统文件（如：`unified-dialog-positioning.css`）
+  - `emergency-*` - 紧急修复文件（临时使用，必须有移除计划）
+
+**禁止的命名模式**：
+```css
+/* ❌ 错误命名 */
+dialogFix.css
+Dialog_positioning.css
+dialog-fix-final-ultimate.css
+temp-fix.css
+quick_patch.css
+
+/* ✅ 正确命名 */
+fix-dialog-positioning.css
+design-tokens-dialog.css
+unified-dialog-system.css
+```
+
+#### **BEM方法论强制应用**
+
+**BEM结构**：`块__元素--修饰符`
+
+**强制性规则**：
+```css
+/* ✅ 正确的BEM结构 */
+.dialog                          /* 块 */
+.dialog__overlay                 /* 块__元素 */
+.dialog__content                 /* 块__元素 */
+.dialog__header                  /* 块__元素 */
+.dialog__content--quick-reference /* 块__元素--修饰符 */
+.dialog__content--history        /* 块__元素--修饰符 */
+.dialog__content--centered       /* 块__元素--修饰符 */
+
+/* ❌ 禁止的命名 */
+.dialogContent
+.dialog-content-quickReference
+.dialog_content_history
+.quickReferenceDialogContent
+```
+
+**BEM命名检查清单**：
+- [ ] 块名使用kebab-case
+- [ ] 元素使用双下划线分隔（`__`）
+- [ ] 修饰符使用双连字符分隔（`--`）
+- [ ] 避免超过3层嵌套
+- [ ] 语义化命名，避免样式相关命名
+
+#### **设计令牌命名规范**
+
+**CSS变量命名结构**：`--{category}-{property}-{variant}`
+
+**强制性规则**：
+```css
+/* ✅ 正确的设计令牌命名 */
+:root {
+  /* 定位令牌 */
+  --dialog-position-top: 50vh;
+  --dialog-position-left: 50vw;
+  --dialog-transform: translate(-50%, -50%);
+
+  /* 尺寸令牌 */
+  --dialog-max-width: min(95vw, 1024px);
+  --dialog-max-height: 85vh;
+  --dialog-mobile-max-width: calc(95vw - 16px);
+
+  /* 样式令牌 */
+  --dialog-background: hsl(var(--background));
+  --dialog-border: hsl(var(--border));
+  --dialog-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.25);
+
+  /* 动画令牌 */
+  --dialog-transition-duration: 200ms;
+  --dialog-transition-easing: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ❌ 禁止的令牌命名 */
+--dialogTop: 50vh;
+--dialog_max_width: 1024px;
+--DIALOG-BACKGROUND: white;
+--dialog-bg-color: #ffffff;  /* 硬编码值 */
+```
+
+**设计令牌分类体系**：
+- `--{component}-position-*` - 定位相关
+- `--{component}-size-*` - 尺寸相关
+- `--{component}-color-*` - 颜色相关
+- `--{component}-animation-*` - 动画相关
+- `--{component}-responsive-*` - 响应式相关
+
+### 3.8.3 React组件命名规范体系
+
+#### **组件命名规范**
+
+**强制性规则**：
+- **PascalCase命名法**：所有React组件必须使用PascalCase（如：`QuickReferenceDialog`）
+- **文件名与组件名一致**：`QuickReferenceDialog.tsx` 包含 `QuickReferenceDialog` 组件
+- **统一后缀系统**：
+  - `*Dialog` - 弹窗组件（如：`QuickReferenceDialog`, `EnhancedHistoryDialog`）
+  - `*Modal` - 模态框组件
+  - `*Provider` - 上下文提供者组件
+  - `*Hook` - 自定义Hook（实际使用use前缀）
+
+**组件命名检查清单**：
+```tsx
+/* ✅ 正确的组件命名 */
+export function QuickReferenceDialog() { }
+export function EnhancedHistoryDialog() { }
+export function UserProfileModal() { }
+export function AuthProvider() { }
+
+/* ❌ 禁止的组件命名 */
+export function quickReferenceDialog() { }  // camelCase
+export function Quick_Reference_Dialog() { } // snake_case
+export function QUICK_REFERENCE_DIALOG() { } // UPPER_CASE
+export function QRDialog() { }               // 缩写不清晰
+```
+
+#### **Hook命名规范**
+
+**强制性规则**：
+- **use前缀**：所有自定义Hook必须以`use`开头
+- **功能描述性命名**：Hook名称必须清晰描述其功能
+- **统一命名模式**：`use{Feature}{Action}` 或 `use{Component}{Feature}`
+
+**Hook命名示例**：
+```tsx
+/* ✅ 正确的Hook命名 */
+export function useDialogPositioning() { }
+export function useQuickReferenceDialogPositioning() { }
+export function useHistoryDialogPositioning() { }
+export function useErrorHandler() { }
+export function useAuthState() { }
+
+/* ❌ 禁止的Hook命名 */
+export function dialogPositioning() { }      // 缺少use前缀
+export function useQRDP() { }                // 缩写不清晰
+export function use_dialog_positioning() { } // snake_case
+export function useDialogPos() { }           // 缩写不完整
+```
+
+#### **TypeScript类型命名规范**
+
+**强制性规则**：
+```tsx
+/* ✅ 正确的类型命名 */
+interface DialogPositioningOptions {
+  open: boolean;
+  dialogType: 'quick-reference' | 'history' | 'generic';
+}
+
+interface DialogPositioningResult {
+  isFixed: boolean;
+  error?: string;
+}
+
+type DialogType = 'quick-reference' | 'history' | 'generic';
+
+/* ❌ 禁止的类型命名 */
+interface dialogOptions { }           // camelCase
+interface Dialog_Options { }          // snake_case
+interface IDialogOptions { }          // Hungarian notation
+interface DialogOptionsInterface { }  // 冗余后缀
+```
+
+### 3.8.4 文件组织规范体系
+
+#### **目录结构规范**
+
+**强制性结构**：
+```
+src/
+├── components/           # 通用组件
+│   └── ui/              # UI基础组件
+├── features/            # 功能模块
+│   └── content-adapter/ # 具体功能
+│       └── components/  # 功能相关组件
+├── hooks/               # 自定义Hook
+├── styles/              # 样式文件
+│   ├── design-tokens-*.css  # 设计令牌
+│   ├── fix-*.css           # 修复文件
+│   └── unified-*.css       # 统一系统
+└── utils/               # 工具函数
+```
+
+#### **相关文件就近原则**
+
+**强制性规则**：
+- 功能相关的CSS和组件文件放在同一目录下
+- 修复文件使用清晰的命名标识其用途
+- 设计令牌文件集中管理
+- Hook文件统一放在`hooks/`目录
+
+**示例结构**：
+```
+features/content-adapter/
+├── components/
+│   ├── EnhancedHistoryDialog.tsx
+│   └── QuickReferenceDialog.tsx
+├── hooks/
+│   └── useContentAdapter.ts
+└── styles/
+    └── content-adapter.css
+
+styles/
+├── design-tokens-dialog.css      # Dialog设计令牌
+├── fix-history-dialog-positioning.css
+├── fix-quick-reference-dialog-positioning.css
+└── unified-dialog-positioning.css
+```
+
+### 3.8.5 自动化检查与强制执行
+
+#### **ESLint规则配置**
+
+**强制性规则**：
+```javascript
+// .eslintrc.js
+module.exports = {
+  rules: {
+    // 组件命名检查
+    'react/function-component-definition': ['error', {
+      'namedComponents': 'function-declaration'
+    }],
+
+    // Hook命名检查
+    'react-hooks/rules-of-hooks': 'error',
+
+    // 文件命名检查
+    'unicorn/filename-case': ['error', {
+      'cases': {
+        'kebabCase': true,
+        'pascalCase': true
+      }
+    }]
+  }
+};
+```
+
+#### **Stylelint规则配置**
+
+**强制性规则**：
+```javascript
+// .stylelintrc.js
+module.exports = {
+  rules: {
+    // BEM命名检查
+    'selector-class-pattern': '^[a-z]([a-z0-9-]+)?(__([a-z0-9]+-?)+)?(--([a-z0-9]+-?)+){0,2}$',
+
+    // CSS变量命名检查
+    'custom-property-pattern': '^[a-z]([a-z0-9-]+)*$',
+
+    // 禁止硬编码颜色
+    'color-no-hex': true,
+
+    // 禁止硬编码尺寸（除0外）
+    'declaration-property-value-disallowed-list': {
+      '/^(width|height|top|left|right|bottom|margin|padding)/': [
+        '/^[0-9]+px$/',
+        '/^[0-9]+rem$/'
+      ]
+    }
+  }
+};
+```
+
+#### **自动化检查脚本**
+
+**命名规范检查脚本**：
+```bash
+#!/bin/bash
+# scripts/check-naming-conventions.sh
+
+echo "🔍 检查CSS文件命名规范..."
+find src/styles -name "*.css" | grep -E "(^[A-Z]|_)" && echo "❌ 发现不符合kebab-case的CSS文件" || echo "✅ CSS文件命名规范正确"
+
+echo "🔍 检查React组件命名规范..."
+find src -name "*.tsx" -exec grep -l "^export.*function [a-z]" {} \; && echo "❌ 发现不符合PascalCase的组件" || echo "✅ React组件命名规范正确"
+
+echo "🔍 检查Hook命名规范..."
+find src -name "*.ts" -name "*.tsx" -exec grep -l "^export.*function [^u].*" {} \; | grep -v "use" && echo "❌ 发现不符合use前缀的Hook" || echo "✅ Hook命名规范正确"
+```
+
+### 3.8.6 违规处理与纠正机制
+
+#### **违规等级定义**
+
+**CRITICAL级别 - 立即阻断**：
+- 使用硬编码颜色值（`#ffffff`, `rgb(255,255,255)`）
+- CSS文件使用非kebab-case命名
+- React组件使用非PascalCase命名
+- Hook缺少use前缀
+
+**ERROR级别 - 阻断提交**：
+- BEM命名规范违反
+- 设计令牌命名不规范
+- 文件组织结构不当
+- 缺少必要的类型定义
+
+**WARNING级别 - 警告提示**：
+- 命名不够语义化
+- 文件路径过深
+- 缺少注释说明
+
+#### **自动修复机制**
+
+**可自动修复的违规**：
+```javascript
+// 自动修复示例
+const fixes = {
+  // 硬编码颜色 → 设计令牌
+  '#ffffff': 'var(--color-background)',
+  'rgb(255, 255, 255)': 'var(--color-background)',
+
+  // 硬编码尺寸 → 设计令牌
+  '16px': 'var(--spacing-4)',
+  '24px': 'var(--spacing-6)',
+
+  // 文件命名修复
+  'dialogFix.css': 'fix-dialog-positioning.css',
+  'Dialog_Component.tsx': 'DialogComponent.tsx'
+};
+```
+
+### 3.8.7 成功案例与最佳实践
+
+#### **命名规范统一成功案例 (2025-01-17)**
+
+**项目背景**：
+项目中存在16个Dialog相关CSS文件，命名混乱，存在大量重复和冲突，总计94KB。
+
+**系统性解决方案**：
+1. **文件清理**：删除13个重复文件，减少64KB体积
+2. **重命名规范化**：2个核心文件重命名遵循kebab-case
+3. **设计令牌系统**：创建`design-tokens-dialog.css`统一变量
+4. **BEM规范应用**：所有Dialog组件应用BEM命名
+5. **Hook封装**：创建`useDialogPositioning`统一逻辑
+
+**技术成果**：
+- ✅ CSS文件从16个减少到4个核心文件
+- ✅ 代码体积从94KB减少到30KB
+- ✅ 100%遵循kebab-case和BEM规范
+- ✅ 建立完整的设计令牌系统
+- ✅ 创建类型安全的React Hook
+
+**关键技术洞察**：
+- **系统性优于局部性**：统一规范比单独修复更有效
+- **自动化优于手工**：脚本化处理减少人工错误
+- **设计令牌优于硬编码**：可维护性显著提升
+- **BEM优于随意命名**：语义化程度大幅改善
+
+### 3.8.8 持续改进与监控
+
+#### **命名规范监控指标**
+
+**关键指标**：
+- **规范遵循率**：目标100%
+- **硬编码值数量**：目标为0
+- **文件命名一致性**：目标100%
+- **BEM规范覆盖率**：目标100%
+- **设计令牌使用率**：目标100%
+
+#### **定期审查机制**
+
+**审查频率**：
+- **每周**：命名规范合规性检查
+- **每月**：设计令牌使用情况审查
+- **每季度**：文件组织结构优化
+- **每年**：命名规范体系升级
+
+#### **团队培训计划**
+
+**培训内容**：
+1. **CSS命名规范**：kebab-case + BEM方法论
+2. **React命名规范**：PascalCase + use前缀Hook
+3. **设计令牌系统**：变量命名和使用规范
+4. **自动化工具**：ESLint + Stylelint配置
+5. **最佳实践**：成功案例分析和经验分享
+
+**考核标准**：
+- 理论考核：≥90分
+- 实践考核：≥90分
+- 能够独立应用所有命名规范
+- 能够进行有效的代码审查
+
+### 3.8.9 长期维护策略
+
+#### **规范演进机制**
+
+**版本管理**：
+- 命名规范文档版本化管理
+- 重大变更需要团队评审
+- 向后兼容性保证
+- 迁移指南和工具支持
+
+#### **工具链维护**
+
+**持续更新**：
+- ESLint/Stylelint规则定期更新
+- 自动化脚本功能增强
+- CI/CD集成优化
+- 新技术栈适配
+
+#### **社区贡献**
+
+**开源分享**：
+- 命名规范最佳实践分享
+- 自动化工具开源贡献
+- 技术文章和案例研究
+- 社区反馈收集和改进
+
+---
+
+**⚠️ 强制执行要求：CSS命名规范统一系统具有强制性，所有相关工作必须严格遵守。违反规范的代码将被自动阻断，不得合并到主分支。这套系统确保了项目的长期可维护性和团队协作效率。**

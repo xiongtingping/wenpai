@@ -168,15 +168,15 @@ export default function BookmarkPage() {
   React.useEffect(() => {
     const initializeData = async () => {
       const storageKey = getStorageKey();
-      console.log('🔑 使用存储键:', storageKey);
+      console.log('🔑', t('bookmark.storage.useStorageKey'), ':', storageKey);
 
       // 检查localStorage可用性
       const availability = checkLocalStorageAvailability();
       if (!availability.available) {
-        console.error('❌ localStorage不可用:', availability.error);
+        console.error('❌ localStorage', t('bookmark.storage.unavailable'), ':', availability.error);
         toast({
           title: t('pages.labels.存储系统异常'),
-          description: availability.error || "无法访问本地存储，数据可能无法保存",
+          description: availability.error || t('bookmark.storage.cannotAccessLocalStorageAndDataMayNotSave'),
           variant: "destructive"
         });
         setLibraryItems([]);
@@ -188,7 +188,7 @@ export default function BookmarkPage() {
       if (cleanedCount > 0) {
         toast({
           title: t('pages.labels.数据清理完成'),
-          description: `已清理 ${cleanedCount} 项损坏的数据`
+          description: `${t('bookmark.storage.cleaned')} ${cleanedCount} ${t('bookmark.storage.corruptedDataItems')}`
         });
       }
 
@@ -200,13 +200,13 @@ export default function BookmarkPage() {
         if (data && data.length > 0) {
           console.log('📂 成功加载资料库数据:', data.length, t('pages.messages.项'));
         } else {
-          console.log('🆕 初始化空资料库');
+          console.log('🆕', t('bookmark.storage.initEmptyLibrary'));
         }
       } else {
-        console.error('❌ 加载数据失败:', error);
+        console.error('❌', t('bookmark.storage.loadDataFailed'), ':', error);
         toast({
           title: t('pages.labels.数据加载失败'),
-          description: error || "无法加载已保存的数据，将从空白开始",
+          description: error || `${t('bookmark.storage.cannotLoadSavedData')}，${t('bookmark.storage.startFromBlank')}`,
           variant: "destructive"
         });
         setLibraryItems([]);
@@ -753,7 +753,7 @@ export default function BookmarkPage() {
               </TabsTrigger>
               <TabsTrigger value="collection" className="unified-tab-trigger">
                 <Bookmark className="tab-icon" />
-                <span>网络剪藏</span>
+                <span>{t('bookmark.ui.webClipping')}</span>
               </TabsTrigger>
               <TabsTrigger value="copywriting" className="unified-tab-trigger">
                 <Brain className="tab-icon" />
@@ -779,7 +779,7 @@ export default function BookmarkPage() {
                 size="sm"
               >
                 <Brain className="w-4 h-4" />
-                <span>创建文案</span>
+                <span>{t('bookmark.ui.createCopywriting')}</span>
               </Button>
               <Button
                 onClick={handleExportData}
@@ -788,7 +788,7 @@ export default function BookmarkPage() {
                 size="sm"
               >
                 <Download className="w-4 h-4" />
-                <span>导出资料</span>
+                <span>{t('bookmark.ui.exportData')}</span>
               </Button>
             </div>
           </div>
@@ -1285,9 +1285,9 @@ export default function BookmarkPage() {
         <Dialog open={isAddDialogOpen} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>网络剪藏</DialogTitle>
+              <DialogTitle>{t('bookmark.ui.webClipping')}</DialogTitle>
               <DialogDescription>
-                添加网络内容到资料库
+                {t('bookmark.ui.addWebContentToLibrary')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -1348,9 +1348,9 @@ export default function BookmarkPage() {
         <Dialog open={isCopywritingDialogOpen} onOpenChange={handleDialogClose(setIsCopywritingDialogOpen)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>创建文案</DialogTitle>
+              <DialogTitle>{t('bookmark.ui.createCopywriting')}</DialogTitle>
               <DialogDescription>
-                创建新的文案内容
+                {t('bookmark.ui.createNewCopywritingContent')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -1398,7 +1398,7 @@ export default function BookmarkPage() {
             </div>
             <div className="flex gap-2 pt-4">
               <Button onClick={createCopywriting} className="flex-1">
-                创建文案
+                {t('bookmark.ui.createCopywriting')}
               </Button>
               <Button variant="outline" onClick={() => setIsCopywritingDialogOpen(false)}>
                 取消

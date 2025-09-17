@@ -40,7 +40,7 @@ export const DialogPortal: React.FC<DialogPortalProps> = ({
         left: 0;
         width: 100vw;
         height: 100vh;
-        pointer-events: none;
+        pointer-events: auto;
         z-index: 1000;
         contain: none;
         isolation: auto;
@@ -54,6 +54,9 @@ export const DialogPortal: React.FC<DialogPortalProps> = ({
         outline: none;
         background: transparent;
         overflow: visible;
+        display: block;
+        visibility: visible;
+        opacity: 1;
       `
       document.body.appendChild(dialogRoot)
     }

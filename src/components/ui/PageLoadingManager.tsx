@@ -229,7 +229,7 @@ export const PageLoadingScreen: React.FC<PageLoadingScreenProps> = ({
   if (hasError) {
     return (
       <div className={`flex items-center justify-center min-h-screen p-6 ${className}`}>
-        <Card className="w-full max-w-md">
+        <Card className="max-w-md mx-auto">
           <CardContent className="pt-6 text-center space-y-4">
             <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
             <h3 className="text-lg font-semibold text-foreground">加载失败</h3>
@@ -250,7 +250,7 @@ export const PageLoadingScreen: React.FC<PageLoadingScreenProps> = ({
 
   return (
     <div className={`flex items-center justify-center min-h-screen p-6 ${className}`}>
-      <Card className="w-full max-w-md">
+      <Card className="max-w-md mx-auto">
         <CardContent className="pt-6 text-center space-y-6">
           {/* 加载图标 */}
           <LoadingIcon className="w-12 h-12 text-primary mx-auto animate-spin" />

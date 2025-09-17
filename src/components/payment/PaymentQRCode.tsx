@@ -185,7 +185,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
 
   if (paymentStatus === 'success') {
     return (
-      <Card className="w-full max-w-md mx-auto border-green-200 bg-green-50/50 shadow-lg">
+      <Card className="max-w-md mx-auto border-green-200 bg-green-50/50 shadow-lg">
         <CardHeader className="text-center pb-4">
           <CardTitle className="text-success text-2xl font-bold">🎉 支付成功！</CardTitle>
         </CardHeader>
@@ -220,7 +220,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
 
   if (paymentStatus === 'timeout') {
     return (
-      <Card className="w-full max-w-md mx-auto border-orange-200 bg-orange-50/50">
+      <Card className="max-w-md mx-auto border-orange-200 bg-orange-50/50">
         <CardHeader className="text-center">
           <CardTitle className="text-orange-600">支付超时</CardTitle>
         </CardHeader>
@@ -246,7 +246,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
 
   if (paymentStatus === 'failed') {
     return (
-      <Card className="w-full max-w-md mx-auto border-red-200 bg-red-50/50">
+      <Card className="max-w-md mx-auto border-red-200 bg-red-50/50">
         <CardHeader className="text-center">
           <CardTitle className="text-destructive">支付失败</CardTitle>
         </CardHeader>
@@ -278,7 +278,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="max-w-md mx-auto">
       <CardHeader className="text-center">
         <CardTitle className="flex items-center justify-center gap-2">
           <Clock className="h-5 w-5" />

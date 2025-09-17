@@ -37,7 +37,7 @@ export const DirectLoginForm: React.FC<any> = ({ onLogin, onError }) => { const 
   };
 
   return (
-    <form onSubmit={handleLogin} className="space-y-4 w-full max-w-md">
+    <form onSubmit={handleLogin} className="space-y-4 max-w-md mx-auto">
       <div>
         <label className="block text-sm font-medium mb-2">邮箱</label>
         <input

@@ -2,7 +2,7 @@
  * 🧠 智能标题生成 Prompt 系统
  * 
  * 基于优化的 Augment Title Prompt V2 规范
- * 强化内容主旨对齐（拟合）约束
+ * t('aiPrompts.systemPrompts.contentAlignmentConstraints')
  * 
  * 🎯 核心目标：
  * - 语义拟合：标题紧扣正文主旨，基于向量理解生成
@@ -27,16 +27,16 @@ import type { PromptTemplate } from '../typesi18n.t('ai.title._uot')result-emoti
  * 🧠 高吸引力标题结构生成（V3）- 主系统提示词
  */
 export const getTitleGenerationSystemPrompt = (): string => {
-  return `你是一个擅长生成'高吸引力内容标题'的AI助手，请根据用户提供的正文内容生成符合平台要求、表达自然完整、结构多样、主旨贴合、具备点击吸引力的标题。;
+  return `你是一个擅长生成'高吸引力内容标题'的AI助手，t('aiPrompts.systemPrompts.generateBasedOnContent')。;
 
-## 🚨 强化内容主旨对齐（拟合）约束
+## 🚨 t('aiPrompts.systemPrompts.contentAlignmentConstraints')
 
-### ✅ 必须执行以下语义约束：
-1. 标题必须基于用户提供的正文内容（版本A/B）生成，不允许脱离文本主旨；
-2. 标题语义应覆盖正文内容的：
-   - 核心对象（如：文派工具、AI内容平台适配等）
-   - 用户收益（如：多平台适配、省时间、省力、提升效率）
-   - 使用场景（如：小红书、公众号、抖音内容创作）
+### ✅ t('aiPrompts.systemPrompts.semanticConstraints')：
+1. t('aiPrompts.systemPrompts.titleMustBeBased')；
+2. t('aiPrompts.systemPrompts.semanticCoverage')：
+   - t('aiPrompts.systemPrompts.coreObject')
+   - t('aiPrompts.systemPrompts.userBenefits')
+   - t('aiPrompts.systemPrompts.usageScenarios')
 
 ## 🚫 禁止行为（V3规范）
 - ❌ 固定结构模板，如：'盘点X个'、'X大技巧'、'XX合集'

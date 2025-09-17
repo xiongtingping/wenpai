@@ -421,7 +421,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-background pt-24">
         <Header />
-        <PageNavigation title="个人中心" description="管理您的账户信息和设置" showAdaptButton={false} />
+        <PageNavigation title={t('profile.navigation.title')} description={t('profile.navigation.description')} showAdaptButton={false} />
         <div className="container mx-auto px-4 py-6">
           <Card className="max-w-md mx-auto">
             <CardHeader>
@@ -454,10 +454,10 @@ export default function ProfilePage() {
         />
 
         <div className="profile-page-container">
-          {/* 第一行：个人资料区域 */}
+          {/* {t('profile.sections.personalInfo')} */}
           <div className="profile-main-section">
             <div className="profile-main-card">
-              {/* 头部标题和登出按钮 */}
+              {/* {t('profile.sections.headerTitle')} */}
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>
                 <div>
                   <h1 style={{fontSize: '1.5rem', fontWeight: '600', color: '#1f2937', margin: 0}}>
@@ -479,19 +479,19 @@ export default function ProfilePage() {
                 </Button>
               </div>
 
-              {/* 内容区域 - 两列布局 */}
+              {/* {t('profile.sections.contentArea')} */}
               <div className="profile-content-grid">
-                {/* 左侧：头像和基本信息 */}
+                {/* {t('profile.sections.leftSection')} */}
                 <div className="profile-left-section">
                   <Avatar key={avatarKey} className="profile-avatar">
-                    <AvatarImage src={getCurrentFormAvatar()} alt={getUserAltText(user, '头像')} />
+                    <AvatarImage src={getCurrentFormAvatar()} alt={getUserAltText(user, t('profile.sections.avatar'))} />
                     <AvatarFallback style={{fontSize: '2rem', background: '#f3f4f6'}}>
                       {getCurrentAvatarFallback()}
                     </AvatarFallback>
                   </Avatar>
 
                   <h2 className="profile-username">
-                    {profileForm.nickname || getUserDisplayName(user, '用户')}
+                    {profileForm.nickname || getUserDisplayName(user, t('profile.sections.user'))}
                   </h2>
 
                   <Badge style={{marginBottom: '1rem'}}>

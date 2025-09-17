@@ -89,7 +89,7 @@ export const PaymentSuccessHandler: React.FC<any> = ({ paymentData,
 
   if (isProcessing) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="max-w-md mx-auto">
         <CardContent className="flex flex-col items-center justify-center py-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
           <p className="text-muted-foreground">正在处理支付成功...</p>
@@ -101,7 +101,7 @@ export const PaymentSuccessHandler: React.FC<any> = ({ paymentData,
 
   if (error) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="max-w-md mx-auto">
         <CardHeader>
           <CardTitle className="text-destructive">处理失败</CardTitle>
         </CardHeader>
@@ -121,7 +121,7 @@ export const PaymentSuccessHandler: React.FC<any> = ({ paymentData,
 
   if (!upgradeResult) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="max-w-md mx-auto">
         <CardContent className="text-center py-8">
           <p className="text-muted-foreground">处理结果异常</p>
         </CardContent>
@@ -132,7 +132,7 @@ export const PaymentSuccessHandler: React.FC<any> = ({ paymentData,
   const subscription = upgradeResult.subscription;
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="max-w-md mx-auto">
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
           <CheckCircle className="h-16 w-16 text-foreground" />

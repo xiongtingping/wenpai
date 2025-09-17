@@ -1,14 +1,14 @@
 import { logger } from '@/utils/logger';
 
 /**
- * 智能话题标签生成器
- * 支持自动提取、系统推荐、热点话题等功能
+ * t('hashtagGenerator.comments.intelligentGenerator')
+ * t('hashtagGenerator.comments.supportFeatures')
  */
 
 export interface HashtagSuggestion {
   tag: string;
   type: 'extracted' | 'recommended' | 'trending';
-  relevance: number; // 相关度评分 0-1
+  relevance: number; // t('hashtagGenerator.comments.relevanceScore')
   description?: string;
 }
 
@@ -33,8 +33,8 @@ export interface PlatformTagConfig {
 
 export interface TagDimension {
   name: string;
-  weight: number; // 权重 0-1
-  maxCount: number; // 该维度最大标签数
+  weight: number; // t('hashtagGenerator.comments.weight')
+  maxCount: number; // t('hashtagGenerator.comments.maxCountPerDimension')
 }
 
 export interface MultiDimensionTag {
@@ -138,19 +138,19 @@ export class HashtagGenerator {
       return [];
     }
 
-    console.log('🏷️ 开始分析内容生成标签:', content.substring(0, 50));
+    console.log('🏷️', t('hashtagGenerator.logs.startAnalyzing'), content.substring(0, 50));
 
     // 1. 提取内容核心关键词
     const coreKeywords = this.extractContentKeywords(content);
-    console.log('🔍 提取的核心关键词:', coreKeywords);
+    console.log('🔍', t('hashtagGenerator.logs.extractedKeywords'), coreKeywords);
 
     // 2. 识别内容主题
     const contentThemes = this.identifyContentThemes(content);
-    console.log('🎯 识别的内容主题:', contentThemes);
+    console.log('🎯', t('hashtagGenerator.logs.identifiedThemes'), contentThemes);
 
     // 3. 生成基于内容的标签
     const contentBasedTags = this.generateContentBasedTags(coreKeywords, contentThemes, content);
-    console.log('🏷️ 生成的内容标签:', contentBasedTags);
+    console.log('🏷️', t('hashtagGenerator.logs.generatedTags'), contentBasedTags);
 
     // 4. 过滤和排序
     const filteredTags = this.filterAndRankTags(contentBasedTags, content, maxTags);
@@ -231,10 +231,10 @@ export class HashtagGenerator {
       { pattern: /编程|代码|开发|前端|后端|Python|JavaScript/, theme: '编程开发' },
 
       // 生活方式
-      { pattern: /美食|料理|烹饪|食谱|餐厅|小吃|甜品/, theme: '美食料理' },
+      { pattern: /美食|料理|烹饪|食谱|餐厅|小吃|甜品/, theme: t('hashtagGenerator.industries.foodCooking') },
       { pattern: /旅行|旅游|景点|攻略|酒店|机票/, theme: '旅行攻略' },
       { pattern: /时尚|穿搭|美妆|护肤|化妆品|服装/, theme: '时尚美妆' },
-      { pattern: /健身|运动|锻炼|减肥|瑜伽|跑步/, theme: '健身运动' },
+      { pattern: /健身|运动|锻炼|减肥|瑜伽|跑步/, theme: t('hashtagGenerator.industries.fitnessExercise') },
 
       // 学习成长
       { pattern: /读书|阅读|书籍|小说|文学/, theme: '读书学习' },
@@ -247,7 +247,7 @@ export class HashtagGenerator {
       { pattern: /游戏|电竞|手游|主机|Steam/, theme: '游戏娱乐' },
 
       // 家居生活
-      { pattern: /装修|家居|收纳|清洁|家电/, theme: '家居生活' },
+      { pattern: /装修|家居|收纳|清洁|家电/, theme: t('hashtagGenerator.industries.homeLifestyle') },
       { pattern: /育儿|亲子|教育|孩子|宝宝/, theme: '育儿教育' },
       { pattern: /宠物|猫|狗|养宠|宠物用品/, theme: '宠物生活' }
     ];
@@ -306,7 +306,7 @@ export class HashtagGenerator {
         tag: keyword,
         type: 'extracted',
         relevance: 0.9 - (index * 0.1), // 按词频排序给分
-        description: `从内容中提取的关键词`
+        description: t('hashtagGenerator.descriptions.extractedKeyword')
       });
     });
 
@@ -316,7 +316,7 @@ export class HashtagGenerator {
         tag: theme,
         type: 'recommended',
         relevance: 0.8,
-        description: `基于内容类型识别的主题`
+        description: t('hashtagGenerator.descriptions.contentTheme')
       });
     });
 
@@ -328,7 +328,7 @@ export class HashtagGenerator {
         tag: `${mainKeyword}${mainTheme}`,
         type: 'recommended',
         relevance: 0.85,
-        description: `关键词与主题的组合标签`
+        description: t('hashtagGenerator.descriptions.combinedTag')
       });
     }
 
@@ -448,8 +448,8 @@ export class HashtagGenerator {
 
     // 基于内容类型生成标签
     const typeTagMap = {
-      'product': ['产品测评', '功能亮点', '真实体验', '使用心得', '产品推荐'],
-      'tutorial': ['实用教程', '干货分享', '技巧总结', '学习笔记', '方法论'],
+      'product': [t('hashtagGenerator.topicTags.productReview'), '功能亮点', '真实体验', '使用心得', '产品推荐'],
+      'tutorial': [t('hashtagGenerator.topicTags.practicalTutorial'), '干货分享', '技巧总结', '学习笔记', '方法论'],
       'sharing': ['经验分享', '个人心得', '生活感悟', '真实故事', '成长记录'],
       'recommendation': ['好物推荐', '种草清单', '购买指南', '性价比之选', '必买好物'],
       'workplace': ['职场干货', '工作技巧', '效率提升', '职场成长', '工作心得']
@@ -720,16 +720,16 @@ export class HashtagGenerator {
    */
   private generateIndustryTags(content: string): MultiDimensionTag[] {
     const industryKeywords = {
-      '科技数码': ['科技', '数码', '手机', '电脑', '软件', 'app', '人工智能', 'AI', '互联网', '程序', '代码'],
-      '美食料理': ['美食', '料理', '做菜', '菜谱', '烹饪', '食谱', '餐厅', '小吃', '甜品', '饮品'],
-      '时尚穿搭': ['时尚', '穿搭', '搭配', '服装', '造型', '风格', '潮流', '品牌', '配饰'],
-      '美妆护肤': ['美妆', '护肤', '化妆', '彩妆', '护肤品', '面膜', '口红', '粉底'],
-      '健身运动': ['健身', '运动', '减肥', '瑜伽', '跑步', '锻炼', '肌肉', '训练'],
-      '旅行出游': ['旅行', '旅游', '出行', '景点', '攻略', '游记', '酒店', '机票'],
-      '教育学习': ['教育', '学习', '知识', '技能', '课程', '培训', '考试', '读书'],
-      '职场办公': ['职场', '工作', '办公', '职业', '求职', '面试', '升职', '创业'],
-      '家居生活': ['家居', '装修', '家具', '收纳', '清洁', '园艺', '宠物'],
-      '娱乐影视': ['娱乐', '电影', '电视剧', '综艺', '明星', '音乐', '游戏']
+      t('hashtagGenerator.industries.techDigital'): ['科技', '数码', '手机', '电脑', '软件', 'app', '人工智能', 'AI', '互联网', '程序', '代码'],
+      t('hashtagGenerator.industries.foodCooking'): ['美食', '料理', '做菜', '菜谱', '烹饪', '食谱', '餐厅', '小吃', '甜品', '饮品'],
+      t('hashtagGenerator.industries.fashionStyle'): ['时尚', '穿搭', '搭配', '服装', '造型', '风格', '潮流', '品牌', '配饰'],
+      t('hashtagGenerator.industries.beautyCosmetics'): ['美妆', '护肤', '化妆', '彩妆', '护肤品', '面膜', '口红', '粉底'],
+      t('hashtagGenerator.industries.fitnessExercise'): ['健身', '运动', '减肥', '瑜伽', '跑步', '锻炼', '肌肉', '训练'],
+      t('hashtagGenerator.industries.travelTourism'): ['旅行', '旅游', '出行', '景点', '攻略', '游记', '酒店', '机票'],
+      t('hashtagGenerator.industries.educationLearning'): ['教育', '学习', '知识', '技能', '课程', '培训', '考试', '读书'],
+      t('hashtagGenerator.industries.workplaceOffice'): ['职场', '工作', '办公', '职业', '求职', '面试', '升职', '创业'],
+      t('hashtagGenerator.industries.homeLifestyle'): ['家居', '装修', '家具', '收纳', '清洁', '园艺', '宠物'],
+      t('hashtagGenerator.industries.entertainmentMedia'): ['娱乐', '电影', '电视剧', '综艺', '明星', '音乐', '游戏']
     };
 
     const tags: MultiDimensionTag[] = [];
@@ -756,13 +756,13 @@ export class HashtagGenerator {
    */
   private generateTopicTags(content: string): MultiDimensionTag[] {
     const topicPatterns = [
-      { pattern: /今日|今天|最新|热门/, tag: '今日热点', relevance: 0.8 },
-      { pattern: /分享|推荐|安利/, tag: '好物分享', relevance: 0.7 },
-      { pattern: /教程|方法|技巧|攻略/, tag: '实用教程', relevance: 0.9 },
-      { pattern: /测评|体验|使用/, tag: '产品测评', relevance: 0.8 },
-      { pattern: /生活|日常|记录/, tag: '生活记录', relevance: 0.6 },
-      { pattern: /创意|有趣|好玩/, tag: '创意内容', relevance: 0.7 },
-      { pattern: /专业|深度|详细/, tag: '深度解析', relevance: 0.8 }
+      { pattern: /今日|今天|最新|热门/, tag: t('hashtagGenerator.topicTags.todayHotspot'), relevance: 0.8 },
+      { pattern: /分享|推荐|安利/, tag: t('hashtagGenerator.topicTags.goodsSharing'), relevance: 0.7 },
+      { pattern: /教程|方法|技巧|攻略/, tag: t('hashtagGenerator.topicTags.practicalTutorial'), relevance: 0.9 },
+      { pattern: /测评|体验|使用/, tag: t('hashtagGenerator.topicTags.productReview'), relevance: 0.8 },
+      { pattern: /生活|日常|记录/, tag: t('hashtagGenerator.topicTags.lifeRecord'), relevance: 0.6 },
+      { pattern: /创意|有趣|好玩/, tag: t('hashtagGenerator.topicTags.creativeContent'), relevance: 0.7 },
+      { pattern: /专业|深度|详细/, tag: t('hashtagGenerator.topicTags.deepAnalysis'), relevance: 0.8 }
     ];
 
     const tags: MultiDimensionTag[] = [];
@@ -864,10 +864,10 @@ export class HashtagGenerator {
   private generateContentTags(content: string): MultiDimensionTag[] {
     const contentTypes = [
       { pattern: /教程|步骤|方法/, tag: '教程分享', relevance: 0.9 },
-      { pattern: /测评|评测|体验/, tag: '产品测评', relevance: 0.8 },
+      { pattern: /测评|评测|体验/, tag: t('hashtagGenerator.topicTags.productReview'), relevance: 0.8 },
       { pattern: /开箱|首发|新品/, tag: '开箱体验', relevance: 0.8 },
       { pattern: /对比|比较|选择/, tag: '对比分析', relevance: 0.7 },
-      { pattern: /记录|日常|生活/, tag: '生活记录', relevance: 0.6 },
+      { pattern: /记录|日常|生活/, tag: t('hashtagGenerator.topicTags.lifeRecord'), relevance: 0.6 },
       { pattern: /总结|盘点|合集/, tag: '内容盘点', relevance: 0.7 },
       { pattern: /问答|解答|答疑/, tag: '问题解答', relevance: 0.8 }
     ];
@@ -956,7 +956,7 @@ export class HashtagGenerator {
   private async generateTrendingTags(platformId: string): Promise<MultiDimensionTag[]> {
     // 模拟热点话题数据
     const trendingTopics = [
-      '今日热点', '网络热梗', '流行趋势', '热门话题', '实时热搜',
+      t('hashtagGenerator.topicTags.todayHotspot'), '网络热梗', '流行趋势', '热门话题', '实时热搜',
       '社会热点', '科技前沿', '生活方式', '文化现象', '娱乐八卦'
     ];
 
@@ -1015,8 +1015,8 @@ export class HashtagGenerator {
 
     // 基于内容类型生成标签
     const typeTagMap = {
-      'product': ['产品测评', '功能亮点', '真实体验', '使用心得', '产品推荐'],
-      'tutorial': ['实用教程', '干货分享', '技巧总结', '学习笔记', '方法论'],
+      'product': [t('hashtagGenerator.topicTags.productReview'), '功能亮点', '真实体验', '使用心得', '产品推荐'],
+      'tutorial': [t('hashtagGenerator.topicTags.practicalTutorial'), '干货分享', '技巧总结', '学习笔记', '方法论'],
       'sharing': ['经验分享', '个人心得', '生活感悟', '真实故事', '成长记录'],
       'recommendation': ['好物推荐', '种草清单', '购买指南', '性价比之选', '必买好物'],
       'workplace': ['职场干货', '工作技巧', '效率提升', '职场成长', '工作心得']
@@ -1074,7 +1074,7 @@ export class HashtagGenerator {
   private async getTrendingTags(platformId: string): Promise<HashtagSuggestion[]> {
     // 模拟热点话题数据
     const trendingTopics = [
-      '今日热点', '热门话题', '实时热搜', '网络热梗', '流行趋势',
+      t('hashtagGenerator.topicTags.todayHotspot'), '热门话题', '实时热搜', '网络热梗', '流行趋势',
       '社会热点', '娱乐八卦', '科技前沿', '生活方式', '文化现象'
     ];
 

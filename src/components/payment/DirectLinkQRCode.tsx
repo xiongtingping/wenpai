@@ -139,7 +139,7 @@ export default function DirectLinkQRCode({ defaultUrl = 'https://www.creem.io/pa
   }, [defaultUrl]);
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="max-w-md mx-auto">
       <CardHeader>
         <CardTitle className="text-center flex items-center justify-center gap-2">
           <span>📱</span>

@@ -3,7 +3,8 @@
  * 支持多维度深度融合，生成可用创意内容
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -171,7 +172,7 @@ function DimensionCard({
 
   return (
     <Card className={`relative overflow-hidden ${isRequired ? 'border-primary' : ''} ${selectedItem ? 'ring-2 ring-primary/20' : ''}`}>
-      {/* 头部区域 - 维度标题和描述 */}
+      
       <CardHeader className="pb-2 p-4 creative-cube-card-header bg-gradient-to-r from-muted/50 to-muted border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -179,7 +180,7 @@ function DimensionCard({
             <CardTitle className="creative-module-button">{dimension.name}</CardTitle>
             {isRequired && <Badge variant="destructive" className="creative-module-label px-1.5 py-0.5">必选</Badge>}
           </div>
-          {/* 一键还原按钮 - 替换钉图标 */}
+          
           {hasHiddenDefaultItems && (
             <Button
               size="sm"
@@ -196,7 +197,7 @@ function DimensionCard({
           <p className="creative-module-small mt-1">{dimension.description}</p>
         )}
       </CardHeader>
-      {/* 内容区域 - 选项按钮 */}
+      
       <CardContent className="p-3 bg-card">
         {selectedItem && (
           <div className="mb-2 p-2 bg-primary/10 border border-primary/20 rounded-md flex items-center justify-between">
@@ -213,7 +214,7 @@ function DimensionCard({
         )}
 
         <div className="grid grid-cols-3 gap-1 text-center">
-          {/* 显示默认项（过滤隐藏项） */}
+          
           {dimension.defaultItems
             .filter(item => !hiddenItems.includes(item))
             .map((item, index) => {
@@ -234,7 +235,7 @@ function DimensionCard({
                     <span className="truncate text-center">{isPinned ? '📌 ' : ''}{item}</span>
                   </Button>
 
-                  {/* 管理按钮 - 默认项显示钉住和删除按钮 */}
+                  
                   <div className="absolute -top-0.5 -right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     {onPinItem && onUnpinItem && (
                       <Button
@@ -275,7 +276,7 @@ function DimensionCard({
               );
             })}
 
-          {/* 显示自定义项 */}
+          
           {cubeData.map((item, index) => {
             const isPinned = pinnedItems.includes(item);
             return (
@@ -294,7 +295,7 @@ function DimensionCard({
                   <span className="truncate text-center">{isPinned ? '📌 ' : ''}🔧 {item}</span>
                 </Button>
 
-                {/* 管理按钮 */}
+                
                 <div className="absolute -top-0.5 -right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                   {onPinItem && onUnpinItem && (
                     <Button
@@ -335,7 +336,7 @@ function DimensionCard({
             );
           })}
 
-          {/* 添加自定义选项按钮 - 放在网格的最后 */}
+          
           {!showAddInput ? (
             <Button
               size="sm"
@@ -348,7 +349,7 @@ function DimensionCard({
           ) : null}
         </div>
 
-        {/* 添加自定义选项输入框 - 显示在网格下方 */}
+        
         {showAddInput && (
           <div className="mt-1.5 flex gap-1">
             <Input
@@ -589,7 +590,7 @@ export function CreativeCube() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportData, setExportData] = useState<any[]>([]);
 
-  // 内联编辑状态
+  // 内联{t('creativeCube.actions.edit')}状态
   const [editingState, setEditingState] = useState<{
     isEditing: boolean;
     type: 'title' | 'content' | null;
@@ -737,7 +738,7 @@ export function CreativeCube() {
   };
 
   /**
-   * 取消选择维度项目
+   * {t('creativeCube.actions.cancel')}选择维度项目
    */
   const deselectItem = (dimensionId: string, item: string) => {
     setSelectedItems(prev => {
@@ -789,16 +790,16 @@ export function CreativeCube() {
     };
 
     customDimensionsManager.saveData(updatedData);
-    console.log(`💾 已保存自定义维度选项: ${dimensionId} -> ${item}`);
+    console.log(`💾 已{t('creativeCube.actions.save')}自定义维度选项: ${dimensionId} -> ${item}`);
 
     toast({
-      title: "自定义选项已保存",
+      title: "自定义选项已{t('creativeCube.actions.save')}",
       description: `"${item}" 已添加到 ${dimensions.find(d => d.id === dimensionId)?.name || dimensionId} 维度`,
     });
   };
 
   /**
-   * 随机选择
+   * 随机选择选择
    */
   const randomizeSelection = () => {
     const newSelection: Record<string, string> = {};
@@ -819,8 +820,8 @@ export function CreativeCube() {
     setSelectedItems(prev => ({ ...prev, ...newSelection }));
     
     toast({
-      title: "🎲 随机选择完成",
-      description: `已为${Object.keys(newSelection).length}个维度生成随机选择`,
+      title: "🎲 随机选择选择完成",
+      description: `已为${Object.keys(newSelection).length}{t('creativeCube.currentSelection.count')}生成随机选择选择`,
     });
   };
 
@@ -830,7 +831,7 @@ export function CreativeCube() {
   const clearAllSelections = () => {
     setSelectedItems({});
     toast({
-      title: "已清空选择",
+      title: "已清空",
       description: "所有维度选择已清空",
     });
   };
@@ -960,7 +961,7 @@ export function CreativeCube() {
   };
 
   /**
-   * 恢复单个维度的默认选项
+   * 恢复单{t('creativeCube.currentSelection.count')}的默认选项
    */
   const restoreDimensionDefaults = (dimensionId: string) => {
     const dimension = dimensions.find(d => d.id === dimensionId);
@@ -1019,7 +1020,7 @@ export function CreativeCube() {
   };
 
   /**
-   * 取消钉住选项
+   * {t('creativeCube.actions.cancel')}钉住选项
    */
   const unpinItem = (dimensionId: string, item: string) => {
     setPinnedItems(prev => {
@@ -1036,19 +1037,19 @@ export function CreativeCube() {
 
       // 持久化存储
       pinnedItemsManager.saveData(updated);
-      console.log(`📌 已取消钉住选项: ${dimensionId} -> ${item}`);
+      console.log(`📌 已{t('creativeCube.actions.cancel')}钉住选项: ${dimensionId} -> ${item}`);
 
       return updated;
     });
 
     toast({
-      title: "取消钉住",
-      description: `"${item}" 已取消必用标记`,
+      title: "{t('creativeCube.actions.cancel')}钉住",
+      description: `"${item}" 已{t('creativeCube.actions.cancel')}必用标记`,
     });
   };
 
   /**
-   * 生成创意内容的包装函数
+   * 操作的包装函数
    */
   const handleGenerateContent = () => {
     if (!isValidGeneration) {
@@ -1069,7 +1070,7 @@ export function CreativeCube() {
   };
 
   /**
-   * 控制随机生成
+   * 控制随机选择生成
    * 根据用户选择的维度数量，智能选择维度组合
    */
   const controlledRandomGenerate = () => {
@@ -1102,7 +1103,7 @@ export function CreativeCube() {
     );
     console.log('🎲 剩余可选维度:', remainingDimensions);
 
-    // 随机选择剩余维度
+    // 随机选择选择剩余维度
     const shuffledRemaining = [...remainingDimensions].sort(() => Math.random() - 0.5);
     const neededCount = Math.max(0, selectedDimensionCount - selectedDimensionIds.length);
     selectedDimensionIds.push(...shuffledRemaining.slice(0, neededCount));
@@ -1111,7 +1112,7 @@ export function CreativeCube() {
 
     const newSelection: Record<string, string> = {};
 
-    // 为选中的维度随机选择值
+    // 为选中的维度随机选择选择值
     selectedDimensionIds.forEach(dimId => {
       // 如果维度已固定，保持原值
       if (pinnedDimensions.has(dimId) && selectedItems[dimId]) {
@@ -1153,8 +1154,8 @@ export function CreativeCube() {
     const optionalCount = selectedDimensionIds.length - requiredCount - recommendedCount;
 
     toast({
-      title: "🎲 随机选择完成",
-      description: `已选择${selectedCount}个维度（必选${requiredCount}个，推荐${recommendedCount}个，可选${optionalCount}个，固定${fixedCount}个）`,
+      title: "🎲 随机选择选择完成",
+      description: `已选择${selectedCount}{t('creativeCube.currentSelection.count')}（必选${requiredCount}个，推荐${recommendedCount}个，可选${optionalCount}个，固定${fixedCount}个）`,
     });
 
     // 使用 setTimeout 确保状态更新后再生成
@@ -1180,7 +1181,7 @@ export function CreativeCube() {
   };
 
   /**
-   * 取消固定维度
+   * {t('creativeCube.actions.cancel')}固定维度
    */
   const unpinDimension = (dimensionId: string) => {
     setPinnedDimensions(prev => {
@@ -1816,7 +1817,7 @@ ${generateStandardCallToAction()}
   };
 
   /**
-   * 生成创意内容（支持传入自定义selectedItems）
+   * 操作（支持传入自定义selectedItems）
    */
   const generateIdea = async (customSelectedItems?: Record<string, string>) => {
     const useItems = customSelectedItems || selectedItems;
@@ -1858,11 +1859,11 @@ ${generateStandardCallToAction()}
       const isVideo = format.includes('视频') || format.includes('短视频');
       const contentType = isVideo ? 'video' : 'text';
       
-      // 调用统一AI服务生成创意内容
+      // 调用统一AI服务操作
       console.log('🎨 开始调用统一AI创意生成服务');
       
       // 构建创意生成提示词
-      const creativityPrompt = `请为以下维度生成创意内容：
+      const creativityPrompt = `请为以下维度操作：
 
 **目标受众**：${selectedItems.target_audience || '通用用户'}
 **使用场景**：${selectedItems.use_case || '日常使用'}
@@ -1895,7 +1896,7 @@ ${generateStandardCallToAction()}
         setCurrentContent(aiResponse.content);
         setCurrentContentType(contentType);
         
-        // 保存到历史记录
+        // {t('creativeCube.actions.save')}到历史记录
         const newResult: CreativeResult = {
           id: Date.now().toString(),
           combination: useItems,
@@ -1911,7 +1912,7 @@ ${generateStandardCallToAction()}
 
         // 持久化到用户专属存储
         historyDataManager.saveData(updatedIdeas);
-        console.log(`💾 已保存创意记录到用户存储: ${historyDataManager.getStorageKey()}`);
+        console.log(`💾 已{t('creativeCube.actions.save')}创意记录到用户存储: ${historyDataManager.getStorageKey()}`);
         
         toast({
           title: "生成成功",
@@ -1936,12 +1937,12 @@ ${generateStandardCallToAction()}
   };
 
   /**
-   * 重新生成内容 - 使用相同的维度选择和参数
+   * {t('creativeCube.actions.regenerate')}内容 - 使用相同的维度选择和参数
    */
   const regenerateContent = async () => {
     if (!currentContent) {
       toast({
-        title: "无法重新生成",
+        title: "无法{t('creativeCube.actions.regenerate')}",
         description: "请先生成内容",
         variant: "destructive"
       });
@@ -1952,7 +1953,7 @@ ${generateStandardCallToAction()}
     const hasSelectedItems = Object.keys(selectedItems).length > 0;
     if (!hasSelectedItems) {
       toast({
-        title: "无法重新生成",
+        title: "无法{t('creativeCube.actions.regenerate')}",
         description: "请先选择维度",
         variant: "destructive"
       });
@@ -2058,24 +2059,24 @@ ${generateStandardCallToAction()}
   };
 
   /**
-   * 复制创意内容
+   * {t('creativeCube.actions.copy')}创意内容
    */
   const copyIdea = (content: string) => {
     navigator.clipboard.writeText(content);
     toast({
-      title: "已复制到剪贴板",
-      description: "创意内容已复制",
+      title: "已{t('creativeCube.actions.copy')}到剪贴板",
+      description: "创意内容已{t('creativeCube.actions.copy')}",
     });
   };
 
   /**
-   * 保存创意到用户历史记录
+   * {t('creativeCube.actions.save')}创意到用户历史记录
    */
   const saveIdea = () => {
     if (!currentContent) {
       toast({
-        title: "无内容可保存",
-        description: "请先生成创意内容",
+        title: "无内容可{t('creativeCube.actions.save')}",
+        description: "请先操作",
         variant: "destructive"
       });
       return;
@@ -2099,8 +2100,8 @@ ${generateStandardCallToAction()}
     historyDataManager.saveData(updatedIdeas);
 
     toast({
-      title: "已保存到创意库",
-      description: `创意已保存到您的专属历史记录 (${historyDataManager.isLoggedIn ? '用户' : '访客'}模式)`,
+      title: "已{t('creativeCube.actions.save')}到创意库",
+      description: `创意已{t('creativeCube.actions.save')}到您的专属历史记录 (${historyDataManager.isLoggedIn ? '用户' : '访客'}模式)`,
     });
   };
 
@@ -2150,9 +2151,9 @@ ${generateStandardCallToAction()}
               <div className="px-4">
                 <div className="flex items-center gap-2 mb-3">
                   <CheckCircle className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">当前已选择的维度</span>
+                  <span className="text-sm font-medium text-foreground">{t('creativeCube.currentSelection.title')}</span>
                   <Badge variant="secondary" className="text-xs">
-                    {Object.keys(selectedItems).length}个维度
+                    {Object.keys(selectedItems).length}{t('creativeCube.currentSelection.count')}
                   </Badge>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -2192,9 +2193,9 @@ ${generateStandardCallToAction()}
           {/* 控制按钮 */}
           <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-t">
             <div className="flex items-center gap-4 flex-wrap">
-              {/* 随机选择控制 */}
+              
               <div className="flex items-center gap-2 relative flex-wrap">
-                <UILabel className="text-sm font-medium whitespace-nowrap">控制维度数量为</UILabel>
+                <UILabel className="text-sm font-medium whitespace-nowrap">操作</UILabel>
                 <div className="relative">
                   <Select
                     value={selectedDimensionCount.toString()}
@@ -2204,19 +2205,19 @@ ${generateStandardCallToAction()}
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="4">4个</SelectItem>
-                      <SelectItem value="5">5个</SelectItem>
-                      <SelectItem value="6">6个</SelectItem>
-                      <SelectItem value="7">7个</SelectItem>
-                      <SelectItem value="8">8个</SelectItem>
-                      <SelectItem value="9">9个</SelectItem>
+                      <SelectItem value="4">{t('creativeCube.dimensionCounts.4')}</SelectItem>
+                      <SelectItem value="5">{t('creativeCube.dimensionCounts.5')}</SelectItem>
+                      <SelectItem value="6">{t('creativeCube.dimensionCounts.6')}</SelectItem>
+                      <SelectItem value="7">{t('creativeCube.dimensionCounts.7')}</SelectItem>
+                      <SelectItem value="8">{t('creativeCube.dimensionCounts.8')}</SelectItem>
+                      <SelectItem value="9">{t('creativeCube.dimensionCounts.9')}</SelectItem>
                     </SelectContent>
                   </Select>
-                  {/* 权限遮罩 */}
+                  
                   <div className="absolute inset-0 pointer-events-none">
                     <PermissionLockedButton
                       requiredTier="pro"
-                      featureName="维度数量控制"
+                      featureName={t('creativeCube.permissions.dimensionControl')}
                       variant="ghost"
                       className="w-full h-full opacity-0 pointer-events-auto"
                       onClick={() => {}}
@@ -2226,26 +2227,26 @@ ${generateStandardCallToAction()}
                   </div>
                 </div>
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {requiredDimensions.length}必选+{selectedDimensionCount - requiredDimensions.length}随机
+                  {requiredDimensions.length}操作+{selectedDimensionCount - requiredDimensions.length}随机选择
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
                 <PermissionLockedButton
                   requiredTier="pro"
-                  featureName="随机一键生成"
+                  featureName={t('creativeCube.permissions.randomGenerate')}
                   variant="outline"
                   size="sm"
                   onClick={controlledRandomGenerate}
                   disabled={isGenerating}
                   className="border-primary text-primary hover:bg-accent h-9"
                 >
-                  🎲 随机一键生成
+                  🎲 随机选择一键生成
                 </PermissionLockedButton>
 
                 <PermissionLockedButton
                   requiredTier="pro"
-                  featureName="清空维度选择"
+                  featureName={t('creativeCube.permissions.clearSelection')}
                   variant="outline"
                   size="sm"
                   onClick={clearAllSelections}
@@ -2253,7 +2254,7 @@ ${generateStandardCallToAction()}
                   className="h-9"
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
-                  清空选择
+                  清空
                 </PermissionLockedButton>
               </div>
             </div>
@@ -2261,7 +2262,7 @@ ${generateStandardCallToAction()}
             <div className="flex items-center gap-2">
               <PermissionLockedButton
                 requiredTier="pro"
-                featureName="生成创意内容"
+                featureName="操作"
                 onClick={handleGenerateContent}
                 disabled={!isValidGeneration || isGenerating}
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
@@ -2269,19 +2270,19 @@ ${generateStandardCallToAction()}
                 {isGenerating ? (
                   <>
                     <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    生成中...
+                    操作
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 mr-2" />
-                    生成创意内容
+                    操作
                   </>
                 )}
               </PermissionLockedButton>
             </div>
           </div>
 
-          {/* 生成内容展示 */}
+          
           {currentContent && (
             <Card className="border-2 border-primary bg-accent">
               <CardHeader className="pb-3">
@@ -2417,11 +2418,11 @@ ${generateStandardCallToAction()}
 
                   return (
                     <div className="space-y-4">
-                      {/* 标题部分 */}
+                      
                       {parsed.hasStructure && parsed.title && (
                         <div className="p-3 bg-primary/5 rounded-lg border-l-4 border-primary">
                           <div className="flex items-center justify-between mb-2">
-                            <div className="text-xs text-muted-foreground font-medium">📝 创意标题</div>
+                            <div className="text-xs text-muted-foreground font-medium">{t('creativeCube.result.creativeTitle')}</div>
                             <div className="flex gap-1">
                               <Button
                                 variant="ghost"
@@ -2435,7 +2436,7 @@ ${generateStandardCallToAction()}
                                   });
                                 }}
                               >
-                                编辑
+                                {t('creativeCube.actions.edit')}
                               </Button>
                               <Button
                                 variant="ghost"
@@ -2443,10 +2444,10 @@ ${generateStandardCallToAction()}
                                 className="h-6 px-2 text-xs"
                                 onClick={() => {
                                   navigator.clipboard.writeText(parsed.title);
-                                  toast({ title: "标题已复制", description: "创意标题已复制到剪贴板" });
+                                  toast({ title: "标题已{t('creativeCube.actions.copy')}", description: "创意标题已{t('creativeCube.actions.copy')}到剪贴板" });
                                 }}
                               >
-                                复制
+                                {t('creativeCube.actions.copy')}
                               </Button>
                             </div>
                           </div>
@@ -2477,7 +2478,7 @@ ${generateStandardCallToAction()}
                                     setEditingState({ isEditing: false, type: null, value: '' });
                                   }}
                                 >
-                                  保存
+                                  {t('creativeCube.actions.save')}
                                 </Button>
                                 <Button
                                   variant="outline"
@@ -2487,7 +2488,7 @@ ${generateStandardCallToAction()}
                                     setEditingState({ isEditing: false, type: null, value: '' });
                                   }}
                                 >
-                                  取消
+                                  {t('creativeCube.actions.cancel')}
                                 </Button>
                               </div>
                             ) : (
@@ -2497,11 +2498,11 @@ ${generateStandardCallToAction()}
                         </div>
                       )}
 
-                      {/* 主要内容 */}
+                      
                       <div className="p-4 bg-card rounded-lg border">
                         <div className="flex items-center justify-between mb-2">
                           <div className="text-xs text-muted-foreground font-medium">
-                            {parsed.hasStructure ? '📄 主要内容' : '🎨 创意内容'}
+                            {parsed.hasStructure ? '主要内容' : '创意内容'}
                           </div>
                           <div className="flex gap-1">
                             <Button
@@ -2516,7 +2517,7 @@ ${generateStandardCallToAction()}
                                 });
                               }}
                             >
-                              编辑
+                              {t('creativeCube.actions.edit')}
                             </Button>
                             <Button
                               variant="ghost"
@@ -2524,17 +2525,17 @@ ${generateStandardCallToAction()}
                               className="h-6 px-2 text-xs"
                               onClick={() => {
                                 navigator.clipboard.writeText(parsed.mainContent);
-                                toast({ title: "内容已复制", description: "创意内容已复制到剪贴板" });
+                                toast({ title: "内容已{t('creativeCube.actions.copy')}", description: "创意内容已{t('creativeCube.actions.copy')}到剪贴板" });
                               }}
                             >
-                              复制
+                              {t('creativeCube.actions.copy')}
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               className="h-6 px-2 text-xs bg-blue-50 hover:bg-blue-100"
                               onClick={() => {
-                                // 复制内容并跳转到AI内容适配器
+                                // {t('creativeCube.actions.copy')}内容并跳转到AI内容适配器
                                 const contentToTransfer = parsed.mainContent;
 
                                 // 使用React Router的navigate方式跳转，并传递预填充内容
@@ -2550,7 +2551,7 @@ ${generateStandardCallToAction()}
                                 });
                               }}
                             >
-                              一键复制至AI内容适配器
+                              一键{t('creativeCube.actions.copy')}至AI内容适配器
                             </Button>
                           </div>
                         </div>
@@ -2565,19 +2566,19 @@ ${generateStandardCallToAction()}
                                 if (e.key === 'Escape') {
                                   setEditingState({ isEditing: false, type: null, value: '' });
                                 } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                                  // Ctrl+Enter 或 Cmd+Enter 保存
+                                  // Ctrl+Enter 或 Cmd+Enter {t('creativeCube.actions.save')}
                                   const updatedContent = currentContent.replace(parsed.mainContent, editingState.value);
                                   setCurrentContent(updatedContent);
                                   setEditingState({ isEditing: false, type: null, value: '' });
                                 }
                               }}
                               onBlur={() => {
-                                // 失去焦点时自动保存
+                                // 失去焦点时自动{t('creativeCube.actions.save')}
                                 const updatedContent = currentContent.replace(parsed.mainContent, editingState.value);
                                 setCurrentContent(updatedContent);
                                 setEditingState({ isEditing: false, type: null, value: '' });
                               }}
-                              placeholder="编辑内容... (Ctrl+Enter保存，Escape取消，失去焦点自动保存)"
+                              placeholder="{t('creativeCube.actions.edit')}内容... (Ctrl+Enter{t('creativeCube.actions.save')}，Escape{t('creativeCube.actions.cancel')}，失去焦点自动{t('creativeCube.actions.save')})"
                             />
                           ) : (
                             parsed.mainContent
@@ -2585,10 +2586,10 @@ ${generateStandardCallToAction()}
                         </div>
                       </div>
 
-                      {/* 互动引导部分 */}
+                      
                       {parsed.interaction && (
                         <div className="p-3 bg-accent/30 rounded-lg border">
-                          <div className="text-xs text-muted-foreground mb-1 font-medium">💬 互动引导</div>
+                          <div className="text-xs text-muted-foreground mb-1 font-medium">{t('creativeCube.result.interactionGuide')}</div>
                           <div className="text-sm text-accent-foreground leading-relaxed">
                             {parsed.interaction}
                           </div>
@@ -2598,7 +2599,7 @@ ${generateStandardCallToAction()}
                   );
                 })()}
 
-                {/* 重新生成按钮 */}
+                {/* {t('creativeCube.actions.regenerate')}按钮 */}
                 <div className="mt-4 pt-4 border-t border-border">
                   <Button
                     variant="outline"
@@ -2610,12 +2611,12 @@ ${generateStandardCallToAction()}
                     {isGenerating ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        重新生成中...
+                        {t('creativeCube.actions.regenerating')}
                       </>
                     ) : (
                       <>
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        重新生成
+                        {t('creativeCube.actions.regenerate')}
                       </>
                     )}
                   </Button>
@@ -2624,13 +2625,13 @@ ${generateStandardCallToAction()}
             </Card>
           )}
 
-          {/* 历史生成记录 */}
+          {/* {t('creativeCube.history.title')} */}
           {generatedIdeas.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Clock className="w-5 h-5" />
-                  历史生成记录
+                  {t('creativeCube.history.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent>

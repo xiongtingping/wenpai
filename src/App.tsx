@@ -1,5 +1,5 @@
 /**
- * 🚀 文派 - 主应用组件 (已清理测试代码);
+ * 🚀 {t('app.comments.mainAppComponent')};
  *
  * 功能：
  * - 统一路由管理
@@ -8,9 +8,9 @@
  * - 主题和样式管理
  *
  *
- * - 统一的用户认证和权限控制
- * - 路由守卫和访问控制
- * - 安全的状态管理
+ * - {t('app.comments.unifiedAuthPermission')}
+ * - {t('app.comments.routeGuardAccess')}
+ * - {t('app.comments.secureStateManagement')}
  */
 
 import React, { Suspense, useEffect } from 'react';
@@ -26,7 +26,7 @@ import { EnhancedErrorBoundary } from '@/components/errors/EnhancedErrorBoundary
 import { AuthGuard, ProGuard, PremiumGuard } from '@/components/auth/RouteGuard';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthModalWrapper } from '@/components/auth/AuthModalWrapper';
-import { ScrollToTop } from '@/components/ui/ScrollToTop';
+import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import { AuthDataSyncProvider } from '@/hooks/useAuthDataSync';
 import SessionManager from '@/components/auth/SessionManager';
 
@@ -123,7 +123,7 @@ const App: React.FC = () => {
         const validThemes = ['light', 'dark', 'rainbow', 'beige', 'green'];
         
         if (globalTheme && validThemes.includes(globalTheme)) {
-          console.log(`🎨 App启动时加载持久化主题: ${globalTheme}`);
+          console.log(`🎨 加载持久化主题: ${globalTheme}`);
           
           const html = document.documentElement;
           html.setAttribute('data-theme', globalTheme);
@@ -139,9 +139,9 @@ const App: React.FC = () => {
             html.classList.remove('dark');
           }
           
-          console.log(`🎨 主题已在App启动时应用: ${globalTheme}`);
+          console.log(`🎨 主题已应用: ${globalTheme}`);
         } else {
-          console.log('🎨 App启动时使用默认浅色主题');
+          console.log('🎨 使用默认浅色主题');
         }
       } catch (error) {
         console.error('🎨 加载持久化主题失败:', error);
@@ -151,7 +151,7 @@ const App: React.FC = () => {
     // 立即执行主题加载
     loadPersistedTheme();
 
-    // 应用启动时检查是否为恶意回调URL
+    // {t('app.startup.checkMaliciousCallback')}
     const currentUrl = window.location.href;
     console.log('🚀 App启动，当前URL:', currentUrl);
 
@@ -175,7 +175,7 @@ const App: React.FC = () => {
       if (codeMatch && stateMatch) {
         const code = codeMatch[1];
         const state = stateMatch[1];
-        console.log('✅ App层解析到授权码:', { code: code.substring(0, 10) + '...', state });
+        console.log('✅ 解析认证码:', { code: code.substring(0, 10) + '...', state });
 
         // 重定向到正确的回调URL
         const correctCallbackUrl = `${window.location.origin}/callback?code=${code}&state=${state}`;
@@ -192,22 +192,44 @@ const App: React.FC = () => {
       enableAutoRecovery={true}
       enablePerformanceTracking={true}
       onError={(error) => {
-        console.error('🚨 应用级错误:', error);
+        // 🔧 FIXED: 改进错误处理，避免输出Object
+        try {
+          const errorDetails = {
+            message: error?.message || t('app.errors.unknownError'),
+            name: error?.name || t('app.errors.unknownErrorType'),
+            stack: error?.stack || t('app.errors.noStackTrace'),
+            errorType: typeof error,
+            errorString: String(error),
+            // 安全地序列化错误对象
+            serializedError: JSON.stringify(error, Object.getOwnPropertyNames(error))
+          };
+
+          console.error('🚨 应用级错误详情:', errorDetails);
+
+          // 如果是网络相关错误，提供额外信息
+          if (errorDetails.message.includes('Network') || errorDetails.message.includes('CORS')) {
+            console.warn('💡 这可能是网络连接或CORS配置问题，不影响Dialog修复功能');
+          }
+
+        } catch (logError) {
+          // 如果错误处理本身失败，使用最简单的方式
+          console.error('🚨 应用级错误 (简化):', error?.message || String(error));
+        }
       }}
     >
       <UnifiedAuthProvider>
         {/* <ThemeProvider> 🔧 FIX: 禁用ThemeContext，避免与ThemeToggle冲突 */}
           <AuthDataSyncProvider>
-            <ErrorBoundary>
-              <StateManagerInitializer />
-              <>
-                <ConditionalNavigation>
+            {/* 🔧 FIXED: 移除冗余的ErrorBoundary，避免嵌套错误边界混乱 */}
+            <StateManagerInitializer />
+            <>
+              <ConditionalNavigation>
                     <Suspense fallback={<LoadingSpinner />}>
                       <Routes>
-                        {/* 首页 */}
+                        {/* {t('app.routes.homePage')} */}
                         <Route path='/' element={<HomePage />} />
 
-                        {/* 登录注册页面 */}
+                        {/* {t('app.routes.loginRegisterPages')} */}
                         <Route path='/login' element={<CustomLoginPage />} />
                         <Route path='/register' element={<CustomLoginPage />} />
                         <Route path='/forgot-password' element={<ForgotPasswordPage />} />
@@ -221,7 +243,7 @@ const App: React.FC = () => {
                         <Route path='/callback/*' element={<CallbackPage />} />
                         <Route path='/callbackhttp/*' element={<CallbackPage />} />
 
-                        {/* 核心功能页面 - 需要登录 */}
+                        {/* {t('app.routes.coreFunctionPages')} */}
                         <Route path='/adapt' element={<AuthGuard><LazyWrapper><LazyNewAdaptPage /></LazyWrapper></AuthGuard>} />
                         <Route path='/adapt-new' element={<AuthGuard><LazyWrapper><LazyNewAdaptPage /></LazyWrapper></AuthGuard>} />
                         <Route path='/creative-studio' element={<AuthGuard><LazyWrapper><LazyCreativeStudioPage /></LazyWrapper></AuthGuard>} />
@@ -235,18 +257,18 @@ const App: React.FC = () => {
                         <Route path='/share-manager' element={<AuthGuard><LazyWrapper><LazyShareManagerPage /></LazyWrapper></AuthGuard>} />
                         <Route path='/wechat-templates' element={<AuthGuard><LazyWrapper><LazyWechatTemplatePage /></LazyWrapper></AuthGuard>} />
 
-                        {/* 用户相关页面 - 需要登录 */}
+                        {/* {t('app.routes.userRelatedPages')} */}
                         <Route path='/profile' element={<AuthGuard><LazyWrapper><LazyProfilePage /></LazyWrapper></AuthGuard>} />
                         <Route path='/settings' element={<AuthGuard><LazyWrapper><LazySettingsPage /></LazyWrapper></AuthGuard>} />
 
-                        {/* 支付相关页面 */}
+                        {/* {t('app.routes.paymentRelatedPages')} */}
                         <Route path='/payment' element={<PaymentPage />} />
                         <Route path='/payment/result' element={<PaymentResultPage />} />
                         <Route path='/payment/feedback' element={<PaymentFeedbackPage />} />
                         <Route path='/payment-status' element={<PaymentStatusPage />} />
                         <Route path='/upgrade' element={<UpgradeComparisonPage />} />
 
-                        {/* 信息页面 */}
+                        {/* {t('app.routes.infoPages')} */}
                         <Route path='/about' element={<AboutPage />} />
                         <Route path='/terms' element={<TermsPage />} />
                         <Route path='/privacy' element={<PrivacyPage />} />
@@ -261,7 +283,7 @@ const App: React.FC = () => {
                         {/* 国际化测试页面 */}
                         <Route path='/i18n-test' element={<I18nTestPage />} />
 
-                        {/* 错误页面 */}
+                        {/* {t('app.routes.errorPages')} */}
                         <Route path='/403' element={<ForbiddenPage />} />
                         <Route path='/404' element={<NotFoundPage />} />
 
@@ -271,19 +293,19 @@ const App: React.FC = () => {
                     </Suspense>
                   </ConditionalNavigation>
 
-                  {/* 全局通知组件 */}
+                  {/* {t('app.globalComponents.globalNotification')} */}
                   <Toaster />
 
-                  {/* 自定义认证模态框 */}
+                  {/* {t('app.globalComponents.customAuthModal')} */}
                   <AuthModalWrapper />
 
-                  {/* 会话管理 */}
+                  {/* {t('app.globalComponents.sessionManagement')} */}
                   <SessionManager />
 
-                  {/* 返回顶部按钮 */}
+                  {/* {t('app.globalComponents.backToTopButton')} */}
                   <ScrollToTop />
                 </>
-              </ErrorBoundary>
+              {/* 🔧 FIXED: 移除冗余的ErrorBoundary结束标签 */}
             </AuthDataSyncProvider>
           {/* </ThemeProvider> 🔧 FIX: 禁用ThemeContext，避免与ThemeToggle冲突 */}
         </UnifiedAuthProvider>
