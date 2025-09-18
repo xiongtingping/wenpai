@@ -1,4 +1,8 @@
 import { logger } from '@/utils/logger';
+import i18n from '@/i18n';
+
+// 创建t函数快捷方式
+const t = (key: string) => i18n.t(key);
 
 /**
  * t('hashtagGenerator.comments.intelligentGenerator')
@@ -719,22 +723,23 @@ export class HashtagGenerator {
    * 生成行业标签
    */
   private generateIndustryTags(content: string): MultiDimensionTag[] {
-    const industryKeywords = {
-      t('hashtagGenerator.industries.techDigital'): ['科技', '数码', '手机', '电脑', '软件', 'app', '人工智能', 'AI', '互联网', '程序', '代码'],
-      t('hashtagGenerator.industries.foodCooking'): ['美食', '料理', '做菜', '菜谱', '烹饪', '食谱', '餐厅', '小吃', '甜品', '饮品'],
-      t('hashtagGenerator.industries.fashionStyle'): ['时尚', '穿搭', '搭配', '服装', '造型', '风格', '潮流', '品牌', '配饰'],
-      t('hashtagGenerator.industries.beautyCosmetics'): ['美妆', '护肤', '化妆', '彩妆', '护肤品', '面膜', '口红', '粉底'],
-      t('hashtagGenerator.industries.fitnessExercise'): ['健身', '运动', '减肥', '瑜伽', '跑步', '锻炼', '肌肉', '训练'],
-      t('hashtagGenerator.industries.travelTourism'): ['旅行', '旅游', '出行', '景点', '攻略', '游记', '酒店', '机票'],
-      t('hashtagGenerator.industries.educationLearning'): ['教育', '学习', '知识', '技能', '课程', '培训', '考试', '读书'],
-      t('hashtagGenerator.industries.workplaceOffice'): ['职场', '工作', '办公', '职业', '求职', '面试', '升职', '创业'],
-      t('hashtagGenerator.industries.homeLifestyle'): ['家居', '装修', '家具', '收纳', '清洁', '园艺', '宠物'],
-      t('hashtagGenerator.industries.entertainmentMedia'): ['娱乐', '电影', '电视剧', '综艺', '明星', '音乐', '游戏']
-    };
+    const industryData = [
+      { key: 'hashtagGenerator.industries.techDigital', keywords: ['科技', '数码', '手机', '电脑', '软件', 'app', '人工智能', 'AI', '互联网', '程序', '代码'] },
+      { key: 'hashtagGenerator.industries.foodCooking', keywords: ['美食', '料理', '做菜', '菜谱', '烹饪', '食谱', '餐厅', '小吃', '甜品', '饮品'] },
+      { key: 'hashtagGenerator.industries.fashionStyle', keywords: ['时尚', '穿搭', '搭配', '服装', '造型', '风格', '潮流', '品牌', '配饰'] },
+      { key: 'hashtagGenerator.industries.beautyCosmetics', keywords: ['美妆', '护肤', '化妆', '彩妆', '护肤品', '面膜', '口红', '粉底'] },
+      { key: 'hashtagGenerator.industries.fitnessExercise', keywords: ['健身', '运动', '减肥', '瑜伽', '跑步', '锻炼', '肌肉', '训练'] },
+      { key: 'hashtagGenerator.industries.travelTourism', keywords: ['旅行', '旅游', '出行', '景点', '攻略', '游记', '酒店', '机票'] },
+      { key: 'hashtagGenerator.industries.educationLearning', keywords: ['教育', '学习', '知识', '技能', '课程', '培训', '考试', '读书'] },
+      { key: 'hashtagGenerator.industries.workplaceOffice', keywords: ['职场', '工作', '办公', '职业', '求职', '面试', '升职', '创业'] },
+      { key: 'hashtagGenerator.industries.homeLifestyle', keywords: ['家居', '装修', '家具', '收纳', '清洁', '园艺', '宠物'] },
+      { key: 'hashtagGenerator.industries.entertainmentMedia', keywords: ['娱乐', '电影', '电视剧', '综艺', '明星', '音乐', '游戏'] }
+    ];
 
     const tags: MultiDimensionTag[] = [];
 
-    Object.entries(industryKeywords).forEach(([industry, keywords]) => {
+    industryData.forEach(({ key, keywords }) => {
+      const industry = t(key);
       const matchCount = keywords.filter(keyword => content.includes(keyword)).length;
       if (matchCount > 0) {
         const relevance = Math.min(matchCount / keywords.length * 2, 1);

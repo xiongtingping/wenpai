@@ -5310,23 +5310,167 @@
   },
   "brandLibrary": {
     "title": "Brand Library",
-    "description": "Manage your brand assets and resource library",
-    "noBrandData": "No brand data available",
-    "addBrandAsset": "Add Brand Asset",
-    "brandProfile": "Brand Profile",
-    "brandAnalysis": "Brand Analysis",
-    "uploadFile": "Upload File",
-    "extractContent": "Extract Content",
-    "generateProfile": "Generate Profile",
-    "brandName": "Brand Name",
-    "brandDescription": "Brand Description",
-    "brandValues": "Brand Values",
-    "targetAudience": "Target Audience",
-    "brandTone": "Brand Tone",
-    "keyMessages": "Key Messages",
-    "competitiveAdvantage": "Competitive Advantage",
-    "visualIdentity": "Visual Identity",
-    "brandGuidelines": "Brand Guidelines"
+    "subtitle": "Manage your brand assets and materials",
+    "navigation": {
+      "home": "Home",
+      "brands": "Brands",
+      "assets": "Assets",
+      "templates": "Templates",
+      "settings": "Settings"
+    },
+    "search": {
+      "placeholder": "Search brands, products or keywords...",
+      "filter": "Filter",
+      "sort": "Sort",
+      "category": "Category",
+      "brand": "Brand",
+      "product": "Product",
+      "keyword": "Keyword",
+      "all": "All",
+      "recent": "Recent",
+      "popular": "Popular",
+      "alphabetical": "Alphabetical",
+      "dateCreated": "Date Created",
+      "dateModified": "Date Modified"
+    },
+    "brand": {
+      "name": "Brand Name",
+      "logo": "Brand Logo",
+      "description": "Brand Description",
+      "website": "Official Website",
+      "industry": "Industry",
+      "founded": "Founded",
+      "headquarters": "Headquarters",
+      "employees": "Employees",
+      "revenue": "Annual Revenue",
+      "products": "Main Products",
+      "services": "Main Services",
+      "mission": "Mission & Vision",
+      "values": "Core Values",
+      "culture": "Corporate Culture"
+    },
+    "assets": {
+      "logo": "Logo",
+      "images": "Images",
+      "videos": "Videos",
+      "documents": "Documents",
+      "templates": "Templates",
+      "guidelines": "Brand Guidelines",
+      "colors": "Brand Colors",
+      "fonts": "Brand Fonts",
+      "icons": "Icons",
+      "patterns": "Patterns",
+      "textures": "Textures",
+      "backgrounds": "Backgrounds"
+    },
+    "actions": {
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "copy": "Copy",
+      "download": "Download",
+      "share": "Share",
+      "preview": "Preview",
+      "upload": "Upload",
+      "import": "Import",
+      "export": "Export",
+      "save": "Save",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "view": "View",
+      "manage": "Manage"
+    },
+    "status": {
+      "loading": "Loading...",
+      "empty": "No data",
+      "error": "Load failed",
+      "success": "Operation successful",
+      "uploading": "Uploading...",
+      "processing": "Processing...",
+      "completed": "Completed",
+      "failed": "Operation failed",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "form": {
+      "required": "Required",
+      "optional": "Optional",
+      "placeholder": {
+        "brandName": "Enter brand name",
+        "description": "Enter brand description",
+        "website": "Enter website URL",
+        "industry": "Select industry",
+        "keywords": "Enter keywords, separated by commas"
+      },
+      "validation": {
+        "required": "This field is required",
+        "invalidUrl": "Please enter a valid URL",
+        "invalidEmail": "Please enter a valid email address",
+        "tooShort": "Content too short",
+        "tooLong": "Content too long",
+        "invalidFormat": "Invalid format"
+      }
+    },
+    "messages": {
+      "addSuccess": "Brand added successfully",
+      "editSuccess": "Brand edited successfully",
+      "deleteSuccess": "Brand deleted successfully",
+      "uploadSuccess": "File uploaded successfully",
+      "downloadSuccess": "File downloaded successfully",
+      "copySuccess": "Content copied to clipboard",
+      "shareSuccess": "Share link generated",
+      "addError": "Failed to add brand",
+      "editError": "Failed to edit brand",
+      "deleteError": "Failed to delete brand",
+      "uploadError": "Failed to upload file",
+      "downloadError": "Failed to download file",
+      "networkError": "Network connection failed",
+      "permissionError": "Insufficient permissions",
+      "fileTypeError": "File type not supported",
+      "fileSizeError": "File size exceeds limit",
+      "duplicateError": "Brand name already exists"
+    },
+    "dialogs": {
+      "delete": {
+        "title": "Delete Confirmation",
+        "message": "Are you sure you want to delete this brand? This action cannot be undone.",
+        "confirm": "Confirm Delete",
+        "cancel": "Cancel"
+      },
+      "upload": {
+        "title": "Upload File",
+        "message": "Please select files to upload",
+        "dragDrop": "Drag files here or click to select",
+        "fileTypes": "Supported file types",
+        "maxSize": "Maximum file size"
+      },
+      "share": {
+        "title": "Share Brand",
+        "message": "Choose sharing method",
+        "link": "Copy Link",
+        "email": "Email Share",
+        "social": "Social Media"
+      }
+    },
+    "stats": {
+      "totalBrands": "Total Brands",
+      "totalAssets": "Total Assets",
+      "recentUploads": "Recent Uploads",
+      "popularBrands": "Popular Brands",
+      "storageUsed": "Storage Used",
+      "storageTotal": "Total Storage"
+    },
+    "settings": {
+      "general": "General Settings",
+      "display": "Display Settings",
+      "privacy": "Privacy Settings",
+      "notifications": "Notification Settings",
+      "storage": "Storage Settings",
+      "backup": "Backup Settings",
+      "theme": "Theme Settings",
+      "language": "Language Settings"
+    }
   },
   "creative": {
     "title": "Creative Cube",
@@ -7153,224 +7297,164 @@
     }
   },
   "promptSystem": {
-    "module": {
-      "lockConstant": "Module Lock Constants",
-      "titleGeneration": "Title Generation Related",
-      "brandCorpus": "Brand Corpus Related Prompts",
-      "contentAdaptation": "Content Adaptation Related",
-      "creativeGeneration": "Creative Generation Related",
-      "brandAnalysis": "Brand Analysis Related",
-      "documentProcessing": "Document Processing Related",
-      "otherFunctions": "Other Functions"
+    "system": {
+      "expert": "Expert",
+      "professional": "Professional",
+      "assistant": "Assistant",
+      "specialist": "Specialist",
+      "consultant": "Consultant",
+      "analyst": "Analyst",
+      "designer": "Designer",
+      "manager": "Manager",
+      "advisor": "Advisor"
     },
-    "interfaces": {
-      "promptParams": "Prompt Parameters Interface",
-      "platformFeatures": "Platform Features Configuration Interface",
-      "contentForm": "Content Form Configuration Interface",
-      "expressionStyle": "Expression Style Configuration Interface",
-      "promptTemplate": "Prompt Template Interface"
+    "content": {
+      "title": "Title",
+      "content": "Content",
+      "article": "Article",
+      "text": "Text",
+      "description": "Description",
+      "analysis": "Analysis",
+      "generation": "Generation",
+      "adaptation": "Adaptation",
+      "optimization": "Optimization",
+      "processing": "Processing",
+      "extraction": "Extraction",
+      "summary": "Summary",
+      "quality": "Quality",
+      "structure": "Structure",
+      "style": "Style",
+      "tone": "Tone",
+      "format": "Format",
+      "template": "Template",
+      "framework": "Framework"
     },
-    "core": {
-      "unifiedManager": "Unified Prompt Manager",
-      "initializePlatformData": "Initialize Platform Data",
-      "initializeContentForms": "Initialize Content Forms",
-      "initializeExpressionStyles": "Initialize Expression Styles",
-      "initializePromptTemplates": "Initialize All Prompt Templates"
+    "brand": {
+      "brand": "Brand",
+      "brandTone": "Brand Tone",
+      "brandPersonality": "Brand Personality",
+      "brandStory": "Brand Story",
+      "brandDescription": "Brand Description",
+      "brandKeywords": "Brand Keywords",
+      "brandValues": "Brand Values",
+      "brandStyle": "Brand Style",
+      "brandVoice": "Brand Voice",
+      "brandIdentity": "Brand Identity",
+      "corpus": "Corpus",
+      "extraction": "Extraction",
+      "conflict": "Conflict",
+      "resolution": "Resolution"
     },
-    "platforms": {
-      "xiaohongshu": {
-        "tone": "Authentic sharing, product recommendations",
-        "contentStyle": "Lifestyle, practical, aesthetic expression",
-        "interactionStyle": "Encourage saving, sharing, use emojis and hashtags"
-      },
-      "douyin": {
-        "tone": "Light and fun, strong rhythm",
-        "contentStyle": "Fast-paced, high-density information, strong visual effects",
-        "interactionStyle": "Guide likes, comments, shares, use trending topics and challenges"
-      },
-      "wechat": {
-        "tone": "Authoritative, professional, in-depth analysis",
-        "contentStyle": "Authoritative, in-depth, practical",
-        "interactionStyle": "Guide following, sharing, establish professional image"
-      },
-      "weibo": {
-        "tone": "Concise and powerful, sensitive to trends",
-        "contentStyle": "News-oriented, timely, clear viewpoints",
-        "interactionStyle": "Trigger discussions, retweets, focus on trending topics"
-      },
-      "zhihu": {
-        "tone": "Professional depth, clear logic",
-        "contentStyle": "Knowledge-based, professional, strong critical thinking",
-        "interactionStyle": "Provoke thinking, professional discussions, provide valuable insights"
-      },
-      "bilibili": {
-        "tone": "Young and energetic, highly creative",
-        "contentStyle": "Entertaining, creative, highly interactive",
-        "interactionStyle": "Guide triple actions, bullet comment interaction, integrate B-site culture"
-      }
+    "platform": {
+      "platform": "Platform",
+      "xiaohongshu": "Xiaohongshu",
+      "weibo": "Weibo",
+      "douyin": "Douyin",
+      "wechat": "WeChat",
+      "adaptation": "Adaptation",
+      "characteristics": "Characteristics",
+      "userHabits": "User Habits",
+      "contentStyle": "Content Style",
+      "interactionStyle": "Interaction Style"
     },
-    "contentForms": {
-      "imagePlanting": {
-        "name": "Image-Text Planting",
-        "description": "First-person perspective, sharing authentic usage experience, natural and friendly language, integrating emoji expressions and comment interaction guidance",
-        "outputType": "Pure copy, user-provided images"
-      },
-      "videoScript": {
-        "name": "Video Script",
-        "description": "Contains complete video production elements including scene descriptions, copy, sound effects",
-        "outputType": "Structured Script"
-      },
-      "professionalAnalysis": {
-        "name": "Professional Analysis",
-        "description": "In-depth analysis of topics or phenomena, providing professional insights and valuable viewpoints",
-        "outputType": "Long-form Analysis"
-      }
+    "requirements": {
+      "generate": "Generate",
+      "create": "Create",
+      "produce": "Produce",
+      "output": "Output",
+      "ensure": "Ensure",
+      "maintain": "Maintain",
+      "avoid": "Avoid",
+      "include": "Include",
+      "exclude": "Exclude",
+      "focus": "Focus",
+      "emphasize": "Emphasize",
+      "highlight": "Highlight",
+      "optimize": "Optimize"
     },
-    "expressionStyles": {
-      "professional": {
-        "name": "Professional Authority",
-        "description": "Use professional terminology, clear logic, authoritative and credible"
-      },
-      "casual": {
-        "name": "Casual and Natural",
-        "description": "Language is friendly and natural, close to life, easy to understand"
-      },
-      "funny": {
-        "name": "Humorous and Witty",
-        "description": "Use humorous elements to increase fun and shareability"
-      },
-      "emotional": {
-        "name": "Emotional",
-        "description": "Focus on emotional expression, create resonance and emotional connection"
-      }
+    "quality": {
+      "highQuality": "High Quality",
+      "professional": "Professional",
+      "accurate": "Accurate",
+      "precise": "Precise",
+      "detailed": "Detailed",
+      "comprehensive": "Comprehensive",
+      "systematic": "Systematic",
+      "structured": "Structured",
+      "coherent": "Coherent",
+      "logical": "Logical",
+      "natural": "Natural",
+      "fluent": "Fluent",
+      "engaging": "Engaging",
+      "compelling": "Compelling",
+      "effective": "Effective"
     },
-    "prompts": {
-      "titleGeneration": {
-        "description": "Title generation AI system prompt, including complete generation specifications and scoring mechanism"
-      },
-      "titleGenerationUser": {
-        "description": "Title generation user prompt template, supporting platform customization and style preferences"
-      },
-      "titleQualityCheck": {
-        "description": "V3 version title quality check prompt, 5-dimension scoring analysis"
-      },
-      "brandCorpusExtraction": {
-        "description": "Brand Corpus AI Extraction Prompt, Supports 9-Dimensional Structured Extraction"
-      },
-      "brandCorpusConflict": {
-        "description": "Brand Corpus Conflict Resolution Prompt, Intelligently Merge Multi-source Information"
-      },
-      "creativeGeneration": {
-        "description": "Nine-Grid Creative Cube System Prompt, Professional Social Media Copywriting"
-      },
-      "contentAdaptation": {
-        "description": "Content Adaptation System Prompt, Supports Multi-platform Content Form Adaptation"
-      },
-      "brandAnalysis": {
-        "description": "Brand Analysis System Prompt, Professional Brand Tone and Keyword Analysis"
-      },
-      "pdfChat": {
-        "description": "PDF Document Chat System Prompt, Professional Document Analysis and Q&A"
-      },
-      "emojiGeneration": {
-        "description": "Emoji Generation Description Prompt, Create Vivid Emoji Descriptions"
-      }
+    "analysis": {
+      "dimension": "Dimension",
+      "aspect": "Aspect",
+      "factor": "Factor",
+      "element": "Element",
+      "component": "Component",
+      "feature": "Feature",
+      "characteristic": "Characteristic",
+      "attribute": "Attribute",
+      "criterion": "Criterion",
+      "metric": "Metric",
+      "measurement": "Measurement",
+      "evaluation": "Evaluation",
+      "assessment": "Assessment",
+      "scoring": "Scoring",
+      "rating": "Rating"
     },
-    "errors": {
-      "templateNotFound": "Prompt template does not exist",
-      "missingParams": "Missing prompt parameters",
-      "integrityCheckFailed": "Prompt system integrity check failed: missing prompt types",
-      "integrityCheckException": "Prompt system integrity check exception"
+    "creative": {
+      "creative": "Creative",
+      "creativity": "Creativity",
+      "innovation": "Innovation",
+      "originality": "Originality",
+      "uniqueness": "Uniqueness",
+      "novelty": "Novelty",
+      "inspiration": "Inspiration",
+      "imagination": "Imagination",
+      "brainstorming": "Brainstorming",
+      "ideation": "Ideation",
+      "conceptualization": "Conceptualization",
+      "visualization": "Visualization"
     },
-    "logs": {
-      "integrityCheckPassed": "Prompt system integrity check passed",
-      "moduleInit": "Prompt System"
+    "user": {
+      "user": "User",
+      "audience": "Audience",
+      "target": "Target",
+      "customer": "Customer",
+      "reader": "Reader",
+      "viewer": "Viewer",
+      "participant": "Participant",
+      "community": "Community",
+      "group": "Group",
+      "segment": "Segment",
+      "persona": "Persona",
+      "behavior": "Behavior",
+      "preference": "Preference",
+      "need": "Need",
+      "pain": "Pain Point",
+      "benefit": "Benefit",
+      "value": "Value"
     },
-    "creativeCube": {
-      "dimensionDefinition": "Creative Cube Dimension Definition",
-      "selectionItems": "Creative Cube Selection Items",
-      "configuration": "Creative Cube Configuration",
-      "dimensions": {
-        "targetAudience": "Target Audience",
-        "useCase": "Use Case",
-        "painPoint": "User Pain Point",
-        "industry": "Industry",
-        "coreValue": "Core Value",
-        "toneStyle": "Expression Style",
-        "contentFormat": "Content Format",
-        "emotionalNeed": "Emotional Need",
-        "platformTrend": "Platform/Trend"
-      },
-      "descriptions": {
-        "targetAudience": "Select Target User Group (Required)",
-        "useCase": "Define Specific Usage Context (Required)",
-        "painPoint": "Identify Core Problem (Required)",
-        "industry": "Industry Domain (Required)",
-        "coreValue": "Product/Service Core Value",
-        "toneStyle": "Content Expression Tone",
-        "contentFormat": "Output Content Format",
-        "emotionalNeed": "User Emotional Needs",
-        "platformTrend": "Platform Characteristics or Hot Trends"
-      }
-    },
-    "dimensions": {
-      "targetAudienceName": "Target Audience",
-      "useCaseName": "Use Case",
-      "painPointName": "Pain Point",
-      "industryName": "Industry",
-      "coreValueName": "Core Value",
-      "toneStyleName": "Tone Style",
-      "contentFormatName": "Content Format",
-      "emotionalNeedName": "Emotional Need",
-      "platformTrendName": "Platform/Trend",
-      "targetAudienceDesc": "Select target user group (required)",
-      "useCaseDesc": "Define specific usage scenarios (required)",
-      "painPointDesc": "Identify core problems (required)",
-      "industryDesc": "Industry sector (required)",
-      "coreValueDesc": "Product/service core value",
-      "toneStyleDesc": "Content expression tone",
-      "contentFormatDesc": "Output content format",
-      "emotionalNeedDesc": "User emotional needs",
-      "platformTrendDesc": "Platform characteristics or trending topics"
-    },
-    "functions": {
-      "registerPrompt": "Register Prompt Template",
-      "getPrompt": "Get Prompt Template (Enhanced Version, Supports Platform and Style Data Injection)",
-      "enhanceParameters": "Enhanced Parameter Processing: Automatically Inject Multi-dimensional Matrix Data",
-      "extractBrandTone": "Extract Brand Tone from Brand Content (Simplified Version, Can Integrate Brand Analysis AI)",
-      "extractBrandKeywords": "Extract Keywords from Brand Content",
-      "extractBrandStyle": "Extract Brand Style from Brand Content",
-      "extractBrandValues": "Extract Brand Values from Brand Content"
-    },
-    "success": {
-      "moduleInit": "Prompt System",
-      "integrityCheckPassed": "Prompt System Integrity Check Passed"
-    },
-    "comments": {
-      "platformData": "Platform Dimension Data Injection",
-      "contentFormData": "Content Form Dimension Data Injection",
-      "expressionStyleData": "Expression Style Dimension Data Injection",
-      "contentTypeData": "Content Type Dimension Data Injection",
-      "charCountControl": "Character Count Control Dimension Data Injection",
-      "brandDimension": "Brand Dimension Data Injection (Highest Priority)",
-      "brandAnalysisIntegration": "Brand Library Analysis Results Can Be Integrated Here",
-      "complexBrandAnalysis": "More Complex Brand Analysis Logic Can Be Integrated Here",
-      "simplifiedKeywordExtraction": "Simplified Keyword Extraction, Can Use More Complex NLP Algorithms"
-    },
-    "brandTones": {
-      "professional": "Professional Authoritative",
-      "youthful": "Youthful Energy",
-      "warm": "Warm and Friendly",
-      "balanced": "Balanced Neutral"
-    },
-    "brandStyles": {
-      "minimalist": "Minimalist Style",
-      "fashionable": "Fashionable Style",
-      "classic": "Classic Style",
-      "modern": "Modern Style"
-    },
-    "brandValues": {
-      "userFirst": "User First"
+    "technical": {
+      "system": "System",
+      "algorithm": "Algorithm",
+      "model": "Model",
+      "framework": "Framework",
+      "architecture": "Architecture",
+      "structure": "Structure",
+      "component": "Component",
+      "module": "Module",
+      "function": "Function",
+      "feature": "Feature",
+      "capability": "Capability",
+      "performance": "Performance",
+      "efficiency": "Efficiency",
+      "optimization": "Optimization",
+      "automation": "Automation"
     }
   },
   "emojiSystem": {

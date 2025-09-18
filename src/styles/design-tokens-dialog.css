@@ -1,108 +1,228 @@
 /**
- * 🎨 Dialog设计令牌系统
- * 统一的Dialog相关设计变量，避免硬编码值
+ * 🎯 统一Dialog定位系统
+ * 遵循 CLAUDE.md 3.6.2 和 3.6.3 节的根本性解决方案
+ * 解决所有Dialog弹窗的定位和显示问题
  */
 
+/* ========================================
+   🎨 设计令牌系统 - CLAUDE.md 3.8节规范
+   ======================================== */
+
 :root {
-  /* ========================================
-     🎯 Dialog定位令牌
-     ======================================== */
-  
-  /* 基础定位 */
+  /* 🎯 定位令牌 - 使用视窗单位确保相对于视窗定位 */
   --dialog-position-top: 50vh;
   --dialog-position-left: 50vw;
   --dialog-transform: translate(-50%, -50%);
-  --dialog-z-index: 1055;
+  --dialog-z-index: 1000000;
+  --dialog-position-fixed: fixed;
+  --dialog-margin: 0;
   
-  /* ========================================
-     📐 Dialog尺寸令牌
-     ======================================== */
-  
-  /* 最大尺寸 */
+  /* 🎯 尺寸令牌 */
   --dialog-max-width: min(95vw, 1024px);
   --dialog-max-height: 85vh;
+  --dialog-mobile-max-width: calc(95vw - 16px);
   
-  /* 快速引用Dialog */
+  /* 快速引用Dialog特定尺寸 */
   --quick-reference-dialog-max-width: min(95vw, 1024px);
   --quick-reference-dialog-max-height: 85vh;
   
-  /* 历史记录Dialog */
-  --history-dialog-max-width: min(95vw, 900px);
-  --history-dialog-max-height: 85vh;
+  /* 历史记录Dialog特定尺寸 */
+  --history-dialog-max-width: min(85vw, 1000px);
+  --history-dialog-max-height: 70vh;
+  --history-dialog-min-width: 600px;
+  --history-dialog-min-height: 450px;
   
-  /* ========================================
-     🎭 Dialog动画令牌
-     ======================================== */
-  
-  --dialog-transition-duration: 200ms;
-  --dialog-transition-easing: cubic-bezier(0.16, 1, 0.3, 1);
-  --dialog-scale-from: 0.95;
-  --dialog-scale-to: 1;
-  
-  /* ========================================
-     🎨 Dialog样式令牌
-     ======================================== */
-  
-  /* 背景和边框 */
+  /* 🎯 样式令牌 */
   --dialog-background: hsl(var(--background));
   --dialog-border: hsl(var(--border));
   --dialog-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.25);
+  --dialog-ring: 1px;
+  --dialog-ring-color: hsl(var(--primary) / 0.1);
+  --dialog-ring-offset: 1px;
+  --dialog-ring-offset-color: hsl(var(--background) / 0.8);
+  --dialog-border-radius: 24px;
   
-  /* 遮罩层 */
-  --dialog-overlay-background: rgba(0, 0, 0, 0.5);
-  --dialog-overlay-backdrop-filter: blur(4px);
+  /* 🎯 动画令牌 */
+  --dialog-transition-duration: 200ms;
+  --dialog-transition-easing: cubic-bezier(0.16, 1, 0.3, 1);
   
-  /* ========================================
-     📱 响应式令牌
-     ======================================== */
-  
-  /* 移动端适配 */
-  --dialog-mobile-max-width: calc(95vw - 16px);
-  --dialog-mobile-max-height: calc(85vh - 16px);
+  /* 🎯 响应式令牌 */
   --dialog-mobile-padding: 16px;
+  --dialog-desktop-padding: 32px;
   
-  /* 桌面端适配 */
-  --dialog-desktop-padding: 24px;
-  --dialog-desktop-border-radius: 24px;
+  /* 🚨 强制重置令牌 - 防止inset冲突 */
+  --dialog-inset-reset: unset;
+  --dialog-inset-block-reset: unset;
+  --dialog-inset-inline-reset: unset;
+  --dialog-inset-block-start-reset: unset;
+  --dialog-inset-block-end-reset: unset;
+  --dialog-inset-inline-start-reset: unset;
+  --dialog-inset-inline-end-reset: unset;
 }
 
 /* ========================================
-   🎯 Dialog基础类名（BEM规范）
+   🎯 BEM基础样式 - CLAUDE.md命名规范
    ======================================== */
 
-.dialog {
-  position: fixed;
-  top: var(--dialog-position-top);
-  left: var(--dialog-position-left);
-  transform: var(--dialog-transform);
-  z-index: var(--dialog-z-index);
+/* 块：dialog - 遵循BEM命名规范 */
+/* .dialog 基础类已移除以避免Tailwind CSS循环依赖 */
+
+/* 块__元素：dialog__content */
+.dialog__content {
+  /* 🚨 强制定位修复 - 解决所有Dialog定位问题 */
+  position: var(--dialog-position-fixed) !important;
+  top: var(--dialog-position-top) !important;
+  left: var(--dialog-position-left) !important;
+  transform: var(--dialog-transform) !important;
+  z-index: var(--dialog-z-index) !important;
+  margin: var(--dialog-margin) !important;
+  
+  /* 🚨 完全重置inset属性 - 这是根本原因修复的关键 */
+  inset: var(--dialog-inset-reset) !important;
+  inset-block: var(--dialog-inset-block-reset) !important;
+  inset-inline: var(--dialog-inset-inline-reset) !important;
+  inset-block-start: var(--dialog-inset-block-start-reset) !important;
+  inset-block-end: var(--dialog-inset-block-end-reset) !important;
+  inset-inline-start: var(--dialog-inset-inline-start-reset) !important;
+  inset-inline-end: var(--dialog-inset-inline-end-reset) !important;
+  
+  /* 基础样式 */
   max-width: var(--dialog-max-width);
   max-height: var(--dialog-max-height);
-}
-
-.dialog__overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--dialog-overlay-background);
-  backdrop-filter: var(--dialog-overlay-backdrop-filter);
-  z-index: calc(var(--dialog-z-index) - 1);
-}
-
-.dialog__content {
+  border-radius: var(--dialog-border-radius);
   background: var(--dialog-background);
   border: 1px solid var(--dialog-border);
   box-shadow: var(--dialog-shadow);
-  border-radius: var(--dialog-desktop-border-radius);
+  
+  /* 响应式适配 */
+  @media (max-width: 768px) {
+    max-width: var(--dialog-mobile-max-width);
+    padding: var(--dialog-mobile-padding);
+  }
+  
+  @media (min-width: 769px) {
+    padding: var(--dialog-desktop-padding);
+  }
 }
 
+/* 块__元素--修饰符：dialog__content--quick-reference */
 .dialog__content--quick-reference {
-  max-width: var(--quick-reference-dialog-max-width);
-  max-height: var(--quick-reference-dialog-max-height);
+  max-width: var(--quick-reference-dialog-max-width) !important;
+  max-height: var(--quick-reference-dialog-max-height) !important;
 }
 
+/* 块__元素--修饰符：dialog__content--history */
 .dialog__content--history {
-  max-width: var(--history-dialog-max-width);
-  max-height: var(--history-dialog-max-height);
+  max-width: var(--history-dialog-max-width) !important;
+  max-height: var(--history-dialog-max-height) !important;
+  min-width: var(--history-dialog-min-width) !important;
+  min-height: var(--history-dialog-min-height) !important;
+}
+
+/* ========================================
+   🎯 兼容性类名 - 支持现有组件
+   ======================================== */
+
+/* 快速引用Dialog兼容性 */
+.quick-reference-dialog,
+[role="dialog"].quick-reference-dialog,
+[role="dialog"][class*="quick-reference-dialog"],
+[data-radix-dialog-content].quick-reference-dialog {
+  position: var(--dialog-position-fixed) !important;
+  top: var(--dialog-position-top) !important;
+  left: var(--dialog-position-left) !important;
+  transform: var(--dialog-transform) !important;
+  z-index: var(--dialog-z-index) !important;
+  margin: var(--dialog-margin) !important;
+  
+  /* 🚨 inset重置 */
+  inset: var(--dialog-inset-reset) !important;
+  inset-block: var(--dialog-inset-block-reset) !important;
+  inset-inline: var(--dialog-inset-inline-reset) !important;
+  inset-block-start: var(--dialog-inset-block-start-reset) !important;
+  inset-block-end: var(--dialog-inset-block-end-reset) !important;
+  inset-inline-start: var(--dialog-inset-inline-start-reset) !important;
+  inset-inline-end: var(--dialog-inset-inline-end-reset) !important;
+  
+  max-width: var(--quick-reference-dialog-max-width) !important;
+  max-height: var(--quick-reference-dialog-max-height) !important;
+}
+
+/* 历史记录Dialog兼容性 */
+.enhanced-history-dialog,
+[role="dialog"].enhanced-history-dialog,
+[role="dialog"][class*="enhanced-history-dialog"],
+[data-radix-dialog-content].enhanced-history-dialog {
+  position: var(--dialog-position-fixed) !important;
+  top: var(--dialog-position-top) !important;
+  left: var(--dialog-position-left) !important;
+  transform: var(--dialog-transform) !important;
+  z-index: var(--dialog-z-index) !important;
+  margin: var(--dialog-margin) !important;
+  
+  /* 🚨 inset重置 */
+  inset: var(--dialog-inset-reset) !important;
+  inset-block: var(--dialog-inset-block-reset) !important;
+  inset-inline: var(--dialog-inset-inline-reset) !important;
+  inset-block-start: var(--dialog-inset-block-start-reset) !important;
+  inset-block-end: var(--dialog-inset-block-end-reset) !important;
+  inset-inline-start: var(--dialog-inset-inline-start-reset) !important;
+  inset-inline-end: var(--dialog-inset-inline-end-reset) !important;
+  
+  max-width: var(--history-dialog-max-width) !important;
+  max-height: var(--history-dialog-max-height) !important;
+  min-width: var(--history-dialog-min-width) !important;
+  min-height: var(--history-dialog-min-height) !important;
+}
+
+/* ========================================
+   🎯 通用Dialog选择器 - 最大兼容性
+   ======================================== */
+
+[role="dialog"],
+[data-radix-dialog-content],
+html [role="dialog"],
+body [role="dialog"],
+#root [role="dialog"],
+[data-radix-portal] [role="dialog"],
+div[data-radix-portal] [role="dialog"],
+div[role="dialog"][id*="radix"],
+div[role="dialog"][data-state="open"] {
+  /* 🚨 强制重置所有定位属性 */
+  position: var(--dialog-position-fixed) !important;
+  top: var(--dialog-position-top) !important;
+  left: var(--dialog-position-left) !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: var(--dialog-transform) !important;
+  z-index: var(--dialog-z-index) !important;
+  margin: var(--dialog-margin) !important;
+
+  /* 🚨 完全重置inset属性，避免干扰top/left - 这是问题的根源！ */
+  inset: var(--dialog-inset-reset) !important;
+  inset-block: var(--dialog-inset-block-reset) !important;
+  inset-inline: var(--dialog-inset-inline-reset) !important;
+  inset-block-start: var(--dialog-inset-block-start-reset) !important;
+  inset-block-end: var(--dialog-inset-block-end-reset) !important;
+  inset-inline-start: var(--dialog-inset-inline-start-reset) !important;
+  inset-inline-end: var(--dialog-inset-inline-end-reset) !important;
+}
+
+/* ========================================
+   🚨 背景遮罩修复 - 确保背景层完全覆盖
+   ======================================== */
+
+[data-radix-dialog-overlay],
+.dialog-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999999 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 /* ========================================
@@ -110,13 +230,40 @@
    ======================================== */
 
 @media (max-width: 640px) {
-  .dialog {
-    max-width: var(--dialog-mobile-max-width);
-    max-height: var(--dialog-mobile-max-height);
+  .dialog__content {
+    max-width: var(--dialog-mobile-max-width) !important;
+    border-radius: 16px !important;
   }
   
-  .dialog__content {
-    border-radius: 16px;
-    margin: var(--dialog-mobile-padding);
+  .dialog__content--quick-reference {
+    max-width: calc(100vw - 32px) !important;
   }
+  
+  .dialog__content--history {
+    max-width: calc(100vw - 32px) !important;
+    min-width: auto !important;
+  }
+}
+
+/* ========================================
+   🎯 调试模式 - 开发环境可见验证
+   ======================================== */
+
+.dialog-debug-mode .dialog__content {
+  border: 3px solid #ff0000 !important;
+}
+
+.dialog-debug-mode .dialog__content::before {
+  content: "🚨 DIALOG VISIBLE - 调试模式";
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff0000;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 1000001;
 }

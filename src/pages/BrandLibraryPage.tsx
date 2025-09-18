@@ -2309,7 +2309,7 @@ export default function BrandLibraryPageFixed() {
                         featureName="排序选择"
                         value={sortOption}
                         onValueChange={setSortOption}
-                        placeholder="排序"
+                        placeholder={t('brandLibrary.search.sort')}
                         className="w-32"
                       >
                         <SelectItem value="date-new">最新上传</SelectItem>

@@ -3,6 +3,11 @@
  * 定义四大内容分类和具体形式
  */
 
+import i18n from '@/i18n';
+
+// 创建t函数快捷方式
+const t = (key: string) => i18n.t(key);
+
 export interface ContentForm {
   id: string;
   name: string;

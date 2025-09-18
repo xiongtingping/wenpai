@@ -2,12 +2,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 /**
  * 更新日志页面组件
  * 显示文派平台的版本更新历史
  */
-export default function ChangelogPage() { const changelogData = [
+export default function ChangelogPage() {
+  const { t } = useTranslation();
+  
+  const changelogData = [
     {
       version: "v1.2.0",
       date: "2024-12-19",

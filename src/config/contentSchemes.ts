@@ -1,4 +1,8 @@
 import i18n from '@/i18n';
+
+// 创建t函数快捷方式
+const t = (key: string) => i18n.t(key);
+
 /**
  * 内容方案配置
  * 定义不同风格的内容生成方案
