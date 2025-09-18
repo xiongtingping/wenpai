@@ -1,5 +1,10 @@
-/* 🎯 Dialog定位修复 - 遵循CLAUDE.md 3.6.2节规范 */
-@import './styles/dialog-positioning-fix-clean.css';
+/* 🎯 统一Dialog定位系统 - 遵循CLAUDE.md根本性解决方案 */
+@import './styles/unified-dialog-positioning-system.css';
+
+/* 🚨 禁用旧的冲突修复文件 */
+/* @import './styles/design-tokens-dialog.css'; */
+/* @import './styles/unified-dialog-positioning.css'; */
+/* @import './styles/dialog-positioning-fix-clean.css'; */
 
 @import './styles/number-display-fix.css';
 @import './styles/pricing-fix.css';
@@ -10,9 +15,10 @@
 @import './styles/authing-modal-architecture-fix.css';
 @import './styles/authing-accessibility-fix.css';
 @import './styles/animated-signin-21st.css';
-/* 🎯 快速引用Dialog修复CSS - 恢复到工作状态 */
-@import './styles/dialog-ultimate-override.css';
-@import './styles/quick-reference-dialog-only.css';
+/* 🚨 暂时禁用快速引用Dialog修复CSS */
+/* @import './styles/emergency-quick-reference-fix.css'; */
+/* @import './styles/dialog-ultimate-override.css'; */
+/* ❌ 已移除：quick-reference-dialog-only.css - 它设置了错误的top: calc(50vh + 40px) */
 @import './styles/quick-reference-compact-ui.css';
 @import './styles/button-center-fix.css';
 @import './styles/design-system.css';
@@ -24,6 +30,8 @@
 /* 🎯 AI模型选择器样式 */
 @import './styles/ai-model-selector.css';
 /* 🎯 统一Dialog系统 - 已整合到新的统一文件中 */
+
+/* 🔍 根因分析：暂时移除所有Dialog修复，观察原始行为 */
 
 
 

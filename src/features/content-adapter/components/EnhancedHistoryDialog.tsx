@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useHistoryDialogPositioning } from '@/hooks/useDialogPositioning';
+import { useHistoryDialogPositioning, useDialogScrollLock } from '@/hooks/useDialogPositioning';
 import {
   Dialog,
   DialogContent,
@@ -82,8 +82,11 @@ export function EnhancedHistoryDialog({ open,
   const [sortBy, setSortBy] = useState<SortOption>('time-desc');
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  // 🎯 使用统一的Dialog定位Hook - 遵循React命名规范
+  // 🎯 使用统一的Dialog定位Hook - 遵循CLAUDE.md规范
   const dialogPositioning = useHistoryDialogPositioning(open, true);
+  
+  // 🎯 使用统一的滚动锁定Hook
+  useDialogScrollLock(open);
 
 
 

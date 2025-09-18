@@ -95,13 +95,15 @@ export function useDialogPositioning(options: DialogPositioningOptions): DialogP
         dialogElement.style.removeProperty(property);
       });
 
-      // 应用设计令牌定位
+      // 🎯 强制设置正确的定位 - 使用视窗单位（CLAUDE.md 3.6.3节）
       dialogElement.style.setProperty('position', 'fixed', 'important');
-      dialogElement.style.setProperty('top', 'var(--dialog-position-top, 50vh)', 'important');
-      dialogElement.style.setProperty('left', 'var(--dialog-position-left, 50vw)', 'important');
-      dialogElement.style.setProperty('transform', 'var(--dialog-transform, translate(-50%, -50%))', 'important');
-      dialogElement.style.setProperty('z-index', 'var(--dialog-z-index, 1055)', 'important');
+      dialogElement.style.setProperty('top', '50vh', 'important');  // 🔥 使用vh单位
+      dialogElement.style.setProperty('left', '50vw', 'important'); // 🔥 使用vw单位
+      dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+      dialogElement.style.setProperty('z-index', '1000000', 'important');
       dialogElement.style.setProperty('margin', '0', 'important');
+      dialogElement.style.setProperty('right', 'auto', 'important');
+      dialogElement.style.setProperty('bottom', 'auto', 'important');
 
       if (enableDebugLogs) {
         console.log(`🎯 ${dialogType} Dialog定位修复已应用`, {
@@ -234,4 +236,56 @@ export function useGenericDialogPositioning(open: boolean, customSelectors?: str
     customSelectors,
     enableDebugLogs
   });
+}
+
+/**
+ * 🎯 Dialog滚动锁定Hook
+ * 防止弹窗打开时页面滚动影响定位
+ * 遵循CLAUDE.md的系统性解决方案
+ */
+export function useDialogScrollLock(open: boolean) {
+  useEffect(() => {
+    if (!open) return;
+
+    const originalOverflow = document.body.style.overflow;
+    const originalPosition = document.body.style.position;
+    const scrollY = window.scrollY;
+
+    // 🔒 锁定滚动
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+
+    // 🚫 阻止滚动事件
+    const preventScroll = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    };
+
+    const events = ['scroll', 'wheel', 'touchmove'] as const;
+    events.forEach(event => {
+      document.addEventListener(event, preventScroll, { passive: false });
+      window.addEventListener(event, preventScroll, { passive: false });
+    });
+
+    // 🧹 清理函数
+    return () => {
+      // 移除事件监听器
+      events.forEach(event => {
+        document.removeEventListener(event, preventScroll);
+        window.removeEventListener(event, preventScroll);
+      });
+
+      // 恢复样式
+      document.body.style.overflow = originalOverflow;
+      document.body.style.position = originalPosition;
+      document.body.style.top = '';
+      document.body.style.width = '';
+
+      // 恢复滚动位置
+      window.scrollTo(0, scrollY);
+    };
+  }, [open]);
 }

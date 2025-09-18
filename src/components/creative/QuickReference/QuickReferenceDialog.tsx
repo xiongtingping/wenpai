@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuickReferenceDialogPositioning, useDialogScrollLock } from '@/hooks/useDialogPositioning';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ import {
 } from "lucide-react";
 import { quickReferenceDataService, QuickReferenceItem } from '@/services/quickReferenceDataService';
 import { cn } from "@/lib/utils";
+// 🧹 已清理：移除临时调试工具导入
 
 export type TabType = 'brand' | 'library' | 'radar';
 
@@ -47,6 +49,35 @@ export function QuickReferenceDialog({ open,
  }: QuickReferenceDialogProps) {
   const { toast } = useToast();
   const { t } = useTranslation();
+  
+  // 🎯 使用统一的Dialog定位Hook - 遵循CLAUDE.md规范
+  const dialogPositioning = useQuickReferenceDialogPositioning(open, true);
+  
+  // 🔍 简化的调试信息 - 遵循CLAUDE.md的简化原则
+  useEffect(() => {
+    if (!open) return;
+    
+    console.log('🎯 快速引用Dialog已打开 - 使用统一定位系统');
+    
+    // 简单的验证
+    setTimeout(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      if (dialog) {
+        const rect = dialog.getBoundingClientRect();
+        const isVisible = rect.width > 0 && rect.height > 0;
+        const isInViewport = rect.top >= 0 && rect.left >= 0 && 
+                           rect.bottom <= window.innerHeight && 
+                           rect.right <= window.innerWidth;
+        
+        console.log('✅ Dialog状态检查', {
+          isVisible,
+          isInViewport,
+          rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
+          transform: getComputedStyle(dialog).transform
+        });
+      }
+    }, 200);
+  }, [open]);
 
   
   // 状态管理
@@ -65,122 +96,10 @@ export function QuickReferenceDialog({ open,
   });
   const [error, setError] = useState<string | null>(null);
 
-  // 🚨 滚动锁定和弹窗生命周期管理
-  useEffect(() => {
-    if (open) {
-      console.log('🎯 快速引用弹窗已打开 - 纯React渲染');
-      
-      // 🔥 关键修复：锁定页面滚动
-      const originalOverflow = document.body.style.overflow;
-      const originalPosition = document.body.style.position;
-      const scrollY = window.scrollY;
-      
-      // 锁定滚动
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      
-      console.log('🔒 页面滚动已锁定', { scrollY, originalOverflow, originalPosition });
-      
-      // 🔥 添加滚动事件监听器，强制阻止滚动
-      const preventScroll = (e: Event) => {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      };
-      
-      // 监听所有可能的滚动事件
-      document.addEventListener('scroll', preventScroll, { passive: false });
-      document.addEventListener('wheel', preventScroll, { passive: false });
-      document.addEventListener('touchmove', preventScroll, { passive: false });
-      window.addEventListener('scroll', preventScroll, { passive: false });
-      
-      console.log('🚫 所有滚动事件已阻止');
-      
-      // 清理函数：恢复页面滚动
-      return () => {
-        // 移除滚动事件监听器
-        document.removeEventListener('scroll', preventScroll);
-        document.removeEventListener('wheel', preventScroll);
-        document.removeEventListener('touchmove', preventScroll);
-        window.removeEventListener('scroll', preventScroll);
-        
-        // 恢复样式
-        document.body.style.overflow = originalOverflow;
-        document.body.style.position = originalPosition;
-        document.body.style.top = '';
-        document.body.style.width = '';
-        
-        // 恢复滚动位置
-        window.scrollTo(0, scrollY);
-        
-        console.log('🔓 页面滚动已恢复', { scrollY });
-      };
-    }
-  }, [open]);
+  // 🎯 使用统一的滚动锁定Hook
+  useDialogScrollLock(open);
 
-  // 🎯 CLAUDE.md 3.6.2节：JavaScript运行时修复器 - 双重保护机制
-  useEffect(() => {
-    if (!open) return;
-
-    const fixDialogPosition = () => {
-      // 多选择器查找Dialog元素
-      const dialogElement = document.querySelector('[role="dialog"].quick-reference-dialog') ||
-                           document.querySelector('[role="dialog"]') ||
-                           document.querySelector('[data-radix-dialog-content].quick-reference-dialog');
-
-      if (dialogElement) {
-        console.log('🎯 Dialog定位修复已应用', dialogElement);
-        
-        // 清除冲突样式
-        dialogElement.style.removeProperty('top');
-        dialogElement.style.removeProperty('left');
-        dialogElement.style.removeProperty('transform');
-        dialogElement.style.removeProperty('inset');
-        dialogElement.style.removeProperty('inset-block');
-        dialogElement.style.removeProperty('inset-inline');
-        dialogElement.style.removeProperty('inset-block-start');
-        dialogElement.style.removeProperty('inset-block-end');
-        dialogElement.style.removeProperty('inset-inline-start');
-        dialogElement.style.removeProperty('inset-inline-end');
-
-        // 🔥 使用视窗单位强制应用正确定位
-        dialogElement.style.setProperty('position', 'fixed', 'important');
-        dialogElement.style.setProperty('top', '50vh', 'important');
-        dialogElement.style.setProperty('left', '50vw', 'important');
-        dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
-        dialogElement.style.setProperty('z-index', '1055', 'important');
-        dialogElement.style.setProperty('margin', '0', 'important');
-        
-        // 验证Dialog位置
-        const rect = dialogElement.getBoundingClientRect();
-        const viewportCenter = {
-          x: window.innerWidth / 2,
-          y: window.innerHeight / 2
-        };
-        const dialogCenter = {
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2
-        };
-        
-        console.log('🎯 Dialog位置验证:', {
-          viewport: viewportCenter,
-          dialog: dialogCenter,
-          offset: {
-            x: Math.abs(dialogCenter.x - viewportCenter.x),
-            y: Math.abs(dialogCenter.y - viewportCenter.y)
-          }
-        });
-      }
-    };
-
-    // 🔥 CLAUDE.md规范：多时机执行修复
-    fixDialogPosition();
-    setTimeout(fixDialogPosition, 50);
-    setTimeout(fixDialogPosition, 150);
-    setTimeout(fixDialogPosition, 300);
-  }, [open]);
+  // 🎯 JavaScript修复器已集成在useQuickReferenceDialogPositioning中
 
   // 标签页配置
   const tabs = useMemo(() => [
@@ -352,7 +271,19 @@ export function QuickReferenceDialog({ open,
   // 🎯 按照CLAUDE.md 3.6.2节实现根本性解决方案：双重保护机制
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="quick-reference-dialog">
+      <DialogContent className={cn(
+        // 🎯 BEM命名规范 + 定位修复类
+        "dialog dialog__content dialog__content--quick-reference",
+        "quick-reference-dialog flex flex-col overflow-hidden",
+        "backdrop-blur-xl bg-gradient-to-br from-background via-background/98 to-background/95",
+        "border-2 border-border/60 shadow-[0_20px_40px_-8px_rgba(0,0,0,0.25)]",
+        "rounded-[24px] ring-1 ring-primary/10",
+        className
+      )}
+      style={{
+        width: 'var(--quick-reference-dialog-max-width, min(95vw, 1024px))',
+        maxHeight: 'var(--quick-reference-dialog-max-height, 85vh)',
+      }}>
         <DialogHeader>
           <DialogTitle>🎯 快速引用</DialogTitle>
           <DialogDescription>
