@@ -420,9 +420,9 @@ export function PlatformSelector({ availablePlatforms,
                           <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
                             {getPlatformIcon(platform.id)}
                           </div>
-                          <CardTitle className="text-sm font-medium truncate text-foreground platform-card-title">
+                          <div className="text-sm font-medium truncate text-foreground">
                             {getPlatformName(platform.id)}
-                          </CardTitle>
+                          </div>
                         </div>
                         <Checkbox
                           checked={isSelected}
