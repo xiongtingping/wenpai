@@ -3,7 +3,7 @@
  * 使用设计令牌和主题适配的现代化按钮
  */
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { AtSign } from "lucide-react";
 import { QuickReferenceDialog } from './QuickReferenceDialog';
@@ -27,15 +27,41 @@ export function QuickReferenceTrigger({
   disabled = false
 }: QuickReferenceTriggerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [anchor, setAnchor] = useState<{ x: number; y: number; width: number; height: number } | undefined>(undefined);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  // 打开期间跟随视口滚动与布局变化，实时更新锚点
+  React.useEffect(() => {
+    if (!isDialogOpen) return;
+    const updateAnchor = () => {
+      const rect = btnRef.current?.getBoundingClientRect();
+      if (rect) setAnchor({ x: rect.left, y: rect.top, width: rect.width, height: rect.height });
+    };
+    const raf = requestAnimationFrame(updateAnchor);
+    window.addEventListener('scroll', updateAnchor, { passive: true });
+    window.addEventListener('resize', updateAnchor);
+    const interval = setInterval(updateAnchor, 250); // 轻量兜底，覆盖异步布局
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', updateAnchor);
+      window.removeEventListener('resize', updateAnchor);
+      clearInterval(interval);
+    };
+  }, [isDialogOpen]);
+
+
+  // 🎯 移除复杂调试代码，保持组件简洁
 
   const handleSelect = (content: string) => {
     onSelect(content);
     setIsDialogOpen(false);
   };
 
+  // 🎯 简洁组件，移除调试输出
+
   return (
     <>
       <Button
+        ref={btnRef}
         variant={variant}
         size={size}
         disabled={disabled}
@@ -54,7 +80,24 @@ export function QuickReferenceTrigger({
           ],
           className
         )}
-        onClick={() => setIsDialogOpen(true)}
+        onClick={(e) => {
+          // 🎯 记录触发按钮在视口中的位置，作为弹窗锚点；若读取失败则退化到点击点
+          const rect = btnRef.current?.getBoundingClientRect();
+          if (rect) {
+            setAnchor({ x: rect.left, y: rect.top, width: rect.width, height: rect.height });
+          } else {
+            setAnchor({ x: e.clientX, y: e.clientY, width: 0, height: 0 });
+          }
+
+          // 🎯 简洁的点击处理：只处理必要的aria-hidden清理
+          const root = document.getElementById('root');
+          if (root && root.hasAttribute('aria-hidden')) {
+            root.removeAttribute('aria-hidden');
+            root.removeAttribute('data-aria-hidden');
+          }
+
+          setIsDialogOpen(true);
+        }}
       >
         <AtSign className="h-4 w-4 mr-2" />
         快速引用
@@ -62,9 +105,13 @@ export function QuickReferenceTrigger({
 
       <QuickReferenceDialog
         open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) setAnchor(undefined);
+        }}
         onSelect={handleSelect}
         multiSelect={multiSelect}
+        anchor={undefined}
       />
     </>
   );
