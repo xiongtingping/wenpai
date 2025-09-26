@@ -224,7 +224,7 @@ export const GlobalErrorHandler: React.FC = () => {
               size="sm"
               onClick={() => window.location.reload()}
               className="h-6 w-6 p-0"
-              title=
+              title="刷新页面"
             >
               <RefreshCw className="h-3 w-3" />
             </Button>
@@ -233,7 +233,7 @@ export const GlobalErrorHandler: React.FC = () => {
               size="sm"
               onClick={() => removeGlobalError(latestError.id)}
               className="h-6 w-6 p-0"
-              title=
+              title="关闭错误"
             >
               <X className="h-3 w-3" />
             </Button>

@@ -44,12 +44,9 @@ const HARDCODED_COLOR_PATTERNS = {
   'rgb(59, 130, 246)': 'hsl(var(--primary) / 0.8)',
   'rgb(29, 78, 216)': 'hsl(var(--primary) / 1.2)',
   'hsl(var(--primary))': 'hsl(var(--primary))',
-  'hsl(var(--primary))': 'hsl(var(--primary) / 0.8)',
-  'hsl(var(--primary))': 'hsl(var(--primary) / 1.2)',
   
   // 红色系列
   'hsl(var(--destructive))': 'hsl(var(--destructive))',
-  'hsl(var(--destructive))': 'hsl(var(--destructive) / 1.1)',
   '#f87171': 'hsl(var(--destructive) / 0.8)',
   
   // 绿色系列
@@ -64,7 +61,6 @@ const HARDCODED_COLOR_PATTERNS = {
   
   // 灰色系列
   'hsl(var(--muted-foreground))': 'hsl(var(--muted-foreground))',
-  'hsl(var(--muted-foreground))': 'hsl(var(--muted-foreground) / 0.8)',
   'hsl(var(--border))': 'hsl(var(--border))',
   'hsl(var(--muted))': 'hsl(var(--muted))',
 };

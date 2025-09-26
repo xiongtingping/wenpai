@@ -175,7 +175,7 @@ const TitleCard = memo<TitleCardProps>(({
               size="sm"
               className="h-8 w-8 p-0"
               onClick={(e) => onCopy(title.title, e)}
-              title=
+              title="复制标题"
             >
               <Copy className="w-4 h-4" />
             </Button>

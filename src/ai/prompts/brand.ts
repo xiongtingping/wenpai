@@ -154,17 +154,15 @@ ${content}
 
 ${debug ? '\n## 调试模式\n请提供详细的评估过程和判断依据。' : ''}
 
-现在开始检查：i18n.t('ai.message._ln9')你是专业的品牌语言设计师，请为品牌设计合适的语气和表达方式：
+现在开始检查：
+
+请根据以下品牌信息检查内容质量：
 
 ## 品牌信息
 - 品牌名称: ${brandProfile?.brandName || '未知'}
 - 品牌调性: ${brandProfile?.brandPersonality?.tone || '未知'}
 - 目标用户: ${brandProfile?.targetAudience?.primary || '未知'}
 - 核心价值: ${brandProfile?.coreValues?.join(', ') || '未知'}
-
-## 内容场景
-- 内容类型: ${contentType}
-- 使用场合: ${occasion}
 
 ## 语气设计要求
 请设计符合品牌特色的语气指南：
@@ -210,6 +208,26 @@ ${debug ? '\n## 调试模式\n请提供详细的设计思路和品牌语气分�
 };
 
 /**
+ * 品牌语气提示词生成函数
+ */
+export function getBrandTonePrompt(brandProfile: any, contentType: string = '通用内容', occasion: string = '通用场合') {
+  return `你是专业的品牌语言设计师，请为品牌设计合适的语气和表达方式：
+
+## 品牌信息
+- 品牌名称: ${brandProfile?.brandName || '未知'}
+- 品牌调性: ${brandProfile?.brandPersonality?.tone || '未知'}
+- 目标用户: ${brandProfile?.targetAudience?.primary || '未知'}
+- 核心价值: ${brandProfile?.coreValues?.join(', ') || '未知'}
+
+## 内容场景
+- 内容类型: ${contentType}
+- 使用场合: ${occasion}
+
+## 语气设计要求
+请设计符合品牌特色的语气指南，以JSON格式返回。`;
+}
+
+/**
  * 根据品牌任务类型选择合适的提示词函数
  * 
  */
@@ -217,7 +235,7 @@ export function getBrandPromptByTask(task: string): PromptTemplate {
   switch (task) {
     case 'analysis':
     case 'comprehensive':
-      return getBrandAnalysisPrompt;
+      return generateBrandAnalysisPrompt;
     case 'check':
     case 'review':
       return getBrandContentCheckPrompt;
@@ -225,7 +243,7 @@ export function getBrandPromptByTask(task: string): PromptTemplate {
     case 'voice':
       return getBrandTonePrompt;
     default:
-      return getBrandAnalysisPrompt;
+      return generateBrandAnalysisPrompt;
   }
 }
 

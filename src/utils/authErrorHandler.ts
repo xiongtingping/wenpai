@@ -117,7 +117,11 @@ interface ErrorStats {
  */
 export class AuthErrorHandler {
   private static instance: AuthErrorHandler;
-  private errorStats: ErrorStats;
+  private errorStats: ErrorStats = {
+    totalErrors: 0,
+    errorsByType: {},
+    lastReset: new Date()
+  };
   private errorHistory: AuthError[] = [];
   private readonly MAX_HISTORY = 100;
 
@@ -337,7 +341,7 @@ export class AuthErrorHandler {
       }
     };
 
-    return metadata[type] || metadata[AuthErrorType.UNKNOWN_ERROR];
+    return metadata[type as keyof typeof metadata] || metadata[AuthErrorType.UNKNOWN_ERROR];
   }
 
   /**

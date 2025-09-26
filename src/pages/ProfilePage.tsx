@@ -458,12 +458,12 @@ export default function ProfilePage() {
           <div className="profile-main-section">
             <div className="profile-main-card">
               {/* {t('profile.sections.headerTitle')} */}
-              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>
+              <div className="u-flex-between u-mb-2xl">
                 <div>
-                  <h1 style={{fontSize: '1.5rem', fontWeight: '600', color: '#1f2937', margin: 0}}>
+                  <h1 className="u-text-title u-m-none">
                     {t('nav.profile')}
                   </h1>
-                  <p style={{color: '#6b7280', margin: '0.5rem 0 0 0'}}>
+                  <p className="u-text-subtitle u-mt-md">
                     {t('profile.manageInfo')}
                   </p>
                 </div>
@@ -472,7 +472,7 @@ export default function ProfilePage() {
                   size="sm"
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}
+className="u-flex-gap-sm"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>{isLoggingOut ? t('auth.loggingOut') : t('auth.logout')}</span>
@@ -485,7 +485,7 @@ export default function ProfilePage() {
                 <div className="profile-left-section">
                   <Avatar key={avatarKey} className="profile-avatar">
                     <AvatarImage src={getCurrentFormAvatar()} alt={getUserAltText(user, t('profile.sections.avatar'))} />
-                    <AvatarFallback style={{fontSize: '2rem', background: '#f3f4f6'}}>
+                    <AvatarFallback className="u-text-2xl u-bg-dialog">
                       {getCurrentAvatarFallback()}
                     </AvatarFallback>
                   </Avatar>
@@ -494,37 +494,37 @@ export default function ProfilePage() {
                     {profileForm.nickname || getUserDisplayName(user, t('profile.sections.user'))}
                   </h2>
 
-                  <Badge style={{marginBottom: '1rem'}}>
+                  <Badge className="u-mb-lg">
                     <Crown className="w-3 h-3 mr-1" />
                     {getAccountType()}
                   </Badge>
 
-                  <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center'}}>
-                    <Button size="sm" onClick={handleUploadAvatar} style={{fontSize: '0.75rem'}}>
+                  <div className="u-flex-gap-sm u-flex-wrap u-justify-center">
+                    <Button size="sm" onClick={handleUploadAvatar} className="u-text-xs">
                       <Upload className="w-3 h-3 mr-1" />
                       上传头像
                     </Button>
-                    <Button size="sm" variant="outline" onClick={handleRandomAvatar} style={{fontSize: '0.75rem'}}>
+                    <Button size="sm" variant="outline" onClick={handleRandomAvatar} className="u-text-xs">
                       <Sparkles className="w-3 h-3 mr-1" />
                       随机头像
                     </Button>
                   </div>
 
-                  <div style={{width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '1rem'}}>
-                    <div style={{textAlign: 'center', padding: '0.5rem', background: 'white', borderRadius: '6px', border: '1px solid #e5e7eb'}}>
-                      <div style={{fontSize: '0.75rem', color: '#6b7280'}}>用户ID</div>
-                      <div style={{fontSize: '0.875rem', fontWeight: '600', wordBreak: 'break-all'}}>{user?.id || 'unknown'}</div>
+                  <div className="u-w-full u-grid-cols-2 u-mt-lg">
+                    <div className="u-text-center u-p-sm u-bg-background u-rounded u-border">
+                      <div className="u-text-xs u-text-muted">用户ID</div>
+                      <div className="u-text-sm u-font-semibold u-break-all">{user?.id || 'unknown'}</div>
                     </div>
-                    <div style={{textAlign: 'center', padding: '0.5rem', background: 'white', borderRadius: '6px', border: '1px solid #e5e7eb'}}>
-                      <div style={{fontSize: '0.75rem', color: '#6b7280'}}>陪伴天数</div>
-                      <div style={{fontSize: '0.875rem', fontWeight: '600'}}>{companionDays}天</div>
+                    <div className="u-text-center u-p-sm u-bg-background u-rounded u-border">
+                      <div className="u-text-xs u-text-muted">陪伴天数</div>
+                      <div className="u-text-sm u-font-semibold">{companionDays}天</div>
                     </div>
                   </div>
                 </div>
 
                 {/* 右侧：表单区域 */}
                 <div className="profile-right-section">
-                  <h3 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937'}}>
+                  <h3 className="u-text-lg u-font-semibold u-mb-lg u-text-foreground">
                     {t('profile.editInfo')}
                   </h3>
 
@@ -540,13 +540,13 @@ export default function ProfilePage() {
 
                   <div className="profile-form-field">
                     <label className="profile-form-label">{t('profile.phone')}</label>
-                    <div style={{display: 'flex', gap: '0.5rem', alignItems: 'center'}}>
+                    <div className="u-flex-gap-sm">
                       <Input
                         value={profileForm.phone}
                         onChange={(e) => handleFormChange('phone', e.target.value)}
                         placeholder={t('profile.enterPhone')}
                         className="profile-form-input"
-                        style={{flex: 1}}
+className="u-flex-1"
                       />
                       <Button
                         size="sm"
@@ -569,7 +569,7 @@ export default function ProfilePage() {
                         {isVerifyingPhone ? (
                           <RefreshCw className="w-3 h-3 animate-spin" />
                         ) : verificationStatus.phone ? (
-                          <Check className="w-3 h-3" style={{color: '#16a34a'}} />
+                          <Check className="w-3 h-3 u-text-success" />
                         ) : showVerificationInput.phone ? (
                           '确认'
                         ) : (
@@ -580,12 +580,12 @@ export default function ProfilePage() {
 
                     {/* 验证码输入框 */}
                     {showVerificationInput.phone && !verificationStatus.phone && (
-                      <div style={{marginTop: '0.5rem'}}>
+                      <div className="u-mt-md">
                         <Input
                           value={verificationCodes.phone}
                           onChange={(e) => setVerificationCodes(prev => ({ ...prev, phone: e.target.value }))}
                           placeholder="请输入短信验证码"
-                          style={{fontSize: '0.875rem'}}
+className="u-text-sm"
                         />
                       </div>
                     )}
@@ -593,13 +593,13 @@ export default function ProfilePage() {
 
                   <div className="profile-form-field">
                     <label className="profile-form-label">{t('profile.email')}</label>
-                    <div style={{display: 'flex', gap: '0.5rem', alignItems: 'center'}}>
+                    <div className="u-flex-gap-sm">
                       <Input
                         value={profileForm.email}
                         onChange={(e) => handleFormChange('email', e.target.value)}
                         placeholder="请输入邮箱"
                         className="profile-form-input"
-                        style={{flex: 1}}
+className="u-flex-1"
                       />
                       <Button
                         size="sm"
@@ -622,7 +622,7 @@ export default function ProfilePage() {
                         {isVerifyingEmail ? (
                           <RefreshCw className="w-3 h-3 animate-spin" />
                         ) : verificationStatus.email ? (
-                          <Check className="w-3 h-3" style={{color: '#16a34a'}} />
+                          <Check className="w-3 h-3 u-text-success" />
                         ) : showVerificationInput.email ? (
                           '确认'
                         ) : (
@@ -633,20 +633,20 @@ export default function ProfilePage() {
 
                     {/* 验证码输入框 */}
                     {showVerificationInput.email && !verificationStatus.email && (
-                      <div style={{marginTop: '0.5rem'}}>
+                      <div className="u-mt-md">
                         <Input
                           value={verificationCodes.email}
                           onChange={(e) => setVerificationCodes(prev => ({ ...prev, email: e.target.value }))}
                           placeholder="请输入邮箱验证码"
-                          style={{fontSize: '0.875rem'}}
+className="u-text-sm"
                         />
                       </div>
                     )}
                   </div>
 
                   {hasUnsavedChanges && (
-                    <div style={{background: '#eff6ff', border: '1px solid #3b82f6', borderRadius: '6px', padding: '0.75rem', marginBottom: '1rem'}}>
-                      <p style={{margin: 0, fontSize: '0.875rem', color: '#1d4ed8'}}>
+                    <div className="u-bg-primary-light u-border-primary u-rounded u-p-md u-mb-lg">
+                      <p className="u-m-none u-text-sm u-text-primary">
                         您有未保存的更改，请点击保存按钮
                       </p>
                     </div>
@@ -707,37 +707,37 @@ export default function ProfilePage() {
               minHeight: '500px'
             }}>
               {/* 邀请奖励 */}
-              <div className="profile-invite-card" style={{flex: 1}}>
-                <div style={{marginBottom: '1.5rem'}}>
-                  <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem'}}>
-                    <Gift className="w-6 h-6" style={{color: '#3b82f6'}} />
-                    <h3 style={{fontSize: '1.125rem', fontWeight: '600', margin: 0}}>邀请奖励</h3>
+              <div className="profile-invite-card u-flex-1">
+                <div className="u-mb-xl">
+                  <div className="u-flex-gap-md u-mb-lg">
+                    <Gift className="w-6 h-6 u-text-primary" />
+                    <h3 className="u-text-lg u-font-semibold u-m-none">邀请奖励</h3>
                   </div>
-                  <p style={{margin: 0, color: '#6b7280', fontSize: '0.875rem'}}>
+                  <p className="u-m-none u-text-muted u-text-sm">
                     每邀请1人注册，双方各得20次免费使用机会，可累加且永久有效！
                   </p>
                 </div>
 
-                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem'}}>
-                  <div style={{textAlign: 'center', padding: '1rem', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb'}}>
-                    <div style={{fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.25rem'}}>0</div>
-                    <div style={{fontSize: '0.75rem', color: '#6b7280'}}>成功邀请</div>
+                <div className="u-grid-cols-2 u-mb-xl">
+                  <div className="u-text-center u-p-lg u-bg-dialog u-rounded-lg u-border">
+                    <div className="u-text-2xl u-font-bold u-text-foreground u-mb-xs">0</div>
+                    <div className="u-text-xs u-text-muted">成功邀请</div>
                   </div>
-                  <div style={{textAlign: 'center', padding: '1rem', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb'}}>
-                    <div style={{fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.25rem'}}>0</div>
-                    <div style={{fontSize: '0.75rem', color: '#6b7280'}}>获得次数</div>
+                  <div className="u-text-center u-p-lg u-bg-dialog u-rounded-lg u-border">
+                    <div className="u-text-2xl u-font-bold u-text-foreground u-mb-xs">0</div>
+                    <div className="u-text-xs u-text-muted">获得次数</div>
                   </div>
                 </div>
 
-                <div style={{marginBottom: '1.5rem'}}>
-                  <label style={{display: 'block', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem', color: '#374151'}}>
+                <div className="u-mb-xl">
+                  <label className="u-block u-text-sm u-font-semibold u-mb-sm u-text-foreground">
                     邀请链接
                   </label>
-                  <div style={{display: 'flex', gap: '0.5rem'}}>
+                  <div className="u-flex-gap-sm">
                     <Input
                       value={`${window.location.origin}/register?inviter=${user?.id || 'unknown'}`}
                       readOnly
-                      style={{flex: 1, fontSize: '0.75rem', fontFamily: 'monospace'}}
+className="u-flex-1 u-text-xs u-font-mono"
                     />
                     <Button size="sm" onClick={handleCopyInviteLink} style={{
                       background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
@@ -776,13 +776,13 @@ export default function ProfilePage() {
               </div>
 
               {/* 反馈奖励 */}
-              <div className="profile-feedback-card" style={{flex: 1}}>
-                <div style={{marginBottom: '1.5rem'}}>
-                  <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem'}}>
-                    <HelpCircle className="w-6 h-6" style={{color: '#3b82f6'}} />
-                    <h3 style={{fontSize: '1.125rem', fontWeight: '600', margin: 0}}>反馈奖励</h3>
+              <div className="profile-feedback-card u-flex-1">
+                <div className="u-mb-xl">
+                  <div className="u-flex-gap-md u-mb-lg">
+                    <HelpCircle className="w-6 h-6 u-text-primary" />
+                    <h3 className="u-text-lg u-font-semibold u-m-none">反馈奖励</h3>
                   </div>
-                  <p style={{margin: 0, color: '#6b7280', fontSize: '0.875rem'}}>
+                  <p className="u-m-none u-text-muted u-text-sm">
                     发现重要bug或提出有价值建议，可获得额外使用次数奖励
                   </p>
                 </div>
@@ -793,16 +793,16 @@ export default function ProfilePage() {
                   gap: '1rem', 
                   marginBottom: '1.5rem'
                 }}>
-                  <div style={{padding: '1rem', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb'}}>
-                    <h4 style={{fontSize: '0.875rem', fontWeight: '600', margin: '0 0 0.5rem 0', color: '#1f2937'}}>反馈规则</h4>
-                    <p style={{margin: 0, fontSize: '0.75rem', color: '#6b7280', lineHeight: '1.4'}}>
+                  <div className="u-p-lg u-bg-dialog u-rounded-lg u-border">
+                    <h4 className="u-text-sm u-font-semibold u-mb-sm u-text-foreground">反馈规则</h4>
+                    <p className="u-m-none u-text-xs u-text-muted u-leading-relaxed">
                       bug报告或建议可获得奖励
                     </p>
                   </div>
                   
-                  <div style={{padding: '1rem', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb'}}>
-                    <h4 style={{fontSize: '0.875rem', fontWeight: '600', margin: '0 0 0.5rem 0', color: '#1f2937'}}>反馈邮箱</h4>
-                    <div style={{display: 'flex', gap: '0.5rem', alignItems: 'center'}}>
+                  <div className="u-p-lg u-bg-dialog u-rounded-lg u-border">
+                    <h4 className="u-text-sm u-font-semibold u-mb-sm u-text-foreground">反馈邮箱</h4>
+                    <div className="u-flex-gap-sm">
                       <Input
                         value="hello@wenpai.xyz"
                         readOnly

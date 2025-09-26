@@ -92,11 +92,20 @@ export class DeepSeekProvider implements AIProviderInterface {
         model: params.model || 'deepseek-chat',
         promptLength: params.prompt.length,
         hasSystem: !!params.systemPrompt,
-        hasContext: !!(params.context && params.context.length > 0);
+        hasContext: !!(params.context && params.context.length > 0)
       });
 
       if (!this.isConfigured()) {
-        throw new Error(i18n.t('aiProviders.deepseek.keyNotConfiguredi18n.t('ai.message._5gm')system',
+        throw new Error(i18n.t('aiProviders.deepseek.keyNotConfigured'));
+      }
+
+      // 构建消息数组
+      const messages: Array<{ role: string; content: string }> = [];
+
+      // 添加系统消息
+      if (params.systemPrompt) {
+        messages.push({
+          role: 'system',
           content: params.systemPrompt
         });
       }
@@ -152,7 +161,7 @@ export class DeepSeekProvider implements AIProviderInterface {
         success: false,
         content: '',
         model: params.model || 'deepseek-chat',
-        error: error instanceof Error ? error.message : i18n.t('ai.error.DeepSeek_1mk');
+        error: error instanceof Error ? error.message : i18n.t('ai.error.DeepSeek_1mk')
       };
     }
   }
@@ -178,7 +187,7 @@ export class DeepSeekProvider implements AIProviderInterface {
       success: false,
       images: [],
       model: params.model || 'deepseek-chat',
-      error: i18n.t('ai.status.DeepSeek_t1u');
+      error: i18n.t('ai.status.DeepSeek_t1u')
     };
   }
 

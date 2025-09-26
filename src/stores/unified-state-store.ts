@@ -230,7 +230,7 @@ const initialUserState: UserState = {
   avatar: null,
   roles: [],
   permissions: [],
-  subscription: 'free',
+  subscription: 'free' as const,
   isAuthenticated: false,
   loginTime: null,
   lastActivity: null,

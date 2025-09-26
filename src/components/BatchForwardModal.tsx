@@ -152,7 +152,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
       modal.style.setProperty('border-radius', 'var(--batch-modal-border-radius)', 'important');
       modal.style.setProperty('box-shadow', 'var(--batch-modal-shadow)', 'important');
       
-      console.log('🔍 批量转发弹窗已强制定位到底部，位置:', modal.getBoundingClientRect());
+      if (import.meta.env.DEV) console.log('🔍 批量转发弹窗已强制定位到底部，位置:', modal.getBoundingClientRect());
     }
   }, [open, isMinimized]);
 
@@ -457,7 +457,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
   );
 
   // 使用Portal将模态框渲染到专门的容器，确保不受父容器样式影响
-  console.log('🔍 批量转发弹窗渲染状态:', { open, isMinimized, modalRef: !!modalRef.current });
+  if (import.meta.env.DEV) console.log('🔍 批量转发弹窗渲染状态:', { open, isMinimized, modalRef: !!modalRef.current });
   
   const portalContainer = document.getElementById('batch-forward-modal-container') || document.body;
   return createPortal(modalContent, portalContainer);

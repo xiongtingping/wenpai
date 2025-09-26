@@ -98,11 +98,20 @@ export class OpenAIProvider implements AIProviderInterface {
         model: params.model || 'gpt-4o',
         promptLength: params.prompt.length,
         hasSystem: !!params.systemPrompt,
-        hasContext: !!(params.context && params.context.length > 0);
+        hasContext: !!(params.context && params.context.length > 0)
       });
 
       if (!this.isConfigured()) {
-        throw new Error(i18n.t('aiProviders.openai.keyNotConfiguredi18n.t('ai.message._qtl')system',
+        throw new Error(i18n.t('aiProviders.openai.keyNotConfigured'));
+      }
+
+      // 构建消息数组
+      const messages: Array<{ role: string; content: string }> = [];
+
+      // 添加系统消息
+      if (params.systemPrompt) {
+        messages.push({
+          role: 'system',
           content: params.systemPrompt
         });
       }
@@ -158,7 +167,7 @@ export class OpenAIProvider implements AIProviderInterface {
         success: false,
         content: '',
         model: params.model || 'gpt-4o',
-        error: error instanceof Error ? error.message : i18n.t('ai.error.OpenAI调用_psc');
+        error: error instanceof Error ? error.message : i18n.t('ai.error.OpenAI调用_psc')
       };
     }
   }
@@ -227,7 +236,7 @@ export class OpenAIProvider implements AIProviderInterface {
         success: false,
         images: [],
         model: params.model || 'dall-e-3',
-        error: error instanceof Error ? error.message : i18n.t('ai.error.OpenAI图像_kg7');
+        error: error instanceof Error ? error.message : i18n.t('ai.error.OpenAI图像_kg7')
       };
     }
   }

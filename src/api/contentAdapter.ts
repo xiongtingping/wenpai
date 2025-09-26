@@ -4,7 +4,7 @@
  */
 
 import i18n from '@/i18n';
-import { generatePlatformContent, type StyleType } from '@/config/contentSchemes';
+import { type StyleType } from '@/config/contentSchemes';
 import { getContentFormById } from '@/config/contentForms';
 import { callUnifiedAI } from '@/api/unifiedAIService';
 import { AITaskType } from '@/api/aiService';
@@ -138,11 +138,12 @@ function generateContentFormPrompt(
   const charInstruction = `严格控制在${charLimit}字符以内，不得超出此限制`;
 
   // 风格映射
-  const styleMap = {
+  const styleMap: Record<StyleType, string> = {
     'professional': '专业权威',
     'funny': '幽默风趣',
     'real': '真实自然',
-    'hook': '吸引眼球'
+    'hook': '吸引眼球',
+    'global-adaptation': '全球化适配'
   };
 
   if (contentForm) {

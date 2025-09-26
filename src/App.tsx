@@ -198,7 +198,7 @@ const App: React.FC = () => {
 
   return (
     <EnhancedErrorBoundary
-      level='application'
+      level='page'
       enableAutoRecovery={true}
       enablePerformanceTracking={true}
       onError={(error) => {
@@ -206,7 +206,7 @@ const App: React.FC = () => {
         try {
           const errorDetails = {
             message: error?.message || t('app.errors.unknownError'),
-            name: error?.name || t('app.errors.unknownErrorType'),
+            name: (error as any)?.name || t('app.errors.unknownErrorType'),
             stack: error?.stack || t('app.errors.noStackTrace'),
             errorType: typeof error,
             errorString: String(error),

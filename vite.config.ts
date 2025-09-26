@@ -165,15 +165,42 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        // 简化策略：仅将所有第三方依赖归入单一 vendor（减少跨分组循环依赖几率）
+        // 优化代码分割策略：减少大文件
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
+            // UI组件库
             if (id.includes('node_modules/@radix-ui')) return 'ui-vendor';
             if (id.includes('node_modules/lucide-react')) return 'icons-vendor';
+            if (id.includes('node_modules/framer-motion')) return 'animation-vendor';
+            
+            // 认证相关
             if (id.includes('node_modules/@authing')) return 'auth-vendor';
+            if (id.includes('node_modules/jsonwebtoken')) return 'auth-vendor';
+            
+            // 大型库分离
+            if (id.includes('node_modules/react-router')) return 'router-vendor';
+            if (id.includes('node_modules/@tanstack/react-table')) return 'table-vendor';
+            if (id.includes('node_modules/recharts')) return 'chart-vendor';
+            
+            // 工具库
+            if (id.includes('node_modules/lodash')) return 'utils-vendor';
+            if (id.includes('node_modules/date-fns')) return 'utils-vendor';
+            if (id.includes('node_modules/crypto-js')) return 'utils-vendor';
+            
             return 'vendor';
           }
-          // 其余保持默认，避免不必要的分块导致初始化顺序问题
+          
+          // 业务代码分割
+          if (id.includes('/src/pages/')) {
+            if (id.includes('ProfilePage') || id.includes('SettingsPage')) return 'user-pages';
+            if (id.includes('PaymentPage') || id.includes('PaymentResult')) return 'payment-pages';
+            if (id.includes('CreativeStudio') || id.includes('BrandLibrary')) return 'creative-pages';
+            return 'pages';
+          }
+          
+          // 服务层分离
+          if (id.includes('/src/services/')) return 'services';
+          if (id.includes('/src/api/')) return 'api';
         },
         // 使用语义化的chunk文件名
         chunkFileNames: (chunkInfo) => {
@@ -207,6 +234,8 @@ export default defineConfig({
         }
       ]
     },
+    // 调整块大小警告阈值
+    chunkSizeWarningLimit: 800, // 提高到800kB
     // 🔧 CommonJS 兼容性配置
     commonjsOptions: {
       include: [/node_modules/],

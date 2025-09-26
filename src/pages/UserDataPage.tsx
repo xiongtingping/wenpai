@@ -141,7 +141,7 @@ export default function UserDataPage() { const authState = useAuthStore();
       {/* 页面访问记录 */}
       <PageTracker 
         title={t('components.labels.标题')}
-        description=$
+        description="用户数据管理"
         metadata={{
           layout: 'tool',
           hasNavigation: true,

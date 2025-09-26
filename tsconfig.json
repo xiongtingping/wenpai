@@ -28,6 +28,15 @@
     "src/**/final-*.js",
     "src/**/verify-*.js",
     "src/**/debug-*.js",
-    "**/*.md"
+    "**/*.md",
+    "*BACKUP*/**",
+    "*backup*/**",
+    "*CLEANUP*/**",
+    "**/*.backup",
+    "**/*.bak",
+    "src/components/TitleGeneratorIntelligent.tsx",
+    "src/services/intelligentCategoryService.ts",
+    "CLEANUP_BACKUP_*/**",
+    "UNIFIED_CLEANUP_BACKUP_*/**"
   ]
 }

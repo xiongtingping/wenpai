@@ -259,8 +259,8 @@ async function requestWithRetry<T>(
       );
 
       console.warn(`⚠️ API请求失败，${delay}ms后重试 (${attempt + 1}/${finalConfig.maxRetries})`, {
-        error: error.message,
-        url: error.config?.url,
+        error: error instanceof Error ? error.message : String(error),
+        url: error && typeof error === 'object' && 'config' in error ? (error as any).config?.url : undefined,
         attempt: attempt + 1
       });
 

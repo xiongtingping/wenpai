@@ -195,7 +195,9 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated  
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   生成中...
                 </>
-              ) : ()}
+              ) : (
+                '生成摘要'
+              )}
             </Button>
             
             <Button 

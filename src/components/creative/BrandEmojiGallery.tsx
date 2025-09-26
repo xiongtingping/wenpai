@@ -197,7 +197,7 @@ export default function BrandEmojiGallery({ emojis,
               alt={emoji.emotion}
               className="w-full h-16 object-contain cursor-pointer hover:scale-105 transition-transform"
               onClick={() => handlePreview(emoji)}
-              title=$
+              title={`${emoji.emotion} - ${emoji.theme}`}
             />
             
             {/* 悬停操作按钮 */}
@@ -253,7 +253,7 @@ export default function BrandEmojiGallery({ emojis,
                 variant="ghost"
                 className="w-6 h-6 p-0 text-foreground hover:text-foreground"
                 onClick={() => onRegenerate(emoji.emotion)}
-                title=
+                title={`重新生成 ${emoji.emotion}`}
               >
                 <RefreshCw className="w-3 h-3" />
               </Button>
@@ -264,7 +264,7 @@ export default function BrandEmojiGallery({ emojis,
                 variant="ghost"
                 className="w-6 h-6 p-0 text-destructive hover:text-destructive"
                 onClick={() => onDelete(emoji.emotion)}
-                title=
+                title={`删除 ${emoji.emotion}`}
               >
                 <Trash2 className="w-3 h-3" />
               </Button>
@@ -291,7 +291,7 @@ export default function BrandEmojiGallery({ emojis,
             alt={emoji.emotion}
             className="w-12 h-12 object-contain cursor-pointer"
             onClick={() => handlePreview(emoji)}
-            title=$
+            title={`${emoji.emotion} - ${emoji.theme}`}
           />
           
           {/* 信息 */}

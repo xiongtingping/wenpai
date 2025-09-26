@@ -17,13 +17,13 @@ export const disableAllInteraction = (element: HTMLElement): void => {
   
   // 禁用选择
   element.style.userSelect = 'none';
-  element.style.webkitUserSelect = 'none';
-  element.style.mozUserSelect = 'none';
-  element.style.msUserSelect = 'none';
+  (element.style as any).webkitUserSelect = 'none';
+  (element.style as any).mozUserSelect = 'none';
+  (element.style as any).msUserSelect = 'none';
   
   // 禁用拖拽
   element.draggable = false;
-  element.style.webkitUserDrag = 'none';
+  (element.style as any).webkitUserDrag = 'none';
   
   // 移除tabindex
   element.setAttribute('tabindex', '-1');
@@ -63,10 +63,10 @@ export const enableAllInteraction = (element: HTMLElement): void => {
   // 恢复样式属性
   element.style.pointerEvents = '';
   element.style.userSelect = '';
-  element.style.webkitUserSelect = '';
-  element.style.mozUserSelect = '';
-  element.style.msUserSelect = '';
-  element.style.webkitUserDrag = '';
+  (element.style as any).webkitUserSelect = '';
+  (element.style as any).mozUserSelect = '';
+  (element.style as any).msUserSelect = '';
+  (element.style as any).webkitUserDrag = '';
   element.draggable = true;
   
   // 恢复属性

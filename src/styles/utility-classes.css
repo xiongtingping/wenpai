@@ -270,4 +270,135 @@
     --tw-scale-x: 1 !important;
     --tw-scale-y: 1 !important;
   }
+  
+  /* 🎯 常用布局组合 - 替代内联样式 */
+  .u-flex-between {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  
+  .u-flex-start {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+  
+  .u-flex-gap-sm {
+    display: flex !important;
+    gap: var(--spacing-sm) !important;
+  }
+  
+  .u-flex-gap-md {
+    display: flex !important;
+    gap: var(--spacing-md) !important;
+  }
+  
+  .u-grid-cols-2 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: var(--spacing-md) !important;
+  }
+  
+  /* 🎯 文字样式 */
+  .u-text-title {
+    font-size: var(--font-size-xl) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    color: var(--color-foreground) !important;
+  }
+  
+  .u-text-subtitle {
+    font-size: var(--font-size-sm) !important;
+    color: var(--color-muted-foreground) !important;
+  }
+  
+  .u-text-mono {
+    font-family: var(--font-mono) !important;
+    font-size: var(--font-size-xs) !important;
+  }
+  
+  /* 🎯 间距工具 */
+  .u-mb-lg {
+    margin-bottom: var(--spacing-lg) !important;
+  }
+  
+  .u-mt-md {
+    margin-top: var(--spacing-md) !important;
+  }
+  
+  .u-p-md {
+    padding: var(--spacing-md) !important;
+  }
+  
+  .u-px-md {
+    padding-left: var(--spacing-md) !important;
+    padding-right: var(--spacing-md) !important;
+  }
+  
+  .u-py-sm {
+    padding-top: var(--spacing-sm) !important;
+    padding-bottom: var(--spacing-sm) !important;
+  }
+
+  /* 🎯 新增工具类 - 清理内联样式 */
+  .u-text-xs { font-size: 0.75rem !important; }
+  .u-text-sm { font-size: 0.875rem !important; }
+  .u-text-lg { font-size: 1.125rem !important; }
+  .u-text-2xl { font-size: 1.5rem !important; }
+  .u-text-center { text-align: center !important; }
+  .u-text-foreground { color: var(--color-foreground) !important; }
+  .u-text-muted { color: var(--color-muted-foreground) !important; }
+  .u-text-primary { color: var(--color-primary) !important; }
+  .u-text-success { color: #16a34a !important; }
+  .u-font-semibold { font-weight: 600 !important; }
+  .u-font-bold { font-weight: 700 !important; }
+  .u-font-mono { font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important; }
+  .u-leading-relaxed { line-height: 1.625 !important; }
+  .u-break-all { word-break: break-all !important; }
+
+  /* 🎯 渐变背景工具类 */
+  .u-gradient-blue { background: linear-gradient(135deg, #3B82F6, #2563EB) !important; }
+  .u-gradient-green { background: linear-gradient(135deg, #10B981, #047857) !important; }
+  .u-gradient-purple { background: linear-gradient(135deg, #8B5CF6, #7C3AED) !important; }
+  .u-gradient-amber { background: linear-gradient(135deg, #F59E0B, #D97706) !important; }
+  .u-gradient-pink { background: linear-gradient(135deg, #EC4899, #DB2777) !important; }
+  .u-gradient-gray { background: linear-gradient(135deg, #374151, #4B5563) !important; }
+  .u-gradient-red { background: linear-gradient(135deg, #EF4444, #B91C1C) !important; }
+  .u-gradient-cyan { background: linear-gradient(135deg, #06B6D4, #0E7490) !important; }
+  .u-gradient-yellow { background: linear-gradient(135deg, #EAB308, #A16207) !important; }
+  .u-gradient-orange { background: linear-gradient(135deg, #F97316, #C2410C) !important; }
+  .u-gradient-emerald { background: linear-gradient(135deg, #22C55E, #15803D) !important; }
+  .u-gradient-indigo { background: linear-gradient(135deg, #4F46E5, #3730A3) !important; }
+  .u-gradient-sky { background: linear-gradient(135deg, #0EA5E9, #0369A1) !important; }
+  .u-gradient-teal { background: linear-gradient(135deg, #059669, #065F46) !important; }
+  .u-gradient-violet { background: linear-gradient(135deg, #7C3AED, #5B21B6) !important; }
+  .u-gradient-slate { background: linear-gradient(135deg, #1F2937, #374151) !important; }
+  .u-gradient-rose { background: linear-gradient(135deg, #FB7185, #E11D48) !important; }
+
+  /* 🎯 扩展间距工具类 */
+  .u-m-none { margin: 0 !important; }
+  .u-mb-xs { margin-bottom: 0.25rem !important; }
+  .u-mb-sm { margin-bottom: 0.5rem !important; }
+  .u-mb-md { margin-bottom: 0.75rem !important; }
+  .u-mb-xl { margin-bottom: 1.5rem !important; }
+  .u-mb-2xl { margin-bottom: 2rem !important; }
+  .u-p-sm { padding: 0.5rem !important; }
+  .u-p-lg { padding: 1rem !important; }
+
+  /* 🎯 背景色工具类 */
+  .u-bg-background { background-color: var(--color-background) !important; }
+  .u-bg-primary-light { background-color: rgba(59, 130, 246, 0.1) !important; }
+
+  /* 🎯 布局工具类 */
+  .u-flex-1 { flex: 1 !important; }
+  .u-flex-wrap { flex-wrap: wrap !important; }
+  .u-justify-center { justify-content: center !important; }
+  .u-w-full { width: 100% !important; }
+  .u-block { display: block !important; }
+
+  /* 🎯 边框工具类 */
+  .u-border { border: 1px solid var(--color-border) !important; }
+  .u-border-primary { border: 1px solid var(--color-primary) !important; }
+  .u-rounded { border-radius: 0.375rem !important; }
+  .u-rounded-lg { border-radius: 0.5rem !important; }
 }

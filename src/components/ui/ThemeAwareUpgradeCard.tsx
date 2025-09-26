@@ -48,7 +48,7 @@ export const ThemeAwareUpgradeCard: React.FC<any> = ({ requiredTier,
       description: `解锁${featureName}的全部功能，立即体验专业级内容创作`,
       action: (
         <ToastAction
-          altText=$
+          altText="升级"
           onClick={() => {
             localStorage.setItem("selectedPlan", requiredTier);
             navigate('/payment-center');

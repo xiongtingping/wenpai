@@ -194,7 +194,7 @@ export async function userPermissionExample(userId: string, userPrompt: string) 
     return {
       content: '您没有权限使用AI服务，请升级账户或联系管理员。',
       success: false,
-      error: i18n.t('api.errors.权限不足');
+      error: i18n.t('api.errors.权限不足')
     };
   }
 

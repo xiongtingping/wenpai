@@ -117,7 +117,7 @@ export function safeJsonParse(text: string, fallback: any = null): any {
  * 
  */
 export function cleanText(text: string): string {
-  return text;
+  return text
     .replace(/\r\n/g, '\n')  // 统一换行符
     .replace(/\n{3,}/g, '\n\n')  // 合并多余空行
     .trim();  // 去除首尾空白
@@ -145,9 +145,9 @@ export function extractKeywords(text: string, maxCount: number = 10): string[] {
     '的', '了', '在', '是', '我', '有', '和', '就', '不', '人', '都', '一', '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好', '自己', '这'
   ]);
 
-  const words = text;
+  const words = text
     .replace(/[^\u4e00-\u9fff\w\s]/g, ' ')  // 保留中文和英文
-    .split(/\s+/);
+    .split(/\s+/)
     .filter(word => word.length > 1 && !stopWords.has(word));
 
   const wordCount: Record<string, number> = {};
@@ -155,9 +155,9 @@ export function extractKeywords(text: string, maxCount: number = 10): string[] {
     wordCount[word] = (wordCount[word] || 0) + 1;
   });
 
-  return Object.entries(wordCount);
+  return Object.entries(wordCount)
     .sort(([, a], [, b]) => b - a)
-    .slice(0, maxCount);
+    .slice(0, maxCount)
     .map(([word]) => word);
 }
 

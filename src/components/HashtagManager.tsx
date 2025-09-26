@@ -217,7 +217,7 @@ export const HashtagManager: React.FC<any> = ({ initialTags,
           <button
             onClick={() => setShowTemplates(!showTemplates)}
             className="p-2 text-muted-foreground hover:text-muted-foreground rounded-lg hover:bg-accent"
-            title=
+            title="显示模板"
           >
             <Star className="h-4 w-4" />
           </button>
@@ -225,7 +225,7 @@ export const HashtagManager: React.FC<any> = ({ initialTags,
           <button
             onClick={() => setResetDialogOpen(true)}
             className="p-2 text-muted-foreground hover:text-muted-foreground rounded-lg hover:bg-accent"
-            title=$
+            title="重置标签"
           >
             <RotateCcw className="h-4 w-4" />
           </button>

@@ -93,7 +93,7 @@ export const AnimatedAuthShell: React.FC<any> = ({ title = 'Welcome',
     <div className={`login-container ${isDarkMode ? 'dark' : 'light'}`}>
       <canvas id="particles" ref={canvasRef} className="particles-canvas"></canvas>
 
-      <button className="auth-nav-back" aria-label= onClick={() => navigate('/')}>
+      <button className="auth-nav-back" aria-label="返回首页" onClick={() => navigate('/')}>
         <ArrowLeft size={16} /> <span className="auth-nav-back-text">返回</span>
       </button>
 

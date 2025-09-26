@@ -42,13 +42,13 @@ export async function callOpenAIDevProxy(options: {
     console.log('请求参数:', { messages, model, temperature, maxTokens });
 
     // 构建提示词
-    const prompt = messages;
+    const prompt = messages
       .filter(msg => msg.role === 'user')
       .map(msg => msg.content)
       .join('\n\n');
 
     // 获取系统提示词
-    const systemPrompt = messages;
+    const systemPrompt = messages
       .find(msg => msg.role === 'system')?.content;
 
     // 使用统一的AI API调用

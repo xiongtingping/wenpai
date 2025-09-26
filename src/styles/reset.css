@@ -81,11 +81,9 @@
   outline-offset: var(--spacing-0-5) /* TODO: 替换硬编码尺寸 var(--spacing-0-5) */;
 
 /* 🚫 严格禁止区域 - 以下内容绝对不允许在reset层 */
-
+/*
 { ... }           // 组件样式
 :root { --color: ... }    // 设计令牌
-* { transform: ... }      // Transform属性 (禁止)
+transform属性      // Transform属性 (禁止)
 .utility { ... }          // 工具类
 */
-
-}}}}}}}}}}}}}}

@@ -282,7 +282,7 @@ export function wrapAsyncFunction<T extends any[], R>(
     try {
       return await fn(...args);
     } catch (error) {
-      logError(error, {
+      logError(error instanceof Error ? error : new Error(String(error)), {
         type: 'wrapped_async_error',
         functionName: fn.name,
         context
@@ -303,7 +303,7 @@ export async function safeAsyncExecution<T>(
   try {
     return await fn();
   } catch (error) {
-    logError(error, {
+    logError(error instanceof Error ? error : new Error(String(error)), {
       type: 'safe_async_execution_error',
       context
     });
