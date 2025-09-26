@@ -561,7 +561,6 @@ export {
   useAuthState,
   useThemeState,
   useFavoritesState,
-  useContentSyncStore,
 };
 
 // 兼容性层已激活 - 静默运行，避免控制台警告
@@ -576,5 +575,4 @@ export default {
   useAuthStore,
   useTheme,
   useFavoritesStore,
-  useContentSyncStore,
 };

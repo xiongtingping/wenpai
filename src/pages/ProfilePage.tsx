@@ -545,8 +545,7 @@ className="u-flex-gap-sm"
                         value={profileForm.phone}
                         onChange={(e) => handleFormChange('phone', e.target.value)}
                         placeholder={t('profile.enterPhone')}
-                        className="profile-form-input"
-className="u-flex-1"
+                        className="profile-form-input u-flex-1"
                       />
                       <Button
                         size="sm"
@@ -598,8 +597,7 @@ className="u-text-sm"
                         value={profileForm.email}
                         onChange={(e) => handleFormChange('email', e.target.value)}
                         placeholder="请输入邮箱"
-                        className="profile-form-input"
-className="u-flex-1"
+                        className="profile-form-input u-flex-1"
                       />
                       <Button
                         size="sm"

@@ -1606,8 +1606,7 @@ export default function MD2CardPage() {
                       <div className="grid grid-cols-6 gap-2 mb-4">
                         {/* 蓝色商务 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-blue"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-blue"
                           title="蓝色商务"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1623,8 +1622,7 @@ className="u-gradient-blue"
                         
                         {/* 绿色清新 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-green"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-green"
                           title="绿色清新"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1640,8 +1638,7 @@ className="u-gradient-green"
                         
                         {/* 紫色优雅 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-purple"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-purple"
                           title="紫色优雅"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1657,8 +1654,7 @@ className="u-gradient-purple"
                         
                         {/* 橙色活力 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-amber"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-amber"
                           title="橙色活力"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1674,8 +1670,7 @@ className="u-gradient-amber"
                         
                         {/* 粉色温馨 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-pink"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-pink"
                           title="粉色温馨"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1691,8 +1686,7 @@ className="u-gradient-pink"
                         
                         {/* 暗色专业 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-gray"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-gray"
                           title="暗色专业"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1708,8 +1702,7 @@ className="u-gradient-gray"
                         
                         {/* 红色热情 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-red"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-red"
                           title="红色热情"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1725,8 +1718,7 @@ className="u-gradient-red"
                         
                         {/* 青色清爽 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-cyan"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-cyan"
                           title="青色清爽"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1742,8 +1734,7 @@ className="u-gradient-cyan"
                         
                         {/* 黄色阳光 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-yellow"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-yellow"
                           title="黄色阳光"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1759,8 +1750,7 @@ className="u-gradient-yellow"
                         
                         {/* 玫瑰金 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-orange"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-orange"
                           title="玫瑰金"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1776,8 +1766,7 @@ className="u-gradient-orange"
                         
                         {/* 薄荷绿 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-emerald"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-emerald"
                           title="薄荷绿"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1793,8 +1782,7 @@ className="u-gradient-emerald"
                         
                         {/* 靛青深邃 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-indigo"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-indigo"
                           title="靛青深邃"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1813,8 +1801,7 @@ className="u-gradient-indigo"
                       <div className="grid grid-cols-6 gap-2 mb-4">
                         {/* 湖水蓝 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-sky"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-sky"
                           title="湖水蓝"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1830,8 +1817,7 @@ className="u-gradient-sky"
                         
                         {/* 森林绿 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-teal"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-teal"
                           title="森林绿"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1847,8 +1833,7 @@ className="u-gradient-teal"
                         
                         {/* 紫罗兰 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-violet"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-violet"
                           title="紫罗兰"
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1864,8 +1849,7 @@ className="u-gradient-violet"
                         
                         {/* 石墨黑 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-slate"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-slate"
                           title="石墨黑"
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1881,8 +1865,7 @@ className="u-gradient-slate"
                         
                         {/* 珊瑚橙 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
-className="u-gradient-rose"
+                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-rose"
                           title="珊瑚橙"
         onClick={() => setCardConfig(prev => ({
                             ...prev,
