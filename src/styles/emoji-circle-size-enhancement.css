@@ -1,0 +1,87 @@
+@layer components {
+  /* 🎯 Emoji圆圈图标大小增强修复 
+   * 目标：让圆圈背景中的emoji图标放大，铺满背景
+   * 遵循CLAUDE.md规范，使用components层级
+   */
+
+  /* 核心修复：增大圆形背景中的emoji字体大小 */
+  .emoji-grid-container .avatar-display,
+  .avatar-display.emoji-avatar-bg,
+  .avatar-display {
+    /* 🔍 保持圆形容器尺寸不变 */
+    width: 72px !important;
+    height: 72px !important;
+    border-radius: var(--radius-full) !important;
+    
+    /* 🎯 大幅增加emoji字体大小，从--spacing-12增加到2.5rem */
+    font-size: 2.5rem !important; /* 约40px，显著增大emoji */
+    
+    /* 📐 确保emoji在圆圈中完美居中 */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    
+    /* 🎨 保持视觉效果 */
+    box-shadow: 0 3px var(--spacing-3) hsl(var(--foreground) / 0.08) !important;
+    
+    /* 🔧 确保emoji文本不会溢出 */
+    overflow: hidden !important;
+    text-align: center !important;
+    line-height: 1 !important; /* 紧凑行高，避免垂直偏移 */
+  }
+
+  /* 🎯 增强特定emoji-avatar-bg背景容器 */
+  .emoji-avatar-bg {
+    /* 使用CSS变量确保背景颜色正确显示 */
+    background-color: var(--emoji-bg-color) !important;
+  }
+
+  /* 📱 响应式调整：中等屏幕 */
+  @media (max-width: 768px) {
+    .emoji-grid-container .avatar-display,
+    .avatar-display.emoji-avatar-bg,
+    .avatar-display {
+      /* 在中等屏幕上稍微减小，但仍比默认大 */
+      font-size: 2.2rem !important; /* 约35px */
+    }
+  }
+
+  /* 📱 响应式调整：小屏幕 */
+  @media (max-width: 576px) {
+    .emoji-grid-container .avatar-display,
+    .avatar-display.emoji-avatar-bg,
+    .avatar-display {
+      /* 在小屏幕上适度减小 */
+      font-size: 2rem !important; /* 约32px */
+    }
+  }
+
+  /* 🔍 确保emoji文本选择和复制体验 */
+  .emoji-grid-container .avatar-display *,
+  .avatar-display.emoji-avatar-bg *,
+  .avatar-display * {
+    font-size: inherit !important;
+    user-select: text !important; /* 允许选择emoji文本 */
+  }
+
+  /* 🎯 特别处理：QuickReference Dialog中的emoji显示 */
+  [role="dialog"] .emoji-grid-container .avatar-display,
+  [role="dialog"] .avatar-display.emoji-avatar-bg,
+  [role="dialog"] .avatar-display {
+    /* 在Dialog中确保emoji大小一致 */
+    font-size: 2.5rem !important;
+  }
+
+  /* 🔧 Debug信息：在开发模式下显示emoji容器边框 */
+  .development .emoji-grid-container .avatar-display {
+    border: 1px dashed rgba(255, 0, 0, 0.3) !important;
+  }
+}
+
+/* 💡 使用说明：
+ * 1. 此修复针对emoji圆形背景容器大小问题
+ * 2. 将emoji字体大小从默认的var(--spacing-12)增加到2.5rem
+ * 3. 保持圆形容器尺寸不变，只增大内部emoji大小
+ * 4. 包含响应式设计，确保在不同屏幕尺寸下都有良好表现
+ * 5. 遵循CLAUDE.md规范，使用components层级，不滥用emergency层
+ */

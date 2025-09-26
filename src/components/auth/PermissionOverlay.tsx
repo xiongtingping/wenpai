@@ -75,7 +75,7 @@ export const PermissionOverlay: React.FC<PermissionOverlayProps> = ({
     // 保存选中的计划到localStorage
     localStorage.setItem("selectedPlan", requiredTier);
     // 直接跳转到支付页面
-    navigate('/payment');
+    navigate('/payment-center');
   };
 
   return (

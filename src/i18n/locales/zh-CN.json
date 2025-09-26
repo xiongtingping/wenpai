@@ -4910,13 +4910,13 @@
   },
   "nav": {
     "home": "首页",
-    "adapt": "内容适配",
+    "adapt": "AI内容适配",
     "creative": "创意魔方",
     "hotTopics": "全网雷达",
     "brandLibrary": "品牌库",
     "extractor": "内容提取器",
     "emoji": "表情生成器",
-    "bookmark": "智能收藏",
+    "bookmark": "我的资料库",
     "wechatTemplate": "朋友圈模板",
     "settings": "设置",
     "upgrade": "升级套餐",
@@ -5013,7 +5013,7 @@
       "subtitle": "看看其他创作者怎么说",
       "sectionTitle": "看看内容专家们怎么说",
       "testimonial1": {
-        "content": "过去一个团队半天的工作量，现在用AI内容适配器10分钟就搞定了，而且内容质量和品牌一致性都非常有保障。这是我们团队今年引入的最有价值的工具。",
+        "content": "过去一个团队半天的工作量，现在用AI内容适配10分钟就搞定了，而且内容质量和品牌一致性都非常有保障。这是我们团队今年引入的最有价值的工具。",
         "name": "王经理",
         "position": "某快消品牌市场总监"
       },
@@ -5103,7 +5103,7 @@
       "comparisonTable": {
         "title": "功能详细对比",
         "feature": "功能",
-        "aiContentAdapter": "AI内容适配器",
+        "aiContentAdapter": "AI内容适配",
         "hotRadar": "全网雷达",
         "creativeCube": "创意魔方",
         "myLibrary": "我的资料库",
@@ -5187,7 +5187,7 @@
       "useTool": "使用工具",
       "mainFeatures": {
         "contentAdapter": {
-          "title": "AI内容适配器",
+          "title": "AI内容适配",
           "description": "智能分析内容，一键适配多平台格式，让您的创意在不同平台绽放光彩",
           "badge": "热门",
           "features": [
@@ -5311,6 +5311,7 @@
   },
   "brandLibrary": {
     "title": "品牌库",
+    "description": "智能管理品牌资产，构建专属品牌知识库",
     "subtitle": "管理您的品牌资产和素材",
     "navigation": {
       "home": "首页",
@@ -5715,11 +5716,12 @@
     "updateFailed": "更新失败"
   },
   "adapt": {
-    "title": "内容适配器",
+    "title": "AI内容适配",
     "subtitle": "智能内容适配，一键多平台发布",
     "validation": {
       "enterContent": "请输入原始内容",
-      "selectPlatforms": "请选择至少一个目标平台"
+      "selectPlatforms": "请选择至少一个目标平台",
+      "selectModel": "请选择AI模型"
     },
     "errors": {
       "usageExhausted": "使用次数已用完",
@@ -6533,7 +6535,8 @@
       "limited": "限时",
       "currentPlan": "当前版本",
       "selected": "已选择",
-      "selectPlan": "选择此计划"
+      "selectPlan": "选择此计划",
+      "alreadyHaveHigher": "已拥有更高版本"
     },
     "plans": {
       "freePlan": "免费版",
@@ -6541,6 +6544,8 @@
       "premiumPlan": "高级版",
       "currentPlan": "当前套餐",
       "recommended": "推荐",
+      "selectPlan": "选择此计划",
+      "alreadyHaveHigher": "已拥有更高版本",
       "popular": "热门",
       "bestValue": "最超值",
       "monthly": "月付",
@@ -6550,7 +6555,37 @@
       "perYear": "每年",
       "billed": "计费",
       "billedMonthly": "按月计费",
-      "billedYearly": "按年计费"
+      "billedYearly": "按年计费",
+      "trial": {
+        "name": "体验版",
+        "description": "免费使用，有使用次数限制"
+      },
+      "pro": {
+        "name": "专业版", 
+        "description": "适合个人创作者和专业用户"
+      },
+      "premium": {
+        "name": "高级版",
+        "description": "适合团队和企业用户"
+      },
+      "features": {
+        "aiContentAdapter": "AI内容适配",
+        "timesPerMonth": "次/月",
+        "hotRadar": "全网雷达",
+        "myLibrary": "我的资料库",
+        "tokenQuota": "Token配额",
+        "thousandTokens": "万Token",
+        "perMonth": "/月",
+        "basicModels": "基础AI模型",
+        "lightTheme": "浅色主题",
+        "creativeCube": "创意魔方",
+        "advancedModels": "高级AI模型",
+        "darkLightTheme": "深浅色主题",
+        "brandLibrary": "品牌库",
+        "advancedLatestModels": "高级及最新模型",
+        "allThemes": "全部主题",
+        "unlimited": "无限制"
+      }
     },
     "promotion": {
       "title": "限时优惠进行中",
@@ -7178,7 +7213,7 @@
         "description": "统一管理品牌素材，保持内容风格一致"
       },
       "creativeStudio": {
-        "title": "创意工作室",
+        "title": "创意魔方",
         "description": "集成多种创意工具，激发无限创作灵感"
       },
       "teamwork": {
@@ -7271,7 +7306,7 @@
       "cancel": "取消",
       "regenerate": "重新生成",
       "regenerating": "重新生成中...",
-      "copyToAdapter": "一键复制至AI内容适配器"
+      "copyToAdapter": "一键复制至AI内容适配"
     },
     "history": {
       "title": "历史生成记录"
@@ -7323,7 +7358,7 @@
       "contentCopiedDesc": "创意内容已复制到剪贴板",
       "savedToLibrary": "已保存到创意库",
       "savedToLibraryDesc": "创意已保存到您的专属历史记录 ({{mode}}模式)",
-      "jumpingToAdapter": "正在跳转至AI内容适配器",
+      "jumpingToAdapter": "正在跳转至AI内容适配",
       "jumpingToAdapterDesc": "内容已准备好，即将自动填入适配器"
     },
     "placeholders": {
@@ -9366,7 +9401,7 @@
     }
   },
   "creativeStudio": {
-    "title": "创意工作室",
+    "title": "创意魔方",
     "description": "包含九宫格创意魔方、营销日历、朋友圈模板和Emoji生成器",
     "tabs": {
       "creativeCube": "创意魔方",
@@ -13364,7 +13399,7 @@
       "_ptk": ");\n        document.body.removeChild(textArea);\n      }\n\n      // 显示成功提醒\n      const titlePreview = title.length > 30 ? title.substring(0, 30) + "
     },
     "labels": {
-      "标题": "AI内容适配器",
+      "标题": "AI内容适配",
       "描述": "智能将内容适配到不同平台，支持多种风格和格式，一键生成符合平台特色的优质内容",
       "是否已生成标题": "是否已生成标题",
       "标题是否正在生成中": "标题是否正在生成中",
@@ -15210,14 +15245,14 @@
       "创意标题已t_fr7": "创意标题已{t('creativeCube.actions.copy')}到剪贴板\"",
       "内容已tc_afk": "内容已{t('creativeCube.actions.copy')}\",",
       "创意内容已t_gch": "创意内容已{t('creativeCube.actions.copy')}到剪贴板\"",
-      "内容并跳转到AI_98r": "内容并跳转到AI内容适配器",
+      "内容并跳转到AI_98r": "内容并跳转到AI内容适配",
       "使用React_ikc": "使用React",
       "的navigat_scw": "的navigate方式跳转，并传递预填充内容",
       "同时将内容存储到_xoj": "同时将内容存储到sessionStorage作为备用",
       "创意魔方_uof": "创意魔方');",
-      "正在跳转至AI内_r0n": "正在跳转至AI内容适配器\",",
+      "正在跳转至AI内_r0n": "正在跳转至AI内容适配\",",
       "内容已准备好即_1zo": "内容已准备好，即将自动填入适配器\"",
-      "一键tcr_od0": "一键{t('creativeCube.actions.copy')}至AI内容适配器",
+      "一键tcr_od0": "一键{t('creativeCube.actions.copy')}至AI内容适配",
       "失去焦点时自动_emw": "失去焦点时自动{t('creativeCube.actions.save')}",
       "按钮_kok": "按钮",
       "话题分类组件完整_ffo": "话题分类组件完整性验证，修复于",
@@ -18032,7 +18067,7 @@
       "免费专业版_zmo": "免费|专业版/.test(f))",
       "过滤掉标签文案_h0t": "过滤掉标签文案",
       "只显示前5个核心_57y": "只显示前5个核心功能",
-      "创意工作室g_wna": "创意工作室/g,",
+      "创意工作室g_wna": "创意魔方/g,",
       "创意魔方_6jg": "创意魔方')",
       "专业功能g_bqq": "专业功能/g,",
       "更多功能_r2e": "更多功能')",
@@ -18433,7 +18468,7 @@
       "文派span_1vj": "文派</span>",
       "内容适配器按钮被_661": "内容适配器按钮被点击');",
       "当前认证状态_cdt": "当前认证状态:',",
-      "用户已登录跳转_aaj": "用户已登录，跳转到AI内容适配器页面');",
+      "用户已登录跳转_aaj": "用户已登录，跳转到AI内容适配页面');",
       "用户未登录调用_bcl": "用户未登录，调用登录函数');",
       "函数不可用_pya": "函数不可用');",
       "按钮点击出错_97b": "按钮点击出错:',",
@@ -20004,7 +20039,7 @@
       "渲染featur_iyp": "渲染features时去掉右上角文案标签",
       "免费专业版_rlb": "免费|专业版/.test(f))",
       "只去掉免费_8hx": "只去掉\"免费\"、\"专业版\"等文案，保留次数信息",
-      "创意工作室g_4dz": "创意工作室/g,",
+      "创意工作室g_4dz": "创意魔方/g,",
       "创意魔方_tpu": "创意魔方'))",
       "替换_spe": "替换",
       "九宫格创意魔方_lmv": "九宫格创意魔方/g,",
@@ -20429,7 +20464,7 @@
       "当前认证状态_rmy": "当前认证状态:',",
       "函数类型_1xu": "函数类型:',",
       "函数类型_5u8": "函数类型:',",
-      "用户已登录直接_teu": "用户已登录，直接跳转到AI内容适配器页面');",
+      "用户已登录直接_teu": "用户已登录，直接跳转到AI内容适配页面');",
       "用户未登录调用_vvf": "用户未登录，调用登录函数');",
       "函数不可用_hg3": "函数不可用:',",
       "备用方案直接跳_glu": "备用方案：直接跳转到登录页面",
@@ -20516,8 +20551,8 @@
       "使用次数统计卡片_0m9": "使用次数统计卡片",
       "使用次数h3_5vl": "使用次数</h3>",
       "使用次数说明_4ig": "使用次数说明')}",
-      "统计规则主要计_qht": "统计规则：主要计算AI内容适配器的调用次数\",",
-      "计量单位每次调_4pa": "计量单位：每次调用AI内容适配器计为1次使用\",",
+      "统计规则主要计_qht": "统计规则：主要计算AI内容适配的调用次数\",",
+      "计量单位每次调_4pa": "计量单位：每次调用AI内容适配计为1次使用\",",
       "重置周期每月1_uqk": "重置周期：每月1日自动重置使用次数\",",
       "与Token的区_dhf": "与Token的区别：使用次数按功能计量，Token按文字量计量\"",
       "无限制_lbe": "无限制'",
@@ -23035,7 +23070,7 @@
     },
     "label": {
       "_3gw": "\n                    }}\n                  >\n                    {/* 推荐标签 */}\n                    {(isRecommended || isRequired) && (\n                      <div className=",
-      "_yum": ">\n                        {plan.features\n                          .filter(f => !/免费|专业版/.test(f)) // 过滤掉标签文案\n                          .slice(0, 5) // 只显示前5个核心功能\n                          .map((feature, index) => {\n                            const text = feature\n                              .replace(/创意工作室/g, ",
+      "_yum": ">\n                        {plan.features\n                          .filter(f => !/免费|专业版/.test(f)) // 过滤掉标签文案\n                          .slice(0, 5) // 只显示前5个核心功能\n                          .map((feature, index) => {\n                            const text = feature\n                              .replace(/创意魔方/g, ",
       "_smg": ",\n        // 兴趣标签\n        ",
       "文案配音_i3s": "📝 文案/配音：同步上面内容，调性自然、真实、有代入感\n\n🎬 拍摄建议：\n• 画面风格：生活化、真实感强\n• 色调：明亮温暖，符合${target_audience}审美\n• 节奏：轻快有节奏感，符合${use_case}场景\n• 互动：鼓励用户分享自己的${use_case}经验\n\n🏷️ 标签建议：\n${getIndustryTags().join(",
       "_em5": ";\n  };\n\n  /**\n   * 生成行业特色标签\n   */\n  const getIndustryTags = () => {\n    const { industry } = selectedItems;\n    const industryTags: Record<string, string[]> = {\n      ",
@@ -24309,7 +24344,7 @@
       "内容方案测试": "内容方案测试",
       "全域内容适配方案": "全域内容适配方案",
       "专业风格": "专业风格",
-      "创意工作室测试": "创意工作室测试",
+      "创意工作室测试": "创意魔方测试",
       "热门话题测试": "热门话题测试",
       "热门趋势": "热门趋势",
       "使用当前认证系统获取用户信息": "使用当前认证系统获取用户信息",
@@ -25280,7 +25315,7 @@
       "保存成功": "保存成功",
       "导出成功": "导出成功",
       "导出失败": "导出失败",
-      "标题": "AI内容适配器",
+      "标题": "AI内容适配",
       "复制成功": "复制成功",
       "取消收藏": "取消收藏",
       "未命名资料": "未命名资料",
@@ -25422,7 +25457,7 @@
       "智能标题生成器": "智能标题生成器",
       "生成标题": "生成标题",
       "朋友圈文案生成器": "朋友圈文案生成器",
-      "创意工作室": "创意工作室",
+      "创意工作室": "创意魔方",
       "邀请链接已复制": "邀请链接已复制",
       "您的专属邀请链接": "您的专属邀请链接",
       "反馈已提交": "反馈已提交",
@@ -26231,7 +26266,7 @@
       "热度_74j": "热度:",
       "平台_bwf": "平台:",
       "排名_8qx": "排名:",
-      "跳转到AI内容适_nqz": "跳转到AI内容适配器并预填充内容",
+      "跳转到AI内容适_nqz": "跳转到AI内容适配并预填充内容",
       "热门话题t_e4m": "热门话题：${topic!.title",
       "未知话题_vta": "未知话题')}\\n\\n平台：${getPlatformDisplayName(topic!.platform",
       "热度for_4nf": "热度：${formatHotValue(topic!.hot",
@@ -26830,7 +26865,7 @@
       "已使用_6gl": "已使用",
       "总结span_n1l": "总结</span>",
       "字span_uxz": "字</span>",
-      "跳转到AI内容适_ket": "跳转到AI内容适配器并预填充内容",
+      "跳转到AI内容适_ket": "跳转到AI内容适配并预填充内容",
       "暂无内容_aci": "暂无内容'),",
       "未命名资料_erq": "未命名资料')",
       "快速创作_h42": "快速创作')}",
@@ -27993,7 +28028,7 @@
       "如有任何问题请_h4w": "如有任何问题，请联系我们的客服团队</li>",
       "下一步建议_mt0": "下一步建议",
       "接下来您可以_j9h": "接下来您可以：</h3>",
-      "体验AI内容适配_xj4": "体验AI内容适配器</h4>",
+      "体验AI内容适配_xj4": "体验AI内容适配</h4>",
       "使用AI技术为不_cln": "使用AI技术为不同平台优化内容</p>",
       "开始使用_8zn": "开始使用",
       "探索创意魔方_yum": "探索创意魔方</h4>",

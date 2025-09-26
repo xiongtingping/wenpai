@@ -211,6 +211,7 @@ export default function ForgotPasswordPage() {
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                     onFocus={() => setPhoneFocused(true)}
                     onBlur={() => setPhoneFocused(false)}
+                    autoComplete="tel"
                     required
                     className={`w-full px-4 py-4 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
                       isDarkMode ? "text-white" : "text-gray-900"

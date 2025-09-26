@@ -127,7 +127,7 @@ export default function HistoryPage() { const [history, setHistory] = useState<H
   }
 
   return (
-    <div className="min-h-screen bg-background pt-24">
+    <div className="min-h-screen bg-background pt-16">
       {/* 主导航栏 */}
       <Header />
 

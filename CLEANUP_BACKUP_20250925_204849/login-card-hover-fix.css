@@ -1,0 +1,51 @@
+/**
+ * 登录卡片Hover修复 - 终极解决方案
+ * 防止所有可能的hover透明度问题
+ */
+
+/* 🔧 最高优先级：防止任何hover效果影响登录卡片 */
+html body .login-container .login-card,
+html body .login-container .login-card *,
+html body .login-container .login-card-inner,
+html body .login-container .login-card-inner * {
+  /* 在hover状态下保持正常透明度 */
+  opacity: 1 !important;
+}
+
+/* 🔧 明确防止hover状态下的透明度变化 */
+.login-container .login-card:hover,
+.login-container .login-card *:hover,
+.login-container .login-card-inner:hover,
+.login-container .login-card-inner *:hover {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* 🔧 防止backdrop-filter在hover时失效 */
+.login-container .login-card:hover,
+.login-container .login-card-inner:hover {
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+/* 🔧 明确设置hover时的背景颜色，防止变透明 */
+.login-container .login-card:hover .login-card-inner {
+  background: rgba(255,255,255,0.85) !important;
+}
+
+.login-container.dark .login-card:hover .login-card-inner {
+  background: rgba(17, 24, 39, 0.65) !important;
+}
+
+/* 🔧 防止任何transform或filter效果导致透明 */
+.login-container .login-card:hover,
+.login-container .login-card-inner:hover {
+  transform: none !important;
+  filter: none !important;
+}
+
+/* 🔧 调试：强制显示边框确认样式生效 */
+.login-container .login-card:hover {
+  outline: 2px solid rgba(255, 0, 0, 0.3) !important;
+  outline-offset: 2px !important;
+}

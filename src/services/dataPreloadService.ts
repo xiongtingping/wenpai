@@ -19,7 +19,7 @@ export const ROUTE_DATA_DEPENDENCIES = {
   '/creative-studio': ['favorites', 'emojiLikes'],
   '/hot-topics': ['bookmarkedTopics', 'interestFilters'],
   '/profile': ['userSettings', 'theme'],
-  '/bookmarks': ['bookmarkedTopics', 'favorites'],
+  '/my-library': ['bookmarkedTopics', 'favorites'],
   '/history': ['shareHistory'],
   '/brand-library': ['favorites', 'userSettings']
 } as const;
@@ -275,8 +275,8 @@ export class DataPreloadService {
     const routePredictions: Record<string, string[]> = {
       '/': ['/adapt', '/creative-studio', '/profile'],
       '/adapt': ['/history', '/brand-library'],
-      '/creative-studio': ['/bookmarks', '/hot-topics'],
-      '/hot-topics': ['/bookmarks', '/adapt'],
+      '/creative-studio': ['/my-library', '/hot-topics'],
+      '/hot-topics': ['/my-library', '/adapt'],
       '/profile': ['/adapt', '/creative-studio'],
       '/brand-library': ['/adapt', '/creative-studio']
     };

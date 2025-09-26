@@ -266,11 +266,6 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
   const validateSettings = useCallback(() => {
     const errors: string[] = [];
 
-    // 验证选中平台
-    if (selectedPlatforms.length === 0) {
-      errors.push(i18n.t('common.errors.请至少选择一个目标平台'));
-    }
-
     // 验证字符数设置
     for (const platformId of selectedPlatforms) {
       const effective = getEffectiveSettings(platformId);

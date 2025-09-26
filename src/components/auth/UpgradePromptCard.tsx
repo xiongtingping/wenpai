@@ -66,7 +66,7 @@ export const UpgradePromptCard: React.FC<UpgradePromptCardProps> = ({
       onUpgradeClick();
     } else {
       localStorage.setItem('selectedPlan', planId);
-      navigate('/payment');
+      navigate('/payment-center');
     }
   };
 

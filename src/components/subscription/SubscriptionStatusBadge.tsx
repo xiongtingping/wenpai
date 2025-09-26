@@ -110,7 +110,7 @@ function SubscriptionStatusBadgeContent({
       <Badge 
         variant={getBadgeVariant()} 
         className={`flex items-center space-x-1 cursor-pointer transition-all hover:scale-105 ${className}`}
-        onClick={() => navigate('/payment')}
+        onClick={() => navigate('/payment-center')}
       >
         {getBadgeIcon()}
         <span className="text-xs">{subscriptionStatus?.statusLabel || t('components.labels.未订阅')}</span>

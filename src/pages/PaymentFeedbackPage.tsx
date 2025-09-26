@@ -102,7 +102,7 @@ export default function PaymentFeedbackPage() { const navigate = useNavigate();
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-background pt-24">
+      <div className="min-h-screen bg-background pt-16">
         <Header />
         
         <div className="container mx-auto px-4 py-8">
@@ -133,7 +133,7 @@ export default function PaymentFeedbackPage() { const navigate = useNavigate();
   }
 
   return (
-    <div className="min-h-screen bg-background pt-24">
+    <div className="min-h-screen bg-background pt-16">
       <Header />
       
       <div className="container mx-auto px-4 py-8">

@@ -97,7 +97,6 @@ const THEME_CONFIGS: ThemeConfig[] = [
     description: '古典雅致，传统文化韵味',
     category: 'creative',
     icon: <Waves className="w-4 h-4" />,
-    requiresPremium: true,
     preview: {
       primaryColor: 'hsl(var(--destructive))',
       backgroundColor: '#fef2f2',
@@ -109,9 +108,8 @@ const THEME_CONFIGS: ThemeConfig[] = [
     name: 'cyber',
     displayName: '赛博朋克',
     description: '未来科幻，个性十足',
-    category: 'premium',
+    category: 'creative',
     icon: <Cpu className="w-4 h-4" />,
-    requiresPremium: true,
     preview: {
       primaryColor: '#8b5cf6',
       backgroundColor: '#1e1b4b',
@@ -166,54 +164,78 @@ export function ThemeSelector({
   };
 
   return (
-    <div className={cn('space-y-3', className)}>
-      <div className="flex items-center gap-2 mb-3">
-        <Palette className="w-4 h-4" />
+    <div className={cn('space-y-2', className)} style={{display: 'block'}}>
+      <div className="flex items-center gap-2 mb-2">
+        <Palette className="w-3.5 h-3.5" />
         <span className="text-sm font-medium">主题样式</span>
-        <Badge variant="secondary" className="text-xs">
+        <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
           {currentTheme.displayName}
         </Badge>
       </div>
 
-      {/* 紧凑的主题选择器 - 单行显示 */}
-      <div className="flex flex-wrap gap-2">
+      {/* 紧凑的主题选择器 - 强制水平单行显示 */}
+      <div 
+        className="flex flex-wrap gap-1.5" 
+        style={{
+          display: 'flex', 
+          flexDirection: 'row', 
+          flexWrap: 'wrap',
+          gap: '6px',
+          alignItems: 'center'
+        }}
+      >
         {THEME_CONFIGS.map((theme) => (
           <button
             key={theme.id}
             className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-lg border transition-all hover:shadow-sm relative",
+              "flex items-center justify-center rounded-full border transition-all duration-200 hover:shadow-lg hover:scale-110 relative overflow-hidden",
               selectedTheme === theme.id
-                ? "border-primary bg-primary/10 shadow-sm"
-                : "border-border hover:border-primary/50"
+                ? "border-primary/60 bg-primary/10 shadow-lg ring-1 ring-primary/30"
+                : "border-border/30 hover:border-primary/50 bg-background/80 hover:bg-primary/5 shadow-sm hover:shadow-md"
             )}
+            style={{
+              width: '36px',
+              height: '36px',
+              minWidth: '36px',
+              minHeight: '36px',
+              maxWidth: '36px',
+              maxHeight: '36px',
+              margin: '2px',
+              aspectRatio: '1/1'
+            }}
             onClick={() => handleThemeSelect(theme)}
             title={theme.displayName}
           >
             {/* 主题预览图标 */}
             <div
-              className="w-6 h-6 rounded flex items-center justify-center"
+              className="w-full h-full rounded-full flex items-center justify-center transition-all duration-200"
               style={{
-                backgroundColor: theme.preview.backgroundColor,
+                backgroundColor: theme.preview.primaryColor + '20',
                 color: theme.preview.primaryColor,
-                border: `1px solid ${theme.preview.primaryColor}40`
+                border: selectedTheme === theme.id ? `1px solid ${theme.preview.primaryColor}60` : `1px solid ${theme.preview.primaryColor}20`,
+                aspectRatio: '1/1',
+                width: '32px',
+                height: '32px',
+                margin: '2px'
               }}
             >
               {React.cloneElement(theme.icon as React.ReactElement, {
-                className: "w-3 h-3"
+                className: "w-4 h-4",
+                style: { color: theme.preview.primaryColor }
               })}
             </div>
 
             {/* 选中状态指示 */}
             {selectedTheme === theme.id && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full flex items-center justify-center">
+              <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center shadow-md ring-1 ring-background">
                 <Check className="w-2 h-2 text-primary-foreground" />
               </div>
             )}
 
             {/* 高级主题标识 */}
             {theme.requiresPremium && (
-              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
-                <Star className="w-2 h-2 text-background" />
+              <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-amber-500 rounded-full flex items-center justify-center shadow-md ring-1 ring-background">
+                <Star className="w-2 h-2 text-white" />
               </div>
             )}
           </button>

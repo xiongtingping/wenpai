@@ -43,7 +43,7 @@ import {
  */
 const createSecondaryNavItems = (t: (key: string) => string) => [
   { path: '/', label: '首页', icon: Home },
-  { path: '/adapt', label: 'AI内容适配器', icon: FileText },
+  { path: '/content-adapter', label: 'AI内容适配', icon: FileText },
   { path: '/creative-studio', label: '创意魔方', icon: Sparkles },
   { path: '/hot-topics', label: '全网雷达', icon: TrendingUp },
   { path: '/library', label: '我的资料库', icon: FolderOpen },
@@ -72,15 +72,23 @@ interface PageConfig {
 /**
  * 页面配置映射
  */
-const PAGE_CONFIGS: Record<string, string> = {'/': {
+const PAGE_CONFIGS: Record<string, PageConfig> = {'/': {
     path: '/',
     title: '文派',
     icon: Home,
     level: 1,
   },
+  '/content-adapter': {
+    path: '/content-adapter',
+    title: 'AI内容适配',
+    icon: Zap,
+    level: 2,
+    parent: '/',
+    category: 'ai-tools',
+  },
   '/adapt': {
     path: '/adapt',
-    title: 'AI内容适配器',
+    title: 'AI内容适配',
     icon: Zap,
     level: 2,
     parent: '/',
@@ -102,9 +110,9 @@ const PAGE_CONFIGS: Record<string, string> = {'/': {
     parent: '/',
     category: 'content-tools',
   },
-  '/bookmarks': {
-    path: '/bookmarks',
-    title: '网络收藏',
+  '/my-library': {
+    path: '/my-library',
+    title: '我的资料库',
     icon: Bookmark,
     level: 3,
     parent: '/library',
@@ -236,7 +244,7 @@ interface PageNavigationProps {
   title?: string;
   /** 页面描述 */
   description?: string;
-  /** 是否显示AI内容适配器快速访问按钮 */
+  /** 是否显示AI内容适配快速访问按钮 */
   showAdaptButton?: boolean;
   /** 是否显示升级按钮 */
   showUpgradeButton?: boolean;
@@ -320,11 +328,11 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   const subModules = getSubModules();
 
   return (
-    <div className="border-b shadow-e1 theme-breadcrumb-bg backdrop-blur-sm relative z-40 min-h-[120px]">
-      <div className="container mx-auto px-4 py-6">
+    <div className="border-b shadow-e1 theme-breadcrumb-bg backdrop-blur-sm relative z-40 min-h-[80px]">
+      <div className="container mx-auto px-4 py-4">
         {/* 面包屑导航 */}
         {breadcrumbs.length > 0 && (
-          <div className="mb-4 mt-2 relative z-50">
+          <div className="mb-3 mt-0 relative z-50">
             <Breadcrumb>
               <BreadcrumbList className="flex-wrap theme-breadcrumb-text text-sm">
                 <BreadcrumbItem>
@@ -374,7 +382,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
         )}
 
         {/* 页面标题和描述 */}
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mt-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mt-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground break-words">
@@ -403,38 +411,6 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
           </div>
         </div>
 
-        {/* 子模块快速导航 */}
-        {subModules.length > 0 && PAGE_CONFIGS[path]?.level > 2 && (
-          <div className="mt-6">
-            <div className="flex items-center gap-2 mb-4">
-              <h3 className="text-lg font-semibold text-foreground">相关功能</h3>
-              <div className="flex-1 h-px bg-gradient-to-r from-hsl(var(--muted-foreground))-200 via-hsl(var(--muted-foreground))-300 to-transparent"></div>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {subModules.map((module) => (
-                <Button
-                  key={module.path}
-                  variant={path === module.path ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => navigate(module.path)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                    path === module.path
-                      ? "bg-primary text-primary-foreground shadow-lg scale-105"
-                      : "hover:bg-accent border-border hover:border-primary/50 hover:scale-105"
-                  }`}
-                >
-                  <module.icon className="w-4 h-4" />
-                  <span className="font-medium">{module.title}</span>
-                  {module.badge && (
-                    <Badge variant="secondary" className="ml-1 text-xs bg-accent text-foreground border-border">
-                      {module.badge}
-                    </Badge>
-                  )}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

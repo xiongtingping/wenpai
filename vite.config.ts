@@ -49,6 +49,7 @@ export default defineConfig({
       NODE_ENV: process.env.NODE_ENV || '',
       BASE_PATH: process.env.VITE_BASE_PATH || process.env.BASE_PATH || '/',
       VITE_AUTHING_FALLBACK_HOSTED: process.env.VITE_AUTHING_FALLBACK_HOSTED || '',
+      VITE_APP_VERSION: process.env.VITE_APP_VERSION || '1.0.0',
     })
   },
   // 开发服务器配置

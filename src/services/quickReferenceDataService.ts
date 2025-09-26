@@ -36,6 +36,40 @@ export interface QuickReferenceDataService {
   clearCache(): void;
 }
 
+// 统一的内容清洗器：移除<head>/<script>/<style>等非正文标签，仅保留<body>或文本内容
+function sanitizeToPlainText(input: string): string {
+  if (!input) return '';
+  try {
+    // 快速路径：如果不存在HTML标签，直接返回去掉多余空白的文本
+    const hasTag = /<[^>]+>/.test(input);
+    if (!hasTag) return input.trim();
+
+    // 优先尝试浏览器环境的DOM解析
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      const container = document.createElement('html');
+      container.innerHTML = input;
+
+      // 删除<head>/<script>/<style>/<noscript>
+      container.querySelectorAll('head, script, style, noscript, meta, link').forEach(el => el.remove());
+
+      // 若存在<body>，优先从<body>提取文本，否则整个文档文本
+      const body = container.querySelector('body');
+      const text = (body?.textContent ?? container.textContent ?? '').trim();
+
+      // 规范化空白
+      return text.replace(/\s+/g, ' ').trim();
+    }
+
+    // 非浏览器环境的兜底：粗略移除<head>块与所有标签
+    const withoutHead = input.replace(/<head[\s\S]*?>[\s\S]*?<\/head>/gi, '');
+    const withoutScripts = withoutHead.replace(/<(script|style|noscript)[\s\S]*?>[\s\S]*?<\/\1>/gi, '');
+    const stripped = withoutScripts.replace(/<[^>]+>/g, ' ');
+    return stripped.replace(/\s+/g, ' ').trim();
+  } catch {
+    return input.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+}
+
 class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
   private cache = new Map<string, { data: QuickReferenceItem[]; timestamp: number }>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
@@ -54,7 +88,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
    */
   async getBrandItems(): Promise<QuickReferenceItem[]> {
     const cacheKey = 'brand-items';
-    
+
     if (this.isCacheValid(cacheKey)) {
       return this.cache.get(cacheKey)!.data;
     }
@@ -62,18 +96,18 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
     try {
       // 从品牌资产数据获取
       const brandAssets = await globalDataManager.getData<any[]>('brand_assets') || [];
-      
+
       const items: QuickReferenceItem[] = brandAssets
         .map(asset => this.enhanceItem({
           id: asset.id || `brand-${Date.now()}-${Math.random()}`,
-          title: asset.name || asset.title || i18n.t('common.labels.未命名品牌资产'),
-          content: asset.description || asset.content || '',
+          title: sanitizeToPlainText(asset.name || asset.title || i18n.t('common.labels.未命名品牌资产')),
+          content: sanitizeToPlainText(asset.description || asset.content || ''),
           type: 'brand' as const,
           format: this.detectFormat(asset),
           source: '品牌库',
           tags: asset.tags || [],
           createdAt: asset.createdAt || new Date().toISOString(),
-          summary: asset.summary || this.generateSummary(asset.description || asset.content || ''),
+          summary: sanitizeToPlainText(asset.summary || this.generateSummary(asset.description || asset.content || '')),
           metadata: {
             assetType: asset.type,
             category: asset.category
@@ -83,7 +117,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
 
       // 缓存结果
       this.cache.set(cacheKey, { data: items, timestamp: Date.now() });
-      
+
       return items;
     } catch (error) {
       console.error('获取品牌库内容失败:', error);
@@ -96,7 +130,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
    */
   async getLibraryItems(): Promise<QuickReferenceItem[]> {
     const cacheKey = 'library-items';
-    
+
     if (this.isCacheValid(cacheKey)) {
       return this.cache.get(cacheKey)!.data;
     }
@@ -104,26 +138,26 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
     try {
       // 从收藏服务获取资料库类型的收藏
       const favorites = await favoritesService.getFavorites();
-      const libraryFavorites = favorites.filter(fav => 
+      const libraryFavorites = favorites.filter(fav =>
         fav.type === 'library-item' || fav.type === 'brand-asset'
       );
-      
+
       const items: QuickReferenceItem[] = libraryFavorites.map(fav => ({
         id: fav.id,
-        title: fav.title,
-        content: fav.content,
+        title: sanitizeToPlainText(fav.title),
+        content: sanitizeToPlainText(fav.content),
         type: 'library' as const,
         format: this.detectFormatFromContent(fav.content),
         source: fav.source || '我的资料库',
         tags: fav.tags,
         createdAt: new Date(fav.createdAt).toISOString(),
-        summary: fav.description || this.generateSummary(fav.content),
+        summary: sanitizeToPlainText(fav.description || this.generateSummary(fav.content)),
         metadata: fav.metadata
       }));
 
       // 缓存结果
       this.cache.set(cacheKey, { data: items, timestamp: Date.now() });
-      
+
       return items;
     } catch (error) {
       console.error('获取资料库内容失败:', error);
@@ -147,14 +181,14 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
       
       const items: QuickReferenceItem[] = topicBookmarks.map(bookmark => ({
         id: bookmark.id,
-        title: bookmark.title,
-        content: bookmark.content || bookmark.description || '',
+        title: sanitizeToPlainText(bookmark.title),
+        content: sanitizeToPlainText(bookmark.content || bookmark.description || ''),
         type: 'radar' as const,
         format: bookmark.url ? 'link' : 'text',
         source: bookmark.platform || '全网雷达',
         tags: bookmark.tags || [],
         createdAt: new Date(bookmark.timestamp || bookmark.createdAt).toISOString(),
-        summary: this.generateSummary(bookmark.content || bookmark.description || ''),
+        summary: sanitizeToPlainText(this.generateSummary(bookmark.content || bookmark.description || '')),
         metadata: {
           url: bookmark.url,
           platform: bookmark.platform,

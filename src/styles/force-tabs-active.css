@@ -1,0 +1,103 @@
+/**
+ * 强制修复全网雷达页面Tab按钮的所有可能问题
+ * 解决按钮无法点击和空白区域问题
+ */
+
+/* 🔥 强制所有tab按钮为可用状态 */
+[role="tablist"] [role="tab"],
+.unified-tabs-list [role="tab"],
+.unified-tabs-list .unified-tab-trigger {
+  /* 强制可点击 */
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  
+  /* 强制可用状态 */
+  opacity: 1 !important;
+  filter: none !important;
+  
+  /* 移除可能的禁用样式 */
+  background-color: transparent !important;
+  color: inherit !important;
+  
+  /* 确保正确的交互状态 */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  
+  /* 确保按钮有最小尺寸 */
+  min-height: 40px;
+  min-width: 80px;
+  
+  /* 确保按钮在最前面 */
+  position: relative;
+  z-index: 100;
+}
+
+/* 🎯 激活状态样式修复 */
+[role="tablist"] [role="tab"][data-state="active"],
+.unified-tabs-list [role="tab"][data-state="active"],
+.unified-tabs-list .unified-tab-trigger[data-state="active"] {
+  background-color: rgba(var(--primary), 0.1) !important;
+  color: rgb(var(--primary)) !important;
+  font-weight: 600 !important;
+}
+
+/* 🔄 悬停状态修复 */
+[role="tablist"] [role="tab"]:hover,
+.unified-tabs-list [role="tab"]:hover,
+.unified-tabs-list .unified-tab-trigger:hover {
+  background-color: rgba(var(--muted), 0.5) !important;
+  transition: background-color 0.2s ease !important;
+}
+
+/* 📱 移动端触摸优化 */
+@media (max-width: 768px) {
+  [role="tablist"] [role="tab"],
+  .unified-tabs-list [role="tab"],
+  .unified-tabs-list .unified-tab-trigger {
+    min-height: 48px;
+    font-size: 14px;
+    padding: 8px 12px !important;
+  }
+}
+
+/* 🚫 禁用任何可能阻止点击的覆盖层 */
+[role="tablist"]::before,
+[role="tablist"]::after,
+.unified-tabs-list::before,
+.unified-tabs-list::after {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* 🛠️ 修复TabsContent的间距问题 */
+[data-radix-tabs-content] {
+  margin-top: 24px !important;
+  min-height: 200px;
+  padding-top: 0 !important;
+}
+
+/* 📐 确保没有意外的空白区域 */
+.unified-tabs-list ~ div[data-radix-tabs-content] {
+  margin-top: 24px !important;
+}
+
+/* 🔧 强制显示内容区域 */
+[data-radix-tabs-content][data-state="active"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* 💡 调试模式 - 临时启用查看边界 */
+/*
+[role="tab"] {
+  border: 2px solid red !important;
+  background: rgba(255, 0, 0, 0.1) !important;
+}
+[data-radix-tabs-content] {
+  border: 2px solid blue !important;
+  background: rgba(0, 0, 255, 0.1) !important;
+}
+*/

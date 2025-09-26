@@ -35,12 +35,12 @@ export function UsageStatsCard({ usageStats, planName, adaptUsageLimit, tokenLim
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* AI内容适配器使用情况 */}
+        {/* AI内容适配使用情况 */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-foreground" />
-              <span className="font-medium">AI内容适配器</span>
+              <span className="font-medium">AI内容适配</span>
             </div>
             <Badge variant={adaptUsagePercentage > 80 ? "destructive" : adaptUsagePercentage > 60 ? "secondary" : "default"}>
               {usageStats.adaptUsageUsed}/{adaptUsageLimit > 0 ? adaptUsageLimit : '∞'}
@@ -105,7 +105,7 @@ export function UsageStatsCard({ usageStats, planName, adaptUsageLimit, tokenLim
               {adaptUsagePercentage > 80 && tokenUsagePercentage > 80
                 ? "您的使用量即将达到上限，建议升级到更高级的套餐"
                 : adaptUsagePercentage > 80
-                ? "AI内容适配器使用次数即将用完，建议升级套餐"
+                ? "AI内容适配使用次数即将用完，建议升级套餐"
                 : "Token使用量即将达到上限，建议升级套餐"
               }
             </p>

@@ -39,7 +39,12 @@ class ServiceInitializer {
     console.log('🚀 开始初始化服务依赖...');
 
     try {
-      // 1. 初始化ServerPermissionService
+      // 1. 注册所有服务到DI容器
+      const { registerAllServices } = await import('@/config/serviceRegistry');
+      await registerAllServices();
+      console.log('✅ DI容器服务注册完成');
+
+      // 2. 初始化ServerPermissionService
       await this.initializeServerPermissionService();
 
       this.state.initialized = true;

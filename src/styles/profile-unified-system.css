@@ -94,9 +94,7 @@
     flex-direction: column;
     min-height: 100%;
     width: 100%;
-    /* 🔍 调试边框 - 临时可视化 */
-    border: 1px solid rgba(255, 0, 0, 0.2);
-    background: rgba(0, 255, 0, 0.05);
+    /* 调试边框已移除 */
   }
   
   .profile-grid-equal-height {

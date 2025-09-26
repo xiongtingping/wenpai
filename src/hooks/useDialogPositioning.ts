@@ -76,10 +76,40 @@ export function useDialogPositioning(options: DialogPositioningOptions): DialogP
   }, [dialogType, customSelectors]);
 
   /**
-   * 应用Dialog定位修复
+   * 应用Dialog定位和尺寸修复 - 防闪动加强版
    */
   const applyDialogPositioning = useCallback((dialogElement: HTMLElement): void => {
     try {
+      // 🚨 立即锁定Dialog尺寸，防止任何闪动
+      if (dialogElement.classList.contains('subscription-dialog-stable')) {
+        // 添加订阅和编辑订阅Dialog
+        dialogElement.style.setProperty('width', 'min(90vw, 1000px)', 'important');
+        dialogElement.style.setProperty('max-width', '1000px', 'important');
+        dialogElement.style.setProperty('min-width', '600px', 'important');
+        dialogElement.style.setProperty('max-height', '90vh', 'important');
+        dialogElement.style.setProperty('min-height', '500px', 'important');
+        dialogElement.style.setProperty('height', 'auto', 'important');
+      } else if (dialogElement.classList.contains('trend-analysis-dialog-stable')) {
+        // 趋势分析Dialog
+        dialogElement.style.setProperty('width', 'min(95vw, 1400px)', 'important');
+        dialogElement.style.setProperty('max-width', '1400px', 'important');
+        dialogElement.style.setProperty('min-width', '900px', 'important');
+        dialogElement.style.setProperty('max-height', '95vh', 'important');
+        dialogElement.style.setProperty('min-height', '700px', 'important');
+        dialogElement.style.setProperty('height', 'auto', 'important');
+      }
+
+      // 🚨 完全禁用所有可能的动画和过渡
+      dialogElement.style.setProperty('transition', 'none', 'important');
+      dialogElement.style.setProperty('animation', 'none', 'important');
+      dialogElement.style.setProperty('animation-duration', '0s', 'important');
+      dialogElement.style.setProperty('animation-delay', '0s', 'important');
+      dialogElement.style.setProperty('transition-duration', '0s', 'important');
+      dialogElement.style.setProperty('transition-delay', '0s', 'important');
+      
+      // 🎯 确保Dialog可以正常关闭
+      dialogElement.style.setProperty('pointer-events', 'auto', 'important');
+
       // 清除可能冲突的inset属性
       const insetProperties = [
         'inset',
@@ -239,53 +269,155 @@ export function useGenericDialogPositioning(open: boolean, customSelectors?: str
 }
 
 /**
- * 🎯 Dialog滚动锁定Hook
- * 防止弹窗打开时页面滚动影响定位
+ * 订阅Dialog定位Hook - 专门用于HotTopicsPage
+ */
+export function useSubscriptionDialogPositioning(open: boolean, enableDebugLogs = false) {
+  return useDialogPositioning({
+    open,
+    dialogType: 'generic',
+    customSelectors: [
+      '[role="dialog"].subscription-dialog-stable',
+      '[role="dialog"][class*="subscription-dialog-stable"]',
+      '[role="dialog"].trend-analysis-dialog-stable',
+      '[role="dialog"][class*="trend-analysis-dialog-stable"]',
+      '[role="dialog"].subscription-dialog',
+      '[role="dialog"][class*="subscription-dialog"]',
+      '[role="dialog"].trend-analysis-dialog',
+      '[role="dialog"][class*="trend-analysis-dialog"]'
+    ],
+    enableDebugLogs
+  });
+}
+
+/**
+ * 🎯 Dialog滚动锁定Hook - 优化版本，防止页面闪动
+ * 修复弹窗开关时的页面上下跳跃问题
  * 遵循CLAUDE.md的系统性解决方案
  */
 export function useDialogScrollLock(open: boolean) {
   useEffect(() => {
     if (!open) return;
 
-    const originalOverflow = document.body.style.overflow;
-    const originalPosition = document.body.style.position;
-    const scrollY = window.scrollY;
+    console.log('🔒 启用优化的滚动锁定 - useDialogScrollLock v2');
+    
+    // 保存原始状态 - 更全面的状态保存
+    const originalScrollY = window.scrollY;
+    const originalScrollX = window.scrollX;
+    const body = document.body;
+    const html = document.documentElement;
+    
+    const originalBodyStyles = {
+      overflow: body.style.overflow,
+      overflowX: body.style.overflowX,
+      overflowY: body.style.overflowY,
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      height: body.style.height,
+      paddingRight: body.style.paddingRight
+    };
 
-    // 🔒 锁定滚动
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
+    const originalHtmlStyles = {
+      overflow: html.style.overflow,
+      overflowX: html.style.overflowX,
+      overflowY: html.style.overflowY
+    };
 
-    // 🚫 阻止滚动事件
+    console.log('📊 滚动锁定前状态:', {
+      scrollY: originalScrollY,
+      scrollX: originalScrollX,
+      bodyOverflow: originalBodyStyles.overflow,
+      bodyPosition: originalBodyStyles.position
+    });
+
+    // 🎯 计算滚动条宽度，防止页面宽度跳跃
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    
+    // 🔒 应用无闪动的滚动锁定
+    // 关键：不使用 position: fixed 和 top 偏移，这是导致闪动的根本原因
+    body.style.overflow = 'hidden';
+    body.style.overflowY = 'hidden';
+    body.style.overflowX = 'hidden';
+    
+    // 🎯 补偿滚动条宽度，防止页面内容跳跃
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    
+    // 🚨 同时锁定html元素，防止双重滚动
+    html.style.overflow = 'hidden';
+    html.style.overflowY = 'hidden';
+    html.style.overflowX = 'hidden';
+    
+    console.log('✅ 优化的滚动锁定已应用:', {
+      bodyOverflow: body.style.overflow,
+      scrollbarWidth,
+      paddingRight: body.style.paddingRight
+    });
+
+    // 🚫 阻止滚动事件 - 更精确的事件处理
     const preventScroll = (e: Event) => {
+      // 允许Dialog内部的滚动
+      const target = e.target as Element;
+      if (target && target.closest('[role="dialog"]')) {
+        return; // 不阻止Dialog内部的滚动
+      }
+      
       e.preventDefault();
       e.stopPropagation();
       return false;
     };
 
-    const events = ['scroll', 'wheel', 'touchmove'] as const;
+    // 🎯 更温和的滚动阻止策略
+    const events = ['wheel', 'touchmove'] as const;
     events.forEach(event => {
       document.addEventListener(event, preventScroll, { passive: false });
-      window.addEventListener(event, preventScroll, { passive: false });
     });
 
-    // 🧹 清理函数
+    // 🧹 清理函数 - 确保完全恢复原始状态
     return () => {
+      console.log('🔓 移除优化的滚动锁定 - useDialogScrollLock v2');
+      
       // 移除事件监听器
       events.forEach(event => {
         document.removeEventListener(event, preventScroll);
-        window.removeEventListener(event, preventScroll);
       });
 
-      // 恢复样式
-      document.body.style.overflow = originalOverflow;
-      document.body.style.position = originalPosition;
-      document.body.style.top = '';
-      document.body.style.width = '';
+      // 🎯 恢复body样式 - 精确恢复
+      Object.entries(originalBodyStyles).forEach(([property, value]) => {
+        if (value) {
+          (body.style as any)[property] = value;
+        } else {
+          body.style.removeProperty(property.replace(/([A-Z])/g, '-$1').toLowerCase());
+        }
+      });
+      
+      // 🎯 恢复html样式
+      Object.entries(originalHtmlStyles).forEach(([property, value]) => {
+        if (value) {
+          (html.style as any)[property] = value;
+        } else {
+          html.style.removeProperty(property.replace(/([A-Z])/g, '-$1').toLowerCase());
+        }
+      });
 
-      // 恢复滚动位置
-      window.scrollTo(0, scrollY);
+      // 🎯 确保滚动位置保持不变 - 使用平滑恢复
+      if (window.scrollY !== originalScrollY || window.scrollX !== originalScrollX) {
+        window.scrollTo({
+          top: originalScrollY,
+          left: originalScrollX,
+          behavior: 'instant' // 立即恢复，避免动画
+        });
+      }
+      
+      console.log('✅ 优化的滚动锁定已移除，无闪动恢复:', {
+        originalScrollY,
+        originalScrollX,
+        currentScrollY: window.scrollY,
+        currentScrollX: window.scrollX
+      });
     };
   }, [open]);
 }

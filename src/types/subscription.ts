@@ -12,7 +12,7 @@ export type SubscriptionPeriod = 'monthly' | 'yearly';
  * 功能限制接口
  */
 export interface FeatureLimits {
-  /** AI内容适配器使用次数 */
+  /** AI内容适配使用次数 */
   adaptUsageLimit: number;
   /** Token使用限制 */
   tokenLimit: number;
@@ -84,7 +84,7 @@ export interface UserSubscription {
  * 使用统计接口
  */
 export interface UsageStats {
-  /** AI内容适配器已使用次数 */
+  /** AI内容适配已使用次数 */
   adaptUsageUsed: number;
   /** Token已使用数量 */
   tokensUsed: number;
@@ -116,9 +116,9 @@ export interface TokenUsageDetail {
  * 使用情况统计接口
  */
 export interface UsageStats {
-  /** AI内容适配器已使用次数 */
+  /** AI内容适配已使用次数 */
   adaptUsageUsed: number;
-  /** AI内容适配器剩余次数 */
+  /** AI内容适配剩余次数 */
   adaptUsageRemaining: number;
   /** Token已使用量 */
   tokensUsed: number;

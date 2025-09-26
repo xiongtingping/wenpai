@@ -459,12 +459,12 @@ export function ResultsDisplay({
 
       {/* 标签页展示 */}
       <Tabs defaultValue={results[0]?.platformId} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+        <TabsList className="unified-tabs-list grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {results.map((result) => (
             <TabsTrigger 
               key={result.platformId} 
               value={result.platformId}
-              className="flex items-center gap-1"
+              className="unified-tab-trigger flex items-center gap-1"
             >
               {getPlatformIcon(result.platformId)}
               <span className="hidden sm:inline">

@@ -62,8 +62,8 @@ const I18nTestPage: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold">创意工作室测试 / Creative Studio Test</h3>
-            <p>{t('creativeStudio.title', t('pages.labels.创意工作室'))}</p>
+            <h3 className="text-lg font-semibold">创意魔方测试 / Creative Studio Test</h3>
+            <p>{t('creativeStudio.title', t('pages.labels.创意魔方'))}</p>
             <p>{t('creativeStudio.tabs.creativeCube', t('pages.messages.创意魔方'))}</p>
             <p>{t('creativeStudio.tabs.marketingCalendar', t('pages.messages.营销日历'))}</p>
           </div>

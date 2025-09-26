@@ -1,4 +1,4 @@
-import { Header } from "@/components/landing/Header"
+// import { Header } from "@/components/landing/Header" // 临时注释 - Header现在在App.tsx中全局渲染
 import HeroSection from "@/components/landing/HeroSection";
 import { WavyBackground } from "@/components/ui/wavy-background";
 import { TrustSection } from "@/components/landing/TrustSection"
@@ -60,7 +60,7 @@ function HomePage() {
       />
 
       {/* Header - 独立于背景之外，确保固定定位 */}
-      <Header />
+      {/* <Header /> */} {/* 临时注释 - Header现在在App.tsx中全局渲染 */}
       {/* 动态占位，避免被头部遮挡，同时让头部悬浮于任何滚动位置均可见 */}
       <div aria-hidden className="header-spacer"></div>
 

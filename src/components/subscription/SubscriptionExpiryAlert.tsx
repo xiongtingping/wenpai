@@ -225,7 +225,7 @@ export function SubscriptionExpiryBanner() {
         <Button
           size="sm"
           variant="ghost"
-          onClick={() => navigate('/payment')}
+          onClick={() => navigate('/payment-center')}
           className="text-xs underline"
         >
           立即处理

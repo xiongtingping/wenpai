@@ -578,7 +578,9 @@ export const CustomLoginPage: React.FC = () => {
 
         {/* 加载卡片 */}
         <div className="relative z-10 w-full max-w-md mx-4">
-          <div className="bg-background/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20 dark:border-gray-700/20">
+          <div 
+            className="bg-background/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20 dark:border-gray-700/20"
+          >
             <div className="text-center space-y-6">
               <div className="space-y-3">
                 <div className="flex items-center justify-center mb-2">
@@ -707,7 +709,10 @@ export const CustomLoginPage: React.FC = () => {
             <form onSubmit={handleSubmit} className={`${mode === 'register' ? 'space-y-5' : 'space-y-7'}`}>
               {/* 手机号输入框 - 安全增强版 */}
               <SecureInput
-                type="tel"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="off"
                 label="手机号"
                 description="请输入11位中国大陆手机号码"
                 value={phone}
@@ -716,6 +721,7 @@ export const CustomLoginPage: React.FC = () => {
                 showSecurityIndicator={true}
                 showThreatDetails={false}
                 securityLevel="standard"
+                data-form-type="other"
                 className="px-4 py-4 rounded-xl font-medium bg-transparent"
                 required
               />
@@ -731,7 +737,8 @@ export const CustomLoginPage: React.FC = () => {
                     onFocus={() => setIsPasswordFocused(true)}
                     onBlur={() => setIsPasswordFocused(false)}
                     required
-                    autoComplete="current-password"
+                    autoComplete="off"
+                    data-form-type="other"
                     className={`w-full px-4 py-4 pr-20 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
                       isDarkMode ? "text-background" : "text-foreground"
                     } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
@@ -787,6 +794,10 @@ export const CustomLoginPage: React.FC = () => {
                     onFocus={() => setIsCodeFocused(true)}
                     onBlur={() => setIsCodeFocused(false)}
                     required
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    autoComplete="off"
+                    data-form-type="other"
                     className={`w-full px-4 py-4 pr-32 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
                       isDarkMode ? "text-background" : "text-foreground"
                     } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
@@ -824,6 +835,10 @@ export const CustomLoginPage: React.FC = () => {
                     onFocus={() => setIsRegisterCodeFocused(true)}
                     onBlur={() => setIsRegisterCodeFocused(false)}
                     required
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    autoComplete="off"
+                    data-form-type="other"
                     className={`w-full px-4 py-4 pr-32 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
                       isDarkMode ? "text-background" : "text-foreground"
                     } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
@@ -861,7 +876,8 @@ export const CustomLoginPage: React.FC = () => {
                     onFocus={() => setIsPasswordFocused(true)}
                     onBlur={() => setIsPasswordFocused(false)}
                     required
-                    autoComplete="new-password"
+                    autoComplete="off"
+                    data-form-type="other"
                     className={`w-full px-4 py-4 pr-20 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
                       isDarkMode ? "text-background" : "text-foreground"
                     } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
@@ -922,6 +938,8 @@ export const CustomLoginPage: React.FC = () => {
                     onFocus={() => setIsConfirmPasswordFocused(true)}
                     onBlur={() => setIsConfirmPasswordFocused(false)}
                     required
+                    autoComplete="off"
+                    data-form-type="other"
                     className={`w-full px-4 py-4 pr-12 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
                       isDarkMode ? "text-background" : "text-foreground"
                     } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}

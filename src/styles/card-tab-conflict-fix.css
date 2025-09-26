@@ -1,0 +1,72 @@
+/**
+ * 🚨 Card组件与Tab按钮冲突修复
+ * 
+ * 根本原因：Card组件覆盖在Tab按钮上方，阻止点击事件
+ * 解决方案：强制调整层级关系，确保Tab按钮始终在最上层
+ */
+
+/* 🎯 强制Tab按钮和TabsList在最高层级 */
+[role="tablist"],
+.unified-tabs-list {
+  position: relative !important;
+  z-index: 10000 !important;
+  isolation: isolate !important;
+}
+
+[role="tab"],
+[data-radix-tabs-trigger],
+.unified-tab-trigger {
+  position: relative !important;
+  z-index: 10001 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  isolation: isolate !important;
+}
+
+/* 🚫 强制降低可能冲突的Card组件层级 */
+.rounded-lg.border.text-card-foreground.shadow-sm,
+.card,
+[class*="shadow-sm"],
+[class*="rounded-lg"] {
+  z-index: 1 !important;
+}
+
+/* 🚫 特别针对可能覆盖Tab区域的Card */
+.container .rounded-lg.border,
+.mx-auto .rounded-lg.border {
+  z-index: 1 !important;
+  position: relative !important;
+}
+
+/* 🚫 禁用可能在Tab区域的Card的pointer-events */
+.container > .rounded-lg.border:first-child,
+.mx-auto > .rounded-lg.border:first-child {
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* 🎯 确保Tab容器区域完全可交互 */
+.flex.flex-col.sm\\:flex-row.sm\\:items-center.sm\\:justify-between {
+  position: relative !important;
+  z-index: 10000 !important;
+  isolation: isolate !important;
+}
+
+/* 🎯 确保TabsContent正确显示在Tab按钮下方 */
+[data-radix-tabs-content] {
+  position: relative !important;
+  z-index: 9999 !important;
+  margin-top: 16px !important;
+}
+
+/* 🚨 紧急修复：完全重置可能干扰的元素 */
+.container.mx-auto.px-4.py-4 > :first-child:not([role="tablist"]):not(.unified-tabs-list) {
+  z-index: -100 !important;
+  pointer-events: none !important;
+}
+
+/* 🎯 确保Tab按钮区域的父容器正确设置 */
+.w-full > .flex.flex-col.sm\\:flex-row {
+  position: relative !important;
+  z-index: 10000 !important;
+}

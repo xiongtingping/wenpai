@@ -296,7 +296,7 @@ export const ThemeToggle: React.FC = () => {
     <>
       <div className="relative" ref={dropdownRef}>
         <button
-          className="h-9 w-9 p-0 rounded-full hover:bg-accent border border-border/50 bg-card/50 backdrop-blur-sm relative z-[9999] inline-flex items-center justify-center text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+          className="header-button"
           aria-label={`${t('settings.darkMode')} - ${getUserPermissionLevel()}`}
           title={`切换主题 - ${getUserPermissionLevel()}`}
           onClick={() => {
@@ -319,7 +319,7 @@ export const ThemeToggle: React.FC = () => {
 
         {isOpen && (
           <div
-            className="absolute right-0 top-full mt-2 w-64 bg-popover border border-border rounded-md shadow-lg z-[999999]"
+            className="header-dropdown theme-dropdown"
             onClick={(e) => e.stopPropagation()}
           >
             {/* 标题 */}
@@ -386,7 +386,7 @@ export const ThemeToggle: React.FC = () => {
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-accent"
               onClick={() => {
                 setIsOpen(false);
-                navigate('/payment');
+                navigate('/payment-center');
               }}
             >
               <Crown className="h-4 w-4 text-primary" />

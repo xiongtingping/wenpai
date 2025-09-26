@@ -402,7 +402,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
     }
 
     // 直接跳转到支付页面
-    navigate("/payment");
+    navigate("/payment-center");
   };
 
   // 如果有权限，直接渲染子组件

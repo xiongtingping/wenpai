@@ -1,0 +1,139 @@
+/**
+ * 🎯 统一Dialog定位系统 - 简化版
+ * 遵循 CLAUDE.md UI组件职责分离原则
+ * 解决快速引用弹窗定位问题的根本性方案
+ */
+
+/* ========================================
+   🎨 设计令牌系统
+   ======================================== */
+
+:root {
+  /* 定位令牌 - 使用视窗单位确保相对于视窗定位 */
+  --dialog-position-top: calc(8vh + 60px); /* 🎨 视觉居中的顶部边距 */
+  --dialog-position-left: 50vw;
+  --dialog-transform: translateX(-50%); /* 🎯 只水平居中 */
+  --dialog-z-index: 1000000;
+  
+  /* 尺寸令牌 */
+  --dialog-max-width: min(85vw, 1000px);
+  --dialog-max-height: calc(92vh - 8vh - 120px); /* 🎨 对应调整最大高度 */
+  --dialog-min-width: 600px;
+  --dialog-min-height: 450px;
+  
+  /* 样式令牌 */
+  --dialog-background: hsl(var(--background));
+  --dialog-border: hsl(var(--border));
+  --dialog-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.25);
+  --dialog-border-radius: 24px;
+}
+
+/* ========================================
+   🎯 快速引用Dialog定位修复 - 简化版
+   ======================================== */
+
+/* 快速引用Dialog - 只保留必要的定位修复 */
+.quick-reference-dialog,
+.enhanced-quick-reference-dialog,
+[role="dialog"].quick-reference-dialog,
+[role="dialog"].enhanced-quick-reference-dialog,
+[role="dialog"][class*="quick-reference-dialog"],
+[role="dialog"][class*="enhanced-quick-reference-dialog"] {
+  /* 🚨 强制使用视窗单位定位 - 确保相对于视窗居中 */
+  position: fixed !important;
+  top: var(--dialog-position-top) !important;
+  left: var(--dialog-position-left) !important;
+  transform: var(--dialog-transform) !important;
+  z-index: var(--dialog-z-index) !important;
+  margin: 0 !important;
+  
+  /* 🚨 完全重置inset属性 - 避免干扰top/left定位 */
+  inset: unset !important;
+  inset-block: unset !important;
+  inset-inline: unset !important;
+  inset-block-start: unset !important;
+  inset-block-end: unset !important;
+  inset-inline-start: unset !important;
+  inset-inline-end: unset !important;
+  right: auto !important;
+  bottom: auto !important;
+  
+  /* 尺寸设置 */
+  width: var(--dialog-max-width) !important;
+  max-width: var(--dialog-max-width) !important;
+  max-height: var(--dialog-max-height) !important;
+  
+  /* 🎯 确保内容可滚动，避免溢出 */
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  min-width: var(--dialog-min-width) !important;
+  min-height: var(--dialog-min-height) !important;
+  
+  /* 基础样式 */
+  background: var(--dialog-background);
+  border: 1px solid var(--dialog-border);
+  border-radius: var(--dialog-border-radius);
+  box-shadow: var(--dialog-shadow);
+}
+
+/* ========================================
+   🚨 背景遮罩修复
+   ======================================== */
+
+[data-radix-dialog-overlay] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999999 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ========================================
+   📱 响应式适配
+   ======================================== */
+
+@media (max-width: 640px) {
+  .quick-reference-dialog,
+  .enhanced-quick-reference-dialog,
+  [role="dialog"].quick-reference-dialog,
+  [role="dialog"].enhanced-quick-reference-dialog {
+    /* 🎯 移动端定位优化 */
+    top: 20px !important; /* 移动端减少顶部边距 */
+    width: calc(100vw - 32px) !important;
+    max-width: calc(100vw - 32px) !important;
+    min-width: auto !important;
+    max-height: calc(100vh - 40px) !important; /* 🎯 移动端高度：视窗高度减去上下边距 */
+    min-height: auto !important;
+  }
+}
+
+@media (max-height: 600px) {
+  .quick-reference-dialog,
+  .enhanced-quick-reference-dialog,
+  [role="dialog"].quick-reference-dialog,
+  [role="dialog"].enhanced-quick-reference-dialog {
+    /* 🎯 小高度屏幕优化 */
+    top: 10px !important;
+    max-height: calc(100vh - 20px) !important;
+  }
+}
+
+/* ========================================
+   🎯 滚动锁定优化
+   ======================================== */
+
+body:has([role="dialog"][data-state="open"]) {
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+
+html:has([role="dialog"][data-state="open"]) {
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}

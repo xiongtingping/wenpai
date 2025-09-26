@@ -98,7 +98,7 @@ export const PermissionAwareContainer: React.FC<PermissionAwareContainerProps> =
                 </p>
               </div>
               <Button 
-                onClick={() => navigate('/upgrade')}
+                onClick={() => navigate('/upgrade-plans')}
                 className={`bg-gradient-to-r ${tierInfo.color} hover:opacity-90 text-background shadow-lg`}
               >
                 <TierIcon className="w-4 h-4 mr-2" />

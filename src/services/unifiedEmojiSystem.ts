@@ -5,6 +5,7 @@
 
 import { getAllEmojis as getRawEmojiJson, getEmojiUnicode } from '@/services/emojiService';
 import i18n from '@/i18n';
+import { smartTranslateEmojiName, translateEmojiName } from '@/utils/emojiNameTranslation';
 
 // 创建t函数快捷方式
 const t = (key: string) => i18n.t(key);
@@ -618,9 +619,13 @@ function ensureMinimumPerCategory(minCount = 100) {
     try {
       const cat = mapRawCategory(e.category);
       const emojiChar = getEmojiUnicode(e.unified);
+      // 🌐 使用翻译系统将英文名称转换为中文
+      const rawName = e.short_name || e.short_names?.[0] || `emoji_${idx}`;
+      const translatedName = smartTranslateEmojiName(rawName, cat);
+      
       const candidate: UnifiedEmojiItem = {
         id: `extra_${cat}_${e.unified || idx}`,
-        name: e.short_name || e.short_names?.[0] || `emoji_${idx}`,
+        name: translatedName,
         emoji: emojiChar,
         color: CATEGORY_COLORS[cat],
         category: cat,
@@ -649,6 +654,56 @@ ensureMinimumPerCategory(110);
 runDataQualityPass();
 // 质检后再补齐一轮，确保去重后仍满足 >100
 ensureMinimumPerCategory(110);
+
+// 🌐 修复现有数据中的英文名称
+fixExistingEnglishNames();
+
+// 🎨 应用多样化颜色系统（在初始化完成后）
+applyDiversifiedColorsSync();
+
+/**
+ * 🌐 修复现有数据中的英文名称
+ * 将已存在的emoji数据中的英文名称翻译为中文
+ */
+function fixExistingEnglishNames(): void {
+  console.log('🌐 开始修复emoji英文名称...');
+  
+  let fixedCount = 0;
+  const translations: Array<{emoji: string, oldName: string, newName: string}> = [];
+  
+  unifiedEmojiData.forEach(emoji => {
+    // 检查是否为英文名称（包含英文字母）
+    if (/[a-zA-Z]/.test(emoji.name)) {
+      const originalName = emoji.name;
+      const translatedName = smartTranslateEmojiName(emoji.name, emoji.category);
+      
+      // 如果翻译后有变化，则更新
+      if (translatedName !== originalName) {
+        emoji.name = translatedName;
+        fixedCount++;
+        translations.push({
+          emoji: emoji.emoji,
+          oldName: originalName,
+          newName: translatedName
+        });
+      }
+    }
+  });
+  
+  console.log(`✅ 修复完成! 共翻译 ${fixedCount} 个英文名称`);
+  
+  if (fixedCount > 0) {
+    // 显示前几个翻译示例
+    console.log('📝 翻译示例:');
+    translations.slice(0, 5).forEach(({ emoji, oldName, newName }) => {
+      console.log(`  ${emoji} "${oldName}" → "${newName}"`);
+    });
+    
+    if (fixedCount > 5) {
+      console.log(`  ... 还有 ${fixedCount - 5} 个翻译`);
+    }
+  }
+}
 
 /** 数据质量检查与修复 */
 function runDataQualityPass() {
@@ -983,6 +1038,210 @@ export function getEmojiStats() {
   return stats;
 }
 
+/**
+ * 🎨 应用多样化颜色系统，解决颜色重复问题（直接实现版本）
+ */
+function applyDiversifiedColorsSync(): void {
+  try {
+    console.log('🎨 正在应用多样化颜色系统...');
+    console.log(`📊 处理 ${unifiedEmojiData.length} 个emoji`);
+    
+    // 统计原始颜色使用情况
+    const originalColors = new Map<string, number>();
+    unifiedEmojiData.forEach(emoji => {
+      const count = originalColors.get(emoji.color) || 0;
+      originalColors.set(emoji.color, count + 1);
+    });
+    
+    console.log(`🔍 原始颜色数量: ${originalColors.size}`);
+    console.log(`📋 #008000 使用次数: ${originalColors.get('#008000') || 0}`);
+    
+    // 直接实现智能颜色生成算法
+    const usedColors = new Set<string>();
+    
+    unifiedEmojiData.forEach((emoji, index) => {
+      const newColor = generateSmartColor(emoji, usedColors, index);
+      emoji.color = newColor;
+      usedColors.add(newColor);
+    });
+    
+    // 统计新颜色使用情况
+    const newColors = new Map<string, number>();
+    unifiedEmojiData.forEach(emoji => {
+      const count = newColors.get(emoji.color) || 0;
+      newColors.set(emoji.color, count + 1);
+    });
+    
+    const improvement = ((newColors.size - originalColors.size) / originalColors.size * 100).toFixed(1);
+    
+    console.log('🎨 颜色系统更新完成！');
+    console.log(`📈 颜色数量提升: ${originalColors.size} → ${newColors.size} (+${improvement}%)`);
+    console.log(`🎯 新#008000 使用次数: ${newColors.get('#008000') || 0}`);
+    
+    // 查找仍然重复的颜色
+    const duplicates = Array.from(newColors.entries()).filter(([_, count]) => count > 3);
+    if (duplicates.length > 0) {
+      console.log(`⚠️ 仍有 ${duplicates.length} 个颜色使用超过3次`);
+      duplicates.slice(0, 5).forEach(([color, count]) => {
+        console.log(`  ${color}: ${count} 次`);
+      });
+    } else {
+      console.log('✅ 颜色重复问题已解决！');
+    }
+    
+  } catch (error) {
+    console.error('❌ 颜色系统更新失败:', error);
+    console.log('📝 将保持原有颜色系统');
+  }
+}
+
+/**
+ * 智能颜色生成函数（内嵌实现）
+ */
+function generateSmartColor(emoji: UnifiedEmojiItem, usedColors: Set<string>, index: number): string {
+  // 扩展的颜色调色板
+  const colorPalettes = {
+    // 动物颜色
+    animals: [
+      '#FF8C00', '#CD853F', '#D2691E', '#A0522D', '#8B4513', // 棕色系
+      '#DEB887', '#F4A460', '#DAA520', '#B8860B', '#BC8F8F', // 米色系
+      '#696969', '#A9A9A9', '#C0C0C0', '#D3D3D3', '#778899', // 灰色系
+      '#228B22', '#32CD32', '#9ACD32', '#7CFC00', '#00FF7F', // 绿色系
+      '#4682B4', '#5F9EA0', '#87CEEB', '#6495ED', '#00BFFF', // 蓝色系
+      '#FF6347', '#FF4500', '#DC143C', '#B22222', '#CD5C5C'  // 红色系
+    ],
+    // 食物颜色
+    food: [
+      '#FF6347', '#FF4500', '#FF0000', '#DC143C', '#B22222', // 红色水果
+      '#FFA500', '#FF8C00', '#FFD700', '#F0E68C', '#FFFF00', // 橙黄色
+      '#32CD32', '#228B22', '#7CFC00', '#9ACD32', '#ADFF2F', // 绿色蔬菜
+      '#8B008B', '#9370DB', '#9932CC', '#BA55D3', '#DA70D6', // 紫色
+      '#D2691E', '#CD853F', '#DEB887', '#F4A460', '#8B4513'  // 棕色
+    ],
+    // 物品颜色
+    objects: [
+      '#2F4F4F', '#696969', '#708090', '#778899', '#C0C0C0', // 金属色
+      '#8B4513', '#A0522D', '#D2691E', '#CD853F', '#DEB887', // 木色
+      '#4169E1', '#0000FF', '#1E90FF', '#00BFFF', '#87CEEB'  // 科技蓝
+    ],
+    // 情感颜色
+    emotions: [
+      '#FFD700', '#FFFF00', '#F0E68C', '#DAA520', '#FFA500', // 快乐黄
+      '#FF69B4', '#FF1493', '#FFB6C1', '#FFC0CB', '#FFCCCB', // 快乐粉
+      '#87CEEB', '#4169E1', '#6495ED', '#00BFFF', '#87CEFA'  // 平静蓝
+    ],
+    // 自然颜色
+    nature: [
+      '#228B22', '#32CD32', '#7CFC00', '#9ACD32', '#ADFF2F', // 植物绿
+      '#87CEEB', '#4169E1', '#6495ED', '#00BFFF', '#87CEFA', // 天空蓝
+      '#8B4513', '#A0522D', '#D2691E', '#CD853F', '#DEB887'  // 土壤色
+    ]
+  };
+  
+  // 基于类别选择颜色池
+  const categoryColors = colorPalettes[emoji.category] || colorPalettes.objects;
+  
+  // 基于名称和关键词的颜色线索
+  const text = `${emoji.name} ${emoji.keywords.join(' ')}`.toLowerCase();
+  let preferredColors: string[] = [];
+  
+  // 颜色关键词映射
+  if (text.includes('红') || text.includes('苹果') || text.includes('草莓')) {
+    preferredColors = ['#FF0000', '#DC143C', '#B22222', '#CD5C5C', '#F08080'];
+  } else if (text.includes('绿') || text.includes('草') || text.includes('叶') || text.includes('树')) {
+    preferredColors = ['#228B22', '#32CD32', '#7CFC00', '#9ACD32', '#2E8B57'];
+  } else if (text.includes('蓝') || text.includes('天') || text.includes('海') || text.includes('水')) {
+    preferredColors = ['#4169E1', '#1E90FF', '#00BFFF', '#87CEEB', '#6495ED'];
+  } else if (text.includes('黄') || text.includes('金') || text.includes('太阳')) {
+    preferredColors = ['#FFD700', '#FFFF00', '#F0E68C', '#DAA520', '#BDB76B'];
+  } else if (text.includes('紫') || text.includes('葡萄')) {
+    preferredColors = ['#9370DB', '#9932CC', '#BA55D3', '#DA70D6', '#DDA0DD'];
+  } else if (text.includes('粉') || text.includes('花')) {
+    preferredColors = ['#FF69B4', '#FF1493', '#FFB6C1', '#FFC0CB', '#FFCCCB'];
+  } else if (text.includes('棕') || text.includes('木') || text.includes('土')) {
+    preferredColors = ['#8B4513', '#A0522D', '#D2691E', '#CD853F', '#DEB887'];
+  }
+  
+  // 选择颜色候选池
+  const candidates = preferredColors.length > 0 ? preferredColors : categoryColors;
+  
+  // 基于emoji字符和索引生成hash
+  let hash = index;
+  for (let i = 0; i < emoji.emoji.length; i++) {
+    hash = ((hash << 5) - hash + emoji.emoji.charCodeAt(i)) & 0xffffffff;
+  }
+  hash = Math.abs(hash);
+  
+  // 选择基础颜色
+  let selectedColor = candidates[hash % candidates.length];
+  
+  // 如果颜色已被使用，生成变化版本
+  let attempts = 0;
+  while (usedColors.has(selectedColor) && attempts < 10) {
+    selectedColor = generateColorVariant(selectedColor, attempts);
+    attempts++;
+  }
+  
+  return selectedColor;
+}
+
+/**
+ * 生成颜色变化版本
+ */
+function generateColorVariant(baseColor: string, variance: number): string {
+  // 解析hex颜色
+  const hex = baseColor.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  
+  // 应用变化
+  const adjust = (variance + 1) * 15; // 每次变化15个色值
+  const newR = Math.max(0, Math.min(255, r + (variance % 2 === 0 ? adjust : -adjust)));
+  const newG = Math.max(0, Math.min(255, g + (variance % 3 === 0 ? adjust : -adjust)));
+  const newB = Math.max(0, Math.min(255, b + (variance % 5 === 0 ? adjust : -adjust)));
+  
+  // 转换回hex
+  const toHex = (n: number) => n.toString(16).padStart(2, '0');
+  return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`.toUpperCase();
+}
+
+/**
+ * 🎨 应用多样化颜色系统，解决颜色重复问题（异步版本）
+ */
+export function applyDiversifiedColors(): void {
+  // 导入颜色更新工具（动态导入避免循环依赖）
+  import('../utils/updateEmojiColors').then(({ updateEmojiColorsInData }) => {
+    console.log('🎨 正在应用多样化颜色系统...');
+    
+    // 更新颜色
+    const updatedData = updateEmojiColorsInData(unifiedEmojiData);
+    unifiedEmojiData = updatedData;
+    
+    console.log('✅ 颜色系统更新完成！');
+  }).catch(error => {
+    console.error('❌ 颜色系统更新失败:', error);
+  });
+}
+
+/**
+ * 🔍 分析当前颜色分布
+ */
+export function analyzeCurrentColors(): Promise<any> {
+  return import('../utils/updateEmojiColors').then(({ analyzeColorDistribution }) => {
+    return analyzeColorDistribution(unifiedEmojiData);
+  });
+}
+
+/**
+ * 📊 生成颜色报告
+ */
+export function generateCurrentColorReport(): Promise<string> {
+  return import('../utils/updateEmojiColors').then(({ generateColorReport }) => {
+    return generateColorReport(unifiedEmojiData);
+  });
+}
+
 export default {
   getAllEmojis,
   getEmojisByCategory,
@@ -995,5 +1254,8 @@ export default {
   generateEmojiSVG,
   detectPlatform,
   getAdaptiveEmojiSize,
-  generateEmojiStyle
+  generateEmojiStyle,
+  applyDiversifiedColors,
+  analyzeCurrentColors,
+  generateCurrentColorReport
 };

@@ -62,8 +62,17 @@ const EmojiPage: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [brandEmojiCurrentStep, setBrandEmojiCurrentStep] = useState<'upload' | 'build' | 'generate' | 'gallery'>('upload');
 
   const { toast } = useToast();
+
+  /**
+   * 获取步骤索引
+   */
+  const getStepIndex = (step: 'upload' | 'build' | 'generate' | 'gallery'): number => {
+    const stepOrder = ['upload', 'build', 'generate', 'gallery'];
+    return stepOrder.indexOf(step);
+  };
 
   /**
    * 获取emoji分类统计
@@ -234,23 +243,23 @@ const EmojiPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-2 sm:px-3 lg:px-4 xl:px-6 py-8 space-y-6">
-        {/* 主标签页 */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <div className="py-8 space-y-6">
+        {/* 主标签页 - 全宽布局 */}
+        <div className="container mx-auto px-2 sm:px-3 lg:px-4 xl:px-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="unified-tabs-list grid w-full grid-cols-2">
             <TabsTrigger value="gallery" className="unified-tab-trigger">
-              <Grid3X3 className="tab-icon" />
-              <span></span>
+              <Grid3X3 className="w-5 h-5" />
+              <span>Emoji图库</span>
             </TabsTrigger>
             <TabsTrigger value="brand-emoji" className="unified-tab-trigger">
-              <Building2 className="tab-icon" />
-              <span className="tab-text-mobile"></span>
-              <span className="tab-text-desktop"></span>
+              <Building2 className="w-5 h-5" />
+              <span>品牌Emoji</span>
             </TabsTrigger>
           </TabsList>
 
-          {/* Emoji图库 */}
-          <TabsContent value="gallery" className="mt-6">
+            {/* Emoji图库 */}
+            <TabsContent value="gallery" className="mt-6">
             <Card className="border-border/50 shadow-sm">
               <CardHeader className="pb-6">
                 <div className="flex items-center gap-3">
@@ -306,33 +315,77 @@ const EmojiPage: React.FC = () => {
                 />
               </CardContent>
             </Card>
+            </TabsContent>
 
-          </TabsContent>
-
-          {/* 品牌Emoji */}
-          <TabsContent value="brand-emoji" className="mt-6">
-            <Card className="border-border/50 shadow-sm">
-              <CardHeader className="pb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Building2 className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-semibold">
-                      品牌专属Emoji
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground mt-1">
-                      {t('emoji.brandEmojiDescription')}
-                    </CardDescription>
-                  </div>
+            {/* 品牌Emoji - 全宽布局 */}
+            <TabsContent value="brand-emoji" className="mt-0">
+          <div className="w-full bg-gradient-to-br from-background via-accent/5 to-background">
+            {/* 顶部步骤指示器 */}
+            <div className="px-4 sm:px-6 lg:px-8 py-4">
+              <div className="brand-emoji-steps-indicator steps-indicator-fade-in max-w-4xl mx-auto">
+                {/* 步骤圆圈和连接线 */}
+                <div className="brand-emoji-steps-grid">
+                  {[
+                    { step: 1, id: 'upload' },
+                    { step: 2, id: 'build' },
+                    { step: 3, id: 'generate' },
+                    { step: 4, id: 'gallery' }
+                  ].map((item, index) => {
+                    const isActive = brandEmojiCurrentStep === item.id;
+                    const isCompleted = getStepIndex(brandEmojiCurrentStep) > index;
+                    
+                    return (
+                      <div key={item.step} className="brand-emoji-step-item">
+                        {/* 连接线 */}
+                        {index < 3 && (
+                          <div className={`brand-emoji-step-connector ${isCompleted ? 'completed' : ''}`}></div>
+                        )}
+                        
+                        {/* 步骤圆圈 */}
+                        <div className={`brand-emoji-step-circle ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>
+                          <span className="brand-emoji-step-number">{item.step}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <PersonalizedEmojiGenerator />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                
+                {/* 步骤文字标题 */}
+                <div className="brand-emoji-steps-labels">
+                  <span className="brand-emoji-step-label">品牌角色设定</span>
+                  <span className="brand-emoji-step-label">智能提示构建</span>
+                  <span className="brand-emoji-step-label">AI批量生成</span>
+                  <span className="brand-emoji-step-label">作品集展示</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 主要内容区域 - 完全全宽 */}
+            <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+                    {/* 标题区域 */}
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Building2 className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <CardTitle className="text-lg font-semibold">
+                          品牌专属Emoji
+                        </CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground mt-1">
+                          {t('emoji.brandEmojiDescription')}
+                        </CardDescription>
+                      </div>
+                    </div>
+
+                {/* 主要内容 */}
+                <PersonalizedEmojiGenerator 
+                  onStepChange={setBrandEmojiCurrentStep}
+                />
+            </div>
+          </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
 
       {/* 返回顶部按钮 */}

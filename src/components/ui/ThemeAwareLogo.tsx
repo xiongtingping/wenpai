@@ -113,7 +113,7 @@ export const LogoWithText: React.FC<LogoWithTextProps> = ({
   ...logoProps
 }) => {
   const { t } = useTranslation();
-  const defaultText = text || t('components.messages.文派');
+  const defaultText = text || '文派';
   const defaultTextClasses = [
     'font-bold',
     textSizeClasses[textSize],

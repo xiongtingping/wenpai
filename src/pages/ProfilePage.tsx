@@ -419,7 +419,7 @@ export default function ProfilePage() {
   // 如果用户未登录，显示登录提示
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen bg-background pt-24">
+      <div className="min-h-screen bg-background pt-16">
         <Header />
         <PageNavigation title={t('profile.navigation.title')} description={t('profile.navigation.description')} showAdaptButton={false} />
         <div className="container mx-auto px-4 py-6">
@@ -443,7 +443,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="bg-background relative overflow-hidden pt-24 pb-4">
+    <div className="bg-background relative overflow-hidden pt-16 pb-4">
       <Header />
       
       <div className="relative z-10">

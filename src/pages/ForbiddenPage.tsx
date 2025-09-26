@@ -34,7 +34,7 @@ export default function ForbiddenPage() {
   };
 
   const handleUpgrade = () => {
-    navigate('/upgrade');
+    navigate('/upgrade-plans');
   };
 
   const handleLogin = () => {

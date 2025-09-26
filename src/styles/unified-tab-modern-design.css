@@ -1,0 +1,329 @@
+@layer components {
+  /* 🎯 统一Tab按钮系统现代化设计
+   * 适用范围：所有使用unified-tab-trigger类的页面（创意魔方、全网雷达等）
+   * 设计目标：现代化圆润透明风格，提升全局UI一致性
+   * 遵循CLAUDE.md规范，使用components层级
+   */
+
+  /* 🎯 统一图标大小规范 - 适用于所有tab按钮 */
+  .unified-tabs-list .unified-tab-trigger svg,
+  [role="tablist"] .unified-tab-trigger svg,
+  .unified-tab-trigger svg,
+  .unified-tab-trigger .tab-icon {
+    /* 🔍 统一图标尺寸为20px，确保视觉清晰 */
+    width: 20px !important;
+    height: 20px !important;
+    
+    /* 🎨 移除默认margin，使用父容器的gap控制间距 */
+    margin: 0 !important;
+    
+    /* 🔧 确保图标不变形且锐利显示 */
+    flex-shrink: 0 !important;
+    stroke-width: 1.5 !important;
+  }
+
+  /* 🎯 特别针对创意魔方页面的tab按钮 */
+  .creative-studio-module + * .unified-tab-trigger svg,
+  div:has(.creative-studio-module) .unified-tab-trigger svg {
+    width: 22px !important;
+    height: 22px !important;
+    margin: 0 !important;
+  }
+
+  /* 📐 统一tab按钮布局系统 - 紧凑设计适配圆润容器 */
+  .unified-tabs-list .unified-tab-trigger {
+    /* 🔍 紧凑高度，确保按钮不超出容器 */
+    min-height: 36px !important; /* 大幅减小高度 */
+    height: 36px !important; /* 固定高度避免溢出 */
+    
+    /* 📏 紧凑内边距，确保按钮嵌入容器内 */
+    padding: 6px 12px !important; /* 减小padding */
+    
+    /* 🎯 现代flex布局，支持图标文字排列 */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    
+    /* 📱 元素间距控制 */
+    gap: 6px !important; /* 减小gap */
+    
+    /* 🔧 确保响应式布局 */
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+  }
+
+  /* 🎯 创意魔方专用垂直布局（grid布局中的tab） */
+  .creative-studio-module .unified-tabs-list .unified-tab-trigger,
+  .grid .unified-tabs-list .unified-tab-trigger {
+    /* 📏 垂直布局稍大一些，但仍要适配容器 */
+    min-height: 60px !important;
+    height: 60px !important;
+    padding: 8px 12px !important; /* 减小padding */
+    
+    /* 🎯 垂直排列图标和文字 */
+    flex-direction: column !important;
+    gap: 4px !important; /* 减小gap */
+  }
+
+  /* 🎯 全网雷达等页面水平布局（flex布局中的tab） */
+  .flex .unified-tabs-list .unified-tab-trigger {
+    /* 📏 水平布局的紧凑设计，与容器尺寸匹配 */
+    flex-direction: row !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    padding: 6px 12px !important;
+    gap: 6px !important;
+  }
+
+  /* 🔤 统一文字样式 - 适配紧凑tab按钮文字 */
+  .unified-tab-trigger span,
+  .unified-tab-trigger .tab-text-mobile,
+  .unified-tab-trigger .tab-text-desktop {
+    /* 🔍 紧凑的文字尺寸，适配小空间 */
+    font-size: 12px !important; /* 减小字体 */
+    line-height: 1.1 !important; /* 更紧凑的行高 */
+    font-weight: 500 !important;
+    
+    /* 🎯 确保文字居中，移除多余间距 */
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    
+    /* 🔧 防止文字溢出，确保响应式显示 */
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+  }
+
+  /* 📱 响应式文字显示控制 */
+  .unified-tab-trigger .tab-text-mobile {
+    display: block !important;
+  }
+  
+  .unified-tab-trigger .tab-text-desktop {
+    display: none !important;
+  }
+  
+  @media (min-width: 640px) {
+    .unified-tab-trigger .tab-text-mobile {
+      display: none !important;
+    }
+    
+    .unified-tab-trigger .tab-text-desktop {
+      display: block !important;
+    }
+  }
+
+  /* 📱 响应式调整：中等屏幕 */
+  @media (min-width: 640px) and (max-width: 1024px) {
+    .unified-tabs-list .unified-tab-trigger svg {
+      width: 18px !important;
+      height: 18px !important;
+    }
+    
+    .unified-tab-trigger span {
+      font-size: 12px !important;
+      line-height: 1.1 !important;
+    }
+    
+    .unified-tabs-list .unified-tab-trigger {
+      min-height: 68px !important;
+      padding: 10px 14px 12px 14px !important;
+      gap: 4px !important;
+    }
+  }
+
+  /* 📱 响应式调整：小屏幕 */
+  @media (max-width: 640px) {
+    .unified-tabs-list .unified-tab-trigger svg {
+      /* 在小屏幕上保持合理大小 */
+      width: 16px !important;
+      height: 16px !important;
+      margin: 0 !important;
+    }
+    
+    .unified-tab-trigger span {
+      font-size: 11px !important;
+      line-height: 1.1 !important;
+    }
+    
+    .unified-tabs-list .unified-tab-trigger {
+      min-height: 64px !important;
+      padding: 8px 12px 10px 12px !important;
+      gap: 3px !important;
+    }
+  }
+
+  /* 📱 极小屏幕优化 */
+  @media (max-width: 480px) {
+    .unified-tabs-list .unified-tab-trigger svg {
+      width: 15px !important;
+      height: 15px !important;
+      margin: 0 !important;
+    }
+    
+    .unified-tab-trigger span {
+      font-size: 10px !important;
+      line-height: 1.1 !important;
+    }
+    
+    .unified-tabs-list .unified-tab-trigger {
+      min-height: 60px !important;
+      padding: 6px 10px 8px 10px !important;
+      gap: 2px !important;
+    }
+  }
+
+  /* 🎯 TabsList容器现代化设计 - 完全圆润胶囊形状 */
+  .unified-tabs-list {
+    /* 🎨 现代化背景和边框 */
+    background: hsl(var(--background) / 0.8) !important;
+    border: 1px solid hsl(var(--border) / 0.3) !important;
+    border-radius: 9999px !important; /* 完全圆润的胶囊形状 */
+    
+    /* 🔧 紧凑的内边距，确保按钮完美嵌入 */
+    padding: 2px !important; /* 减小padding */
+    gap: 2px !important;
+    
+    /* 📏 高度控制，确保包容按钮 */
+    min-height: 40px !important; /* 确保容器高度合适 */
+    height: auto !important;
+    
+    /* ✨ 视觉增强效果 */
+    backdrop-filter: blur(8px) saturate(1.05) !important;
+    box-shadow: 0 1px 3px hsl(var(--foreground) / 0.1) !important;
+  }
+
+  /* 🎯 Tab按钮现代化设计 - 完全圆润胶囊形状（像按月支付按钮） */
+  .unified-tab-trigger {
+    /* 🎨 现代化圆润透明背景 */
+    background: hsl(var(--border) / 0.3) !important; /* 透明灰色背景 */
+    border: 1px solid hsl(var(--border) / 0.2) !important; /* 细边框 */
+    border-radius: 9999px !important; /* 完全圆润的胶囊形状 */
+    
+    /* 🎯 现代化文字样式 */
+    color: hsl(var(--muted-foreground)) !important; /* 柔和的文字颜色 */
+    font-weight: 500 !important; /* 中等字重 */
+    
+    /* ✨ 平滑过渡效果 */
+    transition: all 0.3s ease !important;
+    
+    /* 🔧 现代视觉效果 */
+    backdrop-filter: blur(8px) saturate(1.1) !important;
+    box-shadow: 
+      0 1px 3px hsl(var(--foreground) / 0.08),
+      0 1px 2px hsl(var(--foreground) / 0.04) !important;
+  }
+
+  /* 🎯 悬停状态现代化增强 */
+  .unified-tab-trigger:hover {
+    background: hsl(var(--border) / 0.5) !important; /* 增加透明度 */
+    border-color: hsl(var(--border) / 0.4) !important; /* 柔和边框 */
+    color: hsl(var(--foreground) / 0.9) !important; /* 稍微加深文字 */
+    transform: translateY(-1px) scale(1.02) !important; /* 轻微浮起和缩放 */
+    box-shadow: 
+      0 4px 12px hsl(var(--foreground) / 0.12),
+      0 2px 4px hsl(var(--foreground) / 0.08) !important;
+  }
+
+  /* 🎯 激活状态现代化设计 - 参考定价按钮的渐变效果 */
+  .unified-tab-trigger[data-state="active"] {
+    /* 🌟 现代化渐变背景 */
+    background: hsl(var(--primary)) !important; /* 主色调背景 */
+    border-color: hsl(var(--primary) / 0.6) !important; /* 主色调边框 */
+    color: hsl(var(--primary-foreground)) !important; /* 白色文字 */
+    
+    /* 🎯 现代化阴影效果 */
+    box-shadow: 
+      0 4px 12px hsl(var(--primary) / 0.3),
+      0 2px 4px hsl(var(--primary) / 0.2) !important;
+    
+    font-weight: 600 !important;
+    transform: scale(1.05) !important; /* 轻微放大 */
+    
+    /* 🔧 现代视觉增强 */
+    backdrop-filter: blur(8px) saturate(1.2) !important;
+  }
+
+  .unified-tab-trigger[data-state="active"] svg {
+    /* 🌟 激活状态图标不额外缩放，避免过度放大 */
+    transform: none !important;
+    
+    /* 🎨 激活状态图标颜色 */
+    stroke-width: 1.8 !important;
+    color: hsl(var(--primary-foreground)) !important; /* 与文字颜色一致 */
+  }
+
+  /* 🎯 悬停状态的图标效果 */
+  .unified-tab-trigger:hover svg {
+    /* ✨ 悬停时保持稳定大小，专注于颜色变化 */
+    transform: none !important;
+    transition: color 0.3s ease !important;
+    
+    /* 🎨 悬停状态颜色增强 */
+    color: hsl(var(--foreground) / 0.9) !important;
+    stroke-width: 1.6 !important;
+  }
+
+  /* 🎯 悬停状态的文字效果 */
+  .unified-tab-trigger:hover span {
+    color: hsl(var(--foreground) / 0.9) !important;
+    font-weight: 600 !important;
+  }
+
+  /* 🌙 深色主题现代化支持 */
+  [data-theme="dark"] .unified-tab-trigger {
+    background: hsl(var(--border) / 0.4) !important; /* 深色主题透明背景 */
+    border-color: hsl(var(--border) / 0.3) !important;
+    box-shadow: 
+      0 1px 3px hsl(0 0% 0% / 0.2),
+      0 1px 2px hsl(0 0% 0% / 0.1) !important;
+  }
+
+  [data-theme="dark"] .unified-tab-trigger:hover {
+    background: hsl(var(--border) / 0.6) !important;
+    border-color: hsl(var(--border) / 0.5) !important;
+    box-shadow: 
+      0 4px 12px hsl(0 0% 0% / 0.25),
+      0 2px 4px hsl(0 0% 0% / 0.15) !important;
+  }
+
+  [data-theme="dark"] .unified-tab-trigger[data-state="active"] {
+    background: hsl(var(--primary)) !important; /* 深色主题下保持主色调 */
+    border-color: hsl(var(--primary) / 0.6) !important;
+    box-shadow: 
+      0 4px 12px hsl(var(--primary) / 0.4),
+      0 2px 4px hsl(var(--primary) / 0.2) !important;
+  }
+
+  /* 🌟 特殊处理：确保Lucide图标正确显示 */
+  .unified-tab-trigger .lucide,
+  .unified-tab-trigger [class^="lucide-"],
+  .unified-tab-trigger [class*=" lucide-"] {
+    width: inherit !important;
+    height: inherit !important;
+    stroke-width: inherit !important;
+  }
+
+  /* 🎯 Debug信息：开发模式下显示边框 */
+  .development .unified-tab-trigger {
+    border: 1px dashed rgba(0, 255, 0, 0.3) !important;
+  }
+  
+  .development .unified-tab-trigger svg {
+    border: 1px dashed rgba(255, 0, 0, 0.3) !important;
+  }
+}
+
+/* 💡 设计更新说明：
+ * 🎯 现代化tab按钮设计 - 2025-09-22
+ * 1. 参考定价区域按月/按年切换按钮的现代化设计风格
+ * 2. 圆润透明背景，柔和的边框，增强的backdrop-filter效果
+ * 3. 图标从16px增加到20px，优化间距和对齐
+ * 4. 激活状态使用主色调背景，白色文字，现代阴影效果
+ * 5. 悬停状态轻微浮起和缩放，平滑过渡动画
+ * 6. 深色主题完整支持，保持一致的视觉体验
+ * 7. 遵循CLAUDE.md规范，使用components层级
+ */

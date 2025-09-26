@@ -1,0 +1,101 @@
+/* 🚨 紧急修复：快速引用Dialog定位异常问题
+ * 基于诊断数据修复 transform: matrix(1, 0, 0, 1, -394.824, -237.297) 导致的位置错误
+ * 遵循 CLAUDE.md 3.7.9 emergency层处理原则
+ */
+
+@layer emergency {
+  /* 🎯 针对快速引用Dialog的紧急修复 - 扩展选择器覆盖 */
+  [role="dialog"],
+  [data-radix-dialog-content],
+  .enhanced-quick-reference-dialog,
+  .quick-reference-dialog,
+  [role="dialog"].enhanced-quick-reference-dialog,
+  [role="dialog"].quick-reference-dialog,
+  [role="dialog"][class*="enhanced-quick-reference-dialog"],
+  [role="dialog"][class*="quick-reference-dialog"],
+  .dialog__content--quick-reference,
+  .anchored-dialog.custom-positioned.dialog.dialog__content.dialog__content--quick-reference,
+  /* 支持任何可能的Dialog选择器 */
+  div[role="dialog"],
+  div[data-radix-dialog-content],
+  [data-state="open"][role="dialog"],
+  body [role="dialog"],
+  html [role="dialog"] {
+    /* 🚨 强制重置有害的transform矩阵 */
+    transform: translateX(-50%) !important; /* 🎯 只水平居中 */
+    
+    /* 🚨 强制重置所有定位属性 */
+    position: fixed !important;
+    top: calc(8vh + 60px) !important; /* 🎨 视觉居中的顶部边距 */
+    left: 50vw !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: 1000000 !important;
+    margin: 0 !important;
+    
+    /* 🚨 完全重置inset属性 - 解决诊断数据中的inset冲突 */
+    inset: unset !important;
+    inset-block: unset !important;
+    inset-inline: unset !important;
+    inset-block-start: unset !important;
+    inset-block-end: unset !important;
+    inset-inline-start: unset !important;
+    inset-inline-end: unset !important;
+    
+    /* 🎯 确保Dialog可见且居中 */
+    width: min(85vw, 1000px) !important;
+    max-width: min(85vw, 1000px) !important;
+    max-height: 70vh !important;
+    min-width: 600px !important;
+    min-height: 450px !important;
+    
+    /* 🎯 确保内容可见 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+    
+    /* 🎯 优化过渡动画，减少视觉冲击 */
+    transition: opacity 200ms ease-out, transform 200ms ease-out !important;
+    
+    /* TODO: 移除时间 - 2025-02-28 */
+    /* TODO: 负责人 - Claude AI Assistant */
+  }
+  
+  /* 🚨 强制背景遮罩完全覆盖 - 扩展选择器覆盖 */
+  [data-radix-dialog-overlay],
+  .dialog-overlay,
+  [data-state="open"][class*="fixed"][class*="backdrop-blur"],
+  /* 支持任何可能的遮罩选择器 */
+  div[data-radix-dialog-overlay],
+  [data-state="open"][data-radix-dialog-overlay],
+  [data-state="open"][class*="inset-0"],
+  [data-radix-portal] > [data-radix-dialog-overlay],
+  body > div[data-radix-dialog-overlay] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999999 !important;
+    inset: 0 !important;
+    
+    /* TODO: 移除时间 - 2025-02-28 */
+    /* TODO: 负责人 - Claude AI Assistant */
+  }
+  
+  /* 🎯 移动端适配 */
+  @media (max-width: 640px) {
+    .enhanced-quick-reference-dialog,
+    .quick-reference-dialog,
+    [role="dialog"].enhanced-quick-reference-dialog,
+    [role="dialog"].quick-reference-dialog {
+      width: calc(100vw - 32px) !important;
+      max-width: calc(100vw - 32px) !important;
+      min-width: auto !important;
+      max-height: 85vh !important;
+      min-height: auto !important;
+    }
+  }
+}

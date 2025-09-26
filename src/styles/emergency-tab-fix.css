@@ -1,0 +1,146 @@
+/**
+ * 🚨 紧急修复：Tab按钮点击问题的系统性根本解决方案
+ * 
+ * 根本原因分析:
+ * 1. Radix UI TabsTrigger组件有复杂的状态管理
+ * 2. CSS选择器优先级不够高，被组件库样式覆盖
+ * 3. disabled状态的pointer-events被错误激活
+ * 4. React事件处理可能被阻断
+ * 
+ * 解决策略：
+ * - 使用超高优先级选择器强制覆盖
+ * - 针对Radix UI的具体DOM结构进行修复
+ * - 确保所有可能的Tab状态都能正常工作
+ */
+
+/* 🎯 超高优先级选择器 - 强制修复所有Tab按钮 */
+html body [data-radix-tabs-list] [data-radix-tabs-trigger],
+html body [role="tablist"] [role="tab"],
+html body .unified-tabs-list [role="tab"],
+html body .unified-tabs-list .unified-tab-trigger,
+html body button[role="tab"],
+html body [data-radix-tabs-trigger] {
+  /* 🔥 强制可点击 - 最高优先级 */
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  
+  /* 🔥 强制可用状态 */
+  opacity: 1 !important;
+  filter: none !important;
+  
+  /* 🔥 移除禁用样式 */
+  background-color: transparent !important;
+  
+  /* 🔥 确保按钮有可点击区域 */
+  min-height: 44px !important;
+  min-width: 80px !important;
+  
+  /* 🔥 确保在最前面 */
+  position: relative !important;
+  z-index: 999 !important;
+  
+  /* 🔥 移除任何可能阻止点击的属性 */
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* 🚨 特别针对disabled状态的强制修复 */
+html body [data-radix-tabs-trigger][disabled],
+html body [role="tab"][disabled],
+html body button[role="tab"][disabled] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+/* 🚨 特别针对aria-disabled的强制修复 */
+html body [data-radix-tabs-trigger][aria-disabled="true"],
+html body [role="tab"][aria-disabled="true"],
+html body button[role="tab"][aria-disabled="true"] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+/* 🎯 激活状态强制修复 */
+html body [data-radix-tabs-trigger][data-state="active"],
+html body [role="tab"][data-state="active"] {
+  background-color: rgba(var(--primary), 0.1) !important;
+  color: rgb(var(--primary)) !important;
+  font-weight: 600 !important;
+}
+
+/* 🎯 悬停状态强制修复 */
+html body [data-radix-tabs-trigger]:hover,
+html body [role="tab"]:hover {
+  background-color: rgba(var(--muted), 0.5) !important;
+  transition: background-color 0.2s ease !important;
+}
+
+/* 🚨 修复TabsContent的空白问题 */
+html body [data-radix-tabs-content] {
+  margin-top: 16px !important;
+  min-height: 100px !important;
+  padding-top: 0 !important;
+}
+
+/* 🚨 确保激活的内容区域可见 */
+html body [data-radix-tabs-content][data-state="active"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* 🚫 移除任何可能阻止点击的覆盖层 */
+html body [data-radix-tabs-list]::before,
+html body [data-radix-tabs-list]::after,
+html body [role="tablist"]::before,
+html body [role="tablist"]::after {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* 📱 移动端特殊优化 */
+@media (max-width: 768px) {
+  html body [data-radix-tabs-trigger],
+  html body [role="tab"] {
+    min-height: 48px !important;
+    font-size: 14px !important;
+    padding: 8px 12px !important;
+    touch-action: manipulation !important;
+  }
+}
+
+/* 🔧 调试模式 - 临时启用查看边界（生产环境请注释掉） */
+/*
+html body [data-radix-tabs-trigger],
+html body [role="tab"] {
+  border: 2px solid red !important;
+  background: rgba(255, 0, 0, 0.1) !important;
+}
+
+html body [data-radix-tabs-content] {
+  border: 2px solid blue !important;
+  background: rgba(0, 0, 255, 0.1) !important;
+}
+*/
+
+/* 💡 添加点击反馈 */
+html body [data-radix-tabs-trigger]:active,
+html body [role="tab"]:active {
+  transform: scale(0.98) !important;
+  transition: transform 0.1s ease !important;
+}
+
+/* 🔥 最终安全网 - 如果以上都不生效，这个应该会生效 */
+* [role="tab"] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+* [data-radix-tabs-trigger] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}

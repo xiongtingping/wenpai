@@ -129,7 +129,6 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
   const getPlatformDisplayName = (platform: string): string => {
     const platformNames: Record<string, string> = {
       'weibo': t('topicCategories.platforms.weibo'),
-      'zhihu': t('topicCategories.platforms.zhihu'),
       'bilibili': t('topicCategories.platforms.bilibili'),
       'douyin': t('topicCategories.platforms.douyin'),
       'toutiao': t('topicCategories.platforms.toutiao'),

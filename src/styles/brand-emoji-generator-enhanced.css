@@ -1,0 +1,270 @@
+/* 🎨 品牌Emoji生成器增强样式
+ * 提升整体视觉美观性和用户体验
+ */
+
+@layer components {
+  /* 🎯 品牌专属Emoji生成器容器优化 */
+  .brand-emoji-generator {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* 🎨 标题区域美化 */
+  .brand-title-section {
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)) 10%, hsl(var(--card)) 100%);
+    border-radius: 1rem;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .brand-title-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 50%, hsl(var(--primary)) 100%);
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  /* 🎯 步骤指示器容器美化 */
+  .steps-indicator-container {
+    background: linear-gradient(135deg, hsl(var(--accent) / 0.3) 0%, hsl(var(--accent) / 0.1) 100%);
+    border: 1px solid hsl(var(--accent) / 0.2);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    position: relative;
+    backdrop-filter: blur(10px);
+  }
+
+  .steps-indicator-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent 30%, hsl(var(--primary) / 0.05) 50%, transparent 70%);
+    border-radius: 1.5rem;
+    pointer-events: none;
+  }
+
+  /* 🎨 数字圆圈增强效果 */
+  .step-circle {
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .step-circle.active {
+    box-shadow: 0 8px 25px -5px hsl(var(--primary) / 0.3),
+                0 0 0 0 hsl(var(--primary) / 0.4);
+    animation: step-pulse 2s infinite;
+  }
+
+  .step-circle.completed {
+    box-shadow: 0 6px 20px -3px hsl(var(--primary) / 0.4);
+  }
+
+  @keyframes step-pulse {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+    }
+    70% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 10px hsl(var(--primary) / 0);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+    }
+  }
+
+  /* 🎨 连接线增强效果 */
+  .step-connector {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .step-connector.completed::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.6), transparent);
+    animation: flow 2s ease-in-out infinite;
+  }
+
+  @keyframes flow {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
+  /* 🎯 主要内容区域装饰 */
+  .main-content-area {
+    position: relative;
+    background: linear-gradient(135deg, hsl(var(--card) / 0.98) 0%, hsl(var(--card)) 50%, hsl(var(--card) / 0.95) 100%);
+    border: 1px solid hsl(var(--border) / 0.4);
+    border-radius: 1.25rem;
+    overflow: hidden;
+  }
+
+  .main-content-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, hsl(var(--primary) / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, hsl(var(--secondary) / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, hsl(var(--accent) / 0.03) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* 🎨 状态栏美化 */
+  .status-bar {
+    background: linear-gradient(135deg, hsl(var(--accent) / 0.1) 0%, hsl(var(--background) / 0.95) 50%, hsl(var(--accent) / 0.05) 100%);
+    border: 1px solid hsl(var(--border) / 0.2);
+    border-radius: 1rem;
+    backdrop-filter: blur(20px);
+    position: relative;
+  }
+
+  .status-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  /* 🎯 按钮增强效果 */
+  .brand-button {
+    position: relative;
+    overflow: hidden;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .brand-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .brand-button:hover::before {
+    left: 100%;
+  }
+
+  .brand-button-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%);
+    box-shadow: 0 4px 15px -3px hsl(var(--primary) / 0.3);
+  }
+
+  .brand-button-primary:hover {
+    box-shadow: 0 8px 25px -3px hsl(var(--primary) / 0.4);
+    transform: translateY(-2px);
+  }
+
+  /* 🎨 文字样式优化 */
+  .brand-title {
+    background: linear-gradient(135deg, hsl(var(--foreground)) 0%, hsl(var(--primary)) 50%, hsl(var(--foreground)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+
+  .brand-subtitle {
+    color: hsl(var(--muted-foreground));
+    line-height: 1.6;
+    font-weight: 500;
+  }
+
+  /* 🎯 响应式优化 */
+  @media (max-width: 768px) {
+    .brand-emoji-generator {
+      padding: 0 0.75rem;
+    }
+    
+    .brand-title-section {
+      padding: 1.5rem;
+    }
+    
+    .steps-indicator-container {
+      padding: 1rem;
+    }
+    
+    .step-circle {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+
+  /* 🎨 加载动画 */
+  .loading-shimmer {
+    background: linear-gradient(90deg, transparent 25%, hsl(var(--accent) / 0.5) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* 🎯 成功状态动画 */
+  .success-glow {
+    animation: success-pulse 1.5s ease-in-out;
+  }
+
+  @keyframes success-pulse {
+    0% {
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 20px hsl(var(--primary) / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+    }
+  }
+}
+
+/* 🎨 高端视觉效果 */
+@layer utilities {
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .neon-glow {
+    box-shadow: 0 0 5px hsl(var(--primary) / 0.5),
+                0 0 10px hsl(var(--primary) / 0.3),
+                0 0 15px hsl(var(--primary) / 0.1);
+  }
+
+  .floating {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+}

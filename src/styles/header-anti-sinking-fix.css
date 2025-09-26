@@ -1,0 +1,182 @@
+/**
+ * 🚨 Header防下沉终极修复
+ * 专门解决创意魔方Tab切换导致的Header下沉问题
+ * 
+ * 根本原因：Markdown工具作为Tab内容没有独立Header，
+ * 导致Tab切换时页面重排影响Header位置
+ */
+
+/* 🔒 Header绝对稳定化 - 最高优先级 */
+header,
+header.theme-header-bg,
+.theme-header-bg {
+  position: fixed !important;
+  top: 0px !important;
+  left: 0px !important;
+  right: 0px !important;
+  z-index: 99999 !important;
+  height: 96px !important;
+  transform: none !important;
+  
+  /* 防止任何可能的位移 */
+  margin: 0 !important;
+  padding: 0 !important;
+  inset: 0 0 auto 0 !important;
+  
+  /* 确保不受页面布局重排影响 */
+  contain: layout style !important;
+  will-change: auto !important;
+}
+
+/* 🎯 Header内部元素稳定化 */
+header nav,
+header .container {
+  position: relative !important;
+  z-index: 100000 !important;
+  height: 96px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* 📍 Logo稳定化 */
+header a[href="/"],
+header .logo,
+header [class*="logo"] {
+  position: relative !important;
+  z-index: 100001 !important;
+  transform: none !important;
+  margin: 0 !important;
+  
+  /* 防止Logo下沉 */
+  top: 0 !important;
+  left: 0 !important;
+}
+
+/* 👤 Avatar稳定化 - 全面覆盖所有可能的Avatar元素 */
+header [role="button"]:last-child,
+header button:last-child,
+header .user-avatar,
+header [class*="avatar"],
+header [class*="UserAvatar"],
+header [data-testid*="avatar"],
+header .flex.items-center.space-x-4 > *:last-child,
+header nav > div:last-child > *:last-child,
+header nav > div:last-child > button,
+header nav > div:last-child > [role="button"] {
+  position: relative !important;
+  z-index: 100001 !important;
+  transform: none !important;
+  
+  /* 防止Avatar下沉 */
+  top: 0px !important;
+  right: 0px !important;
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+  
+  /* 确保Avatar容器也稳定 */
+  vertical-align: baseline !important;
+}
+
+/* 🛡️ Header右侧区域全面稳定化 */
+header .flex.items-center.space-x-4,
+header nav > div:last-child {
+  position: relative !important;
+  z-index: 100000 !important;
+  transform: none !important;
+  top: 0px !important;
+  right: 0px !important;
+}
+
+/* 🎯 特别强化：Header内所有按钮和可交互元素 */
+header button,
+header [role="button"],
+header a,
+header .theme-toggle,
+header .language-switcher {
+  position: relative !important;
+  z-index: 100000 !important;
+  transform: none !important;
+  top: 0px !important;
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+  vertical-align: baseline !important;
+}
+
+/* 📱 导航栏稳定化 */
+header .navbar,
+header [class*="nav"],
+header [role="navigation"] {
+  position: relative !important;
+  z-index: 100000 !important;
+  transform: none !important;
+}
+
+/* 🎨 主题切换器稳定化 */
+header .theme-toggle,
+header [class*="theme"] {
+  position: relative !important;
+  z-index: 100000 !important;
+  transform: none !important;
+}
+
+/* 🌐 语言切换器稳定化 */
+header .language-switcher,
+header [class*="language"] {
+  position: relative !important;
+  z-index: 100000 !important;
+  transform: none !important;
+}
+
+/* 🔧 CSS变量锁定 */
+:root {
+  --header-height: 96px !important;
+}
+
+/* 📦 防止Tab切换影响Header */
+[role="tabpanel"],
+[role="tablist"],
+.tab-content,
+.creative-studio-module,
+.container {
+  /* 确保Tab内容不会影响Header布局 */
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* 🚨 特殊情况：Markdown工具Tab内容隔离 */
+[role="tabpanel"][data-state="active"] .w-full.max-w-7xl,
+[value="md2wechat"] ~ [role="tabpanel"] {
+  /* 确保Markdown工具内容不影响Header */
+  position: relative !important;
+  z-index: 1 !important;
+  contain: layout !important;
+}
+
+/* 🎯 创意魔方页面特殊修复 */
+.min-h-screen[style*="paddingTop"] {
+  /* 确保页面顶部间距固定 */
+  padding-top: 96px !important;
+}
+
+/* 💪 强制Browser重新计算时的保护 */
+@supports (contain: layout) {
+  header {
+    contain: layout style !important;
+  }
+}
+
+/* 🔄 动画期间的稳定化 */
+header,
+header * {
+  /* 禁用可能导致位移的动画 */
+  animation: none !important;
+  transition: none !important;
+}
+
+/* 📏 确保Header高度始终一致 */
+@media screen {
+  header {
+    min-height: 96px !important;
+    max-height: 96px !important;
+  }
+}

@@ -283,11 +283,11 @@ export const TitleGenerator = memo<TitleGeneratorProps>(({
         <div className="lg:col-span-2">
           <Tabs defaultValue="results" className="w-full">
             <div className="flex items-center justify-between mb-4">
-              <TabsList>
-                <TabsTrigger value="results">
+              <TabsList className="unified-tabs-list">
+                <TabsTrigger value="results" className="unified-tab-trigger">
                   生成结果 {titles.length > 0 && `(${titles.length})`}
                 </TabsTrigger>
-                <TabsTrigger value="stats" onClick={() => refreshStats()}>
+                <TabsTrigger value="stats" className="unified-tab-trigger" onClick={() => refreshStats()}>
                   <BarChart3 className="w-4 h-4 mr-1" />
                   统计信息
                 </TabsTrigger>

@@ -63,7 +63,7 @@ export const usePaywallGuard = (requiredTier: SubscriptionTier = 'trial'): Paywa
 
   // 导航到升级页面
   const navigateToUpgrade = () => {
-    navigate('/payment');
+    navigate('/payment-center');
   };
 
   // 检查特定功能权限

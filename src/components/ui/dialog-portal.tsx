@@ -35,13 +35,9 @@ export const DialogPortal: React.FC<DialogPortalProps> = ({
       dialogRoot = document.createElement('div')
       dialogRoot.id = 'dialog-portal-root'
       dialogRoot.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
+        /* 最小化Portal容器样式，避免创建新的层叠上下文 */
+        /* 不设置 position/z-index，子元素的z-index可与页面其他元素比较 */
         pointer-events: auto;
-        z-index: 1000;
         contain: none;
         isolation: auto;
         transform: none;

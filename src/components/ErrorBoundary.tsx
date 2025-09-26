@@ -128,20 +128,17 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       return;
     }
     // 使用logger系统记录错误，生产环境仍然会记录错误信息
-    logger.error('🚨 应用错误被捕获:', {
-      error: error.message,
-      stack: error.stack,
-      componentStack: errorInfo.componentStack,
-      errorId: this.state.errorId,
-      timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      url: window.location.href,
-      isInitializationError: this.state.isInitializationError,
-      // 增加更多诊断信息
-      errorName: error.name,
-      errorCause: (error as any).cause,
-      reactVersion: React.version
-    });
+    logger.error('🚨 应用错误被捕获:', 
+      error.message, 
+      '\n📍 错误详情:', 
+      '\n  - 错误名称:', error.name,
+      '\n  - 错误ID:', this.state.errorId,
+      '\n  - 时间戳:', new Date().toISOString(),
+      '\n  - 是否初始化错误:', this.state.isInitializationError,
+      '\n  - React版本:', React.version,
+      '\n📍 错误堆栈:', error.stack,
+      '\n📍 组件堆栈:', errorInfo.componentStack
+    );
 
     this.setState({
       errorInfo

@@ -63,7 +63,7 @@ export const PermissionLockedElement: React.FC<any> = ({ children,
       description: `${featureName}需要${plan.name}，请升级后使用`,
     });
     
-    navigate('/payment');
+    navigate('/payment-center');
   };
 
   // 如果有权限，正常渲染
@@ -199,7 +199,7 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
       description: `${featureName}需要${plan.name}，请升级后使用`,
     });
     
-    navigate('/payment');
+    navigate('/payment-center');
   };
 
   // 如果有权限，正常渲染按钮

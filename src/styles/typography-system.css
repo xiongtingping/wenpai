@@ -299,7 +299,7 @@
     color: hsl(var(--muted-foreground)) !important;
   }
 
-  /* 创意工作室模块统一样式 */
+  /* 创意魔方模块统一样式 */
   .creative-studio-module {
     @apply min-h-[400px];
   }

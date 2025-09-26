@@ -1,5 +1,5 @@
 /**
- * AI内容适配器服务层
+ * AI内容适配服务层
  * 统一封装所有AI调用逻辑，替代分散的调用方式
  */
 
@@ -61,7 +61,7 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
 
         const result = await callAIWithTokenTracking({
           ...adjustedParams,
-          feature: 'AI内容适配器',
+          feature: 'AI内容适配',
           taskType: AITaskType.CONTENT_ADAPTATION
         });
 
@@ -417,7 +417,7 @@ export interface ComparisonGenerationRequest extends ContentGenerationRequest {
 }
 
 /**
- * AI内容适配器服务类
+ * AI内容适配服务类
  */
 export class ContentAdapterService {
   private globalSettings: GlobalSettings;

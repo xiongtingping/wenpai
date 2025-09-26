@@ -386,6 +386,80 @@ export default function HotTopicsRadar({ showNavigation = false,
     }
   };
 
+  // 处理添加订阅
+  const handleAddSubscription = async () => {
+    console.log('🔧 handleAddSubscription 被调用');
+    console.log('🔧 newSubscription:', newSubscription);
+    
+    if (!newSubscription.keyword.trim()) {
+      console.log('🔧 关键词为空，显示错误提示');
+      toast({
+        title: "错误",
+        description: "请输入要监控的关键词",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // 创建新订阅对象
+      const subscription: TopicSubscription = {
+        id: Date.now().toString(),
+        keyword: newSubscription.keyword.trim(),
+        name: newSubscription.name.trim() || newSubscription.keyword.trim(),
+        platforms: newSubscription.platforms.length > 0 ? newSubscription.platforms : ['weibo', 'zhihu', 'douyin'],
+        checkInterval: newSubscription.checkInterval,
+        notificationEnabled: newSubscription.notificationEnabled,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        lastCheckAt: null,
+        minHeatThreshold: newSubscription.minHeatThreshold,
+        maxHeatThreshold: newSubscription.maxHeatThreshold
+      };
+
+      // 添加到订阅列表
+      const updatedSubscriptions = [...subscriptions, subscription];
+      setSubscriptions(updatedSubscriptions);
+      
+      // 保存到本地存储
+      localStorage.setItem('topicSubscriptions', JSON.stringify(updatedSubscriptions));
+      
+      // 重置表单
+      setNewSubscription({
+        name: '',
+        keyword: '',
+        platforms: [],
+        checkInterval: 30,
+        notificationEnabled: true,
+        minHeatThreshold: 1000,
+        maxHeatThreshold: 50000,
+        searchSources: []
+      });
+
+      // 关闭对话框
+      setIsAddDialogOpen(false);
+
+      // 更新统计
+      setSubscriptionStats(getSubscriptionStats());
+
+      // 通知父组件
+      onSubscriptionChange?.(updatedSubscriptions);
+
+      toast({
+        title: "成功",
+        description: `已添加话题订阅：${subscription.keyword}`,
+      });
+
+    } catch (error) {
+      console.error('添加订阅失败:', error);
+      toast({
+        title: "错误",
+        description: "添加订阅失败，请重试",
+        variant: "destructive",
+      });
+    }
+  };
+
   // 处理话题点击
   const handleTopicClick = (topic: DailyHotItem) => {
     // 标记为已读
@@ -708,8 +782,23 @@ export default function HotTopicsRadar({ showNavigation = false,
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setIsAddDialogOpen(true)}
-                    className="text-sm font-medium"
+                    onClick={() => {
+                      console.log('🔧 添加订阅按钮被点击');
+                      setIsAddDialogOpen(true);
+                    }}
+                    className="text-sm font-medium hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-200 cursor-pointer !important"
+                    style={{ 
+                      transition: 'all 0.2s ease-in-out',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => {
+                      console.log('🔧 鼠标进入添加订阅按钮');
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      console.log('🔧 鼠标离开添加订阅按钮');
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     <span className="hidden sm:inline">添加订阅</span>
@@ -895,7 +984,10 @@ export default function HotTopicsRadar({ showNavigation = false,
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="font-medium">
                 取消
               </Button>
-              <Button className="font-medium">
+              <Button 
+                onClick={handleAddSubscription} 
+                className="font-medium hover:bg-primary-600 transition-colors cursor-pointer"
+              >
                 添加订阅
               </Button>
             </DialogFooter>

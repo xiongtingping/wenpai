@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
 import { useUnifiedPermission } from '@/hooks/useUnifiedPermission';
+import { useAuth } from '@/hooks/useAuth';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useNavigate } from "react-router-dom";
 import type { SubscriptionTier } from '@/types/subscription';
 
@@ -44,7 +46,16 @@ export const PermissionLockedButton = React.forwardRef<HTMLButtonElement, Permis
 
   // 使用统一权限检查
   const permissionKey = `tier:${requiredTier}`;
-  const { hasPermission, canUpgrade, upgradeUrl, reason } = useUnifiedPermission(permissionKey);
+  const { hasPermission: unifiedHasPermission, canUpgrade, upgradeUrl, reason } = useUnifiedPermission(permissionKey);
+  
+  // 🎯 增强权限检查：确保premium用户有所有权限
+  const { user } = useAuth();
+  const isPremiumUser = user?.subscription?.tier === 'premium' || 
+                       user?.tier === 'premium' || 
+                       user?.vipLevel === 'premium' ||
+                       (user?.isVip && (user?.vipLevel === 'premium' || user?.subscription?.tier === 'premium'));
+  
+  const hasPermission = unifiedHasPermission || isPremiumUser;
 
   // 处理点击事件
   const handleClick = () => {
@@ -56,7 +67,7 @@ export const PermissionLockedButton = React.forwardRef<HTMLButtonElement, Permis
       if (upgradeUrl) {
         navigate(upgradeUrl);
       } else {
-        navigate('/payment');
+        navigate('/payment-center');
       }
     }
   };
@@ -98,7 +109,16 @@ export const PermissionLockedIconButton = React.forwardRef<HTMLButtonElement, Pe
 
   // 使用统一权限检查
   const permissionKey = `tier:${requiredTier}`;
-  const { hasPermission, upgradeUrl, reason } = useUnifiedPermission(permissionKey);
+  const { hasPermission: unifiedHasPermission, upgradeUrl, reason } = useUnifiedPermission(permissionKey);
+  
+  // 🎯 增强权限检查：确保premium用户有所有权限
+  const { user } = useAuth();
+  const isPremiumUser = user?.subscription?.tier === 'premium' || 
+                       user?.tier === 'premium' || 
+                       user?.vipLevel === 'premium' ||
+                       (user?.isVip && (user?.vipLevel === 'premium' || user?.subscription?.tier === 'premium'));
+  
+  const hasPermission = unifiedHasPermission || isPremiumUser;
 
   // 处理点击事件
   const handleClick = () => {
@@ -108,7 +128,7 @@ export const PermissionLockedIconButton = React.forwardRef<HTMLButtonElement, Pe
       if (upgradeUrl) {
         navigate(upgradeUrl);
       } else {
-        navigate('/payment');
+        navigate('/payment-center');
       }
     }
   };

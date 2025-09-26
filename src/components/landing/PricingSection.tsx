@@ -137,7 +137,7 @@ export function PricingSection() {
     if (isAuthenticated) {
       // User is logged in, go directly to payment
       localStorage.setItem("selectedPlan", planId);
-      navigate("/payment");
+      navigate("/payment-center");
       
       toast({
         title: t('home.pricing.redirectingToPayment'),
@@ -146,7 +146,7 @@ export function PricingSection() {
     } else {
       // User is not logged in, redirect to login/register choice page
       localStorage.setItem("selectedPlan", planId);
-      // login("/payment"); // This line is removed as per the edit hint
+      // login("/payment-center"); // This line is removed as per the edit hint
     
       toast({
         title: t('home.pricing.redirectingToLogin'),

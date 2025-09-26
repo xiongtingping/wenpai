@@ -636,9 +636,9 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
             </Button>
 
             {/* 排序分段 */}
-            <div className="flex items-center gap-2 bg-muted rounded-full px-3 py-2">
+            <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-foreground">排序</span>
-              <div className="flex items-center gap-1">
+              <div className="unified-tabs-list flex items-center">
                 {([
                   { key: 'name', label: t('components.labels.名称') },
                   { key: 'category', label: t('components.labels.分类') },
@@ -651,11 +651,10 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                       setShowFavoritesOnly(false); // 退出收藏视图
                       setSortMode(opt.key);
                     }}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                      sortMode === opt.key
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-background text-foreground hover:bg-accent'
+                    className={`unified-tab-trigger ${
+                      sortMode === opt.key ? 'data-[state=active]' : ''
                     }`}
+                    data-state={sortMode === opt.key ? 'active' : 'inactive'}
                   >
                     {opt.label}
                   </button>
@@ -867,10 +866,11 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                       e.preventDefault();
                       toggleFavorite(randomSelected.id);
                     }}
-                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-card shadow-md flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity duration-200 z-10 cursor-pointer"
+                    className="emoji-favorite-btn"
+                    data-favorited={favorites.has(randomSelected.id)}
                   >
                     <Heart
-                      className={`w-4 h-4 ${favorites.has(randomSelected.id) ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`}
+                      className={favorites.has(randomSelected.id) ? 'favorited' : 'not-favorited'}
                     />
                   </button>
                 )}
@@ -934,10 +934,11 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                         e.preventDefault();
                         toggleFavorite(emoji.id);
                       }}
-                      className="absolute top-2 right-2 w-6 h-6 rounded-full bg-card shadow-md flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity duration-200 z-10 cursor-pointer"
+                      className="emoji-favorite-btn"
+                      data-favorited={isFavorited}
                     >
                       <Heart
-                        className={`w-3 h-3 ${isFavorited ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`}
+                        className={isFavorited ? 'favorited' : 'not-favorited'}
                       />
                     </button>
                   )}
@@ -1011,9 +1012,10 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                           e.preventDefault();
                           toggleFavorite(emoji.id);
                         }}
-                        className="w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-muted transition-colors z-10 cursor-pointer"
+                        className="emoji-favorite-btn"
+                        data-favorited={isFavorited}
                       >
-                        <Heart className={`w-4 h-4 ${isFavorited ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`} />
+                        <Heart className={isFavorited ? 'favorited' : 'not-favorited'} />
                       </button>
                     )}
 
@@ -1046,10 +1048,11 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                         e.preventDefault();
                         toggleFavorite(emoji.id);
                       }}
-                      className="absolute top-4 right-4 w-8 h-8 rounded-full bg-card shadow-md flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity duration-200 z-10 cursor-pointer"
+                      className="emoji-favorite-btn"
+                      data-favorited={isFavorited}
                     >
                       <Heart
-                        className={`w-4 h-4 ${isFavorited ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`}
+                        className={isFavorited ? 'favorited' : 'not-favorited'}
                       />
                     </button>
                   )}

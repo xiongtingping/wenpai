@@ -52,23 +52,23 @@ export function PreviewPanel({ htmlContent,
 
   // 字体大小映射
   const fontSizeMap = {
-    small: 'var(--spacing-3-5)',
-    medium: 'var(--spacing-4)',
-    large: 'var(--spacing-4-5)'
+    small: '14px',
+    medium: '16px',
+    large: '18px'
   };
 
   // 生成主题样式
   const generateThemeStyles = () => {
+    // 根据主题生成特定样式
+    const themeSpecificStyles = getThemeSpecificStyles(theme);
+    
     const baseStyles = {
       fontFamily: '-apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
       fontSize: fontSizeMap[fontSize],
       lineHeight: '1.8',
-      color: currentTheme.preview.textColor,
-      backgroundColor: currentTheme.preview.backgroundColor,
+      color: themeSpecificStyles['--text-color'],
+      backgroundColor: themeSpecificStyles['--background-color'],
     };
-
-    // 根据主题生成特定样式
-    const themeSpecificStyles = getThemeSpecificStyles(theme);
     
     return {
       ...baseStyles,
@@ -204,14 +204,19 @@ export function PreviewPanel({ htmlContent,
   // 微信公众号样式
   const wechatStyles = `
     .wechat-container {
-      max-width: ${isMobilePreview ? '375px' : '800px'};
+      max-width: ${isMobilePreview ? '375px' : '100%'};
+      width: 100%;
       margin: 0 auto;
       padding: var(--spacing-5);
       background: var(--background-color);
       color: var(--text-color);
       font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: ${fontSizeMap[fontSize]};
       line-height: 1.8;
       word-break: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      box-sizing: border-box;
     }
     
     .wechat-h1 {
@@ -242,6 +247,8 @@ export function PreviewPanel({ htmlContent,
     .wechat-p {
       margin: 0.8em 0;
       text-align: justify;
+      word-break: break-word;
+      overflow-wrap: break-word;
     }
     
     .wechat-quote {
@@ -259,6 +266,8 @@ export function PreviewPanel({ htmlContent,
       border-radius: 3px;
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
       font-size: 0.9em;
+      word-break: break-all;
+      overflow-wrap: break-word;
     }
     
     .wechat-pre {
@@ -268,6 +277,9 @@ export function PreviewPanel({ htmlContent,
       overflow-x: auto;
       margin: 1em 0;
       border: 1px solid var(--border-color);
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: break-word;
     }
     
     .wechat-ul, .wechat-ol {
@@ -405,7 +417,7 @@ export function PreviewPanel({ htmlContent,
           </div>
         ) : (
           /* 预览内容 */
-          <div className="p-4">
+          <div className="p-4 overflow-hidden">
             <style>{wechatStyles}</style>
             <div
               ref={previewRef}

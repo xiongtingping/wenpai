@@ -159,7 +159,8 @@ class HotTopicsAPI {
     }
   }
 
-  private async fetchWithRetry(url: string, maxRetries = 2): Promise<any> {
+  private async fetchWithRetry(url: string, maxRetries = 0): Promise<any> {
+    // 🛡️ 禁用重试机制，避免重复请求和长时间等待
     let lastError: Error = new Error('Unknown error');
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -171,7 +172,7 @@ class HotTopicsAPI {
           action: 'hot-topics',
           platform: url.replace('/', ''), // 提取平台名称
         }, {
-          timeout: 30000, // 30秒超时，适应网络爬取延迟
+          timeout: 8000, // 🔧 设置8秒超时，确保能接收到后端5秒超时+网络延迟后的fallback响应
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -182,54 +183,66 @@ class HotTopicsAPI {
           throw new Error('API返回空数据');
         }
 
-        // 验证数据格式
-        if (typeof data === 'object' && (data.code === 200 || Array.isArray(data.data) || Array.isArray(data))) {
-          this.log(`✅ ${url}平台数据获取成功`);
-          return data;
-        } else {
-          throw new Error('API返回数据格式异常');
+        // 🔧 增强数据格式验证，接受降级响应
+        if (typeof data === 'object') {
+          // 接受正常数据（code: 200）或降级数据（code: 503 + fallback: true）
+          if (data.code === 200 || (data.code === 503 && data.fallback === true) || Array.isArray(data.data) || Array.isArray(data)) {
+            this.log(`✅ ${url}平台数据获取成功${data.fallback ? ' (降级模式)' : ''}`);
+            return data;
+          }
         }
+        
+        throw new Error('API返回数据格式异常');
 
       } catch (error) {
         lastError = error as Error;
         const errorMessage = error instanceof Error ? error.message : String(error);
         
-        this.log(`API请求失败 (尝试 ${attempt + 1}/${maxRetries + 1}):`, {
+        this.log(`❌ API请求失败:`, {
           error: errorMessage,
-          url: `${this.baseUrl}${url || ''}`
+          url: `${this.baseUrl}${url || ''}`,
+          platform: url.replace('/', '')
         });
 
-        // 智能错误判断：某些错误不需要重试
+        // 🛡️ 快速失败：大多数错误都不需要重试
         const nonRetryableErrors = [
           'Unexpected token',
-          'JSON.parse',
+          'JSON.parse', 
           'Syntax error',
           'Unauthorized',
           'Forbidden',
-          'Not Found'
+          'Not Found',
+          'timeout',
+          'ECONNREFUSED',
+          'ENOTFOUND',
+          'aborted'
         ];
 
         const shouldNotRetry = nonRetryableErrors.some(pattern => 
-          errorMessage.includes(pattern)
+          errorMessage.toLowerCase().includes(pattern.toLowerCase())
         );
 
-        if (shouldNotRetry) {
-          this.log(`⚠️ 检测到不可重试错误，跳过重试: ${errorMessage}`);
+        if (shouldNotRetry || attempt >= maxRetries) {
+          this.log(`⚠️ 停止重试: ${errorMessage}`);
           break;
         }
 
         if (attempt < maxRetries) {
-          // 减少重试延迟，避免长时间阻塞
-          const delay = Math.min(1000 * (attempt + 1), 3000);
+          const delay = 1000; // 减少重试延迟到1秒
           this.log(`🔄 ${delay}ms后重试...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }
 
-    // 如果所有重试都失败，抛出错误
-    this.log('所有API重试失败', lastError);
-    throw new Error(`热点数据API调用失败: ${lastError?.message || i18n.t('api.errors.未知错误')}`);
+    // 🛡️ 返回空数据而非抛出错误，避免破坏用户体验
+    this.log('API调用失败，返回空数据', lastError);
+    return {
+      code: 503,
+      msg: '热点话题服务暂时不可用',
+      data: [],
+      fallback: true
+    };
   }
 
   private processRawData(data: any, platform: string): DailyHotItem[] {
@@ -449,7 +462,6 @@ class HotTopicsAPI {
   getSupportedPlatforms(): string[] {
     return [
       'weibo',
-      'zhihu', 
       'douyin',
       'bilibili',
       'baidu',
@@ -461,7 +473,6 @@ class HotTopicsAPI {
   getPlatformDisplayName(platform: string): string {
     const platformNames: Record<string, string> = {
       'weibo': '微博',
-      'zhihu': '知乎',
       'douyin': '抖音',
       'bilibili': 'B站',
       'baidu': '百度',

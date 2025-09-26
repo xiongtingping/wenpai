@@ -26,8 +26,8 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuthStore } from '@/store/authStore';
-import { useUsageStore } from '@/store/usageStore';
+import { useAuthStore } from '@/stores/compatibility-layer';
+import { useUsageStore } from '@/stores/compatibility-layer';
 import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
@@ -290,7 +290,7 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
   if (hasError) {
     return (
       <div className="bg-background">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="w-full max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <RefreshCw className="w-8 h-8 mx-auto mb-4 text-muted-foreground animate-spin" />
@@ -304,11 +304,11 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
 
   return (
     <div className="bg-background">
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
+      <div className="w-full max-w-7xl mx-auto">
         <div className="h-full bg-background">
           {/* 工具栏 */}
           <div className="border-b border-border bg-card">
-            <div className="container mx-auto px-4 py-3">
+            <div className="px-4 py-3">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 {/* 左侧工具组 */}
                 <div className="flex items-center gap-4">
@@ -416,7 +416,7 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
           </div>
 
           {/* 主要内容区域 */}
-          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-var(--header-height,var(--spacing-16))-120px)]">
+          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-120px-96px)]">
             {/* 编辑器区域 */}
             <div className={`${showPreview ? 'lg:w-1/2' : 'w-full'} flex flex-col h-full ${showPreview ? 'border-r border-border' : ''}`}>
 
@@ -438,17 +438,13 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
               </div>
 
               {/* 编辑器内容 - 固定高度，内部滚动 */}
-              <div className="flex-1 overflow-hidden">
-                <PermissionProtectedInput
-                  requiredTier="pro"
-                  featureName="Markdown编辑器"
-                >
-                  <MarkdownEditor
-                    content={markdownContent}
-                    onChange={handleContentChange}
-                    className="h-full overflow-y-auto"
-                  />
-                </PermissionProtectedInput>
+              <div className="flex-1 overflow-hidden" style={{ minHeight: '400px' }}>
+                <MarkdownEditor
+                  content={markdownContent}
+                  onChange={handleContentChange}
+                  className="h-full w-full"
+                  style={{ height: '100%', minHeight: '400px' }}
+                />
               </div>
             </div>
 
@@ -480,18 +476,13 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
 
                 {/* 预览内容 */}
                 <div className="flex-1 overflow-y-auto">
-                  <PermissionProtectedInput
-                    requiredTier="pro"
-                    featureName="Markdown预览"
-                  >
-                    <PreviewPanel
-                      htmlContent={previewHtml}
-                      theme={selectedTheme}
-                      fontSize={fontSize}
-                      isMobilePreview={isMobilePreview}
-                      isLoading={isConverting}
-                    />
-                  </PermissionProtectedInput>
+                  <PreviewPanel
+                    htmlContent={previewHtml}
+                    theme={selectedTheme}
+                    fontSize={fontSize}
+                    isMobilePreview={isMobilePreview}
+                    isLoading={isConverting}
+                  />
                 </div>
               </div>
             )}

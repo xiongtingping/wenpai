@@ -1,0 +1,232 @@
+/**
+ * 🚨 Header Avatar终极防下沉修复
+ * 专门解决点击Markdown排版工具后右上角头像下沉问题
+ * 
+ * 问题根因：
+ * 1. Tab切换导致页面重排，影响Header元素位置
+ * 2. MD2WeChatPage组件内容变化触发浏览器重新计算布局
+ * 3. Avatar元素受到transform、transition等CSS属性影响
+ */
+
+/* 🛡️ 超级权重 - Header容器终极稳定化 */
+html body header,
+html body header.theme-header-bg,
+html body .theme-header-bg,
+body header,
+body header.theme-header-bg {
+  position: fixed !important;
+  top: 0px !important;
+  left: 0px !important;
+  right: 0px !important;
+  z-index: 999999 !important;
+  height: 96px !important;
+  min-height: 96px !important;
+  max-height: 96px !important;
+  
+  /* 🚨 核心：防止任何形式的变换 */
+  transform: none !important;
+  -webkit-transform: none !important;
+  translate: none !important;
+  rotate: none !important;
+  scale: none !important;
+  
+  /* 🚨 禁用动画和过渡 */
+  animation: none !important;
+  transition: none !important;
+  -webkit-animation: none !important;
+  -webkit-transition: none !important;
+  
+  /* 🚨 布局优化 */
+  contain: layout style paint size !important;
+  will-change: auto !important;
+  isolation: isolate !important;
+}
+
+/* 🎯 Avatar元素超级权重修复 - 覆盖所有可能的选择器 */
+html body header [role="button"]:last-child,
+html body header button:last-child,
+html body header .user-avatar,
+html body header [class*="avatar"],
+html body header [class*="UserAvatar"],
+html body header [data-testid*="avatar"],
+html body header .flex.items-center.space-x-4 > *:last-child,
+html body header nav > div:last-child > *:last-child,
+html body header nav > div:last-child > button,
+html body header nav > div:last-child > [role="button"],
+html body header .flex-shrink-0.hidden.md\\:flex > *:last-child,
+html body header .hidden.md\\:flex > *:last-child,
+/* 增加更多可能的Avatar选择器 */
+html body header .flex > *:last-child,
+html body header .items-center > *:last-child,
+html body header .space-x-4 > *:last-child,
+html body header .relative.z-\\[60\\] ~ * [role="button"],
+html body header .relative.z-\\[60\\] ~ * button {
+  /* 🚨 超级稳定定位 */
+  position: relative !important;
+  z-index: 1000000 !important;
+  
+  /* 🚨 核心：彻底禁用所有可能导致下沉的属性 */
+  transform: none !important;
+  -webkit-transform: none !important;
+  translate: none !important;
+  rotate: none !important;
+  scale: none !important;
+  
+  /* 🚨 禁用动画和过渡 */
+  animation: none !important;
+  transition: none !important;
+  -webkit-animation: none !important;
+  -webkit-transition: none !important;
+  
+  /* 🚨 强制位置固定 */
+  top: 0px !important;
+  left: auto !important;
+  right: 0px !important;
+  bottom: auto !important;
+  
+  /* 🚨 边距重置 */
+  margin: 0px !important;
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+  margin-left: 0px !important;
+  margin-right: 0px !important;
+  
+  /* 🚨 垂直对齐 */
+  vertical-align: baseline !important;
+  
+  /* 🚨 布局优化 */
+  contain: layout style !important;
+  will-change: auto !important;
+}
+
+/* 🎯 Avatar容器终极稳定化 */
+html body header .flex.items-center.space-x-4,
+html body header .flex-shrink-0.hidden.md\\:flex,
+html body header .hidden.md\\:flex,
+html body header nav > div:last-child,
+html body header .items-center.space-x-4,
+html body header .space-x-4 {
+  /* 🚨 容器稳定定位 */
+  position: relative !important;
+  z-index: 999999 !important;
+  
+  /* 🚨 核心：防止容器变换 */
+  transform: none !important;
+  -webkit-transform: none !important;
+  translate: none !important;
+  
+  /* 🚨 禁用动画 */
+  animation: none !important;
+  transition: none !important;
+  
+  /* 🚨 强制位置 */
+  top: 0px !important;
+  right: 0px !important;
+  
+  /* 🚨 显示属性 */
+  display: flex !important;
+  align-items: center !important;
+  
+  /* 🚨 布局优化 */
+  contain: layout style !important;
+}
+
+/* 🎯 Logo同步稳定化 - 防止整体不协调 */
+html body header a[href="/"],
+html body header .logo,
+html body header [class*="logo"],
+html body header .flex-shrink-0:first-child,
+html body header nav > div:first-child {
+  /* 🚨 Logo稳定定位 */
+  position: relative !important;
+  z-index: 1000000 !important;
+  
+  /* 🚨 核心：防止Logo变换 */
+  transform: none !important;
+  -webkit-transform: none !important;
+  translate: none !important;
+  
+  /* 🚨 禁用动画 */
+  animation: none !important;
+  transition: none !important;
+  
+  /* 🚨 强制位置 */
+  top: 0px !important;
+  left: 0px !important;
+  
+  /* 🚨 边距重置 */
+  margin: 0px !important;
+  
+  /* 🚨 布局优化 */
+  contain: layout style !important;
+}
+
+/* 🚨 特殊：Markdown Tab切换时的紧急稳定化 */
+html body [role="tabpanel"][data-state="active"] {
+  /* 确保Tab切换不影响Header */
+  position: relative !important;
+  z-index: 1 !important;
+  contain: layout !important;
+}
+
+/* 🚨 特殊：创意魔方页面布局隔离 */
+html body .min-h-screen[style*="paddingTop"] {
+  /* 确保页面布局稳定 */
+  padding-top: 96px !important;
+  contain: layout !important;
+}
+
+/* 🔄 强制浏览器重新计算时的防护 */
+@supports (contain: layout) {
+  html body header {
+    contain: layout style paint size !important;
+  }
+  
+  html body header [role="button"],
+  html body header button,
+  html body header [class*="avatar"] {
+    contain: layout style !important;
+  }
+}
+
+/* 💪 媒体查询下的强制稳定 */
+@media screen and (min-width: 768px) {
+  html body header .hidden.md\\:flex,
+  html body header .flex-shrink-0.hidden.md\\:flex {
+    display: flex !important;
+    position: relative !important;
+    z-index: 999999 !important;
+    transform: none !important;
+  }
+}
+
+/* 🚨 CSS变量锁定 - 防止动态修改 */
+:root {
+  --header-height: 96px !important;
+  --header-z-index: 999999 !important;
+}
+
+/* 🎯 强制所有Header内元素稳定 */
+html body header *,
+html body header *::before,
+html body header *::after {
+  /* 禁用可能导致下沉的CSS属性 */
+  transform: none !important;
+  -webkit-transform: none !important;
+  translate: none !important;
+  animation: none !important;
+  transition: none !important;
+  will-change: auto !important;
+}
+
+/* 🔒 最后保险：使用伪元素强制稳定 */
+html body header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 96px;
+  z-index: -1;
+  pointer-events: none;
+}

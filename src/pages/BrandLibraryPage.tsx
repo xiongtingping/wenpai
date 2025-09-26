@@ -2027,10 +2027,11 @@ export default function BrandLibraryPageFixed() {
   };
 
   return (
-    <div className="min-h-screen particle-background pt-24">
+    <div className="min-h-screen particle-background" style={{ paddingTop: '64px' }}>
       {/* 主导航栏 */}
       <Header />
 
+      {/* 页面导航 */}
       <PageNavigation
         title={t('brandLibrary.title')}
         description={t('brandLibrary.description')}
@@ -2080,7 +2081,7 @@ export default function BrandLibraryPageFixed() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="unified-tabs-list grid w-full grid-cols-2">
+          <TabsList className="unified-tabs-list brand-library-tabs flex max-w-fit">
             <TabsTrigger value="assets" className="unified-tab-trigger">
               <Upload className="tab-icon" />
               <span className="tab-text-mobile">上传资料</span>

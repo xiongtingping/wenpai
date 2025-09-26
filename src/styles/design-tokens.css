@@ -17,6 +17,26 @@
     /* 🎯 Extended Spacing Tokens */
     --spacing-1-5: 0.375rem;  /* var(--spacing-1-5) */
     --spacing-2-5: 0.625rem;  /* var(--spacing-2-5) */
+    
+    /* 🎯 Steps Indicator Tokens - 步骤指示器设计令牌 */
+    --steps-indicator-circle-size: 2rem;          /* 32px */
+    --steps-indicator-circle-size-lg: 2.5rem;     /* 40px */
+    --steps-indicator-number-size: 0.875rem;      /* 14px */
+    --steps-indicator-text-size: 0.75rem;         /* 12px */
+    --steps-indicator-text-size-sm: 0.6875rem;    /* 11px */
+    --steps-indicator-gap: 0.75rem;               /* 12px */
+    --steps-indicator-connector-height: 2px;
+    --steps-indicator-border-width: 2px;
+    
+    /* 🎯 Extended Shadow Tokens */
+    --shadow-xs: 0 1px 2px hsl(var(--foreground) / 0.05);
+    --shadow-sm: 0 2px 4px hsl(var(--foreground) / 0.06);
+    --shadow-md: 0 4px 8px hsl(var(--foreground) / 0.08);
+    --shadow-lg: 0 8px 16px hsl(var(--foreground) / 0.10);
+    
+    /* 🎯 Extended Radius Tokens */
+    --radius-xs: 0.125rem;  /* 2px */
+    --radius-sm: 0.25rem;   /* 4px */
     /* 🎨 Extended Font Tokens */;
   --font-family-ui: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     --font-size-xs: var(--spacing-3);  /* var(--spacing-3) */
@@ -143,11 +163,76 @@
     --features-tools-delay-step: 150ms;
     --features-advantages-delay-base: 0ms;
     --features-advantages-delay-step: 100ms;
+    /* 🎯 Tab System Design Tokens */
+    --tab-container-padding: 2px;
+    --tab-container-gap: 2px;
+    --tab-container-min-height: 40px;
+    --tab-container-radius: 9999px;
+    --tab-container-bg: hsl(var(--background) / 0.8);
+    --tab-container-border: 1px solid hsl(var(--border) / 0.3);
+    --tab-container-shadow: 0 1px 3px hsl(var(--foreground) / 0.1);
+    --tab-container-backdrop: blur(8px) saturate(1.05);
+
+    --tab-button-height: 36px;
+    --tab-button-padding: 6px 12px;
+    --tab-button-gap: 6px;
+    --tab-button-radius: 9999px;
+    --tab-button-font-size: 12px;
+    --tab-button-font-weight: 500;
+    --tab-button-line-height: 1.1;
+    
+    --tab-button-bg-default: hsl(var(--border) / 0.3);
+    --tab-button-border-default: 1px solid hsl(var(--border) / 0.2);
+    --tab-button-color-default: hsl(var(--muted-foreground));
+    --tab-button-shadow-default: 0 1px 3px hsl(var(--foreground) / 0.08), 0 1px 2px hsl(var(--foreground) / 0.04);
+    
+    --tab-button-bg-hover: hsl(var(--border) / 0.5);
+    --tab-button-border-hover: hsl(var(--border) / 0.4);
+    --tab-button-color-hover: hsl(var(--foreground) / 0.9);
+    --tab-button-shadow-hover: 0 4px 12px hsl(var(--foreground) / 0.12), 0 2px 4px hsl(var(--foreground) / 0.08);
+    --tab-button-transform-hover: translateY(-1px) scale(1.02);
+    
+    --tab-button-bg-active: hsl(var(--primary));
+    --tab-button-border-active: hsl(var(--primary) / 0.6);
+    --tab-button-color-active: hsl(var(--primary-foreground));
+    --tab-button-shadow-active: 0 4px 12px hsl(var(--primary) / 0.3), 0 2px 4px hsl(var(--primary) / 0.2);
+    --tab-button-transform-active: scale(1.05);
+    --tab-button-font-weight-active: 600;
+    
+    --tab-icon-size: 20px;
+    --tab-icon-stroke: 1.5;
+    --tab-icon-stroke-hover: 1.6;
+    --tab-icon-stroke-active: 1.8;
+    
+    --tab-transition: all 0.3s ease;
+    --tab-backdrop-filter: blur(8px) saturate(1.1);
+
+    /* 🎯 Tab Responsive Tokens */
+    --tab-mobile-height: 32px;
+    --tab-mobile-padding: 4px 8px;
+    --tab-mobile-font-size: 11px;
+    --tab-mobile-icon-size: 16px;
+
+    --tab-vertical-height: 60px;
+    --tab-vertical-padding: 8px 12px;
+    --tab-vertical-gap: 4px;
+
     /* 📤 Batch Forward Modal Tokens */;
   --batch-modal-z-index: var(--z-critical);
     --batch-modal-z-index-overlay: var(--z-overlay);
     --batch-modal-bottom-offset: var(--spacing-5);
     --batch-modal-border-radius: var(--spacing-3);
+    
+    /* 🎯 Header系统令牌 - 根因修复设计令牌系统 */
+    --header-height: 4rem;                /* 64px - 标准header高度 */
+    --header-padding-x: 1.5rem;          /* 24px - 水平内边距 */
+    --header-padding-y: 1rem;            /* 16px - 垂直内边距 */
+    --header-z-index: 1000;              /* Header基础层级 */
+    --header-controls-gap: 1rem;         /* 16px - 控件间距 */
+    --header-dropdown-z-index: 1001;     /* 下拉菜单层级 */
+    --header-dropdown-offset: 0.5rem;    /* 8px - 下拉菜单偏移 */
+    --header-avatar-size: 2.5rem;        /* 40px - Avatar尺寸 */
+    --header-button-size: 2.25rem;       /* 36px - 按钮尺寸 */
     --batch-modal-border: 1px solid #e2e8f0;
     --batch-modal-shadow: 0 25px 50px -var(--spacing-3) rgba(0, 0, 0, 0.25);
     --batch-modal-width: min(95vw, 1200px);

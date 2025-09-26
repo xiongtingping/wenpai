@@ -47,9 +47,18 @@ export const RoleBasedUpgradePrompt: React.FC<any> = ({
   const userTier = getUserTier(user);
   const plan = getSubscriptionPlan(requiredTier);
 
-  // 检查权限
+  // 检查权限 - 增强版本，确保premium用户有所有权限
   const hasPermission = () => {
     if (!isAuthenticated) return false;
+    
+    // 🎯 特殊处理：如果是premium用户，直接授予所有权限
+    const isPremiumUser = user?.subscription?.tier === 'premium' || 
+                         user?.tier === 'premium' || 
+                         user?.vipLevel === 'premium' ||
+                         userTier === 'premium' ||
+                         (user?.isVip && (user?.vipLevel === 'premium' || user?.subscription?.tier === 'premium'));
+    
+    if (isPremiumUser) return true;
     
     const tierLevels = { trial: 0, pro: 1, premium: 2 };
     return tierLevels[userTier] >= tierLevels[requiredTier];
@@ -66,7 +75,7 @@ export const RoleBasedUpgradePrompt: React.FC<any> = ({
     localStorage.setItem("selectedPlan", requiredTier);
 
     // 直接跳转到支付页面
-    navigate('/payment');
+    navigate('/payment-center');
   };
 
   // 根据版本获取主题配置 - 使用设计令牌

@@ -6,7 +6,7 @@
 import i18n from '@/i18n';
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useTokenUsageStore } from '@/stores/tokenUsageStore';
+import { useTokenUsageStore } from '@/stores/compatibility-layer';
 import { checkUserTokenLimit } from '@/services/aiWithTokenTracking';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { TokenUsageStats } from '@/services/tokenUsageService';

@@ -1,0 +1,98 @@
+/**
+ * 🚨 全网雷达订阅弹窗紧急定位修复
+ * 专门针对HotTopicsPage中订阅弹窗定位异常的紧急修复
+ * 使用超高优先级和多重选择器确保样式生效
+ */
+
+/* 🎯 紧急修复层 - 最高优先级 */
+@layer emergency {
+  /* 🚨 针对所有可能的Dialog选择器组合 - 超强优先级 */
+  div[role="dialog"][data-state="open"][class*="subscription-dialog"] {
+    position: fixed !important;
+    top: calc(8vh + 60px) !important;
+    left: 50vw !important;
+    transform: translateX(-50%) !important;
+    z-index: 1000000 !important;
+    margin: 0 !important;
+    
+    /* 彻底清除所有可能干扰的定位属性 */
+    inset: unset !important;
+    inset-block: unset !important;
+    inset-inline: unset !important;
+    inset-block-start: unset !important;
+    inset-block-end: unset !important;
+    inset-inline-start: unset !important;
+    inset-inline-end: unset !important;
+    right: auto !important;
+    bottom: auto !important;
+    
+    /* 确保尺寸合理 */
+    max-width: min(85vw, 500px) !important;
+    max-height: calc(92vh - 8vh - 120px) !important;
+    
+    /* 确保可见性 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* 🚨 趋势分析弹窗特殊处理 */
+  div[role="dialog"][data-state="open"][class*="trend-analysis-dialog"] {
+    position: fixed !important;
+    top: calc(8vh + 60px) !important;
+    left: 50vw !important;
+    transform: translateX(-50%) !important;
+    z-index: 1000000 !important;
+    margin: 0 !important;
+    
+    /* 彻底清除所有可能干扰的定位属性 */
+    inset: unset !important;
+    inset-block: unset !important;
+    inset-inline: unset !important;
+    inset-block-start: unset !important;
+    inset-block-end: unset !important;
+    inset-inline-start: unset !important;
+    inset-inline-end: unset !important;
+    right: auto !important;
+    bottom: auto !important;
+    
+    /* 确保尺寸合理 */
+    max-width: min(90vw, 1000px) !important;
+    max-height: 85vh !important;
+    
+    /* 确保可见性 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* 🚨 基于ID的选择器 - 针对Radix UI特殊结构 */
+  div[role="dialog"][id^="radix-"][class*="subscription-dialog"],
+  div[role="dialog"][id^="radix-"][class*="trend-analysis-dialog"] {
+    position: fixed !important;
+    top: calc(8vh + 60px) !important;
+    left: 50vw !important;
+    transform: translateX(-50%) !important;
+    z-index: 1000000 !important;
+    margin: 0 !important;
+    
+    /* 彻底清除所有可能干扰的定位属性 */
+    inset: unset !important;
+    inset-block: unset !important;
+    inset-inline: unset !important;
+    right: auto !important;
+    bottom: auto !important;
+  }
+  
+  /* 🚨 移动端适配 */
+  @media (max-width: 640px) {
+    div[role="dialog"][data-state="open"][class*="subscription-dialog"],
+    div[role="dialog"][data-state="open"][class*="trend-analysis-dialog"] {
+      max-width: calc(100vw - 32px) !important;
+      min-width: auto !important;
+      max-height: 90vh !important;
+    }
+  }
+}

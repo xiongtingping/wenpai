@@ -59,13 +59,13 @@ export function QuickReferenceTabList({ activeTab,
   ];
 
   return (
-    <TabsList className="grid w-full grid-cols-3 bg-muted/50 rounded-lg shadow-sm mb-4 h-auto p-1">
+    <TabsList className="unified-tabs-list grid w-full grid-cols-3 bg-muted/50 rounded-lg shadow-sm mb-4 h-auto p-1">
       {tabs.map((tab) => (
         <TabsTrigger
           key={tab.value}
           value={tab.value}
           disabled={disabled}
-          className={`
+          className={`unified-tab-trigger
             relative flex flex-col items-center gap-1 py-3 px-2 rounded-md
             transition-all duration-200 text-xs
             ${activeTab === tab.value 

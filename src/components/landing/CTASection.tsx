@@ -17,17 +17,17 @@ export function CTASection() {
       console.log('login函数类型:', typeof login);
       console.log('navigate函数类型:', typeof navigate);
       
-      // 修复跳转逻辑：跳转到AI内容适配器页面顶部
+      // 修复跳转逻辑：跳转到AI内容适配页面顶部
       if (isAuthenticated) {
-        console.log('用户已登录，跳转到AI内容适配器页面');
-        navigate('/adapt');
+        console.log('用户已登录，跳转到AI内容适配页面');
+        navigate('/content-adapter');
         // 页面加载后滚动到页面顶部
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 300);
       } else {
         console.log('用户未登录，设置跳转目标并弹出登录弹窗');
-        localStorage.setItem('login_redirect_to', '/adapt');
+        localStorage.setItem('login_redirect_to', '/content-adapter');
         await login();
       }
       
@@ -36,7 +36,7 @@ export function CTASection() {
       console.error('CTA按钮点击事件出错:', error);
       // 备用方案：直接跳转
       try {
-        window.location.href = '/adapt';
+        window.location.href = '/content-adapter';
       } catch (fallbackError) {
         console.error('备用跳转也失败:', fallbackError);
       }

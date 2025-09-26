@@ -231,7 +231,7 @@ export default function PaymentSuccessPage() { const [searchParams] = useSearchP
                   <div>
                     <h4 className="font-semibold mb-2">功能限制</h4>
                     <ul className="space-y-1 text-sm text-muted-foreground">
-                      <li>AI内容适配器：{planInfo.limits.adaptUsageLimit === -1 ? t('pages.messages.不限次数') : `${planInfo.limits.adaptUsageLimit}次/月`}</li>
+                      <li>AI内容适配：{planInfo.limits.adaptUsageLimit === -1 ? t('pages.messages.不限次数') : `${planInfo.limits.adaptUsageLimit}次/月`}</li>
                       <li>Token限制：{planInfo.limits.tokenLimit.toLocaleString()}</li>
                       <li>可用模型：{planInfo.limits.availableModels.join(', ')}</li>
                     </ul>
@@ -264,7 +264,7 @@ export default function PaymentSuccessPage() { const [searchParams] = useSearchP
           </Button>
           
           <Button
-            onClick={() => navigate('/profile')}
+            onClick={() => navigate('/user-profile')}
             variant="outline"
             className="flex items-center gap-2"
           >
@@ -305,11 +305,11 @@ export default function PaymentSuccessPage() { const [searchParams] = useSearchP
           <h3 className="text-lg font-semibold text-foreground mb-4">接下来您可以：</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
             <div className="bg-card p-4 rounded-lg border border-border">
-              <h4 className="font-semibold mb-2 text-foreground">体验AI内容适配器</h4>
+              <h4 className="font-semibold mb-2 text-foreground">体验AI内容适配</h4>
               <p className="text-sm text-muted-foreground mb-3">使用AI技术为不同平台优化内容</p>
               <Button
                 size="sm"
-                onClick={() => navigate('/adapt')}
+                onClick={() => navigate('/content-adapter')}
                 className="w-full"
               >
                 开始使用
@@ -333,7 +333,7 @@ export default function PaymentSuccessPage() { const [searchParams] = useSearchP
               <p className="text-sm text-muted-foreground mb-3">了解您的使用情况和剩余额度</p>
               <Button
                 size="sm"
-                onClick={() => navigate('/profile')}
+                onClick={() => navigate('/user-profile')}
                 className="w-full"
               >
                 个人中心

@@ -51,7 +51,7 @@ export const ThemeAwareUpgradeCard: React.FC<any> = ({ requiredTier,
           altText=$
           onClick={() => {
             localStorage.setItem("selectedPlan", requiredTier);
-            navigate('/payment');
+            navigate('/payment-center');
           }}
         >
           立即升级

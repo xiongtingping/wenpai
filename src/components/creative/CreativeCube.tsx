@@ -56,7 +56,7 @@ import { MomentsTextGenerator } from './MomentsTextGenerator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/stores/compatibility-layer';
 import { callUnifiedAI } from '@/api/unifiedAIService';
 import { AITaskType } from '@/api/aiService';
 import { Label as UILabel } from '@/components/ui/label';
@@ -391,6 +391,7 @@ function DimensionCard({
  * @returns React 组件
  */
 export function CreativeCube() {
+  const { t } = useTranslation(); // 🔧 修复：添加缺失的翻译函数
   const { toast } = useToast();
   const { decrementUsage } = useAuthStore();
   const usageRemaining = useAuthStore((state) => state.getUsageRemaining());
@@ -2535,7 +2536,7 @@ ${generateStandardCallToAction()}
                               size="sm"
                               className="h-6 px-2 text-xs bg-blue-50 hover:bg-blue-100"
                               onClick={() => {
-                                // {t('creativeCube.actions.copy')}内容并跳转到AI内容适配器
+                                // {t('creativeCube.actions.copy')}内容并跳转到AI内容适配
                                 const contentToTransfer = parsed.mainContent;
 
                                 // 使用React Router的navigate方式跳转，并传递预填充内容
@@ -2546,12 +2547,12 @@ ${generateStandardCallToAction()}
                                 sessionStorage.setItem('ai_adapter_source', '创意魔方');
 
                                 toast({
-                                  title: "正在跳转至AI内容适配器",
+                                  title: "正在跳转至AI内容适配",
                                   description: "内容已准备好，即将自动填入适配器"
                                 });
                               }}
                             >
-                              一键{t('creativeCube.actions.copy')}至AI内容适配器
+                              一键{t('creativeCube.actions.copy')}至AI内容适配
                             </Button>
                           </div>
                         </div>

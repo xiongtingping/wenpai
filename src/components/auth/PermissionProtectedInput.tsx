@@ -30,7 +30,9 @@ interface PermissionProtectedInputProps {
 export const PermissionProtectedInput: React.FC<any> = ({ requiredTier,
   featureName,
   children,
-  className = '' }) => { const { user, isAuthenticated  } = useAuth();
+  className = '' }) => { 
+  const { t } = useTranslation();
+  const { user, isAuthenticated  } = useAuth();
   const { primaryStatus } = useSubscriptionStatus();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -58,9 +60,20 @@ export const PermissionProtectedInput: React.FC<any> = ({ requiredTier,
   
   const userTier = getCurrentTier();
   
-  // 检查权限
+  // 检查权限 - 增强版本，确保premium用户有所有权限
   const hasPermission = () => {
     if (!isAuthenticated) return false;
+    
+    // 🎯 特殊处理：优先使用订阅状态，如果是premium用户，直接授予所有权限
+    const isPremiumUser = primaryStatus?.tier === 'premium' || 
+                         primaryStatus?.status === 'active' ||
+                         user?.subscription?.tier === 'premium' || 
+                         user?.tier === 'premium' || 
+                         user?.vipLevel === 'premium' ||
+                         userTier === 'premium' ||
+                         (user?.isVip && (user?.vipLevel === 'premium' || user?.subscription?.tier === 'premium'));
+    
+    if (isPremiumUser) return true;
     
     const tierLevels = { trial: 0, pro: 1, premium: 2 };
     return tierLevels[userTier] >= tierLevels[requiredTier];
@@ -78,7 +91,7 @@ export const PermissionProtectedInput: React.FC<any> = ({ requiredTier,
           altText="确定"
           onClick={() => {
             localStorage.setItem("selectedPlan", requiredTier);
-            navigate('/payment');
+            navigate('/payment-center');
           }}
         >
           确定

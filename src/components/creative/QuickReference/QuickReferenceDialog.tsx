@@ -5,8 +5,8 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuickReferenceDialogPositioning, useDialogScrollLock } from '@/hooks/useDialogPositioning';
-import { useFloating, offset, flip, shift, autoUpdate } from '@floating-ui/react';
+import { useDialogScrollLock } from '@/hooks/useDialogPositioning';
+// ✅ 移除Floating UI，完全交由CSS控制定位
 import {
   Dialog,
   DialogContent,
@@ -44,20 +44,12 @@ import { quickReferenceDataService, QuickReferenceItem } from '@/services/quickR
 
 export type TabType = 'brand' | 'library' | 'radar';
 
-interface AnchorPosition {
-  x: number;
-  y: number;
-  width?: number;
-  height?: number;
-}
-
 interface QuickReferenceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (content: string) => void;
   multiSelect?: boolean;
   className?: string;
-  anchor?: AnchorPosition; // 触发按钮的屏幕坐标（相对视口），用于贴近定位
 }
 
 export function QuickReferenceDialog({
@@ -65,14 +57,12 @@ export function QuickReferenceDialog({
   onOpenChange,
   onSelect,
   multiSelect = false,
-  className,
-  anchor
+  className
 }: QuickReferenceDialogProps) {
   const { toast } = useToast();
   const { t } = useTranslation();
 
-  // 🚨 组件渲染日志
-  console.log('🔍 QuickReferenceDialog 渲染，open:', open);
+  // ✅ 移除调试日志，保持组件简洁
 
   // 状态管理 - 完全复制历史记录弹窗的状态结构
   const [searchQuery, setSearchQuery] = useState('');
@@ -91,431 +81,120 @@ export function QuickReferenceDialog({
   const [error, setError] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  // 🚨 终极JavaScript修复器 - 配合CSS终极修复，避免冲突循环
-  useEffect(() => {
-    if (!open) return;
-  if (anchor) return; // 锚点模式下由 Floating UI 完全接管，终止旧修复器
-
-    console.log('🎯 启动终极Dialog修复器 v3.0');
-
-    const ultimateDialogFix = () => {
-      // 多选择器查找Dialog元素
-      const dialogElement = (
-        document.querySelector('[role="dialog"][class*="enhanced-quick-reference-dialog"]') ||
-        document.querySelector('.enhanced-quick-reference-dialog') ||
-        document.querySelector('[role="dialog"][class*="quick-reference-dialog"]') ||
-        document.querySelector('.quick-reference-dialog') ||
-        document.querySelector('[role="dialog"]')
-      ) as HTMLElement;
-
-      if (dialogElement) {
-        // 🎯 记录当前状态
-        const rect = dialogElement.getBoundingClientRect();
-        const computedStyle = window.getComputedStyle(dialogElement);
-
-        console.log('📊 Dialog当前状态:', {
-          position: computedStyle.position,
-          top: computedStyle.top,
-          left: computedStyle.left,
-          transform: computedStyle.transform,
-          width: computedStyle.width,
-          height: computedStyle.height,
-          zIndex: computedStyle.zIndex,
-          rect: {
-            x: Math.round(rect.x),
-            y: Math.round(rect.y),
-            width: Math.round(rect.width),
-            height: Math.round(rect.height)
-          }
-        });
-
-        // 🎯 检查是否需要修复（位置不正确或尺寸异常）
-        const viewportCenterX = window.innerWidth / 2;
-        const viewportCenterY = window.innerHeight / 2;
-        const dialogCenterX = rect.left + rect.width / 2;
-        const dialogCenterY = rect.top + rect.height / 2;
-
-        const offsetX = Math.abs(dialogCenterX - viewportCenterX);
-        const offsetY = Math.abs(dialogCenterY - viewportCenterY);
-
-        const needsFix = (
-          offsetX > 10 || offsetY > 10 || // 位置偏差超过10px
-          rect.width < 500 || rect.height < 400 || // 尺寸异常
-          rect.x < 0 || rect.y < 0 || // 位置在视窗外
-          computedStyle.position !== 'fixed' // 定位方式不正确
-        );
-
-        if (needsFix) {
-          console.log('🔧 检测到需要修复，应用终极修复方案');
-
-          // 🚨 只做必要的强制修复，避免与CSS冲突
-          dialogElement.style.setProperty('position', 'fixed', 'important');
-          dialogElement.style.setProperty('top', '50vh', 'important');
-          dialogElement.style.setProperty('left', '50vw', 'important');
-          dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
-          dialogElement.style.setProperty('z-index', '1000000', 'important');
-
-          // 🎯 添加调试标识
-          dialogElement.classList.add('ultimate-dialog-debug');
-
-          // 🎯 验证修复效果
-          setTimeout(() => {
-            const newRect = dialogElement.getBoundingClientRect();
-            const newCenterX = newRect.left + newRect.width / 2;
-            const newCenterY = newRect.top + newRect.height / 2;
-            const newOffsetX = Math.abs(newCenterX - viewportCenterX);
-            const newOffsetY = Math.abs(newCenterY - viewportCenterY);
-
-            console.log('✅ 终极修复验证结果:', {
-              beforeOffset: { x: offsetX, y: offsetY },
-              afterOffset: { x: newOffsetX, y: newOffsetY },
-              isCentered: newOffsetX < 5 && newOffsetY < 5,
-              newRect: {
-                x: Math.round(newRect.x),
-                y: Math.round(newRect.y),
-                width: Math.round(newRect.width),
-                height: Math.round(newRect.height)
-              }
-            });
-          }, 100);
-        } else {
-          console.log('✅ Dialog位置正确，无需修复');
-        }
-
-        // 🎯 确保背景遮罩正确
-        const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-        if (overlay) {
-          const overlayRect = overlay.getBoundingClientRect();
-          if (overlayRect.width !== window.innerWidth || overlayRect.height !== window.innerHeight) {
-            console.log('🔧 修复背景遮罩尺寸');
-            overlay.style.setProperty('position', 'fixed', 'important');
-            overlay.style.setProperty('top', '0', 'important');
-            overlay.style.setProperty('left', '0', 'important');
-            overlay.style.setProperty('width', '100vw', 'important');
-            overlay.style.setProperty('height', '100vh', 'important');
-            overlay.style.setProperty('z-index', '999999', 'important');
-          }
-        }
-      } else {
-        console.warn('⚠️ 终极修复器 - 未找到Dialog元素');
-      }
-    };
-
-    // 执行修复 - 减少频率，避免过度干扰
-    ultimateDialogFix();
-    const timeouts = [100, 300];
-    timeouts.forEach(delay => {
-      setTimeout(ultimateDialogFix, delay);
-    });
-
-    // 监听窗口变化
-    const handleResize = () => {
-      setTimeout(ultimateDialogFix, 100);
-    };
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [open]);
-  // 📌 居中模式：当未提供 anchor 时，强制以视窗为参照精确居中并清除残留定位
-  useEffect(() => {
-    if (!open || anchor) return;
-    const el = document.querySelector('.enhanced-quick-reference-dialog') as HTMLElement | null;
-    if (!el) return;
-
-    const applyCenter = () => {
-      // 移除可能遗留的定位痕迹（包含此前的 !important）
-      el.style.setProperty('inset', 'unset', 'important');
-      el.style.setProperty('inset-inline', 'unset', 'important');
-      el.style.setProperty('inset-block', 'unset', 'important');
-      el.style.setProperty('inset-inline-start', 'unset', 'important');
-      el.style.setProperty('inset-inline-end', 'unset', 'important');
-      el.style.setProperty('inset-block-start', 'unset', 'important');
-      el.style.setProperty('inset-block-end', 'unset', 'important');
-      el.style.setProperty('right', 'auto', 'important');
-      el.style.setProperty('bottom', 'auto', 'important');
-      // 先设置基线：固定定位、移除transform并放在(0,0)测量基准偏移
-      el.style.setProperty('position', 'fixed', 'important');
-      el.style.setProperty('left', `0px`, 'important');
-      el.style.setProperty('top', `0px`, 'important');
-      el.style.setProperty('transform', 'none', 'important');
-      el.style.setProperty('translate', 'none', 'important');
-      el.style.setProperty('scale', 'none', 'important');
-      el.style.setProperty('rotate', 'none', 'important');
-      el.style.setProperty('margin', '0', 'important');
-      el.style.setProperty('z-index', '1000001', 'important');
-
-      // 读取当前矩形（此时包含所有祖先位移的最终偏差）
-      const r = el.getBoundingClientRect();
-      const ew = r.width;
-      const eh = r.height;
-      const centerX = Math.round(window.innerWidth / 2);
-      const centerY = Math.round(window.innerHeight / 2);
-      const min = 8;
-      const leftPx = Math.max(min, Math.round(centerX - ew / 2 - r.left));
-      const topPx = Math.max(min, Math.round(centerY - eh / 2 - r.top));
-
-      // 写入像素级补偿后的目标位置
-      el.style.setProperty('left', `${leftPx}px`, 'important');
-      el.style.setProperty('top', `${topPx}px`, 'important');
-    };
-
-    applyCenter();
-    const obs = new MutationObserver(() => applyCenter());
-    obs.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-    const t0 = setTimeout(applyCenter, 50);
-    const t1 = setTimeout(applyCenter, 150);
-    const t2 = requestAnimationFrame(applyCenter);
-
-    // 运行时保持：滚动/缩放/尺寸变化/轻量定时 刷新居中
-    const onScroll = () => applyCenter();
-    const onResize = () => applyCenter();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onResize);
-    const ro = new ResizeObserver(() => applyCenter());
-    try { ro.observe(el); } catch {}
-    const interval = setInterval(applyCenter, 250);
-
-    return () => {
-      obs.disconnect();
-      clearTimeout(t0); clearTimeout(t1); cancelAnimationFrame(t2);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
-      try { ro.disconnect(); } catch {}
-      clearInterval(interval);
-    };
-  }, [open, anchor]);
+  // ✅ 遵循UI组件职责分离原则：
+  // 定位逻辑完全交由 Radix UI 控制，移除所有手动修复
+  // ✅ 定位逻辑完全交由CSS和Radix UI控制，移除手动定位修复
 
 
-  // 🎯 使用统一的滚动锁定Hook
+  // ✅ 使用统一的滚动锁定Hook
   useDialogScrollLock(open);
 
-  // 🎯 Floating UI：锚点定位（仅在存在 anchor 时生效）
-  const { refs, x, y, strategy, update } = useFloating({
-    whileElementsMounted: autoUpdate,
-    strategy: 'fixed',
-    placement: 'bottom',
-    middleware: [offset(12), flip(), shift()],
-  });
-
-  // 🎯 虚拟参考：基于 anchor 的矩形
-  useEffect(() => {
-    if (!anchor) return;
-    const rect = {
-      x: anchor.x,
-      y: anchor.y,
-      width: anchor.width ?? 0,
-      height: anchor.height ?? 0,
-      top: anchor.y,
-      left: anchor.x,
-      right: anchor.x + (anchor.width ?? 0),
-      bottom: anchor.y + (anchor.height ?? 0),
-    };
-    const virtualEl = { getBoundingClientRect: () => rect as DOMRect };
-    // @ts-ignore - 虚拟参考允许简化类型
-    refs.setReference(virtualEl);
-    update?.();
-  }, [anchor, refs, update]);
+  // ✅ 完全移除Floating UI，定位交由CSS控制
   // 🛡️ Anchored 模式最小强化：用 !important 清除冲突并应用 Floating UI 结果
+  // ✅ 简化的定位修复 - 仅在必要时执行基础修复
   useEffect(() => {
-    if (!open || !anchor) return;
-    const el = document.querySelector('.enhanced-quick-reference-dialog') as HTMLElement | null;
-    if (!el) return;
+    if (!open) return;
+    
+    console.log('🎯 Dialog定位修复已应用');
+    
+    const fixDialogPosition = () => {
+      // 🎯 多重选择器策略 - 确保能找到Dialog元素
+      const dialogElement = (
+        document.querySelector('.enhanced-quick-reference-dialog') ||
+        document.querySelector('.quick-reference-dialog') ||
+        document.querySelector('[role="dialog"][class*="quick-reference"]') ||
+        document.querySelector('[role="dialog"]') ||
+        document.querySelector('[data-radix-dialog-content]')
+      ) as HTMLElement;
+      
+      if (dialogElement) {
+        console.log('🎯 找到Dialog元素:', dialogElement.className);
+        // 🚨 清除可能冲突的inset属性
+        dialogElement.style.removeProperty('inset');
+        dialogElement.style.removeProperty('inset-block');
+        dialogElement.style.removeProperty('inset-inline');
+        dialogElement.style.removeProperty('inset-block-start');
+        dialogElement.style.removeProperty('inset-block-end');
+        dialogElement.style.removeProperty('inset-inline-start');
+        dialogElement.style.removeProperty('inset-inline-end');
 
-    // 彻底清除一切会干扰 transform 定位的属性（有的全局样式带有 !important）
-    el.style.setProperty('top', 'unset', 'important');
-    el.style.setProperty('left', 'unset', 'important');
-    el.style.setProperty('right', 'unset', 'important');
-    el.style.setProperty('bottom', 'unset', 'important');
-    el.style.setProperty('inset', 'unset', 'important');
-    el.style.setProperty('inset-block', 'unset', 'important');
-    el.style.setProperty('inset-inline', 'unset', 'important');
-    el.style.setProperty('inset-block-start', 'unset', 'important');
-    el.style.setProperty('inset-block-end', 'unset', 'important');
-    el.style.setProperty('inset-inline-start', 'unset', 'important');
-    el.style.setProperty('inset-inline-end', 'unset', 'important');
-    el.style.setProperty('position', 'fixed', 'important');
-
-    // 应用 Floating UI 计算的绝对像素偏移（强制覆盖任何动画/居中 transform）
-    const rawX = Math.round((x ?? (anchor?.x ?? 0)));
-    const rawY = Math.round((y ?? (anchor ? (anchor.y + (anchor.height ?? 0) + 12) : 0)));
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const ew = el.offsetWidth || 0;
-    const eh = el.offsetHeight || 0;
-    const minMargin = 8;
-    const cx = Math.max(minMargin, Math.min(rawX, Math.max(minMargin, vw - ew - minMargin)));
-    const cy = Math.max(minMargin, Math.min(rawY, Math.max(minMargin, vh - eh - minMargin)));
-    el.style.setProperty('transform', 'none', 'important');
-    el.style.setProperty('left', `${cx}px`, 'important');
-    el.style.setProperty('top', `${cy}px`, 'important');
-
-    el.style.setProperty('margin', '0', 'important');
-    //       
-    //   MutationObserver   top/left/inset/transform 
-    const reapplyAnchoredStyle = () => {
-      const tx = Math.round((x ?? (anchor?.x ?? 0)));
-      const ty = Math.round((y ?? (anchor ? (anchor.y + (anchor.height ?? 0) + 12) : 0)));
-      el.style.setProperty('position', 'fixed', 'important');
-      el.style.setProperty('transform', 'none', 'important');
-      el.style.setProperty('translate', 'none', 'important');
-      el.style.setProperty('scale', 'none', 'important');
-      el.style.setProperty('rotate', 'none', 'important');
-      //  inset 
-      el.style.setProperty('inset', 'unset', 'important');
-      el.style.setProperty('inset-block', 'unset', 'important');
-      // 视口夹紧，避免负坐标或越界
-      const vw2 = window.innerWidth;
-      const vh2 = window.innerHeight;
-      const ew2 = el.offsetWidth || 0;
-      const eh2 = el.offsetHeight || 0;
-      const min2 = 8;
-      const cx = Math.max(min2, Math.min(tx, Math.max(min2, vw2 - ew2 - min2)));
-      const cy = Math.max(min2, Math.min(ty, Math.max(min2, vh2 - eh2 - min2)));
-
-      el.style.setProperty('inset-inline', 'unset', 'important');
-      el.style.setProperty('inset-block-start', 'unset', 'important');
-      el.style.setProperty('inset-block-end', 'unset', 'important');
-      el.style.setProperty('inset-inline-start', 'unset', 'important');
-      el.style.setProperty('inset-inline-end', 'unset', 'important');
-      //  left/top 
-      el.style.setProperty('left', `${cx}px`, 'important');
-      el.style.setProperty('top', `${cy}px`, 'important');
-      //  inset 
-      el.style.setProperty('right', 'auto', 'important');
-      el.style.setProperty('bottom', 'auto', 'important');
-      el.style.setProperty('inset-inline-start', `${cx}px`, 'important');
-      el.style.setProperty('inset-block-start', `${cy}px`, 'important');
-      // 二次校正：以 viewport 为基准用实际 rect 校正偏移，确保 r.top/left ≥ min2
-      const r2 = el.getBoundingClientRect();
-      let adjustX = 0;
-      let adjustY = 0;
-      if (r2.left < min2) adjustX = min2 - r2.left;
-      else if (r2.right > vw2 - min2) adjustX = (vw2 - min2) - r2.right;
-      if (r2.top < min2) adjustY = min2 - r2.top;
-      else if (r2.bottom > vh2 - min2) adjustY = (vh2 - min2) - r2.bottom;
-      if (adjustX || adjustY) {
-        const curLeft = parseFloat(el.style.left || '0');
-        const curTop = parseFloat(el.style.top || '0');
-        const newLeft = Math.max(min2, Math.min(curLeft + adjustX, Math.max(min2, vw2 - ew2 - min2)));
-        const newTop = Math.max(min2, Math.min(curTop + adjustY, Math.max(min2, vh2 - eh2 - min2)));
-        el.style.setProperty('left', `${Math.round(newLeft)}px`, 'important');
-        el.style.setProperty('top', `${Math.round(newTop)}px`, 'important');
-        el.style.setProperty('inset-inline-start', `${Math.round(newLeft)}px`, 'important');
-        el.style.setProperty('inset-block-start', `${Math.round(newTop)}px`, 'important');
+        // 🎯 强制应用正确的定位 - 增大顶部边距
+        dialogElement.style.setProperty('position', 'fixed', 'important');
+        dialogElement.style.setProperty('top', 'calc(8vh + 60px)', 'important'); // 🎨 视觉居中的顶部边距
+        dialogElement.style.setProperty('left', '50vw', 'important');
+        dialogElement.style.setProperty('transform', 'translateX(-50%)', 'important'); // 只水平居中
+        dialogElement.style.setProperty('z-index', '1000000', 'important');
+        dialogElement.style.setProperty('margin', '0', 'important');
+        
+        console.log('🎯 Dialog定位已修复:', {
+          position: dialogElement.style.position,
+          top: dialogElement.style.top,
+          left: dialogElement.style.left,
+          transform: dialogElement.style.transform
+        });
       }
-
-    };
-
-    reapplyAnchoredStyle();
-
-    const obs = new MutationObserver(() => {
-      reapplyAnchoredStyle();
-    });
-    obs.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-
-    return () => {
-      obs.disconnect();
-    };
-
-  }, [open, anchor, x, y]);
-  // 🧼 容器净化器：移除会让 position: fixed 失去“相对视口”的祖先属性（仅在弹窗打开期间）
-  useEffect(() => {
-    if (!open || !anchor) return;
-    const el = document.querySelector('.enhanced-quick-reference-dialog') as HTMLElement | null;
-    if (!el) return;
-
-    const patched: Array<{ node: HTMLElement; prop: string; prev: string | null }> = [];
-    const maybePatch = (node: HTMLElement, prop: string, target: string) => {
-      const prev = node.style.getPropertyValue(prop);
-      // 仅当计算值与目标不同且会影响 fixed 参照系时才处理
-      const computed = getComputedStyle(node).getPropertyValue(prop);
-      if (computed && computed.trim() !== target) {
-        node.style.setProperty(prop, target, 'important');
-        patched.push({ node, prop, prev: prev || null });
+      
+      // 🚨 修复背景遮罩 - 解决inset冲突问题
+      const overlayElement = (
+        document.querySelector('[data-radix-dialog-overlay]') ||
+        document.querySelector('.fixed.inset-0') ||
+        document.querySelector('.dialog-overlay')
+      ) as HTMLElement;
+      
+      if (overlayElement) {
+        console.log('🎯 找到背景遮罩元素:', overlayElement.className);
+        
+        // 🚨 彻底清除所有inset相关属性 - 这是背景层问题的根源
+        overlayElement.style.removeProperty('inset');
+        overlayElement.style.removeProperty('inset-block');
+        overlayElement.style.removeProperty('inset-inline');
+        overlayElement.style.removeProperty('inset-block-start');
+        overlayElement.style.removeProperty('inset-block-end');
+        overlayElement.style.removeProperty('inset-inline-start');
+        overlayElement.style.removeProperty('inset-inline-end');
+        
+        // 🔥 强制设置inset为initial - 彻底重置
+        overlayElement.style.setProperty('inset', 'initial', 'important');
+        overlayElement.style.setProperty('inset-block', 'initial', 'important');
+        overlayElement.style.setProperty('inset-inline', 'initial', 'important');
+        
+        // 🔥 使用视窗单位强制定位 - 确保相对于视窗而非文档
+        overlayElement.style.setProperty('position', 'fixed', 'important');
+        overlayElement.style.setProperty('top', '0vh', 'important');
+        overlayElement.style.setProperty('left', '0vw', 'important');
+        overlayElement.style.setProperty('right', '0vw', 'important');
+        overlayElement.style.setProperty('bottom', '0vh', 'important');
+        overlayElement.style.setProperty('width', '100vw', 'important');
+        overlayElement.style.setProperty('height', '100vh', 'important');
+        overlayElement.style.setProperty('z-index', '999999', 'important');
+        
+        // 保持原有的视觉效果
+        overlayElement.style.setProperty('background', 'hsl(var(--foreground) / 0.5)', 'important');
+        overlayElement.style.setProperty('backdrop-filter', 'blur(4px)', 'important');
+        
+        // 确保可见性
+        overlayElement.style.setProperty('visibility', 'visible', 'important');
+        overlayElement.style.setProperty('opacity', '1', 'important');
+        overlayElement.style.setProperty('display', 'block', 'important');
+        
+        console.log('🎯 背景遮罩已修复:', {
+          position: overlayElement.style.position,
+          top: overlayElement.style.top,
+          width: overlayElement.style.width,
+          height: overlayElement.style.height,
+          inset: overlayElement.style.inset || 'unset'
+        });
+      } else {
+        console.warn('🚨 未找到背景遮罩元素');
       }
     };
 
-    // 目标节点：Portal 容器（Radix 或自定义）及其上溯祖先，限制深度
-    const candidates: HTMLElement[] = [];
-    let p: HTMLElement | null = el.parentElement as HTMLElement | null;
-    let hops = 0;
-    while (p && hops < 12) { // 稍增深度，但保持有限
-      candidates.push(p);
-      if (p.matches('div[data-radix-portal]') || p.id === 'dialog-portal-root' || p.id === 'root') {
-        // 命中关键容器也纳入处理
-      }
-      p = p.parentElement as HTMLElement | null;
-      hops += 1;
-    }
-
-    // 纳入 body/html 并在候选祖先上移除会创建包含块/包含上下文的属性
-    const docEl = document.documentElement as HTMLElement;
-    const body = document.body as HTMLElement;
-    if (body) candidates.push(body);
-    if (docEl) candidates.push(docEl);
-
-    for (const node of candidates) {
-      maybePatch(node as HTMLElement, 'transform', 'none');
-      maybePatch(node as HTMLElement, 'filter', 'none');
-      maybePatch(node as HTMLElement, 'backdrop-filter', 'none');
-      maybePatch(node as HTMLElement, 'contain', 'none');
-      maybePatch(node as HTMLElement, 'perspective', 'none');
-      // 个别浏览器实现了独立的转换属性
-      maybePatch(node as HTMLElement, 'translate', 'none');
-      maybePatch(node as HTMLElement, 'scale', 'none');
-      maybePatch(node as HTMLElement, 'rotate', 'none');
-      // 处理缩放与优化提示
-      maybePatch(node as HTMLElement, 'zoom', '1');
-      maybePatch(node as HTMLElement, 'will-change', 'auto');
-    }
-
-    // 额外兜底：直接注入样式，确保 html 的 perspective 被强制清零（仅在弹窗生命周期内）
-    let injectedStyle: HTMLStyleElement | null = null;
-    try {
-      injectedStyle = document.createElement('style');
-      injectedStyle.id = 'qr-dialog-html-perspective-reset';
-      injectedStyle.textContent = `html{perspective:none !important;} #dialog-portal-root{top:0 !important;left:0 !important;transform:none !important;}`;
-      document.head.appendChild(injectedStyle);
-    } catch {}
-
-    // 多时机重复校正（本地闭包版），覆盖晚到样式与异步布局
-    const multiRectFix = () => {
-      const vw2 = window.innerWidth, vh2 = window.innerHeight;
-      const ew2 = el.offsetWidth || 0, eh2 = el.offsetHeight || 0;
-      const min2 = 8;
-      const r2 = el.getBoundingClientRect();
-      let adjustX = 0, adjustY = 0;
-      if (r2.left < min2) adjustX = min2 - r2.left;
-      else if (r2.right > vw2 - min2) adjustX = (vw2 - min2) - r2.right;
-      if (r2.top < min2) adjustY = min2 - r2.top;
-      else if (r2.bottom > vh2 - min2) adjustY = (vh2 - min2) - r2.bottom;
-      if (adjustX || adjustY) {
-        const curLeft = parseFloat(getComputedStyle(el).left || '0');
-        const curTop = parseFloat(getComputedStyle(el).top || '0');
-        const newLeft = Math.max(min2, Math.min(curLeft + adjustX, Math.max(min2, vw2 - ew2 - min2)));
-        const newTop = Math.max(min2, Math.min(curTop + adjustY, Math.max(min2, vh2 - eh2 - min2)));
-        el.style.setProperty('left', `${Math.round(newLeft)}px`, 'important');
-        el.style.setProperty('top', `${Math.round(newTop)}px`, 'important');
-      }
-    };
-    setTimeout(multiRectFix, 0);
-    requestAnimationFrame(multiRectFix);
-    setTimeout(multiRectFix, 80);
-    setTimeout(multiRectFix, 160);
-
-    return () => {
-      // 关闭弹窗时恢复原值
-      for (const { node, prop, prev } of patched) {
-        if (prev) node.style.setProperty(prop, prev);
-        else node.style.removeProperty(prop);
-      }
-      if (injectedStyle && injectedStyle.parentNode) {
-        injectedStyle.parentNode.removeChild(injectedStyle);
-      }
-    };
-  }, [open, anchor]);
+    // 多时机执行修复
+    fixDialogPosition();
+    setTimeout(fixDialogPosition, 50);
+    setTimeout(fixDialogPosition, 150);
+    setTimeout(fixDialogPosition, 300);
+  }, [open]);
 
 
 
@@ -677,21 +356,19 @@ export function QuickReferenceDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        ref={(node) => { if (node) { /* @ts-ignore */ refs.setFloating(node); } }}
-        data-anchored={!!anchor}
         className={cn(
-          // 🎯 仅在存在锚点时启用“锚点定位”标识类，避免无锚点时回退到左上角
-          !!anchor && "anchored-dialog custom-positioned",
-          // BEM与增强类
-          "dialog dialog__content dialog__content--quick-reference",
-          "enhanced-quick-reference-dialog flex flex-col overflow-hidden",
+          // ✅ 简化的BEM类名，交由CSS控制定位
+          "enhanced-quick-reference-dialog",
+          "quick-reference-dialog", 
+          "dialog__content--quick-reference",
+          // 🚨 简化Tailwind类，移除可能的定位干扰
+          "flex flex-col",
           "backdrop-blur-xl bg-gradient-to-br from-background via-background/98 to-background/95",
           "border-2 border-border/60 shadow-[0_20px_40px_-8px_rgba(0,0,0,0.25)]",
           "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1),inset_0_-1px_0_0_rgba(0,0,0,0.1)]",
           "rounded-[24px] ring-1 ring-primary/10 ring-offset-1 ring-offset-background/80",
           "relative overflow-hidden"
         )}
-        style={anchor ? { position: strategy as any, left: Math.round((x ?? (anchor?.x ?? 0))), top: Math.round((y ?? (anchor ? (anchor.y + (anchor.height ?? 0) + 12) : 0))), transform: 'none' } : undefined}
       >
         {/* 🎯 标题区 - 完全复制历史记录弹窗的结构 */}
         <DialogHeader style={{

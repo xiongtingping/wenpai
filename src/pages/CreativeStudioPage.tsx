@@ -1,5 +1,5 @@
 /**
- * 创意工作室页面
+ * 创意魔方页面
  * Creative Studio Page
  */
 
@@ -47,6 +47,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { CreativeCube } from '@/components/creative/CreativeCube';
 import MarketingCalendar from '@/components/creative/MarketingCalendar';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
@@ -64,33 +65,42 @@ const MD2CardPage = React.lazy(() => import('@/components/creative/MD2CardPage')
 import PageNavigation from '@/components/layout/PageNavigation';
 
 /**
- * 创意工作室页面组件
+ * 创意魔方页面组件
  * @returns React 组件
  */
 export default function CreativeStudioPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('calendar');
+  
+  // 🎯 检查是否为premium用户
+  const isPremiumUser = user?.subscription?.tier === 'premium' || 
+                       user?.tier === 'premium' || 
+                       user?.vipLevel === 'premium' ||
+                       (user?.isVip && (user?.vipLevel === 'premium' || user?.subscription?.tier === 'premium'));
 
   return (
-    <div className="min-h-screen bg-background" style={{ paddingTop: 'var(--header-height, var(--spacing-24))' }}>
+    <div className="min-h-screen bg-background" style={{ paddingTop: '64px' }}>
         {/* 主导航栏 */}
         <Header />
 
         {/* 页面导航 */}
         <PageNavigation
-          title="创意工作室"
+          title="创意魔方"
           description="包含营销日历、创意魔方、Emoji图库、Markdown排版等多种创意工具"
           showAdaptButton={false}
           showUpgradeButton={false}
           actions={
-            <RoleBasedUpgradePrompt
-              requiredTier="pro"
-              featureName={t('pages.labels.创意魔方')}
-              description="该功能区为专业版/高级版专属，包含九宫格创意魔方、营销日历、朋友圈模板等专业创意工具"
-              mode="compact"
-            />
+            !isPremiumUser ? (
+              <RoleBasedUpgradePrompt
+                requiredTier="pro"
+                featureName="创意魔方"
+                description="该功能区为专业版/高级版专属，包含九宫格创意魔方、营销日历、朋友圈模板等专业创意工具"
+                mode="compact"
+              />
+            ) : null
           }
         />
 
@@ -98,19 +108,20 @@ export default function CreativeStudioPage() {
           requiredPermission="feature:creative-studio"
           mode="overlay"
           overlayIntensity="medium"
+          enableLogging={true}
         >
           <div className="container mx-auto px-4 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* 子模块切换 */}
             <div className="flex flex-col gap-4 mb-6">
-              <TabsList className="unified-tabs-list grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1 h-auto p-1">
-                <TabsTrigger value="calendar" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
+              <TabsList className="unified-tabs-list creative-studio-module grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+                <TabsTrigger value="calendar" className="unified-tab-trigger">
                   <Calendar className="w-4 h-4" />
-                  <span className="text-xs text-center leading-tight">营销日历</span>
+                  <span>营销日历</span>
                 </TabsTrigger>
-                <TabsTrigger value="cube" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
+                <TabsTrigger value="cube" className="unified-tab-trigger">
                   <Sparkles className="w-4 h-4" />
-                  <span className="text-xs text-center leading-tight">创意魔方</span>
+                  <span>创意魔方</span>
                 </TabsTrigger>
                 {/* 暂时隐藏朋友圈文案功能
                 <TabsTrigger value="wechat" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
@@ -118,17 +129,17 @@ export default function CreativeStudioPage() {
                   <span className="text-xs text-center leading-tight">朋友圈文案</span>
                 </TabsTrigger>
                 */}
-                <TabsTrigger value="emoji" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
+                <TabsTrigger value="emoji" className="unified-tab-trigger">
                   <Smile className="w-4 h-4" />
-                  <span className="text-xs text-center leading-tight">Emoji图库</span>
+                  <span>Emoji图库</span>
                 </TabsTrigger>
-                <TabsTrigger value="md2wechat" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
+                <TabsTrigger value="md2wechat" className="unified-tab-trigger">
                   <FileText className="w-4 h-4" />
-                  <span className="text-xs text-center leading-tight">Markdown排版工具</span>
+                  <span>Markdown排版工具</span>
                 </TabsTrigger>
-                <TabsTrigger value="md2card" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">
+                <TabsTrigger value="md2card" className="unified-tab-trigger">
                   <FolderOpen className="w-4 h-4" />
-                  <span className="text-xs text-center leading-tight">MD2Card卡片生成</span>
+                  <span>MD2Card卡片生成</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -167,9 +178,13 @@ export default function CreativeStudioPage() {
             </TabsContent>
 
             {/* Markdown排版工具 */}
-            <TabsContent value="md2wechat" className="mt-8">
+            <TabsContent value="md2wechat" className="mt-0">
               <div className="creative-studio-module">
-                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                <React.Suspense fallback={
+                  <div className="flex items-center justify-center p-8" style={{height: 'calc(100vh - 216px)', minHeight: '400px'}}>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                }>
                   <MD2WeChatPage />
                 </React.Suspense>
               </div>
@@ -184,7 +199,7 @@ export default function CreativeStudioPage() {
               </div>
             </TabsContent>
           </Tabs>
-          </div>
+        </div>
         </EnhancedUnifiedPermissionGuard>
       </div>
   );

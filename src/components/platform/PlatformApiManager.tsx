@@ -228,9 +228,9 @@ export function PlatformApiManager({ open, onOpenChange  }: PlatformApiManagerPr
         
         <div className="flex-1 overflow-hidden">
           <Tabs defaultValue="platforms" className="h-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="platforms">平台配置</TabsTrigger>
-              <TabsTrigger value="help">使用说明</TabsTrigger>
+            <TabsList className="unified-tabs-list grid w-full grid-cols-2">
+              <TabsTrigger value="platforms" className="unified-tab-trigger">平台配置</TabsTrigger>
+              <TabsTrigger value="help" className="unified-tab-trigger">使用说明</TabsTrigger>
             </TabsList>
             
             <TabsContent value="platforms" className="h-full overflow-auto">

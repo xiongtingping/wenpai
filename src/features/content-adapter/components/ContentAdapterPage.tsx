@@ -14,7 +14,7 @@ import { PageNavigation } from '@/components/layout/PageNavigation';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/stores/compatibility-layer';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats';
 import { getUserTier } from '@/utils/subscriptionUtils';
@@ -51,10 +51,10 @@ import { getAvailableModelsForTier } from '@/config/aiModels';
 import { getAvailablePlatforms } from '@/api/contentAdapter';
 
 // 导入收藏系统
-import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
+import { useFavoritesStore, favoritesUtils } from '@/stores/compatibility-layer';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
 
-// 导入增强历史记录组件
+// 导入增强历史记录组件 - 暂时使用原版避免循环引用
 import { EnhancedHistoryDialog } from './EnhancedHistoryDialog';
 
 /**
@@ -497,7 +497,8 @@ export function ContentAdapterPage({
   const validationErrors = Array.from(new Set([
     ...validation.errors,
     ...(originalContent.trim().length === 0 ? [t('adapt.validation.enterContent')] : []),
-    ...(selectedPlatforms.length === 0 ? [t('adapt.validation.selectPlatforms')] : [])
+    ...(selectedPlatforms.length === 0 ? [t('adapt.validation.selectPlatforms')] : []),
+    ...(selectedModel.trim().length === 0 ? [t('adapt.validation.selectModel')] : [])
   ]));
 
   // 检查使用次数并显示提醒 - 从原版完整迁移
@@ -1178,13 +1179,13 @@ export function ContentAdapterPage({
 
 
   return (
-    <div className="min-h-screen bg-background" style={{ paddingTop: 'var(--header-height, var(--spacing-24))' }}>
+    <div className="min-h-screen bg-background" style={{ paddingTop: '64px' }}>
       {/* 主导航栏 */}
       <Header />
 
       {/* 页面导航 */}
       <PageNavigation
-        title="AI内容适配器"
+        title="AI内容适配"
         description="智能多平台内容适配，一键生成适合不同平台的优质内容"
         showAdaptButton={false}
         actions={

@@ -166,7 +166,7 @@ export class SupabaseDataService {
         throw new Error(`查询记录失败: ${error.message}`);
       }
 
-      logger.debug('✅ 查询${this.tableName}记录成功: ${data?.length || 0} 条');
+      logger.debug(`✅ 查询${this.tableName}记录成功: ${data?.length || 0} 条`);
       return {
         data: (data || []) as T[],
         count: count || 0
@@ -295,7 +295,7 @@ export class SupabaseDataService {
         throw new Error(`批量删除记录失败: ${error.message}`);
       }
 
-      logger.debug('✅ 批量删除${this.tableName}记录成功: ${ids.length} 条');
+      logger.debug(`✅ 批量删除${this.tableName}记录成功: ${ids.length} 条`);
     } catch (error) {
       console.error(`批量删除${this.tableName}记录异常:`, error);
       throw error;
@@ -361,7 +361,7 @@ export class SupabaseDataService {
         throw new Error(`清理用户数据失败: ${error.message}`);
       }
 
-      logger.debug('✅ 清理${this.tableName}用户数据成功');
+      logger.debug(`✅ 清理${this.tableName}用户数据成功`);
     } catch (error) {
       console.error(`清理${this.tableName}用户数据异常:`, error);
       throw error;

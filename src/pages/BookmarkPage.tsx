@@ -63,10 +63,17 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Header } from '@/components/landing/Header';
-import { useFavoritesStore, favoritesUtils, type FavoriteItem } from '@/stores/favoritesStore';
+import { useFavoritesStore, favoritesUtils, type FavoriteItem } from '@/stores/compatibility-layer';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { safeSaveToLocalStorage, safeLoadFromLocalStorage, checkLocalStorageAvailability, cleanupLocalStorageData } from '@/utils/safeDataStorage';
+
+/**
+ * 安全数组访问工具函数 - 防御undefined访问错误
+ */
+const safeArray = <T,>(arr: T[] | undefined | null): T[] => arr || [];
+const safeLength = <T,>(arr: T[] | undefined | null): number => (arr || []).length;
+const safeString = (str: string | undefined | null): string => str || '';
 
 /**
  * 资料项接口
@@ -269,14 +276,14 @@ export default function BookmarkPage() {
       filtered = filtered.filter(item =>
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+        (item.tags && item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
       );
     }
 
     // 标签筛选
-    if (selectedTags.length > 0) {
+    if (safeLength(selectedTags) > 0) {
       filtered = filtered.filter(item =>
-        selectedTags.some(tag => item.tags.includes(tag))
+        item.tags && selectedTags.some(tag => item.tags.includes(tag))
       );
     }
 
@@ -312,8 +319,8 @@ export default function BookmarkPage() {
    */
   const getAllTags = () => {
     const tagSet = new Set<string>();
-    libraryItems.forEach(item => {
-      item.tags.forEach(tag => tagSet.add(tag));
+    safeArray(libraryItems).forEach(item => {
+      safeArray(item.tags).forEach(tag => tagSet.add(tag));
     });
     return Array.from(tagSet).sort();
   };
@@ -405,7 +412,7 @@ export default function BookmarkPage() {
       return;
     }
 
-    const tags = newCollection.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    const tags = safeString(newCollection.tags).split(',').map(tag => tag.trim()).filter(tag => tag);
     
     const collection: LibraryItem = {
       id: Date.now().toString(),
@@ -449,7 +456,7 @@ export default function BookmarkPage() {
       return;
     }
 
-    const tags = newCopywriting.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    const tags = safeString(newCopywriting.tags).split(',').map(tag => tag.trim()).filter(tag => tag);
     
     const copywriting: LibraryItem = {
       id: Date.now().toString(),
@@ -634,7 +641,7 @@ export default function BookmarkPage() {
         libraryItems,
         favorites: favoritesStore.favorites,
         exportDate: new Date().toISOString(),
-        totalCount: libraryItems.length + favoritesStore.favorites.length
+        totalCount: safeLength(libraryItems) + safeLength(favoritesStore.favorites)
       };
 
       // 生成MD格式内容
@@ -643,16 +650,16 @@ export default function BookmarkPage() {
       mdContent += `总计资料: ${allData.totalCount} 项\n\n`;
 
       // 导出资料库内容
-      if (libraryItems.length > 0) {
-        mdContent += `## 📚 资料库内容 (${libraryItems.length} 项)\n\n`;
+      if (safeLength(libraryItems) > 0) {
+        mdContent += `## 📚 资料库内容 (${safeLength(libraryItems)} 项)\n\n`;
 
-        libraryItems.forEach((item, index) => {
+        safeArray(libraryItems).forEach((item, index) => {
           mdContent += `### ${index + 1}. ${item.title}\n\n`;
           mdContent += `**类型**: ${getTypeInfo(item.type).name}\n`;
           mdContent += `**创建时间**: ${new Date(item.createdAt).toLocaleString()}\n`;
           if (item.source) mdContent += `**来源**: ${item.source}\n`;
           if (item.category) mdContent += `**分类**: ${item.category}\n`;
-          if (item.tags.length > 0) mdContent += `**标签**: ${item.tags.join(', ')}\n`;
+          if (item.tags && item.tags.length > 0) mdContent += `**标签**: ${item.tags.join(', ')}\n`;
           mdContent += `\n**内容**:\n${item.content}\n\n`;
           if (item.summary) mdContent += `**摘要**: ${item.summary}\n\n`;
           mdContent += `---\n\n`;
@@ -660,10 +667,10 @@ export default function BookmarkPage() {
       }
 
       // 导出我的收藏内容
-      if (favoritesStore.favorites.length > 0) {
-        mdContent += `## ❤️ 我的收藏内容 (${favoritesStore.favorites.length} 项)\n\n`;
+      if (safeLength(favoritesStore.favorites) > 0) {
+        mdContent += `## ❤️ 我的收藏内容 (${safeLength(favoritesStore.favorites)} 项)\n\n`;
 
-        favoritesStore.favorites.forEach((favorite, index) => {
+        safeArray(favoritesStore.favorites).forEach((favorite, index) => {
           mdContent += `### ${index + 1}. ${favorite.title}\n\n`;
           mdContent += `**类型**: ${favorite.type}\n`;
           mdContent += `**收藏时间**: ${new Date(favorite.createdAt).toLocaleString()}\n`;
@@ -722,7 +729,7 @@ export default function BookmarkPage() {
   const copywritingItems = getFilteredItems('copywriting');
 
   return (
-    <div className="min-h-screen bg-background pt-24">
+    <div className="min-h-screen bg-background pt-16">
       {/* 主导航栏 */}
       <Header />
 
@@ -852,11 +859,11 @@ export default function BookmarkPage() {
               </div>
 
               {/* 标签筛选 */}
-              {getAllTags().length > 0 && (
+              {safeLength(getAllTags()) > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2 items-center">
                   <Tag className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">标签：</span>
-                  {getAllTags().map(tag => (
+                  {safeArray(getAllTags()).map(tag => (
                     <Badge
                       key={tag}
                       variant={selectedTags.includes(tag) ? "default" : "outline"}
@@ -878,7 +885,7 @@ export default function BookmarkPage() {
           {/*  */}
           <TabsContent value="favorites" className="mt-0">
             <div className="grid gap-4">
-              {favoritesStore.favorites.length === 0 ? (
+              {safeLength(favoritesStore.favorites) === 0 ? (
                 <Card>
                   <CardContent className="text-center py-12">
                     <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
@@ -886,13 +893,13 @@ export default function BookmarkPage() {
                     <p className="text-muted-foreground mb-4">
                       您还没有收藏任何内容，快去收藏一些有价值的内容吧！
                     </p>
-                    <Button onClick={() => navigate('/adapt')}>
+                    <Button onClick={() => navigate('/content-adapter')}>
                       去生成内容
                     </Button>
                   </CardContent>
                 </Card>
               ) : (
-                favoritesStore.favorites.map((favorite) => {
+                safeArray(favoritesStore.favorites).map((favorite) => {
                   const formattedFavorite = favoritesUtils.formatFavoriteForDisplay(favorite);
 
                   return (
@@ -946,7 +953,7 @@ export default function BookmarkPage() {
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
                           {formattedFavorite.contentPreview}
                         </p>
-                        {favorite.tags.length > 0 && (
+                        {favorite.tags && favorite.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1">
                             {favorite.tags.map((tag, index) => (
                               <Badge key={index} variant="secondary" className="text-xs">
@@ -1020,7 +1027,7 @@ export default function BookmarkPage() {
                           )}
                           
                           <div className="flex items-center gap-2 mb-2">
-                            {item.tags.map((tag, index) => (
+                            {item.tags && item.tags.map((tag, index) => (
                               <Badge key={index} variant="outline" className="text-xs">
                                 {tag}
                               </Badge>
@@ -1049,8 +1056,8 @@ export default function BookmarkPage() {
                             size="sm"
                             variant="ghost"
                             onClick={() => {
-                              // 跳转到AI内容适配器并预填充内容
-                              navigate('/adapt', {
+                              // 跳转到AI内容适配并预填充内容
+                              navigate('/content-adapter', {
                                 state: {
                                   prefilledContent: item.content || t('pages.messages.暂无内容'),
                                   source: 'library',
@@ -1105,7 +1112,7 @@ export default function BookmarkPage() {
                   <FolderOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-foreground mb-2">暂无资料</h3>
                   <p className="text-muted-foreground">
-                    {searchQuery || selectedTags.length > 0 ? t('pages.messages.没有找到匹配的资料') : t('pages.messages.请使用右上角的按钮开始添加您的第一个资料')}
+                    {searchQuery || safeLength(selectedTags) > 0 ? t('pages.messages.没有找到匹配的资料') : t('pages.messages.请使用右上角的按钮开始添加您的第一个资料')}
                   </p>
                 </CardContent>
               </Card>
@@ -1168,7 +1175,7 @@ export default function BookmarkPage() {
                       <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
                         {item.content}
                       </p>
-                      {item.tags.length > 0 && (
+                      {item.tags && item.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {item.tags.map((tag, index) => (
                             <Badge key={index} variant="secondary" className="text-xs">
@@ -1182,7 +1189,7 @@ export default function BookmarkPage() {
                 );
               })}
 
-              {collectionItems.length === 0 && (
+              {safeLength(collectionItems) === 0 && (
                 <Card>
                   <CardContent className="p-12 text-center">
                     <Bookmark className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -1252,7 +1259,7 @@ export default function BookmarkPage() {
                       <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
                         {item.content}
                       </p>
-                      {item.tags.length > 0 && (
+                      {item.tags && item.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {item.tags.map((tag, index) => (
                             <Badge key={index} variant="secondary" className="text-xs">
@@ -1266,7 +1273,7 @@ export default function BookmarkPage() {
                 );
               })}
 
-              {copywritingItems.length === 0 && (
+              {safeLength(copywritingItems) === 0 && (
                 <Card>
                   <CardContent className="p-12 text-center">
                     <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -1450,7 +1457,7 @@ export default function BookmarkPage() {
                   <div>
                     <Label>标签（用逗号分隔）</Label>
                     <Input
-                      value={editingItem.tags.join(', ')}
+                      value={safeArray(editingItem.tags).join(', ')}
                       onChange={(e) => setEditingItem({ 
                         ...editingItem, 
                         tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
@@ -1515,7 +1522,7 @@ export default function BookmarkPage() {
               <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
                 {/* 标签和分类 */}
                 <div className="flex flex-wrap gap-2">
-                  {viewingItem.tags.map((tag, index) => (
+                  {viewingItem.tags && viewingItem.tags.map((tag, index) => (
                     <Badge key={index} variant="outline" className="text-xs">
                       {tag}
                     </Badge>

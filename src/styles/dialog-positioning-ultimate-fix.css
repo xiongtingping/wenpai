@@ -1,0 +1,111 @@
+/**
+ * 🚨 Dialog定位终极修复
+ * 使用viewport单位避免文档长度干扰
+ * 彻底解决inset属性冲突问题
+ * 专门针对HotTopicsPage中的订阅弹窗定位异常问题
+ */
+
+@layer emergency {
+  /* 🎯 使用超高优先级确保Dialog正确定位 - 针对所有可能的选择器 */
+  [role="dialog"]:not(.anchored-dialog):not(.custom-positioned),
+  [data-radix-dialog-content]:not(.anchored-dialog):not(.custom-positioned),
+  .enhanced-quick-reference-dialog,
+  .quick-reference-dialog,
+  .subscription-dialog,
+  .trend-analysis-dialog,
+  [role="dialog"].enhanced-quick-reference-dialog,
+  [role="dialog"].quick-reference-dialog,
+  [role="dialog"].subscription-dialog,
+  [role="dialog"].trend-analysis-dialog,
+  [role="dialog"][class*="enhanced-quick-reference-dialog"],
+  [role="dialog"][class*="quick-reference-dialog"],
+  [role="dialog"][class*="subscription-dialog"],
+  [role="dialog"][class*="trend-analysis-dialog"],
+  /* 🚨 新增：专门针对Radix UI Dialog结构的超强选择器 */
+  div[role="dialog"][id^="radix-"].subscription-dialog,
+  div[role="dialog"][class*="subscription-dialog"],
+  div[role="dialog"][class*="grid"][class*="subscription-dialog"],
+  div[role="dialog"][class*="max-w"][class*="subscription-dialog"],
+  div[role="dialog"][data-state="open"].subscription-dialog,
+  div[role="dialog"][data-state="open"][class*="subscription-dialog"] {
+    /* 强制使用viewport单位，避免文档长度干扰 */
+    position: fixed !important;
+    top: calc(8vh + 60px) !important; /* 🎨 视觉居中的顶部边距 */
+    left: 50vw !important;
+    transform: translateX(-50%) !important; /* 🎯 只水平居中，避免垂直过度居中 */
+    z-index: 1000000 !important;
+    margin: 0 !important;
+    
+    /* 🚨 彻底清除所有inset相关属性 - 这是问题的核心！ */
+    inset: unset !important;
+    inset-block: unset !important;
+    inset-inline: unset !important;
+    inset-block-start: unset !important;
+    inset-block-end: unset !important;
+    inset-inline-start: unset !important;
+    inset-inline-end: unset !important;
+    
+    /* 清除其他可能冲突的定位属性 */
+    right: auto !important;
+    bottom: auto !important;
+    
+    /* 确保尺寸合理 */
+    max-width: min(95vw, 1000px) !important;
+    max-height: calc(92vh - 8vh - 120px) !important; /* 🎨 对应调整最大高度 */
+    min-width: 600px !important;
+    
+    /* 确保可见性 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* 背景遮罩终极修复 */
+  [data-radix-dialog-overlay],
+  .dialog-overlay,
+  [data-state="open"][data-radix-dialog-overlay],
+  [data-state="open"][class*="fixed"][class*="backdrop-blur"],
+  [data-state="open"][class*="inset-0"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999999 !important;
+    
+    /* 清除inset冲突 */
+    inset: unset !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    
+    /* 确保背景效果 */
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(2px) !important;
+  }
+  
+  /* 移动端适配 */
+  @media (max-width: 640px) {
+    [role="dialog"]:not(.anchored-dialog):not(.custom-positioned),
+    [data-radix-dialog-content]:not(.anchored-dialog):not(.custom-positioned) {
+      max-width: calc(100vw - 32px) !important;
+      min-width: auto !important;
+      max-height: 90vh !important;
+    }
+  }
+  
+  /* 滚动锁定 - 防止背景滚动干扰定位 */
+  body:has([role="dialog"][data-state="open"]) {
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+  }
+
+  html:has([role="dialog"][data-state="open"]) {
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+  }
+}

@@ -24,6 +24,7 @@ export function QuickReferenceSelector({ onSelect,
   className,
   multiSelect = false
  }: QuickReferenceSelectorProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('brand');
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,7 +41,7 @@ export function QuickReferenceSelector({ onSelect,
     useEffect(() => {
       if (!isOpen) return;
 
-      console.log('🚀 开始创建快速引用弹窗...');
+      console.log('🚀🚀🚀 QuickReferenceSelector 正在创建弹窗!!! 🚀🚀🚀');
 
       // 🚨 强制获取当前实时的视窗信息
       const getViewportInfo = () => {
@@ -72,15 +73,15 @@ export function QuickReferenceSelector({ onSelect,
       let viewportInfo = getViewportInfo();
       console.log('🔍 当前视窗信息：', viewportInfo);
 
-      // 创建遮罩层 - 覆盖整个可见视窗区域
+      // 创建遮罩层 - 🎯 根本修复：使用fixed定位覆盖整个视窗
       const overlay = document.createElement('div');
       overlay.id = 'quick-ref-overlay';
       overlay.style.cssText = `
-        position: absolute !important;
-        top: ${viewportInfo.visibleTop}px !important;
-        left: ${viewportInfo.visibleLeft}px !important;
-        width: ${viewportInfo.viewportWidth}px !important;
-        height: ${viewportInfo.viewportHeight}px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
         background-color: rgba(0, 0, 0, 0.6) !important;
         backdrop-filter: blur(var(--spacing-1)) !important;
         z-index: var(--z-dialog-overlay) !important;
@@ -88,15 +89,16 @@ export function QuickReferenceSelector({ onSelect,
         padding: 0 !important;
       `;
 
-      // 创建弹窗内容 - 基于当前可见区域的绝对中心
+      // 创建弹窗内容 - 🎯 根本修复：使用fixed定位+视窗单位确保居中
       const modal = document.createElement('div');
       modal.id = 'quick-ref-content';
       modal.style.cssText = `
-        position: absolute !important;
-        top: ${viewportInfo.centerY}px !important;
-        left: ${viewportInfo.centerX}px !important;
+        position: fixed !important;
+        top: 50vh !important;
+        left: 50vw !important;
         transform: translate(-50%, -50%) !important;
-        background-color: white !important;
+        background-color: lime !important;
+        border: 5px solid red !important;
         border-radius: var(--spacing-3) !important;
         padding: var(--spacing-8) !important;
         width: 600px !important;

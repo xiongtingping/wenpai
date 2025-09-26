@@ -5,7 +5,7 @@
 
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/stores/compatibility-layer';
 
 interface PageTrackerProps {
   /** 页面标题 */

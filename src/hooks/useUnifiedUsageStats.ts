@@ -9,7 +9,7 @@
 import i18n from '@/i18n';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useTokenUsageStore } from '@/stores/tokenUsageStore';
+import { useTokenUsageStore } from '@/stores/compatibility-layer';
 import { unifiedUsageDataManager } from '@/services/unifiedUsageDataManager';
 import type { UsageCountStats as ServiceUsageCountStats } from '@/services/unifiedUsageDataManager';
 import { enhancedPermissionService } from '@/services/enhancedPermissionService';

@@ -1,0 +1,57 @@
+/**
+ * 🎯 Z-Index层级统一管理系统
+ * 解决多个修复文件z-index竞争问题
+ * 建立统一的层级秩序
+ */
+
+:root {
+  /* 统一Z-Index层级定义 */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+  --z-dialog: 1090;
+  --z-emergency: 1100;
+  
+  /* Dialog专用层级 */
+  --z-dialog-overlay: 999999;
+  --z-dialog-content: 1000000;
+  --z-dialog-emergency: 1000001;
+}
+
+@layer base {
+  /* Portal容器层级 */
+  [data-radix-portal] {
+    z-index: var(--z-modal-backdrop) !important;
+  }
+}
+
+@layer components {
+  /* 标准Dialog层级 */
+  [role="dialog"] {
+    z-index: var(--z-dialog-content) !important;
+  }
+  
+  [data-radix-dialog-overlay] {
+    z-index: var(--z-dialog-overlay) !important;
+  }
+}
+
+@layer emergency {
+  /* 紧急修复层级 - 最高优先级 */
+  .emergency-dialog-fix,
+  [role="dialog"].emergency-fix,
+  .enhanced-quick-reference-dialog,
+  .quick-reference-dialog {
+    z-index: var(--z-dialog-emergency) !important;
+  }
+  
+  .emergency-overlay-fix {
+    z-index: calc(var(--z-dialog-emergency) - 1) !important;
+  }
+}

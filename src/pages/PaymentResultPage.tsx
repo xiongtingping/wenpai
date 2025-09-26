@@ -180,7 +180,7 @@ export default function PaymentResultPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background pt-24">
+      <div className="min-h-screen bg-background pt-16">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto">
@@ -200,7 +200,7 @@ export default function PaymentResultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-24">
+    <div className="min-h-screen bg-background pt-16">
       <Header />
       
       <div className="container mx-auto px-4 py-8">

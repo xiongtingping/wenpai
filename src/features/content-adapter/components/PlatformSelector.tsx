@@ -126,6 +126,7 @@ export function PlatformSelector({ availablePlatforms,
   getPlatformRecommendedCharCount
  }: PlatformSelectorProps) {
   const { t } = useTranslation();
+  
   const { toast } = useToast();
   const { 
     loading: settingsLoading,
@@ -403,7 +404,7 @@ export function PlatformSelector({ availablePlatforms,
                   <Card
                     key={platform.id}
                     className={`
-                      relative border cursor-pointer transition-all duration-200 h-32 flex flex-col rounded-lg overflow-hidden group
+                      relative border cursor-pointer transition-all duration-200 h-36 flex flex-col rounded-lg overflow-hidden group
                       ${isSelected
                         ? 'border-primary bg-primary/5 shadow-md ring-2 ring-primary/20'
                         : 'border-border hover:border-primary/50 hover:shadow-md hover:bg-accent/50'
@@ -416,13 +417,21 @@ export function PlatformSelector({ availablePlatforms,
                   >
                     <CardHeader className="p-3 pb-2">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 flex items-center justify-center">
                             {getPlatformIcon(platform.id)}
                           </div>
-                          <div className="text-sm font-medium truncate text-foreground">
-                            {getPlatformName(platform.id)}
-                          </div>
+                          <span style={{
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            color: '#374151',
+                            writingMode: 'horizontal-tb',
+                            textOrientation: 'mixed',
+                            whiteSpace: 'nowrap',
+                            display: 'inline-block'
+                          }}>
+                            {platform.name || getPlatformName(platform.id)}
+                          </span>
                         </div>
                         <Checkbox
                           checked={isSelected}
@@ -748,7 +757,7 @@ export function PlatformSelector({ availablePlatforms,
                                     <div className="w-4 h-4 flex items-center justify-center">
                                       {getPlatformIcon(platformId)}
                                     </div>
-                                    <h3 className="text-sm font-medium">{getPlatformName(platformId)}</h3>
+                                    <h3 className="text-sm font-medium">{platform?.name || getPlatformName(platformId)}</h3>
                                     <Badge variant="outline" className="text-xs px-1.5 py-0">
                                       {maxCharCount}
                                     </Badge>

@@ -6,7 +6,7 @@
 
 import i18n from '@/i18n';
 import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/stores/compatibility-layer';
 
 /**
  * 页面访问记录

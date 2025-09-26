@@ -408,17 +408,17 @@ export default function BrandEmojiGenerator({
         {/* 功能选择标签页 */}
         <div className="bg-muted/30 rounded-xl p-1">
           <Tabs defaultValue="standard" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-transparent gap-1 p-1">
+            <TabsList className="unified-tabs-list grid w-full grid-cols-2 gap-1 p-1">
               <TabsTrigger
                 value="standard"
-                className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200 hover:bg-background/50"
+                className="unified-tab-trigger flex items-center justify-center gap-2 py-3 px-4 h-auto min-h-[50px]"
               >
                 <Zap className="w-4 h-4" />
                 <span className="font-medium">标准生成</span>
               </TabsTrigger>
               <TabsTrigger
                 value="personalized"
-                className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200 hover:bg-background/50"
+                className="unified-tab-trigger flex items-center justify-center gap-2 py-3 px-4 h-auto min-h-[50px]"
               >
                 <Palette className="w-4 h-4" />
                 <span className="font-medium">个性化生成</span>

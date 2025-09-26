@@ -1,0 +1,318 @@
+/**
+ * 🚀 Header核武器级隔离修复
+ * 彻底隔离Header不受任何全局CSS、动画、Transform影响
+ * 
+ * 根本原因：全局CSS中存在大量transition和transform规则可能影响Header
+ */
+
+/* 🚀 核武器级Header隔离 - 最高优先级，彻底隔离 */
+header,
+header *,
+header::before,
+header::after,
+header *::before,
+header *::after {
+  /* 🔒 彻底重置所有可能影响定位的属性 */
+  transform: none !important;
+  -webkit-transform: none !important;
+  -moz-transform: none !important;
+  -ms-transform: none !important;
+  
+  /* 🔒 彻底重置所有动画和过渡 */
+  transition: none !important;
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  
+  /* 🔒 彻底重置所有动画 */
+  animation: none !important;
+  -webkit-animation: none !important;
+  -moz-animation: none !important;
+  -ms-animation: none !important;
+  
+  /* 🔒 重置will-change */
+  will-change: auto !important;
+  
+  /* 🔒 重置所有可能的位移属性 */
+  translate: none !important;
+  rotate: none !important;
+  scale: none !important;
+  
+  /* 🔒 重置backface-visibility */
+  backface-visibility: visible !important;
+  -webkit-backface-visibility: visible !important;
+  
+  /* 🔒 重置perspective */
+  perspective: none !important;
+  -webkit-perspective: none !important;
+  
+  /* 🔒 重置transform-origin */
+  transform-origin: 50% 50% 0 !important;
+  -webkit-transform-origin: 50% 50% 0 !important;
+  
+  /* 🔒 重置transform-style */
+  transform-style: flat !important;
+  -webkit-transform-style: flat !important;
+}
+
+/* 🎯 Header主容器绝对锁定 */
+header {
+  /* 强制固定定位，永不改变 */
+  position: fixed !important;
+  top: 0px !important;
+  left: 0px !important;
+  right: 0px !important;
+  bottom: auto !important;
+  
+  /* 强制尺寸，永不改变 */
+  width: 100vw !important;
+  height: 96px !important;
+  min-height: 96px !important;
+  max-height: 96px !important;
+  
+  /* 强制Z-index，永不被覆盖 */
+  z-index: 999999 !important;
+  
+  /* 强制边距重置 */
+  margin: 0px !important;
+  padding: 0px !important;
+  
+  /* 强制inset重置 */
+  inset: 0px 0px auto 0px !important;
+  
+  /* 强制布局隔离 */
+  contain: layout style paint !important;
+  isolation: isolate !important;
+  
+  /* 强制背景 */
+  background: var(--background) !important;
+  backdrop-filter: blur(8px) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* 📍 Logo绝对锁定 */
+header a[href="/"],
+header [class*="logo"],
+header .logo {
+  /* 强制相对定位 */
+  position: relative !important;
+  
+  /* 强制位置重置 */
+  top: 0px !important;
+  left: 0px !important;
+  right: auto !important;
+  bottom: auto !important;
+  
+  /* 强制Z-index */
+  z-index: 1000000 !important;
+  
+  /* 强制边距重置 */
+  margin: 0px !important;
+  
+  /* 强制垂直对齐 */
+  vertical-align: baseline !important;
+  
+  /* 强制display */
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* 👤 Avatar绝对锁定 - 使用所有可能的选择器 */
+header [role="button"]:last-child,
+header button:last-child,
+header .user-avatar,
+header [class*="avatar"],
+header [class*="UserAvatar"],
+header [data-testid*="avatar"],
+header .flex.items-center.space-x-4 > *:last-child,
+header nav > div:last-child > *:last-child,
+header nav > div:last-child > button,
+header nav > div:last-child > [role="button"],
+header > nav > div:last-child > div:last-child,
+header .hidden.md\\:flex > *:last-child,
+header .flex-shrink-0.hidden.md\\:flex > *:last-child {
+  /* 强制相对定位 */
+  position: relative !important;
+  
+  /* 强制位置重置 */
+  top: 0px !important;
+  left: auto !important;
+  right: 0px !important;
+  bottom: auto !important;
+  
+  /* 强制Z-index */
+  z-index: 1000000 !important;
+  
+  /* 强制边距重置 */
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+  margin-left: auto !important;
+  margin-right: 0px !important;
+  
+  /* 强制垂直对齐 */
+  vertical-align: baseline !important;
+  
+  /* 强制display */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 🛡️ Header右侧区域容器锁定 */
+header .flex.items-center.space-x-4,
+header nav > div:last-child,
+header .flex-shrink-0.hidden.md\\:flex {
+  /* 强制相对定位 */
+  position: relative !important;
+  
+  /* 强制位置重置 */
+  top: 0px !important;
+  left: auto !important;
+  right: 0px !important;
+  bottom: auto !important;
+  
+  /* 强制Z-index */
+  z-index: 999999 !important;
+  
+  /* 强制Flexbox */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  
+  /* 强制边距重置 */
+  margin: 0px !important;
+}
+
+/* 🔧 Header内所有交互元素锁定 */
+header button,
+header [role="button"],
+header a,
+header input,
+header select,
+header .theme-toggle,
+header .language-switcher,
+header [class*="toggle"],
+header [class*="switch"] {
+  /* 强制相对定位 */
+  position: relative !important;
+  
+  /* 强制位置重置 */
+  top: 0px !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  
+  /* 强制Z-index */
+  z-index: 999999 !important;
+  
+  /* 强制边距重置 */
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+  
+  /* 强制垂直对齐 */
+  vertical-align: baseline !important;
+}
+
+/* 🌐 Header导航栏锁定 */
+header nav,
+header .navbar,
+header [class*="nav"],
+header [role="navigation"] {
+  /* 强制相对定位 */
+  position: relative !important;
+  
+  /* 强制尺寸 */
+  width: 100% !important;
+  height: 96px !important;
+  
+  /* 强制Flexbox */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  
+  /* 强制边距重置 */
+  margin: 0px !important;
+  padding: 0px 24px !important;
+}
+
+/* 🚫 禁用所有可能的全局动画影响 */
+header *[class*="slide"],
+header *[class*="animate"],
+header *[class*="transition"],
+header *[class*="fade"],
+header *[class*="bounce"],
+header *[class*="pulse"],
+header *[class*="ping"],
+header *[class*="spin"] {
+  /* 强制禁用所有动画类 */
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+/* 🔒 CSS变量锁定 */
+:root {
+  --header-height: 96px !important;
+}
+
+/* 💪 强制浏览器重新计算时的保护 */
+@supports (contain: layout) {
+  header {
+    contain: layout style paint !important;
+  }
+}
+
+/* 📱 移动端特殊保护 */
+@media (max-width: 768px) {
+  header {
+    height: 80px !important;
+    min-height: 80px !important;
+    max-height: 80px !important;
+  }
+  
+  :root {
+    --header-height: 80px !important;
+  }
+}
+
+/* 🚨 针对Tab切换的特殊保护 */
+body:has([role="tabpanel"][data-state="active"]) header,
+body:has([value="md2wechat"]) header {
+  /* Tab激活时的额外保护 */
+  position: fixed !important;
+  top: 0px !important;
+  transform: none !important;
+  z-index: 999999 !important;
+}
+
+/* 🎯 防止任何第三方库影响Header */
+header {
+  /* 防止Tailwind影响 */
+  --tw-translate-x: 0 !important;
+  --tw-translate-y: 0 !important;
+  --tw-rotate: 0 !important;
+  --tw-skew-x: 0 !important;
+  --tw-skew-y: 0 !important;
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+  
+  /* 防止其他CSS框架影响 */
+  --transform: none !important;
+  --webkit-transform: none !important;
+}
+
+/* 🔥 终极保护：强制覆盖任何可能的干扰 */
+header[style*="transform"],
+header *[style*="transform"] {
+  transform: none !important;
+}
+
+header[style*="transition"],
+header *[style*="transition"] {
+  transition: none !important;
+}
+
+header[style*="animation"],
+header *[style*="animation"] {
+  animation: none !important;
+}

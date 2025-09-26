@@ -149,7 +149,7 @@ export function UnifiedPermissionWrapper({
                 </DialogDescription>
               </DialogHeader>
               <div className="flex gap-2 pt-4">
-                <Button onClick={() => navigate('/payment')} className="flex-1">
+                <Button onClick={() => navigate('/payment-center')} className="flex-1">
                   立即升级
                 </Button>
                 <Button variant="outline" onClick={() => setShowUpgradeDialog(false)}>

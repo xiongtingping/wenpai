@@ -120,7 +120,7 @@ class EnhancedInviteService {
   private readonly REWARD_CONFIG: InviteRewardConfig = {
     type: 'usage_count',
     amount: 20,
-    description: '每邀请1人注册，双方各获20次AI内容适配器使用机会',
+    description: '每邀请1人注册，双方各获20次AI内容适配使用机会',
     bothParties: true
   };
 

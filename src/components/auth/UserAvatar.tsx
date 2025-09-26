@@ -178,7 +178,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     // 🔧 FIX: 立即尝试导航，不等待状态更新
     try {
       console.log('🎯 立即尝试导航 (方案1)');
-      navigate('/profile');
+      navigate('/user-profile');
       console.log('🎯 React Router 立即导航成功');
       setIsNativeDropdownOpen(false);
       return;
@@ -196,7 +196,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       
       console.log('🎯 开始延迟导航到 /profile');
       try {
-        navigate('/profile');
+        navigate('/user-profile');
         console.log('🎯 React Router 延迟导航成功');
       } catch (navError) {
         console.error('🎯 React Router导航失败，尝试window.location:', navError);
@@ -364,7 +364,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
                 console.log('🔥 立即执行个人资料导航');
                 try {
                   // 方案1：立即导航
-                  navigate('/profile');
+                  navigate('/user-profile');
                   console.log('🔥 导航成功执行');
                   setIsNativeDropdownOpen(false);
                 } catch (error) {

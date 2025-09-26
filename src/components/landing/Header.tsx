@@ -1,91 +1,92 @@
-// 🔧 [UNIFIED_AUTH_ROLLBACK_v2025.08.27] 回滚到历史成功版本架构
-import React, { useEffect } from 'react';
+// Header组件 - 统一导航栏
+import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
-import { Link, useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
-import { Menu } from "lucide-react"
-import { useIsMobile } from "@/hooks/use-mobile"
-
-import { UserAvatar } from "@/components/auth/UserAvatar"
-import { useToast } from "@/hooks/use-toast"
-import { ThemeToggle } from "@/components/layout/ThemeToggle"
-import { LogoWithText } from "@/components/ui/ThemeAwareLogo"
-import { NavBar } from "@/components/ui/tubelight-navbar"
-import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher"
-import { Home, Radar, Sparkles, Library, FolderOpen, CreditCard } from "lucide-react"
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { UserAvatar } from "@/components/auth/UserAvatar";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { LogoWithText } from "@/components/ui/ThemeAwareLogo";
+import { NavBar } from "@/components/ui/tubelight-navbar";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import { Home, Radar, Sparkles, Library, FolderOpen, CreditCard } from "lucide-react";
 
 export function Header() {
-  const isMobile = useIsMobile()
-  const { user, isAuthenticated, login, register } = useUnifiedAuth()
-  const navigate = useNavigate()
-  const { t } = useTranslation()
-
-  /**
-   * 检查是否应该显示升级按钮
-   * 只有高级版用户（且在有效期内）不显示，其他用户都显示
-   */
-  const shouldShowUpgradeButton = () => {
-    // 未登录用户显示
-    if (!user || typeof user !== 'object') return true;
-
-    const userObj = user as Record<string, unknown>;
-
-    // 检查是否是高级版用户
-    const isPremiumUser = userObj.tier === 'premium' ||
-                         userObj.plan === 'premium' ||
-                         userObj.subscriptionTier === 'premium' ||
-                         userObj.userPlan === 'premium';
-
-    // 如果是高级版用户，检查是否在有效期内
-    if (isPremiumUser) {
-      const subscriptionEndDate = userObj.subscriptionEndDate || userObj.endDate || userObj.expireDate;
-
-      if (subscriptionEndDate) {
-        const endDate = new Date(subscriptionEndDate as string);
-        const now = new Date();
-
-        // 如果在有效期内，不显示升级按钮
-        if (endDate > now) {
-          return false;
-        }
-      }
-    }
-
-    // 其他情况都显示升级按钮：
-    // - 未登录用户
-    // - 体验版用户 (trial)
-    // - 专业版用户 (pro)
-    // - 高级版用户但已过期
-    return true;
-  };
-
-  // 设置 CSS 变量 --header-height 以便各处自适应
-  useEffect(() => {
-    const el = document.querySelector('header.theme-header-bg') as HTMLElement | null;
-    const update = () => {
-      const h = el?.offsetHeight || 96; // 增加默认高度到var(--spacing-24)
-      document.documentElement.style.setProperty('--header-height', `${h}px`);
-      console.log('🔧 Header高度已设置:', `${h}px`); // 添加调试日志
+  const isMobile = useIsMobile();
+  const { user, isAuthenticated, login, register } = useUnifiedAuth();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const headerRef = useRef<HTMLElement>(null);
+  
+  // 获取当前主题
+  const [currentTheme, setCurrentTheme] = React.useState<string>('light');
+  
+  React.useEffect(() => {
+    // 检测当前主题
+    const detectTheme = () => {
+      const theme = localStorage.getItem('theme') || 'light';
+      const isDark = document.documentElement.classList.contains('dark');
+      setCurrentTheme(isDark ? 'dark' : theme);
     };
-
-    // 延迟执行确保DOM完全渲染
-    const timer = setTimeout(update, 100);
-    update();
-
-    window.addEventListener('resize', update);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', update);
-    };
+    
+    // 初始检测
+    detectTheme();
+    
+    // 监听主题变化
+    const observer = new MutationObserver(detectTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme']
+    });
+    
+    return () => observer.disconnect();
   }, []);
 
+  // 确保页面初始滚动位置
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
+  // 根据主题动态设置样式
+  const getThemeStyles = () => {
+    const isDark = currentTheme === 'dark';
+    
+    return {
+      backgroundColor: isDark 
+        ? 'rgba(15, 23, 42, 0.95)' // 深色主题：深色背景
+        : 'rgba(255, 255, 255, 0.95)', // 浅色主题：浅色背景
+      color: isDark ? 'white' : 'rgb(15, 23, 42)', // 相应调整文字颜色
+      borderBottom: isDark 
+        ? '1px solid rgba(148, 163, 184, 0.1)' 
+        : '1px solid rgba(15, 23, 42, 0.1)'
+    };
+  };
+
   return (
-    <header className="theme-header-bg fixed top-0 left-0 right-0 z-[99999] shadow-lg backdrop-blur-md border-b border-border/10">
-      <nav className="container mx-auto px-6 py-4 flex items-center">
-        {/* Logo - 固定在左侧 */}
+    <div 
+      ref={headerRef}
+      style={{
+        position: 'fixed',
+        top: '0px', // 顶部固定位置
+        left: '0px',
+        right: '0px',
+        width: '100vw',
+        height: '64px',
+        zIndex: 1000,
+        backdropFilter: 'blur(12px)',
+        display: 'flex',
+        alignItems: 'center',
+        fontFamily: 'system-ui, -apple-system, sans-serif', // 现代字体栈
+        ...getThemeStyles() // 动态主题样式
+      }}
+    >
+      <nav 
+        className="container mx-auto flex items-center h-full px-4 py-2"
+      >
+        {/* Logo */}
         <div className="flex-shrink-0">
           <Link to="/" className="group">
             <LogoWithText
@@ -98,74 +99,51 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Desktop Menu - 居中显示 */}
+        {/* Desktop Menu */}
         {!isMobile && (
           <div className="flex-1 flex justify-center">
             <NavBar
-              positionClassName="relative z-[60]"
+              positionClassName="relative z-[999]"
               items={[
                 { name: t('nav.home'), url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
-                { name: t('nav.adapt'), url: '/adapt', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/adapt'); } else { localStorage.setItem('login_redirect_to', '/adapt'); login(); } } },
+                { name: t('nav.adapt'), url: '/content-adapter', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/content-adapter'); } else { localStorage.setItem('login_redirect_to', '/content-adapter'); login(); } } },
                 { name: t('nav.hotTopics'), url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/hot-topics'); } else { localStorage.setItem('login_redirect_to', '/hot-topics'); login(); } } },
                 { name: t('nav.creative'), url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { localStorage.setItem('login_redirect_to', '/creative-studio'); login(); } } },
-                { name: t('nav.bookmark'), url: '/library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/library'); } else { localStorage.setItem('login_redirect_to', '/library'); login(); } } },
+                { name: t('nav.bookmark'), url: '/my-library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/my-library'); } else { localStorage.setItem('login_redirect_to', '/my-library'); login(); } } },
                 { name: t('nav.brandLibrary'), url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/brand-library'); } else { localStorage.setItem('login_redirect_to', '/brand-library'); login(); } } },
-                { name: t('nav.upgrade'), url: '/payment', icon: CreditCard, onClick: (e) => { e.preventDefault(); navigate('/payment'); } },
+                { name: t('nav.upgrade'), url: '/payment-center', icon: CreditCard, onClick: (e) => { e.preventDefault(); navigate('/payment-center'); } },
               ]}
             />
           </div>
         )}
 
-        {/* Action Buttons - 固定在右侧 */}
+        {/* Action Buttons */}
         {!isMobile && (
-          <div className="flex-shrink-0 hidden md:flex items-center space-x-4 relative z-[60]">
-            {/* 主题切换 */}
+          <div 
+            className="flex-shrink-0 hidden md:flex items-center relative z-[1001] gap-3"
+            style={{
+              overflow: 'visible'
+            }}
+          >
             <LanguageSwitcher />
             <ThemeToggle />
 
-            {/* 开发环境权限切换 */}
-
             {isAuthenticated ? (
-              <UserAvatar
-                size="md"
-              />
+              <UserAvatar size="md" />
             ) : (
-              <div className="flex items-center space-x-2">
-                <Button variant="outline" onClick={() => {
-                  console.log('🧪 Header 登录按钮点击');
-                  try {
-                    setTimeout(() => {
-                      try {
-                        const root = document.querySelector('.authing-ant-modal-root') as HTMLElement | null;
-                        const wrap = root?.querySelector('.authing-ant-modal-wrap') as HTMLElement | null;
-                        const modal = root?.querySelector('.authing-ant-modal') as HTMLElement | null;
-                        const rect = root?.getBoundingClientRect();
-                        const elementsAtCenter = document.elementsFromPoint(window.innerWidth/2, window.innerHeight/2)
-                          .slice(0,5)
-                          .map(el => (el as HTMLElement).className || (el as HTMLElement).id || (el as HTMLElement).tagName);
-                        console.log('🧪 Header DOM Probe (pre-login):', {
-                          hasRoot: !!root, rect,
-                          visibility: root ? getComputedStyle(root).visibility : 'n/a',
-                          opacity: root ? getComputedStyle(root).opacity : 'n/a',
-                          zIndex: root ? getComputedStyle(root).zIndex : 'n/a',
-                          transform: root ? getComputedStyle(root).transform : 'n/a',
-                          scrollY: window.scrollY,
-                          elementsAtCenter
-                        });
-                      } catch (e) { console.warn('🧪 Header DOM Probe error(pre):', e); }
-                    }, 0);
-                  } catch (err) { console.warn('Header DOM probe failed', err); }
-                  login();
-                }}>
+              <div 
+                className="flex items-center gap-1"
+              >
+                <Button variant="outline" onClick={() => login()}>
                   {t('auth.login')}
                 </Button>
                 <Button
                   onClick={(e) => {
-                    e.stopPropagation(); // 阻止事件冒泡
+                    e.stopPropagation();
                     register();
                   }}
                   className="bg-primary hover:bg-primary/90"
-                  type="button" // 明确指定按钮类型
+                  type="button"
                 >
                   {t('auth.register')}
                 </Button>
@@ -174,7 +152,7 @@ export function Header() {
           </div>
         )}
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu */}
         {isMobile && (
           <Sheet>
             <SheetTrigger asChild>
@@ -186,84 +164,27 @@ export function Header() {
               <div className="flex flex-col space-y-4 mt-8">
                 <SheetClose asChild>
                   <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                    if (isAuthenticated) {
-                      navigate('/adapt');
-                    } else {
-                      login('/adapt');
-                    }
+                    if (isAuthenticated) { navigate('/content-adapter'); } else { login('/content-adapter'); }
                   }}>
                     {t('nav.adapt')}
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
                   <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                    if (isAuthenticated) {
-                      navigate('/hot-topics');
-                    } else {
-                      login('/hot-topics');
-                    }
+                    if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); }
                   }}>
                     {t('nav.hotTopics')}
                   </Button>
                 </SheetClose>
-                <SheetClose asChild>
-                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                    if (isAuthenticated) {
-                      navigate('/creative-studio');
-                    } else {
-                      login('/creative-studio');
-                    }
-                  }}>
-                    {t('nav.creative')}
-                  </Button>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                    if (isAuthenticated) {
-                      navigate('/library');
-                    } else {
-                      login('/library');
-                    }
-                  }}>
-                    {t('nav.bookmark')}
-                  </Button>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                    if (isAuthenticated) {
-                      navigate('/brand-library');
-                    } else {
-                      login('/brand-library');
-                    }
-                  }}>
-                    {t('nav.brandLibrary')}
-                  </Button>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                    navigate('/payment');
-                  }}>
-                    {t('nav.upgrade')}
-                  </Button>
-                </SheetClose>
 
-                {/* 移动端主题切换 */}
                 <div className="flex items-center justify-start px-2">
                   <span className="text-sm font-medium mr-3">主题</span>
                   <LanguageSwitcher />
-            <ThemeToggle />
+                  <ThemeToggle />
                 </div>
 
-                {/* 移动端开发环境权限切换 */}
-                <div className="flex items-center justify-start px-2">
-                      </div>
-
-                {/* 移除分割线 */}
-
                 {isAuthenticated ? (
-                  <UserAvatar
-                    size="md"
-                  />
+                  <UserAvatar size="md" />
                 ) : (
                   <div className="flex flex-col space-y-2">
                     <SheetClose asChild>
@@ -272,13 +193,7 @@ export function Header() {
                       </Button>
                     </SheetClose>
                     <SheetClose asChild>
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation(); // 阻止事件冒泡
-                          register();
-                        }}
-                        type="button" // 明确指定按钮类型
-                      >
+                      <Button onClick={() => register()} type="button">
                         {t('auth.register')}
                       </Button>
                     </SheetClose>
@@ -289,6 +204,6 @@ export function Header() {
           </Sheet>
         )}
       </nav>
-    </header>
-  )
+    </div>
+  );
 }

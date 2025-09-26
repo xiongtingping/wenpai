@@ -22,7 +22,6 @@ export interface RSSHubConfig {
   timeout: number;
   platforms: {
     weibo: boolean;
-    zhihu: boolean;
     github: boolean;
     bilibili: boolean;
   };
@@ -40,7 +39,6 @@ class RSSHubDataService {
       timeout: parseInt(import.meta.env.VITE_RSSHUB_TIMEOUT || '10000'),
       platforms: {
         weibo: true,
-        zhihu: true,
         github: true,
         bilibili: true
       }
@@ -244,7 +242,7 @@ class RSSHubDataService {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3秒超时
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 🔧 修复：延长到30秒，避免过早超时
 
       // 通过我们的API代理检查服务可用性
       const response = await fetch('/.netlify/functions/api?action=hot-topics&platform=weibo', {
@@ -477,7 +475,6 @@ class RSSHubDataService {
   private mapPlatformToCategory(platform: string): string {
     const categoryMap: Record<string, string> = {
       weibo: '社交',
-      zhihu: '知识',
       github: '科技',
       bilibili: '娱乐'
     };

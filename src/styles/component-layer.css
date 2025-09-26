@@ -83,8 +83,7 @@
   }
   /* 🔍 调试模式：可以临时启用来检查覆盖范围 */
   .dialog-overlay-debug {
-    border: var(--spacing-0-5) solid red !important;
-    background: rgba(255, 0, 0, 0.2) !important;
+    /* 调试模式已禁用 */
   }
   /* 🎯 独立Dialog Portal容器 - 完全不受其他样式影响 */
   #dialog-portal-root {
@@ -193,11 +192,10 @@
   }
   /* 🎯 调试样式 - 可以临时启用来检查Dialog显示 */
   .dialog-debug #dialog-portal-root [data-radix-dialog-overlay] {
-    background-color: rgba(255, 0, 0, 0.3) !important; /* 红色半透明背景 */
+    /* 调试模式已禁用 */
   }
   .dialog-debug #dialog-portal-root [data-radix-dialog-content] {
-    border: 3px solid lime !important; /* 绿色边框 */;
-  background: yellow !important; /* 黄色背景 */
+    /* 调试模式已禁用 */
   }
   /* 🎯 移动端响应式适配 */
   @media (max-width: 640px) {
@@ -247,10 +245,237 @@
   }
   .emoji-grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: var(--spacing-3);
-    margin-top: var(--spacing-6);
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--spacing-5); /* 增加间距从spacing-4到spacing-5 */
+    margin-top: var(--spacing-8); /* 增加顶部间距从spacing-6到spacing-8 */
+    margin-bottom: var(--spacing-6); /* 增加底部间距 */
+    padding: var(--spacing-4); /* 增加容器内边距 */
+    place-items: center;
   }
+  
+  /* 响应式emoji网格 */
+  @media (max-width: 1200px) {
+    .emoji-grid-container {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .emoji-grid-container {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .emoji-grid-container {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .emoji-grid-container {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-4); /* 增加间距从spacing-3到spacing-4 */
+      padding: var(--spacing-3); /* 在小屏幕上也保持容器内边距 */
+    }
+  }
+  
+  /* Emoji卡片统一样式 - 确保整齐排列和清晰边界 */
+  .emoji-grid-container .avatar-card {
+    width: 100%;
+    height: 240px; /* 增加高度从220px到240px，提供更多呼吸空间 */
+    max-width: 180px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around; /* 改为space-around提供更好的垂直分布 */
+    align-items: center;
+    padding: var(--spacing-5); /* 增加内边距从spacing-4到spacing-5 */
+    box-sizing: border-box;
+    position: relative;
+    /* 🎯 增强边界视觉效果 */
+    border: 2px solid hsl(var(--border) / 0.2);
+    border-radius: var(--radius-lg);
+    background: hsl(var(--card));
+    box-shadow: 0 2px 8px hsl(var(--foreground) / 0.1);
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+  }
+  
+  /* 🎯 Hover效果增强边界 */
+  .emoji-grid-container .avatar-card:hover {
+    border-color: hsl(var(--primary) / 0.4);
+    box-shadow: 0 4px 16px hsl(var(--primary) / 0.15);
+    transform: translateY(-2px);
+  }
+  
+  /* 🎯 收藏按钮定位修复 - 强制定位到右上角 */
+  .emoji-grid-container .avatar-card .emoji-favorite-btn,
+  .emoji-grid-container .emoji-favorite-btn,
+  button.emoji-favorite-btn,
+  .emoji-manager-container .emoji-favorite-btn {
+    position: absolute !important;
+    top: 6px !important;
+    right: 6px !important;
+    z-index: 20 !important;
+    width: 24px !important;
+    height: 24px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid hsl(var(--border) / 0.3) !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.2s ease-in-out !important;
+    cursor: pointer !important;
+    /* 确保不被其他样式覆盖 */
+    transform: none !important;
+    translate: none !important;
+    inset: auto !important;
+    left: auto !important;
+    bottom: auto !important;
+  }
+  
+  /* 🎯 收藏按钮Hover效果 */
+  .emoji-grid-container .avatar-card .emoji-favorite-btn:hover,
+  .emoji-grid-container .emoji-favorite-btn:hover,
+  button.emoji-favorite-btn:hover,
+  .emoji-manager-container .emoji-favorite-btn:hover {
+    background: rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+    transform: scale(1.1) !important;
+    border-color: hsl(var(--primary) / 0.5) !important;
+  }
+  
+  /* 🎯 收藏按钮图标样式 */
+  .emoji-grid-container .avatar-card .emoji-favorite-btn svg,
+  .emoji-grid-container .emoji-favorite-btn svg,
+  button.emoji-favorite-btn svg,
+  .emoji-manager-container .emoji-favorite-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+    transition: all 0.2s ease-in-out !important;
+    color: hsl(var(--muted-foreground)) !important;
+  }
+  
+  /* 🎯 已收藏状态 */
+  .emoji-grid-container .avatar-card .emoji-favorite-btn[data-favorited="true"],
+  .emoji-grid-container .emoji-favorite-btn[data-favorited="true"],
+  button.emoji-favorite-btn[data-favorited="true"],
+  .emoji-manager-container .emoji-favorite-btn[data-favorited="true"] {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-color: hsl(var(--destructive) / 0.3) !important;
+  }
+  
+  .emoji-grid-container .avatar-card .emoji-favorite-btn[data-favorited="true"] svg,
+  .emoji-grid-container .emoji-favorite-btn[data-favorited="true"] svg,
+  button.emoji-favorite-btn[data-favorited="true"] svg,
+  .emoji-manager-container .emoji-favorite-btn[data-favorited="true"] svg {
+    color: hsl(var(--destructive)) !important;
+    fill: hsl(var(--destructive)) !important;
+  }
+  
+  /* 🎯 深色主题下的收藏按钮 */
+  [data-theme="dark"] .emoji-grid-container .avatar-card .emoji-favorite-btn,
+  [data-theme="dark"] .emoji-grid-container .emoji-favorite-btn,
+  [data-theme="dark"] button.emoji-favorite-btn,
+  [data-theme="dark"] .emoji-manager-container .emoji-favorite-btn {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-color: hsl(var(--border) / 0.5) !important;
+  }
+  
+  [data-theme="dark"] .emoji-grid-container .avatar-card .emoji-favorite-btn:hover,
+  [data-theme="dark"] .emoji-grid-container .emoji-favorite-btn:hover,
+  [data-theme="dark"] button.emoji-favorite-btn:hover,
+  [data-theme="dark"] .emoji-manager-container .emoji-favorite-btn:hover {
+    background: rgba(0, 0, 0, 0.9) !important;
+  }
+  
+  .emoji-grid-container .avatar-display {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    margin-top: var(--spacing-2); /* 增加顶部边距 */
+    margin-bottom: var(--spacing-3); /* 增加底部边距从spacing-2到spacing-3 */
+  }
+  
+  .emoji-grid-container .avatar-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: var(--spacing-1);
+    min-height: 1.05rem;
+  }
+  
+  .emoji-grid-container .avatar-emoji {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-2);
+    min-height: 1.5rem;
+  }
+  
+  .emoji-grid-container .avatar-color {
+    font-size: 0.75rem;
+    min-height: 1rem;
+  }
+  
+  .emoji-grid-container .avatar-name,
+  .emoji-grid-container .avatar-emoji,
+  .emoji-grid-container .avatar-color {
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  
+  /* 响应式emoji卡片调整 */
+  @media (max-width: 768px) {
+    .emoji-grid-container .avatar-card {
+      height: 220px; /* 增加高度从200px到220px */
+      padding: var(--spacing-4); /* 增加内边距从spacing-3到spacing-4 */
+    }
+    
+    .emoji-grid-container .avatar-display {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .emoji-grid-container .avatar-name {
+      font-size: 0.8rem;
+    }
+    
+    .emoji-grid-container .avatar-emoji {
+      font-size: 1.25rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .emoji-grid-container .avatar-card {
+      height: 200px; /* 增加高度从180px到200px */
+      padding: var(--spacing-3); /* 增加内边距从spacing-2到spacing-3 */
+    }
+    
+    .emoji-grid-container .avatar-display {
+      width: 50px;
+      height: 50px;
+    }
+    
+    .emoji-grid-container .avatar-name {
+      font-size: 0.75rem;
+    }
+    
+    .emoji-grid-container .avatar-emoji {
+      font-size: 1.125rem;
+    }
+    
+    .emoji-grid-container .avatar-color {
+      font-size: 0.7rem;
+    }
+  }
+  
   /* 🖼️ Theme Aware Logo Component */
   .theme-aware-logo-dark {
     filter: drop-shadow(0 1px var(--spacing-0-5) hsl(var(--foreground) / 0.3));
@@ -612,7 +837,7 @@
   }
   /* 🏗️ Layout System */
   .header-spacer {
-    height: var(--header-height);
+    height: 64px; /* 固定高度，避免CSS变量问题 */
   }
   /* 📝 Content Adapter System */
   .content-textarea {

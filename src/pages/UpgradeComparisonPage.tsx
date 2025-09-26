@@ -78,10 +78,10 @@ export default function UpgradeComparisonPage() { const [showOldOverlay, setShow
         </div>
 
         <Tabs defaultValue="comparison" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="comparison">界面对比</TabsTrigger>
-            <TabsTrigger value="new-features">新界面特性</TabsTrigger>
-            <TabsTrigger value="implementation">实现方案</TabsTrigger>
+          <TabsList className="unified-tabs-list grid w-full grid-cols-3">
+            <TabsTrigger value="comparison" className="unified-tab-trigger">界面对比</TabsTrigger>
+            <TabsTrigger value="new-features" className="unified-tab-trigger">新界面特性</TabsTrigger>
+            <TabsTrigger value="implementation" className="unified-tab-trigger">实现方案</TabsTrigger>
           </TabsList>
 
           {/* 界面对比 */}

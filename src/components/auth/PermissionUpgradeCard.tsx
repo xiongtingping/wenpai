@@ -61,7 +61,7 @@ export const PermissionUpgradeCard: React.FC<PermissionUpgradeCardProps> = ({
   // 处理升级点击
   const handleUpgrade = (planId: string) => {
     localStorage.setItem('selectedPlan', planId);
-    navigate('/payment');
+    navigate('/payment-center');
   };
 
   // 获取计划图标

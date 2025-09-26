@@ -90,7 +90,6 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
   // 平台选项
   const platformOptions = [
     { value: 'weibo', label: t('components.labels.微博') },
-    { value: 'zhihu', label: t('components.labels.知乎') },
     { value: 'bilibili', label: 'B站' },
     { value: 'douyin', label: t('components.labels.抖音') },
     { value: 'toutiao', label: t('components.labels.头条') },

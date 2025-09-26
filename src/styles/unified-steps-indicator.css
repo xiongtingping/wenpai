@@ -1,0 +1,207 @@
+/* 🎯 统一步骤指示器样式系统
+ * 基于设计令牌的专业步骤指示器组件
+ * 遵循CLAUDE.md规范：零硬编码、设计令牌优先
+ */
+
+@layer components {
+  /* 主容器 - 品牌专属Emoji页面右侧步骤指示器 */
+  .brand-emoji-steps-indicator {
+    position: relative;
+    width: 100%;
+    max-width: 100%; /* 适应父容器宽度 */
+    margin: 0;
+    padding: var(--spacing-3);
+    background: linear-gradient(135deg, 
+      hsl(var(--accent) / 0.05) 0%, 
+      hsl(var(--accent) / 0.08) 50%, 
+      hsl(var(--accent) / 0.05) 100%);
+    border-radius: var(--radius-lg);
+    border: 1px solid hsl(var(--accent) / 0.15);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-smooth);
+  }
+
+  .brand-emoji-steps-indicator:hover {
+    background: linear-gradient(135deg, 
+      hsl(var(--accent) / 0.08) 0%, 
+      hsl(var(--accent) / 0.12) 50%, 
+      hsl(var(--accent) / 0.08) 100%);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-0.0625rem); /* -1px -> -0.0625rem */
+  }
+
+  /* 步骤网格布局 */
+  .brand-emoji-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--steps-indicator-gap);
+    margin-bottom: var(--spacing-3);
+    position: relative;
+  }
+
+  /* 单个步骤项 */
+  .brand-emoji-step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    min-height: fit-content;
+  }
+
+  /* 步骤圆圈容器 */
+  .brand-emoji-step-circle {
+    width: var(--steps-indicator-circle-size);
+    height: var(--steps-indicator-circle-size);
+    min-width: var(--steps-indicator-circle-size);
+    min-height: var(--steps-indicator-circle-size);
+    border-radius: 50%;
+    background: hsl(var(--card));
+    border: var(--steps-indicator-border-width) solid hsl(var(--primary) / 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+    transition: var(--transition-smooth);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .brand-emoji-step-circle:hover {
+    transform: scale(1.05);
+    border-color: hsl(var(--primary) / 0.4);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* 活跃状态 */
+  .brand-emoji-step-circle.active {
+    background: linear-gradient(135deg, 
+      hsl(var(--primary)) 0%, 
+      hsl(var(--primary) / 0.9) 100%);
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 0.125rem hsl(var(--primary) / 0.2); /* 2px -> 0.125rem */
+  }
+
+  /* 完成状态 */
+  .brand-emoji-step-circle.completed {
+    background: hsl(var(--success));
+    border-color: hsl(var(--success));
+  }
+
+  /* 步骤数字 */
+  .brand-emoji-step-number {
+    font-size: var(--steps-indicator-number-size);
+    font-weight: 600;
+    color: hsl(var(--primary));
+    line-height: 1;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+  }
+
+  .brand-emoji-step-circle.active .brand-emoji-step-number {
+    color: hsl(var(--primary-foreground));
+  }
+
+  .brand-emoji-step-circle.completed .brand-emoji-step-number {
+    color: hsl(var(--success-foreground));
+  }
+
+  /* 连接线 */
+  .brand-emoji-step-connector {
+    position: absolute;
+    top: 50%;
+    left: calc(50% + var(--steps-indicator-circle-size) / 2);
+    width: calc(100% - var(--steps-indicator-circle-size));
+    height: var(--steps-indicator-connector-height);
+    background: linear-gradient(90deg, 
+      hsl(var(--primary) / 0.15) 0%, 
+      hsl(var(--primary) / 0.25) 50%, 
+      hsl(var(--primary) / 0.15) 100%);
+    transform: translateY(-50%);
+    border-radius: var(--radius-xs);
+    z-index: 1;
+  }
+
+  .brand-emoji-step-connector.completed {
+    background: linear-gradient(90deg, 
+      hsl(var(--primary) / 0.6) 0%, 
+      hsl(var(--primary)) 50%, 
+      hsl(var(--primary) / 0.6) 100%);
+  }
+
+  /* 步骤文字标题网格 */
+  .brand-emoji-steps-labels {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--steps-indicator-gap);
+    margin-top: var(--spacing-2);
+  }
+
+  /* 单个步骤文字 */
+  .brand-emoji-step-label {
+    text-align: center;
+    font-size: var(--steps-indicator-text-size);
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 大屏幕优化 */
+  @media (min-width: 1024px) {
+    .brand-emoji-step-circle {
+      width: var(--steps-indicator-circle-size-lg);
+      height: var(--steps-indicator-circle-size-lg);
+      min-width: var(--steps-indicator-circle-size-lg);
+      min-height: var(--steps-indicator-circle-size-lg);
+    }
+
+    .brand-emoji-step-connector {
+      left: calc(50% + var(--steps-indicator-circle-size-lg) / 2);
+      width: calc(100% - var(--steps-indicator-circle-size-lg));
+    }
+  }
+
+  /* 小屏幕隐藏 */
+  @media (max-width: 1023px) {
+    .brand-emoji-steps-indicator {
+      display: none;
+    }
+  }
+}
+
+/* 动画效果 */
+@layer utilities {
+  .steps-indicator-fade-in {
+    animation: stepsIndicatorFadeIn 0.4s ease-out;
+  }
+
+  @keyframes stepsIndicatorFadeIn {
+    from {
+      opacity: 0;
+      transform: translateX(1.25rem); /* 20px -> 1.25rem */
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .step-progress-animate {
+    animation: stepProgress 0.3s ease-out;
+  }
+
+  @keyframes stepProgress {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+}

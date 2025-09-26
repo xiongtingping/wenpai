@@ -2,6 +2,10 @@
 @import './base-layer.css';
 @import './utility-classes.css';
 @import './component-layer.css';
+@import './tabs-smart-alignment.css';
+@import './brand-library-tab-fix.css';
+/* @import './tabs-left-align-fix.css'; 临时禁用，可能导致布局问题 */
+@import './hot-topics-main-tabs-fix.css';
 /* Profile样式已统一到 profile-unified-system.css */
 /*
  * Unified CSS System (统一CSS系统)
@@ -88,12 +92,12 @@
 /* 🎯 Dialog Styles (弹窗样式) - 包含必要的动画支持 */
 @layer dialog {
   /* 🎯 终极修复：彻底禁用所有动态定位 */
-  html body div[role="dialog"][data-state="open"],
-  html body div[data-radix-dialog-content][data-state="open"],
-  html body [role="dialog"].fixed,
-  html body div[role="dialog"]:not(.custom-positioned),
-  html body div[role="dialog"][id*="radix"],
-  html body [role="dialog"]:is([data-state="open"]) {
+  html body div[role="dialog"][data-state="open"]:not(.custom-positioned):not(.anchored-dialog),
+  html body div[data-radix-dialog-content][data-state="open"]:not(.custom-positioned):not(.anchored-dialog),
+  html body [role="dialog"].fixed:not(.custom-positioned):not(.anchored-dialog),
+  html body div[role="dialog"]:not(.custom-positioned):not(.anchored-dialog),
+  html body div[role="dialog"][id*="radix"]:not(.custom-positioned):not(.anchored-dialog),
+  html body [role="dialog"]:is([data-state="open"]):not(.custom-positioned):not(.anchored-dialog) {
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
@@ -112,14 +116,14 @@
   --radix-dialog-content-transform-origin: center center !important;
     --radix-popper-transform-origin: center center !important;
   }
-  /* 🚨 强制覆盖任何JavaScript设置的内联样式 */
-  html body div[role="dialog"][style*="top"] {
+  /* 🚨 强制覆盖任何JavaScript设置的内联样式（但保留自定义定位的弹窗） */
+  html body div[role="dialog"][style*="top"]:not(.custom-positioned):not(.anchored-dialog) {
     top: 50% !important;
   }
-  html body div[role="dialog"][style*="left"] {
+  html body div[role="dialog"][style*="left"]:not(.custom-positioned):not(.anchored-dialog) {
     left: 50% !important;
   }
-  html body div[role="dialog"][style*="transform"] {
+  html body div[role="dialog"][style*="transform"]:not(.custom-positioned):not(.anchored-dialog) {
     transform: translate(-50%, -50%) !important;
   }
   /* Radix UI动画状态控制 - 确保弹窗正确显示 */

@@ -26,7 +26,7 @@ const HeroSection: React.FC = () => {
   const handleButtonClick = async () => {
     try {
       if (isAuthenticated) {
-        navigate('/adapt');
+        navigate('/content-adapter');
         // 页面加载后滚动到内容生成区
         setTimeout(() => {
           const contentArea = document.getElementById('content-generation-area');

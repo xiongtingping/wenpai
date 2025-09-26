@@ -163,24 +163,24 @@ export function ContentFormSelector({
             </div>
           )}
           
-          {/* 风格网格 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {/* 风格网格 - 一横排显示 */}
+          <div className="grid grid-cols-4 gap-2">
             {availableStyles.map((style) => (
               <div
                 key={style.id}
-                className={`cursor-pointer transition-all hover:shadow-sm p-3 rounded-xl border ${
+                className={`cursor-pointer transition-all hover:shadow-sm p-2 rounded-lg border text-center ${
                   selectedStyle === style.id ? 'border-primary bg-accent/80' : 'border-border bg-card/90 hover:border-border/70'
                 }`}
                 onClick={() => handleStyleSelect(style.id)}
               >
-                <div className="flex items-start gap-2">
+                <div className="flex flex-col items-center gap-1">
                   <span className="text-lg">{style.icon}</span>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h5 className="font-medium text-sm text-foreground">{style.name}</h5>
-                      {selectedStyle === style.id && <span className="text-primary">✓</span>}
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center gap-1">
+                      <h5 className="font-medium text-xs text-foreground text-center">{style.name}</h5>
+                      {selectedStyle === style.id && <span className="text-primary text-xs">✓</span>}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{style.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1 text-center leading-tight">{style.description}</p>
                   </div>
                 </div>
               </div>

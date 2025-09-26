@@ -1,7 +1,95 @@
-/* 🎯 统一Dialog定位系统 - 遵循CLAUDE.md 3.8节命名规范 */
-@import './styles/design-tokens-dialog.css';
+/* 🚨 CSS层级顺序声明 - 必须最先导入，确保层级优先级正确 */
+@import './styles/css-layer-order.css';
 
-/* 🧹 已清理：所有旧的Dialog修复文件已合并到design-tokens-dialog.css */
+/* 🎯 设计令牌系统 - 必须最先导入，提供全局设计变量 */
+@import './styles/design-tokens.css';
+
+/* 🔧 登录卡片Hover修复 - 防止透明度问题 */
+@import './styles/custom-login-page-hover-fix.css';
+
+/* 🎯 Emoji收藏按钮最终修复 - 基于成功调试结果 */
+@import './styles/emoji-favorite-button-final-fix.css';
+/* 🎯 收藏按钮位置更新修复 - 适配新padding，最高优先级 */
+@import './styles/emoji-favorite-button-position-update.css';
+/* 🎯 Emoji圆圈大小增强修复 - 让圆圈里的emoji铺满背景 */
+@import './styles/emoji-circle-size-enhancement.css';
+/* 🎯 统一Tab系统现代化设计 - 适用于所有页面的tab按钮 */
+@import './styles/unified-tab-modern-design.css';
+/* 🎯 统一Tab设计令牌系统 - 基于设计令牌的Tab统一样式（最终覆盖） */
+@import './styles/unified-tab-design-tokens.css';
+/* 🚨 EmojiPage Tab按钮紧急修复 - 最高优先级 */
+@import './styles/emoji-page-tab-fix.css';
+/* 🎯 品牌Emoji生成器步骤数字对齐修复 - 已被统一步骤指示器替代 */
+/* @import './styles/brand-emoji-step-fix.css'; */
+/* 🚨 品牌Emoji紧急居中修复 - 超高优先级 */
+@import './styles/brand-emoji-emergency-center-fix.css';
+/* 🎨 品牌Emoji生成器视觉增强 - 美化UI和UX */
+@import './styles/brand-emoji-generator-enhanced.css';
+/* 🚨 品牌Emoji右侧边栏布局修复 - 解决文字垂直显示问题 */
+@import './styles/brand-emoji-sidebar-fix.css';
+/* 🎯 水平步骤指示器样式 - 已被统一步骤指示器替代 */
+/* @import './styles/horizontal-steps-indicator.css'; */
+/* 🎯 统一步骤指示器系统 - 基于设计令牌的现代化步骤指示器 */
+@import './styles/unified-steps-indicator.css';
+/* 🚀 Header核武器级隔离修复 - 临时禁用，与设计令牌冲突 */
+/* @import './styles/header-nuclear-isolation-fix.css'; */
+/* 🚨 Header防下沉终极修复 - 解决创意魔方Tab切换Header下沉问题 */
+@import './styles/header-anti-sinking-fix.css';
+/* 🔧 Header背景色强制修复 - 解决背景色被全局CSS覆盖问题 */
+@import './styles/header-background-force-fix.css';
+/* 🎯 Header Avatar终极防下沉修复 - 专门解决Avatar下沉问题 */
+@import './styles/header-avatar-ultimate-fix.css';
+/* 🎯 Header架构治理系统 - 启用设计令牌架构 */
+@import './styles/header-architecture-governance.css';
+/* 🎯 Header右上角控件显示修复 - 确保语言切换和主题切换正常显示 */
+@import './styles/header-right-controls-fix.css';
+/* 🚨 超高优先级紧急修复 - 必须最先导入 */
+@import './styles/emergency-tab-fix.css';
+/* 🚨 Tab间距修复 - 解决Tab页和内容区空白问题 */
+@import './styles/tabs-spacing-fix.css';
+/* 🚨 Tab垂直居中修复 - 解决按钮下沉问题 */
+@import './styles/tabs-vertical-center-fix.css';
+/* 🚨 Tab智能对齐修复 - 区分主导航和内容区域Tab对齐方式 */
+@import './styles/tabs-smart-alignment.css';
+/* 🚨 热点页面主导航Tab靠左修复 - 最高优先级覆盖智能对齐规则 */
+@import './styles/hot-topics-main-tabs-fix.css';
+/* 🎯 全网雷达Tab按钮与右侧按钮水平对齐修复 - 设计令牌驱动解决方案 */
+@import './styles/hot-topics-tab-buttons-alignment-fix.css';
+/* 🧹 今日最热门话题灰色竖块修复 - 移除Tab后的奇怪灰色竖块 */
+@import './styles/hot-topics-gray-block-fix.css';
+/* 🎨 创意魔方Tab强制居中铺满修复 - 超高优先级确保居中铺满 */
+@import './styles/creative-studio-tab-force-center.css';
+/* 🚨 Card与Tab冲突修复 - 解决覆盖问题 */
+@import './styles/card-tab-conflict-fix.css';
+
+/* 🚨 Portal和Dialog系统根本性修复 - 按层级顺序导入 */
+/* 1. Z-Index系统 - 最先建立层级秩序 */
+@import './styles/z-index-system.css';
+/* 2. 根容器清理 - 清除干扰源 */
+@import './styles/root-container-fix.css';
+/* 3. Portal系统修复 - 解决inset冲突 */
+@import './styles/portal-system-fix.css';
+/* 4. 基础Dialog定位 */
+@import './styles/unified-dialog-positioning.css';
+/* 5. UI样式 */
+@import './styles/quick-reference-compact-ui.css';
+/* 6. Emergency修复 - 最高优先级 */
+@import './styles/emergency-dialog-positioning-fix.css';
+/* 7. 终极修复 - 确保万无一失 */
+@import './styles/dialog-positioning-ultimate-fix.css';
+/* 8. 背景层专项修复 - 解决Overlay定位问题 */
+@import './styles/dialog-overlay-fix.css';
+/* 9. 🚨 全网雷达订阅弹窗紧急修复 - 专项修复HotTopicsPage弹窗定位问题 */
+@import './styles/hot-topics-subscription-dialog-emergency-fix.css';
+@import './styles/subscription-dialog-no-flash-fix.css';
+/* 10. 🚨 Dialog弹窗根本原因修复 - 基于5W1H分析的系统性解决方案 */
+@import './styles/dialog-ultimate-root-cause-fix.css';
+/* 9. Tabs点击修复 - 确保全网雷达页面标签可点击 */
+@import './styles/fix-tabs-clickable.css';
+/* 10. 强制Tabs激活修复 - 彻底解决Tab按钮问题 */
+@import './styles/force-tabs-active.css';
+/* 🌍 全局Tab按钮统一化 - 确保所有功能区tab按钮样式一致 - 最高优先级 */
+@import './styles/global-tabs-unification.css';
 
 @import './styles/number-display-fix.css';
 @import './styles/pricing-fix.css';
@@ -13,7 +101,6 @@
 @import './styles/authing-accessibility-fix.css';
 @import './styles/animated-signin-21st.css';
 /* 🧹 已清理：所有快速引用Dialog修复已统一到design-tokens-dialog.css */
-@import './styles/quick-reference-compact-ui.css';
 @import './styles/button-center-fix.css';
 @import './styles/design-system.css';
 @import './styles/permission-guard-z-index.css';
@@ -81,7 +168,8 @@
   background: rgba(255, 255, 255, 0.2);
   transform: scale(1.1);
 }
-.login-card {
+/* 🔧 FIX: 只对非21st.dev风格的登录卡片应用基础样式 */
+.login-card:not(.login-container .login-card) {
   position: relative;
   z-index: 10;
   background: rgba(255, 255, 255, 0.95);
@@ -97,18 +185,19 @@
   margin: var(--spacing-5);
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-;
   color: rgba(15, 23, 42, 0.9); /* 亮色主题下的深色文字 */
 }
-.dark .login-card {
+/* 🔧 FIX: 只对非21st.dev风格的登录卡片应用暗色主题样式 */
+.dark .login-card:not(.login-container .login-card) {
   background: rgba(30, 30, 50, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.95); /* 暗色主题下的亮色文字 */;
+  color: rgba(255, 255, 255, 0.95); /* 暗色主题下的亮色文字 */
   box-shadow:
     0 var(--spacing-5) var(--spacing-10) rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.1);
 }
-.login-card:hover {
+/* 🔧 FIX: 只对非21st.dev风格的登录卡片应用hover效果 */
+.login-card:hover:not(.login-container .login-card) {
   transform: translateY(-5px);
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
 }

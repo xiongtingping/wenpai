@@ -17,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { PermissionText, UpgradeText } from '@/components/ui/ThemeAwareText';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { getSubscriptionPlan, SUBSCRIPTION_PLANS, calculateDiscountCountdown, isInDiscountPeriod } from '@/config/subscriptionPlans';
 import { CountdownTimer } from '@/components/ui/CountdownTimer';
 import { usePermissionInteraction } from '@/utils/permissionInteractionUtils';
@@ -176,6 +177,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
   previewMessage
 }) => {
   const { user, isAuthenticated } = useAuth();
+  const { primaryStatus } = useSubscriptionStatus();
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
   
@@ -184,10 +186,43 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
   const [previewMode, setPreviewMode] = useState(false);
   const [discountCountdown, setDiscountCountdown] = useState(0);
 
-  // 权限检查
+  // 权限检查 - 增强版本，确保premium用户有所有权限
   const permissionResult = useMemo((): PermissionCheckResult => {
     try {
       const result = UnifiedPermissionService.checkPermission(user as SessionUserInfo, requiredPermission);
+      
+      // 🎯 特殊处理：如果是premium用户，强制授予权限
+      const isPremiumUser = primaryStatus?.tier === 'premium' || 
+                           primaryStatus?.status === 'active' &&
+                           (user?.subscription?.tier === 'premium' || 
+                            user?.tier === 'premium' || 
+                            user?.vipLevel === 'premium' ||
+                            (user?.isVip && (user?.vipLevel === 'premium' || user?.subscription?.tier === 'premium')));
+      
+      if (isPremiumUser && !result.hasPermission) {
+        if (enableLogging) {
+          console.log(`🎯 Premium用户权限覆盖 [${requiredPermission}]:`, {
+            originalResult: result,
+            isPremiumUser,
+            subscriptionStatus: {
+              'primaryStatus?.tier': primaryStatus?.tier,
+              'primaryStatus?.status': primaryStatus?.status,
+              'primaryStatus?.statusLabel': primaryStatus?.statusLabel
+            },
+            userInfo: {
+              'user?.subscription?.tier': user?.subscription?.tier,
+              'user?.tier': user?.tier,
+              'user?.vipLevel': user?.vipLevel,
+              'user?.isVip': user?.isVip
+            }
+          });
+        }
+        
+        return {
+          ...result,
+          hasPermission: true
+        };
+      }
       
       if (enableLogging) {
         console.log(`🔐 权限检查 [${requiredPermission}]:`, result);
@@ -213,7 +248,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
         }
       };
     }
-  }, [user, requiredPermission, featureName, description, enableLogging]);
+  }, [user, primaryStatus, requiredPermission, featureName, description, enableLogging]);
 
   // 获取等级信息
   const currentTierInfo = getUnifiedTierInfo(permissionResult.userTier);
@@ -270,7 +305,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
       navigate(upgradeUrl);
     } else {
       localStorage.setItem("selectedPlan", permissionResult.requiredTier);
-      navigate("/payment");
+      navigate("/payment-center");
     }
   };
 
@@ -674,7 +709,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
                     <Button
                       onClick={() => {
                         localStorage.setItem("selectedPlan", plan.id);
-                        navigate("/payment");
+                        navigate("/payment-center");
                       }}
                       variant={isRequired ? "default" : isRecommended ? "gradient" : "outline"}
                       size="default"

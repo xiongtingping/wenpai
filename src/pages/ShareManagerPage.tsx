@@ -482,7 +482,7 @@ export default function ShareManagerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background pt-24">
+    <div className="min-h-screen bg-gradient-primary particle-background pt-16">
       {/* 主导航栏 */}
       <Header />
 
@@ -510,11 +510,11 @@ export default function ShareManagerPage() {
       <div className="container mx-auto px-4 py-8">
         {/* 标签页导航 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="publish">发布内容</TabsTrigger>
-            <TabsTrigger value="history">发布历史</TabsTrigger>
-            <TabsTrigger value="templates">内容模板</TabsTrigger>
-            <TabsTrigger value="analytics">数据分析</TabsTrigger>
+          <TabsList className="unified-tabs-list grid w-full grid-cols-4">
+            <TabsTrigger value="publish" className="unified-tab-trigger">发布内容</TabsTrigger>
+            <TabsTrigger value="history" className="unified-tab-trigger">发布历史</TabsTrigger>
+            <TabsTrigger value="templates" className="unified-tab-trigger">内容模板</TabsTrigger>
+            <TabsTrigger value="analytics" className="unified-tab-trigger">数据分析</TabsTrigger>
           </TabsList>
 
           {/* 发布内容标签页 */}

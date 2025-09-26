@@ -118,7 +118,7 @@ class EnhancedPermissionService {
   private readonly FEATURE_PERMISSIONS: Record<string, FeaturePermissionConfig> = {
     'ai-content-adapter': {
       featureId: 'ai-content-adapter',
-      name: 'AI内容适配器',
+      name: 'AI内容适配',
       requiredTier: 'trial',
       usageLimits: {
         monthly: 10 // 体验版每月10次

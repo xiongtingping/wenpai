@@ -1,0 +1,206 @@
+/**
+ * 全网雷达Tab按钮与右侧按钮水平对齐修复 - 设计令牌驱动解决方案
+ * 遵循CLAUDE.md CSS架构治理体系
+ * 
+ * @layer: components
+ * @使用设计令牌: --tab-container-height, --button-container-height
+ * @根因修复: Tab容器和按钮容器基线对齐问题
+ */
+
+@layer components {
+  /* 🎯 设计令牌定义 */
+  :root {
+    /* Tab相关设计令牌 */
+    --tab-container-height: 40px;
+    --tab-button-height: 36px;
+    --tab-button-padding-y: 8px;
+    --tab-button-padding-x: 16px;
+    
+    /* 按钮相关设计令牌 */
+    --action-button-height: 36px;
+    --action-button-padding-y: 8px;
+    --action-button-padding-x: 16px;
+    
+    /* 对齐相关设计令牌 */
+    --container-gap: 1rem;
+    --alignment-baseline: center;
+    
+    /* 响应式断点令牌 */
+    --mobile-breakpoint: 640px;
+    --tablet-breakpoint: 768px;
+  }
+
+  /* 🎯 全网雷达页面主容器对齐修复 */
+  .hot-topics-page-controls {
+    display: flex;
+    align-items: var(--alignment-baseline);
+    justify-content: space-between;
+    gap: var(--container-gap);
+    margin-bottom: 0.5rem;
+    min-height: var(--tab-container-height);
+  }
+
+  /* 🎯 Tab容器区域 */
+  .hot-topics-tab-container {
+    display: flex;
+    align-items: var(--alignment-baseline);
+    justify-content: flex-start;
+    flex: 0 0 auto;
+    height: var(--tab-container-height);
+  }
+
+  /* 🎯 Tab按钮列表样式使用设计令牌 */
+  .hot-topics-main-tabs {
+    display: flex !important;
+    align-items: var(--alignment-baseline) !important;
+    justify-content: flex-start !important;
+    height: var(--tab-button-height) !important;
+    min-height: var(--tab-button-height) !important;
+    width: auto !important;
+    max-width: fit-content !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0.5rem !important;
+  }
+
+  /* 🎯 Tab按钮样式使用设计令牌 */
+  .hot-topics-main-tabs .unified-tab-trigger {
+    height: var(--tab-button-height) !important;
+    min-height: var(--tab-button-height) !important;
+    padding: var(--tab-button-padding-y) var(--tab-button-padding-x) !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* 🎯 右侧按钮容器区域 */
+  .hot-topics-actions-container {
+    display: flex;
+    align-items: var(--alignment-baseline);
+    justify-content: flex-end;
+    flex: 0 0 auto;
+    height: var(--tab-container-height);
+    gap: 0.5rem;
+  }
+
+  /* 🎯 右侧按钮样式使用设计令牌 */
+  .hot-topics-actions-container .action-button {
+    height: var(--action-button-height) !important;
+    min-height: var(--action-button-height) !important;
+    padding: var(--action-button-padding-y) var(--action-button-padding-x) !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* 🎯 响应式设计令牌应用 */
+  @media (max-width: 640px) {
+    :root {
+      --tab-container-height: 44px;
+      --tab-button-height: 40px;
+      --action-button-height: 40px;
+      --container-gap: 0.75rem;
+    }
+
+    .hot-topics-page-controls {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+
+    .hot-topics-tab-container {
+      justify-content: center;
+      width: 100%;
+    }
+
+    .hot-topics-actions-container {
+      justify-content: center;
+      width: 100%;
+    }
+
+    .hot-topics-main-tabs .unified-tab-trigger {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 8px !important;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 768px) {
+    :root {
+      --container-gap: 0.875rem;
+    }
+
+    .hot-topics-page-controls {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  /* 🎯 确保基线对齐的强制修复 */
+  .hot-topics-baseline-fix {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--container-gap);
+  }
+
+  .hot-topics-baseline-fix > * {
+    align-self: baseline;
+  }
+
+  /* 🎯 移除调试样式，保持清洁 */
+  .hot-topics-main-tabs {
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .hot-topics-main-tabs::before {
+    display: none !important;
+    content: none !important;
+  }
+
+  /* 🎯 防止其他CSS规则干扰的保护层 */
+  .hot-topics-alignment-protection {
+    isolation: isolate;
+    contain: layout style;
+  }
+
+  .hot-topics-alignment-protection .hot-topics-main-tabs,
+  .hot-topics-alignment-protection .hot-topics-actions-container {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* 🎯 Emergency层级 - 仅在关键功能失效时启用 */
+@layer emergency {
+  /* 如果components层不生效，使用emergency强制修复 */
+  body .hot-topics-page-controls.emergency-fix {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  body .hot-topics-page-controls.emergency-fix .hot-topics-tab-container {
+    display: flex !important;
+    align-items: center !important;
+    height: 40px !important;
+  }
+
+  body .hot-topics-page-controls.emergency-fix .hot-topics-actions-container {
+    display: flex !important;
+    align-items: center !important;
+    height: 40px !important;
+    gap: 0.5rem !important;
+  }
+}

@@ -16,7 +16,8 @@
   /* 确保内容区域最大利用空间 */
   display: flex !important;
   flex-direction: column !important;
-  max-height: calc(90vh - 80px) !important;
+  /* 🚨 移除可能干扰定位的max-height设置 */
+  /* max-height: calc(90vh - 80px) !important; */
 }
 
 .quick-reference-dialog .dialog-content-scrollable {

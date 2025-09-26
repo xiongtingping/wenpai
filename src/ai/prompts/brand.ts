@@ -12,10 +12,12 @@
 
 import i18n from '@/i18n';
 import type { PromptTemplate } from '../types';
-import { logger } from '@/utils/loggeri18n.t('ai.message._zua')comprehensive' } = input;
-  const { debug = false } = options;
+import { logger } from '@/utils/logger';
 
-  return `你是一名专业的品牌策略分析专家，请对以下品牌资料进行深度分析：;
+export function generateBrandAnalysisPrompt(brandInfo: string, options: { comprehensive?: boolean; debug?: boolean } = {}) {
+  const { comprehensive = true, debug = false } = options;
+
+  return `你是一名专业的品牌策略分析专家，请对以下品牌资料进行深度分析：
 
 ## 品牌资料
 ${brandInfo}

@@ -27,14 +27,7 @@ export const LazyEnhancedAuthModal = lazy(() =>
   }))
 );
 
-/**
- * 自定义登录页面 - 懒加载
- */
-export const LazyCustomLoginPage = lazy(() =>
-  import('@/pages/CustomLoginPage').then(module => ({
-    default: module.default
-  }))
-);
+// CustomLoginPage 已移除 - 使用 CustomLoginPage21st 替代
 
 /**
  * 权限守卫组件 - 懒加载
@@ -168,21 +161,7 @@ export const EnhancedAuthModal = withErrorBoundaryAndSuspense(
 /**
  * 自定义登录页面（带错误处理和加载状态）
  */
-export const CustomLoginPage = withErrorBoundaryAndSuspense(
-  LazyCustomLoginPage,
-  <PageLoadingFallback />,
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="text-center">
-      <p className="text-red-500 mb-4">登录页面加载失败</p>
-      <button 
-        onClick={() => window.location.reload()} 
-        className="px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        重新加载
-      </button>
-    </div>
-  </div>
-);
+// CustomLoginPage 导出已移除 - 直接使用 CustomLoginPage21st
 
 /**
  * 统一权限守卫（带错误处理和加载状态）
@@ -276,16 +255,12 @@ export class AuthComponentPreloader {
       return this.preloadingPromises.get('loginPage');
     }
 
-    const preloadPromise = import('@/pages/CustomLoginPage')
-      .then(() => {
-        this.preloadedComponents.add('loginPage');
-        this.preloadingPromises.delete('loginPage');
-        console.log('📦 登录页面预加载完成');
-      })
-      .catch((error) => {
-        this.preloadingPromises.delete('loginPage');
-        console.warn('⚠️ 登录页面预加载失败:', error);
-      });
+    // 注意：CustomLoginPage 已被移除，preloadLoginPage 方法保留但不执行任何操作
+    const preloadPromise = Promise.resolve().then(() => {
+      this.preloadedComponents.add('loginPage');
+      this.preloadingPromises.delete('loginPage');
+      console.log('📦 登录页面预加载跳过（已移除CustomLoginPage）');
+    });
 
     this.preloadingPromises.set('loginPage', preloadPromise);
     return preloadPromise;

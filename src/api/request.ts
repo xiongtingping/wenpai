@@ -203,31 +203,97 @@ instance.interceptors.request.use(
 const axiosInstance = createAxiosInstance();
 
 /**
+ * 🔧 API重试机制配置
+ */
+interface RetryConfig {
+  maxRetries: number;
+  baseDelay: number;
+  maxDelay: number;
+  retryCondition?: (error: any) => boolean;
+}
+
+const defaultRetryConfig: RetryConfig = {
+  maxRetries: 3,
+  baseDelay: 1000, // 1秒
+  maxDelay: 10000, // 10秒
+  retryCondition: (error) => {
+    // 重试条件：超时、网络错误、5xx服务器错误
+    return (
+      error.code === 'ECONNABORTED' ||
+      error.message?.includes('timeout') ||
+      error.code === 'ENOTFOUND' ||
+      error.code === 'ECONNREFUSED' ||
+      (error.response?.status >= 500 && error.response?.status < 600)
+    );
+  }
+};
+
+/**
+ * 🔧 带重试的请求包装器
+ */
+async function requestWithRetry<T>(
+  requestFn: () => Promise<T>,
+  config: Partial<RetryConfig> = {}
+): Promise<T> {
+  const finalConfig = { ...defaultRetryConfig, ...config };
+  let lastError: any;
+
+  for (let attempt = 0; attempt <= finalConfig.maxRetries; attempt++) {
+    try {
+      return await requestFn();
+    } catch (error) {
+      lastError = error;
+      
+      // 检查是否应该重试
+      if (
+        attempt === finalConfig.maxRetries ||
+        !finalConfig.retryCondition?.(error)
+      ) {
+        break;
+      }
+
+      // 计算延迟时间（指数退避）
+      const delay = Math.min(
+        finalConfig.baseDelay * Math.pow(2, attempt),
+        finalConfig.maxDelay
+      );
+
+      console.warn(`⚠️ API请求失败，${delay}ms后重试 (${attempt + 1}/${finalConfig.maxRetries})`, {
+        error: error.message,
+        url: error.config?.url,
+        attempt: attempt + 1
+      });
+
+      // 等待后重试
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  throw lastError;
+}
+
+/**
  * 统一请求方法
  */
 export const request = {
   /**
-   * GET请求
+   * GET请求（带重试机制）
    */
   async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    try {
+    return requestWithRetry(async () => {
       const response = await axiosInstance.get<T>(url, config);
       return response.data;
-    } catch (error) {
-      throw new Error(`GET请求失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
-    }
+    });
   },
 
   /**
-   * POST请求
+   * POST请求（带重试机制）
    */
   async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    try {
+    return requestWithRetry(async () => {
       const response = await axiosInstance.post<T>(url, data, config);
       return response.data;
-    } catch (error) {
-      throw new Error(`POST请求失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
-    }
+    });
   },
 
   /**

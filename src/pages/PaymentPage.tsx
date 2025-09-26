@@ -557,7 +557,7 @@ export default function PaymentPage() {
         <div className="container mx-auto max-w-4xl">
           <PaymentSuccessHandler
             paymentData={currentCheckout}
-            onComplete={() => navigate('/profile')}
+            onComplete={() => navigate('/user-profile')}
           />
         </div>
       </div>
@@ -584,7 +584,7 @@ export default function PaymentPage() {
             <PaymentStatusRecovery
               onRecoveryComplete={() => {
                 setShowRecovery(false);
-                navigate('/profile');
+                navigate('/user-profile');
               }}
               onNoActivePayments={() => setShowRecovery(false)}
             />

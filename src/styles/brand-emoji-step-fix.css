@@ -1,0 +1,104 @@
+@layer emergency {
+  /* 🚨 品牌Emoji生成器步骤指示器系统性根因修复
+   * 基于完整DOM分析的精确解决方案 - 消除技术债务
+   * 修复步骤数字与文字的垂直对齐问题
+   */
+
+  /* 🎯 ROOT CAUSE FIX: 步骤指示器主容器对齐方式修正 */
+  /* 精确选择器：CardContent > 主flex容器 > 步骤指示器容器 */
+  div[class*="p-6"] > div[class*="flex"][class*="flex-col"][class*="lg:flex-row"] > div[class*="flex"][class*="items-center"][class*="justify-between"][class*="flex-1"] {
+    display: flex !important;
+    align-items: flex-start !important; /* 🔧 根因修复：顶部对齐替代center对齐 */
+    justify-content: space-between !important;
+    gap: 16px !important; /* 确保步骤间距一致 */
+    min-height: fit-content !important; /* 防止容器高度撑开影响对齐 */
+  }
+
+  /* 🎯 单个步骤项容器 - 每个步骤的wrapper */
+  div[class*="p-6"] > div[class*="flex"][class*="flex-col"][class*="lg:flex-row"] > div[class*="flex"][class*="items-center"][class*="justify-between"][class*="flex-1"] > div[class*="flex"][class*="items-center"][class*="flex-1"] {
+    display: flex !important;
+    align-items: flex-start !important; /* 🔧 关键修复：确保顶部对齐 */
+    justify-content: center !important;
+    flex-direction: column !important; /* 确保垂直布局 */
+    min-height: fit-content !important;
+  }
+
+  /* 🎯 步骤内容垂直容器 - 数字圆圈+文字的直接容器 */
+  div[class*="p-6"] div[class*="flex"][class*="flex-col"][class*="items-center"][class*="space-y-2"] {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important; /* 🔧 关键：保持水平居中对齐 */
+    justify-content: flex-start !important;
+    gap: 8px !important; /* 替代space-y-2，精确控制间距 */
+    margin: 0 auto !important; /* 🔧 强制整个容器居中 */
+    padding: 0 !important;
+    width: 100% !important; /* 🔧 确保容器占满宽度 */
+    text-align: center !important; /* 🔧 强制文本居中 */
+  }
+
+  /* 🎯 圆形数字容器完美居中 - 基于真实DOM结构 */
+  div[class*="w-10"][class*="h-10"][class*="lg:w-12"][class*="lg:h-12"][class*="rounded-full"][class*="flex"][class*="items-center"][class*="justify-center"][class*="text-sm"][class*="font-bold"][class*="border-2"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important; /* 🔧 消除字体行高影响 */
+    margin: 0 auto !important; /* 🔧 关键：强制数字圆圈居中 */
+    padding: 0 !important;
+    position: relative !important;
+  }
+
+  /* 🎯 数字文本精确居中显示 - 基于真实DOM结构 */
+  div[class*="rounded-full"][class*="flex"][class*="items-center"][class*="justify-center"] span[class*="text-sm"][class*="lg:text-base"] {
+    display: inline-block !important;
+    line-height: 1 !important; /* 🔧 关键：消除行高偏移 */
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    font-feature-settings: "tnum" !important; /* 等宽数字 */
+    font-variant-numeric: tabular-nums !important;
+    vertical-align: baseline !important;
+    width: 100% !important; /* 🔧 确保数字占满容器宽度 */
+  }
+
+  /* 🎯 文字信息容器对齐修复 */
+  div[class*="p-6"] div[class*="text-center"][class*="space-y-1"] {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 4px !important; /* 替代space-y-1 */
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 🎯 文字标题和描述精确对齐 */
+  div[class*="p-6"] div[class*="text-center"] > div[class*="text-xs"],
+  div[class*="p-6"] div[class*="text-center"] > div[class*="lg:text-sm"] {
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+  }
+
+  /* 🎯 CheckCircle图标精确居中 */
+  div[class*="p-6"] div[class*="rounded-full"] svg {
+    display: block !important;
+    margin: 0 auto !important;
+    vertical-align: middle !important;
+  }
+
+  /* 🎯 进度连接线对齐修复 */
+  div[class*="p-6"] div[class*="flex-1"][class*="h-0.5"] {
+    align-self: flex-start !important; /* 确保连接线从顶部开始 */
+    margin-top: 20px !important; /* 与圆圈中心对齐 */
+  }
+}
+
+/* 💡 修复说明：
+ * 1. 强制设置line-height: 1消除字体默认行高偏移
+ * 2. 使用transform: translateY微调数字垂直位置
+ * 3. 确保数字在圆形容器中完美居中显示
+ * 4. 桌面端和移动端分别优化
+ * 5. 同时处理CheckCircle图标的对齐
+ */

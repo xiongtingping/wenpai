@@ -107,10 +107,11 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
       // 🔧 FIX: 暂时禁用订阅状态获取，避免网络请求循环
       // 在开发环境中，由于后端服务可能不可用，直接返回默认状态
       if (import.meta.env.DEV) {
-        // 减少重复日志，只在必要时输出
-        if (!(window as any).__dev_subscription_logged) {
-          logger.info('🔧 开发环境：使用默认订阅状态，避免网络请求循环');
-          (window as any).__dev_subscription_logged = true;
+        // 防重复：检查当前用户是否已设置过状态
+        const userKey = `__dev_subscription_${targetUserId}`;
+        if (!(window as any)[userKey]) {
+          (window as any)[userKey] = true;
+          console.log('🔧 开发环境：设置默认premium订阅状态');
         }
         
         const defaultStatus = {
@@ -125,13 +126,10 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
           statusColor: 'green' as const
         };
         
-        console.log('🔍 [useSubscriptionStatus] 开发环境返回默认状态:', defaultStatus);
-        
         setPrimaryStatus(defaultStatus);
         setAllSubscriptions([]);
         setHasActiveSubscription(true);
         
-        logger.info('✅ 开发环境订阅状态设置完成');
         return;
       }
 

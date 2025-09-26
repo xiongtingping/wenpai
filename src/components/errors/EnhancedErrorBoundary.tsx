@@ -178,7 +178,7 @@ export class EnhancedErrorBoundary extends Component<
       url: window.location.href,
       userId: this.getCurrentUserId(),
       sessionId: this.sessionId,
-      buildVersion: process.env.REACT_APP_VERSION || 'unknown',
+      buildVersion: import.meta.env.VITE_APP_VERSION || 'development',
       reproductionSteps: this.generateReproductionSteps(),
       metadata: {
         componentName: this.props.componentName || 'Unknown',

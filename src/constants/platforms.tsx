@@ -258,9 +258,6 @@ export function getPlatformContent(platform: string, { title, body, coverImage }
     case 'xiaohongshu':
       return `${title} ✨\n\n${body}${spec.supportHashtags ? '\n\n#小红书 #分享' : ''}${coverImage ? `\n\n📸 ${coverImage}` : ''}`;
     
-    case 'zhihu':
-      return `## ${title}\n\n${body}${coverImage ? `\n\n![图片](${coverImage})` : ''}`;
-    
     case 'wechat':
       return `**${title}**\n\n${body}${coverImage ? `\n\n![](${coverImage})` : ''}`;
     

@@ -21,7 +21,6 @@ interface UploadFormProps {
 
 export default function UploadForm({ onUploadComplete, onReset  }: UploadFormProps) {
   const { t } = useTranslation();
-  const [uploadType, setUploadType] = useState<'image' | 'description'>('image');
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [description, setDescription] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -49,21 +48,21 @@ export default function UploadForm({ onUploadComplete, onReset  }: UploadFormPro
 
     setError(null);
     setUploadedImage(file);
-    setIsUploading(true);
-
-    // 模拟上传过程
-    setTimeout(() => {
-      setIsUploading(false);
-      onUploadComplete({ image: file });
-    }, 1000);
+    // 不立即完成上传，让用户可以继续填写描述
   };
 
   /**
-   * 处理描述提交
+   * 处理表单提交
    */
-  const handleDescriptionSubmit = () => {
+  const handleFormSubmit = () => {
+    // 验证：必须同时提供图片和描述
+    if (!uploadedImage) {
+      setError('请上传品牌图片');
+      return;
+    }
+    
     if (!description.trim()) {
-      setError(t('components.errors.请输入品牌描述'));
+      setError('请填写品牌描述');
       return;
     }
 
@@ -73,8 +72,11 @@ export default function UploadForm({ onUploadComplete, onReset  }: UploadFormPro
     // 模拟处理过程
     setTimeout(() => {
       setIsUploading(false);
-      onUploadComplete({ description: description.trim() });
-    }, 500);
+      onUploadComplete({ 
+        image: uploadedImage, 
+        description: description.trim() 
+      });
+    }, 1000);
   };
 
   /**
@@ -99,34 +101,17 @@ export default function UploadForm({ onUploadComplete, onReset  }: UploadFormPro
   };
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="w-5 h-5" />
           品牌信息输入
         </CardTitle>
+        <p className="text-sm text-muted-foreground mt-2">
+          请上传品牌图片并填写品牌描述，两项信息都是必填的，用于生成专属品牌Emoji
+        </p>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* 上传类型选择 */}
-        <div className="flex gap-2">
-          <Button
-            variant={uploadType === 'image' ? 'default' : 'outline'}
-            onClick={() => setUploadType('image')}
-            className="flex-1"
-          >
-            <Image className="w-4 h-4 mr-2" />
-            上传图片
-          </Button>
-          <Button
-            variant={uploadType === 'description' ? 'default' : 'outline'}
-            onClick={() => setUploadType('description')}
-            className="flex-1"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            文字描述
-          </Button>
-        </div>
-
+      <CardContent className="space-y-4">
         {/* 错误提示 */}
         {error && (
           <Alert variant="destructive">
@@ -134,93 +119,92 @@ export default function UploadForm({ onUploadComplete, onReset  }: UploadFormPro
           </Alert>
         )}
 
-        {/* 图片上传区域 */}
-        {uploadType === 'image' && (
-          <div className="space-y-4">
-            <div
-              className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-              onClick={triggerFileSelect}
-            >
-              {uploadedImage ? (
-                <div className="space-y-4">
-                  <div className="relative inline-block">
-                    <img
-                      src={URL.createObjectURL(uploadedImage)}
-                      alt="预览"
-                      className="w-32 h-32 object-cover rounded-lg"
-                    />
-                    <Badge className="absolute -top-2 -right-2 bg-accent">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      已上传
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{uploadedImage.name}</p>
+        {/* 图片上传区域 - 始终显示 */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 mb-2">
+            <Image className="w-4 h-4 text-primary" />
+            <Label className="text-sm font-medium">品牌图片 <span className="text-destructive">*</span></Label>
+          </div>
+          <div
+            className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={triggerFileSelect}
+          >
+            {uploadedImage ? (
+              <div className="flex items-center gap-3 justify-center">
+                <div className="relative">
+                  <img
+                    src={URL.createObjectURL(uploadedImage)}
+                    alt="预览"
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                  <Badge className="absolute -top-1 -right-1 bg-success text-success-foreground text-xs">
+                    <CheckCircle className="w-2.5 h-2.5 mr-0.5" />
+                    已上传
+                  </Badge>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <Upload className="w-12 h-12 mx-auto text-muted-foreground" />
-                  <div>
-                    <p className="text-lg font-medium">点击上传品牌图片</p>
-                    <p className="text-sm text-muted-foreground">支持 JPG、PNG 格式，最大 5MB</p>
-                  </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium truncate max-w-40">{uploadedImage.name}</p>
+                  <Button onClick={triggerFileSelect} variant="outline" size="sm" className="mt-1">
+                    重新选择
+                  </Button>
                 </div>
-              )}
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-            />
-            {uploadedImage && (
-              <div className="flex gap-2">
-                <Button onClick={triggerFileSelect} variant="outline" className="flex-1">
-                  重新选择
-                </Button>
-                <Button onClick={handleReset} variant="outline">
-                  <X className="w-4 h-4" />
-                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4 justify-center py-2">
+                <Upload className="w-8 h-8 text-muted-foreground flex-shrink-0" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">点击上传品牌图片</p>
+                  <p className="text-xs text-muted-foreground">支持 JPG、PNG 格式，最大 5MB</p>
+                </div>
               </div>
             )}
           </div>
-        )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="hidden"
+          />
+        </div>
 
-        {/* 文字描述区域 */}
-        {uploadType === 'description' && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="description">品牌描述</Label>
-              <Textarea
-                id="description"
-                placeholder="请描述您的品牌特点，例如：科技公司，蓝色主题，简约现代风格..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={4}
-                className="resize-none"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={handleDescriptionSubmit}
-                disabled={isUploading || !description.trim()}
-                className="flex-1"
-              >
-                {isUploading ? '处理中...' : '提交描述'}
-              </Button>
-              <Button onClick={handleReset} variant="outline">
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+        {/* 文字描述区域 - 始终显示 */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 mb-2">
+            <FileText className="w-4 h-4 text-primary" />
+            <Label htmlFor="description" className="text-sm font-medium">品牌描述 <span className="text-destructive">*</span></Label>
           </div>
-        )}
+          <Textarea
+            id="description"
+            placeholder="请描述您的品牌特点，例如：科技公司，蓝色主题，简约现代风格，专注AI技术..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            className="resize-none"
+          />
+        </div>
+
+        {/* 提交按钮区域 */}
+        <div className="flex gap-3 pt-1">
+          <Button
+            onClick={handleFormSubmit}
+            disabled={isUploading || !uploadedImage || !description.trim()}
+            className="flex-1"
+          >
+            {isUploading ? '处理中...' : '开始生成'}
+          </Button>
+          <Button onClick={handleReset} variant="outline" size="default">
+            <X className="w-4 h-4" />
+            重置
+          </Button>
+        </div>
 
         {/* 上传状态 */}
         {isUploading && (
           <div className="text-center py-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
             <p className="text-sm text-muted-foreground mt-2">
-              {uploadType === 'image' ? '正在上传图片...' : '正在处理描述...'}
+              正在处理品牌信息...
             </p>
           </div>
         )}

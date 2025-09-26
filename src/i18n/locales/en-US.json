@@ -5310,6 +5310,7 @@
   },
   "brandLibrary": {
     "title": "Brand Library",
+    "description": "Intelligently manage brand assets and build exclusive brand knowledge base",
     "subtitle": "Manage your brand assets and materials",
     "navigation": {
       "home": "Home",
@@ -6394,7 +6395,8 @@
       "limited": "Limited",
       "currentPlan": "Current Plan",
       "selected": "Selected",
-      "selectPlan": "Select This Plan"
+      "selectPlan": "Select This Plan",
+      "alreadyHaveHigher": "Already Have Higher Plan"
     },
     "promotion": {
       "title": "Limited Time Offer In Progress",
@@ -6452,6 +6454,8 @@
       "premiumPlan": "Premium Plan",
       "currentPlan": "Current Plan",
       "recommended": "Recommended",
+      "selectPlan": "Select This Plan",
+      "alreadyHaveHigher": "Already Have Higher Plan",
       "popular": "Popular",
       "bestValue": "Best Value",
       "monthly": "Monthly",
@@ -6461,7 +6465,37 @@
       "perYear": "per year",
       "billed": "billed",
       "billedMonthly": "billed monthly",
-      "billedYearly": "billed yearly"
+      "billedYearly": "billed yearly",
+      "trial": {
+        "name": "Free",
+        "description": "Free to use with usage limits"
+      },
+      "pro": {
+        "name": "Professional", 
+        "description": "Perfect for individual creators and professionals"
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "Perfect for teams and enterprises"
+      },
+      "features": {
+        "aiContentAdapter": "AI Content Adapter",
+        "timesPerMonth": "times/month",
+        "hotRadar": "Hot Radar",
+        "myLibrary": "My Library",
+        "tokenQuota": "Token Quota",
+        "thousandTokens": "K Tokens",
+        "perMonth": "/month",
+        "basicModels": "Basic AI Models",
+        "lightTheme": "Light Theme",
+        "creativeCube": "Creative Cube",
+        "advancedModels": "Advanced AI Models",
+        "darkLightTheme": "Dark & Light Themes",
+        "brandLibrary": "Brand Library",
+        "advancedLatestModels": "Advanced & Latest Models",
+        "allThemes": "All Themes",
+        "unlimited": "Unlimited"
+      }
     },
     "navigation": {
       "pageTitle": "Payment Center",

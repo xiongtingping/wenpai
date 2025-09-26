@@ -10,7 +10,7 @@ import {
   ArrowLeft,
   CheckCircle
 } from 'lucide-react';
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/stores/compatibility-layer";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from 'react-router-dom';
 
@@ -52,7 +52,7 @@ function InvitePage() { const { toast  } = useToast();
         {/* 返回按钮 */}
         <Button
           variant="ghost"
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate('/user-profile')}
           className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />

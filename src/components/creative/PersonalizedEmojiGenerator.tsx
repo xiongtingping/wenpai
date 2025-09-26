@@ -3,7 +3,7 @@
  * 整合上传、构建、生成、展示等所有功能
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,8 +27,19 @@ interface EmojiImage {
 
 type Step = 'upload' | 'build' | 'generate' | 'gallery';
 
-export default function PersonalizedEmojiGenerator() { const [currentStep, setCurrentStep] = useState<Step>('upload');
+interface PersonalizedEmojiGeneratorProps {
+  onStepChange?: (step: Step) => void;
+}
+
+export default function PersonalizedEmojiGenerator({ onStepChange }: PersonalizedEmojiGeneratorProps = {}) {
+  const { t } = useTranslation();
+  const [currentStep, setCurrentStep] = useState<Step>('upload');
   const [uploadedData, setUploadedData] = useState<{ image?: File; description?: string  } | null>(null);
+
+  // 步骤变化时通知父组件
+  useEffect(() => {
+    onStepChange?.(currentStep);
+  }, [currentStep, onStepChange]);
   const [prompt, setPrompt] = useState('');
   const [batchPrompts, setBatchPrompts] = useState<Array<{ emotion: string; prompt: string }>>([]);
   const [generatedImages, setGeneratedImages] = useState<EmojiImage[]>([]);
@@ -252,129 +263,74 @@ export default function PersonalizedEmojiGenerator() { const [currentStep, setCu
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="space-y-6">
-        {/* 步骤指示器 - 优化布局 */}
-        <Card className="border border-border/50 shadow-sm bg-card/95 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="flex items-center justify-between flex-1">
-                {steps.map((step, index) => (
-                  <div key={step.id} className="flex items-center flex-1">
-                    <div className="flex flex-col items-center space-y-2">
-                      <div className={`
-                        w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300
-                        ${index <= currentStepIndex
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-muted/50 text-muted-foreground border-muted-foreground/30'
-                        }
-                      `}>
-                        {index < currentStepIndex ? (
-                          <CheckCircle className="w-5 h-5 lg:w-6 lg:h-6" />
-                        ) : (
-                          <span className="text-sm lg:text-base">{index + 1}</span>
-                        )}
-                      </div>
-                      <div className="text-center space-y-1">
-                        <div className={`text-xs lg:text-sm font-medium ${
-                          index <= currentStepIndex ? 'text-foreground' : 'text-muted-foreground'
-                        }`}>
-                          {step.title}
-                        </div>
-                        <div className="text-xs text-muted-foreground max-w-20 lg:max-w-24 leading-tight hidden lg:block">
-                          {step.description}
-                        </div>
-                      </div>
-                    </div>
-                    {index < steps.length - 1 && (
-                      <div className={`
-                        flex-1 h-0.5 mx-3 lg:mx-4 rounded-full transition-all duration-300
-                        ${index < currentStepIndex ? 'bg-primary' : 'bg-muted-foreground/20'}
-                      `} />
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              {/* 进度信息 */}
-              <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:min-w-[200px]">
-                <div className="flex justify-between lg:justify-end items-center gap-4">
-                  <span className="text-sm font-medium text-foreground">
-                    {Math.round((currentStepIndex / (steps.length - 1)) * 100)}% 完成
-                  </span>
-                  <Badge variant="outline" className="text-xs">
-                    {currentStepIndex + 1}/{steps.length}
-                  </Badge>
-                </div>
-                <Progress
-                  value={(currentStepIndex / (steps.length - 1)) * 100}
-                  className="w-full lg:w-32 h-1.5"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 主要内容区域 - 优化响应式布局 */}
-        <Card className="border border-border/50 shadow-sm bg-card/95 backdrop-blur-sm">
-          <CardContent className="p-4 lg:p-8">
-            <div className="min-h-[400px] lg:min-h-[500px]">
-              {renderCurrentStep()}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 底部状态栏 - 简化布局 */}
-        {(generatedImages.length > 0 || currentStep !== 'upload') && (
-          <Card className="border border-border/30 shadow-sm bg-muted/20">
-            <CardContent className="p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 rounded-full bg-primary/10">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-foreground">
-                      已生成 {generatedImages.length} 个品牌Emoji
-                    </div>
-                    {generationMode === 'batch' && batchPrompts.length > 0 && (
-                      <div className="text-xs text-muted-foreground">
-                        批量模式: {batchPrompts.length} 个情绪表情
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  {currentStep !== 'upload' && (
-                    <Button
-                      onClick={handleRestart}
-                      variant="outline"
-                      size="sm"
-                      className="px-3 py-1.5 text-sm font-medium"
-                    >
-                      <ArrowLeft className="w-4 h-4 mr-1" />
-                      重新开始
-                    </Button>
-                  )}
-
-                  {generatedImages.length > 0 && currentStep !== 'gallery' && (
-                    <Button
-                      onClick={() => setCurrentStep('gallery')}
-                      variant="default"
-                      size="sm"
-                      className="px-3 py-1.5 text-sm font-medium"
-                    >
-                      查看作品集
-                      <ArrowRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+    <div className="space-y-6">
+      {/* 主要内容区域 - 简化布局 */}
+      <div className="relative min-h-[400px]">
+        {/* 背景装饰 */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-secondary/3 rounded-lg"></div>
+        <div className="absolute top-4 right-4 w-12 h-12 bg-gradient-to-br from-primary/8 to-transparent rounded-full blur-lg"></div>
+        <div className="absolute bottom-4 left-4 w-16 h-16 bg-gradient-to-tr from-secondary/8 to-transparent rounded-full blur-xl"></div>
+        
+        {/* 主要内容 */}
+        <div className="relative z-10">
+          {renderCurrentStep()}
+        </div>
       </div>
+
+      {/* 底部状态栏 - 精美设计 */}
+      {(generatedImages.length > 0 || currentStep !== 'upload') && (
+        <Card className="border border-border/20 shadow-lg bg-gradient-to-r from-accent/10 via-background/95 to-accent/5 backdrop-blur-lg">
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 shadow-md">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-primary/40 rounded-full animate-ping"></div>
+                </div>
+                <div>
+                  <div className="text-base font-bold text-foreground">
+                    已生成 <span className="text-primary">{generatedImages.length}</span> 个品牌Emoji
+                  </div>
+                  {generationMode === 'batch' && batchPrompts.length > 0 && (
+                    <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                      <div className="w-1.5 h-1.5 bg-secondary rounded-full"></div>
+                      批量模式: {batchPrompts.length} 个情绪表情
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                {currentStep !== 'upload' && (
+                  <Button
+                    onClick={handleRestart}
+                    variant="outline"
+                    size="default"
+                    className="px-5 py-2.5 text-sm font-semibold bg-background/80 hover:bg-background border-2 border-border/50 hover:border-primary/30 transition-all duration-300"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    重新开始
+                  </Button>
+                )}
+
+                {generatedImages.length > 0 && currentStep !== 'gallery' && (
+                  <Button
+                    onClick={() => setCurrentStep('gallery')}
+                    variant="default"
+                    size="default"
+                    className="px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-lg hover:shadow-primary/25 transition-all duration-300"
+                  >
+                    查看作品集
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

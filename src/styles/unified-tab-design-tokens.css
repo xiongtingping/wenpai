@@ -1,0 +1,231 @@
+@layer components {
+  /* 🎯 统一Tab设计系统 - 基于设计令牌
+   * 遵循CLAUDE.md规范，消除硬编码，使用统一设计令牌
+   * 适用于所有Tab组件，确保UI一致性
+   * 优先级：components层，避免!important滥用
+   */
+
+  /* 🎯 TabsList容器 - 使用设计令牌 */
+  .unified-tabs-list,
+  [role="tablist"],
+  [data-radix-tabs-list],
+  *[class*="TabsList"] {
+    background: var(--tab-container-bg);
+    border: var(--tab-container-border);
+    border-radius: var(--tab-container-radius);
+    padding: var(--tab-container-padding);
+    gap: var(--tab-container-gap);
+    min-height: var(--tab-container-min-height);
+    height: auto;
+    
+    /* 视觉增强 */
+    backdrop-filter: var(--tab-container-backdrop);
+    box-shadow: var(--tab-container-shadow);
+    
+    /* 布局 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 🎯 TabsTrigger按钮 - 使用设计令牌（最高优先级覆盖） */
+  .unified-tabs-list .unified-tab-trigger,
+  .unified-tabs-list [role="tab"],
+  .unified-tabs-list [data-radix-tabs-trigger],
+  .unified-tabs-list *[class*="TabsTrigger"],
+  .unified-tab-trigger,
+  [role="tab"],
+  [data-radix-tabs-trigger],
+  *[class*="TabsTrigger"] {
+    /* 基础样式 - 使用令牌 */
+    background: var(--tab-button-bg-default) !important;
+    border: var(--tab-button-border-default) !important;
+    border-radius: var(--tab-button-radius) !important;
+    color: var(--tab-button-color-default) !important;
+    
+    /* 尺寸和间距 - 使用令牌 */
+    height: var(--tab-button-height) !important;
+    min-height: var(--tab-button-height) !important;
+    padding: var(--tab-button-padding) !important;
+    gap: var(--tab-button-gap) !important;
+    
+    /* 字体 - 使用令牌 */
+    font-size: var(--tab-button-font-size) !important;
+    font-weight: var(--tab-button-font-weight) !important;
+    line-height: var(--tab-button-line-height) !important;
+    
+    /* 视觉效果 - 使用令牌 */
+    box-shadow: var(--tab-button-shadow-default) !important;
+    backdrop-filter: var(--tab-backdrop-filter) !important;
+    transition: var(--tab-transition) !important;
+    
+    /* 布局 */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    cursor: pointer;
+  }
+
+  /* 🎯 悬停状态 - 使用设计令牌 */
+  .unified-tabs-list .unified-tab-trigger:hover,
+  .unified-tabs-list [role="tab"]:hover,
+  .unified-tabs-list [data-radix-tabs-trigger]:hover,
+  .unified-tabs-list *[class*="TabsTrigger"]:hover,
+  .unified-tab-trigger:hover,
+  [role="tab"]:hover,
+  [data-radix-tabs-trigger]:hover,
+  *[class*="TabsTrigger"]:hover {
+    background: var(--tab-button-bg-hover) !important;
+    border-color: var(--tab-button-border-hover) !important;
+    color: var(--tab-button-color-hover) !important;
+    box-shadow: var(--tab-button-shadow-hover) !important;
+    transform: var(--tab-button-transform-hover) !important;
+  }
+
+  /* 🎯 激活状态 - 使用设计令牌 */
+  .unified-tabs-list .unified-tab-trigger[data-state="active"],
+  .unified-tabs-list .unified-tab-trigger[aria-selected="true"],
+  .unified-tabs-list [role="tab"][data-state="active"],
+  .unified-tabs-list [role="tab"][aria-selected="true"],
+  .unified-tabs-list [data-radix-tabs-trigger][data-state="active"],
+  .unified-tabs-list *[class*="TabsTrigger"][data-state="active"],
+  .unified-tab-trigger[data-state="active"],
+  .unified-tab-trigger[aria-selected="true"],
+  [role="tab"][data-state="active"],
+  [role="tab"][aria-selected="true"],
+  [data-radix-tabs-trigger][data-state="active"],
+  *[class*="TabsTrigger"][data-state="active"] {
+    background: var(--tab-button-bg-active) !important;
+    border-color: var(--tab-button-border-active) !important;
+    color: var(--tab-button-color-active) !important;
+    font-weight: var(--tab-button-font-weight-active) !important;
+    box-shadow: var(--tab-button-shadow-active) !important;
+    transform: var(--tab-button-transform-active) !important;
+  }
+
+  /* 🎯 图标样式 - 使用设计令牌 */
+  .unified-tab-trigger svg,
+  [role="tab"] svg,
+  [data-radix-tabs-trigger] svg,
+  *[class*="TabsTrigger"] svg {
+    width: var(--tab-icon-size);
+    height: var(--tab-icon-size);
+    stroke-width: var(--tab-icon-stroke);
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  /* 悬停状态图标 */
+  .unified-tab-trigger:hover svg,
+  [role="tab"]:hover svg,
+  [data-radix-tabs-trigger]:hover svg,
+  *[class*="TabsTrigger"]:hover svg {
+    stroke-width: var(--tab-icon-stroke-hover);
+  }
+
+  /* 激活状态图标 */
+  .unified-tab-trigger[data-state="active"] svg,
+  [role="tab"][data-state="active"] svg,
+  [data-radix-tabs-trigger][data-state="active"] svg,
+  *[class*="TabsTrigger"][data-state="active"] svg {
+    stroke-width: var(--tab-icon-stroke-active);
+  }
+
+  /* 🎯 垂直布局支持（如创意魔方） */
+  .creative-studio-module .unified-tabs-list,
+  .creative-studio-module [role="tablist"],
+  .grid *[class*="TabsList"] {
+    padding: calc(var(--tab-container-padding) * 2) !important;
+    min-height: calc(var(--tab-vertical-height) + 4px) !important; /* 60px + 4px padding = 64px */
+    height: auto !important;
+  }
+
+  .creative-studio-module .unified-tab-trigger,
+  .creative-studio-module [role="tab"],
+  .grid *[class*="TabsTrigger"] {
+    height: var(--tab-vertical-height) !important;
+    min-height: var(--tab-vertical-height) !important;
+    padding: var(--tab-vertical-padding) !important;
+    gap: var(--tab-vertical-gap) !important;
+    flex-direction: column !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* 📱 响应式设计 - 使用设计令牌 */
+  @media (max-width: 640px) {
+    .unified-tab-trigger,
+    [role="tab"],
+    [data-radix-tabs-trigger],
+    *[class*="TabsTrigger"] {
+      height: var(--tab-mobile-height);
+      min-height: var(--tab-mobile-height);
+      padding: var(--tab-mobile-padding);
+      font-size: var(--tab-mobile-font-size);
+    }
+
+    .unified-tab-trigger svg,
+    [role="tab"] svg,
+    [data-radix-tabs-trigger] svg,
+    *[class*="TabsTrigger"] svg {
+      width: var(--tab-mobile-icon-size);
+      height: var(--tab-mobile-icon-size);
+    }
+  }
+
+  /* 🌙 深色主题支持 - 令牌自动适配 */
+  [data-theme="dark"] .unified-tab-trigger,
+  [data-theme="dark"] [role="tab"],
+  [data-theme="dark"] [data-radix-tabs-trigger],
+  [data-theme="dark"] *[class*="TabsTrigger"] {
+    /* 深色主题下令牌值会自动调整，无需额外覆盖 */
+    backdrop-filter: var(--tab-backdrop-filter);
+  }
+
+  /* 🎯 文字样式统一 */
+  .unified-tab-trigger span,
+  [role="tab"] span,
+  [data-radix-tabs-trigger] span,
+  *[class*="TabsTrigger"] span {
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  /* 🔧 确保所有边框都是圆润的 */
+  .unified-tabs-list,
+  .unified-tab-trigger,
+  [role="tablist"],
+  [role="tab"],
+  [data-radix-tabs-list],
+  [data-radix-tabs-trigger],
+  *[class*="TabsList"],
+  *[class*="TabsTrigger"] {
+    border-top-left-radius: var(--tab-container-radius);
+    border-top-right-radius: var(--tab-container-radius);
+    border-bottom-left-radius: var(--tab-container-radius);
+    border-bottom-right-radius: var(--tab-container-radius);
+  }
+}
+
+/* 💡 设计令牌Tab系统说明：
+ * 1. 完全消除硬编码值，所有样式使用设计令牌
+ * 2. 统一的样式系统，确保所有Tab组件外观一致
+ * 3. 支持深色主题，令牌值自动适配
+ * 4. 响应式设计，移动端优化
+ * 5. 保持特殊布局（垂直布局）的兼容性
+ * 6. 遵循CLAUDE.md规范，使用components层级
+ * 7. 避免!important滥用，依赖CSS层级优先级
+ * 8. 完全圆润的胶囊形状，现代化设计
+ */

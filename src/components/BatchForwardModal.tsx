@@ -5,9 +5,9 @@ import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Check, X, Minus, Square, ExternalLink, ChevronDown, ChevronUp, Info, RefreshCw } from 'lucide-react';
+import { Copy, Check, X, Minus, Square, ExternalLink, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { toast } from 'sonner';
-import { useContentSyncStore, contentSyncUtils } from '@/stores/contentSyncStore';
+// 移除废弃的状态管理依赖，简化组件逻辑
 import {
   AlertDialog,
   AlertDialogContent,
@@ -35,35 +35,20 @@ interface BatchForwardModalProps {
   platforms: Platform[];
 }
 
-export const BatchForwardModal: React.FC<any> = ({ open,
+export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
   onOpenChange,
-  platforms }) => { const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
+  platforms }) => {
+  const { t } = useTranslation();
+  const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
   const [isMinimized, setIsMinimized] = useState(false);
   const [openedPlatforms, setOpenedPlatforms] = useState<Set<string>>(new Set());
   const [expandedPlatforms, setExpandedPlatforms] = useState<Set<string>>(new Set());
 
-  // 内容同步store
-  const contentSync = useContentSyncStore();
-  
   // ref用于强制设置样式
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // 实时同步的内容
-  const [syncedContent, setSyncedContent] = useState({
-    title: '',
-    content: '',
-    tags: [] as string[],
-    platformId: ''
-   });
-
-  // 监听内容同步store的变化
-  useEffect(() => {
-    const currentContent = contentSync.getCurrentContent();
-    setSyncedContent(currentContent);
-  }, [contentSync.selectedTitle, contentSync.selectedContent, contentSync.selectedTags, contentSync.lastUpdated]);
-
-  // 检查内容是否已同步
-  const isContentSynced = contentSyncUtils.isContentReady(contentSync);
+  // 简化后的组件逻辑，移除废弃的内容同步依赖
+  // 直接使用平台提供的内容，无需复杂的同步状态管理
 
   // 复制到剪贴板
   const copyToClipboard = async (text: string, type: string, platformName: string) => {
@@ -183,7 +168,7 @@ export const BatchForwardModal: React.FC<any> = ({ open,
       container.style.width = '100vw';
       container.style.height = '100vh';
       container.style.pointerEvents = 'none';
-      container.style.zIndex = 'var(--z-critical)';
+      container.style.zIndex = '9999';
       document.body.appendChild(container);
     }
   }, []);
@@ -267,7 +252,7 @@ export const BatchForwardModal: React.FC<any> = ({ open,
                     setIsMinimized(true);
                   }}
                   className="h-7 w-7 p-0 hover:bg-accent"
-                  title={t('components.labels.标题')}
+                  title={t('components.actions.minimize', '最小化')}
                 >
                   <Minus className="h-3.5 w-3.5" />
                 </Button>
@@ -280,7 +265,7 @@ export const BatchForwardModal: React.FC<any> = ({ open,
                     handleClose();
                   }}
                   className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-accent"
-                  title={t('components.labels.标题')}
+                  title={t('components.actions.close', '关闭')}
                 >
                   <X className="h-3.5 w-3.5" />
                 </Button>
@@ -352,30 +337,21 @@ export const BatchForwardModal: React.FC<any> = ({ open,
 
                     {/* 优化后的卡片内容 */}
                     <CardContent className="pt-4 pb-4 px-4">
-                      {/* 内容同步状态提示 */}
-                      {isContentSynced && (
-                        <div className="flex items-center gap-2 mb-3 p-2 bg-accent rounded-lg border border-border">
-                          <RefreshCw className="h-4 w-4 text-foreground" />
-                          <span className="text-sm text-foreground font-medium">内容已同步</span>
-                          <Badge variant="outline" className="text-xs text-foreground border-border">
-                            {contentSync.selectedVersion ? `版本${contentSync.selectedVersion}` : '已选择'}
-                          </Badge>
-                        </div>
-                      )}
+                      {/* 移除内容同步状态提示，简化UI */}
 
-                      {/* 优化后的快速复制按钮区域 - 优先使用同步内容 */}
+                      {/* 快速复制按钮区域 */}
                       <div className="flex gap-2 mb-4">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => copyToClipboard(
-                            isContentSynced && syncedContent.title ? syncedContent.title : platform.title,
-                            t('components.actions.标题'),
+                            platform.title,
+                            t('components.actions.title', '标题'),
                             platform.name
                           )}
                           className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
                         >
-                          {getCopyButtonState(platform.name, t('components.actions.标题')) ? (
+                          {getCopyButtonState(platform.name, t('components.actions.title', '标题')) ? (
                             <Check className="h-3 w-3 text-foreground mr-1" />
                           ) : (
                             <Copy className="h-3 w-3 mr-1" />
@@ -386,13 +362,13 @@ export const BatchForwardModal: React.FC<any> = ({ open,
                           variant="outline"
                           size="sm"
                           onClick={() => copyToClipboard(
-                            isContentSynced && syncedContent.content ? syncedContent.content : platform.content,
-                            t('components.actions.内容'),
+                            platform.content,
+                            t('components.actions.content', '内容'),
                             platform.name
                           )}
                           className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
                         >
-                          {getCopyButtonState(platform.name, t('components.actions.内容')) ? (
+                          {getCopyButtonState(platform.name, t('components.actions.content', '内容')) ? (
                             <Check className="h-3 w-3 text-foreground mr-1" />
                           ) : (
                             <Copy className="h-3 w-3 mr-1" />
@@ -403,15 +379,13 @@ export const BatchForwardModal: React.FC<any> = ({ open,
                           variant="outline"
                           size="sm"
                           onClick={() => copyToClipboard(
-                            isContentSynced && syncedContent.tags.length > 0
-                              ? syncedContent.tags.join(' ')
-                              : platform.tags.join(' '),
-                            t('components.actions.标签'),
+                            platform.tags.join(' '),
+                            t('components.actions.tags', '标签'),
                             platform.name
                           )}
                           className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
                         >
-                          {getCopyButtonState(platform.name, t('components.actions.标签')) ? (
+                          {getCopyButtonState(platform.name, t('components.actions.tags', '标签')) ? (
                             <Check className="h-3 w-3 text-foreground mr-1" />
                           ) : (
                             <Copy className="h-3 w-3 mr-1" />
@@ -426,41 +400,26 @@ export const BatchForwardModal: React.FC<any> = ({ open,
                           <div>
                             <label className="text-sm font-semibold text-foreground block mb-2">
                               📝 标题
-                              {isContentSynced && syncedContent.title && (
-                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-border">
-                                  已同步
-                                </Badge>
-                              )}
                             </label>
                             <div className="p-3 bg-accent/80 rounded-lg text-sm border border-border max-h-20 overflow-y-auto">
-                              {isContentSynced && syncedContent.title ? syncedContent.title : platform.title}
+                              {platform.title}
                             </div>
                           </div>
                           <div>
                             <label className="text-sm font-semibold text-foreground block mb-2">
                               📄 内容
-                              {isContentSynced && syncedContent.content && (
-                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-border">
-                                  已同步 - {contentSync.selectedVersion ? `版本${contentSync.selectedVersion}` : ''}
-                                </Badge>
-                              )}
                             </label>
                             <div className="p-3 bg-accent/80 rounded-lg text-sm border border-border max-h-32 overflow-y-auto">
-                              {isContentSynced && syncedContent.content ? syncedContent.content : platform.content}
+                              {platform.content}
                             </div>
                           </div>
                           <div>
                             <label className="text-sm font-semibold text-foreground block mb-2">
                               🏷️ 标签
-                              {isContentSynced && syncedContent.tags.length > 0 && (
-                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-border">
-                                  已同步
-                                </Badge>
-                              )}
                             </label>
                             <div className="p-3 bg-accent/80 rounded-lg border border-border">
                               <div className="flex flex-wrap gap-1">
-                                {(isContentSynced && syncedContent.tags.length > 0 ? syncedContent.tags : platform.tags).map((tag, index) => (
+                                {platform.tags.map((tag: string, index: number) => (
                                   <Badge key={index} variant="secondary" className="text-xs px-2 py-1">
                                     {tag}
                                   </Badge>

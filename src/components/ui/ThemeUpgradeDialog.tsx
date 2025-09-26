@@ -42,7 +42,7 @@ export const ThemeUpgradeDialog: React.FC<any> = ({ open,
 
   const handleUpgrade = () => {
     onOpenChange(false);
-    navigate('/payment');
+    navigate('/payment-center');
   };
 
   const getUpgradeMessage = () => {

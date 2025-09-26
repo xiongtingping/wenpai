@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/logger';
 import { debounce } from '@/lib/performance';
+import { useSubscriptionDialogPositioning } from '@/hooks/useDialogPositioning';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import {
   TrendingUp,
@@ -54,7 +55,8 @@ import {
   PieChart,
   Star,
   Shield,
-  Heart
+  Heart,
+  X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
@@ -160,6 +162,88 @@ export default function HotTopicsPage() {
   const [descriptionEdited, setDescriptionEdited] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  // 🎯 应用根本解决方案：使用订阅弹窗专用的定位Hook
+  useSubscriptionDialogPositioning(isAddDialogOpen, false);
+  useSubscriptionDialogPositioning(isEditDialogOpen, false);
+  useSubscriptionDialogPositioning(!!selectedSubscription, false);
+
+  // 🚨 强化修复：立即锁定Dialog尺寸，防止任何闪动
+  useEffect(() => {
+    if (isAddDialogOpen || isEditDialogOpen || selectedSubscription) {
+      const fixDialogSizeInstantly = () => {
+        const dialogs = document.querySelectorAll('.subscription-dialog-stable, .trend-analysis-dialog-stable');
+        dialogs.forEach((dialog: any) => {
+          if (dialog.classList.contains('subscription-dialog-stable')) {
+            // 添加订阅和编辑订阅Dialog
+            dialog.style.setProperty('width', 'min(90vw, 1000px)', 'important');
+            dialog.style.setProperty('max-width', '1000px', 'important');
+            dialog.style.setProperty('min-width', '600px', 'important');
+            dialog.style.setProperty('max-height', '90vh', 'important');
+            dialog.style.setProperty('min-height', '500px', 'important');
+          } else if (dialog.classList.contains('trend-analysis-dialog-stable')) {
+            // 趋势分析Dialog
+            dialog.style.setProperty('width', 'min(95vw, 1400px)', 'important');
+            dialog.style.setProperty('max-width', '1400px', 'important');
+            dialog.style.setProperty('min-width', '900px', 'important');
+            dialog.style.setProperty('max-height', '95vh', 'important');
+            dialog.style.setProperty('min-height', '700px', 'important');
+          }
+          
+          // 禁用所有动画
+          dialog.style.setProperty('transition', 'none', 'important');
+          dialog.style.setProperty('animation', 'none', 'important');
+          dialog.style.setProperty('animation-duration', '0s', 'important');
+          dialog.style.setProperty('transition-duration', '0s', 'important');
+          
+          // 🎯 确保Dialog可以正常关闭
+          dialog.style.setProperty('pointer-events', 'auto', 'important');
+          
+          // 🚨 确保关闭按钮始终可见和可点击
+          const closeButton = dialog.querySelector('[data-radix-dialog-close]');
+          if (closeButton) {
+            closeButton.style.setProperty('position', 'absolute', 'important');
+            closeButton.style.setProperty('right', '16px', 'important');
+            closeButton.style.setProperty('top', '16px', 'important');
+            closeButton.style.setProperty('z-index', '1000001', 'important');
+            closeButton.style.setProperty('pointer-events', 'auto', 'important');
+            closeButton.style.setProperty('opacity', '0.7', 'important');
+          }
+          
+          console.log('🎯 立即修复Dialog尺寸和关闭功能:', dialog.className);
+        });
+      };
+
+      // 立即执行
+      fixDialogSizeInstantly();
+      // 延迟执行，确保Radix UI完成初始化后也被修复
+      setTimeout(fixDialogSizeInstantly, 0);
+      setTimeout(fixDialogSizeInstantly, 10);
+      setTimeout(fixDialogSizeInstantly, 50);
+      setTimeout(fixDialogSizeInstantly, 100);
+
+      // 🔥 使用MutationObserver监控Dialog变化，防止任何尺寸重置
+      const observer = new MutationObserver(() => {
+        // 只修复尺寸，不干扰其他功能
+        fixDialogSizeInstantly();
+      });
+
+      // 监控所有Dialog元素的属性和样式变化
+      const dialogs = document.querySelectorAll('.subscription-dialog-stable, .trend-analysis-dialog-stable');
+      dialogs.forEach((dialog) => {
+        observer.observe(dialog, {
+          attributes: true,
+          attributeFilter: ['style'], // 只监控style变化，不监控class变化以避免干扰关闭状态
+          subtree: false
+        });
+      });
+
+      // 清理函数
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, [isAddDialogOpen, isEditDialogOpen, selectedSubscription]);
+
   const formatHotValue = (hot: string | undefined): string => {
     if (!hot || hot === '' || hot === '0' || hot === 'undefined') {
       return t('hotTopics.noData');
@@ -178,11 +262,17 @@ export default function HotTopicsPage() {
     return hot;
   };
 
-  // 修复 fetchHotData is not defined 错误
-  const fetchHotData = useCallback(async () => {
+  // 修复 fetchHotData is not defined 错误，添加重试机制
+  const fetchHotData = useCallback(async (retryCount = 0) => {
+    const maxRetries = 3;
+    const retryDelay = 1000 * (retryCount + 1); // 递增延迟
+
     try {
       setLoading(true);
-      setError(null);
+      if (retryCount === 0) {
+        setError(null); // 只在第一次尝试时清除错误
+      }
+      
       const response = await getDailyHotAll();
       setAllHotData(response);
       setLastUpdateTime(new Date());
@@ -194,11 +284,28 @@ export default function HotTopicsPage() {
         setStats({ total, platforms: platforms.length });
         setSupportedPlatforms(platforms);
       }
+      
+      // 成功后清除错误状态
+      setError(null);
+      
     } catch (error) {
-      console.error('获取热点数据失败:', error);
-      setError('获取热点数据失败，请稍后重试');
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      console.warn(`获取热点数据失败 (尝试 ${retryCount + 1}/${maxRetries + 1}):`, errorMessage);
+      
+      if (retryCount < maxRetries) {
+        // 自动重试
+        setTimeout(() => {
+          fetchHotData(retryCount + 1);
+        }, retryDelay);
+        setError(`正在重试获取数据... (${retryCount + 1}/${maxRetries})`);
+      } else {
+        // 达到最大重试次数
+        setError('网络连接异常，请检查网络后手动刷新');
+      }
     } finally {
-      setLoading(false);
+      if (retryCount === 0) {
+        setLoading(false);
+      }
     }
   }, []);
 
@@ -427,8 +534,13 @@ export default function HotTopicsPage() {
     fetchHotData();
   }, [fetchHotData]);
 
+  // 🎯 Tab靠左显示 - 轻量级CSS修复验证
+  useEffect(() => {
+    console.log('✅ HotTopicsPage已加载，Tab靠左修复依赖CSS');
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background" style={{ paddingTop: 'var(--header-height, var(--spacing-24))' }}>
+    <div className="min-h-screen bg-background" style={{ paddingTop: '64px' }}>
       <Header />
 
       {/* 页面导航 - PROTECTED COMPONENT */}
@@ -441,32 +553,99 @@ export default function HotTopicsPage() {
 
       <div className="container mx-auto px-4 py-4">
         {/* 主标签页 */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'hot' | 'subscriptions' | 'bookmarks')} className="w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
-            <TabsList className="unified-tabs-list grid w-full grid-cols-3 max-w-md">
-              <TabsTrigger value="hot" className="unified-tab-trigger">
+        <Tabs 
+          value={activeTab} 
+          onValueChange={(value) => {
+            console.log('🎯 Radix UI onValueChange触发:', value);
+            console.log('🎯 当前activeTab:', activeTab);
+            setActiveTab(value as 'hot' | 'subscriptions' | 'bookmarks');
+            
+            // 强制更新TabsContent显示
+            setTimeout(() => {
+              console.log('🔄 Radix onValueChange - 强制更新TabsContent...');
+              document.querySelectorAll('[data-radix-tabs-content]').forEach(content => {
+                const cValue = content.getAttribute('value');
+                if (cValue === value) {
+                  (content as HTMLElement).style.setProperty('display', 'block', 'important');
+                  (content as HTMLElement).style.setProperty('visibility', 'visible', 'important');
+                  (content as HTMLElement).style.setProperty('opacity', '1', 'important');
+                  (content as HTMLElement).style.setProperty('background', 'rgba(0, 255, 0, 0.3)', 'important');
+                  console.log('✅ Radix强制显示内容:', cValue);
+                } else {
+                  (content as HTMLElement).style.setProperty('display', 'none', 'important');
+                }
+              });
+            }, 10);
+          }} 
+          className="w-full"
+        >
+          <div className="hot-topics-page-controls hot-topics-baseline-fix hot-topics-alignment-protection">
+            <div className="hot-topics-tab-container">
+              <TabsList className="hot-topics-main-tabs unified-tabs-list flex">
+              <TabsTrigger 
+                value="hot" 
+                className="unified-tab-trigger"
+                disabled={false}
+                onClick={() => console.log('Hot topics tab clicked')}
+              >
                 <TrendingUp className="tab-icon" />
                 <span className="tab-text-mobile">热点</span>
                 <span className="tab-text-desktop">全网热点</span>
               </TabsTrigger>
-              <TabsTrigger value="subscriptions" className="unified-tab-trigger">
+              <TabsTrigger 
+                value="subscriptions" 
+                className="unified-tab-trigger"
+                disabled={false}
+                onClick={() => console.log('Subscriptions tab clicked')}
+              >
                 <Bell className="tab-icon" />
                 <span className="tab-text-mobile">订阅</span>
                 <span className="tab-text-desktop">话题订阅</span>
               </TabsTrigger>
-              <TabsTrigger value="bookmarks" className="unified-tab-trigger">
+              <TabsTrigger 
+                value="bookmarks" 
+                className="unified-tab-trigger"
+                disabled={false}
+                onClick={() => console.log('Bookmarks tab clicked')}
+              >
                 <Bookmark className="tab-icon" />
                 <span className="tab-text-mobile">{t('hotTopics.buttons.bookmark')}</span>
                 <span className="tab-text-desktop">灵感夹</span>
               </TabsTrigger>
             </TabsList>
+            </div>
             {/* 操作按钮区，添加订阅和刷新并列 */}
-            <div className="flex items-center gap-2 flex-wrap">
+            <div 
+              className="hot-topics-actions-container" 
+              style={{ 
+                zIndex: 9999, 
+                position: 'relative', 
+                pointerEvents: 'auto' 
+              }}
+            >
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setIsAddDialogOpen(true)}
-                className="text-sm font-medium"
+                onClick={() => {
+                  console.log('🔧 HotTopicsPage 添加订阅按钮被点击');
+                  setIsAddDialogOpen(true);
+                }}
+                className="action-button text-sm font-medium hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-200 cursor-pointer"
+                style={{ 
+                  transition: 'all 0.2s ease-in-out',
+                  cursor: 'pointer',
+                  zIndex: 99999,
+                  position: 'relative',
+                  pointerEvents: 'auto'
+                }}
+                onMouseEnter={(e) => {
+                  console.log('🔧 鼠标进入HotTopicsPage添加订阅按钮');
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  console.log('🔧 鼠标离开HotTopicsPage添加订阅按钮');
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">添加订阅</span>
@@ -477,7 +656,12 @@ export default function HotTopicsPage() {
                 size="sm"
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="text-xs sm:text-sm"
+                className="action-button text-xs sm:text-sm"
+                style={{ 
+                  zIndex: 99999,
+                  position: 'relative',
+                  pointerEvents: 'auto'
+                }}
               >
                 <RefreshCw className={`w-4 h-4 mr-1 ${refreshing ? 'animate-spin' : ''}`} />
                 刷新
@@ -495,10 +679,10 @@ export default function HotTopicsPage() {
           </div>
 
           {/* 全网热点标签页 */}
-          <TabsContent value="hot" className="mt-1">
+          <TabsContent value="hot" className="mt-0">
             {/* 加载状态显示 */}
             {loading && !error && (
-              <Card className="mb-6">
+              <Card className="mb-4">
                 <CardContent className="p-12">
                   <div className="flex flex-col items-center justify-center text-center">
                     <div className="flex items-center gap-3 mb-4">
@@ -529,7 +713,7 @@ export default function HotTopicsPage() {
 
             {/* 错误状态显示 */}
             {error && (
-              <Card className="mb-6 border-border bg-accent">
+              <Card className="mb-4 border-border bg-accent">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3">
                     <div className="flex-shrink-0">
@@ -559,21 +743,7 @@ export default function HotTopicsPage() {
               </Card>
             )}
 
-            {/* 数据源增强选项 - 可选功能，不影响原有体验 */}
-            {!loading && !error && (
-              <div className="mb-6">
-                <DataSourceToggle
-                  onToggle={(enabled) => {
-                    if (enabled) {
-                      console.log('RSSHub数据源已启用');
-                      // 可选：触发数据刷新以包含RSSHub数据
-                    } else {
-                      console.log('RSSHub数据源已禁用');
-                    }
-                  }}
-                />
-              </div>
-            )}
+            {/* 数据源增强选项暂时隐藏以解决空白问题 */}
 
             {/* 今日最热门话题 */}
             {!loading && allHotData && allHotData.data && (
@@ -598,10 +768,10 @@ export default function HotTopicsPage() {
                   <CardContent>
                     <Tabs defaultValue="all" className="w-full">
                       {/* Tab栏横向滚动优化 */}
-                      <TabsList className="flex w-full overflow-x-auto scrollbar-thin scrollbar-thumb-hsl(var(--muted-foreground))-200 scrollbar-track-transparent">
-                        <TabsTrigger value="all" className="min-w-[72px]">总榜</TabsTrigger>
+                      <TabsList className="unified-tabs-list flex w-full overflow-x-auto scrollbar-thin scrollbar-thumb-hsl(var(--muted-foreground))-200 scrollbar-track-transparent" style={{justifyContent: 'flex-start'}}>
+                        <TabsTrigger value="all" className="unified-tab-trigger min-w-[72px]">总榜</TabsTrigger>
                         {supportedPlatforms.map((platform) => (
-                          <TabsTrigger key={platform} value={platform} className="min-w-[72px]">
+                          <TabsTrigger key={platform} value={platform} className="unified-tab-trigger min-w-[72px]">
                             {getPlatformDisplayName(platform)}
                           </TabsTrigger>
                         ))}
@@ -763,33 +933,114 @@ export default function HotTopicsPage() {
 
           {/* 话题订阅标签页 */}
           <TabsContent value="subscriptions">
+            {subscriptions.length === 0 ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bell className="w-5 h-5 text-foreground" />
+                    话题订阅
+                  </CardTitle>
+                  <CardDescription>
+                    设置关键词监控，第一时间获取热点话题
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div 
+                    className="text-center py-12" 
+                    style={{ 
+                      zIndex: 9999, 
+                      position: 'relative', 
+                      pointerEvents: 'auto' 
+                    }}
+                  >
+                    <Bell className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">暂无话题订阅</h3>
+                    <p className="text-muted-foreground mb-6">
+                      添加您感兴趣的关键词，系统将自动为您追踪相关热点
+                    </p>
+                    <Button 
+                      onClick={() => {
+                        console.log('🔧 HotTopicsPage 添加首个订阅按钮被点击');
+                        setIsAddDialogOpen(true);
+                      }} 
+                      className="font-medium hover:bg-primary-600 transition-all duration-200 cursor-pointer"
+                      style={{ 
+                        transition: 'all 0.2s ease-in-out',
+                        cursor: 'pointer',
+                        zIndex: 99999,
+                        position: 'relative',
+                        pointerEvents: 'auto'
+                      }}
+                      onMouseEnter={(e) => {
+                        console.log('🔧 鼠标进入添加首个订阅按钮');
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        console.log('🔧 鼠标离开添加首个订阅按钮');
+                        e.currentTarget.style.transform = 'scale(1)';
+                      }}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      添加首个订阅
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                {/* 订阅瀑布流 */}
+                <SubscriptionMasonry
+                  subscriptions={subscriptions}
+                  monitorResults={monitorResults}
+                  isMonitoring={isMonitoring}
+                  onEdit={handleEditSubscription}
+                  onDelete={handleDeleteSubscription}
+                  onMonitor={handleMonitorTopic}
+                  onTrends={(subscription) => {
+                    setSelectedSubscription(subscription);
+                    loadHeatTrends(subscription.keyword);
+                  }}
+                  onToggle={handleToggleSubscription}
+                  onMarkAsViewed={handleMarkAsViewed}
+                />
 
-            {/* 订阅瀑布流 */}
-            <SubscriptionMasonry
-              subscriptions={subscriptions}
-              monitorResults={monitorResults}
-              isMonitoring={isMonitoring}
-              onEdit={handleEditSubscription}
-              onDelete={handleDeleteSubscription}
-              onMonitor={handleMonitorTopic}
-              onTrends={(subscription) => {
-                setSelectedSubscription(subscription);
-                loadHeatTrends(subscription.keyword);
-              }}
-              onToggle={handleToggleSubscription}
-              onMarkAsViewed={handleMarkAsViewed}
-            />
-
-            {/* 添加订阅按钮 - 当有订阅时显示 */}
-            {subscriptions.length > 0 && (
-              <div className="text-center mt-8">
-                <Button onClick={() => setIsAddDialogOpen(true)} className="font-medium">
-                  <Plus className="w-4 h-4 mr-2" />
-                  添加新订阅
-                </Button>
-              </div>
+                {/* 添加订阅按钮 - 当有订阅时显示 */}
+                <div 
+                  className="text-center mt-8" 
+                  style={{ 
+                    zIndex: 9999, 
+                    position: 'relative', 
+                    pointerEvents: 'auto' 
+                  }}
+                >
+                  <Button 
+                    onClick={() => {
+                      console.log('🔧 HotTopicsPage 添加新订阅按钮被点击');
+                      setIsAddDialogOpen(true);
+                    }}
+                    className="font-medium hover:bg-primary-600 transition-all duration-200 cursor-pointer"
+                    style={{ 
+                      transition: 'all 0.2s ease-in-out',
+                      cursor: 'pointer',
+                      zIndex: 99999,
+                      position: 'relative',
+                      pointerEvents: 'auto'
+                    }}
+                    onMouseEnter={(e) => {
+                      console.log('🔧 鼠标进入添加新订阅按钮');
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      console.log('🔧 鼠标离开添加新订阅按钮');
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    添加新订阅
+                  </Button>
+                </div>
+              </>
             )}
-
           </TabsContent>
 
           {/* 灵感夹标签页 */}
@@ -875,7 +1126,7 @@ export default function HotTopicsPage() {
                                 className="h-8 w-8 p-0"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  // 跳转到AI内容适配器并预填充内容
+                                  // 跳转到AI内容适配并预填充内容
                                   navigate('/adapt', {
                                     state: {
                                       prefilledContent: `热门话题：${topic!.title || '未知话题'}\n\n平台：${getPlatformDisplayName(topic!.platform || '')}\n热度：${formatHotValue(topic!.hot || '0')}\n\n话题描述：${topic!.desc || '暂无描述'}`,
@@ -926,12 +1177,26 @@ export default function HotTopicsPage() {
 
         {/* 添加订阅对话框 */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent 
+            className="subscription-dialog-stable flex flex-col overflow-hidden"
+            style={{
+              width: 'min(90vw, 1000px) !important',
+              height: 'auto !important',
+              maxWidth: '1000px !important',
+              maxHeight: '90vh !important',
+              minWidth: '600px !important',
+              minHeight: '500px !important'
+            }}
+          >
             <DialogHeader>
               <DialogTitle className="text-lg font-semibold text-foreground">添加话题订阅</DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
                 设置关键词和监控条件，系统将自动追踪相关话题
               </DialogDescription>
+              <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                <X className="h-4 w-4" />
+                <span className="sr-only">关闭</span>
+              </DialogClose>
             </DialogHeader>
             
             <div className="grid gap-4 py-4">
@@ -1150,7 +1415,28 @@ export default function HotTopicsPage() {
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="font-medium">
                 取消
               </Button>
-              <Button onClick={handleAddSubscription} className="font-medium">
+              <Button 
+                onClick={() => {
+                  console.log('🔧 HotTopicsPage Dialog内添加订阅确认按钮被点击');
+                  handleAddSubscription();
+                }}
+                className="font-medium hover:bg-primary-600 transition-all duration-200 cursor-pointer"
+                style={{ 
+                  transition: 'all 0.2s ease-in-out',
+                  cursor: 'pointer',
+                  zIndex: 99999,
+                  position: 'relative',
+                  pointerEvents: 'auto'
+                }}
+                onMouseEnter={(e) => {
+                  console.log('🔧 鼠标进入Dialog内添加订阅确认按钮');
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  console.log('🔧 鼠标离开Dialog内添加订阅确认按钮');
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              >
                 添加订阅
               </Button>
             </DialogFooter>
@@ -1159,12 +1445,26 @@ export default function HotTopicsPage() {
 
         {/* 编辑订阅对话框 */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent 
+            className="subscription-dialog-stable flex flex-col overflow-hidden"
+            style={{
+              width: 'min(90vw, 1000px) !important',
+              height: 'auto !important',
+              maxWidth: '1000px !important',
+              maxHeight: '90vh !important',
+              minWidth: '600px !important',
+              minHeight: '500px !important'
+            }}
+          >
             <DialogHeader>
               <DialogTitle className="text-lg font-semibold text-foreground">编辑话题订阅</DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
                 修改订阅设置和监控条件
               </DialogDescription>
+              <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                <X className="h-4 w-4" />
+                <span className="sr-only">关闭</span>
+              </DialogClose>
             </DialogHeader>
 
             {editingSubscription && (
@@ -1294,7 +1594,17 @@ export default function HotTopicsPage() {
 
         {/* 趋势分析对话框 */}
         <Dialog open={!!selectedSubscription} onOpenChange={() => setSelectedSubscription(null)}>
-          <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+          <DialogContent 
+            className="trend-analysis-dialog-stable flex flex-col overflow-hidden"
+            style={{
+              width: 'min(95vw, 1400px) !important',
+              height: 'auto !important',
+              maxWidth: '1400px !important',
+              maxHeight: '95vh !important',
+              minWidth: '900px !important',
+              minHeight: '700px !important'
+            }}
+          >
             <DialogHeader className="pb-4">
               <DialogTitle className="flex items-center gap-2 text-xl font-semibold text-foreground">
                 <BarChart className="w-5 h-5" />
@@ -1303,10 +1613,15 @@ export default function HotTopicsPage() {
               <DialogDescription className="text-base text-muted-foreground">
                 深度分析关键词的热度变化趋势和预测
               </DialogDescription>
+              <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                <X className="h-4 w-4" />
+                <span className="sr-only">关闭</span>
+              </DialogClose>
             </DialogHeader>
 
             {selectedSubscription && (
-              <div className="space-y-4">
+              <div className="flex-1 overflow-y-auto p-1">
+                <div className="space-y-4">
                 {/* 趋势概览 */}
                 {trendAnalysis[selectedSubscription.keyword] && (
                   <div className="grid grid-cols-3 gap-4">
@@ -1479,6 +1794,7 @@ export default function HotTopicsPage() {
                     </div>
                   </div>
                 )}
+                </div>
               </div>
             )}
           </DialogContent>

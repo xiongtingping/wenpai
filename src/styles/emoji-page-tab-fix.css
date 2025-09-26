@@ -1,0 +1,92 @@
+@layer emergency {
+  /* 🎯 EmojiPage专用Tab按钮修复
+   * 专门针对Emoji图库和品牌Emoji这两个Tab按钮
+   * 确保它们使用正确的尺寸，不溢出容器
+   */
+
+  /* 🎯 强制EmojiPage的Tab容器尺寸 */
+  .min-h-screen .unified-tabs-list,
+  [class*="emoji"] .unified-tabs-list,
+  .emoji-manager-container .unified-tabs-list {
+    min-height: 40px !important;
+    max-height: 40px !important;
+    height: 40px !important;
+    padding: 2px !important;
+    gap: 2px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  /* 🎯 强制EmojiPage的Tab按钮尺寸 */
+  .min-h-screen .unified-tab-trigger,
+  [class*="emoji"] .unified-tab-trigger,
+  .emoji-manager-container .unified-tab-trigger {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    line-height: 1.1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-sizing: border-box !important;
+    flex-direction: row !important; /* 强制水平布局 */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  /* 🎯 强制图标尺寸 */
+  .min-h-screen .unified-tab-trigger svg,
+  [class*="emoji"] .unified-tab-trigger svg,
+  .emoji-manager-container .unified-tab-trigger svg {
+    width: 16px !important;
+    height: 16px !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* 🎯 强制文字样式 */
+  .min-h-screen .unified-tab-trigger span,
+  [class*="emoji"] .unified-tab-trigger span,
+  .emoji-manager-container .unified-tab-trigger span {
+    font-size: 12px !important;
+    line-height: 1.1 !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  /* 🎯 移除所有可能的transform */
+  .min-h-screen .unified-tab-trigger:hover,
+  .min-h-screen .unified-tab-trigger[data-state="active"],
+  [class*="emoji"] .unified-tab-trigger:hover,
+  [class*="emoji"] .unified-tab-trigger[data-state="active"],
+  .emoji-manager-container .unified-tab-trigger:hover,
+  .emoji-manager-container .unified-tab-trigger[data-state="active"] {
+    transform: none !important;
+    scale: 1 !important;
+  }
+
+  /* 🎯 确保边框圆润 */
+  .min-h-screen .unified-tabs-list,
+  .min-h-screen .unified-tab-trigger,
+  [class*="emoji"] .unified-tabs-list,
+  [class*="emoji"] .unified-tab-trigger,
+  .emoji-manager-container .unified-tabs-list,
+  .emoji-manager-container .unified-tab-trigger {
+    border-radius: 9999px !important;
+  }
+}
+
+/* 💡 说明：
+ * 这是针对EmojiPage Tab按钮的紧急修复
+ * 使用emergency层级确保最高优先级
+ * 专门解决Emoji图库和品牌Emoji按钮大小问题
+ * 一旦生效，应该找到根本原因并整合到主CSS系统中
+ */

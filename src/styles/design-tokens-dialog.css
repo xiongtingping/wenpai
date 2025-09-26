@@ -9,10 +9,10 @@
    ======================================== */
 
 :root {
-  /* 🎯 定位令牌 - 使用视窗单位确保相对于视窗定位 */
-  --dialog-position-top: 50vh;
+  /* 🎯 定位令牌 - 给顶部留出更多空间 */
+  --dialog-position-top: calc(8vh + 60px); /* 🎨 视觉居中的顶部边距 */
   --dialog-position-left: 50vw;
-  --dialog-transform: translate(-50%, -50%);
+  --dialog-transform: translateX(-50%); /* 🎯 只水平居中 */
   --dialog-z-index: 1000000;
   --dialog-position-fixed: fixed;
   --dialog-margin: 0;
@@ -22,9 +22,9 @@
   --dialog-max-height: 85vh;
   --dialog-mobile-max-width: calc(95vw - 16px);
   
-  /* 快速引用Dialog特定尺寸 */
-  --quick-reference-dialog-max-width: min(95vw, 1024px);
-  --quick-reference-dialog-max-height: 85vh;
+  /* 快速引用Dialog特定尺寸 - 与历史记录保持一致 */
+  --quick-reference-dialog-max-width: min(85vw, 1000px);
+  --quick-reference-dialog-max-height: 70vh;
   
   /* 历史记录Dialog特定尺寸 */
   --history-dialog-max-width: min(85vw, 1000px);
@@ -68,7 +68,7 @@
 /* .dialog 基础类已移除以避免Tailwind CSS循环依赖 */
 
 /* 块__元素：dialog__content */
-.dialog__content {
+.dialog__content:not(.anchored-dialog):not(.custom-positioned) {
   /* 🚨 强制定位修复 - 解决所有Dialog定位问题 */
   position: var(--dialog-position-fixed) !important;
   top: var(--dialog-position-top) !important;
@@ -103,12 +103,26 @@
   @media (min-width: 769px) {
     padding: var(--dialog-desktop-padding);
   }
+  
+  /* 桌面端快速引用Dialog尺寸确保 */
+  @media (min-width: 769px) {
+    .dialog__content--quick-reference,
+    .enhanced-quick-reference-dialog {
+      width: min(85vw, 1000px) !important;
+      max-width: min(85vw, 1000px) !important;
+      max-height: 70vh !important;
+      min-width: 600px !important;
+      min-height: 450px !important;
+    }
+  }
 }
 
 /* 块__元素--修饰符：dialog__content--quick-reference */
 .dialog__content--quick-reference {
   max-width: var(--quick-reference-dialog-max-width) !important;
   max-height: var(--quick-reference-dialog-max-height) !important;
+  min-width: 600px !important;
+  min-height: 450px !important;
 }
 
 /* 块__元素--修饰符：dialog__content--history */
@@ -120,20 +134,70 @@
 }
 
 /* ========================================
+   🎯 强制背景遮罩覆盖 - 解决背景导航栏可见问题
+   ======================================== */
+
+/* 强制Dialog背景遮罩完全覆盖视口 */
+.dialog-overlay-fullscreen,
+.dialog-background-overlay,
+[data-state="open"][class*="fixed"][class*="bg-foreground"],
+[data-state="open"][class*="backdrop-blur"] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 100vw !important;
+  min-height: 100vh !important;
+  z-index: 999999 !important;
+  inset: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 🎯 优化的滚动锁定 - 防止页面闪动 */
+/* 关键：不使用 position: fixed，这会导致页面跳跃 */
+body:has([role="dialog"][data-state="open"]),
+body:has(.dialog-overlay-fullscreen) {
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  /* 移除 position: fixed 和尺寸设置，防止闪动 */
+}
+
+html:has([role="dialog"][data-state="open"]),
+html:has(.dialog-overlay-fullscreen) {
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+
+/* ========================================
    🎯 兼容性类名 - 支持现有组件
    ======================================== */
 
-/* 快速引用Dialog兼容性 */
+/* 快速引用Dialog兼容性 - 强化修复滚动锁定问题 */
 .quick-reference-dialog,
+.enhanced-quick-reference-dialog,
+.dialog__content--quick-reference,
 [role="dialog"].quick-reference-dialog,
+[role="dialog"].enhanced-quick-reference-dialog,
 [role="dialog"][class*="quick-reference-dialog"],
-[data-radix-dialog-content].quick-reference-dialog {
-  position: var(--dialog-position-fixed) !important;
-  top: var(--dialog-position-top) !important;
-  left: var(--dialog-position-left) !important;
-  transform: var(--dialog-transform) !important;
-  z-index: var(--dialog-z-index) !important;
-  margin: var(--dialog-margin) !important;
+[role="dialog"][class*="enhanced-quick-reference-dialog"],
+[data-radix-dialog-content].quick-reference-dialog,
+[data-radix-dialog-content].enhanced-quick-reference-dialog,
+[data-radix-dialog-content][class*="enhanced-quick-reference-dialog"] {
+  /* 🚨 强制固定定位，相对于当前视口居中 - 修复用户视角问题 */
+  position: fixed !important;
+  top: 50vh !important;
+  left: 50vw !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1000000 !important;
+  margin: 0 !important;
+  right: auto !important;
+  bottom: auto !important;
   
   /* 🚨 inset重置 */
   inset: var(--dialog-inset-reset) !important;
@@ -144,8 +208,12 @@
   inset-inline-start: var(--dialog-inset-inline-start-reset) !important;
   inset-inline-end: var(--dialog-inset-inline-end-reset) !important;
   
-  max-width: var(--quick-reference-dialog-max-width) !important;
-  max-height: var(--quick-reference-dialog-max-height) !important;
+  /* 🚨 强制尺寸设置 - 与历史记录弹窗完全一致 */
+  width: min(85vw, 1000px) !important;
+  max-width: min(85vw, 1000px) !important;
+  max-height: 70vh !important;
+  min-width: 600px !important;
+  min-height: 450px !important;
 }
 
 /* 历史记录Dialog兼容性 */
@@ -179,16 +247,16 @@
    🎯 通用Dialog选择器 - 最大兼容性
    ======================================== */
 
-[role="dialog"],
-[data-radix-dialog-content],
-html [role="dialog"],
-body [role="dialog"],
-#root [role="dialog"],
-[data-radix-portal] [role="dialog"],
-div[data-radix-portal] [role="dialog"],
-div[role="dialog"][id*="radix"],
-div[role="dialog"][data-state="open"] {
-  /* 🚨 强制重置所有定位属性 */
+[role="dialog"]:not(.anchored-dialog):not(.custom-positioned),
+[data-radix-dialog-content]:not(.anchored-dialog):not(.custom-positioned),
+html [role="dialog"]:not(.anchored-dialog):not(.custom-positioned),
+body [role="dialog"]:not(.anchored-dialog):not(.custom-positioned),
+#root [role="dialog"]:not(.anchored-dialog):not(.custom-positioned),
+[data-radix-portal] [role="dialog"]:not(.anchored-dialog):not(.custom-positioned),
+div[data-radix-portal] [role="dialog"]:not(.anchored-dialog):not(.custom-positioned),
+div[role="dialog"][id*="radix"]:not(.anchored-dialog):not(.custom-positioned),
+div[role="dialog"][data-state="open"]:not(.anchored-dialog):not(.custom-positioned) {
+  /* 🚨 强制重置所有定位属性（仅非锚点模式） */
   position: var(--dialog-position-fixed) !important;
   top: var(--dialog-position-top) !important;
   left: var(--dialog-position-left) !important;
@@ -235,8 +303,11 @@ div[role="dialog"][data-state="open"] {
     border-radius: 16px !important;
   }
   
-  .dialog__content--quick-reference {
+  .dialog__content--quick-reference,
+  .enhanced-quick-reference-dialog {
     max-width: calc(100vw - 32px) !important;
+    min-width: auto !important;
+    width: calc(100vw - 32px) !important;
   }
   
   .dialog__content--history {

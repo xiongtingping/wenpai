@@ -1,0 +1,71 @@
+/* 🚨 紧急修复：品牌Emoji步骤指示器数字居中问题
+ * 使用最高优先级和强制CSS确保修复生效
+ */
+
+@layer emergency {
+  /* 🎯 EMERGENCY FIX: 强制数字圆圈居中对齐 */
+  
+  /* 方案1：直接选择所有步骤容器，强制居中 */
+  .max-w-6xl .flex.flex-col.items-center.space-y-2 {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+  }
+
+  /* 方案2：强制所有圆形按钮居中 */
+  .max-w-6xl .rounded-full.flex.items-center.justify-center {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: block !important;
+  }
+
+  /* 方案3：使用CSS Grid强制居中 */
+  .max-w-6xl .flex.items-center.flex-1 {
+    display: grid !important;
+    place-items: center !important;
+    grid-template-rows: auto auto !important;
+    gap: 8px !important;
+  }
+
+  /* 方案4：直接targeting PersonalizedEmojiGenerator */
+  [class*="PersonalizedEmojiGenerator"] .flex.flex-col.items-center.space-y-2,
+  div:has(.rounded-full) .flex.flex-col.items-center.space-y-2 {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+
+  /* 方案5：超级强制 - 所有包含数字的圆圈 */
+  div[class*="rounded-full"]:has(span:contains("1")),
+  div[class*="rounded-full"]:has(span:contains("2")),
+  div[class*="rounded-full"]:has(span:contains("3")),
+  div[class*="rounded-full"]:has(span:contains("4")) {
+    margin: 0 auto !important;
+    display: block !important;
+  }
+
+  /* 方案6：使用transform强制居中 */
+  .max-w-6xl div[class*="w-10"][class*="h-10"][class*="rounded-full"] {
+    position: relative !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+  }
+}
+
+/* 🚨 JavaScript 运行时修复 - 在CSS失效时使用 */
+/*
+document.addEventListener('DOMContentLoaded', function() {
+  const stepCircles = document.querySelectorAll('.rounded-full.flex.items-center.justify-center');
+  stepCircles.forEach(circle => {
+    circle.style.margin = '0 auto';
+    circle.style.display = 'block';
+  });
+});
+*/
