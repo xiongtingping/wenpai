@@ -132,36 +132,19 @@ export default defineConfig({
     sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
     // 🔧 根本性修复：防止变量名压缩导致的TDZ和getInstance错误
-    minify: 'terser',
-    terserOptions: {
-      mangle: {
-        // 保持类名和函数名不被压缩
-        keep_classnames: true,
-        keep_fnames: true,
-        // 🔧 FIXED: 保留DI容器和服务相关的标识符
-        reserved: [
-          'getInstance', 'HotTopicsAPI', 'ConfigManager',
-          'UnifiedPermissionManager', 'PaymentService', 'BrandCorpusService',
-          'FavoritesService', 'UserDataService', 'DataSyncManager',
-          'instance', 'API', 'Service', 'Manager', 'Handler',
-          // DI容器相关
-          'DIContainer', 'container', 'registerService', 'getService',
-          'ServiceFactory', 'ServiceDefinition',
-          // 保留 Slot 相关标识符，避免变量名冲突
-          'createSlot', 'createSlottable', 'Slot', 'Slottable', 'pe'
-        ]
-      },
-      compress: {
-        // 禁用可能导致初始化顺序问题的优化
-        reduce_vars: false,
-        toplevel: false,
-        // 🔧 FIXED: 禁用可能导致变量重命名冲突的优化
-        hoist_vars: false,
-        hoist_funs: false,
-        // 🔧 生产环境清理console.log
-        drop_console: process.env.NODE_ENV === 'production' ? ['log', 'debug', 'info'] : false,
-        drop_debugger: process.env.NODE_ENV === 'production'
-      }
+    // 🔧 修复语法错误：使用esbuild替代terser避免"Invalid left-hand side"错误
+    minify: 'esbuild',
+    esbuild: {
+      // 保持类名和函数名不被压缩，避免运行时错误
+      keepNames: true,
+      // 使用安全的压缩配置
+      minifyIdentifiers: false,
+      minifySyntax: true,
+      minifyWhitespace: true,
+      // 禁用可能导致语法错误的代码转换
+      legalComments: 'none',
+      // 保持原始代码结构，避免赋值语句解析错误
+      target: 'es2020'
     },
     rollupOptions: {
       output: {
