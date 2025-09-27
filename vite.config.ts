@@ -147,7 +147,18 @@ export default defineConfig({
       target: 'es2020'
     },
     rollupOptions: {
+      // 🔧 关键修复：外部化React依赖，使用HTML预加载的CDN版本
+      external: (id) => {
+        // 外部化React相关包，避免打包进vendor导致forwardRef错误
+        return ['react', 'react-dom', 'react/jsx-runtime'].includes(id);
+      },
       output: {
+        // 🔧 全局变量映射：告诉Rollup使用window上的React
+        globals: {
+          'react': 'React',
+          'react-dom': 'ReactDOM',
+          'react/jsx-runtime': 'React'
+        },
         // 优化代码分割策略：减少大文件
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
@@ -233,13 +244,15 @@ export default defineConfig({
   // 🔧 优化依赖配置
   optimizeDeps: {
     include: [
-      'react',
-      'react-dom',
       'react-router-dom',
       'axios',
       'crypto-js'
     ],
     exclude: [
+      // 🔧 关键修复：排除React相关包，使用CDN版本
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
       'stream',
       'readable-stream',
       // 🔧 [AUTHING_GUARD_FIX_v2025.08.15] 排除@authing/guard，避免预构建时的正则表达式错误
