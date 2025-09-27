@@ -154,9 +154,15 @@
         setTimeout(function() {
           console.log('🔧 Checking if app started...');
           const root = document.getElementById('root');
-          if (root && (!root.innerHTML || root.innerHTML.trim() === '')) {
+          // 检查是否有实际的React应用内容（而不是loading状态）
+          const hasRealContent = root && root.innerHTML && 
+                                 root.innerHTML.trim() !== '' && 
+                                 !root.innerHTML.includes('正在加载') &&
+                                 !root.innerHTML.includes('Loading');
+          
+          if (!hasRealContent) {
             console.log('🚨 App not started, forcing basic render');
-            root.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;"><h1>WenPai AI</h1><p>Loading application...</p><p style="color: #666; font-size: 12px;">If this message persists, please refresh the page.</p></div>';
+            root.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;"><h1>文派AI</h1><p>正在加载应用程序...</p><p style="color: #666; font-size: 12px;">如果此消息仍然存在，请刷新页面。</p></div>';
             
             // 尝试手动触发应用启动
             setTimeout(function() {
@@ -171,8 +177,8 @@
                   const App = window.React.createElement('div', {
                     style: { padding: '20px', textAlign: 'center' }
                   }, 
-                    window.React.createElement('h1', null, 'WenPai AI - Manual Startup'),
-                    window.React.createElement('p', null, 'Application started successfully!')
+                    window.React.createElement('h1', null, 'Wenpai AI - 手动启动'),
+                    window.React.createElement('p', null, '申请成功开始了！')
                   );
                   
                   const reactRoot = window.ReactDOM.createRoot(container);
@@ -186,7 +192,7 @@
           } else {
             console.log('✅ App appears to be running normally');
           }
-        }, 3000);
+        }, 5000); // 给主应用更多启动时间
         
       })();
     </script>

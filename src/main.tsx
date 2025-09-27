@@ -117,6 +117,12 @@ async function initializeApplication() {
     );
 
     console.log('🎉 应用快速启动完成！');
+    
+    // 🔧 确保HTML检测能发现应用已启动
+    setTimeout(() => {
+      console.log('🔍 Main app startup check: root has content', 
+        document.getElementById('root')?.innerHTML?.length > 0);
+    }, 100);
 
     // 🎯 根本性修复：彻底阻止root元素被设置aria-hidden
     const preventRootAriaHidden = () => {
