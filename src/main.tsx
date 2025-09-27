@@ -4,6 +4,7 @@
  */
 
 console.log('🔥 main.tsx 开始加载...');
+window.__MAIN_TSX_LOADED__ = true;
 
 import './index.css';
 import './styles/user-avatar-dropdown-fix.css';

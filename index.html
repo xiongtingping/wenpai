@@ -232,7 +232,103 @@
           } else {
             console.log('✅ App appears to be running normally');
           }
-        }, 5000); // 给主应用更多启动时间
+        }, 3000); // 降低检测时间，加快响应
+        
+        // 🔥 终极fallback - 如果1秒后还没有main.tsx执行，立即启动基本React应用
+        setTimeout(function() {
+          if (!window.__MAIN_TSX_LOADED__) {
+            console.log('🔥 main.tsx未加载，启动HTML内联React应用...');
+            
+            const root = document.getElementById('root');
+            if (root && window.React && window.ReactDOM) {
+              try {
+                // 创建完整的WenPai AI应用界面
+                const App = window.React.createElement('div', {
+                  style: { 
+                    minHeight: '100vh',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                  }
+                }, 
+                  // Header
+                  window.React.createElement('header', {
+                    style: { 
+                      padding: '20px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      background: 'rgba(255,255,255,0.1)',
+                      backdropFilter: 'blur(10px)'
+                    }
+                  },
+                    window.React.createElement('h1', { 
+                      style: { fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }
+                    }, '🚀 WenPai AI'),
+                    window.React.createElement('button', {
+                      style: {
+                        background: 'rgba(255,255,255,0.2)',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '8px 16px',
+                        color: 'white',
+                        cursor: 'pointer'
+                      },
+                      onClick: () => location.reload()
+                    }, '刷新页面')
+                  ),
+                  
+                  // Main content
+                  window.React.createElement('main', {
+                    style: { 
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      padding: '40px 20px',
+                      textAlign: 'center'
+                    }
+                  },
+                    window.React.createElement('h2', { 
+                      style: { fontSize: '3rem', marginBottom: '1rem', fontWeight: 'bold' }
+                    }, 'WenPai AI'),
+                    window.React.createElement('p', { 
+                      style: { fontSize: '1.5rem', marginBottom: '2rem', opacity: 0.9 }
+                    }, 'AI驱动的智能内容创作平台'),
+                    window.React.createElement('div', {
+                      style: {
+                        background: 'rgba(255,255,255,0.1)',
+                        padding: '30px',
+                        borderRadius: '15px',
+                        backdropFilter: 'blur(10px)',
+                        maxWidth: '600px'
+                      }
+                    }, 
+                      window.React.createElement('p', { 
+                        style: { margin: '0 0 20px 0', fontSize: '1.1rem' } 
+                      }, '应用正在加载中...'),
+                      window.React.createElement('p', { 
+                        style: { margin: '0', fontSize: '0.9rem', opacity: 0.8 } 
+                      }, '如果长时间未响应，请刷新页面重试')
+                    )
+                  )
+                );
+                
+                // 清空并渲染
+                root.innerHTML = '';
+                root.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+                
+                const reactRoot = window.ReactDOM.createRoot(root);
+                reactRoot.render(App);
+                console.log('✅ HTML内联React应用启动成功');
+                
+              } catch (error) {
+                console.error('🚨 HTML内联React启动失败:', error);
+              }
+            }
+          }
+        }, 1000);
         
       })();
     </script>
