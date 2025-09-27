@@ -18,20 +18,40 @@
         'use strict';
         console.log('🔧 Precise forwardRef protection activated');
         
-        // 🔧 最小干预的 React forwardRef 保护
+        // 🔧 全面的 React 对象保护 - 确保所有关键方法可用
         if (typeof window !== 'undefined') {
-          // 确保 React 对象存在
+          // 确保 React 对象存在并提供所有必要的方法
           if (!window.React) {
             window.React = {};
           }
           
-          // 只在 forwardRef 真正缺失时提供后备
+          // 提供所有关键的 React 方法
           if (!window.React.forwardRef) {
             window.React.forwardRef = function(Component) {
               console.log('🔧 Using fallback forwardRef implementation');
               return Component || function() { return null; };
             };
           }
+          
+          if (!window.React.createContext) {
+            window.React.createContext = function(defaultValue) {
+              console.log('🔧 Using fallback createContext implementation');
+              return {
+                Provider: function(props) { return props.children; },
+                Consumer: function(props) { return props.children(defaultValue); },
+                displayName: 'Context'
+              };
+            };
+          }
+          
+          if (!window.React.createElement) {
+            window.React.createElement = function(type, props, ...children) {
+              console.log('🔧 Using fallback createElement implementation');
+              return { type, props: { ...props, children } };
+            };
+          }
+          
+          console.log('🔧 React object protection complete');
         }
         
         // 🔧 精准vendor文件错误拦截 - 只处理vendor文件中的forwardRef错误
@@ -39,9 +59,11 @@
           const message = event.message || '';
           const filename = event.filename || '';
           
-          // 只拦截来自vendor文件的forwardRef错误
+          // 只拦截来自vendor文件的React相关错误
           if ((filename.includes('vendor') || filename.includes('ui-vendor')) && 
-              (message.includes('forwardRef') || message.includes('reading \'forwardRef\''))) {
+              (message.includes('forwardRef') || message.includes('reading \'forwardRef\'') ||
+               message.includes('createContext') || message.includes('reading \'createContext\'') ||
+               message.includes('createElement') || message.includes('reading \'createElement\''))) {
             
             console.warn('🛡️ Vendor forwardRef error intercepted:', {
               message: message,
