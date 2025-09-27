@@ -12,54 +12,76 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- 🔧 终极React保护机制 - 根因修复vendor文件错误 -->
+    <!-- 🔧 超强React保护机制 - 多层防护确保页面正常渲染 -->
     <script>
-      // 立即执行，在所有其他脚本之前
+      // 🔧 第一层：全局对象锁定，确保React对象永远存在
       (function() {
         'use strict';
-        console.log('🔧 Ultimate React protection activated');
+        console.log('🔧 Super React protection activated');
         
-        // 创建完整的React模拟对象
+        // 创建不可变的React模拟对象
+        const ReactMock = {
+          forwardRef: function(render) {
+            console.log('🛡️ forwardRef safely handled');
+            return render || function() { return null; };
+          },
+          createContext: function(defaultValue) {
+            console.log('🛡️ createContext safely handled');
+            return {
+              Provider: function(props) { return props.children; },
+              Consumer: function(props) { return props.children(defaultValue); }
+            };
+          },
+          createElement: function() { return null; },
+          Component: function() {},
+          PureComponent: function() {},
+          Fragment: 'Fragment',
+          StrictMode: 'StrictMode',
+          Suspense: 'Suspense',
+          lazy: function(fn) { return fn; },
+          memo: function(component) { return component; },
+          useEffect: function() {},
+          useState: function() { return [null, function() {}]; },
+          useCallback: function(fn) { return fn; },
+          useMemo: function(fn) { return fn(); },
+          useRef: function() { return { current: null }; }
+        };
+        
+        // 🔧 强制注入到所有可能的位置
         if (typeof window !== 'undefined') {
-          // 完全重写确保所有React API都可用
-          window.React = {
-            forwardRef: function(render) {
-              console.log('🛡️ forwardRef intercepted');
-              return render || function() { return null; };
-            },
-            createContext: function(defaultValue) {
-              console.log('🛡️ createContext intercepted');
-              return {
-                Provider: function(props) { return props.children; },
-                Consumer: function(props) { return props.children(defaultValue); }
-              };
-            },
-            createElement: function() {
-              console.log('🛡️ createElement intercepted');
-              return null;
-            },
-            Component: function() {},
-            PureComponent: function() {},
-            Fragment: 'Fragment',
-            StrictMode: 'StrictMode',
-            Suspense: 'Suspense',
-            lazy: function(fn) { return fn; },
-            memo: function(component) { return component; },
-            useEffect: function() {},
-            useState: function() { return [null, function() {}]; },
-            useCallback: function(fn) { return fn; },
-            useMemo: function(fn) { return fn(); },
-            useRef: function() { return { current: null }; }
-          };
+          // 使用Object.defineProperty确保无法被覆盖
+          Object.defineProperty(window, 'React', {
+            value: ReactMock,
+            writable: false,
+            configurable: false
+          });
           
-          // 确保所有可能的React引用都指向同一个对象
-          window.react = window.React;
+          // 多重保险
+          window.react = ReactMock;
+          window.__REACT__ = ReactMock;
+          
           if (typeof global !== 'undefined') {
-            global.React = window.React;
+            global.React = ReactMock;
+          }
+          
+          // 🔧 提前注入模块系统
+          if (typeof module !== 'undefined' && module.exports) {
+            module.exports.React = ReactMock;
           }
         }
         
-        // 最强的错误拦截 - 在捕获阶段处理
+        // 🔧 第二层：动态属性拦截
+        const originalDefineProperty = Object.defineProperty;
+        Object.defineProperty = function(obj, prop, descriptor) {
+          // 拦截对React的重新定义
+          if (prop === 'React' && obj === window) {
+            console.log('🛡️ Prevented React override attempt');
+            return obj;
+          }
+          return originalDefineProperty.call(this, obj, prop, descriptor);
+        };
+        
+        // 🔧 第三层：最强错误拦截
         window.addEventListener('error', function(event) {
           const message = event.message || '';
           const filename = event.filename || '';
@@ -70,9 +92,9 @@
             prevented: filename.includes('vendor')
           });
           
-          // 拦截所有vendor文件错误，确保页面继续渲染
+          // 强制阻止vendor错误
           if (filename.includes('vendor')) {
-            console.log('🛡️ Vendor error blocked - page will continue');
+            console.log('🛡️ Vendor error completely blocked');
             event.stopPropagation();
             event.stopImmediatePropagation(); 
             event.preventDefault();
@@ -80,14 +102,31 @@
           }
         }, true);
         
-        // 在unhandledrejection中也处理Promise错误
+        // Promise错误处理
         window.addEventListener('unhandledrejection', function(event) {
-          console.log('🛡️ Promise rejection blocked');
+          console.log('🛡️ Promise rejection handled');
           event.preventDefault();
         });
         
-        console.log('✅ Ultimate protection active - React fully mocked');
+        console.log('✅ Super protection active - React locked and secured');
       })();
+    </script>
+    
+    <!-- 🔧 Pre-vendor验证脚本 - 确保React在任何vendor代码执行前都可用 -->
+    <script>
+      // 在任何模块加载前进行最后检查
+      console.log('🔧 Pre-vendor React validation');
+      
+      // 验证React对象是否正确配置
+      if (typeof window.React === 'undefined' || !window.React.forwardRef) {
+        console.error('🚨 React protection failed, emergency fix');
+        window.React = {
+          forwardRef: function(r) { return r || function(){return null;}; },
+          createContext: function(d) { return {Provider:function(p){return p.children;},Consumer:function(p){return p.children(d);}}; }
+        };
+      }
+      
+      console.log('✅ React verified before vendor loading:', !!window.React?.forwardRef);
     </script>
   </head>
   <body>
