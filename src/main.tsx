@@ -6,8 +6,10 @@
 console.log('🔥 main.tsx 开始加载...');
 window.__MAIN_TSX_LOADED__ = true;
 
+console.log('🔥 Step 1: 开始导入CSS...');
 import './index.css';
 import './styles/user-avatar-dropdown-fix.css';
+console.log('✅ Step 1: CSS导入完成');
 // 🎯 生产环境只保留核心样式和必要的修复
 // 调试脚本已在开发中禁用以减少控制台噪音
 
@@ -17,11 +19,16 @@ import './styles/user-avatar-dropdown-fix.css';
 // 🧹 已清理所有动态加载的调试脚本
 
 // 🧹 已清理全局滚动检测器调试代码
+console.log('🔥 Step 2: 开始导入React...');
 import React from 'react';
 
+console.log('🔥 Step 3: 开始导入ReactDOM...');
 import ReactDOM from 'react-dom/client';
+console.log('🔥 Step 4: 开始导入BrowserRouter...');
 import { BrowserRouter } from 'react-router-dom';
+console.log('🔥 Step 5: 开始导入App组件...');
 import App from './App.tsx';
+console.log('✅ Step 5: 所有核心模块导入完成');
 // 🚀 性能优化：仅导入必要的核心服务
 import { setupGlobalErrorHandler } from './utils/errorHandler';
 import ServiceInitializer from './services/serviceInitializer';
