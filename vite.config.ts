@@ -157,7 +157,7 @@ export default defineConfig({
         globals: {
           'react': 'React',
           'react-dom': 'ReactDOM',
-          'react/jsx-runtime': 'React'
+          'react/jsx-runtime': 'window["react/jsx-runtime"]'
         },
         // 优化代码分割策略：减少大文件
         manualChunks: (id) => {
