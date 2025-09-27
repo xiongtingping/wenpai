@@ -3,6 +3,8 @@
  * 通过预加载服务和控制初始化顺序彻底解决问题
  */
 
+console.log('🔥 main.tsx 开始加载...');
+
 import './index.css';
 import './styles/user-avatar-dropdown-fix.css';
 // 🎯 生产环境只保留核心样式和必要的修复
@@ -88,6 +90,7 @@ console.log('✅ 使用简化的main.tsx，由HTML保护机制处理forwardRef')
 
 // 🚀 快速启动应用 - 性能优化
 async function initializeApplication() {
+  console.log('🚀 initializeApplication 函数开始执行...');
   try {
     // 仅初始化必要的错误处理
     setupGlobalErrorHandler();
@@ -300,6 +303,7 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 // 🔧 启动应用初始化流程
+console.log('🔥 准备调用 initializeApplication...');
 initializeApplication().catch(error => {
   console.error('💥 应用初始化失败:', error);
   
