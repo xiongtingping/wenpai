@@ -12,6 +12,17 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
     
+    <!-- 🔧 ES模块导入映射 - 重定向React导入到CDN -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://unpkg.com/react@18/index.js",
+        "react-dom": "https://unpkg.com/react-dom@18/index.js",
+        "react-dom/client": "https://unpkg.com/react-dom@18/client.js"
+      }
+    }
+    </script>
+    
     <!-- 🔧 终极解决方案：预加载真正的React库 -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
