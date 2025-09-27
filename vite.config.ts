@@ -20,6 +20,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
       // 🔧 FIXED: 全局替换 @radix-ui/react-slot 以解决 forwardRef 错误
       "@radix-ui/react-slot": path.resolve(__dirname, "./src/components/ui/safe-slot.tsx"),
+      // 🔧 关键修复：直接重定向jsx-runtime到全局变量
+      "react/jsx-runtime": path.resolve(__dirname, "./src/utils/jsx-runtime-polyfill.ts"),
     },
   },
   // 环境变量注入，兼容 Vite/Node/Netlify/Vercel
@@ -149,8 +151,8 @@ export default defineConfig({
     rollupOptions: {
       // 🔧 关键修复：外部化React依赖，使用HTML预加载的CDN版本
       external: (id) => {
-        // 外部化React相关包，避免打包进vendor导致forwardRef错误
-        return ['react', 'react-dom', 'react/jsx-runtime'].includes(id);
+        // 外部化React相关包，但jsx-runtime使用别名处理
+        return ['react', 'react-dom'].includes(id);
       },
       output: {
         // 🔧 全局变量映射：告诉Rollup使用window上的React
