@@ -1,16 +1,14 @@
 /**
- * 🚀 {t('app.comments.mainAppComponent')};
+ * 🚀 主应用组件
  *
  * 功能：
  * - 统一路由管理
  * - 全局状态管理
  * - 用户认证集成
  * - 主题和样式管理
- *
- *
- * - {t('app.comments.unifiedAuthPermission')}
- * - {t('app.comments.routeGuardAccess')}
- * - {t('app.comments.secureStateManagement')}
+ * - 统一认证权限
+ * - 路由守卫访问
+ * - 安全状态管理
  */
 
 import React, { Suspense, useEffect } from 'react';
