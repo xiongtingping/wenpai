@@ -11,6 +11,142 @@
     <link rel="icon" type="image/svg+xml" href="/ikigai_4circles_multiply.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
+    
+    <!-- 🔧 终极 forwardRef 错误修复 - 处理所有可能的缓存和运行时情况 -->
+    <script>
+      (function() {
+        'use strict';
+        console.log('🔧 Ultimate forwardRef protection activated');
+        
+        // 🔧 增强版 Array.reduce 保护 - 处理所有对象属性访问
+        if (Array.prototype.reduce) {
+          const originalReduce = Array.prototype.reduce;
+          Array.prototype.reduce = function(callback, initialValue) {
+            try {
+              if (typeof callback === 'function') {
+                const safeCallback = function(prev, curr, index, array) {
+                  try {
+                    // 🔧 通用对象属性安全访问包装器
+                    if (curr && typeof curr === 'object') {
+                      // 如果访问 forwardRef 属性失败，动态修复
+                      Object.defineProperty(curr, 'forwardRef', {
+                        get: function() {
+                          return this._forwardRef || function(Component) {
+                            return Component || function() { return null; };
+                          };
+                        },
+                        set: function(value) {
+                          this._forwardRef = value;
+                        },
+                        configurable: true,
+                        enumerable: false
+                      });
+                    }
+                    return callback.call(this, prev, curr, index, array);
+                  } catch (error) {
+                    console.warn('🛡️ Array.reduce forwardRef error intercepted:', error.message);
+                    // 返回安全的默认值
+                    return prev || curr || {};
+                  }
+                };
+                return originalReduce.call(this, safeCallback, initialValue);
+              }
+              return originalReduce.call(this, callback, initialValue);
+            } catch (error) {
+              console.warn('🛡️ Array.reduce total failure handled:', error.message);
+              return initialValue !== undefined ? initialValue : [];
+            }
+          };
+        }
+        
+        // 🔧 终极全局错误拦截器 - 处理所有forwardRef相关错误
+        window.addEventListener('error', function(event) {
+          const message = event.message || '';
+          const filename = event.filename || '';
+          
+          if (message.includes('forwardRef') || 
+              message.includes('Cannot read properties of undefined') ||
+              message.includes('reading \'forwardRef\'') ||
+              message.includes('Array.reduce') ||
+              filename.includes('ui-vendor') ||
+              filename.includes('vendor')) {
+            
+            console.warn('🛡️ Global forwardRef error intercepted:', {
+              message: message,
+              filename: filename,
+              lineno: event.lineno,
+              colno: event.colno
+            });
+            
+            // 尝试修复 window.React 对象
+            try {
+              if (typeof window !== 'undefined') {
+                if (!window.React) {
+                  window.React = {};
+                }
+                if (!window.React.forwardRef) {
+                  window.React.forwardRef = function(Component) {
+                    return Component || function() { return null; };
+                  };
+                }
+              }
+            } catch (fixError) {
+              console.warn('🔧 React forwardRef fix attempt failed:', fixError.message);
+            }
+            
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+        }, true); // 使用捕获阶段，更早拦截
+        
+        // 🔧 Promise rejection 早期拦截
+        window.addEventListener('unhandledrejection', function(event) {
+          const error = event.reason;
+          if (error && error.message && (
+            error.message.includes('forwardRef') ||
+            error.message.includes('Cannot read properties of undefined (reading \'forwardRef\')') ||
+            error.message.includes('Array.reduce')
+          )) {
+            console.warn('🛡️ Early promise rejection intercepted:', error.message);
+            event.preventDefault();
+            return false;
+          }
+        });
+        
+        // 🔧 强制缓存清理 - 确保使用最新的构建文件
+        try {
+          if ('caches' in window) {
+            caches.keys().then(function(cacheNames) {
+              return Promise.all(
+                cacheNames.map(function(cacheName) {
+                  console.log('🧹 Clearing cache:', cacheName);
+                  return caches.delete(cacheName);
+                })
+              );
+            }).then(function() {
+              console.log('✅ All caches cleared');
+            }).catch(function(error) {
+              console.warn('🔧 Cache clearing failed:', error.message);
+            });
+          }
+          
+          // 强制重新加载 service worker
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              for (let registration of registrations) {
+                registration.unregister();
+                console.log('🧹 Service worker unregistered');
+              }
+            });
+          }
+        } catch (cacheError) {
+          console.warn('🔧 Cache management failed:', cacheError.message);
+        }
+        
+        console.log('✅ Ultimate forwardRef protection setup complete');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

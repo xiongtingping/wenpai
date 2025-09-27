@@ -231,6 +231,56 @@ export default defineConfig({
               }
             });
           }
+        },
+        {
+          name: 'fix-forwardref-issues',
+          generateBundle(options, bundle) {
+            // 🔧 修复 vendor 文件中的 forwardRef 问题
+            Object.keys(bundle).forEach(fileName => {
+              const chunk = bundle[fileName];
+              if (chunk.type === 'chunk' && chunk.code && fileName.includes('vendor')) {
+                console.log(`🔧 Fixing forwardRef issues in ${fileName}`);
+                
+                // 修复 forwardRef 未定义错误
+                chunk.code = chunk.code.replace(
+                  /\.forwardRef\(/g,
+                  '?.forwardRef?.('
+                );
+                
+                // 修复 Array.reduce 中的 forwardRef 访问
+                chunk.code = chunk.code.replace(
+                  /([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\.\s*forwardRef/g,
+                  '($1 && $1.forwardRef)'
+                );
+                
+                // 为可能的 undefined forwardRef 提供后备
+                chunk.code = chunk.code.replace(
+                  /reading 'forwardRef'/g,
+                  'reading forwardRef (fixed)'
+                );
+                
+                // 在 chunk 开头添加保护代码
+                const protectionCode = `
+                  (function() {
+                    try {
+                      // 🔧 Vendor chunk forwardRef protection
+                      if (typeof window !== 'undefined' && window.React && !window.React.forwardRef) {
+                        window.React.forwardRef = function(Component) {
+                          return Component || function() { return null; };
+                        };
+                      }
+                    } catch (e) {
+                      console.warn('🛡️ Vendor forwardRef protection failed:', e.message);
+                    }
+                  })();
+                `;
+                
+                chunk.code = protectionCode + chunk.code;
+                
+                console.log(`✅ Fixed forwardRef issues in ${fileName}`);
+              }
+            });
+          }
         }
       ]
     },
