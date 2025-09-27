@@ -236,6 +236,28 @@
         
       })();
     </script>
+    
+    <!-- 🔍 JS加载检测和fallback -->
+    <script>
+      console.log('🔍 HTML: 准备加载主应用JS文件...');
+      
+      // 检测JS加载错误
+      window.addEventListener('error', function(event) {
+        if (event.target && event.target.tagName === 'SCRIPT') {
+          console.error('🚨 JS文件加载失败:', event.target.src, event);
+          // 如果主JS加载失败，立即显示基本界面
+          const root = document.getElementById('root');
+          if (root) {
+            root.innerHTML = '<div style="padding: 40px 20px; text-align: center; font-family: Arial, sans-serif; background: #fee2e2; min-height: 100vh;"><h1 style="color: #dc2626;">文派AI</h1><p>主程序加载失败，请刷新页面重试</p><button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #dc2626; color: white; border: none; border-radius: 5px; cursor: pointer;">刷新页面</button></div>';
+          }
+        }
+      });
+      
+      // 2秒后检查主应用是否启动
+      setTimeout(function() {
+        console.log('🔍 HTML: 2秒检查 - 是否看到main.tsx日志...');
+      }, 2000);
+    </script>
   </head>
   <body>
     <div id="root"></div>
