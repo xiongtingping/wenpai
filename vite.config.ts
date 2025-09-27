@@ -20,7 +20,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
       // 🔧 FIXED: 全局替换 @radix-ui/react-slot 以解决 forwardRef 错误
       "@radix-ui/react-slot": path.resolve(__dirname, "./src/components/ui/safe-slot.tsx"),
-      // 🔧 关键修复：直接重定向jsx-runtime到全局变量
+      // 🔧 关键修复：只重定向jsx-runtime，保持react外部化
       "react/jsx-runtime": path.resolve(__dirname, "./src/utils/jsx-runtime-polyfill.ts"),
     },
   },
@@ -149,17 +149,15 @@ export default defineConfig({
       target: 'es2020'
     },
     rollupOptions: {
-      // 🔧 关键修复：外部化React依赖，使用HTML预加载的CDN版本
+      // 🔧 恢复外部化React和ReactDOM
       external: (id) => {
-        // 外部化React相关包，但jsx-runtime使用别名处理
         return ['react', 'react-dom'].includes(id);
       },
       output: {
         // 🔧 全局变量映射：告诉Rollup使用window上的React
         globals: {
-          'react': 'React',
-          'react-dom': 'ReactDOM',
-          'react/jsx-runtime': 'window["react/jsx-runtime"]'
+          'react': 'window.React',
+          'react-dom': 'window.ReactDOM'
         },
         // 优化代码分割策略：减少大文件
         manualChunks: (id) => {

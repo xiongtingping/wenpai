@@ -24,10 +24,10 @@
     }
     </script>
     
-    <!-- 🔧 终极解决方案：预加载真正的React库和jsx-runtime -->
+    <!-- 🔧 终极解决方案：预加载真正的React库 -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/react@18/cjs/react-jsx-runtime.production.min.js"></script>
+    <!-- 🔧 移除有问题的jsx-runtime CDN，使用自定义实现 -->
     
     <!-- 🔧 关键修复：jsx-runtime全局映射增强版 -->
     <script>
