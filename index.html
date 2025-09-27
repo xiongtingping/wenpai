@@ -17,39 +17,62 @@
     {
       "imports": {
         "react": "https://unpkg.com/react@18/index.js",
-        "react-dom": "https://unpkg.com/react-dom@18/index.js",
-        "react-dom/client": "https://unpkg.com/react-dom@18/client.js"
+        "react-dom": "https://unpkg.com/react-dom@18/index.js", 
+        "react-dom/client": "https://unpkg.com/react-dom@18/client.js",
+        "react/jsx-runtime": "data:text/javascript,export const jsx = window.React.createElement; export const jsxs = window.React.createElement; export const Fragment = window.React.Fragment;"
       }
     }
     </script>
     
-    <!-- 🔧 终极解决方案：预加载真正的React库 -->
+    <!-- 🔧 终极解决方案：预加载真正的React库和jsx-runtime -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/react@18/cjs/react-jsx-runtime.production.min.js"></script>
     
-    <!-- 🔧 关键修复：jsx-runtime全局映射 -->
+    <!-- 🔧 关键修复：jsx-runtime全局映射增强版 -->
     <script>
-      // jsx-runtime 外部化支持
+      // jsx-runtime 外部化全面支持
       if (typeof window.React !== 'undefined') {
-        // 为 react/jsx-runtime 提供全局变量
-        window['react/jsx-runtime'] = {
+        // 创建jsx-runtime全局模块
+        const jsxRuntime = {
           jsx: React.createElement,
-          jsxs: React.createElement,
-          Fragment: React.Fragment
+          jsxs: React.createElement, 
+          Fragment: React.Fragment,
+          // 备用导出
+          default: {
+            jsx: React.createElement,
+            jsxs: React.createElement,
+            Fragment: React.Fragment
+          }
         };
         
-        // UMD模块系统映射
-        if (typeof window.define === 'function' && window.define.amd) {
-          window.define('react/jsx-runtime', [], function() {
-            return {
-              jsx: React.createElement,
-              jsxs: React.createElement,
-              Fragment: React.Fragment
-            };
-          });
+        // 多种方式设置全局变量
+        window['react/jsx-runtime'] = jsxRuntime;
+        window.ReactJSXRuntime = jsxRuntime;
+        
+        // 模块系统支持
+        if (typeof window.System !== 'undefined') {
+          window.System.set('react/jsx-runtime', jsxRuntime);
         }
         
-        console.log('🔧 jsx-runtime全局变量已设置');
+        // AMD支持
+        if (typeof window.define === 'function' && window.define.amd) {
+          window.define('react/jsx-runtime', [], () => jsxRuntime);
+        }
+        
+        // CommonJS支持
+        if (typeof module !== 'undefined' && module.exports) {
+          const originalModule = window.module;
+          window.module = {
+            ...originalModule,
+            exports: {
+              ...originalModule?.exports,
+              'react/jsx-runtime': jsxRuntime
+            }
+          };
+        }
+        
+        console.log('🔧 jsx-runtime全局变量和模块支持已完整设置');
       }
     </script>
     
