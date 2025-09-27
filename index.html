@@ -53,6 +53,36 @@
           window.react = originalReact;
           window.__REACT__ = originalReact;
           
+          // 🔧 模块系统映射 - 确保vendor文件能找到React
+          if (typeof define === 'function' && define.amd) {
+            // AMD模块系统
+            define('react', function() { return originalReact; });
+            define('react-dom', function() { return originalReactDOM; });
+          }
+          
+          // CommonJS模块系统
+          if (typeof module !== 'undefined' && module.exports) {
+            const originalExports = module.exports;
+            Object.defineProperty(window, 'module', {
+              get: function() { 
+                return {
+                  exports: {
+                    ...originalExports,
+                    React: originalReact,
+                    'react': originalReact,
+                    'react-dom': originalReactDOM
+                  }
+                };
+              }
+            });
+          }
+          
+          // ES6模块系统映射
+          if (typeof window.System !== 'undefined') {
+            window.System.set('react', window.System.newModule({ default: originalReact }));
+            window.System.set('react-dom', window.System.newModule({ default: originalReactDOM }));
+          }
+          
         } else {
           console.error('🚨 Failed to load real React, using fallback');
           // 回退到简单的模拟对象

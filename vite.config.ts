@@ -147,7 +147,20 @@ export default defineConfig({
       target: 'es2020'
     },
     rollupOptions: {
+      // 🔧 React外部化配置 - 让vendor文件使用全局React
+      external: (id) => {
+        // 在生产环境中将React外部化到全局变量
+        if (process.env.NODE_ENV === 'production') {
+          return id === 'react' || id === 'react-dom';
+        }
+        return false;
+      },
       output: {
+        // 🔧 全局变量映射
+        globals: {
+          'react': 'React',
+          'react-dom': 'ReactDOM'
+        },
         // 优化代码分割策略：减少大文件
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
