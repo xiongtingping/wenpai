@@ -39,20 +39,31 @@ class ServiceInitializer {
     console.log('🚀 开始初始化服务依赖...');
 
     try {
-      // 1. 注册所有服务到DI容器
-      const { registerAllServices } = await import('@/config/serviceRegistry');
-      await registerAllServices();
-      console.log('✅ DI容器服务注册完成');
+      // 1. 注册所有服务到DI容器 - 优雅降级
+      try {
+        const { registerAllServices } = await import('@/config/serviceRegistry');
+        await registerAllServices();
+        console.log('✅ DI容器服务注册完成');
+      } catch (error) {
+        console.warn('⚠️ DI容器注册失败，跳过:', error);
+        this.state.errors.push({ service: 'DIContainer', error: String(error) });
+      }
 
-      // 2. 初始化ServerPermissionService
-      await this.initializeServerPermissionService();
+      // 2. 初始化ServerPermissionService - 优雅降级
+      try {
+        await this.initializeServerPermissionService();
+      } catch (error) {
+        console.warn('⚠️ 权限服务初始化失败，跳过:', error);
+        this.state.errors.push({ service: 'ServerPermissionService', error: String(error) });
+      }
 
       this.state.initialized = true;
-      console.log('✅ 服务依赖初始化完成');
+      console.log('✅ 服务依赖初始化完成 (部分失败已跳过)');
       
     } catch (error) {
-      console.error('❌ 服务依赖初始化失败:', error);
-      throw error;
+      console.warn('⚠️ 服务依赖初始化部分失败，应用仍可正常使用:', error);
+      this.state.initialized = true; // 标记为已初始化，避免重复尝试
+      this.state.errors.push({ service: 'ServiceInitializer', error: String(error) });
     }
   }
 

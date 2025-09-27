@@ -92,8 +92,14 @@ async function initializeApplication() {
     // 仅初始化必要的错误处理
     setupGlobalErrorHandler();
 
-    // 🔧 临时跳过复杂服务初始化，直接启动React应用
-    console.log('🔧 跳过服务初始化，直接启动应用...');
+    // 🚀 尝试初始化服务依赖，失败时优雅降级
+    console.log('🔧 正在初始化服务依赖...');
+    try {
+      await ServiceInitializer.initialize();
+      console.log('✅ 服务依赖初始化完成');
+    } catch (error) {
+      console.warn('⚠️ 服务初始化失败，继续启动应用:', error);
+    }
 
     // 立即启动React应用 - 其他服务按需加载
     const root = ReactDOM.createRoot(document.getElementById('root')!);
