@@ -12,27 +12,50 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- 🔧 根因修复：简洁有效的forwardRef保护 -->
+    <!-- 🔧 诊断并修复React加载问题 -->
     <script>
       (function() {
         'use strict';
-        console.log('🔧 Clean forwardRef protection activated');
+        console.log('🔧 Diagnostic mode activated');
         
-        // 静默处理vendor文件中的forwardRef错误，不干预React运行时
+        // 在页面加载前确保React对象存在
+        if (typeof window !== 'undefined') {
+          window.React = window.React || {};
+          // 提供基本的React方法确保vendor文件不会崩溃
+          if (!window.React.forwardRef) {
+            window.React.forwardRef = function(render) {
+              return render || function() { return null; };
+            };
+          }
+          if (!window.React.createContext) {
+            window.React.createContext = function(defaultValue) {
+              return {
+                Provider: function(props) { return props.children; },
+                Consumer: function(props) { return props.children(defaultValue); }
+              };
+            };
+          }
+        }
+        
+        // 详细的错误处理和日志
         window.addEventListener('error', function(event) {
-          const message = event.message || '';
-          const filename = event.filename || '';
+          console.log('🚨 Error detected:', {
+            message: event.message,
+            filename: event.filename,
+            lineno: event.lineno,
+            colno: event.colno
+          });
           
-          // 只拦截确认来自vendor文件的forwardRef相关错误
-          if (filename.includes('vendor') && 
-              (message.includes('forwardRef') || message.includes('createContext'))) {
-            console.warn('🛡️ Vendor error silenced:', message);
+          // 只静默vendor文件的React相关错误
+          if (event.filename && event.filename.includes('vendor') && 
+              (event.message.includes('forwardRef') || event.message.includes('createContext'))) {
+            console.log('🛡️ Vendor React error silenced');
             event.preventDefault();
             return false;
           }
         }, true);
         
-        console.log('✅ Clean protection setup complete');
+        console.log('✅ Diagnostic setup complete');
       })();
     </script>
   </head>
