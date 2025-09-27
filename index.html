@@ -162,31 +162,71 @@
           
           if (!hasRealContent) {
             console.log('🚨 App not started, forcing basic render');
-            root.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;"><h1>文派AI</h1><p>正在加载应用程序...</p><p style="color: #666; font-size: 12px;">如果此消息仍然存在，请刷新页面。</p></div>';
+            
+            // 🔧 直接替换root内容，确保可见
+            root.innerHTML = '';
+            root.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative !important; z-index: 9999 !important;';
+            
+            // 立即显示基础内容
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.cssText = 'padding: 40px 20px; text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: white; min-height: 100vh; color: #333;';
+            loadingDiv.innerHTML = '<h1 style="color: #2563eb; margin-bottom: 20px;">文派AI</h1><p style="font-size: 18px; margin-bottom: 10px;">正在启动应用程序...</p><p style="color: #666; font-size: 14px;">如果此消息持续显示，请刷新页面</p>';
+            root.appendChild(loadingDiv);
             
             // 尝试手动触发应用启动
             setTimeout(function() {
               if (window.React && window.ReactDOM && window.ReactDOM.createRoot) {
                 try {
                   console.log('🔧 Attempting manual app startup');
-                  const container = document.createElement('div');
-                  container.id = 'react-app';
-                  root.appendChild(container);
                   
-                  // 创建一个简单的React应用
+                  // 清空并重新设置root
+                  root.innerHTML = '';
+                  root.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+                  
+                  // 创建简单但可见的React应用
                   const App = window.React.createElement('div', {
-                    style: { padding: '20px', textAlign: 'center' }
+                    style: { 
+                      padding: '40px 20px', 
+                      textAlign: 'center', 
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      color: 'white',
+                      minHeight: '100vh',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }
                   }, 
-                    window.React.createElement('h1', null, 'Wenpai AI - 手动启动'),
-                    window.React.createElement('p', null, '申请成功开始了！')
+                    window.React.createElement('h1', { 
+                      style: { fontSize: '2.5rem', marginBottom: '1rem', fontWeight: 'bold' }
+                    }, '🚀 WenPai AI'),
+                    window.React.createElement('p', { 
+                      style: { fontSize: '1.2rem', marginBottom: '2rem', opacity: 0.9 }
+                    }, 'AI驱动的智能内容创作平台'),
+                    window.React.createElement('div', {
+                      style: {
+                        background: 'rgba(255,255,255,0.1)',
+                        padding: '20px',
+                        borderRadius: '10px',
+                        backdropFilter: 'blur(10px)'
+                      }
+                    }, 
+                      window.React.createElement('p', { style: { margin: 0 } }, '应用已成功启动！')
+                    )
                   );
                   
-                  const reactRoot = window.ReactDOM.createRoot(container);
+                  const reactRoot = window.ReactDOM.createRoot(root);
                   reactRoot.render(App);
                   console.log('✅ Manual React app started');
                 } catch (error) {
                   console.error('🚨 Manual startup failed:', error);
+                  // 如果React启动失败，显示纯HTML内容
+                  root.innerHTML = '<div style="padding: 40px 20px; text-align: center; font-family: Arial, sans-serif; background: #f0f9ff; min-height: 100vh;"><h1 style="color: #1e40af;">文派AI</h1><p>系统正在初始化，请稍候...</p><button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer;">刷新页面</button></div>';
                 }
+              } else {
+                // 如果React不可用，显示纯HTML内容
+                root.innerHTML = '<div style="padding: 40px 20px; text-align: center; font-family: Arial, sans-serif; background: #fef3c7; min-height: 100vh;"><h1 style="color: #92400e;">文派AI</h1><p>正在加载必要资源...</p><button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #d97706; color: white; border: none; border-radius: 5px; cursor: pointer;">重新加载</button></div>';
               }
             }, 1000);
           } else {
