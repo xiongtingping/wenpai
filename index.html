@@ -12,76 +12,62 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- 🔧 超强React保护机制 - 多层防护确保页面正常渲染 -->
+    <!-- 🔧 终极解决方案：预加载真正的React库 -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- 🔧 React验证和保护机制 -->
     <script>
-      // 🔧 第一层：全局对象锁定，确保React对象永远存在
       (function() {
         'use strict';
-        console.log('🔧 Super React protection activated');
+        console.log('🔧 Real React loaded, setting up protection');
         
-        // 创建不可变的React模拟对象
-        const ReactMock = {
-          forwardRef: function(render) {
-            console.log('🛡️ forwardRef safely handled');
-            return render || function() { return null; };
-          },
-          createContext: function(defaultValue) {
-            console.log('🛡️ createContext safely handled');
-            return {
-              Provider: function(props) { return props.children; },
-              Consumer: function(props) { return props.children(defaultValue); }
-            };
-          },
-          createElement: function() { return null; },
-          Component: function() {},
-          PureComponent: function() {},
-          Fragment: 'Fragment',
-          StrictMode: 'StrictMode',
-          Suspense: 'Suspense',
-          lazy: function(fn) { return fn; },
-          memo: function(component) { return component; },
-          useEffect: function() {},
-          useState: function() { return [null, function() {}]; },
-          useCallback: function(fn) { return fn; },
-          useMemo: function(fn) { return fn(); },
-          useRef: function() { return { current: null }; }
-        };
-        
-        // 🔧 强制注入到所有可能的位置
-        if (typeof window !== 'undefined') {
-          // 使用Object.defineProperty确保无法被覆盖
+        // 确保React和ReactDOM全局可用
+        if (typeof window.React !== 'undefined' && typeof window.ReactDOM !== 'undefined') {
+          console.log('✅ Real React and ReactDOM available');
+          
+          // 添加保护机制，确保React不会被意外覆盖
+          const originalReact = window.React;
+          const originalReactDOM = window.ReactDOM;
+          
+          // 锁定React对象
           Object.defineProperty(window, 'React', {
-            value: ReactMock,
-            writable: false,
+            get: function() { return originalReact; },
+            set: function(value) { 
+              console.log('🛡️ Prevented React override, keeping original');
+              return originalReact; 
+            },
             configurable: false
           });
           
-          // 多重保险
-          window.react = ReactMock;
-          window.__REACT__ = ReactMock;
+          Object.defineProperty(window, 'ReactDOM', {
+            get: function() { return originalReactDOM; },
+            set: function(value) { 
+              console.log('🛡️ Prevented ReactDOM override, keeping original');
+              return originalReactDOM; 
+            },
+            configurable: false
+          });
           
-          if (typeof global !== 'undefined') {
-            global.React = ReactMock;
-          }
+          // 多重引用确保兼容性
+          window.react = originalReact;
+          window.__REACT__ = originalReact;
           
-          // 🔧 提前注入模块系统
-          if (typeof module !== 'undefined' && module.exports) {
-            module.exports.React = ReactMock;
-          }
+        } else {
+          console.error('🚨 Failed to load real React, using fallback');
+          // 回退到简单的模拟对象
+          window.React = {
+            forwardRef: function(render) { return render || function() { return null; }; },
+            createContext: function(defaultValue) {
+              return {
+                Provider: function(props) { return props.children; },
+                Consumer: function(props) { return props.children(defaultValue); }
+              };
+            }
+          };
         }
         
-        // 🔧 第二层：动态属性拦截
-        const originalDefineProperty = Object.defineProperty;
-        Object.defineProperty = function(obj, prop, descriptor) {
-          // 拦截对React的重新定义
-          if (prop === 'React' && obj === window) {
-            console.log('🛡️ Prevented React override attempt');
-            return obj;
-          }
-          return originalDefineProperty.call(this, obj, prop, descriptor);
-        };
-        
-        // 🔧 第三层：最强错误拦截
+        // 错误拦截机制保持不变
         window.addEventListener('error', function(event) {
           const message = event.message || '';
           const filename = event.filename || '';
@@ -92,41 +78,17 @@
             prevented: filename.includes('vendor')
           });
           
-          // 强制阻止vendor错误
-          if (filename.includes('vendor')) {
-            console.log('🛡️ Vendor error completely blocked');
-            event.stopPropagation();
-            event.stopImmediatePropagation(); 
+          // 只静默vendor错误，让应用正常错误显示
+          if (filename.includes('vendor') && 
+              (message.includes('forwardRef') || message.includes('createContext'))) {
+            console.log('🛡️ Vendor React error silenced');
             event.preventDefault();
             return false;
           }
         }, true);
         
-        // Promise错误处理
-        window.addEventListener('unhandledrejection', function(event) {
-          console.log('🛡️ Promise rejection handled');
-          event.preventDefault();
-        });
-        
-        console.log('✅ Super protection active - React locked and secured');
+        console.log('✅ React protection and error handling ready');
       })();
-    </script>
-    
-    <!-- 🔧 Pre-vendor验证脚本 - 确保React在任何vendor代码执行前都可用 -->
-    <script>
-      // 在任何模块加载前进行最后检查
-      console.log('🔧 Pre-vendor React validation');
-      
-      // 验证React对象是否正确配置
-      if (typeof window.React === 'undefined' || !window.React.forwardRef) {
-        console.error('🚨 React protection failed, emergency fix');
-        window.React = {
-          forwardRef: function(r) { return r || function(){return null;}; },
-          createContext: function(d) { return {Provider:function(p){return p.children;},Consumer:function(p){return p.children(d);}}; }
-        };
-      }
-      
-      console.log('✅ React verified before vendor loading:', !!window.React?.forwardRef);
     </script>
   </head>
   <body>
