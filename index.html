@@ -12,12 +12,12 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- 🔧 ES模块导入映射 - 重定向React导入到CDN -->
+    <!-- 🔧 ES模块导入映射 - 修复React默认导出映射 -->
     <script type="importmap">
     {
       "imports": {
-        "react": "https://unpkg.com/react@18/index.js",
-        "react-dom": "https://unpkg.com/react-dom@18/index.js", 
+        "react": "data:text/javascript,export default window.React; export const createElement = window.React.createElement; export const Fragment = window.React.Fragment; export const Component = window.React.Component; export const forwardRef = window.React.forwardRef; export const useRef = window.React.useRef; export const useState = window.React.useState; export const useEffect = window.React.useEffect; export const useMemo = window.React.useMemo; export const useCallback = window.React.useCallback; export const useContext = window.React.useContext; export const createContext = window.React.createContext;",
+        "react-dom": "data:text/javascript,export default window.ReactDOM; export const createRoot = window.ReactDOM.createRoot; export const render = window.ReactDOM.render; export const flushSync = window.ReactDOM.flushSync; export const createPortal = window.ReactDOM.createPortal; export const findDOMNode = window.ReactDOM.findDOMNode; export const unmountComponentAtNode = window.ReactDOM.unmountComponentAtNode; export const hydrate = window.ReactDOM.hydrate;",
         "react-dom/client": "https://unpkg.com/react-dom@18/client.js",
         "react/jsx-runtime": "data:text/javascript,export const jsx = window.React.createElement; export const jsxs = window.React.createElement; export const Fragment = window.React.Fragment;"
       }
@@ -90,6 +90,17 @@
           const originalReact = window.React;
           const originalReactDOM = window.ReactDOM;
           
+          // 🔧 为React添加default导出支持，解决ui-vendor的 import Ee from"react" 问题
+          if (originalReact && !originalReact.default) {
+            originalReact.default = originalReact;
+            console.log('🔧 Added default export to React for ui-vendor compatibility');
+          }
+          
+          // 为ReactDOM也添加default导出
+          if (originalReactDOM && !originalReactDOM.default) {
+            originalReactDOM.default = originalReactDOM;
+          }
+          
           // 锁定React对象
           Object.defineProperty(window, 'React', {
             get: function() { return originalReact; },
@@ -115,9 +126,19 @@
           
           // 🔧 模块系统映射 - 确保vendor文件能找到React
           if (typeof define === 'function' && define.amd) {
-            // AMD模块系统
-            define('react', function() { return originalReact; });
-            define('react-dom', function() { return originalReactDOM; });
+            // AMD模块系统 - 返回带default导出的对象
+            define('react', function() { 
+              return { 
+                default: originalReact,
+                ...originalReact 
+              }; 
+            });
+            define('react-dom', function() { 
+              return { 
+                default: originalReactDOM,
+                ...originalReactDOM 
+              }; 
+            });
           }
           
           // CommonJS模块系统

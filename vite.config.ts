@@ -9,7 +9,7 @@ const DEV_PORT = Number(process.env.PORT) || Number(process.env.VITE_DEV_PORT) |
 const HMR_PORT = Number(process.env.VITE_HMR_PORT) || DEV_PORT;
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ command, mode }) => ({
   plugins: [react(), envPlugin()],
   // 优化 base 路径配置，支持通过环境变量 VITE_BASE_PATH 设置，兼容子路径部署
   base: process.env.VITE_BASE_PATH || process.env.BASE_PATH || '/',
@@ -149,16 +149,20 @@ export default defineConfig({
       target: 'es2020'
     },
     rollupOptions: {
-      // 🔧 恢复外部化React和ReactDOM
-      external: (id) => {
-        return ['react', 'react-dom'].includes(id);
-      },
-      output: {
-        // 🔧 全局变量映射：告诉Rollup使用window上的React
-        globals: {
-          'react': 'window.React',
-          'react-dom': 'window.ReactDOM'
+      // 🔧 修复React外部化 - 改为UMD格式映射
+      ...(command === 'build' && {
+        external: (id) => {
+          return ['react', 'react-dom'].includes(id);
         },
+      }),
+      output: {
+        // 🔧 修复全局变量映射 - 使用正确的UMD全局变量名
+        ...(command === 'build' && {
+          globals: {
+            'react': 'React',
+            'react-dom': 'ReactDOM'
+          },
+        }),
         // 优化代码分割策略：减少大文件
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
@@ -249,10 +253,8 @@ export default defineConfig({
       'crypto-js'
     ],
     exclude: [
-      // 🔧 关键修复：排除React相关包，使用CDN版本
-      'react',
-      'react-dom',
-      'react/jsx-runtime',
+      // 🔧 在开发模式下允许React预构建，仅排除问题包
+      ...(command === 'build' ? ['react', 'react-dom', 'react/jsx-runtime'] : []),
       'stream',
       'readable-stream',
       // 🔧 [AUTHING_GUARD_FIX_v2025.08.15] 排除@authing/guard，避免预构建时的正则表达式错误
@@ -268,7 +270,6 @@ export default defineConfig({
     force: false,
     keepNames: true
   }
+}))
 
 // ci: rebuild trigger 2025-08-15T00:00:00Z
-
-})
