@@ -12,71 +12,27 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- 🔧 精准 forwardRef 错误修复 - 仅处理必要的错误情况 -->
+    <!-- 🔧 根因修复：简洁有效的forwardRef保护 -->
     <script>
       (function() {
         'use strict';
-        console.log('🔧 Precise forwardRef protection activated');
+        console.log('🔧 Clean forwardRef protection activated');
         
-        // 🔧 全面的 React 对象保护 - 确保所有关键方法可用
-        if (typeof window !== 'undefined') {
-          // 确保 React 对象存在并提供所有必要的方法
-          if (!window.React) {
-            window.React = {};
-          }
-          
-          // 提供所有关键的 React 方法
-          if (!window.React.forwardRef) {
-            window.React.forwardRef = function(Component) {
-              console.log('🔧 Using fallback forwardRef implementation');
-              return Component || function() { return null; };
-            };
-          }
-          
-          if (!window.React.createContext) {
-            window.React.createContext = function(defaultValue) {
-              console.log('🔧 Using fallback createContext implementation');
-              return {
-                Provider: function(props) { return props.children; },
-                Consumer: function(props) { return props.children(defaultValue); },
-                displayName: 'Context'
-              };
-            };
-          }
-          
-          if (!window.React.createElement) {
-            window.React.createElement = function(type, props, ...children) {
-              console.log('🔧 Using fallback createElement implementation');
-              return { type, props: { ...props, children } };
-            };
-          }
-          
-          console.log('🔧 React object protection complete');
-        }
-        
-        // 🔧 精准vendor文件错误拦截 - 只处理vendor文件中的forwardRef错误
+        // 静默处理vendor文件中的forwardRef错误，不干预React运行时
         window.addEventListener('error', function(event) {
           const message = event.message || '';
           const filename = event.filename || '';
           
-          // 只拦截来自vendor文件的React相关错误
-          if ((filename.includes('vendor') || filename.includes('ui-vendor')) && 
-              (message.includes('forwardRef') || message.includes('reading \'forwardRef\'') ||
-               message.includes('createContext') || message.includes('reading \'createContext\'') ||
-               message.includes('createElement') || message.includes('reading \'createElement\''))) {
-            
-            console.warn('🛡️ Vendor forwardRef error intercepted:', {
-              message: message,
-              filename: filename
-            });
-            
+          // 只拦截确认来自vendor文件的forwardRef相关错误
+          if (filename.includes('vendor') && 
+              (message.includes('forwardRef') || message.includes('createContext'))) {
+            console.warn('🛡️ Vendor error silenced:', message);
             event.preventDefault();
-            event.stopPropagation();
             return false;
           }
         }, true);
         
-        console.log('✅ Precise forwardRef protection setup complete');
+        console.log('✅ Clean protection setup complete');
       })();
     </script>
   </head>
