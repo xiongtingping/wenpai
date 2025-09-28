@@ -18,10 +18,7 @@ export default defineConfig(({ command, mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // 🔧 FIXED: 全局替换 @radix-ui/react-slot 以解决 forwardRef 错误
       "@radix-ui/react-slot": path.resolve(__dirname, "./src/components/ui/safe-slot.tsx"),
-      // 🔧 关键修复：只重定向jsx-runtime，保持react外部化
-      "react/jsx-runtime": path.resolve(__dirname, "./src/utils/jsx-runtime-polyfill.ts"),
     },
   },
   // 🔒 环境变量注入 - 增强安全性处理
@@ -171,20 +168,7 @@ export default defineConfig(({ command, mode }) => ({
       }
     },
     rollupOptions: {
-      // 🔧 修复React外部化 - 改为UMD格式映射
-      ...(command === 'build' && {
-        external: (id) => {
-          return ['react', 'react-dom'].includes(id);
-        },
-      }),
       output: {
-        // 🔧 修复全局变量映射 - 使用正确的UMD全局变量名
-        ...(command === 'build' && {
-          globals: {
-            'react': 'React',
-            'react-dom': 'ReactDOM'
-          },
-        }),
         // 🚨 [ULTIMATE_TDZ_FIX] 完全禁用代码分割，避免所有模块依赖问题
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
