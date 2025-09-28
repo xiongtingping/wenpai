@@ -136,16 +136,16 @@ export function GenerationControls({ generating,
   const currentModel = availableModels.find(m => m.id === selectedModel);
 
   // 调试信息
-  console.log('🔍 GenerationControls - 模型数据调试:', {
-    availableModelsCount: availableModels.length,
-    selectedModel,
-    currentModel,
-    lowTierModels: availableModels.filter(m => m?.tier === 'low').length,
-    midTierModels: availableModels.filter(m => m?.tier === 'mid').length,
-    highTierModels: availableModels.filter(m => m?.tier === 'high').length,
-    sampleModel: availableModels[0],
-    allModels: availableModels.map(m => ({ id: m?.id, name: m?.name, tier: m?.tier }))
-  });
+  // console.log('🔍 GenerationControls - 模型数据调试:', {
+  //   availableModelsCount: availableModels.length,
+  //   selectedModel,
+  //   currentModel,
+  //   lowTierModels: availableModels.filter(m => m?.tier === 'low').length,
+  //   midTierModels: availableModels.filter(m => m?.tier === 'mid').length,
+  //   highTierModels: availableModels.filter(m => m?.tier === 'high').length,
+  //   sampleModel: availableModels[0],
+  //   allModels: availableModels.map(m => ({ id: m?.id, name: m?.name, tier: m?.tier }))
+  // });
 
   // 保存模型选择
   const handleSaveModelPreference = async () => {
@@ -276,7 +276,7 @@ export function GenerationControls({ generating,
               </div>
               <div className="ai-model-grid">
                 {availableModels.filter(m => m.tier === 'low').map((model) => {
-                  console.log('🔍 渲染体验版模型:', model);
+                  // console.log('🔍 渲染体验版模型:', model);
                   const disabled = generating;
                   const isSelected = selectedModel === model.id;
 

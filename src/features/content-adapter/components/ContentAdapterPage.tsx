@@ -202,7 +202,7 @@ export function ContentAdapterPage({
       // 延迟更新，避免闪烁
       const timeoutId = setTimeout(() => {
         setCachedUsageRemaining(effectiveUsageRemaining);
-        console.log('🔄 更新缓存的剩余次数:', { from: cachedUsageRemaining, to: effectiveUsageRemaining, tier: effectiveUserTier });
+        // console.log('🔄 更新缓存的剩余次数:', { from: cachedUsageRemaining, to: effectiveUsageRemaining, tier: effectiveUserTier });
       }, 100);
       
       return () => clearTimeout(timeoutId);
@@ -479,18 +479,18 @@ export function ContentAdapterPage({
   }
 
   // 调试信息
-  console.log('🔍 ContentAdapterPage - 模型数据调试:', {
-    effectiveUserTier,
-    availableModelsCount: availableModels.length,
-    sampleModels: availableModels.slice(0, 3).map(m => ({
-      id: m?.id,
-      name: m?.name,
-      tier: m?.tier,
-      company: m?.company,
-      description: m?.description,
-      fullModel: m
-    }))
-  });
+  // console.log('🔍 ContentAdapterPage - 模型数据调试:', {
+  //   effectiveUserTier,
+  //   availableModelsCount: availableModels.length,
+  //   sampleModels: availableModels.slice(0, 3).map(m => ({
+  //     id: m?.id,
+  //     name: m?.name,
+  //     tier: m?.tier,
+  //     company: m?.company,
+  //     description: m?.description,
+  //     fullModel: m
+  //   }))
+  // });
 
   // 验证设置
   const validation = validateSettings();

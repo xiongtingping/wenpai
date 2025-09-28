@@ -240,7 +240,7 @@ export const ThemeToggle: React.FC = () => {
     // 也保存到标准key，确保兼容性
     localStorage.setItem('theme', theme);
     
-    console.log(`🎨 主题已切换并持久化: ${theme}`);
+    // console.log(`🎨 主题已切换并持久化: ${theme}`);
   }, [theme, user]);
 
   const currentTheme = themes.find(t => t.value === theme) || themes[0];

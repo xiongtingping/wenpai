@@ -329,7 +329,7 @@
                             document.getElementById('root').children.length > 0;
           
           if (!appStarted) {
-            console.log('🔥 main.tsx未加载，启动HTML内联React应用...');
+            // console.log('🔥 main.tsx未加载，启动HTML内联React应用...');
             
             const root = document.getElementById('root');
             if (root && window.React && window.ReactDOM) {
@@ -413,7 +413,7 @@
                 
                 const reactRoot = window.ReactDOM.createRoot(root);
                 reactRoot.render(App);
-                console.log('✅ HTML内联React应用启动成功');
+                // console.log('✅ HTML内联React应用启动成功');
                 
               } catch (error) {
                 console.error('🚨 HTML内联React启动失败:', error);

@@ -137,7 +137,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
   checkPermission: (featureId: string) => Promise<boolean>;
   consumeUsage: (amount?: number) => Promise<boolean>;
 } {
-  console.log('🔍 [useUnifiedUsageStats] Hook初始化，外部传入userTier:', externalUserTier);
+  // console.log('🔍 [useUnifiedUsageStats] Hook初始化，外部传入userTier:', externalUserTier);
   const { user } = useAuth();
   const { currentStats: tokenStats, refreshStats: refreshTokenStatsStore } = useTokenUsageStore();
   const { subscriptionStatus, hasActiveSubscription } = useSubscriptionStatus(user?.id);
@@ -168,17 +168,17 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
 
   // 获取用户套餐类型 - 优先使用外部传入的等级
   const getUserTier = useCallback((): SubscriptionTier => {
-    console.log('🔍 [useUnifiedUsageStats] getUserTier开始计算:', {
-      externalUserTier,
-      hasUser: !!user,
-      userId: user?.id,
-      subscriptionStatus: subscriptionStatus?.status,
-      hasActiveSubscription
-    });
+    // console.log('🔍 [useUnifiedUsageStats] getUserTier开始计算:', {
+    //   externalUserTier,
+    //   hasUser: !!user,
+    //   userId: user?.id,
+    //   subscriptionStatus: subscriptionStatus?.status,
+    //   hasActiveSubscription
+    // });
     
     // 1. 🔧 FIX: 强制优先使用外部传入的等级，避免不一致
     if (externalUserTier) {
-      console.log('🔍 [useUnifiedUsageStats] 使用外部userTier:', externalUserTier);
+      // console.log('🔍 [useUnifiedUsageStats] 使用外部userTier:', externalUserTier);
       return externalUserTier;
     }
     
@@ -224,7 +224,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     }
     
     // 5. 默认为体验版
-    console.log('🔎 使用默认套餐类型: trial');
+    // console.log('🔎 使用默认套餐类型: trial');
     return 'trial';
   }, [user, externalUserTier, subscriptionStatus, hasActiveSubscription]);
 
@@ -235,14 +235,14 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
   
   // 🔎 调试信息
   useEffect(() => {
-    console.log('🔎 useUnifiedUsageStats 调试信息:', {
-      userId: user?.id,
-      userTier,
-      subscriptionStatus,
-      hasActiveSubscription,
-      externalUserTier,
-      userSubscription: (user as any)?.subscription
-    });
+    // console.log('🔎 useUnifiedUsageStats 调试信息:', {
+    //   userId: user?.id,
+    //   userTier,
+    //   subscriptionStatus,
+    //   hasActiveSubscription,
+    //   externalUserTier,
+    //   userSubscription: (user as any)?.subscription
+    // });
   }, [user?.id, getUserTier, subscriptionStatus, hasActiveSubscription, externalUserTier]); // 🔧 FIX: 避免循环依赖
 
   /**
@@ -439,7 +439,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       // 如果套餐类型发生变化，更新初始统计值
       setUsageCountStats(prev => {
         if (prev.availableUses !== newLimit) {
-          console.log(`🔄 套餐类型变化: ${prev.availableUses} → ${newLimit} (${userTier})`);
+          // console.log(`🔄 套餐类型变化: ${prev.availableUses} → ${newLimit} (${userTier})`);
           return {
             ...prev,
             availableUses: newLimit,
@@ -497,22 +497,22 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     consumeUsage
   };
   
-  console.log('🔍 [useUnifiedUsageStats] 返回数据:', {
-    externalUserTier,
-    computedUserTier: userTier,
-    tokenStats: tokenStats ? {
-      monthlyUsed: tokenStats.monthlyUsed,
-      monthlyLimit: tokenStats.monthlyLimit,
-      monthlyRemaining: tokenStats.monthlyRemaining
-    } : null,
-    usageCountStats: {
-      usedCount: usageCountStats.usedCount,
-      availableUses: usageCountStats.availableUses,
-      remainingUses: usageCountStats.remainingUses
-    },
-    loading,
-    error
-  });
+  // console.log('🔍 [useUnifiedUsageStats] 返回数据:', {
+  //   externalUserTier,
+  //   computedUserTier: userTier,
+  //   tokenStats: tokenStats ? {
+  //     monthlyUsed: tokenStats.monthlyUsed,
+  //     monthlyLimit: tokenStats.monthlyLimit,
+  //     monthlyRemaining: tokenStats.monthlyRemaining
+  //   } : null,
+  //   usageCountStats: {
+  //     usedCount: usageCountStats.usedCount,
+  //     availableUses: usageCountStats.availableUses,
+  //     remainingUses: usageCountStats.remainingUses
+  //   },
+  //   loading,
+  //   error
+  // });
   
   return returnValue;
 }

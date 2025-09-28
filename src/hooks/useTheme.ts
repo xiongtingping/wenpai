@@ -142,7 +142,7 @@ export function useTheme() {
           }
           
           setIsInitialized(true);
-          console.log(`🎨 useTheme加载主题: ${newTheme}`);
+          // console.log(`🎨 useTheme加载主题: ${newTheme}`);
         }
       } catch (error) {
         console.warn('加载主题设置失败:', error);

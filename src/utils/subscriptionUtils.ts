@@ -96,10 +96,10 @@ const TIER_FEATURES: Record<SubscriptionTier, string[]> = {
  * 获取用户当前订阅等级
  */
 export function getUserTier(user: AuthUser | AuthSystemUser | null | undefined): SubscriptionTier {
-  console.log('🔍 [getUserTier] 开始计算:', { user: user?.id, hasUser: !!user });
+  // console.log('🔍 [getUserTier] 开始计算:', { user: user?.id, hasUser: !!user });
   
   if (!user) {
-    console.log('🔍 [getUserTier] 用户为空，返回trial');
+    // console.log('🔍 [getUserTier] 用户为空，返回trial');
     return 'trial';
   }
 
@@ -108,28 +108,28 @@ export function getUserTier(user: AuthUser | AuthSystemUser | null | undefined):
     ? user as AuthUser
     : adaptAuthUser(user as AuthSystemUser);
 
-  console.log('🔍 [getUserTier] 用户适配结果:', {
-    original: !!user,
-    adapted: !!adaptedUser,
-    hasSubscription: !!adaptedUser?.subscription,
-    subscriptionTier: adaptedUser?.subscription?.tier,
-    directTier: (adaptedUser as any)?.tier
-  });
+  // console.log('🔍 [getUserTier] 用户适配结果:', {
+  //   original: !!user,
+  //   adapted: !!adaptedUser,
+  //   hasSubscription: !!adaptedUser?.subscription,
+  //   subscriptionTier: adaptedUser?.subscription?.tier,
+  //   directTier: (adaptedUser as any)?.tier
+  // });
 
   if (!adaptedUser) {
-    console.log('🔍 [getUserTier] 适配用户为空，返回trial');
+    // console.log('🔍 [getUserTier] 适配用户为空，返回trial');
     return 'trial';
   }
 
   // 优先从 subscription 对象获取
   if (adaptedUser.subscription?.tier) {
-    console.log('🔍 [getUserTier] 从subscription获取tier:', adaptedUser.subscription.tier);
+    // console.log('🔍 [getUserTier] 从subscription获取tier:', adaptedUser.subscription.tier);
     return adaptedUser.subscription.tier;
   }
 
   // 其次从 tier 字段获取
   if (adaptedUser.tier) {
-    console.log('🔍 [getUserTier] 从用户对象获取tier:', adaptedUser.tier);
+    // console.log('🔍 [getUserTier] 从用户对象获取tier:', adaptedUser.tier);
     return adaptedUser.tier;
   }
 
@@ -160,7 +160,7 @@ export function getUserTier(user: AuthUser | AuthSystemUser | null | undefined):
   }
 
   // 默认为体验版
-  console.log('🔍 [getUserTier] 所有条件都不满足，返回默认trial');
+  // console.log('🔍 [getUserTier] 所有条件都不满足，返回默认trial');
   return 'trial';
 }
 
