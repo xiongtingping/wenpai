@@ -69,8 +69,7 @@ import UserDebugPage from '@/pages/UserDebugPage';
 
 // 🔧 FIX: 懒加载组件，避免TDZ错误和循环依赖
 const LazyCreativeStudioPage = React.lazy(() => import('@/pages/CreativeStudioPage'));
-const LazyCreativeStudioPageTest = React.lazy(() => import('@/pages/CreativeStudioPageTest'));
-const LazyCreativeCubePage = React.lazy(() => import('@/pages/CreativeCubePage'));
+// 🗑️ 已删除不使用的创意页面懒加载：CreativeStudioPageTest, CreativeCubePage
 const LazyBrandLibraryPage = React.lazy(() => import('@/pages/BrandLibraryPage'));
 const LazyProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
 const LazyHistoryPage = React.lazy(() => import('@/pages/HistoryPage'));
@@ -264,8 +263,6 @@ const App: React.FC = () => {
                         
                         {/* 📌 统一路由命名：创意工具 */}
                         <Route path='/creative-studio' element={<AuthGuard><LazyWrapper><LazyCreativeStudioPage /></LazyWrapper></AuthGuard>} />
-                        <Route path='/creative-studio-test' element={<AuthGuard><LazyWrapper><LazyCreativeStudioPageTest /></LazyWrapper></AuthGuard>} />
-                        <Route path='/creative-cube' element={<AuthGuard><LazyWrapper><LazyCreativeCubePage /></LazyWrapper></AuthGuard>} />
                         
                         {/* 📌 统一路由命名：热点话题 */}
                         <Route path='/hot-topics' element={<HotTopicsPage />} />
