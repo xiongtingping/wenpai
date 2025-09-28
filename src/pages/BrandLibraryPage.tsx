@@ -2033,7 +2033,7 @@ export default function BrandLibraryPageFixed() {
 
       {/* 页面导航 */}
       <PageNavigation
-        title="我的资料库"
+        title="品牌库"
         description="管理品牌资料，构建专属知识库"
         showAdaptButton={false}
         showUpgradeButton={false}
