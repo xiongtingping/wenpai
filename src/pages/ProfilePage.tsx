@@ -23,7 +23,9 @@ import {
   Crown,
   CreditCard,
   HelpCircle,
-  Mail
+  Mail,
+  AlertTriangle,
+  Star
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
@@ -454,7 +456,18 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="bg-background relative overflow-hidden pt-16 pb-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background relative overflow-hidden pt-16 pb-8">
+      {/* 背景装饰元素 */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* 渐变圆形装饰 */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-accent/5 to-transparent rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
+        {/* 几何图案 */}
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary/20 rounded-full animate-pulse" />
+        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-accent/30 rounded-full animate-pulse delay-1000" />
+        <div className="absolute bottom-1/4 right-1/4 w-1.5 h-1.5 bg-primary/15 rounded-full animate-pulse delay-2000" />
+      </div>
+      
       <Header />
       
       <div className="relative z-10">
@@ -464,292 +477,418 @@ export default function ProfilePage() {
           showAdaptButton={false}
         />
 
-        <div className="profile-page-container">
-          {/* {t('profile.sections.personalInfo')} */}
-          <div className="profile-main-section">
-            <div className="profile-main-card">
-              {/* {t('profile.sections.headerTitle')} */}
-              <div className="u-flex-between u-mb-2xl">
-                <div>
-                  <h1 className="u-text-title u-m-none">
-                    {t('nav.profile')}
-                  </h1>
-                  <p className="u-text-subtitle u-mt-md">
-                    {t('profile.manageInfo')}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLogout}
-                  disabled={isLoggingOut}
-className="u-flex-gap-sm"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>{isLoggingOut ? t('auth.loggingOut') : t('auth.logout')}</span>
-                </Button>
-              </div>
-
-              {/* {t('profile.sections.contentArea')} */}
-              <div className="profile-content-grid">
-                {/* {t('profile.sections.leftSection')} */}
-                <div className="profile-left-section">
-                  <Avatar key={avatarKey} className="profile-avatar">
-                    <AvatarImage src={getCurrentFormAvatar()} alt={getUserAltText(user, t('profile.sections.avatar'))} />
-                    <AvatarFallback className="u-text-2xl u-bg-dialog">
-                      {getCurrentAvatarFallback()}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <h2 className="profile-username">
-                    {profileForm.nickname || getUserDisplayName(user, t('profile.sections.user'))}
-                  </h2>
-
-                  <Badge className="u-mb-lg">
-                    <Crown className="w-3 h-3 mr-1" />
-                    {getAccountType()}
-                  </Badge>
-
-                  <div className="u-flex-gap-sm u-flex-wrap u-justify-center">
-                    <Button size="sm" onClick={handleUploadAvatar} className="u-text-xs">
-                      <Upload className="w-3 h-3 mr-1" />
-                      {t('profile.uploadAvatar')}
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={handleRandomAvatar} className="u-text-xs">
-                      <Sparkles className="w-3 h-3 mr-1" />
-                      {t('profile.randomAvatar')}
-                    </Button>
-                  </div>
-
-                  <div className="mt-6 grid w-full gap-3 sm:grid-cols-2">
-                    <div className="rounded-lg border bg-card px-4 py-3 text-center">
-                      <p className="text-xs text-muted-foreground">{t('profile.userId')}</p>
-                      <p className="mt-1 break-all text-sm font-semibold text-foreground">{user?.id || t('profile.unknown')}</p>
-                    </div>
-                    <div className="rounded-lg border bg-card px-4 py-3 text-center">
-                      <p className="text-xs text-muted-foreground">{t('profile.companionDays')}</p>
-                      <p className="mt-1 text-sm font-semibold text-foreground">{t('profile.daysCount', { count: companionDays })}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 右侧：表单区域 */}
-                <div className="profile-right-section">
-                  <h3 className="u-text-lg u-font-semibold u-mb-lg u-text-foreground">
-                    {t('profile.editInfo')}
-                  </h3>
-
-                  <div className="profile-form-field">
-                    <label className="profile-form-label">{t('profile.nickname')}</label>
-                    <Input
-                      value={profileForm.nickname}
-                      onChange={(e) => handleFormChange('nickname', e.target.value)}
-                      placeholder={t('profile.enterNickname')}
-                      className="profile-form-input"
-                    />
-                  </div>
-
-                  <div className="profile-form-field">
-                    <label className="profile-form-label">{t('profile.phone')}</label>
-                    <div className="u-flex-gap-sm">
-                      <Input
-                        value={profileForm.phone}
-                        onChange={(e) => handleFormChange('phone', e.target.value)}
-                        placeholder={t('profile.enterPhone')}
-                        className="profile-form-input u-flex-1"
-                      />
-                      <Button
-                        size="sm"
-                        onClick={showVerificationInput.phone ? handleVerifyPhone : handleSendPhoneCode}
-                        disabled={isVerifyingPhone || !profileForm.phone || verificationStatus.phone}
-                        variant={verificationStatus.phone ? "outline" : "default"}
-                        className="text-xs min-w-[80px]"
-                      >
-                        {isVerifyingPhone ? (
-                          <RefreshCw className="w-3 h-3 animate-spin" />
-                        ) : verificationStatus.phone ? (
-                          <Check className="w-3 h-3 u-text-success" />
-                        ) : showVerificationInput.phone ? (
-                          t('common.confirm')
-                        ) : (
-                          t('profile.sendCode')
-                        )}
-                      </Button>
-                    </div>
-
-                    {/* 验证码输入框 */}
-                    {showVerificationInput.phone && !verificationStatus.phone && (
-                      <div className="u-mt-md">
-                        <Input
-                          value={verificationCodes.phone}
-                          onChange={(e) => setVerificationCodes(prev => ({ ...prev, phone: e.target.value }))}
-                          placeholder={t('profile.enterSmsCode')}
-                          className="u-text-sm"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="profile-form-field">
-                    <label className="profile-form-label">{t('profile.email')}</label>
-                    <div className="u-flex-gap-sm">
-                      <Input
-                        value={profileForm.email}
-                        onChange={(e) => handleFormChange('email', e.target.value)}
-                        placeholder={t('profile.enterEmail')}
-                        className="profile-form-input u-flex-1"
-                      />
-                      <Button
-                        size="sm"
-                        onClick={showVerificationInput.email ? handleVerifyEmail : handleSendEmailCode}
-                        disabled={isVerifyingEmail || !profileForm.email || verificationStatus.email}
-                        variant={verificationStatus.email ? "outline" : "default"}
-                        className="text-xs min-w-[80px]"
-                      >
-                        {isVerifyingEmail ? (
-                          <RefreshCw className="w-3 h-3 animate-spin" />
-                        ) : verificationStatus.email ? (
-                          <Check className="w-3 h-3 u-text-success" />
-                        ) : showVerificationInput.email ? (
-                          t('common.confirm')
-                        ) : (
-                          t('profile.sendCode')
-                        )}
-                      </Button>
-                    </div>
-
-                    {/* 验证码输入框 */}
-                    {showVerificationInput.email && !verificationStatus.email && (
-                      <div className="u-mt-md">
-                        <Input
-                          value={verificationCodes.email}
-                          onChange={(e) => setVerificationCodes(prev => ({ ...prev, email: e.target.value }))}
-                          placeholder={t('profile.placeholders.enterEmailCode')}
-                          className="u-text-sm"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {hasUnsavedChanges && (
-                    <div className="u-bg-primary-light u-border-primary u-rounded u-p-md u-mb-lg">
-                      <p className="u-m-none u-text-sm u-text-primary">
-                        {t('profile.unsavedChanges')}
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+          {/* 主要内容区域 */}
+          <div className="grid gap-8">
+            {/* 个人信息主卡片 */}
+            <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/90 backdrop-blur-xl">
+              <div className="relative">
+                {/* 卡片内部装饰 */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-2xl" />
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-accent/10 to-transparent rounded-full blur-2xl" />
+                
+                <CardHeader className="relative z-10 pb-6">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-2">
+                      <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                        {t('nav.profile')}
+                      </h1>
+                      <p className="text-muted-foreground">
+                        {t('profile.manageInfo')}
                       </p>
                     </div>
-                  )}
-
-                  <Button
-                    onClick={handleSaveProfile}
-                    disabled={isSavingDisabled}
-                    className="w-full justify-center"
-                    variant={isSavingDisabled ? 'outline' : 'default'}
-                  >
-                    {isSaving ? (
-                      <>
-                        <RefreshCw className="w-3 h-3 mr-2 animate-spin" />
-                        保存中...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-3 h-3 mr-2" />
-                        保存更改
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 第二行：使用统计和邀请奖励 */}
-          <div className="flex flex-col gap-6 xl:flex-row">
-            <TokenUsageSection
-              userTier={userTier}
-              showDetails={true}
-              className="profile-usage-card flex-1"
-            />
-
-            <div className="flex flex-1 flex-col gap-6">
-              <Card className="h-full">
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Gift className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-lg font-semibold">{t('profile.inviteRewards')}</CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      className="group hover:shadow-lg transition-all duration-300"
+                    >
+                      <LogOut className="w-4 h-4 mr-2 group-hover:animate-pulse" />
+                      <span>{isLoggingOut ? t('auth.loggingOut') : t('auth.logout')}</span>
+                    </Button>
                   </div>
-                  <CardDescription>
-                    {t('profile.inviteRule')}
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-lg border bg-muted/10 p-4 text-center">
-                      <p className="text-2xl font-semibold text-foreground">0</p>
-                      <p className="text-xs text-muted-foreground">{t('profile.successfulInvites')}</p>
-                    </div>
-                    <div className="rounded-lg border bg-muted/10 p-4 text-center">
-                      <p className="text-2xl font-semibold text-foreground">0</p>
-                      <p className="text-xs text-muted-foreground">{t('profile.rewardTimes')}</p>
-                    </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground">{t('profile.inviteLink')}</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={`${window.location.origin}/register?inviter=${user?.id || 'unknown'}`}
-                        readOnly
-                        className="flex-1 font-mono text-xs"
-                      />
-                      <Button size="sm" onClick={handleCopyInviteLink}>
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+                <CardContent className="relative z-10">
+                  <div className="grid lg:grid-cols-2 gap-8">
+                    {/* 左侧：头像和基本信息 */}
+                    <div className="flex flex-col items-center text-center space-y-6">
+                      <div className="relative group">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-accent/50 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <Avatar key={avatarKey} className="relative w-32 h-32 border-4 border-background shadow-2xl">
+                          <AvatarImage src={getCurrentFormAvatar()} alt={getUserAltText(user, t('profile.sections.avatar'))} />
+                          <AvatarFallback className="text-3xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary font-bold">
+                            {getCurrentAvatarFallback()}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
 
-                  <Button onClick={handleCopyInviteLink} className="w-full gap-2">
-                    <Users className="h-5 w-5" />
-                    {t('profile.inviteFriends')}
-                  </Button>
-                </CardContent>
-              </Card>
+                      <div className="space-y-3">
+                        <h2 className="text-2xl font-bold text-foreground">
+                          {profileForm.nickname || getUserDisplayName(user, t('profile.sections.user'))}
+                        </h2>
 
-              <Card className="h-full">
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <HelpCircle className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-lg font-semibold">{t('profile.feedbackRewards')}</CardTitle>
-                  </div>
-                  <CardDescription>
-                    {t('profile.feedbackRule')}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-lg border bg-muted/10 p-4">
-                      <h4 className="text-sm font-semibold text-foreground">{t('profile.feedbackRules')}</h4>
-                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                        {t('profile.feedbackRuleDetail')}
-                      </p>
+                        <Badge variant="secondary" className="bg-gradient-to-r from-primary/10 to-accent/10 text-primary border-primary/20 px-4 py-2">
+                          <Crown className="w-4 h-4 mr-2" />
+                          {getAccountType()}
+                        </Badge>
+                      </div>
+
+                      <div className="flex gap-3 flex-wrap justify-center">
+                        <Button 
+                          size="sm" 
+                          onClick={handleUploadAvatar} 
+                          className="group hover:shadow-lg transition-all duration-300"
+                        >
+                          <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                          {t('profile.uploadAvatar')}
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={handleRandomAvatar} 
+                          className="group hover:shadow-lg transition-all duration-300"
+                        >
+                          <Sparkles className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
+                          {t('profile.randomAvatar')}
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                        <div className="group relative overflow-hidden rounded-xl border bg-gradient-to-br from-muted/50 to-muted/30 p-4 text-center hover:shadow-lg transition-all duration-300">
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <Hash className="w-5 h-5 mx-auto mb-2 text-primary/60" />
+                          <p className="text-xs text-muted-foreground mb-1">{t('profile.userId')}</p>
+                          <p className="break-all text-sm font-semibold text-foreground">{user?.id || t('profile.unknown')}</p>
+                        </div>
+                        <div className="group relative overflow-hidden rounded-xl border bg-gradient-to-br from-muted/50 to-muted/30 p-4 text-center hover:shadow-lg transition-all duration-300">
+                          <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <Clock className="w-5 h-5 mx-auto mb-2 text-accent/60" />
+                          <p className="text-xs text-muted-foreground mb-1">{t('profile.companionDays')}</p>
+                          <p className="text-sm font-semibold text-foreground">{t('profile.daysCount', { count: companionDays })}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="rounded-lg border bg-muted/10 p-4">
-                      <h4 className="text-sm font-semibold text-foreground">{t('profile.feedbackEmail')}</h4>
-                      <div className="mt-2 flex gap-2">
-                        <Input
-                          value="hello@wenpai.xyz"
-                          readOnly
-                          className="flex-1 font-mono text-xs"
-                        />
-                        <Button size="sm" onClick={handleCopyFeedbackEmail}>
-                          <Copy className="h-4 w-4" />
+
+                    {/* 右侧：表单区域 */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-1 h-8 bg-gradient-to-b from-primary to-accent rounded-full" />
+                        <h3 className="text-xl font-semibold text-foreground">
+                          {t('profile.editInfo')}
+                        </h3>
+                      </div>
+
+                      <div className="space-y-6">
+                        <div className="group space-y-2">
+                          <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                            <User className="w-4 h-4 text-primary/60" />
+                            {t('profile.nickname')}
+                          </Label>
+                          <Input
+                            value={profileForm.nickname}
+                            onChange={(e) => handleFormChange('nickname', e.target.value)}
+                            placeholder={t('profile.enterNickname')}
+                            className="transition-all duration-300 focus:shadow-lg focus:scale-[1.02] border-border/50 hover:border-border focus:border-primary/50"
+                          />
+                        </div>
+
+                        <div className="group space-y-2">
+                          <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                            <Hash className="w-4 h-4 text-primary/60" />
+                            {t('profile.phone')}
+                          </Label>
+                          <div className="flex gap-3">
+                            <Input
+                              value={profileForm.phone}
+                              onChange={(e) => handleFormChange('phone', e.target.value)}
+                              placeholder={t('profile.enterPhone')}
+                              className="flex-1 transition-all duration-300 focus:shadow-lg focus:scale-[1.02] border-border/50 hover:border-border focus:border-primary/50"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={showVerificationInput.phone ? handleVerifyPhone : handleSendPhoneCode}
+                              disabled={isVerifyingPhone || !profileForm.phone || verificationStatus.phone}
+                              variant={verificationStatus.phone ? "outline" : "default"}
+                              className="min-w-[80px] text-xs group hover:shadow-lg transition-all duration-300"
+                            >
+                              {isVerifyingPhone ? (
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                              ) : verificationStatus.phone ? (
+                                <Check className="w-3 h-3 text-green-600 group-hover:scale-110 transition-transform" />
+                              ) : showVerificationInput.phone ? (
+                                t('common.confirm')
+                              ) : (
+                                t('profile.sendCode')
+                              )}
+                            </Button>
+                          </div>
+
+                          {/* 验证码输入框 */}
+                          {showVerificationInput.phone && !verificationStatus.phone && (
+                            <div className="mt-3 animate-in slide-in-from-top-2 duration-300">
+                              <Input
+                                value={verificationCodes.phone}
+                                onChange={(e) => setVerificationCodes(prev => ({ ...prev, phone: e.target.value }))}
+                                placeholder={t('profile.enterSmsCode')}
+                                className="text-sm transition-all duration-300 focus:shadow-lg border-primary/30"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="group space-y-2">
+                          <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                            <Mail className="w-4 h-4 text-primary/60" />
+                            {t('profile.email')}
+                          </Label>
+                          <div className="flex gap-3">
+                            <Input
+                              value={profileForm.email}
+                              onChange={(e) => handleFormChange('email', e.target.value)}
+                              placeholder={t('profile.enterEmail')}
+                              className="flex-1 transition-all duration-300 focus:shadow-lg focus:scale-[1.02] border-border/50 hover:border-border focus:border-primary/50"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={showVerificationInput.email ? handleVerifyEmail : handleSendEmailCode}
+                              disabled={isVerifyingEmail || !profileForm.email || verificationStatus.email}
+                              variant={verificationStatus.email ? "outline" : "default"}
+                              className="min-w-[80px] text-xs group hover:shadow-lg transition-all duration-300"
+                            >
+                              {isVerifyingEmail ? (
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                              ) : verificationStatus.email ? (
+                                <Check className="w-3 h-3 text-green-600 group-hover:scale-110 transition-transform" />
+                              ) : showVerificationInput.email ? (
+                                t('common.confirm')
+                              ) : (
+                                t('profile.sendCode')
+                              )}
+                            </Button>
+                          </div>
+
+                          {/* 验证码输入框 */}
+                          {showVerificationInput.email && !verificationStatus.email && (
+                            <div className="mt-3 animate-in slide-in-from-top-2 duration-300">
+                              <Input
+                                value={verificationCodes.email}
+                                onChange={(e) => setVerificationCodes(prev => ({ ...prev, email: e.target.value }))}
+                                placeholder={t('profile.placeholders.enterEmailCode')}
+                                className="text-sm transition-all duration-300 focus:shadow-lg border-primary/30"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {hasUnsavedChanges && (
+                          <div className="relative overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-r from-primary/10 to-accent/10 p-4 animate-in slide-in-from-top-2 duration-300 group">
+                            <div className="absolute inset-0 bg-gradient-to-r from-primary/15 to-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-primary to-accent rounded-full animate-pulse" />
+                            <div className="relative flex items-center gap-3">
+                              <div className="relative">
+                                <div className="absolute inset-0 bg-primary/30 rounded-full blur animate-pulse" />
+                                <AlertTriangle className="relative w-5 h-5 text-primary animate-bounce" />
+                              </div>
+                              <p className="text-sm text-primary font-medium">
+                                {t('profile.unsavedChanges')}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        <Button
+                          onClick={handleSaveProfile}
+                          disabled={isSavingDisabled}
+                          className="w-full group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+                          variant={isSavingDisabled ? 'outline' : 'default'}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <div className="relative flex items-center justify-center">
+                            {isSaving ? (
+                              <>
+                                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                                保存中...
+                              </>
+                            ) : (
+                              <>
+                                <Save className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                                保存更改
+                              </>
+                            )}
+                          </div>
                         </Button>
                       </div>
                     </div>
                   </div>
+                </CardContent>
+              </div>
+            </Card>
 
-                  <Button onClick={handleCopyFeedbackEmail} className="w-full gap-2">
-                    <Mail className="h-4 w-4" />
-                    {t('profile.submitFeedback')}
+          {/* 第二行：使用统计和邀请奖励 */}
+          <div className="grid gap-8 xl:grid-cols-2">
+            {/* 使用统计卡片 */}
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative">
+                <TokenUsageSection
+                  userTier={userTier}
+                  showDetails={true}
+                  className="profile-usage-card w-full border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              {/* 邀请奖励卡片 */}
+              <Card className="relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl group hover:shadow-2xl transition-all duration-500">
+                {/* 卡片内部装饰 */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/15 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-accent/15 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <CardHeader className="relative z-10">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-accent/30 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="relative p-2 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg">
+                        <Gift className="h-5 w-5 text-primary group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg font-semibold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+                        {t('profile.inviteRewards')}
+                      </CardTitle>
+                      <CardDescription className="text-muted-foreground/80">
+                        {t('profile.inviteRule')}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="relative z-10 space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="group/stat relative overflow-hidden rounded-xl border border-border/20 bg-gradient-to-br from-muted/20 to-muted/10 p-4 text-center hover:shadow-lg transition-all duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover/stat:opacity-100 transition-opacity duration-300" />
+                      <div className="relative">
+                        <p className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">0</p>
+                        <p className="text-xs text-muted-foreground mt-1">{t('profile.successfulInvites')}</p>
+                      </div>
+                    </div>
+                    <div className="group/stat relative overflow-hidden rounded-xl border border-border/20 bg-gradient-to-br from-muted/20 to-muted/10 p-4 text-center hover:shadow-lg transition-all duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover/stat:opacity-100 transition-opacity duration-300" />
+                      <div className="relative">
+                        <p className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">0</p>
+                        <p className="text-xs text-muted-foreground mt-1">{t('profile.rewardTimes')}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <Copy className="w-4 h-4 text-primary/60" />
+                      {t('profile.inviteLink')}
+                    </Label>
+                    <div className="flex gap-3">
+                      <Input
+                        value={`${window.location.origin}/register?inviter=${user?.id || 'unknown'}`}
+                        readOnly
+                        className="flex-1 font-mono text-xs transition-all duration-300 focus:shadow-lg border-border/50 hover:border-border"
+                      />
+                      <Button 
+                        size="sm" 
+                        onClick={handleCopyInviteLink}
+                        className="group/btn hover:shadow-lg transition-all duration-300"
+                      >
+                        <Copy className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={handleCopyInviteLink} 
+                    className="w-full gap-2 group/btn relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                    <div className="relative flex items-center gap-2">
+                      <Users className="h-5 w-5 group-hover/btn:scale-110 transition-transform" />
+                      {t('profile.inviteFriends')}
+                    </div>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* 反馈奖励卡片 */}
+              <Card className="relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl group hover:shadow-2xl transition-all duration-500">
+                {/* 卡片内部装饰 */}
+                <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-accent/15 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tr from-primary/15 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <CardHeader className="relative z-10">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-accent/30 to-primary/30 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="relative p-2 bg-gradient-to-br from-accent/10 to-primary/10 rounded-lg">
+                        <HelpCircle className="h-5 w-5 text-accent group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg font-semibold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+                        {t('profile.feedbackRewards')}
+                      </CardTitle>
+                      <CardDescription className="text-muted-foreground/80">
+                        {t('profile.feedbackRule')}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="relative z-10 space-y-6">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="group/info relative overflow-hidden rounded-xl border border-border/20 bg-gradient-to-br from-muted/20 to-muted/10 p-4 hover:shadow-lg transition-all duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover/info:opacity-100 transition-opacity duration-300" />
+                      <div className="relative">
+                        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                          <Star className="w-4 h-4 text-accent/60" />
+                          {t('profile.feedbackRules')}
+                        </h4>
+                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                          {t('profile.feedbackRuleDetail')}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="group/email relative overflow-hidden rounded-xl border border-border/20 bg-gradient-to-br from-muted/20 to-muted/10 p-4 hover:shadow-lg transition-all duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover/email:opacity-100 transition-opacity duration-300" />
+                      <div className="relative">
+                        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-primary/60" />
+                          {t('profile.feedbackEmail')}
+                        </h4>
+                        <div className="mt-2 flex gap-2">
+                          <Input
+                            value="hello@wenpai.xyz"
+                            readOnly
+                            className="flex-1 font-mono text-xs transition-all duration-300 focus:shadow-lg border-border/50 hover:border-border"
+                          />
+                          <Button 
+                            size="sm" 
+                            onClick={handleCopyFeedbackEmail}
+                            className="group/btn hover:shadow-lg transition-all duration-300"
+                          >
+                            <Copy className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={handleCopyFeedbackEmail} 
+                    className="w-full gap-2 group/btn relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-accent to-primary opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                    <div className="relative flex items-center gap-2">
+                      <Mail className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
+                      {t('profile.submitFeedback')}
+                    </div>
                   </Button>
                 </CardContent>
               </Card>
