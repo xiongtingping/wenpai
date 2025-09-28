@@ -79,9 +79,9 @@ export default function UpgradeComparisonPage() { const [showOldOverlay, setShow
 
         <Tabs defaultValue="comparison" className="space-y-6">
           <TabsList className="unified-tabs-list grid w-full grid-cols-3">
-            <TabsTrigger value="comparison" className="unified-tab-trigger">界面对比</TabsTrigger>
-            <TabsTrigger value="new-features" className="unified-tab-trigger">新界面特性</TabsTrigger>
-            <TabsTrigger value="implementation" className="unified-tab-trigger">实现方案</TabsTrigger>
+            <TabsTrigger value="comparison" className="unified-tab-trigger">{t('upgradeComparison.tabs.comparison')}</TabsTrigger>
+            <TabsTrigger value="new-features" className="unified-tab-trigger">{t('upgradeComparison.tabs.newFeatures')}</TabsTrigger>
+            <TabsTrigger value="implementation" className="unified-tab-trigger">{t('upgradeComparison.tabs.implementation')}</TabsTrigger>
           </TabsList>
 
           {/* 界面对比 */}
@@ -152,13 +152,16 @@ export default function UpgradeComparisonPage() { const [showOldOverlay, setShow
                 <Card className="h-80 flex items-center justify-center">
                   <div className="text-center space-y-4">
                     <Lock className="h-12 w-12 text-muted-foreground mx-auto" />
-                    <h3 className="text-lg font-semibold">需要升级解锁</h3>
+                    <h3 className="text-lg font-semibold">{t('upgradeComparison.upgradeRequired')}</h3>
                     <p className="text-muted-foreground">
-                      {selectedFeature.name} 需要 {selectedFeature.tier === 'pro' ? t('pages.messages.专业版') : t('pages.messages.高级版')} 权限
+                      {t('upgradeComparison.featureRequiresPlan', { 
+                        featureName: selectedFeature.name, 
+                        planName: selectedFeature.tier === 'pro' ? t('pages.messages.专业版') : t('pages.messages.高级版') 
+                      })}
                     </p>
                     <Button onClick={() => setShowNewDialog(true)}>
                       <Crown className="h-4 w-4 mr-2" />
-                      查看升级方案
+                      {t('upgradeComparison.viewUpgradePlans')}
                     </Button>
                   </div>
                 </Card>

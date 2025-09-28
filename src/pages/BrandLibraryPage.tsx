@@ -2033,8 +2033,8 @@ export default function BrandLibraryPageFixed() {
 
       {/* 页面导航 */}
       <PageNavigation
-        title={t('brandLibrary.title')}
-        description={t('brandLibrary.description')}
+        title="我的资料库"
+        description="管理品牌资料，构建专属知识库"
         showAdaptButton={false}
         showUpgradeButton={false}
         actions={
@@ -2310,7 +2310,7 @@ export default function BrandLibraryPageFixed() {
                         featureName="排序选择"
                         value={sortOption}
                         onValueChange={setSortOption}
-                        placeholder={t('brandLibrary.search.sort')}
+                        placeholder="排序方式"
                         className="w-32"
                       >
                         <SelectItem value="date-new">最新上传</SelectItem>

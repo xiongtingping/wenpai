@@ -73,13 +73,13 @@ export function UsageReminderDialog({ isOpen,
             <div className="p-4 rounded-lg border border-border bg-accent">
               <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                 <Crown className="h-4 w-4" />
-                升级专业版特权
+                {t('components.messages.upgradeToProPrivileges')}
               </h4>
               <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• 30次/月AI内容适配</li>
-                <li>• 创意魔方功能</li>
-                <li>• 高级AI模型</li>
-                <li>• 余额继承机制</li>
+                <li>• {t('components.messages.proFeature1')}</li>
+                <li>• {t('components.messages.proFeature2')}</li>
+                <li>• {t('components.messages.proFeature3')}</li>
+                <li>• {t('components.messages.proFeature4')}</li>
               </ul>
             </div>
           )}
@@ -88,13 +88,13 @@ export function UsageReminderDialog({ isOpen,
             <div className="p-4 rounded-lg border border-border bg-accent">
               <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                 <Crown className="h-4 w-4" />
-                升级高级版特权
+                {t('components.messages.upgradeToPremiumPrivileges')}
               </h4>
               <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• 不限量AI内容适配</li>
-                <li>• 全网雷达功能</li>
-                <li>• 品牌库功能</li>
-                <li>• 最新AI模型</li>
+                <li>• {t('components.messages.premiumFeature1')}</li>
+                <li>• {t('components.messages.premiumFeature2')}</li>
+                <li>• {t('components.messages.premiumFeature3')}</li>
+                <li>• {t('components.messages.premiumFeature4')}</li>
               </ul>
             </div>
           )}

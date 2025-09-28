@@ -193,7 +193,7 @@ export function GenerationControls({ generating,
       console.error('❌ 保存模型偏好失败:', error);
       toast({
         title: "❌ 保存失败",
-        description: error instanceof Error ? error.message : t('components.errors.保存过程中出现错误'),
+        description: error instanceof Error ? error.message : '保存过程中出现错误',
         variant: "destructive",
         duration: 4000,
       });
