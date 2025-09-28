@@ -82,7 +82,13 @@
     "css:governance:final-build": "npm run css:governance:tailwind-fix && npm run build",
     "css:governance:classname-fix": "node scripts/duplicate-classname-fixer.js",
     "css:governance:complete-build": "npm run css:governance:classname-fix && npm run css:governance:tailwind-fix && npm run build",
-    "css:governance:postcss-fix": "node scripts/postcss-error-fixer.js && npm run build"
+    "css:governance:postcss-fix": "node scripts/postcss-error-fixer.js && npm run build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:payment": "jest src/tests/payment-system.test.ts",
+    "test:security": "jest src/tests/security-middleware.test.ts",
+    "test:integration": "jest src/tests/payment-api-integration.test.ts"
   },
   "dependencies": {
     "@authing/guard-react18": "^5.3.9",
@@ -192,6 +198,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
     "@types/lodash-es": "^4.17.12",
     "eslint": "^9.22.0",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -206,6 +214,8 @@
     "stylelint-high-performance-animation": "^1.11.0",
     "stylelint-order": "^7.0.0",
     "terser": "^5.43.1",
+    "ts-jest": "^29.1.2",
+    "jest": "^29.7.0",
     "typescript-eslint": "^8.26.1",
     "vite": "^7.0.5"
   }

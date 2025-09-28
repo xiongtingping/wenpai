@@ -13,6 +13,18 @@ module.exports = {
 				'2xl': '1400px'
 			}
 		},
+		// 🚀 统一响应式断点系统
+		screens: {
+			'xs': '475px',   // 超小屏幕
+			'sm': '640px',   // 小屏幕
+			'md': '768px',   // 平板
+			'lg': '1024px',  // 笔记本
+			'xl': '1280px',  // 桌面
+			'2xl': '1536px', // 大桌面
+			// 特殊断点
+			'tall': { 'raw': '(min-height: 800px)' }, // 高屏幕
+			'mobile-landscape': { 'raw': '(max-height: 500px) and (orientation: landscape)' }, // 手机横屏
+		},
 		extend: {
 			borderRadius: {
 				lg: 'var(--radius)',

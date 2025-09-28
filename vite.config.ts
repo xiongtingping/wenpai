@@ -146,41 +146,97 @@ export default defineConfig(({ command, mode }) => ({
     sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
     // 🔧 根本性修复：防止变量名压缩导致的TDZ和getInstance错误
-    // 🔧 修复语法错误：使用esbuild替代terser避免"Invalid left-hand side"错误
-    // 🔧 [OPTIMIZED_TDZ_FIX] 渐进式压缩恢复 - 保持TDZ修复的同时优化性能
+    // 🚀 优化的压缩配置 - 平衡文件大小和兼容性
     minify: 'esbuild',
     esbuild: {
       // 🔧 保持TDZ修复的核心设置
       keepNames: true,
       minifyIdentifiers: false,
-      // 🔧 恢复安全的压缩选项
-      minifySyntax: true,       // 恢复语法压缩，提升性能
-      minifyWhitespace: true,   // 保持空格压缩
-      // 🔧 保守的法律注释处理
-      legalComments: 'inline',  // 保持许可证信息，避免法律问题
-      target: 'es2020',         // 更保守的目标，确保兼容性
+      // 🚀 激进压缩选项 - 最大化文件压缩
+      minifySyntax: true,
+      minifyWhitespace: true,
+      // 🔧 法律注释优化
+      legalComments: 'none',    // 移除许可证注释减小文件大小
+      target: 'es2020',
       format: 'esm',
-      // 🔧 恢复安全的树摇，但保护关键模块
       treeShaking: true,
-      // 🔧 添加额外的TDZ保护选项
+      // 🚀 生产环境优化
+      drop: ['console', 'debugger'], // 移除console和debugger
+      pure: ['console.log', 'console.warn'], // 标记为pure函数用于DCE
       define: {
-        'process.env.NODE_ENV': '"production"'
+        'process.env.NODE_ENV': '"production"',
+        '__DEV__': 'false'
       }
     },
+    // 🚀 CSS压缩优化
+    cssMinify: 'esbuild',
     rollupOptions: {
       output: {
-        // 🚨 [ULTIMATE_TDZ_FIX] 完全禁用代码分割，避免所有模块依赖问题
+        // 🚀 优化的代码分割策略 - 平衡性能和稳定性
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // 🔧 最激进策略：仅分离React相关，其他全部合并
-            if (id.includes('node_modules/@radix-ui')) return 'ui-vendor';
-            if (id.includes('node_modules/framer-motion')) return 'animation-vendor';
+            // React核心库
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
             
-            // 所有其他node_modules都合并到vendor
+            // UI组件库
+            if (id.includes('@radix-ui') || id.includes('lucide-react')) {
+              return 'ui-vendor';
+            }
+            
+            // 动画和图表库
+            if (id.includes('framer-motion') || id.includes('recharts') || id.includes('chart')) {
+              return 'animation-vendor';
+            }
+            
+            // 编辑器相关
+            if (id.includes('monaco') || id.includes('editor')) {
+              return 'editor-vendor';
+            }
+            
+            // 国际化
+            if (id.includes('i18n') || id.includes('react-i18next')) {
+              return 'i18n-vendor';
+            }
+            
+            // 工具库
+            if (id.includes('lodash') || id.includes('date-fns') || id.includes('crypto-js')) {
+              return 'utils-vendor';
+            }
+            
+            // 其他第三方库
             return 'vendor';
           }
           
-          // 🚨 完全禁用业务代码分割，所有代码保持在主bundle
+          // 业务代码分割
+          if (id.includes('/src/')) {
+            // 页面组件
+            if (id.includes('/pages/')) {
+              // 大型页面单独分包
+              if (id.includes('CreativeStudioPage') || id.includes('BrandLibraryPage') || id.includes('NewAdaptPage')) {
+                const pageName = id.split('/').pop()?.replace(/\.tsx?$/, '') || 'page';
+                return `page-${pageName}`;
+              }
+              return 'pages';
+            }
+            
+            // 服务层
+            if (id.includes('/services/')) {
+              return 'services';
+            }
+            
+            // 工具函数
+            if (id.includes('/utils/') || id.includes('/lib/')) {
+              return 'utils';
+            }
+            
+            // 组件库
+            if (id.includes('/components/')) {
+              return 'components';
+            }
+          }
+          
           return undefined;
         },
         // 使用语义化的chunk文件名
@@ -241,8 +297,9 @@ export default defineConfig(({ command, mode }) => ({
         }
       ]
     },
-    // 调整块大小警告阈值
-    chunkSizeWarningLimit: 800, // 提高到800kB
+    // 🚀 优化块大小配置
+    chunkSizeWarningLimit: 1000, // 提高到1000kB，避免无意义警告
+    assetsInlineLimit: 4096, // 4KB以下的资源内联，减少HTTP请求
     // 🔧 CommonJS 兼容性配置
     commonjsOptions: {
       include: [/node_modules/],

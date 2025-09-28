@@ -30,6 +30,7 @@ import type { SystemHealthStatus } from '@/services/systemMonitorService';
 const StatusIndicator: React.FC<{ status: 'healthy' | 'warning' | 'critical' | 'online' | 'degraded' | 'offline';
   size?: 'sm' | 'md' | 'lg';
  }> = ({ status, size = 'md' }) => {
+  const { t } = useTranslation();
   const getStatusConfig = () => {
     switch (status) {
       case 'healthy':
@@ -64,6 +65,7 @@ const StatusIndicator: React.FC<{ status: 'healthy' | 'warning' | 'critical' | '
  * 系统状态监控组件
  */
 export const SystemStatusMonitor: React.FC = () => {
+  const { t } = useTranslation();
   const [systemStatus, setSystemStatus] = useState<SystemHealthStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<string>('');

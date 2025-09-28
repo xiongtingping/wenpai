@@ -24,7 +24,8 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
   orderId,
   onPaymentSuccess,
   onPaymentTimeout,
-  onPaymentError }) => { const [timeLeft, setTimeLeft] = useState(paymentInfo.expires_in || 900); // 默认15分钟
+  onPaymentError }) => {
+  const { t } = useTranslation(); const [timeLeft, setTimeLeft] = useState(paymentInfo.expires_in || 900); // 默认15分钟
   const [isPolling, setIsPolling] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed' | 'timeout'>('pending');
   const [errorMessage, setErrorMessage] = useState<string>('');

@@ -4,6 +4,10 @@
  */
 
 const { createClient } = require('@supabase/supabase-js');
+const { 
+  createPermissionMiddleware, 
+  handlePermissionError 
+} = require('../lib/permission-middleware');
 
 // 初始化Supabase客户端
 const supabase = createClient(
@@ -11,26 +15,10 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 
-/**
- * 验证用户身份
- */
-async function verifyUser(authHeader) {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new Error('未提供有效的认证信息');
-  }
-  
-  const token = authHeader.substring(7);
-  
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user) {
-      throw new Error('用户认证失败');
-    }
-    return user;
-  } catch (error) {
-    throw new Error('用户认证失败');
-  }
-}
+// 创建权限中间件 - 需要登录和token使用权限
+const permissionCheck = createPermissionMiddleware(['auth:required', 'feature:token-usage'], {
+  checkDataAccess: true // 启用数据访问检查，防止水平越权
+});
 
 /**
  * 获取用户套餐信息
@@ -276,8 +264,8 @@ exports.handler = async (event, context) => {
   }
   
   try {
-    // 验证用户身份
-    const user = await verifyUser(event.headers.authorization);
+    // 🔒 安全修复：使用权限中间件进行统一验证
+    const { user } = await permissionCheck(event);
     const userId = user.id;
     
     const path = event.path.replace('/.netlify/functions/api/token-usage', '');
@@ -327,6 +315,11 @@ exports.handler = async (event, context) => {
     
   } catch (error) {
     console.error('Token使用量API错误:', error);
+    
+    // 🔒 安全修复：使用统一的权限错误处理
+    if (error.message.includes('PERMISSION') || error.message.includes('UNAUTHORIZED') || error.message.includes('ACCESS_DENIED')) {
+      return handlePermissionError(error, headers);
+    }
     
     return {
       statusCode: 500,

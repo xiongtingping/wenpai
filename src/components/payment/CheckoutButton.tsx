@@ -30,6 +30,7 @@ export default function CheckoutButton({ priceId,
   disabled = false,
   showIcon = true
  }: CheckoutButtonProps) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 

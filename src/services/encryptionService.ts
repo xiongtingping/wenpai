@@ -7,7 +7,10 @@
  * 2. 使用认证加密模式防止篡改
  * 3. 自动生成和验证随机盐值
  * 4. 支持密钥派生和轮换
+ * 5. 集成生产环境密钥管理
  */
+
+import { SecureKeys } from '@/utils/productionKeyManager';
 
 // 使用Web Crypto API（浏览器原生加密）
 export class EncryptionService {
@@ -84,45 +87,32 @@ export class EncryptionService {
   }
 
   /**
-   * 获取主密钥
+   * 获取主密钥 - 🔐 集成生产环境密钥管理
    */
   private static async getMasterKey(): Promise<string> {
-    // 优先从环境变量获取
-    const envKey = import.meta.env.VITE_ENCRYPTION_MASTER_KEY;
-    if (envKey && envKey.length >= 32) {
-      return envKey;
-    }
+    try {
+      // 🔧 NEW: 使用生产环境密钥管理器获取验证过的密钥
+      const masterKey = SecureKeys.getEncryptionKey();
+      
+      console.log('🔐 使用生产环境密钥管理器获取主密钥');
+      return masterKey;
+      
+    } catch (error) {
+      console.error('❌ 生产环境密钥获取失败，使用回退方案:', error);
+      
+      // 回退方案：直接从环境变量获取
+      const envKey = import.meta.env.VITE_ENCRYPTION_MASTER_KEY;
+      if (envKey && envKey.length >= 32) {
+        console.warn('⚠️ 使用直接环境变量密钥');
+        return envKey;
+      }
 
-    // 从安全存储获取
-    const storedKey = localStorage.getItem('_enc_master_key');
-    if (storedKey && storedKey.length >= 32) {
-      return storedKey;
+      // 最后的回退方案
+      const fallbackMasterKey = 'wenpai-encryption-master-key-2025-v1-fixed-48chars';
+      console.warn('⚠️ 使用固定回退密钥，建议配置环境变量');
+      
+      return fallbackMasterKey;
     }
-
-    // 🔧 FIX: 使用固定的主密钥确保一致性，兼容所有环境
-    // 生成基于应用标识符的确定性密钥
-    const fallbackMasterKey = 'wenpai-encryption-master-key-2025-v1-fixed-48chars';
-    
-    // 显示环境信息用于调试
-    console.log('🔍 加密服务环境检查:', {
-      DEV: import.meta.env.DEV,
-      NODE_ENV: import.meta.env.NODE_ENV,
-      envKeyExists: !!import.meta.env.VITE_ENCRYPTION_MASTER_KEY,
-      fallbackKeyLength: fallbackMasterKey.length
-    });
-    
-    // 在开发环境下显示警告
-    if (import.meta.env.DEV) {
-      console.warn('⚠️ 开发环境使用固定主密钥');
-    } else {
-      console.log('🔐 生产环境使用应用默认主密钥');
-    }
-    
-    // 保存到本地存储以供后续使用
-    localStorage.setItem('_enc_master_key', fallbackMasterKey);
-    console.log('🔐 使用应用默认主密钥，长度:', fallbackMasterKey.length);
-    
-    return fallbackMasterKey;
   }
 
   /**

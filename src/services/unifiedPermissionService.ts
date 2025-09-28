@@ -284,10 +284,11 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<ExtendedPermissionType, Permissi
 
 /**
  * 统一权限检查服务类
+ * 🔒 安全修复：整合服务器端验证逻辑
  */
 export class UnifiedPermissionService {
   /**
-   * 检查单个权限
+   * 检查单个权限 - 本地检查（仅用于UI显示）
    */
   static checkPermission(
     user: SessionUserInfo | null,
@@ -323,6 +324,50 @@ export class UnifiedPermissionService {
       suggestedAction,
       upgradeTarget,
       permissionConfig: config
+    };
+  }
+
+  /**
+   * 检查权限并同时验证服务器端 - 用于关键操作
+   * 🔒 安全修复：强制服务器端验证
+   */
+  static async checkPermissionSecure(
+    user: SessionUserInfo | null,
+    permissionType: ExtendedPermissionType
+  ): Promise<PermissionCheckResult> {
+    // 首先进行本地检查
+    const localResult = this.checkPermission(user, permissionType);
+    
+    // 如果用户已登录，进行服务器端验证
+    if (user?.id) {
+      try {
+        const { ServerPermissionService } = await import('./serverPermissionService');
+        const serverResult = await ServerPermissionService.verifyPermission(permissionType);
+        
+        if (serverResult) {
+          // 以服务器端结果为准
+          return {
+            ...localResult,
+            hasPermission: serverResult.hasPermission,
+            userTier: serverResult.userTier as any,
+            requiredTier: serverResult.requiredTier as any,
+            serverVerified: true
+          };
+        }
+      } catch (error) {
+        console.warn('服务器端权限验证失败，使用本地结果:', error);
+        // 如果服务器验证失败，降级到本地验证但标记为未验证
+        return {
+          ...localResult,
+          serverVerified: false,
+          verificationError: error instanceof Error ? error.message : '服务器验证失败'
+        };
+      }
+    }
+    
+    return {
+      ...localResult,
+      serverVerified: false
     };
   }
 

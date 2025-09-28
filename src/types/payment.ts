@@ -117,10 +117,10 @@ export const PRICING_PLANS = {
 export type PricingPlanKey = keyof typeof PRICING_PLANS;
 
 // BufPay 配置 - 从环境变量获取
+// 🔒 安全修复：移除客户端APP_SECRET，所有签名验证在服务端进行
 export const BUFPAY_CONFIG = {
   API_URL: import.meta.env.VITE_BUFPAY_API_URL || '/.netlify/functions/bufpay-proxy',
   QUERY_URL: import.meta.env.VITE_BUFPAY_QUERY_URL || '/.netlify/functions/bufpay-proxy',
-  APP_SECRET: 'BUFPAY_SECRET_CLIENT_SIDE_NOT_USED',
   NOTIFY_URL: import.meta.env.VITE_BUFPAY_NOTIFY_URL || 'https://www.wenpai.xyz/.netlify/functions/bufpay-notify',
   RETURN_URL: import.meta.env.VITE_BUFPAY_RETURN_URL || 'https://www.wenpai.xyz/payment/result',
   FEEDBACK_URL: import.meta.env.VITE_BUFPAY_FEEDBACK_URL || 'https://www.wenpai.xyz/payment/feedback'

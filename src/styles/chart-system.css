@@ -1,0 +1,242 @@
+/**
+ * 📊 图表系统样式
+ * 统一的图表和数据可视化样式
+ */
+
+@layer components {
+  /* ========================================
+     图表容器基础样式
+     ======================================== */
+  .chart-container {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .chart-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: hsl(var(--foreground));
+    margin-bottom: var(--spacing-md);
+  }
+
+  .chart-subtitle {
+    font-size: var(--font-size-sm);
+    color: hsl(var(--muted-foreground));
+    margin-bottom: var(--spacing-lg);
+  }
+
+  /* ========================================
+     统一的图表颜色主题
+     ======================================== */
+  .chart-colors {
+    --chart-1: var(--chart-color-1);
+    --chart-2: var(--chart-color-2);
+    --chart-3: var(--chart-color-3);
+    --chart-4: var(--chart-color-4);
+    --chart-5: var(--chart-color-5);
+    --chart-6: var(--chart-color-6);
+    --chart-7: var(--chart-color-7);
+    --chart-8: var(--chart-color-8);
+  }
+
+  /* ========================================
+     图例样式
+     ======================================== */
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid hsl(var(--border));
+  }
+
+  .chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: hsl(var(--foreground));
+  }
+
+  .chart-legend-color {
+    width: var(--spacing-3);
+    height: var(--spacing-3);
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+
+  /* ========================================
+     工具提示样式
+     ======================================== */
+  .chart-tooltip {
+    background-color: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    box-shadow: var(--shadow-lg);
+    font-size: var(--font-size-sm);
+    z-index: var(--z-tooltip);
+  }
+
+  .chart-tooltip-label {
+    font-weight: var(--font-weight-medium);
+    color: hsl(var(--foreground));
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .chart-tooltip-value {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* ========================================
+     响应式图表布局
+     ======================================== */
+  .chart-responsive {
+    width: 100%;
+    height: auto;
+    min-height: 300px;
+  }
+
+  @media (min-width: 768px) {
+    .chart-responsive {
+      min-height: 400px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .chart-responsive {
+      min-height: 500px;
+    }
+  }
+
+  /* ========================================
+     特定图表类型样式
+     ======================================== */
+  
+  /* 折线图 */
+  .chart-line {
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .chart-line-dot {
+    fill: hsl(var(--background));
+    stroke-width: 2;
+    r: 4;
+  }
+
+  .chart-line-dot:hover {
+    r: 6;
+    transition: r var(--transition-smooth);
+  }
+
+  /* 柱状图 */
+  .chart-bar {
+    fill: hsl(var(--primary));
+    transition: fill var(--transition-smooth);
+  }
+
+  .chart-bar:hover {
+    fill: hsl(var(--primary) / 0.8);
+  }
+
+  /* 饼图 */
+  .chart-pie-slice {
+    transition: transform var(--transition-smooth);
+    transform-origin: center;
+  }
+
+  .chart-pie-slice:hover {
+    transform: scale(1.05);
+  }
+
+  /* 区域图 */
+  .chart-area {
+    fill-opacity: 0.1;
+    stroke-width: 2;
+  }
+
+  /* ========================================
+     加载和空状态
+     ======================================== */
+  .chart-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .chart-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: hsl(var(--muted-foreground));
+    text-align: center;
+  }
+
+  .chart-empty-icon {
+    width: var(--spacing-12);
+    height: var(--spacing-12);
+    margin-bottom: var(--spacing-md);
+    opacity: 0.5;
+  }
+
+  /* ========================================
+     动画效果
+     ======================================== */
+  .chart-animate-in {
+    animation: chartFadeIn var(--animation-duration-normal) var(--animation-easing-smooth);
+  }
+
+  @keyframes chartFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(var(--spacing-md));
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .chart-animate-value {
+    animation: chartValueUpdate var(--animation-duration-slow) var(--animation-easing-smooth);
+  }
+
+  @keyframes chartValueUpdate {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+}
+
+/* ========================================
+   打印样式优化
+   ======================================== */
+@media print {
+  .chart-container {
+    background: white !important;
+    border: 1px solid black !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  .chart-tooltip {
+    display: none !important;
+  }
+}

@@ -7,6 +7,15 @@
 
 // 导入usage-count处理器
 const { handler: usageCountHandler } = require('./api/usage-count.cjs');
+// 导入速率限制中间件
+const { createRateLimitMiddleware, createRateLimitResponse } = require('./lib/rate-limiter.js');
+
+// 创建速率限制中间件实例
+const rateLimitMiddleware = createRateLimitMiddleware({
+  enabled: true,
+  skipPaths: ['/stats', '/health'], // 跳过统计和健康检查端点
+});
+
 module.exports.handler = async (event, context) => {
   // 动态CORS配置 - 实现您提到的方案
   const allowedOrigins = [
@@ -45,13 +54,26 @@ module.exports.handler = async (event, context) => {
   }
 
   try {
+    // 🚦 速率限制检查 - 在所有API处理前进行
+    const rateLimitResult = await rateLimitMiddleware(event);
+    if (!rateLimitResult.allowed && !rateLimitResult.skipped) {
+      console.warn('🚫 请求被速率限制阻止:', {
+        ip: event.headers['x-forwarded-for'] || 'unknown',
+        path: event.path,
+        method: event.httpMethod,
+        reason: 'rate_limit_exceeded'
+      });
+      return createRateLimitResponse(rateLimitResult, headers);
+    }
+    
     // 🔧 处理 /api/config 路径
     const path = event.path || event.rawUrl || '';
     console.log('🔍 API请求调试:', {
       path,
       method: event.httpMethod,
       body: event.body?.substring(0, 200),
-      headers: Object.keys(event.headers || {})
+      headers: Object.keys(event.headers || {}),
+      rateLimitInfo: rateLimitResult.skipped ? 'skipped' : `allowed (${rateLimitResult.remaining} remaining)`
     });
     
     if (path.includes('/config')) {

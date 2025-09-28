@@ -1,35 +1,70 @@
 /**
  * 🔧 根本修复：通过Netlify Functions使用REST API更新用户资料
  * 解决客户端"普通用户不能直接修改字段"的权限问题
+ * 🔒 安全修复：添加权限验证中间件
  */
+
+const { 
+  createPermissionMiddleware, 
+  handlePermissionError 
+} = require('./lib/permission-middleware');
+
+// 创建权限中间件 - 需要登录和资料更新权限
+const permissionCheck = createPermissionMiddleware(['auth:required', 'feature:profile-update'], {
+  checkDataAccess: true // 启用数据访问检查，防止用户修改他人资料
+});
+
 exports.handler = async (event, context) => {
+  // 设置CORS头
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
+
+  // 处理OPTIONS请求
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: ''
+    };
+  }
+
   // 只允许POST请求
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers,
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
 
   try {
-    // 获取用户token
-    const authHeader = event.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ error: '未提供有效的认证token' })
-      };
-    }
-
-    const userToken = authHeader.replace('Bearer ', '');
+    // 🔒 安全修复：使用权限中间件进行统一验证
+    const { user } = await permissionCheck(event);
     
     // 解析请求体
     const updateData = JSON.parse(event.body || '{}');
+    
+    // 🔒 安全检查：确保用户只能修改自己的资料
+    if (updateData.targetUserId && updateData.targetUserId !== user.id) {
+      return {
+        statusCode: 403,
+        headers,
+        body: JSON.stringify({ 
+          error: '无权修改其他用户的资料',
+          code: 'DATA_ACCESS_DENIED'
+        })
+      };
+    }
     
     // 验证必要字段
     if (!updateData || typeof updateData !== 'object') {
       return {
         statusCode: 400,
+        headers,
         body: JSON.stringify({ error: '无效的请求数据' })
       };
     }

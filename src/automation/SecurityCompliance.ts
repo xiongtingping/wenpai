@@ -3,6 +3,8 @@
  * 确保自动化转发符合各平台的使用条款和安全要求
  */
 
+import i18n from '@/i18n';
+
 export interface SecurityCheck {
   id: string;
   name: string;

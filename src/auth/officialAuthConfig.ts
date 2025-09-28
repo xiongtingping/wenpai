@@ -3,6 +3,8 @@
  * 使用Guard组件，提供完整的UI和认证流程
  */
 
+import i18n from '@/i18n';
+
 // import { Guard } from '@authing/guard'; // 临时注释，等待模块安装
 
 /**

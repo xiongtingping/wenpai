@@ -13,7 +13,9 @@ export function generateMD5(text: string): string {
 }
 
 /**
- * 生成支付签名
+ * 🔒 安全修复：客户端不再生成支付签名
+ * 所有签名生成移至服务端 (create-order function)
+ * 此函数保留仅用于类型兼容，实际签名在服务端完成
  */
 export function generatePaymentSign(
   name: string,
@@ -25,12 +27,16 @@ export function generatePaymentSign(
   returnUrl: string,
   feedbackUrl: string = ''
 ): string {
-  const signString = name + payType + price + orderId + orderUid + notifyUrl + returnUrl + feedbackUrl + BUFPAY_CONFIG.APP_SECRET;
-  return generateMD5(signString);
+  // 客户端不再生成真实签名，返回占位符
+  // 真实签名由 netlify/functions/create-order.js 生成
+  console.warn('⚠️ 客户端不应生成支付签名，请使用服务端API');
+  return 'CLIENT_SIDE_SIGNATURE_DISABLED';
 }
 
 /**
- * 验证回调签名
+ * 🔒 安全修复：客户端不再验证回调签名
+ * 所有签名验证移至服务端 (bufpay-notify function)
+ * 客户端只负责数据传递，不进行安全验证
  */
 export function verifyNotifySign(
   aoid: string,
@@ -40,8 +46,10 @@ export function verifyNotifySign(
   payPrice: string,
   sign: string
 ): boolean {
-  const expectedSign = generateMD5(aoid + orderId + orderUid + price + payPrice + BUFPAY_CONFIG.APP_SECRET);
-  return expectedSign === sign.toLowerCase();
+  // 客户端不再进行签名验证
+  // 所有安全验证在服务端完成
+  console.warn('⚠️ 客户端不应验证支付签名，请在服务端验证');
+  return false; // 强制返回false，确保不依赖客户端验证
 }
 
 /**
@@ -176,18 +184,9 @@ export function generatePaymentFormData(
   params.append('return_url', BUFPAY_CONFIG.RETURN_URL);
   params.append('feedback_url', BUFPAY_CONFIG.FEEDBACK_URL);
   
-  const sign = generatePaymentSign(
-    name,
-    payType,
-    priceStr,
-    orderId,
-    orderUid,
-    BUFPAY_CONFIG.NOTIFY_URL,
-    BUFPAY_CONFIG.RETURN_URL,
-    BUFPAY_CONFIG.FEEDBACK_URL
-  );
-  
-  params.append('sign', sign);
+  // 🔒 安全修复：客户端不再生成签名
+  // 签名将在服务端API中生成
+  // params.append('sign', sign); // 移除客户端签名
   
   return params;
 }

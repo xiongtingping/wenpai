@@ -1,0 +1,288 @@
+{
+  "summary": {
+    "total": 39,
+    "passed": 39,
+    "failed": 0,
+    "warnings": 0,
+    "passRate": "100.0%",
+    "timestamp": "2025-09-28T12:50:39.011Z"
+  },
+  "details": [
+    {
+      "type": "passed",
+      "message": "服务器端权限验证API 文件存在",
+      "file": "netlify/functions/verify-permissions.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.004Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含处理函数",
+      "file": "netlify/functions/verify-permissions.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.005Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含权限检查逻辑",
+      "file": "netlify/functions/verify-permissions.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.006Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含用户认证验证",
+      "file": "netlify/functions/verify-permissions.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.006Z"
+    },
+    {
+      "type": "passed",
+      "message": "Premium权限硬编码已移除",
+      "file": "src/components/auth/EnhancedUnifiedPermissionGuard.tsx",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.006Z"
+    },
+    {
+      "type": "passed",
+      "message": "不存在Premium用户权限覆盖逻辑",
+      "file": "src/components/auth/EnhancedUnifiedPermissionGuard.tsx",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.006Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含安全修复注释",
+      "file": "src/components/auth/EnhancedUnifiedPermissionGuard.tsx",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.007Z"
+    },
+    {
+      "type": "passed",
+      "message": "权限验证中间件 文件存在",
+      "file": "netlify/functions/lib/permission-middleware.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.007Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含权限中间件创建函数",
+      "file": "netlify/functions/lib/permission-middleware.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.007Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含用户权限检查函数",
+      "file": "netlify/functions/lib/permission-middleware.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.007Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含数据访问检查函数",
+      "file": "netlify/functions/lib/permission-middleware.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.007Z"
+    },
+    {
+      "type": "passed",
+      "message": "Token使用API引入权限中间件",
+      "file": "netlify/functions/api/token-usage.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.007Z"
+    },
+    {
+      "type": "passed",
+      "message": "Token使用API使用权限检查",
+      "file": "netlify/functions/api/token-usage.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.007Z"
+    },
+    {
+      "type": "passed",
+      "message": "用户资料更新API引入权限中间件",
+      "file": "netlify/functions/update-user-profile.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.007Z"
+    },
+    {
+      "type": "passed",
+      "message": "用户资料更新API包含越权检查",
+      "file": "netlify/functions/update-user-profile.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.008Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含安全权限检查方法",
+      "file": "src/services/unifiedPermissionService.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.008Z"
+    },
+    {
+      "type": "passed",
+      "message": "整合服务器端权限验证",
+      "file": "src/services/unifiedPermissionService.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.008Z"
+    },
+    {
+      "type": "passed",
+      "message": "服务器端API URL配置正确",
+      "file": "src/services/serverPermissionService.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.008Z"
+    },
+    {
+      "type": "passed",
+      "message": "数据访问控制工具 文件存在",
+      "file": "src/utils/dataAccessControl.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.008Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含数据访问控制器",
+      "file": "src/utils/dataAccessControl.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.008Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含用户数据访问检查",
+      "file": "src/utils/dataAccessControl.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.008Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含水平越权防护",
+      "file": "src/utils/dataAccessControl.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.008Z"
+    },
+    {
+      "type": "passed",
+      "message": "集中权限策略管理器 文件存在",
+      "file": "src/services/centralizedPermissionManager.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.008Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含集中权限管理器",
+      "file": "src/services/centralizedPermissionManager.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.008Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含权限决策方法",
+      "file": "src/services/centralizedPermissionManager.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.009Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含策略注册方法",
+      "file": "src/services/centralizedPermissionManager.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.009Z"
+    },
+    {
+      "type": "passed",
+      "message": "权限审计日志系统 文件存在",
+      "file": "src/services/permissionAuditLogger.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.009Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含权限审计日志器",
+      "file": "src/services/permissionAuditLogger.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.009Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含权限检查日志记录",
+      "file": "src/services/permissionAuditLogger.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.009Z"
+    },
+    {
+      "type": "passed",
+      "message": "包含安全违规日志记录",
+      "file": "src/services/permissionAuditLogger.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.009Z"
+    },
+    {
+      "type": "passed",
+      "message": "src/config/unifiedPermissionConfig.ts 中不存在开发环境权限绕过",
+      "file": "src/config/unifiedPermissionConfig.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.010Z"
+    },
+    {
+      "type": "passed",
+      "message": "src/config/unifiedPermissionConfig.ts 中不存在localhost权限绕过",
+      "file": "src/config/unifiedPermissionConfig.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.010Z"
+    },
+    {
+      "type": "passed",
+      "message": "src/services/unifiedPermissionService.ts 中不存在开发环境权限绕过",
+      "file": "src/services/unifiedPermissionService.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.010Z"
+    },
+    {
+      "type": "passed",
+      "message": "src/services/unifiedPermissionService.ts 中不存在localhost权限绕过",
+      "file": "src/services/unifiedPermissionService.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.010Z"
+    },
+    {
+      "type": "passed",
+      "message": "src/components/auth/EnhancedUnifiedPermissionGuard.tsx 中不存在开发环境权限绕过",
+      "file": "src/components/auth/EnhancedUnifiedPermissionGuard.tsx",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.010Z"
+    },
+    {
+      "type": "passed",
+      "message": "src/components/auth/EnhancedUnifiedPermissionGuard.tsx 中不存在localhost权限绕过",
+      "file": "src/components/auth/EnhancedUnifiedPermissionGuard.tsx",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.010Z"
+    },
+    {
+      "type": "passed",
+      "message": "权限类型定义存在",
+      "file": "src/types/permissions.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.011Z"
+    },
+    {
+      "type": "passed",
+      "message": "用户信息可为null的类型安全",
+      "file": "src/services/unifiedPermissionService.ts",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.011Z"
+    },
+    {
+      "type": "passed",
+      "message": "后端认证函数类型正确",
+      "file": "netlify/functions/lib/permission-middleware.js",
+      "line": "",
+      "timestamp": "2025-09-28T12:50:39.011Z"
+    }
+  ],
+  "recommendations": [
+    "所有安全修复验证通过！"
+  ]
+}

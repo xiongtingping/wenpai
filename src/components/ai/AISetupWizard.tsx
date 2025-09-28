@@ -26,7 +26,9 @@ import { toast } from "@/hooks/use-toast";
 /**
  * AI API 设置向导组件
  */
-export function AISetupWizard() { const [apiKeys, setApiKeys] = useState({
+export function AISetupWizard() {
+  const { t } = useTranslation();
+  const [apiKeys, setApiKeys] = useState({
     openai: '',
     deepseek: '',
     gemini: ''

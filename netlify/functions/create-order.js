@@ -1,9 +1,11 @@
 /**
  * 创建支付订单 Netlify Function
+ * 🔒 增强安全性：添加请求频率限制和安全验证
  */
 
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
+const { securityMiddleware } = require('./lib/security-middleware');
 
 // Supabase 配置
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -73,22 +75,27 @@ function parseProductInfo(productType, durationType) {
 }
 
 exports.handler = async (event, context) => {
-  // 设置 CORS 头
+  // 🔒 安全中间件检查
+  const security = securityMiddleware({
+    enableRateLimit: true,
+    maxRequests: 5, // 每分钟最多5个订单创建请求
+    windowMs: 60000,
+    enableOriginCheck: true
+  });
+  
+  const securityResult = security(event, context);
+  if (!securityResult.allowed) {
+    return securityResult.response;
+  }
+
+  // 设置安全CORS头
   const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    ...context.securityHeaders,
+    ...context.rateLimitHeaders,
     'Content-Type': 'application/json'
   };
 
-  // 处理 OPTIONS 请求
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: ''
-    };
-  }
+  // OPTIONS请求已在安全中间件中处理
 
   // 只接受 POST 请求
   if (event.httpMethod !== 'POST') {

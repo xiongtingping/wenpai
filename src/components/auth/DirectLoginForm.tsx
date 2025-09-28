@@ -11,7 +11,8 @@ interface DirectLoginFormProps {
   onError?: (error: string) => void;
 }
 
-export const DirectLoginForm: React.FC<any> = ({ onLogin, onError }) => { const [email, setEmail] = useState('');
+export const DirectLoginForm: React.FC<any> = ({ onLogin, onError }) => {
+  const { t } = useTranslation(); const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();

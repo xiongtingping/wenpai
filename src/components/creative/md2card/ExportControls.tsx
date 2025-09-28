@@ -176,7 +176,8 @@ export const ExportControls: React.FC<any> = ({ parsedContent,
   configuration,
   disabled = false,
   onExport,
-  className = '' }) => { const { toast  } = useToast();
+  className = '' }) => {
+  const { t } = useTranslation(); const { toast  } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);

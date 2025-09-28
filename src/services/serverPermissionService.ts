@@ -230,7 +230,7 @@ export class ServerPermissionService {
    */
   private static getAPIUrl(): string {
     const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-    const baseUrl = isDev ? 'http://localhost:5173' : '';
+    const baseUrl = isDev ? 'http://localhost:8888' : '';
     return `${baseUrl}/.netlify/functions/verify-permissions`;
   }
 

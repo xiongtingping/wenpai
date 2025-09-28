@@ -1,9 +1,24 @@
 /**
  * BufPay API 代理 Netlify Function
  * 解决CORS跨域问题
+ * 🔒 增强安全性：添加请求频率限制和安全验证
  */
 
+const { securityMiddleware } = require('./lib/security-middleware');
+
 exports.handler = async (event, context) => {
+  // 🔒 安全中间件检查
+  const security = securityMiddleware({
+    enableRateLimit: true,
+    maxRequests: 20, // BufPay代理每分钟最多20个请求
+    windowMs: 60000,
+    enableOriginCheck: true
+  });
+  
+  const securityResult = security(event, context);
+  if (!securityResult.allowed) {
+    return securityResult.response;
+  }
   console.log('BufPay代理请求:', {
     method: event.httpMethod,
     path: event.path,
@@ -122,9 +137,8 @@ exports.handler = async (event, context) => {
       statusCode: response.status,
       headers: {
         'Content-Type': contentType || 'text/html',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
+        ...context.securityHeaders,
+        ...context.rateLimitHeaders
       },
       body: responseBody
     };
@@ -136,7 +150,7 @@ exports.handler = async (event, context) => {
       statusCode: 500,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        ...context.securityHeaders
       },
       body: JSON.stringify({ 
         error: 'Proxy error', 

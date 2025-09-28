@@ -1,6 +1,8 @@
 // 平台适配器基础类
 // 自动生成 - 2025-08-03
 
+import i18n from '@/i18n';
+
 export interface LoginStatus {
   isLoggedIn: boolean;
   username?: string;

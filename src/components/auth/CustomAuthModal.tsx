@@ -17,7 +17,8 @@ interface CustomAuthModalProps {
 
 export const CustomAuthModal: React.FC<any> = ({ isOpen,
   onClose,
-  defaultTab = 'login' }) => { const { handleAuthingLogin  } = useUnifiedAuth();
+  defaultTab = 'login' }) => {
+  const { t } = useTranslation(); const { handleAuthingLogin  } = useUnifiedAuth();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [error, setError] = useState<string | null>(null);

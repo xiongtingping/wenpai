@@ -33,29 +33,17 @@ import { Header } from '@/components/landing/Header';
 import HomePage from '@/pages/HomePage';
 import AboutPage from '@/pages/AboutPage';
 
-// 业务功能页面
+// 业务功能页面 - 优化懒加载策略
 import PaymentPage from '@/pages/PaymentPage';
 import PaymentStatusPage from '@/pages/PaymentStatusPage';
 import PaymentResultPage from '@/pages/PaymentResultPage';
 import PaymentFeedbackPage from '@/pages/PaymentFeedbackPage';
-// Lazy loaded below
-// import AdaptPage from '@/pages/AdaptPage';
-// Lazy loaded below
-import HotTopicsPage from '@/pages/HotTopicsPage';
-import EnhancedHotTopicsPage from '@/pages/EnhancedHotTopicsPage';
-import BookmarkPage from '@/pages/BookmarkPage';
-// Lazy loaded below
-// Lazy loaded below
-import TermsPage from '@/pages/TermsPage';
-import PrivacyPage from '@/pages/PrivacyPage';
-import EmojiPage from '@/pages/EmojiPage';
+// 非首屏页面延迟加载
+// 热点页面懒加载
+// 其他功能页面懒加载
 import NotFoundPage from '@/pages/NotFoundPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
 import CallbackPage from '@/pages/CallbackPage';
-// Lazy loaded below
-// Lazy loaded below
-import UpgradeComparisonPage from '@/pages/UpgradeComparisonPage';
-import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 // Lazy loaded below
 // Lazy loaded below
 import { CustomLoginPage } from '@/pages/CustomLoginPage21st';
@@ -67,17 +55,30 @@ import DialogDebugPage from '@/pages/DialogDebugPage';
 import I18nTestPage from '@/pages/I18nTestPage';
 import UserDebugPage from '@/pages/UserDebugPage';
 
-// 🔧 FIX: 懒加载组件，避免TDZ错误和循环依赖
+// 🚀 优化的懒加载策略 - 按使用频率和大小分组
+// 创意工具类 - 大型页面组件
 const LazyCreativeStudioPage = React.lazy(() => import('@/pages/CreativeStudioPage'));
-// 🗑️ 已删除不使用的创意页面懒加载：CreativeStudioPageTest, CreativeCubePage
 const LazyBrandLibraryPage = React.lazy(() => import('@/pages/BrandLibraryPage'));
+const LazyNewAdaptPage = React.lazy(() => import('@/pages/NewAdaptPage'));
+
+// 功能页面类 - 中等大小页面组件
 const LazyProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
 const LazyHistoryPage = React.lazy(() => import('@/pages/HistoryPage'));
 const LazyShareManagerPage = React.lazy(() => import('@/pages/ShareManagerPage'));
 const LazyWechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
-const LazyNewAdaptPage = React.lazy(() => import('@/pages/NewAdaptPage'));
-
 const LazySettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
+
+// 热点话题类 - 特定功能页面
+const LazyHotTopicsPage = React.lazy(() => import('@/pages/HotTopicsPage'));
+const LazyEnhancedHotTopicsPage = React.lazy(() => import('@/pages/EnhancedHotTopicsPage'));
+
+// 其他功能页面
+const LazyBookmarkPage = React.lazy(() => import('@/pages/BookmarkPage'));
+const LazyTermsPage = React.lazy(() => import('@/pages/TermsPage'));
+const LazyPrivacyPage = React.lazy(() => import('@/pages/PrivacyPage'));
+const LazyEmojiPage = React.lazy(() => import('@/pages/EmojiPage'));
+const LazyUpgradeComparisonPage = React.lazy(() => import('@/pages/UpgradeComparisonPage'));
+const LazyFeatureShowcasePage = React.lazy(() => import('@/pages/FeatureShowcasePage'));
 
 // 🔧 错误边界包装器，处理懒加载失败
 const LazyWrapper: React.FC<{ children: React.ReactNode; fallback?: React.ReactNode }> = ({
@@ -197,7 +198,6 @@ const App: React.FC = () => {
     <EnhancedErrorBoundary
       level='page'
       enableAutoRecovery={true}
-      enablePerformanceTracking={true}
       onError={(error) => {
         // 🔧 FIXED: 改进错误处理，避免输出Object
         try {
@@ -264,12 +264,26 @@ const App: React.FC = () => {
                         {/* 📌 统一路由命名：创意工具 */}
                         <Route path='/creative-studio' element={<AuthGuard><LazyWrapper><LazyCreativeStudioPage /></LazyWrapper></AuthGuard>} />
                         
-                        {/* 📌 统一路由命名：热点话题 */}
-                        <Route path='/hot-topics' element={<HotTopicsPage />} />
-                        <Route path='/enhanced-hot-topics' element={<EnhancedHotTopicsPage />} />
+                        {/* 📌 统一路由命名：热点话题 - 懒加载优化 */}
+                        <Route path='/hot-topics' element={
+                          <LazyWrapper>
+                            <LazyHotTopicsPage />
+                          </LazyWrapper>
+                        } />
+                        <Route path='/enhanced-hot-topics' element={
+                          <LazyWrapper>
+                            <LazyEnhancedHotTopicsPage />
+                          </LazyWrapper>
+                        } />
                         
-                        {/* 📌 统一路由命名：收藏和书签 */}
-                        <Route path='/my-library' element={<AuthGuard><BookmarkPage /></AuthGuard>} />
+                        {/* 📌 统一路由命名：收藏和书签 - 懒加载优化 */}
+                        <Route path='/my-library' element={
+                          <AuthGuard>
+                            <LazyWrapper>
+                              <LazyBookmarkPage />
+                            </LazyWrapper>
+                          </AuthGuard>
+                        } />
                         <Route path='/brand-library' element={<AuthGuard><LazyWrapper><LazyBrandLibraryPage /></LazyWrapper></AuthGuard>} />
                         <Route path='/history' element={<AuthGuard><LazyWrapper><LazyHistoryPage /></LazyWrapper></AuthGuard>} />
                         {/* 兼容旧路由 */}
@@ -277,8 +291,12 @@ const App: React.FC = () => {
                         <Route path='/bookmark' element={<Navigate to="/my-library" replace />} />
                         <Route path='/library' element={<Navigate to="/my-library" replace />} />
                         
-                        {/* 📌 统一路由命名：表情符号生成器 */}
-                        <Route path='/emoji-generator' element={<EmojiPage />} />
+                        {/* 📌 统一路由命名：表情符号生成器 - 懒加载优化 */}
+                        <Route path='/emoji-generator' element={
+                          <LazyWrapper>
+                            <LazyEmojiPage />
+                          </LazyWrapper>
+                        } />
                         {/* 兼容旧路由 */}
                         <Route path='/emoji' element={<Navigate to="/emoji-generator" replace />} />
                         
@@ -298,7 +316,11 @@ const App: React.FC = () => {
                         <Route path='/payment-center/result' element={<PaymentResultPage />} />
                         <Route path='/payment-center/feedback' element={<PaymentFeedbackPage />} />
                         <Route path='/payment-status' element={<PaymentStatusPage />} />
-                        <Route path='/upgrade-plans' element={<UpgradeComparisonPage />} />
+                        <Route path='/upgrade-plans' element={
+                          <LazyWrapper>
+                            <LazyUpgradeComparisonPage />
+                          </LazyWrapper>
+                        } />
                         {/* 兼容旧路由 */}
                         <Route path='/payment' element={<Navigate to="/payment-center" replace />} />
                         <Route path='/payment/result' element={<Navigate to="/payment-center/result" replace />} />
@@ -307,9 +329,21 @@ const App: React.FC = () => {
 
                         {/* 📌 统一路由命名：信息页面 */}
                         <Route path='/about-us' element={<AboutPage />} />
-                        <Route path='/terms-of-service' element={<TermsPage />} />
-                        <Route path='/privacy-policy' element={<PrivacyPage />} />
-                        <Route path='/feature-showcase' element={<FeatureShowcasePage />} />
+                        <Route path='/terms-of-service' element={
+                          <LazyWrapper>
+                            <LazyTermsPage />
+                          </LazyWrapper>
+                        } />
+                        <Route path='/privacy-policy' element={
+                          <LazyWrapper>
+                            <LazyPrivacyPage />
+                          </LazyWrapper>
+                        } />
+                        <Route path='/feature-showcase' element={
+                          <LazyWrapper>
+                            <LazyFeatureShowcasePage />
+                          </LazyWrapper>
+                        } />
                         {/* 兼容旧路由 */}
                         <Route path='/about' element={<Navigate to="/about-us" replace />} />
                         <Route path='/terms' element={<Navigate to="/terms-of-service" replace />} />
