@@ -542,20 +542,29 @@ export class PerformanceMonitor {
       this.metrics.interactionMetrics.totalInteractions++;
     });
 
-    // 滚动深度监控
-    document.addEventListener('scroll', () => {
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    // 🔧 性能优化：滚动深度监控 - 添加节流避免频繁计算
+    let scrollTimeoutId: number | null = null;
+    const scrollHandler = () => {
+      if (scrollTimeoutId) {
+        cancelAnimationFrame(scrollTimeoutId);
+      }
       
-      const currentScrollDepth = Math.min(
-        100,
-        ((scrollTop + windowHeight) / documentHeight) * 100
-      );
-      
-      scrollDepth = Math.max(scrollDepth, currentScrollDepth);
-      this.metrics.interactionMetrics.scrollDepth = scrollDepth;
-    });
+      scrollTimeoutId = requestAnimationFrame(() => {
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        const currentScrollDepth = Math.min(
+          100,
+          ((scrollTop + windowHeight) / documentHeight) * 100
+        );
+        
+        scrollDepth = Math.max(scrollDepth, currentScrollDepth);
+        this.metrics.interactionMetrics.scrollDepth = scrollDepth;
+      });
+    };
+    
+    document.addEventListener('scroll', scrollHandler, { passive: true });
 
     // 表单提交监控
     document.addEventListener('submit', () => {

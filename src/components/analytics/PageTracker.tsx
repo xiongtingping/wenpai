@@ -25,7 +25,10 @@ const PageTracker: React.FC<PageTrackerProps> = ({
   metadata = {} 
 }) => {
   const location = useLocation();
-  const { recordUserAction } = useAuthStore();
+  const authStore = useAuthStore();
+  
+  // 🔧 安全获取recordUserAction，防止解构undefined导致的错误
+  const recordUserAction = authStore?.recordUserAction;
 
   useEffect(() => {
     // 🔍 FIXED: 2025-08-04 防止无限循环的页面访问记录
@@ -46,7 +49,12 @@ const PageTracker: React.FC<PageTrackerProps> = ({
     // ✅ FIXED: 使用防抖机制避免频繁调用，防止无限循环
     const timeoutId = setTimeout(() => {
       try {
-        recordUserAction(`pageVisit:${location.pathname}`);
+        // 🔧 安全检查：确保recordUserAction方法存在
+        if (typeof recordUserAction === 'function') {
+          recordUserAction(`pageVisit:${location.pathname}`);
+        } else {
+          console.warn('📊 PageTracker: recordUserAction 方法不存在，跳过记录');
+        }
       } catch (error) {
         console.warn('📊 PageTracker: recordUserAction failed', error);
       }
@@ -60,7 +68,12 @@ const PageTracker: React.FC<PageTrackerProps> = ({
       const duration = Date.now() - startTime;
       if (duration > 1000) { // 只记录停留超过1秒的页面
         try {
-          recordUserAction(`pageLeave:${location.pathname}:${duration}ms`);
+          // 🔧 安全检查：确保recordUserAction方法存在
+          if (typeof recordUserAction === 'function') {
+            recordUserAction(`pageLeave:${location.pathname}:${duration}ms`);
+          } else {
+            console.warn('📊 PageTracker: recordUserAction 方法不存在，跳过页面离开记录');
+          }
         } catch (error) {
           console.warn('📊 PageTracker: pageLeave recordUserAction failed', error);
         }

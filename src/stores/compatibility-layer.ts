@@ -204,6 +204,32 @@ export const useAuthStore = () => {
     updateMaxUsage: (newMaxUsage: number) => {
       console.warn('⚠️ useAuthStore.updateMaxUsage 已废弃，功能已禁用');
     },
+
+    // 用户行为记录方法 - 兼容PageTracker组件
+    recordUserAction: (action: string, metadata?: Record<string, any>) => {
+      console.warn('⚠️ useAuthStore.recordUserAction 已废弃，使用简化记录');
+      try {
+        // 简化的行为记录，仅记录到本地存储用于开发和调试
+        const actionRecord = {
+          action,
+          timestamp: new Date().toISOString(),
+          metadata: metadata || {},
+          userId: authState.user?.id || 'anonymous'
+        };
+        
+        // 存储到本地用于调试（最多保留100条记录）
+        const existingRecords = JSON.parse(localStorage.getItem('wenpai_user_actions') || '[]');
+        existingRecords.push(actionRecord);
+        if (existingRecords.length > 100) {
+          existingRecords.splice(0, existingRecords.length - 100); // 保留最新100条
+        }
+        localStorage.setItem('wenpai_user_actions', JSON.stringify(existingRecords));
+        
+        console.log('📊 用户行为已记录:', action);
+      } catch (error) {
+        console.error('📊 用户行为记录失败:', error);
+      }
+    },
   };
 };
 

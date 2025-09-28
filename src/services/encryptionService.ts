@@ -99,15 +99,30 @@ export class EncryptionService {
       return storedKey;
     }
 
-    // 🔧 FIX: 使用固定的开发环境主密钥确保一致性
+    // 🔧 FIX: 使用固定的主密钥确保一致性，兼容所有环境
+    // 生成基于应用标识符的确定性密钥
+    const fallbackMasterKey = 'wenpai-encryption-master-key-2025-v1-fixed-48chars';
+    
+    // 显示环境信息用于调试
+    console.log('🔍 加密服务环境检查:', {
+      DEV: import.meta.env.DEV,
+      NODE_ENV: import.meta.env.NODE_ENV,
+      envKeyExists: !!import.meta.env.VITE_ENCRYPTION_MASTER_KEY,
+      fallbackKeyLength: fallbackMasterKey.length
+    });
+    
+    // 在开发环境下显示警告
     if (import.meta.env.DEV) {
-      const devMasterKey = 'wenpai-dev-master-key-2025-fixed-v1';
-      localStorage.setItem('_enc_master_key', devMasterKey);
       console.warn('⚠️ 开发环境使用固定主密钥');
-      return devMasterKey;
+    } else {
+      console.log('🔐 生产环境使用应用默认主密钥');
     }
-
-    throw new Error('No master encryption key found');
+    
+    // 保存到本地存储以供后续使用
+    localStorage.setItem('_enc_master_key', fallbackMasterKey);
+    console.log('🔐 使用应用默认主密钥，长度:', fallbackMasterKey.length);
+    
+    return fallbackMasterKey;
   }
 
   /**

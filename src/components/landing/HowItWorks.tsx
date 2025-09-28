@@ -6,20 +6,47 @@ export function HowItWorks() {
   const { t } = useI18n()
   
   useEffect(() => {
-    // 动效可选，保留原有滚动监听
+    // 🔧 性能优化：使用节流防止频繁DOM计算，减少Forced reflow
+    let timeoutId: number | null = null;
+    let lastScrollTime = 0;
+    
     const handleScroll = () => {
-      const section = document.getElementById("how-it-works-section")
-      if (section) {
-        const rect = section.getBoundingClientRect()
-        const windowHeight = window.innerHeight
-        if (rect.top < windowHeight * 0.7 && rect.bottom > 0) {
-          // 可加动画触发逻辑
-        }
+      const now = Date.now();
+      // 节流：限制执行频率为每100ms最多一次
+      if (now - lastScrollTime < 100) {
+        return;
       }
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll()
-    return () => window.removeEventListener('scroll', handleScroll)
+      lastScrollTime = now;
+      
+      // 使用requestAnimationFrame确保在下一帧执行，避免阻塞滚动
+      if (timeoutId) {
+        cancelAnimationFrame(timeoutId);
+      }
+      
+      timeoutId = requestAnimationFrame(() => {
+        const section = document.getElementById("how-it-works-section");
+        if (section) {
+          // 🔧 性能优化：批量读取DOM属性，减少布局重计算
+          const rect = section.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+          
+          if (rect.top < windowHeight * 0.7 && rect.bottom > 0) {
+            // 可加动画触发逻辑
+            section.classList.add('in-view');
+          }
+        }
+      });
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // 初始检查
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (timeoutId) {
+        cancelAnimationFrame(timeoutId);
+      }
+    };
   }, [])
 
   // 统一渐变色彩配置

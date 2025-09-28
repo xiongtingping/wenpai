@@ -26,6 +26,7 @@ import { useNavigate } from 'react-router-dom';
 // Guard组件已移除，仅使用自定义表单和@authing/web SDK
 import { getAuthingConfig } from '@/config/authing';
 import { useAuthStore } from '@/stores/compatibility-layer';
+import { useUnifiedStore } from '@/stores/unified-state-store';
 import { authService } from '@/services/authService';
 import { verificationCodeService } from '@/services/verificationCodeService';
 import { TokenService, TokenInfo } from '@/utils/tokenManager';
@@ -123,6 +124,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   // 将Token管理器初始化移到组件的后面，在所有函数定义之后
   const authStore = useAuthStore();
+  const unifiedStore = useUnifiedStore();
   
   // Guard Hook已移除 - 使用自定义认证流程
 
@@ -137,15 +139,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       if (secureUser) {
         console.log('✅ 从安全存储恢复用户状态:', { userId: secureUser.id });
         setUser(secureUser);
-        // 同步到 authStore
-        authStore.setUser({
+        // 🔧 修复：使用统一状态管理替代废弃的authStore.setUser
+        unifiedStore.setUser({
           id: secureUser.id,
           username: secureUser.username,
           email: secureUser.email,
           phone: secureUser.phone,
           nickname: secureUser.nickname,
           avatar: secureUser.avatar,
-          loginTime: secureUser.loginTime
+          loginTime: secureUser.loginTime,
+          isAuthenticated: true
         });
         setLoading(false);
         return;
@@ -153,7 +156,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       
       console.log('👤 未找到有效的用户状态，设置为未登录状态');
       setUser(null);
-      authStore.setUser(null);
+      // 🔧 修复：使用统一状态管理替代废弃的authStore.setUser
+      unifiedStore.clearUser();
     } catch (error) {
       console.error('安全认证检查失败:', error);
       // 出现错误时清除可能损坏的状态
@@ -173,11 +177,12 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       }
 
       setUser(null);
-      authStore.setUser(null);
+      // 🔧 修复：使用统一状态管理替代废弃的authStore.setUser
+      unifiedStore.clearUser();
     } finally {
       setLoading(false);
     }
-  }, [authStore]);
+  }, [unifiedStore]);
 
   // Guard初始化useEffect已移除 - 使用自定义认证流程
 
@@ -251,15 +256,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         localStorage.setItem('authing_user', JSON.stringify(formattedUser));
       }
       
-      // 同步到 authStore
-      authStore.setUser({
+      // 🔧 修复：使用统一状态管理替代废弃的authStore.setUser
+      unifiedStore.setUser({
         id: formattedUser.id,
         username: formattedUser.username,
         email: formattedUser.email,
         phone: formattedUser.phone,
         nickname: formattedUser.nickname,
         avatar: formattedUser.avatar,
-        loginTime: formattedUser.loginTime
+        loginTime: formattedUser.loginTime,
+        isAuthenticated: true
       });
 
       // Guard模态框已移除 - 无需隐藏
@@ -360,8 +366,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 清除其他认证相关项
       localStorage.removeItem('login_redirect_to');
 
-      // 同步到 authStore
-      authStore.logout();
+      // 🔧 修复：使用统一状态管理替代废弃的authStore.logout
+      unifiedStore.clearUser();
       
       // 🔐 注意：不自动清除记住密码数据，保持用户选择
       // 用户如果选择了"记住密码"，登出后应该保留这个设置
@@ -377,7 +383,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       console.error('❌ 登出失败:', error);
       setError(t('common.errors.登出失败'));
     }
-  }, [navigate, authStore]);
+  }, [navigate, unifiedStore]);
 
   // 其他方法的简化实现
   const refreshToken = async () => {
@@ -481,15 +487,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           localStorage.setItem('authing_user', JSON.stringify(updatedUser));
         }
         
-        // 同步到 authStore
-        authStore.setUser({
+        // 🔧 修复：使用统一状态管理替代废弃的authStore.setUser
+        unifiedStore.setUser({
           id: updatedUser.id,
           username: updatedUser.username,
           email: updatedUser.email,
           phone: updatedUser.phone,
           nickname: updatedUser.nickname,
           avatar: updatedUser.avatar,
-          loginTime: updatedUser.loginTime
+          loginTime: updatedUser.loginTime,
+          isAuthenticated: true
         });
 
         console.log('✅ 基本信息更新成功:', basicUpdates);

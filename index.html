@@ -224,8 +224,15 @@
         setTimeout(function() {
           console.log('🔧 Checking if app started...');
           const root = document.getElementById('root');
+          
+          // 🔒 安全检查：确保root元素存在
+          if (!root) {
+            console.error('🚨 Root element not found! Cannot initialize app.');
+            return;
+          }
+          
           // 检查是否有实际的React应用内容（而不是loading状态）
-          const hasRealContent = root && root.innerHTML && 
+          const hasRealContent = root.innerHTML && 
                                  root.innerHTML.trim() !== '' && 
                                  !root.innerHTML.includes('正在加载') &&
                                  !root.innerHTML.includes('Loading');
