@@ -55,13 +55,9 @@ export function Header() {
     const isDark = currentTheme === 'dark';
     
     return {
-      backgroundColor: isDark 
-        ? 'rgba(15, 23, 42, 0.95)' // 深色主题：深色背景
-        : 'rgba(255, 255, 255, 0.95)', // 浅色主题：浅色背景
-      color: isDark ? 'white' : 'rgb(15, 23, 42)', // 相应调整文字颜色
-      borderBottom: isDark 
-        ? '1px solid rgba(148, 163, 184, 0.1)' 
-        : '1px solid rgba(15, 23, 42, 0.1)'
+      backgroundColor: 'hsl(var(--background) / 0.95)', // 使用背景色设计令牌
+      color: 'hsl(var(--foreground))', // 使用前景色设计令牌
+      borderBottom: '1px solid hsl(var(--border) / 0.1)' // 使用边框色设计令牌
     };
   };
 
