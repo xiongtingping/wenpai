@@ -320,7 +320,14 @@
         
         // 🔥 终极fallback - 如果1秒后还没有main.tsx执行，立即启动基本React应用
         setTimeout(function() {
-          if (!window.__MAIN_TSX_LOADED__) {
+          // 🔧 修复：使用多重检查机制，与5秒检查保持一致
+          const appStarted = window.__MAIN_APP_LOADED__ || 
+                            window.__MAIN_TSX_LOADED__ ||
+                            document.querySelector('[data-reactroot]') ||
+                            document.querySelector('.react-app') ||
+                            document.getElementById('root').children.length > 0;
+          
+          if (!appStarted) {
             console.log('🔥 main.tsx未加载，启动HTML内联React应用...');
             
             const root = document.getElementById('root');
@@ -411,6 +418,8 @@
                 console.error('🚨 HTML内联React启动失败:', error);
               }
             }
+          } else {
+            console.log('✅ 1秒检查：主应用已启动，跳过HTML内联React应用');
           }
         }, 1000);
         
@@ -452,7 +461,14 @@
       
       // 5秒后检查主应用是否真正启动
       setTimeout(function() {
-        if (!window.__MAIN_APP_LOADED__) {
+        // 🔧 修复：检查多个可能的启动标记，与实际应用设置保持一致
+        const appStarted = window.__MAIN_APP_LOADED__ || 
+                          window.__MAIN_TSX_LOADED__ ||
+                          document.querySelector('[data-reactroot]') ||
+                          document.querySelector('.react-app') ||
+                          document.getElementById('root').children.length > 0;
+        
+        if (!appStarted) {
           console.log('🚨 主应用未在预期时间内启动，可能存在问题');
           console.log('🔧 尝试强制重新加载main.tsx...');
           
@@ -463,6 +479,8 @@
           script.onload = () => console.log('✅ main.tsx重新加载完成');
           script.onerror = () => console.error('❌ main.tsx重新加载失败');
           document.head.appendChild(script);
+        } else {
+          console.log('✅ 5秒检查：主应用已正常启动，无需重新加载');
         }
       }, 5000);
     </script>
