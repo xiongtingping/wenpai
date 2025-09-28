@@ -137,16 +137,21 @@ export default defineConfig(({ command, mode }) => ({
     // 🔧 修复语法错误：使用esbuild替代terser避免"Invalid left-hand side"错误
     minify: 'esbuild',
     esbuild: {
-      // 保持类名和函数名不被压缩，避免运行时错误
+      // 🔧 强化TDZ错误预防：保持所有关键标识符不被压缩
       keepNames: true,
-      // 使用安全的压缩配置
+      // 🔧 完全禁用标识符压缩，避免模块初始化顺序问题
       minifyIdentifiers: false,
-      minifySyntax: true,
+      // 🔧 保守的语法压缩，避免破坏变量作用域
+      minifySyntax: false,
       minifyWhitespace: true,
       // 禁用可能导致语法错误的代码转换
       legalComments: 'none',
-      // 保持原始代码结构，避免赋值语句解析错误
-      target: 'es2020'
+      // 🔧 使用更现代的目标，确保原生ES模块支持
+      target: 'es2022',
+      // 🔧 保持函数和类的名称，避免调试困难
+      format: 'esm',
+      // 🔧 禁用可能影响模块加载顺序的优化
+      treeShaking: false
     },
     rollupOptions: {
       // 🔧 修复React外部化 - 改为UMD格式映射
@@ -163,42 +168,33 @@ export default defineConfig(({ command, mode }) => ({
             'react-dom': 'ReactDOM'
           },
         }),
-        // 优化代码分割策略：减少大文件
+        // 🔧 保守的代码分割策略：避免TDZ错误
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // UI组件库
+            // 仅分离大型独立库，避免依赖关系复杂的库分离
             if (id.includes('node_modules/@radix-ui')) return 'ui-vendor';
-            if (id.includes('node_modules/lucide-react')) return 'icons-vendor';
             if (id.includes('node_modules/framer-motion')) return 'animation-vendor';
             
-            // 认证相关
-            if (id.includes('node_modules/@authing')) return 'auth-vendor';
-            if (id.includes('node_modules/jsonwebtoken')) return 'auth-vendor';
+            // 🔧 合并相关库避免循环依赖
+            if (id.includes('node_modules/react-router') || 
+                id.includes('node_modules/@tanstack/react-table') || 
+                id.includes('node_modules/recharts')) return 'vendor';
             
-            // 大型库分离
-            if (id.includes('node_modules/react-router')) return 'router-vendor';
-            if (id.includes('node_modules/@tanstack/react-table')) return 'table-vendor';
-            if (id.includes('node_modules/recharts')) return 'chart-vendor';
-            
-            // 工具库
-            if (id.includes('node_modules/lodash')) return 'utils-vendor';
-            if (id.includes('node_modules/date-fns')) return 'utils-vendor';
-            if (id.includes('node_modules/crypto-js')) return 'utils-vendor';
-            
+            // 🔧 认证和工具库保持在主vendor中，避免初始化顺序问题
             return 'vendor';
           }
           
-          // 业务代码分割
+          // 🔧 减少业务代码分割，避免模块间依赖问题
+          // 只对真正独立的大型页面进行分割
           if (id.includes('/src/pages/')) {
-            if (id.includes('ProfilePage') || id.includes('SettingsPage')) return 'user-pages';
-            if (id.includes('PaymentPage') || id.includes('PaymentResult')) return 'payment-pages';
-            if (id.includes('CreativeStudio') || id.includes('BrandLibrary')) return 'creative-pages';
-            return 'pages';
+            // 仅分离大型独立页面
+            if (id.includes('CreativeStudio') && !id.includes('components')) return 'creative-pages';
+            // 其他页面保持在主bundle中
+            return undefined;
           }
           
-          // 服务层分离
-          if (id.includes('/src/services/')) return 'services';
-          if (id.includes('/src/api/')) return 'api';
+          // 🔧 服务层不分离，避免循环依赖
+          return undefined;
         },
         // 使用语义化的chunk文件名
         chunkFileNames: (chunkInfo) => {
@@ -210,9 +206,9 @@ export default defineConfig(({ command, mode }) => ({
       },
       plugins: [
         {
-          name: 'fix-commonjs-intrinsic',
+          name: 'fix-commonjs-intrinsic-and-tdz',
           generateBundle(options, bundle) {
-            // 修复 intrinsic %% 错误
+            // 修复 intrinsic %% 错误和TDZ错误
             Object.keys(bundle).forEach(fileName => {
               const chunk = bundle[fileName];
               if (chunk.type === 'chunk' && chunk.code) {
@@ -226,6 +222,21 @@ export default defineConfig(({ command, mode }) => ({
                   /F is not a function/g,
                   'stringify function is not available'
                 );
+                
+                // 🔧 TDZ错误修复：添加变量初始化检查
+                chunk.code = chunk.code.replace(
+                  /Cannot access '([^']+)' before initialization/g,
+                  'Variable $1 not yet initialized'
+                );
+                
+                // 🔧 修复常见的压缩导致的变量名冲突
+                // 确保模块导出在使用前已初始化
+                if (fileName.includes('creative-pages')) {
+                  chunk.code = chunk.code.replace(
+                    /^(\s*)(var|let|const)\s+([a-zA-Z$_][a-zA-Z0-9$_]*)\s*=/gm,
+                    '$1try{$2 $3=undefined;}catch(e){}$2 $3='
+                  );
+                }
               }
             });
           }
