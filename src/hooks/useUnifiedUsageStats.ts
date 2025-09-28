@@ -9,7 +9,7 @@
 import i18n from '@/i18n';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useTokenUsageStore } from '@/stores/compatibility-layer';
+import { useTokenUsageState, useUnifiedStore } from '@/stores/unified-state-store';
 import { unifiedUsageDataManager } from '@/services/unifiedUsageDataManager';
 import type { UsageCountStats as ServiceUsageCountStats } from '@/services/unifiedUsageDataManager';
 import { enhancedPermissionService } from '@/services/enhancedPermissionService';
@@ -139,7 +139,9 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
 } {
   // console.log('🔍 [useUnifiedUsageStats] Hook初始化，外部传入userTier:', externalUserTier);
   const { user } = useAuth();
-  const { currentStats: tokenStats, refreshStats: refreshTokenStatsStore } = useTokenUsageStore();
+  const tokenUsageState = useTokenUsageState();
+  const unifiedStore = useUnifiedStore();
+  const tokenStats = tokenUsageState.currentStats;
   const { subscriptionStatus, hasActiveSubscription } = useSubscriptionStatus(user?.id);
   
   const [usageCountStats, setUsageCountStats] = useState<UsageCountStats>({
@@ -259,14 +261,14 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       
       // 更新本地Token存储状态
       if (tokenStatsData) {
-        await refreshTokenStatsStore(user.id, currentUserTier);
+        unifiedStore.updateTokenStats(tokenStatsData);
       }
     } catch (error) {
       const currentUserTier = getUserTier();
       logger.error('刷新Token统计失败:', { userId: user.id, userTier: currentUserTier, error });
       setError(error instanceof Error ? error.message : '刷新Token统计失败');
     }
-  }, [user?.id, getUserTier, refreshTokenStatsStore]); // 🔧 FIX: 避免循环依赖
+  }, [user?.id, getUserTier, unifiedStore]); // 🔧 FIX: 使用统一Store，避免循环依赖
 
   /**
    * 检查功能权限
@@ -379,8 +381,8 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       
       // 更新状态
       if (unifiedData.tokenStats) {
-        // Token统计通过Store更新
-        await refreshTokenStats().catch(err => logger.error('refreshTokenStats 失败:', err));
+        // Token统计通过统一Store更新
+        unifiedStore.updateTokenStats(unifiedData.tokenStats);
       }
       
       // 直接使用统一数据
@@ -428,7 +430,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     } finally {
       setLoading(false);
     }
-  }, [user?.id, getUserTier, refreshTokenStats, refreshUsageCountStats, refreshExtendedStats, checkPermission]); // 🔧 FIX: 避免循环依赖
+  }, [user?.id, getUserTier, refreshUsageCountStats, refreshExtendedStats, checkPermission, unifiedStore]); // 🔧 FIX: 避免循环依赖
 
   // 🔧 FIX: 在用户套餐类型变化时更新初始统计
   useEffect(() => {
