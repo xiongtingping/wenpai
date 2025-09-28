@@ -616,7 +616,7 @@ export default function ProfilePage() {
                               {isVerifyingPhone ? (
                                 <RefreshCw className="w-3 h-3 animate-spin" />
                               ) : verificationStatus.phone ? (
-                                <Check className="w-3 h-3 text-green-600 group-hover:scale-110 transition-transform" />
+                                <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
                               ) : showVerificationInput.phone ? (
                                 t('common.confirm')
                               ) : (
@@ -660,7 +660,7 @@ export default function ProfilePage() {
                               {isVerifyingEmail ? (
                                 <RefreshCw className="w-3 h-3 animate-spin" />
                               ) : verificationStatus.email ? (
-                                <Check className="w-3 h-3 text-green-600 group-hover:scale-110 transition-transform" />
+                                <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
                               ) : showVerificationInput.email ? (
                                 t('common.confirm')
                               ) : (
