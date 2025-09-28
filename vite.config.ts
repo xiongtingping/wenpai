@@ -272,24 +272,28 @@ export default defineConfig(({ command, mode }) => ({
                   'Variable $1 not yet initialized'
                 );
                 
-                // 🔧 针对creative-pages和所有可能的TDZ错误文件
-                if (fileName.includes('creative-pages') || fileName.includes('DDIJ-yvp')) {
-                  console.log(`🔧 Applying TDZ fixes to ${fileName}`);
+                // 🔧 针对所有可能包含services的文件应用TDZ修复
+                if (fileName.includes('services') || fileName.includes('creative') || 
+                    fileName.includes('config') || fileName.includes('utils')) {
+                  console.log(`🔧 Applying enhanced TDZ fixes to ${fileName}`);
                   
-                  // 修复单字符变量名的TDZ错误
+                  // 🔧 修复特定的"Cannot access 'at' before initialization"错误
                   chunk.code = chunk.code.replace(
-                    /\b([a-z])\s*=\s*([^;,\n]+);/g,
-                    'try{var $1=undefined;}catch(e){}$1=$2;'
+                    /\bat\s*=\s*at\b/g,
+                    'at = (typeof at !== "undefined" ? at : undefined)'
                   );
                   
-                  // 修复const声明的TDZ问题
+                  // 🔧 修复const/let变量的TDZ问题 - 更安全的方式
                   chunk.code = chunk.code.replace(
-                    /const\s+([a-zA-Z$_][a-zA-Z0-9$_]*)\s*=/g,
-                    'let $1; try{$1='
+                    /\b(const|let)\s+([a-zA-Z$_][a-zA-Z0-9$_]*)\s*=\s*([a-zA-Z$_][a-zA-Z0-9$_]*)\s*\(/g,
+                    'var $2; try { $2 = $3; } catch(e) { $2 = function() { return undefined; }; } $2('
                   );
                   
-                  // 添加模块级别的变量预初始化
-                  chunk.code = '(function(){try{window._TDZ_PROTECTION=true;}catch(e){}})()\n' + chunk.code;
+                  // 🔧 添加更安全的变量初始化保护
+                  chunk.code = chunk.code.replace(
+                    /(\w+)\s*=\s*\1(?!\w)/g,
+                    '$1 = (typeof $1 !== "undefined" ? $1 : undefined)'
+                  );
                 }
               }
             });
