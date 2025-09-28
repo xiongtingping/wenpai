@@ -222,7 +222,7 @@ export const FeaturesSection: React.FC = () => {
 
   return (
     <section className="py-10 relative overflow-hidden">
-      {/* 移除背景装饰层 */}
+      {/* 移除背景装饰层 - 确保翻译生效 */}
       
       <div className="container mx-auto px-4 relative z-10">
         {/* 1️⃣ Banner 标题区域优化 */}
