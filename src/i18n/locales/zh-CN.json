@@ -2951,6 +2951,8 @@
     "feedbackDescription": "反馈bug获得奖励次数",
     "feedbackRules": "反馈奖励规则",
     "feedbackEmail": "反馈邮箱",
+    "feedbackRuleDetail": "反馈任意bug或者提出好的建议，给予适量次数的奖励",
+    "daysCount": "{{count}}天",
     "submitFeedback": "提交反馈",
     "feedbackEmailCopied": "反馈邮箱已复制",
     "feedbackEmailCopiedDesc": "邮箱地址已复制，请务必备注您的个人ID",
@@ -6652,6 +6654,7 @@
       "查看资料": "查看资料"
     },
     "text": {
+      "全选": "全选"
     },
     "error": {
     },

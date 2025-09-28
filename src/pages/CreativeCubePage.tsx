@@ -11,9 +11,7 @@ import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton
 import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
 import { Header } from '@/components/landing/Header';
 import PageNavigation from '@/components/layout/PageNavigation';
-import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
-import { useAuth } from '@/hooks/useAuth';
-import { useUnifiedPermission } from '@/hooks/useUnifiedPermission';
+// 权限组件统一使用按钮级控制
 
 /**
  * 创意魔方页面
@@ -26,49 +24,8 @@ const CreativeCubePage: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState('creative');
 
-  // 🎯 强化权限检查 - 使用修复后的智能权限系统
-  const { user, isAuthenticated } = useAuth();
-  const proPermission = useUnifiedPermission('tier:pro');
+  // 🎯 简化权限管理 - 使用按钮级权限控制，无需页面级权限检查
   
-  // 🔍 详细调试信息 - 显示修复后的权限检查结果
-  console.log('🎯 [创意魔方] 强化权限检查结果:', {
-    user: {
-      id: user?.id,
-      subscription: user?.subscription,
-      tier: (user as any)?.tier,
-      subscription_tier: (user as any)?.subscription_tier,
-      vipLevel: (user as any)?.vipLevel,
-      isVip: user?.isVip,
-      is_vip: (user as any)?.is_vip,
-      permissions: user?.permissions
-    },
-    isAuthenticated,
-    proPermission: {
-      hasPermission: proPermission.hasPermission,
-      userContext: proPermission.userContext,
-      reason: proPermission.reason,
-      currentLevel: proPermission.currentLevel,
-      requiredLevel: proPermission.requiredLevel,
-      canUpgrade: proPermission.canUpgrade,
-      upgradeUrl: proPermission.upgradeUrl
-    }
-  });
-  
-  // 🎯 多重权限验证 - 确保premium用户能够访问
-  const hasAccess = proPermission.hasPermission || 
-                   user?.subscription?.tier === 'premium' || 
-                   (user as any)?.tier === 'premium' || 
-                   (user as any)?.vipLevel === 'premium' ||
-                   (user?.isVip && ((user as any)?.vipLevel === 'premium' || user?.subscription?.tier === 'premium'));
-  
-  console.log('🎯 [创意魔方] 最终访问权限:', {
-    proPermissionResult: proPermission.hasPermission,
-    hasAccess,
-    accessReason: hasAccess ? '权限验证通过' : '需要专业版或更高版本'
-  });
-  
-
-  // 🔧 移除整页权限检查，改为按钮级权限控制
 
   const contentStyles = [
     { id: 'creative', name: t('creative.styles.creative'), icon: Sparkles, description: t('creative.styleDescriptions.creative')  },
@@ -147,20 +104,10 @@ const CreativeCubePage: React.FC = () => {
         description="AI助力内容创作，智能生成创意内容"
         showAdaptButton={false}
         showUpgradeButton={false}
-        actions={
-          !hasAccess ? (
-            <RoleBasedUpgradePrompt
-              requiredTier="pro"
-              featureName="创意魔方"
-              description={t('creative.upgradeRequired')}
-              mode="compact"
-            />
-          ) : null
-        }
+        actions={null}
       />
 
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* 🔧 移除整页权限遮罩，改为按钮级权限控制 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* 输入区域 */}
           <Card variant="enhanced">
@@ -176,7 +123,10 @@ const CreativeCubePage: React.FC = () => {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="prompt" className="text-foreground">内容描述</Label>
-                {hasAccess ? (
+                <PermissionProtectedInput
+                  requiredTier="pro"
+                  featureName="创意魔方输入"
+                >
                   <Textarea
                     id="prompt"
                     variant="enhanced"
@@ -185,21 +135,7 @@ const CreativeCubePage: React.FC = () => {
                     onChange={(e) => setPrompt(e.target.value)}
                     rows={4}
                   />
-                ) : (
-                  <PermissionProtectedInput
-                    requiredTier="pro"
-                    featureName="创意魔方输入"
-                  >
-                    <Textarea
-                      id="prompt"
-                      variant="enhanced"
-                      placeholder={t('components.labels.占位符')}
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      rows={4}
-                    />
-                  </PermissionProtectedInput>
-                )}
+                </PermissionProtectedInput>
               </div>
 
               <div>
@@ -220,45 +156,25 @@ const CreativeCubePage: React.FC = () => {
                 </div>
               </div>
 
-              {hasAccess ? (
-                <Button
-                  onClick={handleGenerate}
-                  disabled={!prompt.trim() || isGenerating}
-                  className="w-full"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Zap className="w-4 h-4 mr-2 animate-spin" />
-                      生成中...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      生成创意内容
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <PermissionLockedButton
-                  requiredTier="pro"
-                  featureName="创意魔方生成"
-                  onClick={handleGenerate}
-                  disabled={!prompt.trim() || isGenerating}
-                  className="w-full"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Zap className="w-4 h-4 mr-2 animate-spin" />
-                      生成中...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      生成创意内容
-                    </>
-                  )}
-                </PermissionLockedButton>
-              )}
+              <PermissionLockedButton
+                requiredTier="pro"
+                featureName="创意魔方生成"
+                onClick={handleGenerate}
+                disabled={!prompt.trim() || isGenerating}
+                className="w-full"
+              >
+                {isGenerating ? (
+                  <>
+                    <Zap className="w-4 h-4 mr-2 animate-spin" />
+                    生成中...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    生成创意内容
+                  </>
+                )}
+              </PermissionLockedButton>
             </CardContent>
           </Card>
 
@@ -274,8 +190,11 @@ const CreativeCubePage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {hasAccess ? (
-                generatedContent ? (
+              <PermissionProtectedInput
+                requiredTier="pro"
+                featureName="创意魔方内容输出"
+              >
+                {generatedContent ? (
                   <div className="space-y-4">
                     <div className="surface-2 p-4 rounded-lg whitespace-pre-wrap text-sm text-foreground">
                       {generatedContent}
@@ -295,35 +214,8 @@ const CreativeCubePage: React.FC = () => {
                     <p>输入内容描述并点击生成按钮</p>
                     <p className="text-sm">AI将为您创建独特的创意内容</p>
                   </div>
-                )
-              ) : (
-                <PermissionProtectedInput
-                  requiredTier="pro"
-                  featureName="创意魔方内容输出"
-                >
-                  {generatedContent ? (
-                    <div className="space-y-4">
-                      <div className="surface-2 p-4 rounded-lg whitespace-pre-wrap text-sm text-foreground">
-                        {generatedContent}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button onClick={handleCopy} variant="outline" size="sm">
-                          复制内容
-                        </Button>
-                        <Button onClick={() => setGeneratedContent('')} variant="outline" size="sm">
-                          清空
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-12 text-muted-foreground">
-                      <Lightbulb className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>输入内容描述并点击生成按钮</p>
-                      <p className="text-sm">AI将为您创建独特的创意内容</p>
-                    </div>
-                  )}
-                </PermissionProtectedInput>
-              )}
+                )}
+              </PermissionProtectedInput>
             </CardContent>
           </Card>
         </div>

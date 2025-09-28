@@ -6262,6 +6262,8 @@
     "feedbackDescription": "Report bugs to earn reward credits",
     "feedbackRules": "Feedback Reward Rules",
     "feedbackEmail": "Feedback Email",
+    "feedbackRuleDetail": "Report any bugs or suggest improvements to earn reward credits",
+    "daysCount": "{{count}} days",
     "submitFeedback": "Submit Feedback",
     "feedbackEmailCopied": "Feedback email copied",
     "feedbackEmailCopiedDesc": "Email address copied, please include your personal ID",
@@ -12166,6 +12168,9 @@
       "错误率较高": "错误率较高 (EN)",
       "建议降低并发数或检查网络连接": "建议降低并发数或检查网络连接 (EN)",
       "刷新性能数据失败": "刷新性能数据失败 (EN)"
+    },
+    "text": {
+      "全选": "Select All"
     },
     "messages": {
       "正在为多个平台生成专属内容": "正在为多个平台生成专属内容 (EN)",
@@ -19062,16 +19067,7 @@
       "本地字符数预设状_jmm": "本地字符数预设状态（用于高亮显示）",
       "保存状态管理_dkn": "保存状态管理",
       "全选取消全选_d8x": "全选/取消全选",
-      "使用批量选择函数_d6z": "使用批量选择函数（如果提供的话）",
-      "取消全选_otw": "取消全选",
-      "传空数组_5bu": "传空数组",
-      "全选_ay6": "Select All",
-      "传所有平台ID_i7i": "传所有平台ID",
-      "降级到逐个切换_rrt": "降级到逐个切换（兼容旧版本）-",
-      "使用改进的策略_d9t": "使用改进的策略",
-      "取消全选_pca": "取消全选",
-      "批量处理避免状_yit": "批量处理，避免状态竞争",
-      "使用reques_al4": "使用requestAnimationFrame确保状态更新顺序",
+      "全选": "Select All",
       "全选_ry0": "Select All",
       "批量处理避免状_cxd": "批量处理，避免状态竞争",
       "使用reques_dvu": "使用requestAnimationFrame确保状态更新顺序",

@@ -225,7 +225,7 @@ export function PlatformSelector({ availablePlatforms,
     }
     
     console.log('全选操作完成:', {
-      操作: isAllSelected ? t('components.text.取消全选_otw') : t('components.text.全选_ay6'),
+      操作: isAllSelected ? t('platforms.deselectAll') : t('platforms.selectAll'),
       使用批量函数: !!onBatchSelect,
       当前选中: selectedPlatforms.length,
       可用平台: availablePlatforms.length
@@ -387,7 +387,7 @@ export function PlatformSelector({ availablePlatforms,
                 onClick={handleSelectAll}
                 className="min-w-[100px]"
               >
-                {selectedPlatforms.length === availablePlatforms.length ? t('components.text.取消全选_otw') : t('components.text.全选_ay6')}
+                {selectedPlatforms.length === availablePlatforms.length ? t('platforms.deselectAll') : t('platforms.selectAll')}
               </Button>
             </div>
           </div>
