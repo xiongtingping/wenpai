@@ -107,6 +107,7 @@ export default function ProfilePage() {
   };
 
   const companionDays = calculateCompanionDays(registrationDate);
+  const isSavingDisabled = !hasUnsavedChanges || isSaving;
 
   const getCurrentFormAvatar = () => {
     if (profileForm.avatar) {
@@ -155,11 +156,14 @@ export default function ProfilePage() {
         updatedUserData.phone = phoneTrimmed;
       }
       
-      if (Object.keys(updatedUserData).length === 0) {
-        setHasUnsavedChanges(false);
-        toast({ title: "无需保存", description: "个人资料没有变化" });
-        return;
-      }
+    if (Object.keys(updatedUserData).length === 0) {
+      setHasUnsavedChanges(false);
+      toast({
+        title: t('profile.messages.noChangesTitle'),
+        description: t('profile.messages.noChangesDescription'),
+      });
+      return;
+    }
 
       // 添加验证状态信息
       const updatedDataWithVerification = {
@@ -170,9 +174,16 @@ export default function ProfilePage() {
 
       await updateUser(updatedDataWithVerification);
       setHasUnsavedChanges(false);
-      toast({ title: "保存成功", description: "个人资料已成功更新" });
+      toast({
+        title: t('profile.messages.saveSuccess'),
+        description: t('profile.messages.profileUpdated'),
+      });
     } catch (error) {
-      toast({ title: "保存失败", description: "请稍后重试", variant: "destructive" });
+      toast({
+        title: t('profile.messages.saveFailed'),
+        description: t('common.errors.tryAgainLater'),
+        variant: "destructive",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -181,8 +192,8 @@ export default function ProfilePage() {
   const handleSendPhoneCode = async () => {
     if (!profileForm.phone) {
       toast({
-        title: "请先输入手机号",
-        description: "请输入有效的手机号码",
+        title: t('profile.validation.phoneRequiredTitle'),
+        description: t('profile.validation.phoneRequiredDescription'),
         variant: "destructive",
       });
       return;
@@ -192,8 +203,8 @@ export default function ProfilePage() {
     const phoneRegex = /^1[3-9]\d{9}$/;
     if (!phoneRegex.test(profileForm.phone)) {
       toast({
-        title: "手机号格式错误",
-        description: "请输入正确的11位手机号码",
+        title: t('profile.validation.phoneFormatErrorTitle'),
+        description: t('profile.validation.phoneFormatErrorDescription'),
         variant: "destructive",
       });
       return;
@@ -215,8 +226,8 @@ export default function ProfilePage() {
       });
     } catch (error) {
       toast({
-        title: "发送失败",
-        description: "验证码发送失败，请稍后重试",
+        title: t('profile.messages.codeSendFailedTitle'),
+        description: t('profile.messages.codeSendFailedDescription'),
         variant: "destructive",
       });
     } finally {
@@ -227,8 +238,8 @@ export default function ProfilePage() {
   const handleVerifyPhone = async () => {
     if (!verificationCodes.phone) {
       toast({
-        title: "请输入验证码",
-        description: "请输入收到的短信验证码",
+        title: t('profile.messages.enterCodeTitle'),
+        description: t('profile.messages.enterSmsCodeDescription'),
         variant: "destructive",
       });
       return;
@@ -502,22 +513,22 @@ className="u-flex-gap-sm"
                   <div className="u-flex-gap-sm u-flex-wrap u-justify-center">
                     <Button size="sm" onClick={handleUploadAvatar} className="u-text-xs">
                       <Upload className="w-3 h-3 mr-1" />
-                      上传头像
+                      {t('profile.uploadAvatar')}
                     </Button>
                     <Button size="sm" variant="outline" onClick={handleRandomAvatar} className="u-text-xs">
                       <Sparkles className="w-3 h-3 mr-1" />
-                      随机头像
+                      {t('profile.randomAvatar')}
                     </Button>
                   </div>
 
-                  <div className="u-w-full u-grid-cols-2 u-mt-lg">
-                    <div className="u-text-center u-p-sm u-bg-background u-rounded u-border">
-                      <div className="u-text-xs u-text-muted">用户ID</div>
-                      <div className="u-text-sm u-font-semibold u-break-all">{user?.id || 'unknown'}</div>
+                  <div className="mt-6 grid w-full gap-3 sm:grid-cols-2">
+                    <div className="rounded-lg border bg-card px-4 py-3 text-center">
+                      <p className="text-xs text-muted-foreground">{t('profile.userId')}</p>
+                      <p className="mt-1 break-all text-sm font-semibold text-foreground">{user?.id || t('profile.unknown')}</p>
                     </div>
-                    <div className="u-text-center u-p-sm u-bg-background u-rounded u-border">
-                      <div className="u-text-xs u-text-muted">陪伴天数</div>
-                      <div className="u-text-sm u-font-semibold">{companionDays}天</div>
+                    <div className="rounded-lg border bg-card px-4 py-3 text-center">
+                      <p className="text-xs text-muted-foreground">{t('profile.companionDays')}</p>
+                      <p className="mt-1 text-sm font-semibold text-foreground">{t('profile.daysCount', { count: companionDays })}</p>
                     </div>
                   </div>
                 </div>
@@ -570,9 +581,9 @@ className="u-flex-gap-sm"
                         ) : verificationStatus.phone ? (
                           <Check className="w-3 h-3 u-text-success" />
                         ) : showVerificationInput.phone ? (
-                          '确认'
+                          t('common.confirm')
                         ) : (
-                          '发送验证码'
+                          t('profile.sendCode')
                         )}
                       </Button>
                     </div>
@@ -583,8 +594,8 @@ className="u-flex-gap-sm"
                         <Input
                           value={verificationCodes.phone}
                           onChange={(e) => setVerificationCodes(prev => ({ ...prev, phone: e.target.value }))}
-                          placeholder="请输入短信验证码"
-className="u-text-sm"
+                          placeholder={t('profile.enterSmsCode')}
+                          className="u-text-sm"
                         />
                       </div>
                     )}
@@ -596,7 +607,7 @@ className="u-text-sm"
                       <Input
                         value={profileForm.email}
                         onChange={(e) => handleFormChange('email', e.target.value)}
-                        placeholder="请输入邮箱"
+                        placeholder={t('profile.enterEmail')}
                         className="profile-form-input u-flex-1"
                       />
                       <Button
@@ -622,9 +633,9 @@ className="u-text-sm"
                         ) : verificationStatus.email ? (
                           <Check className="w-3 h-3 u-text-success" />
                         ) : showVerificationInput.email ? (
-                          '确认'
+                          t('common.confirm')
                         ) : (
-                          '发送验证码'
+                          t('profile.sendCode')
                         )}
                       </Button>
                     </div>
@@ -635,8 +646,8 @@ className="u-text-sm"
                         <Input
                           value={verificationCodes.email}
                           onChange={(e) => setVerificationCodes(prev => ({ ...prev, email: e.target.value }))}
-                          placeholder="请输入邮箱验证码"
-className="u-text-sm"
+                          placeholder={t('profile.placeholders.enterEmailCode')}
+                          className="u-text-sm"
                         />
                       </div>
                     )}
@@ -645,31 +656,16 @@ className="u-text-sm"
                   {hasUnsavedChanges && (
                     <div className="u-bg-primary-light u-border-primary u-rounded u-p-md u-mb-lg">
                       <p className="u-m-none u-text-sm u-text-primary">
-                        您有未保存的更改，请点击保存按钮
+                        {t('profile.unsavedChanges')}
                       </p>
                     </div>
                   )}
 
                   <Button
                     onClick={handleSaveProfile}
-                    disabled={!hasUnsavedChanges || isSaving}
-                    style={{
-                      width: '100%',
-                      background: hasUnsavedChanges && !isSaving 
-                        ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
-                        : '#f3f4f6',
-                      color: hasUnsavedChanges && !isSaving ? 'white' : '#6b7280',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '0.75rem 1.5rem',
-                      fontSize: '1rem',
-                      fontWeight: '600',
-                      cursor: hasUnsavedChanges && !isSaving ? 'pointer' : 'not-allowed',
-                      boxShadow: hasUnsavedChanges && !isSaving 
-                        ? '0 2px 4px -1px rgba(59, 130, 246, 0.3)' 
-                        : 'none',
-                      transition: 'all 0.2s ease-in-out'
-                    }}
+                    disabled={isSavingDisabled}
+                    className="w-full justify-center"
+                    variant={isSavingDisabled ? 'outline' : 'default'}
                   >
                     {isSaving ? (
                       <>
@@ -689,160 +685,96 @@ className="u-text-sm"
           </div>
 
           {/* 第二行：使用统计和邀请奖励 */}
-          <div className="profile-stats-section">
-            {/* 左侧：使用统计 */}
+          <div className="flex flex-col gap-6 xl:flex-row">
             <TokenUsageSection
               userTier={userTier}
               showDetails={true}
-              className="profile-usage-card"
+              className="profile-usage-card flex-1"
             />
 
-            {/* 右侧：邀请奖励和反馈奖励容器 */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1.5rem',
-              minHeight: '500px'
-            }}>
-              {/* 邀请奖励 */}
-              <div className="profile-invite-card u-flex-1">
-                <div className="u-mb-xl">
-                  <div className="u-flex-gap-md u-mb-lg">
-                    <Gift className="w-6 h-6 u-text-primary" />
-                    <h3 className="u-text-lg u-font-semibold u-m-none">邀请奖励</h3>
+            <div className="flex flex-1 flex-col gap-6">
+              <Card className="h-full">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Gift className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-lg font-semibold">{t('profile.inviteRewards')}</CardTitle>
                   </div>
-                  <p className="u-m-none u-text-muted u-text-sm">
-                    每邀请1人注册，双方各得20次免费使用机会，可累加且永久有效！
-                  </p>
-                </div>
+                  <CardDescription>
+                    {t('profile.inviteRule')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-lg border bg-muted/10 p-4 text-center">
+                      <p className="text-2xl font-semibold text-foreground">0</p>
+                      <p className="text-xs text-muted-foreground">{t('profile.successfulInvites')}</p>
+                    </div>
+                    <div className="rounded-lg border bg-muted/10 p-4 text-center">
+                      <p className="text-2xl font-semibold text-foreground">0</p>
+                      <p className="text-xs text-muted-foreground">{t('profile.rewardTimes')}</p>
+                    </div>
+                  </div>
 
-                <div className="u-grid-cols-2 u-mb-xl">
-                  <div className="u-text-center u-p-lg u-bg-dialog u-rounded-lg u-border">
-                    <div className="u-text-2xl u-font-bold u-text-foreground u-mb-xs">0</div>
-                    <div className="u-text-xs u-text-muted">成功邀请</div>
-                  </div>
-                  <div className="u-text-center u-p-lg u-bg-dialog u-rounded-lg u-border">
-                    <div className="u-text-2xl u-font-bold u-text-foreground u-mb-xs">0</div>
-                    <div className="u-text-xs u-text-muted">获得次数</div>
-                  </div>
-                </div>
-
-                <div className="u-mb-xl">
-                  <label className="u-block u-text-sm u-font-semibold u-mb-sm u-text-foreground">
-                    邀请链接
-                  </label>
-                  <div className="u-flex-gap-sm">
-                    <Input
-                      value={`${window.location.origin}/register?inviter=${user?.id || 'unknown'}`}
-                      readOnly
-className="u-flex-1 u-text-xs u-font-mono"
-                    />
-                    <Button size="sm" onClick={handleCopyInviteLink} style={{
-                      background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      boxShadow: '0 1px 3px 0 rgba(59, 130, 246, 0.3)'
-                    }}>
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={handleCopyInviteLink}
-                  style={{
-                    width: '100%',
-                    background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '0.75rem',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    boxShadow: '0 2px 4px -1px rgba(59, 130, 246, 0.3)',
-                    transition: 'all 0.2s ease-in-out'
-                  }}
-                >
-                  <Users className="w-5 h-5" />
-                  立即邀请好友
-                </Button>
-              </div>
-
-              {/* 反馈奖励 */}
-              <div className="profile-feedback-card u-flex-1">
-                <div className="u-mb-xl">
-                  <div className="u-flex-gap-md u-mb-lg">
-                    <HelpCircle className="w-6 h-6 u-text-primary" />
-                    <h3 className="u-text-lg u-font-semibold u-m-none">反馈奖励</h3>
-                  </div>
-                  <p className="u-m-none u-text-muted u-text-sm">
-                    发现重要bug或提出有价值建议，可获得额外使用次数奖励
-                  </p>
-                </div>
-                
-                <div style={{
-                  display: 'grid', 
-                  gridTemplateColumns: '1fr 1fr', 
-                  gap: '1rem', 
-                  marginBottom: '1.5rem'
-                }}>
-                  <div className="u-p-lg u-bg-dialog u-rounded-lg u-border">
-                    <h4 className="u-text-sm u-font-semibold u-mb-sm u-text-foreground">反馈规则</h4>
-                    <p className="u-m-none u-text-xs u-text-muted u-leading-relaxed">
-                      bug报告或建议可获得奖励
-                    </p>
-                  </div>
-                  
-                  <div className="u-p-lg u-bg-dialog u-rounded-lg u-border">
-                    <h4 className="u-text-sm u-font-semibold u-mb-sm u-text-foreground">反馈邮箱</h4>
-                    <div className="u-flex-gap-sm">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-foreground">{t('profile.inviteLink')}</Label>
+                    <div className="flex gap-2">
                       <Input
-                        value="hello@wenpai.xyz"
+                        value={`${window.location.origin}/register?inviter=${user?.id || 'unknown'}`}
                         readOnly
-                        style={{fontSize: '0.75rem', fontFamily: 'monospace', flex: 1}}
+                        className="flex-1 font-mono text-xs"
                       />
-                      <Button size="sm" onClick={handleCopyFeedbackEmail} style={{
-                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        boxShadow: '0 1px 3px 0 rgba(59, 130, 246, 0.3)',
-                        flexShrink: 0
-                      }}>
-                        <Copy className="w-3 h-3" />
+                      <Button size="sm" onClick={handleCopyInviteLink}>
+                        <Copy className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                </div>
 
-                <Button
-                  onClick={handleCopyFeedbackEmail}
-                  style={{
-                    width: '100%',
-                    background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '0.75rem',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    boxShadow: '0 2px 4px -1px rgba(59, 130, 246, 0.3)',
-                    transition: 'all 0.2s ease-in-out'
-                  }}
-                >
-                  <Mail className="w-4 h-4" />
-                  提交反馈
-                </Button>
-              </div>
+                  <Button onClick={handleCopyInviteLink} className="w-full gap-2">
+                    <Users className="h-5 w-5" />
+                    {t('profile.inviteFriends')}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="h-full">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <HelpCircle className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-lg font-semibold">{t('profile.feedbackRewards')}</CardTitle>
+                  </div>
+                  <CardDescription>
+                    {t('profile.feedbackRule')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-lg border bg-muted/10 p-4">
+                      <h4 className="text-sm font-semibold text-foreground">{t('profile.feedbackRules')}</h4>
+                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                        {t('profile.feedbackRuleDetail')}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border bg-muted/10 p-4">
+                      <h4 className="text-sm font-semibold text-foreground">{t('profile.feedbackEmail')}</h4>
+                      <div className="mt-2 flex gap-2">
+                        <Input
+                          value="hello@wenpai.xyz"
+                          readOnly
+                          className="flex-1 font-mono text-xs"
+                        />
+                        <Button size="sm" onClick={handleCopyFeedbackEmail}>
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button onClick={handleCopyFeedbackEmail} className="w-full gap-2">
+                    <Mail className="h-4 w-4" />
+                    {t('profile.submitFeedback')}
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </div>
 

@@ -57,6 +57,7 @@ interface GenerationControlsProps {
     description: string;
     tier: 'low' | 'mid' | 'high';
     company: string;
+    isAccessible: boolean;
   }>;
   onModelChange: (model: string) => void;
   
@@ -134,6 +135,10 @@ export function GenerationControls({ generating,
 
   // 获取模型信息
   const currentModel = availableModels.find(m => m.id === selectedModel);
+
+  const accessibleModelIds = React.useMemo(() => {
+    return new Set(availableModels.filter(model => model.isAccessible).map(model => model.id));
+  }, [availableModels]);
 
   // 调试信息
   // console.log('🔍 GenerationControls - 模型数据调试:', {
@@ -276,8 +281,8 @@ export function GenerationControls({ generating,
               </div>
               <div className="ai-model-grid">
                 {availableModels.filter(m => m.tier === 'low').map((model) => {
-                  // console.log('🔍 渲染体验版模型:', model);
-                  const disabled = generating;
+                  const isAccessible = model.isAccessible;
+                  const disabled = !isAccessible || generating;
                   const isSelected = selectedModel === model.id;
 
                   return (
@@ -337,8 +342,8 @@ export function GenerationControls({ generating,
               </div>
               <div className="ai-model-grid">
                 {availableModels.filter(m => m.tier === 'mid').map((model) => {
-                  const userCanUsePro = availableModels.some(m => m.id === model.id && m.tier === 'mid');
-                  const disabled = !userCanUsePro || generating;
+                  const isAccessible = accessibleModelIds.has(model.id);
+                  const disabled = !isAccessible || generating;
                   const isSelected = selectedModel === model.id;
 
                   return (
@@ -406,8 +411,8 @@ export function GenerationControls({ generating,
               </div>
               <div className="ai-model-grid">
                 {availableModels.filter(m => m.tier === 'high').map((model) => {
-                  const userCanUsePremium = availableModels.some(m => m.id === model.id && m.tier === 'high');
-                  const disabled = !userCanUsePremium || generating;
+                  const isAccessible = accessibleModelIds.has(model.id);
+                  const disabled = !isAccessible || generating;
                   const isSelected = selectedModel === model.id;
 
                   return (

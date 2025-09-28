@@ -47,7 +47,7 @@ import {
 import { zIndexManager, ZIndexLayers } from '@/utils/zIndexManager';
 
 // 导入工具函数和配置
-import { getAvailableModelsForTier } from '@/config/aiModels';
+import { getAvailableModelsForTier, getAllModels } from '@/config/aiModels';
 import { getAvailablePlatforms } from '@/api/contentAdapter';
 
 // 导入收藏系统
@@ -470,13 +470,19 @@ export function ContentAdapterPage({
 
   // 获取可用数据
   const availablePlatforms = getAvailablePlatforms();
-  let availableModels = getAvailableModelsForTier(effectiveUserTier as any);
+  let accessibleModels = getAvailableModelsForTier(effectiveUserTier as any);
 
   // 备用方案：如果没有获取到模型，使用默认的体验版模型
-  if (!availableModels || availableModels.length === 0) {
+  if (!accessibleModels || accessibleModels.length === 0) {
     console.warn('⚠️ 未获取到模型数据，使用默认体验版模型');
-    availableModels = getAvailableModelsForTier('trial');
+    accessibleModels = getAvailableModelsForTier('trial');
   }
+
+  const accessibleModelIds = new Set(accessibleModels.map(model => model.id));
+  const availableModels = getAllModels().map(model => ({
+    ...model,
+    isAccessible: accessibleModelIds.has(model.id),
+  }));
 
   // 调试信息
   // console.log('🔍 ContentAdapterPage - 模型数据调试:', {
