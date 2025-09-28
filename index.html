@@ -231,13 +231,20 @@
             return;
           }
           
-          // 检查是否有实际的React应用内容（而不是loading状态）
+          // 🔧 改进检测逻辑：检查是否有实际的React应用内容
           const hasRealContent = root.innerHTML && 
                                  root.innerHTML.trim() !== '' && 
                                  !root.innerHTML.includes('正在加载') &&
                                  !root.innerHTML.includes('Loading');
           
-          if (!hasRealContent) {
+          // 🔧 额外检查：如果应用已经标记为启动，不要覆盖
+          const appAlreadyStarted = window.__MAIN_APP_LOADED__ || 
+                                  window.__MAIN_TSX_LOADED__ ||
+                                  document.querySelector('[data-reactroot]') ||
+                                  document.querySelector('.react-app') ||
+                                  root.children.length > 0;
+          
+          if (!hasRealContent && !appAlreadyStarted) {
             console.log('🚨 App not started, forcing basic render');
             
             // 🔧 直接替换root内容，确保可见
