@@ -24,13 +24,10 @@ export default defineConfig(({ command, mode }) => ({
       "react/jsx-runtime": path.resolve(__dirname, "./src/utils/jsx-runtime-polyfill.ts"),
     },
   },
-  // 环境变量注入，兼容 Vite/Node/Netlify/Vercel
+  // 🔒 环境变量注入 - 增强安全性处理
   define: {
     __ENV__: JSON.stringify({
-      VITE_OPENAI_API_KEY: process.env.VITE_OPENAI_API_KEY || '',
-      VITE_DEEPSEEK_API_KEY: process.env.VITE_DEEPSEEK_API_KEY || '',
-      VITE_GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY || '',
-      VITE_CREEM_API_KEY: process.env.VITE_CREEM_API_KEY || '',
+      // 🔒 公开API配置（无敏感信息）
       VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || '',
       VITE_DEBUG_MODE: process.env.VITE_DEBUG_MODE || '',
       VITE_LOG_LEVEL: process.env.VITE_LOG_LEVEL || '',
@@ -41,17 +38,35 @@ export default defineConfig(({ command, mode }) => ({
       VITE_AUTHING_USER_POOL_ID: process.env.VITE_AUTHING_USER_POOL_ID || '',
       VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL || '',
       VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || '',
-      VITE_SUPABASE_SERVICE_ROLE_KEY: process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || '',
       VITE_BUFPAY_API_URL: process.env.VITE_BUFPAY_API_URL || '',
       VITE_BUFPAY_QUERY_URL: process.env.VITE_BUFPAY_QUERY_URL || '',
-      VITE_BUFPAY_APP_SECRET: process.env.VITE_BUFPAY_APP_SECRET || '',
       VITE_BUFPAY_NOTIFY_URL: process.env.VITE_BUFPAY_NOTIFY_URL || '',
       VITE_BUFPAY_RETURN_URL: process.env.VITE_BUFPAY_RETURN_URL || '',
       VITE_BUFPAY_FEEDBACK_URL: process.env.VITE_BUFPAY_FEEDBACK_URL || '',
-      NODE_ENV: process.env.NODE_ENV || '',
-      BASE_PATH: process.env.VITE_BASE_PATH || process.env.BASE_PATH || '/',
       VITE_AUTHING_FALLBACK_HOSTED: process.env.VITE_AUTHING_FALLBACK_HOSTED || '',
       VITE_APP_VERSION: process.env.VITE_APP_VERSION || '1.0.0',
+      NODE_ENV: process.env.NODE_ENV || '',
+      BASE_PATH: process.env.VITE_BASE_PATH || process.env.BASE_PATH || '/',
+      
+      // 🔒 敏感信息处理：仅在开发环境注入，生产环境使用运行时获取
+      ...(process.env.NODE_ENV === 'development' && {
+        VITE_OPENAI_API_KEY: process.env.VITE_OPENAI_API_KEY || '',
+        VITE_DEEPSEEK_API_KEY: process.env.VITE_DEEPSEEK_API_KEY || '',
+        VITE_GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY || '',
+        VITE_CREEM_API_KEY: process.env.VITE_CREEM_API_KEY || '',
+        VITE_SUPABASE_SERVICE_ROLE_KEY: process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || '',
+        VITE_BUFPAY_APP_SECRET: process.env.VITE_BUFPAY_APP_SECRET || '',
+      }),
+      
+      // 🔒 生产环境敏感信息标记（需要运行时获取）
+      ...(process.env.NODE_ENV === 'production' && {
+        VITE_OPENAI_API_KEY: '__RUNTIME_SECRET__',
+        VITE_DEEPSEEK_API_KEY: '__RUNTIME_SECRET__',
+        VITE_GEMINI_API_KEY: '__RUNTIME_SECRET__',
+        VITE_CREEM_API_KEY: '__RUNTIME_SECRET__',
+        VITE_SUPABASE_SERVICE_ROLE_KEY: '__RUNTIME_SECRET__',
+        VITE_BUFPAY_APP_SECRET: '__RUNTIME_SECRET__',
+      })
     })
   },
   // 开发服务器配置
@@ -135,24 +150,25 @@ export default defineConfig(({ command, mode }) => ({
     target: 'esnext',
     // 🔧 根本性修复：防止变量名压缩导致的TDZ和getInstance错误
     // 🔧 修复语法错误：使用esbuild替代terser避免"Invalid left-hand side"错误
-    // 🚨 [CRITICAL_TDZ_FIX] 完全禁用压缩，解决TDZ初始化错误
-    minify: false,
+    // 🔧 [OPTIMIZED_TDZ_FIX] 渐进式压缩恢复 - 保持TDZ修复的同时优化性能
+    minify: 'esbuild',
     esbuild: {
-      // 🔧 强化TDZ错误预防：保持所有关键标识符不被压缩
+      // 🔧 保持TDZ修复的核心设置
       keepNames: true,
-      // 🔧 完全禁用标识符压缩，避免模块初始化顺序问题
       minifyIdentifiers: false,
-      // 🔧 保守的语法压缩，避免破坏变量作用域
-      minifySyntax: false,
-      minifyWhitespace: true,
-      // 禁用可能导致语法错误的代码转换
-      legalComments: 'none',
-      // 🔧 使用更现代的目标，确保原生ES模块支持
-      target: 'es2022',
-      // 🔧 保持函数和类的名称，避免调试困难
+      // 🔧 恢复安全的压缩选项
+      minifySyntax: true,       // 恢复语法压缩，提升性能
+      minifyWhitespace: true,   // 保持空格压缩
+      // 🔧 保守的法律注释处理
+      legalComments: 'inline',  // 保持许可证信息，避免法律问题
+      target: 'es2020',         // 更保守的目标，确保兼容性
       format: 'esm',
-      // 🔧 禁用可能影响模块加载顺序的优化
-      treeShaking: false
+      // 🔧 恢复安全的树摇，但保护关键模块
+      treeShaking: true,
+      // 🔧 添加额外的TDZ保护选项
+      define: {
+        'process.env.NODE_ENV': '"production"'
+      }
     },
     rollupOptions: {
       // 🔧 修复React外部化 - 改为UMD格式映射
@@ -264,8 +280,27 @@ export default defineConfig(({ command, mode }) => ({
     exclude: [
       // 🔧 在开发模式下允许React预构建，仅排除问题包
       ...(command === 'build' ? ['react', 'react-dom', 'react/jsx-runtime'] : []),
+      // 🔧 Node.js模块排除 - 避免浏览器兼容性警告
       'stream',
       'readable-stream',
+      'events',
+      'buffer',
+      'util',
+      'crypto',
+      'fs',
+      'path',
+      'os',
+      'url',
+      'querystring',
+      'http',
+      'https',
+      'zlib',
+      // 🔧 相关的polyfill包也排除
+      'stream-browserify',
+      'events-browserify',
+      'buffer-browserify',
+      'util-browserify',
+      'crypto-browserify',
       // 🔧 [AUTHING_GUARD_FIX_v2025.08.15] 排除@authing/guard，避免预构建时的正则表达式错误
       '@authing/guard'
     ],
