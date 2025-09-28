@@ -18,7 +18,7 @@ import { Header } from '@/components/landing/Header';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { useAuth } from '@/hooks/useAuth';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
-import { EnhancedUnifiedPermissionGuard } from '@/components/auth/EnhancedUnifiedPermissionGuard';
+// import { EnhancedUnifiedPermissionGuard } from '@/components/auth/EnhancedUnifiedPermissionGuard'; // 🔧 移除页面级遮罩付费墙
 
 // 懒加载组件
 const MD2WeChatPage = React.lazy(() => import('@/components/creative/MD2WeChatPage'));
@@ -93,13 +93,8 @@ export default function CreativeStudioPageTest() {
         }
       />
 
-      <EnhancedUnifiedPermissionGuard
-        requiredPermission="feature:creative-studio"
-        mode="overlay"
-        overlayIntensity="medium"
-        enableLogging={true}
-      >
-        <div className="container mx-auto px-4 py-8">
+      {/* 🔧 移除EnhancedUnifiedPermissionGuard页面级遮罩付费墙，改为按钮级权限控制 */}
+      <div className="container mx-auto px-4 py-8">
           {/* 原生Tab切换 */}
           <div className="w-full">
             {/* Tab列表 */}
@@ -191,7 +186,7 @@ export default function CreativeStudioPageTest() {
             </div>
           </div>
         </div>
-      </EnhancedUnifiedPermissionGuard>
+      {/* 🔧 EnhancedUnifiedPermissionGuard包装器已移除 */}
     </div>
   );
 }
