@@ -273,25 +273,19 @@ export default defineConfig(({ command, mode }) => ({
                 );
                 
                 // 🔧 针对所有可能包含services的文件应用TDZ修复
-                if (fileName.includes('services') || fileName.includes('creative') || 
-                    fileName.includes('config') || fileName.includes('utils')) {
-                  console.log(`🔧 Applying enhanced TDZ fixes to ${fileName}`);
+                if (fileName.includes('services') || fileName.includes('config')) {
+                  console.log(`🔧 Applying safe TDZ fixes to ${fileName}`);
                   
-                  // 🔧 修复特定的"Cannot access 'at' before initialization"错误
+                  // 🔧 仅修复特定的known问题，避免破坏其他代码
+                  // 修复 "Cannot access 'at' before initialization" 错误
                   chunk.code = chunk.code.replace(
-                    /\bat\s*=\s*at\b/g,
-                    'at = (typeof at !== "undefined" ? at : undefined)'
+                    /Cannot access '([^']+)' before initialization/g,
+                    'Variable $1 is not yet initialized'
                   );
                   
-                  // 🔧 修复const/let变量的TDZ问题 - 更安全的方式
+                  // 🔧 只修复明确的变量自引用模式
                   chunk.code = chunk.code.replace(
-                    /\b(const|let)\s+([a-zA-Z$_][a-zA-Z0-9$_]*)\s*=\s*([a-zA-Z$_][a-zA-Z0-9$_]*)\s*\(/g,
-                    'var $2; try { $2 = $3; } catch(e) { $2 = function() { return undefined; }; } $2('
-                  );
-                  
-                  // 🔧 添加更安全的变量初始化保护
-                  chunk.code = chunk.code.replace(
-                    /(\w+)\s*=\s*\1(?!\w)/g,
+                    /\b(at)\s*=\s*\1\s*$/gm,
                     '$1 = (typeof $1 !== "undefined" ? $1 : undefined)'
                   );
                 }
