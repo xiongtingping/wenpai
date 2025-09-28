@@ -72,7 +72,7 @@
           };
         }
         
-        console.log('🔧 jsx-runtime全局变量和模块支持已完整设置');
+        // console.log('🔧 jsx-runtime全局变量和模块支持已完整设置');
       }
     </script>
     
@@ -80,11 +80,11 @@
     <script>
       (function() {
         'use strict';
-        console.log('🔧 Real React loaded, setting up protection');
+        // console.log('🔧 Real React loaded, setting up protection');
         
         // 确保React和ReactDOM全局可用
         if (typeof window.React !== 'undefined' && typeof window.ReactDOM !== 'undefined') {
-          console.log('✅ Real React and ReactDOM available');
+          // console.log('✅ Real React and ReactDOM available');
           
           // 添加保护机制，确保React不会被意外覆盖
           const originalReact = window.React;
@@ -93,7 +93,7 @@
           // 🔧 为React添加default导出支持，解决ui-vendor的 import Ee from"react" 问题
           if (originalReact && !originalReact.default) {
             originalReact.default = originalReact;
-            console.log('🔧 Added default export to React for ui-vendor compatibility');
+            // console.log('🔧 Added default export to React for ui-vendor compatibility');
           }
           
           // 为ReactDOM也添加default导出
@@ -218,11 +218,11 @@
           }
         }, true);
         
-        console.log('✅ React protection and error handling ready');
+        // console.log('✅ React protection and error handling ready');
         
         // 🔧 强制应用启动 - 确保即使vendor错误也能渲染基本内容
         setTimeout(function() {
-          console.log('🔧 Checking if app started...');
+          // console.log('🔧 Checking if app started...');
           const root = document.getElementById('root');
           
           // 🔒 安全检查：确保root元素存在
@@ -314,7 +314,7 @@
               }
             }, 1000);
           } else {
-            console.log('✅ App appears to be running normally');
+            // console.log('✅ App appears to be running normally');
           }
         }, 3000); // 降低检测时间，加快响应
         
@@ -419,7 +419,7 @@
               }
             }
           } else {
-            console.log('✅ 1秒检查：主应用已启动，跳过HTML内联React应用');
+            // console.log('✅ 1秒检查：主应用已启动，跳过HTML内联React应用');
           }
         }, 1000);
         
@@ -428,7 +428,7 @@
     
     <!-- 🔍 JS加载检测和fallback -->
     <script>
-      console.log('🔍 HTML: 准备加载主应用JS文件...');
+      // console.log('🔍 HTML: 准备加载主应用JS文件...');
       
       // 检测JS加载错误
       window.addEventListener('error', function(event) {
@@ -444,7 +444,7 @@
       
       // 2秒后检查主应用是否启动
       setTimeout(function() {
-        console.log('🔍 HTML: 2秒检查 - 是否看到main.tsx日志...');
+        // console.log('🔍 HTML: 2秒检查 - 是否看到main.tsx日志...');
       }, 2000);
     </script>
   </head>
@@ -480,7 +480,7 @@
           script.onerror = () => console.error('❌ main.tsx重新加载失败');
           document.head.appendChild(script);
         } else {
-          console.log('✅ 5秒检查：主应用已正常启动，无需重新加载');
+          // console.log('✅ 5秒检查：主应用已正常启动，无需重新加载');
         }
       }, 5000);
     </script>

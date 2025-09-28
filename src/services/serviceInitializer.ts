@@ -36,14 +36,14 @@ class ServiceInitializer {
       return;
     }
 
-    console.log('🚀 开始初始化服务依赖...');
+    // console.log('🚀 开始初始化服务依赖...');
 
     try {
       // 1. 注册所有服务到DI容器 - 优雅降级
       try {
         const { registerAllServices } = await import('@/config/serviceRegistry');
         await registerAllServices();
-        console.log('✅ DI容器服务注册完成');
+        // console.log('✅ DI容器服务注册完成');
       } catch (error) {
         console.warn('⚠️ DI容器注册失败，跳过:', error);
         this.state.errors.push({ service: 'DIContainer', error: String(error) });
@@ -58,7 +58,7 @@ class ServiceInitializer {
       }
 
       this.state.initialized = true;
-      console.log('✅ 服务依赖初始化完成 (部分失败已跳过)');
+      // console.log('✅ 服务依赖初始化完成 (部分失败已跳过)');
       
     } catch (error) {
       console.warn('⚠️ 服务依赖初始化部分失败，应用仍可正常使用:', error);
@@ -72,7 +72,7 @@ class ServiceInitializer {
    */
   private static async initializeServerPermissionService(): Promise<void> {
     try {
-      console.log('📡 初始化ServerPermissionService...');
+      // console.log('📡 初始化ServerPermissionService...');
       
       // 动态导入避免循环依赖
       const { ServerPermissionService } = await import('./serverPermissionService');
@@ -81,7 +81,7 @@ class ServiceInitializer {
       ServiceContainer.setServerPermissionService(ServerPermissionService);
       
       this.state.services.add('ServerPermissionService');
-      console.log('✅ ServerPermissionService初始化完成');
+      // console.log('✅ ServerPermissionService初始化完成');
       
     } catch (error) {
       const errorMsg = `ServerPermissionService初始化失败: ${error instanceof Error ? error.message : String(error)}`;

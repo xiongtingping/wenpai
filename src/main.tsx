@@ -3,13 +3,13 @@
  * 通过预加载服务和控制初始化顺序彻底解决问题
  */
 
-console.log('🔥 main.tsx 开始加载...');
+// console.log('🔥 main.tsx 开始加载...');
 window.__MAIN_TSX_LOADED__ = true;
 
-console.log('🔥 Step 1: 开始导入CSS...');
+// console.log('🔥 Step 1: 开始导入CSS...');
 import './index.css';
 import './styles/user-avatar-dropdown-fix.css';
-console.log('✅ Step 1: CSS导入完成');
+// console.log('✅ Step 1: CSS导入完成');
 // 🎯 生产环境只保留核心样式和必要的修复
 // 调试脚本已在开发中禁用以减少控制台噪音
 
@@ -19,16 +19,16 @@ console.log('✅ Step 1: CSS导入完成');
 // 🧹 已清理所有动态加载的调试脚本
 
 // 🧹 已清理全局滚动检测器调试代码
-console.log('🔥 Step 2: 开始导入React...');
+// console.log('🔥 Step 2: 开始导入React...');
 import React from 'react';
 
-console.log('🔥 Step 3: 开始导入ReactDOM...');
+// console.log('🔥 Step 3: 开始导入ReactDOM...');
 import ReactDOM from 'react-dom/client';
-console.log('🔥 Step 4: 开始导入BrowserRouter...');
+// console.log('🔥 Step 4: 开始导入BrowserRouter...');
 import { BrowserRouter } from 'react-router-dom';
-console.log('🔥 Step 5: 开始导入App组件...');
+// console.log('🔥 Step 5: 开始导入App组件...');
 import App from './App.tsx';
-console.log('✅ Step 5: 所有核心模块导入完成');
+// console.log('✅ Step 5: 所有核心模块导入完成');
 // 🚀 性能优化：仅导入必要的核心服务
 import { setupGlobalErrorHandler } from './utils/errorHandler';
 import ServiceInitializer from './services/serviceInitializer';
@@ -98,7 +98,7 @@ console.log('✅ 使用简化的main.tsx，由HTML保护机制处理forwardRef')
 
 // 🚀 快速启动应用 - 性能优化
 async function initializeApplication() {
-  console.log('🚀 initializeApplication 函数开始执行...');
+  // console.log('🚀 initializeApplication 函数开始执行...');
   try {
     // 仅初始化必要的错误处理
     setupGlobalErrorHandler();
@@ -127,12 +127,12 @@ async function initializeApplication() {
       </React.StrictMode>
     );
 
-    console.log('🎉 应用快速启动完成！');
+    // console.log('🎉 应用快速启动完成！');
     
     // 🔧 确保HTML检测能发现应用已启动
     setTimeout(() => {
-      console.log('🔍 Main app startup check: root has content', 
-        document.getElementById('root')?.innerHTML?.length > 0);
+      // console.log('🔍 Main app startup check: root has content', 
+      //   document.getElementById('root')?.innerHTML?.length > 0);
     }, 100);
 
     // 🎯 根本性修复：彻底阻止root元素被设置aria-hidden
@@ -311,7 +311,7 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 // 🔧 启动应用初始化流程
-console.log('🔥 准备调用 initializeApplication...');
+// console.log('🔥 准备调用 initializeApplication...');
 initializeApplication().catch(error => {
   console.error('💥 应用初始化失败:', error);
   

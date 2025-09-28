@@ -666,7 +666,7 @@ applyDiversifiedColorsSync();
  * 将已存在的emoji数据中的英文名称翻译为中文
  */
 function fixExistingEnglishNames(): void {
-  console.log('🌐 开始修复emoji英文名称...');
+  // console.log('🌐 开始修复emoji英文名称...');
   
   let fixedCount = 0;
   const translations: Array<{emoji: string, oldName: string, newName: string}> = [];
@@ -690,17 +690,17 @@ function fixExistingEnglishNames(): void {
     }
   });
   
-  console.log(`✅ 修复完成! 共翻译 ${fixedCount} 个英文名称`);
+  // console.log(`✅ 修复完成! 共翻译 ${fixedCount} 个英文名称`);
   
   if (fixedCount > 0) {
     // 显示前几个翻译示例
-    console.log('📝 翻译示例:');
+    // console.log('📝 翻译示例:');
     translations.slice(0, 5).forEach(({ emoji, oldName, newName }) => {
-      console.log(`  ${emoji} "${oldName}" → "${newName}"`);
+      // console.log(`  ${emoji} "${oldName}" → "${newName}"`);
     });
     
     if (fixedCount > 5) {
-      console.log(`  ... 还有 ${fixedCount - 5} 个翻译`);
+      // console.log(`  ... 还有 ${fixedCount - 5} 个翻译`);
     }
   }
 }
@@ -1043,8 +1043,8 @@ export function getEmojiStats() {
  */
 function applyDiversifiedColorsSync(): void {
   try {
-    console.log('🎨 正在应用多样化颜色系统...');
-    console.log(`📊 处理 ${unifiedEmojiData.length} 个emoji`);
+    // console.log('🎨 正在应用多样化颜色系统...');
+    // console.log(`📊 处理 ${unifiedEmojiData.length} 个emoji`);
     
     // 统计原始颜色使用情况
     const originalColors = new Map<string, number>();
@@ -1053,8 +1053,8 @@ function applyDiversifiedColorsSync(): void {
       originalColors.set(emoji.color, count + 1);
     });
     
-    console.log(`🔍 原始颜色数量: ${originalColors.size}`);
-    console.log(`📋 #008000 使用次数: ${originalColors.get('#008000') || 0}`);
+    // console.log(`🔍 原始颜色数量: ${originalColors.size}`);
+    // console.log(`📋 #008000 使用次数: ${originalColors.get('#008000') || 0}`);
     
     // 直接实现智能颜色生成算法
     const usedColors = new Set<string>();
@@ -1074,19 +1074,19 @@ function applyDiversifiedColorsSync(): void {
     
     const improvement = ((newColors.size - originalColors.size) / originalColors.size * 100).toFixed(1);
     
-    console.log('🎨 颜色系统更新完成！');
-    console.log(`📈 颜色数量提升: ${originalColors.size} → ${newColors.size} (+${improvement}%)`);
-    console.log(`🎯 新#008000 使用次数: ${newColors.get('#008000') || 0}`);
+    // console.log('🎨 颜色系统更新完成！');
+    // console.log(`📈 颜色数量提升: ${originalColors.size} → ${newColors.size} (+${improvement}%)`);
+    // console.log(`🎯 新#008000 使用次数: ${newColors.get('#008000') || 0}`);
     
     // 查找仍然重复的颜色
     const duplicates = Array.from(newColors.entries()).filter(([_, count]) => count > 3);
     if (duplicates.length > 0) {
-      console.log(`⚠️ 仍有 ${duplicates.length} 个颜色使用超过3次`);
+      // console.log(`⚠️ 仍有 ${duplicates.length} 个颜色使用超过3次`);
       duplicates.slice(0, 5).forEach(([color, count]) => {
-        console.log(`  ${color}: ${count} 次`);
+        // console.log(`  ${color}: ${count} 次`);
       });
     } else {
-      console.log('✅ 颜色重复问题已解决！');
+      // console.log('✅ 颜色重复问题已解决！');
     }
     
   } catch (error) {
@@ -1212,13 +1212,13 @@ function generateColorVariant(baseColor: string, variance: number): string {
 export function applyDiversifiedColors(): void {
   // 导入颜色更新工具（动态导入避免循环依赖）
   import('../utils/updateEmojiColors').then(({ updateEmojiColorsInData }) => {
-    console.log('🎨 正在应用多样化颜色系统...');
+    // console.log('🎨 正在应用多样化颜色系统...');
     
     // 更新颜色
     const updatedData = updateEmojiColorsInData(unifiedEmojiData);
     unifiedEmojiData = updatedData;
     
-    console.log('✅ 颜色系统更新完成！');
+    // console.log('✅ 颜色系统更新完成！');
   }).catch(error => {
     console.error('❌ 颜色系统更新失败:', error);
   });

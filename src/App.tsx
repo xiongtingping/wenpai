@@ -131,7 +131,7 @@ const App: React.FC = () => {
         const validThemes = ['light', 'dark', 'rainbow', 'beige', 'green'];
         
         if (globalTheme && validThemes.includes(globalTheme)) {
-          console.log(`🎨 加载持久化主题: ${globalTheme}`);
+          // console.log(`🎨 加载持久化主题: ${globalTheme}`);
           
           const html = document.documentElement;
           html.setAttribute('data-theme', globalTheme);
@@ -147,9 +147,9 @@ const App: React.FC = () => {
             html.classList.remove('dark');
           }
           
-          console.log(`🎨 主题已应用: ${globalTheme}`);
+          // console.log(`🎨 主题已应用: ${globalTheme}`);
         } else {
-          console.log('🎨 使用默认浅色主题');
+          // console.log('🎨 使用默认浅色主题');
         }
       } catch (error) {
         console.error('🎨 加载持久化主题失败:', error);
@@ -161,15 +161,15 @@ const App: React.FC = () => {
 
     // {t('app.startup.checkMaliciousCallback')}
     const currentUrl = window.location.href;
-    console.log('🚀 App启动，当前URL:', currentUrl);
+    // console.log('🚀 App启动，当前URL:', currentUrl);
 
     // 🔧 DEBUG: 强制检查Authing配置加载情况
-    console.log('🔧 检查环境变量加载:', {
-      VITE_AUTHING_APP_ID: import.meta.env.VITE_AUTHING_APP_ID,
-      VITE_AUTHING_DOMAIN: import.meta.env.VITE_AUTHING_DOMAIN,
-      VITE_AUTHING_HOST: import.meta.env.VITE_AUTHING_HOST,
-      DEV: import.meta.env.DEV
-    });
+    // console.log('🔧 检查环境变量加载:', {
+    //   VITE_AUTHING_APP_ID: import.meta.env.VITE_AUTHING_APP_ID,
+    //   VITE_AUTHING_DOMAIN: import.meta.env.VITE_AUTHING_DOMAIN,
+    //   VITE_AUTHING_HOST: import.meta.env.VITE_AUTHING_HOST,
+    //   DEV: import.meta.env.DEV
+    // });
 
     // GuardProvider 已移除 - 仅使用自定义登录表单
 
