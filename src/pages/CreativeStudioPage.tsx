@@ -51,10 +51,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { CreativeCube } from '@/components/creative/CreativeCube';
 import MarketingCalendar from '@/components/creative/MarketingCalendar';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
-import { PermissionAwareContainer } from '@/components/auth/PermissionAwareContainer';
 import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
-import { EnhancedUnifiedPermissionGuard } from '@/components/auth/EnhancedUnifiedPermissionGuard';
-import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import { Header } from '@/components/landing/Header';
 
 // 使用懒加载避免循环依赖
@@ -75,11 +72,7 @@ export default function CreativeStudioPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('calendar');
   
-  // 🎯 检查是否为premium用户
-  const isPremiumUser = user?.subscription?.tier === 'premium' || 
-                       user?.tier === 'premium' || 
-                       user?.vipLevel === 'premium' ||
-                       (user?.isVip && (user?.vipLevel === 'premium' || user?.subscription?.tier === 'premium'));
+  // 🎯 简化权限管理 - 使用按钮级权限控制，无需页面级权限检查
 
   return (
     <div className="min-h-screen bg-background" style={{ paddingTop: '64px' }}>
@@ -92,25 +85,10 @@ export default function CreativeStudioPage() {
           description="包含营销日历、创意魔方、Emoji图库、Markdown排版等多种创意工具"
           showAdaptButton={false}
           showUpgradeButton={false}
-          actions={
-            !isPremiumUser ? (
-              <RoleBasedUpgradePrompt
-                requiredTier="pro"
-                featureName="创意魔方"
-                description="该功能区为专业版/高级版专属，包含九宫格创意魔方、营销日历、朋友圈模板等专业创意工具"
-                mode="compact"
-              />
-            ) : null
-          }
+          actions={null}
         />
 
-        <EnhancedUnifiedPermissionGuard
-          requiredPermission="feature:creative-studio"
-          mode="overlay"
-          overlayIntensity="medium"
-          enableLogging={true}
-        >
-          <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* 子模块切换 */}
             <div className="flex flex-col gap-4 mb-6">
@@ -200,7 +178,6 @@ export default function CreativeStudioPage() {
             </TabsContent>
           </Tabs>
         </div>
-        </EnhancedUnifiedPermissionGuard>
       </div>
   );
 }
