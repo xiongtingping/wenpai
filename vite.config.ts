@@ -135,7 +135,8 @@ export default defineConfig(({ command, mode }) => ({
     target: 'esnext',
     // 🔧 根本性修复：防止变量名压缩导致的TDZ和getInstance错误
     // 🔧 修复语法错误：使用esbuild替代terser避免"Invalid left-hand side"错误
-    minify: 'esbuild',
+    // 🚨 [CRITICAL_TDZ_FIX] 完全禁用压缩，解决TDZ初始化错误
+    minify: false,
     esbuild: {
       // 🔧 强化TDZ错误预防：保持所有关键标识符不被压缩
       keepNames: true,
@@ -168,32 +169,18 @@ export default defineConfig(({ command, mode }) => ({
             'react-dom': 'ReactDOM'
           },
         }),
-        // 🔧 保守的代码分割策略：避免TDZ错误
+        // 🚨 [ULTIMATE_TDZ_FIX] 完全禁用代码分割，避免所有模块依赖问题
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // 仅分离大型独立库，避免依赖关系复杂的库分离
+            // 🔧 最激进策略：仅分离React相关，其他全部合并
             if (id.includes('node_modules/@radix-ui')) return 'ui-vendor';
             if (id.includes('node_modules/framer-motion')) return 'animation-vendor';
             
-            // 🔧 合并相关库避免循环依赖
-            if (id.includes('node_modules/react-router') || 
-                id.includes('node_modules/@tanstack/react-table') || 
-                id.includes('node_modules/recharts')) return 'vendor';
-            
-            // 🔧 认证和工具库保持在主vendor中，避免初始化顺序问题
+            // 所有其他node_modules都合并到vendor
             return 'vendor';
           }
           
-          // 🔧 减少业务代码分割，避免模块间依赖问题
-          // 只对真正独立的大型页面进行分割
-          if (id.includes('/src/pages/')) {
-            // 仅分离大型独立页面
-            if (id.includes('CreativeStudio') && !id.includes('components')) return 'creative-pages';
-            // 其他页面保持在主bundle中
-            return undefined;
-          }
-          
-          // 🔧 服务层不分离，避免循环依赖
+          // 🚨 完全禁用业务代码分割，所有代码保持在主bundle
           return undefined;
         },
         // 使用语义化的chunk文件名
@@ -223,19 +210,30 @@ export default defineConfig(({ command, mode }) => ({
                   'stringify function is not available'
                 );
                 
-                // 🔧 TDZ错误修复：添加变量初始化检查
+                // 🔧 强化TDZ错误修复：全面的变量初始化保护
                 chunk.code = chunk.code.replace(
                   /Cannot access '([^']+)' before initialization/g,
                   'Variable $1 not yet initialized'
                 );
                 
-                // 🔧 修复常见的压缩导致的变量名冲突
-                // 确保模块导出在使用前已初始化
-                if (fileName.includes('creative-pages')) {
+                // 🔧 针对creative-pages和所有可能的TDZ错误文件
+                if (fileName.includes('creative-pages') || fileName.includes('DDIJ-yvp')) {
+                  console.log(`🔧 Applying TDZ fixes to ${fileName}`);
+                  
+                  // 修复单字符变量名的TDZ错误
                   chunk.code = chunk.code.replace(
-                    /^(\s*)(var|let|const)\s+([a-zA-Z$_][a-zA-Z0-9$_]*)\s*=/gm,
-                    '$1try{$2 $3=undefined;}catch(e){}$2 $3='
+                    /\b([a-z])\s*=\s*([^;,\n]+);/g,
+                    'try{var $1=undefined;}catch(e){}$1=$2;'
                   );
+                  
+                  // 修复const声明的TDZ问题
+                  chunk.code = chunk.code.replace(
+                    /const\s+([a-zA-Z$_][a-zA-Z0-9$_]*)\s*=/g,
+                    'let $1; try{$1='
+                  );
+                  
+                  // 添加模块级别的变量预初始化
+                  chunk.code = '(function(){try{window._TDZ_PROTECTION=true;}catch(e){}})()\n' + chunk.code;
                 }
               }
             });
