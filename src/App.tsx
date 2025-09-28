@@ -87,7 +87,7 @@ const LazyWrapper: React.FC<{ children: React.ReactNode; fallback?: React.ReactN
 }) => {
   const { t } = useTranslation();
   return (
-    <ErrorBoundary fallback={<div>{t('app.errors.pageLoadFailed') }</div>}>
+    <ErrorBoundary fallback={<div>页面加载失败</div>}>
       <Suspense fallback={fallback || <LoadingSpinner text={t('app.common.loading')} />}>
         {children}
       </Suspense>

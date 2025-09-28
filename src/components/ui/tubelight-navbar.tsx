@@ -29,7 +29,7 @@ export function NavBar({ items, className, positionClassName  }: NavBarProps) {
     
     // 精确匹配首页
     if (currentPath === '/') {
-      return t('components.messages.首页')
+      return '首页'
     }
 
     // 为其他路径进行精确匹配
@@ -48,7 +48,7 @@ export function NavBar({ items, className, positionClassName  }: NavBarProps) {
         // 检查是否为该模块的子页面
         return currentPath.includes(item.url.split('/')[1] || '')
       })
-      return fallbackItem?.name || t('components.messages.首页')
+      return fallbackItem?.name || '首页'
     }
 
     return activeItem.name

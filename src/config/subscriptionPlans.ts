@@ -1,15 +1,15 @@
 import { SubscriptionPlan } from '@/types/subscription';
-import i18n from '@/i18n';
 
 /**
  * 获取本地化的订阅计划配置
+ * 注意：这个函数需要在组件中使用useI18n hook来获取正确的翻译
  */
-export const getSubscriptionPlans = (): SubscriptionPlan[] => [
+export const getSubscriptionPlans = (t?: (key: string) => string): SubscriptionPlan[] => [
   {
     id: 'trial',
-    name: i18n.t('payment.plans.trial.name'),
+    name: t ? t('payment.plans.trial.name') : '体验版',
     tier: 'trial',
-    description: i18n.t('payment.plans.trial.description'),
+    description: t ? t('payment.plans.trial.description') : '免费使用，有使用次数限制',
     monthly: {
       originalPrice: 0,
       discountPrice: 0,
@@ -29,19 +29,19 @@ export const getSubscriptionPlans = (): SubscriptionPlan[] => [
       availableFeatures: ['全网雷达', '我的资料库', '基础AI模型']
     },
     features: [
-      `${i18n.t('payment.plans.features.aiContentAdapter')}（10${i18n.t('payment.plans.features.timesPerMonth')}）`,
-      i18n.t('payment.plans.features.hotRadar'),
-      i18n.t('payment.plans.features.myLibrary'),
-      `${i18n.t('payment.plans.features.tokenQuota')}：10${i18n.t('payment.plans.features.thousandTokens')}${i18n.t('payment.plans.features.perMonth')}`,
-      i18n.t('payment.plans.features.basicModels'),
-      i18n.t('payment.plans.features.lightTheme')
+      t ? `${t('payment.plans.features.aiContentAdapter')}（10${t('payment.plans.features.timesPerMonth')}）` : 'AI内容适配（10次/月）',
+      t ? t('payment.plans.features.hotRadar') : '全网雷达',
+      t ? t('payment.plans.features.myLibrary') : '我的资料库',
+      t ? `${t('payment.plans.features.tokenQuota')}：10${t('payment.plans.features.thousandTokens')}${t('payment.plans.features.perMonth')}` : 'Token配额：10万/月',
+      t ? t('payment.plans.features.basicModels') : '基础AI模型',
+      t ? t('payment.plans.features.lightTheme') : '浅色主题'
     ]
   },
   {
     id: 'pro',
-    name: i18n.t('payment.plans.pro.name'),
+    name: t ? t('payment.plans.pro.name') : '专业版',
     tier: 'pro',
-    description: i18n.t('payment.plans.pro.description'),
+    description: t ? t('payment.plans.pro.description') : '适合个人创作者和专业用户',
     monthly: {
       originalPrice: 39,
       discountPrice: 29,
@@ -62,20 +62,20 @@ export const getSubscriptionPlans = (): SubscriptionPlan[] => [
     },
     recommended: true,
     features: [
-      `${i18n.t('payment.plans.features.aiContentAdapter')}（30${i18n.t('payment.plans.features.timesPerMonth')}）|up`,
-      i18n.t('payment.plans.features.hotRadar'),
-      `${i18n.t('payment.plans.features.creativeCube')}|new`,
-      i18n.t('payment.plans.features.myLibrary'),
-      `${i18n.t('payment.plans.features.tokenQuota')}：20${i18n.t('payment.plans.features.thousandTokens')}${i18n.t('payment.plans.features.perMonth')}|up`,
-      `${i18n.t('payment.plans.features.advancedModels')}|up`,
-      `${i18n.t('payment.plans.features.darkLightTheme')}|up`
+      t ? `${t('payment.plans.features.aiContentAdapter')}（30${t('payment.plans.features.timesPerMonth')}）|up` : 'AI内容适配（30次/月）|up',
+      t ? t('payment.plans.features.hotRadar') : '全网雷达',
+      t ? `${t('payment.plans.features.creativeCube')}|new` : '创意魔方|new',
+      t ? t('payment.plans.features.myLibrary') : '我的资料库',
+      t ? `${t('payment.plans.features.tokenQuota')}：20${t('payment.plans.features.thousandTokens')}${t('payment.plans.features.perMonth')}|up` : 'Token配额：20万/月|up',
+      t ? `${t('payment.plans.features.advancedModels')}|up` : '高级AI模型|up',
+      t ? `${t('payment.plans.features.darkLightTheme')}|up` : '深色/浅色主题|up'
     ]
   },
   {
     id: 'premium',
-    name: i18n.t('payment.plans.premium.name'),
+    name: t ? t('payment.plans.premium.name') : '高级版',
     tier: 'premium',
-    description: i18n.t('payment.plans.premium.description'),
+    description: t ? t('payment.plans.premium.description') : '适合团队和企业用户',
     premiumLabel: true, // 标识为高级版，用于显示特殊标签
     monthly: {
       originalPrice: 99,
@@ -96,14 +96,14 @@ export const getSubscriptionPlans = (): SubscriptionPlan[] => [
       availableFeatures: ['全网雷达', '创意魔方', '我的资料库', '品牌库', '顶级AI模型']
     },
     features: [
-      `${i18n.t('payment.plans.features.aiContentAdapter')}（${i18n.t('payment.plans.features.unlimited')}）|up`,
-      i18n.t('payment.plans.features.hotRadar'),
-      i18n.t('payment.plans.features.creativeCube'),
-      i18n.t('payment.plans.features.myLibrary'),
-      `${i18n.t('payment.plans.features.brandLibrary')}|new`,
-      `${i18n.t('payment.plans.features.tokenQuota')}：50${i18n.t('payment.plans.features.thousandTokens')}${i18n.t('payment.plans.features.perMonth')}|up`,
-      `${i18n.t('payment.plans.features.advancedLatestModels')}|up`,
-      `${i18n.t('payment.plans.features.allThemes')}|up`
+      t ? `${t('payment.plans.features.aiContentAdapter')}（${t('payment.plans.features.unlimited')}）|up` : 'AI内容适配（无限制）|up',
+      t ? t('payment.plans.features.hotRadar') : '全网雷达',
+      t ? t('payment.plans.features.creativeCube') : '创意魔方',
+      t ? t('payment.plans.features.myLibrary') : '我的资料库',
+      t ? `${t('payment.plans.features.brandLibrary')}|new` : '品牌库|new',
+      t ? `${t('payment.plans.features.tokenQuota')}：50${t('payment.plans.features.thousandTokens')}${t('payment.plans.features.perMonth')}|up` : 'Token配额：50万/月|up',
+      t ? `${t('payment.plans.features.advancedLatestModels')}|up` : '高级&最新模型|up',
+      t ? `${t('payment.plans.features.allThemes')}|up` : '全部主题|up'
     ]
   }
 ];
