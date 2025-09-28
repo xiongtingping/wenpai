@@ -3,7 +3,10 @@
  * 定义四大内容分类和具体形式
  */
 
-// 动态翻译支持
+import i18n from '@/i18n';
+
+// 创建t函数快捷方式
+const t = (key: string) => i18n.t(key);
 
 export interface ContentForm {
   id: string;
@@ -27,17 +30,16 @@ export interface ContentCategory {
 }
 
 /**
- * 获取图文类内容形式 - 支持动态翻译
+ * t('contentForms.comments.imageTextForms')
  */
-function getImageTextForms(t?: (key: string) => string): ContentForm[] {
-  return [
-    {
+const imageTextForms: ContentForm[] = [
+  {
     id: 'image-text-planting',
-    name: '图文种草',
-    description: '以第一人称视角真实分享使用体验，自然流畅的推荐语气，常见于小红书、微博等平台',
+    name: t('contentForms.names.imageTextPlanting'),
+    description: t('contentForms.descriptions.imageTextPlanting'),
     icon: '🌱',
     category: 'image-text',
-    outputType: '纯文本内容',
+    outputType: t('contentForms.outputTypes.pureText'),
     characteristics: [
       '第一人称真实体验',
       '自然亲切的语言',
@@ -63,7 +65,7 @@ function getImageTextForms(t?: (key: string) => string): ContentForm[] {
     description: '知识结构清晰、分点呈现，表达精炼，常见于教育类或知识科普内容',
     icon: '📚',
     category: 'image-text',
-    outputType: '纯文本内容',
+    outputType: t('contentForms.outputTypes.pureText'),
     characteristics: [
       '知识结构清晰',
       '分点条理呈现',
@@ -89,7 +91,7 @@ function getImageTextForms(t?: (key: string) => string): ContentForm[] {
     description: '精简内容，适合一图一语传播，语言直观，重点突出，利于收藏',
     icon: '🎯',
     category: 'image-text',
-    outputType: '纯文本内容',
+    outputType: t('contentForms.outputTypes.pureText'),
     characteristics: [
       '内容精简扼要',
       '一图一语设计',
@@ -115,7 +117,7 @@ function getImageTextForms(t?: (key: string) => string): ContentForm[] {
     description: '深度分析成功案例或失败复盘，结构完整，语言偏专业，数据清晰',
     icon: '🔍',
     category: 'image-text',
-    outputType: '纯文本内容',
+    outputType: t('contentForms.outputTypes.pureText'),
     characteristics: [
       '深度案例分析',
       '成功失败复盘',
@@ -134,22 +136,20 @@ function getImageTextForms(t?: (key: string) => string): ContentForm[] {
       '失败案例复盘：创业路上的5个致命错误',
       '成功营销案例：如何用小预算撬动大流量'
     ]
-    }
-  ];
-}
+  }
+];
 
 /**
- * 获取视频类内容形式 - 支持动态翻译
+ * t('contentForms.comments.videoForms')
  */
-function getVideoForms(t?: (key: string) => string): ContentForm[] {
-  return [
+const videoForms: ContentForm[] = [
   {
     id: 'drama-script',
     name: '剧情脚本',
     description: '角色设定明确，节奏紧凑，含剧情冲突与反转，30-60秒结构',
     icon: '🎬',
     category: 'video',
-    outputType: '短视频脚本',
+    outputType: t('contentForms.outputTypes.shortVideoScript'),
     characteristics: [
       '角色设定明确',
       '节奏紧凑有力',
@@ -171,11 +171,11 @@ function getVideoForms(t?: (key: string) => string): ContentForm[] {
   },
   {
     id: 'comedy-reversal',
-    name: '喜剧反转',
-    description: '以反转为核心的搞笑内容，通过意外的情节转折制造笑点，节奏明快',
+    name: t('contentForms.names.comedyReversal'),
+    description: t('contentForms.descriptions.comedyReversal'),
     icon: '😂',
     category: 'video',
-    outputType: '短视频脚本',
+    outputType: t('contentForms.outputTypes.shortVideoScript'),
     characteristics: [
       '笑点密集突出',
       '意外反转设计',
@@ -201,7 +201,7 @@ function getVideoForms(t?: (key: string) => string): ContentForm[] {
     description: '结构为"开箱→展示细节→使用反馈→总结推荐"，内容流程完整',
     icon: '📦',
     category: 'video',
-    outputType: '短视频脚本',
+    outputType: t('contentForms.outputTypes.shortVideoScript'),
     characteristics: [
       '开箱过程完整',
       '细节展示充分',
@@ -227,7 +227,7 @@ function getVideoForms(t?: (key: string) => string): ContentForm[] {
     description: '包括材料/工具列表、操作步骤、注意事项，支持镜头分镜与字幕建议',
     icon: '👨‍🏫',
     category: 'video',
-    outputType: '短视频脚本',
+    outputType: t('contentForms.outputTypes.shortVideoScript'),
     characteristics: [
       '教学目标明确',
       '步骤详细清晰',
@@ -253,7 +253,7 @@ function getVideoForms(t?: (key: string) => string): ContentForm[] {
     description: '语言通俗，每句不超过20字，有节奏感，引导用户点赞/收藏',
     icon: '🧠',
     category: 'video',
-    outputType: '短视频脚本',
+    outputType: t('contentForms.outputTypes.shortVideoScript'),
     characteristics: [
       '语言通俗易懂',
       '句子简短有力',
@@ -279,7 +279,7 @@ function getVideoForms(t?: (key: string) => string): ContentForm[] {
     description: '日常生活记录，镜头自然推进，有时间线逻辑和用户共鸣点',
     icon: '📹',
     category: 'video',
-    outputType: '短视频脚本',
+    outputType: t('contentForms.outputTypes.shortVideoScript'),
     characteristics: [
       '生活记录真实',
       '镜头自然流畅',
@@ -299,14 +299,12 @@ function getVideoForms(t?: (key: string) => string): ContentForm[] {
       '工作日常：职场生活点滴'
     ]
   }
-  ];
-}
+];
 
 /**
- * 获取对话类内容形式 - 支持动态翻译
+ * t('contentForms.comments.interviewForms')
  */
-function getInterviewForms(t?: (key: string) => string): ContentForm[] {
-  return [
+const interviewForms: ContentForm[] = [
   {
     id: 'role-dialogue',
     name: '角色对话体',
@@ -361,11 +359,11 @@ function getInterviewForms(t?: (key: string) => string): ContentForm[] {
   },
   {
     id: 'virtual-interview',
-    name: '虚拟访谈',
-    description: '模拟专业访谈节目，主持人与嘉宾深度对话，话题引导自然，内容有深度',
+    name: t('contentForms.names.virtualInterview'),
+    description: t('contentForms.descriptions.virtualInterview'),
     icon: '🎙️',
     category: 'interview',
-    outputType: '访谈脚本',
+    outputType: t('contentForms.outputTypes.interviewScript'),
     characteristics: [
       '主持风格专业',
       '嘉宾回答深入',
@@ -419,11 +417,11 @@ function getInterviewForms(t?: (key: string) => string): ContentForm[] {
 const insightForms: ContentForm[] = [
   {
     id: 'trend-opinion',
-    name: '趋势观点',
-    description: '基于行业趋势的专业观点分析，论据充分，逻辑清晰，具有前瞻性',
+    name: t('contentForms.names.trendOpinion'),
+    description: t('contentForms.descriptions.trendOpinion'),
     icon: '📈',
     category: 'insight',
-    outputType: '观点文章',
+    outputType: t('contentForms.outputTypes.opinionArticle'),
     characteristics: [
       '专家视角权威',
       '趋势判断准确',
@@ -449,7 +447,7 @@ const insightForms: ContentForm[] = [
     description: '侧重真实细节、转折与破防时刻，引发共鸣与评论',
     icon: '💝',
     category: 'insight',
-    outputType: '情感内容',
+    outputType: t('contentForms.outputTypes.emotionalContent'),
     characteristics: [
       '真实细节丰富',
       '情感转折明显',
@@ -475,7 +473,7 @@ const insightForms: ContentForm[] = [
     description: '专为营销场景设计，强调优惠、时效性与参与引导',
     icon: '🎉',
     category: 'insight',
-    outputType: '营销内容',
+    outputType: t('contentForms.outputTypes.marketingContent'),
     characteristics: [
       '营销目标明确',
       '优惠信息突出',
@@ -503,34 +501,34 @@ const insightForms: ContentForm[] = [
 export const contentCategories: ContentCategory[] = [
   {
     id: 'image-text',
-    name: '图文类',
-    description: '纯文本内容',
+    name: t('contentForms.categories.imageText'),
+    description: t('contentForms.outputTypes.pureText'),
     icon: '📸',
     outputDescription: '纯文案，用户自配图',
     forms: imageTextForms
   },
   {
     id: 'video',
-    name: '视频类',
-    description: '短视频脚本',
+    name: t('contentForms.categories.video'),
+    description: t('contentForms.outputTypes.shortVideoScript'),
     icon: '🎬',
-    outputDescription: '短视频脚本',
+    outputDescription: t('contentForms.outputTypes.shortVideoScript'),
     forms: videoForms
   },
   {
     id: 'interview',
-    name: '对话类',
-    description: '对话脚本',
+    name: t('contentForms.categories.interview'),
+    description: t('contentForms.outputTypes.dialogueScript'),
     icon: '💬',
-    outputDescription: '对话脚本',
+    outputDescription: t('contentForms.outputTypes.dialogueScript'),
     forms: interviewForms
   },
   {
     id: 'insight',
-    name: '洞察类',
-    description: '观点/情感/营销内容',
+    name: t('contentForms.categories.insight'),
+    description: t('contentForms.outputTypes.opinionEmotionalMarketing'),
     icon: '🔍',
-    outputDescription: '观点/情感/营销内容',
+    outputDescription: t('contentForms.outputTypes.opinionEmotionalMarketing'),
     forms: insightForms
   }
 ];
