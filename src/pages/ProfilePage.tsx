@@ -116,8 +116,8 @@ export default function ProfilePage() {
     const safeName = profileForm.nickname || getUserDisplayName(user, 'User');
     return `data:image/svg+xml;base64,${btoa(`
       <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <rect width="200" height="200" rx="100" fill="#6366f1" />
-        <text x="100" y="120" font-family="Arial" font-size="60" font-weight="bold" text-anchor="middle" fill="white">${safeName.substr(0, 2).toUpperCase()}</text>
+        <rect width="200" height="200" rx="100" fill="hsl(var(--primary))" />
+        <text x="100" y="120" font-family="Arial" font-size="60" font-weight="bold" text-anchor="middle" fill="hsl(var(--primary-foreground))">${safeName.substr(0, 2).toUpperCase()}</text>
       </svg>
     `)}`;
   };
@@ -562,19 +562,8 @@ className="u-flex-gap-sm"
                         size="sm"
                         onClick={showVerificationInput.phone ? handleVerifyPhone : handleSendPhoneCode}
                         disabled={isVerifyingPhone || !profileForm.phone || verificationStatus.phone}
-                        style={{
-                          fontSize: '0.75rem', 
-                          minWidth: '80px',
-                          background: (isVerifyingPhone || verificationStatus.phone) 
-                            ? '#f3f4f6'
-                            : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                          color: (isVerifyingPhone || verificationStatus.phone) ? '#6b7280' : 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          boxShadow: !(isVerifyingPhone || verificationStatus.phone) 
-                            ? '0 1px 3px 0 rgba(59, 130, 246, 0.3)' 
-                            : 'none'
-                        }}
+                        variant={verificationStatus.phone ? "outline" : "default"}
+                        className="text-xs min-w-[80px]"
                       >
                         {isVerifyingPhone ? (
                           <RefreshCw className="w-3 h-3 animate-spin" />
@@ -614,19 +603,8 @@ className="u-flex-gap-sm"
                         size="sm"
                         onClick={showVerificationInput.email ? handleVerifyEmail : handleSendEmailCode}
                         disabled={isVerifyingEmail || !profileForm.email || verificationStatus.email}
-                        style={{
-                          fontSize: '0.75rem', 
-                          minWidth: '80px',
-                          background: (isVerifyingEmail || verificationStatus.email) 
-                            ? '#f3f4f6'
-                            : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                          color: (isVerifyingEmail || verificationStatus.email) ? '#6b7280' : 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          boxShadow: !(isVerifyingEmail || verificationStatus.email) 
-                            ? '0 1px 3px 0 rgba(59, 130, 246, 0.3)' 
-                            : 'none'
-                        }}
+                        variant={verificationStatus.email ? "outline" : "default"}
+                        className="text-xs min-w-[80px]"
                       >
                         {isVerifyingEmail ? (
                           <RefreshCw className="w-3 h-3 animate-spin" />
