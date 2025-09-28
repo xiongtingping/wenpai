@@ -69,8 +69,8 @@ const globalAdaptationScheme = {
  */
 export const stylePromptTemplates: Record<StyleType, StylePromptTemplate> = {
   professional: {
-    name: t('contentSchemes.styles.professional.name'),
-    description: t('contentSchemes.styles.professional.description'),
+    name: '专业风格',
+    description: '专业 + 客观 + 洞察',
     characteristics: [
       i18n.t('config.text.使用专业术语和行_r6n'),
       i18n.t('config.text.客观分析避免主_7sx'),
@@ -157,8 +157,8 @@ ${input}
   },
 
   funny: {
-    name: t('contentSchemes.styles.funny.name'),
-    description: i18n.t('config.title.幽默自嘲_kfo'),
+    name: '幽默风格',
+    description: '幽默 + 自嘲 + 网络热词 + 惊叹 + 标题党',
     characteristics: [
       i18n.t('config.text.使用幽默风趣的表_k9k'),
       i18n.t('config.text.适当自嘲和调侃_0qc'),
@@ -245,8 +245,8 @@ ${input}
   },
 
   real: {
-    name: t('contentSchemes.styles.real.name'),
-    description: t('contentSchemes.styles.real.description'),
+    name: '真实风格',
+    description: '真实感 + 主观 + 分享型',
     characteristics: [
       i18n.t('config.text.第一人称真实体验_sl2'),
       i18n.t('config.text.主观感受和情感表_0ql'),
@@ -333,8 +333,8 @@ ${input}
   },
 
   hook: {
-    name: t('contentSchemes.styles.hook.name'),
-    description: t('contentSchemes.styles.hook.description'),
+    name: '钩子风格',
+    description: '钩子型 + 精准用户导向 + 高点击转化',
     characteristics: [
       '开头设置强烈钩子',
       '精准定位目标用户',
@@ -674,26 +674,26 @@ export function getAvailableStyles(): Array<{ id: StyleType; name: string; descr
   return [
     {
       id: 'professional',
-      name: t('contentSchemes.styles.professional.name'),
-      description: t('contentSchemes.styles.professional.description'),
+      name: '专业风格',
+      description: '专业 + 客观 + 洞察',
       icon: '🎯'
     },
     {
       id: 'funny',
-      name: t('contentSchemes.styles.funny.name'),
-      description: i18n.t('config.title.幽默自嘲_kfo'),
+      name: '幽默风格',
+      description: '幽默 + 自嘲 + 网络热词 + 惊叹 + 标题党',
       icon: '😄'
     },
     {
       id: 'real',
-      name: t('contentSchemes.styles.real.name'),
-      description: t('contentSchemes.styles.real.description'),
+      name: '真实风格',
+      description: '真实感 + 主观 + 分享型',
       icon: '💝'
     },
     {
       id: 'hook',
-      name: t('contentSchemes.styles.hook.name'),
-      description: t('contentSchemes.styles.hook.description'),
+      name: '钩子风格',
+      description: '钩子型 + 精准用户导向 + 高点击转化',
       icon: '🎣'
     }
   ];
