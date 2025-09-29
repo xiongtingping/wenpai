@@ -156,6 +156,8 @@ export default defineConfig(({ command, mode }) => ({
         return false;
       },
       output: {
+        // 🔧 CRITICAL: 设置正确的模块格式
+        format: 'es',
         // 🔧 CRITICAL: 全局变量映射
         globals: {
           'react': 'React',
