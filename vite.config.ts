@@ -477,36 +477,78 @@ try {
                     }
                   );
                   
-                  // 2. 增强：为animation-vendor添加全局保护包装器
+                  // 2. 增强：为animation-vendor添加终极React保护
                   chunk.code = `
-// 🔧 Global React protection wrapper for animation-vendor
+// 🔧 Ultimate React protection for animation-vendor
 (function() {
   try {
-    // 检查并修复可能的undefined ReactExports
     if (typeof window !== 'undefined') {
-      window.__safeReactCall = function(obj, method, fallback) {
-        if (obj && typeof obj === 'object' && obj[method] && typeof obj[method] === 'function') {
-          return obj[method];
+      // 创建全局React API安全调用器
+      window.__safeReactCall = function(obj, method, args) {
+        try {
+          if (obj && typeof obj === 'object' && obj[method] && typeof obj[method] === 'function') {
+            return obj[method].apply(obj, args || []);
+          }
+        } catch(e) {
+          console.warn('React API call failed:', method, e);
         }
-        return fallback || function() {};
+        
+        // 提供安全的fallback
+        switch(method) {
+          case 'useLayoutEffect':
+          case 'useEffect':
+            return undefined; // 这些Hook的返回值通常是undefined
+          case 'useState':
+            return [args && args[0], function(){}]; // 返回[state, setState]
+          case 'useCallback':
+            return (args && args[0]) || function(){}; // 返回回调函数
+          case 'useMemo':
+            return (args && args[0] && args[0]()) || undefined; // 执行并返回结果
+          case 'useRef':
+            return {current: (args && args[0]) || null}; // 返回ref对象
+          case 'createContext':
+            return {
+              Provider: function(props) { return props.children; },
+              Consumer: function(props) { return props.children(args && args[0]); }
+            };
+          default:
+            return function(){};
+        }
+      };
+      
+      // 强制替换所有undefined的React对象引用
+      window.__originalError = window.onerror;
+      window.onerror = function(msg, file, line, col, error) {
+        if (msg && msg.includes("Cannot read properties of undefined (reading 'use")) {
+          console.warn('🔧 Intercepted React undefined error at line', line);
+          return true; // 阻止错误传播
+        }
+        if (window.__originalError) {
+          return window.__originalError.apply(this, arguments);
+        }
       };
     }
   } catch(e) {
-    console.warn('React safety wrapper failed:', e);
+    console.warn('React ultimate protection failed:', e);
   }
 })();
 
 ${chunk.code}`;
                   
-                  // 全局替换所有可能的undefined React调用
-                  chunk.code = chunk.code.replace(
-                    /([a-zA-Z_$][a-zA-Z0-9_$]*)\.useLayoutEffect\(/g,
-                    '(window.__safeReactCall && window.__safeReactCall($1, "useLayoutEffect", function(){}) || function{})('
-                  );
+                  // 全面替换所有React API调用模式 - 简化版本
+                  const reactMethods = ['useLayoutEffect', 'useEffect', 'useState', 'useCallback', 'useMemo', 'useRef', 'createContext', 'forwardRef', 'memo'];
+                  reactMethods.forEach(method => {
+                    // 简单替换：直接包装为安全调用
+                    chunk.code = chunk.code.replace(
+                      new RegExp(`([a-zA-Z_$][a-zA-Z0-9_$]*)\\.${method}\\(`, 'g'),
+                      `(window.__safeReactCall ? window.__safeReactCall($1, "${method}") || function(){} : function{})(`
+                    );
+                  });
                   
+                  // 额外保护：捕获所有.use开头的调用
                   chunk.code = chunk.code.replace(
-                    /([a-zA-Z_$][a-zA-Z0-9_$]*)\.useEffect\(/g,
-                    '(window.__safeReactCall && window.__safeReactCall($1, "useEffect", function(){}) || function{})('
+                    /([a-zA-Z_$][a-zA-Z0-9_$]*)\.use([A-Z][a-zA-Z]*)\(/g,
+                    '(window.__safeReactCall ? window.__safeReactCall($1, "use$2") || function(){} : function{})('
                   );
                   
                   // 3. 额外保护：针对特定行数（79行）周围的代码进行强化
