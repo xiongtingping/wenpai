@@ -255,22 +255,17 @@ export default defineConfig(({ command, mode }) => ({
   // 🔧 根因修复：正确的依赖预构建配置
   optimizeDeps: {
     include: [
-      // 🔧 ROOT CAUSE FIX: 仅预构建核心React模块，避免use-sync-external-store冲突
-      'react',
-      'react/jsx-runtime',
-      'react-dom',
-      'react-dom/client',
+      // 🔧 CRITICAL: React模块已externalized，从预构建中排除
+      // 'react', 'react/jsx-runtime', 'react-dom', 'react-dom/client' - 通过CDN加载
       'react-router-dom',
       // 🔧 CRITICAL: 排除与zustand冲突的依赖
       'axios',
       'crypto-js'
     ],
-    // 🔧 CRITICAL: 强制深度扫描React模块
+    // 🔧 CRITICAL: 应用入口扫描（React通过CDN加载，不需要扫描）
     entries: [
       'src/main.tsx',
-      'src/App.tsx',
-      'react',
-      'react-dom/client'
+      'src/App.tsx'
     ],
     exclude: [
       // 🔧 CRITICAL: 排除与zustand冲突的React内部模块

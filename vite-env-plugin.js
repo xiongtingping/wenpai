@@ -5,14 +5,35 @@ import { loadEnv } from 'vite';
  */
 export default function envPlugin() {
   let envVars = {};
+  let currentMode = 'development';
   
   return {
     name: 'env-injector',
     config(config, { mode }) {
       // 加载环境变量
+      currentMode = mode;
       envVars = loadEnv(mode, process.cwd(), '');
     },
     transformIndexHtml(html) {
+      // 🔧 CRITICAL: 根据环境选择React版本
+      const isProduction = currentMode === 'production';
+      const reactVersion = isProduction ? 'production.min' : 'development';
+      
+      // 替换React CDN链接
+      html = html.replace(
+        /https:\/\/unpkg\.com\/react@18\.3\.1\/umd\/react\.(development|production\.min)\.js/,
+        `https://unpkg.com/react@18.3.1/umd/react.${reactVersion}.js`
+      );
+      html = html.replace(
+        /https:\/\/unpkg\.com\/react-dom@18\.3\.1\/umd\/react-dom\.(development|production\.min)\.js/,
+        `https://unpkg.com/react-dom@18.3.1/umd/react-dom.${reactVersion}.js`
+      );
+      
+      if (isProduction) {
+        console.log('🔒 生产环境构建：React已切换为production版本');
+      } else {
+        console.log('🔧 开发环境构建：React使用development版本');
+      }
       // 
       // API 密钥不再注入客户端，改用服务端代理
       const envScript = `
