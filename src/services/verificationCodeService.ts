@@ -570,36 +570,40 @@ class VerificationCodeService {
         profile: profile 
       });
 
-      // 🔧 FIX: 尝试多种API调用方式
-      let registerPromise;
+      // 🔧 FIX: 简化API调用逻辑，避免TDZ错误
+      console.log('🔧 开始邮箱注册API调用...');
       
-      console.log('🔧 尝试多种注册方式...');
-      
-      try {
+      // 🔧 使用立即执行的异步函数避免变量作用域问题
+      const registerPromise = (async () => {
+        // 方法1: 如果有有效的emailToken，尝试4参数调用
         if (emailToken && typeof emailToken === 'string' && emailToken.length > 10) {
-          // 方法1: 如果有有效的字符串emailToken，尝试4参数调用
           console.log('🔧 方法1: 使用emailToken字符串 (4参数)');
-          registerPromise = (client as any).registerByEmailCode(email, cleanCode, emailToken, { password });
-        } else {
-          // 方法2: 尝试不使用emailToken的标准3参数调用
-          console.log('🔧 方法2: 标准3参数调用 (email, code, profile)');
-          registerPromise = client.registerByEmailCode(email, cleanCode, {
-            // password: password, // 暂时注释掉，该属性不存在
+          try {
+            return await (client as any).registerByEmailCode(email, cleanCode, emailToken, { password });
+          } catch (error) {
+            console.log('🔧 方法1失败，尝试方法2:', error);
+          }
+        }
+        
+        // 方法2: 标准3参数调用
+        console.log('🔧 方法2: 标准3参数调用 (email, code, profile)');
+        try {
+          return await client.registerByEmailCode(email, cleanCode, {
             email: email
           });
+        } catch (error) {
+          console.log('🔧 方法2失败，尝试方法3:', error);
         }
-      } catch (apiError) {
-        console.log('🔧 API调用方式1/2失败，尝试方法3: 最简单调用');
+        
+        // 方法3: 最简单的调用方式
+        console.log('🔧 方法3: 最简单调用 (email, code, password)');
         try {
-          // 方法3: 最简单的调用方式
-          registerPromise = (client as any).registerByEmailCode(email, cleanCode, password);
-        } catch (simpleError) {
-          console.log('🔧 所有标准方法失败，尝试方法4: 使用管理端API');
-          // 方法4: 如果前面都失败，可能需要使用不同的注册方式
-          // 尝试直接创建用户然后验证邮箱
+          return await (client as any).registerByEmailCode(email, cleanCode, password);
+        } catch (error) {
+          console.log('🔧 方法3失败:', error);
           throw new Error('所有注册方式均失败，可能是API配置问题');
         }
-      }
+      })();
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('注册请求超时(30秒)')), 30000);
       });
