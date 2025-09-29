@@ -147,6 +147,11 @@ export default defineConfig(({ command, mode }) => ({
     sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
     rollupOptions: {
+      // 🔧 CRITICAL: 强制React模块正确处理
+      external: (id) => {
+        // 不外部化任何模块，全部打包以避免运行时加载顺序问题
+        return false;
+      },
       output: {
         // 🔧 ROOT CAUSE FIX: 强制模块加载优先级控制
         manualChunks: (id) => {
@@ -241,14 +246,29 @@ export default defineConfig(({ command, mode }) => ({
   // 🔧 根因修复：正确的依赖预构建配置
   optimizeDeps: {
     include: [
-      // 🔧 关键修复：确保React模块始终被正确预构建，按依赖顺序排列
+      // 🔧 ULTIMATE FIX: 强制预构建所有React相关模块避免TDZ
       'react',
-      'react/jsx-runtime',
+      'react/jsx-runtime', 
+      'react/jsx-dev-runtime',
       'react-dom',
       'react-dom/client',
       'react-router-dom',
+      'react-hook-form',
+      'react-i18next',
+      // 🔧 强制预构建React内部模块
+      'scheduler',
+      'scheduler/tracing',
+      'use-sync-external-store',
+      'use-sync-external-store/shim',
       'axios',
       'crypto-js'
+    ],
+    // 🔧 CRITICAL: 强制深度扫描React模块
+    entries: [
+      'src/main.tsx',
+      'src/App.tsx',
+      'react',
+      'react-dom/client'
     ],
     exclude: [
       // 🔧 仅排除Node.js模块和有问题的包
@@ -278,13 +298,17 @@ export default defineConfig(({ command, mode }) => ({
     esbuildOptions: {
       define: {
         global: 'globalThis',
-        // 🔧 ULTIMATE FIX: 强制确保React全局可用
-        'window.React': 'window.React'
+        // 🔧 ULTIMATE FIX: 强制确保React全局可用并预定义关键对象
+        'window.React': 'window.React',
+        'process.env.NODE_ENV': '"production"'
       },
       target: 'esnext',
       // 🔧 关键修复：保持函数名避免React内部引用错误
       keepNames: true,
-      minify: false
+      minify: false,
+      // 🔧 CRITICAL: 确保React模块正确打包
+      platform: 'browser',
+      format: 'esm'
     },
     force: false
   }
