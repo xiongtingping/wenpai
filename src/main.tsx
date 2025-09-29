@@ -22,6 +22,16 @@ import './styles/user-avatar-dropdown-fix.css';
 // console.log('🔥 Step 2: 开始导入React...');
 import React from 'react';
 
+// 🔧 ULTIMATE FIX: 确保React全局命名空间立即可用
+// 这解决了所有使用React.createContext等API的TDZ问题
+if (typeof window !== 'undefined') {
+  // 如果window.React是fallback实现，用真正的React覆盖它
+  if (!window.React || window.React.__isFallback) {
+    window.React = React;
+    console.log('🔧 React global namespace set from main.tsx');
+  }
+}
+
 // console.log('🔥 Step 3: 开始导入ReactDOM...');
 import ReactDOM from 'react-dom/client';
 // console.log('🔥 Step 4: 开始导入BrowserRouter...');

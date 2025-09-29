@@ -271,7 +271,9 @@ export default defineConfig(({ command, mode }) => ({
     ],
     esbuildOptions: {
       define: {
-        global: 'globalThis'
+        global: 'globalThis',
+        // 🔧 ULTIMATE FIX: 强制确保React全局可用
+        'window.React': 'window.React'
       },
       target: 'esnext',
       // 🔧 关键修复：保持函数名避免React内部引用错误
