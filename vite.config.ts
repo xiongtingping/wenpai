@@ -352,14 +352,19 @@ try {
     var React = window.React || {};
   }
   
-  // 创建强制的reactExports对象，确保所有API可用
+  // 🔧 修复：完全避免重复声明，使用window对象作为备份
   if (typeof reactExports === 'undefined') {
-    var reactExports = {};
+    // 如果未定义，则创建一个临时的reactExports引用
+    window.__tempReactExports = window.__tempReactExports || {};
+    // 不声明变量，直接使用全局引用
   }
   
-  // 确保reactExports具有所有必需的React API
-  if (!reactExports.createContext) {
-    reactExports.createContext = function(defaultValue) {
+  // 使用安全的reactExports引用
+  var safeReactExports = (typeof reactExports !== 'undefined' ? reactExports : window.__tempReactExports) || {};
+  
+  // 确保safeReactExports具有所有必需的React API
+  if (!safeReactExports.createContext) {
+    safeReactExports.createContext = function(defaultValue) {
       return {
         Provider: function(props) { return props.children; },
         Consumer: function(props) { return props.children(defaultValue); }
@@ -367,8 +372,8 @@ try {
     };
   }
   
-  if (!reactExports.useLayoutEffect) {
-    reactExports.useLayoutEffect = function(effect, deps) {
+  if (!safeReactExports.useLayoutEffect) {
+    safeReactExports.useLayoutEffect = function(effect, deps) {
       if (typeof effect === 'function') {
         try { effect(); } catch(e) {}
       }
@@ -376,8 +381,8 @@ try {
     };
   }
   
-  if (!reactExports.useEffect) {
-    reactExports.useEffect = function(effect, deps) {
+  if (!safeReactExports.useEffect) {
+    safeReactExports.useEffect = function(effect, deps) {
       if (typeof effect === 'function') {
         try { effect(); } catch(e) {}
       }
@@ -385,20 +390,20 @@ try {
     };
   }
   
-  if (!reactExports.useState) {
-    reactExports.useState = function(initialValue) {
+  if (!safeReactExports.useState) {
+    safeReactExports.useState = function(initialValue) {
       return [initialValue, function() {}];
     };
   }
   
-  if (!reactExports.useCallback) {
-    reactExports.useCallback = function(callback) {
+  if (!safeReactExports.useCallback) {
+    safeReactExports.useCallback = function(callback) {
       return callback || function() {};
     };
   }
   
-  if (!reactExports.useMemo) {
-    reactExports.useMemo = function(callback) {
+  if (!safeReactExports.useMemo) {
+    safeReactExports.useMemo = function(callback) {
       try {
         return callback ? callback() : undefined;
       } catch(e) {
@@ -407,16 +412,21 @@ try {
     };
   }
   
-  if (!reactExports.useRef) {
-    reactExports.useRef = function(initialValue) {
+  if (!safeReactExports.useRef) {
+    safeReactExports.useRef = function(initialValue) {
       return { current: initialValue };
     };
   }
   
-  // 同步到React对象
+  // 🔧 修复：安全地同步API到reactExports和React对象
   ['createContext', 'useLayoutEffect', 'useEffect', 'useState', 'useCallback', 'useMemo', 'useRef'].forEach(function(api) {
-    if (reactExports[api] && !React[api]) {
-      React[api] = reactExports[api];
+    // 同步到原始reactExports（如果存在）
+    if (typeof reactExports !== 'undefined' && reactExports && safeReactExports[api] && !reactExports[api]) {
+      reactExports[api] = safeReactExports[api];
+    }
+    // 同步到React对象
+    if (safeReactExports[api] && !React[api]) {
+      React[api] = safeReactExports[api];
     }
   });
   
