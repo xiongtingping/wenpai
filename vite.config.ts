@@ -339,28 +339,36 @@ export default defineConfig(({ command, mode }) => ({
                   // 在animation-vendor包开头添加React保护代码
                   const reactProtection = `
 // React createContext protection for animation libraries
-if (typeof React === 'undefined') {
-  try {
+try {
+  // 确保全局React和reactExports都可用
+  if (typeof React === 'undefined') {
     var React = window.React || {};
-    if (!React.createContext) {
-      React.createContext = function(defaultValue) {
+  }
+  if (typeof reactExports === 'undefined') {
+    var reactExports = React || {};
+  }
+  
+  // 为React和reactExports都添加createContext保护
+  [React, reactExports].forEach(function(reactObj) {
+    if (reactObj && !reactObj.createContext) {
+      reactObj.createContext = function(defaultValue) {
         return {
           Provider: function(props) { return props.children; },
           Consumer: function(props) { return props.children(defaultValue); }
         };
       };
     }
-  } catch (e) {
-    console.warn('React createContext protection failed:', e);
-  }
+  });
+} catch (e) {
+  console.warn('React createContext protection failed:', e);
 }
 `;
                   chunk.code = reactProtection + chunk.code;
                   
-                  // 修复React.createContext调用的保护
+                  // 修复React.createContext和reactExports.createContext调用的保护
                   chunk.code = chunk.code.replace(
-                    /React\.createContext\(/g,
-                    '(React && React.createContext ? React.createContext : function(d){return{Provider:function(p){return p.children},Consumer:function(p){return p.children(d)}}})'
+                    /(React|reactExports)\.createContext\(/g,
+                    '($1 && $1.createContext ? $1.createContext : function(d){return{Provider:function(p){return p.children},Consumer:function(p){return p.children(d)}}})'
                   );
                   
                   console.log('✅ Applied React createContext protection to animation-vendor');
