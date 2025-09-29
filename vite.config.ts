@@ -338,12 +338,14 @@ export default defineConfig(({ command, mode }) => ({
                   
                   // 在animation-vendor包开头添加React保护代码
                   const reactProtection = `
-// React createContext protection for animation libraries
+// React API protection for animation libraries
 try {
   // 确保全局React可用
   if (typeof React === 'undefined') {
     var React = window.React || {};
   }
+  
+  // 保护所有React API
   if (!React.createContext) {
     React.createContext = function(defaultValue) {
       return {
@@ -352,16 +354,82 @@ try {
       };
     };
   }
+  
+  if (!React.useLayoutEffect) {
+    React.useLayoutEffect = function(effect, deps) {
+      if (typeof effect === 'function') {
+        effect();
+      }
+    };
+  }
+  
+  if (!React.useEffect) {
+    React.useEffect = function(effect, deps) {
+      if (typeof effect === 'function') {
+        effect();
+      }
+    };
+  }
+  
+  if (!React.useState) {
+    React.useState = function(initialValue) {
+      return [initialValue, function() {}];
+    };
+  }
+  
+  if (!React.useCallback) {
+    React.useCallback = function(callback) {
+      return callback;
+    };
+  }
+  
+  if (!React.useMemo) {
+    React.useMemo = function(callback) {
+      return callback();
+    };
+  }
 } catch (e) {
-  console.warn('React createContext protection failed:', e);
+  console.warn('React API protection failed:', e);
 }
 `;
                   chunk.code = reactProtection + chunk.code;
                   
-                  // 修复reactExports.createContext调用的保护，确保运行时安全
+                  // 修复reactExports所有API调用的保护，确保运行时安全
+                  
+                  // 保护createContext
                   chunk.code = chunk.code.replace(
                     /reactExports\.createContext\(/g,
                     '(reactExports && reactExports.createContext ? reactExports.createContext : React && React.createContext ? React.createContext : function(d){return{Provider:function(p){return p.children},Consumer:function(p){return p.children(d)}}})('
+                  );
+                  
+                  // 保护useLayoutEffect
+                  chunk.code = chunk.code.replace(
+                    /reactExports\.useLayoutEffect\(/g,
+                    '(reactExports && reactExports.useLayoutEffect ? reactExports.useLayoutEffect : React && React.useLayoutEffect ? React.useLayoutEffect : function(){})('
+                  );
+                  
+                  // 保护useEffect
+                  chunk.code = chunk.code.replace(
+                    /reactExports\.useEffect\(/g,
+                    '(reactExports && reactExports.useEffect ? reactExports.useEffect : React && React.useEffect ? React.useEffect : function(){})('
+                  );
+                  
+                  // 保护useState
+                  chunk.code = chunk.code.replace(
+                    /reactExports\.useState\(/g,
+                    '(reactExports && reactExports.useState ? reactExports.useState : React && React.useState ? React.useState : function(v){return[v,function(){}]})('
+                  );
+                  
+                  // 保护useCallback
+                  chunk.code = chunk.code.replace(
+                    /reactExports\.useCallback\(/g,
+                    '(reactExports && reactExports.useCallback ? reactExports.useCallback : React && React.useCallback ? React.useCallback : function(fn){return fn})('
+                  );
+                  
+                  // 保护useMemo
+                  chunk.code = chunk.code.replace(
+                    /reactExports\.useMemo\(/g,
+                    '(reactExports && reactExports.useMemo ? reactExports.useMemo : React && React.useMemo ? React.useMemo : function(fn){return fn()})('
                   );
                   
                   console.log('✅ Applied React createContext protection to animation-vendor');

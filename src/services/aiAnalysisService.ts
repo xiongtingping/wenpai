@@ -12,17 +12,37 @@ import * as XLSX from 'xlsx';
 import Tesseract from 'tesseract.js';
 import { logger } from '@/utils/logger';
 
-// 配置 PDF.js worker - 延迟初始化避免TDZ错误
-if (typeof window !== 'undefined') {
-  // 使用setTimeout延迟执行，避免模块初始化时序问题
-  setTimeout(() => {
-    try {
+// 配置 PDF.js worker - 安全的延迟初始化避免TDZ错误
+let pdfWorkerConfigured = false;
+
+const configurePDFWorker = () => {
+  if (pdfWorkerConfigured) return;
+  
+  try {
+    // 检查pdfjsLib是否已经正确加载
+    if (typeof pdfjsLib !== 'undefined' && pdfjsLib.GlobalWorkerOptions) {
       // 使用本地托管的worker文件，避免CORS问题和版本不匹配
       pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.js';
-    } catch (error) {
-      console.warn('PDF.js worker配置失败:', error);
+      pdfWorkerConfigured = true;
+      console.log('✅ PDF.js worker配置成功');
+    } else {
+      throw new Error('pdfjsLib未正确加载');
     }
-  }, 0);
+  } catch (error) {
+    console.warn('PDF.js worker配置失败:', error);
+    // 延迟重试
+    if (typeof window !== 'undefined') {
+      setTimeout(configurePDFWorker, 100);
+    }
+  }
+};
+
+// 在浏览器环境中延迟配置
+if (typeof window !== 'undefined') {
+  // 使用多重延迟确保模块完全初始化
+  setTimeout(configurePDFWorker, 0);
+  setTimeout(configurePDFWorker, 50);
+  setTimeout(configurePDFWorker, 200);
 }
 
   /**
