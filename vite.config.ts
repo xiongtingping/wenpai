@@ -249,9 +249,9 @@ export default defineConfig(({ command, mode }) => ({
       },
       plugins: [
         {
-          name: 'fix-commonjs-intrinsic-and-tdz',
+          name: 'fix-commonjs-intrinsic-only',
           generateBundle(options, bundle) {
-            // 修复 intrinsic %% 错误和TDZ错误
+            // 只修复明确已知的错误，避免破坏语法
             Object.keys(bundle).forEach(fileName => {
               const chunk = bundle[fileName];
               if (chunk.type === 'chunk' && chunk.code) {
@@ -260,35 +260,13 @@ export default defineConfig(({ command, mode }) => ({
                   /intrinsic %([^%]*)% does not exist!/g,
                   'intrinsic $1 does not exist!'
                 );
-                // 修复 JSON.stringify 问题
+                // 修复 JSON.stringify 问题  
                 chunk.code = chunk.code.replace(
                   /F is not a function/g,
                   'stringify function is not available'
                 );
                 
-                // 🔧 强化TDZ错误修复：全面的变量初始化保护
-                chunk.code = chunk.code.replace(
-                  /Cannot access '([^']+)' before initialization/g,
-                  'Variable $1 not yet initialized'
-                );
-                
-                // 🔧 针对所有可能包含services的文件应用TDZ修复
-                if (fileName.includes('services') || fileName.includes('config')) {
-                  console.log(`🔧 Applying safe TDZ fixes to ${fileName}`);
-                  
-                  // 🔧 仅修复特定的known问题，避免破坏其他代码
-                  // 修复 "Cannot access 'at' before initialization" 错误
-                  chunk.code = chunk.code.replace(
-                    /Cannot access '([^']+)' before initialization/g,
-                    'Variable $1 is not yet initialized'
-                  );
-                  
-                  // 🔧 只修复明确的变量自引用模式
-                  chunk.code = chunk.code.replace(
-                    /\b(at)\s*=\s*\1\s*$/gm,
-                    '$1 = (typeof $1 !== "undefined" ? $1 : undefined)'
-                  );
-                }
+                console.log(`✅ Applied basic fixes to ${fileName}`);
               }
             });
           }
