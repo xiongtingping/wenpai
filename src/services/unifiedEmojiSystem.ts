@@ -655,8 +655,10 @@ runDataQualityPass();
 // 质检后再补齐一轮，确保去重后仍满足 >100
 ensureMinimumPerCategory(110);
 
-// 🌐 修复现有数据中的英文名称
-fixExistingEnglishNames();
+// 🌐 修复现有数据中的英文名称 - 延迟执行避免TDZ错误
+setTimeout(() => {
+  fixExistingEnglishNames();
+}, 0);
 
 // 🎨 应用多样化颜色系统（在初始化完成后）
 applyDiversifiedColorsSync();
