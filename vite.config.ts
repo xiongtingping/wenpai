@@ -147,29 +147,12 @@ export default defineConfig(({ command, mode }) => ({
     sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
     rollupOptions: {
-      // 🔧 ULTIMATE FIX: 将React设为external，通过CDN加载
-      external: (id) => {
-        // 🔧 CRITICAL: React相关模块通过CDN加载，避免Vite构建问题
-        if (id === 'react' || id === 'react-dom' || id === 'react-dom/client') {
-          return true;
-        }
-        return false;
-      },
       output: {
         // 🔧 CRITICAL: 设置正确的模块格式
         format: 'es',
-        // 🔧 CRITICAL: 全局变量映射
-        globals: {
-          'react': 'React',
-          'react-dom': 'ReactDOM',
-          'react-dom/client': 'ReactDOM'
-        },
         // 🔧 ROOT CAUSE FIX: 强制模块加载优先级控制
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // 🔧 CRITICAL: React模块已externalized，不应该在这里处理
-            // React相关模块通过CDN加载，跳过chunks分组
-            
             // React生态系统库 - 依赖React核心库
             if (id.includes('react-router') || id.includes('react-i18next') || id.includes('react-hook-form')) {
               return 'bbbb-react-ecosystem';
@@ -255,14 +238,13 @@ export default defineConfig(({ command, mode }) => ({
   // 🔧 根因修复：正确的依赖预构建配置
   optimizeDeps: {
     include: [
-      // 🔧 CRITICAL: React模块已externalized，从预构建中排除
-      // 'react', 'react/jsx-runtime', 'react-dom', 'react-dom/client' - 通过CDN加载
+      // 关键依赖预构建
       'react-router-dom',
       // 🔧 CRITICAL: 排除与zustand冲突的依赖
       'axios',
       'crypto-js'
     ],
-    // 🔧 CRITICAL: 应用入口扫描（React通过CDN加载，不需要扫描）
+    // 🔧 CRITICAL: 应用入口扫描，确保核心入口参与依赖分析
     entries: [
       'src/main.tsx',
       'src/App.tsx'

@@ -22,38 +22,10 @@ import './styles/user-avatar-dropdown-fix.css';
 // 🔧 CRITICAL: 模块加载状态检查
 console.log('🔥 Step 2: 开始导入React...');
 
-// 🔧 验证React模块可用性
-try {
-  // @ts-ignore
-  if (window.__FORCE_REACT_SYNC_LOADING__) {
-    console.log('🔧 强制同步加载模式已激活');
-  }
-} catch (e) {
-  console.warn('🔧 同步加载检查失败:', e);
-}
-
 import React from 'react';
-
-// 🔧 标记React核心模块已加载
-try {
-  // @ts-ignore
-  window.__REACT_CORE_LOADED__ = true;
-  console.log('✅ React核心模块加载完成');
-} catch (e) {
-  console.error('❌ React核心模块加载状态设置失败:', e);
-}
 
 // console.log('🔥 Step 3: 开始导入ReactDOM...');
 import ReactDOM from 'react-dom/client';
-
-// 🔧 标记ReactDOM模块已加载
-try {
-  // @ts-ignore
-  window.__REACT_DOM_LOADED__ = true;
-  console.log('✅ ReactDOM模块加载完成');
-} catch (e) {
-  console.error('❌ ReactDOM模块加载状态设置失败:', e);
-}
 
 // console.log('🔥 Step 4: 开始导入BrowserRouter...');
 import { BrowserRouter } from 'react-router-dom';

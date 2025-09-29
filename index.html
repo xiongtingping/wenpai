@@ -15,29 +15,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- 🔧 ULTIMATE FIX: CDN方式加载React避免Vite构建问题 -->
-    <!-- 开发环境使用未压缩版本以获得更好的调试体验 -->
-    <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
-    
     <script>
-      // 🔧 CRITICAL: 强制同步模块加载顺序
-      window.__FORCE_REACT_SYNC_LOADING__ = true;
-      
-      // 🔧 设置模块加载完成标志
-      window.__REACT_CORE_LOADED__ = false;
-      window.__REACT_DOM_LOADED__ = false;
-      
-      // 🔧 模块加载监听器
-      const moduleLoadListener = () => {
-        console.log('🔧 检查模块加载状态:', {
-          reactCore: window.__REACT_CORE_LOADED__,
-          reactDOM: window.__REACT_DOM_LOADED__
-        });
-      };
-      
-      console.log('🔧 React同步加载机制已启动');
-      
       // 检测是否是旧版本缓存，强制刷新
       (function() {
         const CURRENT_VERSION = 'v20250929-ultimate-fix-v3';
