@@ -460,7 +460,7 @@ export class ProductionKeyManager {
         window.location.hostname === 'localhost' ||
         window.location.hostname.startsWith('127.') ||
         window.location.hostname.includes('local') ||
-        window.location.port) {
+        (window.location.port && window.location.port !== '80' && window.location.port !== '443')) {
       return false; // 明确是开发环境
     }
     

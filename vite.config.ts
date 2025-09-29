@@ -149,22 +149,22 @@ export default defineConfig(({ command, mode }) => ({
         // 优化的代码分割策略
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // React核心库
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react/jsx-runtime')) {
+            // React核心库 - 最高优先级，确保首先加载
+            if (id.includes('react/jsx-runtime') || id.includes('react-dom/client') || id.includes('react-dom') || id.includes('react')) {
               return 'react-core-vendor';
             }
             
-            // React生态系统库
+            // React生态系统库 - 依赖React核心库
             if (id.includes('react-router') || id.includes('react-i18next') || id.includes('react-hook-form')) {
               return 'react-ecosystem-vendor';
             }
             
-            // UI组件库
+            // UI组件库 - 依赖React
             if (id.includes('@radix-ui') || id.includes('lucide-react')) {
               return 'ui-vendor';
             }
             
-            // 动画和图表库
+            // 动画和图表库 - 强制依赖React核心库
             if (id.includes('framer-motion') || id.includes('recharts') || id.includes('chart')) {
               return 'animation-vendor';
             }
@@ -235,10 +235,11 @@ export default defineConfig(({ command, mode }) => ({
   // 🔧 根因修复：正确的依赖预构建配置
   optimizeDeps: {
     include: [
-      // 🔧 关键修复：确保React模块始终被正确预构建
+      // 🔧 关键修复：确保React模块始终被正确预构建，按依赖顺序排列
       'react',
-      'react-dom',
       'react/jsx-runtime',
+      'react-dom',
+      'react-dom/client',
       'react-router-dom',
       'axios',
       'crypto-js'
