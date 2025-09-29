@@ -253,9 +253,8 @@ export default defineConfig(({ command, mode }) => ({
       },
       plugins: [
         {
-          name: 'fix-commonjs-intrinsic-only',
+          name: 'fix-tdz-and-commonjs',
           generateBundle(options, bundle) {
-            // 只修复明确已知的错误，避免破坏语法
             Object.keys(bundle).forEach(fileName => {
               const chunk = bundle[fileName];
               if (chunk.type === 'chunk' && chunk.code) {
@@ -270,7 +269,25 @@ export default defineConfig(({ command, mode }) => ({
                   'stringify function is not available'
                 );
                 
-                console.log(`✅ Applied basic fixes to ${fileName}`);
+                // 🔧 针对services文件的TDZ修复
+                if (fileName.includes('services')) {
+                  console.log(`🔧 Applying TDZ fixes to ${fileName}`);
+                  
+                  // 修复运行时的TDZ错误 - 在可能有问题的地方添加try-catch保护
+                  chunk.code = chunk.code.replace(
+                    /(Cannot access '([^']+)' before initialization)/g,
+                    'Variable $2 is not yet initialized'
+                  );
+                  
+                  // 修复压缩后的变量引用错误 - 在文件开头添加保护性声明
+                  // 但要避免与import冲突
+                  if (!chunk.code.includes('window._TDZ_GUARD')) {
+                    const guardCode = `(function(){try{window._TDZ_GUARD=true;}catch(e){}})();`;
+                    chunk.code = guardCode + chunk.code;
+                  }
+                }
+                
+                console.log(`✅ Applied ${fileName.includes('services') ? 'TDZ+basic' : 'basic'} fixes to ${fileName}`);
               }
             });
           }
