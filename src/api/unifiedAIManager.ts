@@ -504,8 +504,28 @@ export class UnifiedAIManager {
   }
 }
 
-// 导出单例实例和便捷函数
-export const aiManager = UnifiedAIManager.getInstance();
+// 延迟初始化单例实例，避免TDZ错误
+let _aiManagerInstance: UnifiedAIManager | null = null;
+
+export const aiManager = {
+  // 使用代理模式延迟初始化
+  get callAI() { return this._getInstance().callAI.bind(this._getInstance()); },
+  get generateImage() { return this._getInstance().generateImage.bind(this._getInstance()); },
+  get getAvailableModels() { return this._getInstance().getAvailableModels.bind(this._getInstance()); },
+  get getModelInfo() { return this._getInstance().getModelInfo.bind(this._getInstance()); },
+  get updateEndpoints() { return this._getInstance().updateEndpoints.bind(this._getInstance()); },
+  get getCachedResponse() { return this._getInstance().getCachedResponse.bind(this._getInstance()); },
+  get clearCache() { return this._getInstance().clearCache.bind(this._getInstance()); },
+  get getStatistics() { return this._getInstance().getStatistics.bind(this._getInstance()); },
+  get cleanup() { return this._getInstance().cleanup.bind(this._getInstance()); },
+  
+  _getInstance(): UnifiedAIManager {
+    if (!_aiManagerInstance) {
+      _aiManagerInstance = UnifiedAIManager.getInstance();
+    }
+    return _aiManagerInstance;
+  }
+};
 
 /**
  * 便捷的AI调用函数 - 替代原有的硬编码实现

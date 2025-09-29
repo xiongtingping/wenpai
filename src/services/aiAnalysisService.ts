@@ -12,14 +12,17 @@ import * as XLSX from 'xlsx';
 import Tesseract from 'tesseract.js';
 import { logger } from '@/utils/logger';
 
-// 配置 PDF.js worker - 使用本地托管的worker文件
+// 配置 PDF.js worker - 延迟初始化避免TDZ错误
 if (typeof window !== 'undefined') {
-  try {
-    // 使用本地托管的worker文件，避免CORS问题和版本不匹配
-    pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.js';
-  } catch (error) {
-    console.warn('PDF.js worker配置失败:', error);
-  }
+  // 使用setTimeout延迟执行，避免模块初始化时序问题
+  setTimeout(() => {
+    try {
+      // 使用本地托管的worker文件，避免CORS问题和版本不匹配
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.js';
+    } catch (error) {
+      console.warn('PDF.js worker配置失败:', error);
+    }
+  }, 0);
 }
 
   /**

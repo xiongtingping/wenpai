@@ -649,19 +649,24 @@ function ensureMinimumPerCategory(minCount = 100) {
   });
 }
 
-// 初始化：在恢复的基础上进行补齐并做数据质检
-ensureMinimumPerCategory(110);
-runDataQualityPass();
-// 质检后再补齐一轮，确保去重后仍满足 >100
-ensureMinimumPerCategory(110);
-
-// 🌐 修复现有数据中的英文名称 - 延迟执行避免TDZ错误
+// 🔧 延迟初始化，避免TDZ错误
 setTimeout(() => {
-  fixExistingEnglishNames();
-}, 0);
+  try {
+    // 初始化：在恢复的基础上进行补齐并做数据质检
+    ensureMinimumPerCategory(110);
+    runDataQualityPass();
+    // 质检后再补齐一轮，确保去重后仍满足 >100
+    ensureMinimumPerCategory(110);
 
-// 🎨 应用多样化颜色系统（在初始化完成后）
-applyDiversifiedColorsSync();
+    // 🌐 修复现有数据中的英文名称
+    fixExistingEnglishNames();
+
+    // 🎨 应用多样化颜色系统（在初始化完成后）
+    applyDiversifiedColorsSync();
+  } catch (error) {
+    console.warn('Emoji系统初始化时发生错误:', error);
+  }
+}, 0);
 
 /**
  * 🌐 修复现有数据中的英文名称

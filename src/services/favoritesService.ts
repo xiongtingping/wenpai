@@ -378,8 +378,29 @@ export class FavoritesService {
   }
 }
 
-// 导出单例实例
-export const favoritesService = FavoritesService.getInstance();
+// 延迟初始化单例实例，避免TDZ错误
+let _favoritesServiceInstance: FavoritesService | null = null;
+
+export const favoritesService = {
+  // 使用代理模式延迟初始化
+  get addFavorite() { return this._getInstance().addFavorite.bind(this._getInstance()); },
+  get removeFavorite() { return this._getInstance().removeFavorite.bind(this._getInstance()); },
+  get getFavorites() { return this._getInstance().getFavorites.bind(this._getInstance()); },
+  get searchFavorites() { return this._getInstance().searchFavorites.bind(this._getInstance()); },
+  get isFavorited() { return this._getInstance().isFavorited.bind(this._getInstance()); },
+  get getStats() { return this._getInstance().getStats.bind(this._getInstance()); },
+  get exportFavorites() { return this._getInstance().exportFavorites.bind(this._getInstance()); },
+  get importFavorites() { return this._getInstance().importFavorites.bind(this._getInstance()); },
+  get clearFavorites() { return this._getInstance().clearFavorites.bind(this._getInstance()); },
+  get clearCache() { return this._getInstance().clearCache.bind(this._getInstance()); },
+  
+  _getInstance(): FavoritesService {
+    if (!_favoritesServiceInstance) {
+      _favoritesServiceInstance = FavoritesService.getInstance();
+    }
+    return _favoritesServiceInstance;
+  }
+};
 
 /**
  * React Hook: 收藏功能

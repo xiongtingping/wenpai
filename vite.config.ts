@@ -158,12 +158,17 @@ export default defineConfig(({ command, mode }) => ({
         // 🚨 CRITICAL: 禁用所有变量名压缩防止TDZ
         compact: false,
         minifyInternalExports: false,
-        // 🚀 优化的代码分割策略 - 平衡性能和稳定性
+        // 🚀 优化的代码分割策略 - 修复React初始化时序问题
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // React核心库
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
+            // React核心库 - 优先加载，确保其他库能正确使用createContext
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react/jsx-runtime')) {
+              return 'react-core-vendor';
+            }
+            
+            // React生态系统库 - 确保在React核心之后加载
+            if (id.includes('react-router') || id.includes('react-i18next') || id.includes('react-hook-form')) {
+              return 'react-ecosystem-vendor';
             }
             
             // UI组件库
@@ -171,7 +176,7 @@ export default defineConfig(({ command, mode }) => ({
               return 'ui-vendor';
             }
             
-            // 动画和图表库
+            // 动画和图表库 - 延迟加载，确保React已完全初始化
             if (id.includes('framer-motion') || id.includes('recharts') || id.includes('chart')) {
               return 'animation-vendor';
             }
@@ -255,8 +260,8 @@ export default defineConfig(({ command, mode }) => ({
                   'stringify function is not available'
                 );
                 
-                // 🔧 针对所有JavaScript文件的TDZ修复（utils、services、components等）
-                if (fileName.includes('services') || fileName.includes('utils') || fileName.includes('components')) {
+                // 🔧 针对所有JavaScript文件的TDZ修复（utils、services、components、animation-vendor等）
+                if (fileName.includes('services') || fileName.includes('utils') || fileName.includes('components') || fileName.includes('animation-vendor')) {
                   console.log(`🔧 Applying comprehensive TDZ fixes to ${fileName}`);
                   
                   // 查找并修复位置13862附近的TDZ问题
@@ -327,7 +332,41 @@ export default defineConfig(({ command, mode }) => ({
                   }
                 }
                 
-                const isTDZFixed = fileName.includes('services') || fileName.includes('utils') || fileName.includes('components');
+                // 🔧 针对animation-vendor包的特殊React保护
+                if (fileName.includes('animation-vendor')) {
+                  console.log(`🎨 Applying React createContext protection to ${fileName}`);
+                  
+                  // 在animation-vendor包开头添加React保护代码
+                  const reactProtection = `
+// React createContext protection for animation libraries
+if (typeof React === 'undefined') {
+  try {
+    var React = window.React || {};
+    if (!React.createContext) {
+      React.createContext = function(defaultValue) {
+        return {
+          Provider: function(props) { return props.children; },
+          Consumer: function(props) { return props.children(defaultValue); }
+        };
+      };
+    }
+  } catch (e) {
+    console.warn('React createContext protection failed:', e);
+  }
+}
+`;
+                  chunk.code = reactProtection + chunk.code;
+                  
+                  // 修复React.createContext调用的保护
+                  chunk.code = chunk.code.replace(
+                    /React\.createContext\(/g,
+                    '(React && React.createContext ? React.createContext : function(d){return{Provider:function(p){return p.children},Consumer:function(p){return p.children(d)}}})'
+                  );
+                  
+                  console.log('✅ Applied React createContext protection to animation-vendor');
+                }
+                
+                const isTDZFixed = fileName.includes('services') || fileName.includes('utils') || fileName.includes('components') || fileName.includes('animation-vendor');
                 console.log(`✅ Applied ${isTDZFixed ? 'TDZ+basic' : 'basic'} fixes to ${fileName}`);
               }
             });

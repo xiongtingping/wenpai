@@ -530,7 +530,25 @@ export class DataSyncConflictResolver {
   }
 }
 
-// 导出单例
-export const dataSyncConflictResolver = DataSyncConflictResolver.getInstance();
+// 延迟初始化单例实例，避免TDZ错误
+let _dataSyncConflictResolverInstance: DataSyncConflictResolver | null = null;
+
+export const dataSyncConflictResolver = {
+  // 使用代理模式延迟初始化
+  get analyzeConflict() { return this._getInstance().analyzeConflict.bind(this._getInstance()); },
+  get resolveConflict() { return this._getInstance().resolveConflict.bind(this._getInstance()); },
+  get generateMergeStrategy() { return this._getInstance().generateMergeStrategy.bind(this._getInstance()); },
+  get executeStrategy() { return this._getInstance().executeStrategy.bind(this._getInstance()); },
+  get getConflictHistory() { return this._getInstance().getConflictHistory.bind(this._getInstance()); },
+  get getConflictStats() { return this._getInstance().getConflictStats.bind(this._getInstance()); },
+  get cleanup() { return this._getInstance().cleanup.bind(this._getInstance()); },
+  
+  _getInstance(): DataSyncConflictResolver {
+    if (!_dataSyncConflictResolverInstance) {
+      _dataSyncConflictResolverInstance = DataSyncConflictResolver.getInstance();
+    }
+    return _dataSyncConflictResolverInstance;
+  }
+};
 
 export default DataSyncConflictResolver;

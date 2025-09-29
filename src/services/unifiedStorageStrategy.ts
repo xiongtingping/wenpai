@@ -919,8 +919,26 @@ export class UnifiedStorageStrategy {
   }
 }
 
-// 创建全局实例
-export const unifiedStorage = new UnifiedStorageStrategy();
+// 延迟初始化全局实例，避免TDZ错误
+let _unifiedStorageInstance: UnifiedStorageStrategy | null = null;
+
+function getUnifiedStorageInstance(): UnifiedStorageStrategy {
+  if (!_unifiedStorageInstance) {
+    _unifiedStorageInstance = new UnifiedStorageStrategy();
+  }
+  return _unifiedStorageInstance;
+}
+
+export const unifiedStorage = {
+  // 使用代理模式延迟初始化
+  get save() { return getUnifiedStorageInstance().save.bind(getUnifiedStorageInstance()); },
+  get load() { return getUnifiedStorageInstance().load.bind(getUnifiedStorageInstance()); },
+  get remove() { return getUnifiedStorageInstance().remove.bind(getUnifiedStorageInstance()); },
+  get clear() { return getUnifiedStorageInstance().clear.bind(getUnifiedStorageInstance()); },
+  get sync() { return getUnifiedStorageInstance().sync.bind(getUnifiedStorageInstance()); },
+  get getStorageInfo() { return getUnifiedStorageInstance().getStorageInfo.bind(getUnifiedStorageInstance()); },
+  get cleanup() { return getUnifiedStorageInstance().cleanup.bind(getUnifiedStorageInstance()); }
+};
 
 // 便捷方法
 export const saveData = <T>(key: string, data: T) => unifiedStorage.save(key, data);
