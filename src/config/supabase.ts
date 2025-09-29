@@ -1,30 +1,50 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Supabase 配置
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ||
-                   process.env.VITE_SUPABASE_URL ||
-                   (globalThis as any).__ENV__?.VITE_SUPABASE_URL
+// 🔧 TDZ FIX: 使用函数创建客户端，避免模块级别的初始化顺序问题
+function getSupabaseConfiguration() {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ||
+                     process.env.VITE_SUPABASE_URL ||
+                     (globalThis as any).__ENV__?.VITE_SUPABASE_URL
 
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ||
-                       process.env.VITE_SUPABASE_ANON_KEY ||
-                       (globalThis as any).__ENV__?.VITE_SUPABASE_ANON_KEY
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ||
+                         process.env.VITE_SUPABASE_ANON_KEY ||
+                         (globalThis as any).__ENV__?.VITE_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase configuration:', { supabaseUrl, supabaseAnonKey: supabaseAnonKey ? '[HIDDEN]' : 'MISSING' })
-  throw new Error('Missing Supabase environment variables. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY')
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase configuration:', { supabaseUrl, supabaseAnonKey: supabaseAnonKey ? '[HIDDEN]' : 'MISSING' })
+    throw new Error('Missing Supabase environment variables. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY')
+  }
+
+  return { supabaseUrl, supabaseAnonKey }
 }
 
-// 创建 Supabase 客户端
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10
-    }
+// 🔧 TDZ FIX: 延迟创建Supabase客户端，避免TDZ错误
+let supabaseClientInstance: ReturnType<typeof createClient> | null = null
+
+function getSupabaseClient() {
+  if (!supabaseClientInstance) {
+    const { supabaseUrl, supabaseAnonKey } = getSupabaseConfiguration()
+    supabaseClientInstance = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10
+        }
+      }
+    })
+  }
+  return supabaseClientInstance
+}
+
+// 🔧 TDZ FIX: 导出延迟创建的客户端实例
+export const supabase = new Proxy({} as ReturnType<typeof createClient>, {
+  get(target, prop) {
+    const client = getSupabaseClient()
+    return client[prop as keyof typeof client]
   }
 })
 
@@ -176,10 +196,13 @@ export interface UserChatHistory {
 }
 
 // 数据库操作辅助函数
-export const getSupabaseConfig = () => ({
-  url: supabaseUrl,
-  anonKey: supabaseAnonKey
-})
+export const getSupabaseConfig = () => {
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseConfiguration()
+  return {
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey
+  }
+}
 
 // 检查数据库连接
 export const checkDatabaseConnection = async () => {
