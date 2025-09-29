@@ -145,24 +145,25 @@ export default defineConfig(({ command, mode }) => ({
     assetsDir: 'assets',
     sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
-    // 🔧 根本性修复：防止变量名压缩导致的TDZ和getInstance错误
-    // 🚀 优化的压缩配置 - 平衡文件大小和兼容性
+    // 🔧 CRITICAL TDZ FIX: 彻底禁用变量名压缩防止TDZ错误
     minify: 'esbuild',
     esbuild: {
-      // 🔧 保持TDZ修复的核心设置
+      // 🚨 CRITICAL: 完全禁用标识符压缩防止TDZ
       keepNames: true,
       minifyIdentifiers: false,
-      // 🚀 激进压缩选项 - 最大化文件压缩
+      // 🔧 关键修复: 保持所有变量名不被压缩
+      reserveProps: /.*/,  // 保留所有属性名
+      mangleProps: false,  // 禁用属性名压缩
+      // 🚀 仅保留安全的压缩选项
       minifySyntax: true,
       minifyWhitespace: true,
       // 🔧 法律注释优化
-      legalComments: 'none',    // 移除许可证注释减小文件大小
+      legalComments: 'none',
       target: 'es2020',
       format: 'esm',
       treeShaking: true,
-      // 🚀 生产环境优化
-      drop: ['console', 'debugger'], // 移除console和debugger
-      pure: ['console.log', 'console.warn'], // 标记为pure函数用于DCE
+      // 🚀 生产环境优化 - 减少但保持安全
+      drop: ['debugger'], // 仅移除debugger，保留console用于错误诊断
       define: {
         'process.env.NODE_ENV': '"production"',
         '__DEV__': 'false'
@@ -171,7 +172,15 @@ export default defineConfig(({ command, mode }) => ({
     // 🚀 CSS压缩优化
     cssMinify: 'esbuild',
     rollupOptions: {
+      // 🔧 CRITICAL TDZ FIX: 禁用Rollup层面的变量名压缩
+      treeshake: {
+        preset: 'smallest',
+        manualPureFunctions: ['console.log', 'console.warn']
+      },
       output: {
+        // 🚨 CRITICAL: 禁用所有变量名压缩防止TDZ
+        compact: false,
+        minifyInternalExports: false,
         // 🚀 优化的代码分割策略 - 平衡性能和稳定性
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
