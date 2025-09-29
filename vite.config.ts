@@ -246,17 +246,13 @@ export default defineConfig(({ command, mode }) => ({
   // 🔧 根因修复：正确的依赖预构建配置
   optimizeDeps: {
     include: [
-      // 🔧 ULTIMATE FIX: 强制预构建所有React相关模块避免TDZ
+      // 🔧 ROOT CAUSE FIX: 仅预构建核心React模块，避免use-sync-external-store冲突
       'react',
-      'react/jsx-runtime', 
-      'react/jsx-dev-runtime',
+      'react/jsx-runtime',
       'react-dom',
       'react-dom/client',
       'react-router-dom',
-      'react-hook-form',
-      'react-i18next',
-      // 🔧 仅包含确实存在的React内部模块
-      'scheduler',
+      // 🔧 CRITICAL: 排除与zustand冲突的依赖
       'axios',
       'crypto-js'
     ],
@@ -268,7 +264,12 @@ export default defineConfig(({ command, mode }) => ({
       'react-dom/client'
     ],
     exclude: [
-      // 🔧 仅排除Node.js模块和有问题的包
+      // 🔧 CRITICAL: 排除与zustand冲突的React内部模块
+      'use-sync-external-store',
+      'use-sync-external-store/shim',
+      'scheduler',
+      'scheduler/tracing',
+      // Node.js模块
       'stream',
       'readable-stream', 
       'events',
