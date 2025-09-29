@@ -3,13 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <!-- 🔧 强化缓存清除机制 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, proxy-revalidate, max-age=0" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="Last-Modified" content="Thu, 29 Sep 2025 12:00:00 GMT" />
+    <meta http-equiv="If-Modified-Since" content="Thu, 29 Sep 2025 12:00:00 GMT" />
+    <meta name="cache-bust" content="v20250929-final-fix" />
     <title>WenPai AI - Intelligent Content Creation Platform</title>
     <link rel="icon" type="image/svg+xml" href="/ikigai_4circles_multiply.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
+    <!-- 🔧 强制浏览器刷新脚本 -->
+    <script>
+      // 检测是否是旧版本缓存，强制刷新
+      (function() {
+        const CURRENT_VERSION = 'v20250929-final-fix';
+        const stored = localStorage.getItem('app-version');
+        if (stored !== CURRENT_VERSION) {
+          localStorage.setItem('app-version', CURRENT_VERSION);
+          if (stored && 'caches' in window) {
+            // 清除所有缓存
+            caches.keys().then(names => {
+              names.forEach(name => caches.delete(name));
+            });
+          }
+          // 如果不是第一次访问，强制硬刷新
+          if (stored) {
+            window.location.reload(true);
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
