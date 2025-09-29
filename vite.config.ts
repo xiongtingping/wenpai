@@ -138,35 +138,23 @@ export default defineConfig(({ command, mode }) => ({
     port: 4173,
     host: true
   },
-  // 🚨 [CRITICAL_BUILD_FIX_v2025.08.14] 修复构建配置，解决undefinedundefined问题
-  // 🔧 TDZ Error Fix: 优化代码分割和变量名生成
+  // 构建配置
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
-    // 🔧 ULTIMATE TDZ FIX: 完全禁用所有压缩防止TDZ错误
-    minify: false,
-    // 🔧 ULTIMATE TDZ FIX: 完全禁用ESBuild优化
-    esbuild: false,
-    // 🔧 ULTIMATE TDZ FIX: 禁用CSS压缩避免副作用
-    cssMinify: false,
     rollupOptions: {
-      // 🔧 ULTIMATE TDZ FIX: 禁用TreeShaking避免意外的代码重组
-      treeshake: false,
       output: {
-        // 🚨 CRITICAL: 禁用所有变量名压缩防止TDZ
-        compact: false,
-        minifyInternalExports: false,
-        // 🚀 优化的代码分割策略 - 修复React初始化时序问题
+        // 优化的代码分割策略
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // React核心库 - 优先加载，确保其他库能正确使用createContext
+            // React核心库
             if (id.includes('react') || id.includes('react-dom') || id.includes('react/jsx-runtime')) {
               return 'react-core-vendor';
             }
             
-            // React生态系统库 - 确保在React核心之后加载
+            // React生态系统库
             if (id.includes('react-router') || id.includes('react-i18next') || id.includes('react-hook-form')) {
               return 'react-ecosystem-vendor';
             }
@@ -176,7 +164,7 @@ export default defineConfig(({ command, mode }) => ({
               return 'ui-vendor';
             }
             
-            // 动画和图表库 - 延迟加载，确保React已完全初始化
+            // 动画和图表库
             if (id.includes('framer-motion') || id.includes('recharts') || id.includes('chart')) {
               return 'animation-vendor';
             }
@@ -229,357 +217,11 @@ export default defineConfig(({ command, mode }) => ({
           }
           
           return undefined;
-        },
-        // 🔧 强化缓存清除：使用更强的hash和时间戳组合
-        chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId ? 
-            chunkInfo.facadeModuleId.split('/').pop()?.replace(/\.[^.]+$/, '') : 
-            chunkInfo.name || 'unknown';
-          const timestamp = Date.now().toString(36);
-          const randomSuffix = Math.random().toString(36).substring(2, 8);
-          return `assets/${facadeModuleId}-[hash]-${timestamp}${randomSuffix}.js`;
-        },
-        // 强制所有资源文件名包含更强的hash和时间戳
-        assetFileNames: (assetInfo) => {
-          const timestamp = Date.now().toString(36);
-          return `assets/[name]-[hash]-${timestamp}.[ext]`;
-        },
-        entryFileNames: (chunkInfo) => {
-          const timestamp = Date.now().toString(36);
-          return `assets/[name]-[hash]-${timestamp}.js`;
         }
-      },
-      plugins: [
-        {
-          name: 'fix-tdz-and-commonjs',
-          generateBundle(options, bundle) {
-            Object.keys(bundle).forEach(fileName => {
-              const chunk = bundle[fileName];
-              if (chunk.type === 'chunk' && chunk.code) {
-                // 修复 intrinsic 错误
-                chunk.code = chunk.code.replace(
-                  /intrinsic %([^%]*)% does not exist!/g,
-                  'intrinsic $1 does not exist!'
-                );
-                // 修复 JSON.stringify 问题  
-                chunk.code = chunk.code.replace(
-                  /F is not a function/g,
-                  'stringify function is not available'
-                );
-                
-                // 🔧 针对所有JavaScript文件的TDZ修复（utils、services、components、animation-vendor等）
-                if (fileName.includes('services') || fileName.includes('utils') || fileName.includes('components') || fileName.includes('animation-vendor')) {
-                  console.log(`🔧 Applying comprehensive TDZ fixes to ${fileName}`);
-                  
-                  // 查找并修复位置13862附近的TDZ问题
-                  const lines = chunk.code.split('\n');
-                  console.log(`📍 Services file has ${lines.length} lines, ${chunk.code.length} characters`);
-                  
-                  // 1. 修复最常见的TDZ模式 - 所有短变量名的自赋值
-                  chunk.code = chunk.code.replace(
-                    /\b([a-zA-Z]{1,3})\s*=\s*\1(?=[;\s,\}\)])/g, 
-                    (match, varName) => {
-                      console.log(`🔧 Found TDZ pattern: ${match}`);
-                      return `${varName} = (typeof ${varName} !== "undefined" ? ${varName} : undefined)`;
-                    }
-                  );
-                  
-                  // 1.5. 针对常见的压缩变量名TDZ修复（ge, at, et, ie等）
-                  const commonVars = ['at', 'ge', 'et', 'ie', 'te', 'er', 're', 'se', 'ne', 'le', 'me', 'he', 'we', 'ye', 'fe', 'pe', 'de', 'ce', 'be', 've', 'ke'];
-                  commonVars.forEach(varName => {
-                    chunk.code = chunk.code.replace(
-                      new RegExp(`\\b${varName}\\s*=\\s*${varName}(?=[;\\s,\\}\\)])`, 'g'),
-                      (match) => {
-                        console.log(`🔧 Found specific '${varName}' TDZ pattern: ${match}`);
-                        return `${varName} = (typeof ${varName} !== "undefined" ? ${varName} : undefined)`;
-                      }
-                    );
-                  });
-                  
-                  // 2. 修复import别名后立即使用的情况
-                  chunk.code = chunk.code.replace(
-                    /import\{([^}]*\bas\s+at[^}]*)\}(.+?)(\bat\s*[=:])/g,
-                    (match, imports, middle, usage) => {
-                      console.log(`🔧 Found import alias issue: ${match.substring(0, 100)}...`);
-                      return match.replace(usage, `(typeof at !== "undefined" ? at : undefined)`);
-                    }
-                  );
-                  
-                  // 3. 在特定位置附近添加保护和强制修复
-                  if (chunk.code.length > 13000) {
-                    const position = 13862;
-                    const start = Math.max(0, position - 200);
-                    const end = Math.min(chunk.code.length, position + 200);
-                    const problemArea = chunk.code.substring(start, end);
-                    console.log(`🔍 Problem area around position ${position}: "${problemArea.substring(0, 300)}..."`);
-                    
-                    // 强制在位置13862附近插入TDZ保护代码
-                    const line3Start = chunk.code.split('\n').slice(0, 2).join('\n').length + 1;
-                    const line3End = chunk.code.split('\n').slice(0, 3).join('\n').length;
-                    
-                    if (position >= line3Start && position <= line3End) {
-                      console.log(`🔧 Position ${position} is in line 3, applying emergency TDZ fix`);
-                      
-                      // 在第3行开始处插入强制保护代码
-                      const lines = chunk.code.split('\n');
-                      if (lines.length > 2) {
-                        // 在第3行前插入保护代码
-                        const protectionCode = `try{if(typeof at==="undefined")var at=undefined;}catch(e){}`;
-                        lines[2] = protectionCode + lines[2];
-                        chunk.code = lines.join('\n');
-                        console.log('🔧 Applied emergency TDZ protection to line 3');
-                      }
-                    }
-                    
-                    // 全局搜索所有可能的at引用并修复
-                    chunk.code = chunk.code.replace(
-                      /\b(at)\s*=\s*\1\b/g,
-                      'at = (typeof at !== "undefined" ? at : undefined)'
-                    );
-                  }
-                }
-                
-                // 🔧 针对animation-vendor包的特殊React保护
-                if (fileName.includes('animation-vendor')) {
-                  console.log(`🎨 Applying React createContext protection to ${fileName}`);
-                  
-                  // 在animation-vendor包开头添加增强的React保护代码
-                  const reactProtection = `
-// Enhanced React API protection for animation libraries
-try {
-  // 确保全局React可用
-  if (typeof React === 'undefined') {
-    var React = window.React || {};
-  }
-  
-  // 🔧 修复：完全避免重复声明，使用window对象作为备份
-  if (typeof reactExports === 'undefined') {
-    // 如果未定义，则创建一个临时的reactExports引用
-    window.__tempReactExports = window.__tempReactExports || {};
-    // 不声明变量，直接使用全局引用
-  }
-  
-  // 使用安全的reactExports引用
-  var safeReactExports = (typeof reactExports !== 'undefined' ? reactExports : window.__tempReactExports) || {};
-  
-  // 确保safeReactExports具有所有必需的React API
-  if (!safeReactExports.createContext) {
-    safeReactExports.createContext = function(defaultValue) {
-      return {
-        Provider: function(props) { return props.children; },
-        Consumer: function(props) { return props.children(defaultValue); }
-      };
-    };
-  }
-  
-  if (!safeReactExports.useLayoutEffect) {
-    safeReactExports.useLayoutEffect = function(effect, deps) {
-      if (typeof effect === 'function') {
-        try { effect(); } catch(e) {}
       }
-      return undefined;
-    };
-  }
-  
-  if (!safeReactExports.useEffect) {
-    safeReactExports.useEffect = function(effect, deps) {
-      if (typeof effect === 'function') {
-        try { effect(); } catch(e) {}
-      }
-      return undefined;
-    };
-  }
-  
-  if (!safeReactExports.useState) {
-    safeReactExports.useState = function(initialValue) {
-      return [initialValue, function() {}];
-    };
-  }
-  
-  if (!safeReactExports.useCallback) {
-    safeReactExports.useCallback = function(callback) {
-      return callback || function() {};
-    };
-  }
-  
-  if (!safeReactExports.useMemo) {
-    safeReactExports.useMemo = function(callback) {
-      try {
-        return callback ? callback() : undefined;
-      } catch(e) {
-        return undefined;
-      }
-    };
-  }
-  
-  if (!safeReactExports.useRef) {
-    safeReactExports.useRef = function(initialValue) {
-      return { current: initialValue };
-    };
-  }
-  
-  // 🔧 修复：安全地同步API到reactExports和React对象
-  ['createContext', 'useLayoutEffect', 'useEffect', 'useState', 'useCallback', 'useMemo', 'useRef'].forEach(function(api) {
-    // 同步到原始reactExports（如果存在）
-    if (typeof reactExports !== 'undefined' && reactExports && safeReactExports[api] && !reactExports[api]) {
-      reactExports[api] = safeReactExports[api];
-    }
-    // 同步到React对象
-    if (safeReactExports[api] && !React[api]) {
-      React[api] = safeReactExports[api];
-    }
-  });
-  
-} catch (e) {
-  console.warn('React API protection failed:', e);
-}
-`;
-                  chunk.code = reactProtection + chunk.code;
-                  
-                  // 修复reactExports所有API调用的保护，确保运行时安全
-                  
-                  // 🔧 强化：查找并修复所有直接访问undefined对象属性的模式
-                  // 这是造成"Cannot read properties of undefined (reading 'useLayoutEffect')"的根本原因
-                  
-                  // 1. 强化：修复所有可能导致"Cannot read properties of undefined"的模式
-                  // 针对报错的第79行，处理所有可能的undefined对象属性访问
-                  
-                  // 修复undefined.useLayoutEffect
-                  chunk.code = chunk.code.replace(
-                    /([a-zA-Z_$][a-zA-Z0-9_$]*)\.useLayoutEffect\(/g,
-                    '(typeof $1 !== "undefined" && $1 && typeof $1 === "object" && $1.useLayoutEffect ? $1.useLayoutEffect : function(){})('
-                  );
-                  
-                  // 🔧 修复：内联getAPIMock函数避免作用域问题
-                  function getAPIMock(api) {
-                    switch(api) {
-                      case 'createContext': return 'function(d){return{Provider:function(p){return p.children},Consumer:function(p){return p.children(d)}}}';
-                      case 'useLayoutEffect':
-                      case 'useEffect': return 'function(){}';
-                      case 'useState': return 'function(v){return[v,function(){}]}';
-                      case 'useCallback': return 'function(fn){return fn||function(){}}';
-                      case 'useMemo': return 'function(fn){try{return fn?fn():undefined}catch(e){return undefined}}';
-                      case 'useRef': return 'function(v){return{current:v}}';
-                      case 'forwardRef': return 'function(fn){return fn}';
-                      case 'memo': return 'function(comp){return comp}';
-                      default: return 'function(){}';
-                    }
-                  }
-                  
-                  // 修复undefined.xxx模式（通用保护）
-                  chunk.code = chunk.code.replace(
-                    /([a-zA-Z_$][a-zA-Z0-9_$]*)\.([a-zA-Z_$][a-zA-Z0-9_$]*)\(/g,
-                    (match, obj, prop) => {
-                      if (['useLayoutEffect', 'useEffect', 'useState', 'useCallback', 'useMemo', 'useRef', 'createContext'].includes(prop)) {
-                        return `(typeof ${obj} !== "undefined" && ${obj} && typeof ${obj} === "object" && ${obj}.${prop} ? ${obj}.${prop} : ${getAPIMock(prop)})(`;
-                      }
-                      return match;
-                    }
-                  );
-                  
-                  // 2. 增强：为animation-vendor添加终极React保护
-                  chunk.code = `
-// 🔧 Ultimate React protection for animation-vendor
-(function() {
-  try {
-    if (typeof window !== 'undefined') {
-      // 创建全局React API安全调用器
-      window.__safeReactCall = function(obj, method, args) {
-        try {
-          if (obj && typeof obj === 'object' && obj[method] && typeof obj[method] === 'function') {
-            return obj[method].apply(obj, args || []);
-          }
-        } catch(e) {
-          console.warn('React API call failed:', method, e);
-        }
-        
-        // 提供安全的fallback
-        switch(method) {
-          case 'useLayoutEffect':
-          case 'useEffect':
-            return undefined; // 这些Hook的返回值通常是undefined
-          case 'useState':
-            return [args && args[0], function(){}]; // 返回[state, setState]
-          case 'useCallback':
-            return (args && args[0]) || function(){}; // 返回回调函数
-          case 'useMemo':
-            return (args && args[0] && args[0]()) || undefined; // 执行并返回结果
-          case 'useRef':
-            return {current: (args && args[0]) || null}; // 返回ref对象
-          case 'createContext':
-            return {
-              Provider: function(props) { return props.children; },
-              Consumer: function(props) { return props.children(args && args[0]); }
-            };
-          default:
-            return function(){};
-        }
-      };
-      
-      // 强制替换所有undefined的React对象引用
-      window.__originalError = window.onerror;
-      window.onerror = function(msg, file, line, col, error) {
-        if (msg && msg.includes("Cannot read properties of undefined (reading 'use")) {
-          console.warn('🔧 Intercepted React undefined error at line', line);
-          return true; // 阻止错误传播
-        }
-        if (window.__originalError) {
-          return window.__originalError.apply(this, arguments);
-        }
-      };
-    }
-  } catch(e) {
-    console.warn('React ultimate protection failed:', e);
-  }
-})();
-
-${chunk.code}`;
-                  
-                  // 全面替换所有React API调用模式 - 简化版本
-                  const reactMethods = ['useLayoutEffect', 'useEffect', 'useState', 'useCallback', 'useMemo', 'useRef', 'createContext', 'forwardRef', 'memo'];
-                  reactMethods.forEach(method => {
-                    // 简单替换：直接包装为安全调用
-                    chunk.code = chunk.code.replace(
-                      new RegExp(`([a-zA-Z_$][a-zA-Z0-9_$]*)\\.${method}\\(`, 'g'),
-                      `(window.__safeReactCall ? window.__safeReactCall($1, "${method}") || function(){} : function{})(`
-                    );
-                  });
-                  
-                  // 额外保护：捕获所有.use开头的调用
-                  chunk.code = chunk.code.replace(
-                    /([a-zA-Z_$][a-zA-Z0-9_$]*)\.use([A-Z][a-zA-Z]*)\(/g,
-                    '(window.__safeReactCall ? window.__safeReactCall($1, "use$2") || function(){} : function{})('
-                  );
-                  
-                  // 3. 额外保护：针对特定行数（79行）周围的代码进行强化
-                  const lines = chunk.code.split('\n');
-                  if (lines.length > 79) {
-                    // 在第79行附近添加额外保护
-                    for (let i = Math.max(0, 76); i < Math.min(lines.length, 82); i++) {
-                      if (lines[i] && lines[i].includes('useLayoutEffect')) {
-                        console.log(`🔧 Found useLayoutEffect at line ${i + 1}: ${lines[i].substring(0, 100)}`);
-                        // 在这一行前添加保护代码
-                        lines[i] = `try{${lines[i]}}catch(e){console.warn('React API call failed at line ${i + 1}:', e);}`;
-                      }
-                    }
-                    chunk.code = lines.join('\n');
-                  }
-                  
-                  console.log('✅ Applied React createContext protection to animation-vendor');
-                }
-                
-                const isTDZFixed = fileName.includes('services') || fileName.includes('utils') || fileName.includes('components') || fileName.includes('animation-vendor');
-                console.log(`✅ Applied ${isTDZFixed ? 'TDZ+basic' : 'basic'} fixes to ${fileName}`);
-              }
-            });
-          }
-        }
-      ]
     },
-    // 🚀 优化块大小配置
-    chunkSizeWarningLimit: 1000, // 提高到1000kB，避免无意义警告
-    assetsInlineLimit: 4096, // 4KB以下的资源内联，减少HTTP请求
-    // 🔧 CommonJS 兼容性配置
+    chunkSizeWarningLimit: 1000,
+    assetsInlineLimit: 4096,
     commonjsOptions: {
       include: [/node_modules/],
       transformMixedEsModules: true,
@@ -590,19 +232,21 @@ ${chunk.code}`;
       ignoreDynamicRequires: true
     }
   },
-  // 🔧 优化依赖配置
+  // 🔧 根因修复：正确的依赖预构建配置
   optimizeDeps: {
     include: [
+      // 🔧 关键修复：确保React模块始终被正确预构建
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
       'react-router-dom',
       'axios',
       'crypto-js'
     ],
     exclude: [
-      // 🔧 在开发模式下允许React预构建，仅排除问题包
-      ...(command === 'build' ? ['react', 'react-dom', 'react/jsx-runtime'] : []),
-      // 🔧 Node.js模块排除 - 避免浏览器兼容性警告
+      // 🔧 仅排除Node.js模块和有问题的包
       'stream',
-      'readable-stream',
+      'readable-stream', 
       'events',
       'buffer',
       'util',
@@ -615,24 +259,25 @@ ${chunk.code}`;
       'http',
       'https',
       'zlib',
-      // 🔧 相关的polyfill包也排除
+      // polyfill包
       'stream-browserify',
-      'events-browserify',
+      'events-browserify', 
       'buffer-browserify',
       'util-browserify',
       'crypto-browserify',
-      // 🔧 [AUTHING_GUARD_FIX_v2025.08.15] 排除@authing/guard，避免预构建时的正则表达式错误
+      // 有问题的第三方包
       '@authing/guard'
     ],
     esbuildOptions: {
       define: {
         global: 'globalThis'
       },
-      target: 'esnext'
+      target: 'esnext',
+      // 🔧 关键修复：保持函数名避免React内部引用错误
+      keepNames: true,
+      minify: false
     },
-    // 增加超时时间和重试次数
-    force: false,
-    keepNames: true
+    force: false
   }
 }))
 
