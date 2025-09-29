@@ -347,16 +347,29 @@ export class ProductionKeyManager {
    * 验证所有密钥
    */
   public validateAllKeys(): void {
-    console.log('🔍 开始密钥安全验证...');
+    const isProduction = this.isProduction();
+    
+    // 🔧 开发环境静默验证，减少控制台噪音
+    if (isProduction) {
+      console.log('🔍 开始密钥安全验证...');
+    }
     
     const results: Record<string, KeyValidationResult> = {};
     let totalIssues = 0;
+    let criticalIssues = 0;
 
     Object.keys(PRODUCTION_KEY_CONFIGS).forEach(keyName => {
       try {
         const result = this.getValidatedKey(keyName as keyof typeof PRODUCTION_KEY_CONFIGS);
         results[keyName] = result;
-        totalIssues += result.issues.length;
+        
+        // 🔧 只计算严重问题（生产环境或回退密钥）
+        if (isProduction || result.source === 'fallback') {
+          totalIssues += result.issues.length;
+          if (result.source === 'fallback' || result.strength === 'weak') {
+            criticalIssues++;
+          }
+        }
       } catch (error) {
         console.error(`❌ 密钥验证失败: ${keyName}`, error);
         this.addSecurityAlert('critical', 'key_management', 
@@ -366,22 +379,31 @@ export class ProductionKeyManager {
 
     this.lastValidation = Date.now();
 
-    // 生成验证报告
-    if (totalIssues === 0) {
-      console.log('✅ 所有密钥验证通过');
+    // 🔧 生成验证报告 - 仅在生产环境或有严重问题时输出
+    if (isProduction || criticalIssues > 0) {
+      if (totalIssues === 0) {
+        console.log('✅ 所有密钥验证通过');
+      } else {
+        console.warn(`⚠️ 发现 ${totalIssues} 个密钥安全问题`);
+        this.addSecurityAlert('warning', 'security', 
+          `密钥安全验证发现问题`, { 
+            totalIssues, 
+            criticalIssues,
+            environment: isProduction ? 'production' : 'development',
+            results: Object.fromEntries(
+              Object.entries(results)
+                .filter(([k, v]) => isProduction || v.source === 'fallback')
+                .map(([k, v]) => [k, {
+                  source: v.source,
+                  strength: v.strength,
+                  issueCount: v.issues.length
+                }])
+            )
+          });
+      }
     } else {
-      console.warn(`⚠️ 发现 ${totalIssues} 个密钥安全问题`);
-      this.addSecurityAlert('warning', 'security', 
-        `密钥安全验证发现问题`, { 
-          totalIssues, 
-          results: Object.fromEntries(
-            Object.entries(results).map(([k, v]) => [k, {
-              source: v.source,
-              strength: v.strength,
-              issueCount: v.issues.length
-            }])
-          )
-        });
+      // 开发环境简化日志
+      console.log('🔐 密钥管理器已初始化（开发模式）');
     }
   }
 

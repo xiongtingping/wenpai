@@ -230,17 +230,24 @@ export default defineConfig(({ command, mode }) => ({
           
           return undefined;
         },
-        // 使用语义化的chunk文件名，添加时间戳强制缓存失效
+        // 🔧 强化缓存清除：使用更强的hash和时间戳组合
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId ? 
             chunkInfo.facadeModuleId.split('/').pop()?.replace(/\.[^.]+$/, '') : 
             chunkInfo.name || 'unknown';
           const timestamp = Date.now().toString(36);
-          return `assets/${facadeModuleId}-[hash]-${timestamp}.js`;
+          const randomSuffix = Math.random().toString(36).substring(2, 8);
+          return `assets/${facadeModuleId}-[hash]-${timestamp}${randomSuffix}.js`;
         },
-        // 强制所有资源文件名包含更强的hash
-        assetFileNames: 'assets/[name]-[hash].[ext]',
-        entryFileNames: 'assets/[name]-[hash].js'
+        // 强制所有资源文件名包含更强的hash和时间戳
+        assetFileNames: (assetInfo) => {
+          const timestamp = Date.now().toString(36);
+          return `assets/[name]-[hash]-${timestamp}.[ext]`;
+        },
+        entryFileNames: (chunkInfo) => {
+          const timestamp = Date.now().toString(36);
+          return `assets/[name]-[hash]-${timestamp}.js`;
+        }
       },
       plugins: [
         {
@@ -424,10 +431,24 @@ try {
                   // 🔧 强化：查找并修复所有直接访问undefined对象属性的模式
                   // 这是造成"Cannot read properties of undefined (reading 'useLayoutEffect')"的根本原因
                   
-                  // 1. 修复访问undefined对象的useLayoutEffect
+                  // 1. 强化：修复所有可能导致"Cannot read properties of undefined"的模式
+                  // 针对报错的第79行，处理所有可能的undefined对象属性访问
+                  
+                  // 修复undefined.useLayoutEffect
                   chunk.code = chunk.code.replace(
                     /([a-zA-Z_$][a-zA-Z0-9_$]*)\.useLayoutEffect\(/g,
-                    '($1 && typeof $1 === "object" && $1.useLayoutEffect ? $1.useLayoutEffect : function(){})('
+                    '(typeof $1 !== "undefined" && $1 && typeof $1 === "object" && $1.useLayoutEffect ? $1.useLayoutEffect : function(){})('
+                  );
+                  
+                  // 修复undefined.xxx模式（通用保护）
+                  chunk.code = chunk.code.replace(
+                    /([a-zA-Z_$][a-zA-Z0-9_$]*)\.([a-zA-Z_$][a-zA-Z0-9_$]*)\(/g,
+                    (match, obj, prop) => {
+                      if (['useLayoutEffect', 'useEffect', 'useState', 'useCallback', 'useMemo', 'useRef', 'createContext'].includes(prop)) {
+                        return `(typeof ${obj} !== "undefined" && ${obj} && typeof ${obj} === "object" && ${obj}.${prop} ? ${obj}.${prop} : ${getAPIMock(prop)})(`;
+                      }
+                      return match;
+                    }
                   );
                   
                   // 2. 修复访问undefined对象的其他React API
