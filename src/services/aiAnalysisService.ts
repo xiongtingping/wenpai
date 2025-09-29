@@ -10,71 +10,40 @@ import * as XLSX from 'xlsx';
 import Tesseract from 'tesseract.js';
 import { logger } from '@/utils/logger';
 
-// PDF.js 动态加载和配置 - 完全避免TDZ错误
+// PDF.js 懒加载机制 - 避免所有TDZ和预加载问题
 let pdfLibInstance: any = null;
 let pdfWorkerConfigured = false;
-let isConfiguring = false;
 
+// 懒加载PDF.js - 仅在实际需要时才加载
 const getPDFLib = async (): Promise<any> => {
   if (pdfLibInstance) return pdfLibInstance;
   
+  // 检查运行环境，确保在浏览器环境中
+  if (typeof window === 'undefined') {
+    throw new Error('PDF.js仅支持浏览器环境');
+  }
+  
   try {
-    // 动态导入PDF.js，避免静态导入的TDZ问题
-    const pdfjsLib = await import('pdfjs-dist');
+    // 延迟确保Vite完全加载后再执行动态导入
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // 使用更安全的动态导入方式
+    const pdfjsLib = await import(/* webpackChunkName: "pdfjs" */ 'pdfjs-dist');
+    
+    // 立即配置worker，避免后续调用时的延迟
+    if (pdfjsLib?.GlobalWorkerOptions && !pdfWorkerConfigured) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.js';
+      pdfWorkerConfigured = true;
+      console.log('✅ PDF.js加载并配置成功');
+    }
+    
     pdfLibInstance = pdfjsLib;
     return pdfjsLib;
   } catch (error) {
-    console.error('PDF.js模块加载失败:', error);
-    throw new Error('PDF解析功能暂时不可用');
+    console.error('PDF.js懒加载失败:', error);
+    throw new Error('PDF解析功能不可用');
   }
 };
-
-const configurePDFWorker = async (): Promise<void> => {
-  if (pdfWorkerConfigured || isConfiguring) return;
-  
-  isConfiguring = true;
-  
-  try {
-    const pdfjsLib = await getPDFLib();
-    
-    if (pdfjsLib?.GlobalWorkerOptions) {
-      // 使用本地托管的worker文件，避免CORS问题
-      pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.js';
-      pdfWorkerConfigured = true;
-      console.log('✅ PDF.js worker配置成功');
-    } else {
-      throw new Error('PDF.js GlobalWorkerOptions不可用');
-    }
-  } catch (error) {
-    console.warn('PDF.js worker配置失败:', error);
-    
-    // 智能重试机制：最多重试3次
-    if (typeof window !== 'undefined') {
-      const retryCount = (window as any).__pdfWorkerRetryCount || 0;
-      if (retryCount < 3) {
-        (window as any).__pdfWorkerRetryCount = retryCount + 1;
-        setTimeout(() => {
-          isConfiguring = false;
-          configurePDFWorker();
-        }, 1000 * (retryCount + 1)); // 递增延迟
-      } else {
-        console.error('PDF.js worker配置失败，已达到最大重试次数');
-      }
-    }
-  } finally {
-    isConfiguring = false;
-  }
-};
-
-// 仅在浏览器环境中初始化
-if (typeof window !== 'undefined') {
-  // 延迟初始化，确保应用完全加载
-  setTimeout(() => {
-    configurePDFWorker().catch(error => {
-      console.error('PDF worker初始化失败:', error);
-    });
-  }, 1000);
-}
 
   /**
    * AI 分析服务
@@ -400,11 +369,8 @@ ${content}
             try {
               const typedArray = new Uint8Array(e.target?.result as ArrayBuffer);
               
-              // 动态获取PDF.js实例
+              // 懒加载PDF.js实例（包含自动worker配置）
               const pdfjsLib = await getPDFLib();
-              
-              // 确保worker已配置
-              await configurePDFWorker();
               
               // 使用更稳定的PDF解析配置
               const pdf = await pdfjsLib.getDocument({ 
