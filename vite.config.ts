@@ -145,38 +145,15 @@ export default defineConfig(({ command, mode }) => ({
     assetsDir: 'assets',
     sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
-    // 🔧 CRITICAL TDZ FIX: 彻底禁用变量名压缩防止TDZ错误
-    minify: 'esbuild',
-    esbuild: {
-      // 🚨 CRITICAL: 完全禁用标识符压缩防止TDZ
-      keepNames: true,
-      minifyIdentifiers: false,
-      // 🔧 关键修复: 保持所有变量名不被压缩
-      reserveProps: /.*/,  // 保留所有属性名
-      mangleProps: false,  // 禁用属性名压缩
-      // 🚀 仅保留安全的压缩选项
-      minifySyntax: true,
-      minifyWhitespace: true,
-      // 🔧 法律注释优化
-      legalComments: 'none',
-      target: 'es2020',
-      format: 'esm',
-      treeShaking: true,
-      // 🚀 生产环境优化 - 减少但保持安全
-      drop: ['debugger'], // 仅移除debugger，保留console用于错误诊断
-      define: {
-        'process.env.NODE_ENV': '"production"',
-        '__DEV__': 'false'
-      }
-    },
-    // 🚀 CSS压缩优化
-    cssMinify: 'esbuild',
+    // 🔧 ULTIMATE TDZ FIX: 完全禁用所有压缩防止TDZ错误
+    minify: false,
+    // 🔧 ULTIMATE TDZ FIX: 完全禁用ESBuild优化
+    esbuild: false,
+    // 🔧 ULTIMATE TDZ FIX: 禁用CSS压缩避免副作用
+    cssMinify: false,
     rollupOptions: {
-      // 🔧 CRITICAL TDZ FIX: 禁用Rollup层面的变量名压缩
-      treeshake: {
-        preset: 'smallest',
-        manualPureFunctions: ['console.log', 'console.warn']
-      },
+      // 🔧 ULTIMATE TDZ FIX: 禁用TreeShaking避免意外的代码重组
+      treeshake: false,
       output: {
         // 🚨 CRITICAL: 禁用所有变量名压缩防止TDZ
         compact: false,
