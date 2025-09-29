@@ -239,13 +239,17 @@ export default defineConfig(({ command, mode }) => ({
           
           return undefined;
         },
-        // 使用语义化的chunk文件名
+        // 使用语义化的chunk文件名，添加时间戳强制缓存失效
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId ? 
             chunkInfo.facadeModuleId.split('/').pop()?.replace(/\.[^.]+$/, '') : 
             chunkInfo.name || 'unknown';
-          return `assets/${facadeModuleId}-[hash].js`;
-        }
+          const timestamp = Date.now().toString(36);
+          return `assets/${facadeModuleId}-[hash]-${timestamp}.js`;
+        },
+        // 强制所有资源文件名包含更强的hash
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        entryFileNames: 'assets/[name]-[hash].js'
       },
       plugins: [
         {
