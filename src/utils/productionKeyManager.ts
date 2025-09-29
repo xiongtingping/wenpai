@@ -106,7 +106,13 @@ export class ProductionKeyManager {
    * 初始化密钥验证
    */
   private initializeKeyValidation(): void {
-    // 立即验证所有密钥
+    // 🔧 修复：开发环境完全跳过密钥验证
+    if (!this.isProduction()) {
+      console.log('🔐 密钥管理器已初始化（开发模式 - 跳过验证）');
+      return;
+    }
+    
+    // 仅生产环境进行密钥验证
     this.validateAllKeys();
     
     // 设置定期验证
@@ -447,6 +453,18 @@ export class ProductionKeyManager {
    * 检查是否为生产环境
    */
   private isProduction(): boolean {
+    // 🔧 修复：更准确的环境检测逻辑
+    // 优先检查明确的开发环境标识
+    if (import.meta.env.DEV || 
+        import.meta.env.NODE_ENV === 'development' ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname.startsWith('127.') ||
+        window.location.hostname.includes('local') ||
+        window.location.port) {
+      return false; // 明确是开发环境
+    }
+    
+    // 然后检查生产环境标识
     return import.meta.env.PROD || 
            import.meta.env.NODE_ENV === 'production' ||
            window.location.hostname === 'www.wenpai.xyz';

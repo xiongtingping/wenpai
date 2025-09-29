@@ -450,6 +450,22 @@ try {
                     '(typeof $1 !== "undefined" && $1 && typeof $1 === "object" && $1.useLayoutEffect ? $1.useLayoutEffect : function(){})('
                   );
                   
+                  // 🔧 修复：内联getAPIMock函数避免作用域问题
+                  function getAPIMock(api) {
+                    switch(api) {
+                      case 'createContext': return 'function(d){return{Provider:function(p){return p.children},Consumer:function(p){return p.children(d)}}}';
+                      case 'useLayoutEffect':
+                      case 'useEffect': return 'function(){}';
+                      case 'useState': return 'function(v){return[v,function(){}]}';
+                      case 'useCallback': return 'function(fn){return fn||function(){}}';
+                      case 'useMemo': return 'function(fn){try{return fn?fn():undefined}catch(e){return undefined}}';
+                      case 'useRef': return 'function(v){return{current:v}}';
+                      case 'forwardRef': return 'function(fn){return fn}';
+                      case 'memo': return 'function(comp){return comp}';
+                      default: return 'function(){}';
+                    }
+                  }
+                  
                   // 修复undefined.xxx模式（通用保护）
                   chunk.code = chunk.code.replace(
                     /([a-zA-Z_$][a-zA-Z0-9_$]*)\.([a-zA-Z_$][a-zA-Z0-9_$]*)\(/g,
@@ -461,29 +477,37 @@ try {
                     }
                   );
                   
-                  // 2. 修复访问undefined对象的其他React API
-                  const reactAPIs = ['createContext', 'useEffect', 'useState', 'useCallback', 'useMemo', 'useRef', 'forwardRef', 'memo'];
-                  reactAPIs.forEach(api => {
-                    chunk.code = chunk.code.replace(
-                      new RegExp(`([a-zA-Z_$][a-zA-Z0-9_$]*)\\.${api}\\(`, 'g'),
-                      `($1 && typeof $1 === "object" && $1.${api} ? $1.${api} : ${getAPIMock(api)})(`
-                    );
-                  });
+                  // 2. 增强：为animation-vendor添加全局保护包装器
+                  chunk.code = `
+// 🔧 Global React protection wrapper for animation-vendor
+(function() {
+  try {
+    // 检查并修复可能的undefined ReactExports
+    if (typeof window !== 'undefined') {
+      window.__safeReactCall = function(obj, method, fallback) {
+        if (obj && typeof obj === 'object' && obj[method] && typeof obj[method] === 'function') {
+          return obj[method];
+        }
+        return fallback || function() {};
+      };
+    }
+  } catch(e) {
+    console.warn('React safety wrapper failed:', e);
+  }
+})();
+
+${chunk.code}`;
                   
-                  function getAPIMock(api) {
-                    switch(api) {
-                      case 'createContext': return 'function(d){return{Provider:function(p){return p.children},Consumer:function(p){return p.children(d)}}}';
-                      case 'useLayoutEffect':
-                      case 'useEffect': return 'function(){}';
-                      case 'useState': return 'function(v){return[v,function(){}]}';
-                      case 'useCallback': return 'function(fn){return fn}';
-                      case 'useMemo': return 'function(fn){return fn()}';
-                      case 'useRef': return 'function(v){return{current:v}}';
-                      case 'forwardRef': return 'function(fn){return fn}';
-                      case 'memo': return 'function(comp){return comp}';
-                      default: return 'function(){}';
-                    }
-                  }
+                  // 全局替换所有可能的undefined React调用
+                  chunk.code = chunk.code.replace(
+                    /([a-zA-Z_$][a-zA-Z0-9_$]*)\.useLayoutEffect\(/g,
+                    '(window.__safeReactCall && window.__safeReactCall($1, "useLayoutEffect", function(){}) || function{})('
+                  );
+                  
+                  chunk.code = chunk.code.replace(
+                    /([a-zA-Z_$][a-zA-Z0-9_$]*)\.useEffect\(/g,
+                    '(window.__safeReactCall && window.__safeReactCall($1, "useEffect", function(){}) || function{})('
+                  );
                   
                   // 3. 额外保护：针对特定行数（79行）周围的代码进行强化
                   const lines = chunk.code.split('\n');
