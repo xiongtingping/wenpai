@@ -167,10 +167,8 @@ export default defineConfig(({ command, mode }) => ({
         // 🔧 ROOT CAUSE FIX: 强制模块加载优先级控制
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // 🔧 ULTIMATE FIX: React核心库绝对优先级
-            if (id.includes('react') && !id.includes('react-router') && !id.includes('react-i18next')) {
-              return 'aaaa-react-core'; // 用更多'a'前缀确保绝对优先
-            }
+            // 🔧 CRITICAL: React模块已externalized，不应该在这里处理
+            // React相关模块通过CDN加载，跳过chunks分组
             
             // React生态系统库 - 依赖React核心库
             if (id.includes('react-router') || id.includes('react-i18next') || id.includes('react-hook-form')) {
