@@ -146,27 +146,27 @@ export default defineConfig(({ command, mode }) => ({
     target: 'esnext',
     rollupOptions: {
       output: {
-        // 优化的代码分割策略
+        // 优化的代码分割策略，确保React优先级
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // React核心库 - 最高优先级，确保首先加载
+            // 🔧 CRITICAL: React核心库必须最高优先级，使用'0-'前缀确保首先加载
             if (id.includes('react/jsx-runtime') || id.includes('react-dom/client') || id.includes('react-dom') || id.includes('react')) {
-              return 'react-core-vendor';
+              return '0-react-core-vendor';
             }
             
             // React生态系统库 - 依赖React核心库
             if (id.includes('react-router') || id.includes('react-i18next') || id.includes('react-hook-form')) {
-              return 'react-ecosystem-vendor';
+              return '1-react-ecosystem-vendor';
             }
             
             // UI组件库 - 依赖React
             if (id.includes('@radix-ui') || id.includes('lucide-react')) {
-              return 'ui-vendor';
+              return '2-ui-vendor';
             }
             
-            // 动画和图表库 - 强制依赖React核心库
+            // 动画和图表库 - 强制依赖React核心库，延后加载
             if (id.includes('framer-motion') || id.includes('recharts') || id.includes('chart')) {
-              return 'animation-vendor';
+              return '8-animation-vendor';
             }
             
             // 编辑器相关

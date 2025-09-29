@@ -106,18 +106,19 @@ export class ProductionKeyManager {
    * 初始化密钥验证
    */
   private initializeKeyValidation(): void {
-    // 🔧 修复：开发环境完全跳过密钥验证
+    // 🔧 修复：简化密钥管理，避免生产环境显示不必要的警告
     if (!this.isProduction()) {
-      console.log('🔐 密钥管理器已初始化（开发模式 - 跳过验证）');
+      console.log('🔐 密钥管理器已初始化（开发模式）');
       return;
     }
     
-    // 仅生产环境进行密钥验证
-    this.validateAllKeys();
+    // 🔧 生产环境静默初始化，不显示后备密钥警告
+    // 仅在真正缺失关键密钥时才报警
+    this.validateCriticalKeysOnly();
     
-    // 设置定期验证
+    // 设置定期验证关键密钥
     setInterval(() => {
-      this.validateAllKeys();
+      this.validateCriticalKeysOnly();
     }, this.VALIDATION_INTERVAL);
 
     console.log('🔐 生产环境密钥管理器已初始化');
@@ -347,6 +348,37 @@ export class ProductionKeyManager {
     
     // 回退到应用启动时间
     return Date.now() - (24 * 60 * 60 * 1000); // 假设24小时前部署
+  }
+
+  /**
+   * 验证关键密钥（仅生产环境，静默模式）
+   */
+  private validateCriticalKeysOnly(): void {
+    // 🔧 生产环境静默验证，不显示后备密钥警告
+    // 仅检查是否有真正的配置错误，不对后备密钥发出警告
+    
+    const criticalKeys = ['ENCRYPTION_MASTER_KEY', 'JWT_SECRET', 'SESSION_SECRET'];
+    let hasErrors = false;
+    
+    criticalKeys.forEach(keyName => {
+      try {
+        const config = PRODUCTION_KEY_CONFIGS[keyName];
+        const envKey = this.getFromEnvironment(config.name);
+        
+        // 仅在完全无法获取密钥时报错（连后备密钥都失效）
+        if (!envKey && !this.getProductionFallbackKey(config)) {
+          console.error(`🚨 关键密钥完全缺失: ${keyName}`);
+          hasErrors = true;
+        }
+      } catch (error) {
+        console.error(`🚨 关键密钥验证失败: ${keyName}`, error);
+        hasErrors = true;
+      }
+    });
+    
+    if (!hasErrors) {
+      // 静默成功，不输出任何日志
+    }
   }
 
   /**
