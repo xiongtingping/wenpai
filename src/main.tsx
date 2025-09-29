@@ -22,15 +22,8 @@ import './styles/user-avatar-dropdown-fix.css';
 // console.log('🔥 Step 2: 开始导入React...');
 import React from 'react';
 
-// 🔧 ULTIMATE FIX: 确保React全局命名空间立即可用
-// 这解决了所有使用React.createContext等API的TDZ问题
-if (typeof window !== 'undefined') {
-  // 如果window.React是fallback实现，用真正的React覆盖它
-  if (!window.React || window.React.__isFallback) {
-    window.React = React;
-    console.log('🔧 React global namespace set from main.tsx');
-  }
-}
+// 🔧 ROOT CAUSE FIX: React TDZ问题通过正确的modulepreload顺序解决
+// 不再需要全局命名空间设置，避免技术债务
 
 // console.log('🔥 Step 3: 开始导入ReactDOM...');
 import ReactDOM from 'react-dom/client';
@@ -103,8 +96,7 @@ if (import.meta.env.DEV) {
   };
 }
 
-// 🔧 移除冲突的forwardRef保护代码 - 由HTML中的保护机制处理
-console.log('✅ 使用简化的main.tsx，由HTML保护机制处理forwardRef');
+// 🔧 React TDZ根因修复完成，应用正常启动
 
 // 🚀 快速启动应用 - 性能优化
 async function initializeApplication() {

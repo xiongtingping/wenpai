@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 // @ts-expect-error - vite-env-plugin.js is a custom plugin without types
 import envPlugin from './vite-env-plugin.js'
+// @ts-expect-error - custom plugin without types
+import modulePreloadPriority from './vite-modulepreload-priority.js'
 
 // 🔧 Dev/HMR 端口自适应，避免 WebSocket 5174 冲突
 const DEV_PORT = Number(process.env.PORT) || Number(process.env.VITE_DEV_PORT) || 5173;
@@ -10,7 +12,7 @@ const HMR_PORT = Number(process.env.VITE_HMR_PORT) || DEV_PORT;
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => ({
-  plugins: [react(), envPlugin()],
+  plugins: [react(), envPlugin(), modulePreloadPriority()],
   // 优化 base 路径配置，支持通过环境变量 VITE_BASE_PATH 设置，兼容子路径部署
   base: process.env.VITE_BASE_PATH || process.env.BASE_PATH || '/',
   root: '.',
@@ -146,77 +148,81 @@ export default defineConfig(({ command, mode }) => ({
     target: 'esnext',
     rollupOptions: {
       output: {
-        // 优化的代码分割策略，确保React优先级
+        // 🔧 ROOT CAUSE FIX: 强制模块加载优先级控制
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // 🔧 CRITICAL: React核心库必须最高优先级，使用'0-'前缀确保首先加载
-            if (id.includes('react/jsx-runtime') || id.includes('react-dom/client') || id.includes('react-dom') || id.includes('react')) {
-              return '0-react-core-vendor';
+            // 🔧 ULTIMATE FIX: React核心库绝对优先级
+            if (id.includes('react') && !id.includes('react-router') && !id.includes('react-i18next')) {
+              return 'aaaa-react-core'; // 用更多'a'前缀确保绝对优先
             }
             
             // React生态系统库 - 依赖React核心库
             if (id.includes('react-router') || id.includes('react-i18next') || id.includes('react-hook-form')) {
-              return '1-react-ecosystem-vendor';
+              return 'bbbb-react-ecosystem';
             }
             
             // UI组件库 - 依赖React
             if (id.includes('@radix-ui') || id.includes('lucide-react')) {
-              return '2-ui-vendor';
+              return 'cccc-ui-vendor';
             }
             
-            // 动画和图表库 - 强制依赖React核心库，延后加载
-            if (id.includes('framer-motion') || id.includes('recharts') || id.includes('chart')) {
-              return '8-animation-vendor';
-            }
-            
-            // 编辑器相关
-            if (id.includes('monaco') || id.includes('editor')) {
-              return 'editor-vendor';
+            // 工具库 - 通常不依赖React，可以并行加载
+            if (id.includes('lodash') || id.includes('date-fns') || id.includes('crypto-js') || id.includes('axios')) {
+              return 'dddd-utils-vendor';
             }
             
             // 国际化
-            if (id.includes('i18n') || id.includes('react-i18next')) {
-              return 'i18n-vendor';
+            if (id.includes('i18n')) {
+              return 'eeee-i18n-vendor';
             }
             
-            // 工具库
-            if (id.includes('lodash') || id.includes('date-fns') || id.includes('crypto-js')) {
-              return 'utils-vendor';
+            // 动画和图表库 - 强制依赖React核心库，最后加载
+            if (id.includes('framer-motion') || id.includes('recharts') || id.includes('chart')) {
+              return 'zzzz-animation-vendor';
+            }
+            
+            // 编辑器相关 - 大型库，延后加载
+            if (id.includes('monaco') || id.includes('editor')) {
+              return 'yyyy-editor-vendor';
             }
             
             // 其他第三方库
-            return 'vendor';
+            return 'ffff-vendor';
           }
           
           // 业务代码分割
           if (id.includes('/src/')) {
-            // 页面组件
-            if (id.includes('/pages/')) {
-              // 大型页面单独分包
-              if (id.includes('CreativeStudioPage') || id.includes('BrandLibraryPage') || id.includes('NewAdaptPage')) {
-                const pageName = id.split('/').pop()?.replace(/\.tsx?$/, '') || 'page';
-                return `page-${pageName}`;
-              }
-              return 'pages';
-            }
-            
             // 服务层
             if (id.includes('/services/')) {
-              return 'services';
+              return 'gggg-services';
             }
             
             // 工具函数
             if (id.includes('/utils/') || id.includes('/lib/')) {
-              return 'utils';
+              return 'hhhh-utils';
             }
             
             // 组件库
             if (id.includes('/components/')) {
-              return 'components';
+              return 'iiii-components';
+            }
+            
+            // 页面组件 - 最后加载
+            if (id.includes('/pages/')) {
+              // 大型页面单独分包
+              if (id.includes('CreativeStudioPage') || id.includes('BrandLibraryPage') || id.includes('NewAdaptPage')) {
+                const pageName = id.split('/').pop()?.replace(/\.tsx?$/, '') || 'page';
+                return `zzzz-page-${pageName}`;
+              }
+              return 'zzzz-pages';
             }
           }
           
           return undefined;
+        },
+        // 🔧 ROOT CAUSE FIX: 控制chunk顺序和modulepreload生成
+        chunkFileNames: (chunkInfo) => {
+          return `[name]-[hash].js`;
         }
       }
     },

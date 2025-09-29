@@ -9,75 +9,18 @@
     <meta http-equiv="Expires" content="0" />
     <meta http-equiv="Last-Modified" content="Thu, 29 Sep 2025 12:00:00 GMT" />
     <meta http-equiv="If-Modified-Since" content="Thu, 29 Sep 2025 12:00:00 GMT" />
-    <meta name="cache-bust" content="v20250929-final-fix" />
+    <meta name="cache-bust" content="v20250929-ultimate-fix" />
     <title>WenPai AI - Intelligent Content Creation Platform</title>
     <link rel="icon" type="image/svg+xml" href="/ikigai_4circles_multiply.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
-    <!-- 🔧 强制浏览器刷新脚本 -->
     <script>
-      // 🔧 ULTIMATE FIX: React全局命名空间预初始化
-      // 解决React.createContext等API在模块加载期间undefined的问题
-      (function() {
-        // 创建安全的React全局命名空间，防止TDZ错误
-        if (typeof window !== 'undefined' && !window.React) {
-          window.React = {
-            createContext: function(defaultValue) {
-              console.warn('🔧 Using fallback React.createContext');
-              return {
-                Provider: function(props) { return props.children || null; },
-                Consumer: function(props) { return props.children ? props.children(defaultValue) : null; }
-              };
-            },
-            useContext: function(context) {
-              console.warn('🔧 Using fallback React.useContext');
-              return context._currentValue || null;
-            },
-            useState: function(initialState) {
-              console.warn('🔧 Using fallback React.useState');
-              return [initialState, function() {}];
-            },
-            useEffect: function() {
-              console.warn('🔧 Using fallback React.useEffect');
-            },
-            useLayoutEffect: function() {
-              console.warn('🔧 Using fallback React.useLayoutEffect');
-            },
-            useCallback: function(fn) {
-              console.warn('🔧 Using fallback React.useCallback');
-              return fn || function() {};
-            },
-            useMemo: function(fn) {
-              console.warn('🔧 Using fallback React.useMemo');
-              return fn ? fn() : undefined;
-            },
-            useRef: function(initialValue) {
-              console.warn('🔧 Using fallback React.useRef');
-              return { current: initialValue };
-            },
-            forwardRef: function(Component) {
-              console.warn('🔧 Using fallback React.forwardRef');
-              return Component;
-            },
-            memo: function(Component) {
-              console.warn('🔧 Using fallback React.memo');
-              return Component;
-            },
-            lazy: function(fn) {
-              console.warn('🔧 Using fallback React.lazy');
-              return fn;
-            }
-          };
-          
-          // 标记为临时实现，等真正的React加载后会被覆盖
-          window.React.__isFallback = true;
-          console.log('🔧 React fallback namespace initialized');
-        }
-      })();
+      // 🔧 ROOT CAUSE FIX: React TDZ问题通过正确的modulepreload顺序解决
+      // 不再需要fallback代码，避免技术债务
       
       // 检测是否是旧版本缓存，强制刷新
       (function() {
-        const CURRENT_VERSION = 'v20250929-final-fix';
+        const CURRENT_VERSION = 'v20250929-ultimate-fix';
         const stored = localStorage.getItem('app-version');
         if (stored !== CURRENT_VERSION) {
           localStorage.setItem('app-version', CURRENT_VERSION);
