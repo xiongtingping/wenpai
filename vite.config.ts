@@ -271,19 +271,55 @@ export default defineConfig(({ command, mode }) => ({
                 
                 // 🔧 针对services文件的TDZ修复
                 if (fileName.includes('services')) {
-                  console.log(`🔧 Applying TDZ fixes to ${fileName}`);
+                  console.log(`🔧 Applying comprehensive TDZ fixes to ${fileName}`);
                   
-                  // 修复运行时的TDZ错误 - 在可能有问题的地方添加try-catch保护
+                  // 查找并修复位置13862附近的TDZ问题
+                  const lines = chunk.code.split('\n');
+                  console.log(`📍 Services file has ${lines.length} lines, ${chunk.code.length} characters`);
+                  
+                  // 1. 修复最常见的TDZ模式 - 变量在使用前被赋值为自己
                   chunk.code = chunk.code.replace(
-                    /(Cannot access '([^']+)' before initialization)/g,
-                    'Variable $2 is not yet initialized'
+                    /(\w+)\s*=\s*\1(?=[;\s,\}])/g, 
+                    (match, varName) => {
+                      console.log(`🔧 Found TDZ pattern: ${match}`);
+                      return `${varName} = (typeof ${varName} !== "undefined" ? ${varName} : undefined)`;
+                    }
                   );
                   
-                  // 修复压缩后的变量引用错误 - 在文件开头添加保护性声明
-                  // 但要避免与import冲突
-                  if (!chunk.code.includes('window._TDZ_GUARD')) {
-                    const guardCode = `(function(){try{window._TDZ_GUARD=true;}catch(e){}})();`;
-                    chunk.code = guardCode + chunk.code;
+                  // 1.5. 专门针对 at 变量的TDZ修复
+                  chunk.code = chunk.code.replace(
+                    /\bat\s*=\s*at(?=[;\s,\}])/g,
+                    (match) => {
+                      console.log(`🔧 Found specific 'at' TDZ pattern: ${match}`);
+                      return 'at = (typeof at !== "undefined" ? at : undefined)';
+                    }
+                  );
+                  
+                  // 2. 修复import别名后立即使用的情况
+                  chunk.code = chunk.code.replace(
+                    /import\{([^}]*\bas\s+at[^}]*)\}(.+?)(\bat\s*[=:])/g,
+                    (match, imports, middle, usage) => {
+                      console.log(`🔧 Found import alias issue: ${match.substring(0, 100)}...`);
+                      return match.replace(usage, `(typeof at !== "undefined" ? at : undefined)`);
+                    }
+                  );
+                  
+                  // 3. 在特定位置附近添加保护
+                  if (chunk.code.length > 13000) {
+                    const position = 13862;
+                    const start = Math.max(0, position - 100);
+                    const end = Math.min(chunk.code.length, position + 100);
+                    const problemArea = chunk.code.substring(start, end);
+                    console.log(`🔍 Problem area around position ${position}: "${problemArea}"`);
+                    
+                    // 如果发现at=at模式，就修复它
+                    if (problemArea.includes('at=at') || problemArea.includes('at =at') || problemArea.includes('at= at')) {
+                      chunk.code = chunk.code.replace(
+                        /(\bat\s*=\s*at)(?=[;\s,\}])/g,
+                        'at = (typeof at !== "undefined" ? at : undefined)'
+                      );
+                      console.log('🔧 Fixed at=at pattern at position', position);
+                    }
                   }
                 }
                 
