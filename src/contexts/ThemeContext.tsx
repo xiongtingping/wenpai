@@ -9,9 +9,30 @@
  */
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { globalDataManager } from '@/services/unifiedDataManager';
-import { userSettingsService } from '@/services/userSettingsService';
+import type { UnifiedDataManager } from '@/services/unifiedDataManager';
 import { useAuth } from '@/hooks/useAuth';
+
+type GlobalDataManagerInstance = UnifiedDataManager;
+type UserSettingsServiceInstance = typeof import('@/services/userSettingsService')['userSettingsService'];
+
+let globalDataManagerInstance: GlobalDataManagerInstance | null = null;
+let userSettingsServiceInstance: UserSettingsServiceInstance | null = null;
+
+async function getGlobalDataManager(): Promise<GlobalDataManagerInstance> {
+  if (!globalDataManagerInstance) {
+    const module = await import('@/services/unifiedDataManager');
+    globalDataManagerInstance = module.globalDataManager;
+  }
+  return globalDataManagerInstance;
+}
+
+async function getUserSettingsService(): Promise<UserSettingsServiceInstance> {
+  if (!userSettingsServiceInstance) {
+    const module = await import('@/services/userSettingsService');
+    userSettingsServiceInstance = module.userSettingsService;
+  }
+  return userSettingsServiceInstance;
+}
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -37,6 +58,7 @@ function getSystemTheme(): 'light' | 'dark' {
 async function getSavedTheme(): Promise<Theme> {
   if (typeof window === 'undefined') return 'system';
   try {
+    const userSettingsService = await getUserSettingsService();
     // 优先从用户设置服务获取
     const mode = await userSettingsService.getThemeMode();
     if (mode && ['light', 'dark', 'system'].includes(mode)) {
@@ -44,6 +66,7 @@ async function getSavedTheme(): Promise<Theme> {
     }
 
     // 兜底1：从统一数据管理器获取
+    const globalDataManager = await getGlobalDataManager();
     const saved = await globalDataManager.getData<Theme>('theme');
     if (saved && ['light', 'dark', 'system'].includes(saved)) {
       return saved;
@@ -63,10 +86,12 @@ async function getSavedTheme(): Promise<Theme> {
 async function saveTheme(theme: Theme): Promise<void> {
   if (typeof window === 'undefined') return;
   try {
+    const userSettingsService = await getUserSettingsService();
     // 优先保存到用户设置服务（会自动处理云端同步）
     await userSettingsService.saveThemeMode(theme);
 
     // 同时保存到统一数据管理器以保持兼容性
+    const globalDataManager = await getGlobalDataManager();
     await globalDataManager.setData('theme', theme);
   } catch (error) {
     console.warn('保存主题设置失败:', error);
@@ -105,10 +130,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
   const { user } = useAuth();
 
+  useEffect(() => {
+    void getUserSettingsService();
+    void getGlobalDataManager();
+  }, []);
+
   // 初始化主题和响应用户变化
   useEffect(() => {
     const initTheme = async () => {
       try {
+        const userSettingsService = await getUserSettingsService();
         // 如果用户已登录，初始化用户设置服务
         if (user?.id) {
           userSettingsService.setUserId(user.id);

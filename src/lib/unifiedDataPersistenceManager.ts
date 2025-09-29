@@ -9,8 +9,43 @@
  * 4. 数据备份和恢复机制
  */
 
-import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
+import { TABLE_NAMES } from '@/config/supabaseTables';
+import type { QueryResult, QueryOptions } from '@/services/supabaseDataService';
 import { logger } from '@/utils/logger';
+
+// 云端数据服务接口（依赖注入，避免循环依赖）
+export interface CloudDataService {
+  findMany<T = any>(options?: QueryOptions): Promise<QueryResult<T>>;
+  create<T = any>(data: T): Promise<T>;
+  update<T = any>(id: string, data: Partial<T>): Promise<T>;
+  delete(id: string): Promise<void>;
+}
+
+type SupabaseServiceFactory = (userId: string, tableName: string) => CloudDataService;
+
+let supabaseServiceFactory: SupabaseServiceFactory | null = null;
+
+export function registerSupabaseServiceFactory(factory: SupabaseServiceFactory) {
+  supabaseServiceFactory = factory;
+}
+
+function ensureSupabaseServiceFactory(): SupabaseServiceFactory {
+  if (!supabaseServiceFactory) {
+    throw new Error('Supabase服务工厂未注册，请先调用 registerSupabaseServiceFactory');
+  }
+  return supabaseServiceFactory;
+}
+
+function createSupabaseService(userId: string, tableName?: string): CloudDataService {
+  if (!tableName) {
+    throw new Error('Supabase服务缺少表名配置');
+  }
+  return ensureSupabaseServiceFactory()(userId, tableName);
+}
+
+export function getSupabaseService(userId: string, tableName: string): CloudDataService {
+  return createSupabaseService(userId, tableName);
+}
 
 // 数据存储策略
 export enum DataStorageStrategy {
@@ -90,7 +125,7 @@ export interface DataOperationResult<T = any> {
  */
 export class UnifiedDataPersistenceManager {
   private userId: string | null = null;
-  private supabaseServices: Map<string, any> = new Map();
+  private supabaseServices: Map<string, CloudDataService> = new Map();
   private syncQueue: Array<{ dataType: string; data: any; operation: 'save' | 'delete' }> = [];
   private isOnline: boolean = navigator.onLine;
 
@@ -135,7 +170,7 @@ export class UnifiedDataPersistenceManager {
       // 为每个需要云端存储的数据类型创建服务
       Object.values(DATA_TYPE_CONFIGS).forEach(config => {
         if (config.syncToCloud && config.tableName) {
-          const service = createDataService(userId, config.tableName);
+          const service = createSupabaseService(userId, config.tableName);
           this.supabaseServices.set(config.key, service);
         }
       });

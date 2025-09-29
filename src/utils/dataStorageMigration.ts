@@ -9,8 +9,8 @@
  */
 
 import i18n from '@/i18n';
-import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
-import { logger } from '@/utils/logger';
+import { TABLE_NAMES } from '@/config/supabaseTables';
+import { getSupabaseService, type CloudDataService } from '@/lib/unifiedDataPersistenceManager';
 
 export interface MigrationResult {
   success: boolean;
@@ -30,14 +30,14 @@ export interface MigrationResult {
  */
 export class DataStorageMigration {
   private userId: string;
-  private supabaseService: any;
+  private supabaseService: CloudDataService;
 
   constructor(userId: string) {
     if (!userId) {
       throw new Error('用户ID不能为空');
     }
     this.userId = userId;
-    this.supabaseService = createDataService(userId, TABLE_NAMES.USER_BRAND_CORPUS);
+    this.supabaseService = getSupabaseService(userId, TABLE_NAMES.USER_BRAND_CORPUS);
   }
 
   /**

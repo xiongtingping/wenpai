@@ -7,7 +7,6 @@ import i18n from '@/i18n';
 import { callUnifiedAI } from '@/api/unifiedAIService';
 import { AITaskType } from '@/api/aiService';
 import { tokenUsageService } from '@/services/tokenUsageService';
-import { useAuth } from '@/hooks/useAuth';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { AICallParams, AIResponse } from '@/api/types';

@@ -27,14 +27,45 @@ import { useNavigate } from 'react-router-dom';
 import { getAuthingConfig } from '@/config/authing';
 import { useAuthStore } from '@/stores/compatibility-layer';
 import { useUnifiedStore } from '@/stores/unified-state-store';
-import { authService } from '@/services/authService';
-import { verificationCodeService } from '@/services/verificationCodeService';
+import type { AuthService } from '@/services/authService';
+import type { SecureUserStateService as SecureUserStateServiceClass } from '@/services/secureUserStateService';
 import { TokenService, TokenInfo } from '@/utils/tokenManager';
 import { AuthingTokenService } from '@/utils/authTokenHandler';
 import { TokenSecurityManager, SecureTokenInfo } from '@/utils/secureTokenStorage';
 import { SessionService, SessionEventCallbacks } from '@/utils/sessionManager';
+// 🔒 服务访问器 - 避免静态循环依赖
+type VerificationCodeServiceType = typeof import('@/services/verificationCodeService')['verificationCodeService'];
+type SecureUserStateServiceType = SecureUserStateServiceClass;
+
+let authServiceInstance: AuthService | null = null;
+let verificationCodeServiceInstance: VerificationCodeServiceType | null = null;
+let secureUserStateServiceClass: SecureUserStateServiceType | null = null;
+
+async function getAuthService(): Promise<AuthService> {
+  if (!authServiceInstance) {
+    const module = await import('@/services/authService');
+    authServiceInstance = module.authService;
+  }
+  return authServiceInstance;
+}
+
+async function getVerificationCodeService(): Promise<VerificationCodeServiceType> {
+  if (!verificationCodeServiceInstance) {
+    const module = await import('@/services/verificationCodeService');
+    verificationCodeServiceInstance = module.verificationCodeService;
+  }
+  return verificationCodeServiceInstance;
+}
+
+async function getSecureUserStateService(): Promise<SecureUserStateServiceType> {
+  if (!secureUserStateServiceClass) {
+    const module = await import('@/services/secureUserStateService');
+    secureUserStateServiceClass = module.SecureUserStateService;
+  }
+  return secureUserStateServiceClass;
+}
+
 // 🔒 安全修复：导入安全用户状态管理服务
-import { SecureUserStateService } from '@/services/secureUserStateService';
 
 /**
  * 用户信息接口
@@ -128,9 +159,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   
   // Guard Hook已移除 - 使用自定义认证流程
 
+  useEffect(() => {
+    void getAuthService();
+    void getVerificationCodeService();
+    void getSecureUserStateService();
+  }, []);
+
   // 🔒 安全修复：使用安全用户状态管理检查认证状态
   const checkAuth = useCallback(async () => {
     try {
+      const SecureUserStateService = await getSecureUserStateService();
       console.log('🔍 安全检查用户登录状态...');
       setLoading(true);
       
@@ -192,6 +230,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    */
   const handleAuthingLogin = async (userInfo: any) => {
     try {
+      const SecureUserStateService = await getSecureUserStateService();
       console.log('🔐 处理Guard登录成功:', userInfo);
 
       // 🚨 关键：用户ID必须来自Authing真实API，不能本地生成
@@ -342,6 +381,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const logout = useCallback(async () => {
     try {
       console.log('🚪 开始登出流程...');
+      const SecureUserStateService = await getSecureUserStateService();
 
       // 🎫 清除Token和执行Authing登出
       try {
@@ -411,6 +451,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
 
     try {
+      const authService = await getAuthService();
+      const SecureUserStateService = await getSecureUserStateService();
       // 🔍 DEBUG: 显示传入的更新数据
       console.log('🔍 updateUser 被调用，参数:', updates);
       console.log('🔍 参数键名:', Object.keys(updates));
@@ -525,6 +567,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       setLoading(true);
       setError(null);
       
+      const authService = await getAuthService();
       const result = await authService.loginByPassword(username, password);
       
       if (result.success && result.user) {
@@ -548,6 +591,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       setLoading(true);
       setError(null);
       
+      const verificationCodeService = await getVerificationCodeService();
       const result = await verificationCodeService.loginByEmailCode(email, code);
       
       if (result.success && result.data) {
@@ -570,6 +614,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       setLoading(true);
       setError(null);
       
+      const verificationCodeService = await getVerificationCodeService();
       const result = await verificationCodeService.loginByPhoneCode(phone, code);
       
       if (result.success && result.data) {
@@ -589,6 +634,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const sendVerificationCode = async (email: string, scene: 'login' | 'register' | 'reset' = 'login') => {
     try {
+      const verificationCodeService = await getVerificationCodeService();
       const result = await verificationCodeService.sendEmailCode(email, scene.toUpperCase());
       if (!result.success) {
         throw new Error(result.message);
@@ -605,6 +651,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       setLoading(true);
       setError(null);
       
+      const verificationCodeService = await getVerificationCodeService();
       // 根据注册类型选择不同的注册方法
       let result;
       if (userInfo.phone && userInfo.code) {
