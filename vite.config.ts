@@ -147,12 +147,21 @@ export default defineConfig(({ command, mode }) => ({
     sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
     rollupOptions: {
-      // 🔧 CRITICAL: 强制React模块正确处理
+      // 🔧 ULTIMATE FIX: 将React设为external，通过CDN加载
       external: (id) => {
-        // 不外部化任何模块，全部打包以避免运行时加载顺序问题
+        // 🔧 CRITICAL: React相关模块通过CDN加载，避免Vite构建问题
+        if (id === 'react' || id === 'react-dom' || id === 'react-dom/client') {
+          return true;
+        }
         return false;
       },
       output: {
+        // 🔧 CRITICAL: 全局变量映射
+        globals: {
+          'react': 'React',
+          'react-dom': 'ReactDOM',
+          'react-dom/client': 'ReactDOM'
+        },
         // 🔧 ROOT CAUSE FIX: 强制模块加载优先级控制
         manualChunks: (id) => {
           if (id.includes('node_modules')) {

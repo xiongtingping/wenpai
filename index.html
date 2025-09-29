@@ -14,6 +14,11 @@
     <link rel="icon" type="image/svg+xml" href="/ikigai_4circles_multiply.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
+    
+    <!-- 🔧 ULTIMATE FIX: CDN方式加载React避免Vite构建问题 -->
+    <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    
     <script>
       // 🔧 CRITICAL: 强制同步模块加载顺序
       window.__FORCE_REACT_SYNC_LOADING__ = true;
