@@ -136,8 +136,8 @@ export class ProductionKeyManager {
     const result = this.validateKey(config);
     this.keyCache.set(keyName, result);
 
-    // 记录安全警告
-    if (result.issues.length > 0) {
+    // 🔧 仅在生产环境或有严重问题时记录安全警告
+    if (result.issues.length > 0 && (this.isProduction() || result.source === 'fallback')) {
       this.addSecurityAlert('warning', 'key_management', 
         `密钥 ${keyName} 存在安全问题`, {
           keyName,
@@ -155,6 +155,7 @@ export class ProductionKeyManager {
   private validateKey(config: KeyConfig): KeyValidationResult {
     const issues: string[] = [];
     const recommendations: string[] = [];
+    const isProduction = this.isProduction();
     
     // 1. 从环境变量获取
     let key = this.getFromEnvironment(config.name);
@@ -162,16 +163,17 @@ export class ProductionKeyManager {
 
     if (!key) {
       // 2. 生产环境必须有环境变量
-      if (this.isProduction() && config.required) {
+      if (isProduction && config.required) {
         issues.push(`生产环境缺少必需的环境变量: ${config.name}`);
         recommendations.push(`设置环境变量 ${config.name}`);
       }
 
       // 3. 生成临时密钥（仅非生产环境）
-      if (!this.isProduction()) {
+      if (!isProduction) {
         key = this.generateSecureKey(config.minLength);
         source = 'generated';
-        issues.push(`使用生成的临时密钥，建议设置环境变量`);
+        // 🔧 开发环境不显示警告，仅记录信息
+        // issues.push(`使用生成的临时密钥，建议设置环境变量`);
       } else {
         // 生产环境回退到安全的固定密钥
         key = this.getProductionFallbackKey(config);
@@ -180,25 +182,31 @@ export class ProductionKeyManager {
       }
     }
 
-    // 验证密钥强度
+    // 🔧 仅在生产环境进行严格验证
+    if (isProduction) {
+      // 验证密钥强度
+      const strength = this.assessKeyStrength(key, config);
+      if (strength === 'weak') {
+        issues.push(`密钥强度不足`);
+        recommendations.push(`使用更强的密钥，长度至少${config.minLength}位`);
+      }
+
+      // 验证密钥格式
+      if (config.pattern && !config.pattern.test(key)) {
+        issues.push(`密钥格式不符合要求`);
+        recommendations.push(`密钥应匹配模式: ${config.pattern.source}`);
+      }
+
+      // 检查密钥轮换
+      const expiresAt = this.calculateKeyExpiry(config);
+      if (expiresAt && Date.now() > expiresAt) {
+        issues.push(`密钥已过期，需要轮换`);
+        recommendations.push(`更新密钥并重新部署`);
+      }
+    }
+
+    // 评估密钥强度（开发环境使用宽松标准）
     const strength = this.assessKeyStrength(key, config);
-    if (strength === 'weak') {
-      issues.push(`密钥强度不足`);
-      recommendations.push(`使用更强的密钥，长度至少${config.minLength}位`);
-    }
-
-    // 验证密钥格式
-    if (config.pattern && !config.pattern.test(key)) {
-      issues.push(`密钥格式不符合要求`);
-      recommendations.push(`密钥应匹配模式: ${config.pattern.source}`);
-    }
-
-    // 检查密钥轮换
-    const expiresAt = this.calculateKeyExpiry(config);
-    if (expiresAt && Date.now() > expiresAt) {
-      issues.push(`密钥已过期，需要轮换`);
-      recommendations.push(`更新密钥并重新部署`);
-    }
 
     return {
       isValid: issues.length === 0,
@@ -207,7 +215,7 @@ export class ProductionKeyManager {
       strength,
       issues,
       recommendations,
-      expiresAt
+      expiresAt: isProduction ? this.calculateKeyExpiry(config) : undefined
     };
   }
 

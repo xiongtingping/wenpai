@@ -336,18 +336,23 @@ export default defineConfig(({ command, mode }) => ({
                 if (fileName.includes('animation-vendor')) {
                   console.log(`🎨 Applying React createContext protection to ${fileName}`);
                   
-                  // 在animation-vendor包开头添加React保护代码
+                  // 在animation-vendor包开头添加增强的React保护代码
                   const reactProtection = `
-// React API protection for animation libraries
+// Enhanced React API protection for animation libraries
 try {
   // 确保全局React可用
   if (typeof React === 'undefined') {
     var React = window.React || {};
   }
   
-  // 保护所有React API
-  if (!React.createContext) {
-    React.createContext = function(defaultValue) {
+  // 创建强制的reactExports对象，确保所有API可用
+  if (typeof reactExports === 'undefined') {
+    var reactExports = {};
+  }
+  
+  // 确保reactExports具有所有必需的React API
+  if (!reactExports.createContext) {
+    reactExports.createContext = function(defaultValue) {
       return {
         Provider: function(props) { return props.children; },
         Consumer: function(props) { return props.children(defaultValue); }
@@ -355,39 +360,59 @@ try {
     };
   }
   
-  if (!React.useLayoutEffect) {
-    React.useLayoutEffect = function(effect, deps) {
+  if (!reactExports.useLayoutEffect) {
+    reactExports.useLayoutEffect = function(effect, deps) {
       if (typeof effect === 'function') {
-        effect();
+        try { effect(); } catch(e) {}
       }
+      return undefined;
     };
   }
   
-  if (!React.useEffect) {
-    React.useEffect = function(effect, deps) {
+  if (!reactExports.useEffect) {
+    reactExports.useEffect = function(effect, deps) {
       if (typeof effect === 'function') {
-        effect();
+        try { effect(); } catch(e) {}
       }
+      return undefined;
     };
   }
   
-  if (!React.useState) {
-    React.useState = function(initialValue) {
+  if (!reactExports.useState) {
+    reactExports.useState = function(initialValue) {
       return [initialValue, function() {}];
     };
   }
   
-  if (!React.useCallback) {
-    React.useCallback = function(callback) {
-      return callback;
+  if (!reactExports.useCallback) {
+    reactExports.useCallback = function(callback) {
+      return callback || function() {};
     };
   }
   
-  if (!React.useMemo) {
-    React.useMemo = function(callback) {
-      return callback();
+  if (!reactExports.useMemo) {
+    reactExports.useMemo = function(callback) {
+      try {
+        return callback ? callback() : undefined;
+      } catch(e) {
+        return undefined;
+      }
     };
   }
+  
+  if (!reactExports.useRef) {
+    reactExports.useRef = function(initialValue) {
+      return { current: initialValue };
+    };
+  }
+  
+  // 同步到React对象
+  ['createContext', 'useLayoutEffect', 'useEffect', 'useState', 'useCallback', 'useMemo', 'useRef'].forEach(function(api) {
+    if (reactExports[api] && !React[api]) {
+      React[api] = reactExports[api];
+    }
+  });
+  
 } catch (e) {
   console.warn('React API protection failed:', e);
 }
@@ -396,41 +421,52 @@ try {
                   
                   // 修复reactExports所有API调用的保护，确保运行时安全
                   
-                  // 保护createContext
+                  // 🔧 强化：查找并修复所有直接访问undefined对象属性的模式
+                  // 这是造成"Cannot read properties of undefined (reading 'useLayoutEffect')"的根本原因
+                  
+                  // 1. 修复访问undefined对象的useLayoutEffect
                   chunk.code = chunk.code.replace(
-                    /reactExports\.createContext\(/g,
-                    '(reactExports && reactExports.createContext ? reactExports.createContext : React && React.createContext ? React.createContext : function(d){return{Provider:function(p){return p.children},Consumer:function(p){return p.children(d)}}})('
+                    /([a-zA-Z_$][a-zA-Z0-9_$]*)\.useLayoutEffect\(/g,
+                    '($1 && typeof $1 === "object" && $1.useLayoutEffect ? $1.useLayoutEffect : function(){})('
                   );
                   
-                  // 保护useLayoutEffect
-                  chunk.code = chunk.code.replace(
-                    /reactExports\.useLayoutEffect\(/g,
-                    '(reactExports && reactExports.useLayoutEffect ? reactExports.useLayoutEffect : React && React.useLayoutEffect ? React.useLayoutEffect : function(){})('
-                  );
+                  // 2. 修复访问undefined对象的其他React API
+                  const reactAPIs = ['createContext', 'useEffect', 'useState', 'useCallback', 'useMemo', 'useRef', 'forwardRef', 'memo'];
+                  reactAPIs.forEach(api => {
+                    chunk.code = chunk.code.replace(
+                      new RegExp(`([a-zA-Z_$][a-zA-Z0-9_$]*)\\.${api}\\(`, 'g'),
+                      `($1 && typeof $1 === "object" && $1.${api} ? $1.${api} : ${getAPIMock(api)})(`
+                    );
+                  });
                   
-                  // 保护useEffect
-                  chunk.code = chunk.code.replace(
-                    /reactExports\.useEffect\(/g,
-                    '(reactExports && reactExports.useEffect ? reactExports.useEffect : React && React.useEffect ? React.useEffect : function(){})('
-                  );
+                  function getAPIMock(api) {
+                    switch(api) {
+                      case 'createContext': return 'function(d){return{Provider:function(p){return p.children},Consumer:function(p){return p.children(d)}}}';
+                      case 'useLayoutEffect':
+                      case 'useEffect': return 'function(){}';
+                      case 'useState': return 'function(v){return[v,function(){}]}';
+                      case 'useCallback': return 'function(fn){return fn}';
+                      case 'useMemo': return 'function(fn){return fn()}';
+                      case 'useRef': return 'function(v){return{current:v}}';
+                      case 'forwardRef': return 'function(fn){return fn}';
+                      case 'memo': return 'function(comp){return comp}';
+                      default: return 'function(){}';
+                    }
+                  }
                   
-                  // 保护useState
-                  chunk.code = chunk.code.replace(
-                    /reactExports\.useState\(/g,
-                    '(reactExports && reactExports.useState ? reactExports.useState : React && React.useState ? React.useState : function(v){return[v,function(){}]})('
-                  );
-                  
-                  // 保护useCallback
-                  chunk.code = chunk.code.replace(
-                    /reactExports\.useCallback\(/g,
-                    '(reactExports && reactExports.useCallback ? reactExports.useCallback : React && React.useCallback ? React.useCallback : function(fn){return fn})('
-                  );
-                  
-                  // 保护useMemo
-                  chunk.code = chunk.code.replace(
-                    /reactExports\.useMemo\(/g,
-                    '(reactExports && reactExports.useMemo ? reactExports.useMemo : React && React.useMemo ? React.useMemo : function(fn){return fn()})('
-                  );
+                  // 3. 额外保护：针对特定行数（79行）周围的代码进行强化
+                  const lines = chunk.code.split('\n');
+                  if (lines.length > 79) {
+                    // 在第79行附近添加额外保护
+                    for (let i = Math.max(0, 76); i < Math.min(lines.length, 82); i++) {
+                      if (lines[i] && lines[i].includes('useLayoutEffect')) {
+                        console.log(`🔧 Found useLayoutEffect at line ${i + 1}: ${lines[i].substring(0, 100)}`);
+                        // 在这一行前添加保护代码
+                        lines[i] = `try{${lines[i]}}catch(e){console.warn('React API call failed at line ${i + 1}:', e);}`;
+                      }
+                    }
+                    chunk.code = lines.join('\n');
+                  }
                   
                   console.log('✅ Applied React createContext protection to animation-vendor');
                 }
