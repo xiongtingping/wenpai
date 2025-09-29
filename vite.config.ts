@@ -361,7 +361,7 @@ try {
                   // 修复reactExports.createContext调用的保护，确保运行时安全
                   chunk.code = chunk.code.replace(
                     /reactExports\.createContext\(/g,
-                    '(reactExports && reactExports.createContext ? reactExports.createContext : React && React.createContext ? React.createContext : function(d){return{Provider:function(p){return p.children},Consumer:function(p){return p.children(d)}}})'
+                    '(reactExports && reactExports.createContext ? reactExports.createContext : React && React.createContext ? React.createContext : function(d){return{Provider:function(p){return p.children},Consumer:function(p){return p.children(d)}}})('
                   );
                   
                   console.log('✅ Applied React createContext protection to animation-vendor');
