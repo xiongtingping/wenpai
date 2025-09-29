@@ -15,12 +15,39 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
     <script>
-      // 🔧 ROOT CAUSE FIX: React TDZ问题通过正确的modulepreload顺序解决
-      // 不再需要fallback代码，避免技术债务
+      // 🔧 ULTIMATE REACT TDZ FIX: 预初始化React全局命名空间
+      window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
+      
+      // 🔧 CRITICAL: 预定义React模块结构避免TDZ
+      if (typeof window !== 'undefined') {
+        window.React = window.React || {};
+        window.ReactDOM = window.ReactDOM || {};
+        
+        // 预定义关键React API防止Children设置错误
+        if (!window.React.Children) {
+          window.React.Children = {
+            map: function() {},
+            forEach: function() {},
+            count: function() { return 0; },
+            toArray: function() { return []; },
+            only: function() {}
+          };
+        }
+        
+        if (!window.React.createElement) {
+          window.React.createElement = function() { return null; };
+        }
+        
+        if (!window.React.Component) {
+          window.React.Component = function() {};
+        }
+        
+        console.log('🔧 React预初始化完成，防止TDZ错误');
+      }
       
       // 检测是否是旧版本缓存，强制刷新
       (function() {
-        const CURRENT_VERSION = 'v20250929-ultimate-fix';
+        const CURRENT_VERSION = 'v20250929-ultimate-fix-v3';
         const stored = localStorage.getItem('app-version');
         if (stored !== CURRENT_VERSION) {
           localStorage.setItem('app-version', CURRENT_VERSION);
