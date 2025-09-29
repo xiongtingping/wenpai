@@ -304,22 +304,37 @@ export default defineConfig(({ command, mode }) => ({
                     }
                   );
                   
-                  // 3. 在特定位置附近添加保护
+                  // 3. 在特定位置附近添加保护和强制修复
                   if (chunk.code.length > 13000) {
                     const position = 13862;
-                    const start = Math.max(0, position - 100);
-                    const end = Math.min(chunk.code.length, position + 100);
+                    const start = Math.max(0, position - 200);
+                    const end = Math.min(chunk.code.length, position + 200);
                     const problemArea = chunk.code.substring(start, end);
-                    console.log(`🔍 Problem area around position ${position}: "${problemArea}"`);
+                    console.log(`🔍 Problem area around position ${position}: "${problemArea.substring(0, 300)}..."`);
                     
-                    // 如果发现at=at模式，就修复它
-                    if (problemArea.includes('at=at') || problemArea.includes('at =at') || problemArea.includes('at= at')) {
-                      chunk.code = chunk.code.replace(
-                        /(\bat\s*=\s*at)(?=[;\s,\}])/g,
-                        'at = (typeof at !== "undefined" ? at : undefined)'
-                      );
-                      console.log('🔧 Fixed at=at pattern at position', position);
+                    // 强制在位置13862附近插入TDZ保护代码
+                    const line3Start = chunk.code.split('\n').slice(0, 2).join('\n').length + 1;
+                    const line3End = chunk.code.split('\n').slice(0, 3).join('\n').length;
+                    
+                    if (position >= line3Start && position <= line3End) {
+                      console.log(`🔧 Position ${position} is in line 3, applying emergency TDZ fix`);
+                      
+                      // 在第3行开始处插入强制保护代码
+                      const lines = chunk.code.split('\n');
+                      if (lines.length > 2) {
+                        // 在第3行前插入保护代码
+                        const protectionCode = `try{if(typeof at==="undefined")var at=undefined;}catch(e){}`;
+                        lines[2] = protectionCode + lines[2];
+                        chunk.code = lines.join('\n');
+                        console.log('🔧 Applied emergency TDZ protection to line 3');
+                      }
                     }
+                    
+                    // 全局搜索所有可能的at引用并修复
+                    chunk.code = chunk.code.replace(
+                      /\b(at)\s*=\s*\1\b/g,
+                      'at = (typeof at !== "undefined" ? at : undefined)'
+                    );
                   }
                 }
                 
