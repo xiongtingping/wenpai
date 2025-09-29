@@ -269,31 +269,34 @@ export default defineConfig(({ command, mode }) => ({
                   'stringify function is not available'
                 );
                 
-                // 🔧 针对services文件的TDZ修复
-                if (fileName.includes('services')) {
+                // 🔧 针对所有JavaScript文件的TDZ修复（utils、services、components等）
+                if (fileName.includes('services') || fileName.includes('utils') || fileName.includes('components')) {
                   console.log(`🔧 Applying comprehensive TDZ fixes to ${fileName}`);
                   
                   // 查找并修复位置13862附近的TDZ问题
                   const lines = chunk.code.split('\n');
                   console.log(`📍 Services file has ${lines.length} lines, ${chunk.code.length} characters`);
                   
-                  // 1. 修复最常见的TDZ模式 - 变量在使用前被赋值为自己
+                  // 1. 修复最常见的TDZ模式 - 所有短变量名的自赋值
                   chunk.code = chunk.code.replace(
-                    /(\w+)\s*=\s*\1(?=[;\s,\}])/g, 
+                    /\b([a-zA-Z]{1,3})\s*=\s*\1(?=[;\s,\}\)])/g, 
                     (match, varName) => {
                       console.log(`🔧 Found TDZ pattern: ${match}`);
                       return `${varName} = (typeof ${varName} !== "undefined" ? ${varName} : undefined)`;
                     }
                   );
                   
-                  // 1.5. 专门针对 at 变量的TDZ修复
-                  chunk.code = chunk.code.replace(
-                    /\bat\s*=\s*at(?=[;\s,\}])/g,
-                    (match) => {
-                      console.log(`🔧 Found specific 'at' TDZ pattern: ${match}`);
-                      return 'at = (typeof at !== "undefined" ? at : undefined)';
-                    }
-                  );
+                  // 1.5. 针对常见的压缩变量名TDZ修复（ge, at, et, ie等）
+                  const commonVars = ['at', 'ge', 'et', 'ie', 'te', 'er', 're', 'se', 'ne', 'le', 'me', 'he', 'we', 'ye', 'fe', 'pe', 'de', 'ce', 'be', 've', 'ke'];
+                  commonVars.forEach(varName => {
+                    chunk.code = chunk.code.replace(
+                      new RegExp(`\\b${varName}\\s*=\\s*${varName}(?=[;\\s,\\}\\)])`, 'g'),
+                      (match) => {
+                        console.log(`🔧 Found specific '${varName}' TDZ pattern: ${match}`);
+                        return `${varName} = (typeof ${varName} !== "undefined" ? ${varName} : undefined)`;
+                      }
+                    );
+                  });
                   
                   // 2. 修复import别名后立即使用的情况
                   chunk.code = chunk.code.replace(
@@ -338,7 +341,8 @@ export default defineConfig(({ command, mode }) => ({
                   }
                 }
                 
-                console.log(`✅ Applied ${fileName.includes('services') ? 'TDZ+basic' : 'basic'} fixes to ${fileName}`);
+                const isTDZFixed = fileName.includes('services') || fileName.includes('utils') || fileName.includes('components');
+                console.log(`✅ Applied ${isTDZFixed ? 'TDZ+basic' : 'basic'} fixes to ${fileName}`);
               }
             });
           }
