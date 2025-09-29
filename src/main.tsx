@@ -19,14 +19,42 @@ import './styles/user-avatar-dropdown-fix.css';
 // 🧹 已清理所有动态加载的调试脚本
 
 // 🧹 已清理全局滚动检测器调试代码
-// console.log('🔥 Step 2: 开始导入React...');
+// 🔧 CRITICAL: 模块加载状态检查
+console.log('🔥 Step 2: 开始导入React...');
+
+// 🔧 验证React模块可用性
+try {
+  // @ts-ignore
+  if (window.__FORCE_REACT_SYNC_LOADING__) {
+    console.log('🔧 强制同步加载模式已激活');
+  }
+} catch (e) {
+  console.warn('🔧 同步加载检查失败:', e);
+}
+
 import React from 'react';
 
-// 🔧 ROOT CAUSE FIX: React TDZ问题通过正确的modulepreload顺序解决
-// 不再需要全局命名空间设置，避免技术债务
+// 🔧 标记React核心模块已加载
+try {
+  // @ts-ignore
+  window.__REACT_CORE_LOADED__ = true;
+  console.log('✅ React核心模块加载完成');
+} catch (e) {
+  console.error('❌ React核心模块加载状态设置失败:', e);
+}
 
 // console.log('🔥 Step 3: 开始导入ReactDOM...');
 import ReactDOM from 'react-dom/client';
+
+// 🔧 标记ReactDOM模块已加载
+try {
+  // @ts-ignore
+  window.__REACT_DOM_LOADED__ = true;
+  console.log('✅ ReactDOM模块加载完成');
+} catch (e) {
+  console.error('❌ ReactDOM模块加载状态设置失败:', e);
+}
+
 // console.log('🔥 Step 4: 开始导入BrowserRouter...');
 import { BrowserRouter } from 'react-router-dom';
 // console.log('🔥 Step 5: 开始导入App组件...');

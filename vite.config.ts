@@ -255,11 +255,8 @@ export default defineConfig(({ command, mode }) => ({
       'react-router-dom',
       'react-hook-form',
       'react-i18next',
-      // 🔧 强制预构建React内部模块
+      // 🔧 仅包含确实存在的React内部模块
       'scheduler',
-      'scheduler/tracing',
-      'use-sync-external-store',
-      'use-sync-external-store/shim',
       'axios',
       'crypto-js'
     ],
