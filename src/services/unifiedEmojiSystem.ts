@@ -3,7 +3,7 @@
  * {t('emojiSystem.integration')}
  */
 
-import { getAllEmojis as getRawEmojiJson, getEmojiUnicode } from '@/services/emojiService';
+// 移除静态导入以避免循环依赖和TDZ问题
 import i18n from '@/i18n';
 import { smartTranslateEmojiName, translateEmojiName } from '@/utils/emojiNameTranslation';
 
@@ -603,22 +603,24 @@ const CATEGORY_COLORS: Record<UnifiedEmojiItem['category'], string> = {
 };
 
 // 确保每个主分类至少 minCount 个（去重补齐）
-function ensureMinimumPerCategory(minCount = 100) {
-  const raw = getRawEmojiJson();
-  if (!raw || !Array.isArray(raw)) return;
+async function ensureMinimumPerCategory(minCount = 100) {
+  try {
+    const { getAllEmojis: getRawEmojiJson, getEmojiUnicode } = await import('@/services/emojiService');
+    const raw = getRawEmojiJson();
+    if (!raw || !Array.isArray(raw)) return;
 
-  // 现有集合：用“emoji字符”去重
-  const seen = new Set(unifiedEmojiData.map(e => `${e.emoji}|${e.name}`));
+    // 现有集合：用"emoji字符"去重
+    const seen = new Set(unifiedEmojiData.map(e => `${e.emoji}|${e.name}`));
 
-  const buckets: Record<UnifiedEmojiItem['category'], UnifiedEmojiItem[]> = {
-    animals: [], food: [], objects: [], emotions: [], nature: []
-  };
+    const buckets: Record<UnifiedEmojiItem['category'], UnifiedEmojiItem[]> = {
+      animals: [], food: [], objects: [], emotions: [], nature: []
+    };
 
-  // 将原始数据映射进入候选池
-  raw.forEach((e, idx) => {
-    try {
-      const cat = mapRawCategory(e.category);
-      const emojiChar = getEmojiUnicode(e.unified);
+    // 将原始数据映射进入候选池
+    raw.forEach((e, idx) => {
+      try {
+        const cat = mapRawCategory(e.category);
+        const emojiChar = getEmojiUnicode(e.unified);
       // 🌐 使用翻译系统将英文名称转换为中文
       const rawName = e.short_name || e.short_names?.[0] || `emoji_${idx}`;
       const translatedName = smartTranslateEmojiName(rawName, cat);
@@ -647,16 +649,19 @@ function ensureMinimumPerCategory(minCount = 100) {
       i++;
     }
   });
+  } catch (error) {
+    console.error('确保最小分类数量失败:', error);
+  }
 }
 
 // 🔧 延迟初始化，避免TDZ错误
-setTimeout(() => {
+setTimeout(async () => {
   try {
     // 初始化：在恢复的基础上进行补齐并做数据质检
-    ensureMinimumPerCategory(110);
+    await ensureMinimumPerCategory(110);
     runDataQualityPass();
     // 质检后再补齐一轮，确保去重后仍满足 >100
-    ensureMinimumPerCategory(110);
+    await ensureMinimumPerCategory(110);
 
     // 🌐 修复现有数据中的英文名称
     fixExistingEnglishNames();
