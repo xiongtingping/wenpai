@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Shuffle } from 'lucide-react';
 import UnifiedEmojiManager from '@/components/shared/UnifiedEmojiManager';
-import { UnifiedEmojiItem, getRandomEmojis } from '@/services/unifiedEmojiSystem';
+import type { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
 
 interface EmojiAvatarSystemProps {
   onEmojiSelect?: (emoji: UnifiedEmojiItem) => void;
@@ -41,10 +41,20 @@ const EmojiAvatarSystem: React.FC<EmojiAvatarSystemProps> = ({ onEmojiSelect,
   };
 
   // 随机选择emoji
-  const handleRandomSelect = () => {
-    const randomEmojis = getRandomEmojis(1);
-    if (randomEmojis.length > 0) {
-      handleEmojiSelect(randomEmojis[0]);
+  const handleRandomSelect = async () => {
+    try {
+      const { getRandomEmojis } = await import('@/services/unifiedEmojiSystem');
+      const randomEmojis = getRandomEmojis(1);
+      if (randomEmojis.length > 0) {
+        handleEmojiSelect(randomEmojis[0]);
+      }
+    } catch (error) {
+      console.error('随机选择emoji失败:', error);
+      toast({
+        title: "随机选择失败",
+        description: "请手动选择emoji",
+        variant: "destructive"
+      });
     }
   };
 

@@ -4,12 +4,10 @@
  */
 
 import React from 'react';
-import {
+import type {
   UnifiedEmojiItem,
   EmojiUsageContext,
-  PlatformType,
-  generateEmojiStyle,
-  detectPlatform
+  PlatformType
 } from '@/services/unifiedEmojiSystem';
 
 interface AdaptiveEmojiProps {
@@ -38,12 +36,31 @@ const AdaptiveEmoji: React.FC<AdaptiveEmojiProps> = ({
   'aria-label': ariaLabel,
   ...props
 }) => {
+  const [adaptiveStyle, setAdaptiveStyle] = React.useState<React.CSSProperties>({});
+
   // 获取emoji字符
   const emojiChar = typeof emoji === 'string' ? emoji : emoji.emoji;
   const emojiName = typeof emoji === 'string' ? emoji : emoji.name;
 
-  // 生成自适应样式
-  const adaptiveStyle = generateEmojiStyle(context, platform, style as any);
+  // 异步生成自适应样式
+  React.useEffect(() => {
+    const loadEmojiStyle = async () => {
+      try {
+        const { generateEmojiStyle } = await import('@/services/unifiedEmojiSystem');
+        const style = generateEmojiStyle(context, platform, {} as any);
+        setAdaptiveStyle(style);
+      } catch (error) {
+        console.error('加载emoji样式失败:', error);
+        // 设置默认样式
+        setAdaptiveStyle({
+          fontSize: '1rem',
+          lineHeight: '1.5'
+        });
+      }
+    };
+    
+    loadEmojiStyle();
+  }, [context, platform]);
 
   // 合并样式
   const finalStyle: React.CSSProperties = {

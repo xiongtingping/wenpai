@@ -3,13 +3,7 @@
  * 提供与旧版emojiService兼容的API，内部使用统一emoji系统
  */
 
-import { 
-  UnifiedEmojiItem, 
-  getAllEmojis as getUnifiedEmojis,
-  getEmojisByCategory as getUnifiedEmojisByCategory,
-  searchEmojis as searchUnifiedEmojis,
-  getRandomEmojis as getUnifiedRandomEmojis
-} from '@/services/unifiedEmojiSystem';
+import type { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
 
 // 兼容旧版EmojiItem接口
 export interface EmojiItem {
@@ -43,82 +37,107 @@ function convertToLegacyFormat(unifiedEmoji: UnifiedEmojiItem): EmojiItem {
 /**
  * 获取所有emoji（兼容旧版API）
  */
-export function getAllEmojis(): EmojiItem[] {
-  return getUnifiedEmojis().map(convertToLegacyFormat);
+export async function getAllEmojis(): Promise<EmojiItem[]> {
+  try {
+    const { getAllEmojis: getUnifiedEmojis } = await import('@/services/unifiedEmojiSystem');
+    return getUnifiedEmojis().map(convertToLegacyFormat);
+  } catch (error) {
+    console.error('获取所有emoji失败:', error);
+    return [];
+  }
 }
 
 /**
  * 按分类获取emoji（兼容旧版API）
  */
-export function getEmojisByCategory(category: string): EmojiItem[] {
-  // 映射旧版分类名到新版
-  const categoryMap: Record<string, string> = {
-    'smileys': 'emotions',
-    'people': 'emotions',
-    'animals': 'animals',
-    'food': 'food',
-    'travel': 'objects',
-    'activities': 'objects',
-    'objects': 'objects',
-    'symbols': 'nature',
-    'flags': 'objects'
-  };
-  
-  const mappedCategory = categoryMap[category] || category;
-  return getUnifiedEmojisByCategory(mappedCategory).map(convertToLegacyFormat);
+export async function getEmojisByCategory(category: string): Promise<EmojiItem[]> {
+  try {
+    const { getEmojisByCategory: getUnifiedEmojisByCategory } = await import('@/services/unifiedEmojiSystem');
+    
+    // 映射旧版分类名到新版
+    const categoryMap: Record<string, string> = {
+      'smileys': 'emotions',
+      'people': 'emotions',
+      'animals': 'animals',
+      'food': 'food',
+      'travel': 'objects',
+      'activities': 'objects',
+      'objects': 'objects',
+      'symbols': 'nature',
+      'flags': 'objects'
+    };
+    
+    const mappedCategory = categoryMap[category] || category;
+    return getUnifiedEmojisByCategory(mappedCategory).map(convertToLegacyFormat);
+  } catch (error) {
+    console.error('按分类获取emoji失败:', error);
+    return [];
+  }
 }
 
 /**
  * 搜索emoji（兼容旧版API）
  */
-export function searchEmojis(keyword: string): EmojiItem[] {
-  return searchUnifiedEmojis(keyword).map(convertToLegacyFormat);
+export async function searchEmojis(keyword: string): Promise<EmojiItem[]> {
+  try {
+    const { searchEmojis: searchUnifiedEmojis } = await import('@/services/unifiedEmojiSystem');
+    return searchUnifiedEmojis(keyword).map(convertToLegacyFormat);
+  } catch (error) {
+    console.error('搜索emoji失败:', error);
+    return [];
+  }
 }
 
 /**
  * 获取热门emoji
  */
-export function getPopularEmojis(): EmojiItem[] {
-  // 返回一些热门emoji
-  const popularKeywords = ['开心', '爱心', '笑', '哭', '生气', '惊讶', '可爱', '酷'];
-  const popularEmojis: EmojiItem[] = [];
-  
-  popularKeywords.forEach(keyword => {
-    const results = searchEmojis(keyword);
-    if (results.length > 0) {
-      popularEmojis.push(results[0]);
+export async function getPopularEmojis(): Promise<EmojiItem[]> {
+  try {
+    // 返回一些热门emoji
+    const popularKeywords = ['开心', '爱心', '笑', '哭', '生气', '惊讶', '可爱', '酷'];
+    const popularEmojis: EmojiItem[] = [];
+    
+    for (const keyword of popularKeywords) {
+      const results = await searchEmojis(keyword);
+      if (results.length > 0) {
+        popularEmojis.push(results[0]);
+      }
     }
-  });
-  
-  return popularEmojis.slice(0, 20);
+    
+    return popularEmojis.slice(0, 20);
+  } catch (error) {
+    console.error('获取热门emoji失败:', error);
+    return [];
+  }
 }
 
 /**
  * 获取表情类emoji
  */
-export function getSmileysEmojis(): EmojiItem[] {
-  return getEmojisByCategory('emotions');
+export async function getSmileysEmojis(): Promise<EmojiItem[]> {
+  return await getEmojisByCategory('emotions');
 }
 
 /**
  * 获取动物类emoji
  */
-export function getAnimalsEmojis(): EmojiItem[] {
-  return getEmojisByCategory('animals');
+export async function getAnimalsEmojis(): Promise<EmojiItem[]> {
+  return await getEmojisByCategory('animals');
 }
 
 /**
  * 获取食物类emoji
  */
-export function getFoodEmojis(): EmojiItem[] {
-  return getEmojisByCategory('food');
+export async function getFoodEmojis(): Promise<EmojiItem[]> {
+  return await getEmojisByCategory('food');
 }
 
 /**
  * 获取活动类emoji
  */
-export function getActivityEmojis(): EmojiItem[] {
-  return getEmojisByCategory('objects').filter(emoji => 
+export async function getActivityEmojis(): Promise<EmojiItem[]> {
+  const objects = await getEmojisByCategory('objects');
+  return objects.filter(emoji => 
     emoji.keywords.some(keyword => 
       ['运动', '游戏', '娱乐', '活动'].includes(keyword)
     )
@@ -128,8 +147,9 @@ export function getActivityEmojis(): EmojiItem[] {
 /**
  * 获取旅行类emoji
  */
-export function getTravelEmojis(): EmojiItem[] {
-  return getEmojisByCategory('objects').filter(emoji => 
+export async function getTravelEmojis(): Promise<EmojiItem[]> {
+  const objects = await getEmojisByCategory('objects');
+  return objects.filter(emoji => 
     emoji.keywords.some(keyword => 
       ['旅行', '交通', '出行', '航海'].includes(keyword)
     )
@@ -139,15 +159,16 @@ export function getTravelEmojis(): EmojiItem[] {
 /**
  * 获取物品类emoji
  */
-export function getObjectsEmojis(): EmojiItem[] {
-  return getEmojisByCategory('objects');
+export async function getObjectsEmojis(): Promise<EmojiItem[]> {
+  return await getEmojisByCategory('objects');
 }
 
 /**
  * 获取符号类emoji
  */
-export function getSymbolsEmojis(): EmojiItem[] {
-  return getEmojisByCategory('nature').filter(emoji => 
+export async function getSymbolsEmojis(): Promise<EmojiItem[]> {
+  const nature = await getEmojisByCategory('nature');
+  return nature.filter(emoji => 
     emoji.keywords.some(keyword => 
       ['符号', '标志', '图标'].includes(keyword)
     )
@@ -157,9 +178,10 @@ export function getSymbolsEmojis(): EmojiItem[] {
 /**
  * 获取旗帜类emoji
  */
-export function getFlagsEmojis(): EmojiItem[] {
+export async function getFlagsEmojis(): Promise<EmojiItem[]> {
   // 返回一些旗帜相关的emoji
-  return getEmojisByCategory('objects').filter(emoji => 
+  const objects = await getEmojisByCategory('objects');
+  return objects.filter(emoji => 
     emoji.keywords.some(keyword => 
       ['旗帜', '国家', '地区'].includes(keyword)
     )
@@ -169,46 +191,62 @@ export function getFlagsEmojis(): EmojiItem[] {
 /**
  * 获取随机emoji
  */
-export function getRandomEmojis(count: number = 5): EmojiItem[] {
-  return getUnifiedRandomEmojis(count).map(convertToLegacyFormat);
+export async function getRandomEmojis(count: number = 5): Promise<EmojiItem[]> {
+  try {
+    const { getRandomEmojis: getUnifiedRandomEmojis } = await import('@/services/unifiedEmojiSystem');
+    return getUnifiedRandomEmojis(count).map(convertToLegacyFormat);
+  } catch (error) {
+    console.error('获取随机emoji失败:', error);
+    return [];
+  }
 }
 
 /**
  * 根据心情获取emoji
  */
-export function getEmojisByMood(mood: string): EmojiItem[] {
-  const moodKeywords: Record<string, string[]> = {
-    'happy': ['开心', '快乐', '笑', '高兴'],
-    'sad': ['伤心', '难过', '哭', '悲伤'],
-    'angry': ['生气', '愤怒', '火', '怒'],
-    'love': ['爱', '心', '喜欢', '爱情'],
-    'surprise': ['惊讶', '震惊', '意外', '吃惊'],
-    'fear': ['害怕', '恐惧', '紧张', '担心']
-  };
-  
-  const keywords = moodKeywords[mood.toLowerCase()] || [mood];
-  const results: EmojiItem[] = [];
-  
-  keywords.forEach(keyword => {
-    const searchResults = searchEmojis(keyword);
-    results.push(...searchResults);
-  });
-  
-  // 去重并返回前10个
-  const uniqueResults = results.filter((emoji, index, self) => 
-    index === self.findIndex(e => e.unified === emoji.unified)
-  );
-  
-  return uniqueResults.slice(0, 10);
+export async function getEmojisByMood(mood: string): Promise<EmojiItem[]> {
+  try {
+    const moodKeywords: Record<string, string[]> = {
+      'happy': ['开心', '快乐', '笑', '高兴'],
+      'sad': ['伤心', '难过', '哭', '悲伤'],
+      'angry': ['生气', '愤怒', '火', '怒'],
+      'love': ['爱', '心', '喜欢', '爱情'],
+      'surprise': ['惊讶', '震惊', '意外', '吃惊'],
+      'fear': ['害怕', '恐惧', '紧张', '担心']
+    };
+    
+    const keywords = moodKeywords[mood.toLowerCase()] || [mood];
+    const results: EmojiItem[] = [];
+    
+    for (const keyword of keywords) {
+      const searchResults = await searchEmojis(keyword);
+      results.push(...searchResults);
+    }
+    
+    // 去重并返回前10个
+    const uniqueResults = results.filter((emoji, index, self) => 
+      index === self.findIndex(e => e.unified === emoji.unified)
+    );
+    
+    return uniqueResults.slice(0, 10);
+  } catch (error) {
+    console.error('根据心情获取emoji失败:', error);
+    return [];
+  }
 }
 
 /**
  * 获取emoji的Unicode字符
  */
-export function getEmojiUnicode(unified: string): string {
-  const allEmojis = getAllEmojis();
-  const emoji = allEmojis.find(e => e.unified === unified);
-  return emoji?.emoji || '';
+export async function getEmojiUnicode(unified: string): Promise<string> {
+  try {
+    const allEmojis = await getAllEmojis();
+    const emoji = allEmojis.find(e => e.unified === unified);
+    return emoji?.emoji || '';
+  } catch (error) {
+    console.error('获取emoji Unicode失败:', error);
+    return '';
+  }
 }
 
 /**
