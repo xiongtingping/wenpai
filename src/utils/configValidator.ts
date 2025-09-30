@@ -1,20 +1,6 @@
 import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
-
-type RequestClient = typeof import('@/api/request').default;
-
-let requestClient: RequestClient | null = null;
-
-export function registerRequestClient(client: RequestClient): void {
-  requestClient = client;
-}
-
-function ensureRequestClient(): RequestClient {
-  if (!requestClient) {
-    throw new Error('请求客户端未注册，请先调用 registerRequestClient');
-  }
-  return requestClient;
-}
+import { getRequestClient } from './requestClientRegistry';
 /**
  * 全局配置验证器
  * 用于验证应用运行所需的配置和环境
@@ -86,7 +72,7 @@ export async function validateAllConfigs(): Promise<ConfigValidationResult> {
 
     // 测试API连接
     try {
-      const client = ensureRequestClient();
+      const client = getRequestClient();
       await client.request({ url: apiEndpoint, method: 'OPTIONS', validateStatus: () => true });
       result.networkStatus.canConnect = true;
     } catch {

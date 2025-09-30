@@ -1,15 +1,5 @@
 import { logger } from '@/utils/logger';
-type RequestModule = typeof import('@/api/request').default;
-
-let requestClient: RequestModule | null = null;
-
-async function loadRequestClient(): Promise<RequestModule> {
-  if (!requestClient) {
-    const module = await import('@/api/request');
-    requestClient = module.default;
-  }
-  return requestClient;
-}
+import { getRequestClient } from './requestClientRegistry';
 /**
  * 🛡️ 统一错误处理系统
  * 
@@ -227,7 +217,7 @@ export function logError(error: Error | string, context?: Record<string, any>): 
  */
 async function reportErrorToServer(errorInfo: ErrorInfo): Promise<void> {
   try {
-    const request = await loadRequestClient();
+    const request = getRequestClient();
     await request.post('/.netlify/functions/error-report', {
       ...errorInfo,
       buildInfo: {
