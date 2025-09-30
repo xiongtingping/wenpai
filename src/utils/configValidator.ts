@@ -1,15 +1,19 @@
 import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
 
-type RequestModule = typeof import('@/api/request');
+type RequestClient = typeof import('@/api/request').default;
 
-let requestModuleLoader: Promise<RequestModule> | null = null;
+let requestClient: RequestClient | null = null;
 
-async function loadRequestModule(): Promise<RequestModule> {
-  if (!requestModuleLoader) {
-    requestModuleLoader = import('@/api/request');
+export function registerRequestClient(client: RequestClient): void {
+  requestClient = client;
+}
+
+function ensureRequestClient(): RequestClient {
+  if (!requestClient) {
+    throw new Error('请求客户端未注册，请先调用 registerRequestClient');
   }
-  return requestModuleLoader;
+  return requestClient;
 }
 /**
  * 全局配置验证器
@@ -82,8 +86,8 @@ export async function validateAllConfigs(): Promise<ConfigValidationResult> {
 
     // 测试API连接
     try {
-      const requestClient = (await loadRequestModule()).default;
-      await requestClient.request({ url: apiEndpoint, method: 'OPTIONS', validateStatus: () => true });
+      const client = ensureRequestClient();
+      await client.request({ url: apiEndpoint, method: 'OPTIONS', validateStatus: () => true });
       result.networkStatus.canConnect = true;
     } catch {
       result.networkStatus.canConnect = false;

@@ -11,10 +11,13 @@
 
 import { ServiceContainer } from './unifiedPermissionService';
 import { registerSupabaseServiceFactory } from '@/lib/unifiedDataPersistenceManager';
+import { registerRequestClient } from '@/utils/configValidator';
 import { createDataService } from './supabaseDataService';
+import request from '@/api/request';
 
 // 注册 Supabase 服务工厂，避免 utils ↔ services 循环依赖
 registerSupabaseServiceFactory((userId, tableName) => createDataService(userId, tableName));
+registerRequestClient(request);
 
 /**
  * 服务初始化状态
