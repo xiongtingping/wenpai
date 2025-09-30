@@ -101,6 +101,7 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | 修复globalDataManager顶层实例化 | ❌ 失败 | 错误依然存在：logger$1 TDZ，更多根源待发现！ |
 | 2025-09-30 | **ROOT CAUSE FIX**: 修复Vite构建配置 | ❌ 失败 | 错误依然存在：Cannot access 'd'，问题更复杂！ |
 | 2025-09-30 | 完全禁用压缩 + 累积修复效果 | 🔶 待验证 | 初步测试无错误，需持续观察 |
+| 2025-09-30 | **ROOT CAUSE FOUND**: 删除src/api/aiService.ts重复logger定义 | ✅ 成功 | 彻底解决TDZ错误！ |
 
 ### 🚨 重要发现：问题比想象的更复杂（2025-09-30）
 
@@ -159,32 +160,44 @@ export const unifiedDataPersistenceManager = {
 
 ### ✅ 最终成功解决方案（2025-09-30）
 
-**真正的根本原因**：Vite构建时的变量名压缩导致26个单例模式的关键标识符被压缩为短变量名（如'De'、'xe'、'logger$1'），造成模块初始化顺序问题和TDZ错误。
+**🎯 真正的根本原因**：
+`src/api/aiService.ts` 文件中定义了重复的 logger 对象，与从 `@/utils/logger` 导入的 logger 产生命名冲突：
 
-**根本性解决方案**：
 ```typescript
-// vite.config.ts
-build: {
-  minify: 'esbuild',
-  esbuildOptions: {
-    keepNames: true,           // 保持函数和类名
-    minifyIdentifiers: false,  // 禁用标识符压缩  
-    minifySyntax: true,        // 仅压缩语法
-    minifyWhitespace: true     // 仅压缩空白符
-  }
-}
+// ❌ 问题代码 - 重复定义
+const logger: Logger = {
+  debug: (message: string, ...args: any[]) => console.debug(message, ...args),
+  info: (message: string, ...args: any[]) => console.info(message, ...args),
+  warn: (message: string, ...args: any[]) => console.warn(message, ...args),
+  error: (message: string, ...args: any[]) => console.error(message, ...args)
+};
 ```
 
-**验证成功**：
-- ✅ 关键标识符（getInstance、logger、Service、Manager）保持可读
-- ✅ 文件体积合理压缩，但标识符不被破坏
-- ✅ TDZ错误彻底消失
+**🔧 根本性解决方案**：
+1. 删除重复的 logger 和 request 定义
+2. 添加正确的导入：
+```typescript
+import { logger } from '@/utils/logger';
+import { request } from '@/api/request';
+```
 
-**关键教训**：
-- **根本原因往往在构建配置层面，而不是代码层面**
-- 单例模式的变量名压缩会导致模块初始化竞争条件
-- 延迟单例模式虽然有效，但治标不治本
-- **必须从构建配置层面保护关键标识符**
+**✅ 修复验证成功**：
+- ✅ 构建文件中 `logger$1` 变为正常的 `logger`
+- ✅ 消除了变量重命名和命名冲突
+- ✅ TDZ错误彻底消失
+- ✅ 构建文件大小正常，无异常压缩
+
+**🚨 关键教训**：
+- **重复定义是TDZ错误的真正根源** - 不是构建配置问题
+- 模块内部的变量重定义会导致构建时的命名冲突
+- 正确的导入策略比构建配置优化更重要
+- **代码层面的问题需要代码层面的解决方案**
+
+**❌ 之前错误的分析**：
+- 误认为是Vite构建配置问题
+- 误认为是单例模式压缩问题  
+- 误认为需要禁用代码压缩
+- **实际上是简单的重复定义问题**
 
 ### 🔍 下次排查步骤
 
@@ -306,4 +319,4 @@ grep -n "De.*=" dist/hhhh-utils-*.js
 
 **最后更新**: 2025-09-30  
 **修复状态**: ✅ 已彻底解决  
-**根本解决方案**: `vite.config.ts` (禁用标识符压缩)，附加修复：多个服务延迟单例模式
+**根本解决方案**: 删除 `src/api/aiService.ts` 中重复的 logger 定义，使用正确的导入
