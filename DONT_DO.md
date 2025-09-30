@@ -101,7 +101,8 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | 修复globalDataManager顶层实例化 | ❌ 失败 | 错误依然存在：logger$1 TDZ，更多根源待发现！ |
 | 2025-09-30 | **ROOT CAUSE FIX**: 修复Vite构建配置 | ❌ 失败 | 错误依然存在：Cannot access 'd'，问题更复杂！ |
 | 2025-09-30 | 完全禁用压缩 + 累积修复效果 | 🔶 待验证 | 初步测试无错误，需持续观察 |
-| 2025-09-30 | **ROOT CAUSE FOUND**: 删除src/api/aiService.ts重复logger定义 | ✅ 成功 | 彻底解决TDZ错误！ |
+| 2025-09-30 | **ROOT CAUSE FOUND**: 删除src/api/aiService.ts重复logger定义 | ❌ 失败 | 错误依然存在：Cannot access 'logger' |
+| 2025-09-30 | **新发现**: 模块顶层立即执行Manager.getInstance() | 🔍 重大发现 | DataSyncManager和DataMigrationManager在模块顶层立即执行 |
 
 ### 🚨 重要发现：问题比想象的更复杂（2025-09-30）
 
@@ -158,9 +159,32 @@ export const unifiedDataPersistenceManager = {
 };
 ```
 
-### ✅ 最终成功解决方案（2025-09-30）
+### 🔍 最新根因发现（2025-09-30）
 
-**🎯 真正的根本原因**：
+**🎯 真正的TDZ根本原因链条**：
+
+1. **模块顶层立即执行问题** (NEW DISCOVERY)：
+   - `DataSyncManager.getInstance();` 在模块顶层立即执行
+   - `const dataMigrationManager = DataMigrationManager.getInstance();` 在模块顶层立即执行  
+   - 这些调用触发了各种Manager的初始化
+
+2. **连锁初始化反应**：
+   - Manager初始化 → 调用unifiedDataPersistenceManager.getInstance()
+   - UnifiedDataPersistenceManager被实例化
+   - 构造函数注册online事件监听器：`window.addEventListener('online', () => this.processSyncQueue())`
+   - 浏览器立即触发online事件
+   - processSyncQueue()被调用：`logger.info(\`🔄 处理同步队列，待同步项目: \${this.syncQueue.length}\`)`
+   - 但此时logger还没定义（logger在第3133行定义，但Manager初始化更早）
+
+3. **构建文件证据**：
+   - aaaa-utils-BYsIIICT.js第4325行：`DataSyncManager.getInstance();`
+   - aaaa-utils-BYsIIICT.js第4326行：`const dataMigrationManager = DataMigrationManager.getInstance();`
+   - aaaa-utils-BYsIIICT.js第3777行：`logger.info()` 调用在processSyncQueue中
+   - aaaa-utils-BYsIIICT.js第3133行：logger定义位置
+
+### ❌ 之前错误的根因分析
+
+**🎯 之前误认为的根本原因**：
 `src/api/aiService.ts` 文件中定义了重复的 logger 对象，与从 `@/utils/logger` 导入的 logger 产生命名冲突：
 
 ```typescript

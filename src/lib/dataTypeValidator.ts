@@ -1083,5 +1083,32 @@ export function useSafeLocalStorage() {
   };
 }
 
-export const dataTypeValidator = DataTypeValidator.getInstance();
+// 🔧 FIXED: 改为懒加载，避免模块顶层立即执行getInstance()
+let dataTypeValidatorInstance: DataTypeValidator | null = null;
+
+export const dataTypeValidator = {
+  getInstance(): DataTypeValidator {
+    if (!dataTypeValidatorInstance) {
+      dataTypeValidatorInstance = DataTypeValidator.getInstance();
+    }
+    return dataTypeValidatorInstance;
+  },
+  
+  // 代理方法，确保向后兼容
+  validateAndClean: (data: any, schemaName: string) => {
+    return dataTypeValidator.getInstance().validateAndClean(data, schemaName);
+  },
+  
+  isValidData: (data: any, schemaName: string) => {
+    return dataTypeValidator.getInstance().isValidData(data, schemaName);
+  },
+  
+  getValidationErrors: (data: any, schemaName: string) => {
+    return dataTypeValidator.getInstance().getValidationErrors(data, schemaName);
+  },
+  
+  sanitizeData: (data: any, schemaName: string) => {
+    return dataTypeValidator.getInstance().sanitizeData(data, schemaName);
+  }
+};
 export const safeLocalStorage = new SafeLocalStorage();

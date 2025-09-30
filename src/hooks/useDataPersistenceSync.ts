@@ -17,7 +17,14 @@ import { useToast } from '@/hooks/use-toast';
 export function useDataPersistenceSync() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [syncStatus, setSyncStatus] = useState<DataSyncStatus>(dataSyncManager.getSyncStatus());
+  // 🔧 FIXED: 延迟获取syncStatus，避免在模块加载时立即调用getInstance()
+  const [syncStatus, setSyncStatus] = useState<DataSyncStatus>({
+    isOnline: navigator.onLine,
+    isSyncing: false,
+    lastSyncTime: null,
+    pendingSyncCount: 0,
+    syncErrors: []
+  });
   const [migrationResult, setMigrationResult] = useState<DataMigrationResult | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -26,6 +33,10 @@ export function useDataPersistenceSync() {
     const handleSyncStatusChange = (status: DataSyncStatus) => {
       setSyncStatus(status);
     };
+
+    // 🔧 FIXED: 延迟获取初始状态，确保在effect中进行
+    const initialStatus = dataSyncManager.getSyncStatus();
+    setSyncStatus(initialStatus);
 
     dataSyncManager.addSyncListener(handleSyncStatusChange);
 

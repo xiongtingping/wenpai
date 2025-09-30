@@ -396,6 +396,52 @@ export class DataMigrationManager {
   }
 }
 
-// 创建全局实例
-export const dataSyncManager = DataSyncManager.getInstance();
-export const dataMigrationManager = DataMigrationManager.getInstance();
+// 🔧 FIXED: 改为懒加载单例模式，避免模块加载时的TDZ错误
+// 之前的立即执行会导致连锁初始化反应，最终导致logger的TDZ错误
+
+let dataSyncManagerInstance: DataSyncManager | null = null;
+let dataMigrationManagerInstance: DataMigrationManager | null = null;
+
+export const dataSyncManager = {
+  getInstance(): DataSyncManager {
+    if (!dataSyncManagerInstance) {
+      dataSyncManagerInstance = DataSyncManager.getInstance();
+    }
+    return dataSyncManagerInstance;
+  },
+  
+  // 代理方法，确保向后兼容
+  getSyncStatus() {
+    return this.getInstance().getSyncStatus();
+  },
+  
+  addSyncListener(listener: (status: DataSyncStatus) => void) {
+    return this.getInstance().addSyncListener(listener);
+  },
+  
+  removeSyncListener(listener: (status: DataSyncStatus) => void) {
+    return this.getInstance().removeSyncListener(listener);
+  },
+  
+  async manualSync(): Promise<boolean> {
+    return this.getInstance().manualSync();
+  }
+};
+
+export const dataMigrationManager = {
+  getInstance(): DataMigrationManager {
+    if (!dataMigrationManagerInstance) {
+      dataMigrationManagerInstance = DataMigrationManager.getInstance();
+    }
+    return dataMigrationManagerInstance;
+  },
+  
+  // 代理方法，确保向后兼容
+  async performLoginMigration(userId: string): Promise<DataMigrationResult> {
+    return this.getInstance().performLoginMigration(userId);
+  },
+  
+  async performLogoutCleanup(userId: string): Promise<boolean> {
+    return this.getInstance().performLogoutCleanup(userId);
+  }
+};
