@@ -741,5 +741,31 @@ export class UnifiedDataPersistenceManager {
   }
 }
 
-// 全局实例
-export const unifiedDataPersistenceManager = new UnifiedDataPersistenceManager();
+// 延迟创建全局实例，避免模块加载时的TDZ错误
+let unifiedDataPersistenceManagerInstance: UnifiedDataPersistenceManager | null = null;
+
+export const unifiedDataPersistenceManager = {
+  getInstance(): UnifiedDataPersistenceManager {
+    if (!unifiedDataPersistenceManagerInstance) {
+      unifiedDataPersistenceManagerInstance = new UnifiedDataPersistenceManager();
+    }
+    return unifiedDataPersistenceManagerInstance;
+  },
+  
+  // 代理方法，确保向后兼容
+  setUserId(userId: string | null) {
+    return this.getInstance().setUserId(userId);
+  },
+  
+  saveData<T>(dataType: string, data: T) {
+    return this.getInstance().saveData(dataType, data);
+  },
+  
+  loadData<T>(dataType: string) {
+    return this.getInstance().loadData(dataType);
+  },
+  
+  deleteData(dataType: string) {
+    return this.getInstance().deleteData(dataType);
+  }
+};

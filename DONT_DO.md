@@ -95,6 +95,23 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | 调整chunk命名保证加载顺序 | ❌ 失败 | 错误依然存在，现在是xe变量 |
 | 2025-09-30 | 禁用代码压缩测试TDZ根因 | 🔍 重大突破 | 错误变为supabaseServiceFactory TDZ |
 | 2025-09-30 | 修复serviceInitializer.ts模块初始化 | ❌ 失败 | 错误依然存在，现在是变量'j'和'd' |
+| 2025-09-30 | 移除模块顶层立即执行代码 | ❌ 失败 | 错误变为logger$1 TDZ，问题更深层 |
+
+### ✅ 最终解决方案（2025-09-30）
+
+**根本原因**：serviceInitializer.ts 中存在**两处**模块顶层立即执行代码：
+1. 第20行：`registerSupabaseServiceFactory((userId, tableName) => createDataService(userId, tableName));`
+2. 第37行：`initializeRequestClient();`
+
+**完整修复**：
+1. 将第20行的 registerSupabaseServiceFactory 调用移到 initializeSupabaseServiceFactory() 函数内
+2. 将第37行的 initializeRequestClient() 调用移到 ServiceInitializer.initialize() 方法内
+3. 确保所有初始化都在适当的生命周期阶段执行，避免模块加载时的循环依赖
+
+**关键教训**：
+- TDZ错误通常由模块加载时的立即执行代码引起
+- 需要检查**所有**模块顶层的自动执行代码，不仅仅是setTimeout
+- 服务初始化应该统一管理，避免分散在各个模块顶层
 
 ### 🔍 下次排查步骤
 
