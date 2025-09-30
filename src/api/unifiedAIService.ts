@@ -272,7 +272,15 @@ export {
   getUnifiedEnvironmentInfo as getEnvironmentInfo
 };
 
-// 输出环境信息
-const envInfo = getUnifiedEnvironmentInfo();
-logger.debug('🔧 统一AI服务已加载:', envInfo);
-logger.debug(`📍 当前使用: ${envInfo.apiMethod} (${envInfo.description})`);
+// 🔧 FIXED: 移除模块顶层立即执行的logger调用，避免TDZ错误
+// 这些调用会在模块加载时立即执行，而此时logger可能还未定义
+// 如果需要环境信息调试，可以在具体的函数中调用
+
+/**
+ * 获取并输出环境信息（按需调用）
+ */
+export function logEnvironmentInfo() {
+  const envInfo = getUnifiedEnvironmentInfo();
+  logger.debug('🔧 统一AI服务已加载:', envInfo);
+  logger.debug(`📍 当前使用: ${envInfo.apiMethod} (${envInfo.description})`);
+}

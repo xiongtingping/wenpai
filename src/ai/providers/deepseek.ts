@@ -237,4 +237,5 @@ export function createDeepSeekProvider(): DeepSeekProvider {
  */
 export default createDeepSeekProvider();
 
-logger.debug('🔧 DeepSeek提供者已加载');
+// 🔧 FIXED: 移除模块顶层立即执行的logger调用，避免TDZ错误
+// logger.debug('🔧 DeepSeek提供者已加载');

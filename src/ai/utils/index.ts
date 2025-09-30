@@ -282,4 +282,5 @@ export function withCache<T extends (...args: any[]) => Promise<any>>(
   }) as T;
 }
 
-logger.debug('🔧 AI系统工具函数已加载');
+// 🔧 FIXED: 移除模块顶层立即执行的logger调用，避免TDZ错误
+// logger.debug('🔧 AI系统工具函数已加载');

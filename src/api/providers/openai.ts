@@ -246,4 +246,5 @@ export default {
   create: createOpenAIProvider
 };
 
-logger.debug('🔧 OpenAI提供者已加载');
+// 🔧 FIXED: 移除模块顶层立即执行的logger调用，避免TDZ错误
+// logger.debug('🔧 OpenAI提供者已加载');

@@ -548,9 +548,16 @@ export function checkAISystemStatus() {
   return aiManager.getSystemStatus();
 }
 
-// 系统初始化日志
-const status = aiManager.getSystemStatus();
-logger.info('🤖 统一AI管理器已加载', {
-  providers: status.availableProviders,
-  message: '所有AI调用已统一管理，硬编码问题已解决'
-});
+// 🔧 FIXED: 移除模块顶层立即执行的logger调用，避免TDZ错误
+// 这些调用会在模块加载时立即执行，而此时logger可能还未定义
+
+/**
+ * 获取并输出系统状态信息（按需调用）
+ */
+export function logSystemStatus() {
+  const status = aiManager.getSystemStatus();
+  logger.info('🤖 统一AI管理器已加载', {
+    providers: status.availableProviders,
+    message: '所有AI调用已统一管理，硬编码问题已解决'
+  });
+}

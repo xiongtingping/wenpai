@@ -103,6 +103,7 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | 完全禁用压缩 + 累积修复效果 | 🔶 待验证 | 初步测试无错误，需持续观察 |
 | 2025-09-30 | **ROOT CAUSE FOUND**: 删除src/api/aiService.ts重复logger定义 | ❌ 失败 | 错误依然存在：Cannot access 'logger' |
 | 2025-09-30 | **新发现**: 模块顶层立即执行Manager.getInstance() | 🔍 重大发现 | DataSyncManager和DataMigrationManager在模块顶层立即执行 |
+| 2025-09-30 | **系统性修复**: 改为懒加载单例模式 | ❌ 失败 | 错误依然存在：Cannot access 'logger'，需要更全面的修复 |
 
 ### 🚨 重要发现：问题比想象的更复杂（2025-09-30）
 
@@ -181,6 +182,15 @@ export const unifiedDataPersistenceManager = {
    - aaaa-utils-BYsIIICT.js第4326行：`const dataMigrationManager = DataMigrationManager.getInstance();`
    - aaaa-utils-BYsIIICT.js第3777行：`logger.info()` 调用在processSyncQueue中
    - aaaa-utils-BYsIIICT.js第3133行：logger定义位置
+
+4. **系统性修复实施**：
+   - ✅ src/lib/dataSync.ts: 改为懒加载单例模式，移除模块顶层的getInstance()调用
+   - ✅ src/hooks/useDataPersistenceSync.ts: 延迟初始状态获取到useEffect中
+   - ✅ src/lib/dataTypeValidator.ts: 改为懒加载避免模块初始化时执行
+   - 🔍 发现系统中存在26+个模块顶层立即执行的单例模式
+
+5. **修复原理**：
+   通过懒加载单例模式打破"模块加载→立即实例化→事件监听器注册→立即触发→logger使用→TDZ错误"的连锁反应链条
 
 ### ❌ 之前错误的根因分析
 
