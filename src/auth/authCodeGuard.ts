@@ -232,5 +232,19 @@ export class AuthCodeGuard {
   }
 }
 
-// 导出单例实例
-export const authCodeGuard = new AuthCodeGuard();
+// 延迟创建实例，避免TDZ错误
+let authCodeGuardInstance: AuthCodeGuard | null = null;
+
+export function getAuthCodeGuard(): AuthCodeGuard {
+  if (!authCodeGuardInstance) {
+    authCodeGuardInstance = new AuthCodeGuard();
+  }
+  return authCodeGuardInstance;
+}
+
+// 保持向后兼容的导出
+export const authCodeGuard = {
+  checkCode: (code: string) => getAuthCodeGuard().checkCode(code),
+  validateCode: (code: string) => getAuthCodeGuard().validateCode(code),
+  isValidCode: (code: string) => getAuthCodeGuard().isValidCode(code)
+};

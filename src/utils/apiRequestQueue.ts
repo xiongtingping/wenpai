@@ -235,13 +235,27 @@ class APIRequestQueue {
   }
 }
 
-// 创建全局队列实例
-export const apiRequestQueue = new APIRequestQueue({
-  maxConcurrent: 1,  // 限制为1个并发请求
-  minDelay: 2000,    // 最小延迟2秒
-  maxDelay: 10000,   // 最大延迟10秒
-  rateLimitDelay: 15000 // 频率限制延迟15秒
-});
+// 延迟创建全局队列实例，避免TDZ错误
+let apiRequestQueueInstance: APIRequestQueue | null = null;
+
+export function getApiRequestQueue(): APIRequestQueue {
+  if (!apiRequestQueueInstance) {
+    apiRequestQueueInstance = new APIRequestQueue({
+      maxConcurrent: 1,  // 限制为1个并发请求
+      minDelay: 2000,    // 最小延迟2秒
+      maxDelay: 10000,   // 最大延迟10秒
+      rateLimitDelay: 15000 // 频率限制延迟15秒
+    });
+  }
+  return apiRequestQueueInstance;
+}
+
+// 保持向后兼容的导出
+export const apiRequestQueue = {
+  add: (...args: any[]) => getApiRequestQueue().add(...args),
+  clear: () => getApiRequestQueue().clear(),
+  getStats: () => getApiRequestQueue().getStats()
+};
 
 /**
  * 包装API调用函数，使用队列管理
