@@ -90,6 +90,7 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | 移除utils自动执行代码 | 🔶 待验证 | 可能不是唯一原因 |
 | 2025-09-30 | 发现aiAnalysisService中PDF.js懒加载 | 🔍 新发现 | setTimeout + PDF worker可能冲突 |
 | 2025-09-30 | 测试移除PDF worker文件 | ❌ 无效 | 构建成功但不是根源 |
+| 2025-09-30 | **错误依然存在!** | ❌ 确认失败 | utils自动执行修复无效 |
 
 ### 🔍 下次排查步骤
 

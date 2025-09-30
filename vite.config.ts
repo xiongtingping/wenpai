@@ -155,22 +155,22 @@ export default defineConfig(({ command, mode }) => ({
           if (id.includes('node_modules')) {
             // React生态系统库 - 依赖React核心库
             if (id.includes('react-router') || id.includes('react-i18next') || id.includes('react-hook-form')) {
-              return 'bbbb-react-ecosystem';
+              return 'cccc-react-ecosystem';
             }
             
             // UI组件库 - 依赖React
             if (id.includes('@radix-ui') || id.includes('lucide-react')) {
-              return 'cccc-ui-vendor';
+              return 'dddd-ui-vendor';
             }
             
             // 工具库 - 通常不依赖React，可以并行加载
             if (id.includes('lodash') || id.includes('date-fns') || id.includes('crypto-js') || id.includes('axios')) {
-              return 'dddd-utils-vendor';
+              return 'eeee-utils-vendor';
             }
             
             // 国际化
             if (id.includes('i18n')) {
-              return 'eeee-i18n-vendor';
+              return 'ffff-i18n-vendor';
             }
             
             // 动画和图表库 - 强制依赖React核心库，最后加载
@@ -184,19 +184,19 @@ export default defineConfig(({ command, mode }) => ({
             }
             
             // 其他第三方库
-            return 'ffff-vendor';
+            return 'gggg-vendor';
           }
           
-          // 业务代码分割
+          // 业务代码分割 - 🔧 CRITICAL FIX: 调整顺序解决TDZ
           if (id.includes('/src/')) {
-            // 服务层
-            if (id.includes('/services/')) {
-              return 'gggg-services';
+            // 工具函数 - 必须在服务层之前加载，避免TDZ
+            if (id.includes('/utils/') || id.includes('/lib/')) {
+              return 'aaaa-utils';  // 改为aaaa确保最优先加载
             }
             
-            // 工具函数
-            if (id.includes('/utils/') || id.includes('/lib/')) {
-              return 'hhhh-utils';
+            // 服务层 - 依赖utils，必须在utils之后
+            if (id.includes('/services/')) {
+              return 'bbbb-services';  // 改为bbbb确保在utils之后
             }
             
             // 组件库
