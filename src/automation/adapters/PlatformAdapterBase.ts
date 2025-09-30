@@ -1,7 +1,7 @@
 // 平台适配器基础类
 // 自动生成 - 2025-08-03
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 
 export interface LoginStatus {
   isLoggedIn: boolean;

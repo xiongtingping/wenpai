@@ -3,7 +3,7 @@
  * 监听用户认证状态变化，自动处理数据迁移和同步
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import React, { useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { dataMigrationManager } from '@/lib/dataSync';
@@ -76,7 +76,7 @@ export function useAuthDataSync() {
       if (migrationResult.success) {
         if (migrationResult.totalMigratedItems > 0) {
           toast({
-            title: i18n.t('common.labels.数据同步成功'),
+            title: 'u64cdu4f5cu5931u8d25',
             description: `已将 ${migrationResult.totalMigratedItems} 项数据同步到云端，您的数据现在更安全了！`,
             duration: 5000
           });
@@ -91,12 +91,12 @@ export function useAuthDataSync() {
           
           // 只在有严重错误时才显示警告
           const hasSeriesErrors = migrationResult.errors.some(error => 
-            error.includes(i18n.t('common.errors.异常')) || error.includes(i18n.t('common.errors.失败'))
+            error.includes('u64cdu4f5cu5931u8d25') || error.includes('u64cdu4f5cu5931u8d25')
           );
           
           if (hasSeriesErrors) {
             toast({
-              title: i18n.t('common.labels.数据同步部分失败'),
+              title: 'u64cdu4f5cu5931u8d25',
               description: "部分数据同步失败，但不影响正常使用。您的数据仍然安全。",
               variant: "destructive",
               duration: 6000
@@ -109,7 +109,7 @@ export function useAuthDataSync() {
       
       // 登录数据处理失败不应该阻止用户使用
       toast({
-        title: i18n.t('common.labels.数据同步失败'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "登录时数据同步失败，但不影响正常使用。您可以稍后手动同步。",
         variant: "destructive",
         duration: 6000
@@ -157,7 +157,7 @@ export function useAuthDataSync() {
       logger.error('❌ 处理用户切换失败:', error);
       
       toast({
-        title: i18n.t('common.labels.用户切换数据处理失败'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "用户切换时数据处理失败，可能需要重新登录。",
         variant: "destructive"
       });
@@ -193,7 +193,7 @@ export function useManualDataSync() {
   const triggerDataMigration = async (): Promise<boolean> => {
     if (!user?.id) {
       toast({
-        title: i18n.t('common.labels.无法同步'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "请先登录后再尝试同步数据",
         variant: "destructive"
       });
@@ -208,19 +208,19 @@ export function useManualDataSync() {
       if (migrationResult.success) {
         if (migrationResult.totalMigratedItems > 0) {
           toast({
-            title: i18n.t('common.labels.数据同步成功'),
+            title: 'u64cdu4f5cu5931u8d25',
             description: `已同步 ${migrationResult.totalMigratedItems} 项数据到云端`,
           });
         } else {
           toast({
-            title: i18n.t('common.labels.数据已是最新'),
+            title: 'u64cdu4f5cu5931u8d25',
             description: "您的数据已经是最新的，无需同步",
           });
         }
         return true;
       } else {
         toast({
-          title: i18n.t('common.labels.数据同步失败'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: `同步失败: ${migrationResult.errors.join(', ')}`,
           variant: "destructive"
         });
@@ -229,7 +229,7 @@ export function useManualDataSync() {
     } catch (error) {
       logger.error('❌ 手动数据迁移失败:', error);
       toast({
-        title: i18n.t('common.labels.同步异常'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "数据同步时发生异常，请稍后重试",
         variant: "destructive"
       });
@@ -253,7 +253,7 @@ export function useManualDataSync() {
       }
       
       toast({
-        title: i18n.t('common.labels.重置成功'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "数据持久化状态已重置",
       });
       
@@ -261,7 +261,7 @@ export function useManualDataSync() {
     } catch (error) {
       logger.error('❌ 重置数据持久化状态失败:', error);
       toast({
-        title: i18n.t('common.labels.重置失败'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "重置时发生异常，请刷新页面重试",
         variant: "destructive"
       });

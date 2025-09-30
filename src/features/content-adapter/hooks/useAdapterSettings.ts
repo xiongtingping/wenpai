@@ -3,7 +3,7 @@
  * 管理全局设置、平台设置、模式切换等
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { GlobalSettings, PlatformSettings } from '../services/contentAdapterService';
@@ -276,7 +276,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
 
     // 验证品牌库设置
     if (useBrandLibrary && !brandProfile) {
-      errors.push(i18n.t('common.errors.启用品牌库时必须提供品牌档案'));
+      errors.push('u64cdu4f5cu5931u8d25');
     }
 
     return {
@@ -306,12 +306,12 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
       localStorage.setItem(storageKey, JSON.stringify(settingsData));
       
       toast({
-        title: i18n.t('common.labels.设置已保存'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "您的配置已成功保存",
       });
     } catch (error) {
       toast({
-        title: i18n.t('common.labels.保存失败'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "设置保存时发生错误",
         variant: "destructive"
       });
@@ -350,7 +350,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
     } catch (error) {
       console.error('加载设置失败:', error);
       toast({
-        title: i18n.t('common.errors.加载设置失败'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "将使用默认设置",
         variant: "destructive"
       });
@@ -401,14 +401,14 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
       if (settingsData.selectedModel) setSelectedModel(settingsData.selectedModel);
 
       toast({
-        title: i18n.t('common.labels.设置导入成功'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "配置已成功导入",
       });
 
       return true;
     } catch (error) {
       toast({
-        title: i18n.t('common.labels.导入失败'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "设置文件格式错误",
         variant: "destructive"
       });

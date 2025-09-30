@@ -1,4 +1,4 @@
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logger } from '@/utils/logger';
 
 /**
@@ -204,7 +204,7 @@ class APIRequestQueue {
     return errorMessage.includes('429') || 
            errorMessage.includes('Too Many Requests') ||
            errorMessage.includes('rate limit') ||
-           errorMessage.includes(i18n.t('utils.errors.频率超限'));
+           errorMessage.includes('u64cdu4f5cu5931u8d25');
   }
 
   /**

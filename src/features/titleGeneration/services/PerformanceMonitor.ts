@@ -3,7 +3,7 @@
  * 监控标题生成系统的性能指标和用户体验
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { TitleGenerationConfig } from '../config/titleGeneration.config';
 
 interface PerformanceMetric {
@@ -284,7 +284,7 @@ export class PerformanceMonitor {
     if (metrics.errorRate > this.config.errorRateThreshold) {
       alerts.push({
         level: 'error',
-        message: i18n.t('common.messages.错误率超过阈值'),
+        message: 'u64cdu4f5cu5931u8d25',
         metric: 'error_rate',
         value: metrics.errorRate,
         threshold: this.config.errorRateThreshold
@@ -304,7 +304,7 @@ export class PerformanceMonitor {
     if (metrics.cacheHitRate < this.config.cacheHitRateThreshold) {
       alerts.push({
         level: 'warning',
-        message: i18n.t('common.messages.缓存命中率低于阈值'),
+        message: 'u64cdu4f5cu5931u8d25',
         metric: 'cache_hit_rate',
         value: metrics.cacheHitRate,
         threshold: this.config.cacheHitRateThreshold

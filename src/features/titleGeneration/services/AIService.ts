@@ -3,7 +3,7 @@
  * 统一管理 AI 模型调用，支持降级策略
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { callAIWithTokenTracking, AITaskType } from '@/services/aiWithTokenTracking';
 import { callAIWithRetry } from '@/api/ai';
 import type { AICallParams } from '@/api/ai';
@@ -317,7 +317,7 @@ export class AIService implements IAIService {
 {
   "titles": [
     {
-      "title": i18n.t('common.labels.标题内容'),
+      "title": 'u64cdu4f5cu5931u8d25',
       "style": "informative",
       "length": 15,
       "semanticFit": 0.85,

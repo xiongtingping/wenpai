@@ -10,7 +10,7 @@
  * 📌 遵循CLAUDE.md规则：禁止硬编码、统一管理、真实API
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { getAIEndpoint, buildAPIURL, getAPIHeaders, supportsFeature } from '@/config/aiEndpoints';
 import { getAPIKey, validateAPIKey, keyManager } from '@/config/apiKeyManager';
 import { getModelInfo, isModelAvailableForTier } from '@/config/aiModels';

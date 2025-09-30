@@ -8,7 +8,7 @@
  * - 统一的错误处理和日志记录
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from '@/config/supabase';
 import { logger } from '@/utils/logger';

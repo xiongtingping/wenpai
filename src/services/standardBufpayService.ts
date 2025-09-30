@@ -3,7 +3,7 @@
  * 支持标准的支付流程：notify_url + return_url
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logger } from '@/utils/logger';
 import { StandardOrderService, type CreateOrderParams } from '@/services/standardOrderService';
 
@@ -105,7 +105,7 @@ export class StandardBufPayService {
       logger.info('BufPay API 响应:', result);
 
       if (result.code !== 200) {
-        throw new Error(`BufPay 创建支付失败: ${result.message || i18n.t('common.errors.未知错误')}`);
+        throw new Error(`BufPay 创建支付失败: ${result.message || '未知错误'}`);
       }
 
       // 3. 更新订单的支付平台订单号

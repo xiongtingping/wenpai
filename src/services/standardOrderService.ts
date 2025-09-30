@@ -4,7 +4,7 @@
  * 支持 Netlify Functions + Supabase 架构
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { supabase } from '@/config/supabase';
 import { logger } from '@/utils/logger';
 
@@ -205,7 +205,7 @@ export class StandardOrderService {
           const order = await this.getOrder(orderId);
 
           if (!order) {
-            reject(new Error(i18n.t('common.errors.订单不存在')));
+            reject(new Error('u64cdu4f5cu5931u8d25'));
             return;
           }
 

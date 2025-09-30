@@ -1,4 +1,4 @@
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import type { AICallParams, AIResponse } from './types';
 
 // Logger interface
@@ -378,7 +378,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       taskType,
       responseTime: Date.now() - startTime,
       success: false,
-      error: i18n.t('api.errors.提示词不能为空')
+      error: 'u64cdu4f5cu5931u8d25'
     };
   }
 
@@ -445,7 +445,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       taskType,
       responseTime: Date.now() - startTime,
       success: false,
-      error: error instanceof Error ? error.message : i18n.t('common.errors.unknownError')
+      error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'
     };
   }
 }
@@ -615,7 +615,7 @@ export async function initializeAIService(): Promise<{
       violations
     };
   } catch (error) {
-    const errorMessage = `❌ AI服务模块初始化异常: ${error instanceof Error ? error.message : i18n.t('common.errors.unknownError')}`;
+    const errorMessage = `❌ AI服务模块初始化异常: ${error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'}`;
     console.error(errorMessage);
 
     return {

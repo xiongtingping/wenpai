@@ -3,7 +3,7 @@
  * 负责在用户登录状态变化时处理数据的同步和迁移
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { unifiedDataPersistenceManager } from '@/lib/unifiedDataPersistenceManager';
 import { logger } from '@/utils/logger';
 
@@ -154,7 +154,7 @@ export class DataSyncManager {
     }
 
     if (this.syncStatus.isSyncing) {
-      throw new Error(i18n.t('common.errors.同步正在进行中'));
+      throw new Error('u64cdu4f5cu5931u8d25');
     }
 
     try {
@@ -308,7 +308,7 @@ export class DataMigrationManager {
         return { 
           success: false, 
           itemCount: 0, 
-          error: saveResult.error || i18n.t('common.errors.保存失败') 
+          error: saveResult.error || 'u64cdu4f5cu5931u8d25' 
         };
       }
     } catch (error) {

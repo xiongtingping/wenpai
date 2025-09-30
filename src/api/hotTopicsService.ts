@@ -9,7 +9,7 @@
  * 📌 已封装：核心API服务、缓存机制、错误处理、重试逻辑
  * ⚠️ 请勿改动：此模块已通过完整性验证，功能稳定运行
  */
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import request from './request';
 
 // ==================== 类型定义 ====================
@@ -293,11 +293,11 @@ class HotTopicsAPI {
   private extractTags(title: string): string[] {
     const tags: string[] = [];
     
-    if (title.includes(i18n.t('api.labels.热搜'))) tags.push(i18n.t('api.labels.热搜'));
-    if (title.includes(i18n.t('api.labels.爆料'))) tags.push(i18n.t('api.labels.爆料'));
-    if (title.includes(i18n.t('api.labels.官宣'))) tags.push(i18n.t('api.labels.官宣'));
-    if (title.includes(i18n.t('api.labels.首次'))) tags.push(i18n.t('api.labels.首次'));
-    if (title.includes(i18n.t('api.labels.突发'))) tags.push(i18n.t('api.labels.突发'));
+    if (title.includes('u64cdu4f5cu5931u8d25')) tags.push('u64cdu4f5cu5931u8d25');
+    if (title.includes('u64cdu4f5cu5931u8d25')) tags.push('u64cdu4f5cu5931u8d25');
+    if (title.includes('u64cdu4f5cu5931u8d25')) tags.push('u64cdu4f5cu5931u8d25');
+    if (title.includes('u64cdu4f5cu5931u8d25')) tags.push('u64cdu4f5cu5931u8d25');
+    if (title.includes('u64cdu4f5cu5931u8d25')) tags.push('u64cdu4f5cu5931u8d25');
     
     return tags;
   }
@@ -428,7 +428,7 @@ class HotTopicsAPI {
 
       const response: DailyHotResponse = {
         code: 200,
-        message: i18n.t('api.messages.获取成功'),
+        message: 'u64cdu4f5cu5931u8d25',
         data: aggregatedData,
         updateTime: new Date().toISOString(),
         cacheTime: Date.now(),
@@ -454,8 +454,8 @@ class HotTopicsAPI {
       return response;
 
     } catch (error) {
-      this.log(i18n.t('api.errors.聚合热点数据失败'), error);
-      throw new Error(`获取热点数据失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}，请检查网络连接后重试`);
+      this.log('u64cdu4f5cu5931u8d25', error);
+      throw new Error(`获取热点数据失败: ${error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'}，请检查网络连接后重试`);
     }
   }
 
@@ -509,7 +509,7 @@ class HotTopicsAPI {
         return this.aggregateAndSortTopics(allData.data);
       }
     } catch (error) {
-      this.log(i18n.t('api.errors.获取热点话题失败'), error);
+      this.log('u64cdu4f5cu5931u8d25', error);
       return [];
     }
   }
@@ -519,7 +519,7 @@ class HotTopicsAPI {
       this.log('获取话题详情', { topicId });
       return null;
     } catch (error) {
-      this.log(i18n.t('api.errors.获取话题详情失败'), error);
+      this.log('u64cdu4f5cu5931u8d25', error);
       return null;
     }
   }
@@ -529,7 +529,7 @@ class HotTopicsAPI {
       const res = await request.get('https://api.vvhan.com/api/moyu');
       return res.data;
     } catch (error) {
-      this.log(i18n.t('api.errors.获取摩鱼日历失败'), error);
+      this.log('u64cdu4f5cu5931u8d25', error);
       throw error;
     }
   }

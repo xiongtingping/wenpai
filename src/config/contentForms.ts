@@ -3,7 +3,7 @@
  * 定义四大内容分类和具体形式
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 
 // 🔧 TDZ Fix: 使用函数声明避免TDZ错误
 function getTranslation(key: string) {

@@ -3,7 +3,7 @@
  * 用于生成不同平台适配的内容
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { type StyleType } from '@/config/contentSchemes';
 import { getContentFormById } from '@/config/contentForms';
 import { callUnifiedAI } from '@/api/unifiedAIService';

@@ -9,7 +9,7 @@
  * - 错误处理和重试机制
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { createDataService, TABLE_NAMES, type DatabaseRecord, type QueryOptions, type QueryResult } from './supabaseDataService';
 
 export interface DataAccessOptions extends QueryOptions {

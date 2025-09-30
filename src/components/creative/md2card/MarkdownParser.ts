@@ -1,4 +1,4 @@
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 /**
  * Markdown解析器和内容适配器
  * 将Markdown内容解析为适合卡片展示的结构化数据

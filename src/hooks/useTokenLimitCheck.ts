@@ -3,7 +3,7 @@
  * @description 提供Token限额检查和提醒功能的React Hook
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTokenUsageStore } from '@/stores/compatibility-layer';
@@ -153,7 +153,7 @@ export function useTokenLimitCheck() {
     if (!currentStats) {
       return {
         status: 'unknown',
-        message: i18n.t('common.messages.使用情况未知'),
+        message: 'u64cdu4f5cu5931u8d25',
         percentage: 0
       };
     }

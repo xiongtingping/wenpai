@@ -3,7 +3,7 @@
  * 统一封装所有AI调用逻辑，替代分散的调用方式
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { callAIWithTokenTracking, type AICallParamsWithTracking, type AIResponseWithUsage } from '@/services/aiWithTokenTracking';
 import { AITaskType } from '@/api/aiService';
 import { generateMatrixPrompt } from '../utils/promptBuilders';
@@ -541,7 +541,7 @@ export class ContentAdapterService {
       return {
         success: false,
         versions: [],
-        error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误')
+        error: error instanceof Error ? error.message : '未知错误'
       };
     }
   }

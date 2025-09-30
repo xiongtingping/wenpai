@@ -3,7 +3,7 @@
  * 展示如何使用新的服务层替代原有的分散调用
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { ContentAdapterService } from '../services/contentAdapterService';
 import type { GlobalSettings, PlatformSettings } from '../services/contentAdapterService';
 
@@ -213,7 +213,7 @@ export async function exampleErrorHandling() {
     return result;
   } catch (error) {
     console.error('生成过程中发生错误:', error);
-    return { success: false, error: i18n.t('common.errors.生成失败') };
+    return { success: false, error: 'u64cdu4f5cu5931u8d25' };
   }
 }
 

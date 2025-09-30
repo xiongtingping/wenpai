@@ -9,7 +9,7 @@
  * - 添加预加载和缓存机制，避免数据闪烁
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { globalDataManager, DATA_CONFIGS, DataCategory } from '@/services/unifiedDataManager';
 import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 import { tokenUsageService } from '@/services/tokenUsageService';
@@ -140,7 +140,7 @@ class UnifiedUsageDataManager {
       // 从数据管理中心获取使用次数统计配置
       await globalDataManager.getData('usageCountStats');
     } catch (error) {
-      logger.warn(i18n.t('common.errors.预加载使用次数统计失败'), error);
+      logger.warn('u64cdu4f5cu5931u8d25', error);
     }
   }
 
@@ -152,7 +152,7 @@ class UnifiedUsageDataManager {
       // 从数据管理中心获取扩展统计配置
       await globalDataManager.getData('extendedUsageStats');
     } catch (error) {
-      logger.warn(i18n.t('common.errors.预加载扩展统计失败'), error);
+      logger.warn('u64cdu4f5cu5931u8d25', error);
     }
   }
 
@@ -184,7 +184,7 @@ class UnifiedUsageDataManager {
       
       return defaultStats;
     } catch (error) {
-      logger.error(i18n.t('common.errors.获取使用次数统计失败'), { userId, userTier, error });
+      logger.error('u64cdu4f5cu5931u8d25', { userId, userTier, error });
       
       // 返回默认统计
       return this.generateDefaultUsageCountStats(userTier);
@@ -367,7 +367,7 @@ class UnifiedUsageDataManager {
       
       return defaultStats;
     } catch (error) {
-      logger.error(i18n.t('common.errors.获取扩展统计失败'), { userId, error });
+      logger.error('u64cdu4f5cu5931u8d25', { userId, error });
       
       return {
         timeSaved: 0,
@@ -491,7 +491,7 @@ class UnifiedUsageDataManager {
           await globalDataManager.cleanupExpiredCache();
           logger.debug('定期缓存清理完成');
         } catch (error) {
-          logger.error(i18n.t('common.errors.定期同步失败'), error);
+          logger.error('u64cdu4f5cu5931u8d25', error);
         }
       }
     }, this.SYNC_INTERVAL);

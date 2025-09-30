@@ -9,7 +9,7 @@
  * 4. 开发环境的权限模拟
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
@@ -66,7 +66,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
     description: '需要登录',
     check: (user) => !!user && user.id,
     redirect: '/login',
-    message: i18n.t('common.messages.请先登录')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   // VIP权限
@@ -95,7 +95,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
       return false;
     },
     redirect: '/payment',
-    message: i18n.t('common.messages.创意魔方功能需要专业版权限')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   'feature:brand-library': {
@@ -112,7 +112,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
       return false;
     },
     redirect: '/payment',
-    message: i18n.t('common.messages.品牌库功能需要高级版权限')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   'feature:unlimited-usage': {
@@ -129,7 +129,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
       return false;
     },
     redirect: '/payment',
-    message: i18n.t('common.messages.无限使用功能需要高级版权限')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   'feature:advanced-models': {
@@ -186,7 +186,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
       return false;
     },
     redirect: '/payment',
-    message: i18n.t('common.messages.营销日历功能需要专业版权限')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   'feature:wechat-templates': {
@@ -205,7 +205,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
       return false;
     },
     redirect: '/payment',
-    message: i18n.t('common.messages.微信朋友圈文案模板功能需要专业版权限')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   'feature:content-extractor': {
@@ -222,15 +222,15 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
     description: '创意魔方内测',
     check: (user) => !!user && (user.isVip || user.vipLevel || user.permissions?.includes('preview:creative-studio')),
     redirect: '/payment',
-    message: i18n.t('common.messages.创意魔方功能正在内测中')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   // 订阅等级权限
   'tier:trial': {
     key: 'tier:trial',
-    description: i18n.t('common.messages.体验版权限'),
+    description: 'u64cdu4f5cu5931u8d25',
     check: (user) => true, // 所有用户都有体验版权限
-    message: i18n.t('common.messages.体验版权限')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   'tier:pro': {
@@ -249,7 +249,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
       return false;
     },
     redirect: '/payment',
-    message: i18n.t('common.messages.需要专业版或更高版本')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   'tier:premium': {
@@ -266,7 +266,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
       return false;
     },
     redirect: '/payment',
-    message: i18n.t('common.messages.需要高级版')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   // 主题切换权限
@@ -274,7 +274,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
     key: 'theme:basic',
     description: '基础主题切换权限',
     check: (user) => true, // 所有用户都有基础主题权限（浅色主题）
-    message: i18n.t('common.messages.基础主题权限')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   'theme:advanced': {
@@ -293,7 +293,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
       return false;
     },
     redirect: '/payment',
-    message: i18n.t('common.messages.高级主题需要专业版或更高版本')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   'theme:premium': {
@@ -310,7 +310,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
       return false;
     },
     redirect: '/payment',
-    message: i18n.t('common.messages.专业主题需要高级版')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   // 创意魔方权限
@@ -319,7 +319,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
     description: '创意魔方基础权限',
     check: (user) => !!user && (user.isVip || user.vipLevel === 'pro' || user.vipLevel === 'premium' || user.permissions?.includes('creative:basic')),
     redirect: '/payment',
-    message: i18n.t('common.messages.创意魔方需要专业版或更高版本')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   // 品牌库权限
@@ -328,7 +328,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
     description: '品牌库访问权限',
     check: (user) => !!user && (user.vipLevel === 'premium' || user.permissions?.includes('brand:library')),
     redirect: '/payment',
-    message: i18n.t('common.messages.品牌库需要高级版')
+    message: 'u64cdu4f5cu5931u8d25'
   },
 
   // 后端配置权限
@@ -345,7 +345,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
     description: '用户查看权限',
     check: (user) => !!user && user.permissions?.includes('user:view'),
     redirect: '/',
-    message: i18n.t('common.messages.没有用户查看权限')
+    message: 'u64cdu4f5cu5931u8d25'
   }
 };
 
@@ -392,9 +392,9 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
         }
         if (primaryStatus?.status === 'active') {
           const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
-          if (statusLabel.includes(i18n.t('common.labels.高级版')) || statusLabel.includes('premium')) {
+          if (statusLabel.includes('u64cdu4f5cu5931u8d25') || statusLabel.includes('premium')) {
             return 'premium';
-          } else if (statusLabel.includes(i18n.t('common.labels.专业版')) || statusLabel.includes('pro')) {
+          } else if (statusLabel.includes('u64cdu4f5cu5931u8d25') || statusLabel.includes('pro')) {
             return 'pro';
           }
         }

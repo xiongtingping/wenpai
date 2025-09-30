@@ -15,7 +15,7 @@
  * - 同步策略：实时同步、离线支持、冲突解决
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { safeSaveToLocalStorage, safeLoadFromLocalStorage } from '@/utils/safeDataStorage';
 import { logger } from '@/utils/logger';

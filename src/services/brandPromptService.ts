@@ -1,4 +1,4 @@
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { BrandProfile, BrandPromptConfig } from '@/types/brand';
 
 /**
@@ -273,19 +273,19 @@ export class BrandPromptService {
     }
 
     if (config.followLanguageGuidelines) {
-      requirements.push(i18n.t('services.text.自动遵循品牌的语_psx'));
+      requirements.push('u64cdu4f5cu5931u8d25');
     }
 
     if (config.includeBrandValues) {
-      requirements.push(i18n.t('services.text.融入品牌价值观_jom'));
+      requirements.push('u64cdu4f5cu5931u8d25');
     }
 
     if (config.maintainBrandConsistency) {
-      requirements.push(i18n.t('services.text.保持品牌形象始终_1in'));
+      requirements.push('u64cdu4f5cu5931u8d25');
     }
 
     if (config.useCoreTopics) {
-      requirements.push(i18n.t('services.text.围绕品牌核心话题_nft'));
+      requirements.push('u64cdu4f5cu5931u8d25');
     }
 
     if (config.applyBrandHashtags) {

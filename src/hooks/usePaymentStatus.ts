@@ -3,7 +3,7 @@
  * 提供支付状态监控的便捷接口
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { paymentStatusService, PaymentStatusData } from '@/services/paymentStatusService';
@@ -115,12 +115,12 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
         case 'failed':
         case 'cancelled':
           newStatus = 'failed';
-          message = i18n.t('common.messages.支付失败');
+          message = 'u64cdu4f5cu5931u8d25';
           progress = 0;
           break;
         case 'expired':
           newStatus = 'expired';
-          message = i18n.t('common.messages.支付已过期');
+          message = 'u64cdu4f5cu5931u8d25';
           progress = 0;
           break;
         default:
@@ -177,14 +177,14 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
       } else if (newStatus === 'failed' && onPaymentFailed) {
         onPaymentFailed(message);
         toast({
-          title: i18n.t('common.messages.支付失败'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: message,
           variant: "destructive",
         });
       } else if (newStatus === 'expired' && onPaymentExpired) {
         onPaymentExpired();
         toast({
-          title: i18n.t('common.messages.支付已过期'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: "请重新发起支付",
           variant: "destructive",
         });
@@ -203,7 +203,7 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
       setPaymentStatus(prev => ({
         ...prev,
         status: newRetryCount >= maxRetries ? 'failed' : 'pending',
-        message: newRetryCount >= maxRetries ? i18n.t('common.errors.获取支付状态失败') : '网络异常，正在重试...',
+        message: newRetryCount >= maxRetries ? 'u64cdu4f5cu5931u8d25' : '网络异常，正在重试...',
         progress: 0,
         error: error.message,
         lastChecked: new Date().toISOString(),

@@ -3,7 +3,7 @@
  * @description 使用Zustand管理Token使用量的全局状态
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import React from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -89,7 +89,7 @@ export const useTokenUsageStore = create<TokenUsageState & TokenUsageActions>()(
         } catch (error) {
           console.error('刷新Token统计失败:', error);
           set({ 
-            error: error instanceof Error ? error.message : i18n.t('common.errors.刷新统计失败'),
+            error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25',
             loading: false 
           });
         }
@@ -111,7 +111,7 @@ export const useTokenUsageStore = create<TokenUsageState & TokenUsageActions>()(
         } catch (error) {
           console.error('刷新使用历史失败:', error);
           set({ 
-            error: error instanceof Error ? error.message : i18n.t('common.errors.刷新历史失败'),
+            error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25',
             loading: false 
           });
         }
@@ -133,7 +133,7 @@ export const useTokenUsageStore = create<TokenUsageState & TokenUsageActions>()(
         } catch (error) {
           console.error('刷新功能统计失败:', error);
           set({ 
-            error: error instanceof Error ? error.message : i18n.t('common.errors.刷新功能统计失败'),
+            error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25',
             loading: false 
           });
         }
@@ -178,7 +178,7 @@ export const useTokenUsageStore = create<TokenUsageState & TokenUsageActions>()(
         } catch (error) {
           console.error('记录Token使用失败:', error);
           set({ 
-            error: error instanceof Error ? error.message : i18n.t('common.errors.记录使用失败')
+            error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'
           });
         }
       },
@@ -200,11 +200,11 @@ export const useTokenUsageStore = create<TokenUsageState & TokenUsageActions>()(
         } catch (error) {
           console.error('检查Token限额失败:', error);
           set({ 
-            error: error instanceof Error ? error.message : i18n.t('common.errors.检查限额失败')
+            error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'
           });
           
           // 🚨 API失败时必须抛出错误，不能返回模拟允许结果
-          throw new Error(`Token限额检查API调用失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+          throw new Error(`Token限额检查API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
         }
       },
 

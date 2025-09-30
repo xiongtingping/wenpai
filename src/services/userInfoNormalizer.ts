@@ -8,7 +8,7 @@
  * 4. 一致性检查和修复
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logger } from '@/utils/logger';
 
 /**
@@ -293,7 +293,7 @@ export class UserInfoNormalizer {
    */
   merge(...sources: StandardUserInfo[]): StandardUserInfo {
     if (sources.length === 0) {
-      throw new Error(i18n.t('common.errors.至少需要一个用户信息源'));
+      throw new Error('u64cdu4f5cu5931u8d25');
     }
 
     if (sources.length === 1) {

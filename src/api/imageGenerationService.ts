@@ -15,7 +15,7 @@
  * 
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { generateImage as callAIGenerateImage } from './ai';
 import type { ImageGenerationParams } from './types';
 import request from './request';
@@ -60,8 +60,8 @@ export async function generateImage(params: ImageGenerationRequest): Promise<Ima
     console.error('图像生成API调用失败:', error);
     return {
       success: false,
-      error: i18n.t('api.errors.图像生成失败'),
-      message: error instanceof Error ? error.message : i18n.t('api.errors.未知错误')
+      error: 'u64cdu4f5cu5931u8d25',
+      message: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'
     };
   }
 }
@@ -90,8 +90,8 @@ export async function generateImagesBatch(
     } catch (error) {
       results.push({
         success: false,
-        error: i18n.t('api.errors.批量生成失败'),
-        message: error instanceof Error ? error.message : i18n.t('api.errors.未知错误')
+        error: 'u64cdu4f5cu5931u8d25',
+        message: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'
       });
     }
   }
@@ -137,7 +137,7 @@ export async function downloadImage(imageUrl: string, filename: string = 'genera
     window.URL.revokeObjectURL(url);
   } catch (error) {
     console.error('图像下载失败:', error);
-    throw new Error(i18n.t('api.errors.图像下载失败'));
+    throw new Error('u64cdu4f5cu5931u8d25');
   }
 }
 
@@ -159,7 +159,7 @@ export const IMAGE_SIZES = {
  */
 export function validatePrompt(prompt: string): { valid: boolean; error?: string } {
   if (!prompt || prompt.trim().length === 0) {
-    return { valid: false, error: i18n.t('api.errors.提示词不能为空') };
+    return { valid: false, error: 'u64cdu4f5cu5931u8d25' };
   }
   
   if (prompt.length > 1000) {
@@ -173,7 +173,7 @@ export function validatePrompt(prompt: string): { valid: boolean; error?: string
   );
   
   if (hasInappropriate) {
-    return { valid: false, error: i18n.t('api.errors.提示词包含不当内容') };
+    return { valid: false, error: 'u64cdu4f5cu5931u8d25' };
   }
   
   return { valid: true };

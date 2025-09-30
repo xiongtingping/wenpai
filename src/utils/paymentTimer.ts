@@ -3,7 +3,7 @@
  * 用于管理新用户限时优惠的计时逻辑
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { supabase } from '@/config/supabase';
 
 /**
@@ -92,7 +92,7 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
           fetch(`${apiBaseUrl}/.netlify/functions/check-subscription-status?userId=${userId}`),
           // 15秒超时
           new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error(i18n.t('utils.errors.订阅状态检查超时'))), 15000)
+            setTimeout(() => reject(new Error('u64cdu4f5cu5931u8d25')), 15000)
           )
         ]);
 
@@ -104,7 +104,7 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error(i18n.t('utils.errors.未知错误'));
+        lastError = error instanceof Error ? error : new Error('u64cdu4f5cu5931u8d25');
         console.warn(`❌ 第 ${attempt} 次检查失败:`, lastError.message);
 
         // 如果不是最后一次尝试，等待后重试

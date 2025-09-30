@@ -8,7 +8,7 @@
  * 4. 提供降级方案
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logger } from '@/utils/logger';
 import { getSupabaseClient, TABLE_NAMES } from './supabaseDataService';
 
@@ -114,7 +114,7 @@ export class DatabaseHealthService {
     } catch (error) {
       logger.error('❌ 数据库健康检查失败:', error);
       report.isHealthy = false;
-      report.criticalIssues.push(`健康检查失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      report.criticalIssues.push(`健康检查失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
 
     return report;
@@ -170,7 +170,7 @@ export class DatabaseHealthService {
       }
 
     } catch (error) {
-      status.error = error instanceof Error ? error.message : i18n.t('common.errors.未知错误');
+      status.error = error instanceof Error ? error.message : '未知错误';
       status.recommendations.push(`表 ${tableName} 检查失败，需要手动验证`);
     }
 
@@ -293,7 +293,7 @@ export class DatabaseHealthService {
     } catch (error) {
       logger.error('❌ 自动修复失败:', error);
       result.success = false;
-      result.remainingIssues.push(`自动修复失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      result.remainingIssues.push(`自动修复失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
 
     return result;

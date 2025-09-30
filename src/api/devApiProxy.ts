@@ -3,7 +3,7 @@
  * 使用统一的 AI API 调用方式，禁止直接使用 fetch
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { callAI, callAIWithRetry, AIModel } from './ai';
 
 // 调试环境变量

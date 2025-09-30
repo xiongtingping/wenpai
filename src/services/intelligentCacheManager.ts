@@ -10,7 +10,7 @@
  * - 缓存预热和后台刷新机制
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logger } from '@/utils/logger';
 
 // 缓存项接口

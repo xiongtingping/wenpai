@@ -5,7 +5,7 @@
  * 所有示例都使用 callAI() 函数，确保项目中的 AI 调用统一管理。
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { callAI, callAIBatch, callAIWithRetry, checkAIStatus, estimateAICost } from './ai';
 
 /**

@@ -3,7 +3,7 @@
  * 专门修复数据验证失败的问题
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { dataTypeValidator } from '@/lib/dataTypeValidator';
 
 /**
@@ -192,9 +192,9 @@ export function immediateFixLocalStorage(): void {
       
       // 对于无法修复的数据，直接删除以避免持续报错
       if (errors.some(error => 
-        error.includes(i18n.t('utils.errors.无法解析')) || 
-        error.includes(i18n.t('utils.errors.无效格式')) ||
-        error.includes(i18n.t('utils.errors.类型不匹配'))
+        error.includes('u64cdu4f5cu5931u8d25') || 
+        error.includes('u64cdu4f5cu5931u8d25') ||
+        error.includes('u64cdu4f5cu5931u8d25')
       )) {
         try {
           localStorage.removeItem(key);

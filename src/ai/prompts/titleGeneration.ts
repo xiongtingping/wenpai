@@ -13,7 +13,7 @@
  * - 禁止模板句式、空泛用语、符号滥用
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logModuleInit } from '@/utils/logger';
 
 import type { PromptTemplate } from '../types';

@@ -11,7 +11,7 @@
  * - 操作队列和顺序控制
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logger } from '@/utils/logger';
 
 // 存储错误类型枚举
@@ -396,14 +396,14 @@ export class DataValidator {
       
       // 6. 验证循环引用
       if (this.hasCircularReference(data)) {
-        errors.push(i18n.t('common.errors.数据存在循环引用'));
+        errors.push('u64cdu4f5cu5931u8d25');
       }
       
       // 7. 数据清理
       sanitizedData = this.sanitizeData(data);
       
     } catch (error) {
-      errors.push(`验证过程异常: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      errors.push(`验证过程异常: ${error instanceof Error ? error.message : '未知错误'}`);
     }
     
     return {

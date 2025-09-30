@@ -3,7 +3,7 @@
  * 提供统一的数据存储和加载接口，解决数据持久化问题
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -44,7 +44,7 @@ export function useUnifiedDataPersistence<T = any>(dataType: string) {
         logger.info(`✅ 数据保存成功: ${dataType}`, { source: result.source });
         return true;
       } else {
-        setError(result.error || i18n.t('common.errors.保存失败'));
+        setError(result.error || 'u64cdu4f5cu5931u8d25');
         logger.error(`❌ 数据保存失败: ${dataType}`, result.error);
         return false;
       }
@@ -108,7 +108,7 @@ export function useUnifiedDataPersistence<T = any>(dataType: string) {
         logger.info(`✅ 数据删除成功: ${dataType}`);
         return true;
       } else {
-        setError(result.error || i18n.t('common.errors.删除失败'));
+        setError(result.error || 'u64cdu4f5cu5931u8d25');
         logger.error(`❌ 数据删除失败: ${dataType}`, result.error);
         return false;
       }

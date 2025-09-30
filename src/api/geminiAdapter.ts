@@ -3,7 +3,7 @@
  * 使用统一的 AI API 调用方式，禁止直接使用 fetch
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { callAIWithTokenTracking, AITaskType } from '@/services/aiWithTokenTracking';
 import { AIModel } from './ai';
 
@@ -51,7 +51,7 @@ export async function callGeminiAPI(
     };
   } catch (err: unknown) {
     console.error('Gemini API 调用出错:', err);
-    const errorMessage = err instanceof Error ? err.message : i18n.t('api.errors.未知错误');
+    const errorMessage = err instanceof Error ? err.message : 'u64cdu4f5cu5931u8d25';
     throw new Error(`Gemini API 调用失败: ${errorMessage}`);
   }
 }

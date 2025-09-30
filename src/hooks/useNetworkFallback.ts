@@ -3,7 +3,7 @@
  * @description 为组件提供网络异常处理和降级策略的能力
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useState, useEffect, useCallback } from 'react';
 import { 
   networkFallbackHandler, 
@@ -112,12 +112,12 @@ export function useNetworkFallback(
 
       // 处理响应
       if (!response.success && opts.showNetworkNotifications) {
-        showErrorNotification(response.error || i18n.t('common.errors.请求失败'), response.fromCache);
+        showErrorNotification(response.error || '请求失败', response.fromCache);
       }
 
       return response;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.网络请求失败');
+      const errorMessage = error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25';
       
       if (opts.showNetworkNotifications) {
         showErrorNotification(errorMessage);
@@ -176,7 +176,7 @@ export function useNetworkFallback(
       
       if (opts.showNetworkNotifications) {
         toast({
-          title: i18n.t('common.labels.预加载完成'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: `成功预加载 ${configs.length} 项数据`,
           duration: 2000
         });
@@ -186,7 +186,7 @@ export function useNetworkFallback(
       
       if (opts.showNetworkNotifications) {
         toast({
-          title: i18n.t('common.errors.预加载失败'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: '部分数据预加载失败',
           variant: 'destructive',
           duration: 3000
@@ -209,7 +209,7 @@ export function useNetworkFallback(
       
       if (opts.showNetworkNotifications) {
         toast({
-          title: i18n.t('common.labels.重试完成'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: '已重试所有失败的请求',
           duration: 2000
         });
@@ -228,7 +228,7 @@ export function useNetworkFallback(
     
     if (opts.showNetworkNotifications) {
       toast({
-        title: i18n.t('common.labels.缓存已清除'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: pattern ? `已清除匹配 "${pattern}" 的缓存` : '已清除所有缓存',
         duration: 2000
       });
@@ -259,11 +259,11 @@ export function useNetworkFallback(
       return;
     }
 
-    let title = i18n.t('common.errors.网络请求失败');
+    let title = 'u64cdu4f5cu5931u8d25';
     let description = message;
     
     if (isFromCache) {
-      title = i18n.t('common.labels.使用缓存数据');
+      title = 'u64cdu4f5cu5931u8d25';
       description = '网络不可用，正在使用缓存数据';
     }
 
@@ -284,10 +284,10 @@ export function useNetworkFallback(
     if (!opts.showNetworkNotifications) return;
 
     const messages = {
-      [NetworkStatus.ONLINE]: { title: i18n.t('common.labels.网络已连接'), description: i18n.t('common.labels.网络连接正常'), variant: 'default' as const },
-      [NetworkStatus.OFFLINE]: { title: i18n.t('common.labels.网络已断开'), description: i18n.t('common.labels.正在使用离线模式'), variant: 'destructive' as const },
-      [NetworkStatus.SLOW]: { title: i18n.t('common.labels.网络缓慢'), description: i18n.t('common.labels.检测到网络连接缓慢'), variant: 'destructive' as const },
-      [NetworkStatus.UNSTABLE]: { title: i18n.t('common.labels.网络不稳定'), description: i18n.t('common.labels.网络连接不稳定'), variant: 'destructive' as const }
+      [NetworkStatus.ONLINE]: { title: 'u64cdu4f5cu5931u8d25', description: 'u64cdu4f5cu5931u8d25', variant: 'default' as const },
+      [NetworkStatus.OFFLINE]: { title: 'u64cdu4f5cu5931u8d25', description: 'u64cdu4f5cu5931u8d25', variant: 'destructive' as const },
+      [NetworkStatus.SLOW]: { title: 'u64cdu4f5cu5931u8d25', description: 'u64cdu4f5cu5931u8d25', variant: 'destructive' as const },
+      [NetworkStatus.UNSTABLE]: { title: 'u64cdu4f5cu5931u8d25', description: 'u64cdu4f5cu5931u8d25', variant: 'destructive' as const }
     };
 
     const notification = messages[status];

@@ -8,7 +8,7 @@
  * 4. 自动修复机制
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logger } from '@/utils/logger';
 import { StandardUserInfo, normalizeUserInfo } from './userInfoNormalizer';
 
@@ -109,7 +109,7 @@ export class UserInfoSyncService {
     } catch (error) {
       logger.error('❌ 用户信息同步失败:', error);
       syncStatus.success = false;
-      syncStatus.errors?.push(error instanceof Error ? error.message : i18n.t('common.errors.未知错误'));
+      syncStatus.errors?.push(error instanceof Error ? error.message : '未知错误');
     }
 
     return syncStatus;
@@ -225,7 +225,7 @@ export class UserInfoSyncService {
 
     } catch (error) {
       logger.error('❌ 自动修复失败:', error);
-      errors.push(error instanceof Error ? error.message : i18n.t('common.errors.修复失败'));
+      errors.push(error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25');
     }
 
     return {

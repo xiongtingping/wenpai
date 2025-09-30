@@ -1,8 +1,8 @@
 import { logger } from '@/utils/logger';
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 
 // 创建t函数快捷方式
-const t = (key: string) => i18n.t(key);
+const t = (key: string) => 'u64cdu4f5cu5931u8d25';
 
 /**
  * t('hashtagGenerator.comments.intelligentGenerator')

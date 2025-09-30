@@ -6,7 +6,7 @@
  * 🔧 修复了Supabase同步问题：所有数据变更都通过数据管理中心同步
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTokenUsageState, useUnifiedStore } from '@/stores/unified-state-store';

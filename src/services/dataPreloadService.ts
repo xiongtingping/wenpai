@@ -9,7 +9,7 @@
  * - 内存缓存管理
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { globalDataManager, DATA_CONFIGS } from '@/services/unifiedDataManager';
 
 // 路由数据依赖配置

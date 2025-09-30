@@ -8,7 +8,7 @@
  * - 保持向后兼容性
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { TABLE_NAMES } from '@/config/supabaseTables';
 import { getSupabaseService, type CloudDataService } from '@/lib/unifiedDataPersistenceManager';
 

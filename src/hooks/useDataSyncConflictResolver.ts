@@ -3,7 +3,7 @@
  * @description 为组件提供数据同步冲突处理的能力
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useState, useEffect, useCallback } from 'react';
 import { 
   dataSyncConflictResolver, 
@@ -86,7 +86,7 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
 
       if (conflicts.length > 0 && showNotifications) {
         toast({
-          title: i18n.t('common.labels.检测到数据冲突'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: `发现 ${conflicts.length} 个数据冲突需要处理`,
           variant: "destructive"
         });
@@ -96,7 +96,7 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
       return conflicts;
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.检测冲突失败');
+      const errorMessage = error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25';
       updateState({ 
         detectionError: errorMessage,
         isDetecting: false
@@ -104,7 +104,7 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
       
       if (showNotifications) {
         toast({
-          title: i18n.t('common.labels.冲突检测失败'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: errorMessage,
           variant: "destructive"
         });
@@ -143,13 +143,13 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
       if (showNotifications) {
         if (failureCount === 0) {
           toast({
-            title: i18n.t('common.labels.冲突解决成功'),
+            title: 'u64cdu4f5cu5931u8d25',
             description: `成功解决 ${successCount} 个冲突`,
             variant: "default"
           });
         } else {
           toast({
-            title: i18n.t('common.labels.部分冲突解决成功'),
+            title: 'u64cdu4f5cu5931u8d25',
             description: `成功解决 ${successCount} 个冲突，${failureCount} 个需要手动处理`,
             variant: "default"
           });
@@ -160,7 +160,7 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
       return failureCount === 0;
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.解决冲突失败');
+      const errorMessage = error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25';
       updateState({ 
         resolutionError: errorMessage,
         isResolving: false
@@ -168,7 +168,7 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
       
       if (showNotifications) {
         toast({
-          title: i18n.t('common.labels.冲突解决失败'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: errorMessage,
           variant: "destructive"
         });
@@ -202,7 +202,7 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
 
       if (showNotifications && result.success) {
         toast({
-          title: i18n.t('common.labels.冲突已解决'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: `使用策略: ${strategy}`,
           variant: "default"
         });
@@ -211,7 +211,7 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
       return result;
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.解决冲突失败');
+      const errorMessage = error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25';
       updateState({ 
         resolutionError: errorMessage,
         isResolving: false
@@ -219,7 +219,7 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
       
       if (showNotifications) {
         toast({
-          title: i18n.t('common.errors.解决冲突失败'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: errorMessage,
           variant: "destructive"
         });
@@ -254,7 +254,7 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
 
       if (showNotifications) {
         toast({
-          title: i18n.t('common.labels.批量解决完成'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: `成功解决 ${successCount}/${conflictIds.length} 个冲突`,
           variant: "default"
         });
@@ -263,7 +263,7 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
       return results;
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : i18n.t('common.errors.批量解决失败');
+      const errorMessage = error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25';
       updateState({ 
         resolutionError: errorMessage,
         isResolving: false
@@ -271,7 +271,7 @@ export function useDataSyncConflictResolver(options: UseDataSyncConflictResolver
       
       if (showNotifications) {
         toast({
-          title: i18n.t('common.errors.批量解决失败'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: errorMessage,
           variant: "destructive"
         });

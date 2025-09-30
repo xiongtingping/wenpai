@@ -3,7 +3,7 @@
  * 提供加密、脱敏、验证等安全功能
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import CryptoJS from 'crypto-js';
 
 /**
@@ -53,7 +53,7 @@ export class DataEncryption {
       return CryptoJS.AES.encrypt(data, this.key).toString();
     } catch (error) {
       console.error('数据加密失败:', error);
-      throw new Error(i18n.t('common.errors.数据加密失败'));
+      throw new Error('u64cdu4f5cu5931u8d25');
     }
   }
 
@@ -68,7 +68,7 @@ export class DataEncryption {
       return bytes.toString(CryptoJS.enc.Utf8);
     } catch (error) {
       console.error('数据解密失败:', error);
-      throw new Error(i18n.t('common.errors.数据解密失败'));
+      throw new Error('u64cdu4f5cu5931u8d25');
     }
   }
 
@@ -276,7 +276,7 @@ export class SecureStorage {
       localStorage.setItem(key, finalData);
     } catch (error) {
       console.error('安全存储失败:', error);
-      throw new Error(i18n.t('common.errors.数据存储失败'));
+      throw new Error('u64cdu4f5cu5931u8d25');
     }
   }
 

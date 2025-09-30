@@ -3,7 +3,7 @@
  * 确保支付成功后权限正确发放
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { supabase } from '@/config/supabase';
 import { logger } from '@/utils/logger';
 
@@ -147,7 +147,7 @@ export class OrderStatusService {
       logger.error('修复订单权限失败:', error);
       return {
         success: false,
-        message: `修复失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`
+        message: `修复失败: ${error instanceof Error ? error.message : '未知错误'}`
       };
     }
   }
@@ -179,7 +179,7 @@ export class OrderStatusService {
         results.push({
           orderId,
           success: false,
-          message: `修复异常: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`
+          message: `修复异常: ${error instanceof Error ? error.message : '未知错误'}`
         });
         failed++;
       }

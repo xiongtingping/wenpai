@@ -3,7 +3,7 @@
  * @description 在不修改锁定的aiService.ts的前提下，为AI调用添加Token统计功能
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { callUnifiedAI } from '@/api/unifiedAIService';
 import { AITaskType } from '@/api/aiService';
 import { tokenUsageService } from '@/services/tokenUsageService';
@@ -241,7 +241,7 @@ export async function callAIWithTokenTracking(
         model: params.model || 'unknown',
         contentSummary: params.prompt.substring(0, 100) + (params.prompt.length > 100 ? '...' : ''),
         success: false,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误')
+        error: error instanceof Error ? error.message : '未知错误'
       });
     }
     
@@ -251,7 +251,7 @@ export async function callAIWithTokenTracking(
       model: params.model || 'unknown',
       responseTime: Date.now() - startTime,
       success: false,
-      error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误')
+      error: error instanceof Error ? error.message : '未知错误'
     };
     
     return response;

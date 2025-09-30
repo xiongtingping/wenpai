@@ -2,7 +2,7 @@
  * 订单服务
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { supabase } from '@/config/supabase';
 import { Order, UserSubscription } from '@/types/payment';
 import { generateOrderId, calculateExpiryDate } from '@/utils/paymentUtils';
@@ -57,7 +57,7 @@ export class OrderService {
             durationType: orderData.durationType
           }
         });
-        throw new Error(`创建订单失败: ${error.message || error.code || i18n.t('common.errors.未知错误')}`);
+        throw new Error(`创建订单失败: ${error.message || error.code || '未知错误'}`);
       }
 
       logger.info('订单创建成功:', { orderId, userId: orderData.userId });
@@ -87,7 +87,7 @@ export class OrderService {
 
       if (error) {
         logger.error('更新订单支付信息失败:', error);
-        throw new Error(i18n.t('common.errors.更新订单支付信息失败'));
+        throw new Error('u64cdu4f5cu5931u8d25');
       }
 
       logger.info('订单支付信息更新成功:', { orderId });
@@ -115,7 +115,7 @@ export class OrderService {
           return null; // 订单不存在
         }
         logger.error('查询订单失败:', error);
-        throw new Error(i18n.t('common.errors.查询订单失败'));
+        throw new Error('u64cdu4f5cu5931u8d25');
       }
 
       return data;
@@ -141,7 +141,7 @@ export class OrderService {
           return null;
         }
         logger.error('根据AOID查询订单失败:', error);
-        throw new Error(i18n.t('common.errors.查询订单失败'));
+        throw new Error('u64cdu4f5cu5931u8d25');
       }
 
       return data;
@@ -173,7 +173,7 @@ export class OrderService {
 
       if (error) {
         logger.error('标记订单为已支付失败:', error);
-        throw new Error(i18n.t('common.errors.更新订单状态失败'));
+        throw new Error('u64cdu4f5cu5931u8d25');
       }
 
       logger.info('订单标记为已支付:', { orderId, aoid: paymentData.aoid });
@@ -285,7 +285,7 @@ export class OrderService {
           return null; // 没有订阅
         }
         logger.error('查询用户订阅失败:', error);
-        throw new Error(i18n.t('common.errors.查询用户订阅失败'));
+        throw new Error('u64cdu4f5cu5931u8d25');
       }
 
       // 检查订阅是否过期
@@ -320,7 +320,7 @@ export class OrderService {
 
       if (error) {
         logger.error('查询用户订单历史失败:', error);
-        throw new Error(i18n.t('common.errors.查询订单历史失败'));
+        throw new Error('u64cdu4f5cu5931u8d25');
       }
 
       return data || [];

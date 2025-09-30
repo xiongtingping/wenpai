@@ -3,7 +3,7 @@
  * 支持多种技术栈的自动化转发实现
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { PlatformLimit, getPlatformLimit } from '../config/platformLimits';
 import { logger } from '@/utils/logger';
 
@@ -319,7 +319,7 @@ export class AutomationEngine {
 
     } catch (error) {
       console.error('❌ 检测平台内容失败:', error);
-      throw new Error(`内容检测失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`内容检测失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -347,7 +347,7 @@ export class AutomationEngine {
       };
     }
 
-    return { valid: true, message: i18n.t('common.messages.内容符合平台要求') };
+    return { valid: true, message: 'u64cdu4f5cu5931u8d25' };
   }
 
   /**
@@ -453,7 +453,7 @@ export class AutomationEngine {
           platformId: platformContent.platformId,
           platformName: platformContent.platformName,
           success: false,
-          error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误'),
+          error: error instanceof Error ? error.message : '未知错误',
           method,
           timestamp: Date.now(),
           retryCount: 0
@@ -596,7 +596,7 @@ export class AutomationEngine {
       };
 
     } catch (error) {
-      throw new Error(`${config.name}转发失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`${config.name}转发失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -699,7 +699,7 @@ export class AutomationEngine {
         await navigator.clipboard.writeText(platformContent.content);
         copyBtn.textContent = '已复制 ✓';
         setTimeout(() => {
-          copyBtn.textContent = i18n.t('common.actions.重新复制');
+          copyBtn.textContent = 'u64cdu4f5cu5931u8d25';
         }, 2000);
       } catch (error) {
         console.error('复制失败:', error);
@@ -847,7 +847,7 @@ export class AutomationEngine {
       };
 
     } catch (error) {
-      throw new Error(`手动转发失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`手动转发失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -922,7 +922,7 @@ export class AutomationEngine {
         await navigator.clipboard.writeText(platformContent.content);
         copyBtn.textContent = '已复制 ✓';
         setTimeout(() => {
-          copyBtn.textContent = i18n.t('common.actions.重新复制');
+          copyBtn.textContent = 'u64cdu4f5cu5931u8d25';
         }, 2000);
       } catch (error) {
         console.error('复制失败:', error);

@@ -10,7 +10,7 @@
  * 
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import request from '../../api/request';
 import type { AIProviderInterface } from '../types';
 import { logger } from '@/utils/logger';

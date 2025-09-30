@@ -3,7 +3,7 @@
  * 统一管理品牌库、资料库、雷达收藏的数据获取
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { globalDataManager } from '@/services/unifiedDataManager';
 import { bookmarkService } from '@/services/bookmarkService';
 import { favoritesService } from '@/services/favoritesService';
@@ -100,7 +100,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
       const items: QuickReferenceItem[] = brandAssets
         .map(asset => this.enhanceItem({
           id: asset.id || `brand-${Date.now()}-${Math.random()}`,
-          title: sanitizeToPlainText(asset.name || asset.title || i18n.t('common.labels.未命名品牌资产')),
+          title: sanitizeToPlainText(asset.name || asset.title || 'u64cdu4f5cu5931u8d25'),
           content: sanitizeToPlainText(asset.description || asset.content || ''),
           type: 'brand' as const,
           format: this.detectFormat(asset),

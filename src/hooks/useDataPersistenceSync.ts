@@ -3,7 +3,7 @@
  * 处理用户登录状态变化时的数据同步和迁移
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useEffect, useCallback, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { dataMigrationManager, dataSyncManager, DataSyncStatus, DataMigrationResult } from '@/lib/dataSync';
@@ -66,7 +66,7 @@ export function useDataPersistenceSync() {
       if (result.success) {
         if (result.totalMigratedItems > 0) {
           toast({
-            title: i18n.t('common.labels.数据迁移成功'),
+            title: 'u64cdu4f5cu5931u8d25',
             description: `已将 ${result.totalMigratedItems} 项数据迁移到云端存储，您的数据现在更安全了！`,
             duration: 5000
           });
@@ -76,7 +76,7 @@ export function useDataPersistenceSync() {
         }
       } else {
         toast({
-          title: i18n.t('common.labels.数据迁移部分失败'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: `部分数据迁移失败，但不影响正常使用。错误: ${result.errors.join(', ')}`,
           variant: "destructive",
           duration: 8000
@@ -88,7 +88,7 @@ export function useDataPersistenceSync() {
     } catch (error) {
       logger.error('❌ 处理用户登录失败:', error);
       toast({
-        title: i18n.t('common.labels.登录数据处理失败'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: "用户数据处理时发生错误，部分功能可能受影响",
         variant: "destructive"
       });
@@ -124,12 +124,12 @@ export function useDataPersistenceSync() {
       const success = await dataSyncManager.manualSync();
       if (success) {
         toast({
-          title: i18n.t('common.labels.同步成功'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: "数据已成功同步到云端",
         });
       } else {
         toast({
-          title: i18n.t('common.labels.同步失败'),
+          title: 'u64cdu4f5cu5931u8d25',
           description: "数据同步失败，请稍后重试",
           variant: "destructive"
         });
@@ -137,7 +137,7 @@ export function useDataPersistenceSync() {
       return success;
     } catch (error) {
       toast({
-        title: i18n.t('common.labels.同步错误'),
+        title: 'u64cdu4f5cu5931u8d25',
         description: String(error),
         variant: "destructive"
       });

@@ -1,4 +1,4 @@
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logger } from '@/utils/logger';
 // 动态导入避免TDZ错误
 // import { getRequestClient } from './requestClientRegistry';

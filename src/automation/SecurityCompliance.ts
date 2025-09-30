@@ -3,7 +3,7 @@
  * 确保自动化转发符合各平台的使用条款和安全要求
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 
 export interface SecurityCheck {
   id: string;
@@ -278,7 +278,7 @@ export class SecurityComplianceChecker {
           overallCompliance: false,
           checks: [],
           recommendations: [],
-          warnings: [`合规检查失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`]
+          warnings: [`合规检查失败: ${error instanceof Error ? error.message : '未知错误'}`]
         });
       }
     }

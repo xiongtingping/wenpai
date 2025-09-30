@@ -3,7 +3,7 @@
  * @description 根据用户状态、优惠活动、升级类型等计算真实应付金额
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { getSubscriptionPlans } from '@/config/subscriptionPlans';
 import { isInPromoPeriod } from '@/utils/paymentTimer';
 import { calculateProratedUpgrade } from '@/utils/proratedUpgradeUtils';
@@ -243,7 +243,7 @@ export class DynamicPricingService {
     originalPrice: number
   ): PricingResult {
     if (!context.currentSubscription) {
-      throw new Error(i18n.t('common.errors.补差价升级需要当前订阅信息'));
+      throw new Error('u64cdu4f5cu5931u8d25');
     }
 
     // 使用补差价计算工具
@@ -254,7 +254,7 @@ export class DynamicPricingService {
     );
 
     if (!proratedCalc.canUpgrade) {
-      throw new Error(i18n.t('common.errors.当前订阅不支持补差价升级'));
+      throw new Error('u64cdu4f5cu5931u8d25');
     }
 
     return {

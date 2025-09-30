@@ -3,7 +3,7 @@
  * @description 提供订阅状态查询和临期提醒功能
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { calculateSubscriptionStatus, type SubscriptionStatus } from '@/utils/subscriptionStatusUtils';
@@ -163,7 +163,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
           }
         } catch (error) {
-          lastError = error instanceof Error ? error : new Error(i18n.t('common.errors.未知错误'));
+          lastError = error instanceof Error ? error : new Error('未知错误');
           logger.warn(`❌ 第 ${attempt} 次尝试失败:`, lastError.message);
 
           // 如果不是最后一次尝试，等待后重试

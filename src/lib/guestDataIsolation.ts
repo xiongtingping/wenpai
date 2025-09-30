@@ -3,7 +3,7 @@
  * 确保不同访客用户之间的数据完全隔离，防止数据污染
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { SecurityUtils } from '@/lib/security';
 import { UnifiedStorageKeyManager } from '@/lib/unifiedStorageManager';
 
@@ -204,7 +204,7 @@ export class GuestDataIsolationManager {
    */
   getGuestDataKey(module: string, subModule?: string): string {
     if (!this.currentSessionId) {
-      throw new Error(i18n.t('common.errors.访客会话未初始化'));
+      throw new Error('u64cdu4f5cu5931u8d25');
     }
     
     return UnifiedStorageKeyManager.generateGuestDataKey(

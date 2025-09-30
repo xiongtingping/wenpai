@@ -8,7 +8,7 @@
  * 📌 所有API地址从环境变量获取，严禁硬编码
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import request from './request';
 import { getAPIConfig } from './request';
 import { logger } from '@/utils/logger';
@@ -325,7 +325,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     // 已删除浏览器网络修复功能
 
     // 详细的错误分析和用户友好提示
-    let userFriendlyError = i18n.t('common.errors.unknownError');
+    let userFriendlyError = 'u64cdu4f5cu5931u8d25';
     const technicalError = error instanceof Error ? error.message : String(error);
 
     if (technicalError.includes('404')) {
@@ -399,7 +399,7 @@ async function handleStreamResponse(
       model,
       responseTime: Date.now() - startTime,
       success: false,
-      error: i18n.t('api.errors.流式响应处理失败')
+      error: 'u64cdu4f5cu5931u8d25'
     };
   }
 }
@@ -527,7 +527,7 @@ export async function generateImage(params: ImageGenerationParams): Promise<Imag
       model,
       responseTime: Date.now() - startTime,
       success: false,
-      error: error instanceof Error ? error.message : i18n.t('common.errors.unknownError')
+      error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'
     };
   }
 }
@@ -593,7 +593,7 @@ export async function callAIWithRetry(
       }
 
       // ✅ FIXED: 处理非异常错误（如429）
-      lastError = new Error(result.error || i18n.t('common.errors.callFailed'));
+      lastError = new Error(result.error || 'u64cdu4f5cu5931u8d25');
 
       // 检查是否是429错误
       const is429Error = result.error && result.error.includes('429');
@@ -623,7 +623,7 @@ export async function callAIWithRetry(
       } else if (typeof error === 'string') {
         lastError = new Error(error);
       } else {
-        lastError = new Error(i18n.t('common.errors.unknownError'));
+        lastError = new Error('u64cdu4f5cu5931u8d25');
       }
 
       // 等待一段时间后重试
@@ -643,7 +643,7 @@ export async function callAIWithRetry(
     }
   }
 
-  throw lastError || new Error(i18n.t('api.errors.所有重试都失败了'));
+  throw lastError || new Error('u64cdu4f5cu5931u8d25');
 }
 
 /**
@@ -719,7 +719,7 @@ export async function checkAIStatus(): Promise<{
       openai: false,
       gemini: false,
       deepseek: false,
-      message: `AI服务检查失败: ${error instanceof Error ? error.message : i18n.t('common.errors.unknownError')}`
+      message: `AI服务检查失败: ${error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'}`
     };
   }
 }

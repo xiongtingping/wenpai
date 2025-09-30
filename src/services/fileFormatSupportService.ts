@@ -2,7 +2,7 @@
  * 文件格式支持服务
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { SUPPORTED_FILE_FORMATS, getAllSupportedExtensions, getAllSupportedMimeTypes, getFormatByExtension, getFormatsGroupedByCategory, CATEGORY_NAMES, generateFormatSupportDescription, FileFormatInfo } from '@/config/fileFormatConfig';
 
 interface FileFormatCheckResult {
@@ -190,7 +190,7 @@ export class FileFormatSupportService {
     if (!checkResult.isSupported) {
       return {
         isValid: false,
-        message: checkResult.reason || i18n.t('common.messages.不支持的文件格式'),
+        message: checkResult.reason || 'u64cdu4f5cu5931u8d25',
         suggestions: checkResult.suggestions
       };
     }

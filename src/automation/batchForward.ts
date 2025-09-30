@@ -3,7 +3,7 @@
  * 增强版本，集成多种自动化技术栈
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { AutomationEngine, PlatformContent, ForwardResult, AutomationOptions, AutomationProgress } from './AutomationEngine';
 import { logger } from '@/utils/logger';
 
@@ -78,7 +78,7 @@ export class BatchForwardAutomation {
             platformId: platformId,
             platformName: platformId,
             success: false,
-            error: i18n.t('common.errors.未找到该平台的内容'),
+            error: 'u64cdu4f5cu5931u8d25',
             method: 'manual',
             timestamp: Date.now(),
             retryCount: 0
@@ -286,7 +286,7 @@ export class BatchForwardAutomation {
           retryCount: 0
         };
       } else {
-        throw new Error(i18n.t('common.errors.无法打开发布页面'));
+        throw new Error('u64cdu4f5cu5931u8d25');
       }
 
     } catch (error) {
@@ -295,7 +295,7 @@ export class BatchForwardAutomation {
         platformId: platformData.platformId,
         platformName: platformData.platformName,
         success: false,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误'),
+        error: error instanceof Error ? error.message : '未知错误',
         method: 'manual',
         timestamp: Date.now(),
         retryCount: 0
@@ -325,7 +325,7 @@ export class BatchForwardAutomation {
       }
     } catch (error) {
       console.error('❌ 复制到剪贴板失败:', error);
-      throw new Error(i18n.t('common.errors.复制内容失败'));
+      throw new Error('u64cdu4f5cu5931u8d25');
     }
   }
 

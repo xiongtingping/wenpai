@@ -4,7 +4,7 @@
  * 🔧 修复了主键重复和ID生成问题
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { request } from '@/api/request';
 import type { SubscriptionTier } from '@/types/subscription';
 import { logger } from '@/utils/logger';
@@ -295,7 +295,7 @@ class TokenUsageService {
       
     } catch (error) {
       logger.error('❌ Token使用量记录失败:', error);
-      throw new Error(`Token使用量记录失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`Token使用量记录失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -308,7 +308,7 @@ class TokenUsageService {
     } catch (error) {
       console.error('同步token使用记录到后端失败:', error);
       // 🚨 API失败时抛出错误，但不阻断主流程
-      throw new Error(`Token使用记录同步失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`Token使用记录同步失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -416,7 +416,7 @@ class TokenUsageService {
     } catch (error) {
       logger.error('❌ 从Supabase获取用户Token统计失败:', error);
       // 🚨 数据库失败时必须抛出错误，不能使用本地数据
-      throw new Error(`Supabase查询失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`Supabase查询失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -471,7 +471,7 @@ class TokenUsageService {
     } catch (error) {
       console.error('从Supabase获取用户Token历史失败:', error);
       // 🚨 数据库失败时必须抛出错误，不能返回空数组
-      throw new Error(`Supabase查询失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`Supabase查询失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -545,7 +545,7 @@ class TokenUsageService {
     } catch (error) {
       logger.error('❌ 从Supabase获取功能统计失败:', error);
       // 🚨 数据库失败时必须抛出错误，不能返回空对象
-      throw new Error(`Supabase查询失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`Supabase查询失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -585,7 +585,7 @@ class TokenUsageService {
     } catch (error) {
       console.error('清理过期Token记录失败:', error);
       // 🚨 数据库失败时必须抛出错误
-      throw new Error(`Supabase清理操作失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`Supabase清理操作失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -625,7 +625,7 @@ class TokenUsageService {
     } catch (error) {
       console.error('从Supabase导出用户数据失败:', error);
       // 🚨 数据库失败时必须抛出错误
-      throw new Error(`Supabase导出操作失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`Supabase导出操作失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 }

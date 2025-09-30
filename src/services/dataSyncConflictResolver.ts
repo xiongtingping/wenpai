@@ -3,7 +3,7 @@
  * @description 处理数据同步过程中的冲突，提供多种冲突解决策略
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logger } from '@/utils/logger';
 
 /**
@@ -186,7 +186,7 @@ export class DataSyncConflictResolver {
         results.set(conflict.id, {
           success: false,
           strategy: ConflictResolutionStrategy.MANUAL_RESOLUTION,
-          error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误')
+          error: error instanceof Error ? error.message : '未知错误'
         });
       }
     }
@@ -521,7 +521,7 @@ export class DataSyncConflictResolver {
         results.set(conflictId, {
           success: false,
           strategy,
-          error: error instanceof Error ? error.message : i18n.t('common.errors.未知错误')
+          error: error instanceof Error ? error.message : '未知错误'
         });
       }
     }

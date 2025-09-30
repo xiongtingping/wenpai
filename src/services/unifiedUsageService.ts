@@ -3,7 +3,7 @@
  * @description 整合Token使用量和使用次数统计，提供统一的限额检查和管理机制
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { request } from '@/api/request';
 import { tokenUsageService } from '@/services/tokenUsageService';
 import type { SubscriptionTier } from '@/types/subscription';
@@ -203,7 +203,7 @@ class UnifiedUsageService {
       console.error('获取统一使用量统计失败:', error);
       
       // 🚨 生产环境API失败时抛出错误，开发环境已在上面处理
-      throw new Error(`统一使用量API调用失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`统一使用量API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 
@@ -279,7 +279,7 @@ class UnifiedUsageService {
       console.error('从后端获取使用次数统计失败:', error);
 
       // 🚨 生产环境API失败时抛出错误，开发环境已在上面处理
-      throw new Error(`使用次数统计API调用失败: ${error instanceof Error ? error.message : i18n.t('common.errors.未知错误')}`);
+      throw new Error(`使用次数统计API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
 

@@ -9,7 +9,7 @@
  * - 支持多种收藏类型
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { globalDataManager } from '@/services/unifiedDataManager';
 
 // 收藏项目类型
@@ -114,7 +114,7 @@ export class FavoritesService {
         console.log('✅ 收藏添加成功:', item.title);
         return id;
       } else {
-        throw new Error(i18n.t('common.errors.保存收藏失败'));
+        throw new Error('保存收藏失败');
       }
     } catch (error) {
       console.error('添加收藏失败:', error);
@@ -137,7 +137,7 @@ export class FavoritesService {
         console.log('✅ 收藏移除成功:', id);
         return true;
       } else {
-        throw new Error(i18n.t('common.errors.保存收藏失败'));
+        throw new Error('保存收藏失败');
       }
     } catch (error) {
       console.error('移除收藏失败:', error);
@@ -170,7 +170,7 @@ export class FavoritesService {
         console.log(`✅ 批量添加收藏成功: ${items.length}项`);
         return newFavorites.map(item => item.id);
       } else {
-        throw new Error(i18n.t('common.errors.批量保存收藏失败'));
+        throw new Error('批量保存收藏失败');
       }
     } catch (error) {
       console.error('批量添加收藏失败:', error);
@@ -193,7 +193,7 @@ export class FavoritesService {
         console.log(`✅ 批量移除收藏成功: ${ids.length}项`);
         return true;
       } else {
-        throw new Error(i18n.t('common.errors.批量保存收藏失败'));
+        throw new Error('批量保存收藏失败');
       }
     } catch (error) {
       console.error('批量移除收藏失败:', error);
@@ -210,7 +210,7 @@ export class FavoritesService {
       const index = favorites.findIndex(item => item.id === id);
       
       if (index === -1) {
-        throw new Error(i18n.t('common.errors.收藏项不存在'));
+        throw new Error('收藏项不存在');
       }
 
       const updatedItem = {
@@ -229,7 +229,7 @@ export class FavoritesService {
         console.log('✅ 收藏更新成功:', id);
         return true;
       } else {
-        throw new Error(i18n.t('common.errors.保存收藏失败'));
+        throw new Error('保存收藏失败');
       }
     } catch (error) {
       console.error('更新收藏失败:', error);
@@ -319,7 +319,7 @@ export class FavoritesService {
         console.log(`✅ 收藏导入成功: ${items.length}项`);
         return true;
       } else {
-        throw new Error(i18n.t('common.errors.导入收藏失败'));
+        throw new Error('导入收藏失败');
       }
     } catch (error) {
       console.error('导入收藏失败:', error);
@@ -339,7 +339,7 @@ export class FavoritesService {
         console.log('✅ 收藏已清空');
         return true;
       } else {
-        throw new Error(i18n.t('common.errors.清空收藏失败'));
+        throw new Error('清空收藏失败');
       }
     } catch (error) {
       console.error('清空收藏失败:', error);

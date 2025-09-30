@@ -3,7 +3,7 @@
  * 基于Authing Web SDK实现邮箱和手机验证码发送
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { AuthenticationClient, EmailScene } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
 import {
@@ -714,7 +714,7 @@ class VerificationCodeService {
     } catch (error: any) {
       console.error('❌ 验证邮箱验证码失败:', error);
       
-      let errorMessage = i18n.t('common.errors.验证失败');
+      let errorMessage = '验证失败';
       if (error?.message) {
         if (error.message.includes('code')) {
           errorMessage = i18n.t('common.errors.验证码错误或已过期');
@@ -774,7 +774,7 @@ class VerificationCodeService {
     } catch (error: any) {
       console.error('❌ 验证手机验证码失败:', error);
       
-      let errorMessage = i18n.t('common.errors.验证失败');
+      let errorMessage = '验证失败';
       if (error?.message) {
         if (error.message.includes('code')) {
           errorMessage = i18n.t('common.errors.验证码错误或已过期');

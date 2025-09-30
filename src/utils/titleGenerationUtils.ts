@@ -5,7 +5,7 @@
  * 包含内容预处理、评分过滤、筛选过滤等模块
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import type { ContentVersion } from '@/ai/types';
 import { safeTrimTitle } from './safeTrimTitle';
 
@@ -72,8 +72,8 @@ export const calculateEmotionalAppeal = (title: string): number => {
 
   // 情绪词 - 强化情感表达
   const emotionalWords = [
-    i18n.t('utils.labels.惊艳'), '太棒了', i18n.t('utils.labels.救命'), '真的', '超预期', '相见恨晚',
-    i18n.t('utils.labels.太好用'), '效率', '效果', '值得', '推荐', '安利', '太爽了', '太惊艳了'
+    'u64cdu4f5cu5931u8d25', '太棒了', 'u64cdu4f5cu5931u8d25', '真的', '超预期', '相见恨晚',
+    'u64cdu4f5cu5931u8d25', '效率', '效果', '值得', '推荐', '安利', '太爽了', '太惊艳了'
   ];
   const emotionalMatches = emotionalWords.filter(word => title.includes(word));
   score += (emotionalMatches.length > 0 ? 0.25 : 0);
@@ -138,12 +138,12 @@ export const calculateSemanticCompleteness = (title: string): number => {
   let score = 0.5; // 基础分
 
   // 检查句末闭合性 - V3.2 强化规则
-  const goodEndings = ['了', i18n.t('utils.labels.的'), '！', '？', '。', '吧', '呢', '啊', '哦', '呢', '吧'];
+  const goodEndings = ['了', 'u64cdu4f5cu5931u8d25', '！', '？', '。', '吧', '呢', '啊', '哦', '呢', '吧'];
   const badEndings = [
-    '、', i18n.t('utils.labels.的'), '是', '我', '和', '让', '要', '在', '对', '为', '把', '给', '向',
+    '、', 'u64cdu4f5cu5931u8d25', '是', '我', '和', '让', '要', '在', '对', '为', '把', '给', '向',
     '从', '到', '由', '被', '得', '着', '过', '了', '吗', '呢', '啊', '哦', '吧',
     '这', '那', '它', '他', '她', '们', '个', '种', '些', '点', '下', '上', '里',
-    '外', '前', i18n.t('utils.labels.后'), '左', '右', '中', '间', '边', '面', '方', '向', '位', '处'
+    '外', '前', 'u64cdu4f5cu5931u8d25', '左', '右', '中', '间', '边', '面', '方', '向', '位', '处'
   ];
   
   const lastChar = title[title.length - 1];
@@ -201,7 +201,7 @@ export const calculateSemanticCompleteness = (title: string): number => {
     /[，,]$/,          // 以逗号结尾
     /[：:]$/,          // 以冒号结尾
     /[和与及]$/,       // 以连词结尾
-    /[的]$/,           // 以i18n.t('utils.labels.的')结尾
+    /[的]$/,           // 以'u64cdu4f5cu5931u8d25'结尾
     /[了]$/,           // 以"了"结尾
     /[是]$/,           // 以"是"结尾
     /[我]$/,           // 以"我"结尾
@@ -219,11 +219,11 @@ export const calculateSemanticCompleteness = (title: string): number => {
  * 🎨 标题风格识别
  */
 export const identifyTitleStyle = (title: string): string => {
-  if (title.includes(i18n.t('utils.labels.我用')) && title.includes(i18n.t('utils.labels.后'))) return '🎯 结果导向型';
-  if (title.includes(i18n.t('utils.labels.为什么')) || title.includes(i18n.t('utils.labels.如何'))) return '🤔 提问引导型';
-  if (title.includes(i18n.t('utils.labels.功能')) || title.includes(i18n.t('utils.labels.解析')) || title.includes(i18n.t('utils.labels.对比'))) return '📘 专业理性型';
-  if (title.includes(i18n.t('utils.labels.我的')) || title.includes(i18n.t('utils.labels.心得')) || title.includes(i18n.t('utils.labels.体验'))) return '💡 经验总结型';
-  if (title.includes(i18n.t('utils.labels.太好用')) || title.includes(i18n.t('utils.labels.救命')) || title.includes(i18n.t('utils.labels.惊艳'))) return '📣 情绪钩子型';
+  if (title.includes('u64cdu4f5cu5931u8d25') && title.includes('u64cdu4f5cu5931u8d25')) return '🎯 结果导向型';
+  if (title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25')) return '🤔 提问引导型';
+  if (title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25')) return '📘 专业理性型';
+  if (title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25')) return '💡 经验总结型';
+  if (title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25')) return '📣 情绪钩子型';
   return '🎯 结果导向型'; // 默认
 };
 
@@ -432,7 +432,7 @@ export const generateTitleSummary = (
 } => {
   const reasoning = `基于${analysis.entities[0] || analysis.mainTopic}的${analysis.tone}内容生成`;
   const extractedContent = analysis.coreMessage?.substring(0, 50) + 
-    (analysis.coreMessage?.length > 50 ? '...' : '') || i18n.t('utils.messages.内容摘要');
+    (analysis.coreMessage?.length > 50 ? '...' : '') || 'u64cdu4f5cu5931u8d25';
   
   const qualityIndicators: string[] = [];
   if (scores.semanticFit >= 0.8) qualityIndicators.push('高语义贴合');

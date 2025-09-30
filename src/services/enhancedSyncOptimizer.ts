@@ -9,7 +9,7 @@
  * - 网络状态自适应同步策略
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logger } from '@/utils/logger';
 import pako from 'pako'; // 数据压缩库
 // 使用Web Crypto API替代Node.js crypto模块

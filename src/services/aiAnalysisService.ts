@@ -1,4 +1,4 @@
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { BrandAnalysisResult, ContentCheckResult } from '@/types/brand';
 import { callOpenAIProxy } from '@/api/localApiProxy';
 import FileFormatSupportService, { FileFormatSupportService as FileFormatSupportServiceClass } from '@/services/fileFormatSupportService';
@@ -461,7 +461,7 @@ ${content}
               console.error('Word文档解析失败:', wordError);
 
               // 提供详细的错误信息和建议
-              const errorMessage = `Word文档解析失败: ${file.name}\n错误信息: ${(wordError as any)?.message || i18n.t('common.errors.未知错误')}\n\n建议解决方案：\n1. 检查文档是否损坏\n2. 尝试用Word重新保存文档\n3. 另存为.docx格式（推荐）\n4. 复制文档内容到文本文件\n5. 转换为PDF格式后上传`;
+              const errorMessage = `Word文档解析失败: ${file.name}\n错误信息: ${(wordError as any)?.message || '未知错误'}\n\n建议解决方案：\n1. 检查文档是否损坏\n2. 尝试用Word重新保存文档\n3. 另存为.docx格式（推荐）\n4. 复制文档内容到文本文件\n5. 转换为PDF格式后上传`;
 
               resolve(errorMessage);
             }

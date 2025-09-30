@@ -17,7 +17,7 @@
  * 6. 内容写入品牌语料库 + 可回溯版本
  */
 
-import i18n from '@/i18n';
+// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { callUnifiedAI } from '@/api/unifiedAIService';
 import { AITaskType } from '@/api/aiService';
 import { getPrompt, PromptType } from '@/prompts/PromptSystem';
@@ -431,7 +431,7 @@ export class BrandCorpusService {
       console.error(`❌ [v2.0] 处理文档失败: ${fileName}`, error);
 
       // 提供更详细的错误信息
-      let errorMessage = i18n.t('common.errors.文档处理失败');
+      let errorMessage = 'u64cdu4f5cu5931u8d25';
       if (error instanceof Error) {
         if (error.message.includes('API密钥')) {
           errorMessage = 'AI服务配置错误：' + error.message;
@@ -657,7 +657,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
       return {
         brandName: {
           value: '未识别',
-          excerpt: i18n.t('common.errors.解析失败'),
+          excerpt: '解析失败',
           confidence: 0.1
         }
       };
@@ -1098,7 +1098,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
       },
       extractedFields: {
         brandName: {
-          value: i18n.t('common.errors.解析失败'),
+          value: '解析失败',
           confidence: 0.1,
           sources: []
         }
