@@ -31,17 +31,9 @@ import {
   RotateCcw
 } from 'lucide-react';
 
-import {
+import type {
   UnifiedEmojiItem,
-  EmojiCategory,
-  getAllEmojis,
-  getEmojisByCategory,
-  searchEmojis,
-  getRandomEmojis,
-  getCategories,
-  getEmojiStats,
-  getSubcategories,
-  matchesSubcategory
+  EmojiCategory
 } from '@/services/unifiedEmojiSystem';
 
 // 视图模式类型
@@ -118,6 +110,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
   const [selectedEmojis, setSelectedEmojis] = useState<UnifiedEmojiItem[]>([]);
   const [displayEmojis, setDisplayEmojis] = useState<UnifiedEmojiItem[]>([]);
   const [emojiCategories, setEmojiCategories] = useState<EmojiCategory[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
 
   // 新增功能状态
@@ -170,34 +163,44 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
 
   // 初始化数据
   useEffect(() => {
-    // 计算最新分类统计，避免显示与实际不一致
-    const allCategoriesComputed = getCategories();
-    let filteredCategories = allCategoriesComputed;
+    const initializeEmojiData = async () => {
+      try {
+        const { getCategories, getAllEmojis, getEmojiStats } = await import('@/services/unifiedEmojiSystem');
+        
+        // 计算最新分类统计，避免显示与实际不一致
+        const allCategoriesComputed = getCategories();
+        let filteredCategories = allCategoriesComputed;
 
-    if (categories) {
-      filteredCategories = allCategoriesComputed.filter(cat => categories.includes(cat.id));
-    }
+        if (categories) {
+          filteredCategories = allCategoriesComputed.filter((cat: any) => categories.includes(cat.id));
+        }
 
-    if (excludeCategories) {
-      filteredCategories = filteredCategories.filter(cat => !excludeCategories.includes(cat.id));
-    }
+        if (excludeCategories) {
+          filteredCategories = filteredCategories.filter((cat: any) => !excludeCategories.includes(cat.id));
+        }
 
-    const all = getAllEmojis();
-    let totalCount = all.length;
-    if (categories) {
-      totalCount = all.filter(e => categories.includes(e.category)).length;
-    }
-    if (excludeCategories) {
-      totalCount = all.filter(e => !excludeCategories.includes(e.category)).length;
-    }
-    setEmojiCategories([
-      { id: 'all', name: '全部', icon: '🎨', color: 'hsl(var(--accent))', count: totalCount, description: '所有emoji' },
-      ...filteredCategories
-    ]);
+        const all = getAllEmojis();
+        let totalCount = all.length;
+        if (categories) {
+          totalCount = all.filter((e: any) => categories.includes(e.category)).length;
+        }
+        if (excludeCategories) {
+          totalCount = all.filter((e: any) => !excludeCategories.includes(e.category)).length;
+        }
+        setEmojiCategories([
+          { id: 'all', name: '全部', icon: '🎨', color: 'hsl(var(--accent))', count: totalCount, description: '所有emoji' },
+          ...filteredCategories
+        ]);
 
-    if (showStats) {
-      setStats(getEmojiStats());
-    }
+        if (showStats) {
+          setStats(getEmojiStats());
+        }
+      } catch (error) {
+        console.error('初始化Emoji数据失败:', error);
+      }
+    };
+
+    initializeEmojiData();
 
     // 从localStorage加载收藏 - 支持用户ID隔离
     const userId = user?.id || 'guest';
@@ -217,25 +220,28 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
   }, [categories, excludeCategories, source]);
 
   // 更新显示的emoji
-  const updateDisplayEmojis = () => {
-    let emojis: UnifiedEmojiItem[] = [];
+  const updateDisplayEmojis = async () => {
+    try {
+      const { getAllEmojis, getEmojisByCategory, matchesSubcategory } = await import('@/services/unifiedEmojiSystem');
+      
+      let emojis: UnifiedEmojiItem[] = [];
 
-    // 基础过滤
-    if (searchQuery) {
-      emojis = getAllEmojis().filter(emoji =>
-        fuzzySearch(emoji.name, searchQuery) ||
-        emoji.keywords.some(keyword => fuzzySearch(keyword, searchQuery))
-      );
-    } else if (selectedCategory === 'all') {
-      emojis = getAllEmojis();
-    } else {
-      emojis = getEmojisByCategory(selectedCategory);
-    }
+      // 基础过滤
+      if (searchQuery) {
+        emojis = getAllEmojis().filter((emoji: any) =>
+          fuzzySearch(emoji.name, searchQuery) ||
+          emoji.keywords.some((keyword: any) => fuzzySearch(keyword, searchQuery))
+        );
+      } else if (selectedCategory === 'all') {
+        emojis = getAllEmojis();
+      } else {
+        emojis = getEmojisByCategory(selectedCategory);
+      }
 
-    // 子分类过滤（仅在选择了主分类时启用）
-    if (selectedCategory !== 'all' && selectedSubcategory) {
-      emojis = emojis.filter(e => matchesSubcategory(e, selectedCategory as any, selectedSubcategory));
-    }
+      // 子分类过滤（仅在选择了主分类时启用）
+      if (selectedCategory !== 'all' && selectedSubcategory) {
+        emojis = emojis.filter(e => matchesSubcategory(e, selectedCategory as any, selectedSubcategory));
+      }
 
     // 按来源过滤
     if (source !== 'all') {
@@ -318,7 +324,10 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
       return res;
     });
 
-    setDisplayEmojis(emojis);
+      setDisplayEmojis(emojis);
+    } catch (error) {
+      console.error('更新显示Emoji失败:', error);
+    }
   };
 
   // 处理分类变化
@@ -331,12 +340,27 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
     }
   };
 
-  const handleCategoryChange = (category: string) => {
+  const handleCategoryChange = async (category: string) => {
     exitRandomView();
     setShowFavoritesOnly(false); // 退出收藏视图
     setSelectedCategory(category);
     setSelectedSubcategory(null); // 切换主分类时重置子分类
     setSearchQuery('');
+    
+    // 加载子分类
+    if (category !== 'all') {
+      try {
+        const { getSubcategories } = await import('@/services/unifiedEmojiSystem');
+        const subs = getSubcategories(category as any);
+        setSubcategories(subs);
+      } catch (error) {
+        console.error('加载子分类失败:', error);
+        setSubcategories([]);
+      }
+    } else {
+      setSubcategories([]);
+    }
+    
     onCategoryChange?.(category);
   };
 
@@ -364,20 +388,29 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
   };
   useEffect(() => {
     // 统计全量emoji关键词频次，取Top 20作为引导关键词
-    const all = getAllEmojis();
-    const freq: Record<string, number> = {};
-    for (const e of all) {
-      for (const k of (e.keywords || [])) {
-        const key = (k || '').trim();
-        if (!key) continue;
-        freq[key] = (freq[key] || 0) + 1;
+    const loadKeywords = async () => {
+      try {
+        const { getAllEmojis } = await import('@/services/unifiedEmojiSystem');
+        const all = getAllEmojis();
+        const freq: Record<string, number> = {};
+        for (const e of all) {
+          for (const k of (e.keywords || [])) {
+            const key = (k || '').trim();
+            if (!key) continue;
+            freq[key] = (freq[key] || 0) + 1;
+          }
+        }
+        const top = Object.entries(freq)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 20)
+          .map(([k]) => k);
+        setChipKeywords(top);
+      } catch (error) {
+        console.error('加载关键词失败:', error);
       }
-    }
-    const top = Object.entries(freq)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 20)
-      .map(([k]) => k);
-    setChipKeywords(top);
+    };
+    
+    loadKeywords();
   }, []);
 
   // 切换收藏状态
@@ -531,7 +564,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
   };
 
   // 随机选择emoji - 增强版本
-  const handleRandomSelect = () => {
+  const handleRandomSelect = async () => {
     try {
       // 首先尝试从当前显示的emoji中随机选择
       if (displayEmojis.length > 0) {
@@ -548,6 +581,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
       }
 
       // 备用机制：使用系统的随机emoji API
+      const { getRandomEmojis, getAllEmojis } = await import('@/services/unifiedEmojiSystem');
       const randomEmojis = getRandomEmojis(1, selectedCategory === 'all' ? undefined : selectedCategory);
       if (randomEmojis.length > 0) {
         setRandomSelected(randomEmojis[0]);
@@ -789,7 +823,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
               {/* 子分类分段按钮：默认折叠（通过selectedSubcategory为null实现），仅选中主分类时显示 */}
               {selectedCategory !== 'all' && (
                 <div className="mt-3 flex flex-wrap gap-2 overflow-x-auto">
-                  {getSubcategories(selectedCategory as any).map(sc => (
+                  {subcategories.map((sc: any) => (
                     <button
                       key={sc.id}
                       onClick={() => setSelectedSubcategory(prev => prev === sc.id ? null : sc.id)}
