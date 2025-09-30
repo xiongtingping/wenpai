@@ -694,7 +694,8 @@ export function withErrorBoundary<P extends object>(
     </EnhancedErrorBoundary>
   );
 
-  WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
+  // 🔧 FIXED: 安全地访问Component.displayName，避免TDZ错误
+  WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name || 'UnknownComponent'})`;
   
   return WrappedComponent;
 }

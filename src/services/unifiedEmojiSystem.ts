@@ -682,8 +682,13 @@ async function ensureMinimumPerCategory(minCount = 100) {
   }
 }
 
-// 🔧 延迟初始化，避免TDZ错误
-setTimeout(async () => {
+// 🔧 FIXED: 移除模块级别的自动执行代码，改为手动调用函数
+// 这个自动执行代码是TDZ错误的根源之一
+/**
+ * 初始化emoji系统 - 需要手动调用
+ * 🚨 重要：此函数不再自动执行，需要在适当时机手动调用
+ */
+export async function initializeEmojiSystem(): Promise<void> {
   try {
     // 初始化：在恢复的基础上进行补齐并做数据质检
     await ensureMinimumPerCategory(110);
@@ -699,7 +704,7 @@ setTimeout(async () => {
   } catch (error) {
     console.warn('Emoji系统初始化时发生错误:', error);
   }
-}, 0);
+}
 
 /**
  * 🌐 修复现有数据中的英文名称

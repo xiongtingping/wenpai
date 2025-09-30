@@ -104,6 +104,10 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | **ROOT CAUSE FOUND**: 删除src/api/aiService.ts重复logger定义 | ❌ 失败 | 错误依然存在：Cannot access 'logger' |
 | 2025-09-30 | **新发现**: 模块顶层立即执行Manager.getInstance() | 🔍 重大发现 | DataSyncManager和DataMigrationManager在模块顶层立即执行 |
 | 2025-09-30 | **系统性修复**: 改为懒加载单例模式 | ❌ 失败 | 错误依然存在：Cannot access 'logger'，需要更全面的修复 |
+| 2025-09-30 | **全面清理**: 移除所有模块顶层logger立即执行 | 🔶 部分成功 | logger TDZ基本解决，但出现新的__vitePreload和提示词系统TDZ错误 |
+| 2025-09-30 | **最新状态确认**: TDZ错误依然存在 | ❌ 失败 | bbbb-services-CAvdLBHv.js:6826 新错误：__vitePreload + displayName + 确保最小分类数量失败 |
+| 2025-09-30 | **深入修复**: 移除unifiedEmojiSystem.ts模块级setTimeout | 🔧 重大修复 | 移除第686行的setTimeout自动执行代码，改为手动调用函数 |
+| 2025-09-30 | **修复displayName**: EnhancedErrorBoundary组件displayName安全访问 | 🔧 修复 | 避免Component.displayName为undefined时的TDZ错误 |
 
 ### 🚨 重要发现：问题比想象的更复杂（2025-09-30）
 
@@ -281,7 +285,7 @@ import { request } from '@/api/request';
 - [ ] 在不同浏览器（Chrome/Firefox/Safari）测试
 - [ ] 验证生产环境和开发环境都正常
 
-**当前状态**: 🔶 刚完成utils自动执行代码修复，需要充分验证
+**当前状态**: ❌ 错误依然存在 - 新出现多种TDZ错误：__vitePreload、displayName、确保最小分类数量失败
 
 #### 根源定位方法
 1. **分析构建文件名模式**: `hhhh-utils-JDH_2Otv.js` 对应 Vite 配置中的 `hhhh-utils` chunk
