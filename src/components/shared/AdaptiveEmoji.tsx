@@ -8,7 +8,7 @@ import type {
   UnifiedEmojiItem,
   EmojiUsageContext,
   PlatformType
-} from '@/services/unifiedEmojiSystem';
+} from '@/types/emoji';
 
 interface AdaptiveEmojiProps {
   emoji: UnifiedEmojiItem | string;

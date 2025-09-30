@@ -4,7 +4,7 @@
  */
 
 type EmojiSystemModule = typeof import('@/services/unifiedEmojiSystem');
-import type { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
+import type { UnifiedEmojiItem } from '@/types/emoji';
 
 let emojiSystemLoader: Promise<EmojiSystemModule> | null = null;
 

@@ -4,7 +4,7 @@
  */
 
 import { generateColorsForEmojiList, getColorGeneratorStats } from './emojiColorGenerator';
-import type { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
+import type { UnifiedEmojiItem } from '@/types/emoji';
 
 /**
  * 更新emoji数据的颜色

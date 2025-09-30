@@ -3,7 +3,7 @@
  * 提供与旧版emojiService兼容的API，内部使用统一emoji系统
  */
 
-import type { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
+import type { UnifiedEmojiItem } from '@/types/emoji';
 
 // 兼容旧版EmojiItem接口
 export interface EmojiItem {

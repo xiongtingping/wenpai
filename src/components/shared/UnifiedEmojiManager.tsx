@@ -34,7 +34,7 @@ import {
 import type {
   UnifiedEmojiItem,
   EmojiCategory
-} from '@/services/unifiedEmojiSystem';
+} from '@/types/emoji';
 
 // 视图模式类型
 type ViewMode = 'grid' | 'list' | 'large';

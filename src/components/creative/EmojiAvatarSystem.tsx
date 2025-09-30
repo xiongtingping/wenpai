@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Shuffle } from 'lucide-react';
 import UnifiedEmojiManager from '@/components/shared/UnifiedEmojiManager';
-import type { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
+import type { UnifiedEmojiItem } from '@/types/emoji';
 
 interface EmojiAvatarSystemProps {
   onEmojiSelect?: (emoji: UnifiedEmojiItem) => void;

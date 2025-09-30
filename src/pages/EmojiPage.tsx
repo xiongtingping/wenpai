@@ -44,7 +44,7 @@ import { notoEmojiService, UNICODE_EMOJI_GROUPS, NOTO_STYLES, type NotoEmojiData
 
 import PersonalizedEmojiGenerator from '@/components/creative/PersonalizedEmojiGenerator';
 import UnifiedEmojiManager from '@/components/shared/UnifiedEmojiManager';
-import type { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
+import type { UnifiedEmojiItem } from '@/types/emoji';
 import { BackToTop } from '@/components/ui/BackToTop';
 
 /**
