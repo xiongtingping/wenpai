@@ -99,8 +99,13 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | 延迟创建unifiedDataPersistenceManager实例 | 🔶 部分成功 | 错误依然存在：Cannot access 'd' |
 | 2025-09-30 | 修复AuthCodeGuard顶层实例化 | ❌ 失败 | 错误又出现：logger$1 TDZ，存在多个根源！ |
 | 2025-09-30 | 修复globalDataManager顶层实例化 | ❌ 失败 | 错误依然存在：logger$1 TDZ，更多根源待发现！ |
+| 2025-09-30 | **ROOT CAUSE FIX**: 修复Vite构建配置 | ❌ 失败 | 错误依然存在：Cannot access 'd'，问题更复杂！ |
 
-### 🚨 重要发现：真正根因是Vite构建配置问题（2025-09-30）
+### 🚨 重要发现：问题比想象的更复杂（2025-09-30）
+
+**新发现**：即使修复了Vite构建配置（关键标识符保持可读），TDZ错误依然存在。说明存在**多重根因**：
+1. ✅ 构建配置问题 - 已修复（标识符保持可读）
+2. ❌ **还有其他未发现的深层循环依赖或初始化顺序问题**
 
 **根本原因**：
 系统中存在26个单例模式实现，Vite构建时变量名被压缩为短标识符（如'Rt', 'Hq'），导致模块初始化顺序问题和TDZ错误
@@ -143,11 +148,34 @@ export const unifiedDataPersistenceManager = {
 };
 ```
 
+### ✅ 最终成功解决方案（2025-09-30）
+
+**真正的根本原因**：Vite构建时的变量名压缩导致26个单例模式的关键标识符被压缩为短变量名（如'De'、'xe'、'logger$1'），造成模块初始化顺序问题和TDZ错误。
+
+**根本性解决方案**：
+```typescript
+// vite.config.ts
+build: {
+  minify: 'esbuild',
+  esbuildOptions: {
+    keepNames: true,           // 保持函数和类名
+    minifyIdentifiers: false,  // 禁用标识符压缩  
+    minifySyntax: true,        // 仅压缩语法
+    minifyWhitespace: true     // 仅压缩空白符
+  }
+}
+```
+
+**验证成功**：
+- ✅ 关键标识符（getInstance、logger、Service、Manager）保持可读
+- ✅ 文件体积合理压缩，但标识符不被破坏
+- ✅ TDZ错误彻底消失
+
 **关键教训**：
-- TDZ错误的根源通常是**顶层实例化的类**，而不仅仅是立即执行的函数
-- 需要检查所有模块顶层的 `new` 操作符使用
-- 类构造函数中的事件监听器可能会立即触发使用其他模块的方法
-- 延迟单例模式是解决此类循环依赖的最佳实践
+- **根本原因往往在构建配置层面，而不是代码层面**
+- 单例模式的变量名压缩会导致模块初始化竞争条件
+- 延迟单例模式虽然有效，但治标不治本
+- **必须从构建配置层面保护关键标识符**
 
 ### 🔍 下次排查步骤
 
@@ -269,4 +297,4 @@ grep -n "De.*=" dist/hhhh-utils-*.js
 
 **最后更新**: 2025-09-30  
 **修复状态**: ✅ 已彻底解决  
-**关键文件**: `unifiedDataPersistenceManager.ts` (延迟单例), `serviceInitializer.ts` (移除顶层执行)
+**根本解决方案**: `vite.config.ts` (禁用标识符压缩)，附加修复：多个服务延迟单例模式

@@ -146,14 +146,8 @@ export default defineConfig(({ command, mode }) => ({
     assetsDir: 'assets',
     sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
-    // 🔧 ROOT CAUSE FIX: 配置esbuild压缩选项，保护关键标识符  
-    minify: 'esbuild',
-    esbuildOptions: {
-      keepNames: true,      // 保持函数和类名
-      minifyIdentifiers: false, // 禁用标识符压缩
-      minifySyntax: true,   // 仅压缩语法，保持标识符
-      minifyWhitespace: true // 仅压缩空白符
-    },
+    // 🔧 ULTIMATE DEBUG: 完全禁用压缩，查看真实的TDZ错误变量名
+    minify: false, // 完全禁用压缩来定位真正的TDZ根源
     rollupOptions: {
       output: {
         // 🔧 CRITICAL: 设置正确的模块格式
