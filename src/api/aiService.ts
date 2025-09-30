@@ -1,19 +1,9 @@
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import type { AICallParams, AIResponse } from './types';
+import { logger } from '@/utils/logger';
+import { request } from '@/api/request';
 
-// Logger interface
-interface Logger {
-  debug(message: string, ...args: any[]): void;
-  info(message: string, ...args: any[]): void;
-  warn(message: string, ...args: any[]): void;
-  error(message: string, ...args: any[]): void;
-}
-
-// Request interface  
-interface Request {
-  post(url: string, data?: any): Promise<any>;
-  get(url: string, params?: any): Promise<any>;
-}
+// 删除重复的接口定义，使用导入的实际实现
 
 // AI配置类型
 interface AIConfig {
@@ -36,28 +26,7 @@ export enum PromptType {
   EXPRESSION_STYLE_MANAGEMENT = 'expression_style_management'
 }
 
-// 模拟实现这些函数
-const logger: Logger = {
-  debug: (message: string, ...args: any[]) => console.debug(message, ...args),
-  info: (message: string, ...args: any[]) => console.info(message, ...args),
-  warn: (message: string, ...args: any[]) => console.warn(message, ...args),
-  error: (message: string, ...args: any[]) => console.error(message, ...args)
-};
-
-const request: Request = {
-  post: async (url: string, data?: any) => {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    return response.json();
-  },
-  get: async (url: string, params?: any) => {
-    const response = await fetch(url);
-    return response.json();
-  }
-};
+// 移除重复的logger和request定义，使用导入的实际实现
 
 async function getAIConfig(): Promise<AIConfig> {
   return {
