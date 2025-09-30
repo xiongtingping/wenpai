@@ -461,8 +461,25 @@ export class EnhancedDataPreloader {
   }
 }
 
-// 导出单例实例
-export const dataPreloader = new EnhancedDataPreloader();
+// 延迟创建单例实例，避免TDZ错误
+let dataPreloaderInstance: EnhancedDataPreloader | null = null;
+
+export function getDataPreloader(): EnhancedDataPreloader {
+  if (!dataPreloaderInstance) {
+    dataPreloaderInstance = new EnhancedDataPreloader();
+  }
+  return dataPreloaderInstance;
+}
+
+// 保持向后兼容
+export const dataPreloader = {
+  startPreloadProcess: (...args: any[]) => getDataPreloader().startPreloadProcess(...args),
+  preloadByCategory: (...args: any[]) => getDataPreloader().preloadByCategory(...args),
+  preloadCriticalData: (...args: any[]) => getDataPreloader().preloadCriticalData(...args),
+  refreshData: (...args: any[]) => getDataPreloader().refreshData(...args),
+  getPreloadStats: () => getDataPreloader().getPreloadStats(),
+  cleanup: () => getDataPreloader().cleanup()
+};
 
 /**
  * React Hook: 数据预加载

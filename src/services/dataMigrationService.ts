@@ -711,8 +711,25 @@ export class DataMigrationService {
   }
 }
 
-// 创建全局实例
-export const dataMigrationService = new DataMigrationService();
+// 延迟创建全局实例，避免TDZ错误
+let dataMigrationServiceInstance: DataMigrationService | null = null;
+
+export function getDataMigrationService(): DataMigrationService {
+  if (!dataMigrationServiceInstance) {
+    dataMigrationServiceInstance = new DataMigrationService();
+  }
+  return dataMigrationServiceInstance;
+}
+
+// 保持向后兼容
+export const dataMigrationService = {
+  setUserId: (userId: string) => getDataMigrationService().setUserId(userId),
+  analyzeMigrationPlan: () => getDataMigrationService().analyzeMigrationPlan(),
+  executeMigration: (...args: any[]) => getDataMigrationService().executeMigration(...args),
+  syncToCloud: (...args: any[]) => getDataMigrationService().syncToCloud(...args),
+  resolveConflicts: (...args: any[]) => getDataMigrationService().resolveConflicts(...args),
+  cleanup: (...args: any[]) => getDataMigrationService().cleanup(...args)
+};
 
 // 便捷方法
 export const analyzeMigration = () => dataMigrationService.analyzeMigrationPlan();
