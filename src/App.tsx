@@ -16,7 +16,8 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 // import { ThemeProvider } from '@/contexts/ThemeContext'; // 🔧 FIX: 禁用ThemeContext，使用ThemeToggle统一管理主题
-import './i18n';
+// 延迟i18n初始化以避免TDZ循环依赖
+// import './i18n'; // 移除静态导入
 import { useTranslation } from 'react-i18next';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -123,6 +124,18 @@ const App: React.FC = () => {
   const shouldShowHeader = !noHeaderRoutes.includes(location.pathname);
 
   useEffect(() => {
+    // 🔧 异步初始化i18n以避免TDZ循环依赖
+    const initI18n = async () => {
+      try {
+        await import('@/i18n');
+        // console.log('✅ i18n异步初始化完成');
+      } catch (error) {
+        console.error('❌ i18n初始化失败:', error);
+      }
+    };
+    
+    initI18n();
+    
     // 🔧 FIX: 应用启动时立即加载持久化主题，避免闪烁
     const loadPersistedTheme = () => {
       try {
