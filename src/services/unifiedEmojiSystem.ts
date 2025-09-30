@@ -4,11 +4,28 @@
  */
 
 // 移除静态导入以避免循环依赖和TDZ问题
-import i18n from '@/i18n';
-import { smartTranslateEmojiName, translateEmojiName } from '@/utils/emojiNameTranslation';
+// 延迟初始化i18n和翻译函数以避免TDZ
+let t: (key: string) => string;
 
-// 创建t函数快捷方式
-const t = (key: string) => i18n.t(key);
+// 异步初始化翻译函数
+async function initTranslation() {
+  if (!t) {
+    try {
+      const i18n = (await import('@/i18n')).default;
+      const { smartTranslateEmojiName, translateEmojiName } = await import('@/utils/emojiNameTranslation');
+      t = (key: string) => i18n.t(key);
+      return { smartTranslateEmojiName, translateEmojiName };
+    } catch (error) {
+      console.warn('翻译系统初始化失败:', error);
+      t = (key: string) => key; // 降级方案
+      return {
+        smartTranslateEmojiName: (name: string) => name,
+        translateEmojiName: (name: string) => name
+      };
+    }
+  }
+  return await import('@/utils/emojiNameTranslation');
+}
 
 // 颜色常量定义
 const EMOJI_COLORS = {
@@ -364,49 +381,53 @@ const foodEmojis: UnifiedEmojiItem[] = [
   { id: 'food_100', name: '果冻', emoji: '🍮', color: EMOJI_COLORS.purple, category: 'food', keywords: ['果冻', '甜点', 'Q弹'], source: 'system' }
 ];
 
-// 分类配置
-export const emojiCategories: EmojiCategory[] = [
-  {
-    id: 'animals',
-    name: t('emojiSystem.categories.animals'),
-    icon: '🐱',
-    color: EMOJI_COLORS.red,
-    count: 100,
-    description: t('emojiSystem.descriptions.animals')
-  },
-  {
-    id: 'food',
-    name: t('emojiSystem.categories.food'),
-    icon: '🍎',
-    color: EMOJI_COLORS.blue,
-    count: 100,
-    description: t('emojiSystem.descriptions.food')
-  },
-  {
-    id: 'objects',
-    name: t('emojiSystem.categories.objects'),
-    icon: '🚗',
-    color: EMOJI_COLORS.blue,
-    count: 100,
-    description: t('emojiSystem.descriptions.objects')
-  },
-  {
-    id: 'emotions',
-    name: t('emojiSystem.categories.emotions'),
-    icon: '😊',
-    color: EMOJI_COLORS.green,
-    count: 100,
-    description: t('emojiSystem.descriptions.emotions')
-  },
-  {
-    id: 'nature',
-    name: t('emojiSystem.categories.nature'),
-    icon: '☀️',
-    color: EMOJI_COLORS.yellow,
-    count: 100,
-    description: t('emojiSystem.descriptions.nature')
-  }
-];
+// 分类配置函数（延迟初始化以避免TDZ）
+async function createEmojiCategories(): Promise<EmojiCategory[]> {
+  await initTranslation(); // 确保翻译函数已初始化
+  
+  return [
+    {
+      id: 'animals',
+      name: t ? t('emojiSystem.categories.animals') : '动物',
+      icon: '🐱',
+      color: EMOJI_COLORS.red,
+      count: 100,
+      description: t ? t('emojiSystem.descriptions.animals') : '各种可爱的动物'
+    },
+    {
+      id: 'food',
+      name: t ? t('emojiSystem.categories.food') : '食物',
+      icon: '🍎',
+      color: EMOJI_COLORS.blue,
+      count: 100,
+      description: t ? t('emojiSystem.descriptions.food') : '美味的食物和饮品'
+    },
+    {
+      id: 'objects',
+      name: t ? t('emojiSystem.categories.objects') : '物品',
+      icon: '🚗',
+      color: EMOJI_COLORS.blue,
+      count: 100,
+      description: t ? t('emojiSystem.descriptions.objects') : '各种日常物品'
+    },
+    {
+      id: 'emotions',
+      name: t ? t('emojiSystem.categories.emotions') : '表情',
+      icon: '😊',
+      color: EMOJI_COLORS.green,
+      count: 100,
+      description: t ? t('emojiSystem.descriptions.emotions') : '丰富的表情符号'
+    },
+    {
+      id: 'nature',
+      name: t ? t('emojiSystem.categories.nature') : '自然',
+      icon: '☀️',
+      color: EMOJI_COLORS.yellow,
+      count: 100,
+      description: t ? t('emojiSystem.descriptions.nature') : '自然现象和元素'
+    }
+  ];
+}
 
 // t('emojiSystem.comments.objectEmojis')
 const objectEmojis: UnifiedEmojiItem[] = [
@@ -605,7 +626,14 @@ const CATEGORY_COLORS: Record<UnifiedEmojiItem['category'], string> = {
 // 确保每个主分类至少 minCount 个（去重补齐）
 async function ensureMinimumPerCategory(minCount = 100) {
   try {
-    const { getAllEmojis: getRawEmojiJson, getEmojiUnicode } = await import('@/services/emojiService');
+    const [
+      { getAllEmojis: getRawEmojiJson, getEmojiUnicode },
+      { smartTranslateEmojiName }
+    ] = await Promise.all([
+      import('@/services/emojiService'),
+      initTranslation()
+    ]);
+    
     const raw = getRawEmojiJson();
     if (!raw || !Array.isArray(raw)) return;
 
@@ -664,7 +692,7 @@ setTimeout(async () => {
     await ensureMinimumPerCategory(110);
 
     // 🌐 修复现有数据中的英文名称
-    fixExistingEnglishNames();
+    await fixExistingEnglishNames();
 
     // 🎨 应用多样化颜色系统（在初始化完成后）
     applyDiversifiedColorsSync();
@@ -677,17 +705,20 @@ setTimeout(async () => {
  * 🌐 修复现有数据中的英文名称
  * 将已存在的emoji数据中的英文名称翻译为中文
  */
-function fixExistingEnglishNames(): void {
-  // console.log('🌐 开始修复emoji英文名称...');
-  
-  let fixedCount = 0;
-  const translations: Array<{emoji: string, oldName: string, newName: string}> = [];
-  
-  unifiedEmojiData.forEach(emoji => {
-    // 检查是否为英文名称（包含英文字母）
-    if (/[a-zA-Z]/.test(emoji.name)) {
-      const originalName = emoji.name;
-      const translatedName = smartTranslateEmojiName(emoji.name, emoji.category);
+async function fixExistingEnglishNames(): Promise<void> {
+  try {
+    const { smartTranslateEmojiName } = await initTranslation();
+    
+    // console.log('🌐 开始修复emoji英文名称...');
+    
+    let fixedCount = 0;
+    const translations: Array<{emoji: string, oldName: string, newName: string}> = [];
+    
+    unifiedEmojiData.forEach(emoji => {
+      // 检查是否为英文名称（包含英文字母）
+      if (/[a-zA-Z]/.test(emoji.name)) {
+        const originalName = emoji.name;
+        const translatedName = smartTranslateEmojiName(emoji.name, emoji.category);
       
       // 如果翻译后有变化，则更新
       if (translatedName !== originalName) {
@@ -714,6 +745,9 @@ function fixExistingEnglishNames(): void {
     if (fixedCount > 5) {
       // console.log(`  ... 还有 ${fixedCount - 5} 个翻译`);
     }
+  }
+  } catch (error) {
+    console.error('修复英文名称失败:', error);
   }
 }
 
@@ -920,13 +954,14 @@ export function getRandomEmojis(count: number = 1, category?: string): UnifiedEm
 /**
  * 获取分类信息
  */
-export function getCategories(): EmojiCategory[] {
+export async function getCategories(): Promise<EmojiCategory[]> {
   // 动态根据数据源计算各分类数量，避免与静态配置不一致
   const counts: Record<string, number> = {};
   for (const e of unifiedEmojiData) {
     counts[e.category] = (counts[e.category] || 0) + 1;
   }
-  return emojiCategories.map(cat => ({ ...cat, count: counts[cat.id] || 0 }));
+  const categories = await createEmojiCategories();
+  return categories.map(cat => ({ ...cat, count: counts[cat.id] || 0 }));
 }
 
 /**
