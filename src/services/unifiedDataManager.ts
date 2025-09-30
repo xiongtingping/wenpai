@@ -779,9 +779,35 @@ export class UnifiedDataManager {
 }
 
 /**
- * 单例模式的全局数据管理器
+ * 单例模式的全局数据管理器 - 延迟创建避免TDZ
  */
-export const globalDataManager = new UnifiedDataManager();
+let globalDataManagerInstance: UnifiedDataManager | null = null;
+
+export function getGlobalDataManager(): UnifiedDataManager {
+  if (!globalDataManagerInstance) {
+    globalDataManagerInstance = new UnifiedDataManager();
+  }
+  return globalDataManagerInstance;
+}
+
+// 保持向后兼容
+export const globalDataManager = {
+  getData: (...args: any[]) => getGlobalDataManager().getData(...args),
+  setData: (...args: any[]) => getGlobalDataManager().setData(...args),
+  preloadCriticalData: (...args: any[]) => getGlobalDataManager().preloadCriticalData(...args),
+  cleanupExpiredCache: (...args: any[]) => getGlobalDataManager().cleanupExpiredCache(...args),
+  getDataStats: (...args: any[]) => getGlobalDataManager().getDataStats(...args),
+  setUserId: (...args: any[]) => getGlobalDataManager().setUserId(...args),
+  getUserTier: (...args: any[]) => getGlobalDataManager().getUserTier(...args),
+  getUserAvailableModels: (...args: any[]) => getGlobalDataManager().getUserAvailableModels(...args),
+  hasModelPermission: (...args: any[]) => getGlobalDataManager().hasModelPermission(...args),
+  getPreferredModel: (...args: any[]) => getGlobalDataManager().getPreferredModel(...args),
+  setPreferredModel: (...args: any[]) => getGlobalDataManager().setPreferredModel(...args),
+  recordModelUsage: (...args: any[]) => getGlobalDataManager().recordModelUsage(...args),
+  getModelUsageStats: (...args: any[]) => getGlobalDataManager().getModelUsageStats(...args),
+  getModelRecommendations: (...args: any[]) => getGlobalDataManager().getModelRecommendations(...args),
+  cleanupUsageStats: (...args: any[]) => getGlobalDataManager().cleanupUsageStats(...args)
+};
 
 /**
  * React Hook: 统一数据管理
