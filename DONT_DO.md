@@ -23,13 +23,13 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 **修复**: 移除setTimeout和DOMContentLoaded自动执行  
 **验证**: 需要再次确认是否真的解决
 
-#### 2. 【待验证】PDF.js worker变量冲突
-**概率**: 70%  
-**状态**: 🔍 需要调查  
-**文件**: `public/pdf.worker.min.js`中的`De=9`变量  
-**问题**: PDF.js的De变量与其他模块冲突  
-**可能解决**: 移除PDF.js或重命名变量  
-**需要检查**: 是否真的在使用PDF功能
+#### 2. 【已调查】变量名压缩冲突
+**概率**: 90%  
+**状态**: 🔍 重大发现  
+**问题**: 压缩后的变量名(De→xe)在模块间冲突  
+**表现**: 每次构建变量名不同，但TDZ依然存在  
+**根因**: 代码压缩导致的跨模块变量引用问题  
+**可能解决**: 禁用压缩或修复模块依赖关系
 
 #### 3. 【待验证】Vite模块预加载顺序问题
 **概率**: 65%  
@@ -91,6 +91,8 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | 发现aiAnalysisService中PDF.js懒加载 | 🔍 新发现 | setTimeout + PDF worker可能冲突 |
 | 2025-09-30 | 测试移除PDF worker文件 | ❌ 无效 | 构建成功但不是根源 |
 | 2025-09-30 | **错误依然存在!** | ❌ 确认失败 | utils自动执行修复无效 |
+| 2025-09-30 | 发现Vite chunk加载顺序问题 | 🔍 重大发现 | services在utils之前预加载！ |
+| 2025-09-30 | 调整chunk命名保证加载顺序 | ❌ 失败 | 错误依然存在，现在是xe变量 |
 
 ### 🔍 下次排查步骤
 
