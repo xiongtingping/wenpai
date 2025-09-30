@@ -233,13 +233,5 @@ export function forceEmojiTranslationFix(): void {
   }
 }
 
-// 自动执行（在浏览器环境中）
-if (typeof window !== 'undefined') {
-  // 监听DOMContentLoaded事件
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', forceEmojiTranslationFix);
-  } else {
-    // DOM已经加载完成
-    forceEmojiTranslationFix();
-  }
-}
+// 移除自动执行避免TDZ错误 - 改为手动调用
+// 如需使用请手动调用 forceEmojiTranslationFix() 函数

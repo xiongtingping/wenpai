@@ -219,13 +219,5 @@ function generateColorVariant(baseColor: string, seed: number): string {
   return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`.toUpperCase();
 }
 
-// 自动执行（如果在浏览器环境中）
-if (typeof window !== 'undefined') {
-  // 延迟执行，确保系统已加载
-  setTimeout(() => {
-    console.log('🔄 自动执行emoji颜色更新...');
-    forceUpdateEmojiColors().catch((error) => {
-      console.error('❌ 自动执行emoji颜色更新失败:', error);
-    });
-  }, 1000);
-}
+// 移除自动执行避免TDZ错误 - 改为手动调用
+// 如需使用请手动调用 forceUpdateEmojiColors() 函数
