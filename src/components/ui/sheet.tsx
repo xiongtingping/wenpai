@@ -26,7 +26,7 @@ const SheetOverlay = React.forwardRef<
     ref={ref}
   />
 ))
-SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
+SheetOverlay.displayName = SheetPrimitive.Overlay.displayName || "SheetOverlay"
 
 const sheetVariants = cva(
   // ✅ 遵循"动画时序交给库"原则：移除通用transition，保留Radix的data-[state]动画
@@ -71,7 +71,7 @@ const SheetContent = React.forwardRef<
     </SheetPrimitive.Content>
   </SheetPortal>
 ))
-SheetContent.displayName = SheetPrimitive.Content.displayName
+SheetContent.displayName = SheetPrimitive.Content.displayName || "SheetContent"
 
 const SheetHeader = ({
   className,
@@ -111,7 +111,7 @@ const SheetTitle = React.forwardRef<
     {...props}
   />
 ))
-SheetTitle.displayName = SheetPrimitive.Title.displayName
+SheetTitle.displayName = SheetPrimitive.Title.displayName || "SheetTitle"
 
 const SheetDescription = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Description>,
@@ -123,7 +123,7 @@ const SheetDescription = React.forwardRef<
     {...props}
   />
 ))
-SheetDescription.displayName = SheetPrimitive.Description.displayName
+SheetDescription.displayName = SheetPrimitive.Description.displayName || "SheetDescription"
 
 export {
   Sheet,

@@ -42,7 +42,7 @@ const DialogOverlay = React.forwardRef<
     {...props}
   />
 ))
-DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
+DialogOverlay.displayName = DialogPrimitive.Overlay.displayName || "DialogOverlay"
 
 /**
  * Portal容器 - 处理渲染层级
@@ -119,7 +119,7 @@ const DialogContent = React.forwardRef<
     </DialogPortal>
   );
 })
-DialogContent.displayName = DialogPrimitive.Content.displayName
+DialogContent.displayName = DialogPrimitive.Content.displayName || "DialogContent"
 
 /**
  * Dialog头部组件
@@ -171,7 +171,7 @@ const DialogTitle = React.forwardRef<
     {...props}
   />
 ))
-DialogTitle.displayName = DialogPrimitive.Title.displayName
+DialogTitle.displayName = DialogPrimitive.Title.displayName || "DialogTitle"
 
 /**
  * Dialog描述组件
@@ -186,7 +186,7 @@ const DialogDescription = React.forwardRef<
     {...props}
   />
 ))
-DialogDescription.displayName = DialogPrimitive.Description.displayName
+DialogDescription.displayName = DialogPrimitive.Description.displayName || "DialogDescription"
 
 export {
   Dialog,

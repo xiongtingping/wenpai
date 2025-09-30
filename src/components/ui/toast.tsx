@@ -29,7 +29,7 @@ const ToastViewport = React.forwardRef<
     {...props}
   />
 ))
-ToastViewport.displayName = ToastPrimitives.Viewport.displayName
+ToastViewport.displayName = ToastPrimitives.Viewport.displayName || "ToastViewport"
 
 const toastVariants = cva(
   // ✅ 移除通用transition-all，完全交由Radix的data-[state]和data-[swipe]控制
@@ -61,7 +61,7 @@ const Toast = React.forwardRef<
     />
   )
 })
-Toast.displayName = ToastPrimitives.Root.displayName
+Toast.displayName = ToastPrimitives.Root.displayName || "Toast"
 
 const ToastAction = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Action>,
@@ -76,7 +76,7 @@ const ToastAction = React.forwardRef<
     {...props}
   />
 ))
-ToastAction.displayName = ToastPrimitives.Action.displayName
+ToastAction.displayName = ToastPrimitives.Action.displayName || "ToastAction"
 
 const ToastClose = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Close>,
@@ -94,7 +94,7 @@ const ToastClose = React.forwardRef<
     <X className="h-4 w-4" />
   </ToastPrimitives.Close>
 ))
-ToastClose.displayName = ToastPrimitives.Close.displayName
+ToastClose.displayName = ToastPrimitives.Close.displayName || "ToastClose"
 
 const ToastTitle = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Title>,
@@ -106,7 +106,7 @@ const ToastTitle = React.forwardRef<
     {...props}
   />
 ))
-ToastTitle.displayName = ToastPrimitives.Title.displayName
+ToastTitle.displayName = ToastPrimitives.Title.displayName || "ToastTitle"
 
 const ToastDescription = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Description>,
@@ -118,7 +118,7 @@ const ToastDescription = React.forwardRef<
     {...props}
   />
 ))
-ToastDescription.displayName = ToastPrimitives.Description.displayName
+ToastDescription.displayName = ToastPrimitives.Description.displayName || "ToastDescription"
 
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
 
