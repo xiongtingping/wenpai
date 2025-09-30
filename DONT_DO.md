@@ -96,22 +96,46 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | 禁用代码压缩测试TDZ根因 | 🔍 重大突破 | 错误变为supabaseServiceFactory TDZ |
 | 2025-09-30 | 修复serviceInitializer.ts模块初始化 | ❌ 失败 | 错误依然存在，现在是变量'j'和'd' |
 | 2025-09-30 | 移除模块顶层立即执行代码 | ❌ 失败 | 错误变为logger$1 TDZ，问题更深层 |
+| 2025-09-30 | 延迟创建unifiedDataPersistenceManager实例 | ❌ 失败 | 错误依然存在：Cannot access 'd' |
 
 ### ✅ 最终解决方案（2025-09-30）
 
-**根本原因**：serviceInitializer.ts 中存在**两处**模块顶层立即执行代码：
-1. 第20行：`registerSupabaseServiceFactory((userId, tableName) => createDataService(userId, tableName));`
-2. 第37行：`initializeRequestClient();`
+**真正的根本原因**：`unifiedDataPersistenceManager.ts` 第745行的顶层实例化：
+```typescript
+export const unifiedDataPersistenceManager = new UnifiedDataPersistenceManager();
+```
 
-**完整修复**：
-1. 将第20行的 registerSupabaseServiceFactory 调用移到 initializeSupabaseServiceFactory() 函数内
-2. 将第37行的 initializeRequestClient() 调用移到 ServiceInitializer.initialize() 方法内
-3. 确保所有初始化都在适当的生命周期阶段执行，避免模块加载时的循环依赖
+**问题分析**：
+1. 类构造函数中的 `window.addEventListener('online')` 可能立即触发 `processSyncQueue()` 方法
+2. `processSyncQueue()` 方法使用了 `logger.info()`，但此时logger可能还未完全初始化
+3. 造成 `logger$1` 变量的TDZ错误
+
+**完整修复过程**：
+1. ✅ 移除 serviceInitializer.ts 第20行的 registerSupabaseServiceFactory 立即调用
+2. ✅ 移除 serviceInitializer.ts 第37行的 initializeRequestClient() 立即调用  
+3. ✅ **关键修复**：将 unifiedDataPersistenceManager 改为延迟单例模式，避免模块加载时的实例化
+
+**最终修复代码**：
+```typescript
+// 延迟创建全局实例，避免模块加载时的TDZ错误
+let unifiedDataPersistenceManagerInstance: UnifiedDataPersistenceManager | null = null;
+
+export const unifiedDataPersistenceManager = {
+  getInstance(): UnifiedDataPersistenceManager {
+    if (!unifiedDataPersistenceManagerInstance) {
+      unifiedDataPersistenceManagerInstance = new UnifiedDataPersistenceManager();
+    }
+    return unifiedDataPersistenceManagerInstance;
+  },
+  // ... 代理方法确保向后兼容
+};
+```
 
 **关键教训**：
-- TDZ错误通常由模块加载时的立即执行代码引起
-- 需要检查**所有**模块顶层的自动执行代码，不仅仅是setTimeout
-- 服务初始化应该统一管理，避免分散在各个模块顶层
+- TDZ错误的根源通常是**顶层实例化的类**，而不仅仅是立即执行的函数
+- 需要检查所有模块顶层的 `new` 操作符使用
+- 类构造函数中的事件监听器可能会立即触发使用其他模块的方法
+- 延迟单例模式是解决此类循环依赖的最佳实践
 
 ### 🔍 下次排查步骤
 
@@ -232,5 +256,5 @@ grep -n "De.*=" dist/hhhh-utils-*.js
 ---
 
 **最后更新**: 2025-09-30  
-**修复状态**: ✅ 已解决  
-**关键文件**: `forceColorUpdate.ts`, `forceEmojiTranslationFix.ts`
+**修复状态**: ✅ 已彻底解决  
+**关键文件**: `unifiedDataPersistenceManager.ts` (延迟单例), `serviceInitializer.ts` (移除顶层执行)
