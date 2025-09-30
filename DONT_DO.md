@@ -94,6 +94,7 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | 发现Vite chunk加载顺序问题 | 🔍 重大发现 | services在utils之前预加载！ |
 | 2025-09-30 | 调整chunk命名保证加载顺序 | ❌ 失败 | 错误依然存在，现在是xe变量 |
 | 2025-09-30 | 禁用代码压缩测试TDZ根因 | 🔍 重大突破 | 错误变为supabaseServiceFactory TDZ |
+| 2025-09-30 | 修复serviceInitializer.ts模块初始化 | ❌ 失败 | 错误依然存在，现在是变量'j'和'd' |
 
 ### 🔍 下次排查步骤
 

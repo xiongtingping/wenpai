@@ -33,8 +33,8 @@ async function initializeRequestClient() {
   }
 }
 
-// 立即初始化请求客户端
-initializeRequestClient();
+// 延迟初始化请求客户端，避免模块加载时的循环依赖
+// initializeRequestClient(); // 移动到ServiceInitializer.initialize()中
 
 /**
  * 服务初始化状态
@@ -64,7 +64,15 @@ class ServiceInitializer {
     // console.log('🚀 开始初始化服务依赖...');
 
     try {
-      // 0. 首先初始化Supabase服务工厂 - 避免TDZ
+      // 0. 首先初始化请求客户端 - 避免TDZ
+      try {
+        await initializeRequestClient();
+      } catch (error) {
+        console.warn('⚠️ 请求客户端初始化失败:', error);
+        this.state.errors.push({ service: 'RequestClient', error: String(error) });
+      }
+
+      // 1. 然后初始化Supabase服务工厂 - 避免TDZ
       try {
         initializeSupabaseServiceFactory();
       } catch (error) {
@@ -72,7 +80,7 @@ class ServiceInitializer {
         this.state.errors.push({ service: 'SupabaseServiceFactory', error: String(error) });
       }
 
-      // 1. 注册所有服务到DI容器 - 优雅降级
+      // 2. 注册所有服务到DI容器 - 优雅降级
       try {
         const { registerAllServices } = await import('@/config/serviceRegistry');
         await registerAllServices();
@@ -82,7 +90,7 @@ class ServiceInitializer {
         this.state.errors.push({ service: 'DIContainer', error: String(error) });
       }
 
-      // 2. 初始化ServerPermissionService - 优雅降级
+      // 3. 初始化ServerPermissionService - 优雅降级
       try {
         await this.initializeServerPermissionService();
       } catch (error) {
