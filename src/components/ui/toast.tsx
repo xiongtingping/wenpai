@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { safeGetDisplayName } from "@/utils/safeDisplayName"
 
 const ToastProvider = ToastPrimitives.Provider
 
@@ -29,7 +30,7 @@ const ToastViewport = React.forwardRef<
     {...props}
   />
 ))
-ToastViewport.displayName = ToastPrimitives.Viewport.displayName || "ToastViewport"
+ToastViewport.displayName = safeGetDisplayName(ToastPrimitives.Viewport, "ToastViewport")
 
 const toastVariants = cva(
   // ✅ 移除通用transition-all，完全交由Radix的data-[state]和data-[swipe]控制
@@ -61,7 +62,7 @@ const Toast = React.forwardRef<
     />
   )
 })
-Toast.displayName = ToastPrimitives.Root.displayName || "Toast"
+Toast.displayName = safeGetDisplayName(ToastPrimitives.Root, "Toast")
 
 const ToastAction = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Action>,
@@ -76,7 +77,7 @@ const ToastAction = React.forwardRef<
     {...props}
   />
 ))
-ToastAction.displayName = ToastPrimitives.Action.displayName || "ToastAction"
+ToastAction.displayName = safeGetDisplayName(ToastPrimitives.Action, "ToastAction")
 
 const ToastClose = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Close>,
@@ -94,7 +95,7 @@ const ToastClose = React.forwardRef<
     <X className="h-4 w-4" />
   </ToastPrimitives.Close>
 ))
-ToastClose.displayName = ToastPrimitives.Close.displayName || "ToastClose"
+ToastClose.displayName = safeGetDisplayName(ToastPrimitives.Close, "ToastClose")
 
 const ToastTitle = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Title>,
@@ -106,7 +107,7 @@ const ToastTitle = React.forwardRef<
     {...props}
   />
 ))
-ToastTitle.displayName = ToastPrimitives.Title.displayName || "ToastTitle"
+ToastTitle.displayName = safeGetDisplayName(ToastPrimitives.Title, "ToastTitle")
 
 const ToastDescription = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Description>,
@@ -118,7 +119,7 @@ const ToastDescription = React.forwardRef<
     {...props}
   />
 ))
-ToastDescription.displayName = ToastPrimitives.Description.displayName || "ToastDescription"
+ToastDescription.displayName = safeGetDisplayName(ToastPrimitives.Description, "ToastDescription")
 
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
 

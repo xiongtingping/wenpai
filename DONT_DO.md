@@ -109,11 +109,15 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | **深入修复**: 移除unifiedEmojiSystem.ts模块级setTimeout | 🔧 重大修复 | 移除第686行的setTimeout自动执行代码，改为手动调用函数 |
 | 2025-09-30 | **修复displayName**: EnhancedErrorBoundary组件displayName安全访问 | 🔧 修复 | 避免Component.displayName为undefined时的TDZ错误 |
 | 2025-09-30 | **最新错误确认**: TDZ错误依然存在，新的错误模式 | ❌ 失败 | bbbb-services-D-CaAHTE.js:6826 + displayName:180 + 提示词系统logger TDZ |
+| 2025-09-30 | **精确定位第180行**: 发现iiii-components-gfbSjbbp.js:180为ToastViewport.displayName | 🔍 重大发现 | `ToastViewport.displayName = Viewport.displayName \|\| "ToastViewport"` TDZ错误源头 |
 | 2025-09-30 | **修复PromptSystem**: 移除第2302-2310行模块级自动执行代码 | 🔧 重大修复 | verifyPromptSystemIntegrity自动调用导致logger TDZ，改为手动调用 |
 | 2025-09-30 | **部分成功确认**: 提示词系统logger TDZ已解决 | ✅ 部分成功 | bbbb-services-DQSBaIFc.js:6826 只剩AI模块锁定信息，logger错误消失 |
 | 2025-09-30 | **剩余错误**: iiii-components displayName TDZ依然存在 | ❌ 待修复 | iiii-components-B0ANHMKA.js:180 需要修复UI组件的Primitive.displayName |
 | 2025-09-30 | **彻底修复**: 批量修复28个UI组件displayName安全访问 | 🔧 彻底修复 | Primitive.displayName || \"ComponentName\" 模式，解决所有UI组件TDZ |
 | 2025-09-30 | **错误依然存在**: UI组件displayName TDZ未完全解决 | ❌ 失败 | iiii-components-PxVvjfUa.js:180 批量修复遗漏了某些情况 |
+| 2025-09-30 | **发现遗漏**: command.tsx中CommandPrimitive.displayName未修复 | 🔍 发现 | Command.displayName = CommandPrimitive.displayName 模式被遗漏 |
+| 2025-09-30 | **修复遗漏**: 手动修复command.tsx的displayName安全访问 | 🔧 修复 | 添加 || \"Command\" 安全检查，可能是最后一个根源 |
+| 2025-09-30 | **错误依然存在**: command.tsx修复无效，第180行仍有TDZ | ❌ 失败 | iiii-components-PxVvjfUa.js:180 错误依然存在，需要找到真正的第180行问题 |
 
 ### 🚨 重要发现：问题比想象的更复杂（2025-09-30）
 
@@ -291,7 +295,7 @@ import { request } from '@/api/request';
 - [ ] 在不同浏览器（Chrome/Firefox/Safari）测试
 - [ ] 验证生产环境和开发环境都正常
 
-**当前状态**: ❌ displayName TDZ依然存在 - 批量修复遗漏了某些模式，需要更深入分析
+**当前状态**: ❌ TDZ错误顽强存在 - 需要更深入分析第180行具体是什么代码导致的错误
 
 #### 根源定位方法
 1. **分析构建文件名模式**: `hhhh-utils-JDH_2Otv.js` 对应 Vite 配置中的 `hhhh-utils` chunk
