@@ -9,7 +9,6 @@
  * 4. 数据备份和恢复机制
  */
 
-import { TABLE_NAMES } from '@/config/supabaseTables';
 import type { QueryResult, QueryOptions } from '@/services/supabaseDataService';
 import { logger } from '@/utils/logger';
 
@@ -64,6 +63,8 @@ export interface DataTypeConfig {
   tableName?: string;
 }
 
+const USER_BRAND_CORPUS_TABLE = 'user_brand_corpus';
+
 // 预定义数据类型配置
 export const DATA_TYPE_CONFIGS: Record<string, DataTypeConfig> = {
   // 品牌资产 - 关键数据，云端优先
@@ -72,7 +73,7 @@ export const DATA_TYPE_CONFIGS: Record<string, DataTypeConfig> = {
     strategy: DataStorageStrategy.CLOUD_FIRST,
     syncToCloud: true,
     localBackup: true,
-    tableName: TABLE_NAMES.USER_BRAND_CORPUS
+    tableName: USER_BRAND_CORPUS_TABLE
   },
   
   // 品牌维度 - 关键数据，云端优先
@@ -81,7 +82,7 @@ export const DATA_TYPE_CONFIGS: Record<string, DataTypeConfig> = {
     strategy: DataStorageStrategy.CLOUD_FIRST,
     syncToCloud: true,
     localBackup: true,
-    tableName: TABLE_NAMES.USER_BRAND_CORPUS
+    tableName: USER_BRAND_CORPUS_TABLE
   },
   
   // 用户历史记录 - 本地优先，云端同步
@@ -90,7 +91,7 @@ export const DATA_TYPE_CONFIGS: Record<string, DataTypeConfig> = {
     strategy: DataStorageStrategy.LOCAL_FIRST,
     syncToCloud: true,
     localBackup: true,
-    tableName: TABLE_NAMES.USER_BRAND_CORPUS
+    tableName: USER_BRAND_CORPUS_TABLE
   },
   
   // 收藏数据 - 云端优先
@@ -99,7 +100,7 @@ export const DATA_TYPE_CONFIGS: Record<string, DataTypeConfig> = {
     strategy: DataStorageStrategy.CLOUD_FIRST,
     syncToCloud: true,
     localBackup: true,
-    tableName: TABLE_NAMES.USER_BRAND_CORPUS
+    tableName: USER_BRAND_CORPUS_TABLE
   },
   
   // 适配历史 - 本地优先

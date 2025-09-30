@@ -1,6 +1,16 @@
 import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
-import request from '@/api/request';
+
+type RequestModule = typeof import('@/api/request');
+
+let requestModuleLoader: Promise<RequestModule> | null = null;
+
+async function loadRequestModule(): Promise<RequestModule> {
+  if (!requestModuleLoader) {
+    requestModuleLoader = import('@/api/request');
+  }
+  return requestModuleLoader;
+}
 /**
  * 全局配置验证器
  * 用于验证应用运行所需的配置和环境
@@ -72,7 +82,8 @@ export async function validateAllConfigs(): Promise<ConfigValidationResult> {
 
     // 测试API连接
     try {
-      await request.request({ url: apiEndpoint, method: 'OPTIONS', validateStatus: () => true });
+      const requestClient = (await loadRequestModule()).default;
+      await requestClient.request({ url: apiEndpoint, method: 'OPTIONS', validateStatus: () => true });
       result.networkStatus.canConnect = true;
     } catch {
       result.networkStatus.canConnect = false;

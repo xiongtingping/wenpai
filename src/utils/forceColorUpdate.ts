@@ -3,15 +3,24 @@
  * 手动触发emoji颜色系统更新
  */
 
-import { updateEmojiData, getAllEmojis } from '@/services/unifiedEmojiSystem';
+type EmojiSystemModule = typeof import('@/services/unifiedEmojiSystem');
 import type { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
+
+let emojiSystemLoader: Promise<EmojiSystemModule> | null = null;
+
+async function loadEmojiSystem(): Promise<EmojiSystemModule> {
+  if (!emojiSystemLoader) {
+    emojiSystemLoader = import('@/services/unifiedEmojiSystem');
+  }
+  return emojiSystemLoader;
+}
 
 /**
  * 强制更新所有emoji颜色
  */
-export function forceUpdateEmojiColors(): void {
+export async function forceUpdateEmojiColors(): Promise<void> {
   console.log('🚀 强制开始emoji颜色更新...');
-  
+  const { updateEmojiData, getAllEmojis } = await loadEmojiSystem();
   const allEmojis = getAllEmojis();
   console.log(`📊 当前emoji数量: ${allEmojis.length}`);
   
@@ -215,6 +224,8 @@ if (typeof window !== 'undefined') {
   // 延迟执行，确保系统已加载
   setTimeout(() => {
     console.log('🔄 自动执行emoji颜色更新...');
-    forceUpdateEmojiColors();
+    forceUpdateEmojiColors().catch((error) => {
+      console.error('❌ 自动执行emoji颜色更新失败:', error);
+    });
   }, 1000);
 }

@@ -9,7 +9,16 @@
 
 import { TokenInfo, TokenRefreshResult, RefreshHandler } from './tokenManager';
 import { AuthenticationClient } from 'authing-js-sdk';
-import { getAuthingConfig } from '@/config/authing';
+type AuthingConfigModule = typeof import('@/config/authing');
+
+let authingConfigLoader: Promise<AuthingConfigModule> | null = null;
+
+async function loadAuthingConfigModule(): Promise<AuthingConfigModule> {
+  if (!authingConfigLoader) {
+    authingConfigLoader = import('@/config/authing');
+  }
+  return authingConfigLoader;
+}
 
 export interface AuthingTokenInfo extends TokenInfo {
   source: 'authing';
@@ -37,6 +46,7 @@ export class AuthingTokenHandler {
    */
   private async initializeAuthClient(): Promise<void> {
     try {
+      const { getAuthingConfig } = await loadAuthingConfigModule();
       const config = getAuthingConfig();
       
       const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost';
