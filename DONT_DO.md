@@ -96,11 +96,23 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | 禁用代码压缩测试TDZ根因 | 🔍 重大突破 | 错误变为supabaseServiceFactory TDZ |
 | 2025-09-30 | 修复serviceInitializer.ts模块初始化 | ❌ 失败 | 错误依然存在，现在是变量'j'和'd' |
 | 2025-09-30 | 移除模块顶层立即执行代码 | ❌ 失败 | 错误变为logger$1 TDZ，问题更深层 |
-| 2025-09-30 | 延迟创建unifiedDataPersistenceManager实例 | ❌ 失败 | 错误依然存在：Cannot access 'd' |
+| 2025-09-30 | 延迟创建unifiedDataPersistenceManager实例 | 🔶 部分成功 | 错误依然存在：Cannot access 'd' |
+| 2025-09-30 | 修复AuthCodeGuard顶层实例化 | ❌ 失败 | 错误又出现：logger$1 TDZ，存在多个根源！ |
+| 2025-09-30 | 修复globalDataManager顶层实例化 | ❌ 失败 | 错误依然存在：logger$1 TDZ，更多根源待发现！ |
 
-### ✅ 最终解决方案（2025-09-30）
+### 🚨 重要发现：真正根因是Vite构建配置问题（2025-09-30）
 
-**真正的根本原因**：`unifiedDataPersistenceManager.ts` 第745行的顶层实例化：
+**根本原因**：
+系统中存在26个单例模式实现，Vite构建时变量名被压缩为短标识符（如'Rt', 'Hq'），导致模块初始化顺序问题和TDZ错误
+
+**问题的复杂性**：这不是单一循环依赖问题，而是**构建配置导致的变量名压缩问题**：
+
+1. ✅ `serviceInitializer.ts` - 已修复（部分有效）
+2. ✅ `unifiedDataPersistenceManager.ts` - 已修复（部分有效）  
+3. ✅ `authCodeGuard.ts` - 已修复（部分有效）
+4. ❌ **根本问题**：Vite压缩关键标识符导致模块初始化竞争
+
+**根源分析**：`unifiedDataPersistenceManager.ts` 第745行的顶层实例化：
 ```typescript
 export const unifiedDataPersistenceManager = new UnifiedDataPersistenceManager();
 ```

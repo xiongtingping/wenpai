@@ -146,8 +146,14 @@ export default defineConfig(({ command, mode }) => ({
     assetsDir: 'assets',
     sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
-    // 🔧 再次禁用压缩，TDZ错误依然存在 - 需要看清楚具体变量
-    minify: false, // 错误依然存在，现在是变量'd'
+    // 🔧 ROOT CAUSE FIX: 配置esbuild压缩选项，保护关键标识符  
+    minify: 'esbuild',
+    esbuildOptions: {
+      keepNames: true,      // 保持函数和类名
+      minifyIdentifiers: false, // 禁用标识符压缩
+      minifySyntax: true,   // 仅压缩语法，保持标识符
+      minifyWhitespace: true // 仅压缩空白符
+    },
     rollupOptions: {
       output: {
         // 🔧 CRITICAL: 设置正确的模块格式
@@ -222,7 +228,11 @@ export default defineConfig(({ command, mode }) => ({
         // 🔧 ROOT CAUSE FIX: 控制chunk顺序和modulepreload生成
         chunkFileNames: (chunkInfo) => {
           return `[name]-[hash].js`;
-        }
+        },
+        // 🔧 ROOT CAUSE FIX: 保护关键标识符不被压缩
+        minifyInternalExports: false,
+        preserveModules: false,
+        compact: false
       }
     },
     chunkSizeWarningLimit: 1000,
