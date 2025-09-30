@@ -1,5 +1,6 @@
 import { logger } from '@/utils/logger';
-import { getRequestClient } from './requestClientRegistry';
+// 动态导入避免TDZ错误
+// import { getRequestClient } from './requestClientRegistry';
 /**
  * 🛡️ 统一错误处理系统
  * 
@@ -217,6 +218,8 @@ export function logError(error: Error | string, context?: Record<string, any>): 
  */
 async function reportErrorToServer(errorInfo: ErrorInfo): Promise<void> {
   try {
+    // 动态导入避免TDZ错误
+    const { getRequestClient } = await import('./requestClientRegistry');
     const request = getRequestClient();
     await request.post('/.netlify/functions/error-report', {
       ...errorInfo,

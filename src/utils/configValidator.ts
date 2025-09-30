@@ -1,6 +1,7 @@
 import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
-import { getRequestClient } from './requestClientRegistry';
+// 动态导入避免TDZ错误
+// import { getRequestClient } from './requestClientRegistry';
 /**
  * 全局配置验证器
  * 用于验证应用运行所需的配置和环境
@@ -72,6 +73,8 @@ export async function validateAllConfigs(): Promise<ConfigValidationResult> {
 
     // 测试API连接
     try {
+      // 动态导入避免TDZ错误
+      const { getRequestClient } = await import('./requestClientRegistry');
       const client = getRequestClient();
       await client.request({ url: apiEndpoint, method: 'OPTIONS', validateStatus: () => true });
       result.networkStatus.canConnect = true;

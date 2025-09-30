@@ -124,17 +124,23 @@ const App: React.FC = () => {
   const shouldShowHeader = !noHeaderRoutes.includes(location.pathname);
 
   useEffect(() => {
-    // 🔧 异步初始化i18n以避免TDZ循环依赖
-    const initI18n = async () => {
+    // 🔧 修复TDZ错误：异步初始化服务依赖
+    const initServices = async () => {
       try {
+        // 1. 首先初始化服务依赖（包括requestClient注册）
+        const ServiceInitializer = await import('@/services/serviceInitializer');
+        await ServiceInitializer.default.initialize();
+        console.log('✅ 服务依赖初始化完成');
+        
+        // 2. 然后初始化i18n
         await import('@/i18n');
-        // console.log('✅ i18n异步初始化完成');
+        console.log('✅ i18n异步初始化完成');
       } catch (error) {
-        console.error('❌ i18n初始化失败:', error);
+        console.error('❌ 服务初始化失败:', error);
       }
     };
     
-    initI18n();
+    initServices();
     
     // 🔧 FIX: 应用启动时立即加载持久化主题，避免闪烁
     const loadPersistedTheme = () => {
