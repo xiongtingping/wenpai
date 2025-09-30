@@ -1249,20 +1249,5 @@ export function generateCurrentColorReport(): Promise<string> {
   });
 }
 
-export default {
-  getAllEmojis,
-  getEmojisByCategory,
-  searchEmojis,
-  getRandomEmojis,
-  getCategories,
-  addCustomEmoji,
-  updateEmojiData,
-  getEmojiStats,
-  generateEmojiSVG,
-  detectPlatform,
-  getAdaptiveEmojiSize,
-  generateEmojiStyle,
-  applyDiversifiedColors,
-  analyzeCurrentColors,
-  generateCurrentColorReport
-};
+// 移除默认导出以避免TDZ问题
+// 所有函数都通过命名导出提供
