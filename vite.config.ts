@@ -146,8 +146,8 @@ export default defineConfig(({ command, mode }) => ({
     assetsDir: 'assets',
     sourcemap: process.env.VITE_ENABLE_SOURCEMAP === 'true',
     target: 'esnext',
-    // 🔧 CRITICAL TEST: 临时禁用压缩测试TDZ问题
-    minify: false,
+    // 🔧 恢复压缩，TDZ问题已通过修复模块初始化顺序解决
+    // minify: false, // 已解决，恢复正常压缩
     rollupOptions: {
       output: {
         // 🔧 CRITICAL: 设置正确的模块格式

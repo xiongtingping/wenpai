@@ -16,8 +16,11 @@ import { registerSupabaseServiceFactory } from '@/lib/unifiedDataPersistenceMana
 import { createDataService } from './supabaseDataService';
 import request from '@/api/request';
 
-// 注册 Supabase 服务工厂，避免 utils ↔ services 循环依赖
-registerSupabaseServiceFactory((userId, tableName) => createDataService(userId, tableName));
+// 延迟注册 Supabase 服务工厂，避免TDZ错误
+function initializeSupabaseServiceFactory() {
+  registerSupabaseServiceFactory((userId, tableName) => createDataService(userId, tableName));
+  console.log('✅ Supabase服务工厂已注册');
+}
 
 // 动态设置请求客户端，避免TDZ错误
 async function initializeRequestClient() {
@@ -61,6 +64,14 @@ class ServiceInitializer {
     // console.log('🚀 开始初始化服务依赖...');
 
     try {
+      // 0. 首先初始化Supabase服务工厂 - 避免TDZ
+      try {
+        initializeSupabaseServiceFactory();
+      } catch (error) {
+        console.warn('⚠️ Supabase服务工厂初始化失败:', error);
+        this.state.errors.push({ service: 'SupabaseServiceFactory', error: String(error) });
+      }
+
       // 1. 注册所有服务到DI容器 - 优雅降级
       try {
         const { registerAllServices } = await import('@/config/serviceRegistry');
