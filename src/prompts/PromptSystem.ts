@@ -2298,13 +2298,22 @@ function buildCreativeCubeSystemPrompt(contentType: string, toneStyle: string, p
 5. **互动导向**：内容要能引发用户的共鸣和互动欲望`;
 }
 
-// 自动进行完整性验证
-if (typeof window !== 'undefined') {
-  // 浏览器环境下延迟验证
-  setTimeout(() => {
+// 🔧 FIXED: 移除模块级别的自动执行代码，避免TDZ错误
+// 这个自动执行代码是"提示词系统logger TDZ"错误的根源
+// verifyPromptSystemIntegrity函数内部使用了logger.debug，导致TDZ错误
+
+/**
+ * 手动初始化提示词系统完整性验证
+ * 🚨 重要：此函数不再自动执行，需要在适当时机手动调用
+ */
+export function initializePromptSystemVerification(): void {
+  if (typeof window !== 'undefined') {
+    // 浏览器环境下延迟验证
+    setTimeout(() => {
+      verifyPromptSystemIntegrity();
+    }, 1000);
+  } else {
+    // Node.js环境下立即验证
     verifyPromptSystemIntegrity();
-  }, 1000);
-} else {
-  // Node.js环境下立即验证
-  verifyPromptSystemIntegrity();
+  }
 }

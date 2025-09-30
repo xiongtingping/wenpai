@@ -108,6 +108,8 @@ hhhh-utils-JDH_2Otv.js:2 Uncaught ReferenceError: Cannot access 'De' before init
 | 2025-09-30 | **最新状态确认**: TDZ错误依然存在 | ❌ 失败 | bbbb-services-CAvdLBHv.js:6826 新错误：__vitePreload + displayName + 确保最小分类数量失败 |
 | 2025-09-30 | **深入修复**: 移除unifiedEmojiSystem.ts模块级setTimeout | 🔧 重大修复 | 移除第686行的setTimeout自动执行代码，改为手动调用函数 |
 | 2025-09-30 | **修复displayName**: EnhancedErrorBoundary组件displayName安全访问 | 🔧 修复 | 避免Component.displayName为undefined时的TDZ错误 |
+| 2025-09-30 | **最新错误确认**: TDZ错误依然存在，新的错误模式 | ❌ 失败 | bbbb-services-D-CaAHTE.js:6826 + displayName:180 + 提示词系统logger TDZ |
+| 2025-09-30 | **修复PromptSystem**: 移除第2302-2310行模块级自动执行代码 | 🔧 重大修复 | verifyPromptSystemIntegrity自动调用导致logger TDZ，改为手动调用 |
 
 ### 🚨 重要发现：问题比想象的更复杂（2025-09-30）
 
@@ -285,7 +287,7 @@ import { request } from '@/api/request';
 - [ ] 在不同浏览器（Chrome/Firefox/Safari）测试
 - [ ] 验证生产环境和开发环境都正常
 
-**当前状态**: ❌ 错误依然存在 - 新出现多种TDZ错误：__vitePreload、displayName、确保最小分类数量失败
+**当前状态**: ❌ 错误依然存在 - 新的错误模式：提示词系统logger TDZ + iiii-components displayName错误
 
 #### 根源定位方法
 1. **分析构建文件名模式**: `hhhh-utils-JDH_2Otv.js` 对应 Vite 配置中的 `hhhh-utils` chunk
