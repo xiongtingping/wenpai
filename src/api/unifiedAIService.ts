@@ -14,7 +14,8 @@
  * 
  */
 
-import i18n from '@/i18n';
+// 移除静态导入以避免TDZ循环依赖
+// import i18n from '@/i18n'; // 改为动态导入
 import { callAI, generateImage as directGenerateImage } from './ai';
 import { callOpenAIProxy, callDeepSeekProxy, callGeminiProxy } from './apiProxy';
 import { generateImage as proxyGenerateImage } from './imageGenerationService';
@@ -22,8 +23,8 @@ import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
 import { logger } from '@/utils/logger';
 import { cleanAIContent, isValidAIContent } from '@/utils/contentCleaner';
 import { getModelInfo, getModelProvider, isModelAvailableForTier } from '@/config/aiModels';
-import { useAuth } from '@/hooks/useAuth';
-import { createDeepSeekProvider } from './providers/deepseek';
+// import { useAuth } from '@/hooks/useAuth'; // 移除Hook的模块顶层导入
+// import { createDeepSeekProvider } from './providers/deepseek'; // 改为动态导入
 
 /**
  * 环境检测
@@ -137,7 +138,7 @@ export async function generateUnifiedImage(params: ImageGenerationParams): Promi
     console.error('❌ 统一图像生成失败:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : i18n.t('api.errors.统一图像生成失败')
+      error: error instanceof Error ? error.message : '统一图像生成失败' // 使用降级方案避免i18n依赖
     };
   }
 }
