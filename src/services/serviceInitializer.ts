@@ -11,13 +11,27 @@
 
 import { ServiceContainer } from './unifiedPermissionService';
 import { registerSupabaseServiceFactory } from '@/lib/unifiedDataPersistenceManager';
-import { setRequestClient } from '@/utils/requestClientRegistry';
+// 动态导入避免TDZ错误
+// import { setRequestClient } from '@/utils/requestClientRegistry';
 import { createDataService } from './supabaseDataService';
 import request from '@/api/request';
 
 // 注册 Supabase 服务工厂，避免 utils ↔ services 循环依赖
 registerSupabaseServiceFactory((userId, tableName) => createDataService(userId, tableName));
-setRequestClient(request);
+
+// 动态设置请求客户端，避免TDZ错误
+async function initializeRequestClient() {
+  try {
+    const { setRequestClient } = await import('@/utils/requestClientRegistry');
+    setRequestClient(request);
+    console.log('✅ 请求客户端已注册');
+  } catch (error) {
+    console.error('❌ 请求客户端注册失败:', error);
+  }
+}
+
+// 立即初始化请求客户端
+initializeRequestClient();
 
 /**
  * 服务初始化状态

@@ -22,7 +22,7 @@ import {
   Shield,
   Smartphone
 } from 'lucide-react';
-import { validateAllConfigs, getConfigSummary } from '@/utils/configValidator';
+// import { validateAllConfigs, getConfigSummary } from '@/utils/configValidator'; // 改为动态导入避免TDZ
 
 /**
  * 状态检查结果接口
@@ -63,6 +63,7 @@ export default function PaymentStatusPage() { const [checkResults, setCheckResul
 
       // 2. 检查配置验证
       try {
+        const { validateAllConfigs } = await import('@/utils/configValidator');
         const configResult = await validateAllConfigs();
         results.push({
           name: t('pages.messages.配置验证'),

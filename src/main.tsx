@@ -33,7 +33,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 // console.log('✅ Step 5: 所有核心模块导入完成');
 // 🚀 性能优化：仅导入必要的核心服务
-import { setupGlobalErrorHandler } from './utils/errorHandler';
+// import { setupGlobalErrorHandler } from './utils/errorHandler'; // 改为动态导入避免TDZ
 import ServiceInitializer from './services/serviceInitializer';
 
 // 🔇 优化开发环境控制台：减少噪音，保留重要信息
@@ -102,7 +102,8 @@ if (import.meta.env.DEV) {
 async function initializeApplication() {
   // console.log('🚀 initializeApplication 函数开始执行...');
   try {
-    // 仅初始化必要的错误处理
+    // 仅初始化必要的错误处理 - 使用动态导入避免TDZ
+    const { setupGlobalErrorHandler } = await import('./utils/errorHandler');
     setupGlobalErrorHandler();
 
     // 🚀 尝试初始化服务依赖，失败时优雅降级
