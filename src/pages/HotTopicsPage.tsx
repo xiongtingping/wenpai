@@ -581,7 +581,7 @@ export default function HotTopicsPage() {
         >
           <div className="hot-topics-page-controls hot-topics-baseline-fix hot-topics-alignment-protection">
             <div className="hot-topics-tab-container">
-              <TabsList className="unified-tabs-list grid w-full grid-cols-2">
+              <TabsList className="unified-tabs-list grid w-full grid-cols-3">
               <TabsTrigger 
                 value="hot" 
                 className="unified-tab-trigger"
