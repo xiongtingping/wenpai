@@ -44,6 +44,12 @@
   to = "/.netlify/functions/api/consume-usage"
   status = 200
 
+# 认证相关特殊路由 - 必须在通用API路由之前
+[[redirects]]
+  from = "/api/auth/cookie"
+  to = "/.netlify/functions/auth-cookie"
+  status = 200
+
 # 其他 /api/* 走通用网关函数
 [[redirects]]
   from = "/api/*"

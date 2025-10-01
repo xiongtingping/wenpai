@@ -225,7 +225,7 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
         });
 
       if (error) {
-        console.error(i18n.t('services.text.保存设置失败_df4'), error);
+        console.error('保存设置失败:', error);
         console.error('保存数据:', settingData);
         throw new Error(`保存设置失败: ${error.message}`);
       }
@@ -561,13 +561,18 @@ export const userSettingsService = {
   // 使用代理模式延迟初始化
   get getSetting() { return this._getInstance().getSetting.bind(this._getInstance()); },
   get saveSetting() { return this._getInstance().saveSetting.bind(this._getInstance()); },
+  get saveSettings() { return this._getInstance().saveSettings.bind(this._getInstance()); },
+  get getSettings() { return this._getInstance().getSettings.bind(this._getInstance()); },
   get deleteSetting() { return this._getInstance().deleteSetting.bind(this._getInstance()); },
   get getAllSettings() { return this._getInstance().getAllSettings.bind(this._getInstance()); },
   get clearAllSettings() { return this._getInstance().clearAllSettings.bind(this._getInstance()); },
-  get getLanguage() { return this._getInstance().getLanguage.bind(this._getInstance()); },
-  get saveLanguage() { return this._getInstance().saveLanguage.bind(this._getInstance()); },
+  get clearCache() { return this._getInstance().clearCache.bind(this._getInstance()); },
+  get preloadSettings() { return this._getInstance().preloadSettings.bind(this._getInstance()); },
+  get setUserId() { return this._getInstance().setUserId.bind(this._getInstance()); },
   get getThemeMode() { return this._getInstance().getThemeMode.bind(this._getInstance()); },
   get saveThemeMode() { return this._getInstance().saveThemeMode.bind(this._getInstance()); },
+  get getThemeSettings() { return this._getInstance().getThemeSettings.bind(this._getInstance()); },
+  get saveThemeSettings() { return this._getInstance().saveThemeSettings.bind(this._getInstance()); },
   
   _getInstance(): UserSettingsService {
     if (!_userSettingsServiceInstance) {

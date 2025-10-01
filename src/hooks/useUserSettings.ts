@@ -151,7 +151,7 @@ export function useUserSettings() {
     deleteSetting,
     
     // 便捷方法
-    clearCache: userSettingsService.clearCache.bind(userSettingsService),
+    clearCache: userSettingsService.clearCache,
   };
 }
 
