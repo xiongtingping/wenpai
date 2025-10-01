@@ -49,11 +49,11 @@ export function HowItWorks() {
     };
   }, [])
 
-  // 统一渐变色彩配置
-  const stepColors = [
-    "bg-gradient-to-br from-blue-500 to-indigo-600 text-background",
-    "bg-gradient-to-br from-emerald-500 to-teal-600 text-background",
-    "bg-gradient-to-br from-purple-500 to-pink-600 text-background"
+  // 使用设计令牌的步骤图标样式
+  const stepIconClasses = [
+    "ds-step-icon-1",
+    "ds-step-icon-2", 
+    "ds-step-icon-3"
   ]
   const stepIcons = [FileText, Settings, Sparkles]
   
@@ -101,9 +101,9 @@ export function HowItWorks() {
                 style={{ '--animation-delay': `${i * 0.1 + 0.1}s` } as React.CSSProperties}
               >
                 <div className="ds-text-centered ds-space-y-standard">
-                  {/* 渐变圆形背景图标 */}
+                  {/* 设计令牌圆形背景图标 */}
                   <div
-                    className={`homepage-icon how-it-works-icon ds-icon-main ${stepColors[i]} shadow-lg ds-icon-centered group-hover:scale-110 ds-transition-standard`}
+                    className={`ds-icon-main ${stepIconClasses[i]} group-hover:scale-110`}
                   >
                     <Icon className="w-6 h-6" />
                   </div>

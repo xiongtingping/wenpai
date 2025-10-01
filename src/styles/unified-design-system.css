@@ -463,6 +463,23 @@
     background-color: var(--color-muted);
     font-weight: var(--font-weight-medium);
   }
+
+  /* 🎯 通用图标容器组件 */
+  .ds-icon-main {
+    width: var(--size-xl);
+    height: var(--size-xl);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-md) auto;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+  }
+
+  .ds-space-y-standard > * + * {
+    margin-top: var(--spacing-md);
+  }
 }
 
 /* ========================================
@@ -581,6 +598,31 @@
   .z-dropdown { z-index: var(--z-index-dropdown) !important; }
   .z-modal { z-index: var(--z-index-modal) !important; }
   .z-tooltip { z-index: var(--z-index-tooltip) !important; }
+
+  /* 🔄 步骤指示器样式 */
+  .ds-step-icon-1 {
+    background: linear-gradient(135deg, 
+      hsl(var(--primary)) 0%, 
+      hsl(var(--primary)) 100%
+    ) !important;
+    color: hsl(var(--primary-foreground)) !important;
+  }
+
+  .ds-step-icon-2 {
+    background: linear-gradient(135deg, 
+      hsl(var(--accent)) 0%, 
+      hsl(var(--accent)) 100%
+    ) !important;
+    color: hsl(var(--primary-foreground)) !important;
+  }
+
+  .ds-step-icon-3 {
+    background: linear-gradient(135deg, 
+      hsl(var(--secondary)) 0%, 
+      hsl(var(--secondary)) 100%
+    ) !important;
+    color: hsl(var(--primary-foreground)) !important;
+  }
 }
 
 /* ========================================
