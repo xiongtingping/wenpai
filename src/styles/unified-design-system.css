@@ -33,8 +33,8 @@
     --secondary-foreground: 210 40% 98%;
     --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 142 76% 36%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
@@ -63,6 +63,17 @@
     --color-border: hsl(var(--border));
     --color-destructive: hsl(var(--destructive));
     --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+    /* 🎯 语义化背景色系统 */
+    --color-surface: hsl(210 40% 98%);           /* 卡片表面背景 */
+    --color-surface-secondary: hsl(210 40% 96%); /* 次要表面背景 */
+    --color-surface-tertiary: hsl(210 40% 94%);  /* 第三层表面背景 */
+    
+    /* 🎯 状态背景色系统 */
+    --color-success-bg: hsl(142 76% 94%);        /* 成功状态背景 */
+    --color-warning-bg: hsl(38 92% 95%);         /* 警告状态背景 */
+    --color-info-bg: hsl(221 83% 96%);           /* 信息状态背景 */
+    --color-error-bg: hsl(0 84% 95%);            /* 错误状态背景 */
 
     /* 🎯 间距系统 */
     --spacing-xs: 0.25rem;   /* 4px */
@@ -178,13 +189,24 @@
       --secondary-foreground: 222.2 84% 4.9%;
       --muted: 217.2 32.6% 17.5%;
       --muted-foreground: 215 20.2% 65.1%;
-      --accent: 142 76% 56%;
-      --accent-foreground: 222.2 84% 4.9%;
+      --accent: 217.2 32.6% 17.5%;
+      --accent-foreground: 210 40% 98%;
       --destructive: 0 62.8% 30.6%;
       --destructive-foreground: 210 40% 98%;
       --border: 217.2 32.6% 17.5%;
       --input: 217.2 32.6% 17.5%;
       --ring: 212.7 26.8% 83.9%;
+
+      /* 🎯 深色模式语义化背景色系统 */
+      --color-surface: hsl(217.2 32.6% 14%);           /* 深色卡片表面背景 */
+      --color-surface-secondary: hsl(217.2 32.6% 16%); /* 深色次要表面背景 */
+      --color-surface-tertiary: hsl(217.2 32.6% 18%);  /* 深色第三层表面背景 */
+      
+      /* 🎯 深色模式状态背景色系统 */
+      --color-success-bg: hsl(142 76% 15%);            /* 深色成功状态背景 */
+      --color-warning-bg: hsl(38 92% 15%);             /* 深色警告状态背景 */
+      --color-info-bg: hsl(221 83% 15%);               /* 深色信息状态背景 */
+      --color-error-bg: hsl(0 84% 15%);                /* 深色错误状态背景 */
       
       /* 深色模式阴影调整 */
       --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.2);

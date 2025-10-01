@@ -35,7 +35,7 @@ const EMOJI_COLORS = {
   black: '#000000',
   gray: '#808080',
   red: '#FF0000',
-  green: '#008000',
+  green: 'hsl(142 76% 36%)',
   blue: '#0000FF',
   yellow: '#FFFF00',
   purple: '#800080',
@@ -1158,7 +1158,7 @@ function generateSmartColor(emoji: UnifiedEmojiItem, usedColors: Set<string>, in
       '#FF8C00', '#CD853F', '#D2691E', '#A0522D', '#8B4513', // 棕色系
       '#DEB887', '#F4A460', '#DAA520', '#B8860B', '#BC8F8F', // 米色系
       '#696969', '#A9A9A9', '#C0C0C0', '#D3D3D3', '#778899', // 灰色系
-      '#228B22', '#32CD32', '#9ACD32', '#7CFC00', '#00FF7F', // 绿色系
+      'hsl(142 76% 26%)', 'hsl(142 76% 36%)', 'hsl(142 76% 46%)', 'hsl(142 76% 56%)', 'hsl(142 76% 66%)', // 绿色系
       '#4682B4', '#5F9EA0', '#87CEEB', '#6495ED', '#00BFFF', // 蓝色系
       '#FF6347', '#FF4500', '#DC143C', '#B22222', '#CD5C5C'  // 红色系
     ],
@@ -1166,7 +1166,7 @@ function generateSmartColor(emoji: UnifiedEmojiItem, usedColors: Set<string>, in
     food: [
       '#FF6347', '#FF4500', '#FF0000', '#DC143C', '#B22222', // 红色水果
       '#FFA500', '#FF8C00', '#FFD700', '#F0E68C', '#FFFF00', // 橙黄色
-      '#32CD32', '#228B22', '#7CFC00', '#9ACD32', '#ADFF2F', // 绿色蔬菜
+      'hsl(142 76% 36%)', 'hsl(142 76% 26%)', 'hsl(142 76% 56%)', 'hsl(142 76% 46%)', 'hsl(142 76% 66%)', // 绿色蔬菜
       '#8B008B', '#9370DB', '#9932CC', '#BA55D3', '#DA70D6', // 紫色
       '#D2691E', '#CD853F', '#DEB887', '#F4A460', '#8B4513'  // 棕色
     ],
@@ -1184,7 +1184,7 @@ function generateSmartColor(emoji: UnifiedEmojiItem, usedColors: Set<string>, in
     ],
     // 自然颜色
     nature: [
-      '#228B22', '#32CD32', '#7CFC00', '#9ACD32', '#ADFF2F', // 植物绿
+      'hsl(142 76% 26%)', 'hsl(142 76% 36%)', 'hsl(142 76% 56%)', 'hsl(142 76% 46%)', 'hsl(142 76% 66%)', // 植物绿
       '#87CEEB', '#4169E1', '#6495ED', '#00BFFF', '#87CEFA', // 天空蓝
       '#8B4513', '#A0522D', '#D2691E', '#CD853F', '#DEB887'  // 土壤色
     ]
@@ -1201,7 +1201,7 @@ function generateSmartColor(emoji: UnifiedEmojiItem, usedColors: Set<string>, in
   if (text.includes('红') || text.includes('苹果') || text.includes('草莓')) {
     preferredColors = ['#FF0000', '#DC143C', '#B22222', '#CD5C5C', '#F08080'];
   } else if (text.includes('绿') || text.includes('草') || text.includes('叶') || text.includes('树')) {
-    preferredColors = ['#228B22', '#32CD32', '#7CFC00', '#9ACD32', '#2E8B57'];
+    preferredColors = ['hsl(142 76% 26%)', 'hsl(142 76% 36%)', 'hsl(142 76% 56%)', 'hsl(142 76% 46%)', 'hsl(142 76% 16%)'];
   } else if (text.includes('蓝') || text.includes('天') || text.includes('海') || text.includes('水')) {
     preferredColors = ['#4169E1', '#1E90FF', '#00BFFF', '#87CEEB', '#6495ED'];
   } else if (text.includes('黄') || text.includes('金') || text.includes('太阳')) {

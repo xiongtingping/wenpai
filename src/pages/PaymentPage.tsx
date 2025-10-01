@@ -722,7 +722,7 @@ export default function PaymentPage() {
 
                         {/* 年付优惠标签 */}
                         {selectedPeriod === 'yearly' && (plan.tier === 'pro' || plan.tier === 'premium') && (
-                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-background shadow-lg px-3 py-1 text-xs rounded-full border border-white">
+                          <Badge className="bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-lg px-3 py-1 text-xs rounded-full border border-white">
                             {t('payment.billing.compareMonthly', { amount: getYearlySavings(plan) })}
                           </Badge>
                         )}
@@ -959,7 +959,7 @@ export default function PaymentPage() {
                       </span>
                     )}
                     {selectedPeriod === 'yearly' && dynamicPricing.priceType === 'original' && (
-                      <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-background px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
+                      <span className="bg-gradient-to-r from-primary to-secondary text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Percent className="h-4 w-4" />
                         年付优惠：节省¥{getYearlySavings(selectedPlan)}
                       </span>
@@ -1006,11 +1006,11 @@ export default function PaymentPage() {
 
           {/* 支付二维码 */}
           {showQRCode && selectedPlan && selectedPlan.tier !== 'trial' && (
-            <Card className="border border-green-200 bg-green-50/50 shadow-sm rounded-lg">
+            <Card className="border border-border bg-card shadow-sm rounded-lg">
               <CardContent className="p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <div className="w-12 h-12 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg">
                       <span className="text-background text-lg font-bold">支</span>
                     </div>
                     <h3 className="text-xl font-bold text-foreground"></h3>
@@ -1057,7 +1057,7 @@ export default function PaymentPage() {
                       </span>
                     )}
                     {selectedPeriod === 'yearly' && (
-                      <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-background px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
+                      <span className="bg-gradient-to-r from-primary to-secondary text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1">
                         <Percent className="h-4 w-4" />
                         优惠
                       </span>
@@ -1065,7 +1065,7 @@ export default function PaymentPage() {
                   </div>
                 ) : null}
 
-                <div className="flex justify-center items-center py-6 bg-background rounded-xl border-2 border-green-200 dark:border-green-800 shadow-sm">
+                <div className="flex justify-center items-center py-6 bg-background rounded-xl border-2 border-border shadow-sm">
                   {bufpayPaymentInfo && bufpayOrderId ? (
                     <PaymentQRCode
                       paymentInfo={bufpayPaymentInfo}
