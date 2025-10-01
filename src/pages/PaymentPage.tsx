@@ -678,7 +678,7 @@ export default function PaymentPage() {
             return (
               <div key={plan.id} className="relative pt-4">
                 <Card
-                  className={`transition-all duration-300 relative group w-full flex flex-col rounded-lg payment-card ${
+                  className={`transition-all duration-300 relative group w-full flex flex-col rounded-lg payment-card h-full min-h-[600px] ${
                     isDowngrade
                       ? 'opacity-50 cursor-not-allowed border-border bg-gray-50'
                       : isSelected
