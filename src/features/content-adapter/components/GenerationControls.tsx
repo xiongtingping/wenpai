@@ -278,7 +278,7 @@ export function GenerationControls({ generating,
                 </div>
                 <span className="text-sm text-muted-foreground">免费使用</span>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {availableModels.filter(m => m.tier === 'low').map((model) => {
                   const isAccessible = model.isAccessible;
                   const disabled = !isAccessible || generating;
@@ -288,7 +288,7 @@ export function GenerationControls({ generating,
                     <div
                       key={model.id}
                       className={`
-                        relative p-3 rounded-lg border cursor-pointer transition-all flex-shrink-0
+                        relative p-3 rounded-lg border cursor-pointer transition-all
                         ${isSelected 
                           ? 'border-green-500 bg-green-50 ring-2 ring-green-200' 
                           : disabled 
@@ -303,21 +303,21 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col items-center text-center gap-2">
                         <div className={`
-                          w-4 h-4 rounded-full border-2 flex items-center justify-center
+                          w-5 h-5 rounded-full border-2 flex items-center justify-center
                           ${isSelected 
                             ? 'border-green-500 bg-green-500' 
                             : 'border-gray-300'
                           }
                         `}>
-                          {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
+                          {isSelected && <Check className="w-3 h-3 text-white" />}
                         </div>
-                        <div className="min-w-0">
-                          <h5 className="font-medium text-gray-900 text-sm">
+                        <div className="min-w-0 w-full">
+                          <h5 className="font-medium text-gray-900 text-sm truncate">
                             {model?.name || '测试模型名称'}
                           </h5>
-                          <div className="flex items-center gap-1 mt-0.5">
+                          <div className="flex justify-center mt-1">
                             <Badge variant="outline" className="text-xs h-4">
                               {model?.company || 'Unknown'}
                             </Badge>
@@ -342,7 +342,7 @@ export function GenerationControls({ generating,
                 </div>
                 <span className="text-sm text-muted-foreground">需要订阅</span>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {availableModels.filter(m => m.tier === 'mid').map((model) => {
                   const isAccessible = accessibleModelIds.has(model.id);
                   const disabled = !isAccessible || generating;
@@ -352,7 +352,7 @@ export function GenerationControls({ generating,
                     <div
                       key={model.id}
                       className={`
-                        relative p-3 rounded-lg border cursor-pointer transition-all flex-shrink-0
+                        relative p-3 rounded-lg border cursor-pointer transition-all
                         ${isSelected 
                           ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
                           : disabled 
@@ -367,25 +367,25 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col items-center text-center gap-2">
                         <div className={`
-                          w-4 h-4 rounded-full border-2 flex items-center justify-center
+                          w-5 h-5 rounded-full border-2 flex items-center justify-center
                           ${isSelected 
                             ? 'border-blue-500 bg-blue-500' 
                             : 'border-gray-300'
                           }
                         `}>
                           {isSelected ? (
-                            <Check className="w-2.5 h-2.5 text-white" />
+                            <Check className="w-3 h-3 text-white" />
                           ) : disabled && (
-                            <Crown className="w-2.5 h-2.5 text-gray-400" />
+                            <Crown className="w-3 h-3 text-gray-400" />
                           )}
                         </div>
-                        <div className="min-w-0">
-                          <h5 className="font-medium text-gray-900 text-sm">
+                        <div className="min-w-0 w-full">
+                          <h5 className="font-medium text-gray-900 text-sm truncate">
                             {model?.name || '专业版模型'}
                           </h5>
-                          <div className="flex items-center gap-1 mt-0.5">
+                          <div className="flex justify-center mt-1">
                             <Badge variant="outline" className="text-xs h-4">
                               {model?.company || 'Unknown'}
                             </Badge>
@@ -418,7 +418,7 @@ export function GenerationControls({ generating,
                 </div>
                 <span className="text-sm text-muted-foreground">企业级</span>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {availableModels.filter(m => m.tier === 'high').map((model) => {
                   const isAccessible = accessibleModelIds.has(model.id);
                   const disabled = !isAccessible || generating;
@@ -428,7 +428,7 @@ export function GenerationControls({ generating,
                     <div
                       key={model.id}
                       className={`
-                        relative p-3 rounded-lg border cursor-pointer transition-all flex-shrink-0
+                        relative p-3 rounded-lg border cursor-pointer transition-all
                         ${isSelected 
                           ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200' 
                           : disabled 
@@ -443,25 +443,25 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col items-center text-center gap-2">
                         <div className={`
-                          w-4 h-4 rounded-full border-2 flex items-center justify-center
+                          w-5 h-5 rounded-full border-2 flex items-center justify-center
                           ${isSelected 
                             ? 'border-purple-500 bg-purple-500' 
                             : 'border-gray-300'
                           }
                         `}>
                           {isSelected ? (
-                            <Check className="w-2.5 h-2.5 text-white" />
+                            <Check className="w-3 h-3 text-white" />
                           ) : disabled && (
-                            <Crown className="w-2.5 h-2.5 text-gray-400" />
+                            <Crown className="w-3 h-3 text-gray-400" />
                           )}
                         </div>
-                        <div className="min-w-0">
-                          <h5 className="font-medium text-gray-900 text-sm">
+                        <div className="min-w-0 w-full">
+                          <h5 className="font-medium text-gray-900 text-sm truncate">
                             {model?.name || '高级版模型'}
                           </h5>
-                          <div className="flex items-center gap-1 mt-0.5">
+                          <div className="flex justify-center mt-1">
                             <Badge variant="outline" className="text-xs h-4">
                               {model?.company || 'Unknown'}
                             </Badge>
