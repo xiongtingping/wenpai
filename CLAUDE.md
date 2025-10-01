@@ -10,14 +10,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev                 # 启动开发服务器 (localhost:5173)
 npm run build              # 构建生产版本
 npm run build:check       # 构建前检查 (包含类型检查和系统检查)
-npm run preview           # 预览构建结果
-
-# 代码质量
 npm run lint              # ESLint检查
 npm run lint:fix         # 自动修复ESLint问题  
 npm run type-check       # TypeScript类型检查
 npm test                 # 运行Jest测试
-npm run test:watch       # 监听模式运行测试
 
 # CSS治理系统
 npm run css:governance:check           # CSS规范检查
@@ -52,12 +48,10 @@ src/
 │   ├── auth/           # 认证相关组件
 │   ├── creative/       # 创作工具组件
 │   ├── landing/        # 落地页组件
-│   └── ...
 ├── pages/              # 页面组件
 ├── features/           # 功能模块 (独立的业务逻辑)
 │   ├── content-adapter/  # 内容适配器
 │   ├── titleGeneration/  # 标题生成
-│   └── ...
 ├── services/           # 服务层 (API调用、业务逻辑)
 ├── hooks/              # React自定义Hooks
 ├── utils/              # 工具函数

@@ -741,8 +741,23 @@
   /* Grid 系统优化 */
   .ds-grid-3 {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
+  }
+
+  /* 移动端响应式 */
+  @media (max-width: 768px) {
+    .ds-grid-3 {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1023px) {
+    .ds-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
   }
 
   .ds-grid-4 {
