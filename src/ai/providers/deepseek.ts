@@ -88,7 +88,7 @@ export class DeepSeekProvider implements AIProviderInterface {
     const startTime = Date.now();
 
     try {
-      console.log('🤖 DeepSeek内容生成开始:', {
+      console.log('🤖 DeepSeekcontent生成starts:', {
         model: params.model || 'deepseek-chat',
         promptLength: params.prompt.length,
         hasSystem: !!params.systemPrompt,

@@ -69,7 +69,7 @@ export function SimpleAuthProvider({ children }: { children: React.ReactNode }) 
   // 初始化 - 从localStorage或其他存储中恢复用户状态
   useEffect(() => {
     try {
-      console.log('🎯 初始化简单认证系统...');
+      console.log('🎯 initialization简单authenticating系统...');
       
       // 尝试从localStorage恢复用户状态
       const savedUser = localStorage.getItem('auth_user');
@@ -77,24 +77,24 @@ export function SimpleAuthProvider({ children }: { children: React.ReactNode }) 
         try {
           const parsedUser = JSON.parse(savedUser);
           setUser(parsedUser);
-          console.log('✅ 从本地存储恢复用户:', parsedUser);
+          console.log('✅ 从localstoragerestoringuser:', parsedUser);
         } catch (error) {
-          console.warn('⚠️ 解析本地存储的用户数据失败:', error);
+          console.warn('⚠️ parsinglocalstorage的userdatafailed:', error);
           localStorage.removeItem('auth_user');
         }
       }
       
       setLoading(false);
-      console.log('✅ 简单认证系统初始化完成');
+      console.log('✅ 简单authenticating系统initializationcompleted');
     } catch (error) {
-      console.error('❌ 初始化失败:', error);
+      console.error('❌ initializationfailed:', error);
       setLoading(false);
     }
   }, []);
 
   // 登录方法 - 在自定义表单中调用
   const login = useCallback((redirectPath?: string) => {
-    console.log('🔍 触发登录流程...');
+    console.log('🔍 triggeringloginstream程...');
     // 这里可以触发自定义登录弹窗或跳转到登录页面
     // 实际的登录逻辑应该在自定义登录表单中实现
     
@@ -106,7 +106,7 @@ export function SimpleAuthProvider({ children }: { children: React.ReactNode }) 
 
   // 退出登录
   const logout = useCallback(() => {
-    console.log('🔍 用户退出登录');
+    console.log('🔍 user退出login');
     setUser(null);
     localStorage.removeItem('auth_user');
     
@@ -120,7 +120,7 @@ export function SimpleAuthProvider({ children }: { children: React.ReactNode }) 
       const updatedUser = { ...user, ...userInfo };
       setUser(updatedUser);
       localStorage.setItem('auth_user', JSON.stringify(updatedUser));
-      console.log('✅ 用户信息已更新:', updatedUser);
+      console.log('✅ userinfoupdated:', updatedUser);
     }
   }, [user]);
 
@@ -129,10 +129,10 @@ export function SimpleAuthProvider({ children }: { children: React.ReactNode }) 
     setUser(newUser);
     if (newUser) {
       localStorage.setItem('auth_user', JSON.stringify(newUser));
-      console.log('✅ 用户登录成功:', newUser);
+      console.log('✅ userloginsuccess:', newUser);
     } else {
       localStorage.removeItem('auth_user');
-      console.log('✅ 用户已退出');
+      console.log('✅ useralready退出');
     }
   }, []);
 
@@ -155,7 +155,7 @@ export function SimpleAuthProvider({ children }: { children: React.ReactNode }) 
   
   const refreshUser = useCallback(async () => {
     // 刷新用户信息的逻辑
-    console.log('🔄 刷新用户信息...');
+    console.log('🔄 refreshinguserinfo...');
     // 这里可以调用API获取最新的用户信息
   }, []);
 

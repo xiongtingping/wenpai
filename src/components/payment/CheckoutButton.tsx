@@ -47,7 +47,7 @@ export default function CheckoutButton({ priceId,
     setLoading(true);
     
     try {
-      console.log('开始支付流程:', { priceId, customerEmail });
+      console.log('starts支付stream程:', { priceId, customerEmail });
       
       await redirectToCheckout(priceId, customerEmail);
       
@@ -56,7 +56,7 @@ export default function CheckoutButton({ priceId,
         description: "正在跳转到支付页面...",
       });
     } catch (error: any) {
-      console.error('支付跳转失败:', error);
+      console.error('支付跳转failed:', error);
       
       toast({
         title: t('components.labels.支付失败'),

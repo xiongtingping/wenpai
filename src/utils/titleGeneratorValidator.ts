@@ -214,7 +214,7 @@ export function testContentTitleGeneration(content: string, generateTitleFn: (co
         const title = generateTitleFn(content, platform, style);
         generatedTitles.push(title);
       } catch (error) {
-        console.error(`生成失败 (${platform}-${style}):`, error);
+        console.error(`生成failed (${platform}-${style}):`, error);
         generatedTitles.push(`[生成失败: ${platform}-${style}]`);
       }
     });

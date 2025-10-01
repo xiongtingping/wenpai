@@ -119,7 +119,7 @@ export const HashtagManager: React.FC<any> = ({ initialTags,
         }, 2000);
       }
     } catch (error) {
-      console.error('复制失败:', error);
+      console.error('copyingfailed:', error);
     }
   };
 

@@ -97,7 +97,7 @@ export function useTokenLimitCheck() {
       return checkResult;
       
     } catch (error) {
-      console.error('Token限额检查失败:', error);
+      console.error('Tokenlimitcheckingfailed:', error);
       
       // 检查失败时默认允许使用
       const fallbackResult: TokenLimitCheckResult = {

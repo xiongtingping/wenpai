@@ -81,7 +81,7 @@ export class FavoritesService {
       
       return result;
     } catch (error) {
-      console.error('获取收藏失败:', error);
+      console.error('getting收藏failed:', error);
       return this.cache || [];
     }
   }
@@ -111,13 +111,13 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache(updatedFavorites);
-        console.log('✅ 收藏添加成功:', item.title);
+        console.log('✅ 收藏addingsuccess:', item.title);
         return id;
       } else {
         throw new Error('保存收藏失败');
       }
     } catch (error) {
-      console.error('添加收藏失败:', error);
+      console.error('adding收藏failed:', error);
       throw error;
     }
   }
@@ -134,13 +134,13 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache(updatedFavorites);
-        console.log('✅ 收藏移除成功:', id);
+        console.log('✅ 收藏removingsuccess:', id);
         return true;
       } else {
         throw new Error('保存收藏失败');
       }
     } catch (error) {
-      console.error('移除收藏失败:', error);
+      console.error('removing收藏failed:', error);
       return false;
     }
   }
@@ -167,13 +167,13 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache(updatedFavorites);
-        console.log(`✅ 批量添加收藏成功: ${items.length}项`);
+        console.log(`✅ 批量adding收藏success: ${items.length}item`);
         return newFavorites.map(item => item.id);
       } else {
         throw new Error('批量保存收藏失败');
       }
     } catch (error) {
-      console.error('批量添加收藏失败:', error);
+      console.error('批量adding收藏failed:', error);
       throw error;
     }
   }
@@ -190,13 +190,13 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache(updatedFavorites);
-        console.log(`✅ 批量移除收藏成功: ${ids.length}项`);
+        console.log(`✅ 批量removing收藏success: ${ids.length}item`);
         return true;
       } else {
         throw new Error('批量保存收藏失败');
       }
     } catch (error) {
-      console.error('批量移除收藏失败:', error);
+      console.error('批量removing收藏failed:', error);
       return false;
     }
   }
@@ -226,13 +226,13 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache(updatedFavorites);
-        console.log('✅ 收藏更新成功:', id);
+        console.log('✅ 收藏updatingsuccess:', id);
         return true;
       } else {
         throw new Error('保存收藏失败');
       }
     } catch (error) {
-      console.error('更新收藏失败:', error);
+      console.error('updating收藏failed:', error);
       return false;
     }
   }
@@ -316,13 +316,13 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache(items);
-        console.log(`✅ 收藏导入成功: ${items.length}项`);
+        console.log(`✅ 收藏importingsuccess: ${items.length}item`);
         return true;
       } else {
         throw new Error('导入收藏失败');
       }
     } catch (error) {
-      console.error('导入收藏失败:', error);
+      console.error('importing收藏failed:', error);
       return false;
     }
   }
@@ -336,13 +336,13 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache([]);
-        console.log('✅ 收藏已清空');
+        console.log('✅ 收藏already清empty');
         return true;
       } else {
         throw new Error('清空收藏失败');
       }
     } catch (error) {
-      console.error('清空收藏失败:', error);
+      console.error('清empty收藏failed:', error);
       return false;
     }
   }

@@ -41,7 +41,7 @@ export function QuickReferenceSelector({ onSelect,
     useEffect(() => {
       if (!isOpen) return;
 
-      console.log('🚀🚀🚀 QuickReferenceSelector 正在创建弹窗!!! 🚀🚀🚀');
+      console.log('🚀🚀🚀 QuickReferenceSelector iscreatingpopup!!! 🚀🚀🚀');
 
       // 🚨 强制获取当前实时的视窗信息
       const getViewportInfo = () => {
@@ -71,7 +71,7 @@ export function QuickReferenceSelector({ onSelect,
       };
 
       let viewportInfo = getViewportInfo();
-      console.log('🔍 当前视窗信息：', viewportInfo);
+      console.log('🔍 current视窗info：', viewportInfo);
 
       // 创建遮罩层 - 🎯 根本修复：使用fixed定位覆盖整个视窗
       const overlay = document.createElement('div');
@@ -109,7 +109,7 @@ export function QuickReferenceSelector({ onSelect,
         overflow: hidden !important;
       `;
 
-      console.log('📐 弹窗定位：', {
+      console.log('📐 popup定位：', {
         遮罩顶部: viewportInfo.visibleTop,
         遮罩左侧: viewportInfo.visibleLeft,
         弹窗中心X: viewportInfo.centerX,
@@ -204,7 +204,7 @@ export function QuickReferenceSelector({ onSelect,
       document.body.appendChild(overlay);
       document.body.appendChild(modal);
 
-      console.log('✅ 快速引用弹窗已创建并添加到body');
+      console.log('✅ 快速引用popupalreadycreating并adding到body');
 
       // 🚨 实时监听滚动，确保弹窗始终在可见区域中心
       const updatePosition = () => {
@@ -388,7 +388,7 @@ export function QuickReferenceSelector({ onSelect,
           currentItems = data;
           showContent(data);
         } catch (error) {
-          console.error(`加载${tabType}数据失败:`, error);
+          console.error(`loading${tabType}datafailed:`, error);
           showContent([]);
         }
       };
@@ -404,7 +404,7 @@ export function QuickReferenceSelector({ onSelect,
           const results = await quickReferenceDataService.searchItems(query);
           showContent(results);
         } catch (error) {
-          console.error('搜索失败:', error);
+          console.error('searchingfailed:', error);
           showContent([]);
         }
       };
@@ -419,9 +419,9 @@ export function QuickReferenceSelector({ onSelect,
           if (document.body.contains(modal)) document.body.removeChild(modal);
           setIsOpen(false);
           resetState();
-          console.log('✅ 快速引用弹窗已关闭');
+          console.log('✅ 快速引用popupalreadyclosing');
         } catch (e) {
-          console.warn('关闭弹窗时出错:', e);
+          console.warn('closingpopup时出错:', e);
         }
       };
 
@@ -507,9 +507,9 @@ export function QuickReferenceSelector({ onSelect,
           
           if (document.body.contains(overlay)) document.body.removeChild(overlay);
           if (document.body.contains(modal)) document.body.removeChild(modal);
-          console.log('🧹 快速引用弹窗已清理，事件监听器已移除');
+          console.log('🧹 快速引用popupalreadycleaning，eventlisteneralreadyremoving');
         } catch (e) {
-          console.warn('清理弹窗元素时出错:', e);
+          console.warn('cleaningpopup元素时出错:', e);
         }
       };
     }, [isOpen]);

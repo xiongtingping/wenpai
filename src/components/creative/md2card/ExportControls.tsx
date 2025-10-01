@@ -263,7 +263,7 @@ export const ExportControls: React.FC<any> = ({ parsedContent,
       }, 1000);
 
     } catch (error) {
-      console.error('导出失败:', error);
+      console.error('exportingfailed:', error);
       toast({
         title: t('components.errors.导出失败'),
         description: '导出过程中发生错误，请稍后重试',
@@ -293,7 +293,7 @@ export const ExportControls: React.FC<any> = ({ parsedContent,
         description: '卡片已复制到剪贴板',
       });
     } catch (error) {
-      console.error('复制失败:', error);
+      console.error('copyingfailed:', error);
       toast({
         title: t('components.errors.复制失败'),
         description: '无法复制到剪贴板',
@@ -321,7 +321,7 @@ export const ExportControls: React.FC<any> = ({ parsedContent,
           url: window.location.href
         });
       } catch (error) {
-        console.error('分享失败:', error);
+        console.error('分享failed:', error);
       }
     } else {
       // 回退到复制链接

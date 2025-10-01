@@ -162,7 +162,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
 
   // ✅ FIXED: 验证prompt参数
   if (!prompt || typeof prompt !== 'string') {
-    throw new Error('prompt参数不能为空且必须是字符串');
+    throw new Error('Prompt parameter cannot be empty and must be a string');
   }
 
   // 声明变量在函数顶层，确保在catch块中可访问
@@ -184,7 +184,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       selectedConfig = apiConfig.openai;
       apiProvider = 'OpenAI';
       if (!selectedConfig.apiKey || selectedConfig.apiKey.includes('{{') || selectedConfig.apiKey.includes('your-')) {
-        throw new Error('OpenAI API密钥未正确配置，请在.env.local文件中设置VITE_OPENAI_API_KEY');
+        throw new Error('OpenAI API key not configured, please set VITE_OPENAI_API_KEY in .env.local');
       }
       // ✅ FIXED: 2025-08-03 更新API密钥格式验证以支持新的密钥格式
       // 🐛 问题原因：API密钥格式验证过于严格，不支持新的密钥格式
@@ -192,41 +192,41 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       // 📌 已封装：API密钥验证逻辑已验证稳定，请勿修改
       // 
       if (!selectedConfig.apiKey.startsWith('sk-')) {
-        throw new Error('OpenAI API密钥格式不正确，应以sk-开头');
+        throw new Error('OpenAI API key format is incorrect, should start with sk-');
       }
       // 支持标准格式（51字符）和新的长格式密钥
       if (selectedConfig.apiKey.length < 20) {
-        throw new Error('OpenAI API密钥长度过短，请检查密钥格式');
+        throw new Error('OpenAI API key is too short, please check the key format');
       }
     } else if (model.includes('deepseek')) {
       // DeepSeek作为备选，但需要检查余额
       selectedConfig = apiConfig.deepseek;
       apiProvider = 'DeepSeek';
       if (!selectedConfig.apiKey || selectedConfig.apiKey.includes('your-')) {
-        throw new Error('DeepSeek API密钥未正确配置，请在.env.local文件中设置VITE_DEEPSEEK_API_KEY');
+        throw new Error('DeepSeek API key not configured, please set VITE_DEEPSEEK_API_KEY in .env.local');
       }
       // 检查DeepSeek余额状态
-      console.warn('⚠️ DeepSeek API余额可能不足，建议使用OpenAI API');
+      console.warn('⚠️ DeepSeek APIbalance可能不足，建议使用OpenAI API');
     } else if (model.includes('gemini')) {
       selectedConfig = apiConfig.gemini;
       apiProvider = 'Gemini';
       if (!selectedConfig.apiKey || selectedConfig.apiKey.includes('your-')) {
-        throw new Error('Gemini API密钥未正确配置，请在.env.local文件中设置VITE_GEMINI_API_KEY');
+        throw new Error('Gemini API key not configured, please set VITE_GEMINI_API_KEY in .env.local');
       }
     } else {
       // 默认使用OpenAI
       selectedConfig = apiConfig.openai;
       apiProvider = 'OpenAI';
       if (!selectedConfig.apiKey || selectedConfig.apiKey.includes('{{') || selectedConfig.apiKey.includes('your-')) {
-        throw new Error('OpenAI API密钥未正确配置，请在.env.local文件中设置VITE_OPENAI_API_KEY');
+        throw new Error('OpenAI API key not configured, please set VITE_OPENAI_API_KEY in .env.local');
       }
       // 验证API密钥格式
       if (!selectedConfig.apiKey.startsWith('sk-')) {
-        throw new Error('OpenAI API密钥格式不正确，应以sk-开头');
+        throw new Error('OpenAI API key format is incorrect, should start with sk-');
       }
       // 支持标准格式（51字符）和新的长格式密钥
       if (selectedConfig.apiKey.length < 20) {
-        throw new Error('OpenAI API密钥长度过短，请检查密钥格式');
+        throw new Error('OpenAI API key is too short, please check the key format');
       }
     }
 
@@ -250,7 +250,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       enhancedSystemPrompt = newSystemPrompt;
       adjustedTemperature = newTemperature;
 
-      console.log(`🔄 应用差异化策略: ${variationLevel || 'default'}, 风格变化: ${styleVariation || 'none'}`);
+      console.log(`🔄 应用差异化strategy: ${variationLevel || 'default'}, 风格变化: ${styleVariation || 'none'}`);
     }
 
     // 构建请求体
@@ -317,8 +317,8 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     };
 
   } catch (error) {
-    console.error('AI API调用失败:', error);
-    console.log(`🔍 callAI catch块调试: error=${error}, type=${typeof error}, message=${error instanceof Error ? error.message : 'N/A'}`);
+    console.error('AI API调用failed:', error);
+    console.log(`🔍 callAI catchblockdebugging: error=${error}, type=${typeof error}, message=${error instanceof Error ? error.message : 'N/A'}`);
 
     // ✅ FIXED: 2025-08-02 增强浏览器网络错误处理
     // 导入浏览器网络诊断模块
@@ -330,13 +330,13 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
 
     if (technicalError.includes('404')) {
       userFriendlyError = `${apiProvider || 'AI'} API端点不存在，请检查配置`;
-      console.error(`🚨 API端点错误: ${selectedConfig?.baseURL || 'unknown'}/chat/completions`);
+      console.error(`🚨 API端点error: ${selectedConfig?.baseURL || 'unknown'}/chat/completions`);
     } else if (technicalError.includes('401') || technicalError.includes('403')) {
       userFriendlyError = `${apiProvider || 'AI'} API密钥无效或权限不足`;
-      console.error(`🚨 认证错误: API密钥可能无效`);
+      console.error(`🚨 authenticatingerror: APIkey可能invalid`);
     } else if (technicalError.includes('402')) {
       userFriendlyError = `${apiProvider || 'AI'} API账户余额不足或需要付费升级，建议切换到其他AI模型`;
-      console.error(`🚨 402错误: ${apiProvider || 'AI'} API账户余额不足或需要付费升级`);
+      console.error(`🚨 402error: ${apiProvider || 'AI'} API账户balance不足或需要付费升级`);
     } else if (technicalError.includes('429')) {
       userFriendlyError = `${apiProvider || 'AI'} API调用频率超限（429错误），请稍后重试`;
     } else if (technicalError.includes('500') || technicalError.includes('502') || technicalError.includes('503')) {
@@ -350,7 +350,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     }
 
     // 记录详细错误信息用于调试
-    console.error(`🔍 详细错误信息:`, {
+    console.error(`🔍 详细errorinfo:`, {
       provider: apiProvider,
       model,
       endpoint: selectedConfig?.baseURL,
@@ -393,7 +393,7 @@ async function handleStreamResponse(
     };
 
   } catch (e) {
-    console.error('流式响应处理失败:', e);
+    console.error('stream式responseprocessingfailed:', e);
     return {
       content,
       model,
@@ -471,7 +471,7 @@ export async function generateImage(params: ImageGenerationParams): Promise<Imag
 
     // 验证配置
     if (!apiConfig.openai.apiKey || apiConfig.openai.apiKey.includes('{{') || apiConfig.openai.apiKey.includes('your-')) {
-      throw new Error('OpenAI API密钥未正确配置，请在.env.local文件中设置VITE_OPENAI_API_KEY');
+      throw new Error('OpenAI API key not configured, please set VITE_OPENAI_API_KEY in .env.local');
     }
 
     // 构建请求体
@@ -520,7 +520,7 @@ export async function generateImage(params: ImageGenerationParams): Promise<Imag
     };
 
   } catch (error) {
-    console.error('图像生成API调用失败:', error);
+    console.error('graph像生成API调用failed:', error);
 
     return {
       images: [],
@@ -584,7 +584,7 @@ export async function callAIWithRetry(
   logger.system('🚀 callAIWithRetry 开始: 最大重试次数=${maxRetries}');
 
   for (let i = 0; i < maxRetries; i++) {
-    console.log(`🔄 第${i + 1}次尝试调用AI...`);
+    console.log(`🔄 the${i + 1}times尝试调用AI...`);
     try {
       const result = await callAI(params);
 
@@ -599,7 +599,7 @@ export async function callAIWithRetry(
       const is429Error = result.error && result.error.includes('429');
 
       // 调试日志
-      console.log(`🔍 重试机制调试: result.error='${result.error}', is429Error=${is429Error}, 重试次数=${i+1}/${maxRetries}`);
+      console.log(`🔍 retrying机制debugging: result.error='${result.error}', is429Error=${is429Error}, retryingcount=${i+1}/${maxRetries}`);
 
       // 等待一段时间后重试 - 使用指数退避策略，针对429错误增加延迟
       if (i < maxRetries - 1) {
@@ -608,9 +608,9 @@ export async function callAIWithRetry(
         // 如果是429错误，增加更长的延迟
         if (is429Error) {
           delay = Math.min(Math.pow(2, i) * 3000, 60000); // 429错误延迟更长，最大60秒
-          console.log(`🔄 第${i + 1}次重试失败（429错误），${delay/1000}秒后进行第${i + 2}次重试...`);
+          console.log(`🔄 the${i + 1}timesretryingfailed（429error），${delay/1000}secondsnext进rowthe${i + 2}timesretrying...`);
         } else {
-          console.log(`🔄 第${i + 1}次重试失败，${delay/1000}秒后进行第${i + 2}次重试...`);
+          console.log(`🔄 the${i + 1}timesretryingfailed，${delay/1000}secondsnext进rowthe${i + 2}timesretrying...`);
         }
 
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -633,9 +633,9 @@ export async function callAIWithRetry(
         // 如果是429错误，增加更长的延迟
         if (lastError && lastError.message.includes('429')) {
           delay = Math.min(Math.pow(2, i) * 3000, 60000); // 429错误延迟更长，最大60秒
-          console.log(`🔄 第${i + 1}次重试失败（429错误），${delay/1000}秒后进行第${i + 2}次重试...`);
+          console.log(`🔄 the${i + 1}timesretryingfailed（429error），${delay/1000}secondsnext进rowthe${i + 2}timesretrying...`);
         } else {
-          console.log(`🔄 第${i + 1}次重试失败，${delay/1000}秒后进行第${i + 2}次重试...`);
+          console.log(`🔄 the${i + 1}timesretryingfailed，${delay/1000}secondsnext进rowthe${i + 2}timesretrying...`);
         }
 
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -674,7 +674,7 @@ export async function checkAIStatus(): Promise<{
       });
       status.openai = openaiResult.success;
     } catch (error) {
-      console.warn('OpenAI 服务检查失败:', error);
+      console.warn('OpenAI servicecheckingfailed:', error);
     }
 
     // 测试 DeepSeek
@@ -686,7 +686,7 @@ export async function checkAIStatus(): Promise<{
       });
       status.deepseek = deepseekResult.success;
     } catch (error) {
-      console.warn('DeepSeek 服务检查失败:', error);
+      console.warn('DeepSeek servicecheckingfailed:', error);
     }
 
     // 测试 Gemini
@@ -698,7 +698,7 @@ export async function checkAIStatus(): Promise<{
       });
       status.gemini = geminiResult.success;
     } catch (error) {
-      console.warn('Gemini 服务检查失败:', error);
+      console.warn('Gemini servicecheckingfailed:', error);
     }
 
     // 生成状态消息

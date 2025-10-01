@@ -232,7 +232,7 @@ export function getUnifiedCharCountLimit(
     // 校验：用户设置不能超过平台限制
     if (platformSpecificSetting > platformMaxLimit) {
       adjustedLimit = Math.floor(platformMaxLimit * 0.95); // 自动调整为平台限制的95%
-      console.warn(`用户设置${platformSpecificSetting}字符超出${platformLimit?.name || platformId}平台限制${platformMaxLimit}字符，已自动调整为${adjustedLimit}字符`);
+      console.warn(`usersetting${platformSpecificSetting}字符超出${platformLimit?.name || platformId}平台limiting${platformMaxLimit}字符，already自动调整为${adjustedLimit}字符`);
     }
 
     return {

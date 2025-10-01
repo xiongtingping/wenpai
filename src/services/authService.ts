@@ -46,10 +46,10 @@ class AuthService {
         appHost: config.host
       });
 
-      console.log('✅ Authing AuthenticationClient初始化成功');
+      console.log('✅ Authing AuthenticationClientinitializationsuccess');
       return this.authClient;
     } catch (error) {
-      console.error('❌ Authing AuthenticationClient初始化失败:', error);
+      console.error('❌ Authing AuthenticationClientinitializationfailed:', error);
       throw new Error('u64cdu4f5cu5931u8d25');
     }
   }
@@ -81,7 +81,7 @@ class AuthService {
         result = await client.loginByUsername(username, password);
       }
 
-      console.log('✅ 密码登录成功:', result);
+      console.log('✅ passwordloginsuccess:', result);
       
       return {
         success: true,
@@ -91,7 +91,7 @@ class AuthService {
       };
 
     } catch (error: any) {
-      console.error('❌ 密码登录失败:', error);
+      console.error('❌ passwordloginfailed:', error);
       
       let errorMessage = 'u64cdu4f5cu5931u8d25';
       if (error?.message) {
@@ -165,7 +165,7 @@ class AuthService {
       // 调用真实Authing API更新用户信息
       const result = await client.updateProfile(updateData);
       
-      console.log('✅ 用户资料更新成功:', result);
+      console.log('✅ user资料updatingsuccess:', result);
       
       return {
         success: true,
@@ -174,7 +174,7 @@ class AuthService {
       };
 
     } catch (error: any) {
-      console.error('❌ 用户资料更新失败:', error);
+      console.error('❌ user资料updatingfailed:', error);
       
       let errorMessage = 'u64cdu4f5cu5931u8d25';
       if (error?.message) {
@@ -209,19 +209,19 @@ class AuthService {
         return null;
       }
 
-      console.log('✅ 获取用户信息成功:', userInfo);
+      console.log('✅ gettinguserinfosuccess:', userInfo);
       
       return this.formatUserInfo(userInfo);
 
     } catch (error: any) {
-      console.error('❌ 获取用户信息失败:', error);
+      console.error('❌ gettinguserinfofailed:', error);
       
       // 🚨 关键：API失败时不能返回模拟数据，必须返回null或抛出错误
       if (error?.message?.includes('unauthorized')) {
         return null; // 用户未登录
       }
       
-      throw new Error(`获取用户信息失败: ${error.message}`);
+      throw new Error(`gettinguserinfofailed: ${error.message}`);
     }
   }
 
@@ -285,7 +285,7 @@ class AuthService {
       
       const result = await client.updatePassword(newPassword, oldPassword);
       
-      console.log('✅ 密码修改成功:', result);
+      console.log('✅ passwordmodifyingsuccess:', result);
       
       return {
         success: true,
@@ -293,7 +293,7 @@ class AuthService {
       };
 
     } catch (error: any) {
-      console.error('❌ 密码修改失败:', error);
+      console.error('❌ passwordmodifyingfailed:', error);
       
       let errorMessage = 'u64cdu4f5cu5931u8d25';
       if (error?.message) {
@@ -331,10 +331,10 @@ class AuthService {
       // 🔧 FIX: 2025-09-02 修复API调用方式，使用正确的EmailScene枚举
       await client.sendEmail(email, EmailScene.LOGIN_VERIFY_CODE);
       
-      console.log('✅ 邮箱验证码发送成功');
+      console.log('✅ emailvalidating码sendingsuccess');
       
     } catch (error: any) {
-      console.error('❌ 邮箱验证码发送失败:', error);
+      console.error('❌ emailvalidating码sendingfailed:', error);
       
       let errorMessage = 'u64cdu4f5cu5931u8d25';
       if (error?.message) {
@@ -373,10 +373,10 @@ class AuthService {
       // 调用Authing API发送手机验证码
       await client.sendSmsCode(phone);
       
-      console.log('✅ 手机验证码发送成功');
+      console.log('✅ phonevalidating码sendingsuccess');
       
     } catch (error: any) {
-      console.error('❌ 手机验证码发送失败:', error);
+      console.error('❌ phonevalidating码sendingfailed:', error);
       
       let errorMessage = 'u64cdu4f5cu5931u8d25';
       if (error?.message) {
@@ -417,10 +417,10 @@ class AuthService {
       }
 
       // 🔧 在个人资料更新场景中，验证码的有效性将在updateProfile时验证
-      console.log('✅ 邮箱验证码格式验证通过:', { email: email.replace(/(.{2}).*(@.*)/, '$1****$2') });
+      console.log('✅ emailvalidating码格式validating通过:', { email: email.replace(/(.{2}).*(@.*)/, '$1****$2') });
       
     } catch (error: any) {
-      console.error('❌ 邮箱验证码验证失败:', error);
+      console.error('❌ emailvalidating码validatingfailed:', error);
       
       let errorMessage = 'u64cdu4f5cu5931u8d25';
       if (error?.message) {
@@ -454,10 +454,10 @@ class AuthService {
       // 🔧 由于Authing SDK没有独立的verifySmsCode方法
       // 在个人资料更新场景中，我们假设验证码有效性在发送时已验证
       // 实际验证将在updateProfile时由Authing服务器处理
-      console.log('✅ 手机验证码格式验证通过:', { phone: phone.slice(0,3) + '****' + phone.slice(-4) });
+      console.log('✅ phonevalidating码格式validating通过:', { phone: phone.slice(0,3) + '****' + phone.slice(-4) });
       
     } catch (error: any) {
-      console.error('❌ 手机验证码验证失败:', error);
+      console.error('❌ phonevalidating码validatingfailed:', error);
       
       let errorMessage = 'u64cdu4f5cu5931u8d25';
       if (error?.message) {
@@ -478,10 +478,10 @@ class AuthService {
       // 调用真实API注销
       await client.logout();
       
-      console.log('✅ 注销成功');
+      console.log('✅ logoutsuccess');
       
     } catch (error: any) {
-      console.error('❌ 注销失败:', error);
+      console.error('❌ logoutfailed:', error);
       // 注销失败也不影响本地清理
     }
   }

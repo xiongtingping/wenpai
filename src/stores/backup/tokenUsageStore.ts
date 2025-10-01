@@ -87,7 +87,7 @@ export const useTokenUsageStore = create<TokenUsageState & TokenUsageActions>()(
             lastUpdated: new Date().toISOString()
           });
         } catch (error) {
-          console.error('刷新Token统计失败:', error);
+          console.error('refreshingToken统计failed:', error);
           set({ 
             error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25',
             loading: false 
@@ -109,7 +109,7 @@ export const useTokenUsageStore = create<TokenUsageState & TokenUsageActions>()(
             lastUpdated: new Date().toISOString()
           });
         } catch (error) {
-          console.error('刷新使用历史失败:', error);
+          console.error('refreshing使用历史failed:', error);
           set({ 
             error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25',
             loading: false 
@@ -131,7 +131,7 @@ export const useTokenUsageStore = create<TokenUsageState & TokenUsageActions>()(
             lastUpdated: new Date().toISOString()
           });
         } catch (error) {
-          console.error('刷新功能统计失败:', error);
+          console.error('refreshingfeature统计failed:', error);
           set({ 
             error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25',
             loading: false 
@@ -176,7 +176,7 @@ export const useTokenUsageStore = create<TokenUsageState & TokenUsageActions>()(
           });
           
         } catch (error) {
-          console.error('记录Token使用失败:', error);
+          console.error('记录Token使用failed:', error);
           set({ 
             error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'
           });
@@ -198,7 +198,7 @@ export const useTokenUsageStore = create<TokenUsageState & TokenUsageActions>()(
           
           return result;
         } catch (error) {
-          console.error('检查Token限额失败:', error);
+          console.error('checkingTokenlimitfailed:', error);
           set({ 
             error: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'
           });

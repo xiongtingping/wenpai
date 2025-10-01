@@ -52,7 +52,7 @@ export const PlatformHashtags: React.FC<any> = ({ platformId,
     try {
       const limits = getPlatformLimits(platformId);
 
-      if (import.meta.env.DEV) console.log(`🏷️ 为${platformId}平台生成话题标签:`, content.substring(0, 50) + '...');
+      if (import.meta.env.DEV) console.log(`🏷️ 为${platformId}平台生成话题tag:`, content.substring(0, 50) + '...');
 
       // 使用新的话题标签生成功能
       const topicTags = await hashtagGenerator.generateTopicTagsForSmartTagging(content, platformId);
@@ -69,7 +69,7 @@ export const PlatformHashtags: React.FC<any> = ({ platformId,
       setTags(relevantTags);
       onTagsChange?.(relevantTags);
     } catch (error) {
-      console.error('话题标签生成失败:', error);
+      console.error('话题tag生成failed:', error);
     } finally {
       setIsGenerating(false);
     }
@@ -80,7 +80,7 @@ export const PlatformHashtags: React.FC<any> = ({ platformId,
   useEffect(() => {
     if (extractedTags && extractedTags.length > 0) {
       // 优先使用从智能内容生成中提取的标签
-      if (import.meta.env.DEV) console.log('🏷️ 使用从智能内容生成提取的标签:', extractedTags);
+      if (import.meta.env.DEV) console.log('🏷️ 使用从智能content生成提取的tag:', extractedTags);
       setTags(prev => {
         // 只有当标签真正不同时才更新
         if (JSON.stringify(prev) !== JSON.stringify(extractedTags)) {
@@ -119,7 +119,7 @@ export const PlatformHashtags: React.FC<any> = ({ platformId,
       setCopyFeedback(true);
       setTimeout(() => setCopyFeedback(false), 2000);
     } catch (error) {
-      console.error('复制失败:', error);
+      console.error('copyingfailed:', error);
     }
   };
 

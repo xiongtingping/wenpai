@@ -18,7 +18,7 @@ import { logger } from '@/utils/logger';
  */
 export async function getSupabaseClient(): Promise<SupabaseClient> {
   if (!supabase) {
-    throw new Error('Supabase 客户端未初始化');
+    throw new Error('Supabase clientnotinitialization');
   }
   return supabase;
 }
@@ -114,14 +114,14 @@ export class SupabaseDataService {
         .single();
 
       if (error) {
-        console.error(`创建${this.tableName}记录失败:`, error);
+        console.error(`creating${this.tableName}记录failed:`, error);
         throw new Error(`创建记录失败: ${error.message}`);
       }
 
       logger.debug(`✅ 创建${this.tableName}记录成功:`, result.id);
       return result as T;
     } catch (error) {
-      console.error(`创建${this.tableName}记录异常:`, error);
+      console.error(`creating${this.tableName}记录abnormal:`, error);
       throw error;
     }
   }
@@ -162,7 +162,7 @@ export class SupabaseDataService {
       const { data, error, count } = await query;
 
       if (error) {
-        console.error(`查询${this.tableName}记录失败:`, error);
+        console.error(`querying${this.tableName}记录failed:`, error);
         throw new Error(`查询记录失败: ${error.message}`);
       }
 
@@ -172,7 +172,7 @@ export class SupabaseDataService {
         count: count || 0
       };
     } catch (error) {
-      console.error(`查询${this.tableName}记录异常:`, error);
+      console.error(`querying${this.tableName}记录abnormal:`, error);
       return {
         data: [],
         error: error instanceof Error ? error.message : i18n.t('common.errors.查询失败')
@@ -198,14 +198,14 @@ export class SupabaseDataService {
           // 记录不存在
           return null;
         }
-        console.error(`查询${this.tableName}记录失败:`, error);
+        console.error(`querying${this.tableName}记录failed:`, error);
         throw new Error(`查询记录失败: ${error.message}`);
       }
 
       logger.debug(`✅ 查询${this.tableName}记录成功:`, id);
       return data as T;
     } catch (error) {
-      console.error(`查询${this.tableName}记录异常:`, error);
+      console.error(`querying${this.tableName}记录abnormal:`, error);
       throw error;
     }
   }
@@ -236,14 +236,14 @@ export class SupabaseDataService {
         .single();
 
       if (error) {
-        console.error(`更新${this.tableName}记录失败:`, error);
+        console.error(`updating${this.tableName}记录failed:`, error);
         throw new Error(`更新记录失败: ${error.message}`);
       }
 
       logger.debug(`✅ 更新${this.tableName}记录成功:`, id);
       return result as T;
     } catch (error) {
-      console.error(`更新${this.tableName}记录异常:`, error);
+      console.error(`updating${this.tableName}记录abnormal:`, error);
       throw error;
     }
   }
@@ -267,13 +267,13 @@ export class SupabaseDataService {
         .eq('user_id', this.userId);
 
       if (error) {
-        console.error(`删除${this.tableName}记录失败:`, error);
+        console.error(`deleting${this.tableName}记录failed:`, error);
         throw new Error(`删除记录失败: ${error.message}`);
       }
 
       logger.debug(`✅ 删除${this.tableName}记录成功:`, id);
     } catch (error) {
-      console.error(`删除${this.tableName}记录异常:`, error);
+      console.error(`deleting${this.tableName}记录abnormal:`, error);
       throw error;
     }
   }
@@ -291,13 +291,13 @@ export class SupabaseDataService {
         .eq('user_id', this.userId);
 
       if (error) {
-        console.error(`批量删除${this.tableName}记录失败:`, error);
+        console.error(`批量deleting${this.tableName}记录failed:`, error);
         throw new Error(`批量删除记录失败: ${error.message}`);
       }
 
       logger.debug(`✅ 批量删除${this.tableName}记录成功: ${ids.length} 条`);
     } catch (error) {
-      console.error(`批量删除${this.tableName}记录异常:`, error);
+      console.error(`批量deleting${this.tableName}记录abnormal:`, error);
       throw error;
     }
   }
@@ -322,13 +322,13 @@ export class SupabaseDataService {
       const { count, error } = await query;
 
       if (error) {
-        console.error(`统计${this.tableName}记录失败:`, error);
+        console.error(`统计${this.tableName}记录failed:`, error);
         throw new Error(`统计记录失败: ${error.message}`);
       }
 
       return count || 0;
     } catch (error) {
-      console.error(`统计${this.tableName}记录异常:`, error);
+      console.error(`统计${this.tableName}记录abnormal:`, error);
       throw error;
     }
   }
@@ -357,13 +357,13 @@ export class SupabaseDataService {
         .eq('user_id', this.userId);
 
       if (error) {
-        console.error(`清理${this.tableName}用户数据失败:`, error);
-        throw new Error(`清理用户数据失败: ${error.message}`);
+        console.error(`cleaning${this.tableName}userdatafailed:`, error);
+        throw new Error(`cleaninguserdatafailed: ${error.message}`);
       }
 
       logger.debug(`✅ 清理${this.tableName}用户数据成功`);
     } catch (error) {
-      console.error(`清理${this.tableName}用户数据异常:`, error);
+      console.error(`cleaning${this.tableName}userdataabnormal:`, error);
       throw error;
     }
   }

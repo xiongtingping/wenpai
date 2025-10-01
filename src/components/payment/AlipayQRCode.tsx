@@ -70,7 +70,7 @@ export default function AlipayQRCode({
         throw new Error('网络连接不可用，请检查网络设置');
       }
 
-      console.log('开始获取支付二维码:', { priceId, customerEmail });
+      console.log('startsgetting支付二维码:', { priceId, customerEmail });
 
       const result = await generateAlipayQRCode(priceId, customerEmail);
       
@@ -78,12 +78,12 @@ export default function AlipayQRCode({
         setQrCodeDataURL(result.qrCodeDataURL);
         setPrice(result.price);
         setRetryCount(0); // 重置重试计数
-        console.log('二维码获取成功');
+        console.log('二维码gettingsuccess');
       } else {
         throw new Error(t('components.errors.二维码生成失败'));
       }
     } catch (error: any) {
-      console.error('二维码获取失败:', error);
+      console.error('二维码gettingfailed:', error);
       
       // 增加重试计数
       const newRetryCount = retryCount + 1;
@@ -117,7 +117,7 @@ export default function AlipayQRCode({
 
       // 如果是网络错误且重试次数少于3次，自动重试
       if ((error.message.includes(t('components.errors.网络')) || error.message.includes('Failed to fetch') || error.message.includes('timeout')) && newRetryCount < 3 && !isRetry) {
-        console.log(`网络错误，3秒后自动重试...`);
+        console.log(`网络error，3secondsnext自动retrying...`);
         setTimeout(() => {
           fetchQRCode(true);
         }, 3000);

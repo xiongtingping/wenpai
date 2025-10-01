@@ -71,7 +71,7 @@ export default function EnhancedTopicCategories({
       const rsshubCategorized = await rsshubDataService.getCategorizedSupplementaryTopics();
       updateEnhancedData(rsshubCategorized);
     } catch (error) {
-      console.warn('加载RSSHub分类数据失败:', error);
+      console.warn('loadingRSSHubcategorydatafailed:', error);
       updateEnhancedData({});
     } finally {
       setLoading(false);

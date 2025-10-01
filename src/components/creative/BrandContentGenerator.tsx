@@ -91,7 +91,7 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
         description: "已生成符合品牌调性的内容",
       });
     } catch (error) {
-      console.error('内容生成失败:', error);
+      console.error('content生成failed:', error);
       toast({
         title: t('components.labels.生成失败'),
         description: error instanceof Error ? error.message : t('components.errors.内容生成过程中发生错误'),
@@ -134,7 +134,7 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
         });
       }
     } catch (error) {
-      console.error('内容检查失败:', error);
+      console.error('contentcheckingfailed:', error);
       toast({
         title: t('components.labels.检查失败'),
         description: "内容检查过程中发生错误",

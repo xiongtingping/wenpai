@@ -249,7 +249,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
             updateStep(platformId, i, 'error', `❌ ${errorMessage}`);
           }
           
-          console.error(`${platformId} 生成失败:`, error);
+          console.error(`${platformId} 生成failed:`, error);
         }
       });
 
@@ -266,7 +266,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       }
 
     } catch (error) {
-      console.error('批量生成失败:', error);
+      console.error('批量生成failed:', error);
       toast({
         title: 'u64cdu4f5cu5931u8d25',
         description: "请检查网络连接后重试",

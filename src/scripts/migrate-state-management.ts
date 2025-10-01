@@ -10,27 +10,27 @@ import { migrateToUnifiedState, cleanupLegacyStateData, getMigrationLog } from '
  * 主迁移函数
  */
 async function executeStateMigration() {
-  console.log('🎯 开始状态管理系统迁移...');
+  console.log('🎯 startsstate管理系统迁移...');
   console.log('='.repeat(60));
 
   try {
     // 1. 执行状态迁移
-    console.log('📋 步骤 1: 执行状态数据迁移');
+    console.log('📋 step 1: executingstatedata迁移');
     const migrationResult = await migrateToUnifiedState();
     
     if (migrationResult.success) {
-      console.log('✅ 状态迁移成功完成');
-      console.log(`📊 迁移模块数量: ${migrationResult.migratedKeys.length}`);
-      console.log(`📝 迁移模块: ${migrationResult.migratedKeys.join(', ')}`);
+      console.log('✅ state迁移successcompleted');
+      console.log(`📊 迁移modulequantity: ${migrationResult.migratedKeys.length}`);
+      console.log(`📝 迁移module: ${migrationResult.migratedKeys.join(', ')}`);
       
       if (migrationResult.errors.length > 0) {
-        console.log('⚠️ 迁移过程中的警告:');
+        console.log('⚠️ 迁移过程middle的warning:');
         migrationResult.errors.forEach(error => {
           console.log(`   - ${error}`);
         });
       }
     } else {
-      console.error('❌ 状态迁移失败');
+      console.error('❌ state迁移failed');
       migrationResult.errors.forEach(error => {
         console.error(`   - ${error}`);
       });
@@ -38,12 +38,12 @@ async function executeStateMigration() {
     }
 
     // 2. 清理旧数据
-    console.log('\n📋 步骤 2: 清理旧状态数据');
+    console.log('\n📋 step 2: cleaningoldstatedata');
     cleanupLegacyStateData();
-    console.log('✅ 旧状态数据清理完成');
+    console.log('✅ oldstatedatacleaningcompleted');
 
     // 3. 输出迁移日志
-    console.log('\n📋 步骤 3: 输出迁移日志');
+    console.log('\n📋 step 3: output迁移日志');
     const logs = getMigrationLog();
     if (logs.length > 0) {
       console.log('📜 详细迁移日志:');
@@ -53,13 +53,13 @@ async function executeStateMigration() {
     }
 
     console.log('\n' + '='.repeat(60));
-    console.log('🎉 状态管理系统迁移完成！');
-    console.log('🎯 现在可以开始使用统一状态管理系统');
+    console.log('🎉 state管理系统迁移completed！');
+    console.log('🎯 现在可以starts使用统一state管理系统');
     
     return true;
 
   } catch (error) {
-    console.error('💥 迁移过程中发生严重错误:', error);
+    console.error('💥 迁移过程middle发生严重error:', error);
     return false;
   }
 }
@@ -68,34 +68,34 @@ async function executeStateMigration() {
  * 验证迁移结果
  */
 function validateMigration() {
-  console.log('\n🔍 验证迁移结果...');
+  console.log('\n🔍 validating迁移result...');
   
   try {
     // 检查统一存储是否存在
     const unifiedStore = localStorage.getItem('wenpai-unified-store');
     if (unifiedStore) {
       const storeData = JSON.parse(unifiedStore);
-      console.log('✅ 统一状态存储已创建');
-      console.log(`📊 状态版本: ${storeData.state?.version || '未知'}`);
-      console.log(`🕐 最后更新: ${storeData.state?.lastUpdated || '未知'}`);
+      console.log('✅ 统一statestoragealreadycreating');
+      console.log(`📊 stateversion: ${storeData.state?.version || 'not知'}`);
+      console.log(`🕐 最nextupdating: ${storeData.state?.lastUpdated || 'not知'}`);
       
       // 检查各模块状态
       const modules = ['user', 'tokenUsage', 'theme', 'appSettings', 'favorites'];
       modules.forEach(module => {
         if (storeData.state?.[module]) {
-          console.log(`✅ ${module} 模块状态已迁移`);
+          console.log(`✅ ${module} modulestatealready迁移`);
         } else {
-          console.log(`⚠️ ${module} 模块状态为空`);
+          console.log(`⚠️ ${module} modulestateis empty`);
         }
       });
       
       return true;
     } else {
-      console.error('❌ 统一状态存储未找到');
+      console.error('❌ 统一statestoragenot found');
       return false;
     }
   } catch (error) {
-    console.error('❌ 验证迁移结果时发生错误:', error);
+    console.error('❌ validating迁移result时发生error:', error);
     return false;
   }
 }
@@ -173,15 +173,15 @@ function generateMigrationReport() {
     // 保存报告到文件（如果需要）
     try {
       localStorage.setItem('wenpai-migration-report', JSON.stringify(report));
-      console.log('💾 迁移报告已保存到 localStorage');
+      console.log('💾 迁移报告saved到 localStorage');
     } catch (error) {
-      console.warn('⚠️ 无法保存迁移报告:', error);
+      console.warn('⚠️ none法saving迁移报告:', error);
     }
 
     return report;
 
   } catch (error) {
-    console.error('❌ 生成迁移报告时发生错误:', error);
+    console.error('❌ 生成迁移报告时发生error:', error);
     report.success = false;
     return report;
   }
@@ -191,8 +191,8 @@ function generateMigrationReport() {
  * 主执行函数
  */
 async function main() {
-  console.log('🎯 状态管理统一迁移工具');
-  console.log('版本: 1.0.0');
+  console.log('🎯 state管理统一迁移工具');
+  console.log('version: 1.0.0');
   console.log('遵循: CLAUDE.md 架构治理规范');
   console.log('时间:', new Date().toISOString());
   console.log('='.repeat(60));
@@ -208,26 +208,26 @@ async function main() {
     const report = generateMigrationReport();
 
     if (validationSuccess && report.success) {
-      console.log('\n🎉 状态管理统一迁移全部完成！');
-      console.log('🎯 系统现在使用单一数据源 (SSOT) 架构');
-      console.log('📚 详细文档请参考: /src/stores/unified-state-store.ts');
+      console.log('\n🎉 state管理统一迁移全部completed！');
+      console.log('🎯 系统现在使用单一data源 (SSOT) 架构');
+      console.log('📚 详细documentation请参考: /src/stores/unified-state-store.ts');
     } else {
-      console.log('\n⚠️ 迁移过程存在问题，请检查日志');
+      console.log('\n⚠️ 迁移过程exists问题，请checking日志');
     }
   } else {
-    console.log('\n❌ 迁移失败，请检查错误信息');
+    console.log('\n❌ 迁移failed，请checkingerrorinfo');
   }
 }
 
 // 仅在直接运行时执行
 if (typeof window !== 'undefined' && window.location) {
   // 浏览器环境中的执行逻辑
-  console.log('🌐 在浏览器环境中执行迁移');
+  console.log('🌐 在浏览器环境middleexecuting迁移');
   
   // 可以通过控制台手动执行
   (window as any).executeStateMigration = main;
   
-  console.log('💡 提示: 可以在控制台中运行 executeStateMigration() 来执行迁移');
+  console.log('💡 hint: 可以在控制台middlerunning executeStateMigration() 来executing迁移');
 }
 
 export default main;

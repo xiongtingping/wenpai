@@ -160,7 +160,7 @@ export const preventDevToolsModification = (): void => {
         // 如果权限禁用类被移除，重新添加
         if (element.classList.contains('permission-guard-overlay') && 
             !element.classList.contains('permission-disabled')) {
-          console.warn('⚠️ 权限守卫：检测到尝试绕过权限限制');
+          console.warn('⚠️ permissionguard：detecting到尝试绕过permissionlimiting');
           element.classList.add('permission-disabled');
         }
       }

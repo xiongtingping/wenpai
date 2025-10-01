@@ -42,7 +42,7 @@ export async function getAllEmojis(): Promise<EmojiItem[]> {
     const { getAllEmojis: getUnifiedEmojis } = await import('@/services/unifiedEmojiSystem');
     return getUnifiedEmojis().map(convertToLegacyFormat);
   } catch (error) {
-    console.error('获取所有emoji失败:', error);
+    console.error('getting所hasemojifailed:', error);
     return [];
   }
 }
@@ -70,7 +70,7 @@ export async function getEmojisByCategory(category: string): Promise<EmojiItem[]
     const mappedCategory = categoryMap[category] || category;
     return getUnifiedEmojisByCategory(mappedCategory).map(convertToLegacyFormat);
   } catch (error) {
-    console.error('按分类获取emoji失败:', error);
+    console.error('按categorygettingemojifailed:', error);
     return [];
   }
 }
@@ -83,7 +83,7 @@ export async function searchEmojis(keyword: string): Promise<EmojiItem[]> {
     const { searchEmojis: searchUnifiedEmojis } = await import('@/services/unifiedEmojiSystem');
     return searchUnifiedEmojis(keyword).map(convertToLegacyFormat);
   } catch (error) {
-    console.error('搜索emoji失败:', error);
+    console.error('searchingemojifailed:', error);
     return [];
   }
 }
@@ -106,7 +106,7 @@ export async function getPopularEmojis(): Promise<EmojiItem[]> {
     
     return popularEmojis.slice(0, 20);
   } catch (error) {
-    console.error('获取热门emoji失败:', error);
+    console.error('getting热门emojifailed:', error);
     return [];
   }
 }
@@ -196,7 +196,7 @@ export async function getRandomEmojis(count: number = 5): Promise<EmojiItem[]> {
     const { getRandomEmojis: getUnifiedRandomEmojis } = await import('@/services/unifiedEmojiSystem');
     return getUnifiedRandomEmojis(count).map(convertToLegacyFormat);
   } catch (error) {
-    console.error('获取随机emoji失败:', error);
+    console.error('getting随机emojifailed:', error);
     return [];
   }
 }
@@ -230,7 +230,7 @@ export async function getEmojisByMood(mood: string): Promise<EmojiItem[]> {
     
     return uniqueResults.slice(0, 10);
   } catch (error) {
-    console.error('根据心情获取emoji失败:', error);
+    console.error('root据心情gettingemojifailed:', error);
     return [];
   }
 }
@@ -244,7 +244,7 @@ export async function getEmojiUnicode(unified: string): Promise<string> {
     const emoji = allEmojis.find(e => e.unified === unified);
     return emoji?.emoji || '';
   } catch (error) {
-    console.error('获取emoji Unicode失败:', error);
+    console.error('fetchingemoji Unicodefailed:', error);
     return '';
   }
 }

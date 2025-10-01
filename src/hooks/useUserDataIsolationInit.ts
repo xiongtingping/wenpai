@@ -47,7 +47,7 @@ export function useUserDataIsolationInit(config: UserDataIsolationInitConfig = {
     const userId = user?.id || null;
     
     if (enableLogging) {
-      console.log(`🔄 用户数据隔离初始化: ${userId || 'guest'}`);
+      console.log(`🔄 userdata隔离initialization: ${userId || 'guest'}`);
     }
 
     // 设置支付服务的当前用户
@@ -59,7 +59,7 @@ export function useUserDataIsolationInit(config: UserDataIsolationInitConfig = {
     if (!userId && autoCleanupOnLogout) {
       // 这里可以添加清理逻辑，但要谨慎使用
       if (enableLogging) {
-        console.log('🧹 用户登出，考虑清理访客数据');
+        console.log('🧹 user登出，考虑cleaning访客data');
       }
     }
 
@@ -105,10 +105,10 @@ export function useUserDataIsolationInit(config: UserDataIsolationInitConfig = {
       });
       
       if (enableLogging) {
-        console.log('📊 用户数据统计:', stats);
+        console.log('📊 userdata统计:', stats);
       }
     } catch (error) {
-      console.error('❌ 获取用户数据统计失败:', error);
+      console.error('❌ gettinguserdata统计failed:', error);
     }
     
     return stats;
@@ -131,7 +131,7 @@ export function useUserDataIsolationInit(config: UserDataIsolationInitConfig = {
           migratedCount++;
           
           if (enableLogging) {
-            console.log(`📦 数据迁移: ${oldKey} -> ${newKey}`);
+            console.log(`📦 data迁移: ${oldKey} -> ${newKey}`);
           }
         }
       });
@@ -140,7 +140,7 @@ export function useUserDataIsolationInit(config: UserDataIsolationInitConfig = {
         logger.debug('✅ 数据迁移完成: ${migratedCount} 项');
       }
     } catch (error) {
-      console.error('❌ 数据迁移失败:', error);
+      console.error('❌ data迁移failed:', error);
     }
 
     return migratedCount;
@@ -207,10 +207,10 @@ export const userDataIsolationUtils = {
       });
 
       if (orphanKeys.length > 0) {
-        console.warn('⚠️ 发现孤儿数据:', orphanKeys);
+        console.warn('⚠️ 发现孤儿data:', orphanKeys);
       }
     } catch (error) {
-      console.error('❌ 检查孤儿数据失败:', error);
+      console.error('❌ checking孤儿datafailed:', error);
     }
 
     return orphanKeys;
@@ -260,14 +260,14 @@ export const userDataIsolationUtils = {
       });
 
       if (!isValid) {
-        console.error('❌ 用户数据隔离验证失败:', issues);
+        console.error('❌ userdata隔离validatingfailed:', issues);
       } else {
         logger.debug('✅ 用户数据隔离验证通过');
       }
 
       return isValid;
     } catch (error) {
-      console.error('❌ 验证用户数据隔离失败:', error);
+      console.error('❌ validatinguserdata隔离failed:', error);
       return false;
     }
   }

@@ -138,7 +138,7 @@ export const useAuthStore = create<AuthState>()(
         // 更新最大使用次数（根据订阅状态）
         updateMaxUsage: (newMaxUsage: number) => set((state) => {
           const newUsageRemaining = computeUsageRemaining(state.usageCount, newMaxUsage);
-          console.log('🔄 AuthStore更新使用次数限制:', {
+          console.log('🔄 AuthStoreupdating使用countlimiting:', {
             oldMaxUsage: state.maxUsage,
             newMaxUsage,
             usageCount: state.usageCount,
@@ -168,7 +168,7 @@ export const useAuthStore = create<AuthState>()(
           
           (globalThis as any).__authStoreRecordFrame = requestAnimationFrame(() => {
             try {
-              console.log('📊 用户操作记录:', action);
+              console.log('📊 user操作记录:', action);
               set((state) => ({
                 userActions: [...state.userActions.slice(-99), action] // 只保留最近100条记录
               }));
@@ -178,13 +178,13 @@ export const useAuthStore = create<AuthState>()(
           });
         } catch (error) {
           // 降级到同步处理，确保功能稳定性
-          console.warn('recordUserAction防抖失败，使用同步处理:', error);
+          console.warn('recordUserAction防抖failed，使用syncprocessing:', error);
           try {
             set((state) => ({
               userActions: [...state.userActions.slice(-99), action]
             }));
           } catch (syncError) {
-            console.error('recordUserAction同步处理也失败:', syncError);
+            console.error('recordUserActionsyncprocessing也failed:', syncError);
           }
         }
       },
@@ -208,7 +208,7 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           inviteClicks: state.inviteClicks + 1
         }));
-        console.log('邀请链接点击追踪');
+        console.log('邀请link点击追踪');
       },
 
       // ✅ 获取推荐人信息

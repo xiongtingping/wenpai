@@ -554,7 +554,7 @@ const getHotTopicsAPI = (): HotTopicsAPI => {
     try {
       hotTopicsAPIInstance = HotTopicsAPI.getInstance();
     } catch (error) {
-      console.error('❌ HotTopicsAPI初始化失败:', error);
+      console.error('❌ HotTopicsAPIinitializationfailed:', error);
       throw error;
     }
   }
@@ -566,7 +566,7 @@ const hotTopicsAPI = (() => {
   try {
     return getHotTopicsAPI();
   } catch (error) {
-    console.error('❌ HotTopicsAPI获取失败:', error);
+    console.error('❌ HotTopicsAPIfetchingfailed:', error);
     // 返回安全的备用实现
     return {
       getDailyHotAll: () => Promise.resolve({

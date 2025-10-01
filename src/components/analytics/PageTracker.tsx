@@ -48,7 +48,7 @@ const PageTracker: React.FC<PageTrackerProps> = ({
           localStorage.setItem('page_visits', JSON.stringify(visits.slice(-100))); // 保留最近100条
         }
       } catch (error) {
-        console.warn('📊 PageTracker: 本地记录失败', error);
+        console.warn('📊 PageTracker: local记录failed', error);
       }
     }, 100);
 
@@ -64,7 +64,7 @@ const PageTracker: React.FC<PageTrackerProps> = ({
           visits.push({ action: `pageLeave:${location.pathname}:${duration}ms`, timestamp: Date.now() });
           localStorage.setItem('page_visits', JSON.stringify(visits.slice(-100)));
         } catch (error) {
-          console.warn('📊 PageTracker: 页面离开记录失败', error);
+          console.warn('📊 PageTracker: page离开记录failed', error);
         }
       }
     };

@@ -196,7 +196,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
           setStats(getEmojiStats());
         }
       } catch (error) {
-        console.error('初始化Emoji数据失败:', error);
+        console.error('initializationEmojidatafailed:', error);
       }
     };
 
@@ -326,7 +326,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
 
       setDisplayEmojis(emojis);
     } catch (error) {
-      console.error('更新显示Emoji失败:', error);
+      console.error('updatingdisplayEmojifailed:', error);
     }
   };
 
@@ -354,7 +354,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         const subs = getSubcategories(category as any);
         setSubcategories(subs);
       } catch (error) {
-        console.error('加载子分类失败:', error);
+        console.error('loadingchildcategoryfailed:', error);
         setSubcategories([]);
       }
     } else {
@@ -406,7 +406,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
           .map(([k]) => k);
         setChipKeywords(top);
       } catch (error) {
-        console.error('加载关键词失败:', error);
+        console.error('loading关key词failed:', error);
       }
     };
     
@@ -512,7 +512,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         duration: 3000,
       });
     } catch (error) {
-      console.error('复制失败:', error);
+      console.error('copyingfailed:', error);
       // 回退方案：创建临时文本区域
       try {
         const textArea = document.createElement('textarea');
@@ -533,7 +533,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
           duration: 3000,
         });
       } catch (fallbackError) {
-        console.error('备用复制方案也失败:', fallbackError);
+        console.error('备用copying方案也failed:', fallbackError);
 
         // 更详细的错误提示
         toast({
@@ -617,7 +617,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         duration: 4000,
       });
     } catch (error) {
-      console.error('随机选择失败:', error);
+      console.error('随机选择failed:', error);
       toast({
         title: t('components.labels.随机选择失败'),
         description: "生成随机emoji时出现错误，请稍后重试",

@@ -120,7 +120,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
 
       return items;
     } catch (error) {
-      console.error('获取品牌库内容失败:', error);
+      console.error('getting品牌库contentfailed:', error);
       return [];
     }
   }
@@ -160,7 +160,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
 
       return items;
     } catch (error) {
-      console.error('获取资料库内容失败:', error);
+      console.error('getting资料库contentfailed:', error);
       return [];
     }
   }
@@ -201,7 +201,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
       
       return items;
     } catch (error) {
-      console.error('获取雷达收藏内容失败:', error);
+      console.error('getting雷达收藏contentfailed:', error);
       return [];
     }
   }
@@ -366,7 +366,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
    */
   clearCache(): void {
     this.cache.clear();
-    console.log('快速引用数据缓存已清除');
+    console.log('快速引用datacachealreadyclearing');
   }
 
   /**

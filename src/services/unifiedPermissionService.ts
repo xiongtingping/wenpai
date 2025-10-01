@@ -297,7 +297,7 @@ export class UnifiedPermissionService {
     const config = UNIFIED_PERMISSION_CONFIGS[permissionType];
     
     if (!config) {
-      throw new Error(`未找到权限配置: ${permissionType}`);
+      throw new Error(`not foundpermissionconfiguration: ${permissionType}`);
     }
 
     const userTier = getUserTier(user);
@@ -355,7 +355,7 @@ export class UnifiedPermissionService {
           };
         }
       } catch (error) {
-        console.warn('服务器端权限验证失败，使用本地结果:', error);
+        console.warn('server端permissionvalidatingfailed，使用localresult:', error);
         // 如果服务器验证失败，降级到本地验证但标记为未验证
         return {
           ...localResult,
@@ -424,7 +424,7 @@ export class UnifiedPermissionService {
   static getPermissionConfig(permissionType: ExtendedPermissionType): PermissionConfig {
     const config = UNIFIED_PERMISSION_CONFIGS[permissionType];
     if (!config) {
-      throw new Error(`未找到权限配置: ${permissionType}`);
+      throw new Error(`not foundpermissionconfiguration: ${permissionType}`);
     }
     return config;
   }
@@ -539,7 +539,7 @@ export class EnhancedUnifiedPermissionService extends UnifiedPermissionService {
       // 进行服务器端验证（通过依赖注入）
       const serverPermissionService = ServiceContainer.getServerPermissionService();
       if (!serverPermissionService) {
-        console.warn('⚠️ ServerPermissionService未注入，跳过服务器端验证');
+        console.warn('⚠️ ServerPermissionServicenot注入，skippingserver端validating');
         return {
           ...frontendResult,
           serverVerified: false
@@ -559,14 +559,14 @@ export class EnhancedUnifiedPermissionService extends UnifiedPermissionService {
         };
       } else {
         // 服务器验证失败，使用前端结果但标记未验证
-        console.warn('⚠️ 服务器端权限验证失败，使用前端结果');
+        console.warn('⚠️ server端permissionvalidatingfailed，使用frontendresult');
         return {
           ...frontendResult,
           serverVerified: false
         };
       }
     } catch (error) {
-      console.error('❌ 服务器端权限验证错误:', error);
+      console.error('❌ server端permissionvalidatingerror:', error);
       return {
         ...frontendResult,
         serverVerified: false
@@ -637,7 +637,7 @@ export const useEnhancedPermissionCheck = (
       EnhancedUnifiedPermissionService.checkPermissionSecure(user, permissionType)
         .then(setResult)
         .catch(error => {
-          console.error('❌ 增强权限检查失败:', error);
+          console.error('❌ 增强permissioncheckingfailed:', error);
           setResult(prev => ({ ...prev, serverVerified: false }));
         });
     } else {

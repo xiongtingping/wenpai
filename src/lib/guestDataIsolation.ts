@@ -40,7 +40,7 @@ export class GuestDataIsolationManager {
   private initializeGuestSession(): void {
     // 检查是否可以访问 localStorage
     if (!this.isStorageAvailable()) {
-      console.warn('⚠️ localStorage 不可用，跳过访客会话初始化');
+      console.warn('⚠️ localStorage unavailable，skipping访客sessioninitialization');
       return;
     }
 
@@ -51,7 +51,7 @@ export class GuestDataIsolationManager {
       this.currentSessionId = existingSession.sessionId;
       this.sessionData = existingSession;
       this.updateLastActivity();
-      console.log(`👤 恢复访客会话: ${this.currentSessionId}`);
+      console.log(`👤 restoring访客session: ${this.currentSessionId}`);
     } else {
       // 创建新会话
       this.createNewGuestSession();
@@ -77,7 +77,7 @@ export class GuestDataIsolationManager {
    */
   private createNewGuestSession(): void {
     if (!this.isStorageAvailable()) {
-      console.warn('⚠️ localStorage 不可用，使用内存会话');
+      console.warn('⚠️ localStorage unavailable，使用inner存session');
       this.currentSessionId = this.generateUniqueSessionId();
       this.sessionData = {
         sessionId: this.currentSessionId,
@@ -86,7 +86,7 @@ export class GuestDataIsolationManager {
         userAgent: navigator.userAgent,
         fingerprint: this.generateBrowserFingerprint()
       };
-      console.log(`👤 创建新访客会话(内存): ${this.currentSessionId}`);
+      console.log(`👤 creatingnew访客session(inner存): ${this.currentSessionId}`);
       return;
     }
 
@@ -100,7 +100,7 @@ export class GuestDataIsolationManager {
     };
 
     this.saveGuestSession();
-    console.log(`👤 创建新访客会话: ${this.currentSessionId}`);
+    console.log(`👤 creatingnew访客session: ${this.currentSessionId}`);
   }
 
   /**
@@ -147,7 +147,7 @@ export class GuestDataIsolationManager {
       const sessionKey = 'wenpai:guest:session_info';
       localStorage.setItem(sessionKey, JSON.stringify(this.sessionData));
     } catch (error) {
-      console.warn('保存访客会话失败:', error);
+      console.warn('saving访客sessionfailed:', error);
     }
   }
 
@@ -164,7 +164,7 @@ export class GuestDataIsolationManager {
       const data = localStorage.getItem(sessionKey);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error('加载访客会话失败:', error);
+      console.error('loading访客sessionfailed:', error);
       return null;
     }
   }
@@ -219,7 +219,7 @@ export class GuestDataIsolationManager {
    */
   setGuestData<T>(module: string, data: T, subModule?: string): void {
     if (!this.isStorageAvailable()) {
-      console.warn('⚠️ localStorage 不可用，无法保存访客数据');
+      console.warn('⚠️ localStorage unavailable，none法saving访客data');
       return;
     }
 
@@ -227,9 +227,9 @@ export class GuestDataIsolationManager {
       const key = this.getGuestDataKey(module, subModule);
       localStorage.setItem(key, JSON.stringify(data));
       this.updateLastActivity();
-      console.log(`💾 访客数据已保存: ${module}${subModule ? ':' + subModule : ''}`);
+      console.log(`💾 访客datasaved: ${module}${subModule ? ':' + subModule : ''}`);
     } catch (error) {
-      console.warn('保存访客数据失败:', error);
+      console.warn('saving访客datafailed:', error);
     }
   }
 
@@ -247,7 +247,7 @@ export class GuestDataIsolationManager {
       this.updateLastActivity();
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error('获取访客数据失败:', error);
+      console.error('getting访客datafailed:', error);
       return null;
     }
   }
@@ -296,15 +296,15 @@ export class GuestDataIsolationManager {
             cleanedCount++;
           });
           
-          console.log(`🧹 清理过期访客会话: ${sessionId}`);
+          console.log(`🧹 cleaningexpired访客session: ${sessionId}`);
         }
       } catch (error) {
-        console.error(`清理访客会话失败: ${key}`, error);
+        console.error(`cleaning访客sessionfailed: ${key}`, error);
       }
     });
 
     if (cleanedCount > 0) {
-      console.log(`✅ 清理了 ${cleanedCount} 个过期访客数据项`);
+      console.log(`✅ cleaning了 ${cleanedCount} unitsexpired访客dataitem`);
     }
     
     return cleanedCount;
@@ -342,17 +342,17 @@ export class GuestDataIsolationManager {
           localStorage.removeItem(guestKey);
           
           migratedCount++;
-          console.log(`📦 访客数据迁移: ${parsed.module} -> 用户 ${userId}`);
+          console.log(`📦 访客data迁移: ${parsed.module} -> user ${userId}`);
         }
       } catch (error) {
-        console.error(`访客数据迁移失败: ${guestKey}`, error);
+        console.error(`访客data迁移failed: ${guestKey}`, error);
       }
     });
     
     // 清理访客会话信息
     this.clearCurrentGuestData();
     
-    console.log(`✅ 访客数据迁移完成，迁移了 ${migratedCount} 项数据`);
+    console.log(`✅ 访客data迁移completed，迁移了 ${migratedCount} itemdata`);
     return migratedCount;
   }
 

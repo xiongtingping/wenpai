@@ -613,7 +613,7 @@ export function CreativeCube() {
       const result = historyDataManager.loadData<CreativeResult[]>();
       if (result.success && result.data) {
         setGeneratedIdeas(result.data);
-        console.log(`📚 已加载${result.data.length}条创意历史记录`);
+        console.log(`📚 alreadyloading${result.data.length}items创意历史记录`);
       }
     };
 
@@ -644,7 +644,7 @@ export function CreativeCube() {
         const hiddenItems = result.data.hiddenItems || {};
         if (hiddenItems && typeof hiddenItems === 'object') {
           setHiddenItems(hiddenItems);
-          console.log(`🙈 已加载用户隐藏的选项:`, hiddenItems);
+          console.log(`🙈 alreadyloadinguserhidden的option:`, hiddenItems);
         }
       }
     };
@@ -658,7 +658,7 @@ export function CreativeCube() {
       const result = pinnedItemsManager.loadData<Record<string, string[]>>();
       if (result.success && result.data) {
         setPinnedItems(result.data);
-        console.log(`📌 已加载用户钉住的选项:`, result.data);
+        console.log(`📌 alreadyloadinguser钉住的option:`, result.data);
       }
     };
 
@@ -791,7 +791,7 @@ export function CreativeCube() {
     };
 
     customDimensionsManager.saveData(updatedData);
-    console.log(`💾 已{t('creativeCube.actions.save')}自定义维度选项: ${dimensionId} -> ${item}`);
+    console.log(`💾 already{t('creativeCube.actions.save')}custom维度option: ${dimensionId} -> ${item}`);
 
     toast({
       title: "自定义选项已{t('creativeCube.actions.save')}",
@@ -868,7 +868,7 @@ export function CreativeCube() {
         [dimensionId]: [...(prev[dimensionId] || []), item]
       }));
 
-      console.log(`🗑️ 已隐藏默认选项: ${dimensionId} -> ${item}`);
+      console.log(`🗑️ alreadyhiddendefaultoption: ${dimensionId} -> ${item}`);
 
       toast({
         title: "选项已删除",
@@ -906,7 +906,7 @@ export function CreativeCube() {
       };
 
       customDimensionsManager.saveData(updatedData);
-      console.log(`🗑️ 已删除自定义选项: ${dimensionId} -> ${item}`);
+      console.log(`🗑️ deletedcustomoption: ${dimensionId} -> ${item}`);
 
       toast({
         title: "自定义选项已删除",
@@ -1009,7 +1009,7 @@ export function CreativeCube() {
 
       // 持久化存储
       pinnedItemsManager.saveData(updated);
-      console.log(`📌 已钉住选项: ${dimensionId} -> ${item}`);
+      console.log(`📌 already钉住option: ${dimensionId} -> ${item}`);
 
       return updated;
     });
@@ -1038,7 +1038,7 @@ export function CreativeCube() {
 
       // 持久化存储
       pinnedItemsManager.saveData(updated);
-      console.log(`📌 已{t('creativeCube.actions.cancel')}钉住选项: ${dimensionId} -> ${item}`);
+      console.log(`📌 already{t('creativeCube.actions.cancel')}钉住option: ${dimensionId} -> ${item}`);
 
       return updated;
     });
@@ -1078,25 +1078,25 @@ export function CreativeCube() {
     // 确保必选维度总是被包含
     const coreRequiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
 
-    console.log('🎲 开始随机选择，当前选择的维度数量:', selectedDimensionCount);
-    console.log('🎲 当前固定的维度:', Array.from(pinnedDimensions));
-    console.log('🎲 可用的dimensions数组:', dimensions.map(d => ({ id: d.id, name: d.name, itemCount: d.defaultItems.length })));
+    console.log('🎲 starts随机选择，current选择的维度quantity:', selectedDimensionCount);
+    console.log('🎲 current固定的维度:', Array.from(pinnedDimensions));
+    console.log('🎲 available的dimensionsarray:', dimensions.map(d => ({ id: d.id, name: d.name, itemCount: d.defaultItems.length })));
 
     // 直接构建维度选择，确保包含所有必选维度
     const selectedDimensionIds: string[] = [...coreRequiredDimensions];
-    console.log('🎲 首先添加必选维度:', selectedDimensionIds);
+    console.log('🎲 first先adding必选维度:', selectedDimensionIds);
 
     // 添加已固定的维度（如果不在必选维度中）
     pinnedDimensions.forEach(pinnedDim => {
       if (!selectedDimensionIds.includes(pinnedDim)) {
         selectedDimensionIds.push(pinnedDim);
-        console.log('🎲 添加固定维度:', pinnedDim);
+        console.log('🎲 adding固定维度:', pinnedDim);
       }
     });
 
     // 获取所有可用的维度ID
     const allDimensionIds = dimensions.map(d => d.id);
-    console.log('🎲 所有可用维度:', allDimensionIds);
+    console.log('🎲 所hasavailable维度:', allDimensionIds);
 
     // 添加其他维度直到达到目标数量
     const remainingDimensions = allDimensionIds.filter(dimId =>
@@ -1118,30 +1118,30 @@ export function CreativeCube() {
       // 如果维度已固定，保持原值
       if (pinnedDimensions.has(dimId) && selectedItems[dimId]) {
         newSelection[dimId] = selectedItems[dimId];
-        console.log('🎲 保持固定维度值:', dimId, '=', selectedItems[dimId]);
+        console.log('🎲 保持固定维度value:', dimId, '=', selectedItems[dimId]);
         return;
       }
 
       const dimension = dimensions.find(d => d.id === dimId);
-      console.log('🎲 查找维度:', dimId, '找到:', dimension ? `${dimension.name} (${dimension.defaultItems.length}项)` : '未找到');
+      console.log('🎲 find维度:', dimId, '找到:', dimension ? `${dimension.name} (${dimension.defaultItems.length}项)` : '未找到');
 
       if (dimension && dimension.defaultItems.length > 0) {
         const cubeItems = cubeData[dimId] || [];
         const items = cubeItems.length > 0 ? cubeItems : dimension.defaultItems;
-        console.log('🎲 可选项:', dimId, '自定义项:', cubeItems.length, '默认项:', dimension.defaultItems.length, '使用:', items.length);
-        console.log('🎲 具体选项:', items);
+        console.log('🎲 可option:', dimId, '自定义项:', cubeItems.length, '默认项:', dimension.defaultItems.length, '使用:', items.length);
+        console.log('🎲 具体option:', items);
 
         const randomIndex = Math.floor(Math.random() * items.length);
         const selectedValue = items[randomIndex];
         newSelection[dimId] = selectedValue;
-        console.log('🎲 随机选择维度值:', dimId, '=', selectedValue, '(索引:', randomIndex, ')');
+        console.log('🎲 随机选择维度value:', dimId, '=', selectedValue, '(索引:', randomIndex, ')');
       } else {
-        console.log('🎲 警告：维度没有可选项:', dimId, '维度对象:', dimension);
+        console.log('🎲 warning：维度没has可option:', dimId, '维度对象:', dimension);
       }
     });
 
-    console.log('🎲 最终选择结果:', newSelection);
-    console.log('🎲 检查必选维度是否都有值:');
+    console.log('🎲 最终选择result:', newSelection);
+    console.log('🎲 checking必选维度是否都hasvalue:');
     coreRequiredDimensions.forEach(dim => {
       console.log(`  ${dim}:`, newSelection[dim] || '❌ 缺失');
     });
@@ -1161,7 +1161,7 @@ export function CreativeCube() {
 
     // 使用 setTimeout 确保状态更新后再生成
     setTimeout(() => {
-      console.log('🎲 准备生成内容，传入的选择:', newSelection);
+      console.log('🎲 准备生成content，传入的选择:', newSelection);
       generateIdea(newSelection);
     }, 100);
   };
@@ -1861,7 +1861,7 @@ ${generateStandardCallToAction()}
       const contentType = isVideo ? 'video' : 'text';
       
       // 调用统一AI服务操作
-      console.log('🎨 开始调用统一AI创意生成服务');
+      console.log('🎨 starts调用统一AI创意生成service');
       
       // 构建创意生成提示词
       const creativityPrompt = `请为以下维度操作：
@@ -1913,7 +1913,7 @@ ${generateStandardCallToAction()}
 
         // 持久化到用户专属存储
         historyDataManager.saveData(updatedIdeas);
-        console.log(`💾 已{t('creativeCube.actions.save')}创意记录到用户存储: ${historyDataManager.getStorageKey()}`);
+        console.log(`💾 already{t('creativeCube.actions.save')}创意记录到userstorage: ${historyDataManager.getStorageKey()}`);
         
         toast({
           title: "生成成功",
@@ -2017,7 +2017,7 @@ ${generateStandardCallToAction()}
         }
       ];
     } catch (error) {
-      console.error('解析视频脚本失败:', error);
+      console.error('parsingvideo脚本failed:', error);
       return [];
     }
   };

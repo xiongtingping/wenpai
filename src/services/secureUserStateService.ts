@@ -53,13 +53,13 @@ export class SecureUserStateService {
 
       // 使用真正的AES加密
       const encryptedData = await SecureEncryption.encrypt(data);
-      console.log('🔐 用户状态数据加密成功');
+      console.log('🔐 userstatedataencryptingsuccess');
       return encryptedData;
 
     } catch (error) {
-      console.error('❌ 用户状态加密失败:', error);
+      console.error('❌ userstateencryptingfailed:', error);
       // 🔒 安全修复：加密失败时抛出错误，而不是返回原始数据
-      throw new Error('用户状态加密失败');
+      throw new Error('userstateencryptingfailed');
     }
   }
 
@@ -74,13 +74,13 @@ export class SecureUserStateService {
 
       // 使用真正的AES解密
       const decryptedData = await SecureEncryption.decrypt(encryptedData);
-      console.log('🔓 用户状态数据解密成功');
+      console.log('🔓 userstatedatadecryptingsuccess');
       return decryptedData;
 
     } catch (error) {
-      console.error('❌ 用户状态解密失败:', error);
+      console.error('❌ userstatedecryptingfailed:', error);
       // 🔒 安全修复：解密失败时抛出错误，提高安全性
-      throw new Error('用户状态解密失败');
+      throw new Error('userstatedecryptingfailed');
     }
   }
 
@@ -91,7 +91,7 @@ export class SecureUserStateService {
     try {
       return await SecureEncryption.generateChecksum(data);
     } catch (error) {
-      console.error('❌ 校验和生成失败:', error);
+      console.error('❌ 校验和生成failed:', error);
       throw new Error('校验和生成失败');
     }
   }
@@ -103,7 +103,7 @@ export class SecureUserStateService {
     try {
       return await SecureEncryption.verifyChecksum(data, expectedChecksum);
     } catch (error) {
-      console.error('❌ 校验和验证失败:', error);
+      console.error('❌ 校验和validatingfailed:', error);
       return false;
     }
   }
@@ -114,7 +114,7 @@ export class SecureUserStateService {
   static async storeUserState(user: SessionUserInfo): Promise<boolean> {
     try {
       if (!user || !user.id) {
-        console.warn('⚠️ 无效的用户数据，跳过存储');
+        console.warn('⚠️ invalid的userdata，skippingstorage');
         return false;
       }
 
@@ -139,7 +139,7 @@ export class SecureUserStateService {
       // 🔒 安全修复：移除明文备用存储，保持数据一致性
       // 仅保留加密存储，提高安全性
       
-      console.log('🔒 用户状态已安全存储:', { 
+      console.log('🔒 userstatealready安全storage:', { 
         userId: user.id, 
         expiresAt: new Date(expiresAt).toISOString(),
         encrypted: true 
@@ -151,16 +151,16 @@ export class SecureUserStateService {
       return true;
 
     } catch (error) {
-      console.error('❌ 安全存储用户状态失败:', error);
+      console.error('❌ 安全storageuserstatefailed:', error);
       
       // 🔒 降级处理：仅在开发环境下提供明文备用存储
       if (import.meta.env.DEV) {
-        console.warn('⚠️ 开发环境：使用明文备用存储');
+        console.warn('⚠️ 开发环境：使用明文备用storage');
         try {
           localStorage.setItem('authing_user', JSON.stringify(user));
           return true;
         } catch (fallbackError) {
-          console.error('❌ 备用存储也失败:', fallbackError);
+          console.error('❌ 备用storage也failed:', fallbackError);
         }
       }
       
@@ -184,7 +184,7 @@ export class SecureUserStateService {
       // 验证状态有效性
       const validation = this.validateUserState(secureState);
       if (!validation.isValid) {
-        console.warn('⚠️ 用户状态验证失败:', validation.reason);
+        console.warn('⚠️ userstatevalidatingfailed:', validation.reason);
         this.clearUserState();
         return null;
       }
@@ -194,13 +194,13 @@ export class SecureUserStateService {
       try {
         decryptedData = await this.decrypt(secureState.encryptedData);
         if (!decryptedData) {
-          throw new Error('解密结果为空');
+          throw new Error('decryptingresultis empty');
         }
       } catch (decryptError) {
-        console.error('❌ 用户状态解密失败:', decryptError);
+        console.error('❌ userstatedecryptingfailed:', decryptError);
 
         // 🔄 尝试从备用存储恢复
-        console.log('🔄 尝试从备用存储恢复用户状态...');
+        console.log('🔄 尝试从备用storagerestoringuserstate...');
         const legacyUser = await this.getUserStateFromLegacy();
         if (legacyUser) {
           // 重新加密存储
@@ -222,8 +222,8 @@ export class SecureUserStateService {
           throw new Error('用户数据结构无效');
         }
       } catch (parseError) {
-        console.error('❌ 用户状态JSON解析失败:', parseError);
-        console.log('🔍 解密后的数据预览:', decryptedData.substring(0, 100) + '...');
+        console.error('❌ userstateJSONparsingfailed:', parseError);
+        console.log('🔍 decryptingnext的datapreview:', decryptedData.substring(0, 100) + '...');
         this.clearUserState();
         return null;
       }
@@ -231,12 +231,12 @@ export class SecureUserStateService {
       // 🔒 验证SHA-256校验和
       const checksumValid = await this.verifyChecksum(decryptedData, secureState.checksum);
       if (!checksumValid) {
-        console.error('❌ 用户状态校验和验证失败，数据可能被篡改');
+        console.error('❌ userstate校验和validatingfailed，data可能被篡改');
         this.clearUserState();
         return null;
       }
 
-      console.log('✅ 安全读取用户状态成功:', {
+      console.log('✅ 安全readinguserstatesuccess:', {
         userId: userData.id,
         encrypted: true,
         checksumVerified: true
@@ -244,7 +244,7 @@ export class SecureUserStateService {
       return userData;
 
     } catch (error) {
-      console.error('❌ 安全读取用户状态失败:', error);
+      console.error('❌ 安全readinguserstatefailed:', error);
       this.clearUserState();
       return null;
     }
@@ -258,7 +258,7 @@ export class SecureUserStateService {
       const legacyUser = localStorage.getItem('authing_user');
       if (legacyUser) {
         const userData = JSON.parse(legacyUser);
-        console.log('📦 从传统存储获取用户状态:', { userId: userData.id });
+        console.log('📦 从传统storagegettinguserstate:', { userId: userData.id });
         
         // 🔒 异步迁移到安全存储
         try {
@@ -266,17 +266,17 @@ export class SecureUserStateService {
           if (migrationSuccess) {
             // 迁移成功后清除明文存储
             localStorage.removeItem('authing_user');
-            console.log('✅ 用户状态已迁移到安全存储');
+            console.log('✅ userstatealready迁移到安全storage');
           }
         } catch (migrationError) {
-          console.warn('⚠️ 用户状态迁移失败:', migrationError);
+          console.warn('⚠️ userstate迁移failed:', migrationError);
         }
         
         return userData;
       }
       return null;
     } catch (error) {
-      console.warn('⚠️ 传统用户状态读取失败:', error);
+      console.warn('⚠️ 传统userstatereadingfailed:', error);
       return null;
     }
   }
@@ -327,7 +327,7 @@ export class SecureUserStateService {
     try {
       const currentUser = await this.getUserState();
       if (!currentUser) {
-        console.warn('⚠️ 当前无用户状态，无法更新');
+        console.warn('⚠️ currentnoneuserstate，none法updating');
         return false;
       }
 
@@ -335,7 +335,7 @@ export class SecureUserStateService {
       return await this.storeUserState(updatedUser);
 
     } catch (error) {
-      console.error('❌ 更新用户状态失败:', error);
+      console.error('❌ updatinguserstatefailed:', error);
       return false;
     }
   }
@@ -352,10 +352,10 @@ export class SecureUserStateService {
 
       this.stopValidationTimer();
 
-      console.log('🧹 用户状态已清除');
+      console.log('🧹 userstatealreadyclearing');
 
     } catch (error) {
-      console.error('❌ 清除用户状态失败:', error);
+      console.error('❌ clearinguserstatefailed:', error);
     }
   }
 
@@ -364,7 +364,7 @@ export class SecureUserStateService {
    */
   static async repairCorruptedUserState(): Promise<boolean> {
     try {
-      console.log('🔧 开始修复损坏的用户状态数据...');
+      console.log('🔧 startsfixing损坏的userstatedata...');
 
       // 清除当前损坏的数据
       this.clearUserState();
@@ -372,16 +372,16 @@ export class SecureUserStateService {
       // 尝试从sessionStorage恢复Token
       const tokenData = sessionStorage.getItem('auth_token_encrypted');
       if (tokenData) {
-        console.log('🔄 发现sessionStorage中的Token，尝试恢复用户状态...');
+        console.log('🔄 发现sessionStoragemiddle的Token，尝试restoringuserstate...');
         // 这里可以添加从Token恢复用户信息的逻辑
         return true;
       }
 
-      console.log('⚠️ 无法自动修复用户状态，需要重新登录');
+      console.log('⚠️ none法自动fixinguserstate，需要relogin');
       return false;
 
     } catch (error) {
-      console.error('❌ 修复用户状态失败:', error);
+      console.error('❌ fixinguserstatefailed:', error);
       return false;
     }
   }
@@ -402,17 +402,17 @@ export class SecureUserStateService {
     try {
       const currentUser = await this.getUserState();
       if (!currentUser) {
-        console.warn('⚠️ 无当前用户状态，无法刷新');
+        console.warn('⚠️ nonecurrentuserstate，none法refreshing');
         return false;
       }
 
       // 这里应该调用服务器API验证用户状态
       // 暂时直接延长有效期
-      console.log('🔄 刷新用户状态:', { userId: currentUser.id });
+      console.log('🔄 refreshinguserstate:', { userId: currentUser.id });
       return await this.storeUserState(currentUser);
 
     } catch (error) {
-      console.error('❌ 刷新用户状态失败:', error);
+      console.error('❌ refreshinguserstatefailed:', error);
       return false;
     }
   }
@@ -436,7 +436,7 @@ export class SecureUserStateService {
       try {
         const user = await this.getUserState();
         if (!user) {
-          console.log('🕐 定时验证：用户状态已失效，停止验证');
+          console.log('🕐 定时validating：userstatealready失效，stoppingvalidating');
           this.stopValidationTimer();
           return;
         }
@@ -448,17 +448,17 @@ export class SecureUserStateService {
           const validation = this.validateUserState(state);
           
           if (validation.shouldRefresh) {
-            console.log('🔄 定时验证：需要刷新用户状态');
+            console.log('🔄 定时validating：需要refreshinguserstate');
             await this.refreshUserState();
           }
         }
 
       } catch (error) {
-        console.error('❌ 定时状态验证失败:', error);
+        console.error('❌ 定时statevalidatingfailed:', error);
       }
     }, this.VALIDATION_INTERVAL);
 
-    console.log('🕐 用户状态验证定时器已启动');
+    console.log('🕐 userstatevalidating定时器alreadystarting');
   }
 
   /**
@@ -468,7 +468,7 @@ export class SecureUserStateService {
     if (this.validationTimer) {
       clearInterval(this.validationTimer);
       this.validationTimer = null;
-      console.log('🛑 用户状态验证定时器已停止');
+      console.log('🛑 userstatevalidating定时器alreadystopping');
     }
   }
 

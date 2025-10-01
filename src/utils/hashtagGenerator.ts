@@ -669,7 +669,7 @@ export class HashtagGenerator {
       return [];
     }
 
-    console.log('🏷️ 为智能标签生成话题标签:', content.substring(0, 50));
+    console.log('🏷️ 为智能tag生成话题tag:', content.substring(0, 50));
 
     // 生成话题标签
     const topicTags = this.generateTopicTags(content);
@@ -1142,7 +1142,7 @@ export class HashtagGenerator {
       usageCount: this.getUserTagUsageCount(platformId, userId) + 1
     };
     localStorage.setItem(storageKey, JSON.stringify(preferences));
-    console.log(`💾 用户标签偏好已保存: ${storageKey}`, preferences);
+    console.log(`💾 usertag偏好saved: ${storageKey}`, preferences);
   }
 
   /**
@@ -1166,7 +1166,7 @@ export class HashtagGenerator {
         const preferences = JSON.parse(stored);
         return preferences.usageCount || 0;
       } catch (error) {
-        console.error(`❌ 解析用户标签偏好失败: ${storageKey}`, error);
+        console.error(`❌ parsingusertag偏好failed: ${storageKey}`, error);
         return 0;
       }
     }
@@ -1184,7 +1184,7 @@ export class HashtagGenerator {
         const preferences = JSON.parse(stored);
         return preferences.tags || [];
       } catch (error) {
-        console.error(`❌ 解析用户标签偏好失败: ${storageKey}`, error);
+        console.error(`❌ parsingusertag偏好failed: ${storageKey}`, error);
         return [];
       }
     }
@@ -1210,7 +1210,7 @@ export class HashtagGenerator {
         });
         results[platformId] = hashtags;
       } catch (error) {
-        console.error(`生成${platformId}标签失败:`, error);
+        console.error(`生成${platformId}tagfailed:`, error);
         results[platformId] = [];
       }
     }
@@ -1236,7 +1236,7 @@ export class HashtagGenerator {
 
       logger.debug('✅ 清理用户标签数据完成: ${userId}, 清理了 ${cleanedCount} 项');
     } catch (error) {
-      console.error(`❌ 清理用户标签数据失败: ${userId}`, error);
+      console.error(`❌ cleaningusertagdatafailed: ${userId}`, error);
     }
 
     return cleanedCount;

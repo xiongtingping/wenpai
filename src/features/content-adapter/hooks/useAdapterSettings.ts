@@ -348,7 +348,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
         setSelectedModel(settingsData.selectedModel || 'google/gemini-2.5-flash-lite-preview');
       }
     } catch (error) {
-      console.error('加载设置失败:', error);
+      console.error('loadingsettingfailed:', error);
       toast({
         title: 'u64cdu4f5cu5931u8d25',
         description: "将使用默认设置",

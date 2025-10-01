@@ -631,7 +631,7 @@ export class UnifiedStorageStrategy {
 
   private async saveToDatabase<T>(key: string, data: T, config: DataConfig): Promise<StorageResult<T>> {
     if (!this.userId) {
-      throw new Error('未设置用户ID');
+      throw new Error('notsettinguserID');
     }
 
     try {

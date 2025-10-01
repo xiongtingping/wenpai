@@ -195,14 +195,14 @@ export function ContentAdapterPage({
       // 🔧 FIX: 对于premium用户，优先保持无限制状态，避免闪烁到10
       if (cachedUsageRemaining === -1 && effectiveUsageRemaining > 0 && effectiveUserTier === 'premium') {
         // premium用户保持无限制，不更新为有限制值
-        console.log('🔧 阻止premium用户闪烁到有限制值:', effectiveUsageRemaining);
+        console.log('🔧 阻止premiumuser闪烁到haslimitingvalue:', effectiveUsageRemaining);
         return;
       }
       
       // 延迟更新，避免闪烁
       const timeoutId = setTimeout(() => {
         setCachedUsageRemaining(effectiveUsageRemaining);
-        // console.log('🔄 更新缓存的剩余次数:', { from: cachedUsageRemaining, to: effectiveUsageRemaining, tier: effectiveUserTier });
+        // console.log('🔄 updatingcache的剩余count:', { from: cachedUsageRemaining, to: effectiveUsageRemaining, tier: effectiveUserTier });
       }, 100);
       
       return () => clearTimeout(timeoutId);
@@ -244,10 +244,10 @@ export function ContentAdapterPage({
 
   // 保存到历史记录 - 移动到Hook使用之前
   const saveToHistory = React.useCallback((results: any[]) => {
-    console.log('🔍 保存历史记录:', { userId: user?.id, isAuthenticated, resultsCount: results.length });
+    console.log('🔍 saving历史记录:', { userId: user?.id, isAuthenticated, resultsCount: results.length });
     const result = historyDataManager.loadData<unknown[]>();
     let list: unknown[] = result.data || [];
-    console.log('🔍 当前历史记录数量:', list.length);
+    console.log('🔍 current历史记录quantity:', list.length);
 
     const now = new Date().toISOString();
     results.forEach(r => {
@@ -266,7 +266,7 @@ export function ContentAdapterPage({
     }
 
     historyDataManager.saveData(list);
-    console.log('✅ 历史记录已保存，新数量:', list.length);
+    console.log('✅ 历史记录saved，newquantity:', list.length);
   }, [historyDataManager, user?.id, isAuthenticated]);
 
   // 使用内容生成引擎Hook
@@ -419,7 +419,7 @@ export function ContentAdapterPage({
 
           // 🔧 FIX: 立即更新最大使用次数，避免状态闪烁
           if (newMaxUsage !== maxUsage) {
-            console.log('🔄 更新使用次数限制:', {
+            console.log('🔄 updating使用countlimiting:', {
               currentTier: calculatedTier,
               oldMaxUsage: maxUsage,
               newMaxUsage,
@@ -442,7 +442,7 @@ export function ContentAdapterPage({
     let paymentTimeoutId: NodeJS.Timeout | null = null;
 
     const handlePaymentSuccess = () => {
-      console.log('🎉 收到支付成功事件，刷新使用次数状态');
+      console.log('🎉 收到支付successevent，refreshing使用countstate');
       // 强制刷新订阅状态
       refreshSubscription();
       // 延迟刷新
@@ -452,7 +452,7 @@ export function ContentAdapterPage({
     };
 
     const handleSubscriptionUpdated = (event: CustomEvent) => {
-      console.log('🔄 收到订阅更新事件，刷新使用次数状态', event.detail);
+      console.log('🔄 收到subscribingupdatingevent，refreshing使用countstate', event.detail);
       refreshSubscription();
     };
 
@@ -474,7 +474,7 @@ export function ContentAdapterPage({
 
   // 备用方案：如果没有获取到模型，使用默认的体验版模型
   if (!accessibleModels || accessibleModels.length === 0) {
-    console.warn('⚠️ 未获取到模型数据，使用默认体验版模型');
+    console.warn('⚠️ notgetting到模型data，使用default体验版模型');
     accessibleModels = getAvailableModelsForTier('trial');
   }
 
@@ -485,7 +485,7 @@ export function ContentAdapterPage({
   }));
 
   // 调试信息
-  // console.log('🔍 ContentAdapterPage - 模型数据调试:', {
+  // console.log('🔍 ContentAdapterPage - 模型datadebugging:', {
   //   effectiveUserTier,
   //   availableModelsCount: availableModels.length,
   //   sampleModels: availableModels.slice(0, 3).map(m => ({
@@ -512,7 +512,7 @@ export function ContentAdapterPage({
     // 🔧 FIX: 使用缓存的剩余次数，避免数据闪烁
     // 如果剩余次数为0或负数，阻止生成
     if (cachedUsageRemaining <= 0 && maxUsage !== -1) {
-      console.log('❌ 使用次数已用完，阻止生成');
+      console.log('❌ 使用countalready用完，阻止生成');
       toast({
         title: t('adapt.errors.usageExhausted'),
         description: t('adapt.messages.upgradeRequired'),
@@ -523,7 +523,7 @@ export function ContentAdapterPage({
 
     // 如果剩余次数较少（1-3次），显示提醒但允许继续生成
     if (cachedUsageRemaining <= 3 && cachedUsageRemaining > 0 && maxUsage !== -1) {
-      console.log('⚠️ 使用次数较少，显示提醒但允许生成');
+      console.log('⚠️ 使用count较少，display提醒但allowing生成');
       toast({
         title: t('adapt.errors.usageLow'),
         description: t("adapt.messages.usageReminder", { count: cachedUsageRemaining }),
@@ -532,7 +532,7 @@ export function ContentAdapterPage({
       // 不阻止生成，只是提醒
     }
 
-    console.log('✅ 使用次数检查通过');
+    console.log('✅ 使用countchecking通过');
     return true;
   };
 
@@ -556,9 +556,9 @@ export function ContentAdapterPage({
     try {
       const { incrementUsage } = useAuthStore.getState();
       incrementUsage();
-      console.log('✅ 使用次数已扣减，剩余:', Math.max(0, maxUsage - (usageCount + 1)));
+      console.log('✅ 使用countalready扣减，剩余:', Math.max(0, maxUsage - (usageCount + 1)));
     } catch (error) {
-      console.error('❌ 扣减使用次数失败:', error);
+      console.error('❌ 扣减使用countfailed:', error);
     }
 
     const request = {
@@ -713,7 +713,7 @@ export function ContentAdapterPage({
         );
 
         const favoriteId = favoritesStore.addFavorite(favoriteItem);
-        console.log('🔍 添加收藏:', { favoriteId, userId: user.id, platformId, versionId });
+        console.log('🔍 adding收藏:', { favoriteId, userId: user.id, platformId, versionId });
 
         // 同时保存到本地存储（向后兼容）
         const favoritesResult = favoritesDataManager.loadData();

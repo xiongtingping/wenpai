@@ -40,7 +40,7 @@ class PaymentStatusService {
    */
   setCurrentUser(userId: string | null): void {
     this.currentUserId = userId;
-    console.log(`🔑 支付服务用户切换: ${userId || 'guest'}`);
+    console.log(`🔑 支付serviceuser切换: ${userId || 'guest'}`);
   }
 
   /**
@@ -99,9 +99,9 @@ class PaymentStatusService {
       // 添加到历史记录
       this.addToHistory(paymentData);
       
-      console.log('支付状态已保存:', paymentData);
+      console.log('支付statesaved:', paymentData);
     } catch (error) {
-      console.error('保存支付状态失败:', error);
+      console.error('saving支付statefailed:', error);
     }
   }
 
@@ -113,7 +113,7 @@ class PaymentStatusService {
       const allPayments = this.getAllPaymentStatuses();
       return allPayments[checkoutId] || null;
     } catch (error) {
-      console.error('获取支付状态失败:', error);
+      console.error('getting支付statefailed:', error);
       return null;
     }
   }
@@ -127,7 +127,7 @@ class PaymentStatusService {
       const data = secureStorage.getItem<Record<string, PaymentStatusData>>(this.getStorageKey('status'), true);
       return data || {};
     } catch (error) {
-      console.error('获取所有支付状态失败:', error);
+      console.error('getting所has支付statefailed:', error);
       return {};
     }
   }
@@ -141,9 +141,9 @@ class PaymentStatusService {
       delete allPayments[checkoutId];
       // 
       secureStorage.setItem(this.getStorageKey('status'), allPayments, true);
-      console.log('支付状态已删除:', checkoutId);
+      console.log('支付statedeleted:', checkoutId);
     } catch (error) {
-      console.error('删除支付状态失败:', error);
+      console.error('deleting支付statefailed:', error);
     }
   }
 
@@ -170,10 +170,10 @@ class PaymentStatusService {
       if (cleanedCount > 0) {
         // 
       secureStorage.setItem(this.getStorageKey('status'), allPayments, true);
-        console.log(`已清理 ${cleanedCount} 个过期的支付状态`);
+        console.log(`alreadycleaning ${cleanedCount} unitsexpired的支付state`);
       }
     } catch (error) {
-      console.error('清理过期支付状态失败:', error);
+      console.error('cleaningexpired支付statefailed:', error);
     }
   }
 
@@ -194,7 +194,7 @@ class PaymentStatusService {
                payment.status !== 'expired';
       });
     } catch (error) {
-      console.error('获取活跃支付状态失败:', error);
+      console.error('getting活跃支付statefailed:', error);
       return [];
     }
   }
@@ -212,9 +212,9 @@ class PaymentStatusService {
       
       // 
       secureStorage.setItem(this.getStorageKey('config'), newConfig, true);
-      console.log('支付配置已保存:', newConfig);
+      console.log('支付configurationsaved:', newConfig);
     } catch (error) {
-      console.error('保存支付配置失败:', error);
+      console.error('saving支付configurationfailed:', error);
     }
   }
 
@@ -229,7 +229,7 @@ class PaymentStatusService {
         return data;
       }
     } catch (error) {
-      console.error('获取支付配置失败:', error);
+      console.error('getting支付configurationfailed:', error);
     }
     
     // 返回默认配置
@@ -264,7 +264,7 @@ class PaymentStatusService {
       // 
       secureStorage.setItem(this.getStorageKey('history'), history, true);
     } catch (error) {
-      console.error('添加到历史记录失败:', error);
+      console.error('adding到历史记录failed:', error);
     }
   }
 
@@ -277,7 +277,7 @@ class PaymentStatusService {
       const data = secureStorage.getItem<Array<PaymentStatusData & { id: string }>>(this.getStorageKey('history'), true);
       return data || [];
     } catch (error) {
-      console.error('获取支付历史失败:', error);
+      console.error('getting支付历史failed:', error);
       return [];
     }
   }
@@ -289,9 +289,9 @@ class PaymentStatusService {
     try {
       // 
       secureStorage.removeItem(this.getStorageKey('history'));
-      console.log('支付历史已清理');
+      console.log('支付历史alreadycleaning');
     } catch (error) {
-      console.error('清理支付历史失败:', error);
+      console.error('cleaning支付历史failed:', error);
     }
   }
 
@@ -336,7 +336,7 @@ class PaymentStatusService {
       
       return stats;
     } catch (error) {
-      console.error('获取支付统计失败:', error);
+      console.error('getting支付统计failed:', error);
       return {
         total: 0,
         paid: 0,
@@ -362,7 +362,7 @@ class PaymentStatusService {
       
       return JSON.stringify(data, null, 2);
     } catch (error) {
-      console.error('导出支付数据失败:', error);
+      console.error('exporting支付datafailed:', error);
       return '';
     }
   }
@@ -390,10 +390,10 @@ class PaymentStatusService {
         secureStorage.setItem(this.getStorageKey('history'), parsedData.history, true);
       }
       
-      console.log('支付数据导入成功');
+      console.log('支付dataimportingsuccess');
       return true;
     } catch (error) {
-      console.error('导入支付数据失败:', error);
+      console.error('importing支付datafailed:', error);
       return false;
     }
   }
@@ -408,9 +408,9 @@ class PaymentStatusService {
       secureStorage.removeItem(this.getStorageKey('config'));
       // 
       secureStorage.removeItem(this.getStorageKey('history'));
-      console.log('所有支付数据已重置');
+      console.log('所has支付dataalreadyresetting');
     } catch (error) {
-      console.error('重置支付数据失败:', error);
+      console.error('resetting支付datafailed:', error);
     }
   }
 
@@ -432,7 +432,7 @@ class PaymentStatusService {
 
       logger.debug('✅ 清理用户支付数据完成: ${userId}, 清理了 ${cleanedCount} 项');
     } catch (error) {
-      console.error(`❌ 清理用户支付数据失败: ${userId}`, error);
+      console.error(`❌ cleaninguser支付datafailed: ${userId}`, error);
     }
 
     return cleanedCount;

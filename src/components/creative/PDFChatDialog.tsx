@@ -145,12 +145,12 @@ export function PDFChatDialog({
    */
   const sendMessage = async () => {
     logger.system('🚀 sendMessage 被调用');
-    console.log('📝 输入值:', inputValue);
-    console.log('📄 选中文档:', selectedDocument?.name);
-    console.log('⏳ 加载状态:', isLoading);
+    console.log('📝 inputvalue:', inputValue);
+    console.log('📄 选middledocumentation:', selectedDocument?.name);
+    console.log('⏳ loadingstate:', isLoading);
 
     if (!inputValue.trim() || isLoading || !selectedDocument) {
-      console.log('❌ 发送条件不满足，退出');
+      console.log('❌ sendingcondition不full足，退出');
       return;
     }
 
@@ -177,17 +177,17 @@ export function PDFChatDialog({
 
     try {
       // ✅ FIXED: 直接调用AI服务，使用统一提示词系统
-      console.log('🤖 开始调用PDF对话AI服务');
-      console.log('📄 文档名称:', selectedDocument.name);
-      console.log('📝 文档内容长度:', selectedDocument.content.length);
-      console.log('❓ 用户问题:', inputValue);
+      console.log('🤖 starts调用PDF对话AIservice');
+      console.log('📄 documentationname:', selectedDocument.name);
+      console.log('📝 documentationcontentlength:', selectedDocument.content.length);
+      console.log('❓ user问题:', inputValue);
 
       const response = await callPDFChat({
         prompt: inputValue,
         documentContent: selectedDocument.content
       });
 
-      console.log('🤖 PDF对话AI服务响应:', response);
+      console.log('🤖 PDF对话AIserviceresponse:', response);
 
       if (response.success) {
         let content = '';
@@ -214,7 +214,7 @@ export function PDFChatDialog({
         throw new Error(response.error || 'AI服务响应失败');
       }
     } catch (error) {
-      console.error('发送消息失败:', error);
+      console.error('sendingmessagefailed:', error);
       
       // 更新错误消息
       setMessages(prev => prev.map(msg => 
@@ -248,24 +248,24 @@ export function PDFChatDialog({
    * 开始新对话
    */
   const startNewChat = () => {
-    console.log('🔄 开始新对话被点击');
-    console.log('📝 当前消息数量:', messages.length);
-    console.log('📄 选中文档:', selectedDocument?.name);
+    console.log('🔄 startsnew对话被点击');
+    console.log('📝 currentmessagequantity:', messages.length);
+    console.log('📄 选middledocumentation:', selectedDocument?.name);
 
     // 保存当前对话历史
     if (messages.length > 1) {
       setChatHistory(prev => [...prev, messages.slice(1)]);
-      console.log('💾 保存了对话历史');
+      console.log('💾 saving了对话历史');
     }
 
     // 清空当前消息
     setMessages([]);
-    console.log('🗑️ 清空了当前消息');
+    console.log('🗑️ 清empty了currentmessage');
 
     // 创建新的对话ID
     const newChatId = `chat_${Date.now()}`;
     setCurrentChatId(newChatId);
-    console.log('🆔 创建新对话ID:', newChatId);
+    console.log('🆔 creatingnew对话ID:', newChatId);
 
     // 重新初始化欢迎消息
     if (selectedDocument) {
@@ -290,7 +290,7 @@ export function PDFChatDialog({
       setMessages([welcomeMessage]);
       logger.debug('✅ 重新初始化欢迎消息');
     } else {
-      console.log('❌ 没有选中文档，无法初始化欢迎消息');
+      console.log('❌ 没has选middledocumentation，none法initialization欢迎message');
     }
   };
 

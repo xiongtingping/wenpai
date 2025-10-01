@@ -3,12 +3,12 @@
  * 通过预加载服务和控制初始化顺序彻底解决问题
  */
 
-// console.log('🔥 main.tsx 开始加载...');
+// console.log('🔥 main.tsx startsloading...');
 window.__MAIN_TSX_LOADED__ = true;
 
-// console.log('🔥 Step 1: 开始导入CSS...');
+// console.log('🔥 Step 1: startsimportingCSS...');
 import './index.css';
-// console.log('✅ Step 1: CSS导入完成');
+// console.log('✅ Step 1: CSSimportingcompleted');
 // 🎯 生产环境只保留核心样式和必要的修复
 // 调试脚本已在开发中禁用以减少控制台噪音
 
@@ -19,7 +19,7 @@ import './index.css';
 
 // 🧹 已清理全局滚动检测器调试代码
 // 🔧 CRITICAL: 模块加载状态检查
-console.log('🔥 Step 2: 开始导入i18n...');
+console.log('🔥 Step 2: startsimportingi18n...');
 
 // 🔧 CRITICAL: 全局i18n设置 - 解决i18n TDZ错误
 import i18n from './i18n';
@@ -27,18 +27,18 @@ import i18n from './i18n';
 (globalThis as any).i18n = i18n;
 (window as any).i18n = i18n;
 
-console.log('🔥 Step 3: 开始导入React...');
+console.log('🔥 Step 3: startsimportingReact...');
 
 import React from 'react';
 
-// console.log('🔥 Step 4: 开始导入ReactDOM...');
+// console.log('🔥 Step 4: startsimportingReactDOM...');
 import ReactDOM from 'react-dom/client';
 
-// console.log('🔥 Step 5: 开始导入BrowserRouter...');
+// console.log('🔥 Step 5: startsimportingBrowserRouter...');
 import { BrowserRouter } from 'react-router-dom';
-// console.log('🔥 Step 6: 开始导入App组件...');
+// console.log('🔥 Step 6: startsimportingAppcomponent...');
 import App from './App.tsx';
-// console.log('✅ Step 6: 所有核心模块导入完成');
+// console.log('✅ Step 6: 所has核心moduleimportingcompleted');
 // 🚀 性能优化：仅导入必要的核心服务
 // import { setupGlobalErrorHandler } from './utils/errorHandler'; // 改为动态导入避免TDZ
 import ServiceInitializer from './services/serviceInitializer';
@@ -107,19 +107,19 @@ if (import.meta.env.DEV) {
 
 // 🚀 快速启动应用 - 性能优化
 async function initializeApplication() {
-  // console.log('🚀 initializeApplication 函数开始执行...');
+  // console.log('🚀 initializeApplication functionstartsexecuting...');
   try {
     // 仅初始化必要的错误处理 - 使用动态导入避免TDZ
     const { setupGlobalErrorHandler } = await import('./utils/errorHandler');
     setupGlobalErrorHandler();
 
     // 🚀 尝试初始化服务依赖，失败时优雅降级
-    console.log('🔧 正在初始化服务依赖...');
+    console.log('🔧 isinitializationservice依赖...');
     try {
       await ServiceInitializer.initialize();
-      console.log('✅ 服务依赖初始化完成');
+      console.log('✅ Service dependencies initialized');
     } catch (error) {
-      console.warn('⚠️ 服务初始化失败，继续启动应用:', error);
+      console.warn('⚠️ Service initialization failed，resumingstarting应用:', error);
     }
 
     // 立即启动React应用 - 其他服务按需加载
@@ -137,7 +137,7 @@ async function initializeApplication() {
       </React.StrictMode>
     );
 
-    // console.log('🎉 应用快速启动完成！');
+    // console.log('🎉 应用快速startingcompleted！');
     
     // 🔧 确保HTML检测能发现应用已启动
     setTimeout(() => {
@@ -159,19 +159,19 @@ async function initializeApplication() {
       root.style.visibility = 'visible';
       root.style.opacity = '1';
       
-      console.log('🎯 Root元素aria-hidden已清理，确保事件正常执行');
+      console.log('🎯 Root元素aria-hiddenalreadycleaning，确保eventnormalexecuting');
       
       // 🔥 关键：重写setAttribute方法，彻底阻止aria-hidden被设置
       const originalSetAttribute = root.setAttribute.bind(root);
       root.setAttribute = function(name: string, value: string) {
         if (name === 'aria-hidden' || name === 'data-aria-hidden') {
-          console.log('🚫 阻止设置root元素的aria-hidden属性:', { name, value });
+          console.log('🚫 阻止settingroot元素的aria-hiddenproperty:', { name, value });
           return; // 直接阻止设置
         }
         return originalSetAttribute(name, value);
       };
       
-      console.log('✅ Root元素setAttribute已重写，aria-hidden设置已被永久阻止');
+      console.log('✅ Root元素setAttributealready重写，aria-hiddensettingalready被permanent阻止');
     };
 
     // 🔧 创建高性能的 MutationObserver 监控根元素属性变化
@@ -195,7 +195,7 @@ async function initializeApplication() {
           requestAnimationFrame(() => {
             root.removeAttribute('aria-hidden');
             root.removeAttribute('data-aria-hidden');
-            console.log('🚫 已移除根元素aria-hidden属性');
+            console.log('🚫 alreadyremovingroot元素aria-hiddenproperty');
           });
         }
       };
@@ -225,7 +225,7 @@ async function initializeApplication() {
         subtree: false
       });
 
-      console.log('✅ 已启动高性能aria-hidden管理器');
+      console.log('✅ alreadystarting高性能aria-hiddenmanager');
 
       return {
         disconnect: () => {
@@ -273,15 +273,15 @@ async function initializeApplication() {
       // 🧹 已清理所有dialogFixer相关代码
     });
 
-    console.log('✅ 应用启动成功 - Authing Guard aria-hidden 阻止器已激活');
+    console.log('✅ 应用startingsuccess - Authing Guard aria-hidden 阻止器alreadyactivating');
 
     // 🧹 已清理全局Dialog定位修复器调试代码
 
   } catch (error) {
-    console.error('💥 应用初始化失败:', error);
+    console.error('💥 应用initializationfailed:', error);
     
     // 优雅降级：即使服务预加载失败，仍尝试启动应用
-    console.warn('⚠️ 尝试优雅降级启动...');
+    console.warn('⚠️ 尝试优雅降级starting...');
     const root = ReactDOM.createRoot(document.getElementById('root')!);
     root.render(
       <React.StrictMode>
@@ -305,7 +305,7 @@ window.addEventListener('unhandledrejection', (event) => {
   // 检查是否是Authing Guard相关的网络错误
   if (error?.message?.includes('Failed to fetch') &&
       (error?.stack?.includes('authing') || error?.stack?.includes('guard'))) {
-    console.warn('🔧 捕获Guard网络错误，静默处理:', error.message);
+    console.warn('🔧 捕获Guard网络error，静默processing:', error.message);
     event.preventDefault(); // 阻止错误显示在控制台
     return;
   }
@@ -314,7 +314,7 @@ window.addEventListener('unhandledrejection', (event) => {
   if (error?.message?.includes('Failed to fetch') &&
       (error?.stack?.includes('public-config') ||
        error?.stack?.includes('getPublicConfig'))) {
-    console.warn('🔧 捕获Guard public-config错误，静默处理');
+    console.warn('🔧 捕获Guard public-configerror，静默processing');
     event.preventDefault(); // 阻止错误显示在控制台
     return;
   }
@@ -323,7 +323,7 @@ window.addEventListener('unhandledrejection', (event) => {
 // 🔧 启动应用初始化流程
 // console.log('🔥 准备调用 initializeApplication...');
 initializeApplication().catch(error => {
-  console.error('💥 应用初始化失败:', error);
+  console.error('💥 应用initializationfailed:', error);
   
   // 即使初始化失败也要启动应用（优雅降级）
   try {
@@ -340,8 +340,8 @@ initializeApplication().catch(error => {
         </BrowserRouter>
       </React.StrictMode>
     );
-    console.log('⚠️ 应用已优雅降级启动');
+    console.log('⚠️ 应用already优雅降级starting');
   } catch (fallbackError) {
-    console.error('💥💥 应用完全启动失败:', fallbackError);
+    console.error('💥💥 应用完全startingfailed:', fallbackError);
   }
 });

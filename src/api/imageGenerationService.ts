@@ -57,7 +57,7 @@ export async function generateImage(params: ImageGenerationRequest): Promise<Ima
 
     return data;
   } catch (error) {
-    console.error('图像生成API调用失败:', error);
+    console.error('graph像生成API调用failed:', error);
     return {
       success: false,
       error: 'u64cdu4f5cu5931u8d25',
@@ -112,7 +112,7 @@ export async function checkImageGenerationStatus(): Promise<boolean> {
 
     return !!(data && (data as any).success && (data as any).available);
   } catch (error) {
-    console.error('图像生成API状态检查失败:', error);
+    console.error('graph像生成APIstatecheckingfailed:', error);
     return false;
   }
 }
@@ -136,7 +136,7 @@ export async function downloadImage(imageUrl: string, filename: string = 'genera
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('图像下载失败:', error);
+    console.error('graph像downloadingfailed:', error);
     throw new Error('u64cdu4f5cu5931u8d25');
   }
 }

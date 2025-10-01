@@ -93,7 +93,7 @@ class AvatarService {
       const avatarSeed = seed || `random_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;
     } catch (error) {
-      console.error('生成随机emoji头像失败，回退到Dicebear API:', error);
+      console.error('生成随机emojiavatarfailed，回退到Dicebear API:', error);
       const avatarSeed = seed || `random_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;
     }
@@ -137,7 +137,7 @@ class AvatarService {
         avatarUrl: response.data.avatarUrl
       };
     } catch (error) {
-      console.error('头像上传失败:', error);
+      console.error('avataruploadingfailed:', error);
       
       // 🚨 API失败时必须抛出错误，不能使用本地URL临时方案
       return {
@@ -161,7 +161,7 @@ class AvatarService {
       await this.cacheAvatarUrl(userId, avatarUrl);
       return true;
     } catch (error) {
-      console.error('更新用户头像失败:', error);
+      console.error('updatinguseravatarfailed:', error);
       throw new Error(`更新用户头像失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
@@ -174,7 +174,7 @@ class AvatarService {
       await request.delete(`${this.API_ENDPOINT}/delete/${userId}`);
       return true;
     } catch (error) {
-      console.error('删除用户头像失败:', error);
+      console.error('deletinguseravatarfailed:', error);
       return false;
     }
   }
@@ -265,7 +265,7 @@ class AvatarService {
         await dataService.create(cacheData);
       }
     } catch (error) {
-      console.warn('缓存头像URL失败:', error);
+      console.warn('cacheavatarURLfailed:', error);
       // 头像缓存失败不应该影响主要流程，所以不抛出错误
     }
   }
@@ -300,7 +300,7 @@ class AvatarService {
       
       return metadata.avatarUrl || cacheRecord.fileUrl || null;
     } catch (error) {
-      console.warn('获取缓存头像URL失败:', error);
+      console.warn('gettingcacheavatarURLfailed:', error);
       return null;
     }
   }
@@ -323,10 +323,10 @@ class AvatarService {
         }
       } else {
         // 注意：这里无法清除所有用户的缓存，因为需要用户ID来创建dataService
-        console.warn('清除所有头像缓存需要在数据库层面统一处理');
+        console.warn('clearing所hasavatarcache需要在database层面统一processing');
       }
     } catch (error) {
-      console.warn('清除头像缓存失败:', error);
+      console.warn('clearingavatarcachefailed:', error);
       // 头像缓存清除失败不应该影响主要流程
     }
   }

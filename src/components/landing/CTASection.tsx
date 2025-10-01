@@ -11,34 +11,34 @@ export function CTASection() {
 
   const handleButtonClick = async () => {
     try {
-      console.log('=== CTA按钮点击事件开始 ===');
-      console.log('CTA按钮被点击');
-      console.log('当前认证状态:', isAuthenticated);
-      console.log('login函数类型:', typeof login);
-      console.log('navigate函数类型:', typeof navigate);
+      console.log('=== CTAbutton点击eventstarts ===');
+      console.log('CTAbutton被点击');
+      console.log('currentauthenticatingstate:', isAuthenticated);
+      console.log('loginfunctiontype:', typeof login);
+      console.log('navigatefunctiontype:', typeof navigate);
       
       // 修复跳转逻辑：跳转到AI内容适配页面顶部
       if (isAuthenticated) {
-        console.log('用户已登录，跳转到AI内容适配页面');
+        console.log('useralreadylogin，跳转到AIcontent适配page');
         navigate('/content-adapter');
         // 页面加载后滚动到页面顶部
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 300);
       } else {
-        console.log('用户未登录，设置跳转目标并弹出登录弹窗');
+        console.log('usernotlogin，setting跳转目标并弹出loginpopup');
         localStorage.setItem('login_redirect_to', '/content-adapter');
         await login();
       }
       
-      console.log('=== CTA按钮点击事件完成 ===');
+      console.log('=== CTAbutton点击eventcompleted ===');
     } catch (error) {
-      console.error('CTA按钮点击事件出错:', error);
+      console.error('CTAbutton点击event出错:', error);
       // 备用方案：直接跳转
       try {
         window.location.href = '/content-adapter';
       } catch (fallbackError) {
-        console.error('备用跳转也失败:', fallbackError);
+        console.error('备用跳转也failed:', fallbackError);
       }
     }
   };

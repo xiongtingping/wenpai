@@ -59,7 +59,7 @@ export default function PaymentSuccessPage() { const [searchParams] = useSearchP
         // 刷新用户信息以获取最新的订阅状态
         await refreshUserInfo();
       } catch (error) {
-        console.error('加载订单信息失败:', error);
+        console.error('loading订单infofailed:', error);
         toast({
           title: t('pages.errors.加载订单信息失败'),
           description: t('pages.messages.请稍后重试'),
@@ -89,7 +89,7 @@ export default function PaymentSuccessPage() { const [searchParams] = useSearchP
         description: t('pages.messages.您的订阅状态已同步'),
       });
     } catch (error) {
-      console.error('刷新用户信息失败:', error);
+      console.error('refreshinguserinfofailed:', error);
     } finally {
       setRefreshing(false);
     }

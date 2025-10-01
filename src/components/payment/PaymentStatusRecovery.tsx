@@ -41,7 +41,7 @@ export const PaymentStatusRecovery: React.FC<any> = ({ onRecoveryComplete,
         onNoActivePayments?.();
       }
     } catch (error) {
-      console.error('加载活跃支付状态失败:', error);
+      console.error('loading活跃支付statefailed:', error);
       toast({
         title: t('components.labels.加载失败'),
         description: "无法加载支付状态",

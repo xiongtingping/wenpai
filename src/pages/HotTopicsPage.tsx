@@ -209,7 +209,7 @@ export default function HotTopicsPage() {
             closeButton.style.setProperty('opacity', '0.7', 'important');
           }
           
-          console.log('🎯 立即修复Dialog尺寸和关闭功能:', dialog.className);
+          console.log('🎯 立即fixingDialog尺寸和closingfeature:', dialog.className);
         });
       };
 
@@ -290,7 +290,7 @@ export default function HotTopicsPage() {
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '未知错误';
-      console.warn(`获取热点数据失败 (尝试 ${retryCount + 1}/${maxRetries + 1}):`, errorMessage);
+      console.warn(`getting热点datafailed (尝试 ${retryCount + 1}/${maxRetries + 1}):`, errorMessage);
       
       if (retryCount < maxRetries) {
         // 自动重试
@@ -419,7 +419,7 @@ export default function HotTopicsPage() {
         suggestedDescription: `监控关键词"${keyword}"的热点趋势和相关话题`
       });
     } catch (error) {
-      console.error('关键词分析失败:', error);
+      console.error('关key词analyzingfailed:', error);
     } finally {
       setIsAnalyzing(false);
     }
@@ -461,9 +461,9 @@ export default function HotTopicsPage() {
       setKeywordAnalysis(null);
       setIsAddDialogOpen(false);
 
-      console.log('订阅添加成功:', subscription);
+      console.log('subscribingaddingsuccess:', subscription);
     } catch (error) {
-      console.error('添加订阅失败:', error);
+      console.error('addingsubscribingfailed:', error);
       alert('添加订阅失败，请稍后重试');
     }
   }, [newSubscription]);
@@ -487,9 +487,9 @@ export default function HotTopicsPage() {
       setEditingSubscription(null);
       setIsEditDialogOpen(false);
 
-      console.log('订阅编辑成功:', editingSubscription);
+      console.log('subscribing编辑success:', editingSubscription);
     } catch (error) {
-      console.error('保存编辑失败:', error);
+      console.error('saving编辑failed:', error);
       alert('保存编辑失败，请稍后重试');
     }
   }, [editingSubscription]);
@@ -536,7 +536,7 @@ export default function HotTopicsPage() {
 
   // 🎯 Tab靠左显示 - 轻量级CSS修复验证
   useEffect(() => {
-    console.log('✅ HotTopicsPage已加载，Tab靠左修复依赖CSS');
+    console.log('✅ HotTopicsPagealreadyloading，Tab靠leftfixing依赖CSS');
   }, []);
 
   return (
@@ -556,13 +556,13 @@ export default function HotTopicsPage() {
         <Tabs 
           value={activeTab} 
           onValueChange={(value) => {
-            console.log('🎯 Radix UI onValueChange触发:', value);
-            console.log('🎯 当前activeTab:', activeTab);
+            console.log('🎯 Radix UI onValueChangetriggering:', value);
+            console.log('🎯 currentactiveTab:', activeTab);
             setActiveTab(value as 'hot' | 'subscriptions' | 'bookmarks');
             
             // 强制更新TabsContent显示
             setTimeout(() => {
-              console.log('🔄 Radix onValueChange - 强制更新TabsContent...');
+              console.log('🔄 Radix onValueChange - 强制updatingTabsContent...');
               document.querySelectorAll('[data-radix-tabs-content]').forEach(content => {
                 const cValue = content.getAttribute('value');
                 if (cValue === value) {
@@ -570,7 +570,7 @@ export default function HotTopicsPage() {
                   (content as HTMLElement).style.setProperty('visibility', 'visible', 'important');
                   (content as HTMLElement).style.setProperty('opacity', '1', 'important');
                   (content as HTMLElement).style.setProperty('background', 'rgba(0, 255, 0, 0.3)', 'important');
-                  console.log('✅ Radix强制显示内容:', cValue);
+                  console.log('✅ Radix强制displaycontent:', cValue);
                 } else {
                   (content as HTMLElement).style.setProperty('display', 'none', 'important');
                 }
@@ -627,7 +627,7 @@ export default function HotTopicsPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  console.log('🔧 HotTopicsPage 添加订阅按钮被点击');
+                  console.log('🔧 HotTopicsPage addingsubscribingbutton被点击');
                   setIsAddDialogOpen(true);
                 }}
                 className="action-button text-sm font-medium hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-200 cursor-pointer"
@@ -639,11 +639,11 @@ export default function HotTopicsPage() {
                   pointerEvents: 'auto'
                 }}
                 onMouseEnter={(e) => {
-                  console.log('🔧 鼠标进入HotTopicsPage添加订阅按钮');
+                  console.log('🔧 鼠标进入HotTopicsPageaddingsubscribingbutton');
                   e.currentTarget.style.transform = 'scale(1.05)';
                 }}
                 onMouseLeave={(e) => {
-                  console.log('🔧 鼠标离开HotTopicsPage添加订阅按钮');
+                  console.log('🔧 鼠标离开HotTopicsPageaddingsubscribingbutton');
                   e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
@@ -671,7 +671,7 @@ export default function HotTopicsPage() {
                 onDataUpdate={(hasNewData) => {
                   if (hasNewData) {
                     // 可选：当有新的RSSHub数据时触发刷新
-                    console.log('RSSHub数据已更新');
+                    console.log('RSSHubdataupdated');
                   }
                 }}
               />
@@ -960,7 +960,7 @@ export default function HotTopicsPage() {
                     </p>
                     <Button 
                       onClick={() => {
-                        console.log('🔧 HotTopicsPage 添加首个订阅按钮被点击');
+                        console.log('🔧 HotTopicsPage addingfirstunitssubscribingbutton被点击');
                         setIsAddDialogOpen(true);
                       }} 
                       className="font-medium hover:bg-primary-600 transition-all duration-200 cursor-pointer"
@@ -972,11 +972,11 @@ export default function HotTopicsPage() {
                         pointerEvents: 'auto'
                       }}
                       onMouseEnter={(e) => {
-                        console.log('🔧 鼠标进入添加首个订阅按钮');
+                        console.log('🔧 鼠标进入addingfirstunitssubscribingbutton');
                         e.currentTarget.style.transform = 'scale(1.05)';
                       }}
                       onMouseLeave={(e) => {
-                        console.log('🔧 鼠标离开添加首个订阅按钮');
+                        console.log('🔧 鼠标离开addingfirstunitssubscribingbutton');
                         e.currentTarget.style.transform = 'scale(1)';
                       }}
                     >
@@ -1015,7 +1015,7 @@ export default function HotTopicsPage() {
                 >
                   <Button 
                     onClick={() => {
-                      console.log('🔧 HotTopicsPage 添加新订阅按钮被点击');
+                      console.log('🔧 HotTopicsPage addingnewsubscribingbutton被点击');
                       setIsAddDialogOpen(true);
                     }}
                     className="font-medium hover:bg-primary-600 transition-all duration-200 cursor-pointer"
@@ -1027,11 +1027,11 @@ export default function HotTopicsPage() {
                       pointerEvents: 'auto'
                     }}
                     onMouseEnter={(e) => {
-                      console.log('🔧 鼠标进入添加新订阅按钮');
+                      console.log('🔧 鼠标进入addingnewsubscribingbutton');
                       e.currentTarget.style.transform = 'scale(1.05)';
                     }}
                     onMouseLeave={(e) => {
-                      console.log('🔧 鼠标离开添加新订阅按钮');
+                      console.log('🔧 鼠标离开addingnewsubscribingbutton');
                       e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >
@@ -1417,7 +1417,7 @@ export default function HotTopicsPage() {
               </Button>
               <Button 
                 onClick={() => {
-                  console.log('🔧 HotTopicsPage Dialog内添加订阅确认按钮被点击');
+                  console.log('🔧 HotTopicsPage Dialoginneraddingsubscribingconfirmingbutton被点击');
                   handleAddSubscription();
                 }}
                 className="font-medium hover:bg-primary-600 transition-all duration-200 cursor-pointer"
@@ -1429,11 +1429,11 @@ export default function HotTopicsPage() {
                   pointerEvents: 'auto'
                 }}
                 onMouseEnter={(e) => {
-                  console.log('🔧 鼠标进入Dialog内添加订阅确认按钮');
+                  console.log('🔧 鼠标进入Dialoginneraddingsubscribingconfirmingbutton');
                   e.currentTarget.style.transform = 'scale(1.05)';
                 }}
                 onMouseLeave={(e) => {
-                  console.log('🔧 鼠标离开Dialog内添加订阅确认按钮');
+                  console.log('🔧 鼠标离开Dialoginneraddingsubscribingconfirmingbutton');
                   e.currentTarget.style.transform = 'scale(1)';
                 }}
               >

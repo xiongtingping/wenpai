@@ -94,7 +94,7 @@ export class AuthMonitoringService {
       this.checkMetrics();
     }, 60000);
 
-    console.log('📊 认证监控服务已启动');
+    console.log('📊 authenticatingmonitoringservicealreadystarting');
   }
 
   /**
@@ -105,7 +105,7 @@ export class AuthMonitoringService {
       clearInterval(this.monitoringInterval);
       this.monitoringInterval = null;
     }
-    console.log('📊 认证监控服务已停止');
+    console.log('📊 authenticatingmonitoringservicealreadystopping');
   }
 
   /**
@@ -129,7 +129,7 @@ export class AuthMonitoringService {
     // 集成到性能监控系统
     this.recordPerformanceEvent('auth_attempt', event.timestamp);
     
-    console.log('📝 记录认证尝试:', { method, eventId });
+    console.log('📝 记录authenticating尝试:', { method, eventId });
     return eventId;
   }
 
@@ -154,7 +154,7 @@ export class AuthMonitoringService {
     // 集成到性能监控系统
     this.recordPerformanceEvent('auth_success', event.timestamp - duration, event.timestamp);
     
-    console.log('✅ 记录认证成功:', { eventId, duration, userId });
+    console.log('✅ 记录authenticatingsuccess:', { eventId, duration, userId });
   }
 
   /**
@@ -188,7 +188,7 @@ export class AuthMonitoringService {
       errorCode
     });
     
-    console.log('❌ 记录认证失败:', { eventId, errorType, errorCode, duration });
+    console.log('❌ 记录authenticatingfailed:', { eventId, errorType, errorCode, duration });
   }
 
   /**
@@ -462,7 +462,7 @@ export class AuthMonitoringService {
         );
       }
     } catch (error) {
-      console.warn('⚠️ 性能事件记录失败:', error);
+      console.warn('⚠️ 性能event记录failed:', error);
     }
   }
 
@@ -471,7 +471,7 @@ export class AuthMonitoringService {
    */
   private sendAlertToExternalSystem(alert: PerformanceAlert): void {
     // 这里可以集成到外部监控系统
-    console.log('📡 发送告警到外部系统:', alert);
+    console.log('📡 sending告警到outer部系统:', alert);
     
     // 示例：发送到监控API
     // fetch('/api/monitoring/alerts', {
@@ -508,7 +508,7 @@ export class AuthMonitoringService {
     this.events = this.events.filter(e => e.timestamp > cutoffTime);
     this.alerts = this.alerts.filter(a => a.timestamp > cutoffTime);
     
-    console.log('🗑️ 监控数据清理完成，保留', keepDays, '天数据');
+    console.log('🗑️ monitoringdatacleaningcompleted，保留', keepDays, '天数据');
   }
 }
 

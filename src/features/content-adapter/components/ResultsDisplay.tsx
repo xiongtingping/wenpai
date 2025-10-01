@@ -341,7 +341,7 @@ function PlatformResultCard({
                 platformName={getPlatformName(result.platformId)}
                 onTitleChange={(title) => {
                   // 标题变更处理逻辑
-                  console.log('标题已更新:', title);
+                  console.log('titleupdated:', title);
                 }}
               /> */}
             </div>

@@ -70,7 +70,7 @@ export const ConcurrencyControl = memo<ConcurrencyControlProps>(({
       });
       setLastUpdate(new Date());
     } catch (error) {
-      console.error('刷新并发统计失败:', error);
+      console.error('refreshing并发统计failed:', error);
     } finally {
       setLoading(false);
     }

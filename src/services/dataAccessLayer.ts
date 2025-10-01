@@ -381,7 +381,7 @@ export class DataAccessLayer {
         }
       }
     } catch (error) {
-      console.error('获取用户统计信息失败:', error);
+      console.error('gettinguser统计infofailed:', error);
     }
 
     return stats;

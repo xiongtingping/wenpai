@@ -83,7 +83,7 @@ export class SecureTokenStorage {
       const encrypted = CryptoJS.AES.encrypt(data, this.encryptionKey).toString();
       return encrypted;
     } catch (error) {
-      console.error('🔐 数据加密失败:', error);
+      console.error('🔐 dataencryptingfailed:', error);
       throw new Error('Token encryption failed');
     }
   }
@@ -96,7 +96,7 @@ export class SecureTokenStorage {
       const decrypted = CryptoJS.AES.decrypt(encryptedData, this.encryptionKey);
       return decrypted.toString(CryptoJS.enc.Utf8);
     } catch (error) {
-      console.error('🔐 数据解密失败:', error);
+      console.error('🔐 datadecryptingfailed:', error);
       throw new Error('Token decryption failed');
     }
   }
@@ -125,7 +125,7 @@ export class SecureTokenStorage {
       const tokenData = JSON.stringify(tokenInfo);
       const finalData = encrypt ? this.encrypt(tokenData) : tokenData;
 
-      console.log('🔐 存储Token:', { 
+      console.log('🔐 storageToken:', { 
         key, 
         encrypted: encrypt, 
         httpOnly: useHttpOnlyCookie,
@@ -137,11 +137,11 @@ export class SecureTokenStorage {
         try {
           const success = await this.setHttpOnlyCookie(key, finalData, maxAge);
           if (success) {
-            console.log('✅ Token已存储到httpOnly cookie');
+            console.log('✅ Tokenalreadystorage到httpOnly cookie');
             return true;
           }
         } catch (cookieError) {
-          console.warn('⚠️ httpOnly cookie存储失败，使用备用方案:', cookieError);
+          console.warn('⚠️ httpOnly cookiestoragefailed，使用备用方案:', cookieError);
         }
       }
 
@@ -153,10 +153,10 @@ export class SecureTokenStorage {
             expiresAt: tokenInfo.expiresAt,
             encrypted: true
           }));
-          console.log('✅ Token已加密存储到sessionStorage');
+          console.log('✅ Tokenalreadyencryptingstorage到sessionStorage');
           return true;
         } catch (sessionError) {
-          console.warn('⚠️ sessionStorage存储失败:', sessionError);
+          console.warn('⚠️ sessionStoragestoragefailed:', sessionError);
         }
       }
 
@@ -169,17 +169,17 @@ export class SecureTokenStorage {
             expiresAt: tokenInfo.expiresAt,
             encrypted: encrypt
           }));
-          console.log(`✅ Token已存储到localStorage (encrypted: ${encrypt})`);
+          console.log(`✅ Tokenalreadystorage到localStorage (encrypted: ${encrypt})`);
           return true;
         } catch (localError) {
-          console.error('❌ localStorage存储失败:', localError);
+          console.error('❌ localStoragestoragefailed:', localError);
         }
       }
 
       return false;
 
     } catch (error) {
-      console.error('❌ Token存储失败:', error);
+      console.error('❌ Tokenstoragefailed:', error);
       return false;
     }
   }
@@ -195,12 +195,12 @@ export class SecureTokenStorage {
         if (cookieData) {
           const tokenInfo = this.parseTokenData(cookieData, true);
           if (this.validateToken(tokenInfo).isValid) {
-            console.log('✅ 从httpOnly cookie获取Token成功');
+            console.log('✅ 从httpOnly cookiegettingTokensuccess');
             return tokenInfo;
           }
         }
       } catch (cookieError) {
-        console.warn('⚠️ httpOnly cookie读取失败:', cookieError);
+        console.warn('⚠️ httpOnly cookiereadingfailed:', cookieError);
       }
 
       // 2. 从sessionStorage获取（加密）
@@ -213,7 +213,7 @@ export class SecureTokenStorage {
           if (Date.now() < meta.expiresAt) {
             const tokenInfo = this.parseTokenData(sessionData, meta.encrypted);
             if (this.validateToken(tokenInfo).isValid) {
-              console.log('✅ 从sessionStorage获取Token成功');
+              console.log('✅ 从sessionStoragegettingTokensuccess');
               return tokenInfo;
             }
           } else {
@@ -223,7 +223,7 @@ export class SecureTokenStorage {
           }
         }
       } catch (sessionError) {
-        console.warn('⚠️ sessionStorage读取失败:', sessionError);
+        console.warn('⚠️ sessionStoragereadingfailed:', sessionError);
       }
 
       // 3. 从localStorage获取（兼容性备用）
@@ -237,7 +237,7 @@ export class SecureTokenStorage {
             if (Date.now() < meta.expiresAt) {
               const tokenInfo = this.parseTokenData(localData, encrypted);
               if (this.validateToken(tokenInfo).isValid) {
-                console.log(`✅ 从localStorage获取Token成功 (encrypted: ${encrypted})`);
+                console.log(`✅ 从localStoragegettingTokensuccess (encrypted: ${encrypted})`);
                 return tokenInfo;
               }
             } else {
@@ -247,7 +247,7 @@ export class SecureTokenStorage {
             }
           }
         } catch (error) {
-          console.warn(`⚠️ localStorage读取失败 (${storageKey}):`, error);
+          console.warn(`⚠️ localStoragereadingfailed (${storageKey}):`, error);
         }
         return null;
       };
@@ -261,7 +261,7 @@ export class SecureTokenStorage {
       return tokenInfo;
 
     } catch (error) {
-      console.error('❌ Token获取失败:', error);
+      console.error('❌ Tokenfetchingfailed:', error);
       return null;
     }
   }
@@ -274,7 +274,7 @@ export class SecureTokenStorage {
       const tokenData = encrypted ? this.decrypt(data) : data;
       return JSON.parse(tokenData);
     } catch (error) {
-      console.error('❌ Token数据解析失败:', error);
+      console.error('❌ Tokendataparsingfailed:', error);
       throw new Error('Invalid token data');
     }
   }
@@ -327,7 +327,7 @@ export class SecureTokenStorage {
           removedCount++;
         }
       } catch (error) {
-        console.warn('⚠️ httpOnly cookie删除失败:', error);
+        console.warn('⚠️ httpOnly cookiedeletingfailed:', error);
       }
 
       // 2. 删除sessionStorage
@@ -336,7 +336,7 @@ export class SecureTokenStorage {
         sessionStorage.removeItem(`secure_${key}_meta`);
         removedCount++;
       } catch (error) {
-        console.warn('⚠️ sessionStorage删除失败:', error);
+        console.warn('⚠️ sessionStoragedeletingfailed:', error);
       }
 
       // 3. 删除localStorage
@@ -347,14 +347,14 @@ export class SecureTokenStorage {
         localStorage.removeItem(`${key}_meta`);
         removedCount++;
       } catch (error) {
-        console.warn('⚠️ localStorage删除失败:', error);
+        console.warn('⚠️ localStoragedeletingfailed:', error);
       }
 
-      console.log(`✅ Token已从${removedCount}个存储位置删除`);
+      console.log(`✅ Tokenalready从${removedCount}unitsstoragepositiondeleting`);
       return removedCount > 0;
 
     } catch (error) {
-      console.error('❌ Token删除失败:', error);
+      console.error('❌ Tokendeletingfailed:', error);
       return false;
     }
   }
@@ -380,7 +380,7 @@ export class SecureTokenStorage {
         }
       }
     } catch (error) {
-      console.warn('⚠️ sessionStorage清理失败:', error);
+      console.warn('⚠️ sessionStoragecleaningfailed:', error);
     }
 
     // 清理localStorage过期Token
@@ -398,11 +398,11 @@ export class SecureTokenStorage {
         }
       }
     } catch (error) {
-      console.warn('⚠️ localStorage清理失败:', error);
+      console.warn('⚠️ localStoragecleaningfailed:', error);
     }
 
     if (cleanedCount > 0) {
-      console.log(`✅ 已清理${cleanedCount}个过期Token`);
+      console.log(`✅ alreadycleaning${cleanedCount}unitsexpiredToken`);
     }
 
     return cleanedCount;
@@ -432,7 +432,7 @@ export class SecureTokenStorage {
 
       return response.ok;
     } catch (error) {
-      console.error('❌ httpOnly cookie设置失败:', error);
+      console.error('❌ httpOnly cookiesettingfailed:', error);
       throw error;
     }
   }
@@ -454,7 +454,7 @@ export class SecureTokenStorage {
 
       return null;
     } catch (error) {
-      console.error('❌ httpOnly cookie获取失败:', error);
+      console.error('❌ httpOnly cookiefetchingfailed:', error);
       throw error;
     }
   }
@@ -478,7 +478,7 @@ export class SecureTokenStorage {
 
       return response.ok;
     } catch (error) {
-      console.error('❌ httpOnly cookie删除失败:', error);
+      console.error('❌ httpOnly cookiedeletingfailed:', error);
       throw error;
     }
   }
@@ -512,7 +512,7 @@ export class SecureTokenStorage {
         }
       }
     } catch (error) {
-      console.warn('⚠️ sessionStorage摘要获取失败:', error);
+      console.warn('⚠️ sessionStorage摘要gettingfailed:', error);
     }
 
     // 检查localStorage
@@ -532,7 +532,7 @@ export class SecureTokenStorage {
         }
       }
     } catch (error) {
-      console.warn('⚠️ localStorage摘要获取失败:', error);
+      console.warn('⚠️ localStorage摘要gettingfailed:', error);
     }
 
     return summary;

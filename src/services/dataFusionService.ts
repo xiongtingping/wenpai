@@ -98,7 +98,7 @@ class DataFusionService {
       // 数据融合处理
       return this.processFusedData(results);
     } catch (error) {
-      console.error('数据融合失败:', error);
+      console.error('data融合failed:', error);
       return [];
     }
   }
@@ -111,7 +111,7 @@ class DataFusionService {
       const response = await hotTopicsApi.getHotTopics({ limit: this.config.maxTopicsPerSource });
       return response.success ? response.data : [];
     } catch (error) {
-      console.error('获取RSSHub数据失败:', error);
+      console.error('fetchingRSSHubdatafailed:', error);
       return [];
     }
   }
@@ -135,7 +135,7 @@ class DataFusionService {
       
       return allItems;
     } catch (error) {
-      console.error('获取DailyHot数据失败:', error);
+      console.error('fetchingDailyHotdatafailed:', error);
       return [];
     }
   }
@@ -383,7 +383,7 @@ class DataFusionService {
         total: rsshubCount + dailyHotCount
       };
     } catch (error) {
-      console.error('获取数据源统计失败:', error);
+      console.error('gettingdata源统计failed:', error);
       return {
         rsshub: { count: 0, categories: [] },
         dailyhot: { count: 0, platforms: [] },

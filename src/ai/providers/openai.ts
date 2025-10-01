@@ -94,7 +94,7 @@ export class OpenAIProvider implements AIProviderInterface {
     const startTime = Date.now();
 
     try {
-      console.log('🤖 OpenAI内容生成开始:', {
+      console.log('🤖 OpenAIcontent生成starts:', {
         model: params.model || 'gpt-4o',
         promptLength: params.prompt.length,
         hasSystem: !!params.systemPrompt,
@@ -189,7 +189,7 @@ export class OpenAIProvider implements AIProviderInterface {
     error?: string;
   }> {
     try {
-      console.log('🖼️ OpenAI图像生成开始:', {
+      console.log('🖼️ OpenAIgraph像生成starts:', {
         model: params.model || 'dall-e-3',
         prompt: params.prompt.substring(0, 50) + '...',
         size: params.size || '1024x1024',

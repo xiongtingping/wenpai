@@ -111,7 +111,7 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
         description: "AI 已完成品牌资料分析并保存到数据库",
       });
     } catch (error) {
-      console.error('处理失败:', error);
+      console.error('processingfailed:', error);
       toast({
         title: t('components.errors.处理失败'),
         description: error instanceof Error ? error.message : t('components.errors.文件处理过程中发生错误'),

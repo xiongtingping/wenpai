@@ -396,5 +396,5 @@ export class AIEndpointManager {
 // 导出单例实例
 export const endpointManager = AIEndpointManager.getInstance();
 
-console.log('🔧 AI端点配置管理器已加载');
-console.log(`📊 支持的AI服务: ${getAvailableProviders().join(', ')}`);
+console.log('🔧 AI端点configurationmanageralreadyloading');
+console.log(`📊 支持的AIservice: ${getAvailableProviders().join(', ')}`);

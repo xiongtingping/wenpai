@@ -193,7 +193,7 @@ export function detectUndefinedConcat(value: any, context = ''): string {
   const stringValue = String(value);
   
   if (import.meta.env.DEV && stringValue.includes('undefined')) {
-    console.warn(`🚨 检测到undefined拼接: "${stringValue}" in ${context}`);
+    console.warn(`🚨 detecting到undefined拼接: "${stringValue}" in ${context}`);
     console.trace('调用栈:');
   }
   

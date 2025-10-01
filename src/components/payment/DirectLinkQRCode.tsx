@@ -65,9 +65,9 @@ export default function DirectLinkQRCode({ defaultUrl = 'https://www.creem.io/pa
       });
 
       setQrCodeDataURL(qrCodeDataURL);
-      console.log('二维码生成成功:', url);
+      console.log('二维码生成success:', url);
     } catch (err: any) {
-      console.error('生成二维码失败:', err);
+      console.error('生成二维码failed:', err);
       setError(err.message || t('components.errors.生成二维码失败'));
       setQrCodeDataURL('');
     } finally {

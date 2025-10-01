@@ -7,7 +7,7 @@
 import { callAI, callAIWithRetry, AIModel } from './ai';
 
 // 调试环境变量
-console.log('环境变量调试:', {
+console.log('环境variabledebugging:', {
   VITE_OPENAI_API_KEY: import.meta.env.VITE_OPENAI_API_KEY ? '已设置' : '未设置',
   DEV: import.meta.env.DEV,
   MODE: import.meta.env.MODE
@@ -38,8 +38,8 @@ export async function callOpenAIDevProxy(options: {
   const { messages, model = 'gpt-4', temperature = 0.7, maxTokens = 1000 } = options;
 
   try {
-    console.log('callOpenAIDevProxy 开始调用...');
-    console.log('请求参数:', { messages, model, temperature, maxTokens });
+    console.log('callOpenAIDevProxy starts调用...');
+    console.log('requestparameter:', { messages, model, temperature, maxTokens });
 
     // 构建提示词
     const prompt = messages
@@ -60,7 +60,7 @@ export async function callOpenAIDevProxy(options: {
       systemPrompt
     }, 3); // 最多重试3次
 
-    console.log('OpenAI API调用成功');
+    console.log('OpenAI API调用success');
 
     if (result.success) {
       return {
@@ -80,7 +80,7 @@ export async function callOpenAIDevProxy(options: {
       throw new Error(result.error || 'AI调用失败');
     }
   } catch (error) {
-    console.error('callOpenAIDevProxy 异常:', error);
+    console.error('callOpenAIDevProxy abnormal:', error);
 
     // 处理网络错误
     if (error instanceof Error && (error.message.includes('fetch') || error.message.includes('network'))) {

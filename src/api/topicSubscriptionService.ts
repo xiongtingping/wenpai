@@ -188,7 +188,7 @@ export function getTopicSubscriptions(): TopicSubscription[] {
     const stored = localStorage.getItem('topic-subscriptions');
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
-    console.error('获取话题订阅失败:', error);
+    console.error('getting话题subscribingfailed:', error);
     return [];
   }
 }
@@ -254,7 +254,7 @@ export function saveTopicSubscriptions(subscriptions: TopicSubscription[]): void
   try {
     localStorage.setItem('topic-subscriptions', JSON.stringify(subscriptions));
   } catch (error) {
-    console.error('保存话题订阅失败:', error);
+    console.error('saving话题subscribingfailed:', error);
   }
 }
 
@@ -347,7 +347,7 @@ export async function monitorTopic(subscription: TopicSubscription): Promise<Top
           platform: result.platform || source.id
         }));
       } catch (error) {
-        console.error(`搜索源 ${source.id} 失败:`, error);
+        console.error(`searching源 ${source.id} failed:`, error);
         return [];
       }
     });
@@ -401,12 +401,12 @@ export async function monitorTopic(subscription: TopicSubscription): Promise<Top
     // 如果有新结果，标记红点
     if (sortedResults.length > 0) {
       markSubscriptionHasNewResults(subscription.id, sortedResults.length);
-      console.log(`🔴 订阅 "${subscription.keyword}" 发现 ${sortedResults.length} 个新结果，已标记红点`);
+      console.log(`🔴 subscribing "${subscription.keyword}" 发现 ${sortedResults.length} unitsnewresult，alreadymarker红点`);
     }
 
     return sortedResults;
   } catch (error) {
-    console.error('监控话题失败:', error);
+    console.error('monitoring话题failed:', error);
     return [];
   }
 }
@@ -422,7 +422,7 @@ async function searchKeyword(keyword: string, source: SearchSource): Promise<Top
     const realResults = await searchRealHotTopics(keyword, source);
     results.push(...realResults);
   } catch (error) {
-    console.error(`搜索关键词 "${keyword}" 在 ${source.name} 失败:`, error);
+    console.error(`searching关key词 "${keyword}" 在 ${source.name} failed:`, error);
   }
 
   return results;
@@ -435,17 +435,17 @@ async function searchRealHotTopics(keyword: string, source: SearchSource): Promi
   const results: TopicMonitorResult[] = [];
 
   try {
-    console.log(`🔍 搜索真实热点数据: "${keyword}" 在 ${source.name}`);
+    console.log(`🔍 searching真实热点data: "${keyword}" 在 ${source.name}`);
 
     // 获取全网热点数据
     const hotTopicsData: DailyHotItem[] = await fetchHotTopics();
 
     if (!hotTopicsData || hotTopicsData.length === 0) {
-      console.warn('热点数据为空');
+      console.warn('热点datais empty');
       return results;
     }
 
-    console.log(`📊 获取到热点数据，话题数量: ${hotTopicsData.length}`);
+    console.log(`📊 getting到热点data，话题quantity: ${hotTopicsData.length}`);
 
     // 搜索包含关键词的热点话题
     const allHotTopics: DailyHotItem[] = hotTopicsData;
@@ -464,7 +464,7 @@ async function searchRealHotTopics(keyword: string, source: SearchSource): Promi
       const relevanceThreshold = 0.7;
 
       if (import.meta.env.DEV) {
-        console.log(`🔍 话题匹配分析: "${title}" vs "${keyword}"`, {
+        console.log(`🔍 话题matchanalyzing: "${title}" vs "${keyword}"`, {
           relevanceScore: relevanceScore.toFixed(2),
           threshold: relevanceThreshold,
           matched: relevanceScore >= relevanceThreshold
@@ -474,10 +474,10 @@ async function searchRealHotTopics(keyword: string, source: SearchSource): Promi
       return relevanceScore >= relevanceThreshold;
     });
 
-    console.log(`🎯 找到 ${matchedTopics.length} 个匹配的热点话题`);
+    console.log(`🎯 找到 ${matchedTopics.length} unitsmatch的热点话题`);
 
     if (matchedTopics.length > 0) {
-      console.log(`📝 匹配的话题示例:`, matchedTopics.slice(0, 3).map(t => t.title));
+      console.log(`📝 match的话题example:`, matchedTopics.slice(0, 3).map(t => t.title));
     }
 
     // 转换为监控结果格式
@@ -512,7 +512,7 @@ async function searchRealHotTopics(keyword: string, source: SearchSource): Promi
     logger.debug('✅ 成功转换 ${results.length} 个监控结果');
 
   } catch (error) {
-    console.error(`搜索真实热点数据失败:`, error);
+    console.error(`searching真实热点datafailed:`, error);
   }
 
   return results;
@@ -671,7 +671,7 @@ function deduplicateResults(results: TopicMonitorResult[]): TopicMonitorResult[]
  */
 export async function getTopicHeatTrend(keyword: string, days: number = 7): Promise<TopicHeatTrend[]> {
   try {
-    console.log(`📈 获取关键词 "${keyword}" 的真实热度趋势数据`);
+    console.log(`📈 getting关key词 "${keyword}" 的真实热度趋势data`);
 
     // 获取真实的热点数据来分析趋势
     const realTrendData = await generateRealTrendData(keyword, days);
@@ -682,10 +682,10 @@ export async function getTopicHeatTrend(keyword: string, days: number = 7): Prom
     }
 
     // 如果无法获取真实数据，生成基础趋势数据
-    console.warn(`⚠️ 关键词 "${keyword}" 在当前热点中未找到，生成基础趋势数据`);
+    console.warn(`⚠️ 关key词 "${keyword}" 在current热点middlenot found，生成基础趋势data`);
     return generateBasicTrendData(keyword, days);
   } catch (error) {
-    console.error('获取趋势数据失败:', error);
+    console.error('getting趋势datafailed:', error);
     return generateBasicTrendData(keyword, days);
   }
 }
@@ -723,7 +723,7 @@ async function generateRealTrendData(keyword: string, days: number): Promise<Top
     const currentMentions = matchedTopics.length;
     const platforms = [...new Set(matchedTopics.map(t => t.platform).filter(Boolean))] as string[];
 
-    console.log(`📊 关键词 "${keyword}" 当前热度: ${currentHeat}, 提及次数: ${currentMentions}`);
+    console.log(`📊 关key词 "${keyword}" current热度: ${currentHeat}, 提及count: ${currentMentions}`);
 
     // 生成过去几天的趋势数据（基于当前数据推算）
     for (let i = days - 1; i >= 0; i--) {
@@ -761,7 +761,7 @@ async function generateRealTrendData(keyword: string, days: number): Promise<Top
 
     return trends;
   } catch (error) {
-    console.error('生成真实趋势数据失败:', error);
+    console.error('生成真实趋势datafailed:', error);
     return [];
   }
 }

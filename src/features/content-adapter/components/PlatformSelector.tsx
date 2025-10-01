@@ -148,18 +148,18 @@ export function PlatformSelector({ availablePlatforms,
         if (typeof globalSettings.globalMd === 'boolean') setLocalGlobalMd(globalSettings.globalMd);
         if (typeof globalSettings.globalAutoFormat === 'boolean') setLocalGlobalAutoFormat(globalSettings.globalAutoFormat);
         
-        console.log('✅ 全局设置已加载:', globalSettings);
+        console.log('✅ 全局settingalreadyloading:', globalSettings);
       }
       
       // 加载平台设置
       const platformSettings = await getPlatformSettings();
       if (platformSettings) {
         // 这里可以通过回调更新父组件的平台设置
-        console.log('✅ 平台设置已加载:', platformSettings);
+        console.log('✅ 平台settingalreadyloading:', platformSettings);
       }
       
     } catch (error) {
-      console.error('加载用户设置失败:', error);
+      console.error('loadingusersettingfailed:', error);
     }
   }, [getGlobalSettings, getPlatformSettings]);
   
@@ -224,7 +224,7 @@ export function PlatformSelector({ availablePlatforms,
       }
     }
     
-    console.log('全选操作完成:', {
+    console.log('全选操作completed:', {
       操作: isAllSelected ? t('platforms.deselectAll') : t('platforms.selectAll'),
       使用批量函数: !!onBatchSelect,
       当前选中: selectedPlatforms.length,
@@ -271,13 +271,13 @@ export function PlatformSelector({ availablePlatforms,
           duration: 3000,
         });
         
-        console.log('✅ 全局设置保存成功');
+        console.log('✅ 全局settingsavingsuccess');
       } else {
         throw new Error(t('components.errors.保存设置失败'));
       }
       
     } catch (error) {
-      console.error('❌ 保存全局设置失败:', error);
+      console.error('❌ saving全局settingfailed:', error);
       
       // 显示错误提示
       toast({
@@ -320,13 +320,13 @@ export function PlatformSelector({ availablePlatforms,
           duration: 3000,
         });
         
-        console.log('✅ 平台设置保存成功');
+        console.log('✅ 平台settingsavingsuccess');
       } else {
         throw new Error(t('components.errors.保存设置失败'));
       }
       
     } catch (error) {
-      console.error('❌ 保存平台设置失败:', error);
+      console.error('❌ saving平台settingfailed:', error);
       
       // 显示错误提示
       toast({
@@ -421,10 +421,9 @@ export function PlatformSelector({ availablePlatforms,
                           <div className="w-4 h-4 flex items-center justify-center">
                             {getPlatformIcon(platform.id)}
                           </div>
-                          <span style={{
+                          <span className="text-foreground" style={{
                             fontSize: '14px',
                             fontWeight: '500',
-                            color: '#374151',
                             writingMode: 'horizontal-tb',
                             textOrientation: 'mixed',
                             whiteSpace: 'nowrap',

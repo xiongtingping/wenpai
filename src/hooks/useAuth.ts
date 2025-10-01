@@ -67,29 +67,29 @@ export const useAuth = () => {
     };
   } catch (error) {
     // 🚨 临时兼容性处理：如果UnifiedAuth不可用，返回默认值
-    console.warn('UnifiedAuth不可用，使用默认值:', error);
+    console.warn('UnifiedAuthunavailable，使用defaultvalue:', error);
     return {
       user: null,
       isAuthenticated: false,
       loading: false,
       error: null,
-      login: async () => { console.warn('认证系统未初始化'); },
-      register: async () => { console.warn('认证系统未初始化'); },
-      logout: async () => { console.warn('认证系统未初始化'); },
-      checkAuth: async () => { console.warn('认证系统未初始化'); },
-      handleAuthingLogin: () => { console.warn('认证系统未初始化'); },
-      refreshToken: async () => { console.warn('认证系统未初始化'); },
-      updateUser: () => { console.warn('认证系统未初始化'); },
+      login: async () => { console.warn('authenticating系统notinitialization'); },
+      register: async () => { console.warn('authenticating系统notinitialization'); },
+      logout: async () => { console.warn('authenticating系统notinitialization'); },
+      checkAuth: async () => { console.warn('authenticating系统notinitialization'); },
+      handleAuthingLogin: () => { console.warn('authenticating系统notinitialization'); },
+      refreshToken: async () => { console.warn('authenticating系统notinitialization'); },
+      updateUser: () => { console.warn('authenticating系统notinitialization'); },
       hasPermission: () => false,
       hasRole: () => false,
       guard: null,
       // 兼容性方法
-      loginWithPassword: async () => { console.warn('认证系统未初始化'); },
-      loginWithEmailCode: async () => { console.warn('认证系统未初始化'); },
-      loginWithPhoneCode: async () => { console.warn('认证系统未初始化'); },
-      sendVerificationCode: async () => { console.warn('认证系统未初始化'); },
-      registerUser: async () => { console.warn('认证系统未初始化'); },
-      resetPassword: async () => { console.warn('认证系统未初始化'); }
+      loginWithPassword: async () => { console.warn('authenticating系统notinitialization'); },
+      loginWithEmailCode: async () => { console.warn('authenticating系统notinitialization'); },
+      loginWithPhoneCode: async () => { console.warn('authenticating系统notinitialization'); },
+      sendVerificationCode: async () => { console.warn('authenticating系统notinitialization'); },
+      registerUser: async () => { console.warn('authenticating系统notinitialization'); },
+      resetPassword: async () => { console.warn('authenticating系统notinitialization'); }
     };
   }
 };

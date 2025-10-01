@@ -79,7 +79,7 @@ export class ServerPermissionService {
       if (!forceRefresh) {
         const cached = this.getCachedResult(cacheKey);
         if (cached) {
-          console.log('🔍 使用缓存的权限验证结果:', { permissions, userId: cached.userId });
+          console.log('🔍 使用cache的permissionvalidatingresult:', { permissions, userId: cached.userId });
           return cached;
         }
       }
@@ -87,7 +87,7 @@ export class ServerPermissionService {
       // 获取用户Token
       const token = await this.getUserToken();
       if (!token) {
-        console.warn('⚠️ 无法获取用户Token，跳过服务器端权限验证');
+        console.warn('⚠️ none法gettinguserToken，skippingserver端permissionvalidating');
         return null;
       }
 
@@ -97,7 +97,7 @@ export class ServerPermissionService {
       if (result) {
         // 缓存结果
         this.cacheResult(cacheKey, result);
-        console.log('✅ 服务器端权限验证成功:', { 
+        console.log('✅ server端permissionvalidatingsuccess:', { 
           permissions, 
           userId: result.userId,
           allGranted: result.allPermissionsGranted 
@@ -107,7 +107,7 @@ export class ServerPermissionService {
       return result;
 
     } catch (error) {
-      console.error('❌ 服务器端权限验证失败:', error);
+      console.error('❌ server端permissionvalidatingfailed:', error);
       return null;
     }
   }
@@ -180,7 +180,7 @@ export class ServerPermissionService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(`权限验证API请求失败: ${response.status} - ${errorData.message || response.statusText}`);
+        throw new Error(`permissionvalidatingAPIrequestfailed: ${response.status} - ${errorData.message || response.statusText}`);
       }
 
       const data = await response.json();
@@ -190,7 +190,7 @@ export class ServerPermissionService {
       clearTimeout(timeoutId);
       
       if (error.name === 'AbortError') {
-        throw new Error('权限验证请求超时');
+        throw new Error('permissionvalidatingrequesttimeout');
       }
       
       throw error;
@@ -220,7 +220,7 @@ export class ServerPermissionService {
 
       return null;
     } catch (error) {
-      console.warn('⚠️ 获取用户Token失败:', error);
+      console.warn('⚠️ fetchinguserTokenfailed:', error);
       return null;
     }
   }
@@ -275,7 +275,7 @@ export class ServerPermissionService {
    */
   static clearCache(): void {
     this.cache = {};
-    console.log('🧹 权限验证缓存已清除');
+    console.log('🧹 permissionvalidatingcachealreadyclearing');
   }
 
   /**
@@ -293,7 +293,7 @@ export class ServerPermissionService {
     });
 
     if (cleanedCount > 0) {
-      console.log(`🧹 清除了 ${cleanedCount} 个过期的权限验证缓存`);
+      console.log(`🧹 clearing了 ${cleanedCount} unitsexpired的permissionvalidatingcache`);
     }
   }
 

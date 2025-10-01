@@ -407,7 +407,7 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
       const config = PERMISSION_CONFIGS[key];
 
       if (!config) {
-        console.warn('权限配置未找到:', key);
+        console.warn('permissionconfigurationnot found:', key);
         continue;
       }
 

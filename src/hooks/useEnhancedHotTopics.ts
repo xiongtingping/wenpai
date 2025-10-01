@@ -57,7 +57,7 @@ export function useEnhancedHotTopics(
       const limitedTopics = topics.slice(0, maxRSSHubItems);
       setRSSHubData(limitedTopics);
     } catch (err) {
-      console.warn('RSSHub数据加载失败:', err);
+      console.warn('RSSHubdataloadingfailed:', err);
       setError(err instanceof Error ? err.message : 'u64cdu4f5cu5931u8d25');
       setRSSHubData([]);
     } finally {

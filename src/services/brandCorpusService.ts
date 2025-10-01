@@ -337,7 +337,7 @@ export class BrandCorpusService {
     content: string,
     documentType: string = 'document'
   ): Promise<BrandCorpusExtractionV2> {
-    console.log(`🔍 [v2.0] 开始处理文档: ${fileName} (${docId})`);
+    console.log(`🔍 [v2.0] startsprocessingdocumentation: ${fileName} (${docId})`);
     const startTime = Date.now();
 
     try {
@@ -354,8 +354,8 @@ export class BrandCorpusService {
         .replace(/{{timestamp}}/g, new Date().toISOString())
         .replace('{{documentContent}}', cleanedContent);
 
-      console.log(`🤖 [v2.0] 调用AI进行字段提取...`);
-      console.log(`📝 [v2.0] Prompt长度: ${prompt.length} 字符`);
+      console.log(`🤖 [v2.0] 调用AI进rowfield提取...`);
+      console.log(`📝 [v2.0] Promptlength: ${prompt.length} 字符`);
 
       // 调用统一AI服务进行提取
       const aiResponse = await callUnifiedAI({
@@ -383,8 +383,8 @@ export class BrandCorpusService {
         extractionResult = JSON.parse(cleanedContent);
         logger.debug('✅ [v2.0] JSON解析成功');
       } catch (parseError) {
-        console.error('❌ [v2.0] JSON解析失败，尝试修复...', parseError);
-        console.log('🔍 原始AI响应内容:', aiResponse.content.substring(0, 500) + '...');
+        console.error('❌ [v2.0] JSONparsingfailed，尝试fixing...', parseError);
+        console.log('🔍 原始AIresponsecontent:', aiResponse.content.substring(0, 500) + '...');
 
         try {
           // 尝试修复JSON格式
@@ -393,8 +393,8 @@ export class BrandCorpusService {
           extractionResult = JSON.parse(fixedJson);
           logger.debug('✅ [v2.0] JSON修复成功');
         } catch (fixError) {
-          console.error('❌ [v2.0] JSON修复也失败了:', fixError);
-          console.log('🔍 完整AI响应内容:', aiResponse.content);
+          console.error('❌ [v2.0] JSONfixing也failed了:', fixError);
+          console.log('🔍 完整AIresponsecontent:', aiResponse.content);
 
           // 尝试提取JSON对象
           const extractedJson = this.extractJsonFromText(aiResponse.content);
@@ -403,11 +403,11 @@ export class BrandCorpusService {
               extractionResult = JSON.parse(extractedJson);
               logger.debug('✅ [v2.0] 从文本中提取JSON成功');
             } catch (extractError) {
-              console.error('❌ [v2.0] 提取的JSON也无法解析:', extractError);
+              console.error('❌ [v2.0] 提取的JSON也none法parsing:', extractError);
               extractionResult = this.createDefaultExtractionResult();
             }
           } else {
-            console.error('❌ [v2.0] 无法从响应中提取有效JSON');
+            console.error('❌ [v2.0] none法从responsemiddle提取validJSON');
             extractionResult = this.createDefaultExtractionResult();
           }
         }
@@ -419,7 +419,7 @@ export class BrandCorpusService {
       extractionResult.timestamp = new Date().toISOString();
       extractionResult.version = 'v2.0';
 
-      console.log(`🎉 [v2.0] 文档处理完成: ${fileName}`, {
+      console.log(`🎉 [v2.0] documentationprocessingcompleted: ${fileName}`, {
         fieldsExtracted: Object.keys(extractionResult.extractedFields).length,
         overallConfidence: extractionResult.overallConfidence,
         processingTime: processingTime
@@ -428,7 +428,7 @@ export class BrandCorpusService {
       return extractionResult;
 
     } catch (error) {
-      console.error(`❌ [v2.0] 处理文档失败: ${fileName}`, error);
+      console.error(`❌ [v2.0] processingdocumentationfailed: ${fileName}`, error);
 
       // 提供更详细的错误信息
       let errorMessage = 'u64cdu4f5cu5931u8d25';
@@ -460,24 +460,24 @@ export class BrandCorpusService {
     fileName: string,
     content: string
   ): Promise<BrandCorpusExtraction> {
-    console.log(`🔍 开始处理文档: ${fileName} (${docId})`);
+    console.log(`🔍 startsprocessingdocumentation: ${fileName} (${docId})`);
 
     try {
       // A → B: AI预处理：清洗+语言识别
-      console.log(`📝 步骤B: AI预处理 - ${fileName}`);
+      console.log(`📝 stepB: AI预processing - ${fileName}`);
       const cleanedContent = this.preprocessContent(content);
       const languageInfo = this.detectLanguage(cleanedContent);
 
       // B → C: 信息提取：按语料库维度拆解
-      console.log(`🔍 步骤C: 信息提取 - ${fileName}`);
+      console.log(`🔍 stepC: info提取 - ${fileName}`);
       const extractionResult = await this.extractBrandCorpusFields(docId, cleanedContent, languageInfo);
 
       // C → D: AI初步填入语料库各字段
-      console.log(`📊 步骤D: 初步填入字段 - ${fileName}`);
+      console.log(`📊 stepD: 初步填入field - ${fileName}`);
       const structuredFields = this.structureExtractedFields(extractionResult, docId, fileName);
 
       // D → E: 关键词建议引擎生成补充项
-      console.log(`💡 步骤E: 生成建议补充 - ${fileName}`);
+      console.log(`💡 stepE: 生成建议补充 - ${fileName}`);
       const aiSuggestions = await this.generateAISuggestions(structuredFields);
 
       // 准备返回结果，等待F[用户手动编辑确认] → G[写入语料库]
@@ -492,7 +492,7 @@ export class BrandCorpusService {
       };
 
     } catch (error) {
-      console.error(`❌ 文档处理失败 ${fileName}:`, error);
+      console.error(`❌ documentationprocessingfailed ${fileName}:`, error);
       throw error;
     }
   }
@@ -651,7 +651,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
       
       return parsed;
     } catch (error) {
-      console.error('AI提取结果解析失败:', error);
+      console.error('AI提取resultparsingfailed:', error);
       
       // 返回默认结构
       return {
@@ -697,14 +697,14 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
   public async processBatchDocuments(
     documents: Array<{ docId: string; fileName: string; content: string }>
   ): Promise<BrandCorpusExtraction[]> {
-    console.log(`📦 开始批量处理 ${documents.length} 个文档`);
+    console.log(`📦 starts批量processing ${documents.length} unitsdocumentation`);
     
     const results: BrandCorpusExtraction[] = [];
     
     for (let i = 0; i < documents.length; i++) {
       const doc = documents[i];
       try {
-        console.log(`📄 处理文档 ${i + 1}/${documents.length}: ${doc.fileName}`);
+        console.log(`📄 processingdocumentation ${i + 1}/${documents.length}: ${doc.fileName}`);
         const result = await this.processDocument(doc.docId, doc.fileName, doc.content);
         results.push(result);
         
@@ -719,7 +719,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
           await new Promise(resolve => setTimeout(resolve, adaptiveDelay));
         }
       } catch (error) {
-        console.error(`❌ 文档 ${doc.fileName} 处理失败:`, error);
+        console.error(`❌ documentation ${doc.fileName} processingfailed:`, error);
         // 继续处理其他文档
       }
     }
@@ -1000,7 +1000,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
       const resolution = JSON.parse(result.content);
       return resolution.conflictResolution || {};
     } catch (error) {
-      console.error('冲突解决结果解析失败:', error);
+      console.error('conflict解决resultparsingfailed:', error);
       return {};
     }
   }
@@ -1080,7 +1080,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
 
       return text.substring(firstBrace, lastBrace + 1);
     } catch (error) {
-      console.error('提取JSON失败:', error);
+      console.error('提取JSONfailed:', error);
       return null;
     }
   }
@@ -1175,7 +1175,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
 
       return cleaned;
     } catch (error) {
-      console.error('JSON修复失败:', error);
+      console.error('JSONfixingfailed:', error);
       throw new Error('无法修复JSON格式');
     }
   }
@@ -1186,7 +1186,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
   public convertV2ToLegacyFormat(v2Result: BrandCorpusExtractionV2): BrandCorpusExtraction & { aiAnalysisMetadata: { model: string; confidence: number; processingTime: number; extractedFieldsCount: number } } {
     // ✅ FIXED: 2025-08-06 增强空值检查
     if (!v2Result || !v2Result.extractedFields) {
-      console.warn('⚠️ v2Result为空或缺少extractedFields，返回默认结果');
+      console.warn('⚠️ v2Resultis empty或missingextractedFields，返回defaultresult');
       return {
         id: `fallback-${Date.now()}`,
         sourceId: 'unknown',
@@ -1256,7 +1256,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
       type?: string;
     }>
   ): Promise<BrandCorpusExtractionV2[]> {
-    console.log(`🔄 [v2.0] 开始批量处理 ${documents.length} 个文档`);
+    console.log(`🔄 [v2.0] starts批量processing ${documents.length} unitsdocumentation`);
 
     const results: BrandCorpusExtractionV2[] = [];
 
@@ -1275,12 +1275,12 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
 
         logger.debug('✅ [v2.0] 批次 ${Math.floor(i/concurrencyLimit) + 1} 处理完成');
       } catch (error) {
-        console.error(`❌ [v2.0] 批次处理失败:`, error);
+        console.error(`❌ [v2.0] 批timesprocessingfailed:`, error);
         // 继续处理其他批次
       }
     }
 
-    console.log(`🎉 [v2.0] 批量处理完成，成功处理 ${results.length}/${documents.length} 个文档`);
+    console.log(`🎉 [v2.0] 批量processingcompleted，successprocessing ${results.length}/${documents.length} unitsdocumentation`);
     return results;
   }
 }

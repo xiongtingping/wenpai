@@ -75,7 +75,7 @@ export class FileFormatSupportService {
 
     // 检查MIME类型匹配
     if (file.type && file.type !== formatInfo.mimeType) {
-      console.warn(`MIME类型不匹配: 期望 ${formatInfo.mimeType}, 实际 ${file.type}`);
+      console.warn(`MIMEtypenot match: 期望 ${formatInfo.mimeType}, 实际 ${file.type}`);
     }
 
     return {

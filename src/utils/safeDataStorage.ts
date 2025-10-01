@@ -22,8 +22,8 @@ export function safeSaveToLocalStorage(key: string, data: any): SaveResult {
     const storageUsed = getLocalStorageUsage();
     const estimatedTotal = storageUsed + dataSize;
     
-    console.log(`💾 准备保存数据: ${key}, 大小: ${(dataSize/1024).toFixed(2)}KB`);
-    console.log(`📊 当前存储使用: ${(storageUsed/1024).toFixed(2)}KB, 预计总计: ${(estimatedTotal/1024).toFixed(2)}KB`);
+    console.log(`💾 准备savingdata: ${key}, size: ${(dataSize/1024).toFixed(2)}KB`);
+    console.log(`📊 currentstorage使用: ${(storageUsed/1024).toFixed(2)}KB, 预计total计: ${(estimatedTotal/1024).toFixed(2)}KB`);
     
     // 尝试保存
     localStorage.setItem(key, jsonData);
@@ -34,7 +34,7 @@ export function safeSaveToLocalStorage(key: string, data: any): SaveResult {
       throw new Error('数据保存验证失败：保存的数据与原数据不一致');
     }
     
-    console.log(`✅ 数据保存成功: ${key}`);
+    console.log(`✅ datasavingsuccess: ${key}`);
     
     return {
       success: true,
@@ -43,7 +43,7 @@ export function safeSaveToLocalStorage(key: string, data: any): SaveResult {
     };
     
   } catch (error: any) {
-    console.error(`❌ 数据保存失败: ${key}`, error);
+    console.error(`❌ datasavingfailed: ${key}`, error);
     
     let errorMessage = i18n.t('common.errors.dataSaveFailed');
     
@@ -70,7 +70,7 @@ export function safeLoadFromLocalStorage<T>(key: string, defaultValue?: T): { da
     const savedData = localStorage.getItem(key);
     
     if (!savedData) {
-      console.log(`📂 没有找到数据: ${key}`);
+      console.log(`📂 没has找到data: ${key}`);
       return {
         data: defaultValue,
         success: true
@@ -78,7 +78,7 @@ export function safeLoadFromLocalStorage<T>(key: string, defaultValue?: T): { da
     }
     
     const parsedData = JSON.parse(savedData);
-    console.log(`📂 成功加载数据: ${key}, 项目数: ${Array.isArray(parsedData) ? parsedData.length : 'N/A'}`);
+    console.log(`📂 successloadingdata: ${key}, item目数: ${Array.isArray(parsedData) ? parsedData.length : 'N/A'}`);
     
     return {
       data: parsedData,
@@ -86,7 +86,7 @@ export function safeLoadFromLocalStorage<T>(key: string, defaultValue?: T): { da
     };
     
   } catch (error: any) {
-    console.error(`❌ 数据加载失败: ${key}`, error);
+    console.error(`❌ dataloadingfailed: ${key}`, error);
     
     let errorMessage = i18n.t('common.errors.dataLoadFailed');
     if (error.message.includes('JSON')) {
@@ -117,7 +117,7 @@ export function getLocalStorageUsage(): number {
       }
     }
   } catch (error) {
-    console.warn('无法计算localStorage使用量:', error);
+    console.warn('none法calculatinglocalStorage使用量:', error);
   }
   
   return totalSize;
@@ -178,18 +178,18 @@ export function cleanupLocalStorageData(prefix?: string): number {
           JSON.parse(value);
         }
       } catch (error) {
-        console.log(`🧹 清理损坏的数据: ${key}`);
+        console.log(`🧹 cleaning损坏的data: ${key}`);
         localStorage.removeItem(key);
         cleanedCount++;
       }
     });
     
     if (cleanedCount > 0) {
-      console.log(`🧹 清理完成，移除了 ${cleanedCount} 项损坏的数据`);
+      console.log(`🧹 cleaningcompleted，removing了 ${cleanedCount} item损坏的data`);
     }
     
   } catch (error) {
-    console.error('清理localStorage数据时出错:', error);
+    console.error('cleaninglocalStoragedata时出错:', error);
   }
   
   return cleanedCount;
@@ -208,7 +208,7 @@ export function backupLocalStorageData(keys: string[]): { [key: string]: any } {
         backup[key] = JSON.parse(data);
       }
     } catch (error) {
-      console.warn(`备份数据失败: ${key}`, error);
+      console.warn(`backupdatafailed: ${key}`, error);
     }
   });
   
@@ -228,7 +228,7 @@ export function restoreLocalStorageData(backup: { [key: string]: any }): number 
         restoredCount++;
       }
     } catch (error) {
-      console.warn(`恢复数据失败: ${key}`, error);
+      console.warn(`restoringdatafailed: ${key}`, error);
     }
   });
   

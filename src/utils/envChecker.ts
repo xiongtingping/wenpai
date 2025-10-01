@@ -332,7 +332,7 @@ export const checkEnvironmentVariables = (): EnvCheckSummary => {
 export const logEnvCheckResults = (results: EnvCheckSummary): void => {
   // 只在有错误时输出日志
   if (results.hasErrors) {
-    console.warn('⚠️ 发现配置错误，请检查.env.local文件');
+    console.warn('⚠️ 发现configurationerror，请checking.env.localfile');
   }
 };
 

@@ -124,7 +124,7 @@ class UserDataService {
       
       return newRecord;
     } catch (error) {
-      console.error('获取或创建用户记录失败:', error);
+      console.error('getting或creatinguser记录failed:', error);
       throw new Error(`数据库操作失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
@@ -149,7 +149,7 @@ class UserDataService {
       const dataService = this.getDataService(actualUserId);
       await dataService.update(record.id!, { userActions: record.userActions });
     } catch (error) {
-      console.error('记录页面访问失败:', error);
+      console.error('记录page访问failed:', error);
       throw error;
     }
   }
@@ -173,7 +173,7 @@ class UserDataService {
       const dataService = this.getDataService(actualUserId);
       await dataService.update(record.id!, { userActions: record.userActions });
     } catch (error) {
-      console.error('记录功能使用失败:', error);
+      console.error('记录feature使用failed:', error);
       throw error;
     }
   }
@@ -199,7 +199,7 @@ class UserDataService {
       const dataService = this.getDataService(actualUserId);
       await dataService.update(record.id!, { userActions: record.userActions });
     } catch (error) {
-      console.error('记录内容创建失败:', error);
+      console.error('记录contentcreatingfailed:', error);
       throw error;
     }
   }
@@ -224,7 +224,7 @@ class UserDataService {
       
       return result.data || [];
     } catch (error) {
-      console.error('获取正式用户数据失败:', error);
+      console.error('getting正式userdatafailed:', error);
       throw error;
     }
   }
@@ -242,7 +242,7 @@ class UserDataService {
       
       return result.data || [];
     } catch (error) {
-      console.error('获取临时用户数据失败:', error);
+      console.error('gettingtemporaryuserdatafailed:', error);
       throw error;
     }
   }
@@ -260,7 +260,7 @@ class UserDataService {
       // 删除用户所有数据
       await dataService.clearAllUserData();
     } catch (error) {
-      console.error('删除用户数据失败:', error);
+      console.error('deletinguserdatafailed:', error);
       throw error;
     }
   }
@@ -293,7 +293,7 @@ class UserDataService {
         }
       }
     } catch (error) {
-      console.error('绑定临时用户到正式用户失败:', error);
+      console.error('绑定temporaryuser到正式userfailed:', error);
       throw error;
     }
   }
@@ -340,7 +340,7 @@ class UserDataService {
         lastActivity
       };
     } catch (error) {
-      console.error('获取用户统计数据失败:', error);
+      console.error('gettinguser统计datafailed:', error);
       throw error;
     }
   }
@@ -351,7 +351,7 @@ class UserDataService {
   async cleanupExpiredData(): Promise<void> {
     // 注意：由于我们现在使用数据库，过期数据清理应该由数据库定期任务处理
     // 这里保留接口但不执行本地清理
-    console.log('数据库中的过期数据清理应由后端定期任务处理');
+    console.log('databasemiddle的expireddatacleaning应由backend定期任务processing');
   }
 }
 

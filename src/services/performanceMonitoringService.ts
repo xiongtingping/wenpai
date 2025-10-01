@@ -98,7 +98,7 @@ class PerformanceMonitoringService {
         this.observers.push(layoutShiftObserver);
       }
     } catch (error) {
-      console.warn('性能观察器初始化失败:', error);
+      console.warn('性能observerinitializationfailed:', error);
     }
   }
 
@@ -342,7 +342,7 @@ class PerformanceMonitoringService {
 
   // 上报关键性能问题
   private reportCriticalIssue(metric: PerformanceMetric): void {
-    console.warn('🚨 关键性能问题:', {
+    console.warn('🚨 关key性能问题:', {
       type: metric.type,
       name: metric.name,
       duration: `${Math.round(metric.duration)}ms`,

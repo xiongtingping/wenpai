@@ -51,7 +51,7 @@ export class SecureDataManager {
    * 初始化安全功能
    */
   private initializeSecurityFeatures(): void {
-    console.log('🛡️ 初始化安全数据管理器...');
+    console.log('🛡️ initialization安全datamanager...');
     
     // 启动存储配额监控
     if (this.config.enableQuotaMonitoring) {
@@ -75,7 +75,7 @@ export class SecureDataManager {
   setCurrentUser(userId: string | null, oldUserId?: string): void {
     if (this.currentUserId === userId) return;
 
-    console.log(`🔄 用户切换: ${oldUserId || this.currentUserId} -> ${userId || 'guest'}`);
+    console.log(`🔄 user切换: ${oldUserId || this.currentUserId} -> ${userId || 'guest'}`);
 
     // 执行用户切换清理
     if (oldUserId || this.currentUserId) {
@@ -89,7 +89,7 @@ export class SecureDataManager {
       // 迁移访客数据（如果有）
       const migratedCount = guestDataIsolation.migrateGuestDataToUser(userId);
       if (migratedCount > 0) {
-        console.log(`📦 访客数据迁移完成: ${migratedCount} 项`);
+        console.log(`📦 访客data迁移completed: ${migratedCount} item`);
       }
     }
 
@@ -117,7 +117,7 @@ export class SecureDataManager {
         );
         
         if (!validation.isValid) {
-          console.error(`数据验证失败 [${module}]:`, validation.errors);
+          console.error(`datavalidatingfailed [${module}]:`, validation.errors);
           return false;
         }
         
@@ -128,7 +128,7 @@ export class SecureDataManager {
       if (this.config.enableQuotaMonitoring) {
         const shouldCleanup = storageQuotaManager.shouldCleanup();
         if (shouldCleanup.level === 'critical') {
-          console.warn('🔥 存储空间不足，执行自动清理...');
+          console.warn('🔥 storageempty间不足，executing自动cleaning...');
           storageQuotaManager.performIntelligentCleanup();
         }
       }
@@ -152,7 +152,7 @@ export class SecureDataManager {
 
       return true;
     } catch (error) {
-      console.error(`安全存储失败 [${module}]:`, error);
+      console.error(`安全storagefailed [${module}]:`, error);
       return false;
     }
   }
@@ -186,7 +186,7 @@ export class SecureDataManager {
 
       return data;
     } catch (error) {
-      console.error(`安全获取数据失败 [${module}]:`, error);
+      console.error(`安全gettingdatafailed [${module}]:`, error);
       return null;
     }
   }
@@ -209,7 +209,7 @@ export class SecureDataManager {
   private startQuotaMonitoring(): void {
     this.quotaMonitoringStop = storageQuotaManager.startStorageMonitoring((quotaInfo) => {
       if (quotaInfo.percentage > this.config.maxStorageUsage / 100) {
-        console.warn(`⚠️ 存储使用量超标: ${Math.round(quotaInfo.percentage * 100)}%`);
+        console.warn(`⚠️ storage使用量超标: ${Math.round(quotaInfo.percentage * 100)}%`);
         
         if (this.config.autoCleanupEnabled) {
           storageQuotaManager.performIntelligentCleanup();
@@ -228,7 +228,7 @@ export class SecureDataManager {
     // 验证和清理无效数据
     safeLocalStorage.cleanupInvalidData();
     
-    console.log('🧹 初始数据清理完成');
+    console.log('🧹 初始datacleaningcompleted');
   }
 
   /**
@@ -238,11 +238,11 @@ export class SecureDataManager {
     const result = dataTypeValidator.validateAllStorageData();
     
     if (result.invalidItems.length > 0) {
-      console.warn(`发现 ${result.invalidItems.length} 个无效数据项`);
+      console.warn(`发现 ${result.invalidItems.length} unitsinvaliddataitem`);
     }
     
     if (result.sanitizedItems.length > 0) {
-      console.log(`清理了 ${result.sanitizedItems.length} 个数据项`);
+      console.log(`cleaning了 ${result.sanitizedItems.length} unitsdataitem`);
     }
   }
 

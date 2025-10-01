@@ -68,29 +68,28 @@ function InfoTooltip({ title, content }: { title: string; content: string[] }) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button style={{
+          <button className="bg-accent" style={{
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             width: '16px',
             height: '16px',
             borderRadius: '50%',
-            background: '#f3f4f6',
             border: 'none',
             cursor: 'help',
             transition: 'all 0.2s'
           }}>
-            <span style={{fontSize: '12px', fontWeight: 'bold', color: '#6b7280'}}>ℹ️</span>
+            <span className="text-muted-foreground" style={{fontSize: '12px', fontWeight: 'bold'}}>ℹ️</span>
           </button>
         </TooltipTrigger>
-        <TooltipContent style={{maxWidth: '300px', background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px'}}>
+        <TooltipContent className="bg-popover border-border" style={{maxWidth: '300px', borderRadius: '8px', padding: '12px'}}>
           <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
-            <div style={{fontWeight: '600', fontSize: '14px', color: '#1f2937'}}>{title}</div>
+            <div className="text-foreground" style={{fontWeight: '600', fontSize: '14px'}}>{title}</div>
             <ul style={{fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '4px', margin: 0, padding: 0, listStyle: 'none'}}>
               {content.map((item, index) => (
                 <li key={index} style={{display: 'flex', alignItems: 'flex-start', gap: '4px'}}>
-                  <span style={{color: '#3b82f6', marginTop: '2px', fontSize: '12px'}}>•</span>
-                  <span style={{color: '#1f2937'}}>{item}</span>
+                  <span className="text-primary" style={{marginTop: '2px', fontSize: '12px'}}>•</span>
+                  <span className="text-foreground">{item}</span>
                 </li>
               ))}
             </ul>
@@ -170,9 +169,7 @@ export function TokenUsageSection({
   };
 
   return (
-    <div className={`${className}`} style={{
-      background: 'white',
-      border: '1px solid #e5e7eb',
+    <div className={`${className} bg-card border-border`} style={{
       borderRadius: '12px',
       padding: '2rem',
       boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1)',
@@ -187,8 +184,8 @@ export function TokenUsageSection({
           <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
             <Database className="w-6 h-6" style={{color: '#3b82f6'}} />
             <div>
-              <div style={{fontSize: '1.125rem', fontWeight: '600', color: '#1f2937'}}>使用统计</div>
-              <div style={{color: '#6b7280', fontSize: '0.875rem', fontWeight: 'normal'}}>{planName} - 查看您的使用情况</div>
+              <div className="text-foreground" style={{fontSize: '1.125rem', fontWeight: '600'}}>使用统计</div>
+              <div className="text-muted-foreground" style={{fontSize: '0.875rem', fontWeight: 'normal'}}>{planName} - 查看您的使用情况</div>
             </div>
           </div>
           <Button
@@ -214,21 +211,19 @@ export function TokenUsageSection({
 
       {loading && !finalTokenStats ? (
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 0'}}>
-          <RefreshCw className="w-8 h-8 animate-spin" style={{color: '#3b82f6'}} />
-          <span style={{marginLeft: '12px', fontSize: '18px', fontWeight: '500', color: '#1f2937'}}>加载中...</span>
+          <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+          <span className="text-foreground" style={{marginLeft: '12px', fontSize: '18px', fontWeight: '500'}}>加载中...</span>
         </div>
       ) : (
         <>
           {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
           <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1}}>
             {/* Token使用量统计卡片 */}
-                <div style={{
-                  minWidth: '280px', 
+                <div className="bg-accent border-border" style={{
+                  minWidth: '280px',
                   position: 'relative',
-                  background: '#f9fafb',
                   borderRadius: '12px',
                   padding: '1.25rem',
-                  border: '1px solid #e5e7eb',
                   boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
                   flex: 1,
                   display: 'flex',
@@ -249,7 +244,7 @@ export function TokenUsageSection({
                         <Zap className="w-5 h-5" style={{color: 'white', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
                       </div>
                       <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0}}>
-                        <h3 style={{fontWeight: '600', color: '#1f2937', fontSize: '14px', whiteSpace: 'nowrap'}}>Token使用量</h3>
+                        <h3 className="text-foreground" style={{fontWeight: '600', fontSize: '14px', whiteSpace: 'nowrap'}}>Token使用量</h3>
                         <InfoTooltip
                           title="Token统计说明"
                           content={[
@@ -315,7 +310,7 @@ export function TokenUsageSection({
                             transition: 'width 0.3s ease'
                           }} />
                         </div>
-                        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '500', color: '#6b7280'}}>
+                        <div className="text-muted-foreground" style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '500'}}>
                           <span>已使用 {formatNumber(finalTokenStats?.monthlyUsed || 0)} tokens</span>
                           <span>剩余 {formatNumber(finalTokenStats?.monthlyRemaining || 0)} tokens</span>
                         </div>
@@ -324,11 +319,9 @@ export function TokenUsageSection({
                   </div>
 
                   {/* Token继承说明 */}
-                  <div style={{
-                    marginTop: '12px', 
-                    backgroundColor: 'white', 
-                    border: '1px solid #e5e7eb', 
-                    borderRadius: '8px', 
+                  <div className="bg-background border-border" style={{
+                    marginTop: '12px',
+                    borderRadius: '8px',
                     padding: '12px',
                     display: 'block',
                     width: '100%'
@@ -347,11 +340,10 @@ export function TokenUsageSection({
                       }}>
                         <span style={{fontSize: '12px', color: 'white'}}>ℹ️</span>
                       </div>
-                      <div style={{
-                        flex: 1, 
-                        fontSize: '14px', 
-                        lineHeight: '1.5', 
-                        color: '#1f2937',
+                      <div className="text-foreground" style={{
+                        flex: 1,
+                        fontSize: '14px',
+                        lineHeight: '1.5',
                         minWidth: 0,
                         wordBreak: 'break-word'
                       }}>
@@ -363,14 +355,12 @@ export function TokenUsageSection({
                 </div>
 
                 {/* 使用次数统计卡片 */}
-                <div style={{
+                <div className="bg-accent border-border" style={{
                   minWidth: '280px',
                   position: 'relative',
                   overflow: 'hidden',
-                  background: '#f9fafb',
                   borderRadius: '12px',
                   padding: '1.25rem',
-                  border: '1px solid #e5e7eb',
                   boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
                   flex: 1,
                   display: 'flex',
@@ -391,7 +381,7 @@ export function TokenUsageSection({
                         <Target className="w-5 h-5" style={{color: 'white', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
                       </div>
                       <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0}}>
-                        <h3 style={{fontWeight: '600', color: '#1f2937', fontSize: '14px', whiteSpace: 'nowrap'}}>使用次数</h3>
+                        <h3 className="text-foreground" style={{fontWeight: '600', fontSize: '14px', whiteSpace: 'nowrap'}}>使用次数</h3>
                         <InfoTooltip
                           title="使用次数说明"
                           content={[
@@ -441,7 +431,7 @@ export function TokenUsageSection({
                             transition: 'width 0.3s ease'
                           }} />
                         </div>
-                        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '500', color: '#6b7280'}}>
+                        <div className="text-muted-foreground" style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '500'}}>
                           <span>已使用 {finalUsageCountStats?.usedCount || 0} 次</span>
                           <span>剩余 {formatRemainingUses(finalUsageCountStats?.remainingUses ?? 0, userTier)} 次</span>
                         </div>

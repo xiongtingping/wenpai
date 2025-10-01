@@ -217,7 +217,7 @@ export class StorageQuotaManager {
       }
     }
 
-    console.log(`🧹 智能清理完成: 清理了 ${clearedItems} 项，释放 ${freedSpace} 字节`);
+    console.log(`🧹 智能cleaningcompleted: cleaning了 ${clearedItems} item，释放 ${freedSpace} 字节`);
 
     return {
       success: clearedItems > 0,
@@ -309,12 +309,12 @@ export class StorageQuotaManager {
       
       // 检查是否有显著变化 (超过1%的变化)
       if (Math.abs(currentQuota.percentage - lastQuota.percentage) > 0.01) {
-        console.log(`📊 存储使用量变化: ${Math.round(lastQuota.percentage * 100)}% -> ${Math.round(currentQuota.percentage * 100)}%`);
+        console.log(`📊 storage使用量变化: ${Math.round(lastQuota.percentage * 100)}% -> ${Math.round(currentQuota.percentage * 100)}%`);
         
         // 检查是否需要自动清理
         const shouldCleanup = this.shouldCleanup();
         if (shouldCleanup.needsCleanup && shouldCleanup.level === 'critical') {
-          console.warn('🔥 存储空间不足，执行自动清理...');
+          console.warn('🔥 storageempty间不足，executing自动cleaning...');
           this.performIntelligentCleanup();
         }
         
@@ -329,7 +329,7 @@ export class StorageQuotaManager {
     // 返回停止监控的函数
     return () => {
       clearInterval(intervalId);
-      console.log('📊 存储监控已停止');
+      console.log('📊 storagemonitoringalreadystopping');
     };
   }
 

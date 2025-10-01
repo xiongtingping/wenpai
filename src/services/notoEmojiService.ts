@@ -352,12 +352,12 @@ export class NotoEmojiService {
     modifier: keyof typeof SKIN_TONE_MODIFIERS
   ): string {
     if (!unicode) {
-      console.warn('[applySkinToneModifier] unicode参数为空');
+      console.warn('[applySkinToneModifier] unicodeparameteris empty');
       return '';
     }
     const emoji = this.getEmojiByUnicode(unicode);
     if (!emoji) {
-      console.warn(`[applySkinToneModifier] 未找到unicode: ${unicode} 对应的emoji`);
+      console.warn(`[applySkinToneModifier] not foundunicode: ${unicode} 对应的emoji`);
       return unicode;
     }
     if (emoji.hasSkinTone && modifier && SKIN_TONE_MODIFIERS[modifier]) {

@@ -187,18 +187,18 @@ export default function BrandLibraryPageFixed() {
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       (window as any).testDataPersistence = async () => {
-        console.log('🧪 测试数据持久化系统...');
+        console.log('🧪 testingdata持久化系统...');
 
         // 测试保存数据
         const testData = { test: true, timestamp: Date.now() };
         const saveResult = await brandAssetsManager.saveData([testData as any]);
-        console.log('💾 保存结果:', saveResult);
+        console.log('💾 savingresult:', saveResult);
 
         // 测试加载数据
         const loadResult = await brandAssetsManager.loadData();
-        console.log('📖 加载结果:', loadResult);
+        console.log('📖 loadingresult:', loadResult);
 
-        console.log('✅ 测试完成');
+        console.log('✅ testingcompleted');
         return { saveResult, loadResult };
       };
     }
@@ -336,7 +336,7 @@ export default function BrandLibraryPageFixed() {
         const ai = await getAIAnalysisService();
         setAiService(ai);
       } catch (error) {
-        console.error('服务初始化失败:', error);
+        console.error('Service initialization failed:', error);
       }
     };
     initServices();
@@ -604,9 +604,9 @@ export default function BrandLibraryPageFixed() {
   const saveAssetsToLocalStorage = (assets: BrandAsset[]) => {
     try {
       legacyBrandAssetsManager.saveData(assets);
-      console.log('💾 品牌资产已保存到localStorage');
+      console.log('💾 品牌资产saved到localStorage');
     } catch (error) {
-      console.error('保存资产到localStorage失败:', error);
+      console.error('saving资产到localStoragefailed:', error);
     }
   };
 
@@ -631,9 +631,9 @@ export default function BrandLibraryPageFixed() {
     try {
       const dimensionsToSave = dimensions.map(({ icon, ...rest }) => rest);
       legacyBrandDimensionsManager.saveData(dimensionsToSave);
-      console.log('💾 品牌维度数据已保存到localStorage');
+      console.log('💾 品牌维度datasaved到localStorage');
     } catch (error) {
-      console.error('保存品牌维度到localStorage失败:', error);
+      console.error('saving品牌维度到localStoragefailed:', error);
     }
   };
 
@@ -644,13 +644,13 @@ export default function BrandLibraryPageFixed() {
   // ✅ FIXED: 2025-08-06 后台异步分析功能
   const startBackgroundAnalysis = async (assets: BrandAsset[]) => {
     if (isBackgroundAnalysisRunning) {
-      console.log('后台分析已在运行，添加到队列');
+      console.log('next台analyzingalready在running，adding到queue');
       setBackgroundAnalysisQueue(prev => [...prev, ...assets]);
       return;
     }
 
     setIsBackgroundAnalysisRunning(true);
-    console.log('🔄 开始后台AI分析:', assets.map(a => a.name));
+    console.log('🔄 startsnext台AIanalyzing:', assets.map(a => a.name));
 
     try {
       for (const asset of assets) {
@@ -660,7 +660,7 @@ export default function BrandLibraryPageFixed() {
         ));
 
         try {
-          console.log(`🔍 [后台] 开始分析文件: ${asset.name}`);
+          console.log(`🔍 [next台] startsanalyzingfile: ${asset.name}`);
 
           // 动态导入AI服务
           const { BrandCorpusService } = await import('@/services/brandCorpusService');
@@ -704,7 +704,7 @@ export default function BrandLibraryPageFixed() {
             throw new Error('AI分析返回空结果');
           }
         } catch (error) {
-          console.error(`❌ [后台] 分析失败: ${asset.name}`, error);
+          console.error(`❌ [next台] analyzingfailed: ${asset.name}`, error);
 
           // 更新状态为错误
           setBrandAssets(prev => {
@@ -725,7 +725,7 @@ export default function BrandLibraryPageFixed() {
         const { dimensions: deduplicatedDimensions, totalDuplicatesRemoved } = performAutoDeduplication(prev);
 
         if (totalDuplicatesRemoved > 0) {
-          console.log(`🧹 全局去重完成: 移除了 ${totalDuplicatesRemoved} 条重复内容`);
+          console.log(`🧹 全局deduplicatecompleted: removing了 ${totalDuplicatesRemoved} itemsduplicatecontent`);
         }
 
         return deduplicatedDimensions;
@@ -739,7 +739,7 @@ export default function BrandLibraryPageFixed() {
       });
 
     } catch (error) {
-      console.error('后台分析过程出错:', error);
+      console.error('next台analyzing过程出错:', error);
       toast({
         title: "❌ 后台分析出错",
         description: "部分文件分析失败，请稍后重试",
@@ -846,7 +846,7 @@ export default function BrandLibraryPageFixed() {
     const item = dimension?.items.find((i: any) => i.id === itemId);
 
     if (!item) {
-      console.error('未找到要删除的项目:', { dimensionId, itemId });
+      console.error('not found要deleting的item目:', { dimensionId, itemId });
       return;
     }
 
@@ -943,10 +943,10 @@ export default function BrandLibraryPageFixed() {
    * 解决React状态更新异步问题
    */
   const handleBatchCorpusExtractionForAssets = async (assetsToProcess: BrandAsset[]) => {
-    console.log('🔍 开始处理指定文件列表:', assetsToProcess.map(a => ({ id: a.id, name: a.name, status: a.status })));
+    console.log('🔍 startsprocessing指定filelist:', assetsToProcess.map(a => ({ id: a.id, name: a.name, status: a.status })));
 
     if (assetsToProcess.length === 0) {
-      console.log('⚠️ 没有文件需要处理');
+      console.log('⚠️ 没hasfile需要processing');
       return;
     }
 
@@ -966,7 +966,7 @@ export default function BrandLibraryPageFixed() {
         setCorpusProcessingProgress((i / assetsToProcess.length) * 100);
 
         try {
-          console.log(`🔍 [v2.0] 开始AI分析文件: ${asset.name}`);
+          console.log(`🔍 [v2.0] startsAIanalyzingfile: ${asset.name}`);
 
           // 更新文件状态为处理中
           setBrandAssets(prev => prev.map(a =>
@@ -1040,7 +1040,7 @@ export default function BrandLibraryPageFixed() {
           });
 
         } catch (error) {
-          console.error(`❌ [v2.0] AI分析文件 ${asset.name} 失败:`, error);
+          console.error(`❌ [v2.0] AIanalyzingfile ${asset.name} failed:`, error);
           setBrandAssets(prev => prev.map(a =>
             a.id === asset.id ? { ...a, status: 'error' } : a
           ));
@@ -1059,10 +1059,10 @@ export default function BrandLibraryPageFixed() {
 
       setCorpusProcessingProgress(100);
 
-      console.log(`🎉 [v2.0] 批量AI分析完成，成功处理 ${extractions.length}/${assetsToProcess.length} 个文件`);
+      console.log(`🎉 [v2.0] 批量AIanalyzingcompleted，successprocessing ${extractions.length}/${assetsToProcess.length} unitsfile`);
 
     } catch (error) {
-      console.error('❌ [v2.0] 批量AI分析失败:', error);
+      console.error('❌ [v2.0] 批量AIanalyzingfailed:', error);
       toast({
         title: "批量AI分析失败",
         description: error instanceof Error ? error.message : '未知错误',
@@ -1230,7 +1230,7 @@ export default function BrandLibraryPageFixed() {
 
   // ✅ FIXED: 2025-08-06 修复关键词显示和维度映射问题
   const addItemToDimension = (fieldName: string, value: any, sourceName: string, confidence: number) => {
-    console.log('🔍 添加项目到维度:', { fieldName, value, sourceName, confidence });
+    console.log('🔍 addingitem目到维度:', { fieldName, value, sourceName, confidence });
 
     // 字段名称到维度ID的映射（更全面的映射）
     const fieldToDimensionMap: { [key: string]: string } = {
@@ -1263,7 +1263,7 @@ export default function BrandLibraryPageFixed() {
 
     const dimensionId = fieldToDimensionMap[fieldName];
     if (!dimensionId) {
-      console.warn(`未找到字段 ${fieldName} 对应的维度，尝试添加到品牌关键词`);
+      console.warn(`not foundfield ${fieldName} 对应的维度，尝试adding到品牌关key词`);
       // 如果没有找到对应维度，默认添加到品牌关键词
       const fallbackDimensionId = 'brand-keywords';
       addToSpecificDimension(fallbackDimensionId, value, sourceName, confidence, fieldName);
@@ -1292,7 +1292,7 @@ export default function BrandLibraryPageFixed() {
 
     // 如果处理后的内容为空，跳过
     if (!processedContent || processedContent === 'undefined' || processedContent === 'null') {
-      console.warn(`跳过空内容: ${originalFieldName ?? dimensionId} -> ${value}`);
+      console.warn(`skippingemptycontent: ${originalFieldName ?? dimensionId} -> ${value}`);
       return;
     }
 
@@ -1309,7 +1309,7 @@ export default function BrandLibraryPageFixed() {
       aiGenerated: true
     };
 
-    console.log('📝 创建新项目:', newItem);
+    console.log('📝 creatingnewitem目:', newItem);
 
     // 添加到对应维度并自动去重
     setBrandDimensions(prev => {
@@ -1323,7 +1323,7 @@ export default function BrandLibraryPageFixed() {
 
           // 如果有重复项被移除，记录日志
           if (duplicatesRemoved > 0) {
-            console.log(`🧹 自动去重: 在维度 ${dimension.title} 中移除了 ${duplicatesRemoved} 条重复内容`);
+            console.log(`🧹 自动deduplicate: 在维度 ${dimension.title} middleremoving了 ${duplicatesRemoved} itemsduplicatecontent`);
           }
 
           logger.debug('✅ 添加到维度 ${dimensionId}:', newItem.content);
@@ -1352,7 +1352,7 @@ export default function BrandLibraryPageFixed() {
         description: "品牌语料库已保存到云端存储",
       });
     } catch (error) {
-      console.error('保存品牌维度失败:', error);
+      console.error('saving品牌维度failed:', error);
       toast({
         title: "保存失败",
         description: "保存过程中出现错误",
@@ -1368,16 +1368,16 @@ export default function BrandLibraryPageFixed() {
    * 
    */
   const handleBatchCorpusExtraction = async () => {
-    console.log('🔍 开始批量AI分析，当前所有资产:', brandAssets.map((a: any) => ({ id: a.id, name: a.name, status: a.status })));
+    console.log('🔍 starts批量AIanalyzing，current所has资产:', brandAssets.map((a: any) => ({ id: a.id, name: a.name, status: a.status })));
 
     const unprocessedAssets = brandAssets.filter((asset: any) =>
       asset.status === 'uploaded' || asset.status === 'error' || asset.status === 'processing'
     );
 
-    console.log('📋 找到待处理资产:', unprocessedAssets.map((a: any) => ({ id: a.id, name: a.name, status: a.status })));
+    console.log('📋 找到pending资产:', unprocessedAssets.map((a: any) => ({ id: a.id, name: a.name, status: a.status })));
 
     if (unprocessedAssets.length === 0) {
-      console.log('⚠️ 没有找到可处理的文件');
+      console.log('⚠️ 没has找到可processing的file');
       toast({
         title: "没有可处理的文件",
         description: "所有文件都已处理完成",
@@ -1402,7 +1402,7 @@ export default function BrandLibraryPageFixed() {
         setCorpusProcessingProgress((i / unprocessedAssets.length) * 100);
 
         try {
-          console.log(`🔍 [v2.0] 开始AI分析文件: ${asset.name}`);
+          console.log(`🔍 [v2.0] startsAIanalyzingfile: ${asset.name}`);
 
           // 更新文件状态为处理中
           setBrandAssets(prev => prev.map(a =>
@@ -1476,7 +1476,7 @@ export default function BrandLibraryPageFixed() {
           });
 
         } catch (error) {
-          console.error(`❌ [v2.0] AI分析文件 ${asset.name} 失败:`, error);
+          console.error(`❌ [v2.0] AIanalyzingfile ${asset.name} failed:`, error);
           setBrandAssets(prev => prev.map(a =>
             a.id === asset.id ? { ...a, status: 'error' } : a
           ));
@@ -1514,7 +1514,7 @@ export default function BrandLibraryPageFixed() {
       });
 
     } catch (error) {
-      console.error('批量语料库提取失败:', error);
+      console.error('批量语料库提取failed:', error);
       toast({
         title: "批量处理失败",
         description: "部分资料处理失败，请重试",
@@ -1540,7 +1540,7 @@ export default function BrandLibraryPageFixed() {
   const confirmDeleteAsset = () => {
     if (!assetToDelete) return;
 
-    console.log('🗑️ 开始删除资产:', assetToDelete.name);
+    console.log('🗑️ startsdeleting资产:', assetToDelete.name);
 
     // 从品牌资料库中删除文件
     const updatedAssets = brandAssets.filter((a: any) => a.id !== assetToDelete.id);
@@ -1556,7 +1556,7 @@ export default function BrandLibraryPageFixed() {
                            (item.source.startsWith(assetToDelete.name.split('.')[0])); // 处理文件名变化
         if (shouldDelete) {
           deletedItemsCount++;
-          console.log(`🗑️ 删除语料项目: ${item.content.substring(0, 50)}... (来源: ${item.source})`);
+          console.log(`🗑️ deleting语料item目: ${item.content.substring(0, 50)}... (来源: ${item.source})`);
         }
         return !shouldDelete;
       });
@@ -1595,7 +1595,7 @@ export default function BrandLibraryPageFixed() {
   const confirmBatchDeleteAssets = () => {
     if (selectedAssetsForBatch.size === 0) return;
 
-    console.log('🗑️ 开始批量删除资产:', Array.from(selectedAssetsForBatch));
+    console.log('🗑️ starts批量deleting资产:', Array.from(selectedAssetsForBatch));
 
     // 获取要删除的资产信息
     const assetsToDelete = brandAssets.filter((asset: any) => selectedAssetsForBatch.has(asset.id));
@@ -1617,7 +1617,7 @@ export default function BrandLibraryPageFixed() {
         );
         if (shouldDelete) {
           totalDeletedItemsCount++;
-          console.log(`🗑️ 删除语料项目: ${item.content.substring(0, 50)}... (来源: ${item.source})`);
+          console.log(`🗑️ deleting语料item目: ${item.content.substring(0, 50)}... (来源: ${item.source})`);
         }
         return !shouldDelete;
       });
@@ -1685,8 +1685,8 @@ export default function BrandLibraryPageFixed() {
     const existingAssetNames = brandAssets.map((asset: any) => asset.name);
     let cleanedItemsCount = 0;
 
-    console.log('🧹 开始清理孤立语料信息...');
-    console.log('📂 当前存在的资产:', existingAssetNames);
+    console.log('🧹 startscleaning孤立语料info...');
+    console.log('📂 currentexists的资产:', existingAssetNames);
 
     const updatedDimensions = brandDimensions.map((dimension: any) => {
       // 清理items中的孤立数据
@@ -1703,7 +1703,7 @@ export default function BrandLibraryPageFixed() {
 
         if (!shouldKeep) {
           cleanedItemsCount++;
-          console.log(`🗑️ 清理孤立语料: ${item.content.substring(0, 50)}... (来源: ${item.source})`);
+          console.log(`🗑️ cleaning孤立语料: ${item.content.substring(0, 50)}... (来源: ${item.source})`);
         }
 
         return shouldKeep;
@@ -1891,7 +1891,7 @@ export default function BrandLibraryPageFixed() {
       // 保存到统一数据持久化系统实现真正的持久化
       saveAssetsToUnifiedSystem([...brandAssets, ...newAssets]);
 
-      console.log('📁 文件上传完成，新增资产:', newAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
+      console.log('📁 fileuploadingcompleted，new增资产:', newAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
 
       // ✅ 立即显示上传成功，不等待AI分析
       toast({
@@ -1911,7 +1911,7 @@ export default function BrandLibraryPageFixed() {
       startBackgroundAnalysis(newAssets);
 
     } catch (error) {
-      console.error('文件上传失败:', error);
+      console.error('fileuploadingfailed:', error);
       toast({
         title: "上传失败",
         description: "文件上传过程中出现错误",
@@ -1948,7 +1948,7 @@ export default function BrandLibraryPageFixed() {
         throw new Error('无效的URL格式，请输入有效的网页地址');
       }
 
-      console.log('🔍 开始网页内容提取:', webUrl);
+      console.log('🔍 starts网页content提取:', webUrl);
       setExtractionProgress(10);
 
       // 使用WebContentExtractorService进行内容提取
@@ -1983,7 +1983,7 @@ export default function BrandLibraryPageFixed() {
 
       // 如果有品牌分析结果，可以自动更新语料库
       if (extractionResult.brandAnalysis) {
-        console.log('🎯 检测到品牌分析结果，可用于语料库更新');
+        console.log('🎯 detecting到品牌analyzingresult，available于语料库updating');
         // 这里可以添加自动分析逻辑
       }
 
@@ -1998,7 +1998,7 @@ export default function BrandLibraryPageFixed() {
       setWebUrl('');
 
     } catch (error) {
-      console.error('❌ 网页内容提取失败:', error);
+      console.error('❌ 网页content提取failed:', error);
 
       let errorMessage = "网页内容提取失败";
       if (error instanceof Error) {
@@ -2480,7 +2480,7 @@ export default function BrandLibraryPageFixed() {
                                     asset: asset
                                   });
                                 } else if (asset.status === 'uploaded' || asset.status === 'error') {
-                                  console.log('开始分析文件:', asset.name);
+                                  console.log('startsanalyzingfile:', asset.name);
                                   // 使用后台分析功能
                                   startBackgroundAnalysis([asset]);
 
@@ -2522,7 +2522,7 @@ export default function BrandLibraryPageFixed() {
                               onClick={() => {
                                 setSelectedPdfFile(asset);
                                 setShowPdfDialog(true);
-                                console.log('开始与文件对话:', asset.name);
+                                console.log('starts与file对话:', asset.name);
                               }}
                             >
                               <MessageSquare className="h-3 w-3 mr-1" />
@@ -2623,7 +2623,7 @@ export default function BrandLibraryPageFixed() {
                                     asset: asset
                                   });
                                 } else if (asset.status === 'uploaded' || asset.status === 'error') {
-                                  console.log('开始分析文件:', asset.name);
+                                  console.log('startsanalyzingfile:', asset.name);
                                   // 使用后台分析功能
                                   startBackgroundAnalysis([asset]);
 
@@ -2663,7 +2663,7 @@ export default function BrandLibraryPageFixed() {
                                 size="sm"
                                 className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
                                 onClick={() => {
-                                  console.log('重新分析文件:', asset.name);
+                                  console.log('reanalyzingfile:', asset.name);
                                   const updatedAssets = brandAssets.map((a: any) =>
                                     a.id === asset.id ? { ...a, status: 'processing' as const } : a
                                   );
@@ -2689,7 +2689,7 @@ export default function BrandLibraryPageFixed() {
                             onClick={() => {
                               setSelectedPdfFile(asset);
                               setShowPdfDialog(true);
-                              console.log('开始与文件对话:', asset.name);
+                              console.log('starts与file对话:', asset.name);
                             }}
                           >
                             <MessageSquare className="h-4 w-4 mr-1" />
@@ -3475,7 +3475,7 @@ function DimensionForm({
                   <DropdownMenuContent align="end" className="w-64">
                     <DropdownMenuItem
                       onClick={() => {
-                        console.log('钉住/取消钉住点击事件触发', { dimensionId: dimension.id, itemId: item.id, isPinned: item.isPinned });
+                        console.log('钉住/canceling钉住点击eventtriggering', { dimensionId: dimension.id, itemId: item.id, isPinned: item.isPinned });
                         // 钉住时自动取消屏蔽状态
                         if (!item.isPinned && item.isBlocked) {
                           onUpdateItem(dimension.id, item.id, { isPinned: true, isBlocked: false });
@@ -3496,7 +3496,7 @@ function DimensionForm({
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-                        console.log('屏蔽/取消屏蔽点击事件触发', { dimensionId: dimension.id, itemId: item.id, isBlocked: item.isBlocked });
+                        console.log('屏蔽/canceling屏蔽点击eventtriggering', { dimensionId: dimension.id, itemId: item.id, isBlocked: item.isBlocked });
                         // 屏蔽时自动取消钉住状态
                         if (!item.isBlocked && item.isPinned) {
                           onUpdateItem(dimension.id, item.id, { isBlocked: true, isPinned: false });
@@ -3542,7 +3542,7 @@ function DimensionForm({
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => {
-                        console.log('删除点击事件触发', { dimensionId: dimension.id, itemId: item.id });
+                        console.log('deleting点击eventtriggering', { dimensionId: dimension.id, itemId: item.id });
                         // 调用传入的删除处理函数
                         onDeleteItem(dimension.id, item.id);
                       }}

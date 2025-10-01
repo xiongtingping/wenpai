@@ -64,7 +64,7 @@ export class BatchForwardAutomation {
 
       // 获取当前页面的内容数据
       const platformData = await this.extractCurrentPageData();
-      console.log(`📋 发现 ${platformData.length} 个平台的内容`);
+      console.log(`📋 发现 ${platformData.length} units平台的content`);
 
       if (platformData.length === 0) {
         throw new Error('未找到可转发的内容，请先生成内容');
@@ -86,7 +86,7 @@ export class BatchForwardAutomation {
           continue;
         }
 
-        console.log(`🔄 处理平台: ${platformId}`);
+        console.log(`🔄 processing平台: ${platformId}`);
         const result = await this.handleSinglePlatform(platformContent);
         results.push(result);
 
@@ -98,7 +98,7 @@ export class BatchForwardAutomation {
       return results;
 
     } catch (error) {
-      console.error('❌ 批量转发自动化失败:', error);
+      console.error('❌ 批量转发自动化failed:', error);
       throw error;
     }
   }
@@ -184,7 +184,7 @@ export class BatchForwardAutomation {
 
         // 如果没有找到标准的卡片，尝试查找版本内容
         if (platformData.length === 0) {
-          console.log('🔍 未找到平台卡片，尝试查找版本内容...');
+          console.log('🔍 not found平台card，尝试findversioncontent...');
 
           // 查找所有版本内容元素
           const versionAElements = document.querySelectorAll('[data-testid="version-a-content"]');
@@ -214,18 +214,18 @@ export class BatchForwardAutomation {
         }
 
         // 调试信息
-        console.log(`📋 提取到 ${platformData.length} 个平台的内容`);
+        console.log(`📋 提取到 ${platformData.length} units平台的content`);
         if (platformData.length === 0) {
-          console.warn('⚠️ 未找到任何可用内容，请确保页面已生成内容');
-          console.log('🔍 页面调试信息：');
-          console.log('- 平台卡片数量：', document.querySelectorAll('[data-testid="platform-card"]').length);
-          console.log('- 版本A内容数量：', document.querySelectorAll('[data-testid="version-a-content"]').length);
-          console.log('- 版本B内容数量：', document.querySelectorAll('[data-testid="version-b-content"]').length);
+          console.warn('⚠️ not found任何availablecontent，请确保pagealready生成content');
+          console.log('🔍 pagedebugginginfo：');
+          console.log('- 平台cardquantity：', document.querySelectorAll('[data-testid="platform-card"]').length);
+          console.log('- versionAcontentquantity：', document.querySelectorAll('[data-testid="version-a-content"]').length);
+          console.log('- versionBcontentquantity：', document.querySelectorAll('[data-testid="version-b-content"]').length);
         }
 
         resolve(platformData);
       } catch (error) {
-        console.error('提取平台数据失败:', error);
+        console.error('提取平台datafailed:', error);
         resolve([]);
       }
     });
@@ -242,7 +242,7 @@ export class BatchForwardAutomation {
     tags?: string[];
   }): Promise<ForwardResult> {
     try {
-      console.log(`📝 处理 ${platformData.platformName} (${platformData.platformId})`);
+      console.log(`📝 processing ${platformData.platformName} (${platformData.platformId})`);
 
       // 构建完整的转发内容（包含标题、内容、标签）
       let fullContent = platformData.content;
@@ -290,7 +290,7 @@ export class BatchForwardAutomation {
       }
 
     } catch (error) {
-      console.error(`平台 ${platformData.platformId} 处理失败:`, error);
+      console.error(`平台 ${platformData.platformId} processingfailed:`, error);
       return {
         platformId: platformData.platformId,
         platformName: platformData.platformName,
@@ -324,7 +324,7 @@ export class BatchForwardAutomation {
         logger.debug('✅ 内容已复制到剪贴板（降级方案）');
       }
     } catch (error) {
-      console.error('❌ 复制到剪贴板失败:', error);
+      console.error('❌ copying到剪贴板failed:', error);
       throw new Error('u64cdu4f5cu5931u8d25');
     }
   }
@@ -347,11 +347,11 @@ export class BatchForwardAutomation {
         logger.debug('✅ 已打开发布页面: ${url}');
         return true;
       } else {
-        console.error('❌ 无法打开新窗口，可能被浏览器阻止');
+        console.error('❌ none法openingnewwindow，可能被浏览器阻止');
         return false;
       }
     } catch (error) {
-      console.error('❌ 打开发布页面失败:', error);
+      console.error('❌ openingpublishingpagefailed:', error);
       return false;
     }
   }
@@ -370,7 +370,7 @@ export class BatchForwardAutomation {
  */
 export async function executeBatchForward(options: BatchForwardOptions): Promise<LegacyForwardResult[]> {
   logger.system('🚀 启动增强版批量转发自动化...');
-  console.log('配置选项:', options);
+  console.log('configurationoption:', options);
 
   try {
     // 创建自动化引擎
@@ -397,7 +397,7 @@ export async function executeBatchForward(options: BatchForwardOptions): Promise
       throw new Error('未找到任何可转发的内容，请确保页面已生成内容');
     }
 
-    console.log(`📋 检测到 ${platformContents.length} 个平台的内容`);
+    console.log(`📋 detecting到 ${platformContents.length} units平台的content`);
 
     // 执行自动化转发
     const results = await engine.executeForward(platformContents);
@@ -412,7 +412,7 @@ export async function executeBatchForward(options: BatchForwardOptions): Promise
     }));
 
   } catch (error) {
-    console.error('❌ 批量转发失败:', error);
+    console.error('❌ 批量转发failed:', error);
     throw error;
   }
 }

@@ -385,7 +385,7 @@ export class UnifiedDataPersistenceManager {
     
     const service = this.supabaseServices.get(dataType);
     if (!service) {
-      throw new Error(`Supabase服务未初始化: ${dataType}`);
+      throw new Error(`Supabaseservicenotinitialization: ${dataType}`);
     }
 
     try {
@@ -635,7 +635,7 @@ export class UnifiedDataPersistenceManager {
 
     const service = this.supabaseServices.get(dataType);
     if (!service) {
-      throw new Error(`Supabase服务未初始化: ${dataType}`);
+      throw new Error(`Supabaseservicenotinitialization: ${dataType}`);
     }
 
     try {
@@ -720,7 +720,7 @@ export class UnifiedDataPersistenceManager {
 
     const service = this.supabaseServices.get(dataType);
     if (!service) {
-      throw new Error(`Supabase服务未初始化: ${dataType}`);
+      throw new Error(`Supabaseservicenotinitialization: ${dataType}`);
     }
 
     try {

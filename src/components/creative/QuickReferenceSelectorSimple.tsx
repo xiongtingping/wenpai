@@ -33,7 +33,7 @@ export function QuickReferenceSelectorSimple({
           size="sm" 
           className={className}
           onClick={() => {
-            console.log('🔍 简化版快速引用按钮被点击');
+            console.log('🔍 simplified版快速引用button被点击');
             setIsOpen(true);
           }}
         >

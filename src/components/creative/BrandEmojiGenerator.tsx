@@ -128,7 +128,7 @@ async function generateEmojiImage(prompt: string, referenceImage?: File | null, 
       }
     }
   } catch (error) {
-    console.error('图像生成API调用失败:', error);
+    console.error('graph像生成API调用failed:', error);
     throw error;
   }
 }

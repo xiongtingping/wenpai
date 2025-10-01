@@ -108,7 +108,7 @@ export class ProductionKeyManager {
   private initializeKeyValidation(): void {
     // 🔧 修复：简化密钥管理，避免生产环境显示不必要的警告
     if (!this.isProduction()) {
-      console.log('🔐 密钥管理器已初始化（开发模式）');
+      console.log('🔐 keymanageralreadyinitialization（开发模式）');
       return;
     }
     
@@ -121,7 +121,7 @@ export class ProductionKeyManager {
       this.validateCriticalKeysOnly();
     }, this.VALIDATION_INTERVAL);
 
-    console.log('🔐 生产环境密钥管理器已初始化');
+    console.log('🔐 producing环境keymanageralreadyinitialization');
   }
 
   /**
@@ -368,11 +368,11 @@ export class ProductionKeyManager {
         
         // 仅在完全无法获取密钥时报错（连后备密钥都失效）
         if (!envKey && !this.getProductionFallbackKey(config)) {
-          console.error(`🚨 关键密钥完全缺失: ${keyName}`);
+          console.error(`🚨 关keykey完全缺失: ${keyName}`);
           hasErrors = true;
         }
       } catch (error) {
-        console.error(`🚨 关键密钥验证失败: ${keyName}`, error);
+        console.error(`🚨 关keykeyvalidatingfailed: ${keyName}`, error);
         hasErrors = true;
       }
     });
@@ -390,7 +390,7 @@ export class ProductionKeyManager {
     
     // 🔧 开发环境静默验证，减少控制台噪音
     if (isProduction) {
-      console.log('🔍 开始密钥安全验证...');
+      console.log('🔍 startskey安全validating...');
     }
     
     const results: Record<string, KeyValidationResult> = {};
@@ -410,7 +410,7 @@ export class ProductionKeyManager {
           }
         }
       } catch (error) {
-        console.error(`❌ 密钥验证失败: ${keyName}`, error);
+        console.error(`❌ keyvalidatingfailed: ${keyName}`, error);
         this.addSecurityAlert('critical', 'key_management', 
           `密钥验证失败: ${keyName}`, { keyName, error: String(error) });
       }
@@ -421,9 +421,9 @@ export class ProductionKeyManager {
     // 🔧 生成验证报告 - 仅在生产环境或有严重问题时输出
     if (isProduction || criticalIssues > 0) {
       if (totalIssues === 0) {
-        console.log('✅ 所有密钥验证通过');
+        console.log('✅ 所haskeyvalidating通过');
       } else {
-        console.warn(`⚠️ 发现 ${totalIssues} 个密钥安全问题`);
+        console.warn(`⚠️ 发现 ${totalIssues} unitskey安全问题`);
         this.addSecurityAlert('warning', 'security', 
           `密钥安全验证发现问题`, { 
             totalIssues, 
@@ -442,7 +442,7 @@ export class ProductionKeyManager {
       }
     } else {
       // 开发环境简化日志
-      console.log('🔐 密钥管理器已初始化（开发模式）');
+      console.log('🔐 keymanageralreadyinitialization（开发模式）');
     }
   }
 
@@ -479,7 +479,7 @@ export class ProductionKeyManager {
       this.alerts = this.alerts.slice(-1000);
     }
 
-    console.warn(`🚨 安全警告 [${level}]`, message, details);
+    console.warn(`🚨 安全warning [${level}]`, message, details);
   }
 
   /**
@@ -572,7 +572,7 @@ export class ProductionKeyManager {
   public refreshKeyCache(): void {
     this.keyCache.clear();
     this.validateAllKeys();
-    console.log('🔄 密钥缓存已刷新');
+    console.log('🔄 keycachealreadyrefreshing');
   }
 }
 

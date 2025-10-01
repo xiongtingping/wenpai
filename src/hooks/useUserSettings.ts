@@ -36,7 +36,7 @@ export function useUserSettings() {
     try {
       return await userSettingsService.getSetting(key, defaultValue);
     } catch (error) {
-      console.error('获取设置失败:', error);
+      console.error('gettingsettingfailed:', error);
       return defaultValue;
     }
   }, []);
@@ -45,10 +45,10 @@ export function useUserSettings() {
    * 保存单个设置
    */
   const saveSetting = useCallback(async (key: string, value: any, metadata: Record<string, any> = {}): Promise<boolean> => {
-    console.log('📝 开始保存设置:', { key, user: user?.id, hasValue: !!value });
+    console.log('📝 startssavingsetting:', { key, user: user?.id, hasValue: !!value });
     
     if (!user?.id) {
-      console.warn('⚠️ 用户未登录，无法保存设置');
+      console.warn('⚠️ usernotlogin，none法savingsetting');
       return false;
     }
 
@@ -59,10 +59,10 @@ export function useUserSettings() {
       // 更新本地状态
       setSettings(prev => ({ ...prev, [key]: value }));
       
-      console.log('✅ 设置保存成功:', { key, userId: user.id });
+      console.log('✅ settingsavingsuccess:', { key, userId: user.id });
       return true;
     } catch (error) {
-      console.error('❌ 保存设置失败:', error);
+      console.error('❌ savingsettingfailed:', error);
       return false;
     } finally {
       setLoading(false);
@@ -74,7 +74,7 @@ export function useUserSettings() {
    */
   const saveSettings = useCallback(async (newSettings: Record<string, any>, metadata: Record<string, any> = {}): Promise<boolean> => {
     if (!user?.id) {
-      console.warn('用户未登录，无法保存设置');
+      console.warn('usernotlogin，none法savingsetting');
       return false;
     }
 
@@ -87,7 +87,7 @@ export function useUserSettings() {
       
       return true;
     } catch (error) {
-      console.error('批量保存设置失败:', error);
+      console.error('批量savingsettingfailed:', error);
       return false;
     } finally {
       setLoading(false);
@@ -103,7 +103,7 @@ export function useUserSettings() {
       setSettings(prev => ({ ...prev, ...result }));
       return result;
     } catch (error) {
-      console.error('批量获取设置失败:', error);
+      console.error('批量gettingsettingfailed:', error);
       return {};
     }
   }, []);
@@ -113,7 +113,7 @@ export function useUserSettings() {
    */
   const deleteSetting = useCallback(async (key: string): Promise<boolean> => {
     if (!user?.id) {
-      console.warn('用户未登录，无法删除设置');
+      console.warn('usernotlogin，none法deletingsetting');
       return false;
     }
 
@@ -130,7 +130,7 @@ export function useUserSettings() {
       
       return true;
     } catch (error) {
-      console.error('删除设置失败:', error);
+      console.error('deletingsettingfailed:', error);
       return false;
     } finally {
       setLoading(false);

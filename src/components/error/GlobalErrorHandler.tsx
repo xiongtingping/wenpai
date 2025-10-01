@@ -250,7 +250,7 @@ export const GlobalErrorHandler: React.FC = () => {
 export function setupGlobalErrorHandler() {
   // 捕获未处理的Promise拒绝
   window.addEventListener('unhandledrejection', (event) => {
-    console.error('未处理的Promise拒绝:', event.reason);
+    console.error('notprocessing的Promisedenied:', event.reason);
     
     const errorInfo = createErrorFromAPIError(event.reason);
     addGlobalError({
@@ -261,7 +261,7 @@ export function setupGlobalErrorHandler() {
 
   // 捕获全局JavaScript错误
   window.addEventListener('error', (event) => {
-    console.error('全局JavaScript错误:', event.error);
+    console.error('全局JavaScripterror:', event.error);
     
     addGlobalError({
       message: event.message || t('components.messages.页面发生错误'),

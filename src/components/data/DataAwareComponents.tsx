@@ -140,7 +140,7 @@ export function useSmartData<T>(
         }
       } catch (err) {
         const error = err instanceof Error ? err : new Error(t('components.errors.数据加载失败'));
-        console.error(`数据加载失败 ${dataKey}:`, error);
+        console.error(`dataloadingfailed ${dataKey}:`, error);
         
         if (mounted.current) {
           setError(error.message);
@@ -187,7 +187,7 @@ export function useSmartData<T>(
       }
       return success;
     } catch (err) {
-      console.error(`数据更新失败 ${dataKey}:`, err);
+      console.error(`dataupdatingfailed ${dataKey}:`, err);
       return false;
     }
   };
@@ -329,7 +329,7 @@ export function useDataPreloader() {
     if (!user?.id) return;
 
     globalDataManager.setUserId(user.id);
-    console.log('🔄 开始预加载数据:', dataKeys);
+    console.log('🔄 starts预loadingdata:', dataKeys);
 
     const promises = dataKeys.map(async (key) => {
       try {
@@ -339,7 +339,7 @@ export function useDataPreloader() {
         }
         return { key, success: true };
       } catch (error) {
-        console.error(`预加载失败 ${key}:`, error);
+        console.error(`预loadingfailed ${key}:`, error);
         return { key, success: false, error };
       }
     });
@@ -347,7 +347,7 @@ export function useDataPreloader() {
     const results = await Promise.allSettled(promises);
     const successful = results.filter(r => r.status === 'fulfilled').length;
     
-    console.log(`✅ 数据预加载完成: ${successful}/${dataKeys.length}`);
+    console.log(`✅ data预loadingcompleted: ${successful}/${dataKeys.length}`);
     return results;
   };
 

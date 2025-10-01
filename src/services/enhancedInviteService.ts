@@ -132,7 +132,7 @@ class EnhancedInviteService {
       const response = await request.get(`${this.API_ENDPOINT}/link/${userId}`);
       return response.data.inviteLink;
     } catch (error) {
-      console.error('生成邀请链接失败:', error);
+      console.error('生成邀请linkfailed:', error);
       
       // 🚨 API失败时必须抛出错误，不能使用本地生成
       throw new Error(`邀请链接生成API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
@@ -158,7 +158,7 @@ class EnhancedInviteService {
         }
       });
     } catch (error) {
-      console.error('跟踪邀请链接点击失败:', error);
+      console.error('跟踪邀请link点击failed:', error);
       // 🚨 API失败时必须抛出错误，不能使用本地队列
       throw new Error(`邀请链接点击跟踪失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
@@ -183,7 +183,7 @@ class EnhancedInviteService {
       
       return relation;
     } catch (error) {
-      console.error('绑定邀请关系失败:', error);
+      console.error('绑定邀请关系failed:', error);
       // 🚨 API失败时必须抛出错误，不能使用本地数据
       throw new Error(`绑定邀请关系失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
@@ -201,7 +201,7 @@ class EnhancedInviteService {
       }
       
       if (relation.rewardProcessed) {
-        console.warn('邀请奖励已发放过');
+        console.warn('邀请奖励already发放过');
         return false;
       }
       
@@ -227,7 +227,7 @@ class EnhancedInviteService {
       
       return true;
     } catch (error) {
-      console.error('处理邀请奖励失败:', error);
+      console.error('processing邀请奖励failed:', error);
       // 🚨 奖励处理失败时必须抛出错误
       throw new Error(`处理邀请奖励失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
@@ -246,7 +246,7 @@ class EnhancedInviteService {
       
       return stats;
     } catch (error) {
-      console.error('获取邀请统计失败:', error);
+      console.error('getting邀请统计failed:', error);
       // 🚨 API失败时必须抛出错误，不能使用本地数据
       throw new Error(`获取邀请统计失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
@@ -260,7 +260,7 @@ class EnhancedInviteService {
       const response = await request.get(`${this.API_ENDPOINT}/relations/${userId}`);
       return response.data;
     } catch (error) {
-      console.error('获取邀请关系失败:', error);
+      console.error('getting邀请关系failed:', error);
       // 🚨 API失败时必须抛出错误，不能使用本地数据
       throw new Error(`获取邀请关系失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
@@ -274,7 +274,7 @@ class EnhancedInviteService {
       const response = await request.get(`${this.API_ENDPOINT}/analytics/${userId}?period=${period}`);
       return response.data;
     } catch (error) {
-      console.error('获取邀请分析失败:', error);
+      console.error('getting邀请analyzingfailed:', error);
       // 🚨 API失败时必须抛出错误，不能返回默认数据
       throw new Error(`获取邀请分析失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
@@ -296,7 +296,7 @@ class EnhancedInviteService {
       
       return true;
     } catch (error) {
-      console.error('发放奖励失败:', error);
+      console.error('发放奖励failed:', error);
       return false;
     }
   }
@@ -311,10 +311,10 @@ class EnhancedInviteService {
         userId,
         amount
       });
-      console.log(`✅ 为用户 ${userId} 增加 ${amount} 次使用机会`);
+      console.log(`✅ 为user ${userId} 增加 ${amount} times使用机会`);
       return true;
     } catch (error) {
-      console.error('添加使用次数失败:', error);
+      console.error('adding使用countfailed:', error);
       // 🚨 API失败时必须抛出错误，不能返回false掩盖问题
       throw new Error(`增加使用次数API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
@@ -328,7 +328,7 @@ class EnhancedInviteService {
       const response = await request.get(`${this.API_ENDPOINT}/relation/${inviteeId}`);
       return response.data;
     } catch (error) {
-      console.error('获取邀请关系失败:', error);
+      console.error('getting邀请关系failed:', error);
       // 🚨 API失败时必须抛出错误，不能使用本地关系数据
       throw new Error(`获取邀请关系API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
@@ -349,7 +349,7 @@ class EnhancedInviteService {
         updatedAt: new Date().toISOString()
       });
     } catch (error) {
-      console.error('更新邀请关系状态失败:', error);
+      console.error('updating邀请关系statefailed:', error);
       throw new Error(`更新邀请关系状态失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
@@ -370,7 +370,7 @@ class EnhancedInviteService {
       
       logger.debug('✅ 邀请事件记录成功:', { eventType, inviterId: data.inviterId });
     } catch (error) {
-      console.error('记录邀请事件失败:', error);
+      console.error('记录邀请eventfailed:', error);
       throw new Error(`邀请事件记录失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
@@ -385,7 +385,7 @@ class EnhancedInviteService {
       
       logger.debug('✅ 邀请关系保存成功:', { relationId: relation.id, inviterId: relation.inviterId });
     } catch (error) {
-      console.error('保存邀请关系失败:', error);
+      console.error('saving邀请关系failed:', error);
       throw new Error(`保存邀请关系失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
@@ -400,7 +400,7 @@ class EnhancedInviteService {
       
       logger.debug('✅ 邀请统计保存成功:', { userId });
     } catch (error) {
-      console.error('保存邀请统计失败:', error);
+      console.error('saving邀请统计failed:', error);
       throw new Error(`保存邀请统计失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
@@ -410,7 +410,7 @@ class EnhancedInviteService {
    * 所有操作都直接调用Supabase数据库
    */
   private addToPendingSync(action: string, data: any): void {
-    console.warn('addToPendingSync方法已废弃，不再使用本地同步队列');
+    console.warn('addToPendingSyncmethodalready废弃，不再使用localsyncqueue');
   }
 
   /**
@@ -451,7 +451,7 @@ class EnhancedInviteService {
         await request.post(`${this.API_ENDPOINT}/sync`, { action, data });
         this.pendingSyncData.delete(key);
       } catch (error) {
-        console.warn(`同步数据失败 (${action}):`, error);
+        console.warn(`syncdatafailed (${action}):`, error);
         // 保留在队列中，下次继续尝试
       }
     }

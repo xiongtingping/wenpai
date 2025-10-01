@@ -100,17 +100,17 @@ export const validateAndLogEnvironment = (): boolean => {
   
   console.group('🔧 环境变量验证');
   console.log('环境模式:', result.environment.mode);
-  console.log('是否生产环境:', result.environment.isProduction);
+  console.log('是否producing环境:', result.environment.isProduction);
   console.log('是否开发环境:', result.environment.isDevelopment);
   
   if (result.isValid) {
     logger.debug('✅ 所有必需的环境变量都已设置');
   } else {
-    console.error('❌ 缺少必需的环境变量:', result.missing);
+    console.error('❌ missing必需的环境variable:', result.missing);
   }
   
   if (result.warnings.length > 0) {
-    console.warn('⚠️ 警告:', result.warnings);
+    console.warn('⚠️ warning:', result.warnings);
   }
   
   console.groupEnd();

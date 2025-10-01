@@ -268,7 +268,7 @@ export class UserInfoNormalizer {
     
     // 如果原始phone包含引号但数字有效，记录警告
     if (!isValid && /["""'']/.test(phone)) {
-      console.warn(`📱 手机号包含异常字符，已尝试清理: "${phone}" -> "${cleanPhone}"`);
+      console.warn(`📱 phone号containsabnormal字符，already尝试cleaning: "${phone}" -> "${cleanPhone}"`);
     }
     
     return isValid;

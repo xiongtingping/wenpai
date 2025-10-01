@@ -133,7 +133,7 @@ const fixTruncatedJSON = (truncatedJson: string): string | null => {
       }
     }
 
-    console.log('所有JSON修复方法都失败了，语义贴合度不足60%');
+    console.log('所hasJSONfixingmethod都failed了，语义贴合度不足60%');
     suggestions.push('增强与原文内容的关联性');
   }
 
@@ -291,7 +291,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     // ✅ FIXED: 优化API调用限制 - 减少等待时间
     if (timeSinceLastCall < minInterval) {
       const delay = Math.min(minInterval - timeSinceLastCall, 2000); // 最大等待2秒
-      console.log(`⏱️ API调用限制：需要等待${Math.ceil(delay / 1000)}秒$🔄 平台切换检查: ${platformId || '未知'} (${platformName || '未知平台'})`);
+      console.log(`⏱️ API调用limiting：需要waiting${Math.ceil(delay / 1000)}seconds$🔄 平台切换checking: ${platformId || 'not知'} (${platformName || 'not知平台'})`);
 
     // ✅ FIXED: 平台切换时只更新现有标题的平台信息和字符利用率，绝对不重新生成
     if (titles.length > 0) {
@@ -314,7 +314,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         })
       );
     } else {
-      console.log('平台切换失败');
+      console.log('平台切换failed');
     }
   };
 
@@ -355,7 +355,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     // ✅ FIXED: 优化API调用限制检查 - 减少等待时间
     const delay = checkApiCallLimit();
     if (delay > 0) {
-      console.log(`⏱️ API调用限制：需要等待${Math.ceil(delay / 1000)}秒`);
+      console.log(`⏱️ API调用limiting：需要waiting${Math.ceil(delay / 1000)}seconds`);
       toast({
         title: "API调用频率限制",
         description: `系统将等待${Math.ceil(delay / 1000)}秒后自动重试`,
@@ -385,7 +385,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         return;
       }
 
-      console.log(`📝 {t('titleGenerator.generation.contentSource')}: ${contentLength}字符，平台: ${platformId || '未知'}`);
+      console.log(`📝 {t('titleGenerator.generation.contentSource')}: ${contentLength}字符，平台: ${platformId || 'not知'}`);
 
       // ✅ FIXED: 检查用户模型选择状态
       const userSelectedModel = localStorage.getItem('preferredAIModel') || 'deepseek-v3';
@@ -403,14 +403,14 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       try {
         await Promise.race([generationPromise, timeoutPromise]);
       } catch (timeoutError) {
-        console.log('⏱️ 首次生成超时，尝试备用模型...');
+        console.log('⏱️ firsttimes生成timeout，尝试备用模型...');
         
         // ✅ FIXED: 优化备用策略 - 即使选择了DeepSeek，超时时也尝试备用模型
         const userSelectedModel = localStorage.getItem('preferredAIModel') || 'deepseek-v3';
         const isDeepSeekSelected = userSelectedModel.includes('deepseek');
         
         if (isDeepSeekSelected) {
-          console.log('🎯 用户选择了DeepSeek模型，但超时，尝试备用模型...');
+          console.log('🎯 user选择了DeepSeek模型，但timeout，尝试备用模型...');
         }
         
         // 只有在没有生成任何标题时才使用备用模型
@@ -504,13 +504,13 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       
       if (useFallback) {
         // 使用备用模型（跳过DeepSeek，优先使用OpenAI）
-        console.log('🔄 使用备用模型策略');
+        console.log('🔄 使用备用模型strategy');
         return allModels.filter(m => m.provider !== 'DeepSeek').sort((a, b) => a.priority - b.priority);
       }
       
       // ✅ FIXED: 如果用户选择了DeepSeek模型，只使用DeepSeek模型
       if (userSelectedModel.includes('deepseek')) {
-        console.log(`🎯 用户选择了DeepSeek模型: ${userSelectedModel}，只使用DeepSeek模型`);
+        console.log(`🎯 user选择了DeepSeek模型: ${userSelectedModel}，只使用DeepSeek模型`);
         return allModels.filter(m => m.provider === 'DeepSeek').sort((a, b) => a.priority - b.priority);
       }
       
@@ -529,7 +529,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     let lastError: Error | null = null;
     let successfulModel: string | null = null;
 
-    console.log(`🎯 开始AI模型调用，优先模型: ${aiModels[0].name}`);
+    console.log(`🎯 startsAI模型调用，优先模型: ${aiModels[0].name}`);
 
     for (const modelConfig of aiModels) {
       try {
@@ -546,7 +546,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         });
 
         // Step 2: 调用AI（带重试机制）
-        console.log(`🤖 Step 2: 调用${modelConfig.provider} API (模型: ${modelConfig.name}, 平台: ${platformId || '未知'})`);
+        console.log(`🤖 Step 2: 调用${modelConfig.provider} API (模型: ${modelConfig.name}, 平台: ${platformId || 'not知'})`);
         
         const aiResponse = await callAIWithRetry({
           prompt: userPrompt,
@@ -561,7 +561,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         }
 
         // Step 3: 解析AI响应格式（按规范推荐结构）
-        console.log('📊 Step 3: 解析AI响应JSON格式');
+        console.log('📊 Step 3: parsingAIresponseJSON格式');
         let aiResult: TitleGenerationResponse;
         try {
           // ✅ FIXED: 增强JSON解析逻辑，处理多种响应格式
@@ -571,7 +571,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           const jsonMatch = aiResponse.content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
           if (jsonMatch) {
             jsonContent = jsonMatch[1].trim();
-            console.log('📝 从markdown代码块提取JSON内容');
+            console.log('📝 从markdown代码block提取JSONcontent');
           }
           
           // 2. 尝试直接解析为JSON
@@ -629,7 +629,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
           // 验证响应结构
           if (!aiResult.contentAnalysis || !aiResult.titles || !Array.isArray(aiResult.titles)) {
-            console.warn('⚠️ AI响应结构不完整，尝试修复:', aiResult);
+            console.warn('⚠️ AIresponse结构不完整，尝试fixing:', aiResult);
             
             // 尝试修复不完整的响应
             if (!aiResult.contentAnalysis) {
@@ -649,7 +649,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           logger.debug('AI结果:', aiResult);
         } catch (parseError) {
           console.error(t('components.error.AI响应解析_oji'), parseError);
-          console.error('📝 原始响应内容:', aiResponse.content);
+          console.error('📝 原始responsecontent:', aiResponse.content);
           const errorMessage = parseError instanceof Error ? parseError.message : '解析错误';
           throw new Error('🔍 Step 4: 应用V3.1质量过滤逻辑');
         
@@ -692,17 +692,17 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           );
           
           if (!qualityCheck.isQualified) {
-            console.log(`❌ 标题质量不达标: "${title.title}"`);
+            console.log(`❌ title质量不达标: "${title.title}"`);
             console.log(`   问题: ${qualityCheck.issues.join(', ')}`);
             console.log(`   建议: ${qualityCheck.suggestions.join(', ')}`);
           } else {
-            console.log(`✅ 标题质量达标: "${title.title}"`);
+            console.log(`✅ title质量达标: "${title.title}"`);
           }
           
           return qualityCheck.isQualified;
         });
         
-        console.log('质量过滤结果：通过验证');
+        console.log('质量filterresult：通过validating');
         // 显示成功消息
         toast({
             title: '标题生成成功',
@@ -713,12 +713,12 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           return; // 成功生成，退出循环
         } else {
           // ✅ FIXED: 添加备用机制 - 如果所有标题都被过滤，保留质量最好的一个
-          console.log('⚠️ 所有标题都被质量过滤，启用备用机制');
+          console.log('⚠️ 所hastitle都被质量filter，enabling备用机制');
           const bestTitle = newTitles.reduce((best, current) => {
             return current.semanticFit > best.semanticFit ? current : best;
           });
           
-          console.log(`🔄 保留质量最好的标题: "${bestTitle.title}" (语义贴合度: ${bestTitle.semanticFit})`);
+          console.log(`🔄 保留质量最好的title: "${bestTitle.title}" (语义贴合度: ${bestTitle.semanticFit})`);
           
           // 更新标题状态
           setTitles([bestTitle]);
@@ -749,7 +749,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
     // 所有模型都失败了
     console.error(t('components.error.所有AI模型_rld{t('components.error.last_ess'), ');
-    console.error(`📊 失败统计: 尝试了 ${aiModels.length} 个模型 (${failedModels})`);
+    console.error(`📊 failed统计: 尝试了 ${aiModels.length} units模型 (${failedModels})`);
     
     // 显示错误提示
     toast({
@@ -838,7 +838,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
   // 清理平台切换时的状态
   const resetTitleGeneratorState = () => {
-    console.log(`🧹 重置标题生成器状态 (平台: ${platformId || '未知'})`);
+    console.log(`🧹 resettingtitlegeneratorstate (平台: ${platformId || 'not知'})`);
     setTitles([]);
     setSelectedTitle('');
     setTitleFeedback({});
@@ -854,7 +854,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       const initialContent = content.trim(); // 使用与后续检测相同的内容源
       if (initialContent.length >= 5) {
         lastContentRef.current = initialContent;
-        console.log(`🎯 初始化内容跟踪: 内容长度=${initialContent.length}`);
+        console.log(`🎯 initializationcontent跟踪: contentlength=${initialContent.length}`);
       }
     }
   }, []); // 只在组件挂载时执行一次
@@ -871,7 +871,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     const needsRegeneration = isContentValid && !hasExistingTitles && !isGenerating && contentChanged;
 
     if (needsRegeneration) {
-      console.log(`🎯 内容变化触发生成: 平台=${platformId}, 内容长度=${contentLength}`);
+      console.log(`🎯 content变化triggering生成: 平台=${platformId}, contentlength=${contentLength}`);
       lastContentRef.current = currentContent;
       
       // ✅ FIXED: 添加防抖，避免频繁生成
@@ -893,7 +893,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
     // ✅ FIXED: 只在初始化且有有效内容时生成，避免重复生成
     if (isInitialLoad && isContentValid && !hasExistingTitles && !isGenerating) {
-      console.log(`🎯 初始化自动生成: 平台=${platformId}, 内容长度=${contentLength}`);
+      console.log(`🎯 initialization自动生成: 平台=${platformId}, contentlength=${contentLength}`);
       lastContentRef.current = currentContent;
       
       // ✅ FIXED: 添加延迟，避免与内容变化监听冲突
@@ -912,7 +912,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     
     // ✅ FIXED: 只在平台切换且有有效内容时重新生成，避免重复生成
     if (isContentValid && !hasExistingTitles && !isGenerating) {
-      console.log(`🔄 平台切换检测: 平台=${platformId}, 内容长度=${contentLength}`);
+      console.log(`🔄 平台切换detecting: 平台=${platformId}, contentlength=${contentLength}`);
       lastContentRef.current = currentContent;
       
       // ✅ FIXED: 添加延迟，避免与初始化逻辑冲突
@@ -924,7 +924,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
   // ✅ FIXED: 添加调试日志 - 跟踪组件状态变化
   useEffect(() => {
-    console.log(`🔍 TitleGenerator状态更新:`, {
+    console.log(`🔍 TitleGeneratorstateupdating:`, {
       contentLength: content.trim().length,
       titlesCount: titles.length,
       isGenerating,

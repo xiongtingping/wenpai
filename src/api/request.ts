@@ -147,7 +147,7 @@ instance.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('❌ 请求拦截器错误:', error);
+    console.error('❌ requestinterceptorerror:', error);
     return Promise.reject(error);
   }
 );
@@ -163,7 +163,7 @@ instance.interceptors.request.use(
       return response;
     },
     (error) => {
-      console.error('❌ API响应错误:', {
+      console.error('❌ APIresponseerror:', {
         status: error.response?.status,
         message: error.message,
         url: error.config?.url,
@@ -172,7 +172,7 @@ instance.interceptors.request.use(
 
       // 统一错误处理
       if (error.response?.status === 401) {
-        console.error('🔐 认证失败，可能需要重新登录');
+        console.error('🔐 authenticatingfailed，可能需要relogin');
 
         // 
         const isAuthRequest = error.config?.headers?.Authorization?.includes('Bearer');
@@ -182,13 +182,13 @@ instance.interceptors.request.use(
           setTimeout(() => localStorage.removeItem('auth_token_invalid'), 1000);
         }
       } else if (error.response?.status === 429) {
-        console.error('⏰ API调用频率超限');
+        console.error('⏰ API调用frequency超限');
       } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-        console.error('⏱️ 请求超时 - 可能是网络问题或服务器响应慢');
+        console.error('⏱️ requesttimeout - 可能是网络问题或serverresponse慢');
         // 🔧 FIX: 提供更详细的超时错误信息
         error.message = `请求超时 (${error.config?.timeout || 60000}ms) - 请检查网络连接或稍后重试`;
       } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
-        console.error('🌐 网络连接失败 - DNS解析或服务器连接问题');
+        console.error('🌐 网络joinfailed - DNSparsing或serverjoin问题');
         error.message = '网络连接失败，请检查网络设置或稍后重试';
       }
 
@@ -258,7 +258,7 @@ async function requestWithRetry<T>(
         finalConfig.maxDelay
       );
 
-      console.warn(`⚠️ API请求失败，${delay}ms后重试 (${attempt + 1}/${finalConfig.maxRetries})`, {
+      console.warn(`⚠️ APIrequestfailed，${delay}msnextretrying (${attempt + 1}/${finalConfig.maxRetries})`, {
         error: error instanceof Error ? error.message : String(error),
         url: error && typeof error === 'object' && 'config' in error ? (error as any).config?.url : undefined,
         attempt: attempt + 1
@@ -357,11 +357,11 @@ export const validateAPIConfig = (): boolean => {
 
   for (const { name, config: apiConfig } of requiredConfigs) {
     if (!apiConfig.apiKey) {
-      console.warn(`⚠️ ${name} API密钥未配置`);
+      console.warn(`⚠️ ${name} APIkeynotconfiguration`);
       return false;
     }
     if (!apiConfig.baseURL) {
-      console.warn(`⚠️ ${name} API地址未配置`);
+      console.warn(`⚠️ ${name} APIaddressnotconfiguration`);
       return false;
     }
   }

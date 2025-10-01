@@ -140,7 +140,7 @@ export class UserSettingsService {
         .limit(1);
 
       if (error) {
-        console.log('user_preferences表不存在，尝试创建...');
+        console.log('user_preferences表not exists，尝试creating...');
         
         // 尝试创建表
         const created = await this.createUserPreferencesTable();
@@ -153,10 +153,10 @@ export class UserSettingsService {
       }
 
       this.tableValidated = true;
-      console.log('✅ user_preferences 表验证成功');
+      console.log('✅ user_preferences 表validatingsuccess');
       return true;
     } catch (error) {
-      console.error('数据库表验证异常:', error);
+      console.error('database表validatingabnormal:', error);
       throw error;
     }
   }
@@ -165,9 +165,9 @@ export class UserSettingsService {
    * 创建user_preferences表
    */
   private async createUserPreferencesTable(): Promise<boolean> {
-    console.error('❌ user_preferences表不存在！');
+    console.error('❌ user_preferences表not exists！');
     console.error('');
-    console.error('📋 请在Supabase SQL编辑器中执行以下SQL语句：');
+    console.error('📋 请在Supabase SQLeditormiddleexecuting以downSQLstatement：');
     console.error('');
     console.error(`CREATE TABLE IF NOT EXISTS user_preferences (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -193,7 +193,7 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
   WITH CHECK (user_id::text = auth.uid()::text);`);
     
     console.error('');
-    console.error('🔗 或者使用简化版本: cat /Users/xiong/wenpai/supabase-setup-simple.sql');
+    console.error('🔗 或者使用simplifiedversion: cat /Users/xiong/wenpai/supabase-setup-simple.sql');
     console.error('');
     
     throw new Error('请先在Supabase中创建user_preferences表，然后刷新页面');
@@ -225,16 +225,16 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
         });
 
       if (error) {
-        console.error('保存设置失败:', error);
-        console.error('保存数据:', settingData);
-        throw new Error(`保存设置失败: ${error.message}`);
+        console.error('savingsettingfailed:', error);
+        console.error('savingdata:', settingData);
+        throw new Error(`savingsettingfailed: ${error.message}`);
       }
 
       // 更新缓存
       this.cache.set(key, value);
     } catch (error) {
-      console.error('保存设置异常:', error);
-      console.error('保存数据:', settingData);
+      console.error('savingsettingabnormal:', error);
+      console.error('savingdata:', settingData);
       throw error;
     }
   }
@@ -288,7 +288,7 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
     // 🔧 FIX: 验证表结构
     const isTableValid = await this.validateTable();
     if (!isTableValid) {
-      console.debug('数据库表不可用，使用默认值');
+      console.debug('database表unavailable，使用defaultvalue');
       return defaultValue;
     }
 
@@ -303,9 +303,9 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('获取设置失败:', error);
-        console.error('查询参数:', { userId: this.userId, key });
-        console.error('错误详情:', { code: error.code, message: error.message, details: error.details });
+        console.error('gettingsettingfailed:', error);
+        console.error('queryingparameter:', { userId: this.userId, key });
+        console.error('errordetails:', { code: error.code, message: error.message, details: error.details });
         return defaultValue;
       }
 
@@ -316,8 +316,8 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
 
       return value;
     } catch (error) {
-      console.error('获取设置异常:', error);
-      console.error('查询参数:', { userId: this.userId, key });
+      console.error('gettingsettingabnormal:', error);
+      console.error('queryingparameter:', { userId: this.userId, key });
       return defaultValue;
     }
   }
@@ -345,7 +345,7 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
       // 🔧 FIX: 验证表结构
       const isTableValid = await this.validateTable();
       if (!isTableValid) {
-        console.warn('数据库表验证失败，跳过批量获取');
+        console.warn('database表validatingfailed，skipping批量getting');
         return result;
       }
 
@@ -368,8 +368,8 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
         const { data, error } = await query;
 
         if (error && error.code !== 'PGRST116') {
-          console.error('批量获取设置失败:', error);
-          console.error('查询参数:', { userId: this.userId, keys: uncachedKeys });
+          console.error('批量gettingsettingfailed:', error);
+          console.error('queryingparameter:', { userId: this.userId, keys: uncachedKeys });
         } else if (data) {
           data.forEach(setting => {
             result[setting.key] = setting.value;
@@ -377,8 +377,8 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
           });
         }
       } catch (error) {
-        console.error('批量获取设置异常:', error);
-        console.error('查询参数:', { userId: this.userId, keys: uncachedKeys });
+        console.error('批量gettingsettingabnormal:', error);
+        console.error('queryingparameter:', { userId: this.userId, keys: uncachedKeys });
       }
     }
 
@@ -401,7 +401,7 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
         .eq('user_id', this.userId);
 
       if (error) {
-        console.error('获取所有设置失败:', error);
+        console.error('getting所hassettingfailed:', error);
         return {};
       }
 
@@ -413,7 +413,7 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
 
       return result;
     } catch (error) {
-      console.error('获取所有设置异常:', error);
+      console.error('getting所hassettingabnormal:', error);
       return {};
     }
   }
@@ -434,7 +434,7 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
       .eq('key', key);
 
     if (error) {
-      throw new Error(`删除设置失败: ${error.message}`);
+      throw new Error(`deletingsettingfailed: ${error.message}`);
     }
 
     // 清除缓存

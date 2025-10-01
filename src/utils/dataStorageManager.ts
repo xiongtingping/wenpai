@@ -142,7 +142,7 @@ export class DataStorageManager {
     try {
       storage.setItem(key, JSON.stringify(item));
     } catch (error) {
-      console.error(`保存到${config.type}失败:`, error);
+      console.error(`saving到${config.type}failed:`, error);
       throw new Error(`存储空间不足或数据过大`);
     }
   }
@@ -173,7 +173,7 @@ export class DataStorageManager {
 
       return item.value;
     } catch (error) {
-      console.error(`从${config.type}加载失败:`, error);
+      console.error(`从${config.type}loadingfailed:`, error);
       return null;
     }
   }
@@ -265,7 +265,7 @@ export class DataStorageManager {
 
     // TODO: 实现具体的 Supabase 数据库操作
     // 这里应该调用相应的数据库服务
-    console.log(`保存到数据库: ${dataType}`, { userId: this.user.id, value });
+    console.log(`saving到database: ${dataType}`, { userId: this.user.id, value });
   }
 
   /**
@@ -278,7 +278,7 @@ export class DataStorageManager {
 
     // TODO: 实现具体的 Supabase 数据库操作
     // 这里应该调用相应的数据库服务
-    console.log(`从数据库加载: ${dataType}`, { userId: this.user.id });
+    console.log(`从databaseloading: ${dataType}`, { userId: this.user.id });
     return null;
   }
 
@@ -292,7 +292,7 @@ export class DataStorageManager {
 
     // TODO: 实现具体的 Supabase 数据库操作
     // 这里应该调用相应的数据库服务
-    console.log(`从数据库删除: ${dataType}`, { userId: this.user.id });
+    console.log(`从databasedeleting: ${dataType}`, { userId: this.user.id });
   }
 
   /**

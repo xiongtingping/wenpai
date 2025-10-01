@@ -192,7 +192,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
       const result = UnifiedPermissionService.checkPermission(user as SessionUserInfo, requiredPermission);
       
       if (enableLogging) {
-        console.log(`🔐 权限检查 [${requiredPermission}]:`, {
+        console.log(`🔐 permissionchecking [${requiredPermission}]:`, {
           result,
           userTier: result.userTier,
           requiredTier: result.requiredTier,
@@ -202,7 +202,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
       
       return result;
     } catch (error) {
-      console.error('权限检查失败:', error);
+      console.error('permissioncheckingfailed:', error);
       return {
         hasPermission: false,
         userTier: 'trial',
@@ -782,12 +782,12 @@ export const useEnhancedPermissionCheck = (
       const result = UnifiedPermissionService.checkPermission(user as SessionUserInfo, requiredPermission);
       
       if (enableLogging) {
-        console.log(`🔐 权限检查 [${requiredPermission}]:`, result);
+        console.log(`🔐 permissionchecking [${requiredPermission}]:`, result);
       }
       
       return result;
     } catch (error) {
-      console.error('权限检查失败:', error);
+      console.error('permissioncheckingfailed:', error);
       return {
         hasPermission: false,
         userTier: 'trial' as const,

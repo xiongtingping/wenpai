@@ -86,12 +86,12 @@ export class SecureConfigService {
     
     // 使用缓存（如果可用且未过期）
     if (!forceRefresh && this.configCache && (now - this.cacheTime) < this.CACHE_DURATION) {
-      console.log('🚀 使用缓存的认证配置');
+      console.log('🚀 使用cache的authenticatingconfiguration');
       return this.configCache;
     }
 
     try {
-      console.log('🌐 从服务端获取认证配置...');
+      console.log('🌐 从service端gettingauthenticatingconfiguration...');
       const config = await this.fetchConfigFromServer();
       
       // 验证配置完整性
@@ -101,7 +101,7 @@ export class SecureConfigService {
       this.configCache = config;
       this.cacheTime = now;
       
-      console.log('✅ 认证配置获取成功:', {
+      console.log('✅ authenticatingconfigurationgettingsuccess:', {
         appId: config.appId ? '***' + config.appId.slice(-4) : 'missing',
         domain: config.domain,
         redirectUri: config.redirectUri,
@@ -112,16 +112,16 @@ export class SecureConfigService {
       return config;
       
     } catch (error) {
-      console.error('❌ 服务端配置获取失败:', error);
+      console.error('❌ service端configurationgettingfailed:', error);
       
       // 尝试使用过期的缓存作为备用
       if (this.configCache) {
-        console.warn('⚠️ 使用过期缓存配置');
+        console.warn('⚠️ 使用expiredcacheconfiguration');
         return this.configCache;
       }
       
       // 最后备用：使用客户端环境变量（不推荐但保证可用性）
-      console.warn('⚠️ 降级到客户端环境变量配置');
+      console.warn('⚠️ 降级到client环境variableconfiguration');
       return this.getFallbackConfig();
     }
   }
@@ -134,7 +134,7 @@ export class SecureConfigService {
     
     for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
       try {
-        console.log(`🔄 配置获取尝试 ${attempt}/${this.MAX_RETRIES}`);
+        console.log(`🔄 configurationgetting尝试 ${attempt}/${this.MAX_RETRIES}`);
         
         const response = await fetch(this.CONFIG_ENDPOINT, {
           method: 'GET',
@@ -156,17 +156,17 @@ export class SecureConfigService {
           throw new Error(result.error || 'Invalid response format');
         }
 
-        console.log(`✅ 配置获取成功 (尝试 ${attempt})`);
+        console.log(`✅ configurationgettingsuccess (尝试 ${attempt})`);
         return result.data;
         
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        console.warn(`⚠️ 配置获取失败 (尝试 ${attempt}):`, lastError.message);
+        console.warn(`⚠️ configurationgettingfailed (尝试 ${attempt}):`, lastError.message);
         
         // 如果不是最后一次尝试，等待后重试
         if (attempt < this.MAX_RETRIES) {
           const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // 指数退避，最多5秒
-          console.log(`⏳ ${delay}ms 后重试...`);
+          console.log(`⏳ ${delay}ms nextretrying...`);
           await this.sleep(delay);
         }
       }
@@ -195,14 +195,14 @@ export class SecureConfigService {
       throw new Error('配置验证失败：无效的URL格式');
     }
     
-    console.log('✅ 配置验证通过');
+    console.log('✅ configurationvalidating通过');
   }
 
   /**
    * 获取备用配置（客户端环境变量）
    */
   private getFallbackConfig(): SecureAuthConfig {
-    console.warn('🔧 使用客户端环境变量作为备用配置');
+    console.warn('🔧 使用client环境variable作为备用configuration');
     
     const appId = import.meta.env.VITE_AUTHING_APP_ID;
     const domain = import.meta.env.VITE_AUTHING_DOMAIN;
@@ -269,7 +269,7 @@ export class SecureConfigService {
   clearCache(): void {
     this.configCache = null;
     this.cacheTime = 0;
-    console.log('🗑️ 配置缓存已清除');
+    console.log('🗑️ configurationcachealreadyclearing');
   }
 
   /**
@@ -303,7 +303,7 @@ export class SecureConfigService {
       await this.getAuthConfig();
       return true;
     } catch (error) {
-      console.error('❌ 配置预加载失败:', error);
+      console.error('❌ configuration预loadingfailed:', error);
       return false;
     }
   }

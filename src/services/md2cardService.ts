@@ -82,7 +82,7 @@ export class MD2CardService {
       );
 
       if (!validation.isValid) {
-        console.warn('内容验证警告:', validation.warnings);
+        console.warn('contentvalidatingwarning:', validation.warnings);
       }
 
       // 3. 优化内容以适应模板
@@ -112,7 +112,7 @@ export class MD2CardService {
         }
       };
     } catch (error) {
-      console.error('卡片生成失败:', error);
+      console.error('card生成failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : '未知错误'
@@ -156,7 +156,7 @@ export class MD2CardService {
           throw new Error(`不支持的导出格式: ${options.format.id}`);
       }
     } catch (error) {
-      console.error('导出失败:', error);
+      console.error('exportingfailed:', error);
       throw error;
     }
   }

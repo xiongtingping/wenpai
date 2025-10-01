@@ -96,7 +96,7 @@ export function ContactVerification({
         description: t('components.messages.请查看您的手机短信'),
       });
     } catch (error) {
-      console.error('发送手机验证码失败:', error);
+      console.error('sendingphonevalidating码failed:', error);
       toast({
         title: t('components.labels.发送失败'),
         description: "验证码发送失败，请重试",
@@ -141,7 +141,7 @@ export function ContactVerification({
         });
       }
     } catch (error) {
-      console.error('验证手机验证码失败:', error);
+      console.error('validatingphonevalidating码failed:', error);
       toast({
         title: t('components.labels.验证失败'),
         description: "验证码验证失败，请重试",
@@ -178,7 +178,7 @@ export function ContactVerification({
         description: t('components.messages.您的邮箱已验证'),
       });
     } catch (error) {
-      console.error('验证邮箱失败:', error);
+      console.error('validatingemailfailed:', error);
       toast({
         title: t('components.labels.验证失败'),
         description: "邮箱验证失败，请重试",

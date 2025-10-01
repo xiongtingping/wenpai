@@ -82,14 +82,14 @@ export function getUserDisplayName(user?: UserInfo | null, fallback: string = '�
   // 最终安全检查：如果仍然包含 undefined，强制返回 fallback
   if (result === 'undefined' || result.includes('undefined')) {
     if (!isProduction) {
-      console.warn('🛠️ 强制修复 undefined 问题，返回 fallback:', fallback);
+      console.warn('🛠️ 强制fixing undefined 问题，返回 fallback:', fallback);
     }
     return fallback;
   }
 
   // 运行时检查：警告可能的undefined拼接（仅开发环境）
   if (import.meta.env.DEV && (result === 'undefined' || result.includes('undefined'))) {
-    console.warn('⚠️ 检测到可能的undefined拼接问题:', {
+    console.warn('⚠️ detecting到可能的undefined拼接问题:', {
       user,
       result,
       fallback,

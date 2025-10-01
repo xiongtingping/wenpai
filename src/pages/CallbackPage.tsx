@@ -12,14 +12,14 @@ const CallbackPage: React.FC = () => { const navigate = useNavigate();
 
   const handleCallback = async () => {
     try {
-      console.log('🔄 开始处理登录回调...');
-      console.log('🔍 当前URL:', window.location.href);
+      console.log('🔄 startsprocessinglogincallback...');
+      console.log('🔍 currentURL:', window.location.href);
       
       // 处理重复拼接的URL问题
       const currentUrl = window.location.href;
       if (currentUrl.includes('callbackhttp://localhost') || currentUrl.includes('callbackhttp://') || currentUrl.includes('www.wenpai.xyz/callbackhttp://')) {
         // 如果是重复拼接的URL，直接跳转回首页并且携带授权参数
-        console.log('🔧 检测到URL重复拼接，尝试解析授权码...');
+        console.log('🔧 detecting到URLduplicate拼接，尝试parsingauthorizing码...');
         
         const codeMatch = currentUrl.match(/code=([^&]+)/);
         const stateMatch = currentUrl.match(/state=([^&]+)/);
@@ -27,13 +27,13 @@ const CallbackPage: React.FC = () => { const navigate = useNavigate();
         if (codeMatch && stateMatch) {
           const code = codeMatch[1];
           const state = stateMatch[1];
-          console.log('✅ 从重复URL中解析到授权码:', { code: code.substring(0, 10) + '...', state  });
+          console.log('✅ 从duplicateURLmiddleparsing到authorizing码:', { code: code.substring(0, 10) + '...', state  });
           
           // 重新构造正确的回调URL - 根据当前域名决定
           const isProduction = currentUrl.includes('www.wenpai.xyz');
           const correctOrigin = isProduction ? 'https://www.wenpai.xyz' : 'http://localhost:5173';
           const correctCallbackUrl = `${correctOrigin}/callback?code=${code}&state=${state}`;
-          console.log('🔄 重定向到正确的回调URL:', correctCallbackUrl);
+          console.log('🔄 重定向到正确的callbackURL:', correctCallbackUrl);
           window.location.href = correctCallbackUrl;
           return;
         }
@@ -44,10 +44,10 @@ const CallbackPage: React.FC = () => { const navigate = useNavigate();
       const code = urlParams.get('code');
       const state = urlParams.get('state');
       
-      console.log('📋 回调参数:', { code: code?.substring(0, 10) + '...', state });
+      console.log('📋 callbackparameter:', { code: code?.substring(0, 10) + '...', state });
       
       if (!code) {
-        console.log('⚠️ 未找到授权码，可能是使用模态框登录模式，直接跳转首页');
+        console.log('⚠️ not foundauthorizing码，可能是使用模态框login模式，直接跳转first页');
         setTimeout(() => navigate('/', { replace: true }), 500);
         return;
       }
@@ -72,7 +72,7 @@ const CallbackPage: React.FC = () => { const navigate = useNavigate();
       
       // 3. 获取登录用户的用户信息
       const userInfo: User | null = await guard.trackSession();
-      console.log('✅ 用户信息:', userInfo);
+      console.log('✅ userinfo:', userInfo);
       
       setProcessingStep('登录成功，正在跳转...');
       
@@ -92,7 +92,7 @@ const CallbackPage: React.FC = () => { const navigate = useNavigate();
 
   useEffect(() => {
     console.log('📍 CallbackPage mounted, current URL:', window.location.href);
-    console.log('🔍 URL分析:', {
+    console.log('🔍 URLanalyzing:', {
       href: window.location.href,
       hasCallbackHttp: window.location.href.includes('callbackhttp://'),
       hasWenpaiCallback: window.location.href.includes('www.wenpai.xyz/callbackhttp://'),

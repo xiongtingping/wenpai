@@ -116,7 +116,7 @@ export const safeCopyToClipboard = async (text: string): Promise<boolean> => {
       await nav.clipboard.writeText(text);
       return true;
     } catch (error) {
-      console.error('复制到剪贴板失败:', error);
+      console.error('copying到剪贴板failed:', error);
       return false;
     }
   }

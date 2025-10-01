@@ -58,7 +58,7 @@ class SecureStorageService {
       
       return btoa(encrypted);
     } catch (error) {
-      console.error('❌ 加密失败:', error);
+      console.error('❌ encryptingfailed:', error);
       return btoa(data); // 降级为Base64
     }
   }
@@ -80,7 +80,7 @@ class SecureStorageService {
       
       return decrypted;
     } catch (error) {
-      console.error('❌ 解密失败:', error);
+      console.error('❌ decryptingfailed:', error);
       return atob(encryptedData); // 降级为Base64解码
     }
   }
@@ -113,10 +113,10 @@ class SecureStorageService {
       const storageKey = namespace ? `${namespace}_${key}` : this.getKey(key);
       localStorage.setItem(storageKey, JSON.stringify(storageItem));
 
-      console.log(`🔒 安全存储: ${key} ${encrypt ? '(已加密)' : '(未加密)'}`);
+      console.log(`🔒 安全storage: ${key} ${encrypt ? '(alreadyencrypting)' : '(notencrypting)'}`);
     } catch (error) {
-      console.error(`❌ 存储失败: ${key}`, error);
-      throw new Error(`存储失败: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(`❌ storagefailed: ${key}`, error);
+      throw new Error(`storagefailed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -139,7 +139,7 @@ class SecureStorageService {
         const isExpired = Date.now() - storageItem.timestamp > storageItem.ttl;
         if (isExpired) {
           this.removeItem(key, namespace);
-          console.log(`⏰ 存储项已过期: ${key}`);
+          console.log(`⏰ storageitemexpired: ${key}`);
           return null;
         }
       }
@@ -152,7 +152,7 @@ class SecureStorageService {
 
       return storageItem.value;
     } catch (error) {
-      console.error(`❌ 读取失败: ${key}`, error);
+      console.error(`❌ readingfailed: ${key}`, error);
       return null;
     }
   }
@@ -164,9 +164,9 @@ class SecureStorageService {
     try {
       const storageKey = namespace ? `${namespace}_${key}` : this.getKey(key);
       localStorage.removeItem(storageKey);
-      console.log(`🗑️ 移除存储: ${key}`);
+      console.log(`🗑️ removingstorage: ${key}`);
     } catch (error) {
-      console.error(`❌ 移除失败: ${key}`, error);
+      console.error(`❌ removingfailed: ${key}`, error);
     }
   }
 
@@ -202,10 +202,10 @@ class SecureStorageService {
       }
       
       if (cleanedCount > 0) {
-        console.log(`🧹 清理过期存储: ${cleanedCount} 项`);
+        console.log(`🧹 cleaningexpiredstorage: ${cleanedCount} item`);
       }
     } catch (error) {
-      console.error('❌ 清理过期存储失败:', error);
+      console.error('❌ cleaningexpiredstoragefailed:', error);
     }
     
     return cleanedCount;
@@ -254,7 +254,7 @@ class SecureStorageService {
         }
       }
     } catch (error) {
-      console.error('❌ 获取存储统计失败:', error);
+      console.error('❌ gettingstorage统计failed:', error);
     }
 
     return {
@@ -277,9 +277,9 @@ class SecureStorageService {
         localStorage.removeItem(key);
       }
       
-      console.log(`🗑️ 清空安全存储: ${namespaceKeys.length} 项`);
+      console.log(`🗑️ 清empty安全storage: ${namespaceKeys.length} item`);
     } catch (error) {
-      console.error('❌ 清空存储失败:', error);
+      console.error('❌ 清emptystoragefailed:', error);
     }
   }
 }

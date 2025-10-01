@@ -437,7 +437,7 @@ export default function MD2CardPage() {
           );
 
           if (!validation.isValid) {
-            console.warn('内容验证警告:', validation.warnings);
+            console.warn('contentvalidatingwarning:', validation.warnings);
           }
         }
 
@@ -491,7 +491,7 @@ export default function MD2CardPage() {
           updatedAt: new Date()
         });
       } catch (error) {
-        console.error('卡片生成失败:', error);
+        console.error('card生成failed:', error);
         // 实时预览中不显示错误提示，避免干扰用户输入
       } finally {
         setIsGenerating(false);
@@ -512,11 +512,11 @@ export default function MD2CardPage() {
 
   // 处理模板变化
   const handleTemplateChange = useCallback((templateId: string) => {
-    if (import.meta.env.DEV) console.log('🎯 模板切换:', templateId);
+    if (import.meta.env.DEV) console.log('🎯 template切换:', templateId);
     setSelectedTemplate(templateId);
     setCardConfig(prev => {
       const updated = { ...prev, templateId };
-      if (import.meta.env.DEV) console.log('📋 模板配置更新:', updated);
+      if (import.meta.env.DEV) console.log('📋 templateconfigurationupdating:', updated);
       return updated;
     });
     const template = CARD_TEMPLATES.find(t => t.id === templateId) || 
@@ -529,10 +529,10 @@ export default function MD2CardPage() {
 
   // 处理配置变化
   const handleConfigChange = useCallback((newConfig: Partial<CardConfiguration>) => {
-    if (import.meta.env.DEV) console.log('🎨 配置变更:', newConfig);
+    if (import.meta.env.DEV) console.log('🎨 configuration变更:', newConfig);
     setCardConfig(prev => {
       const updated = { ...prev, ...newConfig };
-      if (import.meta.env.DEV) console.log('📐 更新后配置:', updated);
+      if (import.meta.env.DEV) console.log('📐 updatingnextconfiguration:', updated);
       return updated;
     });
   }, []);
@@ -624,7 +624,7 @@ export default function MD2CardPage() {
 
     try {
       if (import.meta.env.DEV) {
-        console.log(`🚀 开始导出 ${format.toUpperCase()} 格式`, { 
+        console.log(`🚀 startsexporting ${format.toUpperCase()} 格式`, { 
           cardId: cardData.id,
           imageDataType: cardData.imageData.slice(0, 50) + '...'
         });
@@ -632,7 +632,7 @@ export default function MD2CardPage() {
 
       const blob = await exportCardAsImage(cardData.imageData, format);
       if (import.meta.env.DEV) {
-        console.log(`✅ Blob创建成功`, { 
+        console.log(`✅ Blobcreatingsuccess`, { 
           size: blob.size, 
           type: blob.type,
           format: format
@@ -644,9 +644,9 @@ export default function MD2CardPage() {
         if (import.meta.env.DEV) {
           try {
             const text = await blob.text();
-            console.log('🔍 Blob内容预览:', text.substring(0, 200) + '...');
+            console.log('🔍 Blobcontentpreview:', text.substring(0, 200) + '...');
           } catch (e) {
-            console.log('🔍 Blob为二进制内容，无法预览文本');
+            console.log('🔍 Blob为二进制content，none法preview文本');
           }
         }
       }
@@ -665,14 +665,14 @@ export default function MD2CardPage() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      if (import.meta.env.DEV) console.log(`📥 文件下载触发成功: ${a.download}`);
+      if (import.meta.env.DEV) console.log(`📥 filedownloadingtriggeringsuccess: ${a.download}`);
 
       toast({
         title: t('components.labels.导出成功'),
         description: `卡片已导出为 ${format.toUpperCase()} 格式`,
       });
     } catch (error) {
-      console.error('❌ 导出失败:', error);
+      console.error('❌ exportingfailed:', error);
       toast({
         title: t('components.errors.导出失败'),
         description: error instanceof Error ? error.message : '导出过程中发生错误，请稍后重试',
@@ -722,7 +722,7 @@ export default function MD2CardPage() {
     const maxWidth = dimensions.width * (0.85 - (fontSizeMultiplier - 1) * 0.05);
     
     if (import.meta.env.DEV) {
-      console.log('📏 字体和行高信息:', {
+      console.log('📏 字体和row高info:', {
         fontSizeMultiplier,
         fontSize,
         lineHeight,
@@ -732,10 +732,10 @@ export default function MD2CardPage() {
       });
     }
     
-    console.log('🎨 渲染SVG内容:', sections.map(s => `${s.type}: ${typeof s.content === 'string' ? s.content.substring(0, 30) + '...' : s.content}`));
+    console.log('🎨 渲染SVGcontent:', sections.map(s => `${s.type}: ${typeof s.content === 'string' ? s.content.substring(0, 30) + '...' : s.content}`));
     
     sections.slice(0, 5).forEach((section, index) => {
-      console.log(`📝 处理section ${index}:`, section.type, section.content);
+      console.log(`📝 processingsection ${index}:`, section.type, section.content);
       
       if (section.type === 'text') {
         // 处理段落文本
@@ -2064,7 +2064,7 @@ export default function MD2CardPage() {
                         
                         // 调试信息
                         if (import.meta.env.DEV) {
-                          console.log('🖼️ 预览缩放计算:', {
+                          console.log('🖼️ preview缩放calculating:', {
                             template: selectedTemplate,
                             dimensions: `${dimensions.width}×${dimensions.height}`,
                             aspectRatio: aspectRatio.toFixed(2),
@@ -2315,7 +2315,7 @@ async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg
 
     // 对于PNG，需要移除背景以确保透明
     if (format === 'png') {
-      console.log('🎨 PNG导出：移除背景以确保透明');
+      console.log('🎨 PNGexporting：removing背景以确保透明');
       const originalLength = svgContent.length;
       
       // 移除背景渐变，保持透明
@@ -2330,7 +2330,7 @@ async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg
         ''
       );
       
-      console.log(`✂️ 背景移除完成: ${originalLength} -> ${svgContent.length} 字符`);
+      console.log(`✂️ 背景removingcompleted: ${originalLength} -> ${svgContent.length} 字符`);
     }
     
     // 对于PNG/JPG，使用Canvas转换以获得更高质量
@@ -2389,7 +2389,7 @@ async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg
       
       // 使用处理后的SVG内容创建data URL
       try {
-        console.log('🔄 重新编码SVG内容...');
+        console.log('🔄 re编码SVGcontent...');
         
         // 使用更现代的方式处理UTF-8编码
         const encoder = new TextEncoder();
@@ -2400,23 +2400,23 @@ async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg
         }
         const svgDataUrl = `data:image/svg+xml;base64,${window.btoa(binaryString)}`;
         
-        console.log(`✅ SVG重新编码成功，长度: ${svgDataUrl.length}`);
+        console.log(`✅ SVGre编码success，length: ${svgDataUrl.length}`);
         img.src = svgDataUrl;
       } catch (encodingError) {
-        console.error('❌ SVG编码失败:', encodingError);
+        console.error('❌ SVG编码failed:', encodingError);
         // 使用更简单的编码方式作为后备
         try {
           const fallbackDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgContent)}`;
-          console.log('🔄 使用后备编码方式');
+          console.log('🔄 使用next备编码方式');
           img.src = fallbackDataUrl;
         } catch (fallbackError) {
-          console.error('❌ 后备编码也失败:', fallbackError);
+          console.error('❌ next备编码也failed:', fallbackError);
           reject(new Error('SVG内容编码失败'));
         }
       }
     });
   } catch (error) {
-    console.error('图片导出失败:', error);
+    console.error('imageexportingfailed:', error);
     throw error;
   }
 }

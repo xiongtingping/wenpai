@@ -64,7 +64,7 @@ function validateConfig(config: any): void {
   }
 
   if (errors.length > 0) {
-    throw new Error(`Authing配置验证失败: ${errors.join(', ')}`);
+    throw new Error(`Authingconfigurationvalidatingfailed: ${errors.join(', ')}`);
   }
 }
 
@@ -78,11 +78,11 @@ export function createOfficialAuthSDK(): any { // 临时类型，等待Guard模�
   try {
     validateConfig(config);
   } catch (error) {
-    console.error('❌ Authing配置验证失败:', error);
+    console.error('❌ Authingconfigurationvalidatingfailed:', error);
     throw error;
   }
 
-  console.log('🎯 创建官方Authing Guard实例...', {
+  console.log('🎯 creating官方Authing Guardinstance...', {
     domain: config.domain,
     appId: config.appId,
     redirectUriLength: config.redirectUri.length
@@ -95,20 +95,20 @@ export function createOfficialAuthSDK(): any { // 临时类型，等待Guard模�
         names.forEach(name => {
           if (name.includes('authing')) {
             caches.delete(name);
-            console.log('🧹 清除Authing相关缓存:', name);
+            console.log('🧹 clearingAuthing相关cache:', name);
           }
         });
       });
     }
 
-    console.log('🎯 创建Guard实例，配置:', {
+    console.log('🎯 creatingGuardinstance，configuration:', {
       appId: config.appId,
       domain: config.domain,
       redirectUri: config.redirectUri
     });
 
     // 🔧 根因修复：使用正确的Guard配置
-    console.log('🎯 使用正确的Guard配置，避免技术债务');
+    console.log('🎯 使用正确的Guardconfiguration，避免技术债务');
 
     // 🔧 根因修复：使用正确的Guard参数格式
     // 参考AUTHING_REDIRECT_URI_MISMATCH_SOLUTION.md的修复方案
@@ -124,10 +124,10 @@ export function createOfficialAuthSDK(): any { // 临时类型，等待Guard模�
       on: (event: string, callback: Function) => console.log('Guard.on() called', event)
     };
 
-    console.log('✅ Guard实例创建成功');
+    console.log('✅ Guardinstancecreatingsuccess');
 
     // 🔍 详细检查Guard实例
-    console.log('🔍 Guard实例详情:', {
+    console.log('🔍 Guardinstancedetails:', {
       hasShow: typeof guard.show === 'function',
       hasOn: typeof guard.on === 'function',
       hasHide: typeof guard.hide === 'function',
@@ -137,7 +137,7 @@ export function createOfficialAuthSDK(): any { // 临时类型，等待Guard模�
 
     return guard;
   } catch (error) {
-    console.error('❌ Guard实例创建失败:', error);
+    console.error('❌ Guardinstancecreatingfailed:', error);
     throw new Error('认证组件初始化失败，请检查网络连接或联系技术支持');
   }
 }

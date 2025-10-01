@@ -72,7 +72,7 @@ export async function sendReferralReward(requestBody: ReferralRewardRequest): Pr
     const result = await request.post('/api/referral/reward', requestBody);
     return result as ReferralRewardResponse;
   } catch (error) {
-    console.error('推荐奖励API调用错误:', error);
+    console.error('推荐奖励API调用error:', error);
     throw new Error(`推荐奖励API调用失败: ${error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'}`);
   }
 }
@@ -89,7 +89,7 @@ export async function getReferralStats(referrerId: string): Promise<ReferralStat
     const result = await request.get(`/api/referral/stats?referrerId=${encodeURIComponent(referrerId)}`);
     return (result as any)?.success ? (result as any).data : null;
   } catch (error) {
-    console.error('推荐统计API调用失败:', error);
+    console.error('推荐统计API调用failed:', error);
     throw new Error(`推荐统计API调用失败: ${error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'}`);
   }
 }
@@ -106,7 +106,7 @@ export async function validateReferrerId(referrerId: string): Promise<boolean> {
     const result = await request.get(`/api/referral/validate?referrerId=${encodeURIComponent(referrerId)}`);
     return !!((result as any)?.success && (result as any)?.isValid);
   } catch (error) {
-    console.error('推荐人验证API调用失败:', error);
+    console.error('推荐人validatingAPI调用failed:', error);
     throw new Error(`推荐人验证API调用失败: ${error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'}`);
   }
 }
@@ -132,7 +132,7 @@ export async function copyReferralLink(referrerId: string): Promise<boolean> {
     await navigator.clipboard.writeText(link);
     return true;
   } catch (error) {
-    console.error('复制推荐链接失败:', error);
+    console.error('copying推荐linkfailed:', error);
     return false;
   }
 }

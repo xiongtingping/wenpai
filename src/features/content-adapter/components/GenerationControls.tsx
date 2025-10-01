@@ -141,7 +141,7 @@ export function GenerationControls({ generating,
   }, [availableModels]);
 
   // 调试信息
-  // console.log('🔍 GenerationControls - 模型数据调试:', {
+  // console.log('🔍 GenerationControls - 模型datadebugging:', {
   //   availableModelsCount: availableModels.length,
   //   selectedModel,
   //   currentModel,
@@ -154,15 +154,15 @@ export function GenerationControls({ generating,
 
   // 保存模型选择
   const handleSaveModelPreference = async () => {
-    console.log('🔍 保存模型偏好 - 当前状态:', { selectedModel, isLoggedIn, saving });
+    console.log('🔍 saving模型偏好 - currentstate:', { selectedModel, isLoggedIn, saving });
     
     if (!selectedModel) {
-      console.warn('没有选择模型，无法保存');
+      console.warn('没has选择模型，none法saving');
       return;
     }
 
     if (!isLoggedIn) {
-      console.warn('用户未登录，无法保存模型偏好');
+      console.warn('usernotlogin，none法saving模型偏好');
       return;
     }
 
@@ -179,14 +179,14 @@ export function GenerationControls({ generating,
       );
       
       if (success) {
-        console.log('✅ 模型偏好已保存:', selectedModel);
+        console.log('✅ 模型偏好saved:', selectedModel);
         toast({
           title: "✅ 保存成功",
           description: `已记住模型选择：${currentModel?.name || selectedModel}`,
           duration: 3000,
         });
       } else {
-        console.error('❌ 保存模型偏好失败');
+        console.error('❌ saving模型偏好failed');
         toast({
           title: "❌ 保存失败",
           description: "无法保存模型偏好设置，请重试",
@@ -195,7 +195,7 @@ export function GenerationControls({ generating,
         });
       }
     } catch (error) {
-      console.error('❌ 保存模型偏好失败:', error);
+      console.error('❌ saving模型偏好failed:', error);
       toast({
         title: "❌ 保存失败",
         description: error instanceof Error ? error.message : '保存过程中出现错误',
@@ -268,11 +268,11 @@ export function GenerationControls({ generating,
           <div className="space-y-6">
             {/* 体验版模型 */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b">
+              <div className="flex items-center justify-between pb-2 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="font-medium text-green-700">体验版模型</span>
-                  <Badge variant="outline" className="text-green-600 border-green-300">
+                  <div className="w-3 h-3 rounded-full bg-green-500 dark:bg-green-600"></div>
+                  <span className="font-medium text-green-700 dark:text-green-400">体验版模型</span>
+                  <Badge variant="outline" className="text-green-600 dark:text-green-400 border-green-300 dark:border-green-700">
                     基础功能
                   </Badge>
                 </div>
@@ -289,11 +289,11 @@ export function GenerationControls({ generating,
                       key={model.id}
                       className={`
                         relative p-3 rounded-lg border cursor-pointer transition-all
-                        ${isSelected 
-                          ? 'border-green-500 bg-green-50 ring-2 ring-green-200' 
-                          : disabled 
-                          ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'
-                          : 'border-gray-200 hover:border-green-300 hover:bg-green-50/50'
+                        ${isSelected
+                          ? 'border-green-500 dark:border-green-600 bg-green-50 dark:bg-green-950/30 ring-2 ring-green-200 dark:ring-green-800'
+                          : disabled
+                          ? 'border-border bg-muted cursor-not-allowed opacity-60'
+                          : 'border-border hover:border-green-300 dark:hover:border-green-700 hover:bg-green-50/50 dark:hover:bg-green-950/20'
                         }
                       `}
                       onClick={(e) => {
@@ -306,15 +306,15 @@ export function GenerationControls({ generating,
                       <div className="flex flex-col items-center text-center gap-2">
                         <div className={`
                           w-5 h-5 rounded-full border-2 flex items-center justify-center
-                          ${isSelected 
-                            ? 'border-green-500 bg-green-500' 
-                            : 'border-gray-300'
+                          ${isSelected
+                            ? 'border-green-500 dark:border-green-600 bg-green-500 dark:bg-green-600'
+                            : 'border-border'
                           }
                         `}>
                           {isSelected && <Check className="w-3 h-3 text-white" />}
                         </div>
                         <div className="min-w-0 w-full">
-                          <h5 className="font-medium text-gray-900 text-sm truncate">
+                          <h5 className="font-medium text-foreground text-sm truncate">
                             {model?.name || '测试模型名称'}
                           </h5>
                           <div className="flex justify-center mt-1">
@@ -332,11 +332,11 @@ export function GenerationControls({ generating,
 
             {/* 专业版模型 */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b">
+              <div className="flex items-center justify-between pb-2 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                  <span className="font-medium text-blue-700">专业版模型</span>
-                  <Badge variant="outline" className="text-blue-600 border-blue-300">
+                  <div className="w-3 h-3 rounded-full bg-blue-500 dark:bg-blue-600"></div>
+                  <span className="font-medium text-blue-700 dark:text-blue-400">专业版模型</span>
+                  <Badge variant="outline" className="text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-700">
                     专业功能
                   </Badge>
                 </div>
@@ -353,11 +353,11 @@ export function GenerationControls({ generating,
                       key={model.id}
                       className={`
                         relative p-3 rounded-lg border cursor-pointer transition-all
-                        ${isSelected 
-                          ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
-                          : disabled 
-                          ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'
-                          : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'
+                        ${isSelected
+                          ? 'border-blue-500 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30 ring-2 ring-blue-200 dark:ring-blue-800'
+                          : disabled
+                          ? 'border-border bg-muted cursor-not-allowed opacity-60'
+                          : 'border-border hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-950/20'
                         }
                       `}
                       onClick={(e) => {
@@ -370,19 +370,19 @@ export function GenerationControls({ generating,
                       <div className="flex flex-col items-center text-center gap-2">
                         <div className={`
                           w-5 h-5 rounded-full border-2 flex items-center justify-center
-                          ${isSelected 
-                            ? 'border-blue-500 bg-blue-500' 
-                            : 'border-gray-300'
+                          ${isSelected
+                            ? 'border-blue-500 dark:border-blue-600 bg-blue-500 dark:bg-blue-600'
+                            : 'border-border'
                           }
                         `}>
                           {isSelected ? (
                             <Check className="w-3 h-3 text-white" />
                           ) : disabled && (
-                            <Crown className="w-3 h-3 text-gray-400" />
+                            <Crown className="w-3 h-3 text-muted-foreground" />
                           )}
                         </div>
                         <div className="min-w-0 w-full">
-                          <h5 className="font-medium text-gray-900 text-sm truncate">
+                          <h5 className="font-medium text-foreground text-sm truncate">
                             {model?.name || '专业版模型'}
                           </h5>
                           <div className="flex justify-center mt-1">
@@ -408,11 +408,11 @@ export function GenerationControls({ generating,
 
             {/* 高级版模型 */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b">
+              <div className="flex items-center justify-between pb-2 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                  <span className="font-medium text-purple-700">高级版模型</span>
-                  <Badge variant="outline" className="text-purple-600 border-purple-300">
+                  <div className="w-3 h-3 rounded-full bg-purple-500 dark:bg-purple-600"></div>
+                  <span className="font-medium text-purple-700 dark:text-purple-400">高级版模型</span>
+                  <Badge variant="outline" className="text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-700">
                     顶级功能
                   </Badge>
                 </div>
@@ -429,11 +429,11 @@ export function GenerationControls({ generating,
                       key={model.id}
                       className={`
                         relative p-3 rounded-lg border cursor-pointer transition-all
-                        ${isSelected 
-                          ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200' 
-                          : disabled 
-                          ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'
-                          : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/50'
+                        ${isSelected
+                          ? 'border-purple-500 dark:border-purple-600 bg-purple-50 dark:bg-purple-950/30 ring-2 ring-purple-200 dark:ring-purple-800'
+                          : disabled
+                          ? 'border-border bg-muted cursor-not-allowed opacity-60'
+                          : 'border-border hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50/50 dark:hover:bg-purple-950/20'
                         }
                       `}
                       onClick={(e) => {
@@ -446,19 +446,19 @@ export function GenerationControls({ generating,
                       <div className="flex flex-col items-center text-center gap-2">
                         <div className={`
                           w-5 h-5 rounded-full border-2 flex items-center justify-center
-                          ${isSelected 
-                            ? 'border-purple-500 bg-purple-500' 
-                            : 'border-gray-300'
+                          ${isSelected
+                            ? 'border-purple-500 dark:border-purple-600 bg-purple-500 dark:bg-purple-600'
+                            : 'border-border'
                           }
                         `}>
                           {isSelected ? (
                             <Check className="w-3 h-3 text-white" />
                           ) : disabled && (
-                            <Crown className="w-3 h-3 text-gray-400" />
+                            <Crown className="w-3 h-3 text-muted-foreground" />
                           )}
                         </div>
                         <div className="min-w-0 w-full">
-                          <h5 className="font-medium text-gray-900 text-sm truncate">
+                          <h5 className="font-medium text-foreground text-sm truncate">
                             {model?.name || '高级版模型'}
                           </h5>
                           <div className="flex justify-center mt-1">
@@ -485,10 +485,10 @@ export function GenerationControls({ generating,
 
           {/* 当前选择的模型信息 */}
           {selectedModel && currentModel && (
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
+            <div className="mt-6 p-4 bg-accent rounded-lg border border-border">
               <div className="flex items-center gap-3 mb-2">
-                <Bot className="h-5 w-5 text-blue-600" />
-                <span className="font-medium text-gray-900">
+                <Bot className="h-5 w-5 text-primary" />
+                <span className="font-medium text-foreground">
                   当前选择：{currentModel.name}
                 </span>
                 <Badge variant="secondary">
@@ -600,7 +600,7 @@ export function GenerationControls({ generating,
                 <Button
                   onClick={() => {
                     // TODO: 实现一键转发弹窗
-                    console.log('打开一键转发弹窗');
+                    console.log('opening一key转发popup');
                   }}
                   variant="secondary"
                   className="flex items-center gap-2"

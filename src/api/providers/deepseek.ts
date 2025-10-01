@@ -81,7 +81,7 @@ export class DeepSeekProvider {
     const startTime = Date.now();
     
     try {
-      console.log('🤖 调用DeepSeek聊天接口:', {
+      console.log('🤖 调用DeepSeek聊daysinterface:', {
         model: params.model,
         promptLength: params.prompt.length,
         hasContext: !!(params.context && params.context.length > 0),
@@ -144,7 +144,7 @@ export class DeepSeekProvider {
 
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      console.error('❌ DeepSeek调用失败:', error);
+      console.error('❌ DeepSeek调用failed:', error);
       
       return {
         content: '',
@@ -161,7 +161,7 @@ export class DeepSeekProvider {
    * 
    */
   async generateImage(params: ImageGenerationParams): Promise<any> {
-    console.warn('⚠️ DeepSeek暂不支持图像生成功能');
+    console.warn('⚠️ DeepSeek暂unsupportedgraph像生success能');
     
     return {
       success: false,

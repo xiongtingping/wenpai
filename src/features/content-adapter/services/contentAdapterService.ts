@@ -43,7 +43,7 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
   try {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`🔄 ${versionName} - 第${attempt}次尝试调用AI (模型: ${params.model})`);
+        console.log(`🔄 ${versionName} - the${attempt}times尝试调用AI (模型: ${params.model})`);
 
         // 为WeChat和Zhihu使用优化的参数
         const adjustedParams = { ...params };
@@ -66,16 +66,16 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
         });
 
         if (result.success && result.content && result.content.trim().length > 100) {
-          console.log(`✅ ${versionName} - 第${attempt}次尝试成功`);
+          console.log(`✅ ${versionName} - the${attempt}times尝试success`);
           return result;
         } else {
           const errorMsg = result.error || i18n.t('common.errors.生成内容为空或过短');
           lastError = new Error(errorMsg);
-          console.log(`❌ ${versionName} - 第${attempt}次尝试失败: ${errorMsg}`);
+          console.log(`❌ ${versionName} - the${attempt}times尝试failed: ${errorMsg}`);
         }
       } catch (error) {
         lastError = error;
-        console.error(`🚨 ${versionName} - 第${attempt}次尝试异常:`, error);
+        console.error(`🚨 ${versionName} - the${attempt}times尝试abnormal:`, error);
 
         // 智能模型切换策略
         if (attempt <= 3) {
@@ -83,25 +83,25 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
 
           // 检测402错误（账户余额不足）
           if (errorMessage.includes('402') || errorMessage.includes('Payment Required')) {
-            console.log(`🚨 ${versionName} - 检测到402错误，启动智能降级`);
+            console.log(`🚨 ${versionName} - detecting到402error，starting智能降级`);
 
             if (params.model.includes('deepseek')) {
-              console.log(`🔄 ${versionName} - DeepSeek余额不足，切换到GPT-4o-mini`);
+              console.log(`🔄 ${versionName} - DeepSeekbalance不足，切换到GPT-4o-mini`);
               params.model = 'gpt-4o-mini';
             } else if (params.model.includes('gpt-4o-mini')) {
-              console.log(`🔄 ${versionName} - GPT-4o-mini失败，切换到GPT-3.5-turbo`);
+              console.log(`🔄 ${versionName} - GPT-4o-minifailed，切换到GPT-3.5-turbo`);
               params.model = 'gpt-3.5-turbo';
             } else if (params.model.includes('gpt-3.5-turbo')) {
-              console.log(`🔄 ${versionName} - GPT-3.5-turbo失败，尝试使用Gemini`);
+              console.log(`🔄 ${versionName} - GPT-3.5-turbofailed，尝试使用Gemini`);
               params.model = 'gemini-pro';
             }
           } else {
             // 其他错误类型的模型切换策略
             if (params.model.includes('deepseek')) {
-              console.log(`🔄 ${versionName} - DeepSeek失败，切换到GPT-4o-mini`);
+              console.log(`🔄 ${versionName} - DeepSeekfailed，切换到GPT-4o-mini`);
               params.model = 'gpt-4o-mini';
             } else if (params.model.includes('gpt-4o-mini')) {
-              console.log(`🔄 ${versionName} - GPT-4o-mini失败，切换到GPT-3.5-turbo`);
+              console.log(`🔄 ${versionName} - GPT-4o-minifailed，切换到GPT-3.5-turbo`);
               params.model = 'gpt-3.5-turbo';
             }
           }
@@ -111,7 +111,7 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
       // 如果不是最后一次尝试，等待一段时间再重试
       if (attempt < maxRetries) {
         const delay = Math.min(timeoutConfig.retryDelay * Math.pow(2, attempt - 1), 10000);
-        console.log(`⏳ ${versionName} - 等待${delay}ms后重试...`);
+        console.log(`⏳ ${versionName} - waiting${delay}msnextretrying...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
@@ -193,7 +193,7 @@ function extractAndCleanContent(content: string): { cleanContent: string; extrac
     .replace(/^\s+|\s+$/g, '') // 去掉首尾空格
     .trim();
 
-  console.log('🧹 内容清理完成:', {
+  console.log('🧹 contentcleaningcompleted:', {
     原始长度: content.length,
     清理后长度: cleanContent.length,
     提取标签: extractedTags
@@ -222,9 +222,9 @@ async function generateMultipleVersions(
   const creativePrompt = `${basePrompt}\n\n【版本要求】请生成创新风格的内容，要求：\n- 表达生动，富有创意\n- 语言灵活，贴近用户\n- 情感丰富，引人入胜`;
 
   try {
-    console.log(`开始为平台 ${platformId} 生成多版本内容`);
+    console.log(`starts为平台 ${platformId} 生成多versioncontent`);
     console.log('使用模型:', selectedModel);
-    console.log('提示词长度:', basePrompt.length);
+    console.log('hint词length:', basePrompt.length);
 
     // 使用统一字符数控制系统获取最终限制
     const charCountControl = getUnifiedCharCountLimit(
@@ -334,7 +334,7 @@ async function generateMultipleVersions(
 
     // 如果两个版本都失败了，尝试生成一个基础版本
     if (versions.length === 0) {
-      console.log('两个版本都失败，尝试生成基础版本');
+      console.log('两unitsversion都failed，尝试生成基础version');
       const fallbackResult = await callAIWithRetry({
         prompt: basePrompt,
         model: selectedModel,
@@ -354,10 +354,10 @@ async function generateMultipleVersions(
       }
     }
 
-    console.log(`平台 ${platformId} 最终生成了 ${versions.length} 个版本`);
+    console.log(`平台 ${platformId} 最终生成了 ${versions.length} unitsversion`);
     return versions;
   } catch (error) {
-    console.error('生成多版本内容失败:', error);
+    console.error('生成多versioncontentfailed:', error);
     return [];
   }
 }
@@ -537,7 +537,7 @@ export class ContentAdapterService {
         error: versions.length === 0 ? '生成失败，请重试' : undefined
       };
     } catch (error) {
-      console.error('生成多版本内容失败:', error);
+      console.error('生成多versioncontentfailed:', error);
       return {
         success: false,
         versions: [],

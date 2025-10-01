@@ -10,7 +10,7 @@ import { registerService } from '@/utils/DIContainer';
  * 注册所有服务到DI容器
  */
 export async function registerAllServices(): Promise<void> {
-  // console.log('🔧 开始注册所有服务到DI容器...');
+  // console.log('🔧 startsregister所hasservice到DIcontainer...');
 
   // 第1层：基础配置服务（无依赖）
   registerService({
@@ -168,7 +168,7 @@ export async function registerAllServices(): Promise<void> {
     dependencies: []
   });
 
-  // console.log('✅ 所有服务注册完成');
+  // console.log('✅ 所hasserviceregistercompleted');
 }
 
 /**

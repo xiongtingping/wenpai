@@ -46,7 +46,7 @@ export function getPaymentCenterAccessTime(userId?: string): Date | undefined {
     offerExpiry: new Date(now.getTime() + PROMO_DURATION).toISOString()
   };
   localStorage.setItem(accessTimeKey, JSON.stringify(accessData));
-  console.log('🎉 新用户限时优惠开始计时！', now.toLocaleString());
+  console.log('🎉 newuser限时优惠starts计时！', now.toLocaleString());
   return now;
 }
 
@@ -59,7 +59,7 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
   try {
     // 🔧 FIX: 开发环境直接使用缓存数据或返回默认状态，避免网络请求
     if (import.meta.env.DEV) {
-      console.log('🔧 开发环境：使用缓存或默认订阅状态检查');
+      console.log('🔧 开发环境：使用cache或defaultsubscribingstatechecking');
       
       // 尝试读取缓存订阅状态
       try {
@@ -67,15 +67,15 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
         if (cached) {
           const cachedStatus = JSON.parse(cached);
           const isActive = cachedStatus.status === 'active';
-          console.log('✅ 使用缓存订阅状态:', { isActive, status: cachedStatus.status });
+          console.log('✅ 使用cachesubscribingstate:', { isActive, status: cachedStatus.status });
           return isActive;
         }
       } catch (e) {
-        console.warn('读取缓存订阅状态失败:', e);
+        console.warn('readingcachesubscribingstatefailed:', e);
       }
 
       // 开发环境默认返回true，表示有活跃订阅（不显示促销）
-      console.log('🔧 开发环境：默认返回活跃订阅状态');
+      console.log('🔧 开发环境：default返回活跃subscribingstate');
       return true;
     }
 
@@ -85,7 +85,7 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
     // 重试机制：最多尝试3次
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        console.log(`🔄 订阅状态检查尝试 ${attempt}/3...`);
+        console.log(`🔄 subscribingstatechecking尝试 ${attempt}/3...`);
 
         const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:5173' : 'https://www.wenpai.xyz';
         const response = await Promise.race([
@@ -98,26 +98,26 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
 
         if (response.ok) {
           const result = await response.json();
-          console.log('🔍 订阅状态检查结果:', { userId, hasSubscription: result.hasActiveSubscription });
+          console.log('🔍 subscribingstatecheckingresult:', { userId, hasSubscription: result.hasActiveSubscription });
           return result.hasActiveSubscription;
         } else {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
       } catch (error) {
         lastError = error instanceof Error ? error : new Error('u64cdu4f5cu5931u8d25');
-        console.warn(`❌ 第 ${attempt} 次检查失败:`, lastError.message);
+        console.warn(`❌ the ${attempt} timescheckingfailed:`, lastError.message);
 
         // 如果不是最后一次尝试，等待后重试
         if (attempt < 3) {
           const delay = attempt * 500; // 递增延迟：500ms, 1s
-          console.log(`⏳ 等待 ${delay}ms 后重试...`);
+          console.log(`⏳ waiting ${delay}ms nextretrying...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }
 
     // 所有重试都失败了
-    console.error('检查订阅状态异常:', lastError);
+    console.error('checkingsubscribingstateabnormal:', lastError);
 
     // 🔧 FIX: 在网络错误时使用缓存数据作为降级方案
     try {
@@ -125,17 +125,17 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
       if (cached) {
         const cachedStatus = JSON.parse(cached);
         const isActive = cachedStatus.status === 'active';
-        console.log('🔄 使用缓存订阅状态作为降级方案:', { isActive, status: cachedStatus.status });
+        console.log('🔄 使用cachesubscribingstate作为降级方案:', { isActive, status: cachedStatus.status });
         return isActive;
       }
     } catch (e) {
-      console.warn('读取缓存订阅状态失败:', e);
+      console.warn('readingcachesubscribingstatefailed:', e);
     }
 
     // 默认返回false，避免显示错误的优惠信息
     return false;
   } catch (error) {
-    console.error('检查订阅状态异常:', error);
+    console.error('checkingsubscribingstateabnormal:', error);
     return false;
   }
 }
@@ -211,7 +211,7 @@ export function resetPaymentCenterAccessTime(userId?: string): void {
 
   const accessTimeKey = `payment_center_access_time_${userId}`;
   localStorage.removeItem(accessTimeKey);
-  console.log('🔄 支付中心访问时间已重置');
+  console.log('🔄 支付middle心访问时间alreadyresetting');
 }
 
 /**

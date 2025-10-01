@@ -50,7 +50,7 @@ const AdaptiveEmoji: React.FC<AdaptiveEmojiProps> = ({
         const style = generateEmojiStyle(context, platform, {} as any);
         setAdaptiveStyle(style);
       } catch (error) {
-        console.error('加载emoji样式失败:', error);
+        console.error('loadingemojistylefailed:', error);
         // 设置默认样式
         setAdaptiveStyle({
           fontSize: '1rem',

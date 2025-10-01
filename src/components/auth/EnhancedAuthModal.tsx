@@ -119,7 +119,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       const identifier = formData.get('identifier') as string;
       const rememberMe = formData.get('rememberMe') === 'on';
 
-      console.log('🔐 开始增强登录表单登录...', { rememberMe });
+      console.log('🔐 starts增强loginformlogin...', { rememberMe });
 
       let result;
       if (loginMethod === 'password') {
@@ -180,7 +180,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       const formData = new FormData(e.currentTarget);
       const contact = formData.get('contact') as string;
       
-      console.log('📝 开始增强注册表单注册...');
+      console.log('📝 starts增强registerformregister...');
 
       let result;
       const contactType = detectContactType(contact);
@@ -201,7 +201,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
 
         // 清理验证码（去除空格和特殊字符）
         const cleanCode = code.trim().replace(/\s+/g, '');
-        console.log('🔍 EnhancedAuthModal验证码信息:', {
+        console.log('🔍 EnhancedAuthModalvalidating码info:', {
           原始验证码: code,
           清理后验证码: cleanCode,
           验证码长度: cleanCode.length,
@@ -216,7 +216,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       }
 
       if (result) {
-        console.log('✅ 注册成功:', result);
+        console.log('✅ registersuccess:', result);
         handleAuthingLogin(result);
         onClose();
       }
@@ -239,7 +239,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
   const sendVerificationCode = async (contact: string, type: 'login' | 'register' | 'reset') => {
     try {
       setError(null);
-      console.log('📧 发送验证码...');
+      console.log('📧 sendingvalidating码...');
       
       if (contact.includes('@')) {
         // 邮箱验证码 - 使用统一的验证码服务
@@ -277,7 +277,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       const code = formData.get('code') as string;
       const newPassword = formData.get('newPassword') as string;
 
-      console.log('🔐 开始重置密码...');
+      console.log('🔐 startsresettingpassword...');
 
       let result;
       if (contact.includes('@')) {

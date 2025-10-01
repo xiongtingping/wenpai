@@ -99,7 +99,7 @@ export function TokenStatsDebugPanel() {
     setTestReport('');
 
     try {
-      console.log('🚀 开始Token统计功能测试...', { effectiveUserId, testTier });
+      console.log('🚀 startsToken统计featuretesting...', { effectiveUserId, testTier });
 
       // const results = await tokenStatsTester.runFullTest(effectiveUserId, testTier);
       // const report = tokenStatsTester.generateTestReport(results);
@@ -112,9 +112,9 @@ export function TokenStatsDebugPanel() {
       setTestResults(mockResults);
       setTestReport('TokenStatsTester 模块暂时不可用');
 
-      console.log('✅ Token统计功能测试完成:', mockResults);
+      console.log('✅ Token统计featuretestingcompleted:', mockResults);
     } catch (error) {
-      console.error('❌ Token统计功能测试失败:', error);
+      console.error('❌ Token统计featuretestingfailed:', error);
       setTestReport(`# 测试执行失败\n\n错误: ${error instanceof Error ? error.message : t('components.errors.未知错误')}`);
     } finally {
       setIsRunning(false);

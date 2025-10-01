@@ -182,7 +182,7 @@ export default function HotTopicsRadar({ showNavigation = false,
       const stored = localStorage.getItem('bookmarked-topics');
       return stored ? new Set(JSON.parse(stored)) : new Set();
     } catch (error) {
-      console.error('加载收藏话题失败:', error);
+      console.error('loading收藏话题failed:', error);
       return new Set();
     }
   };
@@ -192,7 +192,7 @@ export default function HotTopicsRadar({ showNavigation = false,
       localStorage.setItem('bookmarked-topics', JSON.stringify(Array.from(topics)));
       onBookmarkChange?.(topics);
     } catch (error) {
-      console.error('保存收藏话题失败:', error);
+      console.error('saving收藏话题failed:', error);
     }
   };
 
@@ -270,7 +270,7 @@ export default function HotTopicsRadar({ showNavigation = false,
         await loadSubscriptions();
       }
     } catch (error) {
-      console.error('初始化组件失败:', error);
+      console.error('initializationcomponentfailed:', error);
       setError('初始化失败，请刷新页面重试');
     }
   };
@@ -285,7 +285,7 @@ export default function HotTopicsRadar({ showNavigation = false,
       setAllHotData(data);
       setLastUpdateTime(new Date());
     } catch (error) {
-      console.error('加载热点话题失败:', error);
+      console.error('loading热点话题failed:', error);
       setError('加载数据失败，请稍后重试');
       toast({
         title: t('components.labels.加载失败'),
@@ -305,7 +305,7 @@ export default function HotTopicsRadar({ showNavigation = false,
       setSubscriptionStats(getSubscriptionStats());
       onSubscriptionChange?.(subs);
     } catch (error) {
-      console.error('加载订阅失败:', error);
+      console.error('loadingsubscribingfailed:', error);
     }
   };
 
@@ -338,7 +338,7 @@ export default function HotTopicsRadar({ showNavigation = false,
       try {
         const activeSubscriptions = subscriptions.filter(s => s.isActive && s.notificationEnabled);
         if (activeSubscriptions.length > 0) {
-          console.log('🔍 全网雷达自动检查话题订阅...');
+          console.log('🔍 全网雷达自动checking话题subscribing...');
           const results = await checkAllSubscriptions();
 
           // 静默更新结果
@@ -367,7 +367,7 @@ export default function HotTopicsRadar({ showNavigation = false,
           }
         }
       } catch (error) {
-        console.error('全网雷达自动监控失败:', error);
+        console.error('全网雷达自动monitoringfailed:', error);
       }
     }, 5 * 60 * 1000); // 5分钟
 
@@ -382,7 +382,7 @@ export default function HotTopicsRadar({ showNavigation = false,
     if (monitoringTimer) {
       clearInterval(monitoringTimer);
       setMonitoringTimer(null);
-      console.log('🛑 全网雷达话题订阅自动监控已停止');
+      console.log('🛑 全网雷达话题subscribing自动monitoringalreadystopping');
     }
   };
 
@@ -392,7 +392,7 @@ export default function HotTopicsRadar({ showNavigation = false,
     console.log('🔧 newSubscription:', newSubscription);
     
     if (!newSubscription.keyword.trim()) {
-      console.log('🔧 关键词为空，显示错误提示');
+      console.log('🔧 关key词is empty，displayerrorhint');
       toast({
         title: "错误",
         description: "请输入要监控的关键词",
@@ -451,7 +451,7 @@ export default function HotTopicsRadar({ showNavigation = false,
       });
 
     } catch (error) {
-      console.error('添加订阅失败:', error);
+      console.error('addingsubscribingfailed:', error);
       toast({
         title: "错误",
         description: "添加订阅失败，请重试",
@@ -783,7 +783,7 @@ export default function HotTopicsRadar({ showNavigation = false,
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      console.log('🔧 添加订阅按钮被点击');
+                      console.log('🔧 addingsubscribingbutton被点击');
                       setIsAddDialogOpen(true);
                     }}
                     className="text-sm font-medium hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-200 cursor-pointer !important"
@@ -792,11 +792,11 @@ export default function HotTopicsRadar({ showNavigation = false,
                       cursor: 'pointer'
                     }}
                     onMouseEnter={(e) => {
-                      console.log('🔧 鼠标进入添加订阅按钮');
+                      console.log('🔧 鼠标进入addingsubscribingbutton');
                       e.currentTarget.style.transform = 'scale(1.05)';
                     }}
                     onMouseLeave={(e) => {
-                      console.log('🔧 鼠标离开添加订阅按钮');
+                      console.log('🔧 鼠标离开addingsubscribingbutton');
                       e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >

@@ -49,7 +49,7 @@ const EmojiAvatarSystem: React.FC<EmojiAvatarSystemProps> = ({ onEmojiSelect,
         handleEmojiSelect(randomEmojis[0]);
       }
     } catch (error) {
-      console.error('随机选择emoji失败:', error);
+      console.error('随机选择emojifailed:', error);
       toast({
         title: "随机选择失败",
         description: "请手动选择emoji",

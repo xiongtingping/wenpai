@@ -88,7 +88,7 @@ const LazyWrapper: React.FC<{ children: React.ReactNode; fallback?: React.ReactN
 }) => {
   const { t } = useTranslation();
   return (
-    <ErrorBoundary fallback={<div>页面加载失败</div>}>
+    <ErrorBoundary fallback={<div>{t('app.errors.pageLoadFailedSimple')}</div>}>
       <Suspense fallback={fallback || <LoadingSpinner text={t('app.common.loading')} />}>
         {children}
       </Suspense>
@@ -130,60 +130,57 @@ const App: React.FC = () => {
         // 1. 首先初始化服务依赖（包括requestClient注册）
         const ServiceInitializer = await import('@/services/serviceInitializer');
         await ServiceInitializer.default.initialize();
-        console.log('✅ 服务依赖初始化完成');
-        
+        console.log('✅ Service dependencies initialized');
+
         // 2. 然后初始化i18n
         await import('@/i18n');
-        console.log('✅ i18n异步初始化完成');
+        console.log('✅ i18n async initialization completed');
       } catch (error) {
-        console.error('❌ 服务初始化失败:', error);
+        console.error('❌ Service initialization failed:', error);
       }
     };
     
     initServices();
     
-    // 🔧 FIX: 应用启动时立即加载持久化主题，避免闪烁
+    // 🔧 FIX: 应用启动时加载用户保存的主题，ThemeToggle 稍后会验证权限
     const loadPersistedTheme = () => {
       try {
-        // 从localStorage读取持久化主题
-        const globalTheme = localStorage.getItem('theme');
+        const html = document.documentElement;
+
+        // 从 localStorage 读取用户保存的主题偏好
+        const savedTheme = localStorage.getItem('theme');
         const validThemes = ['light', 'dark', 'rainbow', 'beige', 'green'];
-        
-        if (globalTheme && validThemes.includes(globalTheme)) {
-          // console.log(`🎨 加载持久化主题: ${globalTheme}`);
-          
-          const html = document.documentElement;
-          html.setAttribute('data-theme', globalTheme);
-          
-          // 清除所有主题类，应用新主题
-          html.classList.remove('light', 'dark', 'rainbow', 'beige', 'green');
-          html.classList.add(globalTheme);
-          
-          // Tailwind dark类兼容性
-          if (globalTheme === 'dark') {
-            html.classList.add('dark');
-          } else {
-            html.classList.remove('dark');
-          }
-          
-          // console.log(`🎨 主题已应用: ${globalTheme}`);
+
+        // 如果有保存的主题且有效，先应用（信任用户之前的选择）
+        // ThemeToggle 初始化后会根据实时权限验证并调整
+        const themeToApply = (savedTheme && validThemes.includes(savedTheme)) ? savedTheme : 'light';
+
+        html.setAttribute('data-theme', themeToApply);
+        html.classList.remove('light', 'dark', 'rainbow', 'beige', 'green');
+        html.classList.add(themeToApply);
+
+        // Tailwind dark 类兼容性
+        if (themeToApply === 'dark') {
+          html.classList.add('dark');
         } else {
-          // console.log('🎨 使用默认浅色主题');
+          html.classList.remove('dark');
         }
+
+        console.log(`🎨 Loaded persisted theme: ${themeToApply} (ThemeToggle will verify permissions)`);
       } catch (error) {
-        console.error('🎨 加载持久化主题失败:', error);
+        console.error('🎨 Failed to load persisted theme:', error);
       }
     };
-    
+
     // 立即执行主题加载
     loadPersistedTheme();
 
     // {t('app.startup.checkMaliciousCallback')}
     const currentUrl = window.location.href;
-    // console.log('🚀 App启动，当前URL:', currentUrl);
+    // console.log('🚀 Appstarting，currentURL:', currentUrl);
 
     // 🔧 DEBUG: 强制检查Authing配置加载情况
-    // console.log('🔧 检查环境变量加载:', {
+    // console.log('🔧 checking环境variableloading:', {
     //   VITE_AUTHING_APP_ID: import.meta.env.VITE_AUTHING_APP_ID,
     //   VITE_AUTHING_DOMAIN: import.meta.env.VITE_AUTHING_DOMAIN,
     //   VITE_AUTHING_HOST: import.meta.env.VITE_AUTHING_HOST,
@@ -194,7 +191,7 @@ const App: React.FC = () => {
 
     // 立即处理恶意回调URL重定向
     if (currentUrl.includes('callbackhttp:// ')) {
-      console.log('🚨 App层检测到恶意回调URL，立即处理重定向...');
+      console.log('🚨 App layer detected malicious callback URL, handling redirect...');
 
       const codeMatch = currentUrl.match(/code=([^&]+)/);
       const stateMatch = currentUrl.match(/state=([^&]+)/);
@@ -202,11 +199,11 @@ const App: React.FC = () => {
       if (codeMatch && stateMatch) {
         const code = codeMatch[1];
         const state = stateMatch[1];
-        console.log('✅ 解析认证码:', { code: code.substring(0, 10) + '...', state });
+        console.log('✅ Parsed auth code:', { code: code.substring(0, 10) + '...', state });
 
         // 重定向到正确的回调URL
         const correctCallbackUrl = `${window.location.origin}/callback?code=${code}&state=${state}`;
-        console.log('🔄 App层重定向到:', correctCallbackUrl);
+        console.log('🔄 App layer redirecting to:', correctCallbackUrl);
         window.location.href = correctCallbackUrl;
         return;
       }
@@ -230,16 +227,16 @@ const App: React.FC = () => {
             serializedError: JSON.stringify(error, Object.getOwnPropertyNames(error))
           };
 
-          console.error('🚨 应用级错误详情:', errorDetails);
+          console.error('🚨 App-level error details:', errorDetails);
 
           // 如果是网络相关错误，提供额外信息
           if (errorDetails.message.includes('Network') || errorDetails.message.includes('CORS')) {
-            console.warn('💡 这可能是网络连接或CORS配置问题，不影响Dialog修复功能');
+            console.warn('💡 This may be a network connection or CORS configuration issue, does not affect Dialog repair functionality');
           }
 
         } catch (logError) {
           // 如果错误处理本身失败，使用最简单的方式
-          console.error('🚨 应用级错误 (简化):', error?.message || String(error));
+          console.error('🚨 App-level error (simplified):', error?.message || String(error));
         }
       }}
     >

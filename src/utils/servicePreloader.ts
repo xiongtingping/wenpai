@@ -109,7 +109,7 @@ class ServicePreloader {
    * 按依赖顺序预加载所有服务
    */
   async preloadAllServices(): Promise<void> {
-    console.log('🚀 开始预加载服务，防止TDZ和getInstance错误...');
+    console.log('🚀 starts预loadingservice，防止TDZ和getInstanceerror...');
     const startTime = performance.now();
 
     const services = this.getServiceDefinitions();
@@ -125,11 +125,11 @@ class ServicePreloader {
       }
 
       const endTime = performance.now();
-      console.log(`✅ 服务预加载完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
-      console.log('📋 加载顺序:', this.initializationOrder);
+      console.log(`✅ service预loadingcompleted，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+      console.log('📋 loading顺序:', this.initializationOrder);
 
     } catch (error) {
-      console.error('❌ 服务预加载失败:', error);
+      console.error('❌ service预loadingfailed:', error);
       throw error;
     }
   }
@@ -191,10 +191,10 @@ class ServicePreloader {
       const module = await loadPromise;
       this.loadedServices.set(service.name, module);
       this.initializationOrder.push(service.name);
-      console.log(`✅ 已加载服务: ${service.name}`);
+      console.log(`✅ alreadyloadingservice: ${service.name}`);
       return module;
     } catch (error) {
-      console.error(`❌ 加载服务失败: ${service.name}`, error);
+      console.error(`❌ loadingservicefailed: ${service.name}`, error);
       this.loadingPromises.delete(service.name);
       throw error;
     }
@@ -211,17 +211,17 @@ class ServicePreloader {
       if (module.default && typeof module.default.getInstance === 'function') {
         try {
           const instance = module.default.getInstance();
-          console.log(`🔧 已初始化单例: ${service.name}`);
+          console.log(`🔧 alreadyinitializationsingleton: ${service.name}`);
           return { ...module, instance };
         } catch (error) {
-          console.warn(`⚠️ 单例初始化失败: ${service.name}`, error);
+          console.warn(`⚠️ singletoninitializationfailed: ${service.name}`, error);
           return module;
         }
       }
 
       return module;
     } catch (error) {
-      console.error(`💥 模块加载错误: ${service.name}`, error);
+      console.error(`💥 moduleloadingerror: ${service.name}`, error);
       throw error;
     }
   }

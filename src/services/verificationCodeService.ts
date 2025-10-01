@@ -48,7 +48,7 @@ class VerificationCodeService {
       const config = getAuthingConfig();
       
       // 🔧 FIX: 尝试不同的初始化方式来解决认证权限问题
-      console.log('🔍 尝试初始化Authing客户端，配置:', {
+      console.log('🔍 尝试initializationAuthingclient，configuration:', {
         appId: config.appId,
         domain: config.domain,
         host: config.host,
@@ -82,10 +82,10 @@ class VerificationCodeService {
         }
       });
 
-      console.log('✅ Authing AuthenticationClient初始化成功，appHost:', appHost);
+      console.log('✅ Authing AuthenticationClientinitializationsuccess，appHost:', appHost);
       return this.authClient;
     } catch (error) {
-      console.error('❌ Authing AuthenticationClient初始化失败:', error);
+      console.error('❌ Authing AuthenticationClientinitializationfailed:', error);
       throw new Error(i18n.t('common.errors.认证客户端初始化失败'));
     }
   }
@@ -105,12 +105,12 @@ class VerificationCodeService {
 
       const client = await this.initAuthClient();
       
-      console.log('📱 调用SDK发送手机验证码:', { phone, scene });
+      console.log('📱 调用SDKsendingphonevalidating码:', { phone, scene });
       
       // 调用Authing SDK发送短信验证码
       const result = await client.sendSmsCode(phone);
 
-      console.log('✅ 手机验证码发送API返回:', { result, resultType: typeof result });
+      console.log('✅ phonevalidating码sendingAPI返回:', { result, resultType: typeof result });
       
       return {
         success: true,
@@ -119,7 +119,7 @@ class VerificationCodeService {
       };
 
     } catch (error: any) {
-      console.error('❌ 发送手机验证码失败:', error);
+      console.error('❌ sendingphonevalidating码failed:', error);
       
       let errorMessage = i18n.t('common.errors.发送验证码失败');
       
@@ -163,37 +163,37 @@ class VerificationCodeService {
       let result;
       let emailScene: EmailScene;
       
-      console.log('🔍 发送验证码场景:', scene);
+      console.log('🔍 sendingvalidating码场景:', scene);
       
       try {
         // 方法1: 标准的注册验证码
         if (scene.toUpperCase() === 'REGISTER') {
           emailScene = EmailScene.REGISTER_VERIFY_CODE;
-          console.log('📧 使用注册验证码场景');
+          console.log('📧 使用registervalidating码场景');
         } else {
           emailScene = EmailScene.LOGIN_VERIFY_CODE;
-          console.log('📧 使用登录验证码场景');
+          console.log('📧 使用loginvalidating码场景');
         }
 
         result = await client.sendEmail(email, emailScene);
         
         // 检查结果结构
-        console.log('📧 发送验证码API原始结果:', {
+        console.log('📧 sendingvalidating码API原始result:', {
           result,
           resultType: typeof result,
           resultKeys: result && typeof result === 'object' ? Object.keys(result) : 'not object'
         });
 
       } catch (sendError) {
-        console.log('📧 标准发送方式失败，尝试备用方式:', sendError);
+        console.log('📧 标准sending方式failed，尝试备用方式:', sendError);
         
         // 方法2: 如果注册验证码失败，尝试登录验证码
         try {
           emailScene = EmailScene.LOGIN_VERIFY_CODE;
           result = await client.sendEmail(email, emailScene);
-          console.log('📧 备用方式发送成功');
+          console.log('📧 备用方式sendingsuccess');
         } catch (backupError) {
-          console.log('📧 备用发送方式也失败:', backupError);
+          console.log('📧 备用sending方式也failed:', backupError);
           throw sendError; // 抛出原始错误
         }
       }
@@ -202,10 +202,10 @@ class VerificationCodeService {
       if (result) {
         // 保存整个result对象，因为emailToken可能在不同的层级
         this.verificationTokens.set(email, result);
-        console.log('💾 保存验证码Token:', { email, tokenInfo: result });
+        console.log('💾 savingvalidating码Token:', { email, tokenInfo: result });
       }
 
-      console.log('✅ 邮箱验证码发送成功:', { email, scene, result });
+      console.log('✅ emailvalidating码sendingsuccess:', { email, scene, result });
       
       return {
         success: true,
@@ -214,8 +214,8 @@ class VerificationCodeService {
       };
 
     } catch (error: any) {
-      console.error('❌ 发送邮箱验证码失败:', error);
-      console.error('❌ 错误详情:', {
+      console.error('❌ sendingemailvalidating码failed:', error);
+      console.error('❌ errordetails:', {
         message: error?.message,
         code: error?.code,
         status: error?.status,
@@ -273,7 +273,7 @@ class VerificationCodeService {
         throw new Error('API返回空结果');
       }
 
-      console.log('✅ 手机验证码登录成功:', result);
+      console.log('✅ phonevalidating码loginsuccess:', result);
       
       return {
         success: true,
@@ -282,7 +282,7 @@ class VerificationCodeService {
       };
 
     } catch (error: any) {
-      console.error('❌ 手机验证码登录失败:', error);
+      console.error('❌ phonevalidating码loginfailed:', error);
       
       let errorMessage = i18n.t('common.errors.登录失败');
       if (error?.message) {
@@ -335,7 +335,7 @@ class VerificationCodeService {
         throw new Error('API返回空结果');
       }
 
-      console.log('✅ 邮箱验证码登录成功:', result);
+      console.log('✅ emailvalidating码loginsuccess:', result);
       
       return {
         success: true,
@@ -344,7 +344,7 @@ class VerificationCodeService {
       };
 
     } catch (error: any) {
-      console.error('❌ 邮箱验证码登录失败:', error);
+      console.error('❌ emailvalidating码loginfailed:', error);
       
       let errorMessage = i18n.t('common.errors.登录失败');
       if (error?.message) {
@@ -398,7 +398,7 @@ class VerificationCodeService {
       
       const result = await client.registerByPhoneCode(phone, code, password);
 
-      console.log('✅ 手机验证码注册成功:', result);
+      console.log('✅ phonevalidating码registersuccess:', result);
       
       return {
         success: true,
@@ -407,7 +407,7 @@ class VerificationCodeService {
       };
 
     } catch (error: any) {
-      console.error('❌ 手机验证码注册失败:', error);
+      console.error('❌ phonevalidating码registerfailed:', error);
       
       let errorMessage = i18n.t('common.errors.注册失败');
       if (error?.message) {
@@ -480,24 +480,24 @@ class VerificationCodeService {
         };
       }
 
-      console.log('🚀 步骤1: 开始初始化认证客户端...');
+      console.log('🚀 step1: startsinitializationauthenticatingclient...');
       const client = await this.initAuthClient();
-      console.log('✅ 步骤1完成: 认证客户端初始化成功');
+      console.log('✅ step1completed: authenticatingclientinitializationsuccess');
 
       // 清理验证码（去除空格和特殊字符）
       const cleanCode = code.trim().replace(/\s+/g, '');
-      console.log('🔍 步骤2: 验证码信息处理', {
+      console.log('🔍 step2: validating码infoprocessing', {
         原始验证码: code,
         清理后验证码: cleanCode,
         验证码长度: cleanCode.length,
         邮箱: email
       });
 
-      console.log('🚀 步骤3: 开始调用registerByEmailCode API...');
+      console.log('🚀 step3: starts调用registerByEmailCode API...');
       
       // 🔧 FIX: 获取发送验证码时保存的token
       const tokenInfo = this.verificationTokens.get(email);
-      console.log('🔍 获取保存的Token信息:', { email, tokenInfo });
+      console.log('🔍 gettingsaving的Tokeninfo:', { email, tokenInfo });
       
       // 🔧 FIX: 尝试从不同的字段获取emailToken，确保获取到字符串值
       let emailToken = null;
@@ -512,7 +512,7 @@ class VerificationCodeService {
           tokenInfo
         ];
         
-        console.log('🔍 Token候选值详情:', {
+        console.log('🔍 Token候选valuedetails:', {
           tokenInfo,
           tokenInfoStringified: JSON.stringify(tokenInfo, null, 2),
           candidates: candidates.map((c, i) => ({ 
@@ -554,7 +554,7 @@ class VerificationCodeService {
       
       if (!emailToken) {
         // 如果没有token，我们尝试不使用token的方式注册
-        console.log('⚠️ 未找到emailToken，尝试直接注册...');
+        console.log('⚠️ not foundemailToken，尝试直接register...');
       }
 
       // 🔧 FIX: 使用正确的注册API调用方式
@@ -563,7 +563,7 @@ class VerificationCodeService {
         email: email
       };
       
-      console.log('📡 API调用参数:', { 
+      console.log('📡 API调用parameter:', { 
         email, 
         code: cleanCode, 
         emailToken: emailToken,
@@ -571,36 +571,36 @@ class VerificationCodeService {
       });
 
       // 🔧 FIX: 简化API调用逻辑，避免TDZ错误
-      console.log('🔧 开始邮箱注册API调用...');
+      console.log('🔧 startsemailregisterAPI调用...');
       
       // 🔧 使用立即执行的异步函数避免变量作用域问题
       const registerPromise = (async () => {
         // 方法1: 如果有有效的emailToken，尝试4参数调用
         if (emailToken && typeof emailToken === 'string' && emailToken.length > 10) {
-          console.log('🔧 方法1: 使用emailToken字符串 (4参数)');
+          console.log('🔧 method1: 使用emailTokenstring (4parameter)');
           try {
             return await (client as any).registerByEmailCode(email, cleanCode, emailToken, { password });
           } catch (error) {
-            console.log('🔧 方法1失败，尝试方法2:', error);
+            console.log('🔧 method1failed，尝试method2:', error);
           }
         }
         
         // 方法2: 标准3参数调用
-        console.log('🔧 方法2: 标准3参数调用 (email, code, profile)');
+        console.log('🔧 method2: 标准3parameter调用 (email, code, profile)');
         try {
           return await client.registerByEmailCode(email, cleanCode, {
             email: email
           });
         } catch (error) {
-          console.log('🔧 方法2失败，尝试方法3:', error);
+          console.log('🔧 method2failed，尝试method3:', error);
         }
         
         // 方法3: 最简单的调用方式
-        console.log('🔧 方法3: 最简单调用 (email, code, password)');
+        console.log('🔧 method3: 最简单调用 (email, code, password)');
         try {
           return await (client as any).registerByEmailCode(email, cleanCode, password);
         } catch (error) {
-          console.log('🔧 方法3失败:', error);
+          console.log('🔧 method3failed:', error);
           throw new Error('所有注册方式均失败，可能是API配置问题');
         }
       })();
@@ -612,10 +612,10 @@ class VerificationCodeService {
       
       // 🔧 清理使用过的token
       this.verificationTokens.delete(email);
-      console.log('🗑️ 清理使用过的验证码Token:', { email });
-      console.log('✅ 步骤3完成: registerByEmailCode调用成功');
+      console.log('🗑️ cleaning使用过的validating码Token:', { email });
+      console.log('✅ step3completed: registerByEmailCode调用success');
 
-      console.log('✅ 步骤3完成: 邮箱验证码注册成功，无需单独设置密码:', result);
+      console.log('✅ step3completed: emailvalidating码registersuccess，none需单独settingpassword:', result);
       
       return {
         success: true,
@@ -624,8 +624,8 @@ class VerificationCodeService {
       };
 
     } catch (error: any) {
-      console.error('❌ 邮箱验证码注册失败:', error);
-      console.error('❌ 注册错误详情:', {
+      console.error('❌ emailvalidating码registerfailed:', error);
+      console.error('❌ registererrordetails:', {
         message: error?.message,
         code: error?.code,
         status: error?.status,
@@ -637,12 +637,12 @@ class VerificationCodeService {
       });
 
       // 额外的错误信息输出
-      console.error('❌ 完整错误对象:', JSON.stringify(error, null, 2));
+      console.error('❌ 完整errorobject:', JSON.stringify(error, null, 2));
 
       // 特别检查认证相关错误
       if (error?.message?.includes(i18n.t('common.errors.登录')) || error?.message?.includes(i18n.t('common.errors.权限')) || error?.message?.includes('unauthorized')) {
-        console.error('🚨 认证相关错误检测到！');
-        console.error('🔍 当前认证状态:', {
+        console.error('🚨 authenticating相关errordetecting到！');
+        console.error('🔍 currentauthenticatingstate:', {
           hasToken: !!localStorage.getItem('authing_token'),
           hasAuthClient: !!this.authClient,
           clientConfig: this.authClient ? 'initialized' : 'not initialized'
@@ -703,7 +703,7 @@ class VerificationCodeService {
       // 调用Authing SDK验证邮箱验证码
       const result = await (client as any).verifyEmailCode(email, code);
 
-      console.log('✅ 邮箱验证码验证成功:', { email });
+      console.log('✅ emailvalidating码validatingsuccess:', { email });
       
       return {
         success: true,
@@ -712,7 +712,7 @@ class VerificationCodeService {
       };
 
     } catch (error: any) {
-      console.error('❌ 验证邮箱验证码失败:', error);
+      console.error('❌ validatingemailvalidating码failed:', error);
       
       let errorMessage = '验证失败';
       if (error?.message) {
@@ -757,7 +757,7 @@ class VerificationCodeService {
       const loginResult = await this.loginByPhoneCode(phone, code);
       
       if (loginResult.success) {
-        console.log('✅ 手机验证码验证成功:', { phone });
+        console.log('✅ phonevalidating码validatingsuccess:', { phone });
         
         return {
           success: true,
@@ -772,7 +772,7 @@ class VerificationCodeService {
       }
 
     } catch (error: any) {
-      console.error('❌ 验证手机验证码失败:', error);
+      console.error('❌ validatingphonevalidating码failed:', error);
       
       let errorMessage = '验证失败';
       if (error?.message) {
@@ -823,7 +823,7 @@ class VerificationCodeService {
       // Authing SDK的重置密码API
       const result = await client.resetPasswordByPhoneCode(phone, code, newPassword);
 
-      console.log('✅ 手机验证码重置密码成功:', result);
+      console.log('✅ phonevalidating码resettingpasswordsuccess:', result);
       
       return {
         success: true,
@@ -832,7 +832,7 @@ class VerificationCodeService {
       };
 
     } catch (error: any) {
-      console.error('❌ 手机验证码重置密码失败:', error);
+      console.error('❌ phonevalidating码resettingpasswordfailed:', error);
       
       let errorMessage = i18n.t('common.errors.密码重置失败');
       if (error?.message) {

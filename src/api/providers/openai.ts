@@ -88,7 +88,7 @@ export class OpenAIProvider {
     const startTime = Date.now();
     
     try {
-      console.log('🤖 调用OpenAI聊天接口:', {
+      console.log('🤖 调用OpenAI聊daysinterface:', {
         model: params.model,
         promptLength: params.prompt.length,
         hasContext: !!(params.context && params.context.length > 0),
@@ -151,7 +151,7 @@ export class OpenAIProvider {
 
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      console.error('❌ OpenAI调用失败:', error);
+      console.error('❌ OpenAI调用failed:', error);
       
       return {
         content: '',
@@ -170,7 +170,7 @@ export class OpenAIProvider {
    */
   async generateImage(params: ImageGenerationParams): Promise<any> {
     try {
-      console.log('🖼️ 调用OpenAI图像生成接口:', {
+      console.log('🖼️ 调用OpenAIgraph像生成interface:', {
         model: params.model,
         prompt: params.prompt.substring(0, 50) + '...',
         size: params.size,
@@ -204,7 +204,7 @@ export class OpenAIProvider {
       };
 
     } catch (error) {
-      console.error('❌ OpenAI图像生成失败:', error);
+      console.error('❌ OpenAIgraph像生成failed:', error);
       
       return {
         success: false,

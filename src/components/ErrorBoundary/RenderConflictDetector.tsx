@@ -73,7 +73,7 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
           if (entry.entryType === 'measure' && entry.name.includes('React')) {
             // 检测React渲染性能问题
             if (entry.duration > 100) { // 超过100ms的渲染
-              console.warn(`🚨 RenderConflictDetector: 检测到慢渲染 ${entry.name}: ${entry.duration}ms`);
+              console.warn(`🚨 RenderConflictDetector: detecting到慢渲染 ${entry.name}: ${entry.duration}ms`);
             }
           }
         });
@@ -82,7 +82,7 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
       try {
         this.performanceObserver.observe({ entryTypes: ['measure', 'navigation'] });
       } catch (error) {
-        console.warn('RenderConflictDetector: 性能监控初始化失败', error);
+        console.warn('RenderConflictDetector: 性能monitoringinitializationfailed', error);
       }
     }
   }
@@ -91,7 +91,7 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
    * 错误边界 - 捕获渲染错误
    */
   static getDerivedStateFromError(error: Error): Partial<RenderConflictState> {
-    console.error('🚨 RenderConflictDetector: 捕获到渲染错误:', error);
+    console.error('🚨 RenderConflictDetector: 捕获到渲染error:', error);
     
     // 检查是否是无限循环错误
     const isInfiniteLoop = error.message.includes('Maximum update depth exceeded') ||
@@ -114,7 +114,7 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
    * 组件错误处理
    */
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('🚨 RenderConflictDetector: 组件错误详情:', {
+    console.error('🚨 RenderConflictDetector: componenterrordetails:', {
       error,
       errorInfo,
       componentId: this.componentId,
@@ -144,7 +144,7 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
    * 尝试自动恢复
    */
   private attemptAutoRecovery() {
-    console.log('🔄 RenderConflictDetector: 尝试自动恢复...');
+    console.log('🔄 RenderConflictDetector: 尝试自动restoring...');
     
     // 清理所有定时器
     this.renderTimeouts.forEach(timeout => clearTimeout(timeout));
@@ -176,7 +176,7 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
     
     // 检查渲染频率
     if (now - lastRenderTime < renderTimeWindow && renderCount > maxRenderCount) {
-      console.warn(`🚨 RenderConflictDetector: 检测到渲染冲突 - ${renderCount}次渲染在${now - lastRenderTime}ms内`);
+      console.warn(`🚨 RenderConflictDetector: detecting到渲染conflict - ${renderCount}times渲染在${now - lastRenderTime}msinner`);
       return true;
     }
     
@@ -223,7 +223,7 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
       // ✅ FIXED: 只在没有冲突时更新计数，避免无限循环
       // 🔧 FIXED: 移除setState调用，避免在componentDidUpdate中触发新的渲染
       // 只更新全局统计，不更新组件状态
-      console.log(`🔍 RenderConflictDetector: 渲染计数更新 ${this.componentId}: ${newRenderCount}`);
+      console.log(`🔍 RenderConflictDetector: 渲染计数updating ${this.componentId}: ${newRenderCount}`);
     }
   }
   

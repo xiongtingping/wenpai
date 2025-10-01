@@ -116,7 +116,7 @@ export default function BrandToneAnalyzer() { const [analysis, setAnalysis] = us
 
       setAnalysis(mockAnalysis);
     } catch (error) {
-      console.error('加载品牌分析失败:', error);
+      console.error('loading品牌analyzingfailed:', error);
       toast({
         title: t('components.labels.加载失败'),
         description: "品牌分析数据加载失败",

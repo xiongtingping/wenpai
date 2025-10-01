@@ -98,11 +98,11 @@ async function queueAPICall(queueId: string, apiCall: () => Promise<any>, delay:
 }
 
 function logModuleInit(name: string, version: string): void {
-  console.info(`🚀 模块初始化: ${name} v${version}`);
+  console.info(`🚀 moduleinitialization: ${name} v${version}`);
 }
 
 function logModuleLock(name: string, signature: string): void {
-  console.info(`🔒 模块锁定: ${name} [${signature}]`);
+  console.info(`🔒 modulelocking: ${name} [${signature}]`);
 }
 
 // AI任务类型枚举
@@ -151,14 +151,14 @@ function validateModuleIntegrity(): boolean {
     for (const funcName of requiredFunctions) {
       const func = functionMap[funcName];
       if (typeof func !== 'function') {
-        console.warn(`⚠️ AI服务模块完整性检查失败: 缺少函数 ${funcName}`);
+        console.warn(`⚠️ AIservicemodule完整性checkingfailed: missingfunction ${funcName}`);
         return false;
       }
     }
 
     return true;
   } catch (error) {
-    console.error('🚨 AI服务模块完整性检查异常:', error);
+    console.error('🚨 AIservicemodule完整性checkingabnormal:', error);
     return false;
   }
 }
@@ -176,7 +176,7 @@ export function detectViolations(): string[] {
       const url = args[0]?.toString() || '';
       if (url.includes('openai.com') || url.includes('deepseek.com') || url.includes('api.gemini')) {
         violations.push(`检测到直接AI API调用: ${url}`);
-        console.warn('🚨 违规行为检测: 发现直接AI API调用，应使用aiService.ts统一接口');
+        console.warn('🚨 违规row为detecting: 发现直接AI API调用，应使用aiService.ts统一interface');
       }
       return originalFetch.apply(this, args);
     };
@@ -352,7 +352,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
   }
 
   // 📊 调用日志记录
-  console.log(`🎯 AI服务调用开始 [${taskType}]`, {
+  console.log(`🎯 AIservice调用starts [${taskType}]`, {
     taskType,
     model,
     promptLength: prompt.length,
@@ -382,7 +382,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
         taskType
       });
     } else {
-      console.log('🏢 生产环境：通过后端API调用');
+      console.log('🏢 producing环境：通过backendAPI调用');
       result = await callAIViaBackend({
         prompt,
         model,
@@ -406,7 +406,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     return { ...result, taskType };
 
   } catch (error) {
-    console.error(`❌ AI服务调用失败 [${taskType}]:`, error);
+    console.error(`❌ AIservice调用failed [${taskType}]:`, error);
 
     return {
       content: '',
@@ -428,7 +428,7 @@ async function callDeepSeekDirect(config: any, params: any): Promise<AIResponse>
   try {
     // 验证DeepSeek配置
     if (!config.deepseek.apiKey) {
-      throw new Error('DeepSeek API密钥未配置');
+      throw new Error('DeepSeek APIkeynotconfiguration');
     }
 
     // 构建请求体
@@ -462,7 +462,7 @@ async function callDeepSeekDirect(config: any, params: any): Promise<AIResponse>
     const usage = data.usage;
 
     logger.debug('✅ DeepSeek响应成功');
-    console.log('📝 响应内容长度:', content.length);
+    console.log('📝 responsecontentlength:', content.length);
 
     return {
       content,
@@ -472,7 +472,7 @@ async function callDeepSeekDirect(config: any, params: any): Promise<AIResponse>
       success: true
     };
   } catch (error) {
-    console.error('DeepSeek API调用失败:', error);
+    console.error('DeepSeek API调用failed:', error);
     throw error;
   }
 }
@@ -484,7 +484,7 @@ async function callAIViaBackend(params: any): Promise<AIResponse> {
   const { prompt, model, maxTokens, temperature, systemPrompt, userId, startTime } = params;
 
   try {
-    console.log('🏢 通过后端API调用AI服务（通过队列管理）');
+    console.log('🏢 通过backendAPI调用AIservice（通过queue管理）');
 
     // 🚀 使用队列管理系统调用后端API
     const queueId = `backend-${params.taskType || 'general'}-${Date.now()}`;
@@ -509,7 +509,7 @@ async function callAIViaBackend(params: any): Promise<AIResponse> {
       success: true
     };
   } catch (error) {
-    console.error('后端API调用失败:', error);
+    console.error('backendAPI调用failed:', error);
     throw error;
   }
 }
@@ -575,7 +575,7 @@ export async function initializeAIService(): Promise<{
     console.log(message);
 
     if (violations.length > 0) {
-      console.warn('🚨 检测到违规行为:', violations);
+      console.warn('🚨 detecting到违规row为:', violations);
     }
 
     return {
@@ -1333,7 +1333,7 @@ export function verifyModuleIntegrity(): boolean {
     for (const funcName of requiredFunctions) {
       const func = functionMap[funcName];
       if (typeof func !== 'function') {
-        console.error(`🚨 模块完整性验证失败: 函数 ${funcName} 不存在或被篡改`);
+        console.error(`🚨 module完整性validatingfailed: function ${funcName} not exists或被篡改`);
         return false;
       }
     }
@@ -1341,14 +1341,14 @@ export function verifyModuleIntegrity(): boolean {
     // 验证任务类型枚举
     const taskTypeCount = Object.keys(AITaskType).length;
     if (taskTypeCount !== AI_SERVICE_MODULE_LOCK.taskTypes.length) {
-      console.error('🚨 模块完整性验证失败: AITaskType枚举被修改');
+      console.error('🚨 module完整性validatingfailed: AITaskTypeenum被modifying');
       return false;
     }
 
     logger.debug('✅ AI服务模块完整性验证通过');
     return true;
   } catch (error) {
-    console.error('🚨 模块完整性验证异常:', error);
+    console.error('🚨 module完整性validatingabnormal:', error);
     return false;
   }
 }
@@ -1370,12 +1370,12 @@ logModuleLock('AI服务模块', AI_SERVICE_MODULE_LOCK.signature);
 
 // 🔧 TEMPORARY: 仅在开发环境启用完整性验证
 if (import.meta.env.DEV && typeof window !== 'undefined') {
-  console.log('🔍 开发环境：启用AI服务模块完整性验证');
+  console.log('🔍 开发环境：enablingAIservicemodule完整性validating');
   setTimeout(() => {
     try {
       verifyModuleIntegrity();
     } catch (error) {
-      console.warn('⚠️ 完整性验证失败，但不影响功能:', error);
+      console.warn('⚠️ 完整性validatingfailed，但不影响feature:', error);
     }
   }, 1000);
 }

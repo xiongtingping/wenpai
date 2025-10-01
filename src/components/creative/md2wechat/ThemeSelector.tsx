@@ -157,7 +157,7 @@ export function ThemeSelector({
   const handleThemeSelect = (theme: ThemeConfig) => {
     if (theme.requiresPremium) {
       // TODO: 检查用户权限
-      console.log('需要高级权限');
+      console.log('需要高级permission');
     }
     
     onThemeChange(theme.id);

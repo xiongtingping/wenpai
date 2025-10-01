@@ -59,7 +59,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     const viewportWidth = window.innerWidth;
     const margin = 16; // 安全边距
 
-    console.log('🎯 定位计算:', {
+    console.log('🎯 定位calculating:', {
       triggerLeft: triggerRect.left,
       triggerRight: triggerRect.right,
       triggerBottom: triggerRect.bottom,
@@ -77,16 +77,16 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     if (rightAlignLeft >= margin) {
       // 右对齐有足够空间
       left = rightAlignLeft;
-      console.log('📍 右对齐定位, left:', left);
+      console.log('📍 right对齐定位, left:', left);
     } else {
       // 右对齐空间不足，尝试左对齐
       if (triggerRect.left + dropdownWidth <= viewportWidth - margin) {
         left = triggerRect.left;
-        console.log('📍 左对齐定位, left:', left);
+        console.log('📍 left对齐定位, left:', left);
       } else {
         // 都不够，贴右边
         left = viewportWidth - dropdownWidth - margin;
-        console.log('📍 贴右边定位, left:', left);
+        console.log('📍 贴rightedge定位, left:', left);
       }
     }
 
@@ -121,10 +121,10 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       
       // 只有当点击既不在触发器内，也不在下拉菜单内时，才关闭菜单
       if (!isInTrigger && !isInDropdown) {
-        console.log('🔥 检测到外部点击，关闭下拉菜单');
+        console.log('🔥 detecting到outer部点击，closingdown拉menu');
         setIsNativeDropdownOpen(false);
       } else {
-        console.log('🔥 点击在菜单内部，保持菜单打开');
+        console.log('🔥 点击在menuinner部，保持menuopening');
       }
     }
 
@@ -173,43 +173,43 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
 
   // 处理跳转到个人资料
   const handleProfileClick = async () => {
-    console.log('🎯 点击个人资料按钮，准备跳转到 /profile');
+    console.log('🎯 点击units人资料button，准备跳转到 /profile');
     
     // 🔧 FIX: 立即尝试导航，不等待状态更新
     try {
       console.log('🎯 立即尝试导航 (方案1)');
       navigate('/user-profile');
-      console.log('🎯 React Router 立即导航成功');
+      console.log('🎯 React Router 立即导航success');
       setIsNativeDropdownOpen(false);
       return;
     } catch (navError) {
-      console.warn('🎯 立即导航失败，尝试延迟导航:', navError);
+      console.warn('🎯 立即导航failed，尝试延迟导航:', navError);
     }
     
     try {
       // 方案2：先关闭下拉菜单，再导航
       setIsNativeDropdownOpen(false);
-      console.log('🎯 下拉菜单已关闭');
+      console.log('🎯 down拉menualreadyclosing');
       
       // 延迟导航
       await new Promise(resolve => setTimeout(resolve, 150));
       
-      console.log('🎯 开始延迟导航到 /profile');
+      console.log('🎯 starts延迟导航到 /profile');
       try {
         navigate('/user-profile');
-        console.log('🎯 React Router 延迟导航成功');
+        console.log('🎯 React Router 延迟导航success');
       } catch (navError) {
-        console.error('🎯 React Router导航失败，尝试window.location:', navError);
+        console.error('🎯 React Router导航failed，尝试window.location:', navError);
         window.location.href = '/profile';
-        console.log('🎯 window.location 跳转已执行');
+        console.log('🎯 window.location 跳转alreadyexecuting');
       }
     } catch (error) {
-      console.error('🎯 所有导航方案都失败，尝试最终备用方案:', error);
+      console.error('🎯 所has导航方案都failed，尝试最终备用方案:', error);
       try {
         window.location.href = '/profile';
-        console.log('🎯 最终备用方案跳转已执行');
+        console.log('🎯 最终备用方案跳转alreadyexecuting');
       } catch (finalError) {
-        console.error('🎯 所有导航方案都失败了:', finalError);
+        console.error('🎯 所has导航方案都failed了:', finalError);
         alert('无法跳转到个人资料页面，请手动访问 /profile');
       }
     }
@@ -326,7 +326,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           style={dropdownStyle}
           onMouseDown={(e) => {
             // 🔧 FIX: 改用mouseDown，并且只阻止冒泡到document，不阻止内部事件
-            console.log('🔥 下拉菜单容器mouseDown事件');
+            console.log('🔥 down拉menucontainermouseDownevent');
             // 不调用stopPropagation，让内部按钮事件正常执行
           }}
         >
@@ -356,19 +356,19 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
               onMouseDown={(e) => {
                 // 🔧 FIX: 使用mouseDown而不是click，避免与外部点击监听器冲突
-                console.log('🔥 个人资料按钮mouseDown事件');
+                console.log('🔥 units人资料buttonmouseDownevent');
                 e.preventDefault();
                 e.stopPropagation();
                 
                 // 立即执行导航，不等待异步操作
-                console.log('🔥 立即执行个人资料导航');
+                console.log('🔥 立即executingunits人资料导航');
                 try {
                   // 方案1：立即导航
                   navigate('/user-profile');
-                  console.log('🔥 导航成功执行');
+                  console.log('🔥 导航successexecuting');
                   setIsNativeDropdownOpen(false);
                 } catch (error) {
-                  console.error('🔥 导航失败，尝试备用方案:', error);
+                  console.error('🔥 导航failed，尝试备用方案:', error);
                   window.location.href = '/profile';
                 }
               }}
@@ -386,25 +386,25 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
               onMouseDown={(e) => {
                 // 🔧 FIX: 使用mouseDown事件，立即执行
-                console.log('🚪 退出登录按钮mouseDown事件');
+                console.log('🚪 退出loginbuttonmouseDownevent');
                 e.preventDefault();
                 e.stopPropagation();
                 
                 try {
-                  console.log('🚪 立即执行logout函数');
+                  console.log('🚪 立即executinglogoutfunction');
                   logout();
-                  console.log('🚪 logout函数执行完成');
+                  console.log('🚪 logoutfunctionexecutingcompleted');
                   setIsNativeDropdownOpen(false);
                 } catch (error) {
-                  console.error('🚪 logout函数执行失败:', error);
+                  console.error('🚪 logoutfunctionexecutingfailed:', error);
                   // 备用方案：强制清除并刷新页面
                   try {
                     localStorage.clear();
                     sessionStorage.clear();
                     window.location.href = '/';
-                    console.log('🚪 备用方案：强制清除存储并跳转首页');
+                    console.log('🚪 备用方案：强制clearingstorage并跳转first页');
                   } catch (backupError) {
-                    console.error('🚪 备用方案也失败了:', backupError);
+                    console.error('🚪 备用方案也failed了:', backupError);
                   }
                 }
               }}

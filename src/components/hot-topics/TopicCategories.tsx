@@ -181,7 +181,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
         break;
       case 'delete':
         // 这里可以添加删除逻辑
-        console.log('删除分类:', categoryId);
+        console.log('deletingcategory:', categoryId);
         break;
     }
   };

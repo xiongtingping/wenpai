@@ -173,7 +173,7 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
   const safeAppId = originalAppId || import.meta.env.VITE_AUTHING_APP_ID || (globalThis as any).__ENV__?.VITE_AUTHING_APP_ID;
   const cleanHost = originalHost || import.meta.env.VITE_AUTHING_HOST || (globalThis as any).__ENV__?.VITE_AUTHING_HOST;
 
-  console.log('🔧 配置修复检查:', {
+  console.log('🔧 configurationfixingchecking:', {
     originalAppId,
     safeAppId,
     originalHost,
@@ -199,7 +199,7 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
     ui_locales: 'zh-CN'        // 设置语言
   });
 
-  console.log('🔧 注册URL参数检查:', {
+  console.log('🔧 registerURLparameterchecking:', {
     safeAppId,
     cleanHost,
     redirectUri,
@@ -224,7 +224,7 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
     `${cleanHost}/oidc/auth?${params.toString()}&prompt=login&screen_hint=signup`, // OIDC注册
   ];
 
-  console.log('🔧 尝试注册端点:', registerEndpoints);
+  console.log('🔧 尝试register端点:', registerEndpoints);
 
   // 🔧 使用SSO端点，适配SSO应用类型
   const oidcParams = new URLSearchParams(params);
@@ -232,11 +232,11 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
   oidcParams.set('screen_hint', 'signup');  // 使用screen_hint指示注册
 
   const oidcUrl = `${cleanHost}/${safeAppId}/oidc/auth?${oidcParams.toString()}`;
-  console.log('🔧 尝试OIDC注册URL:', oidcUrl);
+  console.log('🔧 尝试OIDCregisterURL:', oidcUrl);
 
   // 备选：标准注册端点
   const standardUrl = `${cleanHost}/${safeAppId}/register?${params.toString()}`;
-  console.log('🔧 备选注册URL:', standardUrl);
+  console.log('🔧 备选registerURL:', standardUrl);
 
   // 优先使用OIDC端点
   const finalUrl = oidcUrl;

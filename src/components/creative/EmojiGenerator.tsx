@@ -49,7 +49,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`尝试生成图像 (第${attempt}次): ${prompt.substring(0, 30)}...`);
+        console.log(`尝试生成graph像 (the${attempt}times): ${prompt.substring(0, 30)}...`);
         
         // 使用统一的AI服务层
         const { callEmojiGenerator } = await import('@/api/aiService');
@@ -83,7 +83,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
 
           if (response.success && response.content) {
             // 这里应该调用真正的图像生成API，目前返回占位符
-            console.log('Emoji描述生成成功:', response.content);
+            console.log('Emojidescription生成success:', response.content);
             return createPlaceholderImage(emotion, '描述已生成');
           } else {
             throw new Error(response.error || t('components.errors.图像生成失败'));
@@ -101,7 +101,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
           
           if (response.success && response.content) {
             // 这里应该调用真正的图像生成API，目前返回占位符
-            console.log('Emoji描述生成成功:', response.content);
+            console.log('Emojidescription生成success:', response.content);
             return createPlaceholderImage(emotion, '描述已生成');
           } else {
             throw new Error(response.error || t('components.errors.图像生成失败'));
@@ -109,12 +109,12 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
         }
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        console.error(`图像生成失败 (第${attempt}次尝试):`, lastError.message);
+        console.error(`graph像生成failed (the${attempt}times尝试):`, lastError.message);
         
         if (attempt < maxRetries) {
           // 等待一段时间后重试
           const delay = attempt * 1000; // 1秒, 2秒, 3秒
-          console.log(`等待${delay}ms后重试...`);
+          console.log(`waiting${delay}msnextretrying...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
@@ -205,7 +205,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
       for (let i = 0; i < totalPrompts; i++) {
         const { prompt, emotion } = prompts[i];
         try {
-          console.log(`正在生成${emotion}表情... (${i + 1}/${totalPrompts})`);
+          console.log(`is生成${emotion}表情... (${i + 1}/${totalPrompts})`);
           setCurrentEmotion(emotion);
           setCurrentCount(i + 1);
           setProgress(((i + 1) / totalPrompts) * 100);
@@ -213,15 +213,15 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
           // 调用图像生成API
           const imageUrl = await generateImage(prompt);
           emojis.push({ emotion, url: imageUrl });
-          console.log(`${emotion}表情生成成功 (${i + 1}/${totalPrompts})`);
+          console.log(`${emotion}表情生成success (${i + 1}/${totalPrompts})`);
           
           // 每生成3个表情后稍作停顿，避免API限制
           if ((i + 1) % 3 === 0 && i < totalPrompts - 1) {
-            console.log('暂停3秒，避免API限制...');
+            console.log('pausing3seconds，避免APIlimiting...');
             await new Promise(resolve => setTimeout(resolve, 3000));
           }
         } catch (error) {
-          console.error(`生成${emotion}表情失败:`, error);
+          console.error(`生成${emotion}表情failed:`, error);
           // 返回错误占位符
           emojis.push({ 
             emotion, 
@@ -231,7 +231,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
           // 如果连续失败2次，暂停更长时间
           const recentFailures = emojis.slice(-2).filter(e => e.url.includes(t('components.labels.生成失败'))).length;
           if (recentFailures >= 2) {
-            console.log('检测到连续失败，暂停8秒...');
+            console.log('detecting到连续failed，pausing8seconds...');
             await new Promise(resolve => setTimeout(resolve, 8000));
           }
         }
@@ -243,7 +243,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
         description: `成功生成 ${emojis.length} 个个性化Emoji`,
       });
     } catch (error) {
-      console.error('批量生成失败:', error);
+      console.error('批量生成failed:', error);
       toast({
         title: t('components.labels.生成失败'),
         description: error instanceof Error ? error.message : t('components.errors.请重试'),

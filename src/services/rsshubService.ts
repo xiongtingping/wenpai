@@ -106,7 +106,7 @@ class RSSHubService {
 
       return await response.json();
     } catch (error) {
-      console.error('获取命名空间失败:', error);
+      console.error('getting命名empty间failed:', error);
       throw error;
     }
   }
@@ -127,7 +127,7 @@ class RSSHubService {
           results.push(...items);
         }
       } catch (error) {
-        console.error(`获取 ${platform.name} 数据失败:`, error);
+        console.error(`fetching ${platform.name} datafailed:`, error);
       }
     }
 
@@ -153,14 +153,14 @@ class RSSHubService {
         if (result.status === 'fulfilled') {
           allTopics.push(...result.value);
         } else {
-          console.error(`平台 ${enabledPlatforms[index].name} 数据获取失败:`, result.reason);
+          console.error(`平台 ${enabledPlatforms[index].name} datagettingfailed:`, result.reason);
         }
       });
 
       // 按热度排序并去重
       return this.sortAndDeduplicateTopics(allTopics);
     } catch (error) {
-      console.error('获取热点数据失败:', error);
+      console.error('getting热点datafailed:', error);
       throw error;
     }
   }
@@ -185,12 +185,12 @@ class RSSHubService {
       return response;
     } catch (error) {
       if (attempt < this.config.retryAttempts) {
-        console.warn(`请求失败，第 ${attempt} 次重试: ${url}`);
+        console.warn(`requestfailed，the ${attempt} timesretrying: ${url}`);
         await this.delay(1000 * attempt); // 递增延迟
         return this.fetchWithRetry(url, attempt + 1);
       }
       
-      console.error(`请求最终失败: ${url}`, error);
+      console.error(`request最终failed: ${url}`, error);
       return null;
     }
   }
@@ -233,7 +233,7 @@ class RSSHubService {
 
       return hotTopics;
     } catch (error) {
-      console.error('解析RSS数据失败:', error);
+      console.error('parsingRSSdatafailed:', error);
       return [];
     }
   }

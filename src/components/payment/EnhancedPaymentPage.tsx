@@ -48,7 +48,7 @@ const EnhancedCreemAlipayQRCode: React.FC<{ productId: string;
     try {
       const checkout = { id: 'mock', qrCodes: {}, alipayQrCodeUrl: null, price: 0 } as any; // TODO: hook up optimizer if available
       
-      console.log('支付订单创建成功:', checkout);
+      console.log('支付订单creatingsuccess:', checkout);
       
       const alipayQr =
         checkout.alipayQrCodeUrl ||
@@ -82,7 +82,7 @@ const EnhancedCreemAlipayQRCode: React.FC<{ productId: string;
       }
       
     } catch (err: any) {
-      console.error('创建支付订单失败:', err);
+      console.error('creating支付订单failed:', err);
       setError(err?.message || t('components.errors.二维码获取失败'));
       setQrUrl(null);
       setPrice(null);

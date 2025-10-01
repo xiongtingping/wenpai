@@ -488,24 +488,24 @@ export class AuthErrorHandler {
   clearErrorHistory(): void {
     this.errorHistory = [];
     this.initializeStats();
-    console.log('🗑️ 错误历史已清除');
+    console.log('🗑️ error历史alreadyclearing');
   }
 
   /**
    * 恢复操作实现
    */
   private async performRetry(error: any): Promise<void> {
-    console.log('🔄 执行重试操作');
+    console.log('🔄 executingretrying操作');
     // 具体重试逻辑由调用方实现
   }
 
   private async resendVerificationCode(): Promise<void> {
-    console.log('📱 重新发送验证码');
+    console.log('📱 resendingvalidating码');
     // 由调用方实现
   }
 
   private async refreshToken(): Promise<void> {
-    console.log('🔄 刷新Token');
+    console.log('🔄 refreshingToken');
     // 由调用方实现
   }
 
@@ -515,7 +515,7 @@ export class AuthErrorHandler {
   }
 
   private reportCriticalError(error: AuthError): void {
-    console.log('🚨 上报严重错误:', error);
+    console.log('🚨 up报严重error:', error);
     // 发送到监控系统
   }
 }
@@ -564,7 +564,7 @@ export function withErrorRetry<T extends any[], R>(
           throw error;
         }
         
-        console.log(`⏳ 重试 ${attempt}/${maxRetries}，${result.retryDelay}ms 后重试`);
+        console.log(`⏳ retrying ${attempt}/${maxRetries}，${result.retryDelay}ms nextretrying`);
         await new Promise(resolve => setTimeout(resolve, result.retryDelay));
       }
     }

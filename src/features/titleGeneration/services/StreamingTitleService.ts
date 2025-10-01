@@ -132,7 +132,7 @@ export class StreamingTitleService {
 
       for await (const { index, result, error } of aiService.callStream(prompts, aiCallOptions)) {
         if (error) {
-          console.warn(`AI调用失败 (${index}):`, error);
+          console.warn(`AI调用failed (${index}):`, error);
           onError?.(error);
           continue;
         }
@@ -203,7 +203,7 @@ export class StreamingTitleService {
             onTitleGenerated?.(scoredTitle);
           }
         } catch (parseError) {
-          console.warn('解析AI响应失败:', parseError);
+          console.warn('parsingAIresponsefailed:', parseError);
           onError?.(parseError instanceof Error ? parseError : new Error(String(parseError)));
         }
       }
@@ -307,7 +307,7 @@ export class StreamingTitleService {
       const { index, value, done, error } = raceResult;
 
       if (error) {
-        console.error(`批量生成失败 (输入 ${index}):`, error);
+        console.error(`批量生成failed (input ${index}):`, error);
         activeGenerators.delete(index);
         completedCount++;
       } else if (done) {
@@ -380,7 +380,7 @@ export class StreamingTitleService {
         extractedContent: title.title?.substring(0, 50) || ''
       }));
     } catch (error) {
-      console.error('解析AI响应失败:', error);
+      console.error('parsingAIresponsefailed:', error);
       throw new TitleGenerationError(
         'AI响应格式错误',
         'INVALID_AI_RESPONSE',

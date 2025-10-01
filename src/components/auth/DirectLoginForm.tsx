@@ -22,14 +22,14 @@ export const DirectLoginForm: React.FC<any> = ({ onLogin, onError }) => {
     setLoading(true);
 
     try {
-      console.log('🔐 直接登录尝试...');
+      console.log('🔐 直接login尝试...');
       
       // ✅ FIXED: 2025-08-30 遵循 api_prohibit_local_mock_error 规则
       // 必须调用真实的Authing API进行登录，不允许使用模拟数据
       throw new Error('DirectLoginForm已被禁用：必须使用真实的Authing API进行登录，不允许模拟登录');
       
      } catch (error) {
-      console.error('❌ 登录失败:', error);
+      console.error('❌ loginfailed:', error);
       const errorMsg = error instanceof Error ? error.message : t('components.errors.登录失败');
       onError?.(errorMsg);
     } finally {

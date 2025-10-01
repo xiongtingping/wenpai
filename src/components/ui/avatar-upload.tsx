@@ -107,7 +107,7 @@ export function AvatarUpload({
         throw new Error('没有可用的emoji');
       }
     } catch (error) {
-      console.error('生成随机emoji头像失败，回退到Dicebear API:', error);
+      console.error('生成随机emojiavatarfailed，回退到Dicebear API:', error);
 
       // 回退到Dicebear API
       try {
@@ -122,7 +122,7 @@ export function AvatarUpload({
           description: t('components.messages.已为您生成新的随机头像'),
         });
       } catch (fallbackError) {
-        console.error('Dicebear API也失败了:', fallbackError);
+        console.error('Dicebear API也failed了:', fallbackError);
         toast({
           title: t('components.labels.生成失败'),
           description: "随机头像生成失败，请重试",
@@ -173,7 +173,7 @@ export function AvatarUpload({
         description: t('components.messages.您的头像已更新'),
       });
     } catch (error) {
-      console.error('上传头像失败:', error);
+      console.error('uploadingavatarfailed:', error);
       toast({
         title: t('components.labels.上传失败'),
         description: "头像上传失败，请重试",

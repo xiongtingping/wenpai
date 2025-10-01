@@ -136,7 +136,7 @@ export function useDialogPositioning(options: DialogPositioningOptions): DialogP
       dialogElement.style.setProperty('bottom', 'auto', 'important');
 
       if (enableDebugLogs) {
-        console.log(`🎯 ${dialogType} Dialog定位修复已应用`, {
+        console.log(`🎯 ${dialogType} Dialog定位fixingalready应用`, {
           element: dialogElement,
           className: dialogElement.className,
           computedStyle: {
@@ -149,7 +149,7 @@ export function useDialogPositioning(options: DialogPositioningOptions): DialogP
       }
     } catch (error) {
       if (enableDebugLogs) {
-        console.warn(`⚠️ ${dialogType} Dialog定位修复失败:`, error);
+        console.warn(`⚠️ ${dialogType} Dialog定位fixingfailed:`, error);
       }
       throw error;
     }
@@ -192,7 +192,7 @@ export function useDialogPositioning(options: DialogPositioningOptions): DialogP
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       if (enableDebugLogs) {
-        console.error(`💥 ${dialogType} Dialog修复过程出错:`, error);
+        console.error(`💥 ${dialogType} Dialogfixing过程出错:`, error);
       }
       return {
         isFixed: false,
@@ -212,11 +212,11 @@ export function useDialogPositioning(options: DialogPositioningOptions): DialogP
         try {
           const result = findAndFixDialog();
           if (enableDebugLogs && result.isFixed) {
-            console.log(`🎯 第${index + 1}次修复尝试成功 (延迟${delay}ms)`);
+            console.log(`🎯 the${index + 1}timesfixing尝试success (延迟${delay}ms)`);
           }
         } catch (error) {
           if (enableDebugLogs) {
-            console.warn(`⚠️ 第${index + 1}次修复尝试失败 (延迟${delay}ms):`, error);
+            console.warn(`⚠️ the${index + 1}timesfixing尝试failed (延迟${delay}ms):`, error);
           }
         }
       }, delay);
@@ -298,7 +298,7 @@ export function useDialogScrollLock(open: boolean) {
   useEffect(() => {
     if (!open) return;
 
-    console.log('🔒 启用优化的滚动锁定 - useDialogScrollLock v2');
+    console.log('🔒 enablingoptimizing的滚动locking - useDialogScrollLock v2');
     
     // 保存原始状态 - 更全面的状态保存
     const originalScrollY = window.scrollY;
@@ -325,7 +325,7 @@ export function useDialogScrollLock(open: boolean) {
       overflowY: html.style.overflowY
     };
 
-    console.log('📊 滚动锁定前状态:', {
+    console.log('📊 滚动lockingpreviousstate:', {
       scrollY: originalScrollY,
       scrollX: originalScrollX,
       bodyOverflow: originalBodyStyles.overflow,
@@ -351,7 +351,7 @@ export function useDialogScrollLock(open: boolean) {
     html.style.overflowY = 'hidden';
     html.style.overflowX = 'hidden';
     
-    console.log('✅ 优化的滚动锁定已应用:', {
+    console.log('✅ optimizing的滚动lockingalready应用:', {
       bodyOverflow: body.style.overflow,
       scrollbarWidth,
       paddingRight: body.style.paddingRight
@@ -378,7 +378,7 @@ export function useDialogScrollLock(open: boolean) {
 
     // 🧹 清理函数 - 确保完全恢复原始状态
     return () => {
-      console.log('🔓 移除优化的滚动锁定 - useDialogScrollLock v2');
+      console.log('🔓 removingoptimizing的滚动locking - useDialogScrollLock v2');
       
       // 移除事件监听器
       events.forEach(event => {
@@ -412,7 +412,7 @@ export function useDialogScrollLock(open: boolean) {
         });
       }
       
-      console.log('✅ 优化的滚动锁定已移除，无闪动恢复:', {
+      console.log('✅ optimizing的滚动lockingalreadyremoving，none闪动restoring:', {
         originalScrollY,
         originalScrollX,
         currentScrollY: window.scrollY,

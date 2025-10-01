@@ -111,7 +111,7 @@ export class UserDataIsolationManager {
       if (!serializedData) {
         // 降低日志级别，避免循环日志
         if (this.config.enableLogging) {
-          console.debug(`📂 没有找到数据: ${storageKey}`);
+          console.debug(`📂 没has找到data: ${storageKey}`);
         }
         return {
           success: true,
@@ -173,7 +173,7 @@ export class UserDataIsolationManager {
       const data = localStorage.getItem(storageKey);
       return data !== null;
     } catch (error) {
-      console.error(`❌ 检查数据存在性失败: ${error}`);
+      console.error(`❌ checkingdataexists性failed: ${error}`);
       return false;
     }
   }
@@ -187,7 +187,7 @@ export class UserDataIsolationManager {
       const data = localStorage.getItem(storageKey);
       return data ? data.length : 0;
     } catch (error) {
-      console.error(`❌ 获取数据大小失败: ${error}`);
+      console.error(`❌ gettingdatasizefailed: ${error}`);
       return 0;
     }
   }
@@ -268,7 +268,7 @@ export function migrateUserData(oldKey: string, newKey: string): boolean {
     }
     return false;
   } catch (error) {
-    console.error(`❌ 数据迁移失败: ${oldKey} -> ${newKey}`, error);
+    console.error(`❌ data迁移failed: ${oldKey} -> ${newKey}`, error);
     return false;
   }
 }
@@ -290,7 +290,7 @@ export function cleanupUserData(userId: string): number {
     
     logger.debug('✅ 清理用户数据完成: ${userId}, 清理了 ${cleanedCount} 项');
   } catch (error) {
-    console.error(`❌ 清理用户数据失败: ${userId}`, error);
+    console.error(`❌ cleaninguserdatafailed: ${userId}`, error);
   }
   
   return cleanedCount;
@@ -313,9 +313,9 @@ export function getUserDataStats(): Record<string, number> {
       }
     });
     
-    console.log('📊 用户数据统计:', stats);
+    console.log('📊 userdata统计:', stats);
   } catch (error) {
-    console.error('❌ 获取用户数据统计失败:', error);
+    console.error('❌ gettinguserdata统计failed:', error);
   }
   
   return stats;

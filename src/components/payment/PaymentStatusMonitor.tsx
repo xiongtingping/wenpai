@@ -124,7 +124,7 @@ export const PaymentStatusMonitor: React.FC<any> = ({ checkoutId,
       }
 
     } catch (error: any) {
-      console.error('获取支付状态失败:', error);
+      console.error('getting支付statefailed:', error);
       setPaymentStatus({
         status: 'failed',
         message: t('components.errors.获取支付状态失败'),

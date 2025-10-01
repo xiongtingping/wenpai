@@ -78,10 +78,10 @@ export class EncryptionService {
       );
 
       this.keyGenerationTime = Date.now();
-      console.log('🔐 固定盐值加密密钥已生成');
+      console.log('🔐 固定盐valueencryptingkeyalready生成');
 
     } catch (error) {
-      console.error('❌ 密钥生成失败:', error);
+      console.error('❌ key生成failed:', error);
       throw new Error('Failed to generate encryption key');
     }
   }
@@ -94,22 +94,22 @@ export class EncryptionService {
       // 🔧 NEW: 使用生产环境密钥管理器获取验证过的密钥
       const masterKey = SecureKeys.getEncryptionKey();
       
-      console.log('🔐 使用生产环境密钥管理器获取主密钥');
+      console.log('🔐 使用producing环境keymanagergettingmainkey');
       return masterKey;
       
     } catch (error) {
-      console.error('❌ 生产环境密钥获取失败，使用回退方案:', error);
+      console.error('❌ producing环境keygettingfailed，使用回退方案:', error);
       
       // 回退方案：直接从环境变量获取
       const envKey = import.meta.env.VITE_ENCRYPTION_MASTER_KEY;
       if (envKey && envKey.length >= 32) {
-        console.warn('⚠️ 使用直接环境变量密钥');
+        console.warn('⚠️ 使用直接环境variablekey');
         return envKey;
       }
 
       // 最后的回退方案
       const fallbackMasterKey = 'wenpai-encryption-master-key-2025-v1-fixed-48chars';
-      console.warn('⚠️ 使用固定回退密钥，建议配置环境变量');
+      console.warn('⚠️ 使用固定回退key，建议configuration环境variable');
       
       return fallbackMasterKey;
     }
@@ -165,7 +165,7 @@ export class EncryptionService {
       return 'AES256GCM:' + base64Data;
 
     } catch (error) {
-      console.error('❌ 数据加密失败:', error);
+      console.error('❌ dataencryptingfailed:', error);
       throw new Error('Encryption failed');
     }
   }
@@ -209,7 +209,7 @@ export class EncryptionService {
       return new TextDecoder().decode(plaintextBuffer);
 
     } catch (error) {
-      console.error('❌ 数据解密失败:', error);
+      console.error('❌ datadecryptingfailed:', error);
       throw new Error('Decryption failed');
     }
   }
@@ -230,7 +230,7 @@ export class EncryptionService {
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
     } catch (error) {
-      console.error('❌ 校验和生成失败:', error);
+      console.error('❌ 校验和生成failed:', error);
       throw new Error('Checksum generation failed');
     }
   }
@@ -243,7 +243,7 @@ export class EncryptionService {
       const actualChecksum = await this.generateChecksum(data);
       return actualChecksum === expectedChecksum;
     } catch (error) {
-      console.error('❌ 校验和验证失败:', error);
+      console.error('❌ 校验和validatingfailed:', error);
       return false;
     }
   }
@@ -267,7 +267,7 @@ export class EncryptionService {
   static clearSensitiveData(): void {
     this.cryptoKey = null;
     this.keyGenerationTime = 0;
-    console.log('🧹 敏感加密数据已清理');
+    console.log('🧹 敏感encryptingdataalreadycleaning');
   }
 
   // 工具方法：ArrayBuffer转Base64
@@ -315,7 +315,7 @@ export class FallbackEncryptionService {
       
       return btoa(encrypted);
     } catch (error) {
-      console.error('❌ 降级加密失败:', error);
+      console.error('❌ 降级encryptingfailed:', error);
       return btoa(plaintext); // 最后的降级方案
     }
   }
@@ -337,7 +337,7 @@ export class FallbackEncryptionService {
       // 移除随机前缀
       return decrypted.substring(6);
     } catch (error) {
-      console.error('❌ 降级解密失败:', error);
+      console.error('❌ 降级decryptingfailed:', error);
       try {
         return atob(encryptedData); // 最后的降级方案
       } catch {
@@ -356,7 +356,7 @@ export class SecureEncryption {
     if (EncryptionService.isAvailable()) {
       return await EncryptionService.encrypt(data);
     } else {
-      console.warn('⚠️ Web Crypto API不可用，使用降级加密');
+      console.warn('⚠️ Web Crypto APIunavailable，使用降级encrypting');
       return FallbackEncryptionService.encrypt(data);
     }
   }
@@ -385,11 +385,11 @@ export class SecureEncryption {
         return await EncryptionService.decrypt(encryptedData);
       } else {
         // 使用降级解密
-        console.log('🔄 检测到降级加密数据，使用降级解密');
+        console.log('🔄 detecting到降级encryptingdata，使用降级decrypting');
         return FallbackEncryptionService.decrypt(encryptedData);
       }
     } catch (error) {
-      console.error('❌ 智能解密失败:', error);
+      console.error('❌ 智能decryptingfailed:', error);
       throw new Error('Decryption failed');
     }
   }

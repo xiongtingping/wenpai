@@ -29,7 +29,7 @@ class ProductionEnvChecker {
    * 执行生产环境检查
    */
   private performCheck(): void {
-    console.log('🔍 开始生产环境配置检查...');
+    console.log('🔍 startsproducing环境configurationchecking...');
 
     // 检查 Authing 配置
     this.checkAuthingConfig();
@@ -137,7 +137,7 @@ class ProductionEnvChecker {
     
     if (errors.length > 0) {
       console.group('🚨 生产环境配置问题');
-      console.warn('发现以下配置问题，可能导致 undefinedundefined 问题：');
+      console.warn('发现以downconfiguration问题，可能导致 undefinedundefined 问题：');
       
       errors.forEach(error => {
         console.warn(`❌ ${error.key}:`, {
@@ -161,9 +161,9 @@ class ProductionEnvChecker {
    */
   private showProductionWarning(errors: EnvCheckResult[]): void {
     // 只在控制台显示，不在页面上显示（避免影响用户体验）
-    console.warn('🔧 生产环境配置建议：');
+    console.warn('🔧 producing环境configuration建议：');
     errors.forEach(error => {
-      console.warn(`- 修复 ${error.key}: ${error.suggestion}`);
+      console.warn(`- fixing ${error.key}: ${error.suggestion}`);
     });
   }
 

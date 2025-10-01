@@ -83,7 +83,7 @@ export class BookmarkService {
       this.updateCache(result);
       return result;
     } catch (error) {
-      console.error('获取书签失败:', error);
+      console.error('getting书签failed:', error);
       return this.cache || [];
     }
   }
@@ -109,11 +109,11 @@ export class BookmarkService {
             // 迁移到新的统一数据系统
             if (topics && topics.length > 0) {
               await globalDataManager.setData('bookmarked-topics', topics);
-              console.log('✅ 话题书签已迁移到统一数据系统');
+              console.log('✅ 话题书签already迁移到统一data系统');
             }
           }
         } catch (error) {
-          console.error('旧数据迁移失败:', error);
+          console.error('olddata迁移failed:', error);
         }
       }
 
@@ -121,7 +121,7 @@ export class BookmarkService {
       this.topicCache = result;
       return result;
     } catch (error) {
-      console.error('获取话题书签失败:', error);
+      console.error('getting话题书签failed:', error);
       return this.topicCache || [];
     }
   }
@@ -150,13 +150,13 @@ export class BookmarkService {
       
       if (success) {
         this.updateCache(updatedBookmarks);
-        console.log('✅ 书签添加成功:', item.title);
+        console.log('✅ 书签addingsuccess:', item.title);
         return id;
       } else {
         throw new Error('u64cdu4f5cu5931u8d25');
       }
     } catch (error) {
-      console.error('添加书签失败:', error);
+      console.error('adding书签failed:', error);
       throw error;
     }
   }
@@ -183,13 +183,13 @@ export class BookmarkService {
       
       if (success) {
         this.topicCache = updatedBookmarks;
-        console.log('✅ 话题书签添加成功:', topic.title);
+        console.log('✅ 话题书签addingsuccess:', topic.title);
         return id;
       } else {
         throw new Error('u64cdu4f5cu5931u8d25');
       }
     } catch (error) {
-      console.error('添加话题书签失败:', error);
+      console.error('adding话题书签failed:', error);
       throw error;
     }
   }
@@ -206,13 +206,13 @@ export class BookmarkService {
       
       if (success) {
         this.updateCache(updatedBookmarks);
-        console.log('✅ 书签移除成功:', id);
+        console.log('✅ 书签removingsuccess:', id);
         return true;
       } else {
         throw new Error('u64cdu4f5cu5931u8d25');
       }
     } catch (error) {
-      console.error('移除书签失败:', error);
+      console.error('removing书签failed:', error);
       return false;
     }
   }
@@ -229,13 +229,13 @@ export class BookmarkService {
       
       if (success) {
         this.topicCache = updatedBookmarks;
-        console.log('✅ 话题书签移除成功:', id);
+        console.log('✅ 话题书签removingsuccess:', id);
         return true;
       } else {
         throw new Error('u64cdu4f5cu5931u8d25');
       }
     } catch (error) {
-      console.error('移除话题书签失败:', error);
+      console.error('removing话题书签failed:', error);
       return false;
     }
   }
@@ -353,10 +353,10 @@ export class BookmarkService {
         }
       }
       
-      console.log('✅ 书签导入成功');
+      console.log('✅ 书签importingsuccess');
       return success;
     } catch (error) {
-      console.error('导入书签失败:', error);
+      console.error('importing书签failed:', error);
       return false;
     }
   }
@@ -372,13 +372,13 @@ export class BookmarkService {
       if (success1 && success2) {
         this.updateCache([]);
         this.topicCache = [];
-        console.log('✅ 所有书签已清空');
+        console.log('✅ 所has书签already清empty');
         return true;
       } else {
         throw new Error('u64cdu4f5cu5931u8d25');
       }
     } catch (error) {
-      console.error('清空书签失败:', error);
+      console.error('清empty书签failed:', error);
       return false;
     }
   }

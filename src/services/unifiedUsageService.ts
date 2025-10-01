@@ -110,17 +110,17 @@ class UnifiedUsageService {
     try {
       const plan = getSubscriptionPlan(tier);
       const limit = plan.limits.adaptUsageLimit;
-      console.log(`🔧 获取套餐${tier}的使用次数限额: ${limit}`, plan.limits);
+      console.log(`🔧 getting套餐${tier}的使用countlimit: ${limit}`, plan.limits);
       return limit;
     } catch (error) {
-      console.warn(`获取套餐${tier}的使用次数限额失败，使用默认值`, error);
+      console.warn(`getting套餐${tier}的使用countlimitfailed，使用defaultvalue`, error);
       const fallbackLimits = {
         'trial': 10,
         'pro': 30, 
         'premium': -1
       };
       const fallbackLimit = fallbackLimits[tier] || 10;
-      console.log(`🔧 使用默认限额 ${tier}: ${fallbackLimit}`);
+      console.log(`🔧 使用defaultlimit ${tier}: ${fallbackLimit}`);
       return fallbackLimit;
     }
   }
@@ -133,7 +133,7 @@ class UnifiedUsageService {
       const plan = getSubscriptionPlan(tier);
       return plan.limits.tokenLimit;
     } catch (error) {
-      console.warn(`获取套餐${tier}的Token限额失败，使用默认值`, error);
+      console.warn(`getting套餐${tier}的Tokenlimitfailed，使用defaultvalue`, error);
       const fallbackLimits = {
         'trial': 100000,
         'pro': 200000,
@@ -200,7 +200,7 @@ class UnifiedUsageService {
       
       return unifiedStats;
     } catch (error) {
-      console.error('获取统一使用量统计失败:', error);
+      console.error('getting统一使用量统计failed:', error);
       
       // 🚨 生产环境API失败时抛出错误，开发环境已在上面处理
       throw new Error(`统一使用量API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
@@ -218,13 +218,13 @@ class UnifiedUsageService {
       const now = Date.now();
       
       if (cached && (now - cached.timestamp) < this.CACHE_DURATION) {
-        console.log('🔧 使用缓存的使用次数统计:', cached.data);
+        console.log('🔧 使用cache的使用count统计:', cached.data);
         return cached.data;
       }
       
       // 🔧 FIX: 开发环境返回稳定的模拟数据，避免API请求失败
       if (import.meta.env.DEV) {
-        console.log('🔧 开发环境：生成稳定的模拟使用次数统计', { userId, userTier });
+        console.log('🔧 开发环境：生成稳定的模拟使用count统计', { userId, userTier });
         
         const availableUses = this.getUsageCountLimit(userTier);
         const usedCount = userTier === 'premium' ? 5 : Math.floor(availableUses * 0.3); // 模拟已使用30%
@@ -245,7 +245,7 @@ class UnifiedUsageService {
         // 🔧 FIX: 缓存结果
         this.usageStatsCache.set(cacheKey, { data: mockStats, timestamp: now });
         
-        console.log('🔧 返回稳定的模拟使用次数统计:', mockStats);
+        console.log('🔧 返回稳定的模拟使用count统计:', mockStats);
         
         return mockStats;
       }
@@ -276,7 +276,7 @@ class UnifiedUsageService {
 
       return stats;
     } catch (error) {
-      console.error('从后端获取使用次数统计失败:', error);
+      console.error('从backendgetting使用count统计failed:', error);
 
       // 🚨 生产环境API失败时抛出错误，开发环境已在上面处理
       throw new Error(`使用次数统计API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
@@ -361,7 +361,7 @@ class UnifiedUsageService {
       
       return true;
     } catch (error) {
-      console.error('消费使用次数失败:', error);
+      console.error('consuming使用countfailed:', error);
       return false;
     }
   }
@@ -394,9 +394,9 @@ class UnifiedUsageService {
     try {
       // 由于使用Supabase实时数据，无需手动刷新缓存
       // 统计数据会自动从数据库获取最新值
-      console.log(`刷新用户 ${userId} 统计数据 - 使用Supabase实时数据`);
+      console.log(`refreshinguser ${userId} 统计data - 使用Supabase实时data`);
     } catch (error) {
-      console.error('刷新用户统计数据失败:', error);
+      console.error('refreshinguser统计datafailed:', error);
     }
   }
 
@@ -461,9 +461,9 @@ class UnifiedUsageService {
   private async syncAllUserStats(): Promise<void> {
     try {
       // 使用Supabase时无需同步，数据已实时存储
-      console.log('使用Supabase实时数据，无需手动同步');
+      console.log('使用Supabase实时data，none需手动sync');
     } catch (error) {
-      console.error('同步用户统计数据失败:', error);
+      console.error('syncuser统计datafailed:', error);
     }
   }
 }

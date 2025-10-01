@@ -269,7 +269,7 @@ export class SecurityComplianceChecker {
         const result = await this.checkPlatformCompliance(platform.id, platform.content);
         results.push(result);
       } catch (error) {
-        console.error(`检查平台 ${platform.id} 合规性失败:`, error);
+        console.error(`checking平台 ${platform.id} 合规性failed:`, error);
         
         // 添加错误结果
         results.push({

@@ -64,7 +64,7 @@ export async function analyzeKeyword(keyword: string): Promise<KeywordAnalysis> 
     return generateLocalDescription(keyword.trim());
 
   } catch (error) {
-    console.error('关键词分析失败:', error);
+    console.error('关key词analyzingfailed:', error);
     // 降级到本地规则
     return generateLocalDescription(keyword.trim());
   }
@@ -217,7 +217,7 @@ export function debounceAnalyzeKeyword(
           }
         } catch (error) {
           if (!abortController.signal.aborted) {
-            console.error('关键词分析失败:', error);
+            console.error('关key词analyzingfailed:', error);
           }
         } finally {
           abortController = null;

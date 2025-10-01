@@ -74,7 +74,7 @@ const DialogContent = React.forwardRef<
         (computed.top !== 'auto' || computed.left !== 'auto');
       
       if (hasInsetConflict) {
-        console.warn('🚨 Dialog设计缺陷：检测到inset与top/left冲突', {
+        console.warn('🚨 Dialog设计缺陷：detecting到inset与top/leftconflict', {
           inset: computed.inset,
           top: computed.top,
           left: computed.left,

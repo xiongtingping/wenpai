@@ -101,7 +101,7 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
       // 获取数据
       await refreshData();
     } catch (error) {
-      console.error('初始化失败:', error);
+      console.error('initializationfailed:', error);
       setError(t('components.errors.初始化失败'));
     } finally {
       setLoading(false);
@@ -129,7 +129,7 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
         description: `获取到 ${topics.length} 条融合热点数据`,
       });
     } catch (error) {
-      console.error('刷新数据失败:', error);
+      console.error('refreshingdatafailed:', error);
       setError(error instanceof Error ? error.message : t('components.errors.刷新失败'));
       toast({
         title: t('components.labels.数据更新失败'),

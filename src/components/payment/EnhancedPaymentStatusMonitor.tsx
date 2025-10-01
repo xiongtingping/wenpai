@@ -167,7 +167,7 @@ export const EnhancedPaymentStatusMonitor: React.FC<any> = ({ checkoutId,
 
       // 状态变化检测
       if (lastStatusRef.current !== newStatus) {
-        console.log(`支付状态变化: ${lastStatusRef.current} -> ${newStatus}`);
+        console.log(`支付state变化: ${lastStatusRef.current} -> ${newStatus}`);
         lastStatusRef.current = newStatus;
         
         // 发送通知
@@ -211,7 +211,7 @@ export const EnhancedPaymentStatusMonitor: React.FC<any> = ({ checkoutId,
       }
 
     } catch (error: any) {
-      console.error('获取支付状态失败:', error);
+      console.error('getting支付statefailed:', error);
       retryCountRef.current++;
       
       setPaymentStatus(prev => ({

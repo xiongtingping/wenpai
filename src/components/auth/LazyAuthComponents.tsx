@@ -127,7 +127,7 @@ function withErrorBoundaryAndSuspense<P extends object>(
       enableAutoRecovery={true}
       fallback={errorFallback}
       onError={(error) => {
-        console.error('🚨 认证组件加载错误:', error);
+        console.error('🚨 authenticatingcomponentloadingerror:', error);
       }}
     >
       <Suspense fallback={fallback}>
@@ -232,11 +232,11 @@ export class AuthComponentPreloader {
       .then(() => {
         this.preloadedComponents.add('authModal');
         this.preloadingPromises.delete('authModal');
-        console.log('📦 认证模态框预加载完成');
+        console.log('📦 authenticating模态框预loadingcompleted');
       })
       .catch((error) => {
         this.preloadingPromises.delete('authModal');
-        console.warn('⚠️ 认证模态框预加载失败:', error);
+        console.warn('⚠️ authenticating模态框预loadingfailed:', error);
       });
 
     this.preloadingPromises.set('authModal', preloadPromise);
@@ -259,7 +259,7 @@ export class AuthComponentPreloader {
     const preloadPromise = Promise.resolve().then(() => {
       this.preloadedComponents.add('loginPage');
       this.preloadingPromises.delete('loginPage');
-      console.log('📦 登录页面预加载跳过（已移除CustomLoginPage）');
+      console.log('📦 loginpage预loadingskipping（alreadyremovingCustomLoginPage）');
     });
 
     this.preloadingPromises.set('loginPage', preloadPromise);
@@ -301,11 +301,11 @@ export class AuthComponentPreloader {
         .then(() => {
           this.preloadedComponents.add(componentName);
           this.preloadingPromises.delete(componentName);
-          console.log(`📦 ${componentName}预加载完成`);
+          console.log(`📦 ${componentName}预loadingcompleted`);
         })
         .catch((error) => {
           this.preloadingPromises.delete(componentName);
-          console.warn(`⚠️ ${componentName}预加载失败:`, error);
+          console.warn(`⚠️ ${componentName}预loadingfailed:`, error);
         });
 
       this.preloadingPromises.set(componentName, preloadPromise);
@@ -319,7 +319,7 @@ export class AuthComponentPreloader {
    * 预加载所有认证组件
    */
   static async preloadAllAuthComponents(): Promise<void> {
-    console.log('🚀 开始预加载认证组件...');
+    console.log('🚀 starts预loadingauthenticatingcomponent...');
     
     const startTime = performance.now();
     
@@ -330,7 +330,7 @@ export class AuthComponentPreloader {
     ]);
     
     const endTime = performance.now();
-    console.log(`✅ 认证组件预加载完成，耗时: ${Math.round(endTime - startTime)}ms`);
+    console.log(`✅ authenticatingcomponent预loadingcompleted，耗时: ${Math.round(endTime - startTime)}ms`);
   }
 
   /**
@@ -354,7 +354,7 @@ export class AuthComponentPreloader {
   static clearPreloadStatus(): void {
     this.preloadedComponents.clear();
     this.preloadingPromises.clear();
-    console.log('🗑️ 预加载状态已清除');
+    console.log('🗑️ 预loadingstatealreadyclearing');
   }
 }
 

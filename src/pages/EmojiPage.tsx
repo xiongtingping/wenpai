@@ -306,10 +306,10 @@ const EmojiPage: React.FC = () => {
                     });
                   }}
                   onCategoryChange={(category) => {
-                    console.log('切换到分类:', category);
+                    console.log('切换到category:', category);
                   }}
                   onSearchChange={(query) => {
-                    console.log('搜索:', query);
+                    console.log('searching:', query);
                   }}
                   className="bg-card"
                 />

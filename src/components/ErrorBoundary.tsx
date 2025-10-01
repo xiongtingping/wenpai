@@ -317,12 +317,12 @@ export function useErrorBoundary() {
 
   React.useEffect(() => {
     const handleError = (event: ErrorEvent) => {
-      console.error('🚨 全局错误被捕获:', event.error);
+      console.error('🚨 全局error被捕获:', event.error);
       setError(event.error);
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.error('🚨 未处理的Promise拒绝:', event.reason);
+      console.error('🚨 notprocessing的Promisedenied:', event.reason);
       setError(new Error(`Promise rejected: ${event.reason}`));
     };
 

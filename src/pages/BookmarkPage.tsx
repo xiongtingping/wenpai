@@ -205,7 +205,7 @@ export default function BookmarkPage() {
       if (success) {
         setLibraryItems(data || []);
         if (data && data.length > 0) {
-          console.log('📂 成功加载资料库数据:', data.length, t('pages.messages.项'));
+          console.log('📂 successloading资料库data:', data.length, t('pages.messages.项'));
         } else {
           console.log('🆕', t('bookmark.storage.initEmptyLibrary'));
         }
@@ -234,7 +234,7 @@ export default function BookmarkPage() {
     const saveResult = safeSaveToLocalStorage(storageKey, updatedItems);
     
     if (saveResult.success) {
-      console.log(`💾 ${actionDescription}数据保存成功`);
+      console.log(`💾 ${actionDescription}datasavingsuccess`);
       
       // 显示存储使用情况
       if (saveResult.storageUsed && saveResult.storageUsed > 3 * 1024 * 1024) { // 3MB警告
@@ -244,7 +244,7 @@ export default function BookmarkPage() {
         });
       }
     } else {
-      console.error(`❌ ${actionDescription}数据保存失败:`, saveResult.error);
+      console.error(`❌ ${actionDescription}datasavingfailed:`, saveResult.error);
       
       // 恢复到之前的状态
       const { data: previousData } = safeLoadFromLocalStorage<LibraryItem[]>(storageKey, []);
@@ -531,7 +531,7 @@ export default function BookmarkPage() {
    * 删除项目
    */
   const deleteItem = (id: string) => {
-    console.log('🗑️ 删除项目:', id);
+    console.log('🗑️ deletingitem目:', id);
 
     const updatedItems = libraryItems.filter(item => item.id !== id);
     
@@ -697,7 +697,7 @@ export default function BookmarkPage() {
         description: `已导出 ${allData.totalCount} 项资料到 MD 文件`,
       });
     } catch (error) {
-      console.error('导出失败:', error);
+      console.error('exportingfailed:', error);
       toast({
         title: t('pages.errors.导出失败'),
         description: "导出过程中发生错误，请重试",

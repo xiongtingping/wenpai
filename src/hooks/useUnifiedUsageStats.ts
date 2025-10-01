@@ -137,7 +137,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
   checkPermission: (featureId: string) => Promise<boolean>;
   consumeUsage: (amount?: number) => Promise<boolean>;
 } {
-  // console.log('🔍 [useUnifiedUsageStats] Hook初始化，外部传入userTier:', externalUserTier);
+  // console.log('🔍 [useUnifiedUsageStats] Hookinitialization，outer部传入userTier:', externalUserTier);
   const { user } = useAuth();
   const tokenUsageState = useTokenUsageState();
   const unifiedStore = useUnifiedStore();
@@ -170,7 +170,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
 
   // 获取用户套餐类型 - 优先使用外部传入的等级
   const getUserTier = useCallback((): SubscriptionTier => {
-    // console.log('🔍 [useUnifiedUsageStats] getUserTier开始计算:', {
+    // console.log('🔍 [useUnifiedUsageStats] getUserTierstartscalculating:', {
     //   externalUserTier,
     //   hasUser: !!user,
     //   userId: user?.id,
@@ -180,13 +180,13 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     
     // 1. 🔧 FIX: 强制优先使用外部传入的等级，避免不一致
     if (externalUserTier) {
-      // console.log('🔍 [useUnifiedUsageStats] 使用外部userTier:', externalUserTier);
+      // console.log('🔍 [useUnifiedUsageStats] 使用outer部userTier:', externalUserTier);
       return externalUserTier;
     }
     
     // 2. 尝试从用户对象获取
     if ((user?.subscription as any)?.tier) {
-      console.log('🔎 从用户对象获取套餐类型:', (user?.subscription as any)?.tier);
+      console.log('🔎 从userobjectgetting套餐type:', (user?.subscription as any)?.tier);
       return (user?.subscription as any)?.tier;
     }
     
@@ -198,11 +198,11 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       // 优先从tier字段获取，但需要验证有效性
       if (subscriptionStatus.tier && ['trial', 'pro', 'premium'].includes(subscriptionStatus.tier)) {
         tier = subscriptionStatus.tier as SubscriptionTier;
-        console.log('🔎 从订阅状态tier获取套餐类型:', tier, subscriptionStatus);
+        console.log('🔎 从subscribingstatetiergetting套餐type:', tier, subscriptionStatus);
       } else if (subscriptionStatus.status === 'active') {
         // 🔧 FIX: 活跃订阅统一设置为premium，避免来回切换
         tier = 'premium';
-        console.log('🔎 活跃订阅设置为premium套餐:', { 
+        console.log('🔎 活跃subscribingsetting为premium套餐:', { 
           status: subscriptionStatus.status, 
           hasActive: hasActiveSubscription 
         });
@@ -217,16 +217,16 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       if (cachedSubStatus) {
         const userState = JSON.parse(cachedSubStatus);
         if (userState.subscriptionStatus?.status === 'active') {
-          console.log('🔎 从缓存获取套餐类型: pro');
+          console.log('🔎 从cachegetting套餐type: pro');
           return 'pro';
         }
       }
     } catch (error) {
-      console.warn('无法从缓存获取订阅状态:', error);
+      console.warn('none法从cachegettingsubscribingstate:', error);
     }
     
     // 5. 默认为体验版
-    // console.log('🔎 使用默认套餐类型: trial');
+    // console.log('🔎 使用default套餐type: trial');
     return 'trial';
   }, [user, externalUserTier, subscriptionStatus, hasActiveSubscription]);
 
@@ -237,7 +237,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
   
   // 🔎 调试信息
   useEffect(() => {
-    // console.log('🔎 useUnifiedUsageStats 调试信息:', {
+    // console.log('🔎 useUnifiedUsageStats debugginginfo:', {
     //   userId: user?.id,
     //   userTier,
     //   subscriptionStatus,
@@ -292,7 +292,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
 
       return result.hasPermission;
     } catch (error) {
-      console.error('检查功能权限失败:', error);
+      console.error('checkingfeaturepermissionfailed:', error);
       return false;
     }
   }, [user?.id, user?.permissions, getUserTier]); // 🔧 FIX: 避免循环依赖
@@ -357,7 +357,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       const stats = await fetchExtendedStats(user.id);
       setExtendedStats(stats);
     } catch (error) {
-      console.error('刷新扩展统计失败:', error);
+      console.error('refreshingextension统计failed:', error);
       setError(error instanceof Error ? error.message : i18n.t('common.errors.刷新扩展统计失败'));
     }
   }, [user?.id]);
@@ -405,7 +405,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
           await enhancedPermissionService.autoHandleSubscriptionExpiry(user.id, currentUserTier);
         }
       } catch (error) {
-        console.warn('检查套餐到期状态失败:', error);
+        console.warn('checking套餐到期statefailed:', error);
       }
 
       // 4. 刷新关键功能权限状态
@@ -420,12 +420,12 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
 
         setPermissionStatus(Object.fromEntries(permissionResults));
       } catch (error) {
-        console.warn('刷新权限状态失败:', error);
+        console.warn('refreshingpermissionstatefailed:', error);
       }
 
       setLastUpdated(new Date().toISOString());
     } catch (error) {
-      console.error('刷新统计数据失败:', error);
+      console.error('refreshing统计datafailed:', error);
       setError(error instanceof Error ? error.message : i18n.t('common.errors.刷新统计数据失败'));
     } finally {
       setLoading(false);
@@ -441,7 +441,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       // 如果套餐类型发生变化，更新初始统计值
       setUsageCountStats(prev => {
         if (prev.availableUses !== newLimit) {
-          // console.log(`🔄 套餐类型变化: ${prev.availableUses} → ${newLimit} (${userTier})`);
+          // console.log(`🔄 套餐type变化: ${prev.availableUses} → ${newLimit} (${userTier})`);
           return {
             ...prev,
             availableUses: newLimit,
@@ -499,7 +499,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     consumeUsage
   };
   
-  // console.log('🔍 [useUnifiedUsageStats] 返回数据:', {
+  // console.log('🔍 [useUnifiedUsageStats] 返回data:', {
   //   externalUserTier,
   //   computedUserTier: userTier,
   //   tokenStats: tokenStats ? {

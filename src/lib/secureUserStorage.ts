@@ -53,7 +53,7 @@ export class SecureUserStorageManager {
     this.currentUserId = userId;
     
     if (userId) {
-      console.log('👤 切换到用户模式');
+      console.log('👤 切换到user模式');
       // 清理可能的访客数据污染
       this.clearGuestData();
     } else {
@@ -83,12 +83,12 @@ export class SecureUserStorageManager {
       // 访客模式
       const key = STORAGE_KEY_PATTERNS.GUEST_DATA(this.guestSessionId!, module);
       secureStorage.setItem(key, data, encrypt);
-      console.log('💾 访客数据已保存: ' + module);
+      console.log('💾 访客datasaved: ' + module);
     } else {
       // 用户模式
       const key = STORAGE_KEY_PATTERNS.USER_DATA(this.currentUserId, module);
       secureStorage.setItem(key, data, encrypt || sensitive);
-      console.log('💾 用户数据已保存: ' + this.currentUserId + ':' + module);
+      console.log('💾 userdatasaved: ' + this.currentUserId + ':' + module);
     }
   }
 
@@ -118,7 +118,7 @@ export class SecureUserStorageManager {
     const key = STORAGE_KEY_PATTERNS.AUTH_DATA(userId);
     // 认证数据必须加密存储
     secureStorage.setItem(key, authData, true);
-    console.log('🔐 认证数据已保存');
+    console.log('🔐 authenticatingdatasaved');
   }
 
   /**
@@ -161,10 +161,10 @@ export class SecureUserStorageManager {
 
     userKeys.forEach(key => {
       localStorage.removeItem(key);
-      console.log('🗑️ 已清理用户数据: ' + key);
+      console.log('🗑️ alreadycleaninguserdata: ' + key);
     });
 
-    console.log('✅ 用户 ' + this.currentUserId + ' 的所有数据已清理完成');
+    console.log('✅ user ' + this.currentUserId + ' 的所有数据已清理完成');
   }
 
   /**
@@ -181,10 +181,10 @@ export class SecureUserStorageManager {
 
     guestKeys.forEach(key => {
       localStorage.removeItem(key);
-      console.log('🗑️ 已清理访客数据: ' + key);
+      console.log('🗑️ alreadycleaning访客data: ' + key);
     });
 
-    console.log('✅ 访客数据已清理完成');
+    console.log('✅ 访客dataalreadycleaningcompleted');
   }
 
   /**
@@ -224,9 +224,9 @@ export class SecureUserStorageManager {
         // 删除旧数据
         localStorage.removeItem(oldKey);
         
-        console.log('📦 数据迁移完成: ' + oldKey + ' -> ' + newModule);
+        console.log('📦 data迁移completed: ' + oldKey + ' -> ' + newModule);
       } catch (error) {
-        console.error('❌ 迁移数据失败: ' + oldKey, error);
+        console.error('❌ 迁移datafailed: ' + oldKey, error);
       }
     });
   }

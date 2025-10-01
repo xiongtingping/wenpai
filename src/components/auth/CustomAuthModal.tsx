@@ -40,7 +40,7 @@ export const CustomAuthModal: React.FC<any> = ({ isOpen,
       const formData = new FormData(e.currentTarget);
       const identifier = formData.get('identifier') as string;
 
-      console.log('🔐 开始自定义表单登录...');
+      console.log('🔐 startscustomformlogin...');
 
       let result;
       if (loginMethod === 'password') {
@@ -59,12 +59,12 @@ export const CustomAuthModal: React.FC<any> = ({ isOpen,
       }
 
       if (result) {
-        console.log('✅ 登录成功:', result);
+        console.log('✅ loginsuccess:', result);
         handleAuthingLogin(result);
         onClose();
       }
     } catch (error: any) {
-      console.error('❌ 登录失败:', error);
+      console.error('❌ loginfailed:', error);
       setError(error.message || t('components.errors.登录失败'));
     } finally {
       setLoading(false);
@@ -81,7 +81,7 @@ export const CustomAuthModal: React.FC<any> = ({ isOpen,
       const contact = formData.get('contact') as string;
       const password = formData.get('password') as string;
 
-      console.log('📝 开始自定义表单注册...');
+      console.log('📝 startscustomformregister...');
 
       let result;
       if (registerMethod === 'email') {
@@ -92,12 +92,12 @@ export const CustomAuthModal: React.FC<any> = ({ isOpen,
       }
 
       if (result) {
-        console.log('✅ 注册成功:', result);
+        console.log('✅ registersuccess:', result);
         handleAuthingLogin(result);
         onClose();
       }
     } catch (error: any) {
-      console.error('❌ 注册失败:', error);
+      console.error('❌ registerfailed:', error);
       setError(error.message || t('components.errors.注册失败'));
     } finally {
       setLoading(false);
@@ -107,7 +107,7 @@ export const CustomAuthModal: React.FC<any> = ({ isOpen,
   const sendVerificationCode = async (email: string) => {
     try {
       setError(null);
-      console.log('📧 发送邮箱验证码...');
+      console.log('📧 sendingemailvalidating码...');
 
       // 使用统一的验证码服务
       const { verificationCodeService } = await import('@/services/verificationCodeService');
@@ -117,9 +117,9 @@ export const CustomAuthModal: React.FC<any> = ({ isOpen,
         throw new Error(result.message);
       }
 
-      console.log('✅ 验证码发送成功');
+      console.log('✅ validating码sendingsuccess');
     } catch (error: any) {
-      console.error('❌ 验证码发送失败:', error);
+      console.error('❌ validating码sendingfailed:', error);
       setError(error.message || t('components.errors.验证码发送失败'));
     }
   };

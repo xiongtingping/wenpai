@@ -400,7 +400,7 @@ export class ConcurrencyManager {
       // 重试逻辑
       if (request.retryCount < request.maxRetries && this.shouldRetry(error)) {
         request.retryCount++;
-        console.warn(`🔄 请求重试 ${request.id} (${request.retryCount}/${request.maxRetries}):`, error);
+        console.warn(`🔄 requestretrying ${request.id} (${request.retryCount}/${request.maxRetries}):`, error);
         
         // 延迟重试
         setTimeout(() => {

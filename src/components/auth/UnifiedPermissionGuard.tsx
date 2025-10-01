@@ -656,7 +656,7 @@ export const useUnifiedPermission = (requiredPermission: PermissionType) => {
     const permissionConfig = PERMISSION_CONFIGS[requiredPermission];
 
     if (!permissionConfig) {
-      console.warn(`未找到权限配置: ${requiredPermission}`);
+      console.warn(`not foundpermissionconfiguration: ${requiredPermission}`);
       return {
         hasPermission: false,
         userTier: 'trial' as SubscriptionTier,

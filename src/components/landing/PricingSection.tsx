@@ -107,14 +107,14 @@ export function PricingSection() {
     if (currentUser?.id) {
       // 获取或创建支付中心访问时间
       const accessTime = getPaymentCenterAccessTime(currentUser.id);
-      console.log('首页访问支付中心时间:', accessTime?.toLocaleString());
+      console.log('first页访问支付middle心时间:', accessTime?.toLocaleString());
 
       // 立即更新倒计时
       const remainingMs = calculateRemainingTime(currentUser.id);
       const remainingSeconds = Math.floor(remainingMs / 1000);
       setTimeLeft(remainingSeconds);
 
-      console.log('首页剩余优惠时间:', remainingSeconds, '秒');
+      console.log('first页剩余优惠时间:', remainingSeconds, '秒');
     }
   }, [currentUser?.id]);
 

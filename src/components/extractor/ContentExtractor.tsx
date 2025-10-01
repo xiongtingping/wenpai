@@ -134,7 +134,7 @@ export function ContentExtractor() { const { toast  } = useToast();
         throw new Error(response.error || t('components.errors.提取失败'));
       }
     } catch (error) {
-      console.error('内容提取失败:', error);
+      console.error('content提取failed:', error);
       
       const errorResult: ExtractResult = {
         id: resultId,

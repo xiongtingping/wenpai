@@ -129,7 +129,7 @@ export class UnifiedStorageKeyManager {
   static clearUserData(userId: string): number {
     const userKeys = this.getUserStorageKeys(userId);
     userKeys.forEach(key => localStorage.removeItem(key));
-    console.log(`🗑️ 已清理用户 ${userId} 的 ${userKeys.length} 项数据`);
+    console.log(`🗑️ alreadycleaninguser ${userId} 的 ${userKeys.length} itemdata`);
     return userKeys.length;
   }
 
@@ -139,7 +139,7 @@ export class UnifiedStorageKeyManager {
   static clearGuestData(sessionId: string): number {
     const guestKeys = this.getGuestStorageKeys(sessionId);
     guestKeys.forEach(key => localStorage.removeItem(key));
-    console.log(`🗑️ 已清理访客 ${sessionId} 的 ${guestKeys.length} 项数据`);
+    console.log(`🗑️ alreadycleaning访客 ${sessionId} 的 ${guestKeys.length} itemdata`);
     return guestKeys.length;
   }
 
@@ -189,9 +189,9 @@ export class UnifiedStorageKeyManager {
           localStorage.removeItem(oldKey);
           
           migratedCount++;
-          console.log(`📦 迁移完成: ${oldKey} -> ${newKey}`);
+          console.log(`📦 迁移completed: ${oldKey} -> ${newKey}`);
         } catch (error) {
-          console.error(`❌ 迁移失败: ${oldKey}`, error);
+          console.error(`❌ 迁移failed: ${oldKey}`, error);
         }
       }
     });
@@ -268,7 +268,7 @@ export class EnhancedUserDataIsolation {
         return data ? JSON.parse(data) : null;
       }
     } catch (error) {
-      console.error(`获取数据失败: ${key}`, error);
+      console.error(`fetchingdatafailed: ${key}`, error);
       return null;
     }
   }

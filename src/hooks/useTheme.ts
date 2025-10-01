@@ -90,9 +90,9 @@ export function useTheme() {
         await userSettingsService.saveSetting(SETTING_KEYS.THEME_COLOR, next);
       }
       
-      console.log(`🎨 useTheme切换主题: ${next}`);
+      console.log(`🎨 useTheme切换theme: ${next}`);
     } catch (error) {
-      console.warn('保存主题设置失败:', error);
+      console.warn('savingthemesettingfailed:', error);
     }
 
     // 过渡完成后移除过渡类
@@ -142,10 +142,10 @@ export function useTheme() {
           }
           
           setIsInitialized(true);
-          // console.log(`🎨 useTheme加载主题: ${newTheme}`);
+          // console.log(`🎨 useThemeloadingtheme: ${newTheme}`);
         }
       } catch (error) {
-        console.warn('加载主题设置失败:', error);
+        console.warn('loadingthemesettingfailed:', error);
         // 使用默认主题
         if (!isInitialized) {
           setTheme('light');

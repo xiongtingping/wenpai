@@ -71,7 +71,7 @@ export function useSecureStorage<T = any>(
     const errorMessage = err.message || '操作失败';
     setError(errorMessage);
     onError?.(err);
-    console.error(`存储操作失败 [${dataType}]:`, err);
+    console.error(`storage操作failed [${dataType}]:`, err);
   }, [dataType, onError]);
 
   /**

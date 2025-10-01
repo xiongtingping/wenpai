@@ -574,7 +574,7 @@ class PromptSystemManager {
     // 验证必需参数
     const missingParams = template.parameters.filter(param => !(param in params));
     if (missingParams.length > 0) {
-      console.warn(`缺少提示词参数: ${missingParams.join(', ')}`);
+      console.warn(`missinghint词parameter: ${missingParams.join(', ')}`);
     }
 
     // 🎯 增强参数处理：自动注入平台和风格数据
@@ -1951,14 +1951,14 @@ export function verifyPromptSystemIntegrity(): boolean {
     );
 
     if (missingTypes.length > 0) {
-      console.error('🚨 提示词系统完整性验证失败: 缺少提示词类型', missingTypes);
+      console.error('🚨 hint词系统完整性validatingfailed: missinghint词type', missingTypes);
       return false;
     }
 
     logger.debug('✅ 提示词系统完整性验证通过');
     return true;
   } catch (error) {
-    console.error('🚨 提示词系统完整性验证异常:', error);
+    console.error('🚨 hint词系统完整性validatingabnormal:', error);
     return false;
   }
 }

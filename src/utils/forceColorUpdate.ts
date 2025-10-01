@@ -19,10 +19,10 @@ async function loadEmojiSystem(): Promise<EmojiSystemModule> {
  * 强制更新所有emoji颜色
  */
 export async function forceUpdateEmojiColors(): Promise<void> {
-  console.log('🚀 强制开始emoji颜色更新...');
+  console.log('🚀 强制startsemojicolorupdating...');
   const { updateEmojiData, getAllEmojis } = await loadEmojiSystem();
   const allEmojis = getAllEmojis();
-  console.log(`📊 当前emoji数量: ${allEmojis.length}`);
+  console.log(`📊 currentemojiquantity: ${allEmojis.length}`);
   
   // 统计原始颜色
   const originalColors = new Map<string, number>();
@@ -31,16 +31,16 @@ export async function forceUpdateEmojiColors(): Promise<void> {
     originalColors.set(emoji.color, count + 1);
   });
   
-  console.log(`🔍 原始唯一颜色数: ${originalColors.size}`);
-  console.log(`⚠️ #008000使用次数: ${originalColors.get('#008000') || 0}`);
+  console.log(`🔍 原始唯一color数: ${originalColors.size}`);
+  console.log(`⚠️ #008000使用count: ${originalColors.get('#008000') || 0}`);
   
   // 显示最常用的颜色
   const topColors = Array.from(originalColors.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
-  console.log('🎨 最常用颜色:');
+  console.log('🎨 最常用color:');
   topColors.forEach(([color, count]) => {
-    console.log(`  ${color}: ${count} 次`);
+    console.log(`  ${color}: ${count} times`);
   });
   
   // 应用新的颜色系统
@@ -56,12 +56,12 @@ export async function forceUpdateEmojiColors(): Promise<void> {
     newColors.set(emoji.color, count + 1);
   });
   
-  console.log(`✅ 更新完成! 新唯一颜色数: ${newColors.size}`);
-  console.log(`🎯 新#008000使用次数: ${newColors.get('#008000') || 0}`);
+  console.log(`✅ updatingcompleted! new唯一color数: ${newColors.size}`);
+  console.log(`🎯 new#008000使用count: ${newColors.get('#008000') || 0}`);
   
   // 显示改进效果
   const improvement = ((newColors.size - originalColors.size) / originalColors.size * 100);
-  console.log(`📈 颜色多样性提升: ${improvement.toFixed(1)}%`);
+  console.log(`📈 color多样性提升: ${improvement.toFixed(1)}%`);
   
   // 检查重复情况
   const duplicates = Array.from(newColors.entries())
@@ -69,12 +69,12 @@ export async function forceUpdateEmojiColors(): Promise<void> {
     .sort((a, b) => b[1] - a[1]);
     
   if (duplicates.length > 0) {
-    console.log(`⚠️ 仍有${duplicates.length}个颜色重复使用超过3次:`);
+    console.log(`⚠️ 仍has${duplicates.length}unitscolorduplicate使用超过3times:`);
     duplicates.slice(0, 3).forEach(([color, count]) => {
-      console.log(`  ${color}: ${count} 次`);
+      console.log(`  ${color}: ${count} times`);
     });
   } else {
-    console.log('🎉 所有颜色重复问题已解决!');
+    console.log('🎉 所hascolorduplicate问题already解决!');
   }
 }
 

@@ -70,10 +70,10 @@ export function ContentAdapterExample() {
   } = useGenerationQueue({
     maxConcurrency: 2,
     onTaskComplete: (task, result) => {
-      console.log('任务完成:', task.platformId, result);
+      console.log('任务completed:', task.platformId, result);
     },
     onQueueComplete: () => {
-      console.log('队列处理完成');
+      console.log('queueprocessingcompleted');
     }
   });
 

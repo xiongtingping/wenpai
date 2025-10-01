@@ -20,7 +20,7 @@ function getTokenLimitForTier(tier: SubscriptionTier): number {
     const plan = getSubscriptionPlan(tier);
     return plan.limits.tokenLimit;
   } catch (error) {
-    console.warn(`获取套餐${tier}的Token限额失败，使用默认值`, error);
+    console.warn(`getting套餐${tier}的Tokenlimitfailed，使用defaultvalue`, error);
     // 仅在获取配置失败时使用fallback值
     const fallbackLimits = {
       'trial': 100000,
@@ -271,7 +271,7 @@ class TokenUsageService {
       const databaseSuccess = await this.safeInsertTokenRecord(fullRecord);
       
       if (!databaseSuccess) {
-        throw new Error('Supabase数据库保存失败');
+        throw new Error('Supabasedatabasesavingfailed');
       }
       
       logger.debug('✅ Supabase数据库保存成功:', fullRecord.id);
@@ -306,7 +306,7 @@ class TokenUsageService {
     try {
       await request.post(`${this.API_ENDPOINT}/record`, record);
     } catch (error) {
-      console.error('同步token使用记录到后端失败:', error);
+      console.error('synctoken使用记录到backendfailed:', error);
       // 🚨 API失败时抛出错误，但不阻断主流程
       throw new Error(`Token使用记录同步失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
@@ -490,7 +490,7 @@ class TokenUsageService {
 
       return result.data as TokenUsageRecord[];
     } catch (error) {
-      console.error('从Supabase获取用户Token历史失败:', error);
+      console.error('从SupabasegettinguserToken历史failed:', error);
       // 🚨 数据库失败时必须抛出错误，不能返回空数组
       throw new Error(`Supabase查询失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
@@ -604,7 +604,7 @@ class TokenUsageService {
         });
       }
     } catch (error) {
-      console.error('清理过期Token记录失败:', error);
+      console.error('cleaningexpiredToken记录failed:', error);
       // 🚨 数据库失败时必须抛出错误
       throw new Error(`Supabase清理操作失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
@@ -644,7 +644,7 @@ class TokenUsageService {
 
       return JSON.stringify(exportData, null, 2);
     } catch (error) {
-      console.error('从Supabase导出用户数据失败:', error);
+      console.error('从Supabaseexportinguserdatafailed:', error);
       // 🚨 数据库失败时必须抛出错误
       throw new Error(`Supabase导出操作失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }

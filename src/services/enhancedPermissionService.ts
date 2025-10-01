@@ -184,7 +184,7 @@ class EnhancedPermissionService {
       
       return cache.permissions;
     } catch (error) {
-      console.warn('读取权限缓存失败:', error);
+      console.warn('readingpermissioncachefailed:', error);
       return null;
     }
   }
@@ -204,7 +204,7 @@ class EnhancedPermissionService {
       
       localStorage.setItem(cacheKey, JSON.stringify(cache));
     } catch (error) {
-      console.warn('设置权限缓存失败:', error);
+      console.warn('settingpermissioncachefailed:', error);
     }
   }
 
@@ -353,7 +353,7 @@ class EnhancedPermissionService {
         error = queryError;
       } catch (e) {
         // 如果表不存在或权限不足，使用默认值
-        console.warn('🔍 订阅表查询失败，可能是权限或表结构问题:', e);
+        console.warn('🔍 subscribing表queryingfailed，可能是permission或表结构问题:', e);
         error = e;
       }
 
@@ -361,10 +361,10 @@ class EnhancedPermissionService {
         // 如果是权限错误(406)或表不存在错误，使用默认值而不是抛出错误
         if ((error as any).message?.includes('406') || (error as any).message?.includes('Not Acceptable') ||
             (error as any).message?.includes('table') || (error as any).message?.includes('schema')) {
-          console.warn('查询用户订阅信息失败，使用默认值:', error);
+          console.warn('queryingusersubscribinginfofailed，使用defaultvalue:', error);
           // 继续执行，使用默认的试用状态
         } else {
-          console.warn('查询用户订阅信息失败:', error);
+          console.warn('queryingusersubscribinginfofailed:', error);
           throw error;
         }
       }
@@ -387,7 +387,7 @@ class EnhancedPermissionService {
       // 🔧 修复: 安全的fallback - 新用户给予有限试用，而非无限制试用
       return this.getRestrictedAccess(userId);
     } catch (error: any) {
-      console.warn('检查套餐到期状态失败，使用受限访问模式:', error);
+      console.warn('checking套餐到期statefailed，使用受限访问模式:', error);
       // 🔧 修复: 查询失败时返回受限访问，而非试用状态
       return this.getRestrictedAccess(userId);
     }
@@ -436,7 +436,7 @@ class EnhancedPermissionService {
       
       return await response.json();
     } catch (error) {
-      console.error('处理权限升级失败:', error);
+      console.error('processingpermission升级failed:', error);
       
       // 返回模拟的升级结果
       return this.simulatePermissionTransition(userId, fromTier, toTier, 'upgrade');
@@ -470,7 +470,7 @@ class EnhancedPermissionService {
       
       return await response.json();
     } catch (error) {
-      console.error('处理权限降级失败:', error);
+      console.error('processingpermission降级failed:', error);
       
       // 返回模拟的降级结果
       return this.simulatePermissionTransition(userId, fromTier, toTier, 'downgrade');
@@ -532,17 +532,17 @@ class EnhancedPermissionService {
           if (error.message?.includes('406') || error.message?.includes('Not Acceptable') ||
               error.message?.includes('table') || error.message?.includes('schema') ||
               error.message?.includes('404') || error.message?.includes('Not Found')) {
-            console.warn('查询使用记录失败，使用默认值:', error);
+            console.warn('querying使用记录failed，使用defaultvalue:', error);
             usageLogs = [];
           } else {
-            console.warn('查询使用记录失败:', error);
+            console.warn('querying使用记录failed:', error);
             return { allowed: true }; // 查询失败时默认允许
           }
         } else {
           usageLogs = data || [];
         }
       } catch (e) {
-        console.warn('查询使用记录异常，使用默认值:', e);
+        console.warn('querying使用记录abnormal，使用defaultvalue:', e);
         usageLogs = [];
       }
 
@@ -569,7 +569,7 @@ class EnhancedPermissionService {
 
       return { allowed: true };
     } catch (error: any) {
-      console.warn('检查使用限制失败，默认允许:', error);
+      console.warn('checking使用limitingfailed，defaultallowing:', error);
       return { allowed: true };
     }
   }
@@ -631,9 +631,9 @@ class EnhancedPermissionService {
         localStorage.removeItem(key);
       });
       
-      console.debug(`🧹 清除用户权限缓存: ${keysToRemove.length} 项`, { userId, keys: keysToRemove });
+      console.debug(`🧹 clearinguserpermissioncache: ${keysToRemove.length} item`, { userId, keys: keysToRemove });
     } catch (error) {
-      console.error('清除权限缓存失败:', error);
+      console.error('clearingpermissioncachefailed:', error);
     }
   }
 
@@ -669,10 +669,10 @@ class EnhancedPermissionService {
       // 自动降级到体验版
       await this.handlePermissionDowngrade(userId, currentTier, 'trial', 'expiry');
 
-      console.log(`用户 ${userId} 套餐已到期，自动降级到体验版`);
+      console.log(`user ${userId} 套餐already到期，自动降级到体验版`);
     } else if (expiryCheck && expiryCheck.daysRemaining <= 3 && expiryCheck.daysRemaining > 0) {
       // 发送到期提醒
-      console.log(`用户 ${userId} 套餐将在 ${expiryCheck.daysRemaining} 天后到期`);
+      console.log(`user ${userId} 套餐将在 ${expiryCheck.daysRemaining} daysnext到期`);
     }
   }
 }

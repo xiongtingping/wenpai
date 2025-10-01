@@ -99,7 +99,7 @@ export function useUnifiedPermission(permissionKey: string) {
     const finalVipLevel = extractVipLevel();
     const finalStatus = extractSubscriptionStatus();
 
-    console.log('🔍 [useUnifiedPermission] 用户权限上下文构建:', {
+    console.log('🔍 [useUnifiedPermission] userpermissionupdown文构建:', {
       originalUser: {
         id: user?.id,
         tier: (user as any)?.tier,

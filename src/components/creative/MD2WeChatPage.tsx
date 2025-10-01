@@ -112,7 +112,7 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
         throw new Error(result.error || t('components.errors.转换失败'));
       }
     } catch (error) {
-      console.error('转换失败:', error);
+      console.error('transformfailed:', error);
       // 设置基础的HTML预览
       setPreviewHtml(`<div class="markdown-content">${content.replace(/\n/g, '<br>')}</div>`);
     } finally {
@@ -140,11 +140,11 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
               input.parentNode.removeChild(input);
             }
           } catch (error) {
-            console.warn('清理动态input元素时出错:', error);
+            console.warn('cleaning动态input元素时出错:', error);
           }
         });
       } catch (error) {
-        console.warn('组件清理时出错:', error);
+        console.warn('componentcleaning时出错:', error);
       }
     };
   }, []);
@@ -153,7 +153,7 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
       if (event.message && event.message.includes('removeChild')) {
-        console.warn('捕获到DOM操作错误，已处理:', event.message);
+        console.warn('捕获到DOM操作error，alreadyprocessing:', event.message);
         setHasError(true);
         // 3秒后重置错误状态
         setTimeout(() => setHasError(false), 3000);
@@ -164,7 +164,7 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       if (event.reason && typeof event.reason === 'string' && event.reason.includes('removeChild')) {
-        console.warn('捕获到Promise DOM错误，已处理:', event.reason);
+        console.warn('捕获到Promise DOMerror，alreadyprocessing:', event.reason);
         setHasError(true);
         setTimeout(() => setHasError(false), 3000);
         event.preventDefault();
@@ -229,7 +229,7 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
             input.parentNode.removeChild(input);
           }
         } catch (cleanupError) {
-          console.warn('DOM清理警告:', cleanupError);
+          console.warn('DOMcleaningwarning:', cleanupError);
         }
       };
 
@@ -261,12 +261,12 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
         document.body.appendChild(input);
         input.click();
       } catch (appendError) {
-        console.error('DOM操作失败:', appendError);
+        console.error('DOM操作failed:', appendError);
         cleanup();
         throw appendError;
       }
     } catch (error) {
-      console.error('文件选择失败:', error);
+      console.error('file选择failed:', error);
       toast({
         title: t('components.errors.文件选择失败'),
         description: '请重试或检查浏览器权限',

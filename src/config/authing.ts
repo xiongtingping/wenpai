@@ -52,7 +52,7 @@ let cachedConfig: any = null;
 // 清除缓存的辅助函数
 export function clearAuthingConfigCache() {
   cachedConfig = null;
-  console.log('🔄 Authing配置缓存已清除');
+  console.log('🔄 Authingconfigurationcachealreadyclearing');
 }
 /**
  * ✅ FIXED: 2025-07-25 Authing配置获取函数已封装
@@ -80,7 +80,7 @@ export function getAuthingConfig() {
     }
     // 生产环境保持默认值
     
-    console.log('🔍 环境检测详情:', {
+    console.log('🔍 环境detectingdetails:', {
       hostname,
       port,
       origin,
@@ -100,7 +100,7 @@ export function getAuthingConfig() {
   };
 
   // 调试信息 - 强制输出以验证配置
-  console.log('🔧 环境变量检查:', {
+  console.log('🔧 环境variablechecking:', {
     VITE_AUTHING_APP_ID: import.meta.env.VITE_AUTHING_APP_ID,
     VITE_AUTHING_DOMAIN: import.meta.env.VITE_AUTHING_DOMAIN,
     VITE_AUTHING_HOST: import.meta.env.VITE_AUTHING_HOST,
@@ -108,7 +108,7 @@ export function getAuthingConfig() {
     DEV: import.meta.env.DEV
   });
   
-  console.log('🔧 Authing配置 (环境变量):', {
+  console.log('🔧 Authingconfiguration (环境variable):', {
     appId: cachedConfig.appId,
     domain: cachedConfig.domain,
     host: cachedConfig.host,

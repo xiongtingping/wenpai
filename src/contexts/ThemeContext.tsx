@@ -94,7 +94,7 @@ async function saveTheme(theme: Theme): Promise<void> {
     const globalDataManager = await getGlobalDataManager();
     await globalDataManager.setData('theme', theme);
   } catch (error) {
-    console.warn('保存主题设置失败:', error);
+    console.warn('savingthemesettingfailed:', error);
     // 兜底：保存到localStorage
     try {
       localStorage.setItem('theme', theme);
@@ -148,7 +148,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const savedTheme = await getSavedTheme();
         setThemeState(savedTheme);
       } catch (error) {
-        console.error('主题初始化失败:', error);
+        console.error('themeinitializationfailed:', error);
         setThemeState('system');
       }
     };
@@ -192,7 +192,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState(newTheme);
     // 异步保存主题，不阻塞UI更新
     saveTheme(newTheme).catch(error => {
-      console.error('保存主题失败:', error);
+      console.error('savingthemefailed:', error);
     });
   };
 

@@ -93,7 +93,7 @@ export class CentralizedPermissionManager {
       },
       actions: {
         onGrant: (user, permission) => {
-          console.log(`管理员 ${user.id} 获得权限: ${permission}`);
+          console.log(`管理员 ${user.id} 获得permission: ${permission}`);
         }
       }
     });
@@ -109,7 +109,7 @@ export class CentralizedPermissionManager {
       },
       actions: {
         onGrant: (user, permission) => {
-          console.log(`Premium用户 ${user.id} 获得权限: ${permission}`);
+          console.log(`Premiumuser ${user.id} 获得permission: ${permission}`);
         }
       }
     });
@@ -125,7 +125,7 @@ export class CentralizedPermissionManager {
       },
       actions: {
         onGrant: (user, permission) => {
-          console.log(`Pro用户 ${user.id} 获得权限: ${permission}`);
+          console.log(`Prouser ${user.id} 获得permission: ${permission}`);
         }
       }
     });
@@ -156,7 +156,7 @@ export class CentralizedPermissionManager {
       },
       actions: {
         onDeny: (user, permission, reason) => {
-          console.warn(`用户 ${user.id} 在非工作时间被拒绝权限: ${permission}`);
+          console.warn(`user ${user.id} 在非工作时间被deniedpermission: ${permission}`);
         }
       }
     });
@@ -186,7 +186,7 @@ export class CentralizedPermissionManager {
       },
       actions: {
         onDeny: (user, permission, reason) => {
-          console.error(`安全敏感操作被拒绝: 用户 ${user.id}, 权限 ${permission}, 原因: ${reason}`);
+          console.error(`安全敏感操作被denied: user ${user.id}, permission ${permission}, 原因: ${reason}`);
           // 发送安全警报
           this.sendSecurityAlert(user, permission, reason);
         }
@@ -215,7 +215,7 @@ export class CentralizedPermissionManager {
       },
       actions: {
         onDeny: (user, permission, reason) => {
-          console.warn(`数据访问被拒绝: 用户 ${user.id}, 权限 ${permission}, 原因: ${reason}`);
+          console.warn(`data访问被denied: user ${user.id}, permission ${permission}, 原因: ${reason}`);
         }
       }
     });
@@ -298,7 +298,7 @@ export class CentralizedPermissionManager {
       return await this.applyDefaultPolicy(user, permission, context);
       
     } catch (error) {
-      console.error('权限决策过程出错:', error);
+      console.error('permission决策过程出错:', error);
       
       return this.createDecision(
         false,
@@ -562,7 +562,7 @@ export class CentralizedPermissionManager {
     };
 
     // 在生产环境中，这应该发送到审计日志系统
-    console.log('权限决策审计:', auditLog);
+    console.log('permission决策审计:', auditLog);
     
     // TODO: 集成到实际的审计日志系统
   }

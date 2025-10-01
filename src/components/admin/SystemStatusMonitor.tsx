@@ -81,7 +81,7 @@ export const SystemStatusMonitor: React.FC = () => {
       setSystemStatus(status);
       setLastRefresh(new Date().toLocaleTimeString());
     } catch (error) {
-      console.error('获取系统状态失败:', error);
+      console.error('getting系统statefailed:', error);
     } finally {
       setLoading(false);
     }

@@ -19,7 +19,7 @@ export function getUserTier(): SubscriptionTier {
     }
     return 'trial';
   } catch (error) {
-    console.warn('获取用户信息失败，使用默认层级:', error);
+    console.warn('gettinguserinfofailed，使用defaulttier:', error);
     return 'trial';
   }
 }

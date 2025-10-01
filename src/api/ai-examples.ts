@@ -19,11 +19,11 @@ export async function basicAIExample() {
   });
 
   if (result.success) {
-    console.log('AI响应:', result.content);
-    console.log('响应时间:', result.responseTime + 'ms');
+    console.log('AIresponse:', result.content);
+    console.log('response时间:', result.responseTime + 'ms');
     console.log('Token使用:', result.usage);
   } else {
-    console.error('AI调用失败:', result.error);
+    console.error('AI调用failed:', result.error);
   }
 }
 
@@ -134,7 +134,7 @@ export async function errorHandlingExample() {
     });
 
     if (!result.success) {
-      console.error('AI调用失败:', result.error);
+      console.error('AI调用failed:', result.error);
       // 可以在这里实现降级逻辑
       return {
         content: '由于AI服务暂时不可用，使用默认响应',
@@ -145,7 +145,7 @@ export async function errorHandlingExample() {
 
     return result;
   } catch (error) {
-    console.error('调用AI时发生异常:', error);
+    console.error('调用AI时发生abnormal:', error);
     throw error;
   }
 }
@@ -174,10 +174,10 @@ export function costEstimationExample() {
 export async function serviceStatusExample() {
   const status = await checkAIStatus();
 
-  console.log('AI服务状态:', status);
+  console.log('AIservicestate:', status);
 
   if (!status.openai) {
-    console.warn('OpenAI服务不可用，可能需要检查API密钥配置');
+    console.warn('OpenAIserviceunavailable，可能需要checkingAPIkeyconfiguration');
   }
 
   return status;

@@ -63,7 +63,7 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
       customerEmail
     });
 
-    console.log('支付检查点创建成功:', data);
+    console.log('支付checking点creatingsuccess:', data);
 
     return {
       success: true,
@@ -74,7 +74,7 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
       price: (data as any).price
     };
   } catch (error: any) {
-    console.error('支付服务调用失败:', error);
+    console.error('支付service调用failed:', error);
 
     // 提供更友好的错误信息
     let userFriendlyError = '支付服务暂时不可用，请稍后重试';
@@ -126,7 +126,7 @@ export async function getAlipayQRCode(priceId: string, customerEmail?: string) {
       price: result.price
     };
   } catch (error: any) {
-    console.error('获取支付宝二维码失败:', error);
+    console.error('getting支付宝二维码failed:', error);
     throw error;
   }
 }
@@ -175,7 +175,7 @@ export async function generateAlipayQRCode(priceId: string, customerEmail?: stri
       originalUrl: qrResult.qrUrl
     };
   } catch (error: any) {
-    console.error('生成二维码失败:', error);
+    console.error('生成二维码failed:', error);
     throw error;
   }
 }
@@ -209,7 +209,7 @@ export async function startCheckout(priceId: string, customerEmail?: string) {
       checkout: data.checkout
     };
   } catch (error: any) {
-    console.log('创建支付检查点失败，请稍后重试');
+    console.log('creating支付checking点failed，请稍nextretrying');
     throw error;
   }
 }
@@ -230,7 +230,7 @@ export async function redirectToCheckout(priceId: string, customerEmail?: string
       throw new Error('无法获取支付页面URL');
     }
   } catch (error: any) {
-    console.log('跳转到支付页面失败，请稍后重试');
+    console.log('跳转到支付pagefailed，请稍nextretrying');
     throw error;
   }
 }
@@ -249,7 +249,7 @@ async function createDirectCreemCheckout(priceId: string, customerEmail?: string
     const apiKey = import.meta.env.VITE_CREEM_API_KEY;
 
     if (!apiKey || apiKey.includes('your-')) {
-      throw new Error('Creem API密钥未正确配置，请在.env.local文件中设置VITE_CREEM_API_KEY');
+      throw new Error('Creem API key not properly configured，Please set in .env.local fileVITE_CREEM_API_KEY');
     }
 
     // 直接调用Creem服务
@@ -268,7 +268,7 @@ async function createDirectCreemCheckout(priceId: string, customerEmail?: string
       price: result.checkout?.amount ? (typeof result.checkout.amount === 'number' ? result.checkout.amount / 100 : parseFloat(result.checkout.amount) / 100) : null
     };
   } catch (error: any) {
-    console.error('直接调用Creem服务失败:', error);
+    console.error('直接调用Creemservicefailed:', error);
 
     // 提供用户友好的错误信息
     let userFriendlyError = '支付服务暂时不可用，请稍后重试';

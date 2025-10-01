@@ -35,7 +35,7 @@ const useSafeRef = (componentId: string) => {
 
     // 检测无限循环
     if (currentCount >= MAX_REF_CALLS) {
-      console.warn(`🚨 SafeTooltip: 检测到ref无限循环，组件ID: ${componentId}`);
+      console.warn(`🚨 SafeTooltip: detecting到refnone限loop，componentID: ${componentId}`);
       return; // 阻止进一步的ref调用
     }
 
@@ -166,7 +166,7 @@ SafeTooltip.displayName = 'SafeTooltip';
 export const clearRefCallCounts = () => {
   refCallCounts.clear();
   refCallTimestamps.clear();
-  console.log('🧹 SafeTooltip: ref调用计数器已清理');
+  console.log('🧹 SafeTooltip: ref调用计数器alreadycleaning');
 };
 
 /**

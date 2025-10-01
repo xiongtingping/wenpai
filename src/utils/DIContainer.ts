@@ -41,7 +41,7 @@ export class DIContainer {
    */
   register<T>(definition: ServiceDefinition<T>): void {
     if (this.services.has(definition.name)) {
-      console.warn(`⚠️ 服务 ${definition.name} 已存在，将被覆盖`);
+      console.warn(`⚠️ service ${definition.name} alreadyexists，将被覆盖`);
     }
     
     this.services.set(definition.name, {
@@ -52,7 +52,7 @@ export class DIContainer {
     
     // 只在debug模式下输出服务注册日志
     if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-      console.log(`📝 注册服务: ${definition.name}`);
+      console.log(`📝 registerservice: ${definition.name}`);
     }
   }
 
@@ -63,7 +63,7 @@ export class DIContainer {
     // 如果是单例且已实例化，直接返回
     const definition = this.services.get(name);
     if (!definition) {
-      throw new Error(`❌ 服务 ${name} 未注册`);
+      throw new Error(`❌ service ${name} notregister`);
     }
 
     if (definition.singleton && this.instances.has(name)) {
@@ -111,12 +111,12 @@ export class DIContainer {
   private async loadService(name: string): Promise<any> {
     const definition = this.services.get(name);
     if (!definition) {
-      throw new Error(`❌ 服务 ${name} 未注册`);
+      throw new Error(`❌ service ${name} notregister`);
     }
 
     // 只在debug模式下输出服务加载日志
     if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-      console.log(`🔄 加载服务: ${name}`);
+      console.log(`🔄 loadingservice: ${name}`);
     }
 
     // 先加载依赖
@@ -132,11 +132,11 @@ export class DIContainer {
       this.initializationOrder.push(name);
       // 只在debug模式下输出服务加载完成日志
       if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-        console.log(`✅ 服务加载完成: ${name}`);
+        console.log(`✅ serviceloadingcompleted: ${name}`);
       }
       return instance;
     } catch (error) {
-      console.error(`❌ 服务加载失败: ${name}`, error);
+      console.error(`❌ serviceloadingfailed: ${name}`, error);
       throw error;
     }
   }
@@ -145,7 +145,7 @@ export class DIContainer {
    * 预加载所有非懒加载服务
    */
   async preloadEagerServices(): Promise<void> {
-    console.log('🚀 开始预加载非懒加载服务...');
+    console.log('🚀 starts预loading非懒loadingservice...');
     const startTime = performance.now();
 
     const eagerServices = Array.from(this.services.entries())
@@ -159,8 +159,8 @@ export class DIContainer {
     }
 
     const endTime = performance.now();
-    console.log(`✅ 预加载完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
-    console.log('📋 加载顺序:', this.initializationOrder);
+    console.log(`✅ 预loadingcompleted，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+    console.log('📋 loading顺序:', this.initializationOrder);
   }
 
   /**
@@ -247,7 +247,7 @@ export class DIContainer {
   destroy(name: string): void {
     this.instances.delete(name);
     this.loading.delete(name);
-    console.log(`🗑️ 销毁服务: ${name}`);
+    console.log(`🗑️ 销毁service: ${name}`);
   }
 }
 

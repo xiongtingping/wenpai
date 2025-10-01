@@ -311,7 +311,7 @@ export function useAdvancedPermissionGuard(
       recordPerformance('batch-check', false);
       
       if (enableDebug) {
-        console.log('🔐 批量权限检查结果:', batchResult);
+        console.log('🔐 批量permissioncheckingresult:', batchResult);
       }
 
       return batchResult;
@@ -367,7 +367,7 @@ export function useAdvancedPermissionGuard(
       }
     } catch (error) {
       if (enableDebug) {
-        console.warn('⚠️ 权限预加载失败:', error);
+        console.warn('⚠️ permission预loadingfailed:', error);
       }
     }
   }, [enablePreload, checkSinglePermission, enableDebug]);
@@ -378,7 +378,7 @@ export function useAdvancedPermissionGuard(
   const clearCache = useCallback(() => {
     cacheManager.current.clearUserCache(user?.id || null);
     if (enableDebug) {
-      console.log('🗑️ 已清除权限缓存');
+      console.log('🗑️ alreadyclearingpermissioncache');
     }
   }, [user?.id, enableDebug]);
 
@@ -492,7 +492,7 @@ export function usePermissionPreloader() {
         const result = UnifiedPermissionService.checkPermission(user as SessionUserInfo, permission);
         cacheManager.current.set(user?.id || null, permission, result);
       } catch (error) {
-        console.warn(`预加载权限 ${permission} 失败:`, error);
+        console.warn(`预loadingpermission ${permission} failed:`, error);
       }
     }
   }, [user]);

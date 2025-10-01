@@ -68,7 +68,7 @@ export class UnifiedAIManager {
    * 初始化管理器
    */
   private initializeManager(): void {
-    console.log('🤖 统一AI管理器初始化...');
+    console.log('🤖 统一AImanagerinitialization...');
     this.validateSystemConfiguration();
   }
 
@@ -169,13 +169,13 @@ export class UnifiedAIManager {
     // 获取API密钥
     const apiKey = getAPIKey(provider);
     if (!apiKey) {
-      throw new Error(`${provider} API密钥未配置`);
+      throw new Error(`${provider} APIkeynotconfiguration`);
     }
 
     // 验证API密钥
     const keyValidation = validateAPIKey(provider, apiKey);
     if (!keyValidation.valid) {
-      throw new Error(`${provider} API密钥验证失败: ${keyValidation.errors.join(', ')}`);
+      throw new Error(`${provider} APIkeyvalidatingfailed: ${keyValidation.errors.join(', ')}`);
     }
 
     // 构建API URL和请求头
@@ -426,7 +426,7 @@ export class UnifiedAIManager {
 
       const apiKey = getAPIKey(provider);
       if (!apiKey) {
-        throw new Error(`${provider} API密钥未配置`);
+        throw new Error(`${provider} APIkeynotconfiguration`);
       }
 
       const endpoint = buildAPIURL(provider, 'image');

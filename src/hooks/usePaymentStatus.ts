@@ -149,7 +149,7 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
 
       // 状态变化检测
       if (lastStatusRef.current !== newStatus) {
-        console.log(`支付状态变化: ${lastStatusRef.current} -> ${newStatus}`);
+        console.log(`支付state变化: ${lastStatusRef.current} -> ${newStatus}`);
         lastStatusRef.current = newStatus;
         
         // 发送通知
@@ -196,7 +196,7 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
       }
 
     } catch (error: any) {
-      console.error('获取支付状态失败:', error);
+      console.error('getting支付statefailed:', error);
       const newRetryCount = retryCount + 1;
       setRetryCount(newRetryCount);
       

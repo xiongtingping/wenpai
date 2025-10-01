@@ -592,7 +592,7 @@ export class DataTypeValidator {
     const schema = schemaName ? DATA_SCHEMAS[schemaName] : this.inferSchema(key);
 
     if (!schema) {
-      console.warn(`未找到数据模式: ${schemaName || key}`);
+      console.warn(`not founddata模式: ${schemaName || key}`);
       return {
         isValid: true,
         sanitizedData: data,
@@ -602,13 +602,13 @@ export class DataTypeValidator {
 
     // 特殊处理：如果是访客会话信息且数据是数组，直接清理
     if (key.includes('wenpai:guest:session_info') && Array.isArray(data)) {
-      console.warn(`检测到错误的session_info数据格式（数组），正在清理: ${key}`);
+      console.warn(`detecting到error的session_infodata格式（array），iscleaning: ${key}`);
       // 清理错误的数据
       if (typeof window !== 'undefined' && window.localStorage) {
         try {
           localStorage.removeItem(key);
         } catch (error) {
-          console.warn('清理错误session_info数据失败:', error);
+          console.warn('cleaningerrorsession_infodatafailed:', error);
         }
       }
       return {
@@ -625,17 +625,17 @@ export class DataTypeValidator {
         transformedData = schema.transform(data);
         // 只在debug模式下输出详细日志
         if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_MODE === 'true') {
-          console.log(`🔄 数据转换应用于 [${key}]: ${typeof data} -> ${typeof transformedData}`);
+          console.log(`🔄 datatransform应用于 [${key}]: ${typeof data} -> ${typeof transformedData}`);
         }
       } catch (error) {
-        console.warn(`数据转换失败 [${key}]:`, error);
+        console.warn(`datatransformfailed [${key}]:`, error);
       }
     }
 
     const result = this.validate(transformedData, schema);
     
     if (!result.isValid) {
-      console.error(`数据验证失败 [${key}]:`, result.errors);
+      console.error(`datavalidatingfailed [${key}]:`, result.errors);
     }
 
     return {
@@ -988,7 +988,7 @@ export class SafeLocalStorage {
       const result = this.validator.validateAndSanitizeStorageData(key, value, schemaName);
       
       if (!result.isValid) {
-        console.error(`数据验证失败，拒绝存储 [${key}]:`, result.errors);
+        console.error(`datavalidatingfailed，deniedstorage [${key}]:`, result.errors);
         return false;
       }
 
@@ -998,7 +998,7 @@ export class SafeLocalStorage {
       
       return true;
     } catch (error) {
-      console.error(`安全存储失败 [${key}]:`, error);
+      console.error(`安全storagefailed [${key}]:`, error);
       return false;
     }
   }
@@ -1017,7 +1017,7 @@ export class SafeLocalStorage {
       const result = this.validator.validateAndSanitizeStorageData(key, parsed, schemaName);
       
       if (!result.isValid) {
-        console.warn(`读取的数据验证失败 [${key}]:`, result.errors);
+        console.warn(`reading的datavalidatingfailed [${key}]:`, result.errors);
         // 清理无效数据
         localStorage.removeItem(key);
         return null;
@@ -1025,7 +1025,7 @@ export class SafeLocalStorage {
 
       return (result.sanitizedData !== undefined ? result.sanitizedData : parsed) as T;
     } catch (error) {
-      console.error(`安全读取失败 [${key}]:`, error);
+      console.error(`安全readingfailed [${key}]:`, error);
       // 清理损坏的数据
       localStorage.removeItem(key);
       return null;
@@ -1039,7 +1039,7 @@ export class SafeLocalStorage {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error(`删除数据失败 [${key}]:`, error);
+      console.error(`deletingdatafailed [${key}]:`, error);
     }
   }
 
@@ -1054,11 +1054,11 @@ export class SafeLocalStorage {
     
     // 清理无效数据
     result.invalidItems.forEach(item => {
-      console.warn(`🗑️ 清理无效数据: ${item.key}`, item.errors);
+      console.warn(`🗑️ cleaninginvaliddata: ${item.key}`, item.errors);
       localStorage.removeItem(item.key);
     });
 
-    console.log(`✅ 数据清理完成: 清理 ${result.invalidItems.length} 项无效数据，清理 ${result.sanitizedItems.length} 项数据`);
+    console.log(`✅ datacleaningcompleted: cleaning ${result.invalidItems.length} iteminvaliddata，cleaning ${result.sanitizedItems.length} itemdata`);
 
     return {
       clearedCount: result.invalidItems.length,

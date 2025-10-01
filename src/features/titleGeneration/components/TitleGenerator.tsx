@@ -92,7 +92,7 @@ export const TitleGenerator = memo<TitleGeneratorProps>(({
       }
     },
     onError: (error) => {
-      console.error('标题生成失败:', error);
+      console.error('title生成failed:', error);
     }
   });
 

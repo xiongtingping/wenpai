@@ -13,7 +13,7 @@ export default function DialogTestPage() {
 
   const handleSelect = (content: string) => {
     setSelectedContent(content);
-    console.log('选择的内容:', content);
+    console.log('选择的content:', content);
   };
 
   return (

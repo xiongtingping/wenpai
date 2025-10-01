@@ -41,7 +41,7 @@ export function fixLocalStorageArrayIssues(): {
       
       // 如果是数组格式，尝试修复
       if (Array.isArray(parsed)) {
-        console.log(`🔧 修复数组格式数据: ${key}`, parsed);
+        console.log(`🔧 fixingarray格式data: ${key}`, parsed);
         
         if (key.includes('user')) {
           // 用户数据：取数组中第一个有效的用户对象
@@ -54,11 +54,11 @@ export function fixLocalStorageArrayIssues(): {
           if (validUser) {
             localStorage.setItem(key, JSON.stringify(validUser));
             fixed.push(key);
-            console.log(`✅ 修复用户数据: ${key}`);
+            console.log(`✅ fixinguserdata: ${key}`);
           } else {
             localStorage.removeItem(key);
             removed.push(key);
-            console.log(`🗑️ 删除无效用户数据: ${key}`);
+            console.log(`🗑️ deletinginvaliduserdata: ${key}`);
           }
         } 
         else if (key.includes('payment_center_access_time')) {
@@ -77,11 +77,11 @@ export function fixLocalStorageArrayIssues(): {
             };
             localStorage.setItem(key, JSON.stringify(accessData));
             fixed.push(key);
-            console.log(`✅ 修复支付时间数据: ${key}`);
+            console.log(`✅ fixing支付时间data: ${key}`);
           } else {
             localStorage.removeItem(key);
             removed.push(key);
-            console.log(`🗑️ 删除无效支付时间数据: ${key}`);
+            console.log(`🗑️ deletinginvalid支付时间data: ${key}`);
           }
         }
         else if (key.includes('session_info')) {
@@ -95,11 +95,11 @@ export function fixLocalStorageArrayIssues(): {
           if (validSession) {
             localStorage.setItem(key, JSON.stringify(validSession));
             fixed.push(key);
-            console.log(`✅ 修复会话数据: ${key}`);
+            console.log(`✅ fixingsessiondata: ${key}`);
           } else {
             localStorage.removeItem(key);
             removed.push(key);
-            console.log(`🗑️ 删除无效会话数据: ${key}`);
+            console.log(`🗑️ deletinginvalidsessiondata: ${key}`);
           }
         }
         else if (key.includes('auth-storage')) {
@@ -113,23 +113,23 @@ export function fixLocalStorageArrayIssues(): {
           if (validAuth) {
             localStorage.setItem(key, JSON.stringify(validAuth));
             fixed.push(key);
-            console.log(`✅ 修复认证存储数据: ${key}`);
+            console.log(`✅ fixingauthenticatingstoragedata: ${key}`);
           } else {
             localStorage.removeItem(key);
             removed.push(key);
-            console.log(`🗑️ 删除无效认证存储数据: ${key}`);
+            console.log(`🗑️ deletinginvalidauthenticatingstoragedata: ${key}`);
           }
         }
         else {
           // 其他数组数据：删除
           localStorage.removeItem(key);
           removed.push(key);
-          console.log(`🗑️ 删除未知数组数据: ${key}`);
+          console.log(`🗑️ deletingnot知arraydata: ${key}`);
         }
       }
     } catch (error) {
       errors.push(`${key}: ${(error as Error).message}`);
-      console.error(`❌ 修复数据失败: ${key}`, error);
+      console.error(`❌ fixingdatafailed: ${key}`, error);
     }
   });
 
@@ -147,7 +147,7 @@ export function validateAllLocalStorageData(): {
   const validator = dataTypeValidator;
   const result = validator.validateAllStorageData();
   
-  console.log(`📊 数据验证结果:`, {
+  console.log(`📊 datavalidatingresult:`, {
     总计: result.totalItems,
     有效: result.validItems,
     无效: result.invalidItems.length,
@@ -165,12 +165,12 @@ export function validateAllLocalStorageData(): {
  * 立即执行修复
  */
 export function immediateFixLocalStorage(): void {
-  console.log('🔧 开始修复 localStorage 数据...');
+  console.log('🔧 startsfixing localStorage data...');
   
   const fixResult = fixLocalStorageArrayIssues();
   const validationResult = validateAllLocalStorageData();
   
-  console.log('🎉 修复完成:', {
+  console.log('🎉 fixingcompleted:', {
     修复: fixResult.fixed.length,
     删除: fixResult.removed.length,
     错误: fixResult.errors.length,
@@ -180,15 +180,15 @@ export function immediateFixLocalStorage(): void {
   });
 
   if (fixResult.errors.length > 0) {
-    console.error('🚨 修复过程中的错误:', fixResult.errors);
+    console.error('🚨 fixing过程middle的error:', fixResult.errors);
   }
 
   if (validationResult.invalid.length > 0) {
-    console.warn('⚠️ 仍有无效数据:', validationResult.invalid);
+    console.warn('⚠️ 仍hasinvaliddata:', validationResult.invalid);
     
     // 🔧 尝试清理剩余的无效数据项
     validationResult.invalid.forEach(({ key, errors }) => {
-      console.log(`🧹 清理无效数据项: ${key}`, { errors });
+      console.log(`🧹 cleaninginvaliddataitem: ${key}`, { errors });
       
       // 对于无法修复的数据，直接删除以避免持续报错
       if (errors.some(error => 
@@ -198,9 +198,9 @@ export function immediateFixLocalStorage(): void {
       )) {
         try {
           localStorage.removeItem(key);
-          console.log(`✅ 已删除无效数据项: ${key}`);
+          console.log(`✅ deletedinvaliddataitem: ${key}`);
         } catch (e) {
-          console.error(`❌ 删除数据项失败: ${key}`, e);
+          console.error(`❌ deletingdataitemfailed: ${key}`, e);
         }
       }
     });

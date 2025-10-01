@@ -493,4 +493,4 @@ export function getPlatformLimit(platformId: string): number {
   return PLATFORM_LIMIT[platformId as keyof typeof PLATFORM_LIMIT] || PLATFORM_LIMIT.default;
 }
 
-console.log('�� 标题生成工具函数模块已加载');
+console.log('�� title生成工具functionmodulealreadyloading');

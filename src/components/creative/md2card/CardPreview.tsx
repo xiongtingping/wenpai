@@ -132,7 +132,7 @@ export const CardPreview: React.FC<any> = ({ parsedContent,
       const dataURL = canvas.toDataURL('image/png');
       setRenderedCard(dataURL);
     } catch (error) {
-      console.error('渲染卡片失败:', error);
+      console.error('渲染cardfailed:', error);
       toast({
         title: t('components.labels.渲染失败'),
         description: '卡片渲染过程中发生错误',
@@ -303,7 +303,7 @@ export const CardPreview: React.FC<any> = ({ parsedContent,
         description: '卡片图片已复制到剪贴板',
       });
     } catch (error) {
-      console.error('复制失败:', error);
+      console.error('copyingfailed:', error);
       toast({
         title: t('components.errors.复制失败'),
         description: '无法复制图片到剪贴板',

@@ -48,7 +48,7 @@ class HotTopicsApi {
       
       return this.formatResponse(filteredTopics, '实时数据');
     } catch (error) {
-      console.error('获取热点话题失败:', error);
+      console.error('getting热点话题failed:', error);
       return {
         success: false,
         data: [],
@@ -77,7 +77,7 @@ class HotTopicsApi {
       
       return this.formatResponse(limitedTopics, `${platformConfig.name}数据`);
     } catch (error) {
-      console.error(`获取平台 ${platform} 热点失败:`, error);
+      console.error(`getting平台 ${platform} 热点failed:`, error);
       return {
         success: false,
         data: [],
@@ -111,7 +111,7 @@ class HotTopicsApi {
 
       return stats.sort((a, b) => b.count - a.count);
     } catch (error) {
-      console.error('获取分类统计失败:', error);
+      console.error('gettingcategory统计failed:', error);
       return [];
     }
   }
@@ -131,7 +131,7 @@ class HotTopicsApi {
       const limitedResults = searchResults.slice(0, limit);
       return this.formatResponse(limitedResults, `搜索结果: ${query}`);
     } catch (error) {
-      console.error('搜索热点话题失败:', error);
+      console.error('searching热点话题failed:', error);
       return {
         success: false,
         data: [],
@@ -172,7 +172,7 @@ class HotTopicsApi {
 
       return { trending, rising, stable, categories };
     } catch (error) {
-      console.error('获取趋势分析失败:', error);
+      console.error('getting趋势analyzingfailed:', error);
       return {
         trending: [],
         rising: [],

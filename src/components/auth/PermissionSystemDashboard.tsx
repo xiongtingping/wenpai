@@ -165,7 +165,7 @@ export const PermissionSystemDashboard: React.FC = () => {
       setSystemHealth(mockHealth);
       
     } catch (error) {
-      console.error('刷新系统数据失败:', error);
+      console.error('refreshing系统datafailed:', error);
     } finally {
       setIsRefreshing(false);
     }
@@ -680,7 +680,7 @@ const TestingTab: React.FC = () => {
 
       setTestResults(prev => [testCase, ...prev.slice(0, 9)]);
     } catch (error) {
-      console.error('测试失败:', error);
+      console.error('testingfailed:', error);
     } finally {
       setIsRunningTests(false);
     }

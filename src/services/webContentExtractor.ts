@@ -87,7 +87,7 @@ export class WebContentExtractorService {
       try {
         // 由于浏览器安全限制，我们无法直接抓取跨域网页内容
         // 需要通过后端API实现网页内容提取
-        console.log('🌐 尝试提取网页内容:', normalizedUrl);
+        console.log('🌐 尝试提取网页content:', normalizedUrl);
 
         // 调用后端API进行网页内容提取
         const extractedData = await request.post('/api/extract-web-content', { url: normalizedUrl });
@@ -95,7 +95,7 @@ export class WebContentExtractorService {
         pageTitle = extractedData.title || 'u64cdu4f5cu5931u8d25';
 
       } catch (error) {
-        console.warn('直接内容提取失败，使用AI分析URL:', error);
+        console.warn('直接content提取failed，使用AIanalyzingURL:', error);
 
         // 如果直接提取失败，使用AI分析URL本身
         const extractionPrompt = this.buildExtractionPrompt(normalizedUrl);
@@ -148,7 +148,7 @@ export class WebContentExtractorService {
           const brandAnalysis = await this.analyzeBrandContent(result.content);
           result.brandAnalysis = brandAnalysis;
         } catch (error) {
-          console.warn('品牌分析失败:', error);
+          console.warn('品牌analyzingfailed:', error);
           // 品牌分析失败不影响主要提取结果
         }
       }
@@ -156,7 +156,7 @@ export class WebContentExtractorService {
       return result;
 
     } catch (error) {
-      console.error('网页内容提取失败:', error);
+      console.error('网页content提取failed:', error);
       
       return {
         id: resultId,
@@ -276,7 +276,7 @@ URL: ${url}
         return this.parseExtractionResponse(response.content);
       }
     } catch (error) {
-      console.warn('AI内容分析失败:', error);
+      console.warn('AIcontentanalyzingfailed:', error);
     }
 
     // 如果AI分析失败，返回基础信息
@@ -328,7 +328,7 @@ URL: ${url}
       // 如果不是JSON格式，尝试解析文本格式
       return this.parseTextResponse(response);
     } catch (error) {
-      console.warn('解析提取响应失败:', error);
+      console.warn('parsing提取responsefailed:', error);
       return {
         title: 'u64cdu4f5cu5931u8d25',
         content: response,
@@ -437,7 +437,7 @@ ${content.substring(0, 2000)}
       };
 
     } catch (error) {
-      console.error('品牌内容分析失败:', error);
+      console.error('品牌contentanalyzingfailed:', error);
       throw error;
     }
   }
@@ -494,7 +494,7 @@ ${content.substring(0, 2000)}
         // 添加延迟避免请求过于频繁
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (error) {
-        console.error(`提取URL失败: ${url}`, error);
+        console.error(`提取URLfailed: ${url}`, error);
         results.push({
           id: `web-extract-${Date.now()}`,
           url: url,
@@ -555,7 +555,7 @@ ${content.substring(0, 2000)}
             };
           }
         } catch (parseError) {
-          console.warn('解析URL检查结果失败:', parseError);
+          console.warn('parsingURLcheckingresultfailed:', parseError);
         }
       }
 

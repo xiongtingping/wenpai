@@ -29,37 +29,37 @@ export const useTokenUsageStore = () => {
 
     // 旧的操作方法
     refreshStats: async (userId: string, userTier: any) => {
-      console.warn('⚠️ refreshStats 已废弃，请使用统一状态管理的 updateTokenStats');
+      console.warn('⚠️ refreshStats already废弃，请使用统一state管理的 updateTokenStats');
       // 兼容性实现
     },
 
     refreshHistory: async (userId: string, limit?: number) => {
-      console.warn('⚠️ refreshHistory 已废弃，请使用统一状态管理的 addTokenUsage');
+      console.warn('⚠️ refreshHistory already废弃，请使用统一state管理的 addTokenUsage');
       // 兼容性实现
     },
 
     refreshFeatureStats: async (userId: string) => {
-      console.warn('⚠️ refreshFeatureStats 已废弃，请使用统一状态管理的 updateFeatureStats');
+      console.warn('⚠️ refreshFeatureStats already废弃，请使用统一state管理的 updateFeatureStats');
       // 兼容性实现
     },
 
     recordUsage: async (record: any) => {
-      console.warn('⚠️ recordUsage 已废弃，请使用统一状态管理的 addTokenUsage');
+      console.warn('⚠️ recordUsage already废弃，请使用统一state管理的 addTokenUsage');
       unifiedStore.addTokenUsage(record);
     },
 
     checkLimit: async (userId: string, userTier: any, estimatedTokens: number) => {
-      console.warn('⚠️ checkLimit 已废弃，请使用服务层直接调用');
+      console.warn('⚠️ checkLimit already废弃，请使用service层直接调用');
       throw new Error('checkLimit 需要迁移到服务层');
     },
 
     clearError: () => {
-      console.warn('⚠️ clearError 已废弃，请使用统一状态管理的 clearError');
+      console.warn('⚠️ clearError already废弃，请使用统一state管理的 clearError');
       unifiedStore.clearError('tokenUsage');
     },
 
     reset: () => {
-      console.warn('⚠️ reset 已废弃，请使用统一状态管理的 resetSection');
+      console.warn('⚠️ reset already废弃，请使用统一state管理的 resetSection');
       unifiedStore.resetSection('tokenUsage');
     },
   };
@@ -70,7 +70,7 @@ export const useTokenUsageStore = () => {
  * 兼容旧的 useTokenUsage Hook
  */
 export const useTokenUsage = (userId?: string, userTier?: any) => {
-  console.warn('⚠️ useTokenUsage 已废弃，请使用 useTokenUsageState');
+  console.warn('⚠️ useTokenUsage already废弃，请使用 useTokenUsageState');
   return useTokenUsageStore();
 };
 
@@ -96,7 +96,7 @@ export const useUsageStore = () => {
 
     // 旧的操作方法
     recordUsage: (feature: string, userId = 'anonymous', metadata?: Record<string, any>) => {
-      console.warn('⚠️ useUsageStore.recordUsage 已废弃，请使用统一状态管理');
+      console.warn('⚠️ useUsageStore.recordUsage already废弃，请使用统一state管理');
       const record = {
         id: `usage_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         userId,
@@ -111,27 +111,27 @@ export const useUsageStore = () => {
     },
 
     getTodayUsage: (feature?: string, userId?: string) => {
-      console.warn('⚠️ getTodayUsage 已废弃，请使用统一状态管理的查询方法');
+      console.warn('⚠️ getTodayUsage already废弃，请使用统一state管理的queryingmethod');
       return 0;
     },
 
     getMonthlyUsage: (feature?: string, userId?: string) => {
-      console.warn('⚠️ getMonthlyUsage 已废弃，请使用统一状态管理的查询方法');
+      console.warn('⚠️ getMonthlyUsage already废弃，请使用统一state管理的queryingmethod');
       return 0;
     },
 
     getTotalUsage: (feature?: string, userId?: string) => {
-      console.warn('⚠️ getTotalUsage 已废弃，请使用统一状态管理的查询方法');
+      console.warn('⚠️ getTotalUsage already废弃，请使用统一state管理的queryingmethod');
       return tokenState.usageHistory.length;
     },
 
     clearRecords: () => {
-      console.warn('⚠️ clearRecords 已废弃，请使用统一状态管理的 clearTokenUsage');
+      console.warn('⚠️ clearRecords already废弃，请使用统一state管理的 clearTokenUsage');
       unifiedStore.clearTokenUsage();
     },
 
     getUsageStats: () => {
-      console.warn('⚠️ getUsageStats 已废弃，请使用统一状态管理的查询方法');
+      console.warn('⚠️ getUsageStats already废弃，请使用统一state管理的queryingmethod');
       return {
         total: tokenState.usageHistory.length,
         today: 0,
@@ -163,7 +163,7 @@ export const useAuthStore = () => {
 
     // 旧的操作方法
     setUser: (user: any) => {
-      console.warn('⚠️ useAuthStore.setUser 已废弃，请使用统一状态管理的 setUser');
+      console.warn('⚠️ useAuthStore.setUser already废弃，请使用统一state管理的 setUser');
       // 🔧 安全检查：处理null值，避免传递给unified store时出错
       if (user === null || user === undefined) {
         unifiedStore.clearUser();
@@ -173,22 +173,22 @@ export const useAuthStore = () => {
     },
 
     clearUser: () => {
-      console.warn('⚠️ useAuthStore.clearUser 已废弃，请使用统一状态管理的 clearUser');
+      console.warn('⚠️ useAuthStore.clearUser already废弃，请使用统一state管理的 clearUser');
       unifiedStore.clearUser();
     },
 
     updateProfile: (profile: any) => {
-      console.warn('⚠️ useAuthStore.updateProfile 已废弃，请使用统一状态管理的 setUser');
+      console.warn('⚠️ useAuthStore.updateProfile already废弃，请使用统一state管理的 setUser');
       unifiedStore.setUser(profile);
     },
 
     setLoading: (loading: boolean) => {
-      console.warn('⚠️ useAuthStore.setLoading 已废弃，请使用统一状态管理的 setLoading');
+      console.warn('⚠️ useAuthStore.setLoading already废弃，请使用统一state管理的 setLoading');
       unifiedStore.setLoading('auth', loading);
     },
 
     setError: (error: string | null) => {
-      console.warn('⚠️ useAuthStore.setError 已废弃，请使用统一状态管理的 setError');
+      console.warn('⚠️ useAuthStore.setError already废弃，请使用统一state管理的 setError');
       unifiedStore.setError('auth', error);
     },
 
@@ -198,16 +198,16 @@ export const useAuthStore = () => {
     usageRemaining: 10,
     
     decrementUsage: () => {
-      console.warn('⚠️ useAuthStore.decrementUsage 已废弃，功能已禁用');
+      console.warn('⚠️ useAuthStore.decrementUsage already废弃，featurealreadydisabling');
     },
 
     updateMaxUsage: (newMaxUsage: number) => {
-      console.warn('⚠️ useAuthStore.updateMaxUsage 已废弃，功能已禁用');
+      console.warn('⚠️ useAuthStore.updateMaxUsage already废弃，featurealreadydisabling');
     },
 
     // 用户行为记录方法 - 兼容PageTracker组件
     recordUserAction: (action: string, metadata?: Record<string, any>) => {
-      console.warn('⚠️ useAuthStore.recordUserAction 已废弃，使用简化记录');
+      console.warn('⚠️ useAuthStore.recordUserAction already废弃，使用simplified记录');
       try {
         // 简化的行为记录，仅记录到本地存储用于开发和调试
         const actionRecord = {
@@ -225,9 +225,9 @@ export const useAuthStore = () => {
         }
         localStorage.setItem('wenpai_user_actions', JSON.stringify(existingRecords));
         
-        console.log('📊 用户行为已记录:', action);
+        console.log('📊 userrow为already记录:', action);
       } catch (error) {
-        console.error('📊 用户行为记录失败:', error);
+        console.error('📊 userrow为记录failed:', error);
       }
     },
   };
@@ -254,22 +254,22 @@ export const useTheme = () => {
 
     // 旧的操作方法
     setTheme: (theme: 'light' | 'dark' | 'system') => {
-      console.warn('⚠️ useTheme.setTheme 已废弃，请使用统一状态管理的 setThemeMode');
+      console.warn('⚠️ useTheme.setTheme already废弃，请使用统一state管理的 setThemeMode');
       unifiedStore.setThemeMode(theme);
     },
 
     setPrimaryColor: (color: string) => {
-      console.warn('⚠️ useTheme.setPrimaryColor 已废弃，请使用统一状态管理的 setPrimaryColor');
+      console.warn('⚠️ useTheme.setPrimaryColor already废弃，请使用统一state管理的 setPrimaryColor');
       unifiedStore.setPrimaryColor(color);
     },
 
     setFontSize: (size: 'small' | 'medium' | 'large') => {
-      console.warn('⚠️ useTheme.setFontSize 已废弃，请使用统一状态管理的 setFontSize');
+      console.warn('⚠️ useTheme.setFontSize already废弃，请使用统一state管理的 setFontSize');
       unifiedStore.setFontSize(size);
     },
 
     toggleCompactMode: () => {
-      console.warn('⚠️ useTheme.toggleCompactMode 已废弃，请使用统一状态管理的 toggleCompactMode');
+      console.warn('⚠️ useTheme.toggleCompactMode already废弃，请使用统一state管理的 toggleCompactMode');
       unifiedStore.toggleCompactMode();
     },
   };
@@ -297,27 +297,27 @@ export const useFavoritesStore = () => {
 
     // 旧的操作方法
     addFavorite: (item: any) => {
-      console.warn('⚠️ useFavoritesStore.addFavorite 已废弃，请使用统一状态管理的 addFavorite');
+      console.warn('⚠️ useFavoritesStore.addFavorite already废弃，请使用统一state管理的 addFavorite');
       unifiedStore.addFavorite(item);
     },
 
     removeFavorite: (id: string) => {
-      console.warn('⚠️ useFavoritesStore.removeFavorite 已废弃，请使用统一状态管理的 removeFavorite');
+      console.warn('⚠️ useFavoritesStore.removeFavorite already废弃，请使用统一state管理的 removeFavorite');
       unifiedStore.removeFavorite(id);
     },
 
     updateFavorite: (id: string, updates: any) => {
-      console.warn('⚠️ useFavoritesStore.updateFavorite 已废弃，请使用统一状态管理的 updateFavorite');
+      console.warn('⚠️ useFavoritesStore.updateFavorite already废弃，请使用统一state管理的 updateFavorite');
       unifiedStore.updateFavorite(id, updates);
     },
 
     addTag: (tag: string) => {
-      console.warn('⚠️ useFavoritesStore.addTag 已废弃，请使用统一状态管理的 addTag');
+      console.warn('⚠️ useFavoritesStore.addTag already废弃，请使用统一state管理的 addTag');
       unifiedStore.addTag(tag);
     },
 
     setActiveFilter: (filter: string | null) => {
-      console.warn('⚠️ useFavoritesStore.setActiveFilter 已废弃，请使用统一状态管理的 setActiveFilter');
+      console.warn('⚠️ useFavoritesStore.setActiveFilter already废弃，请使用统一state管理的 setActiveFilter');
       unifiedStore.setActiveFilter(filter);
     },
   };
@@ -357,33 +357,33 @@ export const useContentSyncStore = () => {
 
     // 旧的操作方法
     startSync: () => {
-      console.warn('⚠️ useContentSyncStore.startSync 已废弃，请使用统一状态管理的 startSync');
+      console.warn('⚠️ useContentSyncStore.startSync already废弃，请使用统一state管理的 startSync');
       unifiedStore.startSync();
     },
 
     completeSync: () => {
-      console.warn('⚠️ useContentSyncStore.completeSync 已废弃，请使用统一状态管理的 completeSync');
+      console.warn('⚠️ useContentSyncStore.completeSync already废弃，请使用统一state管理的 completeSync');
       unifiedStore.completeSync();
     },
 
     failSync: (error: string) => {
-      console.warn('⚠️ useContentSyncStore.failSync 已废弃，请使用统一状态管理的 failSync');
+      console.warn('⚠️ useContentSyncStore.failSync already废弃，请使用统一state管理的 failSync');
       unifiedStore.failSync(error);
     },
 
     addPendingChange: () => {
-      console.warn('⚠️ useContentSyncStore.addPendingChange 已废弃，请使用统一状态管理的 addPendingChange');
+      console.warn('⚠️ useContentSyncStore.addPendingChange already废弃，请使用统一state管理的 addPendingChange');
       unifiedStore.addPendingChange();
     },
 
     clearPendingChanges: () => {
-      console.warn('⚠️ useContentSyncStore.clearPendingChanges 已废弃，请使用统一状态管理的 clearPendingChanges');
+      console.warn('⚠️ useContentSyncStore.clearPendingChanges already废弃，请使用统一state管理的 clearPendingChanges');
       unifiedStore.clearPendingChanges();
     },
 
     // 获取当前内容方法 - 临时兼容实现
     getCurrentContent: () => {
-      console.warn('⚠️ useContentSyncStore.getCurrentContent 已废弃，请使用统一状态管理');
+      console.warn('⚠️ useContentSyncStore.getCurrentContent already废弃，请使用统一state管理');
       return {
         title: '',
         content: '',
@@ -443,7 +443,7 @@ export const favoritesUtils = {
       metadata?: Record<string, any>;
     }
   ): Omit<FavoriteItem, 'id' | 'createdAt' | 'updatedAt' | 'isFavorite'> => {
-    console.warn('⚠️ favoritesUtils.createFavoriteItem 已废弃，请使用统一状态管理的工具函数');
+    console.warn('⚠️ favoritesUtils.createFavoriteItem already废弃，请使用统一state管理的工具function');
     return {
       type,
       title,
@@ -459,7 +459,7 @@ export const favoritesUtils = {
    * 格式化收藏项目用于显示
    */
   formatFavoriteForDisplay: (item: FavoriteItem) => {
-    console.warn('⚠️ favoritesUtils.formatFavoriteForDisplay 已废弃，请使用统一状态管理的工具函数');
+    console.warn('⚠️ favoritesUtils.formatFavoriteForDisplay already废弃，请使用统一state管理的工具function');
     const typeNames: Record<FavoriteItemType, string> = {
       'content-generation': '内容生成',
       'creative-cube': '创意魔方',
@@ -485,7 +485,7 @@ export const favoritesUtils = {
    * 验证收藏项目
    */
   validateFavoriteItem: (item: Partial<FavoriteItem>): { isValid: boolean; errors: string[] } => {
-    console.warn('⚠️ favoritesUtils.validateFavoriteItem 已废弃，请使用统一状态管理的工具函数');
+    console.warn('⚠️ favoritesUtils.validateFavoriteItem already废弃，请使用统一state管理的工具function');
     const errors: string[] = [];
     
     if (!item.title) {
@@ -524,7 +524,7 @@ export const contentSyncUtils = {
    * 检查内容是否已准备就绪
    */
   isContentReady: (state: any): boolean => {
-    console.warn('⚠️ contentSyncUtils.isContentReady 已废弃，请使用统一状态管理的工具函数');
+    console.warn('⚠️ contentSyncUtils.isContentReady already废弃，请使用统一state管理的工具function');
     return !!(
       state.selectedTitle &&
       state.selectedContent &&
@@ -537,7 +537,7 @@ export const contentSyncUtils = {
    * 获取内容摘要
    */
   getContentSummary: (state: any): string => {
-    console.warn('⚠️ contentSyncUtils.getContentSummary 已废弃，请使用统一状态管理的工具函数');
+    console.warn('⚠️ contentSyncUtils.getContentSummary already废弃，请使用统一state管理的工具function');
     const { selectedTitle, selectedContent, selectedTags } = state;
     const contentPreview = selectedContent.length > 50 
       ? selectedContent.substring(0, 50) + '...' 
@@ -550,7 +550,7 @@ export const contentSyncUtils = {
    * 验证内容完整性
    */
   validateContent: (state: any): { isValid: boolean; errors: string[] } => {
-    console.warn('⚠️ contentSyncUtils.validateContent 已废弃，请使用统一状态管理的工具函数');
+    console.warn('⚠️ contentSyncUtils.validateContent already废弃，请使用统一state管理的工具function');
     const errors: string[] = [];
     
     if (!state.selectedTitle) {

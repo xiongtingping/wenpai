@@ -111,7 +111,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
         const userKey = `__dev_subscription_${targetUserId}`;
         if (!(window as any)[userKey]) {
           (window as any)[userKey] = true;
-          console.log('🔧 开发环境：设置默认premium订阅状态');
+          console.log('🔧 开发环境：settingdefaultpremiumsubscribingstate');
         }
         
         const defaultStatus = {
@@ -303,7 +303,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
     
     // 🔧 开发环境中禁用定期刷新，避免不必要的API请求
     if (import.meta.env.DEV) {
-      console.log('🔧 开发环境：禁用订阅状态定期刷新');
+      console.log('🔧 开发环境：disablingsubscribingstate定期refreshing');
       return;
     }
 

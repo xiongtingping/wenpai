@@ -87,7 +87,7 @@ export const API_KEY_CONFIGS: Record<string, APIKeyConfig> = {
 export function getAPIKey(service: string): string | null {
   const config = API_KEY_CONFIGS[service.toLowerCase()];
   if (!config) {
-    console.warn(`⚠️ 未知的API服务: ${service}`);
+    console.warn(`⚠️ not知的APIservice: ${service}`);
     return null;
   }
 
@@ -106,7 +106,7 @@ export function getAPIKey(service: string): string | null {
     apiKey === 'placeholder' ||
     apiKey.length < 5
   )) {
-    console.warn(`⚠️ 检测到测试密钥，忽略: ${service}`);
+    console.warn(`⚠️ detecting到testingkey，ignoring: ${service}`);
     return null;
   }
 
@@ -337,11 +337,11 @@ export const keyManager = APIKeyManager.getInstance();
 
 // 系统启动时检查密钥配置
 const overview = keyManager.getSystemOverview();
-console.log('🔐 API密钥管理器已加载');
-console.log(`📊 配置状态: ${overview.configuredServices}/${overview.totalServices} 个服务已配置密钥`);
+console.log('🔐 APIkeymanageralreadyloading');
+console.log(`📊 configurationstate: ${overview.configuredServices}/${overview.totalServices} unitsservicealreadyconfigurationkey`);
 
 if (overview.missingRequired.length > 0) {
-  console.warn(`⚠️ 缺少必需的API密钥: ${overview.missingRequired.join(', ')}`);
+  console.warn(`⚠️ missing必需的APIkey: ${overview.missingRequired.join(', ')}`);
 } else {
-  console.log('✅ 所有必需的API密钥已配置');
+  console.log('✅ 所has必需的APIkeyalreadyconfiguration');
 }

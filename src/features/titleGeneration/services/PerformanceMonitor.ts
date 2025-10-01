@@ -78,7 +78,7 @@ export class PerformanceMonitor {
 
     // 检查慢请求
     if (duration > this.config.slowRequestThreshold) {
-      console.warn(`🐌 慢请求检测: ${operation} 耗时 ${duration.toFixed(2)}ms`);
+      console.warn(`🐌 慢requestdetecting: ${operation} 耗时 ${duration.toFixed(2)}ms`);
       this.recordMetric('slow_request', 1, { operation });
     }
   }
@@ -93,7 +93,7 @@ export class PerformanceMonitor {
       error_message: error.message.substring(0, 100)
     });
 
-    console.error(`❌ 性能监控记录错误: ${operation}`, error);
+    console.error(`❌ 性能monitoring记录error: ${operation}`, error);
   }
 
   /**
@@ -225,7 +225,7 @@ export class PerformanceMonitor {
   cleanup(): void {
     const cutoff = Date.now() - (24 * 60 * 60 * 1000); // 保留24小时
     this.metrics = this.metrics.filter(m => m.timestamp > cutoff);
-    console.log(`🧹 性能指标清理完成，保留 ${this.metrics.length} 条记录`);
+    console.log(`🧹 性能指标cleaningcompleted，保留 ${this.metrics.length} items记录`);
   }
 
   /**
@@ -237,7 +237,7 @@ export class PerformanceMonitor {
     switch (name) {
       case 'response_time':
         if (value > this.config.slowRequestThreshold) {
-          console.warn(`⚠️ 响应时间超过阈值: ${value}ms > ${this.config.slowRequestThreshold}ms`);
+          console.warn(`⚠️ response时间超过阈value: ${value}ms > ${this.config.slowRequestThreshold}ms`);
         }
         break;
       case 'error':
@@ -332,7 +332,7 @@ export class PerformanceMonitor {
   reset(): void {
     this.metrics = [];
     this.startTime = Date.now();
-    console.log('🔄 性能监控已重置');
+    console.log('🔄 性能monitoringalreadyresetting');
   }
 }
 

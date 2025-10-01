@@ -81,11 +81,11 @@ export class DataPreloadService {
   async preloadForRoute(route: string, userId: string): Promise<void> {
     const dependencies = ROUTE_DATA_DEPENDENCIES[route as keyof typeof ROUTE_DATA_DEPENDENCIES];
     if (!dependencies) {
-      console.log(`📍 路由 ${route} 无预加载依赖`);
+      console.log(`📍 路由 ${route} none预loading依赖`);
       return;
     }
 
-    console.log(`🚀 开始为路由 ${route} 预加载数据:`, dependencies);
+    console.log(`🚀 starts为路由 ${route} 预loadingdata:`, dependencies);
     globalDataManager.setUserId(userId);
 
     // 按优先级分组预加载
@@ -147,7 +147,7 @@ export class DataPreloadService {
         results.set(key, success);
         return success;
       } catch (error) {
-        console.error(`预加载失败 ${key}:`, error);
+        console.error(`预loadingfailed ${key}:`, error);
         results.set(key, false);
         return false;
       }
@@ -159,7 +159,7 @@ export class DataPreloadService {
       // 不等待完成，但记录结果
       Promise.allSettled(promises).then(() => {
         const successful = Array.from(results.values()).filter(Boolean).length;
-        console.log(`📊 批量预加载完成: ${successful}/${dataKeys.length}`);
+        console.log(`📊 批量预loadingcompleted: ${successful}/${dataKeys.length}`);
       });
     }
 
@@ -187,12 +187,12 @@ export class DataPreloadService {
       await promise;
       this.completedPreloads.add(dataKey);
       this.preloadPromises.delete(dataKey);
-      console.log(`✅ 预加载成功: ${dataKey}`);
+      console.log(`✅ 预loadingsuccess: ${dataKey}`);
       return true;
     } catch (error) {
       this.failedPreloads.add(dataKey);
       this.preloadPromises.delete(dataKey);
-      console.error(`❌ 预加载失败 ${dataKey}:`, error);
+      console.error(`❌ 预loadingfailed ${dataKey}:`, error);
       return false;
     }
   }
@@ -210,7 +210,7 @@ export class DataPreloadService {
     const loadPromise = async (): Promise<void> => {
       // 执行数据加载
       await globalDataManager.getData(dataKey);
-      console.info(`✅ 预加载完成: ${dataKey}`);
+      console.info(`✅ 预loadingcompleted: ${dataKey}`);
     };
 
     return Promise.race([loadPromise(), timeoutPromise]);
@@ -317,7 +317,7 @@ export class DataPreloadService {
     this.completedPreloads.clear();
     this.failedPreloads.clear();
     this.preloadPromises.clear();
-    console.log('🧹 预加载服务已清理');
+    console.log('🧹 预loadingservicealreadycleaning');
   }
 
   /**

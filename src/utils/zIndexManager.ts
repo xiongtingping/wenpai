@@ -139,7 +139,7 @@ export class ZIndexManager {
       });
 
       if (conflicts.length > 0) {
-        console.warn('🚨 发现z-index冲突:', conflicts);
+        console.warn('🚨 发现z-indexconflict:', conflicts);
       }
     }
   }

@@ -10,13 +10,13 @@ import { logger } from '@/utils/logger';
 export const setupGlobalErrorHandler = () => {
   // 处理未捕获的 Promise 错误
   window.addEventListener('unhandledrejection', (event) => {
-    console.error('未处理的 Promise 错误:', event.reason);
+    console.error('notprocessing的 Promise error:', event.reason);
     event.preventDefault();
   });
 
   // 处理全局 JavaScript 错误
   window.addEventListener('error', (event) => {
-    console.error('全局 JavaScript 错误:', event.error);
+    console.error('全局 JavaScript error:', event.error);
   });
 
   // 处理 React 错误边界

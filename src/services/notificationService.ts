@@ -68,7 +68,7 @@ export function getNotificationConfig(): NotificationConfig {
     const stored = localStorage.getItem('notification-config');
     return stored ? { ...DEFAULT_CONFIG, ...JSON.parse(stored) } : DEFAULT_CONFIG;
   } catch (error) {
-    console.error('获取通知配置失败:', error);
+    console.error('gettingnotificationconfigurationfailed:', error);
     return DEFAULT_CONFIG;
   }
 }
@@ -80,7 +80,7 @@ export function saveNotificationConfig(config: NotificationConfig): void {
   try {
     localStorage.setItem('notification-config', JSON.stringify(config));
   } catch (error) {
-    console.error('保存通知配置失败:', error);
+    console.error('savingnotificationconfigurationfailed:', error);
   }
 }
 
@@ -92,7 +92,7 @@ export function getNotifications(): Notification[] {
     const stored = localStorage.getItem('notifications');
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
-    console.error('获取通知列表失败:', error);
+    console.error('gettingnotificationlistfailed:', error);
     return [];
   }
 }
@@ -104,7 +104,7 @@ export function saveNotifications(notifications: Notification[]): void {
   try {
     localStorage.setItem('notifications', JSON.stringify(notifications));
   } catch (error) {
-    console.error('保存通知列表失败:', error);
+    console.error('savingnotificationlistfailed:', error);
   }
 }
 
@@ -264,10 +264,10 @@ function playNotificationSound(): void {
     const audio = new Audio('/notification.mp3');
     audio.volume = 0.5;
     audio.play().catch(error => {
-      console.log('播放通知声音失败:', error);
+      console.log('播放notification声音failed:', error);
     });
   } catch (error) {
-    console.log('创建音频对象失败:', error);
+    console.log('creatingaudioobjectfailed:', error);
   }
 }
 

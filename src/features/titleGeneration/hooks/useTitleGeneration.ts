@@ -180,7 +180,7 @@ export const useTitleGeneration = (
         options.onError(error instanceof Error ? error : new Error(errorMessage));
       }
 
-      console.error('❌ 标题生成失败:', error);
+      console.error('❌ title生成failed:', error);
     }
   }, [content, platform, stylePreference, outputCount, options]);
 
@@ -211,10 +211,10 @@ export const useTitleGeneration = (
           )
         }));
 
-        console.log(`🔄 重新生成标题: ${newTitle.title}`);
+        console.log(`🔄 re生成title: ${newTitle.title}`);
       }
     } catch (error) {
-      console.error('重新生成标题失败:', error);
+      console.error('re生成titlefailed:', error);
     }
   }, [content, platform, stylePreference, state.titles]);
 
@@ -276,10 +276,10 @@ export const useTitleGeneration = (
         document.execCommand('copy');
         document.body.removeChild(textArea);
       }
-      console.log('📋 标题已复制到剪贴板');
+      console.log('📋 titlealreadycopying到剪贴板');
       return true;
     } catch (error) {
-      console.error('复制失败:', error);
+      console.error('copyingfailed:', error);
       return false;
     }
   }, []);
@@ -322,12 +322,12 @@ export const useTitleGeneration = (
         if (importData.stylePreference) setStylePreference(importData.stylePreference);
         if (importData.outputCount) setOutputCount(importData.outputCount);
         
-        console.log(`📥 导入${importData.titles.length}个标题`);
+        console.log(`📥 importing${importData.titles.length}unitstitle`);
         return true;
       }
       return false;
     } catch (error) {
-      console.error('导入失败:', error);
+      console.error('importingfailed:', error);
       return false;
     }
   }, []);

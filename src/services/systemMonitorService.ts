@@ -89,7 +89,7 @@ class SystemMonitorService {
    */
   start(): void {
     if (this.isRunning) {
-      console.warn('系统监控服务已在运行');
+      console.warn('系统monitoringservicealready在running');
       return;
     }
 
@@ -119,7 +119,7 @@ class SystemMonitorService {
       return;
     }
 
-    console.log('🛑 停止系统监控服务');
+    console.log('🛑 stopping系统monitoringservice');
     this.isRunning = false;
 
     // 停止健康检查
@@ -144,9 +144,9 @@ class SystemMonitorService {
     try {
       unifiedUsageService.startAutoSync();
       enhancedInviteService.startAutoSync();
-      console.log('📡 服务自动同步已启动');
+      console.log('📡 service自动syncalreadystarting');
     } catch (error) {
-      console.error('启动服务自动同步失败:', error);
+      console.error('startingservice自动syncfailed:', error);
     }
   }
 
@@ -157,9 +157,9 @@ class SystemMonitorService {
     try {
       unifiedUsageService.stopAutoSync();
       enhancedInviteService.stopAutoSync();
-      console.log('📡 服务自动同步已停止');
+      console.log('📡 service自动syncalreadystopping');
     } catch (error) {
-      console.error('停止服务自动同步失败:', error);
+      console.error('stoppingservice自动syncfailed:', error);
     }
   }
 
@@ -211,7 +211,7 @@ class SystemMonitorService {
       errorCount: 0
     });
 
-    console.log(`📋 已注册 ${this.automationTasks.size} 个自动化任务`);
+    console.log(`📋 alreadyregister ${this.automationTasks.size} units自动化任务`);
   }
 
   /**
@@ -256,7 +256,7 @@ class SystemMonitorService {
     }, task.interval);
 
     this.taskTimers.set(taskId, timer);
-    console.log(`⏰ 自动化任务 "${task.name}" 已启动，间隔 ${task.interval / 1000} 秒`);
+    console.log(`⏰ 自动化任务 "${task.name}" alreadystarting，spacer ${task.interval / 1000} seconds`);
   }
 
   /**
@@ -269,16 +269,16 @@ class SystemMonitorService {
     }
 
     try {
-      console.log(`🔄 执行自动化任务: ${task.name}`);
+      console.log(`🔄 executing自动化任务: ${task.name}`);
       await task.execute();
       
       task.executionCount++;
       task.lastExecuted = new Date().toISOString();
       
-      console.log(`✅ 自动化任务 "${task.name}" 执行完成`);
+      console.log(`✅ 自动化任务 "${task.name}" executingcompleted`);
     } catch (error) {
       task.errorCount++;
-      console.error(`❌ 自动化任务 "${task.name}" 执行失败:`, error);
+      console.error(`❌ 自动化任务 "${task.name}" executingfailed:`, error);
     }
   }
 
@@ -298,7 +298,7 @@ class SystemMonitorService {
    * 执行健康检查
    */
   private async performHealthCheck(): Promise<SystemHealthStatus> {
-    console.log('🔍 执行系统健康检查');
+    console.log('🔍 executing系统健康checking');
     
     const healthStatus: SystemHealthStatus = {
       overall: 'healthy',
@@ -327,7 +327,7 @@ class SystemMonitorService {
       healthStatus.overall = 'warning';
     }
 
-    console.log(`📊 系统健康状态: ${healthStatus.overall}`);
+    console.log(`📊 系统健康state: ${healthStatus.overall}`);
     return healthStatus;
   }
 
@@ -391,10 +391,10 @@ class SystemMonitorService {
       });
 
       if (expiredKeys.length > 0) {
-        console.log(`🧹 清理了 ${expiredKeys.length} 个过期缓存项`);
+        console.log(`🧹 cleaning了 ${expiredKeys.length} unitsexpiredcacheitem`);
       }
     } catch (error) {
-      console.error('数据清理失败:', error);
+      console.error('datacleaningfailed:', error);
     }
   }
 
@@ -404,9 +404,9 @@ class SystemMonitorService {
   private async performPermissionSync(): Promise<void> {
     try {
       // 这里可以添加权限同步逻辑
-      console.log('🔐 执行权限同步检查');
+      console.log('🔐 executingpermissionsyncchecking');
     } catch (error) {
-      console.error('权限同步失败:', error);
+      console.error('permissionsyncfailed:', error);
     }
   }
 
@@ -416,9 +416,9 @@ class SystemMonitorService {
   private async performSubscriptionExpiryCheck(): Promise<void> {
     try {
       // 这里可以添加套餐到期检查逻辑
-      console.log('📅 执行套餐到期检查');
+      console.log('📅 executing套餐到期checking');
     } catch (error) {
-      console.error('套餐到期检查失败:', error);
+      console.error('套餐到期checkingfailed:', error);
     }
   }
 
@@ -428,9 +428,9 @@ class SystemMonitorService {
   private async performInviteDataSync(): Promise<void> {
     try {
       // 这里可以添加邀请数据同步逻辑
-      console.log('🎁 执行邀请数据同步');
+      console.log('🎁 executing邀请datasync');
     } catch (error) {
-      console.error('邀请数据同步失败:', error);
+      console.error('邀请datasyncfailed:', error);
     }
   }
 

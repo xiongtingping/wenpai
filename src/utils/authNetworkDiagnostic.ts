@@ -43,7 +43,7 @@ export class AuthNetworkDiagnostic {
     const startTime = Date.now();
     
     try {
-      console.log('🔍 开始诊断Authing连接...');
+      console.log('🔍 starts诊断Authingjoin...');
       
       // 测试基础连接
       const response = await fetch(`${config.host}/api/v2/applications/${config.appId}/public-config`, {
@@ -59,14 +59,14 @@ export class AuthNetworkDiagnostic {
       const latency = Date.now() - startTime;
       
       if (response.ok) {
-        console.log('✅ Authing连接正常', { latency: `${latency}ms` });
+        console.log('✅ Authingjoinnormal', { latency: `${latency}ms` });
         return {
           success: true,
           latency,
           suggestions: latency > 5000 ? ['网络延迟较高，建议检查网络连接'] : []
         };
       } else {
-        console.warn('⚠️ Authing响应异常', { status: response.status, latency: `${latency}ms` });
+        console.warn('⚠️ Authingresponseabnormal', { status: response.status, latency: `${latency}ms` });
         return {
           success: false,
           latency,
@@ -80,7 +80,7 @@ export class AuthNetworkDiagnostic {
       }
     } catch (error: any) {
       const latency = Date.now() - startTime;
-      console.error('❌ Authing连接失败', error);
+      console.error('❌ Authingjoinfailed', error);
       
       const suggestions = [];
       if (error.name === 'TimeoutError') {
@@ -143,7 +143,7 @@ export class AuthRetryManager {
     
     for (let attempt = 1; attempt <= this.config.maxRetries; attempt++) {
       try {
-        console.log(`🔄 ${operationName} - 第${attempt}次尝试`);
+        console.log(`🔄 ${operationName} - the${attempt}times尝试`);
         
         // 执行操作
         const result = await Promise.race([
@@ -151,12 +151,12 @@ export class AuthRetryManager {
           this.createTimeoutPromise()
         ]);
         
-        console.log(`✅ ${operationName} - 第${attempt}次尝试成功`);
+        console.log(`✅ ${operationName} - the${attempt}times尝试success`);
         return result;
         
       } catch (error: any) {
         lastError = error;
-        console.warn(`⚠️ ${operationName} - 第${attempt}次尝试失败:`, error.message);
+        console.warn(`⚠️ ${operationName} - the${attempt}times尝试failed:`, error.message);
         
         // 如果是最后一次尝试，直接抛出错误
         if (attempt === this.config.maxRetries) {
@@ -169,14 +169,14 @@ export class AuthRetryManager {
           this.config.maxDelay
         );
         
-        console.log(`⏳ ${operationName} - ${delay}ms后重试...`);
+        console.log(`⏳ ${operationName} - ${delay}msnextretrying...`);
         await this.sleep(delay);
       }
     }
     
     // 所有重试都失败了
-    console.error(`❌ ${operationName} - 所有重试都失败`);
-    throw new Error(`${operationName}失败: ${lastError?.message || 'u64cdu4f5cu5931u8d25'} (已重试${this.config.maxRetries}次)`);
+    console.error(`❌ ${operationName} - 所hasretrying都failed`);
+    throw new Error(`${operationName}failed: ${lastError?.message || 'u64cdu4f5cu5931u8d25'} (alreadyretrying${this.config.maxRetries}times)`);
   }
 
   /**

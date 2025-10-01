@@ -84,7 +84,7 @@ const usePerformanceMonitor = (componentId: string, enableLogging: boolean = fal
       if (renderTime > 100) { // 超过100ms
         globalPerformanceStats.performanceWarnings++;
         if (enableLogging) {
-          console.warn(`🐌 PerformanceMonitor: 慢渲染检测 ${componentId}: ${renderTime.toFixed(2)}ms`);
+          console.warn(`🐌 PerformanceMonitor: 慢渲染detecting ${componentId}: ${renderTime.toFixed(2)}ms`);
         }
       }
       
@@ -107,7 +107,7 @@ const usePerformanceMonitor = (componentId: string, enableLogging: boolean = fal
       if (memoryUsage > 100) { // 超过100MB
         globalPerformanceStats.memoryLeaks++;
         if (enableLogging) {
-          console.warn(`🧠 PerformanceMonitor: 高内存使用 ${componentId}: ${memoryUsage.toFixed(2)}MB`);
+          console.warn(`🧠 PerformanceMonitor: 高inner存使用 ${componentId}: ${memoryUsage.toFixed(2)}MB`);
         }
       }
     }

@@ -235,7 +235,7 @@ export async function generateAdaptedContent(
     }
 
     // 调用统一AI服务生成适配内容
-    console.log('🔄 开始调用统一AI内容适配服务');
+    console.log('🔄 starts调用统一AIcontent适配service');
 
     // 生成详细的内容适配提示词
     const adaptationPrompt = generateContentFormPrompt(originalContent, platform, formId, style, charCount);
@@ -274,7 +274,7 @@ export async function generateAdaptedContent(
       };
     }
   } catch (error) {
-    console.error('生成适配内容失败:', error);
+    console.error('生成适配contentfailed:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : '生成适配内容失败'
@@ -321,7 +321,7 @@ export async function regenerateAdaptedContent(
       }
     };
   } catch (error) {
-    console.error('重新生成适配内容失败:', error);
+    console.error('re生成适配contentfailed:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : '重新生成适配内容失败'
@@ -371,7 +371,7 @@ export async function generateMultiPlatformContent(
     const results = await Promise.all(promises);
     return results;
   } catch (error) {
-    console.error('批量生成多平台内容失败:', error);
+    console.error('批量生成多平台contentfailed:', error);
     return platforms.map(() => ({
       success: false,
       error: error instanceof Error ? error.message : '批量生成多平台内容失败'

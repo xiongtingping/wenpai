@@ -55,14 +55,14 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
         return;
       }
 
-      console.log('收到BufPay iframe消息:', event.data);
+      console.log('收到BufPay iframemessage:', event.data);
 
       // 处理支付成功消息
       if (event.data && typeof event.data === 'object') {
         if (event.data.type === 'payment_success' || 
             event.data.status === 'success' ||
             event.data.status === 'payed') {
-          console.log('🎉 iframe通知支付成功:', event.data);
+          console.log('🎉 iframenotification支付success:', event.data);
           setPaymentStatus('success');
           setIsPolling(false);
           setTimeout(() => {
@@ -70,7 +70,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
           }, 500);
         } else if (event.data.type === 'payment_failed' || 
                    event.data.status === 'failed') {
-          console.log('❌ iframe通知支付失败:', event.data);
+          console.log('❌ iframenotification支付failed:', event.data);
           setPaymentStatus('failed');
           setErrorMessage(event.data.message || t('components.errors.支付失败'));
           setIsPolling(false);
@@ -93,7 +93,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
         const orderStatus = await BufPayService.checkOrderStatus(orderId);
         
         if (orderStatus.isPaid) {
-          console.log('🎉 支付成功 - 订单已完成:', orderId);
+          console.log('🎉 支付success - 订单completed:', orderId);
           setPaymentStatus('success');
           setIsPolling(false);
 
@@ -119,7 +119,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
           switch (status) {
             case 'success':
               // 订单已支付已经回调成功
-              console.log('🎉 支付成功检测到 (已回调):', status);
+              console.log('🎉 支付successdetecting到 (alreadycallback):', status);
               setPaymentStatus('success');
               setIsPolling(false);
               setTimeout(() => {
@@ -129,18 +129,18 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
               
             case 'payed':
               // 订单已支付未回调 - 继续轮询直到回调成功
-              console.log('💰 已支付但未回调:', status);
+              console.log('💰 already支付但notcallback:', status);
               // 继续轮询，等待回调完成
               break;
               
             case 'new':
               // 新订单 - 继续等待支付
-              console.log('🔄 订单等待支付中:', status);
+              console.log('🔄 订单waiting支付middle:', status);
               break;
               
             case 'expire':
               // 订单已过期
-              console.log('⏰ 支付超时:', status);
+              console.log('⏰ 支付timeout:', status);
               setPaymentStatus('timeout');
               setIsPolling(false);
               onPaymentTimeout?.();
@@ -148,7 +148,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
               
             case 'fee_error':
               // 账户余额不足扣除手续费失败，订单未回调
-              console.log('💸 手续费扣除失败:', status);
+              console.log('💸 手续费扣除failed:', status);
               setPaymentStatus('failed');
               setErrorMessage('支付平台手续费扣除失败，请联系客服');
               setIsPolling(false);
@@ -157,16 +157,16 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
               
             case 'not_exist':
               // 订单不存在 - 这种情况下继续依赖我们的数据库查询
-              console.warn('⚠️ BufPay 查询订单不存在，继续依赖数据库状态');
+              console.warn('⚠️ BufPay querying订单not exists，resuming依赖databasestate');
               break;
               
             default:
-              console.log('🔄 未知状态，继续轮询:', status);
+              console.log('🔄 not知state，resuming轮询:', status);
               break;
           }
         }
       } catch (error) {
-        console.error('查询支付状态失败:', error);
+        console.error('querying支付statefailed:', error);
       }
     };
 
@@ -302,10 +302,10 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
                 title="BufPay支付页面"
                 sandbox="allow-scripts allow-forms allow-popups allow-top-navigation"
                 onError={(e) => {
-                  console.log('🔇 已忽略iframe加载错误（可能是X-Frame-Options限制）');
+                  console.log('🔇 alreadyignoringiframeloadingerror（可能是X-Frame-Optionslimiting）');
                 }}
                 onLoad={(e) => {
-                  console.log('✅ BufPay支付页面加载完成');
+                  console.log('✅ BufPay支付pageloadingcompleted');
                   // 尝试向iframe发送准备消息
                   const iframe = e.target as HTMLIFrameElement;
                   try {
@@ -314,7 +314,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
                       orderId: orderId
                     }, '*');
                   } catch (err) {
-                    console.log('无法向iframe发送消息:', err);
+                    console.log('none法向iframesendingmessage:', err);
                   }
                 }}
               />

@@ -171,9 +171,9 @@ export class UnifiedDataManager {
     this.userId = userId;
     try {
       this.supabaseService = createDataService(userId, TABLE_NAMES.USER_BRAND_CORPUS);
-      console.log('✅ 统一数据管理器已初始化，用户:', userId);
+      console.log('✅ 统一datamanageralreadyinitialization，user:', userId);
     } catch (error) {
-      console.error('❌ Supabase服务初始化失败:', error);
+      console.error('❌ SupabaseService initialization failed:', error);
     }
   }
 
@@ -183,7 +183,7 @@ export class UnifiedDataManager {
   async getData<T>(key: string, forceRefresh = false): Promise<T | null> {
     const config = DATA_CONFIGS[key];
     if (!config) {
-      console.warn(`⚠️ 未知数据键: ${key}，使用缓存模式`);
+      console.warn(`⚠️ not知datakey: ${key}，使用cache模式`);
       return this.getCacheData<T>(key);
     }
 
@@ -203,7 +203,7 @@ export class UnifiedDataManager {
               this.updateCache(key, cloudData);
             }
           }).catch(error => {
-            console.warn(`⚠️ 异步云端更新失败 ${key}:`, error);
+            console.warn(`⚠️ async云端updatingfailed ${key}:`, error);
           });
         }
         return cached;
@@ -224,7 +224,7 @@ export class UnifiedDataManager {
           return null;
       }
     } catch (error) {
-      console.error(`❌ 获取数据失败 ${key}:`, error);
+      console.error(`❌ fetchingdatafailed ${key}:`, error);
       
       // 🚫 移除降级策略：严格按照数据分类访问，不使用降级方案
       return null;
@@ -237,7 +237,7 @@ export class UnifiedDataManager {
   async setData<T>(key: string, data: T): Promise<boolean> {
     const config = DATA_CONFIGS[key];
     if (!config) {
-      console.error(`❌ 未知数据键: ${key}，拒绝保存 - 需要在 DATA_CONFIGS 中配置`);
+      console.error(`❌ not知datakey: ${key}，deniedsaving - 需要在 DATA_CONFIGS middleconfiguration`);
       return false;
     }
 
@@ -264,13 +264,13 @@ export class UnifiedDataManager {
       // 额外的云端同步（如果配置了）
       if (success && config.syncToCloud && config.category !== DataCategory.USER_CRITICAL) {
         this.setCloudData(key, data).catch(error => {
-          console.warn(`⚠️ 云端同步失败 ${key}:`, error);
+          console.warn(`⚠️ 云端syncfailed ${key}:`, error);
         });
       }
 
       return success;
     } catch (error) {
-      console.error(`❌ 保存数据失败 ${key}:`, error);
+      console.error(`❌ savingdatafailed ${key}:`, error);
       return false;
     }
   }
@@ -280,7 +280,7 @@ export class UnifiedDataManager {
    */
   private async getCloudData<T>(key: string): Promise<T | null> {
     if (!this.supabaseService || !this.userId) {
-      console.warn('⚠️ 云端服务不可用，无法获取数据:', key);
+      console.warn('⚠️ 云端serviceunavailable，none法gettingdata:', key);
       return null;
     }
 
@@ -301,7 +301,7 @@ export class UnifiedDataManager {
 
       return null;
     } catch (error) {
-      console.error(`❌ 云端获取数据失败 ${key}:`, error);
+      console.error(`❌ 云端gettingdatafailed ${key}:`, error);
       return null;
     }
   }
@@ -311,7 +311,7 @@ export class UnifiedDataManager {
    */
   private async setCloudData<T>(key: string, data: T): Promise<boolean> {
     if (!this.supabaseService || !this.userId) {
-      console.warn('⚠️ 云端服务不可用，无法保存数据:', key);
+      console.warn('⚠️ 云端serviceunavailable，none法savingdata:', key);
       return false;
     }
 
@@ -339,10 +339,10 @@ export class UnifiedDataManager {
         await this.supabaseService.create(recordData);
       }
 
-      console.log(`✅ 云端保存成功: ${key}`);
+      console.log(`✅ 云端savingsuccess: ${key}`);
       return true;
     } catch (error) {
-      console.error(`❌ 云端保存失败 ${key}:`, error);
+      console.error(`❌ 云端savingfailed ${key}:`, error);
       return false;
     }
   }
@@ -356,7 +356,7 @@ export class UnifiedDataManager {
     // 这里应该集成具体的 Zustand stores
     // 目前返回 null，表示状态层暂未初始化或数据不存在
     
-    console.debug(`📝 状态数据访问: ${key} - 需要集成 Zustand store`);
+    console.debug(`📝 statedata访问: ${key} - 需要set成 Zustand store`);
     return null;
   }
 
@@ -369,7 +369,7 @@ export class UnifiedDataManager {
     // 这里应该集成具体的 Zustand stores
     // 目前返回 false，表示状态层保存失败或暂未实现
     
-    console.debug(`📝 状态数据保存: ${key} - 需要集成 Zustand store`);
+    console.debug(`📝 statedatasaving: ${key} - 需要set成 Zustand store`);
     return false;
   }
 
@@ -381,7 +381,7 @@ export class UnifiedDataManager {
       const data = localStorage.getItem(key);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error(`❌ 缓存读取失败 ${key}:`, error);
+      console.error(`❌ cachereadingfailed ${key}:`, error);
       return null;
     }
   }
@@ -395,7 +395,7 @@ export class UnifiedDataManager {
       this.cacheTimestamps.set(key, Date.now());
       return true;
     } catch (error) {
-      console.error(`❌ 缓存保存失败 ${key}:`, error);
+      console.error(`❌ cachesavingfailed ${key}:`, error);
       return false;
     }
   }
@@ -441,7 +441,7 @@ export class UnifiedDataManager {
    */
   async preloadCriticalData(): Promise<void> {
     if (!this.userId) {
-      console.warn('⚠️ 用户未登录，跳过数据预加载');
+      console.warn('⚠️ usernotlogin，skippingdata预loading');
       return;
     }
 
@@ -449,14 +449,14 @@ export class UnifiedDataManager {
       key => DATA_CONFIGS[key].category === DataCategory.USER_CRITICAL
     );
 
-    console.log('🔄 开始预加载关键数据:', criticalKeys);
+    console.log('🔄 starts预loading关keydata:', criticalKeys);
 
     const promises = criticalKeys.map(async (key) => {
       try {
         await this.getData(key);
         return { key, success: true };
       } catch (error) {
-        console.error(`预加载失败 ${key}:`, error);
+        console.error(`预loadingfailed ${key}:`, error);
         return { key, success: false, error };
       }
     });
@@ -464,14 +464,14 @@ export class UnifiedDataManager {
     const results = await Promise.allSettled(promises);
     const successful = results.filter(r => r.status === 'fulfilled').length;
     
-    console.log(`✅ 数据预加载完成: ${successful}/${criticalKeys.length}`);
+    console.log(`✅ data预loadingcompleted: ${successful}/${criticalKeys.length}`);
   }
 
   /**
    * 清理过期缓存
    */
   cleanupExpiredCache(): void {
-    console.log('🧹 开始清理过期缓存...');
+    console.log('🧹 startscleaningexpiredcache...');
     let cleanedCount = 0;
 
     Object.keys(DATA_CONFIGS).forEach(key => {
@@ -482,7 +482,7 @@ export class UnifiedDataManager {
       }
     });
 
-    console.log(`✅ 清理完成，删除了 ${cleanedCount} 个过期缓存项`);
+    console.log(`✅ cleaningcompleted，deleting了 ${cleanedCount} unitsexpiredcacheitem`);
   }
 
   /**
@@ -537,7 +537,7 @@ export class UnifiedDataManager {
       await this.setData('subscriptionTier', tier);
       return tier;
     } catch (error) {
-      console.error('获取用户层级失败:', error);
+      console.error('gettingusertierfailed:', error);
       return 'trial';
     }
   }
@@ -582,7 +582,7 @@ export class UnifiedDataManager {
   async setPreferredModel(modelId: string): Promise<boolean> {
     const hasPermission = await this.hasModelPermission(modelId);
     if (!hasPermission) {
-      console.warn(`用户无权限使用模型: ${modelId}`);
+      console.warn(`usernonepermission使用模型: ${modelId}`);
       return false;
     }
     
@@ -615,7 +615,7 @@ export class UnifiedDataManager {
       
       await this.setData('aiModelUsage', usage);
     } catch (error) {
-      console.error('记录模型使用失败:', error);
+      console.error('记录模型使用failed:', error);
     }
   }
 
@@ -686,7 +686,7 @@ export class UnifiedDataManager {
         totalTokens
       };
     } catch (error) {
-      console.error('获取模型使用统计失败:', error);
+      console.error('getting模型使用统计failed:', error);
       return {
         today: {},
         thisMonth: {},
@@ -742,7 +742,7 @@ export class UnifiedDataManager {
         reasons
       };
     } catch (error) {
-      console.error('获取模型推荐失败:', error);
+      console.error('getting模型推荐failed:', error);
       return { recommended: [], reasons: [] };
     }
   }
@@ -770,10 +770,10 @@ export class UnifiedDataManager {
       
       if (removedCount > 0) {
         await this.setData('aiModelUsage', cleanedUsage);
-        console.log(`✅ 清理了 ${removedCount} 天的过期使用统计数据`);
+        console.log(`✅ cleaning了 ${removedCount} days的expired使用统计data`);
       }
     } catch (error) {
-      console.error('清理使用统计失败:', error);
+      console.error('cleaning使用统计failed:', error);
     }
   }
 }

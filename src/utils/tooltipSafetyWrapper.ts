@@ -34,7 +34,7 @@ export const createSafeTooltipWrapper = (OriginalTooltip: any) => {
     
     // ✅ 如果检测到危险props，使用SafeTooltip
     if (hasDangerousProps) {
-      console.log('🛡️ TooltipSafetyWrapper: 检测到危险props，使用SafeTooltip');
+      console.log('🛡️ TooltipSafetyWrapper: detecting到危险props，使用SafeTooltip');
       return React.createElement(SafeTooltip as any, {
         ...props
       } as any);
@@ -68,7 +68,7 @@ const createSafeOpenChangeHandler = (originalHandler: (open: boolean) => void) =
     
     // 检查调用频率
     if (callCount >= MAX_CALLS_PER_SECOND) {
-      console.warn('🚨 TooltipSafetyWrapper: onOpenChange调用过于频繁，已限流');
+      console.warn('🚨 TooltipSafetyWrapper: onOpenChange调用过于频繁，already限stream');
       return;
     }
     
@@ -83,7 +83,7 @@ const createSafeOpenChangeHandler = (originalHandler: (open: boolean) => void) =
     try {
       originalHandler(open);
     } catch (error) {
-      console.error('🚨 TooltipSafetyWrapper: onOpenChange处理出错:', error);
+      console.error('🚨 TooltipSafetyWrapper: onOpenChangeprocessing出错:', error);
     }
   };
 };
@@ -94,14 +94,14 @@ const createSafeOpenChangeHandler = (originalHandler: (open: boolean) => void) =
 export const setupGlobalTooltipSafety = () => {
   // ✅ 在开发环境中启用详细日志
   if (import.meta.env.DEV) {
-    console.log('🛡️ TooltipSafetyWrapper: 全局Tooltip安全化已启用');
+    console.log('🛡️ TooltipSafetyWrapper: 全局Tooltip安全化alreadyenabling');
   }
   
   // ✅ 监听未捕获的错误，特别是与Tooltip相关的
   const originalErrorHandler = window.onerror;
   window.onerror = (message, source, lineno, colno, error) => {
     if (typeof message === 'string' && message.includes('setRef')) {
-      console.error('🚨 TooltipSafetyWrapper: 检测到setRef相关错误:', {
+      console.error('🚨 TooltipSafetyWrapper: detecting到setRef相关error:', {
         message,
         source,
         lineno,
@@ -134,7 +134,7 @@ export const setupGlobalTooltipSafety = () => {
     if (message.includes('Maximum update depth exceeded') || 
         message.includes('setRef') ||
         message.includes('Tooltip')) {
-      console.warn('🛡️ TooltipSafetyWrapper: 拦截到可能的Tooltip循环错误:', message);
+      console.warn('🛡️ TooltipSafetyWrapper: 拦截到可能的Tooltiplooperror:', message);
       
       // 在开发环境中提供更多信息
       if (import.meta.env.DEV) {
@@ -161,7 +161,7 @@ export const createTooltipRenderMonitor = () => {
       
       // 如果在短时间内渲染次数过多，发出警告
       if (now - lastTime < 1000 && count > 5) {
-        console.warn(`🚨 TooltipRenderMonitor: 组件${componentId}渲染过于频繁`);
+        console.warn(`🚨 TooltipRenderMonitor: component${componentId}渲染过于频繁`);
         return false; // 建议跳过此次渲染
       }
       
@@ -198,7 +198,7 @@ export const globalTooltipRenderMonitor = createTooltipRenderMonitor();
  * 紧急Tooltip修复函数 - 在检测到无限循环时调用
  */
 export const emergencyTooltipFix = () => {
-  console.warn('🚨 TooltipSafetyWrapper: 执行紧急Tooltip修复');
+  console.warn('🚨 TooltipSafetyWrapper: executing紧急Tooltipfixing');
   
   // 清理所有Tooltip相关的定时器
   const highestTimeoutId = (setTimeout(() => {}, 0) as unknown) as number;

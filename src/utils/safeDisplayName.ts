@@ -24,7 +24,7 @@ export function safeSetDisplayName<T>(
         return null;
       } catch (error) {
         // 捕获任何TDZ或访问错误
-        console.warn(`⚠️ 无法安全访问displayName:`, error);
+        console.warn(`⚠️ none法安全访问displayName:`, error);
         return null;
       }
     })();
@@ -34,7 +34,7 @@ export function safeSetDisplayName<T>(
       (Component as any).displayName = primitiveDisplayName || fallbackName;
     }
   } catch (error) {
-    console.warn(`⚠️ 设置displayName失败 (${fallbackName}):`, error);
+    console.warn(`⚠️ settingdisplayNamefailed (${fallbackName}):`, error);
   }
 }
 
@@ -57,7 +57,7 @@ export function safeGetDisplayName(
   } catch (error) {
     // 只在开发环境输出警告
     if (process.env.NODE_ENV === 'development') {
-      console.warn(`⚠️ 无法安全获取displayName，使用后备名称 (${fallbackName}):`, error);
+      console.warn(`⚠️ none法安全gettingdisplayName，使用next备name (${fallbackName}):`, error);
     }
     return fallbackName;
   }

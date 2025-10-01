@@ -254,7 +254,7 @@ export const CustomLoginPage: React.FC = () => {
   // 检查认证状态
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log('✅ 检测到用户已登录，自动跳转到首页', user);
+      console.log('✅ detecting到useralreadylogin，自动跳转到first页', user);
       const redirectUrl = searchParams.get('redirect') || '/';
       navigate(redirectUrl);
       return;
@@ -287,10 +287,10 @@ export const CustomLoginPage: React.FC = () => {
           if (decoded.includes(savedPhone + '_remembered')) {
             // 这里可以设置一个占位符或者提示用户密码已保存
             // 出于安全考虑，我们不直接恢复明文密码，而是提供用户提示
-            console.log('🔐 检测到已保存的登录凭证');
+            console.log('🔐 detecting到saved的login凭证');
           }
         } catch (error) {
-          console.warn('密码哈希解析失败:', error);
+          console.warn('passwordhashparsingfailed:', error);
           // 清除无效的哈希
           localStorage.removeItem('saved_password_hash');
         }
@@ -345,7 +345,7 @@ export const CustomLoginPage: React.FC = () => {
       }, 1000);
 
     } catch (error: any) {
-      console.error('发送验证码失败:', error);
+      console.error('sendingvalidating码failed:', error);
       toast({
         title: t('pages.labels.发送失败'),
         description: error.message || "验证码发送失败，请稍后重试",
@@ -388,7 +388,7 @@ export const CustomLoginPage: React.FC = () => {
       }, 1000);
 
     } catch (error: any) {
-      console.error('发送注册验证码失败:', error);
+      console.error('sendingregistervalidating码failed:', error);
       toast({
         title: t('pages.labels.发送失败'),
         description: error.message || "验证码发送失败，请稍后重试",
@@ -481,7 +481,7 @@ export const CustomLoginPage: React.FC = () => {
             if (loginType === 'password' && password) {
               const passwordHash = btoa(phone + '_remembered_' + Date.now());
               localStorage.setItem('saved_password_hash', passwordHash);
-              console.log('💾 已安全保存登录凭证 (不含明文密码)');
+              console.log('💾 already安全savinglogin凭证 (不含明文password)');
             }
           } else {
             // 如果取消记住密码，清除相关数据
@@ -523,7 +523,7 @@ export const CustomLoginPage: React.FC = () => {
       }
 
     } catch (error: any) {
-      console.error('认证失败:', error);
+      console.error('authenticatingfailed:', error);
       toast({
         title: mode === 'login' ? t('pages.labels.登录失败') : t('pages.labels.注册失败'),
         description: error.message || "操作失败，请稍后重试",
@@ -988,7 +988,7 @@ export const CustomLoginPage: React.FC = () => {
                           localStorage.removeItem('remember_me');
                           localStorage.removeItem('saved_phone');
                           localStorage.removeItem('saved_password_hash');
-                          console.log('🗑️ 已清除所有记住密码相关数据');
+                          console.log('🗑️ alreadyclearing所has记住password相关data');
                         }
                       } else {
                         setAgreeTerms(!agreeTerms);

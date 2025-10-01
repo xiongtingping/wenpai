@@ -19,7 +19,7 @@ import request from '@/api/request';
 // 延迟注册 Supabase 服务工厂，避免TDZ错误
 function initializeSupabaseServiceFactory() {
   registerSupabaseServiceFactory((userId, tableName) => createDataService(userId, tableName));
-  console.log('✅ Supabase服务工厂已注册');
+  console.log('✅ Supabaseservicefactoryalreadyregister');
 }
 
 // 动态设置请求客户端，避免TDZ错误
@@ -27,9 +27,9 @@ async function initializeRequestClient() {
   try {
     const { setRequestClient } = await import('@/utils/requestClientRegistry');
     setRequestClient(request);
-    console.log('✅ 请求客户端已注册');
+    console.log('✅ requestclientalreadyregister');
   } catch (error) {
-    console.error('❌ 请求客户端注册失败:', error);
+    console.error('❌ requestclientregisterfailed:', error);
   }
 }
 
@@ -57,18 +57,18 @@ class ServiceInitializer {
    */
   static async initialize(): Promise<void> {
     if (this.state.initialized) {
-      console.log('📦 服务已初始化，跳过重复初始化');
+      console.log('📦 servicealreadyinitialization，skippingduplicateinitialization');
       return;
     }
 
-    // console.log('🚀 开始初始化服务依赖...');
+    // console.log('🚀 startsinitializationservice依赖...');
 
     try {
       // 0. 首先初始化请求客户端 - 避免TDZ
       try {
         await initializeRequestClient();
       } catch (error) {
-        console.warn('⚠️ 请求客户端初始化失败:', error);
+        console.warn('⚠️ requestclientinitializationfailed:', error);
         this.state.errors.push({ service: 'RequestClient', error: String(error) });
       }
 
@@ -76,7 +76,7 @@ class ServiceInitializer {
       try {
         initializeSupabaseServiceFactory();
       } catch (error) {
-        console.warn('⚠️ Supabase服务工厂初始化失败:', error);
+        console.warn('⚠️ Supabaseservicefactoryinitializationfailed:', error);
         this.state.errors.push({ service: 'SupabaseServiceFactory', error: String(error) });
       }
 
@@ -84,9 +84,9 @@ class ServiceInitializer {
       try {
         const { registerAllServices } = await import('@/config/serviceRegistry');
         await registerAllServices();
-        // console.log('✅ DI容器服务注册完成');
+        // console.log('✅ DIcontainerserviceregistercompleted');
       } catch (error) {
-        console.warn('⚠️ DI容器注册失败，跳过:', error);
+        console.warn('⚠️ DIcontainerregisterfailed，skipping:', error);
         this.state.errors.push({ service: 'DIContainer', error: String(error) });
       }
 
@@ -94,15 +94,15 @@ class ServiceInitializer {
       try {
         await this.initializeServerPermissionService();
       } catch (error) {
-        console.warn('⚠️ 权限服务初始化失败，跳过:', error);
+        console.warn('⚠️ permissionService initialization failed，skipping:', error);
         this.state.errors.push({ service: 'ServerPermissionService', error: String(error) });
       }
 
       this.state.initialized = true;
-      // console.log('✅ 服务依赖初始化完成 (部分失败已跳过)');
+      // console.log('✅ Service dependencies initialized (部分failedalreadyskipping)');
       
     } catch (error) {
-      console.warn('⚠️ 服务依赖初始化部分失败，应用仍可正常使用:', error);
+      console.warn('⚠️ service依赖initialization部分failed，应用仍可normal使用:', error);
       this.state.initialized = true; // 标记为已初始化，避免重复尝试
       this.state.errors.push({ service: 'ServiceInitializer', error: String(error) });
     }
@@ -113,7 +113,7 @@ class ServiceInitializer {
    */
   private static async initializeServerPermissionService(): Promise<void> {
     try {
-      // console.log('📡 初始化ServerPermissionService...');
+      // console.log('📡 initializationServerPermissionService...');
       
       // 动态导入避免循环依赖
       const { ServerPermissionService } = await import('./serverPermissionService');
@@ -122,7 +122,7 @@ class ServiceInitializer {
       ServiceContainer.setServerPermissionService(ServerPermissionService);
       
       this.state.services.add('ServerPermissionService');
-      // console.log('✅ ServerPermissionService初始化完成');
+      // console.log('✅ ServerPermissionServiceinitializationcompleted');
       
     } catch (error) {
       const errorMsg = `ServerPermissionService初始化失败: ${error instanceof Error ? error.message : String(error)}`;
@@ -157,7 +157,7 @@ class ServiceInitializer {
     // 清除注入的服务
     ServiceContainer.setServerPermissionService(null);
     
-    console.log('🔄 服务初始化状态已重置');
+    console.log('🔄 serviceinitializationstatealreadyresetting');
   }
 
   /**
@@ -187,7 +187,7 @@ class ServiceInitializer {
         await this.initializeServerPermissionService();
         break;
       default:
-        console.warn(`⚠️ 未知的服务: ${serviceName}`);
+        console.warn(`⚠️ not知的service: ${serviceName}`);
     }
   }
 }
@@ -200,7 +200,7 @@ if (typeof window !== 'undefined' && import.meta.env.DEV) {
   // 延迟初始化，避免阻塞应用启动
   setTimeout(() => {
     ServiceInitializer.initialize().catch(error => {
-      console.warn('⚠️ 自动服务初始化失败:', error);
+      console.warn('⚠️ 自动Service initialization failed:', error);
     });
   }, 1000);
 }

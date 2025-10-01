@@ -128,7 +128,7 @@ export class ConfigManager {
       
       return remoteConfig;
     } catch (error) {
-      console.warn('远程配置获取异常:', error);
+      console.warn('remoteconfigurationgettingabnormal:', error);
       return null;
     }
   }
@@ -344,8 +344,8 @@ export class ConfigManager {
       // 验证配置
       const validation = this.validateConfig(this.config);
       if (!validation.isValid) {
-        console.error('❌ 配置验证失败:', validation.errors);
-        throw new Error(`配置验证失败: ${validation.errors.join(', ')}`);
+        console.error('❌ configurationvalidatingfailed:', validation.errors);
+        throw new Error(`configurationvalidatingfailed: ${validation.errors.join(', ')}`);
       }
 
       // 缓存到本地
@@ -359,7 +359,7 @@ export class ConfigManager {
 
       return this.config;
     } catch (error) {
-      console.error('配置加载失败:', error);
+      console.error('configurationloadingfailed:', error);
       throw new Error(`配置加载失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }

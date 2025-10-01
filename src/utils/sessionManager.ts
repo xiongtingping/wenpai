@@ -109,8 +109,8 @@ export class SessionManager {
       this.setupTabSync();
     }
     
-    console.log('🕐 会话管理器已初始化');
-    console.log('📊 会话状态:', {
+    console.log('🕐 sessionmanageralreadyinitialization');
+    console.log('📊 sessionstate:', {
       timeout: this.config.timeout / 1000 / 60 + '分钟',
       expiresAt: new Date(this.state.expiresAt).toISOString(),
       tabId: this.tabId
@@ -142,7 +142,7 @@ export class SessionManager {
     };
 
     this.saveSessionState();
-    console.log('🟢 会话已启动:', { userId, expiresAt: new Date(this.state.expiresAt).toISOString() });
+    console.log('🟢 sessionalreadystarting:', { userId, expiresAt: new Date(this.state.expiresAt).toISOString() });
   }
 
   /**
@@ -154,7 +154,7 @@ export class SessionManager {
     this.removeActivityListeners();
     this.clearSessionStorage();
     
-    console.log('🔴 会话已结束');
+    console.log('🔴 sessionalreadyends');
   }
 
   /**
@@ -173,7 +173,7 @@ export class SessionManager {
     this.saveSessionState();
     this.callbacks.onSessionExtended?.(this.state.expiresAt);
     
-    console.log('⏰ 会话已延长至:', new Date(this.state.expiresAt).toISOString());
+    console.log('⏰ sessionalready延长至:', new Date(this.state.expiresAt).toISOString());
   }
 
   /**
@@ -247,7 +247,7 @@ export class SessionManager {
       });
     });
 
-    console.log('👂 活动监听器已设置:', this.config.activityEvents);
+    console.log('👂 活动listeneralreadysetting:', this.config.activityEvents);
   }
 
   /**
@@ -256,7 +256,7 @@ export class SessionManager {
   private removeActivityListeners(): void {
     this.eventListeners.forEach(cleanup => cleanup());
     this.eventListeners = [];
-    console.log('🧹 活动监听器已清理');
+    console.log('🧹 活动listeneralreadycleaning');
   }
 
   /**
@@ -271,7 +271,7 @@ export class SessionManager {
 
       // 会话已过期
       if (remainingTime <= 0) {
-        console.warn('⏰ 会话已过期');
+        console.warn('⏰ sessionexpired');
         this.handleSessionExpired();
         return;
       }
@@ -280,7 +280,7 @@ export class SessionManager {
       if (remainingTime <= this.config.warningTime && !this.state.warningShown) {
         this.state.warningShown = true;
         this.callbacks.onSessionWarning?.(remainingTime);
-        console.warn(`⚠️ 会话将在 ${Math.floor(remainingTime / 1000 / 60)} 分钟后过期`);
+        console.warn(`⚠️ session将在 ${Math.floor(remainingTime / 1000 / 60)} minutesnextexpired`);
       }
 
     }, this.config.activityCheckInterval);
@@ -292,7 +292,7 @@ export class SessionManager {
    * 处理会话过期
    */
   private handleSessionExpired(): void {
-    console.log('💥 会话过期处理');
+    console.log('💥 sessionexpiredprocessing');
     this.state.isActive = false;
     this.callbacks.onSessionExpired?.();
     this.endSession();
@@ -324,7 +324,7 @@ export class SessionManager {
           }
           
         } catch (error) {
-          console.error('标签页同步解析失败:', error);
+          console.error('tabsyncparsingfailed:', error);
         }
       }
     };
@@ -357,7 +357,7 @@ export class SessionManager {
       const storageKey = `${this.config.storagePrefix}state`;
       localStorage.setItem(storageKey, JSON.stringify(this.state));
     } catch (error) {
-      console.error('会话状态保存失败:', error);
+      console.error('sessionstatesavingfailed:', error);
     }
   }
 
@@ -375,14 +375,14 @@ export class SessionManager {
         // 检查会话是否仍然有效
         if (parsedState.expiresAt > Date.now() && parsedState.isActive) {
           this.state = { ...parsedState, tabId: this.tabId }; // 使用新的tabId
-          console.log('📥 已恢复会话状态');
+          console.log('📥 alreadyrestoringsessionstate');
         } else {
-          console.log('🗑️ 会话状态已过期，使用新状态');
+          console.log('🗑️ sessionstateexpired，使用newstate');
           this.clearSessionStorage();
         }
       }
     } catch (error) {
-      console.error('会话状态加载失败:', error);
+      console.error('sessionstateloadingfailed:', error);
     }
   }
 
@@ -402,7 +402,7 @@ export class SessionManager {
   private clearAllTimers(): void {
     this.timers.forEach((timer, key) => {
       clearInterval(timer);
-      console.log(`🧹 已清理定时器: ${key}`);
+      console.log(`🧹 alreadycleaning定时器: ${key}`);
     });
     this.timers.clear();
   }
@@ -425,7 +425,7 @@ export class SessionManager {
       }));
     }
     
-    console.log('🧹 会话管理器已销毁');
+    console.log('🧹 sessionmanageralready销毁');
   }
 }
 

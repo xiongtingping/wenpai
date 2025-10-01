@@ -215,7 +215,7 @@ export async function retry<T>(
         throw lastError;
       }
 
-      console.warn(`⚠️ 第${attempt}次尝试失败，${delayMs}ms后重试:`, lastError.message);
+      console.warn(`⚠️ the${attempt}times尝试failed，${delayMs}msnextretrying:`, lastError.message);
       await delay(delayMs);
     }
   }
@@ -233,7 +233,7 @@ export function withPerformanceMonitoring<T extends (...args: any[]) => Promise<
 ): T {
   return (async (...args: any[]) => {
     const startTime = Date.now();
-    console.log(`⏱️ ${name} 开始执行`);
+    console.log(`⏱️ ${name} startsexecuting`);
 
     try {
       const result = await fn(...args);
@@ -242,7 +242,7 @@ export function withPerformanceMonitoring<T extends (...args: any[]) => Promise<
       return result;
     } catch (error) {
       const duration = Date.now() - startTime;
-      console.error(`❌ ${name} 执行失败，耗时: ${duration}ms`, error);
+      console.error(`❌ ${name} executingfailed，耗时: ${duration}ms`, error);
       throw error;
     }
   }) as T;
@@ -265,7 +265,7 @@ export function withCache<T extends (...args: any[]) => Promise<any>>(
     // 检查缓存
     const cached = cache.get(key);
     if (cached && cached.expiry > now) {
-      console.log('📦 使用缓存结果');
+      console.log('📦 使用cacheresult');
       return cached.value;
     }
 

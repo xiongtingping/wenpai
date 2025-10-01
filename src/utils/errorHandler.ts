@@ -231,7 +231,7 @@ async function reportErrorToServer(errorInfo: ErrorInfo): Promise<void> {
     });
 
   } catch (error) {
-    console.error('错误报告发送失败:', error);
+    console.error('error报告sendingfailed:', error);
   }
 }
 

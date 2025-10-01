@@ -160,10 +160,10 @@ export function initializeConfigValidation(): void {
   logger.debug('🔧 开始验证应用配置...');
 
   validateAllConfigs().then(result => {
-    console.log('📋 配置验证结果:', result);
+    console.log('📋 configurationvalidatingresult:', result);
 
     if (!result.isValid) {
-      console.warn('⚠️ 配置验证失败:', {
+      console.warn('⚠️ configurationvalidatingfailed:', {
         missing: result.missingConfigs,
         warnings: result.warnings,
         errors: result.errors
@@ -172,9 +172,9 @@ export function initializeConfigValidation(): void {
       logger.debug('✅ 配置验证通过');
     }
 
-    console.log('🌐 网络状态:', result.networkStatus);
+    console.log('🌐 网络state:', result.networkStatus);
   }).catch(error => {
-    console.error('❌ 配置验证过程出错:', error);
+    console.error('❌ configurationvalidating过程出错:', error);
   });
 }
 

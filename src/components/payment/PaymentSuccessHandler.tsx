@@ -59,7 +59,7 @@ export const PaymentSuccessHandler: React.FC<any> = ({ paymentData,
         }
 
       } catch (error: any) {
-        console.error('处理支付成功失败:', error);
+        console.error('processing支付successfailed:', error);
         setError(error.message || t('components.errors.处理支付成功时发生错误'));
         
         toast({

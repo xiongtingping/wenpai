@@ -119,7 +119,7 @@ export function SecurityConfig({ className  }: SecurityConfigProps) {
       });
 
     } catch (error) {
-      console.error('安全检查失败:', error);
+      console.error('安全checkingfailed:', error);
       toast({
         title: t('components.errors.安全检查失败'),
         description: t('components.messages.请稍后重试'),
@@ -157,7 +157,7 @@ export function SecurityConfig({ className  }: SecurityConfigProps) {
       performSecurityCheck();
 
     } catch (error) {
-      console.error('清理敏感数据失败:', error);
+      console.error('cleaning敏感datafailed:', error);
       toast({
         title: t('components.labels.清理失败'),
         description: t('components.messages.请稍后重试'),
@@ -201,7 +201,7 @@ export function SecurityConfig({ className  }: SecurityConfigProps) {
       });
 
     } catch (error) {
-      console.error('导出安全报告失败:', error);
+      console.error('exporting安全报告failed:', error);
       toast({
         title: t('components.labels.导出失败'),
         description: t('components.messages.请稍后重试'),

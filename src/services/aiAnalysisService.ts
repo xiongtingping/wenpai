@@ -34,14 +34,14 @@ const getPDFLib = async (): Promise<any> => {
     if (pdfjsLib?.GlobalWorkerOptions && !pdfWorkerConfigured) {
       pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.js';
       pdfWorkerConfigured = true;
-      console.log('✅ PDF.js加载并配置成功');
+      console.log('✅ PDF.jsloading并configurationsuccess');
     }
     
     pdfLibInstance = pdfjsLib;
     return pdfjsLib;
   } catch (error) {
-    console.error('PDF.js懒加载失败:', error);
-    throw new Error('PDF解析功能不可用');
+    console.error('PDF.js懒loadingfailed:', error);
+    throw new Error('PDFparsingfeatureunavailable');
   }
 };
 
@@ -87,7 +87,7 @@ const getPDFLib = async (): Promise<any> => {
   public async analyzeBrandContent(content: string): Promise<BrandAnalysisResult> {
     // 检查内容是否为空或过短
     if (!content || content.trim().length < 10) {
-      console.warn('品牌资料内容过短，使用默认分析结果');
+      console.warn('品牌资料content过短，使用defaultanalyzingresult');
       return {
         keywords: ['品牌建设', '市场定位', '用户价值'],
         tone: '专业、可靠、创新',
@@ -142,8 +142,8 @@ ${content}
       ], 'gpt-4o', 0.1, 2000);
 
       if (!response.success || !response.data) {
-        console.error('API响应失败:', response);
-        throw new Error('AI分析服务请求失败');
+        console.error('APIresponsefailed:', response);
+        throw new Error('AIanalyzingservicerequestfailed');
       }
 
       // 检查响应数据结构 - 兼容不同的API响应格式
@@ -153,7 +153,7 @@ ${content}
       }
       
       if (!Array.isArray(choices) || !choices[0] || !choices[0].message) {
-        console.error('API响应数据结构异常，完整响应:', response);
+        console.error('APIresponsedata结构abnormal，完整response:', response);
         throw new Error('AI分析服务返回数据格式异常，请稍后重试');
       }
 
@@ -175,11 +175,11 @@ ${content}
         // 尝试直接解析JSON
         result = JSON.parse(cleanContent);
       } catch (parseError) {
-        console.error('JSON解析失败，原始内容:', content);
+        console.error('JSONparsingfailed，原始content:', content);
         
         // 如果解析失败，检查是否是错误提示
         if (content.includes('请提供') || content.includes('内容不足') || content.length < 50) {
-          console.warn('AI返回了错误提示，使用默认分析结果');
+          console.warn('AI返回了errorhint，使用defaultanalyzingresult');
           result = {
             keywords: ['品牌建设', '市场定位', '用户价值', '产品创新', '用户体验'],
             tone: '专业、可靠、创新',
@@ -187,7 +187,7 @@ ${content}
           };
         } else {
           // 尝试从文本中提取关键信息
-          console.warn('尝试从非JSON响应中提取信息');
+          console.warn('尝试从非JSONresponsemiddle提取info');
           const keywords = content.match(/关键词[：:]\s*([^，。\n]+)/g)?.map((k: string) => k.replace(/关键词[：:]\s*/, '')) ||
                           ['品牌建设', '市场定位', '用户价值'];
           const tone = content.match(/语气[：:]\s*([^，。\n]+)/)?.pop() || '专业、可靠、创新';
@@ -221,7 +221,7 @@ ${content}
         suggestions: result.suggestions
       };
     } catch (error) {
-      console.error('AI 分析失败:', error);
+      console.error('AI analyzingfailed:', error);
       throw new Error(i18n.t('common.errors.品牌资料分析失败'));
     }
   }
@@ -240,7 +240,7 @@ ${content}
           const content = await this.readFileContent(file);
           contents.push(content);
         } else {
-          console.warn(`不支持的文件类型: ${file.name} (${file.type})`);
+          console.warn(`unsupported的filetype: ${file.name} (${file.type})`);
         }
       }
 
@@ -252,7 +252,7 @@ ${content}
       const combinedContent = contents.join('\n\n');
       return await this.analyzeBrandContent(combinedContent);
     } catch (error) {
-      console.error('文件分析失败:', error);
+      console.error('fileanalyzingfailed:', error);
       throw new Error(i18n.t('common.errors.文件分析失败'));
     }
   }
@@ -302,8 +302,8 @@ ${content}
       ], 'gpt-4o', 0.3, 2000);
 
       if (!response.success || !response.data) {
-        console.error('API响应失败:', response);
-        throw new Error('AI分析服务请求失败');
+        console.error('APIresponsefailed:', response);
+        throw new Error('AIanalyzingservicerequestfailed');
       }
 
       // 检查响应数据结构 - 兼容不同的API响应格式
@@ -313,7 +313,7 @@ ${content}
       }
       
       if (!Array.isArray(choices) || !choices[0] || !choices[0].message) {
-        console.error('API响应数据结构异常，完整响应:', response);
+        console.error('APIresponsedata结构abnormal，完整response:', response);
         throw new Error('AI分析服务返回数据格式异常，请稍后重试');
       }
 
@@ -333,7 +333,7 @@ ${content}
         
         return JSON.parse(cleanContent);
       } catch (parseError) {
-        console.error('JSON解析失败:', content);
+        console.error('JSONparsingfailed:', content);
         // 返回默认结果
         return {
           isValid: true,
@@ -342,7 +342,7 @@ ${content}
         };
       }
     } catch (error) {
-      console.error('内容检查失败:', error);
+      console.error('contentcheckingfailed:', error);
       throw new Error(i18n.t('common.errors.内容检查失败'));
     }
   }
@@ -383,18 +383,18 @@ ${content}
               let text = '';
               const numPages = pdf.numPages; // 解析所有页面，不设限制
 
-              console.log(`📄 开始解析PDF文档，共 ${numPages} 页`);
+              console.log(`📄 startsparsingPDFdocumentation，共 ${numPages} 页`);
 
               // 对于大文件，添加内存管理提示
               if (numPages > 50) {
-                console.warn(`⚠️ 大型PDF文档 (${numPages}页)，解析可能需要较长时间`);
+                console.warn(`⚠️ 大型PDFdocumentation (${numPages}页)，parsing可能需要较长时间`);
               }
 
               for (let i = 1; i <= numPages; i++) {
                 try {
                   // 显示解析进度
                   if (numPages > 5 && i % 5 === 0) {
-                    console.log(`📖 PDF解析进度: ${i}/${numPages} 页 (${Math.round((i/numPages)*100)}%)`);
+                    console.log(`📖 PDFparsingprogress: ${i}/${numPages} 页 (${Math.round((i/numPages)*100)}%)`);
                   }
 
                   const page = await pdf.getPage(i);
@@ -402,19 +402,19 @@ ${content}
                   const pageText = content.items.map((item: any) => item.str).join(' ');
                   text += pageText + '\n';
                 } catch (pageError) {
-                  console.warn(`PDF第${i}页解析失败:`, pageError);
+                  console.warn(`PDFthe${i}页parsingfailed:`, pageError);
                   continue;
                 }
               }
               
               if (text.trim().length === 0) {
-                throw new Error('PDF内容为空');
+                throw new Error('PDFcontentis empty');
               }
 
               logger.debug('✅ PDF解析完成: ${numPages}页，提取文本 ${text.length} 字符');
               resolve(text);
             } catch (pdfError) {
-              console.warn('PDF解析失败，尝试备用方案:', pdfError);
+              console.warn('PDFparsingfailed，尝试备用方案:', pdfError);
               
               // 备用方案：返回文件信息
               const fileSize = file.size;
@@ -432,7 +432,7 @@ ${content}
                    fileExtension === '.doc') {
             try {
               const arrayBuffer = e.target?.result as ArrayBuffer;
-              console.log(`📄 开始解析Word文档: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+              console.log(`📄 startsparsingWorddocumentation: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
 
               // 使用mammoth解析Word文档
               const result = await (mammoth as any).extractRawText({
@@ -445,20 +445,20 @@ ${content}
               const extractedText = result.value.trim();
 
               if (!extractedText) {
-                console.warn('Word文档解析结果为空');
+                console.warn('Worddocumentationparsingresultis empty');
                 resolve(`Word文档: ${file.name}\n文件大小: ${(file.size / 1024).toFixed(2)} KB\n\n文档内容为空或无法提取文本。\n建议：\n1. 检查文档是否包含文字内容\n2. 尝试另存为较新的.docx格式\n3. 复制文档内容到文本文件后上传`);
               } else {
                 logger.debug('✅ Word文档解析完成: 提取文本 ${extractedText.length} 字符');
 
                 // 如果有解析警告，记录但不影响结果
                 if (result.messages && result.messages.length > 0) {
-                  console.warn('Word文档解析警告:', result.messages);
+                  console.warn('Worddocumentationparsingwarning:', result.messages);
                 }
 
                 resolve(extractedText);
               }
             } catch (wordError) {
-              console.error('Word文档解析失败:', wordError);
+              console.error('Worddocumentationparsingfailed:', wordError);
 
               // 提供详细的错误信息和建议
               const errorMessage = `Word文档解析失败: ${file.name}\n错误信息: ${(wordError as any)?.message || '未知错误'}\n\n建议解决方案：\n1. 检查文档是否损坏\n2. 尝试用Word重新保存文档\n3. 另存为.docx格式（推荐）\n4. 复制文档内容到文本文件\n5. 转换为PDF格式后上传`;
@@ -520,7 +520,7 @@ ${content}
                         });
                       }
                     } catch (slideError) {
-                      console.warn(`幻灯片 ${slideFile} 解析失败:`, slideError);
+                      console.warn(`幻灯片 ${slideFile} parsingfailed:`, slideError);
                     }
                   }
 
@@ -530,7 +530,7 @@ ${content}
                     resolve(`PowerPoint 文件: ${file.name}\n文件大小: ${(file.size / 1024).toFixed(2)} KB\n\n未能提取到文本内容。可能原因：\n1. 幻灯片主要包含图片或图表\n2. 文本内容较少\n3. 文件格式复杂\n\n建议：\n1. 将PPT内容复制到Word文档后上传\n2. 导出为PDF格式后上传\n3. 手动输入主要内容`);
                   }
                 } catch (zipError) {
-                  console.warn('PPTX ZIP解析失败:', zipError);
+                  console.warn('PPTX ZIPparsingfailed:', zipError);
                   resolve(`PowerPoint 文件: ${file.name}\n解析失败，建议转换为其他格式后上传。`);
                 }
               } else {
@@ -538,7 +538,7 @@ ${content}
                 resolve(`PowerPoint 文件: ${file.name}\n文件大小: ${(file.size / 1024).toFixed(2)} KB\n\n.ppt 格式解析较复杂，建议：\n1. 另存为 .pptx 格式后重新上传\n2. 将内容复制到Word文档后上传\n3. 导出为PDF格式后上传\n4. 手动输入主要内容`);
               }
             } catch (pptError) {
-              console.warn('PowerPoint解析失败:', pptError);
+              console.warn('PowerPointparsingfailed:', pptError);
               resolve(`PowerPoint 文件解析失败: ${file.name}\n建议转换为Word或PDF格式后上传。`);
             }
           }
@@ -564,7 +564,7 @@ ${content}
                 resolve(text);
               }
             } catch (ocrError) {
-              console.warn('图片OCR识别失败:', ocrError);
+              console.warn('imageOCR识别failed:', ocrError);
               resolve('图片内容识别失败，请确保图片为清晰的文字图片。');
             }
           } 

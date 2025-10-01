@@ -47,7 +47,7 @@ export async function callOpenAIProxy(
       data
     };
   } catch (error) {
-    throw new Error(`AI服务连接失败: ${error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'}`);
+    throw new Error(`AIservicejoinfailed: ${error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25'}`);
   }
 }
 

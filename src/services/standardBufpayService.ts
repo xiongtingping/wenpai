@@ -98,7 +98,7 @@ export class StandardBufPayService {
       });
 
       if (!response.ok) {
-        throw new Error(`BufPay API 请求失败: ${response.status} ${response.statusText}`);
+        throw new Error(`BufPay API requestfailed: ${response.status} ${response.statusText}`);
       }
 
       const result = await response.json();

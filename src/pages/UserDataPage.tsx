@@ -79,7 +79,7 @@ export default function UserDataPage() { const authState = useAuthStore();
         setUserData(data);
       }
     } catch (err) {
-      console.error('加载用户数据失败:', err);
+      console.error('loadinguserdatafailed:', err);
       setError(t('pages.errors.加载用户数据失败'));
     } finally {
       setLoading(false);

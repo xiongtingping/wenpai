@@ -31,7 +31,7 @@ export class DouyinAdapter extends PlatformAdapterBase {
         loginUrl: 'https://creator.douyin.com/'
       };
     } catch (error) {
-      console.error('检查抖音登录状态失败:', error);
+      console.error('checking抖音loginstatefailed:', error);
       return {
         isLoggedIn: false,
         needsVerification: true,
@@ -45,11 +45,11 @@ export class DouyinAdapter extends PlatformAdapterBase {
    */
   async fillContent(content: string, options?: PublishOptions): Promise<void> {
     try {
-      console.log('📝 准备填充抖音内容...');
+      console.log('📝 准备padding抖音content...');
 
       // 检查内容长度（抖音限制2200字符）
       if (content.length > 2200) {
-        console.warn('⚠️ 内容超过抖音2200字符限制，建议精简');
+        console.warn('⚠️ content超过抖音2200字符limiting，建议精简');
       }
 
       // 复制内容到剪贴板
@@ -82,7 +82,7 @@ export class DouyinAdapter extends PlatformAdapterBase {
       this.showUserInstructions(instructions);
 
     } catch (error) {
-      console.error('填充抖音内容失败:', error);
+      console.error('padding抖音contentfailed:', error);
       throw error;
     }
   }
@@ -143,7 +143,7 @@ export class DouyinAdapter extends PlatformAdapterBase {
       }, 3000);
 
     } catch (error) {
-      console.error('处理抖音特殊情况失败:', error);
+      console.error('processing抖音特殊情况failed:', error);
     }
   }
 
@@ -273,7 +273,7 @@ export class DouyinAdapter extends PlatformAdapterBase {
       });
 
     } catch (error) {
-      console.error('抖音增强发布流程失败:', error);
+      console.error('抖音增强publishingstream程failed:', error);
       throw error;
     }
   }

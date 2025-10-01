@@ -143,7 +143,7 @@ export class AIService implements IAIService {
         };
 
       } catch (error) {
-        console.warn(`❌ 模型 ${model} 调用失败:`, error);
+        console.warn(`❌ 模型 ${model} 调用failed:`, error);
 
         // 标记模型为不可用
         this.modelStatus.set(model, false);

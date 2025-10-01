@@ -86,7 +86,7 @@ export class BrandProfileService {
         }
       }
     } catch (error) {
-      console.error('设置当前品牌档案失败:', error);
+      console.error('settingcurrent品牌档案failed:', error);
       throw error;
     }
   }
@@ -131,13 +131,13 @@ export class BrandProfileService {
                   this.currentProfile = JSON.parse(contentData);
                 }
               } catch (parseError) {
-                console.error('解析品牌档案数据失败:', parseError);
+                console.error('parsing品牌档案datafailed:', parseError);
               }
             }
           }
         }
       } catch (error) {
-        console.error('获取品牌档案失败:', error);
+        console.error('getting品牌档案failed:', error);
         throw error;
       }
     }
@@ -281,7 +281,7 @@ export class BrandProfileService {
       const result = await this.aiService.analyzeFiles(files);
       return result;
     } catch (error) {
-      console.error('品牌资料分析失败:', error);
+      console.error('品牌资料analyzingfailed:', error);
       throw error;
     }
   }
@@ -301,7 +301,7 @@ export class BrandProfileService {
       
       return brandToneAnalysis;
     } catch (error) {
-      console.error('品牌调性分析失败:', error);
+      console.error('品牌调性analyzingfailed:', error);
       throw error;
     }
   }
@@ -324,7 +324,7 @@ export class BrandProfileService {
         const content = await this.aiService.readFileContent(file);
         contents.push(content);
       } catch (error) {
-        console.warn(`无法读取文件 ${file.name}:`, error);
+        console.warn(`none法readingfile ${file.name}:`, error);
       }
     }
     
@@ -414,7 +414,7 @@ ${combinedContent}
           const parsed = JSON.parse(response);
           return this.validateAndNormalizeBrandToneAnalysis(parsed);
         } catch (parseError) {
-          console.error('AI返回结果解析失败:', parseError);
+          console.error('AI返回resultparsingfailed:', parseError);
           return this.createFallbackBrandToneAnalysis(basicAnalysis);
         }
       }
@@ -423,7 +423,7 @@ ${combinedContent}
       return this.validateAndNormalizeBrandToneAnalysis(response as any);
       
     } catch (error) {
-      console.error('AI深度分析失败:', error);
+      console.error('AIdepthanalyzingfailed:', error);
       return this.createFallbackBrandToneAnalysis(basicAnalysis);
     }
   }
@@ -582,7 +582,7 @@ ${combinedContent}
       const result = await this.aiService.checkContent(content, profile);
       return result;
     } catch (error) {
-      console.error('内容检查失败:', error);
+      console.error('contentcheckingfailed:', error);
       throw error;
     }
   }
@@ -631,7 +631,7 @@ ${combinedContent}
         this.currentProfile = null;
       }
     } catch (error) {
-      console.error('删除品牌档案失败:', error);
+      console.error('deleting品牌档案failed:', error);
       throw error;
     }
   }

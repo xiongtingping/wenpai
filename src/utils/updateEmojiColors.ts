@@ -10,8 +10,8 @@ import type { UnifiedEmojiItem } from '@/types/emoji';
  * 更新emoji数据的颜色
  */
 export function updateEmojiColorsInData(emojis: UnifiedEmojiItem[]): UnifiedEmojiItem[] {
-  console.log('🎨 开始更新emoji颜色系统...');
-  console.log(`📊 原始数据：${emojis.length} 个emoji`);
+  console.log('🎨 startsupdatingemojicolor系统...');
+  console.log(`📊 原始data：${emojis.length} unitsemoji`);
   
   // 统计原始颜色使用情况
   const originalColors = new Map<string, number>();
@@ -20,13 +20,13 @@ export function updateEmojiColorsInData(emojis: UnifiedEmojiItem[]): UnifiedEmoj
     originalColors.set(emoji.color, count + 1);
   });
   
-  console.log('📈 原始颜色分布：');
+  console.log('📈 原始color分布：');
   const sortedOriginalColors = Array.from(originalColors.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10);
   
   sortedOriginalColors.forEach(([color, count]) => {
-    console.log(`  ${color}: ${count} 个emoji`);
+    console.log(`  ${color}: ${count} unitsemoji`);
   });
   
   // 生成新的颜色
@@ -62,13 +62,13 @@ export function updateEmojiColorsInData(emojis: UnifiedEmojiItem[]): UnifiedEmoj
     newColors.set(emoji.color, count + 1);
   });
   
-  console.log('🎨 新颜色分布（前10）：');
+  console.log('🎨 newcolor分布（previous10）：');
   const sortedNewColors = Array.from(newColors.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10);
   
   sortedNewColors.forEach(([color, count]) => {
-    console.log(`  ${color}: ${count} 个emoji`);
+    console.log(`  ${color}: ${count} unitsemoji`);
   });
   
   // 统计改进效果
@@ -77,11 +77,11 @@ export function updateEmojiColorsInData(emojis: UnifiedEmojiItem[]): UnifiedEmoj
   const newUniqueColors = newColors.size;
   const improvement = ((newUniqueColors - originalUniqueColors) / originalUniqueColors * 100).toFixed(1);
   
-  console.log('📊 颜色多样性改进统计：');
-  console.log(`  原始唯一颜色数：${originalUniqueColors}`);
-  console.log(`  新唯一颜色数：${newUniqueColors}`);
-  console.log(`  颜色多样性提升：${improvement}%`);
-  console.log(`  处理emoji总数：${stats.totalUsedColors}`);
+  console.log('📊 color多样性改进统计：');
+  console.log(`  原始唯一color数：${originalUniqueColors}`);
+  console.log(`  new唯一color数：${newUniqueColors}`);
+  console.log(`  color多样性提升：${improvement}%`);
+  console.log(`  processingemojitotal数：${stats.totalUsedColors}`);
   
   // 查找仍然重复的颜色
   const duplicateColors = Array.from(newColors.entries())
@@ -89,15 +89,15 @@ export function updateEmojiColorsInData(emojis: UnifiedEmojiItem[]): UnifiedEmoj
     .sort((a, b) => b[1] - a[1]);
   
   if (duplicateColors.length > 0) {
-    console.log('⚠️  仍有重复的颜色（使用超过3次）：');
+    console.log('⚠️  仍hasduplicate的color（使用超过3times）：');
     duplicateColors.slice(0, 5).forEach(([color, count]) => {
-      console.log(`  ${color}: ${count} 个emoji`);
+      console.log(`  ${color}: ${count} unitsemoji`);
     });
   } else {
-    console.log('✅ 没有发现明显的颜色重复！');
+    console.log('✅ 没has发现明显的colorduplicate！');
   }
   
-  console.log('🎉 Emoji颜色更新完成！');
+  console.log('🎉 Emojicolorupdatingcompleted！');
   return result;
 }
 

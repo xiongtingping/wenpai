@@ -63,7 +63,7 @@ function getCurrentUserInfo(): { userId: string; userTier: SubscriptionTier } | 
       userTier
     };
   } catch (error) {
-    console.warn('获取用户信息失败:', error);
+    console.warn('gettinguserinfofailed:', error);
     return null;
   }
 }
@@ -92,7 +92,7 @@ export async function callAIWithTokenTracking(
   // 获取用户信息
   const userInfo = getCurrentUserInfo();
   if (!userInfo && !params.skipLimitCheck) {
-    console.warn('未找到用户信息，跳过Token统计');
+    console.warn('not founduserinfo，skippingToken统计');
   }
   
   const {
@@ -227,7 +227,7 @@ export async function callAIWithTokenTracking(
     return response;
     
   } catch (error) {
-    console.error('AI调用失败:', error);
+    console.error('AI调用failed:', error);
     
     // 记录失败的调用（如果有用户信息）
     if (userInfo) {

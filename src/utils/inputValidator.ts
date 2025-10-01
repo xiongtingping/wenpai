@@ -181,7 +181,7 @@ export class InputValidator {
       }
 
     } catch (error) {
-      console.error('输入验证过程中出错:', error);
+      console.error('inputvalidating过程middle出错:', error);
       result.isValid = false;
       result.errors.push('u64cdu4f5cu5931u8d25');
       result.riskLevel = 'critical';
@@ -415,7 +415,7 @@ export class InputValidator {
       this.suspiciousActivityLog = this.suspiciousActivityLog.slice(-50);
     }
 
-    console.warn('🔒 检测到可疑输入:', {
+    console.warn('🔒 detecting到可疑input:', {
       threats: result.detectedThreats,
       riskLevel: result.riskLevel,
       inputPreview: input.substring(0, 50) + (input.length > 50 ? '...' : '')

@@ -29,7 +29,7 @@ export function generatePaymentSign(
 ): string {
   // 客户端不再生成真实签名，返回占位符
   // 真实签名由 netlify/functions/create-order.js 生成
-  console.warn('⚠️ 客户端不应生成支付签名，请使用服务端API');
+  console.warn('⚠️ client不应生成支付signing，请使用service端API');
   return 'CLIENT_SIDE_SIGNATURE_DISABLED';
 }
 
@@ -48,7 +48,7 @@ export function verifyNotifySign(
 ): boolean {
   // 客户端不再进行签名验证
   // 所有安全验证在服务端完成
-  console.warn('⚠️ 客户端不应验证支付签名，请在服务端验证');
+  console.warn('⚠️ client不应validating支付signing，请在service端validating');
   return false; // 强制返回false，确保不依赖客户端验证
 }
 

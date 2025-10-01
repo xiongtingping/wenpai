@@ -52,14 +52,14 @@ export abstract class PlatformAdapterBase {
         document.body.removeChild(textArea);
       }
     } catch (error) {
-      console.error('复制到剪贴板失败:', error);
+      console.error('copying到剪贴板failed:', error);
       throw error;
     }
   }
   
   protected showUserInstructions(instructions: string): void {
     // 显示用户指导信息
-    console.log('用户指导:', instructions);
+    console.log('user指导:', instructions);
 
     // 🔧 修复：确保不会显示 undefinedundefined
     if (typeof window !== 'undefined' && window.alert) {

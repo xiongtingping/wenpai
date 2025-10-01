@@ -79,7 +79,7 @@ export class CacheService {
     this.stats.totalSize += size;
     this.stats.entryCount++;
 
-    console.log(`📦 缓存设置: ${key} (${size} bytes, TTL: ${ttl}ms)`);
+    console.log(`📦 cachesetting: ${key} (${size} bytes, TTL: ${ttl}ms)`);
   }
 
   /**
@@ -111,7 +111,7 @@ export class CacheService {
     this.stats.hits++;
     this.updateHitRate();
 
-    console.log(`🎯 缓存命中: ${key} (访问次数: ${entry.accessCount})`);
+    console.log(`🎯 cache命middle: ${key} (访问count: ${entry.accessCount})`);
     return entry.data;
   }
 
@@ -126,7 +126,7 @@ export class CacheService {
     this.stats.totalSize -= entry.size;
     this.stats.entryCount--;
 
-    console.log(`🗑️ 缓存删除: ${key}`);
+    console.log(`🗑️ cachedeleting: ${key}`);
     return true;
   }
 
@@ -143,7 +143,7 @@ export class CacheService {
       }
     }
 
-    console.log(`🏷️ 按标签删除缓存: ${tag} (${deletedCount}项)`);
+    console.log(`🏷️ 按tagdeletingcache: ${tag} (${deletedCount}item)`);
     return deletedCount;
   }
 
@@ -156,7 +156,7 @@ export class CacheService {
     this.stats.totalSize = 0;
     this.stats.entryCount = 0;
     
-    console.log(`🧹 清空缓存: ${count}项`);
+    console.log(`🧹 清emptycache: ${count}item`);
   }
 
   /**
@@ -213,7 +213,7 @@ export class CacheService {
    * 预热缓存
    */
   async warmup(keys: Array<{ key: string; generator: () => Promise<any> }>): Promise<void> {
-    console.log(`🔥 开始缓存预热: ${keys.length}项`);
+    console.log(`🔥 startscache预热: ${keys.length}item`);
     
     const promises = keys.map(async ({ key, generator }) => {
       try {
@@ -222,12 +222,12 @@ export class CacheService {
           this.set(key, data, { tags: ['warmup'] });
         }
       } catch (error) {
-        console.warn(`预热失败: ${key}`, error);
+        console.warn(`预热failed: ${key}`, error);
       }
     });
 
     await Promise.allSettled(promises);
-    console.log('🔥 缓存预热完成');
+    console.log('🔥 cache预热completed');
   }
 
   /**
@@ -310,7 +310,7 @@ export class CacheService {
     }
 
     if (cleanedCount > 0) {
-      console.log(`🧹 定期清理: ${cleanedCount}项过期缓存`);
+      console.log(`🧹 定期cleaning: ${cleanedCount}itemexpiredcache`);
     }
   }
 

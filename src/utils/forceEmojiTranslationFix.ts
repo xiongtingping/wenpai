@@ -101,7 +101,7 @@ export function simpleTranslate(name: string): string {
  * 强制执行emoji翻译修复
  */
 export function forceEmojiTranslationFix(): void {
-  console.log('🌐 强制执行emoji翻译修复...');
+  console.log('🌐 强制executingemoji翻译fixing...');
   
   try {
     // 使用延迟执行，确保在DOM加载后执行
@@ -128,7 +128,7 @@ export function forceEmojiTranslationFix(): void {
         }
         
         if (emojiData.length === 0) {
-          console.log('⚠️ 未找到emoji数据，尝试从localStorage获取...');
+          console.log('⚠️ not foundemojidata，尝试从localStoragegetting...');
           
           // 尝试从localStorage获取
           const storageKeys = ['emoji-data', 'unified-emoji-data', 'emojis'];
@@ -150,11 +150,11 @@ export function forceEmojiTranslationFix(): void {
         }
         
         if (emojiData.length === 0) {
-          console.log('❌ 无法找到emoji数据源');
+          console.log('❌ none法找到emojidata源');
           return false;
         }
         
-        console.log(`✅ 从 ${foundSource} 找到 ${emojiData.length} 个emoji`);
+        console.log(`✅ 从 ${foundSource} 找到 ${emojiData.length} unitsemoji`);
         
         // 执行翻译
         let translatedCount = 0;
@@ -177,10 +177,10 @@ export function forceEmojiTranslationFix(): void {
           }
         });
         
-        console.log(`🎯 完成翻译: ${translatedCount} 个名称`);
+        console.log(`🎯 completed翻译: ${translatedCount} unitsname`);
         
         if (translatedCount > 0) {
-          console.log('📝 翻译示例:');
+          console.log('📝 翻译example:');
           translations.slice(0, 5).forEach(({ emoji, oldName, newName }) => {
             console.log(`  ${emoji} "${oldName}" → "${newName}"`);
           });
@@ -189,10 +189,10 @@ export function forceEmojiTranslationFix(): void {
           if (foundSource.startsWith('localStorage:')) {
             const key = foundSource.split(':')[1];
             localStorage.setItem(key, JSON.stringify(emojiData));
-            console.log(`✅ 已更新到 ${foundSource}`);
+            console.log(`✅ updated到 ${foundSource}`);
           } else {
             (window as any)[foundSource] = emojiData;
-            console.log(`✅ 已更新到 window.${foundSource}`);
+            console.log(`✅ updated到 window.${foundSource}`);
           }
           
           return true;
@@ -211,16 +211,16 @@ export function forceEmojiTranslationFix(): void {
         
         const retryInterval = setInterval(() => {
           retryCount++;
-          console.log(`🔄 重试翻译修复 (${retryCount}/${maxRetries})...`);
+          console.log(`🔄 retrying翻译fixing (${retryCount}/${maxRetries})...`);
           
           const success = checkAndTranslate();
           
           if (success || retryCount >= maxRetries) {
             clearInterval(retryInterval);
             if (success) {
-              console.log('✅ 翻译修复成功！');
+              console.log('✅ 翻译fixingsuccess！');
             } else {
-              console.log('⚠️ 翻译修复超时，请手动执行');
+              console.log('⚠️ 翻译fixingtimeout，请手动executing');
             }
           }
         }, 2000); // 每2秒重试一次
@@ -229,7 +229,7 @@ export function forceEmojiTranslationFix(): void {
     }, 1000); // 延迟1秒执行
     
   } catch (error) {
-    console.error('❌ 强制翻译修复失败:', error);
+    console.error('❌ 强制翻译fixingfailed:', error);
   }
 }
 

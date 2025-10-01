@@ -23,10 +23,10 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
     // 检查环境变量
     const apiKey = import.meta.env.VITE_CREEM_API_KEY;
     if (!apiKey) {
-      throw new Error('Creem API密钥未配置');
+      throw new Error('Creem APIkeynotconfiguration');
     }
 
-    console.log('创建Creem支付检查点:', { priceId, customerEmail });
+    console.log('creatingCreem支付checking点:', { priceId, customerEmail });
 
     // 调用Creem API - 正确的参数结构
     const checkout = await creem.createCheckout({
@@ -34,7 +34,7 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
       xApiKey: apiKey,
     });
 
-    console.log('Creem API响应:', checkout);
+    console.log('Creem APIresponse:', checkout);
 
     return {
       success: true,
@@ -42,7 +42,7 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
       url: checkout.alipayQrCodeUrl || checkout.alipay_qr_code_url || (checkout.qrCodes && checkout.qrCodes.alipay) || null
     };
   } catch (error: any) {
-    console.error('Creem API调用失败:', error);
+    console.error('Creem API调用failed:', error);
     throw new Error(error.message || 'u64cdu4f5cu5931u8d25');
   }
 }
@@ -75,7 +75,7 @@ export async function getAlipayQRCode(priceId: string, customerEmail?: string) {
       price: result.checkout.amount ? (typeof result.checkout.amount === 'number' ? result.checkout.amount / 100 : parseFloat(result.checkout.amount) / 100) : null
     };
   } catch (error: any) {
-    console.error('获取支付宝二维码失败:', error);
+    console.error('getting支付宝二维码failed:', error);
     throw error;
   }
 }
@@ -111,7 +111,7 @@ export async function generateAlipayQRCode(priceId: string, customerEmail?: stri
       originalUrl: result.qrUrl
     };
   } catch (error: any) {
-    console.error('生成二维码失败:', error);
+    console.error('生成二维码failed:', error);
     throw error;
   }
 }
@@ -124,14 +124,14 @@ export async function generateAlipayQRCode(priceId: string, customerEmail?: stri
  */
 export async function startCheckout(priceId: string, customerEmail?: string) {
   try {
-    console.log('开始支付流程:', { priceId, customerEmail });
+    console.log('starts支付stream程:', { priceId, customerEmail });
 
     // 调用API创建支付检查点（统一 request）
     const data = await request.post('/.netlify/functions/api/creem/checkout', {
       priceId,
       customerEmail
     });
-    console.log('支付检查点创建成功:', data);
+    console.log('支付checking点creatingsuccess:', data);
 
     if (!data.success || !data.url) {
       throw new Error('无法获取支付页面URL');
@@ -143,7 +143,7 @@ export async function startCheckout(priceId: string, customerEmail?: string) {
       checkout: data.checkout
     };
   } catch (error: any) {
-    console.error('创建支付检查点失败:', error);
+    console.error('creating支付checking点failed:', error);
     throw error;
   }
 }
@@ -164,7 +164,7 @@ export async function redirectToCheckout(priceId: string, customerEmail?: string
       throw new Error('无法获取支付页面URL');
     }
   } catch (error: any) {
-    console.error('跳转到支付页面失败:', error);
+    console.error('跳转到支付pagefailed:', error);
     throw error;
   }
 }

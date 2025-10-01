@@ -28,7 +28,7 @@ export class BrandDatabaseService {
       };
 
       request.onsuccess = () => {
-        console.log('数据库初始化成功');
+        console.log('databaseinitializationsuccess');
         resolve();
       };
 
@@ -70,7 +70,7 @@ export class BrandDatabaseService {
         const saveRequest = store.put(profile);
 
         saveRequest.onsuccess = () => {
-          console.log('品牌档案保存成功:', profile.id);
+          console.log('品牌档案savingsuccess:', profile.id);
           resolve();
         };
 
@@ -157,7 +157,7 @@ export class BrandDatabaseService {
         const deleteRequest = store.delete(id);
 
         deleteRequest.onsuccess = () => {
-          console.log('品牌档案删除成功:', id);
+          console.log('品牌档案deletingsuccess:', id);
           resolve();
         };
 

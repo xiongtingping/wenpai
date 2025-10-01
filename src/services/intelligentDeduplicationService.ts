@@ -75,7 +75,7 @@ class IntelligentDeduplicationService {
     const processingTime = Date.now() - startTime;
 
     if (import.meta.env.DEV) {
-      console.log('🔄 智能去重完成:', {
+      console.log('🔄 智能deduplicatecompleted:', {
         totalProcessed: items.length,
         duplicatesRemoved: items.length - uniqueItems.length,
         duplicateGroups: duplicateGroups.length,

@@ -95,7 +95,7 @@ export function QuickReferenceDialog({
   useEffect(() => {
     if (!open) return;
     
-    console.log('🎯 Dialog定位修复已应用');
+    console.log('🎯 Dialog定位fixingalready应用');
     
     const fixDialogPosition = () => {
       // 🎯 多重选择器策略 - 确保能找到Dialog元素
@@ -126,7 +126,7 @@ export function QuickReferenceDialog({
         dialogElement.style.setProperty('z-index', '1000000', 'important');
         dialogElement.style.setProperty('margin', '0', 'important');
         
-        console.log('🎯 Dialog定位已修复:', {
+        console.log('🎯 Dialog定位alreadyfixing:', {
           position: dialogElement.style.position,
           top: dialogElement.style.top,
           left: dialogElement.style.left,
@@ -177,7 +177,7 @@ export function QuickReferenceDialog({
         overlayElement.style.setProperty('opacity', '1', 'important');
         overlayElement.style.setProperty('display', 'block', 'important');
         
-        console.log('🎯 背景遮罩已修复:', {
+        console.log('🎯 背景遮罩alreadyfixing:', {
           position: overlayElement.style.position,
           top: overlayElement.style.top,
           width: overlayElement.style.width,
@@ -185,7 +185,7 @@ export function QuickReferenceDialog({
           inset: overlayElement.style.inset || 'unset'
         });
       } else {
-        console.warn('🚨 未找到背景遮罩元素');
+        console.warn('🚨 not found背景遮罩元素');
       }
     };
 
@@ -371,18 +371,18 @@ export function QuickReferenceDialog({
         )}
       >
         {/* 🎯 标题区 - 完全复制历史记录弹窗的结构 */}
-        <DialogHeader style={{
+        <DialogHeader className="border-border bg-background" style={{
           position: 'relative',
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: '1px solid',
           paddingBottom: '24px',
           paddingTop: '32px',
           paddingLeft: '32px',
-          paddingRight: '32px',
-          backgroundColor: '#ffffff'
+          paddingRight: '32px'
         }}>
           {/* 右上角关闭按钮 - 完全复制 */}
           <button
             onClick={() => onOpenChange(false)}
+            className="border-border bg-background hover:bg-accent hover:border-border/80"
             style={{
               position: 'absolute',
               top: '20px',
@@ -390,8 +390,7 @@ export function QuickReferenceDialog({
               width: '32px',
               height: '32px',
               borderRadius: '8px',
-              border: '1px solid #e2e8f0',
-              backgroundColor: '#ffffff',
+              border: '1px solid',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -399,18 +398,9 @@ export function QuickReferenceDialog({
               transition: 'all 0.2s ease',
               zIndex: 10
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#f8fafc';
-              e.currentTarget.style.borderColor = '#cbd5e1';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#ffffff';
-              e.currentTarget.style.borderColor = '#e2e8f0';
-            }}
           >
-            <span style={{
+            <span className="text-muted-foreground" style={{
               fontSize: '16px',
-              color: '#64748b',
               fontWeight: '500'
             }}>×</span>
           </button>
@@ -455,9 +445,8 @@ export function QuickReferenceDialog({
         </DialogHeader>
 
         {/* 🎯 内容区 - 完全复制历史记录弹窗的操作栏结构 */}
-        <div style={{
-          borderBottom: '1px solid #e2e8f0',
-          backgroundColor: '#fbfcfd',
+        <div className="border-border bg-accent" style={{
+          borderBottom: '1px solid',
           padding: '12px 32px'
         }}>
           {/* 所有操作按钮 - 完全复制布局结构 */}
@@ -479,40 +468,29 @@ export function QuickReferenceDialog({
               {tabs.map((tab, index) => (
                 <div
                   key={tab.value}
+                  className={cn(
+                    "border transition-all",
+                    activeTab === tab.value
+                      ? "bg-primary border-primary text-primary-foreground"
+                      : "bg-accent border-border text-foreground hover:bg-accent/80 hover:border-primary"
+                  )}
                   style={{
                     height: '36px',
-                    backgroundColor: activeTab === tab.value ? '#3b82f6' : '#f8fafc',
-                    border: `1px solid ${activeTab === tab.value ? '#3b82f6' : '#e2e8f0'}`,
                     borderRadius: '8px',
                     padding: '0 12px',
                     display: 'flex',
                     alignItems: 'center',
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
                     boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
-                    color: activeTab === tab.value ? 'white' : '#1e293b',
                     fontSize: '12px',
                     fontWeight: '500',
                     minWidth: '100px',
                     maxWidth: '140px'
                   }}
                   onClick={() => setActiveTab(tab.value)}
-                  onMouseEnter={(e) => {
-                    if (activeTab !== tab.value) {
-                      e.currentTarget.style.backgroundColor = '#f1f5f9';
-                      e.currentTarget.style.borderColor = '#3b82f6';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (activeTab !== tab.value) {
-                      e.currentTarget.style.backgroundColor = '#f8fafc';
-                      e.currentTarget.style.borderColor = '#e2e8f0';
-                    }
-                  }}
                 >
                   <span style={{marginRight: '6px', fontSize: '12px'}}>{tab.icon}</span>
                   <span style={{
-                    color: activeTab === tab.value ? 'white' : '#1e293b',
                     fontSize: '12px',
                     fontWeight: '500',
                     whiteSpace: 'nowrap',
@@ -526,10 +504,10 @@ export function QuickReferenceDialog({
 
               {/* 刷新按钮 */}
               <div
+                className="bg-green-600 hover:bg-green-700 border-green-600 text-white"
                 style={{
                   height: '36px',
-                  backgroundColor: '#10b981',
-                  border: '1px solid #10b981',
+                  border: '1px solid',
                   borderRadius: '8px',
                   padding: '0 12px',
                   display: 'flex',
@@ -538,40 +516,24 @@ export function QuickReferenceDialog({
                   cursor: loading[activeTab] ? 'not-allowed' : 'pointer',
                   transition: 'all 0.2s ease',
                   boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
-                  color: 'white',
                   fontSize: '12px',
                   fontWeight: '600',
                   opacity: loading[activeTab] ? 0.6 : 1
                 }}
                 onClick={handleRefresh}
-                onMouseEnter={(e) => {
-                  if (!loading[activeTab]) {
-                    e.currentTarget.style.backgroundColor = '#059669';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!loading[activeTab]) {
-                    e.currentTarget.style.backgroundColor = '#10b981';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }
-                }}
               >
-                <RefreshCw className={cn("h-3 w-3 mr-1", loading[activeTab] && "animate-spin")} style={{color: 'white'}} />
-                <span style={{color: 'white', fontSize: '12px', fontWeight: '600'}}>刷新</span>
+                <RefreshCw className={cn("h-3 w-3 mr-1", loading[activeTab] && "animate-spin")} />
+                <span style={{fontSize: '12px', fontWeight: '600'}}>刷新</span>
               </div>
             </div>
 
             {/* 统计信息和重置按钮组 - 完全复制 */}
             <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-              <div style={{
-                backgroundColor: '#eff6ff',
-                color: '#1d4ed8',
+              <div className="bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800" style={{
                 padding: '6px 10px',
                 fontSize: '12px',
                 fontWeight: '600',
                 borderRadius: '8px',
-                border: '1px solid #bfdbfe',
                 height: '36px',
                 display: 'flex',
                 alignItems: 'center'
@@ -579,10 +541,7 @@ export function QuickReferenceDialog({
                 📊 共 {items[activeTab].length} 条
               </div>
               {filteredItems.length !== items[activeTab].length && (
-                <div style={{
-                  backgroundColor: '#f0fdf4',
-                  color: '#15803d',
-                  border: '1px solid #bbf7d0',
+                <div className="bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800" style={{
                   padding: '6px 8px',
                   fontSize: '12px',
                   fontWeight: '500',
@@ -596,31 +555,21 @@ export function QuickReferenceDialog({
               )}
               <button
                 onClick={resetFilters}
+                className="bg-background text-foreground border border-border hover:bg-accent hover:border-border/60"
                 style={{
                   height: '36px',
                   padding: '0 12px',
                   fontSize: '12px',
                   fontWeight: '500',
-                  backgroundColor: '#ffffff',
-                  color: '#374151',
                   borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
-                  border: '1px solid #d1d5db',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease'
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f9fafb';
-                  e.currentTarget.style.borderColor = '#9ca3af';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ffffff';
-                  e.currentTarget.style.borderColor = '#d1d5db';
-                }}
               >
                 <span style={{marginRight: '4px', fontSize: '12px'}}>↻</span>
-                <span style={{color: '#374151', fontSize: '12px', fontWeight: '500'}}>重置</span>
+                <span style={{fontSize: '12px', fontWeight: '500'}}>重置</span>
               </button>
             </div>
           </div>
@@ -628,24 +577,23 @@ export function QuickReferenceDialog({
 
         {/* 主内容列表 - 完全复制历史记录弹窗的结构 */}
         <div
+          className="bg-accent/30"
           style={{
             flex: 1,
             minHeight: 0,
             overflowY: 'auto',
-            backgroundColor: '#fafbfc',
             display: 'flex',
             flexDirection: 'column'
           }}
         >
           {filteredItems.length === 0 ? (
-            <div style={{
+            <div className="text-muted-foreground" style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
               textAlign: 'center',
               padding: '40px 32px',
-              color: '#64748b',
               minHeight: '280px'
             }}>
               {/* 完全复制历史记录弹窗的空状态 */}
@@ -677,18 +625,16 @@ export function QuickReferenceDialog({
                 maxWidth: '400px',
                 marginBottom: '24px'
               }}>
-                <div style={{
+                <div className="text-foreground" style={{
                   fontSize: '22px',
                   fontWeight: '600',
-                  color: '#1e293b',
                   marginBottom: '12px',
                   lineHeight: '1.3'
                 }}>
                   {items[activeTab].length === 0 ? '🎯 暂无引用内容' : '🔍 没有符合条件的内容'}
                 </div>
-                <div style={{
+                <div className="text-muted-foreground" style={{
                   fontSize: '15px',
-                  color: '#64748b',
                   lineHeight: '1.6',
                   marginBottom: '6px'
                 }}>
@@ -697,9 +643,8 @@ export function QuickReferenceDialog({
                     : '请尝试调整搜索关键词来查看更多内容'}
                 </div>
                 {items[activeTab].length === 0 && (
-                  <div style={{
+                  <div className="text-muted-foreground" style={{
                     fontSize: '13px',
-                    color: '#94a3b8',
                     fontStyle: 'italic',
                     marginTop: '8px'
                   }}>
@@ -744,24 +689,19 @@ export function QuickReferenceDialog({
               {filteredItems.map((item) => (
                 <div
                   key={item.id}
+                  className="border border-border bg-background hover:bg-accent hover:border-border/60"
                   style={{
-                    border: '1px solid #e2e8f0',
                     borderRadius: '12px',
                     padding: '24px',
-                    backgroundColor: '#ffffff',
                     transition: 'all 0.2s ease',
                     cursor: 'pointer',
                     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.06)'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f8fafc';
-                    e.currentTarget.style.borderColor = '#cbd5e1';
                     e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
                     e.currentTarget.style.transform = 'translateY(-1px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#ffffff';
-                    e.currentTarget.style.borderColor = '#e2e8f0';
                     e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.06)';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
@@ -878,10 +818,9 @@ export function QuickReferenceDialog({
                   </div>
 
                   {/* 内容标题 */}
-                  <div style={{
+                  <div className="text-foreground" style={{
                     fontSize: '16px',
                     fontWeight: '600',
-                    color: '#1e293b',
                     marginBottom: '8px',
                     lineHeight: '1.4'
                   }}>
@@ -899,26 +838,21 @@ export function QuickReferenceDialog({
                       {item.tags.slice(0, 5).map((tag, index) => (
                         <div
                           key={index}
+                          className="bg-accent text-muted-foreground border border-border"
                           style={{
                             padding: '2px 8px',
-                            backgroundColor: '#f1f5f9',
                             borderRadius: '4px',
-                            fontSize: '12px',
-                            color: '#64748b',
-                            border: '1px solid #e2e8f0'
+                            fontSize: '12px'
                           }}
                         >
                           #{tag}
                         </div>
                       ))}
                       {item.tags.length > 5 && (
-                        <div style={{
+                        <div className="bg-accent text-muted-foreground border border-border" style={{
                           padding: '2px 8px',
-                          backgroundColor: '#f1f5f9',
                           borderRadius: '4px',
-                          fontSize: '12px',
-                          color: '#64748b',
-                          border: '1px solid #e2e8f0'
+                          fontSize: '12px'
                         }}>
                           +{item.tags.length - 5}
                         </div>
@@ -927,30 +861,24 @@ export function QuickReferenceDialog({
                   )}
 
                   {/* 记录内容预览 - 完全复制 */}
-                  <div style={{
-                    backgroundColor: '#f8fafc',
-                    border: '1px solid #e2e8f0',
+                  <div className="bg-accent border border-border" style={{
                     borderRadius: '10px',
                     padding: '16px',
                     marginTop: '16px'
                   }}>
-                    <div style={{
+                    <div className="text-foreground" style={{
                       fontSize: '14px',
-                      color: '#334155',
                       lineHeight: '1.6',
                       wordBreak: 'break-word'
                     }}>
                       {item.content.length > 200 ? (
                         <>
                           {item.content.slice(0, 200)}...
-                          <div style={{
+                          <div className="bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800" style={{
                             marginTop: '8px',
                             padding: '6px 12px',
-                            backgroundColor: '#eff6ff',
                             borderRadius: '6px',
-                            fontSize: '12px',
-                            color: '#1d4ed8',
-                            border: '1px solid #bfdbfe'
+                            fontSize: '12px'
                           }}>
                             💡 点击复制按钮获取完整内容
                           </div>
@@ -968,29 +896,24 @@ export function QuickReferenceDialog({
 
         {/* 多选模式的底部操作栏 - 完全复制历史记录弹窗的结构 */}
         {multiSelect && selectedItems.size > 0 && (
-          <div style={{
-            borderTop: '1px solid #e2e8f0',
-            backgroundColor: '#ffffff',
+          <div className="border-t border-border bg-background" style={{
             padding: '16px 32px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
-            <span style={{
-              fontSize: '14px',
-              color: '#64748b'
+            <span className="text-muted-foreground" style={{
+              fontSize: '14px'
             }}>
               已选择 {selectedItems.size} 项
             </span>
             <div style={{display: 'flex', gap: '8px'}}>
               <button
                 onClick={() => setSelectedItems(new Set())}
+                className="bg-accent text-foreground border border-border"
                 style={{
                   height: '36px',
                   padding: '0 12px',
-                  backgroundColor: '#f8fafc',
-                  color: '#374151',
-                  border: '1px solid #e2e8f0',
                   borderRadius: '8px',
                   fontSize: '13px',
                   fontWeight: '500',
@@ -1003,11 +926,10 @@ export function QuickReferenceDialog({
               <button
                 onClick={handleMultiSelectConfirm}
                 disabled={selectedItems.size === 0}
+                className="bg-primary text-primary-foreground"
                 style={{
                   height: '36px',
                   padding: '0 12px',
-                  backgroundColor: '#3b82f6',
-                  color: 'white',
                   border: 'none',
                   borderRadius: '8px',
                   fontSize: '13px',

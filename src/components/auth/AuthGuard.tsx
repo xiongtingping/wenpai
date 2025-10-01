@@ -55,10 +55,10 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
     if (!requireAuth) return;
     if (loading) return;
     if (!isAuthenticated || !user) {
-      console.log('🔐 AuthGuard: 用户未认证，重定向到:', redirectTo);
+      console.log('🔐 AuthGuard: usernotauthenticating，重定向到:', redirectTo);
       navigate(redirectTo, { replace: true });
     } else {
-      console.log('🔐 AuthGuard: 用户已认证，允许访问');
+      console.log('🔐 AuthGuard: useralreadyauthenticating，allowing访问');
     }
   }, [isAuthenticated, loading, user, requireAuth, redirectTo, navigate]);
 

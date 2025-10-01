@@ -94,14 +94,14 @@ export class AutomationEngine {
    * 检测页面中的平台内容
    */
   async detectPlatformContent(): Promise<PlatformContent[]> {
-    console.log('🔍 开始检测平台内容...');
+    console.log('🔍 startsdetecting平台content...');
 
     try {
       const platformData: PlatformContent[] = [];
 
       // 方法1: 查找所有平台结果卡片
       const resultCards = document.querySelectorAll('[data-testid="platform-card"]');
-      console.log(`📋 找到 ${resultCards.length} 个平台卡片`);
+      console.log(`📋 找到 ${resultCards.length} units平台card`);
 
       resultCards.forEach((card, index) => {
         const platformId = card.getAttribute('data-platform-id') || `platform-${index}`;
@@ -177,7 +177,7 @@ export class AutomationEngine {
 
       // 方法2: 如果没有找到标准的卡片，尝试其他方式
       if (platformData.length === 0) {
-        console.log('🔍 未找到平台卡片，尝试其他检测方式...');
+        console.log('🔍 not found平台card，尝试其他detecting方式...');
 
         // 查找所有可能的内容区域
         const contentSelectors = [
@@ -207,7 +207,7 @@ export class AutomationEngine {
 
       // 方法3: 智能内容检测 - 基于页面结构分析
       if (platformData.length === 0) {
-        console.log('🔍 使用智能内容检测...');
+        console.log('🔍 使用智能contentdetecting...');
 
         // 查找所有Tab内容区域
         const tabContents = document.querySelectorAll('[role="tabpanel"], .tab-content, [data-state="active"]');
@@ -248,7 +248,7 @@ export class AutomationEngine {
 
       // 方法4: 最后的备选方案 - 查找所有长文本内容
       if (platformData.length === 0) {
-        console.log('🔍 使用备选内容检测方案...');
+        console.log('🔍 使用备选contentdetecting方案...');
 
         const allElements = document.querySelectorAll('*');
         const contentCandidates: { element: Element; content: string; score: number }[] = [];
@@ -298,10 +298,10 @@ export class AutomationEngine {
 
       // 如果仍然没有找到内容，提供更详细的错误信息
       if (platformData.length === 0) {
-        console.warn('⚠️ 未检测到任何内容，可能的原因：');
-        console.warn('1. 页面内容尚未生成');
-        console.warn('2. 内容元素的选择器已更改');
-        console.warn('3. 内容被动态加载且尚未完成');
+        console.warn('⚠️ notdetecting到任何content，可能的原因：');
+        console.warn('1. pagecontent尚not生成');
+        console.warn('2. content元素的selectoralready更改');
+        console.warn('3. content被动态loading且尚notcompleted');
 
         // 提供调试信息
         const allTextElements = document.querySelectorAll('*');
@@ -312,13 +312,13 @@ export class AutomationEngine {
             foundElements++;
           }
         });
-        console.log(`📊 页面中找到 ${foundElements} 个包含较长文本的元素`);
+        console.log(`📊 pagemiddle找到 ${foundElements} unitscontains较长文本的元素`);
       }
 
       return platformData;
 
     } catch (error) {
-      console.error('❌ 检测平台内容失败:', error);
+      console.error('❌ detecting平台contentfailed:', error);
       throw new Error(`内容检测失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   }
@@ -417,7 +417,7 @@ export class AutomationEngine {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
       } catch (error) {
-        console.error(`转发到 ${platformContent.platformName} 失败:`, error);
+        console.error(`转发到 ${platformContent.platformName} failed:`, error);
 
         // 转发失败时，自动打开平台发布页面
         try {
@@ -445,7 +445,7 @@ export class AutomationEngine {
             this.showFallbackInstructions(platformContent, url);
           }
             } catch (fallbackError) {
-      console.error('自动化转发失败:', fallbackError);
+      console.error('自动化转发failed:', fallbackError);
       throw new Error('自动化转发API调用失败，请检查网络连接和API配置');
     }
 
@@ -702,7 +702,7 @@ export class AutomationEngine {
           copyBtn.textContent = 'u64cdu4f5cu5931u8d25';
         }, 2000);
       } catch (error) {
-        console.error('复制失败:', error);
+        console.error('copyingfailed:', error);
       }
     });
 
@@ -800,7 +800,7 @@ export class AutomationEngine {
         return await this.forwardViaBrowser(platformContent);
       }
     } catch (error) {
-      console.warn('浏览器插件转发失败，降级到浏览器原生方式:', error);
+      console.warn('浏览器plugin转发failed，降级到浏览器原生方式:', error);
       return await this.forwardViaBrowser(platformContent);
     }
   }
@@ -824,7 +824,7 @@ export class AutomationEngine {
         method: 'script'
       };
     } catch (error) {
-      console.warn('客户端脚本转发失败，降级到浏览器原生方式:', error);
+      console.warn('client脚本转发failed，降级到浏览器原生方式:', error);
       return await this.forwardViaBrowser(platformContent);
     }
   }
@@ -925,7 +925,7 @@ export class AutomationEngine {
           copyBtn.textContent = 'u64cdu4f5cu5931u8d25';
         }, 2000);
       } catch (error) {
-        console.error('复制失败:', error);
+        console.error('copyingfailed:', error);
       }
     });
 
@@ -946,7 +946,7 @@ export class AutomationEngine {
    * 取消自动化操作
    */
   cancel() {
-    console.log('🛑 取消自动化转发操作');
+    console.log('🛑 canceling自动化转发操作');
     this.abortController.abort();
     this.updateProgress({
       status: 'cancelled'

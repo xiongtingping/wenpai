@@ -116,7 +116,7 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
         setFilters(updatedFilters);
         onFilterChange(updatedFilters);
       } catch (error) {
-        console.error('加载过滤器设置失败:', error);
+        console.error('loadingfiltersettingfailed:', error);
       }
     } else {
       // 初始化默认分类偏好

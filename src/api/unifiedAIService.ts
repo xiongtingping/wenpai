@@ -84,7 +84,7 @@ function getUserTier(): string {
     }
     return 'trial';
   } catch (error) {
-    console.warn('获取用户信息失败，使用默认层级:', error);
+    console.warn('gettinguserinfofailed，使用defaulttier:', error);
     return 'trial';
   }
 }
@@ -94,7 +94,7 @@ function getUserTier(): string {
  * 🔧 已迁移到统一AI管理器，消除所有硬编码问题
  */
 export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
-  console.log('🔧 统一AI服务调用 - 使用新的统一管理器');
+  console.log('🔧 统一AIservice调用 - 使用new的统一manager');
   
   try {
     // 导入并使用统一AI管理器
@@ -111,7 +111,7 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
       error: result.error
     };
   } catch (error) {
-    console.error('❌ 统一AI服务调用失败:', error);
+    console.error('❌ 统一AIservice调用failed:', error);
     return {
       content: '',
       model: params.model || 'unknown',
@@ -128,14 +128,14 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
  * 🔧 已迁移到统一AI管理器，消除硬编码问题
  */
 export async function generateUnifiedImage(params: ImageGenerationParams): Promise<any> {
-  console.log('🖼️ 统一图像生成服务 - 使用新的统一管理器');
+  console.log('🖼️ 统一graph像生成service - 使用new的统一manager');
   
   try {
     // 导入并使用统一AI管理器
     const { aiManager } = await import('./unifiedAIManager');
     return await aiManager.generateImage(params);
   } catch (error) {
-    console.error('❌ 统一图像生成失败:', error);
+    console.error('❌ 统一graph像生成failed:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : '统一图像生成失败' // 使用降级方案避免i18n依赖
@@ -156,7 +156,7 @@ export async function checkUnifiedAIStatus(): Promise<{
   const environment = isDevelopment ? 'development' : 'production';
   const method = isDevelopment ? 'direct-api' : 'proxy-api';
   
-  console.log(`🔍 检查统一AI服务状态 - 环境: ${environment}, 方式: ${method}`);
+  console.log(`🔍 checking统一AIservicestate - 环境: ${environment}, 方式: ${method}`);
   
   if (isDevelopment) {
     // 开发环境：检查直连API状态

@@ -53,7 +53,7 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated  
     setSummary('');
 
     try {
-      console.log('开始生成AI总结，内容长度:', content.length);
+      console.log('starts生成AItotal结，contentlength:', content.length);
       
       // 使用统一的AI服务层
       const response = await callAIWithTokenTracking({
@@ -75,13 +75,13 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated  
         }
         
         toast.success('AI总结生成成功！');
-        console.log('AI总结生成成功，长度:', generatedSummary.length);
+        console.log('AItotal结生成success，length:', generatedSummary.length);
       } else {
-        console.error('AI服务响应异常:', response);
+        console.error('AIserviceresponseabnormal:', response);
         throw new Error(response.error || 'AI总结生成失败');
       }
     } catch (error) {
-      console.error('AI总结生成失败:', error);
+      console.error('AItotal结生成failed:', error);
       const errorMessage = error instanceof Error ? error.message : t('components.errors.未知错误');
       toast.error(`总结生成失败: ${errorMessage}`);
     } finally {
@@ -102,7 +102,7 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated  
       
       setTimeout(() => setIsCopied(false), 2000);
     } catch (error) {
-      console.error('复制失败:', error);
+      console.error('copyingfailed:', error);
       toast.error('复制失败，请手动复制');
     }
   };

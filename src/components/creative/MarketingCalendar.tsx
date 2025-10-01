@@ -613,7 +613,7 @@ function MarketingCalendar() {
       const lunar = Lunar.fromDate(currentDate);
       setLunarInfo(lunar);
     } catch (error) {
-      console.error('获取农历信息失败:', error);
+      console.error('getting农历infofailed:', error);
     }
   }, [currentDate]);
 

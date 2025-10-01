@@ -32,7 +32,7 @@ export class UserSwitchDataCleaner {
    * 用户登出时完整清理
    */
   async performLogoutCleanup(userId: string): Promise<CleanupResult> {
-    console.log(`🧹 开始用户登出清理: ${userId}`);
+    console.log(`🧹 startsuser登出cleaning: ${userId}`);
     
     const clearedKeys: string[] = [];
     const errorKeys: string[] = [];
@@ -46,7 +46,7 @@ export class UserSwitchDataCleaner {
           clearedKeys.push(key);
         } catch (error) {
           errorKeys.push(key);
-          console.error(`清理用户存储失败: ${key}`, error);
+          console.error(`cleaninguserstoragefailed: ${key}`, error);
         }
       }
 
@@ -58,7 +58,7 @@ export class UserSwitchDataCleaner {
           clearedKeys.push(`[session]${key}`);
         }
       } catch (error) {
-        console.error('清理sessionStorage失败:', error);
+        console.error('cleaningsessionStoragefailed:', error);
       }
 
       // 3. 清理内存中的状态（需要各服务配合）
@@ -67,7 +67,7 @@ export class UserSwitchDataCleaner {
       // 4. 清理浏览器缓存中的认证信息
       this.clearAuthenticationCache();
 
-      console.log(`✅ 用户 ${userId} 登出清理完成，清理了 ${clearedKeys.length} 项数据`);
+      console.log(`✅ user ${userId} 登出cleaningcompleted，cleaning了 ${clearedKeys.length} itemdata`);
       
       return {
         success: errorKeys.length === 0,
@@ -76,7 +76,7 @@ export class UserSwitchDataCleaner {
         totalCleared: clearedKeys.length
       };
     } catch (error) {
-      console.error('用户登出清理失败:', error);
+      console.error('user登出cleaningfailed:', error);
       return {
         success: false,
         clearedKeys,
@@ -90,7 +90,7 @@ export class UserSwitchDataCleaner {
    * 用户登录时清理冲突数据
    */
   async performLoginCleanup(newUserId: string, oldUserId?: string): Promise<CleanupResult> {
-    console.log(`🔄 开始用户登录清理: ${oldUserId} -> ${newUserId}`);
+    console.log(`🔄 startsuserlogincleaning: ${oldUserId} -> ${newUserId}`);
     
     const clearedKeys: string[] = [];
     const errorKeys: string[] = [];
@@ -116,9 +116,9 @@ export class UserSwitchDataCleaner {
 
       // 3. 迁移旧格式数据到新用户
       const migratedCount = this.migrateOldUserData(newUserId);
-      console.log(`📦 为新用户 ${newUserId} 迁移了 ${migratedCount} 项旧数据`);
+      console.log(`📦 为newuser ${newUserId} 迁移了 ${migratedCount} itemolddata`);
 
-      console.log(`✅ 用户 ${newUserId} 登录清理完成`);
+      console.log(`✅ user ${newUserId} logincleaningcompleted`);
 
       return {
         success: errorKeys.length === 0,
@@ -127,7 +127,7 @@ export class UserSwitchDataCleaner {
         totalCleared: clearedKeys.length
       };
     } catch (error) {
-      console.error('用户登录清理失败:', error);
+      console.error('userlogincleaningfailed:', error);
       return {
         success: false,
         clearedKeys,
@@ -228,7 +228,7 @@ export class UserSwitchDataCleaner {
    * 执行深度清理（清理所有可能的残留数据）
    */
   async performDeepCleanup(): Promise<CleanupResult> {
-    console.log('🧹 开始深度清理所有用户数据...');
+    console.log('🧹 startsdepthcleaning所hasuserdata...');
     
     const clearedKeys: string[] = [];
     const errorKeys: string[] = [];
@@ -252,7 +252,7 @@ export class UserSwitchDataCleaner {
       sessionStorage.clear();
       clearedKeys.push('[sessionStorage] 全部清理');
 
-      console.log(`✅ 深度清理完成，清理了 ${clearedKeys.length} 项数据`);
+      console.log(`✅ depthcleaningcompleted，cleaning了 ${clearedKeys.length} itemdata`);
 
       return {
         success: errorKeys.length === 0,
@@ -261,7 +261,7 @@ export class UserSwitchDataCleaner {
         totalCleared: clearedKeys.length
       };
     } catch (error) {
-      console.error('深度清理失败:', error);
+      console.error('depthcleaningfailed:', error);
       return {
         success: false,
         clearedKeys,

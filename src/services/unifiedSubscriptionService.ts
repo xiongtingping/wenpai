@@ -95,7 +95,7 @@ class UnifiedSubscriptionService {
         .maybeSingle();
 
       if (error) {
-        console.warn('Supabase订阅查询失败:', error);
+        console.warn('Supabasesubscribingqueryingfailed:', error);
         return null;
       }
 
@@ -127,7 +127,7 @@ class UnifiedSubscriptionService {
         }
       };
     } catch (error) {
-      console.warn('从Supabase获取订阅失败:', error);
+      console.warn('从Supabasegettingsubscribingfailed:', error);
       return null;
     }
   }
@@ -256,7 +256,7 @@ class UnifiedSubscriptionService {
       const plan = getSubscriptionPlan(tier);
       return plan.limits;
     } catch (error) {
-      console.warn(`获取套餐${tier}限额配置失败:`, error);
+      console.warn(`getting套餐${tier}limitconfigurationfailed:`, error);
       
       // fallback配置
       const fallbackLimits = {
@@ -295,7 +295,7 @@ class UnifiedSubscriptionService {
       
       return data.result;
     } catch (error) {
-      console.warn('读取订阅缓存失败:', error);
+      console.warn('readingsubscribingcachefailed:', error);
       return null;
     }
   }
@@ -310,7 +310,7 @@ class UnifiedSubscriptionService {
       
       localStorage.setItem(cacheKey, JSON.stringify(cacheData));
     } catch (error) {
-      console.warn('设置订阅缓存失败:', error);
+      console.warn('settingsubscribingcachefailed:', error);
     }
   }
 
@@ -319,7 +319,7 @@ class UnifiedSubscriptionService {
       const cacheKey = `${this.CACHE_KEY}_${userId}`;
       localStorage.removeItem(cacheKey);
     } catch (error) {
-      console.warn('清除订阅缓存失败:', error);
+      console.warn('clearingsubscribingcachefailed:', error);
     }
   }
 
@@ -341,9 +341,9 @@ class UnifiedSubscriptionService {
         localStorage.removeItem(key);
       });
       
-      console.debug(`🧹 清除订阅缓存: ${keysToRemove.length} 项`);
+      console.debug(`🧹 clearingsubscribingcache: ${keysToRemove.length} item`);
     } catch (error) {
-      console.warn('清除所有订阅缓存失败:', error);
+      console.warn('clearing所hassubscribingcachefailed:', error);
     }
   }
 }

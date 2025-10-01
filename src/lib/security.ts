@@ -52,7 +52,7 @@ export class DataEncryption {
     try {
       return CryptoJS.AES.encrypt(data, this.key).toString();
     } catch (error) {
-      console.error('数据加密失败:', error);
+      console.error('dataencryptingfailed:', error);
       throw new Error('u64cdu4f5cu5931u8d25');
     }
   }
@@ -67,7 +67,7 @@ export class DataEncryption {
       const bytes = CryptoJS.AES.decrypt(encryptedData, this.key);
       return bytes.toString(CryptoJS.enc.Utf8);
     } catch (error) {
-      console.error('数据解密失败:', error);
+      console.error('datadecryptingfailed:', error);
       throw new Error('u64cdu4f5cu5931u8d25');
     }
   }
@@ -275,7 +275,7 @@ export class SecureStorage {
       const finalData = encrypt ? this.encryption.encrypt(data) : data;
       localStorage.setItem(key, finalData);
     } catch (error) {
-      console.error('安全存储失败:', error);
+      console.error('安全storagefailed:', error);
       throw new Error('u64cdu4f5cu5931u8d25');
     }
   }
@@ -306,7 +306,7 @@ export class SecureStorage {
         return data as T;
       }
     } catch (error) {
-      console.error('安全获取数据失败:', error);
+      console.error('安全gettingdatafailed:', error);
       return null;
     }
   }
@@ -319,7 +319,7 @@ export class SecureStorage {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error('删除数据失败:', error);
+      console.error('deletingdatafailed:', error);
     }
   }
 
@@ -330,7 +330,7 @@ export class SecureStorage {
     try {
       localStorage.clear();
     } catch (error) {
-      console.error('清空数据失败:', error);
+      console.error('清emptydatafailed:', error);
     }
   }
 }

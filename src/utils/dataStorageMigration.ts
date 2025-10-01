@@ -44,7 +44,7 @@ export class DataStorageMigration {
    * 执行完整的数据迁移
    */
   async migrateAllUserData(): Promise<MigrationResult> {
-    console.log('🔄 开始完整数据迁移，用户ID:', this.userId);
+    console.log('🔄 starts完整data迁移，userID:', this.userId);
     
     const result: MigrationResult = {
       success: true,
@@ -110,7 +110,7 @@ export class DataStorageMigration {
       await this.cleanupAfterMigration(migrations.map(m => m.storageKey));
     }
 
-    console.log('✅ 数据迁移完成:', {
+    console.log('✅ data迁移completed:', {
       总计: result.migratedItems,
       成功: result.success,
       错误数量: result.errors.length
@@ -132,13 +132,13 @@ export class DataStorageMigration {
       // 从localStorage获取数据
       const localData = localStorage.getItem(migration.storageKey);
       if (!localData) {
-        console.log(`📭 ${migration.description}没有本地数据需要迁移`);
+        console.log(`📭 ${migration.description}没haslocaldata需要迁移`);
         return { success: true, itemCount: 0 };
       }
 
       const parsedData = JSON.parse(localData);
       if (!parsedData || (Array.isArray(parsedData) && parsedData.length === 0)) {
-        console.log(`📭 ${migration.description}本地数据为空`);
+        console.log(`📭 ${migration.description}localdatais empty`);
         return { success: true, itemCount: 0 };
       }
 
@@ -166,14 +166,14 @@ export class DataStorageMigration {
       // 如果已存在数据，更新；否则创建新记录
       if (existingData.data && existingData.data.length > 0) {
         await this.supabaseService.update(existingData.data[0].id, dataToSave);
-        console.log(`🔄 更新了${migration.description}数据到Supabase`);
+        console.log(`🔄 updating了${migration.description}data到Supabase`);
       } else {
         await this.supabaseService.create(dataToSave);
-        console.log(`✅ 创建了${migration.description}数据到Supabase`);
+        console.log(`✅ creating了${migration.description}data到Supabase`);
       }
 
       const itemCount = Array.isArray(parsedData) ? parsedData.length : 1;
-      console.log(`📦 ${migration.description}迁移成功: ${itemCount} 项`);
+      console.log(`📦 ${migration.description}迁移success: ${itemCount} item`);
       
       return { 
         success: true, 
@@ -182,7 +182,7 @@ export class DataStorageMigration {
 
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : i18n.t('utils.errors.未知错误');
-      console.error(`❌ ${migration.description}迁移失败:`, error);
+      console.error(`❌ ${migration.description}迁移failed:`, error);
       return { 
         success: false, 
         itemCount: 0, 
@@ -196,7 +196,7 @@ export class DataStorageMigration {
    */
   private async cleanupAfterMigration(storageKeys: string[]): Promise<void> {
     try {
-      console.log('🧹 开始清理已迁移的localStorage数据...');
+      console.log('🧹 startscleaningalready迁移的localStoragedata...');
       
       for (const key of storageKeys) {
         if (localStorage.getItem(key)) {
@@ -207,14 +207,14 @@ export class DataStorageMigration {
           if (data) {
             localStorage.setItem(backupKey, data);
             localStorage.removeItem(key);
-            console.log(`🗑️ 已清理并备份: ${key} -> ${backupKey}`);
+            console.log(`🗑️ alreadycleaning并backup: ${key} -> ${backupKey}`);
           }
         }
       }
 
-      console.log('✅ localStorage清理完成');
+      console.log('✅ localStoragecleaningcompleted');
     } catch (error) {
-      console.error('❌ localStorage清理失败:', error);
+      console.error('❌ localStoragecleaningfailed:', error);
     }
   }
 
@@ -261,7 +261,7 @@ export class DataStorageMigration {
         issues.push(`仍有 ${originalKeys.length} 个原始localStorage键未清理: ${originalKeys.join(', ')}`);
       }
 
-      console.log('🔍 迁移验证结果:', {
+      console.log('🔍 迁移validatingresult:', {
         Supabase数据数量: supabaseDataCount,
         localStorage备份数量: localBackupCount,
         问题数量: issues.length
@@ -289,7 +289,7 @@ export class DataStorageMigration {
    * 回滚迁移（从备份恢复到localStorage）
    */
   async rollbackMigration(): Promise<{ success: boolean; restoredItems: number; errors: string[] }> {
-    console.log('🔄 开始回滚数据迁移...');
+    console.log('🔄 starts回滚data迁移...');
     
     const result = {
       success: true,
@@ -312,7 +312,7 @@ export class DataStorageMigration {
             localStorage.setItem(originalKey, backupData);
             localStorage.removeItem(backupKey);
             result.restoredItems++;
-            console.log(`🔄 已恢复: ${backupKey} -> ${originalKey}`);
+            console.log(`🔄 alreadyrestoring: ${backupKey} -> ${originalKey}`);
           }
         } catch (error) {
           const errorMsg = `恢复${backupKey}失败: ${error instanceof Error ? error.message : i18n.t('utils.errors.未知错误')}`;
@@ -321,7 +321,7 @@ export class DataStorageMigration {
         }
       }
 
-      console.log(`✅ 迁移回滚完成，恢复了 ${result.restoredItems} 项数据`);
+      console.log(`✅ 迁移回滚completed，restoring了 ${result.restoredItems} itemdata`);
       return result;
 
     } catch (error) {

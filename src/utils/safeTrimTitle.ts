@@ -91,7 +91,7 @@ export function safeTrimTitle(title: string, maxLength: number): string {
 
   // 8. 确保结果不为空
   if (trimmed.length === 0) {
-    console.warn('⚠️ safeTrimTitle: 裁剪后标题为空，使用默认标题');
+    console.warn('⚠️ safeTrimTitle: trimnexttitleis empty，使用defaulttitle');
     return '智能生成标题';
   }
 

@@ -15,13 +15,13 @@ export const safeString = (value: any): string => {
   
   // 修复 undefinedundefined
   if (str.includes('undefinedundefined')) {
-    console.warn('🛠️ 检测到 undefinedundefined，已修复为空字符串');
+    console.warn('🛠️ detecting到 undefinedundefined，alreadyfixingis emptystring');
     return str.replace(/undefinedundefined/g, '');
   }
   
   // 修复单独的 undefined
   if (str === 'undefined') {
-    console.warn('🛠️ 检测到单独的 undefined，已修复为空字符串');
+    console.warn('🛠️ detecting到单独的 undefined，alreadyfixingis emptystring');
     return '';
   }
   
@@ -52,7 +52,7 @@ const originalStringify = JSON.stringify;
 JSON.stringify = function(value: any, replacer?: ((this: any, key: string, value: any) => any) | Array<string | number> | null, space?: string | number) {
   const result = (originalStringify as any).call(this, value, replacer as any, space as any);
   if (result && result.includes('undefinedundefined')) {
-    console.warn('🛠️ JSON.stringify 产生了 undefinedundefined，已修复');
+    console.warn('🛠️ JSON.stringify 产生了 undefinedundefined，alreadyfixing');
     return result.replace(/undefinedundefined/g, '');
   }
   return result;
@@ -112,13 +112,13 @@ export const UndefinedFixer: React.FC<{ children: React.ReactNode }> = ({ childr
           // 修复 undefinedundefined
           if (fixed.includes('undefinedundefined')) {
             fixed = fixed.replace(/undefinedundefined/g, '');
-            console.log('🛠️ React组件修复 undefinedundefined:', original, '->', fixed);
+            console.log('🛠️ Reactcomponentfixing undefinedundefined:', original, '->', fixed);
           }
 
           // 修复单独的 undefined
           if (fixed.trim() === 'undefined') {
             fixed = '';
-            console.log('🛠️ React组件修复单独的 undefined');
+            console.log('🛠️ Reactcomponentfixing单独的 undefined');
           }
 
           if (fixed !== original) {

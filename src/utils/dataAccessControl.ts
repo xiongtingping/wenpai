@@ -263,7 +263,7 @@ export class DataAccessController {
     );
 
     if (!rule) {
-      console.warn(`未找到访问规则: ${resourceType}:${accessLevel}`);
+      console.warn(`not found访问规则: ${resourceType}:${accessLevel}`);
       return {
         allowed: false,
         reason: '未定义的访问规则'
@@ -274,7 +274,7 @@ export class DataAccessController {
     const allowed = rule.condition(user, targetUserId, resourceId);
     
     if (!allowed) {
-      console.warn('数据访问被拒绝:', {
+      console.warn('data访问被denied:', {
         userId: user.id,
         userRole: user.roles?.[0] || 'user',
         resourceType,
@@ -284,7 +284,7 @@ export class DataAccessController {
         reason: rule.errorMessage
       });
     } else {
-      console.log('数据访问权限验证通过:', {
+      console.log('data访问permissionvalidating通过:', {
         userId: user.id,
         userRole: user.roles?.[0] || 'user',
         resourceType,
@@ -413,9 +413,9 @@ export class DataAccessController {
     // 在生产环境中，这应该发送到日志服务器
     if (process.env.NODE_ENV === 'production') {
       // TODO: 发送到审计日志服务
-      console.log('数据访问审计日志:', logEntry);
+      console.log('data访问审计日志:', logEntry);
     } else {
-      console.log('数据访问日志:', logEntry);
+      console.log('data访问日志:', logEntry);
     }
   }
 }

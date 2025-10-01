@@ -50,12 +50,12 @@ export default function EmojiGallery({ emojis, onDelete, onRegenerate  }: EmojiG
   // 检查是否有复制权限（需要专业版或以上）
   const hasPermission = () => {
     if (!isAuthenticated) {
-      console.log('EmojiGallery: 用户未认证');
+      console.log('EmojiGallery: usernotauthenticating');
       return false;
     }
     const tierLevels = { trial: 0, pro: 1, premium: 2 };
     const hasAccess = tierLevels[userTier] >= tierLevels['pro'];
-    console.log('EmojiGallery权限检查:', {
+    console.log('EmojiGallerypermissionchecking:', {
       userTier,
       isAuthenticated,
       hasAccess,
@@ -68,10 +68,10 @@ export default function EmojiGallery({ emojis, onDelete, onRegenerate  }: EmojiG
 
   // 处理复制点击
   const handleCopyClick = (url: string, emotion: string) => {
-    console.log('EmojiGallery: 尝试复制', { emotion, hasPermission: hasPermission() });
+    console.log('EmojiGallery: 尝试copying', { emotion, hasPermission: hasPermission() });
 
     if (!hasPermission()) {
-      console.log('EmojiGallery: 权限不足，显示升级提示');
+      console.log('EmojiGallery: permission不足，display升级hint');
       toast({
         title: t('components.labels.需要专业版'),
         description: "Emoji复制功能需要专业版权限，确定后跳转至支付中心选择专业版",
@@ -90,7 +90,7 @@ export default function EmojiGallery({ emojis, onDelete, onRegenerate  }: EmojiG
       return;
     }
 
-    console.log('EmojiGallery: 权限通过，执行复制');
+    console.log('EmojiGallery: permission通过，executingcopying');
     navigator.clipboard.writeText(url);
     toast({
       title: t('components.labels.复制成功'),

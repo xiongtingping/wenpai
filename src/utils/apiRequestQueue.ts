@@ -140,20 +140,20 @@ class APIRequestQueue {
    */
   private async executeRequest(item: QueueItem): Promise<any> {
     try {
-      console.log(`🔄 执行队列请求: ${item.id} (重试: ${item.retryCount}/${item.maxRetries})`);
+      console.log(`🔄 executingqueuerequest: ${item.id} (retrying: ${item.retryCount}/${item.maxRetries})`);
       
       const result = await item.execute();
       logger.debug('✅ 队列请求成功: ${item.id}');
       return result;
       
     } catch (error) {
-      console.error(`❌ 队列请求失败: ${item.id}`, error);
+      console.error(`❌ queuerequestfailed: ${item.id}`, error);
       
       // 检查是否为频率限制错误
       const isRateLimit = this.isRateLimitError(error);
       
       if (isRateLimit && item.retryCount < item.maxRetries) {
-        console.log(`⏳ 检测到频率限制，等待 ${this.config.rateLimitDelay}ms 后重试`);
+        console.log(`⏳ detecting到frequencylimiting，waiting ${this.config.rateLimitDelay}ms nextretrying`);
         await this.delay(this.config.rateLimitDelay);
         
         // 重新加入队列并递归调用
@@ -168,7 +168,7 @@ class APIRequestQueue {
           this.config.maxDelay
         );
         
-        console.log(`⏳ 请求失败，等待 ${delay}ms 后重试`);
+        console.log(`⏳ requestfailed，waiting ${delay}ms nextretrying`);
         await this.delay(delay);
         
         item.retryCount++;
@@ -176,7 +176,7 @@ class APIRequestQueue {
         return this.executeRequest(item);
         
       } else {
-        console.error(`❌ 队列请求最终失败: ${item.id} (已重试 ${item.maxRetries} 次)`);
+        console.error(`❌ queuerequest最终failed: ${item.id} (alreadyretrying ${item.maxRetries} times)`);
         
         // ✅ FIXED: 2025-08-03 修复队列管理器错误处理
         // 🐛 问题原因：队列管理器抛出错误导致undefined返回值

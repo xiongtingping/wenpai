@@ -51,7 +51,7 @@ class RSSHubDataService {
   async getSupplementaryTopics(): Promise<RSSHubTopic[]> {
     if (!this.config.enabled) {
       if (import.meta.env.DEV) {
-        console.log('ℹ️ RSSHub功能已禁用');
+        console.log('ℹ️ RSSHubfeaturealreadydisabling');
       }
       return [];
     }
@@ -61,7 +61,7 @@ class RSSHubDataService {
       const cached = this.getFromCache(cacheKey);
       if (cached) {
         if (import.meta.env.DEV) {
-          console.log('📦 使用RSSHub缓存数据:', cached.length, '条');
+          console.log('📦 使用RSSHubcachedata:', cached.length, '条');
         }
         return cached;
       }
@@ -70,7 +70,7 @@ class RSSHubDataService {
       const isAvailable = await this.isServiceAvailable();
       if (!isAvailable) {
         if (import.meta.env.DEV) {
-          console.log('ℹ️ RSSHub服务不可用，跳过数据获取');
+          console.log('ℹ️ RSSHubserviceunavailable，skippingdatagetting');
         }
         return [];
       }
@@ -79,13 +79,13 @@ class RSSHubDataService {
       this.setCache(cacheKey, topics);
 
       if (import.meta.env.DEV) {
-        console.log('✅ 获取RSSHub数据成功:', topics.length, '条');
+        console.log('✅ fetchingRSSHubdatasuccess:', topics.length, '条');
       }
 
       return topics;
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.log('ℹ️ RSSHub数据获取失败，继续使用原有数据源');
+        console.log('ℹ️ RSSHubdatagettingfailed，resuming使用原hasdata源');
       }
       return [];
     }
@@ -104,7 +104,7 @@ class RSSHubDataService {
       const cached = this.getFromCache(cacheKey);
       if (cached) {
         if (import.meta.env.DEV) {
-          console.log('📦 使用RSSHub分类缓存数据');
+          console.log('📦 使用RSSHubcategorycachedata');
         }
         return this.categorizeCachedTopics(cached);
       }
@@ -113,13 +113,13 @@ class RSSHubDataService {
       const categorized = this.categorizeTopics(topics);
 
       if (import.meta.env.DEV) {
-        console.log('📊 RSSHub分类数据统计:', Object.keys(categorized).map(cat => `${cat}: ${categorized[cat].length}`));
+        console.log('📊 RSSHubcategorydata统计:', Object.keys(categorized).map(cat => `${cat}: ${categorized[cat].length}`));
       }
 
       return categorized;
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.log('ℹ️ RSSHub分类数据获取失败');
+        console.log('ℹ️ RSSHubcategorydatagettingfailed');
       }
       return {};
     }
@@ -238,7 +238,7 @@ class RSSHubDataService {
     try {
       // 使用内部API代理检查服务可用性，避免CORS问题
       if (import.meta.env.DEV) {
-        console.log('🔍 通过内部API检查热点数据服务可用性...');
+        console.log('🔍 通过inner部APIchecking热点dataserviceavailable性...');
       }
 
       const controller = new AbortController();
@@ -256,13 +256,13 @@ class RSSHubDataService {
       clearTimeout(timeoutId);
 
       if (import.meta.env.DEV) {
-        console.log('✅ 热点数据服务检查完成:', response.ok);
+        console.log('✅ 热点dataservicecheckingcompleted:', response.ok);
       }
 
       return response.ok;
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.log('ℹ️ 热点数据服务暂时不可用:', error instanceof Error ? error.message : 'Unknown error');
+        console.log('ℹ️ 热点dataservice暂时unavailable:', error instanceof Error ? error.message : 'Unknown error');
       }
       return false;
     }
@@ -299,7 +299,7 @@ class RSSHubDataService {
       };
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.log('ℹ️ 获取RSSHub统计数据失败');
+        console.log('ℹ️ gettingRSSHub统计datafailed');
       }
       return {
         available: false,
@@ -320,7 +320,7 @@ class RSSHubDataService {
       .map(([platform]) => platform);
 
     if (import.meta.env.DEV) {
-      console.log('🔄 开始获取RSSHub数据，启用平台:', enabledPlatforms);
+      console.log('🔄 startsgettingRSSHubdata，enabling平台:', enabledPlatforms);
     }
 
     // 并发获取所有平台数据，但限制并发数量
@@ -330,7 +330,7 @@ class RSSHubDataService {
         return platformTopics;
       } catch (error) {
         if (import.meta.env.DEV) {
-          console.log(`ℹ️ ${platform}平台数据获取失败`);
+          console.log(`ℹ️ ${platform}平台datagettingfailed`);
         }
         return [];
       }
@@ -345,14 +345,14 @@ class RSSHubDataService {
       });
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.log('ℹ️ RSSHub数据获取过程中出现问题');
+        console.log('ℹ️ RSSHubdatagetting过程middle出现问题');
       }
     }
 
     const limitedTopics = topics.slice(0, 50); // 限制数量，避免影响性能
 
     if (import.meta.env.DEV) {
-      console.log('📊 RSSHub数据获取完成:', limitedTopics.length, '条');
+      console.log('📊 RSSHubdatafetchingcompleted:', limitedTopics.length, '条');
     }
 
     return limitedTopics;
@@ -385,7 +385,7 @@ class RSSHubDataService {
       return [];
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.log(`ℹ️ ${platform}平台数据暂时不可用`);
+        console.log(`ℹ️ ${platform}平台data暂时unavailable`);
       }
       return [];
     }
@@ -417,7 +417,7 @@ class RSSHubDataService {
       
       return topics;
     } catch (error) {
-      console.warn('API数据转换失败:', error);
+      console.warn('APIdatatransformfailed:', error);
       return [];
     }
   }
@@ -464,7 +464,7 @@ class RSSHubDataService {
 
       return topics;
     } catch (error) {
-      console.warn('RSS数据解析失败:', error);
+      console.warn('RSSdataparsingfailed:', error);
       return [];
     }
   }

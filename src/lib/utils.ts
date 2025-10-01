@@ -90,13 +90,13 @@ export function saveReferrerFromURL(): string | null {
     
     // 验证推荐人ID格式
     if (!validateReferrerId(cleanReferrerId)) {
-      console.warn('无效的推荐人ID格式:', cleanReferrerId);
+      console.warn('invalid的推荐人ID格式:', cleanReferrerId);
       return null;
     }
     
     // 检查是否已处理过
     if (hasProcessedReferral(cleanReferrerId)) {
-      console.log('推荐奖励已处理过:', cleanReferrerId);
+      console.log('推荐奖励alreadyprocessing过:', cleanReferrerId);
       return null;
     }
     
