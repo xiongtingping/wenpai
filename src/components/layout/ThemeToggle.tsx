@@ -319,7 +319,7 @@ export const ThemeToggle: React.FC = () => {
 
         {isOpen && (
           <div
-            className="header-dropdown theme-dropdown"
+            className="absolute top-full right-0 mt-2 w-64 bg-background border border-border rounded-lg shadow-lg z-[1002]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* 标题 */}
