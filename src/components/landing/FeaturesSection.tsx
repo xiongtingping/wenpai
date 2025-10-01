@@ -314,7 +314,7 @@ export const FeaturesSection: React.FC = () => {
                       }
                     }}
                   >
-                    
+                    立即体验
                     <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                   </Button>
                 </CardContent>
@@ -354,7 +354,7 @@ export const FeaturesSection: React.FC = () => {
                       size="sm" 
                       className="w-full hover:bg-accent/50 transition-colors duration-300"
                     >
-                      
+                      使用工具
                     </Button>
                   </Link>
                 </CardContent>

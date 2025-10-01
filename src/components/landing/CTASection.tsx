@@ -44,15 +44,15 @@ export function CTASection() {
   };
 
   return (
-    <section className="bg-background">
+    <section className="cta-section">
       <div className="ds-container ds-text-centered">
         {/* 1️⃣ 主标题 */}
-        <h2 className="ds-title-main ds-text-primary mb-2 drop-shadow-sm">
+        <h2 className="ds-title-main text-foreground mb-2 drop-shadow-sm">
           {t('home.cta.title')}
         </h2>
 
         {/* 2️⃣ 副标题 */}
-        <p className="ds-text-body ds-text-secondary mb-6 ds-container-narrow leading-relaxed">
+        <p className="ds-text-body text-muted-foreground mb-6 ds-container-narrow leading-relaxed">
           {t('home.cta.subtitle')}
         </p>
 
@@ -60,8 +60,7 @@ export function CTASection() {
         <div className="w-full flex justify-center">
           <Button
             size="lg"
-            variant="gradient"
-            className="ds-btn-primary ds-btn-centered px-10 py-5 rounded-xl font-bold shadow-lg hover:shadow-xl ds-transition-standard"
+            className="cta-button ds-btn-centered"
             onClick={handleButtonClick}
           >
             <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

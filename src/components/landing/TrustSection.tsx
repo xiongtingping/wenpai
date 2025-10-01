@@ -9,10 +9,10 @@ export function TrustSection() {
       
       <div className="container mx-auto px-6">
         <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold theme-hero-title mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold trust-section-title mb-4">
             {t('home.trust.title')}
           </h2>
-          <p className="theme-hero-subtitle max-w-2xl mx-auto mb-4">
+          <p className="trust-section-subtitle max-w-2xl mx-auto mb-4">
             {t('home.trust.subtitle')}
           </p>
           <div className="w-32 h-0.5 bg-accent mx-auto rounded-full relative border border-border">

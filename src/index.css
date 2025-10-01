@@ -30,6 +30,9 @@
 
 /* 主题系统 - 使用现有的主题管理 */
 
+/* 首页UI修复 */
+@import './styles/homepage-fixes.css';
+
 /* 图表系统 */
 @import './styles/chart-system.css';
 
