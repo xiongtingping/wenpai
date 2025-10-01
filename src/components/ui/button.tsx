@@ -5,61 +5,34 @@ import { cn } from "@/lib/utils"
 import { Slot } from "@radix-ui/react-slot"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "btn", // 使用统一设计系统的基础样式
   {
     variants: {
       variant: {
-        // Tubelight 风格
-        tubelight: "bg-background/5 border border-border backdrop-blur-lg text-foreground/90 hover:text-primary rounded-full px-6 py-2 shadow-lg hover:bg-primary/5 transition-colors",
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground shadow-e0 hover:shadow-e1 hover:-translate-y-0.5",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
-        ghost: "hover:bg-accent hover:text-accent-foreground hover:-translate-y-0.5",
-        link: "text-primary underline-offset-4 hover:underline hover:-translate-y-0.5",
-
-        // 🎨 Modern Flat + Soft Neumorphism 新增变体（令牌化）
-        soft: "bg-card border border-border text-foreground shadow-e0 hover:shadow-e1 hover:-translate-y-0.5 hover:bg-accent",
-        neumorph: "bg-card border border-border text-foreground shadow-e0 hover:shadow-e1 hover:-translate-y-0.5 [box-shadow:inset_0_2px_4px_hsl(var(--foreground) / 0.04)] active:[box-shadow:inset_0_3px_6px_hsl(var(--foreground) / 0.08)]",
-
-        // 统一渐变变体（改为简洁样式）
-        gradient: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:-translate-y-0.5",
-        gradientSecondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/90 hover:-translate-y-0.5",
-        gradientAccent: "bg-accent text-accent-foreground shadow-sm hover:bg-accent/90 hover:-translate-y-0.5",
-        gradientSuccess: "gradient-bg-success text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-        gradientDanger: "gradient-bg-danger text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-
-        // 保留原有变体名（令牌化实现）
-        gradientGreen: "gradient-bg-success text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-        gradientOrange: "gradient-bg-warning text-primary-foreground shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5",
-        glass: "bg-background/20 backdrop-blur-md border border-border/30 text-foreground hover:bg-background/30 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
-        premium: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:-translate-y-0.5 animate-pulse",
-        success: "gradient-bg-success text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-        warning: "gradient-bg-warning text-primary-foreground shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5",
-        info: "bg-primary/90 text-primary-foreground border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-        neon: "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-        neonPurple: "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-        neonGreen: "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-        dark: "bg-foreground text-primary-foreground hover:bg-foreground/90 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
-        light: "bg-muted text-foreground hover:bg-muted/80 shadow-e0 hover:shadow-e1 hover:-translate-y-0.5",
-
-        // 🎨 专用高级按钮变体
-        upgradePremium: "btn-upgrade-premium text-background font-bold",
-        invitePremium: "btn-invite-premium text-background font-bold",
+        // 🎯 统一设计系统按钮变体（与CSS文件一致）
+        default: "btn-primary", // 对应 .btn-primary
+        primary: "btn-primary",
+        secondary: "btn-secondary", // 对应 .btn-secondary
+        outline: "btn-outline", // 对应 .btn-outline
+        ghost: "btn-ghost", // 对应 .btn-ghost
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        link: "text-primary underline-offset-4 hover:underline",
+        
+        // 🎨 保留关键特殊变体
+        success: "bg-[var(--color-success)] text-[var(--color-primary-foreground)] hover:brightness-110",
+        warning: "bg-[var(--color-warning)] text-[var(--color-primary-foreground)] hover:brightness-110",
+        info: "bg-[var(--color-info)] text-[var(--color-primary-foreground)] hover:brightness-110",
+        soft: "bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-foreground)] hover:bg-[var(--color-accent)]",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        xl: "h-12 rounded-md px-10 text-base",
-        hero: "h-14 rounded-xl px-8 text-lg font-bold",
-        icon: "h-10 w-10",
-        iconSm: "h-8 w-8",
-        iconLg: "h-12 w-12",
-        full: "h-10 w-full px-4 py-2",
+        // 🎯 对应统一设计系统的尺寸（与CSS变量一致）
+        sm: "btn-sm", // 对应 .btn-sm
+        default: "btn-md", // 对应 .btn-md
+        lg: "btn-lg", // 对应 .btn-lg
+        icon: "h-[var(--size-md)] w-[var(--size-md)] p-0",
+        iconSm: "h-[var(--size-sm)] w-[var(--size-sm)] p-0",
+        iconLg: "h-[var(--size-lg)] w-[var(--size-lg)] p-0",
+        full: "btn-md w-full",
       },
       animation: {
         none: "",
@@ -78,7 +51,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "tubelight",
+      variant: "default",
       size: "default",
       animation: "none",
     },

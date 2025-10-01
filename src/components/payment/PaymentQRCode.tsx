@@ -233,7 +233,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
             支付二维码已过期，请重新下单
           </p>
           <div className="space-y-2">
-            <Button onClick={handleRefresh} className="w-full bg-orange-600 hover:bg-orange-700">
+            <Button onClick={handleRefresh} variant="warning" className="w-full">
               重新下单
             </Button>
             <Button variant="outline" onClick={handleFeedback} className="w-full border-orange-300">
@@ -266,7 +266,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
             )}
           </div>
           <div className="space-y-2">
-            <Button onClick={handleRefresh} className="w-full bg-destructive hover:bg-red-700">
+            <Button onClick={handleRefresh} variant="destructive" className="w-full">
               重新下单
             </Button>
             <Button variant="outline" onClick={handleFeedback} className="w-full border-red-300">

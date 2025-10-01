@@ -91,13 +91,13 @@ export const PermissionUpgradeCard: React.FC<PermissionUpgradeCardProps> = ({
         border: isSelected ? 'border-blue-400' : 'border-blue-200',
         bg: isSelected ? 'bg-blue-50' : 'bg-background',
         badge: 'bg-blue-100 text-blue-800',
-        button: 'bg-primary hover:bg-blue-700'
+        button: 'btn-primary'
       },
       premium: {
         border: isSelected ? 'border-purple-400' : 'border-purple-200',
         bg: isSelected ? 'bg-purple-50' : 'bg-background',
         badge: 'bg-purple-100 text-purple-800',
-        button: 'bg-purple-600 hover:bg-purple-700'
+        button: 'btn-secondary'
       }
     };
     return themes[tier as keyof typeof themes] || themes.trial;

@@ -215,7 +215,7 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
               
               {previewMode && (
                 <div className="absolute inset-0 flex items-center justify-center bg-background/20">
-                  <Button onClick={handleUpgradeClick} variant="outline" className="bg-background/90 backdrop-blur-sm">
+                  <Button onClick={handleUpgradeClick} variant="soft">
                     <Lock className="h-4 w-4 mr-2" />
                     升级解锁完整功能
                   </Button>

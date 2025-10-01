@@ -159,14 +159,14 @@ export function Header() {
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
                 <SheetClose asChild>
-                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                  <Button variant="ghost" size="lg" className="w-full justify-start" onClick={() => {
                     if (isAuthenticated) { navigate('/content-adapter'); } else { login('/content-adapter'); }
                   }}>
                     {t('nav.adapt')}
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                  <Button variant="ghost" size="lg" className="w-full justify-start" onClick={() => {
                     if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); }
                   }}>
                     {t('nav.hotTopics')}

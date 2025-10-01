@@ -97,7 +97,7 @@ export const UpgradePromptCard: React.FC<UpgradePromptCardProps> = ({
         border: 'border-blue-200',
         bg: 'bg-blue-50',
         badge: 'bg-blue-100 text-blue-800',
-        button: 'bg-primary hover:bg-blue-700'
+        button: 'btn-primary'
       },
       premium: {
         border: 'border-purple-200',

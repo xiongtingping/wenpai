@@ -2376,7 +2376,7 @@ export default function BrandLibraryPageFixed() {
                         <Copy className="h-4 w-4 mr-1" />
                         批量复制
                       </Button>
-                      <Button size="sm" variant="outline" className="text-destructive hover:text-destructive/80">
+                      <Button size="sm" variant="destructive">
                         <Trash2 className="h-4 w-4 mr-1" />
                         批量删除
                       </Button>

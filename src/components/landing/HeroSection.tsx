@@ -101,7 +101,7 @@ const HeroSection: React.FC = () => {
               <Button
                 onClick={handleButtonClick}
                 size="lg"
-                className="ds-btn-primary ds-btn-centered relative overflow-hidden group/button theme-hero-button text-background shadow-2xl hover:shadow-3xl ds-hover-scale ds-transition-standard px-14 py-6 text-xl font-bold rounded-xl"
+                className="relative overflow-hidden group/button"
               >
                 <span className="relative z-10 flex items-center justify-center gap-3 w-full">
                   <svg className="w-7 h-7 group-hover/button:rotate-12 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

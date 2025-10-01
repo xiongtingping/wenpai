@@ -475,12 +475,12 @@ export function MomentsTextGenerator() {
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-4">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-                <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg w-full sm:w-auto">
+                <Button size="lg" variant="primary" className="w-full sm:w-auto">
                   <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   AI智能生成
                 </Button>
                 
-                <Button variant="outline" size="lg" className="border-2 hover:bg-accent w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   创建文案
                 </Button>
