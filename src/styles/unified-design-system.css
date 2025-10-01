@@ -621,6 +621,69 @@
     padding: 0 var(--spacing-lg);
   }
 
+  /* 🎯 设计系统容器组件 - 从homepage-fixes.css迁移 */
+  .ds-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+  }
+
+  .ds-container-wide {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+  }
+
+  .ds-container-narrow {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+  }
+
+  .ds-text-centered {
+    text-align: center;
+  }
+
+  .ds-section-spacing {
+    padding: var(--spacing-4xl) 0;
+  }
+
+  .ds-section-spacing-small {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .ds-section-spacing-large {
+    padding: var(--spacing-4xl) 0;
+  }
+
+  .ds-title-main {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+  }
+
+  .ds-title-sub {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-normal);
+  }
+
+  .ds-title-section {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-normal);
+  }
+
+  .ds-text-body {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+  }
+
+  .ds-text-helper {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+  }
+
   .content-section {
     margin-bottom: var(--spacing-3xl);
   }
