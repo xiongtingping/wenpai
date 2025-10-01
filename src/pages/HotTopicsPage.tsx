@@ -768,10 +768,10 @@ export default function HotTopicsPage() {
                   <CardContent>
                     <Tabs defaultValue="all" className="w-full">
                       {/* Tab栏横向滚动优化 */}
-                      <TabsList className="unified-tabs-list flex w-full overflow-x-auto whitespace-nowrap" style={{justifyContent: 'flex-start'}}>
-                        <TabsTrigger value="all" className="unified-tab-trigger flex-shrink-0">总榜</TabsTrigger>
+                      <TabsList className="unified-tabs-list flex w-full overflow-x-auto" style={{justifyContent: 'flex-start', flexWrap: 'nowrap', whiteSpace: 'nowrap'}}>
+                        <TabsTrigger value="all" className="unified-tab-trigger flex-shrink-0" style={{minWidth: '60px'}}>总榜</TabsTrigger>
                         {supportedPlatforms.map((platform) => (
-                          <TabsTrigger key={platform} value={platform} className="unified-tab-trigger flex-shrink-0">
+                          <TabsTrigger key={platform} value={platform} className="unified-tab-trigger flex-shrink-0" style={{minWidth: '60px'}}>
                             {getPlatformDisplayName(platform)}
                           </TabsTrigger>
                         ))}
