@@ -8,7 +8,6 @@ window.__MAIN_TSX_LOADED__ = true;
 
 // console.log('🔥 Step 1: 开始导入CSS...');
 import './index.css';
-import './styles/user-avatar-dropdown-fix.css';
 // console.log('✅ Step 1: CSS导入完成');
 // 🎯 生产环境只保留核心样式和必要的修复
 // 调试脚本已在开发中禁用以减少控制台噪音

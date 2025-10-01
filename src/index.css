@@ -1,203 +1,130 @@
 /**
- * 🎨 文派主样式文件 - 重构版
- * 遵循CSS架构最佳实践，消除技术债务
+ * 🎨 文派AI统一样式系统
+ * 
+ * 遵循CLAUDE.md CSS架构治理原则：
+ * - 统一设计令牌系统 (Design Tokens)
+ * - 基础层 (Base Layer) 
+ * - 组件层 (Component Layer)
+ * - 工具类层 (Utility Classes)
+ * 
+ * 🚫 严禁补洞式修复，使用系统化架构
  */
 
 /* ========================================
-   1. 基础层 - CSS重置和Tailwind
-   ======================================== */
+   1. Tailwind CSS基础
+======================================== */
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
 /* ========================================
-   2. 设计系统层 - 统一设计令牌
-   ======================================== */
-@import './styles/css-layer-order.css';
-@import './styles/design-tokens.css';
+   2. 统一设计系统 - 核心架构
+======================================== */
+@import './styles/unified-design-system.css';
 
 /* ========================================
-   3. 基础组件层 - 核心UI组件
-   ======================================== */
-@import './styles/base-layer.css';
-@import './styles/component-layer.css';
+   3. 特定功能增强 (仅保留核心功能)
+======================================== */
 
-/* ========================================
-   4. 特定功能层 - 功能特异化样式
-   ======================================== */
-/* 认证系统 */
+/* 认证系统样式 */
 @import './styles/animated-signin-21st.css';
-
-/* 主题系统 - 使用现有的主题管理 */
-
-/* 首页UI修复 */
-@import './styles/homepage-fixes.css';
 
 /* 图表系统 */
 @import './styles/chart-system.css';
 
-/* 权限系统 */
-@import './styles/unified-permission-system.css';
-
 /* ========================================
-   5. 工具类和增强 - 最后应用
-   ======================================== */
-@import './styles/utility-classes.css';
-
-/* ========================================
-   全局基础样式重置
-   ======================================== */
+   4. 全局基础样式增强
+======================================== */
 @layer base {
+  /* 确保所有元素使用设计令牌 */
   * {
-    border-color: hsl(var(--border));
+    border-color: var(--color-border);
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: var(--font-family-sans);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     line-height: var(--line-height-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* 统一滚动条样式 */
-  ::-webkit-scrollbar {
-    width: var(--scroll-bar-width, 8px);
-    height: var(--scroll-bar-width, 8px);
+  /* 改善滚动行为 */
+  html {
+    scroll-behavior: smooth;
   }
 
-  ::-webkit-scrollbar-track {
-    background: hsl(var(--muted) / 0.1);
-    border-radius: var(--radius-md);
+  /* 确保根元素可交互性 */
+  #root {
+    min-height: 100vh;
+    position: relative;
   }
 
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.3);
-    border-radius: var(--radius-md);
+  /* 消除默认边距 */
+  h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
+    margin: 0;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.5);
+  /* 改善列表样式 */
+  ul, ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* 改善图片显示 */
+  img, svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* 改善表单元素 */
+  input, button, textarea, select {
+    font: inherit;
+  }
+
+  /* 移除按钮默认样式 */
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* 改善链接可访问性 */
+  a:not([class]) {
+    text-decoration-skip-ink: auto;
+  }
+
+  /* 确保媒体查询偏好生效 */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
 /* ========================================
-   响应式断点统一系统
-   ======================================== */
-@layer utilities {
-  /* 移动端优先的响应式工具类 */
-  @media (min-width: 640px) {
-    .sm\:container {
-      max-width: 640px;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .md\:container {
-      max-width: 768px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .lg\:container {
-      max-width: 1024px;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .xl\:container {
-      max-width: 1280px;
-    }
-  }
-}
-
-/* ========================================
-   性能优化样式
-   ======================================== */
-@layer utilities {
-  /* GPU加速 */
+   5. 性能优化
+======================================== */
+@layer base {
+  /* 启用硬件加速 */
   .gpu-accelerated {
-    transform: translate3d(0, 0, 0);
+    transform: translateZ(0);
     will-change: transform;
   }
 
-  /* 优化动画性能 */
-  .smooth-animation {
-    transition: all var(--transition-smooth);
-  }
-
-  /* 减少重排重绘 */
-  .optimize-paint {
+  /* 优化渲染性能 */
+  .optimize-rendering {
     contain: layout style paint;
   }
-}
 
-/* ========================================
-   关键路径优化 - 首屏必需样式
-   ======================================== */
-@layer base {
-  /* Header关键样式 - 内联避免闪烁 */
-  header[data-header] {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--header-height);
-    z-index: var(--z-fixed);
-    backdrop-filter: blur(12px);
-    background-color: hsl(var(--background) / 0.95);
-    border-bottom: 1px solid hsl(var(--border) / 0.1);
-  }
-
-  /* 主容器布局 */
-  main[data-main] {
-    min-height: calc(100vh - var(--header-height));
-    padding-top: var(--header-height);
-  }
-
-  /* 加载状态优化 */
-  .loading-skeleton {
-    background: linear-gradient(
-      90deg,
-      hsl(var(--muted) / 0.1) 25%,
-      hsl(var(--muted) / 0.3) 50%,
-      hsl(var(--muted) / 0.1) 75%
-    );
-    background-size: 200% 100%;
-    animation: skeleton-loading 1.5s infinite;
-  }
-
-  @keyframes skeleton-loading {
-    0% {
-      background-position: 200% 0;
-    }
-    100% {
-      background-position: -200% 0;
-    }
-  }
-}
-
-/* ========================================
-   打印和辅助功能支持
-   ======================================== */
-@media print {
-  .no-print {
-    display: none !important;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-@media (prefers-contrast: high) {
-  :root {
-    --border: 0 0% 20%;
-    --ring: 0 0% 20%;
+  /* 优化字体渲染 */
+  .optimize-text {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }

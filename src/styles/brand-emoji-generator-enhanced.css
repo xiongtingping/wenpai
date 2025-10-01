@@ -5,16 +5,16 @@
 @layer components {
   /* 🎯 品牌专属Emoji生成器容器优化 */
   .brand-emoji-generator {
-    max-width: 1200px;
+    max-width: var(--layout-container-max-width, 1200px);
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 var(--spacing-md);
   }
 
   /* 🎨 标题区域美化 */
   .brand-title-section {
     background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)) 10%, hsl(var(--card)) 100%);
-    border-radius: 1rem;
-    padding: 2rem;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-2xl);
     position: relative;
     overflow: hidden;
   }
@@ -25,19 +25,19 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 3px;
+    height: var(--border-width-thick, 3px);
     background: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 50%, hsl(var(--primary)) 100%);
-    border-radius: 1rem 1rem 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 
   /* 🎯 步骤指示器容器美化 */
   .steps-indicator-container {
     background: linear-gradient(135deg, hsl(var(--accent) / 0.3) 0%, hsl(var(--accent) / 0.1) 100%);
     border: 1px solid hsl(var(--accent) / 0.2);
-    border-radius: 1.5rem;
-    padding: 1.5rem;
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-lg);
     position: relative;
-    backdrop-filter: blur(10px);
+    backdrop-filter: var(--backdrop-blur);
   }
 
   .steps-indicator-container::before {
@@ -45,7 +45,7 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(45deg, transparent 30%, hsl(var(--primary) / 0.05) 50%, transparent 70%);
-    border-radius: 1.5rem;
+    border-radius: var(--radius-xl);
     pointer-events: none;
   }
 

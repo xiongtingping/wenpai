@@ -1,0 +1,609 @@
+/**
+ * 🎨 统一设计系统 - 文派AI完整CSS架构
+ * 
+ * 架构层级：
+ * 1. Design Tokens (变量层) - 设计令牌系统
+ * 2. Base Layer (基础层) - 基础样式和重置
+ * 3. Component Layer (组件层) - 可复用组件样式
+ * 4. Utility Layer (工具层) - 原子化工具类
+ * 
+ * 遵循CLAUDE.md CSS架构治理原则
+ */
+
+/* ========================================
+   1. CSS层级顺序声明
+======================================== */
+@layer reset, tokens, base, components, utilities, overrides, emergency;
+
+/* ========================================
+   2. Design Tokens (设计令牌层)
+======================================== */
+@layer tokens {
+  :root {
+    /* 🎨 核心颜色系统 */
+    --color-primary: hsl(var(--primary));
+    --color-primary-foreground: hsl(var(--primary-foreground));
+    --color-secondary: hsl(var(--secondary)); 
+    --color-secondary-foreground: hsl(var(--secondary-foreground));
+    --color-accent: hsl(var(--accent));
+    --color-accent-foreground: hsl(var(--accent-foreground));
+    --color-background: hsl(var(--background));
+    --color-foreground: hsl(var(--foreground));
+    --color-card: hsl(var(--card));
+    --color-card-foreground: hsl(var(--card-foreground));
+    --color-muted: hsl(var(--muted));
+    --color-muted-foreground: hsl(var(--muted-foreground));
+    --color-border: hsl(var(--border));
+    --color-destructive: hsl(var(--destructive));
+    --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+    /* 🎯 间距系统 */
+    --spacing-xs: 0.25rem;   /* 4px */
+    --spacing-sm: 0.5rem;    /* 8px */
+    --spacing-md: 1rem;      /* 16px */
+    --spacing-lg: 1.5rem;    /* 24px */
+    --spacing-xl: 2rem;      /* 32px */
+    --spacing-2xl: 3rem;     /* 48px */
+    --spacing-3xl: 4rem;     /* 64px */
+    --spacing-4xl: 6rem;     /* 96px */
+
+    /* 📏 尺寸系统 */
+    --size-xs: 1rem;         /* 16px */
+    --size-sm: 1.5rem;       /* 24px */
+    --size-md: 2rem;         /* 32px */
+    --size-lg: 2.5rem;       /* 40px */
+    --size-xl: 3rem;         /* 48px */
+    --size-2xl: 4rem;        /* 64px */
+
+    /* 🔤 字体系统 */
+    --font-size-xs: 0.75rem;     /* 12px */
+    --font-size-sm: 0.875rem;    /* 14px */
+    --font-size-base: 1rem;      /* 16px */
+    --font-size-lg: 1.125rem;    /* 18px */
+    --font-size-xl: 1.25rem;     /* 20px */
+    --font-size-2xl: 1.5rem;     /* 24px */
+    --font-size-3xl: 1.875rem;   /* 30px */
+    --font-size-4xl: 2.25rem;    /* 36px */
+    --font-size-5xl: 3rem;       /* 48px */
+    --font-size-6xl: 3.75rem;    /* 60px */
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.625;
+
+    /* 🌟 圆角系统 */
+    --radius-xs: 0.125rem;   /* 2px */
+    --radius-sm: 0.25rem;    /* 4px */
+    --radius-md: 0.375rem;   /* 6px */
+    --radius-lg: 0.5rem;     /* 8px */
+    --radius-xl: 0.75rem;    /* 12px */
+    --radius-2xl: 1rem;      /* 16px */
+    --radius-full: 9999px;
+
+    /* 🌫️ 阴影系统 */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+    /* ⚡ 动画系统 */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* 📱 断点系统 */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+
+    /* 🔢 Z-Index系统 */
+    --z-index-dropdown: 1000;
+    --z-index-sticky: 1020;
+    --z-index-fixed: 1030;
+    --z-index-modal-backdrop: 1040;
+    --z-index-modal: 1050;
+    --z-index-popover: 1060;
+    --z-index-tooltip: 1070;
+    --z-index-toast: 1080;
+
+    /* 🎭 组件特定令牌 */
+    --header-height: 4rem;
+    --sidebar-width: 16rem;
+    --footer-height: 8rem;
+    
+    /* 🎯 布局系统令牌 */
+    --layout-container-max-width: 1200px;
+    --border-width-thick: 3px;
+    
+    /* 🌫️ 背景效果令牌 */
+    --backdrop-blur: blur(10px);
+
+    /* 🎨 语义化颜色 */
+    --color-success: hsl(142 76% 36%);
+    --color-warning: hsl(38 92% 50%);
+    --color-error: hsl(var(--destructive));
+    --color-info: hsl(var(--primary));
+  }
+
+  /* 🌓 深色模式变量覆盖 */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.15);
+      --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+    }
+  }
+}
+
+/* ========================================
+   3. Base Layer (基础层)
+======================================== */
+@layer base {
+  /* 全局基础样式 */
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    line-height: var(--line-height-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 基础排版 */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-foreground);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    line-height: var(--line-height-normal);
+  }
+
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  a:hover {
+    color: var(--color-primary);
+    filter: brightness(1.1);
+  }
+
+  /* 基础表单元素 */
+  input, textarea, select {
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    color: var(--color-foreground);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-fast);
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary), 0.15;
+  }
+
+  /* 基础按钮重置 */
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+}
+
+/* ========================================
+   4. Component Layer (组件层)
+======================================== */
+@layer components {
+  /* 🔘 按钮组件 */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-lg);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    font-family: inherit;
+  }
+
+  .btn-sm {
+    height: var(--size-sm);
+    padding: 0 var(--spacing-sm);
+    font-size: var(--font-size-sm);
+  }
+
+  .btn-md {
+    height: var(--size-md);
+    padding: 0 var(--spacing-md);
+    font-size: var(--font-size-base);
+  }
+
+  .btn-lg {
+    height: var(--size-lg);
+    padding: 0 var(--spacing-lg);
+    font-size: var(--font-size-lg);
+  }
+
+  .btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-secondary-foreground);
+  }
+
+  .btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-foreground);
+  }
+
+  .btn-outline:hover {
+    background-color: var(--color-accent);
+    color: var(--color-accent-foreground);
+  }
+
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--color-foreground);
+  }
+
+  .btn-ghost:hover {
+    background-color: var(--color-accent);
+    color: var(--color-accent-foreground);
+  }
+
+  /* 📦 卡片组件 */
+  .card {
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .card-content {
+    padding: var(--spacing-lg);
+  }
+
+  .card-footer {
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* 🏷️ 徽章组件 */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    transition: all var(--transition-fast);
+  }
+
+  .badge-primary {
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+
+  .badge-secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-secondary-foreground);
+  }
+
+  .badge-outline {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-foreground);
+  }
+
+  /* 📝 输入组件 */
+  .input {
+    height: var(--size-md);
+    width: 100%;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-background);
+    padding: 0 var(--spacing-md);
+    font-size: var(--font-size-base);
+    transition: border-color var(--transition-fast);
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px hsla(var(--primary) / 0.15);
+  }
+
+  /* 🎭 弹窗组件 */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: var(--z-index-modal-backdrop);
+  }
+
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--color-card);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-2xl);
+    z-index: var(--z-index-modal);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
+  }
+
+  /* 🍞 吐司组件 */
+  .toast {
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-md);
+    position: fixed;
+    z-index: var(--z-index-toast);
+  }
+
+  /* 📊 表格组件 */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .table th,
+  .table td {
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: left;
+  }
+
+  .table th {
+    background-color: var(--color-muted);
+    font-weight: var(--font-weight-medium);
+  }
+}
+
+/* ========================================
+   5. Utility Layer (工具类层)
+======================================== */
+@layer utilities {
+  /* 🎨 颜色工具类 */
+  .text-primary { color: var(--color-primary) !important; }
+  .text-secondary { color: var(--color-secondary) !important; }
+  .text-foreground { color: var(--color-foreground) !important; }
+  .text-muted { color: var(--color-muted-foreground) !important; }
+  .text-accent { color: var(--color-accent) !important; }
+
+  .bg-primary { background-color: var(--color-primary) !important; }
+  .bg-secondary { background-color: var(--color-secondary) !important; }
+  .bg-background { background-color: var(--color-background) !important; }
+  .bg-card { background-color: var(--color-card) !important; }
+  .bg-muted { background-color: var(--color-muted) !important; }
+
+  /* 📏 间距工具类 */
+  .p-xs { padding: var(--spacing-xs) !important; }
+  .p-sm { padding: var(--spacing-sm) !important; }
+  .p-md { padding: var(--spacing-md) !important; }
+  .p-lg { padding: var(--spacing-lg) !important; }
+  .p-xl { padding: var(--spacing-xl) !important; }
+
+  .m-xs { margin: var(--spacing-xs) !important; }
+  .m-sm { margin: var(--spacing-sm) !important; }
+  .m-md { margin: var(--spacing-md) !important; }
+  .m-lg { margin: var(--spacing-lg) !important; }
+  .m-xl { margin: var(--spacing-xl) !important; }
+
+  /* 🔤 文字工具类 */
+  .text-xs { font-size: var(--font-size-xs) !important; }
+  .text-sm { font-size: var(--font-size-sm) !important; }
+  .text-base { font-size: var(--font-size-base) !important; }
+  .text-lg { font-size: var(--font-size-lg) !important; }
+  .text-xl { font-size: var(--font-size-xl) !important; }
+  .text-2xl { font-size: var(--font-size-2xl) !important; }
+  .text-3xl { font-size: var(--font-size-3xl) !important; }
+  .text-4xl { font-size: var(--font-size-4xl) !important; }
+
+  .font-normal { font-weight: var(--font-weight-normal) !important; }
+  .font-medium { font-weight: var(--font-weight-medium) !important; }
+  .font-semibold { font-weight: var(--font-weight-semibold) !important; }
+  .font-bold { font-weight: var(--font-weight-bold) !important; }
+
+  .text-center { text-align: center !important; }
+  .text-left { text-align: left !important; }
+  .text-right { text-align: right !important; }
+
+  /* 📐 布局工具类 */
+  .flex { display: flex !important; }
+  .inline-flex { display: inline-flex !important; }
+  .grid { display: grid !important; }
+  .block { display: block !important; }
+  .inline { display: inline !important; }
+  .hidden { display: none !important; }
+
+  .items-center { align-items: center !important; }
+  .items-start { align-items: flex-start !important; }
+  .items-end { align-items: flex-end !important; }
+
+  .justify-center { justify-content: center !important; }
+  .justify-start { justify-content: flex-start !important; }
+  .justify-end { justify-content: flex-end !important; }
+  .justify-between { justify-content: space-between !important; }
+
+  .flex-col { flex-direction: column !important; }
+  .flex-row { flex-direction: row !important; }
+
+  /* 🌟 圆角工具类 */
+  .rounded-none { border-radius: 0 !important; }
+  .rounded-sm { border-radius: var(--radius-sm) !important; }
+  .rounded-md { border-radius: var(--radius-md) !important; }
+  .rounded-lg { border-radius: var(--radius-lg) !important; }
+  .rounded-xl { border-radius: var(--radius-xl) !important; }
+  .rounded-full { border-radius: var(--radius-full) !important; }
+
+  /* 🌫️ 阴影工具类 */
+  .shadow-xs { box-shadow: var(--shadow-xs) !important; }
+  .shadow-sm { box-shadow: var(--shadow-sm) !important; }
+  .shadow-md { box-shadow: var(--shadow-md) !important; }
+  .shadow-lg { box-shadow: var(--shadow-lg) !important; }
+  .shadow-xl { box-shadow: var(--shadow-xl) !important; }
+  .shadow-none { box-shadow: none !important; }
+
+  /* ⚡ 动画工具类 */
+  .transition { transition: all var(--transition-normal) !important; }
+  .transition-fast { transition: all var(--transition-fast) !important; }
+  .transition-slow { transition: all var(--transition-slow) !important; }
+
+  .hover-scale:hover { transform: scale(1.05) !important; }
+  .hover-lift:hover { transform: translateY(-2px) !important; }
+
+  /* 📱 响应式工具类 */
+  @media (min-width: 640px) {
+    .sm\:block { display: block !important; }
+    .sm\:hidden { display: none !important; }
+    .sm\:flex { display: flex !important; }
+  }
+
+  @media (min-width: 768px) {
+    .md\:block { display: block !important; }
+    .md\:hidden { display: none !important; }
+    .md\:flex { display: flex !important; }
+  }
+
+  @media (min-width: 1024px) {
+    .lg\:block { display: block !important; }
+    .lg\:hidden { display: none !important; }
+    .lg\:flex { display: flex !important; }
+  }
+
+  /* 🔢 Z-Index工具类 */
+  .z-dropdown { z-index: var(--z-index-dropdown) !important; }
+  .z-modal { z-index: var(--z-index-modal) !important; }
+  .z-tooltip { z-index: var(--z-index-tooltip) !important; }
+}
+
+/* ========================================
+   6. 语义化组件组合类
+======================================== */
+@layer components {
+  /* 🏠 页面布局组件 */
+  .page-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page-header {
+    height: var(--header-height);
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-background);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-index-sticky);
+  }
+
+  .page-main {
+    flex: 1;
+    padding: var(--spacing-lg);
+  }
+
+  .page-footer {
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-muted);
+    padding: var(--spacing-xl) var(--spacing-lg);
+  }
+
+  /* 📄 内容区域组件 */
+  .content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+  }
+
+  .content-section {
+    margin-bottom: var(--spacing-3xl);
+  }
+
+  .content-grid {
+    display: grid;
+    gap: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  /* 🎯 状态指示组件 */
+  .status-success {
+    color: var(--color-success);
+    background-color: hsl(142 76% 36% / 0.1);
+    border: 1px solid hsl(142 76% 36% / 0.2);
+  }
+
+  .status-warning {
+    color: var(--color-warning);
+    background-color: hsl(38 92% 50% / 0.1);
+    border: 1px solid hsl(38 92% 50% / 0.2);
+  }
+
+  .status-error {
+    color: var(--color-error);
+    background-color: hsl(var(--destructive) / 0.1);
+    border: 1px solid hsl(var(--destructive) / 0.2);
+  }
+
+  .status-info {
+    color: var(--color-info);
+    background-color: hsl(var(--primary) / 0.1);
+    border: 1px solid hsl(var(--primary) / 0.2);
+  }
+}
