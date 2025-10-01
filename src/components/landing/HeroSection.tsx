@@ -126,22 +126,20 @@ const HeroSection: React.FC = () => {
             <div className="ds-grid-3">
               {/* 快速生成 */}
               <div className="group relative">
-                <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale">
-                  <div className="flex items-center mb-4">
-                    <div className="ds-icon-decorative bg-primary text-primary-foreground mr-3 ds-icon-centered group-hover:scale-110 ds-transition-standard">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="ds-title-section ds-text-primary" dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.title')}}></h3>
-                      <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.fastGeneration.subtitle')}</p>
-                    </div>
+                <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale text-center">
+                  <div className="ds-icon-decorative bg-primary text-primary-foreground mx-auto mb-4 ds-icon-centered group-hover:scale-110 ds-transition-standard">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div className="mb-3">
+                    <h3 className="ds-title-section ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.title')}}></h3>
+                    <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.fastGeneration.subtitle')}</p>
                   </div>
                   <p className="ds-text-body ds-text-secondary leading-relaxed">
                     <span dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.description')}}></span>
@@ -151,22 +149,20 @@ const HeroSection: React.FC = () => {
 
               {/* 品牌一致 */}
               <div className="group relative">
-                <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale">
-                  <div className="flex items-center mb-4">
-                    <div className="ds-icon-decorative bg-primary text-primary-foreground mr-3 ds-icon-centered group-hover:scale-110 ds-transition-standard">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="ds-title-section ds-text-primary" dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.title')}}></h3>
-                      <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.brandConsistency.subtitle')}</p>
-                    </div>
+                <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale text-center">
+                  <div className="ds-icon-decorative bg-primary text-primary-foreground mx-auto mb-4 ds-icon-centered group-hover:scale-110 ds-transition-standard">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="mb-3">
+                    <h3 className="ds-title-section ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.title')}}></h3>
+                    <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.brandConsistency.subtitle')}</p>
                   </div>
                   <p className="ds-text-body ds-text-secondary leading-relaxed">
                     <span dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.description')}}></span>
@@ -176,22 +172,20 @@ const HeroSection: React.FC = () => {
 
               {/* 成本节省 */}
               <div className="group relative">
-                <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale">
-                  <div className="flex items-center mb-4">
-                    <div className="ds-icon-decorative bg-primary text-primary-foreground mr-3 ds-icon-centered group-hover:scale-110 ds-transition-standard">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="ds-title-section ds-text-primary" dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.title')}}></h3>
-                      <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.costSaving.subtitle')}</p>
-                    </div>
+                <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale text-center">
+                  <div className="ds-icon-decorative bg-primary text-primary-foreground mx-auto mb-4 ds-icon-centered group-hover:scale-110 ds-transition-standard">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
+                  </div>
+                  <div className="mb-3">
+                    <h3 className="ds-title-section ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.title')}}></h3>
+                    <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.costSaving.subtitle')}</p>
                   </div>
                   <p className="ds-text-body ds-text-secondary leading-relaxed">
                     <span dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.description')}}></span>
