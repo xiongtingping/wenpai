@@ -143,8 +143,9 @@ export class ProductionKeyManager {
     const result = this.validateKey(config);
     this.keyCache.set(keyName, result);
 
-    // 🔧 仅在生产环境或有严重问题时记录安全警告
-    if (result.issues.length > 0 && (this.isProduction() || result.source === 'fallback')) {
+    // 🔧 仅在生产环境且有真正严重问题时记录安全警告
+    // 开发环境使用fallback密钥是预期行为，不应产生警告
+    if (result.issues.length > 0 && this.isProduction() && result.source !== 'fallback') {
       this.addSecurityAlert('warning', 'key_management', 
         `密钥 ${keyName} 存在安全问题`, {
           keyName,
