@@ -417,6 +417,83 @@
     color: var(--color-foreground);
   }
 
+  /* 📑 Tab组件系统 */
+  .unified-tabs-list {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: var(--color-muted);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
+    color: var(--color-muted-foreground);
+  }
+
+  .unified-tab-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    outline: none;
+    border: none;
+    background: transparent;
+    color: var(--color-muted-foreground);
+    gap: var(--spacing-xs);
+  }
+
+  .unified-tab-trigger:hover {
+    background-color: var(--color-surface);
+    color: var(--color-foreground);
+  }
+
+  .unified-tab-trigger[data-state="active"] {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .unified-tab-trigger:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .unified-tab-trigger:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* Tab图标和文本 */
+  .tab-icon {
+    width: var(--size-md);
+    height: var(--size-md);
+    flex-shrink: 0;
+  }
+
+  .tab-text-mobile {
+    display: inline;
+  }
+
+  .tab-text-desktop {
+    display: none;
+  }
+
+  /* 响应式设计 */
+  @media (min-width: 640px) {
+    .tab-text-mobile {
+      display: none;
+    }
+    
+    .tab-text-desktop {
+      display: inline;
+    }
+  }
+
   /* 📝 输入组件 */
   .input {
     height: var(--size-md);
