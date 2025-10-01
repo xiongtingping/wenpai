@@ -182,7 +182,7 @@ export function TokenUsageSection({
       <div style={{marginBottom: '1.5rem'}}>
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
-            <Database className="w-6 h-6" style={{color: '#3b82f6'}} />
+            <Database className="w-6 h-6 text-primary" />
             <div>
               <div className="text-foreground" style={{fontSize: '1.125rem', fontWeight: '600'}}>使用统计</div>
               <div className="text-muted-foreground" style={{fontSize: '0.875rem', fontWeight: 'normal'}}>{planName} - 查看您的使用情况</div>
@@ -192,19 +192,16 @@ export function TokenUsageSection({
             size="sm"
             onClick={handleRefresh}
             disabled={isRefreshing}
+            className={isRefreshing ? 'bg-muted text-muted-foreground' : 'bg-primary text-primary-foreground'}
             style={{
-              background: isRefreshing 
-                ? '#f3f4f6'
-                : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
               border: 'none',
               borderRadius: '6px',
-              color: isRefreshing ? '#6b7280' : 'white',
-              boxShadow: !isRefreshing 
-                ? '0 1px 3px 0 rgba(59, 130, 246, 0.3)' 
+              boxShadow: !isRefreshing
+                ? '0 1px 3px 0 hsl(var(--primary) / 0.3)'
                 : 'none'
             }}
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-muted-foreground' : ''}`} style={{color: isRefreshing ? '#6b7280' : 'white'}} />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       </div>
@@ -234,14 +231,14 @@ export function TokenUsageSection({
                       <div style={{
                         width: '40px',
                         height: '40px',
-                        background: '#3b82f6',
+                        background: 'hsl(var(--primary))',
                         borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
                       }}>
-                        <Zap className="w-5 h-5" style={{color: 'white', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
+                        <Zap className="w-5 h-5 text-primary-foreground" style={{filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
                       </div>
                       <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0}}>
                         <h3 className="text-foreground" style={{fontWeight: '600', fontSize: '14px', whiteSpace: 'nowrap'}}>Token使用量</h3>
@@ -275,39 +272,15 @@ export function TokenUsageSection({
 
                   <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', zIndex: 10}}>
                     {finalTokenStats?.monthlyLimit === -1 ? (
-                      <div style={{
-                        textAlign: 'center',
-                        padding: '1rem',
-                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.1))',
-                        borderRadius: '8px',
-                        border: '1px solid rgba(59, 130, 246, 0.2)'
-                      }}>
-                        <div style={{
-                          fontSize: '24px',
-                          fontWeight: 'bold',
-                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                          marginBottom: '8px'
-                        }}>∞</div>
-                        <div style={{fontSize: '14px', fontWeight: '500', color: '#6b7280'}}>无限制Token</div>
+                      <div className="text-center p-4 bg-primary/5 rounded-lg border border-primary/20">
+                        <div className="text-2xl font-bold text-primary mb-2">∞</div>
+                        <div className="text-sm font-medium text-muted-foreground">无限制Token</div>
                       </div>
                     ) : (
                       <>
-                        <div style={{
-                          width: '100%',
-                          height: '12px',
-                          background: '#f3f4f6',
-                          borderRadius: '6px',
-                          overflow: 'hidden',
-                          position: 'relative'
-                        }}>
-                          <div style={{
-                            height: '100%',
-                            width: `${Math.min(finalTokenStats?.usagePercentage || 0, 100)}%`,
-                            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                            borderRadius: '6px',
-                            transition: 'width 0.3s ease'
+                        <div className="w-full h-3 bg-muted rounded-md overflow-hidden relative">
+                          <div className="h-full bg-primary rounded-md transition-all duration-300 ease-out" style={{
+                            width: `${Math.min(finalTokenStats?.usagePercentage || 0, 100)}%`
                           }} />
                         </div>
                         <div className="text-muted-foreground" style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '500'}}>
@@ -371,14 +344,14 @@ export function TokenUsageSection({
                       <div style={{
                         width: '40px',
                         height: '40px',
-                        background: '#3b82f6',
+                        background: 'hsl(var(--primary))',
                         borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
                       }}>
-                        <Target className="w-5 h-5" style={{color: 'white', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
+                        <Target className="w-5 h-5 text-primary-foreground" style={{filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
                       </div>
                       <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0}}>
                         <h3 className="text-foreground" style={{fontWeight: '600', fontSize: '14px', whiteSpace: 'nowrap'}}>使用次数</h3>
@@ -415,20 +388,9 @@ export function TokenUsageSection({
                   <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', zIndex: 10}}>
                     {finalUsageCountStats && finalUsageCountStats.availableUses !== -1 ? (
                       <>
-                        <div style={{
-                          width: '100%',
-                          height: '12px',
-                          background: '#f3f4f6',
-                          borderRadius: '6px',
-                          overflow: 'hidden',
-                          position: 'relative'
-                        }}>
-                          <div style={{
-                            height: '100%',
-                            width: `${Math.min(finalUsageCountStats?.usagePercentage || 0, 100)}%`,
-                            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                            borderRadius: '6px',
-                            transition: 'width 0.3s ease'
+                        <div className="w-full h-3 bg-muted rounded-md overflow-hidden relative">
+                          <div className="h-full bg-primary rounded-md transition-all duration-300 ease-out" style={{
+                            width: `${Math.min(finalUsageCountStats?.usagePercentage || 0, 100)}%`
                           }} />
                         </div>
                         <div className="text-muted-foreground" style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '500'}}>
@@ -437,21 +399,9 @@ export function TokenUsageSection({
                         </div>
                       </>
                     ) : (
-                      <div style={{
-                        textAlign: 'center',
-                        padding: '12px',
-                        background: '#f9fafb',
-                        borderRadius: '12px'
-                      }}>
-                        <div style={{
-                          fontSize: '24px',
-                          fontWeight: 'bold',
-                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                          marginBottom: '4px'
-                        }}>∞</div>
-                        <div style={{fontSize: '14px', fontWeight: '500', color: '#6b7280'}}>无限制使用</div>
+                      <div className="text-center p-3 bg-muted/30 rounded-xl">
+                        <div className="text-2xl font-bold text-primary mb-1">∞</div>
+                        <div className="text-sm font-medium text-muted-foreground">无限制使用</div>
                       </div>
                     )}
                   </div>

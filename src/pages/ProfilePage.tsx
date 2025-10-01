@@ -732,7 +732,7 @@ export default function ProfilePage() {
             </Card>
 
             {/* 2x2网格布局：左上-订阅有效期，右上-邀请奖励，左下-使用统计，右下-反馈奖励 */}
-            <div className="grid gap-8 xl:grid-cols-2">
+            <div className="grid gap-6 xl:grid-cols-2">
               {/* 左上：订阅有效期统计 */}
               <div>
                 <SubscriptionExpiryCard />
