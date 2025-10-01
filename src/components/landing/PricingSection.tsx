@@ -432,7 +432,7 @@ export function PricingSection() {
           <div className="overflow-x-auto">
             <div className="max-w-6xl mx-auto">
               <table className="w-full border-collapse border border-border rounded-lg overflow-hidden shadow-sm">
-                <thead className="bg-accent">
+                <thead className="bg-primary/10">
                   <tr>
                     <th className="border border-border px-6 py-3 text-left font-semibold text-foreground">{t('home.pricing.comparisonTable.feature')}</th>
                     <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">{t('home.pricing.trialVersion')}</th>
@@ -441,19 +441,19 @@ export function PricingSection() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  <tr className="hover:bg-accent/50 transition-colors">
+                  <tr className="hover:bg-primary/5 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.aiContentAdapter')}</td>
                     <td className="border border-border px-4 py-3 text-center">
-                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">10{t('home.pricing.comparisonTable.timesPerMonth')}</span>
+                      <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/20">10{t('home.pricing.comparisonTable.timesPerMonth')}</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center">
-                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">30{t('home.pricing.comparisonTable.timesPerMonth')}</span>
+                      <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/20">30{t('home.pricing.comparisonTable.timesPerMonth')}</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center">
-                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">{t('home.pricing.comparisonTable.unlimited')}</span>
+                      <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/20">{t('home.pricing.comparisonTable.unlimited')}</span>
                     </td>
                   </tr>
-                  <tr className="hover:bg-accent/50 transition-colors">
+                  <tr className="hover:bg-primary/5 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.hotRadar')}</td>
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
@@ -465,7 +465,7 @@ export function PricingSection() {
                       <span className="text-foreground font-medium">✅</span>
                     </td>
                   </tr>
-                  <tr className="hover:bg-accent/50 transition-colors">
+                  <tr className="hover:bg-primary/5 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.creativeCube')}</td>
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-destructive font-medium">❌</span>
@@ -477,7 +477,7 @@ export function PricingSection() {
                       <span className="text-foreground font-medium">✅</span>
                     </td>
                   </tr>
-                  <tr className="hover:bg-accent/50 transition-colors">
+                  <tr className="hover:bg-primary/5 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.myLibrary')}</td>
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
@@ -489,7 +489,7 @@ export function PricingSection() {
                       <span className="text-foreground font-medium">✅</span>
                     </td>
                   </tr>
-                  <tr className="hover:bg-accent/50 transition-colors">
+                  <tr className="hover:bg-primary/5 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.brandLibrary')}</td>
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-destructive font-medium">❌</span>
@@ -501,7 +501,7 @@ export function PricingSection() {
                       <span className="text-foreground font-medium">✅</span>
                     </td>
                   </tr>
-                  <tr className="hover:bg-accent/50 transition-colors">
+                  <tr className="hover:bg-primary/5 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.aiModels')}</td>
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-muted-foreground pricing-table-text">{t('home.pricing.comparisonTable.basicModels')}</span>
@@ -516,7 +516,7 @@ export function PricingSection() {
                       </div>
                     </td>
                   </tr>
-                  <tr className="hover:bg-accent/50 transition-colors">
+                  <tr className="hover:bg-primary/5 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.tokenLimit')}</td>
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-muted-foreground pricing-table-number">100,000</span>
