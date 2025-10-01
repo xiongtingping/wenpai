@@ -138,9 +138,9 @@ export const CustomAuthModal: React.FC<any> = ({ isOpen,
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab as any} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">登录</TabsTrigger>
-            <TabsTrigger value="register">注册</TabsTrigger>
+          <TabsList className="unified-tabs-list grid w-full grid-cols-2">
+            <TabsTrigger value="login" className="unified-tab-trigger">登录</TabsTrigger>
+            <TabsTrigger value="register" className="unified-tab-trigger">注册</TabsTrigger>
           </TabsList>
 
           <TabsContent value="login" className="space-y-4">

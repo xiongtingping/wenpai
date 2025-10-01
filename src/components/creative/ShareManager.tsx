@@ -361,29 +361,17 @@ const ShareManager: React.FC = () => { const [activeTab, setActiveTab] = useStat
     <div className="space-y-6">
       {/* 标签页导航 */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 bg-accent rounded-lg shadow-sm mb-2">
-          <TabsTrigger
-            value="publish"
-            className={activeTab === 'publish' ? 'font-bold text-primary shadow-md bg-card' : 'text-muted-foreground'}
-          >
+        <TabsList className="unified-tabs-list grid w-full grid-cols-4">
+          <TabsTrigger value="publish" className="unified-tab-trigger">
             发布内容
           </TabsTrigger>
-          <TabsTrigger
-            value="history"
-            className={activeTab === 'history' ? 'font-bold text-primary shadow-md bg-card' : 'text-muted-foreground'}
-          >
+          <TabsTrigger value="history" className="unified-tab-trigger">
             发布历史
           </TabsTrigger>
-          <TabsTrigger
-            value="templates"
-            className={activeTab === 'templates' ? 'font-bold text-primary shadow-md bg-card' : 'text-muted-foreground'}
-          >
+          <TabsTrigger value="templates" className="unified-tab-trigger">
             内容模板
           </TabsTrigger>
-          <TabsTrigger
-            value="settings"
-            className={activeTab === 'settings' ? 'font-bold text-primary shadow-md bg-card' : 'text-muted-foreground'}
-          >
+          <TabsTrigger value="settings" className="unified-tab-trigger">
             平台设置
           </TabsTrigger>
         </TabsList>

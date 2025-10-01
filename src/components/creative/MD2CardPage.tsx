@@ -1364,16 +1364,16 @@ export default function MD2CardPage() {
             {/* 标签页导航 */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
               {/* 优化的标签页导航 */}
-              <TabsList className="w-full justify-center border-b border-border/40 rounded-none bg-gradient-to-r from-white/90 to-slate-50/90 px-6 py-4 h-auto shadow-sm">
-                <TabsTrigger value="template" className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:bg-background/80">
+              <TabsList className="unified-tabs-list grid w-full grid-cols-3">
+                <TabsTrigger value="template" className="unified-tab-trigger">
                   <Square className="w-4 h-4" />
                   模板选择
                 </TabsTrigger>
-                <TabsTrigger value="content" className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:bg-background/80">
+                <TabsTrigger value="content" className="unified-tab-trigger">
                   <Edit3 className="w-4 h-4" />
                   内容编辑
                 </TabsTrigger>
-                <TabsTrigger value="styles" className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:bg-background/80">
+                <TabsTrigger value="styles" className="unified-tab-trigger">
                   <Palette className="w-4 h-4" />
                   快速样式
                 </TabsTrigger>

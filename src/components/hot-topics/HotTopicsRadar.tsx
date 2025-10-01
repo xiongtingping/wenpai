@@ -665,19 +665,19 @@ export default function HotTopicsRadar({ showNavigation = false,
         <CardContent className={compact ? 'p-3' : 'p-4'}>
           {/* 标签页 */}
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="hot" className="text-sm">
+            <TabsList className="unified-tabs-list grid w-full grid-cols-3">
+              <TabsTrigger value="hot" className="unified-tab-trigger">
                 <TrendingUp className="w-4 h-4 mr-1" />
                 热点
               </TabsTrigger>
               {showSubscriptions && (
-                <TabsTrigger value="subscriptions" className="text-sm">
+                <TabsTrigger value="subscriptions" className="unified-tab-trigger">
                   <Bell className="w-4 h-4 mr-1" />
                   订阅
                 </TabsTrigger>
               )}
               {showBookmarks && (
-                <TabsTrigger value="bookmarks" className="text-sm">
+                <TabsTrigger value="bookmarks" className="unified-tab-trigger">
                   <Heart className="w-4 h-4 mr-1" />
                   收藏
                 </TabsTrigger>

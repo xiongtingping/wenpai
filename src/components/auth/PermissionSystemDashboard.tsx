@@ -219,13 +219,13 @@ export const PermissionSystemDashboard: React.FC = () => {
 
       {/* 主要内容标签页 */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="overview">概览</TabsTrigger>
-          <TabsTrigger value="analytics">分析</TabsTrigger>
-          <TabsTrigger value="permissions">权限配置</TabsTrigger>
-          <TabsTrigger value="cache">缓存管理</TabsTrigger>
-          <TabsTrigger value="testing">测试工具</TabsTrigger>
-          <TabsTrigger value="settings">设置</TabsTrigger>
+        <TabsList className="unified-tabs-list grid w-full grid-cols-6">
+          <TabsTrigger value="overview" className="unified-tab-trigger">概览</TabsTrigger>
+          <TabsTrigger value="analytics" className="unified-tab-trigger">分析</TabsTrigger>
+          <TabsTrigger value="permissions" className="unified-tab-trigger">权限配置</TabsTrigger>
+          <TabsTrigger value="cache" className="unified-tab-trigger">缓存管理</TabsTrigger>
+          <TabsTrigger value="testing" className="unified-tab-trigger">测试工具</TabsTrigger>
+          <TabsTrigger value="settings" className="unified-tab-trigger">设置</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

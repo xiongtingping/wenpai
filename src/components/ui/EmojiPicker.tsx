@@ -222,9 +222,9 @@ export const EmojiPicker: React.FC<any> = ({ onSelect,
         {/* 分类标签 */}
         <div className="px-4 py-2 border-b">
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="unified-tabs-list grid w-full grid-cols-5">
               {categories.slice(0, 5).map((category) => (
-                <TabsTrigger key={category.id} value={category.id} className="text-xs">
+                <TabsTrigger key={category.id} value={category.id} className="unified-tab-trigger">
                   <category.icon className="h-3 w-3 mr-1" />
                   {category.label}
                 </TabsTrigger>

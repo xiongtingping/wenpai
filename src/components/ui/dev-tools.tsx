@@ -74,10 +74,10 @@ export const DevTools: React.FC = () => {
           </CardHeader>
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="auth" className="text-xs">认证</TabsTrigger>
-                <TabsTrigger value="permissions" className="text-xs">权限</TabsTrigger>
-                <TabsTrigger value="system" className="text-xs">系统</TabsTrigger>
+              <TabsList className="unified-tabs-list grid w-full grid-cols-3">
+                <TabsTrigger value="auth" className="unified-tab-trigger">认证</TabsTrigger>
+                <TabsTrigger value="permissions" className="unified-tab-trigger">权限</TabsTrigger>
+                <TabsTrigger value="system" className="unified-tab-trigger">系统</TabsTrigger>
               </TabsList>
 
               {/* 认证信息 */}

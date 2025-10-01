@@ -191,10 +191,10 @@ VITE_ENABLE_IMAGE_GENERATION=true`;
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="openai" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="openai">OpenAI</TabsTrigger>
-              <TabsTrigger value="deepseek">DeepSeek</TabsTrigger>
-              <TabsTrigger value="gemini">Gemini</TabsTrigger>
+            <TabsList className="unified-tabs-list grid w-full grid-cols-3">
+              <TabsTrigger value="openai" className="unified-tab-trigger">OpenAI</TabsTrigger>
+              <TabsTrigger value="deepseek" className="unified-tab-trigger">DeepSeek</TabsTrigger>
+              <TabsTrigger value="gemini" className="unified-tab-trigger">Gemini</TabsTrigger>
             </TabsList>
             
             <TabsContent value="openai" className="space-y-4">

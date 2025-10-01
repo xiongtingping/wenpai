@@ -339,14 +339,14 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
           </CardHeader>
           <CardContent className="pt-0 px-8 pb-8 space-y-8">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50">
-                <TabsTrigger value="categories" className="text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground">
+              <TabsList className="unified-tabs-list grid w-full grid-cols-3">
+                <TabsTrigger value="categories" className="unified-tab-trigger">
                   分类偏好
                 </TabsTrigger>
-                <TabsTrigger value="keywords" className="text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground">
+                <TabsTrigger value="keywords" className="unified-tab-trigger">
                   关键词
                 </TabsTrigger>
-                <TabsTrigger value="platforms" className="text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground">
+                <TabsTrigger value="platforms" className="unified-tab-trigger">
                   平台设置
                 </TabsTrigger>
               </TabsList>

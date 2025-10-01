@@ -228,11 +228,11 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
   return (
     <div className={className}>
       <Tabs defaultValue="topics" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="topics">融合热点</TabsTrigger>
-          <TabsTrigger value="analytics">数据分析</TabsTrigger>
-          <TabsTrigger value="sources">数据源</TabsTrigger>
-          <TabsTrigger value="settings">配置</TabsTrigger>
+        <TabsList className="unified-tabs-list grid w-full grid-cols-4">
+          <TabsTrigger value="topics" className="unified-tab-trigger">融合热点</TabsTrigger>
+          <TabsTrigger value="analytics" className="unified-tab-trigger">数据分析</TabsTrigger>
+          <TabsTrigger value="sources" className="unified-tab-trigger">数据源</TabsTrigger>
+          <TabsTrigger value="settings" className="unified-tab-trigger">配置</TabsTrigger>
         </TabsList>
 
         {/* 融合热点标签页 */}
