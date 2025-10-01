@@ -14,7 +14,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     target: 'esnext',
-    minify: false, // 暂时禁用压缩避免CSS错误
+    minify: 'terser', // 恢复正常压缩
     rollupOptions: {
       output: {
         format: 'es',
