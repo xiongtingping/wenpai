@@ -2,6 +2,7 @@ import * as React from "react"
 import * as SeparatorPrimitive from "@radix-ui/react-separator"
 
 import { cn } from "@/lib/utils"
+import { safeGetDisplayName } from "@/utils/safeDisplayName"
 
 const Separator = React.forwardRef<
   React.ElementRef<typeof SeparatorPrimitive.Root>,
@@ -24,6 +25,6 @@ const Separator = React.forwardRef<
     />
   )
 )
-Separator.displayName = SeparatorPrimitive.Root.displayName || "Separator"
+Separator.displayName = safeGetDisplayName(SeparatorPrimitive.Root, "Separator")
 
 export { Separator }

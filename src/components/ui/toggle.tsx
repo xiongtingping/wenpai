@@ -3,6 +3,7 @@ import * as TogglePrimitive from "@radix-ui/react-toggle"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+import { safeGetDisplayName } from "@/utils/safeDisplayName"
 
 const toggleVariants = cva(
   // ✅ 移除通用transition，只用data-[state]控制状态变化，hover用CSS伪类
@@ -39,6 +40,6 @@ const Toggle = React.forwardRef<
   />
 ))
 
-Toggle.displayName = TogglePrimitive.Root.displayName || "Toggle"
+Toggle.displayName = safeGetDisplayName(TogglePrimitive.Root, "Toggle")
 
 export { Toggle, toggleVariants }

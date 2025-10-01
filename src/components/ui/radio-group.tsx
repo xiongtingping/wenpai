@@ -3,6 +3,7 @@ import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { Circle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { safeGetDisplayName } from "@/utils/safeDisplayName"
 
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
@@ -16,7 +17,7 @@ const RadioGroup = React.forwardRef<
     />
   )
 })
-RadioGroup.displayName = RadioGroupPrimitive.Root.displayName || "RadioGroup"
+RadioGroup.displayName = safeGetDisplayName(RadioGroupPrimitive.Root, "RadioGroup")
 
 const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Item>,
@@ -37,6 +38,6 @@ const RadioGroupItem = React.forwardRef<
     </RadioGroupPrimitive.Item>
   )
 })
-RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName || "RadioGroupItem"
+RadioGroupItem.displayName = safeGetDisplayName(RadioGroupPrimitive.Item, "RadioGroupItem")
 
 export { RadioGroup, RadioGroupItem }

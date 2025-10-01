@@ -2,6 +2,7 @@ import * as React from "react"
 import * as ProgressPrimitive from "@radix-ui/react-progress"
 
 import { cn } from "@/lib/utils"
+import { safeGetDisplayName } from "@/utils/safeDisplayName"
 
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
@@ -21,6 +22,6 @@ const Progress = React.forwardRef<
     />
   </ProgressPrimitive.Root>
 ))
-Progress.displayName = ProgressPrimitive.Root.displayName || "Progress"
+Progress.displayName = safeGetDisplayName(ProgressPrimitive.Root, "Progress")
 
 export { Progress }

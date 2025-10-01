@@ -3,6 +3,7 @@ import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group"
 import { type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+import { safeGetDisplayName } from "@/utils/safeDisplayName"
 import { toggleVariants } from "@/components/ui/toggle"
 
 const ToggleGroupContext = React.createContext<
@@ -28,7 +29,7 @@ const ToggleGroup = React.forwardRef<
   </ToggleGroupPrimitive.Root>
 ))
 
-ToggleGroup.displayName = ToggleGroupPrimitive.Root.displayName || "ToggleGroup"
+ToggleGroup.displayName = safeGetDisplayName(ToggleGroupPrimitive.Root, "ToggleGroup")
 
 const ToggleGroupItem = React.forwardRef<
   React.ElementRef<typeof ToggleGroupPrimitive.Item>,
@@ -54,6 +55,6 @@ const ToggleGroupItem = React.forwardRef<
   )
 })
 
-ToggleGroupItem.displayName = ToggleGroupPrimitive.Item.displayName || "ToggleGroupItem"
+ToggleGroupItem.displayName = safeGetDisplayName(ToggleGroupPrimitive.Item, "ToggleGroupItem")
 
 export { ToggleGroup, ToggleGroupItem }

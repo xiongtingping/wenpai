@@ -3,6 +3,7 @@ import * as MenubarPrimitive from "@radix-ui/react-menubar"
 import { Check, ChevronRight, Circle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { safeGetDisplayName } from "@/utils/safeDisplayName"
 
 function MenubarMenu({
   ...props
@@ -47,7 +48,7 @@ const Menubar = React.forwardRef<
     {...props}
   />
 ))
-Menubar.displayName = MenubarPrimitive.Root.displayName || "Menubar"
+Menubar.displayName = safeGetDisplayName(MenubarPrimitive.Root, "Menubar")
 
 const MenubarTrigger = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.Trigger>,
@@ -62,7 +63,7 @@ const MenubarTrigger = React.forwardRef<
     {...props}
   />
 ))
-MenubarTrigger.displayName = MenubarPrimitive.Trigger.displayName || "MenubarTrigger"
+MenubarTrigger.displayName = safeGetDisplayName(MenubarPrimitive.Trigger, "MenubarTrigger")
 
 const MenubarSubTrigger = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.SubTrigger>,
@@ -83,7 +84,7 @@ const MenubarSubTrigger = React.forwardRef<
     <ChevronRight className="ml-auto h-4 w-4" />
   </MenubarPrimitive.SubTrigger>
 ))
-MenubarSubTrigger.displayName = MenubarPrimitive.SubTrigger.displayName || "MenubarSubTrigger"
+MenubarSubTrigger.displayName = safeGetDisplayName(MenubarPrimitive.SubTrigger, "MenubarSubTrigger")
 
 const MenubarSubContent = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.SubContent>,
@@ -98,7 +99,7 @@ const MenubarSubContent = React.forwardRef<
     {...props}
   />
 ))
-MenubarSubContent.displayName = MenubarPrimitive.SubContent.displayName || "MenubarSubContent"
+MenubarSubContent.displayName = safeGetDisplayName(MenubarPrimitive.SubContent, "MenubarSubContent")
 
 const MenubarContent = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.Content>,
@@ -123,7 +124,7 @@ const MenubarContent = React.forwardRef<
     </MenubarPrimitive.Portal>
   )
 )
-MenubarContent.displayName = MenubarPrimitive.Content.displayName || "MenubarContent"
+MenubarContent.displayName = safeGetDisplayName(MenubarPrimitive.Content, "MenubarContent")
 
 const MenubarItem = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.Item>,
@@ -141,7 +142,7 @@ const MenubarItem = React.forwardRef<
     {...props}
   />
 ))
-MenubarItem.displayName = MenubarPrimitive.Item.displayName || "MenubarItem"
+MenubarItem.displayName = safeGetDisplayName(MenubarPrimitive.Item, "MenubarItem")
 
 const MenubarCheckboxItem = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.CheckboxItem>,
@@ -164,7 +165,7 @@ const MenubarCheckboxItem = React.forwardRef<
     {children}
   </MenubarPrimitive.CheckboxItem>
 ))
-MenubarCheckboxItem.displayName = MenubarPrimitive.CheckboxItem.displayName || "MenubarCheckboxItem"
+MenubarCheckboxItem.displayName = safeGetDisplayName(MenubarPrimitive.CheckboxItem, "MenubarCheckboxItem")
 
 const MenubarRadioItem = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.RadioItem>,
@@ -186,7 +187,7 @@ const MenubarRadioItem = React.forwardRef<
     {children}
   </MenubarPrimitive.RadioItem>
 ))
-MenubarRadioItem.displayName = MenubarPrimitive.RadioItem.displayName || "MenubarRadioItem"
+MenubarRadioItem.displayName = safeGetDisplayName(MenubarPrimitive.RadioItem, "MenubarRadioItem")
 
 const MenubarLabel = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.Label>,
@@ -204,7 +205,7 @@ const MenubarLabel = React.forwardRef<
     {...props}
   />
 ))
-MenubarLabel.displayName = MenubarPrimitive.Label.displayName || "MenubarLabel"
+MenubarLabel.displayName = safeGetDisplayName(MenubarPrimitive.Label, "MenubarLabel")
 
 const MenubarSeparator = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.Separator>,
@@ -216,7 +217,7 @@ const MenubarSeparator = React.forwardRef<
     {...props}
   />
 ))
-MenubarSeparator.displayName = MenubarPrimitive.Separator.displayName || "MenubarSeparator"
+MenubarSeparator.displayName = safeGetDisplayName(MenubarPrimitive.Separator, "MenubarSeparator")
 
 const MenubarShortcut = ({
   className,

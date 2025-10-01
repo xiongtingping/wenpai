@@ -13,6 +13,7 @@ import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { safeGetDisplayName } from "@/utils/safeDisplayName"
 
 const Dialog = DialogPrimitive.Root
 const DialogTrigger = DialogPrimitive.Trigger
@@ -42,7 +43,7 @@ const DialogOverlay = React.forwardRef<
     {...props}
   />
 ))
-DialogOverlay.displayName = DialogPrimitive.Overlay.displayName || "DialogOverlay"
+DialogOverlay.displayName = safeGetDisplayName(DialogPrimitive.Overlay, "DialogOverlay")
 
 /**
  * Portal容器 - 处理渲染层级
@@ -119,7 +120,7 @@ const DialogContent = React.forwardRef<
     </DialogPortal>
   );
 })
-DialogContent.displayName = DialogPrimitive.Content.displayName || "DialogContent"
+DialogContent.displayName = safeGetDisplayName(DialogPrimitive.Content, "DialogContent")
 
 /**
  * Dialog头部组件
@@ -171,7 +172,7 @@ const DialogTitle = React.forwardRef<
     {...props}
   />
 ))
-DialogTitle.displayName = DialogPrimitive.Title.displayName || "DialogTitle"
+DialogTitle.displayName = safeGetDisplayName(DialogPrimitive.Title, "DialogTitle")
 
 /**
  * Dialog描述组件
@@ -186,7 +187,7 @@ const DialogDescription = React.forwardRef<
     {...props}
   />
 ))
-DialogDescription.displayName = DialogPrimitive.Description.displayName || "DialogDescription"
+DialogDescription.displayName = safeGetDisplayName(DialogPrimitive.Description, "DialogDescription")
 
 export {
   Dialog,

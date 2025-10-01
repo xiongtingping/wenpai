@@ -4,6 +4,7 @@ import { Command as CommandPrimitive } from "cmdk"
 import { Search } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { safeGetDisplayName } from "@/utils/safeDisplayName"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 const Command = React.forwardRef<
@@ -19,7 +20,7 @@ const Command = React.forwardRef<
     {...props}
   />
 ))
-Command.displayName = CommandPrimitive.displayName || "Command"
+Command.displayName = safeGetDisplayName(CommandPrimitive, "Command")
 
 const CommandDialog = ({ children, ...props }: DialogProps) => {
   return (
@@ -50,7 +51,7 @@ const CommandInput = React.forwardRef<
   </div>
 ))
 
-CommandInput.displayName = CommandPrimitive.Input.displayName || "CommandInput"
+CommandInput.displayName = safeGetDisplayName(CommandPrimitive.Input, "CommandInput")
 
 const CommandList = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.List>,
@@ -63,7 +64,7 @@ const CommandList = React.forwardRef<
   />
 ))
 
-CommandList.displayName = CommandPrimitive.List.displayName || "CommandList"
+CommandList.displayName = safeGetDisplayName(CommandPrimitive.List, "CommandList")
 
 const CommandEmpty = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Empty>,
@@ -76,7 +77,7 @@ const CommandEmpty = React.forwardRef<
   />
 ))
 
-CommandEmpty.displayName = CommandPrimitive.Empty.displayName || "CommandEmpty"
+CommandEmpty.displayName = safeGetDisplayName(CommandPrimitive.Empty, "CommandEmpty")
 
 const CommandGroup = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Group>,
@@ -92,7 +93,7 @@ const CommandGroup = React.forwardRef<
   />
 ))
 
-CommandGroup.displayName = CommandPrimitive.Group.displayName || "CommandGroup"
+CommandGroup.displayName = safeGetDisplayName(CommandPrimitive.Group, "CommandGroup")
 
 const CommandSeparator = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Separator>,
@@ -104,7 +105,7 @@ const CommandSeparator = React.forwardRef<
     {...props}
   />
 ))
-CommandSeparator.displayName = CommandPrimitive.Separator.displayName || "CommandSeparator"
+CommandSeparator.displayName = safeGetDisplayName(CommandPrimitive.Separator, "CommandSeparator")
 
 const CommandItem = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Item>,
@@ -120,7 +121,7 @@ const CommandItem = React.forwardRef<
   />
 ))
 
-CommandItem.displayName = CommandPrimitive.Item.displayName || "CommandItem"
+CommandItem.displayName = safeGetDisplayName(CommandPrimitive.Item, "CommandItem")
 
 const CommandShortcut = ({
   className,

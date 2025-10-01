@@ -55,7 +55,10 @@ export function safeGetDisplayName(
     }
     return fallbackName;
   } catch (error) {
-    console.warn(`⚠️ 无法安全获取displayName，使用后备名称 (${fallbackName}):`, error);
+    // 只在开发环境输出警告
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`⚠️ 无法安全获取displayName，使用后备名称 (${fallbackName}):`, error);
+    }
     return fallbackName;
   }
 }

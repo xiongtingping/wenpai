@@ -2,6 +2,7 @@ import * as React from "react"
 import { Drawer as DrawerPrimitive } from "vaul"
 
 import { cn } from "@/lib/utils"
+import { safeGetDisplayName } from "@/utils/safeDisplayName"
 
 const Drawer = ({
   shouldScaleBackground = true,
@@ -30,7 +31,7 @@ const DrawerOverlay = React.forwardRef<
     {...props}
   />
 ))
-DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName || "DrawerOverlay"
+DrawerOverlay.displayName = safeGetDisplayName(DrawerPrimitive.Overlay, "DrawerOverlay")
 
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
@@ -88,7 +89,7 @@ const DrawerTitle = React.forwardRef<
     {...props}
   />
 ))
-DrawerTitle.displayName = DrawerPrimitive.Title.displayName || "DrawerTitle"
+DrawerTitle.displayName = safeGetDisplayName(DrawerPrimitive.Title, "DrawerTitle")
 
 const DrawerDescription = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Description>,
@@ -100,7 +101,7 @@ const DrawerDescription = React.forwardRef<
     {...props}
   />
 ))
-DrawerDescription.displayName = DrawerPrimitive.Description.displayName || "DrawerDescription"
+DrawerDescription.displayName = safeGetDisplayName(DrawerPrimitive.Description, "DrawerDescription")
 
 export {
   Drawer,

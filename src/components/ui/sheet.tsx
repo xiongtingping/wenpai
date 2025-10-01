@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { safeGetDisplayName } from "@/utils/safeDisplayName"
 
 const Sheet = SheetPrimitive.Root
 
@@ -26,7 +27,7 @@ const SheetOverlay = React.forwardRef<
     ref={ref}
   />
 ))
-SheetOverlay.displayName = SheetPrimitive.Overlay.displayName || "SheetOverlay"
+SheetOverlay.displayName = safeGetDisplayName(SheetPrimitive.Overlay, "SheetOverlay")
 
 const sheetVariants = cva(
   // ✅ 遵循"动画时序交给库"原则：移除通用transition，保留Radix的data-[state]动画
@@ -71,7 +72,7 @@ const SheetContent = React.forwardRef<
     </SheetPrimitive.Content>
   </SheetPortal>
 ))
-SheetContent.displayName = SheetPrimitive.Content.displayName || "SheetContent"
+SheetContent.displayName = safeGetDisplayName(SheetPrimitive.Content, "SheetContent")
 
 const SheetHeader = ({
   className,
@@ -111,7 +112,7 @@ const SheetTitle = React.forwardRef<
     {...props}
   />
 ))
-SheetTitle.displayName = SheetPrimitive.Title.displayName || "SheetTitle"
+SheetTitle.displayName = safeGetDisplayName(SheetPrimitive.Title, "SheetTitle")
 
 const SheetDescription = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Description>,
@@ -123,7 +124,7 @@ const SheetDescription = React.forwardRef<
     {...props}
   />
 ))
-SheetDescription.displayName = SheetPrimitive.Description.displayName || "SheetDescription"
+SheetDescription.displayName = safeGetDisplayName(SheetPrimitive.Description, "SheetDescription")
 
 export {
   Sheet,
