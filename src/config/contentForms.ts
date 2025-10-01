@@ -3,11 +3,17 @@
  * 定义四大内容分类和具体形式
  */
 
-// import i18n from '@/i18n'; // 改为动态导入避免TDZ
-
-// 🔧 TDZ Fix: 使用函数声明避免TDZ错误
+// 🔧 TDZ Fix: 使用延迟加载避免模块级别的i18n调用
 function getTranslation(key: string) {
-  return i18n.t(key);
+  // 动态获取i18n实例，避免TDZ错误
+  try {
+    // 从全局获取i18n实例，如果不存在则返回key
+    const i18nInstance = (window as any).i18n || (globalThis as any).i18n;
+    return i18nInstance?.t?.(key) || key;
+  } catch (error) {
+    // 出错时返回key作为fallback
+    return key;
+  }
 }
 
 export interface ContentForm {
