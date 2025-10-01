@@ -2132,10 +2132,10 @@ export default function BrandLibraryPageFixed() {
               <CardContent className="space-y-6">
                 {/* 文件上传区域 */}
                 <div
-                  className="border-2 border-dashed border-border rounded-lg p-8 text-center bg-accent/50 hover:bg-accent transition-colors"
+                  className="border-2 border-dashed border-border rounded-lg p-8 text-center bg-muted/50 hover:bg-muted transition-colors"
                 >
                   <div className="flex flex-col items-center gap-4">
-                    <div className="p-4 bg-accent rounded-full flex items-center justify-center">
+                    <div className="p-4 bg-primary/10 rounded-full flex items-center justify-center">
                       <Upload className="h-8 w-8 text-primary" />
                     </div>
                     <div>
