@@ -88,9 +88,13 @@ export default function ProfilePage() {
   })();
 
   const getAccountType = () => {
-    if (userTier === 'trial') return t('auth.trialUser');
-    if (userTier === 'pro') return t('auth.proUser');
-    return t('auth.premiumUser');
+    // 🔧 FIX: 统一使用订阅等级名称，避免显示"试用用户"
+    const tierLabels: Record<string, string> = {
+      'trial': '体验版',
+      'pro': '专业版',
+      'premium': '高级版'
+    };
+    return tierLabels[userTier] || '体验版';
   };
 
   const registrationDate = user?.createdAt ?
