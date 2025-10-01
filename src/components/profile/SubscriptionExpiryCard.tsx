@@ -97,7 +97,7 @@ function getStatusIcon(status: string, needsAlert: boolean) {
 }
 
 /**
- * 获取剩余天数描述(包含具体日期)
+ * 获取剩余天数描述(直接显示日期时间)
  */
 function getDaysRemainingText(daysRemaining: number, status: string, expiresAt: Date | string | null): string {
   // 格式化到期日期
@@ -109,16 +109,12 @@ function getDaysRemainingText(daysRemaining: number, status: string, expiresAt: 
   if (status === 'inactive') {
     return '未激活';
   }
-  if (daysRemaining === 0) {
-    return dateStr ? `今日到期 (${dateStr})` : '今日到期';
-  }
-  if (daysRemaining === 1) {
-    return dateStr ? `明日到期 (${dateStr})` : '明日到期';
-  }
+  // 🔧 FIX: 直接显示到期日期，不使用"今日"、"明日"等相对描述
   if (daysRemaining < 0) {
-    return dateStr ? `已于 ${dateStr} 过期 (${Math.abs(daysRemaining)} 天前)` : `过期 ${Math.abs(daysRemaining)} 天`;
+    return dateStr ? `已于 ${dateStr} 过期` : `过期 ${Math.abs(daysRemaining)} 天`;
   }
-  return dateStr ? `剩余 ${daysRemaining} 天 (${dateStr} 到期)` : `剩余 ${daysRemaining} 天`;
+  // 对于所有未来的到期时间，统一显示"于 [日期] 到期"
+  return dateStr ? `于 ${dateStr} 到期` : `剩余 ${daysRemaining} 天`;
 }
 
 /**
