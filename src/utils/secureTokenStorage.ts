@@ -41,7 +41,7 @@ export interface TokenValidationResult {
 export class SecureTokenStorage {
   private static instance: SecureTokenStorage;
   private encryptionKey: string;
-  private cookieEndpoint = '/api/auth/cookie'; // 服务端cookie操作端点
+  private cookieEndpoint = '/.netlify/functions/auth-cookie'; // 服务端cookie操作端点
 
   private constructor() {
     // 生成或获取加密密钥
