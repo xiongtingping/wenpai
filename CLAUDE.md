@@ -1,4 +1,112 @@
-# CLAUDE.md 项目治理规则
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## 开发环境与构建
+
+### 常用命令
+```bash
+# 开发环境
+npm run dev                 # 启动开发服务器 (localhost:5173)
+npm run build              # 构建生产版本
+npm run build:check       # 构建前检查 (包含类型检查和系统检查)
+npm run preview           # 预览构建结果
+
+# 代码质量
+npm run lint              # ESLint检查
+npm run lint:fix         # 自动修复ESLint问题  
+npm run type-check       # TypeScript类型检查
+npm test                 # 运行Jest测试
+npm run test:watch       # 监听模式运行测试
+
+# CSS治理系统
+npm run css:governance:check           # CSS规范检查
+npm run css:governance:fix            # 自动修复CSS违规
+npm run css:governance:smart-check    # 智能CSS检查
+npm run style:check                   # 样式系统检查
+npm run tokens:build                  # 构建设计令牌
+
+# 部署相关  
+npm run deploy:netlify    # 部署到Netlify
+npm run predeploy        # 部署前检查
+```
+
+### 技术栈
+- **前端框架**: React 18 + TypeScript
+- **构建工具**: Vite 7
+- **样式系统**: Tailwind CSS + CSS Layers + 设计令牌
+- **UI组件**: Radix UI + shadcn/ui
+- **状态管理**: Zustand + React Context
+- **国际化**: i18next + react-i18next
+- **认证**: Authing Guard + Supabase Auth
+- **数据库**: Supabase PostgreSQL
+- **部署**: Netlify (带Netlify Functions)
+
+## 核心架构
+
+### 项目结构
+```
+src/
+├── components/          # UI组件 (分功能模块组织)
+│   ├── ui/             # 基础UI组件库 (shadcn/ui)
+│   ├── auth/           # 认证相关组件
+│   ├── creative/       # 创作工具组件
+│   ├── landing/        # 落地页组件
+│   └── ...
+├── pages/              # 页面组件
+├── features/           # 功能模块 (独立的业务逻辑)
+│   ├── content-adapter/  # 内容适配器
+│   ├── titleGeneration/  # 标题生成
+│   └── ...
+├── services/           # 服务层 (API调用、业务逻辑)
+├── hooks/              # React自定义Hooks
+├── utils/              # 工具函数
+├── stores/             # 状态管理
+├── api/                # API封装和请求管理
+├── config/             # 配置文件
+├── types/              # TypeScript类型定义
+└── styles/             # CSS样式文件
+```
+
+### 认证架构
+- **多重认证系统**: Authing + Supabase双重认证
+- **权限控制**: 基于角色的权限系统 (guest/trial/pro/premium)
+- **路由守卫**: `AuthGuard`, `ProGuard`, `PremiumGuard`
+- **权限组件**: `PermissionGuard`, `UnifiedPermissionWrapper`
+
+### CSS架构治理
+- **层级系统**: 使用`@layer`确保样式优先级可控
+- **设计令牌**: 所有颜色、间距、字体通过CSS变量统一管理
+- **禁止硬编码**: 严格禁止内联样式和硬编码样式值
+- **Tailwind + CSS Variables**: 结合Tailwind和自定义CSS变量
+
+### API架构
+- **统一请求**: 所有API请求通过`src/api/request.ts`处理
+- **环境变量**: API密钥和配置通过环境变量管理
+- **错误处理**: 统一错误处理和重试机制
+- **代理转发**: Netlify Functions实现API代理和CORS处理
+
+### 数据管理
+- **持久化**: 所有数据保存到Supabase
+- **用户隔离**: 严格的用户数据隔离机制
+- **状态管理**: Zustand + React Context混合架构
+- **数据同步**: 统一的数据同步和冲突解决
+
+### 国际化系统
+- **i18next**: 支持中文(zh-CN)和英文(en-US)
+- **全局实例**: 在`main.tsx`设置全局i18n实例避免TDZ错误
+- **翻译文件**: `src/i18n/locales/`目录下的JSON文件
+
+### 关键约定
+- **模块导入**: 使用`@/`别名引用src目录
+- **组件命名**: React组件使用PascalCase
+- **文件命名**: 普通文件使用kebab-case，组件文件使用PascalCase
+- **CSS命名**: BEM方法论 + 设计令牌
+- **环境变量**: 敏感配置必须通过环境变量注入
+
+---
+
+# 项目治理规则
 
 ## 1. 核心原则
 
