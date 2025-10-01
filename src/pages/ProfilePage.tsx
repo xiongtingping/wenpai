@@ -727,29 +727,18 @@ export default function ProfilePage() {
               </div>
             </Card>
 
-            {/* 第二行：订阅有效期统计 */}
-            <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative">
-                <SubscriptionExpiryCard />
-              </div>
-            </div>
-
-            {/* 第三行：使用统计和邀请奖励 */}
+            {/* 2x2网格布局：左上-订阅有效期，右上-邀请奖励，左下-使用统计，右下-反馈奖励 */}
             <div className="grid gap-8 xl:grid-cols-2">
-              {/* 使用统计卡片 */}
+              {/* 左上：订阅有效期统计 */}
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative">
-                  <TokenUsageSection
-                    userTier={userTier}
-                    showDetails={true}
-                    className="profile-usage-card w-full border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl"
-                  />
+                  <SubscriptionExpiryCard />
                 </div>
               </div>
 
-              <div className="space-y-8">
+              {/* 右上：邀请奖励卡片 */}
+              <div className="relative">
                 {/* 邀请奖励卡片 */}
                 <Card className="relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl group hover:shadow-2xl transition-all duration-500">
                   {/* 卡片内部装饰 */}
@@ -825,7 +814,22 @@ export default function ProfilePage() {
                     </Button>
                   </CardContent>
                 </Card>
+              </div>
 
+              {/* 左下：使用统计卡片 */}
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative">
+                  <TokenUsageSection
+                    userTier={userTier}
+                    showDetails={true}
+                    className="profile-usage-card w-full border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl"
+                  />
+                </div>
+              </div>
+
+              {/* 右下：反馈奖励卡片 */}
+              <div className="relative">
                 {/* 反馈奖励卡片 */}
                 <Card className="relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl group hover:shadow-2xl transition-all duration-500">
                   {/* 卡片内部装饰 */}

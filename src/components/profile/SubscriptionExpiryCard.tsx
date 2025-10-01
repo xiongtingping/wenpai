@@ -97,25 +97,28 @@ function getStatusIcon(status: string, needsAlert: boolean) {
 }
 
 /**
- * 获取剩余天数描述
+ * 获取剩余天数描述(包含具体日期)
  */
-function getDaysRemainingText(daysRemaining: number, status: string): string {
+function getDaysRemainingText(daysRemaining: number, status: string, expiresAt: Date | string | null): string {
+  // 格式化到期日期
+  const dateStr = expiresAt ? formatDateTime(expiresAt, true) : '';
+
   if (status === 'expired') {
-    return '已过期';
+    return dateStr ? `已于 ${dateStr} 过期` : '已过期';
   }
   if (status === 'inactive') {
     return '未激活';
   }
   if (daysRemaining === 0) {
-    return '今日到期';
+    return dateStr ? `今日到期 (${dateStr})` : '今日到期';
   }
   if (daysRemaining === 1) {
-    return '明日到期';
+    return dateStr ? `明日到期 (${dateStr})` : '明日到期';
   }
   if (daysRemaining < 0) {
-    return `过期 ${Math.abs(daysRemaining)} 天`;
+    return dateStr ? `已于 ${dateStr} 过期 (${Math.abs(daysRemaining)} 天前)` : `过期 ${Math.abs(daysRemaining)} 天`;
   }
-  return `剩余 ${daysRemaining} 天`;
+  return dateStr ? `剩余 ${daysRemaining} 天 (${dateStr} 到期)` : `剩余 ${daysRemaining} 天`;
 }
 
 /**
@@ -160,7 +163,7 @@ export function SubscriptionExpiryCard() {
     }
 
     const progress = calculateProgress(startDate, expiresAt);
-    const daysText = getDaysRemainingText(daysRemaining, status);
+    const daysText = getDaysRemainingText(daysRemaining, status, expiresAt);
 
     // 订阅等级信息
     const tierInfo = {
