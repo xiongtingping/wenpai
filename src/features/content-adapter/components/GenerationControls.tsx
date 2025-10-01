@@ -278,7 +278,7 @@ export function GenerationControls({ generating,
                 </div>
                 <span className="text-sm text-muted-foreground">免费使用</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="flex flex-wrap gap-2">
                 {availableModels.filter(m => m.tier === 'low').map((model) => {
                   const isAccessible = model.isAccessible;
                   const disabled = !isAccessible || generating;
@@ -288,7 +288,7 @@ export function GenerationControls({ generating,
                     <div
                       key={model.id}
                       className={`
-                        relative p-4 rounded-lg border cursor-pointer transition-all
+                        relative p-3 rounded-lg border cursor-pointer transition-all flex-shrink-0
                         ${isSelected 
                           ? 'border-green-500 bg-green-50 ring-2 ring-green-200' 
                           : disabled 
@@ -303,28 +303,25 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-center gap-2">
                         <div className={`
-                          w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5
+                          w-4 h-4 rounded-full border-2 flex items-center justify-center
                           ${isSelected 
                             ? 'border-green-500 bg-green-500' 
                             : 'border-gray-300'
                           }
                         `}>
-                          {isSelected && <Check className="w-3 h-3 text-white" />}
+                          {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-medium text-gray-900 truncate">
+                        <div className="min-w-0">
+                          <h5 className="font-medium text-gray-900 text-sm">
                             {model?.name || '测试模型名称'}
                           </h5>
-                          <div className="mt-1">
-                            <Badge variant="outline" className="text-xs">
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <Badge variant="outline" className="text-xs h-4">
                               {model?.company || 'Unknown'}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                            {model?.description || '测试模型描述'}
-                          </p>
                         </div>
                       </div>
                     </div>
@@ -345,7 +342,7 @@ export function GenerationControls({ generating,
                 </div>
                 <span className="text-sm text-muted-foreground">需要订阅</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="flex flex-wrap gap-2">
                 {availableModels.filter(m => m.tier === 'mid').map((model) => {
                   const isAccessible = accessibleModelIds.has(model.id);
                   const disabled = !isAccessible || generating;
@@ -355,7 +352,7 @@ export function GenerationControls({ generating,
                     <div
                       key={model.id}
                       className={`
-                        relative p-4 rounded-lg border cursor-pointer transition-all
+                        relative p-3 rounded-lg border cursor-pointer transition-all flex-shrink-0
                         ${isSelected 
                           ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
                           : disabled 
@@ -370,39 +367,36 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-center gap-2">
                         <div className={`
-                          w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5
+                          w-4 h-4 rounded-full border-2 flex items-center justify-center
                           ${isSelected 
                             ? 'border-blue-500 bg-blue-500' 
                             : 'border-gray-300'
                           }
                         `}>
                           {isSelected ? (
-                            <Check className="w-3 h-3 text-white" />
+                            <Check className="w-2.5 h-2.5 text-white" />
                           ) : disabled && (
-                            <Crown className="w-3 h-3 text-gray-400" />
+                            <Crown className="w-2.5 h-2.5 text-gray-400" />
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-medium text-gray-900 truncate">
+                        <div className="min-w-0">
+                          <h5 className="font-medium text-gray-900 text-sm">
                             {model?.name || '专业版模型'}
                           </h5>
-                          <div className="mt-1">
-                            <Badge variant="outline" className="text-xs">
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <Badge variant="outline" className="text-xs h-4">
                               {model?.company || 'Unknown'}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                            {model?.description || '专业级AI模型'}
-                          </p>
                         </div>
                       </div>
                       {disabled && !generating && (
                         <div className="absolute inset-0 bg-gray-900/5 rounded-lg flex items-center justify-center">
-                          <div className="bg-white rounded-lg px-3 py-2 shadow-sm border flex items-center gap-2">
-                            <Crown className="w-4 h-4 text-blue-500" />
-                            <span className="text-sm font-medium text-gray-700">需要专业版</span>
+                          <div className="bg-white rounded-md px-2 py-1 shadow-sm border flex items-center gap-1">
+                            <Crown className="w-3 h-3 text-blue-500" />
+                            <span className="text-xs font-medium text-gray-700">需要专业版</span>
                           </div>
                         </div>
                       )}
@@ -424,7 +418,7 @@ export function GenerationControls({ generating,
                 </div>
                 <span className="text-sm text-muted-foreground">企业级</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="flex flex-wrap gap-2">
                 {availableModels.filter(m => m.tier === 'high').map((model) => {
                   const isAccessible = accessibleModelIds.has(model.id);
                   const disabled = !isAccessible || generating;
@@ -434,7 +428,7 @@ export function GenerationControls({ generating,
                     <div
                       key={model.id}
                       className={`
-                        relative p-4 rounded-lg border cursor-pointer transition-all
+                        relative p-3 rounded-lg border cursor-pointer transition-all flex-shrink-0
                         ${isSelected 
                           ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200' 
                           : disabled 
@@ -449,39 +443,36 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-center gap-2">
                         <div className={`
-                          w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5
+                          w-4 h-4 rounded-full border-2 flex items-center justify-center
                           ${isSelected 
                             ? 'border-purple-500 bg-purple-500' 
                             : 'border-gray-300'
                           }
                         `}>
                           {isSelected ? (
-                            <Check className="w-3 h-3 text-white" />
+                            <Check className="w-2.5 h-2.5 text-white" />
                           ) : disabled && (
-                            <Crown className="w-3 h-3 text-gray-400" />
+                            <Crown className="w-2.5 h-2.5 text-gray-400" />
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-medium text-gray-900 truncate">
+                        <div className="min-w-0">
+                          <h5 className="font-medium text-gray-900 text-sm">
                             {model?.name || '高级版模型'}
                           </h5>
-                          <div className="mt-1">
-                            <Badge variant="outline" className="text-xs">
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <Badge variant="outline" className="text-xs h-4">
                               {model?.company || 'Unknown'}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                            {model?.description || '顶级AI模型'}
-                          </p>
                         </div>
                       </div>
                       {disabled && !generating && (
                         <div className="absolute inset-0 bg-gray-900/5 rounded-lg flex items-center justify-center">
-                          <div className="bg-white rounded-lg px-3 py-2 shadow-sm border flex items-center gap-2">
-                            <Crown className="w-4 h-4 text-purple-500" />
-                            <span className="text-sm font-medium text-gray-700">需要高级版</span>
+                          <div className="bg-white rounded-md px-2 py-1 shadow-sm border flex items-center gap-1">
+                            <Crown className="w-3 h-3 text-purple-500" />
+                            <span className="text-xs font-medium text-gray-700">需要高级版</span>
                           </div>
                         </div>
                       )}
