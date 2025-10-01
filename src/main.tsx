@@ -20,18 +20,26 @@ import './styles/user-avatar-dropdown-fix.css';
 
 // 🧹 已清理全局滚动检测器调试代码
 // 🔧 CRITICAL: 模块加载状态检查
-console.log('🔥 Step 2: 开始导入React...');
+console.log('🔥 Step 2: 开始导入i18n...');
+
+// 🔧 CRITICAL: 全局i18n设置 - 解决i18n TDZ错误
+import i18n from './i18n';
+// 设置全局i18n实例，供其他模块使用
+(globalThis as any).i18n = i18n;
+(window as any).i18n = i18n;
+
+console.log('🔥 Step 3: 开始导入React...');
 
 import React from 'react';
 
-// console.log('🔥 Step 3: 开始导入ReactDOM...');
+// console.log('🔥 Step 4: 开始导入ReactDOM...');
 import ReactDOM from 'react-dom/client';
 
-// console.log('🔥 Step 4: 开始导入BrowserRouter...');
+// console.log('🔥 Step 5: 开始导入BrowserRouter...');
 import { BrowserRouter } from 'react-router-dom';
-// console.log('🔥 Step 5: 开始导入App组件...');
+// console.log('🔥 Step 6: 开始导入App组件...');
 import App from './App.tsx';
-// console.log('✅ Step 5: 所有核心模块导入完成');
+// console.log('✅ Step 6: 所有核心模块导入完成');
 // 🚀 性能优化：仅导入必要的核心服务
 // import { setupGlobalErrorHandler } from './utils/errorHandler'; // 改为动态导入避免TDZ
 import ServiceInitializer from './services/serviceInitializer';
