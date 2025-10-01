@@ -31,6 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Header } from '@/components/landing/Header';
 import TokenUsageSection from '@/components/profile/TokenUsageSection';
+import SubscriptionExpiryCard from '@/components/profile/SubscriptionExpiryCard';
 import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 import { avatarService } from '@/services/avatarService';
 import { getUserTier } from '@/utils/subscriptionUtils';
@@ -726,7 +727,15 @@ export default function ProfilePage() {
               </div>
             </Card>
 
-            {/* 第二行：使用统计和邀请奖励 */}
+            {/* 第二行：订阅有效期统计 */}
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative">
+                <SubscriptionExpiryCard />
+              </div>
+            </div>
+
+            {/* 第三行：使用统计和邀请奖励 */}
             <div className="grid gap-8 xl:grid-cols-2">
               {/* 使用统计卡片 */}
               <div className="relative group">

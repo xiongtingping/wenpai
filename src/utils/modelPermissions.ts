@@ -50,7 +50,7 @@ export function getModelPermissionInfo(modelId: string) {
       requiredTier: 'premium' as SubscriptionTier,
       currentTier: userTier,
       needsUpgrade: true,
-      message: 'u64cdu4f5cu5931u8d25'
+      message: '模型不存在'
     };
   }
 
@@ -59,14 +59,21 @@ export function getModelPermissionInfo(modelId: string) {
   const requiredTier = modelTierMap[model.tier];
   const needsUpgrade = tierOrder[userTier] < tierOrder[requiredTier];
 
+  // 订阅等级名称映射
+  const tierNames = {
+    'trial': '体验版',
+    'pro': '专业版',
+    'premium': '高级版'
+  };
+
   return {
     hasPermission,
     requiredTier,
     currentTier: userTier,
     needsUpgrade,
-    message: hasPermission 
-      ? `有权限使用 ${model.name}` 
-      : `需要${requiredTier === 'pro' ? 'u64cdu4f5cu5931u8d25' : 'u64cdu4f5cu5931u8d25'}权限才能使用 ${model.name}`
+    message: hasPermission
+      ? `有权限使用 ${model.name}`
+      : `需要${tierNames[requiredTier]}权限才能使用 ${model.name}`
   };
 }
 
@@ -76,9 +83,9 @@ export function getModelPermissionInfo(modelId: string) {
  */
 export function getAvailableModelIds(): string[] {
   const userTier = getUserTier();
-  // 这里需要从 aiModels 配置中获取该层级的所有模型
-  // 暂时返回空数组，具体实现需要根据实际配置调整
-  return [];
+  // 从 aiModels 配置中获取该层级的所有模型
+  const { SUBSCRIPTION_MODELS } = require('@/config/aiModels');
+  return SUBSCRIPTION_MODELS[userTier] || SUBSCRIPTION_MODELS['trial'] || [];
 }
 
 /**
@@ -94,13 +101,20 @@ export function getUpgradeRecommendation(modelId: string) {
   }
 
   const { requiredTier, currentTier } = permissionInfo;
-  
+
+  // 订阅等级名称映射
+  const tierNames = {
+    'trial': '体验版',
+    'pro': '专业版',
+    'premium': '高级版'
+  };
+
   return {
     from: currentTier,
     to: requiredTier,
-    message: `升级到${requiredTier === 'pro' ? 'u64cdu4f5cu5931u8d25' : 'u64cdu4f5cu5931u8d25'}以解锁更多AI模型`,
-    benefits: requiredTier === 'pro' 
-      ? ['专业版AI模型', '更多创意功能', '更高Token限额'] 
+    message: `升级到${tierNames[requiredTier]}以解锁更多AI模型`,
+    benefits: requiredTier === 'pro'
+      ? ['专业版AI模型', '更多创意功能', '更高Token限额']
       : ['所有顶级AI模型', '无限制使用', '品牌库功能', '所有高级功能']
   };
 }

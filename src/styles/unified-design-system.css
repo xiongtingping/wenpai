@@ -173,9 +173,95 @@
     --color-info: hsl(var(--primary));
   }
 
-  /* 🌓 深色模式变量覆盖 */
+  /* 🌓 手动切换 - 浅色主题 (.light 类优先级最高) */
+  .light {
+    /* shadcn/ui 浅色模式变量 */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 267 84% 55%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 14 100% 57%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+
+    /* 🎯 浅色模式语义化背景色系统 */
+    --color-surface: hsl(210 40% 98%);           /* 卡片表面背景 */
+    --color-surface-secondary: hsl(210 40% 96%); /* 次要表面背景 */
+    --color-surface-tertiary: hsl(210 40% 94%);  /* 第三层表面背景 */
+
+    /* 🎯 浅色模式状态背景色系统 */
+    --color-success-bg: hsl(142 76% 94%);        /* 成功状态背景 */
+    --color-warning-bg: hsl(38 92% 95%);         /* 警告状态背景 */
+    --color-info-bg: hsl(221 83% 96%);           /* 信息状态背景 */
+    --color-error-bg: hsl(0 84% 95%);            /* 错误状态背景 */
+
+    /* 浅色模式阴影 */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  /* 🌓 手动切换 - 深色主题 (.dark 类优先级最高) */
+  .dark {
+    /* shadcn/ui 深色模式变量 */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 221.2 83.2% 73.3%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 267 84% 65%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 14 100% 67%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+
+    /* 🎯 深色模式语义化背景色系统 */
+    --color-surface: hsl(217.2 32.6% 14%);           /* 深色卡片表面背景 */
+    --color-surface-secondary: hsl(217.2 32.6% 16%); /* 深色次要表面背景 */
+    --color-surface-tertiary: hsl(217.2 32.6% 18%);  /* 深色第三层表面背景 */
+
+    /* 🎯 深色模式状态背景色系统 */
+    --color-success-bg: hsl(142 76% 15%);            /* 深色成功状态背景 */
+    --color-warning-bg: hsl(38 92% 15%);             /* 深色警告状态背景 */
+    --color-info-bg: hsl(221 83% 15%);               /* 深色信息状态背景 */
+    --color-error-bg: hsl(0 84% 15%);                /* 深色错误状态背景 */
+
+    /* 深色模式阴影调整 */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.15);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  }
+
+  /* 🌓 系统偏好 - 深色模式 (优先级低于手动切换) */
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not(.light):not(.dark) {
       /* shadcn/ui 深色模式变量 */
       --background: 222.2 84% 4.9%;
       --foreground: 210 40% 98%;
@@ -201,13 +287,13 @@
       --color-surface: hsl(217.2 32.6% 14%);           /* 深色卡片表面背景 */
       --color-surface-secondary: hsl(217.2 32.6% 16%); /* 深色次要表面背景 */
       --color-surface-tertiary: hsl(217.2 32.6% 18%);  /* 深色第三层表面背景 */
-      
+
       /* 🎯 深色模式状态背景色系统 */
       --color-success-bg: hsl(142 76% 15%);            /* 深色成功状态背景 */
       --color-warning-bg: hsl(38 92% 15%);             /* 深色警告状态背景 */
       --color-info-bg: hsl(221 83% 15%);               /* 深色信息状态背景 */
       --color-error-bg: hsl(0 84% 15%);                /* 深色错误状态背景 */
-      
+
       /* 深色模式阴影调整 */
       --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
       --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);

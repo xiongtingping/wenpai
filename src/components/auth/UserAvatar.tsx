@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 // 已移除 Radix UI DropdownMenu 导入，使用原生实现
 import { Badge } from '@/components/ui/badge';
-import { LogIn, User, LogOut, Shield, Settings, Crown, Zap, Palette } from 'lucide-react';
+import { LogIn, User, LogOut, Shield, Settings, Crown, Zap, Palette, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getUserDisplayName, getUserAvatarFallback, getUserAvatar } from '@/utils/userDisplayUtils';
 // 简化权限管理 - 移除复杂的权限管理器
@@ -222,41 +222,78 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   };
 
   // 获取用户等级和订阅状态
-  const { primaryStatus } = useSubscriptionStatus();
-  
+  const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
+
   const getUserTierDisplay = () => {
     if (!user) return t('auth.user');
-    
-    // 使用订阅状态的标签和颜色
-    return primaryStatus.statusLabel || t('auth.user');
+
+    // 🔧 FIX: 优先使用订阅状态的tier,而不是statusLabel
+    const tier = hasActiveSubscription && primaryStatus.status === 'active'
+      ? primaryStatus.tier
+      : getUserTier(user);
+
+    // 根据tier返回对应的中文标签
+    const tierLabels = {
+      'trial': '体验版',
+      'pro': '专业版',
+      'premium': '高级版'
+    };
+
+    return tierLabels[tier as keyof typeof tierLabels] || '体验版';
   };
-  
+
   const getTierBadgeClasses = () => {
-    const userTier = getUserTier(user);
-    
-    if (userTier === 'trial') {
-      return 'bg-muted text-gray-700 border-border';
-    } else if (userTier === 'pro') {
-      return 'bg-blue-100 text-blue-700 border-blue-200';
-    } else if (userTier === 'premium') {
-      return 'bg-purple-100 text-purple-700 border-purple-200';
+    // 🔧 FIX: 使用真实的订阅tier
+    const tier = hasActiveSubscription && primaryStatus.status === 'active'
+      ? primaryStatus.tier
+      : getUserTier(user);
+
+    if (tier === 'trial') {
+      return 'bg-muted text-gray-700 dark:text-gray-300 border-border';
+    } else if (tier === 'pro') {
+      return 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700';
+    } else if (tier === 'premium') {
+      return 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700';
     }
-    
-    return 'bg-muted text-gray-700 border-border';
+
+    return 'bg-muted text-gray-700 dark:text-gray-300 border-border';
   };
-  
+
   const getTierIconColor = () => {
-    const userTier = getUserTier(user);
-    
-    if (userTier === 'trial') {
+    // 🔧 FIX: 使用真实的订阅tier
+    const tier = hasActiveSubscription && primaryStatus.status === 'active'
+      ? primaryStatus.tier
+      : getUserTier(user);
+
+    if (tier === 'trial') {
       return 'text-muted-foreground';
-    } else if (userTier === 'pro') {
-      return 'text-primary';
-    } else if (userTier === 'premium') {
+    } else if (tier === 'pro') {
+      return 'text-blue-500';
+    } else if (tier === 'premium') {
       return 'text-purple-500';
     }
-    
+
     return 'text-muted-foreground';
+  };
+
+  // 获取订阅状态描述
+  const getSubscriptionStatusText = () => {
+    if (!hasActiveSubscription) {
+      return null; // 试用用户不显示状态
+    }
+
+    // 显示到期提醒
+    if (primaryStatus.needsAlert && primaryStatus.daysRemaining !== null) {
+      if (primaryStatus.daysRemaining === 0) {
+        return '今日到期';
+      } else if (primaryStatus.daysRemaining === 1) {
+        return '明日到期';
+      } else if (primaryStatus.daysRemaining > 0 && primaryStatus.daysRemaining <= 7) {
+        return `${primaryStatus.daysRemaining}天后到期`;
+      }
+    }
+
+    return null;
   };
 
   // 
@@ -339,13 +376,27 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               <p className="text-xs leading-none text-muted-foreground">
                 {user?.email || ''}
               </p>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge
                   className={`text-xs font-semibold ${getTierBadgeClasses()}`}
                 >
                   <Crown className={`w-3 h-3 mr-1 ${getTierIconColor()}`} />
                   {getUserTierDisplay()}
                 </Badge>
+                {/* 订阅状态提醒 */}
+                {getSubscriptionStatusText() && (
+                  <Badge
+                    variant="outline"
+                    className={`text-xs ${
+                      primaryStatus.daysRemaining === 0
+                        ? 'border-red-300 text-red-700 bg-red-50 dark:bg-red-950 dark:text-red-300'
+                        : 'border-yellow-300 text-yellow-700 bg-yellow-50 dark:bg-yellow-950 dark:text-yellow-300'
+                    }`}
+                  >
+                    <Clock className="w-3 h-3 mr-1" />
+                    {getSubscriptionStatusText()}
+                  </Badge>
+                )}
               </div>
             </div>
           </div>

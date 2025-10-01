@@ -13,9 +13,14 @@ import {
   Zap,
   Mountain,
   Waves,
-  Cpu
+  Cpu,
+  Lock,
+  Crown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { usePermission } from '@/hooks/usePermission';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 // 主题配置接口
 export interface ThemeConfig {
@@ -132,6 +137,13 @@ export function ThemeSelector({
   onThemeChange,
   className
 }: ThemeSelectorProps) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // 权限检查
+  const basicPermission = usePermission('theme:basic');
+  const advancedPermission = usePermission('theme:advanced');
+  const premiumPermission = usePermission('theme:premium');
 
   // 获取当前选中的主题配置
   const currentTheme = THEME_CONFIGS.find(theme => theme.id === selectedTheme) || THEME_CONFIGS[0];
@@ -153,13 +165,42 @@ export function ThemeSelector({
     premium: '高级主题'
   };
 
+  // 检查主题权限
+  const hasThemePermission = (theme: ThemeConfig): boolean => {
+    if (!theme.requiresPremium) {
+      return basicPermission.pass; // 基础主题只需要基础权限
+    }
+
+    // 高级主题需要Premium权限
+    return premiumPermission.pass;
+  };
+
   // 处理主题选择
   const handleThemeSelect = (theme: ThemeConfig) => {
-    if (theme.requiresPremium) {
-      // TODO: 检查用户权限
-      console.log('需要高级permission');
+    const hasPermission = hasThemePermission(theme);
+
+    if (!hasPermission) {
+      // 权限不足,显示提示并引导升级
+      toast({
+        title: '🔒 需要升级权限',
+        description: theme.requiresPremium
+          ? `"${theme.displayName}" 主题需要高级版权限才能使用`
+          : `"${theme.displayName}" 主题需要登录后才能使用`,
+        action: theme.requiresPremium ? (
+          <div
+            className="flex items-center gap-1 cursor-pointer text-primary hover:underline"
+            onClick={() => navigate('/payment-center')}
+          >
+            <Crown className="h-4 w-4" />
+            <span>立即升级</span>
+          </div>
+        ) : undefined,
+        duration: 5000,
+      });
+      return;
     }
-    
+
+    // 权限通过,切换主题
     onThemeChange(theme.id);
   };
 
@@ -184,14 +225,20 @@ export function ThemeSelector({
           alignItems: 'center'
         }}
       >
-        {THEME_CONFIGS.map((theme) => (
+        {THEME_CONFIGS.map((theme) => {
+          const hasPermission = hasThemePermission(theme);
+          const isSelected = selectedTheme === theme.id;
+
+          return (
           <button
             key={theme.id}
             className={cn(
-              "flex items-center justify-center rounded-full border transition-all duration-200 hover:shadow-lg hover:scale-110 relative overflow-hidden",
-              selectedTheme === theme.id
+              "flex items-center justify-center rounded-full border transition-all duration-200 relative overflow-hidden",
+              isSelected
                 ? "border-primary/60 bg-primary/10 shadow-lg ring-1 ring-primary/30"
-                : "border-border/30 hover:border-primary/50 bg-background/80 hover:bg-primary/5 shadow-sm hover:shadow-md"
+                : hasPermission
+                ? "border-border/30 hover:border-primary/50 bg-background/80 hover:bg-primary/5 shadow-sm hover:shadow-md hover:scale-110"
+                : "border-border/20 bg-muted/50 opacity-60 cursor-not-allowed"
             )}
             style={{
               width: '36px',
@@ -226,20 +273,26 @@ export function ThemeSelector({
             </div>
 
             {/* 选中状态指示 */}
-            {selectedTheme === theme.id && (
+            {isSelected && (
               <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center shadow-md ring-1 ring-background">
                 <Check className="w-2 h-2 text-primary-foreground" />
               </div>
             )}
 
-            {/* 高级主题标识 */}
-            {theme.requiresPremium && (
+            {/* 权限锁定/高级主题标识 */}
+            {!hasPermission && (
+              <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-gray-500 rounded-full flex items-center justify-center shadow-md ring-1 ring-background">
+                <Lock className="w-2 h-2 text-white" />
+              </div>
+            )}
+            {hasPermission && theme.requiresPremium && (
               <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-amber-500 rounded-full flex items-center justify-center shadow-md ring-1 ring-background">
                 <Star className="w-2 h-2 text-white" />
               </div>
             )}
           </button>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
