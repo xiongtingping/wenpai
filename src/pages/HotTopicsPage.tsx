@@ -581,7 +581,7 @@ export default function HotTopicsPage() {
         >
           <div className="hot-topics-page-controls hot-topics-baseline-fix hot-topics-alignment-protection">
             <div className="hot-topics-tab-container">
-              <TabsList className="hot-topics-main-tabs unified-tabs-list flex">
+              <TabsList className="unified-tabs-list grid w-full grid-cols-2">
               <TabsTrigger 
                 value="hot" 
                 className="unified-tab-trigger"
@@ -768,10 +768,10 @@ export default function HotTopicsPage() {
                   <CardContent>
                     <Tabs defaultValue="all" className="w-full">
                       {/* Tab栏横向滚动优化 */}
-                      <TabsList className="unified-tabs-list flex w-full overflow-x-auto scrollbar-thin scrollbar-thumb-hsl(var(--muted-foreground))-200 scrollbar-track-transparent" style={{justifyContent: 'flex-start'}}>
-                        <TabsTrigger value="all" className="unified-tab-trigger min-w-[72px]">总榜</TabsTrigger>
+                      <TabsList className="unified-tabs-list flex w-full overflow-x-auto" style={{justifyContent: 'flex-start'}}>
+                        <TabsTrigger value="all" className="unified-tab-trigger">总榜</TabsTrigger>
                         {supportedPlatforms.map((platform) => (
-                          <TabsTrigger key={platform} value={platform} className="unified-tab-trigger min-w-[72px]">
+                          <TabsTrigger key={platform} value={platform} className="unified-tab-trigger">
                             {getPlatformDisplayName(platform)}
                           </TabsTrigger>
                         ))}

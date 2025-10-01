@@ -225,7 +225,7 @@ export const EmojiPicker: React.FC<any> = ({ onSelect,
             <TabsList className="unified-tabs-list grid w-full grid-cols-5">
               {categories.slice(0, 5).map((category) => (
                 <TabsTrigger key={category.id} value={category.id} className="unified-tab-trigger">
-                  <category.icon className="h-3 w-3 mr-1" />
+                  <category.icon className="w-4 h-4" />
                   {category.label}
                 </TabsTrigger>
               ))}

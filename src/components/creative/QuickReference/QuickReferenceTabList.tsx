@@ -59,7 +59,7 @@ export function QuickReferenceTabList({ activeTab,
   ];
 
   return (
-    <TabsList className="unified-tabs-list grid w-full grid-cols-3 bg-muted/50 rounded-lg shadow-sm mb-4 h-auto p-1">
+    <TabsList className="unified-tabs-list grid w-full grid-cols-3">
       {tabs.map((tab) => (
         <TabsTrigger
           key={tab.value}

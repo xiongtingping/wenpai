@@ -209,27 +209,27 @@ export default function BrandToneAnalyzer() { const [analysis, setAnalysis] = us
       <Tabs defaultValue="values" className="w-full">
         <TabsList className="unified-tabs-list grid w-full grid-cols-7">
           <TabsTrigger value="values" className="unified-tab-trigger">
-            <Target className="tab-icon" />
+            <Target className="w-4 h-4" />
             <span>价值观</span>
           </TabsTrigger>
           <TabsTrigger value="tone" className="unified-tab-trigger">
-            <MessageSquare className="tab-icon" />
+            <MessageSquare className="w-4 h-4" />
             <span>语调</span>
           </TabsTrigger>
           <TabsTrigger value="topics" className="unified-tab-trigger">
-            <TrendingUp className="tab-icon" />
+            <TrendingUp className="w-4 h-4" />
             <span>话题</span>
           </TabsTrigger>
           <TabsTrigger value="hashtags" className="unified-tab-trigger">
-            <Hash className="tab-icon" />
+            <Hash className="w-4 h-4" />
             <span>标签</span>
           </TabsTrigger>
           <TabsTrigger value="keywords" className="unified-tab-trigger">
-            <Key className="tab-icon" />
+            <Key className="w-4 h-4" />
             <span>关键词</span>
           </TabsTrigger>
           <TabsTrigger value="risk" className="unified-tab-trigger">
-            <Shield className="tab-icon" />
+            <Shield className="w-4 h-4" />
             <span>风险</span>
           </TabsTrigger>
         </TabsList>

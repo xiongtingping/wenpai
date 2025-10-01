@@ -2081,16 +2081,14 @@ export default function BrandLibraryPageFixed() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="unified-tabs-list brand-library-tabs flex max-w-fit">
+          <TabsList className="unified-tabs-list grid w-full grid-cols-2">
             <TabsTrigger value="assets" className="unified-tab-trigger">
-              <Upload className="tab-icon" />
-              <span className="tab-text-mobile">上传资料</span>
-              <span className="tab-text-desktop">上传品牌资料</span>
+              <Upload className="w-4 h-4" />
+              <span>上传资料</span>
             </TabsTrigger>
             <TabsTrigger value="dimensions" className="unified-tab-trigger">
-              <Database className="tab-icon" />
-              <span className="tab-text-mobile">语料库</span>
-              <span className="tab-text-desktop">品牌语料库</span>
+              <Database className="w-4 h-4" />
+              <span>语料库</span>
             </TabsTrigger>
           </TabsList>
 

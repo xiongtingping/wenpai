@@ -283,7 +283,7 @@ export const TitleGenerator = memo<TitleGeneratorProps>(({
         <div className="lg:col-span-2">
           <Tabs defaultValue="results" className="w-full">
             <div className="flex items-center justify-between mb-4">
-              <TabsList className="unified-tabs-list">
+              <TabsList className="unified-tabs-list grid w-full grid-cols-2">
                 <TabsTrigger value="results" className="unified-tab-trigger">
                   生成结果 {titles.length > 0 && `(${titles.length})`}
                 </TabsTrigger>

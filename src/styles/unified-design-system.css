@@ -468,31 +468,7 @@
     opacity: 0.5;
   }
 
-  /* Tab图标和文本 */
-  .tab-icon {
-    width: var(--size-md);
-    height: var(--size-md);
-    flex-shrink: 0;
-  }
-
-  .tab-text-mobile {
-    display: inline;
-  }
-
-  .tab-text-desktop {
-    display: none;
-  }
-
-  /* 响应式设计 */
-  @media (min-width: 640px) {
-    .tab-text-mobile {
-      display: none;
-    }
-    
-    .tab-text-desktop {
-      display: inline;
-    }
-  }
+  /* Tab图标统一大小：所有tab图标使用 w-4 h-4 类 */
 
   /* 📝 输入组件 */
   .input {
