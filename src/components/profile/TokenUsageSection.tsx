@@ -260,13 +260,13 @@ export function TokenUsageSection({
                       fontWeight: 'bold',
                       padding: '4px 12px',
                       borderRadius: '12px',
-                      background: finalTokenStats && finalTokenStats.monthlyLimit === -1 
-                        ? '#3b82f6'
-                        : finalTokenStats && finalTokenStats.usagePercentage > 80 
-                        ? '#ef4444'
-                        : finalTokenStats && finalTokenStats.usagePercentage > 60 
-                        ? '#f59e0b'
-                        : '#3b82f6',
+                      background: finalTokenStats && finalTokenStats.monthlyLimit === -1
+                        ? 'hsl(var(--primary))'
+                        : finalTokenStats && finalTokenStats.usagePercentage > 80
+                        ? 'hsl(var(--destructive))'
+                        : finalTokenStats && finalTokenStats.usagePercentage > 60
+                        ? 'hsl(var(--warning))'
+                        : 'hsl(var(--primary))',
                       color: 'white'
                     }}>
                       {finalTokenStats?.monthlyLimit === -1 ? '无限制' : `${Math.round(finalTokenStats?.usagePercentage || 0)}%`}
@@ -399,12 +399,12 @@ export function TokenUsageSection({
                       padding: '4px 12px',
                       borderRadius: '12px',
                       background: finalUsageCountStats && finalUsageCountStats.availableUses === -1
-                        ? '#3b82f6'
-                        : finalUsageCountStats && finalUsageCountStats.usagePercentage > 80 
-                        ? '#ef4444'
-                        : finalUsageCountStats && finalUsageCountStats.usagePercentage > 60 
-                        ? '#f59e0b'
-                        : '#3b82f6',
+                        ? 'hsl(var(--primary))'
+                        : finalUsageCountStats && finalUsageCountStats.usagePercentage > 80
+                        ? 'hsl(var(--destructive))'
+                        : finalUsageCountStats && finalUsageCountStats.usagePercentage > 60
+                        ? 'hsl(var(--warning))'
+                        : 'hsl(var(--primary))',
                       color: 'white'
                     }}>
                       {(finalUsageCountStats && finalUsageCountStats.availableUses === -1) ? '无限制' :
