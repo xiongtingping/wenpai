@@ -11,7 +11,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
-import { Slot } from "@/components/ui/safe-slot"
+import { Slot } from "@radix-ui/react-slot"
 
 const Form = FormProvider
 

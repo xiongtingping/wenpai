@@ -20,7 +20,6 @@ export default defineConfig(({ command, mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@radix-ui/react-slot": path.resolve(__dirname, "./src/components/ui/safe-slot.tsx"),
     },
   },
   // 🔒 环境变量注入 - 增强安全性处理
