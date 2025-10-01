@@ -48,7 +48,7 @@ interface APIConfig {
  */
 const getAPIConfig = (): APIConfig => {
   // 优先使用全局环境变量，回退到import.meta.env
-  const globalEnv = typeof window !== 'undefined' ? (window as any).__ENV__ : {};
+  const globalEnv = (typeof window !== 'undefined' ? (window as any).__ENV__ : {}) || {};
   
   const getEnvVar = (key: string, defaultValue?: string): string => {
     return globalEnv[key] || import.meta.env[key] || defaultValue || '';
