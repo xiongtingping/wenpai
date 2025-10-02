@@ -1003,7 +1003,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto var(--spacing-md);
+    margin: var(--spacing-lg) auto var(--spacing-md);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: transform var(--transition-normal);
   }
