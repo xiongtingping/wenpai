@@ -997,14 +997,19 @@
   }
 
   .avatar-display {
-    font-size: 4rem;
-    line-height: 1;
-    text-align: center;
-    padding: var(--spacing-md);
-    min-height: 6rem;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0 auto var(--spacing-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform var(--transition-normal);
+  }
+
+  .avatar-display:hover {
+    transform: scale(1.05);
   }
 
   .avatar-name {

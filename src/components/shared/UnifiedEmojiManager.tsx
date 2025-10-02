@@ -985,13 +985,16 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
 
                   {/* 复刻动物头像卡片内容 */}
                   <div
-                    className="avatar-display emoji-avatar-bg"
-                    style={{ '--emoji-bg-color': emoji.color } as React.CSSProperties}
+                    className="avatar-display"
+                    style={{
+                      backgroundColor: emoji.color,
+                      borderRadius: '50%'
+                    } as React.CSSProperties}
                   >
-                    {emoji.emoji}
+                    <span style={{ fontSize: '4rem' }}>{emoji.emoji}</span>
                   </div>
                   <div className="avatar-name">{emoji.name}</div>
-                  <div className="avatar-emoji">{emoji.emoji}</div>
+                  <div className="avatar-emoji" style={{ fontSize: '1.5rem' }}>{emoji.emoji}</div>
                   <div className="avatar-color">
                     <div
                       className="w-4 h-4 rounded-full border border-border/30 mx-auto"
