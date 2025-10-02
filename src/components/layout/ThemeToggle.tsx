@@ -30,7 +30,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     icon: <Sun className="h-4 w-4 text-foreground" />,
     permissionLevel: 'basic',
     requiredPermission: 'theme:basic',
-    description: '经典浅色主题，适合白天使用'
+    description: t('theme.descriptions.light')
   },
   {
     value: 'dark',
@@ -38,8 +38,8 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     icon: <Moon className="h-4 w-4 text-foreground" />,
     permissionLevel: 'advanced',
     requiredPermission: 'theme:advanced',
-    description: '护眼深色主题，适合夜间使用',
-    badge: '专业版'
+    description: t('theme.descriptions.dark'),
+    badge: t('subscription.tiers.pro')
   },
   {
     value: 'rainbow',
@@ -47,8 +47,8 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     icon: <div className="w-4 h-4 rounded-full bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
-    description: '彩虹渐变主题，活力多彩风格',
-    badge: '高级版'
+    description: t('theme.descriptions.rainbow'),
+    badge: t('subscription.tiers.premium')
   },
   {
     value: 'beige',
@@ -56,8 +56,8 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     icon: <div className="w-4 h-4 rounded-full bg-amber-200 border border-amber-300" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
-    description: '温暖米色主题，长时间使用更舒适',
-    badge: '高级版'
+    description: t('theme.descriptions.beige'),
+    badge: t('subscription.tiers.premium')
   },
   {
     value: 'green',
@@ -65,8 +65,8 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     icon: <div className="w-4 h-4 rounded-full bg-success" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
-    description: '护眼绿色主题，自然清新风格',
-    badge: '高级版'
+    description: t('theme.descriptions.green'),
+    badge: t('subscription.tiers.premium')
   },
 ];
 
@@ -287,10 +287,10 @@ export const ThemeToggle: React.FC = () => {
 
   // 获取用户当前权限级别描述
   const getUserPermissionLevel = (): string => {
-    if (premiumPermission.pass) return '高级版用户';
-    if (advancedPermission.pass) return '专业版用户';
-    if (basicPermission.pass) return '体验版用户';
-    return '未登录用户';
+    if (premiumPermission.pass) return t('subscription.userLevels.premium');
+    if (advancedPermission.pass) return t('subscription.userLevels.pro');
+    if (basicPermission.pass) return t('subscription.userLevels.trial');
+    return t('subscription.userLevels.guest');
   };
 
   return (
@@ -299,7 +299,7 @@ export const ThemeToggle: React.FC = () => {
         <button
           className="header-button"
           aria-label={`${t('settings.darkMode')} - ${getUserPermissionLevel()}`}
-          title={`切换主题 - ${getUserPermissionLevel()}`}
+          title={`${t('theme.switchTheme')} - ${getUserPermissionLevel()}`}
           onClick={() => {
             setIsOpen(!isOpen);
 
@@ -325,7 +325,7 @@ export const ThemeToggle: React.FC = () => {
           >
             {/* 标题 */}
             <div className="px-3 py-2 text-sm font-medium text-foreground">
-              主题设置
+              {t('theme.settings')}
             </div>
             <div className="px-3 py-1 text-xs text-muted-foreground">
               <SubscriptionStateWrapper>
@@ -391,7 +391,7 @@ export const ThemeToggle: React.FC = () => {
               }}
             >
               <Crown className="h-4 w-4 text-primary" />
-              <span>解锁更多主题</span>
+              <span>{t('theme.unlockMore')}</span>
             </button>
           </div>
         )}
