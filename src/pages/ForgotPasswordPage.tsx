@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowLeft, Sun, Moon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@/hooks/use-toast';
 import { verificationCodeService } from '@/services/verificationCodeService';
 
@@ -9,6 +10,7 @@ import { verificationCodeService } from '@/services/verificationCodeService';
  * 支持通过手机号验证码重置密码
  */
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -48,8 +50,8 @@ export default function ForgotPasswordPage() {
   const handleSendCode = async () => {
     if (!isPhoneValid) {
       toast({
-        title: '手机号格式错误',
-        description: '请输入正确的11位手机号',
+        title: t('forgotPassword.messages.phoneInvalid'),
+        description: t('forgotPassword.messages.phoneInvalid'),
         variant: 'destructive'
       });
       return;
@@ -61,8 +63,8 @@ export default function ForgotPasswordPage() {
       
       if (result.success) {
         toast({
-          title: '验证码发送成功',
-          description: result.message || '请查收短信验证码'
+          title: t('pages.labels.验证码已发送'),
+          description: result.message || t('forgotPassword.messages.pleaseCheckSms')
         });
 
         // 启动倒计时
@@ -80,15 +82,15 @@ export default function ForgotPasswordPage() {
         setStep('reset');
       } else {
         toast({
-          title: '发送失败',
+          title: t('pages.labels.发送失败'),
           description: result.message,
           variant: 'destructive'
         });
       }
     } catch (error) {
       toast({
-        title: '发送失败',
-        description: error instanceof Error ? error.message : '网络错误，请稍后重试',
+        title: t('pages.labels.发送失败'),
+        description: error instanceof Error ? error.message : t('pages.messages.操作失败，请稍后重试'),
         variant: 'destructive'
       });
     } finally {
@@ -104,16 +106,16 @@ export default function ForgotPasswordPage() {
     try {
       // 验证表单
       if (!formData.code) {
-        throw new Error('请输入验证码');
+        throw new Error(t('forgotPassword.messages.enterCode'));
       }
       if (!formData.newPassword) {
-        throw new Error('请输入新密码');
+        throw new Error(t('forgotPassword.messages.enterNewPassword'));
       }
       if (formData.newPassword.length < 6) {
-        throw new Error('密码长度至少6位');
+        throw new Error(t('forgotPassword.messages.passwordMinLength'));
       }
       if (formData.newPassword !== formData.confirmPassword) {
-        throw new Error('两次输入的密码不一致');
+        throw new Error(t('forgotPassword.messages.passwordMismatch'));
       }
 
       // 调用重置密码API
@@ -125,8 +127,8 @@ export default function ForgotPasswordPage() {
 
       if (result.success) {
         toast({
-          title: '密码重置成功',
-          description: '请使用新密码登录'
+          title: t('forgotPassword.messages.resetSuccess'),
+          description: t('forgotPassword.messages.useNewPassword')
         });
 
         // 延迟跳转到登录页面
@@ -138,8 +140,8 @@ export default function ForgotPasswordPage() {
       }
     } catch (error) {
       toast({
-        title: '重置失败',
-        description: error instanceof Error ? error.message : '密码重置失败',
+        title: t('forgotPassword.messages.resetFailed'),
+        description: error instanceof Error ? error.message : t('forgotPassword.messages.resetFailed'),
         variant: 'destructive'
       });
     } finally {
@@ -193,10 +195,10 @@ export default function ForgotPasswordPage() {
           <div className="p-8">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-3">
-                重置密码
+                {t('forgotPassword.title')}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">
-                {step === 'phone' ? '通过手机号验证码重置您的密码' : '设置您的新密码'}
+                {step === 'phone' ? t('forgotPassword.subtitle.phone') : t('forgotPassword.subtitle.reset')}
               </p>
             </div>
 
@@ -228,12 +230,12 @@ export default function ForgotPasswordPage() {
                         : "top-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
-                    手机号
+                    {t('forgotPassword.form.phone')}
                   </label>
                   {(!isPhoneValid && formData.phone) && (
                     <p className="text-red-500 text-sm mt-2 flex items-center">
                       <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
-                      请输入正确的手机号
+                      {t('forgotPassword.messages.phoneInvalid')}
                     </p>
                   )}
                 </div>
@@ -246,10 +248,10 @@ export default function ForgotPasswordPage() {
                   {sendingCode ? (
                     <span className="flex items-center justify-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      发送中...
+                      {t('forgotPassword.messages.sendingCode')}
                     </span>
                   ) : (
-                    '发送验证码'
+                    t('forgotPassword.form.sendCode')
                   )}
                 </button>
               </form>
@@ -258,7 +260,7 @@ export default function ForgotPasswordPage() {
               <form className="space-y-6" onSubmit={handleResetPassword}>
                 <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
                   <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
-                    验证码已发送至 <strong>{formData.phone}</strong>
+                    {t('forgotPassword.messages.codeSent')} <strong>{formData.phone}</strong>
                   </p>
                 </div>
 
@@ -294,7 +296,7 @@ export default function ForgotPasswordPage() {
                     onClick={handleSendCode}
                     className="absolute right-3 top-3 px-4 py-2 text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-md"
                   >
-                    {sendingCode ? '发送中...' : (codeCountdown > 0 ? `${codeCountdown}s` : '重新发送')}
+                    {sendingCode ? t('forgotPassword.messages.sendingCode') : (codeCountdown > 0 ? `${codeCountdown}s` : t('forgotPassword.form.resendCode'))}
                   </button>
                 </div>
 
@@ -321,7 +323,7 @@ export default function ForgotPasswordPage() {
                         : "top-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
-                    新密码（8-20位字符，包含数字和字母）
+                    {t('forgotPassword.form.newPassword')}
                   </label>
                   <button
                     type="button"
@@ -357,7 +359,7 @@ export default function ForgotPasswordPage() {
                         : "top-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
-                    确认新密码（8-20位字符，包含数字和字母）
+                    {t('forgotPassword.form.confirmPassword')}
                   </label>
                   <button
                     type="button"
@@ -372,7 +374,7 @@ export default function ForgotPasswordPage() {
                 {formData.confirmPassword && formData.newPassword !== formData.confirmPassword && (
                   <div className="text-red-500 text-sm flex items-center space-x-2 -mt-3">
                     <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                    <span>两次输入的密码不一致</span>
+                    <span>{t('forgotPassword.messages.passwordMismatch')}</span>
                   </div>
                 )}
 
@@ -384,10 +386,10 @@ export default function ForgotPasswordPage() {
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      重置中...
+                      {t('forgotPassword.messages.resetting')}
                     </span>
                   ) : (
-                    '重置密码'
+                    t('forgotPassword.form.resetPassword')
                   )}
                 </button>
               </form>
@@ -396,12 +398,12 @@ export default function ForgotPasswordPage() {
             {/* 返回登录 */}
             <div className="text-center mt-8">
               <p className="text-gray-600 dark:text-gray-300 text-sm">
-                想起密码了？
+                {t('forgotPassword.messages.rememberPassword')}
                 <Link
                   to="/custom-login"
                   className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold ml-1 transition-all duration-300 hover:underline decoration-2 underline-offset-2"
                 >
-                  返回登录
+                  {t('forgotPassword.form.backToLogin')}
                 </Link>
               </p>
             </div>

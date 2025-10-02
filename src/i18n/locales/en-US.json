@@ -8380,7 +8380,37 @@
       "templateTitle": "[TO BE TRANSLATED] 模板标题",
       "text_o3t7": "[TO BE TRANSLATED] 装饰",
       "text_gon7": "[TO BE TRANSLATED] 开心",
-      "text_cl0ar": "[TO BE TRANSLATED] 励志等"
+      "text_cl0ar": "[TO BE TRANSLATED] 励志等",
+      "请输入正确的11位手机号码": "Please enter a valid 11-digit phone number",
+      "验证码发送失败，请稍后重试": "Failed to send verification code, please try again later",
+      "获取验证码": "Get Code",
+      "两次输入的密码不一致": "The passwords entered twice do not match",
+      "您需要阅读并同意我们的隐私政策和服务条款": "You need to read and agree to our Privacy Policy and Terms of Service",
+      "欢迎回来！": "Welcome back!",
+      "欢迎加入文派AI！": "Welcome to WenPai AI!",
+      "操作失败，请稍后重试": "Operation failed, please try again later",
+      "登录": "Login",
+      "创建账户": "Create Account",
+      "忘记密码？": "Forgot password?",
+      "密码登录": "Password Login",
+      "验证码登录": "Code Login",
+      "手机号": "Phone Number",
+      "密码": "Password",
+      "验证码": "Verification Code",
+      "设置密码": "Set Password",
+      "确认密码": "Confirm Password",
+      "我已阅读并同意": "I have read and agree to",
+      "隐私政策": "Privacy Policy",
+      "服务条款": "Terms of Service",
+      "没有账户？": "Don't have an account?",
+      "已有账户？": "Already have an account?",
+      "处理中...": "Processing...",
+      "正在检查登录状态...": "Checking login status...",
+      "检查中...": "Checking...",
+      "请输入11位中国大陆手机号码": "Please enter an 11-digit mainland China phone number",
+      "密码要求：": "Password requirements:",
+      "8-20位字符，包含数字和字母": "8-20 characters, including numbers and letters",
+      "和": " and "
     },
     "status": {},
     "labels": {
@@ -8564,7 +8594,19 @@
       "text_i1j": "[TO BE TRANSLATED] 字",
       "text_o3t7": "[TO BE TRANSLATED] 装饰",
       "text_faq6": "[TO BE TRANSLATED] 场合",
-      "text_gtia": "[TO BE TRANSLATED] 心情"
+      "text_gtia": "[TO BE TRANSLATED] 心情",
+      "手机号格式错误": "Invalid phone number format",
+      "验证码已发送": "Verification code sent",
+      "发送失败": "Send failed",
+      "请输入密码": "Please enter password",
+      "请输入验证码": "Please enter verification code",
+      "请填写完整信息": "Please fill in complete information",
+      "密码不一致": "Passwords do not match",
+      "请同意隐私政策和服务条款": "Please agree to the Privacy Policy and Terms of Service",
+      "登录成功": "Login successful",
+      "注册成功": "Registration successful",
+      "登录失败": "Login failed",
+      "注册失败": "Registration failed"
     },
     "actions": {
       "topic": "[TO BE TRANSLATED] 返回热点话题",
@@ -8668,5 +8710,44 @@
       "emotionalResonance": "Touching users' emotional resonance, triggering deep thinking and emotional connection",
       "marketingCopy": "Conversion-targeted marketing content, highlighting product value and user benefits"
     }
+  },
+  "forgotPassword": {
+    "title": "Reset Password",
+    "subtitle": {
+      "phone": "Reset your password via phone verification code",
+      "reset": "Set your new password"
+    },
+    "form": {
+      "phone": "Phone Number",
+      "code": "Verification Code",
+      "newPassword": "New Password (8-20 characters, including numbers and letters)",
+      "confirmPassword": "Confirm New Password (8-20 characters, including numbers and letters)",
+      "sendCode": "Send Code",
+      "resendCode": "Resend",
+      "resetPassword": "Reset Password",
+      "backToLogin": "Back to Login"
+    },
+    "messages": {
+      "phoneInvalid": "Please enter a valid phone number",
+      "codeSent": "Verification code sent to",
+      "pleaseCheckSms": "Please check your SMS",
+      "sendingCode": "Sending...",
+      "resetting": "Resetting...",
+      "resetSuccess": "Password reset successful",
+      "useNewPassword": "Please login with your new password",
+      "enterCode": "Please enter verification code",
+      "enterNewPassword": "Please enter new password",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "passwordMismatch": "The passwords entered twice do not match",
+      "resetFailed": "Password reset failed",
+      "rememberPassword": "Remember your password?"
+    }
+  },
+  "authGuard": {
+    "verifying": "Verifying...",
+    "userNotAuthenticated": "User not authenticated",
+    "redirecting": "Redirecting to login",
+    "userAuthenticated": "User authenticated",
+    "accessGranted": "Access granted"
   }
 }

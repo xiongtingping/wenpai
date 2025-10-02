@@ -318,7 +318,7 @@ export const CustomLoginPage: React.FC = () => {
     if (!validatePhone(phone)) {
       toast({
         title: t('pages.labels.手机号格式错误'),
-        description: "请输入正确的11位手机号码",
+        description: t('pages.messages.请输入正确的11位手机号码'),
         variant: "destructive",
       });
       return;
@@ -330,7 +330,7 @@ export const CustomLoginPage: React.FC = () => {
       
       toast({
         title: t('pages.labels.验证码已发送'),
-        description: `验证码已发送至 ${phone}，请注意查收`,
+        description: `${t('pages.labels.验证码已发送')} ${phone}`,
       });
 
       setCountdown(60);
@@ -348,7 +348,7 @@ export const CustomLoginPage: React.FC = () => {
       console.error('sendingvalidating码failed:', error);
       toast({
         title: t('pages.labels.发送失败'),
-        description: error.message || "验证码发送失败，请稍后重试",
+        description: error.message || t('pages.messages.验证码发送失败，请稍后重试'),
         variant: "destructive",
       });
     } finally {
@@ -361,7 +361,7 @@ export const CustomLoginPage: React.FC = () => {
     if (!validatePhone(phone)) {
       toast({
         title: t('pages.labels.手机号格式错误'),
-        description: "请输入正确的11位手机号码",
+        description: t('pages.messages.请输入正确的11位手机号码'),
         variant: "destructive",
       });
       return;
@@ -373,7 +373,7 @@ export const CustomLoginPage: React.FC = () => {
 
       toast({
         title: t('pages.labels.验证码已发送'),
-        description: `验证码已发送至 ${phone}，请注意查收`,
+        description: `${t('pages.labels.验证码已发送')} ${phone}`,
       });
 
       setRegisterCountdown(60);
@@ -391,7 +391,7 @@ export const CustomLoginPage: React.FC = () => {
       console.error('sendingregistervalidating码failed:', error);
       toast({
         title: t('pages.labels.发送失败'),
-        description: error.message || "验证码发送失败，请稍后重试",
+        description: error.message || t('pages.messages.验证码发送失败，请稍后重试'),
         variant: "destructive",
       });
     } finally {
@@ -407,7 +407,7 @@ export const CustomLoginPage: React.FC = () => {
     if (!validatePhone(phone)) {
       toast({
         title: t('pages.labels.手机号格式错误'),
-        description: "请输入正确的11位手机号码",
+        description: t('pages.messages.请输入正确的11位手机号码'),
         variant: "destructive",
       });
       return;
@@ -492,7 +492,7 @@ export const CustomLoginPage: React.FC = () => {
 
           toast({
             title: t('pages.labels.登录成功'),
-            description: "欢迎回来！",
+            description: t('pages.messages.欢迎回来！'),
           });
 
           const redirectUrl = searchParams.get('redirect') || '/';
@@ -506,7 +506,7 @@ export const CustomLoginPage: React.FC = () => {
           
           toast({
             title: t('pages.labels.注册成功'),
-            description: "欢迎加入文派AI！",
+            description: t('pages.messages.欢迎加入文派AI！'),
           });
 
           navigate('/');
@@ -526,7 +526,7 @@ export const CustomLoginPage: React.FC = () => {
       console.error('authenticatingfailed:', error);
       toast({
         title: mode === 'login' ? t('pages.labels.登录失败') : t('pages.labels.注册失败'),
-        description: error.message || "操作失败，请稍后重试",
+        description: error.message || t('pages.messages.操作失败，请稍后重试'),
         variant: "destructive",
       });
     } finally {
@@ -593,7 +593,7 @@ export const CustomLoginPage: React.FC = () => {
                   />
                 </div>
                 <p className="text-muted-foreground dark:text-gray-300 font-medium">
-                  正在检查登录状态...
+                  {t('pages.messages.正在检查登录状态...')}
                 </p>
               </div>
 
@@ -604,7 +604,7 @@ export const CustomLoginPage: React.FC = () => {
                   <div className="absolute top-0 left-0 w-8 h-8 border-3 border-transparent border-t-blue-600 rounded-full animate-spin"></div>
                 </div>
                 <span className="text-muted-foreground dark:text-gray-300 font-medium animate-pulse">
-                  检查中...
+                  {t('pages.messages.检查中...')}
                 </span>
               </div>
             </div>
@@ -660,7 +660,7 @@ export const CustomLoginPage: React.FC = () => {
             <div className="text-center mb-8">
               {mode === 'register' ? (
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-3">
-                  创建账户
+                  {t('pages.messages.创建账户')}
                 </h1>
               ) : (
                 <div className="flex items-center justify-center mb-3">
@@ -690,7 +690,7 @@ export const CustomLoginPage: React.FC = () => {
                       : 'text-muted-foreground dark:text-gray-300 hover:text-foreground dark:hover:text-background hover:bg-background/50 dark:hover:bg-gray-600/50'
                   }`}
                 >
-                  密码登录
+                  {t('pages.messages.密码登录')}
                 </button>
                 <button
                   type="button"
@@ -701,7 +701,7 @@ export const CustomLoginPage: React.FC = () => {
                       : 'text-muted-foreground dark:text-gray-300 hover:text-foreground dark:hover:text-background hover:bg-background/50 dark:hover:bg-gray-600/50'
                   }`}
                 >
-                  验证码登录
+                  {t('pages.messages.验证码登录')}
                 </button>
               </div>
             )}
@@ -713,8 +713,8 @@ export const CustomLoginPage: React.FC = () => {
                 inputMode="numeric"
                 pattern="[0-9]*"
                 autoComplete="off"
-                label="手机号"
-                description="请输入11位中国大陆手机号码"
+                label={t('pages.messages.手机号')}
+                description={t('pages.messages.请输入11位中国大陆手机号码')}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 validationRules={[ValidationRules.phone]}
@@ -752,7 +752,7 @@ export const CustomLoginPage: React.FC = () => {
                         : "top-4 text-muted-foreground dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
-                    密码
+                    {t('pages.messages.密码')}
                   </label>
 
                   {/* 密码提示图标 */}
@@ -777,9 +777,9 @@ export const CustomLoginPage: React.FC = () => {
                   {/* 密码提示弹窗 */}
                   {showPasswordTips && (
                     <div className="absolute top-full left-0 mt-2 p-4 bg-background dark:bg-gray-800 border border-border dark:border-gray-600 rounded-xl shadow-lg z-50 w-full max-w-sm">
-                      <h4 className="text-sm font-semibold text-foreground dark:text-background mb-3">密码要求：</h4>
+                      <h4 className="text-sm font-semibold text-foreground dark:text-background mb-3">{t('pages.messages.密码要求：')}</h4>
                       <div className="text-sm text-muted-foreground dark:text-gray-400">
-                        <p>• 8-20位字符，包含数字和字母</p>
+                        <p>• {t('pages.messages.8-20位字符，包含数字和字母')}</p>
                       </div>
                     </div>
                   )}
@@ -811,7 +811,7 @@ export const CustomLoginPage: React.FC = () => {
                         : "top-4 text-muted-foreground dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
-                    验证码
+                    {t('pages.messages.验证码')}
                   </label>
                   <button
                     type="button"
@@ -852,7 +852,7 @@ export const CustomLoginPage: React.FC = () => {
                         : "top-4 text-muted-foreground dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
-                    验证码
+                    {t('pages.messages.验证码')}
                   </label>
                   <button
                     type="button"
@@ -891,7 +891,7 @@ export const CustomLoginPage: React.FC = () => {
                         : "top-4 text-muted-foreground dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
-                    设置密码
+                    {t('pages.messages.设置密码')}
                   </label>
 
                   {/* 密码提示图标 */}
@@ -953,7 +953,7 @@ export const CustomLoginPage: React.FC = () => {
                         : "top-4 text-muted-foreground dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                     }`}
                   >
-                    确认密码
+                    {t('pages.messages.确认密码')}
                   </label>
                   <button
                     type="button"
@@ -969,7 +969,7 @@ export const CustomLoginPage: React.FC = () => {
               {mode === 'register' && confirmPassword && !validatePasswordMatch() && (
                 <div className="text-destructive text-sm flex items-center space-x-2 -mt-3">
                   <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                  <span>两次输入的密码不一致</span>
+                  <span>{t('pages.messages.两次输入的密码不一致')}</span>
                 </div>
               )}
 
@@ -999,23 +999,23 @@ export const CustomLoginPage: React.FC = () => {
                   <span className="text-sm text-muted-foreground dark:text-gray-300 font-medium">
                     {mode === 'login' ? t('customLoginPage.form.rememberMe') : (
                       <span className="leading-relaxed">
-                        我已阅读并同意
+                        {t('pages.messages.我已阅读并同意')}
                         <a
                           href="/privacy"
                           className="text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 hover:underline decoration-2 underline-offset-2 mx-1 px-1 py-0.5 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 font-semibold"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          隐私政策
+                          {t('pages.messages.隐私政策')}
                         </a>
-                        和
+                        {t('pages.messages.和')}
                         <a
                           href="/terms"
                           className="text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 hover:underline decoration-2 underline-offset-2 mx-1 px-1 py-0.5 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 font-semibold"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          服务条款
+                          {t('pages.messages.服务条款')}
                         </a>
                       </span>
                     )}
@@ -1026,7 +1026,7 @@ export const CustomLoginPage: React.FC = () => {
                     href="/forgot-password"
                     className="text-sm font-medium text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 hover:underline decoration-2 underline-offset-2 px-1 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
                   >
-                    忘记密码？
+                    {t('pages.messages.忘记密码？')}
                   </a>
                 )}
               </div>
@@ -1039,7 +1039,7 @@ export const CustomLoginPage: React.FC = () => {
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    处理中...
+                    {t('pages.messages.处理中...')}
                   </span>
                 ) : (
                   mode === 'login' ? t('pages.messages.登录') : t('pages.messages.创建账户')
@@ -1049,7 +1049,7 @@ export const CustomLoginPage: React.FC = () => {
 
             <div className="mt-8 text-center">
               <p className="text-sm text-muted-foreground dark:text-gray-300 inline-flex items-center gap-2">
-                <span>{mode === 'login' ? '没有账户？' : '已有账户？'}</span>
+                <span>{mode === 'login' ? t('pages.messages.没有账户？') : t('pages.messages.已有账户？')}</span>
                 <button
                   onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
                   className="text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-all duration-300 hover:scale-105 underline-offset-4 hover:underline"

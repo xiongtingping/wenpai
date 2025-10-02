@@ -6,6 +6,7 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 
 /**
@@ -28,12 +29,15 @@ export interface AuthGuardProps {
 /**
  * 加载组件
  */
-const LoadingSpinner: React.FC = () => (
-  <div className="flex items-center justify-center min-h-[200px]">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-    <span className="ml-2 text-sm text-muted-foreground">验证中...</span>
-  </div>
-);
+const LoadingSpinner: React.FC = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-center justify-center min-h-[200px]">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <span className="ml-2 text-sm text-muted-foreground">{t('authGuard.verifying')}</span>
+    </div>
+  );
+};
 
 /**
  * 认证守卫组件
@@ -55,10 +59,10 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
     if (!requireAuth) return;
     if (loading) return;
     if (!isAuthenticated || !user) {
-      console.log('🔐 AuthGuard: usernotauthenticating，重定向到:', redirectTo);
+      console.log('🔐 AuthGuard: user not authenticated, redirecting to:', redirectTo);
       navigate(redirectTo, { replace: true });
     } else {
-      console.log('🔐 AuthGuard: useralreadyauthenticating，allowing访问');
+      console.log('🔐 AuthGuard: user already authenticated, access granted');
     }
   }, [isAuthenticated, loading, user, requireAuth, redirectTo, navigate]);
 
