@@ -869,7 +869,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         }
         .avatar-card:hover .hover-button { opacity: 1; }
         .avatar-display {
-          width: 72px; height: 72px; border-radius: var(--radius-full); margin: 0 auto var(--spacing-3); /* 更紧凑的图标与间距 */
+          width: 72px; height: 72px; border-radius: var(--radius-full); margin: var(--spacing-md) auto var(--spacing-3); /* 增加顶部间距 */
           display: flex; align-items: center; justify-content: center;
           font-size: var(--spacing-12); box-shadow: 0 3px var(--spacing-3) hsl(var(--foreground) / 0.08);
         }
