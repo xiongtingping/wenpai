@@ -324,7 +324,12 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
       return res;
     });
 
-      setDisplayEmojis(emojis);
+      // 去重: 使用emoji字符作为唯一标识
+      const uniqueEmojis = Array.from(
+        new Map(emojis.map(item => [item.emoji, item])).values()
+      );
+
+      setDisplayEmojis(uniqueEmojis);
     } catch (error) {
       console.error('updatingdisplayEmojifailed:', error);
     }
