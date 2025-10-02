@@ -33,6 +33,17 @@
   to = "/.netlify/functions/order-cleanup"
   status = 200
 
+# 订阅权限系统 API 路由
+[[redirects]]
+  from = "/api/permissions/verify"
+  to = "/.netlify/functions/permissions/verify"
+  status = 200
+
+[[redirects]]
+  from = "/api/webhooks/payment-callback"
+  to = "/.netlify/functions/webhooks/payment-callback"
+  status = 200
+
 # API 路由到统一网关函数 api（内部再分发 usage-count 逻辑）
 [[redirects]]
   from = "/api/user/usage/*"
@@ -126,6 +137,13 @@
   # Supabase配置 - 服务端
   SUPABASE_URL = "https://weizkydylskcwgnaieqy.supabase.co"
   SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlaXpreWR5bHNrY3dnbmFpZXF5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTA1MjMzOSwiZXhwIjoyMDcwNjI4MzM5fQ.l5BvkhJttv0agpydb5lktK1Q4KvDaxQTNUb5-GMU14w"
+  # Supabase配置 - 客户端 (订阅权限系统)
+  VITE_SUPABASE_URL = "https://weizkydylskcwgnaieqy.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlaXpreWR5bHNrY3dnbmFpZXF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUwNTIzMzksImV4cCI6MjA3MDYyODMzOX0.77cefG7i52iWjR6D_0H1aB-xmmJe19WQlM8PkGISW7c"
+  # 订阅权限系统配置
+  PERMISSION_CACHE_TTL = "300000"
+  PERMISSION_CACHE_MAX_SIZE = "200"
+  CRON_SECRET = "wenpai_subscription_cron_secret_2025_v1_secure_key"
   # OpenAI配置 - 通过Netlify环境变量设置
   # 在Netlify Dashboard的Site settings -> Environment variables中配置这些变量
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"

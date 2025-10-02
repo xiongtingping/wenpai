@@ -8,6 +8,7 @@ window.__MAIN_TSX_LOADED__ = true;
 
 // console.log('🔥 Step 1: startsimportingCSS...');
 import './index.css';
+import './styles/permission-guard.css'; // 订阅权限守卫样式
 // console.log('✅ Step 1: CSSimportingcompleted');
 // 🎯 生产环境只保留核心样式和必要的修复
 // 调试脚本已在开发中禁用以减少控制台噪音

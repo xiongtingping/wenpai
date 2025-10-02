@@ -78,6 +78,9 @@ const LazyBookmarkPage = React.lazy(() => import('@/pages/BookmarkPage'));
 const LazyTermsPage = React.lazy(() => import('@/pages/TermsPage'));
 const LazyPrivacyPage = React.lazy(() => import('@/pages/PrivacyPage'));
 const LazyEmojiPage = React.lazy(() => import('@/pages/EmojiPage'));
+
+// 订阅权限系统演示页面
+const LazyPermissionDemoPage = React.lazy(() => import('@/pages/PermissionDemo'));
 const LazyUpgradeComparisonPage = React.lazy(() => import('@/pages/UpgradeComparisonPage'));
 const LazyFeatureShowcasePage = React.lazy(() => import('@/pages/FeatureShowcasePage'));
 
@@ -342,6 +345,13 @@ const App: React.FC = () => {
                         <Route path='/payment/result' element={<Navigate to="/payment-center/result" replace />} />
                         <Route path='/payment/feedback' element={<Navigate to="/payment-center/feedback" replace />} />
                         <Route path='/upgrade' element={<Navigate to="/upgrade-plans" replace />} />
+
+                        {/* 📌 订阅权限系统演示页面 */}
+                        <Route path='/permission-demo' element={
+                          <LazyWrapper>
+                            <LazyPermissionDemoPage />
+                          </LazyWrapper>
+                        } />
 
                         {/* 📌 统一路由命名：信息页面 */}
                         <Route path='/about-us' element={<AboutPage />} />
