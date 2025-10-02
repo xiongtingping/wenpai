@@ -981,7 +981,7 @@
     background-color: var(--color-card);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-xl) var(--spacing-md) var(--spacing-md);
+    padding: var(--spacing-3xl) var(--spacing-md) var(--spacing-md);
     cursor: pointer;
     transition: all var(--transition-normal);
     display: flex;
