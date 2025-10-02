@@ -998,7 +998,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                       borderRadius: '50%'
                     } as React.CSSProperties}
                   >
-                    <span style={{ fontSize: '4rem' }}>{emoji.emoji}</span>
+                    <span style={{ fontSize: '3rem' }}>{emoji.emoji}</span>
                   </div>
                   <div className="avatar-name">{emoji.name}</div>
                   <div className="avatar-emoji" style={{ fontSize: '1.5rem' }}>{emoji.emoji}</div>
