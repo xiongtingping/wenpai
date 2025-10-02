@@ -131,6 +131,32 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
   const { toast } = useToast();
   const { user } = useAuth();
 
+  // 颜色转换函数：将任何颜色格式转换为十六进制
+  const toHex = (color: string): string => {
+    // 如果已经是十六进制，直接返回
+    if (color.startsWith('#')) {
+      return color.toUpperCase();
+    }
+
+    // 创建临时元素来获取计算后的颜色
+    const temp = document.createElement('div');
+    temp.style.color = color;
+    document.body.appendChild(temp);
+    const computed = window.getComputedStyle(temp).color;
+    document.body.removeChild(temp);
+
+    // 解析 rgb(r, g, b) 格式
+    const match = computed.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (match) {
+      const r = parseInt(match[1]);
+      const g = parseInt(match[2]);
+      const b = parseInt(match[3]);
+      return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+
+    return color; // 如果无法转换，返回原值
+  };
+
   // 使用中文拼音排序器，兼容数字和大小写
   const collatorZh = new Intl.Collator('zh', { sensitivity: 'base', numeric: true });
   const categoryOrder: Array<UnifiedEmojiItem['category']> = ['animals', 'food', 'objects', 'emotions', 'nature'];
@@ -875,7 +901,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         }
         .avatar-name { font-weight: 600; color: hsl(var(--foreground)); margin-bottom: var(--spacing-1); }
         .avatar-emoji { margin-bottom: var(--spacing-2); }
-        .avatar-color { font-size: 0.85rem; color: hsl(var(--muted-foreground)); background: hsl(var(--muted)); padding: 3px var(--spacing-2); border-radius: var(--spacing-2-5); display: inline-block; }
+        .avatar-color { margin-top: var(--spacing-1); }
         .hover-button { opacity: 0; transition: opacity 0.2s ease; }
       `}</style>
 
@@ -1002,12 +1028,13 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                   </div>
                   <div className="avatar-name">{emoji.name}</div>
                   <div className="avatar-emoji" style={{ fontSize: '1.5rem' }}>{emoji.emoji}</div>
-                  <div className="avatar-color">
+                  <div className="avatar-color flex items-center justify-center gap-1.5">
                     <div
-                      className="w-4 h-4 rounded-full border border-border/30 mx-auto"
+                      className="w-4 h-4 rounded-full border border-border/30"
                       style={{ backgroundColor: emoji.color }}
-                      title={emoji.color}
+                      title={toHex(emoji.color)}
                     />
+                    <span className="text-xs text-muted-foreground font-mono">{toHex(emoji.color)}</span>
                   </div>
 
                   {/* 操作按钮组 */}
