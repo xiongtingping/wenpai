@@ -131,3 +131,38 @@
     -moz-osx-font-smoothing: grayscale;
   }
 }
+
+/* ========================================
+   6. MD2Card 快速样式渐变工具类
+======================================== */
+@layer utilities {
+  /* 蓝色商务渐变 */
+  .u-gradient-blue {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  }
+
+  /* 绿色清新渐变 */
+  .u-gradient-green {
+    background: linear-gradient(135deg, #10B981 0%, #047857 100%);
+  }
+
+  /* 紫色优雅渐变 */
+  .u-gradient-purple {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  }
+
+  /* 橙色活力渐变 */
+  .u-gradient-amber {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  }
+
+  /* 粉色温馨渐变 */
+  .u-gradient-pink {
+    background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+  }
+
+  /* 暗色专业渐变 */
+  .u-gradient-gray {
+    background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+  }
+}

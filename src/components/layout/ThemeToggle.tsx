@@ -26,7 +26,7 @@ interface ThemeConfig {
 const createThemes = (t: (key: string) => string): ThemeConfig[] => [
   {
     value: 'light',
-    label: t('components.labels.浅色'),
+    label: t('components.labels.text_javh'),
     icon: <Sun className="h-4 w-4 text-foreground" />,
     permissionLevel: 'basic',
     requiredPermission: 'theme:basic',
@@ -34,7 +34,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
   },
   {
     value: 'dark',
-    label: t('components.labels.深色'),
+    label: t('components.labels.text_jezl'),
     icon: <Moon className="h-4 w-4 text-foreground" />,
     permissionLevel: 'advanced',
     requiredPermission: 'theme:advanced',
@@ -43,7 +43,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
   },
   {
     value: 'rainbow',
-    label: t('components.labels.彩虹色'),
+    label: t('components.labels.text_emon6'),
     icon: <div className="w-4 h-4 rounded-full bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
@@ -52,7 +52,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
   },
   {
     value: 'beige',
-    label: t('components.labels.护眼米色'),
+    label: t('components.labels.text_cxymif'),
     icon: <div className="w-4 h-4 rounded-full bg-amber-200 border border-amber-300" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
@@ -61,7 +61,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
   },
   {
     value: 'green',
-    label: t('components.labels.绿色'),
+    label: t('components.labels.text_mbf7'),
     icon: <div className="w-4 h-4 rounded-full bg-success" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',

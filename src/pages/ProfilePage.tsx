@@ -853,7 +853,7 @@ export default function ProfilePage() {
                     </div>
                   </CardHeader>
                   <CardContent className="relative z-10 space-y-6">
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4">
                       <div className="group/info relative overflow-hidden rounded-xl border border-border/20 bg-gradient-to-br from-muted/20 to-muted/10 p-4 hover:shadow-lg transition-all duration-300">
                         <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover/info:opacity-100 transition-opacity duration-300" />
                         <div className="relative">
@@ -879,8 +879,8 @@ export default function ProfilePage() {
                               readOnly
                               className="flex-1 font-mono text-xs transition-all duration-300 focus:shadow-lg border-border/50 hover:border-border"
                             />
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               onClick={handleCopyFeedbackEmail}
                               className="group/btn hover:shadow-lg transition-all duration-300"
                             >
