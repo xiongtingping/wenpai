@@ -856,7 +856,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         .avatar-card {
           background: hsl(var(--background));
           border-radius: var(--spacing-4); /* 更紧凑圆角 */
-          padding: var(--spacing-md) var(--spacing-3-5) var(--spacing-3-5);       /* 增加顶部内边距 */
+          padding: var(--spacing-lg);       /* 增加所有方向的内边距 */
           text-align: center;
           box-shadow: 0 var(--spacing-1-5) var(--spacing-6) hsl(var(--foreground) / 0.08);
           transition: box-shadow 0.2s ease, transform 0.2s ease;
