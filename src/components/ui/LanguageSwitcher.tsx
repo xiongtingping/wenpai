@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
 
 const createLanguages = (t: (key: string) => string) => [
-  { code: 'zh-CN', name: t('settings.chinese'), flag: '🇨🇳' },
+  { code: 'zh-CN', name: t('language.chinese'), flag: '🇨🇳' },
   { code: 'en-US', name: 'English', flag: '🇺🇸' }
 ];
 
