@@ -991,7 +991,13 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                   </div>
                   <div className="avatar-name">{emoji.name}</div>
                   <div className="avatar-emoji">{emoji.emoji}</div>
-                  <div className="avatar-color">{emoji.color}</div>
+                  <div className="avatar-color">
+                    <div
+                      className="w-4 h-4 rounded-full border border-border/30 mx-auto"
+                      style={{ backgroundColor: emoji.color }}
+                      title={emoji.color}
+                    />
+                  </div>
 
                   {/* 操作按钮组 */}
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 mt-3 flex justify-center gap-2">
@@ -1029,8 +1035,17 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                   {/* 信息区域 */}
                   <div className="flex-1">
                     <div className="font-semibold text-foreground">{emoji.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      分类: {emoji.category} | 颜色: {emoji.color}
+                    <div className="text-sm text-muted-foreground flex items-center gap-2">
+                      <span>分类: {emoji.category}</span>
+                      <span>|</span>
+                      <span className="flex items-center gap-1">
+                        颜色:
+                        <div
+                          className="w-3 h-3 rounded-full border border-border/30 inline-block"
+                          style={{ backgroundColor: emoji.color }}
+                          title={emoji.color}
+                        />
+                      </span>
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
                       关键词: {emoji.keywords.join(', ')}

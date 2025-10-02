@@ -674,7 +674,7 @@ export const CustomLoginPage: React.FC = () => {
                 </div>
               )}
               <p className="text-muted-foreground dark:text-gray-300 text-sm font-medium">
-                {mode === 'register' ? t('pages.messages.请填写信息创建您的账户') : t('pages.messages.请登录继续')}
+                {mode === 'register' ? t('customLoginPage.registerSubtitle') : t('customLoginPage.subtitle')}
               </p>
             </div>
 
@@ -997,7 +997,7 @@ export const CustomLoginPage: React.FC = () => {
                     className="w-4 h-4 text-primary border-border rounded focus:ring-blue-500"
                   />
                   <span className="text-sm text-muted-foreground dark:text-gray-300 font-medium">
-                    {mode === 'login' ? t('pages.messages.记住我') : (
+                    {mode === 'login' ? t('customLoginPage.form.rememberMe') : (
                       <span className="leading-relaxed">
                         我已阅读并同意
                         <a
@@ -1054,7 +1054,7 @@ export const CustomLoginPage: React.FC = () => {
                   onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
                   className="text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-all duration-300 hover:scale-105 underline-offset-4 hover:underline"
                 >
-                  {mode === 'login' ? t('pages.messages.立即注册') : t('pages.messages.立即登录')}
+                  {mode === 'login' ? t('customLoginPage.form.registerButton') : t('customLoginPage.form.loginNowButton')}
                 </button>
               </p>
             </div>
