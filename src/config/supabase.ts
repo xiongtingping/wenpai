@@ -67,13 +67,11 @@ export interface UserProfile {
 export interface UserSubscription {
   id: string
   user_id: string // VARCHAR(100) - 兼容 Authing 用户 ID
-  tier: 'trial' | 'pro' | 'premium'
-  monthly_token_limit: number
-  usage_count_limit: number
-  start_date: string
-  end_date?: string
+  subscription_type: 'trial' | 'pro' | 'premium'
+  status: 'active' | 'expired' | 'cancelled' | 'pending'
+  started_at: string
+  expires_at: string
   auto_renew: boolean
-  payment_status: string
   created_at: string
   updated_at: string
 }

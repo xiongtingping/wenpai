@@ -89,7 +89,7 @@ class UnifiedSubscriptionService {
         .from(TABLE_NAMES.USER_SUBSCRIPTIONS)
         .select('*')
         .eq('user_id', userId)
-        .eq('payment_status', 'active')
+        .eq('status', 'active')
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();

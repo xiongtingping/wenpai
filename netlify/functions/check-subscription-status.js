@@ -56,7 +56,7 @@ exports.handler = async (event, context) => {
       .select('id, subscription_type, expires_at, status')
       .eq('user_id', userId)
       .eq('status', 'active')
-      .gt('expires_at', new Date().toISOString())
+      .gte('expires_at', new Date().toISOString())
       .limit(1)
       .maybeSingle();
     
