@@ -49,6 +49,10 @@ exports.handler = async (event, context) => {
     }
 
     console.log('检查用户订阅状态:', { userId });
+    console.log('Supabase配置:', {
+      url: supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey
+    });
 
     // 检查用户是否有有效订阅
     const { data, error } = await supabase
@@ -59,13 +63,23 @@ exports.handler = async (event, context) => {
       .gte('expires_at', new Date().toISOString())
       .limit(1)
       .maybeSingle();
-    
+
     if (error) {
       console.error('查询订阅状态失败:', error);
+      console.error('错误详情:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Database query failed' })
+        body: JSON.stringify({
+          error: 'Database query failed',
+          details: error.message,
+          code: error.code
+        })
       };
     }
 
