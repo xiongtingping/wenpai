@@ -856,7 +856,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         .avatar-card {
           background: hsl(var(--background));
           border-radius: var(--spacing-4); /* 更紧凑圆角 */
-          padding: var(--spacing-3-5);       /* 减少内边距 */
+          padding: var(--spacing-md) var(--spacing-3-5) var(--spacing-3-5);       /* 增加顶部内边距 */
           text-align: center;
           box-shadow: 0 var(--spacing-1-5) var(--spacing-6) hsl(var(--foreground) / 0.08);
           transition: box-shadow 0.2s ease, transform 0.2s ease;
@@ -869,7 +869,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         }
         .avatar-card:hover .hover-button { opacity: 1; }
         .avatar-display {
-          width: 72px; height: 72px; border-radius: var(--radius-full); margin: var(--spacing-md) auto var(--spacing-3); /* 增加顶部间距 */
+          width: 72px; height: 72px; border-radius: var(--radius-full); margin: 0 auto var(--spacing-3); /* 卡片已有padding-top */
           display: flex; align-items: center; justify-content: center;
           font-size: var(--spacing-12); box-shadow: 0 3px var(--spacing-3) hsl(var(--foreground) / 0.08);
         }
