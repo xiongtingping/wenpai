@@ -264,7 +264,7 @@ export function TokenUsageSection({
                         : finalTokenStats && finalTokenStats.usagePercentage > 60
                         ? 'hsl(var(--warning))'
                         : 'hsl(var(--primary))',
-                      color: 'white'
+                      color: 'hsl(var(--primary-foreground))'
                     }}>
                       {finalTokenStats?.monthlyLimit === -1 ? '无限制' : `${Math.round(finalTokenStats?.usagePercentage || 0)}%`}
                     </span>
@@ -311,7 +311,7 @@ export function TokenUsageSection({
                         flexShrink: 0,
                         marginTop: '2px'
                       }}>
-                        <span style={{fontSize: '12px', color: 'white'}}>ℹ️</span>
+                        <span style={{fontSize: '12px', color: 'hsl(var(--primary-foreground))'}}>ℹ️</span>
                       </div>
                       <div className="text-foreground" style={{
                         flex: 1,
@@ -378,7 +378,7 @@ export function TokenUsageSection({
                         : finalUsageCountStats && finalUsageCountStats.usagePercentage > 60
                         ? 'hsl(var(--warning))'
                         : 'hsl(var(--primary))',
-                      color: 'white'
+                      color: 'hsl(var(--primary-foreground))'
                     }}>
                       {(finalUsageCountStats && finalUsageCountStats.availableUses === -1) ? '无限制' :
                        `${finalUsageCountStats?.usedCount || 0}/${finalUsageCountStats?.availableUses || 0}`}

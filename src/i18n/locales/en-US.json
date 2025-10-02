@@ -915,7 +915,17 @@
       "clearAllThemeClasses": "Clear all theme classes, apply new theme",
       "tailwindDarkCompatibility": "Tailwind dark class compatibility",
       "loadThemeImmediately": "Execute theme loading immediately",
-      "fromLocalStorage": "Read persisted theme from localStorage"
+      "fromLocalStorage": "Read persisted theme from localStorage",
+      "settings": "Theme Settings",
+      "switchTheme": "Switch Theme",
+      "unlockMore": "Unlock more themes and features",
+      "descriptions": {
+        "light": "Classic light theme, suitable for daytime use",
+        "dark": "Eye-friendly dark theme, suitable for nighttime use",
+        "rainbow": "Rainbow gradient theme, vibrant and colorful style",
+        "beige": "Warm beige theme, more comfortable for extended use",
+        "green": "Eye-friendly green theme, natural and fresh style"
+      }
     },
     "startup": {
       "checkMaliciousCallback": "Check for malicious callback URL on app startup",
@@ -1768,6 +1778,19 @@
     "saveSettings": "Save Settings",
     "settingsUpdated": "Settings Updated",
     "updateFailed": "Update Failed"
+  },
+  "subscription": {
+    "tiers": {
+      "trial": "Trial",
+      "pro": "Pro",
+      "premium": "Premium"
+    },
+    "userLevels": {
+      "trial": "Trial User",
+      "pro": "Pro User",
+      "premium": "Premium User",
+      "guest": "Guest User"
+    }
   },
   "adapt": {
     "title": "Content Adapter",

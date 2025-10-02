@@ -232,8 +232,8 @@ export function GenerationControls({ generating,
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10">
-                <Sparkles className="h-5 w-5 text-blue-600" />
+              <div className="p-2 rounded-lg bg-gradient-to-br from-primary/10 to-primary/20">
+                <Sparkles className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <CardTitle className="text-lg font-semibold">AI模型选择</CardTitle>
@@ -334,9 +334,9 @@ export function GenerationControls({ generating,
             <div className="space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-blue-500 dark:bg-blue-600"></div>
-                  <span className="font-medium text-blue-700 dark:text-blue-400">专业版模型</span>
-                  <Badge variant="outline" className="text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-700">
+                  <div className="w-3 h-3 rounded-full bg-primary"></div>
+                  <span className="font-medium text-primary">专业版模型</span>
+                  <Badge variant="outline" className="text-primary border-primary/30">
                     专业功能
                   </Badge>
                 </div>
@@ -354,10 +354,10 @@ export function GenerationControls({ generating,
                       className={`
                         relative p-3 rounded-lg border cursor-pointer transition-all
                         ${isSelected
-                          ? 'border-blue-500 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30 ring-2 ring-blue-200 dark:ring-blue-800'
+                          ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
                           : disabled
                           ? 'border-border bg-muted cursor-not-allowed opacity-60'
-                          : 'border-border hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-950/20'
+                          : 'border-border hover:border-primary/50 hover:bg-primary/5'
                         }
                       `}
                       onClick={(e) => {
@@ -371,7 +371,7 @@ export function GenerationControls({ generating,
                         <div className={`
                           w-5 h-5 rounded-full border-2 flex items-center justify-center
                           ${isSelected
-                            ? 'border-blue-500 dark:border-blue-600 bg-blue-500 dark:bg-blue-600'
+                            ? 'border-primary bg-primary'
                             : 'border-border'
                           }
                         `}>
@@ -393,10 +393,10 @@ export function GenerationControls({ generating,
                         </div>
                       </div>
                       {disabled && !generating && (
-                        <div className="absolute inset-0 bg-gray-900/5 rounded-lg flex items-center justify-center">
-                          <div className="bg-white rounded-md px-2 py-1 shadow-sm border flex items-center gap-1">
-                            <Crown className="w-3 h-3 text-blue-500" />
-                            <span className="text-xs font-medium text-gray-700">需要专业版</span>
+                        <div className="absolute inset-0 bg-muted/50 rounded-lg flex items-center justify-center">
+                          <div className="bg-background rounded-md px-2 py-1 shadow-sm border border-border flex items-center gap-1">
+                            <Crown className="w-3 h-3 text-primary" />
+                            <span className="text-xs font-medium text-foreground">需要专业版</span>
                           </div>
                         </div>
                       )}

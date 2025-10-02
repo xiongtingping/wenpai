@@ -576,7 +576,7 @@ export default function BookmarkPage() {
       case 'extraction':
         return { icon: Zap, name: t('pages.labels.内容提取') };
       case 'copywriting':
-        return { icon: Brain, name: t('pages.copywritingManagement') };
+        return { icon: Brain, name: t('bookmark.copywritingManagement') };
       default:
         return { icon: FileText, name: t('pages.messages.其他') };
     }
@@ -1421,7 +1421,7 @@ export default function BookmarkPage() {
               <DialogTitle>编辑内容</DialogTitle>
               <DialogDescription>
                 修改{editingItem?.type === 'collection' ? t('pages.messages.网络收藏') :
-                     editingItem?.type === 'extraction' ? t('pages.labels.内容提取') : t('pages.copywritingManagement')}内容
+                     editingItem?.type === 'extraction' ? t('pages.labels.内容提取') : t('bookmark.copywritingManagement')}内容
               </DialogDescription>
             </DialogHeader>
             {editingItem && (
@@ -1513,7 +1513,7 @@ export default function BookmarkPage() {
               </div>
               <DialogDescription>
                 {viewingItem?.type === 'collection' ? t('pages.messages.网络收藏') :
-                 viewingItem?.type === 'extraction' ? t('pages.labels.内容提取') : t('pages.copywritingManagement')}
+                 viewingItem?.type === 'extraction' ? t('pages.labels.内容提取') : t('bookmark.copywritingManagement')}
                 {viewingItem?.source && ` • 来源：${viewingItem.source}`}
               </DialogDescription>
             </DialogHeader>

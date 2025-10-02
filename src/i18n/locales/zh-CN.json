@@ -915,7 +915,17 @@
       "clearAllThemeClasses": "清除所有主题类，应用新主题",
       "tailwindDarkCompatibility": "Tailwind dark类兼容性",
       "loadThemeImmediately": "立即执行主题加载",
-      "fromLocalStorage": "从localStorage读取持久化主题"
+      "fromLocalStorage": "从localStorage读取持久化主题",
+      "settings": "主题设置",
+      "switchTheme": "切换主题",
+      "unlockMore": "解锁更多主题和功能",
+      "descriptions": {
+        "light": "经典浅色主题，适合白天使用",
+        "dark": "护眼深色主题，适合夜间使用",
+        "rainbow": "彩虹渐变主题，活力多彩风格",
+        "beige": "温暖米色主题，长时间使用更舒适",
+        "green": "护眼绿色主题，自然清新风格"
+      }
     },
     "startup": {
       "checkMaliciousCallback": "应用启动时检查是否为恶意回调URL",
@@ -1768,6 +1778,19 @@
     "saveSettings": "保存设置",
     "settingsUpdated": "设置已更新",
     "updateFailed": "更新失败"
+  },
+  "subscription": {
+    "tiers": {
+      "trial": "体验版",
+      "pro": "专业版",
+      "premium": "高级版"
+    },
+    "userLevels": {
+      "trial": "体验版用户",
+      "pro": "专业版用户",
+      "premium": "高级版用户",
+      "guest": "未登录用户"
+    }
   },
   "adapt": {
     "title": "AI内容适配",

@@ -243,8 +243,8 @@ function DimensionCard({
                         variant="ghost"
                         className={`h-3.5 w-3.5 p-0 rounded-full text-xs ${
                           isPinned
-                            ? 'bg-amber-200 hover:bg-amber-300 text-amber-700 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 dark:text-amber-300'
-                            : 'bg-blue-100 hover:bg-blue-200 text-primary dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300'
+                            ? 'bg-warning/30 hover:bg-warning/40 text-warning'
+                            : 'bg-primary/20 hover:bg-primary/30 text-primary'
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -262,7 +262,7 @@ function DimensionCard({
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-3.5 w-3.5 p-0 rounded-full bg-red-100 hover:bg-red-200 text-destructive text-xs"
+                        className="h-3.5 w-3.5 p-0 rounded-full bg-destructive/20 hover:bg-destructive/30 text-destructive text-xs"
                         onClick={(e) => {
                           e.stopPropagation();
                           onRemoveItem(item);
@@ -286,8 +286,8 @@ function DimensionCard({
                   variant={selectedItem === item ? "default" : "outline"}
                   className={`text-xs h-6 px-1.5 justify-center w-full transition-all ${
                     isPinned
-                      ? 'border-amber-400 bg-amber-50 hover:bg-amber-100 shadow-sm'
-                      : 'bg-blue-50 border-blue-200 hover:bg-blue-100 hover:shadow-sm'
+                      ? 'border-warning bg-warning/10 hover:bg-warning/20 shadow-sm'
+                      : 'bg-primary/10 border-primary/30 hover:bg-primary/20 hover:shadow-sm'
                   }`}
                   onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
                   disabled={!!selectedItem && selectedItem !== item}
@@ -303,8 +303,8 @@ function DimensionCard({
                       variant="ghost"
                       className={`h-3.5 w-3.5 p-0 rounded-full text-xs ${
                         isPinned
-                          ? 'bg-amber-200 hover:bg-amber-300 text-amber-700 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 dark:text-amber-300'
-                          : 'bg-blue-100 hover:bg-blue-200 text-primary dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300'
+                          ? 'bg-warning/30 hover:bg-warning/40 text-warning'
+                          : 'bg-primary/20 hover:bg-primary/30 text-primary'
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -322,7 +322,7 @@ function DimensionCard({
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-3.5 w-3.5 p-0 rounded-full bg-red-100 hover:bg-red-200 text-destructive text-xs"
+                      className="h-3.5 w-3.5 p-0 rounded-full bg-destructive/20 hover:bg-destructive/30 text-destructive text-xs"
                       onClick={(e) => {
                         e.stopPropagation();
                         onRemoveItem(item);
@@ -2169,9 +2169,9 @@ ${generateStandardCallToAction()}
                         key={dimensionId}
                         className={`flex items-center gap-2 p-2 rounded-md border text-xs ${
                           status.isRequired
-                            ? 'bg-red-50 border-red-200 text-red-800'
+                            ? 'bg-destructive/10 border-destructive/30 text-destructive'
                             : status.isRecommended
-                            ? 'bg-blue-50 border-blue-200 text-blue-800'
+                            ? 'bg-primary/10 border-primary/30 text-primary'
                             : 'bg-muted border-border text-muted-foreground'
                         }`}
                       >
@@ -2534,7 +2534,7 @@ ${generateStandardCallToAction()}
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-6 px-2 text-xs bg-blue-50 hover:bg-blue-100"
+                              className="h-6 px-2 text-xs bg-primary/10 hover:bg-primary/20"
                               onClick={() => {
                                 // {t('creativeCube.actions.copy')}内容并跳转到AI内容适配
                                 const contentToTransfer = parsed.mainContent;
