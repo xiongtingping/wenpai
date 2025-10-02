@@ -68,7 +68,7 @@ function InfoTooltip({ title, content }: { title: string; content: string[] }) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button className="bg-accent" style={{
+          <button className="bg-muted" style={{
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -216,7 +216,7 @@ export function TokenUsageSection({
           {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
           <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1}}>
             {/* Token使用量统计卡片 */}
-                <div className="bg-accent border-border" style={{
+                <div className="bg-muted border-border" style={{
                   minWidth: '280px',
                   position: 'relative',
                   borderRadius: '12px',
@@ -328,7 +328,7 @@ export function TokenUsageSection({
                 </div>
 
                 {/* 使用次数统计卡片 */}
-                <div className="bg-accent border-border" style={{
+                <div className="bg-muted border-border" style={{
                   minWidth: '280px',
                   position: 'relative',
                   overflow: 'hidden',
