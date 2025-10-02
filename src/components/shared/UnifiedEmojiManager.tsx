@@ -192,9 +192,9 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
     const initializeEmojiData = async () => {
       try {
         const { getCategories, getAllEmojis, getEmojiStats } = await import('@/services/unifiedEmojiSystem');
-        
+
         // 计算最新分类统计，避免显示与实际不一致
-        const allCategoriesComputed = getCategories();
+        const allCategoriesComputed = await getCategories();
         let filteredCategories = allCategoriesComputed;
 
         if (categories) {
