@@ -396,7 +396,8 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         for (const e of all) {
           for (const k of (e.keywords || [])) {
             const key = (k || '').trim();
-            if (!key) continue;
+            // 过滤颜色代码(#开头的十六进制颜色值)
+            if (!key || key.startsWith('#')) continue;
             freq[key] = (freq[key] || 0) + 1;
           }
         }
@@ -409,7 +410,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         console.error('loading关key词failed:', error);
       }
     };
-    
+
     loadKeywords();
   }, []);
 
