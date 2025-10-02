@@ -57,7 +57,7 @@ exports.handler = async (event, context) => {
     // 检查用户是否有有效订阅
     const { data, error } = await supabase
       .from('user_subscriptions')
-      .select('id, subscription_type, expires_at, status')
+      .select('*')
       .eq('user_id', userId)
       .eq('status', 'active')
       .gte('expires_at', new Date().toISOString())
