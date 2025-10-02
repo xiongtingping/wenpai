@@ -2040,8 +2040,8 @@ export default function BrandLibraryPageFixed() {
         actions={
           <RoleBasedUpgradePrompt
             requiredTier="premium"
-            featureName="多维品牌语料库"
-            description="该功能区为高级版专属，包含AI智能分析、品牌资料管理、PDF智能对话等专业功能"
+            featureName={t('brand.multiDimensionalCorpus')}
+            description={t('brand.premiumFeatureDescription')}
             mode="compact"
           />
         }

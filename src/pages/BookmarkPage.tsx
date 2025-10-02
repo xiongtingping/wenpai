@@ -576,7 +576,7 @@ export default function BookmarkPage() {
       case 'extraction':
         return { icon: Zap, name: t('pages.labels.内容提取') };
       case 'copywriting':
-        return { icon: Brain, name: t('pages.messages.文案管理') };
+        return { icon: Brain, name: t('pages.copywritingManagement') };
       default:
         return { icon: FileText, name: t('pages.messages.其他') };
     }
@@ -735,8 +735,8 @@ export default function BookmarkPage() {
 
       {/* 页面导航 */}
       <PageNavigation
-        title={t('pages.titles.书签管理')}
-        description={t('pages.descriptions.书签管理')}
+        title={t('pages.titles.bookmark')}
+        description={t('pages.descriptions.bookmark')}
         showAdaptButton={false}
       />
 
@@ -1420,8 +1420,8 @@ export default function BookmarkPage() {
             <DialogHeader>
               <DialogTitle>编辑内容</DialogTitle>
               <DialogDescription>
-                修改{editingItem?.type === 'collection' ? t('pages.messages.网络收藏') : 
-                     editingItem?.type === 'extraction' ? t('pages.labels.内容提取') : t('pages.messages.文案管理')}内容
+                修改{editingItem?.type === 'collection' ? t('pages.messages.网络收藏') :
+                     editingItem?.type === 'extraction' ? t('pages.labels.内容提取') : t('pages.copywritingManagement')}内容
               </DialogDescription>
             </DialogHeader>
             {editingItem && (
@@ -1512,8 +1512,8 @@ export default function BookmarkPage() {
                 </Button>
               </div>
               <DialogDescription>
-                {viewingItem?.type === 'collection' ? t('pages.messages.网络收藏') : 
-                 viewingItem?.type === 'extraction' ? t('pages.labels.内容提取') : t('pages.messages.文案管理')}
+                {viewingItem?.type === 'collection' ? t('pages.messages.网络收藏') :
+                 viewingItem?.type === 'extraction' ? t('pages.labels.内容提取') : t('pages.copywritingManagement')}
                 {viewingItem?.source && ` • 来源：${viewingItem.source}`}
               </DialogDescription>
             </DialogHeader>
