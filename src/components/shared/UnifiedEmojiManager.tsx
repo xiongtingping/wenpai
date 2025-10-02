@@ -987,7 +987,9 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                   <div
                     className="avatar-display"
                     style={{
-                      backgroundColor: emoji.color,
+                      backgroundColor: emoji.color.startsWith('#') || emoji.color.startsWith('rgb') || emoji.color.startsWith('hsl')
+                        ? emoji.color
+                        : 'hsl(var(--accent))',
                       borderRadius: '50%'
                     } as React.CSSProperties}
                   >
