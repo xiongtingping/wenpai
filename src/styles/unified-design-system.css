@@ -981,7 +981,10 @@
     background-color: var(--color-card);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-3xl) var(--spacing-md) var(--spacing-md);
+    padding-top: 3.5rem;
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
     cursor: pointer;
     transition: all var(--transition-normal);
     display: flex;
