@@ -80,13 +80,24 @@ class ServiceInitializer {
         this.state.errors.push({ service: 'SupabaseServiceFactory', error: String(error) });
       }
 
-      // 2. 注册所有服务到DI容器 - 优雅降级
+      // 2. 注册所有服务到DI容器 - 优雅降级 + 超时保护
       try {
+        console.log('🔧 开始注册 DI 容器服务...');
         const { registerAllServices } = await import('@/config/serviceRegistry');
-        await registerAllServices();
-        // console.log('✅ DIcontainerserviceregistercompleted');
+
+        // 添加超时保护
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Service registration timeout after 5s')), 5000)
+        );
+
+        await Promise.race([
+          registerAllServices(),
+          timeoutPromise
+        ]);
+
+        console.log('✅ DI容器服务注册完成');
       } catch (error) {
-        console.warn('⚠️ DIcontainerregisterfailed，skipping:', error);
+        console.warn('⚠️ DI容器注册失败，跳过:', error);
         this.state.errors.push({ service: 'DIContainer', error: String(error) });
       }
 
