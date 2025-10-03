@@ -159,6 +159,8 @@
   # BufPay支付配置
   VITE_BUFPAY_API_URL = "https://api.bufpay.com"
   VITE_BUFPAY_QUERY_URL = "https://bufpay.com/api/query"
+  # AIMLAPI配置
+  VITE_AIMLAPI_BASE_URL = "https://api.aimlapi.com"
 
 [context.deploy-preview.environment]
   NODE_ENV = "preview"
@@ -192,6 +194,8 @@
   # BufPay支付配置
   VITE_BUFPAY_API_URL = "https://api.bufpay.com"
   VITE_BUFPAY_QUERY_URL = "https://bufpay.com/api/query"
+  # AIMLAPI配置
+  VITE_AIMLAPI_BASE_URL = "https://api.aimlapi.com"
 
 [context.branch-deploy.environment]
   NODE_ENV = "development"
