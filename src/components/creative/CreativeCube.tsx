@@ -173,14 +173,14 @@ function DimensionCard({
   return (
     <Card className={`relative overflow-hidden ${isRequired ? 'border-primary' : ''} ${selectedItem ? 'ring-2 ring-primary/20' : ''}`}>
       
-      <CardHeader className="pb-2 p-4 creative-cube-card-header bg-gradient-to-r from-muted/50 to-muted border-b border-border">
+      <CardHeader className="pb-2 p-3 bg-gradient-to-r from-muted/50 to-muted border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {dimension.icon}
-            <CardTitle className="creative-module-button">{dimension.name}</CardTitle>
-            {isRequired && <Badge variant="destructive" className="creative-module-label px-1.5 py-0.5">必选</Badge>}
+            <CardTitle className="text-sm font-semibold">{dimension.name}</CardTitle>
+            {isRequired && <Badge variant="destructive" className="text-xs px-1.5 py-0.5">必选</Badge>}
           </div>
-          
+
           {hasHiddenDefaultItems && (
             <Button
               size="sm"
@@ -194,7 +194,7 @@ function DimensionCard({
           )}
         </div>
         {dimension.description && (
-          <p className="creative-module-small mt-1">{dimension.description}</p>
+          <p className="text-xs text-muted-foreground mt-1">{dimension.description}</p>
         )}
       </CardHeader>
       
@@ -224,7 +224,7 @@ function DimensionCard({
                   <Button
                     size="sm"
                     variant={selectedItem === item ? "default" : "outline"}
-                    className={`creative-module-button h-6 px-1.5 justify-center w-full transition-all ${
+                    className={`text-xs h-6 px-1.5 justify-center w-full transition-all ${
                       isPinned
                         ? 'border-amber-400 bg-amber-50 hover:bg-amber-100 shadow-sm'
                         : 'hover:shadow-sm'
@@ -232,7 +232,7 @@ function DimensionCard({
                     onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
                     disabled={!!selectedItem && selectedItem !== item}
                   >
-                    <span className="truncate text-center">{isPinned ? '📌 ' : ''}{item}</span>
+                    <span className="truncate text-center text-xs">{isPinned ? '📌 ' : ''}{item}</span>
                   </Button>
 
                   
@@ -292,7 +292,7 @@ function DimensionCard({
                   onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
                   disabled={!!selectedItem && selectedItem !== item}
                 >
-                  <span className="truncate text-center">{isPinned ? '📌 ' : ''}🔧 {item}</span>
+                  <span className="truncate text-center text-xs">{isPinned ? '📌 ' : ''}🔧 {item}</span>
                 </Button>
 
                 

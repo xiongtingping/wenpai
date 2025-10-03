@@ -488,14 +488,15 @@ export function GenerationControls({ generating,
             <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
               <div className="flex items-center gap-3 mb-2">
                 <Bot className="h-5 w-5 text-primary" />
-                <span className="font-medium text-foreground">
-                  当前选择：{currentModel.name}
-                </span>
-                <Badge variant="secondary">
-                  {currentModel.company}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">当前模型:</span>
+                  <span className="font-medium text-foreground">{currentModel.name}</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {currentModel.company}
+                  </Badge>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground mt-2">
                 {currentModel.description}
               </p>
             </div>

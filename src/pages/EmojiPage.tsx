@@ -320,57 +320,70 @@ const EmojiPage: React.FC = () => {
             {/* 品牌Emoji - 全宽布局 */}
             <TabsContent value="brand-emoji" className="mt-0">
           <div className="w-full bg-gradient-to-br from-background via-accent/5 to-background">
-            {/* 顶部步骤指示器 */}
-            <div className="px-4 sm:px-6 lg:px-8 py-4">
-              <div className="brand-emoji-steps-indicator steps-indicator-fade-in max-w-5xl mx-auto">
-                {/* 步骤项容器 */}
-                <div className="flex items-start justify-between w-full gap-2">
-                  {[
-                    { step: 1, id: 'upload', label: '品牌角色设定' },
-                    { step: 2, id: 'build', label: '智能提示构建' },
-                    { step: 3, id: 'generate', label: 'AI批量生成' },
-                    { step: 4, id: 'gallery', label: '作品集展示' }
-                  ].map((item, index) => {
-                    const isActive = brandEmojiCurrentStep === item.id;
-                    const isCompleted = getStepIndex(brandEmojiCurrentStep) > index;
-
-                    return (
-                      <div key={item.step} className="flex-1 relative">
-                        <div className="flex flex-col items-center gap-2">
-                          {/* 步骤圆圈 */}
-                          <div className={`brand-emoji-step-circle ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>
-                            <span className="brand-emoji-step-number">{item.step}</span>
-                          </div>
-
-                          {/* 步骤文字 */}
-                          <span className="brand-emoji-step-label">{item.label}</span>
-                        </div>
-
-                        {/* 连接线 */}
-                        {index < 3 && (
-                          <div className={`brand-emoji-step-connector ${isCompleted ? 'completed' : ''}`}></div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
             {/* 主要内容区域 - 完全全宽 */}
             <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
-                    {/* 标题区域 */}
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <Building2 className="w-5 h-5 text-primary" />
+                    {/* 标题区域和步骤指示器 */}
+                    <div className="flex items-start justify-between gap-6 mb-6">
+                      {/* 左侧：标题 */}
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Building2 className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg font-semibold">
+                            品牌专属Emoji
+                          </CardTitle>
+                          <CardDescription className="text-sm text-muted-foreground mt-1">
+                            {t('emoji.brandEmojiDescription')}
+                          </CardDescription>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <CardTitle className="text-lg font-semibold">
-                          品牌专属Emoji
-                        </CardTitle>
-                        <CardDescription className="text-sm text-muted-foreground mt-1">
-                          {t('emoji.brandEmojiDescription')}
-                        </CardDescription>
+
+                      {/* 右侧：步骤指示器 */}
+                      <div className="brand-emoji-steps-indicator steps-indicator-fade-in flex-shrink-0">
+                        <div className="flex items-center gap-2">
+                          {[
+                            { step: 1, id: 'upload', label: '品牌角色设定', icon: '📝' },
+                            { step: 2, id: 'build', label: '智能提示构建', icon: '🔧' },
+                            { step: 3, id: 'generate', label: 'AI批量生成', icon: '✨' },
+                            { step: 4, id: 'gallery', label: '作品集展示', icon: '🎨' }
+                          ].map((item, index) => {
+                            const isActive = brandEmojiCurrentStep === item.id;
+                            const isCompleted = getStepIndex(brandEmojiCurrentStep) > index;
+
+                            return (
+                              <React.Fragment key={item.step}>
+                                <div className="flex flex-col items-center gap-1">
+                                  {/* 步骤圆圈带图标 */}
+                                  <div className={`relative flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
+                                    isActive
+                                      ? 'border-primary bg-primary text-primary-foreground shadow-md scale-110'
+                                      : isCompleted
+                                      ? 'border-primary bg-primary/10 text-primary'
+                                      : 'border-border bg-background text-muted-foreground'
+                                  }`}>
+                                    <span className="text-sm font-semibold">{item.step}</span>
+                                    <span className="absolute -top-1 -right-1 text-xs">{item.icon}</span>
+                                  </div>
+
+                                  {/* 步骤文字 */}
+                                  <span className={`text-xs font-medium whitespace-nowrap ${
+                                    isActive ? 'text-primary' : isCompleted ? 'text-foreground' : 'text-muted-foreground'
+                                  }`}>
+                                    {item.label}
+                                  </span>
+                                </div>
+
+                                {/* 连接线 */}
+                                {index < 3 && (
+                                  <div className={`h-0.5 w-8 transition-all ${
+                                    isCompleted ? 'bg-primary' : 'bg-border'
+                                  }`}></div>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
 
