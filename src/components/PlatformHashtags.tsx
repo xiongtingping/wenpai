@@ -20,7 +20,9 @@ export interface PlatformHashtagsProps {
 export const PlatformHashtags: React.FC<any> = ({ platformId,
   content,
   extractedTags,
-  onTagsChange }) => { const [tags, setTags] = useState<string[]>([]);
+  onTagsChange }) => {
+  const { t } = useTranslation();
+  const [tags, setTags] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true); // Default to expanded
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
