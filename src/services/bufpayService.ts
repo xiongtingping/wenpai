@@ -1,9 +1,10 @@
 /**
  * BufPay 支付服务
+ * 使用统一配置管理,无硬编码
  */
 
-// import i18n from '@/i18n'; // 改为动态导入避免TDZ
-import { PaymentRequest, PaymentResponse, BUFPAY_CONFIG } from '@/types/payment';
+import { PaymentRequest, PaymentResponse } from '@/types/payment';
+import { PaymentConfigAccessor, getPaymentStatusText } from '@/config/paymentEndpoints';
 import { OrderService } from './orderService';
 import { logger } from '@/utils/logger';
 
@@ -26,9 +27,9 @@ export class BufPayService {
         payType: request.payType
       });
 
-      // 使用统一的create-order接口
-      const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:5173' : '';
-      const response = await fetch(`${apiBaseUrl}/.netlify/functions/create-order`, {
+      // 使用统一配置的create-order接口
+      const createOrderURL = PaymentConfigAccessor.getCreateOrderURL();
+      const response = await fetch(createOrderURL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +45,7 @@ export class BufPayService {
       const result = await response.json();
       
       if (!result.success) {
-        throw new Error(result.error || 'u64cdu4f5cu5931u8d25');
+        throw new Error(result.error || '操作失败');
       }
 
       logger.info('支付订单创建成功:', { 
@@ -70,7 +71,8 @@ export class BufPayService {
     message: string;
   }> {
     try {
-      const response = await fetch(`${BUFPAY_CONFIG.QUERY_URL}?query=${aoid}`, {
+      const queryURL = PaymentConfigAccessor.getBufPayProxyURL(aoid);
+      const response = await fetch(queryURL, {
         method: 'GET'
       });
 
@@ -79,19 +81,10 @@ export class BufPayService {
       }
 
       const result = await response.json();
-      
-      const statusMap: Record<string, string> = {
-        'not_exist': 'u64cdu4f5cu5931u8d25',
-        'new': '等待支付',
-        'payed': '支付成功，处理中',
-        'success': '支付成功',
-        'fee_error': 'u64cdu4f5cu5931u8d25',
-        'expire': '订单已过期'
-      };
 
       return {
         status: result.status,
-        message: statusMap[result.status] || 'u64cdu4f5cu5931u8d25'
+        message: getPaymentStatusText(result.status)
       };
     } catch (error) {
       logger.error('查询支付状态失败:', error);
@@ -126,20 +119,20 @@ export class BufPayService {
 
       if (!isValidSign) {
         logger.error('支付回调签名验证失败:', notifyData);
-        return { success: false, message: 'u64cdu4f5cu5931u8d25' };
+        return { success: false, message: '签名验证失败' };
       }
 
       // 2. 查询订单
       const order = await OrderService.getOrderById(notifyData.order_id);
       if (!order) {
         logger.error('订单不存在:', { orderId: notifyData.order_id });
-        return { success: false, message: 'u64cdu4f5cu5931u8d25' };
+        return { success: false, message: '订单不存在' };
       }
 
       // 3. 检查订单状态
       if (order.status === 'paid' || order.status === 'processed') {
         logger.info('订单已处理，跳过:', { orderId: notifyData.order_id, status: order.status });
-        return { success: true, message: 'u64cdu4f5cu5931u8d25' };
+        return { success: true, message: '订单已处理' };
       }
 
       // 4. 更新订单为已支付
@@ -151,17 +144,17 @@ export class BufPayService {
       // 5. 处理权限开通
       await OrderService.processOrderPermissions(updatedOrder);
 
-      logger.info('支付回调处理成功:', { 
-        orderId: notifyData.order_id, 
+      logger.info('支付回调处理成功:', {
+        orderId: notifyData.order_id,
         userId: order.user_id,
         productType: order.product_type,
         durationType: order.duration_type
       });
 
-      return { success: true, message: 'u64cdu4f5cu5931u8d25' };
+      return { success: true, message: '处理成功' };
     } catch (error) {
       logger.error('处理支付回调失败:', error);
-      return { success: false, message: 'u64cdu4f5cu5931u8d25' };
+      return { success: false, message: '处理失败' };
     }
   }
 
@@ -179,7 +172,7 @@ export class BufPayService {
 
       const order = await OrderService.getOrderById(orderId);
       if (!order) {
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('订单不存在');
       }
 
       const isPaid = order.status === 'paid' || order.status === 'processed';
@@ -275,8 +268,8 @@ export class BufPayService {
    */
   static async queryBufPayStatus(aoid: string): Promise<string | null> {
     try {
-      // 方法1: 通过配置的代理路由查询  
-      const proxyUrl = `/.netlify/functions/bufpay-proxy?query=${aoid}`;
+      // 方法1: 通过配置的代理路由查询
+      const proxyUrl = PaymentConfigAccessor.getBufPayProxyURL(aoid);
       logger.info('查询 BufPay 状态:', { aoid, proxyUrl });
 
       const response = await fetch(proxyUrl, {
@@ -320,8 +313,8 @@ export class BufPayService {
    */
   private static async queryBufPayDirectly(aoid: string): Promise<string | null> {
     try {
-      const queryUrl = `https://bufpay.com/api/query/${aoid}`;
-      
+      const queryUrl = PaymentConfigAccessor.getBufPayQueryURL(aoid);
+
       const response = await fetch(queryUrl, {
         method: 'GET',
         headers: {}

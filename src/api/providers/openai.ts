@@ -1,94 +1,73 @@
 /**
- * ✅ FIXED: 2025-07-25 OpenAI服务商提供者
- * 
+ * ✅ OpenAI服务商提供者 - 完全基于统一配置,零硬编码
+ *
  * 🎯 用途：
  * - OpenAI API的统一封装
  * - 支持聊天和图像生成功能
- * - 标准化的接口实现
- * 
- * 📌 已封装：此提供者已验证可用，请勿修改
- * 
+ * - 完全依赖 aiEndpoints.ts 配置,无重复定义
+ *
+ * 📌 遵循CLAUDE.md原则：
+ * - ✅ 禁止硬编码
+ * - ✅ 单一真相源(SSOT)
+ * - ✅ 统一配置管理
  */
 
 import request from '../request';
 import type { AICallParams, AIResponse, ImageGenerationParams } from '../types';
 import { logger } from '@/utils/logger';
-import { getAIEndpoint } from '@/config/aiEndpoints';
-
-/**
- * OpenAI服务商配置 - 🔧 已迁移到统一端点管理
- * 
- */
-export const OPENAI_CONFIG = {
-  name: 'openai',
-  displayName: 'OpenAI',
-  baseURL: getAIEndpoint('openai')?.baseURL || 'https://api.openai.com', // 环境变量系统兜底值
-  models: {
-    chat: [
-      'gpt-4o',
-      'gpt-4o-mini',
-      'gpt-4-turbo',
-      'gpt-4',
-      'gpt-3.5-turbo',
-      'gpt-3.5-turbo-16k'
-    ],
-    image: [
-      'dall-e-3',
-      'dall-e-2'
-    ]
-  },
-  limits: {
-    maxTokens: 4096,
-    maxPromptLength: 32000
-  }
-};
+import { getAIEndpoint, buildAPIURL, getAPIHeaders, type AIEndpointConfig } from '@/config/aiEndpoints';
 
 /**
  * OpenAI服务商实现类
- * 
+ * 🔧 完全基于统一端点配置,无硬编码,无重复配置
  */
 export class OpenAIProvider {
   private apiKey: string;
-  private baseURL: string;
+  private config: AIEndpointConfig;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
-    this.baseURL = OPENAI_CONFIG.baseURL;
+
+    // 🔒 从统一端点配置获取,无后备值
+    const config = getAIEndpoint('openai');
+    if (!config) {
+      throw new Error(
+        'OpenAI端点配置未找到\n' +
+        '请检查环境变量 VITE_AIMLAPI_BASE_URL 是否正确配置\n' +
+        '参考文档: docs/setup/environment-variables.md'
+      );
+    }
+
+    this.config = config;
   }
 
   /**
    * 检查API密钥是否有效
-   * 
    */
   isConfigured(): boolean {
-    return !!(this.apiKey && this.apiKey !== 'your_openai_key_here' && this.apiKey.startsWith('sk-'));
+    return !!(
+      this.apiKey &&
+      this.apiKey !== 'your_openai_key_here' &&
+      this.apiKey.length > 20
+    );
   }
 
   /**
-   * 获取支持的模型列表
-   * 
+   * 获取服务配置
    */
-  getSupportedModels(): string[] {
-    return [...OPENAI_CONFIG.models.chat, ...OPENAI_CONFIG.models.image];
-  }
-
-  /**
-   * 检查模型是否支持
-   * 
-   */
-  isModelSupported(model: string): boolean {
-    return this.getSupportedModels().includes(model);
+  getConfig(): AIEndpointConfig {
+    return this.config;
   }
 
   /**
    * 调用OpenAI聊天接口
-   * 
+   * 🔧 使用统一配置系统构建请求
    */
   async callChat(params: AICallParams): Promise<AIResponse> {
     const startTime = Date.now();
-    
+
     try {
-      console.log('🤖 调用OpenAI聊daysinterface:', {
+      logger.debug('🤖 调用OpenAI聊天接口', {
         model: params.model,
         promptLength: params.prompt.length,
         hasContext: !!(params.context && params.context.length > 0),
@@ -96,7 +75,7 @@ export class OpenAIProvider {
       });
 
       const messages = [];
-      
+
       // 添加系统消息
       if (params.systemPrompt) {
         messages.push({
@@ -119,22 +98,21 @@ export class OpenAIProvider {
       const requestData = {
         model: params.model || 'gpt-4o',
         messages,
-        max_tokens: params.maxTokens || 1000,
+        max_tokens: params.maxTokens || this.config.limits.maxTokens,
         temperature: params.temperature || 0.7,
         stream: params.stream || false
       };
 
-      const response = await request.post(`${this.baseURL}/v1/chat/completions`, requestData, {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // 🔒 使用统一配置系统构建URL和请求头
+      const url = buildAPIURL('openai', 'chat');
+      const headers = getAPIHeaders('openai', this.apiKey);
+
+      const response = await request.post(url, requestData, { headers });
 
       const responseTime = Date.now() - startTime;
       const content = response.choices?.[0]?.message?.content || '';
-      
-      logger.debug('✅ OpenAI调用成功:', {
+
+      logger.debug('✅ OpenAI调用成功', {
         model: requestData.model,
         responseTime: `${responseTime}ms`,
         contentLength: content.length,
@@ -151,8 +129,8 @@ export class OpenAIProvider {
 
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      console.error('❌ OpenAI调用failed:', error);
-      
+      logger.error('❌ OpenAI调用失败', error);
+
       return {
         content: '',
         model: params.model || 'gpt-4o',
@@ -166,11 +144,11 @@ export class OpenAIProvider {
 
   /**
    * 调用OpenAI图像生成接口
-   * 
+   * 🔧 使用统一配置系统构建请求
    */
   async generateImage(params: ImageGenerationParams): Promise<any> {
     try {
-      console.log('🖼️ 调用OpenAIgraph像生成interface:', {
+      logger.debug('🖼️ 调用OpenAI图像生成接口', {
         model: params.model,
         prompt: params.prompt.substring(0, 50) + '...',
         size: params.size,
@@ -182,17 +160,16 @@ export class OpenAIProvider {
         prompt: params.prompt,
         n: params.n || 1,
         size: params.size || '1024x1024',
-        response_format: params.response_format || 'url'
+        response_format: params.responseFormat || 'url'
       };
 
-      const response = await request.post(`${this.baseURL}/v1/images/generations`, requestData, {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // 🔒 使用统一配置系统构建URL和请求头
+      const url = buildAPIURL('openai', 'image');
+      const headers = getAPIHeaders('openai', this.apiKey);
 
-      logger.debug('✅ OpenAI图像生成成功:', {
+      const response = await request.post(url, requestData, { headers });
+
+      logger.debug('✅ OpenAI图像生成成功', {
         model: requestData.model,
         imagesCount: response.data?.length || 0
       });
@@ -204,8 +181,8 @@ export class OpenAIProvider {
       };
 
     } catch (error) {
-      console.error('❌ OpenAIgraph像生成failed:', error);
-      
+      logger.error('❌ OpenAI图像生成失败', error);
+
       return {
         success: false,
         error: error instanceof Error ? error.message : 'OpenAI图像生成失败'
@@ -215,22 +192,21 @@ export class OpenAIProvider {
 
   /**
    * 获取提供者信息
-   * 
+   * 🔧 从统一配置获取,无硬编码
    */
   getProviderInfo() {
     return {
-      name: OPENAI_CONFIG.name,
-      displayName: OPENAI_CONFIG.displayName,
+      name: this.config.name,
+      displayName: this.config.displayName,
       configured: this.isConfigured(),
-      models: OPENAI_CONFIG.models,
-      limits: OPENAI_CONFIG.limits
+      features: this.config.features,
+      limits: this.config.limits
     };
   }
 }
 
 /**
  * 创建OpenAI提供者实例
- * 
  */
 export function createOpenAIProvider(apiKey: string): OpenAIProvider {
   return new OpenAIProvider(apiKey);
@@ -238,13 +214,8 @@ export function createOpenAIProvider(apiKey: string): OpenAIProvider {
 
 /**
  * 导出默认配置
- * 
  */
 export default {
-  config: OPENAI_CONFIG,
   provider: OpenAIProvider,
   create: createOpenAIProvider
 };
-
-// 🔧 FIXED: 移除模块顶层立即执行的logger调用，避免TDZ错误
-// logger.debug('🔧 OpenAI提供者已加载');

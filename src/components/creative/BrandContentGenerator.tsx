@@ -60,9 +60,9 @@ export default function BrandContentGenerator() { const [topic, setTopic] = useS
       // 生成 prompt
       const prompt = await brandService.generatePrompt(topic);
       
-      // 调用真实AI服务生成内容
-      const aiService = (await import('@/api/aiService')).callAI;
-      const response = await aiService({
+      // 调用统一AI服务生成内容
+      const { callAI } = await import('@/api/unifiedAIService');
+      const response = await callAI({
         prompt: prompt,
         model: 'gpt-4',
         maxTokens: 1000,

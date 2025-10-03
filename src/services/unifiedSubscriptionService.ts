@@ -95,7 +95,7 @@ class UnifiedSubscriptionService {
         .maybeSingle();
 
       if (error) {
-        console.warn('Supabasesubscribingqueryingfailed:', error);
+        console.warn('Supabase订阅查询失败:', error);
         return null;
       }
 
@@ -127,7 +127,7 @@ class UnifiedSubscriptionService {
         }
       };
     } catch (error) {
-      console.warn('从Supabasegettingsubscribingfailed:', error);
+      console.warn('从Supabase获取订阅失败:', error);
       return null;
     }
   }
@@ -256,8 +256,8 @@ class UnifiedSubscriptionService {
       const plan = getSubscriptionPlan(tier);
       return plan.limits;
     } catch (error) {
-      console.warn(`getting套餐${tier}limitconfigurationfailed:`, error);
-      
+      console.warn(`获取套餐${tier}限额配置失败:`, error);
+
       // fallback配置
       const fallbackLimits = {
         trial: { adaptUsageLimit: 10, tokenLimit: 100000, availableModels: ['GPT-4o mini'], availableFeatures: ['基础功能'] },
@@ -295,7 +295,7 @@ class UnifiedSubscriptionService {
       
       return data.result;
     } catch (error) {
-      console.warn('readingsubscribingcachefailed:', error);
+      console.warn('读取订阅缓存失败:', error);
       return null;
     }
   }
@@ -307,10 +307,10 @@ class UnifiedSubscriptionService {
         result,
         expiry: Date.now() + this.CACHE_TTL
       };
-      
+
       localStorage.setItem(cacheKey, JSON.stringify(cacheData));
     } catch (error) {
-      console.warn('settingsubscribingcachefailed:', error);
+      console.warn('设置订阅缓存失败:', error);
     }
   }
 
@@ -319,7 +319,7 @@ class UnifiedSubscriptionService {
       const cacheKey = `${this.CACHE_KEY}_${userId}`;
       localStorage.removeItem(cacheKey);
     } catch (error) {
-      console.warn('clearingsubscribingcachefailed:', error);
+      console.warn('清除订阅缓存失败:', error);
     }
   }
 
@@ -340,10 +340,10 @@ class UnifiedSubscriptionService {
       keysToRemove.forEach(key => {
         localStorage.removeItem(key);
       });
-      
-      console.debug(`🧹 clearingsubscribingcache: ${keysToRemove.length} item`);
+
+      console.debug(`🧹 清除订阅缓存: ${keysToRemove.length} 项`);
     } catch (error) {
-      console.warn('clearing所hassubscribingcachefailed:', error);
+      console.warn('清除所有订阅缓存失败:', error);
     }
   }
 }

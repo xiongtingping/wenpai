@@ -1,0 +1,654 @@
+/**
+ * PDF对话问答组件
+ * 支持用户与AI实时对话，针对上传的PDF内容进行问答
+ */
+
+import React, { useState, useRef, useEffect } from 'react';
+import { logger } from '@/utils/logger';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { 
+  ScrollArea
+} from "@/components/ui/scroll-area";
+import {
+  MessageSquare,
+  Send,
+  Bot,
+  User,
+  FileText,
+  Loader2,
+  Copy,
+  Download,
+  BookOpen,
+  Sparkles,
+  X,
+  RefreshCw,
+  History,
+  Settings,
+  Lightbulb,
+  Target,
+  Zap,
+  AlertTriangle
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { callPDFChat } from '@/api/aiService';
+
+/**
+ * 对话消息接口
+ */
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+  isLoading?: boolean;
+  error?: string;
+}
+
+/**
+ * PDF文档接口
+ */
+interface PDFDocument {
+  id: string;
+  name: string;
+  content: string;
+  uploadDate: Date;
+  size?: string;
+}
+
+/**
+ * PDF对话问答组件属性
+ */
+interface PDFChatDialogProps {
+  documents: PDFDocument[];
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  className?: string;
+}
+
+/**
+ * PDF对话问答组件
+ */
+export function PDFChatDialog({ 
+  documents, 
+  isOpen, 
+  onOpenChange,
+  className 
+}: PDFChatDialogProps) {
+  const { toast } = useToast();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<PDFDocument | null>(null);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[][]>([]);
+  const [currentChatId, setCurrentChatId] = useState<string>('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // 自动滚动到底部
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // 初始化对话
+  useEffect(() => {
+    if (isOpen && documents.length > 0) {
+      // 选择第一个文档作为默认文档
+      setSelectedDocument(documents[0]);
+      
+      // 创建新的对话ID
+      const newChatId = `chat_${Date.now()}`;
+      setCurrentChatId(newChatId);
+      
+      // 添加欢迎消息
+      const welcomeMessage: ChatMessage = {
+        id: 'welcome',
+        role: 'assistant',
+        content: `您好！我是您的PDF文档助手。我可以帮助您分析文档内容、回答问题、提取关键信息等。
+
+当前文档：${documents[0].name}
+
+您可以问我：
+• 文档的主要内容是什么？
+• 文档中的关键信息有哪些？
+• 帮我总结文档的要点
+• 文档中提到了哪些重要数据？
+• 基于文档内容，给我一些建议
+
+请告诉我您想了解什么？`,
+        timestamp: new Date()
+      };
+      
+      setMessages([welcomeMessage]);
+    }
+  }, [isOpen, documents]);
+
+  /**
+   * 发送消息
+   */
+  const sendMessage = async () => {
+    logger.system('🚀 sendMessage 被调用');
+    console.log('📝 inputvalue:', inputValue);
+    console.log('📄 选middledocumentation:', selectedDocument?.name);
+    console.log('⏳ loadingstate:', isLoading);
+
+    if (!inputValue.trim() || isLoading || !selectedDocument) {
+      console.log('❌ sendingcondition不full足，退出');
+      return;
+    }
+
+    logger.debug('✅ 开始发送消息');
+
+    const userMessage: ChatMessage = {
+      id: `user_${Date.now()}`,
+      role: 'user',
+      content: inputValue.trim(),
+      timestamp: new Date()
+    };
+
+    const assistantMessage: ChatMessage = {
+      id: `assistant_${Date.now()}`,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      isLoading: true
+    };
+
+    setMessages(prev => [...prev, userMessage, assistantMessage]);
+    setInputValue('');
+    setIsLoading(true);
+
+    try {
+      // ✅ FIXED: 直接调用AI服务，使用统一提示词系统
+      console.log('🤖 starts调用PDF对话AIservice');
+      console.log('📄 documentationname:', selectedDocument.name);
+      console.log('📝 documentationcontentlength:', selectedDocument.content.length);
+      console.log('❓ user问题:', inputValue);
+
+      const response = await callPDFChat({
+        prompt: inputValue,
+        documentContent: selectedDocument.content
+      });
+
+      console.log('🤖 PDF对话AIserviceresponse:', response);
+
+      if (response.success) {
+        let content = '';
+        if (typeof response.content === 'string') {
+          content = response.content;
+        } else if (response.content && typeof response.content === 'object') {
+          const dataObj = response.content as any;
+          if (dataObj.text) {
+            content = dataObj.text;
+          } else if (dataObj.content) {
+            content = dataObj.content;
+          } else {
+            content = JSON.stringify(response.content);
+          }
+        }
+
+        // 更新助手消息
+        setMessages(prev => prev.map(msg => 
+          msg.id === assistantMessage.id 
+            ? { ...msg, content, isLoading: false }
+            : msg
+        ));
+      } else {
+        throw new Error(response.error || 'AI服务响应失败');
+      }
+    } catch (error) {
+      console.error('sendingmessagefailed:', error);
+      
+      // 更新错误消息
+      setMessages(prev => prev.map(msg => 
+        msg.id === assistantMessage.id 
+          ? { ...msg, content: '抱歉，我暂时无法回答您的问题。请稍后再试。', isLoading: false, error: '发送失败' }
+          : msg
+      ));
+
+      toast({
+        title: "发送失败",
+        description: error instanceof Error ? error.message : "消息发送失败，请稍后重试",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * 复制消息内容
+   */
+  const copyMessage = (content: string) => {
+    navigator.clipboard.writeText(content);
+    toast({
+      title: "已复制",
+      description: "消息内容已复制到剪贴板",
+    });
+  };
+
+  /**
+   * 开始新对话
+   */
+  const startNewChat = () => {
+    console.log('🔄 startsnew对话被点击');
+    console.log('📝 currentmessagequantity:', messages.length);
+    console.log('📄 选middledocumentation:', selectedDocument?.name);
+
+    // 保存当前对话历史
+    if (messages.length > 1) {
+      setChatHistory(prev => [...prev, messages.slice(1)]);
+      console.log('💾 saving了对话历史');
+    }
+
+    // 清空当前消息
+    setMessages([]);
+    console.log('🗑️ 清empty了currentmessage');
+
+    // 创建新的对话ID
+    const newChatId = `chat_${Date.now()}`;
+    setCurrentChatId(newChatId);
+    console.log('🆔 creatingnew对话ID:', newChatId);
+
+    // 重新初始化欢迎消息
+    if (selectedDocument) {
+      const welcomeMessage: ChatMessage = {
+        id: 'welcome',
+        role: 'assistant',
+        content: `您好！我是您的PDF文档助手。我可以帮助您分析文档内容、回答问题、提取关键信息等。
+
+当前文档：${selectedDocument.name}
+
+您可以问我：
+• 文档的主要内容是什么？
+• 文档中的关键信息有哪些？
+• 帮我总结文档的要点
+• 文档中提到了哪些重要数据？
+• 基于文档内容，给我一些建议
+
+请告诉我您想了解什么？`,
+        timestamp: new Date()
+      };
+
+      setMessages([welcomeMessage]);
+      logger.debug('✅ 重新初始化欢迎消息');
+    } else {
+      console.log('❌ 没has选middledocumentation，none法initialization欢迎message');
+    }
+  };
+
+  /**
+   * 处理键盘事件
+   */
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  /**
+   * ✅ ENHANCED: 2025-08-06 增强智能建议问题生成
+   */
+  const generateSuggestions = () => {
+    if (!selectedDocument) {
+      return [
+        "文档的主要内容是什么？",
+        "帮我总结文档的要点",
+        "文档中的关键信息有哪些？"
+      ];
+    }
+
+    // 基于文档类型和内容生成智能建议
+    const suggestions = {
+      content: [
+        "文档的主要内容是什么？",
+        "帮我总结文档的核心要点",
+        "文档中最重要的信息是什么？"
+      ],
+      analysis: [
+        "文档中提到了哪些关键数据？",
+        "分析文档的结构和逻辑",
+        "文档的优缺点是什么？"
+      ],
+      insights: [
+        "基于文档内容，给我一些建议",
+        "这个文档对我有什么启发？",
+        "如何应用文档中的知识？"
+      ],
+      specific: [] as string[]
+    };
+
+    // 根据文档名称和内容添加特定建议
+    const docName = selectedDocument.name.toLowerCase();
+    const docContent = selectedDocument.content.toLowerCase();
+
+    if (docName.includes('报告') || docName.includes('report')) {
+      suggestions.specific.push("报告的主要结论是什么？");
+    }
+    if (docName.includes('手册') || docName.includes('manual')) {
+      suggestions.specific.push("如何使用这个手册？");
+    }
+    if (docName.includes('合同') || docName.includes('contract')) {
+      suggestions.specific.push("合同的关键条款有哪些？");
+    }
+    if (docContent.includes('数据') || docContent.includes('统计')) {
+      suggestions.specific.push("文档中的数据说明了什么？");
+    }
+
+    // 合并所有建议并随机选择
+    const allSuggestions = [
+      ...suggestions.content,
+      ...suggestions.analysis,
+      ...suggestions.insights,
+      ...suggestions.specific
+    ];
+
+    // 返回6个不重复的建议
+    const shuffled = allSuggestions.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 6);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-6xl w-[95vw] h-[85vh] flex flex-col p-0 overflow-hidden">
+        {/* ✅ ENHANCED: 2025-08-06 优化标题栏和新对话按钮 */}
+        <div className="flex items-center justify-between p-4 border-b bg-accent">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-accent rounded-lg">
+              <MessageSquare className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">智能文档对话</h2>
+              <p className="text-sm text-muted-foreground">与AI助手对话，深入了解您的文档内容</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={startNewChat}
+              disabled={isLoading}
+              className="bg-card hover:bg-accent"
+            >
+              <RefreshCw className="h-4 w-4 mr-1" />
+              新对话
+            </Button>
+          </div>
+        </div>
+
+        {/* 主体内容区域 */}
+        <div className="flex-1 flex flex-col min-h-0">
+          {/* 文档选择器 */}
+          {documents.length > 1 && (
+            <div className="mx-4 mt-3 mb-2 p-2 bg-accent border border-border rounded">
+              <div className="flex items-center gap-2 text-sm">
+                <FileText className="h-4 w-4 text-primary" />
+                <span className="font-medium text-primary">文档：</span>
+                <div className="flex flex-wrap gap-1">
+                  {documents.map((doc) => (
+                    <Button
+                      key={doc.id}
+                      variant={selectedDocument?.id === doc.id ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedDocument(doc)}
+                      className="text-xs h-6 px-2"
+                    >
+                      {doc.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ✅ ENHANCED: 2025-08-06 修复对话区域布局 */}
+          <div className="flex-1 flex flex-col min-h-0 mx-4 mb-3">
+            <div className="flex-1 border border-border rounded-lg bg-card overflow-hidden shadow-sm">
+              <ScrollArea className="h-[50vh] min-h-[400px]">
+                <div className="p-4 space-y-6">
+                  {messages.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground">
+                      <MessageSquare className="h-16 w-16 mb-4 opacity-20" />
+                      <p className="text-xl font-medium mb-2">开始与AI助手对话</p>
+                      <p className="text-sm text-center max-w-md">
+                        选择下方的建议问题快速开始，或直接在输入框中输入您的问题
+                      </p>
+                    </div>
+                  ) : (
+                    messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex gap-4 items-start ${
+                          message.role === 'user' ? 'justify-end' : 'justify-start'
+                        }`}
+                      >
+                        {message.role === 'assistant' && (
+                          <div className="flex-shrink-0 w-10 h-10 bg-accent rounded-full flex items-center justify-center border-2 border-border mt-1">
+                            <Bot className="h-5 w-5 text-primary" />
+                          </div>
+                        )}
+
+                        <div
+                          className={`max-w-[75%] p-3 rounded-lg ${
+                            message.role === 'user'
+                              ? 'bg-primary text-primary-foreground rounded-br-sm'
+                              : 'bg-accent text-foreground rounded-bl-sm'
+                          }`}
+                        >
+                          {message.isLoading ? (
+                            <div className="flex items-center gap-3">
+                              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                              <span className="text-sm text-muted-foreground">AI正在分析文档并生成回答...</span>
+                            </div>
+                          ) : message.error ? (
+                            /* ✅ ENHANCED: 2025-08-06 增强错误处理 */
+                            <div className="space-y-3">
+                              <div className="flex items-start gap-2 text-destructive">
+                                <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium">回答失败</p>
+                                  <p className="text-xs mt-1 bg-accent p-2 rounded border text-destructive">
+                                    {message.error}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-xs h-7"
+                                  onClick={() => {
+                                    // 重试逻辑：找到对应的用户消息并重新发送
+                                    const userMessage = messages.find(m =>
+                                      m.timestamp < message.timestamp && m.role === 'user'
+                                    );
+                                    if (userMessage) {
+                                      setInputValue(userMessage.content);
+                                      inputRef.current?.focus();
+                                    }
+                                  }}
+                                >
+                                  <RefreshCw className="h-3 w-3 mr-1" />
+                                  重试
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-xs h-7 text-muted-foreground"
+                                  onClick={() => copyMessage(message.error || '错误信息')}
+                                >
+                                  <Copy className="h-3 w-3 mr-1" />
+                                  复制错误
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              <div className="whitespace-pre-wrap leading-relaxed text-sm">{message.content}</div>
+                              {message.role === 'assistant' && !message.error && message.id !== 'welcome' && (
+                                <div className="flex items-center gap-2 pt-2 border-t border-border">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => copyMessage(message.content)}
+                                    className="h-6 px-2 text-xs opacity-70 hover:opacity-100"
+                                  >
+                                    <Copy className="h-3 w-3 mr-1" />
+                                    复制
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {message.role === 'user' && (
+                          <div className="flex-shrink-0 w-10 h-10 bg-accent rounded-full flex items-center justify-center border-2 border-border mt-1">
+                            <User className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+            </div>
+          </div>
+
+        </div>
+
+        {/* ✅ ENHANCED: 2025-08-06 增强输入区域和建议问题 */}
+        <div className="border-t bg-accent p-4">
+          {/* 智能建议问题 - 分类显示 */}
+          {messages.length <= 1 && selectedDocument && (
+            <div className="mb-4 space-y-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">智能建议问题</span>
+                <Badge variant="secondary" className="text-xs">
+                  基于文档: {selectedDocument.name}
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {generateSuggestions().slice(0, 6).map((suggestion, index) => {
+                  const category = index < 2 ? 'content' : index < 4 ? 'analysis' : 'insights';
+                  const categoryConfig = {
+                    content: { icon: BookOpen, color: 'text-primary', bg: 'hover:bg-accent' },
+                    analysis: { icon: Target, color: 'text-foreground', bg: 'hover:bg-accent' },
+                    insights: { icon: Zap, color: 'text-primary', bg: 'hover:bg-accent' }
+                  };
+
+                  const config = categoryConfig[category as keyof typeof categoryConfig];
+                  const IconComponent = config.icon;
+
+                  return (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      size="sm"
+                      className={`text-xs h-auto p-2 text-left justify-start ${config.bg} border-border`}
+                      onClick={() => {
+                        setInputValue(suggestion);
+                        inputRef.current?.focus();
+                      }}
+                    >
+                      <IconComponent className={`h-3 w-3 mr-2 ${config.color} flex-shrink-0`} />
+                      <span className="text-foreground line-clamp-2">{suggestion}</span>
+                    </Button>
+                  );
+                })}
+              </div>
+
+              <div className="text-xs text-muted-foreground text-center">
+                💡 点击问题快速填入，或直接输入您的问题
+              </div>
+            </div>
+          )}
+
+          {/* ✅ ENHANCED: 2025-08-06 增强输入区域 */}
+          <div className="flex gap-3 items-end">
+            <div className="flex-1 relative">
+              <Textarea
+                ref={inputRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={selectedDocument ?
+                  `向AI助手提问关于"${selectedDocument.name}"的内容...` :
+                  "请先选择一个文档..."
+                }
+                className="flex-1 min-h-[60px] max-h-[120px] resize-none bg-card border-border focus:border-primary focus:ring-primary pr-12"
+                disabled={isLoading || !selectedDocument}
+              />
+              {/* 字符计数 */}
+              <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">
+                {inputValue.length}/500
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Button
+                onClick={sendMessage}
+                disabled={!inputValue.trim() || isLoading || !selectedDocument || inputValue.length > 500}
+                className="px-6 bg-primary text-primary-foreground hover:bg-primary/90"
+                size="lg"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    发送
+                  </>
+                )}
+              </Button>
+
+              {/* 快捷操作 */}
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-6 px-2"
+                  onClick={() => setInputValue('')}
+                  disabled={!inputValue || isLoading}
+                >
+                  清空
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* ✅ FIXED: 合并重复的输入提示信息 */}
+          <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+            <span>💡 按 Enter 发送，Shift+Enter 换行</span>
+            {selectedDocument && (
+              <span>📄 当前文档: {selectedDocument.name}</span>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export default PDFChatDialog;

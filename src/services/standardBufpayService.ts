@@ -3,8 +3,9 @@
  * 支持标准的支付流程：notify_url + return_url
  */
 
-// import i18n from '@/i18n'; // 改为动态导入避免TDZ
+import CryptoJS from 'crypto-js';
 import { logger } from '@/utils/logger';
+import { PaymentConfigAccessor } from '@/config/paymentEndpoints';
 import { StandardOrderService, type CreateOrderParams } from '@/services/standardOrderService';
 
 export interface StandardPaymentRequest {
@@ -29,13 +30,26 @@ export interface StandardPaymentResponse {
 }
 
 export class StandardBufPayService {
-  private static readonly API_BASE_URL = 'https://api.bufpay.com';
-  private static readonly MERCHANT_ID = import.meta.env.VITE_BUFPAY_MERCHANT_ID;
-  private static readonly SECRET_KEY = import.meta.env.VITE_BUFPAY_SECRET_KEY;
-  
-  // 回调地址配置
-  private static readonly NOTIFY_URL = `${window.location.origin}/.netlify/functions/payment-notify`;
-  private static readonly RETURN_URL = `${window.location.origin}/payment/result`;
+  // 使用统一配置管理,移除硬编码
+  private static get API_BASE_URL() {
+    return PaymentConfigAccessor.getBufPayAPIURL();
+  }
+
+  private static get MERCHANT_ID() {
+    return PaymentConfigAccessor.getMerchantId();
+  }
+
+  private static get SECRET_KEY() {
+    return PaymentConfigAccessor.getSecretKey();
+  }
+
+  private static get NOTIFY_URL() {
+    return PaymentConfigAccessor.getNotifyURL();
+  }
+
+  private static getReturnURL(orderId: string) {
+    return PaymentConfigAccessor.getReturnURL(orderId);
+  }
 
   /**
    * 创建支付订单
@@ -74,7 +88,7 @@ export class StandardBufPayService {
         body: `${params.productName} - ${params.durationType === 'yearly' ? '年付' : '月付'}`,
         pay_type: params.payType,
         notify_url: this.NOTIFY_URL,
-        return_url: `${this.RETURN_URL}?order_id=${order.order_id}`,
+        return_url: this.getReturnURL(order.order_id),
         timestamp: Math.floor(Date.now() / 1000)
       };
 
@@ -122,17 +136,17 @@ export class StandardBufPayService {
         orderId: order.order_id,
         paymentUrl: result.data?.pay_url,
         qrCode: result.data?.qr_code,
-        message: i18n.t('common.messages.支付订单创建成功'),
+        message: '支付订单创建成功',
         order
       };
 
     } catch (error) {
       logger.error('创建标准支付订单失败:', error);
-      
+
       return {
         success: false,
         orderId: '',
-        message: error instanceof Error ? error.message : i18n.t('common.errors.创建支付订单失败')
+        message: error instanceof Error ? error.message : '创建支付订单失败'
       };
     }
   }
@@ -173,7 +187,7 @@ export class StandardBufPayService {
       return {
         success: result.code === 200,
         status: result.data?.status || 'unknown',
-        message: result.message || i18n.t('common.messages.查询成功'),
+        message: result.message || '查询成功',
         data: result.data
       };
 
@@ -182,7 +196,7 @@ export class StandardBufPayService {
       return {
         success: false,
         status: 'error',
-        message: error instanceof Error ? error.message : i18n.t('common.errors.查询失败')
+        message: error instanceof Error ? error.message : '查询失败'
       };
     }
   }
@@ -215,13 +229,11 @@ export class StandardBufPayService {
   }
 
   /**
-   * MD5 签名实现（简化版，实际使用时应该使用专业的加密库）
+   * MD5 签名实现
+   * 使用 crypto-js 库生成标准 MD5 hash
    */
   private static md5(str: string): string {
-    // 这里应该使用真实的 MD5 实现
-    // 可以使用 crypto-js 或其他加密库
-    // 暂时返回一个占位符
-    return 'placeholder_md5_hash';
+    return CryptoJS.MD5(str).toString();
   }
 
   /**
@@ -292,13 +304,13 @@ export class StandardBufPayService {
     if (!this.SECRET_KEY) {
       return {
         isValid: false,
-        message: i18n.t('common.messages.缺少密钥配置')
+        message: '缺少密钥配置'
       };
     }
 
     return {
       isValid: true,
-      message: i18n.t('common.messages.支付环境配置正常')
+      message: '支付环境配置正常'
     };
   }
 }

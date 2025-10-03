@@ -1,0 +1,30 @@
+{
+  "zh-CN": {
+    "common": {
+      "errors": {
+        "unauthorizedAccess": "无权访问其他用户的数据",
+        "queryFailed": "查询失败",
+        "recordNotFoundOrUnauthorized": "记录不存在或无权访问",
+        "mergeFailed": "合并失败",
+        "cannotMergeNonObjects": "无法合并非对象类型的数据",
+        "unconfiguredDataType": "未配置的数据类型",
+        "databaseLoadFailed": "数据库加载失败",
+        "waitTimeout": "等待超时"
+      }
+    }
+  },
+  "en-US": {
+    "common": {
+      "errors": {
+        "unauthorizedAccess": "Unauthorized to access other user's data",
+        "queryFailed": "Query failed",
+        "recordNotFoundOrUnauthorized": "Record not found or unauthorized",
+        "mergeFailed": "Merge failed",
+        "cannotMergeNonObjects": "Cannot merge non-object data",
+        "unconfiguredDataType": "Unconfigured data type",
+        "databaseLoadFailed": "Database load failed",
+        "waitTimeout": "Wait timeout"
+      }
+    }
+  }
+}

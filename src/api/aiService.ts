@@ -1,3 +1,17 @@
+/**
+ * ⚠️ DEPRECATED: 此文件逐步废弃中
+ *
+ * 📌 迁移指南:
+ * - ✅ 新代码请使用: import { callAI } from '@/api/unifiedAIService'
+ * - ⏰ 废弃时间表: 2025-12-31完全移除
+ * - 📚 迁移文档: docs/migration/ai-service-deprecation.md
+ *
+ * 🔄 当前状态:
+ * - AITaskType枚举: 继续使用 (会保留)
+ * - callAI等函数: 保持兼容,但建议迁移到unifiedAIService
+ *
+ * @deprecated 使用 @/api/unifiedAIService 替代
+ */
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import type { AICallParams, AIResponse } from './types';
 import { logger } from '@/utils/logger';

@@ -82,7 +82,7 @@ export class SupabaseDataService {
    */
   private validateUserId(recordUserId?: string): void {
     if (recordUserId && recordUserId !== this.userId) {
-      throw new Error(i18n.t('common.errors.无权访问其他用户的数据'));
+      throw new Error(i18n.t('common.errors.unauthorizedAccess'));
     }
   }
 
@@ -175,7 +175,7 @@ export class SupabaseDataService {
       console.error(`querying${this.tableName}记录abnormal:`, error);
       return {
         data: [],
-        error: error instanceof Error ? error.message : i18n.t('common.errors.查询失败')
+        error: error instanceof Error ? error.message : i18n.t('common.errors.queryFailed')
       };
     }
   }
@@ -218,7 +218,7 @@ export class SupabaseDataService {
       // 先验证记录是否属于当前用户
       const existingRecord = await this.findById(id);
       if (!existingRecord) {
-        throw new Error(i18n.t('common.errors.记录不存在或无权访问'));
+        throw new Error(i18n.t('common.errors.recordNotFoundOrUnauthorized'));
       }
 
       const updateData = {
@@ -256,7 +256,7 @@ export class SupabaseDataService {
       // 先验证记录是否属于当前用户
       const existingRecord = await this.findById(id);
       if (!existingRecord) {
-        throw new Error(i18n.t('common.errors.记录不存在或无权访问'));
+        throw new Error(i18n.t('common.errors.recordNotFoundOrUnauthorized'));
       }
 
       const client = await getSupabaseClient();

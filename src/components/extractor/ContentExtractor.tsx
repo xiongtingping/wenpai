@@ -94,9 +94,9 @@ export function ContentExtractor() { const { toast  } = useToast();
 
     try {
       // 使用统一的AI服务进行内容提取
-      const aiService = (await import('@/api/aiService')).callAI;
-      
-      const response = await aiService({
+      const { callAI } = await import('@/api/unifiedAIService');
+
+      const response = await callAI({
         prompt: `请从以下内容中提取关键信息：\n\n${url}\n\n请提取标题、作者、发布时间、正文内容等关键信息。`,
         model: 'gpt-4',
         maxTokens: 1000,

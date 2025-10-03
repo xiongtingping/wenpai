@@ -2,8 +2,10 @@
  * 权限缓存服务
  * @description 缓存权限检查结果,减少重复查询
  * @created 2025-10-02
+ * @updated 2025-10-03 - 重构继承BaseService,修复内存泄漏
  */
 
+import { BaseService, ServiceState } from './base/BaseService';
 import type { ExtendedPermissionType, PermissionCheckResult } from '@/types/permissions';
 import type { SubscriptionTier } from '@/types/subscription';
 
@@ -40,15 +42,26 @@ const DEFAULT_CONFIG: PermissionCacheConfig = {
 /**
  * 权限缓存服务类
  */
-export class PermissionCacheService {
+export class PermissionCacheService extends BaseService {
   private cache = new Map<string, CacheItem>();
   private config: PermissionCacheConfig;
   private hitCount = 0;
   private missCount = 0;
 
   constructor(config: Partial<PermissionCacheConfig> = {}) {
+    super('PermissionCacheService');
     this.config = { ...DEFAULT_CONFIG, ...config };
-    this.startCleanupTimer();
+  }
+
+  /**
+   * 初始化服务
+   */
+  protected async onInitialize(): Promise<void> {
+    // 启动定时清理任务
+    this.registerInterval(
+      () => this.cleanupExpired(),
+      60 * 1000 // 每分钟清理一次
+    );
   }
 
   /**
@@ -174,15 +187,6 @@ export class PermissionCacheService {
   }
 
   /**
-   * 启动自动清理定时器
-   */
-  private startCleanupTimer(): void {
-    setInterval(() => {
-      this.cleanupExpired();
-    }, 60 * 1000); // 每分钟清理一次
-  }
-
-  /**
    * 清理过期缓存
    */
   private cleanupExpired(): void {
@@ -205,7 +209,7 @@ export class PermissionCacheService {
   /**
    * 获取缓存统计信息
    */
-  getStats() {
+  getCacheStats() {
     const total = this.hitCount + this.missCount;
     const hitRate = total > 0 ? (this.hitCount / total * 100).toFixed(2) : '0';
 
@@ -216,6 +220,8 @@ export class PermissionCacheService {
       missCount: this.missCount,
       hitRate: `${hitRate}%`,
       ttl: this.config.ttl,
+      // 包含基础服务统计信息
+      ...super.getStats()
     };
   }
 
@@ -255,11 +261,18 @@ export class PermissionCacheService {
 /**
  * 全局单例实例
  */
-export const permissionCache = new PermissionCacheService({
+const permissionCacheInstance = new PermissionCacheService({
   ttl: 5 * 60 * 1000, // 5分钟
   maxSize: 200,
   debug: process.env.NODE_ENV === 'development',
 });
+
+// 自动初始化
+permissionCacheInstance.initialize().catch(error => {
+  console.error('[PermissionCacheService] Auto-initialization failed:', error);
+});
+
+export const permissionCache = permissionCacheInstance;
 
 /**
  * React Hook: 使用权限缓存
@@ -270,7 +283,9 @@ export function usePermissionCache() {
     setCached: permissionCache.setCached.bind(permissionCache),
     clearUserCache: permissionCache.clearUserCache.bind(permissionCache),
     clearAll: permissionCache.clearAll.bind(permissionCache),
+    getCacheStats: permissionCache.getCacheStats.bind(permissionCache),
     getStats: permissionCache.getStats.bind(permissionCache),
+    cleanup: permissionCache.cleanup.bind(permissionCache),
   };
 }
 

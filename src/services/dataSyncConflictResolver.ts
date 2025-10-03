@@ -1,9 +1,11 @@
 /**
  * 数据同步冲突解决器
  * @description 处理数据同步过程中的冲突，提供多种冲突解决策略
+ * @updated 2025-10-03 - 重构继承BaseService
  */
 
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
+import { BaseService } from './base/BaseService';
 import { logger } from '@/utils/logger';
 
 /**
@@ -113,14 +115,28 @@ const DEFAULT_CONFIG: ConflictResolverConfig = {
 /**
  * 数据同步冲突解决器
  */
-export class DataSyncConflictResolver {
+export class DataSyncConflictResolver extends BaseService {
   private static instance: DataSyncConflictResolver;
   private config: ConflictResolverConfig;
   private pendingConflicts: Map<string, DataConflict> = new Map();
   private resolutionCallbacks: Map<string, (result: ConflictResolutionResult) => void> = new Map();
 
   private constructor(config: Partial<ConflictResolverConfig> = {}) {
+    super('DataSyncConflictResolver');
     this.config = { ...DEFAULT_CONFIG, ...config };
+  }
+
+  /**
+   * 初始化服务
+   */
+  protected async onInitialize(): Promise<void> {
+    // 注册自动超时清理
+    if (this.config.manualResolveTimeout > 0) {
+      this.registerCleaner(() => {
+        this.pendingConflicts.clear();
+        this.resolutionCallbacks.clear();
+      });
+    }
   }
 
   static getInstance(config?: Partial<ConflictResolverConfig>): DataSyncConflictResolver {
@@ -297,7 +313,7 @@ export class DataSyncConflictResolver {
         success: false,
         strategy: ConflictResolutionStrategy.MERGE,
         needsManualReview: true,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.合并失败')
+        error: error instanceof Error ? error.message : i18n.t('common.errors.mergeFailed')
       };
     }
   }
@@ -326,7 +342,7 @@ export class DataSyncConflictResolver {
   private mergeData(localData: any, remoteData: any): any {
     if (typeof localData !== 'object' || typeof remoteData !== 'object') {
       // 非对象类型，无法合并，抛出错误
-      throw new Error(i18n.t('common.errors.无法合并非对象类型的数据'));
+      throw new Error(i18n.t('common.errors.cannotMergeNonObjects'));
     }
 
     if (Array.isArray(localData) && Array.isArray(remoteData)) {
@@ -442,10 +458,10 @@ export class DataSyncConflictResolver {
    */
   private addPendingConflict(conflict: DataConflict): void {
     this.pendingConflicts.set(conflict.id, conflict);
-    
-    // 设置超时自动处理
+
+    // 使用BaseService的registerTimer设置超时自动处理
     if (this.config.manualResolveTimeout > 0) {
-      setTimeout(() => {
+      this.registerTimer(() => {
         if (this.pendingConflicts.has(conflict.id)) {
           logger.warn(`冲突 ${conflict.id} 超时，使用默认策略自动解决`);
           this.resolveConflict(conflict).then(result => {
@@ -530,25 +546,23 @@ export class DataSyncConflictResolver {
   }
 }
 
-// 延迟初始化单例实例，避免TDZ错误
-let _dataSyncConflictResolverInstance: DataSyncConflictResolver | null = null;
+// 延迟初始化单例实例并自动初始化
+const resolverInstance = DataSyncConflictResolver.getInstance();
+
+// 自动初始化
+resolverInstance.initialize().catch(error => {
+  logger.error('[DataSyncConflictResolver] Auto-initialization failed:', error);
+});
 
 export const dataSyncConflictResolver = {
-  // 使用代理模式延迟初始化
-  get analyzeConflict() { return this._getInstance().analyzeConflict.bind(this._getInstance()); },
-  get resolveConflict() { return this._getInstance().resolveConflict.bind(this._getInstance()); },
-  get generateMergeStrategy() { return this._getInstance().generateMergeStrategy.bind(this._getInstance()); },
-  get executeStrategy() { return this._getInstance().executeStrategy.bind(this._getInstance()); },
-  get getConflictHistory() { return this._getInstance().getConflictHistory.bind(this._getInstance()); },
-  get getConflictStats() { return this._getInstance().getConflictStats.bind(this._getInstance()); },
-  get cleanup() { return this._getInstance().cleanup.bind(this._getInstance()); },
-  
-  _getInstance(): DataSyncConflictResolver {
-    if (!_dataSyncConflictResolverInstance) {
-      _dataSyncConflictResolverInstance = DataSyncConflictResolver.getInstance();
-    }
-    return _dataSyncConflictResolverInstance;
-  }
+  // 使用代理模式提供方法访问
+  detectConflicts: resolverInstance.detectConflicts.bind(resolverInstance),
+  resolveConflicts: resolverInstance.resolveConflicts.bind(resolverInstance),
+  getPendingConflicts: resolverInstance.getPendingConflicts.bind(resolverInstance),
+  manualResolveConflict: resolverInstance.manualResolveConflict.bind(resolverInstance),
+  batchResolveConflicts: resolverInstance.batchResolveConflicts.bind(resolverInstance),
+  getStats: resolverInstance.getStats.bind(resolverInstance),
+  cleanup: resolverInstance.cleanup.bind(resolverInstance),
 };
 
 export default DataSyncConflictResolver;

@@ -205,7 +205,7 @@ export class StandardOrderService {
           const order = await this.getOrder(orderId);
 
           if (!order) {
-            reject(new Error('u64cdu4f5cu5931u8d25'));
+            reject(new Error('订单不存在'));
             return;
           }
 

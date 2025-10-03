@@ -1,0 +1,21 @@
+/**
+ * ⚠️ DEPRECATED: 此文件逐步废弃中
+ * 
+ * 📌 迁移指南:
+ * - ✅ 新代码请使用: @/api/unifiedAIService
+ * - ⏰ 废弃时间表: 2025-12-31完全移除
+ * - 📚 迁移文档: docs/migration/ai-service-deprecation.md
+ * 
+ * 🔄 当前状态:
+ * - AITaskType/PromptType 枚举: 保留使用
+ * - callAI 等函数: 转发到 unifiedAIService
+ * 
+ * @deprecated 使用 @/api/unifiedAIService 替代
+ */
+
+console.warn(
+  '⚠️ [DEPRECATED] aiService.ts 已废弃\n' +
+  '请使用 @/api/unifiedAIService 替代\n' +
+  '详见: docs/migration/ai-service-deprecation.md'
+);
+

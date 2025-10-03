@@ -2,21 +2,22 @@
  * Jest配置 - 支付系统测试
  */
 
-module.exports = {
+export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/src', '<rootDir>/netlify'],
   testMatch: [
     '<rootDir>/src/tests/**/*.test.ts',
-    '<rootDir>/src/tests/**/*.spec.ts'
+    '<rootDir>/src/tests/**/*.spec.ts',
+    '<rootDir>/src/services/__tests__/**/*.test.ts'
   ],
   transform: {
     '^.+\\.tsx?$': 'ts-jest'
   },
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
-  setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/services/__tests__/setup.ts'],
   collectCoverageFrom: [
     'src/services/**/*.ts',
     'src/utils/**/*.ts',

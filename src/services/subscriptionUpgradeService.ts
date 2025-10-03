@@ -65,18 +65,18 @@ export class SubscriptionUpgradeService {
       // 1. 获取用户当前订阅
       const currentSubscription = await this.getCurrentSubscription(userId);
       if (!currentSubscription) {
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('未找到当前订阅');
       }
 
-      // 2. 检查是否为升级（不支持降级）
+      // 2. 检查是否为升级(不支持降级)
       if (!this.isUpgrade(currentSubscription.subscription_type as SubscriptionTier, targetTier)) {
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('不支持降级,仅支持升级到更高套餐');
       }
 
       // 3. 计算剩余天数
       const remainingDays = this.calculateRemainingDays(currentSubscription.expires_at);
       if (remainingDays <= 0) {
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('订阅已过期,请先续费');
       }
 
       // 4. 获取订阅计划价格
@@ -85,7 +85,7 @@ export class SubscriptionUpgradeService {
       const targetPlan = subscriptionPlans.find(p => p.tier === targetTier);
 
       if (!currentPlan || !targetPlan) {
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('套餐配置不存在');
       }
 
       // 5. 计算当前订阅的原始价格和已支付金额（使用原价，不含优惠）
@@ -139,7 +139,7 @@ export class SubscriptionUpgradeService {
           ),
           breakdown: [
             {
-              item: 'u64cdu4f5cu5931u8d25',
+              item: '目标套餐价格',
               amount: targetPrice,
               description: `${targetTier === 'pro' ? '专业版' : '高级版'} ${targetPeriod === 'yearly' ? '年付' : '月付'}`
             },
@@ -196,7 +196,7 @@ export class SubscriptionUpgradeService {
       // 2. 获取当前订阅
       const currentSubscription = await this.getCurrentSubscription(userId);
       if (!currentSubscription) {
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('未找到当前订阅');
       }
 
       // 3. 计算新的到期时间

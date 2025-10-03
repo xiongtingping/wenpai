@@ -280,7 +280,7 @@ export class UnifiedStorageStrategy {
       logger.error(`数据保存失败: ${key}`, error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.保存失败')
+        error: error instanceof Error ? error.message : i18n.t('common.errors.saveFailed')
       };
     }
   }
@@ -339,7 +339,7 @@ export class UnifiedStorageStrategy {
       return {
         success: false,
         data: defaultValue,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.加载失败')
+        error: error instanceof Error ? error.message : i18n.t('common.errors.loadFailed')
       };
     }
   }
@@ -350,7 +350,7 @@ export class UnifiedStorageStrategy {
   async remove(key: string): Promise<StorageResult> {
     const config = STORAGE_CONFIG[key];
     if (!config) {
-      return { success: false, error: i18n.t('common.errors.未配置的数据类型') };
+      return { success: false, error: i18n.t('common.errors.unconfiguredDataType') };
     }
 
     try {
@@ -377,7 +377,7 @@ export class UnifiedStorageStrategy {
       logger.error(`数据删除失败: ${key}`, error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.删除失败')
+        error: error instanceof Error ? error.message : i18n.t('common.errors.deleteFailed')
       };
     }
   }
@@ -604,7 +604,7 @@ export class UnifiedStorageStrategy {
       return {
         success: false,
         data: defaultValue,
-        error: i18n.t('common.errors.无权访问其他用户的数据'),
+        error: i18n.t('common.errors.unauthorizedAccess'),
         source: 'local'
       };
     }
@@ -624,7 +624,7 @@ export class UnifiedStorageStrategy {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.删除失败')
+        error: error instanceof Error ? error.message : i18n.t('common.errors.deleteFailed')
       };
     }
   }
@@ -664,7 +664,7 @@ export class UnifiedStorageStrategy {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.数据库保存失败')
+        error: error instanceof Error ? error.message : i18n.t('common.errors.databaseSaveFailed')
       };
     }
   }
@@ -714,7 +714,7 @@ export class UnifiedStorageStrategy {
       return {
         success: false,
         data: defaultValue,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.数据库加载失败'),
+        error: error instanceof Error ? error.message : i18n.t('common.errors.databaseLoadFailed'),
         source: 'database'
       };
     }
@@ -740,7 +740,7 @@ export class UnifiedStorageStrategy {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.数据库删除失败')
+        error: error instanceof Error ? error.message : i18n.t('common.errors.databaseDeleteFailed')
       };
     }
   }

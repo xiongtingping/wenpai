@@ -33,6 +33,8 @@ import { TokenService, TokenInfo } from '@/utils/tokenManager';
 import { AuthingTokenService } from '@/utils/authTokenHandler';
 import { TokenSecurityManager, SecureTokenInfo } from '@/utils/secureTokenStorage';
 import { SessionService, SessionEventCallbacks } from '@/utils/sessionManager';
+// 🎯 引入用户状态同步协调器 - 解决竞态条件
+import { userStateSyncCoordinator } from '@/services/userStateSyncCoordinator';
 // 🔒 服务访问器 - 避免静态循环依赖
 type VerificationCodeServiceType = typeof import('@/services/verificationCodeService')['verificationCodeService'];
 type SecureUserStateServiceType = SecureUserStateServiceClass;
@@ -166,38 +168,53 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   }, []);
 
   // 🔒 安全修复：使用安全用户状态管理检查认证状态
+  // ✅ P0-3修复：使用userStateSyncCoordinator原子化同步,避免竞态条件
   const checkAuth = useCallback(async () => {
     try {
       const SecureUserStateService = await getSecureUserStateService();
-      console.log('🔍 安全checkinguserloginstate...');
+      console.log('🔍 安全检查用户登录状态...');
       setLoading(true);
-      
-      // 🔒 安全修复：使用异步安全用户状态管理服务
+
+      // 🔒 从安全存储获取用户状态
       const secureUser = await SecureUserStateService.getUserState();
       if (secureUser) {
-        console.log('✅ 从安全storagerestoringuserstate:', { userId: secureUser.id });
-        setUser(secureUser);
-        // 🔧 修复：使用统一状态管理替代废弃的authStore.setUser
-        unifiedStore.setUser({
-          id: secureUser.id,
-          username: secureUser.username,
-          email: secureUser.email,
-          phone: secureUser.phone,
-          nickname: secureUser.nickname,
-          avatar: secureUser.avatar,
-          loginTime: secureUser.loginTime,
-          isAuthenticated: true
+        console.log('✅ 从安全存储恢复用户状态:', { userId: secureUser.id });
+
+        // ✅ 关键修复: 使用同步协调器原子化更新三层状态
+        const syncResult = await userStateSyncCoordinator.syncOnLogin(
+          secureUser,
+          (user) => setUser(user)  // 传入Context的setter
+        );
+
+        if (!syncResult.success) {
+          console.error('❌ 用户状态同步失败:', syncResult.error);
+          throw new Error(`状态同步失败: ${syncResult.error}`);
+        }
+
+        console.log('✅ 用户状态已原子化同步到所有层:', {
+          syncedLayers: syncResult.syncedLayers,
+          failedLayers: syncResult.failedLayers
         });
+
         setLoading(false);
         return;
       }
-      
-      console.log('👤 not foundvalid的userstate，setting为notloginstate');
-      setUser(null);
-      // 🔧 修复：使用统一状态管理替代废弃的authStore.setUser
-      unifiedStore.clearUser();
+
+      console.log('👤 未找到有效的用户状态,设置为未登录状态');
+
+      // ✅ 登出也使用同步协调器
+      const clearResult = await userStateSyncCoordinator.syncOnLogout(
+        (user) => setUser(user)
+      );
+
+      if (!clearResult.success) {
+        console.warn('⚠️ 用户状态清除部分失败:', clearResult.error);
+      }
+
     } catch (error) {
-      console.error('安全authenticatingcheckingfailed:', error);
+      console.error('安全认证检查失败:', error);
+      const SecureUserStateService = await getSecureUserStateService();
+
       // 出现错误时清除可能损坏的状态
       SecureUserStateService.clearUserState();
 
@@ -209,18 +226,18 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         localStorage.removeItem('login_redirect_to');
         localStorage.removeItem('wenpai-remember-login');
         localStorage.removeItem('wenpai-login-timestamp');
-        console.log('🧹 alreadyclearing所has可能损坏的authenticatingdata');
+        console.log('🧹 已清理所有可能损坏的认证数据');
       } catch (cleanupError) {
-        console.error('cleaninglocalStoragefailed:', cleanupError);
+        console.error('清理localStorage失败:', cleanupError);
       }
 
-      setUser(null);
-      // 🔧 修复：使用统一状态管理替代废弃的authStore.setUser
-      unifiedStore.clearUser();
+      // 使用同步协调器清除状态
+      await userStateSyncCoordinator.syncOnLogout((user) => setUser(user));
+
     } finally {
       setLoading(false);
     }
-  }, [unifiedStore]);
+  }, []);
 
   // Guard初始化useEffect已移除 - 使用自定义认证流程
 
@@ -287,24 +304,20 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
       }
 
-      // 🔒 安全修复：使用异步安全用户状态管理存储用户信息
-      setUser(formattedUser);
-      const storeSuccess = await SecureUserStateService.storeUserState(formattedUser);
-      if (!storeSuccess) {
-        console.warn('⚠️ 安全storageuserstatefailed，使用备用storage');
-        localStorage.setItem('authing_user', JSON.stringify(formattedUser));
+      // 🎯 使用同步协调器原子化更新用户状态 - 解决竞态条件 (C3修复)
+      const syncResult = await userStateSyncCoordinator.syncOnLogin(
+        formattedUser,
+        (user) => setUser(user) // 传入Context的setter
+      );
+
+      if (!syncResult.success) {
+        console.error('❌ 用户状态同步失败:', syncResult.error);
+        throw new Error(`状态同步失败: ${syncResult.error}`);
       }
-      
-      // 🔧 修复：使用统一状态管理替代废弃的authStore.setUser
-      unifiedStore.setUser({
-        id: formattedUser.id,
-        username: formattedUser.username,
-        email: formattedUser.email,
-        phone: formattedUser.phone,
-        nickname: formattedUser.nickname,
-        avatar: formattedUser.avatar,
-        loginTime: formattedUser.loginTime,
-        isAuthenticated: true
+
+      console.log('✅ 用户状态已原子化同步到所有层:', {
+        syncedLayers: syncResult.syncedLayers,
+        failedLayers: syncResult.failedLayers
       });
 
       // Guard模态框已移除 - 无需隐藏
@@ -396,18 +409,25 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 继续登出流程
       }
 
-      // Guard已移除，直接清除本地状态
-      console.log('🚀 executingcustom登出stream程');
+      // 🎯 使用同步协调器原子化清除用户状态 - 解决竞态条件 (C3修复)
+      console.log('🚀 executing原子化登出流程');
 
-      // 🔒 安全修复：使用安全用户状态管理清除用户状态
-      setUser(null);
-      SecureUserStateService.clearUserState();
-      
+      const syncResult = await userStateSyncCoordinator.syncOnLogout(
+        (user) => setUser(user) // 传入Context的setter
+      );
+
+      if (!syncResult.success) {
+        console.warn('⚠️ 用户状态清除部分失败:', syncResult.error);
+        // 登出场景允许部分失败,继续流程
+      }
+
+      console.log('✅ 用户状态已原子化清除:', {
+        syncedLayers: syncResult.syncedLayers,
+        failedLayers: syncResult.failedLayers
+      });
+
       // 清除其他认证相关项
       localStorage.removeItem('login_redirect_to');
-
-      // 🔧 修复：使用统一状态管理替代废弃的authStore.logout
-      unifiedStore.clearUser();
       
       // 🔐 注意：不自动清除记住密码数据，保持用户选择
       // 用户如果选择了"记住密码"，登出后应该保留这个设置
@@ -519,29 +539,21 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           console.warn('⚠️ Authingserverupdatingabnormal，仅updatinglocal:', error);
         }
         
-        // 🔒 安全修复：使用异步安全用户状态管理更新用户信息
-        const updatedUser = { ...user, ...basicUpdates };
-        setUser(updatedUser);
-        
-        const updateSuccess = await SecureUserStateService.updateUserState(basicUpdates);
-        if (!updateSuccess) {
-          console.warn('⚠️ 安全updatinguserstatefailed，使用备用方案');
-          localStorage.setItem('authing_user', JSON.stringify(updatedUser));
-        }
-        
-        // 🔧 修复：使用统一状态管理替代废弃的authStore.setUser
-        unifiedStore.setUser({
-          id: updatedUser.id,
-          username: updatedUser.username,
-          email: updatedUser.email,
-          phone: updatedUser.phone,
-          nickname: updatedUser.nickname,
-          avatar: updatedUser.avatar,
-          loginTime: updatedUser.loginTime,
-          isAuthenticated: true
-        });
+        // 🎯 使用同步协调器原子化更新用户状态 - 解决竞态条件 (C3修复)
+        const syncResult = await userStateSyncCoordinator.syncOnUpdate(
+          basicUpdates,
+          (user) => setUser(user) // 传入Context的setter
+        );
 
-        console.log('✅ 基本infoupdatingsuccess:', basicUpdates);
+        if (!syncResult.success) {
+          console.error('❌ 用户信息更新同步失败:', syncResult.error);
+          throw new Error(`状态同步失败: ${syncResult.error}`);
+        }
+
+        console.log('✅ 基本info已原子化更新到所有层:', {
+          syncedLayers: syncResult.syncedLayers,
+          updates: basicUpdates
+        });
       }
 
       // 如果只有基本信息更新，直接成功

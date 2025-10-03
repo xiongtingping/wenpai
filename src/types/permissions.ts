@@ -40,10 +40,14 @@ export interface PermissionCheckResult {
   hasPermission: boolean;
   userTier: SubscriptionTier | string;
   requiredTier: SubscriptionTier | string;
+  missingPermissions: ExtendedPermissionType[];
   reason?: string;
-  suggestedAction?: 'login' | 'upgrade' | 'contact';
+  suggestedAction?: 'login' | 'upgrade' | 'contact' | 'none';
   upgradeTarget?: SubscriptionTier;
   redirectUrl?: string;
+  permissionConfig?: PermissionConfig;
+  serverVerified?: boolean;
+  verificationError?: string;
   metadata?: {
     timestamp?: string;
     source?: string;
@@ -62,8 +66,16 @@ export interface SessionUserInfo {
   nickname?: string;
   avatar?: string;
   loginTime?: string;
+  registrationDate?: string | Date;
   roles?: string[];
   permissions?: string[];
+  subscription?: {
+    tier?: SubscriptionTier;
+    [key: string]: any;
+  };
+  vipLevel?: SubscriptionTier | string;
+  isVip?: boolean;
+  // 兼容旧字段
   subscription_tier?: SubscriptionTier;
   is_vip?: boolean;
   [key: string]: any;
@@ -76,10 +88,10 @@ export interface PermissionConfig {
   name: string;
   description: string;
   requiredTier: SubscriptionTier;
-  check: (user: SessionUserInfo) => boolean;
+  check: (user: SessionUserInfo | null) => boolean;
   redirectUrl?: string;
   category: 'auth' | 'tier' | 'feature' | 'model' | 'theme';
-  priority: 'low' | 'medium' | 'high';
+  priority: 'low' | 'medium' | 'high' | 'critical';
   metadata?: {
     [key: string]: any;
   };

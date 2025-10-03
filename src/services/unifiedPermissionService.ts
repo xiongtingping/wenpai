@@ -6,47 +6,23 @@
  */
 
 import type { SubscriptionTier } from '@/types/subscription';
-import type { 
-  ExtendedPermissionType, 
-  PermissionCheckResult, 
-  PermissionConfig, 
+import type {
+  ExtendedPermissionType,
+  PermissionCheckResult,
+  PermissionConfig,
   SessionUserInfo,
   IPermissionService
 } from '@/types/permissions';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
+import {
+  getUserTier,
+  compareTiers,
+  hasRequiredTier,
+  SUBSCRIPTION_TIER_WEIGHTS
+} from '@/utils/userTierUtils';
 
-/**
- * 订阅等级权重映射
- */
-const SUBSCRIPTION_TIERS: Record<SubscriptionTier, number> = {
-  trial: 0,
-  pro: 1,
-  premium: 2
-} as const;
-
-/**
- * 获取用户当前订阅等级
- */
-export const getUserTier = (user: SessionUserInfo | null): SubscriptionTier => {
-  if (!user) return 'trial';
-
-  // 优先从用户订阅信息获取
-  if (user.subscription?.tier) {
-    return user.subscription.tier;
-  }
-
-  // 从用户VIP等级推断
-  if (user.vipLevel === 'premium') return 'premium';
-  if (user.vipLevel === 'pro') return 'pro';
-  if (user.isVip) return 'pro';
-
-  // 从权限推断
-  if (user.permissions?.includes('tier:premium')) return 'premium';
-  if (user.permissions?.includes('tier:pro')) return 'pro';
-
-  // 默认为体验版
-  return 'trial';
-};
+// 重新导出getUserTier以保持向后兼容
+export { getUserTier };
 
 /**
  * 完整的权限配置映射

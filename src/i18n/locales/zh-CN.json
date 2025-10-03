@@ -592,7 +592,15 @@
       "contentCannotEmpty": "内容不能为空",
       "typeCannotEmpty": "类型不能为空",
       "text_oa79": "记录",
-      "check": "限额检查"
+      "check": "限额检查",
+      "unauthorizedAccess": "无权访问其他用户的数据",
+      "queryFailed": "查询失败",
+      "recordNotFoundOrUnauthorized": "记录不存在或无权访问",
+      "mergeFailed": "合并失败",
+      "cannotMergeNonObjects": "无法合并非对象类型的数据",
+      "unconfiguredDataType": "未配置的数据类型",
+      "databaseLoadFailed": "数据库加载失败",
+      "waitTimeout": "等待超时"
     },
     "messages": {
       "contentGeneratedSuccess": "内容生成成功",

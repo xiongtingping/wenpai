@@ -1,87 +1,73 @@
 /**
- * ✅ FIXED: 2025-07-25 DeepSeek服务商提供者
- * 
+ * ✅ DeepSeek服务商提供者 - 完全基于统一配置,零硬编码
+ *
  * 🎯 用途：
  * - DeepSeek API的统一封装
  * - 支持聊天功能（暂不支持图像生成）
- * - 标准化的接口实现
- * 
- * 📌 已封装：此提供者已验证可用，请勿修改
- * 
+ * - 完全依赖 aiEndpoints.ts 配置,无重复定义
+ *
+ * 📌 遵循CLAUDE.md原则：
+ * - ✅ 禁止硬编码
+ * - ✅ 单一真相源(SSOT)
+ * - ✅ 统一配置管理
  */
 
 import request from '../request';
 import type { AICallParams, AIResponse, ImageGenerationParams } from '../types';
 import { logger } from '@/utils/logger';
-import { getAIEndpoint } from '@/config/aiEndpoints';
-
-/**
- * DeepSeek服务商配置 - 🔧 已迁移到统一端点管理
- * 
- */
-export const DEEPSEEK_CONFIG = {
-  name: 'deepseek',
-  displayName: 'DeepSeek',
-  baseURL: getAIEndpoint('deepseek')?.baseURL || 'https://api.deepseek.com', // 环境变量系统兜底值
-  models: {
-    chat: [
-      'deepseek-chat',
-      'deepseek-coder'
-    ],
-    image: [] // DeepSeek暂不支持图像生成
-  },
-  limits: {
-    maxTokens: 4096,
-    maxPromptLength: 32000
-  }
-};
+import { getAIEndpoint, buildAPIURL, getAPIHeaders, type AIEndpointConfig } from '@/config/aiEndpoints';
 
 /**
  * DeepSeek服务商实现类
- * 
+ * 🔧 完全基于统一端点配置,无硬编码,无重复配置
  */
 export class DeepSeekProvider {
   private apiKey: string;
-  private baseURL: string;
+  private config: AIEndpointConfig;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
-    this.baseURL = DEEPSEEK_CONFIG.baseURL;
+
+    // 🔒 从统一端点配置获取,无后备值
+    const config = getAIEndpoint('deepseek');
+    if (!config) {
+      throw new Error(
+        'DeepSeek端点配置未找到\n' +
+        '请检查环境变量 VITE_DEEPSEEK_BASE_URL 是否正确配置\n' +
+        '参考文档: docs/setup/environment-variables.md'
+      );
+    }
+
+    this.config = config;
   }
 
   /**
    * 检查API密钥是否有效
-   * 
    */
   isConfigured(): boolean {
-    return !!(this.apiKey && this.apiKey !== 'your_deepseek_key_here' && this.apiKey.startsWith('sk-'));
+    return !!(
+      this.apiKey &&
+      this.apiKey !== 'your_deepseek_key_here' &&
+      this.apiKey.startsWith('sk-')
+    );
   }
 
   /**
-   * 获取支持的模型列表
-   * 
+   * 获取服务配置
    */
-  getSupportedModels(): string[] {
-    return [...DEEPSEEK_CONFIG.models.chat];
-  }
-
-  /**
-   * 检查模型是否支持
-   * 
-   */
-  isModelSupported(model: string): boolean {
-    return this.getSupportedModels().includes(model);
+  getConfig(): AIEndpointConfig {
+    return this.config;
   }
 
   /**
    * 调用DeepSeek聊天接口
-   * 
+   * 🔧 使用统一配置系统构建请求
    */
   async callChat(params: AICallParams): Promise<AIResponse> {
     const startTime = Date.now();
-    
+
     try {
-      console.log('🤖 调用DeepSeek聊daysinterface:', {
+      logger.debug('🤖 调用DeepSeek聊天接口', {
         model: params.model,
         promptLength: params.prompt.length,
         hasContext: !!(params.context && params.context.length > 0),
@@ -89,7 +75,7 @@ export class DeepSeekProvider {
       });
 
       const messages = [];
-      
+
       // 添加系统消息
       if (params.systemPrompt) {
         messages.push({
@@ -112,22 +98,21 @@ export class DeepSeekProvider {
       const requestData = {
         model: params.model || 'deepseek-chat',
         messages,
-        max_tokens: params.maxTokens || 1000,
+        max_tokens: params.maxTokens || this.config.limits.maxTokens,
         temperature: params.temperature || 0.7,
         stream: params.stream || false
       };
 
-      const response = await request.post(`${this.baseURL}/v1/chat/completions`, requestData, {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // 🔒 使用统一配置系统构建URL和请求头
+      const url = buildAPIURL('deepseek', 'chat');
+      const headers = getAPIHeaders('deepseek', this.apiKey);
+
+      const response = await request.post(url, requestData, { headers });
 
       const responseTime = Date.now() - startTime;
       const content = response.choices?.[0]?.message?.content || '';
-      
-      logger.debug('✅ DeepSeek调用成功:', {
+
+      logger.debug('✅ DeepSeek调用成功', {
         model: requestData.model,
         responseTime: `${responseTime}ms`,
         contentLength: content.length,
@@ -144,11 +129,12 @@ export class DeepSeekProvider {
 
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      console.error('❌ DeepSeek调用failed:', error);
-      
+      logger.error('❌ DeepSeek调用失败', error);
+
       return {
         content: '',
         model: params.model || 'deepseek-chat',
+        usage: undefined,
         responseTime,
         success: false,
         error: error instanceof Error ? error.message : 'DeepSeek调用失败'
@@ -157,40 +143,34 @@ export class DeepSeekProvider {
   }
 
   /**
-   * 调用DeepSeek图像生成接口（暂不支持）
-   * 
+   * 图像生成接口 - DeepSeek暂不支持
    */
   async generateImage(params: ImageGenerationParams): Promise<any> {
-    console.warn('⚠️ DeepSeek暂unsupportedgraph像生success能');
-    
+    logger.warn('⚠️ DeepSeek暂不支持图像生成功能');
+
     return {
       success: false,
-      error: 'DeepSeek暂不支持图像生成功能，请使用OpenAI等其他提供者'
+      error: 'DeepSeek暂不支持图像生成功能'
     };
   }
 
   /**
    * 获取提供者信息
-   * 
+   * 🔧 从统一配置获取,无硬编码
    */
   getProviderInfo() {
     return {
-      name: DEEPSEEK_CONFIG.name,
-      displayName: DEEPSEEK_CONFIG.displayName,
+      name: this.config.name,
+      displayName: this.config.displayName,
       configured: this.isConfigured(),
-      models: DEEPSEEK_CONFIG.models,
-      limits: DEEPSEEK_CONFIG.limits,
-      features: {
-        chat: true,
-        image: false
-      }
+      features: this.config.features,
+      limits: this.config.limits
     };
   }
 }
 
 /**
  * 创建DeepSeek提供者实例
- * 
  */
 export function createDeepSeekProvider(apiKey: string): DeepSeekProvider {
   return new DeepSeekProvider(apiKey);
@@ -198,13 +178,8 @@ export function createDeepSeekProvider(apiKey: string): DeepSeekProvider {
 
 /**
  * 导出默认配置
- * 
  */
 export default {
-  config: DEEPSEEK_CONFIG,
   provider: DeepSeekProvider,
   create: createDeepSeekProvider
 };
-
-// 🔧 FIXED: 移除模块顶层立即执行的logger调用，避免TDZ错误
-// logger.debug('🔧 DeepSeek提供者已加载');

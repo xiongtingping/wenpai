@@ -592,7 +592,15 @@
       "contentCannotEmpty": "[TO BE TRANSLATED] 内容不能为空",
       "typeCannotEmpty": "[TO BE TRANSLATED] 类型不能为空",
       "text_oa79": "[TO BE TRANSLATED] 记录",
-      "check": "[TO BE TRANSLATED] 限额检查"
+      "check": "[TO BE TRANSLATED] 限额检查",
+      "unauthorizedAccess": "Unauthorized to access other user's data",
+      "queryFailed": "Query failed",
+      "recordNotFoundOrUnauthorized": "Record not found or unauthorized",
+      "mergeFailed": "Merge failed",
+      "cannotMergeNonObjects": "Cannot merge non-object data",
+      "unconfiguredDataType": "Unconfigured data type",
+      "databaseLoadFailed": "Database load failed",
+      "waitTimeout": "Wait timeout"
     },
     "messages": {
       "contentGeneratedSuccess": "Content generated successfully",

@@ -1,30 +1,30 @@
 /**
- * 🎨 文派AI统一样式系统
- * 
- * 遵循CLAUDE.md CSS架构治理原则：
- * - 统一设计令牌系统 (Design Tokens)
- * - 基础层 (Base Layer) 
- * - 组件层 (Component Layer)
- * - 工具类层 (Utility Classes)
- * 
- * 🚫 严禁补洞式修复，使用系统化架构
+ * 🎨 文派AI主入口样式文件 v2.0
+ *
+ * 架构说明:
+ * - 使用统一设计系统 (unified-design-system.css)
+ * - Tailwind CSS 提供工具类
+ * - 特定功能的增强样式
+ *
+ * ✅ 不再定义基础样式 - 所有内容从统一设计系统继承
  */
 
 /* ========================================
    1. Tailwind CSS基础
-======================================== */
+   ======================================== */
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
 /* ========================================
    2. 统一设计系统 - 核心架构
-======================================== */
+   包含: Tokens + Reset + Base + Components + Utilities
+   ======================================== */
 @import './styles/unified-design-system.css';
 
 /* ========================================
-   3. 特定功能增强 (仅保留核心功能)
-======================================== */
+   3. 特定功能增强
+   ======================================== */
 
 /* 认证系统样式 */
 @import './styles/animated-signin-21st.css';
@@ -32,109 +32,13 @@
 /* 图表系统 */
 @import './styles/chart-system.css';
 
-/* 首页UI修复 */
+/* 首页UI增强 */
 @import './styles/homepage-fixes.css';
 
 /* ========================================
-   4. 全局基础样式增强
-======================================== */
-@layer base {
-  /* 确保所有元素使用设计令牌 */
-  * {
-    border-color: var(--color-border);
-  }
-
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    line-height: var(--line-height-normal);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* 改善滚动行为 */
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* 确保根元素可交互性 */
-  #root {
-    min-height: 100vh;
-    position: relative;
-  }
-
-  /* 消除默认边距 */
-  h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
-    margin: 0;
-  }
-
-  /* 改善列表样式 */
-  ul, ol {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  /* 改善图片显示 */
-  img, svg {
-    display: block;
-    max-width: 100%;
-  }
-
-  /* 改善表单元素 */
-  input, button, textarea, select {
-    font: inherit;
-  }
-
-  /* 移除按钮默认样式 */
-  button {
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-
-  /* 改善链接可访问性 */
-  a:not([class]) {
-    text-decoration-skip-ink: auto;
-  }
-
-  /* 确保媒体查询偏好生效 */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-}
-
-/* ========================================
-   5. 性能优化
-======================================== */
-@layer base {
-  /* 启用硬件加速 */
-  .gpu-accelerated {
-    transform: translateZ(0);
-    will-change: transform;
-  }
-
-  /* 优化渲染性能 */
-  .optimize-rendering {
-    contain: layout style paint;
-  }
-
-  /* 优化字体渲染 */
-  .optimize-text {
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-}
-
-/* ========================================
-   6. MD2Card 快速样式渐变工具类
-======================================== */
+   4. MD2Card 快速渐变工具类
+   保留在utilities层以便快速使用
+   ======================================== */
 @layer utilities {
   /* 蓝色商务渐变 */
   .u-gradient-blue {

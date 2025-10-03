@@ -47,7 +47,7 @@ export async function POST(request: Request) {
  */
 export async function DELETE() {
   try {
-    const statsBefore = permissionCache.getStats();
+    const statsBefore = permissionCache.getCacheStats();
 
     // 清除所有缓存
     permissionCache.clearAll();
@@ -75,7 +75,7 @@ export async function DELETE() {
  * 获取缓存统计信息
  */
 export async function GET() {
-  const stats = permissionCache.getStats();
+  const stats = permissionCache.getCacheStats();
 
   return Response.json({
     success: true,

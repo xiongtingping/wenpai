@@ -1,386 +1,55 @@
 /**
- * 🔧 [UNIFIED_PERMISSION_HOOK_v2025.08.15]
- * 统一权限管理Hook - 系统性架构优化
+ * 🔧 [UNIFIED_PERMISSION_HOOK_v2025.10.03]
+ * 统一权限管理Hook - 重构版
  *
- * 这是整个应用的统一权限管理入口，提供：
- * 1. 权限检查的统一接口
- * 2. 角色验证的标准化方法
- * 3. 订阅等级的判断逻辑
- * 4. 开发环境的权限模拟
+ * 🎯 重构目标:
+ * 1. 移除重复的PERMISSION_CONFIGS,使用unifiedPermissionService
+ * 2. 修复Unicode编码的错误消息
+ * 3. 简化逻辑,保持向后兼容
+ *
+ * @description 提供统一的权限检查接口
  */
 
-// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import {
+  UnifiedPermissionService,
+  getUserTier
+} from '@/services/unifiedPermissionService';
+import type {
+  ExtendedPermissionType,
+  PermissionCheckResult,
+  SessionUserInfo
+} from '@/types/permissions';
 import { logger } from '@/utils/logger';
-
-/**
- * 权限判断结果
- */
-export interface PermissionResult {
-  /** 是否通过权限检查 */
-  pass: boolean;
-  /** 权限检查失败的原因 */
-  reason?: string;
-  /** 重定向地址 */
-  redirect?: string;
-  /** 权限检查的详细信息 */
-  details?: {
-    /** 检查的权限键 */
-    key: string;
-    /** 用户当前权限 */
-    userPermissions: string[];
-    /** 用户当前角色 */
-    userRoles: string[];
-    /** 用户VIP状态 */
-    isVip: boolean;
-    /** 用户登录状态 */
-    isLoggedIn: boolean;
-  };
-}
-
-/**
- * 权限配置
- */
-interface PermissionConfig {
-  /** 权限键 */
-  key: string;
-  /** 权限描述 */
-  description: string;
-  /** 检查函数 */
-  check: (user: any) => boolean;
-  /** 失败时的重定向地址 */
-  redirect?: string;
-  /** 失败时的提示信息 */
-  message?: string;
-}
-
-/**
- * 权限配置映射
- */
-const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
-  // 基础认证权限
-  'auth:required': {
-    key: 'auth:required',
-    description: '需要登录',
-    check: (user) => !!user && user.id,
-    redirect: '/login',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  // VIP权限
-  'vip:required': {
-    key: 'vip:required',
-    description: '需要VIP权限',
-    check: (user) => !!user && (user.isVip || user.vipLevel || user.roles?.includes('vip')),
-    redirect: '/payment',
-    message: '需要VIP权限，请升级'
-  },
-
-  // 功能权限
-  'feature:creative-studio': {
-    key: 'feature:creative-studio',
-    description: '创意魔方功能',
-    check: (user) => {
-      if (!user) return false;
-      // 检查订阅等级
-      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
-      // 检查VIP等级
-      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
-      // 检查权限
-      if (user.permissions?.includes('feature:creative-studio') || user.permissions?.includes('tier:pro')) return true;
-      // 检查旧的VIP标识
-      if (user.isVip) return true;
-      return false;
-    },
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  'feature:brand-library': {
-    key: 'feature:brand-library',
-    description: '品牌库功能',
-    check: (user) => {
-      if (!user) return false;
-      // 检查订阅等级
-      if (user.subscription?.tier === 'premium') return true;
-      // 检查VIP等级
-      if (user.vipLevel === 'premium') return true;
-      // 检查权限
-      if (user.permissions?.includes('feature:brand-library') || user.permissions?.includes('tier:premium')) return true;
-      return false;
-    },
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  'feature:unlimited-usage': {
-    key: 'feature:unlimited-usage',
-    description: '无限使用功能',
-    check: (user) => {
-      if (!user) return false;
-      // 检查订阅等级
-      if (user.subscription?.tier === 'premium') return true;
-      // 检查VIP等级
-      if (user.vipLevel === 'premium') return true;
-      // 检查权限
-      if (user.permissions?.includes('feature:unlimited-usage') || user.permissions?.includes('tier:premium')) return true;
-      return false;
-    },
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  'feature:advanced-models': {
-    key: 'feature:advanced-models',
-    description: '高级AI模型功能',
-    check: (user) => {
-      if (!user) return false;
-      // 检查订阅等级
-      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
-      // 检查VIP等级
-      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
-      // 检查权限
-      if (user.permissions?.includes('feature:advanced-models') || user.permissions?.includes('tier:pro')) return true;
-      // 检查旧的VIP标识
-      if (user.isVip) return true;
-      return false;
-    },
-    redirect: '/payment',
-    message: '高级AI模型功能需要专业版权限'
-  },
-
-  'feature:emoji-generator': {
-    key: 'feature:emoji-generator',
-    description: 'Emoji生成器功能',
-    check: (user) => {
-      if (!user) return false;
-      // 检查订阅等级
-      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
-      // 检查VIP等级
-      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
-      // 检查权限
-      if (user.permissions?.includes('feature:emoji-generator') || user.permissions?.includes('tier:pro')) return true;
-      // 检查旧的VIP标识
-      if (user.isVip) return true;
-      return false;
-    },
-    redirect: '/payment',
-    message: 'Emoji生成器功能需要专业版权限'
-  },
-
-  'feature:marketing-calendar': {
-    key: 'feature:marketing-calendar',
-    description: '营销日历功能',
-    check: (user) => {
-      if (!user) return false;
-      // 检查订阅等级
-      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
-      // 检查VIP等级
-      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
-      // 检查权限
-      if (user.permissions?.includes('feature:marketing-calendar') || user.permissions?.includes('tier:pro')) return true;
-      // 检查旧的VIP标识
-      if (user.isVip) return true;
-      return false;
-    },
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  'feature:wechat-templates': {
-    key: 'feature:wechat-templates',
-    description: '微信朋友圈文案模板功能',
-    check: (user) => {
-      if (!user) return false;
-      // 检查订阅等级
-      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
-      // 检查VIP等级
-      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
-      // 检查权限
-      if (user.permissions?.includes('feature:wechat-templates') || user.permissions?.includes('tier:pro')) return true;
-      // 检查旧的VIP标识
-      if (user.isVip) return true;
-      return false;
-    },
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  'feature:content-extractor': {
-    key: 'feature:content-extractor',
-    description: '内容提取功能',
-    check: (user) => !!user && (user.isVip || user.vipLevel || user.permissions?.includes('feature:content-extractor')),
-    redirect: '/payment',
-    message: '内容提取功能需要VIP权限'
-  },
-
-  // 内测权限
-  'preview:creative-studio': {
-    key: 'preview:creative-studio',
-    description: '创意魔方内测',
-    check: (user) => !!user && (user.isVip || user.vipLevel || user.permissions?.includes('preview:creative-studio')),
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  // 订阅等级权限
-  'tier:trial': {
-    key: 'tier:trial',
-    description: 'u64cdu4f5cu5931u8d25',
-    check: (user) => true, // 所有用户都有体验版权限
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  'tier:pro': {
-    key: 'tier:pro',
-    description: '专业版权限',
-    check: (user) => {
-      if (!user) return false;
-      // 检查订阅等级
-      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
-      // 检查VIP等级
-      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
-      // 检查权限
-      if (user.permissions?.includes('tier:pro') || user.permissions?.includes('tier:premium')) return true;
-      // 检查旧的VIP标识
-      if (user.isVip) return true;
-      return false;
-    },
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  'tier:premium': {
-    key: 'tier:premium',
-    description: '高级版权限',
-    check: (user) => {
-      if (!user) return false;
-      // 检查订阅等级
-      if (user.subscription?.tier === 'premium') return true;
-      // 检查VIP等级
-      if (user.vipLevel === 'premium') return true;
-      // 检查权限
-      if (user.permissions?.includes('tier:premium')) return true;
-      return false;
-    },
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  // 主题切换权限
-  'theme:basic': {
-    key: 'theme:basic',
-    description: '基础主题切换权限',
-    check: (user) => true, // 所有用户都有基础主题权限（浅色主题）
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  'theme:advanced': {
-    key: 'theme:advanced',
-    description: '高级主题切换权限',
-    check: (user) => {
-      if (!user) return false;
-      // 检查订阅等级
-      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
-      // 检查VIP等级
-      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
-      // 检查权限
-      if (user.permissions?.includes('theme:advanced') || user.permissions?.includes('tier:pro')) return true;
-      // 检查旧的VIP标识
-      if (user.isVip) return true;
-      return false;
-    },
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  'theme:premium': {
-    key: 'theme:premium',
-    description: '专业主题切换权限',
-    check: (user) => {
-      if (!user) return false;
-      // 检查订阅等级
-      if (user.subscription?.tier === 'premium') return true;
-      // 检查VIP等级
-      if (user.vipLevel === 'premium') return true;
-      // 检查权限
-      if (user.permissions?.includes('theme:premium') || user.permissions?.includes('tier:premium')) return true;
-      return false;
-    },
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  // 创意魔方权限
-  'creative:basic': {
-    key: 'creative:basic',
-    description: '创意魔方基础权限',
-    check: (user) => !!user && (user.isVip || user.vipLevel === 'pro' || user.vipLevel === 'premium' || user.permissions?.includes('creative:basic')),
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  // 品牌库权限
-  'brand:library': {
-    key: 'brand:library',
-    description: '品牌库访问权限',
-    check: (user) => !!user && (user.vipLevel === 'premium' || user.permissions?.includes('brand:library')),
-    redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25'
-  },
-
-  // 后端配置权限
-  'cms:edit': {
-    key: 'cms:edit',
-    description: 'CMS编辑权限',
-    check: (user) => !!user && user.permissions?.includes('cms:edit'),
-    redirect: '/',
-    message: '没有CMS编辑权限'
-  },
-
-  'user:view': {
-    key: 'user:view',
-    description: '用户查看权限',
-    check: (user) => !!user && user.permissions?.includes('user:view'),
-    redirect: '/',
-    message: 'u64cdu4f5cu5931u8d25'
-  }
-};
 
 /**
  * 统一的权限判断 Hook
  * @param permissionKey 权限键或权限键数组
  * @returns 权限判断结果
+ *
+ * @example
+ * ```ts
+ * const permission = usePermission('feature:creative-studio');
+ * if (permission.pass) {
+ *   // 用户有权限
+ * }
+ * ```
  */
-export const usePermission = (permissionKey: string | string[]): PermissionResult => {
+export const usePermission = (
+  permissionKey: ExtendedPermissionType | ExtendedPermissionType[] | string | string[]
+): PermissionCheckResult & { pass: boolean; details?: any } => {
   const { user, isAuthenticated } = useAuth();
   const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
 
   return useMemo(() => {
     const keys = Array.isArray(permissionKey) ? permissionKey : [permissionKey];
 
-    // 如果没有用户且需要登录权限，直接返回失败
-    if (!isAuthenticated && keys.some(key => key === 'auth:required')) {
-      return {
-        pass: false,
-        reason: '需要登录',
-        redirect: '/login',
-        details: {
-          key: 'auth:required',
-          userPermissions: [],
-          userRoles: [],
-          isVip: false,
-          isLoggedIn: false
-        }
-      };
-    }
-
-    // 创建增强的用户对象，包含订阅状态信息
-    const enhancedUser = user ? {
+    // 增强的用户对象,包含订阅状态信息
+    const enhancedUser: SessionUserInfo | null = user ? {
       ...user,
-      // 如果有活跃订阅，使用订阅状态中的等级信息
+      // 如果有活跃订阅,使用订阅状态中的等级信息
       subscription: primaryStatus?.status === 'active' && primaryStatus.tier ? {
         ...user.subscription,
         tier: primaryStatus.tier
@@ -392,77 +61,121 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
         }
         if (primaryStatus?.status === 'active') {
           const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
-          if (statusLabel.includes('u64cdu4f5cu5931u8d25') || statusLabel.includes('premium')) {
+          if (statusLabel.includes('高级版') || statusLabel.includes('premium')) {
             return 'premium';
-          } else if (statusLabel.includes('u64cdu4f5cu5931u8d25') || statusLabel.includes('pro')) {
+          } else if (statusLabel.includes('专业版') || statusLabel.includes('pro')) {
             return 'pro';
           }
         }
         return user.vipLevel;
       })()
-    } : user;
+    } : null;
 
-    // 检查每个权限键
+    // 检查所有权限键
+    const results: PermissionCheckResult[] = [];
+    let firstFailure: PermissionCheckResult | null = null;
+
     for (const key of keys) {
-      const config = PERMISSION_CONFIGS[key];
+      try {
+        const result = UnifiedPermissionService.checkPermission(
+          enhancedUser,
+          key as ExtendedPermissionType
+        );
+        results.push(result);
 
-      if (!config) {
-        console.warn('permissionconfigurationnot found:', key);
-        continue;
-      }
-
-      const hasPermission = config.check(enhancedUser);
-
-      // 开发环境调试日志（降低频次）
-      if (import.meta.env.DEV && Math.random() < 0.05) { // 只有5%的概率输出日志
-        logger.debug('权限检查结果', {
-          user: enhancedUser ? {
-            id: enhancedUser.id,
-            isVip: (enhancedUser as any).isVip,
-            vipLevel: enhancedUser.vipLevel
-          } : null,
-          hasActiveSubscription,
-          hasPermission,
-          config: config.description
-        });
-      }
-
-      if (!hasPermission) {
-        return {
-          pass: false,
-          reason: config.message || ('缺少权限: ' + config.description),
-          redirect: config.redirect,
-          details: {
-            key,
-            userPermissions: enhancedUser?.permissions || [],
-            userRoles: enhancedUser?.roles || [],
-            isVip: !!(enhancedUser as any)?.isVip,
-            isLoggedIn: isAuthenticated
-          }
+        if (!result.hasPermission && !firstFailure) {
+          firstFailure = result;
+        }
+      } catch (error) {
+        console.error(`权限检查失败: ${key}`, error);
+        // 权限配置不存在时,默认拒绝访问
+        const errorResult: PermissionCheckResult = {
+          hasPermission: false,
+          userTier: 'trial',
+          requiredTier: 'trial',
+          missingPermissions: [key as ExtendedPermissionType],
+          reason: `权限配置不存在: ${key}`,
+          suggestedAction: isAuthenticated ? 'contact' : 'login'
         };
+        results.push(errorResult);
+        if (!firstFailure) {
+          firstFailure = errorResult;
+        }
       }
     }
 
-    // 所有权限检查通过
-    return {
-      pass: true,
-      details: {
-        key: keys.join(','),
-        userPermissions: enhancedUser?.permissions || [],
-        userRoles: enhancedUser?.roles || [],
-        isVip: !!(enhancedUser as any)?.isVip,
-        isLoggedIn: isAuthenticated
-      }
-    };
+    // 所有权限都通过才算通过
+    const allPass = results.every(r => r.hasPermission);
+
+    // 开发环境调试日志(降低频次)
+    if (import.meta.env.DEV && Math.random() < 0.05) { // 只有5%的概率输出日志
+      logger.debug('权限检查结果', {
+        user: enhancedUser ? {
+          id: enhancedUser.id,
+          isVip: enhancedUser.isVip,
+          vipLevel: enhancedUser.vipLevel
+        } : null,
+        hasActiveSubscription,
+        permissionKey: keys,
+        allPass,
+        results: results.map(r => ({
+          hasPermission: r.hasPermission,
+          userTier: r.userTier,
+          requiredTier: r.requiredTier
+        }))
+      });
+    }
+
+    if (allPass) {
+      // 所有权限检查通过
+      const currentUserTier = getUserTier(enhancedUser);
+      return {
+        pass: true,
+        hasPermission: true,
+        userTier: currentUserTier,
+        requiredTier: results[0]?.requiredTier || 'trial',
+        missingPermissions: [],
+        suggestedAction: 'none',
+        details: {
+          key: keys.join(','),
+          userPermissions: enhancedUser?.permissions || [],
+          userRoles: enhancedUser?.roles || [],
+          isVip: !!enhancedUser?.isVip,
+          isLoggedIn: isAuthenticated
+        }
+      };
+    } else {
+      // 至少有一个权限检查失败
+      const failure = firstFailure!;
+      return {
+        pass: false,
+        hasPermission: false,
+        userTier: failure.userTier,
+        requiredTier: failure.requiredTier,
+        missingPermissions: results.filter(r => !r.hasPermission).flatMap(r => r.missingPermissions),
+        reason: failure.reason || `缺少权限: ${failure.permissionConfig?.description || keys[0]}`,
+        suggestedAction: failure.suggestedAction,
+        upgradeTarget: failure.upgradeTarget,
+        redirectUrl: failure.redirectUrl || (isAuthenticated ? '/payment' : '/login'),
+        permissionConfig: failure.permissionConfig,
+        details: {
+          key: keys.join(','),
+          userPermissions: enhancedUser?.permissions || [],
+          userRoles: enhancedUser?.roles || [],
+          isVip: !!enhancedUser?.isVip,
+          isLoggedIn: isAuthenticated
+        }
+      };
+    }
   }, [user, isAuthenticated, permissionKey, primaryStatus, hasActiveSubscription]);
 };
 
 /**
  * VIP权限判断 Hook (向后兼容)
- * @deprecated 使用 usePermission('vip:required') 替代
+ * @deprecated 使用 usePermission('tier:pro') 替代
  */
 export const useVipPermission = () => {
-  return usePermission('vip:required');
+  return usePermission('tier:pro');
 };
 
 /**
@@ -470,5 +183,19 @@ export const useVipPermission = () => {
  * @deprecated 使用 usePermission('feature:{name}') 替代
  */
 export const useFeaturePermission = (featureId: string) => {
-  return usePermission('feature:' + featureId);
+  return usePermission(`feature:${featureId}` as ExtendedPermissionType);
 };
+
+/**
+ * 导出权限结果接口以保持向后兼容
+ */
+export interface PermissionResult extends PermissionCheckResult {
+  pass: boolean;
+  details?: {
+    key: string;
+    userPermissions: string[];
+    userRoles: string[];
+    isVip: boolean;
+    isLoggedIn: boolean;
+  };
+}

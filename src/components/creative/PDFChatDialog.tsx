@@ -48,7 +48,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { callPDFChat } from '@/api/aiService';
+import { callAI } from '@/api/unifiedAIService';
 
 /**
  * 对话消息接口
@@ -182,7 +182,7 @@ export function PDFChatDialog({
       console.log('📝 documentationcontentlength:', selectedDocument.content.length);
       console.log('❓ user问题:', inputValue);
 
-      const response = await callPDFChat({
+      const response = await callAI({
         prompt: inputValue,
         documentContent: selectedDocument.content
       });

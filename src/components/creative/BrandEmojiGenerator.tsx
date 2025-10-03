@@ -74,7 +74,7 @@ interface BrandEmojiGeneratorProps {
  */
 async function generateEmojiImage(prompt: string, referenceImage?: File | null, count: number = 1): Promise<string[]> { try {
     // 使用统一的AI服务层
-    const aiService = (await import('@/api/aiService')).callAI;
+    const { callAI } = await import('@/api/unifiedAIService');
     
     // 准备图像生成请求
     const imageRequest = {
@@ -93,7 +93,7 @@ async function generateEmojiImage(prompt: string, referenceImage?: File | null, 
         prompt: `基于参考图片的风格和特征，${prompt}`
       };
       
-      const response = await aiService({
+      const response = await callAI({
         prompt: `生成表情符号描述: ${prompt}`,
         model: 'gpt-4',
         maxTokens: 500,
@@ -110,7 +110,7 @@ async function generateEmojiImage(prompt: string, referenceImage?: File | null, 
         throw new Error(response.error || t('components.errors.图像生成失败'));
       }
     } else {
-      const response = await aiService({
+      const response = await callAI({
         prompt: `生成表情符号描述: ${prompt}`,
         model: 'gpt-4',
         maxTokens: 500,

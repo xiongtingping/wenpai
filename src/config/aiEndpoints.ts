@@ -40,10 +40,23 @@ export interface AIEndpointConfig {
 
 /**
  * 环境配置获取函数
- * 优先使用环境变量，提供默认值作为后备
+ * 🔒 强制要求环境变量,无后备值 - 遵循CLAUDE.md禁止硬编码原则
+ * @param key 环境变量键名
+ * @param required 是否为必需配置
+ * @returns 环境变量值,如果required=true且未配置则抛出异常
  */
-function getEnvConfig(key: string, defaultValue: string): string {
-  return import.meta.env[key] || process.env[key] || defaultValue;
+function getEnvConfig(key: string, required: boolean = true): string {
+  const value = import.meta.env[key];
+
+  if (required && !value) {
+    throw new Error(
+      `❌ 必需的环境变量 ${key} 未配置\n` +
+      `请在 .env 文件中添加: ${key}=your_value_here\n` +
+      `参考文档: docs/setup/environment-variables.md`
+    );
+  }
+
+  return value || '';
 }
 
 /**
@@ -55,7 +68,7 @@ export const AI_ENDPOINTS: Record<string, AIEndpointConfig> = {
   openai: {
     name: 'aimlapi',  // 🔧 统一使用AIMLAPI
     displayName: 'OpenAI (via AIMLAPI)',
-    baseURL: getEnvConfig('VITE_AIMLAPI_BASE_URL', 'https://api.aimlapi.com'),
+    baseURL: getEnvConfig('VITE_AIMLAPI_BASE_URL', true),
     chatEndpoint: '/chat/completions',
     imageEndpoint: '/images/generations',
     modelsEndpoint: '/models',
@@ -81,7 +94,7 @@ export const AI_ENDPOINTS: Record<string, AIEndpointConfig> = {
   deepseek: {
     name: 'deepseek',
     displayName: 'DeepSeek',
-    baseURL: getEnvConfig('VITE_DEEPSEEK_BASE_URL', 'https://api.deepseek.com'),
+    baseURL: getEnvConfig('VITE_DEEPSEEK_BASE_URL', false), // 可选配置
     chatEndpoint: '/v1/chat/completions',
     modelsEndpoint: '/v1/models',
     headers: {
@@ -106,7 +119,7 @@ export const AI_ENDPOINTS: Record<string, AIEndpointConfig> = {
   aimlapi: {
     name: 'aimlapi',
     displayName: 'AIML API',
-    baseURL: getEnvConfig('VITE_AIMLAPI_BASE_URL', 'https://api.aimlapi.com'),
+    baseURL: getEnvConfig('VITE_AIMLAPI_BASE_URL', true),
     chatEndpoint: '/chat/completions',
     modelsEndpoint: '/models',
     headers: {
@@ -131,7 +144,7 @@ export const AI_ENDPOINTS: Record<string, AIEndpointConfig> = {
   anthropic: {
     name: 'aimlapi',  // 🔧 统一使用AIMLAPI
     displayName: 'Anthropic Claude (via AIMLAPI)',
-    baseURL: getEnvConfig('VITE_AIMLAPI_BASE_URL', 'https://api.aimlapi.com'),
+    baseURL: getEnvConfig('VITE_AIMLAPI_BASE_URL', true),
     chatEndpoint: '/chat/completions',
     modelsEndpoint: '/models',
     headers: {
@@ -156,7 +169,7 @@ export const AI_ENDPOINTS: Record<string, AIEndpointConfig> = {
   gemini: {
     name: 'aimlapi',  // 🔧 统一使用AIMLAPI
     displayName: 'Google Gemini (via AIMLAPI)',
-    baseURL: getEnvConfig('VITE_AIMLAPI_BASE_URL', 'https://api.aimlapi.com'),
+    baseURL: getEnvConfig('VITE_AIMLAPI_BASE_URL', true),
     chatEndpoint: '/chat/completions',
     modelsEndpoint: '/models',
     headers: {

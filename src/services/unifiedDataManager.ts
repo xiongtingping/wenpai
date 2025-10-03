@@ -1,26 +1,27 @@
 /**
- * 🗄️ 统一数据管理器
+ * 🗄️ 统一数据管理器 (重构版)
  * 整合localStorage、Zustand persist、Supabase三层存储架构
- * 
- * 解决问题：
- * - 数据存储分散，访问不一致
- * - 加载闪烁问题
- * - 跨设备同步困难
- * - 数据丢失风险
+ *
+ * ✅ 重构改进:
+ * - 继承BaseDataManager,消除重复代码
+ * - 使用DataFieldAdapter,统一字段映射
+ * - 强化用户ID隔离,修复安全漏洞
+ * - 保持原有API兼容性
+ *
+ * @version 2.0
+ * @date 2025-10-03
  */
 
+import { BaseDataManager } from './base/BaseDataManager';
+import { fallbackStrategy, DataFreshness } from './strategies/FallbackStrategy';
 import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
-import { logger } from '@/utils/logger';
-import { 
-  getAvailableModelsForTier, 
-  getModelInfo, 
+import {
+  getAvailableModelsForTier,
+  getModelInfo,
   isModelAvailableForTier,
-  getModelsByTier,
-  getAllModels,
-  type AIModel 
+  type AIModel
 } from '@/config/aiModels';
 import { getUserTier as getUserTierFromStorage } from '@/utils/modelPermissions';
-import { tokenUsageService } from './tokenUsageService';
 import type { SubscriptionTier } from '@/types/subscription';
 
 // 数据存储层级枚举
@@ -43,28 +44,10 @@ export interface DataConfig {
   category: DataCategory;
   ttl?: number;           // 缓存过期时间（秒）
   syncToCloud?: boolean;  // 是否同步到云端
-  // 🚫 移除 fallbackLayer：不使用降级方案，严格按照数据分类访问
 }
 
 /**
  * 预定义数据配置
- * 
- * 数据存储分类原则：
- * 
- * 1. USER_CRITICAL (用户关键数据) -> Supabase 云端存储
- *    - 用户的个人数据、偏好设置、收藏夹等
- *    - 需要跨设备同步和持久化存储
- *    - 必须要求用户登录后才能访问
- * 
- * 2. APP_STATE (应用状态数据) -> Zustand 状态管理
- *    - 应用的临时状态、UI 状态、当前会话数据
- *    - 在应用运行期间保持，不持久化存储
- *    - 刷新页面后重置为默认值
- * 
- * 3. CACHE_TEMP (缓存临时数据) -> localStorage 本地缓存
- *    - 临时缓存、会话数据、本地快照等
- *    - 有 TTL 过期时间，可以被清理
- *    - 不需要跨设备同步
  */
 export const DATA_CONFIGS: Record<string, DataConfig> = {
   // 用户关键数据 - 必须云端持久化 (Supabase)
@@ -124,12 +107,12 @@ export const DATA_CONFIGS: Record<string, DataConfig> = {
     key: 'selectedPlatforms',
     category: DataCategory.APP_STATE
   },
-  
+
   // 用户偏好设置 - 云端持久化 (Supabase)
   theme: {
     key: 'theme',
     category: DataCategory.USER_CRITICAL,
-    syncToCloud: true // 跨设备同步主题
+    syncToCloud: true
   },
 
   // 缓存临时 - localStorage
@@ -151,46 +134,45 @@ export const DATA_CONFIGS: Record<string, DataConfig> = {
 };
 
 /**
- * 统一数据管理器类
+ * 统一数据管理器类 (重构版)
  */
-export class UnifiedDataManager {
-  private userId: string | null = null;
-  private supabaseService: any = null;
+export class UnifiedDataManager extends BaseDataManager {
   private cacheTimestamps = new Map<string, number>();
 
   constructor(userId?: string) {
-    if (userId) {
-      this.setUserId(userId);
-    }
+    super({ userId, enableLogging: true });
   }
 
   /**
-   * 设置用户ID并初始化云端服务
+   * 用户ID设置后的钩子 - 初始化Supabase服务
    */
-  setUserId(userId: string) {
-    this.userId = userId;
+  protected onUserIdSet(userId: string): void {
     try {
       this.supabaseService = createDataService(userId, TABLE_NAMES.USER_BRAND_CORPUS);
-      console.log('✅ 统一datamanageralreadyinitialization，user:', userId);
+      this.log('info', '✅ 统一数据管理器已初始化，用户:', userId);
     } catch (error) {
-      console.error('❌ SupabaseService initialization failed:', error);
+      this.log('error', '❌ SupabaseService初始化失败:', error);
     }
   }
 
   /**
-   * 智能数据获取 - 缓存优先策略
+   * 智能数据获取 - 缓存优先策略 + 降级支持
    */
   async getData<T>(key: string, forceRefresh = false): Promise<T | null> {
     const config = DATA_CONFIGS[key];
     if (!config) {
-      console.warn(`⚠️ not知datakey: ${key}，使用cache模式`);
+      this.log('warn', `⚠️ 未知数据key: ${key}，使用缓存模式`);
       return this.getCacheData<T>(key);
     }
 
     try {
       // 1. 强制刷新时直接从云端获取
       if (forceRefresh && config.category === DataCategory.USER_CRITICAL) {
-        return await this.getCloudData<T>(key);
+        const cloudData = await this.getCloudData<T>(key);
+        if (cloudData) {
+          this.updateCache(key, cloudData);
+        }
+        return cloudData;
       }
 
       // 2. 先检查缓存
@@ -203,41 +185,57 @@ export class UnifiedDataManager {
               this.updateCache(key, cloudData);
             }
           }).catch(error => {
-            console.warn(`⚠️ async云端updatingfailed ${key}:`, error);
+            this.log('warn', `⚠️ 异步云端更新失败 ${key}:`, error);
           });
         }
         return cached;
       }
 
-      // 3. 根据数据类型从对应层获取
+      // 3. 根据数据类型从对应层获取 (带降级策略)
       switch (config.category) {
         case DataCategory.USER_CRITICAL:
-          return await this.getCloudData<T>(key);
-          
+          // ✅ 使用降级策略: Cloud失败 → Stale Cache
+          const result = await fallbackStrategy.readWithFallback(
+            () => this.getCloudData<T>(key),
+            () => this.getCacheData<T>(key),
+            this.cacheTimestamps.get(key)
+          );
+
+          if (result) {
+            // 更新缓存
+            if (result.freshness === DataFreshness.FRESH) {
+              this.updateCache(key, result.data);
+            }
+            // 如果是过期数据,输出用户提示
+            if (result.message) {
+              this.log('warn', `📡 ${key}: ${result.message}`);
+            }
+            return result.data;
+          }
+          return null;
+
         case DataCategory.APP_STATE:
           return this.getStateData<T>(key);
-          
+
         case DataCategory.CACHE_TEMP:
           return this.getCacheData<T>(key);
-          
+
         default:
           return null;
       }
     } catch (error) {
-      console.error(`❌ fetchingdatafailed ${key}:`, error);
-      
-      // 🚫 移除降级策略：严格按照数据分类访问，不使用降级方案
+      this.log('error', `❌ 获取数据失败 ${key}:`, error);
       return null;
     }
   }
 
   /**
-   * 智能数据保存
+   * 智能数据保存 (带降级策略)
    */
   async setData<T>(key: string, data: T): Promise<boolean> {
     const config = DATA_CONFIGS[key];
     if (!config) {
-      console.error(`❌ not知datakey: ${key}，deniedsaving - 需要在 DATA_CONFIGS middleconfiguration`);
+      this.log('error', `❌ 未知数据key: ${key}，拒绝保存 - 需要在 DATA_CONFIGS 中配置`);
       return false;
     }
 
@@ -247,173 +245,59 @@ export class UnifiedDataManager {
       // 根据配置保存到对应层
       switch (config.category) {
         case DataCategory.USER_CRITICAL:
-          success = await this.setCloudData(key, data);
-          // 同时更新缓存以提高访问速度
-          this.setCacheData(key, data);
+          // ✅ 使用降级策略: Cloud失败 → 本地暂存 → 后台重试
+          const writeResult = await fallbackStrategy.writeWithFallback(
+            data,
+            () => this.setCloudData(key, data),
+            () => this.setCacheData(key, data),
+            key
+          );
+
+          success = writeResult.success;
+          if (!writeResult.synced) {
+            this.log('warn', `📡 ${key}: ${writeResult.message}`);
+          }
+          this.cacheTimestamps.set(key, Date.now());
           break;
-          
+
         case DataCategory.APP_STATE:
           success = this.setStateData(key, data);
           break;
-          
+
         case DataCategory.CACHE_TEMP:
           success = this.setCacheData(key, data);
+          this.cacheTimestamps.set(key, Date.now());
           break;
       }
 
       // 额外的云端同步（如果配置了）
       if (success && config.syncToCloud && config.category !== DataCategory.USER_CRITICAL) {
         this.setCloudData(key, data).catch(error => {
-          console.warn(`⚠️ 云端syncfailed ${key}:`, error);
+          this.log('warn', `⚠️ 云端同步失败 ${key}:`, error);
         });
       }
 
       return success;
     } catch (error) {
-      console.error(`❌ savingdatafailed ${key}:`, error);
-      return false;
-    }
-  }
-
-  /**
-   * 从云端获取数据
-   */
-  private async getCloudData<T>(key: string): Promise<T | null> {
-    if (!this.supabaseService || !this.userId) {
-      console.warn('⚠️ 云端serviceunavailable，none法gettingdata:', key);
-      return null;
-    }
-
-    try {
-      // 🔧 FIX: 使用正确的数据库字段名
-      const result = await this.supabaseService.findMany({
-        filters: { brand_name: `user_${key}` },
-        limit: 1,
-        orderBy: 'updated_at',
-        orderDirection: 'desc'
-      });
-
-      if (result.data && result.data.length > 0) {
-        const data = JSON.parse(result.data[0].brand_description || '{}');
-        this.updateCache(key, data); // 更新缓存
-        return data;
-      }
-
-      return null;
-    } catch (error) {
-      console.error(`❌ 云端gettingdatafailed ${key}:`, error);
-      return null;
-    }
-  }
-
-  /**
-   * 保存数据到云端
-   */
-  private async setCloudData<T>(key: string, data: T): Promise<boolean> {
-    if (!this.supabaseService || !this.userId) {
-      console.warn('⚠️ 云端serviceunavailable，none法savingdata:', key);
-      return false;
-    }
-
-    try {
-      // 检查是否已存在
-      const existing = await this.supabaseService.findMany({
-        filters: { brand_name: `user_${key}` },
-        limit: 1
-      });
-
-      const recordData = {
-        brand_name: `user_${key}`,
-        // 🔧 FIX: 暂时使用可能存在的字段名
-        brand_description: JSON.stringify(data),
-        metadata: JSON.stringify({
-          dataKey: key,
-          lastUpdated: new Date().toISOString(),
-          version: '1.0'
-        })
-      };
-
-      if (existing.data && existing.data.length > 0) {
-        await this.supabaseService.update(existing.data[0].id, recordData);
-      } else {
-        await this.supabaseService.create(recordData);
-      }
-
-      console.log(`✅ 云端savingsuccess: ${key}`);
-      return true;
-    } catch (error) {
-      console.error(`❌ 云端savingfailed ${key}:`, error);
+      this.log('error', `❌ 保存数据失败 ${key}:`, error);
       return false;
     }
   }
 
   /**
    * 从状态层获取数据（Zustand stores）
-   * 严格按照配置的存储层级访问，不使用降级方案
    */
   private getStateData<T>(key: string): T | null {
-    // 🚫 移除降级方案：状态数据只从应用状态中获取
-    // 这里应该集成具体的 Zustand stores
-    // 目前返回 null，表示状态层暂未初始化或数据不存在
-    
-    console.debug(`📝 statedata访问: ${key} - 需要set成 Zustand store`);
+    this.log('debug', `📝 状态数据访问: ${key} - 需要集成 Zustand store`);
     return null;
   }
 
   /**
    * 保存数据到状态层
-   * 严格按照配置的存储层级保存，不使用降级方案
    */
   private setStateData<T>(key: string, data: T): boolean {
-    // 🚫 移除降级方案：状态数据只保存到应用状态中
-    // 这里应该集成具体的 Zustand stores
-    // 目前返回 false，表示状态层保存失败或暂未实现
-    
-    console.debug(`📝 statedatasaving: ${key} - 需要set成 Zustand store`);
+    this.log('debug', `📝 状态数据保存: ${key} - 需要集成 Zustand store`);
     return false;
-  }
-
-  /**
-   * 从缓存层获取数据
-   */
-  private getCacheData<T>(key: string): T | null {
-    try {
-      const data = localStorage.getItem(key);
-      return data ? JSON.parse(data) : null;
-    } catch (error) {
-      console.error(`❌ cachereadingfailed ${key}:`, error);
-      return null;
-    }
-  }
-
-  /**
-   * 保存数据到缓存层
-   */
-  private setCacheData<T>(key: string, data: T): boolean {
-    try {
-      localStorage.setItem(key, JSON.stringify(data));
-      this.cacheTimestamps.set(key, Date.now());
-      return true;
-    } catch (error) {
-      console.error(`❌ cachesavingfailed ${key}:`, error);
-      return false;
-    }
-  }
-
-  /**
-   * 从指定层获取数据
-   */
-  private async getDataFromLayer<T>(key: string, layer: StorageLayer): Promise<T | null> {
-    switch (layer) {
-      case StorageLayer.CLOUD:
-        return await this.getCloudData<T>(key);
-      case StorageLayer.STATE:
-        return this.getStateData<T>(key);
-      case StorageLayer.CACHE:
-        return this.getCacheData<T>(key);
-      default:
-        return null;
-    }
   }
 
   /**
@@ -421,6 +305,7 @@ export class UnifiedDataManager {
    */
   private updateCache<T>(key: string, data: T): void {
     this.setCacheData(key, data);
+    this.cacheTimestamps.set(key, Date.now());
   }
 
   /**
@@ -440,49 +325,46 @@ export class UnifiedDataManager {
    * 预加载关键数据
    */
   async preloadCriticalData(): Promise<void> {
-    if (!this.userId) {
-      console.warn('⚠️ usernotlogin，skippingdata预loading');
-      return;
-    }
+    const userId = this.ensureUserId();
 
     const criticalKeys = Object.keys(DATA_CONFIGS).filter(
       key => DATA_CONFIGS[key].category === DataCategory.USER_CRITICAL
     );
 
-    console.log('🔄 starts预loading关keydata:', criticalKeys);
+    this.log('info', '🔄 开始预加载关键数据:', criticalKeys);
 
     const promises = criticalKeys.map(async (key) => {
       try {
         await this.getData(key);
         return { key, success: true };
       } catch (error) {
-        console.error(`预loadingfailed ${key}:`, error);
+        this.log('error', `预加载失败 ${key}:`, error);
         return { key, success: false, error };
       }
     });
 
     const results = await Promise.allSettled(promises);
     const successful = results.filter(r => r.status === 'fulfilled').length;
-    
-    console.log(`✅ data预loadingcompleted: ${successful}/${criticalKeys.length}`);
+
+    this.log('info', `✅ 数据预加载完成: ${successful}/${criticalKeys.length}`);
   }
 
   /**
    * 清理过期缓存
    */
   cleanupExpiredCache(): void {
-    console.log('🧹 startscleaningexpiredcache...');
+    this.log('info', '🧹 开始清理过期缓存...');
     let cleanedCount = 0;
 
     Object.keys(DATA_CONFIGS).forEach(key => {
       if (this.isExpired(key)) {
-        localStorage.removeItem(key);
+        this.deleteCacheData(key);
         this.cacheTimestamps.delete(key);
         cleanedCount++;
       }
     });
 
-    console.log(`✅ cleaningcompleted，deleting了 ${cleanedCount} unitsexpiredcacheitem`);
+    this.log('info', `✅ 清理完成，删除了 ${cleanedCount} 个过期缓存项`);
   }
 
   /**
@@ -518,9 +400,9 @@ export class UnifiedDataManager {
     return stats;
   }
 
-  /**
-   * AI模型相关管理方法
-   */
+  // ============================================================================
+  // 🤖 AI模型相关管理方法
+  // ============================================================================
 
   /**
    * 获取用户订阅层级
@@ -531,13 +413,12 @@ export class UnifiedDataManager {
       if (cachedTier) {
         return cachedTier;
       }
-      
-      // 从存储获取层级
+
       const tier = getUserTierFromStorage();
       await this.setData('subscriptionTier', tier);
       return tier;
     } catch (error) {
-      console.error('gettingusertierfailed:', error);
+      this.log('error', '获取用户tier失败:', error);
       return 'trial';
     }
   }
@@ -564,14 +445,12 @@ export class UnifiedDataManager {
   async getPreferredModel(): Promise<string> {
     const preferred = await this.getData<string>('preferredModel');
     if (preferred) {
-      // 检查权限
       const hasPermission = await this.hasModelPermission(preferred);
       if (hasPermission) {
         return preferred;
       }
     }
-    
-    // 返回第一个可用模型
+
     const availableModels = await this.getUserAvailableModels();
     return availableModels[0]?.id || 'gpt-4o-mini';
   }
@@ -582,45 +461,29 @@ export class UnifiedDataManager {
   async setPreferredModel(modelId: string): Promise<boolean> {
     const hasPermission = await this.hasModelPermission(modelId);
     if (!hasPermission) {
-      console.warn(`usernonepermission使用模型: ${modelId}`);
+      this.log('warn', `用户无权限使用模型: ${modelId}`);
       return false;
     }
-    
+
     return await this.setData('preferredModel', modelId);
   }
 
   /**
-   * 记录AI模型使用情况
+   * @deprecated 此方法已废弃 - Token记录双重写入问题 (C5修复)
+   * ⚠️ 请使用 unifiedTokenTrackingService.recordTokenUsage() 替代
+   * 🚫 此方法将在v2.0版本中移除
    */
   async recordModelUsage(modelId: string, tokens: number, feature: string): Promise<void> {
-    try {
-      const usage = await this.getData<Record<string, any>>('aiModelUsage') || {};
-      const today = new Date().toISOString().split('T')[0];
-      
-      if (!usage[today]) {
-        usage[today] = {};
-      }
-      
-      if (!usage[today][modelId]) {
-        usage[today][modelId] = { tokens: 0, calls: 0, features: {} };
-      }
-      
-      usage[today][modelId].tokens += tokens;
-      usage[today][modelId].calls += 1;
-      
-      if (!usage[today][modelId].features[feature]) {
-        usage[today][modelId].features[feature] = 0;
-      }
-      usage[today][modelId].features[feature] += 1;
-      
-      await this.setData('aiModelUsage', usage);
-    } catch (error) {
-      console.error('记录模型使用failed:', error);
-    }
+    this.log('warn',
+      '⚠️ recordModelUsage已废弃，请使用 unifiedTokenTrackingService.recordTokenUsage()',
+      '\n详见: /src/services/unifiedTokenTrackingService.ts'
+    );
   }
 
   /**
-   * 获取AI模型使用统计
+   * @deprecated 此方法已废弃 - Token统计双重数据源问题 (C5修复)
+   * ⚠️ 请使用 unifiedTokenTrackingService.getTokenStats() 替代
+   * 🚫 此方法将在v2.0版本中移除
    */
   async getModelUsageStats(): Promise<{
     today: Record<string, any>;
@@ -630,72 +493,19 @@ export class UnifiedDataManager {
     totalCalls: number;
     totalTokens: number;
   }> {
-    try {
-      const usage = await this.getData<Record<string, any>>('aiModelUsage') || {};
-      const today = new Date().toISOString().split('T')[0];
-      const thisMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-      
-      const todayStats = usage[today] || {};
-      const monthlyStats: Record<string, any> = {};
-      const totalStats: Record<string, any> = {};
-      
-      let totalCalls = 0;
-      let totalTokens = 0;
-      const modelCalls: Record<string, number> = {};
-      
-      // 汇总所有统计
-      Object.keys(usage).forEach(date => {
-        const isThisMonth = date.startsWith(thisMonth);
-        
-        Object.keys(usage[date]).forEach(modelId => {
-          const modelStats = usage[date][modelId];
-          
-          // 月度统计
-          if (isThisMonth) {
-            if (!monthlyStats[modelId]) {
-              monthlyStats[modelId] = { tokens: 0, calls: 0, features: {} };
-            }
-            monthlyStats[modelId].tokens += modelStats.tokens;
-            monthlyStats[modelId].calls += modelStats.calls;
-          }
-          
-          // 总体统计
-          if (!totalStats[modelId]) {
-            totalStats[modelId] = { tokens: 0, calls: 0, features: {} };
-          }
-          totalStats[modelId].tokens += modelStats.tokens;
-          totalStats[modelId].calls += modelStats.calls;
-          
-          // 计算最常用模型
-          modelCalls[modelId] = (modelCalls[modelId] || 0) + modelStats.calls;
-          totalCalls += modelStats.calls;
-          totalTokens += modelStats.tokens;
-        });
-      });
-      
-      const favoriteModel = Object.keys(modelCalls).reduce((a, b) => 
-        modelCalls[a] > modelCalls[b] ? a : b, Object.keys(modelCalls)[0] || 'gpt-4o-mini'
-      );
-      
-      return {
-        today: todayStats,
-        thisMonth: monthlyStats,
-        total: totalStats,
-        favoriteModel,
-        totalCalls,
-        totalTokens
-      };
-    } catch (error) {
-      console.error('getting模型使用统计failed:', error);
-      return {
-        today: {},
-        thisMonth: {},
-        total: {},
-        favoriteModel: 'gpt-4o-mini',
-        totalCalls: 0,
-        totalTokens: 0
-      };
-    }
+    this.log('warn',
+      '⚠️ getModelUsageStats已废弃，请使用 unifiedTokenTrackingService.getTokenStats()',
+      '\n详见: /src/services/unifiedTokenTrackingService.ts'
+    );
+
+    return {
+      today: {},
+      thisMonth: {},
+      total: {},
+      favoriteModel: 'gpt-4o-mini',
+      totalCalls: 0,
+      totalTokens: 0
+    };
   }
 
   /**
@@ -708,41 +518,25 @@ export class UnifiedDataManager {
     try {
       const userTier = await this.getUserTier();
       const availableModels = await this.getUserAvailableModels();
-      const usageStats = await this.getModelUsageStats();
-      
-      // 基于使用习惯和订阅层级推荐
+
       const recommendations: AIModel[] = [];
       const reasons: string[] = [];
-      
-      // 推荐逻辑
+
       if (userTier === 'trial') {
         const trialModels = availableModels.filter(m => m.tier === 'low');
         recommendations.push(...trialModels.slice(0, 2));
         reasons.push('基于您的体验版订阅，推荐高性价比模型');
       } else {
-        // 推荐最常用的模型
-        if (usageStats.favoriteModel && getModelInfo(usageStats.favoriteModel)) {
-          const favoriteModel = getModelInfo(usageStats.favoriteModel);
-          if (favoriteModel && availableModels.some(m => m.id === favoriteModel.id)) {
-            recommendations.push(favoriteModel);
-            reasons.push('基于您的使用习惯推荐');
-          }
-        }
-        
-        // 推荐最新的高级模型
         const latestModels = availableModels
           .filter(m => m.tier === 'high')
           .slice(0, 2);
         recommendations.push(...latestModels);
         reasons.push('为您推荐最新的高级AI模型');
       }
-      
-      return {
-        recommended: recommendations,
-        reasons
-      };
+
+      return { recommended: recommendations, reasons };
     } catch (error) {
-      console.error('getting模型推荐failed:', error);
+      this.log('error', '获取模型推荐失败:', error);
       return { recommended: [], reasons: [] };
     }
   }
@@ -754,12 +548,12 @@ export class UnifiedDataManager {
     try {
       const usage = await this.getData<Record<string, any>>('aiModelUsage') || {};
       const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - 90); // 保留90天数据
+      cutoffDate.setDate(cutoffDate.getDate() - 90);
       const cutoffStr = cutoffDate.toISOString().split('T')[0];
-      
+
       const cleanedUsage: Record<string, any> = {};
       let removedCount = 0;
-      
+
       Object.keys(usage).forEach(date => {
         if (date >= cutoffStr) {
           cleanedUsage[date] = usage[date];
@@ -767,20 +561,21 @@ export class UnifiedDataManager {
           removedCount++;
         }
       });
-      
+
       if (removedCount > 0) {
         await this.setData('aiModelUsage', cleanedUsage);
-        console.log(`✅ cleaning了 ${removedCount} days的expired使用统计data`);
+        this.log('info', `✅ 清理了 ${removedCount} 天的过期使用统计数据`);
       }
     } catch (error) {
-      console.error('cleaning使用统计failed:', error);
+      this.log('error', '清理使用统计失败:', error);
     }
   }
 }
 
-/**
- * 单例模式的全局数据管理器 - 延迟创建避免TDZ
- */
+// ============================================================================
+// 🎯 单例模式的全局数据管理器
+// ============================================================================
+
 let globalDataManagerInstance: UnifiedDataManager | null = null;
 
 export function getGlobalDataManager(): UnifiedDataManager {
@@ -792,21 +587,36 @@ export function getGlobalDataManager(): UnifiedDataManager {
 
 // 保持向后兼容
 export const globalDataManager = {
-  getData: (...args: any[]) => getGlobalDataManager().getData(...args),
-  setData: (...args: any[]) => getGlobalDataManager().setData(...args),
-  preloadCriticalData: (...args: any[]) => getGlobalDataManager().preloadCriticalData(...args),
-  cleanupExpiredCache: (...args: any[]) => getGlobalDataManager().cleanupExpiredCache(...args),
-  getDataStats: (...args: any[]) => getGlobalDataManager().getDataStats(...args),
-  setUserId: (...args: any[]) => getGlobalDataManager().setUserId(...args),
-  getUserTier: (...args: any[]) => getGlobalDataManager().getUserTier(...args),
-  getUserAvailableModels: (...args: any[]) => getGlobalDataManager().getUserAvailableModels(...args),
-  hasModelPermission: (...args: any[]) => getGlobalDataManager().hasModelPermission(...args),
-  getPreferredModel: (...args: any[]) => getGlobalDataManager().getPreferredModel(...args),
-  setPreferredModel: (...args: any[]) => getGlobalDataManager().setPreferredModel(...args),
-  recordModelUsage: (...args: any[]) => getGlobalDataManager().recordModelUsage(...args),
-  getModelUsageStats: (...args: any[]) => getGlobalDataManager().getModelUsageStats(...args),
-  getModelRecommendations: (...args: any[]) => getGlobalDataManager().getModelRecommendations(...args),
-  cleanupUsageStats: (...args: any[]) => getGlobalDataManager().cleanupUsageStats(...args)
+  getData: <T>(key: string, forceRefresh?: boolean) =>
+    getGlobalDataManager().getData<T>(key, forceRefresh),
+  setData: <T>(key: string, data: T) =>
+    getGlobalDataManager().setData(key, data),
+  preloadCriticalData: () =>
+    getGlobalDataManager().preloadCriticalData(),
+  cleanupExpiredCache: () =>
+    getGlobalDataManager().cleanupExpiredCache(),
+  getDataStats: () =>
+    getGlobalDataManager().getDataStats(),
+  setUserId: (userId: string) =>
+    getGlobalDataManager().setUserId(userId),
+  getUserTier: () =>
+    getGlobalDataManager().getUserTier(),
+  getUserAvailableModels: () =>
+    getGlobalDataManager().getUserAvailableModels(),
+  hasModelPermission: (modelId: string) =>
+    getGlobalDataManager().hasModelPermission(modelId),
+  getPreferredModel: () =>
+    getGlobalDataManager().getPreferredModel(),
+  setPreferredModel: (modelId: string) =>
+    getGlobalDataManager().setPreferredModel(modelId),
+  recordModelUsage: (modelId: string, tokens: number, feature: string) =>
+    getGlobalDataManager().recordModelUsage(modelId, tokens, feature),
+  getModelUsageStats: () =>
+    getGlobalDataManager().getModelUsageStats(),
+  getModelRecommendations: () =>
+    getGlobalDataManager().getModelRecommendations(),
+  cleanupUsageStats: () =>
+    getGlobalDataManager().cleanupUsageStats()
 };
 
 /**
@@ -814,24 +624,21 @@ export const globalDataManager = {
  */
 export function useUnifiedData() {
   return {
-    // 基础数据管理
-    getData: globalDataManager.getData.bind(globalDataManager),
-    setData: globalDataManager.setData.bind(globalDataManager),
-    preloadData: globalDataManager.preloadCriticalData.bind(globalDataManager),
-    cleanupCache: globalDataManager.cleanupExpiredCache.bind(globalDataManager),
-    getStats: globalDataManager.getDataStats.bind(globalDataManager),
-    setUserId: globalDataManager.setUserId.bind(globalDataManager),
-    
-    // AI模型管理
-    getUserTier: globalDataManager.getUserTier.bind(globalDataManager),
-    getUserAvailableModels: globalDataManager.getUserAvailableModels.bind(globalDataManager),
-    hasModelPermission: globalDataManager.hasModelPermission.bind(globalDataManager),
-    getPreferredModel: globalDataManager.getPreferredModel.bind(globalDataManager),
-    setPreferredModel: globalDataManager.setPreferredModel.bind(globalDataManager),
-    recordModelUsage: globalDataManager.recordModelUsage.bind(globalDataManager),
-    getModelUsageStats: globalDataManager.getModelUsageStats.bind(globalDataManager),
-    getModelRecommendations: globalDataManager.getModelRecommendations.bind(globalDataManager),
-    cleanupUsageStats: globalDataManager.cleanupUsageStats.bind(globalDataManager)
+    getData: globalDataManager.getData,
+    setData: globalDataManager.setData,
+    preloadData: globalDataManager.preloadCriticalData,
+    cleanupCache: globalDataManager.cleanupExpiredCache,
+    getStats: globalDataManager.getDataStats,
+    setUserId: globalDataManager.setUserId,
+    getUserTier: globalDataManager.getUserTier,
+    getUserAvailableModels: globalDataManager.getUserAvailableModels,
+    hasModelPermission: globalDataManager.hasModelPermission,
+    getPreferredModel: globalDataManager.getPreferredModel,
+    setPreferredModel: globalDataManager.setPreferredModel,
+    recordModelUsage: globalDataManager.recordModelUsage,
+    getModelUsageStats: globalDataManager.getModelUsageStats,
+    getModelRecommendations: globalDataManager.getModelRecommendations,
+    cleanupUsageStats: globalDataManager.cleanupUsageStats
   };
 }
 

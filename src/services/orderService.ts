@@ -87,7 +87,7 @@ export class OrderService {
 
       if (error) {
         logger.error('更新订单支付信息失败:', error);
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('更新订单支付信息失败');
       }
 
       logger.info('订单支付信息更新成功:', { orderId });
@@ -115,7 +115,7 @@ export class OrderService {
           return null; // 订单不存在
         }
         logger.error('查询订单失败:', error);
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('查询订单失败');
       }
 
       return data;
@@ -141,7 +141,7 @@ export class OrderService {
           return null;
         }
         logger.error('根据AOID查询订单失败:', error);
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('根据AOID查询订单失败');
       }
 
       return data;
@@ -173,7 +173,7 @@ export class OrderService {
 
       if (error) {
         logger.error('标记订单为已支付失败:', error);
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('标记订单为已支付失败');
       }
 
       logger.info('订单标记为已支付:', { orderId, aoid: paymentData.aoid });
@@ -285,7 +285,7 @@ export class OrderService {
           return null; // 没有订阅
         }
         logger.error('查询用户订阅失败:', error);
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('查询用户订阅失败');
       }
 
       // 检查订阅是否过期
@@ -320,7 +320,7 @@ export class OrderService {
 
       if (error) {
         logger.error('查询用户订单历史失败:', error);
-        throw new Error('u64cdu4f5cu5931u8d25');
+        throw new Error('查询用户订单历史失败');
       }
 
       return data || [];

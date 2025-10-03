@@ -138,6 +138,21 @@ export interface ErrorState {
   favorites: string | null;
 }
 
+/**
+ * 存储配额状态
+ */
+export interface StorageQuotaState {
+  used: number;
+  total: number;
+  usagePercent: number;
+  remaining: number;
+  itemCount: number;
+  largestItems: Array<{ key: string; size: number }>;
+  lastChecked: string | null;
+  isWarning: boolean;  // 超过80%警告
+  isCritical: boolean; // 超过90%严重警告
+}
+
 // ============================================================================
 // 🎯 统一状态接口
 // ============================================================================
@@ -150,11 +165,12 @@ export interface UnifiedState {
   appSettings: AppSettingsState;
   contentSync: ContentSyncState;
   favorites: FavoritesState;
-  
+  storageQuota: StorageQuotaState;
+
   // 辅助状态
   loading: LoadingState;
   error: ErrorState;
-  
+
   // 元数据
   lastUpdated: string;
   version: string;
@@ -210,7 +226,11 @@ export interface UnifiedActions {
   setError: (key: keyof ErrorState, error: string | null) => void;
   clearError: (key: keyof ErrorState) => void;
   clearAllErrors: () => void;
-  
+
+  // 存储配额操作
+  updateStorageQuota: (quota: Partial<StorageQuotaState>) => void;
+  checkStorageQuota: () => void;
+
   // 通用操作
   reset: () => void;
   resetSection: (section: keyof Omit<UnifiedState, 'loading' | 'error' | 'lastUpdated' | 'version'>) => void;
@@ -286,6 +306,18 @@ const initialErrorState: ErrorState = {
   favorites: null,
 };
 
+const initialStorageQuotaState: StorageQuotaState = {
+  used: 0,
+  total: 10 * 1024 * 1024, // 10MB估算值
+  usagePercent: 0,
+  remaining: 10 * 1024 * 1024,
+  itemCount: 0,
+  largestItems: [],
+  lastChecked: null,
+  isWarning: false,
+  isCritical: false,
+};
+
 const initialState: UnifiedState = {
   user: initialUserState,
   tokenUsage: initialTokenUsageState,
@@ -293,6 +325,7 @@ const initialState: UnifiedState = {
   appSettings: initialAppSettingsState,
   contentSync: initialContentSyncState,
   favorites: initialFavoritesState,
+  storageQuota: initialStorageQuotaState,
   loading: initialLoadingState,
   error: initialErrorState,
   lastUpdated: new Date().toISOString(),
@@ -566,6 +599,31 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
           });
         },
 
+        // 存储配额操作
+        updateStorageQuota: (quota) => {
+          set((state) => {
+            Object.assign(state.storageQuota, quota);
+            state.storageQuota.lastChecked = new Date().toISOString();
+            // 自动判断警告状态
+            state.storageQuota.isWarning = state.storageQuota.usagePercent >= 80;
+            state.storageQuota.isCritical = state.storageQuota.usagePercent >= 90;
+            state.lastUpdated = new Date().toISOString();
+          });
+        },
+
+        checkStorageQuota: () => {
+          set((state) => {
+            // 动态导入避免循环依赖
+            import('@/utils/storageQuotaMonitor').then(({ storageQuotaMonitor }) => {
+              const quotaInfo = storageQuotaMonitor.getQuotaInfo();
+              const unifiedStore = useUnifiedStore.getState();
+              unifiedStore.updateStorageQuota(quotaInfo);
+            }).catch(error => {
+              console.error('检查存储配额失败:', error);
+            });
+          });
+        },
+
         // 通用操作
         reset: () => {
           set({ ...initialState, lastUpdated: new Date().toISOString() });
@@ -591,6 +649,9 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
                 break;
               case 'favorites':
                 state.favorites = { ...initialFavoritesState };
+                break;
+              case 'storageQuota':
+                state.storageQuota = { ...initialStorageQuotaState };
                 break;
             }
             state.lastUpdated = new Date().toISOString();
@@ -722,6 +783,13 @@ export const useLoadingState = () => {
  */
 export const useErrorState = () => {
   return useUnifiedStore((state) => state.error);
+};
+
+/**
+ * 存储配额状态选择器
+ */
+export const useStorageQuotaState = () => {
+  return useUnifiedStore((state) => state.storageQuota);
 };
 
 // ============================================================================

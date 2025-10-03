@@ -110,15 +110,16 @@ export async function registerAllServices(): Promise<void> {
     dependencies: ['configManager']
   });
 
-  // 🔧 FIXED: 暂时注释掉不存在的服务
-  // registerService({
-  //   name: 'unifiedAIService',
-  //   factory: async () => {
-  //     const { UnifiedAIService } = await import('@/services/unifiedAIService');
-  //     return new UnifiedAIService();
-  //   },
-  //   dependencies: ['configManager']
-  // });
+  // ✅ FIXED: 注册统一AI管理器 (正确路径 @/api/unifiedAIManager)
+  registerService({
+    name: 'aiManager',
+    factory: async () => {
+      const { aiManager } = await import('@/api/unifiedAIManager');
+      return aiManager;
+    },
+    lazy: false, // 立即加载,确保AI服务可用
+    dependencies: ['configManager']
+  });
 
   // 第5层：数据服务
   registerService({
@@ -209,9 +210,9 @@ export async function getAIAnalysisService() {
   return getService<any>('aiAnalysisService');
 }
 
-export async function getUnifiedAIService() {
+export async function getAIManager() {
   const { getService } = await import('@/utils/DIContainer');
-  return getService<any>('unifiedAIService');
+  return getService<any>('aiManager');
 }
 
 export async function getUserDataService() {

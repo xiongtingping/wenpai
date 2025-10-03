@@ -15,32 +15,17 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { getSubscriptionPlan, SUBSCRIPTION_PLANS, calculateDiscountCountdown, isInDiscountPeriod } from '@/config/subscriptionPlans';
 import type { SubscriptionTier } from '@/types/subscription';
+import type { ExtendedPermissionType } from '@/types/permissions';
+import { UnifiedPermissionService, getUserTier } from '@/services/unifiedPermissionService';
 import { PermissionUpgradeDialog } from './PermissionUpgradeDialog';
 import { CountdownTimer } from '@/components/ui/CountdownTimer';
 import { usePermissionInteraction } from '@/utils/permissionInteractionUtils';
 
 /**
- * 权限类型
+ * 权限类型 (保留以保持向后兼容)
+ * @deprecated 使用 ExtendedPermissionType 替代
  */
-export type PermissionType =
-  | 'auth:required'           // 需要登录
-  | 'tier:trial'             // 体验版权限
-  | 'tier:pro'               // 专业版权限
-  | 'tier:premium'           // 高级版权限
-  | 'feature:creative-studio' // 创意魔方功能
-  | 'feature:creative-cube'    // 创意魔方-九宫格
-  | 'feature:marketing-calendar' // 营销日历
-  | 'feature:wechat-templates' // 微信朋友圈文案模板
-  | 'feature:emoji-generator'  // Emoji生成功能
-  | 'feature:brand-library'    // 品牌库功能
-  | 'feature:unlimited-usage'  // 无限使用功能
-  | 'feature:advanced-models'  // 高级模型功能
-  | 'model:trial'            // 体验版AI模型权限
-  | 'model:pro'              // 专业版AI模型权限
-  | 'model:premium'          // 高级版AI模型权限
-  | 'theme:basic'            // 基础主题
-  | 'theme:advanced'         // 高级主题
-  | 'theme:premium';         // 专业主题
+export type PermissionType = ExtendedPermissionType;
 
 /**
  * 权限守卫属性
@@ -70,27 +55,8 @@ interface UnifiedPermissionGuardProps {
   allowPreview?: boolean;
 }
 
-/**
- * 获取用户当前订阅等级
- */
-const getUserTier = (user: any): SubscriptionTier => {
-  // 优先从用户订阅信息获取
-  if (user?.subscription?.tier) {
-    return user.subscription.tier;
-  }
-
-  // 从用户VIP等级推断
-  if (user?.vipLevel === 'premium') return 'premium';
-  if (user?.vipLevel === 'pro') return 'pro';
-  if (user?.isVip) return 'pro';
-
-  // 从权限推断
-  if (user?.permissions?.includes('tier:premium')) return 'premium';
-  if (user?.permissions?.includes('tier:pro')) return 'pro';
-
-  // 默认为体验版
-  return 'trial';
-};
+// ✅ REFACTORED: getUserTier已迁移到 @/utils/userTierUtils.ts
+// 通过import导入,避免重复定义
 
 /**
  * 权限配置映射

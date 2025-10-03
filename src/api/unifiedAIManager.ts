@@ -163,19 +163,32 @@ export class UnifiedAIManager {
     const provider = modelInfo.provider;
     const endpointConfig = getAIEndpoint(provider);
     if (!endpointConfig) {
-      throw new Error(`不支持的AI服务提供商: ${provider}`);
+      throw new Error(
+        `不支持的AI服务提供商: ${provider}\n` +
+        `支持的提供商: ${getAvailableProviders().join(', ')}\n` +
+        `请检查模型配置是否正确`
+      );
     }
 
-    // 获取API密钥
+    // 获取并验证API密钥
     const apiKey = getAPIKey(provider);
     if (!apiKey) {
-      throw new Error(`${provider} APIkeynotconfiguration`);
+      throw new Error(
+        `API密钥未配置: ${provider}\n` +
+        `请在环境变量中配置相应的API密钥\n` +
+        `参考文档: docs/setup/api-keys.md`
+      );
     }
 
-    // 验证API密钥
+    // 🔧 完整验证API密钥
     const keyValidation = validateAPIKey(provider, apiKey);
     if (!keyValidation.valid) {
-      throw new Error(`${provider} APIkeyvalidatingfailed: ${keyValidation.errors.join(', ')}`);
+      const errorDetails = keyValidation.errors.join('\n  - ');
+      throw new Error(
+        `API密钥验证失败: ${provider}\n` +
+        `错误详情:\n  - ${errorDetails}\n` +
+        `当前密钥: ${keyValidation.masked}`
+      );
     }
 
     // 构建API URL和请求头
