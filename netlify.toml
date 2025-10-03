@@ -161,6 +161,7 @@
   VITE_BUFPAY_QUERY_URL = "https://bufpay.com/api/query"
   # AIMLAPI配置
   VITE_AIMLAPI_BASE_URL = "https://api.aimlapi.com"
+  # 注意: VITE_AIMLAPI_KEY 需要在 Netlify Dashboard 中配置,这里不硬编码
 
 [context.deploy-preview.environment]
   NODE_ENV = "preview"
