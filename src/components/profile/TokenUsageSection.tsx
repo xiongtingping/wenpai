@@ -173,33 +173,37 @@ export function TokenUsageSection({
       borderRadius: '12px',
       padding: '1.25rem',
       boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1)',
-      minHeight: '500px',
       display: 'flex',
       flexDirection: 'column',
       visibility: 'visible',
-      opacity: 1
+      opacity: 1,
+      height: '100%'
     }}>
-      <div style={{marginBottom: '1rem'}}>
+      <div style={{marginBottom: '0.75rem'}}>
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-          <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
-            <Database className="w-6 h-6 text-primary" />
+          <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'hsl(var(--primary) / 0.1)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Database className="w-5 h-5 text-primary" />
+            </div>
             <div>
-              <div className="text-foreground" style={{fontSize: '1.125rem', fontWeight: '600'}}>使用统计</div>
-              <div className="text-muted-foreground" style={{fontSize: '0.875rem', fontWeight: 'normal'}}>{planName} - 查看您的使用情况</div>
+              <div className="text-foreground" style={{fontSize: '1.125rem', fontWeight: '600', lineHeight: '1.5'}}>使用统计</div>
+              <div className="text-muted-foreground" style={{fontSize: '0.8125rem', fontWeight: 'normal', lineHeight: '1.3'}}>{planName} - 查看您的使用情况</div>
             </div>
           </div>
           <Button
             size="sm"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className={isRefreshing ? 'bg-muted text-muted-foreground' : 'bg-primary text-primary-foreground'}
-            style={{
-              border: 'none',
-              borderRadius: '6px',
-              boxShadow: !isRefreshing
-                ? '0 1px 3px 0 hsl(var(--primary) / 0.3)'
-                : 'none'
-            }}
+            variant="ghost"
+            className="shrink-0"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           </Button>
@@ -220,17 +224,17 @@ export function TokenUsageSection({
                   minWidth: '280px',
                   position: 'relative',
                   borderRadius: '12px',
-                  padding: '1rem',
+                  padding: '0.875rem',
                   boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
                   flex: 1,
                   display: 'flex',
                   flexDirection: 'column'
                 }}>
-                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', position: 'relative', zIndex: 10}}>
-                    <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.625rem', position: 'relative', zIndex: 10}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                       <div style={{
-                        width: '40px',
-                        height: '40px',
+                        width: '36px',
+                        height: '36px',
                         background: 'hsl(var(--primary))',
                         borderRadius: '8px',
                         display: 'flex',
@@ -238,10 +242,10 @@ export function TokenUsageSection({
                         justifyContent: 'center',
                         boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
                       }}>
-                        <Zap className="w-5 h-5 text-primary-foreground" style={{filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
+                        <Zap className="w-4 h-4 text-primary-foreground" style={{filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
                       </div>
-                      <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0}}>
-                        <h3 className="text-foreground" style={{fontWeight: '600', fontSize: '14px', whiteSpace: 'nowrap'}}>Token使用量</h3>
+                      <div style={{display: 'flex', alignItems: 'center', gap: '0.375rem', minWidth: 0}}>
+                        <h3 className="text-foreground" style={{fontWeight: '600', fontSize: '0.875rem', whiteSpace: 'nowrap'}}>Token使用量</h3>
                         <InfoTooltip
                           title="Token统计说明"
                           content={[
@@ -270,20 +274,20 @@ export function TokenUsageSection({
                     </span>
                   </div>
 
-                  <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', zIndex: 10}}>
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem', position: 'relative', zIndex: 10}}>
                     {finalTokenStats?.monthlyLimit === -1 ? (
-                      <div className="text-center p-4 bg-primary/5 rounded-lg border border-primary/20">
-                        <div className="text-2xl font-bold text-primary mb-2">∞</div>
-                        <div className="text-sm font-medium text-muted-foreground">无限制Token</div>
+                      <div className="text-center p-3 bg-primary/5 rounded-lg border border-primary/20">
+                        <div className="text-xl font-bold text-primary mb-1">∞</div>
+                        <div className="text-xs font-medium text-muted-foreground">无限制Token</div>
                       </div>
                     ) : (
                       <>
-                        <div className="w-full h-3 bg-muted rounded-md overflow-hidden relative">
+                        <div className="w-full h-2.5 bg-muted rounded-md overflow-hidden relative">
                           <div className="h-full bg-primary rounded-md transition-all duration-300 ease-out" style={{
                             width: `${Math.min(finalTokenStats?.usagePercentage || 0, 100)}%`
                           }} />
                         </div>
-                        <div className="text-muted-foreground" style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '500'}}>
+                        <div className="text-muted-foreground" style={{display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', fontWeight: '500'}}>
                           <span>已使用 {formatNumber(finalTokenStats?.monthlyUsed || 0)} tokens</span>
                           <span>剩余 {formatNumber(finalTokenStats?.monthlyRemaining || 0)} tokens</span>
                         </div>
@@ -332,17 +336,17 @@ export function TokenUsageSection({
                   position: 'relative',
                   overflow: 'hidden',
                   borderRadius: '12px',
-                  padding: '1rem',
+                  padding: '0.875rem',
                   boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
                   flex: 1,
                   display: 'flex',
                   flexDirection: 'column'
                 }}>
-                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', position: 'relative', zIndex: 10}}>
-                    <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.625rem', position: 'relative', zIndex: 10}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                       <div style={{
-                        width: '40px',
-                        height: '40px',
+                        width: '36px',
+                        height: '36px',
                         background: 'hsl(var(--primary))',
                         borderRadius: '8px',
                         display: 'flex',
@@ -350,10 +354,10 @@ export function TokenUsageSection({
                         justifyContent: 'center',
                         boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
                       }}>
-                        <Target className="w-5 h-5 text-primary-foreground" style={{filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
+                        <Target className="w-4 h-4 text-primary-foreground" style={{filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'}} />
                       </div>
-                      <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0}}>
-                        <h3 className="text-foreground" style={{fontWeight: '600', fontSize: '14px', whiteSpace: 'nowrap'}}>使用次数</h3>
+                      <div style={{display: 'flex', alignItems: 'center', gap: '0.375rem', minWidth: 0}}>
+                        <h3 className="text-foreground" style={{fontWeight: '600', fontSize: '0.875rem', whiteSpace: 'nowrap'}}>使用次数</h3>
                         <InfoTooltip
                           title="使用次数说明"
                           content={[
@@ -384,27 +388,27 @@ export function TokenUsageSection({
                     </span>
                   </div>
 
-                  <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', zIndex: 10}}>
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem', position: 'relative', zIndex: 10}}>
                     {finalUsageCountStats && finalUsageCountStats.availableUses !== -1 ? (
                       <>
-                        <div className="w-full h-3 bg-muted rounded-md overflow-hidden relative">
+                        <div className="w-full h-2.5 bg-muted rounded-md overflow-hidden relative">
                           <div className="h-full bg-primary rounded-md transition-all duration-300 ease-out" style={{
                             width: `${Math.min(finalUsageCountStats?.usagePercentage || 0, 100)}%`
                           }} />
                         </div>
-                        <div className="text-muted-foreground" style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '500'}}>
+                        <div className="text-muted-foreground" style={{display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', fontWeight: '500'}}>
                           <span>已使用 {finalUsageCountStats?.usedCount || 0} 次</span>
                           <span>剩余 {formatRemainingUses(finalUsageCountStats?.remainingUses ?? 0, userTier)} 次</span>
                         </div>
                       </>
                     ) : (
-                      <div className="text-center p-3 bg-muted/30 rounded-xl">
-                        <div className="text-2xl font-bold text-primary mb-1">∞</div>
-                        <div className="text-sm font-medium text-muted-foreground">无限制使用</div>
+                      <div className="text-center p-3 bg-primary/5 rounded-lg border border-primary/20">
+                        <div className="text-xl font-bold text-primary mb-1">∞</div>
+                        <div className="text-xs font-medium text-muted-foreground">无限制使用</div>
                       </div>
                     )}
                   </div>
-            </div>
+                </div>
           </div>
 
           {/* 升级按钮 - 仅在非高级版时显示 */}
