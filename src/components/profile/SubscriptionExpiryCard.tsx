@@ -223,9 +223,9 @@ export function SubscriptionExpiryCard() {
           </div>
         </CardHeader>
 
-        <CardContent className="relative z-10 space-y-6">
+        <CardContent className="relative z-10 space-y-4">
           {/* 订阅状态概览 */}
-          <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 border">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 border">
             <div className="flex items-center gap-3">
               {getStatusIcon(subscriptionData.status, subscriptionData.needsAlert)}
               <div>
@@ -250,9 +250,9 @@ export function SubscriptionExpiryCard() {
 
           {/* 订阅时间信息 */}
           {(subscriptionData.isActive || subscriptionData.isExpired) && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {/* 开始时间 */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">订阅开始</span>
@@ -263,7 +263,7 @@ export function SubscriptionExpiryCard() {
               </div>
 
               {/* 结束时间 */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">订阅到期</span>
@@ -292,7 +292,7 @@ export function SubscriptionExpiryCard() {
 
           {/* 无订阅提示 */}
           {subscriptionData.isInactive && (
-            <div className="p-6 rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 text-center space-y-3">
+            <div className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 text-center space-y-2">
               <Sparkles className="w-8 h-8 mx-auto text-primary/60" />
               <p className="text-sm text-muted-foreground">
                 您当前使用的是体验版
@@ -311,8 +311,8 @@ export function SubscriptionExpiryCard() {
 
           {/* 即将到期提示 */}
           {subscriptionData.isActive && subscriptionData.needsAlert && subscriptionData.daysRemaining <= 7 && (
-            <div className="p-4 rounded-xl bg-warning/10 border border-warning/20">
-              <div className="flex items-start gap-3">
+            <div className="p-3 rounded-xl bg-warning/10 border border-warning/20">
+              <div className="flex items-start gap-2">
                 <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
                 <div className="flex-1 space-y-2">
                   <p className="text-sm font-medium text-foreground">
@@ -337,8 +337,8 @@ export function SubscriptionExpiryCard() {
 
           {/* 已过期提示 */}
           {subscriptionData.isExpired && (
-            <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20">
-              <div className="flex items-start gap-3">
+            <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20">
+              <div className="flex items-start gap-2">
                 <XCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                 <div className="flex-1 space-y-2">
                   <p className="text-sm font-medium text-foreground">

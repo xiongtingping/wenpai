@@ -171,7 +171,7 @@ export function TokenUsageSection({
   return (
     <div className={`${className} bg-card border-border`} style={{
       borderRadius: '12px',
-      padding: '2rem',
+      padding: '1.25rem',
       boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1)',
       minHeight: '500px',
       display: 'flex',
@@ -179,7 +179,7 @@ export function TokenUsageSection({
       visibility: 'visible',
       opacity: 1
     }}>
-      <div style={{marginBottom: '1.5rem'}}>
+      <div style={{marginBottom: '1rem'}}>
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
             <Database className="w-6 h-6 text-primary" />
@@ -214,19 +214,19 @@ export function TokenUsageSection({
       ) : (
         <>
           {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
-          <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1}}>
+          <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1}}>
             {/* Token使用量统计卡片 */}
                 <div className="bg-muted border-border" style={{
                   minWidth: '280px',
                   position: 'relative',
                   borderRadius: '12px',
-                  padding: '1.25rem',
+                  padding: '1rem',
                   boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
                   flex: 1,
                   display: 'flex',
                   flexDirection: 'column'
                 }}>
-                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', position: 'relative', zIndex: 10}}>
+                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', position: 'relative', zIndex: 10}}>
                     <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
                       <div style={{
                         width: '40px',
@@ -270,7 +270,7 @@ export function TokenUsageSection({
                     </span>
                   </div>
 
-                  <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', zIndex: 10}}>
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', zIndex: 10}}>
                     {finalTokenStats?.monthlyLimit === -1 ? (
                       <div className="text-center p-4 bg-primary/5 rounded-lg border border-primary/20">
                         <div className="text-2xl font-bold text-primary mb-2">∞</div>
@@ -291,38 +291,37 @@ export function TokenUsageSection({
                     )}
                   </div>
 
-                  {/* Token继承说明 */}
+                  {/* Token继承说明 - 单行显示 */}
                   <div className="bg-background border-border" style={{
-                    marginTop: '12px',
+                    marginTop: '8px',
                     borderRadius: '8px',
-                    padding: '12px',
-                    display: 'block',
+                    padding: '8px 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
                     width: '100%'
                   }}>
-                    <div style={{display: 'flex', alignItems: 'flex-start', gap: '12px', width: '100%'}}>
-                      <div style={{
-                        width: '20px', 
-                        height: '20px', 
-                        backgroundColor: 'var(--primary)', 
-                        borderRadius: '50%', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        marginTop: '2px'
-                      }}>
-                        <span style={{fontSize: '12px', color: 'hsl(var(--primary-foreground))'}}>ℹ️</span>
-                      </div>
-                      <div className="text-foreground" style={{
-                        flex: 1,
-                        fontSize: '14px',
-                        lineHeight: '1.5',
-                        minWidth: 0,
-                        wordBreak: 'break-word'
-                      }}>
-                        <span style={{fontWeight: '600'}}>重要说明：</span>
-                        <span>tokens在会员有效期内可以继承到下个月续用，不会清零浪费。</span>
-                      </div>
+                    <div style={{
+                      width: '18px',
+                      height: '18px',
+                      backgroundColor: 'var(--primary)',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <span style={{fontSize: '11px', color: 'hsl(var(--primary-foreground))'}}>ℹ️</span>
+                    </div>
+                    <div className="text-foreground" style={{
+                      fontSize: '13px',
+                      lineHeight: '1.4',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      <span style={{fontWeight: '600'}}>重要说明：</span>
+                      <span>tokens在会员有效期内可以继承到下个月续用，不会清零浪费。</span>
                     </div>
                   </div>
                 </div>
@@ -333,13 +332,13 @@ export function TokenUsageSection({
                   position: 'relative',
                   overflow: 'hidden',
                   borderRadius: '12px',
-                  padding: '1.25rem',
+                  padding: '1rem',
                   boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
                   flex: 1,
                   display: 'flex',
                   flexDirection: 'column'
                 }}>
-                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', position: 'relative', zIndex: 10}}>
+                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', position: 'relative', zIndex: 10}}>
                     <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
                       <div style={{
                         width: '40px',
@@ -385,7 +384,7 @@ export function TokenUsageSection({
                     </span>
                   </div>
 
-                  <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', zIndex: 10}}>
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', zIndex: 10}}>
                     {finalUsageCountStats && finalUsageCountStats.availableUses !== -1 ? (
                       <>
                         <div className="w-full h-3 bg-muted rounded-md overflow-hidden relative">
