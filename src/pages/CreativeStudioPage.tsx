@@ -81,8 +81,8 @@ export default function CreativeStudioPage() {
 
         {/* 页面导航 */}
         <PageNavigation
-          title="创意魔方"
-          description="包含营销日历、创意魔方、Emoji图库、Markdown排版等多种创意工具"
+          title="创意工作室"
+          description="包含营销日历、九宫格创意魔方、Emoji图库、Markdown排版等多种创意工具"
           showAdaptButton={false}
           showUpgradeButton={false}
           actions={null}
@@ -99,7 +99,7 @@ export default function CreativeStudioPage() {
                 </TabsTrigger>
                 <TabsTrigger value="cube" className="unified-tab-trigger">
                   <Sparkles className="w-4 h-4" />
-                  <span>创意魔方</span>
+                  <span>九宫格创意魔方</span>
                 </TabsTrigger>
                 {/* 暂时隐藏朋友圈文案功能
                 <TabsTrigger value="wechat" className="unified-tab-trigger flex flex-col items-center gap-1 p-3 h-auto min-h-[60px]">

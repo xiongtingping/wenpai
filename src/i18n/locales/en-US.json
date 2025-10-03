@@ -975,7 +975,7 @@
   "nav": {
     "home": "Home",
     "adapt": "Content Adapt",
-    "creative": "Creative Cube",
+    "creative": "Creative Studio",
     "hotTopics": "Trending Radar",
     "brandLibrary": "Brand Library",
     "extractor": "Content Extractor",
@@ -1052,8 +1052,8 @@
         "description": "One-click adaptation to multi-platform content formats with intelligent style and length adjustments"
       },
       "creative": {
-        "title": "Creative Cube",
-        "description": "AI-driven creative content generation, unleashing unlimited creative inspiration"
+        "title": "Creative Studio",
+        "description": "Includes Nine-Grid Creative Cube, Marketing Calendar and various AI creative tools"
       },
       "radar": {
         "title": "Trending Radar",
@@ -1169,7 +1169,7 @@
         "feature": "Feature",
         "aiContentAdapter": "AI Content Adapter",
         "hotRadar": "Trending Radar",
-        "creativeCube": "Creative Cube",
+        "creativeCube": "Creative Studio",
         "myLibrary": "My Library",
         "brandLibrary": "Brand Library",
         "aiModels": "AI Models",

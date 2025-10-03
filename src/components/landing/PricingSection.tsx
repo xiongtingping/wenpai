@@ -393,12 +393,12 @@ export function PricingSection() {
                 
                 <div className="flex justify-center items-center w-full">
                   <Button
-                    variant={isRecommended ? "gradient" : "default"}
+                    variant={isTrial ? "default" : "gradient"}
                     size="lg"
                     className={`mt-8 mx-auto w-auto px-8 font-semibold transition-all duration-300 flex items-center justify-center text-center ${
-                      isRecommended
-                        ? 'shadow-lg hover:shadow-xl hover:-translate-y-1'
-                        : 'shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                      isTrial
+                        ? 'shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                        : 'shadow-lg hover:shadow-xl hover:-translate-y-1'
                     } ${
                       isTrial
                         ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-0'

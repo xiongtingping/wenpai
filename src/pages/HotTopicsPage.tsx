@@ -194,15 +194,17 @@ export default function HotTopicsPage() {
             dialog.style.setProperty('width', 'min(90vw, 1000px)', 'important');
             dialog.style.setProperty('max-width', '1000px', 'important');
             dialog.style.setProperty('min-width', '600px', 'important');
-            dialog.style.setProperty('max-height', '90vh', 'important');
+            dialog.style.setProperty('max-height', 'calc(100vh - 80px)', 'important');
             dialog.style.setProperty('min-height', '500px', 'important');
+            dialog.style.setProperty('margin-top', '80px', 'important');
           } else if (dialog.classList.contains('trend-analysis-dialog-stable')) {
             // 趋势分析Dialog
             dialog.style.setProperty('width', 'min(95vw, 1400px)', 'important');
             dialog.style.setProperty('max-width', '1400px', 'important');
             dialog.style.setProperty('min-width', '900px', 'important');
-            dialog.style.setProperty('max-height', '95vh', 'important');
+            dialog.style.setProperty('max-height', 'calc(100vh - 80px)', 'important');
             dialog.style.setProperty('min-height', '700px', 'important');
+            dialog.style.setProperty('margin-top', '80px', 'important');
           }
           
           // 禁用所有动画
@@ -1206,15 +1208,16 @@ export default function HotTopicsPage() {
 
         {/* 添加订阅对话框 */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent 
+          <DialogContent
             className="subscription-dialog-stable flex flex-col overflow-hidden"
             style={{
               width: 'min(90vw, 1000px) !important',
               height: 'auto !important',
               maxWidth: '1000px !important',
-              maxHeight: '90vh !important',
+              maxHeight: 'calc(100vh - 80px) !important',
               minWidth: '600px !important',
-              minHeight: '500px !important'
+              minHeight: '500px !important',
+              marginTop: '80px !important'
             }}
           >
             <DialogHeader>
@@ -1474,15 +1477,16 @@ export default function HotTopicsPage() {
 
         {/* 编辑订阅对话框 */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent 
+          <DialogContent
             className="subscription-dialog-stable flex flex-col overflow-hidden"
             style={{
               width: 'min(90vw, 1000px) !important',
               height: 'auto !important',
               maxWidth: '1000px !important',
-              maxHeight: '90vh !important',
+              maxHeight: 'calc(100vh - 80px) !important',
               minWidth: '600px !important',
-              minHeight: '500px !important'
+              minHeight: '500px !important',
+              marginTop: '80px !important'
             }}
           >
             <DialogHeader>
@@ -1623,15 +1627,16 @@ export default function HotTopicsPage() {
 
         {/* 趋势分析对话框 */}
         <Dialog open={!!selectedSubscription} onOpenChange={() => setSelectedSubscription(null)}>
-          <DialogContent 
+          <DialogContent
             className="trend-analysis-dialog-stable flex flex-col overflow-hidden"
             style={{
               width: 'min(95vw, 1400px) !important',
               height: 'auto !important',
               maxWidth: '1400px !important',
-              maxHeight: '95vh !important',
+              maxHeight: 'calc(100vh - 80px) !important',
               minWidth: '900px !important',
-              minHeight: '700px !important'
+              minHeight: '700px !important',
+              marginTop: '80px !important'
             }}
           >
             <DialogHeader className="pb-4">

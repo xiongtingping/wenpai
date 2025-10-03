@@ -458,9 +458,10 @@
 
   .pricing-button-monthly.inactive,
   .pricing-button-yearly.inactive {
-    background: hsl(var(--muted));
-    color: hsl(var(--muted-foreground));
+    background: hsl(var(--card));
+    color: hsl(var(--foreground));
     border-color: hsl(var(--border));
+    opacity: 0.8;
   }
 
   .pricing-button-monthly.inactive:hover,

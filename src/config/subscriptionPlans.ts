@@ -58,13 +58,13 @@ export const getSubscriptionPlans = (t?: (key: string) => string): SubscriptionP
       adaptUsageLimit: 30,
       tokenLimit: 200000,
       availableModels: ['体验版全部模型', 'DeepSeek Chat系列', 'OpenAI GPT-5 Mini', 'Google Gemini 2.5 Flash', 'Alibaba Qwen Plus'],
-      availableFeatures: ['全网雷达', '创意魔方', '我的资料库', '专业AI模型']
+      availableFeatures: ['全网雷达', '创意工作室', '我的资料库', '专业AI模型']
     },
     recommended: true,
     features: [
       'AI内容适配（30次/月）|up',
       '全网雷达',
-      '创意魔方|new',
+      '创意工作室|new',
       '我的资料库',
       'Token配额：20万/月|up',
       '高级AI模型|up',
@@ -93,12 +93,12 @@ export const getSubscriptionPlans = (t?: (key: string) => string): SubscriptionP
       adaptUsageLimit: -1, // 使用次数无限制
       tokenLimit: 500000, // 🔧 FIX: Premium用户token有限制(50万/月)，使用次数无限制
       availableModels: ['专业版全部模型', 'OpenAI GPT-5 Chat Latest', 'Anthropic Claude Sonnet 4', 'Google Gemini 2.5 Pro', 'Alibaba Qwen Max'],
-      availableFeatures: ['全网雷达', '创意魔方', '我的资料库', '品牌库', '顶级AI模型']
+      availableFeatures: ['全网雷达', '创意工作室', '我的资料库', '品牌库', '顶级AI模型']
     },
     features: [
       'AI内容适配（无限制）|up',
       '全网雷达',
-      '创意魔方',
+      '创意工作室',
       '我的资料库',
       '品牌库|new',
       'Token配额：50万/月|up',

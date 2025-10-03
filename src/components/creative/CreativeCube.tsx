@@ -2110,12 +2110,12 @@ ${generateStandardCallToAction()}
     <div className="space-y-6">
       {/* 九宫格创意魔方 */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 creative-module-title">
-            <Sparkles className="w-5 h-5" />
-            <span>{t('creativeCube.title')}</span>
+        <CardHeader className="pb-2 p-4">
+          <CardTitle className="flex items-center gap-2 text-lg mb-2">
+            <Sparkles className="w-4 h-4 flex-shrink-0" />
+            <span className="leading-none">{t('creativeCube.title')}</span>
           </CardTitle>
-          <CardDescription className="creative-module-description">
+          <CardDescription className="text-xs">
             {t('creativeCube.description')}
           </CardDescription>
         </CardHeader>
@@ -2289,7 +2289,7 @@ ${generateStandardCallToAction()}
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Lightbulb className="w-5 h-5 text-primary" />
+                    <Lightbulb className="w-4 h-4 text-primary" />
                     生成结果
                   </CardTitle>
 
@@ -2631,7 +2631,7 @@ ${generateStandardCallToAction()}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
+                  <Clock className="w-4 h-4" />
                   {t('creativeCube.history.title')}
                 </CardTitle>
               </CardHeader>

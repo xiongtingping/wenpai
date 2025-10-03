@@ -125,7 +125,7 @@ export function HowItWorks() {
 
         {/* 3️⃣ 最下方蓝色提示条优化 */}
         <div className="mt-16 ds-container-narrow">
-          <div className="ds-card ds-text-centered px-6 py-4">
+          <div className="ds-card ds-text-centered px-6 py-4 bg-primary/5 border-primary/20">
             <h3 className="ds-title-section ds-text-primary mb-2">
               {t('home.howItWorks.efficiency.title')}
             </h3>

@@ -975,7 +975,7 @@
   "nav": {
     "home": "首页",
     "adapt": "AI内容适配",
-    "creative": "创意魔方",
+    "creative": "创意工作室",
     "hotTopics": "全网雷达",
     "brandLibrary": "品牌库",
     "extractor": "内容提取器",
@@ -1052,8 +1052,8 @@
         "description": "一键适配多平台内容格式，智能调整文案风格和长度"
       },
       "creative": {
-        "title": "创意魔方",
-        "description": "AI驱动的创意内容生成，释放无限创作灵感"
+        "title": "创意工作室",
+        "description": "包含九宫格创意魔方、营销日历等多种AI创意工具"
       },
       "radar": {
         "title": "全网雷达",
@@ -1169,7 +1169,7 @@
         "feature": "功能",
         "aiContentAdapter": "AI内容适配",
         "hotRadar": "全网雷达",
-        "creativeCube": "创意魔方",
+        "creativeCube": "创意工作室",
         "myLibrary": "我的资料库",
         "brandLibrary": "品牌库",
         "aiModels": "AI模型",
