@@ -14,7 +14,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     target: 'esnext',
-    minify: false, // 暂时禁用压缩避免CSS错误
+    minify: 'esbuild', // 启用压缩以减小文件大小
     rollupOptions: {
       output: {
         format: 'es',
@@ -22,16 +22,43 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // 简化的chunk分割策略
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-slot', 'lucide-react'],
+        // 改进的chunk分割策略 - 自动分割大型依赖
+        manualChunks(id) {
+          // 分离 node_modules
+          if (id.includes('node_modules')) {
+            // React 核心库
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor';
+            }
+            // Radix UI 组件
+            if (id.includes('@radix-ui')) {
+              return 'ui';
+            }
+            // PDF 相关库
+            if (id.includes('pdfjs') || id.includes('pdf')) {
+              return 'pdf';
+            }
+            // 其他大型依赖
+            return 'vendor-misc';
+          }
+          // 分离大型服务文件
+          if (id.includes('src/services/aiAnalysisService')) {
+            return 'ai-analysis';
+          }
+          if (id.includes('src/services/unifiedEmojiSystem')) {
+            return 'emoji-system';
+          }
+          if (id.includes('src/services/PromptSystem')) {
+            return 'prompt-system';
+          }
         }
       }
     },
     // 🔧 FIX: 确保sourcemap生成用于调试
     sourcemap: true,
     // 🔧 FIX: 清理输出目录避免旧文件残留
-    emptyOutDir: true
+    emptyOutDir: true,
+    // 增加 chunk 大小警告阈值
+    chunkSizeWarningLimit: 1000
   }
 })
