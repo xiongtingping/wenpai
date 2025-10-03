@@ -110,7 +110,24 @@ export class UnifiedAIManager {
       maxTokens: params.maxTokens,
       temperature: params.temperature
     };
-    return btoa(JSON.stringify(keyData)).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
+    // 使用 encodeURIComponent + btoa 来支持 Unicode 字符
+    try {
+      const jsonStr = JSON.stringify(keyData);
+      const encoded = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (_, p1) => {
+        return String.fromCharCode(parseInt(p1, 16));
+      }));
+      return encoded.replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
+    } catch (error) {
+      // Fallback: 使用简单的 hash
+      const jsonStr = JSON.stringify(keyData);
+      let hash = 0;
+      for (let i = 0; i < jsonStr.length; i++) {
+        const char = jsonStr.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      return Math.abs(hash).toString(36).substring(0, 32);
+    }
   }
 
   /**
