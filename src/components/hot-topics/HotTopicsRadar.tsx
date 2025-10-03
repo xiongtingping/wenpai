@@ -921,7 +921,7 @@ export default function HotTopicsRadar({ showNavigation = false,
       {/* 添加订阅对话框 */}
       {showSubscriptions && (
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md top-[80px]">
             <DialogHeader>
               <DialogTitle>添加话题订阅</DialogTitle>
               <DialogDescription>

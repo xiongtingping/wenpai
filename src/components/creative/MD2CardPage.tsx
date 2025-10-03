@@ -296,7 +296,7 @@ export default function MD2CardPage() {
     }, 0);
   }, [markdownContent]);
 
-  const insertLineMarkdown = useCallback((prefix: string, defaultText: string = t('components.text.内容_23n')) => {
+  const insertLineMarkdown = useCallback((prefix: string, defaultText: string = '内容') => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
@@ -305,15 +305,15 @@ export default function MD2CardPage() {
     const beforeText = markdownContent.substring(0, start);
     const selectedText = markdownContent.substring(start, end);
     const afterText = markdownContent.substring(end);
-    
+
     const insertText = selectedText || defaultText;
     const needsNewlineBefore = beforeText.length > 0 && !beforeText.endsWith('\n');
     const needsNewlineAfter = afterText.length > 0 && !afterText.startsWith('\n');
-    
+
     const newContent = `${beforeText}${needsNewlineBefore ? '\n' : ''}${prefix}${insertText}${needsNewlineAfter ? '\n' : ''}${afterText}`;
-    
+
     setMarkdownContent(newContent);
-    
+
     setTimeout(() => {
       textarea.focus();
       const newPos = start + (needsNewlineBefore ? 1 : 0) + prefix.length + insertText.length;
@@ -416,10 +416,10 @@ export default function MD2CardPage() {
         const parsedContent = defaultMarkdownParser.parse(content);
         
         // 获取模板 - 优先从CARD_TEMPLATES查找，失败时使用DEFAULT_TEMPLATES，最后使用默认配置
-        const template = CARD_TEMPLATES.find(t => t.id === templateId) || 
+        const template = CARD_TEMPLATES.find(t => t.id === templateId) ||
                         DEFAULT_TEMPLATES.find(t => t.id === templateId) || {
           id: 'default',
-          displayName: t('components.text.默认模板_dgl'),
+          displayName: '默认模板',
           category: 'knowledge' as const,
           constraints: {
             maxSections: 5,
@@ -519,10 +519,10 @@ export default function MD2CardPage() {
       if (import.meta.env.DEV) console.log('📋 templateconfigurationupdating:', updated);
       return updated;
     });
-    const template = CARD_TEMPLATES.find(t => t.id === templateId) || 
+    const template = CARD_TEMPLATES.find(t => t.id === templateId) ||
                     DEFAULT_TEMPLATES.find(t => t.id === templateId);
     toast({
-      title: t('components.labels.模板已切换'),
+      title: '模板已切换',
       description: `已切换到 ${template?.displayName} 模板`,
     });
   }, [toast]);
@@ -544,7 +544,7 @@ export default function MD2CardPage() {
       const content = e.target?.result as string;
       setMarkdownContent(content);
       toast({
-        title: t('components.labels.文档导入成功'),
+        title: '文档导入成功',
         description: `已导入文档: ${file.name}`,
       });
     };
@@ -604,9 +604,9 @@ export default function MD2CardPage() {
     setCardData(null);
     setIsGenerating(false);
     setActiveTab('content');
-    
+
     toast({
-      title: t('components.labels.已完全重置'),
+      title: '已完全重置',
       description: '内容、模板和样式配置已恢复初始状态',
     });
   }, [toast]);
@@ -615,7 +615,7 @@ export default function MD2CardPage() {
   const handleExportCard = useCallback(async (format: 'png' | 'jpg' | 'svg') => {
     if (!cardData?.imageData) {
       toast({
-        title: t('components.labels.无法导出'),
+        title: '无法导出',
         description: '请先生成卡片',
         variant: 'destructive'
       });
@@ -668,14 +668,14 @@ export default function MD2CardPage() {
       if (import.meta.env.DEV) console.log(`📥 filedownloadingtriggeringsuccess: ${a.download}`);
 
       toast({
-        title: t('components.labels.导出成功'),
+        title: '导出成功',
         description: `卡片已导出为 ${format.toUpperCase()} 格式`,
       });
     } catch (error) {
       console.error('❌ exportingfailed:', error);
       toast({
-        title: t('components.errors.导出失败'),
-        description: error instanceof Error ? error.message : '导出过程中发生错误，请稍后重试',
+        title: '导出失败',
+        description: error instanceof Error ? error.message : '导出过程中发生错误,请稍后重试',
         variant: 'destructive'
       });
     }
@@ -1490,10 +1490,10 @@ export default function MD2CardPage() {
                         >
                           <Heading1 className="w-4 h-4" />
                         </button>
-                        <button 
-                          className="p-2 rounded hover:bg-slate-100 transition-colors" 
+                        <button
+                          className="p-2 rounded hover:bg-slate-100 transition-colors"
                           title="二级标题 (Ctrl+2)"
-                          onClick={() => insertLineMarkdown('## ', t('components.text.副标题_dd7'))}
+                          onClick={() => insertLineMarkdown('## ', '副标题')}
                         >
                           <Heading2 className="w-4 h-4" />
                         </button>
@@ -1533,24 +1533,24 @@ export default function MD2CardPage() {
 
                       {/* 列表工具 */}
                       <div className="flex gap-1 p-1 bg-background rounded-lg border border-slate-200">
-                        <button 
-                          className="p-2 rounded hover:bg-slate-100 transition-colors" 
-                          title={t('components.labels.标题')}
-        onClick={() => insertLineMarkdown('- ', '列表项')}
+                        <button
+                          className="p-2 rounded hover:bg-slate-100 transition-colors"
+                          title="无序列表"
+                          onClick={() => insertLineMarkdown('- ', '列表项')}
                         >
                           <List className="w-4 h-4" />
                         </button>
-                        <button 
-                          className="p-2 rounded hover:bg-slate-100 transition-colors" 
-                          title={t('components.labels.标题')}
-        onClick={() => insertLineMarkdown('1. ', '列表项')}
+                        <button
+                          className="p-2 rounded hover:bg-slate-100 transition-colors"
+                          title="有序列表"
+                          onClick={() => insertLineMarkdown('1. ', '列表项')}
                         >
                           <ListOrdered className="w-4 h-4" />
                         </button>
-                        <button 
-                          className="p-2 rounded hover:bg-slate-100 transition-colors" 
-                          title={t('components.labels.标题')}
-        onClick={() => insertLineMarkdown('> ', '引用内容')}
+                        <button
+                          className="p-2 rounded hover:bg-slate-100 transition-colors"
+                          title="引用"
+                          onClick={() => insertLineMarkdown('> ', '引用内容')}
                         >
                           <Quote className="w-4 h-4" />
                         </button>
@@ -1558,10 +1558,10 @@ export default function MD2CardPage() {
 
                       {/* 链接工具 */}
                       <div className="flex gap-1 p-1 bg-background rounded-lg border border-slate-200">
-                        <button 
-                          className="p-2 rounded hover:bg-slate-100 transition-colors" 
-                          title={t('components.labels.标题')}
-        onClick={() => insertMarkdown('[', '](https://example.com)', '链接文本')}
+                        <button
+                          className="p-2 rounded hover:bg-slate-100 transition-colors"
+                          title="插入链接"
+                          onClick={() => insertMarkdown('[', '](https://example.com)', '链接文本')}
                         >
                           <Link className="w-4 h-4" />
                         </button>
@@ -2274,7 +2274,7 @@ async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg
   try {
     // 环境检查
     if (typeof window === 'undefined') {
-      throw new Error(t('components.errors.导出功能需要在浏览器环境中运行'));
+      throw new Error('导出功能需要在浏览器环境中运行');
     }
     
     // 解析SVG内容
@@ -2337,7 +2337,7 @@ async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg
     return new Promise((resolve, reject) => {
       // 确保在浏览器环境中运行
       if (typeof window === 'undefined' || typeof document === 'undefined') {
-        reject(new Error(t('components.errors.导出功能需要在浏览器环境中运行')));
+        reject(new Error('导出功能需要在浏览器环境中运行'));
         return;
       }
       
@@ -2377,15 +2377,15 @@ async function exportCardAsImage(imageData: string, format: 'png' | 'jpg' | 'svg
             if (blob) {
               resolve(blob);
             } else {
-              reject(new Error(t('components.errors.无法生成图片')));
+              reject(new Error('无法生成图片'));
             }
           },
           format === 'png' ? 'image/png' : 'image/jpeg',
           format === 'jpg' ? 0.95 : undefined // JPG质量设置
         );
       };
-      
-      img.onerror = () => reject(new Error(t('components.errors.图片加载失败')));
+
+      img.onerror = () => reject(new Error('图片加载失败'));
       
       // 使用处理后的SVG内容创建data URL
       try {

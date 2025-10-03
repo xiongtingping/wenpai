@@ -119,6 +119,27 @@
     --line-height-normal: 1.5;
     --line-height-relaxed: 1.625;
 
+    /* 🎯 层级化字体大小令牌 (Hierarchical Typography Tokens) */
+    /* 用于统一各组件间的层级关系和视觉一致性 */
+
+    /* L1: 主要标题 - 页面/卡片主标题 */
+    --font-size-heading-primary: var(--font-size-lg);      /* 18px - 主卡片标题(如创意魔方、营销日历) */
+
+    /* L2: 次要标题 - 组件/区块标题 */
+    --font-size-heading-secondary: var(--font-size-base);  /* 16px - 九宫格维度标题、任务标题 */
+
+    /* L3: 三级标题 - 小节标题 */
+    --font-size-heading-tertiary: var(--font-size-sm);     /* 14px - 子项目标题、列表标题 */
+
+    /* L4: 正文内容 */
+    --font-size-body: var(--font-size-sm);                 /* 14px - 主要内容文本 */
+
+    /* L5: 辅助信息 */
+    --font-size-caption: var(--font-size-xs);              /* 12px - 时间戳、标签、提示文本 */
+
+    /* L6: 微小文本 */
+    --font-size-micro: 0.6875rem;                          /* 11px - 角标、徽章数字(按需使用) */
+
     /* 🌟 圆角系统 */
     --radius-xs: 0.125rem;   /* 2px */
     --radius-sm: 0.25rem;    /* 4px */
@@ -725,6 +746,14 @@
   .text-2xl { font-size: var(--font-size-2xl) !important; }
   .text-3xl { font-size: var(--font-size-3xl) !important; }
   .text-4xl { font-size: var(--font-size-4xl) !important; }
+
+  /* 🎯 层级化字体工具类 - 用于统一组件层级关系 */
+  .text-heading-primary { font-size: var(--font-size-heading-primary) !important; }    /* L1: 18px - 主卡片标题 */
+  .text-heading-secondary { font-size: var(--font-size-heading-secondary) !important; }  /* L2: 16px - 组件标题 */
+  .text-heading-tertiary { font-size: var(--font-size-heading-tertiary) !important; }    /* L3: 14px - 小节标题 */
+  .text-body { font-size: var(--font-size-body) !important; }                            /* L4: 14px - 正文 */
+  .text-caption { font-size: var(--font-size-caption) !important; }                      /* L5: 12px - 辅助信息 */
+  .text-micro { font-size: var(--font-size-micro) !important; }                          /* L6: 11px - 微小文本 */
 
   .font-normal { font-weight: var(--font-weight-normal) !important; }
   .font-medium { font-weight: var(--font-weight-medium) !important; }

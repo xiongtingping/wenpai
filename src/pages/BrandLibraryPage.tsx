@@ -2040,8 +2040,8 @@ export default function BrandLibraryPageFixed() {
         actions={
           <RoleBasedUpgradePrompt
             requiredTier="premium"
-            featureName={t('brand.multiDimensionalCorpus')}
-            description={t('brand.premiumFeatureDescription')}
+            featureName="多维度品牌语料库"
+            description="解锁更多品牌管理功能"
             mode="compact"
           />
         }

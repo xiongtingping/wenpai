@@ -148,8 +148,24 @@ export default function HotTopicsPage() {
   const [useEnhancedCategories, setUseEnhancedCategories] = useState(false);
   const [stats, setStats] = useState({ total: 0, platforms: 0 });
   const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
-  const [bookmarkedTopics, setBookmarkedTopics] = useState<Set<string>>(new Set());
-  const [viewedTopics, setViewedTopics] = useState<Set<string>>(new Set());
+  const [bookmarkedTopics, setBookmarkedTopics] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('bookmarked-topics');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch (error) {
+      console.error('loading bookmarked topics failed:', error);
+      return new Set();
+    }
+  });
+  const [viewedTopics, setViewedTopics] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('viewed-topics');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch (error) {
+      console.error('loading viewed topics failed:', error);
+      return new Set();
+    }
+  });
   const [newSubscription, setNewSubscription] = useState({
     keyword: '',
     description: '',
@@ -311,23 +327,53 @@ export default function HotTopicsPage() {
 
   // 修复其他缺失的函数
   const isTopicBookmarked = useCallback((topic: DailyHotItem) => {
-    // 简单的书签检查逻辑，可以根据需要扩展
-    return false; // 临时返回 false
-  }, []);
+    const topicId = `${topic.platform}-${topic.title}`;
+    return bookmarkedTopics.has(topicId);
+  }, [bookmarkedTopics]);
 
   const isTopicRead = useCallback((topic: DailyHotItem) => {
-    // 简单的已读检查逻辑
-    return false; // 临时返回 false
-  }, []);
+    const topicId = `${topic.platform}-${topic.title}`;
+    return viewedTopics.has(topicId);
+  }, [viewedTopics]);
 
   const toggleBookmark = useCallback((topic: DailyHotItem) => {
-    // 书签切换逻辑
-    console.log('Toggle bookmark for:', topic.title);
+    const topicId = `${topic.platform}-${topic.title}`;
+    setBookmarkedTopics(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(topicId)) {
+        newSet.delete(topicId);
+      } else {
+        newSet.add(topicId);
+      }
+      // 持久化到localStorage
+      try {
+        localStorage.setItem('bookmarked-topics', JSON.stringify(Array.from(newSet)));
+      } catch (error) {
+        console.error('saving bookmarked topics failed:', error);
+      }
+      return newSet;
+    });
   }, []);
 
   const handleTopicClick = useCallback((topic: DailyHotItem) => {
-    // 话题点击处理
-    console.log('Topic clicked:', topic.title);
+    // 标记话题为已读
+    const topicId = `${topic.platform}-${topic.title}`;
+    setViewedTopics(prev => {
+      const newSet = new Set(prev);
+      newSet.add(topicId);
+      // 持久化到localStorage
+      try {
+        localStorage.setItem('viewed-topics', JSON.stringify(Array.from(newSet)));
+      } catch (error) {
+        console.error('saving viewed topics failed:', error);
+      }
+      return newSet;
+    });
+
+    // 如果有URL，打开新窗口
+    if (topic.url) {
+      window.open(topic.url, '_blank');
+    }
   }, []);
 
   const handleInterestFilterChange = useCallback((filters: any) => {
@@ -579,11 +625,10 @@ export default function HotTopicsPage() {
           }} 
           className="w-full"
         >
-          <div className="hot-topics-page-controls hot-topics-baseline-fix hot-topics-alignment-protection">
-            <div className="hot-topics-tab-container">
-              <TabsList className="unified-tabs-list grid w-full grid-cols-3">
-              <TabsTrigger 
-                value="hot" 
+          <div className="flex items-center justify-between mb-4 gap-4">
+            <TabsList className="unified-tabs-list grid grid-cols-3" style={{ width: 'auto', minWidth: '300px' }}>
+              <TabsTrigger
+                value="hot"
                 className="unified-tab-trigger"
                 disabled={false}
                 onClick={() => console.log('Hot topics tab clicked')}
@@ -592,8 +637,8 @@ export default function HotTopicsPage() {
                 <span className="tab-text-mobile">热点</span>
                 <span className="tab-text-desktop">全网热点</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="subscriptions" 
+              <TabsTrigger
+                value="subscriptions"
                 className="unified-tab-trigger"
                 disabled={false}
                 onClick={() => console.log('Subscriptions tab clicked')}
@@ -602,8 +647,8 @@ export default function HotTopicsPage() {
                 <span className="tab-text-mobile">订阅</span>
                 <span className="tab-text-desktop">话题订阅</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="bookmarks" 
+              <TabsTrigger
+                value="bookmarks"
                 className="unified-tab-trigger"
                 disabled={false}
                 onClick={() => console.log('Bookmarks tab clicked')}
@@ -613,16 +658,9 @@ export default function HotTopicsPage() {
                 <span className="tab-text-desktop">灵感夹</span>
               </TabsTrigger>
             </TabsList>
-            </div>
-            {/* 操作按钮区，添加订阅和刷新并列 */}
-            <div 
-              className="hot-topics-actions-container" 
-              style={{ 
-                zIndex: 9999, 
-                position: 'relative', 
-                pointerEvents: 'auto' 
-              }}
-            >
+
+            {/* 操作按钮区，添加订阅、刷新和RSSHub并列显示在右侧 */}
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -631,12 +669,9 @@ export default function HotTopicsPage() {
                   setIsAddDialogOpen(true);
                 }}
                 className="action-button text-sm font-medium hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-200 cursor-pointer"
-                style={{ 
+                style={{
                   transition: 'all 0.2s ease-in-out',
-                  cursor: 'pointer',
-                  zIndex: 99999,
-                  position: 'relative',
-                  pointerEvents: 'auto'
+                  cursor: 'pointer'
                 }}
                 onMouseEnter={(e) => {
                   console.log('🔧 鼠标进入HotTopicsPageaddingsubscribingbutton');
@@ -657,20 +692,14 @@ export default function HotTopicsPage() {
                 onClick={handleRefresh}
                 disabled={refreshing}
                 className="action-button text-xs sm:text-sm"
-                style={{ 
-                  zIndex: 99999,
-                  position: 'relative',
-                  pointerEvents: 'auto'
-                }}
               >
                 <RefreshCw className={`w-4 h-4 mr-1 ${refreshing ? 'animate-spin' : ''}`} />
                 刷新
               </Button>
-              {/* RSSHub 数据源指示器 - 非侵入式增强 */}
+              {/* RSSHub 数据源指示器 */}
               <RSSHubIndicator
                 onDataUpdate={(hasNewData) => {
                   if (hasNewData) {
-                    // 可选：当有新的RSSHub数据时触发刷新
                     console.log('RSSHubdataupdated');
                   }
                 }}

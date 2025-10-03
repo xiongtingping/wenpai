@@ -40,6 +40,56 @@ export function MarkdownEditor({ content,
  }: MarkdownEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  /**
+   * 在光标位置插入文本
+   */
+  const insertAtCursor = useCallback((before: string, after: string = '', placeholder: string = '') => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+    const textToInsert = selectedText || placeholder;
+
+    const newContent =
+      content.substring(0, start) +
+      before + textToInsert + after +
+      content.substring(end);
+
+    onChange(newContent);
+
+    // 设置新的光标位置
+    setTimeout(() => {
+      textarea.focus();
+      const newCursorPos = start + before.length + textToInsert.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  }, [content, onChange]);
+
+  /**
+   * 在行首插入文本
+   */
+  const insertAtLineStart = useCallback((prefix: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const lineStart = content.lastIndexOf('\n', start - 1) + 1;
+
+    const newContent =
+      content.substring(0, lineStart) +
+      prefix +
+      content.substring(lineStart);
+
+    onChange(newContent);
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + prefix.length, start + prefix.length);
+    }, 0);
+  }, [content, onChange]);
+
   console.log('MarkdownEditor rendered with content:', content);
 
   return (
@@ -47,19 +97,49 @@ export function MarkdownEditor({ content,
       {/* 工具栏 */}
       <div className="flex flex-wrap gap-1 p-2 border-b border-border bg-muted/20">
         <div className="flex gap-1">
-          <Button variant="ghost" size="sm" className="px-2 py-1 h-7">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2 py-1 h-7"
+            onClick={() => insertAtLineStart('# ')}
+            title="标题1"
+          >
             <Heading1 className="w-3 h-3" />
           </Button>
-          <Button variant="ghost" size="sm" className="px-2 py-1 h-7">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2 py-1 h-7"
+            onClick={() => insertAtLineStart('## ')}
+            title="标题2"
+          >
             <Heading2 className="w-3 h-3" />
           </Button>
-          <Button variant="ghost" size="sm" className="px-2 py-1 h-7">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2 py-1 h-7"
+            onClick={() => insertAtCursor('**', '**', '加粗文本')}
+            title="加粗"
+          >
             <Bold className="w-3 h-3" />
           </Button>
-          <Button variant="ghost" size="sm" className="px-2 py-1 h-7">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2 py-1 h-7"
+            onClick={() => insertAtCursor('*', '*', '斜体文本')}
+            title="斜体"
+          >
             <Italic className="w-3 h-3" />
           </Button>
-          <Button variant="ghost" size="sm" className="px-2 py-1 h-7">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2 py-1 h-7"
+            onClick={() => insertAtCursor('`', '`', '代码')}
+            title="行内代码"
+          >
             <Code className="w-3 h-3" />
           </Button>
         </div>

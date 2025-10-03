@@ -25,7 +25,8 @@ import {
   HelpCircle,
   Mail,
   AlertTriangle,
-  Star
+  Star,
+  Smartphone
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
@@ -601,7 +602,7 @@ export default function ProfilePage() {
 
                         <div className="group space-y-2">
                           <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                            <Hash className="w-4 h-4 text-primary/60" />
+                            <Smartphone className="w-4 h-4 text-primary/60" />
                             {t('profile.phone')}
                           </Label>
                           <div className="flex gap-3">

@@ -30,41 +30,23 @@
     transform: translateY(-0.0625rem); /* -1px -> -0.0625rem */
   }
 
-  /* 步骤网格布局 */
-  .brand-emoji-steps-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--steps-indicator-gap);
-    margin-bottom: var(--spacing-3);
-    position: relative;
-  }
-
-  /* 单个步骤项 */
-  .brand-emoji-step-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    position: relative;
-    min-height: fit-content;
-  }
 
   /* 步骤圆圈容器 */
   .brand-emoji-step-circle {
-    width: var(--steps-indicator-circle-size);
-    height: var(--steps-indicator-circle-size);
-    min-width: var(--steps-indicator-circle-size);
-    min-height: var(--steps-indicator-circle-size);
+    width: 2.5rem;
+    height: 2.5rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
     border-radius: 50%;
     background: hsl(var(--card));
-    border: var(--steps-indicator-border-width) solid hsl(var(--primary) / 0.25);
+    border: 2px solid hsl(var(--primary) / 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     z-index: 10;
-    transition: var(--transition-smooth);
-    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
   }
 
   .brand-emoji-step-circle:hover {
@@ -90,7 +72,7 @@
 
   /* 步骤数字 */
   .brand-emoji-step-number {
-    font-size: var(--steps-indicator-number-size);
+    font-size: 1rem;
     font-weight: 600;
     color: hsl(var(--primary));
     line-height: 1;
@@ -109,16 +91,15 @@
   /* 连接线 */
   .brand-emoji-step-connector {
     position: absolute;
-    top: 50%;
-    left: calc(50% + var(--steps-indicator-circle-size) / 2);
-    width: calc(100% - var(--steps-indicator-circle-size));
-    height: var(--steps-indicator-connector-height);
-    background: linear-gradient(90deg, 
-      hsl(var(--primary) / 0.15) 0%, 
-      hsl(var(--primary) / 0.25) 50%, 
+    top: 1.25rem;
+    left: calc(50% + 1.25rem + 0.5rem);
+    width: calc(100% - 2.5rem - 1rem);
+    height: 2px;
+    background: linear-gradient(90deg,
+      hsl(var(--primary) / 0.15) 0%,
+      hsl(var(--primary) / 0.25) 50%,
       hsl(var(--primary) / 0.15) 100%);
-    transform: translateY(-50%);
-    border-radius: var(--radius-xs);
+    border-radius: 1px;
     z-index: 1;
   }
 
@@ -129,45 +110,99 @@
       hsl(var(--primary) / 0.6) 100%);
   }
 
-  /* 步骤文字标题网格 */
-  .brand-emoji-steps-labels {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--steps-indicator-gap);
-    margin-top: var(--spacing-2);
-  }
-
   /* 单个步骤文字 */
   .brand-emoji-step-label {
     text-align: center;
-    font-size: var(--steps-indicator-text-size);
+    font-size: 0.8rem;
     font-weight: 500;
     color: hsl(var(--muted-foreground));
-    line-height: 1.2;
+    line-height: 1.3;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
   }
 
   /* 大屏幕优化 */
   @media (min-width: 1024px) {
     .brand-emoji-step-circle {
-      width: var(--steps-indicator-circle-size-lg);
-      height: var(--steps-indicator-circle-size-lg);
-      min-width: var(--steps-indicator-circle-size-lg);
-      min-height: var(--steps-indicator-circle-size-lg);
+      width: 3rem;
+      height: 3rem;
+      min-width: 3rem;
+      min-height: 3rem;
+    }
+
+    .brand-emoji-step-number {
+      font-size: 1.125rem;
+    }
+
+    .brand-emoji-step-label {
+      font-size: 0.875rem;
     }
 
     .brand-emoji-step-connector {
-      left: calc(50% + var(--steps-indicator-circle-size-lg) / 2);
-      width: calc(100% - var(--steps-indicator-circle-size-lg));
+      top: 1.5rem;
+      left: calc(50% + 1.5rem + 0.5rem);
+      width: calc(100% - 3rem - 1rem);
     }
   }
 
-  /* 小屏幕隐藏 */
+  /* 小屏幕优化 */
   @media (max-width: 1023px) {
     .brand-emoji-steps-indicator {
-      display: none;
+      padding: 0.75rem;
+    }
+
+    .brand-emoji-step-circle {
+      width: 2.25rem;
+      height: 2.25rem;
+      min-width: 2.25rem;
+      min-height: 2.25rem;
+    }
+
+    .brand-emoji-step-number {
+      font-size: 0.875rem;
+    }
+
+    .brand-emoji-step-label {
+      font-size: 0.7rem;
+    }
+
+    .brand-emoji-step-connector {
+      top: 1.125rem;
+      left: calc(50% + 1.125rem + 0.5rem);
+      width: calc(100% - 2.25rem - 1rem);
+      height: 2px;
+    }
+  }
+
+  /* 超小屏幕优化 */
+  @media (max-width: 640px) {
+    .brand-emoji-steps-indicator {
+      padding: 0.5rem;
+    }
+
+    .brand-emoji-step-circle {
+      width: 2rem;
+      height: 2rem;
+      min-width: 2rem;
+      min-height: 2rem;
+    }
+
+    .brand-emoji-step-number {
+      font-size: 0.8rem;
+    }
+
+    .brand-emoji-step-label {
+      font-size: 0.65rem;
+      line-height: 1.2;
+    }
+
+    .brand-emoji-step-connector {
+      top: 1rem;
+      left: calc(50% + 1rem + 0.5rem);
+      width: calc(100% - 2rem - 1rem);
     }
   }
 }

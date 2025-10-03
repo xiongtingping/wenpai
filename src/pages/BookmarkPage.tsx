@@ -572,13 +572,13 @@ export default function BookmarkPage() {
   const getTypeInfo = (type: string) => {
     switch (type) {
       case 'collection':
-        return { icon: Bookmark, name: t('pages.messages.网络剪藏') };
+        return { icon: Bookmark, name: '网络剪藏' };
       case 'extraction':
-        return { icon: Zap, name: t('pages.labels.内容提取') };
+        return { icon: Zap, name: '内容提取' };
       case 'copywriting':
-        return { icon: Brain, name: t('bookmark.copywritingManagement') };
+        return { icon: Brain, name: '文案管理' };
       default:
-        return { icon: FileText, name: t('pages.messages.其他') };
+        return { icon: FileText, name: '其他' };
     }
   };
 
@@ -1112,7 +1112,7 @@ export default function BookmarkPage() {
                   <FolderOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-foreground mb-2">暂无资料</h3>
                   <p className="text-muted-foreground">
-                    {searchQuery || safeLength(selectedTags) > 0 ? t('pages.messages.没有找到匹配的资料') : t('pages.messages.请使用右上角的按钮开始添加您的第一个资料')}
+                    {searchQuery || safeLength(selectedTags) > 0 ? '没有找到匹配的资料' : '请使用右上角的按钮开始添加您的第一个资料'}
                   </p>
                 </CardContent>
               </Card>
@@ -1195,7 +1195,7 @@ export default function BookmarkPage() {
                     <Bookmark className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-foreground mb-2">暂无网络剪藏</h3>
                     <p className="text-muted-foreground">
-                      请使用右上角的t('pages.messages.网络剪藏')按钮开始剪藏网络内容
+                      请使用右上角的"网络剪藏"按钮开始剪藏网络内容
                     </p>
                   </CardContent>
                 </Card>

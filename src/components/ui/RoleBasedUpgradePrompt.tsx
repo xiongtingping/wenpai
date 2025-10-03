@@ -111,12 +111,12 @@ export const RoleBasedUpgradePrompt: React.FC<any> = ({
     return (
       <div className={`flex items-center gap-3 ${className}`}>
         {/* 版本徽章 */}
-        <Badge 
-          variant="outline" 
+        <Badge
+          variant="outline"
           className={`${theme.badgeColor} font-medium border-dashed`}
         >
           <Lock className={`h-3 w-3 mr-1 ${theme.lockColor}`} />
-{requiredTier === 'pro' ? '专业版/高级版专属' : t('components.messages.高级版专属')}
+          {requiredTier === 'pro' ? '专业版/高级版专属' : '高级版专属'}
         </Badge>
 
         {/* 升级按钮 */}

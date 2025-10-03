@@ -25,7 +25,7 @@ import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { X, Plus, Filter, Eye, EyeOff, ThumbsUp, ThumbsDown, Settings } from 'lucide-react';
+import { X, Plus, Filter, Eye, EyeOff, ThumbsUp, ThumbsDown, Settings, Minimize2 } from 'lucide-react';
 
 interface InterestFilterProps {
   onFilterChange: (filters: InterestFilters) => void;
@@ -63,37 +63,27 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
   const [newBlockedKeyword, setNewBlockedKeyword] = useState('');
   const [newPreferredKeyword, setNewPreferredKeyword] = useState('');
 
-  // 分类定义
+  // 优化后的10个核心分类（与TopicCategories保持一致）
   const categories = [
-    { id: 'entertainment', label: t('components.labels.娱乐'), icon: '🎬', description: '明星、电影、综艺' },
-    { id: 'technology', label: t('components.labels.科技'), icon: '💻', description: '技术、AI、互联网' },
-    { id: 'sports', label: t('components.labels.体育'), icon: '⚽', description: '足球、篮球、比赛' },
-    { id: 'gaming', label: t('components.labels.游戏'), icon: '🎮', description: '电竞、游戏、直播' },
-    { id: 'automotive', label: t('components.labels.汽车'), icon: '🚗', description: '汽车、新能源车' },
-    { id: 'economy', label: t('components.labels.财经'), icon: '💰', description: '经济、股票、投资' },
-    { id: 'society', label: t('components.labels.社会'), icon: '👥', description: '社会事件、新闻' },
-    { id: 'education', label: t('components.labels.教育'), icon: '📚', description: '学校、考试、培训' },
-    { id: 'health', label: t('components.labels.健康'), icon: '🏥', description: '医疗、疾病、保健' },
-    { id: 'lifestyle', label: t('components.labels.生活'), icon: '🏠', description: '时尚、美容、家居' },
-    { id: 'travel', label: t('components.labels.旅游'), icon: '✈️', description: '旅游、旅行、景点' },
-    { id: 'food', label: t('components.labels.美食'), icon: '🍜', description: '美食、餐厅、烹饪' },
-    { id: 'science', label: t('components.labels.科学'), icon: '🔬', description: '科学研究、学术' },
-    { id: 'culture', label: t('components.labels.文化'), icon: '🎨', description: '文化、艺术、历史' },
-    { id: 'international', label: t('components.labels.国际'), icon: '🌍', description: '国际新闻、外交' },
-    { id: 'realestate', label: t('components.labels.房产'), icon: '🏢', description: '房产、房价、楼市' },
-    { id: 'weather', label: t('components.labels.天气'), icon: '🌤️', description: '天气、气候、自然灾害' },
-    { id: 'environment', label: t('components.labels.环保'), icon: '🌱', description: '环保、生态、节能' },
-    { id: 'agriculture', label: t('components.labels.农业'), icon: '🌾', description: '农业、农村、农产品' },
-    { id: 'pets', label: t('components.labels.宠物'), icon: '🐕', description: '宠物、猫狗、宠物用品' }
+    { id: 'entertainment', label: '娱乐', icon: '🎬', description: '明星、影视、综艺、音乐' },
+    { id: 'technology', label: '科技', icon: '💻', description: '互联网、AI、数码、游戏' },
+    { id: 'sports', label: '体育', icon: '⚽', description: '足球、篮球、电竞、赛事' },
+    { id: 'economy', label: '财经', icon: '💰', description: '经济、股市、商业、房产、汽车' },
+    { id: 'society', label: '社会', icon: '👥', description: '时事、民生、法律、新闻' },
+    { id: 'culture', label: '文化', icon: '🎨', description: '艺术、历史、文学、教育、科学' },
+    { id: 'lifestyle', label: '生活', icon: '🏠', description: '美食、旅游、时尚、宠物、健康' },
+    { id: 'international', label: '国际', icon: '🌍', description: '国际新闻、外交、全球事件' },
+    { id: 'environment', label: '环保', icon: '🌱', description: '环保、生态、天气、农业' },
+    { id: 'other', label: '其他', icon: '📌', description: '未分类话题' }
   ];
 
   // 平台选项
   const platformOptions = [
-    { value: 'weibo', label: t('components.labels.微博') },
+    { value: 'weibo', label: '微博' },
     { value: 'bilibili', label: 'B站' },
-    { value: 'douyin', label: t('components.labels.抖音') },
-    { value: 'toutiao', label: t('components.labels.头条') },
-    { value: 'baidu', label: t('components.labels.百度') }
+    { value: 'douyin', label: '抖音' },
+    { value: 'toutiao', label: '头条' },
+    { value: 'baidu', label: '百度' }
   ];
 
   useEffect(() => {
@@ -250,7 +240,7 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
     if (value <= -80) return '非常不想看';
     if (value <= -40) return '不想看';
     if (value <= -10) return '较少推荐';
-    if (value <= 10) return t('components.text.中性_f8n');
+    if (value <= 10) return t('components.text.text_dtp6');
     if (value <= 40) return '较多推荐';
     if (value <= 80) return '想看';
     return '非常想看';
@@ -330,6 +320,15 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange  }) => {
                 </Button>
                 <Button variant="outline" size="sm" onClick={resetFilters} className="h-9 px-4 text-sm font-medium">
                   重置全部
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsOpen(false)}
+                  className="h-9 w-9 p-0"
+                  title="关闭"
+                >
+                  <X className="h-5 w-5" />
                 </Button>
               </div>
             </CardTitle>

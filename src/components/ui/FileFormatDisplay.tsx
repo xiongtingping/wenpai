@@ -67,11 +67,11 @@ export default function FileFormatDisplay({
 
   const getQualityText = (quality: string) => {
     switch (quality) {
-      case 'excellent': return t('components.messages.完美支持');
-      case 'good': return t('components.messages.良好支持');
-      case 'fair': return t('components.messages.基础支持');
-      case 'limited': return t('components.messages.有限支持');
-      default: return t('components.messages.未知');
+      case 'excellent': return '完美支持';
+      case 'good': return '良好支持';
+      case 'fair': return '基础支持';
+      case 'limited': return '有限支持';
+      default: return '未知';
     }
   };
 

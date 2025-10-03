@@ -165,4 +165,59 @@
   .u-gradient-gray {
     background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
   }
+
+  /* 红色热情渐变 */
+  .u-gradient-red {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  }
+
+  /* 青色清爽渐变 */
+  .u-gradient-cyan {
+    background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+  }
+
+  /* 黄色阳光渐变 */
+  .u-gradient-yellow {
+    background: linear-gradient(135deg, #EAB308 0%, #CA8A04 100%);
+  }
+
+  /* 玫瑰金渐变 */
+  .u-gradient-orange {
+    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+  }
+
+  /* 薄荷绿渐变 */
+  .u-gradient-emerald {
+    background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+  }
+
+  /* 靛青深邃渐变 */
+  .u-gradient-indigo {
+    background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+  }
+
+  /* 湖水蓝渐变 */
+  .u-gradient-sky {
+    background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+  }
+
+  /* 森林绿渐变 */
+  .u-gradient-teal {
+    background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%);
+  }
+
+  /* 紫罗兰渐变 */
+  .u-gradient-violet {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+  }
+
+  /* 石墨黑渐变 */
+  .u-gradient-slate {
+    background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  }
+
+  /* 珊瑚橙渐变 */
+  .u-gradient-rose {
+    background: linear-gradient(135deg, #FB7185 0%, #F43F5E 100%);
+  }
 }

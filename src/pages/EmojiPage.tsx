@@ -322,40 +322,37 @@ const EmojiPage: React.FC = () => {
           <div className="w-full bg-gradient-to-br from-background via-accent/5 to-background">
             {/* 顶部步骤指示器 */}
             <div className="px-4 sm:px-6 lg:px-8 py-4">
-              <div className="brand-emoji-steps-indicator steps-indicator-fade-in max-w-4xl mx-auto">
-                {/* 步骤圆圈和连接线 */}
-                <div className="brand-emoji-steps-grid">
+              <div className="brand-emoji-steps-indicator steps-indicator-fade-in max-w-5xl mx-auto">
+                {/* 步骤项容器 */}
+                <div className="flex items-start justify-between w-full gap-2">
                   {[
-                    { step: 1, id: 'upload' },
-                    { step: 2, id: 'build' },
-                    { step: 3, id: 'generate' },
-                    { step: 4, id: 'gallery' }
+                    { step: 1, id: 'upload', label: '品牌角色设定' },
+                    { step: 2, id: 'build', label: '智能提示构建' },
+                    { step: 3, id: 'generate', label: 'AI批量生成' },
+                    { step: 4, id: 'gallery', label: '作品集展示' }
                   ].map((item, index) => {
                     const isActive = brandEmojiCurrentStep === item.id;
                     const isCompleted = getStepIndex(brandEmojiCurrentStep) > index;
-                    
+
                     return (
-                      <div key={item.step} className="brand-emoji-step-item">
+                      <div key={item.step} className="flex-1 relative">
+                        <div className="flex flex-col items-center gap-2">
+                          {/* 步骤圆圈 */}
+                          <div className={`brand-emoji-step-circle ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>
+                            <span className="brand-emoji-step-number">{item.step}</span>
+                          </div>
+
+                          {/* 步骤文字 */}
+                          <span className="brand-emoji-step-label">{item.label}</span>
+                        </div>
+
                         {/* 连接线 */}
                         {index < 3 && (
                           <div className={`brand-emoji-step-connector ${isCompleted ? 'completed' : ''}`}></div>
                         )}
-                        
-                        {/* 步骤圆圈 */}
-                        <div className={`brand-emoji-step-circle ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>
-                          <span className="brand-emoji-step-number">{item.step}</span>
-                        </div>
                       </div>
                     );
                   })}
-                </div>
-                
-                {/* 步骤文字标题 */}
-                <div className="brand-emoji-steps-labels">
-                  <span className="brand-emoji-step-label">品牌角色设定</span>
-                  <span className="brand-emoji-step-label">智能提示构建</span>
-                  <span className="brand-emoji-step-label">AI批量生成</span>
-                  <span className="brand-emoji-step-label">作品集展示</span>
                 </div>
               </div>
             </div>

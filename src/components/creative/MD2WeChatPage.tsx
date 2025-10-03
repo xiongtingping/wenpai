@@ -354,9 +354,9 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
                 </div>
 
                 {/* 右侧操作组 */}
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {/* 预览切换 */}
-                  <div className="flex items-center gap-1 border border-border rounded-md">
+                  <div className="flex items-center gap-1 border border-border rounded-md flex-shrink-0">
                     <Button
                       variant={!isMobilePreview ? 'default' : 'ghost'}
                       size="sm"
@@ -380,9 +380,10 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
                     variant="outline"
                     size="sm"
                     onClick={handleFileSelect}
+                    className="flex-shrink-0 flex items-center gap-1"
                   >
-                    <Upload className="w-4 h-4 mr-1" />
-                    导入
+                    <Upload className="w-4 h-4" />
+                    <span>导入</span>
                   </Button>
 
                   {/* 重置 */}
@@ -390,9 +391,10 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
                     variant="outline"
                     size="sm"
                     onClick={handleReset}
+                    className="flex-shrink-0 flex items-center gap-1"
                   >
-                    <RotateCcw className="w-4 h-4 mr-1" />
-                    重置
+                    <RotateCcw className="w-4 h-4" />
+                    <span>重置</span>
                   </Button>
 
                   {/* 导出控制 */}
@@ -405,10 +407,11 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
                         description: '正在准备导出...'
                       });
                     }}
-                    className="w-full"
+                    className="flex-shrink-0 flex items-center gap-1 whitespace-nowrap"
+                    size="sm"
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    导出微信格式
+                    <Download className="w-4 h-4" />
+                    <span>导出微信格式</span>
                   </PermissionLockedButton>
                 </div>
               </div>
