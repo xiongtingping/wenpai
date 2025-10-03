@@ -26,8 +26,8 @@ export default defineConfig({
         manualChunks(id) {
           // 分离 node_modules
           if (id.includes('node_modules')) {
-            // React 核心库
-            if (id.includes('react') || id.includes('react-dom')) {
+            // React 核心库及其依赖(包括 scheduler)
+            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
               return 'vendor';
             }
             // Radix UI 组件
