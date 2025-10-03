@@ -393,7 +393,7 @@ export function GenerationControls({ generating,
                         </div>
                       </div>
                       {disabled && !generating && (
-                        <div className="absolute inset-0 bg-muted/50 rounded-lg flex items-center justify-center">
+                        <div className="absolute inset-0 bg-muted/50 dark:bg-muted/60 rounded-lg flex items-center justify-center">
                           <div className="bg-background rounded-md px-2 py-1 shadow-sm border border-border flex items-center gap-1">
                             <Crown className="w-3 h-3 text-primary" />
                             <span className="text-xs font-medium text-foreground">需要专业版</span>
@@ -469,10 +469,10 @@ export function GenerationControls({ generating,
                         </div>
                       </div>
                       {disabled && !generating && (
-                        <div className="absolute inset-0 bg-gray-900/5 rounded-lg flex items-center justify-center">
-                          <div className="bg-white rounded-md px-2 py-1 shadow-sm border flex items-center gap-1">
-                            <Crown className="w-3 h-3 text-purple-500" />
-                            <span className="text-xs font-medium text-gray-700">需要高级版</span>
+                        <div className="absolute inset-0 bg-muted/50 dark:bg-muted/60 rounded-lg flex items-center justify-center">
+                          <div className="bg-background rounded-md px-2 py-1 shadow-sm border border-border flex items-center gap-1">
+                            <Crown className="w-3 h-3 text-purple-500 dark:text-purple-600" />
+                            <span className="text-xs font-medium text-foreground">需要高级版</span>
                           </div>
                         </div>
                       )}

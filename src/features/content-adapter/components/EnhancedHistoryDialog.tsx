@@ -355,7 +355,7 @@ export function EnhancedHistoryDialog({ open,
                 alignItems: 'center'
               }}>
               {/* 平台选择 - 紧凑 */}
-              <div className="bg-accent border border-border text-foreground hover:bg-accent/80 hover:border-primary" style={{
+              <div className="bg-accent border border-border text-foreground hover:bg-accent/80 hover:border-primary shadow-sm" style={{
                 height: '36px',
                 borderRadius: '8px',
                 padding: '0 10px',
@@ -363,7 +363,6 @@ export function EnhancedHistoryDialog({ open,
                 alignItems: 'center',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
                 fontSize: '12px',
                 fontWeight: '500',
                 minWidth: '100px',
@@ -378,7 +377,7 @@ export function EnhancedHistoryDialog({ open,
               </div>
 
               {/* 时间范围 - 紧凑 */}
-              <div className="bg-accent border border-border text-foreground hover:bg-accent/80 hover:border-green-600" style={{
+              <div className="bg-accent border border-border text-foreground hover:bg-accent/80 hover:border-green-600 dark:hover:border-green-500 shadow-sm" style={{
                 height: '36px',
                 borderRadius: '8px',
                 padding: '0 10px',
@@ -386,7 +385,6 @@ export function EnhancedHistoryDialog({ open,
                 alignItems: 'center',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
                 fontSize: '12px',
                 fontWeight: '500',
                 minWidth: '90px',
@@ -403,7 +401,7 @@ export function EnhancedHistoryDialog({ open,
               </div>
 
               {/* 排序方式 - 紧凑 */}
-              <div className="bg-accent border border-border text-foreground hover:bg-accent/80 hover:border-purple-600" style={{
+              <div className="bg-accent border border-border text-foreground hover:bg-accent/80 hover:border-purple-600 dark:hover:border-purple-500 shadow-sm" style={{
                 height: '36px',
                 borderRadius: '8px',
                 padding: '0 10px',
@@ -411,7 +409,6 @@ export function EnhancedHistoryDialog({ open,
                 alignItems: 'center',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
                 fontSize: '12px',
                 fontWeight: '500',
                 minWidth: '90px',
@@ -429,7 +426,7 @@ export function EnhancedHistoryDialog({ open,
 
               {/* 导出按钮 - 紧凑 */}
               <div
-                className="bg-primary hover:bg-primary/90 text-primary-foreground border-primary"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground border-primary shadow-sm"
                 style={{
                   height: '36px',
                   border: '1px solid',
@@ -440,7 +437,6 @@ export function EnhancedHistoryDialog({ open,
                   justifyContent: 'center',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
                   fontSize: '12px',
                   fontWeight: '600'
                 }}
@@ -537,7 +533,7 @@ export function EnhancedHistoryDialog({ open,
                   opacity: '0.8',
                   filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))'
                 }}>📝</div>
-                <div style={{
+                <div className="bg-gradient-to-br from-primary/10 to-purple-500/10" style={{
                   position: 'absolute',
                   top: '50%',
                   left: '50%',
@@ -545,8 +541,7 @@ export function EnhancedHistoryDialog({ open,
                   width: '100px',
                   height: '100px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                  opacity: '0.1',
+                  opacity: '0.5',
                   zIndex: '-1'
                 }}></div>
               </div>
@@ -590,23 +585,20 @@ export function EnhancedHistoryDialog({ open,
                 gap: '6px',
                 opacity: '0.3'
               }}>
-                <div style={{
+                <div className="bg-primary" style={{
                   width: '8px',
                   height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: '#3b82f6'
+                  borderRadius: '50%'
                 }}></div>
-                <div style={{
+                <div className="bg-green-500 dark:bg-green-600" style={{
                   width: '8px',
                   height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: '#10b981'
+                  borderRadius: '50%'
                 }}></div>
-                <div style={{
+                <div className="bg-purple-500 dark:bg-purple-600" style={{
                   width: '8px',
                   height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: '#8b5cf6'
+                  borderRadius: '50%'
                 }}></div>
               </div>
             </div>
@@ -690,34 +682,28 @@ export function EnhancedHistoryDialog({ open,
                               marginBottom: '12px'
                             }}>
                               {/* 平台标签 */}
-                              <div style={{
+                              <div className="bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800" style={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '6px',
                                 padding: '6px 12px',
-                                backgroundColor: '#dbeafe',
                                 borderRadius: '8px',
                                 fontSize: '13px',
-                                fontWeight: '500',
-                                color: '#1d4ed8',
-                                border: '1px solid #bfdbfe'
+                                fontWeight: '500'
                               }}>
                                 <span>🏷️</span>
                                 {item.platformName || item.platformId}
                               </div>
-                              
+
                               {/* 时间标签 */}
-                              <div style={{
+                              <div className="bg-muted text-muted-foreground border border-border" style={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '6px',
                                 padding: '6px 12px',
-                                backgroundColor: '#f3f4f6',
                                 borderRadius: '8px',
                                 fontSize: '13px',
-                                fontWeight: '500',
-                                color: '#374151',
-                                border: '1px solid #d1d5db'
+                                fontWeight: '500'
                               }}>
                                 <span>🕐</span>
                                 {new Date(item.time).toLocaleTimeString('zh-CN', {
@@ -728,17 +714,14 @@ export function EnhancedHistoryDialog({ open,
 
                               {/* 标题标签 */}
                               {item.title && (
-                                <div style={{
+                                <div className="bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800" style={{
                                   display: 'flex',
                                   alignItems: 'center',
                                   gap: '6px',
                                   padding: '6px 12px',
-                                  backgroundColor: '#f0fdf4',
                                   borderRadius: '8px',
                                   fontSize: '13px',
-                                  fontWeight: '500',
-                                  color: '#15803d',
-                                  border: '1px solid #bbf7d0'
+                                  fontWeight: '500'
                                 }}>
                                   <span>🏷️</span>
                                   {item.title}
@@ -755,7 +738,7 @@ export function EnhancedHistoryDialog({ open,
                           }}>
                             <button
                               onClick={() => handleCopy(item.content)}
-                              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all"
                               style={{
                                 height: '36px',
                                 padding: '0 12px',
@@ -764,18 +747,14 @@ export function EnhancedHistoryDialog({ open,
                                 fontSize: '13px',
                                 fontWeight: '500',
                                 cursor: 'pointer',
-                                transition: 'all 0.2s ease',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '6px',
-                                boxShadow: '0 1px 3px rgba(59, 130, 246, 0.3)'
+                                gap: '6px'
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.4)';
                                 e.currentTarget.style.transform = 'translateY(-1px)';
                               }}
                               onMouseLeave={(e) => {
-                                e.currentTarget.style.boxShadow = '0 1px 3px rgba(59, 130, 246, 0.3)';
                                 e.currentTarget.style.transform = 'translateY(0)';
                               }}
                             >
@@ -785,7 +764,7 @@ export function EnhancedHistoryDialog({ open,
 
                             <button
                               onClick={() => handleDeleteItem(item.id)}
-                              className="bg-accent text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300"
+                              className="bg-accent text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-300 dark:hover:border-red-700 transition-all"
                               style={{
                                 height: '36px',
                                 padding: '0 12px',
@@ -793,7 +772,6 @@ export function EnhancedHistoryDialog({ open,
                                 fontSize: '13px',
                                 fontWeight: '500',
                                 cursor: 'pointer',
-                                transition: 'all 0.2s ease',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '6px'
@@ -842,10 +820,9 @@ export function EnhancedHistoryDialog({ open,
 
                         {/* 标签区域 */}
                         {item.tags && item.tags.length > 0 && (
-                          <div style={{
+                          <div className="border-t border-border" style={{
                             marginTop: '16px',
-                            paddingTop: '16px',
-                            borderTop: '1px solid #e2e8f0'
+                            paddingTop: '16px'
                           }}>
                             <div style={{
                               display: 'flex',
