@@ -485,7 +485,7 @@ export function GenerationControls({ generating,
 
           {/* 当前选择的模型信息 */}
           {selectedModel && currentModel && (
-            <div className="mt-6 p-4 bg-accent rounded-lg border border-border">
+            <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
               <div className="flex items-center gap-3 mb-2">
                 <Bot className="h-5 w-5 text-primary" />
                 <span className="font-medium text-foreground">

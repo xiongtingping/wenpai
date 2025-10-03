@@ -1303,7 +1303,7 @@ export function ContentAdapterPage({
             t={t}
           />
         ) : generating && (
-          <div className="rounded-lg border-2 border-dashed border-border bg-accent">
+          <div className="rounded-lg border-2 border-dashed border-border bg-muted/30">
             <div className="p-6">
               <AIContentGenerationAnimation
                 platforms={selectedPlatforms}
@@ -1378,7 +1378,7 @@ export function ContentAdapterPage({
             <p className="mb-3">
               {t('adapt.dialogs.forwardConfirm.contentWillBeCopied', { platform: pendingPublish ? getPlatformName(pendingPublish.platformId, availablePlatforms) : '' })}
             </p>
-            <div className="bg-accent rounded p-3 mt-2 text-sm break-all max-h-32 overflow-auto border">
+            <div className="bg-muted/50 rounded p-3 mt-2 text-sm break-all max-h-32 overflow-auto border">
               {pendingPublish?.content}
             </div>
             <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
@@ -1419,10 +1419,10 @@ export function ContentAdapterPage({
                     {t('adapt.dialogs.batchPublish.processing', { platform: getPlatformName(batchCurrent.platformId, availablePlatforms) })}
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    
+
                   </div>
                 </div>
-                <div className="bg-accent rounded p-3 text-sm max-h-32 overflow-auto">
+                <div className="bg-muted/50 rounded p-3 text-sm max-h-32 overflow-auto">
                   {batchCurrent.content}
                 </div>
                 <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">

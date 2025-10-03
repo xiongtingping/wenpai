@@ -386,7 +386,7 @@ function PlatformResultCard({
                     onClick={() => onSaveToFavorites(result.platformId, result.content, 'main')}
                     size="sm"
                     variant="outline"
-                    className={`flex items-center gap-1 ${isFavorited ? 'bg-accent border-border text-foreground' : ''}`}
+                    className={`flex items-center gap-1 ${isFavorited ? 'bg-muted/50 border-border text-foreground' : ''}`}
                   >
                     <Heart className={`h-3 w-3 ${isFavorited ? 'fill-current text-primary' : ''}`} />
                     {isFavorited ? '已收藏 ❤️' : '收藏'}

@@ -244,17 +244,17 @@ export function EnhancedHistoryDialog({ open,
           "relative overflow-hidden"
         )}
         style={{
-          width: 'min(85vw, 1000px)',
+          width: 'min(90vw, 900px)',
           height: 'auto',
-          maxWidth: '1000px',
-          maxHeight: '70vh',
-          minWidth: '600px',
-          minHeight: '450px',
+          maxWidth: '900px',
+          maxHeight: '80vh',
+          minWidth: '320px',
+          minHeight: '400px',
           padding: '0',  // 移除默认内边距，让我们自己控制
           position: 'fixed',
-          top: '16vh',
+          top: '50%',
           left: '50%',
-          transform: 'translateX(-50%)',
+          transform: 'translate(-50%, -50%)',
           zIndex: 1055,
           display: 'flex',
           flexDirection: 'column',
@@ -335,7 +335,7 @@ export function EnhancedHistoryDialog({ open,
         </DialogHeader>
 
         {/* 🎯 内容区 - 紧凑操作栏 */}
-        <div className="border-border bg-accent" style={{
+        <div className="border-border bg-muted/50" style={{
           borderBottom: '1px solid',
           padding: '12px 32px'
         }}>
@@ -355,7 +355,7 @@ export function EnhancedHistoryDialog({ open,
                 alignItems: 'center'
               }}>
               {/* 平台选择 - 紧凑 */}
-              <div className="bg-accent border border-border text-foreground hover:bg-accent/80 hover:border-primary shadow-sm" style={{
+              <div className="bg-card border border-border text-foreground hover:bg-muted hover:border-primary shadow-sm" style={{
                 height: '36px',
                 borderRadius: '8px',
                 padding: '0 10px',
@@ -377,7 +377,7 @@ export function EnhancedHistoryDialog({ open,
               </div>
 
               {/* 时间范围 - 紧凑 */}
-              <div className="bg-accent border border-border text-foreground hover:bg-accent/80 hover:border-green-600 dark:hover:border-green-500 shadow-sm" style={{
+              <div className="bg-card border border-border text-foreground hover:bg-muted hover:border-green-600 dark:hover:border-green-500 shadow-sm" style={{
                 height: '36px',
                 borderRadius: '8px',
                 padding: '0 10px',
@@ -401,7 +401,7 @@ export function EnhancedHistoryDialog({ open,
               </div>
 
               {/* 排序方式 - 紧凑 */}
-              <div className="bg-accent border border-border text-foreground hover:bg-accent/80 hover:border-purple-600 dark:hover:border-purple-500 shadow-sm" style={{
+              <div className="bg-card border border-border text-foreground hover:bg-muted hover:border-purple-600 dark:hover:border-purple-500 shadow-sm" style={{
                 height: '36px',
                 borderRadius: '8px',
                 padding: '0 10px',
@@ -481,7 +481,7 @@ export function EnhancedHistoryDialog({ open,
                 )}
                 <button
                   onClick={resetFilters}
-                  className="bg-background text-foreground border border-border hover:bg-accent hover:border-border/60"
+                  className="bg-background text-foreground border border-border hover:bg-muted hover:border-border/60"
                   style={{
                     height: '36px',
                     padding: '0 12px',
@@ -503,7 +503,7 @@ export function EnhancedHistoryDialog({ open,
 
         {/* 历史记录列表 */}
         <div
-          className="bg-accent/30"
+          className="bg-muted/30"
           style={{
             flex: 1,
             minHeight: 0,
@@ -612,7 +612,7 @@ export function EnhancedHistoryDialog({ open,
               {Object.entries(groupedHistory).map(([date, items]) => (
                 <div key={date} style={{ marginBottom: '32px' }}>
                   {/* 日期标题 */}
-                  <div className="bg-accent border border-border" style={{
+                  <div className="bg-card border border-border" style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
@@ -650,7 +650,7 @@ export function EnhancedHistoryDialog({ open,
                     {items.map((item) => (
                       <div
                         key={item.id}
-                        className="border border-border bg-background hover:bg-accent hover:border-border/60"
+                        className="border border-border bg-background hover:bg-muted/50 hover:border-border/60"
                         style={{
                           borderRadius: '12px',
                           padding: '24px',
@@ -764,7 +764,7 @@ export function EnhancedHistoryDialog({ open,
 
                             <button
                               onClick={() => handleDeleteItem(item.id)}
-                              className="bg-accent text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-300 dark:hover:border-red-700 transition-all"
+                              className="bg-card text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-300 dark:hover:border-red-700 transition-all"
                               style={{
                                 height: '36px',
                                 padding: '0 12px',
@@ -788,9 +788,9 @@ export function EnhancedHistoryDialog({ open,
                             </button>
                           </div>
                         </div>
-                        
+
                         {/* 记录内容预览 */}
-                        <div className="bg-accent border border-border" style={{
+                        <div className="bg-muted/50 border border-border" style={{
                           borderRadius: '10px',
                           padding: '16px',
                           marginTop: '16px'
@@ -832,7 +832,7 @@ export function EnhancedHistoryDialog({ open,
                               {item.tags.map((tag, index) => (
                                 <div
                                   key={index}
-                                  className="bg-accent text-muted-foreground border border-border"
+                                  className="bg-muted/50 text-muted-foreground border border-border"
                                   style={{
                                     padding: '4px 8px',
                                     borderRadius: '6px',

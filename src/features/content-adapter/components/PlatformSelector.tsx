@@ -407,7 +407,7 @@ export function PlatformSelector({ availablePlatforms,
                       relative border cursor-pointer transition-all duration-200 h-36 flex flex-col rounded-lg overflow-hidden group
                       ${isSelected
                         ? 'border-primary bg-primary/5 shadow-md ring-2 ring-primary/20'
-                        : 'border-border hover:border-primary/50 hover:shadow-md hover:bg-accent/50'
+                        : 'border-border hover:border-primary/50 hover:shadow-md hover:bg-muted/30'
                       }
                     `}
                     onClick={(e) => {
