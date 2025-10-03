@@ -22,35 +22,12 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // 改进的chunk分割策略 - 自动分割大型依赖
-        manualChunks(id) {
-          // 分离 node_modules
-          if (id.includes('node_modules')) {
-            // React 核心库及其依赖(包括 scheduler)
-            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
-              return 'vendor';
-            }
-            // Radix UI 组件
-            if (id.includes('@radix-ui')) {
-              return 'ui';
-            }
-            // PDF 相关库
-            if (id.includes('pdfjs') || id.includes('pdf')) {
-              return 'pdf';
-            }
-            // 其他大型依赖
-            return 'vendor-misc';
-          }
-          // 分离大型服务文件
-          if (id.includes('src/services/aiAnalysisService')) {
-            return 'ai-analysis';
-          }
-          if (id.includes('src/services/unifiedEmojiSystem')) {
-            return 'emoji-system';
-          }
-          if (id.includes('src/services/PromptSystem')) {
-            return 'prompt-system';
-          }
+        // 简化的chunk分割策略 - 只分离核心依赖,避免循环依赖
+        manualChunks: {
+          // React 核心生态系统(包括 scheduler)
+          'react-vendor': ['react', 'react-dom', 'react/jsx-runtime'],
+          // PDF.js 独立分离(体积大)
+          'pdf': ['pdfjs-dist'],
         }
       }
     },
