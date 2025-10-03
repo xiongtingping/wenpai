@@ -8749,5 +8749,22 @@
     "redirecting": "Redirecting to login",
     "userAuthenticated": "User authenticated",
     "accessGranted": "Access granted"
+  },
+  "quickReference": {
+    "tabs": {
+      "brandLibrary": "Brand Library",
+      "brandLibraryDesc": "Brand assets and corpus content",
+      "myLibrary": "My Library",
+      "myLibraryDesc": "Personal collection materials",
+      "webRadar": "Web Radar",
+      "webRadarDesc": "Hot topics and radar favorites"
+    },
+    "empty": {
+      "noContent": "🎯 No reference content",
+      "noMatch": "🔍 No matching content",
+      "startCollecting": "Content will appear here after you start collecting {{tab}}!",
+      "tryAdjustSearch": "Try adjusting search keywords to see more content",
+      "journeyStarts": "Your content collection journey starts here ✨"
+    }
   }
 }

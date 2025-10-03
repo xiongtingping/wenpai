@@ -96,23 +96,23 @@ export function QuickReferenceDialog({
   const tabs = useMemo(() => [
     {
       value: 'brand' as TabType,
-      label: t('components.labels.品牌库'),
+      label: t('quickReference.tabs.brandLibrary'),
       icon: <Database className="h-4 w-4" />,
-      description: '品牌资产和语料库内容',
+      description: t('quickReference.tabs.brandLibraryDesc'),
       color: 'bg-blue-50 text-blue-700 border-blue-200'
     },
     {
       value: 'library' as TabType,
-      label: t('components.labels.我的资料库'),
+      label: t('quickReference.tabs.myLibrary'),
       icon: <Bookmark className="h-4 w-4" />,
-      description: '个人收藏的资料内容',
+      description: t('quickReference.tabs.myLibraryDesc'),
       color: 'bg-green-50 text-green-700 border-green-200'
     },
     {
       value: 'radar' as TabType,
-      label: t('components.labels.全网雷达'),
+      label: t('quickReference.tabs.webRadar'),
       icon: <Radar className="h-4 w-4" />,
-      description: '热点话题和雷达收藏',
+      description: t('quickReference.tabs.webRadarDesc'),
       color: 'bg-purple-50 text-purple-700 border-purple-200'
     }
   ], [t]);
@@ -544,7 +544,7 @@ export function QuickReferenceDialog({
                   marginBottom: '12px',
                   lineHeight: '1.3'
                 }}>
-                  {items[activeTab].length === 0 ? '🎯 暂无引用内容' : '🔍 没有符合条件的内容'}
+                  {items[activeTab].length === 0 ? t('quickReference.empty.noContent') : t('quickReference.empty.noMatch')}
                 </div>
                 <div className="text-muted-foreground" style={{
                   fontSize: '15px',
@@ -552,8 +552,8 @@ export function QuickReferenceDialog({
                   marginBottom: '6px'
                 }}>
                   {items[activeTab].length === 0
-                    ? `开始收集${tabs.find(t => t.value === activeTab)?.label}后，内容将在这里显示！`
-                    : '请尝试调整搜索关键词来查看更多内容'}
+                    ? t('quickReference.empty.startCollecting', { tab: tabs.find(t => t.value === activeTab)?.label })
+                    : t('quickReference.empty.tryAdjustSearch')}
                 </div>
                 {items[activeTab].length === 0 && (
                   <div className="text-muted-foreground" style={{
@@ -561,7 +561,7 @@ export function QuickReferenceDialog({
                     fontStyle: 'italic',
                     marginTop: '8px'
                   }}>
-                    您的内容收藏从这里开始 ✨
+                    {t('quickReference.empty.journeyStarts')}
                   </div>
                 )}
               </div>

@@ -8815,5 +8815,22 @@
     "redirecting": "重定向到登录页",
     "userAuthenticated": "用户已认证",
     "accessGranted": "允许访问"
+  },
+  "quickReference": {
+    "tabs": {
+      "brandLibrary": "品牌库",
+      "brandLibraryDesc": "品牌资产和语料库内容",
+      "myLibrary": "我的资料库",
+      "myLibraryDesc": "个人收藏的资料内容",
+      "webRadar": "全网雷达",
+      "webRadarDesc": "热点话题和雷达收藏"
+    },
+    "empty": {
+      "noContent": "🎯 暂无引用内容",
+      "noMatch": "🔍 没有符合条件的内容",
+      "startCollecting": "开始收集{{tab}}后，内容将在这里显示！",
+      "tryAdjustSearch": "请尝试调整搜索关键词来查看更多内容",
+      "journeyStarts": "您的内容收藏从这里开始 ✨"
+    }
   }
 }
