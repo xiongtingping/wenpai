@@ -176,8 +176,7 @@ export function TokenUsageSection({
       display: 'flex',
       flexDirection: 'column',
       visibility: 'visible',
-      opacity: 1,
-      height: '100%'
+      opacity: 1
     }}>
       <div style={{marginBottom: '0.75rem'}}>
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
@@ -218,7 +217,7 @@ export function TokenUsageSection({
       ) : (
         <>
           {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
-          <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1}}>
+          <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
             {/* Token使用量统计卡片 */}
                 <div className="bg-muted border-border" style={{
                   minWidth: '280px',
