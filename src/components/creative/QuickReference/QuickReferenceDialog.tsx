@@ -89,113 +89,6 @@ export function QuickReferenceDialog({
   // ✅ 使用统一的滚动锁定Hook
   useDialogScrollLock(open);
 
-  // ✅ 完全移除Floating UI，定位交由CSS控制
-  // 🛡️ Anchored 模式最小强化：用 !important 清除冲突并应用 Floating UI 结果
-  // ✅ 简化的定位修复 - 仅在必要时执行基础修复
-  useEffect(() => {
-    if (!open) return;
-    
-    console.log('🎯 Dialog定位fixingalready应用');
-    
-    const fixDialogPosition = () => {
-      // 🎯 多重选择器策略 - 确保能找到Dialog元素
-      const dialogElement = (
-        document.querySelector('.enhanced-quick-reference-dialog') ||
-        document.querySelector('.quick-reference-dialog') ||
-        document.querySelector('[role="dialog"][class*="quick-reference"]') ||
-        document.querySelector('[role="dialog"]') ||
-        document.querySelector('[data-radix-dialog-content]')
-      ) as HTMLElement;
-      
-      if (dialogElement) {
-        console.log('🎯 找到Dialog元素:', dialogElement.className);
-        // 🚨 清除可能冲突的inset属性
-        dialogElement.style.removeProperty('inset');
-        dialogElement.style.removeProperty('inset-block');
-        dialogElement.style.removeProperty('inset-inline');
-        dialogElement.style.removeProperty('inset-block-start');
-        dialogElement.style.removeProperty('inset-block-end');
-        dialogElement.style.removeProperty('inset-inline-start');
-        dialogElement.style.removeProperty('inset-inline-end');
-
-        // 🎯 强制应用正确的定位 - 增大顶部边距
-        dialogElement.style.setProperty('position', 'fixed', 'important');
-        dialogElement.style.setProperty('top', 'calc(8vh + 60px)', 'important'); // 🎨 视觉居中的顶部边距
-        dialogElement.style.setProperty('left', '50vw', 'important');
-        dialogElement.style.setProperty('transform', 'translateX(-50%)', 'important'); // 只水平居中
-        dialogElement.style.setProperty('z-index', '1000000', 'important');
-        dialogElement.style.setProperty('margin', '0', 'important');
-        
-        console.log('🎯 Dialog定位alreadyfixing:', {
-          position: dialogElement.style.position,
-          top: dialogElement.style.top,
-          left: dialogElement.style.left,
-          transform: dialogElement.style.transform
-        });
-      }
-      
-      // 🚨 修复背景遮罩 - 解决inset冲突问题
-      const overlayElement = (
-        document.querySelector('[data-radix-dialog-overlay]') ||
-        document.querySelector('.fixed.inset-0') ||
-        document.querySelector('.dialog-overlay')
-      ) as HTMLElement;
-      
-      if (overlayElement) {
-        console.log('🎯 找到背景遮罩元素:', overlayElement.className);
-        
-        // 🚨 彻底清除所有inset相关属性 - 这是背景层问题的根源
-        overlayElement.style.removeProperty('inset');
-        overlayElement.style.removeProperty('inset-block');
-        overlayElement.style.removeProperty('inset-inline');
-        overlayElement.style.removeProperty('inset-block-start');
-        overlayElement.style.removeProperty('inset-block-end');
-        overlayElement.style.removeProperty('inset-inline-start');
-        overlayElement.style.removeProperty('inset-inline-end');
-        
-        // 🔥 强制设置inset为initial - 彻底重置
-        overlayElement.style.setProperty('inset', 'initial', 'important');
-        overlayElement.style.setProperty('inset-block', 'initial', 'important');
-        overlayElement.style.setProperty('inset-inline', 'initial', 'important');
-        
-        // 🔥 使用视窗单位强制定位 - 确保相对于视窗而非文档
-        overlayElement.style.setProperty('position', 'fixed', 'important');
-        overlayElement.style.setProperty('top', '0vh', 'important');
-        overlayElement.style.setProperty('left', '0vw', 'important');
-        overlayElement.style.setProperty('right', '0vw', 'important');
-        overlayElement.style.setProperty('bottom', '0vh', 'important');
-        overlayElement.style.setProperty('width', '100vw', 'important');
-        overlayElement.style.setProperty('height', '100vh', 'important');
-        overlayElement.style.setProperty('z-index', '999999', 'important');
-        
-        // 保持原有的视觉效果
-        overlayElement.style.setProperty('background', 'hsl(var(--foreground) / 0.5)', 'important');
-        overlayElement.style.setProperty('backdrop-filter', 'blur(4px)', 'important');
-        
-        // 确保可见性
-        overlayElement.style.setProperty('visibility', 'visible', 'important');
-        overlayElement.style.setProperty('opacity', '1', 'important');
-        overlayElement.style.setProperty('display', 'block', 'important');
-        
-        console.log('🎯 背景遮罩alreadyfixing:', {
-          position: overlayElement.style.position,
-          top: overlayElement.style.top,
-          width: overlayElement.style.width,
-          height: overlayElement.style.height,
-          inset: overlayElement.style.inset || 'unset'
-        });
-      } else {
-        console.warn('🚨 not found背景遮罩元素');
-      }
-    };
-
-    // 多时机执行修复
-    fixDialogPosition();
-    setTimeout(fixDialogPosition, 50);
-    setTimeout(fixDialogPosition, 150);
-    setTimeout(fixDialogPosition, 300);
-  }, [open]);
-
 
 
 
@@ -373,7 +266,7 @@ export function QuickReferenceDialog({
           width: 'min(92vw, 1100px)',
           height: 'auto',
           maxWidth: '1100px',
-          maxHeight: '85vh',
+          maxHeight: '80vh',
           minWidth: '320px',
           minHeight: '500px',
           padding: '0',
