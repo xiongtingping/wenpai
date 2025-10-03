@@ -359,7 +359,7 @@ export function QuickReferenceDialog({
         className={cn(
           // ✅ 简化的BEM类名，交由CSS控制定位
           "enhanced-quick-reference-dialog",
-          "quick-reference-dialog", 
+          "quick-reference-dialog",
           "dialog__content--quick-reference",
           // 🚨 简化Tailwind类，移除可能的定位干扰
           "flex flex-col",
@@ -369,6 +369,26 @@ export function QuickReferenceDialog({
           "rounded-[24px] ring-1 ring-primary/10 ring-offset-1 ring-offset-background/80",
           "relative overflow-hidden"
         )}
+        style={{
+          width: 'min(92vw, 1100px)',
+          height: 'auto',
+          maxWidth: '1100px',
+          maxHeight: '85vh',
+          minWidth: '320px',
+          minHeight: '500px',
+          padding: '0',
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 1055,
+          display: 'flex',
+          flexDirection: 'column',
+          visibility: 'visible',
+          opacity: 1,
+          margin: 0,
+          borderRadius: '24px'
+        }}
       >
         {/* 🎯 标题区 - 完全复制历史记录弹窗的结构 */}
         <DialogHeader className="border-border bg-background" style={{
@@ -382,7 +402,7 @@ export function QuickReferenceDialog({
           {/* 右上角关闭按钮 - 完全复制 */}
           <button
             onClick={() => onOpenChange(false)}
-            className="border-border bg-background hover:bg-accent hover:border-border/80"
+            className="border-border bg-background hover:bg-muted hover:border-border/80"
             style={{
               position: 'absolute',
               top: '20px',
@@ -418,7 +438,7 @@ export function QuickReferenceDialog({
 
             {/* 右侧搜索框 - 完全复制 */}
             <div className="w-full lg:w-80 xl:w-96 relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl blur-sm opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl blur-sm opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-all duration-300" />
                 <Input
@@ -445,7 +465,7 @@ export function QuickReferenceDialog({
         </DialogHeader>
 
         {/* 🎯 内容区 - 完全复制历史记录弹窗的操作栏结构 */}
-        <div className="border-border bg-accent" style={{
+        <div className="border-border bg-muted/50" style={{
           borderBottom: '1px solid',
           padding: '12px 32px'
         }}>
@@ -472,7 +492,7 @@ export function QuickReferenceDialog({
                     "border transition-all",
                     activeTab === tab.value
                       ? "bg-primary border-primary text-primary-foreground"
-                      : "bg-accent border-border text-foreground hover:bg-accent/80 hover:border-primary"
+                      : "bg-card border-border text-foreground hover:bg-muted hover:border-primary"
                   )}
                   style={{
                     height: '36px',
@@ -555,7 +575,7 @@ export function QuickReferenceDialog({
               )}
               <button
                 onClick={resetFilters}
-                className="bg-background text-foreground border border-border hover:bg-accent hover:border-border/60"
+                className="bg-background text-foreground border border-border hover:bg-muted hover:border-border/60"
                 style={{
                   height: '36px',
                   padding: '0 12px',
@@ -577,7 +597,7 @@ export function QuickReferenceDialog({
 
         {/* 主内容列表 - 完全复制历史记录弹窗的结构 */}
         <div
-          className="bg-accent/30"
+          className="bg-muted/30"
           style={{
             flex: 1,
             minHeight: 0,
@@ -689,7 +709,7 @@ export function QuickReferenceDialog({
               {filteredItems.map((item) => (
                 <div
                   key={item.id}
-                  className="border border-border bg-background hover:bg-accent hover:border-border/60"
+                  className="border border-border bg-background hover:bg-muted/50 hover:border-border/60"
                   style={{
                     borderRadius: '12px',
                     padding: '24px',
@@ -838,7 +858,7 @@ export function QuickReferenceDialog({
                       {item.tags.slice(0, 5).map((tag, index) => (
                         <div
                           key={index}
-                          className="bg-accent text-muted-foreground border border-border"
+                          className="bg-muted/50 text-muted-foreground border border-border"
                           style={{
                             padding: '2px 8px',
                             borderRadius: '4px',
@@ -849,7 +869,7 @@ export function QuickReferenceDialog({
                         </div>
                       ))}
                       {item.tags.length > 5 && (
-                        <div className="bg-accent text-muted-foreground border border-border" style={{
+                        <div className="bg-muted/50 text-muted-foreground border border-border" style={{
                           padding: '2px 8px',
                           borderRadius: '4px',
                           fontSize: '12px'
@@ -861,7 +881,7 @@ export function QuickReferenceDialog({
                   )}
 
                   {/* 记录内容预览 - 完全复制 */}
-                  <div className="bg-accent border border-border" style={{
+                  <div className="bg-muted/50 border border-border" style={{
                     borderRadius: '10px',
                     padding: '16px',
                     marginTop: '16px'
@@ -910,7 +930,7 @@ export function QuickReferenceDialog({
             <div style={{display: 'flex', gap: '8px'}}>
               <button
                 onClick={() => setSelectedItems(new Set())}
-                className="bg-accent text-foreground border border-border"
+                className="bg-card text-foreground border border-border"
                 style={{
                   height: '36px',
                   padding: '0 12px',
