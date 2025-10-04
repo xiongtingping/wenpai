@@ -267,7 +267,18 @@ export function ContentAdapterPage({
 
     historyDataManager.saveData(list);
     console.log('✅ 历史记录saved，newquantity:', list.length);
-  }, [historyDataManager, user?.id, isAuthenticated]);
+
+    // 🔧 FIX: 内容生成完成后自动生成标题
+    results.forEach(r => {
+      if (r.content || (r.versions && r.versions[0]?.content)) {
+        const content = r.content || r.versions[0].content;
+        // 异步生成标题，不阻塞历史记录保存
+        setTimeout(() => {
+          generateTitle(content, r.platformId);
+        }, 100);
+      }
+    });
+  }, [historyDataManager, user?.id, isAuthenticated, generateTitle]);
 
   // 使用内容生成引擎Hook
   const {

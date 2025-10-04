@@ -224,9 +224,9 @@ export const PlatformHashtags: React.FC<any> = ({ platformId,
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="p-1 text-muted-foreground hover:text-muted-foreground rounded text-xs"
-            title={isExpanded ? t('components.labels.收起') : t('components.labels.展开')}
+            title={isExpanded ? t('common.collapse') : t('common.expand')}
           >
-            {isExpanded ? t('components.labels.收起') : t('components.labels.展开')}
+            {isExpanded ? t('common.collapse') : t('common.expand')}
           </button>
 
           <button

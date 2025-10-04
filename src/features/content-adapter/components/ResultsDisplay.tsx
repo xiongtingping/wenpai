@@ -290,7 +290,7 @@ function PlatformResultCard({
                           onVersionSelect(result.platformId, version.id);
                           onContentUpdate(result.platformId, e.target.value);
                         }}
-                        className="content-textarea text-sm flex-1"
+                        className="content-textarea text-sm flex-1 min-h-[300px]"
                         placeholder={`${version.title}内容...`}
                       />
                     </div>
@@ -324,7 +324,7 @@ function PlatformResultCard({
                 <Type className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium text-foreground">智能标题生成</span>
                 <span className="text-muted-foreground text-xs">
-                  (限{getEffectiveCharCount(result.platformId)}字)
+                  (限25字)
                 </span>
               </div>
               {titleState?.isGenerating ? (
