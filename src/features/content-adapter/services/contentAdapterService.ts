@@ -215,11 +215,24 @@ async function generateMultipleVersions(
 ): Promise<ContentVersion[]> {
   const versions: ContentVersion[] = [];
 
-  // 版本A：标准风格，结构化表达
-  const standardPrompt = `${basePrompt}\n\n【版本要求】请生成标准风格的内容，要求：\n- 结构清晰，逻辑严谨\n- 表达准确，用词规范\n- 重点突出，层次分明`;
+  // 版本A：标准风格，结构化、专业性强
+  const standardPrompt = `${basePrompt}\n\n【版本A - 标准专业风格】
+请生成一份专业、严谨的内容，具体要求：
+- 采用正式、规范的表达方式
+- 结构清晰，层次分明，使用小标题和要点
+- 提供数据、案例、专业术语支撑观点
+- 语言客观中立，注重逻辑性和可信度
+- 适合商务场景、行业分析、专业解读`;
 
-  // 版本B：创新风格，灵活化表达
-  const creativePrompt = `${basePrompt}\n\n【版本要求】请生成创新风格的内容，要求：\n- 表达生动，富有创意\n- 语言灵活，贴近用户\n- 情感丰富，引人入胜`;
+  // 版本B：创意风格，生动活泼、情感丰富
+  const creativePrompt = `${basePrompt}\n\n【版本B - 创意活泼风格】
+请生成一份生动、有趣的内容，具体要求：
+- 采用口语化、轻松的表达方式
+- 加入比喻、故事、场景化描述
+- 使用问句、感叹句增强互动感
+- 融入情感共鸣，拉近与读者距离
+- 语言灵活多变，富有感染力和趣味性
+- 适合社交媒体、个人分享、情感共鸣场景`;
 
   try {
     console.log(`starts为平台 ${platformId} 生成多versioncontent`);
@@ -587,14 +600,91 @@ export class ContentAdapterService {
   }
 
   /**
-   * 生成标题
+   * 生成标题 - 增强版
+   * 集成5种标题风格、多维度评分体系和质量过滤
    */
-  async generateTitle(content: string, model?: string): Promise<ContentGenerationResponse> {
+  async generateTitle(
+    content: string,
+    platform: string = 'default',
+    model?: string,
+    stylePreference?: string[]
+  ): Promise<ContentGenerationResponse> {
     try {
+      // 限制内容长度，避免token过多
+      const truncatedContent = content.length > 500 ? content.substring(0, 500) + '...' : content;
+
+      // 构建增强的提示词，包含5种风格
+      const stylePrompts = stylePreference && stylePreference.length > 0
+        ? `请生成以下风格的标题：${stylePreference.join('、')}`
+        : `请生成多样化的标题，包含以下风格：
+1. 结果+情绪型：强调使用结果 + 情感评价
+2. 提问钩子型：用好奇心驱动点击
+3. 原因+行动型：讲述为什么用 + 得到了什么
+4. 体验+反差型：从"以前"到"现在"的转变
+5. 工具+明确价值型：工具名称 + 功能/收益`;
+
       const aiParams: AICallParamsWithTracking = {
-        prompt: `为以下内容生成3个吸引人的标题：\n\n${content}`,
-        model: model || 'deepseek-chat',
-        maxTokens: 200,
+        prompt: `请基于以下内容生成5个吸引人的标题。
+
+【内容】
+${truncatedContent}
+
+【风格要求】
+${stylePrompts}
+
+【质量要求 - 必须严格遵守】
+1. 标题要准确概括核心内容（语义相关性 ≥ 60%）
+2. 具有情绪吸引力（冲突感、对比感、转变、情绪词）
+3. 结构多样化，避免重复句式
+4. **语义完整性要求**：
+   - 必须有自然的结尾，避免在半个词上截断
+   - 好的结尾：了、的、！、？、。、吧、呢、啊、哦
+   - 禁止的结尾：、是、和、让、要、在、文、工、台
+   - 避免语序异常如"让我小红书"、"工具帮我小"
+5. 充分利用字符空间，但不要为了凑字数而牺牲语义完整性
+6. 长度在8-30字之间
+
+【截断预防要求】
+- 如果接近字符限制，优先在自然边界处结束（句号、感叹号、逗号等）
+- 不要在词组中间强行截断
+- 确保标题即使被截断也能保持基本语义
+
+【输出格式】
+请以JSON格式返回，包含以下字段：
+{
+  "titles": [
+    {
+      "title": "标题内容",
+      "style": "风格类型",
+      "reasoning": "生成理由"
+    }
+  ]
+}
+
+请直接返回JSON，不要其他说明文字：`,
+        systemPrompt: `你是一个专业的标题生成专家，擅长生成高质量、多样化的标题。
+
+【核心原则】
+1. 与原文内容高度相关
+2. 具有强烈的吸引力和传播性
+3. **语义完整闭合** - 这是最重要的原则
+4. 风格多样，避免模板化
+
+【语义闭合要求】
+- 每个标题必须是完整的句子或短语
+- 避免在词组中间截断
+- 确保最后一个字是自然的结尾
+- 如果接近字数限制，优先缩短而不是强行填满
+
+【禁止行为】
+- 禁止生成未闭合的标题（如"发现宝藏AI工具让我小红书台、内容创作…"）
+- 禁止在关键词中间截断（如"...文…"、"...工…"）
+- 禁止出现语序异常（如"让我小红书优化"）
+
+请严格按照JSON格式返回结果。`,
+        model: model || 'google/gemini-2.0-flash-lite-preview',
+        maxTokens: 500,
+        temperature: 0.8,
         feature: '标题生成',
         taskType: AITaskType.TITLE_GENERATION
       };
@@ -602,12 +692,80 @@ export class ContentAdapterService {
       const result = await callAIWithTokenTracking(aiParams);
 
       if (result.success && result.content) {
-        // 提取第一个标题
-        const generatedTitle = result.content.split('\n')[0]?.replace(/^\d+\.\s*/, '') || '生成的标题';
-        
+        // 解析AI返回的JSON
+        let parsedTitles: any[] = [];
+        try {
+          let jsonContent = result.content.trim();
+          // 移除markdown代码块标记
+          if (jsonContent.startsWith('```json')) {
+            jsonContent = jsonContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+          } else if (jsonContent.startsWith('```')) {
+            jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+          }
+
+          const parsed = JSON.parse(jsonContent);
+          parsedTitles = parsed.titles || [];
+        } catch (parseError) {
+          console.warn('解析标题JSON失败，使用简单清理逻辑', parseError);
+          // 如果JSON解析失败，尝试简单提取
+          const lines = result.content.split('\n').filter(line => line.trim().length > 0);
+          parsedTitles = lines.slice(0, 5).map(line => ({
+            title: line.replace(/^[\d\.、\-\*]+\s*/, '').trim(),
+            style: 'unknown',
+            reasoning: '自动提取'
+          }));
+        }
+
+        // 对每个标题进行质量评分和过滤
+        const scoredTitles = parsedTitles.map(item => {
+          let title = this.cleanTitle(item.title || item);
+
+          // 应用截断修复（如果需要）
+          const platformLimit = this.getPlatformLimit(platform);
+          if (title.length > platformLimit) {
+            // 导入截断修复功能
+            const { fixTruncatedTitle } = require('@/utils/safeTrimTitle');
+            title = fixTruncatedTitle(title, platformLimit);
+          }
+
+          // 计算综合评分（这里简化实现，实际应调用QualityScoreService）
+          const semanticFit = this.estimateSemanticFit(title, content);
+          const emotionalAppeal = this.estimateEmotionalAppeal(title);
+          const semanticCompleteness = this.estimateSemanticCompleteness(title);
+          const utilizationScore = Math.min(title.length / platformLimit, 1.0);
+
+          const overallScore =
+            semanticFit * 0.50 +           // 语义相关性 50%
+            emotionalAppeal * 0.20 +       // 情绪吸引力 20%
+            0.15 +                          // 结构多样性 15% (简化)
+            semanticCompleteness * 0.10 +  // 语义完整性 10%
+            utilizationScore * 0.05;       // 字符利用率 5%
+
+          return {
+            title,
+            style: item.style || 'unknown',
+            reasoning: item.reasoning || '生成的标题',
+            overallScore
+          };
+        });
+
+        // 过滤和排序
+        const qualifiedTitles = scoredTitles
+          .filter(item =>
+            item.overallScore >= 0.6 &&
+            item.title.length >= 5 &&
+            item.title.length <= 50 &&
+            !item.title.includes('undefined') &&
+            !item.title.includes('null')
+          )
+          .sort((a, b) => b.overallScore - a.overallScore);
+
+        // 返回最佳标题
+        const bestTitle = qualifiedTitles[0]?.title || this.cleanTitle(result.content);
+
         return {
           success: true,
-          content: generatedTitle,
+          content: bestTitle,
           tokenUsage: result.tokenUsage
         };
       }
@@ -622,6 +780,78 @@ export class ContentAdapterService {
         error: error instanceof Error ? error.message : i18n.t('common.errors.标题生成失败')
       };
     }
+  }
+
+  /**
+   * 清理标题
+   */
+  private cleanTitle(title: string): string {
+    let cleaned = title.trim();
+
+    // 移除常见的前缀和格式符号
+    cleaned = cleaned
+      .replace(/^(好的|标题[:：]|以下是标题[:：]|这里是标题[:：]|标题如下[:：]|标题是[:：])/i, '')
+      .replace(/^[\d\.、]+\s*/, '') // 移除序号
+      .replace(/^["""''「」『』【】]/g, '') // 移除开头引号和括号
+      .replace(/["""''「」『』【】]$/g, '') // 移除结尾引号和括号
+      .trim();
+
+    return cleaned;
+  }
+
+  /**
+   * 估算语义相关性（简化版）
+   */
+  private estimateSemanticFit(title: string, content: string): number {
+    const titleWords = new Set(title.split(''));
+    const contentWords = new Set(content.substring(0, 200).split(''));
+
+    let commonCount = 0;
+    titleWords.forEach(word => {
+      if (contentWords.has(word)) commonCount++;
+    });
+
+    return Math.min(commonCount / Math.max(titleWords.size, 1), 1.0);
+  }
+
+  /**
+   * 估算情绪吸引力（简化版）
+   */
+  private estimateEmotionalAppeal(title: string): number {
+    const emotionalWords = ['惊艳', '震撼', '没想到', '竟然', '真的', '太', '提升', '改善', '优化'];
+    const matches = emotionalWords.filter(word => title.includes(word));
+    return Math.min(0.5 + matches.length * 0.15, 1.0);
+  }
+
+  /**
+   * 估算语义完整性（简化版）
+   */
+  private estimateSemanticCompleteness(title: string): number {
+    const goodEndings = ['了', '的', '！', '？', '。', '吧', '呢'];
+    const badEndings = ['、', '是', '和', '让', '要'];
+
+    const lastChar = title[title.length - 1];
+    if (goodEndings.includes(lastChar)) return 0.9;
+    if (badEndings.includes(lastChar)) return 0.3;
+    return 0.6;
+  }
+
+  /**
+   * 获取平台字符限制
+   */
+  private getPlatformLimit(platform: string): number {
+    const limits: Record<string, number> = {
+      'xiaohongshu': 20,
+      'wechat': 64,
+      'douyin': 2200,
+      'weibo': 2000,
+      'zhihu': 10000,
+      'bilibili': 80,
+      'toutiao': 30,
+      'default': 30
+    };
+
+    return limits[platform] || limits['default'];
   }
 
   /**
