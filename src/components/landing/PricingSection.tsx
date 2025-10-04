@@ -79,8 +79,22 @@ export function PricingSection() {
     }
 
     const checkPromoOffer = async () => {
-      const shouldShow = await shouldShowPromoOffer(currentUser.id);
-      setShowPromoOffer(shouldShow);
+      try {
+        // 🔧 FIX: 添加超时和错误处理，防止订阅检查阻塞UI
+        const timeoutPromise = new Promise<boolean>((resolve) =>
+          setTimeout(() => resolve(true), 5000) // 5秒后默认显示优惠
+        );
+
+        const shouldShow = await Promise.race([
+          shouldShowPromoOffer(currentUser.id),
+          timeoutPromise
+        ]);
+
+        setShowPromoOffer(shouldShow);
+      } catch (error) {
+        console.warn('检查优惠状态失败，默认显示优惠:', error);
+        setShowPromoOffer(true); // 出错时默认显示优惠
+      }
     };
 
     checkPromoOffer();
