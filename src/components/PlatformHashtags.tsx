@@ -204,7 +204,7 @@ export const PlatformHashtags: React.FC<any> = ({ platformId,
   }
 
   return (
-    <div className="mt-3 p-3 bg-accent rounded-lg border">
+    <div className="mt-3 p-3 bg-muted/50 rounded-lg border">
       {/* 标题和控制按钮 */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-2">
@@ -214,7 +214,7 @@ export const PlatformHashtags: React.FC<any> = ({ platformId,
             ({tags.length}/{Math.min(getPlatformLimits(platformId).max, 8)}个)
           </span>
           {tags.length > 0 && (
-            <span className="text-xs text-foreground bg-accent px-1 rounded">
+            <span className="text-xs text-muted-foreground bg-muted px-1 rounded">
               {extractedTags && extractedTags.length > 0 ? '✓ 已提取' : '✓ 已生成'}
             </span>
           )}
@@ -242,8 +242,8 @@ export const PlatformHashtags: React.FC<any> = ({ platformId,
             onClick={copyAllTags}
             className={`px-2 py-1 text-xs rounded transition-all duration-200 ${
               copyFeedback
-                ? 'bg-accent text-primary-foreground'
-                : 'bg-primary text-primary-foreground hover:bg-primary'
+                ? 'bg-secondary text-secondary-foreground'
+                : 'bg-primary text-primary-foreground hover:bg-primary/90'
             }`}
           >
             {copyFeedback ? '已复制 ✓' : '复制'}
@@ -259,7 +259,7 @@ export const PlatformHashtags: React.FC<any> = ({ platformId,
             {tags.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-2 py-1 bg-accent text-primary text-xs rounded-full"
+                className="inline-flex items-center px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded-full"
               >
                 #{tag}
               </span>
@@ -279,7 +279,7 @@ export const PlatformHashtags: React.FC<any> = ({ platformId,
               {tags.map((tag, index) => (
                 <div
                   key={index}
-                  className="inline-flex items-center bg-accent text-primary text-xs rounded-full"
+                  className="inline-flex items-center bg-secondary text-secondary-foreground text-xs rounded-full"
                 >
                   {editingIndex === index ? (
                     <input
