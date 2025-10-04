@@ -30,7 +30,7 @@ import {
 import ContentInputSection from './ContentInputSection';
 import PlatformSelector from './PlatformSelector';
 import GenerationControls from './GenerationControls';
-import ResultsDisplay from './ResultsDisplay';
+import { ResultsDisplay } from './ResultsDisplay'; // 🔧 FIX: 使用命名导入确保获取正确的组件
 import { BatchForwardModal } from '@/components/BatchForwardModal';
 import { AutomationUI, AutomationProgress, AutomationResult, AutomationOptions } from '@/components/AutomationUI';
 import { AIContentGenerationAnimation } from '@/components/AIContentGenerationAnimation';

@@ -519,4 +519,5 @@ export function ResultsDisplay({
   );
 }
 
-export default ResultsDisplay;
+// 🔧 FIX: 移除可能导致引用错误的默认导出,统一使用命名导出
+// export default ResultsDisplay;
