@@ -553,14 +553,27 @@ export function ContentAdapterPage({
     }
 
     // 扣减使用次数
-    // 注意: 这里需要通过 useUnifiedStore 来扣减使用次数
-    // useAuthStore 是 React Hook,不能在回调函数中直接调用
+    // 🔧 FIX: 调用unifiedUsageInfo的consumeUsage方法来扣减使用次数
     try {
-      // TODO: 实现使用次数扣减逻辑
-      // 暂时只记录日志,不阻塞功能
-      console.log('✅ 使用countchecking通过，剩余:', Math.max(0, maxUsage - (usageCount + 1)));
+      const consumed = await unifiedUsageInfo.consumeUsage(1);
+      if (!consumed) {
+        console.error('❌ 扣减使用次数失败');
+        toast({
+          title: t('adapt.errors.usageDeductionFailed'),
+          description: t('adapt.messages.tryAgainLater'),
+          variant: "destructive"
+        });
+        return;
+      }
+      console.log('✅ 使用次数扣减成功，剩余:', Math.max(0, maxUsage - (usageCount + 1)));
     } catch (error) {
-      console.error('❌ 扣减使用countfailed:', error);
+      console.error('❌ 扣减使用次数异常:', error);
+      toast({
+        title: t('adapt.errors.usageDeductionError'),
+        description: t('adapt.messages.systemError'),
+        variant: "destructive"
+      });
+      return;
     }
 
     const request = {
