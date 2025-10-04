@@ -197,7 +197,26 @@ class UnifiedUsageDataManager {
       // 同步到 globalDataManager
       await globalDataManager.setData('usageCountStats', stats);
 
-      logger.info('✅ 从数据库获取使用次数统计', { userId, userTier, usedCount, availableUses, stats });
+      logger.info('✅ 从数据库获取使用次数统计', {
+        userId,
+        userTier,
+        usedCount,
+        availableUses,
+        remainingUses: stats.remainingUses,
+        rawUsageData: usageData,
+        stats
+      });
+
+      // 🔍 额外的控制台日志，方便调试
+      console.log('📊 数据库使用次数查询结果:', {
+        用户ID: userId,
+        用户等级: userTier,
+        本月已使用: usedCount,
+        总可用次数: availableUses,
+        剩余次数: stats.remainingUses,
+        原始数据: usageData
+      });
+
       return stats;
     } catch (error) {
       logger.error('获取使用次数统计失败', { userId, userTier, error });
