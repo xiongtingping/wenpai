@@ -537,7 +537,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     setTitleStates({});
   }, []);
 
-  return {
+  const returnValue = {
     // 状态
     generating,
     results,
@@ -561,4 +561,11 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     resetState,
     updateStep
   };
+
+  // 🔧 DEBUG: 验证titleStates是否存在于返回值中
+  if (typeof returnValue.titleStates === 'undefined') {
+    console.error('❌ useContentAdapterEngine返回的titleStates是undefined!');
+  }
+
+  return returnValue;
 }

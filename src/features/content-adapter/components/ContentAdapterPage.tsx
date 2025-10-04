@@ -270,6 +270,20 @@ export function ContentAdapterPage({
   }, [historyDataManager, user?.id, isAuthenticated]);
 
   // 使用内容生成引擎Hook
+  const hookResult = useContentAdapterEngine({
+    globalSettings,
+    platformSettings,
+    selectedModel,
+    useBrandLibrary,
+    brandProfile,
+    onGenerationComplete: saveToHistory
+  });
+
+  // 🔧 DEBUG: 验证解构前的值
+  if (typeof hookResult.titleStates === 'undefined') {
+    console.error('❌ hookResult中titleStates是undefined!', hookResult);
+  }
+
   const {
     generating,
     results,
@@ -285,14 +299,12 @@ export function ContentAdapterPage({
     generateTitle,
     updatePlatformContent,
     clearResults
-  } = useContentAdapterEngine({
-    globalSettings,
-    platformSettings,
-    selectedModel,
-    useBrandLibrary,
-    brandProfile,
-    onGenerationComplete: saveToHistory
-  });
+  } = hookResult;
+
+  // 🔧 DEBUG: 验证解构后的值
+  if (typeof titleStates === 'undefined') {
+    console.error('❌ 解构后titleStates是undefined!');
+  }
 
   // 使用生成队列Hook
   const {
