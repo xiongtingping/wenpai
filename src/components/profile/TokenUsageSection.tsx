@@ -18,6 +18,7 @@ import {
   Database
 } from 'lucide-react';
 import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats';
+import { useUsageCount, useTokenStats } from '@/hooks/useUsage';
 import { 
   formatRemainingUses, 
   formatUsageDisplay,
@@ -112,14 +113,46 @@ export function TokenUsageSection({
 }: TokenUsageSectionProps) {
   const { t } = useTranslation(); // 🔧 FIX: 添加国际化函数初始化
 
+  // 🎯 新架构: 优先使用 unified-state-store 的数据
+  const storeUsageCount = useUsageCount();
+  const storeTokenStats = useTokenStats();
+
+  // 🔧 兼容旧代码: 仍然调用旧Hook作为降级方案
   const {
-    tokenStats,
-    usageCountStats,
+    tokenStats: legacyTokenStats,
+    usageCountStats: legacyUsageCountStats,
     extendedStats,
-    loading,
+    loading: legacyLoading,
     error,
     refreshStats
   } = useUnifiedUsageStats(userTier);
+
+  // 🎯 统一数据: 优先使用新Store的数据，降级到旧Hook
+  const loading = storeUsageCount.loading || storeTokenStats.loading || legacyLoading;
+  const tokenStats = storeTokenStats.stats || legacyTokenStats;
+  const usageCountStats = {
+    usedCount: storeUsageCount.used,
+    availableUses: storeUsageCount.available,
+    remainingUses: storeUsageCount.remaining,
+    usagePercentage: storeUsageCount.percentage
+  };
+
+  // 🔍 调试日志: 帮助诊断数据来源
+  React.useEffect(() => {
+    console.log('📊 TokenUsageSection 数据状态:', {
+      来源: {
+        新Store使用次数: { used: storeUsageCount.used, available: storeUsageCount.available, remaining: storeUsageCount.remaining },
+        新StoreToken: storeTokenStats.stats ? { used: storeTokenStats.monthlyUsed, limit: storeTokenStats.monthlyLimit } : null,
+        旧Hook使用次数: legacyUsageCountStats,
+        旧HookToken: legacyTokenStats
+      },
+      最终数据: {
+        tokenStats,
+        usageCountStats,
+        loading
+      }
+    });
+  }, [storeUsageCount, storeTokenStats, legacyUsageCountStats, legacyTokenStats, tokenStats, usageCountStats, loading]);
 
   // 🔧 FIX: 使用 useMemo 缓存计算结果，避免不必要的重新渲染
   const finalUsageCountStats = React.useMemo(() => {
@@ -165,7 +198,11 @@ export function TokenUsageSection({
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await refreshStats();
+      // 🎯 新架构: 同时刷新新Store和旧Hook的数据
+      await Promise.all([
+        storeUsageCount.consumeUsage(0), // 触发Store刷新
+        refreshStats() // 兼容旧Hook刷新
+      ]);
     } finally {
       setIsRefreshing(false);
     }
