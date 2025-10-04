@@ -126,7 +126,8 @@ function PlatformResultCard({
   result: PlatformResult;
   isRetrying: boolean;
   isGeneratingComparison: boolean;
-  titleState?: { hasTitle: boolean; isGenerating: boolean };
+  // 🔧 FIX: 添加 title 字段，与 Hook 返回的类型保持一致
+  titleState?: { title?: string; hasTitle: boolean; isGenerating: boolean };
   comparisonContent?: string;
   showComparison?: boolean;
   selectedVersions: Record<string, string>;
@@ -326,15 +327,15 @@ function PlatformResultCard({
                   (限{getEffectiveCharCount(result.platformId)}字)
                 </span>
               </div>
-              {safeTitleStates[result.platformId]?.isGenerating ? (
+              {titleState?.isGenerating ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   <span>正在生成标题...</span>
                 </div>
-              ) : safeTitleStates[result.platformId]?.title ? (
+              ) : titleState?.title ? (
                 <div className="space-y-2">
                   <div className="p-3 bg-muted/50 rounded border">
-                    <p className="text-sm font-medium">{safeTitleStates[result.platformId].title}</p>
+                    <p className="text-sm font-medium">{titleState.title}</p>
                   </div>
                   <Button
                     size="sm"
@@ -449,9 +450,6 @@ export function ResultsDisplay({
   getEffectiveCharCount
 }: ResultsDisplayProps) {
   const { t } = useTranslation();
-
-  // 🔧 FIX: 防御性处理 - 确保titleStates永远不会是undefined
-  const safeTitleStates = titleStates || {};
 
   if (results.length === 0) {
     return (
