@@ -285,8 +285,12 @@ export class UnifiedAIManager {
   private buildRequestBody(config: UnifiedAIConfig, params: AICallParams): any {
     const messages = [];
 
+    // 🔧 修复: Gemini等模型不支持system role，需要合并到user消息
+    const isGemini = config.model.toLowerCase().includes('gemini');
+    const supportsSystemRole = !isGemini; // 可以根据需要扩展不支持的模型列表
+
     // 添加系统消息
-    if (params.systemPrompt) {
+    if (params.systemPrompt && supportsSystemRole) {
       messages.push({
         role: 'system',
         content: params.systemPrompt
@@ -299,9 +303,14 @@ export class UnifiedAIManager {
     }
 
     // 添加用户消息
+    // 🔧 如果模型不支持system role，将system prompt合并到user消息
+    const userContent = params.systemPrompt && !supportsSystemRole
+      ? `${params.systemPrompt}\n\n${params.prompt}`
+      : params.prompt;
+
     messages.push({
       role: 'user',
-      content: params.prompt
+      content: userContent
     });
 
     // 🔧 除DeepSeek外，统一使用OpenAI格式 (通过AIMLAPI)

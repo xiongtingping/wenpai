@@ -549,9 +549,10 @@ export function ContentAdapterPage({
 
     // 🎯 新架构: 扣减使用次数(乐观更新+自动回滚)
     try {
+      console.log('🔄 准备扣减使用次数，当前状态:', { used, available, remaining });
       const consumed = await consumeUsage(1);
       if (!consumed) {
-        console.error('❌ 使用次数不足');
+        console.error('❌ 使用次数不足，扣减失败');
 
         // 显示升级提示
         const isPremium = effectiveUserTier === 'premium';
@@ -577,7 +578,7 @@ export function ContentAdapterPage({
         });
         return;
       }
-      console.log('✅ 使用次数扣减成功，剩余:', Math.max(0, maxUsage - (usageCount + 1)));
+      console.log('✅ 使用次数扣减成功，新状态:', { used: used + 1, remaining: remaining - 1 });
     } catch (error) {
       console.error('❌ 扣减使用次数异常:', error);
       toast({
