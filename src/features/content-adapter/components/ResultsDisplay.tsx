@@ -30,10 +30,11 @@ import type { PlatformResult, GenerationStep } from '../hooks';
 interface ResultsDisplayProps {
   // 结果数据
   results: PlatformResult[];
-  
+
   // 状态
   retryingPlatforms: Set<string>;
   generatingComparison: Set<string>;
+  // 🔧 FIX: 标记为必需属性，确保调用方必须传递（即使是空对象）
   titleStates: Record<string, {
     title?: string;
     hasTitle: boolean;
@@ -325,15 +326,15 @@ function PlatformResultCard({
                   (限{getEffectiveCharCount(result.platformId)}字)
                 </span>
               </div>
-              {titleStates[result.platformId]?.isGenerating ? (
+              {safeTitleStates[result.platformId]?.isGenerating ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   <span>正在生成标题...</span>
                 </div>
-              ) : titleStates[result.platformId]?.title ? (
+              ) : safeTitleStates[result.platformId]?.title ? (
                 <div className="space-y-2">
                   <div className="p-3 bg-muted/50 rounded border">
-                    <p className="text-sm font-medium">{titleStates[result.platformId].title}</p>
+                    <p className="text-sm font-medium">{safeTitleStates[result.platformId].title}</p>
                   </div>
                   <Button
                     size="sm"
@@ -428,7 +429,7 @@ export function ResultsDisplay({
   results,
   retryingPlatforms,
   generatingComparison,
-  titleStates = {}, // 🔧 FIX: 提供默认空对象,避免undefined错误
+  titleStates, // 🔧 FIX: 移除默认值，要求调用方必须传递
   comparisonContent,
   showComparison,
   extractedTagsMap,
@@ -448,6 +449,9 @@ export function ResultsDisplay({
   getEffectiveCharCount
 }: ResultsDisplayProps) {
   const { t } = useTranslation();
+
+  // 🔧 FIX: 防御性处理 - 确保titleStates永远不会是undefined
+  const safeTitleStates = titleStates || {};
 
   if (results.length === 0) {
     return (

@@ -97,6 +97,7 @@ export interface UseContentAdapterEngineReturn extends ContentAdapterEngineState
 
 /**
  * 内容适配器引擎Hook
+ * 🔧 FIX: 显式声明返回类型，确保生产环境不会丢失属性
  */
 export function useContentAdapterEngine(params: UseContentAdapterEngineParams): UseContentAdapterEngineReturn {
   const { toast } = useToast();
@@ -537,7 +538,8 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     setTitleStates({});
   }, []);
 
-  const returnValue = {
+  // 🔧 FIX: 显式声明返回值类型，防止生产环境压缩时属性丢失
+  const returnValue: UseContentAdapterEngineReturn = {
     // 状态
     generating,
     results,
@@ -561,11 +563,6 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     resetState,
     updateStep
   };
-
-  // 🔧 DEBUG: 验证titleStates是否存在于返回值中
-  if (typeof returnValue.titleStates === 'undefined') {
-    console.error('❌ useContentAdapterEngine返回的titleStates是undefined!');
-  }
 
   return returnValue;
 }
