@@ -199,14 +199,35 @@ export class UsageCountService {
   }
 
   static async getUserUsageCount(userId: string) {
-    const { data, error } = await supabase
-      .rpc('get_user_usage_count', { p_user_id: userId })
-    
-    if (error) {
-      console.error('Error fetching usage count:', error)
-      return null
+    try {
+      // 🎯 直接查询usage_count_records表并聚合
+      // 计算本月的使用次数
+      const now = new Date();
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+      const { data, error, count } = await supabase
+        .from('usage_count_records')
+        .select('amount', { count: 'exact' })
+        .eq('user_id', userId)
+        .gte('used_at', firstDayOfMonth);
+
+      if (error) {
+        console.error('Error fetching usage count:', error);
+        return null;
+      }
+
+      // 聚合使用次数
+      const monthly_used = data?.reduce((sum, record) => sum + (record.amount || 0), 0) || 0;
+
+      return {
+        total_used: monthly_used, // 暂时用月度数据作为总计
+        monthly_used,
+        daily_used: 0 // 可以后续优化添加日使用统计
+      };
+    } catch (error) {
+      console.error('Error in getUserUsageCount:', error);
+      return null;
     }
-    return data[0] || { total_used: 0, monthly_used: 0, daily_used: 0 }
   }
 }
 
