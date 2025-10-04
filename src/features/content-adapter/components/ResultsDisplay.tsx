@@ -270,43 +270,37 @@ function PlatformResultCard({
                 </div>
               </div>
 
-              {/* 版本选择器 */}
-              {result.versions && result.versions.length > 1 && (
-                <div className="mb-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs text-muted-foreground">选择版本:</span>
-                    <div className="flex gap-1">
-                      {result.versions.map((version) => {
-                        const isSelected = selectedVersions[result.platformId] === version.id;
-                        return (
-                          <Button
-                            key={version.id}
-                            size="sm"
-                            variant={isSelected ? "default" : "outline"}
-                            className="h-6 px-2 text-xs"
-                            onClick={() => {
-                              onVersionSelect(result.platformId, version.id);
-                              onContentUpdate(result.platformId, version.content);
-                            }}
-                          >
-                            {version.title}
-                            <span className="ml-1 text-xs opacity-70">
-                              ({version.charCount}字)
-                            </span>
-                          </Button>
-                        );
-                      })}
+              {/* 🔧 FIX: 版本左右布局 - 版本A在左,版本B在右 */}
+              {result.versions && result.versions.length > 1 ? (
+                <div className="grid grid-cols-2 gap-4">
+                  {result.versions.map((version) => (
+                    <div key={version.id} className="flex flex-col">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-sm font-medium">{version.title}</label>
+                        <span className="text-xs text-muted-foreground">
+                          {version.charCount}字
+                        </span>
+                      </div>
+                      <Textarea
+                        value={version.content}
+                        onChange={(e) => {
+                          onVersionSelect(result.platformId, version.id);
+                          onContentUpdate(result.platformId, e.target.value);
+                        }}
+                        className="content-textarea text-sm flex-1"
+                        placeholder={`${version.title}内容...`}
+                      />
                     </div>
-                  </div>
+                  ))}
                 </div>
+              ) : (
+                <Textarea
+                  value={result.content}
+                  onChange={(e) => onContentUpdate(result.platformId, e.target.value)}
+                  className="content-textarea text-sm"
+                  placeholder="生成的内容将显示在这里..."
+                />
               )}
-
-              <Textarea
-                value={result.content}
-                onChange={(e) => onContentUpdate(result.platformId, e.target.value)}
-                className="content-textarea text-sm"
-                placeholder="生成的内容将显示在这里..."
-              />
             </div>
 
             {/* 对比内容 */}
@@ -330,20 +324,35 @@ function PlatformResultCard({
                   (限{getEffectiveCharCount(result.platformId)}字)
                 </span>
               </div>
-              {/* 暂时禁用TitleGenerator以解决TDZ错误 */}
-              <div className="text-sm text-muted-foreground">
-                标题生成功能暂时禁用
-              </div>
-              {/* <TitleGenerator
-                content={result.content || (result.versions && result.versions[0]?.content) || ''}
-                versions={result.error ? [] : (result.versions || [])}
-                platformId={result.platformId}
-                platformName={getPlatformName(result.platformId)}
-                onTitleChange={(title) => {
-                  // 标题变更处理逻辑
-                  console.log('titleupdated:', title);
-                }}
-              /> */}
+              {titleStates[result.platformId]?.isGenerating ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>正在生成标题...</span>
+                </div>
+              ) : titleStates[result.platformId]?.title ? (
+                <div className="space-y-2">
+                  <div className="p-3 bg-muted/50 rounded border">
+                    <p className="text-sm font-medium">{titleStates[result.platformId].title}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onGenerateTitle(result.platformId, result.content || result.versions?.[0]?.content || '')}
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    重新生成
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={() => onGenerateTitle(result.platformId, result.content || result.versions?.[0]?.content || '')}
+                  disabled={!result.content && !result.versions?.[0]?.content}
+                >
+                  <Type className="h-4 w-4 mr-1" />
+                  生成标题
+                </Button>
+              )}
             </div>
 
             {/* 标签生成器 */}

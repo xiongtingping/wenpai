@@ -291,7 +291,7 @@ async function generateMultipleVersions(
       systemPrompt: buildSystemPrompt(`你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`),
       maxTokens: maxTokens,
       temperature: 0.7
-    }, i18n.t('common.labels.标准版本'), platformId);
+    }, '标准版本', platformId);
 
     // 生成创意版本
     const creativeResult = await callAIWithRetry({
@@ -300,7 +300,7 @@ async function generateMultipleVersions(
       systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`),
       maxTokens: maxTokens,
       temperature: 0.9
-    }, i18n.t('common.labels.创意版本'), platformId);
+    }, '创意版本', platformId);
 
     // 处理标准版本结果
     if (standardResult.success && standardResult.content) {
@@ -311,7 +311,7 @@ async function generateMultipleVersions(
         id: 'version-a',
         content: cleanContent,
         style: 'standard',
-        title: i18n.t('common.labels.标准版本'),
+        title: '版本A',
         charCount: actualCharCount,
         tags: extractedTags
       });
@@ -326,7 +326,7 @@ async function generateMultipleVersions(
         id: 'version-b',
         content: cleanContent,
         style: 'creative',
-        title: i18n.t('common.labels.创意版本'),
+        title: '版本B',
         charCount: actualCharCount,
         tags: extractedTags
       });
@@ -348,7 +348,7 @@ async function generateMultipleVersions(
           id: 'version-fallback',
           content: fallbackResult.content,
           style: 'standard',
-          title: i18n.t('common.labels.生成版本'),
+          title: '基础版本',
           charCount: fallbackResult.content.length
         });
       }

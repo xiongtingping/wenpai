@@ -79,9 +79,9 @@ class UnifiedUsageDataManager {
     this.clearAllCache();
 
     try {
-      // 初始化Supabase服务
-      this.supabaseService = createDataService(userId, TABLE_NAMES.USER_BRAND_CORPUS);
-      
+      // 初始化Supabase服务 - 🔧 FIX: 使用正确的使用统计表
+      this.supabaseService = createDataService(userId, TABLE_NAMES.USAGE_COUNT_RECORDS);
+
       // 设置数据管理器用户ID
       globalDataManager.setUserId(userId);
       
@@ -275,10 +275,11 @@ class UnifiedUsageDataManager {
         lastUpdated: new Date().toISOString()
       };
 
-      // 原子更新：同时更新缓存和云端
+      // 原子更新：同时更新缓存和记录到Supabase
       await Promise.all([
         globalDataManager.setData('usageCountStats', updatedStats),
-        this.syncUsageStatsToSupabase(userId, updatedStats)
+        // 🔧 FIX: 创建使用记录到usage_count_records表
+        this.createUsageRecord(userId, 'content-adapter', amount)
       ]);
 
       // 清除缓存，强制下次获取最新数据
@@ -299,39 +300,38 @@ class UnifiedUsageDataManager {
   }
 
   /**
-   * 同步使用统计到Supabase
+   * 创建使用记录到Supabase
+   * 🔧 FIX: 使用usage_count_records表记录每次使用
    */
-  private async syncUsageStatsToSupabase(userId: string, stats: UsageCountStats): Promise<void> {
-    if (!this.supabaseService) return;
+  private async createUsageRecord(userId: string, feature: string, amount: number): Promise<void> {
+    if (!this.supabaseService) {
+      logger.debug('Supabase服务未初始化,跳过创建使用记录');
+      return;
+    }
 
     try {
       const recordData = {
-        brand_name: 'user_usage_stats',
-        corpus_name: `用户使用统计_${userId}`,
-        brand_description: JSON.stringify(stats), // 🔧 FIX: 使用brand_description替代corpus_content
-        metadata: {
-          dataType: 'usage_count_stats',
-          lastUpdated: new Date().toISOString(),
-          version: '2.0'
-        }
+        user_id: userId,
+        feature: feature,
+        amount: amount,
+        used_at: new Date().toISOString()
       };
 
-      // 检查是否已存在
-      const existing = await this.supabaseService.findMany({
-        filters: { brand_name: 'user_usage_stats' },
-        limit: 1
-      });
-
-      if (existing.data && existing.data.length > 0) {
-        await this.supabaseService.update(existing.data[0].id, recordData);
-      } else {
-        await this.supabaseService.create(recordData);
-      }
-
-      logger.info('✅ 使用统计已同步到Supabase');
+      await this.supabaseService.create(recordData);
+      logger.info('✅ 使用记录已创建', { userId, feature, amount });
     } catch (error) {
-      logger.error('❌ 同步使用统计到Supabase失败', error);
+      logger.error('❌ 创建使用记录失败', { userId, feature, amount, error });
+      // 不抛出错误,允许本地缓存继续工作
     }
+  }
+
+  /**
+   * 同步使用统计到Supabase (已废弃,保留用于兼容)
+   * 🔧 FIX: usage_count_records表用于记录每次使用,不是存储汇总统计
+   */
+  private async syncUsageStatsToSupabase(userId: string, stats: UsageCountStats): Promise<void> {
+    // 不再需要,使用createUsageRecord代替
+    logger.debug('syncUsageStatsToSupabase已废弃,使用createUsageRecord');
   }
 
   /**
