@@ -173,6 +173,19 @@ export function ContentAdapterPage({
   // Store已经处理了缓存和一致性,组件只需消费数据
   const displayRemaining = propUsageRemaining !== undefined ? propUsageRemaining : remaining;
 
+  // 🔍 调试日志
+  React.useEffect(() => {
+    console.log('🎯 ContentAdapterPage 使用次数状态:', {
+      来源: 'useUsageCount Hook',
+      used,
+      available,
+      remaining,
+      displayRemaining,
+      propUsageRemaining,
+      兼容层数据: { usageCount, maxUsage, usageRemaining }
+    });
+  }, [used, available, remaining, displayRemaining, propUsageRemaining, usageCount, maxUsage, usageRemaining]);
+
   // 使用设置管理Hook
   const {
     globalSettings,

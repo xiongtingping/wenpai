@@ -545,6 +545,8 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
         },
 
         initializeUsageStats: async (userId: string, userTier: SubscriptionTier) => {
+          console.log('🔄 Store.initializeUsageStats 开始:', { userId, userTier });
+
           set((state) => {
             state.loading.tokenUsage = true;
           });
@@ -555,6 +557,9 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
 
             const stats = await unifiedUsageDataManager.getUserUsageCountStats(userId, userTier);
 
+            console.log('✅ Store 获取到使用统计数据:', stats);
+
+            // 🎯 强制更新，覆盖持久化的旧值
             set((state) => {
               state.usageCount = {
                 used: stats.usedCount,
@@ -567,6 +572,8 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
               state.loading.tokenUsage = false;
               state.lastUpdated = new Date().toISOString();
             });
+
+            console.log('✅ Store.usageCount 已更新:', get().usageCount);
           } catch (error) {
             console.error('❌ 初始化使用统计失败:', error);
             set((state) => {
