@@ -247,18 +247,165 @@
     opacity: 1;
   }
 
+  /* 🎨 统一文字排版系统 - 修复大小和颜色不统一问题 */
+
+  /* 主标题系统 - 递进式大小 */
+  .ds-title-main {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: hsl(var(--foreground));
+  }
+
+  .ds-title-section {
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: hsl(var(--foreground));
+  }
+
+  .ds-title-sub {
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    font-weight: 600;
+    line-height: 1.4;
+    color: hsl(var(--foreground) / 0.9);
+  }
+
+  .ds-title-card {
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    font-weight: 600;
+    line-height: 1.3;
+    color: hsl(var(--foreground));
+  }
+
+  /* 正文系统 - 层级分明 */
+  .ds-text-body {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: hsl(var(--foreground) / 0.85);
+  }
+
+  .ds-text-body-large {
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: 1.7;
+    color: hsl(var(--foreground) / 0.85);
+  }
+
+  .ds-text-body-small {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: hsl(var(--foreground) / 0.75);
+  }
+
+  /* 辅助文字系统 */
+  .ds-text-helper {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .ds-text-caption {
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.3;
+    color: hsl(var(--muted-foreground) / 0.8);
+  }
+
+  /* 颜色变体系统 - 丰富色彩层次 */
+  .ds-text-primary-strong {
+    color: hsl(var(--primary));
+    font-weight: 600;
+  }
+
+  .ds-text-primary-medium {
+    color: hsl(var(--primary) / 0.8);
+    font-weight: 500;
+  }
+
+  .ds-text-primary-light {
+    color: hsl(var(--primary) / 0.6);
+    font-weight: 400;
+  }
+
+  .ds-text-accent-strong {
+    color: hsl(var(--accent));
+    font-weight: 600;
+  }
+
+  .ds-text-accent-medium {
+    color: hsl(var(--accent) / 0.8);
+    font-weight: 500;
+  }
+
+  .ds-text-secondary-strong {
+    color: hsl(var(--secondary));
+    font-weight: 600;
+  }
+
+  .ds-text-muted-dark {
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
+  }
+
+  .ds-text-muted-light {
+    color: hsl(var(--muted-foreground) / 0.7);
+    font-weight: 400;
+  }
+
+  /* 特殊效果文字 */
+  .ds-text-gradient-primary {
+    background: linear-gradient(135deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--secondary)) 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+  }
+
+  .ds-text-gradient-accent {
+    background: linear-gradient(135deg,
+      hsl(var(--accent)) 0%,
+      hsl(var(--primary)) 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+  }
+
   /* 响应式文字大小优化 */
   @media (max-width: 640px) {
     .ds-title-main {
       font-size: 2.5rem;
       line-height: 1.2;
     }
-    
+
+    .ds-title-section {
+      font-size: 1.75rem;
+      line-height: 1.3;
+    }
+
     .ds-title-sub {
       font-size: 1.25rem;
       line-height: 1.4;
     }
-    
+
+    .ds-title-card {
+      font-size: 1.125rem;
+    }
+
+    .ds-text-body-large {
+      font-size: 1rem;
+    }
+
     .theme-hero-button {
       padding: 1rem 2rem;
       font-size: 1rem;

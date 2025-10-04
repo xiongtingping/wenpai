@@ -565,14 +565,14 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="payment-page payment-container min-h-screen bg-background">
+    <div className="payment-page payment-container min-h-screen bg-background" style={{ paddingTop: '64px' }}>
       {/* 统一Header */}
       <Header />
 
       {/* 页面内容 */}
-      <div className="pt-[var(--header-height)] container mx-auto px-4 py-20 space-y-12">
+      <div className="container mx-auto px-4 py-20 space-y-12">
         {/* 页面标题 */}
-        <div className="text-center mb-8 mt-8">
+        <div className="text-center mb-8 mt-12">
           <div className="mb-6 flex flex-col items-center">
             <h1 className="text-4xl font-bold text-foreground mb-4 block">{t('payment.title')}</h1>
             <p className="text-lg text-muted-foreground block">{t('payment.description')}</p>

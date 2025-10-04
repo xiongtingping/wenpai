@@ -44,7 +44,7 @@ import {
 const createSecondaryNavItems = (t: (key: string) => string) => [
   { path: '/', label: '首页', icon: Home },
   { path: '/content-adapter', label: 'AI内容适配', icon: FileText },
-  { path: '/creative-studio', label: '创意魔方', icon: Sparkles },
+  { path: '/creative-studio', label: '创意工作室', icon: Sparkles },
   { path: '/hot-topics', label: '全网雷达', icon: TrendingUp },
   { path: '/library', label: '我的资料库', icon: FolderOpen },
   { path: '/brand-library', label: '品牌库', icon: Users },
@@ -96,7 +96,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {'/': {
   },
   '/creative-studio': {
     path: '/creative-studio',
-    title: '创意魔方',
+    title: '创意工作室',
     icon: Sparkles,
     level: 2,
     parent: '/',

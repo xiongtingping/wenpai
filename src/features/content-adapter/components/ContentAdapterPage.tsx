@@ -186,6 +186,32 @@ export function ContentAdapterPage({
     });
   }, [used, available, remaining, displayRemaining, propUsageRemaining, usageCount, maxUsage, usageRemaining]);
 
+  // 🔧 FIX: 监听Token使用量更新事件，自动刷新显示
+  React.useEffect(() => {
+    const handleTokenUsageUpdate = async (event: CustomEvent) => {
+      console.log('📢 收到Token使用量更新事件:', event.detail);
+
+      // 方法1: 强制刷新订阅状态
+      refreshSubscription();
+
+      // 方法2: 直接从Store刷新使用统计
+      try {
+        const { useUnifiedStore } = await import('@/stores/unified-state-store');
+        const refreshUsageStats = useUnifiedStore.getState().refreshUsageStats;
+        await refreshUsageStats();
+        console.log('✅ 使用统计已刷新');
+      } catch (error) {
+        console.error('❌ 刷新使用统计失败:', error);
+      }
+    };
+
+    window.addEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
+    };
+  }, [refreshSubscription]);
+
   // 使用设置管理Hook
   const {
     globalSettings,

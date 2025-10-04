@@ -52,6 +52,7 @@ import { CreativeCube } from '@/components/creative/CreativeCube';
 import MarketingCalendar from '@/components/creative/MarketingCalendar';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
+import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import { Header } from '@/components/landing/Header';
 
 // 使用懒加载避免循环依赖
@@ -85,7 +86,14 @@ export default function CreativeStudioPage() {
           description="包含营销日历、九宫格创意魔方、Emoji图库、Markdown排版等多种创意工具"
           showAdaptButton={false}
           showUpgradeButton={false}
-          actions={null}
+          actions={
+            <RoleBasedUpgradePrompt
+              requiredTier="pro"
+              featureName="创意工作室完整功能"
+              description="专业版/高级版专属，升级解锁全部创意工具"
+              mode="compact"
+            />
+          }
         />
 
         <div className="container mx-auto px-4 py-8">

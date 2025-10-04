@@ -292,7 +292,21 @@ class TokenUsageService {
         model: record.model,
         recordId: fullRecord.id
       });
-      
+
+      // 🔧 FIX: 触发Token使用量更新事件，通知UI层刷新显示
+      if (typeof window !== 'undefined') {
+        const event = new CustomEvent('tokenUsageUpdated', {
+          detail: {
+            userId: record.userId,
+            totalTokens: record.totalTokens,
+            feature: record.feature,
+            timestamp: timestamp
+          }
+        });
+        window.dispatchEvent(event);
+        console.log('📢 已触发Token使用量更新事件:', record.totalTokens);
+      }
+
     } catch (error) {
       logger.error('❌ Token使用量记录失败:', error);
       throw new Error(`Token使用量记录失败: ${error instanceof Error ? error.message : '未知错误'}`);

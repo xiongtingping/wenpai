@@ -979,7 +979,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         <>
           {viewMode === 'grid' && (
             <div className="mx-auto max-w-6xl px-1 sm:px-2 lg:px-3 xl:px-4 pb-8">
-              <div className="emoji-grid-container">
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2">
               {displayEmojis.map((emoji) => {
               const isSelected = allowMultiSelect && selectedEmojis.some(e => e.id === emoji.id);
               const isFavorited = favorites.has(emoji.id);
