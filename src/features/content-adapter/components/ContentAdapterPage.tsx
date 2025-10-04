@@ -271,23 +271,41 @@ export function ContentAdapterPage({
     onGenerationComplete: saveToHistory
   });
 
-  // 🔧 FIX: 内容生成完成后自动生成标题
+  // 🔧 FIX: 内容生成完成后自动生成标题 - 改进版
   const prevResultsLengthRef = React.useRef(0);
+  const titleGeneratedRef = React.useRef<Set<string>>(new Set());
+
   React.useEffect(() => {
     // 只在新内容生成时触发（results 数组长度增加）
     if (results.length > prevResultsLengthRef.current && results.length > 0) {
+      console.log('🔍 检测到新内容生成，准备自动生成标题');
+
       results.forEach(r => {
-        if (r.content || (r.versions && r.versions[0]?.content)) {
-          const content = r.content || r.versions[0].content;
-          // 异步生成标题，不阻塞UI
-          setTimeout(() => {
-            generateTitle(content, r.platformId);
-          }, 500); // 延迟500ms，等待UI渲染完成
+        // 检查是否已经为该平台生成过标题
+        if (!titleGeneratedRef.current.has(r.platformId)) {
+          const content = r.content || (r.versions && r.versions[0]?.content);
+
+          if (content && content.length > 10) {
+            console.log(`🎯 为平台 ${r.platformId} 自动生成标题`);
+            titleGeneratedRef.current.add(r.platformId);
+
+            // 异步生成标题，不阻塞UI
+            setTimeout(() => {
+              generateTitle(content, r.platformId);
+            }, 800); // 延迟800ms，确保UI渲染完成
+          }
         }
       });
     }
     prevResultsLengthRef.current = results.length;
   }, [results, generateTitle]);
+
+  // 🔧 当results清空时，重置已生成标题的记录
+  React.useEffect(() => {
+    if (results.length === 0) {
+      titleGeneratedRef.current.clear();
+    }
+  }, [results.length]);
 
   // 使用生成队列Hook
   const {

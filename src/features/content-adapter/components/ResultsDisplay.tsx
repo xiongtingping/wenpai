@@ -290,7 +290,7 @@ function PlatformResultCard({
                           onVersionSelect(result.platformId, version.id);
                           onContentUpdate(result.platformId, e.target.value);
                         }}
-                        className="content-textarea text-sm flex-1 min-h-[300px]"
+                        className="content-textarea text-sm flex-1 min-h-[450px]"
                         placeholder={`${version.title}内容...`}
                       />
                     </div>
@@ -300,7 +300,7 @@ function PlatformResultCard({
                 <Textarea
                   value={result.content}
                   onChange={(e) => onContentUpdate(result.platformId, e.target.value)}
-                  className="content-textarea text-sm"
+                  className="content-textarea text-sm min-h-[450px]"
                   placeholder="生成的内容将显示在这里..."
                 />
               )}
@@ -368,10 +368,13 @@ function PlatformResultCard({
                 key={`${result.platformId}-unified-${(result.content || (result.versions && result.versions[0]?.content) || '').length}`}
                 platformId={result.platformId}
                 content={result.content || (result.versions && result.versions[0]?.content) || ''}
-                extractedTags={[
-                  ...(extractedTagsMap[`${result.platformId}-version-a`] || []),
-                  ...(extractedTagsMap[`${result.platformId}-version-b`] || [])
-                ]}
+                extractedTags={
+                  // 🔧 FIX: 合并版本A和版本B的标签并去重
+                  Array.from(new Set([
+                    ...(extractedTagsMap[`${result.platformId}-version-a`] || []),
+                    ...(extractedTagsMap[`${result.platformId}-version-b`] || [])
+                  ]))
+                }
               />
             </div>
 

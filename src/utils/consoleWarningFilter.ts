@@ -15,10 +15,15 @@ const FILTERED_WARNINGS = [
   /Avoid using aria-hidden on a focused element or its ancestor/,
   /Consider using the inert attribute instead/,
   /aria-hidden section of the WAI-ARIA specification/,
-  
+
   // React DevTools 提示（开发环境常见）
   /Download the React DevTools for a better development experience/,
-  
+
+  // 🔧 FIX: Chrome扩展通信错误（浏览器扩展导致，非项目代码问题）
+  /Could not establish connection\. Receiving end does not exist/,
+  /The message port closed before a response was received/,
+  /Extension context invalidated/,
+
   // 其他已知的无害警告
   /Warning: React does not recognize the/,
   /Warning: Failed prop type/

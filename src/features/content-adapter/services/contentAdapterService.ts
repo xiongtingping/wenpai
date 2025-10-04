@@ -297,23 +297,27 @@ async function generateMultipleVersions(
       return systemPrompt;
     };
 
-    // 生成标准版本
+    // 🔧 FIX: 顺序生成版本A和B，确保内容差异化
+    // 先生成标准版本A
     const standardResult = await callAIWithRetry({
       prompt: standardPrompt,
       model: selectedModel,
       systemPrompt: buildSystemPrompt(`你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`),
       maxTokens: maxTokens,
       temperature: 0.7
-    }, '标准版本', platformId);
+    }, '标准版本(版本A)', platformId);
 
-    // 生成创意版本
+    // 🔧 FIX: 延迟100ms后再生成创意版本B，避免缓存
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // 再生成创意版本B，使用更高的temperature确保差异
     const creativeResult = await callAIWithRetry({
       prompt: creativePrompt,
       model: selectedModel,
-      systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`),
+      systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。重要：必须与标准版本风格完全不同，更加口语化和生动。${charCountInstruction}`),
       maxTokens: maxTokens,
-      temperature: 0.9
-    }, '创意版本', platformId);
+      temperature: 0.95 // 🔧 提高temperature增加创意性
+    }, '创意版本(版本B)', platformId);
 
     // 处理标准版本结果
     if (standardResult.success && standardResult.content) {
