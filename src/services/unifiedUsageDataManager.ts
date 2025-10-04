@@ -306,7 +306,7 @@ class UnifiedUsageDataManager {
   private async createUsageRecord(userId: string, feature: string, amount: number): Promise<void> {
     try {
       // 🔧 FIX: 直接导入getSupabaseClient,绕过supabaseDataService的metadata添加
-      const { getSupabaseClient } = await import('@/lib/supabase');
+      const { getSupabaseClient } = await import('@/services/supabaseDataService');
       const client = await getSupabaseClient();
 
       // usage_count_records表只有这些字段,不包含updated_at
