@@ -163,12 +163,7 @@ export function ContentAdapterPage({
       return primaryStatus.tier;
     }
 
-    // 2. 使用统一状态管理的等级信息
-    if (!unifiedUsageInfo.loading && unifiedUsageInfo.userTier) {
-      return unifiedUsageInfo.userTier;
-    }
-
-    // 3. 最后使用工具函数获取等级
+    // 2. 使用工具函数获取等级
     return getUserTier(user);
   };
 
