@@ -274,6 +274,12 @@ class UnifiedUsageDataManager {
           totalLimit: currentStats.availableUses,  // 总限额
           remaining: currentStats.remainingUses    // 剩余次数
         });
+
+        // 🔧 FIX: 触发UI更新事件，确保UI显示正确的剩余次数（即使扣减失败）
+        window.dispatchEvent(new CustomEvent('usageStatsUpdated', {
+          detail: { userId, userTier, stats: currentStats }
+        }));
+
         return false;
       }
 
@@ -299,14 +305,19 @@ class UnifiedUsageDataManager {
 
       // 🔧 FIX: 更新本地缓存而不是清除，确保UI立即显示正确值
       this.setCache(cacheKey, updatedStats, 300 * 1000);
-      
-      logger.info('✅ 使用次数消费成功', { 
-        userId, 
-        amount, 
-        newUsedCount, 
-        remaining: updatedStats.remainingUses 
+
+      // 🔧 FIX: 触发UI更新事件，通知所有监听组件刷新显示
+      window.dispatchEvent(new CustomEvent('usageStatsUpdated', {
+        detail: { userId, userTier, stats: updatedStats }
+      }));
+
+      logger.info('✅ 使用次数消费成功', {
+        userId,
+        amount,
+        newUsedCount,
+        remaining: updatedStats.remainingUses
       });
-      
+
       return true;
     } catch (error) {
       logger.error('❌ 消费使用次数失败', { userId, userTier, amount, error });

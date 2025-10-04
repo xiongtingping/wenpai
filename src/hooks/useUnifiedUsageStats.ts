@@ -456,7 +456,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
   // 🔧 FIX: 初始化统一数据管理器并防抖刷新
   useEffect(() => {
     if (!user?.id) return;
-    
+
     // 初始化统一数据管理器
     const initializeDataManager = async () => {
       try {
@@ -466,19 +466,42 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
         logger.error('❌ 统一数据管理器初始化失败', { userId: user.id, error });
       }
     };
-    
+
     // 防抖延迟500ms
     const timeoutId = setTimeout(async () => {
       await initializeDataManager();
       refreshStats();
     }, 500);
-    
+
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
     };
   }, [user?.id, getUserTier]); // 🔧 FIX: 使用getUserTier函数引用而不是userTier值，避免循环依赖
+
+  // 🔧 FIX: 监听使用统计更新事件，实时刷新UI显示
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const handleUsageStatsUpdate = (event: CustomEvent) => {
+      const { userId, stats } = event.detail;
+
+      // 只处理当前用户的更新事件
+      if (userId === user.id && stats) {
+        logger.info('📢 收到使用统计更新事件，刷新UI', { userId, stats });
+        setUsageCountStats(stats);
+        setLastUpdated(new Date().toISOString());
+      }
+    };
+
+    // 监听自定义事件
+    window.addEventListener('usageStatsUpdated', handleUsageStatsUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener('usageStatsUpdated', handleUsageStatsUpdate as EventListener);
+    };
+  }, [user?.id]);
 
   const returnValue = {
     tokenStats,

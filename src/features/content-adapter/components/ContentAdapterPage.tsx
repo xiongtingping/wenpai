@@ -575,11 +575,30 @@ export function ContentAdapterPage({
     try {
       const consumed = await unifiedUsageInfo.consumeUsage(1);
       if (!consumed) {
-        console.error('❌ 扣减使用次数失败');
+        console.error('❌ 使用次数不足');
+
+        // 🔧 FIX: 显示明显的升级提示对话框
+        const remainingUses = unifiedUsageInfo.usageCountStats.remainingUses;
+        const isPremium = effectiveUserTier === 'premium';
+
         toast({
-          title: t('adapt.errors.usageDeductionFailed'),
-          description: t('adapt.messages.tryAgainLater'),
-          variant: "destructive"
+          title: isPremium ? t('adapt.errors.usageLimitReached') : t('adapt.errors.usageDeductionFailed'),
+          description: isPremium
+            ? t('adapt.messages.premiumLimitReached')
+            : `${t('adapt.messages.trialLimitReached')} (${remainingUses}/${unifiedUsageInfo.usageCountStats.availableUses})`,
+          variant: "destructive",
+          duration: 5000,
+          action: isPremium ? undefined : (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                window.location.href = '/upgrade';
+              }}
+            >
+              {t('common.upgrade')}
+            </Button>
+          )
         });
         return;
       }

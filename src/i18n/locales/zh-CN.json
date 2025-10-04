@@ -26,6 +26,7 @@
     "open": "打开",
     "expand": "展开",
     "collapse": "收起",
+    "upgrade": "立即升级",
     "unknownError": "未知错误",
     "errors": {
       "keyNotConfigured": "密钥未配置",
@@ -1813,6 +1814,9 @@
       "usageExhaustedDesc": "您的使用次数已用完，请升级套餐或等待下月重置",
       "usageLow": "使用次数不足",
       "usageLowDesc": "您的使用次数即将用完，建议升级套餐",
+      "usageDeductionFailed": "使用次数不足",
+      "usageLimitReached": "使用次数已达上限",
+      "usageDeductionError": "扣减使用次数失败",
       "favoriteFailed": "收藏失败",
       "favoriteFailedDesc": "收藏操作失败，请重试",
       "forwardFailed": "转发失败",
@@ -1832,7 +1836,11 @@
       "automationResults": "成功: {{success}}个，失败: {{failure}}个",
       "contentCopiedToClipboard": "内容已复制到剪贴板，正在打开{{platform}}官网",
       "contentCopiedManual": "内容已复制到剪贴板，请手动前往{{platform}}发布",
-      "forwardSuccessDesc": "内容已复制，{{platform}}发布页面已打开"
+      "forwardSuccessDesc": "内容已复制，{{platform}}发布页面已打开",
+      "trialLimitReached": "您的试用次数已用完，请升级到高级版获取更多使用次数",
+      "premiumLimitReached": "您的使用次数已达上限，请等待下月重置",
+      "tryAgainLater": "请稍后重试",
+      "systemError": "系统错误，请稍后重试"
     },
     "buttons": {
       "history": "历史记录",
