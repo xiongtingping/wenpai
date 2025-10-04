@@ -64,11 +64,22 @@ export function useUsage() {
 
 /**
  * 仅获取使用次数的轻量Hook
+ * 🎯 修复: 添加自动初始化逻辑
  */
 export function useUsageCount() {
+  const user = useUnifiedStore(state => state.user);
   const usageCount = useUnifiedStore(state => state.usageCount);
   const loading = useUnifiedStore(state => state.loading.tokenUsage);
   const consumeUsage = useUnifiedStore(state => state.consumeUsage);
+  const initializeStats = useUnifiedStore(state => state.initializeUsageStats);
+
+  // 🎯 自动初始化 (用户登录后)
+  useEffect(() => {
+    if (user.id && user.subscription) {
+      console.log('🔄 useUsageCount 触发初始化:', { userId: user.id, subscription: user.subscription });
+      initializeStats(user.id, user.subscription);
+    }
+  }, [user.id, user.subscription, initializeStats]);
 
   return {
     used: usageCount.used,

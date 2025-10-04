@@ -141,18 +141,35 @@ export function TokenUsageSection({
   React.useEffect(() => {
     console.log('📊 TokenUsageSection 数据状态:', {
       来源: {
-        新Store使用次数: { used: storeUsageCount.used, available: storeUsageCount.available, remaining: storeUsageCount.remaining },
-        新StoreToken: storeTokenStats.stats ? { used: storeTokenStats.monthlyUsed, limit: storeTokenStats.monthlyLimit } : null,
+        新Store使用次数: {
+          used: storeUsageCount.used,
+          available: storeUsageCount.available,
+          remaining: storeUsageCount.remaining,
+          percentage: storeUsageCount.percentage
+        },
+        新StoreToken: storeTokenStats.stats ? {
+          used: storeTokenStats.monthlyUsed,
+          limit: storeTokenStats.monthlyLimit
+        } : null,
         旧Hook使用次数: legacyUsageCountStats,
         旧HookToken: legacyTokenStats
       },
-      最终数据: {
+      最终使用的数据: {
         tokenStats,
-        usageCountStats,
+        usageCountStats: {
+          usedCount: usageCountStats.usedCount,
+          availableUses: usageCountStats.availableUses,
+          remainingUses: usageCountStats.remainingUses,
+          usagePercentage: usageCountStats.usagePercentage
+        },
         loading
+      },
+      最终计算后的显示数据: {
+        finalUsageCountStats,
+        finalTokenStats
       }
     });
-  }, [storeUsageCount, storeTokenStats, legacyUsageCountStats, legacyTokenStats, tokenStats, usageCountStats, loading]);
+  }, [storeUsageCount, storeTokenStats, legacyUsageCountStats, legacyTokenStats, tokenStats, usageCountStats, loading, finalUsageCountStats, finalTokenStats]);
 
   // 🔧 FIX: 使用 useMemo 缓存计算结果，避免不必要的重新渲染
   const finalUsageCountStats = React.useMemo(() => {
