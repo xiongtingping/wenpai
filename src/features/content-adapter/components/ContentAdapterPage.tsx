@@ -16,7 +16,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/compatibility-layer';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
-import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats';
+// import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats'; // 🎯 已废弃
+import { useUsageCount } from '@/hooks/useUsage'; // 🎯 新架构: Store-based Hook
 import { getUserTier } from '@/utils/subscriptionUtils';
 
 // 导入Hook
@@ -135,10 +136,12 @@ export function ContentAdapterPage({
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
 
-  // 使用真实的状态管理
+  // 🎯 新架构: 使用Store-based Hook
+  const { used, available, remaining, loading: usageLoading, consumeUsage, canUse } = useUsageCount();
+
+  // 兼容旧代码
   const { usageCount, maxUsage, usageRemaining, decrementUsage, updateMaxUsage } = useAuthStore();
   const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
-  const unifiedUsageInfo = useUnifiedUsageStats();
 
   // 收藏系统
   const favoritesStore = useFavoritesStore();
@@ -171,43 +174,9 @@ export function ContentAdapterPage({
 
   const effectiveUserTier = getCurrentTier();
 
-  // 🔧 FIX: 使用统一状态管理的数据计算剩余次数，添加缓存机制
-  const getEffectiveUsageRemaining = () => {
-    if (propUsageRemaining !== undefined) return propUsageRemaining;
-
-    // 优先使用统一状态管理的数据
-    if (!unifiedUsageInfo.loading && unifiedUsageInfo.usageCountStats) {
-      return unifiedUsageInfo.usageCountStats.remainingUses;
-    }
-
-    // 回退到原有状态
-    return usageRemaining;
-  };
-
-  const effectiveUsageRemaining = getEffectiveUsageRemaining();
-  
-  // 🔧 FIX: 缓存剩余次数，避免频繁重新计算，初始值设为无限制避免闪烁
-  const [cachedUsageRemaining, setCachedUsageRemaining] = useState<number>(-1);
-  
-  useEffect(() => {
-    // 🔧 FIX: 如果是初始的-1值或者数值真的变化了才更新
-    if (effectiveUsageRemaining !== cachedUsageRemaining) {
-      // 🔧 FIX: 对于premium用户，优先保持无限制状态，避免闪烁到10
-      if (cachedUsageRemaining === -1 && effectiveUsageRemaining > 0 && effectiveUserTier === 'premium') {
-        // premium用户保持无限制，不更新为有限制值
-        console.log('🔧 阻止premiumuser闪烁到haslimitingvalue:', effectiveUsageRemaining);
-        return;
-      }
-      
-      // 延迟更新，避免闪烁
-      const timeoutId = setTimeout(() => {
-        setCachedUsageRemaining(effectiveUsageRemaining);
-        // console.log('🔄 updatingcache的剩余count:', { from: cachedUsageRemaining, to: effectiveUsageRemaining, tier: effectiveUserTier });
-      }, 100);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [effectiveUsageRemaining, cachedUsageRemaining, effectiveUserTier]);
+  // 🎯 新架构: 直接从Store获取,无需复杂的缓存逻辑
+  // Store已经处理了缓存和一致性,组件只需消费数据
+  const displayRemaining = propUsageRemaining !== undefined ? propUsageRemaining : remaining;
 
   // 使用设置管理Hook
   const {
@@ -529,7 +498,7 @@ export function ContentAdapterPage({
   const checkUsageAndShowReminder = () => {
     // 🔧 FIX: 使用缓存的剩余次数，避免数据闪烁
     // 如果剩余次数为0或负数，阻止生成
-    if (cachedUsageRemaining <= 0 && maxUsage !== -1) {
+    if (displayRemaining <= 0 && maxUsage !== -1) {
       console.log('❌ 使用countalready用完，阻止生成');
       toast({
         title: t('adapt.errors.usageExhausted'),
@@ -540,11 +509,11 @@ export function ContentAdapterPage({
     }
 
     // 如果剩余次数较少（1-3次），显示提醒但允许继续生成
-    if (cachedUsageRemaining <= 3 && cachedUsageRemaining > 0 && maxUsage !== -1) {
+    if (displayRemaining <= 3 && displayRemaining > 0 && maxUsage !== -1) {
       console.log('⚠️ 使用count较少，display提醒但allowing生成');
       toast({
         title: t('adapt.errors.usageLow'),
-        description: t("adapt.messages.usageReminder", { count: cachedUsageRemaining }),
+        description: t("adapt.messages.usageReminder", { count: displayRemaining }),
         variant: "destructive"
       });
       // 不阻止生成，只是提醒
@@ -570,22 +539,20 @@ export function ContentAdapterPage({
       return;
     }
 
-    // 扣减使用次数
-    // 🔧 FIX: 调用unifiedUsageInfo的consumeUsage方法来扣减使用次数
+    // 🎯 新架构: 扣减使用次数(乐观更新+自动回滚)
     try {
-      const consumed = await unifiedUsageInfo.consumeUsage(1);
+      const consumed = await consumeUsage(1);
       if (!consumed) {
         console.error('❌ 使用次数不足');
 
-        // 🔧 FIX: 显示明显的升级提示对话框
-        const remainingUses = unifiedUsageInfo.usageCountStats.remainingUses;
+        // 显示升级提示
         const isPremium = effectiveUserTier === 'premium';
 
         toast({
           title: isPremium ? t('adapt.errors.usageLimitReached') : t('adapt.errors.usageDeductionFailed'),
           description: isPremium
             ? t('adapt.messages.premiumLimitReached')
-            : `${t('adapt.messages.trialLimitReached')} (${remainingUses}/${unifiedUsageInfo.usageCountStats.availableUses})`,
+            : `${t('adapt.messages.trialLimitReached')} (${remaining}/${available})`,
           variant: "destructive",
           duration: 5000,
           action: isPremium ? undefined : (
@@ -1266,7 +1233,7 @@ export function ContentAdapterPage({
         <ContentInputSection
           originalContent={originalContent}
           onContentChange={setOriginalContent}
-          usageRemaining={cachedUsageRemaining}
+          usageRemaining={displayRemaining}
           currentTier={effectiveUserTier}
           useBrandLibrary={useBrandLibrary}
           onBrandLibraryChange={updateBrandLibrary}

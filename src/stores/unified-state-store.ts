@@ -69,6 +69,19 @@ export interface TokenUsageState {
 }
 
 /**
+ * 使用次数统计状态
+ * 🎯 新增: 统一管理使用次数，避免多层缓存
+ */
+export interface UsageCountState {
+  used: number;
+  available: number;
+  remaining: number;
+  percentage: number;
+  userTier: SubscriptionTier;
+  lastUpdated: string;
+}
+
+/**
  * 应用主题状态
  */
 export interface ThemeState {
@@ -161,6 +174,7 @@ export interface UnifiedState {
   // 核心状态
   user: UserState;
   tokenUsage: TokenUsageState;
+  usageCount: UsageCountState; // 🎯 新增: 使用次数统计
   theme: ThemeState;
   appSettings: AppSettingsState;
   contentSync: ContentSyncState;
@@ -192,6 +206,12 @@ export interface UnifiedActions {
   addTokenUsage: (usage: TokenUsageState['usageHistory'][0]) => void;
   updateFeatureStats: (stats: TokenUsageState['featureStats']) => void;
   clearTokenUsage: () => void;
+
+  // 🎯 使用次数操作 (新增)
+  updateUsageCount: (stats: Partial<UsageCountState>) => void;
+  consumeUsage: (amount: number) => Promise<boolean>;
+  refreshUsageStats: () => Promise<void>;
+  initializeUsageStats: (userId: string, userTier: SubscriptionTier) => Promise<void>;
   
   // 主题操作
   setThemeMode: (mode: ThemeState['mode']) => void;
@@ -262,6 +282,16 @@ const initialTokenUsageState: TokenUsageState = {
   featureStats: {},
 };
 
+// 🎯 新增: 使用次数初始状态
+const initialUsageCountState: UsageCountState = {
+  used: 0,
+  available: 10, // trial默认
+  remaining: 10,
+  percentage: 0,
+  userTier: 'trial',
+  lastUpdated: new Date().toISOString(),
+};
+
 const initialThemeState: ThemeState = {
   mode: 'system',
   primaryColor: '#3b82f6',
@@ -321,6 +351,7 @@ const initialStorageQuotaState: StorageQuotaState = {
 const initialState: UnifiedState = {
   user: initialUserState,
   tokenUsage: initialTokenUsageState,
+  usageCount: initialUsageCountState, // 🎯 新增
   theme: initialThemeState,
   appSettings: initialAppSettingsState,
   contentSync: initialContentSyncState,
@@ -416,6 +447,133 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
             state.tokenUsage = { ...initialTokenUsageState };
             state.lastUpdated = new Date().toISOString();
           });
+        },
+
+        // 🎯 使用次数操作实现 (新增)
+        updateUsageCount: (stats) => {
+          set((state) => {
+            state.usageCount = { ...state.usageCount, ...stats };
+            state.lastUpdated = new Date().toISOString();
+          });
+        },
+
+        consumeUsage: async (amount: number = 1) => {
+          const { usageCount, user } = get();
+          const userId = user.id;
+          const userTier = user.subscription;
+
+          if (!userId) {
+            console.error('❌ 用户未登录，无法扣减使用次数');
+            return false;
+          }
+
+          // 🎯 乐观更新: 立即更新UI
+          const newUsed = usageCount.used + amount;
+          const newRemaining = usageCount.available === -1 ? -1 : Math.max(0, usageCount.available - newUsed);
+          const newPercentage = usageCount.available === -1 ? 0 : (newUsed / usageCount.available) * 100;
+
+          set((state) => {
+            state.usageCount.used = newUsed;
+            state.usageCount.remaining = newRemaining;
+            state.usageCount.percentage = newPercentage;
+            state.usageCount.lastUpdated = new Date().toISOString();
+            state.lastUpdated = new Date().toISOString();
+          });
+
+          try {
+            // 🎯 异步同步到Supabase
+            const { unifiedUsageDataManager } = await import('@/services/unifiedUsageDataManager');
+            const success = await unifiedUsageDataManager.consumeUsageCount(userId, userTier, amount);
+
+            if (!success) {
+              // 🎯 失败回滚
+              set((state) => {
+                state.usageCount.used = usageCount.used;
+                state.usageCount.remaining = usageCount.remaining;
+                state.usageCount.percentage = usageCount.percentage;
+              });
+              return false;
+            }
+
+            return true;
+          } catch (error) {
+            console.error('❌ 扣减使用次数失败:', error);
+            // 🎯 错误回滚
+            set((state) => {
+              state.usageCount.used = usageCount.used;
+              state.usageCount.remaining = usageCount.remaining;
+              state.usageCount.percentage = usageCount.percentage;
+            });
+            return false;
+          }
+        },
+
+        refreshUsageStats: async () => {
+          const { user } = get();
+          const userId = user.id;
+          const userTier = user.subscription;
+
+          if (!userId) return;
+
+          set((state) => {
+            state.loading.tokenUsage = true;
+          });
+
+          try {
+            const { unifiedUsageDataManager } = await import('@/services/unifiedUsageDataManager');
+            const stats = await unifiedUsageDataManager.getUserUsageCountStats(userId, userTier);
+
+            set((state) => {
+              state.usageCount = {
+                used: stats.usedCount,
+                available: stats.availableUses,
+                remaining: stats.remainingUses,
+                percentage: stats.usagePercentage,
+                userTier,
+                lastUpdated: stats.lastUpdated
+              };
+              state.loading.tokenUsage = false;
+              state.lastUpdated = new Date().toISOString();
+            });
+          } catch (error) {
+            console.error('❌ 刷新使用统计失败:', error);
+            set((state) => {
+              state.loading.tokenUsage = false;
+              state.error.tokenUsage = error instanceof Error ? error.message : '刷新失败';
+            });
+          }
+        },
+
+        initializeUsageStats: async (userId: string, userTier: SubscriptionTier) => {
+          set((state) => {
+            state.loading.tokenUsage = true;
+          });
+
+          try {
+            const { unifiedUsageDataManager } = await import('@/services/unifiedUsageDataManager');
+            await unifiedUsageDataManager.initializeUser(userId);
+
+            const stats = await unifiedUsageDataManager.getUserUsageCountStats(userId, userTier);
+
+            set((state) => {
+              state.usageCount = {
+                used: stats.usedCount,
+                available: stats.availableUses,
+                remaining: stats.remainingUses,
+                percentage: stats.usagePercentage,
+                userTier,
+                lastUpdated: stats.lastUpdated
+              };
+              state.loading.tokenUsage = false;
+              state.lastUpdated = new Date().toISOString();
+            });
+          } catch (error) {
+            console.error('❌ 初始化使用统计失败:', error);
+            set((state) => {
+              state.loading.tokenUsage = false;
+              state.error.tokenUsage = error instanceof Error ? error.message : '初始化失败';
+            });
+          }
         },
 
         // 主题操作
@@ -637,6 +795,9 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
                 break;
               case 'tokenUsage':
                 state.tokenUsage = { ...initialTokenUsageState };
+                break;
+              case 'usageCount':
+                state.usageCount = { ...initialUsageCountState };
                 break;
               case 'theme':
                 state.theme = { ...initialThemeState };

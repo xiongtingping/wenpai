@@ -15,7 +15,8 @@ import { createDataService, TABLE_NAMES } from '@/services/supabaseDataService';
 import { tokenUsageService } from '@/services/tokenUsageService';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { TokenUsageStats } from '@/services/tokenUsageService';
-import { getTierDefaultLimit, calculateUsagePercentage, formatRemainingUses } from '@/utils/usageDisplayUtils';
+import { getTierDefaultLimit, calculateUsagePercentage } from '@/utils/usageDisplayUtils';
+import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import { logger } from '@/utils/logger';
 
 /**
@@ -228,32 +229,77 @@ class UnifiedUsageDataManager {
 
   /**
    * 获取Token使用统计（缓存优先）
+   * 🔧 FIX: 改进缓存策略和错误处理
    */
   async getTokenUsageStats(userId: string, userTier: SubscriptionTier): Promise<TokenUsageStats | null> {
     const cacheKey = `token-stats-${userId}-${userTier}`;
-    
+
     // 检查缓存
     const cached = this.getFromCache<TokenUsageStats>(cacheKey);
     if (cached) {
+      logger.debug('使用缓存的Token统计', { userId, userTier, cached });
       return cached;
     }
 
     try {
-      // 🔧 FIX: 通过数据管理中心获取Token统计
+      // 🔧 FIX: 优先从globalDataManager获取，避免重复查询
+      const cloudData = await globalDataManager.getData<TokenUsageStats>('tokenUsageStats');
+      if (cloudData && this.validateTokenStats(cloudData)) {
+        this.setCache(cacheKey, cloudData, 60 * 1000);
+        logger.debug('使用云端Token统计', { userId, userTier, cloudData });
+        return cloudData;
+      }
+
+      // 🔧 FIX: 通过tokenUsageService获取最新数据
       const tokenStats = await tokenUsageService.getUserTokenStats(userId, userTier);
-      
+
       if (tokenStats) {
         this.setCache(cacheKey, tokenStats, 60 * 1000); // Token统计缓存1分钟
-        
+
         // 同步到数据管理中心
         await globalDataManager.setData('tokenUsageStats', tokenStats);
+
+        logger.debug('获取到最新Token统计', { userId, userTier, tokenStats });
       }
-      
+
       return tokenStats;
     } catch (error) {
       logger.error('获取Token使用统计失败', { userId, userTier, error });
-      return null;
+      // 🔧 FIX: 返回默认值而不是null，避免UI显示异常
+      return this.generateDefaultTokenStats(userId, userTier);
     }
+  }
+
+  /**
+   * 验证Token统计数据
+   */
+  private validateTokenStats(stats: any): stats is TokenUsageStats {
+    return stats &&
+           typeof stats.userId === 'string' &&
+           typeof stats.monthlyUsed === 'number' &&
+           typeof stats.monthlyLimit === 'number' &&
+           typeof stats.monthlyRemaining === 'number';
+  }
+
+  /**
+   * 生成默认Token统计
+   */
+  private generateDefaultTokenStats(userId: string, userTier: SubscriptionTier): TokenUsageStats {
+    // 🔧 FIX: 使用subscriptionPlans配置获取Token限额
+    const plan = getSubscriptionPlan(userTier);
+    const monthlyLimit = plan.limits.tokenLimit;
+
+    return {
+      userId,
+      userTier,
+      monthlyLimit,
+      monthlyUsed: 0,
+      monthlyRemaining: monthlyLimit,
+      dailyUsed: 0,
+      usagePercentage: 0,
+      needUpgrade: false,
+      lastUpdated: new Date().toISOString()
+    };
   }
 
   /**
