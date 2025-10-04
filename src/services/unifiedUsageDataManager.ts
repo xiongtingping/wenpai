@@ -301,16 +301,15 @@ class UnifiedUsageDataManager {
 
   /**
    * 创建使用记录到Supabase
-   * 🔧 FIX: 使用usage_count_records表记录每次使用
+   * 🔧 FIX: 直接使用Supabase client,避免supabaseDataService自动添加updated_at
    */
   private async createUsageRecord(userId: string, feature: string, amount: number): Promise<void> {
-    if (!this.supabaseService) {
-      logger.debug('Supabase服务未初始化,跳过创建使用记录');
-      return;
-    }
-
     try {
-      // 🔧 FIX: usage_count_records表只有这些字段,不包含updated_at
+      // 🔧 FIX: 直接导入getSupabaseClient,绕过supabaseDataService的metadata添加
+      const { getSupabaseClient } = await import('@/lib/supabase');
+      const client = await getSupabaseClient();
+
+      // usage_count_records表只有这些字段,不包含updated_at
       const recordData = {
         user_id: userId,
         feature: feature,
@@ -319,7 +318,14 @@ class UnifiedUsageDataManager {
         // created_at会由数据库默认值NOW()自动设置
       };
 
-      await this.supabaseService.create(recordData);
+      const { error } = await client
+        .from('usage_count_records')
+        .insert(recordData);
+
+      if (error) {
+        throw error;
+      }
+
       logger.info('✅ 使用记录已创建', { userId, feature, amount });
     } catch (error) {
       logger.error('❌ 创建使用记录失败', { userId, feature, amount, error });
