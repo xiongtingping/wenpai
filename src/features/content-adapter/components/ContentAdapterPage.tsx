@@ -267,18 +267,7 @@ export function ContentAdapterPage({
 
     historyDataManager.saveData(list);
     console.log('✅ 历史记录saved，newquantity:', list.length);
-
-    // 🔧 FIX: 内容生成完成后自动生成标题
-    results.forEach(r => {
-      if (r.content || (r.versions && r.versions[0]?.content)) {
-        const content = r.content || r.versions[0].content;
-        // 异步生成标题，不阻塞历史记录保存
-        setTimeout(() => {
-          generateTitle(content, r.platformId);
-        }, 100);
-      }
-    });
-  }, [historyDataManager, user?.id, isAuthenticated, generateTitle]);
+  }, [historyDataManager, user?.id, isAuthenticated]);
 
   // 使用内容生成引擎Hook
   const {
@@ -304,6 +293,24 @@ export function ContentAdapterPage({
     brandProfile,
     onGenerationComplete: saveToHistory
   });
+
+  // 🔧 FIX: 内容生成完成后自动生成标题
+  const prevResultsLengthRef = React.useRef(0);
+  React.useEffect(() => {
+    // 只在新内容生成时触发（results 数组长度增加）
+    if (results.length > prevResultsLengthRef.current && results.length > 0) {
+      results.forEach(r => {
+        if (r.content || (r.versions && r.versions[0]?.content)) {
+          const content = r.content || r.versions[0].content;
+          // 异步生成标题，不阻塞UI
+          setTimeout(() => {
+            generateTitle(content, r.platformId);
+          }, 500); // 延迟500ms，等待UI渲染完成
+        }
+      });
+    }
+    prevResultsLengthRef.current = results.length;
+  }, [results, generateTitle]);
 
   // 使用生成队列Hook
   const {
