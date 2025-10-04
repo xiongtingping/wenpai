@@ -310,11 +310,13 @@ class UnifiedUsageDataManager {
     }
 
     try {
+      // 🔧 FIX: usage_count_records表只有这些字段,不包含updated_at
       const recordData = {
         user_id: userId,
         feature: feature,
-        amount: amount,
-        used_at: new Date().toISOString()
+        amount: amount
+        // used_at会由数据库默认值NOW()自动设置
+        // created_at会由数据库默认值NOW()自动设置
       };
 
       await this.supabaseService.create(recordData);

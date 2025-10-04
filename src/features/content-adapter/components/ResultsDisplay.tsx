@@ -35,6 +35,7 @@ interface ResultsDisplayProps {
   retryingPlatforms: Set<string>;
   generatingComparison: Set<string>;
   titleStates: Record<string, {
+    title?: string;
     hasTitle: boolean;
     isGenerating: boolean;
   }>;

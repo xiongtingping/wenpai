@@ -58,6 +58,7 @@ export interface ContentAdapterEngineState {
   
   // 标题生成状态
   titleStates: Record<string, {
+    title?: string;
     hasTitle: boolean;
     isGenerating: boolean;
   }>;
@@ -118,6 +119,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
   const [comparisonContent, setComparisonContent] = useState<Record<string, string>>({});
   const [showComparison, setShowComparison] = useState<Record<string, boolean>>({});
   const [titleStates, setTitleStates] = useState<Record<string, {
+    title?: string;
     hasTitle: boolean;
     isGenerating: boolean;
   }>>({});
@@ -473,17 +475,22 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       const result = await serviceRef.current.generateTitle(content, params.selectedModel);
 
       if (result.success && result.content) {
+        // 🔧 FIX: 保存生成的标题到state
         setTitleStates(prev => ({
           ...prev,
-          [platformId]: { hasTitle: true, isGenerating: false }
+          [platformId]: {
+            title: result.content,
+            hasTitle: true,
+            isGenerating: false
+          }
         }));
 
         toast({
-          title: "AI标题已生成",
+          title: "标题已生成",
           description: result.content,
         });
       } else {
-        throw new Error(result.error || 'u64cdu4f5cu5931u8d25');
+        throw new Error(result.error || '生成失败');
       }
 
     } catch (error) {
@@ -493,7 +500,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       }));
 
       toast({
-        title: 'u64cdu4f5cu5931u8d25',
+        title: '生成失败',
         description: "请稍后重试",
         variant: "destructive"
       });
