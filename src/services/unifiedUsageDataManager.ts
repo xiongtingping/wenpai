@@ -163,7 +163,7 @@ class UnifiedUsageDataManager {
 
   /**
    * 获取用户使用次数统计（缓存优先）
-   * 🔧 FIX: 移除异步后台刷新，避免数据闪烁
+   * 🎯 修复: 从数据库查询实际使用次数
    */
   async getUserUsageCountStats(userId: string, userTier: SubscriptionTier): Promise<UsageCountStats> {
     const cacheKey = `usage-count-${userId}-${userTier}`;
@@ -176,27 +176,42 @@ class UnifiedUsageDataManager {
     }
 
     try {
-      // 🔧 FIX: 直接同步获取云端数据，不再使用默认值+异步刷新的方式
-      const cloudData = await globalDataManager.getData<UsageCountStats>('usageCountStats');
+      // 🎯 修复: 从数据库查询实际的使用次数
+      const { UsageCountService } = await import('@/services/supabaseService');
+      const usageData = await UsageCountService.getUserUsageCount(userId);
 
-      if (cloudData && this.validateUsageCountStats(cloudData)) {
-        // 缓存云端数据
-        this.setCache(cacheKey, cloudData, 300 * 1000); // 缓存5分钟
-        logger.debug('获取到云端使用次数统计', { userId, userTier, cloudData });
-        return cloudData;
-      }
+      const availableUses = getTierDefaultLimit(userTier);
+      const usedCount = usageData?.monthly_used || 0; // 使用月度使用次数
 
-      // 如果没有云端数据，生成默认统计并缓存
-      const defaultStats = this.generateDefaultUsageCountStats(userTier);
-      this.setCache(cacheKey, defaultStats, 300 * 1000);
+      const stats: UsageCountStats = {
+        usedCount,
+        availableUses,
+        usagePercentage: calculateUsagePercentage(usedCount, availableUses, userTier),
+        remainingUses: availableUses === -1 ? -1 : Math.max(0, availableUses - usedCount),
+        lastUpdated: new Date().toISOString()
+      };
 
-      // 保存默认数据到云端
-      await globalDataManager.setData('usageCountStats', defaultStats);
+      // 缓存结果
+      this.setCache(cacheKey, stats, 60 * 1000); // 缓存1分钟（缩短缓存时间确保数据新鲜）
 
-      logger.debug('使用默认使用次数统计', { userId, userTier, defaultStats });
-      return defaultStats;
+      // 同步到 globalDataManager
+      await globalDataManager.setData('usageCountStats', stats);
+
+      logger.info('✅ 从数据库获取使用次数统计', { userId, userTier, usedCount, availableUses, stats });
+      return stats;
     } catch (error) {
       logger.error('获取使用次数统计失败', { userId, userTier, error });
+
+      // 🔧 降级: 尝试从 globalDataManager 获取
+      try {
+        const cloudData = await globalDataManager.getData<UsageCountStats>('usageCountStats');
+        if (cloudData && this.validateUsageCountStats(cloudData)) {
+          logger.debug('使用 globalDataManager 缓存数据', { cloudData });
+          return cloudData;
+        }
+      } catch (e) {
+        logger.warn('从 globalDataManager 获取数据也失败', e);
+      }
 
       // 返回默认统计但不缓存（避免缓存错误数据）
       return this.generateDefaultUsageCountStats(userTier);
