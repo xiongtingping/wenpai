@@ -289,9 +289,9 @@
   }
 
   .ds-text-body-large {
-    font-size: 1.125rem;
+    font-size: 1.0625rem; /* 17px - 稍微减小避免换行 */
     font-weight: 400;
-    line-height: 1.7;
+    line-height: 1.6;
     color: hsl(var(--foreground) / 0.85);
   }
 
@@ -403,7 +403,11 @@
     }
 
     .ds-text-body-large {
-      font-size: 1rem;
+      font-size: 0.9375rem; /* 15px - 移动端进一步减小 */
+    }
+
+    .theme-hero-points-text {
+      font-size: 0.875rem; /* 14px - 确保要点文字不换行 */
     }
 
     .theme-hero-button {

@@ -64,7 +64,7 @@ const HeroSection: React.FC = () => {
             <div className="ds-container-narrow ds-text-centered">
               {/* 第一行：核心价值主张 */}
               <div className="mb-10">
-                <p className="ds-title-sub leading-relaxed theme-hero-subtitle">
+                <p className="ds-text-body-large leading-relaxed theme-hero-subtitle">
                   <strong className="theme-hero-subtitle">
                     {t('home.heroSubtitle')}
                   </strong>
@@ -72,8 +72,8 @@ const HeroSection: React.FC = () => {
               </div>
 
               {/* 第二行：四个要点 - 修复对齐问题 */}
-              <div className="ds-title-section theme-hero-points-text font-medium mb-12">
-                <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 sm:gap-x-12 lg:gap-x-16">
+              <div className="ds-text-body-large theme-hero-points-text font-medium mb-12">
+                <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 sm:gap-x-8 lg:gap-x-10">
                   <div className="flex items-center gap-2">
                     <span className="theme-hero-points-dot text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">{t('home.highlights.aiPowered')}</span>
@@ -138,7 +138,7 @@ const HeroSection: React.FC = () => {
                     </svg>
                   </div>
                   <div className="mb-3">
-                    <h3 className="ds-title-section ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.title')}}></h3>
+                    <h3 className="ds-title-card ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.title')}}></h3>
                     <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.fastGeneration.subtitle')}</p>
                   </div>
                   <p className="ds-text-body ds-text-secondary leading-relaxed">
@@ -161,7 +161,7 @@ const HeroSection: React.FC = () => {
                     </svg>
                   </div>
                   <div className="mb-3">
-                    <h3 className="ds-title-section ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.title')}}></h3>
+                    <h3 className="ds-title-card ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.title')}}></h3>
                     <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.brandConsistency.subtitle')}</p>
                   </div>
                   <p className="ds-text-body ds-text-secondary leading-relaxed">
@@ -184,7 +184,7 @@ const HeroSection: React.FC = () => {
                     </svg>
                   </div>
                   <div className="mb-3">
-                    <h3 className="ds-title-section ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.title')}}></h3>
+                    <h3 className="ds-title-card ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.title')}}></h3>
                     <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.costSaving.subtitle')}</p>
                   </div>
                   <p className="ds-text-body ds-text-secondary leading-relaxed">
