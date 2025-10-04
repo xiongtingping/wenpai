@@ -137,6 +137,32 @@ export function TokenUsageSection({
     usagePercentage: storeUsageCount.percentage
   };
 
+  // 🔧 FIX: 使用 useMemo 缓存计算结果，避免不必要的重新渲染
+  // ⚠️ 必须在 useEffect 之前定义，避免 TDZ 错误
+  const finalUsageCountStats = React.useMemo(() => {
+    if (externalUserStats) {
+      return {
+        usedCount: externalUserStats.usedCount,
+        availableUses: externalUserStats.availableUses,
+        remainingUses: externalUserStats.availableUses === -1 ? -1 : externalUserStats.availableUses - externalUserStats.usedCount,
+        usagePercentage: externalUserStats.availableUses === -1 ? 0 : (externalUserStats.usedCount / externalUserStats.availableUses) * 100
+      };
+    }
+    return usageCountStats;
+  }, [externalUserStats, usageCountStats]);
+
+  const finalTokenStats = React.useMemo(() => {
+    if (externalUserStats) {
+      return {
+        monthlyUsed: externalUserStats.usedTokens,
+        monthlyLimit: externalUserStats.tokenLimit,
+        monthlyRemaining: externalUserStats.tokenLimit === -1 ? -1 : externalUserStats.tokenLimit - externalUserStats.usedTokens,
+        usagePercentage: externalUserStats.tokenLimit === -1 ? 0 : (externalUserStats.usedTokens / externalUserStats.tokenLimit) * 100
+      };
+    }
+    return tokenStats;
+  }, [externalUserStats, tokenStats]);
+
   // 🔍 调试日志: 帮助诊断数据来源
   React.useEffect(() => {
     console.log('📊 TokenUsageSection 数据状态:', {
@@ -170,31 +196,6 @@ export function TokenUsageSection({
       }
     });
   }, [storeUsageCount, storeTokenStats, legacyUsageCountStats, legacyTokenStats, tokenStats, usageCountStats, loading, finalUsageCountStats, finalTokenStats]);
-
-  // 🔧 FIX: 使用 useMemo 缓存计算结果，避免不必要的重新渲染
-  const finalUsageCountStats = React.useMemo(() => {
-    if (externalUserStats) {
-      return {
-        usedCount: externalUserStats.usedCount,
-        availableUses: externalUserStats.availableUses,
-        remainingUses: externalUserStats.availableUses === -1 ? -1 : externalUserStats.availableUses - externalUserStats.usedCount,
-        usagePercentage: externalUserStats.availableUses === -1 ? 0 : (externalUserStats.usedCount / externalUserStats.availableUses) * 100
-      };
-    }
-    return usageCountStats;
-  }, [externalUserStats, usageCountStats]);
-
-  const finalTokenStats = React.useMemo(() => {
-    if (externalUserStats) {
-      return {
-        monthlyUsed: externalUserStats.usedTokens,
-        monthlyLimit: externalUserStats.tokenLimit,
-        monthlyRemaining: externalUserStats.tokenLimit === -1 ? -1 : externalUserStats.tokenLimit - externalUserStats.usedTokens,
-        usagePercentage: externalUserStats.tokenLimit === -1 ? 0 : (externalUserStats.usedTokens / externalUserStats.tokenLimit) * 100
-      };
-    }
-    return tokenStats;
-  }, [externalUserStats, tokenStats]);
 
 
   const [isRefreshing, setIsRefreshing] = useState(false);
