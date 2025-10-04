@@ -254,13 +254,25 @@ class UnifiedUsageDataManager {
     try {
       // 获取当前统计
       const currentStats = await this.getUserUsageCountStats(userId, userTier);
-      
+
+      // 🔧 DEBUG: 记录当前统计信息
+      logger.info('准备扣减使用次数', {
+        userId,
+        userTier,
+        currentStats: {
+          usedCount: currentStats.usedCount,
+          availableUses: currentStats.availableUses,
+          remainingUses: currentStats.remainingUses
+        }
+      });
+
       // 检查是否超出限制
       if (currentStats.availableUses !== -1 && currentStats.usedCount + amount > currentStats.availableUses) {
-        logger.warn('使用次数不足', { 
-          current: currentStats.usedCount, 
-          required: amount, 
-          available: currentStats.availableUses 
+        logger.warn('使用次数不足', {
+          usedCount: currentStats.usedCount,  // 已使用次数
+          requestAmount: amount,               // 本次请求
+          totalLimit: currentStats.availableUses,  // 总限额
+          remaining: currentStats.remainingUses    // 剩余次数
         });
         return false;
       }
