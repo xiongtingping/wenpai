@@ -428,7 +428,7 @@ export function ResultsDisplay({
   results,
   retryingPlatforms,
   generatingComparison,
-  titleStates,
+  titleStates = {}, // 🔧 FIX: 提供默认空对象,避免undefined错误
   comparisonContent,
   showComparison,
   extractedTagsMap,
