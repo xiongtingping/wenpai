@@ -287,15 +287,18 @@ class UnifiedUsageDataManager {
         lastUpdated: new Date().toISOString()
       };
 
-      // 原子更新：同时更新缓存和记录到Supabase
+      // 🔧 FIX: 同时更新本地缓存、globalDataManager和数据库
+      const cacheKey = `usage-count-${userId}-${userTier}`;
+
       await Promise.all([
+        // 保存到 globalDataManager（用于跨组件共享）
         globalDataManager.setData('usageCountStats', updatedStats),
-        // 🔧 FIX: 创建使用记录到usage_count_records表
+        // 创建使用记录到 usage_count_records 表
         this.createUsageRecord(userId, 'content-adapter', amount)
       ]);
 
-      // 清除缓存，强制下次获取最新数据
-      this.clearUserCache(userId);
+      // 🔧 FIX: 更新本地缓存而不是清除，确保UI立即显示正确值
+      this.setCache(cacheKey, updatedStats, 300 * 1000);
       
       logger.info('✅ 使用次数消费成功', { 
         userId, 
@@ -437,15 +440,16 @@ class UnifiedUsageDataManager {
   private generateDefaultUsageCountStats(userTier: SubscriptionTier): UsageCountStats {
     const availableUses = getTierDefaultLimit(userTier);
     const usedCount = 0;
-    
+
     const defaultStats = {
       usedCount,
       availableUses,
       usagePercentage: calculateUsagePercentage(usedCount, availableUses, userTier),
-      remainingUses: availableUses === -1 ? -1 : availableUses,
+      // 🔧 FIX: 剩余次数 = 总限额 - 已使用次数，而不是直接返回总限额
+      remainingUses: availableUses === -1 ? -1 : Math.max(0, availableUses - usedCount),
       lastUpdated: new Date().toISOString()
     };
-    
+
     return defaultStats;
   }
 
