@@ -121,20 +121,30 @@ export function TokenUsageSection({
     refreshStats
   } = useUnifiedUsageStats(userTier);
 
-  // 如果有外部数据，使用外部数据覆盖
-  const finalUsageCountStats = externalUserStats ? {
-    usedCount: externalUserStats.usedCount,
-    availableUses: externalUserStats.availableUses,
-    remainingUses: externalUserStats.availableUses === -1 ? -1 : externalUserStats.availableUses - externalUserStats.usedCount,
-    usagePercentage: externalUserStats.availableUses === -1 ? 0 : (externalUserStats.usedCount / externalUserStats.availableUses) * 100
-  } : usageCountStats;
+  // 🔧 FIX: 使用 useMemo 缓存计算结果，避免不必要的重新渲染
+  const finalUsageCountStats = React.useMemo(() => {
+    if (externalUserStats) {
+      return {
+        usedCount: externalUserStats.usedCount,
+        availableUses: externalUserStats.availableUses,
+        remainingUses: externalUserStats.availableUses === -1 ? -1 : externalUserStats.availableUses - externalUserStats.usedCount,
+        usagePercentage: externalUserStats.availableUses === -1 ? 0 : (externalUserStats.usedCount / externalUserStats.availableUses) * 100
+      };
+    }
+    return usageCountStats;
+  }, [externalUserStats, usageCountStats]);
 
-  const finalTokenStats = externalUserStats ? {
-    monthlyUsed: externalUserStats.usedTokens,
-    monthlyLimit: externalUserStats.tokenLimit,
-    monthlyRemaining: externalUserStats.tokenLimit === -1 ? -1 : externalUserStats.tokenLimit - externalUserStats.usedTokens,
-    usagePercentage: externalUserStats.tokenLimit === -1 ? 0 : (externalUserStats.usedTokens / externalUserStats.tokenLimit) * 100
-  } : tokenStats;
+  const finalTokenStats = React.useMemo(() => {
+    if (externalUserStats) {
+      return {
+        monthlyUsed: externalUserStats.usedTokens,
+        monthlyLimit: externalUserStats.tokenLimit,
+        monthlyRemaining: externalUserStats.tokenLimit === -1 ? -1 : externalUserStats.tokenLimit - externalUserStats.usedTokens,
+        usagePercentage: externalUserStats.tokenLimit === -1 ? 0 : (externalUserStats.usedTokens / externalUserStats.tokenLimit) * 100
+      };
+    }
+    return tokenStats;
+  }, [externalUserStats, tokenStats]);
 
 
   const [isRefreshing, setIsRefreshing] = useState(false);

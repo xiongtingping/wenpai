@@ -69,6 +69,10 @@ class UnifiedUsageDataManager {
   private readonly SYNC_INTERVAL = 5 * 60 * 1000; // 5分钟同步一次
   private syncTimer: NodeJS.Timeout | null = null;
 
+  // 🔧 FIX: 添加事件防抖机制
+  private eventDebounceTimer: NodeJS.Timeout | null = null;
+  private readonly EVENT_DEBOUNCE_DELAY = 100; // 100ms防抖延迟
+
   /**
    * 初始化用户会话
    */
@@ -158,58 +162,68 @@ class UnifiedUsageDataManager {
 
   /**
    * 获取用户使用次数统计（缓存优先）
+   * 🔧 FIX: 移除异步后台刷新，避免数据闪烁
    */
   async getUserUsageCountStats(userId: string, userTier: SubscriptionTier): Promise<UsageCountStats> {
     const cacheKey = `usage-count-${userId}-${userTier}`;
-    
-    // 🔧 FIX: 先检查本地缓存，避免数据闪烁
+
+    // 🔧 FIX: 检查本地缓存
     const cached = this.getFromCache<UsageCountStats>(cacheKey);
     if (cached) {
-      // 异步刷新缓存但不等待，确保界面稳定
-      this.refreshCacheInBackground(userId, userTier, cacheKey).catch(error => {
-        logger.warn('后台缓存刷新失败:', error);
-      });
+      logger.debug('使用缓存的使用次数统计', { userId, userTier, cached });
       return cached;
     }
 
     try {
-      // 优先生成默认数据避免闪烁，然后异步获取云端数据
+      // 🔧 FIX: 直接同步获取云端数据，不再使用默认值+异步刷新的方式
+      const cloudData = await globalDataManager.getData<UsageCountStats>('usageCountStats');
+
+      if (cloudData && this.validateUsageCountStats(cloudData)) {
+        // 缓存云端数据
+        this.setCache(cacheKey, cloudData, 300 * 1000); // 缓存5分钟
+        logger.debug('获取到云端使用次数统计', { userId, userTier, cloudData });
+        return cloudData;
+      }
+
+      // 如果没有云端数据，生成默认统计并缓存
       const defaultStats = this.generateDefaultUsageCountStats(userTier);
-      this.setCache(cacheKey, defaultStats, 300 * 1000); // 缓存5分钟
-      
-      // 异步获取云端数据但不等待
-      this.refreshCacheInBackground(userId, userTier, cacheKey).catch(error => {
-        logger.warn('云端数据获取失败:', error);
-      });
-      
+      this.setCache(cacheKey, defaultStats, 300 * 1000);
+
+      // 保存默认数据到云端
+      await globalDataManager.setData('usageCountStats', defaultStats);
+
+      logger.debug('使用默认使用次数统计', { userId, userTier, defaultStats });
       return defaultStats;
     } catch (error) {
-      logger.error('u64cdu4f5cu5931u8d25', { userId, userTier, error });
-      
-      // 返回默认统计
+      logger.error('获取使用次数统计失败', { userId, userTier, error });
+
+      // 返回默认统计但不缓存（避免缓存错误数据）
       return this.generateDefaultUsageCountStats(userTier);
     }
   }
 
   /**
-   * 后台异步刷新缓存
+   * 后台异步刷新缓存（已废弃）
+   * 🔧 FIX: 此方法已移除，避免异步刷新导致的数据闪烁
    */
-  private async refreshCacheInBackground(userId: string, userTier: SubscriptionTier, cacheKey: string): Promise<void> {
-    try {
-      const cloudData = await globalDataManager.getData<UsageCountStats>('usageCountStats');
-      
-      if (cloudData && this.validateUsageCountStats(cloudData)) {
-        // 更新缓存
-        this.setCache(cacheKey, cloudData, 300 * 1000); // 缓存5分钟
-        
-        // 可选：触发UI更新事件
-        window.dispatchEvent(new CustomEvent('usageStatsUpdated', { 
-          detail: { userId, userTier, stats: cloudData } 
-        }));
-      }
-    } catch (error) {
-      logger.warn('后台缓存刷新失败:', error);
+
+  /**
+   * 防抖触发UI更新事件
+   * 🔧 FIX: 避免短时间内多次触发导致的闪烁
+   */
+  private debouncedDispatchEvent(userId: string, userTier: SubscriptionTier, stats: UsageCountStats): void {
+    // 清除之前的定时器
+    if (this.eventDebounceTimer) {
+      clearTimeout(this.eventDebounceTimer);
     }
+
+    // 设置新的防抖定时器
+    this.eventDebounceTimer = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('usageStatsUpdated', {
+        detail: { userId, userTier, stats }
+      }));
+      this.eventDebounceTimer = null;
+    }, this.EVENT_DEBOUNCE_DELAY);
   }
 
   /**
@@ -275,10 +289,8 @@ class UnifiedUsageDataManager {
           remaining: currentStats.remainingUses    // 剩余次数
         });
 
-        // 🔧 FIX: 触发UI更新事件，确保UI显示正确的剩余次数（即使扣减失败）
-        window.dispatchEvent(new CustomEvent('usageStatsUpdated', {
-          detail: { userId, userTier, stats: currentStats }
-        }));
+        // 🔧 FIX: 使用防抖事件触发，避免重复更新
+        this.debouncedDispatchEvent(userId, userTier, currentStats);
 
         return false;
       }
@@ -306,10 +318,8 @@ class UnifiedUsageDataManager {
       // 🔧 FIX: 更新本地缓存而不是清除，确保UI立即显示正确值
       this.setCache(cacheKey, updatedStats, 300 * 1000);
 
-      // 🔧 FIX: 触发UI更新事件，通知所有监听组件刷新显示
-      window.dispatchEvent(new CustomEvent('usageStatsUpdated', {
-        detail: { userId, userTier, stats: updatedStats }
-      }));
+      // 🔧 FIX: 使用防抖事件触发，避免短时间内多次更新导致闪烁
+      this.debouncedDispatchEvent(userId, userTier, updatedStats);
 
       logger.info('✅ 使用次数消费成功', {
         userId,

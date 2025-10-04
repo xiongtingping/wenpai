@@ -230,9 +230,16 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
   }, [user, externalUserTier, subscriptionStatus, hasActiveSubscription]);
 
   // 🔧 FIX: 使用useMemo缓存userTier，避免重复计算导致的闪烁
+  // 🔧 CRITICAL FIX: 限制依赖项，只在关键数据变化时重新计算
   const userTier = useMemo(() => {
     return getUserTier();
-  }, [getUserTier]);
+  }, [
+    externalUserTier,
+    user?.id,
+    subscriptionStatus?.tier,
+    subscriptionStatus?.status,
+    hasActiveSubscription
+  ]);
   
   // 🔎 调试信息
   useEffect(() => {
@@ -481,17 +488,28 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
   }, [user?.id, getUserTier]); // 🔧 FIX: 使用getUserTier函数引用而不是userTier值，避免循环依赖
 
   // 🔧 FIX: 监听使用统计更新事件，实时刷新UI显示
+  // 🔧 CRITICAL FIX: 添加防抖机制，避免快速连续更新导致闪烁
   useEffect(() => {
     if (!user?.id) return;
+
+    let debounceTimer: NodeJS.Timeout | null = null;
 
     const handleUsageStatsUpdate = (event: CustomEvent) => {
       const { userId, stats } = event.detail;
 
       // 只处理当前用户的更新事件
       if (userId === user.id && stats) {
-        logger.info('📢 收到使用统计更新事件，刷新UI', { userId, stats });
-        setUsageCountStats(stats);
-        setLastUpdated(new Date().toISOString());
+        // 🔧 FIX: 防抖处理，避免快速连续更新
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+        }
+
+        debounceTimer = setTimeout(() => {
+          logger.info('📢 收到使用统计更新事件，刷新UI', { userId, stats });
+          setUsageCountStats(stats);
+          setLastUpdated(new Date().toISOString());
+          debounceTimer = null;
+        }, 50); // 50ms防抖延迟
       }
     };
 
@@ -499,6 +517,9 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     window.addEventListener('usageStatsUpdated', handleUsageStatsUpdate as EventListener);
 
     return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
       window.removeEventListener('usageStatsUpdated', handleUsageStatsUpdate as EventListener);
     };
   }, [user?.id]);
