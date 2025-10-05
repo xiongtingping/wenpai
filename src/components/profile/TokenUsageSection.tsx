@@ -202,29 +202,6 @@ export function TokenUsageSection({
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   // 获取套餐名称
-
-  // 🔧 FIX: 监听Token使用量更新事件，自动刷新显示
-  React.useEffect(() => {
-    const handleTokenUsageUpdate = (event: CustomEvent) => {
-      console.log('📢 收到Token使用量更新事件:', event.detail);
-      
-      // 延迟刷新，确保数据已写入数据库
-      setTimeout(() => {
-        console.log('🔄 自动刷新Token使用量统计...');
-        handleRefresh();
-      }, 500);
-    };
-
-    // 添加事件监听器
-    window.addEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
-    console.log('✅ 已注册Token使用量更新事件监听器');
-
-    // 清理函数
-    return () => {
-      window.removeEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
-      console.log('🧹 已移除Token使用量更新事件监听器');
-    };
-  }, []);
   const getPlanName = (tier: SubscriptionTier) => {
     switch (tier) {
       case 'trial': return '体验版';
@@ -237,7 +214,7 @@ export function TokenUsageSection({
   const planName = getPlanName(userTier);
 
   // 手动刷新数据
-  const handleRefresh = async () => {
+  const handleRefresh = React.useCallback(async () => {
     setIsRefreshing(true);
     try {
       // 🎯 新架构: 同时刷新新Store和旧Hook的数据
@@ -250,13 +227,13 @@ export function TokenUsageSection({
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, [storeUsageCount, refreshStats]);
 
-  // 🔧 FIX: 监听Token使用量更新事件，自动刷新显示
+  // 🔧 FIX: 监听Token使用量更新事件，自动刷新显示（合并重复的useEffect）
   React.useEffect(() => {
     const handleTokenUsageUpdate = (event: CustomEvent) => {
       console.log('📢 收到Token使用量更新事件:', event.detail);
-      
+
       // 延迟刷新，确保数据已写入数据库
       setTimeout(() => {
         console.log('🔄 自动刷新Token使用量统计...');

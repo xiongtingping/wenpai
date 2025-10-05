@@ -49,6 +49,9 @@ import ServiceInitializer from './services/serviceInitializer';
 // 🔧 FIX: 用户存储迁移 - 统一localStorage存储键
 import { autoMigrateUserStorage } from './services/userStorageMigrationService';
 
+// 🔍 诊断工具：Token使用量问题排查
+import './utils/tokenUsageDiagnostics';
+
 // 🔧 FIX: 存储架构迁移 - auth-store → unified-store
 import { migrateAuthStoreToUnified } from './utils/storageMigration';
 

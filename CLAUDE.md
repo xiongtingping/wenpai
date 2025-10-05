@@ -38,6 +38,26 @@ npm run predeploy        # 部署前检查
 - **数据库**: Supabase PostgreSQL
 - **部署**: Netlify (带Netlify Functions)
 
+### TypeScript 编码规范
+**目标**：确保代码类型安全、可编译运行、清晰可维护
+
+**基本规则**：
+1. **必须有类型**
+   - 所有变量、参数、返回值都要声明类型
+   - 禁止使用 `any`、`as any`、`@ts-ignore`
+
+2. **结构清晰**
+   - 每个文件只做一件事
+   - 类型放 `/types`，工具函数放 `/utils`
+
+3. **React / 前端组件**
+   ```ts
+   interface Props { title: string }
+   const Title: React.FC<Props> = ({ title }) => <h1>{title}</h1>
+   ```
+
+**强制要求**：严格按以上 TypeScript 规则生成，禁止 any，不要跳过类型检查。
+
 ## 核心架构
 
 ### 项目结构

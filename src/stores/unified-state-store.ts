@@ -608,20 +608,36 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
 
           try {
             const { unifiedUsageDataManager } = await import('@/services/unifiedUsageDataManager');
-            const stats = await unifiedUsageDataManager.getUserUsageCountStats(userId, userTier);
+
+            // 🔧 FIX: 同时刷新使用次数和Token统计
+            const [usageCountStats, tokenStats] = await Promise.all([
+              unifiedUsageDataManager.getUserUsageCountStats(userId, userTier),
+              unifiedUsageDataManager.getTokenUsageStats(userId, userTier)
+            ]);
+
+            console.log('🔄 刷新统计数据:', { usageCountStats, tokenStats });
 
             set((state) => {
+              // 更新使用次数统计
               state.usageCount = {
-                used: stats.usedCount,
-                available: stats.availableUses,
-                remaining: stats.remainingUses,
-                percentage: stats.usagePercentage,
+                used: usageCountStats.usedCount,
+                available: usageCountStats.availableUses,
+                remaining: usageCountStats.remainingUses,
+                percentage: usageCountStats.usagePercentage,
                 userTier,
-                lastUpdated: stats.lastUpdated
+                lastUpdated: usageCountStats.lastUpdated
               };
+
+              // 🔧 FIX: 更新Token统计
+              if (tokenStats) {
+                state.tokenUsage.currentStats = tokenStats;
+              }
+
               state.loading.tokenUsage = false;
               state.lastUpdated = new Date().toISOString();
             });
+
+            console.log('✅ 统计数据刷新完成');
           } catch (error) {
             console.error('❌ 刷新使用统计失败:', error);
             set((state) => {
@@ -642,25 +658,42 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
             const { unifiedUsageDataManager } = await import('@/services/unifiedUsageDataManager');
             await unifiedUsageDataManager.initializeUser(userId);
 
-            const stats = await unifiedUsageDataManager.getUserUsageCountStats(userId, userTier);
+            // 🔧 FIX: 同时获取使用次数和Token统计
+            const [usageCountStats, tokenStats] = await Promise.all([
+              unifiedUsageDataManager.getUserUsageCountStats(userId, userTier),
+              unifiedUsageDataManager.getTokenUsageStats(userId, userTier)
+            ]);
 
-            console.log('✅ Store 获取到使用统计数据:', stats);
+            console.log('✅ Store 获取到统计数据:', { usageCountStats, tokenStats });
 
             // 🎯 强制更新，覆盖持久化的旧值
             set((state) => {
+              // 更新使用次数统计
               state.usageCount = {
-                used: stats.usedCount,
-                available: stats.availableUses,
-                remaining: stats.remainingUses,
-                percentage: stats.usagePercentage,
+                used: usageCountStats.usedCount,
+                available: usageCountStats.availableUses,
+                remaining: usageCountStats.remainingUses,
+                percentage: usageCountStats.usagePercentage,
                 userTier,
-                lastUpdated: stats.lastUpdated
+                lastUpdated: usageCountStats.lastUpdated
               };
+
+              // 🔧 FIX: 更新Token统计（之前缺失）
+              if (tokenStats) {
+                state.tokenUsage.currentStats = tokenStats;
+                console.log('✅ Token统计已初始化:', tokenStats);
+              } else {
+                console.warn('⚠️ Token统计为null，使用默认值');
+              }
+
               state.loading.tokenUsage = false;
               state.lastUpdated = new Date().toISOString();
             });
 
-            console.log('✅ Store.usageCount 已更新:', get().usageCount);
+            console.log('✅ Store初始化完成:', {
+              usageCount: get().usageCount,
+              tokenStats: get().tokenUsage.currentStats
+            });
           } catch (error) {
             console.error('❌ 初始化使用统计失败:', error);
             set((state) => {
