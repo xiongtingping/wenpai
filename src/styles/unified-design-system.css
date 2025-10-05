@@ -762,6 +762,69 @@
     background-color: hsl(var(--muted) / var(--opacity-50));
     padding: var(--spacing-xl) var(--spacing-lg);
   }
+
+  /* ==============================
+     批量转发工作台 Modal（统一样式）
+     ============================== */
+  :root {
+    --batch-modal-z-index: 1101;
+    --batch-modal-bottom-offset: 24px;
+    --batch-modal-border: 1px solid hsl(var(--border));
+    --batch-modal-border-radius: 12px;
+    --batch-modal-shadow: var(--shadow-2xl);
+  }
+
+  /* 半透明遮罩层 */
+  .batch-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(2px);
+    z-index: calc(var(--batch-modal-z-index) - 1);
+    pointer-events: auto;
+    animation: fadeIn var(--duration-normal) var(--easing-ease);
+  }
+
+  /* 主内容容器（强制底部居中） */
+  .batch-modal-content {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: var(--batch-modal-bottom-offset);
+    width: min(960px, 92vw);
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    background: hsl(var(--background));
+    border: var(--batch-modal-border);
+    border-radius: var(--batch-modal-border-radius);
+    box-shadow: var(--batch-modal-shadow);
+    z-index: var(--batch-modal-z-index);
+    pointer-events: auto;
+    overflow: hidden;
+  }
+
+  /* 最小化浮窗（右下角） */
+  .batch-modal-minimized {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    width: 340px;
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    padding: 8px 12px;
+    z-index: var(--batch-modal-z-index);
+    pointer-events: auto;
+  }
+
+  /* 可滚动主体区域 */
+  .batch-modal-scroll-content {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
 }
 
 /* ========================================

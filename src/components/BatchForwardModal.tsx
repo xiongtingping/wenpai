@@ -167,7 +167,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
       container.style.left = '0';
       container.style.width = '100vw';
       container.style.height = '100vh';
-      container.style.pointerEvents = 'none';
+      container.style.pointerEvents = 'auto';
       container.style.zIndex = '9999';
       document.body.appendChild(container);
     }
