@@ -158,19 +158,20 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
 
   // 确保有专门的容器用于渲染弹窗
   useEffect(() => {
-    let container = document.getElementById('batch-forward-modal-container');
+    let container = document.getElementById('batch-forward-modal-container') as HTMLDivElement | null;
     if (!container) {
       container = document.createElement('div');
       container.id = 'batch-forward-modal-container';
-      container.style.position = 'fixed';
-      container.style.top = '0';
-      container.style.left = '0';
-      container.style.width = '100vw';
-      container.style.height = '100vh';
-      container.style.pointerEvents = 'auto';
-      container.style.zIndex = '9999';
       document.body.appendChild(container);
     }
+    // 无论是否已存在，统一强制样式，避免历史遗留 pointer-events:none
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '100vw';
+    container.style.height = '100vh';
+    container.style.pointerEvents = 'auto';
+    container.style.zIndex = '9999';
   }, []);
 
   if (!open) return null;
