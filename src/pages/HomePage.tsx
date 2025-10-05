@@ -7,6 +7,7 @@ import { FeaturesSection } from "@/components/landing/FeaturesSection"
 import { PricingSection } from "@/components/landing/PricingSection"
 import { CTASection } from "@/components/landing/CTASection"
 import { Footer } from "@/components/landing/Footer"
+import { ExtensionPromoBanner, ExtensionGuideSection } from "@/components/landing/ExtensionPromoBanner"
 import { useScrollAnimation } from "@/components/landing/ScrollAnimation"
 import PageTracker from "@/components/analytics/PageTracker"
 import { useEffect } from "react"
@@ -87,6 +88,11 @@ function HomePage() {
               <TrustSection />
             </div>
 
+            {/* Extension Promo Banner - 扩展推广横幅 */}
+            <div className="ds-container py-8 md:py-12">
+              <ExtensionPromoBanner />
+            </div>
+
             {/* How It Works */}
             <div className="ds-section-spacing">
               <HowItWorks />
@@ -96,6 +102,9 @@ function HomePage() {
             <div className="ds-section-spacing ds-bg-section-secondary">
               <FeaturesSection />
             </div>
+
+            {/* Extension Guide Section - 扩展使用指南 */}
+            <ExtensionGuideSection />
 
             {/* Pricing Section */}
             <div className="ds-section-spacing ds-bg-section-primary">

@@ -379,7 +379,134 @@ export default function ShareManagerPage() {
   };
 
   /**
-   * 一键发布：自动复制内容并跳转到平台
+   * 增强版批量发布：智能多窗口管理
+   */
+  const handleEnhancedBatchPublish = async () => {
+    if (!publishContent.content.trim()) {
+      toast({
+        title: "内容不能为空",
+        description: "请先填写要发布的内容",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (selectedPlatforms.length === 0) {
+      toast({
+        title: "请选择平台",
+        description: "请至少选择一个平台",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsPublishing(true);
+
+    // 准备所有平台的内容
+    const platformsToPublish = selectedPlatforms.map(platformId => {
+      const platform = platforms.find(p => p.id === platformId);
+      const fullContent = publishContent.title
+        ? `${publishContent.title}\n\n${publishContent.content}`
+        : publishContent.content;
+
+      return {
+        id: platformId,
+        name: platform?.name || platformId,
+        content: fullContent,
+        url: platformPublishUrls[platformId]
+      };
+    });
+
+    let completedCount = 0;
+    const totalCount = platformsToPublish.length;
+
+    // 逐个处理平台
+    for (let i = 0; i < platformsToPublish.length; i++) {
+      const platformData = platformsToPublish[i];
+
+      try {
+        // 复制当前平台内容
+        await navigator.clipboard.writeText(platformData.content);
+
+        // 打开平台发布页
+        const platformWindow = window.open(
+          platformData.url,
+          `publish_${platformData.id}_${Date.now()}`
+        );
+
+        if (platformWindow) {
+          // 显示当前平台的发布提示
+          toast({
+            title: `📝 ${platformData.name} (${i + 1}/${totalCount})`,
+            description: "内容已复制，请在新窗口粘贴并发布完成后关闭窗口",
+            duration: 5000,
+          });
+
+          // 等待用户完成发布（通过窗口关闭来判断）
+          await new Promise<void>((resolve) => {
+            const checkInterval = setInterval(() => {
+              if (platformWindow.closed) {
+                clearInterval(checkInterval);
+                completedCount++;
+                setPublishProgress((completedCount / totalCount) * 100);
+                resolve();
+              }
+            }, 500);
+
+            // 60秒超时自动继续下一个
+            setTimeout(() => {
+              clearInterval(checkInterval);
+              if (!platformWindow.closed) {
+                toast({
+                  title: "⏰ 超时提醒",
+                  description: `${platformData.name}发布超时，已自动跳过`,
+                  variant: "destructive",
+                });
+              }
+              resolve();
+            }, 60000);
+          });
+
+          // 短暂延迟，避免操作过快
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } else {
+          toast({
+            title: "打开窗口失败",
+            description: `无法打开${platformData.name}，可能被浏览器拦截`,
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error(`发布到${platformData.name}失败:`, error);
+        toast({
+          title: "发布失败",
+          description: `${platformData.name}发布出错，已跳过`,
+          variant: "destructive",
+        });
+      }
+    }
+
+    setIsPublishing(false);
+    setPublishProgress(0);
+
+    toast({
+      title: "✅ 批量发布完成",
+      description: `已处理 ${completedCount}/${totalCount} 个平台`,
+    });
+
+    // 清空表单
+    setPublishContent({
+      title: '',
+      content: '',
+      scheduledTime: '',
+      useTemplate: false,
+      images: []
+    });
+    setSelectedPlatforms([]);
+    setActiveTab('history');
+  };
+
+  /**
+   * 一键发布：自动复制内容并跳转到平台（保留原功能）
    */
   const handleQuickPublish = async () => {
     if (!publishContent.content.trim()) {
@@ -583,6 +710,26 @@ export default function ShareManagerPage() {
                   )}
 
                   <Button
+                    onClick={handleEnhancedBatchPublish}
+                    disabled={isPublishing}
+                    className="w-full"
+                    size="lg"
+                    variant="default"
+                  >
+                    {isPublishing ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        批量发布中... {Math.round(publishProgress)}%
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-4 h-4 mr-2" />
+                        🚀 智能批量发布（推荐）
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
                     onClick={handleQuickPublish}
                     disabled={isPublishing}
                     className="w-full"
@@ -590,13 +737,15 @@ export default function ShareManagerPage() {
                     variant="secondary"
                   >
                     <Share2 className="w-4 h-4 mr-2" />
-                    一键发布（自动复制并跳转）
+                    快速发布（单平台）
                   </Button>
+
                   <Button
                     onClick={handlePublish}
                     disabled={isPublishing}
                     className="w-full"
                     size="lg"
+                    variant="outline"
                   >
                     {isPublishing ? (
                       <>
@@ -606,7 +755,7 @@ export default function ShareManagerPage() {
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        一键发布（模拟API）
+                        模拟API发布
                       </>
                     )}
                   </Button>

@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { History, Copy } from 'lucide-react';
+import { History, Copy, Zap } from 'lucide-react';
 import { Header } from '@/components/landing/Header';
 import { PageNavigation } from '@/components/layout/PageNavigation';
 import { useToast } from '@/hooks/use-toast';
@@ -57,6 +57,109 @@ import { useUserDataIsolation } from '@/utils/userDataIsolation';
 
 // 导入增强历史记录组件 - 暂时使用原版避免循环引用
 import { EnhancedHistoryDialog } from './EnhancedHistoryDialog';
+
+/**
+ * 浏览器扩展集成工具函数
+ */
+// 扩展ID - 需要在扩展发布后更新
+const EXTENSION_ID = 'your-extension-id-here'; // TODO: 替换为实际的扩展ID
+
+// 检测扩展是否已安装
+const checkExtensionInstalled = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    try {
+      // 方法1: 使用 chrome.runtime.sendMessage
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        chrome.runtime.sendMessage(
+          EXTENSION_ID,
+          { action: 'ping' },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              console.log('扩展未安装:', chrome.runtime.lastError.message);
+              resolve(false);
+            } else {
+              console.log('扩展已安装:', response);
+              resolve(true);
+            }
+          }
+        );
+      } else {
+        // 方法2: 检测扩展注入的标记
+        const checkMarker = () => {
+          return document.documentElement.hasAttribute('data-wenpai-extension');
+        };
+
+        if (checkMarker()) {
+          resolve(true);
+        } else {
+          // 等待一段时间后再检查
+          setTimeout(() => {
+            resolve(checkMarker());
+          }, 1000);
+        }
+      }
+    } catch (error) {
+      console.error('检测扩展失败:', error);
+      resolve(false);
+    }
+  });
+};
+
+// 调用扩展进行批量转发
+const callExtensionBatchForward = async (platforms: Array<{
+  platformId: string;
+  platformName: string;
+  content: string;
+  title?: string;
+  tags?: string[];
+}>): Promise<{ success: boolean; results?: any[]; error?: string }> => {
+  try {
+    return new Promise((resolve) => {
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        chrome.runtime.sendMessage(
+          EXTENSION_ID,
+          {
+            action: 'batchPublish',
+            data: {
+              platforms: platforms.map(p => p.platformId),
+              contents: platforms.reduce((acc, p) => ({
+                ...acc,
+                [p.platformId]: {
+                  title: p.title || '',
+                  text: p.content,
+                  hashtags: p.tags || []
+                }
+              }), {})
+            }
+          },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              resolve({
+                success: false,
+                error: chrome.runtime.lastError.message
+              });
+            } else {
+              resolve({
+                success: true,
+                results: response?.results || []
+              });
+            }
+          }
+        );
+      } else {
+        resolve({
+          success: false,
+          error: '浏览器不支持扩展通信'
+        });
+      }
+    });
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '未知错误'
+    };
+  }
+};
 
 /**
  * 主流平台内容发布入口URL映射 - 从原版完整迁移
@@ -375,6 +478,10 @@ export function ContentAdapterPage({
   const [showHistory, setShowHistory] = React.useState(false);
   const [shareHistory, setShareHistory] = React.useState<ShareHistoryItem[]>([]);
 
+  // 浏览器扩展状态
+  const [extensionInstalled, setExtensionInstalled] = React.useState<boolean | null>(null);
+  const [showExtensionPrompt, setShowExtensionPrompt] = React.useState(false);
+
   // 发布Dialog状态 - 从原版完整迁移
   const [publishDialogOpen, setPublishDialogOpen] = React.useState(false);
   const [pendingPublish, setPendingPublish] = React.useState<{ platformId: string; content: string } | null>(null);
@@ -419,6 +526,22 @@ export function ContentAdapterPage({
       loadShareHistory();
     }
   }, [showHistory, loadShareHistory]);
+
+  // 检测浏览器扩展是否已安装
+  React.useEffect(() => {
+    const detectExtension = async () => {
+      const installed = await checkExtensionInstalled();
+      setExtensionInstalled(installed);
+      console.log('🔍 扩展检测结果:', installed ? '已安装' : '未安装');
+    };
+
+    detectExtension();
+
+    // 定期检测扩展状态（用户可能在使用过程中安装）
+    const intervalId = setInterval(detectExtension, 30000); // 每30秒检测一次
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   // 🔧 FIX: 同步实际使用次数和最大使用次数 - 从原版完整迁移
   React.useEffect(() => {
@@ -1002,6 +1125,88 @@ export function ContentAdapterPage({
     });
   };
 
+  // 使用扩展进行批量转发
+  const handleExtensionBatchForward = async () => {
+    // 检查扩展是否已安装
+    if (extensionInstalled === false) {
+      setShowExtensionPrompt(true);
+      toast({
+        title: '需要安装浏览器扩展',
+        description: '请先安装"文派一键转发助手"扩展以使用自动填充功能',
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 收集所有平台的内容
+    const platformContents: Array<{
+      platformId: string;
+      platformName: string;
+      content: string;
+      title?: string;
+      tags?: string[];
+    }> = [];
+
+    for (const result of results) {
+      let content = '';
+      let title = '';
+      let tags: string[] = [];
+
+      if (result.versions && result.versions.length > 0) {
+        const selectedVersionId = selectedVersions[result.platformId] || 'version-a';
+        const version = result.versions.find(v => v.id === selectedVersionId) || result.versions[0];
+        content = version.content;
+        title = version.title || '';
+        tags = version.tags || [];
+      } else if (result.content) {
+        content = result.content;
+        const titleState = titleStates[result.platformId];
+        title = titleState?.title || '';
+        tags = extractedTagsMap[result.platformId] || [];
+      }
+
+      if (content) {
+        platformContents.push({
+          platformId: result.platformId,
+          platformName: getPlatformName(result.platformId, availablePlatforms),
+          content,
+          title,
+          tags
+        });
+      }
+    }
+
+    if (platformContents.length === 0) {
+      toast({
+        title: '无可转发内容',
+        description: '请先生成内容',
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 调用扩展
+    toast({
+      title: '🚀 启动扩展自动填充',
+      description: `正在准备 ${platformContents.length} 个平台的内容...`,
+    });
+
+    const result = await callExtensionBatchForward(platformContents);
+
+    if (result.success) {
+      toast({
+        title: '✅ 扩展调用成功',
+        description: '扩展将自动打开各平台并填充内容',
+      });
+    } else {
+      toast({
+        title: '❌ 扩展调用失败',
+        description: result.error || '未知错误',
+        variant: "destructive"
+      });
+    }
+  };
+
   // 新的自动化转发处理函数 - 从原版完整迁移
   const handleStartAutomationUI = async (selectedPlatforms: string[], options: AutomationOptions) => {
     try {
@@ -1382,6 +1587,68 @@ export function ContentAdapterPage({
                 showProgress={true}
               />
             </div>
+          </div>
+        )}
+
+        {/* 浏览器扩展提示 */}
+        {extensionInstalled === false && results.length > 0 && !generating && (
+          <div className="mt-6 p-4 border border-primary/20 bg-primary/5 rounded-lg">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-primary" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  🚀 使用浏览器扩展实现真正的一键转发
+                </h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  安装"文派一键转发助手"浏览器扩展，即可自动打开各平台并填充内容（包括标题、正文、标签），无需手动复制粘贴。
+                </p>
+                <div className="flex gap-3">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => window.open('https://chrome.google.com/webstore', '_blank')}
+                  >
+                    安装Chrome扩展
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowExtensionPrompt(false);
+                      // 重新检测扩展
+                      checkExtensionInstalled().then(setExtensionInstalled);
+                    }}
+                  >
+                    我已安装，重新检测
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowExtensionPrompt(false)}
+                  >
+                    稍后提醒
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 扩展快捷操作按钮 */}
+        {extensionInstalled && results.length > 0 && !generating && (
+          <div className="mt-6">
+            <Button
+              onClick={handleExtensionBatchForward}
+              size="lg"
+              className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+            >
+              <Zap className="w-5 h-5 mr-2" />
+              🔥 使用扩展一键填充所有平台（推荐）
+            </Button>
           </div>
         )}
 
