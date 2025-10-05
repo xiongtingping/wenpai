@@ -24,27 +24,25 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 // Guard组件已移除，仅使用自定义表单和@authing/web SDK
-import { getAuthingConfig } from '@/config/authing';
-import { useAuthState, useUnifiedStore } from '@/stores/unified-state-store';
-import type { AuthService } from '@/services/authService';
-import type { SecureUserStateService as SecureUserStateServiceClass } from '@/services/secureUserStateService';
-import { TokenService, TokenInfo } from '@/utils/tokenManager';
+import { useUnifiedStore } from '@/stores/unified-state-store';
+import { SecureUserStateService } from '@/services/secureUserStateService';
+import { TokenService } from '@/utils/tokenManager';
 import { AuthingTokenService } from '@/utils/authTokenHandler';
 import { TokenSecurityManager, SecureTokenInfo } from '@/utils/secureTokenStorage';
-import { SessionService, SessionEventCallbacks } from '@/utils/sessionManager';
+import { SessionService } from '@/utils/sessionManager';
+import type { StandardUserInfo } from '@/types/unifiedAuth';
 // 🎯 引入用户状态同步协调器 - 解决竞态条件
 import { userStateSyncCoordinator } from '@/services/userStateSyncCoordinator';
 import { autoMigrateHistory } from '@/utils/historyMigration';
 import { autoMigrateFavorites } from '@/utils/favoritesMigration';
 // 🔒 服务访问器 - 避免静态循环依赖
+type AuthServiceType = typeof import('@/services/authService')['authService'];
 type VerificationCodeServiceType = typeof import('@/services/verificationCodeService')['verificationCodeService'];
-type SecureUserStateServiceType = SecureUserStateServiceClass;
 
-let authServiceInstance: AuthService | null = null;
+let authServiceInstance: AuthServiceType | null = null;
 let verificationCodeServiceInstance: VerificationCodeServiceType | null = null;
-let secureUserStateServiceClass: SecureUserStateServiceType | null = null;
 
-async function getAuthService(): Promise<AuthService> {
+async function getAuthService(): Promise<AuthServiceType> {
   if (!authServiceInstance) {
     const module = await import('@/services/authService');
     authServiceInstance = module.authService;
@@ -58,14 +56,6 @@ async function getVerificationCodeService(): Promise<VerificationCodeServiceType
     verificationCodeServiceInstance = module.verificationCodeService;
   }
   return verificationCodeServiceInstance;
-}
-
-async function getSecureUserStateService(): Promise<SecureUserStateServiceType> {
-  if (!secureUserStateServiceClass) {
-    const module = await import('@/services/secureUserStateService');
-    secureUserStateServiceClass = module.SecureUserStateService;
-  }
-  return secureUserStateServiceClass;
 }
 
 // 🔒 安全修复：导入安全用户状态管理服务
@@ -164,14 +154,12 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   useEffect(() => {
     void getAuthService();
     void getVerificationCodeService();
-    void getSecureUserStateService();
   }, []);
 
   // 🔒 安全修复：使用安全用户状态管理检查认证状态
   // ✅ P0-3修复：使用userStateSyncCoordinator原子化同步,避免竞态条件
   const checkAuth = useCallback(async () => {
     try {
-      const SecureUserStateService = await getSecureUserStateService();
       console.log('🔍 安全检查用户登录状态...');
       setLoading(true);
 
@@ -195,45 +183,29 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           syncedLayers: syncResult.syncedLayers,
           failedLayers: syncResult.failedLayers
         });
-      // 🔄 自动迁移历史记录数据
-      try {
-        const wasGuest = !user; // 如果之前没有用户,说明是访客
-        const migrationResult = await autoMigrateHistory(formattedUser.id, wasGuest);
-        if (migrationResult.success && migrationResult.migratedCount > 0) {
-          console.log('✅ 数据迁移成功:', {
-            migratedCount: migrationResult.migratedCount,
-            skippedCount: migrationResult.skippedCount
-          });
-        // 迁移收藏数据
-        const favoritesMigrationResult = await autoMigrateFavorites(formattedUser.id, wasGuest);
-        if (favoritesMigrationResult.success && favoritesMigrationResult.migratedCount > 0) {
-          console.log('✅ 收藏数据迁移成功:', {
-            migratedCount: favoritesMigrationResult.migratedCount,
-            skippedCount: favoritesMigrationResult.skippedCount
-          });
-        }
 
+        // 🔄 自动迁移历史记录数据
+        try {
+          const wasGuest = !user; // 如果之前没有用户,说明是访客
+          const migrationResult = await autoMigrateHistory(secureUser.id, wasGuest);
+          if (migrationResult.success && migrationResult.migratedCount > 0) {
+            console.log('✅ 数据迁移成功:', {
+              migratedCount: migrationResult.migratedCount,
+              skippedCount: migrationResult.skippedCount
+            });
+          }
+          // 迁移收藏数据
+          const favoritesMigrationResult = await autoMigrateFavorites(secureUser.id, wasGuest);
+          if (favoritesMigrationResult.success && favoritesMigrationResult.migratedCount > 0) {
+            console.log('✅ 收藏数据迁移成功:', {
+              migratedCount: favoritesMigrationResult.migratedCount,
+              skippedCount: favoritesMigrationResult.skippedCount
+            });
+          }
+        } catch (migrationError) {
+          console.warn('⚠️ 数据迁移失败:', migrationError);
+          // 不影响登录流程
         }
-      } catch (migrationError) {
-        console.warn('⚠️ 数据迁移失败:', migrationError);
-        // 不影响登录流程
-      }
-
-      // 🔄 自动迁移历史记录数据
-      try {
-        const wasGuest = !user; // 如果之前没有用户,说明是访客
-        const migrationResult = await autoMigrateHistory(formattedUser.id, wasGuest);
-        if (migrationResult.success && migrationResult.migratedCount > 0) {
-          console.log('✅ 数据迁移成功:', {
-            migratedCount: migrationResult.migratedCount,
-            skippedCount: migrationResult.skippedCount
-          });
-        }
-      } catch (migrationError) {
-        console.warn('⚠️ 数据迁移失败:', migrationError);
-        // 不影响登录流程
-      }
-
 
         setLoading(false);
         return;
@@ -252,7 +224,6 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     } catch (error) {
       console.error('安全认证检查失败:', error);
-      const SecureUserStateService = await getSecureUserStateService();
 
       // 出现错误时清除可能损坏的状态
       SecureUserStateService.clearUserState();
@@ -286,7 +257,6 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    */
   const handleAuthingLogin = async (userInfo: any) => {
     try {
-      const SecureUserStateService = await getSecureUserStateService();
       console.log('🔐 processingGuardloginsuccess:', userInfo);
 
       // 🚨 关键：用户ID必须来自Authing真实API，不能本地生成
@@ -433,7 +403,6 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const logout = useCallback(async () => {
     try {
       console.log('🚪 starts登出stream程...');
-      const SecureUserStateService = await getSecureUserStateService();
 
       // 🎫 清除Token和执行Authing登出
       try {
@@ -511,7 +480,6 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     try {
       const authService = await getAuthService();
-      const SecureUserStateService = await getSecureUserStateService();
       // 🔍 DEBUG: 显示传入的更新数据
       console.log('🔍 updateUser 被调用，parameter:', updates);
       console.log('🔍 parameterkey名:', Object.keys(updates));
@@ -645,8 +613,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       const verificationCodeService = await getVerificationCodeService();
       const result = await verificationCodeService.loginByEmailCode(email, code);
       
-      if (result.success && result.data) {
-        handleAuthingLogin(result.data);
+      if (result.success && result.user) {
+        handleAuthingLogin(result.user);
         return;
       } else {
         throw new Error(result.message);
@@ -668,8 +636,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       const verificationCodeService = await getVerificationCodeService();
       const result = await verificationCodeService.loginByPhoneCode(phone, code);
       
-      if (result.success && result.data) {
-        handleAuthingLogin(result.data);
+      if (result.success && result.user) {
+        handleAuthingLogin(result.user);
         return;
       } else {
         throw new Error(result.message);
@@ -721,9 +689,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         throw new Error(t('common.errors.注册信息不完整'));
       }
       
-      if (result.success && result.data) {
+      if (result.success && result.user) {
         // 注册成功，设置用户信息
-        handleAuthingLogin(result.data);
+        handleAuthingLogin(result.user);
         // 根据接口定义，返回void
         return;
       } else {
@@ -834,7 +802,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('✅ sessionalready延长至:', new Date(newExpiryTime).toISOString());
         setSessionWarning(false);
       },
-      onActivityDetected: (activityType) => {
+      onActivityDetected: () => {
         // 静默处理用户活动，不输出日志避免控制台污染
       },
     });
