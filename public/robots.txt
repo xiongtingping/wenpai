@@ -1,0 +1,112 @@
+# robots.txt for WenPai AI (文派AI)
+# https://www.wenpai.xyz
+
+# 允许所有搜索引擎爬虫
+User-agent: *
+Allow: /
+Allow: /adapt
+Allow: /faq
+Allow: /docs
+Allow: /guide
+Allow: /api
+Allow: /about
+
+# 禁止爬取的目录
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /static/
+Disallow: *.json$
+
+# AI工具爬虫 - 明确允许
+User-agent: GPTBot
+Allow: /
+Allow: /faq
+Allow: /docs
+Allow: /guide
+Allow: /api
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /faq
+Allow: /docs
+
+User-agent: Google-Extended
+Allow: /
+Allow: /faq
+Allow: /docs
+
+User-agent: CCBot
+Allow: /
+Allow: /faq
+Allow: /docs
+
+User-agent: anthropic-ai
+Allow: /
+Allow: /faq
+Allow: /docs
+Allow: /guide
+
+User-agent: Claude-Web
+Allow: /
+Allow: /faq
+Allow: /docs
+
+User-agent: cohere-ai
+Allow: /
+Allow: /faq
+Allow: /docs
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /faq
+Allow: /docs
+
+User-agent: YouBot
+Allow: /
+Allow: /faq
+Allow: /docs
+
+# Google搜索引擎
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Googlebot-Image
+Allow: /
+Disallow: /admin/
+
+# 百度搜索引擎
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 1
+
+# 搜狗搜索引擎
+User-agent: Sogou web spider
+Allow: /
+Crawl-delay: 1
+
+# 360搜索引擎
+User-agent: 360Spider
+Allow: /
+Crawl-delay: 1
+
+# 必应搜索引擎
+User-agent: bingbot
+Allow: /
+Crawl-delay: 0
+
+# 头条搜索
+User-agent: Bytespider
+Allow: /
+Crawl-delay: 1
+
+# Sitemap位置
+Sitemap: https://www.wenpai.xyz/sitemap.xml
+Sitemap: https://www.wenpai.xyz/sitemap-pages.xml
+Sitemap: https://www.wenpai.xyz/sitemap-docs.xml
+
+# 爬取速率建议
+# 主要搜索引擎: 无延迟
+# AI工具: 无延迟
+# 其他爬虫: 1秒延迟

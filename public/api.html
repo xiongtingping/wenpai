@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API文档 - 文派AI | 开发者接口文档</title>
+    <meta name="description" content="文派AI开发者API文档:浏览器扩展接口、内容发布API、Webhook集成等技术文档。">
+    <meta name="keywords" content="文派AI API,开发者文档,浏览器扩展API,技术集成">
+    <meta name="robots" content="index, follow">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: #f5f7fa; line-height: 1.8; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 60px 20px; text-align: center; }
+        .header h1 { font-size: 3em; margin-bottom: 15px; }
+        .container { max-width: 1000px; margin: -40px auto 60px; background: white; border-radius: 20px; padding: 50px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        h2 { color: #667eea; font-size: 2em; margin: 30px 0 20px; }
+        h3 { color: #764ba2; font-size: 1.5em; margin: 25px 0 15px; }
+        .code-block { background: #2d2d2d; color: #f8f8f2; padding: 25px; border-radius: 8px; overflow-x: auto; margin: 20px 0; font-family: monospace; }
+        .highlight-box { background: #f8f9ff; padding: 25px; border-radius: 12px; border-left: 4px solid #667eea; margin: 25px 0; }
+        code { background: #f4f4f4; padding: 2px 8px; border-radius: 4px; color: #e83e8c; font-family: monospace; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #667eea; color: white; }
+        .endpoint { background: #f0f0f0; padding: 15px; border-radius: 8px; margin: 15px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 API文档</h1>
+        <p>开发者接口文档</p>
+    </div>
+
+    <div class="container">
+        <div class="highlight-box">
+            <h2>概述</h2>
+            <p>文派AI提供浏览器扩展API和Web API,支持第三方应用集成。本文档面向开发者,介绍如何使用文派AI的技术接口。</p>
+        </div>
+
+        <h2>浏览器扩展API</h2>
+
+        <h3>消息通信</h3>
+        <p>网页可以通过Chrome Extension Message API与文派AI扩展通信:</p>
+
+        <div class="code-block">// 检测扩展是否安装
+const EXTENSION_ID = 'your-extension-id';
+
+function checkExtensionInstalled() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(EXTENSION_ID, { action: 'ping' }, (response) => {
+      resolve(!!response);
+    });
+  });
+}
+
+// 发起批量发布
+async function batchPublish(platforms, contents) {
+  const response = await chrome.runtime.sendMessage(EXTENSION_ID, {
+    action: 'batchPublish',
+    data: {
+      platforms: ['xiaohongshu', 'weibo', 'zhihu'],
+      contents: {
+        xiaohongshu: {
+          title: '标题',
+          text: '正文内容',
+          hashtags: ['话题1', '话题2']
+        },
+        weibo: {
+          text: '微博内容',
+          hashtags: ['#话题']
+        }
+      }
+    }
+  });
+
+  return response;
+}</div>
+
+        <h3>支持的平台ID</h3>
+        <table>
+            <tr>
+                <th>平台</th>
+                <th>ID</th>
+                <th>支持字段</th>
+            </tr>
+            <tr>
+                <td>小红书</td>
+                <td><code>xiaohongshu</code></td>
+                <td>title, text, hashtags</td>
+            </tr>
+            <tr>
+                <td>微博</td>
+                <td><code>weibo</code></td>
+                <td>text, hashtags</td>
+            </tr>
+            <tr>
+                <td>知乎</td>
+                <td><code>zhihu</code></td>
+                <td>title, text</td>
+            </tr>
+            <tr>
+                <td>抖音</td>
+                <td><code>douyin</code></td>
+                <td>title, text, hashtags</td>
+            </tr>
+            <tr>
+                <td>B站</td>
+                <td><code>bilibili</code></td>
+                <td>title, text</td>
+            </tr>
+        </table>
+
+        <h2>Web API (开发中)</h2>
+
+        <h3>认证</h3>
+        <p>使用API Key进行认证:</p>
+
+        <div class="code-block">const API_KEY = 'your-api-key';
+
+fetch('https://api.wenpai.xyz/v1/content/adapt', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${API_KEY}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    text: '原始内容',
+    platforms: ['xiaohongshu', 'weibo']
+  })
+});</div>
+
+        <h3>内容适配接口</h3>
+        <div class="endpoint">POST /v1/content/adapt</div>
+        <p>将原始内容适配到目标平台格式</p>
+
+        <h3>发布历史接口</h3>
+        <div class="endpoint">GET /v1/publish/history</div>
+        <p>获取历史发布记录</p>
+
+        <div class="highlight-box">
+            <h3>企业API</h3>
+            <p>如需API访问权限或企业定制,请联系: <strong>enterprise@wenpai.xyz</strong></p>
+        </div>
+
+        <div style="text-align: center; margin-top: 50px;">
+            <a href="/" style="color: #667eea; text-decoration: none; font-weight: 600;">← 返回首页</a>
+        </div>
+    </div>
+</body>
+</html>
