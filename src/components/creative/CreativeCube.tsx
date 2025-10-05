@@ -394,7 +394,8 @@ export function CreativeCube() {
   const { t } = useTranslation(); // 🔧 修复：添加缺失的翻译函数
   const { toast } = useToast();
   const { decrementUsage } = useAuthStore();
-  const usageRemaining = useAuthStore((state) => state.getUsageRemaining());
+  const authStore = useAuthStore();
+  const usageRemaining = (authStore as any).getUsageRemaining ? (authStore as any).getUsageRemaining() : 0;
   
   // 使用统一的维度定义系统
   const dimensions: CubeDimension[] = getCreativeCubeDimensions().map(dim => ({

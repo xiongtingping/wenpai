@@ -58,7 +58,7 @@ export class BrandLibraryDataManager {
         return result.data;
       } else {
         logger.warn('⚠️ 品牌资产加载失败或无数据:', result.error);
-        return [];
+        return [] as BrandAsset[];
       }
     } catch (error) {
       logger.error('❌ 品牌资产加载异常:', error);
@@ -96,7 +96,7 @@ export class BrandLibraryDataManager {
         return result.data;
       } else {
         logger.warn('⚠️ 品牌维度加载失败或无数据:', result.error);
-        return [];
+        return [] as BrandDimension[];
       }
     } catch (error) {
       logger.error('❌ 品牌维度加载异常:', error);

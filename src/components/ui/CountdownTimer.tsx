@@ -38,7 +38,7 @@ export const CountdownTimer: React.FC<any> = ({
      }
 
     const timer = setInterval(() => {
-      setSeconds(prev => {
+      setSeconds((prev: number) => {
         if (prev <= 1) {
           onComplete?.();
           return 0;

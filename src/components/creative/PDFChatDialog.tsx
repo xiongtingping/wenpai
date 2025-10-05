@@ -184,7 +184,7 @@ export function PDFChatDialog({
 
       const response = await callAIWithTokenTracking({
         prompt: inputValue,
-        documentContent: selectedDocument.content,
+        systemPrompt: `你是一个PDF文档助手。以下是文档内容：\n\n${selectedDocument.content}\n\n请基于以上文档内容回答用户的问题。`,
         feature: 'pdf-chat',
         taskType: AITaskType.CHAT
       });

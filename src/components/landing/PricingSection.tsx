@@ -407,7 +407,7 @@ export function PricingSection() {
                 
                 <div className="flex justify-center items-center w-full">
                   <Button
-                    variant={isTrial ? "default" : "gradient"}
+                    variant={isTrial ? "default" : "primary"}
                     size="lg"
                     className={`mt-8 mx-auto w-auto px-8 font-semibold transition-all duration-300 flex items-center justify-center text-center ${
                       isTrial

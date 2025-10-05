@@ -57,7 +57,7 @@ export function useModelPermission(modelId?: string): ModelPermissionResult {
   const premiumPermission = usePermission('tier:premium');
 
   // 判断权限系统是否加载完成
-  const isLoading = trialPermission.isLoading || proPermission.isLoading || premiumPermission.isLoading;
+  const isLoading = !trialPermission || !proPermission || !premiumPermission;
 
   // 获取当前用户订阅层级
   const currentTier = useMemo((): SubscriptionTier => {

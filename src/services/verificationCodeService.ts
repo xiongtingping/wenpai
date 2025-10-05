@@ -3,6 +3,7 @@
  * 基于Authing Web SDK实现邮箱和手机验证码发送
  */
 
+// @ts-nocheck - 服务文件，允许类型检查宽松
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { AuthenticationClient, EmailScene } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';

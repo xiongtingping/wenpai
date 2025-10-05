@@ -412,7 +412,7 @@ export default function HotTopicsRadar({ showNavigation = false,
         notificationEnabled: newSubscription.notificationEnabled,
         isActive: true,
         createdAt: new Date().toISOString(),
-        lastCheckAt: null,
+        lastCheckAt: undefined,
         minHeatThreshold: newSubscription.minHeatThreshold,
         maxHeatThreshold: newSubscription.maxHeatThreshold
       };

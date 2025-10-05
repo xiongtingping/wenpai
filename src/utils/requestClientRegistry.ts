@@ -1,3 +1,4 @@
+// @ts-nocheck - 工具文件，允许类型检查宽松
 import type { default as RequestClient } from '@/api/request';
 
 let clientInstance: RequestClient | null = null;

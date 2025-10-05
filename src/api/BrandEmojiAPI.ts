@@ -5,8 +5,12 @@
 
 import { BrandEmojiIntegrationService, BrandEmojiConfig, BrandEmojiResult, BrandElementSelector } from '../services/BrandEmojiIntegrationService';
 import { ImageBrandExtractionService } from '../services/ImageBrandExtractionService';
-import { BrandVisualLibrary } from '../types/brandVisuals';
-import { BrandCorpus } from '../types/index';
+// import { BrandVisualLibrary } from '../types/brandVisuals';
+// import { BrandCorpus } from '../types/index';
+
+// 临时类型定义，直到正式类型文件创建
+type BrandVisualLibrary = any;
+type BrandCorpus = any;
 
 export class BrandEmojiAPI {
   private emojiService: BrandEmojiIntegrationService;
@@ -320,7 +324,7 @@ export class BrandEmojiAPI {
       const allStyles: string[] = [];
 
       records.forEach(record => {
-        record.emojis?.forEach(emoji => {
+        record.emojis?.forEach((emoji: any) => {
           allColors.push(...emoji.usedBrandElements.colors);
           allEmotions.push(...emoji.usedBrandElements.emotions);
           allStyles.push(...emoji.usedBrandElements.visualStyle);

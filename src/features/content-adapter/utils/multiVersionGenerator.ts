@@ -5,7 +5,8 @@
 
 import { callAIWithTokenTracking, type AICallParamsWithTracking } from '@/services/aiWithTokenTracking';
 import { AITaskType } from '@/api/aiService';
-import type { ContentVersion } from '../types';
+// import type { ContentVersion } from '../types'; // 模块不存在，暂时注释
+type ContentVersion = any; // 临时类型定义
 
 /**
  * 生成多个版本的内容

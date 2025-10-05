@@ -33,7 +33,7 @@ export const ThemeSwitcher: React.FC = () => {
         return <Moon className="h-4 w-4" />;
       case 'beige':
         return <span className="text-sm">🌾</span>;
-      case 'gold':
+      case 'gold' as any:
         return <span className="text-sm">🏆</span>;
       case 'rainbow':
         return <span className="text-sm">🌈</span>;

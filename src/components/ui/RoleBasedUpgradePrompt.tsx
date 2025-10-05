@@ -60,7 +60,7 @@ export const RoleBasedUpgradePrompt: React.FC<any> = ({
     
     if (isPremiumUser) return true;
     
-    const tierLevels = { trial: 0, pro: 1, premium: 2 };
+    const tierLevels: Record<string, number> = { trial: 0, pro: 1, premium: 2 };
     return tierLevels[userTier] >= tierLevels[requiredTier];
   };
 

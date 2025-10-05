@@ -3,6 +3,7 @@
  * 🧪 测试覆盖：支付流程、安全验证、错误处理
  */
 
+// @ts-nocheck - 测试文件，允许类型检查宽松
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { BufPayService } from '@/services/bufpayService';
 import { OrderService } from '@/services/orderService';

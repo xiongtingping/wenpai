@@ -11,8 +11,7 @@ import {
   type UnifiedPermissionResult
 } from '@/config/unifiedPermissionConfig';
 import type { SystemRole } from '@/config/rolePermissionMatrix';
-import type { SubscriptionTier as UserSubscriptionTier } from '@/types/subscription';
-import type { SubscriptionTier } from '@/config/rolePermissionMatrix';
+import type { SubscriptionTier } from '@/types/subscription';
 
 /**
  * 统一权限检查Hook
@@ -131,7 +130,7 @@ export function useUnifiedPermission(permissionKey: string) {
         isActive: finalStatus === 'active' || finalTier === 'premium' || finalTier === 'pro'
       },
       permissions: user?.permissions || []
-    };
+    } as UserPermissionContext;
   }, [user, isAuthenticated, subscription]);
 
   // 执行权限检查
@@ -216,7 +215,7 @@ export function useMultiplePermissions(permissionKeys: string[]) {
         isActive: finalStatus === 'active' || finalTier === 'premium' || finalTier === 'pro'
       },
       permissions: user?.permissions || []
-    };
+    } as UserPermissionContext;
   }, [user, isAuthenticated, subscription]);
 
   const permissionResult: UnifiedPermissionResult = useMemo(() => {
@@ -299,7 +298,7 @@ export function useAnyPermission(permissionKeys: string[]) {
         isActive: finalStatus === 'active' || finalTier === 'premium' || finalTier === 'pro'
       },
       permissions: user?.permissions || []
-    };
+    } as UserPermissionContext;
   }, [user, isAuthenticated, subscription]);
 
   const permissionResult: UnifiedPermissionResult = useMemo(() => {
@@ -382,7 +381,7 @@ export function useUserPermissions() {
         isActive: finalStatus === 'active' || finalTier === 'premium' || finalTier === 'pro'
       },
       permissions: user?.permissions || []
-    };
+    } as UserPermissionContext;
   }, [user, isAuthenticated, subscription]);
 
   const availablePermissions = useMemo(() => {

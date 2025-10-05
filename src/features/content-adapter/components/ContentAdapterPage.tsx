@@ -79,7 +79,7 @@ const checkExtensionInstalled = (): Promise<boolean> => {
         chrome.runtime.sendMessage(
           EXTENSION_ID,
           { action: 'ping' },
-          (response) => {
+          (response: any) => {
             if (chrome.runtime.lastError) {
               console.log('扩展未安装:', chrome.runtime.lastError.message);
               resolve(false);
@@ -138,7 +138,7 @@ const callExtensionBatchForward = async (platforms: Array<{
               }), {})
             }
           },
-          (response) => {
+          (response: any) => {
             if (chrome.runtime.lastError) {
               resolve({
                 success: false,
@@ -302,10 +302,10 @@ export function ContentAdapterPage({
       }
     };
 
-    window.addEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
+    window.addEventListener('tokenUsageUpdated', handleTokenUsageUpdate as unknown as EventListener);
 
     return () => {
-      window.removeEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
+      window.removeEventListener('tokenUsageUpdated', handleTokenUsageUpdate as unknown as EventListener);
     };
   }, [refreshSubscription]);
 
@@ -856,12 +856,12 @@ export function ContentAdapterPage({
       // 检查是否已收藏
       if (persistentFavorites.has(favoriteKey)) {
         // $收藏
-        const existingFavorites = favoritesStore.favorites.filter(fav =>
-          fav.metadata?.platformId === platformId && 
+        const existingFavorites = (favoritesStore as any).favorites?.filter((fav: any) =>
+          fav.metadata?.platformId === platformId &&
           (versionId ? fav.metadata?.versionId === versionId : !fav.metadata?.versionId)
-        );
-        
-        existingFavorites.forEach(fav => {
+        ) || [];
+
+        existingFavorites.forEach((fav: any) => {
           favoritesStore.removeFavorite(fav.id);
         });
 
@@ -1323,12 +1323,16 @@ export function ContentAdapterPage({
         content: pendingPublish.content,
         time: new Date().toISOString()
       };
-      
-            existingHistory.push(historyItem);
-      
+
+      // 保存到历史记录
+      const existingHistory = await globalDataManager.getData<any[]>('user_history') || [];
+      existingHistory.push(historyItem);
+
       if (existingHistory.length > 100) {
         existingHistory.splice(0, existingHistory.length - 100);
       }
+
+      await globalDataManager.setData('user_history', existingHistory);
       
       
       // 打开对应平台
@@ -1376,8 +1380,11 @@ export function ContentAdapterPage({
         content: firstTask.content,
         time: new Date().toISOString()
       };
-      
-            existingHistory.push(historyItem);
+
+      // 保存到历史记录
+      const existingHistory = await globalDataManager.getData<any[]>('user_history') || [];
+      existingHistory.push(historyItem);
+      await globalDataManager.setData('user_history', existingHistory);
       
       // 打开对应平台
       const platformUrl = platformUrls[firstTask.platformId];
@@ -1443,68 +1450,73 @@ export function ContentAdapterPage({
       <div className="container mx-auto py-8 px-4 space-y-8">
         {/* 内容输入区域 */}
         <ContentInputSection
-          originalContent={originalContent}
-          onContentChange={setOriginalContent}
-          usageRemaining={displayRemaining}
-          currentTier={effectiveUserTier}
-          useBrandLibrary={useBrandLibrary}
-          onBrandLibraryChange={updateBrandLibrary}
-          t={t}
+          {...{
+            originalContent,
+            onContentChange: setOriginalContent,
+            usageRemaining: displayRemaining,
+            currentTier: effectiveUserTier,
+            useBrandLibrary,
+            onBrandLibraryChange: updateBrandLibrary,
+            t
+          } as any}
         />
 
         {/* 平台选择区域 */}
         <PlatformSelector
-          availablePlatforms={availablePlatforms}
-          selectedPlatforms={selectedPlatforms}
-          onPlatformToggle={(platformId) => {
-            const newPlatforms = selectedPlatforms.includes(platformId)
-              ? selectedPlatforms.filter(id => id !== platformId)
-              : [...selectedPlatforms, platformId];
-            updateSelectedPlatforms(newPlatforms);
-          }}
-          onBatchSelect={(platformIds) => {
-            // 批量选择函数 - 直接设置选中的平台列表
-            updateSelectedPlatforms(platformIds);
-            console.log('批量选择平台:', { selected: platformIds.length, total: availablePlatforms.length });
-          }}
-          platformSettings={platformSettings}
-          onPlatformSettingUpdate={handlePlatformSettingUpdate}
-          settingsMode={settingsMode}
-          onSettingsModeChange={updateSettingsMode}
-          globalSettings={globalSettings}
-          getPlatformIcon={getPlatformIcon}
-          getPlatformName={(platformId: string) => getPlatformName(platformId, availablePlatforms)}
-          getPlatformMaxCharCount={getPlatformMaxCharCount}
-          getPlatformRecommendedCharCount={getPlatformRecommendedCharCount}
-          t={t}
+          {...{
+            availablePlatforms,
+            selectedPlatforms,
+            onPlatformToggle: (platformId: string) => {
+              const newPlatforms = selectedPlatforms.includes(platformId)
+                ? selectedPlatforms.filter(id => id !== platformId)
+                : [...selectedPlatforms, platformId];
+              updateSelectedPlatforms(newPlatforms);
+            },
+            onBatchSelect: (platformIds: string[]) => {
+              updateSelectedPlatforms(platformIds);
+              console.log('批量选择平台:', { selected: platformIds.length, total: availablePlatforms.length });
+            },
+            platformSettings,
+            onPlatformSettingUpdate: handlePlatformSettingUpdate,
+            settingsMode,
+            onSettingsModeChange: updateSettingsMode,
+            globalSettings,
+            getPlatformIcon,
+            getPlatformName: (platformId: string) => getPlatformName(platformId, availablePlatforms),
+            getPlatformMaxCharCount,
+            getPlatformRecommendedCharCount,
+            t
+          } as any}
         />
 
         {/* 生成控制区域 */}
         <GenerationControls
-          generating={generating}
-          queueRunning={queueRunning}
-          selectedFormId={selectedFormId}
-          selectedStyle={selectedStyle}
-          onFormChange={updateSelectedForm}
-          onStyleChange={updateSelectedStyle}
-          selectedModel={selectedModel}
-          availableModels={availableModels}
-          onModelChange={updateSelectedModel}
-          useBrandLibrary={useBrandLibrary}
-          brandProfile={brandProfile}
-          onBrandLibraryChange={updateBrandLibrary}
-          customPrompt={customPrompt}
-          onCustomPromptChange={updateCustomPrompt}
-          selectedPlatforms={selectedPlatforms}
-          originalContent={originalContent}
-          onGenerate={handleGenerate}
-          onStopGeneration={() => {/* TODO: 实现停止生成 */}}
-          onStartAutomation={handleStartAutomation}
-          onStopAutomation={stopAutomation}
-          onClearResults={clearResults}
-          onBatchPublish={handleBatchPublish}
-          validationErrors={validationErrors}
-          t={t}
+          {...{
+            generating,
+            queueRunning,
+            selectedFormId,
+            selectedStyle,
+            onFormChange: updateSelectedForm,
+            onStyleChange: updateSelectedStyle,
+            selectedModel,
+            availableModels,
+            onModelChange: updateSelectedModel,
+            useBrandLibrary,
+            brandProfile,
+            onBrandLibraryChange: updateBrandLibrary,
+            customPrompt,
+            onCustomPromptChange: updateCustomPrompt,
+            selectedPlatforms,
+            originalContent,
+            onGenerate: handleGenerate,
+            onStopGeneration: () => {/* TODO: 实现停止生成 */},
+            onStartAutomation: handleStartAutomation,
+            onStopAutomation: stopAutomation,
+            onClearResults: clearResults,
+            onBatchPublish: handleBatchPublish,
+            validationErrors,
+            t
+          } as any}
         />
 
         {/* 结果展示区域 */}

@@ -955,7 +955,7 @@ export default function BookmarkPage() {
                         </p>
                         {favorite.tags && favorite.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1">
-                            {favorite.tags.map((tag, index) => (
+                            {favorite.tags.map((tag: any, index: number) => (
                               <Badge key={index} variant="secondary" className="text-xs">
                                 {tag}
                               </Badge>

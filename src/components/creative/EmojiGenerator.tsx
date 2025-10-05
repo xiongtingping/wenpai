@@ -76,9 +76,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
           const emotion = emotionMatch ? emotionMatch[1] : '开心';
 
           const response = await callAIWithTokenTracking({
-            character,
-            brand,
-            emotion,
+            prompt: `为角色"${character}"生成一个表达"${emotion}"情感的emoji，品牌：${brand}`,
             feature: 'emoji-generation',
             taskType: AITaskType.IMAGE_GENERATION
           });
@@ -96,9 +94,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
           const emotion = emotionMatch ? emotionMatch[1] : '开心';
 
           const response = await callAIWithTokenTracking({
-            character,
-            brand,
-            emotion,
+            prompt: `为角色"${character}"生成一个表达"${emotion}"情感的emoji，品牌：${brand}`,
             feature: 'emoji-generation',
             taskType: AITaskType.IMAGE_GENERATION
           });

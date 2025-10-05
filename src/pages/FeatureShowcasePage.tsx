@@ -231,7 +231,7 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {features.map((feature) => (
-              <UnifiedPermissionGuard
+              <EnhancedUnifiedPermissionGuard
                 key={feature.id}
                 requiredPermission={feature.permission}
                 featureName={feature.name}
@@ -253,7 +253,7 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
                     </Badge>
                   </CardContent>
                 </Card>
-              </UnifiedPermissionGuard>
+              </EnhancedUnifiedPermissionGuard>
             ))}
           </div>
         </div>

@@ -4,7 +4,7 @@
  * @module EmojiPicker
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, Smile, Heart, Star, Zap, Image, Globe } from 'lucide-react';
 import { Button } from './button';
@@ -65,33 +65,60 @@ export const EmojiPicker: React.FC<any> = ({ onSelect,
   const cdnConfigs = getCDNConfigs();
 
   // 根据搜索查询过滤 emoji
-  const filteredEmojis = useMemo(() => {
-    if (searchQuery.trim()) {
-      return searchEmojis(searchQuery);
-     }
-    
-    switch (selectedCategory) {
-      case 'popular':
-        return getPopularEmojis();
-      case 'smileys':
-        return getSmileysEmojis();
-      case 'animals':
-        return getAnimalsEmojis();
-      case 'food':
-        return getFoodEmojis();
-      case 'activity':
-        return getActivityEmojis();
-      case 'travel':
-        return getTravelEmojis();
-      case 'objects':
-        return getObjectsEmojis();
-      case 'symbols':
-        return getSymbolsEmojis();
-      case 'flags':
-        return getFlagsEmojis();
-      default:
-        return getPopularEmojis();
-    }
+  const [filteredEmojis, setFilteredEmojis] = useState<any[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadEmojis = async () => {
+      let emojis: any[];
+
+      if (searchQuery.trim()) {
+        emojis = await searchEmojis(searchQuery);
+      } else {
+        switch (selectedCategory) {
+          case 'popular':
+            emojis = await getPopularEmojis();
+            break;
+          case 'smileys':
+            emojis = await getSmileysEmojis();
+            break;
+          case 'animals':
+            emojis = await getAnimalsEmojis();
+            break;
+          case 'food':
+            emojis = await getFoodEmojis();
+            break;
+          case 'activity':
+            emojis = await getActivityEmojis();
+            break;
+          case 'travel':
+            emojis = await getTravelEmojis();
+            break;
+          case 'objects':
+            emojis = await getObjectsEmojis();
+            break;
+          case 'symbols':
+            emojis = await getSymbolsEmojis();
+            break;
+          case 'flags':
+            emojis = await getFlagsEmojis();
+            break;
+          default:
+            emojis = await getPopularEmojis();
+        }
+      }
+
+      if (isMounted) {
+        setFilteredEmojis(emojis);
+      }
+    };
+
+    loadEmojis();
+
+    return () => {
+      isMounted = false;
+    };
   }, [searchQuery, selectedCategory]);
 
   // 处理 emoji 选择
@@ -236,7 +263,7 @@ export const EmojiPicker: React.FC<any> = ({ onSelect,
         {/* Emoji 列表 */}
         <ScrollArea className="flex-1 p-4">
           <div className="grid grid-cols-8 gap-2">
-            {filteredEmojis.map((emoji) => (
+            {filteredEmojis.map((emoji: any) => (
               <button
                 key={emoji.unified}
                 onClick={() => handleEmojiSelect(emoji)}
@@ -265,7 +292,7 @@ export const EmojiPicker: React.FC<any> = ({ onSelect,
 
         {/* 底部信息 */}
         <div className="p-4 border-t text-xs text-muted-foreground">
-          共 {filteredEmojis.length} 个 emoji • {currentDisplayMode === 'cdn' ? cdnConfigs[currentCDNType].name : currentDisplayMode}
+          共 {filteredEmojis.length} 个 emoji • {currentDisplayMode === 'cdn' ? (cdnConfigs as any)[currentCDNType]?.name || currentCDNType : currentDisplayMode}
         </div>
       </div>
     </div>

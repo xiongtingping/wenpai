@@ -339,7 +339,7 @@ function PlatformResultCard({
                     <div key={idx} className="flex items-center justify-between p-3 bg-muted/50 rounded border">
                       <p className="text-sm font-medium mr-2 truncate">{t}</p>
                       <div className="flex items-center gap-2">
-                        <Button size="xs" variant="outline" onClick={() => navigator.clipboard.writeText(t)}>复制</Button>
+                        <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(t)}>复制</Button>
                       </div>
                     </div>
                   ))}

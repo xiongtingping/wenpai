@@ -798,7 +798,7 @@ export default function PaymentPage() {
                     </div>
                     <div className="mt-3 flex justify-center">
                       <Button
-                        variant={plan.recommended ? "gradient" : "default"}
+                        variant={plan.recommended ? "default" : "default"}
                         size="lg"
                         className={`font-semibold transition-all duration-300 flex items-center justify-center text-center px-8 py-3 ${
                           plan.recommended

@@ -164,7 +164,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       }
     } catch (error: any) {
       console.error(t('components.error.登录失败_6dn'), error);
-      const errorMessage = error.message || error.code || t();
+      const errorMessage = error.message || error.code || t('components.error.未知错误');
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -208,7 +208,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
           联系方式: contact
         });
 
-        if (contactType === 'emailphone') {
+        if (contactType === 'email' || contactType === 'phone') {
           result = await authClient.registerByPhoneCode(contact, cleanCode, password);
         } else {
           throw new Error(t('components.errors.验证码注册请使用邮箱或手机号'));
@@ -229,7 +229,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
         response: error?.response?.data,
         stack: error?.stack?.split('\n')[0] // 只显示第一行堆栈
       });
-      const errorMessage = error.message || error.code || t();
+      const errorMessage = error.message || error.code || t('components.error.未知错误');
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -262,7 +262,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       console.log(t('components.status.验证码发送成_sgt'));
     } catch (error: any) {
       console.error(t('components.error.验证码发送失_ybt'), error);
-      setError(error.message || t());
+      setError(error.message || t('components.error.未知错误'));
     }
   };
 
@@ -297,7 +297,7 @@ export const EnhancedAuthModal: React.FC<EnhancedAuthModalProps> = ({
       }
     } catch (error: any) {
       console.error(t('components.error.密码重置失败_j4a'), error);
-      setError(error.message || t($));
+      setError(error.message || t('components.error.未知错误'));
     } finally {
       setLoading(false);
     }

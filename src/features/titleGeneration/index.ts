@@ -11,7 +11,7 @@ export { default as TitleList } from './components/TitleList';
 export { default as TitleSettings } from './components/TitleSettings';
 export { default as TitleGenerationProgress } from './components/TitleGenerationProgress';
 export { default as ConcurrencyControl } from './components/ConcurrencyControl';
-export { default as PerformanceMonitorComponent } from './components/PerformanceMonitor';
+// export { default as PerformanceMonitorComponent } from './components/PerformanceMonitor'; // 模块不存在，暂时注释
 
 // Hook
 export { default as useTitleGeneration } from './hooks/useTitleGeneration';

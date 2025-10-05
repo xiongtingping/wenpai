@@ -290,8 +290,8 @@ export const PaymentStatusRecovery: React.FC<any> = ({ onRecoveryComplete,
             key={checkoutId}
             checkoutId={checkoutId}
             apiKey={import.meta.env.VITE_CREEM_API_KEY || ''}
-            onPaymentSuccess={(paymentData) => handlePaymentSuccess(checkoutId, paymentData)}
-            onPaymentFailed={(error) => handlePaymentFailed(checkoutId, error)}
+            onPaymentSuccess={(paymentData: any) => handlePaymentSuccess(checkoutId, paymentData)}
+            onPaymentFailed={(error: any) => handlePaymentFailed(checkoutId, error)}
             onPaymentExpired={() => handlePaymentExpired(checkoutId)}
             autoRefresh={true}
             refreshInterval={3000}

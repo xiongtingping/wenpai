@@ -291,10 +291,12 @@ export const useFavoritesStore = () => {
   return {
     // 旧的状态属性
     items: favoritesState.items,
+    favorites: favoritesState.items, // 添加favorites作为items的别名
     tags: favoritesState.tags,
     activeFilter: favoritesState.activeFilter,
     loading: favoritesState.loading,
     error: favoritesState.error,
+    totalCount: favoritesState.items.length, // 添加totalCount属性
 
     // 旧的操作方法
     addFavorite: (item: any) => {

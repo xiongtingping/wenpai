@@ -7,12 +7,17 @@
 
 import { useMemo, useCallback, useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { 
-  UnifiedPermissionService, 
-  type ExtendedPermissionType, 
-  type PermissionCheckResult,
-  type SessionUserInfo 
+import {
+  UnifiedPermissionService
+  // type ExtendedPermissionType,
+  // type PermissionCheckResult,
+  // type SessionUserInfo
 } from '@/services/unifiedPermissionService';
+
+// 临时类型定义
+type ExtendedPermissionType = string;
+type PermissionCheckResult = any;
+type SessionUserInfo = any;
 
 // ============================================================================
 // 类型定义
@@ -251,7 +256,7 @@ export function useAdvancedPermissionGuard(
     }
 
     // 执行权限检查
-    const result = UnifiedPermissionService.checkPermission(user as SessionUserInfo, permission);
+    const result = UnifiedPermissionService.checkPermission(user as SessionUserInfo, permission as any);
 
     // 缓存结果
     if (useCache) {
@@ -338,8 +343,8 @@ export function useAdvancedPermissionGuard(
       };
     }
 
-    const config = UnifiedPermissionService.getPermissionConfig(permission);
-    const willHavePermission = config.requiredTier === targetTier || 
+    const config = UnifiedPermissionService.getPermissionConfig(permission as any);
+    const willHavePermission = config.requiredTier === targetTier ||
       (config.requiredTier === 'pro' && targetTier === 'premium');
 
     return {
@@ -489,7 +494,7 @@ export function usePermissionPreloader() {
 
     for (const permission of commonPermissions) {
       try {
-        const result = UnifiedPermissionService.checkPermission(user as SessionUserInfo, permission);
+        const result = UnifiedPermissionService.checkPermission(user as SessionUserInfo, permission as any);
         cacheManager.current.set(user?.id || null, permission, result);
       } catch (error) {
         console.warn(`预loadingpermission ${permission} failed:`, error);

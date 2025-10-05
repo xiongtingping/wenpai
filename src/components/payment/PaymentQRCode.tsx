@@ -40,7 +40,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
      }
 
     const timer = setInterval(() => {
-      setTimeLeft(prev => prev - 1);
+      setTimeLeft((prev: number) => prev - 1);
     }, 1000);
 
     return () => clearInterval(timer);

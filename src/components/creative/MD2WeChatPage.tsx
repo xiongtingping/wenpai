@@ -35,7 +35,7 @@ import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import { MarkdownEditor } from './md2wechat/MarkdownEditor';
 import { ThemeSelector } from './md2wechat/ThemeSelector';
 import { PreviewPanel } from './md2wechat/PreviewPanel';
-import { ExportControls } from './md2wechat/ExportControls';
+// import { ExportControls } from './md2wechat/ExportControls'; // 模块不存在，暂时注释
 import { convertMarkdownToHTML } from '@/services/md2wechatService';
 import { useDebouncedCallback } from 'use-debounce';
 

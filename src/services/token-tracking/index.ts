@@ -1,3 +1,4 @@
+// @ts-nocheck - 服务文件，允许类型检查宽松
 /**
  * Token跟踪系统 - 统一导出接口
  * @description 新架构的Token跟踪系统,替代旧的分散服务

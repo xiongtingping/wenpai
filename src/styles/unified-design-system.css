@@ -768,31 +768,32 @@
      ============================== */
   :root {
     --batch-modal-z-index: 1101;
-    --batch-modal-bottom-offset: 24px;
     --batch-modal-border: 1px solid hsl(var(--border));
-    --batch-modal-border-radius: 12px;
+    --batch-modal-border-radius: var(--radius-lg);
     --batch-modal-shadow: var(--shadow-2xl);
+    --batch-modal-max-width: min(960px, 92vw);
+    --batch-modal-max-height: 80vh;
   }
 
   /* 半透明遮罩层 */
   .batch-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.45);
+    background: hsl(var(--foreground) / 0.45);
     backdrop-filter: blur(2px);
     z-index: calc(var(--batch-modal-z-index) - 1);
     pointer-events: auto;
     animation: fadeIn var(--duration-normal) var(--easing-ease);
   }
 
-  /* 主内容容器（强制底部居中） */
+  /* 主内容容器（居中定位 - 遵循项目标准） */
   .batch-modal-content {
     position: fixed;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
-    bottom: var(--batch-modal-bottom-offset);
-    width: min(960px, 92vw);
-    max-height: 70vh;
+    transform: translate(-50%, -50%);
+    width: var(--batch-modal-max-width);
+    max-height: var(--batch-modal-max-height);
     display: flex;
     flex-direction: column;
     background: hsl(var(--background));
@@ -802,19 +803,20 @@
     z-index: var(--batch-modal-z-index);
     pointer-events: auto;
     overflow: hidden;
+    animation: scaleIn var(--duration-normal) var(--easing-spring);
   }
 
   /* 最小化浮窗（右下角） */
   .batch-modal-minimized {
     position: fixed;
-    right: 16px;
-    bottom: 16px;
+    right: var(--spacing-4);
+    bottom: var(--spacing-4);
     width: 340px;
     background: hsl(var(--background));
     border: 1px solid hsl(var(--border));
-    border-radius: 10px;
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
-    padding: 8px 12px;
+    padding: var(--spacing-2) var(--spacing-3);
     z-index: var(--batch-modal-z-index);
     pointer-events: auto;
   }

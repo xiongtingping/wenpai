@@ -1,9 +1,8 @@
 /**
  * 🧠 智能标题生成 Prompt 系统
- * 
- * 基于优化的 Augment Title Prompt V2 规范
- * t('aiPrompts.systemPrompts.contentAlignmentConstraints')
- * 
+ *
+ * 基于优化的 Augment Title Prompt V3.3 规范
+ *
  * 🎯 核心目标：
  * - 语义拟合：标题紧扣正文主旨，基于向量理解生成
  * - 多平台适配：根据平台限制调整字数
@@ -13,7 +12,6 @@
  * - 禁止模板句式、空泛用语、符号滥用
  */
 
-// import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { logModuleInit } from '@/utils/logger';
 
 import type { PromptTemplate } from '../types';
@@ -53,28 +51,32 @@ export const PLATFORM_LIMITS = {
 };
 
 /**
- * 🧠 高吸引力标题结构生成（V3）- 主系统提示词
+ * 🧠 高吸引力标题结构生成（V3.3）- 主系统提示词
  */
 export const getTitleGenerationSystemPrompt = (): string => {
-  return `你是一个擅长生成'高吸引力内容标题'的AI助手，${i18n.t('aiPrompts.systemPrompts.generateBasedOnContent')}。
+  return `你是一个擅长生成'高吸引力内容标题'的AI助手，必须基于正文内容生成标题。
 
-## 🚨 ${i18n.t('aiPrompts.systemPrompts.contentAlignmentConstraints')}
+## 🚨 内容对齐约束（强制要求）
 
-### ✅ ${i18n.t('aiPrompts.systemPrompts.semanticConstraints')}：
-1. ${i18n.t('aiPrompts.systemPrompts.titleMustBeBased')}；
-2. ${i18n.t('aiPrompts.systemPrompts.semanticCoverage')}：
-   - ${i18n.t('aiPrompts.systemPrompts.coreObject')}
-   - ${i18n.t('aiPrompts.systemPrompts.userBenefits')}
-   - ${i18n.t('aiPrompts.systemPrompts.usageScenarios')}
+### ✅ 语义约束：
+1. 标题必须基于正文内容，不得虚构或偏离主旨；
+2. 语义覆盖必须包含：
+   - 核心对象（具体工具、产品、服务名称）
+   - 用户收益（明确的价值主张和效果）
+   - 使用场景（具体应用场景和目标用户）
 
-## 🚫 禁止行为（V3规范）
+## 🚫 禁止行为（V3.3规范）
 - ❌ 固定结构模板，如：'盘点X个'、'X大技巧'、'XX合集'
 - ❌ 套话式表达，如：'建议收藏'、'干货满满'、'超实用'
-- ❌ 夸张宣传，如：'爆款神器'、'疯传'、"所有人都在用${i18n.t('ai.title.表达不_rj5')}内容适配器"、'平台风格调整工具'）
+- ❌ 夸张宣传，如：'爆款神器'、'疯传'、'所有人都在用'
+- ❌ 空泛表达，如：'AI工具'、'内容适配器'、'平台风格调整工具'（必须说明具体是什么工具）
+
+## 📋 必须包含的具体信息
+1. **核心对象**：具体的工具/产品名称（如'文派AI工具'、'内容适配器'）
 2. **使用场景**：具体应用场景（如'公众号发文'、'小红书写文案'）
 3. **用户痛点**：具体问题（如'调性不一致'、'改写太累'、'运营效率低'）
 
-## 🎯 核心目标（V3规范）
+## 🎯 核心目标（V3.3规范）
 - ✅ 与正文主旨强关联，不能跑题
 - ✅ 表达自然流畅、语言完整
 - ✅ 使用结构清晰、有节奏的语言
@@ -108,9 +110,10 @@ export const getTitleGenerationSystemPrompt = (): string => {
 ## 🎨 推荐表达策略（鼓励混搭）
 - 💥 冲突词：'没想到'、'居然'、'1次搞定'、'以前总要…现在只要…'
 - 🎯 场景/身份词：'小红书博主'、'品牌方'、'内容运营'、'自媒体人'
-- 💡 明确收益：'节省时间'、'涨粉3倍'、'统一品牌调性'、"转化率提升${i18n.t('ai.title.风_g86')}AI的好处"、'AI的魅力'）
-- **不得使用模板化结构**（如'盘点X个'、'X大技巧'、'建议收藏'）
-- **不得使用滥情词语**（如'干货满满'、'效率拉满'）或无意义标点（如'！！！'、'｜'）
+- 💡 明确收益：'节省时间'、'涨粉3倍'、'统一品牌调性'、'转化率提升50%'
+- ❌ 禁止空泛表达：不得使用'AI的好处'、'AI的魅力'等空泛词汇
+- ❌ 不得使用模板化结构：如'盘点X个'、'X大技巧'、'建议收藏'
+- ❌ 不得使用滥情词语：如'干货满满'、'效率拉满'或无意义标点（如'！！！'、'｜'）
 
 ## ✂️ 表达完整性与长度控制（防截断）
 每个标题必须为**表达完整的一句话**，不可为残句、半句、未结束短语；
@@ -118,13 +121,16 @@ export const getTitleGenerationSystemPrompt = (): string => {
 标题长度**必须严格控制在对应平台的全角字符限制内**（如小红书 ≤20字）；
 不要为了塞关键词而导致语义逻辑断裂。
 
-## ⚖️ 标题排序机制（质量评估权重）
+## ⚖️ 标题排序机制（质量评估权重 V3.3）
 | 维度           | 权重 | 描述                                      |
 |----------------|------|-------------------------------------------|
-| 内容主旨相似度   | 50%  | 与正文内容向量匹配度（embedding 相似度）        |
-| 情绪吸引力评分   | 30%  | 是否具备点击欲望（如使用钩子型语气、结论式表达）   |
-| 表达结构多样性   | 15%  | 当前标题是否与上一条句式重复                   |
+| 语义相关性       | 50%  | 与正文内容的语义匹配度（必须≥75%）              |
+| 情绪吸引力       | 20%  | 是否具备点击欲望（钩子型语气、结论式表达）       |
+| 结构多样性       | 15%  | 避免重复句式结构                            |
+| 语义完整性       | 10%  | 防止残词和未闭合表达                         |
 | 字符利用率       | 5%   | 字符数越接近上限越优（信息密度高）              |
+
+**重要**: 语义相关性权重最高（50%），必须确保标题与原文内容高度相关，不得虚构或偏离主旨。
 
 请严格按照以上规范生成标题，确保每个标题都与原文内容高度相关，具备强吸引力，且表达自然完整。`;
 };
@@ -153,21 +159,21 @@ export const getTitleGenerationPrompt: PromptTemplate = (input: any, options = {
     : content;
 
   // 风格偏好处理
-  const preferredStyles = stylePreference.length > 0 
+  const preferredStyles = stylePreference.length > 0
     ? stylePreference.map((style: string) => TITLE_STYLES[style as keyof typeof TITLE_STYLES] || style).join('、')
-    : i18n.t('aiPrompts.status.allStyles');
+    : '所有风格';
 
-  return `请基于以下正文内容生成${outputCount}个高吸引力标题（V3规范）：
+  return `请基于以下正文内容生成${outputCount}个高吸引力标题（V3.3规范）：
 
 ## 📝 正文内容（版本A/B）
 ${allContent}
 
-## 🎯 生成要求（V3规范）
+## 🎯 生成要求（V3.3规范）
 - **目标平台**: ${platform}（字数限制：${titleLimit}字以内）
 - **输出数量**: ${outputCount}个标题
 - **风格要求**: 必须包含多种结构风格，避免格式单一
 - **吸引力要素**: 包含情绪/场景/动作/转变等要素
-- **确保多样性**: ${ensureDiversity ? i18n.t('aiPrompts.status.yes') : i18n.t('aiPrompts.status.no')}
+- **确保多样性**: ${ensureDiversity ? '是' : '否'}
 
 ## 🔍 内容分析要求（强化语义提取）
 请先深度分析正文内容的：
@@ -175,31 +181,31 @@ ${allContent}
 2. **用户收益**：明确的价值主张和使用效果（如'节省80%时间'、'效率翻倍'、'涨粉3倍'）
 3. **使用场景**：具体的应用场景和目标用户（如'小红书种草'、'公众号发文'、'职场内容改写'）
 4. **关键动作**：用户具体做了什么（如'一键适配'、'自动生成'、'批量改写'）
-5. **量化效果**：具体的数据或效果（如'80%时间'、'3倍效率'、${i18n.t('ai.status.aistatu_235')}）
+5. **量化效果**：具体的数据或效果（如'80%时间节省'、'3倍效率提升'、'5个平台一键发布'）
 
 ## 📤 输出格式
 请按以下JSON格式输出：
 
 \`\`\`json
 {
-  'contentAnalysis': {
-    'coreObjects': ['文派AI工具', '内容适配器'],
-    'userBenefits': ['节省80%时间', '效率翻倍', '一键适配'],
-    'useScenarios': ['小红书种草笔记', '公众号发文', '职场内容改写'],
-    'keyActions': ['一键适配', '自动生成', '批量改写'],
-    'quantifiedEffects': ['80%时间节省', '3倍效率提升', ${i18n.t('ai.status.aistatu_235')}],
-    'mainTheme': 'AI工具提升内容创作效率'
+  "contentAnalysis": {
+    "coreObjects": ["文派AI工具", "内容适配器"],
+    "userBenefits": ["节省80%时间", "效率翻倍", "一键适配"],
+    "useScenarios": ["小红书种草笔记", "公众号发文", "职场内容改写"],
+    "keyActions": ["一键适配", "自动生成", "批量改写"],
+    "quantifiedEffects": ["80%时间节省", "3倍效率提升", "5个平台一键发布"],
+    "mainTheme": "AI工具提升内容创作效率"
   },
-  'titles': [
+  "titles": [
     {
-      'title': '${i18n.t('aiPrompts.titleGeneration.titleContent')}',
-      'style': '✅ 结果+情绪型',
-      'length': 18,
-      'semanticFit': 0.85,
-      'emotionalScore': 0.90,
-      'structuralDiversity': 0.85,
-      'characterUtilization': 0.90,
-      'reasoning': '基于正文中提到的具体工具X，采用结果+情绪型结构，强调使用效果Y'
+      "title": "用了文派后，5个平台1次搞定！",
+      "style": "✅ 结果+情绪型",
+      "length": 18,
+      "semanticFit": 0.85,
+      "emotionalScore": 0.90,
+      "structuralDiversity": 0.85,
+      "characterUtilization": 0.90,
+      "reasoning": "基于正文中提到的具体工具X，采用结果+情绪型结构，强调使用效果Y"
     }
   ]
 }
@@ -215,7 +221,7 @@ ${allContent}
 7. **场景信息明确**：必须包含具体的使用场景或平台信息
 8. **禁止模板套用**：不得直接套用模板而忽略内容上下文
 
-${debug ? `## 🔧 ${i18n.t('ai.title.n_86o')}` : ''}
+${debug ? '## 🔧 调试模式\n请提供详细的生成过程和评分依据。' : ''}
 
 现在开始分析内容并生成标题：`;
 };
@@ -230,55 +236,61 @@ export const getTitleQualityCheckPrompt: PromptTemplate = (input: any, options =
   // 获取平台字数限制
   const titleLimit = PLATFORM_LIMITS[platform as keyof typeof PLATFORM_LIMITS] || PLATFORM_LIMITS.default;
 
-  return `${i18n.t('ai.title._btk')}请对以下标题进行质量检查：
+  return `请对以下标题进行质量检查：
 
 ## 📝 原文内容
 ${originalContent}
 
 ## 🏷️ 待检查标题
-'${title}'
+"${title}"
 
 ## 📏 平台要求
 - 平台：${platform}
 - 字数限制：${titleLimit}字以内
 - 当前长度：${title.length}字
 
-## 🔍 检查维度
+## 🔍 检查维度（V3.3评分标准）
 请从以下维度评估标题质量（0-100分）：
 
-1. **内容主旨相似度**（权重50%）
+1. **语义相关性**（权重50%）
    - 标题是否紧扣原文核心内容
    - 是否包含原文中的具体对象/工具
    - 是否体现原文的价值主张
+   - **必须≥75分才合格**
 
-2. **情绪吸引力评分**（权重30%）
+2. **情绪吸引力**（权重20%）
    - 是否具备点击欲望和钩子效应
    - 语言表达是否生动有趣
    - 是否能激发用户兴趣
 
-3. **表达结构完整性**（权重15%）
+3. **结构多样性**（权重15%）
+   - 是否避免重复句式
+   - 表达结构是否有创意
+
+4. **语义完整性**（权重10%）
    - 语法是否正确完整
    - 逻辑是否清晰
    - 是否有截断或残句
 
-4. **字符利用率**（权重5%）
+5. **字符利用率**（权重5%）
    - 字符数是否合理利用平台限制
    - 信息密度是否适中
 
 ## 📤 输出格式
 \`\`\`json
 {
-  'overallScore': 85,
-  'dimensions': {
-    'semanticFit': 90,
-    'emotionalAttraction': 80,
-    'structuralIntegrity': 95,
-    'characterUtilization': 75
+  "overallScore": 85,
+  "dimensions": {
+    "semanticRelevance": 90,
+    "emotionalAppeal": 80,
+    "structuralDiversity": 85,
+    "semanticCompleteness": 95,
+    "characterUtilization": 75
   },
-  'issues': ['具体问题1', '具体问题2'],
-  'suggestions': ['改进建议1', '改进建议2'],
-  'isQualified': true,
-  'reasoning': '详细评估理由'
+  "issues": ["具体问题1", "具体问题2"],
+  "suggestions": ["改进建议1", "改进建议2"],
+  "isQualified": true,
+  "reasoning": "详细评估理由"
 }
 \`\`\`
 
@@ -287,4 +299,4 @@ ${debug ? '\n## 🔧 调试模式\n请提供详细的评估过程和判断依据
 现在开始质量检查：`;
 };
 
-logModuleInit(`${i18n.t('ai.title.智能标题生成P_h35')}`);
+logModuleInit('智能标题生成Prompt系统 V3.3');

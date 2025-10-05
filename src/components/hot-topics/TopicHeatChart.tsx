@@ -82,10 +82,10 @@ export const TopicHeatChart: React.FC<any> = ({ keyword,
 
   // 生成图表数据
   const chartData = useMemo(() => {
-    return trends.map(trend => ({
-      date: new Date(trend.date).toLocaleDateString('zh-CN', { 
-        month: 'short', 
-        day: 'numeric' 
+    return trends.map((trend: any) => ({
+      date: new Date(trend.date).toLocaleDateString('zh-CN', {
+        month: 'short',
+        day: 'numeric'
       }),
       heat: trend.heat,
       mentions: trend.mentions,
@@ -120,14 +120,14 @@ export const TopicHeatChart: React.FC<any> = ({ keyword,
   // 生成简单图表
   const renderSimpleChart = () => {
     if (chartData.length === 0) return null;
-    
-    const maxHeat = Math.max(...chartData.map(d => d.heat));
-    const minHeat = Math.min(...chartData.map(d => d.heat));
+
+    const maxHeat = Math.max(...chartData.map((d: any) => d.heat));
+    const minHeat = Math.min(...chartData.map((d: any) => d.heat));
     const range = maxHeat - minHeat;
-    
+
     return (
       <div className="flex items-end justify-between h-32 mt-4 space-x-1">
-        {chartData.map((data, index) => {
+        {chartData.map((data: any, index: number) => {
           const height = range > 0 ? ((data.heat - minHeat) / range) * 100 : 50;
           const isLatest = index === chartData.length - 1;
           
@@ -247,7 +247,7 @@ export const TopicHeatChart: React.FC<any> = ({ keyword,
               <div>
                 <h4 className="text-sm font-medium text-foreground mb-2">平台分布</h4>
                 <div className="flex flex-wrap gap-2">
-                  {Array.from(new Set(trends.flatMap(t => t.platforms))).map(platform => (
+                  {Array.from(new Set(trends.flatMap((t: any) => t.platforms))).map((platform: any) => (
                     <Badge key={platform} variant="secondary" className="text-xs">
                       {platform}
                     </Badge>

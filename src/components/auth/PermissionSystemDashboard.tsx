@@ -66,12 +66,14 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { 
+import {
   UnifiedPermissionService,
-  type ExtendedPermissionType,
-  type PermissionCheckResult,
   UNIFIED_PERMISSION_CONFIGS
 } from '@/services/unifiedPermissionService';
+import type {
+  ExtendedPermissionType,
+  PermissionCheckResult
+} from '@/types/permissions';
 import { useAdvancedPermissionGuard, usePermissionMonitor } from '@/hooks/useAdvancedPermissionGuard';
 import { EnhancedUnifiedPermissionGuard } from './EnhancedUnifiedPermissionGuard';
 

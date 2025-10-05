@@ -565,7 +565,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
                       {/* 选择按钮 */}
                       <Button
                         onClick={() => handleUpgrade(plan.id)}
-                        variant={isRequired ? "default" : isRecommended ? "gradient" : "outline"}
+                        variant={isRequired ? "default" : isRecommended ? "primary" : "outline"}
                         size="default"
                         className={`w-full font-semibold transition-all duration-300 ${
                           isRequired

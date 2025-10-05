@@ -83,7 +83,8 @@ import EnhancedTopicCategories from '@/components/hot-topics/EnhancedTopicCatego
 import RSSHubIndicator from '@/components/hot-topics/RSSHubIndicator';
 import intelligentDeduplicationService from '@/services/intelligentDeduplicationService';
 import unifiedHeatScoreService from '@/services/unifiedHeatScoreService';
-import intelligentCategoryService from '@/services/intelligentCategoryService';
+// import intelligentCategoryService from '@/services/intelligentCategoryService'; // 模块不存在，暂时注释
+const intelligentCategoryService = null as any; // 临时占位
 import multiDimensionalTrendService from '@/services/multiDimensionalTrendService';
 import DataSourceToggle from '@/components/hot-topics/DataSourceToggle';
 import {

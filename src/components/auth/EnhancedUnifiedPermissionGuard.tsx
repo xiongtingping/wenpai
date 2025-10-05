@@ -21,13 +21,15 @@ import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { getSubscriptionPlan, SUBSCRIPTION_PLANS, calculateDiscountCountdown, isInDiscountPeriod } from '@/config/subscriptionPlans';
 import { CountdownTimer } from '@/components/ui/CountdownTimer';
 import { usePermissionInteraction } from '@/utils/permissionInteractionUtils';
-import { 
-  UnifiedPermissionService, 
-  type ExtendedPermissionType, 
-  type PermissionCheckResult,
-  type SessionUserInfo,
-  getUserTier 
+import {
+  UnifiedPermissionService,
+  getUserTier
 } from '@/services/unifiedPermissionService';
+import type {
+  ExtendedPermissionType,
+  PermissionCheckResult,
+  SessionUserInfo
+} from '@/types/permissions';
 
 /**
  * 显示模式类型
@@ -319,10 +321,10 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
         
         <div>
           <UpgradeText as="h3" type="title" size="lg" className="mb-2">
-            {featureName || permissionResult.permissionConfig.name}
+            {featureName || permissionResult.permissionConfig?.name || '功能'}
           </UpgradeText>
           <PermissionText type="description" size="sm" className="mb-4">
-            {description || permissionResult.permissionConfig.description}
+            {description || permissionResult.permissionConfig?.description || '此功能需要升级'}
           </PermissionText>
           
           <Badge variant="outline" className={`${requiredTierInfo.color} font-semibold mb-4`}>
@@ -374,7 +376,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
           </div>
           
           <UpgradeText as="h3" type="title" size="lg" className="mb-2">
-            {featureName || permissionResult.permissionConfig.name}
+            {featureName || permissionResult.permissionConfig?.name || '功能'}
           </UpgradeText>
           
           <PermissionText type="description" size="sm" className="mb-4">
@@ -443,7 +445,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
             <div className="flex items-center gap-2">
               <div className={requiredTierInfo.iconColor}>{requiredTierInfo.icon}</div>
               <span className="text-sm font-medium">
-                {featureName || permissionResult.permissionConfig.name}
+                {featureName || permissionResult.permissionConfig?.name || '功能'}
               </span>
               <Badge variant="outline" className="text-xs">
                 需要 {requiredTierInfo.name}
@@ -516,7 +518,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
           <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <UpgradeText as="h3" type="title" size="lg" className="mb-2">需要升级解锁</UpgradeText>
           <PermissionText type="description" size="sm" className="mb-4">
-            {featureName || permissionResult.permissionConfig.name} 需要 {requiredTierInfo.name} 权限
+            {featureName || permissionResult.permissionConfig?.name || '此功能'} 需要 {requiredTierInfo.name} 权限
           </PermissionText>
           <Button onClick={handleUpgradeClick}>
             <Crown className="w-4 h-4 mr-2" />
@@ -573,11 +575,11 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
             <div className="flex items-center justify-center gap-2 mb-3">
               <Lock className="w-6 h-6 text-primary" />
               <UpgradeText as="h2" type="title" size="xl">
-                解锁 {featureName || permissionResult.permissionConfig.name}
+                解锁 {featureName || permissionResult.permissionConfig?.name || '功能'}
               </UpgradeText>
             </div>
             <PermissionText type="description" size="sm" className="mb-3">
-              {description || permissionResult.permissionConfig.description}
+              {description || permissionResult.permissionConfig?.description || '此功能需要升级'}
             </PermissionText>
             <div className="flex flex-col items-center gap-2">
               <Badge className={`text-xs px-3 py-1.5 ${requiredTierInfo.color} font-semibold`}>
@@ -683,7 +685,7 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
                         localStorage.setItem("selectedPlan", plan.id);
                         navigate("/payment-center");
                       }}
-                      variant={isRequired ? "default" : isRecommended ? "gradient" : "outline"}
+                      variant={isRequired ? "default" : isRecommended ? "primary" : "outline"}
                       size="default"
                       className="w-full font-semibold"
                     >
@@ -717,10 +719,10 @@ export const EnhancedUnifiedPermissionGuard: React.FC<EnhancedUnifiedPermissionG
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Lock className="w-5 h-5" />
-              升级解锁 {featureName || permissionResult.permissionConfig.name}
+              升级解锁 {featureName || permissionResult.permissionConfig?.name || '功能'}
             </DialogTitle>
             <DialogDescription>
-              {description || permissionResult.permissionConfig.description}
+              {description || permissionResult.permissionConfig?.description || '此功能需要升级'}
             </DialogDescription>
           </DialogHeader>
           

@@ -70,12 +70,12 @@ export const SecureInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Se
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const newValue = e.target.value;
       validation.handleChange(newValue);
-      controlledOnChange?.(e);
+      controlledOnChange?.(e as any);
      };
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       validation.handleBlur();
-      controlledOnBlur?.(e);
+      controlledOnBlur?.(e as any);
     };
 
     // 获取安全指示器
@@ -232,12 +232,12 @@ export const SecureInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Se
             <Textarea
               ref={ref as React.Ref<HTMLTextAreaElement>}
               rows={rows}
-              {...inputProps}
+              {...(inputProps as any)}
             />
           ) : (
             <Input
               ref={ref as React.Ref<HTMLInputElement>}
-              {...inputProps}
+              {...(inputProps as any)}
             />
           )}
 

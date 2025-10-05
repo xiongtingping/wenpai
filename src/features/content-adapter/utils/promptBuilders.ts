@@ -85,7 +85,7 @@ export const getAlternativeContentForm = (platformId: string, currentFormId?: st
  * [迁移保持原样] 获取替代风格
  */
 export const getAlternativeStyle = (currentStyle: StyleType): StyleType => {
-  const styleAlternatives: Record<StyleType, StyleType> = {
+  const styleAlternatives: Partial<Record<StyleType, StyleType>> = {
     'professional': 'real',
     'funny': 'professional',
     'real': 'funny',
@@ -177,7 +177,7 @@ export const generateStyleDimension = (style?: StyleType, profile?: any): string
   const brandOverride = profile ? `\n- 品牌风格覆盖：${profile.tone}风格优先于选择的${style}风格` : '';
 
   return `表达风格要求：
-- 选择风格：${styleMap[style]}
+- 选择风格：${(styleMap as any)[style] || style}
 - 风格特点：确保内容完全符合${style}风格的表达特征
 - 语言特色：用词、句式、节奏都要体现${style}风格${brandOverride}`;
 };

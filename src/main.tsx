@@ -4,7 +4,7 @@
  */
 
 // console.log('🔥 main.tsx startsloading...');
-window.__MAIN_TSX_LOADED__ = true;
+(window as any).__MAIN_TSX_LOADED__ = true;
 
 // console.log('🔥 Step 1: startsimportingCSS...');
 import './index.css';
@@ -24,9 +24,11 @@ console.log('🔥 Step 2: startsimportingi18n...');
 
 // 🔧 CRITICAL: 全局i18n设置 - 解决i18n TDZ错误
 import i18n from './i18n';
-// 设置全局i18n实例，供其他模块使用
+// 设置全局i18n实例和t函数，供其他模块使用
 (globalThis as any).i18n = i18n;
 (window as any).i18n = i18n;
+(globalThis as any).t = i18n.t.bind(i18n);
+(window as any).t = i18n.t.bind(i18n);
 
 console.log('🔥 Step 3: startsimportingReact...');
 

@@ -10,7 +10,7 @@ export { default as ContentAdapterPage } from './ContentAdapterPage';
 export { default as ContentInputSection } from './ContentInputSection';
 export { default as PlatformSelector } from './PlatformSelector';
 export { default as GenerationControls } from './GenerationControls';
-export { default as ResultsDisplay } from './ResultsDisplay';
+export { ResultsDisplay } from './ResultsDisplay'; // 使用命名导出而非默认导出
 
 // 重新导出Hook，方便组件使用
 export * from '../hooks';

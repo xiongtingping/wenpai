@@ -123,9 +123,11 @@ function logModuleLock(name: string, signature: string): void {
 export enum AITaskType {
   CONTENT_ADAPTATION = 'content_adaptation',
   CREATIVE_GENERATION = 'creative_generation',
+  CONTENT_GENERATION = 'content_generation', // 内容生成
   TITLE_GENERATION = 'title_generation',
   TAG_GENERATION = 'tag_generation',
   PDF_CHAT = 'pdf_chat',
+  CHAT = 'chat', // 聊天对话
   CONTENT_SUMMARY = 'content_summary',
   SUMMARIZATION = 'summarization', // 🔧 FIXED: 添加SUMMARIZATION类型
   CONTENT_EXTRACTION = 'content_extraction',
@@ -133,6 +135,7 @@ export enum AITaskType {
   BRAND_DESCRIPTION = 'brand_description',
   BRAND_CORPUS_EXTRACTION = 'brand_corpus_extraction',
   AUDIENCE_ANALYSIS = 'audience_analysis',
+  IMAGE_GENERATION = 'image_generation', // 图像生成
   EMOJI_GENERATION = 'emoji_generation',
   IMAGE_DESCRIPTION = 'image_description',
   GENERAL_CHAT = 'general_chat',
@@ -208,9 +211,11 @@ function getDefaultMaxTokens(taskType: AITaskType): number {
   const tokenMap: Record<AITaskType, number> = {
     [AITaskType.CONTENT_ADAPTATION]: 1000,
     [AITaskType.CREATIVE_GENERATION]: 1500,
+    [AITaskType.CONTENT_GENERATION]: 1500, // 内容生成
     [AITaskType.TITLE_GENERATION]: 300,
     [AITaskType.TAG_GENERATION]: 200,
     [AITaskType.PDF_CHAT]: 1500,
+    [AITaskType.CHAT]: 1500, // 聊天对话
     [AITaskType.CONTENT_SUMMARY]: 800,
     [AITaskType.SUMMARIZATION]: 800, // 🔧 FIXED: 添加SUMMARIZATION映射
     [AITaskType.CONTENT_EXTRACTION]: 1000,
@@ -219,6 +224,7 @@ function getDefaultMaxTokens(taskType: AITaskType): number {
     [AITaskType.BRAND_CORPUS_EXTRACTION]: 4000,
     [AITaskType.AUDIENCE_ANALYSIS]: 1000,
     [AITaskType.EMOJI_GENERATION]: 300,
+    [AITaskType.IMAGE_GENERATION]: 1000, // 图像生成
     [AITaskType.IMAGE_DESCRIPTION]: 500,
     [AITaskType.GENERAL_CHAT]: 1000,
     [AITaskType.PROMPT_RESPONSE]: 1000
@@ -234,9 +240,11 @@ function getDefaultTemperature(taskType: AITaskType): number {
   const temperatureMap: Record<AITaskType, number> = {
     [AITaskType.CONTENT_ADAPTATION]: 0.8,
     [AITaskType.CREATIVE_GENERATION]: 0.9,
+    [AITaskType.CONTENT_GENERATION]: 0.9, // 内容生成
     [AITaskType.TITLE_GENERATION]: 0.8,
     [AITaskType.TAG_GENERATION]: 0.5,
     [AITaskType.PDF_CHAT]: 0.7,
+    [AITaskType.CHAT]: 0.7, // 聊天对话
     [AITaskType.CONTENT_SUMMARY]: 0.5,
     [AITaskType.SUMMARIZATION]: 0.5, // 🔧 FIXED: 添加SUMMARIZATION映射
     [AITaskType.CONTENT_EXTRACTION]: 0.3,
@@ -245,6 +253,7 @@ function getDefaultTemperature(taskType: AITaskType): number {
     [AITaskType.BRAND_CORPUS_EXTRACTION]: 0.3,
     [AITaskType.AUDIENCE_ANALYSIS]: 0.5,
     [AITaskType.EMOJI_GENERATION]: 0.8,
+    [AITaskType.IMAGE_GENERATION]: 0.8, // 图像生成
     [AITaskType.IMAGE_DESCRIPTION]: 0.6,
     [AITaskType.GENERAL_CHAT]: 0.7,
     [AITaskType.PROMPT_RESPONSE]: 0.7
@@ -296,9 +305,11 @@ Your job is to generate emotionally resonant and platform-ready marketing conten
 
 🎯 Goal:
 Your output must feel like it was written by a real KOC or content strategist — creative, emotionally engaging, and 100% based on the provided input.`,
+    [AITaskType.CONTENT_GENERATION]: '你是一个专业的内容创作专家，擅长创作各种类型的高质量内容。', // 内容生成
     [AITaskType.TITLE_GENERATION]: '你是一个专业的标题创作师，擅长为不同平台创作吸引人的标题。',
     [AITaskType.TAG_GENERATION]: '你是一个专业的标签生成专家，擅长为内容生成相关的标签和关键词。',
     [AITaskType.PDF_CHAT]: '你是一个专业的PDF文档分析助手，能够准确理解文档内容并回答相关问题。',
+    [AITaskType.CHAT]: '你是一个友好、专业的AI对话助手，能够进行自然流畅的对话交流。', // 聊天对话
     [AITaskType.CONTENT_SUMMARY]: '你是一个专业的内容分析师，擅长提取和总结内容的核心信息。',
     [AITaskType.SUMMARIZATION]: '你是一个专业的内容总结专家，擅长将复杂内容提炼为简洁明了的摘要。', // 🔧 FIXED: 添加SUMMARIZATION映射
     [AITaskType.CONTENT_EXTRACTION]: '你是一个专业的内容提取专家，擅长从各种格式的内容中提取关键信息。',
@@ -307,6 +318,7 @@ Your output must feel like it was written by a real KOC or content strategist �
     [AITaskType.BRAND_CORPUS_EXTRACTION]: '你是一位资深品牌策略顾问，擅长从品牌资料中提取结构化信息，构建完整的品牌语料库。请严格按照JSON格式输出结果，确保每个字段都包含置信度评分和详细的来源信息。',
     [AITaskType.AUDIENCE_ANALYSIS]: '你是一个专业的用户画像分析师，擅长分析目标受众的特征和需求。',
     [AITaskType.EMOJI_GENERATION]: '你是一个专业的表情符号设计师，擅长创作有趣、生动的表情符号描述。',
+    [AITaskType.IMAGE_GENERATION]: '你是一个专业的图像生成专家，擅长根据描述生成高质量的图像。', // 图像生成
     [AITaskType.IMAGE_DESCRIPTION]: '你是一个专业的图像描述专家，擅长为图像生成详细、准确的描述。',
     [AITaskType.GENERAL_CHAT]: '你是一个友好、专业的AI助手，能够帮助用户解决各种问题。',
     [AITaskType.PROMPT_RESPONSE]: '你是一个专业的AI助手，请根据用户的提示词提供准确、有用的回答。'

@@ -178,7 +178,7 @@ export default function HistoryPage() { const [history, setHistory] = useState<H
               <p className="text-muted-foreground mb-4">
                 您还没有生成过内容，快去试试内容适配功能吧！
               </p>
-              <Button variant="gradient" onClick={() => window.location.href = '/adapt'}>
+              <Button variant="default" onClick={() => window.location.href = '/adapt'}>
                 开始生成内容
               </Button>
             </CardContent>

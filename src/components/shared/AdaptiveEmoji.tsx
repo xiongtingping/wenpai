@@ -22,6 +22,38 @@ interface AdaptiveEmojiProps {
 }
 
 /**
+ * 检测当前平台
+ */
+function detectPlatform(): PlatformType {
+  // 简单的平台检测逻辑
+  if (typeof navigator !== 'undefined') {
+    const ua = navigator.userAgent.toLowerCase();
+    if (ua.includes('mac')) return 'apple';
+    if (ua.includes('android')) return 'google';
+    if (ua.includes('windows')) return 'microsoft';
+  }
+  return 'web';
+}
+
+/**
+ * 生成emoji样式
+ */
+function generateEmojiStyle(
+  context: EmojiUsageContext,
+  platform: PlatformType,
+  customStyles?: React.CSSProperties
+): React.CSSProperties {
+  const baseSize = context === 'avatar' ? '2rem' :
+                   context === 'button' ? '1.5rem' :
+                   context === 'decoration' ? '1rem' : '1.25rem';
+
+  return {
+    fontSize: baseSize,
+    ...customStyles
+  };
+}
+
+/**
  * 自适应Emoji组件
  * 自动根据使用场景和平台调整尺寸
  */

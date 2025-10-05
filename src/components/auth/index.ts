@@ -16,8 +16,9 @@
 /**
  * 统一混合付费墙守卫 - 主要付费墙组件
  * 用途：实现统一的按钮加锁提示升级UI，支持多种模式
+ * @deprecated 文件不存在，已注释
  */
-export { default as UnifiedPaywallGuard } from './UnifiedPaywallGuard';
+// export { default as UnifiedPaywallGuard } from './UnifiedPaywallGuard';
 
 /**
  * 付费墙按钮 - 按钮级付费墙控制
@@ -34,8 +35,9 @@ export { default as PaywallCard } from './PaywallCard';
 /**
  * 权限守卫 - 统一混合付费墙权限守卫
  * 用途：实现按订阅版本解锁功能，统一UI格式
+ * @deprecated 文件不存在，已注释
  */
-export { PermissionGuard } from './PermissionGuard';
+// export { PermissionGuard } from './PermissionGuard';
 
 // ============================================================================
 // 核心认证组件 (保留兼容性)
@@ -100,14 +102,16 @@ export { PermissionUpgradePrompt } from './PermissionUpgradePrompt';
 /**
  * 订阅守卫 - 订阅级别控制
  * 用途：基于订阅等级的访问控制
+ * @deprecated 文件不存在，已注释
  */
-export { SubscriptionGuard } from './SubscriptionGuard';
+// export { SubscriptionGuard } from './SubscriptionGuard';
 
 /**
  * 功能区域守卫 - 功能模块控制
  * 用途：整个功能模块的权限控制
+ * @deprecated 文件不存在，已注释
  */
-export { FeatureZoneGuard } from './FeatureZoneGuard';
+// export { FeatureZoneGuard } from './FeatureZoneGuard';
 
 /**
  * 升级提示卡片 - 订阅升级引导
@@ -129,23 +133,23 @@ export { AuthGuard } from './AuthGuard';
 /**
  * 增强权限守卫 - 扩展权限控制
  * 用途：复杂的权限控制逻辑
- * @deprecated 推荐使用 UnifiedPermissionGuard
+ * @deprecated 推荐使用 UnifiedPermissionGuard，文件不存在已注释
  */
-export { EnhancedPermissionGuard } from './EnhancedPermissionGuard';
+// export { EnhancedPermissionGuard } from './EnhancedPermissionGuard';
 
 /**
  * 新权限守卫 - 新版权限控制
  * 用途：新版本的权限控制组件
- * @deprecated 推荐使用 UnifiedPermissionGuard
+ * @deprecated 推荐使用 UnifiedPermissionGuard，文件不存在已注释
  */
-export { NewPermissionGuard } from './NewPermissionGuard';
+// export { NewPermissionGuard } from './NewPermissionGuard';
 
 /**
  * 简单权限守卫 - 简化权限控制
  * 用途：最简单的权限控制
- * @deprecated 推荐使用 PermissionGuard
+ * @deprecated 推荐使用 PermissionGuard，文件不存在已注释
  */
-export { SimplePermissionGuard } from './SimplePermissionGuard';
+// export { SimplePermissionGuard } from './SimplePermissionGuard';
 
 // ============================================================================
 // 工具组件

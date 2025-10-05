@@ -65,7 +65,7 @@ export type EmojiUsageContext =
 /**
  * 平台类型
  */
-export type PlatformType = 'desktop' | 'mobile' | 'tablet';
+export type PlatformType = 'desktop' | 'mobile' | 'tablet' | 'apple' | 'google' | 'microsoft' | 'web';
 
 /**
  * Emoji尺寸配置接口

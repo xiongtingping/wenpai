@@ -230,6 +230,35 @@ export class AuthCodeGuard {
     localStorage.removeItem(this.STORAGE_KEY);
     logger.info('🔄 授权码使用记录已重置');
   }
+
+  /**
+   * 检查授权码是否已被使用
+   */
+  public isCodeUsed(code: string): boolean {
+    this.cleanExpiredCodes();
+    return this.usedCodes.has(code);
+  }
+
+  /**
+   * 检查授权码（向后兼容方法）
+   */
+  public checkCode(code: string): boolean {
+    return this.isCodeUsed(code);
+  }
+
+  /**
+   * 验证授权码（向后兼容方法）
+   */
+  public validateCode(code: string): boolean {
+    return !this.isCodeUsed(code);
+  }
+
+  /**
+   * 检查授权码是否有效（向后兼容方法）
+   */
+  public isValidCode(code: string): boolean {
+    return !this.isCodeUsed(code);
+  }
 }
 
 // 延迟创建实例，避免TDZ错误

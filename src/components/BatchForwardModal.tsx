@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 // Dialog components removed - using custom modal
@@ -18,6 +18,12 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface Platform {
   id: string;
@@ -41,11 +47,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
   const { t } = useTranslation();
   const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
   const [isMinimized, setIsMinimized] = useState(false);
-  const [openedPlatforms, setOpenedPlatforms] = useState<Set<string>>(new Set());
   const [expandedPlatforms, setExpandedPlatforms] = useState<Set<string>>(new Set());
-
-  // ref用于强制设置样式
-  const modalRef = useRef<HTMLDivElement>(null);
 
   // 简化后的组件逻辑，移除废弃的内容同步依赖
   // 直接使用平台提供的内容，无需复杂的同步状态管理
@@ -57,7 +59,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
       const key = `${platformName}-${type}`;
       setCopiedItems(prev => new Set([...prev, key]));
       toast.success(`${platformName} ${type}已复制到剪贴板`);
-      
+
       // 3秒后清除复制状态
       setTimeout(() => {
         setCopiedItems(prev => {
@@ -76,7 +78,6 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
   const handleClose = () => setCloseConfirmOpen(true);
   const confirmClose = () => {
     onOpenChange(false);
-    setOpenedPlatforms(new Set());
     setCopiedItems(new Set());
     setCloseConfirmOpen(false);
   };
@@ -103,58 +104,10 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
   // 打开平台发布页
   const openPlatformPage = (platform: Platform) => {
     window.open(platform.url, `_blank_${platform.id}`);
-    setOpenedPlatforms(prev => new Set([...prev, platform.id]));
   };
 
-  // 添加滑入动画的CSS - 移到组件顶部避免条件性hooks
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideInFromBottom {
-        from {
-          transform: translateX(-50%) translateY(100%);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(-50%) translateY(0);
-          opacity: 1;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // 🔧 FIXED: 正确的cleanup函数返回类型
-    return () => {
-      if (document.head.contains(style)) {
-        document.head.removeChild(style);
-      }
-    };
-  }, []); // 永远执行，避免条件性hooks
-
-  // 强制设置弹窗位置在底部 - 使用更高的z-index和更强制的定位
-  useEffect(() => {
-    if (modalRef.current && open && !isMinimized) {
-      const modal = modalRef.current;
-      // 移除可能影响定位的类名
-      modal.classList.remove('fixed', 'absolute', 'relative');
-      
-      // 使用极高优先级的样式设置
-      modal.style.setProperty('position', 'fixed', 'important');
-      modal.style.setProperty('bottom', 'var(--batch-modal-bottom-offset)', 'important');
-      modal.style.setProperty('left', '50%', 'important');
-      modal.style.setProperty('transform', 'translateX(-50%)', 'important');
-      modal.style.setProperty('top', 'auto', 'important');
-      modal.style.setProperty('right', 'auto', 'important');
-      modal.style.setProperty('z-index', 'var(--batch-modal-z-index)', 'important');
-      modal.style.setProperty('margin', '0', 'important');
-      modal.style.setProperty('background', 'white', 'important');
-      modal.style.setProperty('border', 'var(--batch-modal-border)', 'important');
-      modal.style.setProperty('border-radius', 'var(--batch-modal-border-radius)', 'important');
-      modal.style.setProperty('box-shadow', 'var(--batch-modal-shadow)', 'important');
-      
-      if (import.meta.env.DEV) console.log('🔍 批量转发popupalready强制定位到bottom部，position:', modal.getBoundingClientRect());
-    }
-  }, [open, isMinimized]);
+  // 移除了内联样式覆盖的useEffect，完全依赖CSS定位
+  // CSS已修改为标准居中定位，遵循项目规范
 
   // 确保有专门的容器用于渲染弹窗
   useEffect(() => {
@@ -177,34 +130,50 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
         <div className="batch-modal-minimized">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 btn-gradient-primary rounded"></div>
-              <span className="text-sm font-medium">批量转发工作台 ({platforms.length}个平台)</span>
+              <div className="w-4 h-4 bg-gradient-to-br from-primary to-primary/80 rounded"></div>
+              <span className="text-sm font-medium text-foreground">批量转发工作台 ({platforms.length}个平台)</span>
             </div>
             <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsMinimized(false);
-                }}
-                className="h-6 w-6 p-0"
-              >
-                <Square className="h-3 w-3" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleClose();
-                }}
-                className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-              >
-                <X className="h-3 w-3" />
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsMinimized(false);
+                      }}
+                      className="h-6 w-6 p-0"
+                      aria-label="还原窗口"
+                    >
+                      <Square className="h-3 w-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>还原窗口</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleClose();
+                      }}
+                      className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                      aria-label="关闭窗口"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>关闭窗口</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>
@@ -225,9 +194,8 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
             />
           )}
 
-          {/* 弹窗内容 - 强制定位在页面底部 */}
+          {/* 弹窗内容 - 居中定位（遵循项目标准） */}
           <div
-            ref={modalRef}
             className="batch-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
@@ -235,37 +203,51 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
             <div id="batch-forward-modal-description" className="sr-only">批量转发工作台模态框</div>
 
             {/* 优化后的紧凑头部 - 去除冗余留白 */}
-            <div className="flex flex-row items-center justify-between space-y-0 px-6 py-4 border-b bg-gradient-to-r from-primary/10 to-primary/5">
+            <div className="flex flex-row items-center justify-between space-y-0 px-6 py-4 border-b border-border bg-gradient-to-r from-primary/10 to-primary/5">
               <h2 className="text-lg font-semibold text-foreground">
                 批量转发工作台 ({platforms.length}个平台)
               </h2>
               <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsMinimized(true);
-                  }}
-                  className="h-7 w-7 p-0 hover:bg-accent"
-                  title={t('components.actions.minimize', '最小化')}
-                >
-                  <Minus className="h-3.5 w-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleClose();
-                  }}
-                  className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-accent"
-                  title={t('components.actions.close', '关闭')}
-                >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsMinimized(true);
+                        }}
+                        className="h-7 w-7 p-0 hover:bg-accent"
+                        aria-label={t('components.actions.minimize', '最小化')}
+                      >
+                        <Minus className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t('components.actions.minimize', '最小化')}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleClose();
+                        }}
+                        className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-accent"
+                        aria-label={t('components.actions.close', '关闭')}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t('components.actions.close', '关闭')}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
 
@@ -287,13 +269,20 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
 
             {/* 优化后的紧凑内容区域 */}
             <div className="flex-1 overflow-y-auto px-6 py-4 batch-modal-scroll-content">
-              {/* 优化后的使用说明 - 移至主标题下方，单行展示 */}
-              <div className="flex items-center gap-2 mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <Info className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-sm text-foreground font-medium">使用说明：</span>
-                <span className="text-sm text-primary">
-                  点击"跳转"→跳转至对应平台→分别复制标题、内容和标签→粘贴至对应平台→在对应平台完成发布→返回重复下一个平台
-                </span>
+              {/* 优化后的使用说明 - 改为多行清晰展示 */}
+              <div className="mb-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <div className="flex items-start gap-3">
+                  <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 space-y-2">
+                    <p className="text-sm font-semibold text-foreground">使用说明</p>
+                    <ol className="text-sm text-muted-foreground space-y-1.5 list-decimal list-inside">
+                      <li>点击平台卡片右上角的<span className="font-medium text-primary">"跳转平台"</span>按钮，打开对应平台发布页</li>
+                      <li>在本页面点击<span className="font-medium text-primary">"复制标题"</span>、<span className="font-medium text-primary">"复制内容"</span>、<span className="font-medium text-primary">"复制标签"</span>按钮</li>
+                      <li>切换到平台页面，将复制的内容粘贴到对应位置</li>
+                      <li>在平台完成发布后，返回继续处理下一个平台</li>
+                    </ol>
+                  </div>
+                </div>
               </div>
 
               {/* 优化后的平台网格 - 增加分组边框 */}
@@ -303,32 +292,48 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
                     {/* 优化后的卡片头部 */}
                     <CardHeader className="pb-3 pt-4 px-4 border-b border-border bg-accent/30">
                       <CardTitle className="flex items-center gap-3 text-base">
-                        <div className="w-6 h-6 rounded btn-gradient-primary flex items-center justify-center">
+                        <div className="w-6 h-6 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
                           <span className="text-primary-foreground text-sm font-bold">
                             {platform.icon}
                           </span>
                         </div>
                         <span className="flex-1 font-semibold text-foreground">{platform.name}</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openPlatformPage(platform)}
-                          className="h-7 px-3 text-sm border-primary hover:border-primary hover:bg-accent"
-                        >
-                          <ExternalLink className="h-3 w-3 mr-1" />
-                          跳转平台
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => togglePlatformExpanded(platform.id)}
-                          className="h-7 w-7 p-0 hover:bg-accent"
-                        >
-                          {expandedPlatforms.has(platform.id) ?
-                            <ChevronUp className="h-4 w-4" /> :
-                            <ChevronDown className="h-4 w-4" />
-                          }
-                        </Button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openPlatformPage(platform)}
+                                className="h-7 px-3 text-sm border-primary hover:border-primary hover:bg-accent"
+                                aria-label={`跳转到${platform.name}平台`}
+                              >
+                                <ExternalLink className="h-3 w-3 mr-1" />
+                                跳转平台
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>在新标签页打开平台发布页</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => togglePlatformExpanded(platform.id)}
+                                className="h-7 w-7 p-0 hover:bg-accent"
+                                aria-label={expandedPlatforms.has(platform.id) ? "收起详情" : "展开详情"}
+                              >
+                                {expandedPlatforms.has(platform.id) ?
+                                  <ChevronUp className="h-4 w-4" /> :
+                                  <ChevronDown className="h-4 w-4" />
+                                }
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>{expandedPlatforms.has(platform.id) ? "收起详情" : "展开详情"}</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </CardTitle>
                     </CardHeader>
 
@@ -338,57 +343,81 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
 
                       {/* 快速复制按钮区域 */}
                       <div className="flex gap-2 mb-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => copyToClipboard(
-                            platform.title,
-                            t('components.actions.title', '标题'),
-                            platform.name
-                          )}
-                          className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
-                        >
-                          {getCopyButtonState(platform.name, t('components.actions.title', '标题')) ? (
-                            <Check className="h-3 w-3 text-foreground mr-1" />
-                          ) : (
-                            <Copy className="h-3 w-3 mr-1" />
-                          )}
-                          复制标题
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => copyToClipboard(
-                            platform.content,
-                            t('components.actions.content', '内容'),
-                            platform.name
-                          )}
-                          className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
-                        >
-                          {getCopyButtonState(platform.name, t('components.actions.content', '内容')) ? (
-                            <Check className="h-3 w-3 text-foreground mr-1" />
-                          ) : (
-                            <Copy className="h-3 w-3 mr-1" />
-                          )}
-                          复制内容
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => copyToClipboard(
-                            platform.tags.join(' '),
-                            t('components.actions.tags', '标签'),
-                            platform.name
-                          )}
-                          className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
-                        >
-                          {getCopyButtonState(platform.name, t('components.actions.tags', '标签')) ? (
-                            <Check className="h-3 w-3 text-foreground mr-1" />
-                          ) : (
-                            <Copy className="h-3 w-3 mr-1" />
-                          )}
-                          复制标签
-                        </Button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => copyToClipboard(
+                                  platform.title,
+                                  t('components.actions.title', '标题'),
+                                  platform.name
+                                )}
+                                className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent transition-colors"
+                                aria-label={`复制${platform.name}的标题`}
+                              >
+                                {getCopyButtonState(platform.name, t('components.actions.title', '标题')) ? (
+                                  <Check className="h-3 w-3 text-success mr-1" />
+                                ) : (
+                                  <Copy className="h-3 w-3 mr-1" />
+                                )}
+                                复制标题
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>复制{platform.name}的标题到剪贴板</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => copyToClipboard(
+                                  platform.content,
+                                  t('components.actions.content', '内容'),
+                                  platform.name
+                                )}
+                                className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent transition-colors"
+                                aria-label={`复制${platform.name}的内容`}
+                              >
+                                {getCopyButtonState(platform.name, t('components.actions.content', '内容')) ? (
+                                  <Check className="h-3 w-3 text-success mr-1" />
+                                ) : (
+                                  <Copy className="h-3 w-3 mr-1" />
+                                )}
+                                复制内容
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>复制{platform.name}的内容到剪贴板</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => copyToClipboard(
+                                  platform.tags.join(' '),
+                                  t('components.actions.tags', '标签'),
+                                  platform.name
+                                )}
+                                className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent transition-colors"
+                                aria-label={`复制${platform.name}的标签`}
+                              >
+                                {getCopyButtonState(platform.name, t('components.actions.tags', '标签')) ? (
+                                  <Check className="h-3 w-3 text-success mr-1" />
+                                ) : (
+                                  <Copy className="h-3 w-3 mr-1" />
+                                )}
+                                复制标签
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>复制{platform.name}的标签到剪贴板</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
 
                       {/* 优化后的详细内容区域 - 可折叠，优先显示同步内容 */}
@@ -454,8 +483,8 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
   );
 
   // 使用Portal将模态框渲染到专门的容器，确保不受父容器样式影响
-  if (import.meta.env.DEV) console.log('🔍 批量转发popup渲染state:', { open, isMinimized, modalRef: !!modalRef.current });
-  
+  if (import.meta.env.DEV) console.log('🔍 批量转发popup渲染state:', { open, isMinimized });
+
   const portalContainer = document.getElementById('batch-forward-modal-container') || document.body;
   return createPortal(modalContent, portalContainer);
 };

@@ -177,7 +177,7 @@ export const ThemeToggle: React.FC = () => {
   // 🔧 权限验证：静默且快速地检查权限，避免闪烁
   useEffect(() => {
     // 只在权限系统加载完成后执行一次验证
-    const isPermissionReady = !basicPermission.isLoading && !advancedPermission.isLoading && !premiumPermission.isLoading;
+    const isPermissionReady = basicPermission && advancedPermission && premiumPermission;
 
     if (!isPermissionReady) {
       return; // 等待权限系统初始化
@@ -218,7 +218,7 @@ export const ThemeToggle: React.FC = () => {
     } else if (hasPermission) {
       console.log(`🎨 [permissionvalidating] theme ${theme} permission通过`);
     }
-  }, [theme, basicPermission.isLoading, advancedPermission.isLoading, premiumPermission.isLoading, basicPermission.pass, advancedPermission.pass, premiumPermission.pass, user]);
+  }, [theme, basicPermission, advancedPermission, premiumPermission, basicPermission.pass, advancedPermission.pass, premiumPermission.pass, user]);
 
   useEffect(() => {
     const html = document.documentElement;

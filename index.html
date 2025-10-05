@@ -196,5 +196,21 @@
     <div id="root"></div>
     <div id="dialog-portal-root"></div>
     <script type="module" src="/src/main.tsx"></script>
-  </body>
+  
+<!-- WUUNU SNIPPET - DON'T CHANGE THIS (START) -->
+<script type="module">
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV === true) {
+    if (!document.getElementById('wuunu-widget-script')) {
+      window.__WUUNU_WS__ = "http://127.0.0.1:53640/";
+      const s = document.createElement('script');
+      s.id = 'wuunu-widget-script';
+      s.src = "https://cdn.jsdelivr.net/npm/@wuunu/widget@0.1?cacheParam=149";
+      s.defer = true;
+      s.crossOrigin = 'anonymous';
+      document.head.appendChild(s);
+    }
+  }
+</script>
+<!-- WUUNU SNIPPET - DON'T CHANGE THIS (END) -->
+</body>
 </html>

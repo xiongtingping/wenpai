@@ -34,7 +34,7 @@ export const ThemeUpgradeDialog: React.FC<any> = ({ open,
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const tierInfo = {
+  const tierInfo: Record<string, { name: string; color: string }> = {
     trial: { name: t('components.messages.体验版'), color: 'bg-muted text-gray-800'  },
     pro: { name: t('components.messages.专业版'), color: 'bg-blue-100 text-blue-800' },
     premium: { name: t('components.messages.高级版'), color: 'bg-purple-100 text-purple-800' }

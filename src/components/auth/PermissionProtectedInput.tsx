@@ -75,7 +75,7 @@ export const PermissionProtectedInput: React.FC<any> = ({ requiredTier,
     
     if (isPremiumUser) return true;
     
-    const tierLevels = { trial: 0, pro: 1, premium: 2 };
+    const tierLevels: Record<string, number> = { trial: 0, pro: 1, premium: 2 };
     return tierLevels[userTier] >= tierLevels[requiredTier];
   };
 

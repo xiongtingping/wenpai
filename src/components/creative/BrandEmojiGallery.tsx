@@ -197,7 +197,7 @@ export default function BrandEmojiGallery({ emojis,
               alt={emoji.emotion}
               className="w-full h-16 object-contain cursor-pointer hover:scale-105 transition-transform"
               onClick={() => handlePreview(emoji)}
-              title={`${emoji.emotion} - ${emoji.theme}`}
+              title={`${emoji.emotion} - ${(emoji as any).theme || ''}`}
             />
             
             {/* 悬停操作按钮 */}
@@ -291,7 +291,7 @@ export default function BrandEmojiGallery({ emojis,
             alt={emoji.emotion}
             className="w-12 h-12 object-contain cursor-pointer"
             onClick={() => handlePreview(emoji)}
-            title={`${emoji.emotion} - ${emoji.theme}`}
+            title={`${emoji.emotion} - ${(emoji as any).theme || ''}`}
           />
           
           {/* 信息 */}

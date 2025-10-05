@@ -72,10 +72,10 @@ export const LazyPermissionUpgradeDialog = lazy(() =>
 /**
  * 认证组件加载状态
  */
-const AuthLoadingFallback: React.FC<{ 
+const AuthLoadingFallback: React.FC<{
   message?: string;
-  size?: 'small' | 'medium' | 'large';
-}> = ({ message = '正在加载认证组件...', size = 'medium' }) => {
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+}> = ({ message = '正在加载认证组件...', size = 'md' }) => {
   return (
     <div className="flex items-center justify-center p-4">
       <div className="text-center">
@@ -90,7 +90,7 @@ const AuthLoadingFallback: React.FC<{
  * 模态框加载状态
  */
 const ModalLoadingFallback: React.FC = () => (
-  <AuthLoadingFallback message="正在加载登录窗口..." size="large" />
+  <AuthLoadingFallback message="正在加载登录窗口..." size="lg" />
 );
 
 /**
@@ -98,7 +98,7 @@ const ModalLoadingFallback: React.FC = () => (
  */
 const PageLoadingFallback: React.FC = () => (
   <div className="min-h-screen flex items-center justify-center">
-    <AuthLoadingFallback message="正在加载页面..." size="large" />
+    <AuthLoadingFallback message="正在加载页面..." size="lg" />
   </div>
 );
 
@@ -106,7 +106,7 @@ const PageLoadingFallback: React.FC = () => (
  * 组件加载状态
  */
 const ComponentLoadingFallback: React.FC = () => (
-  <AuthLoadingFallback message="正在加载组件..." size="small" />
+  <AuthLoadingFallback message="正在加载组件..." size="sm" />
 );
 
 // ============================================================================
@@ -413,8 +413,8 @@ export function useAuthComponentPreloader() {
 // 导出所有组件和工具
 // ============================================================================
 
+// AuthComponentPreloader已在上面导出，这里不再重复导出
 export {
-  AuthComponentPreloader,
   AuthLoadingFallback,
   ModalLoadingFallback,
   PageLoadingFallback,

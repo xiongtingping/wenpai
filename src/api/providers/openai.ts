@@ -160,7 +160,7 @@ export class OpenAIProvider {
         prompt: params.prompt,
         n: params.n || 1,
         size: params.size || '1024x1024',
-        response_format: params.responseFormat || 'url'
+        response_format: params.response_format || 'url'
       };
 
       // 🔒 使用统一配置系统构建URL和请求头

@@ -62,8 +62,8 @@ export function Header() {
   };
 
   return (
-    <div 
-      ref={headerRef}
+    <div
+      ref={headerRef as any}
       style={{
         position: 'fixed',
         top: '0px', // 顶部固定位置

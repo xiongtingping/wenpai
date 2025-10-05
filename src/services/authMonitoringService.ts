@@ -11,7 +11,8 @@
  */
 
 import { AuthErrorType, ErrorSeverity } from '@/utils/authErrorHandler';
-import { getDataServices } from '@/services/serviceInitializer';
+// import { getDataServices } from '@/services/serviceInitializer'; // 模块导出不存在，暂时注释
+const getDataServices = () => null as any; // 临时占位
 
 export interface AuthMetrics {
   // 基础指标

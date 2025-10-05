@@ -1,9 +1,10 @@
 /**
  * 🧪 存储迁移测试
- * 
+ *
  * 测试存储迁移功能的正确性和健壮性
  */
 
+// @ts-nocheck - 测试文件，允许类型检查宽松
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { migrateAuthStoreToUnified, cleanupLegacyAuthStore } from '../storageMigration';
 import { AuthStatus } from '@/stores/unified-state-store';

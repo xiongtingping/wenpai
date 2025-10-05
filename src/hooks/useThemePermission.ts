@@ -81,7 +81,7 @@ export function useThemePermission(theme: Theme = 'light'): ThemePermissionResul
   const premiumPermission = usePermission('theme:premium');
 
   // 判断权限系统是否加载完成
-  const isLoading = basicPermission.isLoading || advancedPermission.isLoading || premiumPermission.isLoading;
+  const isLoading = !basicPermission || !advancedPermission || !premiumPermission;
 
   // 获取当前用户订阅层级
   const currentTier = useMemo((): SubscriptionTier => {

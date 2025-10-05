@@ -187,7 +187,7 @@ export function InviteLinkCard({ userId }: InviteLinkCardProps) {
             复制链接
           </Button>
 
-          {navigator.share && (
+          {(navigator as any).share && (
             <Button
               onClick={shareLink}
               className="flex-1"

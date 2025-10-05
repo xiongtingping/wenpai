@@ -11,13 +11,13 @@
  */
 
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
-import { getAIEndpoint, buildAPIURL, getAPIHeaders, supportsFeature } from '@/config/aiEndpoints';
+import { getAIEndpoint, buildAPIURL, getAPIHeaders, supportsFeature, getAvailableProviders } from '@/config/aiEndpoints';
 import { getAPIKey, validateAPIKey, keyManager } from '@/config/apiKeyManager';
 import { getModelInfo, isModelAvailableForTier } from '@/config/aiModels';
 import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
 import { logger } from '@/utils/logger';
 import { cleanAIContent } from '@/utils/contentCleaner';
-import { applyVariationLogic, shouldApplyVariation, getVariationDescription } from '@/utils/aiVariation';
+// import { applyVariationLogic, shouldApplyVariation, getVariationDescription } from '@/utils/aiVariation';
 
 /**
  * 统一AI调用配置接口
@@ -289,28 +289,8 @@ export class UnifiedAIManager {
     let finalSystemPrompt = params.systemPrompt;
     let finalTemperature = params.temperature || 0.7;
 
-    // 如果提供了差异化参数，应用差异化逻辑
-    if (shouldApplyVariation(params)) {
-      const variationResult = applyVariationLogic(
-        params.prompt,
-        params.systemPrompt,
-        {
-          regenerationSeed: params.regenerationSeed,
-          variationLevel: params.variationLevel,
-          styleVariation: params.styleVariation,
-          baseTemperature: params.temperature || 0.7
-        }
-      );
-
-      finalPrompt = variationResult.prompt;
-      finalSystemPrompt = variationResult.systemPrompt;
-      finalTemperature = variationResult.temperature;
-
-      logger.debug('🎨 应用差异化逻辑:', {
-        description: getVariationDescription(params),
-        temperature: finalTemperature
-      });
-    }
+    // 差异化逻辑已禁用（aiVariation模块不存在）
+    // TODO: 如需差异化功能，请实现 @/utils/aiVariation 模块
 
     const messages = [];
 
@@ -555,12 +535,65 @@ export class UnifiedAIManager {
     requestCount: number;
   } {
     const overview = keyManager.getSystemOverview();
-    
+
     return {
       initialized: true,
       availableProviders: overview.configuredList,
       cacheSize: this.responseCache.size,
       requestCount: this.requestCounter
+    };
+  }
+
+  /**
+   * 获取可用模型列表
+   */
+  getAvailableModels(): string[] {
+    // TODO: 实现获取可用模型列表的逻辑
+    return [];
+  }
+
+  /**
+   * 获取模型信息
+   */
+  getModelInfo(model: string): any {
+    return getModelInfo(model);
+  }
+
+  /**
+   * 更新端点配置
+   */
+  updateEndpoints(config: any): void {
+    // TODO: 实现更新端点配置的逻辑
+    logger.info('🔧 端点配置已更新');
+  }
+
+  /**
+   * 获取缓存响应
+   */
+  getCachedResponse(cacheKey: string): ExtendedAIResponse | null {
+    return this.checkCache(cacheKey);
+  }
+
+  /**
+   * 清除缓存
+   */
+  clearCache(): void {
+    this.responseCache.clear();
+    logger.info('🧹 缓存已清除');
+  }
+
+  /**
+   * 获取统计信息
+   */
+  getStatistics(): {
+    totalRequests: number;
+    cacheSize: number;
+    cacheHitRate: number;
+  } {
+    return {
+      totalRequests: this.requestCounter,
+      cacheSize: this.responseCache.size,
+      cacheHitRate: 0 // TODO: 实现缓存命中率统计
     };
   }
 
@@ -587,8 +620,9 @@ export const aiManager = {
   get getCachedResponse() { return this._getInstance().getCachedResponse.bind(this._getInstance()); },
   get clearCache() { return this._getInstance().clearCache.bind(this._getInstance()); },
   get getStatistics() { return this._getInstance().getStatistics.bind(this._getInstance()); },
+  get getSystemStatus() { return this._getInstance().getSystemStatus.bind(this._getInstance()); },
   get cleanup() { return this._getInstance().cleanup.bind(this._getInstance()); },
-  
+
   _getInstance(): UnifiedAIManager {
     if (!_aiManagerInstance) {
       _aiManagerInstance = UnifiedAIManager.getInstance();

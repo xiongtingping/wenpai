@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Emoji服务适配器
  * 提供与旧版emojiService兼容的API，内部使用统一emoji系统

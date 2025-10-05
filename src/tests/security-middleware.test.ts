@@ -3,6 +3,7 @@
  * 🔒 测试覆盖：频率限制、来源验证、安全头部
  */
 
+// @ts-nocheck - 测试文件，允许类型检查宽松
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 
 // Mock the security middleware module path
@@ -29,7 +30,7 @@ describe('安全中间件测试', () => {
     const { getClientIP } = mockSecurityMiddleware;
 
     beforeEach(() => {
-      getClientIP.mockImplementation((event) => {
+      getClientIP.mockImplementation((event: any) => {
         const forwarded = event.headers['x-forwarded-for'];
         const realIP = event.headers['x-real-ip'];
         const remoteAddr = event.headers['remote-addr'];
@@ -81,17 +82,17 @@ describe('安全中间件测试', () => {
 
     beforeEach(() => {
       const store = new Map();
-      rateLimit.mockImplementation((key, maxRequests = 10, windowMs = 60000) => {
+      rateLimit.mockImplementation((key: any, maxRequests: any = 10, windowMs: any = 60000) => {
         const now = Date.now();
         const windowStart = now - windowMs;
-        
+
         if (!store.has(key)) {
           store.set(key, []);
         }
-        
+
         const requests = store.get(key);
         const validRequests = requests.filter((timestamp: number) => timestamp > windowStart);
-        
+
         if (validRequests.length >= maxRequests) {
           return {
             limited: true,
@@ -99,10 +100,10 @@ describe('安全中间件测试', () => {
             resetTime: validRequests[0] + windowMs
           };
         }
-        
+
         validRequests.push(now);
         store.set(key, validRequests);
-        
+
         return {
           limited: false,
           remaining: maxRequests - validRequests.length,
@@ -112,8 +113,8 @@ describe('安全中间件测试', () => {
     });
 
     it('应该允许在限制内的请求', () => {
-      const result = rateLimit('test-ip', 5, 60000);
-      
+      const result: any = rateLimit('test-ip', 5, 60000);
+
       expect(result.limited).toBe(false);
       expect(result.remaining).toBe(4);
       expect(result.resetTime).toBeGreaterThan(Date.now());

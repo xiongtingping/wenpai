@@ -70,13 +70,13 @@ export const AutomationUI: React.FC<any> = ({ availablePlatforms,
   // 自动选择有内容且有标题的平台
   useEffect(() => {
     const platformsReady = availablePlatforms
-      .filter(p => p.hasContent && p.hasTitle && !p.isTitleGenerating)
-      .map(p => p.id);
+      .filter((p: any) => p.hasContent && p.hasTitle && !p.isTitleGenerating)
+      .map((p: any) => p.id);
     setSelectedPlatforms(platformsReady);
   }, [availablePlatforms]);
 
   const handlePlatformToggle = (platformId: string) => {
-    const platform = availablePlatforms.find(p => p.id === platformId);
+    const platform = availablePlatforms.find((p: any) => p.id === platformId);
     // 只允许选择有内容且有标题且不在生成中的平台
     if (platform && platform.hasContent && platform.hasTitle && !platform.isTitleGenerating) {
       setSelectedPlatforms(prev => 
@@ -187,7 +187,7 @@ export const AutomationUI: React.FC<any> = ({ availablePlatforms,
       <div>
         <h4 className="font-medium text-foreground mb-3">选择转发平台</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {availablePlatforms.map((platform) => {
+          {availablePlatforms.map((platform: any) => {
             const isReady = platform.hasContent && platform.hasTitle && !platform.isTitleGenerating;
             const isGenerating = platform.isTitleGenerating;
             const hasNoTitle = platform.hasContent && !platform.hasTitle && !platform.isTitleGenerating;
@@ -275,7 +275,7 @@ export const AutomationUI: React.FC<any> = ({ availablePlatforms,
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium text-foreground">转发结果</h4>
             <div className="text-sm text-muted-foreground">
-              {progress.results.filter(r => r.success).length}/{progress.results.length} 成功
+              {progress.results.filter((r: any) => r.success).length}/{progress.results.length} 成功
             </div>
           </div>
 
@@ -285,21 +285,21 @@ export const AutomationUI: React.FC<any> = ({ availablePlatforms,
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-4">
                   <span className="text-foreground font-medium">
-                    ✅ {progress.results.filter(r => r.success).length} 个成功
+                    ✅ {progress.results.filter((r: any) => r.success).length} 个成功
                   </span>
-                  {progress.results.filter(r => !r.success).length > 0 && (
+                  {progress.results.filter((r: any) => !r.success).length > 0 && (
                     <span className="text-destructive font-medium">
-                      ❌ {progress.results.filter(r => !r.success).length} 个失败
+                      ❌ {progress.results.filter((r: any) => !r.success).length} 个失败
                     </span>
                   )}
                 </div>
                 <button
                   onClick={() => {
-                    const successResults = progress.results.filter(r => r.success);
+                    const successResults = progress.results.filter((r: any) => r.success);
                     if (successResults.length > 0) {
-                      const urls = successResults.map(r => r.url).filter(Boolean);
+                      const urls = successResults.map((r: any) => r.url).filter(Boolean);
                       if (urls.length > 0) {
-                        urls.forEach(url => window.open(url, '_blank'));
+                        urls.forEach((url: any) => window.open(url, '_blank'));
                       }
                     }
                   }}
@@ -312,7 +312,7 @@ export const AutomationUI: React.FC<any> = ({ availablePlatforms,
           )}
 
           <div className="space-y-2">
-            {progress.results.map((result, index) => (
+            {progress.results.map((result: any, index: number) => (
               <div
                 key={index}
                 className={`flex items-center justify-between p-3 rounded-lg border ${
