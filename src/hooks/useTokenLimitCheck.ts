@@ -6,7 +6,7 @@
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useTokenUsageStore } from '@/stores/compatibility-layer';
+import { useTokenUsageState } from '@/stores/unified-state-store';
 import { checkUserTokenLimit } from '@/services/aiWithTokenTracking';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { TokenUsageStats } from '@/services/tokenUsageService';
@@ -32,7 +32,7 @@ export interface TokenLimitCheckResult {
  */
 export function useTokenLimitCheck() {
   const { user } = useAuth();
-  const { currentStats, checkLimit } = useTokenUsageStore();
+  const tokenUsageState = useTokenUsageState();
   const [isChecking, setIsChecking] = useState(false);
   const [showLimitDialog, setShowLimitDialog] = useState(false);
   const [limitCheckResult, setLimitCheckResult] = useState<TokenLimitCheckResult | null>(null);
@@ -57,10 +57,9 @@ export function useTokenLimitCheck() {
     }
 
     setIsChecking(true);
-    
+
     try {
-      const userTier = getUserTier();
-      const result = await checkLimit(user.id, userTier, estimatedTokens);
+      const result = await checkUserTokenLimit(estimatedTokens);
       
       let limitType: 'warning' | 'approaching' | 'exceeded' | undefined;
       let allowed = result.allowed;
@@ -111,7 +110,7 @@ export function useTokenLimitCheck() {
     } finally {
       setIsChecking(false);
     }
-  }, [user?.id, getUserTier, checkLimit]);
+  }, [user?.id, getUserTier]);
 
   /**
    * 静默检查Token限额（不显示对话框）
@@ -150,7 +149,7 @@ export function useTokenLimitCheck() {
    * 获取当前使用状态的简要信息
    */
   const getUsageStatus = useCallback(() => {
-    if (!currentStats) {
+    if (!tokenUsageState.currentStats) {
       return {
         status: 'unknown',
         message: 'u64cdu4f5cu5931u8d25',
@@ -158,7 +157,7 @@ export function useTokenLimitCheck() {
       };
     }
 
-    const percentage = currentStats.usagePercentage;
+    const percentage = tokenUsageState.currentStats.usagePercentage;
     
     if (percentage >= 100) {
       return {
@@ -191,7 +190,7 @@ export function useTokenLimitCheck() {
         percentage
       };
     }
-  }, [currentStats]);
+  }, [tokenUsageState.currentStats]);
 
   /**
    * 预估Token使用量
@@ -210,8 +209,8 @@ export function useTokenLimitCheck() {
     isChecking,
     showLimitDialog,
     limitCheckResult,
-    currentStats,
-    
+    currentStats: tokenUsageState.currentStats,
+
     // 方法
     checkTokenLimit,
     checkTokenLimitSilent,
@@ -220,7 +219,7 @@ export function useTokenLimitCheck() {
     handleContinue,
     getUsageStatus,
     estimateTokenUsage,
-    
+
     // 计算属性
     userTier: getUserTier(),
     usageStatus: getUsageStatus()

@@ -25,8 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 // Guard组件已移除，仅使用自定义表单和@authing/web SDK
 import { getAuthingConfig } from '@/config/authing';
-import { useAuthStore } from '@/stores/compatibility-layer';
-import { useUnifiedStore } from '@/stores/unified-state-store';
+import { useAuthState, useUnifiedStore } from '@/stores/unified-state-store';
 import type { AuthService } from '@/services/authService';
 import type { SecureUserStateService as SecureUserStateServiceClass } from '@/services/secureUserStateService';
 import { TokenService, TokenInfo } from '@/utils/tokenManager';
@@ -158,7 +157,6 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const navigate = useNavigate();
 
   // 将Token管理器初始化移到组件的后面，在所有函数定义之后
-  const authStore = useAuthStore();
   const unifiedStore = useUnifiedStore();
   
   // Guard Hook已移除 - 使用自定义认证流程
