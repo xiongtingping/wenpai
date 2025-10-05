@@ -51,25 +51,71 @@ export interface AIResponseWithUsage extends AIResponse {
 
 /**
  * 获取当前用户信息的辅助函数
+ * 🔧 FIX: 支持多个存储位置，优先级：wenpai-unified-store > unified-user-state > wenpai_auth_state
  */
 function getCurrentUserInfo(): { userId: string; userTier: SubscriptionTier } | null {
   try {
-    // 在React组件外部使用，需要从localStorage获取用户信息
-    const authData = localStorage.getItem('wenpai_auth_state');
-    if (!authData) return null;
-    
-    const { user } = JSON.parse(authData);
-    if (!user?.id) return null;
-    
-    // 获取用户套餐信息，默认为trial
-    const userTier: SubscriptionTier = user.subscription?.tier || 'trial';
-    
-    return {
-      userId: user.id,
-      userTier
-    };
+    // 🔧 FIX: 按优先级尝试多个存储位置
+    const storageKeys = [
+      'wenpai-unified-store',    // 优先级1：统一Store
+      'unified-user-state',      // 优先级2：统一用户状态
+      'wenpai_auth_state',       // 优先级3：旧版认证状态
+      '_authing_user'            // 优先级4：Authing原始数据
+    ];
+
+    for (const key of storageKeys) {
+      const data = localStorage.getItem(key);
+      if (!data) continue;
+
+      try {
+        const parsed = JSON.parse(data);
+
+        // 尝试从不同的数据结构中提取用户信息
+        let user = null;
+
+        // Zustand store格式：{ state: { user: {...} } }
+        if (parsed.state?.user?.id) {
+          user = parsed.state.user;
+          console.log(`✅ 从 ${key} 获取用户信息成功`);
+        }
+        // 直接用户对象格式：{ user: {...} }
+        else if (parsed.user?.id) {
+          user = parsed.user;
+          console.log(`✅ 从 ${key} 获取用户信息成功`);
+        }
+        // Authing原始格式：{ id: '...', ... }
+        else if (parsed.id) {
+          user = parsed;
+          console.log(`✅ 从 ${key} 获取用户信息成功`);
+        }
+
+        if (user?.id) {
+          // 获取用户套餐信息，默认为trial
+          const userTier: SubscriptionTier = user.subscription?.tier || 'trial';
+
+          console.log('📊 用户信息:', {
+            userId: user.id,
+            userTier,
+            source: key
+          });
+
+          return {
+            userId: user.id,
+            userTier
+          };
+        }
+      } catch (parseError) {
+        // 解析失败，继续尝试下一个key
+        continue;
+      }
+    }
+
+    // 所有存储位置都没有找到用户信息
+    console.warn('⚠️ 未找到用户信息，已尝试的存储位置:', storageKeys);
+    return null;
+
   } catch (error) {
-    console.warn('gettinguserinfofailed:', error);
+    console.error('❌ 获取用户信息失败:', error);
     return null;
   }
 }
