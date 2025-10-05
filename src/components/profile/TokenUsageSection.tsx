@@ -129,7 +129,16 @@ export function TokenUsageSection({
 
   // 🎯 统一数据: 优先使用新Store的数据，降级到旧Hook
   const loading = storeUsageCount.loading || storeTokenStats.loading || legacyLoading;
-  const tokenStats = storeTokenStats.stats || legacyTokenStats;
+
+  // 🔧 FIX: 直接使用useTokenStats返回的数值，而不是stats对象
+  const tokenStats = storeTokenStats.stats ? {
+    monthlyUsed: storeTokenStats.monthlyUsed,
+    monthlyLimit: storeTokenStats.monthlyLimit,
+    monthlyRemaining: storeTokenStats.monthlyRemaining,
+    usagePercentage: storeTokenStats.stats.usagePercentage || 0,
+    needUpgrade: storeTokenStats.needUpgrade
+  } : legacyTokenStats;
+
   const usageCountStats = {
     usedCount: storeUsageCount.used,
     availableUses: storeUsageCount.available,
