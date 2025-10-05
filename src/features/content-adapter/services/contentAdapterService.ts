@@ -19,6 +19,8 @@ import {
   getFallbackReasonDescription
 } from '@/config/modelFallback';
 import { logger } from '@/utils/logger';
+import { fixTruncatedTitle } from '@/utils/safeTrimTitle';
+
 
 /**
  * 平台特定的超时配置
@@ -210,7 +212,7 @@ function extractAndCleanContent(content: string): { cleanContent: string; extrac
     extractedTags
   });
 
-  const filteredTags = extractedTags.filter(tag => !/^u[0-9a-f]{4,}$/i.test(tag));
+  const filteredTags = extractedTags.filter(tag => !/^#?u[0-9a-f]{4,}$/i.test(tag));
   return { cleanContent, extractedTags: filteredTags };
 }
 
@@ -754,8 +756,7 @@ ${stylePrompts}
           // 应用截断修复（如果需要）
           const platformLimit = this.getPlatformLimit(platform);
           if (title.length > platformLimit) {
-            // 导入截断修复功能
-            const { fixTruncatedTitle } = require('@/utils/safeTrimTitle');
+            // 使用安全截断修复（ESM导入）
             title = fixTruncatedTitle(title, platformLimit);
           }
 
@@ -821,12 +822,22 @@ ${stylePrompts}
   private cleanTitle(title: string): string {
     let cleaned = title.trim();
 
-    // 移除常见的前缀和格式符号
+    // 统一移除 Markdown 级别标题、章节序号、奇怪标点
     cleaned = cleaned
+      // 去除Markdown标题#
+      .replace(/^#{1,6}\s*/, '')
+      // 去除常见中文章节前缀（如 一、 二、 第三章 等）
+      .replace(/^(第[一二三四五六七八九十百千]+[章节篇]\s*)/, '')
+      .replace(/^[一二三四五六七八九十百千两零]+、\s*/, '')
+      // 去除数字式章节如 1. 或 1.1. 或 1）等
+      .replace(/^\d+(?:\.\d+)*[\)\.]?\s*/, '')
+      // 移除常见的“标题是/如下”等前缀
       .replace(/^(好的|标题[:：]|以下是标题[:：]|这里是标题[:：]|标题如下[:：]|标题是[:：])/i, '')
-      .replace(/^[\d\.、]+\s*/, '') // 移除序号
-      .replace(/^["""''「」『』【】]/g, '') // 移除开头引号和括号
-      .replace(/["""''「」『』【】]$/g, '') // 移除结尾引号和括号
+      // 移除开头/结尾引号和括号
+      .replace(/^["'“”‘’「」『』【】\(\)\[\]]+/g, '')
+      .replace(/["'“”‘’「」『』【】\(\)\[\]]+$/g, '')
+      // 移除结尾多余的顿号/无意义标点
+      .replace(/[，、：:；;—\-~\s]+$/g, '')
       .trim();
 
     return cleaned;

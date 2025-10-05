@@ -11,6 +11,9 @@ import { logger } from '@/utils/logger';
 import { createDataService, TABLE_NAMES, getSupabaseClient } from '@/services/supabaseDataService';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 
+// 当后端未提供实现(501)时，短期内禁用同步以避免噪声
+let backendDisabledUntil = 0;
+
 /**
  * 获取套餐Token限额 - 统一使用subscriptionPlans配置
  * 🔧 修复: 消除硬编码，确保与订阅计划配置一致
@@ -24,7 +27,7 @@ function getTokenLimitForTier(tier: SubscriptionTier): number {
     // 仅在获取配置失败时使用fallback值
     const fallbackLimits = {
       'trial': 100000,
-      'pro': 200000, 
+      'pro': 200000,
       'premium': 500000
     };
     return fallbackLimits[tier] || 100000;
@@ -108,7 +111,7 @@ function generateUniqueTokenId(userId: string, feature: string): string {
   const userPart = userId.substr(-6).replace(/[^a-zA-Z0-9]/g, ''); // 清理特殊字符
   const featurePart = feature.replace(/[^a-zA-Z0-9]/g, '').substr(0, 8); // 清理和截取功能名
   const microsecond = (performance.now() * 1000).toString().substr(-3); // 添加微秒精度
-  
+
   return `token_${timestamp}_${userPart}_${featurePart}_${microsecond}_${randomPart}`;
 }
 
@@ -117,7 +120,7 @@ function generateUniqueTokenId(userId: string, feature: string): string {
  */
 class TokenUsageService {
   private readonly API_ENDPOINT = '/.netlify/functions/api/token-usage';
-  
+
   /**
    * 获取用户套餐的token限额
    */
@@ -147,25 +150,25 @@ class TokenUsageService {
   private async safeInsertTokenRecord(record: TokenUsageRecord): Promise<boolean> {
     try {
       logger.debug('🔍 开始安全插入Token记录:', record.id);
-      
+
       const client = await getSupabaseClient();
-      
+
       // 1. 检查记录是否已存在
       const { data: existingRecord, error: checkError } = await client
         .from(TABLE_NAMES.USER_USAGE_LOGS)
         .select('id')
         .eq('id', record.id)
         .maybeSingle();
-        
+
       if (checkError && checkError.code !== 'PGRST116') {
         logger.warn('⚠️  检查重复记录时发生错误:', checkError);
       }
-      
+
       if (existingRecord) {
         logger.warn('🔄 记录已存在，跳过插入:', record.id);
         return true; // 记录已存在，视为成功
       }
-      
+
       // 2. 准备数据库记录（使用snake_case）
       const dbRecord = {
         id: record.id,
@@ -181,66 +184,66 @@ class TokenUsageService {
         error_message: record.error || null,
         timestamp: record.timestamp
       };
-      
+
       logger.debug('📊 准备插入的数据库记录:', {
         id: dbRecord.id,
         user_id: dbRecord.user_id,
         total_tokens: dbRecord.total_tokens,
         feature: dbRecord.feature
       });
-      
+
       // 3. 尝试插入
       const { data, error } = await client
         .from(TABLE_NAMES.USER_USAGE_LOGS)
         .insert(dbRecord)
         .select()
         .single();
-        
+
       if (error) {
         // 特殊处理主键重复错误
         if (error.code === '23505') {
           logger.warn('⚠️  检测到主键重复，记录可能已存在:', record.id);
-          
+
           // 再次检查记录是否确实存在
           const { data: doubleCheck } = await client
             .from(TABLE_NAMES.USER_USAGE_LOGS)
             .select('id, total_tokens')
             .eq('id', record.id)
             .single();
-            
+
           if (doubleCheck) {
             logger.debug('✅ 确认记录已存在，跳过重复插入:', doubleCheck.id);
             return true; // 记录确实已存在，视为成功
           }
         }
-        
+
         logger.error('❌ 插入Token记录失败:', {
           error,
           code: error.code,
           message: error.message,
           recordId: record.id
         });
-        
+
         return false;
       }
-      
+
       logger.debug('✅ Token记录插入成功:', {
         recordId: record.id,
         dbRecordId: data?.id,
         totalTokens: data?.total_tokens
       });
-      
+
       return true;
-      
+
     } catch (error) {
       logger.error('❌ 安全插入Token记录异常:', error);
-      
+
       // 对于重复键错误，静默处理
       if (error instanceof Error && error.message.includes('duplicate key')) {
         logger.warn('⚠️  检测到重复键值，记录可能已存在:', record.id);
         return true; // 视为成功，避免阻断流程
       }
-      
+
       return false;
     }
   }
@@ -252,7 +255,7 @@ class TokenUsageService {
     // 🔧 修复: 使用改进的ID生成算法避免重复
     const uniqueId = generateUniqueTokenId(record.userId, record.feature);
     const timestamp = new Date().toISOString();
-    
+
     const fullRecord: TokenUsageRecord = {
       ...record,
       id: uniqueId,
@@ -269,13 +272,13 @@ class TokenUsageService {
     try {
       // 1. 优先保存到Supabase数据库（关键操作）
       const databaseSuccess = await this.safeInsertTokenRecord(fullRecord);
-      
+
       if (!databaseSuccess) {
         throw new Error('Supabasedatabasesavingfailed');
       }
-      
+
       logger.debug('✅ Supabase数据库保存成功:', fullRecord.id);
-      
+
       // 2. 尝试同步到后端（非关键操作）
       try {
         await this.syncTokenUsageToBackend(fullRecord);
@@ -284,7 +287,7 @@ class TokenUsageService {
         // 后端同步失败不影响主流程
         logger.warn('⚠️  后端同步失败，但数据库记录已保存:', syncError);
       }
-      
+
       logger.debug('✅ Token使用量记录成功:', {
         userId: record.userId,
         feature: record.feature,
@@ -318,12 +321,25 @@ class TokenUsageService {
    * 同步token使用记录到后端
    */
   private async syncTokenUsageToBackend(record: TokenUsageRecord): Promise<void> {
+    // 若近期检测到501，则直接跳过同步，避免重复报错
+    if (Date.now() < backendDisabledUntil) {
+      logger.debug('⏭️ 跳过后端同步（上次501，短期禁用中）');
+      return;
+    }
     try {
       await request.post(`${this.API_ENDPOINT}/record`, record);
-    } catch (error) {
-      console.error('synctoken使用记录到backendfailed:', error);
-      // 🚨 API失败时抛出错误，但不阻断主流程
-      throw new Error(`Token使用记录同步失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    } catch (error: any) {
+      const status = (error?.response && error.response.status) ? error.response.status : undefined;
+      const message = error?.message || '';
+      // 501 Not Implemented：后端未实现，设置10分钟熔断
+      if (status === 501 || /501|Not Implemented/i.test(message)) {
+        backendDisabledUntil = Date.now() + 10 * 60 * 1000;
+        logger.warn('🚫 后端记录API未实现(501)，已在10分钟内禁用重复同步');
+        return; // 不抛出，避免噪声
+      }
+      logger.warn('⚠️ 同步Token使用记录到后端失败:', { status, message, error });
+      // 其他错误保留抛出，由上层转为非阻断告警
+      throw new Error(`Token使用记录同步失败: ${message || '未知错误'}`);
     }
   }
 
@@ -333,17 +349,17 @@ class TokenUsageService {
   async getUserTokenStats(userId: string, userTier: SubscriptionTier): Promise<TokenUsageStats> {
     try {
       logger.debug('🔍 开始获取用户Token统计:', { userId, userTier });
-      
+
       // 🔧 FIX: 开发环境也从Supabase读取真实数据，确保Token统计准确
       // ⚠️ 已禁用模拟数据，所有环境统一从Supabase读取
       /*
       if (import.meta.env.DEV) {
         console.log('🔧 开发环境：使用模拟Token使用统计');
-        
+
         const monthlyLimit = getTokenLimitForTier(userTier);
         const monthlyUsed = Math.floor(monthlyLimit * 0.25); // 模拟使用25%
         const dailyUsed = Math.floor(monthlyUsed * 0.1); // 模拟今日使用
-        
+
         return {
           userId,
           userTier,
@@ -357,86 +373,86 @@ class TokenUsageService {
         };
       }
       */
-      
+
       const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
       const monthKey = this.getCurrentMonthKey();
       const dateKey = this.getCurrentDateKey();
-      
+
       logger.debug('📅 时间范围:', { monthKey, dateKey });
 
       // 查询当月使用记录 - 使用直接Supabase客户端调用
       const client = await getSupabaseClient();
-      
+
       // 🔧 修复：使用正确的字段名和时间范围
       const monthStartTime = `${monthKey}-01T00:00:00.000Z`;
       const dayStartTime = `${dateKey}T00:00:00.000Z`;
-      
-      logger.debug('🔍 查询月度记录...', { 
-        table: TABLE_NAMES.USER_USAGE_LOGS, 
-        userId, 
-        monthStartTime 
+
+      logger.debug('🔍 查询月度记录...', {
+        table: TABLE_NAMES.USER_USAGE_LOGS,
+        userId,
+        monthStartTime
       });
-      
+
       const { data: monthlyData, error: monthlyError } = await client
         .from(TABLE_NAMES.USER_USAGE_LOGS)
         .select('*')
         .eq('user_id', userId)
         .gte('timestamp', monthStartTime);
-        
+
       if (monthlyError) {
         logger.error('❌ 查询月度记录失败:', monthlyError);
         throw new Error(`查询月度记录失败: ${monthlyError.message}`);
       }
-      
-      logger.debug('📊 月度查询结果:', { 
+
+      logger.debug('📊 月度查询结果:', {
         recordCount: monthlyData?.length || 0,
-        sampleRecord: monthlyData?.[0] || null 
+        sampleRecord: monthlyData?.[0] || null
       });
-      
+
       const monthlyRecords = { data: monthlyData || [] };
 
       // 查询当日使用记录 - 使用直接Supabase客户端调用
-      logger.debug('🔍 查询日度记录...', { 
-        table: TABLE_NAMES.USER_USAGE_LOGS, 
-        userId, 
-        dayStartTime 
+      logger.debug('🔍 查询日度记录...', {
+        table: TABLE_NAMES.USER_USAGE_LOGS,
+        userId,
+        dayStartTime
       });
-      
+
       const { data: dailyData, error: dailyError } = await client
         .from(TABLE_NAMES.USER_USAGE_LOGS)
         .select('*')
         .eq('user_id', userId)
         .gte('timestamp', dayStartTime);
-        
+
       if (dailyError) {
         logger.error('❌ 查询日度记录失败:', dailyError);
         throw new Error(`查询日度记录失败: ${dailyError.message}`);
       }
-      
-      logger.debug('📊 日度查询结果:', { 
+
+      logger.debug('📊 日度查询结果:', {
         recordCount: dailyData?.length || 0,
-        sampleRecord: dailyData?.[0] || null 
+        sampleRecord: dailyData?.[0] || null
       });
-      
+
       const dailyRecords = { data: dailyData || [] };
 
       const monthlyLimit = this.getTokenLimitByTier(userTier);
-      
+
       // 🔧 修复：正确处理字段名（数据库中可能是snake_case）
       const monthlyUsed = monthlyRecords.data.reduce((sum, record: any) => {
         const tokens = record.total_tokens || record.totalTokens || 0;
         return sum + tokens;
       }, 0);
-      
+
       const dailyUsed = dailyRecords.data.reduce((sum, record: any) => {
         const tokens = record.total_tokens || record.totalTokens || 0;
         return sum + tokens;
       }, 0);
-      
+
       const monthlyRemaining = Math.max(0, monthlyLimit - monthlyUsed);
       const usagePercentage = monthlyLimit > 0 ? (monthlyUsed / monthlyLimit) * 100 : 0;
       const needUpgrade = usagePercentage >= 80;
-      
+
       const result = {
         userId,
         userTier,
@@ -448,7 +464,7 @@ class TokenUsageService {
         needUpgrade,
         lastUpdated: new Date().toISOString()
       };
-      
+
       logger.debug('✅ Token统计计算完成:', result);
 
       return result;
@@ -520,11 +536,11 @@ class TokenUsageService {
   async getUserTokenStatsByFeature(userId: string): Promise<Record<string, { totalTokens: number; requestCount: number; percentage: number }>> {
     try {
       logger.debug('🔍 开始获取用户功能统计:', { userId });
-      
+
       const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
       const monthKey = this.getCurrentMonthKey();
       const monthStartTime = `${monthKey}-01T00:00:00.000Z`;
-      
+
       logger.debug('📅 查询月度范围:', { monthKey, monthStartTime });
 
       // 查询当月记录 - 直接使用Supabase客户端进行时间范围查询
@@ -534,30 +550,30 @@ class TokenUsageService {
         .select('*')
         .eq('user_id', userId)
         .gte('timestamp', monthStartTime);
-        
+
       if (error) {
         logger.error('❌ 查询功能统计记录失败:', error);
         throw new Error(`查询记录失败: ${error.message}`);
       }
-      
-      logger.debug('📊 功能统计查询结果:', { 
+
+      logger.debug('📊 功能统计查询结果:', {
         recordCount: records?.length || 0,
-        sampleRecord: records?.[0] || null 
+        sampleRecord: records?.[0] || null
       });
-      
+
       const monthlyRecords = { data: records || [] };
       const result: Record<string, { totalTokens: number; requestCount: number; percentage: number }> = {};
-      
+
       // 🔧 修复：正确处理字段名（数据库中可能是snake_case）
       const tokenRecords = monthlyRecords.data.map((record: any) => ({
         ...record,
         totalTokens: record.total_tokens || record.totalTokens || 0,
         feature: record.feature || '未知功能'
       }));
-      
+
       // 计算总tokens
       const totalTokens = tokenRecords.reduce((sum, record) => sum + record.totalTokens, 0);
-      
+
       logger.debug('📊 总tokens计算:', { totalTokens, recordCount: tokenRecords.length });
 
       // 按功能分组统计
@@ -577,7 +593,7 @@ class TokenUsageService {
       Object.values(result).forEach(stats => {
         stats.percentage = totalTokens > 0 ? (stats.totalTokens / totalTokens) * 100 : 0;
       });
-      
+
       logger.debug('✅ 功能统计计算完成:', result);
 
       return result;
@@ -604,7 +620,7 @@ class TokenUsageService {
         .select('*')
         .eq('user_id', userId)
         .lt('timestamp', cutoffDate.toISOString());
-        
+
       if (expiredError) {
         throw new Error(`查询过期记录失败: ${expiredError.message}`);
       }
@@ -614,7 +630,7 @@ class TokenUsageService {
       if (expiredRecords.data.length > 0) {
         const expiredIds = expiredRecords.data.map(record => record.id!);
         await dataService.deleteMany(expiredIds);
-        
+
         logger.debug('✅ 清理过期Token记录成功:', {
           userId,
           deletedCount: expiredIds.length,
@@ -634,7 +650,7 @@ class TokenUsageService {
   async exportUserTokenData(userId: string): Promise<string> {
     try {
       const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
-      
+
       // 获取所有用户记录
       const allRecords = await dataService.findMany({
         orderBy: 'timestamp',
