@@ -155,13 +155,19 @@ export const useAuthStore = () => {
   const unifiedStore = useUnifiedStore();
 
   return {
-    // 旧的状态属性
+    // 🎯 状态属性（包含会话状态）
     user: authState.user,
     isAuthenticated: authState.isAuthenticated,
+    authStatus: authState.authStatus, // 🎯 新增
     loading: authState.loading,
     error: authState.error,
 
-    // 旧的操作方法
+    // 🎯 会话状态（新增）
+    sessionWarning: authState.sessionWarning,
+    sessionRemainingTime: authState.sessionRemainingTime,
+    sessionExpiresAt: authState.sessionExpiresAt,
+
+    // 🎯 操作方法
     setUser: (user: any) => {
       console.warn('⚠️ useAuthStore.setUser already废弃，请使用统一state管理的 setUser');
       // 🔧 安全检查：处理null值，避免传递给unified store时出错
@@ -192,11 +198,37 @@ export const useAuthStore = () => {
       unifiedStore.setError('auth', error);
     },
 
+    // 🎯 会话管理方法（新增）
+    setAuthStatus: (status: any) => {
+      console.warn('⚠️ useAuthStore.setAuthStatus already废弃，请使用统一state管理的 setAuthStatus');
+      unifiedStore.setAuthStatus(status);
+    },
+
+    setSessionWarning: (warning: boolean) => {
+      console.warn('⚠️ useAuthStore.setSessionWarning already废弃，请使用统一state管理的 setSessionWarning');
+      unifiedStore.setSessionWarning(warning);
+    },
+
+    setSessionRemainingTime: (time: number) => {
+      console.warn('⚠️ useAuthStore.setSessionRemainingTime already废弃，请使用统一state管理的 setSessionRemainingTime');
+      unifiedStore.setSessionRemainingTime(time);
+    },
+
+    setSessionExpiresAt: (timestamp: number | null) => {
+      console.warn('⚠️ useAuthStore.setSessionExpiresAt already废弃，请使用统一state管理的 setSessionExpiresAt');
+      unifiedStore.setSessionExpiresAt(timestamp);
+    },
+
+    extendSession: () => {
+      console.warn('⚠️ useAuthStore.extendSession already废弃，请使用统一state管理的 extendSession');
+      unifiedStore.extendSession();
+    },
+
     // 使用统计相关方法 - 临时兼容实现
     usageCount: 0,
     maxUsage: 10, // 默认值
     usageRemaining: 10,
-    
+
     decrementUsage: () => {
       console.warn('⚠️ useAuthStore.decrementUsage already废弃，featurealreadydisabling');
     },
@@ -216,7 +248,7 @@ export const useAuthStore = () => {
           metadata: metadata || {},
           userId: authState.user?.id || 'anonymous'
         };
-        
+
         // 存储到本地用于调试（最多保留100条记录）
         const existingRecords = JSON.parse(localStorage.getItem('wenpai_user_actions') || '[]');
         existingRecords.push(actionRecord);
@@ -224,7 +256,7 @@ export const useAuthStore = () => {
           existingRecords.splice(0, existingRecords.length - 100); // 保留最新100条
         }
         localStorage.setItem('wenpai_user_actions', JSON.stringify(existingRecords));
-        
+
         console.log('📊 userrow为already记录:', action);
       } catch (error) {
         console.error('📊 userrow为记录failed:', error);
