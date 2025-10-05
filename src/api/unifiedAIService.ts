@@ -126,11 +126,17 @@ class RequestDeduplicator {
    * 生成请求唯一键
    */
   private generateKey(params: AICallParams): string {
+    // ⚠️ 扩充分辨率：纳入 systemPrompt 与差异化参数，避免不同版本(A/B)误判为同一请求
+    const anyParams = params as any;
     return JSON.stringify({
       prompt: params.prompt,
+      systemPrompt: anyParams.systemPrompt, // A/B 往往有不同的系统提示
       model: params.model,
       temperature: params.temperature,
-      maxTokens: params.maxTokens
+      maxTokens: params.maxTokens,
+      regenerationSeed: anyParams.regenerationSeed,
+      variationLevel: anyParams.variationLevel,
+      styleVariation: anyParams.styleVariation
     });
   }
 
@@ -150,6 +156,14 @@ class RequestDeduplicator {
     }
 
     // 创建新请求
+    logger.debug('🧩 请求去重Key', {
+      keyPreview: key.slice(0, 80),
+      hasSystemPrompt: !!(params as any).systemPrompt,
+      hasSeed: !!(params as any).regenerationSeed,
+      variationLevel: (params as any).variationLevel,
+      styleVariation: (params as any).styleVariation
+    });
+
     const promise = operation().finally(() => {
       // 请求完成后清理
       this.pendingRequests.delete(key);
@@ -291,7 +305,7 @@ async function callAIMLAPI(params: AICallParams): Promise<AIResponse> {
   // 🔧 已迁移到统一AI管理器，此函数保留用于兼容性
   const { aiManager } = await import('./unifiedAIManager');
   const result = await aiManager.callAI(params);
-  
+
   // 转换为原有接口格式
   return {
     content: result.content,
@@ -310,7 +324,7 @@ async function callDeepSeekNative(params: AICallParams): Promise<AIResponse> {
   // 🔧 已迁移到统一AI管理器，此函数保留用于兼容性
   const { aiManager } = await import('./unifiedAIManager');
   const result = await aiManager.callAI(params);
-  
+
   // 转换为原有接口格式
   return {
     content: result.content,
@@ -494,7 +508,7 @@ export async function generateUnifiedImage(params: ImageGenerationParams): Promi
 
 /**
  * 检查统一AI服务状态
- * 
+ *
  */
 export async function checkUnifiedAIStatus(): Promise<{
   environment: string;
@@ -504,9 +518,9 @@ export async function checkUnifiedAIStatus(): Promise<{
 }> {
   const environment = isDevelopment ? 'development' : 'production';
   const method = isDevelopment ? 'direct-api' : 'proxy-api';
-  
+
   console.log(`🔍 checking统一AIservicestate - 环境: ${environment}, 方式: ${method}`);
-  
+
   if (isDevelopment) {
     // 开发环境：检查直连API状态
     try {
@@ -515,7 +529,7 @@ export async function checkUnifiedAIStatus(): Promise<{
         model: 'gpt-4',
         maxTokens: 10
       });
-      
+
       return {
         environment,
         method,
@@ -543,7 +557,7 @@ export async function checkUnifiedAIStatus(): Promise<{
     // 生产环境：检查代理API状态
     try {
       const testResult = await callOpenAIProxy([{ role: 'user', content: 'Hello' }], 'gpt-4', 0.7, 10);
-      
+
       return {
         environment,
         method,
@@ -572,7 +586,7 @@ export async function checkUnifiedAIStatus(): Promise<{
 
 /**
  * 获取当前环境信息
- * 
+ *
  */
 export function getUnifiedEnvironmentInfo(): {
   isDevelopment: boolean;
@@ -612,7 +626,7 @@ export function getUnifiedEnvironmentInfo(): {
 
 /**
  * 简化的导出接口
- * 
+ *
  */
 export {
   callUnifiedAI as callAI,

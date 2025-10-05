@@ -428,10 +428,7 @@ export function ContentAdapterPage({
             console.log(`🎯 为平台 ${r.platformId} 自动生成标题`);
             titleGeneratedRef.current.add(r.platformId);
 
-            // 异步生成标题，不阻塞UI
-            setTimeout(() => {
-              generateTitle(content, r.platformId);
-            }, 800); // 延迟800ms，确保UI渲染完成
+            // 统一在 Hook 内自动触发标题生成，页面层不再二次触发以避免竞态/重复请求
           }
         }
       });
