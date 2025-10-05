@@ -17,6 +17,21 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import type { SubscriptionTier } from '@/types/subscription';
 
 // ============================================================================
+// 🎯 认证状态枚举
+// ============================================================================
+
+/**
+ * 认证状态枚举
+ * 🎯 从 auth-store.ts 迁移
+ */
+export enum AuthStatus {
+  UNAUTHENTICATED = 'unauthenticated',
+  AUTHENTICATING = 'authenticating',
+  AUTHENTICATED = 'authenticated',
+  ERROR = 'error'
+}
+
+// ============================================================================
 // 🎯 核心状态接口定义
 // ============================================================================
 
@@ -34,6 +49,7 @@ export interface UserState {
   permissions: string[];
   subscription: SubscriptionTier;
   isAuthenticated: boolean;
+  authStatus: AuthStatus; // 🎯 新增：认证状态
   loginTime: string | null;
   lastActivity: string | null;
 }
@@ -166,6 +182,16 @@ export interface StorageQuotaState {
   isCritical: boolean; // 超过90%严重警告
 }
 
+/**
+ * 会话管理状态
+ * 🎯 从 auth-store.ts 迁移
+ */
+export interface SessionState {
+  sessionWarning: boolean;
+  sessionRemainingTime: number;
+  sessionExpiresAt: number | null;
+}
+
 // ============================================================================
 // 🎯 统一状态接口
 // ============================================================================
@@ -173,6 +199,7 @@ export interface StorageQuotaState {
 export interface UnifiedState {
   // 核心状态
   user: UserState;
+  session: SessionState; // 🎯 新增：会话管理
   tokenUsage: TokenUsageState;
   usageCount: UsageCountState; // 🎯 新增: 使用次数统计
   theme: ThemeState;
@@ -200,7 +227,14 @@ export interface UnifiedActions {
   updateUserSubscription: (subscription: SubscriptionTier) => void;
   clearUser: () => void;
   updateLastActivity: () => void;
-  
+  setAuthStatus: (status: AuthStatus) => void; // 🎯 新增：设置认证状态
+
+  // 🎯 会话管理操作 (从 auth-store.ts 迁移)
+  setSessionWarning: (warning: boolean) => void;
+  setSessionRemainingTime: (time: number) => void;
+  setSessionExpiresAt: (timestamp: number | null) => void;
+  extendSession: () => void;
+
   // Token使用操作
   updateTokenStats: (stats: TokenUsageState['currentStats']) => void;
   addTokenUsage: (usage: TokenUsageState['usageHistory'][0]) => void;
@@ -270,10 +304,18 @@ const initialUserState: UserState = {
   avatar: null,
   roles: [],
   permissions: [],
-  subscription: 'free' as const,
+  subscription: 'trial' as SubscriptionTier, // 🎯 修复：使用正确的类型
   isAuthenticated: false,
+  authStatus: AuthStatus.UNAUTHENTICATED, // 🎯 新增
   loginTime: null,
   lastActivity: null,
+};
+
+// 🎯 新增: 会话管理初始状态
+const initialSessionState: SessionState = {
+  sessionWarning: false,
+  sessionRemainingTime: 0,
+  sessionExpiresAt: null,
 };
 
 const initialTokenUsageState: TokenUsageState = {
@@ -350,6 +392,7 @@ const initialStorageQuotaState: StorageQuotaState = {
 
 const initialState: UnifiedState = {
   user: initialUserState,
+  session: initialSessionState, // 🎯 新增
   tokenUsage: initialTokenUsageState,
   usageCount: initialUsageCountState, // 🎯 新增
   theme: initialThemeState,
@@ -360,7 +403,7 @@ const initialState: UnifiedState = {
   loading: initialLoadingState,
   error: initialErrorState,
   lastUpdated: new Date().toISOString(),
-  version: '1.0.0',
+  version: '2.0.0', // 🎯 升级版本号
 };
 
 // ============================================================================
@@ -404,6 +447,7 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
         clearUser: () => {
           set((state) => {
             state.user = { ...initialUserState };
+            state.session = { ...initialSessionState }; // 🎯 同时清除会话状态
             state.tokenUsage = { ...initialTokenUsageState };
             state.lastUpdated = new Date().toISOString();
           });
@@ -412,6 +456,49 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
         updateLastActivity: () => {
           set((state) => {
             state.user.lastActivity = new Date().toISOString();
+            state.lastUpdated = new Date().toISOString();
+          });
+        },
+
+        setAuthStatus: (status) => {
+          set((state) => {
+            state.user.authStatus = status;
+            state.lastUpdated = new Date().toISOString();
+          });
+        },
+
+        // 🎯 会话管理操作 (从 auth-store.ts 迁移)
+        setSessionWarning: (warning) => {
+          set((state) => {
+            state.session.sessionWarning = warning;
+            state.lastUpdated = new Date().toISOString();
+          });
+        },
+
+        setSessionRemainingTime: (time) => {
+          set((state) => {
+            state.session.sessionRemainingTime = time;
+            state.lastUpdated = new Date().toISOString();
+          });
+        },
+
+        setSessionExpiresAt: (timestamp) => {
+          set((state) => {
+            state.session.sessionExpiresAt = timestamp;
+            // 设置会话时自动更新用户状态
+            if (timestamp) {
+              state.user.authStatus = AuthStatus.AUTHENTICATED;
+            }
+            state.lastUpdated = new Date().toISOString();
+          });
+        },
+
+        extendSession: () => {
+          set((state) => {
+            // 延长会话24小时
+            state.session.sessionExpiresAt = Date.now() + (24 * 60 * 60 * 1000);
+            state.session.sessionWarning = false;
+            state.session.sessionRemainingTime = 24 * 60 * 60;
             state.lastUpdated = new Date().toISOString();
           });
         },
@@ -800,6 +887,9 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
               case 'user':
                 state.user = { ...initialUserState };
                 break;
+              case 'session': // 🎯 新增
+                state.session = { ...initialSessionState };
+                break;
               case 'tokenUsage':
                 state.tokenUsage = { ...initialTokenUsageState };
                 break;
@@ -841,6 +931,7 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
             ...state.user,
             lastActivity: null, // 不持久化活动时间
           },
+          session: state.session, // 🎯 新增：持久化会话状态
           tokenUsage: {
             ...state.tokenUsage,
             usageHistory: state.tokenUsage.usageHistory.slice(0, 20), // 只保存20条历史
@@ -851,15 +942,17 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
           lastUpdated: state.lastUpdated,
           version: state.version,
         }),
-        version: 1,
+        version: 2, // 🎯 升级版本号
         migrate: (persistedState: any, version: number) => {
           // 数据迁移逻辑
-          if (version === 0) {
+          if (version === 0 || version === 1) {
             // 从旧版本迁移
+            console.log('🔄 迁移unified-store到v2架构');
             return {
               ...initialState,
               ...persistedState,
-              version: '1.0.0',
+              session: persistedState.session || initialSessionState, // 🎯 添加会话状态
+              version: '2.0.0',
             };
           }
           return persistedState;
@@ -882,14 +975,28 @@ export const useUserState = () => {
 
 /**
  * 认证状态选择器
+ * 🎯 扩展：包含会话状态
  */
 export const useAuthState = () => {
   return useUnifiedStore((state) => ({
     isAuthenticated: state.user.isAuthenticated,
+    authStatus: state.user.authStatus,
     user: state.user,
     loading: state.loading.auth,
     error: state.error.auth,
+    // 🎯 新增：会话状态
+    sessionWarning: state.session.sessionWarning,
+    sessionRemainingTime: state.session.sessionRemainingTime,
+    sessionExpiresAt: state.session.sessionExpiresAt,
   }));
+};
+
+/**
+ * 会话状态选择器
+ * 🎯 新增
+ */
+export const useSessionState = () => {
+  return useUnifiedStore((state) => state.session);
 };
 
 /**
