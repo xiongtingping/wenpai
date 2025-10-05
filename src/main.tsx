@@ -47,6 +47,9 @@ import ServiceInitializer from './services/serviceInitializer';
 // 🔧 FIX: 用户存储迁移 - 统一localStorage存储键
 import { autoMigrateUserStorage } from './services/userStorageMigrationService';
 
+// 🔧 FIX: 存储架构迁移 - auth-store → unified-store
+import { migrateAuthStoreToUnified } from './utils/storageMigration';
+
 // 执行用户存储迁移（在应用启动时）
 console.log('🔄 执行用户存储迁移...');
 const migrationResult = autoMigrateUserStorage();
@@ -55,6 +58,18 @@ if (migrationResult.success) {
 } else {
   console.error('❌ 用户存储迁移失败:', migrationResult.error);
 }
+
+// 🔄 执行存储架构迁移（auth-store → unified-store）
+console.log('🔄 执行存储架构迁移...');
+migrateAuthStoreToUnified().then(result => {
+  if (result.success) {
+    console.log('✅ 存储架构迁移完成:', result.message);
+  } else {
+    console.error('❌ 存储架构迁移失败:', result.message, result.errors);
+  }
+}).catch(error => {
+  console.error('❌ 存储架构迁移异常:', error);
+});
 
 // 🔇 优化开发环境控制台：减少噪音，保留重要信息
 if (import.meta.env.DEV) {
