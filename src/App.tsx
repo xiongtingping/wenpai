@@ -51,6 +51,7 @@ import { CustomLoginPage } from '@/pages/CustomLoginPage21st';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 // 临时调试页面
 import TokenDebugPage from '@/pages/TokenDebugPage';
+import TokenUsageDiagnosticPage from '@/pages/TokenUsageDiagnosticPage';
 import DialogTestPage from '@/pages/DialogTestPage';
 import DialogDebugPage from '@/pages/DialogDebugPage';
 import I18nTestPage from '@/pages/I18nTestPage';
@@ -378,6 +379,7 @@ const App: React.FC = () => {
 
                         {/* 临时调试页面 - 用于Token统计修复 */}
                         <Route path='/token-debug' element={<TokenDebugPage />} />
+                        <Route path='/token-diagnostic' element={<TokenUsageDiagnosticPage />} />
 
                         {/* Dialog定位测试页面 */}
                         <Route path='/dialog-test' element={<DialogTestPage />} />
