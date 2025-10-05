@@ -199,6 +199,7 @@ export function TokenUsageSection({
 
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   // 获取套餐名称
 
@@ -244,6 +245,8 @@ export function TokenUsageSection({
         storeUsageCount.consumeUsage(0), // 触发Store刷新
         refreshStats() // 兼容旧Hook刷新
       ]);
+      // 更新最后刷新时间
+      setLastUpdated(new Date());
     } finally {
       setIsRefreshing(false);
     }
@@ -309,15 +312,20 @@ export function TokenUsageSection({
               <div className="text-muted-foreground" style={{fontSize: '0.8125rem', fontWeight: 'normal', lineHeight: '1.3'}}>{planName} - 查看您的使用情况</div>
             </div>
           </div>
-          <Button
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            variant="ghost"
-            className="shrink-0"
-          >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          </Button>
+          <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+            <div className="text-muted-foreground" style={{fontSize: '0.75rem', whiteSpace: 'nowrap'}}>
+              {lastUpdated.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+            <Button
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              variant="ghost"
+              className="shrink-0"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </div>
       </div>
 
