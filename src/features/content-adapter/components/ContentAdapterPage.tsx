@@ -60,13 +60,20 @@ import { globalDataManager } from '@/services/unifiedDataManager';
 /**
  * 浏览器扩展集成工具函数
  */
-// 扩展ID - 需要在扩展发布后更新
-const EXTENSION_ID = 'your-extension-id-here'; // TODO: 替换为实际的扩展ID
+// ✅ FIX: 从环境变量读取扩展ID，避免硬编码占位符
+const EXTENSION_ID = import.meta.env.VITE_CHROME_EXTENSION_ID || '';
 
 // 检测扩展是否已安装
 const checkExtensionInstalled = (): Promise<boolean> => {
   return new Promise((resolve) => {
     try {
+      // ✅ FIX: 如果没有配置扩展ID，直接返回false，不尝试调用API
+      if (!EXTENSION_ID || EXTENSION_ID === 'your-extension-id-here') {
+        console.log('Chrome扩展ID未配置，跳过扩展检测');
+        resolve(false);
+        return;
+      }
+
       // 方法1: 使用 chrome.runtime.sendMessage
       if (typeof chrome !== 'undefined' && chrome.runtime) {
         chrome.runtime.sendMessage(

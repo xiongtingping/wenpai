@@ -283,6 +283,36 @@ export class UnifiedAIManager {
    * 构建请求体 - 🔧 统一使用OpenAI格式 (除DeepSeek外都通过AIMLAPI)
    */
   private buildRequestBody(config: UnifiedAIConfig, params: AICallParams): any {
+    // ✅ FIX: 处理差异化参数
+    let finalPrompt = params.prompt;
+    let finalSystemPrompt = params.systemPrompt;
+    let finalTemperature = params.temperature || 0.7;
+
+    // 如果提供了差异化参数，应用差异化逻辑
+    if (params.regenerationSeed || params.variationLevel || params.styleVariation) {
+      const variationResult = this.applyVariationLogic(
+        params.prompt,
+        params.systemPrompt,
+        {
+          regenerationSeed: params.regenerationSeed,
+          variationLevel: params.variationLevel,
+          styleVariation: params.styleVariation,
+          baseTemperature: params.temperature || 0.7
+        }
+      );
+
+      finalPrompt = variationResult.prompt;
+      finalSystemPrompt = variationResult.systemPrompt;
+      finalTemperature = variationResult.temperature;
+
+      logger.debug('🎨 应用差异化逻辑:', {
+        seed: params.regenerationSeed,
+        level: params.variationLevel,
+        style: params.styleVariation,
+        temperature: finalTemperature
+      });
+    }
+
     const messages = [];
 
     // 🔧 修复: Gemini等模型不支持system role，需要合并到user消息
@@ -290,10 +320,10 @@ export class UnifiedAIManager {
     const supportsSystemRole = !isGemini; // 可以根据需要扩展不支持的模型列表
 
     // 添加系统消息
-    if (params.systemPrompt && supportsSystemRole) {
+    if (finalSystemPrompt && supportsSystemRole) {
       messages.push({
         role: 'system',
-        content: params.systemPrompt
+        content: finalSystemPrompt
       });
     }
 
@@ -304,9 +334,9 @@ export class UnifiedAIManager {
 
     // 添加用户消息
     // 🔧 如果模型不支持system role，将system prompt合并到user消息
-    const userContent = params.systemPrompt && !supportsSystemRole
-      ? `${params.systemPrompt}\n\n${params.prompt}`
-      : params.prompt;
+    const userContent = finalSystemPrompt && !supportsSystemRole
+      ? `${finalSystemPrompt}\n\n${finalPrompt}`
+      : finalPrompt;
 
     messages.push({
       role: 'user',
@@ -318,9 +348,99 @@ export class UnifiedAIManager {
       model: config.model,
       messages,
       max_tokens: params.maxTokens || 1000,
-      temperature: params.temperature || 0.7,
+      temperature: finalTemperature,
       stream: false
     };
+  }
+
+  /**
+   * 应用差异化逻辑 - 从ai.ts迁移
+   */
+  private applyVariationLogic(
+    originalPrompt: string,
+    originalSystemPrompt?: string,
+    options: {
+      regenerationSeed?: string;
+      variationLevel?: 'slight' | 'moderate' | 'significant';
+      styleVariation?: 'tone' | 'structure' | 'vocabulary' | 'approach';
+      baseTemperature?: number;
+    } = {}
+  ): { prompt: string; systemPrompt?: string; temperature: number } {
+    const {
+      regenerationSeed,
+      variationLevel = 'moderate',
+      styleVariation = 'tone',
+      baseTemperature = 0.7
+    } = options;
+
+    // 根据变化程度调整温度
+    const temperatureAdjustments = {
+      slight: 0.1,
+      moderate: 0.2,
+      significant: 0.3
+    };
+
+    const adjustedTemperature = Math.min(1.0, baseTemperature + temperatureAdjustments[variationLevel]);
+
+    // 生成差异化指令
+    const variationInstructions = this.generateVariationInstructions(variationLevel, styleVariation);
+
+    // 添加随机种子以确保差异
+    const seedInstruction = regenerationSeed
+      ? `\n\n【差异化要求】这是${regenerationSeed}版本，请确保与其他版本有明显差异。`
+      : `\n\n【差异化要求】请生成与常规版本不同的内容变体。`;
+
+    // 构建增强的提示词
+    const enhancedPrompt = `${originalPrompt}${seedInstruction}\n\n${variationInstructions}`;
+
+    // 构建增强的系统提示词
+    const systemVariationPrompt = this.getSystemVariationPrompt(styleVariation);
+    const enhancedSystemPrompt = originalSystemPrompt
+      ? `${originalSystemPrompt}\n\n${systemVariationPrompt}`
+      : systemVariationPrompt;
+
+    return {
+      prompt: enhancedPrompt,
+      systemPrompt: enhancedSystemPrompt,
+      temperature: adjustedTemperature
+    };
+  }
+
+  /**
+   * 生成差异化指令
+   */
+  private generateVariationInstructions(
+    level: 'slight' | 'moderate' | 'significant',
+    style: 'tone' | 'structure' | 'vocabulary' | 'approach'
+  ): string {
+    const levelInstructions = {
+      slight: '请在保持核心内容的基础上，做出轻微的表达调整。',
+      moderate: '请在保持主要观点的同时，采用不同的表达方式和结构。',
+      significant: '请从不同角度重新构思内容，确保有明显的差异化。'
+    };
+
+    const styleInstructions = {
+      tone: '调整语气和情感色彩，使用不同的修辞手法。',
+      structure: '改变内容结构和段落组织方式。',
+      vocabulary: '使用不同的词汇和表达方式。',
+      approach: '从不同的切入点和视角来呈现内容。'
+    };
+
+    return `${levelInstructions[level]}\n重点关注：${styleInstructions[style]}`;
+  }
+
+  /**
+   * 获取系统级差异化提示
+   */
+  private getSystemVariationPrompt(style: 'tone' | 'structure' | 'vocabulary' | 'approach'): string {
+    const prompts = {
+      tone: '请注意调整内容的语气和情感表达，使其与之前的版本有明显区别。',
+      structure: '请重新组织内容结构，采用不同的叙述顺序和段落安排。',
+      vocabulary: '请使用不同的词汇和表达方式，避免与之前版本的用词重复。',
+      approach: '请从不同的角度和切入点来呈现内容，提供新的视角。'
+    };
+
+    return prompts[style];
   }
 
   /**

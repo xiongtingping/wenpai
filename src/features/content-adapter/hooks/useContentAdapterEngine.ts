@@ -495,7 +495,8 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     }));
 
     try {
-      const result = await serviceRef.current.generateTitle(content, params.selectedModel);
+      // ✅ FIX: 传递platform参数而不是model，让generateTitle使用默认模型
+      const result = await serviceRef.current.generateTitle(content, platformId);
 
       console.log(`📊 标题生成结果: success=${result.success}, content=${result.content?.substring(0, 50)}`);
 
