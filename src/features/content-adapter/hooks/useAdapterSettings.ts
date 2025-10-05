@@ -8,6 +8,8 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { GlobalSettings, PlatformSettings } from '../services/contentAdapterService';
 import type { StyleType } from '@/config/contentSchemes';
+import { TOAST_MESSAGES, VALIDATION_MESSAGES, BRAND_MESSAGES } from '../constants/messages';
+import { logger } from '@/utils/logger';
 
 // 设置模式
 export type SettingsMode = 'global' | 'platform';
@@ -276,7 +278,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
 
     // 验证品牌库设置
     if (useBrandLibrary && !brandProfile) {
-      errors.push('u64cdu4f5cu5931u8d25');
+      errors.push(BRAND_MESSAGES.REQUIRED);
     }
 
     return {
@@ -304,14 +306,14 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
       };
 
       localStorage.setItem(storageKey, JSON.stringify(settingsData));
-      
+
       toast({
-        title: 'u64cdu4f5cu5931u8d25',
+        title: TOAST_MESSAGES.SUCCESS.SETTINGS_SAVED,
         description: "您的配置已成功保存",
       });
     } catch (error) {
       toast({
-        title: 'u64cdu4f5cu5931u8d25',
+        title: TOAST_MESSAGES.ERROR.SETTINGS_SAVE_FAILED,
         description: "设置保存时发生错误",
         variant: "destructive"
       });
@@ -348,10 +350,10 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
         setSelectedModel(settingsData.selectedModel || 'deepseek-chat'); // ✅ FIX: 默认模型改为DeepSeek
       }
     } catch (error) {
-      console.error('loadingsettingfailed:', error);
+      logger.error('加载设置失败', { error });
       toast({
-        title: 'u64cdu4f5cu5931u8d25',
-        description: "将使用默认设置",
+        title: TOAST_MESSAGES.ERROR.SETTINGS_LOAD_FAILED,
+        description: TOAST_MESSAGES.INFO.USING_DEFAULT_SETTINGS,
         variant: "destructive"
       });
     } finally {
@@ -401,14 +403,14 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
       if (settingsData.selectedModel) setSelectedModel(settingsData.selectedModel);
 
       toast({
-        title: 'u64cdu4f5cu5931u8d25',
+        title: TOAST_MESSAGES.SUCCESS.CONFIG_IMPORTED,
         description: "配置已成功导入",
       });
 
       return true;
     } catch (error) {
       toast({
-        title: 'u64cdu4f5cu5931u8d25',
+        title: TOAST_MESSAGES.ERROR.CONFIG_IMPORT_FAILED,
         description: "设置文件格式错误",
         variant: "destructive"
       });

@@ -6,6 +6,7 @@
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { TOAST_MESSAGES, GENERATION_MESSAGES, getErrorMessage } from '../constants/messages';
 
 // 队列任务类型
 export interface QueueTask {
@@ -208,7 +209,7 @@ export function useGenerationQueue(params: UseGenerationQueueParams = {}): UseGe
       onTaskComplete?.(task, result);
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25';
+      const errorMessage = getErrorMessage(error);
       
       // 更新任务失败状态
       setQueue(prev => prev.map(t => {
@@ -262,10 +263,10 @@ export function useGenerationQueue(params: UseGenerationQueueParams = {}): UseGe
         if (allCompleted) {
           setRunning(false);
           onQueueComplete?.();
-          
+
           toast({
-            title: 'u64cdu4f5cu5931u8d25',
-            description: `共处理 ${queue.length} 个任务`,
+            title: TOAST_MESSAGES.SUCCESS.QUEUE_COMPLETE,
+            description: GENERATION_MESSAGES.QUEUE_COMPLETE(queue.length),
           });
         }
       }
@@ -367,8 +368,8 @@ export function useGenerationQueue(params: UseGenerationQueueParams = {}): UseGe
     startQueue();
 
     toast({
-      title: 'u64cdu4f5cu5931u8d25',
-      description: `将为 ${platforms.length} 个平台生成内容`,
+      title: TOAST_MESSAGES.INFO.QUEUE_STARTED,
+      description: GENERATION_MESSAGES.BATCH_START(platforms.length),
     });
 
     return taskIds;

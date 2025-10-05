@@ -3,19 +3,22 @@
  * 统一封装所有AI调用逻辑，替代分散的调用方式
  */
 
-// import i18n from '@/i18n'; // 改为动态导入避免TDZ
-import { callAIWithTokenTracking, type AICallParamsWithTracking, type AIResponseWithUsage } from '@/services/aiWithTokenTracking';
+import i18n from '@/i18n';
+import { callAIWithTokenTracking, type AICallParamsWithTracking } from '@/services/aiWithTokenTracking';
 import { AITaskType } from '@/api/aiService';
 import { generateMatrixPrompt } from '../utils/promptBuilders';
-import { 
-  generateCharCountDimension, 
-  generateFormatDimension,
+import {
   createMatrixPromptGenerator,
   createFormatDimensionGenerator
 } from '../utils/promptBuilders.stateful';
 import { getUnifiedCharCountLimit, getPlatformCharCountAdvice } from '@/config/platformLimits';
 import { type StyleType } from '@/config/contentSchemes';
-import { generateMultipleVersions } from '../utils/multiVersionGenerator';
+import {
+  getNextFallbackModel,
+  getFallbackReasonFromError,
+  getFallbackReasonDescription
+} from '@/config/modelFallback';
+import { logger } from '@/utils/logger';
 
 /**
  * 平台特定的超时配置
@@ -44,7 +47,11 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
   try {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`🔄 ${versionName} - the${attempt}times尝试调用AI (模型: ${params.model})`);
+        logger.info(`${versionName} - 第${attempt}次尝试调用AI`, {
+          model: params.model,
+          attempt,
+          maxRetries
+        });
 
         // 为WeChat和Zhihu使用优化的参数
         const adjustedParams = { ...params };
@@ -67,44 +74,47 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
         });
 
         if (result.success && result.content && result.content.trim().length > 100) {
-          console.log(`✅ ${versionName} - the${attempt}times尝试success`);
+          logger.info(`${versionName} - 第${attempt}次尝试成功`, {
+            contentLength: result.content.length,
+            model: params.model
+          });
           return result;
         } else {
           const errorMsg = result.error || i18n.t('common.errors.生成内容为空或过短');
           lastError = new Error(errorMsg);
-          console.log(`❌ ${versionName} - the${attempt}times尝试failed: ${errorMsg}`);
+          logger.warn(`${versionName} - 第${attempt}次尝试失败`, {
+            error: errorMsg,
+            attempt
+          });
         }
       } catch (error) {
         lastError = error;
-        console.error(`🚨 ${versionName} - the${attempt}times尝试abnormal:`, error);
+        logger.error(`${versionName} - 第${attempt}次尝试异常`, { error });
 
-        // 智能模型切换策略
+        // ✅ 使用配置化的智能模型降级策略
         if (attempt <= 3) {
           const errorMessage = error instanceof Error ? error.message : String(error);
 
-          // 检测402错误（账户余额不足）
-          if (errorMessage.includes('402') || errorMessage.includes('Payment Required')) {
-            console.log(`🚨 ${versionName} - detecting到402error，starting智能降级`);
+          // 判断降级原因
+          const fallbackReason = getFallbackReasonFromError(errorMessage);
+          const reasonDesc = getFallbackReasonDescription(fallbackReason);
 
-            if (params.model.includes('deepseek')) {
-              console.log(`🔄 ${versionName} - DeepSeekbalance不足，切换到GPT-4o-mini`);
-              params.model = 'gpt-4o-mini';
-            } else if (params.model.includes('gpt-4o-mini')) {
-              console.log(`🔄 ${versionName} - GPT-4o-minifailed，切换到GPT-3.5-turbo`);
-              params.model = 'gpt-3.5-turbo';
-            } else if (params.model.includes('gpt-3.5-turbo')) {
-              console.log(`🔄 ${versionName} - GPT-3.5-turbofailed，尝试使用Gemini`);
-              params.model = 'gemini-pro';
-            }
+          // 获取下一个降级模型（attempt-1因为索引从0开始）
+          const nextModel = getNextFallbackModel(params.model, attempt - 1, fallbackReason);
+
+          if (nextModel) {
+            logger.info(`${versionName} - 智能降级`, {
+              reason: reasonDesc,
+              from: params.model,
+              to: nextModel,
+              attempt
+            });
+            params.model = nextModel;
           } else {
-            // 其他错误类型的模型切换策略
-            if (params.model.includes('deepseek')) {
-              console.log(`🔄 ${versionName} - DeepSeekfailed，切换到GPT-4o-mini`);
-              params.model = 'gpt-4o-mini';
-            } else if (params.model.includes('gpt-4o-mini')) {
-              console.log(`🔄 ${versionName} - GPT-4o-minifailed，切换到GPT-3.5-turbo`);
-              params.model = 'gpt-3.5-turbo';
-            }
+            logger.warn(`${versionName} - 没有更多降级选项`, {
+              currentModel: params.model,
+              attempt
+            });
           }
         }
       }
@@ -112,7 +122,7 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
       // 如果不是最后一次尝试，等待一段时间再重试
       if (attempt < maxRetries) {
         const delay = Math.min(timeoutConfig.retryDelay * Math.pow(2, attempt - 1), 10000);
-        console.log(`⏳ ${versionName} - waiting${delay}msnextretrying...`);
+        logger.info(`${versionName} - 等待${delay}ms后重试`, { attempt, delay });
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
@@ -194,10 +204,10 @@ function extractAndCleanContent(content: string): { cleanContent: string; extrac
     .replace(/^\s+|\s+$/g, '') // 去掉首尾空格
     .trim();
 
-  console.log('🧹 contentcleaningcompleted:', {
-    原始长度: content.length,
-    清理后长度: cleanContent.length,
-    提取标签: extractedTags
+  logger.debug('内容清理完成', {
+    originalLength: content.length,
+    cleanedLength: cleanContent.length,
+    extractedTags
   });
 
   return { cleanContent, extractedTags };
@@ -236,9 +246,11 @@ async function generateMultipleVersions(
 - 适合社交媒体、个人分享、情感共鸣场景`;
 
   try {
-    console.log(`starts为平台 ${platformId} 生成多versioncontent`);
-    console.log('使用模型:', selectedModel);
-    console.log('hint词length:', basePrompt.length);
+    logger.info(`开始为平台 ${platformId} 生成多版本内容`, {
+      platform: platformId,
+      model: selectedModel,
+      promptLength: basePrompt.length
+    });
 
     // 使用统一字符数控制系统获取最终限制
     const charCountControl = getUnifiedCharCountLimit(
@@ -360,7 +372,7 @@ async function generateMultipleVersions(
 
     // 如果两个版本都失败了，尝试生成一个基础版本
     if (versions.length === 0) {
-      console.log('两unitsversion都failed，尝试生成基础version');
+      logger.warn('两个版本都失败，尝试生成基础版本', { platform: platformId });
       const fallbackResult = await callAIWithRetry({
         prompt: basePrompt,
         model: selectedModel,
@@ -380,10 +392,13 @@ async function generateMultipleVersions(
       }
     }
 
-    console.log(`平台 ${platformId} 最终生成了 ${versions.length} unitsversion`);
+    logger.info(`平台 ${platformId} 最终生成了 ${versions.length} 个版本`, {
+      platform: platformId,
+      versionCount: versions.length
+    });
     return versions;
   } catch (error) {
-    console.error('生成多versioncontentfailed:', error);
+    logger.error('生成多版本内容失败', { error, platform: platformId });
     return [];
   }
 }
@@ -563,7 +578,7 @@ export class ContentAdapterService {
         error: versions.length === 0 ? '生成失败，请重试' : undefined
       };
     } catch (error) {
-      console.error('生成多版本内容失败:', error);
+      logger.error('生成多版本内容失败', { error });
       return {
         success: false,
         versions: [],
@@ -718,7 +733,7 @@ ${stylePrompts}
           const parsed = JSON.parse(jsonContent);
           parsedTitles = parsed.titles || [];
         } catch (parseError) {
-          console.warn('解析标题JSON失败，使用简单清理逻辑', parseError);
+          logger.warn('解析标题JSON失败，使用简单清理逻辑', { parseError });
           // 如果JSON解析失败，尝试简单提取
           const lines = result.content.split('\n').filter(line => line.trim().length > 0);
           parsedTitles = lines.slice(0, 5).map(line => ({

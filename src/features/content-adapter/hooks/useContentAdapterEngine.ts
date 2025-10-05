@@ -7,6 +7,8 @@
 import { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ContentAdapterService } from '../services/contentAdapterService';
+import { TOAST_MESSAGES, GENERATION_MESSAGES, getErrorMessage } from '../constants/messages';
+import { logger } from '@/utils/logger';
 import type {
   GlobalSettings,
   PlatformSettings,
@@ -251,11 +253,11 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
             }
 
           } else {
-            throw new Error(result.error || 'u64cdu4f5cu5931u8d25');
+            throw new Error(result.error || TOAST_MESSAGES.ERROR.GENERATION_FAILED);
           }
-          
+
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25';
+          const errorMessage = getErrorMessage(error);
           
           // 更新错误状态
           setResults(prev => prev.map(r => 
@@ -274,10 +276,10 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       });
 
       await Promise.all(promises);
-      
+
       toast({
-        title: 'u64cdu4f5cu5931u8d25',
-        description: `已为 ${selectedPlatforms.length} 个平台生成内容`,
+        title: TOAST_MESSAGES.SUCCESS.BATCH_GENERATION_SUCCESS,
+        description: GENERATION_MESSAGES.BATCH_COMPLETE(selectedPlatforms.length),
       });
 
       // 调用完成回调保存历史记录
@@ -286,9 +288,9 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       }
 
     } catch (error) {
-      console.error('批量生成failed:', error);
+      logger.error('批量生成失败', { error });
       toast({
-        title: 'u64cdu4f5cu5931u8d25',
+        title: TOAST_MESSAGES.ERROR.BATCH_GENERATION_FAILED,
         description: "请检查网络连接后重试",
         variant: "destructive"
       });
@@ -325,15 +327,15 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
         ));
 
         toast({
-          title: 'u64cdu4f5cu5931u8d25',
-          description: `${platformId} 内容已重新生成`,
+          title: TOAST_MESSAGES.SUCCESS.RETRY_SUCCESS,
+          description: GENERATION_MESSAGES.PLATFORM_REGENERATED(platformId),
         });
       } else {
-        throw new Error(result.error || 'u64cdu4f5cu5931u8d25');
+        throw new Error(result.error || TOAST_MESSAGES.ERROR.RETRY_FAILED);
       }
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25';
+      const errorMessage = getErrorMessage(error);
       
       setResults(prev => prev.map(r => 
         r.platformId === platformId 
@@ -342,7 +344,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       ));
 
       toast({
-        title: 'u64cdu4f5cu5931u8d25',
+        title: TOAST_MESSAGES.ERROR.RETRY_FAILED,
         description: errorMessage,
         variant: "destructive"
       });
@@ -398,17 +400,17 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
         }));
 
         toast({
-          title: 'u64cdu4f5cu5931u8d25',
-          description: `${platformId} ${versionId} 已更新`,
+          title: TOAST_MESSAGES.SUCCESS.REGENERATION_SUCCESS,
+          description: GENERATION_MESSAGES.VERSION_REGENERATED(platformId, versionId),
         });
       } else {
-        throw new Error(result.error || 'u64cdu4f5cu5931u8d25');
+        throw new Error(result.error || TOAST_MESSAGES.ERROR.REGENERATION_FAILED);
       }
 
     } catch (error) {
       toast({
-        title: 'u64cdu4f5cu5931u8d25',
-        description: error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25',
+        title: TOAST_MESSAGES.ERROR.REGENERATION_FAILED,
+        description: getErrorMessage(error),
         variant: "destructive"
       });
     } finally {

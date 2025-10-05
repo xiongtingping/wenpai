@@ -62,10 +62,10 @@ export async function exampleBasicGeneration() {
   });
 
   if (result.success) {
-    console.log('生成success:', result.content);
-    console.log('Token使用:', result.tokenUsage);
+    // 示例代码：实际使用时应该使用logger
+    // logger.info('生成成功', { content: result.content, tokenUsage: result.tokenUsage });
   } else {
-    console.error('生成failed:', result.error);
+    // logger.error('生成失败', { error: result.error });
   }
 
   return result;
@@ -127,7 +127,7 @@ export async function exampleTitleGeneration() {
   );
 
   if (result.success) {
-    console.log('生成的title:', result.content);
+    // logger.info('生成的标题', { title: result.content });
   }
 
   return result;
@@ -199,7 +199,7 @@ export async function exampleErrorHandling() {
     });
 
     if (!result.success) {
-      console.log('the一times尝试failed，进rowretrying...');
+      // logger.warn('第一次尝试失败，进行重试');
       
       // 重试，使用默认模型
       const retryResult = await service.generateContent({
@@ -212,8 +212,8 @@ export async function exampleErrorHandling() {
 
     return result;
   } catch (error) {
-    console.error('生成过程middle发生error:', error);
-    return { success: false, error: 'u64cdu4f5cu5931u8d25' };
+    // logger.error('生成过程中发生错误', { error });
+    return { success: false, error: '操作失败' };
   }
 }
 
