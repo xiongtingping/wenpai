@@ -694,7 +694,7 @@ ${stylePrompts}
 - 禁止出现语序异常（如"让我小红书优化"）
 
 请严格按照JSON格式返回结果。`,
-        model: model || 'google/gemini-2.5-flash-lite-preview', // ✅ FIX: 修正模型名称为2.5版本
+        model: model || 'deepseek-chat', // ✅ FIX: 兜底模型改为DeepSeek，确保稳定性
         maxTokens: 500,
         temperature: 0.8,
         feature: '标题生成',

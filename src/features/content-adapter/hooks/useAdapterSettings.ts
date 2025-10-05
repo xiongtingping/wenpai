@@ -345,7 +345,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
         setUseBrandLibrary(settingsData.useBrandLibrary || false);
         setBrandProfile(settingsData.brandProfile);
         setCustomPrompt(settingsData.customPrompt || '');
-        setSelectedModel(settingsData.selectedModel || 'google/gemini-2.5-flash-lite-preview');
+        setSelectedModel(settingsData.selectedModel || 'deepseek-chat'); // ✅ FIX: 默认模型改为DeepSeek
       }
     } catch (error) {
       console.error('loadingsettingfailed:', error);

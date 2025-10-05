@@ -487,7 +487,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       return;
     }
 
-    console.log(`🎯 开始生成标题: 平台=${platformId}, 内容长度=${content.length}`);
+    console.log(`🎯 开始生成标题: 平台=${platformId}, 模型=${params.selectedModel}, 内容长度=${content.length}`);
 
     setTitleStates(prev => ({
       ...prev,
@@ -495,8 +495,8 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     }));
 
     try {
-      // ✅ FIX: 传递platform参数而不是model，让generateTitle使用默认模型
-      const result = await serviceRef.current.generateTitle(content, platformId);
+      // ✅ FIX: 使用用户选择的模型，确保内容、标题、标签使用同一个模型
+      const result = await serviceRef.current.generateTitle(content, platformId, params.selectedModel);
 
       console.log(`📊 标题生成结果: success=${result.success}, content=${result.content?.substring(0, 50)}`);
 
