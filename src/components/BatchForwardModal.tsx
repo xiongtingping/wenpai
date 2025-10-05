@@ -164,15 +164,9 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
       container.id = 'batch-forward-modal-container';
       document.body.appendChild(container);
     }
-    // 无论是否已存在，统一强制样式，避免历史遗留 pointer-events:none
-    container.style.position = 'fixed';
-    container.style.top = '0';
-    container.style.left = '0';
-    container.style.width = '100vw';
-    container.style.height = '100vh';
-    container.style.pointerEvents = 'auto';
-    container.style.zIndex = '9999';
-  }, []);
+    // 容器本身不占据可点击区域，避免遮挡页面；具体交互由子元素控制
+    container.removeAttribute('style');
+  }, [open]);
 
   if (!open) return null;
 
@@ -219,16 +213,18 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
       {/* 正常状态 - 相对定位弹窗，出现在触发按钮附近 */}
       {!isMinimized && open && (
         <>
-          {/* 半透明遮罩层 */}
-          <div
-            className="batch-modal-overlay"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleClose();
-            }}
-          />
-          
+          {/* 半透明遮罩层（仅在未显示关闭确认时渲染）*/}
+          {!closeConfirmOpen && (
+            <div
+              className="batch-modal-overlay"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleClose();
+              }}
+            />
+          )}
+
           {/* 弹窗内容 - 强制定位在页面底部 */}
           <div
             ref={modalRef}
