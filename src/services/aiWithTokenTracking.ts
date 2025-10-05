@@ -24,6 +24,12 @@ export interface AICallParamsWithTracking extends AICallParams {
   userTier?: SubscriptionTier;
   /** 是否跳过Token限额检查 */
   skipLimitCheck?: boolean;
+  /** 重新生成种子值，确保每次生成不同 */
+  regenerationSeed?: string;
+  /** 变化程度：轻微/中等/显著 */
+  variationLevel?: 'slight' | 'moderate' | 'significant';
+  /** 风格变化选项 */
+  styleVariation?: 'tone' | 'structure' | 'vocabulary' | 'approach';
 }
 
 /**

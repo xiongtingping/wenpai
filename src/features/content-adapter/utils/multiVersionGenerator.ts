@@ -42,12 +42,19 @@ export async function generateMultipleVersions(
 - 语言风格: 专业、规范、易读
 - 内容结构: 清晰、有条理
 - 表达方式: 直接、准确
-- 适用场景: 正式发布、品牌传播`
+- 适用场景: 正式发布、品牌传播`,
+      // ✅ 添加差异化参数确保版本A的唯一性
+      regenerationSeed: 'multi-version-a',
+      variationLevel: 'moderate',
+      styleVariation: 'structure'
     });
 
     if (versionA) {
       versions.push(versionA);
     }
+
+    // 🔧 延迟500ms后再生成版本B，避免API缓存
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // 版本B: 创意版 (temperature=0.9, 更有创意、生动)
     console.log('🎨 开始生成版本B (创意版)...');
@@ -66,7 +73,11 @@ export async function generateMultipleVersions(
 - 内容结构: 灵活、富有变化
 - 表达方式: 形象、感性、有感染力
 - 适用场景: 社交传播、用户互动
-- 创意元素: 可以使用比喻、排比、设问等修辞手法`
+- 创意元素: 可以使用比喻、排比、设问等修辞手法`,
+      // ✅ 添加显著差异化参数确保版本B与版本A完全不同
+      regenerationSeed: 'multi-version-b',
+      variationLevel: 'significant',
+      styleVariation: 'tone'
     });
 
     if (versionB) {
@@ -94,6 +105,10 @@ async function generateSingleVersion(params: {
   versionLabel: string;
   temperature: number;
   systemPromptSuffix: string;
+  // ✅ 添加差异化参数
+  regenerationSeed?: string;
+  variationLevel?: 'slight' | 'moderate' | 'significant';
+  styleVariation?: 'tone' | 'structure' | 'vocabulary' | 'approach';
 }): Promise<ContentVersion | null> {
   try {
     const {
@@ -104,7 +119,10 @@ async function generateSingleVersion(params: {
       versionId,
       versionLabel,
       temperature,
-      systemPromptSuffix
+      systemPromptSuffix,
+      regenerationSeed,
+      variationLevel,
+      styleVariation
     } = params;
 
     // 构建系统提示词
@@ -143,10 +161,14 @@ ${versionType === 'standard' ? `
       temperature,
       maxTokens: 2000,
       feature: 'AI内容适配器-多版本生成',
-      taskType: AITaskType.CONTENT_ADAPTATION
+      taskType: AITaskType.CONTENT_ADAPTATION,
+      // ✅ 传递差异化参数到AI调用
+      regenerationSeed,
+      variationLevel,
+      styleVariation
     };
 
-    console.log(`🤖 调用AI生成${versionLabel} (temperature=${temperature})...`);
+    console.log(`🤖 调用AI生成${versionLabel} (temperature=${temperature}, seed=${regenerationSeed})...`);
     const result = await callAIWithTokenTracking(aiParams);
 
     if (!result.success || !result.content) {

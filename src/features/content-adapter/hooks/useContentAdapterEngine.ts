@@ -237,10 +237,16 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
             if (result.versions && result.versions.length > 0) {
               const firstVersionContent = result.versions[0].content;
               console.log(`🎯 自动触发标题生成: 平台=${platformId}, 内容长度=${firstVersionContent.length}`);
-              
+
               // 异步调用标题生成,不阻塞主流程
               generateTitle(firstVersionContent, platformId).catch(error => {
                 console.error(`❌ 自动标题生成失败 (平台=${platformId}):`, error);
+                // ✅ 添加用户提示，告知标题生成失败
+                toast({
+                  title: "标题生成失败",
+                  description: `平台 ${platformId} 的标题自动生成失败: ${error instanceof Error ? error.message : '未知错误'}`,
+                  variant: "destructive",
+                });
               });
             }
 
@@ -476,7 +482,12 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
 
   // 生成标题
   const generateTitle = useCallback(async (content: string, platformId: string) => {
-    if (!serviceRef.current) return;
+    if (!serviceRef.current) {
+      console.error('❌ 标题生成失败: serviceRef.current 为空');
+      return;
+    }
+
+    console.log(`🎯 开始生成标题: 平台=${platformId}, 内容长度=${content.length}`);
 
     setTitleStates(prev => ({
       ...prev,
@@ -485,6 +496,8 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
 
     try {
       const result = await serviceRef.current.generateTitle(content, params.selectedModel);
+
+      console.log(`📊 标题生成结果: success=${result.success}, content=${result.content?.substring(0, 50)}`);
 
       if (result.success && result.content) {
         // 🔧 FIX: 保存生成的标题到state
@@ -506,16 +519,23 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       }
 
     } catch (error) {
+      console.error(`❌ 标题生成异常 (平台=${platformId}):`, error);
+
       setTitleStates(prev => ({
         ...prev,
         [platformId]: { hasTitle: false, isGenerating: false }
       }));
 
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+
       toast({
-        title: '生成失败',
-        description: "请稍后重试",
+        title: "标题生成失败",
+        description: `平台 ${platformId}: ${errorMessage}`,
         variant: "destructive"
       });
+
+      // 重新抛出错误以便上层catch捕获
+      throw error;
     }
   }, [params.selectedModel, toast]);
 

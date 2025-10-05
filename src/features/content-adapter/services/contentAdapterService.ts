@@ -305,19 +305,27 @@ async function generateMultipleVersions(
       model: selectedModel,
       systemPrompt: buildSystemPrompt(`你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`),
       maxTokens: maxTokens,
-      temperature: 0.7
+      temperature: 0.7,
+      // ✅ 添加差异化参数确保版本A的唯一性
+      regenerationSeed: 'version-a',
+      variationLevel: 'moderate',
+      styleVariation: 'structure'
     }, '标准版本(版本A)', platformId);
 
-    // 🔧 FIX: 延迟100ms后再生成创意版本B，避免缓存
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // 🔧 FIX: 延迟500ms后再生成创意版本B，避免API缓存
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    // 再生成创意版本B，使用更高的temperature确保差异
+    // 再生成创意版本B，使用更高的temperature和显著差异化参数
     const creativeResult = await callAIWithRetry({
       prompt: creativePrompt,
       model: selectedModel,
       systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。重要：必须与标准版本风格完全不同，更加口语化和生动。${charCountInstruction}`),
       maxTokens: maxTokens,
-      temperature: 0.95 // 🔧 提高temperature增加创意性
+      temperature: 0.95, // 🔧 提高temperature增加创意性
+      // ✅ 添加显著差异化参数确保版本B与版本A完全不同
+      regenerationSeed: 'version-b',
+      variationLevel: 'significant',
+      styleVariation: 'tone'
     }, '创意版本(版本B)', platformId);
 
     // 处理标准版本结果
