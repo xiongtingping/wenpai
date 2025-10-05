@@ -576,41 +576,6 @@ export function GenerationControls({ generating,
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-4">
-              {/* 自动化和其他操作 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <Button
-                  onClick={onStartAutomation}
-                  disabled={!canGenerate}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                  size="lg"
-                >
-                  {queueRunning ? (
-                    <>
-                      <Clock className="h-4 w-4 animate-pulse" />
-                      自动化运行中...
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="h-4 w-4" />
-                      批量自动化
-                    </>
-                  )}
-                </Button>
-
-                <Button
-                  onClick={() => {
-                    // TODO: 实现一键转发弹窗
-                    console.log('opening一key转发popup');
-                  }}
-                  variant="secondary"
-                  className="flex items-center gap-2"
-                  size="lg"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  一键转发
-                </Button>
-              </div>
 
               {/* 控制按钮 */}
               <div className="flex gap-2">

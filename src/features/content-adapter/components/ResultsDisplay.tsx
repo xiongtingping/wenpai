@@ -37,6 +37,7 @@ interface ResultsDisplayProps {
   // 🔧 FIX: 标记为必需属性，确保调用方必须传递（即使是空对象）
   titleStates: Record<string, {
     title?: string;
+    candidates?: string[];
     hasTitle: boolean;
     isGenerating: boolean;
   }>;
@@ -126,8 +127,8 @@ function PlatformResultCard({
   result: PlatformResult;
   isRetrying: boolean;
   isGeneratingComparison: boolean;
-  // 🔧 FIX: 添加 title 字段，与 Hook 返回的类型保持一致
-  titleState?: { title?: string; hasTitle: boolean; isGenerating: boolean };
+  // 🔧 FIX: 添加 title/candidates 字段，与 Hook 返回的类型保持一致
+  titleState?: { title?: string; candidates?: string[]; hasTitle: boolean; isGenerating: boolean };
   comparisonContent?: string;
   showComparison?: boolean;
   selectedVersions: Record<string, string>;
@@ -331,6 +332,25 @@ function PlatformResultCard({
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   <span>正在生成标题...</span>
+                </div>
+              ) : (titleState?.candidates && titleState.candidates.length > 0) ? (
+                <div className="space-y-2">
+                  {titleState.candidates.slice(0, 3).map((t, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-muted/50 rounded border">
+                      <p className="text-sm font-medium mr-2 truncate">{t}</p>
+                      <div className="flex items-center gap-2">
+                        <Button size="xs" variant="outline" onClick={() => navigator.clipboard.writeText(t)}>复制</Button>
+                      </div>
+                    </div>
+                  ))}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onGenerateTitle(result.platformId, result.content || result.versions?.[0]?.content || '')}
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    重新生成
+                  </Button>
                 </div>
               ) : titleState?.title ? (
                 <div className="space-y-2">

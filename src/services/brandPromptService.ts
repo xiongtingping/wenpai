@@ -273,19 +273,19 @@ export class BrandPromptService {
     }
 
     if (config.followLanguageGuidelines) {
-      requirements.push('u64cdu4f5cu5931u8d25');
+      requirements.push('遵循品牌语言规范');
     }
 
     if (config.includeBrandValues) {
-      requirements.push('u64cdu4f5cu5931u8d25');
+      requirements.push('体现品牌价值观');
     }
 
     if (config.maintainBrandConsistency) {
-      requirements.push('u64cdu4f5cu5931u8d25');
+      requirements.push('保持品牌一致性');
     }
 
     if (config.useCoreTopics) {
-      requirements.push('u64cdu4f5cu5931u8d25');
+      requirements.push('围绕品牌核心话题');
     }
 
     if (config.applyBrandHashtags) {

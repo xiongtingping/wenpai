@@ -210,7 +210,8 @@ function extractAndCleanContent(content: string): { cleanContent: string; extrac
     extractedTags
   });
 
-  return { cleanContent, extractedTags };
+  const filteredTags = extractedTags.filter(tag => !/^u[0-9a-f]{4,}$/i.test(tag));
+  return { cleanContent, extractedTags: filteredTags };
 }
 
 /**
@@ -343,7 +344,7 @@ async function generateMultipleVersions(
     // 处理标准版本结果
     if (standardResult.success && standardResult.content) {
       const { cleanContent, extractedTags } = extractAndCleanContent(standardResult.content);
-      const actualCharCount = cleanContent.length;
+      const actualCharCount = (cleanContent || '').length;
 
       versions.push({
         id: 'version-a',
@@ -358,7 +359,7 @@ async function generateMultipleVersions(
     // 处理创意版本结果
     if (creativeResult.success && creativeResult.content) {
       const { cleanContent, extractedTags } = extractAndCleanContent(creativeResult.content);
-      const actualCharCount = cleanContent.length;
+      const actualCharCount = (cleanContent || '').length;
 
       versions.push({
         id: 'version-b',
@@ -382,12 +383,13 @@ async function generateMultipleVersions(
       }, '基础版本', platformId);
 
       if (fallbackResult.success && fallbackResult.content) {
+        const fallbackContent = fallbackResult.content || '';
         versions.push({
           id: 'version-fallback',
-          content: fallbackResult.content,
+          content: fallbackContent,
           style: 'standard',
           title: '基础版本',
-          charCount: fallbackResult.content.length
+          charCount: fallbackContent.length
         });
       }
     }
@@ -436,6 +438,8 @@ export interface ContentGenerationResponse {
   success: boolean;
   content?: string;
   error?: string;
+  candidates?: string[]; // 新增：可选的多候选标题，用于UI展示
+
   tokenUsage?: {
     inputTokens: number;
     outputTokens: number;
@@ -591,7 +595,7 @@ export class ContentAdapterService {
    */
   async generateVersionContent(request: VersionGenerationRequest): Promise<ContentGenerationResponse> {
     const temperature = request.versionType === 'standard' ? 0.7 : 0.9;
-    const systemPromptSuffix = request.versionType === 'standard' 
+    const systemPromptSuffix = request.versionType === 'standard'
       ? '你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。'
       : '你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。';
 
@@ -787,12 +791,14 @@ ${stylePrompts}
           )
           .sort((a, b) => b.overallScore - a.overallScore);
 
-        // 返回最佳标题
+        // 返回最佳标题与候选集
         const bestTitle = qualifiedTitles[0]?.title || this.cleanTitle(result.content);
+        const candidates = qualifiedTitles.slice(0, 3).map(item => item.title);
 
         return {
           success: true,
           content: bestTitle,
+          candidates,
           tokenUsage: result.tokenUsage
         };
       }
@@ -894,7 +900,7 @@ ${stylePrompts}
   private getPlatformOptimizedParams(baseParams: any, platform: string): any {
     // 为长内容平台优化参数
     const longContentPlatforms = ['wechat', 'zhihu'];
-    
+
     if (longContentPlatforms.includes(platform)) {
       return {
         ...baseParams,

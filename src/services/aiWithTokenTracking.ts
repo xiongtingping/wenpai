@@ -241,19 +241,23 @@ export async function callAIWithTokenTracking(
     
     // 5. 记录Token使用量（如果调用成功且有用户信息）
     if (aiResponse.success && userInfo) {
-      await tokenUsageService.recordTokenUsage({
-        userId,
-        feature,
-        taskType,
-        inputTokens: actualInputTokens,
-        outputTokens: actualOutputTokens,
-        totalTokens: actualTotalTokens,
-        model: aiResponse.model,
-        contentSummary: params.prompt.substring(0, 100) + (params.prompt.length > 100 ? '...' : ''),
-        success: true
-      });
+      try {
+        await tokenUsageService.recordTokenUsage({
+          userId,
+          feature,
+          taskType,
+          inputTokens: actualInputTokens,
+          outputTokens: actualOutputTokens,
+          totalTokens: actualTotalTokens,
+          model: aiResponse.model,
+          contentSummary: params.prompt.substring(0, 100) + (params.prompt.length > 100 ? '...' : ''),
+          success: true
+        });
+      } catch (e) {
+        console.warn('⚠️ Token usage recording failed (non-blocking):', e);
+      }
     }
-    
+
     // 6. 获取用户最新的Token统计
     let tokenUsage;
     if (userInfo) {
@@ -283,20 +287,24 @@ export async function callAIWithTokenTracking(
     
     // 记录失败的调用（如果有用户信息）
     if (userInfo) {
-      await tokenUsageService.recordTokenUsage({
-        userId,
-        feature,
-        taskType,
-        inputTokens: estimatedInputTokens,
-        outputTokens: 0,
-        totalTokens: estimatedInputTokens,
-        model: params.model || 'unknown',
-        contentSummary: params.prompt.substring(0, 100) + (params.prompt.length > 100 ? '...' : ''),
-        success: false,
-        error: error instanceof Error ? error.message : '未知错误'
-      });
+      try {
+        await tokenUsageService.recordTokenUsage({
+          userId,
+          feature,
+          taskType,
+          inputTokens: estimatedInputTokens,
+          outputTokens: 0,
+          totalTokens: estimatedInputTokens,
+          model: params.model || 'unknown',
+          contentSummary: params.prompt.substring(0, 100) + (params.prompt.length > 100 ? '...' : ''),
+          success: false,
+          error: error instanceof Error ? error.message : '未知错误'
+        });
+      } catch (e) {
+        console.warn('⚠️ Token usage failure record failed (non-blocking):', e);
+      }
     }
-    
+
     // 返回错误响应
     const response: AIResponseWithUsage = {
       content: '',

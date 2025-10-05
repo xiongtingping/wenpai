@@ -308,8 +308,9 @@ class TokenUsageService {
       }
 
     } catch (error) {
-      logger.error('❌ Token使用量记录失败:', error);
-      throw new Error(`Token使用量记录失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      logger.error('❌ Token使用量记录失败(不阻断主流程):', error);
+      // 不抛出异常，避免影响主业务流程
+      return;
     }
   }
 

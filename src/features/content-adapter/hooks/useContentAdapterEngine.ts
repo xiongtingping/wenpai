@@ -61,6 +61,7 @@ export interface ContentAdapterEngineState {
   // 标题生成状态
   titleStates: Record<string, {
     title?: string;
+    candidates?: string[];
     hasTitle: boolean;
     isGenerating: boolean;
   }>;
@@ -123,6 +124,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
   const [showComparison, setShowComparison] = useState<Record<string, boolean>>({});
   const [titleStates, setTitleStates] = useState<Record<string, {
     title?: string;
+    candidates?: string[];
     hasTitle: boolean;
     isGenerating: boolean;
   }>>({});
@@ -508,6 +510,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
           ...prev,
           [platformId]: {
             title: result.content,
+            candidates: result.candidates || [],
             hasTitle: true,
             isGenerating: false
           }
