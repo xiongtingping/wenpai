@@ -168,6 +168,65 @@ export function Footer() {
           {/* 分隔线 */}
           <div className="border-t border-border/50 my-4"></div>
 
+          {/* 资源链接区域 */}
+          <div className="mb-6">
+            <h4 className="ds-text-helper ds-text-primary font-semibold text-center mb-3">资源中心</h4>
+            <div className="flex flex-wrap justify-center items-center gap-3">
+              <a
+                href="/docs.html"
+                className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted/50 ds-transition-standard"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FileText className="w-3.5 h-3.5 text-primary" />
+                <span className="ds-text-helper ds-text-primary hover:text-foreground">产品文档</span>
+              </a>
+
+              <a
+                href="/faq.html"
+                className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted/50 ds-transition-standard"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FileText className="w-3.5 h-3.5 text-primary" />
+                <span className="ds-text-helper ds-text-primary hover:text-foreground">常见问题</span>
+              </a>
+
+              <a
+                href="/guide.html"
+                className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted/50 ds-transition-standard"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FileText className="w-3.5 h-3.5 text-primary" />
+                <span className="ds-text-helper ds-text-primary hover:text-foreground">使用指南</span>
+              </a>
+
+              <a
+                href="/api.html"
+                className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted/50 ds-transition-standard"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FileText className="w-3.5 h-3.5 text-primary" />
+                <span className="ds-text-helper ds-text-primary hover:text-foreground">API文档</span>
+              </a>
+
+              <a
+                href="/about.html"
+                className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted/50 ds-transition-standard"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FileText className="w-3.5 h-3.5 text-primary" />
+                <span className="ds-text-helper ds-text-primary hover:text-foreground">关于我们</span>
+              </a>
+            </div>
+          </div>
+
+          {/* 分隔线 */}
+          <div className="border-t border-border/50 my-4"></div>
+
           {/* 底部信息 - 精简版 */}
           <div className="ds-text-centered">
             <div className="flex flex-wrap justify-center items-center gap-4 mb-2">
