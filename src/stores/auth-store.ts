@@ -1,6 +1,15 @@
 /**
  * 🔐 统一认证Store
  *
+ * @deprecated 此文件已废弃，请使用 unified-state-store.ts
+ *
+ * 迁移说明：
+ * - 所有功能已迁移到 src/stores/unified-state-store.ts
+ * - 使用兼容层 src/stores/compatibility-layer.ts 保持向后兼容
+ * - 新代码请直接使用 useUnifiedStore() 或 useAuthState()
+ *
+ * 迁移指南：docs/STORAGE_MIGRATION_GUIDE.md
+ *
  * 架构原则:
  * ✅ 单一真实来源 (SSOT) - Zustand Store作为唯一状态源
  * ✅ 透明加密 - 敏感数据自动加密存储

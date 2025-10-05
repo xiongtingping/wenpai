@@ -83,8 +83,20 @@ src/
 ### 数据管理
 - **持久化**: 所有数据保存到Supabase
 - **用户隔离**: 严格的用户数据隔离机制
-- **状态管理**: Zustand + React Context混合架构
+- **状态管理**: Zustand统一状态管理（unified-state-store）
 - **数据同步**: 统一的数据同步和冲突解决
+
+### 存储架构（2024-01重构）
+- **单一数据源（SSOT）**: `src/stores/unified-state-store.ts`
+- **兼容层**: `src/stores/compatibility-layer.ts` 保持向后兼容
+- **自动迁移**: 应用启动时自动从旧版auth-store迁移数据
+- **废弃文件**: `src/stores/auth-store.ts` (已标记@deprecated)
+- **迁移指南**: `docs/STORAGE_MIGRATION_GUIDE.md`
+- **测试指南**: `docs/STORAGE_MIGRATION_TESTING.md`
+- **localStorage Keys**:
+  - `wenpai-unified-store` - 主要存储（当前使用）
+  - `wenpai-auth-store-v2` - 旧版存储（已废弃）
+  - `wenpai-auth-store-v2-backup-*` - 自动备份
 
 ### 国际化系统
 - **i18next**: 支持中文(zh-CN)和英文(en-US)
