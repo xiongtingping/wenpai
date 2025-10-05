@@ -48,7 +48,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { callAI } from '@/api/unifiedAIService';
+import { callAIWithTokenTracking, AITaskType } from '@/services/aiWithTokenTracking';
 
 /**
  * 对话消息接口
@@ -182,9 +182,11 @@ export function PDFChatDialog({
       console.log('📝 documentationcontentlength:', selectedDocument.content.length);
       console.log('❓ user问题:', inputValue);
 
-      const response = await callAI({
+      const response = await callAIWithTokenTracking({
         prompt: inputValue,
-        documentContent: selectedDocument.content
+        documentContent: selectedDocument.content,
+        feature: 'pdf-chat',
+        taskType: AITaskType.CHAT
       });
 
       console.log('🤖 PDF对话AIserviceresponse:', response);

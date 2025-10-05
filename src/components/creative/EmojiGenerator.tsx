@@ -52,7 +52,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
         console.log(`尝试生成graph像 (the${attempt}times): ${prompt.substring(0, 30)}...`);
         
         // 使用统一的AI服务层
-        const { callAI } = await import('@/api/unifiedAIService');
+        const { callAIWithTokenTracking, AITaskType } = await import('@/services/aiWithTokenTracking');
         
         // 准备图像生成请求
         const imageRequest = {
@@ -75,10 +75,12 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
           const emotionMatch = prompt.match(/表达(.+?)情感/);
           const emotion = emotionMatch ? emotionMatch[1] : '开心';
 
-          const response = await callAI({
+          const response = await callAIWithTokenTracking({
             character,
             brand,
-            emotion
+            emotion,
+            feature: 'emoji-generation',
+            taskType: AITaskType.IMAGE_GENERATION
           });
 
           if (response.success && response.content) {
@@ -93,10 +95,12 @@ export default function EmojiGenerator({ character, brand, uploadedImage  }: Emo
           const emotionMatch = prompt.match(/表达(.+?)情感/);
           const emotion = emotionMatch ? emotionMatch[1] : '开心';
 
-          const response = await callAI({
+          const response = await callAIWithTokenTracking({
             character,
             brand,
-            emotion
+            emotion,
+            feature: 'emoji-generation',
+            taskType: AITaskType.IMAGE_GENERATION
           });
           
           if (response.success && response.content) {

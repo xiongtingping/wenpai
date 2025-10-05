@@ -18,7 +18,7 @@
  */
 
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
-import { callUnifiedAI } from '@/api/unifiedAIService';
+import { callAIWithTokenTracking } from '@/services/aiWithTokenTracking';
 import { AITaskType } from '@/api/aiService';
 import { getPrompt, PromptType } from '@/prompts/PromptSystem';
 import { logger } from '@/utils/logger';
@@ -358,7 +358,7 @@ export class BrandCorpusService {
       console.log(`📝 [v2.0] Promptlength: ${prompt.length} 字符`);
 
       // 调用统一AI服务进行提取
-      const aiResponse = await callUnifiedAI({
+      const aiResponse = await callAIWithTokenTracking({
         prompt: prompt,
         taskType: AITaskType.BRAND_CORPUS_EXTRACTION,
         model: 'deepseek-v3', // 使用中级模型
@@ -587,7 +587,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
       isMultilingual: languageInfo.mixed
     });
 
-    const result = await callUnifiedAI({
+    const result = await callAIWithTokenTracking({
       prompt: promptData.userPrompt,
       taskType: AITaskType.BRAND_ANALYSIS,
       model: 'deepseek-v3', // 使用中级模型
@@ -980,7 +980,7 @@ docId: string; fileName: string; excerpt: string; confidence: number } } } {
       }))
     });
 
-    const result = await callUnifiedAI({
+    const result = await callAIWithTokenTracking({
       prompt: promptData.userPrompt,
       taskType: AITaskType.BRAND_ANALYSIS,
       model: 'deepseek-v3', // 使用中级模型

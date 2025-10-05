@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from "@/hooks/useAuth";
 import { Clock, Copy, Trash2 } from 'lucide-react';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
-import { useUserDataIsolation } from '@/utils/userDataIsolation';
+import { globalDataManager } from '@/services/unifiedDataManager';
 import { Header } from '@/components/landing/Header';
 import { PageNavigation } from '@/components/layout/PageNavigation';
 
@@ -33,24 +33,31 @@ export default function HistoryPage() { const [history, setHistory] = useState<H
   const [loading, setLoading] = useState(true);
   const { toast  } = useToast();
   const { user, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
 
-  // ✅ FIXED: 用户数据隔离 - 历史记录存储，禁用循环日志
-  const historyDataManager = useUserDataIsolation({
-    modulePrefix: 'user_history',
-    fallbackToGuest: true,
-    enableLogging: false  // 禁用日志避免循环
-  });
 
-  // ✅ FIXED: 加载历史记录 - 使用用户数据隔离
+
+  // ✅ FIXED: 加载历史记录 - 使用云端同步
   useEffect(() => {
-    const result = historyDataManager.loadData<HistoryItem[]>();
-    if (result.success && result.data) {
-      setHistory(result.data);
-    } else {
-      setHistory([]);
-    }
-    setLoading(false);
-  }, [user?.id]); // 只依赖用户ID变化，避免historyDataManager变化导致循环
+    const loadHistory = async () => {
+      try {
+        const data = await globalDataManager.getData<HistoryItem[]>('user_history');
+        setHistory(data || []);
+      } catch (error) {
+        console.error('❌ 加载历史记录失败:', error);
+        setHistory([]);
+        toast({
+          title: '加载失败',
+          description: '无法加载历史记录，请稍后重试',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadHistory();
+  }, [user?.id, toast]); // 依赖用户ID变化
 
   /**
    * 复制内容到剪贴板
@@ -64,30 +71,48 @@ export default function HistoryPage() { const [history, setHistory] = useState<H
   };
 
   /**
-   * ✅ FIXED: 删除历史记录项 - 使用用户数据隔离
+   * ✅ FIXED: 删除历史记录项 - 使用云端同步
    */
-  const deleteHistoryItem = (index: number) => {
-    const newHistory = history.filter((_, i) => i !== index);
-    setHistory(newHistory);
-    historyDataManager.saveData(newHistory);
+  const deleteHistoryItem = async (index: number) => {
+    try {
+      const newHistory = history.filter((_, i) => i !== index);
+      setHistory(newHistory);
+      await globalDataManager.setData('user_history', newHistory);
 
-    toast({
-      title: t('pages.labels.删除成功'),
-      description: t('pages.messages.历史记录已删除'),
-    });
+      toast({
+        title: t('pages.labels.删除成功'),
+        description: t('pages.messages.历史记录已删除'),
+      });
+    } catch (error) {
+      console.error('❌ 删除历史记录失败:', error);
+      toast({
+        title: '删除失败',
+        description: '无法删除历史记录，请稍后重试',
+        variant: 'destructive'
+      });
+    }
   };
 
   /**
-   * ✅ FIXED: 清空所有历史记录 - 使用用户数据隔离
+   * ✅ FIXED: 清空所有历史记录 - 使用云端同步
    */
-  const clearAllHistory = () => {
-    setHistory([]);
-    historyDataManager.removeData();
+  const clearAllHistory = async () => {
+    try {
+      setHistory([]);
+      await globalDataManager.setData('user_history', []);
 
-    toast({
-      title: t('pages.labels.清空成功'),
-      description: t('pages.messages.所有历史记录已清空'),
-    });
+      toast({
+        title: t('pages.labels.清空成功'),
+        description: t('pages.messages.所有历史记录已清空'),
+      });
+    } catch (error) {
+      console.error('❌ 清空历史记录失败:', error);
+      toast({
+        title: '清空失败',
+        description: '无法清空历史记录，请稍后重试',
+        variant: 'destructive'
+      });
+    }
   };
 
   /**

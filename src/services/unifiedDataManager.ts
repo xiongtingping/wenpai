@@ -66,6 +66,11 @@ export const DATA_CONFIGS: Record<string, DataConfig> = {
     category: DataCategory.USER_CRITICAL,
     syncToCloud: true
   },
+  user_history: {
+    key: 'user_history',
+    category: DataCategory.USER_CRITICAL,
+    syncToCloud: true
+  },
   emojiLikes: {
     key: 'emoji-favorites',
     category: DataCategory.USER_CRITICAL,

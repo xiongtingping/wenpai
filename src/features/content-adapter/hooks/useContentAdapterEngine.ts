@@ -233,6 +233,17 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
 
             updateStep(platformId, 3, 'completed', `✅ 生成完成 (${result.versions.length}个版本)`);
 
+            // ✅ 自动生成标题
+            if (result.versions && result.versions.length > 0) {
+              const firstVersionContent = result.versions[0].content;
+              console.log(`🎯 自动触发标题生成: 平台=${platformId}, 内容长度=${firstVersionContent.length}`);
+              
+              // 异步调用标题生成,不阻塞主流程
+              generateTitle(firstVersionContent, platformId).catch(error => {
+                console.error(`❌ 自动标题生成失败 (平台=${platformId}):`, error);
+              });
+            }
+
           } else {
             throw new Error(result.error || 'u64cdu4f5cu5931u8d25');
           }

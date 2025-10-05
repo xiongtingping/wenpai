@@ -44,6 +44,18 @@ import App from './App.tsx';
 // import { setupGlobalErrorHandler } from './utils/errorHandler'; // 改为动态导入避免TDZ
 import ServiceInitializer from './services/serviceInitializer';
 
+// 🔧 FIX: 用户存储迁移 - 统一localStorage存储键
+import { autoMigrateUserStorage } from './services/userStorageMigrationService';
+
+// 执行用户存储迁移（在应用启动时）
+console.log('🔄 执行用户存储迁移...');
+const migrationResult = autoMigrateUserStorage();
+if (migrationResult.success) {
+  console.log('✅ 用户存储迁移完成', migrationResult);
+} else {
+  console.error('❌ 用户存储迁移失败:', migrationResult.error);
+}
+
 // 🔇 优化开发环境控制台：减少噪音，保留重要信息
 if (import.meta.env.DEV) {
   const originalError = console.error;

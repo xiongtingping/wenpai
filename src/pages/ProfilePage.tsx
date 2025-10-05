@@ -33,6 +33,7 @@ import PageNavigation from '@/components/layout/PageNavigation';
 import { Header } from '@/components/landing/Header';
 import TokenUsageSection from '@/components/profile/TokenUsageSection';
 import SubscriptionExpiryCard from '@/components/profile/SubscriptionExpiryCard';
+import { InviteSection } from '@/components/invite/InviteSection';
 import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 import { avatarService } from '@/services/avatarService';
 import { getUserTier } from '@/utils/subscriptionUtils';
@@ -900,6 +901,11 @@ export default function ProfilePage() {
                       </Button>
                     </CardContent>
                   </Card>
+                </div>
+
+                {/* 🎉 邀请功能区域 */}
+                <div className="mt-8">
+                  <InviteSection userId={user.id} />
                 </div>
               </div>
             </div>

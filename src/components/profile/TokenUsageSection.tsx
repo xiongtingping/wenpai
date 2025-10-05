@@ -201,6 +201,29 @@ export function TokenUsageSection({
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // 获取套餐名称
+
+  // 🔧 FIX: 监听Token使用量更新事件，自动刷新显示
+  React.useEffect(() => {
+    const handleTokenUsageUpdate = (event: CustomEvent) => {
+      console.log('📢 收到Token使用量更新事件:', event.detail);
+      
+      // 延迟刷新，确保数据已写入数据库
+      setTimeout(() => {
+        console.log('🔄 自动刷新Token使用量统计...');
+        handleRefresh();
+      }, 500);
+    };
+
+    // 添加事件监听器
+    window.addEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
+    console.log('✅ 已注册Token使用量更新事件监听器');
+
+    // 清理函数
+    return () => {
+      window.removeEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
+      console.log('🧹 已移除Token使用量更新事件监听器');
+    };
+  }, []);
   const getPlanName = (tier: SubscriptionTier) => {
     switch (tier) {
       case 'trial': return '体验版';
@@ -225,6 +248,30 @@ export function TokenUsageSection({
       setIsRefreshing(false);
     }
   };
+
+  // 🔧 FIX: 监听Token使用量更新事件，自动刷新显示
+  React.useEffect(() => {
+    const handleTokenUsageUpdate = (event: CustomEvent) => {
+      console.log('📢 收到Token使用量更新事件:', event.detail);
+      
+      // 延迟刷新，确保数据已写入数据库
+      setTimeout(() => {
+        console.log('🔄 自动刷新Token使用量统计...');
+        handleRefresh();
+      }, 500);
+    };
+
+    // 添加事件监听器
+    window.addEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
+    console.log('✅ 已注册Token使用量更新事件监听器');
+
+    // 清理函数
+    return () => {
+      window.removeEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
+      console.log('🧹 已移除Token使用量更新事件监听器');
+    };
+  }, [handleRefresh]);
+
 
   // 处理升级操作
   // ✅ FIXED: 恢复按钮，修复于 2025-08-10

@@ -15,6 +15,7 @@ import {
 } from '../utils/promptBuilders.stateful';
 import { getUnifiedCharCountLimit, getPlatformCharCountAdvice } from '@/config/platformLimits';
 import { type StyleType } from '@/config/contentSchemes';
+import { generateMultipleVersions } from '../utils/multiVersionGenerator';
 
 /**
  * 平台特定的超时配置
@@ -539,7 +540,7 @@ export class ContentAdapterService {
         formatGenerator
       );
 
-      // 调用多版本生成函数
+      // ✅ 调用多版本生成函数
       const versions = await generateMultipleVersions(
         matrixPrompt,
         request.platform,
@@ -554,7 +555,7 @@ export class ContentAdapterService {
         error: versions.length === 0 ? '生成失败，请重试' : undefined
       };
     } catch (error) {
-      console.error('生成多versioncontentfailed:', error);
+      console.error('生成多版本内容失败:', error);
       return {
         success: false,
         versions: [],
@@ -562,9 +563,8 @@ export class ContentAdapterService {
       };
     }
   }
-
   /**
-   * 生成版本内容（标准版/创意版）
+   * 生成版本内容(标准版/创意版)
    */
   async generateVersionContent(request: VersionGenerationRequest): Promise<ContentGenerationResponse> {
     const temperature = request.versionType === 'standard' ? 0.7 : 0.9;

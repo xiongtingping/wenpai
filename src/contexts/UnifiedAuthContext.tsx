@@ -35,6 +35,8 @@ import { TokenSecurityManager, SecureTokenInfo } from '@/utils/secureTokenStorag
 import { SessionService, SessionEventCallbacks } from '@/utils/sessionManager';
 // 🎯 引入用户状态同步协调器 - 解决竞态条件
 import { userStateSyncCoordinator } from '@/services/userStateSyncCoordinator';
+import { autoMigrateHistory } from '@/utils/historyMigration';
+import { autoMigrateFavorites } from '@/utils/favoritesMigration';
 // 🔒 服务访问器 - 避免静态循环依赖
 type VerificationCodeServiceType = typeof import('@/services/verificationCodeService')['verificationCodeService'];
 type SecureUserStateServiceType = SecureUserStateServiceClass;
@@ -195,6 +197,45 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           syncedLayers: syncResult.syncedLayers,
           failedLayers: syncResult.failedLayers
         });
+      // 🔄 自动迁移历史记录数据
+      try {
+        const wasGuest = !user; // 如果之前没有用户,说明是访客
+        const migrationResult = await autoMigrateHistory(formattedUser.id, wasGuest);
+        if (migrationResult.success && migrationResult.migratedCount > 0) {
+          console.log('✅ 数据迁移成功:', {
+            migratedCount: migrationResult.migratedCount,
+            skippedCount: migrationResult.skippedCount
+          });
+        // 迁移收藏数据
+        const favoritesMigrationResult = await autoMigrateFavorites(formattedUser.id, wasGuest);
+        if (favoritesMigrationResult.success && favoritesMigrationResult.migratedCount > 0) {
+          console.log('✅ 收藏数据迁移成功:', {
+            migratedCount: favoritesMigrationResult.migratedCount,
+            skippedCount: favoritesMigrationResult.skippedCount
+          });
+        }
+
+        }
+      } catch (migrationError) {
+        console.warn('⚠️ 数据迁移失败:', migrationError);
+        // 不影响登录流程
+      }
+
+      // 🔄 自动迁移历史记录数据
+      try {
+        const wasGuest = !user; // 如果之前没有用户,说明是访客
+        const migrationResult = await autoMigrateHistory(formattedUser.id, wasGuest);
+        if (migrationResult.success && migrationResult.migratedCount > 0) {
+          console.log('✅ 数据迁移成功:', {
+            migratedCount: migrationResult.migratedCount,
+            skippedCount: migrationResult.skippedCount
+          });
+        }
+      } catch (migrationError) {
+        console.warn('⚠️ 数据迁移失败:', migrationError);
+        // 不影响登录流程
+      }
+
 
         setLoading(false);
         return;

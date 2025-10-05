@@ -4,7 +4,7 @@
  */
 
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
-import { callAI } from '@/api/unifiedAIService';
+import { callAIWithTokenTracking, AITaskType } from '@/services/aiWithTokenTracking';
 import { BrandAsset } from '@/types/brand';
 import React from 'react';
 import request from '@/api/request';
@@ -100,12 +100,14 @@ export class WebContentExtractorService {
         // 如果直接提取失败，使用AI分析URL本身
         const extractionPrompt = this.buildExtractionPrompt(normalizedUrl);
 
-        const extractionResponse = await callAI({
+        const extractionResponse = await callAIWithTokenTracking({
           prompt: extractionPrompt,
           model: 'gpt-4',
           maxTokens: 2000,
-          temperature: 0.3
-        });
+          temperature: 0.3,
+        feature: 'web-content-extraction',
+        taskType: AITaskType.CONTENT_GENERATION
+      });
 
         if (!extractionResponse.success || !extractionResponse.content) {
           throw new Error(extractionResponse.error || 'u64cdu4f5cu5931u8d25');
@@ -265,11 +267,13 @@ URL: ${url}
 }`;
 
     try {
-      const response = await callAI({
+      const response = await callAIWithTokenTracking({
         prompt: analysisPrompt,
         model: 'gpt-4',
         maxTokens: 1500,
-        temperature: 0.3
+        temperature: 0.3,
+        feature: 'web-content-extraction',
+        taskType: AITaskType.CONTENT_GENERATION
       });
 
       if (response.success && response.content) {
@@ -399,11 +403,13 @@ ${content.substring(0, 2000)}
 5. 分析语言风格和表达方式`;
 
     try {
-      const response = await callAI({
+      const response = await callAIWithTokenTracking({
         prompt: analysisPrompt,
         model: 'gpt-4',
         maxTokens: 1500,
-        temperature: 0.5
+        temperature: 0.5,
+        feature: 'web-content-extraction',
+        taskType: AITaskType.CONTENT_GENERATION
       });
 
       if (!response.success || !response.content) {
@@ -536,11 +542,13 @@ ${content.substring(0, 2000)}
   "message": 'u64cdu4f5cu5931u8d25'
 }`;
 
-      const response = await callAI({
+      const response = await callAIWithTokenTracking({
         prompt: checkPrompt,
         model: 'gpt-4',
         maxTokens: 200,
-        temperature: 0.1
+        temperature: 0.1,
+        feature: 'web-content-extraction',
+        taskType: AITaskType.CONTENT_GENERATION
       });
 
       if (response.success && response.content) {

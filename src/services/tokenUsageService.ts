@@ -333,7 +333,9 @@ class TokenUsageService {
     try {
       logger.debug('🔍 开始获取用户Token统计:', { userId, userTier });
       
-      // 🔧 FIX: 开发环境返回模拟数据，避免数据库查询失败
+      // 🔧 FIX: 开发环境也从Supabase读取真实数据，确保Token统计准确
+      // ⚠️ 已禁用模拟数据，所有环境统一从Supabase读取
+      /*
       if (import.meta.env.DEV) {
         console.log('🔧 开发环境：使用模拟Token使用统计');
         
@@ -353,6 +355,7 @@ class TokenUsageService {
           lastUpdated: new Date().toISOString()
         };
       }
+      */
       
       const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
       const monthKey = this.getCurrentMonthKey();

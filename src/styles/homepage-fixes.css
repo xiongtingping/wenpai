@@ -259,9 +259,9 @@
   }
 
   .ds-title-section {
-    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
-    font-weight: 700;
-    line-height: 1.2;
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    font-weight: 600;
+    line-height: 1.4;
     letter-spacing: -0.01em;
     color: hsl(var(--foreground));
   }
@@ -389,7 +389,7 @@
     }
 
     .ds-title-section {
-      font-size: 1.75rem;
+      font-size: 1.25rem;
       line-height: 1.3;
     }
 

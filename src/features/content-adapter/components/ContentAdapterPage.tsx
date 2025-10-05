@@ -54,9 +54,8 @@ import { getAvailablePlatforms } from '@/api/contentAdapter';
 // 导入收藏系统
 import { useFavoritesStore, favoritesUtils } from '@/stores/compatibility-layer';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
+import { globalDataManager } from '@/services/unifiedDataManager';
 
-// 导入增强历史记录组件 - 暂时使用原版避免循环引用
-import { EnhancedHistoryDialog } from './EnhancedHistoryDialog';
 
 /**
  * 浏览器扩展集成工具函数
@@ -198,15 +197,6 @@ const platformUrls: Record<string, string> = {
   wangyi: 'https://mp.163.com/nb2.html' // 网易号
 };
 
-// 历史记录类型定义
-type ShareHistoryItem = {
-  id: string;
-  platformId: string;
-  platformName: string;
-  content: string;
-  time: string;
-};
-
 // 平台URL映射 - 从platformUtils导入
 import {
   getPlatformIcon,
@@ -252,10 +242,7 @@ export function ContentAdapterPage({
     modulePrefix: 'adapt_favorites'
   });
 
-  // 历史记录系统
-  const historyDataManager = useUserDataIsolation({
-    modulePrefix: 'adapt_history'
-  });
+
 
   // 🔧 FIX: 获取用户当前等级 - 优先使用订阅状态
   const getCurrentTier = () => {
@@ -342,38 +329,54 @@ export function ContentAdapterPage({
     storageKey: 'content-adapter-settings'
   });
 
-  // 加载转发历史 - 移动到Hook使用之前
-  const loadShareHistory = React.useCallback(() => {
-    const history: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
-    setShareHistory(history);
-  }, []);
 
-  // 保存到历史记录 - 移动到Hook使用之前
-  const saveToHistory = React.useCallback((results: any[]) => {
-    console.log('🔍 saving历史记录:', { userId: user?.id, isAuthenticated, resultsCount: results.length });
-    const result = historyDataManager.loadData<unknown[]>();
-    let list: unknown[] = result.data || [];
-    console.log('🔍 current历史记录quantity:', list.length);
+  const saveToHistory = React.useCallback(async (results: any[]) => {
+    try {
+      console.log('🔍 保存历史记录:', { userId: user?.id, isAuthenticated, resultsCount: results.length });
+      
+      // 从云端获取现有历史记录
+      const existingHistory = await globalDataManager.getData<unknown[]>('user_history') || [];
+      console.log('🔍 当前历史记录数量:', existingHistory.length);
 
-    const now = new Date().toISOString();
-    results.forEach(r => {
-      if (r.content) {
-        list.push({
+      const now = new Date().toISOString();
+      const newItems: unknown[] = [];
+      
+      results.forEach(r => {
+        if (r.content) {
+          newItems.push({
+            platformId: r.platformId,
+            content: r.content,
+            timestamp: now
+          });
+        }
+      });
+
+      // 合并新旧数据,保留最新100条
+      const mergedHistory = [...newItems, ...existingHistory].slice(0, 100);
+
+      // 保存到云端
+      await globalDataManager.setData('user_history', mergedHistory);
+      console.log('✅ 历史记录已保存到云端，新数量:', mergedHistory.length);
+    } catch (error) {
+      console.error('❌ 保存历史记录失败:', error);
+      // 降级到localStorage
+      try {
+        const localKey = `user_history_${user?.id || 'guest'}`;
+        const existing = JSON.parse(localStorage.getItem(localKey) || '[]');
+        const now = new Date().toISOString();
+        const newItems = results.filter(r => r.content).map(r => ({
           platformId: r.platformId,
           content: r.content,
           timestamp: now
-        });
+        }));
+        const merged = [...newItems, ...existing].slice(0, 100);
+        localStorage.setItem(localKey, JSON.stringify(merged));
+        console.log('⚠️ 已降级保存到localStorage');
+      } catch (fallbackError) {
+        console.error('❌ localStorage降级保存也失败:', fallbackError);
       }
-    });
-
-    // 限制历史记录数量，避免存储过大
-    if (list.length > 100) {
-      list = list.slice(-100);
     }
-
-    historyDataManager.saveData(list);
-    console.log('✅ 历史记录saved，newquantity:', list.length);
-  }, [historyDataManager, user?.id, isAuthenticated]);
+  }, [user?.id, isAuthenticated]);
 
   // 使用内容生成引擎Hook
   const {
@@ -474,9 +477,6 @@ export function ContentAdapterPage({
   const [automationRunning, setAutomationRunning] = React.useState(false);
   const [automationProgress, setAutomationProgress] = React.useState<AutomationProgress | undefined>();
 
-  // 历史记录状态
-  const [showHistory, setShowHistory] = React.useState(false);
-  const [shareHistory, setShareHistory] = React.useState<ShareHistoryItem[]>([]);
 
   // 浏览器扩展状态
   const [extensionInstalled, setExtensionInstalled] = React.useState<boolean | null>(null);
@@ -520,12 +520,6 @@ export function ContentAdapterPage({
     };
   }, []);
 
-  // 加载历史记录
-  React.useEffect(() => {
-    if (showHistory) {
-      loadShareHistory();
-    }
-  }, [showHistory, loadShareHistory]);
 
   // 检测浏览器扩展是否已安装
   React.useEffect(() => {
@@ -964,22 +958,7 @@ export function ContentAdapterPage({
   };
 
 
-  // 清空转发历史
-  const clearShareHistory = () => {
-    localStorage.removeItem('shareHistory');
-    setShareHistory([]);
-    toast({
-      title: t('adapt.messages.historyCleared'),
-      description: t('adapt.messages.historyClearedDesc')
-    });
-  };
 
-  // 删除单个历史记录
-  const deleteHistoryItem = (id: string) => {
-    const updatedHistory = shareHistory.filter(item => item.id !== id);
-    setShareHistory(updatedHistory);
-    localStorage.setItem('shareHistory', JSON.stringify(updatedHistory));
-  };
 
   // 处理发布 - 一键转发功能
   const handlePublishToPlatform = (platformId: string, content: string) => {
@@ -987,15 +966,6 @@ export function ContentAdapterPage({
       // 复制内容到剪贴板
       navigator.clipboard.writeText(content).then(() => {
         // 保存到转发历史
-        const shareHistory = JSON.parse(localStorage.getItem('shareHistory') || '[]');
-        shareHistory.unshift({
-          id: Date.now().toString() + Math.random(),
-          platformId,
-          platformName: getPlatformName(platformId, availablePlatforms),
-          content,
-          time: new Date().toISOString()
-        });
-        localStorage.setItem('shareHistory', JSON.stringify(shareHistory.slice(0, 50)));
 
         // 跳转到平台
         const url = platformUrls[platformId];
@@ -1342,7 +1312,6 @@ export function ContentAdapterPage({
       // 复制内容到剪贴板
       await navigator.clipboard.writeText(pendingPublish.content);
       
-      // 记录转发历史
       const historyItem = {
         id: Date.now().toString(),
         platformId: pendingPublish.platformId,
@@ -1351,16 +1320,13 @@ export function ContentAdapterPage({
         time: new Date().toISOString()
       };
       
-      const existingHistory = JSON.parse(localStorage.getItem('shareHistory') || '[]');
-      existingHistory.push(historyItem);
+            existingHistory.push(historyItem);
       
-      // 限制历史记录数量
       if (existingHistory.length > 100) {
         existingHistory.splice(0, existingHistory.length - 100);
       }
       
-      localStorage.setItem('shareHistory', JSON.stringify(existingHistory));
-
+      
       // 打开对应平台
       const platformUrl = platformUrls[pendingPublish.platformId];
       if (platformUrl) {
@@ -1399,7 +1365,6 @@ export function ContentAdapterPage({
       // 复制内容到剪贴板
       await navigator.clipboard.writeText(firstTask.content);
       
-      // 记录转发历史
       const historyItem = {
         id: Date.now().toString(),
         platformId: firstTask.platformId,
@@ -1408,10 +1373,8 @@ export function ContentAdapterPage({
         time: new Date().toISOString()
       };
       
-      const existingHistory = JSON.parse(localStorage.getItem('shareHistory') || '[]');
-      existingHistory.push(historyItem);
-      localStorage.setItem('shareHistory', JSON.stringify(existingHistory));
-
+            existingHistory.push(historyItem);
+      
       // 打开对应平台
       const platformUrl = platformUrls[firstTask.platformId];
       if (platformUrl) {
@@ -1471,19 +1434,6 @@ export function ContentAdapterPage({
         title="AI内容适配"
         description="智能多平台内容适配，一键生成适合不同平台的优质内容"
         showAdaptButton={false}
-        actions={
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowHistory(true)}
-              className="flex items-center gap-2"
-            >
-              <History className="h-4 w-4" />
-              <span>历史记录</span>
-            </Button>
-          </div>
-        }
       />
 
       <div className="container mx-auto py-8 px-4 space-y-8">
@@ -1693,15 +1643,6 @@ export function ContentAdapterPage({
         platforms={batchForwardPlatforms}
       />
 
-      {/* 增强历史记录弹窗 */}
-      <EnhancedHistoryDialog
-        open={showHistory}
-        onOpenChange={setShowHistory}
-        shareHistory={shareHistory}
-        onClearHistory={clearShareHistory}
-        onDeleteItem={deleteHistoryItem}
-        availablePlatforms={availablePlatforms}
-      />
 
       {/* 一键转发确认Dialog - 从原版完整迁移 */}
       <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>

@@ -6,7 +6,7 @@
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { type StyleType } from '@/config/contentSchemes';
 import { getContentFormById } from '@/config/contentForms';
-import { callUnifiedAI } from '@/api/unifiedAIService';
+import { callAIWithTokenTracking } from '@/services/aiWithTokenTracking';
 import { AITaskType } from '@/api/aiService';
 
 /**
@@ -240,7 +240,7 @@ export async function generateAdaptedContent(
     // 生成详细的内容适配提示词
     const adaptationPrompt = generateContentFormPrompt(originalContent, platform, formId, style, charCount);
 
-    const aiResponse = await callUnifiedAI({
+    const aiResponse = await callAIWithTokenTracking({
       prompt: adaptationPrompt,
       taskType: AITaskType.CONTENT_ADAPTATION,
       model: 'gpt-4o-mini', // 使用性价比高的模型

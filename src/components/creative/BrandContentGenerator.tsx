@@ -61,12 +61,14 @@ export default function BrandContentGenerator() { const [topic, setTopic] = useS
       const prompt = await brandService.generatePrompt(topic);
       
       // 调用统一AI服务生成内容
-      const { callAI } = await import('@/api/unifiedAIService');
-      const response = await callAI({
+      const { callAIWithTokenTracking, AITaskType } = await import('@/services/aiWithTokenTracking');
+      const response = await callAIWithTokenTracking({
         prompt: prompt,
         model: 'gpt-4',
         maxTokens: 1000,
-        temperature: 0.7
+        temperature: 0.7,
+        feature: 'brand-content-generation',
+        taskType: AITaskType.CONTENT_GENERATION
       });
 
       if (response.success && response.content) {
