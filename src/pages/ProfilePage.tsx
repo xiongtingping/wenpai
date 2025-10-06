@@ -430,12 +430,6 @@ export default function ProfilePage() {
     toast({ title: "邀请链接已复制", description: "邀请链接已复制到剪贴板" });
   };
 
-  const handleCopyFeedbackEmail = () => {
-    const feedbackText = `hello@wenpai.xyz (个人ID: ${user?.id || 'unknown'})`;
-    navigator.clipboard.writeText(feedbackText);
-    toast({ title: "反馈邮箱已复制", description: "反馈邮箱已复制到剪贴板" });
-  };
-
   // 如果用户未登录，显示登录提示
   if (!isAuthenticated || !user) {
     return (
@@ -733,7 +727,7 @@ export default function ProfilePage() {
               </div>
             </Card>
 
-            {/* 2x2网格布局：左上-订阅有效期，右上-邀请奖励，左下-使用统计，右下-反馈奖励 */}
+            {/* 2x2网格布局：左上-订阅有效期，右上-邀请奖励，左下-使用统计 */}
             <div className="grid gap-6 xl:grid-cols-2">
               {/* 左列：订阅有效期 + 使用统计 */}
               <div className="flex flex-col gap-6">
@@ -745,7 +739,7 @@ export default function ProfilePage() {
                 />
               </div>
 
-              {/* 右列：邀请奖励 + 反馈奖励 */}
+              {/* 右列：邀请奖励 */}
               <div className="flex flex-col gap-6">
                 {/* 邀请奖励卡片 */}
                 <div className="relative">
@@ -819,84 +813,6 @@ export default function ProfilePage() {
                         <div className="relative flex items-center gap-2">
                           <Users className="h-5 w-5 group-hover/btn:scale-110 transition-transform" />
                           {t('profile.inviteFriends')}
-                        </div>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* 反馈奖励卡片 */}
-                <div className="relative">
-                  <Card className="relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl group hover:shadow-2xl transition-all duration-500">
-                    {/* 卡片内部装饰 */}
-                    <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-accent/15 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tr from-primary/15 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                    <CardHeader className="relative z-10">
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-gradient-to-r from-accent/30 to-primary/30 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          <div className="relative p-2 bg-gradient-to-br from-accent/10 to-primary/10 rounded-lg">
-                            <HelpCircle className="h-5 w-5 text-accent group-hover:scale-110 transition-transform duration-300" />
-                          </div>
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg font-semibold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
-                            {t('profile.feedbackRewards')}
-                          </CardTitle>
-                          <CardDescription className="text-muted-foreground/80">
-                            {t('profile.feedbackRule')}
-                          </CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10 space-y-4">
-                      <div className="grid gap-3">
-                        <div className="group/info relative overflow-hidden rounded-xl border border-border/20 bg-gradient-to-br from-muted/20 to-muted/10 p-3 hover:shadow-lg transition-all duration-300">
-                          <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover/info:opacity-100 transition-opacity duration-300" />
-                          <div className="relative">
-                            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                              <Star className="w-4 h-4 text-accent/60" />
-                              {t('profile.feedbackRules')}
-                            </h4>
-                            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                              {t('profile.feedbackRuleDetail')}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="group/email relative overflow-hidden rounded-xl border border-border/20 bg-gradient-to-br from-muted/20 to-muted/10 p-3 hover:shadow-lg transition-all duration-300">
-                          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover/email:opacity-100 transition-opacity duration-300" />
-                          <div className="relative">
-                            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                              <Mail className="w-4 h-4 text-primary/60" />
-                              {t('profile.feedbackEmail')}
-                            </h4>
-                            <div className="mt-2 flex gap-2">
-                              <Input
-                                value="hello@wenpai.xyz"
-                                readOnly
-                                className="flex-1 font-mono text-xs transition-all duration-300 focus:shadow-lg border-border/50 hover:border-border"
-                              />
-                              <Button
-                                size="sm"
-                                onClick={handleCopyFeedbackEmail}
-                                className="group/btn hover:shadow-lg transition-all duration-300"
-                              >
-                                <Copy className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <Button
-                        onClick={handleCopyFeedbackEmail}
-                        className="w-full gap-2 group/btn relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-accent to-primary opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-                        <div className="relative flex items-center gap-2">
-                          <Mail className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-                          {t('profile.submitFeedback')}
                         </div>
                       </Button>
                     </CardContent>
