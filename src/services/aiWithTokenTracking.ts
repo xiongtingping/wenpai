@@ -90,13 +90,26 @@ function getCurrentUserInfo(): { userId: string; userTier: SubscriptionTier } | 
         }
 
         if (user?.id) {
+          // 🔍 详细日志：记录用户对象结构
+          console.log('🔍 用户对象完整结构:', {
+            source: key,
+            userId: user.id,
+            hasSubscription: !!user.subscription,
+            subscriptionTier: user.subscription?.tier,
+            subscriptionPlan: user.subscription?.plan,
+            subscriptionStatus: user.subscription?.status,
+            userKeys: Object.keys(user),
+            fullUser: user
+          });
+
           // 获取用户套餐信息，默认为trial
           const userTier: SubscriptionTier = user.subscription?.tier || 'trial';
 
           console.log('📊 用户信息:', {
             userId: user.id,
             userTier,
-            source: key
+            source: key,
+            subscriptionExists: !!user.subscription
           });
 
           return {
