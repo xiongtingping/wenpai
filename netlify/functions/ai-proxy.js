@@ -137,8 +137,12 @@ exports.handler = async (event, context) => {
       console.log('🔧 AI代理请求 (查询参数):', { provider, apiPath, method: event.httpMethod });
     } else {
       // 路径参数方式
-      // 移除可能的前缀：/.netlify/functions/ai-proxy/ 或 /api/ai/
-      let path = event.path
+      // 🔧 FIX: 优先使用rawUrl（包含完整路径），fallback到event.path
+      const fullPath = event.rawUrl || event.path;
+
+      // 移除可能的前缀和域名
+      let path = fullPath
+        .replace(/^https?:\/\/[^\/]+/, '') // 移除域名
         .replace('/.netlify/functions/ai-proxy/', '')
         .replace('/api/ai/', '');
 
@@ -147,7 +151,10 @@ exports.handler = async (event, context) => {
       apiPath = pathParts.slice(1).join('/'); // 具体的 API 路径
 
       console.log('🔧 AI代理请求 (路径参数):', {
+        rawUrl: event.rawUrl,
         originalPath: event.path,
+        fullPath,
+        cleanedPath: path,
         provider,
         apiPath,
         method: event.httpMethod
