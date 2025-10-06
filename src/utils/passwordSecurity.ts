@@ -226,7 +226,7 @@ function calculateCharacterDiversity(password: string): number {
 export function getPasswordStrengthDisplay(strength: PasswordStrength) {
   const colors = {
     weak: 'hsl(var(--destructive))',      // 红色
-    medium: '#f97316',    // 橙色
+    medium: 'hsl(var(--warning))',    // 橙色
     strong: 'hsl(var(--success))',    // 绿色
     'very-strong': 'hsl(var(--success))', // 深绿色
   };

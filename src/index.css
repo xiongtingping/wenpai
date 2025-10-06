@@ -40,88 +40,46 @@
    保留在utilities层以便快速使用
    ======================================== */
 @layer utilities {
-  /* 蓝色商务渐变 */
-  .u-gradient-blue {
-    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  /* 统一渐变系统（基于设计令牌，无硬编码颜色） */
+  /* 任意以 u-gradient- 开头的类都会应用该公式，具体颜色由 --gradient-color 决定 */
+  [class^="u-gradient-"] {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gradient-color) / 0.95) 0%,
+      hsl(var(--gradient-color) / 0.75) 100%
+    );
   }
 
-  /* 绿色清新渐变 */
-  .u-gradient-green {
-    background: linear-gradient(135deg, #10B981 0%, #047857 100%);
-  }
+  /* 语义渐变（推荐使用） */
+  .u-gradient-primary   { --gradient-color: var(--primary); }
+  .u-gradient-secondary { --gradient-color: var(--secondary); }
+  .u-gradient-accent    { --gradient-color: var(--accent); }
+  .u-gradient-success   { --gradient-color: var(--success); }
+  .u-gradient-warning   { --gradient-color: var(--warning); }
+  .u-gradient-danger    { --gradient-color: var(--destructive); }
+  .u-gradient-muted     { --gradient-color: var(--muted); }
 
-  /* 紫色优雅渐变 */
-  .u-gradient-purple {
-    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
-  }
+  /* 兼容旧类名（向后兼容映射到语义色） */
+  .u-gradient-blue      { --gradient-color: var(--primary); }
+  .u-gradient-indigo    { --gradient-color: var(--primary); }
+  .u-gradient-sky       { --gradient-color: var(--primary); }
 
-  /* 橙色活力渐变 */
-  .u-gradient-amber {
-    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-  }
+  .u-gradient-green     { --gradient-color: var(--success); }
+  .u-gradient-emerald   { --gradient-color: var(--success); }
+  .u-gradient-teal      { --gradient-color: var(--success); }
+  .u-gradient-cyan      { --gradient-color: var(--success); }
 
-  /* 粉色温馨渐变 */
-  .u-gradient-pink {
-    background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
-  }
+  .u-gradient-amber     { --gradient-color: var(--warning); }
+  .u-gradient-yellow    { --gradient-color: var(--warning); }
 
-  /* 暗色专业渐变 */
-  .u-gradient-gray {
-    background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
-  }
+  .u-gradient-red       { --gradient-color: var(--destructive); }
+  .u-gradient-rose      { --gradient-color: var(--destructive); }
 
-  /* 红色热情渐变 */
-  .u-gradient-red {
-    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-  }
+  .u-gradient-purple    { --gradient-color: var(--accent); }
+  .u-gradient-violet    { --gradient-color: var(--accent); }
+  .u-gradient-pink      { --gradient-color: var(--accent); }
+  .u-gradient-orange    { --gradient-color: var(--accent); }
 
-  /* 青色清爽渐变 */
-  .u-gradient-cyan {
-    background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
-  }
-
-  /* 黄色阳光渐变 */
-  .u-gradient-yellow {
-    background: linear-gradient(135deg, #EAB308 0%, #CA8A04 100%);
-  }
-
-  /* 玫瑰金渐变 */
-  .u-gradient-orange {
-    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
-  }
-
-  /* 薄荷绿渐变 */
-  .u-gradient-emerald {
-    background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
-  }
-
-  /* 靛青深邃渐变 */
-  .u-gradient-indigo {
-    background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
-  }
-
-  /* 湖水蓝渐变 */
-  .u-gradient-sky {
-    background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
-  }
-
-  /* 森林绿渐变 */
-  .u-gradient-teal {
-    background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%);
-  }
-
-  /* 紫罗兰渐变 */
-  .u-gradient-violet {
-    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
-  }
-
-  /* 石墨黑渐变 */
-  .u-gradient-slate {
-    background: linear-gradient(135deg, #475569 0%, #334155 100%);
-  }
-
-  /* 珊瑚橙渐变 */
-  .u-gradient-rose {
-    background: linear-gradient(135deg, #FB7185 0%, #F43F5E 100%);
-  }
+  .u-gradient-gray      { --gradient-color: var(--muted); }
+  .u-gradient-slate     { --gradient-color: var(--muted); }
 }

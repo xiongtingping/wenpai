@@ -203,7 +203,7 @@ export default function HistoryPage() { const [history, setHistory] = useState<H
 
           <div className="grid gap-4">
             {history.map((item, index) => (
-              <Card key={index} variant="soft" className="rounded-xl hover:shadow-e2 transition-smooth">
+              <Card key={index} variant="soft" className="rounded-xl">
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">

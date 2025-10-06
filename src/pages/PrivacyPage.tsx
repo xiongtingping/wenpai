@@ -34,7 +34,7 @@ export default function PrivacyPage() {
         </Button>
       </div>
 
-      <Card className="shadow-lg border-0">
+      <Card>
         <CardHeader className="border-b border-border">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">

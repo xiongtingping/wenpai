@@ -134,7 +134,7 @@ function SubscriptionStatusBadgeContent({
       </PopoverTrigger>
       
       <PopoverContent className="w-80" align="end">
-        <Card className="border-0 shadow-none">
+        <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center space-x-2 text-base">
               <Crown className="w-4 h-4" />

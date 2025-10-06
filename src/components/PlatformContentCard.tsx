@@ -92,7 +92,7 @@ export const PlatformContentCard: React.FC<PlatformContentCardProps> = ({
   const displayContent = isExpanded ? fullContent : fullContent.slice(0, 100);
 
   return (
-    <Card className="border-l-4 hover:shadow-md transition-shadow" style={{ borderLeftColor: platformColor }}>
+    <Card className="border-l-4" style={{ borderLeftColor: platformColor }}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

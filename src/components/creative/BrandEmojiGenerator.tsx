@@ -392,7 +392,7 @@ export default function BrandEmojiGenerator({
 
   return (
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
-      <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+      <Card>
         <CardHeader className="pb-6">
           <div className="text-center space-y-3">
             <CardTitle className="flex items-center justify-center gap-3 text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
@@ -428,7 +428,7 @@ export default function BrandEmojiGenerator({
           <TabsContent value="standard" className="space-y-8 mt-6">
             {/* 优化的标准生成功能 */}
               {/* 生成设置卡片 */}
-              <Card className="border-0 shadow-md bg-gradient-to-br from-card to-card/80">
+              <Card>
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2 text-foreground">
                     <div className="p-2 rounded-lg bg-primary/10">
@@ -508,7 +508,7 @@ export default function BrandEmojiGenerator({
               </Card>
               
               {/* 生成控制区域 */}
-              <Card className="border-0 shadow-md bg-gradient-to-r from-primary/5 to-primary/10">
+              <Card>
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="space-y-1">
@@ -565,7 +565,7 @@ export default function BrandEmojiGenerator({
 
               {/* 统计信息卡片 */}
               {results.length > 0 && (
-                <Card className="border-0 shadow-sm bg-muted/20">
+                <Card>
                   <CardContent className="p-4">
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                       <div className="flex items-center gap-2">
@@ -694,7 +694,7 @@ export default function BrandEmojiGenerator({
               </div>
 
               {/* 使用提示卡片 */}
-              <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+              <Card>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30 flex-shrink-0">

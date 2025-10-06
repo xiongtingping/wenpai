@@ -51,7 +51,7 @@ const AboutPage: React.FC = () => {
 
       <div className="container mx-auto px-4 py-8 space-y-12">
         {/* 🎨 英雄区域 - 品牌展示 */}
-        <Card className="border-0 bg-gradient-to-br from-primary/5 via-background to-primary/10 rounded-2xl overflow-hidden">
+        <Card className="overflow-hidden">
           <CardContent className="p-12">
             <div className="text-center space-y-6">
               <div className="flex justify-center mb-6">
@@ -110,7 +110,7 @@ const AboutPage: React.FC = () => {
                 color: 'bg-gradient-to-br from-red-500 to-pink-600'
               }
             ].map((value, index) => (
-              <Card key={index} className="text-center group hover:shadow-lg transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-background via-background to-primary/5">
+              <Card key={index} className="text-center group transition-all duration-300 hover:-translate-y-2">
                 <CardContent className="p-8">
                   <div className={`w-16 h-16 ${value.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <value.icon className="w-8 h-8 text-white" />
@@ -125,7 +125,7 @@ const AboutPage: React.FC = () => {
 
         {/* 🚀 产品特色 */}
         <section>
-          <Card className="border-0 bg-gradient-to-r from-background via-primary/5 to-background rounded-2xl">
+          <Card>
             <CardHeader className="text-center pb-8">
               <CardTitle className="flex items-center justify-center gap-3 text-3xl">
                 <Target className="w-8 h-8 text-primary" />
@@ -197,7 +197,7 @@ const AboutPage: React.FC = () => {
 
         {/* 📅 发展历程 */}
         <section>
-          <Card className="border-0 rounded-2xl overflow-hidden">
+          <Card className="overflow-hidden">
             <CardHeader className="text-center bg-gradient-to-r from-primary/10 to-primary/5 pb-8">
               <CardTitle className="flex items-center justify-center gap-3 text-3xl">
                 <Clock className="w-8 h-8 text-primary" />
@@ -266,7 +266,7 @@ const AboutPage: React.FC = () => {
 
         {/* 📞 联系我们 */}
         <section>
-          <Card className="border-0 bg-gradient-to-br from-primary/5 via-background to-primary/10 rounded-2xl">
+          <Card>
             <CardHeader className="text-center pb-8">
               <CardTitle className="flex items-center justify-center gap-3 text-3xl">
                 <Mail className="w-8 h-8 text-primary" />

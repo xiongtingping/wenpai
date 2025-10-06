@@ -943,7 +943,7 @@ export default function ShareManagerPage() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {contentTemplates.map((template) => (
-                      <Card key={template.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                      <Card key={template.id} className="cursor-pointer">
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-3">
                             <h3 className="font-medium text-foreground">{template.name}</h3>
@@ -1057,7 +1057,7 @@ export default function ShareManagerPage() {
             </DialogHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
               {contentTemplates.map((template) => (
-                <Card key={template.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                <Card key={template.id} className="cursor-pointer">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <h3 className="font-medium text-foreground">{template.name}</h3>

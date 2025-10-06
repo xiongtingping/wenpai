@@ -287,9 +287,9 @@ export function GenerationControls({ generating,
             <div className="space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-green-500 dark:bg-green-600"></div>
-                  <span className="font-medium text-green-700 dark:text-green-400">体验版模型</span>
-                  <Badge variant="outline" className="text-green-600 dark:text-green-400 border-green-300 dark:border-green-700">
+                  <div className="w-3 h-3 rounded-full bg-success"></div>
+                  <span className="font-medium text-success">体验版模型</span>
+                  <Badge variant="outline" className="text-success border-success/30">
                     基础功能
                   </Badge>
                 </div>
@@ -307,10 +307,10 @@ export function GenerationControls({ generating,
                       className={`
                         relative p-3 rounded-lg border cursor-pointer transition-all
                         ${isSelected
-                          ? 'border-green-500 dark:border-green-600 bg-green-50 dark:bg-green-950/30 ring-2 ring-green-200 dark:ring-green-800'
+                          ? 'border-success bg-success/10 ring-2 ring-success/20'
                           : disabled
                           ? 'border-border bg-muted cursor-not-allowed opacity-60'
-                          : 'border-border hover:border-green-300 dark:hover:border-green-700 hover:bg-green-50/50 dark:hover:bg-green-950/20'
+                          : 'border-border hover:border-success/50 hover:bg-success/5'
                         }
                       `}
                       onClick={(e) => {
@@ -324,7 +324,7 @@ export function GenerationControls({ generating,
                         <div className={`
                           w-5 h-5 rounded-full border-2 flex items-center justify-center
                           ${isSelected
-                            ? 'border-green-500 dark:border-green-600 bg-green-500 dark:bg-green-600'
+                            ? 'border-success bg-success'
                             : 'border-border'
                           }
                         `}>
@@ -422,9 +422,9 @@ export function GenerationControls({ generating,
             <div className="space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-purple-500 dark:bg-purple-600"></div>
-                  <span className="font-medium text-purple-700 dark:text-purple-400">高级版模型</span>
-                  <Badge variant="outline" className="text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-700">
+                  <div className="w-3 h-3 rounded-full bg-accent"></div>
+                  <span className="font-medium text-accent">高级版模型</span>
+                  <Badge variant="outline" className="text-accent border-accent/30">
                     顶级功能
                   </Badge>
                 </div>
@@ -442,10 +442,10 @@ export function GenerationControls({ generating,
                       className={`
                         relative p-3 rounded-lg border cursor-pointer transition-all
                         ${isSelected
-                          ? 'border-purple-500 dark:border-purple-600 bg-purple-50 dark:bg-purple-950/30 ring-2 ring-purple-200 dark:ring-purple-800'
+                          ? 'border-accent bg-accent/10 ring-2 ring-accent/20'
                           : disabled
                           ? 'border-border bg-muted cursor-not-allowed opacity-60'
-                          : 'border-border hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50/50 dark:hover:bg-purple-950/20'
+                          : 'border-border hover:border-accent/50 hover:bg-accent/5'
                         }
                       `}
                       onClick={(e) => {
@@ -458,7 +458,7 @@ export function GenerationControls({ generating,
                       {/* 锁图标 - 右上角 */}
                       {disabled && !generating && (
                         <div className="absolute top-1 right-1 bg-background rounded-full p-1 shadow-sm border border-border">
-                          <Crown className="w-3 h-3 text-purple-500 dark:text-purple-600" />
+                          <Crown className="w-3 h-3 text-accent" />
                         </div>
                       )}
 
@@ -466,7 +466,7 @@ export function GenerationControls({ generating,
                         <div className={`
                           w-5 h-5 rounded-full border-2 flex items-center justify-center
                           ${isSelected
-                            ? 'border-purple-500 dark:border-purple-600 bg-purple-500 dark:bg-purple-600'
+                            ? 'border-accent bg-accent'
                             : 'border-border'
                           }
                         `}>

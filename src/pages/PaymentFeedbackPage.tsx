@@ -107,7 +107,7 @@ export default function PaymentFeedbackPage() { const navigate = useNavigate();
         
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto">
-            <Card className="border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800">
+            <Card>
               <CardHeader className="text-center">
                 <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
                   <CheckCircle className="h-8 w-8 text-success dark:text-green-400" />

@@ -903,7 +903,7 @@ export default function BookmarkPage() {
                   const formattedFavorite = favoritesUtils.formatFavoriteForDisplay(favorite);
 
                   return (
-                    <Card key={favorite.id} className="hover:shadow-md transition-shadow">
+                    <Card key={favorite.id}>
                       <CardHeader className="pb-3">
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2">
@@ -977,7 +977,7 @@ export default function BookmarkPage() {
                 const typeInfo = getTypeInfo(item.type);
 
                 return (
-                  <Card key={item.id} className="hover:shadow-md transition-shadow">
+                  <Card key={item.id}>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -1126,7 +1126,7 @@ export default function BookmarkPage() {
                 const typeInfo = getTypeInfo(item.type);
 
                 return (
-                  <Card key={item.id} className="hover:shadow-md transition-shadow">
+                  <Card key={item.id}>
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2">
@@ -1210,7 +1210,7 @@ export default function BookmarkPage() {
                 const typeInfo = getTypeInfo(item.type);
 
                 return (
-                  <Card key={item.id} className="hover:shadow-md transition-shadow">
+                  <Card key={item.id}>
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2">

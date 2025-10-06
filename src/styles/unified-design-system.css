@@ -19,7 +19,7 @@
 /* ========================================
    📋 CSS层级顺序声明
    ======================================== */
-@layer reset, base, components, utilities;
+@layer reset, tokens, base, components, utilities, overrides, emergency;
 
 /* ========================================
    🧩 Tokens Extension Layer (派生令牌，无硬编码)
@@ -51,8 +51,22 @@
     --gradient-surface: radial-gradient(50% 30% at 50% -20%, hsl(var(--primary) / 0.06), transparent 60%),
                         linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--surface)) 100%);
     --gradient-primary: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    /* 标准阴影别名（映射到统一强度，确保 Tailwind 与组件系统一致） */
+    --shadow-sm: var(--shadow-e0);
+    --shadow-md: var(--shadow-e1);
+    --shadow-lg: var(--shadow-e2);
+    --shadow-xl: var(--shadow-e2);
+    --shadow-2xl: var(--shadow-e2);
+
+    /* Icon 派生令牌（基于现有尺寸/颜色，无硬编码） */
+    --icon-size-sm: var(--size-md);
+    --icon-size-md: var(--size-lg);
+    --icon-size-lg: var(--size-xl);
+    --icon-color-foreground: hsl(var(--foreground));
+    --icon-color-muted: hsl(var(--muted-foreground));
+    --icon-color-primary: hsl(var(--primary));
   }
-}
+
 
 
 /* ========================================
@@ -610,7 +624,7 @@
   .modal-overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, var(--opacity-50));
+    background-color: hsl(var(--foreground) / var(--opacity-50));
     z-index: var(--z-index-modal-backdrop);
     animation: fadeIn var(--duration-normal) var(--easing-ease);
   }
@@ -861,6 +875,13 @@
     overflow-y: auto;
   }
 
+  /* Icon 通用工具类 */
+  .u-icon { display: inline-flex; align-items: center; justify-content: center; color: hsl(var(--foreground)); }
+  .u-icon--sm { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+  .u-icon--md { width: var(--icon-size-md); height: var(--icon-size-md); }
+  .u-icon--lg { width: var(--icon-size-lg); height: var(--icon-size-lg); }
+  .u-icon--primary { color: hsl(var(--primary)); }
+  .u-icon--muted { color: hsl(var(--muted-foreground)); }
 }
 
 /* ========================================

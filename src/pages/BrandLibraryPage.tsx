@@ -2422,7 +2422,7 @@ export default function BrandLibraryPageFixed() {
                   // 网格视图
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filteredAndSortedAssets.map((asset: any) => (
-                      <Card key={asset.id} className="p-4 hover:shadow-md transition-shadow">
+                      <Card key={asset.id} className="p-4">
                         <div className="flex flex-col space-y-3">
                           <div className="flex items-center gap-3">
                             <div className="p-2 bg-accent rounded">

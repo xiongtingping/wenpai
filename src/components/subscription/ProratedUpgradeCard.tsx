@@ -128,7 +128,7 @@ export function ProratedUpgradeCard({ targetTier,
   };
 
   return (
-    <Card className={`border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 ${className}`}>
+    <Card className={`border-l-4 border-l-blue-500 ${className}`}>
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center space-x-2 text-lg">
           <TrendingUp className="w-5 h-5 text-primary" />

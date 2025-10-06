@@ -78,7 +78,7 @@ export const CompactPermissionCard: React.FC<CompactPermissionCardProps> = ({
   };
 
   return (
-    <Card className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-2 border-white/20 shadow-2xl max-w-md mx-auto">
+    <Card className="bg-card border max-w-md mx-auto">
       <CardContent className="p-6">
         {/* 标题区域 */}
         <div className="flex items-start gap-3 mb-4">

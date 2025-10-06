@@ -186,7 +186,7 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
 
   if (paymentStatus === 'success') {
     return (
-      <Card className="max-w-md mx-auto border-green-200 bg-green-50/50 shadow-lg">
+      <Card className="max-w-md mx-auto bg-card border">
         <CardHeader className="text-center pb-4">
           <CardTitle className="text-success text-2xl font-bold">🎉 支付成功！</CardTitle>
         </CardHeader>

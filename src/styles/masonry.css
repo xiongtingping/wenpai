@@ -52,7 +52,7 @@
 
 .subscription-card:hover {
   transform: translateY(-var(--spacing-0-5));
-  box-shadow: 0 var(--spacing-2) 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 var(--spacing-2) 25px hsl(var(--foreground) / 0.1);
 }
 
 /* 加载动画 */
@@ -66,8 +66,8 @@
 .masonry-loading-spinner {
   width: var(--spacing-10);
   height: var(--spacing-10);
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
+  border: 3px solid hsl(var(--muted));
+  border-top: 3px solid hsl(var(--primary));
   border-radius: var(--radius-full);
   animation: spin 1s linear infinite;
 }
@@ -137,7 +137,7 @@
 
 .monitor-result-item:hover {
   transform: translateX(var(--spacing-1));
-  box-shadow: 0 var(--spacing-1) var(--spacing-3) rgba(0, 0, 0, 0.1);
+  box-shadow: 0 var(--spacing-1) var(--spacing-3) hsl(var(--foreground) / 0.1);
 }
 
 /* 平台标签样式 */
@@ -182,13 +182,13 @@
 }
 
 .status-indicator.active {
-  background-color: #10b981;
-  box-shadow: 0 0 0 var(--spacing-0-5) rgba(16, 185, 129, 0.2);
+  background-color: hsl(var(--success));
+  box-shadow: 0 0 0 var(--spacing-0-5) hsl(var(--success) / 0.2);
 }
 
 .status-indicator.inactive {
   background-color: hsl(var(--muted-foreground));
-  box-shadow: 0 0 0 var(--spacing-0-5) rgba(107, 114, 128, 0.2);
+  box-shadow: 0 0 0 var(--spacing-0-5) hsl(var(--muted-foreground) / 0.2);
 }
 
 /* 操作按钮组 */
@@ -205,8 +205,8 @@
 
 /* 结果计数标签 */
 .result-count {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background-image: var(--gradient-primary);
+  color: hsl(var(--primary-foreground));
   font-size: var(--spacing-2-5);
   padding: var(--spacing-0-5) var(--spacing-1-5);
   border-radius: var(--spacing-2-5);

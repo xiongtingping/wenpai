@@ -366,7 +366,7 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
           {/* 热点列表 */}
           <div className="grid gap-4">
             {filteredTopics.map((topic, index) => (
-              <Card key={topic.id} className="hover:shadow-md transition-shadow">
+              <Card key={topic.id}>
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">

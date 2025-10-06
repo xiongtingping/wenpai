@@ -292,15 +292,7 @@ export function TokenUsageSection({
   };
 
   return (
-    <div className={`${className} bg-card border-border`} style={{
-      borderRadius: '12px',
-      padding: '1.25rem',
-      boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.1)',
-      display: 'flex',
-      flexDirection: 'column',
-      visibility: 'visible',
-      opacity: 1
-    }}>
+    <div className={`${className} bg-card border rounded-xl p-5 flex flex-col`}>
       <div style={{marginBottom: '0.75rem'}}>
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
@@ -347,15 +339,7 @@ export function TokenUsageSection({
           {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
           <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
             {/* Token使用量统计卡片 */}
-                <div className="bg-muted border-border" style={{
-                  minWidth: '280px',
-                  position: 'relative',
-                  borderRadius: '12px',
-                  padding: '0.875rem',
-                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}>
+                <div className="bg-card border relative rounded-xl p-3 flex flex-col">
                   <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.625rem', position: 'relative', zIndex: 10}}>
                     <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                       <div style={{
@@ -457,16 +441,7 @@ export function TokenUsageSection({
                 </div>
 
                 {/* 使用次数统计卡片 */}
-                <div className="bg-muted border-border" style={{
-                  minWidth: '280px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  borderRadius: '12px',
-                  padding: '0.875rem',
-                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}>
+                <div className="bg-card border relative overflow-hidden rounded-xl p-3 flex flex-col">
                   <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.625rem', position: 'relative', zIndex: 10}}>
                     <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                       <div style={{

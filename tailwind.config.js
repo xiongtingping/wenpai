@@ -8,7 +8,7 @@ module.exports = {
 	theme: {
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: 'var(--container-padding-default)',
 			screens: {
 				'2xl': '1400px'
 			}
@@ -103,23 +103,17 @@ module.exports = {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// 护眼米色主题专用颜色
-				beige: {
-					50: 'hsl(45, 25%, 97%)',
-					100: 'hsl(45, 20%, 92%)',
-					200: 'hsl(45, 15%, 88%)',
-					300: 'hsl(45, 10%, 80%)',
-					400: 'hsl(45, 8%, 70%)',
-					500: 'hsl(45, 70%, 55%)',
-					600: 'hsl(45, 60%, 45%)',
-					700: 'hsl(45, 50%, 35%)',
-					800: 'hsl(45, 40%, 25%)',
-					900: 'hsl(45, 30%, 15%)',
-					950: 'hsl(45, 20%, 10%)'
-				}
+
 			},
 			// Modern Flat + Soft Neumorphism 阴影系统
 			boxShadow: {
+				none: 'none',
+				sm: 'var(--shadow-sm)',
+				md: 'var(--shadow-md)',
+				lg: 'var(--shadow-lg)',
+				xl: 'var(--shadow-xl)',
+				'2xl': 'var(--shadow-2xl)',
+				// Neumorphism 扩展强度层
 				'e0': 'var(--shadow-e0)',
 				'e1': 'var(--shadow-e1)',
 				'e2': 'var(--shadow-e2)',
@@ -163,8 +157,51 @@ module.exports = {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fadeIn': 'fadeIn 0.8s ease-out forwards'
 			},
+			fontSize: {
+				xs: 'var(--font-size-xs)',
+				sm: 'var(--font-size-sm)',
+				base: 'var(--font-size-base)',
+				lg: 'var(--font-size-lg)',
+				xl: 'var(--font-size-xl)',
+				'2xl': 'var(--font-size-2xl)',
+				'3xl': 'var(--font-size-3xl)',
+				'4xl': 'var(--font-size-4xl)'
+			},
+			fontWeight: {
+				normal: 'var(--font-weight-normal)',
+				medium: 'var(--font-weight-medium)',
+				semibold: 'var(--font-weight-semibold)',
+				bold: 'var(--font-weight-bold)'
+			},
+			lineHeight: {
+				tight: 'var(--line-height-tight)',
+				snug: 'var(--line-height-snug)',
+				normal: 'var(--line-height-normal)',
+				relaxed: 'var(--line-height-relaxed)'
+			},
+			letterSpacing: {
+				tight: 'var(--letter-spacing-tight)',
+				normal: 'var(--letter-spacing-normal)',
+				wide: 'var(--letter-spacing-wide)'
+			},
+			spacing: {
+				'0': 'var(--spacing-0)',
+				'0.5': 'var(--spacing-0-5)',
+				'1': 'var(--spacing-1)',
+				'1.5': 'var(--spacing-1-5)',
+				'2': 'var(--spacing-2)',
+				'2.5': 'var(--spacing-2-5)',
+				'3': 'var(--spacing-3)',
+				'4': 'var(--spacing-4)',
+				'5': 'var(--spacing-5)',
+				'6': 'var(--spacing-6)',
+				'8': 'var(--spacing-8)',
+				'10': 'var(--spacing-10)',
+				'12': 'var(--spacing-12)',
+				'16': 'var(--spacing-16)'
+			},
 			fontFamily: {
-				sans: ['Inter', 'sans-serif']
+				sans: ['var(--font-family-sans)', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
 			}
 		}
 	},

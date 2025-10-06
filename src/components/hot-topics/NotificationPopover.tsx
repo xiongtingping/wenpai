@@ -154,7 +154,7 @@ export const NotificationPopover: React.FC<NotificationPopoverProps> = ({
         isMinimized ? 'w-80 h-12' : 'w-96 h-[600px]'
       }`}
     >
-      <Card className="h-full shadow-lg border-border bg-background">
+      <Card className="h-full bg-card border">
         {/* 头部 */}
         <CardHeader className="pb-3 border-b border-border">
           <div className="flex items-center justify-between">

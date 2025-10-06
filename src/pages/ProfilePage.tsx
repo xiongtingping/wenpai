@@ -476,7 +476,7 @@ export default function ProfilePage() {
           {/* 主要内容区域 */}
           <div className="grid gap-8">
             {/* 个人信息主卡片 */}
-            <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/90 backdrop-blur-xl">
+            <Card className="overflow-hidden">
               <div className="relative">
                 {/* 卡片内部装饰 */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-2xl" />
@@ -727,7 +727,7 @@ export default function ProfilePage() {
               <TokenUsageSection
                 userTier={userTier}
                 showDetails={true}
-                className="profile-usage-card w-full border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl"
+                className="w-full"
               />
             </div>
 

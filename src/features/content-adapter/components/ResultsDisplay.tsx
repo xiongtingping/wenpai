@@ -81,9 +81,9 @@ function StepIndicator({ steps  }: { steps: GenerationStep[] }) {
         <div
           key={`step-${index}-${step.name}`}
           className={`text-xs p-2 rounded flex items-center gap-1 ${
-            step.status === 'completed' ? 'bg-green-100 text-green-800' :
-            step.status === 'loading' ? 'bg-blue-100 text-blue-800' :
-            step.status === 'error' ? 'bg-red-100 text-red-800' :
+            step.status === 'completed' ? 'bg-success/15 text-success' :
+            step.status === 'loading' ? 'bg-primary/15 text-primary' :
+            step.status === 'error' ? 'bg-destructive/15 text-destructive' :
             'bg-muted text-muted-foreground'
           }`}
         >
@@ -253,7 +253,7 @@ function PlatformResultCard({
 
         {/* 内容展示 */}
         {result.error ? (
-          <div className="text-destructive text-sm p-3 bg-red-50 rounded-lg">
+          <div className="text-destructive text-sm p-3 bg-destructive/10 rounded-lg">
             <p className="font-medium">生成失败</p>
             <p>{result.error}</p>
           </div>
@@ -266,7 +266,7 @@ function PlatformResultCard({
                 <div className="flex items-center gap-2">
                   <span className={`text-xs ${
                     result.content.length > targetCharCount ? 'text-destructive' :
-                    result.content.length > targetCharCount * 0.9 ? 'text-amber-600' :
+                    result.content.length > targetCharCount * 0.9 ? 'text-warning' :
                     'text-success'
                   }`}>
                     {result.content.length} / {targetCharCount} 字符

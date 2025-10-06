@@ -191,7 +191,7 @@ export function SubscriptionExpiryCard() {
   }, [primaryStatus, currentTime]);
 
   return (
-    <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/90 backdrop-blur-xl">
+    <Card className="overflow-hidden">
       <div className="relative">
         {/* 卡片装饰 */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-2xl" />

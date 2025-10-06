@@ -27,8 +27,8 @@
   --permission-backdrop-saturation: 150%;
   
   /* 颜色配置 */
-  --permission-overlay-bg: rgba(255, 255, 255, var(--permission-overlay-opacity));
-  --permission-overlay-bg-dark: rgba(0, 0, 0, 0.4);
+  --permission-overlay-bg: hsl(var(--background) / var(--permission-overlay-opacity));
+  --permission-overlay-bg-dark: hsl(var(--foreground) / 0.4);
   --permission-lock-color: hsl(var(--primary));
   --permission-border-color: hsl(var(--border));
   
@@ -46,10 +46,10 @@
   --tier-pro-accent: hsl(var(--primary) / 0.2);
   
   /* 高级版 */
-  --tier-premium-bg: hsl(282 83% 51% / 0.1);
-  --tier-premium-text: hsl(282 83% 51%);
-  --tier-premium-icon: hsl(282 83% 51%);
-  --tier-premium-accent: hsl(282 83% 51% / 0.2);
+  --tier-premium-bg: hsl(var(--accent) / 0.1);
+  --tier-premium-text: hsl(var(--accent));
+  --tier-premium-icon: hsl(var(--accent));
+  --tier-premium-accent: hsl(var(--accent) / 0.2);
   
   /* ========== 显示模式配置 ========== */
   
@@ -61,12 +61,12 @@
   --permission-button-bg: hsl(var(--background) / 0.95);
   --permission-button-border: hsl(var(--border));
   --permission-button-hover: hsl(var(--accent));
-  --permission-button-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  
+  --permission-button-shadow: var(--shadow-md);
+
   /* 卡片模式 */
   --permission-card-bg: hsl(var(--card));
   --permission-card-border: hsl(var(--border));
-  --permission-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --permission-card-shadow: var(--shadow-lg);
   --permission-card-radius: 0.75rem;
   
   /* 预览模式 */
@@ -83,7 +83,7 @@
   /* 悬浮状态 */
   --permission-hover-opacity: 0.8;
   --permission-hover-scale: 1.02;
-  --permission-hover-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.2);
+  --permission-hover-shadow: var(--shadow-md);
   
   /* ========== 动画配置 ========== */
   
@@ -107,7 +107,7 @@
 
 /* ========== 暗色主题适配 ========== */
 [data-theme="dark"] {
-  --permission-overlay-bg: rgba(0, 0, 0, var(--permission-overlay-opacity));
+  --permission-overlay-bg: hsl(var(--foreground) / var(--permission-overlay-opacity));
   --permission-button-bg: hsl(var(--background) / 0.9);
   --permission-card-bg: hsl(var(--background) / 0.95);
   --permission-lock-color: hsl(var(--primary));

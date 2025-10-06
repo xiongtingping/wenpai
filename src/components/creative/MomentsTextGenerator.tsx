@@ -451,19 +451,19 @@ export function MomentsTextGenerator() {
           
           {/* 统计信息卡片 - 响应式网格 */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 lg:mb-6">
-            <Card className="text-center p-3 sm:p-4 bg-background/70 backdrop-blur-sm border-0 shadow-lg">
+            <Card className="text-center p-3 sm:p-4 bg-card border">
               <div className="text-xl sm:text-2xl font-bold text-primary">{stats.total}</div>
               <div className="text-xs sm:text-sm text-muted-foreground">总模板数</div>
             </Card>
-            <Card className="text-center p-3 sm:p-4 bg-background/70 backdrop-blur-sm border-0 shadow-lg">
+            <Card className="text-center p-3 sm:p-4 bg-card border">
               <div className="text-xl sm:text-2xl font-bold text-destructive">{stats.favorites}</div>
               <div className="text-xs sm:text-sm text-muted-foreground">我的收藏</div>
             </Card>
-            <Card className="text-center p-3 sm:p-4 bg-background/70 backdrop-blur-sm border-0 shadow-lg">
+            <Card className="text-center p-3 sm:p-4 bg-card border">
               <div className="text-xl sm:text-2xl font-bold text-success">{filteredTemplates.length}</div>
               <div className="text-xs sm:text-sm text-muted-foreground">筛选结果</div>
             </Card>
-            <Card className="text-center p-3 sm:p-4 bg-background/70 backdrop-blur-sm border-0 shadow-lg">
+            <Card className="text-center p-3 sm:p-4 bg-card border">
               <div className="text-xl sm:text-2xl font-bold text-purple-600">{industryTemplates.length}</div>
               <div className="text-xs sm:text-sm text-muted-foreground">行业模板</div>
             </Card>
@@ -471,7 +471,7 @@ export function MomentsTextGenerator() {
         </div>
 
         {/* 操作栏 - 响应式优化 */}
-        <Card className="mb-4 lg:mb-6 bg-background/80 backdrop-blur-sm border-0 shadow-xl">
+        <Card className="mb-4 lg:mb-6 bg-card border">
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-4">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
@@ -752,7 +752,7 @@ export function MomentsTextGenerator() {
               const moodTag = MOODS.find(m => m.id === template.mood);
               
               return (
-                <Card key={template.id} className="bg-background/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all">
+                <Card key={template.id} className="bg-card border hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       <div className="flex-1">
@@ -823,7 +823,7 @@ export function MomentsTextGenerator() {
 
         {/* 空状态 */}
         {filteredTemplates.length === 0 && (
-          <Card className="bg-background/80 backdrop-blur-sm border-0 shadow-xl">
+          <Card className="bg-card border">
             <CardContent className="py-16">
               <div className="text-center">
                 <div className="w-24 h-24 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-6">

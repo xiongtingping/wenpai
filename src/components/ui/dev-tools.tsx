@@ -62,7 +62,7 @@ export const DevTools: React.FC = () => {
 
       {/* 开发工具面板 */}
       {isVisible && (
-        <Card className="w-96 mt-2 bg-background/95 backdrop-blur-sm border-2 shadow-xl">
+        <Card className="w-96 mt-2 bg-card border">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
               <Terminal className="h-4 w-4" />

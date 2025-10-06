@@ -103,7 +103,7 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
         {/* 限时优惠横幅 */}
         {user?.registrationDate && isInDiscountPeriod(new Date(user.registrationDate)) && discountCountdown > 0 && (
           <div className="mb-8">
-            <Card className="promo-banner border-0 shadow-2xl">
+            <Card className="promo-banner">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -237,7 +237,7 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
                 featureName={feature.name}
                 description={feature.description}
               >
-                <Card className="h-full hover:shadow-lg transition-shadow">
+                <Card className="h-full">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4 mb-4">
                       <div className={`p-3 rounded-lg ${feature.color}`}>

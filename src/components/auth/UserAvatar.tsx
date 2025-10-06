@@ -98,10 +98,10 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       width: dropdownWidth,
       maxHeight: '85vh',
       overflowY: 'auto',
-      backgroundColor: 'var(--background)',
-      border: '1px solid var(--border)',
+      backgroundColor: 'hsl(var(--popover))',
+      border: '1px solid hsl(var(--border))',
       borderRadius: '8px',
-      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+      boxShadow: 'var(--shadow-lg)'
     };
 
     setDropdownStyle(style);
@@ -359,7 +359,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       {isNativeDropdownOpen && createPortal(
         <div
           data-dropdown-menu="native"
-          className="bg-background dark:bg-gray-800 border border-border dark:border-gray-700 rounded-md shadow-lg"
+          className="bg-popover border border-border rounded-md shadow-lg"
           style={dropdownStyle}
           onMouseDown={(e) => {
             // 🔧 FIX: 改用mouseDown，并且只阻止冒泡到document，不阻止内部事件

@@ -279,7 +279,7 @@ export default function PersonalizedEmojiGenerator({ onStepChange }: Personalize
 
       {/* 底部状态栏 - 精美设计 */}
       {(generatedImages.length > 0 || currentStep !== 'upload') && (
-        <Card className="border border-border/20 shadow-lg bg-gradient-to-r from-accent/10 via-background/95 to-accent/5 backdrop-blur-lg">
+        <Card>
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-4">

@@ -91,7 +91,7 @@ export default function BrandEmojiUploadForm({
   };
 
   return (
-    <Card className={`max-w-3xl mx-auto shadow-lg border-2 border-primary ${className}`}>
+    <Card className={`max-w-3xl mx-auto border ${className}`}>
       <CardHeader className="bg-accent border-b border-border pb-4">
         <CardTitle className="flex items-center gap-3 text-xl text-foreground">
           <div className="p-2 bg-accent rounded-lg">

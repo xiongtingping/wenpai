@@ -288,7 +288,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
               {/* 优化后的平台网格 - 增加分组边框 */}
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {platforms.map((platform) => (
-                  <Card key={platform.id} className="border border-border hover:border-primary/30 transition-all shadow-sm hover:shadow-md">
+                  <Card key={platform.id} className="border border-border hover:border-primary/30 transition-all">
                     {/* 优化后的卡片头部 */}
                     <CardHeader className="pb-3 pt-4 px-4 border-b border-border bg-accent/30">
                       <CardTitle className="flex items-center gap-3 text-base">
