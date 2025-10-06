@@ -17,6 +17,16 @@ import type {
 } from '../types/titleGeneration.types';
 import { TitleGenerationError } from '../types/titleGeneration.types';
 
+//   i18n 
+const tr = (key: string, fallback: string): string => {
+  try {
+    // @ts-expect-error  i18n 
+    const gi = (globalThis as any)?.i18n;
+    if (gi && typeof gi.t === 'function') return gi.t(key) as string;
+  } catch {}
+  return fallback;
+};
+
 export class AIService implements IAIService {
   private availableModels: string[] = [];
   private modelStatus: Map<string, boolean> = new Map();
@@ -110,7 +120,7 @@ export class AIService implements IAIService {
 
     if (modelsToTry.length === 0) {
       throw new TitleGenerationError(
-        '没有可用的AI模型',
+        tr('titleGen.errors.noAvailableModels', '没有可用的AI模型'),
         'NO_AVAILABLE_MODELS',
         { requestedModels: this.availableModels }
       );
@@ -120,13 +130,13 @@ export class AIService implements IAIService {
 
     for (const model of modelsToTry) {
       try {
-        console.log(`🤖 尝试使用模型: ${model}`);
+        logger.debug(`🤖 尝试使用模型: ${model}`);
 
         const startTime = performance.now();
         const response = await this.callSingleModel(model, prompt, options);
         const duration = performance.now() - startTime;
 
-        logger.debug('✅ 模型 ${model} 调用成功，耗时: ${duration.toFixed(2)}ms');
+        logger.debug(`✅ 模型 ${model} 调用成功，耗时: ${duration.toFixed(2)}ms`);
 
         // 标记模型为可用
         this.modelStatus.set(model, true);
@@ -143,7 +153,7 @@ export class AIService implements IAIService {
         };
 
       } catch (error) {
-        console.warn(`❌ 模型 ${model} 调用failed:`, error);
+        logger.warn(`❌ 模型 ${model} 调用failed:`, error);
 
         // 标记模型为不可用
         this.modelStatus.set(model, false);
@@ -317,7 +327,7 @@ export class AIService implements IAIService {
 {
   "titles": [
     {
-      "title": 'u64cdu4f5cu5931u8d25',
+      "title": "示例标题",
       "style": "informative",
       "length": 15,
       "semanticFit": 0.85,

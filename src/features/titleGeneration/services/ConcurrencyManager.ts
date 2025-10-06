@@ -8,6 +8,16 @@ import { performanceMonitor } from './PerformanceMonitor';
 import { TitleGenerationError } from '../types/titleGeneration.types';
 import { logger } from '@/utils/logger';
 
+// 安全 i18n 助手，缺省回退原文案
+const tr = (key: string, fallback: string): string => {
+  try {
+    // @ts-expect-error 全局 i18n 实例（在 main.tsx 注入）
+    const gi = (globalThis as any)?.i18n;
+    if (gi && typeof gi.t === 'function') return gi.t(key) as string;
+  } catch {}
+  return fallback;
+};
+
 interface ConcurrentRequest<T> {
   id: string;
   priority: number;
@@ -93,7 +103,7 @@ export class ConcurrencyManager {
     // 检查限流
     if (!this.checkRateLimit()) {
       throw new TitleGenerationError(
-        '请求频率过高，请稍后重试',
+        tr('titleGen.errors.rateLimitExceeded', '请求频率过高，请稍后重试'),
         'RATE_LIMIT_EXCEEDED',
         { requestId }
       );
@@ -102,7 +112,7 @@ export class ConcurrencyManager {
     // 检查队列容量
     if (this.requestQueue.length >= this.maxQueueSize) {
       throw new TitleGenerationError(
-        '请求队列已满，请稍后重试',
+        tr('titleGen.errors.queueFull', '请求队列已满，请稍后重试'),
         'QUEUE_FULL',
         { queueSize: this.requestQueue.length }
       );
@@ -144,7 +154,7 @@ export class ConcurrencyManager {
       tags?: Record<string, string>;
     } = {}
   ): Promise<T[]> {
-    const promises = executors.map(executor => 
+    const promises = executors.map(executor =>
       this.submit(executor, { ...options, enableBatching: true })
     );
 
@@ -164,7 +174,7 @@ export class ConcurrencyManager {
     } = {}
   ): AsyncGenerator<{ index: number; result: T; error?: Error }, void, unknown> {
     const { concurrency = 2 } = options;
-    const results: Array<{ index: number; result?: T; error?: Error; completed: boolean }> = 
+    const results: Array<{ index: number; result?: T; error?: Error; completed: boolean }> =
       executors.map((_, index) => ({ index, completed: false }));
 
     let completedCount = 0;
@@ -252,7 +262,7 @@ export class ConcurrencyManager {
     // 拒绝所有排队的请求
     this.requestQueue.forEach(request => {
       request.reject(new TitleGenerationError(
-        '请求队列已清空',
+        tr('titleGen.errors.queueCleared', '请求队列已清空'),
         'QUEUE_CLEARED',
         { requestId: request.id }
       ));
@@ -370,7 +380,7 @@ export class ConcurrencyManager {
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => {
           reject(new TitleGenerationError(
-            '请求超时',
+            tr('titleGen.errors.requestTimeout', '请求超时'),
             'REQUEST_TIMEOUT',
             { requestId: request.id, timeout: request.timeout }
           ));
@@ -400,8 +410,8 @@ export class ConcurrencyManager {
       // 重试逻辑
       if (request.retryCount < request.maxRetries && this.shouldRetry(error)) {
         request.retryCount++;
-        console.warn(`🔄 requestretrying ${request.id} (${request.retryCount}/${request.maxRetries}):`, error);
-        
+        logger.warn(`🔄 requestretrying ${request.id} (${request.retryCount}/${request.maxRetries}):`, error);
+
         // 延迟重试
         setTimeout(() => {
           this.addToQueue(request);
@@ -410,7 +420,7 @@ export class ConcurrencyManager {
       } else {
         request.reject(error instanceof Error ? error : new Error(String(error)));
         this.stats.failedRequests++;
-        
+
         if (error instanceof Error) {
           performanceMonitor.recordError(error, 'concurrent_ai_call');
         }
@@ -440,7 +450,7 @@ export class ConcurrencyManager {
   private checkRateLimit(): boolean {
     const now = Date.now();
     const windowStart = Math.floor(now / this.rateLimitWindow);
-    
+
     // 清理旧的计数
     for (const [window] of this.requestCounts) {
       if (window < windowStart - 1) {
@@ -465,7 +475,7 @@ export class ConcurrencyManager {
   private updateStats(): void {
     this.stats.activeRequests = this.activeRequests.size;
     this.stats.queuedRequests = this.requestQueue.length;
-    
+
     const totalRequests = this.stats.completedRequests + this.stats.failedRequests;
     this.stats.errorRate = totalRequests > 0 ? this.stats.failedRequests / totalRequests : 0;
   }
@@ -507,11 +517,11 @@ export class ConcurrencyManager {
    */
   destroy(): void {
     this.clearQueue();
-    
+
     if (this.batchTimer) {
       clearTimeout(this.batchTimer);
     }
-    
+
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer);
     }

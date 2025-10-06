@@ -15,6 +15,7 @@
 import { logModuleInit } from '@/utils/logger';
 
 import type { PromptTemplate } from '../types';
+import { getPlatformConfig } from '@/features/titleGeneration/config/titleGeneration.config';
 
 /**
  * 🎯 标题类型映射表
@@ -41,14 +42,7 @@ export const TITLE_STYLES = {
 /**
  * 📱 平台字数限制配置
  */
-export const PLATFORM_LIMITS = {
-  xiaohongshu: 20,
-  weibo: 30,
-  wechat: 64,
-  douyin: 30,
-  zhihu: 50,
-  default: 30
-};
+
 
 /**
  * 🧠 高吸引力标题结构生成（V3.3）- 主系统提示词
@@ -139,23 +133,23 @@ export const getTitleGenerationSystemPrompt = (): string => {
  * 标题生成用户提示词模板
  */
 export const getTitleGenerationPrompt: PromptTemplate = (input: any, options = {}) => {
-  const { 
-    content, 
-    versions = [], 
-    platform = 'xiaohongshu', 
-    stylePreference = [], 
+  const {
+    content,
+    versions = [],
+    platform = 'xiaohongshu',
+    stylePreference = [],
     outputCount = 5,
-    ensureDiversity = true 
+    ensureDiversity = true
   } = input;
 
   const { debug = false } = options;
 
   // 获取平台字数限制
-  const titleLimit = PLATFORM_LIMITS[platform as keyof typeof PLATFORM_LIMITS] || PLATFORM_LIMITS.default;
+  const titleLimit = getPlatformConfig(platform as any).maxLength;
 
   // 合并所有内容用于分析
-  const allContent = versions.length > 0 
-    ? versions.map((v: any) => v.content).join('\n\n') 
+  const allContent = versions.length > 0
+    ? versions.map((v: any) => v.content).join('\n\n')
     : content;
 
   // 风格偏好处理
@@ -234,7 +228,7 @@ export const getTitleQualityCheckPrompt: PromptTemplate = (input: any, options =
   const { debug = false } = options;
 
   // 获取平台字数限制
-  const titleLimit = PLATFORM_LIMITS[platform as keyof typeof PLATFORM_LIMITS] || PLATFORM_LIMITS.default;
+  const titleLimit = getPlatformConfig(platform as any).maxLength;
 
   return `请对以下标题进行质量检查：
 

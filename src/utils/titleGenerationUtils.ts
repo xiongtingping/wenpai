@@ -1,6 +1,6 @@
 /**
  * 🧠 标题生成工具函数集合
- * 
+ *
  * 按照 Augment Prompt 规范实现的标准化工具函数
  * 包含内容预处理、评分过滤、筛选过滤等模块
  */
@@ -8,12 +8,13 @@
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import type { ContentVersion } from '@/ai/types';
 import { safeTrimTitle } from './safeTrimTitle';
+import { getPlatformConfig } from '@/features/titleGeneration/config/titleGeneration.config';
 
 /**
  * 📦 内容预处理模块（按规范）
  */
 export const getSourceContent = (versions: ContentVersion[], content: string): string => {
-  return versions.length > 0 
+  return versions.length > 0
     ? versions.map(v => v.content).join('\n\n')
     : content;
 };
@@ -22,9 +23,9 @@ export const getSourceContent = (versions: ContentVersion[], content: string): s
  * 📊 语义贴合度评分计算（按规范建议公式）
  */
 export const calculateSemanticFit = (
-  title: string, 
-  entities: string[], 
-  mainTopic: string, 
+  title: string,
+  entities: string[],
+  mainTopic: string,
   coreWords: string[]
 ): number => {
   let semanticScore = 0.5; // 基础分
@@ -72,8 +73,8 @@ export const calculateEmotionalAppeal = (title: string): number => {
 
   // 情绪词 - 强化情感表达
   const emotionalWords = [
-    'u64cdu4f5cu5931u8d25', '太棒了', 'u64cdu4f5cu5931u8d25', '真的', '超预期', '相见恨晚',
-    'u64cdu4f5cu5931u8d25', '效率', '效果', '值得', '推荐', '安利', '太爽了', '太惊艳了'
+    '太棒了', '真的', '超预期', '相见恨晚',
+    '效率', '效果', '值得', '推荐', '安利', '太爽了', '太惊艳了'
   ];
   const emotionalMatches = emotionalWords.filter(word => title.includes(word));
   score += (emotionalMatches.length > 0 ? 0.25 : 0);
@@ -85,15 +86,16 @@ export const calculateEmotionalAppeal = (title: string): number => {
  * 🔍 筛选过滤模块（按规范）
  */
 export const isValidTitleForPlatform = (
-  title: string, 
-  platformId: string, 
+  title: string,
+  platformId: string,
   platformLimits: Record<string, number>
 ): boolean => {
-  const titleLimit = platformLimits[platformId] || platformLimits.default;
-  const minLength = Math.max(8, Math.floor(titleLimit * 0.7));
+  const cfg = getPlatformConfig(platformId as any);
+  const titleLimit = cfg.maxLength;
+  const minLength = cfg.minLength;
 
-  return title.length >= minLength && 
-         title.length <= titleLimit && 
+  return title.length >= minLength &&
+         title.length <= titleLimit &&
          title.trim().length > 0 &&
          !title.includes('...') &&
          !title.includes('undefined');
@@ -105,7 +107,7 @@ export const isValidTitleForPlatform = (
 /**
  * ✅ FIXED: 2025-08-02 统一权重配置计算 - V3.3增强版
  * 🎯 使用统一的V3.3权重配置，确保评分一致性，强化语义相关性
- * 
+ *
  */
 export const calculateOverallScore = (
   semanticFit: number,
@@ -138,14 +140,14 @@ export const calculateSemanticCompleteness = (title: string): number => {
   let score = 0.5; // 基础分
 
   // 检查句末闭合性 - V3.2 强化规则
-  const goodEndings = ['了', 'u64cdu4f5cu5931u8d25', '！', '？', '。', '吧', '呢', '啊', '哦', '呢', '吧'];
+  const goodEndings = ['了', '！', '？', '。', '吧', '呢', '啊', '哦'];
   const badEndings = [
-    '、', 'u64cdu4f5cu5931u8d25', '是', '我', '和', '让', '要', '在', '对', '为', '把', '给', '向',
+    '、', '是', '我', '和', '让', '要', '在', '对', '为', '把', '给', '向',
     '从', '到', '由', '被', '得', '着', '过', '了', '吗', '呢', '啊', '哦', '吧',
     '这', '那', '它', '他', '她', '们', '个', '种', '些', '点', '下', '上', '里',
-    '外', '前', 'u64cdu4f5cu5931u8d25', '左', '右', '中', '间', '边', '面', '方', '向', '位', '处'
+    '外', '前', '左', '右', '中', '间', '边', '面', '方', '向', '位', '处'
   ];
-  
+
   const lastChar = title[title.length - 1];
   if (goodEndings.includes(lastChar)) {
     score += 0.35; // 句末自然闭合 - 提高权重
@@ -157,7 +159,7 @@ export const calculateSemanticCompleteness = (title: string): number => {
   const hasSubject = /[我你他她它我们你们他们]/.test(title);
   const hasVerb = /[用做写看学试体验感受发现获得提升改善优化].*[了过]/.test(title) || /[是能会可以].*[的]/.test(title);
   const hasObject = /[工具软件功能方法技巧经验心得效果结果].*[的]/;
-  
+
   if (hasSubject && hasVerb) {
     score += 0.25; // 有主谓结构 - 提高权重
   }
@@ -201,7 +203,7 @@ export const calculateSemanticCompleteness = (title: string): number => {
     /[，,]$/,          // 以逗号结尾
     /[：:]$/,          // 以冒号结尾
     /[和与及]$/,       // 以连词结尾
-    /[的]$/,           // 以'u64cdu4f5cu5931u8d25'结尾
+    /[的]$/,           // 以"的"结尾
     /[了]$/,           // 以"了"结尾
     /[是]$/,           // 以"是"结尾
     /[我]$/,           // 以"我"结尾
@@ -219,12 +221,9 @@ export const calculateSemanticCompleteness = (title: string): number => {
  * 🎨 标题风格识别
  */
 export const identifyTitleStyle = (title: string): string => {
-  if (title.includes('u64cdu4f5cu5931u8d25') && title.includes('u64cdu4f5cu5931u8d25')) return '🎯 结果导向型';
-  if (title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25')) return '🤔 提问引导型';
-  if (title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25')) return '📘 专业理性型';
-  if (title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25')) return '💡 经验总结型';
-  if (title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25') || title.includes('u64cdu4f5cu5931u8d25')) return '📣 情绪钩子型';
-  return '🎯 结果导向型'; // 默认
+  if (/[?？]$/.test(title) || /^(为什么|如何|怎么)/.test(title)) return '🤔 提问引导型';
+  if (/[!！]/.test(title) || /太.*了/.test(title)) return '📣 情绪钩子型';
+  return '🎯 结果导向型';
 };
 
 /**
@@ -431,9 +430,8 @@ export const generateTitleSummary = (
   qualityIndicators: string[];
 } => {
   const reasoning = `基于${analysis.entities[0] || analysis.mainTopic}的${analysis.tone}内容生成`;
-  const extractedContent = analysis.coreMessage?.substring(0, 50) + 
-    (analysis.coreMessage?.length > 50 ? '...' : '') || 'u64cdu4f5cu5931u8d25';
-  
+  const extractedContent = (analysis.coreMessage?.substring(0, 50) + (analysis.coreMessage?.length > 50 ? '...' : '')) || '摘要不可用';
+
   const qualityIndicators: string[] = [];
   if (scores.semanticFit >= 0.8) qualityIndicators.push('高语义贴合');
   if (scores.emotionalScore >= 0.8) qualityIndicators.push('强情绪吸引');
@@ -449,7 +447,7 @@ export const generateTitleSummary = (
 
 /**
  * ✅ FIXED: 2025-08-02 删除重复实现，统一使用独立的safeTrimTitle.ts
- * 
+ *
  * 📌 如需修改safeTrimTitle逻辑，请编辑 src/utils/safeTrimTitle.ts
  */
 // 删除重复的safeTrimTitle函数实现
@@ -473,16 +471,7 @@ export const TITLE_SCORING_V3_3_CONFIG = {
 /**
  * 平台字符限制配置
  */
-export const PLATFORM_LIMIT = {
-  'xiaohongshu': 20,
-  'wechat': 28,
-  'bilibili': 30,
-  'douyin': 18,
-  'weibo': 25,
-  'zhihu': 35,
-  'toutiao': 22,
-  'default': 25
-} as const;
+
 
 /**
  * 获取平台字符限制
@@ -490,7 +479,8 @@ export const PLATFORM_LIMIT = {
  * @returns 字符限制
  */
 export function getPlatformLimit(platformId: string): number {
-  return PLATFORM_LIMIT[platformId as keyof typeof PLATFORM_LIMIT] || PLATFORM_LIMIT.default;
+  const cfg = getPlatformConfig(platformId as any);
+  return cfg.maxLength;
 }
 
-console.log('�� title生成工具functionmodulealreadyloading');
+

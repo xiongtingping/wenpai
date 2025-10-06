@@ -5,6 +5,8 @@
  * @param maxLength 最大字符数
  * @returns 裁剪后的标题
  */
+import { logger } from '@/utils/logger';
+
 export function safeTrimTitle(title: string, maxLength: number): string {
   // 1. 基础清理
   let clean = title
@@ -91,7 +93,7 @@ export function safeTrimTitle(title: string, maxLength: number): string {
 
   // 8. 确保结果不为空
   if (trimmed.length === 0) {
-    console.warn('⚠️ safeTrimTitle: 裁剪后标题为空，使用默认标题');
+    logger.warn('⚠️ safeTrimTitle: 裁剪后标题为空，使用默认标题');
     return '智能生成标题';
   }
 
@@ -207,7 +209,7 @@ export function fixTruncatedTitle(title: string, maxLength: number): string {
     return safeTrimTitle(title, maxLength);
   }
 
-  console.log(`🔧 检测到标题截断问题 (${detection.severity}): ${detection.issues.join(', ')}`);
+  logger.info(`🔧 检测到标题截断问题 (${detection.severity}): ${detection.issues.join(', ')}`);
 
   // 应用修复
   let fixed = title;
@@ -233,7 +235,7 @@ export function fixTruncatedTitle(title: string, maxLength: number): string {
   // 4. 应用安全裁剪
   fixed = safeTrimTitle(fixed.trim(), maxLength);
 
-  console.log(`✅ 标题修复完成: "${title}" -> "${fixed}"`);
+  logger.info(`✅ 标题修复完成: "${title}" -> "${fixed}"`);
 
   return fixed;
 }

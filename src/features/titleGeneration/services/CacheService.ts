@@ -6,6 +6,8 @@
 import { TitleGenerationConfig } from '../config/titleGeneration.config';
 import type { TitleGenerationResult, CacheConfig } from '../types/titleGeneration.types';
 
+import { logger } from '@/utils/logger';
+
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
@@ -42,7 +44,7 @@ export class CacheService {
       ...TitleGenerationConfig.cache,
       ...config
     };
-    
+
     if (this.config.enabled) {
       this.startCleanupTimer();
     }
@@ -79,7 +81,7 @@ export class CacheService {
     this.stats.totalSize += size;
     this.stats.entryCount++;
 
-    console.log(`📦 cachesetting: ${key} (${size} bytes, TTL: ${ttl}ms)`);
+    logger.debug(`📦 cachesetting: ${key} (${size} bytes, TTL: ${ttl}ms)`);
   }
 
   /**
@@ -111,7 +113,7 @@ export class CacheService {
     this.stats.hits++;
     this.updateHitRate();
 
-    console.log(`🎯 cache命middle: ${key} (访问count: ${entry.accessCount})`);
+    logger.debug(`🎯 cache命middle: ${key} (访问count: ${entry.accessCount})`);
     return entry.data;
   }
 
@@ -126,7 +128,7 @@ export class CacheService {
     this.stats.totalSize -= entry.size;
     this.stats.entryCount--;
 
-    console.log(`🗑️ cachedeleting: ${key}`);
+    logger.info(`🗑️ cachedeleting: ${key}`);
     return true;
   }
 
@@ -135,7 +137,7 @@ export class CacheService {
    */
   deleteByTag(tag: string): number {
     let deletedCount = 0;
-    
+
     for (const [key, entry] of this.cache.entries()) {
       if (entry.tags.includes(tag)) {
         this.delete(key);
@@ -143,7 +145,7 @@ export class CacheService {
       }
     }
 
-    console.log(`🏷️ 按tagdeletingcache: ${tag} (${deletedCount}item)`);
+    logger.info(`🏷️ 按tagdeletingcache: ${tag} (${deletedCount}item)`);
     return deletedCount;
   }
 
@@ -155,8 +157,8 @@ export class CacheService {
     this.cache.clear();
     this.stats.totalSize = 0;
     this.stats.entryCount = 0;
-    
-    console.log(`🧹 清emptycache: ${count}item`);
+
+    logger.info(`🧹 清emptycache: ${count}item`);
   }
 
   /**
@@ -213,8 +215,8 @@ export class CacheService {
    * 预热缓存
    */
   async warmup(keys: Array<{ key: string; generator: () => Promise<any> }>): Promise<void> {
-    console.log(`🔥 startscache预热: ${keys.length}item`);
-    
+    logger.info(`🔥 startscache预热: ${keys.length}item`);
+
     const promises = keys.map(async ({ key, generator }) => {
       try {
         if (!this.has(key)) {
@@ -222,12 +224,12 @@ export class CacheService {
           this.set(key, data, { tags: ['warmup'] });
         }
       } catch (error) {
-        console.warn(`预热failed: ${key}`, error);
+        logger.warn(`预热failed: ${key}`, error);
       }
     });
 
     await Promise.allSettled(promises);
-    console.log('🔥 cache预热completed');
+    logger.info('🔥 cache预热completed');
   }
 
   /**
@@ -235,7 +237,7 @@ export class CacheService {
    */
   private ensureSpace(requiredSize: number): void {
     const maxSize = this.config.maxSize * 1024 * 1024; // 转换为字节
-    
+
     while (this.stats.totalSize + requiredSize > maxSize && this.cache.size > 0) {
       this.evictLRU();
     }
@@ -258,7 +260,7 @@ export class CacheService {
     if (oldestKey) {
       this.delete(oldestKey);
       this.stats.evictions++;
-      console.log(`♻️ LRU淘汰: ${oldestKey}`);
+      logger.debug(`♻️ LRU淘汰: ${oldestKey}`);
     }
   }
 
@@ -310,7 +312,7 @@ export class CacheService {
     }
 
     if (cleanedCount > 0) {
-      console.log(`🧹 定期cleaning: ${cleanedCount}itemexpiredcache`);
+      logger.debug(`🧹 定期cleaning: ${cleanedCount}itemexpiredcache`);
     }
   }
 

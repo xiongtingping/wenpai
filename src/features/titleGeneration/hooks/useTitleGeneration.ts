@@ -18,6 +18,16 @@ import type {
   ServiceStats
 } from '../types/titleGeneration.types';
 
+// 安全 i18n 助手，缺省回退原文案
+const tr = (key: string, fallback: string): string => {
+  try {
+    // @ts-expect-error 全局 i18n 实例（在 main.tsx 注入）
+    const gi = (globalThis as any)?.i18n;
+    if (gi && typeof gi.t === 'function') return gi.t(key) as string;
+  } catch {}
+  return fallback;
+};
+
 export interface UseTitleGenerationOptions {
   initialPlatform?: PlatformId;
   initialStyles?: TitleStyle[];
@@ -35,12 +45,12 @@ export interface UseTitleGenerationReturn extends TitleGenerationState, TitleGen
   setStylePreference: (styles: TitleStyle[]) => void;
   outputCount: number;
   setOutputCount: (count: number) => void;
-  
+
   // 标题操作
   selectTitle: (title: GeneratedTitle) => void;
   copyTitle: (title: string) => Promise<boolean>;
   selectedTitle: GeneratedTitle | null;
-  
+
   // 高级功能
   regenerateAll: () => Promise<void>;
   exportTitles: () => string;
@@ -118,7 +128,7 @@ export const useTitleGeneration = (
             currentStage: stage.stage as any
           }));
           currentStageIndex++;
-          
+
           if (currentStageIndex < progressStages.length) {
             generationTimeoutRef.current = setTimeout(updateProgress, 1000);
           }
@@ -157,7 +167,7 @@ export const useTitleGeneration = (
         options.onSuccess(result.titles);
       }
 
-      logger.debug('✅ 生成${result.titles.length}个标题，平均评分: ${result.averageScore.toFixed(2)}');
+      logger.debug(`✅ 生成${result.titles.length}个标题，平均评分: ${result.averageScore.toFixed(2)}`);
 
     } catch (error) {
       // 清除进度定时器
@@ -165,8 +175,8 @@ export const useTitleGeneration = (
         clearTimeout(generationTimeoutRef.current);
       }
 
-      const errorMessage = error instanceof Error ? error.message : 'u64cdu4f5cu5931u8d25';
-      
+      const errorMessage = error instanceof Error ? error.message : tr('common.errors.operationFailed', '操作失败');
+
       setState(prev => ({
         ...prev,
         loading: false,
@@ -180,7 +190,7 @@ export const useTitleGeneration = (
         options.onError(error instanceof Error ? error : new Error(errorMessage));
       }
 
-      console.error('❌ title生成failed:', error);
+      logger.error('❌ title生成failed:', error);
     }
   }, [content, platform, stylePreference, outputCount, options]);
 
@@ -203,18 +213,18 @@ export const useTitleGeneration = (
 
       if (result.titles.length > 0) {
         const newTitle = { ...result.titles[0], id: titleId };
-        
+
         setState(prev => ({
           ...prev,
-          titles: prev.titles.map((title, index) => 
+          titles: prev.titles.map((title, index) =>
             index === titleIndex ? newTitle : title
           )
         }));
 
-        console.log(`🔄 re生成title: ${newTitle.title}`);
+        logger.info(`🔄 re生成title: ${newTitle.title}`);
       }
     } catch (error) {
-      console.error('re生成titlefailed:', error);
+      logger.error('re生成titlefailed:', error);
     }
   }, [content, platform, stylePreference, state.titles]);
 
@@ -276,10 +286,10 @@ export const useTitleGeneration = (
         document.execCommand('copy');
         document.body.removeChild(textArea);
       }
-      console.log('📋 titlealreadycopying到剪贴板');
+      logger.info('📋 titlealreadycopying到剪贴板');
       return true;
     } catch (error) {
-      console.error('copyingfailed:', error);
+      logger.error('copyingfailed:', error);
       return false;
     }
   }, []);
@@ -317,17 +327,17 @@ export const useTitleGeneration = (
           ...prev,
           titles: importData.titles
         }));
-        
+
         if (importData.platform) setPlatform(importData.platform);
         if (importData.stylePreference) setStylePreference(importData.stylePreference);
         if (importData.outputCount) setOutputCount(importData.outputCount);
-        
-        console.log(`📥 importing${importData.titles.length}unitstitle`);
+
+        logger.info(`📥 importing${importData.titles.length}unitstitle`);
         return true;
       }
       return false;
     } catch (error) {
-      console.error('importingfailed:', error);
+      logger.error('importingfailed:', error);
       return false;
     }
   }, []);
@@ -358,7 +368,7 @@ export const useTitleGeneration = (
   return {
     // 状态
     ...state,
-    
+
     // 配置
     platform,
     setPlatform,
@@ -366,19 +376,19 @@ export const useTitleGeneration = (
     setStylePreference,
     outputCount,
     setOutputCount,
-    
+
     // 操作
     generateTitles,
     regenerateTitle,
     clearTitles,
     clearError,
     refreshStats,
-    
+
     // 标题操作
     selectTitle,
     copyTitle,
     selectedTitle,
-    
+
     // 高级功能
     regenerateAll,
     exportTitles,

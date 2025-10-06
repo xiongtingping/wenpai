@@ -4,7 +4,7 @@
  */
 
 import { V3_3_TITLE_SCORE_WEIGHTS } from '@/score/titleScoreWeights';
-import { PLATFORM_LIMITS } from '@/ai/prompts/titleGeneration';
+
 import type { 
   PlatformConfig, 
   AIServiceConfig, 

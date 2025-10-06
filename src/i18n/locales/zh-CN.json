@@ -8848,5 +8848,21 @@
       "tryAdjustSearch": "请尝试调整搜索关键词来查看更多内容",
       "journeyStarts": "您的内容收藏从这里开始 ✨"
     }
+  },
+  "titleGen": {
+    "errors": {
+      "concurrentFailed": "并发标题生成失败",
+      "generationFailed": "标题生成失败",
+      "invalidAIResponse": "AI响应格式错误",
+      "minContentLength": "内容长度不能少于5个字符",
+      "missingPlatform": "缺少目标平台",
+      "invalidOutputCount": "输出数量不合法",
+      "noAvailableModels": "没有可用的AI模型",
+      "rateLimitExceeded": "请求频率超限",
+      "queueFull": "请求队列已满",
+      "requestTimeout": "请求超时",
+      "queueCleared": "已清空请求队列"
+    }
   }
+
 }

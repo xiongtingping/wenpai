@@ -8774,5 +8774,21 @@
       "tryAdjustSearch": "Try adjusting search keywords to see more content",
       "journeyStarts": "Your content collection journey starts here ✨"
     }
+  },
+  "titleGen": {
+    "errors": {
+      "concurrentFailed": "Concurrent title generation failed",
+      "generationFailed": "Title generation failed",
+      "invalidAIResponse": "Invalid AI response format",
+      "minContentLength": "Content length must be at least 5 characters",
+      "missingPlatform": "Target platform is required",
+      "invalidOutputCount": "Invalid output count",
+      "noAvailableModels": "No available AI models",
+      "rateLimitExceeded": "Rate limit exceeded",
+      "queueFull": "Request queue is full",
+      "requestTimeout": "Request timed out",
+      "queueCleared": "Request queue cleared"
+    }
   }
+
 }

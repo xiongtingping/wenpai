@@ -24,6 +24,16 @@ import type {
 } from '../types/titleGeneration.types';
 import { TitleGenerationError } from '../types/titleGeneration.types';
 
+// 安全的 i18n 翻译函数（避免TDZ）：无 i18n 时回退默认文案
+const tr = (key: string, fallback: string): string => {
+  try {
+    // @ts-expect-error 全局注入的 i18n 实例（在 main.tsx 设置）
+    const gi = (globalThis as any)?.i18n;
+    if (gi && typeof gi.t === 'function') return gi.t(key) as string;
+  } catch {}
+  return fallback;
+};
+
 export class TitleGenerationService implements ITitleGenerationService {
   private stats: ServiceStats = {
     totalRequests: 0,
@@ -67,7 +77,7 @@ export class TitleGenerationService implements ITitleGenerationService {
 
     // 消费进度但不保留中间结果
     for await (const progress of generator) {
-      console.log(`stream式生成progress: ${progress.progress}% - ${progress.message}`);
+      logger.info(`stream式生成progress: ${progress.progress}% - ${progress.message}`);
     }
 
     // 生成器声明的返回类型为 TitleGenerationResult，直接 return 即可
@@ -90,7 +100,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       const cacheKey = this.generateCacheKey(input);
       const cachedResult = titleCache.get<TitleGenerationResult>(cacheKey);
       if (cachedResult) {
-        console.log('🎯 使用cacheresult');
+        logger.info('🎯 使用cacheresult');
         performanceMonitor.recordCacheHit(true, 'title_generation');
         performanceMonitor.recordResponseTime(performance.now() - startTime, 'title_generation', true);
         return {
@@ -129,7 +139,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       const uniqueTitles = this.deduplicateTitles(allParsedTitles).slice(0, outputCount);
 
       // 8. 并发质量评分
-      console.log('📊 starts并发质量rating...');
+      logger.debug('📊 starts并发质量rating...');
       const scoredTitles = await this.scoreTitlesConcurrently(uniqueTitles, input.content, input.platform);
 
       // 9. 排序和过滤
@@ -157,7 +167,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       performanceMonitor.recordResponseTime(result.generationTime, 'concurrent_title_generation', true);
       performanceMonitor.recordCacheHit(false, 'concurrent_title_generation');
 
-      logger.debug('✅ 并发标题生成完成，耗时: ${result.generationTime.toFixed(2)}ms');
+      logger.debug(`✅ 并发标题生成完成，耗时: ${result.generationTime.toFixed(2)}ms`);
       return result;
 
     } catch (error) {
@@ -170,11 +180,11 @@ export class TitleGenerationService implements ITitleGenerationService {
         performanceMonitor.recordError(error, 'concurrent_title_generation');
       }
 
-      console.error('❌ 并发title生成failed:', error);
+      logger.error('❌ 并发title生成failed:', error);
       throw error instanceof TitleGenerationError
         ? error
         : new TitleGenerationError(
-            `并发标题生成失败: ${error instanceof Error ? error.message : String(error)}`,
+            tr('titleGen.errors.concurrentFailed', `并发标题生成失败: ${error instanceof Error ? error.message : String(error)}`),
             'CONCURRENT_GENERATION_FAILED',
             { input, error }
           );
@@ -196,7 +206,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       const cacheKey = this.generateCacheKey(input);
       const cachedResult = titleCache.get<TitleGenerationResult>(cacheKey);
       if (cachedResult) {
-        console.log('🎯 使用cacheresult');
+        logger.info('🎯 使用cacheresult');
         performanceMonitor.recordCacheHit(true, 'title_generation');
         performanceMonitor.recordResponseTime(performance.now() - startTime, 'title_generation', true);
         return {
@@ -212,7 +222,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       const prompt = this.buildPrompt(input, platformConfig);
 
       // 5. 调用 AI 生成
-      console.log('🤖 startsAI生成...');
+      logger.info('🤖 startsAI生成...');
       const aiResponse = await aiService.callWithFallback(prompt, {
         temperature: 0.7,
         maxTokens: 400,
@@ -223,7 +233,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       const parsedTitles = this.parseAIResponse(aiResponse.content, input.platform);
 
       // 7. 质量评分
-      console.log('📊 calculating质量rating...');
+      logger.debug('📊 calculating质量rating...');
       const scoredTitles = await this.scoreTitles(parsedTitles, input.content, input.platform);
 
       // 8. 排序和过滤
@@ -251,7 +261,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       performanceMonitor.recordResponseTime(result.generationTime, 'title_generation', true);
       performanceMonitor.recordCacheHit(false, 'title_generation');
 
-      logger.debug('✅ 标题生成完成，耗时: ${result.generationTime.toFixed(2)}ms');
+      logger.debug(`✅ 标题生成完成，耗时: ${result.generationTime.toFixed(2)}ms`);
       return result;
 
     } catch (error) {
@@ -264,11 +274,11 @@ export class TitleGenerationService implements ITitleGenerationService {
         performanceMonitor.recordError(error, 'title_generation');
       }
 
-      console.error('❌ title生成failed:', error);
+      logger.error('❌ title生成failed:', error);
       throw error instanceof TitleGenerationError
         ? error
         : new TitleGenerationError(
-            `标题生成失败: ${error instanceof Error ? error.message : String(error)}`,
+            tr('titleGen.errors.generationFailed', `标题生成失败: ${error instanceof Error ? error.message : String(error)}`),
             'GENERATION_FAILED',
             { input, error }
           );
@@ -294,7 +304,7 @@ export class TitleGenerationService implements ITitleGenerationService {
    */
   clearCache(): void {
     titleCache.clear();
-    console.log('🗑️ cachealreadyclearing');
+    logger.info('🗑️ cachealreadyclearing');
   }
 
   /**
@@ -336,7 +346,7 @@ export class TitleGenerationService implements ITitleGenerationService {
   private validateInput(input: TitleGenerationInput): void {
     if (!input.content || input.content.trim().length < 5) {
       throw new TitleGenerationError(
-        '内容长度不能少于5个字符',
+        tr('titleGen.errors.minContentLength', '内容长度不能少于5个字符'),
         'INVALID_CONTENT_LENGTH',
         { contentLength: input.content?.length || 0 }
       );
@@ -344,7 +354,7 @@ export class TitleGenerationService implements ITitleGenerationService {
 
     if (!input.platform) {
       throw new TitleGenerationError(
-        '必须指定目标平台',
+        tr('titleGen.errors.missingPlatform', '必须指定目标平台'),
         'MISSING_PLATFORM',
         { input }
       );
@@ -353,7 +363,7 @@ export class TitleGenerationService implements ITitleGenerationService {
     const outputCount = input.outputCount || TitleGenerationConfig.generation.defaultOutputCount;
     if (outputCount < 1 || outputCount > TitleGenerationConfig.generation.maxOutputCount) {
       throw new TitleGenerationError(
-        `输出数量必须在1-${TitleGenerationConfig.generation.maxOutputCount}之间`,
+        tr('titleGen.errors.invalidOutputCount', `输出数量必须在1-${TitleGenerationConfig.generation.maxOutputCount}之间`),
         'INVALID_OUTPUT_COUNT',
         { outputCount }
       );
@@ -375,7 +385,7 @@ export class TitleGenerationService implements ITitleGenerationService {
   private buildPrompt(input: TitleGenerationInput, platformConfig: PlatformConfig): string {
     const styles = input.stylePreference || ['informative'];
     const count = input.outputCount || 5;
-    
+
     return aiService.buildTitleGenerationPrompt(
       input.content,
       platformConfig.name,
@@ -389,7 +399,7 @@ export class TitleGenerationService implements ITitleGenerationService {
    */
   private parseAIResponse(content: string, platform: PlatformId): Partial<GeneratedTitle>[] {
     try {
-      console.log('🔍 startsparsingAIresponse:', content.substring(0, 200) + '...');
+      logger.debug('🔍 startsparsingAIresponse:', content.substring(0, 200) + '...');
 
       // 处理markdown格式的JSON响应
       let jsonContent = content.trim();
@@ -401,11 +411,11 @@ export class TitleGenerationService implements ITitleGenerationService {
         jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
       }
 
-      console.log('🔍 cleaningnext的JSONcontent:', jsonContent.substring(0, 200) + '...');
+      logger.debug('🔍 cleaningnext的JSONcontent:', jsonContent.substring(0, 200) + '...');
 
       // 尝试解析JSON
       const parsed = JSON.parse(jsonContent);
-      console.log('🔍 parsingnext的object:', parsed);
+      logger.debug('🔍 parsingnext的object:', parsed);
 
       // 尝试多种可能的数据结构
       let titles = [];
@@ -419,11 +429,11 @@ export class TitleGenerationService implements ITitleGenerationService {
         titles = parsed.results;
       }
 
-      console.log(`🔍 提取到的titlearray:`, titles);
-      console.log(`🔍 titlequantity: ${titles.length}`);
+      logger.debug(`🔍 提取到的titlearray:`, titles);
+      logger.debug(`🔍 titlequantity: ${titles.length}`);
 
       if (titles.length === 0) {
-        console.warn('⚠️ 没has找到titledata，尝试从responsemiddle提取文本');
+        logger.warn('⚠️ 没has找到titledata，尝试从responsemiddle提取文本');
         // 如果没有找到结构化数据，尝试从文本中提取标题
         const textTitles = this.extractTitlesFromText(content);
         if (textTitles.length > 0) {
@@ -463,10 +473,10 @@ export class TitleGenerationService implements ITitleGenerationService {
       return result;
 
     } catch (error) {
-      console.error('❌ parsingAIresponsefailed:', error);
-      console.error('📄 原始content:', content);
+      logger.error('❌ parsingAIresponsefailed:', error);
+      logger.error('📄 原始content:', content);
       throw new TitleGenerationError(
-        'AI响应格式错误',
+        tr('titleGen.errors.invalidAIResponse', 'AI响应格式错误'),
         'INVALID_AI_RESPONSE',
         { content, error }
       );
@@ -484,7 +494,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       /^\d+\.\s*(.+)$/gm,  // 1. 标题
       /^-\s*(.+)$/gm,      // - 标题
       /^\*\s*(.+)$/gm,     // * 标题
-      /^"(.+)"$/gm,        // 'u64cdu4f5cu5931u8d25'
+      /^"(.+)"$/gm,        // "标题"
       /^【(.+)】$/gm        // 【标题】
     ];
 
@@ -498,7 +508,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       if (titles.length > 0) break;
     }
 
-    console.log(`🔍 从文本提取到 ${titles.length} unitstitle:`, titles);
+    logger.debug(`🔍 从文本提取到 ${titles.length} unitstitle:`, titles);
     return titles;
   }
 
@@ -506,8 +516,8 @@ export class TitleGenerationService implements ITitleGenerationService {
    * 为标题计算质量评分
    */
   private async scoreTitles(
-    titles: Partial<GeneratedTitle>[], 
-    content: string, 
+    titles: Partial<GeneratedTitle>[],
+    content: string,
     platform: PlatformId
   ): Promise<GeneratedTitle[]> {
     const scoredTitles: GeneratedTitle[] = [];
@@ -517,8 +527,8 @@ export class TitleGenerationService implements ITitleGenerationService {
 
       try {
         const qualityScore = await qualityScoreService.calculateScore(
-          title.title, 
-          content, 
+          title.title,
+          content,
           platform
         );
 
@@ -552,7 +562,7 @@ export class TitleGenerationService implements ITitleGenerationService {
    */
   private filterAndSortTitles(titles: GeneratedTitle[]): GeneratedTitle[] {
     const minScore = TitleGenerationConfig.qualityRules.minScore;
-    
+
     return titles
       .filter(title => title.overallScore >= minScore)
       .sort((a, b) => b.overallScore - a.overallScore);
