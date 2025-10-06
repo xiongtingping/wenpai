@@ -439,42 +439,7 @@ export function ContentAdapterPage({
         }
       });
     }
-  // 临时保存最近一次生成结果（离开再回来自动恢复）
-  const lastResultsKey = React.useMemo(() => `content_adapter:last_results:${user?.id || 'guest'}`, [user?.id]);
 
-  React.useEffect(() => {
-    try {
-      if (!generating && results && results.length > 0) {
-        const hasAnyContent = results.some(r => r.content || (r.versions && r.versions.length > 0));
-        if (hasAnyContent) {
-          const payload = { timestamp: Date.now(), results };
-          localStorage.setItem(lastResultsKey, JSON.stringify(payload));
-        }
-      }
-    } catch (err) {
-      console.warn('保存最近一次生成结果失败:', err);
-    }
-  }, [results, generating, lastResultsKey]);
-
-  React.useEffect(() => {
-    try {
-      if (!results || results.length === 0) {
-        const raw = localStorage.getItem(lastResultsKey);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          const within24h = parsed?.timestamp && (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000);
-          if (within24h && Array.isArray(parsed.results) && parsed.results.length > 0) {
-            restoreResults(parsed.results);
-            toast({ title: '已为你恢复上次生成内容', duration: 2500 });
-          }
-        }
-      }
-    } catch (err) {
-      console.warn('恢复最近一次生成内容失败:', err);
-    }
-  // 仅在初次挂载或用户切换时尝试恢复
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastResultsKey]);
 
     prevResultsLengthRef.current = results.length;
   }, [results, generateTitle]);
@@ -513,6 +478,45 @@ export function ContentAdapterPage({
   // 批量转发状态 - 从原版完整迁移
   const [batchForwardModalOpen, setBatchForwardModalOpen] = React.useState(false);
   const [batchForwardPlatforms, setBatchForwardPlatforms] = React.useState<any[]>([]);
+  // 临时保存最近一次生成结果（离开再回来自动恢复）
+  const lastResultsKey = React.useMemo(() => `content_adapter:last_results:${user?.id || 'guest'}`, [user?.id]);
+
+  // 保存最近一次生成结果
+  React.useEffect(() => {
+    try {
+      if (!generating && results && results.length > 0) {
+        const hasAnyContent = results.some(r => r.content || (r.versions && r.versions.length > 0));
+        if (hasAnyContent) {
+          const payload = { timestamp: Date.now(), results };
+          localStorage.setItem(lastResultsKey, JSON.stringify(payload));
+        }
+      }
+    } catch (err) {
+      console.warn('保存最近一次生成结果失败:', err);
+    }
+  }, [results, generating, lastResultsKey]);
+
+  // 初次挂载或用户切换时尝试恢复
+  React.useEffect(() => {
+    try {
+      if (!results || results.length === 0) {
+        const raw = localStorage.getItem(lastResultsKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const within24h = parsed?.timestamp && (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000);
+          if (within24h && Array.isArray(parsed.results) && parsed.results.length > 0) {
+            restoreResults(parsed.results);
+            toast({ title: '已为你恢复上次生成内容', duration: 2500 });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('恢复最近一次生成内容失败:', err);
+    }
+    // 仅在初次挂载或用户切换时尝试恢复
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastResultsKey]);
+
 
   // 传统批量转发Dialog状态
   const [batchPublishOpen, setBatchPublishOpen] = React.useState(false);
