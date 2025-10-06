@@ -53,6 +53,42 @@ export const API_KEY_CONFIGS: Record<string, APIKeyConfig> = {
     description: 'AIML API密钥，统一AI模型接入服务 (OpenAI/Claude/Gemini等)'
   },
 
+  // 🔧 OpenAI provider别名 - 通过AIMLAPI调用
+  openai: {
+    envKey: 'VITE_AIMLAPI_KEY',
+    fallbackEnvKey: 'AIMLAPI_KEY',
+    required: true,
+    validation: {
+      minLength: 10,
+      pattern: /^[a-zA-Z0-9\-_]{10,}$/
+    },
+    description: 'OpenAI模型通过AIML API调用'
+  },
+
+  // 🔧 Anthropic provider别名 - 通过AIMLAPI调用
+  anthropic: {
+    envKey: 'VITE_AIMLAPI_KEY',
+    fallbackEnvKey: 'AIMLAPI_KEY',
+    required: true,
+    validation: {
+      minLength: 10,
+      pattern: /^[a-zA-Z0-9\-_]{10,}$/
+    },
+    description: 'Anthropic Claude模型通过AIML API调用'
+  },
+
+  // 🔧 Gemini provider别名 - 通过AIMLAPI调用
+  gemini: {
+    envKey: 'VITE_AIMLAPI_KEY',
+    fallbackEnvKey: 'AIMLAPI_KEY',
+    required: true,
+    validation: {
+      minLength: 10,
+      pattern: /^[a-zA-Z0-9\-_]{10,}$/
+    },
+    description: 'Google Gemini模型通过AIML API调用'
+  },
+
   // DeepSeek API密钥配置 - 独立直连
   deepseek: {
     envKey: 'VITE_DEEPSEEK_API_KEY',
