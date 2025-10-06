@@ -88,7 +88,7 @@ export function Header() {
             <LogoWithText
               size="lg"
               textSize="xl"
-              textClassName="rainbow-logo-text"
+              textClassName=""
               showHoverEffect={true}
               showBackground={true}
             />

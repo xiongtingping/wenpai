@@ -127,6 +127,33 @@ function generateUniqueTokenId(userId: string, feature: string): string {
  * Token使用量统计服务类
  */
 class TokenUsageService {
+  // 动态解析并缓存实际使用的表名（生产环境可能仍为旧表 user_usage_logs）
+  private usageTableName: string | null = null;
+
+  private async getUsageTableName(): Promise<string> {
+    if (this.usageTableName) return this.usageTableName;
+    const client = await getSupabaseClient();
+    // 先探测新表 token_usage_records 是否存在
+    const { error } = await client
+      .from(TABLE_NAMES.USER_USAGE_LOGS)
+      .select('id', { head: true, count: 'exact' })
+      .limit(1);
+
+    if (!error) {
+      this.usageTableName = TABLE_NAMES.USER_USAGE_LOGS;
+      return this.usageTableName;
+    }
+
+    // 回退旧表名 user_usage_logs
+    const { error: fbError } = await client
+      .from('user_usage_logs')
+      .select('id', { head: true, count: 'exact' })
+      .limit(1);
+
+    this.usageTableName = fbError ? TABLE_NAMES.USER_USAGE_LOGS : 'user_usage_logs';
+    return this.usageTableName;
+  }
+
   private readonly API_ENDPOINT = '/.netlify/functions/api-token-usage';
 
   /**
@@ -164,10 +191,11 @@ class TokenUsageService {
       });
 
       const client = await getSupabaseClient();
+      const usageTable = await this.getUsageTableName();
 
       // 1. 检查记录是否已存在
       const { data: existingRecord, error: checkError } = await client
-        .from(TABLE_NAMES.USER_USAGE_LOGS)
+        .from(usageTable)
         .select('id')
         .eq('id', record.id)
         .maybeSingle();
@@ -181,7 +209,7 @@ class TokenUsageService {
         return true; // 记录已存在，视为成功
       }
 
-      // 2. 准备数据库记录（使用snake_case）
+      // 2. 准备数据库记录（使用snake_case），同时写入 timestamp 与 created_at 以兼容历史表结构
       const dbRecord = {
         id: record.id,
         user_id: record.userId,
@@ -194,7 +222,8 @@ class TokenUsageService {
         content_summary: record.contentSummary || null,
         success: record.success !== false, // 默认为true
         error_message: record.error || null,
-        timestamp: record.timestamp
+        timestamp: record.timestamp,
+        created_at: record.timestamp
       };
 
       logger.info('📊 准备插入的数据库记录:', {
@@ -205,12 +234,23 @@ class TokenUsageService {
         model: dbRecord.model
       });
 
-      // 3. 尝试插入
-      const { data, error } = await client
-        .from(TABLE_NAMES.USER_USAGE_LOGS)
+      // 3. 尝试插入（若新表不存在则自动回退旧表名）
+      let { data, error } = await client
+        .from(usageTable)
         .insert(dbRecord)
         .select()
         .single();
+
+      if (error && usageTable !== 'user_usage_logs') {
+        // 回退旧表名再试一次
+        const fb = await client
+          .from('user_usage_logs')
+          .insert(dbRecord)
+          .select()
+          .single();
+        data = fb.data;
+        error = fb.error as any;
+      }
 
       if (error) {
         // 特殊处理主键重复错误
@@ -416,21 +456,33 @@ class TokenUsageService {
       });
 
       // 优先按 timestamp 过滤；若无结果，回退使用 created_at 过滤（兼容历史数据）
+      const usageTable = await this.getUsageTableName();
       let { data: monthlyData, error: monthlyError } = await client
-        .from(TABLE_NAMES.USER_USAGE_LOGS)
+        .from(usageTable)
         .select('*')
         .eq('user_id', userId)
         .gte('timestamp', monthStartTime);
 
       if (monthlyError) {
-        logger.error('❌ 查询月度记录失败:', monthlyError);
-        throw new Error(`查询月度记录失败: ${monthlyError.message}`);
+        logger.warn('⚠️ 月度查询新表失败，尝试回退旧表名:', monthlyError);
+        const fb = await client
+          .from('user_usage_logs')
+          .select('*')
+          .eq('user_id', userId)
+          .gte('timestamp', monthStartTime);
+        if (!fb.error) {
+          monthlyData = fb.data || [];
+          // 继续后续流程
+        } else {
+          logger.error('❌ 月度查询回退旧表亦失败:', fb.error);
+          throw new Error(`查询月度记录失败: ${fb.error.message}`);
+        }
       }
 
       if (!monthlyData || monthlyData.length === 0) {
         logger.warn('⚠️ 月度按 timestamp 查询为空，尝试使用 created_at 回退');
         const fb1 = await client
-          .from(TABLE_NAMES.USER_USAGE_LOGS)
+          .from(usageTable)
           .select('*')
           .eq('user_id', userId)
           .gte('created_at', monthStartTime);
@@ -485,21 +537,32 @@ class TokenUsageService {
       });
 
       // 日度：同样提供 created_at 回退 + 旧表名回退
+      const usageTableDaily = usageTable; //   复用解析结果
       let { data: dailyData, error: dailyError } = await client
-        .from(TABLE_NAMES.USER_USAGE_LOGS)
+        .from(usageTableDaily)
         .select('*')
         .eq('user_id', userId)
         .gte('timestamp', dayStartTime);
 
       if (dailyError) {
-        logger.error('❌ 查询日度记录失败:', dailyError);
-        throw new Error(`查询日度记录失败: ${dailyError.message}`);
+        logger.warn('⚠️ 日度查询新表失败，尝试回退旧表名:', dailyError);
+        const fb = await client
+          .from('user_usage_logs')
+          .select('*')
+          .eq('user_id', userId)
+          .gte('timestamp', dayStartTime);
+        if (!fb.error) {
+          dailyData = fb.data || [];
+        } else {
+          logger.error('❌ 日度查询回退旧表亦失败:', fb.error);
+          throw new Error(`查询日度记录失败: ${fb.error.message}`);
+        }
       }
 
       if (!dailyData || dailyData.length === 0) {
         logger.warn('⚠️ 日度按 timestamp 查询为空，尝试使用 created_at 回退');
         const fb1 = await client
-          .from(TABLE_NAMES.USER_USAGE_LOGS)
+          .from(usageTableDaily)
           .select('*')
           .eq('user_id', userId)
           .gte('created_at', dayStartTime);
@@ -693,7 +756,8 @@ class TokenUsageService {
    */
   async getUserTokenHistory(userId: string, limit: number = 50): Promise<TokenUsageRecord[]> {
     try {
-      const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
+      const usageTable = await this.getUsageTableName();
+      const dataService = createDataService(userId, usageTable);
       const result = await dataService.findMany({
         limit,
         orderBy: 'timestamp',
@@ -723,8 +787,9 @@ class TokenUsageService {
 
       // 查询当月记录 - 直接使用Supabase客户端进行时间范围查询
       const client = await getSupabaseClient();
+      const usageTable = await this.getUsageTableName();
       const { data: records, error } = await client
-        .from(TABLE_NAMES.USER_USAGE_LOGS)
+        .from(usageTable)
         .select('*')
         .eq('user_id', userId)
         .gte('timestamp', monthStartTime);
@@ -787,14 +852,16 @@ class TokenUsageService {
    */
   async cleanupExpiredRecords(userId: string, retentionMonths: number = 6): Promise<void> {
     try {
-      const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
+      const usageTable = await this.getUsageTableName();
+      const dataService = createDataService(userId, usageTable);
       const cutoffDate = new Date();
       cutoffDate.setMonth(cutoffDate.getMonth() - retentionMonths);
 
       // 查询过期记录 - 使用直接Supabase客户端调用
       const client = await getSupabaseClient();
+      const usageTable = await this.getUsageTableName();
       const { data: expiredData, error: expiredError } = await client
-        .from(TABLE_NAMES.USER_USAGE_LOGS)
+        .from(usageTable)
         .select('*')
         .eq('user_id', userId)
         .lt('timestamp', cutoffDate.toISOString());
@@ -827,7 +894,8 @@ class TokenUsageService {
    */
   async exportUserTokenData(userId: string): Promise<string> {
     try {
-      const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
+      const usageTable = await this.getUsageTableName();
+      const dataService = createDataService(userId, usageTable);
 
       // 获取所有用户记录
       const allRecords = await dataService.findMany({

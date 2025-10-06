@@ -997,7 +997,8 @@
     "upgrade": "Upgrade",
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
-    "profile": "Profile Center"
+    "profile": "Profile Center",
+    "browserExtension": "Browser Extension"
   },
   "auth": {
     "login": "Sign In",

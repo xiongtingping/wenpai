@@ -119,6 +119,20 @@ export const CustomLoginPage: React.FC = () => {
     document.documentElement.classList.toggle("dark-mode");
   };
 
+  // 从URL预填：tab=register/login 与 code=邀请码
+  useEffect(() => {
+    try {
+      const tab = searchParams.get('tab');
+      if (tab === 'register') setMode('register');
+      if (tab === 'login') setMode('login');
+
+      const codeParam = searchParams.get('code');
+      if (codeParam && !inviteCode) {
+        setInviteCode(codeParam.toUpperCase());
+      }
+    } catch (_) {}
+  }, [searchParams]);
+
   // 初始化主题
   useEffect(() => {
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -632,7 +646,7 @@ export const CustomLoginPage: React.FC = () => {
         {/* 返回按钮 */}
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 z-20 p-3 bg-background/10 dark:bg-gray-800/10 backdrop-blur-sm rounded-xl hover:bg-background/20 dark:hover:bg-gray-800/20 transition-all duration-300 text-gray-700 dark:text-gray-300 hover:text-foreground dark:hover:text-background"
+          className="absolute top-4 left-4 z-20 p-3 bg-muted/20 backdrop-blur-sm rounded-xl hover:bg-muted/30 transition-all duration-300 text-foreground"
         >
           <ArrowLeft size={20} />
         </button>
@@ -640,7 +654,7 @@ export const CustomLoginPage: React.FC = () => {
         {/* 主题切换按钮 */}
         <button
           onClick={toggleDarkMode}
-          className="absolute top-4 right-4 z-20 p-3 bg-background/10 dark:bg-gray-800/10 backdrop-blur-sm rounded-xl hover:bg-background/20 dark:hover:bg-gray-800/20 transition-all duration-300 text-gray-700 dark:text-gray-300 hover:text-foreground dark:hover:text-background"
+          className="absolute top-4 right-4 z-20 p-3 bg-muted/20 backdrop-blur-sm rounded-xl hover:bg-muted/30 transition-all duration-300 text-foreground"
         >
           {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>
@@ -648,7 +662,7 @@ export const CustomLoginPage: React.FC = () => {
         {/* 加载卡片 */}
         <div className="relative z-10 w-full max-w-md mx-4">
           <div 
-            className="bg-background/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20 dark:border-gray-700/20"
+            className="bg-card/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-border/40"
           >
             <div className="text-center space-y-6">
               <div className="space-y-3">
@@ -710,7 +724,7 @@ export const CustomLoginPage: React.FC = () => {
       {/* 返回首页按钮 */}
       <button
         onClick={() => navigate('/')}
-        className="absolute top-4 left-4 z-50 p-3 rounded-full bg-background/10 backdrop-blur-sm border border-white/20 hover:bg-background/20 transition-all duration-300"
+        className="absolute top-4 left-4 z-50 p-3 rounded-full bg-muted/20 backdrop-blur-sm border border-border/30 hover:bg-muted/30 transition-all duration-300"
       >
         <ArrowLeft size={20} className={isDarkMode ? "text-background" : "text-gray-700"} />
       </button>
@@ -718,13 +732,13 @@ export const CustomLoginPage: React.FC = () => {
       {/* 主题切换按钮 */}
       <button
         onClick={toggleDarkMode}
-        className="absolute top-4 right-4 z-50 p-3 rounded-full bg-background/10 backdrop-blur-sm border border-white/20 hover:bg-background/20 transition-all duration-300"
+        className="absolute top-4 right-4 z-50 p-3 rounded-full bg-muted/20 backdrop-blur-sm border border-border/30 hover:bg-muted/30 transition-all duration-300"
       >
         {isDarkMode ? <Sun size={20} className="text-background" /> : <Moon size={20} className="text-gray-700" />}
       </button>
 
       <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="bg-background/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden transform transition-all duration-300 hover:shadow-3xl">
+        <div className="bg-card/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-border/40 overflow-hidden transform transition-all duration-300 hover:shadow-3xl">
           <div className="p-8">
             <div className="text-center mb-8">
               {mode === 'register' ? (
@@ -749,7 +763,7 @@ export const CustomLoginPage: React.FC = () => {
 
             {/* 登录类型切换 - 仅在登录模式下显示 */}
             {mode === 'login' && (
-              <div className="flex mb-8 bg-muted dark:bg-gray-700 rounded-xl p-1.5 shadow-inner">
+              <div className="flex mb-8 bg-muted rounded-xl p-1.5 shadow-inner">
                 <button
                   type="button"
                   onClick={() => setLoginType('password')}
@@ -808,9 +822,7 @@ export const CustomLoginPage: React.FC = () => {
                     required
                     autoComplete="off"
                     data-form-type="other"
-                    className={`w-full px-4 py-4 pr-20 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
-                      isDarkMode ? "text-background" : "text-foreground"
-                    } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
+                    className={`w-full px-4 py-4 pr-20 border-2 rounded-xl bg-muted/10 dark:bg-muted/20 transition-all duration-300 outline-none border-border/60 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 text-foreground hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
                     placeholder=" "
                   />
                   <label
@@ -845,7 +857,7 @@ export const CustomLoginPage: React.FC = () => {
 
                   {/* 密码提示弹窗 */}
                   {showPasswordTips && (
-                    <div className="absolute top-full left-0 mt-2 p-4 bg-background dark:bg-gray-800 border border-border dark:border-gray-600 rounded-xl shadow-lg z-50 w-full max-w-sm">
+                    <div className="absolute top-full left-0 mt-2 p-4 bg-popover border border-border rounded-xl shadow-lg z-50 w-full max-w-sm">
                       <h4 className="text-sm font-semibold text-foreground dark:text-background mb-3">{t('pages.messages.密码要求：')}</h4>
                       <div className="text-sm text-muted-foreground dark:text-gray-400">
                         <p>• {t('pages.messages.8-20位字符，包含数字和字母')}</p>
@@ -867,9 +879,7 @@ export const CustomLoginPage: React.FC = () => {
                     pattern="[0-9]*"
                     autoComplete="off"
                     data-form-type="other"
-                    className={`w-full px-4 py-4 pr-32 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
-                      isDarkMode ? "text-background" : "text-foreground"
-                    } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
+                    className={`w-full px-4 py-4 pr-32 border-2 rounded-xl bg-muted/10 dark:bg-muted/20 transition-all duration-300 outline-none border-border/60 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 text-foreground hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
                     placeholder=" "
                   />
                   <label
@@ -908,9 +918,7 @@ export const CustomLoginPage: React.FC = () => {
                     pattern="[0-9]*"
                     autoComplete="off"
                     data-form-type="other"
-                    className={`w-full px-4 py-4 pr-32 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
-                      isDarkMode ? "text-background" : "text-foreground"
-                    } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
+                    className={`w-full px-4 py-4 pr-32 border-2 rounded-xl bg-muted/10 dark:bg-muted/20 transition-all duration-300 outline-none border-border/60 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 text-foreground hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
                     placeholder=" "
                   />
                   <label
@@ -947,9 +955,7 @@ export const CustomLoginPage: React.FC = () => {
                     required
                     autoComplete="off"
                     data-form-type="other"
-                    className={`w-full px-4 py-4 pr-20 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
-                      isDarkMode ? "text-background" : "text-foreground"
-                    } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
+                    className={`w-full px-4 py-4 pr-20 border-2 rounded-xl bg-muted/10 dark:bg-muted/20 transition-all duration-300 outline-none border-border/60 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 text-foreground hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
                     placeholder=" "
                   />
                   <label
@@ -984,7 +990,7 @@ export const CustomLoginPage: React.FC = () => {
 
                   {/* 密码强度指示器 */}
                   {password && (
-                    <div className="mt-3 p-4 bg-background/50 dark:bg-gray-800/50 rounded-lg border border-border/50 dark:border-gray-600/50">
+                    <div className="mt-3 p-4 bg-muted/20 rounded-lg border border-border/50">
                       <PasswordStrengthIndicator
                         password={password}
                         showPassword={showPassword}
@@ -1009,9 +1015,7 @@ export const CustomLoginPage: React.FC = () => {
                     required
                     autoComplete="off"
                     data-form-type="other"
-                    className={`w-full px-4 py-4 pr-12 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
-                      isDarkMode ? "text-background" : "text-foreground"
-                    } hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
+                    className={`w-full px-4 py-4 pr-12 border-2 rounded-xl bg-muted/10 dark:bg-muted/20 transition-all duration-300 outline-none border-border/60 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 text-foreground hover:border-gray-400 dark:hover:border-gray-500 font-medium`}
                     placeholder=" "
                   />
                   <label
@@ -1055,9 +1059,7 @@ export const CustomLoginPage: React.FC = () => {
                     autoComplete="off"
                     data-form-type="other"
                     maxLength={8}
-                    className={`w-full px-4 py-4 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
-                      isDarkMode ? "text-background" : "text-foreground"
-                    } hover:border-gray-400 dark:hover:border-gray-500 font-medium font-mono tracking-wider`}
+                    className={`w-full px-4 py-4 border-2 rounded-xl bg-muted/10 dark:bg-muted/20 transition-all duration-300 outline-none border-border/60 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 text-foreground hover:border-gray-400 dark:hover:border-gray-500 font-medium font-mono tracking-wider`}
                     placeholder=" "
                   />
                   <label

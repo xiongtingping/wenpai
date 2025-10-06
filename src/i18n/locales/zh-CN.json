@@ -998,7 +998,8 @@
     "upgrade": "升级套餐",
     "terms": "服务条款",
     "privacy": "隐私政策",
-    "profile": "个人中心"
+    "profile": "个人中心",
+    "browserExtension": "浏览器扩展"
   },
   "auth": {
     "login": "登录",
@@ -1030,32 +1031,32 @@
   },
   "home": {
     "title": "文派AI - 智能内容创作平台",
-    "heroTitle": "AI驱动的全平台内容创作",
-    "heroSubtitle": "一键适配不同平台的智能内容创作解决方案",
+    "heroTitle": "文派 · AI驱动的专业新媒体内容适配平台",
+    "heroSubtitle": "一键生成契合各平台语境的风格化内容",
     "getStarted": "开始创作",
     "learnMore": "了解更多",
     "description": "文派AI是一个基于最新AI技术的智能内容创作平台，为创作者提供高效、专业的内容生成和平台适配服务。",
     "highlights": {
-      "aiPowered": "AI驱动",
-      "multiPlatform": "多平台支持",
-      "timeSaving": "高效便捷",
+      "aiPowered": "全球AI模型聚合，助力高效内容生成",
+      "multiPlatform": "告别繁琐，一键适配多平台",
+      "timeSaving": "把时间留给创意，把重复交给AI",
       "focusCreative": "专注创作"
     },
     "advantages": {
       "fastGeneration": {
-        "title": "⚡ 极速生成",
-        "subtitle": "秒级AI响应",
-        "description": "智能需求分析，<strong>3秒内</strong>生成高质量内容，大幅提升创作效率"
+        "title": "全球AI模型聚合",
+        "subtitle": "助力高效内容生成",
+        "description": "全球AI模型聚合，助力高效内容生成。"
       },
       "brandConsistency": {
-        "title": "🎯 品牌一致性",
-        "subtitle": "统一品牌调性",
-        "description": "智能学习品牌风格，确保<strong>内容调性一致</strong>，提升品牌认知度"
+        "title": "一键适配多平台",
+        "subtitle": "告别繁琐",
+        "description": "告别繁琐，一键适配多平台。"
       },
       "costSaving": {
-        "title": "💰 成本节约",
-        "subtitle": "降本增效",
-        "description": "自动化内容创作流程，<strong>节省80%</strong>人工成本，提升投资回报率"
+        "title": "把时间留给创意",
+        "subtitle": "把重复交给AI",
+        "description": "把时间留给创意，把重复交给AI。"
       }
     },
     "features": {

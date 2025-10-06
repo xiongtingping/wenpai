@@ -318,7 +318,7 @@ export function PricingSection() {
               className={`pricing-button-yearly ${billing === "yearly" ? "active" : "inactive"}`}
             >
               <span className="drop-shadow-sm">
-                {t('home.pricing.yearlyBilling')} <span className="text-xs ml-1 font-extrabold text-yellow-200">({t('home.pricing.yearlyDiscount')})</span>
+                {t('home.pricing.yearlyBilling')} <span className="text-xs ml-1 font-extrabold text-warning">({t('home.pricing.yearlyDiscount')})</span>
               </span>
             </YearlyButtonWithHighlight>
           </div>

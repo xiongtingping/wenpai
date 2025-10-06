@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 // 已移除 Radix UI DropdownMenu 导入，使用原生实现
 import { Badge } from '@/components/ui/badge';
-import { LogIn, User, LogOut, Shield, Settings, Crown, Zap, Palette, Clock } from 'lucide-react';
+import { LogIn, User, LogOut, Shield, Settings, Crown, Zap, Palette, Clock, Chrome } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getUserDisplayName, getUserAvatarFallback, getUserAvatar } from '@/utils/userDisplayUtils';
 // 简化权限管理 - 移除复杂的权限管理器
@@ -43,13 +43,13 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   const navigate = useNavigate();
   const [unlockLoading, setUnlockLoading] = useState(false);
   const { t } = useTranslation();
-  
+
   // 原生下拉菜单状态
   const [isNativeDropdownOpen, setIsNativeDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
-  
+
   // 简化的智能定位逻辑
   const calculateDropdownPosition = () => {
     if (!triggerRef.current) return;
@@ -111,14 +111,14 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Node;
-      
+
       // 检查点击是否在触发器内
       const isInTrigger = dropdownRef.current && dropdownRef.current.contains(target);
-      
+
       // 🔧 FIX: 检查点击是否在Portal渲染的下拉菜单内
       const dropdownElement = document.querySelector('[data-dropdown-menu="native"]') as HTMLElement;
       const isInDropdown = dropdownElement && dropdownElement.contains(target);
-      
+
       // 只有当点击既不在触发器内，也不在下拉菜单内时，才关闭菜单
       if (!isInTrigger && !isInDropdown) {
         console.log('🔥 detecting到outer部点击，closingdown拉menu');
@@ -169,12 +169,12 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
 
   // ✅ FIXED: 使用安全的用户信息获取函数
   // 📌 修复问题：防止 "undefinedundefined" 字符串拼接
-  // 
+  //
 
   // 处理跳转到个人资料
   const handleProfileClick = async () => {
     console.log('🎯 点击units人资料button，准备跳转到 /profile');
-    
+
     // 🔧 FIX: 立即尝试导航，不等待状态更新
     try {
       console.log('🎯 立即尝试导航 (方案1)');
@@ -185,15 +185,15 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     } catch (navError) {
       console.warn('🎯 立即导航failed，尝试延迟导航:', navError);
     }
-    
+
     try {
       // 方案2：先关闭下拉菜单，再导航
       setIsNativeDropdownOpen(false);
       console.log('🎯 down拉menualreadyclosing');
-      
+
       // 延迟导航
       await new Promise(resolve => setTimeout(resolve, 150));
-      
+
       console.log('🎯 starts延迟导航到 /profile');
       try {
         navigate('/user-profile');
@@ -215,7 +215,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     }
   };
 
-  // 
+  //
   const handleUnlockMaxPermissions = async () => {
     logger.warn('🚫 权限解锁功能已被安全策略禁用');
     return;
@@ -296,7 +296,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     return null;
   };
 
-  // 
+  //
   const shouldShowUnlockButton = false;
 
   // 未登录状态
@@ -304,7 +304,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     return (
       <div className={`flex items-center gap-2 ${className}`}>
         {/* 已移除解锁权限按钮的 Radix UI 实现 */}
-        
+
         <Button
           onClick={() => login()}
           variant="outline"
@@ -403,6 +403,24 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
 
           {/* 菜单项 */}
           <div className="py-1">
+            {/* 浏览器扩展页面 */}
+            <button
+              className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                try {
+                  navigate('/browser-extension');
+                  setIsNativeDropdownOpen(false);
+                } catch (error) {
+                  window.location.href = '/browser-extension';
+                }
+              }}
+            >
+              <Chrome className="mr-2 h-4 w-4" />
+              <span>{t('nav.browserExtension', { defaultValue: '浏览器扩展' })}</span>
+            </button>
+
             <button
               className="flex items-center w-full px-4 py-2 text-sm hover:bg-accent text-left"
               onMouseDown={(e) => {
@@ -410,7 +428,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
                 console.log('🔥 units人资料buttonmouseDownevent');
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 // 立即执行导航，不等待异步操作
                 console.log('🔥 立即executingunits人资料导航');
                 try {
@@ -440,7 +458,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
                 console.log('🚪 退出loginbuttonmouseDownevent');
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 try {
                   console.log('🚪 立即executinglogoutfunction');
                   logout();

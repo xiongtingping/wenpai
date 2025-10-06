@@ -30,7 +30,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     icon: <Sun className="h-4 w-4 text-foreground" />,
     permissionLevel: 'basic',
     requiredPermission: 'theme:basic',
-    description: t('theme.descriptions.light')
+    description: t('theme.descriptions.light', { defaultValue: '经典浅色主题，适合白天使用' })
   },
   {
     value: 'dark',
@@ -38,7 +38,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     icon: <Moon className="h-4 w-4 text-foreground" />,
     permissionLevel: 'advanced',
     requiredPermission: 'theme:advanced',
-    description: t('theme.descriptions.dark'),
+    description: t('theme.descriptions.dark', { defaultValue: '护眼深色主题，适合夜间使用' }),
     badge: t('subscription.tiers.pro')
   },
   {
@@ -47,7 +47,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     icon: <div className="w-4 h-4 rounded-full bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
-    description: t('theme.descriptions.rainbow'),
+    description: t('theme.descriptions.rainbow', { defaultValue: '彩虹渐变主题，活力多彩风格' }),
     badge: t('subscription.tiers.premium')
   },
   {
@@ -56,7 +56,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     icon: <div className="w-4 h-4 rounded-full bg-amber-200 border border-amber-300" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
-    description: t('theme.descriptions.beige'),
+    description: t('theme.descriptions.beige', { defaultValue: '温暖米色主题，长时间使用更舒适' }),
     badge: t('subscription.tiers.premium')
   },
   {
@@ -65,7 +65,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     icon: <div className="w-4 h-4 rounded-full bg-success" />,
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
-    description: t('theme.descriptions.green'),
+    description: t('theme.descriptions.green', { defaultValue: '护眼绿色主题，自然清新风格' }),
     badge: t('subscription.tiers.premium')
   },
 ];
@@ -325,7 +325,7 @@ export const ThemeToggle: React.FC = () => {
           >
             {/* 标题 */}
             <div className="px-3 py-2 text-sm font-medium text-foreground">
-              {t('theme.settings')}
+              {t('theme.settings', { defaultValue: '\u4e3b\u9898\u8bbe\u7f6e' })}
             </div>
             <div className="px-3 py-1 text-xs text-muted-foreground">
               <SubscriptionStateWrapper>
@@ -391,7 +391,7 @@ export const ThemeToggle: React.FC = () => {
               }}
             >
               <Crown className="h-4 w-4 text-primary" />
-              <span>{t('theme.unlockMore')}</span>
+              <span>{t('theme.unlockMore', { defaultValue: '\u89e3\u9501\u66f4\u591a\u4e3b\u9898\u548c\u529f\u80fd' })}</span>
             </button>
           </div>
         )}

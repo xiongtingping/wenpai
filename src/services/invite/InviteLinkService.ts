@@ -323,6 +323,11 @@ export class InviteLinkService {
    */
   private static buildInviteLink(inviteCode: string): string {
     const { linkPrefix } = INVITE_LINK_CONFIG;
+    // 支持绝对URL：直接拼接 code 参数。支持相对前缀：拼接站点 origin。
+    if (/^https?:\/\//.test(linkPrefix)) {
+      const sep = linkPrefix.includes('?') ? '&' : '?';
+      return `${linkPrefix}${sep}code=${inviteCode}`;
+    }
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
     return `${baseUrl}${linkPrefix}?code=${inviteCode}`;
   }

@@ -68,7 +68,7 @@ export function ContentFormSelector({
           
           {/* 当前选择显示 */}
           {selectedForm && (
-            <div className="mb-4 p-3 bg-accent/50 rounded-lg border border-border">
+            <div className="mb-4 p-3 bg-primary/10 rounded-lg border border-border">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-base">{selectedForm.icon}</span>
@@ -106,7 +106,7 @@ export function ContentFormSelector({
                   <div
                     key={form.id}
                     className={`cursor-pointer transition-all hover:shadow-sm p-3 rounded-xl border ${
-                      selectedFormId === form.id ? 'border-primary bg-accent/80' : 'border-border bg-card/90 hover:border-border/70'
+                      selectedFormId === form.id ? 'border-primary bg-primary/15' : 'border-border bg-card/90 hover:border-border/70'
                     }`}
                     onClick={() => handleFormSelect(form.id)}
                   >
@@ -142,7 +142,7 @@ export function ContentFormSelector({
           
           {/* 当前选择显示 */}
           {selectedStyle && (
-            <div className="mb-4 p-3 bg-accent/50 rounded-lg border border-border">
+            <div className="mb-4 p-3 bg-primary/10 rounded-lg border border-border">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{availableStyles.find(s => s.id === selectedStyle)?.icon}</span>
@@ -169,7 +169,7 @@ export function ContentFormSelector({
               <div
                 key={style.id}
                 className={`cursor-pointer transition-all hover:shadow-sm p-2 rounded-lg border text-center ${
-                  selectedStyle === style.id ? 'border-primary bg-accent/80' : 'border-border bg-card/90 hover:border-border/70'
+                  selectedStyle === style.id ? 'border-primary bg-primary/15' : 'border-border bg-card/90 hover:border-border/70'
                 }`}
                 onClick={() => handleStyleSelect(style.id)}
               >

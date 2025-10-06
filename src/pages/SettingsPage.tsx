@@ -12,16 +12,19 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermission } from '@/hooks/usePermission';
+import { useToast } from '@/hooks/use-toast';
 import { SubscriptionExpiryAlert } from '@/components/subscription/SubscriptionExpiryAlert';
-import { 
-  Settings, 
-  User, 
-  Shield, 
-  Bell, 
+import {
+  Settings,
+  User,
+  Shield,
+  Bell,
   Palette,
   Key,
   LogOut,
-  Save
+  Save,
+  Copy,
+  Check
 } from 'lucide-react';
 
 /**
@@ -32,6 +35,7 @@ const SettingsPage: React.FC = () => { const { user, logout  } = useAuth();
   const [notifications, setNotifications] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const { toast } = useToast();
 
   // 处理登出
   const handleLogout = () => {
@@ -70,7 +74,27 @@ const SettingsPage: React.FC = () => { const { user, logout  } = useAuth();
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">{t('settings.userId')}</span>
-                <span className="text-sm font-mono text-foreground">{user?.id}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-mono text-foreground select-all">{user?.id}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        if (user?.id) {
+                          await navigator.clipboard.writeText(user.id);
+                          toast({ title: '已复制用户ID', description: '可用于联系客服或问题排查', duration: 2000 });
+                        }
+                      } catch (e) {
+                        toast({ title: '复制失败', variant: 'destructive' });
+                      }
+                    }}
+                    title="复制用户ID"
+                    className="h-8 px-2"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground"></span>

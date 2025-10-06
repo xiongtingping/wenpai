@@ -128,8 +128,8 @@ export const INVITE_LINK_CONFIG = {
   /** 邀请链接有效期（天）0表示永久有效 */
   linkExpiryDays: 0,
   
-  /** 邀请链接前缀 */
-  linkPrefix: '/invite',
+  /** 邀请注册链接（绝对地址，自动附加 code 参数） */
+  linkPrefix: 'https://www.wenpai.xyz/custom-login?tab=register',
   
   /** 单个邀请码最大使用次数（0表示无限制） */
   maxUsesPerCode: 0

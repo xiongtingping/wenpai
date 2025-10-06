@@ -103,9 +103,9 @@ export function HowItWorks() {
                 <div className="ds-text-centered ds-space-y-standard">
                   {/* 设计令牌圆形背景图标 */}
                   <div
-                    className={`ds-icon-main ${stepIconClasses[i]} group-hover:scale-110`}
+                    className={`ds-icon-main ${stepIconClasses[i]} group-hover:scale-110 bg-gradient-to-br from-primary/10 to-accent/10 ring-1 ring-border/50`}
                   >
-                    <Icon className="w-6 h-6" />
+                    <Icon className="w-6 h-6 text-primary" />
                   </div>
 
                   {/* 主标题 */}

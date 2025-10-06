@@ -51,11 +51,11 @@ export function InviteLinkCard({ userId }: InviteLinkCardProps) {
 
   async function copyInviteCode() {
     try {
-      await navigator.clipboard.writeText(inviteCode);
+      await navigator.clipboard.writeText(inviteLink);
       setCopied(true);
       toast({
         title: '复制成功',
-        description: '邀请码已复制到剪贴板',
+        description: '已复制邀请链接',
       });
 
       setTimeout(() => setCopied(false), 2000);
@@ -63,14 +63,14 @@ export function InviteLinkCard({ userId }: InviteLinkCardProps) {
       logger.error('复制失败:', error);
       toast({
         title: '复制失败',
-        description: '请手动复制邀请码',
+        description: '请手动复制邀请链接',
         variant: 'destructive',
       });
     }
   }
 
   async function shareInviteCode() {
-    const shareText = `我在使用文派AI内容生成平台，邀请你一起来体验！\n\n邀请码：${inviteCode}\n\n注册即可获得20次免费使用机会！`;
+    const shareText = `我在使用文派AI内容生成平台，邀请你一起来体验！\n\n邀请码：${inviteCode}\n注册链接：${inviteLink}\n\n注册即可获得20次免费使用机会！`;
 
     if (navigator.share) {
       try {
@@ -111,10 +111,10 @@ export function InviteLinkCard({ userId }: InviteLinkCardProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Gift className="h-5 w-5" />
-          我的邀请码
+          我的邀请链接
         </CardTitle>
         <CardDescription>
-          分享邀请码给好友，双方都能获得奖励
+          分享邀请链接给好友，双方都能获得奖励
         </CardDescription>
       </CardHeader>
 
@@ -132,18 +132,18 @@ export function InviteLinkCard({ userId }: InviteLinkCardProps) {
         {/* 邀请码显示 */}
         <div className="space-y-3">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            您的专属邀请码
+            您的邀请链接
           </label>
           <div className="flex items-center gap-2">
-            <code className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 rounded-lg font-mono text-2xl font-bold text-center tracking-wider text-purple-700 dark:text-purple-300">
-              {inviteCode}
+            <code className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 rounded-lg font-mono text-sm font-bold text-left tracking-wider text-purple-700 dark:text-purple-300 break-all">
+              {inviteLink}
             </code>
             <Button
               onClick={copyInviteCode}
               variant="outline"
               size="icon"
               className="shrink-0 h-12 w-12"
-              title="复制邀请码"
+              title="复制邀请链接"
             >
               {copied ? (
                 <Check className="h-5 w-5 text-green-600" />
@@ -153,7 +153,7 @@ export function InviteLinkCard({ userId }: InviteLinkCardProps) {
             </Button>
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            好友注册时输入此邀请码即可获得奖励
+            发送此链接给好友，好友通过链接注册即可获得奖励
           </p>
         </div>
 
@@ -165,19 +165,8 @@ export function InviteLinkCard({ userId }: InviteLinkCardProps) {
             variant="default"
           >
             <Copy className="h-4 w-4 mr-2" />
-            复制邀请码
+            复制邀请链接
           </Button>
-
-          {(navigator as any).share && (
-            <Button
-              onClick={shareInviteCode}
-              className="flex-1"
-              variant="outline"
-            >
-              <Share2 className="h-4 w-4 mr-2" />
-              分享
-            </Button>
-          )}
         </div>
 
         {/* 使用说明 */}
@@ -188,7 +177,7 @@ export function InviteLinkCard({ userId }: InviteLinkCardProps) {
           <ol className="text-sm text-gray-600 dark:text-gray-400 space-y-1 list-decimal list-inside">
             <li>复制您的专属邀请码</li>
             <li>分享给您的好友</li>
-            <li>好友注册时输入邀请码</li>
+            <li>好友通过链接注册</li>
             <li>双方自动获得20次免费使用机会</li>
           </ol>
         </div>

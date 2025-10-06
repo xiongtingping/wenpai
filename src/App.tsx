@@ -86,6 +86,8 @@ const LazyEmojiPage = React.lazy(() => import('@/pages/EmojiPage'));
 const LazyPermissionDemoPage = React.lazy(() => import('@/pages/PermissionDemo'));
 const LazyUpgradeComparisonPage = React.lazy(() => import('@/pages/UpgradeComparisonPage'));
 const LazyFeatureShowcasePage = React.lazy(() => import('@/pages/FeatureShowcasePage'));
+// 浏览器扩展页面（新）
+const LazyBrowserExtensionPage = React.lazy(() => import('@/pages/BrowserExtensionPage'));
 
 // 🔧 错误边界包装器，处理懒加载失败
 const LazyWrapper: React.FC<{ children: React.ReactNode; fallback?: React.ReactNode }> = ({
@@ -360,6 +362,13 @@ const App: React.FC = () => {
                         <Route path='/permission-demo' element={
                           <LazyWrapper>
                             <LazyPermissionDemoPage />
+                          </LazyWrapper>
+                        } />
+
+                        {/* 浏览器扩展页面 */}
+                        <Route path='/browser-extension' element={
+                          <LazyWrapper>
+                            <LazyBrowserExtensionPage />
                           </LazyWrapper>
                         } />
 

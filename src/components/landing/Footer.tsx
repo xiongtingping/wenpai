@@ -60,7 +60,7 @@ export function Footer() {
               <h3 className="ds-title-section ds-text-primary leading-none">文派</h3>
             </div>
             <p className="ds-text-helper ds-text-secondary max-w-sm mx-auto">
-              AI驱动的内容创作平台
+              AI驱动的内容创作平台，让内容更出彩。
             </p>
           </div>
 

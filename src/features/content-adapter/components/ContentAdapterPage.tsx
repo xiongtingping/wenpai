@@ -180,26 +180,26 @@ const platformUrls: Record<string, string> = {
   zhihu: 'https://zhuanlan.zhihu.com/write',
   douyin: 'https://creator.douyin.com/creator-micro/content/upload',
   wechat: 'https://mp.weixin.qq.com/',
-  
+
   // Video platforms
   bilibili: 'https://member.bilibili.com/platform/upload/text/edit',
   kuaishou: 'https://cp.kuaishou.com/article/publish',
-  
+
   // News platforms
   toutiao: 'https://mp.toutiao.com/profile_v4/graphic/publish',
   baijiahao: 'https://baijiahao.baidu.com/builder/rc/edit',
-  
+
   // International platforms
   facebook: 'https://www.facebook.com/pages/create/',
   twitter: 'https://twitter.com/compose/tweet',
   linkedin: 'https://www.linkedin.com/feed/',
-  
+
   // Tech communities
   v2ex: 'https://www.v2ex.com/new',
   github: 'https://github.com/new',
   juejin: 'https://juejin.cn/editor/drafts/new',
   csdn: 'https://mp.csdn.net/mp_blog/creation/editor',
-  
+
   // Other platforms
   sspai: 'https://sspai.com/write',
   video: 'https://channels.weixin.qq.com/', // 视频号
@@ -218,7 +218,7 @@ interface ContentAdapterPageProps {
   // 用户状态
   usageRemaining?: number;
   currentTier?: string;
-  
+
   // 可选的初始配置
   initialContent?: string;
   initialPlatforms?: string[];
@@ -345,14 +345,14 @@ export function ContentAdapterPage({
   const saveToHistory = React.useCallback(async (results: any[]) => {
     try {
       console.log('🔍 保存历史记录:', { userId: user?.id, isAuthenticated, resultsCount: results.length });
-      
+
       // 从云端获取现有历史记录
       const existingHistory = await globalDataManager.getData<unknown[]>('user_history') || [];
       console.log('🔍 当前历史记录数量:', existingHistory.length);
 
       const now = new Date().toISOString();
       const newItems: unknown[] = [];
-      
+
       results.forEach(r => {
         if (r.content) {
           newItems.push({
@@ -405,7 +405,8 @@ export function ContentAdapterPage({
     generateComparison,
     generateTitle,
     updatePlatformContent,
-    clearResults
+    clearResults,
+    restoreResults
   } = useContentAdapterEngine({
     globalSettings,
     platformSettings,
@@ -438,6 +439,43 @@ export function ContentAdapterPage({
         }
       });
     }
+  // 临时保存最近一次生成结果（离开再回来自动恢复）
+  const lastResultsKey = React.useMemo(() => `content_adapter:last_results:${user?.id || 'guest'}`, [user?.id]);
+
+  React.useEffect(() => {
+    try {
+      if (!generating && results && results.length > 0) {
+        const hasAnyContent = results.some(r => r.content || (r.versions && r.versions.length > 0));
+        if (hasAnyContent) {
+          const payload = { timestamp: Date.now(), results };
+          localStorage.setItem(lastResultsKey, JSON.stringify(payload));
+        }
+      }
+    } catch (err) {
+      console.warn('保存最近一次生成结果失败:', err);
+    }
+  }, [results, generating, lastResultsKey]);
+
+  React.useEffect(() => {
+    try {
+      if (!results || results.length === 0) {
+        const raw = localStorage.getItem(lastResultsKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const within24h = parsed?.timestamp && (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000);
+          if (within24h && Array.isArray(parsed.results) && parsed.results.length > 0) {
+            restoreResults(parsed.results);
+            toast({ title: '已为你恢复上次生成内容', duration: 2500 });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('恢复最近一次生成内容失败:', err);
+    }
+  // 仅在初次挂载或用户切换时尝试恢复
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastResultsKey]);
+
     prevResultsLengthRef.current = results.length;
   }, [results, generateTitle]);
 
@@ -475,7 +513,7 @@ export function ContentAdapterPage({
   // 批量转发状态 - 从原版完整迁移
   const [batchForwardModalOpen, setBatchForwardModalOpen] = React.useState(false);
   const [batchForwardPlatforms, setBatchForwardPlatforms] = React.useState<any[]>([]);
-  
+
   // 传统批量转发Dialog状态
   const [batchPublishOpen, setBatchPublishOpen] = React.useState(false);
   const [batchSelectedPlatforms, setBatchSelectedPlatforms] = React.useState<string[]>([]);
@@ -1390,7 +1428,7 @@ export function ContentAdapterPage({
     try {
       // 复制内容到剪贴板
       await navigator.clipboard.writeText(pendingPublish.content);
-      
+
       const historyItem = {
         id: Date.now().toString(),
         platformId: pendingPublish.platformId,
@@ -1408,8 +1446,8 @@ export function ContentAdapterPage({
       }
 
       await globalDataManager.setData('user_history', existingHistory);
-      
-      
+
+
       // 打开对应平台
       const platformUrl = platformUrls[pendingPublish.platformId];
       if (platformUrl) {
@@ -1447,7 +1485,7 @@ export function ContentAdapterPage({
 
       // 复制内容到剪贴板
       await navigator.clipboard.writeText(firstTask.content);
-      
+
       const historyItem = {
         id: Date.now().toString(),
         platformId: firstTask.platformId,
@@ -1460,7 +1498,7 @@ export function ContentAdapterPage({
       const existingHistory = await globalDataManager.getData<any[]>('user_history') || [];
       existingHistory.push(historyItem);
       await globalDataManager.setData('user_history', existingHistory);
-      
+
       // 打开对应平台
       const platformUrl = platformUrls[firstTask.platformId];
       if (platformUrl) {
@@ -1741,7 +1779,7 @@ export function ContentAdapterPage({
           <DialogHeader>
             <DialogTitle></DialogTitle>
             <DialogDescription>
-              
+
             </DialogDescription>
           </DialogHeader>
           <div className="py-2 text-foreground">
@@ -1752,15 +1790,15 @@ export function ContentAdapterPage({
               {pendingPublish?.content}
             </div>
             <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
-              
+
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPublishDialogOpen(false)}>
-              
+
             </Button>
             <Button variant="default" onClick={confirmPublish}>
-              
+
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1768,15 +1806,15 @@ export function ContentAdapterPage({
 
       {/* 批量发布Dialog - 传统批量转发功能 */}
       <Dialog open={batchPublishOpen} onOpenChange={setBatchPublishOpen}>
-        <DialogContent 
+        <DialogContent
           className="max-w-2xl"
           style={zIndexManager.createModalStyles('DIALOG_CONTENT')}
         >
           <DialogHeader>
             <DialogTitle></DialogTitle>
             <DialogDescription>
-              {batchCurrent ? 
-                t("adapt.dialogs.batchPublishProcessing", { platform: getPlatformName(batchCurrent.platformId, availablePlatforms) }) : 
+              {batchCurrent ?
+                t("adapt.dialogs.batchPublishProcessing", { platform: getPlatformName(batchCurrent.platformId, availablePlatforms) }) :
                 t("adapt.dialogs.batchPublishDescription", { count: batchSelectedPlatforms.length })
               }
             </DialogDescription>
@@ -1796,13 +1834,13 @@ export function ContentAdapterPage({
                   {batchCurrent.content}
                 </div>
                 <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">
-                  
+
                 </div>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="text-sm">
-                  
+
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {batchSelectedPlatforms.map(platformId => (
@@ -1819,7 +1857,7 @@ export function ContentAdapterPage({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleBatchPublishCancel}>
-              
+
             </Button>
             {!batchCurrent && (
               <Button onClick={handleBatchPublishConfirm} disabled={batchSelectedPlatforms.length === 0}>

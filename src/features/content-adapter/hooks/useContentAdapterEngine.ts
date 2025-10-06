@@ -88,12 +88,14 @@ export interface UseContentAdapterEngineReturn extends ContentAdapterEngineState
   regenerateVersion: (platformId: string, versionId: string, request: ContentGenerationRequest) => Promise<void>;
   generateComparison: (platformId: string, request: ContentGenerationRequest) => Promise<void>;
   generateTitle: (content: string, platformId: string) => Promise<void>;
-  
+
   // 状态管理
   updatePlatformContent: (platformId: string, content: string) => void;
   clearResults: () => void;
   resetState: () => void;
-  
+  // 从本地恢复结果
+  restoreResults: (savedResults: PlatformResult[]) => void;
+
   // 工具方法
   updateStep: (platformId: string, stepIndex: number, status: GenerationStep['status'], message?: string) => void;
 }
@@ -560,6 +562,28 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     setTitleStates({});
   }, []);
 
+  // 从本地恢复结果（用于“最近一次生成”）
+  const restoreResults = useCallback((savedResults: PlatformResult[]) => {
+    if (!Array.isArray(savedResults) || savedResults.length === 0) return;
+    setResults(savedResults.map(r => ({
+      platformId: r.platformId,
+      content: r.content || '',
+      steps: r.steps && r.steps.length ? r.steps : [
+        { name: 'prepare', status: 'completed', message: '已恢复' },
+        { name: 'prompt', status: 'completed', message: '已恢复' },
+        { name: 'ai', status: 'completed', message: '已恢复' },
+        { name: 'process', status: 'completed', message: '已恢复' }
+      ],
+      source: 'ai',
+      versions: r.versions || [],
+      error: undefined,
+      charCount: r.charCount,
+      targetCharCount: r.targetCharCount,
+      canRetry: true,
+      tags: r.tags || []
+    })));
+  }, []);
+
   // 重置状态
   const resetState = useCallback(() => {
     setGenerating(false);
@@ -596,6 +620,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     updatePlatformContent,
     clearResults,
     resetState,
+    restoreResults,
     updateStep
   };
 

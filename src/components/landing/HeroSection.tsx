@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { ThemeAwareLogo } from '@/components/ui/ThemeAwareLogo';
+import { Network, Share2, Sparkles } from 'lucide-react';
 
 /**
  * Hero区域组件
@@ -71,27 +72,7 @@ const HeroSection: React.FC = () => {
                 </p>
               </div>
 
-              {/* 第二行：四个要点 - 修复对齐问题 */}
-              <div className="ds-text-body-large theme-hero-points-text font-medium mb-12">
-                <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 sm:gap-x-8 lg:gap-x-10">
-                  <div className="flex items-center gap-2">
-                    <span className="theme-hero-points-dot text-2xl leading-none">·</span>
-                    <span className="whitespace-nowrap">{t('home.highlights.aiPowered')}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="theme-hero-points-dot text-2xl leading-none">·</span>
-                    <span className="whitespace-nowrap">{t('home.highlights.multiPlatform')}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="theme-hero-points-dot text-2xl leading-none">·</span>
-                    <span className="whitespace-nowrap">{t('home.highlights.timeSaving')}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="theme-hero-points-dot text-2xl leading-none">·</span>
-                    <span className="whitespace-nowrap">{t('home.highlights.focusCreative')}</span>
-                  </div>
-                </div>
-              </div>
+
             </div>
           </div>
           
@@ -128,14 +109,8 @@ const HeroSection: React.FC = () => {
               <div className="group relative">
                 <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale text-center">
                   <div className="ds-icon-decorative bg-primary text-primary-foreground mx-auto mb-4 ds-icon-centered group-hover:scale-110 ds-transition-standard">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+                    {/* 全球AI模型聚合 */}
+                    <Network className="w-4 h-4" />
                   </div>
                   <div className="mb-3">
                     <h3 className="ds-title-card ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.title')}}></h3>
@@ -151,14 +126,8 @@ const HeroSection: React.FC = () => {
               <div className="group relative">
                 <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale text-center">
                   <div className="ds-icon-decorative bg-primary text-primary-foreground mx-auto mb-4 ds-icon-centered group-hover:scale-110 ds-transition-standard">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    {/* 一键适配多平台 */}
+                    <Share2 className="w-4 h-4" />
                   </div>
                   <div className="mb-3">
                     <h3 className="ds-title-card ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.title')}}></h3>
@@ -174,14 +143,8 @@ const HeroSection: React.FC = () => {
               <div className="group relative">
                 <div className="enhanced-card ds-card ds-card-padding ds-transition-standard ds-hover-scale text-center">
                   <div className="ds-icon-decorative bg-primary text-primary-foreground mx-auto mb-4 ds-icon-centered group-hover:scale-110 ds-transition-standard">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
+                    {/* 把时间留给创意，把重复交给AI */}
+                    <Sparkles className="w-4 h-4" />
                   </div>
                   <div className="mb-3">
                     <h3 className="ds-title-card ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.title')}}></h3>
