@@ -248,14 +248,22 @@ export function buildAPIURL(
   const needsProxy = !['aimlapi'].includes(provider.toLowerCase());
   const isProduction = typeof window !== 'undefined' && !window.location.hostname.includes('localhost');
 
-  if (needsProxy && isProduction) {
-    // 使用Netlify Functions代理
-    // 格式: /api/ai/{provider}{endpointPath}
-    // 例如: /api/ai/deepseek/v1/chat/completions
-    return `/api/ai/${provider}${endpointPath}`;
-  }
+  const finalURL = needsProxy && isProduction
+    ? `/api/ai/${provider}${endpointPath}`
+    : `${config.baseURL}${endpointPath}`;
 
-  return `${config.baseURL}${endpointPath}`;
+  // 🔍 详细日志：记录URL构建过程
+  console.log('🔧 buildAPIURL:', {
+    provider,
+    endpoint,
+    needsProxy,
+    isProduction,
+    baseURL: config.baseURL,
+    endpointPath,
+    finalURL
+  });
+
+  return finalURL;
 }
 
 /**

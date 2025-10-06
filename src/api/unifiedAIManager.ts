@@ -213,6 +213,15 @@ export class UnifiedAIManager {
     const endpoint = buildAPIURL(provider, 'chat');
     const headers = getAPIHeaders(provider, apiKey);
 
+    // 🔍 详细日志：记录URL构建结果
+    logger.debug('🔧 AI配置构建完成:', {
+      model: params.model,
+      provider,
+      endpoint,
+      isProduction: typeof window !== 'undefined' && !window.location.hostname.includes('localhost'),
+      needsProxy: !['aimlapi'].includes(provider.toLowerCase())
+    });
+
     return {
       provider,
       model: modelInfo.id,
