@@ -65,49 +65,28 @@ export interface InviteRewardConfig {
 
 /**
  * 邀请奖励配置
- * 
+ *
  * 邀请人奖励：
- * - 10次使用次数（永不过期）
- * - 50000 Token（永不过期）
- * 
+ * - 20次使用次数（永不过期）
+ *
  * 被邀请人奖励：
- * - 5次使用次数（永不过期）
- * - 20000 Token（永不过期）
- * - 7天试用会员（7天后过期）
+ * - 20次使用次数（永不过期）
  */
 export const INVITE_REWARDS: InviteRewardConfig = {
   inviter: [
     {
       type: RewardType.USAGE_COUNT,
-      amount: 10,
+      amount: 20,
       expiryDays: 0,  // 永不过期
-      description: '邀请好友成功，获得10次AI使用次数'
-    },
-    {
-      type: RewardType.TOKEN_BONUS,
-      amount: 50000,
-      expiryDays: 0,  // 永不过期
-      description: '邀请好友成功，获得50000 Token奖励'
+      description: '邀请好友成功，获得20次AI使用次数'
     }
   ],
   invitee: [
     {
       type: RewardType.USAGE_COUNT,
-      amount: 5,
+      amount: 20,
       expiryDays: 0,  // 永不过期
-      description: '注册成功，获得5次AI使用次数'
-    },
-    {
-      type: RewardType.TOKEN_BONUS,
-      amount: 20000,
-      expiryDays: 0,  // 永不过期
-      description: '注册成功，获得20000 Token奖励'
-    },
-    {
-      type: RewardType.MEMBER_DAYS,
-      amount: 7,
-      expiryDays: 7,  // 7天后过期
-      description: '注册成功，获得7天试用会员'
+      description: '注册成功，获得20次AI使用次数'
     }
   ]
 };

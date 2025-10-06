@@ -88,6 +88,7 @@ export const CustomLoginPage: React.FC = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [registerVerificationCode, setRegisterVerificationCode] = useState(''); // 注册验证码
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [inviteCode, setInviteCode] = useState(''); // 邀请码
   const [rememberMe, setRememberMe] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -99,6 +100,7 @@ export const CustomLoginPage: React.FC = () => {
   const [isCodeFocused, setIsCodeFocused] = useState(false);
   const [isRegisterCodeFocused, setIsRegisterCodeFocused] = useState(false); // 注册验证码焦点
   const [isConfirmPasswordFocused, setIsConfirmPasswordFocused] = useState(false);
+  const [isInviteCodeFocused, setIsInviteCodeFocused] = useState(false); // 邀请码焦点
   
   // 验证状态
   const [isPhoneValid, setIsPhoneValid] = useState(true);
@@ -499,15 +501,82 @@ export const CustomLoginPage: React.FC = () => {
           navigate(redirectUrl);
         }
       } else {
-        const result = await authClient.registerByPhoneCode(phone, verificationCode, password);
-        
+        // 🎯 注册流程：验证邀请码 → 注册 → 发放奖励
+        let inviterUserId: string | undefined;
+
+        // 1. 验证邀请码（如果有）
+        if (inviteCode.trim()) {
+          try {
+            const { validateInviteCode } = await import('@/services/invite/InviteLinkService');
+            const validation = await validateInviteCode(inviteCode.trim());
+
+            if (!validation.valid) {
+              toast({
+                title: '邀请码无效',
+                description: validation.error || '请检查邀请码是否正确',
+                variant: 'destructive',
+              });
+              return;
+            }
+
+            inviterUserId = validation.inviterId;
+            console.log('✅ 邀请码验证成功:', { inviteCode, inviterUserId });
+          } catch (error) {
+            console.error('验证邀请码失败:', error);
+            toast({
+              title: '邀请码验证失败',
+              description: '请稍后重试',
+              variant: 'destructive',
+            });
+            return;
+          }
+        }
+
+        // 2. 执行注册
+        const result = await authClient.registerByPhoneCode(phone, registerVerificationCode, password);
+
         if (result) {
           await handleAuthingLogin(result);
-          
-          toast({
-            title: t('pages.labels.注册成功'),
-            description: t('pages.messages.欢迎加入文派AI！'),
-          });
+
+          // 3. 发放邀请奖励（如果有邀请码）
+          if (inviterUserId && result.user?.id) {
+            try {
+              const { grantInviteReward } = await import('@/services/invite/InviteRewardService');
+              const { useInviteCode } = await import('@/services/invite/InviteLinkService');
+
+              // 更新邀请码使用次数
+              await useInviteCode(inviteCode.trim());
+
+              // 发放奖励
+              const rewardResult = await grantInviteReward(inviterUserId, result.user.id);
+
+              if (rewardResult.success) {
+                console.log('✅ 邀请奖励发放成功:', rewardResult.rewards);
+                toast({
+                  title: t('pages.labels.注册成功'),
+                  description: '欢迎加入文派AI！您和邀请人各获得20次免费使用机会！',
+                });
+              } else {
+                console.error('邀请奖励发放失败:', rewardResult.error);
+                toast({
+                  title: t('pages.labels.注册成功'),
+                  description: t('pages.messages.欢迎加入文派AI！'),
+                });
+              }
+            } catch (error) {
+              console.error('发放邀请奖励异常:', error);
+              // 奖励发放失败不影响注册成功
+              toast({
+                title: t('pages.labels.注册成功'),
+                description: t('pages.messages.欢迎加入文派AI！'),
+              });
+            }
+          } else {
+            toast({
+              title: t('pages.labels.注册成功'),
+              description: t('pages.messages.欢迎加入文派AI！'),
+            });
+          }
 
           navigate('/');
         }
@@ -970,6 +1039,42 @@ export const CustomLoginPage: React.FC = () => {
                 <div className="text-destructive text-sm flex items-center space-x-2 -mt-3">
                   <span className="w-1 h-1 bg-destructive rounded-full"></span>
                   <span>{t('pages.messages.两次输入的密码不一致')}</span>
+                </div>
+              )}
+
+              {/* 注册模式下的邀请码输入（可选） */}
+              {mode === 'register' && (
+                <div className="relative group">
+                  <input
+                    type="text"
+                    id="inviteCode"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                    onFocus={() => setIsInviteCodeFocused(true)}
+                    onBlur={() => setIsInviteCodeFocused(false)}
+                    autoComplete="off"
+                    data-form-type="other"
+                    maxLength={8}
+                    className={`w-full px-4 py-4 border-2 rounded-xl bg-transparent transition-all duration-300 outline-none border-border dark:border-gray-600 focus:border-primary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 ${
+                      isDarkMode ? "text-background" : "text-foreground"
+                    } hover:border-gray-400 dark:hover:border-gray-500 font-medium font-mono tracking-wider`}
+                    placeholder=" "
+                  />
+                  <label
+                    htmlFor="inviteCode"
+                    className={`absolute left-4 transition-all duration-300 pointer-events-none font-medium ${
+                      isInviteCodeFocused || inviteCode
+                        ? "-top-2.5 text-xs bg-background/95 dark:bg-gray-800/95 px-2 text-primary dark:text-blue-400"
+                        : "top-4 text-muted-foreground dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                    }`}
+                  >
+                    邀请码（可选）
+                  </label>
+                  {/* 邀请码提示 */}
+                  <div className="mt-2 text-xs text-muted-foreground dark:text-gray-400 flex items-center gap-1">
+                    <span className="inline-block w-1 h-1 bg-green-500 rounded-full"></span>
+                    <span>输入邀请码可获得20次免费使用机会</span>
+                  </div>
                 </div>
               )}
 
