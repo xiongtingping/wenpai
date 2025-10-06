@@ -104,7 +104,7 @@ export function getUserTier(user: AuthUser | AuthSystemUser | null | undefined):
   }
 
   // 如果是认证系统的用户类型，先进行适配
-  const adaptedUser = 'subscription' in user && user.subscription && 'tier' in user.subscription
+  const adaptedUser = 'subscription' in user && user.subscription && typeof user.subscription === 'object' && 'tier' in user.subscription
     ? user as AuthUser
     : adaptAuthUser(user as AuthSystemUser);
 
