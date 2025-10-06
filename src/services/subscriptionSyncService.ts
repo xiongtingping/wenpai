@@ -20,9 +20,19 @@ export interface UserSubscription {
  */
 export async function getUserSubscriptionTier(userId: string): Promise<UserSubscription> {
   try {
-    console.log('🔍 查询用户订阅状态:', { userId });
+    const now = new Date().toISOString();
+    console.log('🔍 查询用户订阅状态:', { userId, currentTime: now });
 
     const client = await getSupabaseClient();
+
+    // 先查询所有订阅记录，用于调试
+    const { data: allSubs } = await client
+      .from('user_subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    console.log('📋 用户所有订阅记录:', allSubs);
 
     // 查询用户的有效订阅（status='active' 且未过期）
     const { data, error } = await client
@@ -30,9 +40,11 @@ export async function getUserSubscriptionTier(userId: string): Promise<UserSubsc
       .select('tier, status, expires_at')
       .eq('user_id', userId)
       .eq('status', 'active')
-      .gt('expires_at', new Date().toISOString())
+      .gt('expires_at', now)
       .order('created_at', { ascending: false })
       .limit(1);
+
+    console.log('🔍 有效订阅查询结果:', { data, error, queryTime: now });
 
     if (error) {
       console.error('❌ 查询订阅失败:', error);
