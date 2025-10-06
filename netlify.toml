@@ -55,6 +55,12 @@
   to = "/.netlify/functions/api/consume-usage"
   status = 200
 
+# AI代理路由 - 必须在通用API路由之前
+[[redirects]]
+  from = "/api/ai/*"
+  to = "/.netlify/functions/ai-proxy"
+  status = 200
+
 # 认证相关特殊路由 - 必须在通用API路由之前
 [[redirects]]
   from = "/api/auth/cookie"
