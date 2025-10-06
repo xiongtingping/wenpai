@@ -95,21 +95,32 @@ function getCurrentUserInfo(): { userId: string; userTier: SubscriptionTier } | 
             source: key,
             userId: user.id,
             hasSubscription: !!user.subscription,
+            subscriptionType: typeof user.subscription,
+            subscriptionValue: user.subscription,
             subscriptionTier: user.subscription?.tier,
-            subscriptionPlan: user.subscription?.plan,
-            subscriptionStatus: user.subscription?.status,
             userKeys: Object.keys(user),
             fullUser: user
           });
 
-          // 获取用户套餐信息，默认为trial
-          const userTier: SubscriptionTier = user.subscription?.tier || 'trial';
+          // 🔧 修复：支持两种数据结构
+          // 1. unified-state-store格式：subscription直接是字符串 'trial' | 'pro' | 'premium'
+          // 2. 旧格式：subscription是对象 { tier: 'trial' | 'pro' | 'premium' }
+          let userTier: SubscriptionTier = 'trial';
+
+          if (typeof user.subscription === 'string') {
+            // 新格式：直接是字符串
+            userTier = user.subscription as SubscriptionTier;
+          } else if (user.subscription?.tier) {
+            // 旧格式：对象格式
+            userTier = user.subscription.tier;
+          }
 
           console.log('📊 用户信息:', {
             userId: user.id,
             userTier,
             source: key,
-            subscriptionExists: !!user.subscription
+            subscriptionType: typeof user.subscription,
+            subscriptionValue: user.subscription
           });
 
           return {
