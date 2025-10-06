@@ -136,7 +136,10 @@ class RequestDeduplicator {
       maxTokens: params.maxTokens,
       regenerationSeed: anyParams.regenerationSeed,
       variationLevel: anyParams.variationLevel,
-      styleVariation: anyParams.styleVariation
+      styleVariation: anyParams.styleVariation,
+      taskType: anyParams.taskType,
+      feature: anyParams.feature,
+      context: anyParams.context
     });
   }
 

@@ -120,7 +120,7 @@ function generateUniqueTokenId(userId: string, feature: string): string {
  * Token使用量统计服务类
  */
 class TokenUsageService {
-  private readonly API_ENDPOINT = '/.netlify/functions/api/token-usage';
+  private readonly API_ENDPOINT = '/.netlify/functions/api-token-usage';
 
   /**
    * 获取用户套餐的token限额

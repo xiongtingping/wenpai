@@ -186,12 +186,12 @@ export const AutomationUI: React.FC<any> = ({ availablePlatforms,
       {/* 平台选择 */}
       <div>
         <h4 className="font-medium text-foreground mb-3">选择转发平台</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-3">
           {availablePlatforms.map((platform: any) => {
             const isReady = platform.hasContent && platform.hasTitle && !platform.isTitleGenerating;
             const isGenerating = platform.isTitleGenerating;
             const hasNoTitle = platform.hasContent && !platform.hasTitle && !platform.isTitleGenerating;
-            
+
             return (
               <div
                 key={platform.id}
@@ -213,7 +213,7 @@ export const AutomationUI: React.FC<any> = ({ availablePlatforms,
                   />
                   <span className="font-medium text-foreground">{platform.name}</span>
                 </div>
-                
+
                 <div className="flex flex-col items-end gap-1">
                   {platform.hasContent ? (
                     <span className="text-xs text-foreground bg-accent px-2 py-1 rounded">
@@ -224,22 +224,22 @@ export const AutomationUI: React.FC<any> = ({ availablePlatforms,
                       无内容
                     </span>
                   )}
-                  
+
                   {isGenerating && (
-                    <span className="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded flex items-center gap-1">
+                    <span className="text-xs text-primary bg-primary/10 px-2 py-1 rounded flex items-center gap-1">
                       <RefreshCw className="h-3 w-3 animate-spin" />
                       生成标题中
                     </span>
                   )}
-                  
+
                   {hasNoTitle && (
-                    <span className="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded">
+                    <span className="text-xs text-muted-foreground bg-muted/20 px-2 py-1 rounded">
                       等待标题
                     </span>
                   )}
-                  
+
                   {isReady && (
-                    <span className="text-xs text-success bg-green-100 px-2 py-1 rounded">
+                    <span className="text-xs text-primary bg-primary/10 px-2 py-1 rounded">
                       ✓ 就绪
                     </span>
                   )}

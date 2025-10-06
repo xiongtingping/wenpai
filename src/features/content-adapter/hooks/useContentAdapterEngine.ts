@@ -527,6 +527,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     } catch (error) {
       console.error(`❌ 标题生成异常 (平台=${platformId}):`, error);
 
+      // 根因修复路径：不使用本地降级兜底，直接结束并提示错误
       setTitleStates(prev => ({
         ...prev,
         [platformId]: { hasTitle: false, isGenerating: false }
@@ -539,9 +540,6 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
         description: `平台 ${platformId}: ${errorMessage}`,
         variant: "destructive"
       });
-
-      // 重新抛出错误以便上层catch捕获
-      throw error;
     }
   }, [params.selectedModel, toast]);
 

@@ -657,7 +657,7 @@ export class ContentAdapterService {
 5. 工具+明确价值型：工具名称 + 功能/收益`;
 
       const aiParams: AICallParamsWithTracking = {
-        prompt: `请基于以下内容生成5个吸引人的标题。
+        prompt: `请基于以下内容生成5个吸引人的标题（必须使用简体中文输出）。
 
 【内容】
 ${truncatedContent}
@@ -695,7 +695,7 @@ ${stylePrompts}
 }
 
 请直接返回JSON，不要其他说明文字：`,
-        systemPrompt: `你是一个专业的标题生成专家，擅长生成高质量、多样化的标题。
+        systemPrompt: `你是一个专业的标题生成专家，擅长生成高质量、多样化的标题。\n\n【语言要求】\n- 必须使用简体中文输出所有标题\n- 专有名词如需保留英文，请在首次出现时使用括号提供中文释义
 
 【核心原则】
 1. 与原文内容高度相关
@@ -722,7 +722,13 @@ ${stylePrompts}
         taskType: AITaskType.TITLE_GENERATION
       };
 
-      const result = await callAIWithTokenTracking(aiParams);
+      // 标题生成采用两次尝试：当前模型 → 回退模型；并注入上下文用于请求去重隔离
+      let currentModel = model || 'deepseek-chat';
+      let result = await callAIWithTokenTracking({ ...aiParams, model: currentModel, context: ['title', platform] });
+      if (!(result.success && result.content)) {
+        currentModel = getNextFallbackModel(currentModel);
+        result = await callAIWithTokenTracking({ ...aiParams, model: currentModel, context: ['title', platform] });
+      }
 
       if (result.success && result.content) {
         // 解析AI返回的JSON
@@ -786,15 +792,25 @@ ${stylePrompts}
           .filter(item =>
             item.overallScore >= 0.6 &&
             item.title.length >= 5 &&
+
+        //                   //         
+
             item.title.length <= 50 &&
             !item.title.includes('undefined') &&
             !item.title.includes('null')
           )
           .sort((a, b) => b.overallScore - a.overallScore);
 
+        // 非空保障：如过滤后为空，保留一个安全标题，避免“缺失标题”情况
+        if (qualifiedTitles.length === 0) {
+          const safeTitle = this.cleanTitle(parsedTitles?.[0]?.title || result.content || '标题');
+          qualifiedTitles = [{ title: safeTitle, style: 'fallback', reasoning: 'safe-guard', overallScore: 0.6 } as any];
+        }
+
         // 返回最佳标题与候选集
         const bestTitle = qualifiedTitles[0]?.title || this.cleanTitle(result.content);
         const candidates = qualifiedTitles.slice(0, 3).map(item => item.title);
+
 
         return {
           success: true,
@@ -902,7 +918,14 @@ ${stylePrompts}
    * 构建系统提示词
    */
   private buildSystemPrompt(platform: string): string {
-    return `你是一个专业的多维度内容创作专家，擅长为${platform}平台生成高质量内容。请严格按照多维矩阵要求生成内容。`;
+    // 统一语言要求：根据当前i18n语言强制输出简体中文（默认）
+    const lang = (i18n?.language || 'zh-CN').toLowerCase();
+    const languageDirective = lang.startsWith('zh')
+      ? '【语言要求】全部使用简体中文输出，包括标题、正文与话题标签；如需使用英文专有名词，请在首次出现时提供中文括注。严禁输出英文版正文。'
+      : '【Language Requirement】Output in natural English unless the original content is explicitly Chinese; keep terminology consistent. When using Chinese proper nouns, provide the English transliteration in parentheses on first mention.';
+
+    return `你是一个专业的多维度内容创作专家，擅长为${platform}平台生成高质量内容。请严格按照多维矩阵要求生成内容。
+${languageDirective}`;
   }
 
   /**
