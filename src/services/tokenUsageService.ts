@@ -149,7 +149,11 @@ class TokenUsageService {
    */
   private async safeInsertTokenRecord(record: TokenUsageRecord): Promise<boolean> {
     try {
-      logger.debug('🔍 开始安全插入Token记录:', record.id);
+      logger.info('🔍 开始安全插入Token记录:', {
+        id: record.id,
+        userId: record.userId,
+        totalTokens: record.totalTokens
+      });
 
       const client = await getSupabaseClient();
 
@@ -165,7 +169,7 @@ class TokenUsageService {
       }
 
       if (existingRecord) {
-        logger.warn('🔄 记录已存在，跳过插入:', record.id);
+        logger.info('🔄 记录已存在，跳过插入:', record.id);
         return true; // 记录已存在，视为成功
       }
 
@@ -185,11 +189,12 @@ class TokenUsageService {
         timestamp: record.timestamp
       };
 
-      logger.debug('📊 准备插入的数据库记录:', {
+      logger.info('📊 准备插入的数据库记录:', {
         id: dbRecord.id,
         user_id: dbRecord.user_id,
         total_tokens: dbRecord.total_tokens,
-        feature: dbRecord.feature
+        feature: dbRecord.feature,
+        model: dbRecord.model
       });
 
       // 3. 尝试插入
@@ -262,22 +267,31 @@ class TokenUsageService {
       timestamp
     };
 
-    logger.debug('💾 开始Token使用量记录:', {
+    logger.info('💾 开始Token使用量记录:', {
       recordId: fullRecord.id,
       userId: record.userId,
       feature: record.feature,
-      totalTokens: record.totalTokens
+      model: record.model,
+      inputTokens: record.inputTokens,
+      outputTokens: record.outputTokens,
+      totalTokens: record.totalTokens,
+      success: record.success
     });
 
     try {
       // 1. 优先保存到Supabase数据库（关键操作）
+      logger.info('🔍 准备保存到Supabase...', { recordId: fullRecord.id });
       const databaseSuccess = await this.safeInsertTokenRecord(fullRecord);
 
       if (!databaseSuccess) {
+        logger.error('❌ Supabase数据库保存失败!', { recordId: fullRecord.id });
         throw new Error('Supabasedatabasesavingfailed');
       }
 
-      logger.debug('✅ Supabase数据库保存成功:', fullRecord.id);
+      logger.info('✅ Supabase数据库保存成功!', {
+        recordId: fullRecord.id,
+        totalTokens: record.totalTokens
+      });
 
       // 2. 尝试同步到后端（非关键操作）
       try {
