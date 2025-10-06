@@ -56,6 +56,7 @@ import DialogTestPage from '@/pages/DialogTestPage';
 import DialogDebugPage from '@/pages/DialogDebugPage';
 import I18nTestPage from '@/pages/I18nTestPage';
 import UserDebugPage from '@/pages/UserDebugPage';
+import DiagnosticPage from '@/pages/DiagnosticPage';
 
 // 🚀 优化的懒加载策略 - 按使用频率和大小分组
 // 创意工具类 - 大型页面组件
@@ -390,6 +391,9 @@ const App: React.FC = () => {
 
                         {/* 用户调试页面 */}
                         <Route path='/user-debug' element={<UserDebugPage />} />
+
+                        {/* 系统诊断页面 */}
+                        <Route path='/diagnostic' element={<DiagnosticPage />} />
 
                         {/* {t('app.routes.errorPages')} */}
                         <Route path='/403' element={<ForbiddenPage />} />
