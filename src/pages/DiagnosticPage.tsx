@@ -65,7 +65,7 @@ export const DiagnosticPage: React.FC = () => {
       results.endpoints.deepseek = { error: String(error) };
     }
 
-    // 4. 测试AIMLAPI调用
+    // 4. 测试AIMLAPI调用 - gpt-4o-mini
     try {
       const apiKey = getAPIKey('aimlapi');
       const endpoint = buildAPIURL('aimlapi', 'chat');
@@ -81,7 +81,7 @@ export const DiagnosticPage: React.FC = () => {
         })
       });
 
-      results.testCalls.aimlapi = {
+      results.testCalls.aimlapi_gpt4omini = {
         status: response.status,
         statusText: response.statusText,
         ok: response.ok,
@@ -89,7 +89,60 @@ export const DiagnosticPage: React.FC = () => {
         body: response.ok ? await response.json() : await response.text()
       };
     } catch (error) {
-      results.testCalls.aimlapi = { error: String(error) };
+      results.testCalls.aimlapi_gpt4omini = { error: String(error) };
+    }
+
+    // 5. 测试AIMLAPI调用 - Gemini (默认模型)
+    try {
+      const apiKey = getAPIKey('aimlapi');
+      const endpoint = buildAPIURL('aimlapi', 'chat');
+      const headers = getAPIHeaders('aimlapi', apiKey);
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash-lite-preview',
+          messages: [{ role: 'user', content: 'test' }],
+          max_tokens: 10
+        })
+      });
+
+      results.testCalls.aimlapi_gemini = {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries()),
+        body: response.ok ? await response.json() : await response.text()
+      };
+    } catch (error) {
+      results.testCalls.aimlapi_gemini = { error: String(error) };
+    }
+
+    // 6. 测试完整的内容适配器调用链
+    try {
+      const { callAIWithTokenTracking } = await import('@/services/aiWithTokenTracking');
+      const { AITaskType } = await import('@/api/aiService');
+
+      const result = await callAIWithTokenTracking({
+        model: 'google/gemini-2.5-flash-lite-preview',
+        prompt: '请生成一段测试内容',
+        systemPrompt: '你是一个内容生成助手',
+        maxTokens: 50,
+        temperature: 0.7,
+        feature: '系统诊断',
+        taskType: AITaskType.CONTENT_ADAPTATION
+      });
+
+      results.testCalls.fullChain_gemini = {
+        success: result.success,
+        content: result.content?.substring(0, 100),
+        error: result.error,
+        model: result.model,
+        usage: result.usage
+      };
+    } catch (error) {
+      results.testCalls.fullChain_gemini = { error: String(error) };
     }
 
     setTestResult(results);
