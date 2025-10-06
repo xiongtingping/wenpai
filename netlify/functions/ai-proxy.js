@@ -123,22 +123,34 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    // 解析路径，提取 AI 服务提供商和具体路径
-    const path = event.path.replace('/api/ai/', '');
-    const pathParts = path.split('/');
-    const provider = pathParts[0]; // openai, deepseek, gemini
-    const apiPath = pathParts.slice(1).join('/'); // 具体的 API 路径
+    // 🔧 FIX: 支持两种调用方式
+    // 方式1: 路径参数 /api/ai/{provider}/{path}
+    // 方式2: 查询参数 /.netlify/functions/ai-proxy?provider={provider}&path={path}
 
-    console.log('🔧 AI代理请求:', { provider, apiPath, method: event.httpMethod });
+    let provider, apiPath;
+
+    if (event.queryStringParameters && event.queryStringParameters.provider) {
+      // 查询参数方式
+      provider = event.queryStringParameters.provider;
+      apiPath = decodeURIComponent(event.queryStringParameters.path || '');
+      console.log('🔧 AI代理请求 (查询参数):', { provider, apiPath, method: event.httpMethod });
+    } else {
+      // 路径参数方式
+      const path = event.path.replace('/api/ai/', '');
+      const pathParts = path.split('/');
+      provider = pathParts[0]; // openai, deepseek, gemini
+      apiPath = pathParts.slice(1).join('/'); // 具体的 API 路径
+      console.log('🔧 AI代理请求 (路径参数):', { provider, apiPath, method: event.httpMethod });
+    }
 
     // 验证提供商
     if (!['openai', 'deepseek', 'gemini'].includes(provider)) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           error: '不支持的 AI 服务提供商',
-          provider: provider 
+          provider: provider
         })
       };
     }

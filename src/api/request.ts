@@ -65,7 +65,7 @@ const getAPIConfig = (): APIConfig => {
       apiKey: getEnvVar('VITE_GEMINI_API_KEY', ''),
     },
     deepseek: {
-      baseURL: getEnvVar('VITE_DEEPSEEK_BASE_URL', 'https://api.deepseek.com/v1'),
+      baseURL: getEnvVar('VITE_DEEPSEEK_BASE_URL', 'https://api.deepseek.com'), // 🔧 FIX: 移除/v1，避免双重路径
       apiKey: getEnvVar('VITE_DEEPSEEK_API_KEY', ''),
     },
     // 其他API配置

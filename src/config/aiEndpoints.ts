@@ -206,10 +206,12 @@ export function getAIEndpoint(provider: string): AIEndpointConfig | null {
  * @param endpoint 具体端点路径
  * @param pathParams 路径参数（如模型名称）
  * @returns 完整的API URL
+ *
+ * 🔧 FIX: 在生产环境下，DeepSeek等需要CORS代理的provider使用Netlify Functions代理
  */
 export function buildAPIURL(
-  provider: string, 
-  endpoint: 'chat' | 'image' | 'models', 
+  provider: string,
+  endpoint: 'chat' | 'image' | 'models',
   pathParams?: Record<string, string>
 ): string {
   const config = getAIEndpoint(provider);
@@ -238,6 +240,19 @@ export function buildAPIURL(
     Object.entries(pathParams).forEach(([key, value]) => {
       endpointPath = endpointPath.replace(`{${key}}`, value);
     });
+  }
+
+  // 🔧 FIX: 检查是否需要使用代理
+  // AIMLAPI不需要代理（已经是统一API）
+  // DeepSeek、OpenAI、Gemini等需要通过Netlify Functions代理避免CORS
+  const needsProxy = !['aimlapi'].includes(provider.toLowerCase());
+  const isProduction = typeof window !== 'undefined' && !window.location.hostname.includes('localhost');
+
+  if (needsProxy && isProduction) {
+    // 使用Netlify Functions代理
+    // 格式: /.netlify/functions/ai-proxy?provider={provider}&path={endpointPath}
+    const encodedPath = encodeURIComponent(endpointPath);
+    return `/.netlify/functions/ai-proxy?provider=${provider}&path=${encodedPath}`;
   }
 
   return `${config.baseURL}${endpointPath}`;
