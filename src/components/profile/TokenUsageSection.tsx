@@ -7,8 +7,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { 
-  Zap, 
+import {
+  Zap,
   Crown,
   RefreshCw,
   Info,
@@ -19,8 +19,8 @@ import {
 } from 'lucide-react';
 import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats';
 import { useUsageCount, useTokenStats } from '@/hooks/useUsage';
-import { 
-  formatRemainingUses, 
+import {
+  formatRemainingUses,
   formatUsageDisplay,
   shouldShowProgressBar,
   getUsageStatusColor,
@@ -124,10 +124,20 @@ export function TokenUsageSection({
     extendedStats,
     loading: legacyLoading,
     error,
-    refreshStats
+    refreshStats,
+    refreshTokenStats
   } = useUnifiedUsageStats(userTier);
 
   // 🎯 统一数据: 优先使用新Store的数据，降级到旧Hook
+  // 🔄 首次挂载自动刷新一次，避免出现旧缓存导致的0显示
+  const didAutoRefreshRef = React.useRef(false);
+  React.useEffect(() => {
+    if (!didAutoRefreshRef.current) {
+      didAutoRefreshRef.current = true;
+      refreshStats();
+    }
+  }, [refreshStats]);
+
   const loading = storeUsageCount.loading || storeTokenStats.loading || legacyLoading;
 
   // 🔧 FIX: 直接使用useTokenStats返回的数值，而不是stats对象
@@ -206,6 +216,18 @@ export function TokenUsageSection({
     });
   }, [storeUsageCount, storeTokenStats, legacyUsageCountStats, legacyTokenStats, tokenStats, usageCountStats, loading, finalUsageCountStats, finalTokenStats]);
 
+  // 若存在使用次数>0但Token仍为0，触发一次强制实时刷新（绕过缓存）
+  React.useEffect(() => {
+    if (finalUsageCountStats.usedCount > 0 && (!finalTokenStats || finalTokenStats.monthlyUsed === 0)) {
+      console.log('[TokenUsageSection] usage>0 but token=0, trigger LIVE refresh', {
+        usedCount: finalUsageCountStats.usedCount,
+        tokenMonthlyUsed: finalTokenStats?.monthlyUsed ?? null
+      });
+      refreshTokenStats();
+    }
+  }, [finalUsageCountStats.usedCount, finalTokenStats?.monthlyUsed, refreshTokenStats]);
+
+
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
@@ -264,7 +286,7 @@ export function TokenUsageSection({
 
   // 处理升级操作
   // ✅ FIXED: 恢复按钮，修复于 2025-08-10
-  // 
+  //
   const handleUpgrade = () => {
     window.location.href = '/payment';
   };
@@ -392,8 +414,8 @@ export function TokenUsageSection({
                           }} />
                         </div>
                         <div className="text-muted-foreground" style={{display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', fontWeight: '500'}}>
-                          <span>已使用 {formatNumber(finalTokenStats?.monthlyUsed || 0)} tokens</span>
-                          <span>剩余 {formatNumber(finalTokenStats?.monthlyRemaining || 0)} tokens</span>
+                          <span>已使用 {finalTokenStats ? formatNumber(finalTokenStats.monthlyUsed) : '—'} tokens</span>
+                          <span>剩余 {finalTokenStats ? formatNumber(finalTokenStats.monthlyRemaining) : '—'} tokens</span>
                         </div>
                       </>
                     )}

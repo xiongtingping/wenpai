@@ -31,9 +31,11 @@ export function useUsage() {
   const initializeStats = useUnifiedStore(state => state.initializeUsageStats);
 
   // 🎯 自动初始化 (用户登录后)
+  // 🔧 修复：当 subscription 缺失时也进行初始化，使用安全的默认等级（trial）
   useEffect(() => {
-    if (user.id && user.subscription) {
-      initializeStats(user.id, user.subscription);
+    if (user.id) {
+      const tier = (user.subscription as SubscriptionTier) || ('trial' as SubscriptionTier);
+      initializeStats(user.id, tier);
     }
   }, [user.id, user.subscription, initializeStats]);
 
@@ -74,10 +76,12 @@ export function useUsageCount() {
   const initializeStats = useUnifiedStore(state => state.initializeUsageStats);
 
   // 🎯 自动初始化 (用户登录后)
+  // 🔧 修复：当 subscription 缺失时也进行初始化，使用安全的默认等级（trial）
   useEffect(() => {
-    if (user.id && user.subscription) {
-      console.log('🔄 useUsageCount 触发初始化:', { userId: user.id, subscription: user.subscription });
-      initializeStats(user.id, user.subscription);
+    if (user.id) {
+      const tier = (user.subscription as SubscriptionTier) || ('trial' as SubscriptionTier);
+      console.log('🔄 useUsageCount 触发初始化:', { userId: user.id, subscription: user.subscription, tier });
+      initializeStats(user.id, tier);
     }
   }, [user.id, user.subscription, initializeStats]);
 

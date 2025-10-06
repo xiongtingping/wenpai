@@ -25,12 +25,13 @@ function getTokenLimitForTier(tier: SubscriptionTier): number {
   } catch (error) {
     console.warn(`getting套餐${tier}的Tokenlimitfailed，使用defaultvalue`, error);
     // 仅在获取配置失败时使用fallback值
-    const fallbackLimits = {
-      'trial': 100000,
-      'pro': 200000,
-      'premium': 500000
+    const fallbackLimits: Partial<Record<SubscriptionTier, number>> = {
+      trial: 100000,
+      pro: 200000,
+      premium: 500000
     };
-    return fallbackLimits[tier] || 100000;
+    const fallback = fallbackLimits[tier];
+    return typeof fallback === 'number' ? fallback : 100000;
   }
 }
 
@@ -107,10 +108,10 @@ export interface TokenLimitCheckResult {
  */
 function generateUniqueTokenId(userId: string, feature: string): string {
   const timestamp = Date.now();
-  const randomPart = Math.random().toString(36).substr(2, 12);
-  const userPart = userId.substr(-6).replace(/[^a-zA-Z0-9]/g, ''); // 清理特殊字符
-  const featurePart = feature.replace(/[^a-zA-Z0-9]/g, '').substr(0, 8); // 清理和截取功能名
-  const microsecond = (performance.now() * 1000).toString().substr(-3); // 添加微秒精度
+  const randomPart = Math.random().toString(36).slice(2, 14);
+  const userPart = userId.slice(-6).replace(/[^a-zA-Z0-9]/g, ''); // 清理特殊字符
+  const featurePart = feature.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8); // 清理和截取功能名
+  const microsecond = (performance.now() * 1000).toString().slice(-3); // 添加微秒精度
 
   return `token_${timestamp}_${userPart}_${featurePart}_${microsecond}_${randomPart}`;
 }
@@ -388,7 +389,7 @@ class TokenUsageService {
       }
       */
 
-      const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
+      // const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
       const monthKey = this.getCurrentMonthKey();
       const dateKey = this.getCurrentDateKey();
 
@@ -407,7 +408,8 @@ class TokenUsageService {
         monthStartTime
       });
 
-      const { data: monthlyData, error: monthlyError } = await client
+      // 优先按 timestamp 过滤；若无结果，回退使用 created_at 过滤（兼容历史数据）
+      let { data: monthlyData, error: monthlyError } = await client
         .from(TABLE_NAMES.USER_USAGE_LOGS)
         .select('*')
         .eq('user_id', userId)
@@ -418,7 +420,50 @@ class TokenUsageService {
         throw new Error(`查询月度记录失败: ${monthlyError.message}`);
       }
 
-      logger.debug('📊 月度查询结果:', {
+      if (!monthlyData || monthlyData.length === 0) {
+        logger.warn('⚠️ 月度按 timestamp 查询为空，尝试使用 created_at 回退');
+        const fb1 = await client
+          .from(TABLE_NAMES.USER_USAGE_LOGS)
+          .select('*')
+          .eq('user_id', userId)
+          .gte('created_at', monthStartTime);
+        if (fb1.error) {
+          logger.error('❌ 月度回退(created_at)查询失败:', fb1.error);
+          throw new Error(`查询月度记录失败(created_at): ${fb1.error.message}`);
+        }
+        monthlyData = fb1.data || [];
+      }
+
+      // 表名兼容：若仍为空，回退到旧表名 user_usage_logs（生产兼容）
+      if (!monthlyData || monthlyData.length === 0) {
+        logger.warn('⚠️ 月度查询仍为空，尝试旧表名 user_usage_logs（timestamp）');
+        const fb2 = await client
+          .from('user_usage_logs')
+          .select('*')
+          .eq('user_id', userId)
+          .gte('timestamp', monthStartTime);
+        if (fb2.error) {
+          logger.error('❌ 旧表名(timestamp)查询失败:', fb2.error);
+        } else {
+          monthlyData = fb2.data || [];
+        }
+      }
+
+      if (!monthlyData || monthlyData.length === 0) {
+        logger.warn('⚠️ 月度旧表名(timestamp)为空，尝试旧表名 user_usage_logs（created_at）');
+        const fb3 = await client
+          .from('user_usage_logs')
+          .select('*')
+          .eq('user_id', userId)
+          .gte('created_at', monthStartTime);
+        if (fb3.error) {
+          logger.error('❌ 旧表名(created_at)查询失败:', fb3.error);
+        } else {
+          monthlyData = fb3.data || [];
+        }
+      }
+
+      logger.debug('📊 月度查询结果(含表名与字段回退):', {
         recordCount: monthlyData?.length || 0,
         sampleRecord: monthlyData?.[0] || null
       });
@@ -432,7 +477,8 @@ class TokenUsageService {
         dayStartTime
       });
 
-      const { data: dailyData, error: dailyError } = await client
+      // 日度：同样提供 created_at 回退 + 旧表名回退
+      let { data: dailyData, error: dailyError } = await client
         .from(TABLE_NAMES.USER_USAGE_LOGS)
         .select('*')
         .eq('user_id', userId)
@@ -443,7 +489,49 @@ class TokenUsageService {
         throw new Error(`查询日度记录失败: ${dailyError.message}`);
       }
 
-      logger.debug('📊 日度查询结果:', {
+      if (!dailyData || dailyData.length === 0) {
+        logger.warn('⚠️ 日度按 timestamp 查询为空，尝试使用 created_at 回退');
+        const fb1 = await client
+          .from(TABLE_NAMES.USER_USAGE_LOGS)
+          .select('*')
+          .eq('user_id', userId)
+          .gte('created_at', dayStartTime);
+        if (fb1.error) {
+          logger.error('❌ 日度回退(created_at)查询失败:', fb1.error);
+          throw new Error(`查询日度记录失败(created_at): ${fb1.error.message}`);
+        }
+        dailyData = fb1.data || [];
+      }
+
+      if (!dailyData || dailyData.length === 0) {
+        logger.warn('⚠️ 日度查询仍为空，尝试旧表名 user_usage_logs（timestamp）');
+        const fb2 = await client
+          .from('user_usage_logs')
+          .select('*')
+          .eq('user_id', userId)
+          .gte('timestamp', dayStartTime);
+        if (fb2.error) {
+          logger.error('❌ 旧表名(timestamp)查询失败:', fb2.error);
+        } else {
+          dailyData = fb2.data || [];
+        }
+      }
+
+      if (!dailyData || dailyData.length === 0) {
+        logger.warn('⚠️ 日度旧表名(timestamp)为空，尝试旧表名 user_usage_logs（created_at）');
+        const fb3 = await client
+          .from('user_usage_logs')
+          .select('*')
+          .eq('user_id', userId)
+          .gte('created_at', dayStartTime);
+        if (fb3.error) {
+          logger.error('❌ 旧表名(created_at)查询失败:', fb3.error);
+        } else {
+          dailyData = fb3.data || [];
+        }
+      }
+
+      logger.debug('📊 日度查询结果(含回退兼容):', {
         recordCount: dailyData?.length || 0,
         sampleRecord: dailyData?.[0] || null
       });
@@ -460,16 +548,36 @@ class TokenUsageService {
         source: 'getTokenLimitByTier'
       });
 
-      // 🔧 修复：正确处理字段名（数据库中可能是snake_case）
+      // 🔧 修复：正确处理字段名与历史记录（可能缺少 total_tokens，仅有 input_tokens/output_tokens）
       const monthlyUsed = monthlyRecords.data.reduce((sum, record: any) => {
-        const tokens = record.total_tokens || record.totalTokens || 0;
-        return sum + tokens;
+        const tokensRaw = (record.total_tokens ?? record.totalTokens) ?? ((record.input_tokens ?? 0) + (record.output_tokens ?? 0));
+        const tokensNum = Number(tokensRaw);
+        return sum + (Number.isFinite(tokensNum) ? tokensNum : 0);
       }, 0);
 
       const dailyUsed = dailyRecords.data.reduce((sum, record: any) => {
-        const tokens = record.total_tokens || record.totalTokens || 0;
-        return sum + tokens;
+        const tokensRaw = (record.total_tokens ?? record.totalTokens) ?? ((record.input_tokens ?? 0) + (record.output_tokens ?? 0));
+        const tokensNum = Number(tokensRaw);
+        return sum + (Number.isFinite(tokensNum) ? tokensNum : 0);
       }, 0);
+
+      logger.info('🔎 TokenUsageService 聚合结果', {
+        userId,
+        monthStartTime,
+        dayStartTime,
+        monthlyCount: monthlyRecords.data.length,
+        dailyCount: dailyRecords.data.length,
+        monthlyUsed,
+        dailyUsed,
+        monthlySample: monthlyRecords.data[0] || null
+      });
+      // 直接输出到浏览器控制台，便于前端诊断
+      console.log('[tokenUsageService] aggregation', {
+        userId,
+        monthlyCount: monthlyRecords.data.length,
+        monthlyUsed,
+        sample: monthlyRecords.data[0] || null
+      });
 
       const monthlyRemaining = Math.max(0, monthlyLimit - monthlyUsed);
       const usagePercentage = monthlyLimit > 0 ? (monthlyUsed / monthlyLimit) * 100 : 0;
@@ -578,7 +686,7 @@ class TokenUsageService {
     try {
       logger.debug('🔍 开始获取用户功能统计:', { userId });
 
-      const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
+      // const dataService = createDataService(userId, TABLE_NAMES.USER_USAGE_LOGS);
       const monthKey = this.getCurrentMonthKey();
       const monthStartTime = `${monthKey}-01T00:00:00.000Z`;
 

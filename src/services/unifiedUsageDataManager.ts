@@ -1,7 +1,7 @@
 /**
  * 🎯 统一使用统计数据管理器
  * @description 整合Token和使用次数统计，提供统一的数据管理、缓存和同步机制
- * 
+ *
  * 🔧 修复：
  * - 统一数据来源，避免多个服务各自缓存导致的不一致
  * - 集成数据管理中心，使用标准的三层存储架构
@@ -89,13 +89,13 @@ class UnifiedUsageDataManager {
 
       // 设置数据管理器用户ID
       globalDataManager.setUserId(userId);
-      
+
       // 预加载使用统计数据
       await this.preloadUsageData();
-      
+
       // 启动定期同步
       this.startPeriodicSync();
-      
+
       logger.info('✅ 统一使用统计数据管理器初始化完成', { userId });
     } catch (error) {
       logger.error('❌ 使用统计数据管理器初始化失败', { userId, error });
@@ -111,14 +111,14 @@ class UnifiedUsageDataManager {
 
     try {
       logger.info('🔄 开始预加载使用统计数据...');
-      
+
       // 并行预加载Token统计和使用次数统计
       await Promise.allSettled([
         this.preloadTokenStats(),
         this.preloadUsageCountStats(),
         this.preloadExtendedStats()
       ]);
-      
+
       logger.info('✅ 使用统计数据预加载完成');
     } catch (error) {
       logger.error('❌ 预加载使用统计数据失败', error);
@@ -271,18 +271,27 @@ class UnifiedUsageDataManager {
     // 检查缓存
     const cached = this.getFromCache<TokenUsageStats>(cacheKey);
     if (cached) {
-      logger.debug('使用缓存的Token统计', { userId, userTier, cached });
-      return cached;
+      if (cached.monthlyLimit > 0 && cached.monthlyUsed === 0) {
+        console.log('[getTokenUsageStats] skip suspicious zero cache, fetching fresh...', { userId, userTier });
+      } else {
+        logger.debug('使用缓存的Token统计', { userId, userTier, cached });
+        return cached;
+      }
     }
 
     try {
-      // 🔧 FIX: 优先从globalDataManager获取，避免重复查询
+      // 🔧 FIX: 优先从globalDataManager获取，避免重复查询（但需校验新鲜度）
       const cloudData = await globalDataManager.getData<TokenUsageStats>('tokenUsageStats');
-      // ⚠️ CRITICAL FIX: 必须验证用户ID匹配，避免返回其他用户的数据
+      // ⚠️ 验证用户匹配 + 数据新鲜度（≤2分钟）
       if (cloudData && this.validateTokenStats(cloudData) && cloudData.userId === userId) {
-        this.setCache(cacheKey, cloudData, 60 * 1000);
-        logger.debug('使用云端Token统计', { userId, userTier, cloudData });
-        return cloudData;
+        const ageMs = Date.now() - new Date(cloudData.lastUpdated).getTime();
+        const fresh = ageMs >= 0 && ageMs <= 2 * 60 * 1000;
+        if (fresh && !(cloudData.monthlyUsed === 0 && cloudData.monthlyLimit > 0)) {
+          this.setCache(cacheKey, cloudData, 60 * 1000);
+          logger.debug('使用云端Token统计(新鲜有效)', { userId, userTier, ageMs, cloudData });
+          return cloudData;
+        }
+        logger.debug('忽略云端Token统计（过期或可疑为0），将重新拉取', { userId, userTier, ageMs, cloudDataMonthlyUsed: cloudData.monthlyUsed });
       }
 
       // 🔧 FIX: 通过tokenUsageService获取最新数据
@@ -300,8 +309,30 @@ class UnifiedUsageDataManager {
       return tokenStats;
     } catch (error) {
       logger.error('获取Token使用统计失败', { userId, userTier, error });
-      // 🔧 FIX: 返回默认值而不是null，避免UI显示异常
-      return this.generateDefaultTokenStats(userId, userTier);
+      // ⚠️ 重要：不要返回默认0，避免覆盖真实数据为0而误导UI
+      // 返回 null，让上层决定显示降级或保持既有数据
+      return null;
+    }
+  }
+
+  /**
+   * 强制实时获取Token统计（绕过云端与本地缓存），用于诊断/强一致刷新
+   */
+  async getTokenUsageStatsLive(userId: string, userTier: SubscriptionTier): Promise<TokenUsageStats | null> {
+    try {
+      const tokenStats = await tokenUsageService.getUserTokenStats(userId, userTier);
+      if (tokenStats) {
+        // 覆盖本地与云端缓存，确保后续读取一致
+        const cacheKey = `token-stats-${userId}-${userTier}`;
+        this.setCache(cacheKey, tokenStats, 60 * 1000);
+        await globalDataManager.setData('tokenUsageStats', tokenStats);
+        logger.info('getTokenUsageStatsLive: 已获取并覆盖缓存', { userId, userTier, monthlyUsed: tokenStats.monthlyUsed });
+        console.log('[getTokenUsageStatsLive] fetched', { userId, userTier, monthlyUsed: tokenStats.monthlyUsed });
+      }
+      return tokenStats;
+    } catch (error) {
+      logger.error('getTokenUsageStatsLive: 实时获取失败', { userId, userTier, error });
+      return null;
     }
   }
 
@@ -464,7 +495,7 @@ class UnifiedUsageDataManager {
    */
   async getExtendedStats(userId: string): Promise<any> {
     const cacheKey = `extended-stats-${userId}`;
-    
+
     // 检查缓存
     const cached = this.getFromCache<any>(cacheKey);
     if (cached) {
@@ -474,7 +505,7 @@ class UnifiedUsageDataManager {
     try {
       // 从数据管理中心获取
       const extendedStats = await globalDataManager.getData('extendedUsageStats');
-      
+
       if (extendedStats) {
         this.setCache(cacheKey, extendedStats);
         return extendedStats;
@@ -489,11 +520,11 @@ class UnifiedUsageDataManager {
 
       await globalDataManager.setData('extendedUsageStats', defaultStats);
       this.setCache(cacheKey, defaultStats);
-      
+
       return defaultStats;
     } catch (error) {
       logger.error('u64cdu4f5cu5931u8d25', { userId, error });
-      
+
       return {
         timeSaved: 0,
         contentGenerated: 0,
@@ -517,10 +548,18 @@ class UnifiedUsageDataManager {
         this.getExtendedStats(userId)
       ]);
 
+      // 若出现“使用次数>0但Token为0”，触发一次实时直取并用结果覆盖
+      let finalTokenStats = tokenStats;
+      if (usageCountStats && typeof (usageCountStats as any).usedCount === 'number' && (usageCountStats as any).usedCount > 0 && (!tokenStats || tokenStats.monthlyUsed === 0)) {
+        console.log('[unifiedUsageDataManager.refreshAllStats] mismatch: usage>0 but token=0, fetching LIVE...');
+        const live = await this.getTokenUsageStatsLive(userId, userTier);
+        if (live) finalTokenStats = live;
+      }
+
       const unifiedData: UnifiedUsageData = {
         userId,
         userTier,
-        tokenStats,
+        tokenStats: finalTokenStats,
         usageCountStats,
         extendedStats,
         lastSyncTime: new Date().toISOString(),
@@ -528,7 +567,7 @@ class UnifiedUsageDataManager {
       };
 
       logger.info('✅ 所有统计数据刷新完成', { userId });
-      
+
       return unifiedData;
     } catch (error) {
       logger.error('❌ 刷新统计数据失败', { userId, userTier, error });
@@ -573,12 +612,12 @@ class UnifiedUsageDataManager {
   private getFromCache<T>(key: string): T | null {
     const cached = this.cache.get(key);
     if (!cached) return null;
-    
+
     if (Date.now() - cached.timestamp > cached.ttl) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return cached.data as T;
   }
 

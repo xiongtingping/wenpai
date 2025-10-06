@@ -260,12 +260,12 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     if (!user?.id) return;
 
     try {
-      // 🔧 FIX: 通过统一数据管理器获取Token统计
-      // 🔧 CRITICAL FIX: 使用实时计算的userTier，确保与传入参数一致
       const currentUserTier = getUserTier();
-      const tokenStatsData = await unifiedUsageDataManager.getTokenUsageStats(user.id, currentUserTier);
-      
-      // 更新本地Token存储状态
+      console.log('[useUnifiedUsageStats.refreshTokenStats] start', { userId: user.id, userTier: currentUserTier });
+      // 强制实时拉取，绕过缓存，避免显示为0的旧值
+      const tokenStatsData = await unifiedUsageDataManager.getTokenUsageStatsLive(user.id, currentUserTier);
+      console.log('[useUnifiedUsageStats.refreshTokenStats] result', { monthlyUsed: tokenStatsData?.monthlyUsed });
+
       if (tokenStatsData) {
         unifiedStore.updateTokenStats(tokenStatsData);
       }
@@ -274,7 +274,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       logger.error('刷新Token统计失败:', { userId: user.id, userTier: currentUserTier, error });
       setError(error instanceof Error ? error.message : '刷新Token统计失败');
     }
-  }, [user?.id, getUserTier, unifiedStore]); // 🔧 FIX: 使用统一Store，避免循环依赖
+  }, [user?.id, getUserTier, unifiedStore]);
 
   /**
    * 检查功能权限
