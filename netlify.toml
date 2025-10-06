@@ -60,6 +60,7 @@
   from = "/api/ai/*"
   to = "/.netlify/functions/ai-proxy/:splat"
   status = 200
+  force = true
 
 # 认证相关特殊路由 - 必须在通用API路由之前
 [[redirects]]
