@@ -438,6 +438,14 @@ class TokenUsageService {
 
       const monthlyLimit = this.getTokenLimitByTier(userTier);
 
+      // 🔍 详细日志：记录Token限额获取
+      logger.info('📊 Token限额获取:', {
+        userId,
+        userTier,
+        monthlyLimit,
+        source: 'getTokenLimitByTier'
+      });
+
       // 🔧 修复：正确处理字段名（数据库中可能是snake_case）
       const monthlyUsed = monthlyRecords.data.reduce((sum, record: any) => {
         const tokens = record.total_tokens || record.totalTokens || 0;
@@ -481,8 +489,27 @@ class TokenUsageService {
   async checkTokenLimit(userId: string, userTier: SubscriptionTier, estimatedTokens: number): Promise<TokenLimitCheckResult> {
     const stats = await this.getUserTokenStats(userId, userTier);
 
+    // 🔍 详细日志：记录Token限额检查
+    logger.info('🔍 Token限额检查:', {
+      userId,
+      userTier,
+      estimatedTokens,
+      monthlyUsed: stats.monthlyUsed,
+      monthlyLimit: stats.monthlyLimit,
+      monthlyRemaining: stats.monthlyRemaining,
+      willExceed: stats.monthlyUsed + estimatedTokens > stats.monthlyLimit
+    });
+
     // 检查是否超过月度限额
     if (stats.monthlyUsed + estimatedTokens > stats.monthlyLimit) {
+      logger.warn('⚠️ Token限额即将超过:', {
+        userId,
+        userTier,
+        monthlyUsed: stats.monthlyUsed,
+        monthlyLimit: stats.monthlyLimit,
+        estimatedTokens
+      });
+
       return {
         allowed: false,
         reason: `本月Token使用量即将超过限额。当前已使用 ${stats.monthlyUsed.toLocaleString()}，限额 ${stats.monthlyLimit.toLocaleString()}`,
