@@ -11,6 +11,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { UsageStateWrapper } from '@/components/ui/StateLoadingWrapper';
 import { QuickReferenceTrigger } from '@/components/creative/QuickReference/QuickReferenceTrigger';
+import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
+import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ContentInputSectionProps {
@@ -138,7 +140,6 @@ export function ContentInputSection({
                 <p className="font-medium mb-1">💡 内容输入建议：</p>
                 <ul className="space-y-1 text-xs">
                   <li>• 输入您想要适配的原始内容</li>
-                  <li>• 支持文本、链接、图片描述等多种形式</li>
                   <li>• 内容越详细，生成的适配效果越好</li>
                   <li>• 建议单次输入内容不超过5000字符</li>
                 </ul>
@@ -179,57 +180,54 @@ export function ContentInputSection({
               </div>
             </div>
 
-            {/* 快速模板 */}
-            {originalContent.length === 0 && (
-              <div className="flex flex-wrap gap-2">
-                <span className="text-sm text-muted-foreground">快速模板:</span>
-                {[
-                  "产品推荐: 今天要给大家推荐一个超好用的...",
-                  "经验分享: 最近发现了一个提高效率的方法...",
-                  "教程指南: 手把手教你如何...",
-                  "观点评论: 关于最近热议的话题，我的看法是..."
-                ].map((template, index) => (
-                  <button
-                    key={index}
-                    onClick={() => onContentChange(template)}
-                    className="text-xs px-2 py-1 bg-muted hover:bg-muted/80 rounded-md transition-colors"
-                  >
-                    {template.split(':')[0]}
-                  </button>
-                ))}
-              </div>
-            )}
+
           </div>
         </CardContent>
       </Card>
 
-      {/* 品牌库选择区域 - 从原版完整迁移 */}
-      <Card variant="soft" className="mt-4 rounded-xl">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 flex-1">
-              <div className="flex items-start gap-3 flex-1">
-                <Checkbox
-                  id="use-brand-library"
-                  checked={useBrandLibrary}
-                  onCheckedChange={(checked) => {
-                    // 🔧 FIX: 允许用户勾选/取消勾选，权限验证移到生成阶段
-                    onBrandLibraryChange(!!checked);
-                  }}
-                />
-                <div className="flex-1">
-                  <Label htmlFor="use-brand-library" className="text-sm text-primary cursor-pointer">
-                    使用品牌库资料进行创作
-                  </Label>
-                  <p className="text-xs text-secondary mt-1">
-                    AI自动遵循品牌语言规范，融入品牌价值，规避公关风险
-                  </p>
+      {/* 品牌库选择区域 - 高级功能，需要权限 */}
+      <UnifiedPermissionGuard
+        requiredPermission="tier:premium"
+        featureName="品牌库资料创作"
+        description="使用品牌库资料进行创作，AI自动遵循品牌语言规范"
+        showOverlay={true}
+        overlayOpacity={0.6}
+      >
+        <Card variant="soft" className="mt-4 rounded-xl">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="flex items-start gap-3 flex-1">
+                  <Checkbox
+                    id="use-brand-library"
+                    checked={useBrandLibrary}
+                    onCheckedChange={(checked) => {
+                      onBrandLibraryChange(!!checked);
+                    }}
+                    disabled={currentTier !== 'premium'}
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="use-brand-library" className="text-sm text-primary cursor-pointer">
+                        使用品牌库资料进行创作
+                      </Label>
+                      {currentTier !== 'premium' && (
+                        <Badge variant="secondary" className="text-xs gap-1">
+                          <Lock className="h-3 w-3" />
+                          高级版
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-secondary mt-1">
+                      AI自动遵循品牌语言规范，融入品牌价值，规避公关风险
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </UnifiedPermissionGuard>
     </div>
   );
 }

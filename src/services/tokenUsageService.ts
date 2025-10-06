@@ -90,6 +90,11 @@ export interface TokenUsageStats {
 }
 
 /**
+ * Token限额警告级别
+ */
+export type TokenWarningLevel = 'safe' | 'warning' | 'approaching' | 'exceeded';
+
+/**
  * Token限额检查结果
  */
 export interface TokenLimitCheckResult {
@@ -97,6 +102,8 @@ export interface TokenLimitCheckResult {
   allowed: boolean;
   /** 拒绝原因 */
   reason?: string;
+  /** 警告级别 */
+  warningLevel: TokenWarningLevel;
   /** 当前使用统计 */
   stats: TokenUsageStats;
   /** 建议操作 */
@@ -606,10 +613,25 @@ class TokenUsageService {
   }
 
   /**
+   * 获取Token使用的警告级别
+   */
+  private getWarningLevel(usagePercentage: number): TokenWarningLevel {
+    if (usagePercentage >= 100) return 'exceeded';
+    if (usagePercentage >= 95) return 'approaching';
+    if (usagePercentage >= 80) return 'warning';
+    return 'safe';
+  }
+
+  /**
    * 检查token使用限额
    */
   async checkTokenLimit(userId: string, userTier: SubscriptionTier, estimatedTokens: number): Promise<TokenLimitCheckResult> {
     const stats = await this.getUserTokenStats(userId, userTier);
+
+    // 计算使用后的百分比
+    const projectedUsed = stats.monthlyUsed + estimatedTokens;
+    const projectedPercentage = (projectedUsed / stats.monthlyLimit) * 100;
+    const warningLevel = this.getWarningLevel(projectedPercentage);
 
     // 🔍 详细日志：记录Token限额检查
     logger.info('🔍 Token限额检查:', {
@@ -619,43 +641,50 @@ class TokenUsageService {
       monthlyUsed: stats.monthlyUsed,
       monthlyLimit: stats.monthlyLimit,
       monthlyRemaining: stats.monthlyRemaining,
-      willExceed: stats.monthlyUsed + estimatedTokens > stats.monthlyLimit
+      projectedPercentage: projectedPercentage.toFixed(2) + '%',
+      warningLevel,
+      willExceed: projectedUsed > stats.monthlyLimit
     });
 
     // 检查是否超过月度限额
-    if (stats.monthlyUsed + estimatedTokens > stats.monthlyLimit) {
+    if (projectedUsed > stats.monthlyLimit) {
       logger.warn('⚠️ Token限额即将超过:', {
         userId,
         userTier,
         monthlyUsed: stats.monthlyUsed,
         monthlyLimit: stats.monthlyLimit,
-        estimatedTokens
+        estimatedTokens,
+        warningLevel
       });
 
       return {
         allowed: false,
         reason: `本月Token使用量即将超过限额。当前已使用 ${stats.monthlyUsed.toLocaleString()}，限额 ${stats.monthlyLimit.toLocaleString()}`,
+        warningLevel,
         stats,
         suggestedAction: 'upgrade'
       };
     }
 
-    // 检查是否接近限额（90%以上）
-    const projectedUsage = stats.monthlyUsed + estimatedTokens;
-    const projectedPercentage = (projectedUsage / stats.monthlyLimit) * 100;
-
-    if (projectedPercentage >= 90) {
-      return {
-        allowed: true,
-        reason: `Token使用量接近限额，建议升级套餐`,
-        stats,
-        suggestedAction: 'upgrade'
-      };
+    // 阶梯式预警：即使允许使用，也返回警告级别
+    if (warningLevel !== 'safe') {
+      logger.warn(`⚠️ Token使用量预警 [${warningLevel}]:`, {
+        userId,
+        usagePercentage: projectedPercentage.toFixed(2) + '%',
+        monthlyUsed: stats.monthlyUsed,
+        monthlyLimit: stats.monthlyLimit
+      });
     }
 
+    // 正常情况，返回警告级别
     return {
       allowed: true,
-      stats
+      warningLevel,
+      stats,
+      ...(warningLevel !== 'safe' && {
+        reason: `Token使用量已达 ${projectedPercentage.toFixed(1)}%，建议关注剩余额度`,
+        suggestedAction: 'upgrade' as const
+      })
     };
   }
 

@@ -47,6 +47,8 @@ export interface AIResponseWithUsage extends AIResponse {
     usagePercentage: number;
     needUpgrade: boolean;
   };
+  /** 错误类型标记 */
+  errorType?: 'token_limit' | 'model_permission' | 'network' | 'unknown';
 }
 
 /**
@@ -221,13 +223,33 @@ export async function callAIWithTokenTracking(
       );
       
       if (!limitCheck.allowed) {
-        // Token限额不足，返回错误响应
+        // Token限额不足，触发全局事件并返回错误响应
+        const tokenLimitEvent = new CustomEvent('tokenLimitExceeded', {
+          detail: {
+            userId,
+            userTier: actualUserTier,
+            stats: limitCheck.stats,
+            warningLevel: limitCheck.warningLevel,
+            reason: limitCheck.reason,
+            suggestedAction: limitCheck.suggestedAction
+          }
+        });
+        window.dispatchEvent(tokenLimitEvent);
+
+        logger.error('🚫 Token限额超限，已触发全局事件', {
+          userId,
+          warningLevel: limitCheck.warningLevel,
+          monthlyUsed: limitCheck.stats.monthlyUsed,
+          monthlyLimit: limitCheck.stats.monthlyLimit
+        });
+
         const response: AIResponseWithUsage = {
           content: '',
           model: params.model || 'unknown',
           responseTime: Date.now() - startTime,
           success: false,
           error: limitCheck.reason,
+          errorType: 'token_limit',
           tokenUsage: {
             inputTokens: 0,
             outputTokens: 0,
@@ -239,8 +261,27 @@ export async function callAIWithTokenTracking(
             needUpgrade: limitCheck.stats.needUpgrade
           }
         };
-        
+
         return response;
+      }
+
+      // 即使允许使用，也检查是否需要发出警告
+      if (limitCheck.warningLevel !== 'safe') {
+        const tokenWarningEvent = new CustomEvent('tokenLimitWarning', {
+          detail: {
+            userId,
+            userTier: actualUserTier,
+            stats: limitCheck.stats,
+            warningLevel: limitCheck.warningLevel,
+            reason: limitCheck.reason
+          }
+        });
+        window.dispatchEvent(tokenWarningEvent);
+
+        logger.warn(`⚠️ Token使用量预警 [${limitCheck.warningLevel}]，已触发全局事件`, {
+          userId,
+          usagePercentage: limitCheck.stats.usagePercentage.toFixed(2) + '%'
+        });
       }
     }
     

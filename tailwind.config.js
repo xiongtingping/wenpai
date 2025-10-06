@@ -30,12 +30,12 @@ module.exports = {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)',
-				// Modern Flat + Soft Neumorphism 圆角系统
-				'xs': '8px',
-				'sm': '12px',
-				'md': '16px',
-				'lg': '20px',
-				'xl': '24px'
+				// Modern Flat + Soft Neumorphism 圆角系统（令牌化，无硬编码）
+				xs: 'var(--radius-xs)',
+				xl: 'var(--radius-xl)',
+				'2xl': 'var(--radius-2xl)',
+				'3xl': 'var(--radius-3xl)',
+				full: 'var(--radius-full)'
 			},
 			colors: {
 				background: 'hsl(var(--background))',

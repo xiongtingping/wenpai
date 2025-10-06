@@ -41,6 +41,9 @@
       "networkFailed": "Network connection failed",
       "rateLimitExceeded": "Rate limit exceeded",
       "insufficientBalance": "Insufficient account balance",
+      "tokenLimitExceeded": "Token quota exhausted",
+      "tokenLimitApproaching": "Token quota running low",
+      "tokenLimitWarning": "High token usage",
       "tryAgainLater": "Please try again later",
       "unknownError": "Unknown error",
       "serviceCheckFailed": "Service check failed",
@@ -8788,6 +8791,44 @@
       "queueFull": "Request queue is full",
       "requestTimeout": "Request timed out",
       "queueCleared": "Request queue cleared"
+    }
+  },
+  "tokenLimit": {
+    "dialog": {
+      "exceeded": {
+        "title": "Token Quota Exhausted",
+        "description": "You have reached your plan's token limit and cannot continue using AI features"
+      },
+      "approaching": {
+        "title": "Token Quota Running Low",
+        "description": "Your token usage has exceeded 90%, consider upgrading your plan"
+      },
+      "warning": {
+        "title": "High Token Usage",
+        "description": "Your token usage has exceeded 80%, please monitor your remaining quota"
+      }
+    },
+    "toast": {
+      "exceeded": "Token quota exhausted, please upgrade or wait for next month's reset",
+      "approaching": "Token usage has reached {{percentage}}%, running low",
+      "warning": "Token usage has reached {{percentage}}%, please monitor your quota"
+    },
+    "actions": {
+      "upgrade": "Upgrade Now",
+      "continue": "Continue",
+      "later": "Later",
+      "viewUsage": "View Usage"
+    },
+    "stats": {
+      "used": "Used",
+      "limit": "Limit",
+      "remaining": "Remaining",
+      "percentage": "Usage"
+    },
+    "suggestions": {
+      "upgrade": "Upgrade to a higher plan for more token quota",
+      "wait": "Wait for automatic reset on the 1st of next month",
+      "optimize": "Optimize content length to reduce token consumption"
     }
   }
 

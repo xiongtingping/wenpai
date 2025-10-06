@@ -75,6 +75,16 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
           taskType: AITaskType.CONTENT_ADAPTATION
         });
 
+        // 🚫 检查是否为Token限额错误，如果是则立即停止重试
+        if (!result.success && result.errorType === 'token_limit') {
+          logger.error(`${versionName} - Token限额超限，停止重试`, {
+            error: result.error,
+            monthlyUsed: result.tokenUsage?.userMonthlyUsed,
+            monthlyLimit: result.tokenUsage?.userMonthlyLimit
+          });
+          throw new Error(result.error || 'Token限额已超过');
+        }
+
         if (result.success && result.content && result.content.trim().length > 100) {
           logger.info(`${versionName} - 第${attempt}次尝试成功`, {
             contentLength: result.content.length,

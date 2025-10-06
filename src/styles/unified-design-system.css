@@ -22,6 +22,40 @@
 @layer reset, base, components, utilities;
 
 /* ========================================
+   🧩 Tokens Extension Layer (派生令牌，无硬编码)
+   说明：以下变量全部由现有Design Tokens派生（primary/secondary/accent/spacing等），
+   用于 Modern Flat + Soft Neumorphism 视觉风格；不改变布局尺寸。
+   ======================================== */
+@layer tokens {
+  :root {
+    /* 阴影（外发光 + Neumorphism 内阴影），全部基于现有token组合，无硬编码色值 */
+    --shadow-e0: 0 var(--spacing-0-5) var(--spacing-3) hsl(var(--foreground) / 0.06),
+                 0 1px 3px hsl(var(--foreground) / 0.04);
+    --shadow-e1: 0 var(--spacing-1) var(--spacing-5) hsl(var(--foreground) / 0.06),
+                 0 1px 3px hsl(var(--foreground) / 0.04);
+    --shadow-e2: 0 var(--spacing-2) 30px hsl(var(--foreground) / 0.12),
+                 0 var(--spacing-0-5) var(--spacing-1-5) hsl(var(--foreground) / 0.08);
+
+    --shadow-glow:           0 0 var(--spacing-5) hsl(var(--primary) / 0.30), 0 var(--spacing-1) var(--spacing-3-5) hsl(var(--primary) / 0.20);
+    --shadow-glow-secondary: 0 0 var(--spacing-5) hsl(var(--secondary) / 0.30), 0 var(--spacing-1) var(--spacing-3-5) hsl(var(--secondary) / 0.20);
+    --shadow-glow-accent:    0 0 var(--spacing-5) hsl(var(--accent) / 0.30),   0 var(--spacing-1) var(--spacing-3-5) hsl(var(--accent) / 0.20);
+
+    --inset-soft: inset 0 var(--spacing-0-5) var(--spacing-1) hsl(var(--foreground) / 0.04);
+    --inset-deep: inset 0 var(--spacing-1) var(--spacing-2) hsl(var(--foreground) / 0.08);
+    --highlight:  inset 0 1px 0 hsl(var(--foreground) / 0.08);
+
+    /* 渐变（使用百分比与现有色彩token组合，不引入固定px尺寸） */
+    --gradient-app: radial-gradient(60% 35% at -10% -10%, hsl(var(--primary) / 0.14), transparent 60%),
+                    radial-gradient(55% 30% at 110% -20%, hsl(var(--accent) / 0.12), transparent 60%),
+                    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--surface)) 100%);
+    --gradient-surface: radial-gradient(50% 30% at 50% -20%, hsl(var(--primary) / 0.06), transparent 60%),
+                        linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--surface)) 100%);
+    --gradient-primary: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  }
+}
+
+
+/* ========================================
    🔄 Reset Layer (重置层)
    ======================================== */
 @layer reset {
@@ -847,6 +881,47 @@
      显示属性
      ======================================== */
   .block { display: block; }
+
+  /* ========================================
+     Modern Flat + Soft Neumorphism 专用工具类（令牌化，无硬编码）
+     ======================================== */
+  /* 背景渐变 */
+  .bg-app-gradient { background: var(--gradient-app); }
+  .bg-surface-gradient { background: var(--gradient-surface); }
+  .bg-gradient-primary { background-image: var(--gradient-primary); }
+
+  /* 卡片与容器 */
+  .card-soft {
+    background: hsl(var(--card) / 0.92);
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-e1);
+  }
+  .card-neumorphic {
+    background: hsl(var(--surface));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--inset-soft), var(--shadow-e0);
+  }
+
+  /* 对话式提示（气泡） */
+  .bubble-user {
+    background: hsl(var(--primary) / 0.12);
+    color: hsl(var(--primary-foreground));
+    border: 1px solid hsl(var(--primary) / 0.20);
+    border-radius: var(--radius-xl) var(--radius-xl) var(--radius-md) var(--radius-xl);
+  }
+  .bubble-assistant {
+    background: hsl(var(--surface));
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) var(--radius-md);
+    box-shadow: var(--shadow-e0);
+  }
+
+  /* 分隔与聚焦 */
+  .separator-soft { border-color: hsl(var(--border)); }
+  .ring-strong { box-shadow: 0 0 0 2px hsl(var(--ring)); }
+
   .inline-block { display: inline-block; }
   .inline { display: inline; }
   .flex { display: flex; }

@@ -90,12 +90,16 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
     const cacheKey = 'brand-items';
 
     if (this.isCacheValid(cacheKey)) {
+      console.log('📦 使用缓存的品牌库数据');
       return this.cache.get(cacheKey)!.data;
     }
 
     try {
+      console.log('🔍 开始加载品牌库数据...');
+
       // 从品牌资产数据获取
       const brandAssets = await globalDataManager.getData<any[]>('brand_assets') || [];
+      console.log(`📊 品牌库原始数据数量: ${brandAssets.length}`);
 
       const items: QuickReferenceItem[] = brandAssets
         .map(asset => this.enhanceItem({
@@ -115,12 +119,14 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
         }))
         .filter(item => this.validateItem(item)); // 过滤无效数据
 
+      console.log(`✅ 品牌库有效数据数量: ${items.length}`);
+
       // 缓存结果
       this.cache.set(cacheKey, { data: items, timestamp: Date.now() });
 
       return items;
     } catch (error) {
-      console.error('getting品牌库contentfailed:', error);
+      console.error('❌ 获取品牌库内容失败:', error);
       return [];
     }
   }
@@ -132,17 +138,20 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
     const cacheKey = 'library-items';
 
     if (this.isCacheValid(cacheKey)) {
+      console.log('📦 使用缓存的资料库数据');
       return this.cache.get(cacheKey)!.data;
     }
 
     try {
-      // 从收藏服务获取资料库类型的收藏
-      const favorites = await favoritesService.getFavorites();
-      const libraryFavorites = favorites.filter(fav =>
-        fav.type === 'library-item' || fav.type === 'brand-asset'
-      );
+      console.log('🔍 开始加载资料库数据...');
 
-      const items: QuickReferenceItem[] = libraryFavorites.map(fav => ({
+      // 从收藏服务获取所有收藏
+      const favorites = await favoritesService.getFavorites();
+      console.log(`📊 收藏服务返回数据数量: ${favorites.length}`);
+
+      // 🔧 修复：不再过滤类型，显示所有收藏内容
+      // 原来的过滤条件太严格，导致很多内容无法显示
+      const items: QuickReferenceItem[] = favorites.map(fav => ({
         id: fav.id,
         title: sanitizeToPlainText(fav.title),
         content: sanitizeToPlainText(fav.content),
@@ -155,12 +164,14 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
         metadata: fav.metadata
       }));
 
+      console.log(`✅ 资料库有效数据数量: ${items.length}`);
+
       // 缓存结果
       this.cache.set(cacheKey, { data: items, timestamp: Date.now() });
 
       return items;
     } catch (error) {
-      console.error('getting资料库contentfailed:', error);
+      console.error('❌ 获取资料库内容失败:', error);
       return [];
     }
   }
@@ -170,15 +181,19 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
    */
   async getRadarItems(): Promise<QuickReferenceItem[]> {
     const cacheKey = 'radar-items';
-    
+
     if (this.isCacheValid(cacheKey)) {
+      console.log('📦 使用缓存的雷达收藏数据');
       return this.cache.get(cacheKey)!.data;
     }
 
     try {
+      console.log('🔍 开始加载雷达收藏数据...');
+
       // 从书签服务获取热点话题书签
       const topicBookmarks = await bookmarkService.getTopicBookmarks();
-      
+      console.log(`📊 雷达收藏原始数据数量: ${topicBookmarks.length}`);
+
       const items: QuickReferenceItem[] = topicBookmarks.map(bookmark => ({
         id: bookmark.id,
         title: sanitizeToPlainText(bookmark.title),
@@ -196,12 +211,14 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
         }
       }));
 
+      console.log(`✅ 雷达收藏有效数据数量: ${items.length}`);
+
       // 缓存结果
       this.cache.set(cacheKey, { data: items, timestamp: Date.now() });
-      
+
       return items;
     } catch (error) {
-      console.error('getting雷达收藏contentfailed:', error);
+      console.error('❌ 获取雷达收藏内容失败:', error);
       return [];
     }
   }

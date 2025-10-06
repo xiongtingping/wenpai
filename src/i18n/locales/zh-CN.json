@@ -42,6 +42,9 @@
       "networkFailed": "网络连接失败",
       "rateLimitExceeded": "调用频率超限",
       "insufficientBalance": "账户余额不足",
+      "tokenLimitExceeded": "Token额度已用完",
+      "tokenLimitApproaching": "Token额度即将用完",
+      "tokenLimitWarning": "Token使用量较高",
       "tryAgainLater": "请稍后重试",
       "unknownError": "未知错误",
       "serviceCheckFailed": "服务检查失败",
@@ -8862,6 +8865,44 @@
       "queueFull": "请求队列已满",
       "requestTimeout": "请求超时",
       "queueCleared": "已清空请求队列"
+    }
+  },
+  "tokenLimit": {
+    "dialog": {
+      "exceeded": {
+        "title": "Token额度已用完",
+        "description": "您已达到当前套餐的Token上限，无法继续使用AI功能"
+      },
+      "approaching": {
+        "title": "Token额度即将用完",
+        "description": "您的Token使用量已超过90%，建议升级套餐"
+      },
+      "warning": {
+        "title": "Token使用量较高",
+        "description": "您的Token使用量已超过80%，建议关注剩余额度"
+      }
+    },
+    "toast": {
+      "exceeded": "Token额度已用完，请升级套餐或等待下月重置",
+      "approaching": "Token使用量已达{{percentage}}%，即将用完",
+      "warning": "Token使用量已达{{percentage}}%，建议关注剩余额度"
+    },
+    "actions": {
+      "upgrade": "立即升级",
+      "continue": "继续使用",
+      "later": "稍后处理",
+      "viewUsage": "查看使用情况"
+    },
+    "stats": {
+      "used": "已使用",
+      "limit": "限额",
+      "remaining": "剩余",
+      "percentage": "使用率"
+    },
+    "suggestions": {
+      "upgrade": "升级到更高套餐，获得更多Token额度",
+      "wait": "等待下月1日自动重置使用量",
+      "optimize": "优化内容长度，减少Token消耗"
     }
   }
 

@@ -119,6 +119,7 @@ export function QuickReferenceDialog({
 
   // 加载数据
   const loadTabData = useCallback(async (tabType: TabType) => {
+    console.log(`🔄 开始加载 ${tabType} 标签页数据`);
     setLoading(prev => ({ ...prev, [tabType]: true }));
     setError(null);
 
@@ -137,9 +138,16 @@ export function QuickReferenceDialog({
           break;
       }
 
+      console.log(`✅ ${tabType} 标签页数据加载完成，数量: ${data.length}`);
       setItems(prev => ({ ...prev, [tabType]: data }));
+
+      // 如果数据为空，显示提示
+      if (data.length === 0) {
+        console.log(`ℹ️ ${tabType} 标签页暂无数据`);
+      }
     } catch (err) {
       const errorMessage = `加载${tabs.find(t => t.value === tabType)?.label}数据失败`;
+      console.error(`❌ ${errorMessage}:`, err);
       setError(errorMessage);
       toast({
         title: t('components.labels.加载失败'),

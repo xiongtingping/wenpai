@@ -19,6 +19,8 @@ import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 // import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats'; // 🎯 已废弃
 import { useUsageCount } from '@/hooks/useUsage'; // 🎯 新架构: Store-based Hook
 import { getUserTier } from '@/utils/subscriptionUtils';
+import { useUserSettings } from '@/hooks/useUserSettings';
+import { SETTING_KEYS } from '@/services/userSettingsService';
 
 // 导入Hook
 import {
@@ -242,6 +244,9 @@ export function ContentAdapterPage({
   // 兼容旧代码
   const { usageCount, maxUsage, usageRemaining, decrementUsage, updateMaxUsage } = useAuthStore();
   const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
+
+  // 用户设置Hook - 用于加载保存的模型偏好
+  const { getSetting } = useUserSettings();
 
   // 收藏系统
   const favoritesStore = useFavoritesStore();
@@ -643,6 +648,76 @@ export function ContentAdapterPage({
     ...model,
     isAccessible: accessibleModelIds.has(model.id),
   }));
+
+  // 🔧 FIX: 加载保存的模型偏好（包含订阅过期检查）
+  const [hasLoadedModelPreference, setHasLoadedModelPreference] = React.useState(false);
+
+  React.useEffect(() => {
+    // 只在初始加载时执行一次，避免覆盖用户的手动选择
+    if (hasLoadedModelPreference || !isAuthenticated || availableModels.length === 0) {
+      return;
+    }
+
+    const loadSavedModelPreference = async () => {
+      try {
+        console.log('🔍 开始加载保存的模型偏好...');
+
+        // 🔒 检查订阅状态是否过期
+        const isSubscriptionExpired = primaryStatus?.status === 'expired' || primaryStatus?.status === 'cancelled';
+        if (isSubscriptionExpired) {
+          console.warn('⚠️ 订阅已过期，不加载保存的模型偏好');
+          setHasLoadedModelPreference(true);
+          return;
+        }
+
+        const savedModelId = await getSetting(SETTING_KEYS.DEFAULT_MODEL);
+
+        if (savedModelId) {
+          console.log('📦 找到保存的模型ID:', savedModelId);
+
+          // 检查该模型是否在可用模型列表中且可访问
+          const savedModel = availableModels.find(m => m.id === savedModelId && m.isAccessible);
+
+          if (savedModel) {
+            // 🔒 再次验证用户当前等级是否有权限访问该模型
+            const modelTier = savedModel.tier;
+            const canAccessModel =
+              (modelTier === 'low') ||
+              (modelTier === 'mid' && (effectiveUserTier === 'pro' || effectiveUserTier === 'premium')) ||
+              (modelTier === 'high' && effectiveUserTier === 'premium');
+
+            if (canAccessModel) {
+              console.log('✅ 自动选择保存的模型:', savedModel.name);
+              updateSelectedModel(savedModelId);
+              toast({
+                title: "已恢复模型选择",
+                description: `自动选择了您上次使用的模型：${savedModel.name}`,
+                duration: 3000,
+              });
+            } else {
+              console.warn('⚠️ 用户等级不足，无法访问保存的模型:', savedModelId, '需要等级:', modelTier, '当前等级:', effectiveUserTier);
+              toast({
+                title: "无法恢复模型选择",
+                description: "您保存的模型需要更高的订阅等级才能使用",
+                variant: "destructive",
+                duration: 4000,
+              });
+            }
+          } else {
+            console.warn('⚠️ 保存的模型不可用或无权限访问:', savedModelId);
+          }
+        } else {
+          console.log('ℹ️ 未找到保存的模型偏好');
+        }
+      } catch (error) {
+        console.error('❌ 加载模型偏好失败:', error);
+      } finally {
+        setHasLoadedModelPreference(true);
+      }
+    };
+
+    loadSavedModelPreference();
+  }, [isAuthenticated, availableModels, hasLoadedModelPreference, getSetting, updateSelectedModel, toast, primaryStatus, effectiveUserTier]);
 
   // 调试信息
   // console.log('🔍 ContentAdapterPage - 模型datadebugging:', {

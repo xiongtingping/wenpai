@@ -29,6 +29,7 @@ import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import { AuthDataSyncProvider } from '@/hooks/useAuthDataSync';
 import SessionManager from '@/components/auth/SessionManager';
 import { Header } from '@/components/landing/Header';
+import { useTokenLimitManager } from '@/hooks/useTokenLimitManager';
 
 // 核心页面组件
 import HomePage from '@/pages/HomePage';
@@ -123,7 +124,14 @@ const StateManagerInitializer: React.FC = () => {
 const App: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
-  
+  const { user } = useAuth();
+
+  // 🔧 集成Token限额管理器
+  const { TokenLimitDialogComponent } = useTokenLimitManager(
+    user?.userId,
+    user?.userTier
+  );
+
   // 定义不需要显示Header的路由
   const noHeaderRoutes = ['/login', '/register', '/custom-login', '/forgot-password'];
   const shouldShowHeader = !noHeaderRoutes.includes(location.pathname);
@@ -413,6 +421,9 @@ const App: React.FC = () => {
 
                   {/* {t('app.globalComponents.sessionManagement')} */}
                   <SessionManager />
+
+                  {/* Token限额管理对话框 */}
+                  <TokenLimitDialogComponent />
 
                   {/* {t('app.globalComponents.backToTopButton')} */}
                   <ScrollToTop />

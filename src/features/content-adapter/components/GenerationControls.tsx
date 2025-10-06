@@ -29,7 +29,9 @@ import {
   Bot,
   Crown,
   Check,
-  Save
+  Save,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import ContentFormSelector from '@/components/creative/ContentFormSelector';
 import type { StyleType } from '@/config/contentSchemes';
@@ -116,15 +118,18 @@ export function GenerationControls({ generating,
 
   // Translation Hook
   const { t } = useTranslation();
-  
+
   // 用户设置 Hook
   const { saveSetting, isLoggedIn } = useUserSettings();
-  
+
   // Toast Hook
   const { toast } = useToast();
 
   // 保存状态
   const [saving, setSaving] = useState(false);
+
+  // 内容形式与风格折叠状态（默认折叠）
+  const [isFormStyleExpanded, setIsFormStyleExpanded] = useState(false);
 
   // 检查是否可以开始生成
   const canGenerate = !generating && 
@@ -209,22 +214,34 @@ export function GenerationControls({ generating,
 
   return (
     <div className="space-y-6">
-      {/* 内容形式和风格选择 */}
-      <Card className="pb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            内容形式与风格
+      {/* 内容形式和风格选择 - 可折叠 */}
+      <Card className={isFormStyleExpanded ? "pb-6" : ""}>
+        <CardHeader
+          className="cursor-pointer hover:bg-muted/50 transition-colors"
+          onClick={() => setIsFormStyleExpanded(!isFormStyleExpanded)}
+        >
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              请选择内容形式或表达风格
+            </div>
+            {isFormStyleExpanded ? (
+              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-muted-foreground" />
+            )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="min-h-[120px]">
-          <ContentFormSelector
-            selectedFormId={selectedFormId}
-            selectedStyle={selectedStyle}
-            onFormChange={onFormChange}
-            onStyleChange={onStyleChange}
-          />
-        </CardContent>
+        {isFormStyleExpanded && (
+          <CardContent className="min-h-[120px]">
+            <ContentFormSelector
+              selectedFormId={selectedFormId}
+              selectedStyle={selectedStyle}
+              onFormChange={onFormChange}
+              onStyleChange={onStyleChange}
+            />
+          </CardContent>
+        )}
       </Card>
 
       {/* AI模型选择 */}
@@ -367,6 +384,13 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
+                      {/* 锁图标 - 右上角 */}
+                      {disabled && !generating && (
+                        <div className="absolute top-1 right-1 bg-background rounded-full p-1 shadow-sm border border-border">
+                          <Crown className="w-3 h-3 text-primary" />
+                        </div>
+                      )}
+
                       <div className="flex flex-col items-center text-center gap-2">
                         <div className={`
                           w-5 h-5 rounded-full border-2 flex items-center justify-center
@@ -375,11 +399,7 @@ export function GenerationControls({ generating,
                             : 'border-border'
                           }
                         `}>
-                          {isSelected ? (
-                            <Check className="w-3 h-3 text-white" />
-                          ) : disabled && (
-                            <Crown className="w-3 h-3 text-muted-foreground" />
-                          )}
+                          {isSelected && <Check className="w-3 h-3 text-white" />}
                         </div>
                         <div className="min-w-0 w-full">
                           <h5 className="font-medium text-foreground text-sm truncate">
@@ -392,14 +412,6 @@ export function GenerationControls({ generating,
                           </div>
                         </div>
                       </div>
-                      {disabled && !generating && (
-                        <div className="absolute inset-0 bg-muted/50 dark:bg-muted/60 rounded-lg flex items-center justify-center">
-                          <div className="bg-background rounded-md px-2 py-1 shadow-sm border border-border flex items-center gap-1">
-                            <Crown className="w-3 h-3 text-primary" />
-                            <span className="text-xs font-medium text-foreground">需要专业版</span>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
@@ -443,6 +455,13 @@ export function GenerationControls({ generating,
                         }
                       }}
                     >
+                      {/* 锁图标 - 右上角 */}
+                      {disabled && !generating && (
+                        <div className="absolute top-1 right-1 bg-background rounded-full p-1 shadow-sm border border-border">
+                          <Crown className="w-3 h-3 text-purple-500 dark:text-purple-600" />
+                        </div>
+                      )}
+
                       <div className="flex flex-col items-center text-center gap-2">
                         <div className={`
                           w-5 h-5 rounded-full border-2 flex items-center justify-center
@@ -451,11 +470,7 @@ export function GenerationControls({ generating,
                             : 'border-border'
                           }
                         `}>
-                          {isSelected ? (
-                            <Check className="w-3 h-3 text-white" />
-                          ) : disabled && (
-                            <Crown className="w-3 h-3 text-muted-foreground" />
-                          )}
+                          {isSelected && <Check className="w-3 h-3 text-white" />}
                         </div>
                         <div className="min-w-0 w-full">
                           <h5 className="font-medium text-foreground text-sm truncate">
@@ -468,14 +483,6 @@ export function GenerationControls({ generating,
                           </div>
                         </div>
                       </div>
-                      {disabled && !generating && (
-                        <div className="absolute inset-0 bg-muted/50 dark:bg-muted/60 rounded-lg flex items-center justify-center">
-                          <div className="bg-background rounded-md px-2 py-1 shadow-sm border border-border flex items-center gap-1">
-                            <Crown className="w-3 h-3 text-purple-500 dark:text-purple-600" />
-                            <span className="text-xs font-medium text-foreground">需要高级版</span>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
@@ -575,52 +582,27 @@ export function GenerationControls({ generating,
       {(originalContent.trim() && selectedPlatforms.length > 0) && (
         <Card>
           <CardContent className="pt-6">
-            <div className="space-y-4">
-
-              {/* 控制按钮 */}
-              <div className="flex gap-2">
-                {(generating || queueRunning) && (
-                  <Button
-                    onClick={generating ? onStopGeneration : onStopAutomation}
-                    variant="destructive"
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    <Square className="h-3 w-3" />
-                    停止
-                  </Button>
-                )}
-
+            {/* 控制按钮 */}
+            <div className="flex gap-2">
+              {(generating || queueRunning) && (
                 <Button
-                  onClick={onClearResults}
-                  variant="outline"
+                  onClick={generating ? onStopGeneration : onStopAutomation}
+                  variant="destructive"
                   size="sm"
+                  className="flex items-center gap-2"
                 >
-                  清空结果
+                  <Square className="h-3 w-3" />
+                  停止
                 </Button>
-              </div>
+              )}
 
-              {/* 生成信息 */}
-              <div className="text-sm text-muted-foreground space-y-1">
-                <div className="flex items-center justify-between">
-                  <span>目标平台:</span>
-                  <Badge variant="outline">
-                    {selectedPlatforms.length} 个平台
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span>内容长度:</span>
-                  <span>{originalContent.length} 字符</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span>预计时间:</span>
-                  <span>
-                    {Math.ceil(selectedPlatforms.length * originalContent.length / 500)} 秒
-                  </span>
-                </div>
-              </div>
+              <Button
+                onClick={onClearResults}
+                variant="outline"
+                size="sm"
+              >
+                清空结果
+              </Button>
             </div>
           </CardContent>
         </Card>
