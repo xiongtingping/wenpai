@@ -11,6 +11,7 @@
 
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { globalDataManager } from '@/services/unifiedDataManager';
+import { quickReferenceDataService } from '@/services/quickReferenceDataService';
 
 // 书签类型
 export type BookmarkType = 
@@ -150,6 +151,7 @@ export class BookmarkService {
       
       if (success) {
         this.updateCache(updatedBookmarks);
+        try { quickReferenceDataService.clearCache(); } catch {}
         console.log('✅ 书签addingsuccess:', item.title);
         return id;
       } else {
@@ -183,6 +185,7 @@ export class BookmarkService {
       
       if (success) {
         this.topicCache = updatedBookmarks;
+        try { quickReferenceDataService.clearCache(); } catch {}
         console.log('✅ 话题书签addingsuccess:', topic.title);
         return id;
       } else {
@@ -206,6 +209,7 @@ export class BookmarkService {
       
       if (success) {
         this.updateCache(updatedBookmarks);
+        try { quickReferenceDataService.clearCache(); } catch {}
         console.log('✅ 书签removingsuccess:', id);
         return true;
       } else {
@@ -229,6 +233,7 @@ export class BookmarkService {
       
       if (success) {
         this.topicCache = updatedBookmarks;
+        try { quickReferenceDataService.clearCache(); } catch {}
         console.log('✅ 话题书签removingsuccess:', id);
         return true;
       } else {

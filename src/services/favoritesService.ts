@@ -11,6 +11,7 @@
 
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { globalDataManager } from '@/services/unifiedDataManager';
+import { quickReferenceDataService } from '@/services/quickReferenceDataService';
 
 // 收藏项目类型
 export type FavoriteItemType = 
@@ -111,6 +112,8 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache(updatedFavorites);
+        // ✅ 变更收藏后立即失效快速引用缓存，确保对话框数据实时
+        try { quickReferenceDataService.clearCache(); } catch {}
         console.log('✅ 收藏addingsuccess:', item.title);
         return id;
       } else {
@@ -134,6 +137,7 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache(updatedFavorites);
+        try { quickReferenceDataService.clearCache(); } catch {}
         console.log('✅ 收藏removingsuccess:', id);
         return true;
       } else {
@@ -167,6 +171,7 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache(updatedFavorites);
+        try { quickReferenceDataService.clearCache(); } catch {}
         console.log(`✅ 批量adding收藏success: ${items.length}item`);
         return newFavorites.map(item => item.id);
       } else {
@@ -190,6 +195,7 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache(updatedFavorites);
+        try { quickReferenceDataService.clearCache(); } catch {}
         console.log(`✅ 批量removing收藏success: ${ids.length}item`);
         return true;
       } else {
@@ -226,6 +232,7 @@ export class FavoritesService {
       
       if (success) {
         this.updateCache(updatedFavorites);
+        try { quickReferenceDataService.clearCache(); } catch {}
         console.log('✅ 收藏updatingsuccess:', id);
         return true;
       } else {
