@@ -237,11 +237,20 @@ export class UnifiedAIManager {
         provider: config.provider,
         model: config.model,
         endpoint: config.endpoint,
-        promptLength: params.prompt.length
+        promptLength: params.prompt.length,
+        apiKeyMasked: config.apiKey.substring(0, 8) + '...' + config.apiKey.substring(config.apiKey.length - 4)
       });
 
       // 构建请求体
       const requestBody = this.buildRequestBody(config, params);
+
+      logger.debug('📤 请求体:', {
+        requestId,
+        model: requestBody.model,
+        messagesCount: requestBody.messages?.length,
+        maxTokens: requestBody.max_tokens,
+        temperature: requestBody.temperature
+      });
 
       // 发送HTTP请求
       const response = await this.makeHTTPRequest(config, requestBody);
@@ -353,6 +362,13 @@ export class UnifiedAIManager {
 
       if (!response.ok) {
         const errorText = await response.text();
+        logger.error('🔴 AIMLAPI调用失败:', {
+          status: response.status,
+          statusText: response.statusText,
+          endpoint: config.endpoint,
+          model: config.model,
+          errorBody: errorText.substring(0, 500) // 只记录前500字符
+        });
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
