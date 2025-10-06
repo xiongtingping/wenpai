@@ -123,9 +123,10 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    // 🔧 FIX: 支持两种调用方式
-    // 方式1: 路径参数 /api/ai/{provider}/{path}
-    // 方式2: 查询参数 /.netlify/functions/ai-proxy?provider={provider}&path={path}
+    // 🔧 FIX: 支持三种调用方式
+    // 方式1: 通过重定向的路径参数 /.netlify/functions/ai-proxy/{provider}/{path}
+    // 方式2: 直接路径参数 /api/ai/{provider}/{path}
+    // 方式3: 查询参数 /.netlify/functions/ai-proxy?provider={provider}&path={path}
 
     let provider, apiPath;
 
@@ -136,11 +137,21 @@ exports.handler = async (event, context) => {
       console.log('🔧 AI代理请求 (查询参数):', { provider, apiPath, method: event.httpMethod });
     } else {
       // 路径参数方式
-      const path = event.path.replace('/api/ai/', '');
-      const pathParts = path.split('/');
+      // 移除可能的前缀：/.netlify/functions/ai-proxy/ 或 /api/ai/
+      let path = event.path
+        .replace('/.netlify/functions/ai-proxy/', '')
+        .replace('/api/ai/', '');
+
+      const pathParts = path.split('/').filter(p => p); // 过滤空字符串
       provider = pathParts[0]; // openai, deepseek, gemini
       apiPath = pathParts.slice(1).join('/'); // 具体的 API 路径
-      console.log('🔧 AI代理请求 (路径参数):', { provider, apiPath, method: event.httpMethod });
+
+      console.log('🔧 AI代理请求 (路径参数):', {
+        originalPath: event.path,
+        provider,
+        apiPath,
+        method: event.httpMethod
+      });
     }
 
     // 验证提供商

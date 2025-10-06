@@ -250,9 +250,9 @@ export function buildAPIURL(
 
   if (needsProxy && isProduction) {
     // 使用Netlify Functions代理
-    // 格式: /.netlify/functions/ai-proxy?provider={provider}&path={endpointPath}
-    const encodedPath = encodeURIComponent(endpointPath);
-    return `/.netlify/functions/ai-proxy?provider=${provider}&path=${encodedPath}`;
+    // 格式: /api/ai/{provider}{endpointPath}
+    // 例如: /api/ai/deepseek/v1/chat/completions
+    return `/api/ai/${provider}${endpointPath}`;
   }
 
   return `${config.baseURL}${endpointPath}`;
