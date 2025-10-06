@@ -859,7 +859,7 @@ class TokenUsageService {
 
       // 查询过期记录 - 使用直接Supabase客户端调用
       const client = await getSupabaseClient();
-      const usageTable = await this.getUsageTableName();
+
       const { data: expiredData, error: expiredError } = await client
         .from(usageTable)
         .select('*')
