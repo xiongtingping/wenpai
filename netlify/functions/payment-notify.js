@@ -137,6 +137,19 @@ async function resetUsageCount(userId, tier) {
 
     const totalCount = tierLimits[tier] || 10;
 
+    // 🎯 CRITICAL: 删除本月的使用记录
+    const { error: deleteError } = await supabase
+      .from('usage_count_records')
+      .delete()
+      .eq('user_id', userId)
+      .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
+
+    if (deleteError) {
+      console.error('删除使用记录失败:', deleteError);
+    } else {
+      console.log('✅ 已删除本月使用记录:', { userId });
+    }
+
     // 重置user_usage_balance表
     const { error } = await supabase
       .from('user_usage_balance')
