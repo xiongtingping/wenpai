@@ -527,7 +527,6 @@ export function PlatformSelector({ availablePlatforms,
                       </Button>
                     </div>
                   </CardHeader>
-                {settingsType === 'global' && (
                   <CardContent className="space-y-4 pt-0">
                     {/* 字符数预设 - 紧凑卡片布局 */}
                     <div className="space-y-2">
