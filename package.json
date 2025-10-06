@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite --port 5173 --host",
     "build": "npm run tokens:build && vite build",
-    "build:check": "node scripts/system-sanity-check.mjs && tsc -b && vite build",
+    "build:check": "npm run lint && node scripts/system-sanity-check.mjs && tsc -b && vite build",
     "deploy-check": "node scripts/deploy-check.js && node scripts/system-sanity-check.mjs",
     "predeploy": "npm run deploy-check && npm run build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",

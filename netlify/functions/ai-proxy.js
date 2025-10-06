@@ -189,7 +189,15 @@ exports.handler = async (event, context) => {
 
     // 构建目标 URL
     const baseURL = getAPIBaseURL(provider);
-    const targetURL = `${baseURL}/${apiPath}`;
+    // 🔧 FIX: 规范化 apiPath，避免与 baseURL 的版本号重复（如 /v1、/v1beta）
+    let normalizedApiPath = (apiPath || '').replace(/^\/+/, '');
+    if (baseURL.endsWith('/v1') && normalizedApiPath.startsWith('v1/')) {
+      normalizedApiPath = normalizedApiPath.slice(3);
+    }
+    if (baseURL.endsWith('/v1beta') && normalizedApiPath.startsWith('v1beta/')) {
+      normalizedApiPath = normalizedApiPath.slice('v1beta/'.length);
+    }
+    const targetURL = `${baseURL}/${normalizedApiPath}`;
 
     // 解析请求体
     let requestData = null;

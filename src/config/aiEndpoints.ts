@@ -94,9 +94,10 @@ export const AI_ENDPOINTS: Record<string, AIEndpointConfig> = {
   deepseek: {
     name: 'deepseek',
     displayName: 'DeepSeek',
-    baseURL: getEnvConfig('VITE_DEEPSEEK_BASE_URL', false), // 可选配置
-    chatEndpoint: '/v1/chat/completions',
-    modelsEndpoint: '/v1/models',
+    baseURL: getEnvConfig('VITE_DEEPSEEK_BASE_URL', false), // 可选配置，推荐设置为 https://api.deepseek.com/v1
+    // 🔧 FIX: 端点不再包含 /v1 前缀，避免与 baseURL 重复
+    chatEndpoint: '/chat/completions',
+    modelsEndpoint: '/models',
     headers: {
       authType: 'bearer',
       authHeader: 'Authorization',
