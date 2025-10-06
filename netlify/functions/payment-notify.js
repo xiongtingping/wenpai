@@ -112,10 +112,55 @@ async function createUserSubscription(order) {
       .eq('id', order.id);
 
     console.log('用户订阅创建成功:', data);
+
+    // 🎯 CRITICAL FIX: 订阅升级时重置使用次数
+    await resetUsageCount(order.user_id, order.product_type);
+
     return data;
   } catch (error) {
     console.error('创建用户订阅失败:', error);
     throw error;
+  }
+}
+
+/**
+ * 重置用户使用次数（订阅升级时）
+ */
+async function resetUsageCount(userId, tier) {
+  try {
+    // 获取新套餐的限额
+    const tierLimits = {
+      'trial': 10,
+      'pro': 30,
+      'premium': -1  // 无限制
+    };
+
+    const totalCount = tierLimits[tier] || 10;
+
+    // 重置user_usage_balance表
+    const { error } = await supabase
+      .from('user_usage_balance')
+      .upsert({
+        user_id: userId,
+        total_count: totalCount,
+        used_count: 0,
+        remaining_count: totalCount,
+        base_count: totalCount,
+        bonus_count: 0,
+        last_reset_at: new Date(),
+        reset_period: 'monthly',
+        updated_at: new Date()
+      }, {
+        onConflict: 'user_id'
+      });
+
+    if (error) {
+      console.error('重置使用次数失败:', error);
+    } else {
+      console.log('✅ 使用次数已重置:', { userId, tier, totalCount });
+    }
+  } catch (error) {
+    console.error('重置使用次数异常:', error);
   }
 }
 
