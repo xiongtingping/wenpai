@@ -1,7 +1,7 @@
 /**
  * 订阅计划类型
  */
-export type SubscriptionTier = 'trial' | 'pro' | 'premium';
+export type SubscriptionTier = 'free' | 'trial' | 'pro' | 'premium';
 
 /**
  * 订阅周期类型

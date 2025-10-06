@@ -184,6 +184,20 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           failedLayers: syncResult.failedLayers
         });
 
+        // 🎯 CRITICAL FIX: 同步真实的订阅状态
+        try {
+          const { syncUserSubscription } = await import('@/services/subscriptionSyncService');
+          await syncUserSubscription(secureUser.id, (updates) => {
+            // 更新Context中的用户状态
+            setUser(prev => prev ? { ...prev, ...updates } : null);
+            // 同时更新Store中的用户状态
+            const { useUnifiedStore } = require('@/stores/unified-state-store');
+            useUnifiedStore.getState().updateUser(updates);
+          });
+        } catch (syncError) {
+          console.error('⚠️ 订阅状态同步失败，使用默认值:', syncError);
+        }
+
         // 🔄 自动迁移历史记录数据
         try {
           const wasGuest = !user; // 如果之前没有用户,说明是访客
@@ -328,6 +342,20 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         syncedLayers: syncResult.syncedLayers,
         failedLayers: syncResult.failedLayers
       });
+
+      // 🎯 CRITICAL FIX: 登录成功后同步真实的订阅状态
+      try {
+        const { syncUserSubscription } = await import('@/services/subscriptionSyncService');
+        await syncUserSubscription(formattedUser.id, (updates) => {
+          // 更新Context中的用户状态
+          setUser(prev => prev ? { ...prev, ...updates } : null);
+          // 同时更新Store中的用户状态
+          const { useUnifiedStore } = require('@/stores/unified-state-store');
+          useUnifiedStore.getState().updateUser(updates);
+        });
+      } catch (syncError) {
+        console.error('⚠️ 订阅状态同步失败，使用默认值:', syncError);
+      }
 
       // Guard模态框已移除 - 无需隐藏
 

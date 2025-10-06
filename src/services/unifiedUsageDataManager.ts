@@ -278,7 +278,8 @@ class UnifiedUsageDataManager {
     try {
       // 🔧 FIX: 优先从globalDataManager获取，避免重复查询
       const cloudData = await globalDataManager.getData<TokenUsageStats>('tokenUsageStats');
-      if (cloudData && this.validateTokenStats(cloudData)) {
+      // ⚠️ CRITICAL FIX: 必须验证用户ID匹配，避免返回其他用户的数据
+      if (cloudData && this.validateTokenStats(cloudData) && cloudData.userId === userId) {
         this.setCache(cacheKey, cloudData, 60 * 1000);
         logger.debug('使用云端Token统计', { userId, userTier, cloudData });
         return cloudData;
