@@ -42,6 +42,11 @@ class TokenLimitManager {
     exceeded: 0
   };
   private warningCooldown = 5 * 60 * 1000; // 5分钟冷却时间，避免频繁提示
+  // 避免对话框/Toast在短时间内重复触发导致闪烁
+  private lastDialogAt: number = 0;
+  private lastDialogType: 'warning' | 'exceeded' | 'approaching' | null = null;
+  private dialogCooldown: number = 15_000; // 15s 内同类型仅显示一次
+
 
   /**
    * 初始化Token限额管理器
@@ -72,8 +77,9 @@ class TokenLimitManager {
       usagePercentage: stats.usagePercentage
     });
 
-    // 显示错误对话框
-    if (this.showDialogFn) {
+    // 显示错误对话框（带防抖，避免闪烁）
+    const now = Date.now();
+    if (this.showDialogFn && (now - this.lastDialogAt > this.dialogCooldown || this.lastDialogType !== 'exceeded')) {
       this.showDialogFn(
         stats,
         'exceeded',
@@ -82,14 +88,11 @@ class TokenLimitManager {
           window.location.href = '/payment';
         }
       );
+      this.lastDialogAt = now;
+      this.lastDialogType = 'exceeded';
     }
 
-    // 使用toast显示简短提示
-    this.showToast(
-      'Token额度已用完',
-      reason || 'Token使用量已达到限额，请升级套餐或等待下月重置',
-      'error'
-    );
+
   }
 
   /**
@@ -117,19 +120,24 @@ class TokenLimitManager {
 
     // 根据警告级别决定是否显示对话框
     if (warningLevel === 'approaching' && this.showDialogFn) {
-      // 95%以上显示对话框
-      this.showDialogFn(
-        stats,
-        'approaching',
-        () => {
-          // 升级回调
-          window.location.href = '/payment';
-        },
-        () => {
-          // 继续使用回调
-          logger.info('用户选择继续使用');
-        }
-      );
+      // 95%以上显示对话框（带防抖）
+      const now = Date.now();
+      if (now - this.lastDialogAt > this.dialogCooldown || this.lastDialogType !== 'approaching') {
+        this.showDialogFn(
+          stats,
+          'approaching',
+          () => {
+            // 升级回调
+            window.location.href = '/payment';
+          },
+          () => {
+            // 继续使用回调
+            logger.info('用户选择继续使用');
+          }
+        );
+        this.lastDialogAt = now;
+        this.lastDialogType = 'approaching';
+      }
     } else if (warningLevel === 'warning') {
       // 80-95%只显示toast提示
       this.showToast(

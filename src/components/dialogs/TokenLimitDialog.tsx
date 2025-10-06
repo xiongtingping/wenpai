@@ -55,8 +55,8 @@ function getLimitConfig(limitType: TokenLimitDialogProps['limitType']) {
         description: '您已达到当前套餐的Token上限，无法继续使用AI功能',
         icon: AlertTriangle,
         iconColor: 'text-destructive',
-        bgColor: 'bg-accent',
-        borderColor: 'border-border',
+        bgColor: 'bg-destructive/10',
+        borderColor: 'border-destructive/30',
         showContinue: false
       };
     case 'approaching':
@@ -64,9 +64,9 @@ function getLimitConfig(limitType: TokenLimitDialogProps['limitType']) {
         title: 'Token额度即将用完',
         description: '您的Token使用量已超过90%，建议升级套餐',
         icon: AlertTriangle,
-        iconColor: 'text-foreground',
-        bgColor: 'bg-accent',
-        borderColor: 'border-border',
+        iconColor: 'text-warning',
+        bgColor: 'bg-warning/10',
+        borderColor: 'border-warning/30',
         showContinue: true
       };
     case 'warning':
@@ -75,8 +75,8 @@ function getLimitConfig(limitType: TokenLimitDialogProps['limitType']) {
         title: 'Token使用量较高',
         description: '您的Token使用量已超过80%，建议关注剩余额度',
         icon: TrendingUp,
-        iconColor: 'text-foreground',
-        bgColor: 'bg-accent',
+        iconColor: 'text-primary',
+        bgColor: 'bg-primary/10',
         borderColor: 'border-border',
         showContinue: true
       };
@@ -176,7 +176,7 @@ export function TokenLimitDialog({
           </div>
 
           {/* 升级建议 */}
-          <div className="p-4 bg-accent rounded-lg border border-primary">
+          <div className="p-4 bg-primary/5 rounded-lg border border-border">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Crown className="w-4 h-4 text-primary" />
@@ -197,7 +197,7 @@ export function TokenLimitDialog({
           </div>
 
           {/* 使用建议 */}
-          <div className="p-3 bg-accent rounded-lg border border-border">
+          <div className="p-3 bg-muted rounded-lg border border-border">
             <div className="flex items-start gap-2">
               <Clock className="w-4 h-4 text-primary mt-0.5" />
               <div className="text-sm text-primary">
