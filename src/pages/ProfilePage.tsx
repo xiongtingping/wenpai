@@ -721,71 +721,19 @@ export default function ProfilePage() {
               </div>
             </Card>
 
-            {/* 2x2网格布局：左上-订阅有效期，右上-邀请奖励，左下-使用统计 */}
+            {/* 订阅有效期 + 使用统计 */}
             <div className="grid gap-6 xl:grid-cols-2">
-              {/* 左列：订阅有效期 + 使用统计 */}
-              <div className="flex flex-col gap-6">
-                <SubscriptionExpiryCard />
-                <TokenUsageSection
-                  userTier={userTier}
-                  showDetails={true}
-                  className="profile-usage-card w-full border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl"
-                />
-              </div>
+              <SubscriptionExpiryCard />
+              <TokenUsageSection
+                userTier={userTier}
+                showDetails={true}
+                className="profile-usage-card w-full border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl"
+              />
+            </div>
 
-              {/* 右列：邀请奖励 */}
-              <div className="flex flex-col gap-6">
-                {/* 邀请奖励卡片 */}
-                <div className="relative">
-                  <Card className="relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card/95 to-card/85 backdrop-blur-xl group hover:shadow-2xl transition-all duration-500">
-                    {/* 卡片内部装饰 */}
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/15 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-accent/15 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                    <CardHeader className="relative z-10">
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-accent/30 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          <div className="relative p-2 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg">
-                            <Gift className="h-5 w-5 text-primary group-hover:scale-110 transition-transform duration-300" />
-                          </div>
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg font-semibold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
-                            {t('profile.inviteRewards')}
-                          </CardTitle>
-                          <CardDescription className="text-muted-foreground/80">
-                            {t('profile.inviteRule')}
-                          </CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10 space-y-4">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="group/stat relative overflow-hidden rounded-xl border border-border/20 bg-gradient-to-br from-muted/20 to-muted/10 p-3 text-center hover:shadow-lg transition-all duration-300">
-                          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover/stat:opacity-100 transition-opacity duration-300" />
-                          <div className="relative">
-                            <p className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">0</p>
-                            <p className="text-xs text-muted-foreground mt-1">{t('profile.successfulInvites')}</p>
-                          </div>
-                        </div>
-                        <div className="group/stat relative overflow-hidden rounded-xl border border-border/20 bg-gradient-to-br from-muted/20 to-muted/10 p-3 text-center hover:shadow-lg transition-all duration-300">
-                          <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover/stat:opacity-100 transition-opacity duration-300" />
-                          <div className="relative">
-                            <p className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">0</p>
-                            <p className="text-xs text-muted-foreground mt-1">{t('profile.rewardTimes')}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* 🎉 邀请功能区域 */}
-                <div className="mt-8">
-                  <InviteSection userId={user.id} />
-                </div>
-              </div>
+            {/* 🎉 邀请功能区域 */}
+            <div className="mt-8">
+              <InviteSection userId={user.id} />
             </div>
           </div>
         </div>
