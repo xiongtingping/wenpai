@@ -424,12 +424,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleCopyInviteLink = () => {
-    const inviteLink = `${window.location.origin}/register?inviter=${user?.id || 'unknown'}&t=${Date.now()}`;
-    navigator.clipboard.writeText(inviteLink);
-    toast({ title: "邀请链接已复制", description: "邀请链接已复制到剪贴板" });
-  };
-
   // 如果用户未登录，显示登录提示
   if (!isAuthenticated || !user) {
     return (
@@ -783,38 +777,6 @@ export default function ProfilePage() {
                           </div>
                         </div>
                       </div>
-
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                          <Copy className="w-4 h-4 text-primary/60" />
-                          {t('profile.inviteLink')}
-                        </Label>
-                        <div className="flex gap-3">
-                          <Input
-                            value={`${window.location.origin}/register?inviter=${user?.id || 'unknown'}`}
-                            readOnly
-                            className="flex-1 font-mono text-xs transition-all duration-300 focus:shadow-lg border-border/50 hover:border-border"
-                          />
-                          <Button
-                            size="sm"
-                            onClick={handleCopyInviteLink}
-                            className="group/btn hover:shadow-lg transition-all duration-300"
-                          >
-                            <Copy className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      <Button
-                        onClick={handleCopyInviteLink}
-                        className="w-full gap-2 group/btn relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-                        <div className="relative flex items-center gap-2">
-                          <Users className="h-5 w-5 group-hover/btn:scale-110 transition-transform" />
-                          {t('profile.inviteFriends')}
-                        </div>
-                      </Button>
                     </CardContent>
                   </Card>
                 </div>
