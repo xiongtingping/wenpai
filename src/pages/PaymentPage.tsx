@@ -133,7 +133,7 @@ export default function PaymentPage() {
     if (pendingPaymentStr) {
       try {
         const pendingPayment = JSON.parse(pendingPaymentStr);
-        const { orderId, timestamp } = pendingPayment;
+        const { orderId, amount, qrCode, qrImage, timestamp } = pendingPayment;
 
         // 检查是否在30分钟内
         const thirtyMinutes = 30 * 60 * 1000;
@@ -150,12 +150,13 @@ export default function PaymentPage() {
                 });
                 localStorage.removeItem('pending_payment');
               } else {
-                // 恢复支付模态框
+                // 恢复支付模态框 - 使用保存的数据
                 setPaymentModalData({
                   state: 'waiting_scan',
                   orderId,
-                  qrCode: '',
-                  amount: 0,
+                  qrCode: qrCode || '',
+                  qrImage: qrImage || '',
+                  amount: amount || 0,
                   timeLeft: 300,
                   retryCount: 0
                 });

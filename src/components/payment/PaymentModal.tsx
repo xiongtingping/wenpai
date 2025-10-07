@@ -138,13 +138,21 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const [timeLeft, setTimeLeft] = useState(paymentData.timeLeft);
   const [retryCount, setRetryCount] = useState(0);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  
+
   // Refs
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // 最大重试次数
   const MAX_RETRIES = 10;
+
+  /**
+   * 同步paymentData的变化
+   */
+  useEffect(() => {
+    setCurrentState(paymentData.state);
+    setTimeLeft(paymentData.timeLeft);
+  }, [paymentData.state, paymentData.timeLeft]);
 
   /**
    * 🎯 刷新用户订阅和使用统计
@@ -400,10 +408,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     if (open && paymentData.orderId) {
       localStorage.setItem('pending_payment', JSON.stringify({
         orderId: paymentData.orderId,
+        amount: paymentData.amount,
+        qrCode: paymentData.qrCode,
+        qrImage: paymentData.qrImage,
         timestamp: Date.now()
       }));
     }
-    
+
     return () => {
       if (currentState === 'success' || currentState === 'cancelled') {
         localStorage.removeItem('pending_payment');
@@ -536,6 +547,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         animation="scale"
         closeOnOverlayClick={canClose}
         closeOnEscape={canClose}
+        preventScroll={false}
         aria-label="支付二维码"
       >
         <div className="flex flex-col max-h-[80vh] overflow-hidden">
@@ -673,10 +685,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           {/* 倒计时显示 */}
           {currentState !== 'success' && currentState !== 'cancelled' && timeLeft > 0 && (
             <div className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  剩余时间: <span className="font-mono font-semibold text-foreground">{formatCountdown(timeLeft)}</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
+                <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm text-blue-700 dark:text-blue-300">
+                  剩余时间: <span className="font-mono font-semibold text-blue-900 dark:text-blue-100">{formatCountdown(timeLeft)}</span>
                 </span>
               </div>
             </div>
