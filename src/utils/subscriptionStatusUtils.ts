@@ -22,6 +22,8 @@ export interface SubscriptionStatus {
   statusColor: 'green' | 'yellow' | 'orange' | 'red' | 'gray';
   /** 订阅等级 */
   tier?: 'trial' | 'pro' | 'premium';
+  /** 订阅周期 */
+  period?: 'monthly' | 'yearly';
 }
 
 /**

@@ -542,7 +542,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             }
           }
         }}
-        size="medium"
+        size="large"
         variant="elevated"
         animation="scale"
         closeOnOverlayClick={canClose}
@@ -550,7 +550,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         preventScroll={false}
         aria-label="支付二维码"
       >
-        <div className="flex flex-col max-h-[80vh] overflow-hidden">
+        <div className="flex flex-col max-h-[85vh] overflow-hidden">
           {/* 标题栏 - 固定不滚动 */}
           <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
             <div className="flex items-center gap-3">
@@ -571,64 +571,133 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             )}
           </div>
 
-          {/* 可滚动内容区域 */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            {/* 内容区域开始 */}
-          
-          {/* 支付宝品牌横幅 + 支付金额 */}
-          <div className="flex flex-col items-center gap-4">
-            <AlipayBanner size="lg" />
+          {/* 可滚动内容区域 - 左右分栏布局 */}
+          <div className="flex-1 overflow-y-auto p-6">
+            {/* 二维码扫描状态 - 左右分栏 */}
+            {(currentState === 'waiting_scan' || currentState === 'scanning' || currentState === 'verifying') && (
+              <div className="grid grid-cols-3 gap-6 items-start">
+                {/* 左侧信息栏 */}
+                <div className="space-y-4">
+                  {/* 支付宝品牌 */}
+                  <div className="flex justify-center">
+                    <AlipayBanner size="sm" />
+                  </div>
 
-            {/* 支付金额 - 突出显示 */}
-            <div className="text-center bg-gradient-to-r from-blue-50 to-orange-50 dark:from-blue-950 dark:to-orange-950 px-6 py-4 rounded-xl border-2 border-blue-200 dark:border-blue-800">
-              <div className="text-base mb-2">
-                请使用
-                <span className="inline-flex items-center mx-1 px-2 py-0.5 rounded font-bold text-white bg-blue-600 dark:bg-blue-500">
-                  支付宝
-                </span>
-                扫码支付
-              </div>
-              <div className="flex items-baseline justify-center gap-2 mt-2">
-                <span className="text-lg font-medium text-muted-foreground">支付金额</span>
-                <span className="text-5xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 bg-clip-text text-transparent animate-pulse">
-                  ¥{paymentData.amount.toFixed(2)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* 二维码区域 */}
-          {(currentState === 'waiting_scan' || currentState === 'scanning' || currentState === 'verifying') && (
-            <div className="flex flex-col items-center gap-4">
-              {/* 二维码图片 */}
-              <div className="relative">
-                <div className="bg-white p-4 rounded-lg shadow-lg border-2 border-primary/20">
-                  {paymentData.qrImage ? (
-                    <img
-                      src={paymentData.qrImage}
-                      alt="支付二维码"
-                      className="w-64 h-64 object-contain"
-                    />
-                  ) : paymentData.qrCode ? (
-                    <div className="w-64 h-64 flex items-center justify-center">
-                      <QrCode className="w-32 h-32 text-muted-foreground" />
+                  {/* 支付金额 */}
+                  <div className="text-center bg-gradient-to-r from-blue-50 to-orange-50 dark:from-blue-950 dark:to-orange-950 px-4 py-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="text-xs text-muted-foreground mb-1">支付金额</div>
+                    <div className="text-3xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 bg-clip-text text-transparent">
+                      ¥{paymentData.amount.toFixed(2)}
                     </div>
-                  ) : null}
+                  </div>
+
+                  {/* 倒计时 */}
+                  {timeLeft > 0 && (
+                    <div className="bg-blue-50 dark:bg-blue-950 px-4 py-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center justify-center gap-2">
+                        <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <div className="text-center">
+                          <div className="text-xs text-blue-700 dark:text-blue-300 mb-1">剩余时间</div>
+                          <div className="text-2xl font-mono font-bold text-blue-900 dark:text-blue-100">
+                            {formatCountdown(timeLeft)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 网络重试提示 */}
+                  {retryCount > 0 && retryCount < MAX_RETRIES && (
+                    <Alert className="border-orange-500/20 bg-orange-500/5">
+                      <AlertDescription className="flex items-center gap-2 text-xs text-orange-700 dark:text-orange-300">
+                        <RefreshCw className="w-3 h-3 animate-spin" />
+                        <span>重试中 {retryCount}/{MAX_RETRIES}</span>
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
 
-                {/* 支付宝Logo覆盖 */}
-                <div className="absolute bottom-2 right-2">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md border-2 border-blue-500">
-                    <AlipayLogo size={24} />
+                {/* 中间二维码区域 */}
+                <div className="flex flex-col items-center justify-center gap-3">
+                  {/* 二维码图片 */}
+                  <div className="relative">
+                    <div className="bg-white p-4 rounded-lg shadow-lg border-2 border-primary/20">
+                      {paymentData.qrImage ? (
+                        <img
+                          src={paymentData.qrImage}
+                          alt="支付二维码"
+                          className="w-64 h-64 object-contain"
+                        />
+                      ) : paymentData.qrCode ? (
+                        <div className="w-64 h-64 flex items-center justify-center">
+                          <QrCode className="w-32 h-32 text-muted-foreground" />
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {/* 支付宝Logo覆盖 */}
+                    <div className="absolute bottom-2 right-2">
+                      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md border-2 border-blue-500">
+                        <AlipayLogo size={24} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 扫码提示 */}
+                  <div className="text-center text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1 justify-center">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold text-white bg-blue-600 dark:bg-blue-500">
+                        支付宝
+                      </span>
+                      扫码支付
+                    </div>
+                  </div>
+                </div>
+
+                {/* 右侧信息栏 */}
+                <div className="space-y-4">
+                  {/* 状态提示 */}
+                  <Alert className="border-primary/20 bg-primary/5">
+                    <AlertDescription className="flex items-center gap-2 text-sm">
+                      {statusMessage.showLoading && (
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      )}
+                      <span className="text-foreground">{statusMessage.description}</span>
+                    </AlertDescription>
+                  </Alert>
+
+                  {/* 进度指示器 */}
+                  {currentState !== 'failed' && currentState !== 'timeout' && currentState !== 'cancelled' && (
+                    <PaymentProgressIndicator currentStep={getCurrentStep()} />
+                  )}
+
+                  {/* 支付说明 */}
+                  <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-xs text-muted-foreground">
+                    <div className="font-semibold text-foreground mb-2">支付说明</div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-primary">1.</span>
+                      <span>打开支付宝APP</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-primary">2.</span>
+                      <span>扫描左侧二维码</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-primary">3.</span>
+                      <span>确认支付金额</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-primary">4.</span>
+                      <span>完成支付即可</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* 成功状态 */}
           {currentState === 'success' && (
-            <div className="flex flex-col items-center gap-4 py-8">
+            <div className="flex flex-col items-center gap-4 py-12">
               <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
                 <CheckCircle className="w-12 h-12 text-green-500" />
               </div>
@@ -641,7 +710,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
           {/* 失败状态 */}
           {currentState === 'failed' && (
-            <div className="flex flex-col items-center gap-4 py-8">
+            <div className="flex flex-col items-center gap-4 py-12">
               <div className="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
                 <XCircle className="w-12 h-12 text-red-500" />
               </div>
@@ -656,7 +725,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
           {/* 超时状态 */}
           {currentState === 'timeout' && (
-            <div className="flex flex-col items-center gap-4 py-8">
+            <div className="flex flex-col items-center gap-4 py-12">
               <div className="w-20 h-20 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
                 <Clock className="w-12 h-12 text-orange-500" />
               </div>
@@ -665,43 +734,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 <div className="text-muted-foreground">请刷新后重新支付</div>
               </div>
             </div>
-          )}
-
-          {/* 状态提示 */}
-          <Alert className="border-primary/20 bg-primary/5">
-            <AlertDescription className="flex items-center gap-2 text-center justify-center">
-              {statusMessage.showLoading && (
-                <Loader2 className="w-4 h-4 animate-spin text-primary" />
-              )}
-              <span className="text-foreground">{statusMessage.description}</span>
-            </AlertDescription>
-          </Alert>
-
-          {/* 进度指示器 */}
-          {currentState !== 'failed' && currentState !== 'timeout' && currentState !== 'cancelled' && (
-            <PaymentProgressIndicator currentStep={getCurrentStep()} />
-          )}
-
-          {/* 倒计时显示 */}
-          {currentState !== 'success' && currentState !== 'cancelled' && timeLeft > 0 && (
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-                <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm text-blue-700 dark:text-blue-300">
-                  剩余时间: <span className="font-mono font-semibold text-blue-900 dark:text-blue-100">{formatCountdown(timeLeft)}</span>
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* 网络重试提示 */}
-          {retryCount > 0 && retryCount < MAX_RETRIES && (
-            <Alert className="border-orange-500/20 bg-orange-500/5">
-              <AlertDescription className="flex items-center gap-2 text-center justify-center text-orange-700 dark:text-orange-300">
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>网络不稳定，正在重试... ({retryCount}/{MAX_RETRIES})</span>
-              </AlertDescription>
-            </Alert>
           )}
 
           {/* 操作按钮 */}

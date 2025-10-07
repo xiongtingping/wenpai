@@ -40,6 +40,7 @@ function calculateSubscriptionStatus(subscription) {
     return {
       status: 'inactive',
       tier: 'trial',
+      period: null,
       expiresAt: null,
       daysRemaining: 0,
       needsAlert: false,
@@ -55,12 +56,14 @@ function calculateSubscriptionStatus(subscription) {
   const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
   const rawTier = subscription.tier || subscription.subscription_type;
   const tier = normalizeTier(rawTier);
+  const period = subscription.period || 'monthly'; // 获取订阅周期
 
   // 已过期
   if (daysRemaining <= 0) {
     return {
       status: 'expired',
       tier,
+      period,
       expiresAt: subscription.expires_at,
       daysRemaining: 0,
       needsAlert: true,
@@ -76,6 +79,7 @@ function calculateSubscriptionStatus(subscription) {
     return {
       status: 'expiring_soon',
       tier,
+      period,
       expiresAt: subscription.expires_at,
       daysRemaining,
       needsAlert: true,
@@ -91,6 +95,7 @@ function calculateSubscriptionStatus(subscription) {
     return {
       status: 'expiring_soon',
       tier,
+      period,
       expiresAt: subscription.expires_at,
       daysRemaining,
       needsAlert: true,
@@ -106,6 +111,7 @@ function calculateSubscriptionStatus(subscription) {
     return {
       status: 'expiring_soon',
       tier,
+      period,
       expiresAt: subscription.expires_at,
       daysRemaining,
       needsAlert: true,
@@ -123,6 +129,7 @@ function calculateSubscriptionStatus(subscription) {
   return {
     status: 'active',
     tier,
+    period,
     expiresAt: subscription.expires_at,
     daysRemaining,
     needsAlert: false,

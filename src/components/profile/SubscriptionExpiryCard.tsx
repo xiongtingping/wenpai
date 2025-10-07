@@ -275,7 +275,7 @@ export function SubscriptionExpiryCard() {
     const progress = calculateProgress(startDate, expiresAt);
     const daysText = getDaysRemainingText(daysRemaining, status, expiresAt);
 
-    // 订阅等级信息
+    // 订阅等级信息（包含周期）
     const tierInfo = {
       trial: { label: '体验版', color: 'text-gray-600', bgColor: 'bg-gray-100' },
       pro: { label: '专业版', color: 'text-blue-600', bgColor: 'bg-blue-100' },
@@ -284,10 +284,15 @@ export function SubscriptionExpiryCard() {
 
     const currentTier = tierInfo[tier as keyof typeof tierInfo] || tierInfo.trial;
 
+    // 获取订阅周期信息
+    const period = primaryStatus?.period || 'monthly';
+    const periodLabel = period === 'yearly' ? '年付' : period === 'monthly' ? '月付' : '';
+    const fullTierLabel = tier === 'trial' ? currentTier.label : `${currentTier.label}（${periodLabel}）`;
+
     return {
       status,
       tier,
-      tierLabel: currentTier.label,
+      tierLabel: fullTierLabel,
       tierColor: currentTier.color,
       tierBgColor: currentTier.bgColor,
       startDate,

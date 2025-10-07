@@ -374,8 +374,8 @@ exports.handler = async (event, context) => {
       };
     }
 
-    console.log('✅ 支付回调处理完成:', { 
-      orderId: notifyData.order_id, 
+    console.log('✅ 支付回调处理完成:', {
+      orderId: notifyData.order_id,
       userId: order.user_id,
       productType: order.product_type,
       durationType: order.duration_type,
@@ -385,10 +385,13 @@ exports.handler = async (event, context) => {
     });
     console.log('===== BufPay 支付回调结束 =====');
 
-    // 返回成功响应
+    // 返回成功响应 - BufPay要求返回纯文本"success"
     return {
       statusCode: 200,
-      headers,
+      headers: {
+        ...headers,
+        'Content-Type': 'text/plain'
+      },
       body: 'success'
     };
 
