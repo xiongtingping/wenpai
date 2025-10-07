@@ -588,15 +588,15 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     <div className="font-semibold text-foreground text-base mb-2">支付说明</div>
                     <div className="flex items-start gap-2.5">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">1</span>
-                      <span>打开支付宝APP</span>
+                      <span className="whitespace-nowrap">打开支付宝APP</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">2</span>
-                      <span>扫描中间二维码</span>
+                      <span className="whitespace-nowrap">扫描中间二维码</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">3</span>
-                      <span>确认支付金额</span>
+                      <span className="whitespace-nowrap">确认支付金额</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">4</span>
@@ -664,7 +664,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   {/* 支付金额 */}
                   <div className="bg-gradient-to-r from-blue-50 to-orange-50 dark:from-blue-950 dark:to-orange-950 px-5 py-4 rounded-xl border-2 border-blue-200 dark:border-blue-800 shadow-sm">
                     <div className="text-xs text-muted-foreground mb-1.5">请输入支付金额</div>
-                    <div className="text-3xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 bg-clip-text text-transparent">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 bg-clip-text text-transparent whitespace-nowrap">
                       ¥{paymentData.amount.toFixed(2)}
                     </div>
                   </div>

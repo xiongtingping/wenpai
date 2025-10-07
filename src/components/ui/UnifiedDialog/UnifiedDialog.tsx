@@ -53,6 +53,12 @@ const dialogVariants = cva(
           'min-w-[600px]',
           'min-h-[400px]'
         ],
+        xlarge: [
+          'max-w-6xl',
+          'max-h-[88vh]',
+          'min-w-[800px]',
+          'min-h-[420px]'
+        ],
         fullscreen: [
           'max-w-[95vw]',
           'max-h-[95vh]',
