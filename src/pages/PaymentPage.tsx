@@ -23,6 +23,8 @@ import { PaymentQRCode } from '@/components/payment/PaymentQRCode';
 import { logger } from '@/utils/logger';
 import { DynamicPricingService, PricingContext } from '@/services/dynamicPricingService';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { PaymentModal } from '@/components/payment/PaymentModal';
+import { PaymentModalData } from '@/types/payment-modal';
 import {
   ArrowLeft,
   Check,
@@ -117,6 +119,70 @@ export default function PaymentPage() {
 
   // 倒计时效果（包含毫秒）
   const [timeLeftMs, setTimeLeftMs] = useState(0);
+
+  // 支付模态框状态
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentModalData, setPaymentModalData] = useState<PaymentModalData | null>(null);
+
+  /**
+   * 检测未完成的支付并提示恢复
+   */
+  useEffect(() => {
+    const pendingPaymentStr = localStorage.getItem('pending_payment');
+    if (pendingPaymentStr) {
+      try {
+        const pendingPayment = JSON.parse(pendingPaymentStr);
+        const { orderId, timestamp } = pendingPayment;
+
+        // 检查是否在30分钟内
+        const thirtyMinutes = 30 * 60 * 1000;
+        if (Date.now() - timestamp < thirtyMinutes) {
+          // 提示用户恢复支付
+          const continuePayment = async () => {
+            try {
+              // 查询订单状态
+              const status = await BufPayService.checkOrderStatus(orderId);
+              if (status.isPaid) {
+                toast({
+                  title: '该订单已支付成功！',
+                  description: '订阅已激活'
+                });
+                localStorage.removeItem('pending_payment');
+              } else {
+                // 恢复支付模态框
+                setPaymentModalData({
+                  state: 'waiting_scan',
+                  orderId,
+                  qrCode: '',
+                  amount: 0,
+                  timeLeft: 300,
+                  retryCount: 0
+                });
+                setShowPaymentModal(true);
+              }
+            } catch (error) {
+              console.error('恢复支付失败:', error);
+              localStorage.removeItem('pending_payment');
+            }
+          };
+
+          toast({
+            title: '检测到未完成的支付',
+            description: '是否继续之前的支付？'
+          });
+
+          // 自动尝试恢复
+          continuePayment();
+        } else {
+          // 超过30分钟，清除记录
+          localStorage.removeItem('pending_payment');
+        }
+      } catch (error) {
+        console.error('解析pending_payment失败:', error);
+        localStorage.removeItem('pending_payment');
+      }
+    }
+  }, []);
 
   // 升级相关状态
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
@@ -321,18 +387,23 @@ export default function PaymentPage() {
       setBufpayOrderId(orderId);
       setBufpayPaymentInfo(paymentInfo);
       setPaymentStatus('pending');
-      setShowQRCode(true);
 
-      setTimeout(() => {
-        paymentInfoRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }, 100);
+      // 打开支付模态框
+      setPaymentModalData({
+        state: 'waiting_scan',
+        orderId,
+        qrCode: paymentInfo.qr || paymentInfo.htmlContent || '',
+        qrImage: paymentInfo.qr_img || '',
+        amount: getCurrentPrice(),
+        timeLeft: 300, // 5分钟
+        retryCount: 0,
+        paymentInfo
+      });
+      setShowPaymentModal(true);
 
       toast({
         title: t('payment.messages.orderCreated'),
-        description: t('payment.messages.useAlipay'),
+        description: '请使用支付宝扫码支付',
       });
     } catch (error: any) {
       console.error('Payment error:', error);
@@ -395,24 +466,48 @@ export default function PaymentPage() {
   };
 
   // 处理支付成功
-  const handlePaymentSuccess = (paymentData: any) => {
+  const handlePaymentSuccess = (paymentData?: any) => {
     setPaymentStatus('paid');
-    setCurrentCheckout(paymentData);
+    if (paymentData) {
+      setCurrentCheckout(paymentData);
 
-    // 更新支付状态
-    paymentStatusService.savePaymentStatus(paymentData.id, {
-      status: 'paid',
-      message: t('payment.messages.paymentSuccess'),
-      progress: 100,
-      amount: paymentData.amount,
-      currency: paymentData.currency,
-      paidAt: new Date().toISOString(),
-    });
+      // 更新支付状态
+      paymentStatusService.savePaymentStatus(paymentData.id, {
+        status: 'paid',
+        message: t('payment.messages.paymentSuccess'),
+        progress: 100,
+        amount: paymentData.amount,
+        currency: paymentData.currency,
+        paidAt: new Date().toISOString(),
+      });
+    }
 
     toast({
       title: t('payment.messages.paymentSuccess'),
       description: t('payment.messages.upgrading'),
       duration: 3000,
+    });
+
+    // 关闭模态框
+    setShowPaymentModal(false);
+    setPaymentModalData(null);
+  };
+
+  // 处理支付模态框关闭
+  const handlePaymentModalClose = () => {
+    setShowPaymentModal(false);
+  };
+
+  // 处理支付取消
+  const handlePaymentCancel = () => {
+    setPaymentStatus('idle');
+    setBufpayPaymentInfo(null);
+    setBufpayOrderId(null);
+    setShowQRCode(false);
+
+    toast({
+      title: '已取消支付',
+      description: '您可以随时返回继续支付',
     });
   };
 
@@ -1102,6 +1197,19 @@ export default function PaymentPage() {
             // 刷新页面或重新获取用户信息
             window.location.reload();
           }}
+        />
+      )}
+
+      {/* 支付模态框 */}
+      {showPaymentModal && paymentModalData && (
+        <PaymentModal
+          open={showPaymentModal}
+          onClose={handlePaymentModalClose}
+          paymentData={paymentModalData}
+          onPaymentSuccess={handlePaymentSuccess}
+          onPaymentFailed={handlePaymentFailed}
+          onPaymentTimeout={handleBufpayTimeout}
+          onCancel={handlePaymentCancel}
         />
       )}
     </div>

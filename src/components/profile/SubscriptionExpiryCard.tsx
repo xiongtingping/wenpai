@@ -151,15 +151,26 @@ export function SubscriptionExpiryCard() {
     order_id?: string | null;
     created_at: string;
   }
+  interface UpgradeOrderItem {
+    order_id: string;
+    target_tier: 'professional' | 'premium';
+    target_period: 'monthly' | 'yearly';
+    status: 'pending' | 'paid' | 'failed' | 'expired' | 'processed';
+    upgrade_amount: number;
+    created_at: string;
+    paid_at?: string | null;
+    processed_at?: string | null;
+  }
 
   const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [upgradeOrders, setUpgradeOrders] = useState<UpgradeOrderItem[]>([]);
   const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>([]);
 
   const fetchHistory = async (): Promise<void> => {
     if (!user?.id) return;
     try {
       setHistoryLoading(true);
-      const [{ data: orderData }, { data: subData }] = await Promise.all([
+      const [{ data: orderData }, { data: subData }, { data: upgData }] = await Promise.all([
         supabase
           .from('orders')
           .select('order_id, product_type, duration_type, status, amount, created_at, paid_at, processed_at')
@@ -171,10 +182,17 @@ export function SubscriptionExpiryCard() {
           .select('id, subscription_type, status, started_at, expires_at, order_id, created_at')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
+          .limit(20),
+        supabase
+          .from('upgrade_orders')
+          .select('order_id, target_tier, target_period, status, upgrade_amount, created_at, paid_at, processed_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
           .limit(20)
       ]);
       setOrders((orderData as OrderItem[]) || []);
       setSubscriptions((subData as SubscriptionItem[]) || []);
+      setUpgradeOrders((upgData as UpgradeOrderItem[]) || []);
     } catch (e) {
       console.warn('加载订单/订阅历史失败', e);
       toast({ title: '加载失败', description: '获取订单/订阅历史失败，请稍后重试', variant: 'destructive' });
@@ -502,6 +520,33 @@ export function SubscriptionExpiryCard() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">暂无订阅记录</p>
+              )}
+            </div>
+
+            {/* 升级订单记录 */}
+            <div>
+              <p className="text-sm font-medium mb-2 flex items-center">
+                <Receipt className="w-4 h-4 mr-1" /> 升级订单记录
+              </p>
+              {historyLoading ? (
+                <p className="text-sm text-muted-foreground">加载中...</p>
+              ) : upgradeOrders.length ? (
+                <div className="space-y-2">
+                  {upgradeOrders.map((u) => (
+                    <div key={u.order_id} className="flex items-center justify-between p-2 rounded-lg border bg-muted/20">
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">升级至 {u.target_tier === 'premium' ? '高级版' : '专业版'}（{u.target_period === 'yearly' ? '年付' : '月付'}） · {u.status}</div>
+                        <div className="text-xs text-muted-foreground truncate">订单号：{u.order_id}</div>
+                        <div className="text-xs text-muted-foreground">金额：¥{u.upgrade_amount} · 时间：{formatDateTime(u.paid_at || u.created_at, true)}</div>
+                      </div>
+                      <Button variant="outline" size="sm" className="ml-2 h-7" onClick={() => copyToClipboard(u.order_id, '订单号')}>
+                        <Copy className="w-3.5 h-3.5 mr-1" /> 复制
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">暂无升级订单</p>
               )}
             </div>
           </div>

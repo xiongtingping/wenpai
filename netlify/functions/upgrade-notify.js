@@ -11,8 +11,11 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // BufPay 配置
 const BUFPAY_CONFIG = {
-  APP_SECRET: process.env.BUFPAY_APP_SECRET || '2861731746ef4189937ef4dc11f09375'
+  APP_SECRET: process.env.BUFPAY_SECRET_KEY || process.env.BUFPAY_APP_SECRET
 };
+if (!BUFPAY_CONFIG.APP_SECRET) {
+  throw new Error('Missing BUFPAY_SECRET_KEY (or legacy BUFPAY_APP_SECRET) environment variable');
+}
 
 // 创建 Supabase 客户端
 const supabase = createClient(supabaseUrl, supabaseServiceKey);

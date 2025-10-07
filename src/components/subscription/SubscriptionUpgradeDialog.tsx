@@ -96,7 +96,7 @@ export function SubscriptionUpgradeDialog({ open,
           productName: `升级到${targetTier === 'pro' ? '专业版' : '高级版'}`,
           productType: targetTier === 'pro' ? 'professional' : 'premium',
           durationType: targetPeriod,
-          amount: Math.round(upgradeCalculation.calculation.upgradeAmount * 100), // 转换为分
+          amount: upgradeCalculation.calculation.upgradeAmount,
           payType: 'alipay'
         });
 

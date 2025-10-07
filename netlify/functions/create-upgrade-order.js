@@ -12,11 +12,14 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 // BufPay 配置
 const BUFPAY_CONFIG = {
   API_URL: 'https://bufpay.com/api/pay/107628',
-  APP_SECRET: process.env.BUFPAY_APP_SECRET || '2861731746ef4189937ef4dc11f09375',
+  APP_SECRET: process.env.BUFPAY_SECRET_KEY || process.env.BUFPAY_APP_SECRET,
   NOTIFY_URL: 'https://www.wenpai.xyz/.netlify/functions/upgrade-notify',
   RETURN_URL_BASE: 'https://www.wenpai.xyz/payment/result',
   FEEDBACK_URL: 'https://www.wenpai.xyz/payment/feedback'
 };
+if (!BUFPAY_CONFIG.APP_SECRET) {
+  throw new Error('Missing BUFPAY_SECRET_KEY (or legacy BUFPAY_APP_SECRET) environment variable');
+}
 
 // 创建 Supabase 客户端
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
