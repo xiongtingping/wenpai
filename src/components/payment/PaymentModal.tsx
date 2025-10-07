@@ -538,9 +538,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         closeOnEscape={canClose}
         aria-label="支付二维码"
       >
-        <div className="space-y-6 p-2">
-          {/* 标题栏 */}
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col max-h-[80vh] overflow-hidden">
+          {/* 标题栏 - 固定不滚动 */}
+          <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
             <div className="flex items-center gap-3">
               {getStatusIcon(currentState, 'text-primary')}
               <h2 className="text-xl font-semibold text-foreground">
@@ -558,6 +558,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               </Button>
             )}
           </div>
+
+          {/* 可滚动内容区域 */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {/* 内容区域开始 */}
           
           {/* 支付宝品牌横幅 + 支付金额 */}
           <div className="flex flex-col items-center gap-4">
@@ -716,6 +720,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 取消支付
               </Button>
             ) : null}
+          </div>
+          {/* 内容区域结束 */}
           </div>
         </div>
       </UnifiedDialog>
