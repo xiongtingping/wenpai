@@ -13,16 +13,16 @@ export const PROMO_DURATION = 30 * 60 * 1000; // 30分钟
 
 /**
  * 获取支付中心访问时间
- * 如果用户是第一次访问支付中心，记录当前时间作为优惠开始时间
+ * 注意：只读取，不自动记录。记录由recordPaymentCenterAccess函数负责
  * @param userId 用户ID
- * @returns 支付中心访问时间
+ * @returns 支付中心访问时间，如果从未访问过返回undefined
  */
 export function getPaymentCenterAccessTime(userId?: string): Date | undefined {
   if (!userId || userId === 'undefined') return undefined;
 
   const accessTimeKey = `payment_center_access_time_${userId}`;
   const accessTime = localStorage.getItem(accessTimeKey);
-  
+
   if (accessTime) {
     try {
       const parsed = JSON.parse(accessTime);
@@ -37,8 +37,30 @@ export function getPaymentCenterAccessTime(userId?: string): Date | undefined {
       return new Date(parseInt(accessTime, 10));
     }
   }
-  
-  // 如果是第一次访问支付中心，记录当前时间
+
+  // 从未访问过，返回undefined
+  return undefined;
+}
+
+/**
+ * 记录用户首次访问支付中心的时间
+ * 只在PaymentPage组件中调用一次
+ * @param userId 用户ID
+ * @returns 记录的访问时间
+ */
+export function recordPaymentCenterAccess(userId?: string): Date | undefined {
+  if (!userId || userId === 'undefined') return undefined;
+
+  const accessTimeKey = `payment_center_access_time_${userId}`;
+  const existingTime = localStorage.getItem(accessTimeKey);
+
+  // 如果已经记录过，不重复记录
+  if (existingTime) {
+    console.log('⏭️ 用户已访问过订阅中心，不重复记录');
+    return getPaymentCenterAccessTime(userId);
+  }
+
+  // 首次访问，记录当前时间
   const now = new Date();
   const accessData = {
     firstAccess: now.toISOString(),
@@ -46,7 +68,7 @@ export function getPaymentCenterAccessTime(userId?: string): Date | undefined {
     offerExpiry: new Date(now.getTime() + PROMO_DURATION).toISOString()
   };
   localStorage.setItem(accessTimeKey, JSON.stringify(accessData));
-  console.log('🎉 newuser限时优惠starts计时！', now.toLocaleString());
+  console.log('🎉 用户首次访问订阅中心，限时优惠开始计时！', now.toLocaleString());
   return now;
 }
 
@@ -159,17 +181,39 @@ export function isInPromoPeriod(userId?: string): boolean {
 /**
  * 检查是否应该显示限时优惠（考虑订阅状态）
  * @param userId 用户ID
+ * @param userTier 用户当前订阅等级（可选，如果提供则优先使用）
  * @returns Promise<boolean> 是否应该显示优惠
  */
-export async function shouldShowPromoOffer(userId?: string): Promise<boolean> {
-  if (!userId) return false;
-  
-  // 如果用户已有有效订阅，不显示优惠
-  const hasSubscription = await hasActiveSubscription(userId);
-  if (hasSubscription) return false;
-  
-  // 检查是否在优惠期内
-  return isInPromoPeriod(userId);
+export async function shouldShowPromoOffer(userId?: string, userTier?: string): Promise<boolean> {
+  if (!userId) {
+    console.log('❌ 无用户ID，不显示优惠');
+    return false;
+  }
+
+  // 1. 如果提供了userTier，优先检查
+  if (userTier) {
+    if (userTier === 'pro' || userTier === 'premium' || userTier === 'professional') {
+      console.log('❌ 已订阅用户（tier:', userTier, '），不显示优惠');
+      return false;
+    }
+  } else {
+    // 2. 否则通过API检查订阅状态
+    const hasSubscription = await hasActiveSubscription(userId);
+    if (hasSubscription) {
+      console.log('❌ 已有有效订阅，不显示优惠');
+      return false;
+    }
+  }
+
+  // 3. 检查是否在优惠期内
+  const inPromoPeriod = isInPromoPeriod(userId);
+  if (!inPromoPeriod) {
+    console.log('❌ 不在优惠期内，不显示优惠');
+    return false;
+  }
+
+  console.log('✅ 显示限时优惠');
+  return true;
 }
 
 /**

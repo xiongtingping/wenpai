@@ -38,6 +38,7 @@ import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltTex
 import { avatarService } from '@/services/avatarService';
 import { getUserTier } from '@/utils/subscriptionUtils';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { cloudSyncService } from '@/services/cloudSyncService';
 
 export default function ProfilePage() {
   const { user, isAuthenticated, logout, updateUser } = useAuth();
@@ -578,7 +579,13 @@ export default function ProfilePage() {
                           <p className="text-xs text-muted-foreground mb-1">{t('profile.userId')}</p>
                           <p className="break-all text-sm font-semibold text-foreground">{user?.id || t('profile.unknown')}</p>
                           <div className="flex items-center justify-center mt-2">
-                            <Button variant="outline" size="sm" className="h-7 px-2" onClick={handleCopyUserId}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 px-2 hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
+                              onClick={handleCopyUserId}
+                              type="button"
+                            >
                               <Copy className="w-3 h-3 mr-1" /> 复制ID
                             </Button>
                           </div>
@@ -750,11 +757,41 @@ export default function ProfilePage() {
             {/* 订阅有效期 + 使用统计 */}
             <div className="grid gap-6 xl:grid-cols-2">
               <SubscriptionExpiryCard />
-              <TokenUsageSection
-                userTier={userTier}
-                showDetails={true}
-                className="w-full"
-              />
+              <div className="space-y-4">
+                <TokenUsageSection
+                  userTier={userTier}
+                  showDetails={true}
+                  className="w-full"
+                />
+
+                {/* 🎯 云端同步按钮 */}
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <RefreshCw className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          数据每30秒自动从云端同步
+                        </span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          if (user?.id) {
+                            toast({ title: '正在同步...', description: '从云端获取最新数据' });
+                            await cloudSyncService.manualSync(user.id);
+                            toast({ title: '同步成功', description: '数据已更新' });
+                          }
+                        }}
+                      >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        立即同步
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
             {/* 🎉 邀请功能区域 */}

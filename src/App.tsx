@@ -30,6 +30,7 @@ import { AuthDataSyncProvider } from '@/hooks/useAuthDataSync';
 import SessionManager from '@/components/auth/SessionManager';
 import { Header } from '@/components/landing/Header';
 import { useTokenLimitManager } from '@/hooks/useTokenLimitManager';
+import { cloudSyncService } from '@/services/cloudSyncService';
 
 // 核心页面组件
 import HomePage from '@/pages/HomePage';
@@ -133,6 +134,19 @@ const App: React.FC = () => {
     user?.userId,
     user?.userTier
   );
+
+  // 🎯 启动云端实时同步服务
+  useEffect(() => {
+    if (user?.userId) {
+      console.log('🚀 用户已登录，启动云端同步服务', { userId: user.userId });
+      cloudSyncService.start(user.userId);
+
+      return () => {
+        console.log('🛑 用户登出，停止云端同步服务');
+        cloudSyncService.stop();
+      };
+    }
+  }, [user?.userId]);
 
   // 定义不需要显示Header的路由
   const noHeaderRoutes = ['/login', '/register', '/custom-login', '/forgot-password'];

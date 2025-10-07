@@ -44,7 +44,8 @@ import {
   isInPromoPeriod,
   calculateRemainingTime,
   formatTimeLeft as formatTimeLeftUtil,
-  shouldShowPromoOffer
+  shouldShowPromoOffer,
+  recordPaymentCenterAccess
 } from "@/utils/paymentTimer";
 import { getUserTier } from "@/utils/subscriptionUtils";
 import { paymentStatusService } from '@/services/paymentStatusService';
@@ -192,18 +193,31 @@ export default function PaymentPage() {
   const [dynamicPricing, setDynamicPricing] = useState<any>(null);
   const [pricingContext, setPricingContext] = useState<PricingContext | null>(null);
 
-  // 检查是否应该显示限时优惠
+  // 记录用户首次访问订阅中心 + 检查是否应该显示限时优惠
   useEffect(() => {
-    const checkPromoOffer = async () => {
+    const initPromoOffer = async () => {
       if (currentUser?.id) {
-        const shouldShow = await shouldShowPromoOffer(currentUser.id);
+        // 1. 记录首次访问时间（如果是首次访问）
+        recordPaymentCenterAccess(currentUser.id);
+
+        // 2. 获取用户订阅等级
+        const userTier = getUserTier(currentUser);
+
+        // 3. 检查是否应该显示优惠（传入userTier避免重复API调用）
+        const shouldShow = await shouldShowPromoOffer(currentUser.id, userTier);
         setShowPromoOffer(shouldShow);
+
+        console.log('💰 限时优惠检查结果:', {
+          userId: currentUser.id,
+          userTier,
+          shouldShow
+        });
       } else {
         setShowPromoOffer(false);
       }
     };
-    
-    checkPromoOffer();
+
+    initPromoOffer();
   }, [currentUser?.id]);
 
   // 从localStorage读取预选的计划
@@ -495,20 +509,32 @@ export default function PaymentPage() {
 
   // 处理支付模态框关闭
   const handlePaymentModalClose = () => {
+    console.log('🚪 关闭支付模态框');
     setShowPaymentModal(false);
+    setPaymentModalData(null);
   };
 
   // 处理支付取消
   const handlePaymentCancel = () => {
+    console.log('🔴 处理支付取消');
+
+    // 重置所有支付相关状态
     setPaymentStatus('idle');
     setBufpayPaymentInfo(null);
     setBufpayOrderId(null);
     setShowQRCode(false);
+    setShowPaymentModal(false);
+    setPaymentModalData(null);
+
+    // 清理localStorage
+    localStorage.removeItem('pending_payment');
 
     toast({
       title: '已取消支付',
       description: '您可以随时返回继续支付',
     });
+
+    console.log('✅ 支付状态已重置');
   };
 
   // 处理支付失败

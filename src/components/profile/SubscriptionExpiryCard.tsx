@@ -32,7 +32,7 @@ import { History, Receipt, Copy } from 'lucide-react';
 /**
  * 格式化日期时间
  * @param date 日期对象或字符串
- * @param includeTime 是否包含时间,默认true显示 00:00
+ * @param includeTime 是否包含时间,默认true显示实际时间
  */
 function formatDateTime(date: Date | string | null | undefined, includeTime: boolean = true): string {
   if (!date) return '未设置';
@@ -49,8 +49,10 @@ function formatDateTime(date: Date | string | null | undefined, includeTime: boo
     const day = String(dateObj.getDate()).padStart(2, '0');
 
     if (includeTime) {
-      // 固定显示 00:00 表示当天结束
-      return `${year}-${month}-${day} 00:00`;
+      // 显示实际时间
+      const hours = String(dateObj.getHours()).padStart(2, '0');
+      const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
     }
 
     return `${year}-${month}-${day}`;
@@ -58,6 +60,22 @@ function formatDateTime(date: Date | string | null | undefined, includeTime: boo
     console.error('日期格式化失败:', error);
     return '日期错误';
   }
+}
+
+/**
+ * 翻译订单状态
+ */
+function translateOrderStatus(status: string): string {
+  const statusMap: Record<string, string> = {
+    'pending': '待支付',
+    'paid': '已支付',
+    'processed': '已完成',
+    'failed': '失败',
+    'cancelled': '已取消',
+    'expired': '已过期',
+    'refunded': '已退款'
+  };
+  return statusMap[status] || status;
 }
 
 /**
@@ -477,7 +495,7 @@ export function SubscriptionExpiryCard() {
                   {orders.map((o) => (
                     <div key={o.order_id} className="flex items-center justify-between p-2 rounded-lg border bg-muted/20">
                       <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{o.product_type === 'premium' ? '高级版' : '专业版'}（{o.duration_type === 'yearly' ? '年付' : '月付'}） · {o.status}</div>
+                        <div className="text-sm font-medium truncate">{o.product_type === 'premium' ? '高级版' : '专业版'}（{o.duration_type === 'yearly' ? '年付' : '月付'}） · {translateOrderStatus(o.status)}</div>
                         <div className="text-xs text-muted-foreground truncate">订单号：{o.order_id}</div>
                         <div className="text-xs text-muted-foreground">时间：{formatDateTime(o.paid_at || o.created_at, true)}</div>
                       </div>
@@ -535,7 +553,7 @@ export function SubscriptionExpiryCard() {
                   {upgradeOrders.map((u) => (
                     <div key={u.order_id} className="flex items-center justify-between p-2 rounded-lg border bg-muted/20">
                       <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">升级至 {u.target_tier === 'premium' ? '高级版' : '专业版'}（{u.target_period === 'yearly' ? '年付' : '月付'}） · {u.status}</div>
+                        <div className="text-sm font-medium truncate">升级至 {u.target_tier === 'premium' ? '高级版' : '专业版'}（{u.target_period === 'yearly' ? '年付' : '月付'}） · {translateOrderStatus(u.status)}</div>
                         <div className="text-xs text-muted-foreground truncate">订单号：{u.order_id}</div>
                         <div className="text-xs text-muted-foreground">金额：¥{u.upgrade_amount} · 时间：{formatDateTime(u.paid_at || u.created_at, true)}</div>
                       </div>

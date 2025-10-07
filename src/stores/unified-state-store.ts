@@ -959,16 +959,17 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
         name: 'wenpai-unified-store',
         storage: createJSONStorage(() => localStorage),
         partialize: (state) => ({
-          // 持久化核心状态，排除临时状态
+          // 🎯 云端同步策略：禁用订阅和使用统计的本地缓存
+          // 这些数据必须从Supabase实时查询，确保与云端一致
           user: {
             ...state.user,
             lastActivity: null, // 不持久化活动时间
+            subscription: 'trial' as SubscriptionTier, // 🚫 不持久化订阅等级，强制从云端查询
           },
-          session: state.session, // 🎯 新增：持久化会话状态
-          tokenUsage: {
-            ...state.tokenUsage,
-            usageHistory: state.tokenUsage.usageHistory.slice(0, 20), // 只保存20条历史
-          },
+          session: state.session, // 🎯 持久化会话状态
+          // 🚫 不持久化tokenUsage和usageCount，强制从云端查询
+          // tokenUsage: state.tokenUsage,
+          // usageCount: state.usageCount,
           theme: state.theme,
           appSettings: state.appSettings,
           favorites: state.favorites,

@@ -405,39 +405,7 @@ export function TokenUsageSection({
                     )}
                   </div>
 
-                  {/* Token继承说明 - 单行显示 */}
-                  <div className="bg-background border-border" style={{
-                    marginTop: '8px',
-                    borderRadius: '8px',
-                    padding: '8px 12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    width: '100%'
-                  }}>
-                    <div style={{
-                      width: '18px',
-                      height: '18px',
-                      backgroundColor: 'var(--primary)',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      <span style={{fontSize: '11px', color: 'hsl(var(--primary-foreground))'}}>ℹ️</span>
-                    </div>
-                    <div className="text-foreground" style={{
-                      fontSize: '13px',
-                      lineHeight: '1.4',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}>
-                      <span style={{fontWeight: '600'}}>重要说明：</span>
-                      <span>tokens在会员有效期内可以继承到下个月续用，不会清零浪费。</span>
-                    </div>
-                  </div>
+
                 </div>
 
                 {/* 使用次数统计卡片 */}
