@@ -102,51 +102,52 @@ interface LibraryItem {
   };
   createdAt: string;
   updatedAt: string;
-  // 映射：DB → 页面模型
-  const fromDbRow = (row: UserLibraryItem): LibraryItem => {
-    const meta = (row.metadata || {}) as Record<string, unknown>;
-    return {
-      id: row.id,
-      title: row.title || '',
-      content: row.content || '',
-      type: (meta.type as LibraryItem['type']) || 'collection',
-      source: row.url,
-      sourceType: meta.sourceType as LibraryItem['sourceType'] | undefined,
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      isFavorite: Boolean(meta.isFavorite),
-      isUsed: Boolean(meta.isUsed),
-      category: row.category,
-      platform: meta.platform,
-      summary: meta.summary,
-      metadata: meta,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    };
-  };
-
-  // 映射：页面模型 → DB payload
-  const toDbPayload = (item: LibraryItem, userId: string): Partial<UserLibraryItem> => {
-    const baseMeta: Record<string, unknown> = {
-      ...(item.metadata || {}),
-      type: item.type,
-      isFavorite: item.isFavorite,
-      isUsed: item.isUsed,
-      platform: item.platform,
-      sourceType: item.sourceType,
-      summary: item.summary,
-    };
-    return {
-      user_id: userId,
-      title: item.title,
-      url: item.source,
-      content: item.content,
-      category: item.category,
-      tags: item.tags,
-      status: 'active',
-      metadata: baseMeta,
-    } as Partial<UserLibraryItem>;
-  };
 }
+
+// 映射：DB → 页面模型
+const fromDbRow = (row: UserLibraryItem): LibraryItem => {
+  const meta = (row.metadata || {}) as Record<string, unknown>;
+  return {
+    id: row.id,
+    title: row.title || '',
+    content: row.content || '',
+    type: (meta.type as LibraryItem['type']) || 'collection',
+    source: row.url,
+    sourceType: meta.sourceType as LibraryItem['sourceType'] | undefined,
+    tags: Array.isArray(row.tags) ? row.tags : [],
+    isFavorite: Boolean(meta.isFavorite),
+    isUsed: Boolean(meta.isUsed),
+    category: row.category,
+    platform: (meta as any).platform as string | undefined,
+    summary: (meta as any).summary as string | undefined,
+    metadata: meta,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+};
+
+// 映射：页面模型 → DB payload
+const toDbPayload = (item: LibraryItem, userId: string): Partial<UserLibraryItem> => {
+  const baseMeta: Record<string, unknown> = {
+    ...(item.metadata || {}),
+    type: item.type,
+    isFavorite: item.isFavorite,
+    isUsed: item.isUsed,
+    platform: item.platform,
+    sourceType: item.sourceType,
+    summary: item.summary,
+  };
+  return {
+    user_id: userId,
+    title: item.title,
+    url: item.source,
+    content: item.content,
+    category: item.category,
+    tags: item.tags,
+    status: 'active',
+    metadata: baseMeta,
+  } as Partial<UserLibraryItem>;
+};
 
   // 生成去重签名（基于标题+内容+URL）
   const buildSignature = (item: LibraryItem): string => {
