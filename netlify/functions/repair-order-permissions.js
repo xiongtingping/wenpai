@@ -167,7 +167,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const { orderId } = requestData;
+    const { orderId, force } = requestData;
 
     if (!orderId) {
       return {
@@ -193,13 +193,27 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // 2. 检查订单状态
+    // 2. 检查订单状态（允许 force 覆盖）
     if (order.status !== 'paid' && order.status !== 'processed') {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Order not eligible for repair' })
-      };
+      if (!force) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Order not eligible for repair' })
+        };
+      } else {
+        console.warn('强制修复启用：订单未处于 paid/processed 状态，继续执行修复', { orderId, currentStatus: order.status });
+        // 将订单状态提升为 paid（保留原始状态用于审计）
+        const { data: updatedOrder, error: updateErr } = await supabase
+          .from('orders')
+          .update({ status: 'paid', paid_at: new Date().toISOString() })
+          .eq('order_id', orderId)
+          .select('*')
+          .single();
+        if (!updateErr && updatedOrder) {
+          order = updatedOrder;
+        }
+      }
     }
 
     // 3. 检查是否已有订阅
