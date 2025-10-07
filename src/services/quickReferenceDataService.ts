@@ -97,8 +97,8 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
     try {
       console.log('🔍 开始加载品牌库数据...');
 
-      // 从品牌资产数据获取
-      const brandAssets = await globalDataManager.getData<any[]>('brand_assets') || [];
+      // 从品牌资产数据获取（强制刷新，避免缓存导致不同步）
+      const brandAssets = await globalDataManager.getData<any[]>('brand_assets', true) || [];
       console.log(`📊 品牌库原始数据数量: ${brandAssets.length}`);
 
       const items: QuickReferenceItem[] = brandAssets
@@ -145,8 +145,8 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
     try {
       console.log('🔍 开始加载资料库数据...');
 
-      // 从收藏服务获取所有收藏
-      const favorites = await favoritesService.getFavorites();
+      // 从收藏服务获取所有收藏（强制刷新，避免缓存导致不同步）
+      const favorites = await favoritesService.getFavorites(true);
       console.log(`📊 收藏服务返回数据数量: ${favorites.length}`);
 
       // 🔧 修复：不再过滤类型，显示所有收藏内容
@@ -190,8 +190,8 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
     try {
       console.log('🔍 开始加载雷达收藏数据...');
 
-      // 从书签服务获取热点话题书签
-      const topicBookmarks = await bookmarkService.getTopicBookmarks();
+      // 从书签服务获取热点话题书签（强制刷新，避免缓存）
+      const topicBookmarks = await bookmarkService.getTopicBookmarks(true);
       console.log(`📊 雷达收藏原始数据数量: ${topicBookmarks.length}`);
 
       const items: QuickReferenceItem[] = topicBookmarks.map(bookmark => ({

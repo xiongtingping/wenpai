@@ -237,7 +237,9 @@ export function QuickReferenceDialog({
   // 初始化和标签页切换时加载数据（确保每次打开前清缓存，解决“资料未同步”）
   useEffect(() => {
     if (open) {
-      quickReferenceDataService.clearCache();
+      // 打开时清理多处缓存，确保数据最新
+      try { quickReferenceDataService.clearCache(); } catch {}
+      try { (await import('@/services/favoritesService')).favoritesService.clearCache(); } catch {}
       loadTabData(activeTab);
     }
   }, [open, activeTab, loadTabData]);

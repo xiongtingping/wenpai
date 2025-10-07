@@ -136,6 +136,12 @@ export const DATA_CONFIGS: Record<string, DataConfig> = {
     category: DataCategory.CACHE_TEMP,
     ttl: 86400 // 24小时
   }
+  // 品牌库与维度（关键业务数据）
+  brand_assets: {
+    key: 'brand_assets',
+    category: DataCategory.USER_CRITICAL,
+    syncToCloud: true
+  },
 };
 
 /**
