@@ -23,6 +23,11 @@ import {
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import supabase from '@/config/supabase';
+import { History, Receipt, Copy } from 'lucide-react';
 
 /**
  * 格式化日期时间
@@ -121,6 +126,79 @@ function getDaysRemainingText(daysRemaining: number, status: string, expiresAt: 
  * 订阅有效期卡片组件
  */
 export function SubscriptionExpiryCard() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
+  const [historyLoading, setHistoryLoading] = useState<boolean>(false);
+
+  interface OrderItem {
+    order_id: string;
+    product_type: 'professional' | 'premium';
+    duration_type: 'monthly' | 'yearly';
+    status: 'pending' | 'paid' | 'failed' | 'expired' | 'processed';
+    amount: number;
+    created_at: string;
+    paid_at?: string | null;
+    processed_at?: string | null;
+  }
+  interface SubscriptionItem {
+    id: string;
+    subscription_type: 'trial' | 'pro' | 'premium';
+    status: 'active' | 'expired' | 'cancelled' | 'pending';
+    started_at: string;
+    expires_at: string;
+    order_id?: string | null;
+    created_at: string;
+  }
+
+  const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>([]);
+
+  const fetchHistory = async (): Promise<void> => {
+    if (!user?.id) return;
+    try {
+      setHistoryLoading(true);
+      const [{ data: orderData }, { data: subData }] = await Promise.all([
+        supabase
+          .from('orders')
+          .select('order_id, product_type, duration_type, status, amount, created_at, paid_at, processed_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabase
+          .from('user_subscriptions')
+          .select('id, subscription_type, status, started_at, expires_at, order_id, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(20)
+      ]);
+      setOrders((orderData as OrderItem[]) || []);
+      setSubscriptions((subData as SubscriptionItem[]) || []);
+    } catch (e) {
+      console.warn('加载订单/订阅历史失败', e);
+      toast({ title: '加载失败', description: '获取订单/订阅历史失败，请稍后重试', variant: 'destructive' });
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const handleOpenHistory = async (): Promise<void> => {
+    setIsHistoryOpen(true);
+    if (orders.length === 0 && subscriptions.length === 0) {
+      await fetchHistory();
+    }
+  };
+
+  const copyToClipboard = async (text: string, label: string): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: '已复制', description: `${label} 已复制到剪贴板` });
+    } catch (err) {
+      toast({ title: '复制失败', description: '请手动复制', variant: 'destructive' });
+    }
+  };
+
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { primaryStatus, hasActiveSubscription, refresh, loading } = useSubscriptionStatus();
@@ -208,18 +286,29 @@ export function SubscriptionExpiryCard() {
               </div>
             </div>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={refreshing || loading}
-              className="group"
-            >
-              <RefreshCw className={cn(
-                "w-4 h-4",
-                (refreshing || loading) && "animate-spin"
-              )} />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={refreshing || loading}
+                className="group"
+              >
+                <RefreshCw className={cn(
+                  "w-4 h-4",
+                  (refreshing || loading) && "animate-spin"
+                )} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleOpenHistory}
+                title="查看订单/订阅历史"
+                className="group"
+              >
+                <History className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
 
@@ -251,29 +340,18 @@ export function SubscriptionExpiryCard() {
           {/* 订阅时间信息 */}
           {(subscriptionData.isActive || subscriptionData.isExpired) && (
             <div className="space-y-3">
-              {/* 开始时间 */}
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">订阅开始</span>
-                </div>
-                <span className="text-sm font-medium">
-                  {formatDateTime(subscriptionData.startDate, false)}
-                </span>
-              </div>
-
-              {/* 结束时间 */}
+              {/* 有效期一行展示：开始 ~ 到期 */}
               <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">订阅到期</span>
+                  <span className="text-sm text-muted-foreground">有效期</span>
                 </div>
                 <span className={cn(
                   "text-sm font-medium",
                   subscriptionData.needsAlert && "text-warning",
                   subscriptionData.isExpired && "text-destructive"
                 )}>
-                  {formatDateTime(subscriptionData.expiresAt, true)}
+                  {formatDateTime(subscriptionData.startDate, false)} ~ {formatDateTime(subscriptionData.expiresAt, true)}
                 </span>
               </div>
 
@@ -361,6 +439,75 @@ export function SubscriptionExpiryCard() {
             </div>
           )}
         </CardContent>
+
+      {/* 订单/订阅历史对话框 */}
+      <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>订单与订阅历史</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-5 max-h-[60vh] overflow-y-auto">
+            {/* 订单记录 */}
+            <div>
+              <p className="text-sm font-medium mb-2 flex items-center">
+                <Receipt className="w-4 h-4 mr-1" /> 订单记录
+              </p>
+              {historyLoading ? (
+                <p className="text-sm text-muted-foreground">加载中...</p>
+              ) : orders.length ? (
+                <div className="space-y-2">
+                  {orders.map((o) => (
+                    <div key={o.order_id} className="flex items-center justify-between p-2 rounded-lg border bg-muted/20">
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">{o.product_type === 'premium' ? '高级版' : '专业版'}（{o.duration_type === 'yearly' ? '年付' : '月付'}） · {o.status}</div>
+                        <div className="text-xs text-muted-foreground truncate">订单号：{o.order_id}</div>
+                        <div className="text-xs text-muted-foreground">时间：{formatDateTime(o.paid_at || o.created_at, true)}</div>
+                      </div>
+                      <Button variant="outline" size="sm" className="ml-2 h-7" onClick={() => copyToClipboard(o.order_id, '订单号')}>
+                        <Copy className="w-3.5 h-3.5 mr-1" /> 复制
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">暂无订单</p>
+              )}
+            </div>
+
+            {/* 订阅记录 */}
+            <div>
+              <p className="text-sm font-medium mb-2 flex items-center">
+                <Crown className="w-4 h-4 mr-1" /> 订阅记录
+              </p>
+              {historyLoading ? (
+                <p className="text-sm text-muted-foreground">加载中...</p>
+              ) : subscriptions.length ? (
+                <div className="space-y-2">
+                  {subscriptions.map((s) => (
+                    <div key={s.id} className="flex items-center justify-between p-2 rounded-lg border bg-muted/20">
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">{s.subscription_type === 'premium' ? '高级版' : s.subscription_type === 'pro' ? '专业版' : '体验版'} · {s.status}</div>
+                        <div className="text-xs text-muted-foreground truncate">有效期：{formatDateTime(s.started_at, false)} ~ {formatDateTime(s.expires_at, true)}</div>
+                        {s.order_id ? (
+                          <div className="text-xs text-muted-foreground truncate">订单号：{s.order_id}</div>
+                        ) : null}
+                      </div>
+                      {s.order_id ? (
+                        <Button variant="outline" size="sm" className="ml-2 h-7" onClick={() => copyToClipboard(s.order_id!, '订单号')}>
+                          <Copy className="w-3.5 h-3.5 mr-1" /> 复制
+                        </Button>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">暂无订阅记录</p>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       </div>
     </Card>
   );
