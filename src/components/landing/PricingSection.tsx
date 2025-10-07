@@ -251,14 +251,14 @@ export function PricingSection() {
           </h2>
 
           {/* 副标题 */}
-          <p className="text-base text-muted-foreground text-center mt-1 leading-relaxed">
+          <p className="text-base text-foreground/90 text-center mt-1 leading-relaxed">
             {t('home.pricing.subtitle')}
           </p>
 
           {/* 限时优惠倒计时 - 完全照搬支付中心设计 */}
           {currentUser?.id && showPromoOffer && timeLeft > 0 && (
             <div className="text-center mt-6 mb-4">
-              <div className="promo-banner text-background px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
+              <div className="bg-gradient-to-r from-red-500 to-pink-500 text-background px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
                 <div className="flex items-center justify-center gap-2 mb-3">
                   <Zap className="h-4 w-4 animate-pulse" />
                   <span className="text-sm font-medium">{t('home.pricing.limitedTimeOffer')}</span>

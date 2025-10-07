@@ -418,7 +418,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               }}
             >
               <Chrome className="mr-2 h-4 w-4" />
-              <span>{t('nav.browserExtension', { defaultValue: '浏览器扩展' })}</span>
+              <span>{t('nav.browserExtension', { defaultValue: '浏览器扩展' })}（未上线）</span>
             </button>
 
             <button
