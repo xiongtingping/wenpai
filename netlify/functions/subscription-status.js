@@ -18,6 +18,18 @@ function normalizeTier(raw) {
   return 'trial';
 }
 
+function calculateExpiryDate(durationType, baseDate) {
+  const base = baseDate ? new Date(baseDate) : new Date();
+  const expiry = new Date(base);
+  if (durationType === 'monthly') {
+    expiry.setMonth(expiry.getMonth() + 1);
+  } else if (durationType === 'yearly') {
+    expiry.setFullYear(expiry.getFullYear() + 1);
+  }
+  return expiry;
+}
+
+
 /**
  * 计算订阅状态（兼容 tier 与 subscription_type 字段）
  */
@@ -184,6 +196,66 @@ exports.handler = async (event, context) => {
 
     if (subscriptions && subscriptions.length > 0) {
       for (const subscription of subscriptions) {
+
+    // 自动修复：若无 premium 订阅，但存在 premium 的已支付/已处理订单，则自动补齐 premium 订阅
+      if (allStatuses.length === 0) {
+
+    try {
+      const hasPremium = (subscriptions || []).some(
+        (s) => normalizeTier(s.tier || s.subscription_type) === 'premium'
+      );
+
+      if (!hasPremium) {
+        const { data: premiumOrder, error: orderErr } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('user_id', userId)
+          .in('status', ['paid', 'processed'])
+          .eq('product_type', 'premium')
+          .order('paid_at', { ascending: false })
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (!orderErr && premiumOrder) {
+          const start = premiumOrder.paid_at || new Date().toISOString();
+          const expiry = calculateExpiryDate(premiumOrder.duration_type, start).toISOString();
+
+          const { data: newSub, error: insErr } = await supabase
+            .from('user_subscriptions')
+            .insert({
+              user_id: userId,
+              subscription_type: 'premium',
+              status: 'active',
+              started_at: start,
+              expires_at: expiry,
+              order_id: premiumOrder.order_id
+            })
+            .select('*')
+            .single();
+
+          if (!insErr && newSub) {
+            const status = calculateSubscriptionStatus(newSub);
+            allStatuses.unshift({
+              ...status,
+              subscriptionType: newSub.subscription_type,
+              subscriptionId: newSub.id
+            });
+            primarySubscription = newSub;
+            console.log('🔧 已根据订单自动补齐 premium 订阅:', {
+              userId,
+              orderId: premiumOrder.order_id,
+              expiresAt: newSub.expires_at
+            });
+          }
+        }
+      }
+    } catch (autoFixErr) {
+      console.warn('自动补齐 premium 订阅失败（忽略，不影响查询返回）:', autoFixErr?.message || autoFixErr);
+      }
+
+    }
+
         const status = calculateSubscriptionStatus(subscription);
         allStatuses.push({
           ...status,
