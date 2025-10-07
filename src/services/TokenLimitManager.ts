@@ -47,6 +47,19 @@ class TokenLimitManager {
   private lastDialogType: 'warning' | 'exceeded' | 'approaching' | null = null;
   private dialogCooldown: number = 15_000; // 15s 内同类型仅显示一次
 
+  // 暂缓提示（Snooze）支持：点击“稍后处理/继续使用”后，在一段时间内不再弹出
+  private readonly snoozeKey = 'wenpai.tokenLimit.snoozeUntil';
+  private getSnoozeUntil(): number {
+    try { return Number(localStorage.getItem(this.snoozeKey) || '0') || 0; } catch { return 0; }
+  }
+  private isSnoozed(): boolean {
+    return Date.now() < this.getSnoozeUntil();
+  }
+  public snooze(durationMs: number): void {
+    try { localStorage.setItem(this.snoozeKey, String(Date.now() + durationMs)); } catch {}
+    this.lastDialogAt = Date.now(); // 同步更新，进一步防抖
+  }
+
 
   /**
    * 初始化Token限额管理器
@@ -67,8 +80,14 @@ class TokenLimitManager {
    * 处理Token限额超限事件
    */
   private handleTokenLimitExceeded(event: Event): void {
+    // 若处于暂缓期，直接忽略
+    if (this.isSnoozed()) {
+      logger.debug('⏸️ Token限额提示处于暂缓期（exceeded），跳过');
+      return;
+    }
+
     const customEvent = event as CustomEvent<TokenLimitEventDetail>;
-    const { stats, warningLevel, reason } = customEvent.detail;
+    const { stats, warningLevel } = customEvent.detail;
 
     logger.error('🚫 Token限额超限事件触发', {
       warningLevel,
@@ -91,14 +110,18 @@ class TokenLimitManager {
       this.lastDialogAt = now;
       this.lastDialogType = 'exceeded';
     }
-
-
   }
 
   /**
    * 处理Token限额警告事件
    */
   private handleTokenLimitWarning(event: Event): void {
+    // 暂缓期检查：用户选择“稍后处理/继续使用”后的一段时间内不再弹出
+    if (this.isSnoozed()) {
+      logger.debug('⏸️ Token限额提示处于暂缓期（warning/approaching），跳过');
+      return;
+    }
+
     const customEvent = event as CustomEvent<TokenLimitEventDetail>;
     const { stats, warningLevel, reason } = customEvent.detail;
 

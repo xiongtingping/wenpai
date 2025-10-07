@@ -11,15 +11,23 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 // 创建 Supabase 客户端
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+function normalizeTier(raw) {
+  const v = (raw || '').toString().toLowerCase();
+  if (v === 'premium') return 'premium';
+  if (v === 'pro' || v === 'professional') return 'pro';
+  return 'trial';
+}
+
 /**
- * 计算订阅状态
+ * 计算订阅状态（兼容 tier 与 subscription_type 字段）
  */
 function calculateSubscriptionStatus(subscription) {
   const now = new Date();
-  
+
   if (!subscription || subscription.status !== 'active') {
     return {
       status: 'inactive',
+      tier: 'trial',
       expiresAt: null,
       daysRemaining: 0,
       needsAlert: false,
@@ -33,11 +41,14 @@ function calculateSubscriptionStatus(subscription) {
   const expiresAt = new Date(subscription.expires_at);
   const timeDiff = expiresAt.getTime() - now.getTime();
   const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  const rawTier = subscription.tier || subscription.subscription_type;
+  const tier = normalizeTier(rawTier);
 
   // 已过期
   if (daysRemaining <= 0) {
     return {
       status: 'expired',
+      tier,
       expiresAt: subscription.expires_at,
       daysRemaining: 0,
       needsAlert: true,
@@ -52,6 +63,7 @@ function calculateSubscriptionStatus(subscription) {
   if (daysRemaining === 1) {
     return {
       status: 'expiring_soon',
+      tier,
       expiresAt: subscription.expires_at,
       daysRemaining,
       needsAlert: true,
@@ -66,6 +78,7 @@ function calculateSubscriptionStatus(subscription) {
   if (daysRemaining <= 3) {
     return {
       status: 'expiring_soon',
+      tier,
       expiresAt: subscription.expires_at,
       daysRemaining,
       needsAlert: true,
@@ -80,6 +93,7 @@ function calculateSubscriptionStatus(subscription) {
   if (daysRemaining <= 7) {
     return {
       status: 'expiring_soon',
+      tier,
       expiresAt: subscription.expires_at,
       daysRemaining,
       needsAlert: true,
@@ -91,23 +105,19 @@ function calculateSubscriptionStatus(subscription) {
   }
 
   // 正常状态
-  const tierNames = {
-    'pro': '专业版',
-    'professional': '专业版',
-    'premium': '高级版'
-  };
-  const tierName = tierNames[subscription.subscription_type] || '专业版';
-  
+  const tierNames = { pro: '专业版', premium: '高级版', trial: '体验版' };
+  const tierName = tierNames[tier] || '专业版';
+
   return {
     status: 'active',
+    tier,
     expiresAt: subscription.expires_at,
     daysRemaining,
     needsAlert: false,
     alertLevel: 'info',
     alertMessage: '',
     statusLabel: `${tierName}有效`,
-    statusColor: 'green',
-    tier: subscription.subscription_type === 'premium' ? 'premium' : 'pro'
+    statusColor: 'green'
   };
 }
 
@@ -152,7 +162,7 @@ exports.handler = async (event, context) => {
 
     console.log('查询用户订阅状态:', { userId });
 
-    // 查询用户活跃订阅
+    // 查询用户活跃订阅（同时兼容 tier 与 subscription_type 字段）
     const { data: subscriptions, error } = await supabase
       .from('user_subscriptions')
       .select('*')
@@ -172,19 +182,18 @@ exports.handler = async (event, context) => {
     let primarySubscription = null;
     let allStatuses = [];
 
-    // 处理所有订阅状态
     if (subscriptions && subscriptions.length > 0) {
       for (const subscription of subscriptions) {
         const status = calculateSubscriptionStatus(subscription);
         allStatuses.push({
           ...status,
-          subscriptionType: subscription.subscription_type,
+          subscriptionType: subscription.tier || subscription.subscription_type,
           subscriptionId: subscription.id
         });
       }
 
-      // 选择最高级别的订阅作为主要订阅
-      primarySubscription = subscriptions.find(sub => sub.subscription_type === 'premium') || subscriptions[0];
+      // 选择最高级别订阅作为主要订阅（优先 premium）
+      primarySubscription = subscriptions.find(sub => normalizeTier(sub.tier || sub.subscription_type) === 'premium') || subscriptions[0];
     }
 
     const primaryStatus = calculateSubscriptionStatus(primarySubscription);
@@ -193,6 +202,7 @@ exports.handler = async (event, context) => {
       userId,
       hasSubscription: !!primarySubscription,
       status: primaryStatus.status,
+      tier: primaryStatus.tier,
       needsAlert: primaryStatus.needsAlert,
       daysRemaining: primaryStatus.daysRemaining
     });
@@ -214,7 +224,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         error: 'Internal server error',
         message: error.message,
         details: error.stack

@@ -39,8 +39,15 @@ export function useTokenLimitManager(userId?: string, userTier?: SubscriptionTie
    * 关闭对话框
    */
   const closeDialog = useCallback(() => {
+    // 根据当前对话框类型设置“稍后处理”的暂缓时长
+    const snoozeMs = dialogType === 'exceeded'
+      ? 60 * 60 * 1000       // 超额：暂缓 1 小时
+      : dialogType === 'approaching'
+        ? 2 * 60 * 60 * 1000 // 即将用完：暂缓 2 小时
+        : 6 * 60 * 60 * 1000; // 警告：暂缓 6 小时
+    try { tokenLimitManager.snooze(snoozeMs); } catch {}
     setDialogOpen(false);
-  }, []);
+  }, [dialogType]);
 
   /**
    * 升级回调
@@ -54,8 +61,13 @@ export function useTokenLimitManager(userId?: string, userTier?: SubscriptionTie
    */
   const handleContinue = useCallback(() => {
     logger.info('用户选择继续使用');
+    //   
+    const snoozeMs = dialogType === 'approaching'
+      ? 2 * 60 * 60 * 1000 //  2 
+      : 3 * 60 * 60 * 1000; //  3 
+    try { tokenLimitManager.snooze(snoozeMs); } catch {}
     closeDialog();
-  }, [closeDialog]);
+  }, [closeDialog, dialogType]);
 
   /**
    * 初始化Token限额管理器

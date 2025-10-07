@@ -84,7 +84,7 @@ class UnifiedSubscriptionService {
   private async getFromSupabase(userId: string): Promise<SubscriptionStatusResult | null> {
     try {
       const client = await getSupabaseClient();
-      
+
       const { data: subscription, error } = await client
         .from(TABLE_NAMES.USER_SUBSCRIPTIONS)
         .select('*')
@@ -103,27 +103,31 @@ class UnifiedSubscriptionService {
         return null;
       }
 
+      // 统一/兼容列名：支持 tier 或 subscription_type
+      const rawTier = (subscription as any).tier || (subscription as any).subscription_type;
+      const tier: SubscriptionTier = (rawTier === 'premium') ? 'premium' : (rawTier === 'pro' || rawTier === 'professional') ? 'pro' : 'trial';
+
       // 计算到期状态
-      const expiresAt = new Date(subscription.expires_at);
+      const expiresAt = new Date((subscription as any).expires_at);
       const now = new Date();
       const isExpired = expiresAt < now;
       const daysRemaining = Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
 
       return {
         userId,
-        tier: subscription.subscription_type as SubscriptionTier,
+        tier,
         isExpired,
-        expiresAt: subscription.expires_at,
+        expiresAt: (subscription as any).expires_at,
         daysRemaining,
         source: 'supabase',
         lastUpdated: new Date().toISOString(),
         subscription: {
-          tier: subscription.subscription_type as SubscriptionTier,
+          tier,
           period: this.inferPeriod(subscription),
-          startDate: new Date(subscription.started_at || subscription.created_at),
-          endDate: new Date(subscription.expires_at),
-          autoRenew: subscription.auto_renew || false,
-          registrationDate: new Date(subscription.created_at)
+          startDate: new Date((subscription as any).started_at || (subscription as any).created_at),
+          endDate: new Date((subscription as any).expires_at),
+          autoRenew: (subscription as any).auto_renew || false,
+          registrationDate: new Date((subscription as any).created_at)
         }
       };
     } catch (error) {

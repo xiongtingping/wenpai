@@ -394,20 +394,41 @@ export default function ProfilePage() {
       const { getRandomEmojis, generateEmojiSVG } = await import('@/services/unifiedEmojiSystem');
       const pool = getRandomEmojis(1, 'animals');
       if (pool.length === 0) return;
-      
+
       const selectedEmoji = pool[0];
       const avatarUrl = generateEmojiSVG(selectedEmoji);
-      
+
       setProfileForm(prev => ({ ...prev, avatar: avatarUrl }));
       await updateUser({ avatar: avatarUrl });
       setAvatarKey(prev => prev + 1);
-      
+
       toast({
         title: "头像已更新",
         description: `随机选择了可爱的${selectedEmoji.name} ${selectedEmoji.emoji}`
       });
     } catch (error) {
       toast({ title: "生成失败", description: "动物头像生成失败，请重试", variant: "destructive" });
+    }
+  };
+
+  // 一键复制用户ID
+  const handleCopyUserId = async (): Promise<void> => {
+    try {
+      const id = user?.id;
+      if (!id) return;
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(id);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = id;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      toast({ title: '复制成功', description: '用户ID已复制到剪贴板' });
+    } catch (e) {
+      toast({ title: '复制失败', description: '请手动选择并复制', variant: 'destructive' });
     }
   };
 
@@ -556,6 +577,11 @@ export default function ProfilePage() {
                           <Hash className="w-5 h-5 mx-auto mb-2 text-primary/60" />
                           <p className="text-xs text-muted-foreground mb-1">{t('profile.userId')}</p>
                           <p className="break-all text-sm font-semibold text-foreground">{user?.id || t('profile.unknown')}</p>
+                          <div className="flex items-center justify-center mt-2">
+                            <Button variant="outline" size="sm" className="h-7 px-2" onClick={handleCopyUserId}>
+                              <Copy className="w-3 h-3 mr-1" /> 复制ID
+                            </Button>
+                          </div>
                         </div>
                         <div className="group relative overflow-hidden rounded-xl border bg-gradient-to-br from-muted/50 to-muted/30 p-4 text-center hover:shadow-lg transition-all duration-300">
                           <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
