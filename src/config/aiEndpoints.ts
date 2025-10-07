@@ -243,10 +243,9 @@ export function buildAPIURL(
     });
   }
 
-  // 🔧 FIX: 检查是否需要使用代理
-  // AIMLAPI不需要代理（已经是统一API）
-  // DeepSeek、OpenAI、Gemini等需要通过Netlify Functions代理避免CORS
-  const needsProxy = !['aimlapi'].includes(provider.toLowerCase());
+  // 🔧 生产环境下通过 Netlify Functions 代理（保护密钥 & 规避 CORS）
+  const proxiedProviders = ['aimlapi', 'deepseek', 'openai', 'gemini'];
+  const needsProxy = proxiedProviders.includes(provider.toLowerCase());
   const isProduction = typeof window !== 'undefined' && !window.location.hostname.includes('localhost');
 
   const finalURL = needsProxy && isProduction
@@ -288,14 +287,16 @@ export function getAPIHeaders(
     'Content-Type': config.headers.contentType
   };
 
-  // 设置认证头
-  switch (config.headers.authType) {
-    case 'bearer':
-      headers[config.headers.authHeader] = `Bearer ${apiKey}`;
-      break;
-    case 'api-key':
-      headers[config.headers.authHeader] = apiKey;
-      break;
+  // 设置认证头（生产环境走代理时不在前端附加密钥）
+  if (apiKey && apiKey.length > 0) {
+    switch (config.headers.authType) {
+      case 'bearer':
+        headers[config.headers.authHeader] = `Bearer ${apiKey}`;
+        break;
+      case 'api-key':
+        headers[config.headers.authHeader] = apiKey;
+        break;
+    }
   }
 
   // 设置User-Agent

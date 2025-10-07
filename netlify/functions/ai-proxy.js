@@ -15,7 +15,7 @@
 
 const https = require('https');
 
-// 
+//
 const getAPIKey = (provider) => {
   switch (provider) {
     case 'openai':
@@ -24,6 +24,9 @@ const getAPIKey = (provider) => {
       return process.env.VITE_DEEPSEEK_API_KEY || process.env.DEEPSEEK_API_KEY;
     case 'gemini':
       return process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+    case 'aimlapi':
+      // 使用服务端环境变量，避免在前端暴露密钥
+      return process.env.AIMLAPI_KEY || process.env.VITE_AIMLAPI_KEY;
     default:
       return null;
   }
@@ -38,6 +41,8 @@ const getAPIBaseURL = (provider) => {
       return 'https://api.deepseek.com/v1';
     case 'gemini':
       return 'https://generativelanguage.googleapis.com/v1beta';
+    case 'aimlapi':
+      return 'https://api.aimlapi.com';
     default:
       return null;
   }
@@ -162,7 +167,7 @@ exports.handler = async (event, context) => {
     }
 
     // 验证提供商
-    if (!['openai', 'deepseek', 'gemini'].includes(provider)) {
+    if (!['openai', 'deepseek', 'gemini', 'aimlapi'].includes(provider)) {
       return {
         statusCode: 400,
         headers,

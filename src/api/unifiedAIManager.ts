@@ -188,28 +188,36 @@ export class UnifiedAIManager {
       );
     }
 
-    // 获取并验证API密钥
-    const apiKey = getAPIKey(provider);
-    if (!apiKey) {
-      throw new Error(
-        `API密钥未配置: ${provider}\n` +
-        `请在环境变量中配置相应的API密钥\n` +
-        `参考文档: docs/setup/api-keys.md`
-      );
+    // 生产下通过 Netlify Functions 走代理的提供商列表
+    const proxiedProviders = ['aimlapi', 'deepseek', 'openai', 'gemini'];
+    const isProduction = typeof window !== 'undefined' && !window.location.hostname.includes('localhost');
+    const needsProxy = isProduction && proxiedProviders.includes(provider.toLowerCase());
+
+    // 获取并验证API密钥（仅直连时需要）
+    let apiKey = '';
+    if (!needsProxy) {
+      apiKey = getAPIKey(provider) || '';
+      if (!apiKey) {
+        throw new Error(
+          `API密钥未配置: ${provider}\n` +
+          `请在环境变量中配置相应的API密钥\n` +
+          `参考文档: docs/setup/api-keys.md`
+        );
+      }
+
+      // 🔧 完整验证API密钥（直连时）
+      const keyValidation = validateAPIKey(provider, apiKey);
+      if (!keyValidation.valid) {
+        const errorDetails = keyValidation.errors.join('\n  - ');
+        throw new Error(
+          `API密钥验证失败: ${provider}\n` +
+          `错误详情:\n  - ${errorDetails}\n` +
+          `当前密钥: ${keyValidation.masked}`
+        );
+      }
     }
 
-    // 🔧 完整验证API密钥
-    const keyValidation = validateAPIKey(provider, apiKey);
-    if (!keyValidation.valid) {
-      const errorDetails = keyValidation.errors.join('\n  - ');
-      throw new Error(
-        `API密钥验证失败: ${provider}\n` +
-        `错误详情:\n  - ${errorDetails}\n` +
-        `当前密钥: ${keyValidation.masked}`
-      );
-    }
-
-    // 构建API URL和请求头
+    // 构建API URL和请求头（代理场景下 headers 不含 Authorization）
     const endpoint = buildAPIURL(provider, 'chat');
     const headers = getAPIHeaders(provider, apiKey);
 
@@ -218,8 +226,8 @@ export class UnifiedAIManager {
       model: params.model,
       provider,
       endpoint,
-      isProduction: typeof window !== 'undefined' && !window.location.hostname.includes('localhost'),
-      needsProxy: !['aimlapi'].includes(provider.toLowerCase())
+      isProduction,
+      needsProxy
     });
 
     return {
