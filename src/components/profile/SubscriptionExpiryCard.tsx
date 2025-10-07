@@ -262,14 +262,21 @@ export function SubscriptionExpiryCard() {
 
   // 计算订阅数据
   const subscriptionData = React.useMemo(() => {
-    const { status, tier, expiresAt, daysRemaining, needsAlert, statusLabel, statusColor } = primaryStatus;
+    const { status, tier, startedAt, expiresAt, daysRemaining, needsAlert, statusLabel, statusColor } = primaryStatus;
 
-    // 估算开始时间(如果没有明确的开始时间)
+    // 🔧 FIX: 使用真实的开始时间，而不是估算
     let startDate: Date | null = null;
-    if (expiresAt) {
+    if (startedAt) {
+      startDate = typeof startedAt === 'string' ? new Date(startedAt) : startedAt;
+    } else if (expiresAt) {
+      // 如果没有started_at，根据period估算
       const endDate = typeof expiresAt === 'string' ? new Date(expiresAt) : expiresAt;
-      // 假设订阅为30天周期
-      startDate = new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const period = primaryStatus.period || 'monthly';
+      if (period === 'yearly') {
+        startDate = new Date(endDate.getTime() - 365 * 24 * 60 * 60 * 1000);
+      } else {
+        startDate = new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+      }
     }
 
     const progress = calculateProgress(startDate, expiresAt);

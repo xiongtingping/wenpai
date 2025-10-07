@@ -6,6 +6,8 @@
 export interface SubscriptionStatus {
   /** 订阅状态 */
   status: 'active' | 'expiring_soon' | 'expired' | 'inactive';
+  /** 开始日期 */
+  startedAt?: Date | null;
   /** 到期日期 */
   expiresAt: Date | null;
   /** 剩余天数 */
