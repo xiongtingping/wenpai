@@ -542,7 +542,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             }
           }
         }}
-        size="large"
+        size="xlarge"
         variant="elevated"
         animation="scale"
         closeOnOverlayClick={canClose}
@@ -550,7 +550,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         preventScroll={false}
         aria-label="支付二维码"
       >
-        <div className="flex flex-col max-h-[85vh] overflow-hidden">
+        <div className="flex flex-col max-h-[90vh] overflow-hidden">
           {/* 标题栏 - 固定不滚动 */}
           <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
             <div className="flex items-center gap-3">
@@ -572,43 +572,43 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           </div>
 
           {/* 内容区域 - 三列布局，无需滚动 */}
-          <div className="flex-1 px-10 py-6">
+          <div className="flex-1 px-12 py-8">
             {/* 二维码扫描状态 - 三列布局 */}
             {(currentState === 'waiting_scan' || currentState === 'scanning' || currentState === 'verifying') && (
-              <div className="grid grid-cols-3 gap-8 items-start max-w-7xl mx-auto">
+              <div className="grid grid-cols-3 gap-12 items-center max-w-[1400px] mx-auto">
                 {/* 左侧：支付说明 */}
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {/* 支付宝品牌 */}
-                  <div className="flex justify-center mb-4">
+                  <div className="flex justify-center mb-5">
                     <AlipayBanner size="sm" />
                   </div>
 
                   {/* 支付说明 */}
-                  <div className="bg-muted/50 p-4 rounded-xl space-y-2.5 text-sm text-muted-foreground border border-border">
-                    <div className="font-semibold text-foreground text-base mb-2">支付说明</div>
-                    <div className="flex items-start gap-2.5">
+                  <div className="bg-muted/50 p-5 rounded-xl space-y-3 text-sm text-muted-foreground border border-border">
+                    <div className="font-semibold text-foreground text-base mb-3">支付说明</div>
+                    <div className="flex items-start gap-3">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">1</span>
                       <span>打开支付宝APP</span>
                     </div>
-                    <div className="flex items-start gap-2.5">
+                    <div className="flex items-start gap-3">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">2</span>
                       <span>扫描中间二维码</span>
                     </div>
-                    <div className="flex items-start gap-2.5">
+                    <div className="flex items-start gap-3">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">3</span>
                       <span>确认支付金额</span>
                     </div>
-                    <div className="flex items-start gap-2.5">
+                    <div className="flex items-start gap-3">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">4</span>
-                      <span>完成支付即可</span>
+                      <span>支付验证中，请勿离开此页面</span>
                     </div>
                   </div>
 
                   {/* 状态提示 */}
                   <Alert className="border-primary/20 bg-primary/5">
-                    <AlertDescription className="flex items-center gap-2 text-xs">
+                    <AlertDescription className="flex items-center gap-2 text-sm">
                       {statusMessage.showLoading && (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       )}
                       <span className="text-foreground">{statusMessage.description}</span>
                     </AlertDescription>
@@ -617,8 +617,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   {/* 网络重试提示 */}
                   {retryCount > 0 && retryCount < MAX_RETRIES && (
                     <Alert className="border-orange-500/20 bg-orange-500/5">
-                      <AlertDescription className="flex items-center gap-2 text-xs text-orange-700 dark:text-orange-300">
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <AlertDescription className="flex items-center gap-2 text-sm text-orange-700 dark:text-orange-300">
+                        <RefreshCw className="w-4 h-4 animate-spin" />
                         <span>重试中 {retryCount}/{MAX_RETRIES}</span>
                       </AlertDescription>
                     </Alert>
@@ -626,60 +626,57 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 </div>
 
                 {/* 中间：二维码区域 */}
-                <div className="flex flex-col items-center gap-3">
+                <div className="flex flex-col items-center justify-center">
+                  {/* 扫码提示 - 移到顶部 */}
+                  <div className="text-center mb-4">
+                    <div className="text-base font-medium text-foreground">
+                      请使用 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-bold text-white bg-blue-600 dark:bg-blue-500 mx-1">支付宝</span> 扫码支付
+                    </div>
+                  </div>
+
                   {/* 二维码图片 */}
                   <div className="relative">
-                    <div className="bg-white p-5 rounded-2xl shadow-xl border-2 border-primary/20">
+                    <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-primary/20">
                       {paymentData.qrImage ? (
                         <img
                           src={paymentData.qrImage}
                           alt="支付二维码"
-                          className="w-64 h-64 object-contain"
+                          className="w-72 h-72 object-contain"
                         />
                       ) : paymentData.qrCode ? (
-                        <div className="w-64 h-64 flex items-center justify-center">
+                        <div className="w-72 h-72 flex items-center justify-center">
                           <QrCode className="w-32 h-32 text-muted-foreground" />
                         </div>
                       ) : null}
                     </div>
 
                     {/* 支付宝Logo覆盖 */}
-                    <div className="absolute bottom-3 right-3">
-                      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-blue-500">
-                        <AlipayLogo size={24} />
+                    <div className="absolute bottom-4 right-4">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-blue-500">
+                        <AlipayLogo size={28} />
                       </div>
-                    </div>
-                  </div>
-
-                  {/* 扫码提示 */}
-                  <div className="text-center">
-                    <div className="flex items-center gap-2 justify-center text-sm font-medium">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold text-white bg-blue-600 dark:bg-blue-500">
-                        支付宝
-                      </span>
-                      <span className="text-foreground">扫码支付</span>
                     </div>
                   </div>
                 </div>
 
                 {/* 右侧：支付信息区域 */}
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {/* 支付金额 */}
-                  <div className="bg-gradient-to-r from-blue-50 to-orange-50 dark:from-blue-950 dark:to-orange-950 px-5 py-4 rounded-xl border-2 border-blue-200 dark:border-blue-800 shadow-sm">
-                    <div className="text-xs text-muted-foreground mb-1.5">请输入支付金额</div>
-                    <div className="text-3xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 bg-clip-text text-transparent">
+                  <div className="bg-gradient-to-r from-blue-50 to-orange-50 dark:from-blue-950 dark:to-orange-950 px-6 py-5 rounded-xl border-2 border-blue-200 dark:border-blue-800 shadow-sm">
+                    <div className="text-sm text-muted-foreground mb-2">请输入支付金额</div>
+                    <div className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 bg-clip-text text-transparent">
                       ¥{paymentData.amount.toFixed(2)}
                     </div>
                   </div>
 
                   {/* 倒计时 */}
                   {timeLeft > 0 && (
-                    <div className="bg-blue-50 dark:bg-blue-950 px-5 py-4 rounded-xl border-2 border-blue-200 dark:border-blue-800 shadow-sm">
-                      <div className="flex items-center gap-2.5">
-                        <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <div className="bg-blue-50 dark:bg-blue-950 px-6 py-5 rounded-xl border-2 border-blue-200 dark:border-blue-800 shadow-sm">
+                      <div className="flex items-center gap-3">
+                        <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                         <div>
-                          <div className="text-xs text-blue-700 dark:text-blue-300 mb-1">剩余时间</div>
-                          <div className="text-2xl font-mono font-bold text-blue-900 dark:text-blue-100">
+                          <div className="text-sm text-blue-700 dark:text-blue-300 mb-1">剩余时间</div>
+                          <div className="text-3xl font-mono font-bold text-blue-900 dark:text-blue-100">
                             {formatCountdown(timeLeft)}
                           </div>
                         </div>
