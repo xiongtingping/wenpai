@@ -1031,7 +1031,7 @@
   },
   "home": {
     "title": "文派AI - 智能内容创作平台",
-    "heroTitle": "文派 · AI驱动的专业新媒体内容适配平台",
+    "heroTitle": "AI驱动的专业新媒体内容适配平台",
     "heroSubtitle": "一键生成契合各平台语境的风格化内容",
     "getStarted": "开始创作",
     "learnMore": "了解更多",
@@ -1892,7 +1892,9 @@
     "platforms": {
       "selectAll": "全选",
       "deselectAll": "取消全选",
-      "selected": "已选择 {{count}} 个平台"
+      "selected": "已选择 {{count}} 个平台",
+      "seltct": "全选",
+      "select": "全选"
     }
   },
   "emoji": {

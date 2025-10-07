@@ -116,9 +116,6 @@ const HeroSection: React.FC = () => {
                     <h3 className="ds-title-card ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.title')}}></h3>
                     <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.fastGeneration.subtitle')}</p>
                   </div>
-                  <p className="ds-text-body ds-text-secondary leading-relaxed">
-                    <span dangerouslySetInnerHTML={{__html: t('home.advantages.fastGeneration.description')}}></span>
-                  </p>
                 </div>
               </div>
 
@@ -133,9 +130,6 @@ const HeroSection: React.FC = () => {
                     <h3 className="ds-title-card ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.title')}}></h3>
                     <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.brandConsistency.subtitle')}</p>
                   </div>
-                  <p className="ds-text-body ds-text-secondary leading-relaxed">
-                    <span dangerouslySetInnerHTML={{__html: t('home.advantages.brandConsistency.description')}}></span>
-                  </p>
                 </div>
               </div>
 
@@ -150,9 +144,6 @@ const HeroSection: React.FC = () => {
                     <h3 className="ds-title-card ds-text-primary mb-1" dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.title')}}></h3>
                     <p className="ds-text-helper ds-text-secondary font-medium">{t('home.advantages.costSaving.subtitle')}</p>
                   </div>
-                  <p className="ds-text-body ds-text-secondary leading-relaxed">
-                    <span dangerouslySetInnerHTML={{__html: t('home.advantages.costSaving.description')}}></span>
-                  </p>
                 </div>
               </div>
             </div>

@@ -1884,7 +1884,9 @@
     "platforms": {
       "selectAll": "Select All",
       "deselectAll": "Deselect All",
-      "selected": "{{count}} platforms selected"
+      "selected": "{{count}} platforms selected",
+      "seltct": "Select All",
+      "select": "Select All"
     }
   },
   "emoji": {

@@ -37,6 +37,7 @@ import { ResultsDisplay } from './ResultsDisplay'; // 🔧 FIX: 使用命名导�
 import { BatchForwardModal } from '@/components/BatchForwardModal';
 import { AutomationUI, AutomationProgress, AutomationResult, AutomationOptions } from '@/components/AutomationUI';
 import { AIContentGenerationAnimation } from '@/components/AIContentGenerationAnimation';
+import { EnhancedHistoryDialog, ShareHistoryItem as AdapterShareHistoryItem } from './EnhancedHistoryDialog';
 import {
   Dialog,
   DialogContent,
@@ -223,6 +224,70 @@ interface ContentAdapterPageProps {
   initialContent?: string;
   initialPlatforms?: string[];
 }
+
+function HistoryLauncher({ availablePlatforms }: { availablePlatforms: any[] }) {
+  const [open, setOpen] = React.useState(false);
+  const [items, setItems] = React.useState<AdapterShareHistoryItem[]>([]);
+  const { user } = useAuth();
+
+  const mapItems = React.useCallback((list: any[]): AdapterShareHistoryItem[] => {
+    return (list || []).map((it: any, idx: number) => ({
+      id: it.id || `${it.platformId}-${it.time || it.timestamp || Date.now()}-${idx}`,
+      platformId: it.platformId,
+      platformName: it.platformName || getPlatformName(it.platformId, availablePlatforms),
+      content: it.content || '',
+      time: it.time || it.timestamp || new Date().toISOString()
+    }));
+  }, [availablePlatforms]);
+
+  const load = React.useCallback(async () => {
+    try {
+      const list = await globalDataManager.getData<any[]>('user_history') || [];
+      setItems(mapItems(list));
+    } catch (e) {
+      try {
+        const localKey = `user_history_${user?.id || 'guest'}`;
+        const list = JSON.parse(localStorage.getItem(localKey) || '[]');
+        setItems(mapItems(list));
+      } catch {}
+    }
+  }, [mapItems, user?.id]);
+
+  const handleClear = React.useCallback(async () => {
+    await globalDataManager.setData('user_history', []);
+    setItems([]);
+  }, []);
+
+  const handleDelete = React.useCallback(async (id: string) => {
+    const list = (await globalDataManager.getData<any[]>('user_history')) || [];
+    const filtered = list.filter((it: any) => (it.id && it.id !== id) || (!it.id));
+    await globalDataManager.setData('user_history', filtered);
+    setItems(prev => prev.filter(i => i.id !== id));
+  }, []);
+
+  React.useEffect(() => {
+    if (open) load();
+  }, [open, load]);
+
+  return (
+    <>
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+          <History className="w-4 h-4 mr-1" /> 历史记录
+        </Button>
+      </div>
+      <EnhancedHistoryDialog
+        open={open}
+        onOpenChange={setOpen}
+        shareHistory={items}
+        onClearHistory={handleClear}
+        onDeleteItem={handleDelete}
+        availablePlatforms={availablePlatforms}
+      />
+    </>
+  );
+}
+
 
 /**
  * 内容适配器主页面组件
@@ -419,6 +484,23 @@ export function ContentAdapterPage({
   // 🔧 FIX: 内容生成完成后自动生成标题 - 改进版
   const prevResultsLengthRef = React.useRef(0);
   const titleGeneratedRef = React.useRef<Set<string>>(new Set());
+
+
+  // 结果区定位与自动滚动
+  const resultsSectionRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollToResults = React.useCallback(() => {
+    try {
+      const el = resultsSectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const headerOffset = 72; // 固定头部高度 + 少量间距
+      const top = Math.max(0, window.scrollY + rect.top - headerOffset);
+      window.scrollTo({ top, behavior: 'smooth' });
+    } catch (e) {
+      // 兜底
+      resultsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []);
 
   React.useEffect(() => {
     // 只在新内容生成时触发（results 数组长度增加）
@@ -676,11 +758,13 @@ export function ContentAdapterPage({
   }, [refreshSubscription]);
 
   // 获取可用数据
+
   const availablePlatforms = getAvailablePlatforms();
   let accessibleModels = getAvailableModelsForTier(effectiveUserTier as any);
 
   // 备用方案：如果没有获取到模型，使用默认的体验版模型
   if (!accessibleModels || accessibleModels.length === 0) {
+
     console.warn('⚠️ notgetting到模型data，使用default体验版模型');
     accessibleModels = getAvailableModelsForTier('trial');
   }
@@ -731,6 +815,8 @@ export function ContentAdapterPage({
             if (canAccessModel) {
               console.log('✅ 自动选择保存的模型:', savedModel.name);
               updateSelectedModel(savedModelId);
+
+
               toast({
                 title: "已恢复模型选择",
                 description: `自动选择了您上次使用的模型：${savedModel.name}`,
@@ -807,6 +893,7 @@ export function ContentAdapterPage({
         variant: "destructive"
       });
       // 不阻止生成，只是提醒
+
     }
 
     console.log('✅ 使用countchecking通过');
@@ -881,6 +968,10 @@ export function ContentAdapterPage({
       platform: selectedPlatforms[0] || 'default' // 添加必需的platform属性
     };
 
+    //
+    //
+    //
+    scrollToResults();
     await generateContent(request, selectedPlatforms);
   };
 
@@ -1495,6 +1586,7 @@ export function ContentAdapterPage({
         platformId: firstTask.platformId,
         platformName: getPlatformName(firstTask.platformId, availablePlatforms),
         content: firstTask.content,
+
         time: new Date().toISOString()
       };
 
@@ -1565,6 +1657,9 @@ export function ContentAdapterPage({
       />
 
       <div className="container mx-auto py-8 px-4 space-y-8">
+        {/* 历史记录按钮（右侧） */}
+        <HistoryLauncher availablePlatforms={availablePlatforms} />
+
         {/* 内容输入区域 */}
         <ContentInputSection
           {...{
@@ -1637,6 +1732,7 @@ export function ContentAdapterPage({
         />
 
         {/* 结果展示区域 */}
+        <div ref={resultsSectionRef} />
         {results.length > 0 ? (
           <ResultsDisplay
             results={results}

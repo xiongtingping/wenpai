@@ -1,6 +1,7 @@
-import { Mail, ExternalLink, User, FileText, Check } from "lucide-react"
-import { useState } from "react"
+import { Mail, ExternalLink, User, FileText, Check, ArrowUp } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
 
 /**
  * 飞书图标组件
@@ -25,6 +26,23 @@ const FeishuIcon = ({ className }: { className?: string }) => (
 export function Footer() {
   const [emailCopied, setEmailCopied] = useState(false)
   const [showQRCode, setShowQRCode] = useState(false)
+  // 返回顶部按钮显示控制
+  const [showBackTop, setShowBackTop] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setShowBackTop(window.scrollY > 300)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const scrollToTop = () => {
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch {
+      window.scrollTo(0, 0)
+    }
+  }
+
   const { t } = useTranslation()
 
   // 复制邮箱地址
@@ -238,6 +256,8 @@ export function Footer() {
               </a>
               <span className="ds-text-helper text-muted-foreground/30">|</span>
               <a
+
+
                 href="/privacy"
                 className="ds-text-helper ds-text-secondary hover:text-foreground ds-transition-standard"
               >
@@ -257,6 +277,19 @@ export function Footer() {
           </div>
         </div>
       </div>
+      {/* 返回顶部（右下角固定） */}
+      {showBackTop && (
+        <Button
+          aria-label="返回顶部"
+          onClick={scrollToTop}
+          variant="secondary"
+          size="icon"
+          className="fixed bottom-6 right-6 z-[1000] rounded-full shadow-lg"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </Button>
+      )}
+
     </footer>
   )
 }
