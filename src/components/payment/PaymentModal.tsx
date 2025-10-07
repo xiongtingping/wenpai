@@ -572,10 +572,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           </div>
 
           {/* 内容区域 - 三列布局，无需滚动 */}
-          <div className="flex-1 px-12 py-6 overflow-y-auto">
+          <div className="flex-1 px-10 py-4 overflow-y-auto">
             {/* 二维码扫描状态 - 三列布局 */}
             {(currentState === 'waiting_scan' || currentState === 'scanning' || currentState === 'verifying') && (
-              <div className="grid grid-cols-3 gap-10 items-start max-w-[1300px] mx-auto">
+              <div className="grid grid-cols-3 gap-8 items-start max-w-[1300px] mx-auto">
                 {/* 左侧：支付说明 */}
                 <div className="space-y-4">
                   {/* 支付宝品牌 */}
@@ -621,7 +621,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 {/* 中间：二维码区域 */}
                 <div className="flex flex-col items-center justify-start">
                   {/* 扫码提示 - 移到顶部 */}
-                  <div className="text-center mb-1">
+                  <div className="text-center mb-0">
                     <div className="text-sm font-medium text-foreground">
                       请使用 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold text-white bg-blue-600 dark:bg-blue-500 mx-1">支付宝</span> 扫码支付
                     </div>

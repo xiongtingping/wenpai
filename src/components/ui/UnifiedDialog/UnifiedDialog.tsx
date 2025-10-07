@@ -20,7 +20,7 @@ const dialogVariants = cva(
   [
     'unified-dialog',
     'fixed',
-    'z-[1001]',
+    'z-[1100]',
     'flex',
     'flex-col',
     'bg-background',
@@ -116,9 +116,8 @@ const overlayVariants = cva(
     'unified-dialog-overlay',
     'fixed',
     'inset-0',
-    'z-[1000]',
+    'z-[1080]',
     'bg-foreground/50',
-    'backdrop-blur-sm',
     'animate-in',
     'fade-in-0',
     'duration-200'
@@ -178,7 +177,7 @@ export function UnifiedDialog({
       dialog.style.setProperty('top', '50%', 'important');
       dialog.style.setProperty('left', '50%', 'important');
       dialog.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
-      dialog.style.setProperty('z-index', '50', 'important');
+      dialog.style.setProperty('z-index', '1100', 'important');
       dialog.style.setProperty('margin', '0', 'important');
 
       console.log('🎯 UnifiedDialog定位fixingalready应用');
