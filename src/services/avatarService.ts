@@ -125,8 +125,8 @@ class AvatarService {
       formData.append('avatar', file);
       formData.append('userId', userId);
 
-      // 上传到服务器
-      const response = await request.post(`${this.API_ENDPOINT}/upload`, formData, {
+      // 上传到服务器（request.post 已返回响应体，不是 AxiosResponse）
+      const data = await request.post<{ avatarUrl: string }>(`${this.API_ENDPOINT}/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -134,7 +134,7 @@ class AvatarService {
 
       return {
         success: true,
-        avatarUrl: response.data.avatarUrl
+        avatarUrl: data?.avatarUrl
       };
     } catch (error) {
       console.error('avataruploadingfailed:', error);

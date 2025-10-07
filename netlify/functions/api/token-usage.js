@@ -4,9 +4,9 @@
  */
 
 const { createClient } = require('@supabase/supabase-js');
-const { 
-  createPermissionMiddleware, 
-  handlePermissionError 
+const {
+  createPermissionMiddleware,
+  handlePermissionError
 } = require('../lib/permission-middleware');
 
 // 初始化Supabase客户端
@@ -20,6 +20,12 @@ const permissionCheck = createPermissionMiddleware(['auth:required', 'feature:to
   checkDataAccess: true // 启用数据访问检查，防止水平越权
 });
 
+
+// 管理员权限中间件（仅管理员可用）
+const adminPermissionCheck = createPermissionMiddleware(['auth:required', 'admin:user-management'], {
+  checkDataAccess: false
+});
+
 /**
  * 获取用户套餐信息
  */
@@ -30,7 +36,7 @@ async function getUserSubscription(userId) {
       .select('tier, monthly_token_limit')
       .eq('user_id', userId)
       .single();
-    
+
     if (error || !data) {
       // 默认套餐信息
       return {
@@ -38,7 +44,7 @@ async function getUserSubscription(userId) {
         monthly_token_limit: 100000
       };
     }
-    
+
     return data;
   } catch (error) {
     console.error('获取用户套餐信息失败:', error);
@@ -70,11 +76,11 @@ async function recordTokenUsage(record) {
         error_message: record.error,
         created_at: record.timestamp
       }]);
-    
+
     if (error) {
       throw error;
     }
-    
+
     return data;
   } catch (error) {
     console.error('记录Token使用量失败:', error);
@@ -91,7 +97,7 @@ async function getUserTokenStats(userId) {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-    
+
     // 获取本月使用量
     const { data: monthlyData, error: monthlyError } = await supabase
       .from('token_usage_records')
@@ -99,38 +105,38 @@ async function getUserTokenStats(userId) {
       .eq('user_id', userId)
       .gte('created_at', monthStart.toISOString())
       .lte('created_at', monthEnd.toISOString());
-    
+
     if (monthlyError) {
       throw monthlyError;
     }
-    
+
     const monthlyUsed = monthlyData.reduce((sum, record) => sum + (record.total_tokens || 0), 0);
-    
+
     // 获取今日使用量
     const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const dayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-    
+
     const { data: dailyData, error: dailyError } = await supabase
       .from('token_usage_records')
       .select('total_tokens')
       .eq('user_id', userId)
       .gte('created_at', dayStart.toISOString())
       .lte('created_at', dayEnd.toISOString());
-    
+
     if (dailyError) {
       throw dailyError;
     }
-    
+
     const dailyUsed = dailyData.reduce((sum, record) => sum + (record.total_tokens || 0), 0);
-    
+
     // 获取用户套餐信息
     const subscription = await getUserSubscription(userId);
-    
+
     const monthlyLimit = subscription.monthly_token_limit;
     const monthlyRemaining = Math.max(0, monthlyLimit - monthlyUsed);
     const usagePercentage = monthlyLimit > 0 ? (monthlyUsed / monthlyLimit) * 100 : 0;
     const needUpgrade = usagePercentage >= 80;
-    
+
     return {
       userId,
       userTier: subscription.tier,
@@ -142,7 +148,7 @@ async function getUserTokenStats(userId) {
       needUpgrade,
       lastUpdated: new Date().toISOString()
     };
-    
+
   } catch (error) {
     console.error('获取用户Token统计失败:', error);
     throw error;
@@ -160,11 +166,11 @@ async function getUserTokenHistory(userId, limit = 50) {
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(limit);
-    
+
     if (error) {
       throw error;
     }
-    
+
     return data.map(record => ({
       id: record.id,
       userId: record.user_id,
@@ -179,7 +185,7 @@ async function getUserTokenHistory(userId, limit = 50) {
       success: record.success,
       error: record.error_message
     }));
-    
+
   } catch (error) {
     console.error('获取用户Token历史失败:', error);
     throw error;
@@ -195,47 +201,47 @@ async function getUserTokenStatsByFeature(userId) {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-    
+
     const { data, error } = await supabase
       .from('token_usage_records')
       .select('feature, total_tokens')
       .eq('user_id', userId)
       .gte('created_at', monthStart.toISOString())
       .lte('created_at', monthEnd.toISOString());
-    
+
     if (error) {
       throw error;
     }
-    
+
     // 按功能分组统计
     const featureStats = {};
     let totalTokens = 0;
-    
+
     data.forEach(record => {
       const feature = record.feature || 'unknown';
       const tokens = record.total_tokens || 0;
-      
+
       if (!featureStats[feature]) {
         featureStats[feature] = {
           totalTokens: 0,
           requestCount: 0
         };
       }
-      
+
       featureStats[feature].totalTokens += tokens;
       featureStats[feature].requestCount += 1;
       totalTokens += tokens;
     });
-    
+
     // 计算百分比
     Object.keys(featureStats).forEach(feature => {
-      featureStats[feature].percentage = totalTokens > 0 
-        ? (featureStats[feature].totalTokens / totalTokens) * 100 
+      featureStats[feature].percentage = totalTokens > 0
+        ? (featureStats[feature].totalTokens / totalTokens) * 100
         : 0;
     });
-    
+
     return featureStats;
-    
+
   } catch (error) {
     console.error('获取功能统计失败:', error);
     throw error;
@@ -253,7 +259,7 @@ exports.handler = async (event, context) => {
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Content-Type': 'application/json'
   };
-  
+
   // 处理OPTIONS请求
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -262,40 +268,61 @@ exports.handler = async (event, context) => {
       body: ''
     };
   }
-  
+
   try {
     // 🔒 安全修复：使用权限中间件进行统一验证
     const { user } = await permissionCheck(event);
     const userId = user.id;
-    
+
+
     const path = event.path.replace('/.netlify/functions/api/token-usage', '');
     const method = event.httpMethod;
-    
+
     let result;
-    
+
     switch (`${method}:${path}`) {
       case 'POST:/record':
         // 记录Token使用量
         const record = JSON.parse(event.body);
         result = await recordTokenUsage(record);
         break;
-        
+
       case 'GET:/stats':
         // 获取用户Token统计
         result = await getUserTokenStats(userId);
         break;
-        
+
       case 'GET:/history':
         // 获取使用历史
-        const limit = parseInt(event.queryStringParameters?.limit) || 50;
-        result = await getUserTokenHistory(userId, limit);
+        {
+          const limit = parseInt(event.queryStringParameters?.limit) || 50;
+          result = await getUserTokenHistory(userId, limit);
+        }
         break;
-        
+
+      case 'POST:/admin/refresh':
+        // 管理员：刷新（重算）指定用户的Token使用统计
+        {
+          await adminPermissionCheck(event);
+          const { targetUserId } = JSON.parse(event.body || '{}');
+          if (!targetUserId) {
+            return {
+              statusCode: 400,
+              headers,
+              body: JSON.stringify({ success: false, error: '缺少 targetUserId' })
+            };
+          }
+          const stats = await getUserTokenStats(targetUserId);
+          const features = await getUserTokenStatsByFeature(targetUserId);
+          result = { stats, features };
+        }
+        break;
+
       case 'GET:/features':
         // 获取功能统计
         result = await getUserTokenStatsByFeature(userId);
         break;
-        
+
       default:
         return {
           statusCode: 404,
@@ -303,7 +330,7 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ error: '接口不存在' })
         };
     }
-    
+
     return {
       statusCode: 200,
       headers,
@@ -312,15 +339,15 @@ exports.handler = async (event, context) => {
         data: result
       })
     };
-    
+
   } catch (error) {
     console.error('Token使用量API错误:', error);
-    
+
     // 🔒 安全修复：使用统一的权限错误处理
     if (error.message.includes('PERMISSION') || error.message.includes('UNAUTHORIZED') || error.message.includes('ACCESS_DENIED')) {
       return handlePermissionError(error, headers);
     }
-    
+
     return {
       statusCode: 500,
       headers,
