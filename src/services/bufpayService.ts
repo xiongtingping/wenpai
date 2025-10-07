@@ -37,13 +37,32 @@ export class BufPayService {
         body: JSON.stringify(request)
       });
 
+      // 更友好的错误透传：尝试解析返回体中的错误信息
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        try {
+          const rawText = await response.text();
+          if (rawText) {
+            try {
+              const body = JSON.parse(rawText) as { error?: string; message?: string };
+              if (body?.error || body?.message) {
+                errorMessage = body.error || body.message || errorMessage;
+              } else {
+                errorMessage = rawText;
+              }
+            } catch {
+              errorMessage = rawText;
+            }
+          }
+        } catch {
+          // ignore secondary errors
+        }
+        throw new Error(errorMessage);
       }
 
       // create-order函数返回JSON响应
       const result = await response.json();
-      
+
       if (!result.success) {
         throw new Error(result.error || '操作失败');
       }

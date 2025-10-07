@@ -629,12 +629,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
                   {/* 二维码图片 */}
                   <div className="relative">
-                    <div className="bg-white p-3 rounded-2xl shadow-xl border-2 border-primary/20">
+                    <div className="bg-white px-3 pb-3 pt-0 rounded-2xl shadow-xl border-2 border-primary/20">
                       {paymentData.qrImage ? (
                         <img
                           src={paymentData.qrImage}
                           alt="支付二维码"
-                          className="w-64 h-64 object-contain"
+                          className="block w-64 h-64 object-contain"
                         />
                       ) : paymentData.qrCode ? (
                         <div className="w-64 h-64 flex items-center justify-center">

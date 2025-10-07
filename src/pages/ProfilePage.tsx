@@ -574,7 +574,7 @@ export default function ProfilePage() {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                         <div className="group relative overflow-hidden rounded-xl border bg-gradient-to-br from-muted/50 to-muted/30 p-4 text-center hover:shadow-lg transition-all duration-300">
-                          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                           <Hash className="w-5 h-5 mx-auto mb-2 text-primary/60" />
                           <p className="text-xs text-muted-foreground mb-1">{t('profile.userId')}</p>
                           <p className="break-all text-sm font-semibold text-foreground">{user?.id || t('profile.unknown')}</p>
@@ -591,7 +591,7 @@ export default function ProfilePage() {
                           </div>
                         </div>
                         <div className="group relative overflow-hidden rounded-xl border bg-gradient-to-br from-muted/50 to-muted/30 p-4 text-center hover:shadow-lg transition-all duration-300">
-                          <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                           <Clock className="w-5 h-5 mx-auto mb-2 text-accent/60" />
                           <p className="text-xs text-muted-foreground mb-1">{t('profile.companionDays')}</p>
                           <p className="text-sm font-semibold text-foreground">{t('profile.daysCount', { count: companionDays })}</p>
