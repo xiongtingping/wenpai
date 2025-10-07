@@ -10,6 +10,27 @@ import { favoritesService } from '@/services/favoritesService';
 
 import { getCurrentUser, supabase } from '@/config/supabase';
 import { LibraryService } from '@/services/supabaseService';
+
+// 获取当前用户ID（无React依赖，优先统一Store，其次Supabase）
+async function resolveActiveUserId(): Promise<string | null> {
+  try {
+    // 1) 从统一Store（Zustand persist）读取
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('wenpai-unified-store') : null;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        const userId = parsed?.state?.user?.id || parsed?.user?.id;
+        if (userId && typeof userId === 'string' && userId.trim().length > 0) return userId;
+      } catch {}
+    }
+
+    // 2) 退回 Supabase 会话（如果有）
+    const user = await getCurrentUser().catch(() => null);
+    if (user?.id) return user.id;
+  } catch {}
+  return null;
+}
+
 export interface QuickReferenceItem {
   id: string;
   title: string;
@@ -205,9 +226,9 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
       // 新增：从云端“我的资料库”读取（user_library_items）
       let userLibItems: QuickReferenceItem[] = [];
       try {
-        const user = await getCurrentUser();
-        if (user?.id) {
-          const rows = await LibraryService.getUserLibraryItems(user.id, 'active');
+        const userId = await resolveActiveUserId();
+        if (userId) {
+          const rows = await LibraryService.getUserLibraryItems(userId, 'active');
           userLibItems = rows.map(row => ({
             id: row.id,
             title: sanitizeToPlainText(row.title || ''),
@@ -216,7 +237,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
             format: row.url ? 'link' : this.detectFormatFromContent(row.content || ''),
             source: '我的资料库',
             tags: Array.isArray(row.tags) ? row.tags : [],
-            createdAt: row.updated_at || row.created_at,
+            createdAt: (row.updated_at || row.created_at || new Date().toISOString()),
             summary: sanitizeToPlainText(this.generateSummary(row.content || '')),
             metadata: { ...(row.metadata || {}), sourceKind: 'user_library_items', url: row.url }
           }));
