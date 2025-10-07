@@ -88,13 +88,14 @@ async function processOrderPermissions(order) {
       // 计算订阅到期时间
       const expiryDate = calculateExpiryDate(order.duration_type);
     
-    // 检查用户是否已有相同类型的订阅
+    // 🔧 FIX: 将 professional 映射为 pro
+    const tier = order.product_type === 'professional' ? 'pro' : order.product_type;
+
+    // 检查用户是否已有订阅（不区分类型，一个用户只有一个订阅）
     const { data: existingSubscription, error: queryError } = await supabase
       .from('user_subscriptions')
       .select('*')
       .eq('user_id', order.user_id)
-      .eq('subscription_type', order.product_type)
-      .eq('status', 'active')
       .maybeSingle(); // 使用 maybeSingle 避免没有记录时报错
 
     if (queryError) {
@@ -105,14 +106,18 @@ async function processOrderPermissions(order) {
     let subscriptionData;
 
     if (existingSubscription) {
-      // 如果已有订阅，延长到期时间
+      // 如果已有订阅，更新等级和延长到期时间
       const currentExpiry = new Date(existingSubscription.expires_at);
       const newExpiry = calculateExpiryDate(order.duration_type, currentExpiry > new Date() ? currentExpiry : new Date());
-      
+
       const { data, error } = await supabase
         .from('user_subscriptions')
         .update({
-          expires_at: newExpiry.toISOString()
+          tier: tier, // 🔧 FIX: 使用 tier 字段
+          period: order.duration_type, // 🔧 FIX: 添加 period 字段
+          status: 'active',
+          expires_at: newExpiry.toISOString(),
+          updated_at: new Date().toISOString()
         })
         .eq('id', existingSubscription.id)
         .select()
@@ -120,10 +125,11 @@ async function processOrderPermissions(order) {
 
       if (error) throw error;
       subscriptionData = data;
-      
-      console.log('订阅时间延长成功:', { 
-        userId: order.user_id, 
-        subscriptionType: order.product_type,
+
+      console.log('订阅更新成功:', {
+        userId: order.user_id,
+        tier: tier,
+        period: order.duration_type,
         newExpiry: newExpiry.toISOString()
       });
     } else {
@@ -132,28 +138,29 @@ async function processOrderPermissions(order) {
         .from('user_subscriptions')
         .insert({
           user_id: order.user_id,
-          subscription_type: order.product_type,
+          tier: tier, // 🔧 FIX: 使用 tier 字段
+          period: order.duration_type, // 🔧 FIX: 添加 period 字段
           status: 'active',
           started_at: new Date().toISOString(),
-          expires_at: expiryDate.toISOString(),
-          order_id: order.order_id
+          expires_at: expiryDate.toISOString()
         })
         .select()
         .single();
 
       if (error) throw error;
       subscriptionData = data;
-      
-      console.log('新订阅创建成功:', { 
-        userId: order.user_id, 
-        subscriptionType: order.product_type,
+
+      console.log('新订阅创建成功:', {
+        userId: order.user_id,
+        tier: tier,
+        period: order.duration_type,
         expiresAt: expiryDate.toISOString()
       });
     }
 
-    // 标记订单为已处理
+    // 🔧 FIX: 标记订单为已处理 - 使用正确的表名 payment_orders
     await supabase
-      .from('orders')
+      .from('payment_orders')
       .update({
         status: 'processed',
         processed_at: new Date().toISOString()
@@ -253,7 +260,7 @@ exports.handler = async (event, context) => {
 
     // 验证必要参数
     if (!notifyData.aoid || !notifyData.order_id || !notifyData.sign) {
-      console.error('缺少必要参数:', notifyData);
+      console.error('❌ 缺少必要参数:', notifyData);
       return {
         statusCode: 400,
         headers,
@@ -272,7 +279,7 @@ exports.handler = async (event, context) => {
     );
 
     if (!isValidSign) {
-      console.error('支付回调签名验证失败:', notifyData);
+      console.error('❌ 支付回调签名验证失败:', notifyData);
       return {
         statusCode: 400,
         headers,
@@ -288,7 +295,7 @@ exports.handler = async (event, context) => {
       .single();
 
     if (orderError || !order) {
-      console.error('订单不存在:', { orderId: notifyData.order_id, error: orderError });
+      console.error('❌ 订单不存在:', { orderId: notifyData.order_id, error: orderError });
       return {
         statusCode: 404,
         headers,
@@ -357,11 +364,11 @@ exports.handler = async (event, context) => {
       });
 
     } catch (permissionError) {
-      console.error('权限开通失败，回滚订单状态:', permissionError);
+      console.error('❌ 权限开通失败，回滚订单状态:', permissionError);
 
       // 回滚订单状态
       await supabase
-        .from('orders')
+        .from('payment_orders')
         .update({
           status: 'pending'
         })
@@ -396,11 +403,16 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('处理支付回调失败:', error);
+    console.error('❌ 处理支付回调失败:', error);
+    // 🔧 FIX: 即使处理失败也返回200，避免BufPay无限重试
+    // 错误已记录在日志中，可以通过后台查看并手动修复
     return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: 'Internal server error' })
+      statusCode: 200,
+      headers: {
+        ...headers,
+        'Content-Type': 'text/plain'
+      },
+      body: 'success'
     };
   }
 };
