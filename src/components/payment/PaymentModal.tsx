@@ -9,12 +9,12 @@ import { useNavigate } from 'react-router-dom';
 import { UnifiedDialog } from '@/components/ui/UnifiedDialog/UnifiedDialog';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  QrCode, 
-  Smartphone, 
-  Loader2, 
-  CheckCircle, 
-  XCircle, 
+import {
+  QrCode,
+  Smartphone,
+  Loader2,
+  CheckCircle,
+  XCircle,
   Clock,
   AlertCircle,
   RefreshCw,
@@ -83,7 +83,7 @@ const statusMessages: Record<PaymentModalState, PaymentStatusMessage> = {
  */
 const getStatusIcon = (state: PaymentModalState, className?: string) => {
   const iconProps = { className: cn('w-6 h-6', className) };
-  
+
   switch (state) {
     case 'waiting_scan':
       return <QrCode {...iconProps} />;
@@ -132,7 +132,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const updateUserSubscription = useUnifiedStore(state => state.updateUserSubscription);
   const initializeUsageStats = useUnifiedStore(state => state.initializeUsageStats);
   const userId = useUnifiedStore(state => state.user.id);
-  
+
   // 状态管理
   const [currentState, setCurrentState] = useState<PaymentModalState>(paymentData.state);
   const [timeLeft, setTimeLeft] = useState(paymentData.timeLeft);
@@ -201,18 +201,18 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
    */
   useEffect(() => {
     if (!open) return;
-    
+
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (currentState === 'verifying' || currentState === 'waiting_scan' || currentState === 'scanning') {
         e.preventDefault();
         e.returnValue = '支付验证中，确定要离开吗？';
       }
     };
-    
+
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [open, currentState]);
-  
+
   /**
    * 倒计时
    */
@@ -220,7 +220,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     if (!open || currentState === 'success' || currentState === 'cancelled') {
       return;
     }
-    
+
     countdownIntervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -231,14 +231,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         return prev - 1;
       });
     }, 1000);
-    
+
     return () => {
       if (countdownIntervalRef.current) {
         clearInterval(countdownIntervalRef.current);
       }
     };
   }, [open, currentState, onPaymentTimeout]);
-  
+
   /**
    * 支付状态轮询
    */
@@ -400,7 +400,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       }
     };
   }, [open, paymentData.orderId, currentState, retryCount, onPaymentSuccess, onPaymentFailed, navigate]);
-  
+
   /**
    * 保存支付状态到localStorage
    */
@@ -421,14 +421,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       }
     };
   }, [open, paymentData.orderId, currentState]);
-  
+
   /**
    * 处理取消支付
    */
   const handleCancel = () => {
     setShowCancelConfirm(true);
   };
-  
+
   /**
    * 确认取消支付
    */
@@ -465,7 +465,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       setCurrentState('cancelled');
     }, 100);
   };
-  
+
   /**
    * 获取当前进度步骤
    */
@@ -483,10 +483,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         return 1;
     }
   };
-  
+
   const statusMessage = statusMessages[currentState];
   const canClose = currentState === 'success' || currentState === 'cancelled';
-  
+
   /**
    * 组件卸载时清理所有定时器和恢复页面滚动
    */
@@ -605,14 +605,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   </div>
 
                   {/* 状态提示 */}
-                  <Alert className="border-primary/20 bg-primary/5">
-                    <AlertDescription className="flex items-center gap-2 text-xs">
-                      {statusMessage.showLoading && (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                      )}
-                      <span className="text-foreground">{statusMessage.description}</span>
-                    </AlertDescription>
-                  </Alert>
+                  {/* 状态提示已移动到右侧 */}
 
                   {/* 网络重试提示 */}
                   {retryCount > 0 && retryCount < MAX_RETRIES && (
@@ -628,7 +621,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 {/* 中间：二维码区域 */}
                 <div className="flex flex-col items-center justify-start">
                   {/* 扫码提示 - 移到顶部 */}
-                  <div className="text-center mb-3">
+                  <div className="text-center mb-1">
                     <div className="text-sm font-medium text-foreground">
                       请使用 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold text-white bg-blue-600 dark:bg-blue-500 mx-1">支付宝</span> 扫码支付
                     </div>
@@ -636,7 +629,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
                   {/* 二维码图片 */}
                   <div className="relative">
-                    <div className="bg-white p-5 rounded-2xl shadow-xl border-2 border-primary/20">
+                    <div className="bg-white p-3 rounded-2xl shadow-xl border-2 border-primary/20">
                       {paymentData.qrImage ? (
                         <img
                           src={paymentData.qrImage}
@@ -688,6 +681,17 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   {currentState !== 'failed' && currentState !== 'timeout' && currentState !== 'cancelled' && (
                     <PaymentProgressIndicator currentStep={getCurrentStep()} />
                   )}
+
+                      {/* 状态提示（移动到右侧，位于进度指示器下方） */}
+                      <Alert className="mt-2 border-primary/20 bg-primary/5">
+                        <AlertDescription className="flex items-center gap-2 text-xs">
+                          {statusMessage.showLoading && (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                          )}
+                          <span className="text-foreground">{statusMessage.description}</span>
+                        </AlertDescription>
+                      </Alert>
+
                 </div>
               </div>
             )}
@@ -695,6 +699,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           {/* 成功状态 */}
           {currentState === 'success' && (
             <div className="flex flex-col items-center gap-4 py-12">
+
+
               <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
                 <CheckCircle className="w-12 h-12 text-green-500" />
               </div>

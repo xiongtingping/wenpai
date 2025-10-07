@@ -20,7 +20,7 @@ const dialogVariants = cva(
   [
     'unified-dialog',
     'fixed',
-    'z-50',
+    'z-[1001]',
     'flex',
     'flex-col',
     'bg-background',
@@ -116,7 +116,7 @@ const overlayVariants = cva(
     'unified-dialog-overlay',
     'fixed',
     'inset-0',
-    'z-40',
+    'z-[1000]',
     'bg-foreground/50',
     'backdrop-blur-sm',
     'animate-in',
