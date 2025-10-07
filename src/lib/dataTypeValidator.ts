@@ -476,9 +476,9 @@ export class DataTypeValidator {
   /**
    * 验证字符串
    */
-  private validateString(data: string, schema: DataSchema): { 
-    errors: string[]; 
-    sanitized?: string 
+  private validateString(data: string, schema: DataSchema): {
+    errors: string[];
+    sanitized?: string
   } {
     const errors: string[] = [];
     let sanitized = data;
@@ -523,7 +523,7 @@ export class DataTypeValidator {
       Object.entries(schema.properties).forEach(([key, propSchema]) => {
         const value = data[key];
         const result = this.validate(value, propSchema);
-        
+
         if (!result.isValid) {
           errors.push(...result.errors.map(err => `${key}: ${err}`));
         } else if (result.sanitizedData !== undefined) {
@@ -532,9 +532,9 @@ export class DataTypeValidator {
       });
     }
 
-    return { 
-      errors, 
-      sanitized: JSON.stringify(sanitized) !== JSON.stringify(data) ? sanitized : undefined 
+    return {
+      errors,
+      sanitized: JSON.stringify(sanitized) !== JSON.stringify(data) ? sanitized : undefined
     };
   }
 
@@ -558,9 +558,9 @@ export class DataTypeValidator {
       });
     }
 
-    return { 
-      errors, 
-      sanitized: sanitized.length > 0 ? sanitized : undefined 
+    return {
+      errors,
+      sanitized: sanitized.length > 0 ? sanitized : undefined
     };
   }
 
@@ -633,7 +633,7 @@ export class DataTypeValidator {
     }
 
     const result = this.validate(transformedData, schema);
-    
+
     if (!result.isValid) {
       console.error(`datavalidatingfailed [${key}]:`, result.errors);
     }
@@ -679,47 +679,47 @@ export class DataTypeValidator {
     if (key.includes('AMP_unsent')) {
       return DATA_SCHEMAS.AMP_UNSENT;
     }
-    
+
     // 访客会话信息
     if (key.includes('wenpai:guest:session_info')) {
       return DATA_SCHEMAS.GUEST_SESSION_INFO;
     }
-    
+
     // 全局设置
     if (key.includes('globalSettings')) {
       return DATA_SCHEMAS.GLOBAL_SETTINGS;
     }
-    
+
     // 认证守卫
     if (key.includes('auth_retry_guard') || key.includes('auth_code_guard')) {
       return DATA_SCHEMAS.AUTH_GUARD;
     }
-    
+
     // 认证存储
     if (key.includes('auth-storage')) {
       return DATA_SCHEMAS.AUTH_STORAGE;
     }
-    
+
     // 支付中心访问时间
     if (key.includes('payment_center_access_time')) {
       return DATA_SCHEMAS.PAYMENT_ACCESS_TIME;
     }
-    
+
     // Token使用统计
     if (key.includes('wenpai-token-usage-store')) {
       return DATA_SCHEMAS.TOKEN_USAGE_STORE;
     }
-    
+
     // 营销日历任务
     if (key.includes('marketing-calendar-tasks')) {
       return DATA_SCHEMAS.MARKETING_CALENDAR_TASKS;
     }
-    
+
     // 简单字符串值（主题、语言等）
     if (key.includes('wenpai-language') || key.includes('wenpai-theme')) {
       return DATA_SCHEMAS.SIMPLE_STRING;
     }
-    
+
     // 数据验证运行时间
     if (key === 'data_validation_last_run') {
       return DATA_SCHEMAS.DATA_VALIDATION_TIMESTAMP;
@@ -730,11 +730,11 @@ export class DataTypeValidator {
     if (key === 'remember_me') {
       return { type: 'boolean', required: false };
     }
-    
+
     // 保存的手机号(支持字符串类型，自动转换number)
     if (key === 'saved_phone') {
-      return { 
-        type: 'string', 
+      return {
+        type: 'string',
         required: false,
         // 自动转换number为string并清理Unicode引号
         transform: (value: any) => {
@@ -749,67 +749,73 @@ export class DataTypeValidator {
         }
       };
     }
-    
+
     // content-sync-storage
     if (key === 'content-sync-storage') {
       return { type: 'object', required: false };
     }
-    
+
     // 会话状态数据
     if (key === 'wenpai_session_state') {
       return { type: 'object', required: false };
     }
-    
+
     // 会话同步数据
     if (key === 'wenpai_session_sync') {
       return { type: 'object', required: false };
     }
-    
+
     // 安全配置密钥(实际是object类型)
     if (key === 'secure_config_key') {
       return { type: 'object', required: false };
     }
-    
+
     // 传统测试数据
     if (key.includes('legacy_test_data')) {
       return DATA_SCHEMAS.LEGACY_TEST_DATA;
     }
-    
+
     // 内容适配器设置
     if (key.includes('content-adapter-settings')) {
       return DATA_SCHEMAS.CONTENT_ADAPTER_SETTINGS;
     }
-    
+
     // 品牌维度数据 (带用户ID的动态键)
     if (key.includes(':brand_dimensions') || key.includes('brand_dimensions')) {
       return DATA_SCHEMAS.BRAND_DIMENSIONS;
     }
-    
+
     // 适配历史记录 (带用户ID的动态键)
     if (key.startsWith('adapt_history_') || key.includes(':adapt_history')) {
       return DATA_SCHEMAS.ADAPT_HISTORY;
     }
-    
+
     // 选择的平台数据
     if (key === 'selectedPlatforms') {
       return DATA_SCHEMAS.FORM_DRAFT;
     }
-    
+
     // 增强权限缓存
     if (key.includes('enhanced_permissions_cache_')) {
       return { type: 'object', required: false };
     }
-    
+
     // 分享历史
     if (key === 'shareHistory') {
       return { type: 'array', required: false };
     }
-    
+
+    // 创意工作室：待办事项
+    if (key === 'studio_todos') {
+      return { type: 'array', required: false };
+    }
+
+
     // emoji收藏
     if (key.includes('emoji-favorites-')) {
       return { type: 'array', required: false };
     }
-    
+
     // 全局设置 (带用户ID的动态键)
     if (key.includes('adapt_global_settings_')) {
       return DATA_SCHEMAS.GLOBAL_SETTINGS;
@@ -829,7 +835,7 @@ export class DataTypeValidator {
     if (key.startsWith('adapt_platform_settings_')) {
       return DATA_SCHEMAS.ADAPT_PLATFORM_SETTINGS;
     }
-    
+
     // 订阅状态缓存 (动态用户ID)
     if (key.startsWith('subscription_status_')) {
       return {
@@ -847,63 +853,63 @@ export class DataTypeValidator {
         }
       };
     }
-    
+
     // 统一用户状态
     if (key.includes('unified-user-state')) {
       return DATA_SCHEMAS['unified-user-state'];
     }
-    
+
     // 🔧 FIX: 添加使用统计数据模式匹配
     // 使用次数统计
     if (key.includes('usageCountStats') || key.includes('usage_count_stats')) {
       return DATA_SCHEMAS.usageCountStats;
     }
-    
+
     // Token使用统计
     if (key.includes('tokenUsageStats') || key.includes('token_usage_stats')) {
       return DATA_SCHEMAS.tokenUsageStats;
     }
-    
+
     // 扩展统计
     if (key.includes('extendedUsageStats') || key.includes('extended_usage_stats')) {
       return DATA_SCHEMAS.extendedUsageStats;
     }
-    
+
     // 通知数据
     if (key === 'notifications') {
       return { type: 'array', required: false };
     }
-    
+
     // Authing用户信息 - 使用宽松验证
     if (key === '_authing_user' || key === 'authing_user') {
       return { type: 'object', required: false }; // 宽松验证
     }
-    
+
     // 用户信息
     if (key.includes('user') && key.includes('auth')) {
       return DATA_SCHEMAS.USER_INFO;
     }
-    
+
     // 品牌资产
     if (key.includes('brand') && key.includes('assets')) {
       return { type: 'array', items: DATA_SCHEMAS.BRAND_ASSET };
     }
-    
+
     // 支付状态
     if (key.includes('payment') && !key.includes('access_time')) {
       return DATA_SCHEMAS.PAYMENT_STATUS;
     }
-    
+
     // UI偏好
     if (key.includes('ui')) {
       return DATA_SCHEMAS.UI_PREFERENCES;
     }
-    
+
     // 表单草稿
     if (key.includes('form') || key.includes('draft')) {
       return DATA_SCHEMAS.FORM_DRAFT;
     }
-    
+
     return null;
   }
 
@@ -932,14 +938,14 @@ export class DataTypeValidator {
 
         if (result.isValid) {
           validItems++;
-          
+
           if (result.sanitizedData !== undefined) {
             const sanitizedJson = JSON.stringify(result.sanitizedData);
             const newSize = sanitizedJson.length;
-            
+
             // 更新localStorage中的数据
             localStorage.setItem(key, sanitizedJson);
-            
+
             sanitizedItems.push({
               key,
               originalSize,
@@ -986,7 +992,7 @@ export class SafeLocalStorage {
     try {
       // 验证数据
       const result = this.validator.validateAndSanitizeStorageData(key, value, schemaName);
-      
+
       if (!result.isValid) {
         console.error(`datavalidatingfailed，deniedstorage [${key}]:`, result.errors);
         return false;
@@ -995,7 +1001,7 @@ export class SafeLocalStorage {
       // 存储清理后的数据
       const dataToStore = result.sanitizedData !== undefined ? result.sanitizedData : value;
       localStorage.setItem(key, JSON.stringify(dataToStore));
-      
+
       return true;
     } catch (error) {
       console.error(`安全storagefailed [${key}]:`, error);
@@ -1012,10 +1018,10 @@ export class SafeLocalStorage {
       if (!data) return null;
 
       const parsed = JSON.parse(data);
-      
+
       // 验证读取的数据
       const result = this.validator.validateAndSanitizeStorageData(key, parsed, schemaName);
-      
+
       if (!result.isValid) {
         console.warn(`reading的datavalidatingfailed [${key}]:`, result.errors);
         // 清理无效数据
@@ -1051,7 +1057,7 @@ export class SafeLocalStorage {
     sanitizedCount: number;
   } {
     const result = this.validator.validateAllStorageData();
-    
+
     // 清理无效数据
     result.invalidItems.forEach(item => {
       console.warn(`🗑️ cleaninginvaliddata: ${item.key}`, item.errors);
@@ -1072,11 +1078,11 @@ export class SafeLocalStorage {
  */
 export function useSafeLocalStorage() {
   const safeStorage = new SafeLocalStorage();
-  
+
   return {
-    setItem: <T>(key: string, value: T, schemaName?: string) => 
+    setItem: <T>(key: string, value: T, schemaName?: string) =>
       safeStorage.setItem(key, value, schemaName),
-    getItem: <T>(key: string, schemaName?: string) => 
+    getItem: <T>(key: string, schemaName?: string) =>
       safeStorage.getItem<T>(key, schemaName),
     removeItem: (key: string) => safeStorage.removeItem(key),
     cleanupInvalidData: () => safeStorage.cleanupInvalidData()
@@ -1093,7 +1099,7 @@ export const dataTypeValidator = {
     }
     return dataTypeValidatorInstance;
   },
-  
+
   // 代理方法，确保向后兼容（简化实现）
   validateAndClean: (data: any, _schemaName: string) => {
     // 简化实现：直接返回数据

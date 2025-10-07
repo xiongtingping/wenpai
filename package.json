@@ -88,7 +88,8 @@
     "test:coverage": "jest --coverage",
     "test:payment": "jest src/tests/payment-system.test.ts",
     "test:security": "jest src/tests/security-middleware.test.ts",
-    "test:integration": "jest src/tests/payment-api-integration.test.ts"
+    "test:integration": "jest src/tests/payment-api-integration.test.ts",
+    "smoke:cloud-sync": "node scripts/cloudSyncSmokeTest.mjs"
   },
   "dependencies": {
     "@authing/guard-react18": "^5.3.9",

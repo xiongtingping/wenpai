@@ -8,6 +8,8 @@ import { globalDataManager } from '@/services/unifiedDataManager';
 import { bookmarkService } from '@/services/bookmarkService';
 import { favoritesService } from '@/services/favoritesService';
 
+import { getCurrentUser, supabase } from '@/config/supabase';
+import { LibraryService } from '@/services/supabaseService';
 export interface QuickReferenceItem {
   id: string;
   title: string;
@@ -101,10 +103,10 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
       const brandAssets = await globalDataManager.getData<any[]>('brand_assets', true) || [];
       console.log(`📊 品牌库原始数据数量: ${brandAssets.length}`);
 
-      const items: QuickReferenceItem[] = brandAssets
+      let items: QuickReferenceItem[] = brandAssets
         .map(asset => this.enhanceItem({
           id: asset.id || `brand-${Date.now()}-${Math.random()}`,
-          title: sanitizeToPlainText(asset.name || asset.title || 'u64cdu4f5cu5931u8d25'),
+          title: sanitizeToPlainText(asset.name || asset.title || '未命名品牌资产'),
           content: sanitizeToPlainText(asset.description || asset.content || ''),
           type: 'brand' as const,
           format: this.detectFormat(asset),
@@ -117,13 +119,50 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
             category: asset.category
           }
         }))
-        .filter(item => this.validateItem(item)); // 过滤无效数据
+        .filter(item => this.validateItem(item));
+
+      // 兼容读取：若新结构无数据，尝试旧结构 brand_assets_{userId} + content_samples[0]
+      if (items.length === 0) {
+        try {
+          const user = await getCurrentUser();
+          if (user?.id) {
+            const legacyKey = `brand_assets_${user.id}`;
+            const { data: legacyRows, error } = await supabase
+              .from('user_brand_corpus')
+              .select('*')
+              .eq('user_id', user.id)
+              .eq('brand_name', legacyKey)
+              .order('updated_at', { ascending: false })
+              .limit(1);
+            if (!error && legacyRows && legacyRows.length > 0) {
+              const row = legacyRows[0];
+              const sampleRaw = Array.isArray(row.content_samples) && row.content_samples.length > 0 ? row.content_samples[0] : null;
+              const parsed = sampleRaw ? JSON.parse(sampleRaw) : [];
+              items = (parsed || []).map((asset: any) => this.enhanceItem({
+                id: asset.id || `brand-${Date.now()}-${Math.random()}`,
+                title: sanitizeToPlainText(asset.name || asset.title || '未命名品牌资产'),
+                content: sanitizeToPlainText(asset.description || asset.content || ''),
+                type: 'brand' as const,
+                format: this.detectFormat(asset),
+                source: '品牌库',
+                tags: asset.tags || [],
+                createdAt: asset.createdAt || new Date().toISOString(),
+                summary: sanitizeToPlainText(asset.summary || this.generateSummary(asset.description || asset.content || '')),
+                metadata: {
+                  assetType: asset.type,
+                  category: asset.category
+                }
+              })).filter(item => this.validateItem(item));
+            }
+          }
+        } catch (e) {
+          console.warn('品牌库兼容读取失败（旧结构）', e);
+        }
+      }
 
       console.log(`✅ 品牌库有效数据数量: ${items.length}`);
 
-      // 缓存结果
       this.cache.set(cacheKey, { data: items, timestamp: Date.now() });
-
       return items;
     } catch (error) {
       console.error('❌ 获取品牌库内容失败:', error);
@@ -149,26 +188,47 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
       const favorites = await favoritesService.getFavorites(true);
       console.log(`📊 收藏服务返回数据数量: ${favorites.length}`);
 
-      // 🔧 修复：不再过滤类型，显示所有收藏内容
-      // 原来的过滤条件太严格，导致很多内容无法显示
-      const items: QuickReferenceItem[] = favorites.map(fav => ({
+      // 🔧 修复：不再过滤类型（收藏），显示所有收藏内容
+      const favItems: QuickReferenceItem[] = favorites.map(fav => ({
         id: fav.id,
         title: sanitizeToPlainText(fav.title),
         content: sanitizeToPlainText(fav.content),
         type: 'library' as const,
         format: this.detectFormatFromContent(fav.content),
-        source: fav.source || '我的资料库',
+        source: fav.source || '收藏',
         tags: fav.tags,
         createdAt: new Date(fav.createdAt).toISOString(),
         summary: sanitizeToPlainText(fav.description || this.generateSummary(fav.content)),
-        metadata: fav.metadata
+        metadata: { ...(fav.metadata || {}), sourceKind: 'favorites' }
       }));
 
+      // 新增：从云端“我的资料库”读取（user_library_items）
+      let userLibItems: QuickReferenceItem[] = [];
+      try {
+        const user = await getCurrentUser();
+        if (user?.id) {
+          const rows = await LibraryService.getUserLibraryItems(user.id, 'active');
+          userLibItems = rows.map(row => ({
+            id: row.id,
+            title: sanitizeToPlainText(row.title || ''),
+            content: sanitizeToPlainText(row.content || ''),
+            type: 'library' as const,
+            format: row.url ? 'link' : this.detectFormatFromContent(row.content || ''),
+            source: '我的资料库',
+            tags: Array.isArray(row.tags) ? row.tags : [],
+            createdAt: row.updated_at || row.created_at,
+            summary: sanitizeToPlainText(this.generateSummary(row.content || '')),
+            metadata: { ...(row.metadata || {}), sourceKind: 'user_library_items', url: row.url }
+          }));
+        }
+      } catch (e) {
+        console.warn('读取我的资料库失败（user_library_items）', e);
+      }
+
+      const items = [...userLibItems, ...favItems];
       console.log(`✅ 资料库有效数据数量: ${items.length}`);
 
-      // 缓存结果
       this.cache.set(cacheKey, { data: items, timestamp: Date.now() });
-
       return items;
     } catch (error) {
       console.error('❌ 获取资料库内容失败:', error);
@@ -237,19 +297,19 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
       const brandItems = await this.getBrandItems();
       allItems.push(...brandItems);
     }
-    
+
     if (!type || type === 'library') {
       const libraryItems = await this.getLibraryItems();
       allItems.push(...libraryItems);
     }
-    
+
     if (!type || type === 'radar') {
       const radarItems = await this.getRadarItems();
       allItems.push(...radarItems);
     }
 
     // 执行搜索
-    return allItems.filter(item => 
+    return allItems.filter(item =>
       item.title.toLowerCase().includes(searchTerm) ||
       item.content.toLowerCase().includes(searchTerm) ||
       item.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
@@ -283,7 +343,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
   private generateSummary(content: string): string {
     if (!content) return '';
     const maxLength = 100;
-    return content.length > maxLength 
+    return content.length > maxLength
       ? content.substring(0, maxLength) + '...'
       : content;
   }
@@ -392,7 +452,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
   async refreshData(type: 'brand' | 'library' | 'radar'): Promise<void> {
     const cacheKey = `${type}-items`;
     this.cache.delete(cacheKey);
-    
+
     // 重新获取数据
     switch (type) {
       case 'brand':

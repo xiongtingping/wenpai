@@ -102,6 +102,14 @@ export const DATA_CONFIGS: Record<string, DataConfig> = {
     syncToCloud: true
   },
 
+  // 创意工作室：待办事项（云同步）
+  studioTodos: {
+    key: 'studio_todos',
+    category: DataCategory.USER_CRITICAL,
+    syncToCloud: true
+  },
+
+
   // 应用状态 - Zustand管理（不持久化）
   selectedPlan: {
     key: 'selectedPlan',

@@ -11,7 +11,7 @@ npm run dev                 # 启动开发服务器 (localhost:5173)
 npm run build              # 构建生产版本
 npm run build:check       # 构建前检查 (包含类型检查和系统检查)
 npm run lint              # ESLint检查
-npm run lint:fix         # 自动修复ESLint问题  
+npm run lint:fix         # 自动修复ESLint问题
 npm run type-check       # TypeScript类型检查
 npm test                 # 运行Jest测试
 
@@ -22,9 +22,28 @@ npm run css:governance:smart-check    # 智能CSS检查
 npm run style:check                   # 样式系统检查
 npm run tokens:build                  # 构建设计令牌
 
-# 部署相关  
+# 部署相关
 npm run deploy:netlify    # 部署到Netlify
 npm run predeploy        # 部署前检查
+
+# 云同步存储 Smoke 测试（CI 可复用）
+
+- 说明：对以下功能执行“写入→读取→清理”的云端闭环验证，覆盖：
+  - 个性化设置、AI内容适配（历史/默认模型/聊天历史）、全网雷达（订阅/灵感夹/兴趣偏好）、
+    创意工作室（待办/Emoji收藏）、我的资料库、品牌库（新/旧结构）、订阅（KV）、统计（Token/ModelUsage-KV）、邀请关系
+- 命令：
+  ```bash
+  # 需要预先在环境中注入以下变量（勿提交到仓库）：
+  #   SUPABASE_URL, SUPABASE_SERVICE_ROLE
+  npm run smoke:cloud-sync
+  ```
+- 环境变量注入建议：
+  - 本地：使用 direnv/.env.local 或命令行前缀导出，切勿提交密钥
+  - CI：使用平台的“加密密钥/变量”机制（如 GitHub Actions Secrets）注入 SUPABASE_URL 与 SUPABASE_SERVICE_ROLE
+- 脚本位置：scripts/cloudSyncSmokeTest.mjs
+- 退出码：若任一子项失败，退出码为 1；成功为 0
+- 安全：所有测试数据带 testRunId 标签，完成后自动清理，不污染线上数据
+
 ```
 
 ### 技术栈

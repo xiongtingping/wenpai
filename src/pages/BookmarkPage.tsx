@@ -12,14 +12,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -28,7 +28,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { 
+import {
   Bookmark,
   FileText,
   Globe,
@@ -67,6 +67,8 @@ import { useFavoritesStore, favoritesUtils, type FavoriteItem } from '@/stores/c
 import { useAuth } from '@/hooks/useAuth';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { safeSaveToLocalStorage, safeLoadFromLocalStorage, checkLocalStorageAvailability, cleanupLocalStorageData } from '@/utils/safeDataStorage';
+import { LibraryService } from '@/services/supabaseService';
+import type { UserLibraryItem } from '@/config/supabase';
 
 /**
  * 安全数组访问工具函数 - 防御undefined访问错误
@@ -100,7 +102,104 @@ interface LibraryItem {
   };
   createdAt: string;
   updatedAt: string;
+  // 映射：DB → 页面模型
+  const fromDbRow = (row: UserLibraryItem): LibraryItem => {
+    const meta = (row.metadata || {}) as Record<string, unknown>;
+    return {
+      id: row.id,
+      title: row.title || '',
+      content: row.content || '',
+      type: (meta.type as LibraryItem['type']) || 'collection',
+      source: row.url,
+      sourceType: meta.sourceType as LibraryItem['sourceType'] | undefined,
+      tags: Array.isArray(row.tags) ? row.tags : [],
+      isFavorite: Boolean(meta.isFavorite),
+      isUsed: Boolean(meta.isUsed),
+      category: row.category,
+      platform: meta.platform,
+      summary: meta.summary,
+      metadata: meta,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  };
+
+  // 映射：页面模型 → DB payload
+  const toDbPayload = (item: LibraryItem, userId: string): Partial<UserLibraryItem> => {
+    const baseMeta: Record<string, unknown> = {
+      ...(item.metadata || {}),
+      type: item.type,
+      isFavorite: item.isFavorite,
+      isUsed: item.isUsed,
+      platform: item.platform,
+      sourceType: item.sourceType,
+      summary: item.summary,
+    };
+    return {
+      user_id: userId,
+      title: item.title,
+      url: item.source,
+      content: item.content,
+      category: item.category,
+      tags: item.tags,
+      status: 'active',
+      metadata: baseMeta,
+    } as Partial<UserLibraryItem>;
+  };
 }
+
+  // 生成去重签名（基于标题+内容+URL）
+  const buildSignature = (item: LibraryItem): string => {
+    const norm = (s?: string) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    return [norm(item.title), norm(item.content), norm(item.source)].join('|');
+  };
+
+  // 首次启动：将本地 library_items_* 迁移到 Supabase（带备份与去重）
+  const migrateLocalLibraryToCloud = async (userId: string): Promise<void> => {
+    const localKeyPrefix = 'library_items_';
+    const userLocalKey = `${localKeyPrefix}${userId}`;
+    const migratedFlagKey = `${userLocalKey}_migrated`;
+
+    try {
+      // 若已迁移过或无本地数据，跳过
+      const migratedFlag = localStorage.getItem(migratedFlagKey);
+      const rawLocal = localStorage.getItem(userLocalKey);
+      if (migratedFlag === 'true' || !rawLocal) return;
+
+      // 读取云端现有，建立去重集
+      const cloudRows = await LibraryService.getUserLibraryItems(userId, 'active');
+      const cloudSig = new Set<string>(cloudRows.map(r => buildSignature(fromDbRow(r))));
+
+      // 解析本地数据
+      const parsed: unknown = JSON.parse(rawLocal);
+      const localItems = Array.isArray(parsed) ? (parsed as LibraryItem[]) : [];
+      if (localItems.length === 0) {
+        // 标记避免重复检查
+        localStorage.setItem(migratedFlagKey, 'true');
+        return;
+      }
+
+      // 备份原始数据
+      const backupKey = `${userLocalKey}_backup_${new Date().toISOString().replace(/[:.]/g, '-')}`;
+      localStorage.setItem(backupKey, rawLocal);
+
+      // 逐项去重后写入云端
+      for (const item of localItems) {
+        const sig = buildSignature(item);
+        if (cloudSig.has(sig)) continue; // 去重
+        const payload = toDbPayload(item, userId);
+        const row = await LibraryService.createLibraryItem(payload);
+        if (row) cloudSig.add(sig);
+      }
+
+      // 清理本地主键，标记已迁移
+      localStorage.removeItem(userLocalKey);
+      localStorage.setItem(migratedFlagKey, 'true');
+    } catch (e) {
+      console.warn('本地资料库迁移到云端失败：', e);
+      // 失败不抛出，避免阻断首屏
+    }
+  };
 
 /**
  * 我的资料库页面组件
@@ -126,21 +225,21 @@ export default function BookmarkPage() {
   const [filterFavorite, setFilterFavorite] = useState<boolean | null>(null);
   const [sortBy, setSortBy] = useState<'time' | 'title' | 'type'>('time');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  
+
   // 智能采集状态
   const [extractMethod, setExtractMethod] = useState<'url' | 'file'>('url');
   const [extractUrl, setExtractUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isExtracting, setIsExtracting] = useState(false);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
-  
+
   // 对话框状态
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isCopywritingDialogOpen, setIsCopywritingDialogOpen] = useState(false);
   const [addContentType, setAddContentType] = useState<'collection' | 'extraction' | 'copywriting'>('collection');
   const [editingItem, setEditingItem] = useState<LibraryItem | null>(null);
   const [viewingItem, setViewingItem] = useState<LibraryItem | null>(null);
-  
+
   // 新建项表单
   const [newCollection, setNewCollection] = useState({
     title: '',
@@ -149,7 +248,7 @@ export default function BookmarkPage() {
     tags: '',
     category: ''
   });
-  
+
   const [newCopywriting, setNewCopywriting] = useState({
     title: '',
     content: '',
@@ -174,54 +273,30 @@ export default function BookmarkPage() {
    */
   React.useEffect(() => {
     const initializeData = async () => {
-      const storageKey = getStorageKey();
-      console.log('🔑', t('bookmark.storage.useStorageKey'), ':', storageKey);
-
-      // 检查localStorage可用性
-      const availability = checkLocalStorageAvailability();
-      if (!availability.available) {
-        console.error('❌ localStorage', t('bookmark.storage.unavailable'), ':', availability.error);
-        toast({
-          title: t('pages.labels.存储系统异常'),
-          description: availability.error || t('bookmark.storage.cannotAccessLocalStorageAndDataMayNotSave'),
-          variant: "destructive"
-        });
-        setLibraryItems([]);
-        return;
-      }
-
-      // 清理损坏的数据
-      const cleanedCount = cleanupLocalStorageData('library_items_');
-      if (cleanedCount > 0) {
-        toast({
-          title: t('pages.labels.数据清理完成'),
-          description: `${t('bookmark.storage.cleaned')} ${cleanedCount} ${t('bookmark.storage.corruptedDataItems')}`
-        });
-      }
-
-      // 安全加载数据
-      const { data, success, error } = safeLoadFromLocalStorage<LibraryItem[]>(storageKey, []);
-      
-      if (success) {
-        setLibraryItems(data || []);
-        if (data && data.length > 0) {
-          console.log('📂 successloading资料库data:', data.length, t('pages.messages.项'));
-        } else {
-          console.log('🆕', t('bookmark.storage.initEmptyLibrary'));
+      try {
+        // 若登录：先执行一次性迁移（带备份与去重），再读取云端
+        if (user?.id) {
+          await migrateLocalLibraryToCloud(user.id);
+          const rows = await LibraryService.getUserLibraryItems(user.id, 'active');
+          const mapped = rows.map(fromDbRow);
+          setLibraryItems(mapped);
+          // 同步一份到本地离线缓存
+          const storageKey = getStorageKey();
+          safeSaveToLocalStorage(storageKey, mapped);
+          return;
         }
-      } else {
-        console.error('❌', t('bookmark.storage.loadDataFailed'), ':', error);
-        toast({
-          title: t('pages.labels.数据加载失败'),
-          description: error || `${t('bookmark.storage.cannotLoadSavedData')}，${t('bookmark.storage.startFromBlank')}`,
-          variant: "destructive"
-        });
-        setLibraryItems([]);
+      } catch (e) {
+        console.warn('⚠️ 云端读取我的资料库失败，降级到本地缓存', e);
       }
+
+      // 本地兜底
+      const storageKey = getStorageKey();
+      const { data } = safeLoadFromLocalStorage<LibraryItem[]>(storageKey, []);
+      setLibraryItems(data || []);
     };
 
     initializeData();
-  }, [user?.id]); // 当用户ID变化时重新加载数据
+  }, [user?.id]);
 
   /**
    * ✅ FIXED: 安全保存数据到localStorage
@@ -232,10 +307,10 @@ export default function BookmarkPage() {
     // 安全保存到localStorage
     const storageKey = getStorageKey();
     const saveResult = safeSaveToLocalStorage(storageKey, updatedItems);
-    
+
     if (saveResult.success) {
       console.log(`💾 ${actionDescription}datasavingsuccess`);
-      
+
       // 显示存储使用情况
       if (saveResult.storageUsed && saveResult.storageUsed > 3 * 1024 * 1024) { // 3MB警告
         toast({
@@ -245,13 +320,13 @@ export default function BookmarkPage() {
       }
     } else {
       console.error(`❌ ${actionDescription}datasavingfailed:`, saveResult.error);
-      
+
       // 恢复到之前的状态
       const { data: previousData } = safeLoadFromLocalStorage<LibraryItem[]>(storageKey, []);
       if (previousData) {
         setLibraryItems(previousData);
       }
-      
+
       toast({
         title: `${actionDescription}失败`,
         description: saveResult.error || "数据保存失败，请重试或联系管理员",
@@ -295,7 +370,7 @@ export default function BookmarkPage() {
     // 排序
     filtered.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortBy) {
         case 'time':
           comparison = new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
@@ -307,7 +382,7 @@ export default function BookmarkPage() {
           comparison = a.type.localeCompare(b.type);
           break;
       }
-      
+
       return sortOrder === 'asc' ? comparison : -comparison;
     });
 
@@ -351,7 +426,7 @@ export default function BookmarkPage() {
 
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       const newItem: LibraryItem = {
         id: Date.now().toString(),
         title: extractMethod === 'url' ? `内容提取：${extractUrl}` : `内容提取：${selectedFile?.name}`,
@@ -372,6 +447,18 @@ export default function BookmarkPage() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
+
+      // 云端创建（若已登录）
+      if (user?.id) {
+        try {
+          const row = await LibraryService.createLibraryItem(toDbPayload(newItem, user.id));
+          // 使用云端ID覆盖
+          newItem = fromDbRow(row);
+        } catch (e) {
+          console.warn('云端创建提取项失败，暂存本地', e);
+        }
+      }
+
 
       const updatedItems = [newItem, ...libraryItems];
       // ✅ FIXED: 使用安全的数据保存方法
@@ -402,7 +489,7 @@ export default function BookmarkPage() {
   /**
    * 创建网络收藏
    */
-  const createCollection = () => {
+  const createCollection = async () => {
     if (!newCollection.title.trim() || !newCollection.url.trim()) {
       toast({
         title: t('pages.labels.请填写完整信息'),
@@ -413,8 +500,8 @@ export default function BookmarkPage() {
     }
 
     const tags = safeString(newCollection.tags).split(',').map(tag => tag.trim()).filter(tag => tag);
-    
-    const collection: LibraryItem = {
+
+    let collection: LibraryItem = {
       id: Date.now().toString(),
       title: newCollection.title.trim(),
       content: newCollection.description.trim() || t('pages.messages.暂无描述'),
@@ -429,9 +516,19 @@ export default function BookmarkPage() {
       updatedAt: new Date().toISOString()
     };
 
+    // 云端创建（若已登录）
+    if (user?.id) {
+      try {
+        const row = await LibraryService.createLibraryItem(toDbPayload(collection, user.id));
+        collection = fromDbRow(row);
+      } catch (e) {
+        console.warn('云端创建收藏失败，暂存本地', e);
+      }
+    }
+
     const updatedItems = [collection, ...libraryItems];
-    
-    // ✅ FIXED: 使用安全的数据保存方法
+
+    // ✅ 同步更新本地状态与缓存
     safeUpdateLibraryItems(updatedItems, t('pages.messages.收藏创建'));
 
     setNewCollection({ title: '', url: '', description: '', tags: '', category: '' });
@@ -446,7 +543,7 @@ export default function BookmarkPage() {
   /**
    * 创建文案
    */
-  const createCopywriting = () => {
+  const createCopywriting = async () => {
     if (!newCopywriting.title.trim() || !newCopywriting.content.trim()) {
       toast({
         title: t('pages.labels.请填写完整信息'),
@@ -457,7 +554,7 @@ export default function BookmarkPage() {
     }
 
     const tags = safeString(newCopywriting.tags).split(',').map(tag => tag.trim()).filter(tag => tag);
-    
+
     const copywriting: LibraryItem = {
       id: Date.now().toString(),
       title: newCopywriting.title.trim(),
@@ -476,8 +573,20 @@ export default function BookmarkPage() {
       updatedAt: new Date().toISOString()
     };
 
+    // 云端创建（若已登录）
+    if (user?.id) {
+      try {
+        const row = await LibraryService.createLibraryItem(toDbPayload(copywriting, user.id));
+        // 用云端返回的ID等信息替换本地占位
+        copywriting = fromDbRow(row);
+      } catch (e) {
+        console.warn('云端创建文案失败，暂存本地', e);
+      }
+    }
+
+
     const updatedItems = [copywriting, ...libraryItems];
-    
+
     // ✅ FIXED: 使用安全的数据保存方法
     safeUpdateLibraryItems(updatedItems, t('pages.messages.文案创建'));
 
@@ -495,24 +604,48 @@ export default function BookmarkPage() {
   /**
    * 切换收藏状态
    */
-  const toggleFavorite = (id: string) => {
+  const toggleFavorite = async (id: string) => {
+    const target = libraryItems.find(i => i.id === id);
     const updatedItems = libraryItems.map(item =>
       item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
     );
-    
-    // ✅ FIXED: 使用安全的数据保存方法
+
+    // 云端同步（若ID来自云端）
+    if (user?.id && target) {
+      try {
+        const next = updatedItems.find(i => i.id === id)!;
+        await LibraryService.updateLibraryItem(id, {
+          metadata: { ...(next.metadata || {}), isFavorite: next.isFavorite }
+        });
+      } catch (e) {
+        console.warn('云端更新收藏状态失败', e);
+      }
+    }
+
+    // ✅ 本地更新
     safeUpdateLibraryItems(updatedItems, t('pages.messages.收藏状态更新'));
   };
 
   /**
    * 切换使用状态
    */
-  const toggleUsed = (id: string) => {
+  const toggleUsed = async (id: string) => {
+    const target = libraryItems.find(i => i.id === id);
     const updatedItems = libraryItems.map(item =>
       item.id === id ? { ...item, isUsed: !item.isUsed } : item
     );
-    
-    // ✅ FIXED: 使用安全的数据保存方法
+
+    if (user?.id && target) {
+      try {
+        const next = updatedItems.find(i => i.id === id)!;
+        await LibraryService.updateLibraryItem(id, {
+          metadata: { ...(next.metadata || {}), isUsed: next.isUsed }
+        });
+      } catch (e) {
+        console.warn('云端更新使用状态失败', e);
+      }
+    }
+
     safeUpdateLibraryItems(updatedItems, t('pages.messages.使用状态更新'));
   };
 
@@ -530,12 +663,19 @@ export default function BookmarkPage() {
   /**
    * 删除项目
    */
-  const deleteItem = (id: string) => {
+  const deleteItem = async (id: string) => {
     console.log('🗑️ deletingitem目:', id);
 
+    if (user?.id) {
+      try {
+        await LibraryService.deleteLibraryItem(id);
+      } catch (e) {
+        console.warn('云端删除失败，仍将从本地移除', e);
+      }
+    }
+
     const updatedItems = libraryItems.filter(item => item.id !== id);
-    
-    // ✅ FIXED: 使用安全的数据保存方法
+
     safeUpdateLibraryItems(updatedItems, t('pages.messages.删除项目'));
 
     toast({
@@ -592,13 +732,22 @@ export default function BookmarkPage() {
   /**
    * 保存编辑
    */
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!editingItem) return;
+
+    // 云端更新（若已登录）
+    if (user?.id) {
+      try {
+        await LibraryService.updateLibraryItem(editingItem.id, toDbPayload(editingItem, user.id));
+      } catch (e) {
+        console.warn('云端保存编辑失败，仍将更新本地', e);
+      }
+    }
 
     const updatedItems = libraryItems.map(item =>
       item.id === editingItem.id ? editingItem : item
     );
-    
+
     // ✅ FIXED: 使用安全的数据保存方法
     safeUpdateLibraryItems(updatedItems, t('pages.messages.编辑保存'));
 
@@ -868,8 +1017,8 @@ export default function BookmarkPage() {
                       key={tag}
                       variant={selectedTags.includes(tag) ? "default" : "outline"}
                       className="cursor-pointer"
-                      onClick={() => setSelectedTags(prev => 
-                        prev.includes(tag) 
+                      onClick={() => setSelectedTags(prev =>
+                        prev.includes(tag)
                           ? prev.filter(t => t !== tag)
                           : [...prev, tag]
                       )}
@@ -1025,7 +1174,7 @@ export default function BookmarkPage() {
                               <p className="text-foreground">{item.summary}</p>
                             </div>
                           )}
-                          
+
                           <div className="flex items-center gap-2 mb-2">
                             {item.tags && item.tags.map((tag, index) => (
                               <Badge key={index} variant="outline" className="text-xs">
@@ -1033,7 +1182,7 @@ export default function BookmarkPage() {
                               </Badge>
                             ))}
                           </div>
-                          
+
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
@@ -1050,7 +1199,7 @@ export default function BookmarkPage() {
                             )}
                           </div>
                         </div>
-                        
+
                         <div className="flex gap-1">
                           <Button
                             size="sm"
@@ -1279,7 +1428,7 @@ export default function BookmarkPage() {
                     <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-foreground mb-2"></h3>
                     <p className="text-muted-foreground">
-                      
+
                     </p>
                   </CardContent>
                 </Card>
@@ -1458,8 +1607,8 @@ export default function BookmarkPage() {
                     <Label>标签（用逗号分隔）</Label>
                     <Input
                       value={safeArray(editingItem.tags).join(', ')}
-                      onChange={(e) => setEditingItem({ 
-                        ...editingItem, 
+                      onChange={(e) => setEditingItem({
+                        ...editingItem,
                         tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
                       })}
                       placeholder="标签1, 标签2"
@@ -1517,7 +1666,7 @@ export default function BookmarkPage() {
                 {viewingItem?.source && ` • 来源：${viewingItem.source}`}
               </DialogDescription>
             </DialogHeader>
-            
+
             {viewingItem && (
               <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
                 {/* 标签和分类 */}
