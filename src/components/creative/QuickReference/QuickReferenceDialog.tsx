@@ -239,7 +239,7 @@ export function QuickReferenceDialog({
     if (open) {
       // 打开时清理多处缓存，确保数据最新
       try { quickReferenceDataService.clearCache(); } catch {}
-      try { (await import('@/services/favoritesService')).favoritesService.clearCache(); } catch {}
+      try { import('@/services/favoritesService').then(m => m.favoritesService.clearCache()); } catch {}
       loadTabData(activeTab);
     }
   }, [open, activeTab, loadTabData]);
