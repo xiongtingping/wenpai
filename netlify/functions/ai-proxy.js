@@ -149,23 +149,29 @@ exports.handler = async (event, context) => {
       console.log('🔧 AI代理请求 (查询参数):', { provider, apiPath, method: event.httpMethod });
     } else {
       // 路径参数方式
-      // 🔧 FIX: 优先使用rawUrl（包含完整路径），fallback到event.path
-      const fullPath = event.rawUrl || event.path;
+      // 🔧 FIX: Netlify 重定向后，原始路径在 event.headers.x-nf-request-path 或 event.rawUrl
+      const originalPath = event.headers['x-nf-request-path'] || event.rawUrl || event.path;
+
+      console.log('🔍 调试信息:', {
+        'event.path': event.path,
+        'event.rawUrl': event.rawUrl,
+        'x-nf-request-path': event.headers['x-nf-request-path'],
+        'originalPath': originalPath,
+        'allHeaders': event.headers
+      });
 
       // 移除可能的前缀和域名
-      let path = fullPath
+      let path = originalPath
         .replace(/^https?:\/\/[^\/]+/, '') // 移除域名
         .replace('/.netlify/functions/ai-proxy/', '')
         .replace('/api/ai/', '');
 
       const pathParts = path.split('/').filter(p => p); // 过滤空字符串
-      provider = pathParts[0]; // openai, deepseek, gemini
+      provider = pathParts[0]; // openai, deepseek, gemini, aimlapi
       apiPath = pathParts.slice(1).join('/'); // 具体的 API 路径
 
       console.log('🔧 AI代理请求 (路径参数):', {
-        rawUrl: event.rawUrl,
-        originalPath: event.path,
-        fullPath,
+        originalPath,
         cleanedPath: path,
         provider,
         apiPath,
