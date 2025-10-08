@@ -56,11 +56,11 @@
   status = 200
 
 # AI代理路由 - 必须在通用API路由之前
-# 🔧 FIX: 移除 :splat，Netlify Functions 通过 event.path 接收路径参数
-# 📌 Updated: 2025-10-08 - Force cache clear
+# 🔧 FIX: 使用查询参数传递路径，避免 Netlify 路由问题
+# 📌 Updated: 2025-10-08 - Use query parameter
 [[redirects]]
-  from = "/api/ai/*"
-  to = "/.netlify/functions/ai-proxy"
+  from = "/api/ai/:provider/:endpoint*"
+  to = "/.netlify/functions/ai-proxy?provider=:provider&path=:endpoint"
   status = 200
   force = true
 
