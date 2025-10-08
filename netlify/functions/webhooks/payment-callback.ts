@@ -149,6 +149,17 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
       let subscriptionData;
 
       if (existingSubscription) {
+        // 🔧 检查是否为升级（需要重置使用统计）
+        const oldTier = existingSubscription.tier as SubscriptionTier;
+        const oldPeriod = existingSubscription.period as 'monthly' | 'yearly';
+        const newTier = callbackData.subscriptionTier;
+        const newPeriod = callbackData.subscriptionPeriod;
+
+        const isUpgrade =
+          (oldTier === 'trial' && (newTier === 'pro' || newTier === 'premium')) ||
+          (oldTier === 'pro' && newTier === 'premium') ||
+          (oldTier === newTier && oldPeriod === 'monthly' && newPeriod === 'yearly');
+
         // 更新现有订阅
         const { data: updatedSubscription, error: updateError } = await supabase
           .from('user_subscriptions')
@@ -180,6 +191,35 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
 
         subscriptionData = updatedSubscription;
         console.log('[Payment Callback] Subscription updated:', subscriptionData.id);
+
+        // 🔧 如果是升级，重置使用统计
+        if (isUpgrade) {
+          console.log('[Payment Callback] Detected upgrade, resetting usage stats...', {
+            oldTier,
+            newTier,
+            oldPeriod,
+            newPeriod
+          });
+
+          try {
+            // 删除 Token 使用记录
+            await supabase
+              .from('token_usage_records')
+              .delete()
+              .eq('user_id', callbackData.userId);
+
+            // 删除使用次数记录
+            await supabase
+              .from('usage_count_records')
+              .delete()
+              .eq('user_id', callbackData.userId);
+
+            console.log('[Payment Callback] Usage stats reset successfully');
+          } catch (resetError) {
+            console.error('[Payment Callback] Failed to reset usage stats:', resetError);
+            // 不阻塞主流程
+          }
+        }
       } else {
         // 创建新订阅
         const { data: newSubscription, error: createError } = await supabase
