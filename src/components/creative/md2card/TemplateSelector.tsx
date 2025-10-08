@@ -8,14 +8,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
   Search,
   Filter,
   Image,
@@ -29,7 +30,10 @@ import {
   BookOpen,
   Sparkles,
   Star,
-  Lock
+  Lock,
+  MessageSquare,
+  Video,
+  Book
 } from 'lucide-react';
 
 // 卡片模板接口
@@ -208,6 +212,137 @@ export const CARD_TEMPLATES: CardTemplate[] = [
       allowLists: true
     }
   }
+,
+  {
+    id: 'ratio-16-9',
+    name: 'ratio-16-9',
+    displayName: '16:9 宽屏',
+    description: '常用宽屏比例，适合视频封面与横版海报',
+    category: 'social',
+    dimensions: { width: 1600, height: 900, aspectRatio: '16:9' },
+    previewImage: '',
+    isCustomizable: true,
+    isFree: true,
+    tags: ['通用','宽屏','横版','wechat','zhihu'],
+    constraints: { maxSections: 5, maxWordsPerSection: 60, allowImages: true, allowLists: true }
+  }
+  ,{
+    id: 'ratio-9-16',
+    name: 'ratio-9-16',
+    displayName: '9:16 竖屏',
+    description: '竖屏短视频/故事常用比例（抖音/快手/IG Stories）',
+    category: 'social',
+    dimensions: { width: 1080, height: 1920, aspectRatio: '9:16' },
+    previewImage: '',
+    isCustomizable: true,
+    isFree: true,
+    tags: ['竖屏','短视频','Stories','douyin'],
+    constraints: { maxSections: 4, maxWordsPerSection: 40, allowImages: true, allowLists: true }
+  }
+  ,{
+    id: 'ratio-4-3',
+    name: 'ratio-4-3',
+    displayName: '4:3 标准',
+    description: '经典标准比例，适合教程/讲义/说明',
+    category: 'education',
+    dimensions: { width: 1200, height: 900, aspectRatio: '4:3' },
+    previewImage: '',
+    isCustomizable: true,
+    isFree: true,
+    tags: ['标准','PPT','说明','wechat'],
+    constraints: { maxSections: 6, maxWordsPerSection: 55, allowImages: true, allowLists: true }
+  }
+  ,{
+    id: 'ratio-3-4',
+    name: 'ratio-3-4',
+    displayName: '3:4 竖版',
+    description: '竖版资讯/陈列常用比例',
+    category: 'social',
+    dimensions: { width: 900, height: 1200, aspectRatio: '3:4' },
+    previewImage: '',
+    isCustomizable: true,
+    isFree: true,
+    tags: ['竖版','资讯','xiaohongshu'],
+    constraints: { maxSections: 5, maxWordsPerSection: 50, allowImages: true, allowLists: true }
+  }
+  ,{
+    id: 'ratio-4-5',
+    name: 'ratio-4-5',
+    displayName: '4:5 Portrait',
+    description: 'Instagram 竖图常用比例（Portrait）',
+    category: 'social',
+    dimensions: { width: 1080, height: 1350, aspectRatio: '4:5' },
+    previewImage: '',
+    isCustomizable: true,
+    isFree: true,
+    tags: ['Instagram','竖图','Portrait','4:5'],
+    constraints: { maxSections: 4, maxWordsPerSection: 50, allowImages: true, allowLists: true }
+  }
+  ,{
+    id: 'ratio-2-3',
+    name: 'ratio-2-3',
+    displayName: '2:3 Portrait',
+    description: 'Pinterest/海报常用比例（2:3）',
+    category: 'social',
+    dimensions: { width: 1000, height: 1500, aspectRatio: '2:3' },
+    previewImage: '',
+    isCustomizable: true,
+    isFree: true,
+    tags: ['Pinterest','海报','Portrait','2:3'],
+    constraints: { maxSections: 4, maxWordsPerSection: 50, allowImages: true, allowLists: true }
+  }
+  ,{
+    id: 'ratio-3-2',
+    name: 'ratio-3-2',
+    displayName: '3:2 经典',
+    description: '摄影常用比例，视觉更稳重',
+    category: 'business',
+    dimensions: { width: 1500, height: 1000, aspectRatio: '3:2' },
+    previewImage: '',
+    isCustomizable: true,
+    isFree: true,
+    tags: ['摄影','横版'],
+    constraints: { maxSections: 4, maxWordsPerSection: 60, allowImages: true, allowLists: true }
+  }
+  ,{
+    id: 'ratio-5-4',
+    name: 'ratio-5-4',
+    displayName: '5:4 Photo',
+    description: '图文信息与照片常用比例',
+    category: 'business',
+    dimensions: { width: 1000, height: 800, aspectRatio: '5:4' },
+    previewImage: '',
+    isCustomizable: true,
+    isFree: true,
+    tags: ['照片','横版','信息','zhihu'],
+    constraints: { maxSections: 5, maxWordsPerSection: 60, allowImages: true, allowLists: true }
+  }
+  ,{
+    id: 'ratio-golden-1_618-1',
+    name: 'ratio-golden-1_618-1',
+    displayName: '黄金比例 1.618:1',
+    description: '符合黄金分割的横版视觉比例',
+    category: 'business',
+    dimensions: { width: 1618, height: 1000, aspectRatio: '1.618:1' },
+    previewImage: '',
+    isCustomizable: true,
+    isFree: true,
+    tags: ['黄金分割','品牌','横幅'],
+    constraints: { maxSections: 4, maxWordsPerSection: 50, allowImages: true, allowLists: true }
+  }
+  ,{
+    id: 'ratio-3-1',
+    name: 'ratio-3-1',
+    displayName: '3:1 横幅',
+    description: '平台 Header/Banner 常用比例（如 X Header）',
+    category: 'social',
+    dimensions: { width: 1500, height: 500, aspectRatio: '3:1' },
+    previewImage: '',
+    isCustomizable: true,
+    isFree: true,
+    tags: ['横幅','Header','Banner'],
+    constraints: { maxSections: 3, maxWordsPerSection: 40, allowImages: true, allowLists: true }
+  }
 ];
 
 // 分类图标映射
@@ -226,6 +361,15 @@ const CATEGORY_COLORS = {
   education: 'bg-purple-100 text-purple-800'
 };
 
+// 平台分组（优先：抖音/小红书/微信公众号/知乎）
+type PlatformKey = 'douyin' | 'xiaohongshu' | 'wechat' | 'zhihu';
+const PLATFORM_META: Record<PlatformKey, { label: string; Icon: React.ComponentType<{ className?: string }> }> = {
+  douyin: { label: '抖音', Icon: Video },
+  xiaohongshu: { label: '小红书', Icon: Book },
+  wechat: { label: '微信', Icon: MessageSquare },
+  zhihu: { label: '知乎', Icon: MessageSquare },
+};
+
 interface TemplateCardProps {
   template: CardTemplate;
   isSelected: boolean;
@@ -236,16 +380,16 @@ interface TemplateCardProps {
 /**
  * 单个模板卡片组件
  */
-const TemplateCard: React.FC<TemplateCardProps> = ({ 
-  template, 
-  isSelected, 
-  onSelect, 
-  showDetails = false 
+const TemplateCard: React.FC<TemplateCardProps> = ({
+  template,
+  isSelected,
+  onSelect,
+  showDetails = false
 }) => {
   const CategoryIcon = CATEGORY_ICONS[template.category];
-  
+
   return (
-    <Card 
+    <Card
       className={`cursor-pointer transition-all hover:shadow-md ${
         isSelected ? 'ring-2 ring-primary' : ''
       } ${!template.isFree ? 'relative' : ''}`}
@@ -255,8 +399,8 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
         {/* 预览图片区域 */}
         <div className="relative aspect-video bg-muted rounded mb-3 flex items-center justify-center overflow-hidden">
           {template.previewImage ? (
-            <img 
-              src={template.previewImage} 
+            <img
+              src={template.previewImage}
               alt={template.displayName}
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -271,7 +415,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
               <span className="text-xs">{template.displayName}</span>
             </div>
           )}
-          
+
           {/* 付费标识 */}
           {!template.isFree && (
             <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full flex items-center gap-1">
@@ -279,7 +423,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
               Pro
             </div>
           )}
-          
+
           {/* 热门/新标识 */}
           {template.isPopular && (
             <div className="absolute top-2 left-2 bg-orange-500 text-background text-xs px-2 py-1 rounded-full flex items-center gap-1">
@@ -287,36 +431,59 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
               热门
             </div>
           )}
-          
+
           {template.isNew && (
             <div className="absolute top-2 left-2 bg-success text-background text-xs px-2 py-1 rounded-full">
               新
             </div>
           )}
+          {/* 平台徽标角标（最多显示2个） */}
+          {(() => {
+            const keys = (['douyin','xiaohongshu','wechat','zhihu'] as PlatformKey[])
+              .filter(k => Array.isArray(template.tags) && template.tags.includes(k))
+              .slice(0, 2);
+            if (keys.length === 0) return null;
+            return (
+              <div className="absolute bottom-2 left-2 flex gap-1">
+                {keys.map((k) => {
+                  const M = PLATFORM_META[k];
+                  const I = M.Icon;
+                  return (
+                    <div key={k} className="bg-background/80 border border-border rounded px-1.5 py-0.5 text-[10px] flex items-center gap-1 shadow-sm">
+                      <I className="w-3 h-3" />
+                      <span>{M.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+
         </div>
 
         {/* 模板信息 */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-medium truncate">{template.displayName}</h4>
-            <Badge 
-              variant="secondary" 
+            <Badge
+              variant="secondary"
               className={`text-xs ${CATEGORY_COLORS[template.category]}`}
             >
               <CategoryIcon className="w-3 h-3 mr-1" />
               {template.category}
             </Badge>
           </div>
-          
+
+
           <p className="text-xs text-muted-foreground line-clamp-2">
             {template.description}
           </p>
-          
+
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>{template.dimensions.aspectRatio}</span>
             <span>{template.dimensions.width}×{template.dimensions.height}</span>
           </div>
-          
+
           {showDetails && (
             <div className="pt-2 border-t border-border">
               <div className="flex flex-wrap gap-1">
@@ -354,6 +521,7 @@ export const TemplateSelector: React.FC<TemplateSelectorsProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedPlatform, setSelectedPlatform] = useState<'all' | PlatformKey>('all');
   const [showOnlyFree, setShowOnlyFree] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -363,12 +531,17 @@ export const TemplateSelector: React.FC<TemplateSelectorsProps> = ({
       // 搜索过滤
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        const matchesSearch = 
+        const matchesSearch =
           template.displayName.toLowerCase().includes(query) ||
           template.description.toLowerCase().includes(query) ||
           template.tags.some(tag => tag.toLowerCase().includes(query));
-        
+
         if (!matchesSearch) return false;
+      }
+
+      // 平台过滤（优先）
+      if (selectedPlatform !== 'all') {
+        if (!template.tags || !template.tags.includes(selectedPlatform)) return false;
       }
 
       // 分类过滤
@@ -383,7 +556,7 @@ export const TemplateSelector: React.FC<TemplateSelectorsProps> = ({
 
       return true;
     });
-  }, [searchQuery, selectedCategory, showOnlyFree]);
+  }, [searchQuery, selectedCategory, selectedPlatform, showOnlyFree]);
 
   // 处理模板选择
   const handleTemplateSelect = (template: CardTemplate) => {
@@ -395,6 +568,22 @@ export const TemplateSelector: React.FC<TemplateSelectorsProps> = ({
       {/* 搜索和过滤器 */}
       {(showSearch || showFilters) && (
         <div className="space-y-3">
+          {/* 平台分组 Tabs */}
+          <Tabs value={selectedPlatform} onValueChange={(v) => setSelectedPlatform(v as 'all' | PlatformKey)}>
+            <TabsList className="unified-tabs-list grid w-full grid-cols-5">
+              <TabsTrigger value="all" className="unified-tab-trigger">全部</TabsTrigger>
+              {(['douyin','xiaohongshu','wechat','zhihu'] as PlatformKey[]).map((key) => {
+                const M = PLATFORM_META[key];
+                return (
+                  <TabsTrigger key={key} value={key} className="unified-tab-trigger">
+                    <M.Icon className="w-4 h-4" />
+                    {M.label}
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </Tabs>
+
           {/* 搜索框 */}
           {showSearch && (
             <div className="relative">
@@ -450,7 +639,7 @@ export const TemplateSelector: React.FC<TemplateSelectorsProps> = ({
 
       {/* 模板网格 */}
       <div className={`grid gap-3 ${
-        gridColumns === 1 ? 'grid-cols-1' : 
+        gridColumns === 1 ? 'grid-cols-1' :
         gridColumns === 2 ? 'grid-cols-1 sm:grid-cols-2' :
         gridColumns === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
         'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'

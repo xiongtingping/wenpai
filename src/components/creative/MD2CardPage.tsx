@@ -1384,8 +1384,8 @@ export default function MD2CardPage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-sm font-medium mb-2">选择模板</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-                      {[...CARD_TEMPLATES, ...DEFAULT_TEMPLATES.filter(dt => !CARD_TEMPLATES.some(ct => ct.id === dt.id))].slice(0, 6).map((template) => (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-96 overflow-y-auto">
+                      {[...CARD_TEMPLATES, ...DEFAULT_TEMPLATES.filter(dt => !CARD_TEMPLATES.some(ct => ct.id === dt.id))].map((template) => (
                         <Card 
                           key={template.id}
                           className={`cursor-pointer transition-all hover:shadow-md ${

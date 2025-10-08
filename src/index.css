@@ -42,7 +42,8 @@
 @layer utilities {
   /* 统一渐变系统（基于设计令牌，无硬编码颜色） */
   /* 任意以 u-gradient- 开头的类都会应用该公式，具体颜色由 --gradient-color 决定 */
-  [class^="u-gradient-"] {
+  /* 任意包含 u-gradient- 的类名都适配（不要求位于 class 开头） */
+  [class*="u-gradient-"] {
     background: linear-gradient(
       135deg,
       hsl(var(--gradient-color) / 0.95) 0%,
