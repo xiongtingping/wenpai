@@ -16,20 +16,25 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  ArrowUp, 
-  Calculator, 
-  Clock, 
-  CreditCard, 
+import {
+  ArrowUp,
+  Calculator,
+  Clock,
+  CreditCard,
   CheckCircle,
   AlertCircle,
-  Loader2
+  Loader2,
+  QrCode
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { SubscriptionUpgradeService, type UpgradeCalculation } from '@/services/subscriptionUpgradeService';
 import { BufPayService } from '@/services/bufpayService';
+import { PaymentQRCode } from '@/components/payment/PaymentQRCode';
 import { logger } from '@/utils/logger';
 import type { SubscriptionTier, SubscriptionPeriod } from '@/types/subscription';
+import type { PaymentResponse } from '@/types/payment';
+import { PaymentQRCode } from '@/components/payment/PaymentQRCode';
+import type { PaymentResponse } from '@/types/payment';
 
 interface SubscriptionUpgradeDialogProps {
   open: boolean;
@@ -46,10 +51,13 @@ export function SubscriptionUpgradeDialog({ open,
   onUpgradeSuccess
  }: SubscriptionUpgradeDialogProps) {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [upgradeCalculation, setUpgradeCalculation] = useState<UpgradeCalculation | null>(null);
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [paymentData, setPaymentData] = useState<PaymentResponse | null>(null);
+  const [showQRCode, setShowQRCode] = useState(false);
 
   // 计算升级差价
   useEffect(() => {
@@ -100,13 +108,12 @@ export function SubscriptionUpgradeDialog({ open,
           payType: 'alipay'
         });
 
-        // 这里应该跳转到支付页面或显示支付二维码
-        // 支付成功后会通过回调处理升级
         logger.info('升级支付订单创建成功:', paymentResult);
-        
-        // 暂时关闭对话框，实际应该跳转到支付页面
-        onOpenChange(false);
-        
+
+        // 🔧 FIX: 显示二维码，而不是关闭对话框
+        setPaymentData(paymentResult);
+        setShowQRCode(true);
+
       } else {
         // 无需支付，直接升级
         const result = await SubscriptionUpgradeService.executeUpgrade(
@@ -168,7 +175,7 @@ export function SubscriptionUpgradeDialog({ open,
             </div>
           )}
 
-          {upgradeCalculation && (
+          {upgradeCalculation && !showQRCode && (
             <>
               {/* 升级概览 */}
               <Card>
@@ -218,7 +225,7 @@ export function SubscriptionUpgradeDialog({ open,
                         <div className="text-sm text-muted-foreground">{item.description}</div>
                       </div>
                       <div className={`font-medium ${
-                        item.amount < 0 ? 'text-success' : 
+                        item.amount < 0 ? 'text-success' :
                         item.amount === 0 ? 'text-muted-foreground' : 'text-foreground'
                       }`}>
                         {item.amount < 0 ? '-' : ''}¥{Math.abs(item.amount)}
@@ -271,6 +278,67 @@ export function SubscriptionUpgradeDialog({ open,
                       免费升级
                     </>
                   )}
+                </Button>
+              </div>
+            </>
+          )}
+
+          {/* 🔧 NEW: 显示支付二维码 */}
+          {showQRCode && paymentData && (
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <QrCode className="h-5 w-5" />
+                    扫码支付
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground mb-4">
+                      请使用支付宝扫描下方二维码完成支付
+                    </p>
+
+                    {/* 支付二维码组件 */}
+                    <PaymentQRCode
+                      orderId={paymentData.orderId}
+                      qrCode={paymentData.qrCode}
+                      amount={upgradeCalculation?.calculation.upgradeAmount || 0}
+                      onPaymentSuccess={() => {
+                        onUpgradeSuccess?.();
+                        onOpenChange(false);
+                      }}
+                    />
+
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-blue-700 font-medium">
+                        支付金额：¥{upgradeCalculation?.calculation.upgradeAmount}
+                      </p>
+                      <p className="text-xs text-blue-600 mt-1">
+                        升级后到期时间保持不变：{new Date(upgradeCalculation?.currentSubscription.expiresAt || '').toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowQRCode(false);
+                    setPaymentData(null);
+                  }}
+                  className="flex-1"
+                >
+                  返回
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => onOpenChange(false)}
+                  className="flex-1"
+                >
+                  取消支付
                 </Button>
               </div>
             </>

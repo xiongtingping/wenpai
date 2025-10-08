@@ -70,7 +70,7 @@ export class SubscriptionUpgradeService {
       }
 
       // 2. 检查是否为升级(不支持降级)
-      if (!this.isUpgrade(currentSubscription.tier as SubscriptionTier, targetTier)) {  // 🔧 FIX: 使用 tier
+      if (!this.isUpgrade(currentSubscription.tier as SubscriptionTier, targetTier)) {
         throw new Error('不支持降级,仅支持升级到更高套餐');
       }
 
@@ -80,31 +80,65 @@ export class SubscriptionUpgradeService {
         throw new Error('订阅已过期,请先续费');
       }
 
-      // 4. 获取订阅计划价格
+      // 4. 🔧 NEW: 获取用户实际支付金额（从订单表读取）
+      let actualPaidAmount = 0;
+      let actualTotalDays = 0;
+
+      if (currentSubscription.order_id) {
+        const { data: order } = await supabase
+          .from('orders')
+          .select('pay_price, amount, created_at')
+          .eq('order_id', currentSubscription.order_id)
+          .single();
+
+        if (order) {
+          // 使用实际支付金额，如果没有则使用订单金额
+          actualPaidAmount = order.pay_price || order.amount;
+
+          // 🔧 NEW: 计算实际订阅周期天数（从订单创建到订阅到期）
+          const orderDate = new Date(order.created_at);
+          const expiresDate = new Date(currentSubscription.expires_at);
+          actualTotalDays = Math.ceil((expiresDate.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
+
+          logger.info('读取到用户实际支付信息:', {
+            orderId: currentSubscription.order_id,
+            actualPaidAmount,
+            actualTotalDays,
+            remainingDays
+          });
+        }
+      }
+
+      // 5. 获取订阅计划价格
       const subscriptionPlans = getSubscriptionPlans();
-      const currentPlan = subscriptionPlans.find(p => p.tier === currentSubscription.tier);  // 🔧 FIX: 使用 tier
+      const currentPlan = subscriptionPlans.find(p => p.tier === currentSubscription.tier);
       const targetPlan = subscriptionPlans.find(p => p.tier === targetTier);
 
       if (!currentPlan || !targetPlan) {
         throw new Error('套餐配置不存在');
       }
 
-      // 5. 计算当前订阅的原始价格和已支付金额（使用原价，不含优惠）
+      // 6. 计算当前订阅的价格（优先使用实际支付金额）
       const currentPeriod = this.inferSubscriptionPeriod(currentSubscription);
-      const currentPrice = currentPeriod === 'yearly' 
-        ? currentPlan.yearly.originalPrice 
-        : currentPlan.monthly.originalPrice;
-      
-      const targetPrice = targetPeriod === 'yearly' 
-        ? targetPlan.yearly.originalPrice 
+      const currentPrice = actualPaidAmount > 0
+        ? actualPaidAmount
+        : (currentPeriod === 'yearly'
+          ? currentPlan.yearly.originalPrice
+          : currentPlan.monthly.originalPrice);
+
+      const targetPrice = targetPeriod === 'yearly'
+        ? targetPlan.yearly.originalPrice
         : targetPlan.monthly.originalPrice;
 
-      // 6. 计算剩余价值（按比例）
-      const totalDays = currentPeriod === 'yearly' ? 365 : 30;
+      // 7. 🔧 FIX: 使用实际订阅周期天数计算剩余价值
+      const totalDays = actualTotalDays > 0
+        ? actualTotalDays
+        : (currentPeriod === 'yearly' ? 365 : 30);
+
       const usedDays = totalDays - remainingDays;
       const remainingValue = (currentPrice * remainingDays) / totalDays;
 
-      // 7. 计算升级差价
+      // 8. 计算升级差价
       const upgradeAmount = Math.max(0, targetPrice - remainingValue);
       const savedAmount = remainingValue;
       const discountPercentage = remainingValue > 0 ? Math.round((savedAmount / targetPrice) * 100) : 0;
@@ -200,20 +234,18 @@ export class SubscriptionUpgradeService {
         throw new Error('未找到当前订阅');
       }
 
-      // 3. 计算新的到期时间
-      const newExpiresAt = this.calculateNewExpiresAt(
-        upgradeCalculation.targetSubscription.period,
-        upgradeCalculation.currentSubscription.remainingDays
-      );
+      // 3. 🔧 FIX: 保持原订阅的到期时间不变，只升级套餐等级
+      // 不需要重新计算到期时间，直接使用当前订阅的 expires_at
 
       // 4. 更新订阅
       const { data: newSubscription, error } = await supabase
         .from('user_subscriptions')
         .update({
-          tier: upgradeCalculation.targetSubscription.tier,  // 🔧 FIX: 使用 tier
-          expires_at: newExpiresAt,
+          tier: upgradeCalculation.targetSubscription.tier,
+          // 🔧 FIX: 保持原到期时间不变
+          // expires_at: 不更新，保持原值
           updated_at: new Date().toISOString(),
-          upgrade_from: currentSubscription.tier,  // 🔧 FIX: 使用 tier
+          upgrade_from: currentSubscription.tier,
           upgrade_at: new Date().toISOString(),
           upgrade_amount: upgradeCalculation.calculation.upgradeAmount,
           order_id: paymentData?.orderId || null
