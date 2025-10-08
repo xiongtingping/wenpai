@@ -1,2 +1,5 @@
+# AI代理路由 - 必须在SPA规则之前
+/api/ai/:provider/*  /.netlify/functions/ai-proxy?provider=:provider&path=:splat  200
+
 # SPA重定向规则 - 所有路由都重定向到index.html
 /*    /index.html   200
