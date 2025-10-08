@@ -92,8 +92,9 @@ export const TOKEN_ESTIMATION = {
 
 /**
  * 数据库表名 (引用自supabaseDataService)
+ * 🔧 FIX: 使用正确的表名 token_usage_records
  */
-export const TABLE_NAME = 'user_usage_logs';
+export const TABLE_NAME = 'token_usage_records';
 
 /**
  * 错误消息
