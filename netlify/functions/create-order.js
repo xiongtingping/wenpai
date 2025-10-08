@@ -110,14 +110,25 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    console.log('收到创建订单请求:', event.body);
+    console.log('🔵 收到创建订单请求');
+    console.log('📋 配置检查:', {
+      supabaseUrl: supabaseUrl ? '✅' : '❌',
+      supabaseKey: supabaseServiceKey ? '✅' : '❌',
+      bufpaySecret: BUFPAY_CONFIG.APP_SECRET ? '✅' : '❌'
+    });
 
     // 解析请求体
     let requestData;
     try {
       requestData = JSON.parse(event.body);
+      console.log('✅ 请求数据解析成功:', {
+        userId: requestData.userId,
+        productType: requestData.productType,
+        durationType: requestData.durationType,
+        amount: requestData.amount
+      });
     } catch (parseError) {
-      console.error('解析请求数据失败:', parseError);
+      console.error('❌ 解析请求数据失败:', parseError);
       return {
         statusCode: 400,
         headers,
@@ -170,9 +181,10 @@ exports.handler = async (event, context) => {
     const orderId = generateOrderId();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15分钟后过期
 
-    console.log('创建订单:', { orderId, userId, productType, durationType, amount });
+    console.log('📝 准备创建订单:', { orderId, userId, productType, durationType, amount });
 
     // 2. 创建订单记录
+    console.log('💾 开始写入数据库...');
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
@@ -191,13 +203,23 @@ exports.handler = async (event, context) => {
       .single();
 
     if (orderError) {
-      console.error('创建订单失败:', orderError);
+      console.error('❌ 数据库写入失败:', {
+        code: orderError.code,
+        message: orderError.message,
+        details: orderError.details,
+        hint: orderError.hint
+      });
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Failed to create order' })
+        body: JSON.stringify({
+          error: 'Failed to create order',
+          details: orderError.message
+        })
       };
     }
+
+    console.log('✅ 订单记录创建成功:', orderId);
 
     // 3. 调用 BufPay 接口
     const priceStr = formatAmount(amount);
@@ -229,7 +251,12 @@ exports.handler = async (event, context) => {
     
     formData.append('sign', sign);
 
-    console.log('调用 BufPay 接口:', { orderId, amount: priceStr, payType });
+    console.log('💳 调用 BufPay 接口:', {
+      orderId,
+      amount: priceStr,
+      payType,
+      apiUrl: BUFPAY_CONFIG.API_URL
+    });
 
     const response = await fetch(BUFPAY_CONFIG.API_URL, {
       method: 'POST',
@@ -240,8 +267,16 @@ exports.handler = async (event, context) => {
       body: formData.toString()
     });
 
+    console.log('📡 BufPay API 响应状态:', response.status, response.statusText);
+
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const errorText = await response.text().catch(() => 'Unable to read error response');
+      console.error('❌ BufPay API 请求失败:', {
+        status: response.status,
+        statusText: response.statusText,
+        responseBody: errorText
+      });
+      throw new Error(`BufPay API Error: HTTP ${response.status} - ${errorText}`);
     }
 
     // BufPay API 设计：返回 HTML 支付页面而非 JSON
@@ -354,11 +389,51 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('创建支付订单失败:', error);
+    // 🔍 增强错误日志：输出详细的诊断信息
+    console.error('创建支付订单失败 - 详细诊断信息:', {
+      errorMessage: error.message,
+      errorStack: error.stack,
+      errorName: error.name,
+      // 配置状态检查（不输出敏感信息，仅输出是否已配置）
+      config: {
+        supabaseUrl: supabaseUrl ? '✅ 已配置' : '❌ 未配置',
+        supabaseServiceKey: supabaseServiceKey ? '✅ 已配置' : '❌ 未配置',
+        bufpaySecret: BUFPAY_CONFIG.APP_SECRET ? '✅ 已配置' : '❌ 未配置',
+        bufpayApiUrl: BUFPAY_CONFIG.API_URL
+      },
+      // 请求信息
+      requestInfo: {
+        method: event.httpMethod,
+        hasBody: !!event.body,
+        bodyLength: event.body ? event.body.length : 0
+      }
+    });
+
+    // 根据错误类型返回更具体的错误信息
+    let errorResponse = {
+      error: 'Internal server error',
+      timestamp: new Date().toISOString()
+    };
+
+    // 在开发环境下返回详细错误信息
+    if (process.env.NODE_ENV === 'development' || process.env.CONTEXT === 'dev') {
+      errorResponse.details = error.message;
+      errorResponse.type = error.name;
+    }
+
+    // 识别常见错误类型并提供友好提示
+    if (error.message.includes('fetch')) {
+      errorResponse.hint = 'BufPay API 连接失败，请检查网络或 API 配置';
+    } else if (error.message.includes('Supabase') || error.message.includes('database')) {
+      errorResponse.hint = '数据库连接失败，请检查 Supabase 配置';
+    } else if (error.message.includes('sign') || error.message.includes('signature')) {
+      errorResponse.hint = '签名验证失败，请检查 BufPay 密钥配置';
+    }
+
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Internal server error' })
+      body: JSON.stringify(errorResponse)
     };
   }
 };
