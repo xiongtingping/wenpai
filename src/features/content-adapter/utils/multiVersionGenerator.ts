@@ -89,7 +89,11 @@ export async function generateMultipleVersions(
     return versions;
 
   } catch (error) {
-    console.error('❌ 多版本生成失败:', error);
+    console.error('❌ 多版本生成失败:', {
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      versionsGenerated: versions.length
+    });
     return versions; // 返回已生成的版本
   }
 }
@@ -173,7 +177,14 @@ ${versionType === 'standard' ? `
     const result = await callAIWithTokenTracking(aiParams);
 
     if (!result.success || !result.content) {
-      console.error(`❌ ${versionLabel}生成失败:`, result.error);
+      console.error(`❌ ${versionLabel}生成失败:`, {
+        error: result.error,
+        errorType: result.errorType,
+        model: result.model,
+        success: result.success,
+        hasContent: !!result.content,
+        tokenUsage: result.tokenUsage
+      });
       return null;
     }
 
