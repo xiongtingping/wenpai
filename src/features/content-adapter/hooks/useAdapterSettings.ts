@@ -347,7 +347,24 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
         setUseBrandLibrary(settingsData.useBrandLibrary || false);
         setBrandProfile(settingsData.brandProfile);
         setCustomPrompt(settingsData.customPrompt || '');
-        setSelectedModel(settingsData.selectedModel || 'deepseek-chat'); // ✅ FIX: 默认模型改为DeepSeek
+
+        // 🔧 FIX: 验证并迁移模型选择
+        let modelToUse = settingsData.selectedModel || 'deepseek-chat';
+
+        // 检查是否是无效的模型名称（包含 :free 等后缀或其他无效格式）
+        if (modelToUse.includes(':')) {
+          logger.warn('检测到无效的模型名称，重置为默认值', { oldModel: modelToUse });
+          modelToUse = 'deepseek-chat';
+
+          // 显示提示
+          toast({
+            title: "模型已重置",
+            description: "检测到无效的模型配置，已自动切换到 DeepSeek",
+            variant: "default"
+          });
+        }
+
+        setSelectedModel(modelToUse);
       }
     } catch (error) {
       logger.error('加载设置失败', { error });
