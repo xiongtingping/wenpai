@@ -55,8 +55,8 @@ export interface TokenUsageRecord {
   totalTokens: number;
   /** 使用的AI模型 */
   model: string;
-  /** 使用时间 */
-  timestamp: string;
+  /** 创建时间 */
+  created_at: string;
   /** 请求内容摘要 */
   contentSummary?: string;
   /** 响应状态 */
@@ -187,7 +187,7 @@ class TokenUsageService {
         return true; // 记录已存在，视为成功
       }
 
-      // 2. 准备数据库记录（使用snake_case），同时写入 timestamp 与 created_at 以兼容历史表结构
+      // 2. 准备数据库记录（使用snake_case）
       const dbRecord = {
         id: record.id,
         user_id: record.userId,
@@ -200,8 +200,7 @@ class TokenUsageService {
         content_summary: record.contentSummary || null,
         success: record.success !== false, // 默认为true
         error_message: record.error || null,
-        timestamp: record.timestamp,
-        created_at: record.timestamp
+        created_at: record.created_at
       };
 
       logger.info('📊 准备插入的数据库记录:', {
@@ -271,15 +270,15 @@ class TokenUsageService {
   /**
    * 记录token使用量 - 修复版本
    */
-  async recordTokenUsage(record: Omit<TokenUsageRecord, 'id' | 'timestamp'>): Promise<void> {
+  async recordTokenUsage(record: Omit<TokenUsageRecord, 'id' | 'created_at'>): Promise<void> {
     // 🔧 修复: 使用改进的ID生成算法避免重复
     const uniqueId = generateUniqueTokenId(record.userId, record.feature);
-    const timestamp = new Date().toISOString();
+    const created_at = new Date().toISOString();
 
     const fullRecord: TokenUsageRecord = {
       ...record,
       id: uniqueId,
-      timestamp
+      created_at
     };
 
     logger.info('💾 开始Token使用量记录:', {
@@ -332,7 +331,7 @@ class TokenUsageService {
             userId: record.userId,
             totalTokens: record.totalTokens,
             feature: record.feature,
-            timestamp: timestamp
+            created_at: created_at
           }
         });
         window.dispatchEvent(event);
@@ -788,8 +787,8 @@ class TokenUsageService {
           totalRecords: totalRequests,
           totalTokensUsed: totalTokens,
           dateRange: {
-            earliest: records[records.length - 1]?.timestamp,
-            latest: records[0]?.timestamp
+            earliest: records[records.length - 1]?.created_at,
+            latest: records[0]?.created_at
           }
         },
         records
