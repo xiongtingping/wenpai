@@ -416,22 +416,145 @@ export function SubscriptionExpiryCard() {
             </div>
           )}
 
-          {/* 无订阅提示 */}
+          {/* 无订阅提示 - 体验版用户 */}
           {subscriptionData.isInactive && (
-            <div className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 text-center space-y-2">
-              <Sparkles className="w-8 h-8 mx-auto text-primary/60" />
-              <p className="text-sm text-muted-foreground">
-                您当前使用的是体验版
+            <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200/50">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-blue-600" />
+                  <h4 className="text-sm font-semibold text-foreground">升级到付费版</h4>
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground mb-3 text-center">
+                解锁更多高级功能，享受更好的创作体验
               </p>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => navigate('/payment-center')}
-                className="group"
-              >
-                <Crown className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
-                升级订阅
-              </Button>
+
+              <div className="grid grid-cols-2 gap-2">
+                {/* 专业版选项 */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/payment-center?tier=pro&period=monthly')}
+                  className="flex-col h-auto py-3 bg-white hover:bg-blue-50 border-blue-200"
+                >
+                  <Crown className="w-4 h-4 mb-1 text-blue-600" />
+                  <span className="text-xs font-medium">专业版月付</span>
+                  <span className="text-xs text-muted-foreground">¥39/月</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/payment-center?tier=pro&period=yearly')}
+                  className="flex-col h-auto py-3 bg-white hover:bg-blue-50 border-blue-200"
+                >
+                  <Crown className="w-4 h-4 mb-1 text-blue-600" />
+                  <span className="text-xs font-medium">专业版年付</span>
+                  <span className="text-xs text-muted-foreground">¥399/年</span>
+                </Button>
+
+                {/* 高级版选项 */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/payment-center?tier=premium&period=monthly')}
+                  className="flex-col h-auto py-3 bg-white hover:bg-purple-50 border-purple-200"
+                >
+                  <Crown className="w-4 h-4 mb-1 text-purple-600" />
+                  <span className="text-xs font-medium">高级版月付</span>
+                  <span className="text-xs text-muted-foreground">¥99/月</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/payment-center?tier=premium&period=yearly')}
+                  className="flex-col h-auto py-3 bg-white hover:bg-purple-50 border-purple-200"
+                >
+                  <Crown className="w-4 h-4 mb-1 text-purple-600" />
+                  <span className="text-xs font-medium">高级版年付</span>
+                  <span className="text-xs text-muted-foreground">¥999/年</span>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* 一键升级快捷按钮 */}
+          {subscriptionData.isActive && (
+            <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200/50">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-blue-600" />
+                  <h4 className="text-sm font-semibold text-foreground">快速升级</h4>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {/* 根据当前等级显示升级选项 */}
+                {subscriptionData.tier === 'pro' && (
+                  <>
+                    {/* 专业版用户可以升级到高级版 */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate('/payment-center?tier=premium&period=monthly')}
+                      className="flex-col h-auto py-3 bg-white hover:bg-purple-50 border-purple-200"
+                    >
+                      <Crown className="w-4 h-4 mb-1 text-purple-600" />
+                      <span className="text-xs font-medium">高级版月付</span>
+                      <span className="text-xs text-muted-foreground">¥99/月</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate('/payment-center?tier=premium&period=yearly')}
+                      className="flex-col h-auto py-3 bg-white hover:bg-purple-50 border-purple-200"
+                    >
+                      <Crown className="w-4 h-4 mb-1 text-purple-600" />
+                      <span className="text-xs font-medium">高级版年付</span>
+                      <span className="text-xs text-muted-foreground">¥999/年</span>
+                    </Button>
+                    {/* 专业版用户也可以切换周期 */}
+                    {primaryStatus.period === 'monthly' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate('/payment-center?tier=pro&period=yearly')}
+                        className="flex-col h-auto py-3 bg-white hover:bg-blue-50 border-blue-200 col-span-2"
+                      >
+                        <TrendingUp className="w-4 h-4 mb-1 text-blue-600" />
+                        <span className="text-xs font-medium">切换到年付（更优惠）</span>
+                        <span className="text-xs text-muted-foreground">¥399/年</span>
+                      </Button>
+                    )}
+                  </>
+                )}
+
+                {subscriptionData.tier === 'premium' && (
+                  <>
+                    {/* 高级版用户只显示续费选项 */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate('/payment-center?tier=premium&period=monthly')}
+                      className="flex-col h-auto py-3 bg-white hover:bg-purple-50 border-purple-200"
+                    >
+                      <Crown className="w-4 h-4 mb-1 text-purple-600" />
+                      <span className="text-xs font-medium">续费月付</span>
+                      <span className="text-xs text-muted-foreground">¥99/月</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate('/payment-center?tier=premium&period=yearly')}
+                      className="flex-col h-auto py-3 bg-white hover:bg-purple-50 border-purple-200"
+                    >
+                      <Crown className="w-4 h-4 mb-1 text-purple-600" />
+                      <span className="text-xs font-medium">续费年付</span>
+                      <span className="text-xs text-muted-foreground">¥999/年</span>
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           )}
 
@@ -451,7 +574,7 @@ export function SubscriptionExpiryCard() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate('/payment-center')}
+                    onClick={() => navigate('/payment-center?tier=' + subscriptionData.tier + '&period=' + (primaryStatus.period || 'monthly'))}
                     className="mt-2"
                   >
                     立即续费

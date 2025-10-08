@@ -221,19 +221,39 @@ export default function PaymentPage() {
     initPromoOffer();
   }, [currentUser?.id]);
 
-  // 从localStorage读取预选的计划
+  // 🔧 NEW: 从 URL 参数读取预选的计划和周期
   useEffect(() => {
-    const savedPlanTier = localStorage.getItem('selectedPlan');
-    if (savedPlanTier) {
-      const plan = SUBSCRIPTION_PLANS.find(p => p.tier === savedPlanTier);
+    const searchParams = new URLSearchParams(location.search);
+    const tierParam = searchParams.get('tier');
+    const periodParam = searchParams.get('period');
+
+    // 优先使用 URL 参数
+    if (tierParam) {
+      const plan = SUBSCRIPTION_PLANS.find(p => p.tier === tierParam);
       if (plan) {
         setSelectedPlan(plan);
-        console.log(t('payment.console.autoSelectPlan'), plan.name);
+        console.log('🔗 从 URL 参数自动选择计划:', plan.name);
       }
-      // 清除localStorage中的选择，避免重复使用
-      localStorage.removeItem('selectedPlan');
+    } else {
+      // 兜底：从 localStorage 读取预选的计划
+      const savedPlanTier = localStorage.getItem('selectedPlan');
+      if (savedPlanTier) {
+        const plan = SUBSCRIPTION_PLANS.find(p => p.tier === savedPlanTier);
+        if (plan) {
+          setSelectedPlan(plan);
+          console.log(t('payment.console.autoSelectPlan'), plan.name);
+        }
+        // 清除localStorage中的选择，避免重复使用
+        localStorage.removeItem('selectedPlan');
+      }
     }
-  }, []);
+
+    // 设置订阅周期
+    if (periodParam === 'monthly' || periodParam === 'yearly') {
+      setSelectedPeriod(periodParam);
+      console.log('🔗 从 URL 参数自动选择周期:', periodParam);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     if (!currentUser?.id) return;
