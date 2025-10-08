@@ -148,7 +148,7 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
   const [useBrandLibrary, setUseBrandLibrary] = useState(false);
   const [brandProfile, setBrandProfile] = useState<any>();
   const [customPrompt, setCustomPrompt] = useState('');
-  const [selectedModel, setSelectedModel] = useState('google/gemini-2.5-flash-lite-preview'); // 使用体验版模型作为默认值
+  const [selectedModel, setSelectedModel] = useState('deepseek-chat'); // 🔧 FIX: 默认使用 DeepSeek，有独立配额
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
