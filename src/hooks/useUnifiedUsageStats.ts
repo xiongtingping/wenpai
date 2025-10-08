@@ -210,22 +210,9 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
       return tier;
     }
     
-    // 4. 降级方案：从缓存获取
-    try {
-      const cachedSubStatus = localStorage.getItem('unified-user-state');
-      if (cachedSubStatus) {
-        const userState = JSON.parse(cachedSubStatus);
-        if (userState.subscriptionStatus?.status === 'active') {
-          console.log('🔎 从cachegetting套餐type: pro');
-          return 'pro';
-        }
-      }
-    } catch (error) {
-      console.warn('none法从cachegettingsubscribingstate:', error);
-    }
-    
-    // 5. 默认为体验版
-    // console.log('🔎 使用default套餐type: trial');
+    // 🔧 CRITICAL FIX: 移除缓存读取，直接返回默认值
+    // 如果没有从数据库获取到订阅状态，默认为体验版
+    console.log('🔎 使用默认套餐类型: trial');
     return 'trial';
   }, [user, externalUserTier, subscriptionStatus, hasActiveSubscription]);
 

@@ -40,19 +40,8 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
   const targetUserId = userId || user?.id;
   const [isInitialized, setIsInitialized] = useState(false); // 防止重复初始化
   const [primaryStatus, setPrimaryStatus] = useState<SubscriptionStatus>(() => {
-    // 如果用户已登录，尝试从缓存获取状态，避免闪烁
-    if (targetUserId) {
-      try {
-        const cached = localStorage.getItem(`subscription_status_${targetUserId}`);
-        if (cached) {
-          const cachedStatus = JSON.parse(cached);
-          logger.info('🚀 使用缓存订阅状态，避免闪烁:', cachedStatus);
-          return cachedStatus;
-        }
-      } catch (e) {
-        logger.warn('缓存订阅状态解析失败:', e);
-      }
-    }
+    // 🔧 CRITICAL FIX: 移除缓存读取，强制从数据库查询
+    // 不再从 localStorage 读取缓存数据
     
     // 默认状态
     return {
@@ -72,20 +61,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
     subscriptionId: string;
   }>>([]);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(() => {
-    // 如果用户已登录，尝试从缓存推断活跃订阅状态
-    if (targetUserId) {
-      try {
-        const cached = localStorage.getItem(`subscription_status_${targetUserId}`);
-        if (cached) {
-          const cachedStatus = JSON.parse(cached);
-          const isActive = cachedStatus.status === 'active';
-          logger.info('🚀 从缓存推断活跃订阅状态:', { isActive, status: cachedStatus.status });
-          return isActive;
-        }
-      } catch (e) {
-        logger.warn('缓存订阅状态解析失败:', e);
-      }
-    }
+    // 🔧 CRITICAL FIX: 移除缓存读取，默认为 false，等待数据库查询
     return false;
   });
   const [loading, setLoading] = useState(false);
@@ -104,37 +80,10 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
     setError(null);
 
     try {
-      // 🔧 FIX: 暂时禁用订阅状态获取，避免网络请求循环
-      // 在开发环境中，由于后端服务可能不可用，直接返回默认状态
-      if (import.meta.env.DEV) {
-        // 防重复：检查当前用户是否已设置过状态
-        const userKey = `__dev_subscription_${targetUserId}`;
-        if (!(window as any)[userKey]) {
-          (window as any)[userKey] = true;
-          console.log('🔧 开发环境：设置默认试用用户状态（无订阅）');
-        }
+      // 🔧 CRITICAL FIX: 移除开发环境特殊处理，统一从数据库查询
+      // 无论开发还是生产环境，都查询真实数据库
 
-        // 🔧 FIX: 开发环境默认为trial用户，无活跃订阅
-        const defaultStatus = {
-          status: 'inactive' as const,
-          tier: 'trial' as const,
-          expiresAt: null,
-          daysRemaining: 0,
-          needsAlert: false,
-          alertLevel: 'info' as const,
-          alertMessage: '',
-          statusLabel: '试用用户',
-          statusColor: 'gray' as const
-        };
-
-        setPrimaryStatus(defaultStatus);
-        setAllSubscriptions([]);
-        setHasActiveSubscription(false); // 🔧 FIX: 试用用户没有活跃订阅
-
-        return;
-      }
-
-      // 生产环境的正常API调用逻辑
+      // API调用逻辑
       const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:5173' : 'https://www.wenpai.xyz';
       let lastError: Error | null = null;
       let response: Response | null = null;
@@ -199,17 +148,13 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
       setAllSubscriptions(data.allSubscriptions || []);
       setHasActiveSubscription(data.hasActiveSubscription);
 
-      // 缓存订阅状态，避免下次闪烁
-      try {
-        localStorage.setItem(`subscription_status_${targetUserId}`, JSON.stringify(data.primaryStatus));
-        logger.info('✅ 订阅状态已缓存');
-      } catch (e) {
-        logger.warn('缓存订阅状态失败:', e);
-      }
-
-      logger.info('订阅状态获取成功:', {
+      // 🔧 CRITICAL FIX: 移除缓存写入，不再缓存订阅状态
+      // 每次都从数据库查询最新数据
+      logger.info('✅ 订阅状态已更新（无缓存）:', {
         userId: targetUserId,
+        tier: data.primaryStatus.tier,
         status: data.primaryStatus.status,
+        hasActive: data.hasActiveSubscription,
         needsAlert: data.primaryStatus.needsAlert,
         daysRemaining: data.primaryStatus.daysRemaining
       });
@@ -298,22 +243,9 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
     }
   }, [primaryStatus.status]); // 移除hasActiveSubscription依赖，避免循环
 
-  // 定期刷新状态（每5分钟）- 🔧 FIX: 开发环境中禁用定期刷新，避免大量API请求
-  useEffect(() => {
-    if (!targetUserId) return;
-    
-    // 🔧 开发环境中禁用定期刷新，避免不必要的API请求
-    if (import.meta.env.DEV) {
-      console.log('🔧 开发环境：disablingsubscribingstate定期refreshing');
-      return;
-    }
-
-    const interval = setInterval(() => {
-      fetchSubscriptionStatus();
-    }, 5 * 60 * 1000); // 5分钟
-
-    return () => clearInterval(interval);
-  }, [targetUserId, fetchSubscriptionStatus]);
+  // 🔧 CRITICAL FIX: 移除定期刷新，改为按需刷新
+  // 订阅状态变化时应该由后端推送或用户主动刷新
+  // 不需要定期轮询，减少不必要的数据库查询
 
   return {
     primaryStatus,
