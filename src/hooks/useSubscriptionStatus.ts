@@ -15,7 +15,7 @@ interface UseSubscriptionStatusReturn {
   /** 订阅状态（primaryStatus的别名，保持向后兼容） */
   subscriptionStatus: SubscriptionStatus;
   /** 所有订阅状态 */
-  allSubscriptions: Array<SubscriptionStatus & { 
+  allSubscriptions: Array<SubscriptionStatus & {
     subscriptionType: string;
     subscriptionId: string;
   }>;
@@ -29,6 +29,8 @@ interface UseSubscriptionStatusReturn {
   error: string | null;
   /** 刷新订阅状态 */
   refresh: () => Promise<void>;
+  /** 上次更新时间 (ISO 8601 格式) */
+  lastUpdated: string | null;
 }
 
 /**
@@ -67,6 +69,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialLoading, setInitialLoading] = useState(true); // 🔧 FIX: 添加初始加载状态
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null); // 🔧 NEW: 上次更新时间
 
   /**
    * 获取订阅状态
@@ -148,6 +151,10 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
       setAllSubscriptions(data.allSubscriptions || []);
       setHasActiveSubscription(data.hasActiveSubscription);
 
+      // 🔧 NEW: 更新最后同步时间
+      const now = new Date().toISOString();
+      setLastUpdated(now);
+
       // 🔧 CRITICAL FIX: 移除缓存写入，不再缓存订阅状态
       // 每次都从数据库查询最新数据
       logger.info('✅ 订阅状态已更新（无缓存）:', {
@@ -156,7 +163,8 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
         status: data.primaryStatus.status,
         hasActive: data.hasActiveSubscription,
         needsAlert: data.primaryStatus.needsAlert,
-        daysRemaining: data.primaryStatus.daysRemaining
+        daysRemaining: data.primaryStatus.daysRemaining,
+        lastUpdated: now
       });
 
     } catch (error) {
@@ -243,9 +251,22 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
     }
   }, [primaryStatus.status]); // 移除hasActiveSubscription依赖，避免循环
 
-  // 🔧 CRITICAL FIX: 移除定期刷新，改为按需刷新
-  // 订阅状态变化时应该由后端推送或用户主动刷新
-  // 不需要定期轮询，减少不必要的数据库查询
+  // 🔧 NEW: 每30秒自动从云端同步数据
+  useEffect(() => {
+    if (!targetUserId) return;
+
+    logger.info('🔄 启动自动同步：每30秒从云端刷新订阅状态');
+
+    const interval = setInterval(() => {
+      logger.info('⏰ 自动同步触发：刷新订阅状态');
+      fetchSubscriptionStatus();
+    }, 30 * 1000); // 30秒
+
+    return () => {
+      logger.info('🛑 停止自动同步');
+      clearInterval(interval);
+    };
+  }, [targetUserId, fetchSubscriptionStatus]);
 
   return {
     primaryStatus,
@@ -255,7 +276,8 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
     loading,
     error,
     refresh,
-    initialLoading // 🔧 FIX: 导出初始加载状态
+    initialLoading, // 🔧 FIX: 导出初始加载状态
+    lastUpdated // 🔧 NEW: 导出上次更新时间
   };
 }
 

@@ -474,6 +474,23 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     };
   }, [user?.id, getUserTier]); // 🔧 FIX: 使用getUserTier函数引用而不是userTier值，避免循环依赖
 
+  // 🔧 NEW: 每30秒自动从云端同步使用统计数据
+  useEffect(() => {
+    if (!user?.id) return;
+
+    logger.info('🔄 启动自动同步：每30秒从云端刷新使用统计');
+
+    const interval = setInterval(() => {
+      logger.info('⏰ 自动同步触发：刷新使用统计');
+      refreshStats();
+    }, 30 * 1000); // 30秒
+
+    return () => {
+      logger.info('🛑 停止使用统计自动同步');
+      clearInterval(interval);
+    };
+  }, [user?.id, refreshStats]);
+
   // 🔧 FIX: 监听使用统计更新事件，实时刷新UI显示
   // 🔧 CRITICAL FIX: 添加防抖机制，避免快速连续更新导致闪烁
   useEffect(() => {
