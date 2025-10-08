@@ -42,16 +42,39 @@ async function processOrderPermissions(order) {
   // 计算订阅到期时间
   const expiryDate = calculateExpiryDate(order.duration_type);
   
+  // 🔧 修复：使用实际的表结构字段
+  // tier (而不是 subscription_type)
+  // period (而不是 duration_type)
+  // order_id (新增字段)
+
+  // 映射 product_type 到 tier
+  const tierMapping = {
+    'professional': 'pro',
+    'premium': 'premium'
+  };
+  const tier = tierMapping[order.product_type] || 'pro';
+
+  // 映射 duration_type 到 period
+  const period = order.duration_type; // 'monthly' 或 'yearly'
+
+  console.log('📋 订阅参数映射:', {
+    productType: order.product_type,
+    tier: tier,
+    durationType: order.duration_type,
+    period: period
+  });
+
   // 检查用户是否已有相同类型的订阅
   const { data: existingSubscription, error: queryError } = await supabase
     .from('user_subscriptions')
     .select('*')
     .eq('user_id', order.user_id)
-    .eq('subscription_type', order.product_type)
+    .eq('tier', tier)
     .eq('status', 'active')
     .maybeSingle();
 
   if (queryError) {
+    console.error('❌ 查询现有订阅失败:', queryError);
     throw new Error(`查询现有订阅失败: ${queryError.message}`);
   }
 
@@ -61,50 +84,73 @@ async function processOrderPermissions(order) {
     // 延长现有订阅
     const currentExpiry = new Date(existingSubscription.expires_at);
     const newExpiry = calculateExpiryDate(
-      order.duration_type, 
+      order.duration_type,
       currentExpiry > new Date() ? currentExpiry : new Date()
     );
-    
+
+    console.log('📝 延长现有订阅:', {
+      subscriptionId: existingSubscription.id,
+      currentExpiry: currentExpiry.toISOString(),
+      newExpiry: newExpiry.toISOString()
+    });
+
     const { data, error } = await supabase
       .from('user_subscriptions')
       .update({
         expires_at: newExpiry.toISOString(),
-        updated_at: new Date().toISOString(),
-        order_id: order.order_id
+        period: period,
+        order_id: order.order_id,
+        last_payment_id: order.order_id,
+        updated_at: new Date().toISOString()
       })
       .eq('id', existingSubscription.id)
       .select()
       .single();
 
-    if (error) throw new Error(`延长订阅失败: ${error.message}`);
+    if (error) {
+      console.error('❌ 延长订阅失败:', error);
+      throw new Error(`延长订阅失败: ${error.message}`);
+    }
     subscriptionData = data;
-    
-    console.log('订阅延长成功:', { 
-      userId: order.user_id, 
-      subscriptionType: order.product_type,
+
+    console.log('✅ 订阅延长成功:', {
+      userId: order.user_id,
+      tier: tier,
       newExpiry: newExpiry.toISOString()
     });
   } else {
     // 创建新订阅
+    console.log('📝 创建新订阅:', {
+      userId: order.user_id,
+      tier: tier,
+      period: period,
+      expiresAt: expiryDate.toISOString()
+    });
+
     const { data, error } = await supabase
       .from('user_subscriptions')
       .insert({
         user_id: order.user_id,
-        subscription_type: order.product_type,
+        tier: tier,
         status: 'active',
+        period: period,
         started_at: new Date().toISOString(),
         expires_at: expiryDate.toISOString(),
-        order_id: order.order_id
+        order_id: order.order_id,
+        last_payment_id: order.order_id
       })
       .select()
       .single();
 
-    if (error) throw new Error(`创建订阅失败: ${error.message}`);
+    if (error) {
+      console.error('❌ 创建订阅失败:', error);
+      throw new Error(`创建订阅失败: ${error.message}`);
+    }
     subscriptionData = data;
-    
-    console.log('新订阅创建成功:', { 
-      userId: order.user_id, 
-      subscriptionType: order.product_type,
+
+    console.log('✅ 新订阅创建成功:', {
+      userId: order.user_id,
+      tier: tier,
       expiresAt: expiryDate.toISOString()
     });
   }
@@ -152,14 +198,22 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    console.log('收到订单权限修复请求:', event.body);
+    console.log('🔵 收到订单权限修复请求');
+    console.log('📋 配置检查:', {
+      supabaseUrl: supabaseUrl ? '✅' : '❌',
+      supabaseKey: supabaseServiceKey ? '✅' : '❌'
+    });
 
     // 解析请求体
     let requestData;
     try {
       requestData = JSON.parse(event.body);
+      console.log('✅ 请求数据解析成功:', {
+        orderId: requestData.orderId,
+        force: requestData.force
+      });
     } catch (parseError) {
-      console.error('解析请求数据失败:', parseError);
+      console.error('❌ 解析请求数据失败:', parseError);
       return {
         statusCode: 400,
         headers,
@@ -216,20 +270,27 @@ exports.handler = async (event, context) => {
       }
     }
 
-    // 3. 检查是否已有订阅
+    // 3. 检查是否已有订阅（使用 order_id 或 last_payment_id）
+    console.log('🔍 检查是否已有订阅...');
+
     const { data: existingSubscription, error: subError } = await supabase
       .from('user_subscriptions')
       .select('*')
-      .eq('order_id', orderId)
+      .or(`order_id.eq.${orderId},last_payment_id.eq.${orderId}`)
       .eq('status', 'active')
       .maybeSingle();
 
     if (subError) {
-      console.error('查询现有订阅失败:', subError);
+      console.error('❌ 查询现有订阅失败:', subError);
     }
 
     if (existingSubscription) {
-      console.log('订单已有有效订阅，无需修复:', { orderId, subscriptionId: existingSubscription.id });
+      console.log('✅ 订单已有有效订阅，无需修复:', {
+        orderId,
+        subscriptionId: existingSubscription.id,
+        tier: existingSubscription.tier,
+        expiresAt: existingSubscription.expires_at
+      });
       return {
         statusCode: 200,
         headers,
@@ -240,6 +301,8 @@ exports.handler = async (event, context) => {
         })
       };
     }
+
+    console.log('⚠️ 未找到订阅，需要创建');
 
     // 4. 执行权限修复
     const subscriptionData = await processOrderPermissions(order);
@@ -261,13 +324,25 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('修复订单权限失败:', error);
+    // 🔍 增强错误日志
+    console.error('修复订单权限失败 - 详细诊断:', {
+      errorMessage: error.message,
+      errorStack: error.stack,
+      errorName: error.name,
+      config: {
+        supabaseUrl: supabaseUrl ? '✅ 已配置' : '❌ 未配置',
+        supabaseServiceKey: supabaseServiceKey ? '✅ 已配置' : '❌ 未配置'
+      },
+      requestBody: event.body
+    });
+
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         error: 'Internal server error',
-        message: error.message 
+        message: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       })
     };
   }
