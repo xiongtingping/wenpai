@@ -455,74 +455,26 @@ class TokenUsageService {
         monthStartTime
       });
 
-      // 优先按 timestamp 过滤；若无结果，回退使用 created_at 过滤（兼容历史数据）
+      // 🔧 FIX: 使用 created_at 字段（timestamp 已删除）
       const usageTable = await this.getUsageTableName();
       let { data: monthlyData, error: monthlyError } = await client
         .from(usageTable)
         .select('*')
         .eq('user_id', userId)
-        .gte('timestamp', monthStartTime);
+        .gte('created_at', monthStartTime); // 🔧 FIX: 使用 created_at
 
       if (monthlyError) {
-        logger.warn('⚠️ 月度查询新表失败，尝试回退旧表名:', monthlyError);
-        const fb = await client
-          .from('user_usage_logs')
-          .select('*')
-          .eq('user_id', userId)
-          .gte('timestamp', monthStartTime);
-        if (!fb.error) {
-          monthlyData = fb.data || [];
-          // 继续后续流程
-        } else {
-          logger.error('❌ 月度查询回退旧表亦失败:', fb.error);
-          throw new Error(`查询月度记录失败: ${fb.error.message}`);
-        }
+        logger.error('❌ 月度查询失败:', monthlyError);
+        throw new Error(`查询月度记录失败: ${monthlyError.message}`);
       }
 
+      // 移除所有回退逻辑，直接使用 token_usage_records 表和 created_at 字段
       if (!monthlyData || monthlyData.length === 0) {
-        logger.warn('⚠️ 月度按 timestamp 查询为空，尝试使用 created_at 回退');
-        const fb1 = await client
-          .from(usageTable)
-          .select('*')
-          .eq('user_id', userId)
-          .gte('created_at', monthStartTime);
-        if (fb1.error) {
-          logger.error('❌ 月度回退(created_at)查询失败:', fb1.error);
-          throw new Error(`查询月度记录失败(created_at): ${fb1.error.message}`);
-        }
-        monthlyData = fb1.data || [];
+        logger.warn('⚠️ 月度查询为空，用户可能没有使用记录');
+        monthlyData = [];
       }
 
-      // 表名兼容：若仍为空，回退到旧表名 user_usage_logs（生产兼容）
-      if (!monthlyData || monthlyData.length === 0) {
-        logger.warn('⚠️ 月度查询仍为空，尝试旧表名 user_usage_logs（timestamp）');
-        const fb2 = await client
-          .from('user_usage_logs')
-          .select('*')
-          .eq('user_id', userId)
-          .gte('timestamp', monthStartTime);
-        if (fb2.error) {
-          logger.error('❌ 旧表名(timestamp)查询失败:', fb2.error);
-        } else {
-          monthlyData = fb2.data || [];
-        }
-      }
-
-      if (!monthlyData || monthlyData.length === 0) {
-        logger.warn('⚠️ 月度旧表名(timestamp)为空，尝试旧表名 user_usage_logs（created_at）');
-        const fb3 = await client
-          .from('user_usage_logs')
-          .select('*')
-          .eq('user_id', userId)
-          .gte('created_at', monthStartTime);
-        if (fb3.error) {
-          logger.error('❌ 旧表名(created_at)查询失败:', fb3.error);
-        } else {
-          monthlyData = fb3.data || [];
-        }
-      }
-
-      logger.debug('📊 月度查询结果(含表名与字段回退):', {
+      logger.debug('📊 月度查询结果:', {
         recordCount: monthlyData?.length || 0,
         sampleRecord: monthlyData?.[0] || null
       });
@@ -542,7 +494,7 @@ class TokenUsageService {
         .from(usageTableDaily)
         .select('*')
         .eq('user_id', userId)
-        .gte('timestamp', dayStartTime);
+        .gte('created_at', dayStartTime);
 
       if (dailyError) {
         logger.warn('⚠️ 日度查询新表失败，尝试回退旧表名:', dailyError);
@@ -550,7 +502,7 @@ class TokenUsageService {
           .from('user_usage_logs')
           .select('*')
           .eq('user_id', userId)
-          .gte('timestamp', dayStartTime);
+          .gte('created_at', dayStartTime);
         if (!fb.error) {
           dailyData = fb.data || [];
         } else {
@@ -579,7 +531,7 @@ class TokenUsageService {
           .from('user_usage_logs')
           .select('*')
           .eq('user_id', userId)
-          .gte('timestamp', dayStartTime);
+          .gte('created_at', dayStartTime);
         if (fb2.error) {
           logger.error('❌ 旧表名(timestamp)查询失败:', fb2.error);
         } else {
@@ -760,7 +712,7 @@ class TokenUsageService {
       const dataService = createDataService(userId, usageTable);
       const result = await dataService.findMany({
         limit,
-        orderBy: 'timestamp',
+        orderBy: 'created_at',
         orderDirection: 'desc'
       });
 
@@ -792,7 +744,7 @@ class TokenUsageService {
         .from(usageTable)
         .select('*')
         .eq('user_id', userId)
-        .gte('timestamp', monthStartTime);
+        .gte('created_at', monthStartTime);
 
       if (error) {
         logger.error('❌ 查询功能统计记录失败:', error);
@@ -864,7 +816,7 @@ class TokenUsageService {
         .from(usageTable)
         .select('*')
         .eq('user_id', userId)
-        .lt('timestamp', cutoffDate.toISOString());
+        .lt('created_at', cutoffDate.toISOString());
 
       if (expiredError) {
         throw new Error(`查询过期记录失败: ${expiredError.message}`);
@@ -899,7 +851,7 @@ class TokenUsageService {
 
       // 获取所有用户记录
       const allRecords = await dataService.findMany({
-        orderBy: 'timestamp',
+        orderBy: 'created_at',
         orderDirection: 'desc'
       });
 
