@@ -123,10 +123,10 @@ export class TokenStatsQueryService {
       .select('total_tokens')
       .eq('user_id', userId)
       .eq('success', true) // ⚠️  只统计成功的调用
-      .gte('timestamp', startTime);
+      .gte('created_at', startTime); // 🔧 FIX: 使用 created_at 而不是 timestamp
 
     if (endTime) {
-      query = query.lte('timestamp', endTime);
+      query = query.lte('created_at', endTime); // 🔧 FIX: 使用 created_at 而不是 timestamp
     }
 
     const { data, error } = await query;
@@ -164,7 +164,7 @@ export class TokenStatsQueryService {
         .from(TABLE_NAMES.USER_USAGE_LOGS)
         .select('*')
         .eq('user_id', userId)
-        .order('timestamp', { ascending: false })
+        .order('created_at', { ascending: false }) // 🔧 FIX: 使用 created_at 而不是 timestamp
         .range(offset, offset + limit - 1);
 
       // 功能筛选
@@ -226,7 +226,7 @@ export class TokenStatsQueryService {
         .select('feature, total_tokens')
         .eq('user_id', userId)
         .eq('success', true)
-        .gte('timestamp', monthStart.toISOString());
+        .gte('created_at', monthStart.toISOString()); // 🔧 FIX: 使用 created_at 而不是 timestamp
 
       if (error) {
         throw error;

@@ -243,6 +243,7 @@ export class TokenTrackingError extends Error {
 
 /**
  * 数据库记录格式 (snake_case)
+ * 🔧 FIX: token_usage_records 表使用 created_at 而不是 timestamp
  */
 export interface DBTokenUsageRecord {
   id: string;
@@ -256,6 +257,6 @@ export interface DBTokenUsageRecord {
   content_summary: string | null;
   success: boolean;
   error_message: string | null;
-  timestamp: string;
+  created_at: string; // 🔧 FIX: 使用 created_at 而不是 timestamp
   metadata: Record<string, any> | null;
 }

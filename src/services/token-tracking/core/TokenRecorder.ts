@@ -180,6 +180,7 @@ export class TokenRecorder {
     }
 
     // 2. 转换为数据库格式 (snake_case)
+    // 🔧 FIX: token_usage_records 表使用 created_at 而不是 timestamp
     const dbRecord: DBTokenUsageRecord = {
       id: record.id,
       user_id: record.userId,
@@ -192,7 +193,7 @@ export class TokenRecorder {
       content_summary: record.contentSummary,
       success: record.success,
       error_message: record.errorMessage,
-      timestamp: record.timestamp,
+      created_at: record.timestamp, // 🔧 FIX: 使用 created_at 字段
       metadata: record.metadata
     };
 
