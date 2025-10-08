@@ -56,9 +56,10 @@
   status = 200
 
 # AI代理路由 - 必须在通用API路由之前
+# 🔧 FIX: 移除 :splat，Netlify Functions 通过 event.path 接收路径参数
 [[redirects]]
   from = "/api/ai/*"
-  to = "/.netlify/functions/ai-proxy/:splat"
+  to = "/.netlify/functions/ai-proxy"
   status = 200
   force = true
 
