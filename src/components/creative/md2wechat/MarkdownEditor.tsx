@@ -6,14 +6,14 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { 
-  Bold, 
-  Italic, 
-  List, 
-  ListOrdered, 
-  Link, 
-  Image, 
-  Code, 
+import {
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Link,
+  Image,
+  Code,
   Quote,
   Heading1,
   Heading2,
@@ -39,6 +39,18 @@ export function MarkdownEditor({ content,
   placeholder = '在此输入Markdown内容...'
  }: MarkdownEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // 初次挂载时自动聚焦，显示输入闪动光标
+  useEffect(() => {
+    const t = textareaRef.current;
+    if (t) {
+      try {
+        t.focus();
+        const pos = typeof content === 'string' ? content.length : 0;
+        t.setSelectionRange(pos, pos);
+      } catch {/* no-op */}
+    }
+  }, []);
 
   /**
    * 在光标位置插入文本
@@ -94,6 +106,7 @@ export function MarkdownEditor({ content,
 
   return (
     <div className={cn('flex flex-col h-full', className)}>
+      <div className="flex flex-col h-full border border-border rounded-lg bg-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background overflow-hidden">
       {/* 工具栏 */}
       <div className="flex flex-wrap gap-1 p-2 border-b border-border bg-muted/20">
         <div className="flex gap-1">
@@ -146,23 +159,29 @@ export function MarkdownEditor({ content,
       </div>
 
       {/* 编辑区域 */}
-      <div className="flex-1 relative" style={{ minHeight: '300px' }}>
-        <textarea
-          ref={textareaRef}
-          value={content}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className={cn(
-            'w-full h-full p-4 resize-none border-0 outline-0 focus:ring-0',
-            'bg-background text-foreground font-mono text-sm leading-6',
-            'placeholder:text-muted-foreground',
-            'overflow-y-auto'
-          )}
-          style={{ 
-            minHeight: '300px'
-          }}
-        />
-      </div>
+      <div className="flex-1 relative">
+        {/* 外框容器：边框 + 圆角 + 聚焦高亮（focus-within） */}
+        <div className="h-full w-full" style={{ minHeight: '300px' }}>
+          <textarea
+            ref={textareaRef}
+            value={content}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            autoFocus
+            className={cn(
+              'w-full h-full p-4 resize-none border-0 outline-0 focus:ring-0',
+              'bg-background text-foreground font-mono text-sm leading-6',
+              'placeholder:text-muted-foreground',
+              'overflow-y-auto'
+            )}
+            style={{
+              minHeight: '300px',
+              caretColor: 'hsl(var(--primary))'
+            }}
+          />
+        </div>
+        </div>
+    </div>
     </div>
   );
 }

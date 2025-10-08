@@ -151,7 +151,7 @@ export class NetworkFallbackHandler {
     try {
       // 检查网络状态
       if (this.networkStatus === NetworkStatus.OFFLINE) {
-        return await this.handleFallback<T>(config, new Error('u64cdu4f5cu5931u8d25'));
+        return await this.handleFallback<T>(config, new Error('网络离线，请检查网络后重试'));
       }
 
       // 执行请求
@@ -393,7 +393,7 @@ export class NetworkFallbackHandler {
       data: config.defaultData || null,
       success: !!config.defaultData,
       isDefault: true,
-      error: config.defaultData ? undefined : 'u64cdu4f5cu5931u8d25',
+      error: config.defaultData ? undefined : '[31m[0m',
       networkStatus: this.networkStatus
     };
   }

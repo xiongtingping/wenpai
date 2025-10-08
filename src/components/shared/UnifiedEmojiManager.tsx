@@ -691,9 +691,9 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
             <Button
               onClick={() => {
                 exitRandomView();
-                setSearchQuery('');
-                setShowFavoritesOnly(false);
-                setSelectedCategory('all');
+                clearFilters();
+                setSortMode('name');
+                setViewMode('grid');
               }}
               className="px-3.5 py-1.5 text-sm font-semibold"
               title={t('components.labels.标题')}
@@ -932,7 +932,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                       e.preventDefault();
                       toggleFavorite(randomSelected.id);
                     }}
-                    className="emoji-favorite-btn"
+                    className="emoji-favorite-btn absolute right-3 top-3 z-10"
                     data-favorited={favorites.has(randomSelected.id)}
                   >
                     <Heart
@@ -961,7 +961,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                   🔄 再次随机
                 </Button>
                 <Button
-                  onClick={() => exitRandomView()}
+                  onClick={() => { exitRandomView(); clearFilters(); setSortMode('name'); setViewMode('grid'); }}
                   variant="outline"
                   className="px-6 py-2.5 text-sm font-medium"
                   size="default"
@@ -979,7 +979,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
         <>
           {viewMode === 'grid' && (
             <div className="mx-auto max-w-6xl px-1 sm:px-2 lg:px-3 xl:px-4 pb-8">
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-8 gap-3">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-6 xl:grid-cols-6 gap-3">
               {displayEmojis.map((emoji) => {
               const isSelected = allowMultiSelect && selectedEmojis.some(e => e.id === emoji.id);
               const isFavorited = favorites.has(emoji.id);
@@ -1000,7 +1000,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                         e.preventDefault();
                         toggleFavorite(emoji.id);
                       }}
-                      className="emoji-favorite-btn"
+                      className="emoji-favorite-btn absolute right-2 top-2 z-10"
                       data-favorited={isFavorited}
                     >
                       <Heart
@@ -1135,7 +1135,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({ mode = 'selec
                         e.preventDefault();
                         toggleFavorite(emoji.id);
                       }}
-                      className="emoji-favorite-btn"
+                      className="emoji-favorite-btn absolute right-3 top-3 z-10"
                       data-favorited={isFavorited}
                     >
                       <Heart

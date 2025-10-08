@@ -44,7 +44,12 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
   {
     value: 'rainbow',
     label: t('components.labels.text_emon6'),
-    icon: <div className="w-4 h-4 rounded-full bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400" />,
+    icon: (
+      <div
+        className="w-4 h-4 rounded-full"
+        style={{ background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)))' }}
+      />
+    ),
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
     description: t('theme.descriptions.rainbow', { defaultValue: '彩虹渐变主题，活力多彩风格' }),
@@ -53,7 +58,12 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
   {
     value: 'beige',
     label: t('components.labels.text_cxymif'),
-    icon: <div className="w-4 h-4 rounded-full bg-amber-200 border border-amber-300" />,
+    icon: (
+      <div
+        className="w-4 h-4 rounded-full border"
+        style={{ backgroundColor: 'hsl(var(--warning-bg))', borderColor: 'hsl(var(--warning))' }}
+      />
+    ),
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
     description: t('theme.descriptions.beige', { defaultValue: '温暖米色主题，长时间使用更舒适' }),
@@ -62,7 +72,12 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
   {
     value: 'green',
     label: t('components.labels.text_mbf7'),
-    icon: <div className="w-4 h-4 rounded-full bg-success" />,
+    icon: (
+      <div
+        className="w-4 h-4 rounded-full border"
+        style={{ backgroundColor: 'hsl(var(--success))', borderColor: 'hsl(var(--success))' }}
+      />
+    ),
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
     description: t('theme.descriptions.green', { defaultValue: '护眼绿色主题，自然清新风格' }),

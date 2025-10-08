@@ -83,7 +83,7 @@ export default function CreativeStudioPage() {
         {/* 页面导航 */}
         <PageNavigation
           title="创意工作室"
-          description="包含营销日历、九宫格创意魔方、Emoji图库、Markdown排版等多种创意工具"
+          description="包含营销日历、九宫格创意魔方、Emoji图库、MD2Wechat 等多种创意工具"
           showAdaptButton={false}
           showUpgradeButton={false}
           actions={
@@ -121,7 +121,7 @@ export default function CreativeStudioPage() {
                 </TabsTrigger>
                 <TabsTrigger value="md2wechat" className="unified-tab-trigger">
                   <FileText className="w-4 h-4" />
-                  <span>Markdown排版工具</span>
+                  <span>MD2Wechat</span>
                 </TabsTrigger>
                 <TabsTrigger value="md2card" className="unified-tab-trigger">
                   <FolderOpen className="w-4 h-4" />

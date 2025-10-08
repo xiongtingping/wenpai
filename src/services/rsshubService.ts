@@ -287,18 +287,82 @@ class RSSHubService {
   }
 
   /**
-   * 排序和去重
+   * 排序和去重（更稳健）：
+   * 1) 先用规范化后的链接做精准去重
+   * 2) 再用规范化标题做相似度去重（阈值更严格）
+   * 3) 合并重复项的来源/标签/热度（取最大）
    */
   private sortAndDeduplicateTopics(topics: HotTopicItem[]): HotTopicItem[] {
-    // 去重（基于标题相似度）
-    const uniqueTopics = topics.filter((topic, index, self) => 
-      index === self.findIndex(t => 
-        this.calculateSimilarity(t.title, topic.title) < 0.8
-      )
-    );
+    const byCanonicalLink = new Map<string, HotTopicItem>();
+    const results: HotTopicItem[] = [];
 
-    // 按热度分数排序
-    return uniqueTopics.sort((a, b) => (b.hotScore || 0) - (a.hotScore || 0));
+    for (const topic of topics) {
+      const canonical = this.getCanonicalLink(topic.link);
+      const normTitle = this.normalizeTitle(topic.title);
+
+      // 1) 基于规范化链接的精确去重
+      if (canonical) {
+        const existed = byCanonicalLink.get(canonical);
+        if (existed) {
+          // 合并：保留更高热度，合并标签与来源
+          existed.hotScore = Math.max(existed.hotScore || 0, topic.hotScore || 0);
+          const tags = new Set([...(existed.tags || []), ...(topic.tags || [])]);
+          existed.tags = Array.from(tags);
+          // 若来源不同，可在需要时扩展 source 为“来源A/来源B”
+          continue;
+        } else {
+          byCanonicalLink.set(canonical, topic);
+        }
+      }
+
+      // 2) 标题相似度去重（更严格阈值）
+      let merged = false;
+      for (const item of byCanonicalLink.size > 0 ? Array.from(byCanonicalLink.values()) : results) {
+        const sim = this.calculateSimilarity(this.normalizeTitle(item.title), normTitle);
+        if (sim >= 0.87) {
+          item.hotScore = Math.max(item.hotScore || 0, topic.hotScore || 0);
+          const tags = new Set([...(item.tags || []), ...(topic.tags || [])]);
+          item.tags = Array.from(tags);
+          merged = true;
+          break;
+        }
+      }
+      if (!merged) {
+        results.push(topic);
+      }
+    }
+
+    const deduped = byCanonicalLink.size > 0 ? Array.from(new Set([...byCanonicalLink.values(), ...results])) : results;
+
+    // 3) 排序：热度优先，其次时间
+    return deduped.sort((a, b) => {
+      const hs = (b.hotScore || 0) - (a.hotScore || 0);
+      if (hs !== 0) return hs;
+      const ta = new Date(a.pubDate).getTime();
+      const tb = new Date(b.pubDate).getTime();
+      return tb - ta;
+    });
+  }
+
+  /** 规范化标题：去标点/空白/大小写，保留中文与字母数字 */
+  private normalizeTitle(input: string): string {
+    return (input || '')
+      .toLowerCase()
+      .replace(/[\u3000\s]+/g, '') // 空白（含全角空格）
+      .replace(/[\p{P}\p{S}]/gu, '') // 标点与符号
+      .replace(/[“”‘’·••]/g, '')
+      .trim();
+  }
+
+  /** 规范化链接：去查询与哈希，仅保留 origin+pathname */
+  private getCanonicalLink(link?: string): string | null {
+    if (!link) return null;
+    try {
+      const u = new URL(link);
+      return `${u.origin}${u.pathname}`;
+    } catch {
+      return null;
+    }
   }
 
   /**

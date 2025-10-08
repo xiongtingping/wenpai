@@ -71,7 +71,7 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
   const { recordUsage } = useUsageStore();
   
   // 状态管理
-  const [markdownContent, setMarkdownContent] = useState('# 欢迎使用Markdown排版工具\n\n这是一个专为微信公众号设计的Markdown转换工具。\n\n## 功能特点\n\n- 🎨 多种精美主题\n- 📱 移动端适配预览\n- 🚀 一键复制导出\n- ⚡ 实时预览效果\n\n## 使用方法\n\n1. 在左侧编辑器中输入Markdown内容\n2. 选择合适的主题样式\n3. 预览转换效果\n4. 一键复制到微信公众号\n\n开始你的创作之旅吧！');
+  const [markdownContent, setMarkdownContent] = useState('# 欢迎使用 MD2Wechat\n\n这是一个专为微信公众号设计的 Markdown 转换工具。\n\n## 功能特点\n\n- 🎨 多种精美主题\n- 📱 移动端适配预览\n- 🚀 一键复制导出\n- ⚡ 实时预览效果\n\n## 使用方法\n\n1. 在左侧编辑器中输入 Markdown 内容\n2. 选择合适的主题样式\n3. 预览转换效果\n4. 一键复制到微信公众号\n\n开始你的创作之旅吧！');
   const [selectedTheme, setSelectedTheme] = useState('default');
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
   const [previewHtml, setPreviewHtml] = useState('');
@@ -277,7 +277,7 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
 
   // 重置内容
   const handleReset = useCallback(() => {
-    setMarkdownContent('# 欢迎使用Markdown排版工具\n\n开始你的创作之旅...');
+    setMarkdownContent('# 欢迎使用 MD2Wechat\n\n开始你的创作之旅...');
     setSelectedTheme('default');
     setFontSize('medium');
     toast({
@@ -428,7 +428,7 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <FileText className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Markdown编辑器</span>
+                    <span className="text-sm font-medium">MD2Wechat 编辑器</span>
                     {isConverting && (
                       <RefreshCw className="w-3 h-3 animate-spin text-muted-foreground" />
                     )}

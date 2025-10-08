@@ -324,7 +324,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       {/* 原生实现的用户头像按钮 */}
       <button
         ref={triggerRef}
-        className="relative h-auto p-2 hover:bg-accent/50 rounded-md cursor-pointer border-none bg-transparent outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        className="relative h-auto p-2 hover:bg-accent/50 rounded-md cursor-pointer border-none bg-transparent outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         onClick={() => {
           const newState = !isNativeDropdownOpen;
           setIsNativeDropdownOpen(newState);

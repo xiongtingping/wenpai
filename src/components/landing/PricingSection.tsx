@@ -16,8 +16,10 @@ import {
   calculateRemainingTime,
   formatTimeLeft,
   getPaymentCenterAccessTime,
-  shouldShowPromoOffer
+  shouldShowPromoOffer,
+  recordPaymentCenterAccess
 } from "@/utils/paymentTimer";
+import { getUserTier } from "@/utils/subscriptionUtils";
 
 /**
  * 年度计费按钮组件 - 职责分离版本
@@ -90,7 +92,17 @@ export function PricingSection() {
           timeoutPromise
         ]);
 
-        setShowPromoOffer(shouldShow);
+        let finalShouldShow = shouldShow;
+        const existing = getPaymentCenterAccessTime(currentUser.id);
+        const userTier = getUserTier(currentUser);
+
+        // 如果未开始计时且用户看起来未订阅，则在首页启动统一计时，确保首页/订阅中心一致
+        if (!existing && (userTier !== 'pro' && userTier !== 'premium' && userTier !== 'professional')) {
+          recordPaymentCenterAccess(currentUser.id);
+          finalShouldShow = true;
+        }
+
+        setShowPromoOffer(finalShouldShow);
       } catch (error) {
         console.warn('检查优惠状态失败，默认显示优惠:', error);
         setShowPromoOffer(true); // 出错时默认显示优惠
@@ -114,7 +126,7 @@ export function PricingSection() {
     const interval = setInterval(updateTimer, 1000); // 🔧 PERF FIX: 优化从100ms到1000ms，避免过度渲染
 
     return () => clearInterval(interval);
-  }, [currentUser?.id]);
+  }, [currentUser?.id, showPromoOffer]);
 
   // 页面访问时记录时间（用于限时优惠）
   useEffect(() => {

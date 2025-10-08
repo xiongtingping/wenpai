@@ -1365,13 +1365,13 @@ export default function MD2CardPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
               {/* 优化的标签页导航 */}
               <TabsList className="unified-tabs-list grid w-full grid-cols-3">
-                <TabsTrigger value="template" className="unified-tab-trigger">
-                  <Square className="w-4 h-4" />
-                  模板选择
-                </TabsTrigger>
                 <TabsTrigger value="content" className="unified-tab-trigger">
                   <Edit3 className="w-4 h-4" />
                   内容编辑
+                </TabsTrigger>
+                <TabsTrigger value="template" className="unified-tab-trigger">
+                  <Square className="w-4 h-4" />
+                  模板选择
                 </TabsTrigger>
                 <TabsTrigger value="styles" className="unified-tab-trigger">
                   <Palette className="w-4 h-4" />
@@ -1394,15 +1394,29 @@ export default function MD2CardPage() {
                           onClick={() => handleTemplateChange(template.id)}
                         >
                           <CardContent className="p-3">
-                            <div className="aspect-video bg-muted rounded mb-2 flex items-center justify-center">
-                              <Image className="w-8 h-8 text-muted-foreground" />
+                            <div
+                              className="w-full rounded mb-2 border border-border bg-muted/30 relative overflow-hidden"
+                              style={{ paddingTop: `${100 / ((template.dimensions?.width || 4) / (template.dimensions?.height || 3))}%` }}
+                            >
+                              <div className="absolute inset-0 flex flex-col">
+                                <div className="h-3" style={{ backgroundColor: 'hsl(var(--primary) / 0.6)' }} />
+                                <div className="flex-1 p-2">
+                                  <div className="h-2 rounded w-3/4 mb-1" style={{ backgroundColor: 'hsl(var(--foreground) / 0.2)' }} />
+                                  <div className="h-2 rounded w-1/2" style={{ backgroundColor: 'hsl(var(--foreground) / 0.1)' }} />
+                                </div>
+                              </div>
                             </div>
                             <div className="space-y-1">
                               <div className="flex items-center justify-between">
                                 <h4 className="text-sm font-medium">{template.displayName}</h4>
+                                <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">
+                                  {template.dimensions?.aspectRatio}
+                                </Badge>
                               </div>
                               <p className="text-xs text-muted-foreground">{template.description}</p>
-                              <p className="text-xs text-muted-foreground">{template.dimensions.aspectRatio}</p>
+                              <div className="text-[11px] text-muted-foreground">
+                                {(template.dimensions?.width || 0)}×{(template.dimensions?.height || 0)}
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
@@ -1418,7 +1432,7 @@ export default function MD2CardPage() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Markdown编辑器</span>
+                      <span className="text-sm font-medium">MD2Card 编辑器</span>
                       {isGenerating && (
                         <RefreshCw className="w-3 h-3 animate-spin text-muted-foreground" />
                       )}
@@ -1575,7 +1589,7 @@ export default function MD2CardPage() {
                 <div className="flex-1 overflow-hidden bg-gradient-to-br from-white/90 to-slate-50/80 rounded-xl border-2 border-slate-200/50 shadow-sm">
                   <PermissionProtectedInput
                     requiredTier="pro"
-                    featureName="MD2Card Markdown编辑器"
+                    featureName="MD2Card 编辑器"
                   >
                     <textarea
                       ref={textareaRef}
@@ -1592,21 +1606,21 @@ export default function MD2CardPage() {
               <TabsContent value="styles" className="p-4 overflow-y-auto inline-style-converted" >
                 <div className="space-y-4">
                   {/* 颜色设置 */}
-                  <div className="bg-gradient-to-br from-purple-50/50 to-pink-50/50 rounded-xl p-4 border border-purple-100/50 shadow-sm">
+                  <div className="rounded-xl p-4 border border-border shadow-sm bg-muted/30">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="p-1.5 bg-purple-100 rounded-md">
-                        <Palette className="w-4 h-4 text-purple-600" />
+                      <div className="p-1.5 rounded-md bg-primary/15">
+                        <Palette className="w-4 h-4 text-primary" />
                       </div>
-                      <h3 className="text-base font-semibold text-gray-800">颜色配置</h3>
+                      <h3 className="text-base font-semibold text-foreground">颜色配置</h3>
                     </div>
                     
                     {/* 一键配色 */}
                     <div className="mb-4">
-                      <label className="text-xs font-medium text-gray-700 mb-2 block">一键配色</label>
+                      <label className="text-xs font-medium text-muted-foreground mb-2 block">一键配色</label>
                       <div className="grid grid-cols-6 gap-2 mb-4">
                         {/* 蓝色商务 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-blue"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-blue"
                           title="蓝色商务"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1622,7 +1636,7 @@ export default function MD2CardPage() {
                         
                         {/* 绿色清新 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-green"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-green"
                           title="绿色清新"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1638,7 +1652,7 @@ export default function MD2CardPage() {
                         
                         {/* 紫色优雅 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-purple"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-purple"
                           title="紫色优雅"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1654,7 +1668,7 @@ export default function MD2CardPage() {
                         
                         {/* 橙色活力 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-amber"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-amber"
                           title="橙色活力"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1670,7 +1684,7 @@ export default function MD2CardPage() {
                         
                         {/* 粉色温馨 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-pink"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-pink"
                           title="粉色温馨"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1686,7 +1700,7 @@ export default function MD2CardPage() {
                         
                         {/* 暗色专业 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-gray"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-gray"
                           title="暗色专业"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1702,7 +1716,7 @@ export default function MD2CardPage() {
                         
                         {/* 红色热情 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-red"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-red"
                           title="红色热情"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1718,7 +1732,7 @@ export default function MD2CardPage() {
                         
                         {/* 青色清爽 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-cyan"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-cyan"
                           title="青色清爽"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1734,7 +1748,7 @@ export default function MD2CardPage() {
                         
                         {/* 黄色阳光 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-yellow"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-yellow"
                           title="黄色阳光"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1750,7 +1764,7 @@ export default function MD2CardPage() {
                         
                         {/* 玫瑰金 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-orange"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-orange"
                           title="玫瑰金"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1766,7 +1780,7 @@ export default function MD2CardPage() {
                         
                         {/* 薄荷绿 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-emerald"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-emerald"
                           title="薄荷绿"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1782,7 +1796,7 @@ export default function MD2CardPage() {
                         
                         {/* 靛青深邃 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-indigo"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-indigo"
                           title="靛青深邃"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1801,7 +1815,7 @@ export default function MD2CardPage() {
                       <div className="grid grid-cols-6 gap-2 mb-4">
                         {/* 湖水蓝 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-sky"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-sky"
                           title="湖水蓝"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1817,7 +1831,7 @@ export default function MD2CardPage() {
                         
                         {/* 森林绿 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-teal"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-teal"
                           title="森林绿"
                           onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1833,7 +1847,7 @@ export default function MD2CardPage() {
                         
                         {/* 紫罗兰 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-violet"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-violet"
                           title="紫罗兰"
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1849,7 +1863,7 @@ export default function MD2CardPage() {
                         
                         {/* 石墨黑 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-slate"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-slate"
                           title="石墨黑"
         onClick={() => setCardConfig(prev => ({
                             ...prev,
@@ -1865,7 +1879,7 @@ export default function MD2CardPage() {
                         
                         {/* 珊瑚橙 */}
                         <button
-                          className="group relative w-10 h-10 rounded-md border border-white shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-rose"
+                          className="group relative w-10 h-10 rounded-md border border-border shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 u-gradient-rose"
                           title="珊瑚橙"
         onClick={() => setCardConfig(prev => ({
                             ...prev,
