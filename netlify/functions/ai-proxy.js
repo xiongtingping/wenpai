@@ -110,6 +110,13 @@ const makeRequest = (url, options, data) => {
 
 // 主处理函数
 exports.handler = async (event, context) => {
+  console.log('🚀 AI代理函数被调用:', {
+    path: event.path,
+    rawUrl: event.rawUrl,
+    httpMethod: event.httpMethod,
+    headers: event.headers
+  });
+
   // 设置 CORS 头
   const headers = {
     'Access-Control-Allow-Origin': '*',
