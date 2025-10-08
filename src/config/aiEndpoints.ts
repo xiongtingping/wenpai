@@ -248,10 +248,8 @@ export function buildAPIURL(
   const needsProxy = proxiedProviders.includes(provider.toLowerCase());
   const isProduction = typeof window !== 'undefined' && !window.location.hostname.includes('localhost');
 
-  // 🔧 TEMPORARY FIX: 直接使用 Netlify Function URL 绕过重定向问题
-  // TODO: 等待 Netlify CDN 缓存清除后恢复使用 /api/ai/ 路径
   const finalURL = needsProxy && isProduction
-    ? `/.netlify/functions/ai-proxy?provider=${provider}&path=${endpointPath.replace(/^\//, '')}`
+    ? `/api/ai/${provider}${endpointPath}`
     : `${config.baseURL}${endpointPath}`;
 
   // 🔍 详细日志：记录URL构建过程
