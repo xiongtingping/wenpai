@@ -176,7 +176,7 @@ exports.handler = async (event, context) => {
       const { error: subscriptionError } = await supabase
         .from('user_subscriptions')
         .update({
-          subscription_type: upgradeOrder.target_tier
+          tier: upgradeOrder.target_tier  // 🔧 FIX: 使用 tier 而不是 subscription_type
         })
         .eq('id', upgradeOrder.current_subscription_id)
         .eq('status', 'active');

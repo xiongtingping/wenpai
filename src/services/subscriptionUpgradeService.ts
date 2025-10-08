@@ -70,7 +70,7 @@ export class SubscriptionUpgradeService {
       }
 
       // 2. 检查是否为升级(不支持降级)
-      if (!this.isUpgrade(currentSubscription.subscription_type as SubscriptionTier, targetTier)) {
+      if (!this.isUpgrade(currentSubscription.tier as SubscriptionTier, targetTier)) {  // 🔧 FIX: 使用 tier
         throw new Error('不支持降级,仅支持升级到更高套餐');
       }
 
@@ -82,7 +82,7 @@ export class SubscriptionUpgradeService {
 
       // 4. 获取订阅计划价格
       const subscriptionPlans = getSubscriptionPlans();
-      const currentPlan = subscriptionPlans.find(p => p.tier === currentSubscription.subscription_type);
+      const currentPlan = subscriptionPlans.find(p => p.tier === currentSubscription.tier);  // 🔧 FIX: 使用 tier
       const targetPlan = subscriptionPlans.find(p => p.tier === targetTier);
 
       if (!currentPlan || !targetPlan) {
@@ -112,7 +112,7 @@ export class SubscriptionUpgradeService {
       // 8. 构建升级计算结果
       const calculation: UpgradeCalculation = {
         currentSubscription: {
-          tier: currentSubscription.subscription_type as SubscriptionTier,
+          tier: currentSubscription.tier as SubscriptionTier,  // 🔧 FIX: 使用 tier
           period: currentPeriod,
           expiresAt: currentSubscription.expires_at,
           remainingDays,
@@ -133,7 +133,7 @@ export class SubscriptionUpgradeService {
         },
         details: {
           description: this.generateUpgradeDescription(
-            currentSubscription.subscription_type as SubscriptionTier,
+            currentSubscription.tier as SubscriptionTier,  // 🔧 FIX: 使用 tier
             targetTier,
             remainingDays,
             upgradeAmount
@@ -160,7 +160,7 @@ export class SubscriptionUpgradeService {
 
       logger.info('升级差价计算完成:', {
         userId,
-        currentTier: currentSubscription.subscription_type,
+        currentTier: currentSubscription.tier,  // 🔧 FIX: 使用 tier
         targetTier,
         remainingDays,
         upgradeAmount
@@ -210,10 +210,10 @@ export class SubscriptionUpgradeService {
       const { data: newSubscription, error } = await supabase
         .from('user_subscriptions')
         .update({
-          subscription_type: upgradeCalculation.targetSubscription.tier,
+          tier: upgradeCalculation.targetSubscription.tier,  // 🔧 FIX: 使用 tier
           expires_at: newExpiresAt,
           updated_at: new Date().toISOString(),
-          upgrade_from: currentSubscription.subscription_type,
+          upgrade_from: currentSubscription.tier,  // 🔧 FIX: 使用 tier
           upgrade_at: new Date().toISOString(),
           upgrade_amount: upgradeCalculation.calculation.upgradeAmount,
           order_id: paymentData?.orderId || null

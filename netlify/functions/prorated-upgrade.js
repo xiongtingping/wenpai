@@ -61,13 +61,13 @@ function calculateProratedUpgrade(currentSubscription, targetTier, targetPeriod)
   const usedDays = totalDays - daysRemaining;
 
   // 获取价格
-  const currentPrice = PLAN_PRICES[currentSubscription.subscription_type][currentPeriod];
+  const currentPrice = PLAN_PRICES[currentSubscription.tier][currentPeriod];  // 🔧 FIX: 使用 tier
   const targetPrice = PLAN_PRICES[targetTier][targetPeriod];
 
   // 检查是否支持升级
-  const canUpgrade = targetTier !== currentSubscription.subscription_type && 
+  const canUpgrade = targetTier !== currentSubscription.tier &&  // 🔧 FIX: 使用 tier
                     daysRemaining > 0 &&
-                    getPlanLevel(targetTier) > getPlanLevel(currentSubscription.subscription_type);
+                    getPlanLevel(targetTier) > getPlanLevel(currentSubscription.tier);  // 🔧 FIX: 使用 tier
 
   if (!canUpgrade) {
     return {
@@ -200,7 +200,7 @@ exports.handler = async (event, context) => {
 
     console.log('补差价计算完成:', {
       userId,
-      currentTier: subscription.subscription_type,
+      currentTier: subscription.tier,  // 🔧 FIX: 使用 tier
       targetTier,
       targetPeriod,
       canUpgrade: calculation.canUpgrade,
@@ -216,7 +216,7 @@ exports.handler = async (event, context) => {
         calculation,
         subscription: {
           id: subscription.id,
-          subscription_type: subscription.subscription_type,
+          tier: subscription.tier,  // 🔧 FIX: 使用 tier
           expires_at: subscription.expires_at,
           started_at: subscription.started_at
         }

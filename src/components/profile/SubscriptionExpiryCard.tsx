@@ -162,7 +162,7 @@ export function SubscriptionExpiryCard() {
   }
   interface SubscriptionItem {
     id: string;
-    subscription_type: 'trial' | 'pro' | 'premium';
+    tier: 'trial' | 'pro' | 'premium';  // 🔧 FIX: 使用 tier 而不是 subscription_type
     status: 'active' | 'expired' | 'cancelled' | 'pending';
     started_at: string;
     expires_at: string;
@@ -197,7 +197,7 @@ export function SubscriptionExpiryCard() {
           .limit(20),
         supabase
           .from('user_subscriptions')
-          .select('id, subscription_type, status, started_at, expires_at, order_id, created_at')
+          .select('id, tier, status, started_at, expires_at, order_id, created_at')  // 🔧 FIX: 使用 tier
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(20),
@@ -534,7 +534,7 @@ export function SubscriptionExpiryCard() {
                   {subscriptions.map((s) => (
                     <div key={s.id} className="flex items-center justify-between p-2 rounded-lg border bg-muted/20">
                       <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{s.subscription_type === 'premium' ? '高级版' : s.subscription_type === 'pro' ? '专业版' : '体验版'} · {s.status}</div>
+                        <div className="text-sm font-medium truncate">{s.tier === 'premium' ? '高级版' : s.tier === 'pro' ? '专业版' : '体验版'} · {s.status}</div>
                         <div className="text-xs text-muted-foreground truncate">有效期：{formatDateTime(s.started_at, false)} ~ {formatDateTime(s.expires_at, true)}</div>
                         {s.order_id ? (
                           <div className="text-xs text-muted-foreground truncate">订单号：{s.order_id}</div>

@@ -359,7 +359,7 @@ exports.handler = async (event, context) => {
 
       console.log('权限开通成功:', {
         userId: updatedOrder.user_id,
-        subscriptionType: subscriptionData.subscription_type,
+        subscriptionType: subscriptionData.tier,  // 🔧 FIX: 使用 tier 而不是 subscription_type
         expiresAt: subscriptionData.expires_at
       });
 
