@@ -80,10 +80,12 @@ async function createUserSubscription(order) {
   try {
     const subscriptionData = {
       user_id: order.user_id,
-      subscription_type: order.product_type,
+      tier: order.product_type,  // 🔧 FIX: 使用 tier 而不是 subscription_type
       status: 'active',
+      period: order.duration_type,  // 🔧 FIX: 添加 period 字段
       started_at: new Date().toISOString(),
-      order_id: order.order_id
+      order_id: order.order_id,
+      last_payment_id: order.order_id  // 🔧 FIX: 添加 last_payment_id
     };
 
     // 计算到期时间

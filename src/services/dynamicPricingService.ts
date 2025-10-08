@@ -20,7 +20,7 @@ export interface PricingContext {
   targetPeriod: SubscriptionPeriod;
   /** 当前订阅信息（升级时需要） */
   currentSubscription?: {
-    subscription_type: string;
+    tier: string;  // 🔧 FIX: 使用 tier 而不是 subscription_type
     expires_at: string;
     started_at: string;
     id: string;

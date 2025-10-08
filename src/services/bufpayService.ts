@@ -270,7 +270,7 @@ export class BufPayService {
       
       return {
         hasSubscription: true,
-        subscriptionType: subscription.subscription_type,
+        subscriptionType: subscription.tier,  // 🔧 FIX: 使用 tier 而不是 subscription_type
         expiresAt: subscription.expires_at,
         isExpired
       };
