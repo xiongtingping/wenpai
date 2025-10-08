@@ -379,6 +379,23 @@ export class UnifiedAIManager {
 
       if (!response.ok) {
         const errorText = await response.text();
+
+        // 尝试解析错误消息
+        let userFriendlyMessage = `HTTP ${response.status}`;
+        try {
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.message) {
+            userFriendlyMessage = errorJson.message;
+          }
+          // 特殊处理配额用完的情况
+          if (response.status === 403 && errorJson.message?.includes('exhausted')) {
+            userFriendlyMessage = 'API配额已用完，请充值或更换模型';
+          }
+        } catch {
+          // 如果不是JSON，使用原始错误文本的前200字符
+          userFriendlyMessage = errorText.substring(0, 200);
+        }
+
         logger.error('🔴 AIMLAPI调用失败:', {
           status: response.status,
           statusText: response.statusText,
@@ -386,7 +403,8 @@ export class UnifiedAIManager {
           model: config.model,
           errorBody: errorText.substring(0, 500) // 只记录前500字符
         });
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
+
+        throw new Error(userFriendlyMessage);
       }
 
       return response;
