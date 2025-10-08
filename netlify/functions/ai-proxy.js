@@ -58,6 +58,7 @@ const buildHeaders = (provider, apiKey, contentType = 'application/json') => {
   switch (provider) {
     case 'openai':
     case 'deepseek':
+    case 'aimlapi':  // 🔧 FIX: 添加 AIMLAPI 支持
       headers['Authorization'] = `Bearer ${apiKey}`;
       break;
     case 'gemini':
