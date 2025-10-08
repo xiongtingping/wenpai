@@ -226,11 +226,13 @@ exports.handler = async (event, context) => {
             .from('user_subscriptions')
             .insert({
               user_id: userId,
-              subscription_type: 'premium',
+              tier: 'premium',  // 🔧 FIX: 使用 tier 而不是 subscription_type
               status: 'active',
+              period: premiumOrder.duration_type,  // 🔧 FIX: 添加 period 字段
               started_at: start,
               expires_at: expiry,
-              order_id: premiumOrder.order_id
+              order_id: premiumOrder.order_id,
+              last_payment_id: premiumOrder.order_id  // 🔧 FIX: 添加 last_payment_id
             })
             .select('*')
             .single();

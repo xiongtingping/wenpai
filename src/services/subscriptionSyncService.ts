@@ -48,9 +48,9 @@ export async function getUserSubscriptionTier(userId: string): Promise<UserSubsc
 
     if (error) {
       console.error('❌ 查询订阅失败:', error);
-      // 查询失败时返回免费版
+      // 查询失败时返回试用版
       return {
-        tier: 'free',
+        tier: 'trial',
         status: 'none',
         expiresAt: '',
         hasActiveSubscription: false
@@ -70,10 +70,10 @@ export async function getUserSubscriptionTier(userId: string): Promise<UserSubsc
       };
     }
 
-    // 没有有效订阅，返回免费版
-    console.log('ℹ️ 未找到有效订阅，使用免费版');
+    // 没有有效订阅，返回试用版
+    console.log('ℹ️ 未找到有效订阅，使用试用版');
     return {
-      tier: 'free',
+      tier: 'trial',
       status: 'none',
       expiresAt: '',
       hasActiveSubscription: false
@@ -81,9 +81,9 @@ export async function getUserSubscriptionTier(userId: string): Promise<UserSubsc
 
   } catch (error) {
     console.error('❌ 获取订阅状态异常:', error);
-    // 异常时返回免费版
+    // 异常时返回试用版
     return {
-      tier: 'free',
+      tier: 'trial',
       status: 'error',
       expiresAt: '',
       hasActiveSubscription: false

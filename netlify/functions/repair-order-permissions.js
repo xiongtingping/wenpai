@@ -307,10 +307,11 @@ exports.handler = async (event, context) => {
     // 4. 执行权限修复
     const subscriptionData = await processOrderPermissions(order);
 
-    console.log('订单权限修复成功:', { 
-      orderId, 
+    console.log('订单权限修复成功:', {
+      orderId,
       userId: order.user_id,
-      subscriptionType: subscriptionData.subscription_type
+      tier: subscriptionData.tier,  // 🔧 FIX: 使用 tier 而不是 subscription_type
+      period: subscriptionData.period
     });
 
     return {
