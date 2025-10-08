@@ -1,0 +1,77 @@
+{
+  "timestamp": "2025-10-08T04:15:40.337Z",
+  "totalTables": 6,
+  "tables": [
+    "user_subscriptions",
+    "orders",
+    "user_usage_logs",
+    "upgrade_orders",
+    "user_profiles",
+    "user_preferences"
+  ],
+  "structures": {
+    "user_subscriptions": [
+      "id",
+      "user_id",
+      "tier",
+      "status",
+      "period",
+      "started_at",
+      "expires_at",
+      "auto_renew",
+      "payment_method",
+      "last_payment_id",
+      "next_billing_date",
+      "trial_started_at",
+      "trial_ends_at",
+      "discount_code",
+      "discount_percentage",
+      "metadata",
+      "created_at",
+      "updated_at",
+      "created_by",
+      "updated_by",
+      "order_id"
+    ],
+    "orders": [
+      "id",
+      "order_id",
+      "aoid",
+      "user_id",
+      "user_email",
+      "product_name",
+      "product_type",
+      "duration_type",
+      "amount",
+      "pay_price",
+      "status",
+      "pay_type",
+      "qr_code",
+      "qr_image",
+      "expires_at",
+      "created_at",
+      "paid_at",
+      "processed_at",
+      "metadata"
+    ],
+    "user_preferences": [
+      "id",
+      "user_id",
+      "key",
+      "value",
+      "updated_at"
+    ]
+  },
+  "fieldIssues": {
+    "subscription_type": [],
+    "tier": [
+      "user_subscriptions"
+    ],
+    "duration_type": [
+      "orders"
+    ],
+    "period": [
+      "user_subscriptions"
+    ]
+  }
+}
