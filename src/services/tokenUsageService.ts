@@ -127,31 +127,9 @@ function generateUniqueTokenId(userId: string, feature: string): string {
  * Token使用量统计服务类
  */
 class TokenUsageService {
-  // 动态解析并缓存实际使用的表名（生产环境可能仍为旧表 user_usage_logs）
-  private usageTableName: string | null = null;
-
+  // 🔧 FIX: 直接使用 token_usage_records 表，移除回退逻辑
   private async getUsageTableName(): Promise<string> {
-    if (this.usageTableName) return this.usageTableName;
-    const client = await getSupabaseClient();
-    // 先探测新表 token_usage_records 是否存在
-    const { error } = await client
-      .from(TABLE_NAMES.USER_USAGE_LOGS)
-      .select('id', { head: true, count: 'exact' })
-      .limit(1);
-
-    if (!error) {
-      this.usageTableName = TABLE_NAMES.USER_USAGE_LOGS;
-      return this.usageTableName;
-    }
-
-    // 回退旧表名 user_usage_logs
-    const { error: fbError } = await client
-      .from('user_usage_logs')
-      .select('id', { head: true, count: 'exact' })
-      .limit(1);
-
-    this.usageTableName = fbError ? TABLE_NAMES.USER_USAGE_LOGS : 'user_usage_logs';
-    return this.usageTableName;
+    return TABLE_NAMES.USER_USAGE_LOGS; // 'token_usage_records'
   }
 
   private readonly API_ENDPOINT = '/.netlify/functions/api-token-usage';
@@ -234,23 +212,12 @@ class TokenUsageService {
         model: dbRecord.model
       });
 
-      // 3. 尝试插入（若新表不存在则自动回退旧表名）
+      // 3. 尝试插入
       let { data, error } = await client
         .from(usageTable)
         .insert(dbRecord)
         .select()
         .single();
-
-      if (error && usageTable !== 'user_usage_logs') {
-        // 回退旧表名再试一次
-        const fb = await client
-          .from('user_usage_logs')
-          .insert(dbRecord)
-          .select()
-          .single();
-        data = fb.data;
-        error = fb.error as any;
-      }
 
       if (error) {
         // 特殊处理主键重复错误
@@ -497,60 +464,14 @@ class TokenUsageService {
         .gte('created_at', dayStartTime);
 
       if (dailyError) {
-        logger.warn('⚠️ 日度查询新表失败，尝试回退旧表名:', dailyError);
-        const fb = await client
-          .from('user_usage_logs')
-          .select('*')
-          .eq('user_id', userId)
-          .gte('created_at', dayStartTime);
-        if (!fb.error) {
-          dailyData = fb.data || [];
-        } else {
-          logger.error('❌ 日度查询回退旧表亦失败:', fb.error);
-          throw new Error(`查询日度记录失败: ${fb.error.message}`);
-        }
+        logger.error('❌ 日度查询失败:', dailyError);
+        throw new Error(`查询日度记录失败: ${dailyError.message}`);
       }
 
+      // 🔧 FIX: 移除所有回退查询，直接使用 token_usage_records 表
       if (!dailyData || dailyData.length === 0) {
-        logger.warn('⚠️ 日度按 timestamp 查询为空，尝试使用 created_at 回退');
-        const fb1 = await client
-          .from(usageTableDaily)
-          .select('*')
-          .eq('user_id', userId)
-          .gte('created_at', dayStartTime);
-        if (fb1.error) {
-          logger.error('❌ 日度回退(created_at)查询失败:', fb1.error);
-          throw new Error(`查询日度记录失败(created_at): ${fb1.error.message}`);
-        }
-        dailyData = fb1.data || [];
-      }
-
-      if (!dailyData || dailyData.length === 0) {
-        logger.warn('⚠️ 日度查询仍为空，尝试旧表名 user_usage_logs（timestamp）');
-        const fb2 = await client
-          .from('user_usage_logs')
-          .select('*')
-          .eq('user_id', userId)
-          .gte('created_at', dayStartTime);
-        if (fb2.error) {
-          logger.error('❌ 旧表名(timestamp)查询失败:', fb2.error);
-        } else {
-          dailyData = fb2.data || [];
-        }
-      }
-
-      if (!dailyData || dailyData.length === 0) {
-        logger.warn('⚠️ 日度旧表名(timestamp)为空，尝试旧表名 user_usage_logs（created_at）');
-        const fb3 = await client
-          .from('user_usage_logs')
-          .select('*')
-          .eq('user_id', userId)
-          .gte('created_at', dayStartTime);
-        if (fb3.error) {
-          logger.error('❌ 旧表名(created_at)查询失败:', fb3.error);
-        } else {
-          dailyData = fb3.data || [];
-        }
+        logger.warn('⚠️ 日度查询为空，用户可能没有今日使用记录');
+        dailyData = [];
       }
 
       logger.debug('📊 日度查询结果(含回退兼容):', {
