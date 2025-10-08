@@ -97,8 +97,15 @@ export function SubscriptionUpgradeDialog({ open,
     try {
       // 如果需要支付差价
       if (upgradeCalculation.calculation.upgradeAmount > 0) {
+        logger.info('开始创建升级支付订单:', {
+          userId: user.id,
+          targetTier,
+          targetPeriod,
+          upgradeAmount: upgradeCalculation.calculation.upgradeAmount
+        });
+
         // 创建支付订单
-        const paymentResult = await BufPayService.createPayment({
+        const result = await BufPayService.createPayment({
           userId: user.id,
           userEmail: user.email || '',
           productName: `升级到${targetTier === 'pro' ? '专业版' : '高级版'}`,
@@ -108,10 +115,23 @@ export function SubscriptionUpgradeDialog({ open,
           payType: 'alipay'
         });
 
-        logger.info('升级支付订单创建成功:', paymentResult);
+        logger.info('升级支付订单创建成功:', {
+          orderId: result.orderId,
+          paymentInfo: result.paymentInfo
+        });
 
-        // 🔧 FIX: 显示二维码，而不是关闭对话框
-        setPaymentData(paymentResult);
+        // 🔧 FIX: 使用正确的数据结构
+        // BufPayService.createPayment 返回 { orderId, paymentInfo }
+        // PaymentQRCode 需要 PaymentResponse 类型
+        const paymentResponse: PaymentResponse = {
+          orderId: result.orderId,
+          qrCode: result.paymentInfo.qrCode || result.paymentInfo.qr_code || '',
+          qrImage: result.paymentInfo.qrImage || result.paymentInfo.qr_image,
+          aoid: result.paymentInfo.aoid,
+          expiresIn: result.paymentInfo.expiresIn || result.paymentInfo.expires_in || 900
+        };
+
+        setPaymentData(paymentResponse);
         setShowQRCode(true);
 
       } else {
