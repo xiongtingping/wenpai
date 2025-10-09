@@ -387,6 +387,20 @@ async function generateMultipleVersions(
         charCount: actualCharCount,
         tags: extractedTags
       });
+
+      logger.info('✅ 版本A生成成功', {
+        platform: platformId,
+        charCount: actualCharCount,
+        contentPreview: cleanContent.substring(0, 100)
+      });
+    } else {
+      logger.error('❌ 版本A生成失败', {
+        platform: platformId,
+        success: standardResult.success,
+        hasContent: !!standardResult.content,
+        error: standardResult.error,
+        result: standardResult
+      });
     }
 
     // 处理创意版本结果
@@ -401,6 +415,20 @@ async function generateMultipleVersions(
         title: '版本B',
         charCount: actualCharCount,
         tags: extractedTags
+      });
+
+      logger.info('✅ 版本B生成成功', {
+        platform: platformId,
+        charCount: actualCharCount,
+        contentPreview: cleanContent.substring(0, 100)
+      });
+    } else {
+      logger.error('❌ 版本B生成失败', {
+        platform: platformId,
+        success: creativeResult.success,
+        hasContent: !!creativeResult.content,
+        error: creativeResult.error,
+        result: creativeResult
       });
     }
 
