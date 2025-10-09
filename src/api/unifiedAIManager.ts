@@ -102,14 +102,20 @@ export class UnifiedAIManager {
 
   /**
    * 获取缓存键
+   * 🔧 FIX: 包含差异化参数，确保版本A和版本B使用不同的缓存
    */
   private getCacheKey(params: AICallParams): string {
+    const anyParams = params as any;
     const keyData = {
       model: params.model,
       prompt: params.prompt.substring(0, 100), // 只使用前100字符作为缓存键
       systemPrompt: params.systemPrompt?.substring(0, 50),
       maxTokens: params.maxTokens,
-      temperature: params.temperature
+      temperature: params.temperature,
+      // 🔧 添加差异化参数到缓存key
+      regenerationSeed: anyParams.regenerationSeed,
+      variationLevel: anyParams.variationLevel,
+      styleVariation: anyParams.styleVariation
     };
     // 使用 encodeURIComponent + btoa 来支持 Unicode 字符
     try {
@@ -322,12 +328,13 @@ export class UnifiedAIManager {
       const seed = anyParams.regenerationSeed || `seed-${Date.now()}`;
       const variationLevel = anyParams.variationLevel || 'moderate';
       const styleVariation = anyParams.styleVariation || 'tone';
+      const randomSuffix = Math.random().toString(36).substring(2, 10); // 添加随机后缀
 
-      // 根据差异化级别调整 temperature
+      // 🔧 FIX: 根据差异化级别调整 temperature，增大差异
       if (variationLevel === 'significant') {
-        finalTemperature = Math.max(finalTemperature, 0.9);
+        finalTemperature = Math.max(finalTemperature, 1.0); // 从0.9提高到1.0
       } else if (variationLevel === 'moderate') {
-        finalTemperature = Math.max(finalTemperature, 0.7);
+        finalTemperature = Math.max(finalTemperature, 0.8); // 从0.7提高到0.8
       }
 
       // 在 system prompt 中添加差异化指令
@@ -340,13 +347,18 @@ export class UnifiedAIManager {
 
       const instruction = variationInstructions[styleVariation as keyof typeof variationInstructions] || '生成完全不同的内容';
 
-      finalSystemPrompt = `${finalSystemPrompt || ''}\n\n【重要差异化要求】\n- 生成种子: ${seed}\n- 差异化级别: ${variationLevel}\n- 差异化方向: ${instruction}\n- 必须与其他版本有显著差异，避免重复或相似的内容`;
+      // 🔧 FIX: 在 prompt 本身添加差异化标识，不只是 systemPrompt
+      finalPrompt = `${finalPrompt}\n\n【版本标识: ${seed}-${randomSuffix}】`;
 
-      logger.debug('🎨 应用差异化逻辑', {
+      finalSystemPrompt = `${finalSystemPrompt || ''}\n\n【🚨 重要差异化要求 - 必须严格遵守】\n- 生成种子: ${seed}\n- 随机标识: ${randomSuffix}\n- 差异化级别: ${variationLevel}\n- 差异化方向: ${instruction}\n- ⚠️ 警告：必须与其他版本有显著差异，严禁生成重复或相似的内容\n- ⚠️ 如果你生成的内容与之前的版本相似，将被视为失败`;
+
+      logger.debug('🎨 应用增强差异化逻辑', {
         seed,
+        randomSuffix,
         variationLevel,
         styleVariation,
-        temperature: finalTemperature
+        temperature: finalTemperature,
+        promptModified: true
       });
     }
 

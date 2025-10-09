@@ -70,6 +70,12 @@
   to = "/.netlify/functions/auth-cookie"
   status = 200
 
+# Token使用量API路由 - 必须在通用API路由之前
+[[redirects]]
+  from = "/api/token-usage/*"
+  to = "/.netlify/functions/api/token-usage/:splat"
+  status = 200
+
 # 其他 /api/* 走通用网关函数
 [[redirects]]
   from = "/api/*"
