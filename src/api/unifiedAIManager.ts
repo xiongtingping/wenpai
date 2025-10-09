@@ -443,7 +443,16 @@ export class UnifiedAIManager {
           statusText: response.statusText,
           endpoint: config.endpoint,
           model: config.model,
-          errorBody: errorText.substring(0, 500) // 只记录前500字符
+          provider: config.provider,
+          errorBody: errorText.substring(0, 500), // 只记录前500字符
+          userFriendlyMessage,
+          is403: response.status === 403,
+          possibleReasons: response.status === 403 ? [
+            'API Key 无效或过期',
+            'API 配额已用完',
+            '模型权限不足',
+            '账户被封禁'
+          ] : []
         });
 
         throw new Error(userFriendlyMessage);
