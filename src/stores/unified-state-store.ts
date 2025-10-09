@@ -964,7 +964,8 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
           user: {
             ...state.user,
             lastActivity: null, // 不持久化活动时间
-            subscription: 'trial' as SubscriptionTier, // 🚫 不持久化订阅等级，强制从云端查询
+            // 🔧 FIX: 保留实际的 subscription 值，不要强制重置为 trial
+            // subscription: 'trial' as SubscriptionTier, // ❌ 这会导致订阅状态丢失！
           },
           session: state.session, // 🎯 持久化会话状态
           // 🚫 不持久化tokenUsage和usageCount，强制从云端查询
