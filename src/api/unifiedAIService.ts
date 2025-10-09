@@ -433,11 +433,20 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
     const duration = performance.now() - startTime;
     const errorMessage = error instanceof Error ? error.message : String(error);
 
-    // 📊 记录失败调用
-    logger.error(`[${callId}] AI调用失败`, {
+    // 🔧 FIX: 输出详细的错误信息用于调试
+    logger.error(`[${callId}] AI调用失败 - 详细错误:`, {
       model: params.model,
       duration: `${duration.toFixed(2)}ms`,
-      error: errorMessage
+      error,
+      errorMessage,
+      errorType: error instanceof Error ? error.constructor.name : typeof error,
+      errorStack: error instanceof Error ? error.stack : undefined,
+      params: {
+        model: params.model,
+        provider: params.provider,
+        promptLength: params.prompt?.length,
+        maxTokens: params.maxTokens
+      }
     });
 
     // 📈 收集性能指标
