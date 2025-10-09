@@ -85,6 +85,18 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
           throw new Error(result.error || 'Token限额已超过');
         }
 
+        // 🔧 详细日志：输出 AI 响应的完整信息
+        logger.info(`${versionName} - 第${attempt}次尝试 AI 响应:`, {
+          success: result.success,
+          hasContent: !!result.content,
+          contentLength: result.content?.length || 0,
+          contentPreview: result.content?.substring(0, 200) || '(空)',
+          error: result.error,
+          model: result.model,
+          usage: result.usage,
+          responseTime: result.responseTime
+        });
+
         if (result.success && result.content && result.content.trim().length > 100) {
           logger.info(`${versionName} - 第${attempt}次尝试成功`, {
             contentLength: result.content.length,
@@ -96,18 +108,18 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
           lastError = new Error(errorMsg);
 
           // 🔧 FIX: 输出完整的 AI 响应用于调试
-          logger.warn(`${versionName} - 第${attempt}次尝试失败 - 完整响应:`, {
+          logger.error(`${versionName} - 第${attempt}次尝试失败 - 详细原因:`, {
             error: errorMsg,
             attempt,
-            result: {
+            检查项: {
               success: result.success,
-              content: result.content?.substring(0, 200),
-              contentLength: result.content?.length,
-              error: result.error,
-              model: result.model,
-              usage: result.usage,
-              responseTime: result.responseTime
-            }
+              hasContent: !!result.content,
+              contentLength: result.content?.length || 0,
+              contentTooShort: result.content ? result.content.trim().length <= 100 : true,
+              actualContent: result.content || '(null)',
+              errorFromAI: result.error || '(无)'
+            },
+            完整响应: result
           });
         }
       } catch (error) {
