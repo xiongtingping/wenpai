@@ -350,6 +350,16 @@ export class UnifiedAIManager {
       });
     }
 
+    // 🔧 针对 Gemini 模型的特殊处理
+    const isGemini = config.model.toLowerCase().includes('gemini');
+    if (isGemini) {
+      finalSystemPrompt = `${finalSystemPrompt || ''}\n\n【重要输出要求 - 针对 Gemini 模型】\n- 必须直接输出完整的内容，不要只输出标题或摘要\n- 不要进行过多的内部推理，直接生成用户需要的完整内容\n- 确保输出的内容完整、详细、有价值\n- 不要因为"思考"而减少实际输出的内容量`;
+
+      logger.info('🤖 检测到 Gemini 模型，添加特殊输出指令', {
+        model: config.model
+      });
+    }
+
     const messages = [];
 
     // 🔧 修复: Gemini等模型不支持system role，需要合并到user消息
@@ -465,6 +475,10 @@ export class UnifiedAIManager {
         hasChoices: !!data.choices,
         choicesLength: data.choices?.length || 0,
         firstChoice: data.choices?.[0],
+        firstChoiceMessage: data.choices?.[0]?.message,
+        finishReason: data.choices?.[0]?.finish_reason,
+        usage: data.usage,
+        rawDataKeys: Object.keys(data),
         rawData: data
       });
 
