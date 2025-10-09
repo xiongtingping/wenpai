@@ -964,8 +964,7 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
           user: {
             ...state.user,
             lastActivity: null, // 不持久化活动时间
-            // 🔧 FIX: 保留实际的 subscription 值，不要强制重置为 trial
-            // subscription: 'trial' as SubscriptionTier, // ❌ 这会导致订阅状态丢失！
+            subscription: undefined, // 🚫 强制不持久化订阅状态，必须从 Supabase 查询
           },
           session: state.session, // 🎯 持久化会话状态
           // 🚫 不持久化tokenUsage和usageCount，强制从云端查询
@@ -991,6 +990,26 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
             };
           }
           return persistedState;
+        },
+        onRehydrateStorage: () => {
+          return (state, error) => {
+            if (error) {
+              console.error('❌ unified-store 恢复失败:', error);
+              return;
+            }
+
+            if (state) {
+              // 🚫 强制重置订阅状态为 trial，必须从 Supabase 查询
+              console.log('🔄 从 localStorage 恢复数据，重置订阅状态为 trial');
+              state.user.subscription = 'trial';
+
+              // 🚫 强制重置使用统计，必须从 Supabase 查询
+              state.tokenUsage = { ...initialTokenUsageState };
+              state.usageCount = { ...initialUsageCountState };
+
+              console.log('✅ unified-store 恢复完成，订阅和使用统计已重置');
+            }
+          };
         },
       }
     )
