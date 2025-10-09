@@ -101,7 +101,17 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
         }
       } catch (error) {
         lastError = error;
-        logger.error(`${versionName} - 第${attempt}次尝试异常`, { error });
+
+        // 🔧 FIX: 输出详细的错误信息
+        logger.error(`${versionName} - 第${attempt}次尝试异常 - 详细信息:`, {
+          error,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          errorType: error instanceof Error ? error.constructor.name : typeof error,
+          errorStack: error instanceof Error ? error.stack : undefined,
+          model: params.model,
+          attempt,
+          platformId
+        });
 
         // ✅ 使用配置化的智能模型降级策略
         if (attempt <= 3) {

@@ -262,20 +262,28 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
 
         } catch (error) {
           const errorMessage = getErrorMessage(error);
-          
+
+          // 🔧 FIX: 输出详细的错误信息用于调试
+          console.error(`${platformId} 生成失败 - 详细错误:`, {
+            error,
+            errorMessage,
+            errorType: error instanceof Error ? error.constructor.name : typeof error,
+            errorStack: error instanceof Error ? error.stack : undefined,
+            platformId,
+            model: params.selectedModel
+          });
+
           // 更新错误状态
-          setResults(prev => prev.map(r => 
-            r.platformId === platformId 
+          setResults(prev => prev.map(r =>
+            r.platformId === platformId
               ? { ...r, error: errorMessage }
               : r
           ));
-          
+
           // 更新步骤为错误状态
           for (let i = 0; i < 4; i++) {
             updateStep(platformId, i, 'error', `❌ ${errorMessage}`);
           }
-          
-          console.error(`${platformId} 生成failed:`, error);
         }
       });
 
