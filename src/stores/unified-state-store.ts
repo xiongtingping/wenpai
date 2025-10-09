@@ -52,6 +52,7 @@ export interface UserState {
   authStatus: AuthStatus; // 🎯 新增：认证状态
   loginTime: string | null;
   lastActivity: string | null;
+  _lastFetchTime?: number; // 🎯 新增：数据获取时间戳（用于TTL验证）
 }
 
 /**
@@ -425,6 +426,8 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
               state.user.isAuthenticated = !!(userUpdates.id);
               if (userUpdates.id) {
                 state.user.loginTime = new Date().toISOString();
+                // 🎯 更新数据获取时间戳
+                state.user._lastFetchTime = Date.now();
               }
             } else {
               // 如果userUpdates为null，清除用户状态
@@ -959,36 +962,106 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
         name: 'wenpai-unified-store',
         storage: createJSONStorage(() => localStorage),
         partialize: (state) => ({
-          // 🎯 云端同步策略：禁用订阅和使用统计的本地缓存
-          // 这些数据必须从Supabase实时查询，确保与云端一致
+          // 🎯 优化后的存储策略：
+          // ✅ 保存：UI偏好、用户身份标识
+          // ❌ 不保存：运行时状态、敏感信息、业务数据
+
           user: {
-            ...state.user,
-            lastActivity: null, // 不持久化活动时间
-            subscription: undefined, // 🚫 强制不持久化订阅状态，必须从 Supabase 查询
+            // ✅ 基础身份信息（带TTL验证）
+            id: state.user.id,
+            username: state.user.username,
+            nickname: state.user.nickname,
+            avatar: state.user.avatar,
+            roles: state.user.roles,
+            permissions: state.user.permissions,
+            isAuthenticated: state.user.isAuthenticated,
+            authStatus: state.user.authStatus,
+            loginTime: state.user.loginTime,
+
+            // ❌ 不持久化敏感信息（安全考虑）
+            email: null,
+            phone: null,
+
+            // ❌ 不持久化运行时状态
+            lastActivity: null,
+
+            // ❌ 不持久化订阅状态（必须从 Supabase 查询）
+            subscription: 'trial' as SubscriptionTier,
+
+            // 🔧 添加数据获取时间戳（用于TTL验证）
+            _lastFetchTime: Date.now(),
           },
-          session: state.session, // 🎯 持久化会话状态
-          // 🚫 不持久化tokenUsage和usageCount，强制从云端查询
+
+          // ❌ 不持久化会话状态（运行时状态，每次重新计算）
+          // session: state.session,
+
+          // ❌ 不持久化业务数据（必须从 Supabase 查询）
           // tokenUsage: state.tokenUsage,
           // usageCount: state.usageCount,
+          // favorites: state.favorites,
+          // contentSync: state.contentSync,
+
+          // ✅ 持久化 UI 偏好设置
           theme: state.theme,
           appSettings: state.appSettings,
-          favorites: state.favorites,
+
+          // 元数据
           lastUpdated: state.lastUpdated,
           version: state.version,
         }),
-        version: 2, // 🎯 升级版本号
+        version: 3, // 🎯 升级到 v3：优化存储策略
         migrate: (persistedState: any, version: number) => {
-          // 数据迁移逻辑
+          console.log(`🔄 检测到 unified-store 版本: v${version}，当前版本: v3`);
+
+          // 从 v0/v1 迁移到 v2
           if (version === 0 || version === 1) {
-            // 从旧版本迁移
-            console.log('🔄 迁移unified-store到v2架构');
-            return {
+            console.log('🔄 迁移 v0/v1 → v2：添加会话状态');
+            persistedState = {
               ...initialState,
               ...persistedState,
-              session: persistedState.session || initialSessionState, // 🎯 添加会话状态
+              session: persistedState.session || initialSessionState,
               version: '2.0.0',
             };
           }
+
+          // 从 v2 迁移到 v3
+          if (version < 3) {
+            console.log('🔄 迁移 v2 → v3：优化存储策略');
+
+            // 清理不应该持久化的数据
+            const migratedState = {
+              ...persistedState,
+
+              // 清理用户敏感信息
+              user: {
+                ...persistedState.user,
+                email: null,
+                phone: null,
+                subscription: 'trial' as SubscriptionTier,
+                lastActivity: null,
+                _lastFetchTime: Date.now(), // 添加时间戳
+              },
+
+              // 清理会话状态
+              session: { ...initialSessionState },
+
+              // 清理业务数据
+              tokenUsage: { ...initialTokenUsageState },
+              usageCount: { ...initialUsageCountState },
+              favorites: { ...initialFavoritesState },
+              contentSync: { ...initialContentSyncState },
+
+              // 清理运行时状态
+              loading: { ...initialLoadingState },
+              error: { ...initialErrorState },
+
+              version: '3.0.0',
+            };
+
+            console.log('✅ 迁移完成：v3 优化存储策略已应用');
+            return migratedState;
+          }
+
           return persistedState;
         },
         onRehydrateStorage: () => {
@@ -998,17 +1071,56 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
               return;
             }
 
-            if (state) {
-              // 🚫 强制重置订阅状态为 trial，必须从 Supabase 查询
-              console.log('🔄 从 localStorage 恢复数据，重置订阅状态为 trial');
-              state.user.subscription = 'trial';
+            if (!state) return;
 
-              // 🚫 强制重置使用统计，必须从 Supabase 查询
-              state.tokenUsage = { ...initialTokenUsageState };
-              state.usageCount = { ...initialUsageCountState };
+            console.log('🔄 从 localStorage 恢复数据...');
 
-              console.log('✅ unified-store 恢复完成，订阅和使用统计已重置');
+            // 📊 监控存储大小
+            const stateSize = JSON.stringify(state).length;
+            const sizeMB = (stateSize / 1024 / 1024).toFixed(2);
+            console.log(`📦 localStorage 使用量: ${sizeMB} MB`);
+
+            if (stateSize > 5 * 1024 * 1024) { // 5MB
+              console.warn('⚠️ localStorage 使用量过大，建议清理');
             }
+
+            // ⏰ TTL 验证：检查用户信息是否过期
+            const TTL = 24 * 60 * 60 * 1000; // 24小时
+            const lastFetchTime = (state.user as any)._lastFetchTime || 0;
+            const isExpired = Date.now() - lastFetchTime > TTL;
+
+            if (isExpired) {
+              console.log('⏰ 用户信息已过期（超过24小时），将从 Supabase 重新查询');
+              // 保留基础身份信息，清除其他可能过期的数据
+              state.user = {
+                ...initialUserState,
+                id: state.user.id,
+                isAuthenticated: state.user.isAuthenticated,
+              };
+            } else {
+              console.log(`✅ 用户信息有效（${Math.floor((Date.now() - lastFetchTime) / 1000 / 60 / 60)}小时前获取）`);
+            }
+
+            // 🚫 强制重置必须从云端查询的数据
+            state.user.subscription = 'trial'; // 订阅状态
+            state.user.email = null; // 敏感信息
+            state.user.phone = null; // 敏感信息
+            state.user.lastActivity = null; // 运行时状态
+
+            // 🚫 强制重置业务数据
+            state.tokenUsage = { ...initialTokenUsageState };
+            state.usageCount = { ...initialUsageCountState };
+            state.favorites = { ...initialFavoritesState };
+            state.contentSync = { ...initialContentSyncState };
+
+            // 🚫 强制重置会话状态（运行时状态）
+            state.session = { ...initialSessionState };
+
+            // 🚫 强制重置运行时状态
+            state.loading = { ...initialLoadingState };
+            state.error = { ...initialErrorState };
+
+            console.log('✅ unified-store 恢复完成，云端数据已重置');
           };
         },
       }
