@@ -132,7 +132,7 @@ class TokenUsageService {
     return TABLE_NAMES.USER_USAGE_LOGS; // 'token_usage_records'
   }
 
-  private readonly API_ENDPOINT = '/.netlify/functions/api-token-usage';
+  private readonly API_ENDPOINT = '/.netlify/functions/api/token-usage';
 
   /**
    * 获取用户套餐的token限额
