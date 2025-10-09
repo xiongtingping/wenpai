@@ -450,19 +450,37 @@ export class UnifiedAIManager {
    * 解析AI响应 - 🔧 统一使用OpenAI格式 (通过AIMLAPI)
    */
   private parseAIResponse(
-    response: Response, 
-    config: UnifiedAIConfig, 
-    params: AICallParams, 
+    response: Response,
+    config: UnifiedAIConfig,
+    params: AICallParams,
     startTime: number
   ): Promise<AIResponse> {
     return response.json().then(data => {
       const responseTime = Date.now() - startTime;
-      
+
+      // 🔧 详细日志：输出 AI API 的原始响应
+      logger.info('🔍 AI API 原始响应:', {
+        provider: config.provider,
+        model: config.model,
+        hasChoices: !!data.choices,
+        choicesLength: data.choices?.length || 0,
+        firstChoice: data.choices?.[0],
+        rawData: data
+      });
+
       // 🔧 统一使用OpenAI格式解析 (AIMLAPI返回OpenAI兼容格式)
-      const content = data.choices?.[0]?.message?.content || '';
+      const rawContent = data.choices?.[0]?.message?.content || '';
+      const content = cleanAIContent(rawContent);
+
+      logger.info('🔍 内容清理结果:', {
+        rawContentLength: rawContent.length,
+        cleanedContentLength: content.length,
+        rawContentPreview: rawContent.substring(0, 200),
+        cleanedContentPreview: content.substring(0, 200)
+      });
 
       return {
-        content: cleanAIContent(content),
+        content,
         model: config.model,
         usage: data.usage,
         responseTime,
