@@ -45,13 +45,39 @@ export function getUserTier(): SubscriptionTier {
         }
 
         if (user?.id) {
-          // 获取用户套餐信息，默认为trial
-          const userTier: SubscriptionTier = user.subscription?.tier || user.subscription || 'trial';
+          // 🔧 FIX: 正确提取用户套餐信息
+          let userTier: SubscriptionTier = 'trial';
+
+          // 尝试多种可能的数据结构
+          if (user.subscription) {
+            if (typeof user.subscription === 'string') {
+              // subscription 直接是字符串: "pro"
+              userTier = user.subscription as SubscriptionTier;
+            } else if (user.subscription.tier) {
+              // subscription 是对象: { tier: "pro", ... }
+              userTier = user.subscription.tier as SubscriptionTier;
+            } else if (user.subscription.plan) {
+              // subscription 是对象: { plan: "pro", ... }
+              userTier = user.subscription.plan as SubscriptionTier;
+            }
+          }
+
+          // 也检查顶层的 tier 或 plan 字段
+          if (!userTier || userTier === 'trial') {
+            if (user.tier) {
+              userTier = user.tier as SubscriptionTier;
+            } else if (user.plan) {
+              userTier = user.plan as SubscriptionTier;
+            }
+          }
 
           console.log('📊 模型权限检查 - 用户信息:', {
             userId: user.id,
             userTier,
-            source: key
+            source: key,
+            subscriptionRaw: user.subscription,
+            tierRaw: user.tier,
+            planRaw: user.plan
           });
 
           return userTier;

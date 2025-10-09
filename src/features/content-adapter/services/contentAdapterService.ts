@@ -94,9 +94,20 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
         } else {
           const errorMsg = result.error || i18n.t('common.errors.生成内容为空或过短');
           lastError = new Error(errorMsg);
-          logger.warn(`${versionName} - 第${attempt}次尝试失败`, {
+
+          // 🔧 FIX: 输出完整的 AI 响应用于调试
+          logger.warn(`${versionName} - 第${attempt}次尝试失败 - 完整响应:`, {
             error: errorMsg,
-            attempt
+            attempt,
+            result: {
+              success: result.success,
+              content: result.content?.substring(0, 200),
+              contentLength: result.content?.length,
+              error: result.error,
+              model: result.model,
+              usage: result.usage,
+              responseTime: result.responseTime
+            }
           });
         }
       } catch (error) {
