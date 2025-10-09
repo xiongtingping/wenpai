@@ -962,24 +962,34 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
         name: 'wenpai-unified-store',
         storage: createJSONStorage(() => localStorage),
         partialize: (state) => {
-          // 🎯 优化后的存储策略：
-          // ✅ 保存：UI偏好、用户身份标识
-          // ❌ 不保存：运行时状态、敏感信息、业务数据
-
-          // 🔧 解构排除不需要持久化的字段
-          const { subscription, email, phone, lastActivity, ...userToSave } = state.user;
+          // 🎯 乐观缓存策略：
+          // ✅ 保存：UI偏好、用户身份标识、订阅状态（缓存）
+          // ❌ 不保存：运行时状态、敏感信息
 
           return {
             user: {
-              ...userToSave,
+              // ✅ 基础身份信息
+              id: state.user.id,
+              username: state.user.username,
+              nickname: state.user.nickname,
+              avatar: state.user.avatar,
+              roles: state.user.roles,
+              permissions: state.user.permissions,
+              isAuthenticated: state.user.isAuthenticated,
+              authStatus: state.user.authStatus,
+              loginTime: state.user.loginTime,
+
+              // ✅ 订阅状态（乐观缓存）
+              // 保存实际值，页面加载时立即显示，后台验证并更新
+              subscription: state.user.subscription,
+
               // ❌ 不持久化敏感信息（安全考虑）
               email: null,
               phone: null,
+
               // ❌ 不持久化运行时状态
               lastActivity: null,
-              // ❌ 不持久化订阅状态（必须从 Supabase 查询）
-              // 注意：完全不保存 subscription 字段，恢复时会是 undefined
-              subscription: 'trial' as SubscriptionTier, // 提供默认值以满足类型要求
+
               // 🔧 添加数据获取时间戳（用于TTL验证）
               _lastFetchTime: Date.now(),
             },
@@ -1025,12 +1035,12 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
             const migratedState = {
               ...persistedState,
 
-              // 清理用户敏感信息
+              // 清理用户敏感信息（保留订阅状态缓存）
               user: {
                 ...persistedState.user,
                 email: null,
                 phone: null,
-                subscription: 'trial' as SubscriptionTier,
+                // subscription: 保留原值，不重置
                 lastActivity: null,
                 _lastFetchTime: Date.now(), // 添加时间戳
               },
@@ -1094,8 +1104,10 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
               console.log(`✅ 用户信息有效（${Math.floor((Date.now() - lastFetchTime) / 1000 / 60 / 60)}小时前获取）`);
             }
 
-            // 🚫 强制重置必须从云端查询的数据
-            state.user.subscription = 'trial'; // 订阅状态
+            // 🔧 乐观缓存：保留订阅状态，后台验证
+            // state.user.subscription = 'trial'; // ✅ 不重置，保留缓存值
+
+            // 🚫 强制重置敏感信息和运行时状态
             state.user.email = null; // 敏感信息
             state.user.phone = null; // 敏感信息
             state.user.lastActivity = null; // 运行时状态

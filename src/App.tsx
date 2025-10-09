@@ -135,10 +135,20 @@ const App: React.FC = () => {
     user?.userTier
   );
 
-  // 🎯 启动云端实时同步服务
+  // 🎯 启动云端实时同步服务（乐观缓存 + 后台验证）
   useEffect(() => {
     if (user?.userId) {
       console.log('🚀 用户已登录，启动云端同步服务', { userId: user.userId });
+
+      // 🔧 立即同步一次（验证缓存的订阅状态）
+      console.log('⚡ 立即验证订阅状态...');
+      cloudSyncService.manualSync(user.userId).then(() => {
+        console.log('✅ 订阅状态验证完成');
+      }).catch((error) => {
+        console.error('❌ 订阅状态验证失败:', error);
+      });
+
+      // 启动定期同步（30秒间隔）
       cloudSyncService.start(user.userId);
 
       return () => {
