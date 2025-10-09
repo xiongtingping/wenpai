@@ -483,14 +483,48 @@ export class UnifiedAIManager {
       });
 
       // 🔧 统一使用OpenAI格式解析 (AIMLAPI返回OpenAI兼容格式)
-      const rawContent = data.choices?.[0]?.message?.content || '';
+      // 尝试多种路径提取内容
+      let rawContent = '';
+
+      // 路径1: 标准 OpenAI 格式
+      if (data.choices?.[0]?.message?.content) {
+        rawContent = data.choices[0].message.content;
+        logger.info('✅ 从 choices[0].message.content 提取内容');
+      }
+      // 路径2: 直接 content 字段
+      else if (data.content) {
+        rawContent = data.content;
+        logger.info('✅ 从 data.content 提取内容');
+      }
+      // 路径3: text 字段
+      else if (data.text) {
+        rawContent = data.text;
+        logger.info('✅ 从 data.text 提取内容');
+      }
+      // 路径4: choices[0].text
+      else if (data.choices?.[0]?.text) {
+        rawContent = data.choices[0].text;
+        logger.info('✅ 从 choices[0].text 提取内容');
+      }
+      // 路径5: 检查是否有其他可能的字段
+      else {
+        logger.error('❌ 无法从响应中提取内容，尝试所有已知路径都失败', {
+          hasChoices: !!data.choices,
+          choicesLength: data.choices?.length,
+          firstChoiceKeys: data.choices?.[0] ? Object.keys(data.choices[0]) : [],
+          dataKeys: Object.keys(data),
+          rawData: data
+        });
+      }
+
       const content = cleanAIContent(rawContent);
 
-      logger.info('🔍 内容清理结果:', {
+      logger.info('🔍 内容提取和清理结果:', {
         rawContentLength: rawContent.length,
         cleanedContentLength: content.length,
-        rawContentPreview: rawContent.substring(0, 200),
-        cleanedContentPreview: content.substring(0, 200)
+        rawContentPreview: rawContent.substring(0, 200) || '(空)',
+        cleanedContentPreview: content.substring(0, 200) || '(空)',
+        extractionSuccess: !!rawContent
       });
 
       return {
