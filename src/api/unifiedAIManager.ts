@@ -363,7 +363,7 @@ export class UnifiedAIManager {
     const messages = [];
 
     // 🔧 修复: Gemini等模型不支持system role，需要合并到user消息
-    const isGemini = config.model.toLowerCase().includes('gemini');
+    // 复用上面已声明的 isGemini 变量
     const supportsSystemRole = !isGemini; // 可以根据需要扩展不支持的模型列表
 
     // 添加系统消息
