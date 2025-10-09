@@ -315,8 +315,40 @@ export class UnifiedAIManager {
     let finalSystemPrompt = params.systemPrompt;
     let finalTemperature = params.temperature || 0.7;
 
-    // 差异化逻辑已禁用（aiVariation模块不存在）
-    // TODO: 如需差异化功能，请实现 @/utils/aiVariation 模块
+    // 🔧 差异化逻辑：确保版本A和版本B生成不同的内容
+    const anyParams = params as any;
+    if (anyParams.regenerationSeed || anyParams.variationLevel || anyParams.styleVariation) {
+      // 添加差异化提示到 prompt
+      const seed = anyParams.regenerationSeed || `seed-${Date.now()}`;
+      const variationLevel = anyParams.variationLevel || 'moderate';
+      const styleVariation = anyParams.styleVariation || 'tone';
+
+      // 根据差异化级别调整 temperature
+      if (variationLevel === 'significant') {
+        finalTemperature = Math.max(finalTemperature, 0.9);
+      } else if (variationLevel === 'moderate') {
+        finalTemperature = Math.max(finalTemperature, 0.7);
+      }
+
+      // 在 system prompt 中添加差异化指令
+      const variationInstructions = {
+        'tone': '使用完全不同的语气和表达方式',
+        'structure': '采用完全不同的结构和组织方式',
+        'vocabulary': '使用完全不同的词汇和表达',
+        'approach': '从完全不同的角度和方法切入'
+      };
+
+      const instruction = variationInstructions[styleVariation as keyof typeof variationInstructions] || '生成完全不同的内容';
+
+      finalSystemPrompt = `${finalSystemPrompt || ''}\n\n【重要差异化要求】\n- 生成种子: ${seed}\n- 差异化级别: ${variationLevel}\n- 差异化方向: ${instruction}\n- 必须与其他版本有显著差异，避免重复或相似的内容`;
+
+      logger.debug('🎨 应用差异化逻辑', {
+        seed,
+        variationLevel,
+        styleVariation,
+        temperature: finalTemperature
+      });
+    }
 
     const messages = [];
 
