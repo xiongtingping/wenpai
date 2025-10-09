@@ -961,54 +961,47 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
       {
         name: 'wenpai-unified-store',
         storage: createJSONStorage(() => localStorage),
-        partialize: (state) => ({
+        partialize: (state) => {
           // 🎯 优化后的存储策略：
           // ✅ 保存：UI偏好、用户身份标识
           // ❌ 不保存：运行时状态、敏感信息、业务数据
 
-          user: {
-            // ✅ 基础身份信息（带TTL验证）
-            id: state.user.id,
-            username: state.user.username,
-            nickname: state.user.nickname,
-            avatar: state.user.avatar,
-            roles: state.user.roles,
-            permissions: state.user.permissions,
-            isAuthenticated: state.user.isAuthenticated,
-            authStatus: state.user.authStatus,
-            loginTime: state.user.loginTime,
+          // 🔧 解构排除不需要持久化的字段
+          const { subscription, email, phone, lastActivity, ...userToSave } = state.user;
 
-            // ❌ 不持久化敏感信息（安全考虑）
-            email: null,
-            phone: null,
+          return {
+            user: {
+              ...userToSave,
+              // ❌ 不持久化敏感信息（安全考虑）
+              email: null,
+              phone: null,
+              // ❌ 不持久化运行时状态
+              lastActivity: null,
+              // ❌ 不持久化订阅状态（必须从 Supabase 查询）
+              // 注意：完全不保存 subscription 字段，恢复时会是 undefined
+              subscription: 'trial' as SubscriptionTier, // 提供默认值以满足类型要求
+              // 🔧 添加数据获取时间戳（用于TTL验证）
+              _lastFetchTime: Date.now(),
+            },
 
-            // ❌ 不持久化运行时状态
-            lastActivity: null,
+            // ❌ 不持久化会话状态（运行时状态，每次重新计算）
+            // session: state.session,
 
-            // ❌ 不持久化订阅状态（必须从 Supabase 查询）
-            subscription: 'trial' as SubscriptionTier,
+            // ❌ 不持久化业务数据（必须从 Supabase 查询）
+            // tokenUsage: state.tokenUsage,
+            // usageCount: state.usageCount,
+            // favorites: state.favorites,
+            // contentSync: state.contentSync,
 
-            // 🔧 添加数据获取时间戳（用于TTL验证）
-            _lastFetchTime: Date.now(),
-          },
+            // ✅ 持久化 UI 偏好设置
+            theme: state.theme,
+            appSettings: state.appSettings,
 
-          // ❌ 不持久化会话状态（运行时状态，每次重新计算）
-          // session: state.session,
-
-          // ❌ 不持久化业务数据（必须从 Supabase 查询）
-          // tokenUsage: state.tokenUsage,
-          // usageCount: state.usageCount,
-          // favorites: state.favorites,
-          // contentSync: state.contentSync,
-
-          // ✅ 持久化 UI 偏好设置
-          theme: state.theme,
-          appSettings: state.appSettings,
-
-          // 元数据
-          lastUpdated: state.lastUpdated,
-          version: state.version,
-        }),
+            // 元数据
+            lastUpdated: state.lastUpdated,
+            version: state.version,
+          };
+        },
         version: 3, // 🎯 升级到 v3：优化存储策略
         migrate: (persistedState: any, version: number) => {
           console.log(`🔄 检测到 unified-store 版本: v${version}，当前版本: v3`);

@@ -96,13 +96,22 @@ class CloudSyncService {
    */
   private async syncSubscription(userId: string) {
     try {
-      logger.debug('🔄 同步订阅信息...', { userId });
+      logger.info('🔄 同步订阅信息...', { userId });
 
       const { data, error } = await supabase
         .from('user_subscriptions')
         .select('tier, status, expires_at, started_at')
         .eq('user_id', userId)
         .maybeSingle();
+
+      // 🔧 详细日志：输出查询结果
+      logger.info('📊 Supabase 订阅查询结果:', {
+        userId,
+        hasData: !!data,
+        data,
+        hasError: !!error,
+        error
+      });
 
       if (error) {
         logger.error('❌ 同步订阅失败:', error);
@@ -111,24 +120,39 @@ class CloudSyncService {
 
       if (data) {
         const store = useUnifiedStore.getState();
-        
+
+        logger.info('📊 当前 store 中的订阅状态:', {
+          currentSubscription: store.user.subscription,
+          newSubscription: data.tier,
+          needsUpdate: data.tier !== store.user.subscription
+        });
+
         // 更新订阅等级
         if (data.tier !== store.user.subscription) {
-          logger.info('📊 检测到订阅变化', {
+          logger.info('📊 检测到订阅变化，开始更新...', {
             旧等级: store.user.subscription,
             新等级: data.tier
           });
+
           store.updateUserSubscription(data.tier as SubscriptionTier);
-          
+
+          logger.info('✅ updateUserSubscription 调用完成');
+
           // 订阅变化时重新初始化使用统计
           await store.initializeUsageStats(userId, data.tier as SubscriptionTier);
+
+          logger.info('✅ initializeUsageStats 调用完成');
+        } else {
+          logger.info('ℹ️ 订阅状态未变化，跳过更新');
         }
 
-        logger.debug('✅ 订阅同步完成', {
+        logger.info('✅ 订阅同步完成', {
           tier: data.tier,
           status: data.status,
           expires_at: data.expires_at
         });
+      } else {
+        logger.warn('⚠️ Supabase 未返回订阅数据（用户可能没有订阅记录）', { userId });
       }
     } catch (error) {
       logger.error('❌ 同步订阅异常:', error);
