@@ -194,14 +194,23 @@ exports.handler = async (event, context) => {
 
     // 获取 API 密钥
     const apiKey = getAPIKey(provider);
-    if (!apiKey) {
-      console.error(`❌ ${provider} API 密钥未配置`);
+
+    // 🔍 调试日志：输出 API Key 的前4位和后4位（不暴露完整 Key）
+    if (apiKey) {
+      const maskedKey = `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}`;
+      console.log(`🔑 API Key 已读取 [${provider}]: ${maskedKey} (长度: ${apiKey.length})`);
+    } else {
+      console.error(`❌ ${provider} API 密钥未配置`, {
+        AIMLAPI_KEY: process.env.AIMLAPI_KEY ? '已配置' : '未配置',
+        VITE_AIMLAPI_KEY: process.env.VITE_AIMLAPI_KEY ? '已配置' : '未配置',
+        allEnvKeys: Object.keys(process.env).filter(k => k.includes('AIML') || k.includes('API'))
+      });
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           error: 'API 密钥未配置',
-          provider: provider 
+          provider: provider
         })
       };
     }

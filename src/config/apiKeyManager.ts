@@ -129,7 +129,15 @@ export function getAPIKey(service: string): string | null {
 
   // 优先使用主环境变量
   let apiKey = import.meta.env?.[config.envKey] || process.env?.[config.envKey];
-  
+
+  // 🔍 调试日志：输出 API Key 的前4位和后4位（不暴露完整 Key）
+  if (apiKey) {
+    const maskedKey = `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}`;
+    console.log(`🔑 API Key 已读取 [${service}]: ${maskedKey} (长度: ${apiKey.length})`);
+  } else {
+    console.warn(`⚠️ API Key 未找到 [${service}]: 环境变量 ${config.envKey} 未配置`);
+  }
+
   // 尝试备用环境变量
   if (!apiKey && config.fallbackEnvKey) {
     apiKey = import.meta.env?.[config.fallbackEnvKey] || process.env?.[config.fallbackEnvKey];
