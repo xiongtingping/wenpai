@@ -57,22 +57,9 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   const navigate = useNavigate();
   const { preloadStatus, forceRefreshAfterUpgrade } = useSubscriptionStore();
 
-  // 🔧 2025-01 重构: 用户登录后立即预加载订阅状态
-  // 等待预加载完成，确保组件能获取到正确的订阅状态
-  useEffect(() => {
-    if (isAuthenticated && user?.id && !loading) {
-      console.log('🚀 AuthGuard: 开始预加载订阅状态', { userId: user.id });
-
-      // 等待预加载完成
-      preloadStatus(user.id, user)
-        .then(() => {
-          console.log('✅ AuthGuard: 订阅状态预加载完成');
-        })
-        .catch((error) => {
-          console.error('❌ AuthGuard: 订阅状态预加载失败', error);
-        });
-    }
-  }, [isAuthenticated, user?.id, loading, preloadStatus]);
+  // 🔧 2025-01 重构: 预加载已移到App.tsx（应用级）
+  // AuthGuard只负责监听支付成功和订阅更新事件
+  // 注释：预加载逻辑已移到App.tsx，这里不再重复执行
 
   // 🆕 监听支付成功和订阅更新事件，强制刷新订阅状态
   useEffect(() => {

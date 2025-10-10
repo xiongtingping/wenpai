@@ -135,20 +135,34 @@ const App: React.FC = () => {
     user?.userTier
   );
 
-  // 🎯 启动云端实时同步服务（乐观缓存 + 后台验证）
+  // 🎯 应用级订阅状态预加载（提前到App.tsx）
+  // 🔧 2025-01 重构: 从AuthGuard移到这里，确保数据在组件渲染前就绪
   useEffect(() => {
     if (user?.userId) {
-      console.log('🚀 用户已登录，启动云端同步服务', { userId: user.userId });
+      console.log('🚀 用户已登录，开始应用级预加载', { userId: user.userId });
 
-      // 🔧 立即同步一次（验证缓存的订阅状态）
-      console.log('⚡ 立即验证订阅状态...');
+      // 1. 立即预加载订阅状态
+      const preloadSubscription = async () => {
+        try {
+          const { useSubscriptionStore } = await import('@/stores/subscription-store');
+          await useSubscriptionStore.getState().preloadStatus(user.userId, user);
+          console.log('✅ 订阅状态预加载完成');
+        } catch (error) {
+          console.error('❌ 订阅状态预加载失败:', error);
+        }
+      };
+
+      preloadSubscription();
+
+      // 2. 启动云端同步服务（后台验证）
+      console.log('⚡ 启动云端同步服务...');
       cloudSyncService.manualSync(user.userId).then(() => {
-        console.log('✅ 订阅状态验证完成');
+        console.log('✅ 云端同步完成');
       }).catch((error) => {
-        console.error('❌ 订阅状态验证失败:', error);
+        console.error('❌ 云端同步失败:', error);
       });
 
-      // 启动定期同步（30秒间隔）
+      // 3. 启动定期同步（30秒间隔）
       cloudSyncService.start(user.userId);
 
       return () => {

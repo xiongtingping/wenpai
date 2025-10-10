@@ -60,23 +60,42 @@ export const StateLoadingWrapper: React.FC<StateLoadingWrapperProps> = ({
 
 /**
  * 订阅状态加载包装器 - 专门用于订阅相关组件
+ * 🔧 2025-01 重构: 增强数据就绪检查，防止闪烁
  */
 export const SubscriptionStateWrapper: React.FC<{
   children: React.ReactNode;
   className?: string;
-}> = ({ children, className = '' }) => {
-  return (
-    <StateLoadingWrapper
-      fallback={
+  /** 是否显示骨架屏而非加载提示 */
+  useSkeleton?: boolean;
+}> = ({ children, className = '', useSkeleton = false }) => {
+  const { useSubscriptionStore } = require('@/stores/subscription-store');
+  const { initialLoading, status } = useSubscriptionStore();
+
+  // 🔧 关键修复: 等待数据真正就绪
+  // 不仅检查initialLoading，还要确保status已加载
+  const isDataReady = !initialLoading && status !== null;
+
+  if (!isDataReady) {
+    if (useSkeleton) {
+      // 骨架屏模式
+      return (
+        <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded text-xs bg-muted animate-pulse ${className}`}>
+          <div className="h-3 w-3 rounded-full bg-gray-300" />
+          <div className="h-3 w-16 bg-gray-300 rounded" />
+        </div>
+      );
+    } else {
+      // 加载提示模式
+      return (
         <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded text-xs bg-muted ${className}`}>
           <div className="animate-spin rounded-full h-3 w-3 border-b border-gray-400"></div>
           <span className="text-muted-foreground">检查订阅状态...</span>
         </div>
-      }
-    >
-      {children}
-    </StateLoadingWrapper>
-  );
+      );
+    }
+  }
+
+  return <>{children}</>;
 };
 
 /**

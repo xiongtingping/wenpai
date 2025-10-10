@@ -53,20 +53,21 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   /**
    * 获取订阅状态
    * 🔧 优化: 使用unifiedSubscriptionService的三层缓存
+   * 🔧 2025-01 重构: 同步到unified-state-store
    */
   fetchStatus: async (userId: string, userProfile?: any) => {
     const startTime = Date.now();
-    
+
     try {
       set({ loading: true, error: null });
-      
+
       logger.info('🔍 开始获取订阅状态', { userId });
-      
+
       // 使用unifiedSubscriptionService（带三层缓存）
       const status = await unifiedSubscriptionService.getUserSubscriptionStatus(userId, userProfile);
-      
+
       const duration = Date.now() - startTime;
-      
+
       set({
         status,
         loading: false,
@@ -74,29 +75,47 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
         lastUpdated: Date.now(),
         error: null
       });
-      
+
+      // 🔧 新增: 同步到unified-state-store
+      try {
+        const { useUnifiedStore } = await import('./unified-state-store');
+        const currentTier = useUnifiedStore.getState().user.subscription;
+
+        // 只在tier变化时更新，避免不必要的重渲染
+        if (currentTier !== status.tier) {
+          logger.info('🔄 同步订阅状态到unified-state-store', {
+            oldTier: currentTier,
+            newTier: status.tier
+          });
+          useUnifiedStore.getState().updateUserSubscription(status.tier);
+        }
+      } catch (syncError) {
+        logger.warn('⚠️ 同步到unified-state-store失败', syncError);
+        // 同步失败不影响主流程
+      }
+
       logger.info('✅ 订阅状态获取成功', {
         userId,
         tier: status.tier,
         source: status.source,
         duration: duration + 'ms'
       });
-      
+
     } catch (error) {
       const duration = Date.now() - startTime;
-      
+
       logger.error('❌ 订阅状态获取失败', {
         userId,
         error,
         duration: duration + 'ms'
       });
-      
+
       set({
         loading: false,
         initialLoading: false,
         error: error instanceof Error ? error.message : '获取订阅状态失败'
       });
-      
+
       throw error;
     }
   },
@@ -132,6 +151,7 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
    * - 等待数据库更新（2秒 + 重试）
    * - 重试机制确保获取到最新数据
    * - 通知所有使用订阅状态的组件
+   * 🔧 2025-01 重构: 同步到unified-state-store
    *
    * @param userId 用户ID
    * @param expectedTier 期望的订阅等级（可选，用于验证）
@@ -162,6 +182,17 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
         error: null,
         lastUpdated: Date.now()
       });
+
+      // 🔧 新增: 同步到unified-state-store
+      try {
+        const { useUnifiedStore } = await import('./unified-state-store');
+        logger.info('🔄 强制刷新后同步到unified-state-store', {
+          tier: result.tier
+        });
+        useUnifiedStore.getState().updateUserSubscription(result.tier);
+      } catch (syncError) {
+        logger.warn('⚠️ 同步到unified-state-store失败', syncError);
+      }
 
       // 触发全局事件，通知其他组件
       window.dispatchEvent(new CustomEvent('subscriptionRefreshed', {

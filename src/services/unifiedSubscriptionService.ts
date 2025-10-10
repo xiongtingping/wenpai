@@ -33,9 +33,11 @@ export interface SubscriptionStatusResult {
 
 /**
  * 统一订阅数据源管理器
+ * 🔧 2025-01 重构: 添加跨Tab同步和缓存版本控制
  */
 class UnifiedSubscriptionService {
   private readonly CACHE_KEY = 'unified_subscription_cache';
+  private readonly CACHE_VERSION = 2; // 🔧 新增: 缓存版本号
   private readonly CACHE_TTL = 10 * 60 * 1000; // 🔧 优化: 10分钟缓存TTL（从2分钟增加）
   private readonly GRACE_PERIOD_DAYS = 7; // 7天宽限期
 
@@ -44,6 +46,14 @@ class UnifiedSubscriptionService {
 
   // 🔧 新增: 正在进行的查询，避免重复请求
   private pendingQueries: Map<string, Promise<SubscriptionStatusResult>> = new Map();
+
+  // 🔧 新增: 跨Tab同步监听器
+  private storageListener: ((event: StorageEvent) => void) | null = null;
+
+  constructor() {
+    // 🔧 新增: 设置跨Tab同步监听
+    this.setupCrossTabSync();
+  }
 
   /**
    * 获取用户订阅状态 - 统一入口
@@ -530,6 +540,7 @@ class UnifiedSubscriptionService {
 
   /**
    * 🔧 优化: localStorage缓存管理（较快）
+   * 🔧 2025-01 重构: 添加版本控制
    */
   private getFromDiskCache(userId: string): SubscriptionStatusResult | null {
     try {
@@ -539,6 +550,17 @@ class UnifiedSubscriptionService {
       if (!cached) return null;
 
       const data = JSON.parse(cached);
+
+      // 🔧 新增: 版本检查
+      if (data.version !== this.CACHE_VERSION) {
+        logger.info('🔄 缓存版本不匹配，清除旧缓存', {
+          cached: data.version,
+          current: this.CACHE_VERSION
+        });
+        localStorage.removeItem(cacheKey);
+        return null;
+      }
+
       if (data.expiry < Date.now()) {
         localStorage.removeItem(cacheKey);
         return null;
@@ -555,6 +577,7 @@ class UnifiedSubscriptionService {
     try {
       const cacheKey = `${this.CACHE_KEY}_${userId}`;
       const cacheData = {
+        version: this.CACHE_VERSION, // 🔧 新增: 版本号
         result,
         expiry: Date.now() + this.CACHE_TTL
       };
@@ -586,6 +609,48 @@ class UnifiedSubscriptionService {
       localStorage.removeItem(cacheKey);
     } catch (error) {
       console.warn('清除订阅缓存失败:', error);
+    }
+  }
+
+  /**
+   * 🔧 新增: 设置跨Tab同步监听
+   */
+  private setupCrossTabSync(): void {
+    if (typeof window === 'undefined') return;
+
+    this.storageListener = (event: StorageEvent) => {
+      // 只处理订阅缓存的变更
+      if (!event.key?.startsWith(this.CACHE_KEY)) return;
+
+      logger.info('🔄 检测到其他Tab更新订阅缓存', {
+        key: event.key,
+        newValue: event.newValue ? 'updated' : 'deleted'
+      });
+
+      // 提取userId
+      const userId = event.key.replace(`${this.CACHE_KEY}_`, '');
+
+      // 清除内存缓存，强制下次从localStorage读取
+      this.memoryCache.delete(userId);
+
+      // 触发全局事件，通知组件刷新
+      window.dispatchEvent(new CustomEvent('subscriptionCacheUpdated', {
+        detail: { userId, source: 'cross-tab' }
+      }));
+    };
+
+    window.addEventListener('storage', this.storageListener);
+    logger.info('✅ 跨Tab同步监听已启动');
+  }
+
+  /**
+   * 🔧 新增: 清理跨Tab同步监听器
+   */
+  public destroy(): void {
+    if (this.storageListener) {
+      window.removeEventListener('storage', this.storageListener);
+      this.storageListener = null;
+      logger.info('🧹 跨Tab同步监听已清理');
     }
   }
 

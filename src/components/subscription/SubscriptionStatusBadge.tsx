@@ -36,7 +36,7 @@ export function SubscriptionStatusBadge({ showDetails = true,
   className = ''
  }: SubscriptionStatusBadgeProps) {
   return (
-    <SubscriptionStateWrapper className={className}>
+    <SubscriptionStateWrapper className={className} useSkeleton={true}>
       <SubscriptionStatusBadgeContent
         showDetails={showDetails}
         className={className}
