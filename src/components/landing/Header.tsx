@@ -19,7 +19,7 @@ import {
   formatTimeLeft,
   shouldShowPromoOffer
 } from "@/utils/paymentTimer";
-import { getUserTier } from "@/utils/subscriptionUtils";
+import { useUserTier } from "@/hooks/useUserTier";
 
 export function Header() {
   const isMobile = useIsMobile();
@@ -27,6 +27,9 @@ export function Header() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const headerRef = useRef<HTMLElement>(null);
+
+  // 🔧 2025-01: 使用useUserTier获取订阅等级（优先使用Store）
+  const { tier: userTier, loading: tierLoading, displayName: tierDisplayName } = useUserTier();
 
   // 获取当前主题
   const [currentTheme, setCurrentTheme] = useState<string>('light');
@@ -59,8 +62,8 @@ export function Header() {
   // 检查并显示限时优惠倒计时
   useEffect(() => {
     const checkPromo = async () => {
-      if (user?.id && isAuthenticated) {
-        const userTier = getUserTier(user);
+      if (user?.id && isAuthenticated && !tierLoading) {
+        // 🔧 2025-01: 使用useUserTier的结果
         const shouldShow = await shouldShowPromoOffer(user.id, userTier);
         setShowPromoCountdown(shouldShow);
       } else {
@@ -69,7 +72,7 @@ export function Header() {
     };
 
     checkPromo();
-  }, [user?.id, isAuthenticated]);
+  }, [user?.id, isAuthenticated, userTier, tierLoading]);
 
   // 更新倒计时
   useEffect(() => {

@@ -190,20 +190,37 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   },
 
   /**
-   * 预加载订阅状态（后台异步）
-   * 🔧 优化: 在用户登录后立即调用，提前加载到缓存
+   * 预加载订阅状态
+   * 🔧 2025-01 重构: 等待加载完成，确保组件能获取到正确的订阅状态
+   *
+   * 用途：
+   * - 用户登录后立即调用
+   * - 确保订阅状态在组件渲染前加载完成
+   * - 避免组件显示错误的默认状态（trial）
    */
   preloadStatus: async (userId: string, userProfile?: any) => {
     try {
-      logger.info('🚀 预加载订阅状态到全局Store', { userId });
-      
-      // 后台异步加载，不阻塞主流程
-      get().fetchStatus(userId, userProfile).catch(error => {
-        logger.warn('预加载订阅状态失败:', error);
+      logger.info('🚀 开始预加载订阅状态', { userId });
+
+      // 🔧 关键修复: 等待fetchStatus完成
+      // 这样AuthGuard可以等待预加载完成后再渲染子组件
+      await get().fetchStatus(userId, userProfile);
+
+      logger.info('✅ 订阅状态预加载完成', {
+        userId,
+        tier: get().status?.tier,
+        isExpired: get().status?.isExpired
       });
     } catch (error) {
-      // 预加载失败不影响主流程
-      logger.warn('预加载订阅状态异常:', error);
+      logger.error('❌ 预加载订阅状态失败:', error);
+
+      // 即使失败也要设置initialLoading=false
+      set({
+        initialLoading: false,
+        error: error instanceof Error ? error.message : '预加载失败'
+      });
+
+      throw error;
     }
   },
 
