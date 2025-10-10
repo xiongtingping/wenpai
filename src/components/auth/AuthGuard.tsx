@@ -69,25 +69,36 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   useEffect(() => {
     if (!user?.id) return;
 
-    const handlePaymentSuccess = () => {
-      console.log('💳 支付成功，强制刷新订阅状态', { userId: user.id });
-      forceRefreshAfterUpgrade(user.id);
+    const handlePaymentSuccess = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const expectedTier = customEvent.detail?.expectedTier;
+
+      console.log('💳 支付成功，强制刷新订阅状态', {
+        userId: user.id,
+        expectedTier
+      });
+
+      forceRefreshAfterUpgrade(user.id, expectedTier);
     };
 
     const handleSubscriptionUpdated = (event: CustomEvent) => {
+      const expectedTier = event.detail?.tier;
+
       console.log('📝 订阅更新，强制刷新订阅状态', {
         userId: user.id,
+        expectedTier,
         detail: event.detail
       });
-      forceRefreshAfterUpgrade(user.id);
+
+      forceRefreshAfterUpgrade(user.id, expectedTier);
     };
 
     // 监听支付成功事件
-    window.addEventListener('paymentSuccess', handlePaymentSuccess);
+    window.addEventListener('paymentSuccess', handlePaymentSuccess as EventListener);
     window.addEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
 
     return () => {
-      window.removeEventListener('paymentSuccess', handlePaymentSuccess);
+      window.removeEventListener('paymentSuccess', handlePaymentSuccess as EventListener);
       window.removeEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
     };
   }, [user?.id, forceRefreshAfterUpgrade]);

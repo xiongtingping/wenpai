@@ -518,8 +518,12 @@ export default function PaymentPage() {
     }
 
     // 🆕 触发支付成功事件，强制刷新订阅状态
-    logger.info('💳 触发支付成功事件');
-    window.dispatchEvent(new Event('paymentSuccess'));
+    // 传入期望的订阅等级，用于验证
+    const expectedTier = selectedPlan?.tier;
+    logger.info('💳 触发支付成功事件', { expectedTier });
+    window.dispatchEvent(new CustomEvent('paymentSuccess', {
+      detail: { expectedTier }
+    }));
 
     toast({
       title: t('payment.messages.paymentSuccess'),
@@ -605,8 +609,12 @@ export default function PaymentPage() {
     setPaymentStatus('paid');
 
     // 🆕 触发支付成功事件，强制刷新订阅状态
-    logger.info('💳 触发支付成功事件（BufPay）');
-    window.dispatchEvent(new Event('paymentSuccess'));
+    // 传入期望的订阅等级，用于验证
+    const expectedTier = selectedPlan?.tier;
+    logger.info('💳 触发支付成功事件（BufPay）', { expectedTier });
+    window.dispatchEvent(new CustomEvent('paymentSuccess', {
+      detail: { expectedTier }
+    }));
 
     // 立即显示成功提示
     toast({

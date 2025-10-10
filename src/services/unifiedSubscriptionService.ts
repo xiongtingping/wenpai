@@ -356,7 +356,101 @@ class UnifiedSubscriptionService {
    */
   async refreshUserSubscription(userId: string): Promise<void> {
     this.clearCache(userId);
+    // 🔧 清除正在进行的查询
+    this.pendingQueries.delete(userId);
     await this.getUserSubscriptionStatus(userId);
+  }
+
+  /**
+   * 🆕 强制刷新订阅状态（支付成功后使用）
+   *
+   * 特点：
+   * - 清除所有缓存
+   * - 等待数据库更新
+   * - 重试机制确保获取到最新数据
+   *
+   * @param userId 用户ID
+   * @param expectedTier 期望的订阅等级（可选，用于验证）
+   * @param maxRetries 最大重试次数
+   */
+  async forceRefreshAfterPayment(
+    userId: string,
+    expectedTier?: string,
+    maxRetries: number = 5
+  ): Promise<SubscriptionStatusResult> {
+    logger.info('🚀 支付后强制刷新订阅状态', {
+      userId,
+      expectedTier,
+      maxRetries
+    });
+
+    // 1. 清除所有缓存
+    this.clearCache(userId);
+    this.pendingQueries.delete(userId);
+    logger.info('🧹 已清除所有缓存');
+
+    // 2. 等待数据库更新（支付回调可能有延迟）
+    const initialWait = 2000; // 2秒
+    logger.info(`⏳ 等待${initialWait}ms，确保数据库已更新`);
+    await new Promise(resolve => setTimeout(resolve, initialWait));
+
+    // 3. 重试查询，直到获取到最新数据
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      logger.info(`🔄 第${attempt}/${maxRetries}次查询订阅状态`);
+
+      // 清除缓存，确保查询数据库
+      this.clearCache(userId);
+      this.pendingQueries.delete(userId);
+
+      // 查询最新状态
+      const result = await this.getUserSubscriptionStatus(userId);
+
+      logger.info(`📊 查询结果:`, {
+        attempt,
+        tier: result.tier,
+        isExpired: result.isExpired,
+        expiresAt: result.expiresAt,
+        expectedTier
+      });
+
+      // 如果指定了期望的等级，验证是否匹配
+      if (expectedTier) {
+        if (result.tier === expectedTier && !result.isExpired) {
+          logger.info('✅ 订阅状态已更新为期望等级', {
+            tier: result.tier,
+            expectedTier
+          });
+          return result;
+        } else {
+          logger.warn('⚠️ 订阅状态尚未更新', {
+            currentTier: result.tier,
+            expectedTier,
+            isExpired: result.isExpired,
+            attempt
+          });
+        }
+      } else {
+        // 如果没有指定期望等级，检查是否不是trial
+        if (result.tier !== 'trial' && !result.isExpired) {
+          logger.info('✅ 订阅状态已更新（非试用）', {
+            tier: result.tier
+          });
+          return result;
+        }
+      }
+
+      // 如果不是最后一次尝试，等待后重试
+      if (attempt < maxRetries) {
+        const retryWait = 1000 * attempt; // 递增等待：1s, 2s, 3s, 4s
+        logger.info(`⏳ 等待${retryWait}ms后重试...`);
+        await new Promise(resolve => setTimeout(resolve, retryWait));
+      }
+    }
+
+    // 所有重试都失败，返回最后一次查询结果
+    logger.warn('⚠️ 达到最大重试次数，返回当前状态');
+    const finalResult = await this.getUserSubscriptionStatus(userId);
+    return finalResult;
   }
 
   /**
