@@ -75,6 +75,200 @@ export const logger = {
   },
 
   /**
+   * 🔧 增强的API错误日志
+   * 显示完整的请求和响应信息
+   */
+  apiError: (context: {
+    operation: string;
+    endpoint?: string;
+    method?: string;
+    status?: number;
+    statusText?: string;
+    requestBody?: any;
+    responseBody?: any;
+    error?: any;
+    model?: string;
+    provider?: string;
+    headers?: any;
+    duration?: number;
+  }) => {
+    if (currentLogLevel <= LogLevel.ERROR) {
+      console.group(`🔴 API错误: ${context.operation}`);
+
+      // 基本信息
+      console.error('📍 错误位置:', context.operation);
+      if (context.model) console.error('🤖 模型:', context.model);
+      if (context.provider) console.error('🏢 提供商:', context.provider);
+
+      // 请求信息
+      if (context.endpoint || context.method) {
+        console.group('📤 请求信息');
+        if (context.method) console.log('方法:', context.method);
+        if (context.endpoint) console.log('端点:', context.endpoint);
+        if (context.headers) console.log('请求头:', context.headers);
+        if (context.requestBody) {
+          console.log('请求体:', context.requestBody);
+          // 如果有prompt，单独显示
+          if (context.requestBody.messages) {
+            console.log('💬 Prompt预览:',
+              JSON.stringify(context.requestBody.messages).substring(0, 200) + '...'
+            );
+          }
+        }
+        console.groupEnd();
+      }
+
+      // 响应信息
+      if (context.status || context.responseBody) {
+        console.group('📥 响应信息');
+        if (context.status) {
+          console.error('状态码:', context.status, context.statusText || '');
+        }
+        if (context.duration) {
+          console.log('耗时:', context.duration + 'ms');
+        }
+        if (context.responseBody) {
+          console.error('响应体:', context.responseBody);
+          // 尝试解析错误信息
+          if (typeof context.responseBody === 'string') {
+            try {
+              const parsed = JSON.parse(context.responseBody);
+              if (parsed.error) {
+                console.error('❌ 错误详情:', parsed.error);
+              }
+              if (parsed.message) {
+                console.error('💬 错误消息:', parsed.message);
+              }
+            } catch (e) {
+              // 忽略解析错误
+            }
+          }
+        }
+        console.groupEnd();
+      }
+
+      // 错误对象
+      if (context.error) {
+        console.group('⚠️ 错误详情');
+        console.error('错误对象:', context.error);
+        if (context.error instanceof Error) {
+          console.error('错误消息:', context.error.message);
+          if (context.error.stack) {
+            console.error('错误堆栈:', context.error.stack);
+          }
+        }
+        console.groupEnd();
+      }
+
+      console.groupEnd();
+    }
+  },
+
+  /**
+   * 🔧 增强的模型调用错误日志
+   */
+  modelError: (context: {
+    model: string;
+    operation: string;
+    prompt?: string;
+    systemPrompt?: string;
+    params?: any;
+    response?: any;
+    error?: any;
+    attempt?: number;
+    maxAttempts?: number;
+  }) => {
+    if (currentLogLevel <= LogLevel.ERROR) {
+      console.group(`🤖 模型调用错误: ${context.model}`);
+
+      console.error('📍 操作:', context.operation);
+      console.error('🤖 模型:', context.model);
+      if (context.attempt && context.maxAttempts) {
+        console.error('🔄 尝试次数:', `${context.attempt}/${context.maxAttempts}`);
+      }
+
+      // 参数信息
+      if (context.params || context.prompt || context.systemPrompt) {
+        console.group('⚙️ 调用参数');
+        if (context.prompt) {
+          console.log('💬 Prompt预览:', context.prompt.substring(0, 200) + '...');
+          console.log('📏 Prompt长度:', context.prompt.length);
+        }
+        if (context.systemPrompt) {
+          console.log('🎯 System Prompt预览:', context.systemPrompt.substring(0, 200) + '...');
+        }
+        if (context.params) {
+          console.log('🔧 其他参数:', {
+            temperature: context.params.temperature,
+            maxTokens: context.params.maxTokens,
+            ...context.params
+          });
+        }
+        console.groupEnd();
+      }
+
+      // 响应信息
+      if (context.response) {
+        console.group('📥 响应信息');
+        console.log('响应对象:', context.response);
+        if (context.response.content) {
+          console.log('✅ 内容长度:', context.response.content.length);
+          console.log('📄 内容预览:', context.response.content.substring(0, 200) + '...');
+        } else {
+          console.error('❌ 无内容返回');
+        }
+        if (context.response.usage) {
+          console.log('📊 Token使用:', context.response.usage);
+        }
+        console.groupEnd();
+      }
+
+      // 错误信息
+      if (context.error) {
+        console.group('❌ 错误详情');
+        console.error('错误:', context.error);
+        if (typeof context.error === 'string') {
+          console.error('错误消息:', context.error);
+        } else if (context.error instanceof Error) {
+          console.error('错误消息:', context.error.message);
+          console.error('错误堆栈:', context.error.stack);
+        }
+        console.groupEnd();
+      }
+
+      console.groupEnd();
+    }
+  },
+
+  /**
+   * 🔧 增强的Fallback日志
+   */
+  fallback: (context: {
+    from: string;
+    to: string;
+    reason: string;
+    attempt: number;
+    error?: any;
+    strategy?: string;
+  }) => {
+    if (currentLogLevel <= LogLevel.WARN) {
+      console.group(`🔄 模型降级: ${context.from} → ${context.to}`);
+
+      console.warn('📍 降级原因:', context.reason);
+      console.warn('🔢 尝试次数:', context.attempt);
+      console.warn('📊 降级策略:', context.strategy || '默认策略');
+      console.warn('⬅️ 原模型:', context.from);
+      console.warn('➡️ 新模型:', context.to);
+
+      if (context.error) {
+        console.warn('⚠️ 触发错误:', context.error);
+      }
+
+      console.groupEnd();
+    }
+  },
+
+  /**
    * 系统启动信息 - 生产环境静默
    */
   system: (...args: any[]) => {

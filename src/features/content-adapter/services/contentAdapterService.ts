@@ -148,11 +148,14 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
           const nextModel = getNextFallbackModel(params.model, attempt - 1, fallbackReason);
 
           if (nextModel) {
-            logger.info(`${versionName} - 智能降级`, {
-              reason: reasonDesc,
+            // 🔧 使用增强的fallback日志
+            logger.fallback({
               from: params.model,
               to: nextModel,
-              attempt
+              reason: reasonDesc,
+              attempt,
+              error: errorMessage,
+              strategy: fallbackReason === 'quota_exceeded' ? '配额用尽特殊策略' : '默认降级策略'
             });
             params.model = nextModel;
           } else {

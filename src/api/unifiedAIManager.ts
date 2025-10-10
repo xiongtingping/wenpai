@@ -290,11 +290,21 @@ export class UnifiedAIManager {
       };
 
     } catch (error) {
-      logger.error('❌ AI请求失败:', {
-        requestId,
-        provider: config.provider,
+      // 🔧 使用增强的错误日志
+      logger.apiError({
+        operation: 'AI请求',
+        endpoint: config.endpoint,
+        method: 'POST',
         model: config.model,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        provider: config.provider,
+        requestBody: {
+          model: config.model,
+          messages: config.messages,
+          temperature: config.temperature,
+          max_tokens: config.maxTokens
+        },
+        error,
+        duration: Date.now() - startTime
       });
 
       return {
@@ -450,22 +460,37 @@ export class UnifiedAIManager {
           userFriendlyMessage = errorText.substring(0, 200);
         }
 
-        logger.error('🔴 AIMLAPI调用失败:', {
+        // 🔧 使用增强的API错误日志
+        const possibleReasons = response.status === 403 ? [
+          'API Key 无效或过期',
+          'API 配额已用完',
+          '模型权限不足',
+          '账户被封禁'
+        ] : [];
+
+        logger.apiError({
+          operation: 'AIMLAPI调用',
+          endpoint: config.endpoint,
+          method: 'POST',
           status: response.status,
           statusText: response.statusText,
-          endpoint: config.endpoint,
           model: config.model,
           provider: config.provider,
-          errorBody: errorText.substring(0, 500), // 只记录前500字符
-          userFriendlyMessage,
-          is403: response.status === 403,
-          possibleReasons: response.status === 403 ? [
-            'API Key 无效或过期',
-            'API 配额已用完',
-            '模型权限不足',
-            '账户被封禁'
-          ] : []
+          requestBody: {
+            model: config.model,
+            messages: config.messages,
+            temperature: config.temperature,
+            max_tokens: config.maxTokens
+          },
+          responseBody: errorText,
+          duration: Date.now() - startTime
         });
+
+        // 额外的错误分析
+        if (response.status === 403) {
+          console.error('💡 可能的原因:', possibleReasons);
+          console.error('💬 用户友好提示:', userFriendlyMessage);
+        }
 
         throw new Error(userFriendlyMessage);
       }
@@ -556,13 +581,40 @@ export class UnifiedAIManager {
       }
       // 路径6: 检查是否有其他可能的字段
       else {
-        logger.error('❌ 无法从响应中提取内容，尝试所有已知路径都失败', {
-          hasChoices: !!data.choices,
-          choicesLength: data.choices?.length,
-          firstChoiceKeys: data.choices?.[0] ? Object.keys(data.choices[0]) : [],
-          dataKeys: Object.keys(data),
-          rawData: data
-        });
+        // 🔧 使用增强的错误日志
+        console.group('❌ 无法从响应中提取内容');
+        console.error('📍 问题:', '尝试所有已知路径都失败');
+        console.error('🤖 模型:', config.model);
+        console.error('🏢 提供商:', config.provider);
+
+        console.group('🔍 响应结构分析');
+        console.log('✅ 有choices数组:', !!data.choices);
+        console.log('📊 choices长度:', data.choices?.length || 0);
+        console.log('🔑 顶层字段:', Object.keys(data));
+
+        if (data.choices?.[0]) {
+          console.log('🔑 choices[0]字段:', Object.keys(data.choices[0]));
+
+          if (data.choices[0].message) {
+            console.log('🔑 message字段:', Object.keys(data.choices[0].message));
+            console.log('📄 message内容:', data.choices[0].message);
+          }
+        }
+        console.groupEnd();
+
+        console.group('🔍 尝试的提取路径');
+        console.log('❌ 路径1: data.choices[0].message.content');
+        console.log('❌ 路径2: data.content');
+        console.log('❌ 路径3: data.text');
+        console.log('❌ 路径4: data.choices[0].text');
+        console.log('❌ 路径5: data.choices[0].message.content (空值)');
+        console.groupEnd();
+
+        console.group('📦 完整响应数据');
+        console.log('原始数据:', data);
+        console.groupEnd();
+
+        console.groupEnd();
       }
 
       const content = cleanAIContent(rawContent);
@@ -634,8 +686,20 @@ export class UnifiedAIManager {
       return response;
 
     } catch (error) {
-      logger.error('❌ 统一AI调用失败:', error);
-      
+      // 🔧 使用增强的模型错误日志
+      logger.modelError({
+        model: params.model || 'unknown',
+        operation: '统一AI调用',
+        prompt: params.prompt,
+        systemPrompt: params.systemPrompt,
+        params: {
+          temperature: params.temperature,
+          maxTokens: params.maxTokens,
+          stream: params.stream
+        },
+        error
+      });
+
       return {
         content: '',
         model: params.model || 'unknown',
