@@ -36,67 +36,145 @@ export interface SubscriptionStatusResult {
  */
 class UnifiedSubscriptionService {
   private readonly CACHE_KEY = 'unified_subscription_cache';
-  private readonly CACHE_TTL = 2 * 60 * 1000; // 2分钟缓存TTL
+  private readonly CACHE_TTL = 10 * 60 * 1000; // 🔧 优化: 10分钟缓存TTL（从2分钟增加）
   private readonly GRACE_PERIOD_DAYS = 7; // 7天宽限期
+
+  // 🔧 新增: 内存缓存，比localStorage更快
+  private memoryCache: Map<string, { result: SubscriptionStatusResult; expiry: number }> = new Map();
+
+  // 🔧 新增: 正在进行的查询，避免重复请求
+  private pendingQueries: Map<string, Promise<SubscriptionStatusResult>> = new Map();
 
   /**
    * 获取用户订阅状态 - 统一入口
-   * 优先级: Supabase > 用户资料推断 > 默认试用
+   * 优先级: 内存缓存 > localStorage缓存 > Supabase > 用户资料推断 > 默认试用
+   *
+   * 🔧 优化:
+   * 1. 添加内存缓存（最快）
+   * 2. 防止重复查询（请求去重）
+   * 3. 增加缓存时间到10分钟
    */
   async getUserSubscriptionStatus(userId: string, userProfile?: any): Promise<SubscriptionStatusResult> {
     try {
-      // 1. 优先从缓存获取
-      const cached = this.getFromCache(userId);
-      if (cached) {
-        return cached;
+      const startTime = Date.now();
+
+      // 🔧 优化1: 优先从内存缓存获取（最快，无IO）
+      const memCached = this.getFromMemoryCache(userId);
+      if (memCached) {
+        logger.debug('✅ 从内存缓存获取订阅状态', {
+          userId,
+          duration: Date.now() - startTime + 'ms'
+        });
+        return memCached;
       }
 
-      // 2. 优先从Supabase获取真实订阅数据
-      const supabaseResult = await this.getFromSupabase(userId);
-      if (supabaseResult) {
-        this.setToCache(userId, supabaseResult);
-        return supabaseResult;
+      // 🔧 优化2: 从localStorage缓存获取（较快）
+      const diskCached = this.getFromDiskCache(userId);
+      if (diskCached) {
+        // 同时更新内存缓存
+        this.setToMemoryCache(userId, diskCached);
+        logger.debug('✅ 从磁盘缓存获取订阅状态', {
+          userId,
+          duration: Date.now() - startTime + 'ms'
+        });
+        return diskCached;
       }
 
-      // 3. 从用户资料推断
-      const profileResult = this.inferFromUserProfile(userId, userProfile);
-      if (profileResult) {
-        this.setToCache(userId, profileResult);
-        return profileResult;
+      // 🔧 优化3: 检查是否有正在进行的查询，避免重复请求
+      const pendingQuery = this.pendingQueries.get(userId);
+      if (pendingQuery) {
+        logger.debug('⏳ 等待正在进行的订阅查询', { userId });
+        return await pendingQuery;
       }
 
-      // 4. 默认试用状态（安全fallback）
-      const fallbackResult = this.getTrialFallback(userId);
-      this.setToCache(userId, fallbackResult);
-      return fallbackResult;
+      // 🔧 优化4: 创建新的查询Promise并缓存
+      const queryPromise = this.fetchSubscriptionStatus(userId, userProfile);
+      this.pendingQueries.set(userId, queryPromise);
+
+      try {
+        const result = await queryPromise;
+        logger.info('✅ 订阅状态查询完成', {
+          userId,
+          tier: result.tier,
+          source: result.source,
+          duration: Date.now() - startTime + 'ms'
+        });
+        return result;
+      } finally {
+        // 查询完成后清除pending状态
+        this.pendingQueries.delete(userId);
+      }
 
     } catch (error) {
       logger.error('获取用户订阅状态失败:', error);
-      
+
       // 出错时返回受限访问
       return this.getRestrictedFallback(userId);
     }
   }
 
   /**
+   * 🔧 新增: 实际执行订阅状态查询的方法
+   */
+  private async fetchSubscriptionStatus(userId: string, userProfile?: any): Promise<SubscriptionStatusResult> {
+    // 1. 优先从Supabase获取真实订阅数据
+    const supabaseResult = await this.getFromSupabase(userId);
+    if (supabaseResult) {
+      this.setToCache(userId, supabaseResult);
+      return supabaseResult;
+    }
+
+    // 2. 从用户资料推断
+    const profileResult = this.inferFromUserProfile(userId, userProfile);
+    if (profileResult) {
+      this.setToCache(userId, profileResult);
+      return profileResult;
+    }
+
+    // 3. 默认试用状态（安全fallback）
+    const fallbackResult = this.getTrialFallback(userId);
+    this.setToCache(userId, fallbackResult);
+    return fallbackResult;
+  }
+
+  /**
    * 从Supabase获取订阅数据
+   * 🔧 优化:
+   * 1. 只查询必要字段，减少数据传输
+   * 2. 添加性能日志
+   * 3. 建议添加数据库索引: (user_id, status, created_at)
    */
   private async getFromSupabase(userId: string): Promise<SubscriptionStatusResult | null> {
     try {
+      const startTime = Date.now();
       const client = await getSupabaseClient();
 
+      // 🔧 优化: 只查询必要字段，减少数据传输量
       const { data: subscription, error } = await client
         .from(TABLE_NAMES.USER_SUBSCRIPTIONS)
-        .select('*')
+        .select('user_id, tier, status, expires_at, created_at, updated_at')
         .eq('user_id', userId)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
 
+      const duration = Date.now() - startTime;
+
       if (error) {
-        console.warn('Supabase订阅查询失败:', error);
+        logger.warn('Supabase订阅查询失败:', { error, duration: duration + 'ms' });
         return null;
+      }
+
+      // 🔧 性能监控: 记录慢查询
+      if (duration > 1000) {
+        logger.warn('⚠️ Supabase订阅查询较慢', {
+          userId,
+          duration: duration + 'ms',
+          suggestion: '建议添加数据库索引: CREATE INDEX idx_user_subscriptions_lookup ON user_subscriptions(user_id, status, created_at DESC);'
+        });
+      } else {
+        logger.debug('✅ Supabase订阅查询完成', { userId, duration: duration + 'ms' });
       }
 
       if (!subscription) {
@@ -282,29 +360,104 @@ class UnifiedSubscriptionService {
   }
 
   /**
-   * 缓存管理
+   * 🔧 新增: 预加载订阅状态
+   * 在用户登录后立即调用，提前加载订阅信息到缓存
    */
-  private getFromCache(userId: string): SubscriptionStatusResult | null {
+  async preloadSubscriptionStatus(userId: string, userProfile?: any): Promise<void> {
+    try {
+      logger.info('🚀 预加载订阅状态', { userId });
+
+      // 后台异步加载，不阻塞主流程
+      this.getUserSubscriptionStatus(userId, userProfile).catch(error => {
+        logger.warn('预加载订阅状态失败:', error);
+      });
+    } catch (error) {
+      // 预加载失败不影响主流程
+      logger.warn('预加载订阅状态异常:', error);
+    }
+  }
+
+  /**
+   * 🔧 新增: 批量预加载（用于管理后台等场景）
+   */
+  async batchPreloadSubscriptions(userIds: string[]): Promise<void> {
+    try {
+      logger.info('🚀 批量预加载订阅状态', { count: userIds.length });
+
+      // 并发加载，但限制并发数
+      const batchSize = 5;
+      for (let i = 0; i < userIds.length; i += batchSize) {
+        const batch = userIds.slice(i, i + batchSize);
+        await Promise.all(
+          batch.map(userId =>
+            this.getUserSubscriptionStatus(userId).catch(error => {
+              logger.warn(`预加载用户${userId}订阅失败:`, error);
+            })
+          )
+        );
+      }
+    } catch (error) {
+      logger.warn('批量预加载订阅状态失败:', error);
+    }
+  }
+
+  /**
+   * 🔧 优化: 内存缓存管理（最快）
+   */
+  private getFromMemoryCache(userId: string): SubscriptionStatusResult | null {
+    try {
+      const cached = this.memoryCache.get(userId);
+
+      if (!cached) return null;
+
+      // 检查是否过期
+      if (cached.expiry < Date.now()) {
+        this.memoryCache.delete(userId);
+        return null;
+      }
+
+      return cached.result;
+    } catch (error) {
+      console.warn('读取内存缓存失败:', error);
+      return null;
+    }
+  }
+
+  private setToMemoryCache(userId: string, result: SubscriptionStatusResult): void {
+    try {
+      this.memoryCache.set(userId, {
+        result,
+        expiry: Date.now() + this.CACHE_TTL
+      });
+    } catch (error) {
+      console.warn('设置内存缓存失败:', error);
+    }
+  }
+
+  /**
+   * 🔧 优化: localStorage缓存管理（较快）
+   */
+  private getFromDiskCache(userId: string): SubscriptionStatusResult | null {
     try {
       const cacheKey = `${this.CACHE_KEY}_${userId}`;
       const cached = localStorage.getItem(cacheKey);
-      
+
       if (!cached) return null;
-      
+
       const data = JSON.parse(cached);
       if (data.expiry < Date.now()) {
         localStorage.removeItem(cacheKey);
         return null;
       }
-      
+
       return data.result;
     } catch (error) {
-      console.warn('读取订阅缓存失败:', error);
+      console.warn('读取磁盘缓存失败:', error);
       return null;
     }
   }
 
-  private setToCache(userId: string, result: SubscriptionStatusResult): void {
+  private setToDiskCache(userId: string, result: SubscriptionStatusResult): void {
     try {
       const cacheKey = `${this.CACHE_KEY}_${userId}`;
       const cacheData = {
@@ -314,12 +467,27 @@ class UnifiedSubscriptionService {
 
       localStorage.setItem(cacheKey, JSON.stringify(cacheData));
     } catch (error) {
-      console.warn('设置订阅缓存失败:', error);
+      console.warn('设置磁盘缓存失败:', error);
     }
   }
 
+  /**
+   * 🔧 优化: 统一缓存设置（同时设置内存和磁盘缓存）
+   */
+  private setToCache(userId: string, result: SubscriptionStatusResult): void {
+    this.setToMemoryCache(userId, result);
+    this.setToDiskCache(userId, result);
+  }
+
+  /**
+   * 🔧 优化: 统一缓存清除
+   */
   private clearCache(userId: string): void {
     try {
+      // 清除内存缓存
+      this.memoryCache.delete(userId);
+
+      // 清除磁盘缓存
       const cacheKey = `${this.CACHE_KEY}_${userId}`;
       localStorage.removeItem(cacheKey);
     } catch (error) {
