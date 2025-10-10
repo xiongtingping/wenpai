@@ -8,6 +8,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscriptionStore } from '@/stores/subscription-store';
 
 /**
  * AuthGuard 组件属性接口
@@ -54,6 +55,15 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
 }) => {
   const { isAuthenticated, loading, user } = useAuth();
   const navigate = useNavigate();
+  const { preloadStatus } = useSubscriptionStore();
+
+  // 🔧 优化: 用户登录后立即预加载订阅状态
+  useEffect(() => {
+    if (isAuthenticated && user?.id && !loading) {
+      console.log('🚀 AuthGuard: 预加载订阅状态', { userId: user.id });
+      preloadStatus(user.id, user);
+    }
+  }, [isAuthenticated, user?.id, loading, preloadStatus]);
 
   useEffect(() => {
     if (!requireAuth) return;
