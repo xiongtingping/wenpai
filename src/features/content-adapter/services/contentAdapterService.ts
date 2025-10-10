@@ -255,7 +255,19 @@ function extractAndCleanContent(content: string): { cleanContent: string; extrac
     extractedTags
   });
 
-  const filteredTags = extractedTags.filter(tag => !/^#?u[0-9a-f]{4,}$/i.test(tag));
+  // 🔧 FIX: 过滤Unicode编码的标签（如 u64cdu4f5cu5931u8d25）
+  // 匹配以u开头后面跟着多个4位十六进制数字的标签
+  const filteredTags = extractedTags.filter(tag => {
+    // 移除可能的#号
+    const cleanTag = tag.replace(/^#/, '');
+    // 检查是否是Unicode编码格式：u后面跟着4的倍数个十六进制字符
+    const isUnicodeEncoded = /^u([0-9a-f]{4})+$/i.test(cleanTag);
+    if (isUnicodeEncoded) {
+      logger.warn('过滤Unicode编码标签:', tag);
+    }
+    return !isUnicodeEncoded;
+  });
+
   return { cleanContent, extractedTags: filteredTags };
 }
 
@@ -404,7 +416,10 @@ async function generateMultipleVersions(
       logger.info('✅ 版本A生成成功', {
         platform: platformId,
         charCount: actualCharCount,
-        contentPreview: cleanContent.substring(0, 100)
+        contentPreview: cleanContent.substring(0, 100),
+        tags: extractedTags,
+        // 🔧 添加内容hash用于对比
+        contentHash: cleanContent.substring(0, 50)
       });
     } else {
       logger.error('❌ 版本A生成失败', {
@@ -433,8 +448,31 @@ async function generateMultipleVersions(
       logger.info('✅ 版本B生成成功', {
         platform: platformId,
         charCount: actualCharCount,
-        contentPreview: cleanContent.substring(0, 100)
+        contentPreview: cleanContent.substring(0, 100),
+        tags: extractedTags,
+        // 🔧 添加内容hash用于对比
+        contentHash: cleanContent.substring(0, 50)
       });
+
+      // 🔧 检查版本A和版本B是否相同
+      if (versions.length === 2) {
+        const versionA = versions[0];
+        const versionB = versions[1];
+        if (versionA.content === versionB.content) {
+          logger.error('⚠️ 警告：版本A和版本B内容完全相同！', {
+            platform: platformId,
+            versionAHash: versionA.content.substring(0, 50),
+            versionBHash: versionB.content.substring(0, 50)
+          });
+        } else {
+          logger.info('✅ 版本差异化成功', {
+            platform: platformId,
+            versionALength: versionA.content.length,
+            versionBLength: versionB.content.length,
+            similarity: versionA.content === versionB.content ? '100%' : '不同'
+          });
+        }
+      }
     } else {
       logger.error('❌ 版本B生成失败', {
         platform: platformId,

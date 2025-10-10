@@ -575,12 +575,22 @@ export class UnifiedAIManager {
         throw new Error(`当前订阅计划 ${userTier} 无权限使用模型 ${params.model}`);
       }
 
-      // 检查缓存
+      // 检查缓存（如果启用）
+      const anyParams = params as any;
+      const skipCache = anyParams.skipCache || anyParams.regenerationSeed; // 🔧 有regenerationSeed时自动跳过缓存
+
       const cacheKey = this.getCacheKey(params);
-      const cached = this.checkCache(cacheKey);
-      if (cached) {
-        logger.debug('📦 使用缓存响应:', { model: params.model, cacheKey });
-        return cached;
+      if (!skipCache) {
+        const cached = this.checkCache(cacheKey);
+        if (cached) {
+          logger.debug('📦 使用缓存响应:', { model: params.model, cacheKey });
+          return cached;
+        }
+      } else {
+        logger.debug('⏭️ 跳过缓存检查:', {
+          model: params.model,
+          reason: anyParams.regenerationSeed ? 'regenerationSeed存在' : 'skipCache=true'
+        });
       }
 
       // 构建配置
@@ -589,8 +599,8 @@ export class UnifiedAIManager {
       // 发送请求
       const response = await this.sendAIRequest(config, params);
 
-      // 缓存成功响应
-      if (response.success) {
+      // 缓存成功响应（如果启用缓存）
+      if (response.success && !skipCache) {
         this.setCache(cacheKey, response);
       }
 
