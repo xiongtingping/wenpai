@@ -517,6 +517,10 @@ export default function PaymentPage() {
       });
     }
 
+    // 🆕 触发支付成功事件，强制刷新订阅状态
+    logger.info('💳 触发支付成功事件');
+    window.dispatchEvent(new Event('paymentSuccess'));
+
     toast({
       title: t('payment.messages.paymentSuccess'),
       description: t('payment.messages.upgrading'),
@@ -599,6 +603,10 @@ export default function PaymentPage() {
   const handleBufpaySuccess = async () => {
     logger.info('BufPay支付成功', { orderId: bufpayOrderId });
     setPaymentStatus('paid');
+
+    // 🆕 触发支付成功事件，强制刷新订阅状态
+    logger.info('💳 触发支付成功事件（BufPay）');
+    window.dispatchEvent(new Event('paymentSuccess'));
 
     // 立即显示成功提示
     toast({

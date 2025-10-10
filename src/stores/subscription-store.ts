@@ -17,21 +17,22 @@ import { logger } from '@/utils/logger';
 interface SubscriptionState {
   // 订阅状态数据
   status: SubscriptionStatusResult | null;
-  
+
   // 加载状态
   loading: boolean;
   initialLoading: boolean;
   error: string | null;
-  
+
   // 最后更新时间
   lastUpdated: number | null;
-  
+
   // Actions
   fetchStatus: (userId: string, userProfile?: any) => Promise<void>;
   refreshStatus: (userId: string) => Promise<void>;
+  forceRefreshAfterUpgrade: (userId: string) => Promise<void>;
   preloadStatus: (userId: string, userProfile?: any) => Promise<void>;
   clearStatus: () => void;
-  
+
   // 辅助方法
   isExpired: () => boolean;
   hasFeature: (featureId: string) => boolean;
@@ -102,15 +103,75 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 
   /**
    * 刷新订阅状态（强制重新查询）
+   * 🔧 优化: 清除所有层级的缓存（内存、本地、云）
    */
   refreshStatus: async (userId: string) => {
     logger.info('🔄 强制刷新订阅状态', { userId });
-    
-    // 清除缓存
+
+    // 1. 清除unifiedSubscriptionService的所有缓存
     await unifiedSubscriptionService.refreshUserSubscription(userId);
-    
-    // 重新获取
+
+    // 2. 清除Store的内存缓存
+    set({
+      status: null,
+      lastUpdated: null
+    });
+
+    // 3. 重新从数据库查询
     await get().fetchStatus(userId);
+
+    logger.info('✅ 订阅状态刷新完成', { userId });
+  },
+
+  /**
+   * 🆕 订阅升级后的强制刷新
+   * 用于支付成功、订阅变更等场景
+   *
+   * 特点:
+   * - 清除所有层级的缓存（内存、localStorage、Supabase）
+   * - 立即从数据库查询最新数据
+   * - 通知所有使用订阅状态的组件
+   */
+  forceRefreshAfterUpgrade: async (userId: string) => {
+    logger.info('🚀 订阅升级后强制刷新', { userId });
+
+    try {
+      // 1. 清除所有缓存
+      logger.info('🧹 清除所有缓存层级');
+
+      // 清除unifiedSubscriptionService的缓存
+      await unifiedSubscriptionService.refreshUserSubscription(userId);
+
+      // 清除Store的状态
+      set({
+        status: null,
+        loading: false,
+        initialLoading: false,
+        error: null,
+        lastUpdated: null
+      });
+
+      // 2. 等待一小段时间，确保数据库已更新
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // 3. 重新查询最新数据
+      logger.info('📡 从数据库查询最新订阅状态');
+      await get().fetchStatus(userId);
+
+      // 4. 触发全局事件，通知其他组件
+      window.dispatchEvent(new CustomEvent('subscriptionRefreshed', {
+        detail: { userId, timestamp: Date.now() }
+      }));
+
+      logger.info('✅ 订阅升级后刷新完成', {
+        userId,
+        newStatus: get().status
+      });
+
+    } catch (error) {
+      logger.error('❌ 订阅升级后刷新失败', { userId, error });
+      throw error;
+    }
   },
 
   /**
@@ -204,6 +265,7 @@ export function useSubscription(userId?: string) {
 
     // Actions
     refresh: () => userId ? store.refreshStatus(userId) : Promise.resolve(),
+    forceRefreshAfterUpgrade: () => userId ? store.forceRefreshAfterUpgrade(userId) : Promise.resolve(),
     preload: (userProfile?: any) => userId ? store.preloadStatus(userId, userProfile) : Promise.resolve(),
 
     // 辅助方法

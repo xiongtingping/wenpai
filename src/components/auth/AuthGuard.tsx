@@ -55,7 +55,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
 }) => {
   const { isAuthenticated, loading, user } = useAuth();
   const navigate = useNavigate();
-  const { preloadStatus } = useSubscriptionStore();
+  const { preloadStatus, forceRefreshAfterUpgrade } = useSubscriptionStore();
 
   // 🔧 优化: 用户登录后立即预加载订阅状态
   useEffect(() => {
@@ -64,6 +64,33 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
       preloadStatus(user.id, user);
     }
   }, [isAuthenticated, user?.id, loading, preloadStatus]);
+
+  // 🆕 监听支付成功和订阅更新事件，强制刷新订阅状态
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const handlePaymentSuccess = () => {
+      console.log('💳 支付成功，强制刷新订阅状态', { userId: user.id });
+      forceRefreshAfterUpgrade(user.id);
+    };
+
+    const handleSubscriptionUpdated = (event: CustomEvent) => {
+      console.log('📝 订阅更新，强制刷新订阅状态', {
+        userId: user.id,
+        detail: event.detail
+      });
+      forceRefreshAfterUpgrade(user.id);
+    };
+
+    // 监听支付成功事件
+    window.addEventListener('paymentSuccess', handlePaymentSuccess);
+    window.addEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
+
+    return () => {
+      window.removeEventListener('paymentSuccess', handlePaymentSuccess);
+      window.removeEventListener('userSubscriptionUpdated', handleSubscriptionUpdated as EventListener);
+    };
+  }, [user?.id, forceRefreshAfterUpgrade]);
 
   useEffect(() => {
     if (!requireAuth) return;
