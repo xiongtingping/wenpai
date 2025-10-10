@@ -507,10 +507,29 @@ export class UnifiedAIManager {
       // 尝试多种路径提取内容
       let rawContent = '';
 
+      // 🔧 DEBUG: 详细输出message结构
+      if (data.choices?.[0]?.message) {
+        const msg = data.choices[0].message;
+        logger.info('🔍 详细message结构:', {
+          messageType: typeof msg,
+          messageKeys: Object.keys(msg),
+          hasContent: 'content' in msg,
+          contentValue: msg.content,
+          contentType: typeof msg.content,
+          contentIsEmpty: msg.content === '',
+          contentIsNull: msg.content === null,
+          contentIsUndefined: msg.content === undefined,
+          fullMessage: msg
+        });
+      }
+
       // 路径1: 标准 OpenAI 格式
       if (data.choices?.[0]?.message?.content) {
         rawContent = data.choices[0].message.content;
-        logger.info('✅ 从 choices[0].message.content 提取内容');
+        logger.info('✅ 从 choices[0].message.content 提取内容', {
+          contentLength: rawContent.length,
+          contentPreview: rawContent.substring(0, 100)
+        });
       }
       // 路径2: 直接 content 字段
       else if (data.content) {
@@ -527,7 +546,15 @@ export class UnifiedAIManager {
         rawContent = data.choices[0].text;
         logger.info('✅ 从 choices[0].text 提取内容');
       }
-      // 路径5: 检查是否有其他可能的字段
+      // 🔧 路径5: 检查message.content是否为空字符串（OpenAI有时返回空content）
+      else if (data.choices?.[0]?.message && 'content' in data.choices[0].message) {
+        rawContent = data.choices[0].message.content || '';
+        logger.warn('⚠️ message.content存在但为空或falsy值', {
+          contentValue: data.choices[0].message.content,
+          contentType: typeof data.choices[0].message.content
+        });
+      }
+      // 路径6: 检查是否有其他可能的字段
       else {
         logger.error('❌ 无法从响应中提取内容，尝试所有已知路径都失败', {
           hasChoices: !!data.choices,

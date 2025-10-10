@@ -247,13 +247,15 @@ export function hasFallbackOptions(model: string): boolean {
 
 /**
  * 根据HTTP状态码判断降级原因
- * 
+ *
  * @param statusCode HTTP状态码
  * @returns 降级原因
  */
 export function getFallbackReasonFromStatusCode(statusCode: number): FallbackReason {
   switch (statusCode) {
     case 402:
+      return 'quota_exceeded';
+    case 403: // 🔧 FIX: 添加403错误处理（AIMLAPI配额限制）
       return 'quota_exceeded';
     case 429:
       return 'rate_limit';
