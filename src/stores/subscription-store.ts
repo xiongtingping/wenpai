@@ -1,7 +1,7 @@
 /**
  * 订阅状态全局Store
  * 🔧 优化: 使用Zustand管理订阅状态，避免重复查询
- * 
+ *
  * 优势:
  * 1. 全局单例，所有组件共享同一个状态
  * 2. 避免重复查询，提升性能
@@ -9,6 +9,7 @@
  * 4. 集成unifiedSubscriptionService的三层缓存
  */
 
+import React from 'react';
 import { create } from 'zustand';
 import { unifiedSubscriptionService, type SubscriptionStatusResult } from '@/services/unifiedSubscriptionService';
 import { logger } from '@/utils/logger';
@@ -176,38 +177,40 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 
 /**
  * 🔧 优化: 简化的Hook，直接使用全局Store
- * 
+ *
  * 优势:
  * 1. 所有组件共享同一个状态
  * 2. 避免重复查询
  * 3. 切换页面瞬时响应（从缓存读取）
+ *
+ * 🔧 关键优化:
+ * - 不在Hook中触发查询，完全依赖预加载
+ * - 所有组件共享同一个全局状态
+ * - 切换页面时直接读取缓存，无需重新查询
  */
 export function useSubscription(userId?: string) {
   const store = useSubscriptionStore();
-  
-  // 如果提供了userId且与当前状态不匹配，触发查询
-  React.useEffect(() => {
-    if (userId && !store.status && !store.loading) {
-      store.fetchStatus(userId);
-    }
-  }, [userId, store.status, store.loading]);
-  
+
+  // 🔧 关键修复: 移除自动查询逻辑
+  // 完全依赖AuthGuard中的预加载
+  // 这样切换页面时不会重新查询，直接使用全局状态
+
   return {
     status: store.status,
     loading: store.loading,
     initialLoading: store.initialLoading,
     error: store.error,
     lastUpdated: store.lastUpdated,
-    
+
     // Actions
     refresh: () => userId ? store.refreshStatus(userId) : Promise.resolve(),
     preload: (userProfile?: any) => userId ? store.preloadStatus(userId, userProfile) : Promise.resolve(),
-    
+
     // 辅助方法
     isExpired: store.isExpired(),
     hasFeature: store.hasFeature,
     tier: store.getTier(),
-    
+
     // 兼容性字段
     hasActiveSubscription: !store.isExpired(),
     primaryStatus: store.status ? {
@@ -217,15 +220,12 @@ export function useSubscription(userId?: string) {
       daysRemaining: store.status.daysRemaining,
       needsAlert: store.status.daysRemaining <= 7 && store.status.daysRemaining > 0,
       alertLevel: store.status.daysRemaining <= 3 ? 'error' : 'warning',
-      alertMessage: store.status.daysRemaining > 0 
-        ? `订阅将在${store.status.daysRemaining}天后到期` 
+      alertMessage: store.status.daysRemaining > 0
+        ? `订阅将在${store.status.daysRemaining}天后到期`
         : '订阅已到期',
       statusLabel: store.status.isExpired ? '已到期' : '活跃',
       statusColor: store.status.isExpired ? 'red' : 'green'
     } : null
   };
 }
-
-// 导入React（用于useEffect）
-import React from 'react';
 
