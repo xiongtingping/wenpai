@@ -832,12 +832,34 @@ ${stylePrompts}
         taskType: AITaskType.TITLE_GENERATION
       };
 
-      // 标题生成采用两次尝试：当前模型 → 回退模型；并注入上下文用于请求去重隔离
+      // 🔧 FIX: 标题生成采用两次尝试：当前模型 → 回退模型
       let currentModel = model || 'deepseek-chat';
-      let result = await callAIWithTokenTracking({ ...aiParams, model: currentModel, context: ['title', platform] });
+
+      // 🔧 DEBUG: 输出参数信息
+      logger.debug('📝 标题生成参数:', {
+        hasPrompt: !!aiParams.prompt,
+        hasModel: !!currentModel,
+        promptLength: aiParams.prompt?.length,
+        model: currentModel,
+        platform
+      });
+
+      // 🔧 FIX: 移除context参数，因为它会导致参数传递问题
+      let result = await callAIWithTokenTracking({
+        ...aiParams,
+        model: currentModel
+      });
+
       if (!(result.success && result.content)) {
+        logger.warn('第一次标题生成失败，尝试回退模型', {
+          currentModel,
+          error: result.error
+        });
         currentModel = getNextFallbackModel(currentModel);
-        result = await callAIWithTokenTracking({ ...aiParams, model: currentModel, context: ['title', platform] });
+        result = await callAIWithTokenTracking({
+          ...aiParams,
+          model: currentModel
+        });
       }
 
       if (result.success && result.content) {
