@@ -19,7 +19,7 @@ import {
   getFallbackReasonDescription
 } from '@/config/modelFallback';
 import { logger } from '@/utils/logger';
-import { fixTruncatedTitle } from '@/utils/safeTrimTitle';
+import { fixTruncatedTitle, detectTruncationIssues, safeTrimTitle } from '@/utils/safeTrimTitle';
 
 
 /**
@@ -766,6 +766,9 @@ export class ContentAdapterService {
 4. 体验+反差型：从"以前"到"现在"的转变
 5. 工具+明确价值型：工具名称 + 功能/收益`;
 
+      // 🔧 FIX: 获取平台字符限制
+      const platformLimit = this.getPlatformLimit(platform);
+
       const aiParams: AICallParamsWithTracking = {
         prompt: `请基于以下内容生成5个吸引人的标题（必须使用简体中文输出）。
 
@@ -775,29 +778,34 @@ ${truncatedContent}
 【风格要求】
 ${stylePrompts}
 
+【字数限制 - 最重要】
+- 每个标题必须在 ${Math.min(20, platformLimit)} 字以内
+- 宁可短一些，也不要超长
+- 确保标题完整，不要被截断
+
 【质量要求 - 必须严格遵守】
-1. 标题要准确概括核心内容（语义相关性 ≥ 60%）
-2. 具有情绪吸引力（冲突感、对比感、转变、情绪词）
+1. 标题要准确概括核心内容
+2. 具有情绪吸引力（冲突感、对比感、转变）
 3. 结构多样化，避免重复句式
 4. **语义完整性要求**：
-   - 必须有自然的结尾，避免在半个词上截断
-   - 好的结尾：了、的、！、？、。、吧、呢、啊、哦
-   - 禁止的结尾：、是、和、让、要、在、文、工、台
+   - 必须是完整的句子，有自然的结尾
+   - 好的结尾：了、！、？、吧、呢
+   - 禁止的结尾：、是、和、让、要、在、文、工、台、有
    - 避免语序异常如"让我小红书"、"工具帮我小"
-5. 充分利用字符空间，但不要为了凑字数而牺牲语义完整性
-6. 长度在8-30字之间
+5. 长度控制在 12-${Math.min(20, platformLimit)} 字之间
 
-【截断预防要求】
-- 如果接近字符限制，优先在自然边界处结束（句号、感叹号、逗号等）
-- 不要在词组中间强行截断
-- 确保标题即使被截断也能保持基本语义
+【禁止行为】
+- ❌ 禁止生成超过 ${Math.min(20, platformLimit)} 字的标题
+- ❌ 禁止在词组中间截断（如"轻松有"、"多平台内"）
+- ❌ 禁止出现不完整的词（如"让我"、"帮我"结尾）
+- ❌ 禁止语序异常
 
 【输出格式】
 请以JSON格式返回，包含以下字段：
 {
   "titles": [
     {
-      "title": "标题内容",
+      "title": "标题内容（12-${Math.min(20, platformLimit)}字）",
       "style": "风格类型",
       "reasoning": "生成理由"
     }
@@ -805,29 +813,35 @@ ${stylePrompts}
 }
 
 请直接返回JSON，不要其他说明文字：`,
-        systemPrompt: `你是一个专业的标题生成专家，擅长生成高质量、多样化的标题。\n\n【语言要求】\n- 必须使用简体中文输出所有标题\n- 专有名词如需保留英文，请在首次出现时使用括号提供中文释义
+        systemPrompt: `你是一个专业的标题生成专家，擅长生成简洁、完整、吸引人的标题。
 
 【核心原则】
-1. 与原文内容高度相关
-2. 具有强烈的吸引力和传播性
-3. **语义完整闭合** - 这是最重要的原则
-4. 风格多样，避免模板化
+1. 简洁优先：宁可短一些，也不要超长
+2. 语义完整：每个标题必须是完整的句子
+3. 吸引力强：使用情绪词、对比、转变等技巧
+4. 避免截断：绝不生成会被截断的标题
 
-【语义闭合要求】
-- 每个标题必须是完整的句子或短语
-- 避免在词组中间截断
+【字数控制】
+- 严格控制在 12-${Math.min(20, platformLimit)} 字
+- 超过 ${Math.min(20, platformLimit)} 字的标题会被自动拒绝
+- 如果内容复杂，优先提炼核心要点
+
+【语义完整性】
+- 每个标题必须能独立理解
+- 避免在词组中间结束
 - 确保最后一个字是自然的结尾
-- 如果接近字数限制，优先缩短而不是强行填满
+- 不要为了凑字数而添加无意义的词
 
 【禁止行为】
-- 禁止生成未闭合的标题（如"发现宝藏AI工具让我小红书台、内容创作…"）
-- 禁止在关键词中间截断（如"...文…"、"...工…"）
-- 禁止出现语序异常（如"让我小红书优化"）
+- ❌ 生成超长标题
+- ❌ 在关键词中间截断
+- ❌ 语序异常
+- ❌ 不完整的句子
 
-请严格按照JSON格式返回结果。`,
-        model: model || 'deepseek-chat', // ✅ FIX: 兜底模型改为DeepSeek，确保稳定性
-        maxTokens: 500,
-        temperature: 0.8,
+请严格按照JSON格式返回结果，每个标题都必须完整且在字数限制内。`,
+        model: model || 'deepseek-chat',
+        maxTokens: 800, // 🔧 增加maxTokens，确保能生成完整的JSON
+        temperature: 0.7, // 🔧 降低temperature，提高稳定性
         feature: '标题生成',
         taskType: AITaskType.TITLE_GENERATION
       };
@@ -887,18 +901,42 @@ ${stylePrompts}
           }));
         }
 
-        // 对每个标题进行质量评分和过滤
+        // 🔧 FIX: 对每个标题进行质量评分和过滤
+        const platformLimit = this.getPlatformLimit(platform);
         const scoredTitles = parsedTitles.map(item => {
           let title = this.cleanTitle(item.title || item);
 
-          // 应用截断修复（如果需要）
-          const platformLimit = this.getPlatformLimit(platform);
-          if (title.length > platformLimit) {
-            // 使用安全截断修复（ESM导入）
+          // 🔧 FIX: 检测并修复截断问题
+          const detection = detectTruncationIssues(title);
+          if (detection.hasTruncation) {
+            logger.warn('⚠️ 检测到标题截断:', {
+              title,
+              issues: detection.issues,
+              severity: detection.severity
+            });
+            // 应用截断修复
             title = fixTruncatedTitle(title, platformLimit);
+            logger.info('✅ 标题修复完成:', title);
           }
 
-          // 计算综合评分（这里简化实现，实际应调用QualityScoreService）
+          // 🔧 FIX: 如果标题仍然超长，使用安全截断
+          if (title.length > platformLimit) {
+            logger.warn('⚠️ 标题超长，应用安全截断:', {
+              original: title,
+              length: title.length,
+              limit: platformLimit
+            });
+            title = safeTrimTitle(title, platformLimit);
+          }
+
+          // 🔧 FIX: 验证标题质量
+          const isValid = this.validateTitle(title, platformLimit);
+          if (!isValid) {
+            logger.warn('⚠️ 标题质量不合格，跳过:', title);
+            return null;
+          }
+
+          // 计算综合评分
           const semanticFit = this.estimateSemanticFit(title, content);
           const emotionalAppeal = this.estimateEmotionalAppeal(title);
           const semanticCompleteness = this.estimateSemanticCompleteness(title);
@@ -917,7 +955,7 @@ ${stylePrompts}
             reasoning: item.reasoning || '生成的标题',
             overallScore
           };
-        });
+        }).filter(item => item !== null) as any[]; // 🔧 过滤掉无效标题
 
         // 过滤和排序
         const qualifiedTitles = scoredTitles
@@ -1016,15 +1054,60 @@ ${stylePrompts}
   }
 
   /**
+   * 🔧 验证标题质量
+   */
+  private validateTitle(title: string, maxLength: number): boolean {
+    // 1. 基本长度检查
+    if (!title || title.length < 5 || title.length > maxLength) {
+      return false;
+    }
+
+    // 2. 检查是否包含无效内容
+    if (title.includes('undefined') || title.includes('null')) {
+      return false;
+    }
+
+    // 3. 检查是否有截断标记
+    if (title.includes('…') || title.includes('...')) {
+      return false;
+    }
+
+    // 4. 检查结尾是否合法
+    const lastChar = title[title.length - 1];
+    const badEndings = ['、', '是', '和', '让', '要', '在', '文', '工', '台', '有', '的'];
+    if (badEndings.includes(lastChar)) {
+      return false;
+    }
+
+    // 5. 检查是否有语序异常
+    const brokenPatterns = [
+      /让我小红书/,
+      /工具帮我小/,
+      /优化关键$/,
+      /台、文$/,
+      /多平台内$/,
+      /轻松有$/
+    ];
+
+    for (const pattern of brokenPatterns) {
+      if (pattern.test(title)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
    * 估算语义完整性（简化版）
    */
   private estimateSemanticCompleteness(title: string): number {
-    const goodEndings = ['了', '的', '！', '？', '。', '吧', '呢'];
-    const badEndings = ['、', '是', '和', '让', '要'];
+    const goodEndings = ['了', '！', '？', '。', '吧', '呢', '啊', '哦'];
+    const badEndings = ['、', '是', '和', '让', '要', '在', '文', '工', '台', '有', '的'];
 
     const lastChar = title[title.length - 1];
     if (goodEndings.includes(lastChar)) return 0.9;
-    if (badEndings.includes(lastChar)) return 0.3;
+    if (badEndings.includes(lastChar)) return 0.2;
     return 0.6;
   }
 
