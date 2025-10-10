@@ -35,132 +35,132 @@ export interface ModelFallbackConfig {
 
 /**
  * 模型降级链配置
- * 
- * 每个模型都有一个降级链，当该模型失败时，按顺序尝试降级链中的模型
+ *
+ * 🎯 策略：DeepSeek作为最终兜底方案
+ * - 所有AIMLAPI模型（OpenAI/Google/Anthropic等）最终都fallback到deepseek-chat
+ * - deepseek-chat是直连API，不经过AIMLAPI，更稳定可靠
+ * - deepseek-chat失败后不再fallback，避免循环
  */
 export const MODEL_FALLBACK_CHAINS: Record<string, string[]> = {
-  // DeepSeek系列
-  'deepseek-chat': [
-    'gpt-4o-mini',
-    'gpt-3.5-turbo',
-    'google/gemini-2.5-flash-lite-preview'
-  ],
+  // 🔧 DeepSeek系列 - 作为最终兜底，不再fallback到其他模型
+  'deepseek-chat': [],  // 🎯 最终兜底，不再降级
   'deepseek-reasoner': [
-    'deepseek-chat',
-    'gpt-4o-mini',
-    'gpt-3.5-turbo'
+    'deepseek-chat'  // 降级到deepseek-chat后停止
   ],
 
-  // OpenAI GPT-4系列
-  'gpt-4o': [
-    'gpt-4o-mini',
-    'gpt-3.5-turbo',
-    'deepseek-chat'
-  ],
+  // OpenAI GPT-5系列 - 最终兜底到deepseek-chat
   'openai/gpt-5-chat-latest': [
     'openai/gpt-5-mini-2025-08-07',
     'gpt-4o-mini',
-    'deepseek-chat'
+    'gpt-3.5-turbo',
+    'deepseek-chat'  // 🎯 最终兜底
   ],
   'openai/gpt-5-mini-2025-08-07': [
     'gpt-4o-mini',
     'gpt-3.5-turbo',
-    'deepseek-chat'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
 
-  // OpenAI GPT-4o系列
+  // OpenAI GPT-4系列 - 最终兜底到deepseek-chat
+  'gpt-4o': [
+    'gpt-4o-mini',
+    'gpt-3.5-turbo',
+    'deepseek-chat'  // 🎯 最终兜底
+  ],
   'gpt-4o-mini': [
     'gpt-3.5-turbo',
-    'deepseek-chat',
-    'google/gemini-2.5-flash-lite-preview'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
   'gpt-3.5-turbo': [
-    'deepseek-chat',
-    'google/gemini-2.5-flash-lite-preview',
-    'meta-llama/llama-4-scout'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
 
-  // Google Gemini系列
+  // Google Gemini系列 - 最终兜底到deepseek-chat
   'google/gemini-2.5-pro': [
     'google/gemini-2.5-flash',
     'google/gemini-2.5-flash-lite-preview',
-    'deepseek-chat'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
   'google/gemini-2.5-flash': [
     'google/gemini-2.5-flash-lite-preview',
-    'deepseek-chat',
-    'gpt-4o-mini'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
   'google/gemini-2.5-flash-lite-preview': [
-    'deepseek-chat',
-    'gpt-4o-mini',
-    'gpt-3.5-turbo'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
 
-  // Anthropic Claude系列
+  // Anthropic Claude系列 - 最终兜底到deepseek-chat
   'anthropic/claude-sonnet-4': [
     'anthropic/claude-haiku-4',
     'gpt-4o-mini',
-    'deepseek-chat'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
   'anthropic/claude-haiku-4': [
     'gpt-4o-mini',
-    'deepseek-chat',
-    'gpt-3.5-turbo'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
 
-  // Meta Llama系列
+  // Meta Llama系列 - 最终兜底到deepseek-chat
   'meta-llama/llama-4-scout': [
-    'deepseek-chat',
-    'gpt-4o-mini',
-    'google/gemini-2.5-flash-lite-preview'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
 
-  // 阿里通义千问系列
+  // 阿里通义千问系列 - 最终兜底到deepseek-chat
   'qwen-max': [
     'qwen-plus',
     'qwen-turbo',
-    'deepseek-chat'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
   'qwen-plus': [
     'qwen-turbo',
-    'deepseek-chat',
-    'gpt-4o-mini'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
   'qwen-turbo': [
-    'deepseek-chat',
-    'gpt-4o-mini',
-    'google/gemini-2.5-flash-lite-preview'
+    'deepseek-chat'  // 🎯 最终兜底
   ],
 };
 
 /**
  * 根据错误类型的特殊降级策略
- * 
- * 某些错误类型可能需要特殊的降级路径
+ *
+ * 🎯 策略：所有错误类型最终都兜底到deepseek-chat
  */
 export const ERROR_SPECIFIC_FALLBACKS: Record<FallbackReason, Record<string, string[]>> = {
-  // 配额用尽：优先切换到免费或低成本模型
+  // 🔧 配额用尽（403/402）：立即切换到deepseek-chat
   quota_exceeded: {
-    'deepseek-chat': ['google/gemini-2.5-flash-lite-preview', 'gpt-3.5-turbo'],
-    'gpt-4o': ['gpt-4o-mini', 'gpt-3.5-turbo', 'google/gemini-2.5-flash-lite-preview'],
-    'gpt-4o-mini': ['gpt-3.5-turbo', 'google/gemini-2.5-flash-lite-preview'],
+    'openai/gpt-5-chat-latest': ['deepseek-chat'],  // 🎯 AIMLAPI配额用尽，直接切换到DeepSeek
+    'openai/gpt-5-mini-2025-08-07': ['deepseek-chat'],  // 🎯 直接切换
+    'gpt-4o': ['deepseek-chat'],  // 🎯 直接切换
+    'gpt-4o-mini': ['deepseek-chat'],  // 🎯 直接切换
+    'gpt-3.5-turbo': ['deepseek-chat'],  // 🎯 直接切换
+    'google/gemini-2.5-pro': ['deepseek-chat'],  // 🎯 直接切换
+    'google/gemini-2.5-flash': ['deepseek-chat'],  // 🎯 直接切换
+    'google/gemini-2.5-flash-lite-preview': ['deepseek-chat'],  // 🎯 直接切换
+    'anthropic/claude-sonnet-4': ['deepseek-chat'],  // 🎯 直接切换
+    'anthropic/claude-haiku-4': ['deepseek-chat'],  // 🎯 直接切换
+    'qwen-max': ['deepseek-chat'],  // 🎯 直接切换
+    'qwen-plus': ['deepseek-chat'],  // 🎯 直接切换
+    'qwen-turbo': ['deepseek-chat'],  // 🎯 直接切换
+    'meta-llama/llama-4-scout': ['deepseek-chat'],  // 🎯 直接切换
+    'deepseek-chat': [],  // 🎯 DeepSeek自己不再降级
   },
 
-  // 速率限制：切换到不同提供商的模型
+  // 🔧 速率限制（429）：切换到不同提供商，最终兜底deepseek
   rate_limit: {
-    'deepseek-chat': ['gpt-4o-mini', 'google/gemini-2.5-flash-lite-preview'],
-    'gpt-4o-mini': ['deepseek-chat', 'google/gemini-2.5-flash-lite-preview'],
-    'google/gemini-2.5-flash-lite-preview': ['deepseek-chat', 'gpt-4o-mini'],
+    'openai/gpt-5-chat-latest': ['google/gemini-2.5-flash-lite-preview', 'deepseek-chat'],
+    'openai/gpt-5-mini-2025-08-07': ['google/gemini-2.5-flash-lite-preview', 'deepseek-chat'],
+    'gpt-4o-mini': ['google/gemini-2.5-flash-lite-preview', 'deepseek-chat'],
+    'google/gemini-2.5-flash-lite-preview': ['gpt-3.5-turbo', 'deepseek-chat'],
+    'deepseek-chat': [],  // 🎯 DeepSeek自己不再降级
   },
 
   // API错误：使用默认降级链
   api_error: {},
 
-  // 超时：切换到更快的模型
+  // 🔧 超时：切换到更快的模型，最终兜底deepseek
   timeout: {
-    'gpt-4o': ['gpt-4o-mini', 'gpt-3.5-turbo'],
-    'google/gemini-2.5-pro': ['google/gemini-2.5-flash', 'google/gemini-2.5-flash-lite-preview'],
+    'gpt-4o': ['gpt-4o-mini', 'deepseek-chat'],
+    'google/gemini-2.5-pro': ['google/gemini-2.5-flash', 'deepseek-chat'],
   },
 
   // 模型不可用：使用默认降级链
@@ -172,7 +172,12 @@ export const ERROR_SPECIFIC_FALLBACKS: Record<FallbackReason, Record<string, str
 
 /**
  * 获取下一个降级模型
- * 
+ *
+ * 🎯 策略：
+ * 1. 优先使用错误特定的降级策略
+ * 2. 其次使用默认降级链
+ * 3. 最终兜底到deepseek-chat（如果当前不是deepseek-chat）
+ *
  * @param currentModel 当前模型
  * @param attemptIndex 尝试索引（从0开始）
  * @param reason 降级原因
@@ -187,31 +192,42 @@ export function getNextFallbackModel(
   const errorSpecificFallbacks = ERROR_SPECIFIC_FALLBACKS[reason]?.[currentModel];
   if (errorSpecificFallbacks && attemptIndex < errorSpecificFallbacks.length) {
     const nextModel = errorSpecificFallbacks[attemptIndex];
-    logger.info(`使用${reason}特定降级策略`, { 
-      from: currentModel, 
-      to: nextModel, 
-      attempt: attemptIndex + 1 
+    logger.info(`使用${reason}特定降级策略`, {
+      from: currentModel,
+      to: nextModel,
+      attempt: attemptIndex + 1
     });
     return nextModel;
   }
 
   // 2. 使用默认降级链
   const fallbacks = MODEL_FALLBACK_CHAINS[currentModel];
-  if (!fallbacks || attemptIndex >= fallbacks.length) {
-    logger.warn('没有更多降级模型', { 
-      model: currentModel, 
-      attempt: attemptIndex + 1 
+  if (fallbacks && attemptIndex < fallbacks.length) {
+    const nextModel = fallbacks[attemptIndex];
+    logger.info('使用默认降级策略', {
+      from: currentModel,
+      to: nextModel,
+      attempt: attemptIndex + 1
     });
-    return null;
+    return nextModel;
   }
 
-  const nextModel = fallbacks[attemptIndex];
-  logger.info('使用默认降级策略', { 
-    from: currentModel, 
-    to: nextModel, 
-    attempt: attemptIndex + 1 
+  // 🎯 3. 最终兜底：如果当前不是deepseek-chat，且没有其他降级选项，则兜底到deepseek-chat
+  if (currentModel !== 'deepseek-chat') {
+    logger.info('🎯 使用最终兜底策略：切换到deepseek-chat', {
+      from: currentModel,
+      reason: '所有降级链已用尽',
+      attempt: attemptIndex + 1
+    });
+    return 'deepseek-chat';
+  }
+
+  // 4. 如果已经是deepseek-chat，则没有更多降级选项
+  logger.warn('没有更多降级模型（已是最终兜底模型）', {
+    model: currentModel,
+    attempt: attemptIndex + 1
   });
-  return nextModel;
+  return null;
 }
 
 /**
