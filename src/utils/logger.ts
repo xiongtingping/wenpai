@@ -11,8 +11,8 @@
 // 检查是否为生产环境
 const isProduction = import.meta.env.PROD || import.meta.env.NODE_ENV === 'production';
 
-// 检查是否启用调试模式
-const isDebugEnabled = import.meta.env.VITE_DEBUG === 'true' || import.meta.env.DEV;
+// 检查是否启用调试模式（需要在localStorage中手动开启）
+const isDebugEnabled = typeof window !== 'undefined' && localStorage.getItem('wenpai:debug') === 'true';
 
 /**
  * 日志级别
@@ -27,12 +27,11 @@ export enum LogLevel {
 
 /**
  * 当前日志级别
+ * 默认只显示警告和错误，减少控制台污染
  */
-const currentLogLevel = isProduction 
-  ? LogLevel.WARN  // 生产环境只显示警告和错误
-  : isDebugEnabled 
-    ? LogLevel.DEBUG  // 开发环境显示所有日志
-    : LogLevel.INFO;  // 默认显示信息级别以上
+const currentLogLevel = isDebugEnabled
+  ? LogLevel.DEBUG  // 手动启用调试模式时显示所有日志
+  : LogLevel.WARN;  // 默认只显示警告和错误
 
 /**
  * 统一日志工具
@@ -365,5 +364,33 @@ export const logModuleInit = (moduleName: string, version?: string) => {
 export const logModuleLock = (moduleName: string, signature: string) => {
   logger.lock(`🔒 ${moduleName} 模块已锁定 [${signature}]`);
 };
+
+/**
+ * 启用调试模式
+ * 在浏览器控制台运行: window.enableDebugLogs()
+ */
+export const enableDebugLogs = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('wenpai:debug', 'true');
+    console.log('✅ 调试日志已启用，刷新页面生效');
+  }
+};
+
+/**
+ * 禁用调试模式
+ * 在浏览器控制台运行: window.disableDebugLogs()
+ */
+export const disableDebugLogs = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('wenpai:debug');
+    console.log('✅ 调试日志已禁用，刷新页面生效');
+  }
+};
+
+// 暴露到全局，方便调试
+if (typeof window !== 'undefined') {
+  (window as any).enableDebugLogs = enableDebugLogs;
+  (window as any).disableDebugLogs = disableDebugLogs;
+}
 
 export default logger;

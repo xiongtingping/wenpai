@@ -193,14 +193,12 @@ export async function shouldShowPromoOffer(userId?: string, userTier?: string): 
   // 1. 如果提供了userTier，优先检查
   if (userTier) {
     if (userTier === 'pro' || userTier === 'premium' || userTier === 'professional') {
-      console.log('❌ 已订阅用户（tier:', userTier, '），不显示优惠');
       return false;
     }
   } else {
     // 2. 否则通过API检查订阅状态
     const hasSubscription = await hasActiveSubscription(userId);
     if (hasSubscription) {
-      console.log('❌ 已有有效订阅，不显示优惠');
       return false;
     }
   }
@@ -208,11 +206,9 @@ export async function shouldShowPromoOffer(userId?: string, userTier?: string): 
   // 3. 检查是否在优惠期内
   const inPromoPeriod = isInPromoPeriod(userId);
   if (!inPromoPeriod) {
-    console.log('❌ 不在优惠期内，不显示优惠');
     return false;
   }
 
-  console.log('✅ 显示限时优惠');
   return true;
 }
 

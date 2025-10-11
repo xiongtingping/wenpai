@@ -3,13 +3,10 @@
  * 通过预加载服务和控制初始化顺序彻底解决问题
  */
 
-// console.log('🔥 main.tsx startsloading...');
 (window as any).__MAIN_TSX_LOADED__ = true;
 
-// console.log('🔥 Step 1: startsimportingCSS...');
 import './index.css';
 import './styles/permission-guard.css'; // 订阅权限守卫样式
-// console.log('✅ Step 1: CSSimportingcompleted');
 // 🎯 生产环境只保留核心样式和必要的修复
 // 调试脚本已在开发中禁用以减少控制台噪音
 
@@ -34,14 +31,10 @@ console.log('🔥 Step 3: startsimportingReact...');
 
 import React from 'react';
 
-// console.log('🔥 Step 4: startsimportingReactDOM...');
 import ReactDOM from 'react-dom/client';
 
-// console.log('🔥 Step 5: startsimportingBrowserRouter...');
 import { BrowserRouter } from 'react-router-dom';
-// console.log('🔥 Step 6: startsimportingAppcomponent...');
 import App from './App.tsx';
-// console.log('✅ Step 6: 所has核心moduleimportingcompleted');
 // 🚀 性能优化：仅导入必要的核心服务
 // import { setupGlobalErrorHandler } from './utils/errorHandler'; // 改为动态导入避免TDZ
 import ServiceInitializer from './services/serviceInitializer';
@@ -56,19 +49,15 @@ import './utils/tokenUsageDiagnostics';
 import { migrateAuthStoreToUnified } from './utils/storageMigration';
 
 // 执行用户存储迁移（在应用启动时）
-console.log('🔄 执行用户存储迁移...');
 const migrationResult = autoMigrateUserStorage();
 if (migrationResult.success) {
-  console.log('✅ 用户存储迁移完成', migrationResult);
 } else {
   console.error('❌ 用户存储迁移失败:', migrationResult.error);
 }
 
 // 🔄 执行存储架构迁移（auth-store → unified-store）
-console.log('🔄 执行存储架构迁移...');
 migrateAuthStoreToUnified().then(result => {
   if (result.success) {
-    console.log('✅ 存储架构迁移完成:', result.message);
   } else {
     console.error('❌ 存储架构迁移失败:', result.message, result.errors);
   }
@@ -140,17 +129,14 @@ if (import.meta.env.DEV) {
 
 // 🚀 快速启动应用 - 性能优化
 async function initializeApplication() {
-  // console.log('🚀 initializeApplication functionstartsexecuting...');
   try {
     // 仅初始化必要的错误处理 - 使用动态导入避免TDZ
     const { setupGlobalErrorHandler } = await import('./utils/errorHandler');
     setupGlobalErrorHandler();
 
     // 🚀 尝试初始化服务依赖，失败时优雅降级
-    console.log('🔧 isinitializationservice依赖...');
     try {
       await ServiceInitializer.initialize();
-      console.log('✅ Service dependencies initialized');
     } catch (error) {
       console.warn('⚠️ Service initialization failed，resumingstarting应用:', error);
     }
@@ -170,11 +156,9 @@ async function initializeApplication() {
       </React.StrictMode>
     );
 
-    // console.log('🎉 应用快速startingcompleted！');
     
     // 🔧 确保HTML检测能发现应用已启动
     setTimeout(() => {
-      // console.log('🔍 Main app startup check: root has content', 
       //   document.getElementById('root')?.innerHTML?.length > 0);
     }, 100);
 
@@ -192,7 +176,6 @@ async function initializeApplication() {
       root.style.visibility = 'visible';
       root.style.opacity = '1';
       
-      console.log('🎯 Root元素aria-hiddenalreadycleaning，确保eventnormalexecuting');
       
       // 🔥 关键：重写setAttribute方法，彻底阻止aria-hidden被设置
       const originalSetAttribute = root.setAttribute.bind(root);
@@ -204,7 +187,6 @@ async function initializeApplication() {
         return originalSetAttribute(name, value);
       };
       
-      console.log('✅ Root元素setAttributealready重写，aria-hiddensettingalready被permanent阻止');
     };
 
     // 🔧 创建高性能的 MutationObserver 监控根元素属性变化
@@ -258,7 +240,6 @@ async function initializeApplication() {
         subtree: false
       });
 
-      console.log('✅ alreadystarting高性能aria-hiddenmanager');
 
       return {
         disconnect: () => {
@@ -306,7 +287,6 @@ async function initializeApplication() {
       // 🧹 已清理所有dialogFixer相关代码
     });
 
-    console.log('✅ 应用startingsuccess - Authing Guard aria-hidden 阻止器alreadyactivating');
 
     // 🧹 已清理全局Dialog定位修复器调试代码
 
@@ -354,7 +334,6 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 // 🔧 启动应用初始化流程
-// console.log('🔥 准备调用 initializeApplication...');
 initializeApplication().catch(error => {
   console.error('💥 应用initializationfailed:', error);
   
@@ -373,7 +352,6 @@ initializeApplication().catch(error => {
         </BrowserRouter>
       </React.StrictMode>
     );
-    console.log('⚠️ 应用already优雅降级starting');
   } catch (fallbackError) {
     console.error('💥💥 应用完全startingfailed:', fallbackError);
   }

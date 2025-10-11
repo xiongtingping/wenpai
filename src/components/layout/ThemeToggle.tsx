@@ -98,12 +98,10 @@ function getInitialTheme(user?: any): Theme {
   
   // 如果有存储的主题且是有效主题，返回存储的主题
   if (stored && validThemes.includes(stored)) {
-    console.log(`🎨 Loaded persisted theme: ${stored}`);
     return stored;
   }
   
   // 🔧 修复：默认主题始终是 light，避免权限检查过早
-  console.log('🎨 使用defaulttheme: light');
   return 'light';
 }
 
@@ -178,7 +176,6 @@ export const ThemeToggle: React.FC = () => {
 
       // 如果当前主题权限不足，回退到基础主题
       if (!allowed && theme !== 'light') {
-        console.log(`🎨 subscribingstate变化，themepermission不足，从 ${theme} 回退到 light`);
         setTheme('light');
         const themeKey = generateStorageKey('wenpai-theme', user);
         localStorage.setItem(themeKey, 'light');
@@ -217,7 +214,6 @@ export const ThemeToggle: React.FC = () => {
 
     // 如果没有权限且当前主题不是 light，立即静默回退
     if (!hasPermission && theme !== 'light') {
-      console.log(`🎨 [permissionvalidating] theme ${theme} 需要permission，回退到 light`);
 
       // 立即更新状态和 DOM，避免延迟
       setTheme('light');
@@ -230,10 +226,8 @@ export const ThemeToggle: React.FC = () => {
       html.setAttribute('data-theme', 'light');
       html.classList.remove('dark', 'rainbow', 'beige', 'green');
       html.classList.add('light');
-    } else if (hasPermission) {
-      console.log(`🎨 [permissionvalidating] theme ${theme} permission通过`);
     }
-  }, [theme, basicPermission, advancedPermission, premiumPermission, basicPermission.pass, advancedPermission.pass, premiumPermission.pass, user]);
+  }, [theme, basicPermission.pass, advancedPermission.pass, premiumPermission.pass, user]);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -256,7 +250,6 @@ export const ThemeToggle: React.FC = () => {
     // 也保存到标准key，确保兼容性
     localStorage.setItem('theme', theme);
     
-    // console.log(`🎨 themealready切换并持久化: ${theme}`);
   }, [theme, user]);
 
   const currentTheme = themes.find(t => t.value === theme) || themes[0];

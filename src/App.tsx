@@ -139,14 +139,12 @@ const App: React.FC = () => {
   // 🔧 2025-01 重构: 从AuthGuard移到这里，确保数据在组件渲染前就绪
   useEffect(() => {
     if (user?.userId) {
-      console.log('🚀 用户已登录，开始应用级预加载', { userId: user.userId });
 
       // 1. 立即预加载订阅状态
       const preloadSubscription = async () => {
         try {
           const { useSubscriptionStore } = await import('@/stores/subscription-store');
           await useSubscriptionStore.getState().preloadStatus(user.userId, user);
-          console.log('✅ 订阅状态预加载完成');
         } catch (error) {
           console.error('❌ 订阅状态预加载失败:', error);
         }
@@ -155,9 +153,7 @@ const App: React.FC = () => {
       preloadSubscription();
 
       // 2. 启动云端同步服务（后台验证）
-      console.log('⚡ 启动云端同步服务...');
       cloudSyncService.manualSync(user.userId).then(() => {
-        console.log('✅ 云端同步完成');
       }).catch((error) => {
         console.error('❌ 云端同步失败:', error);
       });
@@ -166,7 +162,6 @@ const App: React.FC = () => {
       cloudSyncService.start(user.userId);
 
       return () => {
-        console.log('🛑 用户登出，停止云端同步服务');
         cloudSyncService.stop();
       };
     }
@@ -183,11 +178,9 @@ const App: React.FC = () => {
         // 1. 首先初始化服务依赖（包括requestClient注册）
         const ServiceInitializer = await import('@/services/serviceInitializer');
         await ServiceInitializer.default.initialize();
-        console.log('✅ Service dependencies initialized');
 
         // 2. 然后初始化i18n
         await import('@/i18n');
-        console.log('✅ i18n async initialization completed');
       } catch (error) {
         console.error('❌ Service initialization failed:', error);
       }
@@ -219,7 +212,6 @@ const App: React.FC = () => {
           html.classList.remove('dark');
         }
 
-        console.log(`🎨 Loaded persisted theme: ${themeToApply} (ThemeToggle will verify permissions)`);
       } catch (error) {
         console.error('🎨 Failed to load persisted theme:', error);
       }
@@ -230,10 +222,8 @@ const App: React.FC = () => {
 
     // {t('app.startup.checkMaliciousCallback')}
     const currentUrl = window.location.href;
-    // console.log('🚀 Appstarting，currentURL:', currentUrl);
 
     // 🔧 DEBUG: 强制检查Authing配置加载情况
-    // console.log('🔧 checking环境variableloading:', {
     //   VITE_AUTHING_APP_ID: import.meta.env.VITE_AUTHING_APP_ID,
     //   VITE_AUTHING_DOMAIN: import.meta.env.VITE_AUTHING_DOMAIN,
     //   VITE_AUTHING_HOST: import.meta.env.VITE_AUTHING_HOST,
@@ -252,11 +242,9 @@ const App: React.FC = () => {
       if (codeMatch && stateMatch) {
         const code = codeMatch[1];
         const state = stateMatch[1];
-        console.log('✅ Parsed auth code:', { code: code.substring(0, 10) + '...', state });
 
         // 重定向到正确的回调URL
         const correctCallbackUrl = `${window.location.origin}/callback?code=${code}&state=${state}`;
-        console.log('🔄 App layer redirecting to:', correctCallbackUrl);
         window.location.href = correctCallbackUrl;
         return;
       }
