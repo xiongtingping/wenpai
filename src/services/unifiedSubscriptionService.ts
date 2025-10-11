@@ -50,6 +50,9 @@ class UnifiedSubscriptionService {
   // 🔧 新增: 跨Tab同步监听器
   private storageListener: ((event: StorageEvent) => void) | null = null;
 
+  // 🔧 性能警告去重: 记录已警告过的慢查询用户，避免重复输出
+  private slowQueryWarned: Set<string> = new Set();
+
   constructor() {
     // 🔧 新增: 设置跨Tab同步监听
     this.setupCrossTabSync();
@@ -176,13 +179,17 @@ class UnifiedSubscriptionService {
         return null;
       }
 
-      // 🔧 性能监控: 记录慢查询
+      // 🔧 性能监控: 记录慢查询（每个用户只警告一次，避免控制台污染）
       if (duration > 1000) {
-        logger.warn('⚠️ Supabase订阅查询较慢', {
-          userId,
-          duration: duration + 'ms',
-          suggestion: '建议添加数据库索引: CREATE INDEX idx_user_subscriptions_lookup ON user_subscriptions(user_id, status, created_at DESC);'
-        });
+        if (!this.slowQueryWarned.has(userId)) {
+          this.slowQueryWarned.add(userId);
+          logger.warn('⚠️ Supabase订阅查询较慢', {
+            userId,
+            duration: duration + 'ms',
+            suggestion: '建议添加数据库索引: CREATE INDEX idx_user_subscriptions_lookup ON user_subscriptions(user_id, status, created_at DESC);',
+            note: '此警告每个用户只显示一次'
+          });
+        }
       } else {
         logger.debug('✅ Supabase订阅查询完成', { userId, duration: duration + 'ms' });
       }
