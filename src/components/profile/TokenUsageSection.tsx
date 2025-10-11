@@ -182,47 +182,12 @@ export function TokenUsageSection({
     return tokenStats;
   }, [externalUserStats, tokenStats]);
 
-  // 🔍 调试日志: 帮助诊断数据来源
-  React.useEffect(() => {
-    console.log('📊 TokenUsageSection 数据状态:', {
-      来源: {
-        新Store使用次数: {
-          used: storeUsageCount.used,
-          available: storeUsageCount.available,
-          remaining: storeUsageCount.remaining,
-          percentage: storeUsageCount.percentage
-        },
-        新StoreToken: storeTokenStats.stats ? {
-          used: storeTokenStats.monthlyUsed,
-          limit: storeTokenStats.monthlyLimit
-        } : null,
-        旧Hook使用次数: legacyUsageCountStats,
-        旧HookToken: legacyTokenStats
-      },
-      最终使用的数据: {
-        tokenStats,
-        usageCountStats: {
-          usedCount: usageCountStats.usedCount,
-          availableUses: usageCountStats.availableUses,
-          remainingUses: usageCountStats.remainingUses,
-          usagePercentage: usageCountStats.usagePercentage
-        },
-        loading
-      },
-      最终计算后的显示数据: {
-        finalUsageCountStats,
-        finalTokenStats
-      }
-    });
-  }, [storeUsageCount, storeTokenStats, legacyUsageCountStats, legacyTokenStats, tokenStats, usageCountStats, loading, finalUsageCountStats, finalTokenStats]);
+  // 🔧 调试日志已移除 - 避免控制台污染
+  // 如需调试，可在浏览器控制台使用: localStorage.setItem('wenpai:debug', 'true')
 
   // 若存在使用次数>0但Token仍为0，触发一次强制实时刷新（绕过缓存）
   React.useEffect(() => {
     if (finalUsageCountStats.usedCount > 0 && (!finalTokenStats || finalTokenStats.monthlyUsed === 0)) {
-      console.log('[TokenUsageSection] usage>0 but token=0, trigger LIVE refresh', {
-        usedCount: finalUsageCountStats.usedCount,
-        tokenMonthlyUsed: finalTokenStats?.monthlyUsed ?? null
-      });
       refreshTokenStats();
     }
   }, [finalUsageCountStats.usedCount, finalTokenStats?.monthlyUsed, refreshTokenStats]);
@@ -263,23 +228,18 @@ export function TokenUsageSection({
   // 🔧 FIX: 监听Token使用量更新事件，自动刷新显示（合并重复的useEffect）
   React.useEffect(() => {
     const handleTokenUsageUpdate = (event: CustomEvent) => {
-      console.log('📢 收到Token使用量更新事件:', event.detail);
-
       // 延迟刷新，确保数据已写入数据库
       setTimeout(() => {
-        console.log('🔄 自动刷新Token使用量统计...');
         handleRefresh();
       }, 500);
     };
 
     // 添加事件监听器
     window.addEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
-    console.log('✅ 已注册Token使用量更新事件监听器');
 
     // 清理函数
     return () => {
       window.removeEventListener('tokenUsageUpdated', handleTokenUsageUpdate as EventListener);
-      console.log('🧹 已移除Token使用量更新事件监听器');
     };
   }, [handleRefresh]);
 
