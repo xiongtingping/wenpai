@@ -30,7 +30,6 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
-import { Header } from '@/components/landing/Header';
 import TokenUsageSection from '@/components/profile/TokenUsageSection';
 import SubscriptionExpiryCard from '@/components/profile/SubscriptionExpiryCard';
 import { InviteSection } from '@/components/invite/InviteSection';
@@ -450,7 +449,6 @@ export default function ProfilePage() {
   if (!isAuthenticated || !user) {
     return (
       <div className="min-h-screen bg-background pt-16">
-        <Header />
         <PageNavigation title={t('profile.navigation.title')} description={t('profile.navigation.description')} showAdaptButton={false} />
         <div className="container mx-auto px-4 py-6">
           <Card className="max-w-md mx-auto">
@@ -484,9 +482,7 @@ export default function ProfilePage() {
         <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-accent/30 rounded-full animate-pulse delay-1000" />
         <div className="absolute bottom-1/4 right-1/4 w-1.5 h-1.5 bg-primary/15 rounded-full animate-pulse delay-2000" />
       </div>
-      
-      <Header />
-      
+
       <div className="relative z-10">
         <PageNavigation
           title={t('nav.profile')}
