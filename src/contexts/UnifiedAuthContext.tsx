@@ -160,11 +160,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   // ✅ P0-3修复：使用userStateSyncCoordinator原子化同步,避免竞态条件
   const checkAuth = useCallback(async () => {
     try {
+      console.log('🔍 安全检查用户登录状态...');
       setLoading(true);
 
       // 🔒 从安全存储获取用户状态
       const secureUser = await SecureUserStateService.getUserState();
       if (secureUser) {
+        console.log('✅ 从安全存储恢复用户状态:', { userId: secureUser.id });
 
         // ✅ 关键修复: 使用同步协调器原子化更新三层状态
         const syncResult = await userStateSyncCoordinator.syncOnLogin(
@@ -177,11 +179,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           throw new Error(`状态同步失败: ${syncResult.error}`);
         }
 
+        console.log('✅ 用户状态已原子化同步到所有层:', {
           syncedLayers: syncResult.syncedLayers,
           failedLayers: syncResult.failedLayers
         });
 
         // 🎯 CRITICAL FIX: 同步真实的订阅状态（页面刷新/初始加载场景）
+        console.log('🔄 starts刷新subscriptionstatus...');
         try {
           const { unifiedSubscriptionService } = await import('@/services/unifiedSubscriptionService');
           const { useUnifiedStore } = await import('@/stores/unified-state-store');
@@ -192,12 +196,14 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
             secureUser
           );
 
+          console.log('✅ subscriptionstatusrefreshcompleted:', subscriptionStatus);
 
           // 更新Context和Store中的订阅状态
           const subscriptionTier = subscriptionStatus.tier;
           setUser(prev => prev ? { ...prev, subscription: subscriptionTier } : null);
           useUnifiedStore.getState().updateUserSubscription(subscriptionTier);
 
+          console.log('✅ subscriptionstatusalreadysync:', {
             tier: subscriptionTier,
             isExpired: subscriptionStatus.isExpired,
             source: subscriptionStatus.source
@@ -218,6 +224,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           const wasGuest = !user; // 如果之前没有用户,说明是访客
           const migrationResult = await autoMigrateHistory(secureUser.id, wasGuest);
           if (migrationResult.success && migrationResult.migratedCount > 0) {
+            console.log('✅ 数据迁移成功:', {
               migratedCount: migrationResult.migratedCount,
               skippedCount: migrationResult.skippedCount
             });
@@ -225,6 +232,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           // 迁移收藏数据
           const favoritesMigrationResult = await autoMigrateFavorites(secureUser.id, wasGuest);
           if (favoritesMigrationResult.success && favoritesMigrationResult.migratedCount > 0) {
+            console.log('✅ 收藏数据迁移成功:', {
               migratedCount: favoritesMigrationResult.migratedCount,
               skippedCount: favoritesMigrationResult.skippedCount
             });
@@ -284,6 +292,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    */
   const handleAuthingLogin = async (userInfo: any) => {
     try {
+      console.log('🔐 processingGuardloginsuccess:', userInfo);
 
       // 🚨 关键：用户ID必须来自Authing真实API，不能本地生成
       const userInfoAny = userInfo as any;
@@ -325,11 +334,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           };
           
           const success = await TokenSecurityManager.storeAuthToken(secureTokenInfo);
+          console.log(success ? '🔐 Token已安全存储' : '⚠️ Token存储失败，使用备用方案');
           
           // 备用方案：如果安全存储失败，使用原有方式
           if (!success) {
             const tokenInfo = AuthingTokenService.createTokenFromLogin(userInfo);
             await TokenService.setToken('authing', tokenInfo);
+            console.log('🎫 Tokenalreadystorage到备用position');
           }
         } catch (tokenError) {
           console.warn('⚠️ Tokenstoragefailed:', tokenError);
@@ -348,11 +359,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         throw new Error(`状态同步失败: ${syncResult.error}`);
       }
 
+      console.log('✅ 用户状态已原子化同步到所有层:', {
         syncedLayers: syncResult.syncedLayers,
         failedLayers: syncResult.failedLayers
       });
 
       // 🎯 CRITICAL FIX: 登录成功后强制刷新订阅状态（支付成功场景）
+      console.log('🔄 starts强制refreshsubscriptionstatus...');
       try {
         const { unifiedSubscriptionService } = await import('@/services/unifiedSubscriptionService');
         const { useUnifiedStore } = await import('@/stores/unified-state-store');
@@ -364,6 +377,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           5 // 最多重试5次
         );
 
+        console.log('✅ subscriptionstatus强制refreshcompleted:', subscriptionStatus);
 
         // 🔧 关键修复2: 立即更新Context和Store中的订阅状态
         const subscriptionTier = subscriptionStatus.tier;
@@ -374,6 +388,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 更新Store中的用户状态
         useUnifiedStore.getState().updateUserSubscription(subscriptionTier);
 
+        console.log('✅ subscriptionstatusalreadysync到Context和Store:', {
           tier: subscriptionTier,
           isExpired: subscriptionStatus.isExpired,
           source: subscriptionStatus.source
@@ -383,6 +398,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         const { useSubscriptionStore } = await import('@/stores/subscription-store');
         useSubscriptionStore.getState().forceRefreshAfterUpgrade(formattedUser.id, subscriptionTier);
 
+        console.log('✅ subscription-store已updatinga触发globalstatus刷新');
 
       } catch (syncError) {
         console.error('❌ subscriptionstatussyncfailed，使用defaultvalue:', syncError);
@@ -396,10 +412,12 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       const redirectTarget = localStorage.getItem('login_redirect_to') || '/';
       localStorage.removeItem('login_redirect_to');
       
+      console.log('🎯 loginsuccess，跳转到:', redirectTarget);
       setTimeout(() => {
         navigate(redirectTarget, { replace: true });
       }, 500);
 
+      console.log('✅ Guardloginstream程completed:', formattedUser);
 
     } catch (error) {
       console.error('❌ processingGuardloginfailed:', error);
@@ -412,15 +430,18 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    */
   const login = async (redirectTo?: string) => {
     try {
+      console.log('🔐 跳转到customloginpage...');
       setError(null);
 
       // 保存跳转目标
       if (redirectTo) {
         localStorage.setItem('login_redirect_to', redirectTo);
+        console.log('📝 saving跳转目标:', redirectTo);
       }
 
       // 跳转到自定义登录页面
       navigate('/custom-login');
+      console.log('✅ already跳转到customloginpage');
 
     } catch (error) {
       console.error('❌ login跳转failed:', error);
@@ -435,6 +456,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    */
   const register = async (redirectTo?: string) => {
     try {
+      console.log('📝 跳转到customregisterpage...');
       setError(null);
 
       // 保存跳转目标
@@ -444,6 +466,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       // 跳转到自定义登录页面（注册标签）
       navigate('/custom-login?tab=register');
+      console.log('✅ already跳转到customregisterpage');
 
     } catch (error) {
       console.error('❌ register跳转failed:', error);
@@ -465,12 +488,14 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           await AuthingTokenService.logout(token);
         }
         await TokenService.removeToken('authing');
+        console.log('🎫 Token cleared from secure storage');
       } catch (tokenError) {
         console.warn('⚠️ Failed to clear token:', tokenError);
         // 继续登出流程
       }
 
       // 🎯 使用同步协调器原子化清除用户状态 - 解决竞态条件 (C3修复)
+      console.log('🚀 executing原子化登出流程');
 
       const syncResult = await userStateSyncCoordinator.syncOnLogout(
         (user) => setUser(user) // 传入Context的setter
@@ -481,6 +506,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 登出场景允许部分失败,继续流程
       }
 
+      console.log('✅ 用户状态已原子化清除:', {
         syncedLayers: syncResult.syncedLayers,
         failedLayers: syncResult.failedLayers
       });
@@ -491,10 +517,12 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 🔐 注意：不自动清除记住密码数据，保持用户选择
       // 用户如果选择了"记住密码"，登出后应该保留这个设置
       // 只有在用户主动取消"记住密码"时才清除
+      console.log('ℹ️ 记住passworddataalready保留，如需clearing请在loginpagecanceling勾选');
 
       // 跳转到首页
       navigate('/');
 
+      console.log('✅ user登出success');
 
     } catch (error) {
       console.error('❌ 登出failed:', error);
@@ -505,9 +533,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   // 其他方法的简化实现
   const refreshToken = async () => {
     try {
+      console.log('🔄 Manual token refresh requested');
       
       const result = await TokenService.refreshToken('authing');
       if (result.success) {
+        console.log('✅ Token refreshed successfully');
       } else {
         console.warn('⚠️ Token refresh failed:', result.error);
         if (result.shouldLogout) {
@@ -528,6 +558,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       const authService = await getAuthService();
       // 🔍 DEBUG: 显示传入的更新数据
+      console.log('🔍 updateUser 被调用，parameter:', updates);
+      console.log('🔍 parameterkey名:', Object.keys(updates));
       
       // 区分基本信息和敏感信息
       const basicFields = ['nickname', 'avatar'];
@@ -550,6 +582,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           // 空值不算变化，必须有实际内容且与当前值不同
           const hasChanged = newValue !== '' && newValue !== currentValue;
           
+          console.log(`🔍 敏感field ${key}: current="${currentValue}" -> newvalue="${newValue}" (${hasChanged ? 'already变化' : 'not变化'})`);
           
           return hasChanged;
         })
@@ -559,9 +592,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         }, {} as Record<string, any>);
 
       // 🔍 DEBUG: 显示过滤结果
+      console.log('🔍 basicUpdates:', basicUpdates);
+      console.log('🔍 sensitiveUpdates:', sensitiveUpdates);
+      console.log('🔍 sensitiveUpdates keys count:', Object.keys(sensitiveUpdates).length);
 
       // 处理敏感信息更新（需要Authing API验证）
       if (Object.keys(sensitiveUpdates).length > 0) {
+        console.log('🔄 updating敏感info到Authingserver...');
         const result = await authService.updateProfile(sensitiveUpdates);
         
         if (!result.success) {
@@ -571,6 +608,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       // 处理基本信息更新（同时更新Authing服务器和本地状态）
       if (Object.keys(basicUpdates).length > 0) {
+        console.log('🔄 updating基本info到Authingserver...');
         
         // 🔧 FIX: 2025-08-30 修复个人资料更新问题
         // 基本信息也需要同步到Authing服务器，避免重新登录时数据丢失
@@ -579,6 +617,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           if (!authResult.success) {
             console.warn('⚠️ Authingserverupdatingfailed，仅updatinglocal:', authResult.message);
           } else {
+            console.log('✅ Authingserverupdatingsuccess:', authResult);
           }
         } catch (error) {
           console.warn('⚠️ Authingserverupdatingabnormal，仅updatinglocal:', error);
@@ -595,6 +634,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           throw new Error(`状态同步失败: ${syncResult.error}`);
         }
 
+        console.log('✅ 基本info已原子化更新到所有层:', {
           syncedLayers: syncResult.syncedLayers,
           updates: basicUpdates
         });
@@ -602,9 +642,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       // 如果只有基本信息更新，直接成功
       if (Object.keys(sensitiveUpdates).length === 0) {
+        console.log('✅ user基本infoupdatingcompleted');
         return;
       }
 
+      console.log('✅ userinfoupdating并syncsuccess');
       
     } catch (error) {
       console.error('❌ userinfoupdatingfailed:', error);
@@ -761,6 +803,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const extendSession = useCallback(() => {
     SessionService.extend();
     setSessionWarning(false);
+    console.log('🔄 user手动延长session');
   }, []);
 
   const dismissSessionWarning = useCallback(() => {
@@ -776,6 +819,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   useEffect(() => {
     const initTokenManagement = async () => {
       try {
+        console.log('🎫 initializationToken管理系统...');
         
         // 注册Authing Token刷新处理器
         TokenService.registerRefreshHandler('authing', AuthingTokenService.createRefreshHandler());
@@ -783,6 +827,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 设置Token事件回调
         TokenService.setCallbacks({
           onTokenRefreshed: (newToken) => {
+            console.log('🔄 Tokenalreadyrefreshing:', newToken.source);
           },
           onTokenExpired: (expiredToken) => {
             console.warn('⏰ Tokenexpired:', expiredToken.source);
@@ -796,6 +841,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           }
         });
         
+        console.log('✅ Token管理系统initializationcompleted');
         
       } catch (error) {
         console.error('💥 Token管理initializationfailed:', error);
@@ -812,6 +858,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   useEffect(() => {
     if (!user) return; // 只在已登录时启动会话管理
 
+    console.log('🕐 startingsession管理...');
     
     // 启动用户会话
     SessionService.start(user.id);
@@ -829,6 +876,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         logout();
       },
       onSessionExtended: (newExpiryTime) => {
+        console.log('✅ sessionalready延长至:', new Date(newExpiryTime).toISOString());
         setSessionWarning(false);
       },
       onActivityDetected: () => {
