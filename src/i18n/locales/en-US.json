@@ -7028,7 +7028,31 @@
     "title": {},
     "label": {},
     "button": {},
-    "message": {}
+    "messages": {
+      "测试功能暂时不可用": "Test feature temporarily unavailable",
+      "页面发生错误": "Page error occurred",
+      "总结已复制到剪贴板": "Summary copied to clipboard",
+      "总结已下载": "Summary downloaded",
+      "内容已清空": "Content cleared",
+      "支付失败": "Payment failed",
+      "支付已过期": "Payment expired",
+      "立即升级": "Upgrade Now",
+      "升级后享受更多使用次数和高级功能": "Enjoy more usage and premium features after upgrade",
+      "升级高级版": "Upgrade to Premium",
+      "升级到高级版享受不限量使用": "Upgrade to Premium for unlimited usage",
+      "升级后享受更多使用次数": "Enjoy more usage after upgrade",
+      "upgradeToProPrivileges": "Upgrade to Pro Privileges",
+      "proFeature1": "1000 AI generations per month",
+      "proFeature2": "Access to all premium AI models",
+      "proFeature3": "Priority customer support",
+      "proFeature4": "Ad-free experience",
+      "upgradeToPremiumPrivileges": "Upgrade to Premium Privileges",
+      "premiumFeature1": "Unlimited AI generations",
+      "premiumFeature2": "Exclusive access to latest AI models",
+      "premiumFeature3": "VIP dedicated support",
+      "premiumFeature4": "All premium features",
+      "立即解锁高级功能": "Unlock Premium Features Now"
+    }
   },
   "pages": {
     "titles": {
