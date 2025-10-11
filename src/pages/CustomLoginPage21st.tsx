@@ -446,6 +446,19 @@ export const CustomLoginPage: React.FC = () => {
         return;
       }
     } else {
+      // 🔧 修复: 先检查手机号格式（根本原因分析）
+      // 问题: 之前只检查验证码、密码，没有检查手机号
+      // 结果: 用户手机号为空或格式错误时，显示通用的"请填写完整信息"
+      // 修复: 优先检查手机号，给出明确的错误提示
+      if (!phone || !validatePhone(phone)) {
+        toast({
+          title: t('pages.labels.请输入正确的手机号'),
+          description: t('pages.messages.请输入11位中国大陆手机号码'),
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (!verificationCode || !password || !confirmPassword) {
         toast({
           title: t('pages.labels.请填写完整信息'),
@@ -453,7 +466,7 @@ export const CustomLoginPage: React.FC = () => {
         });
         return;
       }
-      
+
       if (password !== confirmPassword) {
         toast({
           title: t('pages.labels.密码不一致'),
@@ -462,7 +475,7 @@ export const CustomLoginPage: React.FC = () => {
         });
         return;
       }
-      
+
       if (!agreeTerms) {
         toast({
           title: t('pages.labels.请同意隐私政策和服务条款'),
