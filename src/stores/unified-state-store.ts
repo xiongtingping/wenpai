@@ -37,6 +37,12 @@ export enum AuthStatus {
 
 /**
  * 用户信息状态
+ *
+ * 🚨 订阅状态管理说明：
+ * - subscription字段仅作为UI快速fallback缓存
+ * - 真实订阅状态必须从subscription-store.ts查询
+ * - 此字段不持久化到localStorage（见partialize配置）
+ * - 组件应优先使用useSubscriptionStore()获取订阅信息
  */
 export interface UserState {
   id: string | null;
@@ -47,7 +53,7 @@ export interface UserState {
   avatar: string | null;
   roles: string[];
   permissions: string[];
-  subscription: SubscriptionTier;
+  subscription: SubscriptionTier; // ⚠️ 运行时缓存，不持久化
   isAuthenticated: boolean;
   authStatus: AuthStatus; // 🎯 新增：认证状态
   loginTime: string | null;
@@ -404,13 +410,51 @@ const initialState: UnifiedState = {
   loading: initialLoadingState,
   error: initialErrorState,
   lastUpdated: new Date().toISOString(),
-  version: '2.0.0', // 🎯 升级版本号
+  version: '4.0.0', // 🎯 v4: 移除订阅状态持久化
 };
 
 // ============================================================================
 // 🎯 统一状态管理Store
 // ============================================================================
 
+/**
+ * 🚨 Zustand中间件顺序 - 严格禁止修改
+ *
+ * 正确顺序: subscribeWithSelector → persist → immer
+ *
+ * 为什么这个顺序很重要：
+ * ┌─────────────────────────────────────────────────────────────────┐
+ * │ 1. immer (最内层)                                                │
+ * │    - 处理状态更新，提供可变式API                                 │
+ * │    - 必须在最内层，因为它要直接操作状态                          │
+ * │    - 输出: 纯JavaScript对象                                      │
+ * ├─────────────────────────────────────────────────────────────────┤
+ * │ 2. persist (中间层)                                              │
+ * │    - 序列化状态到localStorage                                    │
+ * │    - 必须接收纯对象（immer输出），不能序列化Proxy               │
+ * │    - 调用partialize过滤需要持久化的字段                         │
+ * │    - 输出: 持久化后的store                                       │
+ * ├─────────────────────────────────────────────────────────────────┤
+ * │ 3. subscribeWithSelector (最外层)                                │
+ * │    - 提供细粒度订阅，优化性能                                    │
+ * │    - 必须在最外层，监听整个store的变化                           │
+ * │    - 允许组件只订阅需要的状态切片                                │
+ * └─────────────────────────────────────────────────────────────────┘
+ *
+ * ❌ 错误顺序示例:
+ * persist(subscribeWithSelector(immer(...)))  // ❌ persist无法序列化selector
+ * immer(persist(subscribeWithSelector(...)))  // ❌ immer会破坏persist的序列化
+ * subscribeWithSelector(immer(persist(...)))  // ❌ selector无法正确追踪变化
+ *
+ * ⚠️ 修改顺序的后果:
+ * - 状态无法持久化（数据丢失）
+ * - 组件重渲染过度（性能问题）
+ * - 状态更新失败（功能异常）
+ *
+ * 📚 参考文档:
+ * - https://docs.pmnd.rs/zustand/integrations/persisting-store-data
+ * - https://github.com/pmndrs/zustand/discussions/847
+ */
 export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
   subscribeWithSelector(
     persist(
@@ -899,17 +943,79 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
           });
         },
 
-        checkStorageQuota: () => {
-          set((state) => {
-            // 动态导入避免循环依赖
-            import('@/utils/storageQuotaMonitor').then(({ storageQuotaMonitor }) => {
+        checkStorageQuota: async () => {
+          try {
+            // 🔧 使用 Storage API 获取真实配额
+            if ('storage' in navigator && 'estimate' in navigator.storage) {
+              const estimate = await navigator.storage.estimate();
+              const usage = estimate.usage || 0;
+              const quota = estimate.quota || 10 * 1024 * 1024; // fallback 10MB
+              const usagePercent = (usage / quota) * 100;
+              const remaining = quota - usage;
+
+              // 计算localStorage中的项目
+              let itemCount = 0;
+              const largestItems: Array<{ key: string; size: number }> = [];
+
+              try {
+                for (let i = 0; i < localStorage.length; i++) {
+                  const key = localStorage.key(i);
+                  if (key) {
+                    itemCount++;
+                    const value = localStorage.getItem(key) || '';
+                    const size = new Blob([value]).size;
+                    largestItems.push({ key, size });
+                  }
+                }
+                // 按大小排序，保留最大的前10个
+                largestItems.sort((a, b) => b.size - a.size);
+                largestItems.splice(10);
+              } catch (e) {
+                console.warn('无法遍历localStorage:', e);
+              }
+
+              set((state) => {
+                state.storageQuota = {
+                  used: usage,
+                  total: quota,
+                  usagePercent,
+                  remaining,
+                  itemCount,
+                  largestItems,
+                  lastChecked: new Date().toISOString(),
+                  isWarning: usagePercent >= 80,
+                  isCritical: usagePercent >= 90,
+                };
+                state.lastUpdated = new Date().toISOString();
+              });
+
+              console.log('✅ 存储配额检查完成:', {
+                used: `${(usage / 1024 / 1024).toFixed(2)} MB`,
+                total: `${(quota / 1024 / 1024).toFixed(2)} MB`,
+                usagePercent: `${usagePercent.toFixed(2)}%`,
+                itemCount,
+              });
+            } else {
+              // Fallback: 使用storageQuotaMonitor
+              const { storageQuotaMonitor } = await import('@/utils/storageQuotaMonitor');
               const quotaInfo = storageQuotaMonitor.getQuotaInfo();
-              const unifiedStore = useUnifiedStore.getState();
-              unifiedStore.updateStorageQuota(quotaInfo);
-            }).catch(error => {
-              console.error('检查存储配额失败:', error);
+              set((state) => {
+                state.storageQuota = {
+                  ...quotaInfo,
+                  lastChecked: new Date().toISOString(),
+                  isWarning: quotaInfo.usagePercent >= 80,
+                  isCritical: quotaInfo.usagePercent >= 90,
+                };
+                state.lastUpdated = new Date().toISOString();
+              });
+              console.log('✅ 存储配额检查完成（fallback）');
+            }
+          } catch (error) {
+            console.error('❌ 检查存储配额失败:', error);
+            set((state) => {
+              state.error.global = '检查存储配额失败';
             });
-          });
+          }
         },
 
         // 通用操作
@@ -962,13 +1068,17 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
         name: 'wenpai-unified-store',
         storage: createJSONStorage(() => localStorage),
         partialize: (state) => {
-          // 🎯 乐观缓存策略：
-          // ✅ 保存：UI偏好、用户身份标识、订阅状态（缓存）
-          // ❌ 不保存：运行时状态、敏感信息
+          // 🎯 持久化策略 v4：
+          // ✅ 保存：UI偏好、用户身份标识
+          // ❌ 不保存：订阅状态、运行时状态、敏感信息、业务数据
+          //
+          // 🚨 关键变更 (v3 → v4)：
+          // - 移除 subscription 持久化 (统一从 subscription-store 读取)
+          // - 添加 _lastFetchTime 用于 TTL 验证
 
           return {
             user: {
-              // ✅ 基础身份信息
+              // ✅ 基础身份信息（仅用于快速判断是否登录）
               id: state.user.id,
               username: state.user.username,
               nickname: state.user.nickname,
@@ -979,9 +1089,9 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
               authStatus: state.user.authStatus,
               loginTime: state.user.loginTime,
 
-              // ✅ 订阅状态（乐观缓存）
-              // 保存实际值，页面加载时立即显示，后台验证并更新
-              subscription: state.user.subscription,
+              // ❌ 不持久化订阅状态（v4变更）
+              // 原因：避免缓存过期，统一从 subscription-store 查询
+              // subscription: 不保存
 
               // ❌ 不持久化敏感信息（安全考虑）
               email: null,
@@ -990,7 +1100,7 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
               // ❌ 不持久化运行时状态
               lastActivity: null,
 
-              // 🔧 添加数据获取时间戳（用于TTL验证）
+              // ✅ 添加数据获取时间戳（用于TTL验证）
               _lastFetchTime: Date.now(),
             },
 
@@ -1012,9 +1122,9 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
             version: state.version,
           };
         },
-        version: 3, // 🎯 升级到 v3：优化存储策略
+        version: 4, // 🎯 升级到 v4：移除订阅状态持久化
         migrate: (persistedState: any, version: number) => {
-          console.log(`🔄 检测到 unified-store 版本: v${version}，当前版本: v3`);
+          console.log(`🔄 检测到 unified-store 版本: v${version}，当前版本: v4`);
 
           // 从 v0/v1 迁移到 v2
           if (version === 0 || version === 1) {
@@ -1032,7 +1142,7 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
             console.log('🔄 迁移 v2 → v3：优化存储策略');
 
             // 清理不应该持久化的数据
-            const migratedState = {
+            persistedState = {
               ...persistedState,
 
               // 清理用户敏感信息（保留订阅状态缓存）
@@ -1060,8 +1170,28 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
 
               version: '3.0.0',
             };
+          }
 
-            console.log('✅ 迁移完成：v3 优化存储策略已应用');
+          // 从 v3 迁移到 v4 🆕
+          if (version < 4) {
+            console.log('🔄 迁移 v3 → v4：移除订阅状态持久化，统一从 subscription-store 查询');
+
+            const migratedState = {
+              ...persistedState,
+
+              // 🚨 关键变更：移除订阅状态缓存
+              user: {
+                ...persistedState.user,
+                // 重置 subscription 为默认值（将从 subscription-store 动态查询）
+                subscription: 'trial',
+                // 标记为需要刷新
+                _lastFetchTime: 0, // 强制过期，触发重新查询
+              },
+
+              version: '4.0.0',
+            };
+
+            console.log('✅ 迁移完成：v4 已移除订阅状态持久化');
             return migratedState;
           }
 
@@ -1090,22 +1220,34 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
             // ⏰ TTL 验证：检查用户信息是否过期
             const TTL = 24 * 60 * 60 * 1000; // 24小时
             const lastFetchTime = (state.user as any)._lastFetchTime || 0;
-            const isExpired = Date.now() - lastFetchTime > TTL;
 
-            if (isExpired) {
-              console.log('⏰ 用户信息已过期（超过24小时），将从 Supabase 重新查询');
-              // 保留基础身份信息，清除其他可能过期的数据
-              state.user = {
-                ...initialUserState,
-                id: state.user.id,
-                isAuthenticated: state.user.isAuthenticated,
-              };
+            // 🔧 修复：只有在有登录信息且时间戳有效时才检查过期
+            if (state.user.id && lastFetchTime > 0) {
+              const isExpired = Date.now() - lastFetchTime > TTL;
+
+              if (isExpired) {
+                console.log('⏰ 用户信息已过期（超过24小时），将从 Supabase 重新查询');
+                // 保留基础身份信息，清除其他可能过期的数据
+                state.user = {
+                  ...initialUserState,
+                  id: state.user.id,
+                  isAuthenticated: state.user.isAuthenticated,
+                  subscription: 'trial', // 重置为默认值
+                };
+              } else {
+                const hoursAgo = Math.floor((Date.now() - lastFetchTime) / 1000 / 60 / 60);
+                console.log(`✅ 用户信息有效（${hoursAgo}小时前获取）`);
+              }
+            } else if (!state.user.id) {
+              console.log('ℹ️ 未登录状态，跳过TTL验证');
             } else {
-              console.log(`✅ 用户信息有效（${Math.floor((Date.now() - lastFetchTime) / 1000 / 60 / 60)}小时前获取）`);
+              console.log('ℹ️ 首次加载，跳过TTL验证');
             }
 
-            // 🔧 乐观缓存：保留订阅状态，后台验证
-            // state.user.subscription = 'trial'; // ✅ 不重置，保留缓存值
+            // 🚨 v4 强制重置：订阅状态统一从 subscription-store 查询
+            // 即使用户信息未过期，也要重置 subscription
+            state.user.subscription = 'trial';
+            console.log('🔄 subscription 已重置为默认值，将从 subscription-store 动态查询');
 
             // 🚫 强制重置敏感信息和运行时状态
             state.user.email = null; // 敏感信息

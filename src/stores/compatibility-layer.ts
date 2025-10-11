@@ -211,28 +211,29 @@ export const useAuthStore = () => {
     updateMaxUsage: (newMaxUsage: number) => {
     },
 
-    // 用户行为记录方法 - 兼容PageTracker组件
+    // 用户行为记录方法 - 已废弃但保留兼容性
+    /**
+     * @deprecated 此方法已废弃
+     *
+     * 原因：
+     * - PageTracker组件已改用简化的本地记录（仅开发环境）
+     * - 没有实际业务需求同步用户行为到Supabase
+     * - 保留空实现仅用于避免旧代码报错
+     *
+     * 替代方案：
+     * - 开发环境：PageTracker自动记录到localStorage
+     * - 生产环境：使用专业分析工具（如Google Analytics）
+     *
+     * 如需完整实现，应：
+     * 1. 设计Supabase表结构（user_actions表）
+     * 2. 实现批量上传机制（避免频繁请求）
+     * 3. 添加数据清理策略（避免数据膨胀）
+     */
     recordUserAction: (action: string, metadata?: Record<string, any>) => {
-      try {
-        // 简化的行为记录，仅记录到本地存储用于开发和调试
-        const actionRecord = {
-          action,
-          timestamp: new Date().toISOString(),
-          metadata: metadata || {},
-          userId: authState.user?.id || 'anonymous'
-        };
-
-        // 存储到本地用于调试（最多保留100条记录）
-        const existingRecords = JSON.parse(localStorage.getItem('wenpai_user_actions') || '[]');
-        existingRecords.push(actionRecord);
-        if (existingRecords.length > 100) {
-          existingRecords.splice(0, existingRecords.length - 100); // 保留最新100条
-        }
-        localStorage.setItem('wenpai_user_actions', JSON.stringify(existingRecords));
-
-        console.log('📊 userrow为already记录:', action);
-      } catch (error) {
-        console.error('📊 userrow为记录failed:', error);
+      // ⚠️ 空实现：此功能已废弃
+      // 如果看到此日志，说明有代码仍在调用此方法，建议移除
+      if (import.meta.env.DEV) {
+        console.warn('⚠️ recordUserAction 已废弃，请移除调用', { action, metadata });
       }
     },
   };
