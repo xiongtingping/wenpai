@@ -8,6 +8,7 @@
  * - 切换页面瞬时响应
  */
 
+import { useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { calculateSubscriptionStatus, type SubscriptionStatus } from '@/utils/subscriptionStatusUtils';
 import { useSubscriptionStore } from '@/stores/subscription-store';
@@ -84,12 +85,13 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
   /**
    * 刷新订阅状态
    * 🔧 使用全局Store的refresh方法
+   * 🔧 使用useCallback避免无限循环
    */
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     if (targetUserId) {
       await store.refreshStatus(targetUserId);
     }
-  };
+  }, [targetUserId, store]);
 
   return {
     primaryStatus,

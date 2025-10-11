@@ -356,8 +356,6 @@ export function ContentAdapterPage({
   // 🔧 FIX: 监听Token使用量更新事件，自动刷新显示
   React.useEffect(() => {
     const handleTokenUsageUpdate = async (event: CustomEvent) => {
-      console.log('📢 收到Token使用量更新事件:', event.detail);
-
       // 方法1: 强制刷新订阅状态
       refreshSubscription();
 
@@ -366,7 +364,6 @@ export function ContentAdapterPage({
         const { useUnifiedStore } = await import('@/stores/unified-state-store');
         const refreshUsageStats = useUnifiedStore.getState().refreshUsageStats;
         await refreshUsageStats();
-        console.log('✅ 使用统计已刷新');
       } catch (error) {
         console.error('❌ 刷新使用统计失败:', error);
       }
@@ -731,7 +728,6 @@ export function ContentAdapterPage({
     let paymentTimeoutId: NodeJS.Timeout | null = null;
 
     const handlePaymentSuccess = () => {
-      console.log('🎉 收到支付successevent，refreshing使用countstate');
       // 强制刷新订阅状态
       refreshSubscription();
       // 延迟刷新
@@ -741,7 +737,6 @@ export function ContentAdapterPage({
     };
 
     const handleSubscriptionUpdated = (event: CustomEvent) => {
-      console.log('🔄 收到subscribingupdatingevent，refreshing使用countstate', event.detail);
       refreshSubscription();
     };
 
