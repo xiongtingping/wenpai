@@ -450,18 +450,19 @@ export default function BookmarkPage() {
       };
 
       // 云端创建（若已登录）
+      let finalItem = newItem;
       if (user?.id) {
         try {
           const row = await LibraryService.createLibraryItem(toDbPayload(newItem, user.id));
           // 使用云端ID覆盖
-          newItem = fromDbRow(row);
+          finalItem = fromDbRow(row);
         } catch (e) {
           console.warn('云端创建提取项失败，暂存本地', e);
         }
       }
 
 
-      const updatedItems = [newItem, ...libraryItems];
+      const updatedItems = [finalItem, ...libraryItems];
       // ✅ FIXED: 使用安全的数据保存方法
       safeUpdateLibraryItems(updatedItems, t('pages.messages.创建收藏'));
 
@@ -575,18 +576,19 @@ export default function BookmarkPage() {
     };
 
     // 云端创建（若已登录）
+    let finalCopywriting = copywriting;
     if (user?.id) {
       try {
         const row = await LibraryService.createLibraryItem(toDbPayload(copywriting, user.id));
         // 用云端返回的ID等信息替换本地占位
-        copywriting = fromDbRow(row);
+        finalCopywriting = fromDbRow(row);
       } catch (e) {
         console.warn('云端创建文案失败，暂存本地', e);
       }
     }
 
 
-    const updatedItems = [copywriting, ...libraryItems];
+    const updatedItems = [finalCopywriting, ...libraryItems];
 
     // ✅ FIXED: 使用安全的数据保存方法
     safeUpdateLibraryItems(updatedItems, t('pages.messages.文案创建'));

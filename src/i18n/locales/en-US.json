@@ -7051,7 +7051,13 @@
       "premiumFeature2": "Exclusive access to latest AI models",
       "premiumFeature3": "VIP dedicated support",
       "premiumFeature4": "All premium features",
-      "立即解锁高级功能": "Unlock Premium Features Now"
+      "立即解锁高级功能": "Unlock Premium Features Now",
+      "安全": "Secure",
+      "注意": "Warning",
+      "请输入正确的手机号": "Please enter a valid phone number",
+      "请查看您的手机短信": "Please check your SMS",
+      "请输入验证码": "Please enter verification code",
+      "您的手机号已验证": "Your phone number has been verified"
     }
   },
   "pages": {
@@ -8447,7 +8453,7 @@
       "检查中...": "Checking...",
       "请输入11位中国大陆手机号码": "Please enter an 11-digit mainland China phone number",
       "密码要求：": "Password requirements:",
-      "8-20位字符，包含数字和字母": "8-20 characters, including numbers and letters",
+      "8-20位字符，包含数字和字母": "8+ characters with uppercase, lowercase, numbers and special characters",
       "和": " and "
     },
     "status": {},
@@ -8541,6 +8547,9 @@
       "loginFailed": "[TO BE TRANSLATED] 登录失败",
       "registerFailed": "[TO BE TRANSLATED] 注册失败",
       "phone": "[TO BE TRANSLATED] 手机号",
+      "设置密码（8位+大小写+数字+符号）": "Set Password (8+ chars, uppercase, lowercase, number, symbol)",
+      "邀请码（可选）": "Invitation Code (Optional)",
+      "可获得20次免费使用机会": "Get 20 free uses",
       "verifysendSuccess": "[TO BE TRANSLATED] 验证码发送成功",
       "passwordresetSuccess": "[TO BE TRANSLATED] 密码重置成功",
       "resetFailed": "[TO BE TRANSLATED] 重置失败",
@@ -8758,8 +8767,8 @@
     "form": {
       "phone": "Phone Number",
       "code": "Verification Code",
-      "newPassword": "New Password (8-20 characters, including numbers and letters)",
-      "confirmPassword": "Confirm New Password (8-20 characters, including numbers and letters)",
+      "newPassword": "New Password (8+ chars with uppercase, lowercase, numbers and special characters)",
+      "confirmPassword": "Confirm New Password (8+ chars with uppercase, lowercase, numbers and special characters)",
       "sendCode": "Send Code",
       "resendCode": "Resend",
       "resetPassword": "Reset Password",
@@ -8856,6 +8865,67 @@
       "upgrade": "Upgrade to a higher plan for more token quota",
       "wait": "Wait for automatic reset on the 1st of next month",
       "optimize": "Optimize content length to reduce token consumption"
+    }
+  },
+  "aiPrompts": {
+    "contentAdapter": {
+      "roleDefinition": "You are a professional multi-dimensional content creation expert, skilled at generating high-quality, personalized content based on different platform characteristics and user needs.",
+      "matrixTitle": "【Multi-Dimensional Matrix Prompt System】",
+      "matrixExplanation": "You will receive requirements from multiple dimensions, each being an important reference for content generation:\n- Brand Dimension: Brand tone, language standards (highest priority)\n- Original Content: Basic content input by the user\n- Target Platform: Platform characteristics and user preferences\n- Character Count Control: Content length requirements\n- Formatting Requirements: Layout and format standards\n- Content Form: Content structure and type\n- Expression Style: Language style and emotional tone\n- User Customization: Special requirements and preferences",
+      "priorityTitle": "【Priority Mechanism】⚠️",
+      "priorityRules": "1. Brand Library > User Selection > Platform Default\n   - If brand library settings exist, all content must strictly follow brand tone\n   - User-explicitly selected dimensions take priority over platform defaults\n   - Unspecified dimensions use platform default characteristics\n\n2. More Dimensions = More Personalization\n   - Fully utilize all provided dimensional information\n   - Ensure each dimension is reflected in the final content\n   - Dimensions must be coordinated and consistent, no conflicts\n\n3. No Static Templates\n   - Dynamically adjust for each generation\n   - Don't use fixed content frameworks\n   - Maintain uniqueness and freshness of content",
+      "finalRequirementsTitle": "【Final Output Requirements】",
+      "finalRequirements": "1. Strictly follow all dimensional requirements, ensure each dimension is reflected in the content\n2. Content must have strong differentiation characteristics, avoid templating\n3. Output the final content directly, without any explanations, descriptions, or meta-information\n4. Ensure content is natural and fluent, conforming to authentic human expression habits\n5. If dimensions conflict, handle according to priority mechanism",
+      "brandDimensionTitle": "【Dimension 0: Brand Dimension】⭐ Highest Priority",
+      "brandVoice": "Brand Language Style: {{voice}}",
+      "brandTone": "Brand Tone: {{tone}}",
+      "brandDescription": "Brand Description: {{description}}",
+      "brandRequirement": "Requirement: All generated content must strictly conform to brand tone and language style, this is the highest priority requirement",
+      "contentDimensionTitle": "【Original Content】",
+      "contentRequirement": "Requirement: Rewrite and optimize based on this content, retaining core information and key points.",
+      "platformDimensionTitle": "【Dimension 1: Target Platform】",
+      "platformRequirement": "Requirement: Generate content according to {{platformName}} platform characteristics",
+      "charCountDimensionTitle": "【Dimension 2: Character Count Control】",
+      "charCountRequirement": "Requirements:\n1. Generated content should be close to {{charCount}} characters (±10% range)\n2. Not exceed platform maximum limit of {{maxChars}} characters\n3. If content is short, add specific details and examples\n4. If content is too long, simplify expression but retain core information\n5. Character count control has lower priority than brand tone",
+      "formatDimensionTitle": "【Dimension 3: Formatting Requirements】",
+      "useEmoji": "Use Emoji to enhance expressiveness",
+      "useMdFormat": "Use Markdown formatting",
+      "useAutoFormat": "Auto-optimize format structure",
+      "formDimensionTitle": "【Dimension 4: Content Form】",
+      "formTemplate": "Reference Template (adjust dynamically, don't copy):\n{{template}}",
+      "formReminder": "【Important Reminder】⚠️\n1. Structure template is for reference only, must be flexibly adjusted based on actual content\n2. Randomly select different openings, content modules, and endings for each generation\n3. Forbidden to generate content too similar to examples\n4. Ensure content form coordinates with expression style",
+      "styleDimensionTitle": "【Dimension 5: Expression Style】",
+      "customDimensionTitle": "【Dimension 6: User Custom Requirements】",
+      "customRequirement": "Special Requirements: {{prompt}}",
+      "userPromptIntro": "Please generate high-quality content based on the user's original input and the following Multi-Dimensional Matrix requirements:\n",
+      "dimensionsSummary": "Total {{count}} dimensions: {{dimensions}}",
+      "generationRequirementsTitle": "\n【Generation Requirements】",
+      "generationRequirements": "1. Strictly generate content according to all dimensional requirements\n2. Ensure content has strong differentiation characteristics\n3. Avoid templated expressions, each generation must be unique\n4. All dimensions must be reflected in the final content\n5. Output final content directly without any explanatory text",
+      "multiplePlatformTitle": "\n【Output Format】",
+      "multiplePlatformInstruction": "Please generate independent content for each platform in the following format:\n\n{{platformSections}}\n\nRequirements:\n1. Content for each platform must be completely independent and differentiated\n2. Fully reflect the unique characteristics of each platform\n3. Strictly follow all dimensional requirements\n4. Forbidden to copy-paste identical content across different platforms"
+    },
+    "titleGeneration": {
+      "systemPrompt": "You are a professional title generation expert, skilled at creating attractive titles for different platforms.\n\nPlease follow these principles:\n1. Titles should be concise and powerful, highlighting core selling points\n2. Adjust style and length according to platform characteristics\n3. Use appropriate emotional vocabulary and rhetorical techniques\n4. Ensure titles are highly relevant to content\n5. Avoid clickbait and false exaggeration\n\nOutput format requirements (JSON array):\n[\n  {\n    \"title\": \"Title text\",\n    \"style\": \"Title style\",\n    \"length\": Character length,\n    \"semanticFit\": Semantic fit (0-1),\n    \"reasoning\": \"Generation reasoning\"\n  }\n]",
+      "userPromptTemplate": "Please generate {{count}} titles for {{platform}} platform for the following content:\n\nContent: {{content}}\n\nRequirements: {{requirements}}\n\nPlease output strictly in JSON format, ensuring each title includes title, style, length, semanticFit, and reasoning fields.\n\nExample output:\n[\n  {\n    \"title\": \"Example Title\",\n    \"style\": \"informative\",\n    \"length\": 15,\n    \"semanticFit\": 0.85,\n    \"reasoning\": \"Generation reasoning\"\n  }\n]",
+      "defaultReasoning": "AI Generated"
+    },
+    "ui": {
+      "contentAdapter": {
+        "estimatedTime": "Estimated generation time: {{seconds}}s",
+        "inputTips": {
+          "title": "Input Tips",
+          "detail": "Enter the original content you want to adapt",
+          "quality": "More detailed content yields better adaptation results",
+          "limit": "Recommend single input not exceeding 5000 characters"
+        },
+        "validation": {
+          "solveIssues": "Please resolve the following issues before generating:"
+        },
+        "generation": {
+          "generating": "Generating...",
+          "start": "Start Generation"
+        }
+      }
     }
   }
 

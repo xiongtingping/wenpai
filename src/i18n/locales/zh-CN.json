@@ -7125,7 +7125,13 @@
       "premiumFeature2": "独享最新AI模型",
       "premiumFeature3": "VIP专属客服",
       "premiumFeature4": "所有高级功能",
-      "立即解锁高级功能": "立即解锁高级功能"
+      "立即解锁高级功能": "立即解锁高级功能",
+      "安全": "安全",
+      "注意": "注意",
+      "请输入正确的手机号": "请输入正确的手机号",
+      "请查看您的手机短信": "请查看您的手机短信",
+      "请输入验证码": "请输入验证码",
+      "您的手机号已验证": "您的手机号已验证"
     }
   },
   "pages": {
@@ -8521,7 +8527,7 @@
       "检查中...": "检查中...",
       "请输入11位中国大陆手机号码": "请输入11位中国大陆手机号码",
       "密码要求：": "密码要求：",
-      "8-20位字符，包含数字和字母": "8-20位字符，包含数字和字母",
+      "8-20位字符，包含数字和字母": "8位以上，包含大小写字母、数字和特殊字符",
       "和": "和"
     },
     "status": {},
@@ -8615,6 +8621,9 @@
       "loginFailed": "登录失败",
       "registerFailed": "注册失败",
       "phone": "手机号",
+      "设置密码（8位+大小写+数字+符号）": "设置密码（8位+大小写+数字+符号）",
+      "邀请码（可选）": "邀请码（可选）",
+      "可获得20次免费使用机会": "可获得20次免费使用机会",
       "verifysendSuccess": "验证码发送成功",
       "passwordresetSuccess": "密码重置成功",
       "resetFailed": "重置失败",
@@ -8832,8 +8841,8 @@
     "form": {
       "phone": "手机号",
       "code": "验证码",
-      "newPassword": "新密码（8-20位字符，包含数字和字母）",
-      "confirmPassword": "确认新密码（8-20位字符，包含数字和字母）",
+      "newPassword": "新密码（8位以上，包含大小写字母、数字和特殊字符）",
+      "confirmPassword": "确认新密码（8位以上，包含大小写字母、数字和特殊字符）",
       "sendCode": "发送验证码",
       "resendCode": "重新发送",
       "resetPassword": "重置密码",
@@ -8930,6 +8939,67 @@
       "upgrade": "升级到更高套餐，获得更多Token额度",
       "wait": "等待下月1日自动重置使用量",
       "optimize": "优化内容长度，减少Token消耗"
+    }
+  },
+  "aiPrompts": {
+    "contentAdapter": {
+      "roleDefinition": "你是一位专业的多维度内容创作专家，擅长根据不同平台特性和用户需求生成高质量、个性化的内容。",
+      "matrixTitle": "【多维矩阵提示词系统】",
+      "matrixExplanation": "你将收到多个维度的要求，每个维度都是生成内容的重要参考：\n- 品牌维度：品牌调性、语言规范（最高优先级）\n- 原始内容：用户输入的基础内容\n- 目标平台：平台特性和用户偏好\n- 字符数控制：内容长度要求\n- 格式化要求：排版和格式规范\n- 内容形式：内容结构和类型\n- 表达风格：语言风格和情感基调\n- 用户自定义：特殊要求和偏好",
+      "priorityTitle": "【优先级机制】⚠️",
+      "priorityRules": "1. 品牌库 > 用户选择 > 平台默认\n   - 如果有品牌库设置，所有内容必须严格遵循品牌调性\n   - 用户明确选择的维度优先于平台默认设置\n   - 未指定的维度使用平台默认特性\n\n2. 维度越多，内容越个性化\n   - 充分利用所有提供的维度信息\n   - 确保每个维度在最终内容中都有体现\n   - 维度之间要协调一致，不能冲突\n\n3. 禁止静态模板\n   - 每次生成都要动态调整\n   - 不要使用固定的内容框架\n   - 保持内容的独特性和新鲜感",
+      "finalRequirementsTitle": "【最终输出要求】",
+      "finalRequirements": "1. 严格遵循所有维度要求，确保每个维度都在内容中体现\n2. 内容必须具有强烈的差异化特色，避免模板化\n3. 直接输出最终内容，不要包含任何说明、解释或元信息\n4. 确保内容自然流畅，符合人类真实表达习惯\n5. 如果有多个维度冲突，按优先级机制处理",
+      "brandDimensionTitle": "【维度0: 品牌维度】⭐ 最高优先级",
+      "brandVoice": "品牌语言风格：{{voice}}",
+      "brandTone": "品牌调性：{{tone}}",
+      "brandDescription": "品牌描述：{{description}}",
+      "brandRequirement": "要求：所有生成的内容必须严格符合品牌调性和语言风格，这是最高优先级要求",
+      "contentDimensionTitle": "【原始内容】",
+      "contentRequirement": "要求：基于此内容进行改写和优化，保留核心信息和要点。",
+      "platformDimensionTitle": "【维度1: 目标平台】",
+      "platformRequirement": "要求：根据{{platformName}}的平台特性生成内容",
+      "charCountDimensionTitle": "【维度2: 字符数控制】",
+      "charCountRequirement": "要求：\n1. 生成的内容字数应接近{{charCount}}字（±10%范围内）\n2. 不超过平台最大限制{{maxChars}}字\n3. 如果内容较短，要增加具体细节和案例\n4. 如果内容过长，要精简表达但保留核心信息\n5. 字数控制的优先级低于品牌调性",
+      "formatDimensionTitle": "【维度3: 格式化要求】",
+      "useEmoji": "使用Emoji表情增强表现力",
+      "useMdFormat": "使用Markdown格式排版",
+      "useAutoFormat": "自动优化格式结构",
+      "formDimensionTitle": "【维度4: 内容形式】",
+      "formTemplate": "参考模板（动态调整，不要照搬）：\n{{template}}",
+      "formReminder": "【重要提醒】⚠️\n1. 结构模板仅供参考，必须根据实际内容灵活调整\n2. 每次生成要随机选用不同的开头、内容模块和结尾\n3. 禁止生成与示例过于相似的内容\n4. 确保内容形式与表达风格协调一致",
+      "styleDimensionTitle": "【维度5: 表达风格】",
+      "customDimensionTitle": "【维度6: 用户自定义要求】",
+      "customRequirement": "特殊要求：{{prompt}}",
+      "userPromptIntro": "请根据用户输入的原始内容和以下「多维矩阵维度」要求生成高质量内容：\n",
+      "dimensionsSummary": "共{{count}}个维度：{{dimensions}}",
+      "generationRequirementsTitle": "\n【生成要求】",
+      "generationRequirements": "1. 严格按照所有维度的要求生成内容\n2. 确保内容具有强烈的差异化特色\n3. 避免模板化表达，每次生成都要有独特性\n4. 所有维度必须在最终内容中得到体现\n5. 直接输出最终内容，不要包含任何说明文字",
+      "multiplePlatformTitle": "\n【输出格式】",
+      "multiplePlatformInstruction": "请为每个平台生成独立的内容，格式如下：\n\n{{platformSections}}\n\n要求：\n1. 每个平台的内容必须完全独立且差异化\n2. 充分体现各平台的独特特性\n3. 严格遵循所有维度要求\n4. 禁止在不同平台间复制粘贴相同内容"
+    },
+    "titleGeneration": {
+      "systemPrompt": "你是一个专业的标题生成专家，擅长为不同平台创作吸引人的标题。\n\n请遵循以下原则：\n1. 标题要简洁有力，突出核心卖点\n2. 根据平台特性调整风格和长度\n3. 使用恰当的情感词汇和修辞手法\n4. 确保标题与内容高度相关\n5. 避免标题党和虚假夸大\n\n输出格式要求（JSON数组）：\n[\n  {\n    \"title\": \"标题文本\",\n    \"style\": \"标题风格\",\n    \"length\": 字符长度,\n    \"semanticFit\": 语义贴合度(0-1),\n    \"reasoning\": \"生成理由\"\n  }\n]",
+      "userPromptTemplate": "请为以下内容生成{{count}}个{{platform}}平台的标题：\n\n内容：{{content}}\n\n要求：{{requirements}}\n\n请严格按照JSON格式输出，确保每个标题都包含title、style、length、semanticFit和reasoning字段。\n\n示例输出：\n[\n  {\n    \"title\": \"示例标题\",\n    \"style\": \"informative\",\n    \"length\": 15,\n    \"semanticFit\": 0.85,\n    \"reasoning\": \"生成理由\"\n  }\n]",
+      "defaultReasoning": "AI生成"
+    },
+    "ui": {
+      "contentAdapter": {
+        "estimatedTime": "预计生成时间: {{seconds}}秒",
+        "inputTips": {
+          "title": "输入提示",
+          "detail": "输入您想要适配的原始内容",
+          "quality": "内容越详细，生成的适配效果越好",
+          "limit": "建议单次输入内容不超过5000字符"
+        },
+        "validation": {
+          "solveIssues": "请解决以下问题后再开始生成："
+        },
+        "generation": {
+          "generating": "正在生成中...",
+          "start": "开始生成"
+        }
+      }
     }
   }
 

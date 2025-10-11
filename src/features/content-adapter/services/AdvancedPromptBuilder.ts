@@ -4,6 +4,8 @@
  * 实现多维矩阵提示词系统、优先级机制和差异化策略
  */
 
+// 使用 globalThis 访问 i18n 避免 TDZ 错误
+const getI18n = () => (globalThis as any)?.i18n;
 import type { StyleType } from '@/config/contentSchemes';
 import {
   PLATFORM_CHARACTERISTICS,
@@ -142,56 +144,38 @@ export class AdvancedPromptBuilder {
    * 构建角色定义
    */
   private buildRoleDefinition(): string {
-    return `你是一位专业的多维度内容创作专家，擅长根据不同平台特性和用户需求生成高质量、个性化的内容。`;
+    const i18n = getI18n();
+    return i18n?.t?.('aiPrompts.contentAdapter.roleDefinition') || '你是一位专业的多维度内容创作专家，擅长根据不同平台特性和用户需求生成高质量、个性化的内容。';
   }
 
   /**
    * 构建矩阵说明
    */
   private buildMatrixExplanation(): string {
-    return `【多维矩阵提示词系统】
-你将收到多个维度的要求，每个维度都是生成内容的重要参考：
-- 品牌维度：品牌调性、语言规范（最高优先级）
-- 原始内容：用户输入的基础内容
-- 目标平台：平台特性和用户偏好
-- 字符数控制：内容长度要求
-- 格式化要求：排版和格式规范
-- 内容形式：内容结构和类型
-- 表达风格：语言风格和情感基调
-- 用户自定义：特殊要求和偏好`;
+    const i18n = getI18n();
+    const title = i18n?.t?.('aiPrompts.contentAdapter.matrixTitle') || '【多维矩阵提示词系统】';
+    const explanation = i18n?.t?.('aiPrompts.contentAdapter.matrixExplanation') || '你将收到多个维度的要求，每个维度都是生成内容的重要参考：\n- 品牌维度：品牌调性、语言规范（最高优先级）\n- 原始内容：用户输入的基础内容\n- 目标平台：平台特性和用户偏好\n- 字符数控制：内容长度要求\n- 格式化要求：排版和格式规范\n- 内容形式：内容结构和类型\n- 表达风格：语言风格和情感基调\n- 用户自定义：特殊要求和偏好';
+    return `${title}\n${explanation}`;
   }
 
   /**
    * 构建优先级机制
    */
   private buildPriorityMechanism(): string {
-    return `【优先级机制】⚠️
-1. 品牌库 > 用户选择 > 平台默认
-   - 如果有品牌库设置，所有内容必须严格遵循品牌调性
-   - 用户明确选择的维度优先于平台默认设置
-   - 未指定的维度使用平台默认特性
-
-2. 维度越多，内容越个性化
-   - 充分利用所有提供的维度信息
-   - 确保每个维度在最终内容中都有体现
-   - 维度之间要协调一致，不能冲突
-
-3. 禁止静态模板
-   - 每次生成都要动态调整
-   - 不要使用固定的内容框架
-   - 保持内容的独特性和新鲜感`;
+    const i18n = getI18n();
+    const title = i18n?.t?.('aiPrompts.contentAdapter.priorityTitle') || '【优先级机制】⚠️';
+    const rules = i18n?.t?.('aiPrompts.contentAdapter.priorityRules') || '1. 品牌库 > 用户选择 > 平台默认\n2. 如果有品牌库设置，所有内容必须严格遵循品牌调性\n3. 在无冲突情况下，尽可能满足多个维度';
+    return `${title}\n${rules}`;
   }
 
   /**
    * 构建最终要求
    */
   private buildFinalRequirements(): string {
-    return `【最终输出要求】
-1. 严格遵循所有维度要求，确保每个维度都在内容中体现
-2. 内容必须具有强烈的差异化特色，避免模板化
-3. 直接输出最终内容，不要包含任何说明、解释或元信息
-4. 确保内容自然流畅，符合人类真实表达习惯
-5. 如果有多个维度冲突，按优先级机制处理`;
+    const i18n = getI18n();
+    const title = i18n?.t?.('aiPrompts.contentAdapter.finalRequirementsTitle') || '【最终输出要求】';
+    const requirements = i18n?.t?.('aiPrompts.contentAdapter.finalRequirements') || '1. 严格遵循所有维度要求，确保每个维度都在内容中体现\n2. 内容必须具有强烈的差异化特色\n3. 输出格式整洁专业\n4. 确保内容质量和可读性';
+    return `${title}\n${requirements}`;
   }
 
   /**
@@ -205,11 +189,11 @@ export class AdvancedPromptBuilder {
    * 构建原始内容维度
    */
   private buildContentDimension(content: string): string {
-    return `【原始内容维度】
-用户提供的原始内容：
-${content}
-
-要求：基于此内容进行改写和优化，保留核心信息和要点。`;
+    const i18n = getI18n();
+    const title = i18n?.t?.('aiPrompts.contentAdapter.contentDimensionTitle') || '【原始内容】';
+    const user = i18n?.t?.('common.user') || '用户';
+    const requirement = i18n?.t?.('aiPrompts.contentAdapter.contentRequirement') || '要求：基于此内容进行改写和优化，保留核心信息和要点。';
+    return `${title}\n${user}${title}：\n${content}\n\n${requirement}`;
   }
 
   /**
@@ -233,17 +217,10 @@ ${description}
   private buildCharCountDimension(charCount: number, platform: string): string {
     const platformInfo = PLATFORM_CHARACTERISTICS[platform];
     const maxChars = platformInfo?.maxChars || 1000;
-
-    return `【字符数控制维度】
-目标字数：${charCount}字
-平台限制：最多${maxChars}字
-
-要求：
-1. 生成的内容字数应接近${charCount}字（±10%范围内）
-2. 不超过平台最大限制${maxChars}字
-3. 如果内容较短，要增加具体细节和案例
-4. 如果内容较长，要精简表达，保留核心信息
-5. 确保内容完整性，不要为了凑字数而添加无意义内容`;
+    const i18n = getI18n();
+    const title = i18n?.t?.('aiPrompts.contentAdapter.charCountDimensionTitle') || '【维度2: 字符数控制】';
+    const requirement = i18n?.t?.('aiPrompts.contentAdapter.charCountRequirement', { charCount, maxChars }) || `要求：\n1. 生成的内容字数应接近${charCount}字（±10%范围内）\n2. 不超过平台最大限制${maxChars}字`;
+    return `${title}\n${requirement}`;
   }
 
   /**
@@ -360,24 +337,26 @@ ${customPrompt}
    */
   private assembleFinalPrompt(dimensionParts: string[], context: PromptBuildingContext): string {
     const parts: string[] = [];
+    const i18n = getI18n();
 
     // 开头说明
-    parts.push(`请根据用户输入的原始内容和以下"多维矩阵维度"要求生成高质量内容：\n`);
+    const intro = i18n?.t?.('aiPrompts.contentAdapter.userPromptIntro') || '请根据用户输入的原始内容和以下「多维矩阵维度」要求生成高质量内容：\n';
+    parts.push(intro);
 
     // 所有维度
     parts.push(dimensionParts.join('\n\n'));
 
     // 维度总结
-    parts.push(`\n【本次使用的维度】
-共${this.dimensions.length}个维度：${this.dimensions.join('、')}`);
+    const summary = i18n?.t?.('aiPrompts.contentAdapter.dimensionsSummary', {
+      count: this.dimensions.length,
+      dimensions: this.dimensions.join('、')
+    }) || `共${this.dimensions.length}个维度：${this.dimensions.join('、')}`;
+    parts.push(summary);
 
     // 生成要求
-    parts.push(`\n【生成要求】
-1. 严格按照所有维度的要求生成内容
-2. 确保内容具有强烈的差异化特色
-3. 避免模板化表达，每次生成都要有独特性
-4. 所有维度必须在最终内容中得到体现
-5. 直接输出最终内容，不要包含任何说明文字`);
+    const reqTitle = i18n?.t?.('aiPrompts.contentAdapter.generationRequirementsTitle') || '【生成要求】';
+    const requirements = i18n?.t?.('aiPrompts.contentAdapter.generationRequirements') || '1. 严格按照所有维度的要求生成内容\n2. 确保内容具有强烈的差异化特色';
+    parts.push(`${reqTitle}\n${requirements}`);
 
     return parts.join('\n');
   }

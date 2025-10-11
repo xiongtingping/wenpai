@@ -3,7 +3,8 @@
  * 统一封装所有AI调用逻辑，替代分散的调用方式
  */
 
-import i18n from '@/i18n';
+// 使用 globalThis 访问 i18n 避免 TDZ 错误
+const getI18n = () => (globalThis as any)?.i18n;
 import { callAIWithTokenTracking, type AICallParamsWithTracking } from '@/services/aiWithTokenTracking';
 import { AITaskType } from '@/api/aiService';
 import { generateMatrixPrompt } from '../utils/promptBuilders';
@@ -104,7 +105,8 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
           });
           return result;
         } else {
-          const errorMsg = result.error || i18n.t('common.errors.生成内容为空或过短');
+          const i18n = getI18n();
+          const errorMsg = result.error || i18n?.t?.('common.errors.生成内容为空或过短') || '生成内容为空或过短';
           lastError = new Error(errorMsg);
 
           // 🔧 FIX: 输出完整的 AI 响应用于调试
@@ -648,9 +650,10 @@ export class ContentAdapterService {
         tokenUsage: result.tokenUsage
       };
     } catch (error) {
+      const i18n = getI18n();
       return {
         success: false,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.生成失败')
+        error: error instanceof Error ? error.message : (i18n?.t?.('common.errors.生成失败') || '生成失败')
       };
     }
   }
@@ -961,7 +964,7 @@ ${stylePrompts}
         }).filter(item => item !== null) as any[]; // 🔧 过滤掉无效标题
 
         // 过滤和排序
-        const qualifiedTitles = scoredTitles
+        let qualifiedTitles = scoredTitles
           .filter(item =>
             item.overallScore >= 0.6 &&
             item.title.length >= 5 &&
@@ -993,14 +996,16 @@ ${stylePrompts}
         };
       }
 
+      const i18n = getI18n();
       return {
         success: false,
-        error: result.error || i18n.t('common.errors.标题生成失败')
+        error: result.error || i18n?.t?.('common.errors.标题生成失败') || '标题生成失败'
       };
     } catch (error) {
+      const i18n = getI18n();
       return {
         success: false,
-        error: error instanceof Error ? error.message : i18n.t('common.errors.标题生成失败')
+        error: error instanceof Error ? error.message : (i18n?.t?.('common.errors.标题生成失败') || '标题生成失败')
       };
     }
   }

@@ -284,22 +284,30 @@ export class AIService implements IAIService {
    * 获取系统提示词
    */
   private getSystemPrompt(): string {
-    return `你是一个专业的标题生成专家，擅长为不同平台创作吸引人的标题。
+    const i18nInstance = (globalThis as any)?.i18n;
+    if (i18nInstance && typeof i18nInstance.t === 'function') {
+      return i18nInstance.t('aiPrompts.titleGeneration.systemPrompt');
+    }
+    // Fallback
+    return `You are a professional title generation expert, skilled at creating attractive titles for different platforms.
 
-请遵循以下原则：
-1. 标题要与内容高度相关，准确概括核心信息
-2. 根据平台特点调整风格和长度
-3. 避免使用"undefined"、"null"等无效内容
-4. 确保语义完整，避免残词和未闭合表达
-5. 适当使用情感词汇增强吸引力
-6. 保持结构多样性，避免重复句式
+Please follow these principles:
+1. Titles should be concise and powerful, highlighting core selling points
+2. Adjust style and length according to platform characteristics
+3. Use appropriate emotional vocabulary and rhetorical techniques
+4. Ensure titles are highly relevant to content
+5. Avoid clickbait and false exaggeration
 
-返回格式必须是有效的JSON，包含titles数组，每个标题对象包含：
-- title: 标题文本
-- style: 风格类型
-- length: 字符长度
-- semanticFit: 语义贴合度(0-1)
-- reasoning: 生成理由`;
+Output format requirements (JSON array):
+[
+  {
+    "title": "Title text",
+    "style": "Title style",
+    "length": Character length,
+    "semanticFit": Semantic fit (0-1),
+    "reasoning": "Generation reasoning"
+  }
+]`;
   }
 
   /**
@@ -311,35 +319,45 @@ export class AIService implements IAIService {
     styles: string[],
     count: number
   ): string {
-    return `请为以下内容生成${count}个${platform}平台的标题：
+    const i18nInstance = (globalThis as any)?.i18n;
+    if (i18nInstance && typeof i18nInstance.t === 'function') {
+      return i18nInstance.t('aiPrompts.titleGeneration.userPromptTemplate', {
+        count,
+        platform,
+        content,
+        requirements: `- ${i18nInstance.t('common.style')}: ${styles.join('、')}\n- ${i18nInstance.t('common.count')}: ${count}\n- ${i18nInstance.t('common.platform')}: ${platform}`
+      });
+    }
+    // Fallback
+    return `Please generate ${count} titles for ${platform} platform for the following content:
 
-内容：${content}
+Content: ${content}
 
-要求：
-- 风格偏好：${styles.join('、')}
-- 数量：${count}个
-- 平台：${platform}
-- 确保标题多样性和高质量
+Requirements:
+- Style preferences: ${styles.join(', ')}
+- Count: ${count}
+- Platform: ${platform}
+- Ensure title diversity and quality
 
-请严格按照以下JSON格式返回结果：
+Please output strictly in JSON format:
 
 \`\`\`json
 {
   "titles": [
     {
-      "title": "示例标题",
+      "title": "Example Title",
       "style": "informative",
       "length": 15,
       "semanticFit": 0.85,
-      "reasoning": "生成理由"
+      "reasoning": "Generation reasoning"
     }
   ]
 }
 \`\`\`
 
-注意：
-1. 必须返回有效的JSON格式
-2. titles数组必须包含${count}个标题对象
+Note:
+1. Must return valid JSON format
+2. titles array must contain ${count} title objects
 3. 每个标题对象必须包含title、style、length、semanticFit、reasoning字段
 4. title字段不能为空
 5. semanticFit值应在0.7-1.0之间`;

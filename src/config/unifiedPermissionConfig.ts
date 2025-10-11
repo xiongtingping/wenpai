@@ -93,7 +93,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     description: '需要登录',
     requiredPermissions: [Permission.AUTH_REQUIRED],
     redirect: '/login',
-    message: 'u64cdu4f5cu5931u8d25'
+    message: '操作失败'
   },
 
   // VIP权限
@@ -113,7 +113,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.FEATURE_CREATIVE_STUDIO],
     requiredTier: SubscriptionTier.PRO,
     redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25',
+    message: '操作失败',
     upgradeUrl: '/payment',
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
@@ -141,7 +141,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.FEATURE_BRAND_LIBRARY],
     requiredTier: SubscriptionTier.PREMIUM,
     redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25',
+    message: '操作失败',
     upgradeUrl: '/payment',
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
@@ -166,7 +166,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.FEATURE_UNLIMITED_USAGE],
     requiredTier: SubscriptionTier.PREMIUM,
     redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25',
+    message: '操作失败',
     upgradeUrl: '/payment'
   },
 
@@ -201,9 +201,9 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
   // 订阅等级权限
   'tier:trial': {
     key: 'tier:trial',
-    description: 'u64cdu4f5cu5931u8d25',
+    description: '操作失败',
     requiredPermissions: [Permission.TIER_TRIAL],
-    message: 'u64cdu4f5cu5931u8d25',
+    message: '操作失败',
     customCheck: () => true // 所有用户都有体验版权限
   },
 
@@ -213,7 +213,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.TIER_PRO],
     requiredTier: SubscriptionTier.PRO,
     redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25',
+    message: '操作失败',
     upgradeUrl: '/payment',
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
@@ -241,7 +241,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.TIER_PREMIUM],
     requiredTier: SubscriptionTier.PREMIUM,
     redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25',
+    message: '操作失败',
     upgradeUrl: '/payment',
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
@@ -265,7 +265,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     key: 'theme:basic',
     description: '基础主题切换权限',
     requiredPermissions: [Permission.THEME_BASIC],
-    message: 'u64cdu4f5cu5931u8d25',
+    message: '操作失败',
     customCheck: () => true // 所有用户都有基础主题权限
   },
 
@@ -275,7 +275,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.THEME_ADVANCED],
     requiredTier: SubscriptionTier.PRO,
     redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25',
+    message: '操作失败',
     upgradeUrl: '/payment'
   },
 
@@ -285,7 +285,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.THEME_PREMIUM],
     requiredTier: SubscriptionTier.PREMIUM,
     redirect: '/payment',
-    message: 'u64cdu4f5cu5931u8d25',
+    message: '操作失败',
     upgradeUrl: '/payment'
   },
 
@@ -305,7 +305,7 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     requiredPermissions: [Permission.USER_VIEW],
     requiredRoles: [SystemRole.MODERATOR, SystemRole.ADMIN, SystemRole.SUPER_ADMIN],
     redirect: '/',
-    message: 'u64cdu4f5cu5931u8d25'
+    message: '操作失败'
   },
 
   // API权限
@@ -360,7 +360,7 @@ export class UnifiedPermissionManager {
     const config = UNIFIED_PERMISSION_CONFIGS[permissionKey];
     
     if (!config) {
-      logger.warn('u64cdu4f5cu5931u8d25', permissionKey);
+      logger.warn('操作失败', permissionKey);
       return {
         pass: false,
         reason: '权限配置未找到: ' + permissionKey,

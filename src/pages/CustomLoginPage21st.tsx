@@ -7,7 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Sun, Moon, ArrowLeft, Info } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthenticationClient } from 'authing-js-sdk';
@@ -77,9 +77,6 @@ export const CustomLoginPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
-  // 21st.dev样式状态
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  
   // 表单状态
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [loginType, setLoginType] = useState<'password' | 'code'>('password');
@@ -113,12 +110,6 @@ export const CustomLoginPage: React.FC = () => {
   const [registerCountdown, setRegisterCountdown] = useState(0); // 注册验证码倒计时
   const [isLoading, setIsLoading] = useState(false);
 
-  // 主题切换功能
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle("dark-mode");
-  };
-
   // 从URL预填：tab=register/login 与 code=邀请码
   useEffect(() => {
     try {
@@ -132,15 +123,6 @@ export const CustomLoginPage: React.FC = () => {
       }
     } catch (_) {}
   }, [searchParams]);
-
-  // 初始化主题
-  useEffect(() => {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setIsDarkMode(prefersDark);
-    if (prefersDark) {
-      document.documentElement.classList.add("dark-mode");
-    }
-  }, []);
 
   // 根据URL路径设置模式
   useEffect(() => {
@@ -183,23 +165,15 @@ export const CustomLoginPage: React.FC = () => {
         this.speedX = (Math.random() - 0.5) * 0.8;
         this.speedY = (Math.random() - 0.5) * 0.8;
 
-        // 更丰富的颜色系统
-        const colors = isDarkMode
-          ? [
-              `rgba(168, 237, 234, ${Math.random() * 0.4 + 0.1})`, // 青色
-              `rgba(254, 214, 227, ${Math.random() * 0.4 + 0.1})`, // 粉色
-              `rgba(255, 255, 255, ${Math.random() * 0.3 + 0.1})`, // 白色
-              `rgba(102, 126, 234, ${Math.random() * 0.4 + 0.1})`, // 蓝色
-              `rgba(240, 147, 251, ${Math.random() * 0.4 + 0.1})`, // 紫色
-            ]
-          : [
-              `rgba(102, 126, 234, ${Math.random() * 0.4 + 0.1})`, // 蓝色
-              `rgba(118, 75, 162, ${Math.random() * 0.4 + 0.1})`,  // 紫色
-              `rgba(240, 147, 251, ${Math.random() * 0.4 + 0.1})`, // 粉紫色
-              `rgba(245, 87, 108, ${Math.random() * 0.4 + 0.1})`,  // 红色
-              `rgba(79, 172, 254, ${Math.random() * 0.4 + 0.1})`,  // 天蓝色
-              `rgba(0, 242, 254, ${Math.random() * 0.4 + 0.1})`,   // 青色
-            ];
+        // 浅色主题配色
+        const colors = [
+          `rgba(102, 126, 234, ${Math.random() * 0.4 + 0.1})`, // 蓝色
+          `rgba(118, 75, 162, ${Math.random() * 0.4 + 0.1})`,  // 紫色
+          `rgba(240, 147, 251, ${Math.random() * 0.4 + 0.1})`, // 粉紫色
+          `rgba(245, 87, 108, ${Math.random() * 0.4 + 0.1})`,  // 红色
+          `rgba(79, 172, 254, ${Math.random() * 0.4 + 0.1})`,  // 天蓝色
+          `rgba(0, 242, 254, ${Math.random() * 0.4 + 0.1})`,   // 青色
+        ];
 
         this.color = colors[Math.floor(Math.random() * colors.length)];
       }
@@ -265,7 +239,7 @@ export const CustomLoginPage: React.FC = () => {
     return () => {
       window.removeEventListener("resize", setCanvasSize);
     };
-  }, [isDarkMode]);
+  }, []);
 
   // 检查认证状态
   useEffect(() => {
@@ -745,7 +719,7 @@ export const CustomLoginPage: React.FC = () => {
   if (checkingAuth) {
     return (
       <div
-        className={`inline-style-converted min-h-screen flex items-center justify-center relative overflow-hidden ${isDarkMode ? "dark" : ""}`}
+        className="inline-style-converted min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50"
       >
         <canvas id="particles" className="absolute inset-0 z-0"></canvas>
 
@@ -754,7 +728,7 @@ export const CustomLoginPage: React.FC = () => {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className={`absolute rounded-full opacity-20 ${isDarkMode ? 'bg-background' : 'bg-background'}`}
+              className="absolute rounded-full opacity-10 bg-gradient-to-br from-blue-200 to-purple-200"
               style={{
                 width: `${Math.random() * 100 + 50}px`,
                 height: `${Math.random() * 100 + 50}px`,
@@ -775,13 +749,6 @@ export const CustomLoginPage: React.FC = () => {
           <ArrowLeft size={20} />
         </button>
 
-        {/* 主题切换按钮 */}
-        <button
-          onClick={toggleDarkMode}
-          className="absolute top-4 right-4 z-20 p-3 bg-muted/20 backdrop-blur-sm rounded-xl hover:bg-muted/30 transition-all duration-300 text-foreground"
-        >
-          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
 
         {/* 加载卡片 */}
         <div className="relative z-10 w-full max-w-md mx-4">
@@ -858,39 +825,9 @@ export const CustomLoginPage: React.FC = () => {
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
                     {t('pages.messages.创建账户')}
                   </h1>
-                  <p className="text-gray-600 text-xs mb-3">
+                  <p className="text-gray-600 text-xs">
                     {t('customLoginPage.registerSubtitle')}
                   </p>
-
-                  {/* 注册步骤指示器 */}
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <div className="flex items-center gap-1.5">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
-                        phone ? 'bg-success text-white' : 'bg-primary text-white'
-                      }`}>
-                        {phone ? '✓' : '1'}
-                      </div>
-                      <span className="text-[10px] text-muted-foreground hidden sm:inline">手机</span>
-                    </div>
-                    <div className="w-6 h-0.5 bg-border"></div>
-                    <div className="flex items-center gap-1.5">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
-                        registerVerificationCode ? 'bg-success text-white' : phone ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {registerVerificationCode ? '✓' : '2'}
-                      </div>
-                      <span className="text-[10px] text-muted-foreground hidden sm:inline">验证</span>
-                    </div>
-                    <div className="w-6 h-0.5 bg-border"></div>
-                    <div className="flex items-center gap-1.5">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
-                        password && confirmPassword && password === confirmPassword ? 'bg-success text-white' : registerVerificationCode ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {password && confirmPassword && password === confirmPassword ? '✓' : '3'}
-                      </div>
-                      <span className="text-[10px] text-muted-foreground hidden sm:inline">密码</span>
-                    </div>
-                  </div>
                 </>
               ) : (
                 <>
@@ -1115,7 +1052,7 @@ export const CustomLoginPage: React.FC = () => {
                         : "top-4 text-muted-foreground text-gray-500 group-hover:text-gray-700 group-hover:text-gray-700"
                     }`}
                   >
-                    {t('pages.messages.设置密码')}
+                    {t('pages.labels.设置密码（8位+大小写+数字+符号）')}
                   </label>
 
                   {/* 密码提示图标 */}
@@ -1251,12 +1188,12 @@ export const CustomLoginPage: React.FC = () => {
                         : "top-4 text-muted-foreground text-gray-500 group-hover:text-gray-700 group-hover:text-gray-700"
                     }`}
                   >
-                    邀请码（可选）
+                    {t('pages.labels.邀请码（可选）')}
                   </label>
                   {/* 邀请码提示 */}
                   <div className="mt-1 text-[11px] text-muted-foreground text-gray-500 flex items-center gap-1">
                     <span className="inline-block w-1 h-1 bg-green-500 rounded-full"></span>
-                    <span>可获得20次免费使用机会</span>
+                    <span>{t('pages.labels.可获得20次免费使用机会')}</span>
                   </div>
                 </div>
               )}
@@ -1319,34 +1256,6 @@ export const CustomLoginPage: React.FC = () => {
                 )}
               </div>
 
-              {/* 注册模式下的表单完整性提示 */}
-              {mode === 'register' && (
-                <div className="mb-2 p-2 bg-blue-50 bg-blue-100 border border-blue-200 border-blue-300 rounded-lg">
-                  <div className="flex items-start gap-1.5">
-                    <span className="text-blue-600 text-blue-600 text-sm">💡</span>
-                    <div className="flex-1 text-[11px] text-blue-700 text-blue-700">
-                      <p className="font-semibold mb-0.5">注册清单：</p>
-                      <ul className="space-y-0 list-disc list-inside">
-                        <li className={phone && validatePhone(phone) ? 'line-through opacity-50' : ''}>
-                          填写正确的手机号
-                        </li>
-                        <li className={registerVerificationCode ? 'line-through opacity-50' : ''}>
-                          获取验证码
-                        </li>
-                        <li className={password && validatePassword(password).isValid ? 'line-through opacity-50' : ''}>
-                          设置密码（8位+大小写+数字+符号）
-                        </li>
-                        <li className={password && confirmPassword && password === confirmPassword ? 'line-through opacity-50' : ''}>
-                          确认密码
-                        </li>
-                        <li className={agreeTerms ? 'line-through opacity-50' : ''}>
-                          同意条款
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               <button
                 type="submit"
