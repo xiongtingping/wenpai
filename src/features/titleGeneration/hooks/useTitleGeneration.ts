@@ -6,6 +6,7 @@
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { titleGenerationService } from '../services/TitleGenerationService';
+import { streamingTitleService } from '../services/StreamingTitleService';
 import { TitleGenerationConfig } from '../config/titleGeneration.config';
 import { logger } from '@/utils/logger';
 import type {
@@ -14,14 +15,12 @@ import type {
   TitleGenerationInput,
   GeneratedTitle,
   PlatformId,
-  TitleStyle,
-  ServiceStats
+  TitleStyle
 } from '../types/titleGeneration.types';
 
 // 安全 i18n 助手，缺省回退原文案
 const tr = (key: string, fallback: string): string => {
   try {
-    // @ts-expect-error 全局 i18n 实例（在 main.tsx 注入）
     const gi = (globalThis as any)?.i18n;
     if (gi && typeof gi.t === 'function') return gi.t(key) as string;
   } catch {}
@@ -114,36 +113,70 @@ export const useTitleGeneration = (
       currentStage: 'validating'
     }));
 
+    // 进度轮询（并发模式）
+    let progressInterval: NodeJS.Timeout | null = null;
+    const clearProgressInterval = () => { if (progressInterval) { clearInterval(progressInterval); progressInterval = null; } };
+
     try {
-      // 模拟进度更新
-      const progressStages = TitleGenerationConfig.generation.progressStages;
-      let currentStageIndex = 0;
+      // 流式模式：直接消费生成器的实时进度
+      if (generationInput.enableStreaming) {
+        const generator = streamingTitleService.generateTitlesStream(generationInput, {
+          concurrency: generationInput.concurrency || 2
+        });
 
-      const updateProgress = () => {
-        if (currentStageIndex < progressStages.length) {
-          const stage = progressStages[currentStageIndex];
-          setState(prev => ({
-            ...prev,
-            progress: stage.progress,
-            currentStage: stage.stage as any
-          }));
-          currentStageIndex++;
-
-          if (currentStageIndex < progressStages.length) {
-            generationTimeoutRef.current = setTimeout(updateProgress, 1000);
+        let finalResult: any = null;
+        while (true) {
+          const { value, done } = await generator.next();
+          if (done) { finalResult = value; break; }
+          if (value) {
+            setState(prev => ({
+              ...prev,
+              progress: Math.max(0, Math.min(100, value.progress)),
+              currentStage: value.stage as any,
+              titles: value.completedTitles
+            }));
           }
         }
-      };
 
-      updateProgress();
+        const result = finalResult as any; // TitleGenerationResult
+        setState(prev => ({
+          ...prev,
+          titles: result.titles,
+          loading: false,
+          progress: 100,
+          currentStage: 'complete',
+          stats: titleGenerationService.getStats()
+        }));
+
+        if (result.bestTitle) setSelectedTitle(result.bestTitle);
+        lastContentRef.current = content;
+        options.onSuccess?.(result.titles);
+        logger.debug(`✅ 生成${result.titles.length}个标题，平均评分: ${result.averageScore.toFixed(2)}`);
+        return;
+      }
+
+      // 并发模式：依据 ConcurrencyManager 实时统计估算进度
+      if (generationInput.enableConcurrency) {
+        const baseline = titleGenerationService.getConcurrencyStats();
+        const baselineTotal = baseline.completedRequests + baseline.failedRequests;
+        const expectedAiCalls = Math.min(generationInput.concurrency || 2, generationInput.outputCount || TitleGenerationConfig.generation.defaultOutputCount);
+        const expectedScoring = generationInput.outputCount || TitleGenerationConfig.generation.defaultOutputCount;
+        const expectedTotal = expectedAiCalls + expectedScoring;
+
+        progressInterval = setInterval(() => {
+          const s = titleGenerationService.getConcurrencyStats();
+          const currentTotal = s.completedRequests + s.failedRequests;
+          const done = Math.max(0, currentTotal - baselineTotal);
+          const ratio = Math.max(0, Math.min(1, expectedTotal > 0 ? done / expectedTotal : 0));
+          const stage: any = done < expectedAiCalls ? 'generating' : 'scoring';
+          setState(prev => ({ ...prev, progress: Math.floor(10 + ratio * 85), currentStage: stage }));
+        }, 300);
+      }
 
       // 调用服务生成标题
       const result = await titleGenerationService.generateTitles(generationInput);
 
-      // 清除进度定时器
-      if (generationTimeoutRef.current) {
-        clearTimeout(generationTimeoutRef.current);
-      }
+      clearProgressInterval();
 
       setState(prev => ({
         ...prev,
@@ -154,42 +187,17 @@ export const useTitleGeneration = (
         stats: titleGenerationService.getStats()
       }));
 
-      // 自动选择最佳标题
-      if (result.bestTitle) {
-        setSelectedTitle(result.bestTitle);
-      }
-
-      // 更新内容引用
+      if (result.bestTitle) setSelectedTitle(result.bestTitle);
       lastContentRef.current = content;
-
-      // 成功回调
-      if (options.onSuccess) {
-        options.onSuccess(result.titles);
-      }
-
+      options.onSuccess?.(result.titles);
       logger.debug(`✅ 生成${result.titles.length}个标题，平均评分: ${result.averageScore.toFixed(2)}`);
 
     } catch (error) {
-      // 清除进度定时器
-      if (generationTimeoutRef.current) {
-        clearTimeout(generationTimeoutRef.current);
-      }
+      clearProgressInterval();
 
       const errorMessage = error instanceof Error ? error.message : tr('common.errors.operationFailed', '操作失败');
-
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: errorMessage,
-        progress: 0,
-        currentStage: 'idle'
-      }));
-
-      // 错误回调
-      if (options.onError) {
-        options.onError(error instanceof Error ? error : new Error(errorMessage));
-      }
-
+      setState(prev => ({ ...prev, loading: false, error: errorMessage, progress: 0, currentStage: 'idle' }));
+      options.onError?.(error instanceof Error ? error : new Error(errorMessage));
       logger.error('❌ title生成failed:', error);
     }
   }, [content, platform, stylePreference, outputCount, options]);

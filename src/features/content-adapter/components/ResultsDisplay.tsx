@@ -63,12 +63,12 @@ interface ResultsDisplayProps {
   onSaveToFavorites: (platformId: string, content: string, versionId?: string) => void;
   onPublishToPlatform: (platformId: string, content: string) => void;
   onVersionSelect: (platformId: string, versionId: string) => void;
-  
+
   // 工具函数
   getPlatformIcon: (platformId: string) => React.ReactNode;
   getPlatformName: (platformId: string) => string;
   getEffectiveCharCount: (platformId: string) => number;
-  
+
 }
 
 /**
@@ -118,6 +118,7 @@ function PlatformResultCard({
   onPublishToPlatform,
   onVersionSelect,
   getPlatformIcon,
+
   getPlatformName,
   getEffectiveCharCount,
   extractedTagsMap,
@@ -151,12 +152,24 @@ function PlatformResultCard({
   const targetCharCount = getEffectiveCharCount(result.platformId);
 
   const { t } = useTranslation();
-  
+
+  // 自动触发智能标题生成（首次渲染且有内容时）
+  React.useEffect(() => {
+    const content = result.content || result.versions?.[0]?.content || '';
+    if (!content || !content.trim()) return;
+    if (!titleState?.hasTitle && !titleState?.isGenerating) {
+      onGenerateTitle(result.platformId, content);
+    }
+    // 仅在平台卡片首次挂载时尝试一次，避免重复触发
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result.platformId]);
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(result.content);
       onCopyContent(result.content, result.platformId);
       toast({
+
         title: t('components.labels.已复制到剪贴板'),
         description: `${getPlatformName(result.platformId)}的内容已复制`,
       });
@@ -185,7 +198,7 @@ function PlatformResultCard({
               <Badge variant="destructive">错误</Badge>
             )}
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Button
               onClick={() => onRetry(result.platformId)}
@@ -205,7 +218,7 @@ function PlatformResultCard({
                 </>
               )}
             </Button>
-            
+
             <Button
               onClick={() => onGenerateComparison(result.platformId)}
               disabled={isGeneratingComparison}
@@ -224,7 +237,7 @@ function PlatformResultCard({
                 </>
               )}
             </Button>
-            
+
             <Button
               onClick={() => onGenerateTitle(result.platformId, result.content)}
               disabled={titleState?.isGenerating}
@@ -393,7 +406,7 @@ function PlatformResultCard({
                   Array.from(new Set([
                     ...(extractedTagsMap[`${result.platformId}-version-a`] || []),
                     ...(extractedTagsMap[`${result.platformId}-version-b`] || [])
-                  ]))
+                  ].map(t => t.replace(/^#/, ''))))
                 }
               />
             </div>
@@ -409,13 +422,13 @@ function PlatformResultCard({
                 <Copy className="h-3 w-3" />
                 复制
               </Button>
-              
+
               {(() => {
                 const favoriteKey = `${result.platformId}-main`;
                 const isInPersistent = persistentFavorites?.has(favoriteKey) ?? false;
                 const isInFavorites = favoriteStates?.has(favoriteKey) ?? false;
                 const isFavorited = isInPersistent || isInFavorites;
-                
+
                 return (
                   <Button
                     onClick={() => onSaveToFavorites(result.platformId, result.content, 'main')}
@@ -428,7 +441,7 @@ function PlatformResultCard({
                   </Button>
                 );
               })()}
-              
+
               <Button
                 onClick={() => onPublishToPlatform(result.platformId, result.content)}
                 size="sm"
@@ -496,8 +509,8 @@ export function ResultsDisplay({
       <Tabs defaultValue={results[0]?.platformId} className="w-full">
         <TabsList className="unified-tabs-list grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {results.map((result) => (
-            <TabsTrigger 
-              key={result.platformId} 
+            <TabsTrigger
+              key={result.platformId}
               value={result.platformId}
               className="unified-tab-trigger flex items-center gap-1"
             >

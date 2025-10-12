@@ -456,13 +456,26 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
       error: errorMessage
     });
 
+    //    
+    const retryable = DEFAULT_RETRY_CONFIG.retryableErrors.some(err =>
+      errorMessage.includes(err)
+    );
+
     return {
       content: '',
       model: params.model || 'unknown',
       usage: undefined,
       responseTime: Math.round(duration),
       success: false,
-      error: errorMessage
+      error: errorMessage,
+      errorDetail: {
+        code: undefined,
+        type: retryable ? 'retryable' : 'non_retryable',
+        retryable,
+        provider: (params as any).provider || 'unknown',
+        traceId: callId,
+        status: undefined
+      }
     };
   }
 }

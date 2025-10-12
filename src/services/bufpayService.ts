@@ -27,7 +27,46 @@ export class BufPayService {
         payType: request.payType
       });
 
-      // 使用统一配置的create-order接口
+      // Step 1: 复用规则——同一用户 + 相同金额 + 相同支付渠道 + 未过期 → 复用旧订单
+      try {
+        const reusable = await OrderService.findReusablePendingOrder({
+          userId: request.userId,
+          amount: request.amount,
+          payType: request.payType,
+        });
+
+        if (reusable) {
+          const expiresIn = reusable.expires_at
+            ? Math.max(0, Math.floor((new Date(reusable.expires_at).getTime() - Date.now()) / 1000))
+            : undefined;
+
+          const paymentInfo: PaymentResponse = {
+            status: 'ok',
+            aoid: reusable.aoid,
+            pay_type: reusable.pay_type,
+            price: String(reusable.amount),
+            qr: reusable.qr_code || undefined,
+            qr_img: reusable.qr_image || undefined,
+            expires_in: expiresIn,
+            return_url: PaymentConfigAccessor.getReturnURL(reusable.order_id),
+            feedback_url: PaymentConfigAccessor.getFeedbackURL(),
+          };
+
+          logger.info('复用未过期待支付订单:', {
+            orderId: reusable.order_id,
+            userId: request.userId,
+            amount: request.amount,
+            payType: request.payType,
+            expiresIn,
+          });
+
+          return { orderId: reusable.order_id, paymentInfo };
+        }
+      } catch (reuseErr) {
+        logger.warn('复用旧订单检查失败，回退到创建新订单:', reuseErr);
+      }
+
+      // Step 2: 创建新订单（无可复用订单时）
       const createOrderURL = PaymentConfigAccessor.getCreateOrderURL();
       const response = await fetch(createOrderURL, {
         method: 'POST',

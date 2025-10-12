@@ -1123,6 +1123,9 @@
       "limitedDiscount": "限时特惠",
       "monthShort": "月",
       "yearShort": "年",
+      "originalShort": "原价：¥{{price}}",
+      "yearlyCompareShort": "原价：¥{{monthlyTotal}} · 比月付省¥{{savings}} · 立省{{percent}}%",
+
       "free": {
         "name": "免费版",
         "price": "免费",
@@ -2638,7 +2641,9 @@
       "currentPlan": "当前版本",
       "selected": "已选择",
       "selectPlan": "选择此计划",
-      "alreadyHaveHigher": "已拥有更高版本"
+      "alreadyHaveHigher": "已拥有更高版本",
+      "originalShort": "原价：¥{{price}}",
+      "yearlyCompareBadge": "比月付省¥{{savings}} · 立省{{percent}}%",
     },
     "plans": {
       "freePlan": "免费版",

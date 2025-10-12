@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import { getAPIKey } from '@/config/apiKeyManager';
 import { buildAPIURL, getAPIHeaders } from '@/config/aiEndpoints';
+import { validateCommonModelMappings } from '@/config/aiModels';
 
 export const DiagnosticPage: React.FC = () => {
   const [testResult, setTestResult] = useState<any>(null);
@@ -63,6 +64,13 @@ export const DiagnosticPage: React.FC = () => {
       results.endpoints.deepseek = buildAPIURL('deepseek', 'chat');
     } catch (error) {
       results.endpoints.deepseek = { error: String(error) };
+    }
+
+    // 3b. 模型名 → provider 映射健康检查（OpenAI 预期走 aimlapi 代理）
+    try {
+      results.modelMappings = validateCommonModelMappings();
+    } catch (error) {
+      results.modelMappings = { error: String(error) };
     }
 
     // 4. 测试AIMLAPI调用 - gpt-4o-mini

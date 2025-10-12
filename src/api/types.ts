@@ -48,8 +48,17 @@ export interface AIResponse {
   responseTime: number;
   /** 是否成功 */
   success: boolean;
-  /** 错误信息 */
+  /** 错误信息（人类可读） */
   error?: string;
+  /** 统一错误规范（用于可观测性与重试策略） */
+  errorDetail?: {
+    code?: string;        // 平台/HTTP/业务错误码
+    type?: string;        // 错误类型（network, timeout, rate_limit, auth 等）
+    retryable?: boolean;  // 是否可重试
+    provider?: string;    // 实际调用的提供商
+    traceId?: string;     // 本地生成或后端回传的追踪ID
+    status?: number;      // HTTP 状态码（如有）
+  };
 }
 
 /**

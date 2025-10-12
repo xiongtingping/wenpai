@@ -1764,53 +1764,6 @@ export function ContentAdapterPage({
           </div>
         )}
 
-        {/* 浏览器扩展提示 */}
-        {extensionInstalled === false && results.length > 0 && !generating && (
-          <div className="mt-6 p-4 border border-primary/20 bg-primary/5 rounded-lg">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-primary" />
-                </div>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  🚀 使用浏览器扩展实现真正的一键转发
-                </h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  安装"文派一键转发助手"浏览器扩展，即可自动打开各平台并填充内容（包括标题、正文、标签），无需手动复制粘贴。
-                </p>
-                <div className="flex gap-3">
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => window.open('https://chrome.google.com/webstore', '_blank')}
-                  >
-                    安装Chrome扩展
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setShowExtensionPrompt(false);
-                      // 重新检测扩展
-                      checkExtensionInstalled().then(setExtensionInstalled);
-                    }}
-                  >
-                    我已安装，重新检测
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowExtensionPrompt(false)}
-                  >
-                    稍后提醒
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* 扩展快捷操作按钮 */}
         {extensionInstalled && results.length > 0 && !generating && (

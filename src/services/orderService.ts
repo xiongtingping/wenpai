@@ -334,6 +334,40 @@ export class OrderService {
   }
 
   /**
+   * 查找可复用的未过期待支付订单（同一用户 + 相同金额 + 相同支付渠道）
+   */
+  static async findReusablePendingOrder(params: {
+    userId: string;
+    amount: number;
+    payType: 'alipay' | 'wechat';
+  }): Promise<Order | null> {
+    try {
+      const nowIso = new Date().toISOString();
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('user_id', params.userId)
+        .eq('status', 'pending')
+        .eq('amount', params.amount)
+        .eq('pay_type', params.payType)
+        .gt('expires_at', nowIso)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        logger.error('查询可复用订单失败:', error);
+        return null;
+      }
+
+      return data || null;
+    } catch (error) {
+      logger.error('查询可复用订单异常:', error);
+      return null;
+    }
+  }
+
+  /**
    * 根据订单ID获取用户订阅信息
    */
   static async getUserSubscriptionByOrderId(orderId: string): Promise<UserSubscription | null> {

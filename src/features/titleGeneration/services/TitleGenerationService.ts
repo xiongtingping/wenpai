@@ -12,6 +12,10 @@ import { streamingTitleService } from './StreamingTitleService';
 import { concurrencyManager } from './ConcurrencyManager';
 import { TitleGenerationConfig, generateCacheKey } from '../config/titleGeneration.config';
 import { logger } from '@/utils/logger';
+import { fixTruncatedTitle } from '@/utils/safeTrimTitle';
+
+import { parseAiTitlesFromText } from '@/utils/titleGenerationUtils';
+
 import type {
   ITitleGenerationService,
   TitleGenerationInput,
@@ -20,6 +24,7 @@ import type {
   QualityScore,
   PlatformConfig,
   PlatformId,
+  TitleStyle,
   ServiceStats
 } from '../types/titleGeneration.types';
 import { TitleGenerationError } from '../types/titleGeneration.types';
@@ -27,7 +32,6 @@ import { TitleGenerationError } from '../types/titleGeneration.types';
 // 安全的 i18n 翻译函数（避免TDZ）：无 i18n 时回退默认文案
 const tr = (key: string, fallback: string): string => {
   try {
-    // @ts-expect-error 全局注入的 i18n 实例（在 main.tsx 设置）
     const gi = (globalThis as any)?.i18n;
     if (gi && typeof gi.t === 'function') return gi.t(key) as string;
   } catch {}
@@ -117,7 +121,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       const concurrency = input.concurrency || 2;
       const prompts = this.createConcurrentPrompts(input, platformConfig, outputCount, concurrency);
 
-      logger.system('🚀 开始并发AI生成 (${concurrency}个并发请求)...');
+      logger.info(`🚀 开始并发AI生成（${concurrency}个并发请求）...`);
 
       // 5. 并发调用AI
       const aiResponses = await aiService.callBatch(prompts, {
@@ -142,8 +146,12 @@ export class TitleGenerationService implements ITitleGenerationService {
       logger.debug('📊 starts并发质量rating...');
       const scoredTitles = await this.scoreTitlesConcurrently(uniqueTitles, input.content, input.platform);
 
+
+	      // 8.5 平台约束修复并重新评分
+	      const constrained = await this.enforcePlatformConstraints(scoredTitles, input.content, input.platform);
+
       // 9. 排序和过滤
-      const finalTitles = this.filterAndSortTitles(scoredTitles);
+      const finalTitles = this.filterAndSortTitles(constrained);
 
       // 10. 构建结果
       const result: TitleGenerationResult = {
@@ -236,8 +244,10 @@ export class TitleGenerationService implements ITitleGenerationService {
       logger.debug('📊 calculating质量rating...');
       const scoredTitles = await this.scoreTitles(parsedTitles, input.content, input.platform);
 
-      // 8. 排序和过滤
-      const finalTitles = this.filterAndSortTitles(scoredTitles);
+      // 8. 平台约束修复并重新评分
+      const constrained = await this.enforcePlatformConstraints(scoredTitles, input.content, input.platform);
+      // 9. 排序和过滤
+      const finalTitles = this.filterAndSortTitles(constrained);
 
       // 9. 构建结果
       const result: TitleGenerationResult = {
@@ -401,75 +411,24 @@ export class TitleGenerationService implements ITitleGenerationService {
     try {
       logger.debug('🔍 startsparsingAIresponse:', content.substring(0, 200) + '...');
 
-      // 处理markdown格式的JSON响应
-      let jsonContent = content.trim();
+      // 使用统一解析工具，自动处理多模型/多结构/围栏/片段
+      const titles = parseAiTitlesFromText(content);
 
-      // 移除markdown代码块标记
-      if (jsonContent.startsWith('```json')) {
-        jsonContent = jsonContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-      } else if (jsonContent.startsWith('```')) {
-        jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
-      }
+      const result = titles.map((t: string, index: number) => ({
+        id: `${platform}_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 7)}`,
+        title: t,
+        length: t.length,
+        style: 'informative' as TitleStyle,
+        confidence: 0.8,
+        semanticFit: 0.8,
+        platform,
+        isComplete: true,
+        styleDescription: 'informative',
+        generationReason: 'AI生成',
+        extractedContent: t.substring(0, 50)
+      }));
 
-      logger.debug('🔍 cleaningnext的JSONcontent:', jsonContent.substring(0, 200) + '...');
-
-      // 尝试解析JSON
-      const parsed = JSON.parse(jsonContent);
-      logger.debug('🔍 parsingnext的object:', parsed);
-
-      // 尝试多种可能的数据结构
-      let titles = [];
-      if (parsed.titles && Array.isArray(parsed.titles)) {
-        titles = parsed.titles;
-      } else if (Array.isArray(parsed)) {
-        titles = parsed;
-      } else if (parsed.data && Array.isArray(parsed.data)) {
-        titles = parsed.data;
-      } else if (parsed.results && Array.isArray(parsed.results)) {
-        titles = parsed.results;
-      }
-
-      logger.debug(`🔍 提取到的titlearray:`, titles);
-      logger.debug(`🔍 titlequantity: ${titles.length}`);
-
-      if (titles.length === 0) {
-        logger.warn('⚠️ 没has找到titledata，尝试从responsemiddle提取文本');
-        // 如果没有找到结构化数据，尝试从文本中提取标题
-        const textTitles = this.extractTitlesFromText(content);
-        if (textTitles.length > 0) {
-          titles = textTitles;
-        }
-      }
-
-      const result = titles.map((title: any, index: number) => {
-        // 处理不同的标题格式
-        let titleText = '';
-        if (typeof title === 'string') {
-          titleText = title;
-        } else if (title.title) {
-          titleText = title.title;
-        } else if (title.text) {
-          titleText = title.text;
-        } else if (title.content) {
-          titleText = title.content;
-        }
-
-        return {
-          id: `${platform}_${Date.now()}_${index}`,
-          title: titleText,
-          length: titleText.length,
-          style: title.style || 'informative',
-          confidence: title.semanticFit || title.confidence || 0.8,
-          semanticFit: title.semanticFit || title.confidence || 0.8,
-          platform: platform,
-          isComplete: true,
-          styleDescription: title.style || 'informative',
-          generationReason: title.reasoning || title.reason || 'AI生成',
-          extractedContent: titleText.substring(0, 50)
-        };
-      });
-
-      logger.debug('✅ 成功解析 ${result.length} 个标题');
+      logger.debug(`✅ 成功解析 ${result.length} 个标题`);
       return result;
 
     } catch (error) {
@@ -483,34 +442,6 @@ export class TitleGenerationService implements ITitleGenerationService {
     }
   }
 
-  /**
-   * 从文本中提取标题（备用方案）
-   */
-  private extractTitlesFromText(content: string): string[] {
-    const titles: string[] = [];
-
-    // 尝试匹配常见的标题格式
-    const patterns = [
-      /^\d+\.\s*(.+)$/gm,  // 1. 标题
-      /^-\s*(.+)$/gm,      // - 标题
-      /^\*\s*(.+)$/gm,     // * 标题
-      /^"(.+)"$/gm,        // "标题"
-      /^【(.+)】$/gm        // 【标题】
-    ];
-
-    for (const pattern of patterns) {
-      const matches = content.matchAll(pattern);
-      for (const match of matches) {
-        if (match[1] && match[1].trim().length > 0) {
-          titles.push(match[1].trim());
-        }
-      }
-      if (titles.length > 0) break;
-    }
-
-    logger.debug(`🔍 从文本提取到 ${titles.length} unitstitle:`, titles);
-    return titles;
-  }
 
   /**
    * 为标题计算质量评分
@@ -555,6 +486,44 @@ export class TitleGenerationService implements ITitleGenerationService {
     }
 
     return scoredTitles;
+
+
+  /**
+   * 按平台约束修复标题并重新评分（确保“合规即高分”）
+   */
+  private async enforcePlatformConstraints(
+    titles: GeneratedTitle[],
+    content: string,
+    platform: PlatformId
+  ): Promise<GeneratedTitle[]> {
+    const maxLen = (TitleGenerationConfig.platforms[platform] || TitleGenerationConfig.platforms.default).maxLength;
+    const adjusted: GeneratedTitle[] = [];
+
+    for (const t of titles) {
+      const original = t.title;
+      const fixed = fixTruncatedTitle(original, maxLen);
+      if (fixed !== original) {
+        try {
+          const qs = await qualityScoreService.calculateScore(fixed, content, platform);
+          adjusted.push({
+            ...t,
+            title: fixed,
+            length: fixed.length,
+            emotionalScore: qs.emotionalAppeal,
+            diversityScore: qs.diversityScore,
+            semanticCompleteness: qs.semanticCompleteness,
+            utilizationScore: qs.utilizationScore,
+            overallScore: qs.overallScore
+          } as GeneratedTitle);
+        } catch {
+          adjusted.push({ ...t, title: fixed, length: fixed.length } as GeneratedTitle);
+        }
+      } else {
+        adjusted.push(t);
+      }
+    }
+
+    return adjusted;
   }
 
   /**

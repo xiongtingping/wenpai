@@ -16,6 +16,10 @@ export interface AIModel {
     input: number; // 每1K tokens的价格
     output: number; // 每1K tokens的价格
   };
+  /** 可兼容的别名（用于消除硬编码模型名差异） */
+  aliases?: string[];
+  /** 是否支持流式 */
+  supportsStream?: boolean;
 }
 
 /**
@@ -23,7 +27,7 @@ export interface AIModel {
  */
 export const AI_MODELS: Record<string, AIModel> = {
   // ===== 🟢 体验版模型 (TRIAL TIER) - 基础功能 =====
-  
+
   // Google - 体验版
   'google/gemini-2.5-flash-lite-preview': {
     id: 'google/gemini-2.5-flash-lite-preview',
@@ -195,6 +199,62 @@ export const AI_MODELS: Record<string, AIModel> = {
     features: ['顶级性能', '复杂推理', '多领域专业'],
     maxTokens: 128000,
     pricing: { input: 6.0, output: 18.0 }
+  },
+
+  // ===== 补充常用直写模型名的注册，统一 provider 与能力 =====
+  'gpt-4o': {
+    id: 'gpt-4o',
+    name: 'GPT-4o',
+    provider: 'aimlapi',
+    company: 'OpenAI',
+    tier: 'mid',
+    type: 'text',
+    description: 'OpenAI 多模态对话模型',
+    features: ['多模态', '快速推理', '高性价比'],
+    maxTokens: 128000,
+    pricing: { input: 1.5, output: 5.0 },
+    aliases: ['openai/gpt-4o'],
+    supportsStream: true
+  },
+  'gpt-4': {
+    id: 'gpt-4',
+    name: 'GPT-4',
+    provider: 'aimlapi',
+    company: 'OpenAI',
+    tier: 'mid',
+    type: 'text',
+    description: 'OpenAI 经典对话模型',
+    features: ['稳健', '语义理解强'],
+    maxTokens: 8192,
+    pricing: { input: 3.0, output: 6.0 },
+    aliases: ['gpt-4-turbo'],
+    supportsStream: true
+  },
+  'deepseek-coder': {
+    id: 'deepseek-coder',
+    name: 'DeepSeek Coder',
+    provider: 'deepseek',
+    company: 'DeepSeek',
+    tier: 'mid',
+    type: 'text',
+    description: 'DeepSeek 代码模型',
+    features: ['代码生成', '补全', '解释'],
+    maxTokens: 32768,
+    pricing: { input: 0.6, output: 1.8 },
+    supportsStream: false
+  },
+  'deepseek-v3': {
+    id: 'deepseek-v3',
+    name: 'DeepSeek V3',
+    provider: 'deepseek',
+    company: 'DeepSeek',
+    tier: 'mid',
+    type: 'text',
+    description: 'DeepSeek 新一代对话模型',
+    features: ['推理', '对话'],
+    maxTokens: 32768,
+    pricing: { input: 0.6, output: 1.8 },
+    supportsStream: false
   }
 };
 
@@ -209,12 +269,12 @@ export const SUBSCRIPTION_MODELS: Record<string, string[]> = {
     'gpt-4o-mini',                             // OpenAI
     'qwen-turbo'                               // Alibaba Cloud
   ],
-  
+
   // 专业版：体验版 + 专业版模型
   pro: [
     // 体验版模型
     'google/gemini-2.5-flash-lite-preview',    // Google
-    'meta-llama/llama-4-scout',                // Meta  
+    'meta-llama/llama-4-scout',                // Meta
     'gpt-4o-mini',                             // OpenAI
     'qwen-turbo',                              // Alibaba Cloud
     // 专业版模型
@@ -223,12 +283,14 @@ export const SUBSCRIPTION_MODELS: Record<string, string[]> = {
     'google/gemini-2.5-flash',                 // Google
     'qwen-plus'                                // Alibaba Cloud
   ],
-  
+
   // 高级版：所有模型（体验版+专业版+高级版）
   premium: [
     // 体验版模型
     'google/gemini-2.5-flash-lite-preview',    // Google
     'meta-llama/llama-4-scout',                // Meta
+
+
     'gpt-4o-mini',                             // OpenAI
     'qwen-turbo',                              // Alibaba Cloud
     // 专业版模型
@@ -253,11 +315,11 @@ export function getAvailableModelsForTier(tier: string): AIModel[] {
   // 🔧 FIX: 移除调试日志避免无限循环
   // 标准化tier值
   const normalizedTier = tier?.toLowerCase() || 'trial';
-  
+
   // 如果找不到对应的计划，默认使用体验版
   const modelIds = SUBSCRIPTION_MODELS[normalizedTier] || SUBSCRIPTION_MODELS['trial'] || [];
   const models = modelIds.map(id => AI_MODELS[id]).filter(Boolean);
-  
+
   return models;
 }
 
@@ -278,6 +340,8 @@ export function getModelInfo(modelId: string): AIModel | undefined {
  */
 export function isModelAvailableForTier(modelId: string, tier: string): boolean {
   const availableModels = SUBSCRIPTION_MODELS[tier] || [];
+
+
   return availableModels.includes(modelId);
 }
 
@@ -306,7 +370,7 @@ export function getAllModels(): AIModel[] {
 export function getModelsByCompany(tier?: string): Record<string, AIModel[]> {
   const availableModelIds = tier ? SUBSCRIPTION_MODELS[tier] : Object.keys(AI_MODELS);
   const availableModels = availableModelIds.map(id => AI_MODELS[id]).filter(Boolean);
-  
+
   return availableModels.reduce((groups, model) => {
     if (!groups[model.company]) {
       groups[model.company] = [];
@@ -317,6 +381,69 @@ export function getModelsByCompany(tier?: string): Record<string, AIModel[]> {
 }
 
 /**
+ * 解析模型ID：支持别名与大小写不敏感匹配
+ */
+export function resolveModelId(inputModel: string): string {
+  const model = (inputModel || '').trim();
+  if (!model) return '';
+  const lower = model.toLowerCase();
+
+  // 1) 直接命中
+  if (AI_MODELS[model]) return model;
+
+  // 2) 忽略大小写匹配
+  const direct = Object.keys(AI_MODELS).find(k => k.toLowerCase() === lower);
+  if (direct) return direct;
+
+  // 3) 别名匹配
+  for (const [id, info] of Object.entries(AI_MODELS)) {
+    const aliases = info.aliases || [];
+    if (aliases.some(a => a.toLowerCase() === lower)) {
+      return id;
+    }
+  }
+
+  // 4) 找不到则原样返回（由上层做容错/报错）
+  return model;
+}
+
+/**
+ * 判断模型是否支持流式
+ */
+export function supportsStreamForModel(modelId: string): boolean {
+  const id = resolveModelId(modelId);
+  const info = AI_MODELS[id];
+  return info?.supportsStream === true;
+}
+
+/**
+ * 校验常用模型的“模型名 → provider”映射是否正确
+ */
+export function validateCommonModelMappings(): Array<{ model: string; provider: string; ok: boolean; expected: string }>{
+  const samples: Array<{ model: string; expected: string }> = [
+    { model: 'gpt-4o-mini', expected: 'aimlapi' },
+    { model: 'gpt-4o', expected: 'aimlapi' },
+    { model: 'gpt-4', expected: 'aimlapi' },
+    { model: 'deepseek-chat', expected: 'deepseek' },
+    { model: 'deepseek-coder', expected: 'deepseek' },
+    { model: 'deepseek-v3', expected: 'deepseek' }
+  ];
+
+  return samples.map(s => {
+    const id = resolveModelId(s.model);
+    const info = AI_MODELS[id];
+    return {
+      model: s.model,
+      provider: info?.provider || 'unknown',
+      ok: info?.provider === s.expected,
+      expected: s.expected
+    };
+  });
+}
+
+
+
+/**
  * 按等级分组获取模型
  * @param tier 可选的订阅计划过滤
  * @returns 按等级分组的模型
@@ -324,7 +451,7 @@ export function getModelsByCompany(tier?: string): Record<string, AIModel[]> {
 export function getModelsByTier(subscriptionTier?: string): Record<'low' | 'mid' | 'high', AIModel[]> {
   const availableModelIds = subscriptionTier ? SUBSCRIPTION_MODELS[subscriptionTier] : Object.keys(AI_MODELS);
   const availableModels = availableModelIds.map(id => AI_MODELS[id]).filter(Boolean);
-  
+
   return availableModels.reduce((groups, model) => {
     if (!groups[model.tier]) {
       groups[model.tier] = [];
@@ -356,7 +483,7 @@ export function getTierColors(tier: 'low' | 'mid' | 'high') {
 export function getModelsByType(tier?: string): Record<'text' | 'image', AIModel[]> {
   const availableModelIds = tier ? SUBSCRIPTION_MODELS[tier] : Object.keys(AI_MODELS);
   const availableModels = availableModelIds.map(id => AI_MODELS[id]).filter(Boolean);
-  
+
   return availableModels.reduce((groups, model) => {
     const type = model.type || 'text'; // 默认为文本模型
     if (!groups[type]) {

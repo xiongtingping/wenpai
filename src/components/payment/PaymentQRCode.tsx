@@ -293,39 +293,37 @@ export const PaymentQRCode: React.FC<any> = ({ paymentInfo,
       <CardContent className="space-y-4">
         {/* 支付内容 */}
         <div className="flex justify-center">
-          {paymentInfo.htmlContent ? (
-            // BufPay HTML支付页面
+          {paymentInfo.qr_img ? (
+            // 优先使用二维码图片，便于统一样式和间距控制
+            <div className="flex flex-col items-center">
+              <div className="text-sm text-muted-foreground mb-2">
+                请使用{paymentInfo.pay_type === 'alipay' ? '支付宝' : '微信'}扫码支付
+              </div>
+              <img
+                src={paymentInfo.qr_img}
+                alt="支付二维码"
+                className="w-64 h-64 border rounded-lg"
+              />
+            </div>
+          ) : paymentInfo.htmlContent ? (
+            // 兜底：BufPay HTML 支付页面
             <div className="w-full border rounded-lg overflow-hidden">
               <iframe
                 srcDoc={paymentInfo.htmlContent}
                 className="w-full h-96 border-0"
                 title="BufPay支付页面"
                 sandbox="allow-scripts allow-forms allow-popups allow-top-navigation"
-                onError={(e) => {
-                  console.log('🔇 alreadyignoringiframeloadingerror（可能是X-Frame-Optionslimiting）');
+                onError={() => {
+                  console.log('🔇 ignore iframe loading error');
                 }}
                 onLoad={(e) => {
-                  console.log('✅ BufPay支付pageloadingcompleted');
-                  // 尝试向iframe发送准备消息
                   const iframe = e.target as HTMLIFrameElement;
                   try {
-                    iframe.contentWindow?.postMessage({
-                      type: 'parent_ready',
-                      orderId: orderId
-                    }, '*');
-                  } catch (err) {
-                    console.log('none法向iframesendingmessage:', err);
-                  }
+                    iframe.contentWindow?.postMessage({ type: 'parent_ready', orderId }, '*');
+                  } catch {}
                 }}
               />
             </div>
-          ) : paymentInfo.qr_img ? (
-            // 传统二维码支付
-            <img 
-              src={paymentInfo.qr_img} 
-              alt="支付二维码" 
-              className="w-64 h-64 border rounded-lg"
-            />
           ) : (
             <div className="w-64 h-64 border rounded-lg flex items-center justify-center bg-muted">
               <Loader2 className="h-8 w-8 animate-spin" />

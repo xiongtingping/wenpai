@@ -17,6 +17,9 @@ import type {
   TitleStyle
 } from '../types/titleGeneration.types';
 import { TitleGenerationError } from '../types/titleGeneration.types';
+import { parseAiTitlesFromText } from '@/utils/titleGenerationUtils';
+import { fixTruncatedTitle } from '@/utils/safeTrimTitle';
+
 
 export interface StreamingProgress {
   stage: 'preparing' | 'generating' | 'scoring' | 'complete';
@@ -82,7 +85,7 @@ export class StreamingTitleService {
         for (let i = 0; i < cachedResult.titles.length; i++) {
           const title = cachedResult.titles[i];
           completedTitles.push(title);
-          
+
           const progress: StreamingProgress = {
             stage: 'complete',
             progress: ((i + 1) / cachedResult.titles.length) * 100,
@@ -91,11 +94,11 @@ export class StreamingTitleService {
             completedTitles: [...completedTitles],
             totalExpected: cachedResult.titles.length
           };
-          
+
           yield progress;
           onProgress?.(progress);
           onTitleGenerated?.(title);
-          
+
           // 添加小延迟以模拟流式效果
           await new Promise(resolve => setTimeout(resolve, 100));
         }
@@ -119,7 +122,7 @@ export class StreamingTitleService {
 
       // 创建多个提示词以支持并发生成
       const prompts = this.createMultiplePrompts(input, outputCount);
-      
+
       // 使用流式AI调用
       let generatedCount = 0;
       const aiCallOptions = {
@@ -140,7 +143,7 @@ export class StreamingTitleService {
         try {
           // 解析AI响应
           const parsedTitles = this.parseAIResponse(result.content, input.platform);
-          
+
           for (const parsedTitle of parsedTitles) {
             if (completedTitles.length >= outputCount) break;
 
@@ -161,14 +164,18 @@ export class StreamingTitleService {
               yield scoringProgress;
               onProgress?.(scoringProgress);
 
+              const maxLen = TitleGenerationConfig.platforms[input.platform].maxLength;
+              const fixedText = fixTruncatedTitle(parsedTitle.title || '', maxLen);
               const qualityScore = await qualityScoreService.calculateScore(
-                parsedTitle.title || '',
+                fixedText,
                 input.content,
                 input.platform
               );
 
               scoredTitle = {
                 ...parsedTitle,
+                title: fixedText,
+                length: fixedText.length,
                 emotionalScore: qualityScore.emotionalAppeal,
                 diversityScore: qualityScore.diversityScore,
                 semanticCompleteness: qualityScore.semanticCompleteness,
@@ -249,14 +256,14 @@ export class StreamingTitleService {
     } catch (error) {
       const duration = performance.now() - startTime;
       performanceMonitor.recordResponseTime(duration, 'streaming_title_generation', false);
-      
+
       if (error instanceof Error) {
         performanceMonitor.recordError(error, 'streaming_title_generation');
         onError?.(error);
       }
 
-      throw error instanceof TitleGenerationError 
-        ? error 
+      throw error instanceof TitleGenerationError
+        ? error
         : new TitleGenerationError(
             `流式标题生成失败: ${error instanceof Error ? error.message : String(error)}`,
             'STREAMING_GENERATION_FAILED',
@@ -339,7 +346,7 @@ export class StreamingTitleService {
   private createMultiplePrompts(input: TitleGenerationInput, totalCount: number): string[] {
     const platformConfig = TitleGenerationConfig.platforms[input.platform];
     const styles = input.stylePreference || ['informative'];
-    
+
     // 将总数分配到多个请求中
     const requestCount = Math.min(Math.ceil(totalCount / 2), 3); // 最多3个并发请求
     const prompts: string[] = [];
@@ -363,21 +370,19 @@ export class StreamingTitleService {
    */
   private parseAIResponse(content: string, platform: PlatformId): Partial<GeneratedTitle>[] {
     try {
-      const parsed = JSON.parse(content);
-      const titles = parsed.titles || [];
-      
-      return titles.map((title: any, index: number) => ({
+      const titles = parseAiTitlesFromText(content);
+      return titles.map((t: string, index: number) => ({
         id: `${platform}_${Date.now()}_${index}_${Math.random().toString(36).substr(2, 5)}`,
-        title: title.title || '',
-        length: (title.title || '').length,
-        style: title.style || 'informative',
-        confidence: title.semanticFit || 0.8,
-        semanticFit: title.semanticFit || 0.8,
-        platform: platform,
+        title: t,
+        length: t.length,
+        style: 'informative',
+        confidence: 0.8,
+        semanticFit: 0.8,
+        platform,
         isComplete: true,
-        styleDescription: title.style || 'informative',
-        generationReason: title.reasoning || 'AI生成',
-        extractedContent: title.title?.substring(0, 50) || ''
+        styleDescription: 'informative',
+        generationReason: 'AI生成',
+        extractedContent: t.substring(0, 50)
       }));
     } catch (error) {
       console.error('parsingAIresponsefailed:', error);

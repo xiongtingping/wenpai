@@ -26,7 +26,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
   constructor() {
     this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
-    this.baseURL = 'https:// api.openai.com';
+    this.baseURL = 'https://api.openai.com';
   }
 
   /**

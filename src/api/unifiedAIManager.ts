@@ -13,7 +13,7 @@
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { getAIEndpoint, buildAPIURL, getAPIHeaders, supportsFeature, getAvailableProviders } from '@/config/aiEndpoints';
 import { getAPIKey, validateAPIKey, keyManager } from '@/config/apiKeyManager';
-import { getModelInfo, isModelAvailableForTier } from '@/config/aiModels';
+import { getModelInfo, isModelAvailableForTier, resolveModelId } from '@/config/aiModels';
 import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
 import { logger } from '@/utils/logger';
 import { cleanAIContent } from '@/utils/contentCleaner';
@@ -177,8 +177,9 @@ export class UnifiedAIManager {
    * 构建AI调用配置
    */
   private async buildAIConfig(params: AICallParams): Promise<UnifiedAIConfig> {
-    // 获取模型信息
-    const modelInfo = getModelInfo(params.model || '');
+    // 获取模型信息（支持别名与大小写不敏感）
+    const resolvedModelId = resolveModelId(params.model || '');
+    const modelInfo = getModelInfo(resolvedModelId);
     if (!modelInfo) {
       throw new Error(`不支持的模型: ${params.model}`);
     }

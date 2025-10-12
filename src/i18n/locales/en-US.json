@@ -1122,6 +1122,9 @@
       "limitedDiscount": "Limited Special",
       "monthShort": "month",
       "yearShort": "year",
+      "originalShort": "Original: ¥{{price}}",
+      "yearlyCompareShort": "Original: ¥{{monthlyTotal}} · Save ¥{{savings}} vs Monthly · {{percent}}% Off",
+
       "free": {
         "name": "Free",
         "price": "Free",
@@ -2567,7 +2570,10 @@
       "currentPlan": "Current Plan",
       "selected": "Selected",
       "selectPlan": "Select This Plan",
-      "alreadyHaveHigher": "Already Have Higher Plan"
+      "alreadyHaveHigher": "Already Have Higher Plan",
+      "originalShort": "Original: ¥{{price}}",
+      "yearlyCompareBadge": "Save ¥{{savings}} vs Monthly · {{percent}}% Off",
+
     },
     "plans": {
       "freePlan": "Free Plan",

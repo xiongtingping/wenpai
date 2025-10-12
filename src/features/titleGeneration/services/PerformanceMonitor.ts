@@ -225,7 +225,7 @@ export class PerformanceMonitor {
   cleanup(): void {
     const cutoff = Date.now() - (24 * 60 * 60 * 1000); // 保留24小时
     this.metrics = this.metrics.filter(m => m.timestamp > cutoff);
-    console.log(`🧹 性能指标cleaningcompleted，保留 ${this.metrics.length} items记录`);
+    console.log(`🧹 性能指标清理完成，保留 ${this.metrics.length} 条记录`);
   }
 
   /**
@@ -237,7 +237,7 @@ export class PerformanceMonitor {
     switch (name) {
       case 'response_time':
         if (value > this.config.slowRequestThreshold) {
-          console.warn(`⚠️ response时间超过阈value: ${value}ms > ${this.config.slowRequestThreshold}ms`);
+          console.warn(`⚠️ 响应时间超过阈值: ${value}ms > ${this.config.slowRequestThreshold}ms`);
         }
         break;
       case 'error':
@@ -284,7 +284,7 @@ export class PerformanceMonitor {
     if (metrics.errorRate > this.config.errorRateThreshold) {
       alerts.push({
         level: 'error',
-        message: 'u64cdu4f5cu5931u8d25',
+        message: '错误率超过阈值',
         metric: 'error_rate',
         value: metrics.errorRate,
         threshold: this.config.errorRateThreshold
@@ -304,7 +304,7 @@ export class PerformanceMonitor {
     if (metrics.cacheHitRate < this.config.cacheHitRateThreshold) {
       alerts.push({
         level: 'warning',
-        message: 'u64cdu4f5cu5931u8d25',
+        message: '缓存命中率低于阈值',
         metric: 'cache_hit_rate',
         value: metrics.cacheHitRate,
         threshold: this.config.cacheHitRateThreshold
@@ -332,7 +332,7 @@ export class PerformanceMonitor {
   reset(): void {
     this.metrics = [];
     this.startTime = Date.now();
-    console.log('🔄 性能monitoringalreadyresetting');
+    console.log('🔄 性能监控已重置');
   }
 }
 

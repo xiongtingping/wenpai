@@ -1,11 +1,11 @@
 /**
  * 统一API请求模块
- * 
+ *
  * ✅ 重要原则：
  * 1. 所有API请求必须通过此模块处理，禁止使用裸fetch/axios
  * 2. 所有API地址与密钥必须从环境变量读取，严禁硬编码
  * 3. 统一错误处理和响应格式
- * 
+ *
  * 📌 使用规范：
  * - 使用 request.get(), request.post() 等方法
  * - 配置通过环境变量注入
@@ -15,6 +15,17 @@
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { logger } from '@/utils/logger';
+
+
+// 安全 i18n 助手，避免 TDZ 导致的运行时错误
+const tr = (key: string, fallback: string): string => {
+  try {
+    const gi = (globalThis as any)?.i18n;
+    return gi?.t?.(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
 
 /**
  * API配置接口
@@ -49,7 +60,7 @@ interface APIConfig {
 const getAPIConfig = (): APIConfig => {
   // 优先使用全局环境变量，回退到import.meta.env
   const globalEnv = (typeof window !== 'undefined' ? (window as any).__ENV__ : {}) || {};
-  
+
   const getEnvVar = (key: string, defaultValue?: string): string => {
     return globalEnv[key] || import.meta.env[key] || defaultValue || '';
 
@@ -174,7 +185,7 @@ instance.interceptors.request.use(
       if (error.response?.status === 401) {
         console.error('🔐 authenticatingfailed，可能需要relogin');
 
-        // 
+        //
         const isAuthRequest = error.config?.headers?.Authorization?.includes('Bearer');
         if (isAuthRequest && authTokenGetter) {
           // 通知认证系统token无效
@@ -243,7 +254,7 @@ async function requestWithRetry<T>(
       return await requestFn();
     } catch (error) {
       lastError = error;
-      
+
       // 检查是否应该重试
       if (
         attempt === finalConfig.maxRetries ||
@@ -304,7 +315,7 @@ export const request = {
       const response = await axiosInstance.put<T>(url, data, config);
       return response.data;
     } catch (error) {
-      throw new Error(`PUT请求失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
+      throw new Error(`PUT请求失败: ${error instanceof Error ? error.message : tr('api.errors.unknown', '未知错误')}`);
     }
   },
 
@@ -316,7 +327,7 @@ export const request = {
       const response = await axiosInstance.delete<T>(url, config);
       return response.data;
     } catch (error) {
-      throw new Error(`DELETE请求失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
+      throw new Error(`DELETE请求失败: ${error instanceof Error ? error.message : tr('api.errors.unknown', '未知错误')}`);
     }
   },
 
@@ -328,7 +339,7 @@ export const request = {
       const response = await axiosInstance.request<T>(config);
       return response.data;
     } catch (error) {
-      throw new Error(`请求失败: ${error instanceof Error ? error.message : i18n.t('api.errors.未知错误')}`);
+      throw new Error(`请求失败: ${error instanceof Error ? error.message : tr('api.errors.unknown', '未知错误')}`);
     }
   },
 };
@@ -348,7 +359,7 @@ export { getAPIConfig };
  */
 export const validateAPIConfig = (): boolean => {
   const config = getAPIConfig();
-  
+
   const requiredConfigs = [
     { name: 'OpenAI', config: config.openai },
     { name: 'Gemini', config: config.gemini },

@@ -21,6 +21,13 @@ import {
 } from "@/utils/paymentTimer";
 import { getUserTier } from "@/utils/subscriptionUtils";
 
+// 原价（月付）展示映射（用于月付原价与年付对比基准 = 月付*12）
+const ORIGINAL_MONTHLY_PRICE: Record<'trial' | 'pro' | 'premium', number> = {
+  trial: 19,
+  pro: 59,
+  premium: 139
+};
+
 /**
  * 年度计费按钮组件 - 职责分离版本
  * 容器组件：负责背景效果和布局
@@ -33,11 +40,11 @@ interface YearlyButtonWithHighlightProps {
   children: React.ReactNode;
 }
 
-function YearlyButtonWithHighlight({ 
-  billing, 
-  onClick, 
-  className, 
-  children 
+function YearlyButtonWithHighlight({
+  billing,
+  onClick,
+  className,
+  children
 }: YearlyButtonWithHighlightProps) {
   return (
     <div className="relative">
@@ -152,7 +159,7 @@ export function PricingSection() {
   //   if (!isAuthenticated) return false;
   //   const promoStart = localStorage.getItem('promo_start');
   //   if (!promoStart) return false;
-    
+
   //   const startTime = parseInt(promoStart, 10);
   //   const now = Date.now();
   //   return (now - startTime) < 30 * 60 * 1000; // 30分钟
@@ -164,7 +171,7 @@ export function PricingSection() {
       // User is logged in, go directly to payment
       localStorage.setItem("selectedPlan", planId);
       navigate("/payment-center");
-      
+
       toast({
         title: t('home.pricing.redirectingToPayment'),
         description: t('home.pricing.completePaymentMessage'),
@@ -173,7 +180,7 @@ export function PricingSection() {
       // User is not logged in, redirect to login/register choice page
       localStorage.setItem("selectedPlan", planId);
       // login("/payment-center"); // This line is removed as per the edit hint
-    
+
       toast({
         title: t('home.pricing.redirectingToLogin'),
         description: t('home.pricing.loginFirstMessage'),
@@ -186,7 +193,7 @@ export function PricingSection() {
     // 这里可根据feature内容和planTier灵活判断
     const creativeCube = t('nav.creative') || '创意魔方';
     const brandLibrary = t('nav.brandLibrary') || '品牌库';
-    
+
     if (feature.includes(creativeCube) || feature.includes('创意魔方') || feature.includes('Creative Cube')) {
       if (planTier === 'trial') return { disabled: true, label: t('home.pricing.comparisonTable.proExclusive') };
     }
@@ -224,7 +231,7 @@ export function PricingSection() {
           .replace(/创意工作室/g, t('nav.creative') || 'Creative Cube')
           .replace(/九宫格创意魔方/g, t('home.features.creative.title') || 'Nine-Grid Creative Cube')
           .replace(/专业功能/g, t('home.pricing.comparisonTable.advancedModels') || 'Advanced Features')
-          .replace(/专业版/g, '') 
+          .replace(/专业版/g, '')
           .replace(/热点话题/g, m => m.replace('免费', '').replace('Free', ''))
           .replace(/\s+/g, ' ')
           .trim();
@@ -361,7 +368,7 @@ export function PricingSection() {
                     {billing === 'yearly' ? t('home.pricing.moreSavings') : t('home.pricing.allFeatures')}
                   </span>
                 )}
-                
+
                 <div className="flex items-center gap-2 mb-4">
                   {plan.tier === 'premium' ? (
                     <Crown className="w-6 h-6 text-foreground" />
@@ -372,9 +379,9 @@ export function PricingSection() {
                   )}
                   <h3 className="text-xl font-semibold">{plan.name}</h3>
                 </div>
-                
+
                 <p className="mt-2 text-sm text-muted-foreground">{plan.description}</p>
-                
+
                 <div className="mt-6 pricing-container">
                   {isTrial ? (
                     <div className="text-center">
@@ -398,10 +405,40 @@ export function PricingSection() {
                             <span className="text-xs text-muted-foreground line-through">¥{pricing.originalPrice}</span>
                           </div>
                         </div>
+                        {/* 原价与年付对比信息（促销场景） */}
+                        {plan.tier !== 'trial' && (
+                          <>
+                            {billing === 'monthly' && (
+                              <div className="mt-1 text-xs text-muted-foreground">
+                                {t('home.pricing.originalShort', { price: ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] })}
+                              </div>
+                            )}
+                            {billing === 'yearly' && (
+                              <div className="mt-1 text-xs text-muted-foreground">
+                                {t('home.pricing.yearlyCompareShort', { monthlyTotal: (ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12, savings: ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (pricing.discountPrice ?? pricing.originalPrice), percent: Math.round(((((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (pricing.discountPrice ?? pricing.originalPrice)) / Math.max(1, ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12))) * 100) })}
+                              </div>
+                            )}
+                          </>
+                        )}
                       ) : (
                         <div className="flex items-baseline justify-center gap-2">
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
                             <span className="pricing-price-text">¥{pricing.originalPrice}</span>
+                      {/* 原价与年付对比信息 */}
+                      {plan.tier !== 'trial' && (
+                        <>
+                          {billing === 'monthly' && (
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              {t('home.pricing.originalShort', { price: ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] })}
+                            </div>
+                          )}
+                          {billing === 'yearly' && (
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              {t('home.pricing.yearlyCompareShort', { monthlyTotal: (ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12, savings: ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (pricing.discountPrice ?? pricing.originalPrice), percent: Math.round(((((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (pricing.discountPrice ?? pricing.originalPrice)) / Math.max(1, ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12))) * 100) })}
+                            </div>
+                          )}
+                        </>
+                      )}
                           </div>
                           <span className="text-base text-muted-foreground">/{billing === "monthly" ? t('home.pricing.monthShort') : t('home.pricing.yearShort')}</span>
                         </div>
@@ -412,11 +449,11 @@ export function PricingSection() {
                     </div>
                   )}
                 </div>
-                
+
                 <ul className="mt-8 space-y-4 text-muted-foreground flex-grow">
                   {renderFeatures(plan.features, plan)}
                 </ul>
-                
+
                 <div className="flex justify-center items-center w-full">
                   <Button
                     variant={isTrial ? "default" : "primary"}

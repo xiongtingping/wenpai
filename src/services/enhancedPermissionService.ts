@@ -4,6 +4,7 @@
  */
 
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
+import { getBaseUsageCount } from '@/config/inviteRewardConfig';
 import type { SubscriptionTier, SubscriptionPlan } from '@/types/subscription';
 import { getSupabaseClient, getAuthenticatedSupabaseClient, TABLE_NAMES } from '@/services/supabaseDataService';
 
@@ -291,9 +292,22 @@ class EnhancedPermissionService {
       }
     }
 
-    // 4. 检查使用限制
+    // 4. 检查使用限制（按套餐动态放宽）：
+    // - 试用(trial)：遵循配置（例如每月10次）
+    // - 专业(pro)：按套餐基础配额（来自 inviteRewardConfig.baseCounts.pro）
+    // - 高级(premium)：不限量（-1）
     if (config.usageLimits) {
-      const usageCheck = await this.checkUsageLimits(userId, featureId, config.usageLimits);
+      const effectiveLimits = { ...config.usageLimits } as { daily?: number; monthly?: number };
+      if (userTier === 'premium') {
+        effectiveLimits.daily = -1;
+        effectiveLimits.monthly = -1;
+      } else if (userTier === 'pro') {
+        // 使用全局基础配额作为月度上限；日限不启用
+        effectiveLimits.daily = undefined;
+        effectiveLimits.monthly = getBaseUsageCount('pro');
+      }
+
+      const usageCheck = await this.checkUsageLimits(userId, featureId, effectiveLimits);
       if (!usageCheck.allowed) {
         return {
           hasPermission: false,

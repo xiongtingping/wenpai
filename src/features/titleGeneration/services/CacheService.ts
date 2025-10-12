@@ -81,7 +81,7 @@ export class CacheService {
     this.stats.totalSize += size;
     this.stats.entryCount++;
 
-    logger.debug(`📦 cachesetting: ${key} (${size} bytes, TTL: ${ttl}ms)`);
+    logger.debug(`📦 设置缓存项: ${key} (${size} bytes, TTL: ${ttl}ms)`);
   }
 
   /**
@@ -113,7 +113,7 @@ export class CacheService {
     this.stats.hits++;
     this.updateHitRate();
 
-    logger.debug(`🎯 cache命middle: ${key} (访问count: ${entry.accessCount})`);
+    logger.debug(`🎯 缓存命中: ${key} (访问次数: ${entry.accessCount})`);
     return entry.data;
   }
 
@@ -128,7 +128,7 @@ export class CacheService {
     this.stats.totalSize -= entry.size;
     this.stats.entryCount--;
 
-    logger.info(`🗑️ cachedeleting: ${key}`);
+    logger.info(`🗑️ 删除缓存项: ${key}`);
     return true;
   }
 
@@ -145,7 +145,7 @@ export class CacheService {
       }
     }
 
-    logger.info(`🏷️ 按tagdeletingcache: ${tag} (${deletedCount}item)`);
+    logger.info(`🏷️ 按标签删除缓存: ${tag}（${deletedCount} 项）`);
     return deletedCount;
   }
 
@@ -158,7 +158,7 @@ export class CacheService {
     this.stats.totalSize = 0;
     this.stats.entryCount = 0;
 
-    logger.info(`🧹 清emptycache: ${count}item`);
+    logger.info(`🧹 清空缓存: ${count} 项`);
   }
 
   /**
@@ -215,7 +215,7 @@ export class CacheService {
    * 预热缓存
    */
   async warmup(keys: Array<{ key: string; generator: () => Promise<any> }>): Promise<void> {
-    logger.info(`🔥 startscache预热: ${keys.length}item`);
+    logger.info(`🔥 开始缓存预热: ${keys.length} 项`);
 
     const promises = keys.map(async ({ key, generator }) => {
       try {
@@ -229,7 +229,7 @@ export class CacheService {
     });
 
     await Promise.allSettled(promises);
-    logger.info('🔥 cache预热completed');
+    logger.info('🔥 缓存预热完成');
   }
 
   /**
@@ -312,7 +312,7 @@ export class CacheService {
     }
 
     if (cleanedCount > 0) {
-      logger.debug(`🧹 定期cleaning: ${cleanedCount}itemexpiredcache`);
+      logger.debug(`🧹 定期清理: ${cleanedCount} 项过期缓存`);
     }
   }
 

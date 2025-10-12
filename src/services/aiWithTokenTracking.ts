@@ -251,14 +251,15 @@ export async function callAIWithTokenTracking(
     let tokenUsage;
     if (userInfo) {
       const stats = await tokenUsageService.getUserTokenStats(userId, actualUserTier);
+      // 注意：recordTokenUsage 已在上文完成保存，stats 已包含本次使用，避免重复加总
       tokenUsage = {
         inputTokens: actualInputTokens,
         outputTokens: actualOutputTokens,
         totalTokens: actualTotalTokens,
-        userMonthlyUsed: stats.monthlyUsed + actualTotalTokens, // 包含本次使用
+        userMonthlyUsed: stats.monthlyUsed,
         userMonthlyLimit: stats.monthlyLimit,
-        userMonthlyRemaining: Math.max(0, stats.monthlyRemaining - actualTotalTokens),
-        usagePercentage: ((stats.monthlyUsed + actualTotalTokens) / stats.monthlyLimit) * 100,
+        userMonthlyRemaining: stats.monthlyRemaining,
+        usagePercentage: stats.usagePercentage,
         needUpgrade: stats.needUpgrade
       };
     }

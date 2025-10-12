@@ -1,8 +1,8 @@
 import { logger } from '@/utils/logger';
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 
-// 创建t函数快捷方式
-const t = (key: string) => 'u64cdu4f5cu5931u8d25';
+// 创建 t 函数快捷方式（安全回退：返回 key 本身，避免产生乱码标签）
+const t = (key: string): string => key;
 
 /**
  * t('hashtagGenerator.comments.intelligentGenerator')
@@ -235,10 +235,10 @@ export class HashtagGenerator {
       { pattern: /编程|代码|开发|前端|后端|Python|JavaScript/, theme: '编程开发' },
 
       // 生活方式
-      { pattern: /美食|料理|烹饪|食谱|餐厅|小吃|甜品/, theme: t('hashtagGenerator.industries.foodCooking') },
+      { pattern: /美食|料理|烹饪|食谱|餐厅|小吃|甜品/, theme: '美食烹饪' },
       { pattern: /旅行|旅游|景点|攻略|酒店|机票/, theme: '旅行攻略' },
       { pattern: /时尚|穿搭|美妆|护肤|化妆品|服装/, theme: '时尚美妆' },
-      { pattern: /健身|运动|锻炼|减肥|瑜伽|跑步/, theme: t('hashtagGenerator.industries.fitnessExercise') },
+      { pattern: /健身|运动|锻炼|减肥|瑜伽|跑步/, theme: '健身运动' },
 
       // 学习成长
       { pattern: /读书|阅读|书籍|小说|文学/, theme: '读书学习' },
@@ -251,7 +251,7 @@ export class HashtagGenerator {
       { pattern: /游戏|电竞|手游|主机|Steam/, theme: '游戏娱乐' },
 
       // 家居生活
-      { pattern: /装修|家居|收纳|清洁|家电/, theme: t('hashtagGenerator.industries.homeLifestyle') },
+      { pattern: /装修|家居|收纳|清洁|家电/, theme: '家居生活' },
       { pattern: /育儿|亲子|教育|孩子|宝宝/, theme: '育儿教育' },
       { pattern: /宠物|猫|狗|养宠|宠物用品/, theme: '宠物生活' }
     ];

@@ -26,7 +26,7 @@ export class DeepSeekProvider implements AIProviderInterface {
 
   constructor() {
     this.apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY || '';
-    this.baseURL = 'https:// api.deepseek.com';
+    this.baseURL = 'https://api.deepseek.com';
   }
 
   /**
@@ -207,7 +207,7 @@ export class DeepSeekProvider implements AIProviderInterface {
       capabilities: {
         chat: true,
         image: false,
-        stream: true,
+        stream: false,
         function: false
       },
       limits: {

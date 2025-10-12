@@ -97,9 +97,9 @@ export const INVITE_REWARDS: InviteRewardConfig = {
 export const USAGE_COUNT_CONFIG = {
   /** 套餐基础次数 */
   baseCounts: {
-    trial: 10,      // 试用版：10次/月
-    pro: 100,       // 专业版：100次/月
-    premium: 500    // 高级版：500次/月
+    trial: 10,       // 体验版：10次/月
+    pro: 30,         // 专业版：30次/月（统一权益）
+    premium: 999999  // 高级版：不限次数（用于余额计算的近似无限）
   },
   
   /** 重置周期 */

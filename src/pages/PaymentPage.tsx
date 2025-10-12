@@ -15,6 +15,7 @@ import request from '@/api/request';
 import { PaymentSuccessHandler } from '@/components/payment/PaymentSuccessHandler';
 import { PaymentStatusRecovery } from '@/components/payment/PaymentStatusRecovery';
 import { Header } from '@/components/landing/Header';
+import { AdminOrderRepair } from '@/components/payment/AdminOrderRepair';
 import { BufPayService } from '@/services/bufpayService';
 import { SubscriptionUpgradeService } from '@/services/subscriptionUpgradeService';
 import SubscriptionUpgradeDialog from '@/components/subscription/SubscriptionUpgradeDialog';
@@ -50,6 +51,13 @@ import {
 import { getUserTier } from "@/utils/subscriptionUtils";
 import { paymentStatusService } from '@/services/paymentStatusService';
 // 已删除creemOptimizer导入，直接使用Creem API
+
+// 原价（月付）展示映射
+const ORIGINAL_MONTHLY_PRICE: Record<'trial' | 'pro' | 'premium', number> = {
+  trial: 19,
+  pro: 59,
+  premium: 139
+};
 
 const CreemAlipayQRCode: React.FC<{
   priceId: string;
@@ -95,7 +103,7 @@ export default function PaymentPage() {
   })();
 
   // 获取来源操作（续费/升级）
-  const locationState = location.state as { 
+  const locationState = location.state as {
     action?: 'renew' | 'upgrade';
     currentSubscription?: any;
   } | null;
@@ -189,7 +197,7 @@ export default function PaymentPage() {
   // 升级相关状态
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [currentSubscriptionTier, setCurrentSubscriptionTier] = useState<string | null>(null);
-  
+
   // 动态价格状态
   const [dynamicPricing, setDynamicPricing] = useState<any>(null);
   const [pricingContext, setPricingContext] = useState<PricingContext | null>(null);
@@ -291,12 +299,12 @@ export default function PaymentPage() {
         if (hasActiveSubscription && allSubscriptions.length > 0) {
           // 找到最高级别的活跃订阅
           const activeSubscription = allSubscriptions.find(sub => sub.subscriptionType === 'premium') || allSubscriptions[0];
-          
+
           if (activeSubscription) {
             currentSubscriptionTier = activeSubscription.subscriptionType;
             // 构造订阅对象供补差价计算使用
             currentSubscription = {
-              subscription_type: activeSubscription.subscriptionType,
+              tier: activeSubscription.subscriptionType,
               expires_at: primaryStatus.expiresAt || new Date().toISOString(),
               started_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 假设30天前开始
               id: activeSubscription.subscriptionId
@@ -314,7 +322,7 @@ export default function PaymentPage() {
           const tierLevels = { trial: 0, pro: 1, professional: 1, premium: 2 };
           const currentLevel = tierLevels[currentSubscriptionTier as keyof typeof tierLevels] || 0;
           const targetLevel = tierLevels[selectedPlan.tier as keyof typeof tierLevels] || 0;
-          
+
           if (targetLevel > currentLevel) {
             // 升级操作，默认使用补差价
             action = 'upgrade';
@@ -468,15 +476,15 @@ export default function PaymentPage() {
     if (dynamicPricing) {
       return dynamicPricing.finalAmount;
     }
-    
+
     // 兜底逻辑
     if (!selectedPlan) return 0;
-    
+
     const pricing = selectedPeriod === 'monthly' ? selectedPlan.monthly : selectedPlan.yearly;
     const originalPrice = pricing.originalPrice;
-    
+
     const isInDiscount = showPromoOffer && timeLeft > 0;
-    
+
     return isInDiscount ? (pricing.discountPrice || originalPrice) : originalPrice;
   };
 
@@ -485,9 +493,9 @@ export default function PaymentPage() {
     if (dynamicPricing) {
       return dynamicPricing.originalPrice;
     }
-    
+
     if (!selectedPlan) return 0;
-    
+
     const pricing = selectedPeriod === 'monthly' ? selectedPlan.monthly : selectedPlan.yearly;
     return pricing.originalPrice;
   };
@@ -497,7 +505,7 @@ export default function PaymentPage() {
     if (dynamicPricing) {
       return dynamicPricing.discountAmount;
     }
-    
+
     const originalPrice = getOriginalPrice();
     const currentPrice = getCurrentPrice();
     return originalPrice - currentPrice;
@@ -505,9 +513,16 @@ export default function PaymentPage() {
 
   // 获取年付节省金额（相比月付）
   const getYearlySavings = (plan: SubscriptionPlan) => {
-    const monthlyTotal = plan.monthly.originalPrice * 12;
+    const monthlyTotal = ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium']) || 0) * 12;
     const yearlyPrice = plan.yearly.originalPrice;
-    return monthlyTotal - yearlyPrice;
+    return Math.max(0, monthlyTotal - yearlyPrice);
+  };
+
+  const getYearlySavingsPercent = (plan: SubscriptionPlan) => {
+    const monthlyTotal = ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium']) || 0) * 12;
+    const savings = getYearlySavings(plan);
+    if (monthlyTotal <= 0) return 0;
+    return Math.round((savings / monthlyTotal) * 100);
   };
 
   // 处理支付成功
@@ -648,7 +663,7 @@ export default function PaymentPage() {
         await new Promise(resolve => setTimeout(resolve, 300));
 
         logger.info(t('pages.messages.支付成功后数据清理完成'));
-        
+
         // 刷新订阅状态
         logger.info('刷新订阅状态...');
         await refreshSubscriptionStatus();
@@ -709,7 +724,7 @@ export default function PaymentPage() {
   const handleBufpayError = (error: string) => {
     logger.error('BufPay支付错误', { error, orderId: bufpayOrderId });
     setPaymentStatus('failed');
-    
+
     toast({
       title: t('payment.messages.paymentFailed'),
       description: error,
@@ -736,6 +751,12 @@ export default function PaymentPage() {
     <div className="payment-page payment-container min-h-screen bg-background" style={{ paddingTop: '64px' }}>
       {/* 统一Header */}
       <Header />
+      {/* 管理员批量修复工具（仅在 ?adminRepair=1 时显示） */}
+      {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('adminRepair') === '1' && (
+        <div className="container mx-auto px-4 mt-4">
+          <AdminOrderRepair />
+        </div>
+      )}
 
       {/* 页面内容 */}
       <div className="container mx-auto px-4 py-20 space-y-12">
@@ -836,7 +857,7 @@ export default function PaymentPage() {
             const savedAmount = isInDiscount ? (originalPrice - currentPrice) : 0;
             const isSelected = selectedPlan?.id === plan.id;
             const yearlySavings = getYearlySavings(plan);
-            
+
             // 检查是否应该禁用计划（当前用户等级高于此计划等级）
             const tierLevels = { trial: 0, pro: 1, premium: 2 };
             const currentLevel = tierLevels[userCurrentTier] || 0;
@@ -884,14 +905,14 @@ export default function PaymentPage() {
                         {showPromoOffer && timeLeft > 0 && plan.tier !== 'trial' && (
                           <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-background shadow-lg px-3 py-1 text-xs animate-pulse rounded-full border border-white flex items-center gap-1">
                             <Zap className="h-3 w-3 fill-current" />
-                            
+
                           </Badge>
                         )}
 
                         {/* 年付优惠标签 */}
                         {selectedPeriod === 'yearly' && (plan.tier === 'pro' || plan.tier === 'premium') && (
                           <Badge className="bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-lg px-3 py-1 text-xs rounded-full border border-white">
-                            {t('payment.billing.compareMonthly', { amount: getYearlySavings(plan) })}
+                            {t('payment.labels.yearlyCompareBadge', { savings: getYearlySavings(plan), percent: getYearlySavingsPercent(plan) })}
                           </Badge>
                         )}
                       </div>
@@ -907,13 +928,22 @@ export default function PaymentPage() {
                     </CardTitle>
                     <p className="text-muted-foreground text-xs md:text-sm leading-relaxed h-6 flex items-center justify-center">{plan.description}</p>
                   </CardHeader>
-                  <CardContent className="flex-1 flex flex-col space-y-3 pb-3 px-4">
+                  <CardContent className="flex-1 flex flex-col space-y-2 pb-3 px-4">
                     <div className="text-center pricing-container payment-pricing flex flex-col justify-center">
                       <div className="space-y-2">
                         <div className="text-3xl md:text-4xl font-bold text-foreground flex items-baseline justify-center gap-1">
                           <span className="text-xl md:text-2xl">¥</span>
                           <span>{currentPrice}</span>
                           <span className="text-base text-muted-foreground font-medium">/{selectedPeriod === 'monthly' ? t('payment.billing.month') : t('payment.billing.year')}</span>
+                          {selectedPeriod === 'monthly' ? (
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              {t('payment.labels.originalShort', { price: ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] })}
+                            </span>
+                          ) : (
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              {t('payment.labels.originalShort', { price: ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium']) || 0) * 12 })}
+                            </span>
+                          )}
                         </div>
                         {showPromoOffer && timeLeft > 0 && plan.tier !== 'trial' && (
                           <>
@@ -964,7 +994,7 @@ export default function PaymentPage() {
                         );
                       })}
                     </div>
-                    <div className="mt-3 flex justify-center">
+                    <div className="mt-1 flex justify-center">
                       <Button
                         variant={plan.recommended ? "default" : "default"}
                         size="lg"
@@ -977,7 +1007,7 @@ export default function PaymentPage() {
                             ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-0'
                             : ''
                         }`}
-                        disabled={plan.tier === userCurrentTier || isDowngrade}
+                        disabled={isDowngrade}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (!isDowngrade) {
@@ -992,11 +1022,11 @@ export default function PaymentPage() {
                             const expiresAt = new Date(primaryStatus.expiresAt);
                             const now = new Date();
                             const diffDays = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-                            
+
                             // 如果剩余天数超过200天，推断为年付订阅
                             const isYearlySubscription = diffDays > 200;
                             const isMatchingPeriod = isYearlySubscription ? selectedPeriod === 'yearly' : selectedPeriod === 'monthly';
-                            
+
                             return isMatchingPeriod;
                           }
                           return false; // 无法确定周期时不显示当前版本
@@ -1046,6 +1076,9 @@ export default function PaymentPage() {
                   <div className="text-right">
                     <div className="text-3xl font-bold text-foreground">¥{getCurrentPrice()}</div>
                     <div className="text-sm text-muted-foreground font-medium">{selectedPeriod === 'monthly' ? t('payment.billing.monthlyShort') : t('payment.billing.yearlyShort')}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t('payment.labels.originalShort', { price: selectedPlan ? (selectedPeriod === 'monthly' ? ORIGINAL_MONTHLY_PRICE[selectedPlan.tier as 'trial' | 'pro' | 'premium'] : ((ORIGINAL_MONTHLY_PRICE[selectedPlan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12)) : 0 })}
+                    </div>
                     {dynamicPricing && (
                       <div className="text-xs text-primary mt-1">{dynamicPricing.priceDescription}</div>
                     )}
@@ -1105,7 +1138,7 @@ export default function PaymentPage() {
                         onClick={() => setSelectedPeriod('yearly')}
                         className="bg-gradient-to-r from-orange-500 to-yellow-500 text-background border-none hover:from-orange-600 hover:to-yellow-600 font-semibold"
                       >
-                        
+
                       </Button>
                     </div>
                   </div>
@@ -1164,7 +1197,7 @@ export default function PaymentPage() {
                       onClick={() => setCheckoutError(null)}
                       className="mt-2"
                     >
-                      
+
                     </Button>
                   </div>
                 )}
@@ -1186,6 +1219,9 @@ export default function PaymentPage() {
                   <div className="text-right">
                     <div className="text-3xl font-bold text-foreground">¥{getCurrentPrice()}</div>
                     <div className="text-sm text-muted-foreground font-medium">{selectedPeriod === 'monthly' ? t('payment.billing.monthlyShort') : t('payment.billing.yearlyShort')}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t('payment.labels.originalShort', { price: selectedPlan ? (selectedPeriod === 'monthly' ? ORIGINAL_MONTHLY_PRICE[selectedPlan.tier as 'trial' | 'pro' | 'premium'] : ((ORIGINAL_MONTHLY_PRICE[selectedPlan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12)) : 0 })}
+                    </div>
                     {dynamicPricing && (
                       <div className="text-xs text-primary mt-1">{dynamicPricing.priceDescription}</div>
                     )}

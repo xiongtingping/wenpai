@@ -484,3 +484,181 @@ export function getPlatformLimit(platformId: string): number {
 }
 
 
+
+
+/**
+ * 🔍 统一的 AI 响应解析工具（适配流式/非流式场景）
+ * - 清洗 Markdown 代码围栏
+ * - 兼容多种 JSON 结构（titles/results/data/数组）
+ * - 失败时回退从纯文本提取候选标题
+ */
+export function parseAiTitlesFromText(raw: string): string[] {
+  if (!raw) return [];
+  let text = String(raw).trim();
+
+  // 工具：去围栏
+  const stripFences = (s: string) => s.replace(/```[a-zA-Z]*\s*([\s\S]*?)```/g, '$1').trim();
+  text = stripFences(text);
+
+  // 1) 直接尝试整体 JSON 解析 + 常见结构抽取
+  const fromStructured = (obj: unknown): string[] => {
+    const out: string[] = [];
+    const pushAny = (v: unknown) => {
+      if (typeof v === 'string') out.push(v);
+      else if (v && typeof v === 'object') {
+        // 常见对象项：{ title } / { text } / { content }
+        const o = v as Record<string, unknown>;
+        const s = (o.title || o.text || o.content);
+        if (typeof s === 'string') out.push(s);
+      }
+    };
+
+    const tryArray = (arr: unknown) => { if (Array.isArray(arr)) arr.forEach(pushAny); };
+
+    if (!obj || typeof obj !== 'object') return out;
+    const o = obj as Record<string, unknown>;
+
+    // 标准路径
+    tryArray(o.titles);
+    tryArray(o.results);
+    tryArray(o.items);
+    tryArray(o.options);
+    tryArray(o.suggestions);
+
+    // 嵌套路径
+    const data = o.data as Record<string, unknown> | undefined;
+    if (data) { tryArray(data.titles); tryArray(data.results); tryArray(data.items); }
+
+    // OpenAI 风格：choices[].message.content（可能仍是 JSON 字符串）
+    const choices = o.choices as Array<any> | undefined;
+    if (choices && Array.isArray(choices)) {
+      for (const c of choices) {
+        const content = c?.message?.content ?? c?.text;
+        if (typeof content === 'string') {
+          const nested = parseAiTitlesFromText(content);
+          if (nested.length) out.push(...nested);
+        }
+      }
+    }
+
+    // Gemini 风格：candidates[].content.parts[].text
+    const candidates = o.candidates as Array<any> | undefined;
+    if (candidates && Array.isArray(candidates)) {
+      for (const cand of candidates) {
+        const parts = cand?.content?.parts;
+        if (Array.isArray(parts)) {
+          const joined = parts.map((p: any) => p?.text).filter(Boolean).join('\n');
+          if (joined) out.push(...parseAiTitlesFromText(joined));
+        } else if (typeof cand?.content?.text === 'string') {
+          out.push(...parseAiTitlesFromText(cand.content.text));
+        }
+      }
+    }
+
+    return out;
+  };
+
+  const tryParseJSON = (s: string): string[] => {
+    try {
+      const parsed = JSON.parse(s);
+      if (Array.isArray(parsed)) return parsed.map(x => String(x));
+      return fromStructured(parsed);
+    } catch { return []; }
+  };
+
+  let collected: string[] = tryParseJSON(text);
+
+  // 2) 若整体解析失败，提取代码块/JSON片段逐一尝试
+  if (!collected.length) {
+    // 代码围栏里的 JSON
+    const fenceBlocks = Array.from(text.matchAll(/```json\s*([\s\S]*?)```/gi)).map(m => m[1]);
+    for (const blk of fenceBlocks) {
+      collected.push(...tryParseJSON(blk));
+    }
+
+    // 任意围栏内容也尝试 JSON
+    const anyFences = Array.from(text.matchAll(/```\s*([\s\S]*?)```/g)).map(m => m[1]);
+    for (const blk of anyFences) {
+      collected.push(...tryParseJSON(blk));
+    }
+  }
+
+  // 3) 进一步：在正文中寻找首个平衡 JSON 片段
+  if (!collected.length) {
+    const balanced: string[] = [];
+    const s = text;
+    let depth = 0, start = -1;
+    for (let i = 0; i < s.length; i++) {
+      const ch = s[i];
+      if (ch === '{') { if (depth === 0) start = i; depth++; }
+      else if (ch === '}') { depth--; if (depth === 0 && start >= 0) { balanced.push(s.slice(start, i + 1)); start = -1; } }
+    }
+    for (const blk of balanced.slice(0, 3)) { // 最多尝试前三个，避免过大文本
+      collected.push(...tryParseJSON(blk));
+    }
+  }
+
+  // 4) 仍为空则回退到纯文本提取
+  if (!collected.length) {
+    collected = extractTitlesFromPlainText(text);
+  }
+
+  // 清洗与去重
+  const uniq = (arr: string[]) => {
+    const set = new Set<string>();
+    const out: string[] = [];
+    for (const t of arr.map(x => (x || '').toString().trim()).filter(Boolean)) {
+      if (!set.has(t)) { set.add(t); out.push(t); }
+    }
+    return out;
+  };
+
+  // 过滤掉明显无效的项
+  const cleaned = uniq(collected)
+    .map(t => t.replace(/^[-*\d\.\)）\s]+/, '').trim())
+    .filter(t => t && t !== 'undefined' && t !== 'null');
+
+  return cleaned.slice(0, 50);
+}
+
+/**
+ * 从纯文本中提取标题（备用方案）
+ */
+export function extractTitlesFromPlainText(text: string): string[] {
+  const titles: string[] = [];
+  const patterns = [
+    /^\d+\.\s*(.+)$/gm,                // 1. 标题
+    /^\d+[\)）]\s*(.+)$/gm,            // 1) 标题 / 1）标题
+    /^[\-–—]\s*(.+)$/gm,                // - 标题 / — 标题
+    /^\*\s*(.+)$/gm,                    // * 标题
+    /^·\s*(.+)$/gm,                      // · 标题
+    /^"(.+)"$/gm,                       // "标题"
+    /^'(.+)'$/gm,                         // '标题'
+    /^【(.+)】$/gm,                        // 【标题】
+    /^「(.+)」$/gm,                        // 「标题」
+    /^(?:[一二三四五六七八九十]+)[、.．]\s*(.+)$/gm // 一、标题 / 一. 标题
+  ];
+
+  for (const p of patterns) {
+    const matches = text.matchAll(p);
+    for (const m of matches) {
+      if (m[1] && m[1].trim()) titles.push(m[1].trim());
+    }
+    if (titles.length > 0) break;
+  }
+
+  // 仍为空：尝试分隔符切分
+  if (titles.length === 0) {
+    const byLines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    for (const line of byLines) {
+      const segs = line.split(/[；;、\|｜\/]/).map(s => s.trim()).filter(Boolean);
+      for (const s of segs) {
+        if (s.length >= 4 && s.length <= 100) titles.push(s);
+        if (titles.length >= 20) break;
+      }
+      if (titles.length >= 20) break;
+    }
+  }
+
+  return titles;
+}

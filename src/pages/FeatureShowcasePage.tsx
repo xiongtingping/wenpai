@@ -12,14 +12,14 @@ import { EnhancedUnifiedPermissionGuard } from '@/components/auth/EnhancedUnifie
 import { useAuth } from '@/hooks/useAuth';
 import { SUBSCRIPTION_PLANS, calculateDiscountCountdown, isInDiscountPeriod } from '@/config/subscriptionPlans';
 import { CountdownTimer } from '@/components/ui/CountdownTimer';
-import { 
-  Sparkles, 
-  Calendar, 
-  MessageSquare, 
-  Smile, 
-  TrendingUp, 
-  BookOpen, 
-  Palette, 
+import {
+  Sparkles,
+  Calendar,
+  MessageSquare,
+  Smile,
+  TrendingUp,
+  BookOpen,
+  Palette,
   Crown,
   Zap,
   Star,
@@ -28,7 +28,16 @@ import {
   Gift
 } from 'lucide-react';
 
+// 原价（月付）映射：用于月付原价与年付对比（年付原价=月付原价×12）
+const ORIGINAL_MONTHLY_PRICE: Record<'trial' | 'pro' | 'premium', number> = {
+  trial: 19,
+  pro: 59,
+  premium: 139
+};
+
 const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useAuth();
+  const { t } = useTranslation();
+
   const [discountCountdown, setDiscountCountdown] = useState(0);
 
   // 模拟新用户注册（用于演示）
@@ -44,7 +53,7 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
     if (user?.registrationDate) {
       const countdown = calculateDiscountCountdown(new Date(user.registrationDate));
       setDiscountCountdown(countdown);
-      
+
       const timer = setInterval(() => {
         const newCountdown = calculateDiscountCountdown(new Date(user.registrationDate));
         setDiscountCountdown(newCountdown);
@@ -136,7 +145,7 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
         {/* 演示按钮 */}
         {!user?.registrationDate && (
           <div className="text-center mb-8">
-            <Button 
+            <Button
               onClick={simulateNewUser}
               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-background px-8 py-3 text-lg"
             >
@@ -151,7 +160,7 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
           <h2 className="text-2xl font-bold text-center mb-8">选择适合您的计划</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {SUBSCRIPTION_PLANS.map((plan) => (
-              <Card 
+              <Card
                 key={plan.id}
                 className={`relative ${plan.recommended ? 'border-2 border-primary shadow-lg scale-105' : 'border'}`}
               >
@@ -175,7 +184,7 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
                     <CardTitle className="text-xl">{plan.name}</CardTitle>
                   </div>
                   <p className="text-sm text-muted-foreground">{plan.description}</p>
-                  
+
                   {/* 价格显示 */}
                   <div className="mt-4">
                     {plan.tier !== 'trial' && user?.registrationDate && isInDiscountPeriod(new Date(user.registrationDate)) ? (
@@ -184,6 +193,25 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
                           <span className="text-lg text-muted-foreground line-through">
                             ¥{plan.monthly.originalPrice}
                           </span>
+                        {plan.tier !== 'trial' && (
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            {t('home.pricing.yearlyCompareShort', {
+                              monthlyTotal: (ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12,
+                              savings: ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (plan.yearly?.discountPrice ?? plan.yearly?.originalPrice),
+                              percent: Math.round(((((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (plan.yearly?.discountPrice ?? plan.yearly?.originalPrice)) / Math.max(1, ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12))) * 100)
+                            })}
+                          </div>
+                        {plan.tier !== 'trial' && (
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            {t('home.pricing.yearlyCompareShort', {
+                              monthlyTotal: (ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12,
+                              savings: ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (plan.yearly?.discountPrice ?? plan.yearly?.originalPrice),
+                              percent: Math.round(((((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (plan.yearly?.discountPrice ?? plan.yearly?.originalPrice)) / Math.max(1, ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12))) * 100)
+                            })}
+                          </div>
+                        )}
+
+                        )}
                           <Badge className="bg-destructive text-background text-xs">
                             -{plan.monthly.discountPercentage}%
                           </Badge>
@@ -228,7 +256,7 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
         {/* 功能展示区域 */}
         <div className="space-y-8">
           <h2 className="text-2xl font-bold text-center mb-8">体验强大功能</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {features.map((feature) => (
               <EnhancedUnifiedPermissionGuard
