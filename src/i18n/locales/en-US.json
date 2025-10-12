@@ -2572,7 +2572,7 @@
       "selectPlan": "Select This Plan",
       "alreadyHaveHigher": "Already Have Higher Plan",
       "originalShort": "Original: ¥{{price}}",
-      "yearlyCompareBadge": "Save ¥{{savings}} vs Monthly · {{percent}}% Off",
+      "yearlyCompareBadge": "Save ¥{{savings}} vs Monthly · {{percent}}% Off"
 
     },
     "plans": {
