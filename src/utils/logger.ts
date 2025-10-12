@@ -34,6 +34,36 @@ const currentLogLevel = isDebugEnabled
   : LogLevel.WARN;  // 默认只显示警告和错误
 
 /**
+ * 🔧 日志去重机制
+ * 防止相同消息在短时间内重复输出
+ */
+const logCache = new Map<string, number>();
+const LOG_DEDUPE_WINDOW = 2000; // 2秒内相同消息只输出一次
+
+function shouldLog(message: string): boolean {
+  const now = Date.now();
+  const lastLog = logCache.get(message);
+
+  if (lastLog && now - lastLog < LOG_DEDUPE_WINDOW) {
+    return false;
+  }
+
+  logCache.set(message, now);
+
+  // 定期清理过期的缓存
+  if (logCache.size > 100) {
+    const cutoff = now - LOG_DEDUPE_WINDOW;
+    for (const [key, time] of logCache.entries()) {
+      if (time < cutoff) {
+        logCache.delete(key);
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
  * 统一日志工具
  */
 export const logger = {
@@ -42,7 +72,10 @@ export const logger = {
    */
   debug: (...args: any[]) => {
     if (currentLogLevel <= LogLevel.DEBUG) {
-      console.log(...args);
+      const message = JSON.stringify(args);
+      if (shouldLog(message)) {
+        console.log(...args);
+      }
     }
   },
 
@@ -51,7 +84,10 @@ export const logger = {
    */
   info: (...args: any[]) => {
     if (currentLogLevel <= LogLevel.INFO) {
-      console.log(...args);
+      const message = JSON.stringify(args);
+      if (shouldLog(message)) {
+        console.log(...args);
+      }
     }
   },
 
@@ -60,7 +96,10 @@ export const logger = {
    */
   warn: (...args: any[]) => {
     if (currentLogLevel <= LogLevel.WARN) {
-      console.warn(...args);
+      const message = JSON.stringify(args);
+      if (shouldLog(message)) {
+        console.warn(...args);
+      }
     }
   },
 
@@ -391,6 +430,45 @@ export const disableDebugLogs = () => {
 if (typeof window !== 'undefined') {
   (window as any).enableDebugLogs = enableDebugLogs;
   (window as any).disableDebugLogs = disableDebugLogs;
+}
+
+/**
+ * 🔧 全局console拦截器 - 防止重复日志污染
+ * 拦截所有console调用并应用去重机制
+ */
+if (typeof window !== 'undefined' && !isDebugEnabled) {
+  const originalConsole = {
+    log: console.log,
+    warn: console.warn,
+    info: console.info,
+    debug: console.debug,
+  };
+
+  // 拦截console.log
+  console.log = function(...args: any[]) {
+    const message = JSON.stringify(args);
+    if (shouldLog(message)) {
+      originalConsole.log.apply(console, args);
+    }
+  };
+
+  // 拦截console.warn
+  console.warn = function(...args: any[]) {
+    const message = JSON.stringify(args);
+    if (shouldLog(message)) {
+      originalConsole.warn.apply(console, args);
+    }
+  };
+
+  // 拦截console.info
+  console.info = function(...args: any[]) {
+    const message = JSON.stringify(args);
+    if (shouldLog(message)) {
+      originalConsole.info.apply(console, args);
+    }
+  };
+
+  // console.error不拦截，错误信息始终显示
 }
 
 export default logger;
