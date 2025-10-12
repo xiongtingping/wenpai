@@ -147,12 +147,15 @@ export const ThemeToggle: React.FC = () => {
   }, [user?.id]);
   
   // 监听订阅状态变化，同步权限更新
+  // 🔧 FIX: 移除refreshSubscription依赖，避免无限循环
+  // primaryStatus变化时已经由store自动更新，无需手动刷新
   useEffect(() => {
-    if (primaryStatus?.status === 'active') {
-      // 订阅状态更新时，刷新权限状态
-      refreshSubscription();
+    // primaryStatus更新时，主题权限会自动重新计算
+    // 这里只需要确保theme配置正确即可
+    if (primaryStatus?.status === 'active' && isAuthenticated) {
+      // 订阅激活时，检查主题权限（下面的useEffect会处理）
     }
-  }, [primaryStatus?.status, refreshSubscription]);
+  }, [primaryStatus?.status, isAuthenticated]);
 
   // 监听订阅状态变化，重新检查主题权限
   useEffect(() => {
