@@ -91,16 +91,11 @@ const LazyFeatureShowcasePage = React.lazy(() => import('@/pages/FeatureShowcase
 const LazyBrowserExtensionPage = React.lazy(() => import('@/pages/BrowserExtensionPage'));
 
 // 🔧 错误边界包装器，处理懒加载失败
-const LazyWrapper: React.FC<{ children: React.ReactNode; fallback?: React.ReactNode }> = ({
-  children,
-  fallback
-}) => {
-  const { t } = useTranslation();
+// 移除内部Suspense，避免双层嵌套导致loading卡住
+const LazyWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <ErrorBoundary fallback={<div>{t('app.errors.pageLoadFailedSimple')}</div>}>
-      <Suspense fallback={fallback || <LoadingSpinner text={t('app.common.loading')} />}>
-        {children}
-      </Suspense>
+    <ErrorBoundary fallback={<div className="flex items-center justify-center min-h-[200px] text-muted-foreground">页面加载失败</div>}>
+      {children}
     </ErrorBoundary>
   );
 };
@@ -291,7 +286,15 @@ const App: React.FC = () => {
               {shouldShowHeader && <Header />}
               
               <ConditionalNavigation>
-                    <Suspense fallback={<LoadingSpinner />}>
+                    {/* 🔧 FIX: Suspense fallback不使用i18n，避免循环依赖导致无限loading */}
+                    <Suspense fallback={
+                      <div className="flex items-center justify-center min-h-screen">
+                        <div className="flex flex-col items-center gap-4">
+                          <div className="w-8 h-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                          <span className="text-sm text-muted-foreground">加载中...</span>
+                        </div>
+                      </div>
+                    }>
                       <Routes>
                         {/* {t('app.routes.homePage')} */}
                         <Route path='/' element={<HomePage />} />
