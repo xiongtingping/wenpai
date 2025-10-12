@@ -65,12 +65,45 @@ migrateAuthStoreToUnified().then(result => {
   console.error('❌ 存储架构迁移异常:', error);
 });
 
-// 🔇 优化开发环境控制台：减少噪音，保留重要信息
+// 🔇 优化控制台：防止重复日志污染
+// 🔧 应用全局去重机制
+const logCache = new Map<string, number>();
+const LOG_DEDUPE_WINDOW = 2000; // 2秒内相同消息只输出一次
+
+function shouldLogMessage(args: any[]): boolean {
+  try {
+    const first = args[0];
+    const message = typeof first === 'string' ? first : String(first);
+    const now = Date.now();
+    const lastLog = logCache.get(message);
+
+    if (lastLog && now - lastLog < LOG_DEDUPE_WINDOW) {
+      return false;
+    }
+
+    logCache.set(message, now);
+
+    // 定期清理过期缓存
+    if (logCache.size > 100) {
+      const cutoff = now - LOG_DEDUPE_WINDOW;
+      for (const [key, time] of logCache.entries()) {
+        if (time < cutoff) {
+          logCache.delete(key);
+        }
+      }
+    }
+
+    return true;
+  } catch (e) {
+    return true; // 出错时允许日志
+  }
+}
+
 if (import.meta.env.DEV) {
   const originalError = console.error;
   const originalWarn = console.warn;
   const originalLog = console.log;
-  
+
   // 保留原始方法供紧急情况使用
   (window as any)._originalConsole = {
     log: console.log,
@@ -78,35 +111,38 @@ if (import.meta.env.DEV) {
     warn: console.warn,
     error: console.error
   };
-  
-  // 智能过滤日志
+
+  // 智能过滤日志 + 去重
   console.log = (...args: any[]) => {
+    if (!shouldLogMessage(args)) return;
     const message = String(args[0] || '');
     // 只显示重要的调试信息
-    if (message.includes('🎯') || message.includes('✅') || message.includes('🚨') || 
+    if (message.includes('🎯') || message.includes('✅') || message.includes('🚨') ||
         message.includes('Dialog') || message.includes('修复')) {
       originalLog.apply(console, args);
     }
   };
-  
+
   console.info = () => {}; // 静默info
   console.debug = () => {}; // 静默debug
   console.trace = () => {}; // 静默trace
   console.table = () => {}; // 静默table
-  
-  // 过滤警告：只显示关键警告
+
+  // 过滤警告 + 去重
   console.warn = (...args: any[]) => {
+    if (!shouldLogMessage(args)) return;
     const message = String(args[0] || '');
     if (message.includes('🚨') || message.includes('💥') || message.includes('CRITICAL') ||
         message.includes('获取热点数据失败')) {
       originalWarn.apply(console, args);
     }
   };
-  
-  // 智能错误处理：防止API错误刷屏
+
+  // 智能错误处理 + 去重
   console.error = (...args: any[]) => {
+    if (!shouldLogMessage(args)) return;
     const message = String(args[0] || '');
-    
+
     // API错误限流
     if (message.includes('❌ API响应错误') || message.includes('获取热点数据失败')) {
       const now = Date.now();
@@ -119,7 +155,7 @@ if (import.meta.env.DEV) {
       originalError(`🚨 网络异常: API服务暂时不可用，正在重试...`);
       return;
     }
-    
+
     // 显示其他错误
     originalError.apply(console, args);
   };

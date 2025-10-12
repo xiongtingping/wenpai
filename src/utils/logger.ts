@@ -40,7 +40,23 @@ const currentLogLevel = isDebugEnabled
 const logCache = new Map<string, number>();
 const LOG_DEDUPE_WINDOW = 2000; // 2秒内相同消息只输出一次
 
-function shouldLog(message: string): boolean {
+function serializeForCache(args: any[]): string {
+  try {
+    // 简单序列化：只取第一个参数的字符串表示
+    const first = args[0];
+    if (typeof first === 'string') {
+      return first;
+    }
+    // 对于对象，尝试安全序列化
+    return JSON.stringify(first);
+  } catch (e) {
+    // 序列化失败，使用toString
+    return String(args[0]);
+  }
+}
+
+function shouldLog(args: any[]): boolean {
+  const message = serializeForCache(args);
   const now = Date.now();
   const lastLog = logCache.get(message);
 
@@ -71,11 +87,8 @@ export const logger = {
    * 调试信息 - 仅开发环境显示
    */
   debug: (...args: any[]) => {
-    if (currentLogLevel <= LogLevel.DEBUG) {
-      const message = JSON.stringify(args);
-      if (shouldLog(message)) {
-        console.log(...args);
-      }
+    if (currentLogLevel <= LogLevel.DEBUG && shouldLog(args)) {
+      console.log(...args);
     }
   },
 
@@ -83,11 +96,8 @@ export const logger = {
    * 一般信息
    */
   info: (...args: any[]) => {
-    if (currentLogLevel <= LogLevel.INFO) {
-      const message = JSON.stringify(args);
-      if (shouldLog(message)) {
-        console.log(...args);
-      }
+    if (currentLogLevel <= LogLevel.INFO && shouldLog(args)) {
+      console.log(...args);
     }
   },
 
@@ -95,11 +105,8 @@ export const logger = {
    * 警告信息
    */
   warn: (...args: any[]) => {
-    if (currentLogLevel <= LogLevel.WARN) {
-      const message = JSON.stringify(args);
-      if (shouldLog(message)) {
-        console.warn(...args);
-      }
+    if (currentLogLevel <= LogLevel.WARN && shouldLog(args)) {
+      console.warn(...args);
     }
   },
 
@@ -433,42 +440,9 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * 🔧 全局console拦截器 - 防止重复日志污染
- * 拦截所有console调用并应用去重机制
+ * 🔧 注意：全局console拦截已在main.tsx中实现
+ * 这里的logger工具提供了更细粒度的日志控制
+ * 如需启用全局拦截，可在main.tsx中调整过滤规则
  */
-if (typeof window !== 'undefined' && !isDebugEnabled) {
-  const originalConsole = {
-    log: console.log,
-    warn: console.warn,
-    info: console.info,
-    debug: console.debug,
-  };
-
-  // 拦截console.log
-  console.log = function(...args: any[]) {
-    const message = JSON.stringify(args);
-    if (shouldLog(message)) {
-      originalConsole.log.apply(console, args);
-    }
-  };
-
-  // 拦截console.warn
-  console.warn = function(...args: any[]) {
-    const message = JSON.stringify(args);
-    if (shouldLog(message)) {
-      originalConsole.warn.apply(console, args);
-    }
-  };
-
-  // 拦截console.info
-  console.info = function(...args: any[]) {
-    const message = JSON.stringify(args);
-    if (shouldLog(message)) {
-      originalConsole.info.apply(console, args);
-    }
-  };
-
-  // console.error不拦截，错误信息始终显示
-}
 
 export default logger;
