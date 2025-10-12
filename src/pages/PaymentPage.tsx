@@ -365,22 +365,21 @@ export default function PaymentPage() {
     }
   }, [currentUser?.id]);
 
-  // 处理计划选择
+  // 处理计划选择（仅选中并滚动，不自动弹窗）
   const handlePlanSelect = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
     setShowQRCode(false);
 
-    // 自动滚动到支付信息区域
+    // 自动滚动到支付信息区域（考虑固定Header偏移）
     setTimeout(() => {
       const paymentSection = document.getElementById('payment-section');
       if (paymentSection) {
-        paymentSection.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-          inline: 'nearest'
-        });
+        const headerOffset = 72; // 头部大致高度（px）
+        const rect = paymentSection.getBoundingClientRect();
+        const y = rect.top + window.pageYOffset - headerOffset;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
       }
-    }, 300); // 延迟一点时间确保状态更新完成
+    }, 300); // 延迟以确保状态更新与布局完成
   };
 
   // 处理支付
