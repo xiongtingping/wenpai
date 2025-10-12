@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "vite --port 5173 --host",
     "build": "npm run tokens:build && vite build",
+    "prebuild": "npm run i18n:lint",
+
     "build:check": "npm run lint && node scripts/system-sanity-check.mjs && tsc -b && vite build",
     "deploy-check": "node scripts/deploy-check.js && node scripts/system-sanity-check.mjs",
     "predeploy": "npm run deploy-check && npm run build",
@@ -32,6 +34,8 @@
     "ui:conflict-fix": "node scripts/detect-ui-component-conflicts.js --fix",
     "dialog:audit": "npm run dialog:health-check && npm run dialog:test && npm run dialog:lint",
     "dialog:fix": "npm run dialog:lint -- --fix",
+    "i18n:lint": "node scripts/i18nJsonCheck.cjs",
+
     "tokens:build": "node tokens/scripts/build.js",
     "style:check": "node scripts/style-system-check.js",
     "style:lint": "stylelint 'src/**/*.{css,scss}' --fix",
