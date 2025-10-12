@@ -292,7 +292,8 @@ const App: React.FC = () => {
               
               <ConditionalNavigation>
                     <Suspense fallback={<LoadingSpinner />}>
-                      <Routes>
+                      {/* 🔧 FIX: 添加key确保路由切换时正确重新渲染 */}
+                      <Routes key={location.pathname}>
                         {/* {t('app.routes.homePage')} */}
                         <Route path='/' element={<HomePage />} />
 
