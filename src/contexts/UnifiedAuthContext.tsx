@@ -817,13 +817,21 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   // 🎫 Token管理系统初始化
   useEffect(() => {
+    // 🔧 FIX: 使用ref避免重复初始化
+    let initialized = false;
+
     const initTokenManagement = async () => {
+      if (initialized) {
+        console.log('🎫 Token管理系统already初始化，跳过');
+        return;
+      }
+
       try {
         console.log('🎫 initializationToken管理系统...');
-        
+
         // 注册Authing Token刷新处理器
         TokenService.registerRefreshHandler('authing', AuthingTokenService.createRefreshHandler());
-        
+
         // 设置Token事件回调
         TokenService.setCallbacks({
           onTokenRefreshed: (newToken) => {
@@ -837,32 +845,34 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           },
           onLogoutRequired: (reason) => {
             console.warn('🚪 需要relogin:', reason);
-            logout();
+            // 🔧 FIX: 使用 navigate 直接跳转，避免依赖 logout
+            navigate('/');
           }
         });
-        
+
+        initialized = true;
         console.log('✅ Token管理系统initializationcompleted');
-        
+
       } catch (error) {
         console.error('💥 Token管理initializationfailed:', error);
       }
     };
-    
-    // 避免在初始渲染时立即执行，延迟执行防止循环
-    setTimeout(() => {
-      initTokenManagement();
-    }, 1000);
-  }, [logout]); // 使用稳定的logout引用
+
+    // 立即执行，不需要延迟
+    initTokenManagement();
+
+    // 🔧 FIX: 空依赖数组，只在mount时执行一次
+  }, [])
 
   // 🕐 会话管理系统初始化
   useEffect(() => {
     if (!user) return; // 只在已登录时启动会话管理
 
     console.log('🕐 startingsession管理...');
-    
+
     // 启动用户会话
     SessionService.start(user.id);
-    
+
     // 设置会话事件回调
     SessionService.setCallbacks({
       onSessionWarning: (remainingTime) => {
@@ -873,7 +883,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       onSessionExpired: () => {
         console.warn('💥 sessionexpired，自动登出');
         setSessionWarning(false);
-        logout();
+        // 🔧 FIX: 直接导航，避免依赖 logout 函数
+        navigate('/');
       },
       onSessionExtended: (newExpiryTime) => {
         console.log('✅ sessionalready延长至:', new Date(newExpiryTime).toISOString());
@@ -888,7 +899,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 用户登出时清理会话
       SessionService.end();
     };
-  }, [user, logout]);
+    // 🔧 FIX: 只依赖 user?.id，避免 logout 导致的循环
+  }, [user?.id]);
 
   const contextValue: UnifiedAuthContextType = {
     user,

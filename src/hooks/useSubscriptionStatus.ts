@@ -54,6 +54,11 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
   // 🔧 使用全局Store
   const store = useSubscriptionStore();
 
+  // 🔧 FIX: 如果没有userId，返回默认状态，避免无效查询
+  if (!targetUserId) {
+    logger.debug('⚠️ useSubscriptionStatus: 没有userId，返回默认状态');
+  }
+
   // 🔧 转换Store状态为兼容格式
   const primaryStatus: SubscriptionStatus = store.status ? {
     status: store.status.isExpired ? 'expired' : 'active',

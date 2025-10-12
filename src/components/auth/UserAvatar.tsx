@@ -222,7 +222,8 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   };
 
   // 获取用户等级和订阅状态
-  const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
+  // 🔧 FIX: 只在有user时才获取订阅状态，避免无限循环
+  const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus(user?.id);
 
   const getUserTierDisplay = () => {
     if (!user) return t('auth.user');

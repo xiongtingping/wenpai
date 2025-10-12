@@ -53,6 +53,10 @@ class UnifiedSubscriptionService {
   // 🔧 性能警告去重: 记录已警告过的慢查询用户，避免重复输出
   private slowQueryWarned: Set<string> = new Set();
 
+  // 🔧 FIX: 防止无限查询的请求节流
+  private queryThrottle: Map<string, number> = new Map();
+  private readonly THROTTLE_MS = 1000; // 每个用户1秒内最多查询1次
+
   constructor() {
     // 🔧 新增: 设置跨Tab同步监听
     this.setupCrossTabSync();
@@ -159,6 +163,22 @@ class UnifiedSubscriptionService {
    */
   private async getFromSupabase(userId: string): Promise<SubscriptionStatusResult | null> {
     try {
+      // 🔧 FIX: 检查节流，防止同一用户短时间内重复查询
+      const lastQuery = this.queryThrottle.get(userId);
+      const now = Date.now();
+
+      if (lastQuery && now - lastQuery < this.THROTTLE_MS) {
+        logger.warn('🚫 查询被节流拦截，防止无限循环', {
+          userId,
+          timeSinceLastQuery: now - lastQuery,
+          throttleMs: this.THROTTLE_MS
+        });
+        return null;
+      }
+
+      // 记录本次查询时间
+      this.queryThrottle.set(userId, now);
+
       const startTime = Date.now();
       const client = await getSupabaseClient();
 
