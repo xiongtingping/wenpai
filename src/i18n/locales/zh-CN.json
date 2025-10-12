@@ -2643,7 +2643,7 @@
       "selectPlan": "选择此计划",
       "alreadyHaveHigher": "已拥有更高版本",
       "originalShort": "原价：¥{{price}}",
-      "yearlyCompareBadge": "比月付省¥{{savings}} · 立省{{percent}}%",
+      "yearlyCompareBadge": "比月付省¥{{savings}} · 立省{{percent}}%"
     },
     "plans": {
       "freePlan": "免费版",
