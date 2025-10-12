@@ -8,7 +8,7 @@
  * 
  * 同步策略：
  * - 订阅信息：每30秒同步一次
- * - 使用统计：每60秒同步一次
+ * - 使用统计：每30秒同步一次
  * - 支付状态：支付中每3秒同步一次
  */
 
@@ -22,7 +22,7 @@ import type { SubscriptionTier } from '@/types/subscription';
  */
 const SYNC_INTERVALS = {
   SUBSCRIPTION: 30 * 1000,      // 订阅信息：30秒
-  USAGE_STATS: 60 * 1000,       // 使用统计：60秒
+  USAGE_STATS: 30 * 1000,       // 使用统计：30秒
   PAYMENT_STATUS: 3 * 1000,     // 支付状态：3秒（仅支付中）
 };
 

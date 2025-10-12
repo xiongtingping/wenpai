@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats';
 import { useUsageCount, useTokenStats } from '@/hooks/useUsage';
+import { useUserState, useUnifiedStore } from '@/stores/unified-state-store';
 import {
   formatRemainingUses,
   formatUsageDisplay,
@@ -138,6 +139,15 @@ export function TokenUsageSection({
     }
   }, [refreshStats]);
 
+  // 进入个人中心时，若已登录且有订阅上下文，显式刷新一次（新Store路径）
+  const userState = useUserState();
+  React.useEffect(() => {
+    const userId = (userState as any)?.id;
+    if (userId) {
+      try { useUnifiedStore.getState().refreshUsageStats(); } catch {}
+    }
+  }, [userState?.id, userState?.subscription]);
+
   const loading = storeUsageCount.loading || storeTokenStats.loading || legacyLoading;
 
   // 🔧 FIX: 直接使用useTokenStats返回的数值，而不是stats对象
@@ -253,6 +263,17 @@ export function TokenUsageSection({
 
   return (
     <div className={`${className} bg-card border rounded-xl p-5 flex flex-col`}>
+      {/* 顶部轻量刷新指示（不打断交互） */}
+      {(loading || isRefreshing) && (
+        <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1">
+            <span className="w-1.5 h-1.5 bg-primary/70 rounded-full animate-pulse" />
+            <span className="w-1.5 h-1.5 bg-primary/50 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+            <span className="w-1.5 h-1.5 bg-primary/30 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+          </span>
+          正在刷新…
+        </div>
+      )}
       <div style={{marginBottom: '0.75rem'}}>
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>

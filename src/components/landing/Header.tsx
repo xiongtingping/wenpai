@@ -150,13 +150,13 @@ export function Header() {
             <NavBar
               positionClassName="relative z-[999]"
               items={[
-                { name: t('nav.home'), url: '/', icon: Home, onClick: (e) => { e.preventDefault(); navigate('/'); } },
-                { name: t('nav.adapt'), url: '/content-adapter', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/content-adapter'); } else { localStorage.setItem('login_redirect_to', '/content-adapter'); login(); } } },
-                { name: t('nav.hotTopics'), url: '/hot-topics', icon: Radar, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/hot-topics'); } else { localStorage.setItem('login_redirect_to', '/hot-topics'); login(); } } },
-                { name: t('nav.creative'), url: '/creative-studio', icon: Sparkles, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/creative-studio'); } else { localStorage.setItem('login_redirect_to', '/creative-studio'); login(); } } },
-                { name: t('nav.bookmark'), url: '/my-library', icon: FolderOpen, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/my-library'); } else { localStorage.setItem('login_redirect_to', '/my-library'); login(); } } },
-                { name: t('nav.brandLibrary'), url: '/brand-library', icon: Library, onClick: (e) => { e.preventDefault(); if (isAuthenticated) { navigate('/brand-library'); } else { localStorage.setItem('login_redirect_to', '/brand-library'); login(); } } },
-                { name: t('nav.upgrade'), url: '/payment-center', icon: CreditCard, onClick: (e) => { e.preventDefault(); navigate('/payment-center'); } },
+                { name: t('nav.home'), url: '/', icon: Home },
+                { name: t('nav.adapt'), url: '/content-adapter', icon: Sparkles },
+                { name: t('nav.hotTopics'), url: '/hot-topics', icon: Radar },
+                { name: t('nav.creative'), url: '/creative-studio', icon: Sparkles },
+                { name: t('nav.bookmark'), url: '/my-library', icon: FolderOpen },
+                { name: t('nav.brandLibrary'), url: '/brand-library', icon: Library },
+                { name: t('nav.upgrade'), url: '/payment-center', icon: CreditCard },
               ]}
             />
           </div>

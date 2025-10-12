@@ -721,6 +721,28 @@ export class UnifiedAIManager {
    */
   private getUserTier(): string {
     try {
+      // centralized util
+      const { getEffectiveUserTier } = require('@/utils/effectiveUserTier');
+      return getEffectiveUserTier();
+      // legacy path removed; util handles subscription-store  unified-state-store  localStorage
+      try {
+        const { useSubscriptionStore } = require('@/stores/subscription-store');
+        const subState = useSubscriptionStore.getState();
+        const tier = subState?.status?.tier as string | undefined;
+        const isActive = subState?.status?.status === 'active';
+        if (tier && (isActive || tier === 'pro' || tier === 'premium')) {
+          return tier;
+        }
+      } catch {}
+
+      try {
+        const { useUnifiedStore } = require('@/stores/unified-state-store');
+        const memTier = useUnifiedStore.getState().user?.subscription as string | undefined;
+        if (memTier && memTier !== 'trial') {
+          return memTier;
+        }
+      } catch {}
+
       // 🔧 FIX: 按优先级尝试多个存储位置
       const storageKeys = [
         'wenpai-unified-store',    // 优先级1：统一Store

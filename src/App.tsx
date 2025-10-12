@@ -116,26 +116,12 @@ const StateManagerInitializer: React.FC = () => {
   return null;
 };
 
-/**
- * 主应用组件
- */
-const App: React.FC = () => {
-  const { t } = useTranslation();
-  const location = useLocation();
+// 将依赖 useAuth 的逻辑下沉到 Provider 内部，避免在 Provider 外部调用 useAuth
+const SubscriptionBootstrap: React.FC = () => {
   const { user } = useAuth();
 
-  // 🔧 集成Token限额管理器
-  const { TokenLimitDialogComponent } = useTokenLimitManager(
-    user?.id,
-    user?.userTier
-  );
-
-  // 🎯 应用级订阅状态预加载（提前到App.tsx）
-  // 🔧 2025-01 重构: 从AuthGuard移到这里，确保数据在组件渲染前就绪
   useEffect(() => {
     if (user?.id) {
-
-      // 1. 立即预加载订阅状态
       const preloadSubscription = async () => {
         try {
           const { useSubscriptionStore } = await import('@/stores/subscription-store');
@@ -147,13 +133,10 @@ const App: React.FC = () => {
 
       preloadSubscription();
 
-      // 2. 启动云端同步服务（后台验证）
-      cloudSyncService.manualSync(user.id).then(() => {
-      }).catch((error) => {
+      cloudSyncService.manualSync(user.id).catch((error) => {
         console.error('❌ 云端同步失败:', error);
       });
 
-      // 3. 启动定期同步（30秒间隔）
       cloudSyncService.start(user.id);
 
       return () => {
@@ -161,6 +144,24 @@ const App: React.FC = () => {
       };
     }
   }, [user?.id]);
+
+  return null;
+};
+
+const TokenLimitBootstrap: React.FC = () => {
+  const { user } = useAuth();
+  const { TokenLimitDialogComponent } = useTokenLimitManager(user?.id, (user as any)?.userTier);
+  return <TokenLimitDialogComponent />;
+};
+
+/**
+ * 主应用组件
+ */
+const App: React.FC = () => {
+  const { t } = useTranslation();
+  const location = useLocation();
+
+
 
   // 定义不需要显示Header的路由
   const noHeaderRoutes = ['/login', '/register', '/custom-login', '/forgot-password'];
@@ -180,9 +181,9 @@ const App: React.FC = () => {
         console.error('❌ Service initialization failed:', error);
       }
     };
-    
+
     initServices();
-    
+
     // 🔧 FIX: 应用启动时加载用户保存的主题，ThemeToggle 稍后会验证权限
     const loadPersistedTheme = () => {
       try {
@@ -284,7 +285,7 @@ const App: React.FC = () => {
             <>
               {/* 🎯 修复完成的Header组件 - 条件渲染，登录页面不显示 */}
               {shouldShowHeader && <Header />}
-              
+
               <ConditionalNavigation>
                     {/* 🔧 FIX: Suspense fallback不使用i18n，避免循环依赖导致无限loading */}
                     <Suspense fallback={
@@ -320,10 +321,10 @@ const App: React.FC = () => {
                         {/* 兼容旧路由 */}
                         <Route path='/adapt' element={<Navigate to="/content-adapter" replace />} />
                         <Route path='/adapt-new' element={<Navigate to="/content-adapter-new" replace />} />
-                        
+
                         {/* 📌 统一路由命名：创意工具 */}
                         <Route path='/creative-studio' element={<AuthGuard><LazyWrapper><LazyCreativeStudioPage /></LazyWrapper></AuthGuard>} />
-                        
+
                         {/* 📌 统一路由命名：热点话题 - 懒加载优化 */}
                         <Route path='/hot-topics' element={
                           <LazyWrapper>
@@ -335,7 +336,7 @@ const App: React.FC = () => {
                             <LazyEnhancedHotTopicsPage />
                           </LazyWrapper>
                         } />
-                        
+
                         {/* 📌 统一路由命名：收藏和书签 - 懒加载优化 */}
                         <Route path='/my-library' element={
                           <AuthGuard>
@@ -350,7 +351,7 @@ const App: React.FC = () => {
                         <Route path='/bookmarks' element={<Navigate to="/my-library" replace />} />
                         <Route path='/bookmark' element={<Navigate to="/my-library" replace />} />
                         <Route path='/library' element={<Navigate to="/my-library" replace />} />
-                        
+
                         {/* 📌 统一路由命名：表情符号生成器 - 懒加载优化 */}
                         <Route path='/emoji-generator' element={
                           <LazyWrapper>
@@ -359,7 +360,7 @@ const App: React.FC = () => {
                         } />
                         {/* 兼容旧路由 */}
                         <Route path='/emoji' element={<Navigate to="/emoji-generator" replace />} />
-                        
+
                         {/* 📌 统一路由命名：工具和管理 */}
                         <Route path='/share-manager' element={<AuthGuard><LazyWrapper><LazyShareManagerPage /></LazyWrapper></AuthGuard>} />
                         <Route path='/wechat-templates' element={<AuthGuard><LazyWrapper><LazyWechatTemplatePage /></LazyWrapper></AuthGuard>} />
@@ -461,10 +462,12 @@ const App: React.FC = () => {
                   <SessionManager />
 
                   {/* Token限额管理对话框 */}
-                  <TokenLimitDialogComponent />
+                  <TokenLimitBootstrap />
 
                   {/* {t('app.globalComponents.backToTopButton')} */}
                   <ScrollToTop />
+                <SubscriptionBootstrap />
+
                 </>
               {/* 🔧 FIXED: 移除冗余的ErrorBoundary结束标签 */}
             </AuthDataSyncProvider>

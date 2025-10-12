@@ -7,6 +7,7 @@
 import { callUnifiedAI } from '@/api/unifiedAIService';
 import { AITaskType } from '@/api/aiService';
 import { tokenUsageService } from '@/services/tokenUsageService';
+import { getEffectiveUserTier, getEffectiveUserId } from '@/utils/effectiveUserTier';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { AICallParams, AIResponse } from '@/api/types';
@@ -57,87 +58,18 @@ export interface AIResponseWithUsage extends AIResponse {
  */
 function getCurrentUserInfo(): { userId: string; userTier: SubscriptionTier } | null {
   try {
-    // 🔧 FIX: 按优先级尝试多个存储位置
-    const storageKeys = [
-      'wenpai-unified-store',    // 优先级1：统一Store
-      'unified-user-state',      // 优先级2：统一用户状态
-      'wenpai_auth_state',       // 优先级3：旧版认证状态
-      '_authing_user'            // 优先级4：Authing原始数据
-    ];
-
-    for (const key of storageKeys) {
-      const data = localStorage.getItem(key);
-      if (!data) continue;
-
-      try {
-        const parsed = JSON.parse(data);
-
-        // 尝试从不同的数据结构中提取用户信息
-        let user = null;
-
-        // Zustand store格式：{ state: { user: {...} } }
-        if (parsed.state?.user?.id) {
-          user = parsed.state.user;
-          console.log(`✅ 从 ${key} 获取用户信息成功`);
-        }
-        // 直接用户对象格式：{ user: {...} }
-        else if (parsed.user?.id) {
-          user = parsed.user;
-          console.log(`✅ 从 ${key} 获取用户信息成功`);
-        }
-        // Authing原始格式：{ id: '...', ... }
-        else if (parsed.id) {
-          user = parsed;
-          console.log(`✅ 从 ${key} 获取用户信息成功`);
-        }
-
-        if (user?.id) {
-          // 🔍 详细日志：记录用户对象结构
-          console.log('🔍 用户对象完整结构:', {
-            source: key,
-            userId: user.id,
-            hasSubscription: !!user.subscription,
-            subscriptionType: typeof user.subscription,
-            subscriptionValue: user.subscription,
-            subscriptionTier: user.subscription?.tier,
-            userKeys: Object.keys(user),
-            fullUser: user
-          });
-
-          // 🔧 修复：支持两种数据结构
-          // 1. unified-state-store格式：subscription直接是字符串 'trial' | 'pro' | 'premium'
-          // 2. 旧格式：subscription是对象 { tier: 'trial' | 'pro' | 'premium' }
-          let userTier: SubscriptionTier = 'trial';
-
-          if (typeof user.subscription === 'string') {
-            // 新格式：直接是字符串
-            userTier = user.subscription as SubscriptionTier;
-          } else if (user.subscription?.tier) {
-            // 旧格式：对象格式
-            userTier = user.subscription.tier;
-          }
-
-          console.log('📊 用户信息:', {
-            userId: user.id,
-            userTier,
-            source: key,
-            subscriptionType: typeof user.subscription,
-            subscriptionValue: user.subscription
-          });
-
-          return {
-            userId: user.id,
-            userTier
-          };
-        }
-      } catch (parseError) {
-        // 解析失败，继续尝试下一个key
-        continue;
-      }
+    const userId = getEffectiveUserId();
+    const userTier = getEffectiveUserTier();
+    if (userId || userTier) {
+      return { userId: userId ?? 'anonymous', userTier };
     }
-
-    // 所有存储位置都没有找到用户信息
-    console.warn('⚠️ 未找到用户信息，已尝试的存储位置:', storageKeys);
+    return null;
+    // centralized: use effective user getters
+    const userId = getEffectiveUserId();
+    const userTier = getEffectiveUserTier();
+    if (userId || userTier) {
+      return { userId: userId ?? 'anonymous', userTier };
+    }
     return null;
 
   } catch (error) {

@@ -156,19 +156,17 @@ export class PermissionFallbackManager {
       }
     }
 
-    // 2. 尝试从本地存储读取
+    // 2. 统一从权威工具获取（已内置多源优先级），并写入缓存
     try {
-      const authData = localStorage.getItem('wenpai_auth_state');
-      if (authData) {
-        const { user } = JSON.parse(authData);
-        const tier = user?.subscription?.tier;
-        if (tier && ['trial', 'pro', 'premium'].includes(tier)) {
-          console.log('✅ 从本地存储恢复权限等级:', tier);
-          return tier as SubscriptionTier;
-        }
+      const { getEffectiveUserTier } = require('@/utils/effectiveUserTier');
+      const tier = getEffectiveUserTier();
+      if (this.config.enableCache) {
+        PermissionCacheManager.save(tier);
       }
+      console.log('✅ 通过统一工具获取权限等级:', tier);
+      return tier;
     } catch (error) {
-      console.warn('从本地存储读取权限失败:', error);
+      console.warn('通过统一工具获取权限失败，将使用默认降级等级:', error);
     }
 
     // 3. 使用默认降级等级

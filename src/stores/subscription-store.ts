@@ -194,8 +194,16 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
         logger.warn('⚠️ 同步到unified-state-store失败', syncError);
       }
 
-      // 触发全局事件，通知其他组件
+      // 触发全局事件，通知其他组件（保持向后兼容 + 统一新事件）
       window.dispatchEvent(new CustomEvent('subscriptionRefreshed', {
+        detail: {
+          userId,
+          tier: result.tier,
+          timestamp: Date.now()
+        }
+      }));
+      // 新标准事件：userSubscriptionUpdated（推荐监听）
+      window.dispatchEvent(new CustomEvent('userSubscriptionUpdated', {
         detail: {
           userId,
           tier: result.tier,

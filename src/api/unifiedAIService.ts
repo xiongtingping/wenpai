@@ -344,14 +344,12 @@ async function callDeepSeekNative(params: AICallParams): Promise<AIResponse> {
  */
 function getUserTier(): string {
   try {
-    const authData = localStorage.getItem('wenpai_auth_state');
-    if (authData) {
-      const { user } = JSON.parse(authData);
-      return user?.subscription?.tier || 'trial';
-    }
-    return 'trial';
-  } catch (error) {
-    console.warn('gettinguserinfofailed，使用defaulttier:', error);
+    // centralized util
+    const { getEffectiveUserTier } = require('@/utils/effectiveUserTier');
+    return getEffectiveUserTier();
+    //          
+    //   subscription-store    unified-state-store 
+  } catch {
     return 'trial';
   }
 }

@@ -82,6 +82,14 @@ export default function ProfilePage() {
     }
   }, [user]);
 
+  // 进入个人中心时展示轻量提示，并触发一次云端刷新（并行订阅+使用统计）
+  useEffect(() => {
+    if (user?.id) {
+      toast({ title: '正在刷新', description: '从云端获取最新数据…', duration: 1500 });
+      cloudSyncService.manualSync(user.id).catch(() => {});
+    }
+  }, [user?.id]);
+
   const userTier = (() => {
     if (hasActiveSubscription && primaryStatus?.status === 'active' && primaryStatus.tier) {
       return primaryStatus.tier;
@@ -146,7 +154,7 @@ export default function ProfilePage() {
     setIsSaving(true);
     try {
       const updatedUserData: Record<string, any> = {};
-      
+
       if (profileForm.nickname?.trim() && profileForm.nickname !== getUserDisplayName(user, '')) {
         updatedUserData.nickname = profileForm.nickname;
       }
@@ -157,14 +165,14 @@ export default function ProfilePage() {
       if (emailTrimmed && emailTrimmed !== currentEmail) {
         updatedUserData.email = emailTrimmed;
       }
-      
+
       // 检查手机号是否变化 - 只有非空且真正不同的值才更新
       const phoneTrimmed = (profileForm.phone || '').trim();
       const currentPhone = (user?.phone || '').trim();
       if (phoneTrimmed && phoneTrimmed !== currentPhone) {
         updatedUserData.phone = phoneTrimmed;
       }
-      
+
     if (Object.keys(updatedUserData).length === 0) {
       setHasUnsavedChanges(false);
       toast({
@@ -223,7 +231,7 @@ export default function ProfilePage() {
     try {
       const { verificationCodeService } = await import('@/services/verificationCodeService');
       const result = await verificationCodeService.sendSmsCode(profileForm.phone, 'UPDATE_PHONE');
-      
+
       if (!result.success) {
         throw new Error(result.message);
       }
@@ -258,7 +266,7 @@ export default function ProfilePage() {
     try {
       const { verificationCodeService } = await import('@/services/verificationCodeService');
       const result = await verificationCodeService.verifyPhoneCode(profileForm.phone, verificationCodes.phone);
-      
+
       if (!result.success) {
         throw new Error(result.message);
       }
@@ -266,7 +274,7 @@ export default function ProfilePage() {
       setVerificationStatus(prev => ({ ...prev, phone: true }));
       setShowVerificationInput(prev => ({ ...prev, phone: false }));
       setVerificationCodes(prev => ({ ...prev, phone: '' }));
-      
+
       toast({
         title: "验证成功",
         description: "手机号验证成功",
@@ -307,7 +315,7 @@ export default function ProfilePage() {
     try {
       const { verificationCodeService } = await import('@/services/verificationCodeService');
       const result = await verificationCodeService.sendEmailCode(profileForm.email, 'UPDATE_EMAIL');
-      
+
       if (!result.success) {
         throw new Error(result.message);
       }
@@ -342,7 +350,7 @@ export default function ProfilePage() {
     try {
       const { verificationCodeService } = await import('@/services/verificationCodeService');
       const result = await verificationCodeService.verifyEmailCode(profileForm.email, verificationCodes.email);
-      
+
       if (!result.success) {
         throw new Error(result.message);
       }
@@ -350,7 +358,7 @@ export default function ProfilePage() {
       setVerificationStatus(prev => ({ ...prev, email: true }));
       setShowVerificationInput(prev => ({ ...prev, email: false }));
       setVerificationCodes(prev => ({ ...prev, email: '' }));
-      
+
       toast({
         title: "验证成功",
         description: "邮箱验证成功",
@@ -499,7 +507,7 @@ export default function ProfilePage() {
                 {/* 卡片内部装饰 */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-2xl" />
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-accent/10 to-transparent rounded-full blur-2xl" />
-                
+
                 <CardHeader className="relative z-10 pb-4">
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex-1 space-y-1">
@@ -549,18 +557,18 @@ export default function ProfilePage() {
                       </div>
 
                       <div className="flex gap-3 flex-wrap justify-center">
-                        <Button 
-                          size="sm" 
-                          onClick={handleUploadAvatar} 
+                        <Button
+                          size="sm"
+                          onClick={handleUploadAvatar}
                           className="group hover:shadow-lg transition-all duration-300"
                         >
                           <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
                           {t('profile.uploadAvatar')}
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={handleRandomAvatar} 
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleRandomAvatar}
                           className="group hover:shadow-lg transition-all duration-300"
                         >
                           <Sparkles className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />

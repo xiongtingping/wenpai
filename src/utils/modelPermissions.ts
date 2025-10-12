@@ -5,6 +5,7 @@
 
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import { getModelInfo, isModelAvailableForTier } from '@/config/aiModels';
+import { getEffectiveUserTier } from '@/utils/effectiveUserTier';
 import type { SubscriptionTier } from '@/types/subscription';
 
 /**
@@ -13,15 +14,15 @@ import type { SubscriptionTier } from '@/types/subscription';
  */
 export function getUserTier(): SubscriptionTier {
   try {
-    // 🔧 FIX: 按优先级尝试多个存储位置
-    const storageKeys = [
-      'wenpai-unified-store',    // 优先级1：统一Store
-      'unified-user-state',      // 优先级2：统一用户状态
-      'wenpai_auth_state',       // 优先级3：旧版认证状态
-      '_authing_user'            // 优先级4：Authing原始数据
-    ];
+    // unify to centralized util to avoid drift
+    return getEffectiveUserTier();
+  } catch {
+    return 'trial';
+  }
+}
 
-    for (const key of storageKeys) {
+// legacy fallback removed; util handles all cases
+
       const data = localStorage.getItem(key);
       if (!data) continue;
 
