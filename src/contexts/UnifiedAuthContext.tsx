@@ -400,6 +400,15 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
         console.log('✅ subscription-store已updatinga触发globalstatus刷新');
 
+        // 🔧 FIX: 登录成功后初始化用量统计
+        try {
+          console.log('🔄 初始化用量统计系统...');
+          await useUnifiedStore.getState().initializeUsageStats(formattedUser.id, subscriptionTier);
+          console.log('✅ 用量统计系统初始化完成');
+        } catch (usageError) {
+          console.warn('⚠️ 用量统计初始化失败，不影响登录:', usageError);
+        }
+
       } catch (syncError) {
         console.error('❌ subscriptionstatussyncfailed，使用defaultvalue:', syncError);
         // 🔧 失败时设置为trial，确保有一个明确的状态

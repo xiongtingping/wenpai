@@ -77,31 +77,15 @@ export function useUsageCount() {
 
   // 🎯 自动初始化 (用户登录后)
   // 🔧 修复：当 subscription 缺失时也进行初始化，使用安全的默认等级（trial）
-  // 🔧 FIX: 使用 ref 防止重复初始化
-  const initializedRef = React.useRef<string | null>(null);
-  const lastSubscriptionRef = React.useRef<string | null>(null);
-
-  useEffect(() => {
-    if (user.id) {
-      const tier = (user.subscription as SubscriptionTier) || ('trial' as SubscriptionTier);
-      const currentKey = `${user.id}:${tier}`;
-
-      // 🔧 FIX: 只在userId或subscription真正变化时才初始化
-      if (initializedRef.current !== currentKey) {
-        console.log('🔄 useUsageCount 触发初始化:', { userId: user.id, subscription: user.subscription, tier });
-        initializedRef.current = currentKey;
-        lastSubscriptionRef.current = tier;
-        initializeStats(user.id, tier);
-      } else {
-        console.log('⏭️ useUsageCount 跳过重复初始化:', { currentKey });
-      }
-    } else {
-      // 用户登出时重置
-      initializedRef.current = null;
-      lastSubscriptionRef.current = null;
-    }
-    // 🔧 FIX: 移除 initializeStats 依赖，避免循环
-  }, [user.id, user.subscription]);
+  // 🔧 FIX: 初始化逻辑移到Store内部，这里不再触发
+  // Store会在用户登录时自动初始化，无需每个Hook都触发
+  // 注释掉以避免多个组件同时触发初始化
+  // useEffect(() => {
+  //   if (user.id) {
+  //     const tier = (user.subscription as SubscriptionTier) || ('trial' as SubscriptionTier);
+  //     initializeStats(user.id, tier);
+  //   }
+  // }, [user.id, user.subscription]);
 
   return {
     used: usageCount.used,
