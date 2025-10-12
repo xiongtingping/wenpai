@@ -224,9 +224,9 @@ class UnifiedSubscriptionService {
 
       // 计算到期状态
       const expiresAt = new Date((subscription as any).expires_at);
-      const now = new Date();
-      const isExpired = expiresAt < now;
-      const daysRemaining = Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
+      const currentDate = new Date();
+      const isExpired = expiresAt < currentDate;
+      const daysRemaining = Math.max(0, Math.ceil((expiresAt.getTime() - currentDate.getTime()) / (24 * 60 * 60 * 1000)));
 
       return {
         userId,
