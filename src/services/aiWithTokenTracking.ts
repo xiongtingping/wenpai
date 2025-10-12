@@ -64,14 +64,6 @@ function getCurrentUserInfo(): { userId: string; userTier: SubscriptionTier } | 
       return { userId: userId ?? 'anonymous', userTier };
     }
     return null;
-    // centralized: use effective user getters
-    const userId = getEffectiveUserId();
-    const userTier = getEffectiveUserTier();
-    if (userId || userTier) {
-      return { userId: userId ?? 'anonymous', userTier };
-    }
-    return null;
-
   } catch (error) {
     console.error('❌ 获取用户信息失败:', error);
     return null;
