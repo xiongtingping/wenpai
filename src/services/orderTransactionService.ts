@@ -104,7 +104,7 @@ export class OrderTransactionService {
 
       const { data: existingSubscription } = await supabase
         .from('user_subscriptions')
-        .select('*')
+        .select('id, expires_at')
         .eq('user_id', order.user_id)
         .eq('tier', order.product_type)  // 🔧 FIX: 使用 tier 而不是 subscription_type
         .eq('status', 'active')
@@ -123,7 +123,7 @@ export class OrderTransactionService {
           .from('user_subscriptions')
           .update({ expires_at: newExpiry.toISOString() })
           .eq('id', existingSubscription.id)
-          .select()
+          .select('id, user_id, tier, status, period, started_at, expires_at, order_id, last_payment_id')
           .single();
 
         if (error) throw error;
@@ -147,7 +147,7 @@ export class OrderTransactionService {
             order_id: order.order_id,
             last_payment_id: order.order_id  // 🔧 FIX: 添加 last_payment_id
           })
-          .select()
+          .select('id, user_id, tier, status, period, started_at, expires_at, order_id, last_payment_id')
           .single();
 
         if (error) throw error;

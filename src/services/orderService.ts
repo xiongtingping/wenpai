@@ -196,7 +196,7 @@ export class OrderService {
       // 检查用户是否已有相同类型的订阅
       const { data: existingSubscription } = await supabase
         .from('user_subscriptions')
-        .select('*')
+        .select('id, expires_at')
         .eq('user_id', order.user_id)
         .eq('tier', order.product_type)  // 🔧 FIX: 使用 tier 而不是 subscription_type
         .eq('status', 'active')
@@ -215,7 +215,7 @@ export class OrderService {
             expires_at: newExpiry.toISOString()
           })
           .eq('id', existingSubscription.id)
-          .select()
+          .select('id, user_id, tier, status, period, started_at, expires_at, order_id, last_payment_id')
           .single();
 
         if (error) throw error;
@@ -240,7 +240,7 @@ export class OrderService {
             order_id: order.order_id,
             last_payment_id: order.order_id  // 🔧 FIX: 添加 last_payment_id
           })
-          .select()
+          .select('id, user_id, tier, status, period, started_at, expires_at, order_id, last_payment_id')
           .single();
 
         if (error) throw error;
@@ -276,7 +276,7 @@ export class OrderService {
     try {
       const { data, error } = await supabase
         .from('user_subscriptions')
-        .select('*')
+        .select('id, user_id, tier, status, expires_at')
         .eq('user_id', userId)
         .eq('status', 'active')
         .order('expires_at', { ascending: false })
@@ -340,7 +340,7 @@ export class OrderService {
     try {
       const { data, error } = await supabase
         .from('user_subscriptions')
-        .select('*')
+        .select('id, user_id, tier, status, expires_at, order_id')
         .eq('order_id', orderId)
         .eq('status', 'active')
         .maybeSingle();

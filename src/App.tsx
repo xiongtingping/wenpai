@@ -126,20 +126,20 @@ const App: React.FC = () => {
 
   // 🔧 集成Token限额管理器
   const { TokenLimitDialogComponent } = useTokenLimitManager(
-    user?.userId,
+    user?.id,
     user?.userTier
   );
 
   // 🎯 应用级订阅状态预加载（提前到App.tsx）
   // 🔧 2025-01 重构: 从AuthGuard移到这里，确保数据在组件渲染前就绪
   useEffect(() => {
-    if (user?.userId) {
+    if (user?.id) {
 
       // 1. 立即预加载订阅状态
       const preloadSubscription = async () => {
         try {
           const { useSubscriptionStore } = await import('@/stores/subscription-store');
-          await useSubscriptionStore.getState().preloadStatus(user.userId, user);
+          await useSubscriptionStore.getState().preloadStatus(user.id, user);
         } catch (error) {
           console.error('❌ 订阅状态预加载失败:', error);
         }
@@ -148,19 +148,19 @@ const App: React.FC = () => {
       preloadSubscription();
 
       // 2. 启动云端同步服务（后台验证）
-      cloudSyncService.manualSync(user.userId).then(() => {
+      cloudSyncService.manualSync(user.id).then(() => {
       }).catch((error) => {
         console.error('❌ 云端同步失败:', error);
       });
 
       // 3. 启动定期同步（30秒间隔）
-      cloudSyncService.start(user.userId);
+      cloudSyncService.start(user.id);
 
       return () => {
         cloudSyncService.stop();
       };
     }
-  }, [user?.userId]);
+  }, [user?.id]);
 
   // 定义不需要显示Header的路由
   const noHeaderRoutes = ['/login', '/register', '/custom-login', '/forgot-password'];

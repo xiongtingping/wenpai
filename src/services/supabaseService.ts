@@ -80,7 +80,7 @@ export class UserSubscriptionService {
   static async getSubscription(userId: string): Promise<UserSubscription | null> {
     const { data, error } = await supabase
       .from('user_subscriptions')
-      .select('*')
+      .select('id, user_id, tier, status, period, started_at, expires_at, order_id, last_payment_id')
       .eq('user_id', userId)
       .maybeSingle()
     
@@ -95,7 +95,7 @@ export class UserSubscriptionService {
     const { data, error } = await supabase
       .from('user_subscriptions')
       .insert(subscription)
-      .select()
+      .select('id, user_id, tier, status, period, started_at, expires_at, order_id, last_payment_id')
       .single()
     
     if (error) {
@@ -110,7 +110,7 @@ export class UserSubscriptionService {
       .from('user_subscriptions')
       .update(updates)
       .eq('user_id', userId)
-      .select()
+      .select('id, user_id, tier, status, period, started_at, expires_at, order_id, last_payment_id')
       .single()
     
     if (error) {
