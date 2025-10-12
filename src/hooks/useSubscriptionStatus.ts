@@ -8,7 +8,7 @@
  * - 切换页面瞬时响应
  */
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { calculateSubscriptionStatus, type SubscriptionStatus } from '@/utils/subscriptionStatusUtils';
 import { useSubscriptionStore } from '@/stores/subscription-store';
@@ -59,30 +59,35 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
     logger.debug('⚠️ useSubscriptionStatus: 没有userId，返回默认状态');
   }
 
-  // 🔧 转换Store状态为兼容格式
-  const primaryStatus: SubscriptionStatus = store.status ? {
-    status: store.status.isExpired ? 'expired' : 'active',
-    tier: store.status.tier,
-    expiresAt: store.status.expiresAt || null,
-    daysRemaining: store.status.daysRemaining,
-    needsAlert: store.status.daysRemaining <= 7 && store.status.daysRemaining > 0,
-    alertLevel: (store.status.daysRemaining <= 3 ? 'error' : 'warning') as 'info' | 'warning' | 'error',
-    alertMessage: store.status.daysRemaining > 0
-      ? `订阅将在${store.status.daysRemaining}天后到期`
-      : '订阅已到期',
-    statusLabel: store.status.isExpired ? '已到期' : '活跃',
-    statusColor: store.status.isExpired ? 'red' : 'green'
-  } : {
-    status: 'inactive',
-    tier: 'trial',
-    expiresAt: null,
-    daysRemaining: 0,
-    needsAlert: false,
-    alertLevel: 'info',
-    alertMessage: '',
-    statusLabel: '试用用户',
-    statusColor: 'gray'
-  };
+  // 🔧 转换Store状态为兼容格式（使用 useMemo 稳定引用，避免对象每次渲染都变化导致依赖效应反复触发）
+  const primaryStatus: SubscriptionStatus = useMemo(() => {
+    if (store.status) {
+      return {
+        status: store.status.isExpired ? 'expired' : 'active',
+        tier: store.status.tier,
+        expiresAt: store.status.expiresAt || null,
+        daysRemaining: store.status.daysRemaining,
+        needsAlert: store.status.daysRemaining <= 7 && store.status.daysRemaining > 0,
+        alertLevel: (store.status.daysRemaining <= 3 ? 'error' : 'warning') as 'info' | 'warning' | 'error',
+        alertMessage: store.status.daysRemaining > 0
+          ? `订阅将在${store.status.daysRemaining}天后到期`
+          : '订阅已到期',
+        statusLabel: store.status.isExpired ? '已到期' : '活跃',
+        statusColor: store.status.isExpired ? 'red' : 'green'
+      } as SubscriptionStatus;
+    }
+    return {
+      status: 'inactive',
+      tier: 'trial',
+      expiresAt: null,
+      daysRemaining: 0,
+      needsAlert: false,
+      alertLevel: 'info',
+      alertMessage: '',
+      statusLabel: '试用用户',
+      statusColor: 'gray'
+    } as SubscriptionStatus;
+  }, [store.status]);
 
   const hasActiveSubscription = !store.isExpired();
   const allSubscriptions: Array<SubscriptionStatus & { subscriptionType: string; subscriptionId: string }> = [];

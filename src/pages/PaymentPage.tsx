@@ -347,7 +347,18 @@ export default function PaymentPage() {
     };
 
     calculateDynamicPricing();
-  }, [currentUser, selectedPlan, selectedPeriod, hasActiveSubscription, allSubscriptions, primaryStatus, locationState]);
+  }, [
+    currentUser?.id,
+    selectedPlan?.id,
+    selectedPlan?.tier,
+    selectedPeriod,
+    hasActiveSubscription,
+    allSubscriptions.length,
+    primaryStatus?.status,
+    primaryStatus?.tier,
+    primaryStatus?.expiresAt,
+    locationState?.action
+  ]);
 
   // 页面访问时记录时间（用于限时优惠）
   useEffect(() => {
