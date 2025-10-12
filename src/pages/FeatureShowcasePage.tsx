@@ -201,15 +201,6 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
                               percent: Math.round(((((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (plan.yearly?.discountPrice ?? plan.yearly?.originalPrice)) / Math.max(1, ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12))) * 100)
                             })}
                           </div>
-                        {plan.tier !== 'trial' && (
-                          <div className="mt-1 text-xs text-muted-foreground">
-                            {t('home.pricing.yearlyCompareShort', {
-                              monthlyTotal: (ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12,
-                              savings: ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (plan.yearly?.discountPrice ?? plan.yearly?.originalPrice),
-                              percent: Math.round(((((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (plan.yearly?.discountPrice ?? plan.yearly?.originalPrice)) / Math.max(1, ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12))) * 100)
-                            })}
-                          </div>
-                        )}
 
                         )}
                           <Badge className="bg-destructive text-background text-xs">

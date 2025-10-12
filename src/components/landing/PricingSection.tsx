@@ -395,6 +395,8 @@ export function PricingSection() {
                   ) : (
                     <div className="text-center">
                       {isAuthenticated && showPromoOffer ? (
+                        <>
+
                         <div className="flex items-baseline justify-center gap-2">
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
                             <span className="pricing-price-text">¥{pricing.discountPrice}</span>
@@ -418,9 +420,14 @@ export function PricingSection() {
                                 {t('home.pricing.yearlyCompareShort', { monthlyTotal: (ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12, savings: ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (pricing.discountPrice ?? pricing.originalPrice), percent: Math.round(((((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12) - (pricing.discountPrice ?? pricing.originalPrice)) / Math.max(1, ((ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12))) * 100) })}
                               </div>
                             )}
+
                           </>
+
                         )}
+                          </>
+
                       ) : (
+
                         <div className="flex items-baseline justify-center gap-2">
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
                             <span className="pricing-price-text">¥{pricing.originalPrice}</span>
