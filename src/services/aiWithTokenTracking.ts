@@ -128,17 +128,27 @@ export async function callAIWithTokenTracking(
   const estimatedInputTokens = estimateTokens((params.prompt || '') + (params.systemPrompt || ''));
 
   try {
-    // 0. 订阅等级纠偏：若为 trial，尝试从统一订阅服务获取最新等级，避免误判
-    //    同时在模型别名进入前做ID归一化，避免“未知模型”引发错误权限文案
-    if (!skipLimitCheck && userId && actualUserTier === 'trial') {
+    // 0. 订阅等级纠偏：🔧 FIX: 总是从订阅服务验证tier，避免使用过期的cached tier
+    //    之前只在tier='trial'时验证，导致premium用户被误判为trial
+    if (!skipLimitCheck && userId && userId !== 'anonymous') {
       try {
         const { unifiedSubscriptionService } = await import('@/services/unifiedSubscriptionService');
         const status = await unifiedSubscriptionService.getUserSubscriptionStatus(userId);
         if (status?.tier) {
+          const oldTier = actualUserTier;
           actualUserTier = status.tier;
+          if (oldTier !== actualUserTier) {
+            logger.info('🔄 订阅等级已更新', {
+              userId,
+              oldTier,
+              newTier: actualUserTier,
+              source: 'unifiedSubscriptionService'
+            });
+          }
         }
-      } catch {
+      } catch (error) {
         // 忽略订阅查询失败，维持原 tier
+        logger.warn('⚠️ 订阅等级查询失败，使用缓存tier', { userId, tier: actualUserTier, error });
       }
     }
 

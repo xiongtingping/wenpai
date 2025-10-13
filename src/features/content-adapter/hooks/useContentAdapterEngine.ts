@@ -535,10 +535,11 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
             }
           }));
 
-          toast({
-            title: "标题已生成",
-            description: result.content,
-          });
+          // 🔧 FIX: 移除成功Toast提示，标题会直接显示在UI上，无需额外提示
+          // toast({
+          //   title: "标题已生成",
+          //   description: result.content,
+          // });
         }
       } else {
         throw new Error(result.error || '生成失败');

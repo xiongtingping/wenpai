@@ -301,14 +301,20 @@ class TokenUsageService {
 
   /**
    * 同步token使用记录到后端
+   * 🔧 FIX: 静默处理404错误，因为该endpoint不存在但不影响功能
    */
   private async syncTokenUsageToBackend(record: TokenUsageRecord): Promise<void> {
     try {
       await request.post(`${this.API_ENDPOINT}/record`, record);
-    } catch (error) {
-      console.error('synctoken使用记录到backendfailed:', error);
-      // 🚨 API失败时抛出错误，但不阻断主流程
-      throw new Error(`Token使用记录同步失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    } catch (error: any) {
+      // 🔧 FIX: 静默处理404错误，不输出到console
+      if (error?.response?.status === 404) {
+        // 404错误是预期的（endpoint不存在），静默忽略
+        return;
+      }
+      // 其他错误仍然记录
+      console.warn('⚠️ Token使用记录后端同步失败（非阻塞）:', error?.message || '未知错误');
+      // 🚨 不抛出错误，避免阻断主流程
     }
   }
 
