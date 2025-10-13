@@ -180,7 +180,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
       )}
 
       {/* 正常状态 - 相对定位弹窗，出现在触发按钮附近 */}
-      {!isMinimized && open && (
+      {!isMinimized && (
         <>
           {/* 半透明遮罩层（仅在未显示关闭确认时渲染）*/}
           {!closeConfirmOpen && (
@@ -203,8 +203,8 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
             <div id="batch-forward-modal-description" className="sr-only">批量转发工作台模态框</div>
 
             {/* 优化后的紧凑头部 - 去除冗余留白 */}
-            <div className="flex flex-row items-center justify-between space-y-0 px-6 py-4 border-b border-border bg-gradient-to-r from-primary/10 to-primary/5">
-              <h2 className="text-lg font-semibold text-foreground">
+            <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-gradient-to-r from-violet-500/10 to-violet-500/5">
+              <h2 className="text-base font-semibold text-foreground">
                 批量转发工作台 ({platforms.length}个平台)
               </h2>
               <div className="flex items-center gap-1">
@@ -269,80 +269,92 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
 
             {/* 优化后的紧凑内容区域 */}
             <div className="flex-1 overflow-y-auto px-6 py-4 batch-modal-scroll-content">
-              {/* 优化后的使用说明 - 改为多行清晰展示 */}
-              <div className="mb-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+              {/* 优化后的使用说明 - 改为更清晰的卡片式布局 */}
+              <div className="mb-5 p-4 bg-violet-500/5 rounded-lg border border-violet-500/20">
                 <div className="flex items-start gap-3">
-                  <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <Info className="h-5 w-5 text-violet-500 flex-shrink-0 mt-0.5" />
                   <div className="flex-1 space-y-2">
                     <p className="text-sm font-semibold text-foreground">使用说明</p>
-                    <ol className="text-sm text-muted-foreground space-y-1.5 list-decimal list-inside">
-                      <li>点击平台卡片右上角的<span className="font-medium text-primary">"跳转平台"</span>按钮，打开对应平台发布页</li>
-                      <li>在本页面点击<span className="font-medium text-primary">"复制标题"</span>、<span className="font-medium text-primary">"复制内容"</span>、<span className="font-medium text-primary">"复制标签"</span>按钮</li>
-                      <li>切换到平台页面，将复制的内容粘贴到对应位置</li>
-                      <li>在平台完成发布后，返回继续处理下一个平台</li>
-                    </ol>
+                    <div className="text-sm text-muted-foreground space-y-2">
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-violet-500 min-w-[1.5rem]">1.</span>
+                        <span>点击平台卡片右上角的<span className="font-medium text-violet-500">"跳转平台"</span>按钮，打开对应平台发布页</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-violet-500 min-w-[1.5rem]">2.</span>
+                        <span>在本页面点击<span className="font-medium text-violet-500">"复制标题"</span>、<span className="font-medium text-violet-500">"复制内容"</span>、<span className="font-medium text-violet-500">"复制标签"</span>按钮</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-violet-500 min-w-[1.5rem]">3.</span>
+                        <span>切换到平台页面，将复制的内容粘贴到对应位置</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-violet-500 min-w-[1.5rem]">4.</span>
+                        <span>在平台完成发布后，返回继续处理下一个平台</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* 优化后的平台网格 - 增加分组边框 */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {platforms.map((platform) => (
-                  <Card key={platform.id} className="border border-border hover:border-primary/30 transition-all">
+                  <Card key={platform.id} className="border border-border hover:border-violet-500/30 transition-all">
                     {/* 优化后的卡片头部 */}
-                    <CardHeader className="pb-3 pt-4 px-4 border-b border-border bg-accent/30">
-                      <CardTitle className="flex items-center gap-3 text-base">
-                        <div className="w-6 h-6 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-                          <span className="text-primary-foreground text-sm font-bold">
+                    <CardHeader className="pb-3 pt-3 px-4 border-b border-border bg-violet-50/30 dark:bg-violet-950/10">
+                      <CardTitle className="flex items-center gap-2 text-sm">
+                        <div className="w-5 h-5 rounded bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-xs font-bold">
                             {platform.icon}
                           </span>
                         </div>
-                        <span className="flex-1 font-semibold text-foreground">{platform.name}</span>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => openPlatformPage(platform)}
-                                className="h-7 px-3 text-sm border-primary hover:border-primary hover:bg-accent"
-                                aria-label={`跳转到${platform.name}平台`}
-                              >
-                                <ExternalLink className="h-3 w-3 mr-1" />
-                                跳转平台
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>在新标签页打开平台发布页</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => togglePlatformExpanded(platform.id)}
-                                className="h-7 w-7 p-0 hover:bg-accent"
-                                aria-label={expandedPlatforms.has(platform.id) ? "收起详情" : "展开详情"}
-                              >
-                                {expandedPlatforms.has(platform.id) ?
-                                  <ChevronUp className="h-4 w-4" /> :
-                                  <ChevronDown className="h-4 w-4" />
-                                }
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>{expandedPlatforms.has(platform.id) ? "收起详情" : "展开详情"}</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <span className="flex-1 font-semibold text-foreground truncate">{platform.name}</span>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openPlatformPage(platform)}
+                                  className="h-6 px-2 text-xs border-violet-500/50 hover:border-violet-500 hover:bg-violet-50"
+                                  aria-label={`跳转到${platform.name}平台`}
+                                >
+                                  <ExternalLink className="h-3 w-3 mr-1" />
+                                  跳转
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>在新标签页打开平台发布页</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => togglePlatformExpanded(platform.id)}
+                                  className="h-6 w-6 p-0 hover:bg-violet-100 dark:hover:bg-violet-950/30"
+                                  aria-label={expandedPlatforms.has(platform.id) ? "收起详情" : "展开详情"}
+                                >
+                                  {expandedPlatforms.has(platform.id) ?
+                                    <ChevronUp className="h-3.5 w-3.5" /> :
+                                    <ChevronDown className="h-3.5 w-3.5" />
+                                  }
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>{expandedPlatforms.has(platform.id) ? "收起详情" : "展开详情"}</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                       </CardTitle>
                     </CardHeader>
 
                     {/* 优化后的卡片内容 */}
-                    <CardContent className="pt-4 pb-4 px-4">
-                      {/* 移除内容同步状态提示，简化UI */}
-
-                      {/* 快速复制按钮区域 */}
-                      <div className="flex gap-2 mb-4">
+                    <CardContent className="pt-3 pb-3 px-4">
+                      {/* 快速复制按钮区域 - 紧凑垂直布局 */}
+                      <div className="flex flex-col gap-2">
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -354,15 +366,15 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
                                   t('components.actions.title', '标题'),
                                   platform.name
                                 )}
-                                className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent transition-colors"
+                                className="w-full h-7 text-xs border-border hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors justify-start"
                                 aria-label={`复制${platform.name}的标题`}
                               >
                                 {getCopyButtonState(platform.name, t('components.actions.title', '标题')) ? (
-                                  <Check className="h-3 w-3 text-success mr-1" />
+                                  <Check className="h-3 w-3 text-success mr-2" />
                                 ) : (
-                                  <Copy className="h-3 w-3 mr-1" />
+                                  <Copy className="h-3 w-3 mr-2" />
                                 )}
-                                复制标题
+                                <span className="font-medium">复制标题</span>
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>复制{platform.name}的标题到剪贴板</TooltipContent>
@@ -379,15 +391,15 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
                                   t('components.actions.content', '内容'),
                                   platform.name
                                 )}
-                                className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent transition-colors"
+                                className="w-full h-7 text-xs border-border hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors justify-start"
                                 aria-label={`复制${platform.name}的内容`}
                               >
                                 {getCopyButtonState(platform.name, t('components.actions.content', '内容')) ? (
-                                  <Check className="h-3 w-3 text-success mr-1" />
+                                  <Check className="h-3 w-3 text-success mr-2" />
                                 ) : (
-                                  <Copy className="h-3 w-3 mr-1" />
+                                  <Copy className="h-3 w-3 mr-2" />
                                 )}
-                                复制内容
+                                <span className="font-medium">复制内容</span>
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>复制{platform.name}的内容到剪贴板</TooltipContent>
@@ -404,15 +416,15 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
                                   t('components.actions.tags', '标签'),
                                   platform.name
                                 )}
-                                className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent transition-colors"
+                                className="w-full h-7 text-xs border-border hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors justify-start"
                                 aria-label={`复制${platform.name}的标签`}
                               >
                                 {getCopyButtonState(platform.name, t('components.actions.tags', '标签')) ? (
-                                  <Check className="h-3 w-3 text-success mr-1" />
+                                  <Check className="h-3 w-3 text-success mr-2" />
                                 ) : (
-                                  <Copy className="h-3 w-3 mr-1" />
+                                  <Copy className="h-3 w-3 mr-2" />
                                 )}
-                                复制标签
+                                <span className="font-medium">复制标签</span>
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>复制{platform.name}的标签到剪贴板</TooltipContent>
@@ -420,33 +432,33 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
                         </TooltipProvider>
                       </div>
 
-                      {/* 优化后的详细内容区域 - 可折叠，优先显示同步内容 */}
+                      {/* 优化后的详细内容区域 - 可折叠 */}
                       {expandedPlatforms.has(platform.id) && (
-                        <div className="space-y-4 border-t border-border pt-4">
+                        <div className="space-y-3 border-t border-border pt-3 mt-3">
                           <div>
-                            <label className="text-sm font-semibold text-foreground block mb-2">
-                              📝 标题
+                            <label className="text-xs font-semibold text-muted-foreground block mb-1.5">
+                              📝 标题预览
                             </label>
-                            <div className="p-3 bg-accent/80 rounded-lg text-sm border border-border max-h-20 overflow-y-auto">
+                            <div className="p-2 bg-violet-50/50 dark:bg-violet-950/10 rounded text-xs border border-violet-200/50 dark:border-violet-800/30 max-h-16 overflow-y-auto">
                               {platform.title}
                             </div>
                           </div>
                           <div>
-                            <label className="text-sm font-semibold text-foreground block mb-2">
-                              📄 内容
+                            <label className="text-xs font-semibold text-muted-foreground block mb-1.5">
+                              📄 内容预览
                             </label>
-                            <div className="p-3 bg-accent/80 rounded-lg text-sm border border-border max-h-32 overflow-y-auto">
+                            <div className="p-2 bg-violet-50/50 dark:bg-violet-950/10 rounded text-xs border border-violet-200/50 dark:border-violet-800/30 max-h-24 overflow-y-auto whitespace-pre-wrap">
                               {platform.content}
                             </div>
                           </div>
                           <div>
-                            <label className="text-sm font-semibold text-foreground block mb-2">
-                              🏷️ 标签
+                            <label className="text-xs font-semibold text-muted-foreground block mb-1.5">
+                              🏷️ 标签列表
                             </label>
-                            <div className="p-3 bg-accent/80 rounded-lg border border-border">
+                            <div className="p-2 bg-violet-50/50 dark:bg-violet-950/10 rounded border border-violet-200/50 dark:border-violet-800/30">
                               <div className="flex flex-wrap gap-1">
                                 {platform.tags.map((tag: string, index: number) => (
-                                  <Badge key={index} variant="secondary" className="text-xs px-2 py-1">
+                                  <Badge key={index} variant="secondary" className="text-xs px-1.5 py-0.5 bg-violet-100 dark:bg-violet-900/30 border-violet-300 dark:border-violet-700">
                                     {tag}
                                   </Badge>
                                 ))}
