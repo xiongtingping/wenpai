@@ -238,7 +238,7 @@ function PlatformResultCard({
             {/* 🎯 步骤1: 主内容生成 */}
             <div className="border rounded-lg p-4 bg-card">
               <div className="flex items-center gap-3 mb-4">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-violet-500 text-white font-semibold text-sm shadow-sm">
                   1
                 </div>
                 <div className="flex-1">
@@ -260,10 +260,10 @@ function PlatformResultCard({
               {result.versions && result.versions.length > 1 ? (
                 <div className="grid grid-cols-2 gap-4">
                   {result.versions.map((version, idx) => (
-                    <div key={version.id} className={`flex flex-col space-y-2 p-4 rounded-lg border-2 ${
+                    <div key={version.id} className={`flex flex-col space-y-2 p-4 rounded-lg border ${
                       idx === 0
-                        ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900'
-                        : 'bg-purple-50/50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900'
+                        ? 'bg-violet-50/30 dark:bg-violet-950/10 border-violet-200/50 dark:border-violet-800/30'
+                        : 'bg-indigo-50/30 dark:bg-indigo-950/10 border-indigo-200/50 dark:border-indigo-800/30'
                     }`}>
                       <div className="flex items-center justify-between mb-2">
                         <label className="text-sm font-semibold text-foreground">{version.title}</label>
@@ -357,7 +357,7 @@ function PlatformResultCard({
             <div className="border rounded-lg p-4 bg-card">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-violet-500 text-white font-semibold text-sm shadow-sm">
                     2
                   </div>
                   <div>
@@ -423,7 +423,7 @@ function PlatformResultCard({
             {/* 🎯 步骤3: 标签生成器 */}
             <div className="border rounded-lg p-4 bg-card">
               <div className="flex items-center gap-3 mb-4">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-violet-500 text-white font-semibold text-sm shadow-sm">
                   3
                 </div>
                 <div>
