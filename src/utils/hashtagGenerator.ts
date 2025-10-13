@@ -1,8 +1,15 @@
 import { logger } from '@/utils/logger';
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 
-// 创建 t 函数快捷方式（安全回退：返回 key 本身，避免产生乱码标签）
-const t = (key: string): string => key;
+// 创建 t 函数快捷方式：优先使用全局注入的 t 或 i18n.t，若不可用则回退为 key 本身（避免TDZ）
+const t = (key: string): string => {
+  const g: any = (typeof globalThis !== 'undefined' ? (globalThis as any) : {}) as any;
+  try {
+    if (g?.t && typeof g.t === 'function') return g.t(key);
+    if (g?.i18n?.t && typeof g.i18n.t === 'function') return g.i18n.t(key);
+  } catch {}
+  return key;
+};
 
 /**
  * t('hashtagGenerator.comments.intelligentGenerator')

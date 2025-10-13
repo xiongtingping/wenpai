@@ -13,6 +13,8 @@ import type { SubscriptionTier } from '@/types/subscription';
 import type { AICallParams, AIResponse } from '@/api/types';
 import { hasModelPermission, getModelPermissionInfo } from '@/utils/modelPermissions';
 
+import { logger } from '@/utils/logger';
+
 /**
  * 扩展的AI调用参数，包含Token统计相关信息
  */
@@ -78,7 +80,7 @@ function estimateTokens(text: string): number {
   const chineseChars = (text.match(/[\u4e00-\u9fff]/g) || []).length;
   const englishWords = (text.match(/[a-zA-Z]+/g) || []).length;
   const otherChars = text.length - chineseChars - englishWords;
-  
+
   return Math.ceil(chineseChars * 1.5 + englishWords + otherChars * 0.5);
 }
 
@@ -90,13 +92,13 @@ export async function callAIWithTokenTracking(
   params: AICallParamsWithTracking
 ): Promise<AIResponseWithUsage> {
   const startTime = Date.now();
-  
+
   // 获取用户信息
   const userInfo = getCurrentUserInfo();
   if (!userInfo && !params.skipLimitCheck) {
     console.warn('not founduserinfo，skippingToken统计');
   }
-  
+
   const {
     feature = 'unknown',
     taskType = AITaskType.GENERAL_CHAT,
@@ -104,14 +106,27 @@ export async function callAIWithTokenTracking(
     skipLimitCheck = false,
     ...aiParams
   } = params;
-  
+
   const userId = userInfo?.userId || params.userId || 'anonymous';
-  const actualUserTier = userInfo?.userTier || userTier;
-  
+  let actualUserTier = userInfo?.userTier || userTier;
+
   // 估算输入Token数量
   const estimatedInputTokens = estimateTokens(params.prompt + (params.systemPrompt || ''));
-  
+
   try {
+    // 0. 订阅等级纠偏：若为 trial，尝试从统一订阅服务获取最新等级，避免误判
+    if (!skipLimitCheck && userId && actualUserTier === 'trial') {
+      try {
+        const { unifiedSubscriptionService } = await import('@/services/unifiedSubscriptionService');
+        const status = await unifiedSubscriptionService.getUserSubscriptionStatus(userId);
+        if (status?.tier) {
+          actualUserTier = status.tier;
+        }
+      } catch {
+        // 忽略订阅查询失败，维持原 tier
+      }
+    }
+
     // 1. 检查模型权限
     if (params.model && !skipLimitCheck) {
       const hasPermission = hasModelPermission(params.model);
@@ -137,7 +152,7 @@ export async function callAIWithTokenTracking(
         return response;
       }
     }
-    
+
     // 2. 检查Token限额（如果有用户信息且未跳过检查）
     if (userInfo && !skipLimitCheck) {
       const limitCheck = await tokenUsageService.checkTokenLimit(
@@ -145,7 +160,7 @@ export async function callAIWithTokenTracking(
         actualUserTier,
         estimatedInputTokens + (params.maxTokens || 1000) // 估算总Token数
       );
-      
+
       if (!limitCheck.allowed) {
         // Token限额不足，触发全局事件并返回错误响应
         const tokenLimitEvent = new CustomEvent('tokenLimitExceeded', {
@@ -208,26 +223,26 @@ export async function callAIWithTokenTracking(
         });
       }
     }
-    
+
     // 3. 调用统一AI服务
     const aiResponse = await callUnifiedAI({
       ...aiParams,
       taskType,
       userId
     });
-    
+
     // 4. 计算实际Token使用量
     let actualInputTokens = estimatedInputTokens;
     let actualOutputTokens = estimateTokens(aiResponse.content);
     let actualTotalTokens = actualInputTokens + actualOutputTokens;
-    
+
     // 如果AI响应包含usage信息，使用实际数据
     if (aiResponse.usage) {
       actualInputTokens = aiResponse.usage.promptTokens || actualInputTokens;
       actualOutputTokens = aiResponse.usage.completionTokens || actualOutputTokens;
       actualTotalTokens = aiResponse.usage.totalTokens || actualTotalTokens;
     }
-    
+
     // 5. 记录Token使用量（如果调用成功且有用户信息）
     if (aiResponse.success && userInfo) {
       try {
@@ -263,18 +278,18 @@ export async function callAIWithTokenTracking(
         needUpgrade: stats.needUpgrade
       };
     }
-    
+
     // 7. 返回扩展的响应
     const response: AIResponseWithUsage = {
       ...aiResponse,
       tokenUsage
     };
-    
+
     return response;
-    
+
   } catch (error) {
     console.error('AI调用failed:', error);
-    
+
     // 记录失败的调用（如果有用户信息）
     if (userInfo) {
       try {
@@ -303,7 +318,7 @@ export async function callAIWithTokenTracking(
       success: false,
       error: error instanceof Error ? error.message : '未知错误'
     };
-    
+
     return response;
   }
 }
@@ -318,7 +333,7 @@ export async function checkUserTokenLimit(
   if (!userInfo) {
     return { allowed: true }; // 未登录用户不限制
   }
-  
+
   return await tokenUsageService.checkTokenLimit(
     userInfo.userId,
     userInfo.userTier,
@@ -334,7 +349,7 @@ export async function getUserTokenStats() {
   if (!userInfo) {
     return null;
   }
-  
+
   return await tokenUsageService.getUserTokenStats(
     userInfo.userId,
     userInfo.userTier

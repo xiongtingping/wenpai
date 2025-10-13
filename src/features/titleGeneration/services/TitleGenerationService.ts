@@ -487,6 +487,8 @@ export class TitleGenerationService implements ITitleGenerationService {
 
     return scoredTitles;
 
+  }
+
 
   /**
    * 按平台约束修复标题并重新评分（确保“合规即高分”）
