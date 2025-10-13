@@ -12,12 +12,13 @@ import { useTokenUsageState, useUnifiedStore } from '@/stores/unified-state-stor
 import { unifiedUsageDataManager } from '@/services/unifiedUsageDataManager';
 import type { UsageCountStats as ServiceUsageCountStats } from '@/services/unifiedUsageDataManager';
 import { enhancedPermissionService } from '@/services/enhancedPermissionService';
-import { 
-  formatRemainingUses, 
-  calculateUsagePercentage, 
-  getTierDefaultLimit 
+import {
+  formatRemainingUses,
+  calculateUsagePercentage,
+  getTierDefaultLimit
 } from '@/utils/usageDisplayUtils';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { TokenUsageStats } from '@/services/tokenUsageService';
 import { logger } from '@/utils/logger';
@@ -177,16 +178,9 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     //   hasActiveSubscription
     // });
     
-    // 1. 🔧 FIX: 强制优先使用外部传入的等级，避免不一致
+    // 🔧 SSOT: 优先使用外部传入，否则返回fallback（实际tier由useSubscriptionTier提供）
     if (externalUserTier) {
-      // console.log('🔍 [useUnifiedUsageStats] 使用outer部userTier:', externalUserTier);
       return externalUserTier;
-    }
-    
-    // 2. 尝试从用户对象获取
-    if ((user?.subscription as any)?.tier) {
-      console.log('🔎 从userobjectgetting套餐type:', (user?.subscription as any)?.tier);
-      return (user?.subscription as any)?.tier;
     }
     
     // 3. 🔧 FIX: 从订阅状态服务获取真实套餐信息

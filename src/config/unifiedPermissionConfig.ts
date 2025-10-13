@@ -117,20 +117,13 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     upgradeUrl: '/payment',
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
-      
-      // 检查订阅等级
-      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
+
+      // 🔧 SSOT: tier已经由buildUserContext标准化，直接检查即可
       if (user.tier === SubscriptionTier.PRO || user.tier === SubscriptionTier.PREMIUM) return true;
-      
-      // 检查VIP等级
-      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
-      
+
       // 检查权限
       if (user.permissions?.includes('feature:creative-studio') || user.permissions?.includes('tier:pro')) return true;
-      
-      // 检查旧的VIP标识
-      if (user.isVip) return true;
-      
+
       return false;
     }
   },
@@ -145,13 +138,9 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     upgradeUrl: '/payment',
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
-      
-      // 检查订阅等级
-      if (user.subscription?.tier === 'premium') return true;
+
+      // 🔧 SSOT: tier已经由buildUserContext标准化，直接检查即可
       if (user.tier === SubscriptionTier.PREMIUM) return true;
-      
-      // 检查VIP等级
-      if (user.vipLevel === 'premium') return true;
       
       // 检查权限
       if (user.permissions?.includes('feature:brand-library') || user.permissions?.includes('tier:premium')) return true;
@@ -181,12 +170,8 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
       
-      // 检查订阅等级
-      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
+      // 🔧 SSOT: tier已经由buildUserContext标准化，直接检查即可
       if (user.tier === SubscriptionTier.PRO || user.tier === SubscriptionTier.PREMIUM) return true;
-      
-      // 检查VIP等级
-      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
       
       // 检查权限
       if (user.permissions?.includes('feature:advanced-models') || user.permissions?.includes('tier:pro')) return true;
@@ -218,12 +203,8 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
       
-      // 检查订阅等级
-      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
+      // 🔧 SSOT: tier已经由buildUserContext标准化，直接检查即可
       if (user.tier === SubscriptionTier.PRO || user.tier === SubscriptionTier.PREMIUM) return true;
-      
-      // 检查VIP等级
-      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
       
       // 检查权限
       if (user.permissions?.includes('tier:pro') || user.permissions?.includes('tier:premium')) return true;
@@ -245,13 +226,9 @@ export const UNIFIED_PERMISSION_CONFIGS: Record<string, PermissionConfigItem> = 
     upgradeUrl: '/payment',
     customCheck: (user) => {
       if (!user.isAuthenticated) return false;
-      
-      // 检查订阅等级
-      if (user.subscription?.tier === 'premium') return true;
+
+      // 🔧 SSOT: tier已经由buildUserContext标准化，直接检查即可
       if (user.tier === SubscriptionTier.PREMIUM) return true;
-      
-      // 检查VIP等级
-      if (user.vipLevel === 'premium') return true;
       
       // 检查权限
       if (user.permissions?.includes('tier:premium')) return true;
