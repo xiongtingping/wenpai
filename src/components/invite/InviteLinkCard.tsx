@@ -59,14 +59,12 @@ export function InviteLinkCard({ userId }: InviteLinkCardProps) {
 • 注册链接：${inviteLink}
 • 邀请码：${inviteCode}
 • 新用户奖励：注册即可获得20次免费AI使用机会
-• 双倍奖励：我们双方各得20次免费使用机会
 
 📝 English Description:
 I'm using WenPai AI Content Generation Platform, and it works great! Invite you to experience it:
 • Registration Link: ${inviteLink}
 • Invite Code: ${inviteCode}
 • New User Reward: Get 20 free AI usage credits upon registration
-• Double Rewards: Both of us get 20 free usage credits
 
 💡 温馨提示 | Tips：
 请在注册页面输入邀请码以获得奖励
@@ -98,7 +96,6 @@ Please enter the invite code on the registration page to receive rewards`;
 • 注册链接：${inviteLink}
 • 邀请码：${inviteCode}
 • 新用户奖励：注册即可获得20次免费AI使用机会
-• 双倍奖励：我们双方各得20次免费使用机会
 
 💡 温馨提示：请在注册页面输入邀请码以获得奖励`;
 
