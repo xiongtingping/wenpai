@@ -8,6 +8,7 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTokenUsageState } from '@/stores/unified-state-store';
 import { checkUserTokenLimit } from '@/services/aiWithTokenTracking';
+import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { TokenUsageStats } from '@/services/tokenUsageService';
 
@@ -29,6 +30,9 @@ export interface TokenLimitCheckResult {
 
 /**
  * Token限额检查Hook
+ * 🔧 FIX 2025-01-13: 使用新的useSubscriptionTier hook获取订阅等级，
+ *    避免从已废弃的unified-state-store.user.subscription读取，
+ *    防止premium用户被误判为trial用户（100K限额）
  */
 export function useTokenLimitCheck() {
   const { user } = useAuth();
@@ -37,13 +41,16 @@ export function useTokenLimitCheck() {
   const [showLimitDialog, setShowLimitDialog] = useState(false);
   const [limitCheckResult, setLimitCheckResult] = useState<TokenLimitCheckResult | null>(null);
 
+  // 🔧 NEW: 使用新架构的useSubscriptionTier hook获取订阅等级（单一真相源）
+  const { tier: subscriptionTier } = useSubscriptionTier(user?.id);
+
   /**
    * 获取用户套餐类型
+   * 🔧 FIX: 从useSubscriptionTier获取tier，而非从已废弃的store字段读取
    */
   const getUserTier = useCallback((): SubscriptionTier => {
-    // 从用户信息或本地存储获取套餐类型
-    return (user?.subscription as any)?.tier || 'trial';
-  }, [user]);
+    return subscriptionTier;
+  }, [subscriptionTier]);
 
   /**
    * 检查Token限额
