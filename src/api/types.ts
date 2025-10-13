@@ -20,6 +20,8 @@ export interface AICallParams {
   stream?: boolean;
   /** 用户ID */
   userId?: string;
+  /** 订阅层级（可覆盖内部判定） */
+  userTier?: string;
   /** 上下文 */
   context?: Array<{ role: string; content: string }> | Record<string, any>;
   /** 任务类型 */

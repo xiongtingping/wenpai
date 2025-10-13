@@ -4,7 +4,7 @@
  */
 
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ContentAdapterService } from '../services/contentAdapterService';
 import { TOAST_MESSAGES, GENERATION_MESSAGES, getErrorMessage } from '../constants/messages';
@@ -134,6 +134,14 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
   // 标签提取状态
   const [extractedTagsMap, setExtractedTagsMap] = useState<Record<string, string[]>>({});
 
+  // 🔒 挂载与任务序号控制，避免卸载后/过期任务更新与误报
+  const isMountedRef = useRef<boolean>(true);
+  const titleJobSeq = useRef<Record<string, number>>({});
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
+
   // 更新步骤状态
   const updateStep = useCallback((
     platformId: string, 
@@ -244,16 +252,8 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
               const firstVersionContent = result.versions[0].content;
               console.log(`🎯 自动触发标题生成: 平台=${platformId}, 内容长度=${firstVersionContent.length}`);
 
-              // 异步调用标题生成,不阻塞主流程
-              generateTitle(firstVersionContent, platformId).catch(error => {
-                console.error(`❌ 自动标题生成失败 (平台=${platformId}):`, error);
-                // ✅ 添加用户提示，告知标题生成失败
-                toast({
-                  title: "标题生成失败",
-                  description: `平台 ${platformId} 的标题自动生成失败: ${error instanceof Error ? error.message : '未知错误'}`,
-                  variant: "destructive",
-                });
-              });
+              // 异步调用标题生成，不阻塞主流程（内部已处理错误与提示）
+              void generateTitle(firstVersionContent, platformId);
             }
 
           } else {
@@ -503,33 +503,40 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
 
     console.log(`🎯 开始生成标题: 平台=${platformId}, 模型=${params.selectedModel}, 内容长度=${content.length}`);
 
-    setTitleStates(prev => ({
-      ...prev,
-      [platformId]: { hasTitle: false, isGenerating: true }
-    }));
+    // 为本次任务分配序号，后续仅当前序号仍为最新时才更新UI/吐司
+    const jobId = ((titleJobSeq.current[platformId] || 0) + 1);
+    titleJobSeq.current[platformId] = jobId;
+
+    if (isMountedRef.current && titleJobSeq.current[platformId] === jobId) {
+      setTitleStates(prev => ({
+        ...prev,
+        [platformId]: { hasTitle: false, isGenerating: true }
+      }));
+    }
 
     try {
-      // ✅ FIX: 使用用户选择的模型，确保内容、标题、标签使用同一个模型
+      // 使用用户选择的模型，确保内容、标题、标签使用同一个模型
       const result = await serviceRef.current.generateTitle(content, platformId, params.selectedModel);
 
       console.log(`📊 标题生成结果: success=${result.success}, content=${result.content?.substring(0, 50)}`);
 
       if (result.success && result.content) {
-        // 🔧 FIX: 保存生成的标题到state
-        setTitleStates(prev => ({
-          ...prev,
-          [platformId]: {
-            title: result.content,
-            candidates: result.candidates || [],
-            hasTitle: true,
-            isGenerating: false
-          }
-        }));
+        if (isMountedRef.current && titleJobSeq.current[platformId] === jobId) {
+          setTitleStates(prev => ({
+            ...prev,
+            [platformId]: {
+              title: result.content,
+              candidates: result.candidates || [],
+              hasTitle: true,
+              isGenerating: false
+            }
+          }));
 
-        toast({
-          title: "标题已生成",
-          description: result.content,
-        });
+          toast({
+            title: "标题已生成",
+            description: result.content,
+          });
+        }
       } else {
         throw new Error(result.error || '生成失败');
       }
@@ -537,19 +544,21 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     } catch (error) {
       console.error(`❌ 标题生成异常 (平台=${platformId}):`, error);
 
-      // 根因修复路径：不使用本地降级兜底，直接结束并提示错误
-      setTitleStates(prev => ({
-        ...prev,
-        [platformId]: { hasTitle: false, isGenerating: false }
-      }));
+      if (isMountedRef.current && titleJobSeq.current[platformId] === jobId) {
+        // 不使用本地降级兜底，直接结束并提示错误
+        setTitleStates(prev => ({
+          ...prev,
+          [platformId]: { hasTitle: false, isGenerating: false }
+        }));
 
-      const errorMessage = error instanceof Error ? error.message : '未知错误';
+        const errorMessage = error instanceof Error ? error.message : '未知错误';
 
-      toast({
-        title: "标题生成失败",
-        description: `平台 ${platformId}: ${errorMessage}`,
-        variant: "destructive"
-      });
+        toast({
+          title: "标题生成失败",
+          description: `平台 ${platformId}: ${errorMessage}`,
+          variant: "destructive"
+        });
+      }
     }
   }, [params.selectedModel, toast]);
 

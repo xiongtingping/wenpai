@@ -649,8 +649,8 @@ export class UnifiedAIManager {
         throw new Error('缺少必需参数: model 和 prompt');
       }
 
-      // 用户权限检查
-      const userTier = this.getUserTier();
+      // 用户权限检查（支持外部传入的纠偏后的 tier）
+      const userTier = (params as any).userTier || this.getUserTier();
       if (!isModelAvailableForTier(params.model, userTier)) {
         throw new Error(`当前订阅计划 ${userTier} 无权限使用模型 ${params.model}`);
       }

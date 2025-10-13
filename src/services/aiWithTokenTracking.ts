@@ -244,7 +244,8 @@ export async function callAIWithTokenTracking(
       prompt: finalPrompt,
       model: finalModel,
       taskType,
-      userId
+      userId,
+      userTier: actualUserTier // 传递纠偏后的订阅层级，避免初次进入误判
     });
 
     // 4. 计算实际Token使用量
