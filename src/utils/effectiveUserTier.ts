@@ -1,7 +1,9 @@
 /**
  * 统一的用户订阅等级/用户ID 获取工具
- * 优先级：subscription-store(内存态) → unified-state-store(内存态) → localStorage 历史格式
+ * 🔧 2025-01 重构: 优先级调整为 unifiedSubscriptionService(单一真相源) → subscription-store(内存态) → localStorage 历史格式
  * 目的：全局一致，避免不同模块各自解析导致误判
+ *
+ * @deprecated 建议逐步迁移到 useSubscriptionTier hook，该hook提供更好的响应式和跨Tab同步
  */
 
 import type { SubscriptionTier } from '@/types/subscription';
@@ -81,9 +83,30 @@ function parseLocalStorage(): ParsedUser | null {
 
 /**
  * 获取权威用户订阅等级（无参版本，全局可用）
- * 优先 subscription-store，其次 unified-state-store，最后 localStorage
+ * 🔧 2025-01 重构: 优先 unifiedSubscriptionService缓存，其次 subscription-store，最后 localStorage
+ *
+ * @deprecated 建议在React组件中使用 useSubscriptionTier hook，本函数仅用于非React上下文
  */
 export function getEffectiveUserTier(): SubscriptionTier {
+  // 0) 优先从 unifiedSubscriptionService 内存缓存获取（最快，最权威）
+  try {
+    // 获取当前用户ID
+    const userId = getEffectiveUserId();
+    if (userId) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { unifiedSubscriptionService } = require('@/services/unifiedSubscriptionService');
+
+      // 尝试从内存缓存同步读取（不触发异步查询）
+      const cached = unifiedSubscriptionService['memoryCache']?.get(userId);
+      if (cached && cached.expiry > Date.now()) {
+        const tier = cached.result.tier;
+        if (tier && tier !== 'trial') {
+          return tier;
+        }
+      }
+    }
+  } catch {/* ignore */}
+
   // 1) subscription-store（内存，权威）
   try {
     // 动态引入避免 TDZ/循环依赖
@@ -97,7 +120,7 @@ export function getEffectiveUserTier(): SubscriptionTier {
     }
   } catch {/* ignore */}
 
-  // 2) unified-state-store（内存临时）
+  // 2) unified-state-store（内存临时）- 🔧 保留作为过渡期兼容
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { useUnifiedStore } = require('@/stores/unified-state-store');

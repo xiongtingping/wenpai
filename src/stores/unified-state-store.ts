@@ -53,7 +53,26 @@ export interface UserState {
   avatar: string | null;
   roles: string[];
   permissions: string[];
-  subscription: SubscriptionTier; // ⚠️ 运行时缓存，不持久化
+  /**
+   * @deprecated 🔧 2025-01: 请使用 useSubscriptionTier() hook 代替
+   * 该字段将在未来版本中移除，保留仅为过渡期兼容
+   *
+   * 原因：
+   * - 多层缓存导致数据不一致
+   * - 初始化窗口存在premium→trial误判
+   * - 新架构使用单一真相源(unifiedSubscriptionService)
+   *
+   * 迁移指南：
+   * ```tsx
+   * // 旧代码
+   * const subscription = useUnifiedStore(state => state.user.subscription);
+   *
+   * // 新代码
+   * import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
+   * const { tier } = useSubscriptionTier(userId);
+   * ```
+   */
+  subscription: SubscriptionTier; // ⚠️ 运行时缓存，不持久化 | @deprecated 请使用 useSubscriptionTier hook
   isAuthenticated: boolean;
   authStatus: AuthStatus; // 🎯 新增：认证状态
   loginTime: string | null;

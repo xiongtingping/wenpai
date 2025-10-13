@@ -617,10 +617,44 @@ class UnifiedSubscriptionService {
 
   /**
    * 🔧 优化: 统一缓存设置（同时设置内存和磁盘缓存）
+   * 🔧 2025-01: 添加BroadcastChannel主动推送
    */
   private setToCache(userId: string, result: SubscriptionStatusResult): void {
     this.setToMemoryCache(userId, result);
     this.setToDiskCache(userId, result);
+
+    // 🔧 新增: 主动广播订阅状态变更（支持跨Tab同步）
+    this.broadcastSubscriptionChange(userId, result.tier);
+  }
+
+  /**
+   * 🔧 新增: 通过BroadcastChannel广播订阅状态变更
+   */
+  private broadcastSubscriptionChange(userId: string, tier: SubscriptionTier): void {
+    try {
+      // 检查BroadcastChannel支持
+      if (typeof BroadcastChannel === 'undefined') {
+        return;
+      }
+
+      // 使用与useSubscriptionTier相同的通道名
+      const channel = new BroadcastChannel('wenpai_subscription_sync');
+
+      const event = {
+        userId,
+        tier,
+        source: 'local' as const,
+        timestamp: Date.now()
+      };
+
+      channel.postMessage(event);
+      channel.close(); // 发送完立即关闭
+
+      logger.debug('📤 已广播订阅状态变更', event);
+    } catch (error) {
+      // 广播失败不影响主流程
+      logger.warn('广播订阅状态失败（非阻塞）:', error);
+    }
   }
 
   /**
