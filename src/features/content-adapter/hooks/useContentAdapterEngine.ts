@@ -173,7 +173,10 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     if (!serviceRef.current) return;
 
     setGenerating(true);
-    
+
+    // 🔧 FIX: 清除旧的标题状态，避免显示上一次生成的标题
+    setTitleStates({});
+
     // 初始化结果状态
     const initialResults: PlatformResult[] = selectedPlatforms.map(platformId => ({
       platformId,

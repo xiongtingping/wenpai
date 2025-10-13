@@ -288,14 +288,17 @@ export function getFallbackReasonFromStatusCode(statusCode: number): FallbackRea
 
 /**
  * 根据错误消息判断降级原因
- * 
+ *
  * @param errorMessage 错误消息
  * @returns 降级原因
  */
 export function getFallbackReasonFromError(errorMessage: string): FallbackReason {
   const lowerMessage = errorMessage.toLowerCase();
 
-  if (lowerMessage.includes('quota') || lowerMessage.includes('402')) {
+  // 🔧 FIX: 检测AIMLAPI的403配额错误（包含"exhausted"、"plan_rule"、"tier_"等关键词）
+  if (lowerMessage.includes('quota') || lowerMessage.includes('402') ||
+      lowerMessage.includes('403') || lowerMessage.includes('exhausted') ||
+      lowerMessage.includes('plan_rule') || lowerMessage.includes('tier_')) {
     return 'quota_exceeded';
   }
   if (lowerMessage.includes('rate limit') || lowerMessage.includes('429')) {
