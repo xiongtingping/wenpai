@@ -577,36 +577,6 @@ export function GenerationControls({ generating,
           )}
         </Button>
       </div>
-
-      {/* 次要操作按钮 - 只有生成内容后才显示 */}
-      {(originalContent.trim() && selectedPlatforms.length > 0) && (
-        <Card>
-          <CardContent className="pt-6">
-            {/* 控制按钮 */}
-            <div className="flex gap-2">
-              {(generating || queueRunning) && (
-                <Button
-                  onClick={generating ? onStopGeneration : onStopAutomation}
-                  variant="destructive"
-                  size="sm"
-                  className="flex items-center gap-2"
-                >
-                  <Square className="h-3 w-3" />
-                  停止
-                </Button>
-              )}
-
-              <Button
-                onClick={onClearResults}
-                variant="outline"
-                size="sm"
-              >
-                清空结果
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
