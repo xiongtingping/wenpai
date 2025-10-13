@@ -51,11 +51,32 @@ export function InviteLinkCard({ userId }: InviteLinkCardProps) {
 
   async function copyInviteCode() {
     try {
-      await navigator.clipboard.writeText(inviteLink);
+      // 构建完整的邀请文案（中英文）
+      const inviteMessage = `🎁 邀请您体验文派AI内容生成平台 | Invite you to try WenPai AI
+
+📝 中文说明：
+我正在使用文派AI内容生成平台，效果非常好！邀请您一起体验：
+• 注册链接：${inviteLink}
+• 邀请码：${inviteCode}
+• 新用户奖励：注册即可获得20次免费AI使用机会
+• 双倍奖励：我们双方各得20次免费使用机会
+
+📝 English Description:
+I'm using WenPai AI Content Generation Platform, and it works great! Invite you to experience it:
+• Registration Link: ${inviteLink}
+• Invite Code: ${inviteCode}
+• New User Reward: Get 20 free AI usage credits upon registration
+• Double Rewards: Both of us get 20 free usage credits
+
+💡 温馨提示 | Tips：
+请在注册页面输入邀请码以获得奖励
+Please enter the invite code on the registration page to receive rewards`;
+
+      await navigator.clipboard.writeText(inviteMessage);
       setCopied(true);
       toast({
         title: '复制成功',
-        description: '已复制邀请链接',
+        description: '已复制完整邀请信息（含中英文说明）',
       });
 
       setTimeout(() => setCopied(false), 2000);
@@ -70,12 +91,21 @@ export function InviteLinkCard({ userId }: InviteLinkCardProps) {
   }
 
   async function shareInviteCode() {
-    const shareText = `我在使用文派AI内容生成平台，邀请你一起来体验！\n\n邀请码：${inviteCode}\n注册链接：${inviteLink}\n\n注册即可获得20次免费使用机会！`;
+    const shareText = `🎁 邀请您体验文派AI内容生成平台
+
+我正在使用文派AI内容生成平台，效果非常好！邀请您一起体验：
+
+• 注册链接：${inviteLink}
+• 邀请码：${inviteCode}
+• 新用户奖励：注册即可获得20次免费AI使用机会
+• 双倍奖励：我们双方各得20次免费使用机会
+
+💡 温馨提示：请在注册页面输入邀请码以获得奖励`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: '邀请你加入文派AI',
+          title: '邀请你加入文派AI | Invite you to WenPai AI',
           text: shareText,
         });
       } catch (error) {
