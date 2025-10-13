@@ -95,7 +95,7 @@ export interface ApiConfig {
 class SimpleCache {
   private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
   private maxSize = 100;
-  private defaultTtl = 5 * 60 * 1000; // 5分钟
+  private defaultTtl = 2 * 60 * 1000; // 2分钟 (缩短缓存时间以获取更新的新闻)
 
   set(key: string, data: any, customTtl?: number): void {
     const ttl = customTtl || this.defaultTtl;

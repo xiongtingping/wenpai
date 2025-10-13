@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import dataFusionService, { FusedHotTopic, DataFusionConfig } from '@/services/dataFusionService';
+import { clearCache } from '@/api/hotTopicsService';
 
 interface EnhancedHotTopicsProps {
   className?: string;
@@ -73,7 +74,7 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
     if (autoRefresh) {
       const interval = setInterval(() => {
         refreshData();
-      }, 5 * 60 * 1000); // 5分钟
+      }, 3 * 60 * 1000); // 3分钟自动刷新
       setRefreshInterval(interval);
     } else {
       if (refreshInterval) {
@@ -81,7 +82,7 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
         setRefreshInterval(null);
       }
     }
-  }, [autoRefresh]);
+  }, [autoRefresh, refreshData]);
 
   // 过滤数据
   useEffect(() => {
@@ -109,12 +110,17 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
   };
 
   /**
-   * 刷新数据
+   * 刷新数据（强制清除缓存）
    */
   const refreshData = useCallback(async () => {
     try {
       setError(null);
-      
+      setLoading(true);
+
+      // 清除缓存以获取最新数据
+      clearCache();
+      console.log('已清除缓存，正在获取最新热点数据...');
+
       // 并发获取数据和统计
       const [topics, statistics] = await Promise.all([
         dataFusionService.getFusedHotTopics(),
@@ -126,7 +132,7 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
 
       toast({
         title: t('components.labels.数据更新成功'),
-        description: `获取到 ${topics.length} 条融合热点数据`,
+        description: `获取到 ${topics.length} 条最新热点数据`,
       });
     } catch (error) {
       console.error('refreshingdatafailed:', error);
@@ -136,8 +142,10 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
         description: "请检查网络连接后重试",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
-  }, [toast]);
+  }, [toast, t]);
 
   /**
    * 过滤话题
