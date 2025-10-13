@@ -607,6 +607,8 @@ export function ContentAdapterPage({
           const within24h = parsed?.timestamp && (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000);
           if (within24h && Array.isArray(parsed.results) && parsed.results.length > 0) {
             restoreResults(parsed.results);
+            // 🔧 FIX: 恢复内容后，初始化 prevResultsLengthRef 以防止触发自动标题生成
+            prevResultsLengthRef.current = parsed.results.length;
             toast({ title: '已为你恢复上次生成内容', duration: 2500 });
           }
         }
