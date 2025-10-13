@@ -1244,10 +1244,9 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
               console.log('ℹ️ 首次加载，跳过TTL验证');
             }
 
-            // 🚨 v4 强制重置：订阅状态统一从 subscription-store 查询
-            // 即使用户信息未过期，也要重置 subscription
-            state.user.subscription = 'trial';
-            console.log('🔄 subscription 已重置为默认值，将从 subscription-store 动态查询');
+            // 🚫 不再强制重置 subscription：保留上次有效值，待 subscription-store 异步覆盖
+            // 目的：避免初始化窗口内把有效的 premium/pro 误降级为 trial 造成权限闪断
+            console.log('✅ 保持已有 subscription 值，等待 subscription-store 异步同步最新订阅状态');
 
             // 🚫 强制重置敏感信息和运行时状态
             state.user.email = null; // 敏感信息

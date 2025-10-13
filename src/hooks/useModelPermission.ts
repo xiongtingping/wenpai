@@ -16,6 +16,7 @@ import {
   getUserTier
 } from '@/utils/modelPermissions';
 import { getModelInfo, getAvailableModelsForTier } from '@/config/aiModels';
+import { useSubscriptionStore } from '@/stores/subscription-store';
 import type { SubscriptionTier } from '@/types/subscription';
 
 /**
@@ -56,8 +57,9 @@ export function useModelPermission(modelId?: string): ModelPermissionResult {
   const proPermission = usePermission('tier:pro');
   const premiumPermission = usePermission('tier:premium');
 
-  // 判断权限系统是否加载完成
-  const isLoading = !trialPermission || !proPermission || !premiumPermission;
+  // 判断权限系统是否加载完成 + 订阅状态尚未就绪
+  const { initialLoading: subLoading } = useSubscriptionStore();
+  const isLoading = !trialPermission || !proPermission || !premiumPermission || subLoading;
 
   // 获取当前用户订阅层级
   const currentTier = useMemo((): SubscriptionTier => {
@@ -82,7 +84,7 @@ export function useModelPermission(modelId?: string): ModelPermissionResult {
   // 检查是否有权限
   const hasPermission = useMemo(() => {
     if (!modelId) return true; // 未指定模型ID,默认有权限
-    if (isLoading) return false; // 加载中默认无权限
+    if (isLoading) return true; // 加载中暂不拦截，避免误判闪烁（调用层仍有二次校验）
     return hasModelPermission(modelId);
   }, [modelId, isLoading]);
 

@@ -8,12 +8,26 @@ import { callUnifiedAI } from '@/api/unifiedAIService';
 import { AITaskType } from '@/api/aiService';
 import { tokenUsageService } from '@/services/tokenUsageService';
 import { getEffectiveUserTier, getEffectiveUserId } from '@/utils/effectiveUserTier';
-import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { AICallParams, AIResponse } from '@/api/types';
-import { hasModelPermission, getModelPermissionInfo } from '@/utils/modelPermissions';
+import { getModelInfo, isModelAvailableForTier } from '@/config/aiModels';
 
 import { logger } from '@/utils/logger';
+
+// 统一模型ID归一化（别名 → canonical ID）
+const MODEL_ALIASES: Record<string, string> = {
+  'gpt-5-mini': 'openai/gpt-5-mini-2025-08-07',
+  'gpt-5-chat': 'openai/gpt-5-chat-latest',
+};
+function normalizeModelId(id: string | undefined | null): string | undefined {
+  if (!id) return id ?? undefined;
+  const trimmed = id.trim();
+  const normalized = MODEL_ALIASES[trimmed] || trimmed;
+  if (normalized !== trimmed) {
+    logger.info('🔁 已归一化模型ID', { from: trimmed, to: normalized });
+  }
+  return normalized;
+}
 
 /**
  * 扩展的AI调用参数，包含Token统计相关信息
@@ -115,6 +129,7 @@ export async function callAIWithTokenTracking(
 
   try {
     // 0. 订阅等级纠偏：若为 trial，尝试从统一订阅服务获取最新等级，避免误判
+    //    同时在模型别名进入前做ID归一化，避免“未知模型”引发错误权限文案
     if (!skipLimitCheck && userId && actualUserTier === 'trial') {
       try {
         const { unifiedSubscriptionService } = await import('@/services/unifiedSubscriptionService');
@@ -127,17 +142,41 @@ export async function callAIWithTokenTracking(
       }
     }
 
-    // 1. 检查模型权限
-    if (params.model && !skipLimitCheck) {
-      const hasPermission = hasModelPermission(params.model);
-      if (!hasPermission) {
-        const permissionInfo = getModelPermissionInfo(params.model);
+    // 1. 检查模型权限（使用已纠偏的 actualUserTier，避免初始化阶段误判）
+    const normalizedModel = normalizeModelId(params.model);
+    if (normalizedModel && !skipLimitCheck) {
+      const allowed = isModelAvailableForTier(normalizedModel, actualUserTier);
+      if (!allowed) {
+        const model = getModelInfo(normalizedModel);
+        const modelTierMap = { low: 'trial', mid: 'pro', high: 'premium' } as const;
+        const tierNames: Record<'trial' | 'pro' | 'premium', string> = {
+          trial: '体验版',
+          pro: '专业版',
+          premium: '高级版'
+        };
+        const requiredTier = model ? modelTierMap[model.tier] : 'pro';
+        const message = `需要${tierNames[requiredTier]}权限才能使用 ${model?.name || normalizedModel}`;
+
+        // 监控埋点：权限失败（含归一化前后ID与层级）
+        try {
+          const { getEffectiveUserTier } = await import('@/utils/effectiveUserTier');
+          const effTier = getEffectiveUserTier();
+          logger.warn('MODEL_PERMISSION_DENIED', {
+            originalModel: params.model,
+            normalizedModel,
+            requiredTier,
+            actualUserTier,
+            effectiveUserTier: effTier,
+          });
+        } catch {}
+
         const response: AIResponseWithUsage = {
           content: '',
-          model: params.model,
+          model: normalizedModel,
           responseTime: Date.now() - startTime,
           success: false,
-          error: permissionInfo.message,
+          error: message,
+          errorType: 'model_permission',
           tokenUsage: userInfo ? {
             inputTokens: 0,
             outputTokens: 0,
@@ -226,6 +265,7 @@ export async function callAIWithTokenTracking(
 
     // 3. 调用统一AI服务（确保必需参数完备）
     const finalModel = (params.model && params.model.trim()) ? params.model : 'deepseek-chat';
+    const normalizedFinalModel = normalizeModelId(finalModel) || finalModel;
     const finalPrompt = typeof params.prompt === 'string' ? params.prompt : '';
 
     // 关键字段防御式校验（避免下游抛出“缺少必需参数: model 和 prompt”）
@@ -242,7 +282,7 @@ export async function callAIWithTokenTracking(
       ...aiParams,
       // 显式传递必需字段，覆盖潜在的丢失
       prompt: finalPrompt,
-      model: finalModel,
+      model: normalizedFinalModel,
       taskType,
       userId,
       userTier: actualUserTier // 传递纠偏后的订阅层级，避免初次进入误判
