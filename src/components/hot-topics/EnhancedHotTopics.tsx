@@ -36,7 +36,6 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import dataFusionService, { FusedHotTopic, DataFusionConfig } from '@/services/dataFusionService';
-import { clearCache } from '@/api/hotTopicsService';
 
 interface EnhancedHotTopicsProps {
   className?: string;
@@ -110,16 +109,14 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
   };
 
   /**
-   * 刷新数据（强制清除缓存）
+   * 刷新数据（实时获取，无缓存）
    */
   const refreshData = useCallback(async () => {
     try {
       setError(null);
       setLoading(true);
 
-      // 清除缓存以获取最新数据
-      clearCache();
-      console.log('已清除缓存，正在获取最新热点数据...');
+      console.log('🔥 实时获取最新热点数据（无缓存）...');
 
       // 并发获取数据和统计
       const [topics, statistics] = await Promise.all([
@@ -132,7 +129,7 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
 
       toast({
         title: t('components.labels.数据更新成功'),
-        description: `获取到 ${topics.length} 条最新热点数据`,
+        description: `实时获取到 ${topics.length} 条热点数据`,
       });
     } catch (error) {
       console.error('refreshingdatafailed:', error);

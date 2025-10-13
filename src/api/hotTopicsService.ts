@@ -325,28 +325,17 @@ class HotTopicsAPI {
   // ==================== 公共方法 ====================
 
   async getDailyHotByPlatform(platform: string): Promise<DailyHotItem[]> {
-    const cacheKey = `platform_${platform}`;
-
     try {
-      // 检查缓存
-      const cached = this.cache.get(cacheKey);
-      if (cached) {
-        this.log(`缓存命中: ${platform}`);
-        return cached;
-      }
-
       // 特殊平台过滤
       if (platform === 'weatheralarm' || platform === 'earthquake') {
         return [];
       }
 
+      // 🔥 实时获取，无缓存
       const data = await this.fetchWithRetry(`/${platform}`);
       const processedData = this.processRawData(data, platform);
-      
-      // 缓存结果
-      this.cache.set(cacheKey, processedData);
-      
-      this.log(`成功获取${platform}数据`, { count: processedData.length });
+
+      this.log(`成功获取${platform}实时数据`, { count: processedData.length });
       return processedData;
 
     } catch (error) {
@@ -356,29 +345,23 @@ class HotTopicsAPI {
   }
 
   async getDailyHotAll(): Promise<DailyHotResponse> {
-    const cacheKey = 'all_platforms';
-
     try {
-      // 检查缓存
-      const cached = this.cache.get(cacheKey);
-      if (cached) {
-        this.log('全平台数据缓存命中');
-        return cached;
-      }
-
+      // 🔥 实时获取，无缓存
       const platforms = this.getSupportedPlatforms();
       const aggregatedData: Record<string, DailyHotItem[]> = {};
       const platformStats: Record<string, PlatformStats> = {};
-      
+
+      this.log('开始实时获取全平台数据', { platformCount: platforms.length });
+
       // 并发获取所有平台数据
       const platformPromises = platforms.map(async (platform) => {
         const startTime = Date.now();
         try {
           const platformData = await this.getDailyHotByPlatform(platform);
           const processingTime = Date.now() - startTime;
-          
-          return { 
-            platform, 
+
+          return {
+            platform,
             data: platformData,
             stats: {
               total: platformData.length,
@@ -392,8 +375,8 @@ class HotTopicsAPI {
           };
         } catch (error) {
           this.log(`获取${platform}数据失败`, error);
-          return { 
-            platform, 
+          return {
+            platform,
             data: [],
             stats: {
               total: 0,
@@ -428,7 +411,7 @@ class HotTopicsAPI {
 
       const response: DailyHotResponse = {
         code: 200,
-        message: 'u64cdu4f5cu5931u8d25',
+        message: '成功',
         data: aggregatedData,
         updateTime: new Date().toISOString(),
         cacheTime: Date.now(),
@@ -437,20 +420,18 @@ class HotTopicsAPI {
         metadata: {
           requestId: this.generateRequestId(),
           processingTime: totalProcessingTime,
-          cacheHit: false,
-          dataSource: 'api',
+          cacheHit: false, // 🔥 始终实时获取，无缓存
+          dataSource: 'realtime-api',
           version: '2.0.0'
         }
       };
 
-      // 缓存结果
-      this.cache.set(cacheKey, response);
-      
-      this.log(`成功聚合${Object.keys(aggregatedData).length}个平台的数据`, {
+      // 🔥 移除缓存逻辑，实时数据
+      this.log(`✅ 实时聚合${Object.keys(aggregatedData).length}个平台的数据`, {
         totalCount: response.totalCount,
         processingTime: totalProcessingTime
       });
-      
+
       return response;
 
     } catch (error) {
