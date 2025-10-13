@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { CompactPermissionCard } from './CompactPermissionCard';
 import { usePermissionInteraction } from '@/utils/permissionInteractionUtils';
+import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { PermissionType } from './UnifiedPermissionGuard';
 
@@ -80,21 +81,21 @@ const PERMISSION_CONFIGS = {
 
 /**
  * 获取用户订阅等级
+ * 🔧 SSOT: 已废弃，组件应使用useSubscriptionTier hook
+ * 这里保留仅用于内部check逻辑的fallback
  */
 const getUserTier = (user: any): SubscriptionTier => {
-  if (!user) return 'trial';
+  if (!user?.id) return 'trial';
 
-  // 优先从订阅信息获取
-  if (user.subscription?.tier) {
-    return user.subscription.tier;
-  }
+  // 🔧 SSOT: 尝试从缓存的tier获取（由useSubscriptionTier设置）
+  // 注意：这是fallback逻辑，正常应该由外部传入tier
 
-  // 从VIP等级推断
+  // 从VIP等级推断（向后兼容）
   if (user.vipLevel === 'premium') return 'premium';
   if (user.vipLevel === 'pro') return 'pro';
   if (user.isVip) return 'pro';
 
-  // 从权限数组推断
+  // 从权限数组推断（向后兼容）
   if (user.permissions?.includes('tier:premium')) return 'premium';
   if (user.permissions?.includes('tier:pro')) return 'pro';
 
@@ -146,6 +147,9 @@ export const OptimizedPermissionGuard: React.FC<OptimizedPermissionGuardProps> =
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // 🔧 SSOT: 使用useSubscriptionTier获取tier
+  const { tier: userTier } = useSubscriptionTier(user?.id);
+
   // 获取权限配置
   const permissionConfig = PERMISSION_CONFIGS[requiredPermission as keyof typeof PERMISSION_CONFIGS];
 
@@ -154,16 +158,19 @@ export const OptimizedPermissionGuard: React.FC<OptimizedPermissionGuardProps> =
     return <>{children}</>;
   }
 
-  // 检查权限
+  // 检查权限 - 使用SSOT的tier而不是从user对象推断
   const hasPermission = useMemo(() => {
-    return permissionConfig.check(user);
-  }, [user, permissionConfig]);
+    // 对于tier类型的权限，直接使用SSOT的tier比较
+    if (requiredPermission.startsWith('tier:')) {
+      const requiredTierValue = permissionConfig.requiredTier;
+      if (requiredTierValue === 'trial') return true;
+      if (requiredTierValue === 'pro') return userTier === 'pro' || userTier === 'premium';
+      if (requiredTierValue === 'premium') return userTier === 'premium';
+    }
 
-  // 获取用户当前等级
-  const userTier = useMemo(() => {
-    if (!isAuthenticated || !user) return 'trial';
-    return getUserTier(user);
-  }, [user, isAuthenticated]);
+    // 对于其他权限类型，使用原有的check逻辑
+    return permissionConfig.check(user);
+  }, [user, userTier, permissionConfig, requiredPermission]);
 
   // 使用交互禁用控制
   usePermissionInteraction(hasPermission, contentRef);
@@ -231,9 +238,12 @@ export const OptimizedPermissionGuard: React.FC<OptimizedPermissionGuardProps> =
 
 /**
  * React Hook: 优化版权限检查
+ * 🔧 SSOT: 使用useSubscriptionTier而不是从user对象推断
  */
 export const useOptimizedPermission = (requiredPermission: PermissionType) => {
   const { user, isAuthenticated } = useAuth();
+  // 🔧 SSOT: 使用useSubscriptionTier获取tier
+  const { tier: userTier } = useSubscriptionTier(user?.id);
 
   return useMemo(() => {
     const permissionConfig = PERMISSION_CONFIGS[requiredPermission as keyof typeof PERMISSION_CONFIGS];
@@ -247,8 +257,16 @@ export const useOptimizedPermission = (requiredPermission: PermissionType) => {
       };
     }
 
-    const userTier = getUserTier(user);
-    const hasPermission = permissionConfig.check(user);
+    // 🔧 SSOT: 对于tier类型的权限，直接使用SSOT的tier比较
+    let hasPermission = false;
+    if (requiredPermission.startsWith('tier:')) {
+      const requiredTierValue = permissionConfig.requiredTier;
+      if (requiredTierValue === 'trial') hasPermission = true;
+      else if (requiredTierValue === 'pro') hasPermission = userTier === 'pro' || userTier === 'premium';
+      else if (requiredTierValue === 'premium') hasPermission = userTier === 'premium';
+    } else {
+      hasPermission = permissionConfig.check(user);
+    }
 
     return {
       hasPermission,
@@ -257,7 +275,7 @@ export const useOptimizedPermission = (requiredPermission: PermissionType) => {
       needsUpgrade: !hasPermission,
       permissionConfig
     };
-  }, [user, isAuthenticated, requiredPermission]);
+  }, [user, isAuthenticated, requiredPermission, userTier]);
 };
 
 export default OptimizedPermissionGuard;

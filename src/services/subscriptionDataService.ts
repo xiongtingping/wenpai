@@ -3,6 +3,11 @@
  * @description 提供统一的订阅数据配置，确保所有组件使用一致的数据
  * @author 权限系统团队
  * @created 2025-08-12
+ *
+ * 🔧 SSOT迁移说明（2025-10-13）:
+ * - getUserTier方法仅作为fallback，不应作为主要数据源
+ * - React组件应使用 @/hooks/useSubscriptionTier hook
+ * - useSubscriptionTier 从 unifiedSubscriptionService 获取实时数据
  */
 
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
@@ -46,9 +51,10 @@ export interface UserStatsData {
 class SubscriptionDataService {
   /**
    * 获取用户订阅等级
+   * 🔧 SSOT警告: React组件请使用 useSubscriptionTier(userId) hook
    */
   getUserTier(user: any): SubscriptionTier {
-    // 优先从用户订阅信息获取
+    // 🔧 SSOT: 从用户订阅信息获取（fallback逻辑，可能过期）
     if (user?.subscription?.tier) {
       return user.subscription.tier;
     }

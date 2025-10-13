@@ -1,6 +1,12 @@
 /**
  * 🔐 订阅工具函数
  * 提供统一的订阅状态检查、权限验证、等级管理等功能
+ *
+ * 🔧 SSOT迁移说明:
+ * - 这些utils函数是fallback逻辑，用于非React环境
+ * - React组件应该使用 @/hooks/useSubscriptionTier hook
+ * - useSubscriptionTier 从 unifiedSubscriptionService 获取数据（SSOT）
+ * - 这里的 getUserTier 仅作为降级方案，不应作为主要数据源
  */
 
 export type SubscriptionTier = 'trial' | 'pro' | 'premium';
@@ -94,6 +100,11 @@ const TIER_FEATURES: Record<SubscriptionTier, string[]> = {
 
 /**
  * 获取用户当前订阅等级
+ *
+ * 🔧 SSOT警告:
+ * - React组件请使用 useSubscriptionTier(userId) hook
+ * - 此函数仅用于非React环境的fallback
+ * - user.subscription 不再是SSOT，数据可能过期
  */
 export function getUserTier(user: AuthUser | AuthSystemUser | null | undefined): SubscriptionTier {
   // console.log('🔍 [getUserTier] startscalculating:', { user: user?.id, hasUser: !!user });
@@ -121,7 +132,8 @@ export function getUserTier(user: AuthUser | AuthSystemUser | null | undefined):
     return 'trial';
   }
 
-  // 优先从 subscription 对象获取
+  // 🔧 SSOT: 从 subscription 对象获取（fallback逻辑）
+  // 注意：这个值可能已过期，React组件应使用useSubscriptionTier
   if (adaptedUser.subscription?.tier) {
     // console.log('🔍 [getUserTier] 从subscriptiongettingtier:', adaptedUser.subscription.tier);
     return adaptedUser.subscription.tier;

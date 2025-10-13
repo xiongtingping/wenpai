@@ -1,6 +1,10 @@
 /**
  * 权限审计日志系统
  * @description 记录所有权限相关的操作和变更，提供完整的审计追踪
+ *
+ * 🔧 SSOT迁移说明:
+ * - 此服务用于日志记录，user.subscription作为fallback
+ * - 实际tier数据应由调用方从unifiedSubscriptionService获取后传入
  */
 
 import type { SessionUserInfo } from '@/types/unifiedAuth';
@@ -228,6 +232,7 @@ export class PermissionAuditLogger {
       userId: user.id,
       userEmail: this.maskSensitiveData(user.email),
       userRole: user.roles?.[0] || 'guest',
+      // 🔧 SSOT: fallback逻辑，调用方应传入实际tier
       userTier: user.subscription?.tier || user.vipLevel || 'trial',
       result: 'SUCCESS',
       clientInfo: this.getClientInfo(),

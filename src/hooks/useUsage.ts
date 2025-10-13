@@ -30,14 +30,15 @@ export function useUsage() {
   const refreshStats = useUnifiedStore(state => state.refreshUsageStats);
   const initializeStats = useUnifiedStore(state => state.initializeUsageStats);
 
+  // 🔧 SSOT: 使用useSubscriptionTier获取tier，不再从user.subscription读取
+  const { tier } = require('@/hooks/useSubscriptionTier').useSubscriptionTier(user.id);
+
   // 🎯 自动初始化 (用户登录后)
-  // 🔧 修复：当 subscription 缺失时也进行初始化，使用安全的默认等级（trial）
   useEffect(() => {
     if (user.id) {
-      const tier = (user.subscription as SubscriptionTier) || ('trial' as SubscriptionTier);
       initializeStats(user.id, tier);
     }
-  }, [user.id, user.subscription, initializeStats]);
+  }, [user.id, tier, initializeStats]);
 
   return {
     // 数据
@@ -60,7 +61,7 @@ export function useUsage() {
     // 便捷方法
     canUse: usageCount.available === -1 || usageCount.remaining > 0,
     needUpgrade: tokenStats?.needUpgrade || false,
-    userTier: user.subscription as SubscriptionTier,
+    userTier: tier,
   };
 }
 

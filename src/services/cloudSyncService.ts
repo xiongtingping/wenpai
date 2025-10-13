@@ -119,26 +119,31 @@ class CloudSyncService {
       }
 
       if (data) {
-        const store = useUnifiedStore.getState();
+        // 🔧 SSOT: 不再从store.user.subscription读取，使用unifiedSubscriptionService
+        const { unifiedSubscriptionService } = await import('@/services/unifiedSubscriptionService');
+        const currentStatus = await unifiedSubscriptionService.getUserSubscriptionStatus(userId);
+        const currentTier = currentStatus?.tier || 'trial';
 
-        logger.info('📊 当前 store 中的订阅状态:', {
-          currentSubscription: store.user.subscription,
-          newSubscription: data.tier,
-          needsUpdate: data.tier !== store.user.subscription
+        logger.info('📊 当前订阅状态:', {
+          currentTier,
+          newTier: data.tier,
+          needsUpdate: data.tier !== currentTier
         });
 
         // 更新订阅等级
-        if (data.tier !== store.user.subscription) {
+        if (data.tier !== currentTier) {
           logger.info('📊 检测到订阅变化，开始更新...', {
-            旧等级: store.user.subscription,
+            旧等级: currentTier,
             新等级: data.tier
           });
 
-          store.updateUserSubscription(data.tier as SubscriptionTier);
+          // 🔧 SSOT: 通过service更新，自动触发BroadcastChannel同步
+          await unifiedSubscriptionService.refreshUserSubscription(userId);
 
-          logger.info('✅ updateUserSubscription 调用完成');
+          logger.info('✅ refreshUserSubscription 调用完成');
 
           // 订阅变化时重新初始化使用统计
+          const store = useUnifiedStore.getState();
           await store.initializeUsageStats(userId, data.tier as SubscriptionTier);
 
           logger.info('✅ initializeUsageStats 调用完成');
@@ -166,10 +171,13 @@ class CloudSyncService {
     try {
       logger.debug('🔄 同步使用统计...', { userId });
 
-      const store = useUnifiedStore.getState();
-      const userTier = store.user.subscription;
+      // 🔧 SSOT: 从service获取tier，不再从store.user.subscription读取
+      const { unifiedSubscriptionService } = await import('@/services/unifiedSubscriptionService');
+      const status = await unifiedSubscriptionService.getUserSubscriptionStatus(userId);
+      const userTier = status?.tier || 'trial';
 
       // 强制从云端刷新，不使用缓存
+      const store = useUnifiedStore.getState();
       await store.initializeUsageStats(userId, userTier);
 
       logger.debug('✅ 使用统计同步完成');

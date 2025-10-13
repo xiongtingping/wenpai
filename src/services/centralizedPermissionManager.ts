@@ -2,6 +2,11 @@
 /**
  * 集中权限策略管理器
  * @description 统一管理所有权限策略、规则和决策逻辑
+ *
+ * 🔧 SSOT迁移说明:
+ * - 此服务在非React环境使用
+ * - user.subscription 仅作为fallback，不应作为主要数据源
+ * - 实际tier数据由 unifiedSubscriptionService 提供
  */
 
 import type { SessionUserInfo } from '@/types/unifiedAuth';
@@ -338,9 +343,10 @@ export class CentralizedPermissionManager {
 
     // 检查等级条件
     if (conditions.requiredTier) {
+      // 🔧 SSOT: fallback逻辑，实际应由外部传入tier或从unifiedSubscriptionService获取
       const userTier = user.subscription?.tier || user.vipLevel || 'trial';
       const hasRequiredTier = conditions.requiredTier.includes(userTier);
-      
+
       if (!hasRequiredTier) {
         return { applies: false, granted: false, reason: '订阅等级不匹配' };
       }

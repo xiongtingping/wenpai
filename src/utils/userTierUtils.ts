@@ -9,6 +9,12 @@
  * 2. 多种来源兼容 - 支持subscription.tier、vipLevel、permissions等
  * 3. 向后兼容 - 支持旧字段名(subscription_tier、is_vip)
  * 4. 明确的降级策略 - 无法确定时返回trial
+ *
+ * 🔧 SSOT迁移说明（2025-10-13）:
+ * - React组件应该使用 @/hooks/useSubscriptionTier hook
+ * - useSubscriptionTier 从 unifiedSubscriptionService 获取实时数据
+ * - 这里的 getUserTier 仅作为非React环境的fallback
+ * - user.subscription 可能包含过期数据，不应作为主要数据源
  */
 
 import type { SubscriptionTier } from '@/types/subscription';
@@ -48,7 +54,8 @@ export function getUserTier(user: SessionUserInfo | null | undefined): Subscript
     return 'trial';
   }
 
-  // 1. 优先从用户订阅信息获取 (新架构)
+  // 1. 🔧 SSOT: 从用户订阅信息获取 (fallback逻辑)
+  // 注意：这个值可能已过期，React组件应使用useSubscriptionTier
   if (user.subscription?.tier) {
     const tier = user.subscription.tier;
     if (isValidTier(tier)) {

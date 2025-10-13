@@ -736,13 +736,8 @@ export class UnifiedAIManager {
         }
       } catch {}
 
-      try {
-        const { useUnifiedStore } = require('@/stores/unified-state-store');
-        const memTier = useUnifiedStore.getState().user?.subscription as string | undefined;
-        if (memTier && memTier !== 'trial') {
-          return memTier;
-        }
-      } catch {}
+      // 🔧 SSOT: 此函数是同步的，无法调用异步的unifiedSubscriptionService
+      // 实际tier数据由React层的useSubscriptionTier提供
 
       // 🔧 FIX: 按优先级尝试多个存储位置
       const storageKeys = [
@@ -776,8 +771,12 @@ export class UnifiedAIManager {
           }
 
           if (user?.id) {
-            // 获取用户套餐信息，默认为trial
-            const userTier = user.subscription?.tier || user.subscription || 'trial';
+            // 🔧 SSOT: 此处是同步函数，无法调用异步service
+            // 从localStorage fallback获取tier（可能过期）
+            let userTier = 'trial';
+            // 尝试从user对象推断（向后兼容）
+            if (user.vipLevel === 'premium') userTier = 'premium';
+            else if (user.vipLevel === 'pro' || user.isVip) userTier = 'pro';
 
             logger.debug('📊 AI调用 - 用户订阅层级:', {
               userId: user.id,
