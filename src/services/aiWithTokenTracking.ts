@@ -110,8 +110,8 @@ export async function callAIWithTokenTracking(
   const userId = userInfo?.userId || params.userId || 'anonymous';
   let actualUserTier = userInfo?.userTier || userTier;
 
-  // 估算输入Token数量
-  const estimatedInputTokens = estimateTokens(params.prompt + (params.systemPrompt || ''));
+  // 估算输入Token数量（安全处理空值）
+  const estimatedInputTokens = estimateTokens((params.prompt || '') + (params.systemPrompt || ''));
 
   try {
     // 0. 订阅等级纠偏：若为 trial，尝试从统一订阅服务获取最新等级，避免误判
@@ -224,9 +224,25 @@ export async function callAIWithTokenTracking(
       }
     }
 
-    // 3. 调用统一AI服务
+    // 3. 调用统一AI服务（确保必需参数完备）
+    const finalModel = (params.model && params.model.trim()) ? params.model : 'deepseek-chat';
+    const finalPrompt = typeof params.prompt === 'string' ? params.prompt : '';
+
+    // 关键字段防御式校验（避免下游抛出“缺少必需参数: model 和 prompt”）
+    logger.debug('🧪 调用统一AI服务前参数校验', {
+      hasPrompt: !!finalPrompt,
+      promptLength: finalPrompt.length,
+      model: finalModel
+    });
+    if (!finalPrompt) {
+      throw new Error('缺少必需参数: prompt');
+    }
+
     const aiResponse = await callUnifiedAI({
       ...aiParams,
+      // 显式传递必需字段，覆盖潜在的丢失
+      prompt: finalPrompt,
+      model: finalModel,
       taskType,
       userId
     });
@@ -254,7 +270,7 @@ export async function callAIWithTokenTracking(
           outputTokens: actualOutputTokens,
           totalTokens: actualTotalTokens,
           model: aiResponse.model,
-          contentSummary: params.prompt.substring(0, 100) + (params.prompt.length > 100 ? '...' : ''),
+          contentSummary: (finalPrompt || (params.prompt || '')).substring(0, 100) + (((finalPrompt || params.prompt || '').length > 100) ? '...' : ''),
           success: true
         });
       } catch (e) {
@@ -301,7 +317,7 @@ export async function callAIWithTokenTracking(
           outputTokens: 0,
           totalTokens: estimatedInputTokens,
           model: params.model || 'unknown',
-          contentSummary: params.prompt.substring(0, 100) + (params.prompt.length > 100 ? '...' : ''),
+          contentSummary: (params.prompt || '').substring(0, 100) + (((params.prompt || '').length > 100) ? '...' : ''),
           success: false,
           error: error instanceof Error ? error.message : '未知错误'
         });

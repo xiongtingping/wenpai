@@ -431,6 +431,7 @@ export class UnifiedAIManager {
   private async makeHTTPRequest(config: UnifiedAIConfig, requestBody: any): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), config.timeout);
+    const startAt = Date.now(); //
 
     try {
       const response = await fetch(config.endpoint, {
@@ -445,23 +446,23 @@ export class UnifiedAIManager {
       if (!response.ok) {
         const errorText = await response.text();
 
-        // 尝试解析错误消息
+        //
         let userFriendlyMessage = `HTTP ${response.status}`;
         try {
           const errorJson = JSON.parse(errorText);
           if (errorJson.message) {
             userFriendlyMessage = errorJson.message;
           }
-          // 特殊处理配额用完的情况
+          //
           if (response.status === 403 && errorJson.message?.includes('exhausted')) {
             userFriendlyMessage = 'API配额已用完，请充值或更换模型';
           }
         } catch {
-          // 如果不是JSON，使用原始错误文本的前200字符
+          //
           userFriendlyMessage = errorText.substring(0, 200);
         }
 
-        // 🔧 使用增强的API错误日志
+        //
         const possibleReasons = response.status === 403 ? [
           'API Key 无效或过期',
           'API 配额已用完',
@@ -479,15 +480,14 @@ export class UnifiedAIManager {
           provider: config.provider,
           requestBody: {
             model: config.model,
-            messages: config.messages,
-            temperature: config.temperature,
+            //
             max_tokens: config.maxTokens
           },
           responseBody: errorText,
-          duration: Date.now() - startTime
+          duration: Date.now() - startAt
         });
 
-        // 额外的错误分析
+        //
         if (response.status === 403) {
           console.error('💡 可能的原因:', possibleReasons);
           console.error('💬 用户友好提示:', userFriendlyMessage);
