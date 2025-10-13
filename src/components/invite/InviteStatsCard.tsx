@@ -3,42 +3,73 @@
  * @description 显示用户的邀请统计和累计奖励
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { InviteStatsService, type InviteStats } from '@/services/invite/InviteStatsService';
-import { Users, Gift, TrendingUp, Clock } from 'lucide-react';
+import { Users, Gift, TrendingUp, Clock, RefreshCw } from 'lucide-react';
 import { logger } from '@/utils/logger';
+import { getErrorMessage } from '@/features/content-adapter/constants/messages';
 
 interface InviteStatsCardProps {
   userId: string;
   onInviteClick?: () => void;
+  /** 自动刷新间隔（毫秒），默认5分钟，设为0禁用自动刷新 */
+  autoRefreshInterval?: number;
 }
 
-export function InviteStatsCard({ userId, onInviteClick }: InviteStatsCardProps) {
+export function InviteStatsCard({ userId, onInviteClick, autoRefreshInterval = 5 * 60 * 1000 }: InviteStatsCardProps) {
   const [stats, setStats] = useState<InviteStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadStats();
-  }, [userId]);
-
-  async function loadStats() {
+  const loadStats = useCallback(async (isManualRefresh = false) => {
     try {
-      setLoading(true);
+      if (isManualRefresh) {
+        setRefreshing(true);
+        // 手动刷新时清除缓存
+        await InviteStatsService.clearStatsCache(userId);
+        logger.info('手动刷新邀请统计', { userId });
+      } else {
+        setLoading(true);
+      }
       setError(null);
       const data = await InviteStatsService.getInviteStats(userId);
       setStats(data);
     } catch (err) {
       logger.error('加载邀请统计失败:', err);
-      setError('加载失败，请稍后重试');
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  }
+  }, [userId]);
+
+  // 初始加载
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
+
+  // 定期自动刷新
+  useEffect(() => {
+    if (!autoRefreshInterval || autoRefreshInterval <= 0) {
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      logger.debug('自动刷新邀请统计', { userId, interval: autoRefreshInterval });
+      loadStats();
+    }, autoRefreshInterval);
+
+    return () => clearInterval(intervalId);
+  }, [loadStats, autoRefreshInterval, userId]);
+
+  const handleManualRefresh = () => {
+    loadStats(true);
+  };
 
   if (loading) {
     return (
@@ -89,12 +120,23 @@ export function InviteStatsCard({ userId, onInviteClick }: InviteStatsCardProps)
               邀请好友，共享奖励
             </CardDescription>
           </div>
-          {onInviteClick && (
-            <Button onClick={onInviteClick} size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-              <Gift className="h-4 w-4 mr-2" />
-              立即邀请
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleManualRefresh}
+              size="sm"
+              variant="outline"
+              disabled={refreshing}
+              className="border-purple-200 dark:border-purple-800"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             </Button>
-          )}
+            {onInviteClick && (
+              <Button onClick={onInviteClick} size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                <Gift className="h-4 w-4 mr-2" />
+                立即邀请
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
 

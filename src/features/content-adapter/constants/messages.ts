@@ -194,15 +194,61 @@ export const CONFIRM_MESSAGES = {
 } as const;
 
 /**
- * 获取错误消息的辅助函数
+ * 获取错误消息的辅助函数 - 增强版
+ * 根据错误类型返回更具体的错误消息
  */
 export function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
+    const message = error.message.toLowerCase();
+
+    // 🔍 配额相关错误
+    if (message.includes('exhausted') || message.includes('配额') || message.includes('quota')) {
+      return '⚠️ AI服务配额已用完，系统已自动切换到备用模型';
+    }
+
+    // 🔍 403权限错误
+    if (message.includes('403') || message.includes('forbidden')) {
+      return '⚠️ API访问受限，已切换到备用服务继续生成';
+    }
+
+    // 🔍 超时相关错误
+    if (message.includes('timeout') || message.includes('超时') || message.includes('504') || message.includes('gateway timeout')) {
+      return '⏱️ 请求超时，请检查网络连接或稍后重试';
+    }
+
+    // 🔍 网关错误
+    if (message.includes('502') || message.includes('503') || message.includes('bad gateway') || message.includes('service unavailable')) {
+      return '🔧 服务暂时不可用，请稍后重试';
+    }
+
+    // 🔍 频率限制
+    if (message.includes('rate') || message.includes('limit') || message.includes('429') || message.includes('频繁')) {
+      return '🚦 请求过于频繁，请稍后再试';
+    }
+
+    // 🔍 网络连接错误
+    if (message.includes('network') || message.includes('网络') || message.includes('fetch') || message.includes('connection')) {
+      return '🌐 网络连接失败，请检查网络设置';
+    }
+
+    // 🔍 认证错误
+    if (message.includes('auth') || message.includes('401') || message.includes('unauthorized') || message.includes('认证')) {
+      return '🔐 认证失败，请重新登录';
+    }
+
+    // 🔍 模型不可用
+    if (message.includes('model') && (message.includes('not') || message.includes('unavailable') || message.includes('不可用'))) {
+      return '🤖 当前AI模型不可用，请尝试其他模型';
+    }
+
+    // 返回原始错误消息（如果不匹配任何模式）
     return error.message;
   }
+
   if (typeof error === 'string') {
     return error;
   }
+
   return TOAST_MESSAGES.ERROR.UNKNOWN_ERROR;
 }
 

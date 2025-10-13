@@ -355,12 +355,44 @@ function getUserTier(): string {
 }
 
 /**
+ * 🔧 检查是否应该fallback到DeepSeek
+ */
+function shouldFallbackToDeepSeek(error: Error, originalModel: string): boolean {
+  const errorMessage = error.message.toLowerCase();
+
+  // 排除DeepSeek自身失败的情况
+  if (originalModel.toLowerCase().includes('deepseek')) {
+    return false;
+  }
+
+  // 需要fallback的错误类型
+  const fallbackErrors = [
+    '403',
+    'forbidden',
+    'exhausted',
+    '配额',
+    'quota',
+    '504',
+    'gateway timeout',
+    '502',
+    'bad gateway',
+    '超时',
+    'timeout',
+    'rate_limit'
+  ];
+
+  return fallbackErrors.some(err => errorMessage.includes(err));
+}
+
+/**
  * 统一的AI调用服务 - 增强版
  * 🎯 提供性能监控、调用日志、智能重试、去重、超时控制等增强功能
+ * 🔄 DeepSeek自动fallback - 当主提供商失败时自动切换到DeepSeek
  */
 export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
   const startTime = performance.now();
   const callId = `ai-call-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  const originalModel = params.model;
 
   // 📊 记录调用开始
   logger.debug(`[${callId}] AI调用开始`, {
@@ -446,6 +478,63 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
         maxTokens: params.maxTokens
       }
     });
+
+    // 🔄 DeepSeek Fallback机制
+    if (shouldFallbackToDeepSeek(error as Error, originalModel || '')) {
+      logger.warn(`[${callId}] 🔄 主提供商失败，自动切换到DeepSeek兜底`, {
+        originalModel,
+        fallbackModel: 'deepseek-chat',
+        error: errorMessage
+      });
+
+      try {
+        // 使用DeepSeek作为fallback
+        const fallbackParams = {
+          ...params,
+          model: 'deepseek-chat'
+        };
+
+        const { aiManager } = await import('./unifiedAIManager');
+        const fallbackResult = await withTimeout(
+          aiManager.callAI(fallbackParams),
+          60000, // DeepSeek给更长的超时时间
+          'DeepSeek兜底调用'
+        );
+
+        const fallbackDuration = performance.now() - startTime;
+
+        logger.info(`[${callId}] ✅ DeepSeek兜底成功`, {
+          originalModel,
+          fallbackModel: 'deepseek-chat',
+          duration: `${fallbackDuration.toFixed(2)}ms`,
+          contentLength: fallbackResult.content?.length || 0
+        });
+
+        // 📈 收集性能指标
+        performanceMetrics.record({
+          duration: fallbackDuration,
+          model: 'deepseek-chat',
+          success: true,
+          cached: false
+        });
+
+        return {
+          content: fallbackResult.content,
+          model: 'deepseek-chat (fallback)',
+          usage: fallbackResult.usage,
+          responseTime: fallbackResult.responseTime,
+          success: true,
+          error: undefined
+        };
+
+      } catch (fallbackError) {
+        logger.error(`[${callId}] ❌ DeepSeek兜底也失败`, {
+          originalError: errorMessage,
+          fallbackError: fallbackError instanceof Error ? fallbackError.message : String(fallbackError)
+        });
+        // 继续执行原有的错误处理逻辑
+      }
+    }
 
     // 📈 收集性能指标
     performanceMetrics.record({

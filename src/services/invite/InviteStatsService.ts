@@ -43,9 +43,19 @@ export interface LeaderboardEntry {
 }
 
 /**
+ * 缓存条目接口
+ */
+interface CacheEntry {
+  data: InviteStats;
+  timestamp: number;
+}
+
+/**
  * 邀请统计更新服务类
  */
 export class InviteStatsService {
+  /** 统计数据缓存 */
+  private static statsCache = new Map<string, CacheEntry>();
   /**
    * 更新用户邀请统计
    */
@@ -139,10 +149,23 @@ export class InviteStatsService {
 
   /**
    * 获取用户邀请统计
+   * @param userId 用户ID
+   * @param depth 递归深度（内部使用，防止无限递归）
    */
-  static async getInviteStats(userId: string): Promise<InviteStats | null> {
+  static async getInviteStats(userId: string, depth: number = 0): Promise<InviteStats | null> {
     try {
       UserIdValidator.validate(userId, 'InviteStatsService.getInviteStats');
+
+      // 检查缓存
+      if (INVITE_STATS_CONFIG.enableCache) {
+        const cached = this.statsCache.get(userId);
+        if (cached && Date.now() - cached.timestamp < INVITE_STATS_CONFIG.cacheExpirySeconds * 1000) {
+          logger.debug('使用缓存的邀请统计', {
+            userId: UserIdValidator.formatForLog(userId)
+          });
+          return cached.data;
+        }
+      }
 
       const supabase = await getSupabaseClient();
 
@@ -158,12 +181,32 @@ export class InviteStatsService {
       }
 
       if (!data) {
+        // 防止无限递归：只在第一次调用时尝试创建统计
+        if (depth > 0) {
+          logger.warn('邀请统计不存在且已尝试创建，返回默认值', {
+            userId: UserIdValidator.formatForLog(userId)
+          });
+          return {
+            userId,
+            totalInvites: 0,
+            successfulInvites: 0,
+            pendingInvites: 0,
+            totalUsageCountRewards: 0,
+            totalTokenRewards: 0,
+            totalMemberDaysRewards: 0,
+            updatedAt: new Date()
+          };
+        }
+
         // 如果没有统计记录，尝试创建
+        logger.info('邀请统计不存在，尝试创建', {
+          userId: UserIdValidator.formatForLog(userId)
+        });
         await this.updateInviteStats(userId);
-        return this.getInviteStats(userId);
+        return this.getInviteStats(userId, depth + 1);
       }
 
-      return {
+      const stats: InviteStats = {
         userId: data.user_id,
         totalInvites: data.total_invites || 0,
         successfulInvites: data.successful_invites || 0,
@@ -173,6 +216,16 @@ export class InviteStatsService {
         totalMemberDaysRewards: data.total_member_days_rewards || 0,
         updatedAt: new Date(data.updated_at)
       };
+
+      // 更新缓存
+      if (INVITE_STATS_CONFIG.enableCache) {
+        this.statsCache.set(userId, {
+          data: stats,
+          timestamp: Date.now()
+        });
+      }
+
+      return stats;
     } catch (error) {
       logger.error('获取邀请统计异常:', error);
       return null;
@@ -215,15 +268,40 @@ export class InviteStatsService {
 
   /**
    * 获取用户在排行榜中的排名
+   * 使用高效的数据库查询而不是获取整个排行榜
    */
   static async getUserRank(userId: string): Promise<number | null> {
     try {
       UserIdValidator.validate(userId, 'InviteStatsService.getUserRank');
 
-      const leaderboard = await this.getInviteLeaderboard(100);  // 获取前100名
-      const entry = leaderboard.find(e => e.userId === userId);
+      const supabase = await getSupabaseClient();
 
-      return entry ? entry.rank : null;
+      // 获取用户的成功邀请数
+      const { data: userStats, error: userError } = await supabase
+        .from('user_invite_stats')
+        .select('successful_invites')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (userError || !userStats) {
+        logger.error('查询用户统计失败:', userError);
+        return null;
+      }
+
+      const userInvites = userStats.successful_invites || 0;
+
+      // 计算排名：统计成功邀请数大于当前用户的用户数量 + 1
+      const { count, error: countError } = await supabase
+        .from('user_invite_stats')
+        .select('*', { count: 'exact', head: true })
+        .gt('successful_invites', userInvites);
+
+      if (countError) {
+        logger.error('计算排名失败:', countError);
+        return null;
+      }
+
+      return (count || 0) + 1;
     } catch (error) {
       logger.error('获取用户排名异常:', error);
       return null;
@@ -285,13 +363,21 @@ export class InviteStatsService {
     }
 
     try {
-      // TODO: 实现缓存清除逻辑
+      this.statsCache.delete(userId);
       logger.info('清除邀请统计缓存', {
         userId: UserIdValidator.formatForLog(userId)
       });
     } catch (error) {
       logger.error('清除统计缓存失败:', error);
     }
+  }
+
+  /**
+   * 清除所有缓存
+   */
+  static clearAllCache(): void {
+    this.statsCache.clear();
+    logger.info('清除所有邀请统计缓存');
   }
 }
 

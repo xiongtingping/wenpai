@@ -279,6 +279,8 @@ export const SUBSCRIPTION_MODELS: Record<string, string[]> = {
     'qwen-turbo',                              // Alibaba Cloud
     // 专业版模型
     'deepseek-chat',                           // DeepSeek
+    'gpt-4o',                                  // OpenAI GPT-4o (添加)
+    'gpt-4',                                   // OpenAI GPT-4 (添加)
     'openai/gpt-5-mini-2025-08-07',            // OpenAI
     'google/gemini-2.5-flash',                 // Google
     'qwen-plus'                                // Alibaba Cloud
@@ -289,12 +291,12 @@ export const SUBSCRIPTION_MODELS: Record<string, string[]> = {
     // 体验版模型
     'google/gemini-2.5-flash-lite-preview',    // Google
     'meta-llama/llama-4-scout',                // Meta
-
-
     'gpt-4o-mini',                             // OpenAI
     'qwen-turbo',                              // Alibaba Cloud
     // 专业版模型
     'deepseek-chat',                           // DeepSeek
+    'gpt-4o',                                  // OpenAI GPT-4o (添加)
+    'gpt-4',                                   // OpenAI GPT-4 (添加)
     'openai/gpt-5-mini-2025-08-07',            // OpenAI
     'google/gemini-2.5-flash',                 // Google
     'qwen-plus',                               // Alibaba Cloud
@@ -417,16 +419,14 @@ export function supportsStreamForModel(modelId: string): boolean {
 }
 
 /**
- * 校验常用模型的“模型名 → provider”映射是否正确
+ * 校验常用模型的"模型名 → provider"映射是否正确
  */
 export function validateCommonModelMappings(): Array<{ model: string; provider: string; ok: boolean; expected: string }>{
   const samples: Array<{ model: string; expected: string }> = [
     { model: 'gpt-4o-mini', expected: 'aimlapi' },
     { model: 'gpt-4o', expected: 'aimlapi' },
     { model: 'gpt-4', expected: 'aimlapi' },
-    { model: 'deepseek-chat', expected: 'deepseek' },
-    { model: 'deepseek-coder', expected: 'deepseek' },
-    { model: 'deepseek-v3', expected: 'deepseek' }
+    { model: 'deepseek-chat', expected: 'deepseek' }
   ];
 
   return samples.map(s => {

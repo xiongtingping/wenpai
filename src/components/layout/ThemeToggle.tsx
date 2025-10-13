@@ -23,14 +23,14 @@ interface ThemeConfig {
   badge?: string;
 }
 
-const createThemes = (t: (key: string) => string): ThemeConfig[] => [
+const createThemes = (t: (key: string, options?: any) => string): ThemeConfig[] => [
   {
     value: 'light',
     label: t('components.labels.text_javh'),
     icon: <Sun className="h-4 w-4 text-foreground" />,
     permissionLevel: 'basic',
     requiredPermission: 'theme:basic',
-    description: t('theme.descriptions.light', { defaultValue: '经典浅色主题，适合白天使用' })
+    description: t('theme.descriptions.light')
   },
   {
     value: 'dark',
@@ -38,7 +38,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     icon: <Moon className="h-4 w-4 text-foreground" />,
     permissionLevel: 'advanced',
     requiredPermission: 'theme:advanced',
-    description: t('theme.descriptions.dark', { defaultValue: '护眼深色主题，适合夜间使用' }),
+    description: t('theme.descriptions.dark'),
     badge: t('subscription.tiers.pro')
   },
   {
@@ -52,7 +52,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     ),
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
-    description: t('theme.descriptions.rainbow', { defaultValue: '彩虹渐变主题，活力多彩风格' }),
+    description: t('theme.descriptions.rainbow'),
     badge: t('subscription.tiers.premium')
   },
   {
@@ -66,7 +66,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     ),
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
-    description: t('theme.descriptions.beige', { defaultValue: '温暖米色主题，长时间使用更舒适' }),
+    description: t('theme.descriptions.beige'),
     badge: t('subscription.tiers.premium')
   },
   {
@@ -80,7 +80,7 @@ const createThemes = (t: (key: string) => string): ThemeConfig[] => [
     ),
     permissionLevel: 'premium',
     requiredPermission: 'theme:premium',
-    description: t('theme.descriptions.green', { defaultValue: '护眼绿色主题，自然清新风格' }),
+    description: t('theme.descriptions.green'),
     badge: t('subscription.tiers.premium')
   },
 ];
@@ -115,14 +115,15 @@ export const ThemeToggle: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  
-  // 获取订阅状态以同步权限更新
-  const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
 
-  // 获取权限检查结果
-  const basicPermission = usePermission('theme:basic');
-  const advancedPermission = usePermission('theme:advanced');
-  const premiumPermission = usePermission('theme:premium');
+  // 获取订阅状态以同步权限更新
+  const subscriptionStatus = useSubscriptionStatus();
+  const primaryStatus = subscriptionStatus?.primaryStatus;
+
+  // 获取权限检查结果 - 添加安全检查
+  const basicPermission = usePermission('theme:basic') || { pass: true, reason: '' };
+  const advancedPermission = usePermission('theme:advanced') || { pass: false, reason: '' };
+  const premiumPermission = usePermission('theme:premium') || { pass: false, reason: '' };
 
   // 点击外部关闭下拉菜单
   useEffect(() => {
@@ -273,13 +274,20 @@ export const ThemeToggle: React.FC = () => {
 
   // 处理主题切换
   const handleThemeChange = (themeConfig: ThemeConfig) => {
-    if (hasThemePermission(themeConfig)) {
-      setTheme(themeConfig.value);
-      setIsOpen(false);
-    } else {
-      // 权限不足，显示升级对话框
-      setSelectedTheme(themeConfig);
-      setUpgradeDialogOpen(true);
+    try {
+      if (hasThemePermission(themeConfig)) {
+        setTheme(themeConfig.value);
+        setIsOpen(false);
+      } else {
+        // 权限不足，显示升级对话框
+        setSelectedTheme(themeConfig);
+        setUpgradeDialogOpen(true);
+        setIsOpen(false);
+      }
+    } catch (error) {
+      console.error('主题切换失败:', error);
+      // 回退到默认主题
+      setTheme('light');
       setIsOpen(false);
     }
   };
@@ -336,7 +344,7 @@ export const ThemeToggle: React.FC = () => {
           >
             {/* 标题 */}
             <div className="px-3 py-2 text-sm font-medium text-foreground">
-              {t('theme.settings', { defaultValue: '\u4e3b\u9898\u8bbe\u7f6e' })}
+              {t('theme.settings')}
             </div>
             <div className="px-3 py-1 text-xs text-muted-foreground">
               <SubscriptionStateWrapper>
@@ -402,7 +410,7 @@ export const ThemeToggle: React.FC = () => {
               }}
             >
               <Crown className="h-4 w-4 text-primary" />
-              <span>{t('theme.unlockMore', { defaultValue: '\u89e3\u9501\u66f4\u591a\u4e3b\u9898\u548c\u529f\u80fd' })}</span>
+              <span>{t('theme.unlockMore')}</span>
             </button>
           </div>
         )}
