@@ -219,43 +219,6 @@ function PlatformResultCard({
               )}
             </Button>
 
-            <Button
-              onClick={() => onGenerateComparison(result.platformId)}
-              disabled={isGeneratingComparison}
-              size="sm"
-              variant="outline"
-            >
-              {isGeneratingComparison ? (
-                <>
-                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                  生成中...
-                </>
-              ) : (
-                <>
-                  <GitCompare className="h-3 w-3 mr-1" />
-                  对比版本
-                </>
-              )}
-            </Button>
-
-            <Button
-              onClick={() => onGenerateTitle(result.platformId, result.content)}
-              disabled={titleState?.isGenerating}
-              size="sm"
-              variant="outline"
-            >
-              {titleState?.isGenerating ? (
-                <>
-                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                  生成中...
-                </>
-              ) : (
-                <>
-                  <Type className="h-3 w-3 mr-1" />
-                  生成标题
-                </>
-              )}
-            </Button>
           </div>
         </div>
       </CardHeader>
@@ -291,7 +254,7 @@ function PlatformResultCard({
               {result.versions && result.versions.length > 1 ? (
                 <div className="grid grid-cols-2 gap-4">
                   {result.versions.map((version) => (
-                    <div key={version.id} className="flex flex-col">
+                    <div key={version.id} className="flex flex-col space-y-2">
                       <div className="flex items-center justify-between mb-2">
                         <label className="text-sm font-medium">{version.title}</label>
                         <span className="text-xs text-muted-foreground">
@@ -307,16 +270,60 @@ function PlatformResultCard({
                         className="content-textarea text-sm flex-1 min-h-[450px]"
                         placeholder={`${version.title}内容...`}
                       />
+                      {/* 🎯 版本操作按钮 */}
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigator.clipboard.writeText(version.content)}
+                          title="复制此版本内容"
+                        >
+                          <Copy className="h-3 w-3 mr-1" />
+                          复制
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onRetry(result.platformId)}
+                          title="重新生成此版本内容"
+                        >
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          重新生成
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <Textarea
-                  value={result.content}
-                  onChange={(e) => onContentUpdate(result.platformId, e.target.value)}
-                  className="content-textarea text-sm min-h-[450px]"
-                  placeholder="生成的内容将显示在这里..."
-                />
+                <div className="flex flex-col space-y-2">
+                  <Textarea
+                    value={result.content}
+                    onChange={(e) => onContentUpdate(result.platformId, e.target.value)}
+                    className="content-textarea text-sm min-h-[450px]"
+                    placeholder="生成的内容将显示在这里..."
+                  />
+                  {/* 🎯 单版本操作按钮 */}
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigator.clipboard.writeText(result.content)}
+                      title="复制内容"
+                    >
+                      <Copy className="h-3 w-3 mr-1" />
+                      复制
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onRetry(result.platformId)}
+                      title="重新生成内容"
+                    >
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      重新生成
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -334,12 +341,26 @@ function PlatformResultCard({
 
             {/* 标题生成器 */}
             <div className="border-t pt-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Type className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">智能标题生成</span>
-                <span className="text-muted-foreground text-xs">
-                  (限25字)
-                </span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Type className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">智能标题生成</span>
+                  <span className="text-muted-foreground text-xs">
+                    (限25字)
+                  </span>
+                </div>
+                {/* 🎯 生成标题按钮 - 移到标题右侧 */}
+                {!titleState?.isGenerating && !titleState?.candidates && !titleState?.title && (
+                  <Button
+                    size="sm"
+                    onClick={() => onGenerateTitle(result.platformId, result.content || result.versions?.[0]?.content || '')}
+                    disabled={!result.content && !result.versions?.[0]?.content}
+                    title="根据内容智能生成标题"
+                  >
+                    <Type className="h-4 w-4 mr-1" />
+                    生成标题
+                  </Button>
+                )}
               </div>
               {titleState?.isGenerating ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -352,43 +373,35 @@ function PlatformResultCard({
                     <div key={idx} className="flex items-center justify-between p-3 bg-muted/50 rounded border">
                       <p className="text-sm font-medium mr-2 truncate">{t}</p>
                       <div className="flex items-center gap-2">
-                        <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(t)}>复制</Button>
+                        <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(t)} title="复制此标题">复制</Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onGenerateTitle(result.platformId, result.content || result.versions?.[0]?.content || '')}
+                          title="重新生成此标题"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onGenerateTitle(result.platformId, result.content || result.versions?.[0]?.content || '')}
-                  >
-                    <RefreshCw className="h-4 w-4 mr-1" />
-                    重新生成
-                  </Button>
                 </div>
               ) : titleState?.title ? (
-                <div className="space-y-2">
-                  <div className="p-3 bg-muted/50 rounded border">
-                    <p className="text-sm font-medium">{titleState.title}</p>
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded border">
+                  <p className="text-sm font-medium mr-2 truncate">{titleState.title}</p>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(titleState.title)} title="复制此标题">复制</Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onGenerateTitle(result.platformId, result.content || result.versions?.[0]?.content || '')}
+                      title="重新生成此标题"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onGenerateTitle(result.platformId, result.content || result.versions?.[0]?.content || '')}
-                  >
-                    <RefreshCw className="h-4 w-4 mr-1" />
-                    重新生成
-                  </Button>
                 </div>
-              ) : (
-                <Button
-                  size="sm"
-                  onClick={() => onGenerateTitle(result.platformId, result.content || result.versions?.[0]?.content || '')}
-                  disabled={!result.content && !result.versions?.[0]?.content}
-                >
-                  <Type className="h-4 w-4 mr-1" />
-                  生成标题
-                </Button>
-              )}
+              ) : null}
             </div>
 
             {/* 标签生成器 */}
@@ -411,47 +424,6 @@ function PlatformResultCard({
               />
             </div>
 
-            {/* 操作按钮 */}
-            <div className="flex flex-wrap gap-2">
-              <Button
-                onClick={handleCopy}
-                size="sm"
-                variant="outline"
-                className="flex items-center gap-1"
-              >
-                <Copy className="h-3 w-3" />
-                复制
-              </Button>
-
-              {(() => {
-                const favoriteKey = `${result.platformId}-main`;
-                const isInPersistent = persistentFavorites?.has(favoriteKey) ?? false;
-                const isInFavorites = favoriteStates?.has(favoriteKey) ?? false;
-                const isFavorited = isInPersistent || isInFavorites;
-
-                return (
-                  <Button
-                    onClick={() => onSaveToFavorites(result.platformId, result.content, 'main')}
-                    size="sm"
-                    variant="outline"
-                    className={`flex items-center gap-1 ${isFavorited ? 'bg-muted/50 border-border text-foreground' : ''}`}
-                  >
-                    <Heart className={`h-3 w-3 ${isFavorited ? 'fill-current text-primary' : ''}`} />
-                    {isFavorited ? '已收藏 ❤️' : '收藏'}
-                  </Button>
-                );
-              })()}
-
-              <Button
-                onClick={() => onPublishToPlatform(result.platformId, result.content)}
-                size="sm"
-                variant="outline"
-                className="flex items-center gap-1"
-              >
-                <ExternalLink className="h-3 w-3" />
-                发布
-              </Button>
-            </div>
           </div>
         )}
       </CardContent>
