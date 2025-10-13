@@ -109,16 +109,24 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
   // 移除了内联样式覆盖的useEffect，完全依赖CSS定位
   // CSS已修改为标准居中定位，遵循项目规范
 
-  // 确保有专门的容器用于渲染弹窗
+  // 🔧 FIX: 确保有专门的容器用于渲染弹窗（只在组件挂载时创建一次）
   useEffect(() => {
     let container = document.getElementById('batch-forward-modal-container') as HTMLDivElement | null;
     if (!container) {
       container = document.createElement('div');
       container.id = 'batch-forward-modal-container';
+      // 容器本身不占据可点击区域，避免遮挡页面
+      container.style.pointerEvents = 'none';
       document.body.appendChild(container);
     }
-    // 容器本身不占据可点击区域，避免遮挡页面；具体交互由子元素控制
-    container.removeAttribute('style');
+  }, []); // 🔧 FIX: 空依赖数组，只在mount时执行一次，避免重复操作
+
+  // 🔧 FIX: 重置最小化状态（当modal关闭时）
+  useEffect(() => {
+    if (!open) {
+      setIsMinimized(false);
+      setCloseConfirmOpen(false);
+    }
   }, [open]);
 
   if (!open) return null;
@@ -250,22 +258,6 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
                 </TooltipProvider>
               </div>
             </div>
-
-            {/* 确认关闭对话框 */}
-            <AlertDialog open={closeConfirmOpen}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>确认关闭</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel onClick={() => setCloseConfirmOpen(false)}>取消</AlertDialogCancel>
-                  <AlertDialogAction onClick={confirmClose}>确认</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
 
             {/* 优化后的紧凑内容区域 */}
             <div className="flex-1 overflow-y-auto px-6 py-4 batch-modal-scroll-content">
