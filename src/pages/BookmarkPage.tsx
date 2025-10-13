@@ -63,7 +63,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Header } from '@/components/landing/Header';
-import { useFavoritesStore, favoritesUtils, type FavoriteItem } from '@/stores/compatibility-layer';
+import { useFavoritesState, useUnifiedStore } from '@/stores/unified-state-store';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { safeSaveToLocalStorage, safeLoadFromLocalStorage, checkLocalStorageAvailability, cleanupLocalStorageData } from '@/utils/safeDataStorage';
@@ -215,8 +215,9 @@ export default function BookmarkPage() {
   // ✅ FIXED: 添加用户认证
   const { user } = useAuth();
 
-  // 收藏系统store
-  const favoritesStore = useFavoritesStore();
+  // 收藏系统（统一Store）
+  const { items: favoriteItems } = useFavoritesState();
+  const removeFavorite = useUnifiedStore(state => state.removeFavorite);
 
   // 状态管理
   const [libraryItems, setLibraryItems] = useState<LibraryItem[]>([]);
@@ -724,6 +725,21 @@ export default function BookmarkPage() {
         return { icon: FileText, name: '其他' };
     }
   };
+  /**
+   * 收藏项类型显示名
+   */
+  const getFavoriteTypeName = (type: string): string => {
+    switch (type) {
+      case 'content':
+        return '内容';
+      case 'template':
+        return '模板';
+      case 'prompt':
+        return '提示词';
+      default:
+        return '内容';
+    }
+  };
 
   /**
    * 编辑项目
@@ -791,9 +807,9 @@ export default function BookmarkPage() {
       // 获取所有资料
       const allData = {
         libraryItems,
-        favorites: favoritesStore.favorites,
+        favorites: favoriteItems,
         exportDate: new Date().toISOString(),
-        totalCount: safeLength(libraryItems) + safeLength(favoritesStore.favorites)
+        totalCount: safeLength(libraryItems) + safeLength(favoriteItems)
       };
 
       // 生成MD格式内容
@@ -819,10 +835,10 @@ export default function BookmarkPage() {
       }
 
       // 导出我的收藏内容
-      if (safeLength(favoritesStore.favorites) > 0) {
-        mdContent += `## ❤️ 我的收藏内容 (${safeLength(favoritesStore.favorites)} 项)\n\n`;
+      if (safeLength(favoriteItems) > 0) {
+        mdContent += `## ❤️ 我的收藏内容 (${safeLength(favoriteItems)} 项)\n\n`;
 
-        safeArray(favoritesStore.favorites).forEach((favorite, index) => {
+        safeArray(favoriteItems).forEach((favorite, index) => {
           mdContent += `### ${index + 1}. ${favorite.title}\n\n`;
           mdContent += `**类型**: ${favorite.type}\n`;
           mdContent += `**收藏时间**: ${new Date(favorite.createdAt).toLocaleString()}\n`;
@@ -904,9 +920,9 @@ export default function BookmarkPage() {
               <TabsTrigger value="favorites" className="unified-tab-trigger">
                 <Heart className="tab-icon" />
                 <span>{t('bookmark.myFavorites')}</span>
-                {favoritesStore.totalCount > 0 && (
+                {favoriteItems.length > 0 && (
                   <Badge variant="secondary" className="ml-1 text-xs px-1 py-0 h-4 min-w-4">
-                    {favoritesStore.totalCount}
+                    {favoriteItems.length}
                   </Badge>
                 )}
               </TabsTrigger>
@@ -1037,7 +1053,7 @@ export default function BookmarkPage() {
           {/*  */}
           <TabsContent value="favorites" className="mt-0">
             <div className="grid gap-4">
-              {safeLength(favoritesStore.favorites) === 0 ? (
+              {safeLength(favoriteItems) === 0 ? (
                 <Card>
                   <CardContent className="text-center py-12">
                     <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
@@ -1051,8 +1067,12 @@ export default function BookmarkPage() {
                   </CardContent>
                 </Card>
               ) : (
-                safeArray(favoritesStore.favorites).map((favorite) => {
-                  const formattedFavorite = favoritesUtils.formatFavoriteForDisplay(favorite);
+                safeArray(favoriteItems).map((favorite) => {
+                  const formattedFavorite = {
+                    typeName: getFavoriteTypeName(favorite.type as any),
+                    formattedDate: new Date(favorite.createdAt).toLocaleString(),
+                    contentPreview: (favorite.content || '').slice(0, 120)
+                  };
 
                   return (
                     <Card key={favorite.id}>
@@ -1066,7 +1086,9 @@ export default function BookmarkPage() {
                               {formattedFavorite.formattedDate}
                             </span>
                             <span className="text-sm text-muted-foreground">
-                              来源：{favorite.source}
+                              {(favorite as any).source && (
+                                <>来源：{(favorite as any).source}</>
+                              )}
                             </span>
                           </div>
                           <div className="flex gap-2">
@@ -1087,7 +1109,7 @@ export default function BookmarkPage() {
                               size="sm"
                               variant="ghost"
                               onClick={() => {
-                                favoritesStore.removeFavorite(favorite.id);
+                                removeFavorite(favorite.id);
                                 toast({
                                   title: t('pages.labels.取消收藏'),
                                   description: t('pages.messages.已从我的收藏中移除'),

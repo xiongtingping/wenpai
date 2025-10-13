@@ -47,8 +47,8 @@ import {
   Heading3
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuthStore } from '@/stores/compatibility-layer';
-import { useUsageStore } from '@/stores/compatibility-layer';
+import { useAuthState } from '@/stores/unified-state-store';
+
 import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 // import { Header } from '@/components/landing/Header'; // 移除Header导入，该组件作为Tab内容使用
@@ -209,8 +209,8 @@ const DEFAULT_TEMPLATES: CardTemplate[] = [
 export default function MD2CardPage() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const { user, isAuthenticated } = useAuthStore();
-  const { recordUsage } = useUsageStore();
+  const { user, isAuthenticated } = useAuthState();
+
   
   // 状态管理
   const textareaRef = useRef<HTMLTextAreaElement>(null);

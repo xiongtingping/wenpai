@@ -56,7 +56,8 @@ import { MomentsTextGenerator } from './MomentsTextGenerator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useAuthStore } from '@/stores/compatibility-layer';
+import { useAuthState } from '@/stores/unified-state-store';
+import { useUsageCount } from '@/hooks/useUsage';
 import { callUnifiedAI } from '@/api/unifiedAIService';
 import { AITaskType } from '@/api/aiService';
 import { Label as UILabel } from '@/components/ui/label';
@@ -393,9 +394,7 @@ function DimensionCard({
 export function CreativeCube() {
   const { t } = useTranslation(); // 🔧 修复：添加缺失的翻译函数
   const { toast } = useToast();
-  const { decrementUsage } = useAuthStore();
-  const authStore = useAuthStore();
-  const usageRemaining = (authStore as any).getUsageRemaining ? (authStore as any).getUsageRemaining() : 0;
+  const { remaining: usageRemaining } = useUsageCount();
   
   // 使用统一的维度定义系统
   const dimensions: CubeDimension[] = getCreativeCubeDimensions().map(dim => ({

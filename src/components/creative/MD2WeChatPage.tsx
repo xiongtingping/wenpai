@@ -26,8 +26,8 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuthStore } from '@/stores/compatibility-layer';
-import { useUsageStore } from '@/stores/compatibility-layer';
+import { useAuthState } from '@/stores/unified-state-store';
+
 import { PermissionProtectedInput } from '@/components/auth/PermissionProtectedInput';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
@@ -67,8 +67,8 @@ export interface ThemeConfig {
  * MD2WeChat主页面组件
  */
 export default function MD2WeChatPage() { const { toast  } = useToast();
-  const { user, isAuthenticated } = useAuthStore();
-  const { recordUsage } = useUsageStore();
+  const { user, isAuthenticated } = useAuthState();
+
   
   // 状态管理
   const [markdownContent, setMarkdownContent] = useState('# 欢迎使用 MD2Wechat\n\n这是一个专为微信公众号设计的 Markdown 转换工具。\n\n## 功能特点\n\n- 🎨 多种精美主题\n- 📱 移动端适配预览\n- 🚀 一键复制导出\n- ⚡ 实时预览效果\n\n## 使用方法\n\n1. 在左侧编辑器中输入 Markdown 内容\n2. 选择合适的主题样式\n3. 预览转换效果\n4. 一键复制到微信公众号\n\n开始你的创作之旅吧！');

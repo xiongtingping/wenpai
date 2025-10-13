@@ -14,7 +14,7 @@ import { PageNavigation } from '@/components/layout/PageNavigation';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '@/stores/compatibility-layer';
+
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 // import { useUnifiedUsageStats } from '@/hooks/useUnifiedUsageStats'; // 🎯 已废弃
 import { useUsageCount } from '@/hooks/useUsage'; // 🎯 新架构: Store-based Hook
@@ -47,15 +47,20 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { BRAND_MESSAGES } from '../constants/messages';
+
 // 导入统一Z-Index管理器
 import { zIndexManager, ZIndexLayers } from '@/utils/zIndexManager';
+import { useUnifiedStore } from '@/stores/unified-state-store';
+import type { SubscriptionTier } from '@/types/subscription';
 
 // 导入工具函数和配置
 import { getAvailableModelsForTier, getAllModels } from '@/config/aiModels';
 import { getAvailablePlatforms } from '@/api/contentAdapter';
 
-// 导入收藏系统
-import { useFavoritesStore, favoritesUtils } from '@/stores/compatibility-layer';
+// 收藏系统改为统一Store
+import { useUnifiedStore } from '@/stores/unified-state-store';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { globalDataManager } from '@/services/unifiedDataManager';
 
@@ -306,15 +311,21 @@ export function ContentAdapterPage({
   // 🎯 新架构: 使用Store-based Hook
   const { used, available, remaining, loading: usageLoading, consumeUsage, canUse } = useUsageCount();
 
+  // 与统一状态对齐订阅等级与使用统计（确保 premium 无限使用生效）
+  const unifiedUserId = useUnifiedStore(state => state.user.id);
+  const updateUserSubscriptionInStore = useUnifiedStore(state => state.updateUserSubscription);
+  const initializeUsageStatsInStore = useUnifiedStore(state => state.initializeUsageStats);
+
   // 兼容旧代码
-  const { usageCount, maxUsage, usageRemaining, decrementUsage, updateMaxUsage } = useAuthStore();
+
   const { primaryStatus, refresh: refreshSubscription } = useSubscriptionStatus();
 
   // 用户设置Hook - 用于加载保存的模型偏好
   const { getSetting } = useUserSettings();
 
-  // 收藏系统
-  const favoritesStore = useFavoritesStore();
+  // 收藏系统（统一Store）
+  const addFavorite = useUnifiedStore(state => state.addFavorite);
+  const removeFavorite = useUnifiedStore(state => state.removeFavorite);
   const favoritesDataManager = useUserDataIsolation({
     modulePrefix: 'adapt_favorites'
   });
@@ -336,11 +347,23 @@ export function ContentAdapterPage({
 
   const effectiveUserTier = getCurrentTier();
 
+  // 将订阅等级同步到统一状态，并用正确的等级初始化/刷新使用统计
+  React.useEffect(() => {
+    if (unifiedUserId && effectiveUserTier) {
+      try {
+        updateUserSubscriptionInStore(effectiveUserTier as SubscriptionTier);
+        initializeUsageStatsInStore(unifiedUserId as string, effectiveUserTier as SubscriptionTier);
+      } catch (e) {
+        console.warn('sync subscription to unified store failed:', e);
+      }
+    }
+  }, [unifiedUserId, effectiveUserTier, updateUserSubscriptionInStore, initializeUsageStatsInStore]);
+
   // 🎯 新架构: 直接从Store获取,无需复杂的缓存逻辑
   // Store已经处理了缓存和一致性,组件只需消费数据
   const displayRemaining = propUsageRemaining !== undefined ? propUsageRemaining : remaining;
 
-  // 🔍 调试日志
+  // 🔍 调试日志（统一Store）
   React.useEffect(() => {
     console.log('🎯 ContentAdapterPage 使用次数状态:', {
       来源: 'useUsageCount Hook',
@@ -348,10 +371,9 @@ export function ContentAdapterPage({
       available,
       remaining,
       displayRemaining,
-      propUsageRemaining,
-      兼容层数据: { usageCount, maxUsage, usageRemaining }
+      propUsageRemaining
     });
-  }, [used, available, remaining, displayRemaining, propUsageRemaining, usageCount, maxUsage, usageRemaining]);
+  }, [used, available, remaining, displayRemaining, propUsageRemaining]);
 
   // 🔧 FIX: 监听Token使用量更新事件，自动刷新显示
   React.useEffect(() => {
@@ -667,61 +689,10 @@ export function ContentAdapterPage({
     return () => clearInterval(intervalId);
   }, []);
 
-  // 🔧 FIX: 同步实际使用次数和最大使用次数 - 从原版完整迁移
+  // ⛔ 旧兼容层用量同步逻辑已移除：统一由 unified-state-store 管理（见上方订阅同步 + initializeUsageStats）
   React.useEffect(() => {
-    if (user?.id) {
-      const syncUsageStats = async () => {
-        try {
-          // 获取用户当前等级 - 与其他组件保持一致的逻辑
-          const calculatedTier = (() => {
-            // 优先使用订阅状态中的等级信息
-            if (primaryStatus?.status === 'active' && primaryStatus.tier) {
-              return primaryStatus.tier;
-            }
-
-            // 如果订阅状态中没有等级信息，但有活跃订阅，根据状态标签推断等级
-            if (primaryStatus?.status === 'active') {
-              const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
-              if (statusLabel.includes(t('components.labels.高级版')) || statusLabel.includes('premium')) {
-                return 'premium';
-              } else if (statusLabel.includes(t('components.labels.专业版')) || statusLabel.includes('pro')) {
-                return 'pro';
-              }
-            }
-
-            // 回退到用户基本信息中的等级
-            return getUserTier(user);
-          })();
-
-          // 🔧 FIX: 恢复正确的使用次数限制配置
-          let newMaxUsage = -1; // 🔧 FIX: 默认设为无限制，避免闪烁
-          if (calculatedTier === 'trial') {
-            newMaxUsage = 10; // 体验版10次/月
-          } else if (calculatedTier === 'pro') {
-            newMaxUsage = 30; // 🔧 FIX: 专业版恢复为30次/月
-          } else if (calculatedTier === 'premium') {
-            newMaxUsage = -1; // 高级版无限制
-          }
-
-          // 🔧 FIX: 立即更新最大使用次数，避免状态闪烁
-          if (newMaxUsage !== maxUsage) {
-            console.log('🔄 updating使用countlimiting:', {
-              currentTier: calculatedTier,
-              oldMaxUsage: maxUsage,
-              newMaxUsage,
-              hasActiveSubscription: primaryStatus?.status === 'active'
-            });
-            updateMaxUsage(newMaxUsage);
-          }
-
-        } catch (error) {
-          console.error('Failed to sync usage stats:', error);
-        }
-      };
-
-      syncUsageStats();
-    }
-  }, [user?.id, primaryStatus?.status, updateMaxUsage, maxUsage]);
+    // no-op
+  }, []);
 
   // 🔧 FIX: 监听支付成功事件，立即更新使用次数状态 - 从原版完整迁移
   React.useEffect(() => {
@@ -869,7 +840,8 @@ export function ContentAdapterPage({
   const checkUsageAndShowReminder = () => {
     // 🔧 FIX: 使用缓存的剩余次数，避免数据闪烁
     // 如果剩余次数为0或负数，阻止生成
-    if (displayRemaining <= 0 && maxUsage !== -1) {
+    // 使用统一Store的 available 判断是否无限制（-1 表示无限制）
+    if (displayRemaining <= 0 && available !== -1) {
       console.log('❌ 使用countalready用完，阻止生成');
       toast({
         title: t('adapt.errors.usageExhausted'),
@@ -880,7 +852,7 @@ export function ContentAdapterPage({
     }
 
     // 如果剩余次数较少（1-3次），显示提醒但允许继续生成
-    if (displayRemaining <= 3 && displayRemaining > 0 && maxUsage !== -1) {
+    if (displayRemaining <= 3 && displayRemaining > 0 && available !== -1) {
       console.log('⚠️ 使用count较少，display提醒但allowing生成');
       toast({
         title: t('adapt.errors.usageLow'),
@@ -1065,7 +1037,7 @@ export function ContentAdapterPage({
         ) || [];
 
         existingFavorites.forEach((fav: any) => {
-          favoritesStore.removeFavorite(fav.id);
+          removeFavorite(fav.id);
         });
 
         // 从本地存储中移除
@@ -1088,27 +1060,21 @@ export function ContentAdapterPage({
           description: t('adapt.messages.favoriteRemovedDescription'),
         });
       } else {
-        // 添加收藏
-        const favoriteItem = favoritesUtils.createFavoriteItem(
-          'content-generation',
-          `${getPlatformName(platformId, availablePlatforms)}内容 - ${versionId || '主版本'}`,
-          content,
-          '内容适配器',
-          {
-            description: `来自${getPlatformName(platformId, availablePlatforms)}的适配内容`,
-            tags: [], // TODO: 可以从结果中提取标签
-            metadata: {
-              platformId,
-              versionId,
-              originalContent: originalContent.slice(0, 100) + '...',
-              charCount: content.length,
-              createdBy: 'ai-adapter',
-              userId: user.id
-            }
-          }
-        );
-
-        const favoriteId = favoritesStore.addFavorite(favoriteItem);
+        // 添加收藏（统一Store）
+        const favoriteId = (() => {
+          const id = `fav_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`;
+          const item = {
+            id,
+            type: 'content' as const,
+            title: `${getPlatformName(platformId, availablePlatforms)}内容 - ${versionId || '主版本'}`,
+            content,
+            tags: [] as string[],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          addFavorite(item);
+          return id;
+        })();
         console.log('🔍 adding收藏:', { favoriteId, userId: user.id, platformId, versionId });
 
         // 同时保存到本地存储（向后兼容）
@@ -1667,6 +1633,12 @@ export function ContentAdapterPage({
             t
           } as any}
         />
+        {/* 品牌库为空的非阻断提示 */}
+        {useBrandLibrary && !brandProfile && (
+          <Alert className="mt-2">
+            <AlertDescription>{BRAND_MESSAGES.EMPTY}</AlertDescription>
+          </Alert>
+        )}
 
         {/* 平台选择区域 */}
         <PlatformSelector

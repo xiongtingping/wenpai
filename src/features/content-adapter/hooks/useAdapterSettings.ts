@@ -276,9 +276,9 @@ export function useAdapterSettings(params: UseAdapterSettingsParams = {}): UseAd
       }
     }
 
-    // 验证品牌库设置
+    // 验证品牌库设置（不阻断生成：仅由页面提示空品牌库，不加入错误）
     if (useBrandLibrary && !brandProfile) {
-      errors.push(BRAND_MESSAGES.REQUIRED);
+      // 不添加错误，避免阻断内容生成；由页面层展示非阻断提示
     }
 
     return {

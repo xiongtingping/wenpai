@@ -146,6 +146,7 @@ export const BRAND_MESSAGES = {
   LOADED: '品牌资料已加载',
   NOT_FOUND: '未找到品牌资料',
   REQUIRED: '请选择品牌资料',
+  EMPTY: '品牌库资料为空，请尽快至品牌库补充完善资料',
   APPLIED: '已应用品牌调性',
 } as const;
 
