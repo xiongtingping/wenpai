@@ -1227,13 +1227,15 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
 
               if (isExpired) {
                 console.log('⏰ 用户信息已过期（超过24小时），将从 Supabase 重新查询');
-                // 保留基础身份信息，清除其他可能过期的数据
+                // 🔧 FIX: 保留基础身份信息和已有subscription，避免premium→trial误降级
+                // 清除其他可能过期的数据，但保留上次有效的subscription值
                 state.user = {
                   ...initialUserState,
                   id: state.user.id,
                   isAuthenticated: state.user.isAuthenticated,
-                  subscription: 'trial', // 重置为默认值
+                  subscription: state.user.subscription || 'trial', // 保留已有值，仅在无值时使用trial作为fallback
                 };
+                console.log(`✅ 已保留 subscription = ${state.user.subscription}，等待 subscription-store 异步更新`);
               } else {
                 const hoursAgo = Math.floor((Date.now() - lastFetchTime) / 1000 / 60 / 60);
                 console.log(`✅ 用户信息有效（${hoursAgo}小时前获取）`);
