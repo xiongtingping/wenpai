@@ -269,32 +269,13 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
 
             {/* 优化后的紧凑内容区域 */}
             <div className="flex-1 overflow-y-auto px-6 py-4 batch-modal-scroll-content">
-              {/* 优化后的使用说明 - 改为更清晰的卡片式布局 */}
-              <div className="mb-5 p-4 bg-violet-500/5 rounded-lg border border-violet-500/20">
-                <div className="flex items-start gap-3">
-                  <Info className="h-5 w-5 text-violet-500 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 space-y-2">
-                    <p className="text-sm font-semibold text-foreground">使用说明</p>
-                    <div className="text-sm text-muted-foreground space-y-2">
-                      <div className="flex gap-2">
-                        <span className="font-semibold text-violet-500 min-w-[1.5rem]">1.</span>
-                        <span>点击平台卡片右上角的<span className="font-medium text-violet-500">"跳转平台"</span>按钮，打开对应平台发布页</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="font-semibold text-violet-500 min-w-[1.5rem]">2.</span>
-                        <span>在本页面点击<span className="font-medium text-violet-500">"复制标题"</span>、<span className="font-medium text-violet-500">"复制内容"</span>、<span className="font-medium text-violet-500">"复制标签"</span>按钮</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="font-semibold text-violet-500 min-w-[1.5rem]">3.</span>
-                        <span>切换到平台页面，将复制的内容粘贴到对应位置</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="font-semibold text-violet-500 min-w-[1.5rem]">4.</span>
-                        <span>在平台完成发布后，返回继续处理下一个平台</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              {/* 弱化的使用说明 - 紧凑单行提示 */}
+              <div className="mb-4 px-3 py-2 bg-violet-500/5 rounded border border-violet-500/20 flex items-center gap-2">
+                <Info className="h-4 w-4 text-violet-500 flex-shrink-0" />
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-medium text-foreground">快速操作：</span>
+                  点击"跳转"打开平台页面，使用"复制"按钮获取内容，切换到平台粘贴发布
+                </p>
               </div>
 
               {/* 优化后的平台网格 - 增加分组边框 */}
@@ -303,14 +284,14 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
                   <Card key={platform.id} className="border border-border hover:border-violet-500/30 transition-all">
                     {/* 优化后的卡片头部 */}
                     <CardHeader className="pb-3 pt-3 px-4 border-b border-border bg-violet-50/30 dark:bg-violet-950/10">
-                      <CardTitle className="flex items-center gap-2 text-sm">
+                      <CardTitle className="flex items-center gap-2 text-sm w-full">
                         <div className="w-5 h-5 rounded bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center flex-shrink-0">
                           <span className="text-white text-xs font-bold">
                             {platform.icon}
                           </span>
                         </div>
-                        <span className="flex-1 font-semibold text-foreground truncate">{platform.name}</span>
-                        <div className="flex items-center gap-1 flex-shrink-0">
+                        <span className="flex-1 font-semibold text-foreground overflow-hidden text-ellipsis whitespace-nowrap min-w-0">{platform.name}</span>
+                        <div className="flex items-center gap-1 flex-shrink-0 ml-auto">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>

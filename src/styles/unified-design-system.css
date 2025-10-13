@@ -822,8 +822,8 @@
     --batch-modal-border: 1px solid hsl(var(--border));
     --batch-modal-border-radius: var(--radius-lg);
     --batch-modal-shadow: var(--shadow-2xl);
-    --batch-modal-max-width: min(960px, 92vw);
-    --batch-modal-max-height: 80vh;
+    --batch-modal-max-width: min(80vw, 1400px);
+    --batch-modal-max-height: 85vh;
   }
 
   /* 半透明遮罩层 */
