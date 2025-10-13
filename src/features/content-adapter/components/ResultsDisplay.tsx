@@ -234,13 +234,19 @@ function PlatformResultCard({
             <p>{result.error}</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {/* 主内容 */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium">生成内容</label>
+          <div className="space-y-6">
+            {/* 🎯 步骤1: 主内容生成 */}
+            <div className="border rounded-lg p-4 bg-card">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+                  1
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base font-semibold text-foreground">生成内容</h3>
+                  <p className="text-xs text-muted-foreground">AI生成的适配内容</p>
+                </div>
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs ${
+                  <span className={`text-xs font-medium ${
                     result.content.length > targetCharCount ? 'text-destructive' :
                     result.content.length > targetCharCount * 0.9 ? 'text-warning' :
                     'text-success'
@@ -253,11 +259,15 @@ function PlatformResultCard({
               {/* 🔧 FIX: 版本左右布局 - 版本A在左,版本B在右 */}
               {result.versions && result.versions.length > 1 ? (
                 <div className="grid grid-cols-2 gap-4">
-                  {result.versions.map((version) => (
-                    <div key={version.id} className="flex flex-col space-y-2">
+                  {result.versions.map((version, idx) => (
+                    <div key={version.id} className={`flex flex-col space-y-2 p-4 rounded-lg border-2 ${
+                      idx === 0
+                        ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900'
+                        : 'bg-purple-50/50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900'
+                    }`}>
                       <div className="flex items-center justify-between mb-2">
-                        <label className="text-sm font-medium">{version.title}</label>
-                        <span className="text-xs text-muted-foreground">
+                        <label className="text-sm font-semibold text-foreground">{version.title}</label>
+                        <span className="text-xs text-muted-foreground font-medium">
                           {version.charCount}字
                         </span>
                       </div>
@@ -267,7 +277,7 @@ function PlatformResultCard({
                           onVersionSelect(result.platformId, version.id);
                           onContentUpdate(result.platformId, e.target.value);
                         }}
-                        className="content-textarea text-sm flex-1 min-h-[450px]"
+                        className="content-textarea text-sm flex-1 min-h-[450px] bg-background"
                         placeholder={`${version.title}内容...`}
                       />
                       {/* 🎯 版本操作按钮 */}
@@ -277,6 +287,7 @@ function PlatformResultCard({
                           variant="outline"
                           onClick={() => navigator.clipboard.writeText(version.content)}
                           title="复制此版本内容"
+                          className="flex-1"
                         >
                           <Copy className="h-3 w-3 mr-1" />
                           复制
@@ -286,6 +297,7 @@ function PlatformResultCard({
                           variant="outline"
                           onClick={() => onRetry(result.platformId)}
                           title="重新生成此版本内容"
+                          className="flex-1"
                         >
                           <RefreshCw className="h-3 w-3 mr-1" />
                           重新生成
@@ -309,6 +321,7 @@ function PlatformResultCard({
                       variant="outline"
                       onClick={() => navigator.clipboard.writeText(result.content)}
                       title="复制内容"
+                      className="flex-1"
                     >
                       <Copy className="h-3 w-3 mr-1" />
                       复制
@@ -318,6 +331,7 @@ function PlatformResultCard({
                       variant="outline"
                       onClick={() => onRetry(result.platformId)}
                       title="重新生成内容"
+                      className="flex-1"
                     >
                       <RefreshCw className="h-3 w-3 mr-1" />
                       重新生成
@@ -339,15 +353,17 @@ function PlatformResultCard({
               </div>
             )}
 
-            {/* 标题生成器 */}
-            <div className="border-t pt-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Type className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">智能标题生成</span>
-                  <span className="text-muted-foreground text-xs">
-                    (限25字)
-                  </span>
+            {/* 🎯 步骤2: 标题生成器 */}
+            <div className="border rounded-lg p-4 bg-card">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+                    2
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">智能标题生成</h3>
+                    <p className="text-xs text-muted-foreground">根据内容生成吸引人的标题 (限25字)</p>
+                  </div>
                 </div>
                 {/* 🎯 生成标题按钮 - 移到标题右侧 */}
                 {!titleState?.isGenerating && !titleState?.candidates && !titleState?.title && (
@@ -404,11 +420,16 @@ function PlatformResultCard({
               ) : null}
             </div>
 
-            {/* 标签生成器 */}
-            <div className="border-t pt-4">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-sm font-medium text-foreground">智能标签生成</span>
-                <span className="text-muted-foreground text-xs">标签生成</span>
+            {/* 🎯 步骤3: 标签生成器 */}
+            <div className="border rounded-lg p-4 bg-card">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-semibold text-sm">
+                  3
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">智能标签生成</h3>
+                  <p className="text-xs text-muted-foreground">自动提取关键词生成平台标签</p>
+                </div>
               </div>
               <PlatformHashtags
                 key={`${result.platformId}-unified-${(result.content || (result.versions && result.versions[0]?.content) || '').length}`}
