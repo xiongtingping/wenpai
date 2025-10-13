@@ -399,12 +399,39 @@ export default function ProfilePage() {
 
   const handleRandomAvatar = async () => {
     try {
+      // 动态导入 emoji 系统
       const { getRandomEmojis, generateEmojiSVG } = await import('@/services/unifiedEmojiSystem');
-      const pool = getRandomEmojis(1, 'animals');
-      if (pool.length === 0) return;
+
+      // 尝试从 animals 分类获取
+      let pool = getRandomEmojis(1, 'animals');
+
+      // 如果 animals 分类为空，尝试其他分类
+      if (pool.length === 0) {
+        console.warn('animals 分类为空，尝试其他分类');
+        const categories = ['smileys', 'nature', 'food', 'activities'];
+        for (const cat of categories) {
+          pool = getRandomEmojis(1, cat);
+          if (pool.length > 0) break;
+        }
+      }
+
+      // 如果仍然为空，使用全部 emoji
+      if (pool.length === 0) {
+        console.warn('所有指定分类为空，使用全部 emoji');
+        pool = getRandomEmojis(1);
+      }
+
+      // 最后的安全检查
+      if (pool.length === 0) {
+        throw new Error('无法获取任何 emoji 数据');
+      }
 
       const selectedEmoji = pool[0];
       const avatarUrl = generateEmojiSVG(selectedEmoji);
+
+      if (!avatarUrl) {
+        throw new Error('生成的头像 URL 为空');
+      }
 
       setProfileForm(prev => ({ ...prev, avatar: avatarUrl }));
       await updateUser({ avatar: avatarUrl });
@@ -412,10 +439,15 @@ export default function ProfilePage() {
 
       toast({
         title: "头像已更新",
-        description: `随机选择了可爱的${selectedEmoji.name} ${selectedEmoji.emoji}`
+        description: `随机选择了可爱的 ${selectedEmoji.name} ${selectedEmoji.emoji}`
       });
     } catch (error) {
-      toast({ title: "生成失败", description: "动物头像生成失败，请重试", variant: "destructive" });
+      console.error('生成随机头像失败:', error);
+      toast({
+        title: "生成失败",
+        description: error instanceof Error ? error.message : "头像生成失败，请重试",
+        variant: "destructive"
+      });
     }
   };
 
