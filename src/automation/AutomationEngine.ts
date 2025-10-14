@@ -637,7 +637,7 @@ export class AutomationEngine {
     `;
 
     const content = document.createElement('div');
-    content.className = 'automation-modal-content max-h-[80vh] overflow-y-auto';
+    content.className = 'automation-modal-content max-h-[90vh] overflow-y-auto';
 
     content.innerHTML = `
       <h3 class="automation-modal-header">
@@ -873,7 +873,7 @@ export class AutomationEngine {
     `;
 
     const content = document.createElement('div');
-    content.className = 'automation-modal-content';
+    content.className = 'automation-modal-content max-h-[90vh] overflow-y-auto';
 
     content.innerHTML = `
       <h3 class="automation-modal-header">

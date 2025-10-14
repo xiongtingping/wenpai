@@ -75,7 +75,7 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
   const platform = platformConfig[platformId as keyof typeof platformConfig];
   const colorClasses = {
     red: 'bg-destructive/10 border-border text-destructive',
-    orange: 'bg-accent border-border text-foreground',
+    warning: 'bg-warning/10 border-warning/20 text-warning',
     yellow: 'bg-accent border-border text-foreground',
     blue: 'bg-primary/10 border-border text-primary',
     green: 'bg-accent border-border text-foreground',
