@@ -120,10 +120,10 @@ export const ThemeToggle: React.FC = () => {
   const subscriptionStatus = useSubscriptionStatus();
   const primaryStatus = subscriptionStatus?.primaryStatus;
 
-  // 获取权限检查结果 - 添加安全检查
-  const basicPermission = usePermission('theme:basic') || { pass: true, reason: '' };
-  const advancedPermission = usePermission('theme:advanced') || { pass: false, reason: '' };
-  const premiumPermission = usePermission('theme:premium') || { pass: false, reason: '' };
+  // 获取权限检查结果
+  const basicPermission = usePermission('theme:basic');
+  const advancedPermission = usePermission('theme:advanced');
+  const premiumPermission = usePermission('theme:premium');
 
   // 点击外部关闭下拉菜单
   useEffect(() => {
@@ -204,34 +204,42 @@ export const ThemeToggle: React.FC = () => {
 
     // 检查当前主题的权限
     const hasPermission = (() => {
-      switch (cfg.permissionLevel) {
-        case 'basic':
-          return basicPermission.pass;
-        case 'advanced':
-          return advancedPermission.pass;
-        case 'premium':
-          return premiumPermission.pass;
-        default:
-          return false;
+      try {
+        switch (cfg.permissionLevel) {
+          case 'basic':
+            return basicPermission.pass;
+          case 'advanced':
+            return advancedPermission.pass;
+          case 'premium':
+            return premiumPermission.pass;
+          default:
+            return false;
+        }
+      } catch (error) {
+        console.error('权限检查异常:', error);
+        return false;
       }
     })();
 
     // 如果没有权限且当前主题不是 light，立即静默回退
     if (!hasPermission && theme !== 'light') {
+      try {
+        // 立即更新状态和 DOM，避免延迟
+        setTheme('light');
 
-      // 立即更新状态和 DOM，避免延迟
-      setTheme('light');
+        const themeKey = generateStorageKey('wenpai-theme', user);
+        localStorage.setItem(themeKey, 'light');
+        localStorage.setItem('theme', 'light');
 
-      const themeKey = generateStorageKey('wenpai-theme', user);
-      localStorage.setItem(themeKey, 'light');
-      localStorage.setItem('theme', 'light');
-
-      const html = document.documentElement;
-      html.setAttribute('data-theme', 'light');
-      html.classList.remove('dark', 'rainbow', 'beige', 'green');
-      html.classList.add('light');
+        const html = document.documentElement;
+        html.setAttribute('data-theme', 'light');
+        html.classList.remove('dark', 'rainbow', 'beige', 'green');
+        html.classList.add('light');
+      } catch (error) {
+        console.error('主题回退失败:', error);
+      }
     }
-  }, [theme, basicPermission.pass, advancedPermission.pass, premiumPermission.pass, user]);
+  }, [theme, basicPermission?.pass, advancedPermission?.pass, premiumPermission?.pass, user?.id]);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -275,6 +283,16 @@ export const ThemeToggle: React.FC = () => {
   // 处理主题切换
   const handleThemeChange = (themeConfig: ThemeConfig) => {
     try {
+      // 验证权限对象是否有效
+      if (!basicPermission || !advancedPermission || !premiumPermission) {
+        console.error('权限系统未初始化', {
+          basicPermission,
+          advancedPermission,
+          premiumPermission
+        });
+        return;
+      }
+
       if (hasThemePermission(themeConfig)) {
         setTheme(themeConfig.value);
         setIsOpen(false);
@@ -285,7 +303,15 @@ export const ThemeToggle: React.FC = () => {
         setIsOpen(false);
       }
     } catch (error) {
-      console.error('主题切换失败:', error);
+      console.error('主题切换失败:', error, {
+        themeConfig,
+        user: user?.id,
+        permissions: {
+          basic: basicPermission?.pass,
+          advanced: advancedPermission?.pass,
+          premium: premiumPermission?.pass
+        }
+      });
       // 回退到默认主题
       setTheme('light');
       setIsOpen(false);

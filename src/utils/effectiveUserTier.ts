@@ -7,6 +7,8 @@
  */
 
 import type { SubscriptionTier } from '@/types/subscription';
+import { useSubscriptionStore } from '@/stores/subscription-store';
+import { useUnifiedStore } from '@/stores/unified-state-store';
 
 interface ParsedUser {
   id: string | null;
@@ -89,29 +91,19 @@ function parseLocalStorage(): ParsedUser | null {
  */
 export function getEffectiveUserTier(): SubscriptionTier {
   // 0) 优先从 unifiedSubscriptionService 内存缓存获取（最快，最权威）
-  try {
-    // 获取当前用户ID
-    const userId = getEffectiveUserId();
-    if (userId) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { unifiedSubscriptionService } = require('@/services/unifiedSubscriptionService');
-
-      // 尝试从内存缓存同步读取（不触发异步查询）
-      const cached = unifiedSubscriptionService['memoryCache']?.get(userId);
-      if (cached && cached.expiry > Date.now()) {
-        const tier = cached.result.tier;
-        if (tier && tier !== 'trial') {
-          return tier;
-        }
-      }
-    }
-  } catch {/* ignore */}
+  // 🔧 注意: 跳过unifiedSubscriptionService的动态导入
+  // 因为该函数是同步的，不能使用 await import()
+  // 改为直接依赖 subscription-store 和 unified-state-store
+  // try {
+  //   const userId = getEffectiveUserId();
+  //   if (userId) {
+  //     // 需要异步导入，但此函数必须保持同步
+  //   }
+  // } catch {/* ignore */}
 
   // 1) subscription-store（内存，权威）
   try {
     // 动态引入避免 TDZ/循环依赖
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { useSubscriptionStore } = require('@/stores/subscription-store');
     const subState = useSubscriptionStore.getState?.();
     const tier = subState?.status?.tier as SubscriptionTier | undefined;
     const isActive = subState?.status?.status === 'active';
@@ -122,8 +114,6 @@ export function getEffectiveUserTier(): SubscriptionTier {
 
   // 2) unified-state-store（内存临时）- 🔧 保留作为过渡期兼容
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { useUnifiedStore } = require('@/stores/unified-state-store');
     const memTier = useUnifiedStore.getState?.().user?.subscription as SubscriptionTier | undefined;
     if (memTier && memTier !== 'trial') {
       return memTier;
@@ -145,8 +135,6 @@ export function getEffectiveUserTier(): SubscriptionTier {
 export function getEffectiveUserId(): string | null {
   // 1) unified-state-store（内存）
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { useUnifiedStore } = require('@/stores/unified-state-store');
     const id = useUnifiedStore.getState?.().user?.id;
     if (typeof id === 'string' && id) return id;
   } catch {/* ignore */}

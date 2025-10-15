@@ -17,6 +17,8 @@ import { getModelInfo, isModelAvailableForTier, resolveModelId } from '@/config/
 import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
 import { logger } from '@/utils/logger';
 import { cleanAIContent } from '@/utils/contentCleaner';
+import { getEffectiveUserTier } from '@/utils/effectiveUserTier';
+import { useSubscriptionStore } from '@/stores/subscription-store';
 // import { applyVariationLogic, shouldApplyVariation, getVariationDescription } from '@/utils/aiVariation';
 
 /**
@@ -723,11 +725,9 @@ export class UnifiedAIManager {
   private getUserTier(): string {
     try {
       // centralized util
-      const { getEffectiveUserTier } = require('@/utils/effectiveUserTier');
       return getEffectiveUserTier();
       // legacy path removed; util handles subscription-store  unified-state-store  localStorage
       try {
-        const { useSubscriptionStore } = require('@/stores/subscription-store');
         const subState = useSubscriptionStore.getState();
         const tier = subState?.status?.tier as string | undefined;
         const isActive = subState?.status?.status === 'active';

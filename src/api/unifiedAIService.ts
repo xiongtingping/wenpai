@@ -28,6 +28,7 @@ import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
 import { logger } from '@/utils/logger';
 import { cleanAIContent, isValidAIContent } from '@/utils/contentCleaner';
 import { getModelInfo, getModelProvider, isModelAvailableForTier } from '@/config/aiModels';
+import { getEffectiveUserTier } from '@/utils/effectiveUserTier';
 
 /**
  * 🔧 性能优化和重试机制配置
@@ -345,7 +346,6 @@ async function callDeepSeekNative(params: AICallParams): Promise<AIResponse> {
 function getUserTier(): string {
   try {
     // centralized util
-    const { getEffectiveUserTier } = require('@/utils/effectiveUserTier');
     return getEffectiveUserTier();
     //          
     //   subscription-store    unified-state-store 

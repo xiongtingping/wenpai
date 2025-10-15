@@ -1,6 +1,6 @@
 /**
  * 状态加载包装器 - 解决状态闪烁问题
- * 
+ *
  * 🎯 核心功能：
  * 1. 在状态未初始化时显示加载状态
  * 2. 避免显示错误的默认状态
@@ -10,6 +10,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscriptionStore } from '@/stores/subscription-store';
 
 interface StateLoadingWrapperProps {
   children: React.ReactNode;
@@ -68,7 +69,6 @@ export const SubscriptionStateWrapper: React.FC<{
   /** 是否显示骨架屏而非加载提示 */
   useSkeleton?: boolean;
 }> = ({ children, className = '', useSkeleton = false }) => {
-  const { useSubscriptionStore } = require('@/stores/subscription-store');
   const { initialLoading, status } = useSubscriptionStore();
 
   // 🔧 关键修复: 等待数据真正就绪
