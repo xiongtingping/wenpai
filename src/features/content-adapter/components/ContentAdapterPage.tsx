@@ -840,11 +840,19 @@ export function ContentAdapterPage({
 
   // 检查使用次数并显示提醒 - 从原版完整迁移
   const checkUsageAndShowReminder = () => {
+    // 🔧 FIX: Premium用户无限制判断 - available为-1表示无限制
+    const isPremiumUnlimited = available === -1;
+
+    // Premium用户无限制，直接通过检查
+    if (isPremiumUnlimited) {
+      console.log('✅ Premium用户无限制，跳过使用次数检查');
+      return true;
+    }
+
     // 🔧 FIX: 使用缓存的剩余次数，避免数据闪烁
     // 如果剩余次数为0或负数，阻止生成
-    // 使用统一Store的 available 判断是否无限制（-1 表示无限制）
-    if (displayRemaining <= 0 && available !== -1) {
-      console.log('❌ 使用countalready用完，阻止生成');
+    if (displayRemaining <= 0) {
+      console.log('❌ 使用次数已用完，阻止生成');
       toast({
         title: t('adapt.errors.usageExhausted'),
         description: t('adapt.messages.upgradeRequired'),
@@ -854,18 +862,17 @@ export function ContentAdapterPage({
     }
 
     // 如果剩余次数较少（1-3次），显示提醒但允许继续生成
-    if (displayRemaining <= 3 && displayRemaining > 0 && available !== -1) {
-      console.log('⚠️ 使用count较少，display提醒但allowing生成');
+    if (displayRemaining <= 3 && displayRemaining > 0) {
+      console.log('⚠️ 使用次数较少，显示提醒但允许生成');
       toast({
         title: t('adapt.errors.usageLow'),
         description: t("adapt.messages.usageReminder", { count: displayRemaining }),
         variant: "destructive"
       });
       // 不阻止生成，只是提醒
-
     }
 
-    console.log('✅ 使用countchecking通过');
+    console.log('✅ 使用次数检查通过');
     return true;
   };
 

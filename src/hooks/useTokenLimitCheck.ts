@@ -154,18 +154,29 @@ export function useTokenLimitCheck() {
 
   /**
    * 获取当前使用状态的简要信息
+   * 🔧 FIX: 添加Premium用户无限制判断
    */
   const getUsageStatus = useCallback(() => {
     if (!tokenUsageState.currentStats) {
       return {
         status: 'unknown',
-        message: 'u64cdu4f5cu5931u8d25',
+        message: '数据加载失败',
+        percentage: 0
+      };
+    }
+
+    // 🔧 FIX: Premium用户无限制（monthlyLimit为-1）
+    const isPremiumUnlimited = tokenUsageState.currentStats.monthlyLimit === -1;
+    if (isPremiumUnlimited) {
+      return {
+        status: 'unlimited',
+        message: 'Premium无限制',
         percentage: 0
       };
     }
 
     const percentage = tokenUsageState.currentStats.usagePercentage;
-    
+
     if (percentage >= 100) {
       return {
         status: 'exceeded',

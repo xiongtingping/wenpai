@@ -256,36 +256,33 @@ function PlatformResultCard({
                 </div>
               </div>
 
-              {/* 🔧 FIX: 版本左右布局 - 版本A在左,版本B在右 */}
-              {result.versions && result.versions.length > 1 ? (
+              {/* 🔧 FIX: 版本左右布局 - 版本A在左,版本B在右，始终显示双版本布局 */}
+              {result.versions && result.versions.length > 0 ? (
                 <div className="grid grid-cols-2 gap-4">
-                  {result.versions.map((version, idx) => (
-                    <div key={version.id} className={`flex flex-col space-y-2 p-4 rounded-lg border ${
-                      idx === 0
-                        ? 'bg-violet-50/30 dark:bg-violet-950/10 border-violet-200/50 dark:border-violet-800/30'
-                        : 'bg-indigo-50/30 dark:bg-indigo-950/10 border-indigo-200/50 dark:border-indigo-800/30'
-                    }`}>
+                  {/* 版本A */}
+                  {result.versions[0] && (
+                    <div className="flex flex-col space-y-2 p-4 rounded-lg border bg-violet-50/30 dark:bg-violet-950/10 border-violet-200/50 dark:border-violet-800/30">
                       <div className="flex items-center justify-between mb-2">
-                        <label className="text-sm font-semibold text-foreground">{version.title}</label>
+                        <label className="text-sm font-semibold text-foreground">{result.versions[0].title || '版本A'}</label>
                         <span className="text-xs text-muted-foreground font-medium">
-                          {version.charCount}字
+                          {result.versions[0].charCount || result.versions[0].content.length}字
                         </span>
                       </div>
                       <Textarea
-                        value={version.content}
+                        value={result.versions[0].content}
                         onChange={(e) => {
-                          onVersionSelect(result.platformId, version.id);
+                          onVersionSelect(result.platformId, result.versions[0].id);
                           onContentUpdate(result.platformId, e.target.value);
                         }}
                         className="content-textarea text-sm flex-1 min-h-[450px] bg-background"
-                        placeholder={`${version.title}内容...`}
+                        placeholder={`${result.versions[0].title || '版本A'}内容...`}
                       />
                       {/* 🎯 版本操作按钮 */}
                       <div className="flex gap-2">
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigator.clipboard.writeText(version.content)}
+                          onClick={() => navigator.clipboard.writeText(result.versions[0].content)}
                           title="复制此版本内容"
                           className="flex-1"
                         >
@@ -304,7 +301,84 @@ function PlatformResultCard({
                         </Button>
                       </div>
                     </div>
-                  ))}
+                  )}
+
+                  {/* 版本B - 如果还未生成则显示加载状态 */}
+                  {result.versions[1] ? (
+                    <div className="flex flex-col space-y-2 p-4 rounded-lg border bg-indigo-50/30 dark:bg-indigo-950/10 border-indigo-200/50 dark:border-indigo-800/30">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-sm font-semibold text-foreground">{result.versions[1].title || '版本B'}</label>
+                        <span className="text-xs text-muted-foreground font-medium">
+                          {result.versions[1].charCount || result.versions[1].content.length}字
+                        </span>
+                      </div>
+                      <Textarea
+                        value={result.versions[1].content}
+                        onChange={(e) => {
+                          onVersionSelect(result.platformId, result.versions[1].id);
+                          onContentUpdate(result.platformId, e.target.value);
+                        }}
+                        className="content-textarea text-sm flex-1 min-h-[450px] bg-background"
+                        placeholder={`${result.versions[1].title || '版本B'}内容...`}
+                      />
+                      {/* 🎯 版本操作按钮 */}
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigator.clipboard.writeText(result.versions[1].content)}
+                          title="复制此版本内容"
+                          className="flex-1"
+                        >
+                          <Copy className="h-3 w-3 mr-1" />
+                          复制
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onRetry(result.platformId)}
+                          title="重新生成此版本内容"
+                          className="flex-1"
+                        >
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          重新生成
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col space-y-2 p-4 rounded-lg border bg-indigo-50/30 dark:bg-indigo-950/10 border-indigo-200/50 dark:border-indigo-800/30">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-sm font-semibold text-foreground">版本B</label>
+                        <span className="text-xs text-muted-foreground font-medium">生成中...</span>
+                      </div>
+                      <div className="flex items-center justify-center min-h-[450px] bg-background rounded-lg border border-dashed border-indigo-300 dark:border-indigo-700">
+                        <div className="text-center space-y-3">
+                          <Loader2 className="h-8 w-8 animate-spin mx-auto text-indigo-500" />
+                          <p className="text-sm text-muted-foreground">正在生成创意版本...</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 opacity-50 pointer-events-none">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled
+                          className="flex-1"
+                        >
+                          <Copy className="h-3 w-3 mr-1" />
+                          复制
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled
+                          className="flex-1"
+                        >
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          重新生成
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-col space-y-2">
