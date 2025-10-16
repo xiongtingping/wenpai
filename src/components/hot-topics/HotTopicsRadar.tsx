@@ -73,7 +73,7 @@ import { useToast } from '@/hooks/use-toast';
 import TopicHeatChart from '@/components/hot-topics/TopicHeatChart';
 import NotificationBadge from '@/components/hot-topics/NotificationBadge';
 import TopThreePodium from '@/components/hot-topics/TopThreePodium';
-import { 
+import {
   getDailyHotAll,
   getDailyHotByPlatform,
   getSupportedPlatforms,
@@ -83,6 +83,11 @@ import {
   type DailyHotItem,
   type DailyHotResponse
 } from '@/api/hotTopicsService';
+import {
+  rsshubDiscovery,
+  selectBestRoutes,
+  type PlatformInfo
+} from '@/services/rsshubDiscovery';
 import InterestFilter, { InterestFilters } from '@/components/hot-topics/InterestFilter';
 import TopicCategories from '@/components/hot-topics/TopicCategories';
 import {
@@ -240,6 +245,10 @@ export default function HotTopicsRadar({ showNavigation = false,
   const [supportedPlatforms, setSupportedPlatforms] = useState<string[]>([]);
   const [availableSearchSources, setAvailableSearchSources] = useState<SearchSource[]>([]);
 
+  // RSSHub OpenAPI 动态发现的平台和路由
+  const [discoveredPlatforms, setDiscoveredPlatforms] = useState<PlatformInfo[]>([]);
+  const [bestRoutes, setBestRoutes] = useState<{ platform: string; route: string }[]>([]);
+
   // 初始化
   useEffect(() => {
     initializeComponent();
@@ -247,31 +256,132 @@ export default function HotTopicsRadar({ showNavigation = false,
     // 启动话题订阅自动监控
     startSubscriptionMonitoring();
 
+    // 🔥 启动自动刷新：每30秒刷新一次热点数据
+    const autoRefreshTimer = setInterval(() => {
+      console.log('🔄 全网雷达自动刷新热点数据...');
+      loadHotTopics().catch(err => {
+        console.error('❌ 自动刷新失败:', err);
+      });
+    }, 30 * 1000); // 30秒
+
     // 清理函数
     return () => {
       stopSubscriptionMonitoring();
+      clearInterval(autoRefreshTimer);
+      console.log('🛑 全网雷达自动刷新已停止');
     };
   }, []);
 
   const initializeComponent = async () => {
     try {
-      // 获取支持的平台
-      const platforms = await getSupportedPlatforms();
-      setSupportedPlatforms(platforms);
-      
+      console.log('🚀 初始化全网雷达组件...');
+
+      // 🔥 使用 RSSHub OpenAPI 动态发现可用平台和路由
+      console.log('🔍 正在通过 OpenAPI 发现可用热点平台...');
+      const routes = await selectBestRoutes();
+      console.log('✅ 发现可用热点路由:', routes);
+      setBestRoutes(routes);
+
+      // 从发现的路由中提取平台列表
+      const platformNames = routes.map(r => r.platform);
+      setSupportedPlatforms(platformNames);
+      console.log('✅ 可用平台列表:', platformNames);
+
       // 获取搜索源
       const sources = await getAvailableSearchSources();
       setAvailableSearchSources(sources);
-      
-      // 加载数据
+
+      // 加载数据 - 使用动态发现的路由
       await loadHotTopics();
-      
+
       if (showSubscriptions) {
         await loadSubscriptions();
       }
     } catch (error) {
-      console.error('initializationcomponentfailed:', error);
+      console.error('❌ 初始化组件失败:', error);
       setError('初始化失败，请刷新页面重试');
+    }
+  };
+
+  // 🔥 从 RSSHub OpenAPI 动态路由获取热点数据
+  const loadHotTopicsFromOpenAPI = async (): Promise<DailyHotResponse | null> => {
+    if (bestRoutes.length === 0) {
+      console.warn('⚠️ 没有可用的热点路由');
+      return null;
+    }
+
+    try {
+      console.log('🔥 正在从动态发现的路由获取热点数据...');
+      const baseUrl = 'https://rsshub.app';
+      const platformData: Record<string, DailyHotItem[]> = {};
+
+      // 并发获取所有路由的数据
+      const fetchPromises = bestRoutes.map(async ({ platform, route }) => {
+        try {
+          const url = `${baseUrl}${route}`;
+          console.log(`📡 获取 ${platform} 数据: ${url}`);
+
+          const response = await fetch(url, {
+            signal: AbortSignal.timeout(10000)
+          });
+
+          if (!response.ok) {
+            console.warn(`⚠️ ${platform} 路由返回错误: ${response.status}`);
+            return null;
+          }
+
+          const text = await response.text();
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(text, 'text/xml');
+          const items = xmlDoc.querySelectorAll('item');
+
+          const topics: DailyHotItem[] = [];
+          items.forEach((item, index) => {
+            const title = item.querySelector('title')?.textContent || '';
+            const link = item.querySelector('link')?.textContent || '';
+            const description = item.querySelector('description')?.textContent || '';
+            const pubDate = item.querySelector('pubDate')?.textContent || new Date().toISOString();
+
+            if (title && link) {
+              topics.push({
+                id: `${platform}-${Date.now()}-${index}`,
+                title: title.trim(),
+                desc: description.trim(),
+                url: link,
+                platform: platform.toLowerCase(),
+                hot: `${100 - index}`, // 模拟热度
+                pubDate
+              });
+            }
+          });
+
+          console.log(`✅ ${platform} 获取到 ${topics.length} 条数据`);
+          return { platform: platform.toLowerCase(), topics };
+        } catch (error) {
+          console.error(`❌ 获取 ${platform} 数据失败:`, error);
+          return null;
+        }
+      });
+
+      const results = await Promise.all(fetchPromises);
+
+      // 整合数据
+      results.forEach(result => {
+        if (result && result.topics.length > 0) {
+          platformData[result.platform] = result.topics;
+        }
+      });
+
+      const successCount = Object.keys(platformData).length;
+      console.log(`🎉 成功获取 ${successCount}/${bestRoutes.length} 个平台的数据`);
+
+      return {
+        data: platformData,
+        message: `成功获取 ${successCount} 个平台的热点数据`
+      };
+    } catch (error) {
+      console.error('❌ 获取 OpenAPI 数据失败:', error);
+      return null;
     }
   };
 
@@ -280,16 +390,37 @@ export default function HotTopicsRadar({ showNavigation = false,
     try {
       setLoading(true);
       setError(null);
-      
-      const data = await getDailyHotAll();
-      setAllHotData(data);
-      setLastUpdateTime(new Date());
+
+      // 🔥 优先使用 OpenAPI 动态路由
+      let data = await loadHotTopicsFromOpenAPI();
+
+      // 如果 OpenAPI 失败，回退到旧方法
+      if (!data || !data.data || Object.keys(data.data).length === 0) {
+        console.log('⚠️ OpenAPI 获取失败，回退到旧 API...');
+        data = await getDailyHotAll();
+      }
+
+      // 检查是否有有效数据
+      const hasValidData = data && data.data && Object.keys(data.data).length > 0;
+
+      if (!hasValidData) {
+        setError('热点话题数据源暂时不可用');
+        toast({
+          title: "数据源不可用",
+          description: "第三方热点API服务暂时无法访问，我们正在寻找替代方案。",
+          variant: "destructive"
+        });
+      } else {
+        setAllHotData(data);
+        setLastUpdateTime(new Date());
+        console.log('✅ 热点数据加载成功');
+      }
     } catch (error) {
-      console.error('loading热点话题failed:', error);
-      setError('加载数据失败，请稍后重试');
+      console.error('❌ 加载热点话题失败:', error);
+      setError('热点话题服务暂时不可用，请稍后重试');
       toast({
-        title: t('components.labels.加载失败'),
-        description: "无法获取热点话题数据，请检查网络连接",
+        title: "服务暂时不可用",
+        description: "由于第三方API限制，热点话题功能暂时无法使用。我们正在努力恢复服务。",
         variant: "destructive"
       });
     } finally {
@@ -406,12 +537,13 @@ export default function HotTopicsRadar({ showNavigation = false,
       const subscription: TopicSubscription = {
         id: Date.now().toString(),
         keyword: newSubscription.keyword.trim(),
-        name: newSubscription.name.trim() || newSubscription.keyword.trim(),
-        platforms: newSubscription.platforms.length > 0 ? newSubscription.platforms : ['weibo', 'zhihu', 'douyin'],
+        description: newSubscription.name.trim() || newSubscription.keyword.trim(),
+        timeRange: '24h',
         checkInterval: newSubscription.checkInterval,
         notificationEnabled: newSubscription.notificationEnabled,
         isActive: true,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         lastCheckAt: undefined,
         minHeatThreshold: newSubscription.minHeatThreshold,
         maxHeatThreshold: newSubscription.maxHeatThreshold
@@ -640,7 +772,7 @@ export default function HotTopicsRadar({ showNavigation = false,
             <div>
               <CardTitle className={compact ? 'text-lg' : 'text-xl'}>{title}</CardTitle>
               <CardDescription className={compact ? 'text-xs' : 'text-sm'}>
-                实时监控全网热点话题和趋势
+                实时监控全网热点话题和趋势 • 最后更新: {lastUpdateTime.toLocaleTimeString('zh-CN')}
               </CardDescription>
             </div>
 

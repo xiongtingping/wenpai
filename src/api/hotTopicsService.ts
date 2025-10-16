@@ -95,7 +95,7 @@ export interface ApiConfig {
 class SimpleCache {
   private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
   private maxSize = 100;
-  private defaultTtl = 2 * 60 * 1000; // 2分钟 (缩短缓存时间以获取更新的新闻)
+  private defaultTtl = 30 * 1000; // 30秒 (极短缓存确保数据实时性)
 
   set(key: string, data: any, customTtl?: number): void {
     const ttl = customTtl || this.defaultTtl;
@@ -142,7 +142,8 @@ class HotTopicsAPI {
   private static instance: HotTopicsAPI;
   private cache = new SimpleCache();
   private baseUrl = import.meta.env.DEV ? 'http://localhost:5173/.netlify/functions/api' : '/.netlify/functions/api';
-  private enableLogging = import.meta.env.DEV;
+  private enableLogging = true; // 强制启用日志以便调试
+  private cacheEnabled = false; // 🔥 禁用缓存，强制实时获取
 
   private constructor() {}
 

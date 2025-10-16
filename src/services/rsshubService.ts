@@ -34,10 +34,11 @@ class RSSHubService {
   private platforms: PlatformConfig[];
 
   constructor() {
+    // 🚀 优先使用自建RSSHub实例
     this.config = {
-      baseUrl: import.meta.env.VITE_RSSHUB_API_URL || 'https://rsshub.app',
-      timeout: parseInt(import.meta.env.VITE_RSSHUB_TIMEOUT || '10000'),
-      retryAttempts: 3
+      baseUrl: import.meta.env.VITE_RSSHUB_API_URL || 'https://rsshub.app', // 部署后替换为你的Railway URL
+      timeout: parseInt(import.meta.env.VITE_RSSHUB_TIMEOUT || '15000'),
+      retryAttempts: 2
     };
 
     // 支持的平台配置

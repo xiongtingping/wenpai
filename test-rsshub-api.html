@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSSHub API 测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        .results {
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        .platform-card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .platform-name {
+            font-weight: 600;
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .route-item {
+            padding: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .route-available { background: #d4edda; }
+        .route-unavailable { background: #f8d7da; }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 RSSHub API 可用性测试</h1>
+        <p class="subtitle">测试 RSSHub OpenAPI 端点和热点话题路由的可用性</p>
+
+        <div>
+            <button onclick="testAllAPIs()">测试所有API端点</button>
+            <button onclick="testPopularPlatforms()">测试热门平台</button>
+            <button onclick="testHotTopicsRoutes()">测试热点路由</button>
+            <button onclick="clearResults()">清除结果</button>
+        </div>
+
+        <div id="status"></div>
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        const baseUrl = 'https://rsshub.app';
+        let isLoading = false;
+
+        function setStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+        }
+
+        function addResult(html) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += html;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('status').innerHTML = '';
+        }
+
+        async function testAllAPIs() {
+            if (isLoading) return;
+            isLoading = true;
+            clearResults();
+            setStatus('正在测试所有API端点... <span class="loading"></span>', 'info');
+
+            const endpoints = [
+                { name: '获取所有命名空间', url: '/api/namespace' },
+                { name: '获取热门分类', url: '/api/category/popular' },
+                { name: 'B站命名空间', url: '/api/namespace/bilibili' },
+                { name: '知乎命名空间', url: '/api/namespace/zhihu' },
+                { name: '微博雷达规则', url: '/api/radar/rules/weibo.com' }
+            ];
+
+            let successCount = 0;
+
+            for (const endpoint of endpoints) {
+                try {
+                    const startTime = Date.now();
+                    const response = await fetch(`${baseUrl}${endpoint.url}`);
+                    const duration = Date.now() - startTime;
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const dataSize = JSON.stringify(data).length;
+
+                        addResult(`
+                            <div class="platform-card">
+                                <div class="platform-name">✅ ${endpoint.name}</div>
+                                <div class="route-item route-available">
+                                    URL: ${endpoint.url}<br>
+                                    状态: ${response.status} OK<br>
+                                    响应时间: ${duration}ms<br>
+                                    数据大小: ${(dataSize / 1024).toFixed(2)} KB
+                                </div>
+                            </div>
+                        `);
+                        successCount++;
+                    } else {
+                        addResult(`
+                            <div class="platform-card">
+                                <div class="platform-name">❌ ${endpoint.name}</div>
+                                <div class="route-item route-unavailable">
+                                    URL: ${endpoint.url}<br>
+                                    状态: ${response.status} ${response.statusText}
+                                </div>
+                            </div>
+                        `);
+                    }
+                } catch (error) {
+                    addResult(`
+                        <div class="platform-card">
+                            <div class="platform-name">❌ ${endpoint.name}</div>
+                            <div class="route-item route-unavailable">
+                                URL: ${endpoint.url}<br>
+                                错误: ${error.message}
+                            </div>
+                        </div>
+                    `);
+                }
+            }
+
+            setStatus(`测试完成！${successCount}/${endpoints.length} 个端点可用`, successCount === endpoints.length ? 'success' : 'error');
+            isLoading = false;
+        }
+
+        async function testPopularPlatforms() {
+            if (isLoading) return;
+            isLoading = true;
+            clearResults();
+            setStatus('正在获取热门平台... <span class="loading"></span>', 'info');
+
+            try {
+                const response = await fetch(`${baseUrl}/api/category/popular`);
+                const data = await response.json();
+
+                const platforms = Object.keys(data).slice(0, 10); // 只显示前10个
+
+                addResult(`<h3 style="color: #667eea; margin: 15px 0;">找到 ${Object.keys(data).length} 个热门平台，显示前 10 个：</h3>`);
+
+                for (const namespace of platforms) {
+                    const platformData = data[namespace];
+                    const routeCount = Object.keys(platformData.routes || {}).length;
+
+                    addResult(`
+                        <div class="platform-card">
+                            <div class="platform-name">${platformData.name || namespace}</div>
+                            <div class="route-item">
+                                命名空间: ${namespace}<br>
+                                路由数量: ${routeCount}<br>
+                                URL: ${platformData.url || 'N/A'}
+                            </div>
+                        </div>
+                    `);
+                }
+
+                setStatus('成功获取热门平台列表！', 'success');
+            } catch (error) {
+                setStatus(`获取失败: ${error.message}`, 'error');
+            }
+
+            isLoading = false;
+        }
+
+        async function testHotTopicsRoutes() {
+            if (isLoading) return;
+            isLoading = true;
+            clearResults();
+            setStatus('正在测试热点话题路由... <span class="loading"></span>', 'info');
+
+            const testRoutes = [
+                { platform: 'B站', route: '/bilibili/ranking/0/3/1' },
+                { platform: '知乎', route: '/zhihu/hotlist' },
+                { platform: '微博', route: '/weibo/search/hot' },
+                { platform: '36氪', route: '/36kr/newsflashes' },
+                { platform: 'IT之家', route: '/ithome/ranking/7days' }
+            ];
+
+            let availableCount = 0;
+
+            for (const { platform, route } of testRoutes) {
+                try {
+                    const startTime = Date.now();
+                    const response = await fetch(`${baseUrl}${route}`, {
+                        method: 'HEAD',
+                        signal: AbortSignal.timeout(5000)
+                    });
+                    const duration = Date.now() - startTime;
+
+                    const isAvailable = response.ok;
+                    if (isAvailable) availableCount++;
+
+                    addResult(`
+                        <div class="platform-card">
+                            <div class="platform-name">${isAvailable ? '✅' : '❌'} ${platform}</div>
+                            <div class="route-item ${isAvailable ? 'route-available' : 'route-unavailable'}">
+                                路由: ${route}<br>
+                                状态: ${response.status} ${response.statusText}<br>
+                                响应时间: ${duration}ms
+                            </div>
+                        </div>
+                    `);
+                } catch (error) {
+                    addResult(`
+                        <div class="platform-card">
+                            <div class="platform-name">❌ ${platform}</div>
+                            <div class="route-item route-unavailable">
+                                路由: ${route}<br>
+                                错误: ${error.message}
+                            </div>
+                        </div>
+                    `);
+                }
+            }
+
+            setStatus(`测试完成！${availableCount}/${testRoutes.length} 个路由可用`, availableCount > 0 ? 'success' : 'error');
+            isLoading = false;
+        }
+
+        // 页面加载时自动运行测试
+        window.addEventListener('load', () => {
+            setStatus('准备就绪！点击按钮开始测试', 'info');
+        });
+    </script>
+</body>
+</html>
