@@ -230,13 +230,19 @@ export class UnifiedAIManager {
     const endpoint = buildAPIURL(provider, 'chat');
     const headers = getAPIHeaders(provider, apiKey);
 
+    // 🔧 FIX: 根据params中的自定义超时时间或使用默认值
+    // 支持从外部传入timeout参数，用于长文本生成场景
+    const anyParams = params as any;
+    const customTimeout = anyParams.timeout || 120000; // 默认120秒（2分钟）
+
     // 🔍 详细日志：记录URL构建结果
     logger.debug('🔧 AI配置构建完成:', {
       model: params.model,
       provider,
       endpoint,
       isProduction,
-      needsProxy
+      needsProxy,
+      timeout: customTimeout
     });
 
     return {
@@ -246,7 +252,7 @@ export class UnifiedAIManager {
       endpoint,
       headers,
       maxRetries: 3,
-      timeout: 30000
+      timeout: customTimeout // 使用自定义超时时间
     };
   }
 

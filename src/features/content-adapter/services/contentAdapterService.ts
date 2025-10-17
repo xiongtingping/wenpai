@@ -73,7 +73,9 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
         const result = await callAIWithTokenTracking({
           ...adjustedParams,
           feature: 'AI内容适配',
-          taskType: AITaskType.CONTENT_ADAPTATION
+          taskType: AITaskType.CONTENT_ADAPTATION,
+          // 🔧 FIX: 为长内容平台传递更长的超时时间
+          timeout: timeoutConfig.initialTimeout
         });
 
         // 🚫 检查是否为Token限额错误，如果是则立即停止重试

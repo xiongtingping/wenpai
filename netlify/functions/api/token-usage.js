@@ -271,12 +271,56 @@ exports.handler = async (event, context) => {
 
   try {
     // 🔒 安全修复：使用权限中间件进行统一验证
-    const { user } = await permissionCheck(event);
-    const userId = user.id;
+    let user, userId;
+    try {
+      const permissionResult = await permissionCheck(event);
+      user = permissionResult.user;
+      userId = user.id;
+    } catch (permError) {
+      // 🔧 FIX: 如果是权限错误，记录详细日志并返回友好错误
+      console.warn('Token使用量API权限检查失败:', {
+        error: permError.message,
+        path: event.path,
+        headers: event.headers
+      });
+
+      // 如果是POST /record请求且未认证，返回202接受但不处理（避免阻塞前端）
+      if (event.httpMethod === 'POST' && event.path.includes('/record')) {
+        return {
+          statusCode: 202,
+          headers,
+          body: JSON.stringify({
+            success: true,
+            message: '记录已接收，但需要登录才能持久化'
+          })
+        };
+      }
+
+      throw permError;
+    }
 
 
-    const path = event.path.replace('/.netlify/functions/api/token-usage', '');
+    // 🔧 FIX: 处理多种路径格式
+    // 可能的路径格式:
+    // - /.netlify/functions/api/token-usage/record
+    // - /api/token-usage/record
+    let path = event.path
+      .replace('/.netlify/functions/api/token-usage', '')
+      .replace('/api/token-usage', '');
+
+    // 确保路径以/开头
+    if (!path.startsWith('/')) {
+      path = '/' + path;
+    }
+
     const method = event.httpMethod;
+
+    console.log('🔍 Token使用量API路由:', {
+      originalPath: event.path,
+      extractedPath: path,
+      method,
+      route: `${method}:${path}`
+    });
 
     let result;
 

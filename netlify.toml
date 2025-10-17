@@ -302,4 +302,9 @@
 # 移除Next.js插件，因为这是Vite项目
 
 [functions]
-  node_bundler = "esbuild" 
+  node_bundler = "esbuild"
+  # 🔧 FIX: 增加函数超时时间以支持长时间AI请求
+  # Netlify Pro: 最大26秒，需要升级到更高计划才能获得更长超时
+  # 这里设置为26秒（Netlify免费版最大值）
+  # 注意：如需更长超时，需要升级到Netlify Pro或更高计划
+  timeout = 26 
