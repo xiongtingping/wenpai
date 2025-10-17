@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 // 移除废弃的状态管理依赖，简化组件逻辑
 import {
   AlertDialog,
+  AlertDialogPortal,
+  AlertDialogOverlay,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -115,8 +117,14 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
     if (!container) {
       container = document.createElement('div');
       container.id = 'batch-forward-modal-container';
-      // 容器本身不占据可点击区域，避免遮挡页面
+      // 🔧 FIX: 容器本身不占据可点击区域，但子元素可以接收点击事件
+      // pointer-events: none 会传递给子元素，需要在子元素上设置 pointer-events: auto
       container.style.pointerEvents = 'none';
+      // 🔧 FIX: 确保容器不会产生黑色背景
+      container.style.background = 'transparent';
+      container.style.position = 'fixed';
+      container.style.inset = '0';
+      container.style.zIndex = '1100'; // 低于modal内容，仅作为挂载点
       document.body.appendChild(container);
     }
   }, []); // 🔧 FIX: 空依赖数组，只在mount时执行一次，避免重复操作
@@ -190,7 +198,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
       {/* 正常状态 - 相对定位弹窗，出现在触发按钮附近 */}
       {!isMinimized && (
         <>
-          {/* 半透明遮罩层（仅在未显示关闭确认时渲染）*/}
+          {/* 🔧 FIX: 半透明遮罩层 - 当AlertDialog打开时不渲染，避免z-index冲突 */}
           {!closeConfirmOpen && (
             <div
               className="batch-modal-overlay"
@@ -449,20 +457,23 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
         </>
       )}
 
-      {/* 关闭确认 AlertDialog */}
+      {/* 🔧 FIX: 关闭确认 AlertDialog - 手动控制Portal来提升z-index，确保在batch-modal之上可见 */}
       <AlertDialog open={closeConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>确认关闭</AlertDialogTitle>
-            <AlertDialogDescription>
-              确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setCloseConfirmOpen(false)}>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmClose}>确认</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
+        <AlertDialogPortal>
+          <AlertDialogOverlay className="z-[1102]" />
+          <AlertDialogContent className="z-[1103]">
+            <AlertDialogHeader>
+              <AlertDialogTitle>确认关闭</AlertDialogTitle>
+              <AlertDialogDescription>
+                确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setCloseConfirmOpen(false)}>取消</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmClose}>确认</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogPortal>
       </AlertDialog>
     </>
   );

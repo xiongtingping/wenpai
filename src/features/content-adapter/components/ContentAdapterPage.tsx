@@ -1230,11 +1230,15 @@ export function ContentAdapterPage({
           const version = result.versions.find(v => v.id === selectedVersionId) || result.versions[0];
 
           content = version.content;
-          title = version.title || `${content.substring(0, 30)}...`;
+          // 🔧 FIX: 从titleStates获取真实生成的标题，而不是version.title的占位符
+          const titleState = titleStates[pid];
+          title = titleState?.title || `${content.substring(0, 30)}...`;
           tags = version.tags || [];
         } else if (result.content) {
           content = result.content;
-          title = `${content.substring(0, 30)}...`;
+          // 🔧 FIX: 从titleStates获取真实生成的标题
+          const titleState = titleStates[pid];
+          title = titleState?.title || `${content.substring(0, 30)}...`;
           tags = [];
         }
 
