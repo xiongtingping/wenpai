@@ -389,9 +389,9 @@ async function generateMultipleVersions(
       styleVariation: 'structure'
     }, '标准版本(版本A)', platformId);
 
-    // 🔧 FIX: 延迟2000ms后再生成创意版本B，避免API缓存（从500ms增加到2000ms）
-    logger.info('⏱️ 等待2秒后生成版本B，避免API缓存...');
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // 🔧 FIX: 延迟500ms后再生成创意版本B，避免API缓存（优化速度）
+    logger.info('⏱️ 等待500ms后生成版本B，避免API缓存...');
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // 再生成创意版本B，使用更高的temperature和显著差异化参数
     const creativeResult = await callAIWithRetry({
