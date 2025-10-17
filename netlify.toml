@@ -303,8 +303,9 @@
 
 [functions]
   node_bundler = "esbuild"
-  # 🔧 FIX: 增加函数超时时间以支持长时间AI请求
-  # Netlify Pro: 最大26秒，需要升级到更高计划才能获得更长超时
-  # 这里设置为26秒（Netlify免费版最大值）
-  # 注意：如需更长超时，需要升级到Netlify Pro或更高计划
-  timeout = 26 
+  # 🔧 注意：Netlify Functions超时配置
+  # 免费版: 默认10秒，无法修改
+  # Pro版: 默认10秒，可在netlify.toml中配置最大26秒
+  # Business版: 可配置更长超时
+  # 由于免费版限制，无法通过netlify.toml修改超时时间
+  # 已在前端代码中设置120秒超时，并通过重试机制处理Netlify Functions的10秒超时 
