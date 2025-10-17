@@ -588,14 +588,16 @@ export function ContentAdapterPage({
       if (!generating && results && results.length > 0) {
         const hasAnyContent = results.some(r => r.content || (r.versions && r.versions.length > 0));
         if (hasAnyContent) {
-          const payload = { timestamp: Date.now(), results };
+          // 🔧 FIX: 同时保存titleStates，避免恢复时重新生成标题
+          const payload = { timestamp: Date.now(), results, titleStates };
           localStorage.setItem(lastResultsKey, JSON.stringify(payload));
+          console.log('✅ 保存结果和标题状态:', { resultsCount: results.length, titleStatesCount: Object.keys(titleStates).length });
         }
       }
     } catch (err) {
       console.warn('保存最近一次生成结果失败:', err);
     }
-  }, [results, generating, lastResultsKey]);
+  }, [results, generating, lastResultsKey, titleStates]);
 
   // 初次挂载或用户切换时尝试恢复
   React.useEffect(() => {
@@ -606,9 +608,14 @@ export function ContentAdapterPage({
           const parsed = JSON.parse(raw);
           const within24h = parsed?.timestamp && (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000);
           if (within24h && Array.isArray(parsed.results) && parsed.results.length > 0) {
-            restoreResults(parsed.results);
+            // 🔧 FIX: 同时恢复titleStates，避免重新生成标题
+            restoreResults(parsed.results, parsed.titleStates || {});
             // 🔧 FIX: 恢复内容后，初始化 prevResultsLengthRef 以防止触发自动标题生成
             prevResultsLengthRef.current = parsed.results.length;
+            console.log('✅ 恢复结果和标题状态:', {
+              resultsCount: parsed.results.length,
+              titleStatesCount: Object.keys(parsed.titleStates || {}).length
+            });
             toast({ title: '已为你恢复上次生成内容', duration: 2500 });
           }
         }

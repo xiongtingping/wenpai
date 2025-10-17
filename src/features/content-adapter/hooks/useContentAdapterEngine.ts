@@ -583,9 +583,19 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
     setTitleStates({});
   }, []);
 
-  // 从本地恢复结果（用于“最近一次生成”）
-  const restoreResults = useCallback((savedResults: PlatformResult[]) => {
+  // 从本地恢复结果（用于"最近一次生成"）
+  const restoreResults = useCallback((
+    savedResults: PlatformResult[],
+    savedTitleStates?: Record<string, {
+      title?: string;
+      candidates?: string[];
+      hasTitle: boolean;
+      isGenerating: boolean;
+    }>
+  ) => {
     if (!Array.isArray(savedResults) || savedResults.length === 0) return;
+
+    // 恢复results
     setResults(savedResults.map(r => ({
       platformId: r.platformId,
       content: r.content || '',
@@ -603,6 +613,12 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       canRetry: true,
       tags: r.tags || []
     })));
+
+    // 🔧 FIX: 恢复titleStates，避免重新生成标题
+    if (savedTitleStates) {
+      setTitleStates(savedTitleStates);
+      console.log('✅ 已恢复标题状态:', { count: Object.keys(savedTitleStates).length });
+    }
   }, []);
 
   // 重置状态
