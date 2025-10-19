@@ -72,7 +72,7 @@ export interface UserState {
    * const { tier } = useSubscriptionTier(userId);
    * ```
    */
-  subscription: SubscriptionTier; // ⚠️ 运行时缓存，不持久化 | @deprecated 请使用 useSubscriptionTier hook
+  subscription: SubscriptionTier | null; // ⚠️ 运行时缓存，不持久化 | @deprecated 请使用 useSubscriptionTier hook
   isAuthenticated: boolean;
   authStatus: AuthStatus; // 🎯 新增：认证状态
   loginTime: string | null;
@@ -250,7 +250,7 @@ export interface UnifiedState {
 export interface UnifiedActions {
   // 用户状态操作
   setUser: (user: Partial<UserState>) => void;
-  updateUserSubscription: (subscription: SubscriptionTier) => void;
+  updateUserSubscription: (subscription: SubscriptionTier | null) => void;
   clearUser: () => void;
   updateLastActivity: () => void;
   setAuthStatus: (status: AuthStatus) => void; // 🎯 新增：设置认证状态
@@ -330,7 +330,7 @@ const initialUserState: UserState = {
   avatar: null,
   roles: [],
   permissions: [],
-  subscription: 'trial' as SubscriptionTier, // 🎯 修复：使用正确的类型
+  subscription: null,
   isAuthenticated: false,
   authStatus: AuthStatus.UNAUTHENTICATED, // 🎯 新增
   loginTime: null,
@@ -1202,7 +1202,7 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
               user: {
                 ...persistedState.user,
                 // 重置 subscription 为默认值（将从 subscription-store 动态查询）
-                subscription: 'trial',
+                subscription: null,
                 // 标记为需要刷新
                 _lastFetchTime: 0, // 强制过期，触发重新查询
               },
@@ -1252,7 +1252,7 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
                   ...initialUserState,
                   id: state.user.id,
                   isAuthenticated: state.user.isAuthenticated,
-                  subscription: state.user.subscription || 'trial', // 保留已有值，仅在无值时使用trial作为fallback
+                  subscription: state.user.subscription ?? null, // 保留已有值，缺省时等待订阅服务更新
                 };
                 console.log(`✅ 已保留 subscription = ${state.user.subscription}，等待 subscription-store 异步更新`);
               } else {

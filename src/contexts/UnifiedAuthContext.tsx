@@ -185,38 +185,30 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         });
 
         // 🎯 CRITICAL FIX: 同步真实的订阅状态（页面刷新/初始加载场景）
-        console.log('🔄 starts刷新subscriptionstatus...');
+        console.log('🔄 开始同步订阅状态 (standard)...');
         try {
-          const { unifiedSubscriptionService } = await import('@/services/unifiedSubscriptionService');
-          const { useUnifiedStore } = await import('@/stores/unified-state-store');
+          const { useSubscriptionStore } = await import('@/stores/subscription-store');
+          const subscriptionStatus = await useSubscriptionStore.getState().syncFromService({
+            userId: secureUser.id,
+            userProfile: secureUser,
+            mode: 'standard',
+            emitEvent: false
+          });
 
-          // 🔧 使用普通刷新（不是forceRefresh，因为这里不是支付后场景）
-          const subscriptionStatus = await unifiedSubscriptionService.getUserSubscriptionStatus(
-            secureUser.id,
-            secureUser
-          );
+          console.log('✅ 订阅状态同步完成:', subscriptionStatus);
 
-          console.log('✅ subscriptionstatusrefreshcompleted:', subscriptionStatus);
-
-          // 更新Context和Store中的订阅状态
+          // 更新Context中的订阅状态（UI兼容）
           const subscriptionTier = subscriptionStatus.tier;
-          setUser(prev => prev ? { ...prev, subscription: subscriptionTier } : null);
-          useUnifiedStore.getState().updateUserSubscription(subscriptionTier);
+          setUser(prev => (prev ? { ...prev, subscription: subscriptionTier } : prev));
 
-          console.log('✅ subscriptionstatusalreadysync:', {
+          console.log('✅ 订阅状态已写入 Context:', {
             tier: subscriptionTier,
             isExpired: subscriptionStatus.isExpired,
             source: subscriptionStatus.source
           });
-
-          // 🔧 同步到subscription-store
-          const { useSubscriptionStore } = await import('@/stores/subscription-store');
-          await useSubscriptionStore.getState().fetchStatus(secureUser.id, secureUser);
-
         } catch (syncError) {
-          console.error('⚠️ subscriptionstatussyncfailed，使用defaultvalue:', syncError);
-          // 失败时设置为trial
-          setUser(prev => prev ? { ...prev, subscription: 'trial' } : null);
+          console.error('⚠️ 订阅状态同步失败，保持空状态:', syncError);
+          setUser(prev => (prev ? { ...prev, subscription: null } : prev));
         }
 
         // 🔄 自动迁移历史记录数据
@@ -365,40 +357,30 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       });
 
       // 🎯 CRITICAL FIX: 登录成功后强制刷新订阅状态（支付成功场景）
-      console.log('🔄 starts强制refreshsubscriptionstatus...');
+      console.log('🔄 开始强制同步订阅状态 (force)...');
       try {
-        const { unifiedSubscriptionService } = await import('@/services/unifiedSubscriptionService');
         const { useUnifiedStore } = await import('@/stores/unified-state-store');
+        const { useSubscriptionStore } = await import('@/stores/subscription-store');
 
-        // 🔧 关键修复1: 使用forceRefreshAfterPayment强制刷新，清除所有缓存
-        const subscriptionStatus = await unifiedSubscriptionService.forceRefreshAfterPayment(
-          formattedUser.id,
-          undefined, // 不指定期望等级，接受任何有效订阅
-          5 // 最多重试5次
-        );
+        // 🔧 使用统一的同步入口，内部负责清理缓存+广播
+        const subscriptionStatus = await useSubscriptionStore.getState().syncFromService({
+          userId: formattedUser.id,
+          mode: 'force',
+          emitEvent: true
+        });
 
-        console.log('✅ subscriptionstatus强制refreshcompleted:', subscriptionStatus);
+        console.log('✅ 订阅状态强制刷新完成:', subscriptionStatus);
 
-        // 🔧 关键修复2: 立即更新Context和Store中的订阅状态
         const subscriptionTier = subscriptionStatus.tier;
 
         // 更新Context中的用户状态
-        setUser(prev => prev ? { ...prev, subscription: subscriptionTier } : null);
+        setUser(prev => (prev ? { ...prev, subscription: subscriptionTier } : prev));
 
-        // 更新Store中的用户状态
-        useUnifiedStore.getState().updateUserSubscription(subscriptionTier);
-
-        console.log('✅ subscriptionstatusalreadysync到Context和Store:', {
+        console.log('✅ 订阅状态已同步到 Context:', {
           tier: subscriptionTier,
           isExpired: subscriptionStatus.isExpired,
           source: subscriptionStatus.source
         });
-
-        // 🔧 关键修复3: 同步到subscription-store，触发全局状态更新
-        const { useSubscriptionStore } = await import('@/stores/subscription-store');
-        useSubscriptionStore.getState().forceRefreshAfterUpgrade(formattedUser.id, subscriptionTier);
-
-        console.log('✅ subscription-store已updatinga触发globalstatus刷新');
 
         // 🔧 FIX: 登录成功后初始化用量统计
         try {
@@ -410,9 +392,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
 
       } catch (syncError) {
-        console.error('❌ subscriptionstatussyncfailed，使用defaultvalue:', syncError);
-        // 🔧 失败时设置为trial，确保有一个明确的状态
-        setUser(prev => prev ? { ...prev, subscription: 'trial' } : null);
+        console.error('❌ 订阅状态强制同步失败，保持空状态:', syncError);
+        setUser(prev => (prev ? { ...prev, subscription: null } : prev));
       }
 
       // Guard模态框已移除 - 无需隐藏

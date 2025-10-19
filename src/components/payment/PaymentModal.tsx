@@ -27,8 +27,8 @@ import { AlipayLogo, AlipayBanner } from './AlipayLogo';
 import { BufPayService } from '@/services/bufpayService';
 import { toast } from 'sonner';
 import { useUnifiedStore } from '@/stores/unified-state-store';
+import { useSubscriptionStore } from '@/stores/subscription-store';
 import { getUserTier } from '@/utils/subscriptionUtils';
-import supabase from '@/config/supabase';
 
 /**
  * 状态消息配置
@@ -129,9 +129,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const navigate = useNavigate();
 
   // 🎯 获取Store方法用于刷新用户订阅和使用统计
-  const updateUserSubscription = useUnifiedStore(state => state.updateUserSubscription);
   const initializeUsageStats = useUnifiedStore(state => state.initializeUsageStats);
   const userId = useUnifiedStore(state => state.user.id);
+  const syncSubscription = useSubscriptionStore(state => state.syncFromService);
 
   // 状态管理
   const [currentState, setCurrentState] = useState<PaymentModalState>(paymentData.state);
@@ -166,31 +166,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         return;
       }
 
-      // 1. 从数据库重新查询用户订阅
-      const { data: subscription, error } = await supabase
-        .from('user_subscriptions')
-        .select('tier')
-        .eq('user_id', userId)
-        .maybeSingle();
+      // 1. 通过统一入口强制刷新订阅状态（内部已处理缓存与事件）
+      const subscriptionStatus = await syncSubscription({
+        userId,
+        mode: 'force',
+        emitEvent: true
+      });
 
-      if (error) {
-        console.error('❌ 查询订阅失败:', error);
-        return;
-      }
+      console.log('✅ 订阅状态已刷新:', subscriptionStatus);
 
-      if (subscription && subscription.tier) {
-        console.log('✅ 查询到新订阅等级:', subscription.tier);
+      // 2. 重新初始化使用统计（会自动重置使用次数和Token限额）
+      await initializeUsageStats(userId, subscriptionStatus.tier);
 
-        // 2. 更新Store中的订阅等级
-        updateUserSubscription(subscription.tier);
-
-        // 3. 重新初始化使用统计（会自动重置使用次数和Token限额）
-        await initializeUsageStats(userId, subscription.tier);
-
-        console.log('✅ 订阅和使用统计刷新完成');
-      } else {
-        console.warn('⚠️ 未查询到订阅信息');
-      }
+      console.log('✅ 订阅和使用统计刷新完成');
     } catch (error) {
       console.error('❌ 刷新订阅和使用统计失败:', error);
     }
@@ -818,4 +806,3 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     </>
   );
 };
-

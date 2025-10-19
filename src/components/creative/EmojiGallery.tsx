@@ -7,8 +7,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
-import { getUserTier } from '@/utils/subscriptionUtils';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { Lock } from 'lucide-react';
@@ -20,32 +20,20 @@ interface EmojiGalleryProps {
 }
 
 export default function EmojiGallery({ emojis, onDelete, onRegenerate  }: EmojiGalleryProps) {
+  const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const { primaryStatus } = useSubscriptionStatus();
+  const { tier: subscriptionTier } = useSubscriptionTier(user?.id ?? null, {
+    userProfile: user,
+    enableAutoRefresh: false
+  });
   const { toast } = useToast();
 
-  // 获取用户当前等级 - 优先使用订阅状态
-  const getCurrentTier = () => {
-    // 1. 优先使用订阅状态中的等级信息
-    if (primaryStatus?.status === 'active' && primaryStatus.tier) {
-      return primaryStatus.tier;
-    }
-    
-    // 2. 从订阅状态标签推断
-    if (primaryStatus?.status === 'active') {
-      const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
-      if (statusLabel.includes(t('components.labels.高级版')) || statusLabel.includes('premium')) {
-        return 'premium';
-      } else if (statusLabel.includes(t('components.labels.专业版')) || statusLabel.includes('pro')) {
-        return 'pro';
-      }
-    }
-    
-    // 3. 最后使用用户数据
-    return getUserTier(user);
-  };
-
-  const userTier = getCurrentTier();
+  const userTier: 'trial' | 'pro' | 'premium' = subscriptionTier === 'premium'
+    ? 'premium'
+    : subscriptionTier === 'pro'
+    ? 'pro'
+    : 'trial';
 
   // 检查是否有复制权限（需要专业版或以上）
   const hasPermission = () => {

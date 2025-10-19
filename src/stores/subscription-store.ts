@@ -9,7 +9,6 @@
  * 4. 集成unifiedSubscriptionService的三层缓存
  */
 
-import React from 'react';
 import { create } from 'zustand';
 import { unifiedSubscriptionService, type SubscriptionStatusResult } from '@/services/unifiedSubscriptionService';
 import { logger } from '@/utils/logger';
@@ -27,6 +26,13 @@ interface SubscriptionState {
   lastUpdated: number | null;
 
   // Actions
+  syncFromService: (params: {
+    userId: string;
+    userProfile?: any;
+    mode?: 'standard' | 'force' | 'refresh';
+    expectedTier?: string;
+    emitEvent?: boolean;
+  }) => Promise<SubscriptionStatusResult>;
   fetchStatus: (userId: string, userProfile?: any) => Promise<void>;
   refreshStatus: (userId: string) => Promise<void>;
   forceRefreshAfterUpgrade: (userId: string, expectedTier?: string) => Promise<void>;
@@ -42,270 +48,210 @@ interface SubscriptionState {
 /**
  * 订阅状态全局Store
  */
-export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
-  // 初始状态
-  status: null,
-  loading: false,
-  initialLoading: true,
-  error: null,
-  lastUpdated: null,
-
+export const useSubscriptionStore = create<SubscriptionState>((set, get) => {
   /**
-   * 获取订阅状态
-   * 🔧 优化: 使用unifiedSubscriptionService的三层缓存
-   * 🔧 2025-01 重构: 同步到unified-state-store
+   * 将最新订阅状态写入全局Store并同步到统一状态管理
    */
-  fetchStatus: async (userId: string, userProfile?: any) => {
-    const startTime = Date.now();
+  const applyStatus = async (
+    result: SubscriptionStatusResult,
+    options: { emitEvent?: boolean } = {}
+  ) => {
+    const previousStatus = get().status;
+    const emitEvent = options.emitEvent !== false;
 
-    try {
-      set({ loading: true, error: null });
-
-      logger.info('🔍 开始获取订阅状态', { userId });
-
-      // 使用unifiedSubscriptionService（带三层缓存）
-      const status = await unifiedSubscriptionService.getUserSubscriptionStatus(userId, userProfile);
-
-      const duration = Date.now() - startTime;
-
-      set({
-        status,
-        loading: false,
-        initialLoading: false,
-        lastUpdated: Date.now(),
-        error: null
-      });
-
-      // 🔧 新增: 同步到unified-state-store
-      try {
-        const { useUnifiedStore } = await import('./unified-state-store');
-        const currentTier = useUnifiedStore.getState().user.subscription;
-
-        // 只在tier变化时更新，避免不必要的重渲染
-        if (currentTier !== status.tier) {
-          logger.info('🔄 同步订阅状态到unified-state-store', {
-            oldTier: currentTier,
-            newTier: status.tier
-          });
-          useUnifiedStore.getState().updateUserSubscription(status.tier);
-        }
-      } catch (syncError) {
-        logger.warn('⚠️ 同步到unified-state-store失败', syncError);
-        // 同步失败不影响主流程
-      }
-
-      logger.info('✅ 订阅状态获取成功', {
-        userId,
-        tier: status.tier,
-        source: status.source,
-        duration: duration + 'ms'
-      });
-
-    } catch (error) {
-      const duration = Date.now() - startTime;
-
-      logger.error('❌ 订阅状态获取失败', {
-        userId,
-        error,
-        duration: duration + 'ms'
-      });
-
-      set({
-        loading: false,
-        initialLoading: false,
-        error: error instanceof Error ? error.message : '获取订阅状态失败'
-      });
-
-      throw error;
-    }
-  },
-
-  /**
-   * 刷新订阅状态（强制重新查询）
-   * 🔧 优化: 清除所有层级的缓存（内存、本地、云）
-   */
-  refreshStatus: async (userId: string) => {
-    logger.info('🔄 强制刷新订阅状态', { userId });
-
-    // 1. 清除unifiedSubscriptionService的所有缓存
-    await unifiedSubscriptionService.refreshUserSubscription(userId);
-
-    // 2. 清除Store的内存缓存
     set({
-      status: null,
-      lastUpdated: null
+      status: result,
+      loading: false,
+      initialLoading: false,
+      error: null,
+      lastUpdated: Date.now()
     });
 
-    // 3. 重新从数据库查询
-    await get().fetchStatus(userId);
-
-    logger.info('✅ 订阅状态刷新完成', { userId });
-  },
-
-  /**
-   * 🆕 订阅升级后的强制刷新
-   * 用于支付成功、订阅变更等场景
-   *
-   * 特点:
-   * - 清除所有层级的缓存（内存、localStorage、Supabase）
-   * - 等待数据库更新（2秒 + 重试）
-   * - 重试机制确保获取到最新数据
-   * - 通知所有使用订阅状态的组件
-   * 🔧 2025-01 重构: 同步到unified-state-store
-   *
-   * @param userId 用户ID
-   * @param expectedTier 期望的订阅等级（可选，用于验证）
-   */
-  forceRefreshAfterUpgrade: async (userId: string, expectedTier?: string) => {
-    logger.info('🚀 订阅升级后强制刷新', { userId, expectedTier });
-
     try {
-      // 设置加载状态
-      set({
-        loading: true,
-        error: null
-      });
+      const { useUnifiedStore } = await import('./unified-state-store');
+      const currentTier = useUnifiedStore.getState().user.subscription;
 
-      // 使用unifiedSubscriptionService的强制刷新方法
-      // 它会自动处理：清除缓存、等待数据库、重试查询
-      const result = await unifiedSubscriptionService.forceRefreshAfterPayment(
-        userId,
-        expectedTier,
-        5 // 最多重试5次
-      );
-
-      // 更新Store状态
-      set({
-        status: result,
-        loading: false,
-        initialLoading: false,
-        error: null,
-        lastUpdated: Date.now()
-      });
-
-      // 🔧 新增: 同步到unified-state-store
-      try {
-        const { useUnifiedStore } = await import('./unified-state-store');
-        logger.info('🔄 强制刷新后同步到unified-state-store', {
-          tier: result.tier
+      if (currentTier !== result.tier) {
+        logger.info('🔄 同步订阅状态到 unified-state-store', {
+          previousTier: currentTier,
+          nextTier: result.tier
         });
         useUnifiedStore.getState().updateUserSubscription(result.tier);
-      } catch (syncError) {
-        logger.warn('⚠️ 同步到unified-state-store失败', syncError);
       }
+    } catch (syncError) {
+      logger.warn('⚠️ 同步到 unified-state-store 失败', syncError);
+    }
 
-      // 触发全局事件，通知其他组件（保持向后兼容 + 统一新事件）
-      window.dispatchEvent(new CustomEvent('subscriptionRefreshed', {
-        detail: {
-          userId,
-          tier: result.tier,
-          timestamp: Date.now()
-        }
-      }));
-      // 新标准事件：userSubscriptionUpdated（推荐监听）
-      window.dispatchEvent(new CustomEvent('userSubscriptionUpdated', {
-        detail: {
-          userId,
-          tier: result.tier,
-          timestamp: Date.now()
-        }
-      }));
-
-      logger.info('✅ 订阅升级后刷新完成', {
-        userId,
+    if (emitEvent && (!previousStatus || previousStatus.tier !== result.tier)) {
+      const detail = {
+        userId: result.userId,
         tier: result.tier,
-        isExpired: result.isExpired,
-        expiresAt: result.expiresAt
-      });
+        timestamp: Date.now()
+      };
 
-    } catch (error) {
-      logger.error('❌ 订阅升级后刷新失败', { userId, error });
-      set({
-        loading: false,
-        error: error instanceof Error ? error.message : '刷新失败'
-      });
-      throw error;
+      window.dispatchEvent(new CustomEvent('subscriptionRefreshed', { detail }));
+      window.dispatchEvent(new CustomEvent('userSubscriptionUpdated', { detail }));
     }
-  },
+  };
 
-  /**
-   * 预加载订阅状态
-   * 🔧 2025-01 重构: 等待加载完成，确保组件能获取到正确的订阅状态
-   *
-   * 用途：
-   * - 用户登录后立即调用
-   * - 确保订阅状态在组件渲染前加载完成
-   * - 避免组件显示错误的默认状态（trial）
-   */
-  preloadStatus: async (userId: string, userProfile?: any) => {
-    try {
-      logger.info('🚀 开始预加载订阅状态', { userId });
+  return {
+    // 初始状态
+    status: null,
+    loading: false,
+    initialLoading: true,
+    error: null,
+    lastUpdated: null,
 
-      // 🔧 关键修复: 等待fetchStatus完成
-      // 这样AuthGuard可以等待预加载完成后再渲染子组件
-      await get().fetchStatus(userId, userProfile);
+    /**
+     * 统一从服务端同步订阅状态
+     */
+    syncFromService: async ({
+      userId,
+      userProfile,
+      mode = 'standard',
+      expectedTier,
+      emitEvent = true
+    }) => {
+      const startTime = Date.now();
 
-      logger.info('✅ 订阅状态预加载完成', {
+      try {
+        set((state) => ({
+          loading: true,
+          error: null,
+          initialLoading: state.initialLoading
+        }));
+
+        logger.info('🔍 同步订阅状态', { userId, mode, expectedTier });
+
+        let result: SubscriptionStatusResult;
+
+        if (mode === 'force') {
+          result = await unifiedSubscriptionService.forceRefreshAfterPayment(
+            userId,
+            expectedTier,
+            5
+          );
+        } else {
+          if (mode === 'refresh') {
+            await unifiedSubscriptionService.refreshUserSubscription(userId);
+          }
+          result = await unifiedSubscriptionService.getUserSubscriptionStatus(userId, userProfile);
+        }
+
+        await applyStatus(result, { emitEvent });
+
+        logger.info('✅ 订阅状态同步完成', {
+          userId,
+          tier: result.tier,
+          source: result.source,
+          duration: Date.now() - startTime + 'ms'
+        });
+
+        return result;
+      } catch (error) {
+        logger.error('❌ 订阅状态同步失败', {
+          userId,
+          mode,
+          error
+        });
+
+        set({
+          loading: false,
+          initialLoading: false,
+          error: error instanceof Error ? error.message : '获取订阅状态失败'
+        });
+
+        throw error;
+      }
+    },
+
+    /**
+     * 获取订阅状态
+     */
+    fetchStatus: async (userId: string, userProfile?: any) => {
+      await get().syncFromService({
         userId,
-        tier: get().status?.tier,
-        isExpired: get().status?.isExpired
+        userProfile,
+        mode: 'standard',
+        emitEvent: false
       });
-    } catch (error) {
-      logger.error('❌ 预加载订阅状态失败:', error);
+    },
 
-      // 即使失败也要设置initialLoading=false
+    /**
+     * 刷新订阅状态（强制重新查询）
+     */
+    refreshStatus: async (userId: string) => {
+      await get().syncFromService({
+        userId,
+        mode: 'refresh'
+      });
+    },
+
+    /**
+     * 订阅升级后的强制刷新
+     */
+    forceRefreshAfterUpgrade: async (userId: string, expectedTier?: string) => {
+      await get().syncFromService({
+        userId,
+        mode: 'force',
+        expectedTier,
+        emitEvent: true
+      });
+    },
+
+    /**
+     * 预加载订阅状态
+     */
+    preloadStatus: async (userId: string, userProfile?: any) => {
+      await get().syncFromService({
+        userId,
+        userProfile,
+        mode: 'standard',
+        emitEvent: false
+      });
+    },
+
+    /**
+     * 清除订阅状态（用户登出时）
+     */
+    clearStatus: () => {
+      logger.info('🧹 清除订阅状态');
+
       set({
-        initialLoading: false,
-        error: error instanceof Error ? error.message : '预加载失败'
+        status: null,
+        loading: false,
+        initialLoading: true,
+        error: null,
+        lastUpdated: null
       });
+    },
 
-      throw error;
+    /**
+     * 检查订阅是否过期
+     */
+    isExpired: () => {
+      const { status } = get();
+      return status?.isExpired ?? true;
+    },
+
+    /**
+     * 检查是否有特定功能权限
+     */
+    hasFeature: (featureId: string) => {
+      const { status } = get();
+      if (!status) return false;
+      return status.tier === 'pro' || status.tier === 'premium';
+    },
+
+    /**
+     * 获取当前套餐等级
+     */
+    getTier: () => {
+      const { status } = get();
+      return status?.tier ?? 'trial';
     }
-  },
-
-  /**
-   * 清除订阅状态（用户登出时）
-   */
-  clearStatus: () => {
-    logger.info('🧹 清除订阅状态');
-    
-    set({
-      status: null,
-      loading: false,
-      initialLoading: true,
-      error: null,
-      lastUpdated: null
-    });
-  },
-
-  /**
-   * 检查订阅是否过期
-   */
-  isExpired: () => {
-    const { status } = get();
-    return status?.isExpired ?? true;
-  },
-
-  /**
-   * 检查是否有特定功能权限
-   */
-  hasFeature: (featureId: string) => {
-    const { status } = get();
-    if (!status) return false;
-    
-    // 这里可以根据tier和featureId判断权限
-    // 简化版本：pro和premium有所有功能
-    return status.tier === 'pro' || status.tier === 'premium';
-  },
-
-  /**
-   * 获取当前套餐等级
-   */
-  getTier: () => {
-    const { status } = get();
-    return status?.tier ?? 'trial';
-  }
-}));
+  };
+});
 
 /**
  * 🔧 优化: 简化的Hook，直接使用全局Store
@@ -361,4 +307,3 @@ export function useSubscription(userId?: string) {
     } : null
   };
 }
-

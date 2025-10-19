@@ -146,7 +146,7 @@ export class UserStateSyncCoordinator extends BaseService {
             avatar: user.avatar || null,
             roles: user.roles || [],
             permissions: user.permissions || [],
-            subscription: 'free', // 默认值,后续从订阅服务获取
+            subscription: null, // 等待订阅服务写入，避免使用过期的数据
             isAuthenticated: true,
             loginTime: user.loginTime || new Date().toISOString(),
             lastActivity: new Date().toISOString()

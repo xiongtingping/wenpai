@@ -10,6 +10,39 @@ import type { SubscriptionTier, UserSubscription } from '@/types/subscription';
 import { logger } from '@/utils/logger';
 
 /**
+ * 规范化订阅等级字段
+ * 🔧 兼容数据库中存在的 premium_monthly/professional_yearly 等枚举值
+ */
+function normalizeSubscriptionTier(rawTier: unknown): SubscriptionTier {
+  if (typeof rawTier !== 'string') {
+    return 'trial';
+  }
+
+  const value = rawTier.trim().toLowerCase();
+  if (!value) {
+    return 'trial';
+  }
+
+  if (value === 'free') {
+    return 'free';
+  }
+
+  if (value.includes('premium')) {
+    return 'premium';
+  }
+
+  if (value === 'pro' || value.includes('professional')) {
+    return 'pro';
+  }
+
+  if (value.includes('trial') || value.includes('basic') || value.includes('starter')) {
+    return 'trial';
+  }
+
+  return 'trial';
+}
+
+/**
  * 订阅状态查询结果
  */
 export interface SubscriptionStatusResult {
@@ -220,7 +253,7 @@ class UnifiedSubscriptionService {
 
       // 统一/兼容列名：支持 tier 或 subscription_type
       const rawTier = (subscription as any).tier || (subscription as any).subscription_type;
-      const tier: SubscriptionTier = (rawTier === 'premium') ? 'premium' : (rawTier === 'pro' || rawTier === 'professional') ? 'pro' : 'trial';
+      const tier = normalizeSubscriptionTier(rawTier);
 
       // 计算到期状态
       const expiresAt = new Date((subscription as any).expires_at);

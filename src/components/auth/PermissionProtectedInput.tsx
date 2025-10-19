@@ -6,8 +6,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
-import { getUserTier } from '@/utils/subscriptionUtils';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -34,48 +34,33 @@ export const PermissionProtectedInput: React.FC<any> = ({ requiredTier,
   const { t } = useTranslation();
   const { user, isAuthenticated  } = useAuth();
   const { primaryStatus } = useSubscriptionStatus();
+  const { tier: subscriptionTier } = useSubscriptionTier(user?.id ?? null, {
+    userProfile: user,
+    enableAutoRefresh: false
+  });
+  const userTier: 'trial' | 'pro' | 'premium' = subscriptionTier === 'premium'
+    ? 'premium'
+    : subscriptionTier === 'pro'
+    ? 'pro'
+    : 'trial';
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // 获取用户当前等级 - 优先使用订阅状态
-  const getCurrentTier = () => {
-    // 1. 优先使用订阅状态中的等级信息
-    if (primaryStatus?.status === 'active' && primaryStatus.tier) {
-      return primaryStatus.tier;
-    }
-    
-    // 2. 从订阅状态标签推断
-    if (primaryStatus?.status === 'active') {
-      const statusLabel = primaryStatus.statusLabel?.toLowerCase() || '';
-      if (statusLabel.includes(t('components.labels.高级版')) || statusLabel.includes('premium')) {
-        return 'premium';
-      } else if (statusLabel.includes(t('components.labels.专业版')) || statusLabel.includes('pro')) {
-        return 'pro';
-      }
-    }
-    
-    // 3. 最后使用用户数据
-    return getUserTier(user);
-  };
-  
-  const userTier = getCurrentTier();
   
   // 检查权限 - 增强版本，确保premium用户有所有权限
   const hasPermission = () => {
     if (!isAuthenticated) return false;
-    
-    // 🎯 特殊处理：优先使用订阅状态，如果是premium用户，直接授予所有权限
-    const isPremiumUser = primaryStatus?.tier === 'premium' || 
-                         primaryStatus?.status === 'active' ||
-                         user?.subscription?.tier === 'premium' || 
-                         user?.tier === 'premium' || 
-                         user?.vipLevel === 'premium' ||
-                         userTier === 'premium' ||
-                         (user?.isVip && (user?.vipLevel === 'premium' || user?.subscription?.tier === 'premium'));
-    
-    if (isPremiumUser) return true;
-    
-    const tierLevels: Record<string, number> = { trial: 0, pro: 1, premium: 2 };
+
+    if (userTier === 'premium' || primaryStatus?.tier === 'premium') {
+      return true;
+    }
+
+    const tierLevels: Record<'trial' | 'pro' | 'premium', number> = {
+      trial: 0,
+      pro: 1,
+      premium: 2
+    };
+
     return tierLevels[userTier] >= tierLevels[requiredTier];
   };
 

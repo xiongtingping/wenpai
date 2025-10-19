@@ -313,7 +313,6 @@ export function ContentAdapterPage({
 
   // 与统一状态对齐订阅等级与使用统计（确保 premium 无限使用生效）
   const unifiedUserId = useUnifiedStore(state => state.user.id);
-  const updateUserSubscriptionInStore = useUnifiedStore(state => state.updateUserSubscription);
   const initializeUsageStatsInStore = useUnifiedStore(state => state.initializeUsageStats);
 
   // 兼容旧代码
@@ -351,13 +350,12 @@ export function ContentAdapterPage({
   React.useEffect(() => {
     if (unifiedUserId && effectiveUserTier) {
       try {
-        updateUserSubscriptionInStore(effectiveUserTier as SubscriptionTier);
         initializeUsageStatsInStore(unifiedUserId as string, effectiveUserTier as SubscriptionTier);
       } catch (e) {
         console.warn('sync subscription to unified store failed:', e);
       }
     }
-  }, [unifiedUserId, effectiveUserTier, updateUserSubscriptionInStore, initializeUsageStatsInStore]);
+  }, [unifiedUserId, effectiveUserTier, initializeUsageStatsInStore]);
 
   // 🎯 新架构: 直接从Store获取,无需复杂的缓存逻辑
   // Store已经处理了缓存和一致性,组件只需消费数据
