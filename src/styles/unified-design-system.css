@@ -1001,3 +1001,9 @@
     .lg\:flex { display: flex; }
   }
 }
+
+
+
+
+
+.batch-alert-overlay { pointer-events: none; background: transparent; }

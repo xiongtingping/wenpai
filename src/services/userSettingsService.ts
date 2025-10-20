@@ -207,13 +207,17 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
    */
   async saveSetting(key: string, value: any, metadata: Record<string, any> = {}): Promise<void> {
     // 优先使用当前会话的用户ID，确保通过RLS
-    const { data: { session } } = await supabase.auth.getSession();
-    const sessionUserId = session?.user?.id;
+    let sessionUserId = this.userId;
     if (!sessionUserId) {
-      throw new Error('未登录或会话已过期，无法保存设置');
+      const { data: { session } } = await supabase.auth.getSession();
+      sessionUserId = session?.user?.id || null;
+      if (!sessionUserId) {
+        console.warn('saveSetting skipped: anonymous session');
+        return;
+      }
+      // 若有外部设置的 userId，与会话不一致则以会话为准，避免RLS拒绝
+      this.userId = sessionUserId;
     }
-    // 若有外部设置的 userId，与会话不一致则以会话为准，避免RLS拒绝
-    this.userId = sessionUserId;
 
     // 🔧 FIX: 使用实际的表结构字段名，让数据库自动生成 UUID
     const settingData = {
@@ -250,12 +254,16 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
    */
   async saveSettings(settings: Record<string, any>, metadata: Record<string, any> = {}): Promise<void> {
     // 会话校验，确保RLS通过
-    const { data: { session } } = await supabase.auth.getSession();
-    const sessionUserId = session?.user?.id;
+    let sessionUserId = this.userId;
     if (!sessionUserId) {
-      throw new Error('未登录或会话已过期，无法保存设置');
+      const { data: { session } } = await supabase.auth.getSession();
+      sessionUserId = session?.user?.id || null;
+      if (!sessionUserId) {
+        console.warn('saveSettings skipped: anonymous session');
+        return;
+      }
+      this.userId = sessionUserId;
     }
-    this.userId = sessionUserId;
 
     // 🔧 FIX: 使用实际的表结构字段名，让数据库自动生成 UUID
     const settingsData = Object.entries(settings).map(([key, value]) => {

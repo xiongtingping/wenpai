@@ -77,7 +77,17 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
 
   // 确认关闭弹窗（使用 AlertDialog）
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
-  const handleClose = () => setCloseConfirmOpen(true);
+  const handleClose = () => {
+    const hasContent = Array.isArray(platforms) && platforms.length > 0;
+    if (!hasContent) {
+      console.warn('BatchForwardModal关闭：无平台内容，直接退出');
+      onOpenChange(false);
+      setCopiedItems(new Set());
+      setCloseConfirmOpen(false);
+      return;
+    }
+    setCloseConfirmOpen(true);
+  };
   const confirmClose = () => {
     onOpenChange(false);
     setCopiedItems(new Set());

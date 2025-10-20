@@ -54,7 +54,8 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
 
 
   try {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const attempts = Math.max(1, maxRetries);
+    for (let attempt = 1; attempt <= attempts; attempt++) {
       try {
         logger.info(`${versionName} - 第${attempt}次尝试调用AI`, {
           model: params.model,
