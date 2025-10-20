@@ -206,13 +206,18 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
    * 保存设置
    */
   async saveSetting(key: string, value: any, metadata: Record<string, any> = {}): Promise<void> {
-    if (!this.userId) {
-      throw new Error('用户未登录，无法保存设置');
+    // 优先使用当前会话的用户ID，确保通过RLS
+    const { data: { session } } = await supabase.auth.getSession();
+    const sessionUserId = session?.user?.id;
+    if (!sessionUserId) {
+      throw new Error('未登录或会话已过期，无法保存设置');
     }
+    // 若有外部设置的 userId，与会话不一致则以会话为准，避免RLS拒绝
+    this.userId = sessionUserId;
 
     // 🔧 FIX: 使用实际的表结构字段名，让数据库自动生成 UUID
     const settingData = {
-      user_id: this.userId,
+      user_id: sessionUserId,
       key: key,
       value: value
     };
@@ -244,14 +249,18 @@ CREATE POLICY "Users can access own preferences" ON user_preferences
    * 批量保存设置
    */
   async saveSettings(settings: Record<string, any>, metadata: Record<string, any> = {}): Promise<void> {
-    if (!this.userId) {
-      throw new Error('用户未登录，无法保存设置');
+    // 会话校验，确保RLS通过
+    const { data: { session } } = await supabase.auth.getSession();
+    const sessionUserId = session?.user?.id;
+    if (!sessionUserId) {
+      throw new Error('未登录或会话已过期，无法保存设置');
     }
+    this.userId = sessionUserId;
 
     // 🔧 FIX: 使用实际的表结构字段名，让数据库自动生成 UUID
     const settingsData = Object.entries(settings).map(([key, value]) => {
       return {
-        user_id: this.userId,
+        user_id: sessionUserId,
         key: key,
         value: value
       };

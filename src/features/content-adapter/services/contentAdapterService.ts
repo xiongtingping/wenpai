@@ -32,7 +32,7 @@ function getPlatformTimeoutConfig(platformId: string) {
     isLongContent: isLongContentPlatform,
     initialTimeout: isLongContentPlatform ? 45000 : 30000, // 🔧 长内容请求超时降为45秒，避免过长等待
     retryDelay: isLongContentPlatform ? 2000 : 1000, // 🔧 长内容重试间隔固定2秒
-    maxRetries: isLongContentPlatform ? 2 : 3, // 🔧 长内容仅尝试2次，失败后快速降级
+    maxRetries: isLongContentPlatform ? 1 : 3, // ⏱️ 长内容仅尝试1次，避免长时间等待
     patientMessage: isLongContentPlatform ? '正在生成长篇内容，请耐心等待...' : '正在生成内容...'
   };
 }
@@ -46,6 +46,12 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
   const originalModel = params.model;
   const timeoutConfig = getPlatformTimeoutConfig(platformId || '');
   const maxRetries = timeoutConfig.maxRetries;
+  // 为长内容平台适当放宽总超时时间
+  const effectiveTimeout = timeoutConfig.isLongContent
+    ? Math.max(timeoutConfig.initialTimeout, params.timeout || 0)
+    : timeoutConfig.initialTimeout;
+
+
 
   try {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -75,7 +81,7 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
           feature: 'AI内容适配',
           taskType: AITaskType.CONTENT_ADAPTATION,
           // 🔧 FIX: 为长内容平台传递更长的超时时间
-          timeout: timeoutConfig.initialTimeout
+          timeout: effectiveTimeout
         });
 
         // 🚫 检查是否为Token限额错误，如果是则立即停止重试
@@ -377,7 +383,7 @@ async function generateMultipleVersions(
 
     const requestTimestamp = Date.now();
 
-    const [standardResult, creativeResult] = await Promise.all([
+    const [standardSettled, creativeSettled] = await Promise.allSettled([
       callAIWithRetry({
         prompt: standardPrompt,
         model: selectedModel,
@@ -399,6 +405,33 @@ async function generateMultipleVersions(
         styleVariation: 'tone'
       }, '创意版本(版本B)', platformId)
     ]);
+
+    const unwrapResult = (
+      result: PromiseSettledResult<any>,
+      label: string
+    ) => {
+      if (result.status === 'fulfilled') {
+        return result.value;
+      }
+
+      const reason = result.reason instanceof Error
+        ? result.reason.message
+        : String(result.reason ?? '未知错误');
+
+      logger.error(`${label} - AI调用异常`, {
+        platform: platformId,
+        error: reason
+      });
+
+      return {
+        success: false,
+        error: reason,
+        content: null
+      };
+    };
+
+    const standardResult = unwrapResult(standardSettled, '标准版本(版本A)');
+    const creativeResult = unwrapResult(creativeSettled, '创意版本(版本B)');
 
     // 处理标准版本结果
     if (standardResult.success && standardResult.content) {
