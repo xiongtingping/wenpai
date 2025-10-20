@@ -118,8 +118,9 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
       container = document.createElement('div');
       container.id = 'batch-forward-modal-container';
       // 🔧 FIX: 容器本身不占据可点击区域，但子元素可以接收点击事件
-      // pointer-events: none 会传递给子元素，需要在子元素上设置 pointer-events: auto
-      container.style.pointerEvents = 'auto';
+      // 默认禁用容器交互，实际显示时再开启
+      container.style.pointerEvents = 'none';
+      container.style.display = 'none';
       // 🔧 FIX: 确保容器不会产生黑色背景
       container.style.background = 'transparent';
       container.style.position = 'fixed';
@@ -128,6 +129,24 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
       document.body.appendChild(container);
     }
   }, []); // 🔧 FIX: 空依赖数组，只在mount时执行一次，避免重复操作
+
+  useEffect(() => {
+    const container = document.getElementById('batch-forward-modal-container');
+    if (!container) return;
+    if (open || closeConfirmOpen) {
+      container.style.display = 'block';
+    } else {
+      container.style.display = 'none';
+    }
+
+    if (open && !closeConfirmOpen) {
+      container.style.pointerEvents = 'auto';
+      container.setAttribute('aria-hidden', 'false');
+    } else {
+      container.style.pointerEvents = 'none';
+      container.setAttribute('aria-hidden', 'true');
+    }
+  }, [open, closeConfirmOpen]);
 
   // 🔧 FIX: 重置状态（当modal关闭时）
   useEffect(() => {
@@ -138,30 +157,30 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
   }, [open]);
 
   if (!open) {
-  return null;
-}
+    return null;
+  }
 
-if (closeConfirmOpen) {
-  return (
-    <AlertDialog open={closeConfirmOpen}>
-      <AlertDialogPortal>
-        <AlertDialogOverlay className="z-[1102]" />
-        <AlertDialogContent className="z-[1103]">
-          <AlertDialogHeader>
-            <AlertDialogTitle>确认关闭</AlertDialogTitle>
-            <AlertDialogDescription>
-              确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setCloseConfirmOpen(false)}>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmClose}>确认</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialogPortal>
-    </AlertDialog>
-  );
-}
+  if (closeConfirmOpen) {
+    return (
+      <AlertDialog open={closeConfirmOpen}>
+        <AlertDialogPortal>
+          <AlertDialogOverlay className="z-[1102]" />
+          <AlertDialogContent className="z-[1103]">
+            <AlertDialogHeader>
+              <AlertDialogTitle>确认关闭</AlertDialogTitle>
+              <AlertDialogDescription>
+                确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setCloseConfirmOpen(false)}>取消</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmClose}>确认</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogPortal>
+      </AlertDialog>
+    );
+  }
 
 
   const modalContent = (
@@ -481,25 +500,6 @@ if (closeConfirmOpen) {
           </div>
         </>
       )}
-
-      {/* 🔧 FIX: 关闭确认 AlertDialog - 手动控制Portal来提升z-index，确保在batch-modal之上可见 */}
-      <AlertDialog open={closeConfirmOpen}>
-        <AlertDialogPortal>
-          <AlertDialogOverlay className="z-[1102]" />
-          <AlertDialogContent className="z-[1103]">
-            <AlertDialogHeader>
-              <AlertDialogTitle>确认关闭</AlertDialogTitle>
-              <AlertDialogDescription>
-                确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setCloseConfirmOpen(false)}>取消</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmClose}>确认</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogPortal>
-      </AlertDialog>
     </>
   );
 
