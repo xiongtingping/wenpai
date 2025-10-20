@@ -119,7 +119,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
       container.id = 'batch-forward-modal-container';
       // 🔧 FIX: 容器本身不占据可点击区域，但子元素可以接收点击事件
       // pointer-events: none 会传递给子元素，需要在子元素上设置 pointer-events: auto
-      container.style.pointerEvents = 'none';
+      container.style.pointerEvents = 'auto';
       // 🔧 FIX: 确保容器不会产生黑色背景
       container.style.background = 'transparent';
       container.style.position = 'fixed';
@@ -129,7 +129,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
     }
   }, []); // 🔧 FIX: 空依赖数组，只在mount时执行一次，避免重复操作
 
-  // 🔧 FIX: 重置最小化状态（当modal关闭时）
+  // 🔧 FIX: 重置状态（当modal关闭时）
   useEffect(() => {
     if (!open) {
       setIsMinimized(false);
@@ -137,7 +137,32 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
     }
   }, [open]);
 
-  if (!open) return null;
+  if (!open) {
+  return null;
+}
+
+if (closeConfirmOpen) {
+  return (
+    <AlertDialog open={closeConfirmOpen}>
+      <AlertDialogPortal>
+        <AlertDialogOverlay className="z-[1102]" />
+        <AlertDialogContent className="z-[1103]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认关闭</AlertDialogTitle>
+            <AlertDialogDescription>
+              确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCloseConfirmOpen(false)}>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmClose}>确认</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogPortal>
+    </AlertDialog>
+  );
+}
+
 
   const modalContent = (
     <>

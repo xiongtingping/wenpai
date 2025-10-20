@@ -304,7 +304,11 @@ export function getFallbackReasonFromError(errorMessage: string): FallbackReason
   if (lowerMessage.includes('rate limit') || lowerMessage.includes('429')) {
     return 'rate_limit';
   }
-  if (lowerMessage.includes('timeout') || lowerMessage.includes('timed out')) {
+  if (
+    lowerMessage.includes('timeout') ||
+    lowerMessage.includes('timed out') ||
+    lowerMessage.includes('504')
+  ) {
     return 'timeout';
   }
   if (lowerMessage.includes('unavailable') || lowerMessage.includes('not found')) {
@@ -335,4 +339,3 @@ export function getFallbackReasonDescription(reason: FallbackReason): string {
 
   return descriptions[reason];
 }
-

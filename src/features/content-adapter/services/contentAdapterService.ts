@@ -30,9 +30,9 @@ function getPlatformTimeoutConfig(platformId: string) {
   const isLongContentPlatform = ['wechat', 'zhihu'].includes(platformId);
   return {
     isLongContent: isLongContentPlatform,
-    initialTimeout: isLongContentPlatform ? 90000 : 30000, // 90秒 vs 30秒
-    retryDelay: isLongContentPlatform ? 3000 : 1000, // 3秒 vs 1秒
-    maxRetries: isLongContentPlatform ? 4 : 3,
+    initialTimeout: isLongContentPlatform ? 45000 : 30000, // 🔧 长内容请求超时降为45秒，避免过长等待
+    retryDelay: isLongContentPlatform ? 2000 : 1000, // 🔧 长内容重试间隔固定2秒
+    maxRetries: isLongContentPlatform ? 2 : 3, // 🔧 长内容仅尝试2次，失败后快速降级
     patientMessage: isLongContentPlatform ? '正在生成长篇内容，请耐心等待...' : '正在生成内容...'
   };
 }
@@ -173,7 +173,7 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
 
       // 如果不是最后一次尝试，等待一段时间再重试
       if (attempt < maxRetries) {
-        const delay = Math.min(timeoutConfig.retryDelay * Math.pow(2, attempt - 1), 10000);
+        const delay = Math.min(timeoutConfig.retryDelay * Math.pow(2, attempt - 1), 6000);
         logger.info(`${versionName} - 等待${delay}ms后重试`, { attempt, delay });
         await new Promise(resolve => setTimeout(resolve, delay));
       }
@@ -375,36 +375,30 @@ async function generateMultipleVersions(
       return systemPrompt;
     };
 
-    // 🔧 FIX: 顺序生成版本A和B，确保内容差异化
-    // 先生成标准版本A
-    const standardResult = await callAIWithRetry({
-      prompt: standardPrompt,
-      model: selectedModel,
-      systemPrompt: buildSystemPrompt(`你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`),
-      maxTokens: maxTokens,
-      temperature: 0.5, // 🔧 降低temperature使版本A更稳定、专业
-      // ✅ 添加差异化参数确保版本A的唯一性
-      regenerationSeed: `version-a-${Date.now()}`, // 添加时间戳确保唯一性
-      variationLevel: 'moderate',
-      styleVariation: 'structure'
-    }, '标准版本(版本A)', platformId);
+    const requestTimestamp = Date.now();
 
-    // 🔧 FIX: 延迟500ms后再生成创意版本B，避免API缓存（优化速度）
-    logger.info('⏱️ 等待500ms后生成版本B，避免API缓存...');
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // 再生成创意版本B，使用更高的temperature和显著差异化参数
-    const creativeResult = await callAIWithRetry({
-      prompt: creativePrompt,
-      model: selectedModel,
-      systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。🚨 重要：必须与标准版本风格完全不同，更加口语化和生动，严禁重复版本A的内容。${charCountInstruction}`),
-      maxTokens: maxTokens,
-      temperature: 1.0, // 🔧 提高temperature到最大值增加创意性和随机性（从0.95提高到1.0）
-      // ✅ 添加显著差异化参数确保版本B与版本A完全不同
-      regenerationSeed: `version-b-${Date.now()}`, // 添加时间戳确保唯一性
-      variationLevel: 'significant',
-      styleVariation: 'tone'
-    }, '创意版本(版本B)', platformId);
+    const [standardResult, creativeResult] = await Promise.all([
+      callAIWithRetry({
+        prompt: standardPrompt,
+        model: selectedModel,
+        systemPrompt: buildSystemPrompt(`你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`),
+        maxTokens: maxTokens,
+        temperature: 0.5, // 🔧 版本A稳定输出
+        regenerationSeed: `version-a-${requestTimestamp}`,
+        variationLevel: 'moderate',
+        styleVariation: 'structure'
+      }, '标准版本(版本A)', platformId),
+      callAIWithRetry({
+        prompt: creativePrompt,
+        model: selectedModel,
+        systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。🚨 重要：必须与标准版本风格完全不同，更加口语化和生动，严禁重复版本A的内容。${charCountInstruction}`),
+        maxTokens: maxTokens,
+        temperature: 0.9, // 🔧 创意版本保持差异化但避免过度发散
+        regenerationSeed: `version-b-${requestTimestamp}-alt`,
+        variationLevel: 'significant',
+        styleVariation: 'tone'
+      }, '创意版本(版本B)', platformId)
+    ]);
 
     // 处理标准版本结果
     if (standardResult.success && standardResult.content) {
