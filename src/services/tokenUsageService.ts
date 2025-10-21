@@ -564,6 +564,19 @@ class TokenUsageService {
   async checkTokenLimit(userId: string, userTier: SubscriptionTier, estimatedTokens: number): Promise<TokenLimitCheckResult> {
     const stats = await this.getUserTokenStats(userId, userTier);
 
+    if (!Number.isFinite(stats.monthlyLimit) || stats.monthlyLimit <= 0) {
+      logger.debug('📘 Token限额无限制，直接放行', {
+        userId,
+        userTier,
+        monthlyLimit: stats.monthlyLimit
+      });
+      return {
+        allowed: true,
+        warningLevel: 'safe',
+        stats
+      };
+    }
+
     // 计算使用后的百分比
     const projectedUsed = stats.monthlyUsed + estimatedTokens;
     const projectedPercentage = (projectedUsed / stats.monthlyLimit) * 100;

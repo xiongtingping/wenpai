@@ -123,6 +123,7 @@ export async function callAIWithTokenTracking(
 
   const userId = userInfo?.userId || params.userId || 'anonymous';
   let actualUserTier = userInfo?.userTier || userTier;
+  let tierSource: string | undefined;
 
   // 估算输入Token数量（安全处理空值）
   const estimatedInputTokens = estimateTokens((params.prompt || '') + (params.systemPrompt || ''));
@@ -136,15 +137,31 @@ export async function callAIWithTokenTracking(
         const status = await unifiedSubscriptionService.getUserSubscriptionStatus(userId);
         if (status?.tier) {
           const oldTier = actualUserTier;
-          actualUserTier = status.tier;
-          if (oldTier !== actualUserTier) {
-            logger.info('🔄 订阅等级已更新', {
+          tierSource = status.source;
+          // 避免将 premium/pro 降级为 fallback trial
+          if (
+            status.source === 'fallback' &&
+            (oldTier === 'premium' || oldTier === 'pro') &&
+            status.tier === 'trial'
+          ) {
+            logger.warn('⚠️ 订阅服务返回 fallback trial，保持原等级', {
               userId,
               oldTier,
-              newTier: actualUserTier,
-              source: 'unifiedSubscriptionService'
+              fallbackTier: status.tier
             });
+          } else {
+            actualUserTier = status.tier;
+            if (oldTier !== actualUserTier) {
+              logger.info('🔄 订阅等级已更新', {
+                userId,
+                oldTier,
+                newTier: actualUserTier,
+                source: status.source
+              });
+            }
           }
+        } else {
+          tierSource = 'unknown';
         }
       } catch (error) {
         // 忽略订阅查询失败，维持原 tier
@@ -204,72 +221,76 @@ export async function callAIWithTokenTracking(
 
     // 2. 检查Token限额（如果有用户信息且未跳过检查）
     if (userInfo && !skipLimitCheck) {
-      const limitCheck = await tokenUsageService.checkTokenLimit(
-        userId,
-        actualUserTier,
-        estimatedInputTokens + (params.maxTokens || 1000) // 估算总Token数
-      );
-
-      if (!limitCheck.allowed) {
-        // Token限额不足，触发全局事件并返回错误响应
-        const tokenLimitEvent = new CustomEvent('tokenLimitExceeded', {
-          detail: {
-            userId,
-            userTier: actualUserTier,
-            stats: limitCheck.stats,
-            warningLevel: limitCheck.warningLevel,
-            reason: limitCheck.reason,
-            suggestedAction: limitCheck.suggestedAction
-          }
-        });
-        window.dispatchEvent(tokenLimitEvent);
-
-        logger.error('🚫 Token限额超限，已触发全局事件', {
+      if (actualUserTier === 'premium') {
+        logger.debug('💎 Premium 用户跳过 Token 限额检查', { userId, tierSource });
+      } else {
+        const limitCheck = await tokenUsageService.checkTokenLimit(
           userId,
-          warningLevel: limitCheck.warningLevel,
-          monthlyUsed: limitCheck.stats.monthlyUsed,
-          monthlyLimit: limitCheck.stats.monthlyLimit
-        });
+          actualUserTier,
+          estimatedInputTokens + (params.maxTokens || 1000) // 估算总Token数
+        );
 
-        const response: AIResponseWithUsage = {
-          content: '',
-          model: params.model || 'unknown',
-          responseTime: Date.now() - startTime,
-          success: false,
-          error: limitCheck.reason,
-          errorType: 'token_limit',
-          tokenUsage: {
-            inputTokens: 0,
-            outputTokens: 0,
-            totalTokens: 0,
-            userMonthlyUsed: limitCheck.stats.monthlyUsed,
-            userMonthlyLimit: limitCheck.stats.monthlyLimit,
-            userMonthlyRemaining: limitCheck.stats.monthlyRemaining,
-            usagePercentage: limitCheck.stats.usagePercentage,
-            needUpgrade: limitCheck.stats.needUpgrade
-          }
-        };
+        if (!limitCheck.allowed) {
+          // Token限额不足，触发全局事件并返回错误响应
+          const tokenLimitEvent = new CustomEvent('tokenLimitExceeded', {
+            detail: {
+              userId,
+              userTier: actualUserTier,
+              stats: limitCheck.stats,
+              warningLevel: limitCheck.warningLevel,
+              reason: limitCheck.reason,
+              suggestedAction: limitCheck.suggestedAction
+            }
+          });
+          window.dispatchEvent(tokenLimitEvent);
 
-        return response;
-      }
-
-      // 即使允许使用，也检查是否需要发出警告
-      if (limitCheck.warningLevel !== 'safe') {
-        const tokenWarningEvent = new CustomEvent('tokenLimitWarning', {
-          detail: {
+          logger.error('🚫 Token限额超限，已触发全局事件', {
             userId,
-            userTier: actualUserTier,
-            stats: limitCheck.stats,
             warningLevel: limitCheck.warningLevel,
-            reason: limitCheck.reason
-          }
-        });
-        window.dispatchEvent(tokenWarningEvent);
+            monthlyUsed: limitCheck.stats.monthlyUsed,
+            monthlyLimit: limitCheck.stats.monthlyLimit
+          });
 
-        logger.warn(`⚠️ Token使用量预警 [${limitCheck.warningLevel}]，已触发全局事件`, {
-          userId,
-          usagePercentage: limitCheck.stats.usagePercentage.toFixed(2) + '%'
-        });
+          const response: AIResponseWithUsage = {
+            content: '',
+            model: params.model || 'unknown',
+            responseTime: Date.now() - startTime,
+            success: false,
+            error: limitCheck.reason,
+            errorType: 'token_limit',
+            tokenUsage: {
+              inputTokens: 0,
+              outputTokens: 0,
+              totalTokens: 0,
+              userMonthlyUsed: limitCheck.stats.monthlyUsed,
+              userMonthlyLimit: limitCheck.stats.monthlyLimit,
+              userMonthlyRemaining: limitCheck.stats.monthlyRemaining,
+              usagePercentage: limitCheck.stats.usagePercentage,
+              needUpgrade: limitCheck.stats.needUpgrade
+            }
+          };
+
+          return response;
+        }
+
+        // 即使允许使用，也检查是否需要发出警告
+        if (limitCheck.warningLevel !== 'safe') {
+          const tokenWarningEvent = new CustomEvent('tokenLimitWarning', {
+            detail: {
+              userId,
+              userTier: actualUserTier,
+              stats: limitCheck.stats,
+              warningLevel: limitCheck.warningLevel,
+              reason: limitCheck.reason
+            }
+          });
+          window.dispatchEvent(tokenWarningEvent);
+
+          logger.warn(`⚠️ Token使用量预警 [${limitCheck.warningLevel}]，已触发全局事件`, {
+            userId,
+            usagePercentage: limitCheck.stats.usagePercentage.toFixed(2) + '%'
+          });
+        }
       }
     }
 

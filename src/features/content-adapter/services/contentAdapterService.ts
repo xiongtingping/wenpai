@@ -45,11 +45,15 @@ async function callAIWithRetry(params: any, versionName: string, platformId?: st
   let lastError: any = null;
   const originalModel = params.model;
   const timeoutConfig = getPlatformTimeoutConfig(platformId || '');
-  const maxRetries = timeoutConfig.maxRetries;
-  // 为长内容平台适当放宽总超时时间
-  const effectiveTimeout = timeoutConfig.isLongContent
-    ? Math.max(timeoutConfig.initialTimeout, params.timeout || 0)
+  const explicitTimeout = typeof params.timeout === 'number' ? params.timeout : undefined;
+  const explicitMaxRetries = typeof params.maxRetries === 'number' ? params.maxRetries : undefined;
+
+  const maxRetries = explicitMaxRetries ?? timeoutConfig.maxRetries;
+  // 为长内容平台适当放宽总超时时间；支持外部自定义
+  const fallbackTimeout = timeoutConfig.isLongContent
+    ? timeoutConfig.initialTimeout
     : timeoutConfig.initialTimeout;
+  const effectiveTimeout = explicitTimeout ?? fallbackTimeout;
 
 
 
@@ -384,55 +388,35 @@ async function generateMultipleVersions(
 
     const requestTimestamp = Date.now();
 
-    const [standardSettled, creativeSettled] = await Promise.allSettled([
-      callAIWithRetry({
-        prompt: standardPrompt,
-        model: selectedModel,
-        systemPrompt: buildSystemPrompt(`你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`),
-        maxTokens: maxTokens,
-        temperature: 0.5, // 🔧 版本A稳定输出
-        regenerationSeed: `version-a-${requestTimestamp}`,
-        variationLevel: 'moderate',
-        styleVariation: 'structure'
-      }, '标准版本(版本A)', platformId),
-      callAIWithRetry({
-        prompt: creativePrompt,
-        model: selectedModel,
-        systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。🚨 重要：必须与标准版本风格完全不同，更加口语化和生动，严禁重复版本A的内容。${charCountInstruction}`),
-        maxTokens: maxTokens,
-        temperature: 0.9, // 🔧 创意版本保持差异化但避免过度发散
-        regenerationSeed: `version-b-${requestTimestamp}-alt`,
-        variationLevel: 'significant',
-        styleVariation: 'tone'
-      }, '创意版本(版本B)', platformId)
-    ]);
+    const standardResult = await callAIWithRetry({
+      prompt: standardPrompt,
+      model: selectedModel,
+      systemPrompt: buildSystemPrompt(`你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`),
+      maxTokens: maxTokens,
+      temperature: 0.5, // 🔧 版本A稳定输出
+      regenerationSeed: `version-a-${requestTimestamp}`,
+      variationLevel: 'moderate',
+      styleVariation: 'structure'
+    }, '标准版本(版本A)', platformId);
 
-    const unwrapResult = (
-      result: PromiseSettledResult<any>,
-      label: string
-    ) => {
-      if (result.status === 'fulfilled') {
-        return result.value;
-      }
+    const creativeResultPromise = callAIWithRetry({
+      prompt: creativePrompt,
+      model: selectedModel,
+      systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。🚨 重要：必须与标准版本风格完全不同，更加口语化和生动，严禁重复版本A的内容。${charCountInstruction}`),
+      maxTokens: Math.min(maxTokens, 2200), // 创意版使用更紧凑的输出限制
+      temperature: 0.95, // 🔧 略提高随机性，但仍保持可控
+      timeout: 25000, // 🔧 创意版本设置更短的超时时间
+      maxRetries: 1, // 🔧 创意版本默认仅尝试一次，失败后降级
+      regenerationSeed: `version-b-${requestTimestamp}-alt`,
+      variationLevel: 'significant',
+      styleVariation: 'tone'
+    }, '创意版本(版本B)', platformId).catch(error => ({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+      content: null
+    }));
 
-      const reason = result.reason instanceof Error
-        ? result.reason.message
-        : String(result.reason ?? '未知错误');
-
-      logger.error(`${label} - AI调用异常`, {
-        platform: platformId,
-        error: reason
-      });
-
-      return {
-        success: false,
-        error: reason,
-        content: null
-      };
-    };
-
-    const standardResult = unwrapResult(standardSettled, '标准版本(版本A)');
-    const creativeResult = unwrapResult(creativeSettled, '创意版本(版本B)');
+    const creativeResult = await creativeResultPromise;
 
     // 处理标准版本结果
     if (standardResult.success && standardResult.content) {
@@ -516,6 +500,38 @@ async function generateMultipleVersions(
         error: creativeResult.error,
         result: creativeResult
       });
+      logger.info('🔄 版本B尝试采用降级策略', { platform: platformId });
+      const fallbackCreative = await callAIWithRetry({
+        prompt: creativePrompt,
+        model: selectedModel,
+        systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容，同时保持逻辑清晰和完整度。${charCountInstruction}`),
+        maxTokens: Math.min(maxTokens, 2000),
+        temperature: 0.75,
+        maxRetries: 1,
+        regenerationSeed: `version-b-${requestTimestamp}-fallback`,
+        variationLevel: 'moderate',
+        styleVariation: 'vocabulary'
+      }, '创意版本降级(版本B)', platformId);
+
+      if (fallbackCreative.success && fallbackCreative.content) {
+        const { cleanContent, extractedTags } = extractAndCleanContent(fallbackCreative.content);
+        const actualCharCount = (cleanContent || '').length;
+
+        versions.push({
+          id: 'version-b',
+          content: cleanContent,
+          style: 'creative',
+          title: '版本B',
+          charCount: actualCharCount,
+          tags: extractedTags
+        });
+
+        logger.info('✅ 版本B降级生成成功', {
+          platform: platformId,
+          charCount: actualCharCount,
+          contentPreview: cleanContent.substring(0, 100)
+        });
+      }
     }
 
     // 如果两个版本都失败了，尝试生成一个基础版本

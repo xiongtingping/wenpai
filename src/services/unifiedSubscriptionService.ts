@@ -182,6 +182,15 @@ class UnifiedSubscriptionService {
     }
 
     // 3. 默认试用状态（安全fallback）
+    const cached = this.getFromMemoryCache(userId) || this.getFromDiskCache(userId);
+    if (cached) {
+      logger.debug('♻️ 使用缓存订阅状态替代 fallback', {
+        userId,
+        cachedTier: cached.tier,
+        cachedSource: cached.source
+      });
+      return cached;
+    }
     const fallbackResult = this.getTrialFallback(userId);
     this.setToCache(userId, fallbackResult);
     return fallbackResult;
@@ -206,6 +215,12 @@ class UnifiedSubscriptionService {
           timeSinceLastQuery: now - lastQuery,
           throttleMs: this.THROTTLE_MS
         });
+        // 返回最新缓存，避免错误回退为 trial
+        const cached = this.getFromMemoryCache(userId) || this.getFromDiskCache(userId);
+        if (cached) {
+          logger.debug('⏳ 使用缓存订阅状态（节流命中）', { userId, tier: cached.tier });
+          return cached;
+        }
         return null;
       }
 
@@ -248,6 +263,11 @@ class UnifiedSubscriptionService {
       }
 
       if (!subscription) {
+        const cached = this.getFromMemoryCache(userId) || this.getFromDiskCache(userId);
+        if (cached) {
+          logger.debug('ℹ️ Supabase 返回空，使用缓存订阅状态', { userId, tier: cached.tier });
+          return cached;
+        }
         return null;
       }
 
