@@ -45,19 +45,19 @@ export interface ContentAdapterEngineState {
   // 基础状态
   generating: boolean;
   results: PlatformResult[];
-  
+
   // 重试状态
   retryingPlatforms: Set<string>;
   autoRetryingPlatforms: Set<string>;
-  
+
   // 版本生成状态
   regeneratingVersions: Set<string>;
-  
+
   // 对比内容状态
   generatingComparison: Set<string>;
   comparisonContent: Record<string, string>;
   showComparison: Record<string, boolean>;
-  
+
   // 标题生成状态
   titleStates: Record<string, {
     title?: string;
@@ -107,7 +107,7 @@ export interface UseContentAdapterEngineReturn extends ContentAdapterEngineState
 export function useContentAdapterEngine(params: UseContentAdapterEngineParams): UseContentAdapterEngineReturn {
   const { toast } = useToast();
   const serviceRef = useRef<ContentAdapterService>();
-  
+
   // 初始化或更新服务
   if (!serviceRef.current) {
     serviceRef.current = new ContentAdapterService(params.globalSettings, params.platformSettings);
@@ -144,9 +144,9 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
 
   // 更新步骤状态
   const updateStep = useCallback((
-    platformId: string, 
-    stepIndex: number, 
-    status: GenerationStep['status'], 
+    platformId: string,
+    stepIndex: number,
+    status: GenerationStep['status'],
     message?: string
   ) => {
     setResults(prev => prev.map(result => {
@@ -174,6 +174,10 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
 
     setGenerating(true);
 
+
+    // 收集用于历史记录同步的生成结果，避免使用可能过期的 state
+    const generatedForHistory: PlatformResult[] = [];
+
     // 🔧 FIX: 清除旧的标题状态，避免显示上一次生成的标题
     setTitleStates({});
 
@@ -197,10 +201,10 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
         try {
           // 步骤1: 准备生成
           updateStep(platformId, 0, 'completed');
-          
+
           // 步骤2: 构建提示词
           updateStep(platformId, 1, 'loading', '🔧 构建多维矩阵提示词...');
-          
+
           const platformRequest = {
             ...request,
             platform: platformId,
@@ -208,9 +212,9 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
             useBrandLibrary: params.useBrandLibrary,
             brandProfile: params.brandProfile
           };
-          
+
           updateStep(platformId, 1, 'completed');
-          
+
           // 步骤3: 调用AI服务生成多版本内容
           updateStep(platformId, 2, 'loading', '🤖 调用AI服务生成多版本内容...');
 
@@ -225,6 +229,21 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
             // 使用固定首选ID（version-a）作为默认内容，避免对返回顺序的偏置
             const preferred = result.versions.find(v => v.id === 'version-a') || result.versions[0];
             const defaultContent = preferred.content;
+
+
+            // 收集用于历史记录的结果（最小字段集，严格类型）
+            generatedForHistory.push({
+              platformId,
+              content: defaultContent,
+              steps: [
+                { name: 'prepare', status: 'completed', message: '准备生成完成' },
+                { name: 'prompt', status: 'completed', message: '提示词已构建' },
+                { name: 'ai', status: 'completed', message: 'AI生成完成' },
+                { name: 'process', status: 'completed', message: '结果已处理' }
+              ],
+              source: 'ai',
+              versions: result.versions
+            });
 
             // 更新标签映射
             result.versions.forEach(version => {
@@ -298,9 +317,9 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
         description: GENERATION_MESSAGES.BATCH_COMPLETE(selectedPlatforms.length),
       });
 
-      // 调用完成回调保存历史记录
+      // 调用完成回调保存历史记录（使用本地收集结果，避免闭包state过期）
       if (params.onGenerationComplete) {
-        params.onGenerationComplete(results.filter(r => r.content));
+        params.onGenerationComplete(generatedForHistory.filter(r => r.content));
       }
 
     } catch (error) {
@@ -336,8 +355,8 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
       const result = await serviceRef.current.generateContent(platformRequest);
 
       if (result.success && result.content) {
-        setResults(prev => prev.map(r => 
-          r.platformId === platformId 
+        setResults(prev => prev.map(r =>
+          r.platformId === platformId
             ? { ...r, content: result.content!, error: undefined }
             : r
         ));
@@ -352,9 +371,9 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
 
     } catch (error) {
       const errorMessage = getErrorMessage(error);
-      
-      setResults(prev => prev.map(r => 
-        r.platformId === platformId 
+
+      setResults(prev => prev.map(r =>
+        r.platformId === platformId
           ? { ...r, error: errorMessage }
           : r
       ));
@@ -401,7 +420,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
           if (r.platformId === platformId) {
             const newVersions = r.versions || [];
             const versionIndex = newVersions.findIndex(v => v.id === versionId);
-            
+
             if (versionIndex >= 0) {
               newVersions[versionIndex] = {
                 ...newVersions[versionIndex],
@@ -409,7 +428,7 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
                 // timestamp: Date.now() // 移除不存在的属性
               };
             }
-            
+
             return { ...r, versions: newVersions };
           }
           return r;
@@ -569,8 +588,8 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
 
   // 更新平台内容
   const updatePlatformContent = useCallback((platformId: string, content: string) => {
-    setResults(prev => prev.map(r => 
-      r.platformId === platformId 
+    setResults(prev => prev.map(r =>
+      r.platformId === platformId
         ? { ...r, content, source: 'manual' as const }
         : r
     ));

@@ -274,6 +274,14 @@ function HistoryLauncher({ availablePlatforms }: { availablePlatforms: any[] }) 
     if (open) load();
   }, [open, load]);
 
+  // 打开历史对话框期间，监听历史更新事件并即时刷新
+  React.useEffect(() => {
+    const handler = () => { if (open) { void load(); } };
+    window.addEventListener('user_history_updated', handler as EventListener);
+    return () => window.removeEventListener('user_history_updated', handler as EventListener);
+  }, [open, load]);
+
+
   return (
     <>
       <div className="flex justify-end">
@@ -450,6 +458,8 @@ export function ContentAdapterPage({
 
       // 保存到云端
       await globalDataManager.setData('user_history', mergedHistory);
+      // 通知其他组件刷新历史
+      window.dispatchEvent(new CustomEvent('user_history_updated'));
       console.log('✅ 历史记录已保存到云端，新数量:', mergedHistory.length);
     } catch (error) {
       console.error('❌ 保存历史记录失败:', error);
@@ -465,6 +475,8 @@ export function ContentAdapterPage({
         }));
         const merged = [...newItems, ...existing].slice(0, 100);
         localStorage.setItem(localKey, JSON.stringify(merged));
+        // 通知其他组件刷新历史（本地降级）
+        window.dispatchEvent(new CustomEvent('user_history_updated'));
         console.log('⚠️ 已降级保存到localStorage');
       } catch (fallbackError) {
         console.error('❌ localStorage降级保存也失败:', fallbackError);
@@ -1523,6 +1535,10 @@ export function ContentAdapterPage({
 
       await globalDataManager.setData('user_history', existingHistory);
 
+      // 通知其他组件刷新历史
+      window.dispatchEvent(new CustomEvent('user_history_updated'));
+
+
 
       // 打开对应平台
       const platformUrl = platformUrls[pendingPublish.platformId];
@@ -1575,6 +1591,10 @@ export function ContentAdapterPage({
       const existingHistory = await globalDataManager.getData<any[]>('user_history') || [];
       existingHistory.push(historyItem);
       await globalDataManager.setData('user_history', existingHistory);
+
+      // 通知其他组件刷新历史
+      window.dispatchEvent(new CustomEvent('user_history_updated'));
+
 
       // 打开对应平台
       const platformUrl = platformUrls[firstTask.platformId];

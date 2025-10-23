@@ -54,7 +54,16 @@ export interface ShareHistoryItem {
 }
 
 // 排序选项
-type SortOption = 'time-desc' | 'time-asc' | 'platform' | 'content-length';
+// 扩展：按标题与按字数（升/降序）
+type SortOption =
+  | 'time-desc'
+  | 'time-asc'
+  | 'platform'
+  | 'content-length' // 兼容旧值，等同于 'wordcount-desc'
+  | 'title-asc'
+  | 'title-desc'
+  | 'wordcount-asc'
+  | 'wordcount-desc';
 
 
 interface EnhancedHistoryDialogProps {
@@ -80,6 +89,8 @@ export function EnhancedHistoryDialog({ open,
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
   const [selectedDateRange, setSelectedDateRange] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('time-desc');
+  const [customStartDate, setCustomStartDate] = useState<string>('');
+  const [customEndDate, setCustomEndDate] = useState<string>('');
   const dialogRef = useRef<HTMLDivElement>(null);
 
   // 🎯 使用统一的Dialog定位Hook - 遵循CLAUDE.md规范
@@ -121,26 +132,49 @@ export function EnhancedHistoryDialog({ open,
       filtered = filtered.filter(item => item.platformId === selectedPlatform);
     }
 
-    // 日期范围筛选
+    // 日期范围筛选（支持自定义起止）
     if (selectedDateRange !== 'all') {
       const now = new Date();
-      const filterDate = new Date();
-      
+      let start: Date | null = null;
+      let end: Date | null = null;
+
       switch (selectedDateRange) {
-        case 'today':
-          filterDate.setHours(0, 0, 0, 0);
+        case 'today': {
+          start = new Date();
+          start.setHours(0, 0, 0, 0);
+          end = new Date();
+          end.setHours(23, 59, 59, 999);
           break;
-        case 'week':
-          filterDate.setDate(now.getDate() - 7);
+        }
+        case 'week': {
+          start = new Date(now);
+          start.setDate(now.getDate() - 7);
           break;
-        case 'month':
-          filterDate.setMonth(now.getMonth() - 1);
+        }
+        case 'month': {
+          start = new Date(now);
+          start.setMonth(now.getMonth() - 1);
           break;
+        }
+        case 'custom': {
+          if (customStartDate) {
+            start = new Date(customStartDate + 'T00:00:00');
+          }
+          if (customEndDate) {
+            end = new Date(customEndDate + 'T23:59:59');
+          }
+          break;
+        }
         default:
-          filterDate.setTime(0);
+          break;
       }
-      
-      filtered = filtered.filter(item => new Date(item.time) >= filterDate);
+
+      filtered = filtered.filter(item => {
+        const ts = new Date(item.time).getTime();
+        const passStart = !start || ts >= start.getTime();
+        const passEnd = !end || ts <= end.getTime();
+        return passStart && passEnd;
+      });
     }
 
     // 排序
@@ -152,7 +186,20 @@ export function EnhancedHistoryDialog({ open,
           return new Date(a.time).getTime() - new Date(b.time).getTime();
         case 'platform':
           return a.platformName.localeCompare(b.platformName);
-        case 'content-length':
+        case 'title-asc': {
+          const at = (a.title || '').toLowerCase();
+          const bt = (b.title || '').toLowerCase();
+          return at.localeCompare(bt);
+        }
+        case 'title-desc': {
+          const at = (a.title || '').toLowerCase();
+          const bt = (b.title || '').toLowerCase();
+          return bt.localeCompare(at);
+        }
+        case 'wordcount-asc':
+          return a.content.length - b.content.length;
+        case 'wordcount-desc':
+        case 'content-length': // 兼容旧值，按字数降序
           return b.content.length - a.content.length;
         default:
           return 0;
@@ -160,7 +207,7 @@ export function EnhancedHistoryDialog({ open,
     });
 
     return filtered;
-  }, [shareHistory, searchQuery, selectedPlatform, selectedDateRange, sortBy]);
+  }, [shareHistory, searchQuery, selectedPlatform, selectedDateRange, customStartDate, customEndDate, sortBy]);
 
   // 按日期分组
   const groupedHistory = useMemo(() => {
@@ -226,6 +273,8 @@ export function EnhancedHistoryDialog({ open,
     setSearchQuery('');
     setSelectedPlatform('all');
     setSelectedDateRange('all');
+    setCustomStartDate('');
+    setCustomEndDate('');
     setSortBy('time-desc');
   };
 
@@ -354,75 +403,95 @@ export function EnhancedHistoryDialog({ open,
                 flexWrap: 'wrap',
                 alignItems: 'center'
               }}>
-              {/* 平台选择 - 紧凑 */}
-              <div className="bg-card border border-border text-foreground hover:bg-muted hover:border-primary shadow-sm" style={{
-                height: '36px',
-                borderRadius: '8px',
-                padding: '0 10px',
-                display: 'flex',
-                alignItems: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                fontSize: '12px',
-                fontWeight: '500',
-                minWidth: '100px',
-                maxWidth: '140px'
-              }}
-              >
-                <span style={{marginRight: '4px', fontSize: '12px'}}>🏷️</span>
-                <span style={{fontSize: '12px', fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
-                  {selectedPlatform === 'all' ? '所有平台' :
-                   uniquePlatforms.find(p => p.id === selectedPlatform)?.name || '选择平台'}
-                </span>
-              </div>
+              {/* 平台选择 - 紧凑（可交互） */}
+              <Select value={selectedPlatform} onValueChange={(val) => setSelectedPlatform(val)}>
+                <SelectTrigger
+                  className="bg-card border border-border text-foreground hover:bg-muted hover:border-primary shadow-sm"
+                  style={{
+                    height: '36px',
+                    borderRadius: '8px',
+                    padding: '0 10px',
+                    minWidth: '100px',
+                    maxWidth: '140px'
+                  }}
+                >
+                  <span style={{ marginRight: '4px', fontSize: '12px' }}>🏷️</span>
+                  <SelectValue placeholder="所有平台" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">所有平台</SelectItem>
+                  {uniquePlatforms.map(p => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-              {/* 时间范围 - 紧凑 */}
-              <div className="bg-card border border-border text-foreground hover:bg-muted hover:border-green-600 dark:hover:border-green-500 shadow-sm" style={{
-                height: '36px',
-                borderRadius: '8px',
-                padding: '0 10px',
-                display: 'flex',
-                alignItems: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                fontSize: '12px',
-                fontWeight: '500',
-                minWidth: '90px',
-                maxWidth: '120px'
-              }}
-              >
-                <span style={{marginRight: '4px', fontSize: '12px'}}>📅</span>
-                <span style={{fontSize: '12px', fontWeight: '500', whiteSpace: 'nowrap'}}>
-                  {selectedDateRange === 'all' ? '全部时间' :
-                   selectedDateRange === 'today' ? '今天' :
-                   selectedDateRange === 'week' ? '最近一周' :
-                   selectedDateRange === 'month' ? '最近一月' : '时间范围'}
-                </span>
-              </div>
+              {/* 时间范围 - 紧凑（可交互） */}
+              <Select value={selectedDateRange} onValueChange={(val) => setSelectedDateRange(val)}>
+                <SelectTrigger
+                  className="bg-card border border-border text-foreground hover:bg-muted hover:border-green-600 dark:hover:border-green-500 shadow-sm"
+                  style={{
+                    height: '36px',
+                    borderRadius: '8px',
+                    padding: '0 10px',
+                    minWidth: '90px',
+                    maxWidth: '120px'
+                  }}
+                >
+                  <span style={{ marginRight: '4px', fontSize: '12px' }}>📅</span>
+                  <SelectValue placeholder="全部时间" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部时间</SelectItem>
+                  <SelectItem value="today">今天</SelectItem>
+                  <SelectItem value="week">最近一周</SelectItem>
+                  <SelectItem value="month">最近一月</SelectItem>
+                  <SelectItem value="custom">自定义</SelectItem>
+                </SelectContent>
+              </Select>
+              {selectedDateRange === 'custom' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Input
+                    type="date"
+                    value={customStartDate}
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                    className="h-9"
+                  />
+                  <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>至</span>
+                  <Input
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+              )}
 
-              {/* 排序方式 - 紧凑 */}
-              <div className="bg-card border border-border text-foreground hover:bg-muted hover:border-purple-600 dark:hover:border-purple-500 shadow-sm" style={{
-                height: '36px',
-                borderRadius: '8px',
-                padding: '0 10px',
-                display: 'flex',
-                alignItems: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                fontSize: '12px',
-                fontWeight: '500',
-                minWidth: '90px',
-                maxWidth: '120px'
-              }}
-              >
-                <span style={{marginRight: '4px', fontSize: '12px'}}>🔄</span>
-                <span style={{fontSize: '12px', fontWeight: '500', whiteSpace: 'nowrap'}}>
-                  {sortBy === 'time-desc' ? '最新优先' :
-                   sortBy === 'time-asc' ? '最旧优先' :
-                   sortBy === 'platform' ? '按平台' :
-                   sortBy === 'content-length' ? '按长度' : '排序方式'}
-                </span>
-              </div>
+              {/* 排序方式 - 紧凑（可交互） */}
+              <Select value={sortBy} onValueChange={(val) => setSortBy(val as SortOption)}>
+                <SelectTrigger
+                  className="bg-card border border-border text-foreground hover:bg-muted hover:border-purple-600 dark:hover:border-purple-500 shadow-sm"
+                  style={{
+                    height: '36px',
+                    borderRadius: '8px',
+                    padding: '0 10px',
+                    minWidth: '90px',
+                    maxWidth: '120px'
+                  }}
+                >
+                  <span style={{ marginRight: '4px', fontSize: '12px' }}>🔄</span>
+                  <SelectValue placeholder="排序方式" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="time-desc">最新优先</SelectItem>
+                  <SelectItem value="time-asc">最旧优先</SelectItem>
+                  <SelectItem value="platform">按平台</SelectItem>
+                  <SelectItem value="title-asc">标题 A→Z</SelectItem>
+                  <SelectItem value="title-desc">标题 Z→A</SelectItem>
+                  <SelectItem value="wordcount-desc">字数 多→少</SelectItem>
+                  <SelectItem value="wordcount-asc">字数 少→多</SelectItem>
+                </SelectContent>
+              </Select>
 
               {/* 导出按钮 - 紧凑 */}
               <div
