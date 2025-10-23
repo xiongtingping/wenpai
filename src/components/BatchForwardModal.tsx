@@ -143,16 +143,14 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
   useEffect(() => {
     const container = document.getElementById('batch-forward-modal-container');
     if (!container) return;
-    if (open || closeConfirmOpen) {
-      container.style.display = 'block';
-    } else {
-      container.style.display = 'none';
-    }
-
+    // Show the batch modal container only when the main modal is visible
+    // Hide it entirely while the close-confirm AlertDialog is open to avoid stacking over the Radix portal
     if (open && !closeConfirmOpen) {
+      container.style.display = 'block';
       container.style.pointerEvents = 'auto';
       container.setAttribute('aria-hidden', 'false');
     } else {
+      container.style.display = 'none';
       container.style.pointerEvents = 'none';
       container.setAttribute('aria-hidden', 'true');
     }

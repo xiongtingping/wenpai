@@ -17,7 +17,7 @@ const AlertDialogOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Overlay
     className={cn(
-      "fixed inset-0 z-50 bg-foreground/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-[1102] bg-foreground/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     {...props}
@@ -35,10 +35,11 @@ const AlertDialogContent = React.forwardRef<
     <AlertDialogPrimitive.Content
       ref={ref}
       className={cn(
-        // ✅ 遵循UI组件职责分离：移除手动定位类，交由Radix UI控制
-        // ❌ 移除: "fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]"
-        "z-50 grid max-w-4xl gap-4 border bg-background p-6 shadow-lg sm:rounded-lg",
-        // ✅ 保留Radix UI的data-[state]动画系统
+        // ✅ 居中定位（与 DialogContent 保持一致）
+        "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1103]",
+        // ✅ 基础样式
+        "grid w-full max-w-2xl gap-4 border bg-background p-6 shadow-lg sm:rounded-lg",
+        // ✅ Radix data-state 动画
         "duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
