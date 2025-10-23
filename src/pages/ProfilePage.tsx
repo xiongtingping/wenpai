@@ -35,8 +35,8 @@ import SubscriptionExpiryCard from '@/components/profile/SubscriptionExpiryCard'
 import { InviteSection } from '@/components/invite/InviteSection';
 import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 import { avatarService } from '@/services/avatarService';
-import { getUserTier } from '@/utils/subscriptionUtils';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useUserTier } from '@/hooks/useUserTier';
 import { cloudSyncService } from '@/services/cloudSyncService';
 
 export default function ProfilePage() {
@@ -44,6 +44,9 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const { t } = useTranslation();
   const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus();
+  // 统一使用订阅Hook输出等级与显示名（加载中不显示trial）
+  const { tier: userTier, initialLoading: tierInitialLoading, displayName: tierDisplayName } = useUserTier();
+
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [avatarKey, setAvatarKey] = useState(0);
@@ -90,22 +93,12 @@ export default function ProfilePage() {
     }
   }, [user?.id]);
 
-  const userTier = (() => {
-    if (hasActiveSubscription && primaryStatus?.status === 'active' && primaryStatus.tier) {
-      return primaryStatus.tier;
-    }
-    return getUserTier(user);
-  })();
-
   const getAccountType = () => {
-    // 🔧 FIX: 统一使用订阅等级名称，避免显示"试用用户"
-    const tierLabels: Record<string, string> = {
-      'trial': '体验版',
-      'pro': '专业版',
-      'premium': '高级版'
-    };
-    return tierLabels[userTier] || '体验版';
+    // 加载中占位；加载完成后直接使用Hook提供的显示名
+    if (tierInitialLoading) return '加载中...';
+    return tierDisplayName;
   };
+
 
   const registrationDate = user?.createdAt ?
     new Date(user.createdAt).toLocaleDateString('zh-CN') :

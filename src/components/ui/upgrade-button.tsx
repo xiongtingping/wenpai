@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Crown } from 'lucide-react';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
 import { useAuth } from '@/hooks/useAuth';
+import { useUserTier } from '@/hooks/useUserTier';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 
 /**
  * 升级专业版按钮属性
@@ -29,48 +31,35 @@ interface UpgradeButtonProps {
 /**
  * 升级专业版按钮组件
  */
-export const UpgradeButton: React.FC<any> = ({ variant = 'default',
+export const UpgradeButton: React.FC<any> = ({
+  variant = 'default',
   size = 'sm',
   showIcon = true,
-  text = t('components.messages.立即解锁高级功能'),
-  className = '' }) => { const { user  } = useAuth();
+  text = '立即解锁高级功能',
+  className = ''
+}) => {
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const { tier: hookTier } = useUserTier();
+  const { primaryStatus } = useSubscriptionStatus();
 
   /**
    * 检查是否应该显示升级按钮
    * 只有高级版用户（且在有效期内）不显示，其他用户都显示
    */
   const shouldShowUpgradeButton = () => {
-  const { t } = useTranslation();    // 未登录用户显示
+    // 未登录用户显示
     if (!user || typeof user !== 'object') return true;
 
-    const userObj = user as Record<string, unknown>;
+    // 使用已获取的Hook数据
+    const isPremiumUser = hookTier === 'premium';
 
-    // 检查是否是高级版用户
-    const isPremiumUser = userObj.tier === 'premium' ||
-                         userObj.plan === 'premium' ||
-                         userObj.subscriptionTier === 'premium' ||
-                         userObj.userPlan === 'premium';
-
-    // 如果是高级版用户，检查是否在有效期内
-    if (isPremiumUser) {
-      const subscriptionEndDate = userObj.subscriptionEndDate || userObj.endDate || userObj.expireDate;
-
-      if (subscriptionEndDate) {
-        const endDate = new Date(subscriptionEndDate as string);
-        const now = new Date();
-
-        // 如果在有效期内，不显示升级按钮
-        if (endDate > now) {
-          return false;
-        }
-      }
+    // 高级版且处于有效期内：不显示升级按钮
+    if (isPremiumUser && primaryStatus?.status === 'active') {
+      return false;
     }
 
-    // 其他情况都显示升级按钮：
-    // - 未登录用户
-    // - 体验版用户 (trial)
-    // - 专业版用户 (pro)
-    // - 高级版用户但已过期
+    // 其他情况都显示升级按钮：trial/pro/已过期premium
     return true;
   };
 

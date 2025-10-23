@@ -107,16 +107,35 @@ class RSSHubDiscoveryService {
    * 测试路由是否可用
    */
   async testRoute(route: string): Promise<boolean> {
+    // 更稳健的可用性检测：优先HEAD，失败或405/501则回退GET（仅探测，不解析）
+    const url = `${this.baseUrl}${route}`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
     try {
-      const response = await fetch(`${this.baseUrl}${route}`, {
-        method: 'HEAD',
-        signal: AbortSignal.timeout(5000)
-      });
-
-      // 如果返回200或304，说明路由存在且可访问
-      return response.ok || response.status === 304;
-    } catch (error) {
+      const headResp = await fetch(url, { method: 'HEAD', signal: controller.signal });
+      if (headResp.ok || headResp.status === 304) return true;
+      // 某些RSSHub路由不支持HEAD，返回405/501，此时尝试GET探测
+      if (headResp.status === 405 || headResp.status === 501) {
+        const getController = new AbortController();
+        const getTimer = setTimeout(() => getController.abort(), 7000);
+        try {
+          const getResp = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/rss+xml,text/xml;q=0.9,*/*;q=0.1' }, signal: getController.signal });
+          return getResp.ok || getResp.status === 304;
+        } finally {
+          clearTimeout(getTimer);
+        }
+      }
       return false;
+    } catch (error) {
+      // HEAD 出错也尝试一次 GET
+      try {
+        const getResp = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/rss+xml,text/xml;q=0.9,*/*;q=0.1' } });
+        return getResp.ok || getResp.status === 304;
+      } catch {
+        return false;
+      }
+    } finally {
+      clearTimeout(timer);
     }
   }
 

@@ -84,7 +84,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
       needsAlert: false,
       alertLevel: 'info',
       alertMessage: '',
-      statusLabel: '试用用户',
+      statusLabel: '加载中...',
       statusColor: 'gray'
     } as SubscriptionStatus;
   }, [store.status]);

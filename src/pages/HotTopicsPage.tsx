@@ -282,7 +282,7 @@ export default function HotTopicsPage() {
   };
 
   // 修复 fetchHotData is not defined 错误，添加重试机制
-  const fetchHotData = useCallback(async (retryCount = 0) => {
+  const fetchHotData = useCallback(async (retryCount = 0): Promise<boolean> => {
     const maxRetries = 3;
     const retryDelay = 1000 * (retryCount + 1); // 递增延迟
 
@@ -291,36 +291,39 @@ export default function HotTopicsPage() {
       if (retryCount === 0) {
         setError(null); // 只在第一次尝试时清除错误
       }
-      
+
       const response = await getDailyHotAll();
+      if (!response?.data || Object.keys(response.data).length === 0) {
+        throw new Error('empty response');
+      }
       setAllHotData(response);
       setLastUpdateTime(new Date());
 
       // 计算统计信息
-      if (response?.data) {
-        const platforms = Object.keys(response.data);
-        const total = Object.values(response.data).reduce((sum, topics) => sum + topics.length, 0);
-        setStats({ total, platforms: platforms.length });
-        setSupportedPlatforms(platforms);
-      }
-      
+      const platforms = Object.keys(response.data);
+      const total = Object.values(response.data).reduce((sum, topics) => sum + topics.length, 0);
+      setStats({ total, platforms: platforms.length });
+      setSupportedPlatforms(platforms);
+
       // 成功后清除错误状态
       setError(null);
-      
+      return true;
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '未知错误';
       console.warn(`getting热点datafailed (尝试 ${retryCount + 1}/${maxRetries + 1}):`, errorMessage);
-      
+
       if (retryCount < maxRetries) {
-        // 自动重试
+        // 自动重试（异步调度，不阻塞调用方）
         setTimeout(() => {
-          fetchHotData(retryCount + 1);
+          void fetchHotData(retryCount + 1);
         }, retryDelay);
         setError(`正在重试获取数据... (${retryCount + 1}/${maxRetries})`);
       } else {
         // 达到最大重试次数
         setError('网络连接异常，请检查网络后手动刷新');
       }
+      return false;
     } finally {
       if (retryCount === 0) {
         setLoading(false);
@@ -574,8 +577,13 @@ export default function HotTopicsPage() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await fetchHotData();
+    const ok = await fetchHotData();
     setRefreshing(false);
+    if (ok) {
+      // 成功不提示，保持轻量；需要提示可在此添加 toast
+    } else {
+      // 可以在页面错误卡片里引导重试
+    }
   };
 
   // 初始化数据加载

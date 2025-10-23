@@ -10,7 +10,7 @@ import { tokenUsageService } from '@/services/tokenUsageService';
 import { getEffectiveUserTier, getEffectiveUserId } from '@/utils/effectiveUserTier';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { AICallParams, AIResponse } from '@/api/types';
-import { getModelInfo, isModelAvailableForTier } from '@/config/aiModels';
+import { getModelInfo, isModelAvailableForTier, getAvailableModelsForTier } from '@/config/aiModels';
 
 import { logger } from '@/utils/logger';
 
@@ -295,7 +295,13 @@ export async function callAIWithTokenTracking(
     }
 
     // 3. 调用统一AI服务（确保必需参数完备）
-    const finalModel = (params.model && params.model.trim()) ? params.model : 'deepseek-chat';
+    // 若未显式指定模型，则按用户订阅层级选择“可用模型”的首选项，避免默认使用受限模型
+    const explicitModel = (params.model && params.model.trim()) ? params.model.trim() : '';
+    let finalModel = explicitModel;
+    if (!finalModel) {
+      const fallbackList = getAvailableModelsForTier(actualUserTier);
+      finalModel = fallbackList[0]?.id || 'gpt-4o-mini';
+    }
     const normalizedFinalModel = normalizeModelId(finalModel) || finalModel;
     const finalPrompt = typeof params.prompt === 'string' ? params.prompt : '';
 

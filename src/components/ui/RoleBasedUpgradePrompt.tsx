@@ -11,7 +11,7 @@ import { Crown, Zap, Lock, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
 import { useAuth } from '@/hooks/useAuth';
-import { getUserTier } from '@/utils/subscriptionUtils';
+import { useUserTier } from '@/hooks/useUserTier';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import { useToast } from '@/hooks/use-toast';
 
@@ -43,23 +43,24 @@ export const RoleBasedUpgradePrompt: React.FC<any> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // 获取用户当前等级
-  const userTier = getUserTier(user);
+  // 获取用户当前等级（统一使用Hook；加载中视为无权限）
+  const { tier: userTier, initialLoading: tierInitialLoading } = useUserTier();
   const plan = getSubscriptionPlan(requiredTier);
 
   // 检查权限 - 增强版本，确保premium用户有所有权限
   const hasPermission = () => {
     if (!isAuthenticated) return false;
-    
+    if (tierInitialLoading) return false;
+
     // 🎯 特殊处理：如果是premium用户，直接授予所有权限
-    const isPremiumUser = user?.subscription?.tier === 'premium' || 
-                         user?.tier === 'premium' || 
+    const isPremiumUser = user?.subscription?.tier === 'premium' ||
+                         user?.tier === 'premium' ||
                          user?.vipLevel === 'premium' ||
                          userTier === 'premium' ||
                          (user?.isVip && (user?.vipLevel === 'premium' || user?.subscription?.tier === 'premium'));
-    
+
     if (isPremiumUser) return true;
-    
+
     const tierLevels: Record<string, number> = { trial: 0, pro: 1, premium: 2 };
     return tierLevels[userTier] >= tierLevels[requiredTier];
   };

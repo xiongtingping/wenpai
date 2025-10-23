@@ -153,16 +153,7 @@ function PlatformResultCard({
 
   const { t } = useTranslation();
 
-  // 自动触发智能标题生成（首次渲染且有内容时）
-  React.useEffect(() => {
-    const content = result.content || result.versions?.[0]?.content || '';
-    if (!content || !content.trim()) return;
-    if (!titleState?.hasTitle && !titleState?.isGenerating) {
-      onGenerateTitle(result.platformId, content);
-    }
-    // 仅在平台卡片首次挂载时尝试一次，避免重复触发
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [result.platformId]);
+  // 自动触发已在引擎层（useContentAdapterEngine）统一处理；此处不再二次触发以避免竞态/重复请求
 
   const handleCopy = async () => {
     try {

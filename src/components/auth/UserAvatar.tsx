@@ -16,8 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import { getUserDisplayName, getUserAvatarFallback, getUserAvatar } from '@/utils/userDisplayUtils';
 // 简化权限管理 - 移除复杂的权限管理器
 import { logger } from '@/utils/logger';
-import { getUserTier } from '@/utils/subscriptionUtils';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useUserTier } from '@/hooks/useUserTier';
 
 /**
  * 用户头像组件属性
@@ -43,6 +43,10 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   const navigate = useNavigate();
   const [unlockLoading, setUnlockLoading] = useState(false);
   const { t } = useTranslation();
+
+
+  // 统一使用订阅Hook（加载中不显示trial，占位“加载中...”）
+  const { tier, loading: tierLoading, initialLoading: tierInitialLoading, displayName: tierDisplayName } = useUserTier();
 
   // 原生下拉菜单状态
   const [isNativeDropdownOpen, setIsNativeDropdownOpen] = useState(false);
@@ -226,29 +230,15 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   const { primaryStatus, hasActiveSubscription } = useSubscriptionStatus(user?.id);
 
   const getUserTierDisplay = () => {
-    if (!user) return t('auth.user');
-
-    // 🔧 FIX: 优先使用订阅状态的tier,而不是statusLabel
-    const tier = hasActiveSubscription && primaryStatus.status === 'active'
-      ? primaryStatus.tier
-      : getUserTier(user);
-
-    // 根据tier返回对应的中文标签
-    const tierLabels = {
-      'trial': '体验版',
-      'pro': '专业版',
-      'premium': '高级版'
-    };
-
-    return tierLabels[tier as keyof typeof tierLabels] || '体验版';
+    // 统一用订阅Hook输出；加载中显示占位，不回退trial
+    if (tierLoading || tierInitialLoading) return '加载中...';
+    return tierDisplayName;
   };
 
   const getTierBadgeClasses = () => {
-    // 🔧 FIX: 使用真实的订阅tier
-    const tier = hasActiveSubscription && primaryStatus.status === 'active'
-      ? primaryStatus.tier
-      : getUserTier(user);
-
+    if (tierLoading || tierInitialLoading) {
+      return 'bg-muted text-gray-700 dark:text-gray-300 border-border';
+    }
     if (tier === 'trial') {
       return 'bg-muted text-gray-700 dark:text-gray-300 border-border';
     } else if (tier === 'pro') {
@@ -256,16 +246,11 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     } else if (tier === 'premium') {
       return 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700';
     }
-
     return 'bg-muted text-gray-700 dark:text-gray-300 border-border';
   };
 
   const getTierIconColor = () => {
-    // 🔧 FIX: 使用真实的订阅tier
-    const tier = hasActiveSubscription && primaryStatus.status === 'active'
-      ? primaryStatus.tier
-      : getUserTier(user);
-
+    if (tierLoading || tierInitialLoading) return 'text-muted-foreground';
     if (tier === 'trial') {
       return 'text-muted-foreground';
     } else if (tier === 'pro') {
@@ -273,7 +258,6 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     } else if (tier === 'premium') {
       return 'text-purple-500';
     }
-
     return 'text-muted-foreground';
   };
 

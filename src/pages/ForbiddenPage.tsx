@@ -1,6 +1,6 @@
 /**
  * 🚫 403 禁止访问页面
- * 
+ *
  * 功能：
  * - 显示权限不足提示
  * - 提供升级引导
@@ -16,12 +16,16 @@ import { Shield, ArrowLeft, Crown, Lock, AlertTriangle } from 'lucide-react';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
+import { useUserTier } from '@/hooks/useUserTier';
+
 
 /**
  * 403 禁止访问页面组件
  */
 export default function ForbiddenPage() {
   const navigate = useNavigate();
+  const { tier: userTier, initialLoading: tierInitialLoading } = useUserTier();
+
   const { user, isAuthenticated } = useAuth();
   const { t } = useTranslation();
 
@@ -52,7 +56,7 @@ export default function ForbiddenPage() {
             </div>
             <CardTitle className="text-2xl text-destructive"></CardTitle>
             <CardDescription className="text-base">
-              
+
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -60,7 +64,7 @@ export default function ForbiddenPage() {
               <Alert>
                 <Lock className="h-4 w-4" />
                 <AlertDescription>
-                  
+
                 </AlertDescription>
               </Alert>
             ) : (
@@ -82,9 +86,13 @@ export default function ForbiddenPage() {
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-muted-foreground">:</span>
                   <span className="font-medium">
-                    {user.tier === 'free' ? t('errors.forbidden.freeUser') : 
-                     user.tier === 'pro' ? t('errors.forbidden.proUser') : 
-                     user.tier === 'premium' ? t('errors.forbidden.premiumUser') : t('errors.forbidden.unknown')}
+                    {tierInitialLoading
+                      ? '加载中...'
+                      : (userTier === 'premium'
+                          ? t('auth.premiumUser')
+                          : userTier === 'pro'
+                            ? t('auth.proUser')
+                            : t('auth.trialUser'))}
                   </span>
                 </div>
               </div>
@@ -96,18 +104,18 @@ export default function ForbiddenPage() {
                 <>
                   <Button onClick={handleLogin} className="w-full">
                     <Lock className="w-4 h-4 mr-2" />
-                    
+
                   </Button>
                   <Button variant="outline" onClick={handleGoHome} className="w-full">
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    
+
                   </Button>
                 </>
               ) : (
                 <>
                   <Button onClick={handleUpgrade} className="w-full">
                     <Crown className="w-4 h-4 mr-2" />
-                    
+
                   </Button>
                   <div className="flex gap-2">
                     <Button variant="outline" onClick={handleGoBack} className="flex-1">
@@ -115,7 +123,7 @@ export default function ForbiddenPage() {
                       {t('errors.forbidden.goBack')}
                     </Button>
                     <Button variant="outline" onClick={handleGoHome} className="flex-1">
-                      
+
                     </Button>
                   </div>
                 </>
@@ -129,7 +137,7 @@ export default function ForbiddenPage() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" />
-              
+
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -141,10 +149,10 @@ export default function ForbiddenPage() {
                 ))}
               </ul>
             </div>
-            
+
             <div className="flex gap-2">
               <Button variant="link" size="sm" onClick={() => window.location.reload()}>
-                
+
               </Button>
               <Button variant="link" size="sm" asChild>
                 <a href="mailto:hello@wenpai.xyz">{t('errors.forbidden.help.contactSupport')}</a>

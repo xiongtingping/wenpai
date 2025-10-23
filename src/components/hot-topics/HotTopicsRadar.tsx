@@ -4,7 +4,7 @@
  * 可以在任何页面中使用，提供完整的热点话题功能
  *
  * ✅ FIXED: 全网雷达组件完整性验证，修复于 2025-08-10
- * 
+ *
  * 📌 已封装：热点话题显示、订阅管理、实时更新、数据过滤
  * ⚠️ 请勿改动：此组件已通过完整性验证，UI和逻辑稳定运行
  *
@@ -83,6 +83,8 @@ import {
   type DailyHotItem,
   type DailyHotResponse
 } from '@/api/hotTopicsService';
+import hotTopicsApi, { type HotTopicsResponse } from '@/api/hotTopicsApi';
+
 import {
   rsshubDiscovery,
   selectBestRoutes,
@@ -170,7 +172,7 @@ export default function HotTopicsRadar({ showNavigation = false,
   onBookmarkChange
  }: HotTopicsRadarProps) {
   const { toast } = useToast();
-  
+
   // 状态管理
   const [allHotData, setAllHotData] = useState<DailyHotResponse | null>(null);
   const [currentPlatform, setCurrentPlatform] = useState<string>('all');
@@ -180,7 +182,7 @@ export default function HotTopicsRadar({ showNavigation = false,
   const [error, setError] = useState<string | null>(null);
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
   const [readTopics, setReadTopics] = useState<Set<string>>(new Set());
-  
+
   // 收藏状态持久化
   const loadBookmarkedTopics = (): Set<string> => {
     try {
@@ -202,7 +204,7 @@ export default function HotTopicsRadar({ showNavigation = false,
   };
 
   const [bookmarkedTopics, setBookmarkedTopics] = useState<Set<string>>(loadBookmarkedTopics());
-  
+
   // 话题订阅状态
   const [activeTab, setActiveTab] = useState<'hot' | 'subscriptions' | 'bookmarks'>(defaultTab);
   const [subscriptions, setSubscriptions] = useState<TopicSubscription[]>([]);
@@ -213,12 +215,12 @@ export default function HotTopicsRadar({ showNavigation = false,
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [subscriptionStats, setSubscriptionStats] = useState(getSubscriptionStats());
   const [monitoringTimer, setMonitoringTimer] = useState<NodeJS.Timeout | null>(null);
-  
+
   // 热度趋势状态
   const [heatTrends, setHeatTrends] = useState<Record<string, TopicHeatTrend[]>>({});
   const [loadingTrends, setLoadingTrends] = useState<Record<string, boolean>>({});
   const [trendAnalysis, setTrendAnalysis] = useState<Record<string, TrendAnalysis>>({});
-  
+
   // 新增订阅表单
   const [newSubscription, setNewSubscription] = useState({
     name: '',
@@ -384,44 +386,104 @@ export default function HotTopicsRadar({ showNavigation = false,
     }
   };
 
+  // 将 HotTopicsAPI 响应转换为 DailyHotResponse 以复用现有渲染逻辑
+  const mapHotTopicsToDailyResponse = (resp: HotTopicsResponse): DailyHotResponse => {
+    const data: Record<string, DailyHotItem[]> = {};
+    try {
+      // 建立 source(展示名) -> 命名空间 的映射
+      const platformConfigs = hotTopicsApi.getSupportedPlatforms?.() || [];
+      const nameToNs = new Map<string, string>(platformConfigs.map((p: any) => [p.name, p.namespace]));
+
+      for (const item of resp.data || []) {
+        const ns = (nameToNs.get(item.source) || item.source || 'unknown').toLowerCase();
+        if (!data[ns]) data[ns] = [];
+        data[ns].push({
+          title: item.title,
+          desc: item.description,
+          url: item.link,
+          platform: ns,
+          hot: String(item.hotScore ?? 0)
+        } as DailyHotItem);
+      }
+
+      return {
+        code: resp.success ? 200 : 500,
+        message: resp.error,
+        data,
+        updateTime: resp.lastUpdated,
+        totalCount: resp.total,
+        metadata: {
+          requestId: `radar_${Date.now()}`,
+          processingTime: 0,
+          cacheHit: false,
+          dataSource: 'hotTopicsApi',
+          version: 'v1'
+        }
+      };
+    } catch (e) {
+      console.error('mapHotTopicsToDailyResponse failed:', e);
+      return { code: 500, data: {} } as DailyHotResponse;
+    }
+  };
+
   // 加载热点话题数据
-  const loadHotTopics = async () => {
+  const loadHotTopics = async (): Promise<boolean> => {
     try {
       setLoading(true);
       setError(null);
 
-      // 🔥 优先使用 OpenAPI 动态路由
-      let data = await loadHotTopicsFromOpenAPI();
+      let data: DailyHotResponse | null = await loadHotTopicsFromOpenAPI();
+      const hasData = (d: DailyHotResponse | null) => !!(d && d.data && Object.keys(d.data).length > 0);
 
-      // 如果 OpenAPI 失败，回退到旧方法
-      if (!data || !data.data || Object.keys(data.data).length === 0) {
-        console.log('⚠️ OpenAPI 获取失败，回退到旧 API...');
-        data = await getDailyHotAll();
+      // 回退 1：服务层聚合
+      if (!hasData(data)) {
+        console.log('⚠️ OpenAPI 获取失败，回退到 hotTopicsService...');
+        try {
+          const serviceData = await getDailyHotAll();
+          if (hasData(serviceData)) {
+            data = serviceData;
+          }
+        } catch (e) {
+          console.warn('getDailyHotAll 失败:', e);
+        }
       }
 
-      // 检查是否有有效数据
-      const hasValidData = data && data.data && Object.keys(data.data).length > 0;
+      // 回退 2：聚合API（rsshubService）
+      if (!hasData(data)) {
+        console.log('⚠️ hotTopicsService 也无数据，回退到 HotTopicsAPI 聚合层...');
+        try {
+          const resp = await hotTopicsApi.getHotTopics({ limit: 80, timeRange: '24h' });
+          if (resp?.success && (resp.data?.length || 0) > 0) {
+            data = mapHotTopicsToDailyResponse(resp);
+          }
+        } catch (e) {
+          console.warn('hotTopicsApi.getHotTopics 失败:', e);
+        }
+      }
 
-      if (!hasValidData) {
+      if (!hasData(data)) {
         setError('热点话题数据源暂时不可用');
         toast({
-          title: "数据源不可用",
-          description: "第三方热点API服务暂时无法访问，我们正在寻找替代方案。",
-          variant: "destructive"
+          title: '数据源不可用',
+          description: '第三方热点API服务暂时无法访问，我们正在寻找替代方案。',
+          variant: 'destructive'
         });
-      } else {
-        setAllHotData(data);
-        setLastUpdateTime(new Date());
-        console.log('✅ 热点数据加载成功');
+        return false;
       }
+
+      setAllHotData(data as DailyHotResponse);
+      setLastUpdateTime(new Date());
+      console.log('✅ 热点数据加载成功');
+      return true;
     } catch (error) {
       console.error('❌ 加载热点话题失败:', error);
       setError('热点话题服务暂时不可用，请稍后重试');
       toast({
-        title: "服务暂时不可用",
-        description: "由于第三方API限制，热点话题功能暂时无法使用。我们正在努力恢复服务。",
-        variant: "destructive"
+        title: '服务暂时不可用',
+        description: '由于第三方API限制，热点话题功能暂时无法使用。我们正在努力恢复服务。',
+        variant: 'destructive'
       });
+      return false;
     } finally {
       setLoading(false);
     }
@@ -442,16 +504,24 @@ export default function HotTopicsRadar({ showNavigation = false,
   // 刷新数据
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadHotTopics();
+    const ok = await loadHotTopics();
     if (showSubscriptions) {
       await loadSubscriptions();
     }
     setRefreshing(false);
 
-    toast({
-      title: t('components.labels.刷新成功'),
-      description: "数据已更新到最新状态",
-    });
+    if (ok) {
+      toast({
+        title: t('components.labels.刷新成功'),
+        description: '数据已更新到最新状态',
+      });
+    } else {
+      toast({
+        title: '刷新失败',
+        description: '数据源暂时不可用，请稍后再试',
+        variant: 'destructive'
+      });
+    }
   };
 
   /**
@@ -520,7 +590,7 @@ export default function HotTopicsRadar({ showNavigation = false,
   const handleAddSubscription = async () => {
     console.log('🔧 handleAddSubscription 被调用');
     console.log('🔧 newSubscription:', newSubscription);
-    
+
     if (!newSubscription.keyword.trim()) {
       console.log('🔧 关key词is empty，displayerrorhint');
       toast({
@@ -551,10 +621,10 @@ export default function HotTopicsRadar({ showNavigation = false,
       // 添加到订阅列表
       const updatedSubscriptions = [...subscriptions, subscription];
       setSubscriptions(updatedSubscriptions);
-      
+
       // 保存到本地存储
       localStorage.setItem('topicSubscriptions', JSON.stringify(updatedSubscriptions));
-      
+
       // 重置表单
       setNewSubscription({
         name: '',
@@ -596,7 +666,7 @@ export default function HotTopicsRadar({ showNavigation = false,
     // 标记为已读
     const topicId = `${topic.platform}-${topic.title}`;
     setReadTopics(prev => new Set([...prev, topicId]));
-    
+
     // 调用回调函数
     onTopicClick?.(topic);
   };
@@ -605,7 +675,7 @@ export default function HotTopicsRadar({ showNavigation = false,
   const handleBookmark = (topic: DailyHotItem) => {
     const topicId = `${topic.platform}-${topic.title}`;
     const newBookmarks = new Set(bookmarkedTopics);
-    
+
     if (newBookmarks.has(topicId)) {
       newBookmarks.delete(topicId);
       toast({
@@ -619,7 +689,7 @@ export default function HotTopicsRadar({ showNavigation = false,
         description: `已收藏"${topic.title}"`,
       });
     }
-    
+
     setBookmarkedTopics(newBookmarks);
     saveBookmarkedTopics(newBookmarks);
   };
@@ -627,30 +697,30 @@ export default function HotTopicsRadar({ showNavigation = false,
   // 获取所有话题数据
   const getAllTopicsData = (): DailyHotItem[] => {
     if (!allHotData?.data) return [];
-    
+
     let allTopics: DailyHotItem[] = [];
-    
+
     if (currentPlatform === 'all') {
       allTopics = aggregateAndSortTopics(allHotData.data);
     } else {
       allTopics = allHotData.data[currentPlatform] || [];
     }
-    
+
     // 应用搜索过滤
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      allTopics = allTopics.filter(topic => 
+      allTopics = allTopics.filter(topic =>
         topic.title.toLowerCase().includes(query) ||
         topic.desc?.toLowerCase().includes(query)
       );
     }
-    
+
     // 应用兴趣过滤器
     const categoryKeys = Object.keys(interestFilters.categoryPreferences);
     if (categoryKeys.length > 0) {
       // 这里可以根据分类过滤，需要话题数据包含分类信息
     }
-    
+
     return allTopics;
   };
 
@@ -918,7 +988,7 @@ export default function HotTopicsRadar({ showNavigation = false,
                       setIsAddDialogOpen(true);
                     }}
                     className="text-sm font-medium hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-200 cursor-pointer !important"
-                    style={{ 
+                    style={{
                       transition: 'all 0.2s ease-in-out',
                       cursor: 'pointer'
                     }}
@@ -1115,8 +1185,8 @@ export default function HotTopicsRadar({ showNavigation = false,
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="font-medium">
                 取消
               </Button>
-              <Button 
-                onClick={handleAddSubscription} 
+              <Button
+                onClick={handleAddSubscription}
                 className="font-medium hover:bg-primary-600 transition-colors cursor-pointer"
               >
                 添加订阅
