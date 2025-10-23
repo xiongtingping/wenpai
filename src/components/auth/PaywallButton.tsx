@@ -48,7 +48,7 @@ const getTierIcon = (tier: SubscriptionTier) => { switch (tier) {
 const getTierColor = (tier: SubscriptionTier) => {
   switch (tier) {
     case 'premium':
-      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      return 'bg-accent text-accent-foreground dark:bg-accent/30 dark:text-accent-foreground';
     case 'pro':
       return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
     case 'trial':

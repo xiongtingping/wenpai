@@ -90,7 +90,7 @@ export function shouldShowProgressBar(availableUses: number, tier?: Subscription
 export function getUsageStatusColor(usedCount: number, availableUses: number, tier?: SubscriptionTier): string {
   // 高级版或无限制情况
   if (availableUses === -1 || tier === 'premium') {
-    return 'text-purple-600'; // 高级版特殊颜色
+    return 'text-accent'; // 高级版特殊颜色
   }
 
   const percentage = calculateUsagePercentage(usedCount, availableUses, tier);
@@ -114,7 +114,7 @@ export function getUsageStatusColor(usedCount: number, availableUses: number, ti
 export function getProgressBarColor(usedCount: number, availableUses: number, tier?: SubscriptionTier): string {
   // 高级版或无限制情况
   if (availableUses === -1 || tier === 'premium') {
-    return 'bg-purple-500'; // 高级版特殊颜色
+    return 'bg-accent'; // 高级版特殊颜色
   }
 
   const percentage = calculateUsagePercentage(usedCount, availableUses, tier);

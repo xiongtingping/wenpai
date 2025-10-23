@@ -36,7 +36,7 @@ const platformConfigs = {
   weibo: {
     name: '微博',
     icon: <Globe className="w-4 h-4" />,
-    color: 'bg-orange-500',
+    color: 'bg-warning',
     maxLength: 2000
   },
   zhihu: {

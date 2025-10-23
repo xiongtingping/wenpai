@@ -62,10 +62,14 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
   // 🔧 转换Store状态为兼容格式（使用 useMemo 稳定引用，避免对象每次渲染都变化导致依赖效应反复触发）
   const primaryStatus: SubscriptionStatus = useMemo(() => {
     if (store.status) {
+      const startedAt = store.status.subscription?.startDate ?? null;
+      const period = store.status.subscription?.period as ('monthly' | 'yearly' | undefined);
       return {
         status: store.status.isExpired ? 'expired' : 'active',
         tier: store.status.tier,
+        startedAt,
         expiresAt: store.status.expiresAt || null,
+        period,
         daysRemaining: store.status.daysRemaining,
         needsAlert: store.status.daysRemaining <= 7 && store.status.daysRemaining > 0,
         alertLevel: (store.status.daysRemaining <= 3 ? 'error' : 'warning') as 'info' | 'warning' | 'error',
@@ -79,6 +83,7 @@ export function useSubscriptionStatus(userId?: string): UseSubscriptionStatusRet
     return {
       status: 'inactive',
       tier: 'trial',
+      startedAt: null,
       expiresAt: null,
       daysRemaining: 0,
       needsAlert: false,

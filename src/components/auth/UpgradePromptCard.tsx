@@ -78,7 +78,7 @@ export const UpgradePromptCard: React.FC<UpgradePromptCardProps> = ({
       case 'pro':
         return <Zap className="h-5 w-5 text-primary" />;
       case 'premium':
-        return <Crown className="h-5 w-5 text-purple-500" />;
+        return <Crown className="h-5 w-5 text-accent" />;
       default:
         return <Star className="h-5 w-5" />;
     }
@@ -100,10 +100,10 @@ export const UpgradePromptCard: React.FC<UpgradePromptCardProps> = ({
         button: 'btn-primary'
       },
       premium: {
-        border: 'border-purple-200',
-        bg: 'bg-purple-50',
-        badge: 'bg-purple-100 text-purple-800',
-        button: 'bg-purple-600 hover:bg-purple-700'
+        border: 'border-accent/20',
+        bg: 'bg-accent/10',
+        badge: 'bg-accent text-accent-foreground',
+        button: 'bg-accent hover:bg-accent/90'
       }
     };
     return themes[tier as keyof typeof themes] || themes.trial;

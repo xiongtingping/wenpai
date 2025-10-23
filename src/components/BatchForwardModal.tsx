@@ -172,22 +172,19 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
 
   if (closeConfirmOpen) {
     return (
-      <AlertDialog open={closeConfirmOpen}>
-        <AlertDialogPortal>
-          <AlertDialogOverlay className="z-[1102]" />
-          <AlertDialogContent className="z-[1103]">
-            <AlertDialogHeader>
-              <AlertDialogTitle>确认关闭</AlertDialogTitle>
-              <AlertDialogDescription>
-                确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setCloseConfirmOpen(false)}>取消</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmClose}>确认</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogPortal>
+      <AlertDialog open={closeConfirmOpen} onOpenChange={setCloseConfirmOpen}>
+        <AlertDialogContent className="z-[1103]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认关闭</AlertDialogTitle>
+            <AlertDialogDescription>
+              确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmClose}>确认</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
       </AlertDialog>
     );
   }
@@ -335,11 +332,11 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
               {/* 优化后的平台网格 - 增加分组边框 */}
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {platforms.map((platform) => (
-                  <Card key={platform.id} className="border border-border hover:border-violet-500/30 transition-all">
+                  <Card key={platform.id} className="border border-border hover:border-accent/30 transition-all">
                     {/* 优化后的卡片头部 */}
-                    <CardHeader className="pb-3 pt-3 px-4 border-b border-border bg-violet-50/30 dark:bg-violet-950/10">
+                    <CardHeader className="pb-3 pt-3 px-4 border-b border-border bg-accent/5 dark:bg-accent/10">
                       <CardTitle className="flex items-center gap-2 text-sm w-full">
-                        <div className="w-5 h-5 rounded bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center flex-shrink-0">
+                        <div className="w-5 h-5 rounded bg-gradient-to-br from-[hsl(var(--accent))] to-[hsl(var(--accent)/0.9)] flex items-center justify-center flex-shrink-0">
                           <span className="text-white text-xs font-bold">
                             {platform.icon}
                           </span>
@@ -370,7 +367,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => togglePlatformExpanded(platform.id)}
-                                  className="h-6 w-6 p-0 hover:bg-violet-100 dark:hover:bg-violet-950/30"
+                                  className="h-6 w-6 p-0 hover:bg-accent/10 dark:hover:bg-accent/20"
                                   aria-label={expandedPlatforms.has(platform.id) ? "收起详情" : "展开详情"}
                                 >
                                   {expandedPlatforms.has(platform.id) ?
@@ -401,7 +398,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
                                   t('components.actions.title', '标题'),
                                   platform.name
                                 )}
-                                className="w-full h-7 text-xs border-border hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors justify-start"
+                                className="w-full h-7 text-xs border-border hover:border-accent hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors justify-start"
                                 aria-label={`复制${platform.name}的标题`}
                               >
                                 {getCopyButtonState(platform.name, t('components.actions.title', '标题')) ? (
@@ -426,7 +423,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
                                   t('components.actions.content', '内容'),
                                   platform.name
                                 )}
-                                className="w-full h-7 text-xs border-border hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors justify-start"
+                                className="w-full h-7 text-xs border-border hover:border-accent hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors justify-start"
                                 aria-label={`复制${platform.name}的内容`}
                               >
                                 {getCopyButtonState(platform.name, t('components.actions.content', '内容')) ? (
@@ -451,7 +448,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({ open,
                                   t('components.actions.tags', '标签'),
                                   platform.name
                                 )}
-                                className="w-full h-7 text-xs border-border hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors justify-start"
+                                className="w-full h-7 text-xs border-border hover:border-accent hover:bg-accent/10 dark:hover:bg-accent/20 transition-colors justify-start"
                                 aria-label={`复制${platform.name}的标签`}
                               >
                                 {getCopyButtonState(platform.name, t('components.actions.tags', '标签')) ? (

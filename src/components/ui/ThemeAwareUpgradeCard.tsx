@@ -65,13 +65,13 @@ export const ThemeAwareUpgradeCard: React.FC<any> = ({ requiredTier,
     if (requiredTier === 'premium') {
       return {
         icon: Crown,
-        primaryColor: 'from-purple-500 to-pink-500',
-        secondaryColor: 'from-purple-100 to-pink-100',
-        textColor: 'text-purple-700 dark:text-purple-300',
-        badgeColor: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-        buttonColor: 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700',
-        borderColor: 'border-purple-200 dark:border-purple-800',
-        glowColor: 'shadow-purple-500/20',
+        primaryColor: 'from-[hsl(var(--accent))] to-[hsl(var(--accent)/0.8)]',
+        secondaryColor: 'from-[hsl(var(--accent)/0.15)] to-[hsl(var(--accent)/0.05)]',
+        textColor: 'text-accent dark:text-accent',
+        badgeColor: 'bg-accent text-accent-foreground dark:bg-accent/30 dark:text-accent-foreground',
+        buttonColor: 'bg-gradient-to-r from-[hsl(var(--accent))] to-[hsl(var(--accent))] hover:from-[hsl(var(--accent)/0.9)] hover:to-[hsl(var(--accent)/0.9)]',
+        borderColor: 'border-accent/20 dark:border-accent/30',
+        glowColor: 'ring-1 ring-accent/20',
         accentIcon: Star
       };
     } else {

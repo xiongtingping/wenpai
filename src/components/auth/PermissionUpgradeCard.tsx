@@ -72,7 +72,7 @@ export const PermissionUpgradeCard: React.FC<PermissionUpgradeCardProps> = ({
       case 'pro':
         return <Zap className="h-5 w-5 text-primary" />;
       case 'premium':
-        return <Crown className="h-5 w-5 text-purple-500" />;
+        return <Crown className="h-5 w-5 text-accent" />;
       default:
         return <Star className="h-5 w-5" />;
     }
@@ -94,9 +94,9 @@ export const PermissionUpgradeCard: React.FC<PermissionUpgradeCardProps> = ({
         button: 'btn-primary'
       },
       premium: {
-        border: isSelected ? 'border-purple-400' : 'border-purple-200',
-        bg: isSelected ? 'bg-purple-50' : 'bg-background',
-        badge: 'bg-purple-100 text-purple-800',
+        border: isSelected ? 'border-accent' : 'border-accent/20',
+        bg: isSelected ? 'bg-accent/10' : 'bg-background',
+        badge: 'bg-accent text-accent-foreground',
         button: 'btn-secondary'
       }
     };
