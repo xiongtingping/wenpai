@@ -96,7 +96,7 @@ export function InviteStatsCard({ userId, onInviteClick, autoRefreshInterval = 5
           <CardDescription className="text-red-500">{error || '暂无数据'}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={loadStats} variant="outline" size="sm">
+          <Button onClick={() => void loadStats(true)} variant="outline" size="sm">
             重试
           </Button>
         </CardContent>

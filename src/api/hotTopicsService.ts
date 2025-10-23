@@ -5,12 +5,13 @@
  * 提供全网热点话题相关API请求、缓存、错误处理、重试机制等完整功能
  *
  * ✅ FIXED: 全网雷达功能完整性验证，修复于 2025-08-10
- * 
+ *
  * 📌 已封装：核心API服务、缓存机制、错误处理、重试逻辑
  * ⚠️ 请勿改动：此模块已通过完整性验证，功能稳定运行
  */
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import request from './request';
+import { selectBestRoutes } from '@/services/rsshubDiscovery';
 
 // ==================== 类型定义 ====================
 
@@ -78,7 +79,7 @@ export interface RetryConfig {
   backoffMultiplier: number;
   // ✅ FIXED: 已移除降级功能
   // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
-  // 
+  //
 }
 
 export interface ApiConfig {
@@ -99,7 +100,7 @@ class SimpleCache {
 
   set(key: string, data: any, customTtl?: number): void {
     const ttl = customTtl || this.defaultTtl;
-    
+
     if (this.cache.size >= this.maxSize) {
       const firstKey = this.cache.keys().next().value;
       if (firstKey) this.cache.delete(firstKey);
@@ -159,6 +160,41 @@ class HotTopicsAPI {
       console.log(`[HotTopics] ${message}`, data || '');
     }
   }
+  // 使用 RSSHub 拉取并解析 RSS/XML 为话题列表
+  private async fetchRSSHubFeed(fullUrl: string, platformKey: string): Promise<DailyHotItem[]> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    try {
+      const res = await fetch(fullUrl, { signal: controller.signal });
+      if (!res.ok) {
+        this.log(`RSSHub 路由返回错误: ${res.status}`, { fullUrl });
+        return [];
+      }
+      const text = await res.text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(text, 'text/xml');
+      const items = Array.from(xmlDoc.querySelectorAll('item'));
+      const list: DailyHotItem[] = items.map((item, index) => {
+        const title = (item.querySelector('title')?.textContent || '').trim();
+        const link = (item.querySelector('link')?.textContent || '').trim();
+        const description = (item.querySelector('description')?.textContent || '').trim();
+        return {
+          title,
+          desc: description,
+          url: link,
+          platform: platformKey,
+          hot: String(100 - index)
+        } as DailyHotItem;
+      }).filter((i) => i.title && i.url);
+      return list;
+    } catch (e) {
+      this.log('获取 RSSHub 数据失败', { fullUrl, error: e instanceof Error ? e.message : String(e) });
+      return [];
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
 
   private async fetchWithRetry(url: string, maxRetries = 0): Promise<any> {
     // 🛡️ 禁用重试机制，避免重复请求和长时间等待
@@ -192,13 +228,13 @@ class HotTopicsAPI {
             return data;
           }
         }
-        
+
         throw new Error('API返回数据格式异常');
 
       } catch (error) {
         lastError = error as Error;
         const errorMessage = error instanceof Error ? error.message : String(error);
-        
+
         this.log(`❌ API请求失败:`, {
           error: errorMessage,
           url: `${this.baseUrl}${url || ''}`,
@@ -208,7 +244,7 @@ class HotTopicsAPI {
         // 🛡️ 快速失败：大多数错误都不需要重试
         const nonRetryableErrors = [
           'Unexpected token',
-          'JSON.parse', 
+          'JSON.parse',
           'Syntax error',
           'Unauthorized',
           'Forbidden',
@@ -219,7 +255,7 @@ class HotTopicsAPI {
           'aborted'
         ];
 
-        const shouldNotRetry = nonRetryableErrors.some(pattern => 
+        const shouldNotRetry = nonRetryableErrors.some(pattern =>
           errorMessage.toLowerCase().includes(pattern.toLowerCase())
         );
 
@@ -248,13 +284,13 @@ class HotTopicsAPI {
 
   private processRawData(data: any, platform: string): DailyHotItem[] {
     let items: any[] = [];
-    
+
     if (data.code === 200 && Array.isArray(data.data)) {
       items = data.data;
     } else if (Array.isArray(data)) {
       items = data;
     }
-    
+
     return items.map((item: any, index: number) => ({
       ...item,
       platform,
@@ -287,19 +323,19 @@ class HotTopicsAPI {
         return category;
       }
     }
-    
+
     return '其他';
   }
 
   private extractTags(title: string): string[] {
     const tags: string[] = [];
-    
+
     if (title.includes('u64cdu4f5cu5931u8d25')) tags.push('u64cdu4f5cu5931u8d25');
     if (title.includes('u64cdu4f5cu5931u8d25')) tags.push('u64cdu4f5cu5931u8d25');
     if (title.includes('u64cdu4f5cu5931u8d25')) tags.push('u64cdu4f5cu5931u8d25');
     if (title.includes('u64cdu4f5cu5931u8d25')) tags.push('u64cdu4f5cu5931u8d25');
     if (title.includes('u64cdu4f5cu5931u8d25')) tags.push('u64cdu4f5cu5931u8d25');
-    
+
     return tags;
   }
 
@@ -332,13 +368,19 @@ class HotTopicsAPI {
         return [];
       }
 
-      // 🔥 实时获取，无缓存
-      const data = await this.fetchWithRetry(`/${platform}`);
-      const processedData = this.processRawData(data, platform);
-
-      this.log(`成功获取${platform}实时数据`, { count: processedData.length });
-      return processedData;
-
+      // 使用 RSSHub 动态路由
+      const baseUrl = (import.meta.env.VITE_RSSHUB_API_URL as string) || 'https://rsshub.app';
+      const routes = await selectBestRoutes();
+      const lower = platform.toLowerCase();
+      const candidate = routes.find((r) => r.platform.toLowerCase().includes(lower) || r.route.toLowerCase().includes(lower));
+      if (!candidate) {
+        this.log(`未找到平台的RSSHub路由: ${platform}`);
+        return [];
+      }
+      const fullUrl = `${baseUrl}${candidate.route}`;
+      const topics = await this.fetchRSSHubFeed(fullUrl, lower);
+      this.log(`成功获取 ${platform} RSSHub 数据`, { count: topics.length, route: candidate.route });
+      return topics;
     } catch (error) {
       this.log(`获取${platform}数据失败`, error);
       throw new Error(`获取${platform}平台数据失败`);
@@ -394,7 +436,7 @@ class HotTopicsAPI {
 
       const results = await Promise.allSettled(platformPromises);
       let totalProcessingTime = 0;
-      
+
       results.forEach((result) => {
         if (result.status === 'fulfilled') {
           const { platform, data, stats, processingTime } = result.value;
@@ -470,11 +512,11 @@ class HotTopicsAPI {
 
   aggregateAndSortTopics(allData: Record<string, DailyHotItem[]>): DailyHotItem[] {
     const allTopics: DailyHotItem[] = [];
-    
+
     for (const [platform, items] of Object.entries(allData)) {
       allTopics.push(...items.slice(0, 3));
     }
-    
+
     return allTopics.sort((a, b) => {
       const hotA = parseInt(a.hot) || 0;
       const hotB = parseInt(b.hot) || 0;

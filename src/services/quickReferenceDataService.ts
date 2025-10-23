@@ -156,7 +156,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
               .order('updated_at', { ascending: false })
               .limit(1);
             if (!error && legacyRows && legacyRows.length > 0) {
-              const row = legacyRows[0];
+              const row = legacyRows[0] as any;
               const sampleRaw = Array.isArray(row.content_samples) && row.content_samples.length > 0 ? row.content_samples[0] : null;
               const parsed = sampleRaw ? JSON.parse(sampleRaw) : [];
               items = (parsed || []).map((asset: any) => this.enhanceItem({
@@ -173,7 +173,7 @@ class QuickReferenceDataServiceImpl implements QuickReferenceDataService {
                   assetType: asset.type,
                   category: asset.category
                 }
-              })).filter(item => this.validateItem(item));
+              })).filter((item: any) => this.validateItem(item));
             }
           }
         } catch (e) {

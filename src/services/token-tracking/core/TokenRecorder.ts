@@ -62,7 +62,7 @@ export class TokenRecorder {
       success: request.success,
       errorMessage: request.errorMessage || null,
       timestamp: new Date().toISOString(),
-      metadata: request.metadata || null
+      metadata: request.metadata ?? undefined
     };
 
     // 4. 写入数据库
@@ -194,7 +194,7 @@ export class TokenRecorder {
       success: record.success,
       error_message: record.errorMessage,
       created_at: record.timestamp, // 🔧 FIX: 使用 created_at 字段
-      metadata: record.metadata
+      metadata: record.metadata ?? null
     };
 
     // 3. 插入记录

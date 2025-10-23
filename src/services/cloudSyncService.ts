@@ -119,6 +119,7 @@ class CloudSyncService {
       }
 
       if (data) {
+        const sub = data as { tier: SubscriptionTier; status: string; expires_at: string };
         // 🔧 SSOT: 不再从store.user.subscription读取，使用unifiedSubscriptionService
         const { unifiedSubscriptionService } = await import('@/services/unifiedSubscriptionService');
         const currentStatus = await unifiedSubscriptionService.getUserSubscriptionStatus(userId);
@@ -126,15 +127,15 @@ class CloudSyncService {
 
         logger.info('📊 当前订阅状态:', {
           currentTier,
-          newTier: data.tier,
-          needsUpdate: data.tier !== currentTier
+          newTier: sub.tier,
+          needsUpdate: sub.tier !== currentTier
         });
 
         // 更新订阅等级
-        if (data.tier !== currentTier) {
+        if (sub.tier !== currentTier) {
           logger.info('📊 检测到订阅变化，开始更新...', {
             旧等级: currentTier,
-            新等级: data.tier
+            新等级: sub.tier
           });
 
           // 🔧 SSOT: 通过service更新，自动触发BroadcastChannel同步
@@ -144,7 +145,7 @@ class CloudSyncService {
 
           // 订阅变化时重新初始化使用统计
           const store = useUnifiedStore.getState();
-          await store.initializeUsageStats(userId, data.tier as SubscriptionTier);
+          await store.initializeUsageStats(userId, sub.tier as SubscriptionTier);
 
           logger.info('✅ initializeUsageStats 调用完成');
         } else {
@@ -152,9 +153,9 @@ class CloudSyncService {
         }
 
         logger.info('✅ 订阅同步完成', {
-          tier: data.tier,
-          status: data.status,
-          expires_at: data.expires_at
+          tier: sub.tier,
+          status: sub.status,
+          expires_at: sub.expires_at
         });
       } else {
         logger.warn('⚠️ Supabase 未返回订阅数据（用户可能没有订阅记录）', { userId });
@@ -210,8 +211,9 @@ class CloudSyncService {
           return;
         }
 
-        if (data && (data.status === 'paid' || data.status === 'processed')) {
-          logger.info('✅ 检测到支付成功', { orderId, status: data.status });
+        const payment = data as { status: string } | null;
+        if (payment && (payment.status === 'paid' || payment.status === 'processed')) {
+          logger.info('✅ 检测到支付成功', { orderId, status: payment.status });
           
           // 停止支付同步
           this.stopPaymentSync();

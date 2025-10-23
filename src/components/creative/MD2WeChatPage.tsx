@@ -446,7 +446,6 @@ export default function MD2WeChatPage() { const { toast  } = useToast();
                   content={markdownContent}
                   onChange={handleContentChange}
                   className="h-full w-full"
-                  style={{ height: '100%', minHeight: '400px' }}
                 />
               </div>
             </div>

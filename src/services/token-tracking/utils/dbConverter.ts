@@ -84,7 +84,7 @@ export function recordToDBRecord(record: TokenUsageRecord): DBTokenUsageRecord {
     content_summary: record.contentSummary,
     success: record.success,
     error_message: record.errorMessage,
-    timestamp: record.timestamp,
+    created_at: record.timestamp,
     metadata: record.metadata || null
   };
 }
@@ -105,7 +105,7 @@ export function dbRecordToRecord(dbRecord: DBTokenUsageRecord): TokenUsageRecord
     contentSummary: dbRecord.content_summary,
     success: dbRecord.success,
     errorMessage: dbRecord.error_message,
-    timestamp: dbRecord.timestamp,
+    timestamp: dbRecord.created_at,
     metadata: dbRecord.metadata || undefined
   };
 }

@@ -52,13 +52,14 @@ export function getModelPermissionInfo(modelId: string) {
     };
   }
 
-  const tierOrder = { 'trial': 1, 'pro': 2, 'premium': 3 };
+  const tierOrder = { 'free': 0, 'trial': 1, 'pro': 2, 'premium': 3 };
   const modelTierMap = { 'low': 'trial', 'mid': 'pro', 'high': 'premium' } as const;
   const requiredTier = modelTierMap[model.tier];
   const needsUpgrade = tierOrder[userTier] < tierOrder[requiredTier];
 
   // 订阅等级名称映射
   const tierNames = {
+    'free': '体验版',
     'trial': '体验版',
     'pro': '专业版',
     'premium': '高级版'
@@ -102,6 +103,7 @@ export function getUpgradeRecommendation(modelId: string) {
 
   // 订阅等级名称映射
   const tierNames = {
+    'free': '体验版',
     'trial': '体验版',
     'pro': '专业版',
     'premium': '高级版'
@@ -124,7 +126,7 @@ export function getUpgradeRecommendation(modelId: string) {
  */
 export function hasModelTierPermission(tier: 'low' | 'mid' | 'high'): boolean {
   const userTier = getUserTier();
-  const tierOrder = { 'trial': 1, 'pro': 2, 'premium': 3 };
+  const tierOrder = { 'free': 0, 'trial': 1, 'pro': 2, 'premium': 3 };
   const modelTierMap = { 'low': 'trial', 'mid': 'pro', 'high': 'premium' } as const;
   
   const requiredTier = modelTierMap[tier];

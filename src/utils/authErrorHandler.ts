@@ -118,9 +118,10 @@ interface ErrorStats {
 export class AuthErrorHandler {
   private static instance: AuthErrorHandler;
   private errorStats: ErrorStats = {
-    totalErrors: 0,
-    errorsByType: {},
-    lastReset: new Date()
+    total: 0,
+    byType: {} as Record<AuthErrorType, number>,
+    bySeverity: {} as Record<ErrorSeverity, number>,
+    lastOccurrence: 0
   };
   private errorHistory: AuthError[] = [];
   private readonly MAX_HISTORY = 100;
@@ -273,7 +274,7 @@ export class AuthErrorHandler {
   /**
    * 获取错误元数据
    */
-  private getErrorMetadata(type: AuthErrorType, error: any) {
+  private getErrorMetadata(type: AuthErrorType, error: any): { code: string; userMessage: string; severity: ErrorSeverity; shouldRetry: boolean; retryAfter?: number } {
     const metadata = {
       [AuthErrorType.NETWORK_ERROR]: {
         code: 'AUTH_NETWORK_001',

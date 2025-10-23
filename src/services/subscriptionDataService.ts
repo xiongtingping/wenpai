@@ -77,8 +77,9 @@ class SubscriptionDataService {
    */
   mapTierToAccountType(tier: SubscriptionTier): string {
     const mapping = {
+      free: '体验版',
       trial: '体验版',
-      pro: '专业版', 
+      pro: '专业版',
       premium: '高级版'
     };
     return mapping[tier] || '体验版';
@@ -152,6 +153,14 @@ class SubscriptionDataService {
    */
   private getFallbackTierInfo(tier: SubscriptionTier): TierDisplayInfo {
     const fallbackConfigs = {
+      free: {
+        name: '体验版',
+        price: '免费',
+        icon: '🎟️',
+        color: '#94a3b8',
+        features: ['基础功能'],
+        limits: { adaptUsageLimit: 10, tokenLimit: 100000, availableModels: ['GPT-4o mini'], availableFeatures: ['基础功能'] }
+      },
       trial: {
         name: '体验版',
         price: '免费',
@@ -240,7 +249,7 @@ class SubscriptionDataService {
    * 检查订阅等级是否满足要求
    */
   checkTierPermission(userTier: SubscriptionTier, requiredTier: SubscriptionTier): boolean {
-    const tierLevels = { trial: 0, pro: 1, premium: 2 };
+    const tierLevels = { free: -1, trial: 0, pro: 1, premium: 2 };
     return tierLevels[userTier] >= tierLevels[requiredTier];
   }
 

@@ -4,7 +4,7 @@
  */
 
 type EmojiSystemModule = typeof import('@/services/unifiedEmojiSystem');
-import type { UnifiedEmojiItem } from '@/types/emoji';
+import type { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
 
 let emojiSystemLoader: Promise<EmojiSystemModule> | null = null;
 
@@ -127,7 +127,7 @@ function generateDiverseColors(emojis: UnifiedEmojiItem[]): UnifiedEmojiItem[] {
   
   return emojis.map((emoji, index) => {
     // 选择颜色池
-    const pool = colorPools[emoji.category] || colorPools.objects;
+    const pool = colorPools[(emoji.category as keyof typeof colorPools)] || colorPools.objects;
     
     // 基于emoji特征选择颜色
     let color = selectColorForEmoji(emoji, pool, index);

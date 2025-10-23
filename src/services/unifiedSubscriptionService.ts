@@ -416,7 +416,7 @@ class UnifiedSubscriptionService {
     const requiredTier = featureRequirements[featureId];
     if (!requiredTier) return true; // 未知功能默认允许
 
-    const tierLevels = { trial: 1, pro: 2, premium: 3 };
+    const tierLevels = { free: 0, trial: 1, pro: 2, premium: 3 };
     return tierLevels[status.tier] >= tierLevels[requiredTier];
   }
 
@@ -432,6 +432,7 @@ class UnifiedSubscriptionService {
 
       // fallback配置
       const fallbackLimits = {
+        free: { adaptUsageLimit: 10, tokenLimit: 100000, availableModels: ['GPT-4o mini'], availableFeatures: ['基础功能'] },
         trial: { adaptUsageLimit: 10, tokenLimit: 100000, availableModels: ['GPT-4o mini'], availableFeatures: ['基础功能'] },
         pro: { adaptUsageLimit: 30, tokenLimit: 200000, availableModels: ['GPT-4o', 'GPT-4o mini'], availableFeatures: ['高级功能'] },
         premium: { adaptUsageLimit: -1, tokenLimit: 500000, availableModels: ['GPT-4o', 'GPT-4o mini'], availableFeatures: ['全部功能'] }

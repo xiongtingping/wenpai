@@ -456,7 +456,7 @@ export default function BookmarkPage() {
         try {
           const row = await LibraryService.createLibraryItem(toDbPayload(newItem, user.id));
           // 使用云端ID覆盖
-          finalItem = fromDbRow(row);
+          finalItem = row ? fromDbRow(row) : finalItem;
         } catch (e) {
           console.warn('云端创建提取项失败，暂存本地', e);
         }
@@ -523,7 +523,7 @@ export default function BookmarkPage() {
     if (user?.id) {
       try {
         const row = await LibraryService.createLibraryItem(toDbPayload(collection, user.id));
-        collection = fromDbRow(row);
+        collection = row ? fromDbRow(row) : collection;
       } catch (e) {
         console.warn('云端创建收藏失败，暂存本地', e);
       }
@@ -582,7 +582,7 @@ export default function BookmarkPage() {
       try {
         const row = await LibraryService.createLibraryItem(toDbPayload(copywriting, user.id));
         // 用云端返回的ID等信息替换本地占位
-        finalCopywriting = fromDbRow(row);
+        finalCopywriting = row ? fromDbRow(row) : finalCopywriting;
       } catch (e) {
         console.warn('云端创建文案失败，暂存本地', e);
       }

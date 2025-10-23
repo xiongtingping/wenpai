@@ -5,7 +5,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import type { SubscriptionTier } from '@/types/subscription';
+import type { SubscriptionTier, SubscriptionPeriod } from '@/types/subscription';
 
 /**
  * 支付回调数据接口

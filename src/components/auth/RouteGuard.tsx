@@ -48,8 +48,9 @@ export const RouteGuard: React.FC<RouteGuardProps> = ({
 
   // 检查登录状态
   if (requireAuth && !isAuthenticated) {
-    // 重定向到首页，首页会处理登录逻辑
-    return <Navigate to="/" state={{ from: location }} replace />;
+    // 未登录：跳转到登录页，并携带重定向参数，登录后返回原目标页
+    const redirect = encodeURIComponent(location.pathname + (location.search || ''));
+    return <Navigate to={`/login?redirect=${redirect}`} replace />;
   }
 
   // 检查权限等级

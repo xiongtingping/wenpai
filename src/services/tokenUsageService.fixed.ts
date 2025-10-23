@@ -23,8 +23,9 @@ function getTokenLimitForTier(tier: SubscriptionTier): number {
     console.warn(`getting套餐${tier}的Tokenlimitfailed，使用defaultvalue`, error);
     // 仅在获取配置失败时使用fallback值
     const fallbackLimits = {
+      'free': 100000,
       'trial': 100000,
-      'pro': 200000, 
+      'pro': 200000,
       'premium': 500000
     };
     return fallbackLimits[tier] || 100000;

@@ -1,4 +1,5 @@
 /**
+
  * 🔐 统一认证Store
  *
  * @deprecated 此文件已废弃，请使用 unified-state-store.ts
@@ -26,6 +27,8 @@
  * ✅ 加密中间件 (透明加密)
  * ✅ 统一类型系统
  */
+
+import { createJSONStorage } from 'zustand/middleware';
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -239,7 +242,7 @@ export const useAuthStore = create<AuthStore>()(
     })),
     {
       name: 'wenpai-auth-store-v2',
-      storage: createSecureStorage(defaultSecureConfig),
+      storage: createJSONStorage(() => createSecureStorage(defaultSecureConfig)),
       partialize: (state) => ({
         // 只持久化必要的状态
         user: state.user,
@@ -247,7 +250,7 @@ export const useAuthStore = create<AuthStore>()(
         sessionExpiresAt: state.sessionExpiresAt,
         lastUpdated: state.lastUpdated,
         version: state.version
-      }),
+      }) as Partial<AuthStore>,
       version: 2,
       migrate: (persistedState: any, version: number) => {
         // 从旧版本迁移

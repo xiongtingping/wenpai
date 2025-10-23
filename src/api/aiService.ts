@@ -1200,86 +1200,12 @@ export async function callContentQualityController(params: {
 }
 
 /**
- * 🔄 多版本内容生成专用方法
- *
- * @param params 多版本生成参数
- * @returns 多版本内容结果
+ * 🔄 多版本内容生成（已移除）
+ * 此函数已废弃并移除实现，请使用 ContentAdapterService.generateMultipleVersions。
+ * 为了向后兼容，如仍被调用将抛出错误以提示迁移。
  */
-export async function callMultiVersionContentGenerator(params: {
-  originalContent: string;
-  platform: string;
-  versionCount?: number;
-  diversityLevel?: 'low' | 'medium' | 'high';
-  baseParams: any;
-}): Promise<{
-  versions: Array<{
-    version: string;
-    content: string;
-    style: string;
-    score: number;
-  }>;
-  bestVersion: string;
-}> {
-  const { originalContent, platform, versionCount = 2, diversityLevel = 'medium', baseParams } = params;
-
-  const versions = [];
-  const temperatureMap = { low: 0.7, medium: 0.8, high: 0.9 };
-  const temperature = temperatureMap[diversityLevel];
-
-  // 生成标准版本
-  const standardResult = await callContentAdapter({
-    ...baseParams,
-    originalContent,
-    platform
-  });
-
-  versions.push({
-    version: 'standard',
-    content: standardResult.content,
-    style: 'standard',
-    score: 0.8
-  });
-
-  // 生成创意版本
-  if (versionCount > 1) {
-    const creativeResult = await callAI({
-      prompt: `请为以下内容生成一个更具创意和个性化的${platform}平台版本：
-
-原始内容：${originalContent}
-
-要求：
-1. 保持核心信息不变
-2. 增加创意元素和独特表达
-3. 符合${platform}平台特色
-4. 与标准版本有明显差异
-
-请直接输出创意版本内容：`,
-      taskType: AITaskType.CONTENT_ADAPTATION,
-      temperature,
-      context: {
-        platform,
-        version: 'creative',
-        diversityLevel
-      }
-    });
-
-    versions.push({
-      version: 'creative',
-      content: creativeResult.content,
-      style: 'creative',
-      score: 0.75
-    });
-  }
-
-  // 选择最佳版本（这里简化为选择评分最高的）
-  const bestVersion = versions.reduce((best, current) =>
-    current.score > best.score ? current : best
-  );
-
-  return {
-    versions,
-    bestVersion: bestVersion.content
-  };
+export async function callMultiVersionContentGenerator(): Promise<never> {
+  throw new Error('[DEPRECATED] callMultiVersionContentGenerator 已移除，请改用 ContentAdapterService.generateMultipleVersions');
 }
 
 // ==================== 
@@ -1307,7 +1233,6 @@ export const AI_SERVICE_MODULE_LOCK = {
     'callExpressionStyleManager',
     'callMultiDimensionalMatrixGenerator',
     'callContentQualityController',
-    'callMultiVersionContentGenerator',
     'initializeAIService',
     'checkAIStatus',
     'detectViolations'
@@ -1348,7 +1273,6 @@ export function verifyModuleIntegrity(): boolean {
       'callExpressionStyleManager': callExpressionStyleManager,
       'callMultiDimensionalMatrixGenerator': callMultiDimensionalMatrixGenerator,
       'callContentQualityController': callContentQualityController,
-      'callMultiVersionContentGenerator': callMultiVersionContentGenerator,
       'initializeAIService': initializeAIService,
       'checkAIStatus': checkAIStatus,
       'detectViolations': detectViolations

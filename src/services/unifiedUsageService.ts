@@ -115,8 +115,9 @@ class UnifiedUsageService {
     } catch (error) {
       console.warn(`getting套餐${tier}的使用countlimitfailed，使用defaultvalue`, error);
       const fallbackLimits = {
+        'free': 10,
         'trial': 10,
-        'pro': 30, 
+        'pro': 30,
         'premium': -1
       };
       const fallbackLimit = fallbackLimits[tier] || 10;
@@ -135,6 +136,7 @@ class UnifiedUsageService {
     } catch (error) {
       console.warn(`getting套餐${tier}的Tokenlimitfailed，使用defaultvalue`, error);
       const fallbackLimits = {
+        'free': 100000,
         'trial': 100000,
         'pro': 200000,
         'premium': 500000

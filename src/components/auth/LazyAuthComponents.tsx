@@ -117,7 +117,7 @@ const ComponentLoadingFallback: React.FC = () => (
  * 创建带错误边界的懒加载组件
  */
 function withErrorBoundaryAndSuspense<P extends object>(
-  LazyComponent: ComponentType<P>,
+  LazyComponent: ComponentType<P & React.RefAttributes<any>>,
   fallback: React.ReactNode = <ComponentLoadingFallback />,
   errorFallback?: React.ReactNode
 ) {
@@ -131,7 +131,7 @@ function withErrorBoundaryAndSuspense<P extends object>(
       }}
     >
       <Suspense fallback={fallback}>
-        <LazyComponent {...props} ref={ref} />
+        <LazyComponent {...(props as any)} ref={ref as any} />
       </Suspense>
     </EnhancedErrorBoundary>
   ));

@@ -25,6 +25,7 @@ import type { SessionUserInfo } from '@/types/permissions';
  * 用于比较等级高低
  */
 export const TIER_WEIGHTS: Record<SubscriptionTier, number> = {
+  free: -1,
   trial: 0,
   pro: 1,
   premium: 2
@@ -180,6 +181,7 @@ export function hasRequiredTier(
  */
 export function getTierName(tier: SubscriptionTier): string {
   const names: Record<SubscriptionTier, string> = {
+    free: '体验版',
     trial: '体验版',
     pro: '专业版',
     premium: '高级版'
@@ -192,6 +194,7 @@ export function getTierName(tier: SubscriptionTier): string {
  */
 export function getTierIcon(tier: SubscriptionTier): string {
   const icons: Record<SubscriptionTier, string> = {
+    free: '🎟️',
     trial: '⭐',
     pro: '⚡',
     premium: '👑'

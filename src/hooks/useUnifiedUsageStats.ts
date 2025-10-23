@@ -35,6 +35,8 @@ export interface UsageCountStats {
   usagePercentage: number;
   /** 剩余次数 */
   remainingUses: number;
+  /** 最后更新时间（可选） */
+  lastUpdated?: string;
 }
 
 /**
@@ -104,7 +106,7 @@ async function fetchUsageCountStats(userId: string, userTier: SubscriptionTier):
       availableUses,
       usagePercentage: calculateUsagePercentage(usedCount, availableUses, userTier),
       remainingUses: availableUses === -1 ? -1 : Math.max(0, availableUses - usedCount),
-      // lastUpdated: new Date().toISOString() // 移除不存在的属性
+      lastUpdated: new Date().toISOString()
     };
   }
 }
@@ -149,7 +151,7 @@ export function useUnifiedUsageStats(externalUserTier?: SubscriptionTier): Enhan
     availableUses: -1, // 🔧 FIX: 默认值设为无限制，避免闪烁
     usagePercentage: 0,
     remainingUses: -1, // 🔧 FIX: 默认值设为无限制，避免闪烁
-    // lastUpdated: new Date().toISOString() // 移除不存在的属性
+    lastUpdated: new Date().toISOString()
   });
 
   const [extendedStats, setExtendedStats] = useState<ExtendedStats>({

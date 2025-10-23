@@ -344,13 +344,11 @@ export default function HotTopicsRadar({ showNavigation = false,
 
             if (title && link) {
               topics.push({
-                id: `${platform}-${Date.now()}-${index}`,
                 title: title.trim(),
                 desc: description.trim(),
                 url: link,
                 platform: platform.toLowerCase(),
-                hot: `${100 - index}`, // 模拟热度
-                pubDate
+                hot: `${100 - index}` // 模拟热度
               });
             }
           });
@@ -376,6 +374,7 @@ export default function HotTopicsRadar({ showNavigation = false,
       console.log(`🎉 成功获取 ${successCount}/${bestRoutes.length} 个平台的数据`);
 
       return {
+        code: 200,
         data: platformData,
         message: `成功获取 ${successCount} 个平台的热点数据`
       };

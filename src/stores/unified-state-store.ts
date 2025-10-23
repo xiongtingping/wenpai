@@ -15,6 +15,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { subscribeWithSelector } from 'zustand/middleware';
 import type { SubscriptionTier } from '@/types/subscription';
+import { normalizeTier } from '@/utils/effectiveUserTier';
 
 // ============================================================================
 // 🎯 认证状态枚举
@@ -83,16 +84,10 @@ export interface UserState {
 /**
  * Token使用状态
  */
+import type { TokenUsageStats } from '@/services/tokenUsageService';
+
 export interface TokenUsageState {
-  currentStats: {
-    userId: string;
-    monthlyLimit: number;
-    monthlyUsed: number;
-    monthlyRemaining: number;
-    usagePercentage: number;
-    needUpgrade: boolean;
-    lastUpdated: string;
-  } | null;
+  currentStats: TokenUsageStats | null;
   usageHistory: Array<{
     id: string;
     userId: string;
@@ -636,7 +631,8 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
           try {
             // 🎯 异步同步到Supabase
             const { unifiedUsageDataManager } = await import('@/services/unifiedUsageDataManager');
-            const success = await unifiedUsageDataManager.consumeUsageCount(userId, userTier, amount);
+            const normalizedTier = normalizeTier(userTier || undefined);
+            const success = await unifiedUsageDataManager.consumeUsageCount(userId, normalizedTier, amount);
 
             if (!success) {
               // 🎯 失败回滚
@@ -675,10 +671,11 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
           try {
             const { unifiedUsageDataManager } = await import('@/services/unifiedUsageDataManager');
 
+            const normalizedTier = normalizeTier(userTier || undefined);
             // 🔧 FIX: 同时刷新使用次数和Token统计
             const [usageCountStats, tokenStats] = await Promise.all([
-              unifiedUsageDataManager.getUserUsageCountStats(userId, userTier),
-              unifiedUsageDataManager.getTokenUsageStats(userId, userTier)
+              unifiedUsageDataManager.getUserUsageCountStats(userId, normalizedTier),
+              unifiedUsageDataManager.getTokenUsageStats(userId, normalizedTier)
             ]);
 
             console.log('🔄 刷新统计数据:', { usageCountStats, tokenStats });
@@ -690,7 +687,7 @@ export const useUnifiedStore = create<UnifiedState & UnifiedActions>()(
                 available: usageCountStats.availableUses,
                 remaining: usageCountStats.remainingUses,
                 percentage: usageCountStats.usagePercentage,
-                userTier,
+                userTier: normalizedTier,
                 lastUpdated: usageCountStats.lastUpdated
               };
 

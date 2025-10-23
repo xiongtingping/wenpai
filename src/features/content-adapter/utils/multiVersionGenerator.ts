@@ -4,6 +4,7 @@
  */
 
 import { callAIWithTokenTracking, type AICallParamsWithTracking } from '@/services/aiWithTokenTracking';
+import { abPerf } from './perfTelemetry';
 import { AITaskType } from '@/api/aiService';
 // import type { ContentVersion } from '../types'; // 模块不存在，暂时注释
 type ContentVersion = any; // 临时类型定义
@@ -27,9 +28,10 @@ export async function generateMultipleVersions(
   const versions: ContentVersion[] = [];
 
   try {
-    // 版本A: 标准版 (temperature=0.7, 更稳定、专业)
-    console.log('🎯 开始生成版本A (标准版)...');
-    const versionA = await generateSingleVersion({
+    // 并行启动版本A与版本B，彻底消除B的启动延迟
+    const startTs = Date.now();
+
+    const genA = () => generateSingleVersion({
       basePrompt,
       platformId,
       model,
@@ -44,22 +46,12 @@ export async function generateMultipleVersions(
 - 内容结构: 清晰、有条理
 - 表达方式: 直接、准确
 - 适用场景: 正式发布、品牌传播`,
-      // ✅ 添加差异化参数确保版本A的唯一性
       regenerationSeed: 'multi-version-a',
       variationLevel: 'moderate',
       styleVariation: 'structure'
     });
 
-    if (versionA) {
-      versions.push(versionA);
-    }
-
-    // 🔧 延迟500ms后再生成版本B，避免API缓存
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // 版本B: 创意版 (temperature=0.9, 更有创意、生动)
-    console.log('🎨 开始生成版本B (创意版)...');
-    const versionB = await generateSingleVersion({
+    const genB = () => generateSingleVersion({
       basePrompt,
       platformId,
       model,
@@ -75,17 +67,30 @@ export async function generateMultipleVersions(
 - 表达方式: 形象、感性、有感染力
 - 适用场景: 社交传播、用户互动
 - 创意元素: 可以使用比喻、排比、设问等修辞手法`,
-      // ✅ 添加显著差异化参数确保版本B与版本A完全不同
       regenerationSeed: 'multi-version-b',
       variationLevel: 'significant',
       styleVariation: 'tone'
     });
 
-    if (versionB) {
-      versions.push(versionB);
+    const runId = `mv-${Date.now()}`;
+console.log('🚀 并行启动版本A/B生成...');
+// 性能标记：启动瞬间
+abPerf.recordStart(runId, 'version-a');
+abPerf.recordStart(runId, 'version-b');
+    const [aSettled, bSettled] = await Promise.allSettled([genA(), genB()]);
+
+    if (aSettled.status === 'fulfilled' && aSettled.value) {
+  abPerf.recordComplete(runId, 'version-a', true);
+      versions.push(aSettled.value);
+    }
+    if (bSettled.status === 'fulfilled' && bSettled.value) {
+  abPerf.recordComplete(runId, 'version-b', true);
+      versions.push(bSettled.value);
     }
 
-    console.log(`✅ 多版本生成完成: ${versions.length}个版本`);
+    console.log(`✅ 多版本生成完成: ${versions.length}个版本，启动间隔=${Date.now() - startTs}ms`);
+// 输出本次与历史的 p50/p95 摘要
+abPerf.summarizeAndLog(runId);
     return versions;
 
   } catch (error) {

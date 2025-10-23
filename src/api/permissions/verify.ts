@@ -52,6 +52,7 @@ const PERMISSION_TIER_MAP: Record<ExtendedPermissionType, SubscriptionTier> = {
  * 订阅等级权重
  */
 const TIER_WEIGHTS: Record<SubscriptionTier, number> = {
+  free: -1,
   trial: 0,
   pro: 1,
   premium: 2,

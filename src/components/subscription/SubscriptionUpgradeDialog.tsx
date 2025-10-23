@@ -33,8 +33,7 @@ import { PaymentQRCode } from '@/components/payment/PaymentQRCode';
 import { logger } from '@/utils/logger';
 import type { SubscriptionTier, SubscriptionPeriod } from '@/types/subscription';
 import type { PaymentResponse } from '@/types/payment';
-import { PaymentQRCode } from '@/components/payment/PaymentQRCode';
-import type { PaymentResponse } from '@/types/payment';
+
 
 interface SubscriptionUpgradeDialogProps {
   open: boolean;
@@ -58,6 +57,7 @@ export function SubscriptionUpgradeDialog({ open,
   const [error, setError] = useState<string | null>(null);
   const [paymentData, setPaymentData] = useState<PaymentResponse | null>(null);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [paymentOrderId, setPaymentOrderId] = useState<string>('');
 
   // 计算升级差价
   useEffect(() => {
@@ -120,18 +120,9 @@ export function SubscriptionUpgradeDialog({ open,
           paymentInfo: result.paymentInfo
         });
 
-        // 🔧 FIX: 使用正确的数据结构
-        // BufPayService.createPayment 返回 { orderId, paymentInfo }
-        // PaymentQRCode 需要 PaymentResponse 类型
-        const paymentResponse: PaymentResponse = {
-          orderId: result.orderId,
-          qrCode: result.paymentInfo.qrCode || result.paymentInfo.qr_code || '',
-          qrImage: result.paymentInfo.qrImage || result.paymentInfo.qr_image,
-          aoid: result.paymentInfo.aoid,
-          expiresIn: result.paymentInfo.expiresIn || result.paymentInfo.expires_in || 900
-        };
-
-        setPaymentData(paymentResponse);
+        // 直接使用服务返回的 PaymentResponse，并保存 orderId
+        setPaymentData(result.paymentInfo);
+        setPaymentOrderId(result.orderId);
         setShowQRCode(true);
 
       } else {
@@ -321,9 +312,8 @@ export function SubscriptionUpgradeDialog({ open,
 
                     {/* 支付二维码组件 */}
                     <PaymentQRCode
-                      orderId={paymentData.orderId}
-                      qrCode={paymentData.qrCode}
-                      amount={upgradeCalculation?.calculation.upgradeAmount || 0}
+                      paymentInfo={paymentData}
+                      orderId={paymentOrderId}
                       onPaymentSuccess={() => {
                         onUpgradeSuccess?.();
                         onOpenChange(false);

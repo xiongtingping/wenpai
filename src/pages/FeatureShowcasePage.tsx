@@ -187,13 +187,13 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
 
                   {/* 价格显示 */}
                   <div className="mt-4">
-                    {plan.tier !== 'trial' && user?.registrationDate && isInDiscountPeriod(new Date(user.registrationDate)) ? (
+                    {plan.id !== 'trial' && user?.registrationDate && isInDiscountPeriod(new Date(user.registrationDate)) ? (
                       <div>
                         <div className="flex items-center justify-center gap-2 mb-1">
                           <span className="text-lg text-muted-foreground line-through">
                             ¥{plan.monthly.originalPrice}
                           </span>
-                        {plan.tier !== 'trial' && (
+                        {plan.id !== 'trial' && (
                           <div className="mt-1 text-xs text-muted-foreground">
                             {t('home.pricing.yearlyCompareShort', {
                               monthlyTotal: (ORIGINAL_MONTHLY_PRICE[plan.tier as 'trial' | 'pro' | 'premium'] || 0) * 12,

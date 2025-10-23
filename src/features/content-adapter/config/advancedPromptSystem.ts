@@ -227,6 +227,17 @@ export const EXPRESSION_STYLES: Record<StyleType, ExpressionStyle> = {
     keywords: ['根据', '数据显示', '研究表明', '专业人士', '分析', '结论']
   },
 
+  'global-adaptation': {
+    id: 'global-adaptation' as any,
+    name: '🌐 全域内容适配',
+    description: '跨平台表达的通用适配风格',
+    characteristics: ['多平台适配', '口语化', '真实体验', '场景化'],
+    fusedStyles: ['友好风格', '实用风格'],
+    适用场景: ['小红书', '微博', '微信', '抖音', '知乎', 'B站'],
+    keywords: ['适配', '平台', '风格', '话题']
+  },
+
+
   funny: {
     id: 'funny',
     name: '😂 幽默风格',

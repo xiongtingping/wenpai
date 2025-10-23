@@ -3,7 +3,7 @@
  * 统一处理使用次数的显示格式，特别是无限制的情况
  */
 
-export type SubscriptionTier = 'trial' | 'pro' | 'premium';
+export type SubscriptionTier = 'free' | 'trial' | 'pro' | 'premium';
 
 /**
  * 格式化剩余次数显示
@@ -16,7 +16,7 @@ export function formatRemainingUses(remainingUses: number, tier?: SubscriptionTi
   if (remainingUses === -1 || (tier === 'premium' && remainingUses <= 0)) {
     return '∞';
   }
-  
+
   // 普通情况，确保不显示负数
   return Math.max(0, remainingUses).toString();
 }
@@ -32,7 +32,7 @@ export function formatAvailableUses(availableUses: number, tier?: SubscriptionTi
   if (availableUses === -1 || tier === 'premium') {
     return '无限制';
   }
-  
+
   return availableUses.toString();
 }
 
@@ -46,7 +46,7 @@ export function formatAvailableUses(availableUses: number, tier?: SubscriptionTi
 export function formatUsageDisplay(usedCount: number, availableUses: number, tier?: SubscriptionTier): string {
   const usedText = Math.max(0, usedCount).toString();
   const availableText = formatAvailableUses(availableUses, tier);
-  
+
   return `${usedText} / ${availableText}`;
 }
 
@@ -62,11 +62,11 @@ export function calculateUsagePercentage(usedCount: number, availableUses: numbe
   if (availableUses === -1 || tier === 'premium') {
     return 0; // 无限制时不显示进度条
   }
-  
+
   if (availableUses <= 0) {
     return 100;
   }
-  
+
   return Math.min(100, Math.max(0, (usedCount / availableUses) * 100));
 }
 
@@ -92,9 +92,9 @@ export function getUsageStatusColor(usedCount: number, availableUses: number, ti
   if (availableUses === -1 || tier === 'premium') {
     return 'text-purple-600'; // 高级版特殊颜色
   }
-  
+
   const percentage = calculateUsagePercentage(usedCount, availableUses, tier);
-  
+
   if (percentage >= 90) {
     return 'text-destructive'; // 即将用完
   } else if (percentage >= 70) {
@@ -116,9 +116,9 @@ export function getProgressBarColor(usedCount: number, availableUses: number, ti
   if (availableUses === -1 || tier === 'premium') {
     return 'bg-purple-500'; // 高级版特殊颜色
   }
-  
+
   const percentage = calculateUsagePercentage(usedCount, availableUses, tier);
-  
+
   if (percentage >= 90) {
     return 'bg-destructive';
   } else if (percentage >= 70) {
@@ -137,6 +137,8 @@ export function getProgressBarColor(usedCount: number, availableUses: number, ti
  */
 export function getTierDefaultLimit(tier: SubscriptionTier): number {
   switch (tier) {
+    case 'free':
+      return 10;
     case 'trial':
       return 10;
     case 'pro':
@@ -154,7 +156,16 @@ export function getTierDefaultLimit(tier: SubscriptionTier): number {
  * @returns 中文套餐名称
  */
 export function formatTierName(tier: SubscriptionTier): string {
+  // 统一显示：免费版 ≡ 体验版
+  if (tier === 'free') {
+    return '体验版';
+  }
+
   switch (tier) {
+  /*
+    case 'free':
+      return '?';
+  */
     case 'trial':
       return '体验版';
     case 'pro':
@@ -178,7 +189,7 @@ export function shouldShowUpgradePrompt(usedCount: number, availableUses: number
   if (availableUses === -1 || tier === 'premium') {
     return false;
   }
-  
+
   const percentage = calculateUsagePercentage(usedCount, availableUses, tier);
   return percentage >= 80; // 使用量达到80%时提示升级
 }

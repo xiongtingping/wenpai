@@ -60,7 +60,7 @@ import { getAvailableModelsForTier, getAllModels } from '@/config/aiModels';
 import { getAvailablePlatforms } from '@/api/contentAdapter';
 
 // 收藏系统改为统一Store
-import { useUnifiedStore } from '@/stores/unified-state-store';
+
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { globalDataManager } from '@/services/unifiedDataManager';
 
@@ -761,9 +761,11 @@ export function ContentAdapterPage({
       try {
         console.log('🔍 开始加载保存的模型偏好...');
 
-        // 🔒 检查订阅状态是否过期
-        const isSubscriptionExpired = primaryStatus?.status === 'expired' || primaryStatus?.status === 'cancelled';
-        if (isSubscriptionExpired) {
+        // 🔒 检查订阅状态是否已失效（过期/取消等）
+        const isSubscriptionInactive =
+          primaryStatus?.status === 'expired' ||
+          primaryStatus?.status === 'inactive';
+        if (isSubscriptionInactive) {
           console.warn('⚠️ 订阅已过期，不加载保存的模型偏好');
           setHasLoadedModelPreference(true);
           return;
@@ -1045,18 +1047,18 @@ export function ContentAdapterPage({
       // 检查是否已收藏
       if (persistentFavorites.has(favoriteKey)) {
         // $收藏
-        const existingFavorites = (favoritesStore as any).favorites?.filter((fav: any) =>
-          fav.metadata?.platformId === platformId &&
-          (versionId ? fav.metadata?.versionId === versionId : !fav.metadata?.versionId)
-        ) || [];
-
-        existingFavorites.forEach((fav: any) => {
-          removeFavorite(fav.id);
-        });
+        // 使用本地存储查找并移除对应收藏（兼容旧结构）
+        const favoritesResult = favoritesDataManager.loadData();
+        const allFavorites = (favoritesResult.data as any[]) || [];
+        const existingFavorites = allFavorites.filter((fav: any) =>
+          fav?.metadata?.platformId === platformId &&
+          (versionId ? fav?.metadata?.versionId === versionId : !fav?.metadata?.versionId)
+        );
+        existingFavorites.forEach((fav: any) => removeFavorite(fav.id));
 
         // 从本地存储中移除
-        const favoritesResult = favoritesDataManager.loadData();
-        const favorites = (favoritesResult.data as any[]) || [];
+        const favoritesResult2 = favoritesDataManager.loadData();
+        const favorites = (favoritesResult2.data as any[]) || [];
         const updatedFavorites = favorites.filter((fav: any) => {
           const key = `${fav.metadata?.platformId || fav.source}${fav.metadata?.versionId ? `-${fav.metadata.versionId}` : ''}`;
           return key !== favoriteKey;
@@ -1096,12 +1098,12 @@ export function ContentAdapterPage({
         const favorites = (favoritesResult.data as any[]) || [];
         const legacyFavoriteItem = {
           id: favoriteId,
-          title: favoriteItem.title,
-          content: favoriteItem.content,
-          description: favoriteItem.description,
-          tags: favoriteItem.tags,
-          source: favoriteItem.source,
-          metadata: favoriteItem.metadata,
+          title: `${getPlatformName(platformId, availablePlatforms)}内容 - ${versionId || '主版本'}`,
+          content,
+          description: '',
+          tags: [] as string[],
+          source: 'content-adapter',
+          metadata: { platformId, versionId },
           createdAt: Date.now()
         };
         favorites.push(legacyFavoriteItem);

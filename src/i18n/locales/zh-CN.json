@@ -1127,7 +1127,7 @@
       "yearlyCompareShort": "原价：¥{{monthlyTotal}} · 比月付省¥{{savings}} · 立省{{percent}}%",
 
       "free": {
-        "name": "免费版",
+        "name": "体验版",
         "price": "免费",
         "description": "适合个人用户和初学者",
         "features": [
@@ -2059,7 +2059,7 @@
     "price": "价格",
     "upgradeNow": "立即升级",
     "contactSales": "联系销售",
-    "freePlan": "免费版",
+    "freePlan": "体验版",
     "proPlan": "专业版",
     "premiumPlan": "企业版",
     "unlimited": "无限制",
@@ -2568,7 +2568,7 @@
       "trial": "试用中",
       "premium": "高级版",
       "professional": "专业版",
-      "free": "免费版"
+      "free": "体验版"
     },
     "messages": {
       "saveSuccess": "保存成功",
@@ -2646,7 +2646,7 @@
       "yearlyCompareBadge": "比月付省¥{{savings}} · 立省{{percent}}%"
     },
     "plans": {
-      "freePlan": "免费版",
+      "freePlan": "体验版",
       "proPlan": "专业版",
       "premiumPlan": "高级版",
       "currentPlan": "当前套餐",

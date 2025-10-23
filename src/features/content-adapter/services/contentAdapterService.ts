@@ -6,6 +6,7 @@
 // 使用 globalThis 访问 i18n 避免 TDZ 错误
 const getI18n = () => (globalThis as any)?.i18n;
 import { callAIWithTokenTracking, type AICallParamsWithTracking } from '@/services/aiWithTokenTracking';
+import { generateMultipleVersions as generateMultipleVersionsUtil } from '../utils/multiVersionGenerator';
 import { AITaskType } from '@/api/aiService';
 import { generateMatrixPrompt } from '../utils/promptBuilders';
 import {
@@ -292,8 +293,9 @@ function extractAndCleanContent(content: string): { cleanContent: string; extrac
 /**
  * 生成多个版本的内容 - 从原版AdaptPage.tsx完整迁移
  * 保持100%逻辑一致，包括版本A（标准）和版本B（创意）
+ * @deprecated 请改用 src/features/content-adapter/utils/multiVersionGenerator.ts 的 generateMultipleVersions 作为唯一实现
  */
-async function generateMultipleVersions(
+async function legacyGenerateMultipleVersions(
   basePrompt: string,
   platformId: string,
   selectedModel: string,
@@ -388,7 +390,8 @@ async function generateMultipleVersions(
 
     const requestTimestamp = Date.now();
 
-    const standardResult = await callAIWithRetry({
+    // 并行启动A/B，消除B的启动延迟
+    const standardPromise = callAIWithRetry({
       prompt: standardPrompt,
       model: selectedModel,
       systemPrompt: buildSystemPrompt(`你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`),
@@ -399,7 +402,7 @@ async function generateMultipleVersions(
       styleVariation: 'structure'
     }, '标准版本(版本A)', platformId);
 
-    const creativeResultPromise = callAIWithRetry({
+    const creativePromise = callAIWithRetry({
       prompt: creativePrompt,
       model: selectedModel,
       systemPrompt: buildSystemPrompt(`你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。🚨 重要：必须与标准版本风格完全不同，更加口语化和生动，严禁重复版本A的内容。${charCountInstruction}`),
@@ -416,7 +419,8 @@ async function generateMultipleVersions(
       content: null
     }));
 
-    const creativeResult = await creativeResultPromise;
+    // 等待两个结果，但不强制顺序
+    const [standardResult, creativeResult] = await Promise.all([standardPromise, creativePromise]);
 
     // 处理标准版本结果
     if (standardResult.success && standardResult.content) {
@@ -732,7 +736,7 @@ export class ContentAdapterService {
       );
 
       // ✅ 调用多版本生成函数
-      const versions = await generateMultipleVersions(
+      const versions = await generateMultipleVersionsUtil(
         matrixPrompt,
         request.platform,
         request.model || 'deepseek-chat',
@@ -921,11 +925,14 @@ ${stylePrompts}
           currentModel,
           error: result.error
         });
-        currentModel = getNextFallbackModel(currentModel);
-        result = await callAIWithTokenTracking({
-          ...aiParams,
-          model: currentModel
-        });
+        const nextModel = getNextFallbackModel(currentModel, 0, 'general_error');
+        if (nextModel) {
+          currentModel = nextModel;
+          result = await callAIWithTokenTracking({
+            ...aiParams,
+            model: currentModel
+          });
+        }
       }
 
       if (result.success && result.content) {

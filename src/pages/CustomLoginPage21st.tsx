@@ -624,7 +624,7 @@ export const CustomLoginPage: React.FC = () => {
           await handleAuthingLogin(result);
 
           // 3. 发放邀请奖励（如果有邀请码）
-          if (inviterUserId && result.user?.id) {
+          if (inviterUserId && user?.id) {
             try {
               const { grantInviteReward } = await import('@/services/invite/InviteRewardService');
               const { useInviteCode } = await import('@/services/invite/InviteLinkService');
@@ -633,7 +633,7 @@ export const CustomLoginPage: React.FC = () => {
               await useInviteCode(inviteCode.trim());
 
               // 发放奖励
-              const rewardResult = await grantInviteReward(inviterUserId, result.user.id);
+              const rewardResult = await grantInviteReward(inviterUserId, user.id);
 
               if (rewardResult.success) {
                 console.log('✅ 邀请奖励发放成功:', rewardResult.rewards);

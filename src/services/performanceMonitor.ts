@@ -595,7 +595,7 @@ export class PerformanceMonitor {
     if (document.readyState === 'complete' && this.metrics.domContentLoadedTime === 0) {
       const navigationTiming = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
       if (navigationTiming) {
-        this.metrics.domContentLoadedTime = navigationTiming.domContentLoadedEventEnd - navigationTiming.navigationStart;
+        this.metrics.domContentLoadedTime = navigationTiming.domContentLoadedEventEnd - navigationTiming.startTime;
       }
     }
 
@@ -603,7 +603,7 @@ export class PerformanceMonitor {
     if (this.metrics.pageLoadTime === 0) {
       const navigationTiming = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
       if (navigationTiming && navigationTiming.loadEventEnd > 0) {
-        this.metrics.pageLoadTime = navigationTiming.loadEventEnd - navigationTiming.navigationStart;
+        this.metrics.pageLoadTime = navigationTiming.loadEventEnd - navigationTiming.startTime;
       }
     }
   }

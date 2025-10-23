@@ -1126,7 +1126,7 @@
       "yearlyCompareShort": "Original: ¥{{monthlyTotal}} · Save ¥{{savings}} vs Monthly · {{percent}}% Off",
 
       "free": {
-        "name": "Free",
+        "name": "Trial",
         "price": "Free",
         "description": "Perfect for individuals and beginners",
         "features": [
@@ -2051,7 +2051,7 @@
     "price": "Price",
     "upgradeNow": "Upgrade Now",
     "contactSales": "Contact Sales",
-    "freePlan": "Free Plan",
+    "freePlan": "Trial Plan",
     "proPlan": "Professional Plan",
     "premiumPlan": "Enterprise Plan",
     "unlimited": "Unlimited",
@@ -2576,7 +2576,7 @@
 
     },
     "plans": {
-      "freePlan": "Free Plan",
+      "freePlan": "Trial Plan",
       "proPlan": "Pro Plan",
       "premiumPlan": "Premium Plan",
       "currentPlan": "Current Plan",

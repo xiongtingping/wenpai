@@ -138,7 +138,7 @@
       },
       "pricing": {
         "free": {
-          "name": "免费版",
+          "name": "体验版",
           "price": 0,
           "currency": "CNY",
           "period": "永久",

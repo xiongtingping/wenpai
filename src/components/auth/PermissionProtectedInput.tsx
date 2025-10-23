@@ -27,10 +27,10 @@ interface PermissionProtectedInputProps {
 /**
  * 权限保护输入容器组件
  */
-export const PermissionProtectedInput: React.FC<any> = ({ requiredTier,
+export const PermissionProtectedInput: React.FC<PermissionProtectedInputProps> = ({ requiredTier,
   featureName,
   children,
-  className = '' }) => { 
+  className = '' }) => {
   const { t } = useTranslation();
   const { user, isAuthenticated  } = useAuth();
   const { primaryStatus } = useSubscriptionStatus();
@@ -55,7 +55,8 @@ export const PermissionProtectedInput: React.FC<any> = ({ requiredTier,
       return true;
     }
 
-    const tierLevels: Record<'trial' | 'pro' | 'premium', number> = {
+    const tierLevels: Record<'free' | 'trial' | 'pro' | 'premium', number> = {
+      free: -1,
       trial: 0,
       pro: 1,
       premium: 2

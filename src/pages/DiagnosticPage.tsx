@@ -77,7 +77,7 @@ export const DiagnosticPage: React.FC = () => {
     try {
       const apiKey = getAPIKey('aimlapi');
       const endpoint = buildAPIURL('aimlapi', 'chat');
-      const headers = getAPIHeaders('aimlapi', apiKey);
+      const headers = getAPIHeaders('aimlapi', apiKey || '');
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -104,7 +104,7 @@ export const DiagnosticPage: React.FC = () => {
     try {
       const apiKey = getAPIKey('aimlapi');
       const endpoint = buildAPIURL('aimlapi', 'chat');
-      const headers = getAPIHeaders('aimlapi', apiKey);
+      const headers = getAPIHeaders('aimlapi', apiKey || '');
 
       const response = await fetch(endpoint, {
         method: 'POST',

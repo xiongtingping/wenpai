@@ -94,7 +94,7 @@ export interface UseContentAdapterEngineReturn extends ContentAdapterEngineState
   clearResults: () => void;
   resetState: () => void;
   // 从本地恢复结果
-  restoreResults: (savedResults: PlatformResult[]) => void;
+  restoreResults: (savedResults: PlatformResult[], savedTitleStates?: Record<string, { title?: string; candidates?: string[]; hasTitle: boolean; isGenerating: boolean; }>) => void;
 
   // 工具方法
   updateStep: (platformId: string, stepIndex: number, status: GenerationStep['status'], message?: string) => void;
@@ -222,8 +222,9 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
             // 步骤4: 处理结果
             updateStep(platformId, 3, 'loading', '📝 处理生成结果...');
 
-            // 使用第一个版本作为默认内容，保存所有版本
-            const defaultContent = result.versions[0].content;
+            // 使用固定首选ID（version-a）作为默认内容，避免对返回顺序的偏置
+            const preferred = result.versions.find(v => v.id === 'version-a') || result.versions[0];
+            const defaultContent = preferred.content;
 
             // 更新标签映射
             result.versions.forEach(version => {
@@ -250,13 +251,13 @@ export function useContentAdapterEngine(params: UseContentAdapterEngineParams): 
 
             updateStep(platformId, 3, 'completed', `✅ 生成完成 (${result.versions.length}个版本)`);
 
-            // ✅ 自动生成标题
+            // ✅ 自动生成标题（基于固定首选ID，避免返回顺序偏置）
             if (result.versions && result.versions.length > 0) {
-              const firstVersionContent = result.versions[0].content;
-              console.log(`🎯 自动触发标题生成: 平台=${platformId}, 内容长度=${firstVersionContent.length}`);
+              const preferred = result.versions.find(v => v.id === 'version-a') || result.versions[0];
+              console.log(`🎯 自动触发标题生成: 平台=${platformId}, 版本=${preferred.id}, 内容长度=${preferred.content.length}`);
 
               // 异步调用标题生成，不阻塞主流程（内部已处理错误与提示）
-              void generateTitle(firstVersionContent, platformId);
+              void generateTitle(preferred.content, platformId);
             }
 
           } else {

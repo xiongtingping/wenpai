@@ -33,6 +33,7 @@ export function isUpgrade(
 
   // 2. 套餐等级升级
   const tierLevels: Record<SubscriptionTier, number> = {
+    free: 0,
     trial: 1,
     pro: 2,
     premium: 3

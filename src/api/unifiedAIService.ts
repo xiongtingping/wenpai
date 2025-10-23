@@ -473,9 +473,7 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
       errorStack: error instanceof Error ? error.stack : undefined,
       params: {
         model: params.model,
-        provider: params.provider,
-        promptLength: params.prompt?.length,
-        maxTokens: params.maxTokens
+        promptLength: params.prompt?.length
       }
     });
 

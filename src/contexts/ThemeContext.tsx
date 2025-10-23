@@ -9,10 +9,9 @@
  */
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { UnifiedDataManager } from '@/services/unifiedDataManager';
 import { useAuth } from '@/hooks/useAuth';
 
-type GlobalDataManagerInstance = UnifiedDataManager;
+type GlobalDataManagerInstance = typeof import('@/services/unifiedDataManager')['globalDataManager'];
 type UserSettingsServiceInstance = typeof import('@/services/userSettingsService')['userSettingsService'];
 
 let globalDataManagerInstance: GlobalDataManagerInstance | null = null;
@@ -23,7 +22,7 @@ async function getGlobalDataManager(): Promise<GlobalDataManagerInstance> {
     const module = await import('@/services/unifiedDataManager');
     globalDataManagerInstance = module.globalDataManager;
   }
-  return globalDataManagerInstance;
+  return globalDataManagerInstance!;
 }
 
 async function getUserSettingsService(): Promise<UserSettingsServiceInstance> {

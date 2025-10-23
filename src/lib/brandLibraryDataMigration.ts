@@ -55,10 +55,10 @@ export class BrandLibraryDataManager {
       const result = await unifiedDataPersistenceManager.loadData<BrandAsset[]>('brand_assets');
       if (result.success && result.data) {
         logger.info('✅ 品牌资产加载成功');
-        return result.data;
+        return (result.data as BrandAsset[]) || [];
       } else {
         logger.warn('⚠️ 品牌资产加载失败或无数据:', result.error);
-        return [] as BrandAsset[];
+        return [];
       }
     } catch (error) {
       logger.error('❌ 品牌资产加载异常:', error);
@@ -93,10 +93,10 @@ export class BrandLibraryDataManager {
       const result = await unifiedDataPersistenceManager.loadData<BrandDimension[]>('brand_dimensions');
       if (result.success && result.data) {
         logger.info('✅ 品牌维度加载成功');
-        return result.data;
+        return (result.data as BrandDimension[]) || [];
       } else {
         logger.warn('⚠️ 品牌维度加载失败或无数据:', result.error);
-        return [] as BrandDimension[];
+        return [];
       }
     } catch (error) {
       logger.error('❌ 品牌维度加载异常:', error);

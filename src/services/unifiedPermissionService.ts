@@ -625,6 +625,4 @@ export const useEnhancedPermissionCheck = (
 };
 
 // 导出增强功能
-export { ServerPermissionService };
-export type { EnhancedPermissionCheckResult };
 export default UnifiedPermissionService;

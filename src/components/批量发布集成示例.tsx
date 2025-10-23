@@ -103,14 +103,16 @@ export function ContentAdapterPageExample() {
         const content = generatedContents[platformId as keyof typeof generatedContents];
         const config = platformConfigs[platformId as keyof typeof platformConfigs];
 
+        const hasTitle = (content as any).title !== undefined;
+        const hasHashtags = Array.isArray((content as any).hashtags);
         return {
           id: platformId,
           name: config.name,
           icon: config.icon,
           color: config.color,
-          title: content.title || undefined,
-          content: content.content,
-          hashtags: content.hashtags || [],
+          title: hasTitle ? (content as any).title : undefined,
+          content: (content as any).content,
+          hashtags: hasHashtags ? (content as any).hashtags : [],
           publishUrl: platformPublishUrls[platformId],
           maxLength: config.maxLength
         };

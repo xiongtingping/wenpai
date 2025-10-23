@@ -110,6 +110,7 @@ export function useModelPermission(modelId?: string): ModelPermissionResult {
     }
 
     const tierNames = {
+      'free': '体验版',
       'trial': '体验版',
       'pro': '专业版',
       'premium': '高级版'

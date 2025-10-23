@@ -20,7 +20,6 @@ import { TitleGenerationError } from '../types/titleGeneration.types';
 //   i18n 
 const tr = (key: string, fallback: string): string => {
   try {
-    // @ts-expect-error  i18n 
     const gi = (globalThis as any)?.i18n;
     if (gi && typeof gi.t === 'function') return gi.t(key) as string;
   } catch {}

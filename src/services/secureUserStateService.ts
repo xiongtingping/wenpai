@@ -9,7 +9,7 @@
  * 4. 提供安全的状态同步机制
  */
 
-import { SessionUserInfo } from './unifiedPermissionService';
+import type { SessionUserInfo } from '@/types/permissions';
 // 🔒 安全修复：导入真正的加密服务
 import { SecureEncryption } from './encryptionService';
 

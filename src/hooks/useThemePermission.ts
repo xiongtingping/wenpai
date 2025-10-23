@@ -119,7 +119,7 @@ export function useThemePermission(theme: Theme = 'light'): ThemePermissionResul
 
   // 检查是否需要升级
   const needsUpgrade = useMemo(() => {
-    const tierOrder = { 'trial': 1, 'pro': 2, 'premium': 3 };
+    const tierOrder = { 'free': 0, 'trial': 1, 'pro': 2, 'premium': 3 };
     return tierOrder[currentTier] < tierOrder[requiredTier];
   }, [currentTier, requiredTier]);
 
@@ -146,6 +146,7 @@ export function useThemePermission(theme: Theme = 'light'): ThemePermissionResul
     const tier = PERMISSION_TO_TIER_MAP[level];
 
     const tierNames = {
+      'free': '体验版',
       'trial': '体验版',
       'pro': '专业版',
       'premium': '高级版'

@@ -99,11 +99,13 @@ export function OptimizedUsageDisplay({
 
   // 4️⃣ 正常显示：展示数据（即使是缓存数据）
   const usageStatusColor = getUsageStatusColor(
-    usageCountStats.usagePercentage,
+    usageCountStats.usedCount,
+    usageCountStats.availableUses,
     effectiveTier
   );
   const progressColor = getProgressBarColor(
-    usageCountStats.usagePercentage,
+    usageCountStats.usedCount,
+    usageCountStats.availableUses,
     effectiveTier
   );
 
@@ -165,7 +167,7 @@ export function OptimizedUsageDisplay({
           <Progress
             value={usageCountStats.usagePercentage}
             className="h-2"
-            indicatorClassName={progressColor}
+
           />
 
           <div className="flex justify-between text-xs text-muted-foreground">
@@ -188,7 +190,7 @@ export function OptimizedUsageDisplay({
             <Progress
               value={(tokenStats.monthlyUsed / tokenStats.monthlyLimit) * 100}
               className="h-1.5 mt-2"
-              indicatorClassName="bg-primary"
+
             />
           </div>
         )}
@@ -266,7 +268,8 @@ export function OptimizedUsageCountInline({
   }
 
   const usageStatusColor = getUsageStatusColor(
-    usageCountStats.usagePercentage,
+    usageCountStats.usedCount,
+    usageCountStats.availableUses,
     effectiveTier
   );
 

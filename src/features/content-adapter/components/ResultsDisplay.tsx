@@ -269,9 +269,9 @@ function PlatformResultCard({
                         </span>
                       </div>
                       <Textarea
-                        value={result.versions[0].content}
+                        value={result.versions?.[0]?.content || ''}
                         onChange={(e) => {
-                          onVersionSelect(result.platformId, result.versions[0].id);
+                          onVersionSelect(result.platformId, result.versions?.[0]?.id || 'version-a');
                           onContentUpdate(result.platformId, e.target.value);
                         }}
                         className="content-textarea text-sm flex-1 min-h-[450px] bg-background"
@@ -282,7 +282,7 @@ function PlatformResultCard({
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigator.clipboard.writeText(result.versions[0].content)}
+                          onClick={() => navigator.clipboard.writeText(result.versions?.[0]?.content ?? '')}
                           title="复制此版本内容"
                           className="flex-1"
                         >
@@ -313,9 +313,9 @@ function PlatformResultCard({
                         </span>
                       </div>
                       <Textarea
-                        value={result.versions[1].content}
+                        value={result.versions?.[1]?.content || ''}
                         onChange={(e) => {
-                          onVersionSelect(result.platformId, result.versions[1].id);
+                          onVersionSelect(result.platformId, result.versions?.[1]?.id || 'version-b');
                           onContentUpdate(result.platformId, e.target.value);
                         }}
                         className="content-textarea text-sm flex-1 min-h-[450px] bg-background"
@@ -326,7 +326,7 @@ function PlatformResultCard({
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigator.clipboard.writeText(result.versions[1].content)}
+                          onClick={() => navigator.clipboard.writeText(result.versions?.[1]?.content ?? '')}
                           title="复制此版本内容"
                           className="flex-1"
                         >
@@ -480,7 +480,7 @@ function PlatformResultCard({
                 <div className="flex items-center justify-between p-3 bg-muted/50 rounded border">
                   <p className="text-sm font-medium mr-2 truncate">{titleState.title}</p>
                   <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(titleState.title)} title="复制此标题">复制</Button>
+                    <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(titleState.title || '')} title="复制此标题">复制</Button>
                     <Button
                       size="sm"
                       variant="outline"

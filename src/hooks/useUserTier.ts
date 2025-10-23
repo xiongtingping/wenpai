@@ -107,6 +107,7 @@ export function useUserTier(): UseUserTierResult {
  */
 function getTierDisplayName(tier: SubscriptionTier): string {
   const displayNames: Record<SubscriptionTier, string> = {
+    free: '体验版',
     trial: '体验版',
     pro: '专业版',
     premium: '高级版'

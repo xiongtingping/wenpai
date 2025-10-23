@@ -4,6 +4,7 @@
  */
 
 import type { SubscriptionTier } from '@/types/subscription';
+import { normalizeTier } from '@/utils/effectiveUserTier';
 
 /**
  * 权限加载状态
@@ -161,7 +162,7 @@ export class PermissionFallbackManager {
       const { getEffectiveUserTier } = require('@/utils/effectiveUserTier');
       const tier = getEffectiveUserTier();
       if (this.config.enableCache) {
-        PermissionCacheManager.save(tier);
+        PermissionCacheManager.save(tier, this.getFallbackPermissions(tier));
       }
       console.log('✅ 通过统一工具获取权限等级:', tier);
       return tier;
@@ -223,7 +224,7 @@ export class PermissionFallbackManager {
       ],
     };
 
-    return basePermissions[tier] || basePermissions.trial;
+    return basePermissions[normalizeTier(tier)] || basePermissions.trial;
   }
 
   /**

@@ -170,6 +170,7 @@ export interface PermissionGuardProps {
  * 权限等级映射
  */
 export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, number> = {
+  free: -1,
   trial: 0,
   pro: 1,
   premium: 2

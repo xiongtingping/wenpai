@@ -259,7 +259,7 @@ export class UnifiedTokenTrackingService {
         feature: record.feature,
         model: record.model,
         totalTokens: record.totalTokens,
-        timestamp: record.timestamp,
+        timestamp: record.created_at,
         success: record.success
       }));
 

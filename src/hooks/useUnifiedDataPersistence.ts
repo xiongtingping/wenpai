@@ -67,7 +67,7 @@ export function useUnifiedDataPersistence<T = any>(dataType: string) {
     
     try {
       const result = await unifiedDataPersistenceManager.loadData<T>(dataType);
-      setLastOperation(result);
+      setLastOperation(result as DataOperationResult<T>);
       
       if (result.success && result.data !== null) {
         setData(result.data as T);

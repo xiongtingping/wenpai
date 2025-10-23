@@ -11,7 +11,7 @@ import { logger } from '@/utils/logger';
 // 安全 i18n 助手，缺省回退原文案
 const tr = (key: string, fallback: string): string => {
   try {
-    // @ts-expect-error 全局 i18n 实例（在 main.tsx 注入）
+    // global i18n instance (injected in main.tsx)
     const gi = (globalThis as any)?.i18n;
     if (gi && typeof gi.t === 'function') return gi.t(key) as string;
   } catch {}

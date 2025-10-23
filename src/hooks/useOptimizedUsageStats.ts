@@ -94,6 +94,23 @@ function throttle<T extends (...args: any[]) => any>(
   };
 }
 
+// Promise 版本节流，返回上一次调用的 Promise 以满足类型约束
+function throttlePromise<T extends (...args: any[]) => Promise<any>>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => ReturnType<T> {
+  let lastCall = 0;
+  let lastResult: any = Promise.resolve(undefined);
+  return (...args: Parameters<T>) => {
+    const now = Date.now();
+    if (now - lastCall >= delay) {
+      lastCall = now;
+      lastResult = fn(...args);
+    }
+    return lastResult as ReturnType<T>;
+  };
+}
+
 /**
  * 统一的使用统计数据结构
  */
@@ -251,7 +268,8 @@ export function useOptimizedUsageStats(externalUserTier?: SubscriptionTier): Opt
     usedCount: 0,
     availableUses: getTierDefaultLimit(userTier),
     usagePercentage: 0,
-    remainingUses: getTierDefaultLimit(userTier)
+    remainingUses: getTierDefaultLimit(userTier),
+    lastUpdated: new Date().toISOString()
   };
   const extendedStats = statsData?.extendedStats || {
     timeSaved: 0,
@@ -294,7 +312,8 @@ export function useOptimizedUsageStats(externalUserTier?: SubscriptionTier): Opt
               newUsedCount,
               usageCountStats.availableUses,
               userTier
-            )
+            ),
+            lastUpdated: new Date().toISOString()
           },
           extendedStats,
           timestamp: Date.now(),
@@ -318,7 +337,7 @@ export function useOptimizedUsageStats(externalUserTier?: SubscriptionTier): Opt
    * 节流的消费函数（防止短时间内多次调用）
    */
   const throttledConsume = useMemo(
-    () => throttle(consumeUsage, 1000), // 1秒节流
+    () => throttlePromise(consumeUsage, 1000), // 1秒节流（保持返回 Promise<boolean>）
     [consumeUsage]
   );
 
@@ -328,6 +347,12 @@ export function useOptimizedUsageStats(externalUserTier?: SubscriptionTier): Opt
   const debouncedRefresh = useMemo(
     () => debounce(swrRefresh, 300), // 300ms防抖
     [swrRefresh]
+  );
+
+  // 适配返回 Promise<void> 的 refresh 接口
+  const refresh = useMemo(
+    () => () => Promise.resolve().then(() => debouncedRefresh()),
+    [debouncedRefresh]
   );
 
   /**
@@ -376,7 +401,7 @@ export function useOptimizedUsageStats(externalUserTier?: SubscriptionTier): Opt
     lastUpdated,
     // 🔧 新增：订阅状态初始化标志
     subscriptionInitializing: subscriptionInitialLoading,
-    refresh: debouncedRefresh,
+    refresh,
     consumeUsage: throttledConsume
   };
 }

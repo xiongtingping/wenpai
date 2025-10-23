@@ -30,6 +30,7 @@ import { useUnifiedStore } from '@/stores/unified-state-store';
 import { useSubscriptionStore } from '@/stores/subscription-store';
 import { getUserTier } from '@/utils/subscriptionUtils';
 
+import type { PaymentResponse } from '@/types/payment';
 /**
  * 状态消息配置
  */
@@ -138,6 +139,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const [timeLeft, setTimeLeft] = useState(paymentData.timeLeft);
   const [retryCount, setRetryCount] = useState(0);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const isTerminal = (s: PaymentModalState) => s === 'failed' || s === 'timeout' || s === 'cancelled';
+
 
   // Refs
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -246,7 +249,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         // 1. 查询数据库订单状态（依赖webhook）
         // 2. 主动查询Bufpay接口（不依赖webhook，更可靠）
 
-        console.log('🔍 开始轮询支付状态...', { orderId: paymentData.orderId, aoid: paymentData.aoid });
+        console.log('🔍 开始轮询支付状态...', { orderId: paymentData.orderId });
 
         // 方法1: 查询数据库订单状态
         const dbStatus = await BufPayService.checkOrderStatus(paymentData.orderId);
@@ -254,9 +257,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
         // 方法2: 主动查询Bufpay接口（双保险）
         let bufpayStatus: string | null = null;
-        if (paymentData.aoid) {
+        const info = paymentData.paymentInfo as PaymentResponse | undefined;
+        const aoid = typeof info?.aoid === 'string' ? info.aoid : undefined;
+        if (aoid) {
           try {
-            bufpayStatus = await BufPayService.queryBufPayStatus(paymentData.aoid);
+            const bufResult = await BufPayService.queryPaymentStatus(aoid);
+            bufpayStatus = bufResult.status;
             console.log('💳 Bufpay接口状态:', bufpayStatus);
           } catch (bufpayError) {
             console.warn('⚠️ Bufpay查询失败，继续使用数据库状态:', bufpayError);
@@ -285,7 +291,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 orderId: paymentData.orderId,
-                aoid: paymentData.aoid
+                aoid: aoid
               })
             });
 
@@ -665,8 +671,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
                   )}
 
+
+
                   {/* 进度指示器 */}
-                  {currentState !== 'failed' && currentState !== 'timeout' && currentState !== 'cancelled' && (
+                  {!isTerminal(currentState) && (
                     <PaymentProgressIndicator currentStep={getCurrentStep()} />
                   )}
 

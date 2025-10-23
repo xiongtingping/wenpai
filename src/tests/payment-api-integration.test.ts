@@ -427,7 +427,7 @@ describe('支付API集成测试', () => {
       const result = JSON.parse(response.body);
 
       expect(response.statusCode).toBe(429);
-      expect(response.headers['Retry-After']).toBe('60');
+      expect(response.headers?.['Retry-After']).toBe('60');
       expect(result.error).toBe('Too many requests');
     });
 

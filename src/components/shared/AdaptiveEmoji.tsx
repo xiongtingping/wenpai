@@ -8,7 +8,7 @@ import type {
   UnifiedEmojiItem,
   EmojiUsageContext,
   PlatformType
-} from '@/types/emoji';
+} from '@/services/unifiedEmojiSystem';
 
 interface AdaptiveEmojiProps {
   emoji: UnifiedEmojiItem | string;
@@ -28,11 +28,10 @@ function detectPlatform(): PlatformType {
   // 简单的平台检测逻辑
   if (typeof navigator !== 'undefined') {
     const ua = navigator.userAgent.toLowerCase();
-    if (ua.includes('mac')) return 'apple';
-    if (ua.includes('android')) return 'google';
-    if (ua.includes('windows')) return 'microsoft';
+    if (ua.includes('android')) return 'mobile';
+    if (ua.includes('mac') || ua.includes('windows') || ua.includes('linux')) return 'desktop';
   }
-  return 'web';
+  return 'desktop';
 }
 
 /**

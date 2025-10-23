@@ -104,7 +104,7 @@ export function PricingSection() {
         const userTier = getUserTier(currentUser);
 
         // 如果未开始计时且用户看起来未订阅，则在首页启动统一计时，确保首页/订阅中心一致
-        if (!existing && (userTier !== 'pro' && userTier !== 'premium' && userTier !== 'professional')) {
+        if (!existing && (userTier !== 'pro' && userTier !== 'premium')) {
           recordPaymentCenterAccess(currentUser.id);
           finalShouldShow = true;
         }

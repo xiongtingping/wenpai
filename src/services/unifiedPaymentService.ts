@@ -174,8 +174,8 @@ export class UnifiedPaymentService {
         result = {
           success: true,
           orderId: response.orderId,
-          qrCode: response.paymentInfo.qrCode,
-          qrImage: response.paymentInfo.qrImage,
+          qrCode: response.paymentInfo.qr || undefined,
+          qrImage: response.paymentInfo.qr_img || undefined,
           message: '支付订单创建成功',
           order: response.paymentInfo,
           provider: 'legacy'

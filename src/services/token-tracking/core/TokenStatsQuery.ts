@@ -321,7 +321,7 @@ export class TokenStatsQueryService {
       contentSummary: dbRecord.content_summary,
       success: dbRecord.success,
       errorMessage: dbRecord.error_message,
-      timestamp: dbRecord.timestamp,
+      timestamp: dbRecord.created_at,
       metadata: dbRecord.metadata || undefined
     };
   }

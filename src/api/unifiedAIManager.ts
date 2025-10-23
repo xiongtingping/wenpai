@@ -1,12 +1,12 @@
 /**
  * 🤖 统一AI调用管理器 - 完全替代硬编码实现
- * 
+ *
  * 🎯 目标：
  * - 完全消除AI API调用中的硬编码问题
  * - 提供统一、可配置的AI服务调用接口
  * - 支持多提供商、多环境、多模型管理
  * - 实现类型安全的AI调用管理
- * 
+ *
  * 📌 遵循CLAUDE.md规则：禁止硬编码、统一管理、真实API
  */
 
@@ -17,7 +17,7 @@ import { getModelInfo, isModelAvailableForTier, resolveModelId } from '@/config/
 import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
 import { logger } from '@/utils/logger';
 import { cleanAIContent } from '@/utils/contentCleaner';
-import { getEffectiveUserTier } from '@/utils/effectiveUserTier';
+import { getEffectiveUserTier, normalizeTier } from '@/utils/effectiveUserTier';
 import { useSubscriptionStore } from '@/stores/subscription-store';
 // import { applyVariationLogic, shouldApplyVariation, getVariationDescription } from '@/utils/aiVariation';
 
@@ -80,7 +80,7 @@ export class UnifiedAIManager {
    */
   private validateSystemConfiguration(): void {
     const overview = keyManager.getSystemOverview();
-    
+
     if (overview.missingRequired.length > 0) {
       logger.warn('⚠️ AI系统配置警告:', {
         missing: overview.missingRequired,
@@ -286,7 +286,7 @@ export class UnifiedAIManager {
 
       // 发送HTTP请求
       const response = await this.makeHTTPRequest(config, requestBody);
-      
+
       // 解析响应
       const aiResponse = await this.parseAIResponse(response, config, params, startTime);
 
@@ -306,12 +306,7 @@ export class UnifiedAIManager {
         method: 'POST',
         model: config.model,
         provider: config.provider,
-        requestBody: {
-          model: config.model,
-          messages: config.messages,
-          temperature: config.temperature,
-          max_tokens: config.maxTokens
-        },
+        requestBody: { model: config.model },
         error,
         duration: Date.now() - startTime
       });
@@ -489,7 +484,7 @@ export class UnifiedAIManager {
           requestBody: {
             model: config.model,
             //
-            max_tokens: config.maxTokens
+            // max_tokens intentionally omitted to avoid relying on non-existent config field
           },
           responseBody: errorText,
           duration: Date.now() - startAt
@@ -731,8 +726,10 @@ export class UnifiedAIManager {
   private getUserTier(): string {
     try {
       // centralized util
-      return getEffectiveUserTier();
+      return normalizeTier(getEffectiveUserTier());
       // legacy path removed; util handles subscription-store  unified-state-store  localStorage
+/* LEGACY-FALLBACK (commented out)
+
       try {
         const subState = useSubscriptionStore.getState();
         const tier = subState?.status?.tier as string | undefined;
@@ -800,6 +797,8 @@ export class UnifiedAIManager {
 
       // 所有存储位置都没有找到用户信息
       logger.warn('⚠️ AI调用 - 未找到用户信息，使用默认层级: trial');
+*/
+
       return 'trial';
 
     } catch (error) {
@@ -816,7 +815,7 @@ export class UnifiedAIManager {
       // 检查提供商是否支持图像生成
       const modelInfo = getModelInfo(params.model || 'dall-e-3');
       const provider = modelInfo?.provider || 'openai';
-      
+
       if (!supportsFeature(provider, 'image')) {
         throw new Error(`${provider} 不支持图像生成功能`);
       }
@@ -854,7 +853,7 @@ export class UnifiedAIManager {
       }
 
       const data = await response.json();
-      
+
       return {
         success: true,
         data: data.data,
@@ -864,7 +863,7 @@ export class UnifiedAIManager {
 
     } catch (error) {
       logger.error('❌ 图像生成失败:', error);
-      
+
       return {
         success: false,
         error: error instanceof Error ? error.message : i18n.t('api.errors.图像生成失败')

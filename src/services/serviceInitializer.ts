@@ -18,7 +18,7 @@ import request from '@/api/request';
 
 // 延迟注册 Supabase 服务工厂，避免TDZ错误
 function initializeSupabaseServiceFactory() {
-  registerSupabaseServiceFactory((userId, tableName) => createDataService(userId, tableName));
+  registerSupabaseServiceFactory((userId, tableName) => (createDataService(userId, tableName) as unknown as import('@/lib/unifiedDataPersistenceManager').CloudDataService));
   console.log('✅ Supabaseservicefactoryalreadyregister');
 }
 

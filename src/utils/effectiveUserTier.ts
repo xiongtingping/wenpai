@@ -23,8 +23,14 @@ const STORAGE_KEYS = [
 ] as const;
 
 function isTier(v: unknown): v is SubscriptionTier {
-  return v === 'trial' || v === 'pro' || v === 'premium';
+  return v === 'free' || v === 'trial' || v === 'pro' || v === 'premium';
 }
+
+export function normalizeTier(tier: SubscriptionTier | null | undefined): 'trial' | 'pro' | 'premium' {
+  if (tier === 'free' || tier === 'trial' || !tier) return 'trial';
+  return tier;
+}
+
 
 function extractTierFromUser(user: unknown): SubscriptionTier | null {
   if (!user || typeof user !== 'object') return null;
@@ -106,7 +112,7 @@ export function getEffectiveUserTier(): SubscriptionTier {
     // 动态引入避免 TDZ/循环依赖
     const subState = useSubscriptionStore.getState?.();
     const tier = subState?.status?.tier as SubscriptionTier | undefined;
-    const isActive = subState?.status?.status === 'active';
+    const isActive = subState?.status?.isExpired === false;
     if (tier && (isActive || tier === 'pro' || tier === 'premium')) {
       return tier;
     }
@@ -116,14 +122,14 @@ export function getEffectiveUserTier(): SubscriptionTier {
   try {
     const memTier = useUnifiedStore.getState?.().user?.subscription as SubscriptionTier | undefined;
     if (memTier && memTier !== 'trial') {
-      return memTier;
+      return normalizeTier(memTier);
     }
   } catch {/* ignore */}
 
   // 3) localStorage 历史格式回退
   const parsed = parseLocalStorage();
   if (parsed?.tier && isTier(parsed.tier)) {
-    return parsed.tier;
+    return normalizeTier(parsed.tier);
   }
 
   return 'trial';

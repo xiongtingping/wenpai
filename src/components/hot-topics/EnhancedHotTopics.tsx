@@ -69,19 +69,7 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
   }, []);
 
   // 自动刷新
-  useEffect(() => {
-    if (autoRefresh) {
-      const interval = setInterval(() => {
-        refreshData();
-      }, 3 * 60 * 1000); // 3分钟自动刷新
-      setRefreshInterval(interval);
-    } else {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-        setRefreshInterval(null);
-      }
-    }
-  }, [autoRefresh, refreshData]);
+
 
   // 过滤数据
   useEffect(() => {
@@ -141,8 +129,24 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
       });
     } finally {
       setLoading(false);
+
     }
   }, [toast, t]);
+  // 自动刷新（放在 refreshData 定义之后，避免 TS 使用前声明报错）
+  useEffect(() => {
+    if (autoRefresh) {
+      const interval = setInterval(() => {
+        refreshData();
+      }, 3 * 60 * 1000); // 3分钟自动刷新
+      setRefreshInterval(interval);
+    } else {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+        setRefreshInterval(null);
+      }
+    }
+  }, [autoRefresh, refreshData]);
+
 
   /**
    * 过滤话题
@@ -158,6 +162,7 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
         (topic.description && topic.description.toLowerCase().includes(query)) ||
         topic.tags.some(tag => tag.toLowerCase().includes(query))
       );
+
     }
 
     // 分类过滤
@@ -181,7 +186,7 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
       const updatedConfig = { ...config, ...newConfig };
       dataFusionService.updateConfig(updatedConfig);
       setConfig(updatedConfig);
-      
+
       // 重新获取数据
       setTimeout(() => refreshData(), 500);
     }
@@ -214,7 +219,7 @@ export default function EnhancedHotTopics({ className  }: EnhancedHotTopicsProps
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const minutes = Math.floor(diff / (1000 * 60));
-    
+
     if (minutes < 1) return '刚刚';
     if (minutes < 60) return `${minutes}分钟前`;
     if (minutes < 1440) return `${Math.floor(minutes / 60)}小时前`;

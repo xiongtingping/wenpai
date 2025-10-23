@@ -189,7 +189,7 @@ export class ServerPermissionService {
     } catch (error) {
       clearTimeout(timeoutId);
       
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         throw new Error('permissionvalidatingrequesttimeout');
       }
       
