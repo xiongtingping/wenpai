@@ -175,13 +175,34 @@ class RSSHubDiscoveryService {
     console.log('🔍 开始发现热点话题平台...');
 
     const popularPlatforms = await this.getPopularPlatforms();
+    const namespacesAll = await this.getAllNamespaces();
     const hotTopicsPlatforms: PlatformInfo[] = [];
 
     // 目标平台列表
     const targetPlatforms = ['weibo', 'zhihu', 'bilibili', 'douyin', '36kr', 'ithome'];
 
     for (const namespace of targetPlatforms) {
-      const platformInfo = await getPlatformInfo(namespace);
+      const fromPopular: any = (popularPlatforms as any)?.[namespace];
+      const fromAll: any = (namespacesAll as any)?.[namespace];
+      let platformInfo: PlatformInfo | null = null;
+
+      const source = (fromPopular && fromPopular.routes) ? fromPopular : (fromAll && fromAll.routes) ? fromAll : null;
+      if (source) {
+        const routesObj = source.routes || {};
+        const availableRoutes = Object.values(routesObj)
+          .map((route: any) => route?.example)
+          .filter(Boolean);
+        platformInfo = {
+          name: source.name || namespace,
+          namespace,
+          routes: routesObj,
+          availableRoutes
+        };
+        // 写入缓存，后续避免再次请求 /api/namespace/{namespace}
+        this.setCache(`platform_${namespace}`, platformInfo);
+      } else {
+        platformInfo = await this.getPlatformInfo(namespace);
+      }
 
       if (platformInfo && platformInfo.availableRoutes.length > 0) {
         console.log(`✅ 发现平台: ${platformInfo.name} (${platformInfo.availableRoutes.length} 个路由)`);

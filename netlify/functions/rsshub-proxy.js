@@ -114,31 +114,61 @@ exports.handler = async (event) => {
       headers: { 'Accept': accept, 'User-Agent': 'WenPai-Netlify-RSSHub-Proxy/1.0' }
     };
 
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
     const doFetch = async () => {
-      const resp = await fetch(targetUrl, fetchOptions);
+      const maxRetries = 2;
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        const resp = await fetch(targetUrl, fetchOptions);
 
-      // For HEAD, return only headers (and cache status)
-      if (method === 'HEAD') {
-        const result = { status: resp.status, contentType: 'application/octet-stream', body: '', ttl };
-        CACHE.set(cacheKey, { ...result, ts: now });
-        return result;
-      }
+        const isOk = resp.status >= 200 && resp.status < 400;
+        const isRetryable = resp.status === 429 || resp.status >= 500;
 
-      const contentType = resp.headers.get('content-type') || 'application/octet-stream';
-      const isText = /json|xml|text/.test(contentType);
-      const body = isText ? await resp.text() : Buffer.from(await resp.arrayBuffer()).toString('base64');
-
-      // Cache successful responses; on 429 store but do not overwrite fresh success
-      if (resp.status >= 200 && resp.status < 400) {
-        CACHE.set(cacheKey, { body, status: resp.status, contentType, ts: now, ttl });
-      } else if (resp.status === 429) {
-        const stale = CACHE.get(cacheKey);
-        if (stale) {
-          return { status: stale.status, contentType: stale.contentType, body: stale.body, ttl };
+        if (method === 'HEAD') {
+          if (isOk) {
+            const result = { status: resp.status, contentType: 'application/octet-stream', body: '', ttl };
+            CACHE.set(cacheKey, { ...result, ts: now });
+            return result;
+          }
+          // HEAD失败时也允许有限重试/回退
+          if (isRetryable) {
+            const stale = CACHE.get(cacheKey);
+            if (stale) return { status: stale.status, contentType: 'application/octet-stream', body: '', ttl };
+            if (attempt < maxRetries) {
+              const retryAfter = parseInt(resp.headers.get('retry-after') || '', 10);
+              const backoff = retryAfter ? retryAfter * 1000 : Math.min(1000 * Math.pow(2, attempt), 4000);
+              await sleep(backoff + Math.floor(Math.random() * 250));
+              continue;
+            }
+          }
+          return { status: resp.status, contentType: 'application/octet-stream', body: '', ttl };
         }
+
+        const contentType = resp.headers.get('content-type') || 'application/octet-stream';
+        const isText = /json|xml|text/.test(contentType);
+        const body = isText ? await resp.text() : Buffer.from(await resp.arrayBuffer()).toString('base64');
+
+        if (isOk) {
+          CACHE.set(cacheKey, { body, status: resp.status, contentType, ts: now, ttl });
+          return { status: resp.status, contentType, body, ttl };
+        }
+
+        if (isRetryable) {
+          const stale = CACHE.get(cacheKey);
+          if (stale) return { status: stale.status, contentType: stale.contentType, body: stale.body, ttl };
+          if (attempt < maxRetries) {
+            const retryAfter = parseInt(resp.headers.get('retry-after') || '', 10);
+            const backoff = retryAfter ? retryAfter * 1000 : Math.min(1000 * Math.pow(2, attempt), 4000);
+            await sleep(backoff + Math.floor(Math.random() * 250));
+            continue;
+          }
+        }
+
+        return { status: resp.status, contentType, body, ttl };
       }
 
-      return { status: resp.status, contentType, body, ttl };
+      // normally unreachable
+      return { status: 502, contentType: 'application/json; charset=utf-8', body: JSON.stringify({ error: 'Upstream unavailable' }), ttl };
     };
 
     const pendingPromise = doFetch();

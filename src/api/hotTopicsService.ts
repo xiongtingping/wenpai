@@ -367,7 +367,7 @@ class HotTopicsAPI {
 
   // ==================== 公共方法 ====================
 
-  async getDailyHotByPlatform(platform: string): Promise<DailyHotItem[]> {
+  async getDailyHotByPlatform(platform: string, preSelectedRoutes?: { platform: string; route: string }[]): Promise<DailyHotItem[]> {
     try {
       // 特殊平台过滤
       if (platform === 'weatheralarm' || platform === 'earthquake') {
@@ -376,7 +376,7 @@ class HotTopicsAPI {
 
       // 使用 RSSHub 动态路由
       const baseUrl = (import.meta.env.VITE_RSSHUB_API_URL as string) || 'https://rsshub.app';
-      const routes = await selectBestRoutes();
+      const routes = preSelectedRoutes ?? await selectBestRoutes();
       const lower = platform.toLowerCase();
       const candidate = routes.find((r) => r.platform.toLowerCase().includes(lower) || r.route.toLowerCase().includes(lower));
       if (!candidate) {
@@ -402,11 +402,14 @@ class HotTopicsAPI {
 
       this.log('开始实时获取全平台数据', { platformCount: platforms.length });
 
-      // 并发获取所有平台数据
+      // 先统一选择一次最佳路由，避免每个平台重复发现导致 429
+      const selectedRoutes = await selectBestRoutes();
+
+      // 并发获取所有平台数据（使用预先选择的路由）
       const platformPromises = platforms.map(async (platform) => {
         const startTime = Date.now();
         try {
-          const platformData = await this.getDailyHotByPlatform(platform);
+          const platformData = await this.getDailyHotByPlatform(platform, selectedRoutes);
           const processingTime = Date.now() - startTime;
 
           return {
