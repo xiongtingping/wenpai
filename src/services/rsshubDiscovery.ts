@@ -27,6 +27,7 @@ export interface PlatformInfo {
 class RSSHubDiscoveryService {
   private baseUrl = 'https://rsshub.app';
   private cache = new Map<string, any>();
+  private pending = new Map<string, Promise<any>>(); // 去重正在进行的请求
   private cacheExpiry = 60 * 60 * 1000; // 1小时缓存
 
   /**
@@ -37,16 +38,25 @@ class RSSHubDiscoveryService {
     const cached = this.getCache(cacheKey);
     if (cached) return cached;
 
-    try {
-      const data = await request.get('/.netlify/functions/rsshub-proxy', {
-        params: { path: '/api/namespace' }
-      });
-      this.setCache(cacheKey, data);
-      return data;
-    } catch (error) {
-      console.error('获取命名空间失败:', error);
-      return {};
-    }
+    if (this.pending.has(cacheKey)) return this.pending.get(cacheKey)!;
+
+    const p = (async () => {
+      try {
+        const data = await request.get('/.netlify/functions/rsshub-proxy', {
+          params: { path: '/api/namespace' }
+        });
+        this.setCache(cacheKey, data);
+        return data;
+      } catch (error) {
+        console.error('获取命名空间失败:', error);
+        return {};
+      } finally {
+        this.pending.delete(cacheKey);
+      }
+    })();
+
+    this.pending.set(cacheKey, p);
+    return p;
   }
 
   /**
@@ -57,16 +67,25 @@ class RSSHubDiscoveryService {
     const cached = this.getCache(cacheKey);
     if (cached) return cached;
 
-    try {
-      const data = await request.get('/.netlify/functions/rsshub-proxy', {
-        params: { path: '/api/category/popular' }
-      });
-      this.setCache(cacheKey, data);
-      return data;
-    } catch (error) {
-      console.error('获取热门平台失败:', error);
-      return {};
-    }
+    if (this.pending.has(cacheKey)) return this.pending.get(cacheKey)!;
+
+    const p = (async () => {
+      try {
+        const data = await request.get('/.netlify/functions/rsshub-proxy', {
+          params: { path: '/api/category/popular' }
+        });
+        this.setCache(cacheKey, data);
+        return data;
+      } catch (error) {
+        console.error('获取热门平台失败:', error);
+        return {};
+      } finally {
+        this.pending.delete(cacheKey);
+      }
+    })();
+
+    this.pending.set(cacheKey, p);
+    return p;
   }
 
   /**
@@ -77,29 +96,38 @@ class RSSHubDiscoveryService {
     const cached = this.getCache(cacheKey);
     if (cached) return cached;
 
-    try {
-      const data = await request.get('/.netlify/functions/rsshub-proxy', {
-        params: { path: `/api/namespace/${namespace}` }
-      });
+    if (this.pending.has(cacheKey)) return this.pending.get(cacheKey)! as Promise<PlatformInfo | null>;
 
-      const platformInfo: PlatformInfo = {
-        name: data.name || namespace,
-        namespace,
-        routes: data.routes || {},
-        availableRoutes: []
-      };
+    const p = (async () => {
+      try {
+        const data = await request.get('/.netlify/functions/rsshub-proxy', {
+          params: { path: `/api/namespace/${namespace}` }
+        });
 
-      // 提取所有路由路径
-      platformInfo.availableRoutes = Object.values(data.routes || {})
-        .map((route: any) => route.example)
-        .filter(Boolean);
+        const platformInfo: PlatformInfo = {
+          name: data.name || namespace,
+          namespace,
+          routes: data.routes || {},
+          availableRoutes: []
+        };
 
-      this.setCache(cacheKey, platformInfo);
-      return platformInfo;
-    } catch (error) {
-      console.error(`获取平台 ${namespace} 信息失败:`, error);
-      return null;
-    }
+        // 提取所有路由路径
+        platformInfo.availableRoutes = Object.values(data.routes || {})
+          .map((route: any) => route.example)
+          .filter(Boolean);
+
+        this.setCache(cacheKey, platformInfo);
+        return platformInfo;
+      } catch (error) {
+        console.error(`获取平台 ${namespace} 信息失败:`, error);
+        return null;
+      } finally {
+        this.pending.delete(cacheKey);
+      }
+    })();
+
+    this.pending.set(cacheKey, p);
+    return p;
   }
 
   /**
