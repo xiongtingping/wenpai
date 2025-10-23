@@ -84,6 +84,8 @@ import {
   type DailyHotResponse
 } from '@/api/hotTopicsService';
 import hotTopicsApi, { type HotTopicsResponse } from '@/api/hotTopicsApi';
+import { request } from '@/api/request';
+
 
 import {
   rsshubDiscovery,
@@ -314,25 +316,17 @@ export default function HotTopicsRadar({ showNavigation = false,
 
     try {
       console.log('🔥 正在从动态发现的路由获取热点数据...');
-      const baseUrl = 'https://rsshub.app';
       const platformData: Record<string, DailyHotItem[]> = {};
 
-      // 并发获取所有路由的数据
+      // 并发获取所有路由的数据（统一通过 Netlify 代理，避免 CORS）
       const fetchPromises = bestRoutes.map(async ({ platform, route }) => {
         try {
-          const url = `${baseUrl}${route}`;
-          console.log(`📡 获取 ${platform} 数据: ${url}`);
-
-          const response = await fetch(url, {
-            signal: AbortSignal.timeout(10000)
+          const text = await request.get<string>('/.netlify/functions/rsshub-proxy', {
+            params: { path: route },
+            headers: { Accept: 'application/rss+xml,text/xml;q=0.9,*/*;q=0.1' },
+            responseType: 'text',
+            timeout: 10000
           });
-
-          if (!response.ok) {
-            console.warn(`⚠️ ${platform} 路由返回错误: ${response.status}`);
-            return null;
-          }
-
-          const text = await response.text();
           const parser = new DOMParser();
           const xmlDoc = parser.parseFromString(text, 'text/xml');
           const items = xmlDoc.querySelectorAll('item');
