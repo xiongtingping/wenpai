@@ -41,7 +41,7 @@ export function LanguageSwitcher() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-3"
+        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-muted hover:text-foreground h-9 px-3"
         onClick={() => {
           setIsOpen(!isOpen);
           
@@ -79,8 +79,8 @@ export function LanguageSwitcher() {
             return (
               <button
                 key={language.code}
-                className={`w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-accent ${
-                  isCurrentLanguage ? 'bg-accent' : ''
+                className={`w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 ${
+                  isCurrentLanguage ? 'bg-muted/30' : ''
                 }`}
                 onClick={() => changeLanguage(language.code)}
               >
@@ -89,7 +89,7 @@ export function LanguageSwitcher() {
                   <span className="text-sm">{language.name}</span>
                 </div>
                 {isCurrentLanguage && (
-                  <span className="ml-auto text-xs text-primary">✓</span>
+                  <span className="ml-auto text-xs text-foreground">✓</span>
                 )}
               </button>
             );

@@ -197,7 +197,7 @@ export const AutomationUI: React.FC<any> = ({ availablePlatforms,
                 key={platform.id}
                 className={`border rounded-lg p-3 transition-all ${
                   selectedPlatforms.includes(platform.id) && isReady
-                    ? 'border-primary bg-accent'
+                    ? 'border-border bg-card shadow-sm'
                     : 'border-border hover:border-border'
                 } ${!isReady ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                 onClick={() => isReady && handlePlatformToggle(platform.id)}
@@ -209,24 +209,24 @@ export const AutomationUI: React.FC<any> = ({ availablePlatforms,
                     checked={selectedPlatforms.includes(platform.id)}
                     disabled={!isReady}
                     onChange={() => {}} // 由父级div的onClick处理
-                    className="rounded border-border text-primary focus:ring-primary"
+                    className="rounded border-border text-foreground focus:ring-ring"
                   />
                   <span className="font-medium text-foreground">{platform.name}</span>
                 </div>
 
                 <div className="flex flex-col items-end gap-1">
                   {platform.hasContent ? (
-                    <span className="text-xs text-foreground bg-accent px-2 py-1 rounded">
+                    <span className="text-xs text-foreground bg-muted/20 px-2 py-1 rounded">
                       {platform.contentLength}字符
                     </span>
                   ) : (
-                    <span className="text-xs text-muted-foreground bg-accent px-2 py-1 rounded">
+                    <span className="text-xs text-muted-foreground bg-muted/20 px-2 py-1 rounded">
                       无内容
                     </span>
                   )}
 
                   {isGenerating && (
-                    <span className="text-xs text-primary bg-primary/10 px-2 py-1 rounded flex items-center gap-1">
+                    <span className="text-xs text-foreground bg-muted/20 px-2 py-1 rounded flex items-center gap-1">
                       <RefreshCw className="h-3 w-3 animate-spin" />
                       生成标题中
                     </span>
@@ -239,7 +239,7 @@ export const AutomationUI: React.FC<any> = ({ availablePlatforms,
                   )}
 
                   {isReady && (
-                    <span className="text-xs text-primary bg-primary/10 px-2 py-1 rounded">
+                    <span className="text-xs text-foreground bg-muted/20 px-2 py-1 rounded">
                       ✓ 就绪
                     </span>
                   )}

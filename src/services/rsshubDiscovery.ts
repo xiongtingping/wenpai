@@ -3,6 +3,8 @@
  * 利用 RSSHub OpenAPI 自动发现和测试可用路由
  */
 
+import request, { axiosInstance } from '@/api/request';
+
 export interface RSSHubRoute {
   path: string;
   name: string;
@@ -36,10 +38,9 @@ class RSSHubDiscoveryService {
     if (cached) return cached;
 
     try {
-      const response = await fetch(`${this.baseUrl}/api/namespace`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const data = await response.json();
+      const data = await request.get('/.netlify/functions/rsshub-proxy', {
+        params: { path: '/api/namespace' }
+      });
       this.setCache(cacheKey, data);
       return data;
     } catch (error) {
@@ -57,10 +58,9 @@ class RSSHubDiscoveryService {
     if (cached) return cached;
 
     try {
-      const response = await fetch(`${this.baseUrl}/api/category/popular`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const data = await response.json();
+      const data = await request.get('/.netlify/functions/rsshub-proxy', {
+        params: { path: '/api/category/popular' }
+      });
       this.setCache(cacheKey, data);
       return data;
     } catch (error) {
@@ -78,10 +78,9 @@ class RSSHubDiscoveryService {
     if (cached) return cached;
 
     try {
-      const response = await fetch(`${this.baseUrl}/api/namespace/${namespace}`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const data = await response.json();
+      const data = await request.get('/.netlify/functions/rsshub-proxy', {
+        params: { path: `/api/namespace/${namespace}` }
+      });
 
       const platformInfo: PlatformInfo = {
         name: data.name || namespace,
@@ -107,35 +106,37 @@ class RSSHubDiscoveryService {
    * 测试路由是否可用
    */
   async testRoute(route: string): Promise<boolean> {
-    // 更稳健的可用性检测：优先HEAD，失败或405/501则回退GET（仅探测，不解析）
-    const url = `${this.baseUrl}${route}`;
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
+    // 通过 Netlify 代理检测路由可用性，优先 HEAD，回退 GET
+    const params = { path: route } as const;
     try {
-      const headResp = await fetch(url, { method: 'HEAD', signal: controller.signal });
-      if (headResp.ok || headResp.status === 304) return true;
-      // 某些RSSHub路由不支持HEAD，返回405/501，此时尝试GET探测
+      const headResp = await axiosInstance.request({
+        url: '/.netlify/functions/rsshub-proxy',
+        method: 'HEAD',
+        params
+      });
+      if (headResp.status >= 200 && headResp.status < 400) return true;
       if (headResp.status === 405 || headResp.status === 501) {
-        const getController = new AbortController();
-        const getTimer = setTimeout(() => getController.abort(), 7000);
-        try {
-          const getResp = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/rss+xml,text/xml;q=0.9,*/*;q=0.1' }, signal: getController.signal });
-          return getResp.ok || getResp.status === 304;
-        } finally {
-          clearTimeout(getTimer);
-        }
+        const getResp = await axiosInstance.request({
+          url: '/.netlify/functions/rsshub-proxy',
+          method: 'GET',
+          params,
+          headers: { Accept: 'application/rss+xml,text/xml;q=0.9,*/*;q=0.1' }
+        });
+        return getResp.status >= 200 && getResp.status < 400;
       }
       return false;
-    } catch (error) {
-      // HEAD 出错也尝试一次 GET
+    } catch {
       try {
-        const getResp = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/rss+xml,text/xml;q=0.9,*/*;q=0.1' } });
-        return getResp.ok || getResp.status === 304;
+        const getResp = await axiosInstance.request({
+          url: '/.netlify/functions/rsshub-proxy',
+          method: 'GET',
+          params,
+          headers: { Accept: 'application/rss+xml,text/xml;q=0.9,*/*;q=0.1' }
+        });
+        return getResp.status >= 200 && getResp.status < 400;
       } catch {
         return false;
       }
-    } finally {
-      clearTimeout(timer);
     }
   }
 

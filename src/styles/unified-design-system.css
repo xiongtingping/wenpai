@@ -69,6 +69,29 @@
   }
 
 
+/* Additional theme variants mapped to existing tokens (no hardcoded colors) */
+@layer tokens {
+  /* 护眼米色：映射到 warning 色系 */
+  .beige {
+    --primary: var(--warning);
+    --accent: var(--warning);
+    --ring: var(--warning);
+  }
+  /* 绿色主题：映射到 success 色系 */
+  .green {
+    --primary: var(--success);
+    --accent: var(--success);
+    --ring: var(--success);
+  }
+  /* 彩虹主题：以 info/secondary 组合，主色偏蓝，强调偏紫 */
+  .rainbow {
+    --primary: var(--info);
+    --accent: var(--secondary);
+    --ring: var(--info);
+  }
+}
+
+
 
 
 

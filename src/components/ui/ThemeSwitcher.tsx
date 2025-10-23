@@ -53,7 +53,7 @@ export const ThemeSwitcher: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 transition-all duration-300 hover:scale-110 hover:bg-accent/50"
+          className="h-8 w-8 p-0 transition-all duration-300 hover:scale-110 hover:bg-muted"
           title={`当前主题：${THEMES[theme].name}`}
         >
           <div className="relative transition-all duration-300 hover:rotate-12">
@@ -68,7 +68,7 @@ export const ThemeSwitcher: React.FC = () => {
             <DropdownMenuItem
               key={themeKey}
               onClick={() => handleThemeChange(themeKey as Theme)}
-              className="flex items-center gap-3 p-2 cursor-pointer transition-all duration-200 hover:bg-accent/50"
+              className="flex items-center gap-3 p-2 cursor-pointer transition-all duration-200 hover:bg-muted/40"
             >
               <span className="text-lg">{themeConfig.icon}</span>
               <div className="flex-1">

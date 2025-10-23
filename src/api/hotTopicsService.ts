@@ -12,6 +12,8 @@
 // import i18n from '@/i18n'; // 改为动态导入避免TDZ
 import request from './request';
 import { selectBestRoutes } from '@/services/rsshubDiscovery';
+import type { AxiosRequestConfig } from 'axios';
+
 
 // ==================== 类型定义 ====================
 
@@ -165,14 +167,18 @@ class HotTopicsAPI {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
     try {
-      const res = await fetch(fullUrl, { signal: controller.signal });
-      if (!res.ok) {
-        this.log(`RSSHub 路由返回错误: ${res.status}`, { fullUrl });
-        return [];
-      }
-      const text = await res.text();
+      // 将完整URL转换为路径，交由 Netlify 代理以避免 CORS
+      const path = fullUrl.replace(/^https?:\/\/[^/]+/, '');
+      const config: AxiosRequestConfig = {
+        params: { path },
+        headers: { Accept: 'application/rss+xml,text/xml;q=0.9,*/*;q=0.1' },
+        responseType: 'text',
+        timeout: 10000,
+        signal: controller.signal as any
+      };
+      const rssText = await request.get<string>('/.netlify/functions/rsshub-proxy', config);
       const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(text, 'text/xml');
+      const xmlDoc = parser.parseFromString(rssText, 'text/xml');
       const items = Array.from(xmlDoc.querySelectorAll('item'));
       const list: DailyHotItem[] = items.map((item, index) => {
         const title = (item.querySelector('title')?.textContent || '').trim();
