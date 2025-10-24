@@ -405,8 +405,10 @@ class HotTopicsAPI {
       // 先统一选择一次最佳路由，避免每个平台重复发现导致 429
       const selectedRoutes = await selectBestRoutes();
 
-      // 并发获取所有平台数据（使用预先选择的路由）
-      const platformPromises = platforms.map(async (platform) => {
+      // 并发获取所有平台数据（使用预先选择的路由），并做轻量级错峰
+      const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+      const platformPromises = platforms.map(async (platform, idx) => {
+        await sleep(idx * 200); // 逐步错峰，降低瞬时并发
         const startTime = Date.now();
         try {
           const platformData = await this.getDailyHotByPlatform(platform, selectedRoutes);

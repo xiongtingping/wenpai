@@ -76,12 +76,17 @@ exports.handler = async (event) => {
     if (!path.startsWith('/')) path = `/${path}`;
 
     const base = process.env.RSSHUB_BASE_URL || 'https://rsshub.app';
-    const targetUrl = `${base}${path}`;
+    const fallbacks = (process.env.RSSHUB_FALLBACK_BASE_URLS || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const bases = [base, ...fallbacks];
 
     const method = event.httpMethod === 'HEAD' ? 'HEAD' : 'GET';
     const accept = qs.accept || event.headers['accept'] || 'application/json, text/xml, application/rss+xml';
 
-    const cacheKey = `${method}:${targetUrl}:${accept}`;
+    // cacheKey 不包含 base，跨镜像共享
+    const cacheKey = `${method}:${path}:${accept}`;
     const now = Date.now();
     const ttl = getTTL(path);
 
@@ -119,10 +124,12 @@ exports.handler = async (event) => {
     const doFetch = async () => {
       const maxRetries = 2;
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        const resp = await fetch(targetUrl, fetchOptions);
+        for (let i = 0; i < bases.length; i++) {
+          const targetUrl = `${bases[i]}${path}`;
+          const resp = await fetch(targetUrl, fetchOptions);
 
-        const isOk = resp.status >= 200 && resp.status < 400;
-        const isRetryable = resp.status === 429 || resp.status >= 500;
+          const isOk = resp.status >= 200 && resp.status < 400;
+          const isRetryable = resp.status === 429 || resp.status >= 500;
 
         if (method === 'HEAD') {
           if (isOk) {
@@ -130,15 +137,18 @@ exports.handler = async (event) => {
             CACHE.set(cacheKey, { ...result, ts: now });
             return result;
           }
-          // HEAD失败时也允许有限重试/回退
           if (isRetryable) {
             const stale = CACHE.get(cacheKey);
             if (stale) return { status: stale.status, contentType: 'application/octet-stream', body: '', ttl };
+            // 尝试下一个镜像
+            if (i < bases.length - 1) {
+              continue; // next base
+            }
             if (attempt < maxRetries) {
               const retryAfter = parseInt(resp.headers.get('retry-after') || '', 10);
               const backoff = retryAfter ? retryAfter * 1000 : Math.min(1000 * Math.pow(2, attempt), 4000);
               await sleep(backoff + Math.floor(Math.random() * 250));
-              continue;
+              break; // retry loop
             }
           }
           return { status: resp.status, contentType: 'application/octet-stream', body: '', ttl };
@@ -156,15 +166,22 @@ exports.handler = async (event) => {
         if (isRetryable) {
           const stale = CACHE.get(cacheKey);
           if (stale) return { status: stale.status, contentType: stale.contentType, body: stale.body, ttl };
+          // 尝试下一个镜像
+          if (i < bases.length - 1) {
+            continue; // next base
+          }
           if (attempt < maxRetries) {
             const retryAfter = parseInt(resp.headers.get('retry-after') || '', 10);
             const backoff = retryAfter ? retryAfter * 1000 : Math.min(1000 * Math.pow(2, attempt), 4000);
             await sleep(backoff + Math.floor(Math.random() * 250));
-            continue;
+            break; // retry loop
           }
         }
 
         return { status: resp.status, contentType, body, ttl };
+      }
+
+      // retry attempt next
       }
 
       // normally unreachable

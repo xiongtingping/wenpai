@@ -175,7 +175,6 @@ class RSSHubDiscoveryService {
     console.log('🔍 开始发现热点话题平台...');
 
     const popularPlatforms = await this.getPopularPlatforms();
-    const namespacesAll = await this.getAllNamespaces();
     const hotTopicsPlatforms: PlatformInfo[] = [];
 
     // 目标平台列表
@@ -183,10 +182,9 @@ class RSSHubDiscoveryService {
 
     for (const namespace of targetPlatforms) {
       const fromPopular: any = (popularPlatforms as any)?.[namespace];
-      const fromAll: any = (namespacesAll as any)?.[namespace];
       let platformInfo: PlatformInfo | null = null;
 
-      const source = (fromPopular && fromPopular.routes) ? fromPopular : (fromAll && fromAll.routes) ? fromAll : null;
+      const source = (fromPopular && fromPopular.routes) ? fromPopular : null;
       if (source) {
         const routesObj = source.routes || {};
         const availableRoutes = Object.values(routesObj)
@@ -201,7 +199,9 @@ class RSSHubDiscoveryService {
         // 写入缓存，后续避免再次请求 /api/namespace/{namespace}
         this.setCache(`platform_${namespace}`, platformInfo);
       } else {
-        platformInfo = await this.getPlatformInfo(namespace);
+        // 未在 popular 中找到该平台，避免调用 /api/namespace/{ns} 以减少 429，直接跳过
+        console.warn(`popular 数据缺少平台，已跳过: ${namespace}`);
+        platformInfo = null;
       }
 
       if (platformInfo && platformInfo.availableRoutes.length > 0) {
