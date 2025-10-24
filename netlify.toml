@@ -297,7 +297,13 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
     Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, HEAD, OPTIONS" 
+    Access-Control-Allow-Methods = "GET, HEAD, OPTIONS"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, max-age=0, must-revalidate"
+
 
 # 移除Next.js插件，因为这是Vite项目
 
@@ -308,4 +314,4 @@
   # Pro版: 默认10秒，可在netlify.toml中配置最大26秒
   # Business版: 可配置更长超时
   # 由于免费版限制，无法通过netlify.toml修改超时时间
-  # 已在前端代码中设置120秒超时，并通过重试机制处理Netlify Functions的10秒超时 
+  # 已在前端代码中设置120秒超时，并通过重试机制处理Netlify Functions的10秒超时

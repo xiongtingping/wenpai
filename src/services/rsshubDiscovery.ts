@@ -230,17 +230,12 @@ class RSSHubDiscoveryService {
       );
 
       if (hotRoute) {
-        // 测试路由是否真的可用
-        const isAvailable = await this.testRoute(hotRoute);
-        if (isAvailable) {
-          bestRoutes.push({
-            platform: platform.name,
-            route: hotRoute
-          });
-          console.log(`✅ ${platform.name}: ${hotRoute} 可用`);
-        } else {
-          console.log(`❌ ${platform.name}: ${hotRoute} 不可用`);
-        }
+        // 直接选用热门路由，避免额外 HEAD 探测引发 429；代理侧已做缓存与降载
+        bestRoutes.push({
+          platform: platform.name,
+          route: hotRoute
+        });
+        console.log(`✅ ${platform.name}: 选择 ${hotRoute}`);
       }
     }
 

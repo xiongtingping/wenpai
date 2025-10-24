@@ -1,3 +1,5 @@
+/assets/*    /assets/:splat    200
+
 # AI代理路由 - 必须在SPA规则之前
 /api/ai/:provider/*  /.netlify/functions/ai-proxy?provider=:provider&path=:splat  200
 
