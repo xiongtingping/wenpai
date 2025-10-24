@@ -14,6 +14,12 @@ import request from './request';
 import { selectBestRoutes } from '@/services/rsshubDiscovery';
 import type { AxiosRequestConfig } from 'axios';
 
+// 客户端层面的轻量缓存与去重，进一步减少对代理/上游的压力
+const FEED_CACHE: Map<string, { ts: number; text: string }> = new Map();
+const FEED_PENDING: Map<string, Promise<string>> = new Map();
+const FEED_COOLDOWN_UNTIL: Map<string, number> = new Map();
+const FEED_TTL_MS = 2 * 60 * 1000; // 与代理侧RSS默认TTL保持一致（2分钟）
+const FEED_COOLDOWN_MS = 15 * 1000; // 发生429/取消等失败后，短暂停顿，避免风暴
 
 // ==================== 类型定义 ====================
 
@@ -162,21 +168,23 @@ class HotTopicsAPI {
       console.log(`[HotTopics] ${message}`, data || '');
     }
   }
-  // 使用 RSSHub 拉取并解析 RSS/XML 为话题列表
+  // 使用 RSSHub 拉取并解析 RSS/XML 为话题列表（带客户端去重/缓存/冷却）
   private async fetchRSSHubFeed(fullUrl: string, platformKey: string): Promise<DailyHotItem[]> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
-    try {
-      // 将完整URL转换为路径，交由 Netlify 代理以避免 CORS
-      const path = fullUrl.replace(/^https?:\/\/[^/]+/, '');
-      const config: AxiosRequestConfig = {
-        params: { path },
-        headers: { Accept: 'application/rss+xml,text/xml;q=0.9,*/*;q=0.1' },
-        responseType: 'text',
-        timeout: 10000,
-        signal: controller.signal as any
-      };
-      const rssText = await request.get<string>('/.netlify/functions/rsshub-proxy', config);
+
+    const extractStatus = (err: unknown): number | undefined => {
+      if (typeof err === 'object' && err !== null) {
+        const resp = (err as Record<string, unknown>).response;
+        if (typeof resp === 'object' && resp !== null) {
+          const s = (resp as Record<string, unknown>).status;
+          if (typeof s === 'number') return s;
+        }
+      }
+      return undefined;
+    };
+
+    const parseRss = (rssText: string): DailyHotItem[] => {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(rssText, 'text/xml');
       const items = Array.from(xmlDoc.querySelectorAll('item'));
@@ -184,19 +192,67 @@ class HotTopicsAPI {
         const title = (item.querySelector('title')?.textContent || '').trim();
         const link = (item.querySelector('link')?.textContent || '').trim();
         const description = (item.querySelector('description')?.textContent || '').trim();
-        return {
-          title,
-          desc: description,
-          url: link,
-          platform: platformKey,
-          hot: String(100 - index)
-        } as DailyHotItem;
+        return { title, desc: description, url: link, platform: platformKey, hot: String(100 - index) };
       }).filter((i) => i.title && i.url);
       return list;
+    };
+
+    try {
+      // 将完整URL转换为路径，交由 Netlify 代理以避免 CORS
+      const path = fullUrl.replace(/^https?:\/\/[^/]+/, '');
+      const now = Date.now();
+
+      // 冷却期内不再触发上游请求，优先返回本地缓存
+      const cooldownUntil = FEED_COOLDOWN_UNTIL.get(path);
+      if (typeof cooldownUntil === 'number' && now < cooldownUntil) {
+        const cached = FEED_CACHE.get(path);
+        if (cached && now - cached.ts < FEED_TTL_MS) {
+          return parseRss(cached.text);
+        }
+        throw new Error('cooldown');
+      }
+
+      // 命中客户端缓存
+      const cached = FEED_CACHE.get(path);
+      if (cached && now - cached.ts < FEED_TTL_MS) {
+        return parseRss(cached.text);
+      }
+
+      // 并发去重
+      const pending = FEED_PENDING.get(path);
+      if (pending) {
+        const rssText = await pending;
+        return parseRss(rssText);
+      }
+
+      // 发起真实请求
+      const config: AxiosRequestConfig = {
+        params: { path },
+        headers: { Accept: 'application/rss+xml,text/xml;q=0.9,*/*;q=0.1' },
+        responseType: 'text',
+        timeout: 10000,
+        signal: controller.signal as any
+      };
+
+      const fetchPromise = (async () => {
+        const rssText = await request.get<string>('/.netlify/functions/rsshub-proxy', config);
+        FEED_CACHE.set(path, { ts: Date.now(), text: rssText });
+        return rssText;
+      })();
+
+      FEED_PENDING.set(path, fetchPromise);
+      const rssText = await fetchPromise;
+      return parseRss(rssText);
     } catch (e) {
-      this.log('获取 RSSHub 数据失败', { fullUrl, error: e instanceof Error ? e.message : String(e) });
+      const status = extractStatus(e);
+      if (status === 429 || (e instanceof Error && e.message.toLowerCase().includes('timeout'))) {
+        FEED_COOLDOWN_UNTIL.set(fullUrl.replace(/^https?:\/\/[^/]+/, ''), Date.now() + FEED_COOLDOWN_MS);
+      }
+      this.log('获取 RSSHub 数据失败', { fullUrl, error: e instanceof Error ? e.message : String(e), status });
       return [];
     } finally {
+      const path = fullUrl.replace(/^https?:\/\/[^/]+/, '');
+      FEED_PENDING.delete(path);
       clearTimeout(timeout);
     }
   }
@@ -408,7 +464,7 @@ class HotTopicsAPI {
       // 并发获取所有平台数据（使用预先选择的路由），并做轻量级错峰
       const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
       const platformPromises = platforms.map(async (platform, idx) => {
-        await sleep(idx * 200); // 逐步错峰，降低瞬时并发
+        await sleep(idx * 600); // 进一步错峰：每个平台相差600ms，显著降低瞬时并发
         const startTime = Date.now();
         try {
           const platformData = await this.getDailyHotByPlatform(platform, selectedRoutes);

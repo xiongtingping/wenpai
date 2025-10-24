@@ -20,6 +20,7 @@ import {
   shouldShowPromoOffer
 } from "@/utils/paymentTimer";
 import { useUserTier } from "@/hooks/useUserTier";
+import { isFeatureEnabled } from '@/config/featureToggles';
 
 export function Header() {
   const isMobile = useIsMobile();
@@ -37,6 +38,15 @@ export function Header() {
   // 限时优惠倒计时状态
   const [showPromoCountdown, setShowPromoCountdown] = useState(false);
   const [promoTimeLeft, setPromoTimeLeft] = useState(0);
+  const desktopNavItems = [
+    { name: t('nav.home'), url: '/', icon: Home },
+    { name: t('nav.adapt'), url: '/content-adapter', icon: Sparkles },
+    ...(isFeatureEnabled('hotTopics') ? [{ name: t('nav.hotTopics'), url: '/hot-topics', icon: Radar }] : []),
+    { name: t('nav.creative'), url: '/creative-studio', icon: Sparkles },
+    { name: t('nav.bookmark'), url: '/my-library', icon: FolderOpen },
+    { name: t('nav.brandLibrary'), url: '/brand-library', icon: Library },
+    { name: t('nav.upgrade'), url: '/payment-center', icon: CreditCard },
+  ];
   
   useEffect(() => {
     // 检测当前主题
@@ -147,17 +157,10 @@ export function Header() {
         {/* Desktop Menu */}
         {!isMobile && (
           <div className="flex-1 flex justify-center">
+            {/* 通过功能开关动态控制导航项，保留原始定义方便后续恢复 */}
             <NavBar
               positionClassName="relative z-[999]"
-              items={[
-                { name: t('nav.home'), url: '/', icon: Home },
-                { name: t('nav.adapt'), url: '/content-adapter', icon: Sparkles },
-                { name: t('nav.hotTopics'), url: '/hot-topics', icon: Radar },
-                { name: t('nav.creative'), url: '/creative-studio', icon: Sparkles },
-                { name: t('nav.bookmark'), url: '/my-library', icon: FolderOpen },
-                { name: t('nav.brandLibrary'), url: '/brand-library', icon: Library },
-                { name: t('nav.upgrade'), url: '/payment-center', icon: CreditCard },
-              ]}
+              items={desktopNavItems}
             />
           </div>
         )}
@@ -267,13 +270,15 @@ export function Header() {
                     {t('nav.adapt')}
                   </Button>
                 </SheetClose>
-                <SheetClose asChild>
-                  <Button variant="ghost" size="lg" className="w-full justify-start" onClick={() => {
-                    if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); }
-                  }}>
-                    {t('nav.hotTopics')}
-                  </Button>
-                </SheetClose>
+                {isFeatureEnabled('hotTopics') && (
+                  <SheetClose asChild>
+                    <Button variant="ghost" size="lg" className="w-full justify-start" onClick={() => {
+                      if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); }
+                    }}>
+                      {t('nav.hotTopics')}
+                    </Button>
+                  </SheetClose>
+                )}
 
                 <div className="flex items-center justify-start px-2">
                   <span className="text-sm font-medium mr-3">主题</span>

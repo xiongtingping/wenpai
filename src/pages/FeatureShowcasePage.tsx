@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   Gift
 } from 'lucide-react';
+import { isFeatureEnabled } from '@/config/featureToggles';
 
 // 原价（月付）映射：用于月付原价与年付对比（年付原价=月付原价×12）
 const ORIGINAL_MONTHLY_PRICE: Record<'trial' | 'pro' | 'premium', number> = {
@@ -67,15 +68,17 @@ const FeatureShowcasePage: React.FC = () => { const { user, updateUser  } = useA
   }, [user?.registrationDate]);
 
   const features = [
-    {
-      id: 'hot-topics',
-      name: t('pages.messages.全网雷达'),
-      description: t('pages.messages.实时热点话题追踪和分析'),
-      icon: <TrendingUp className="h-6 w-6" />,
-      permission: 'auth:required' as const,
-      tier: 'trial',
-      color: 'bg-blue-100 text-blue-800'
-    },
+    ...(isFeatureEnabled('hotTopics')
+      ? [{
+        id: 'hot-topics',
+        name: t('pages.messages.全网雷达'),
+        description: t('pages.messages.实时热点话题追踪和分析'),
+        icon: <TrendingUp className="h-6 w-6" />,
+        permission: 'auth:required' as const,
+        tier: 'trial',
+        color: 'bg-blue-100 text-blue-800'
+      }]
+      : []),
     {
       id: 'creative-studio',
       name: t('pages.messages.创意魔方'),

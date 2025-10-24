@@ -37,18 +37,25 @@ import {
   MessageSquare,
   HelpCircle
 } from 'lucide-react';
+import { isFeatureEnabled } from '@/config/featureToggles';
 
 /**
  * 二级页面导航配置工厂函数
  */
-const createSecondaryNavItems = (t: (key: string) => string) => [
-  { path: '/', label: '首页', icon: Home },
-  { path: '/content-adapter', label: 'AI内容适配', icon: FileText },
-  { path: '/creative-studio', label: '创意工作室', icon: Sparkles },
-  { path: '/hot-topics', label: '全网雷达', icon: TrendingUp },
-  { path: '/library', label: '我的资料库', icon: FolderOpen },
-  { path: '/brand-library', label: '品牌库', icon: Users },
-];
+const createSecondaryNavItems = (t: (key: string) => string) => {
+  const items = [
+    { path: '/', label: '首页', icon: Home },
+    { path: '/content-adapter', label: 'AI内容适配', icon: FileText },
+    { path: '/creative-studio', label: '创意工作室', icon: Sparkles },
+    { path: '/hot-topics', label: '全网雷达', icon: TrendingUp },
+    { path: '/library', label: '我的资料库', icon: FolderOpen },
+    { path: '/brand-library', label: '品牌库', icon: Users },
+  ];
+
+  return isFeatureEnabled('hotTopics')
+    ? items
+    : items.filter(item => item.path !== '/hot-topics');
+};
 
 /**
  * 页面配置接口

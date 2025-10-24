@@ -31,6 +31,7 @@ import SessionManager from '@/components/auth/SessionManager';
 import { Header } from '@/components/landing/Header';
 import { useTokenLimitManager } from '@/hooks/useTokenLimitManager';
 import { cloudSyncService } from '@/services/cloudSyncService';
+import { isFeatureEnabled } from '@/config/featureToggles';
 
 // 核心页面组件
 import HomePage from '@/pages/HomePage';
@@ -326,16 +327,20 @@ const App: React.FC = () => {
                         <Route path='/creative-studio' element={<AuthGuard><LazyWrapper><LazyCreativeStudioPage /></LazyWrapper></AuthGuard>} />
 
                         {/* 📌 统一路由命名：热点话题 - 懒加载优化 */}
-                        <Route path='/hot-topics' element={
-                          <LazyWrapper>
-                            <LazyHotTopicsPage />
-                          </LazyWrapper>
-                        } />
-                        <Route path='/enhanced-hot-topics' element={
-                          <LazyWrapper>
-                            <LazyEnhancedHotTopicsPage />
-                          </LazyWrapper>
-                        } />
+                        {isFeatureEnabled('hotTopics') && (
+                          <>
+                            <Route path='/hot-topics' element={
+                              <LazyWrapper>
+                                <LazyHotTopicsPage />
+                              </LazyWrapper>
+                            } />
+                            <Route path='/enhanced-hot-topics' element={
+                              <LazyWrapper>
+                                <LazyEnhancedHotTopicsPage />
+                              </LazyWrapper>
+                            } />
+                          </>
+                        )}
 
                         {/* 📌 统一路由命名：收藏和书签 - 懒加载优化 */}
                         <Route path='/my-library' element={

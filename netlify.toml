@@ -16,6 +16,13 @@
   status = 301
   force = true
 
+# 将 www.wenpai.xyz 指向新的 Netlify 站点
+[[redirects]]
+  from = "https://www.wenpai.xyz/*"
+  to = "https://wenpaiai.netlify.app/:splat"
+  status = 301
+  force = true
+
 # BufPay API 代理路由 - 必须在通用API路由之前
 [[redirects]]
   from = "/api/bufpay/pay"

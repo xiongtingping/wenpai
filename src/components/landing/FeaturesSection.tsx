@@ -38,12 +38,14 @@ import {
   Crown,
   Play
 } from 'lucide-react';
+import { isFeatureEnabled } from '@/config/featureToggles';
 
 /**
  * 主要功能数据构建函数
  */
-const getMainFeatures = (t: any) => [
-  {
+const getMainFeatures = (t: any) => {
+  const items = [
+    {
     title: `🎯 AI内容适配`,
     description: '智能分析内容，一键适配多平台格式，让您的创意在不同平台绽放光彩',
     icon: Zap,
@@ -133,7 +135,12 @@ const getMainFeatures = (t: any) => [
       '版本控制'
     ]
   },
-];
+  ];
+
+  return isFeatureEnabled('hotTopics')
+    ? items
+    : items.filter(item => item.path !== '/hot-topics');
+};
 
 /**
  * 快速工具数据构建函数
