@@ -20,6 +20,7 @@ import {
   recordPaymentCenterAccess
 } from "@/utils/paymentTimer";
 import { getUserTier } from "@/utils/subscriptionUtils";
+import { isFeatureEnabled } from "@/config/featureToggles"
 
 // 原价（月付）展示映射（用于月付原价与年付对比基准 = 月付*12）
 const ORIGINAL_MONTHLY_PRICE: Record<'trial' | 'pro' | 'premium', number> = {
@@ -76,6 +77,7 @@ export function PricingSection() {
   const { toast } = useToast()
   const { user: currentUser, isAuthenticated } = useAuth();
   const { t } = useI18n();
+  const includeHotTopics = isFeatureEnabled('hotTopics');
 
   const formattedTime = formatTimeLeft(timeLeft);
   const navigate = useNavigate()
@@ -523,18 +525,20 @@ export function PricingSection() {
                       <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/20">{t('home.pricing.comparisonTable.unlimited')}</span>
                     </td>
                   </tr>
-                  <tr className="hover:bg-primary/5 transition-colors">
-                    <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.hotRadar')}</td>
-                    <td className="border border-border px-4 py-3 text-center">
-                      <span className="text-foreground font-medium">✅</span>
-                    </td>
-                    <td className="border border-border px-4 py-3 text-center">
-                      <span className="text-foreground font-medium">✅</span>
-                    </td>
-                    <td className="border border-border px-4 py-3 text-center">
-                      <span className="text-foreground font-medium">✅</span>
-                    </td>
-                  </tr>
+                  {includeHotTopics && (
+                    <tr className="hover:bg-primary/5 transition-colors">
+                      <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.hotRadar')}</td>
+                      <td className="border border-border px-4 py-3 text-center">
+                        <span className="text-foreground font-medium">✅</span>
+                      </td>
+                      <td className="border border-border px-4 py-3 text-center">
+                        <span className="text-foreground font-medium">✅</span>
+                      </td>
+                      <td className="border border-border px-4 py-3 text-center">
+                        <span className="text-foreground font-medium">✅</span>
+                      </td>
+                    </tr>
+                  )}
                   <tr className="hover:bg-primary/5 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">{t('home.pricing.comparisonTable.creativeCube')}</td>
                     <td className="border border-border px-4 py-3 text-center">

@@ -38,10 +38,11 @@ export function Header() {
   // 限时优惠倒计时状态
   const [showPromoCountdown, setShowPromoCountdown] = useState(false);
   const [promoTimeLeft, setPromoTimeLeft] = useState(0);
+  const showHotTopicsNav = isFeatureEnabled('hotTopics');
   const desktopNavItems = [
     { name: t('nav.home'), url: '/', icon: Home },
     { name: t('nav.adapt'), url: '/content-adapter', icon: Sparkles },
-    ...(isFeatureEnabled('hotTopics') ? [{ name: t('nav.hotTopics'), url: '/hot-topics', icon: Radar }] : []),
+    ...(showHotTopicsNav ? [{ name: t('nav.hotTopics'), url: '/hot-topics', icon: Radar }] : []),
     { name: t('nav.creative'), url: '/creative-studio', icon: Sparkles },
     { name: t('nav.bookmark'), url: '/my-library', icon: FolderOpen },
     { name: t('nav.brandLibrary'), url: '/brand-library', icon: Library },
@@ -270,7 +271,7 @@ export function Header() {
                     {t('nav.adapt')}
                   </Button>
                 </SheetClose>
-                {isFeatureEnabled('hotTopics') && (
+                {showHotTopicsNav && (
                   <SheetClose asChild>
                     <Button variant="ghost" size="lg" className="w-full justify-start" onClick={() => {
                       if (isAuthenticated) { navigate('/hot-topics'); } else { login('/hot-topics'); }
